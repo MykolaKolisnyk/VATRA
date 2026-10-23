@@ -1,18 +1,140 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js';
-import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js';
-const firebaseConfig = {
-  apiKey: 'AIzaSyCJN3Ac7MbkNx3HlBVW321aLmPHiEse4KQ',
-  authDomain: 'vatra-a4fb0.firebaseapp.com',
-  databaseURL: 'https://vatra-a4fb0-default-rtdb.firebaseio.com',
-  projectId: 'vatra-a4fb0',
-  messagingSenderId: '192806834057',
-  appId: '1:192806834057:web:2b2882ad7b52b6d1319b58',
-  measurementId: 'G-MWMFPB3PR5'
-};
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);let mode='login',submitting=false;const $=s=>document.querySelector(s);
-const errors={'auth/email-already-in-use':'Ця пошта вже зареєстрована. Увійди у свій акаунт.','auth/invalid-email':'Введи коректну електронну пошту.','auth/weak-password':'Створи сильніший пароль: від 10 символів, велика й мала латинські літери та цифра.','auth/invalid-credential':'Неправильна пошта або пароль.','auth/invalid-login-credentials':'Неправильна пошта або пароль.','auth/too-many-requests':'Забагато спроб. Зачекай і спробуй пізніше.','auth/network-request-failed':'Немає з’єднання з інтернетом.','auth/operation-not-allowed':'У Firebase увімкни Authentication → Email/Password.','auth/unauthorized-domain':'Додай цей домен у Firebase Authentication → Authorized domains.'};
-function show(m){$('#birthday').max=new Date().toISOString().slice(0,10);mode=m;const reg=m==='register',reset=m==='reset';$('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);$('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#birthday').required=reg;$('#confirmWrap').hidden=!reg;$('#forgot').hidden=reg||reset;$('#password').hidden=reset;$('#password').required=!reset;$('#confirm').required=reg;$('#firstName').required=reg;$('#lastName').required=reg;$('#email').required=true;$('#eyebrow').textContent=reg?'ТВОЯ ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':'РАДІ БАЧИТИ ЗНОВУ';$('#title').textContent=reg?'Створи акаунт ВАТРИ':reset?'Віднови пароль':'З поверненням до ВАТРИ';$('#desc').textContent=reg?'Створи профіль, щоб ділитися новинами та знаходити друзів.':reset?'Вкажи пошту, і ми надішлемо посилання для відновлення.':'Увійди, щоб бачити новини друзів і спільнот, на які підписаний.';$('#submit').textContent=reg?'Створити акаунт':reset?'Надіслати посилання':'Увійти';$('#bottom').hidden=reset;$('#bottom').innerHTML=reg?'Вже маєш акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';$('#switch').onclick=()=>show(reg?'login':'register');$('#error').textContent='';$('#error').classList.remove('success');}
-$('#loginTab').onclick=()=>show('login');$('#registerTab').onclick=()=>show('register');$('#forgot').onclick=()=>show('reset');$('#showPassword').onclick=()=>{const p=$('#password');p.type=p.type==='password'?'text':'password';$('#showPassword').textContent=p.type==='password'?'Показати':'Сховати';};
-onAuthStateChanged(auth,u=>{if(u&&!submitting)location.replace('index.html');});
-$('#authForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('#submit'),email=$('#email').value.trim().toLowerCase(),password=$('#password').value,dob=$('#birthday').value;$('#error').textContent='';if(!$('#email').validity.valid){$('#error').textContent='Введи коректну адресу електронної пошти.';return;}if(mode==='register'){if($('#firstName').value.trim().length<2||$('#lastName').value.trim().length<2){$('#error').textContent='Вкажи ім’я та прізвище (не менше 2 символів кожне).';return;}if(!dob){$('#error').textContent='Вкажи дату народження: день, місяць і рік.';$('#birthday').focus();return;}const birthDate=new Date(dob+'T00:00:00');const today=new Date();let age=today.getFullYear()-birthDate.getFullYear();if(today.getMonth()<birthDate.getMonth()||(today.getMonth()===birthDate.getMonth()&&today.getDate()<birthDate.getDate()))age--;if(Number.isNaN(birthDate.getTime())||birthDate>today||age<13){$('#error').textContent='ВАТРА доступна з 13 років. Перевір дату народження.';$('#birthday').focus();return;}if(password.length<10||!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)){$('#error').textContent='Пароль має містити щонайменше 10 символів, велику й малу латинські літери та цифру.';return;}if(password!==$('#confirm').value){$('#error').textContent='Паролі не збігаються.';return;}}const old=btn.textContent;btn.disabled=true;submitting=true;btn.textContent='Зачекай…';try{if(mode==='reset'){await sendPasswordResetEmail(auth,email);$('#error').textContent='Якщо акаунт із цією адресою існує, лист для відновлення надіслано.';$('#error').classList.add('success');return;}if(mode==='register'){const first=$('#firstName').value.trim(),last=$('#lastName').value.trim(),name=first+' '+last;const cred=await createUserWithEmailAndPassword(auth,email,password);await updateProfile(cred.user,{displayName:name});const handle=(first+'.'+last).toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,24);const profile={firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',birthdayVisibility:'private',profileVisibility:'public',searchable:true,createdAt:Date.now()};await set(ref(db,'users/'+cred.user.uid),profile);await set(ref(db,'publicProfiles/'+cred.user.uid),{firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',birthdayVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt:profile.createdAt,updatedAt:profile.createdAt});await set(ref(db,'privateUsers/'+cred.user.uid),{dateOfBirth:dob,updatedAt:Date.now()});}else await signInWithEmailAndPassword(auth,email,password);location.replace('index.html');}catch(err){submitting=false;$('#error').textContent=errors[err.code]||'Не вдалося виконати дію. Перевір інтернет і налаштування Firebase.';}finally{btn.disabled=false;btn.textContent=old;}});
+import { supabase } from './supabase-client.js';
+
+const $ = selector => document.querySelector(selector);
+const mode = document.body.dataset.authMode === 'register' ? 'register' : 'login';
+const register = mode === 'register';
+const form = $('#authForm');
+const submit = $('#submit');
+let submitting = false;
+
+const birthday = $('#birthday');
+if (birthday) birthday.max = new Date().toISOString().slice(0, 10);
+
+function showError(message, success = false) {
+  const error = $('#error');
+  error.textContent = message;
+  error.classList.toggle('success', success);
+}
+
+function setupPage() {
+  $('#firstNameWrap').hidden = !register;
+  $('#lastNameWrap').hidden = !register;
+  $('#birthdayWrap').hidden = !register;
+  $('#confirmWrap').hidden = !register;
+  $('#firstName').required = register;
+  $('#lastName').required = register;
+  $('#birthday').required = register;
+  $('#confirm').required = register;
+  $('#password').autocomplete = register ? 'new-password' : 'current-password';
+  $('#forgot').hidden = register;
+  $('#eyebrow').textContent = register ? 'ТВОЯ ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ' : 'РАДІ БАЧИТИ ЗНОВУ';
+  $('#title').textContent = register ? 'Створи акаунт ВАТРИ' : 'З поверненням до ВАТРИ';
+  $('#desc').textContent = register
+    ? 'Створи профіль, щоб ділитися новинами та знаходити друзів.'
+    : 'Увійди, щоб побачити свою стрічку та друзів.';
+  submit.textContent = register ? 'Створити акаунт' : 'Увійти';
+  $('#bottom').innerHTML = register
+    ? 'Вже маєш акаунт? <a href="auth.html">Увійти</a>'
+    : 'Ще немає акаунта? <a href="register.html">Зареєструватися</a>';
+  $('#showPassword').addEventListener('click', () => {
+    const password = $('#password');
+    password.type = password.type === 'password' ? 'text' : 'password';
+    $('#showPassword').textContent = password.type === 'password' ? 'Показати' : 'Сховати';
+  });
+}
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session && !submitting) location.replace('index.html');
+});
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (submitting) return;
+  showError('');
+  const email = $('#email').value.trim().toLowerCase();
+  const password = $('#password').value;
+  if (!$('#email').validity.valid) {
+    showError('Введи коректну адресу електронної пошти.');
+    return;
+  }
+
+  if (register) {
+    const firstName = $('#firstName').value.trim();
+    const lastName = $('#lastName').value.trim();
+    const dob = $('#birthday').value;
+    if (firstName.length < 2 || lastName.length < 2) {
+      showError('Вкажи ім’я та прізвище (не менше 2 символів кожне).');
+      return;
+    }
+    if (!dob) {
+      showError('Вкажи дату народження.');
+      return;
+    }
+    const birth = new Date(dob + 'T00:00:00');
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+    if (Number.isNaN(birth.getTime()) || birth > today || age < 13) {
+      showError('ВАТРА доступна з 13 років. Перевір дату народження.');
+      return;
+    }
+    if (password.length < 10 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      showError('Пароль має містити щонайменше 10 символів, велику й малу латинські літери та цифру.');
+      return;
+    }
+    if (password !== $('#confirm').value) {
+      showError('Паролі не збігаються.');
+      return;
+    }
+  }
+
+  const oldLabel = submit.textContent;
+  submitting = true;
+  submit.disabled = true;
+  submit.textContent = 'Зачекай…';
+  try {
+    let result;
+    if (register) {
+      const firstName = $('#firstName').value.trim();
+      const lastName = $('#lastName').value.trim();
+      const username = (firstName + '.' + lastName).toLocaleLowerCase('uk-UA')
+        .replace(/[^\p{L}\p{N}]+/gu, '.').replace(/^\.|\.$/g, '').slice(0, 24);
+      result = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { first_name: firstName, last_name: lastName, username, date_of_birth: $('#birthday').value } }
+      });
+    } else {
+      result = await supabase.auth.signInWithPassword({ email, password });
+    }
+    if (result.error) throw result.error;
+    if (register && !result.data.session) {
+      showError('Перевір пошту та підтверди реєстрацію. Після цього увійди у ВАТРУ.', true);
+      return;
+    }
+    location.replace('index.html');
+  } catch (error) {
+    showError(error.message || 'Не вдалося виконати дію. Перевір інтернет і налаштування Supabase.');
+  } finally {
+    submitting = false;
+    submit.disabled = false;
+    submit.textContent = oldLabel;
+  }
+});
+
+$('#forgot').addEventListener('click', async () => {
+  const email = $('#email').value.trim().toLowerCase();
+  if (!$('#email').validity.valid) {
+    showError('Спочатку введи свою адресу електронної пошти.');
+    return;
+  }
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/auth.html' });
+    if (error) throw error;
+    showError('Якщо акаунт із цією адресою існує, лист для відновлення надіслано.', true);
+  } catch (error) {
+    showError(error.message || 'Не вдалося надіслати лист для відновлення.');
+  }
+});
+
+setupPage();

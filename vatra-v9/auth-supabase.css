@@ -1,0 +1,21 @@
+/* Auth page polish for ВАТРА */
+body{background:#f3f7ff!important;color:#17243b}
+.auth-layout{min-height:100vh}
+.brand-side{background:radial-gradient(circle at 78% 15%,#39a5ff66,transparent 30%),linear-gradient(145deg,#0648c8 0%,#0866e8 55%,#1a9af0 100%);position:relative;overflow:hidden}
+.brand-side:after{content:"";position:absolute;width:460px;height:460px;border:1px solid #ffffff24;border-radius:48%;right:-170px;bottom:-180px;box-shadow:0 0 0 38px #ffffff08,0 0 0 78px #ffffff06;pointer-events:none}
+.brand-copy h1{letter-spacing:-.055em;line-height:1.05}
+.brand-copy h1 em{font-style:normal;color:#b9e8ff}
+.logo,.mobile-logo{letter-spacing:-.04em}
+.form-side{background:linear-gradient(145deg,#f8faff,#eef4ff)}
+.auth-card{border:1px solid #e4eaf4;border-radius:26px;box-shadow:0 24px 70px #163d7812;padding:clamp(24px,4vw,42px);background:#fff}
+.switcher{background:#f1f5fb;border-radius:13px;padding:4px;gap:4px}
+.switcher button{border-radius:10px;transition:background .18s,box-shadow .18s}
+.switcher button.selected{background:#fff;box-shadow:0 2px 8px #17335c12;color:#0759e8}
+.auth-card h2{letter-spacing:-.045em;line-height:1.12}
+.field input{border:1px solid #dfe6f1;border-radius:12px;background:#fbfcff;padding:13px 14px;transition:border-color .18s,box-shadow .18s}
+.field input:focus{outline:none;border-color:#7ba8ff;box-shadow:0 0 0 4px #0759e814;background:#fff}
+.submit{border-radius:13px;background:linear-gradient(135deg,#0759e8,#1789f4);box-shadow:0 8px 18px #0759e829;transition:transform .18s,filter .18s}
+.submit:hover{filter:brightness(1.04);transform:translateY(-1px)}
+.legal,.field small{color:#7a879b;line-height:1.6}
+#switch,#forgot{color:#0759e8}
+@media(max-width:760px){.auth-layout{display:block}.brand-side{min-height:auto;padding:24px 22px}.brand-copy{padding:28px 0}.brand-copy h1{font-size:clamp(34px,10vw,48px)}.brand-foot{display:none}.form-side{min-height:calc(100vh - 180px);padding:22px 14px}.auth-card{border-radius:22px;padding:24px 20px}}
