@@ -1,6 +1,6 @@
 import { supabase } from './supabase-client.js';
 const $=s=>document.querySelector(s);
-let mode='login',submitting=false;
+let mode='login',submitting=false;\n$('#birthday').max=new Date().toISOString().slice(0,10);
 function show(next){
   mode=next;const reg=mode==='register',reset=mode==='reset';
   $('#loginTab').classList.toggle('selected',mode==='login');$('#registerTab').classList.toggle('selected',reg);
