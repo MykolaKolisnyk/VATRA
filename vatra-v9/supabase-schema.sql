@@ -117,6 +117,44 @@ create table if not exists public.saved_posts (
   unique(user_id,post_id)
 );
 
+-- Ensure expected columns exist when upgrading a previously-created Supabase schema.
+alter table public.private_profiles add column if not exists hometown text;
+alter table public.private_profiles add column if not exists residence text;
+alter table public.private_profiles add column if not exists settings jsonb not null default '{}'::jsonb;
+alter table public.communities add column if not exists owner_id uuid references auth.users(id) on delete cascade;
+alter table public.communities add column if not exists name text not null default '';
+alter table public.communities add column if not exists description text not null default '';
+alter table public.communities add column if not exists avatar_url text;
+alter table public.communities add column if not exists visibility text not null default 'public';
+alter table public.communities add column if not exists created_at timestamptz not null default now();
+alter table public.community_members add column if not exists community_id uuid references public.communities(id) on delete cascade;
+alter table public.community_members add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.community_members add column if not exists role text not null default 'member';
+alter table public.community_members add column if not exists status text not null default 'accepted';
+alter table public.community_members add column if not exists created_at timestamptz not null default now();
+alter table public.friendships add column if not exists requester_id uuid references auth.users(id) on delete cascade;
+alter table public.friendships add column if not exists addressee_id uuid references auth.users(id) on delete cascade;
+alter table public.friendships add column if not exists status text not null default 'pending';
+alter table public.friendships add column if not exists created_at timestamptz not null default now();
+alter table public.post_likes add column if not exists post_id uuid references public.posts(id) on delete cascade;
+alter table public.post_likes add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.post_likes add column if not exists created_at timestamptz not null default now();
+alter table public.post_comments add column if not exists post_id uuid references public.posts(id) on delete cascade;
+alter table public.post_comments add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.post_comments add column if not exists content text not null default '';
+alter table public.post_comments add column if not exists created_at timestamptz not null default now();
+alter table public.conversations add column if not exists user_one uuid references auth.users(id) on delete cascade;
+alter table public.conversations add column if not exists user_two uuid references auth.users(id) on delete cascade;
+alter table public.conversations add column if not exists created_at timestamptz not null default now();
+alter table public.messages add column if not exists conversation_id uuid references public.conversations(id) on delete cascade;
+alter table public.messages add column if not exists sender_id uuid references auth.users(id) on delete cascade;
+alter table public.messages add column if not exists content text not null default '';
+alter table public.messages add column if not exists read_at timestamptz;
+alter table public.messages add column if not exists created_at timestamptz not null default now();
+alter table public.saved_posts add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.saved_posts add column if not exists post_id uuid references public.posts(id) on delete cascade;
+alter table public.saved_posts add column if not exists created_at timestamptz not null default now();
+
 create index if not exists posts_created_at_idx on public.posts(created_at desc);
 create index if not exists posts_user_id_idx on public.posts(user_id,created_at desc);
 create index if not exists comments_post_idx on public.post_comments(post_id,created_at);
