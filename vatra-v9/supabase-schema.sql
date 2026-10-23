@@ -150,7 +150,7 @@ create policy profiles_insert on public.profiles for insert to authenticated wit
 create policy profiles_update on public.profiles for update to authenticated using(id=auth.uid()) with check(id=auth.uid());
 create policy private_profiles_owner on public.private_profiles for all to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
 
-create policy posts_read on public.posts for select using(user_id=auth.uid() or visibility='public' or (visibility='friends' and exists(select 1 from public.friendships f where f.status='accepted' and ((f.requester_id=auth.uid() and f.addressee_id=user_id) or (f.addressee_id=auth.uid() and f.requester_id=user_id))));
+create policy posts_read on public.posts for select using(user_id=auth.uid() or visibility='public' or (visibility='friends' and exists(select 1 from public.friendships f where f.status='accepted' and ((f.requester_id=auth.uid() and f.addressee_id=user_id) or (f.addressee_id=auth.uid() and f.requester_id=user_id)))));
 create policy posts_insert on public.posts for insert to authenticated with check(user_id=auth.uid());
 create policy posts_update on public.posts for update to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
 create policy posts_delete on public.posts for delete to authenticated using(user_id=auth.uid());
