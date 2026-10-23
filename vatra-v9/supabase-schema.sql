@@ -168,14 +168,22 @@ create policy friendships_insert on public.friendships for insert to authenticat
 create policy friendships_update on public.friendships for update to authenticated using(addressee_id=auth.uid() and status='pending') with check(addressee_id=auth.uid() and status in ('accepted','rejected'));
 create policy friendships_delete on public.friendships for delete to authenticated using(requester_id=auth.uid() or addressee_id=auth.uid());
 
-create policy communities_read on public.communities for select using(visibility='public' or owner_id=auth.uid() or exists(select 1 from public.community_members cm where cm.community_id=id and cm.user_id=auth.uid() and cm.status='accepted'));
+create or replace function public.vatra_is_community_member(_community_id uuid, _user_id uuid)
+returns boolean language sql stable security definer set search_path=public as $
+  select exists(select 1 from public.community_members cm where cm.community_id=_community_id and cm.user_id=_user_id and cm.status='accepted');
+$;
+create or replace function public.vatra_is_community_owner(_community_id uuid, _user_id uuid)
+returns boolean language sql stable security definer set search_path=public as $
+  select exists(select 1 from public.communities c where c.id=_community_id and c.owner_id=_user_id);
+$;
+create policy communities_read on public.communities for select using(visibility='public' or owner_id=auth.uid() or public.vatra_is_community_member(id,auth.uid()));
 create policy communities_insert on public.communities for insert to authenticated with check(owner_id=auth.uid());
 create policy communities_update on public.communities for update to authenticated using(owner_id=auth.uid()) with check(owner_id=auth.uid());
 create policy communities_delete on public.communities for delete to authenticated using(owner_id=auth.uid());
-create policy members_read on public.community_members for select to authenticated using(user_id=auth.uid() or exists(select 1 from public.communities c where c.id=community_id and c.owner_id=auth.uid()));
+create policy members_read on public.community_members for select to authenticated using(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid()));
 create policy members_insert on public.community_members for insert to authenticated with check(user_id=auth.uid());
-create policy members_update on public.community_members for update to authenticated using(user_id=auth.uid() or exists(select 1 from public.communities c where c.id=community_id and c.owner_id=auth.uid())) with check(user_id=auth.uid() or exists(select 1 from public.communities c where c.id=community_id and c.owner_id=auth.uid()));
-create policy members_delete on public.community_members for delete to authenticated using(user_id=auth.uid() or exists(select 1 from public.communities c where c.id=community_id and c.owner_id=auth.uid()));
+create policy members_update on public.community_members for update to authenticated using(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid())) with check(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid()));
+create policy members_delete on public.community_members for delete to authenticated using(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid()));
 
 create policy conversations_read on public.conversations for select to authenticated using(user_one=auth.uid() or user_two=auth.uid());
 create policy conversations_insert on public.conversations for insert to authenticated with check((user_one=auth.uid() or user_two=auth.uid()) and user_one < user_two);
