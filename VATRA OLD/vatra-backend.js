@@ -161,22 +161,27 @@ async function removeNode(path) {
   const { error } = await client.from(TABLE).delete().eq('path', path);
   if (error) throw databaseError(error);
 }
+async function deleteDescendants(path) {
+  const { data, error } = await client.from(TABLE).select('path').like('path', path + '/%').limit(5000);
+  if (error) throw databaseError(error);
+  for (const row of data || []) await removeNode(row.path);
+}
 export async function set(reference, value) {
   const path = cleanPath(reference.path);
   if (!path) throw new Error('Шлях до даних не вказано.');
   const ancestors = await findStoredAncestors(path);
-  const descendants = await client.from(TABLE).select('path').like('path', path + '/%').limit(5000);
-  if (descendants.error) throw databaseError(descendants.error);
-  // Store each key as its own row. This avoids whole-tree rewrites and RLS
-  // failures when a parent object contains records belonging to other users.
-  await Promise.all((descendants.data || []).map(row => removeNode(row.path)));
-  await upsertNode(path, value);
   if (ancestors.length) {
+    // The parent row owns this nested object. Update that row only; this is
+    // compatible with the per-user access rules and avoids stale duplicates.
     const nearest = ancestors[0];
     const relative = path.slice(nearest.path.length + 1).split('/');
     const changed = setDeep(clone(nearest.value), relative, value);
+    await deleteDescendants(nearest.path);
     await upsertNode(nearest.path, changed);
+    return;
   }
+  await deleteDescendants(path);
+  await upsertNode(path, value);
 }
 export async function update(reference, patch) {
   const path = cleanPath(reference.path);
@@ -188,16 +193,16 @@ export async function remove(reference) {
   const path = cleanPath(reference.path);
   if (!path) throw new Error('Шлях до даних не вказано.');
   const ancestors = await findStoredAncestors(path);
-  const descendants = await client.from(TABLE).select('path').like('path', path + '/%').limit(5000);
-  if (descendants.error) throw databaseError(descendants.error);
-  await Promise.all((descendants.data || []).map(row => removeNode(row.path)));
-  await removeNode(path);
   if (ancestors.length) {
     const nearest = ancestors[0];
     const relative = path.slice(nearest.path.length + 1).split('/');
     const changed = removeDeep(clone(nearest.value), relative);
+    await deleteDescendants(nearest.path);
     await upsertNode(nearest.path, changed);
+    return;
   }
+  await deleteDescendants(path);
+  await removeNode(path);
 }
 export function onValue(reference, callback, errorCallback) {
   let active = true, running = false;
