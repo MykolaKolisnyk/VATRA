@@ -71,3 +71,20 @@ body[data-page="feed"] .heading{padding:0 0 10px;margin:0;justify-content:flex-e
 .getting-started-mobile{display:none}
 @media(max-width:1180px){.getting-started-mobile{display:block!important;margin:0 0 12px}.right .getting-started{display:none!important}}
 @media(min-width:1181px){.getting-started-mobile{display:none!important}}
+
+/* Loading screen: Facebook-like skeleton, styled with the existing Vatra brand */
+.vatra-loader{position:fixed;z-index:99999;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--vatra-canvas,#f3f5f8);padding:24px;opacity:1;visibility:visible;transition:opacity .24s ease,visibility .24s ease}
+.vatra-loader.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-brand{display:flex;align-items:center;gap:10px;color:#15233a;font-weight:800;letter-spacing:.01em}
+.loader-brand .brand-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:#0059ff;color:white;font-size:27px;box-shadow:0 6px 16px #0059ff25}
+.loader-brand small{display:block;margin-top:2px;color:#8a96a8;font-size:8px;letter-spacing:.15em}
+.loader-skeleton{width:min(420px,100%);display:grid;gap:12px}
+.skeleton-line,.skeleton-card span,.skeleton-card i{display:block;position:relative;overflow:hidden;background:#e4eaf3;border-radius:9px}
+.skeleton-line{height:11px;width:58%}.skeleton-line.wide{width:82%;height:15px}
+.skeleton-card{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;background:#fff;border:1px solid #e6ebf3;border-radius:16px;padding:16px;box-shadow:0 4px 18px #1b305407}
+.skeleton-card span{grid-row:span 2;width:42px;height:42px;border-radius:50%}
+.skeleton-card i{height:9px;width:78%}.skeleton-card i:last-child{width:53%}
+.skeleton-line:after,.skeleton-card span:after,.skeleton-card i:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,#fff9,transparent);animation:vatra-shimmer 1.25s infinite}
+.vatra-loader>p{margin:0;color:#7c899d;font-size:12px}
+@keyframes vatra-shimmer{100%{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.skeleton-line:after,.skeleton-card span:after,.skeleton-card i:after{animation:none}.vatra-loader{transition:none}}
