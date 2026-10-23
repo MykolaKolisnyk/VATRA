@@ -1,5 +1,7 @@
 -- ВАТРА: fix infinite recursion between communities and community_members RLS.
 -- Run this patch once in Supabase SQL Editor. It does not delete any rows.
+-- Older existing databases may not have visibility on communities; add it before policies.
+alter table public.communities add column if not exists visibility text not null default 'public';
 
 create or replace function public.vatra_is_current_community_member(_community_id uuid)
 returns boolean
