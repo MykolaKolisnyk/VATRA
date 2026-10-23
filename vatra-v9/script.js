@@ -1,7 +1,15 @@
 import { supabase } from './supabase-client.js';
 
 const $ = (s, root=document) => root.querySelector(s);
-const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const $ = (s, root=document) => [...root.querySelectorAll(s)];
+const loaderStartedAt = Date.now();
+function hideVatraLoader(){
+  const loader=$('#vatraLoader');
+  if(!loader)return;
+  const delay=Math.max(0,520-(Date.now()-loaderStartedAt));
+  setTimeout(()=>{loader.classList.add('is-hidden');loader.setAttribute('aria-hidden','true');},delay);
+}
+
 const state = { user:null, profile:null, page:'feed', posts:[], media:null };
 const toast = (message) => { const el=$('#toast'); if(!el)return; el.textContent=message; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2600); };
 const esc = (v='') => String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -57,7 +65,7 @@ async function renderPosts(rows,host=$('#feed')){
   }
 }
 async function renderPage(){
-  if(!state.user){showAuth('login');return;}
+  if(!state.user){location.href='auth.html';return;}
   if(['feed','videos','saved'].includes(state.page)){state.posts=await fetchPosts({saved:state.page==='saved',video:state.page==='videos'});await renderPosts(state.posts);return;}
   if(state.page==='profile'){await renderProfile(state.user.id);return;}
   if(state.page==='friends'){await renderFriends();return;}
@@ -134,7 +142,7 @@ function showAuth(mode='login'){
   };
 }
 async function handleClick(e){
-  const b=e.target.closest('button');if(!b)return;if(b.dataset.page){setPage(b.dataset.page);return;}if(b.id==='authButton'){showAuth('login');return;}if(b.id==='authClose'){$('#authDialog').close();return;}
+  const b=e.target.closest('button');if(!b)return;if(b.dataset.page){setPage(b.dataset.page);return;}if(b.id==='authButton'){location.href='auth.html';return;}if(b.id==='authClose'){$('#authDialog').close();return;}
   if(b.dataset.like){const id=b.dataset.like,existing=await supabase.from('post_likes').select('id').eq('post_id',id).eq('user_id',state.user.id).maybeSingle();if(existing.data)await supabase.from('post_likes').delete().eq('id',existing.data.id);else{const {error}=await supabase.from('post_likes').insert({post_id:id,user_id:state.user.id});if(error){toast('Не вдалося поставити вподобання.');return;}}await renderPage();return;}
   if(b.dataset.save){const id=b.dataset.save,existing=await supabase.from('saved_posts').select('id').eq('post_id',id).eq('user_id',state.user.id).maybeSingle();if(existing.data)await supabase.from('saved_posts').delete().eq('id',existing.data.id);else{const {error}=await supabase.from('saved_posts').insert({post_id:id,user_id:state.user.id});if(error){toast('Не вдалося зберегти допис.');return;}}toast(existing.data?'Прибрано зі збереженого':'Допис збережено');await renderPage();return;}
   if(b.dataset.notification){const {error}=await supabase.from('notifications').update({read_at:new Date().toISOString()}).eq('id',b.dataset.notification).eq('recipient_id',state.user.id);if(error)toast('Не вдалося оновити сповіщення.');else await renderNotifications();return;}
@@ -146,7 +154,7 @@ async function handleClick(e){
   if(b.dataset.accept){const {error}=await supabase.from('friendships').update({status:'accepted'}).eq('id',b.dataset.accept);if(error)toast('Не вдалося прийняти запит.');else await renderFriends();return;}
   if(b.dataset.join){const {error}=await supabase.from('community_members').insert({community_id:b.dataset.join,user_id:state.user.id,status:'accepted'});toast(error?(error.code==='23505'?'Ти вже у цій спільноті.':'Не вдалося приєднатися.'):'Ти приєднався до спільноти.');return;}
   if(b.dataset.conversation){await openConversationWith(b.dataset.person);return;}
-  if(['create','prompt','postNow'].includes(b.id)){if(!state.user){showAuth();return;}$('#composer').showModal();return;}
+  if(['create','prompt','postNow'].includes(b.id)){if(!state.user){location.href='auth.html';return;}$('#composer').showModal();return;}
   if(b.id==='photoBtn'){$('#modalPhoto').click();return;}if(b.id==='close')$('#composer').close();if(b.id==='editProfile')editProfile();if(b.id==='communityClose'||b.id==='communityCancel')$('#communityDialog').close();
 }
 document.addEventListener('click',e=>handleClick(e).catch(err=>{console.error(err);toast('Сталася помилка. Спробуй ще раз.');}));
@@ -158,6 +166,6 @@ $('#addPollOption')?.addEventListener('click',()=>{const fields=$('#pollOptionFi
 document.addEventListener('click',e=>{const b=e.target.closest('[data-remove-poll-option]');if(!b)return;const fields=$('#pollOptionFields .poll-option-field');if(fields.length<=2){toast('В опитуванні має залишитися щонайменше два варіанти.');return;}b.closest('.poll-option-field').remove();$('#pollOptionFields .poll-option-field').forEach((el,i)=>el.querySelector('span').textContent=String(i+1));});
 $('#postForm')?.addEventListener('submit',async e=>{e.preventDefault();const content=$('#postText').value.trim();if(!content&&!state.media){toast('Додай текст або медіа до допису.');return;}const pollEnabled=$('#pollComposer')&&!$('#pollComposer').hidden;const options=pollEnabled?$$('#pollOptionFields input').map(i=>i.value.trim()).filter(Boolean):[];if(pollEnabled&&options.length<2){toast('Для опитування потрібно щонайменше два варіанти.');return;}const {data:post,error}=await supabase.from('posts').insert({user_id:state.user.id,content,media_url:state.media?.url||null,media_type:state.media?.type||null,visibility:'public'}).select().single();if(error){toast('Не вдалося опублікувати. Перевір таблицю posts і RLS.');return;}if(pollEnabled){const {data:poll,error:pollError}=await supabase.from('post_polls').insert({post_id:post.id,question:content||'Опитування',created_by:state.user.id}).select().single();if(pollError){toast('Допис створено, але опитування не збереглося.');}else{const {error:optError}=await supabase.from('poll_options').insert(options.map((label,position)=>({poll_id:poll.id,label,position})));if(optError)toast('Допис створено, але варіанти опитування не збереглися.');}}$('#postText').value='';$('#preview').innerHTML='';state.media=null;$('#composer').close();toast('Допис опубліковано.');setPage('feed');});
 document.addEventListener('submit',async e=>{const form=e.target.closest('[data-comment-form]');if(form){e.preventDefault();const postId=form.dataset.commentForm,content=new FormData(form).get('comment').trim();if(!content)return;const {error}=await supabase.from('post_comments').insert({post_id:postId,user_id:state.user.id,content});if(error){toast('Не вдалося додати коментар.');return;}form.reset();const box=$('#comments-'+postId);const {data}=await supabase.from('post_comments').select('*').eq('post_id',postId).order('created_at');$('.comment-list',box).innerHTML=(data||[]).map(c=>'<p>'+esc(c.content)+'</p>').join('');}});
-async function boot(){if($('#authBirthday'))$('#authBirthday').max=new Date().toISOString().slice(0,10);const {data:{session}}=await supabase.auth.getSession();if(!session){$('#authButton').hidden=false;$('#authButton').textContent='Увійти';window.__vatraStarted=true;return;}state.user=session.user;$('#authButton').hidden=true;await refreshProfile();await renderPage();window.__vatraStarted=true;}
+async function boot(){if($('#authBirthday'))$('#authBirthday').max=new Date().toISOString().slice(0,10);const {data:{session}}=await supabase.auth.getSession();if(!session){location.replace('auth.html');return;}state.user=session.user;$('#authButton').hidden=true;await refreshProfile();await renderPage();window.__vatraStarted=true;hideVatraLoader();}
 supabase.auth.onAuthStateChange((_event,session)=>{if(!session){state.user=null;state.profile=null;if($('#authButton'))$('#authButton').hidden=false;}else if(!state.user){state.user=session.user;setTimeout(()=>boot().catch(console.error),0);}});
-boot().catch(err=>{console.error(err);const el=$('#startupError');if(el){el.hidden=false;$('#startupErrorText').textContent='Не вдалося підключитися до Supabase. Перевір supabase-client.js, таблиці та RLS-політики. '+(err.message||'');}});
+boot().catch(err=>{console.error(err);hideVatraLoader();const el=$('#startupError');if(el){el.hidden=false;$('#startupErrorText').textContent='Не вдалося підключитися до Supabase. Перевір supabase-client.js, таблиці та RLS-політики. '+(err.message||'');}});
