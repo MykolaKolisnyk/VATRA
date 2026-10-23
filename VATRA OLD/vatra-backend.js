@@ -144,12 +144,6 @@ async function readTree(path) {
   return clone(getDeep(root, parts));
 }
 export async function get(reference) { return new DataSnapshot(reference.path, await readTree(reference.path)); }
-async function deletePathAndChildren(path) {
-  const exact = await client.from(TABLE).delete().eq('path', path);
-  if (exact.error) throw databaseError(exact.error);
-  const descendants = await client.from(TABLE).delete().like('path', path + '/%');
-  if (descendants.error) throw databaseError(descendants.error);
-}
 async function findStoredAncestors(path) {
   const parts = path.split('/').filter(Boolean);
   const candidates = [];
@@ -163,22 +157,30 @@ async function upsertNode(path, value) {
   const { error } = await client.from(TABLE).upsert({ path, value: clone(value), updated_at: new Date().toISOString() }, { onConflict: 'path' });
   if (error) throw databaseError(error);
 }
+async function removeNode(path) {
+  const { error } = await client.from(TABLE).delete().eq('path', path);
+  if (error) throw databaseError(error);
+}
 export async function set(reference, value) {
   const path = cleanPath(reference.path);
   if (!path) throw new Error('Шлях до даних не вказано.');
   const ancestors = await findStoredAncestors(path);
-  await deletePathAndChildren(path);
+  const descendants = await client.from(TABLE).select('path').like('path', path + '/%').limit(5000);
+  if (descendants.error) throw databaseError(descendants.error);
+  // Store each key as its own row. This avoids whole-tree rewrites and RLS
+  // failures when a parent object contains records belonging to other users.
+  await Promise.all((descendants.data || []).map(row => removeNode(row.path)));
+  await upsertNode(path, value);
   if (ancestors.length) {
     const nearest = ancestors[0];
     const relative = path.slice(nearest.path.length + 1).split('/');
     const changed = setDeep(clone(nearest.value), relative, value);
     await upsertNode(nearest.path, changed);
-  } else {
-    await upsertNode(path, value);
   }
 }
 export async function update(reference, patch) {
-  const current = await readTree(reference.path);
+  const path = cleanPath(reference.path);
+  const current = await readTree(path);
   const next = isObject(current) && isObject(patch) ? { ...current, ...clone(patch) } : clone(patch);
   await set(reference, next);
 }
@@ -186,7 +188,10 @@ export async function remove(reference) {
   const path = cleanPath(reference.path);
   if (!path) throw new Error('Шлях до даних не вказано.');
   const ancestors = await findStoredAncestors(path);
-  await deletePathAndChildren(path);
+  const descendants = await client.from(TABLE).select('path').like('path', path + '/%').limit(5000);
+  if (descendants.error) throw databaseError(descendants.error);
+  await Promise.all((descendants.data || []).map(row => removeNode(row.path)));
+  await removeNode(path);
   if (ancestors.length) {
     const nearest = ancestors[0];
     const relative = path.slice(nearest.path.length + 1).split('/');
