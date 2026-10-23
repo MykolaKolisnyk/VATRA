@@ -74,6 +74,44 @@ function toCompatUser(user) {
 export function initializeApp(config = {}) { return { name: '[DEFAULT]', options: config }; }
 export function getAuth() { return currentAuth; }
 export function getDatabase() { return { client }; }
+
+const MEDIA_BUCKET = 'vatra-media';
+const MEDIA_FOLDERS = new Set(['posts', 'avatars', 'covers', 'videos']);
+function safeMediaExtension(type = '') {
+  const map = {
+    'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
+    'image/gif': 'gif', 'image/avif': 'avif', 'image/svg+xml': 'svg',
+    'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov',
+    'video/ogg': 'ogv', 'video/x-m4v': 'm4v'
+  };
+  return map[type] || 'bin';
+}
+export async function uploadMedia(file, category = 'posts') {
+  if (!file || typeof file.size !== 'number') throw new Error('Не вдалося прочитати файл. Вибери його ще раз.');
+  const user = currentAuth.currentUser;
+  if (!user?.uid) throw new Error('Спочатку увійди у свій акаунт.');
+  if (!MEDIA_FOLDERS.has(category)) throw new Error('Непідтримуваний тип файлу.');
+  const maxSize = category === 'videos' ? 50 * 1024 * 1024 : 15 * 1024 * 1024;
+  if (file.size > maxSize) throw new Error(category === 'videos'
+    ? 'Відео має бути меншим за 50 МБ.'
+    : 'Фото має бути меншим за 15 МБ.');
+  const ext = safeMediaExtension(file.type);
+  const id = globalThis.crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2));
+  const path = user.uid + '/' + category + '/' + Date.now() + '-' + id + '.' + ext;
+  const { data, error } = await client.storage.from(MEDIA_BUCKET).upload(path, file, {
+    cacheControl: '31536000', upsert: false, contentType: file.type || 'application/octet-stream'
+  });
+  if (error) {
+    const message = String(error.message || '');
+    if (/bucket.*not found|no such bucket/i.test(message)) throw new Error('Файлове сховище ще не налаштоване. Виконай оновлений SQL-файл з архіву.');
+    if (/row.level.security|permission|not allowed/i.test(message)) throw new Error('Завантаження заборонене правилами доступу. Виконай оновлений SQL-файл з архіву.');
+    if (/too large|payload|size/i.test(message)) throw new Error('Файл завеликий. Спробуй менше фото або відео.');
+    throw databaseError(error);
+  }
+  const { data: publicData } = client.storage.from(MEDIA_BUCKET).getPublicUrl(data?.path || path);
+  if (!publicData?.publicUrl) throw new Error('Файл завантажився, але посилання не вдалося створити.');
+  return publicData.publicUrl;
+}
 export function ref(_db, path = '') { return { path: cleanPath(path) }; }
 export function push(reference) {
   const template = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx';
