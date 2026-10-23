@@ -156,10 +156,10 @@ create policy posts_update on public.posts for update to authenticated using(use
 create policy posts_delete on public.posts for delete to authenticated using(user_id=auth.uid());
 
 create policy likes_read on public.post_likes for select using(exists(select 1 from public.posts p where p.id=post_id));
-create policy likes_insert on public.post_likes for insert to authenticated with check(user_id=auth.uid());
+create policy likes_insert on public.post_likes for insert to authenticated with check(user_id=auth.uid() and exists(select 1 from public.posts p where p.id=post_id));
 create policy likes_delete on public.post_likes for delete to authenticated using(user_id=auth.uid());
 create policy comments_read on public.post_comments for select using(exists(select 1 from public.posts p where p.id=post_id));
-create policy comments_insert on public.post_comments for insert to authenticated with check(user_id=auth.uid());
+create policy comments_insert on public.post_comments for insert to authenticated with check(user_id=auth.uid() and exists(select 1 from public.posts p where p.id=post_id));
 create policy comments_update on public.post_comments for update to authenticated using(user_id=auth.uid()) with check(user_id=auth.uid());
 create policy comments_delete on public.post_comments for delete to authenticated using(user_id=auth.uid());
 
@@ -181,7 +181,7 @@ create policy communities_insert on public.communities for insert to authenticat
 create policy communities_update on public.communities for update to authenticated using(owner_id=auth.uid()) with check(owner_id=auth.uid());
 create policy communities_delete on public.communities for delete to authenticated using(owner_id=auth.uid());
 create policy members_read on public.community_members for select to authenticated using(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid()));
-create policy members_insert on public.community_members for insert to authenticated with check(user_id=auth.uid());
+create policy members_insert on public.community_members for insert to authenticated with check(user_id=auth.uid() and exists(select 1 from public.communities c where c.id=community_id and (c.visibility='public' or c.owner_id=auth.uid())));
 create policy members_update on public.community_members for update to authenticated using(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid())) with check(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid()));
 create policy members_delete on public.community_members for delete to authenticated using(user_id=auth.uid() or public.vatra_is_community_owner(community_id,auth.uid()));
 
@@ -192,7 +192,7 @@ create policy messages_read on public.messages for select to authenticated using
 create policy messages_insert on public.messages for insert to authenticated with check(sender_id=auth.uid() and exists(select 1 from public.conversations c where c.id=conversation_id and (c.user_one=auth.uid() or c.user_two=auth.uid())));
 create policy messages_delete on public.messages for delete to authenticated using(sender_id=auth.uid());
 create policy saved_read on public.saved_posts for select to authenticated using(user_id=auth.uid());
-create policy saved_insert on public.saved_posts for insert to authenticated with check(user_id=auth.uid());
+create policy saved_insert on public.saved_posts for insert to authenticated with check(user_id=auth.uid() and exists(select 1 from public.posts p where p.id=post_id));
 create policy saved_delete on public.saved_posts for delete to authenticated using(user_id=auth.uid());
 
 create or replace function public.vatra_handle_new_user()
