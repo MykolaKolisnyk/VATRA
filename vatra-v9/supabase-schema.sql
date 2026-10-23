@@ -277,6 +277,52 @@ create policy poll_votes_insert on public.poll_votes for insert to authenticated
 create policy poll_votes_delete on public.poll_votes for delete to authenticated using(user_id=auth.uid());
 create policy notifications_read on public.notifications for select to authenticated using(recipient_id=auth.uid());
 create policy notifications_update on public.notifications for update to authenticated using(recipient_id=auth.uid()) with check(recipient_id=auth.uid());
-create policy notifications_insert on public.notifications for insert to authenticated with check(actor_id=auth.uid());
+drop policy if exists notifications_insert on public.notifications;
 create policy reports_read on public.content_reports for select to authenticated using(reporter_id=auth.uid());
 create policy reports_insert on public.content_reports for insert to authenticated with check(reporter_id=auth.uid());
+
+-- Notifications are created by database triggers, not by arbitrary client inserts.
+create or replace function public.vatra_notify_like()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare recipient uuid;
+begin
+  select user_id into recipient from public.posts where id=new.post_id;
+  if recipient is not null and recipient<>new.user_id then
+    insert into public.notifications(recipient_id,actor_id,kind,entity_id,body)
+    values(recipient,new.user_id,'like',new.post_id,'Вподобав(-ла) твій допис');
+  end if;
+  return new;
+end; $$;
+drop trigger if exists vatra_post_like_notification on public.post_likes;
+create trigger vatra_post_like_notification after insert on public.post_likes for each row execute function public.vatra_notify_like();
+
+create or replace function public.vatra_notify_comment()
+returns trigger language plpgsql security definer set search_path=public as $$
+declare recipient uuid;
+begin
+  select user_id into recipient from public.posts where id=new.post_id;
+  if recipient is not null and recipient<>new.user_id then
+    insert into public.notifications(recipient_id,actor_id,kind,entity_id,body)
+    values(recipient,new.user_id,'comment',new.post_id,'Прокоментував(-ла) твій допис');
+  end if;
+  return new;
+end; $$;
+drop trigger if exists vatra_post_comment_notification on public.post_comments;
+create trigger vatra_post_comment_notification after insert on public.post_comments for each row execute function public.vatra_notify_comment();
+
+create or replace function public.vatra_notify_friendship()
+returns trigger language plpgsql security definer set search_path=public as $$
+begin
+  if new.status='pending' then
+    insert into public.notifications(recipient_id,actor_id,kind,entity_id,body)
+    values(new.addressee_id,new.requester_id,'friend_request',new.id,'Надіслав(-ла) запит у друзі');
+  elsif new.status='accepted' and old.status is distinct from new.status then
+    insert into public.notifications(recipient_id,actor_id,kind,entity_id,body)
+    values(new.requester_id,new.addressee_id,'friend_accepted',new.id,'Прийняв(-ла) запит у друзі');
+  end if;
+  return new;
+end; $$;
+drop trigger if exists vatra_friendship_notification_insert on public.friendships;
+create trigger vatra_friendship_notification_insert after insert on public.friendships for each row execute function public.vatra_notify_friendship();
+drop trigger if exists vatra_friendship_notification_update on public.friendships;
+create trigger vatra_friendship_notification_update after update of status on public.friendships for each row execute function public.vatra_notify_friendship();
