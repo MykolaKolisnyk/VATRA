@@ -71,3 +71,58 @@ body[data-page="feed"] .heading{padding:0 0 10px;margin:0;justify-content:flex-e
 .getting-started-mobile{display:none}
 @media(max-width:1180px){.getting-started-mobile{display:block!important;margin:0 0 12px}.right .getting-started{display:none!important}}
 @media(min-width:1181px){.getting-started-mobile{display:none!important}}
+
+
+/* Vatra layout refinement: consistent card alignment and responsive actions */
+.feed{min-width:0;align-items:stretch}
+.feed>.post,.feed>.profile-hero,.feed>.community-card,.feed>.person-card{width:100%;min-width:0}
+.post-head,.profile-identity,.community-detail-title,.community-actions,.community-meta,.person-card{min-width:0}
+.post-head{align-items:center;gap:12px}
+.author{min-width:0;overflow-wrap:anywhere}
+.post-text{overflow-wrap:anywhere;word-break:normal}
+.post-image{cursor:zoom-in;max-width:100%;width:100%;height:auto;max-height:min(72vh,720px);object-fit:contain;display:block}
+.avatar[style*="background-image"],.settings-avatar[style*="background-image"],.profile-cover[style*="background-image"],.cover-settings-preview[style*="background-image"]{cursor:zoom-in}
+.profile-cover{background-position:center;background-size:cover}
+.profile-hero,.community-hero,.settings-page,.settings-form{min-width:0}
+.profile-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.profile-stats>div{min-width:0;text-align:center}
+.profile-stats span,.profile-stats b{display:block;overflow-wrap:anywhere}
+.person-card{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.person-card>.avatar{flex:0 0 48px}
+.person-card>.author{flex:1 1 140px}
+.person-card>button{max-width:100%;white-space:normal}
+.person-card .danger-link{font-size:12px}
+.community-card .community-body{min-width:0}
+.community-card .community-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.community-card .community-actions button{max-width:100%;white-space:normal}
+.community-cover{background:linear-gradient(120deg,#eaf1ff,#dce8ff 55%,#edf7ff)}
+.community-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#fff;color:#0059ff;font-size:25px;font-weight:800;box-shadow:0 4px 14px #163f8714}
+.community-title{max-width:100%;text-align:left;overflow-wrap:anywhere}
+.community-description{overflow-wrap:anywhere;line-height:1.6}
+.community-team{display:flex;flex-wrap:wrap;gap:8px 16px;overflow-wrap:anywhere}
+.community-manage{min-width:0}
+.community-member-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.community-member-row .author{flex:1 1 140px}
+.settings-photo-row,.cover-settings-row{min-width:0;flex-wrap:wrap}
+.settings-photo-row>div:last-child{min-width:0;flex:1}
+.settings-savebar{flex-wrap:wrap}
+button,input,textarea,select{max-width:100%}
+#imageLightbox{width:min(96vw,1400px);max-width:96vw;max-height:94dvh;padding:0;border:0;border-radius:16px;background:#10131a;color:#fff;overflow:hidden;box-shadow:0 24px 90px #0007}
+#imageLightbox::backdrop{background:#070b12e8;backdrop-filter:blur(6px)}
+#imageLightbox .lightbox-inner{position:relative;display:grid;place-items:center;width:100%;height:100%;min-height:180px}
+#imageLightbox img{display:block;max-width:96vw;max-height:90dvh;width:auto;height:auto;object-fit:contain}
+#imageLightbox .lightbox-close{position:absolute;z-index:2;top:10px;right:10px;width:42px;height:42px;border:1px solid #ffffff3b;border-radius:50%;background:#151a24cc;color:#fff;font-size:26px;line-height:1}
+#imageLightbox .lightbox-caption{margin:0;padding:8px 14px 12px;color:#dce4f1;font-size:12px;text-align:center}
+@media(max-width:760px){
+ .feed>.person-card{align-items:center;gap:9px}
+ .person-card>button{flex:1 1 120px}
+ .community-card .community-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .community-card .community-actions>*{min-width:0}
+ .community-card .community-actions button{width:100%}
+ .community-detail-title{align-items:flex-start;flex-wrap:wrap}
+ .community-team{display:grid;gap:8px}
+ .profile-stats{gap:4px}
+ .profile-stats>div{padding:10px 3px}
+ #imageLightbox{width:100vw;max-width:100vw;max-height:100dvh;border-radius:0}
+ #imageLightbox img{max-width:100vw;max-height:88dvh}
+}
