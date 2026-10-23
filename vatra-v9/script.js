@@ -95,11 +95,8 @@ async function renderCommunities(){
   $('#feed').innerHTML='<div class="section-toolbar"><h2>Спільноти</h2><button class="primary" id="newCommunity">＋ Створити</button></div>'+(groups?.length?'<div class="community-grid">'+groups.map(g=>'<article class="community-card"><div class="community-mark">в</div><h3>'+esc(g.name)+'</h3><p>'+esc(g.description||'Українська спільнота у ВАТРІ.')+'</p><button class="pill" data-join="'+g.id+'">Приєднатися</button></article>').join('')+'</div>':'<div class="state-panel"><h3>Створи першу спільноту</h3><p>Збирай людей навколо спільних інтересів.</p></div>');
   $('#newCommunity').onclick=createCommunity;
 }
-async function createCommunity(){
-  const name=prompt('Назва спільноти');if(!name?.trim())return;const description=prompt('Короткий опис')||'';
-  const {data,error}=await supabase.from('communities').insert({owner_id:state.user.id,name:name.trim(),description:description.trim()}).select().single();
-  if(error){toast('Не вдалося створити спільноту.');return;}await supabase.from('community_members').insert({community_id:data.id,user_id:state.user.id,role:'owner',status:'accepted'});toast('Спільноту створено.');await renderCommunities();
-}
+function createCommunity(){if($('#communityName'))$('#communityName').value='';if($('#communityDescription'))$('#communityDescription').value='';if($('#communityError'))$('#communityError').textContent='';$('#communityDialog').showModal();}
+$('#communityForm')?.addEventListener('submit',async e=>{e.preventDefault();const name=$('#communityName').value.trim(),description=$('#communityDescription').value.trim();if(!name){$('#communityError').textContent='Вкажи назву спільноти.';return;}const {data,error}=await supabase.from('communities').insert({owner_id:state.user.id,name,description}).select().single();if(error){$('#communityError').textContent='Не вдалося створити спільноту. Спробуй іншу назву.';return;}const {error:memberError}=await supabase.from('community_members').insert({community_id:data.id,user_id:state.user.id,role:'owner',status:'accepted'});if(memberError)console.warn(memberError);$('#communityDialog').close();toast('Спільноту створено.');await renderCommunities();});
 async function renderMessages(){
   const {data:convs,error}=await supabase.from('conversations').select('*').or('user_one.eq.'+state.user.id+',user_two.eq.'+state.user.id).order('created_at',{ascending:false});if(error)throw error;
   const ids=[...new Set((convs||[]).map(c=>c.user_one===state.user.id?c.user_two:c.user_one))];const {data:people}=ids.length?await supabase.from('profiles').select('*').in('id',ids):{data:[]};const map=new Map((people||[]).map(p=>[p.id,p]));
