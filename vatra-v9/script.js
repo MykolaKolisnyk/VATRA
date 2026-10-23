@@ -1,7 +1,7 @@
 import { supabase } from './supabase-client.js';
 
 const $ = (s, root=document) => root.querySelector(s);
-const $ = (s, root=document) => [...root.querySelectorAll(s)];
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const loaderStartedAt = Date.now();
 function hideVatraLoader(){
   const loader=$('#vatraLoader');
