@@ -313,10 +313,10 @@ create trigger vatra_post_comment_notification after insert on public.post_comme
 create or replace function public.vatra_notify_friendship()
 returns trigger language plpgsql security definer set search_path=public as $$
 begin
-  if new.status='pending' then
+  if tg_op='INSERT' and new.status='pending' then
     insert into public.notifications(recipient_id,actor_id,kind,entity_id,body)
     values(new.addressee_id,new.requester_id,'friend_request',new.id,'Надіслав(-ла) запит у друзі');
-  elsif new.status='accepted' and old.status is distinct from new.status then
+  elsif tg_op='UPDATE' and new.status='accepted' and old.status is distinct from new.status then
     insert into public.notifications(recipient_id,actor_id,kind,entity_id,body)
     values(new.requester_id,new.addressee_id,'friend_accepted',new.id,'Прийняв(-ла) запит у друзі');
   end if;
