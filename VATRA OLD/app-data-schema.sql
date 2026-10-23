@@ -77,9 +77,2593 @@ begin
   uid := auth.uid();
   parts := string_to_array(_path, '/');
 
-  if _path ~ '^publicProfiles/[^/]+$' then
+  if _path ~ '^publicProfiles/[^/]+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
     return (_value ->> 'profileVisibility' is distinct from 'private')
-      or (uid is not null and parts[2] = uid::text);
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return true;
+  end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ or _path ~ '^following/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+/.+
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return true;
+  end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ or _path ~ '^following/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return true;
+  end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ or _path ~ '^following/[^/]+(/[^/]+)?
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
+  end if;
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$'
+     or _path ~ '^pollVotes/[^/]+(/.*)?$' then
+    return public.vatra_data_can_read_post(parts[2], uid);
+  end if;
+  if _path ~ '^videos/[^/]+$' or _path ~ '^groups/[^/]+$'
+     or _path ~ '^groupMembers/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupAdmins/[^/]+(/[^/]+)?$'
+     or _path ~ '^groupPosts/[^/]+(/[^/]+)?$'
+     or _path ~ '^friends/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$' then
+    return true;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return uid is not null and (parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text));
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^activityReadAt/[^/]+$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then
+    return uid is not null and parts[3] = uid::text;
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return uid is not null and coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then
+    return uid is not null and parts[2] = uid::text;
+  end if;
+  return false;
+end;
+$vatra$;
+
+create or replace function public.vatra_data_can_write(_path text, _value jsonb)
+returns boolean language plpgsql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare parts text[]; uid uuid; parent_value jsonb;
+begin
+  uid := auth.uid();
+  if uid is null then return false; end if;
+  parts := string_to_array(_path, '/');
+
+  if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$' or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then
+    return parts[3] = uid::text;
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts, 1) >= 3 and parts[3] = uid::text)
+      or public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then
+    return public.vatra_data_is_group_owner(parts[2], uid);
+  end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+(/.*)?$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+using (public.vatra_data_can_write(path, value))
+with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+using (public.vatra_data_can_write(path, value));
+ then
+    return (_value ->> 'profileVisibility' is distinct from 'private')
+      or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
   end if;
   if _path ~ '^users/[^/]+$' or _path ~ '^privateUsers/[^/]+$' then
     return uid is not null and parts[2] = uid::text;
