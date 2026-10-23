@@ -1,0 +1,385 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        "$other": {
+          ".validate": true
+        }
+      }
+    },
+    "posts": {
+      ".read": "auth != null",
+      "$postId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('authorUid').val() === auth.uid) || (data.exists() && data.child('authorUid').val() === auth.uid && (!newData.exists() || newData.child('authorUid').val() === auth.uid)))",
+        ".validate": "!newData.exists() || newData.hasChildren(['authorUid', 'authorName', 'authorHandle', 'text', 'createdAt'])",
+        "authorUid": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "authorName": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "authorHandle": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "text": {
+          ".validate": "newData.isString() && newData.val().length <= 1200"
+        },
+        "imageUrl": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 1000000)"
+        },
+        "editedAt": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "$other": {
+          ".validate": true
+        },
+        "pollOptions": {
+          ".validate": "!newData.exists() || (newData.hasChildren(['option_1','option_2']) && newData.numChildren() >= 2 && newData.numChildren() <= 6)",
+          "$optionId": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 80"
+          }
+        }
+      }
+    },
+    "postLikes": {
+      ".read": "auth != null",
+      "$postId": {
+        "$uid": {
+          ".write": "auth != null && (auth.uid === $uid || root.child('posts').child($postId).child('authorUid').val() === auth.uid)",
+          ".validate": "!newData.exists() || newData.val() === true || (newData.hasChildren(['createdAt']) && newData.child('createdAt').isNumber())",
+          "createdAt": {
+            ".validate": "!newData.exists() || newData.isNumber()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "comments": {
+      ".read": "auth != null",
+      "$postId": {
+        "$commentId": {
+          ".write": "auth != null && ((!data.exists() && newData.child('uid').val() === auth.uid) || (data.exists() && (data.child('uid').val() === auth.uid || root.child('posts').child($postId).child('authorUid').val() === auth.uid)))",
+          ".validate": "!newData.exists() || newData.hasChildren(['uid', 'name', 'text', 'createdAt'])",
+          "uid": {
+            ".validate": "newData.isString() && newData.val() === auth.uid"
+          },
+          "name": {
+            ".validate": "newData.isString() && newData.val().length <= 40"
+          },
+          "text": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 300"
+          },
+          "$other": {
+            ".validate": true
+          },
+          "editedAt": {
+            ".validate": "!newData.exists() || newData.isNumber()"
+          }
+        }
+      }
+    },
+    "saved": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$postId": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "following": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$targetUid": {
+          ".write": "auth != null && auth.uid === $uid && $targetUid !== auth.uid",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "videos": {
+      ".read": "auth != null",
+      "$videoId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('authorUid').val() === auth.uid) || (data.exists() && data.child('authorUid').val() === auth.uid && (!newData.exists() || newData.child('authorUid').val() === auth.uid)))",
+        ".validate": "!newData.exists() || newData.hasChildren(['authorUid', 'videoUrl', 'createdAt'])",
+        "authorUid": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "videoUrl": {
+          ".validate": "newData.isString() && newData.val().length <= 1000000"
+        },
+        "text": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)"
+        },
+        "$other": {
+          ".validate": true
+        }
+      }
+    },
+    "groups": {
+      ".read": "auth != null",
+      "$groupId": {
+        ".write": "auth != null && ((!data.exists() && newData.child('ownerUid').val() === auth.uid) || (data.exists() && ((data.child('ownerUid').val() === auth.uid && (!newData.exists() || newData.child('ownerUid').val() === data.child('ownerUid').val())) || (root.child('groupAdmins').child($groupId).child(auth.uid).val() === true && newData.exists()))))",
+        ".validate": "!newData.exists() || newData.hasChildren(['name', 'ownerUid', 'createdAt'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 60"
+        },
+        "description": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+        },
+        "ownerUid": {
+          ".validate": "newData.isString() && ((!data.exists() && newData.val() === auth.uid) || (data.exists() && newData.val() === data.val()))"
+        },
+        "$other": {
+          ".validate": true
+        }
+      }
+    },
+    "groupMembers": {
+      ".read": "auth != null",
+      "$groupId": {
+        "$uid": {
+          ".write": "auth != null && root.child('groups').child($groupId).exists() && ((auth.uid === $uid && (auth.uid !== root.child('groups').child($groupId).child('ownerUid').val() || newData.val() === true || !newData.exists())) || (root.child('groups').child($groupId).child('ownerUid').val() === auth.uid && $uid !== auth.uid && !newData.exists()))",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "groupPosts": {
+      ".read": "auth != null",
+      "$groupId": {
+        "$postId": {
+          ".write": "auth != null && root.child('groupMembers').child($groupId).child(auth.uid).val() === true && ((!data.exists() && newData.child('authorUid').val() === auth.uid) || (data.exists() && (data.child('authorUid').val() === auth.uid || root.child('groups').child($groupId).child('ownerUid').val() === auth.uid || root.child('groupAdmins').child($groupId).child(auth.uid).val() === true) && (!newData.exists() || newData.child('authorUid').val() === data.child('authorUid').val())))",
+          ".validate": "!newData.exists() || newData.hasChildren(['authorUid', 'authorName', 'text', 'createdAt'])",
+          "text": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1200"
+          },
+          "$other": {
+            ".validate": true
+          }
+        }
+      }
+    },
+    "chats": {
+      "$chatId": {
+        ".read": "auth != null && (!data.exists() || data.child('members').child(auth.uid).val() === true)",
+        ".write": "auth != null && !data.exists() && newData.child('members').child(auth.uid).val() === true && newData.child('members').hasChildren()",
+        "messages": {
+          "$messageId": {
+            ".write": "auth != null && root.child('chats').child($chatId).child('members').child(auth.uid).val() === true && !root.child('chatBlocks').child($chatId).exists() && ((!data.exists() && newData.child('senderUid').val() === auth.uid) || (data.exists() && data.child('senderUid').val() === auth.uid && (!newData.exists() || (newData.child('senderUid').val() === auth.uid && newData.child('createdAt').val() === data.child('createdAt').val() && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 2000 && newData.child('editedAt').isNumber()))) )",
+            ".validate": "!newData.exists() || newData.hasChildren(['senderUid', 'text', 'createdAt'])",
+            "senderUid": {
+              ".validate": "newData.isString() && newData.val() === auth.uid"
+            },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 2000"
+            },
+            "$other": {
+              ".validate": false
+            },
+            "editedAt": {
+              ".validate": "!newData.exists() || newData.isNumber()"
+            },
+            "createdAt": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        },
+        ".validate": "!newData.exists() || (newData.hasChildren(['members','createdAt']) && newData.child('members').numChildren() === 2 && newData.child('createdAt').isNumber())",
+        "members": {
+          ".validate": "newData.numChildren() === 2 && newData.child(auth.uid).val() === true",
+          "$memberUid": {
+            ".validate": "newData.val() === true && ($memberUid === auth.uid || $memberUid.length > 0)"
+          }
+        }
+      }
+    },
+    "userChats": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$chatId": {
+          ".write": "auth != null && (auth.uid === $uid || (root.child('chats').child($chatId).child('members').child(auth.uid).val() === true && root.child('chats').child($chatId).child('members').child($uid).val() === true))",
+          ".validate": "!newData.exists() || newData.hasChildren(['otherUid', 'updatedAt'])"
+        }
+      }
+    },
+    "friendRequests": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$otherUid": {
+          ".write": "auth != null && (auth.uid === $uid || auth.uid === $otherUid)",
+          ".validate": "!newData.exists() || newData.hasChildren(['from','to','status'])"
+        }
+      }
+    },
+    "friends": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$otherUid": {
+          ".write": "auth != null && (auth.uid === $uid || auth.uid === $otherUid)",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "activityReadAt": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "!newData.exists() || newData.isNumber()"
+      }
+    },
+    "chatReads": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$chatId": {
+          ".write": "auth != null && auth.uid === $uid && root.child('chats').child($chatId).child('members').child(auth.uid).val() === true",
+          ".validate": "!newData.exists() || newData.isNumber()"
+        }
+      }
+    },
+    "privateUsers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "publicProfiles": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name','handle'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 40"
+        },
+        "firstName": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 40)"
+        },
+        "lastName": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 40)"
+        },
+        "handle": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 24"
+        },
+        "bio": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 500)"
+        },
+        "avatarUrl": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 1000000)"
+        },
+        "coverUrl": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 1000000)"
+        },
+        "city": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 80)"
+        },
+        "location": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)"
+        },
+        "website": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 180)"
+        },
+        "profileVisibility": {
+          ".validate": "!newData.exists() || newData.val() === 'public' || newData.val() === 'private'"
+        },
+        "searchable": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
+        },
+        "birthdayVisibility": {
+          ".validate": "!newData.exists() || newData.val() === 'private' || newData.val() === 'friends' || newData.val() === 'public'"
+        },
+        "cityVisibility": {
+          ".validate": "!newData.exists() || newData.val() === 'private' || newData.val() === 'friends' || newData.val() === 'public'"
+        },
+        "locationVisibility": {
+          ".validate": "!newData.exists() || newData.val() === 'private' || newData.val() === 'friends' || newData.val() === 'public'"
+        },
+        "allowMessages": {
+          ".validate": "!newData.exists() || newData.isBoolean()"
+        },
+        "createdAt": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "updatedAt": {
+          ".validate": "!newData.exists() || newData.isNumber()"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "groupAdmins": {
+      ".read": "auth != null",
+      "$groupId": {
+        "$uid": {
+          ".write": "auth != null && ((root.child('groups').child($groupId).child('ownerUid').val() === auth.uid && root.child('groupMembers').child($groupId).child($uid).val() === true && $uid !== auth.uid) || (auth.uid === $uid && root.child('groupMembers').child($groupId).child(auth.uid).val() === true && root.child('groups').child($groupId).child('ownerUid').val() !== auth.uid && !newData.exists()))",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "blockedUsers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        "$targetUid": {
+          ".write": "auth != null && auth.uid === $uid && $targetUid !== auth.uid",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "chatBlocks": {
+      "$chatId": {
+        ".read": "auth != null && root.child('chats').child($chatId).child('members').child(auth.uid).val() === true",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid && root.child('chats').child($chatId).child('members').child(auth.uid).val() === true",
+          ".validate": "!newData.exists() || newData.val() === true"
+        }
+      }
+    },
+    "reports": {
+      "$reporterUid": {
+        ".read": "auth != null && auth.uid === $reporterUid",
+        "$targetType": {
+          "$targetId": {
+            ".write": "auth != null && auth.uid === $reporterUid && !data.exists() && newData.child('reporterUid').val() === auth.uid && newData.child('targetType').val() === $targetType && newData.child('targetId').val() === $targetId",
+            ".validate": "newData.hasChildren(['reporterUid','targetType','targetId','reason','details','createdAt'])",
+            "reporterUid": {
+              ".validate": "newData.isString() && newData.val() === auth.uid"
+            },
+            "targetType": {
+              ".validate": "newData.isString() && (newData.val() === 'profile' || newData.val() === 'post' || newData.val() === 'comment' || newData.val() === 'groupPost' || newData.val() === 'video')"
+            },
+            "targetId": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 128 && newData.val() === $targetId"
+            },
+            "reason": {
+              ".validate": "newData.isString() && (newData.val() === 'spam' || newData.val() === 'harassment' || newData.val() === 'hate' || newData.val() === 'unsafe' || newData.val() === 'other')"
+            },
+            "details": {
+              ".validate": "newData.isString() && newData.val().length <= 500"
+            },
+            "createdAt": {
+              ".validate": "newData.isNumber()"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "pollVotes": {
+      ".read": "auth != null",
+      "$postId": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('posts').child($postId).child('authorUid').val() === auth.uid && !newData.exists()",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "!newData.exists() || (newData.isString() && root.child('posts').child($postId).child('pollOptions').child(newData.val()).exists())"
+        }
+      }
+    }
+  }
+}
