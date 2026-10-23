@@ -208,3 +208,75 @@ begin
 end; $$;
 drop trigger if exists vatra_auth_user_created on auth.users;
 create trigger vatra_auth_user_created after insert on auth.users for each row execute function public.vatra_handle_new_user();
+
+-- Optional social features used by the current interface.
+create table if not exists public.post_polls (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null unique references public.posts(id) on delete cascade,
+  question text not null,
+  created_by uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.poll_options (
+  id uuid primary key default gen_random_uuid(),
+  poll_id uuid not null references public.post_polls(id) on delete cascade,
+  label text not null,
+  position integer not null default 0,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.poll_votes (
+  id uuid primary key default gen_random_uuid(),
+  poll_id uuid not null references public.post_polls(id) on delete cascade,
+  option_id uuid not null references public.poll_options(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  unique(poll_id,user_id)
+);
+create table if not exists public.notifications (
+  id uuid primary key default gen_random_uuid(),
+  recipient_id uuid not null references auth.users(id) on delete cascade,
+  actor_id uuid references auth.users(id) on delete set null,
+  kind text not null,
+  entity_id uuid,
+  body text not null default '',
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.content_reports (
+  id uuid primary key default gen_random_uuid(),
+  reporter_id uuid not null references auth.users(id) on delete cascade,
+  target_type text not null check(target_type in ('post','profile','comment','community')),
+  target_id uuid not null,
+  reason text not null,
+  details text not null default '',
+  status text not null default 'open' check(status in ('open','reviewing','resolved','dismissed')),
+  created_at timestamptz not null default now()
+);
+create index if not exists notifications_recipient_idx on public.notifications(recipient_id,created_at desc);
+create index if not exists poll_options_poll_idx on public.poll_options(poll_id,position);
+alter table public.post_polls enable row level security;
+alter table public.poll_options enable row level security;
+alter table public.poll_votes enable row level security;
+alter table public.notifications enable row level security;
+alter table public.content_reports enable row level security;
+grant select,insert,update,delete on public.post_polls,public.poll_options,public.poll_votes,public.notifications,public.content_reports to authenticated;
+
+do $$ declare p record; begin
+  for p in select schemaname, tablename, policyname from pg_policies where schemaname='public' and tablename in ('post_polls','poll_options','poll_votes','notifications','content_reports')
+  loop execute format('drop policy if exists %I on %I.%I',p.policyname,p.schemaname,p.tablename); end loop;
+end $$;
+create policy polls_read on public.post_polls for select using(exists(select 1 from public.posts p where p.id=post_id));
+create policy polls_insert on public.post_polls for insert to authenticated with check(created_by=auth.uid() and exists(select 1 from public.posts p where p.id=post_id and p.user_id=auth.uid()));
+create policy polls_update on public.post_polls for update to authenticated using(created_by=auth.uid()) with check(created_by=auth.uid());
+create policy polls_delete on public.post_polls for delete to authenticated using(created_by=auth.uid());
+create policy poll_options_read on public.poll_options for select using(exists(select 1 from public.post_polls pp where pp.id=poll_id));
+create policy poll_options_insert on public.poll_options for insert to authenticated with check(exists(select 1 from public.post_polls pp where pp.id=poll_id and pp.created_by=auth.uid()));
+create policy poll_options_delete on public.poll_options for delete to authenticated using(exists(select 1 from public.post_polls pp where pp.id=poll_id and pp.created_by=auth.uid()));
+create policy poll_votes_read on public.poll_votes for select using(exists(select 1 from public.posts p join public.post_polls pp on pp.post_id=p.id where pp.id=poll_id));
+create policy poll_votes_insert on public.poll_votes for insert to authenticated with check(user_id=auth.uid() and exists(select 1 from public.poll_options po where po.id=option_id and po.poll_id=poll_id));
+create policy poll_votes_delete on public.poll_votes for delete to authenticated using(user_id=auth.uid());
+create policy notifications_read on public.notifications for select to authenticated using(recipient_id=auth.uid());
+create policy notifications_update on public.notifications for update to authenticated using(recipient_id=auth.uid()) with check(recipient_id=auth.uid());
+create policy notifications_insert on public.notifications for insert to authenticated with check(actor_id=auth.uid());
+create policy reports_read on public.content_reports for select to authenticated using(reporter_id=auth.uid());
+create policy reports_insert on public.content_reports for insert to authenticated with check(reporter_id=auth.uid());
