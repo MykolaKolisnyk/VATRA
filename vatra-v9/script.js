@@ -28,6 +28,16 @@ async function fetchPosts({userId=null,saved=false,video=false}={}){
   let q=supabase.from('posts').select('*').order('created_at',{ascending:false}).limit(60);
   if(userId)q=q.eq('user_id',userId); if(video)q=q.eq('media_type','video');
   if(saved){const {data:marks,error}=await supabase.from('saved_posts').select('post_id').eq('user_id',state.user.id);if(error)throw error;const ids=(marks||[]).map(x=>x.post_id);if(!ids.length)return [];q=q.in('id',ids);}
+  if(!userId&&!saved&&!video&&state.page==='feed'){
+    const {data:rels,error:re}=await supabase.from('friendships').select('requester_id,addressee_id').eq('status','accepted').or('requester_id.eq.'+state.user.id+',addressee_id.eq.'+state.user.id);
+    if(re)throw re;
+    const authorIds=[state.user.id,...new Set((rels||[]).map(r=>r.requester_id===state.user.id?r.addressee_id:r.requester_id))];
+    const {data:members,error:me}=await supabase.from('community_members').select('community_id').eq('user_id',state.user.id).eq('status','accepted');
+    if(me)throw me;
+    const communityIds=[...new Set((members||[]).map(m=>m.community_id))];
+    if(communityIds.length)q=q.or('user_id.in.('+authorIds.join(',')+'),community_id.in.('+communityIds.join(',')+')');
+    else q=q.in('user_id',authorIds);
+  }
   const {data,error}=await q;if(error)throw error;const rows=data||[];const ids=[...new Set(rows.map(x=>x.user_id))];if(!ids.length)return rows.map(x=>({...x,author:null}));
   const {data:profiles,error:pe}=await supabase.from('profiles').select('id,first_name,last_name,username,avatar_url').in('id',ids);if(pe)throw pe;
   const map=new Map((profiles||[]).map(p=>[p.id,p]));return rows.map(x=>({...x,author:map.get(x.user_id)}));
