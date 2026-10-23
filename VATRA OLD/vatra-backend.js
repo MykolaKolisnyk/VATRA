@@ -179,8 +179,8 @@ export function onValue(reference, callback, errorCallback) {
   const timer = setInterval(poll, 3500);
   return () => { active = false; clearInterval(timer); };
 }
-export async function createUserWithEmailAndPassword(_auth, email, password) {
-  const { data, error } = await client.auth.signUp({ email, password });
+export async function createUserWithEmailAndPassword(_auth, email, password, userData = {}) {
+  const { data, error } = await client.auth.signUp({ email, password, options: { data: userData } });
   if (error) throw authError(error);
   return { user: toCompatUser(data.user), session: data.session };
 }
