@@ -1,0 +1,184 @@
+/* ВАТРА — стартовий екран. Окремі класи, щоб не змінювати стилі основного сайту. */
+.vatra-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 18% 16%, rgba(0, 177, 255, .12), transparent 38%),
+    radial-gradient(ellipse at 84% 78%, rgba(0, 89, 255, .10), transparent 35%),
+    rgba(247, 250, 255, .97);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .42s ease, visibility .42s ease;
+}
+.vatra-loading-screen::before,
+.vatra-loading-screen::after {
+  content: "";
+  position: absolute;
+  width: min(62vw, 560px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(0, 89, 255, .07);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.vatra-loading-screen::before {
+  transform: translate(-33%, -30%);
+  box-shadow: 0 0 0 44px rgba(0, 89, 255, .018), 0 0 0 90px rgba(0, 89, 255, .014);
+}
+.vatra-loading-screen::after {
+  width: min(47vw, 420px);
+  transform: translate(43%, 39%);
+  border-color: rgba(0, 177, 255, .10);
+}
+.vatra-loading-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 390px);
+  padding: 36px 34px 27px;
+  border: 1px solid rgba(220, 230, 247, .9);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 28px 85px rgba(21, 62, 130, .12), 0 3px 12px rgba(21, 62, 130, .045);
+  text-align: center;
+  animation: vatra-loader-rise .65s cubic-bezier(.2,.8,.2,1) both;
+}
+.vatra-loading-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  margin-bottom: 31px;
+  text-align: left;
+}
+.vatra-loading-mark {
+  position: relative;
+  display: grid;
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #0068ff 0%, #0059ff 54%, #00b1ff 100%);
+  box-shadow: 0 10px 24px rgba(0, 89, 255, .25), inset 0 1px 0 rgba(255, 255, 255, .35);
+  color: #fff;
+  font: 800 37px/1 Inter, Arial, sans-serif;
+  letter-spacing: -4px;
+  padding-right: 4px;
+}
+.vatra-loading-mark::after {
+  content: "";
+  position: absolute;
+  top: -23px;
+  right: -18px;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255,255,255,.34);
+  border-radius: 50%;
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08);
+}
+.vatra-loading-wordmark strong {
+  display: block;
+  color: #14213a;
+  font: 800 25px/1.15 Inter, Arial, sans-serif;
+  letter-spacing: -.8px;
+}
+.vatra-loading-wordmark span {
+  display: block;
+  margin-top: 5px;
+  color: #8290a7;
+  font: 700 9px/1.4 Inter, Arial, sans-serif;
+  letter-spacing: 1.7px;
+}
+.vatra-loading-heading {
+  margin: 0;
+  color: #17243b;
+  font: 750 20px/1.35 Inter, Arial, sans-serif;
+  letter-spacing: -.35px;
+}
+.vatra-loading-subtitle {
+  margin: 8px 0 24px;
+  color: #7a879d;
+  font: 400 13px/1.6 Inter, Arial, sans-serif;
+}
+.vatra-loading-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #eaf0fb;
+}
+.vatra-loading-track span {
+  display: block;
+  width: 44%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0059ff, #00b1ff);
+  animation: vatra-loader-progress 1.55s ease-in-out infinite;
+  transform-origin: left center;
+}
+.vatra-loading-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 13px;
+  color: #8290a7;
+  font: 600 11px/1.4 Inter, Arial, sans-serif;
+}
+.vatra-loading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #09a5ff;
+  box-shadow: 0 0 0 4px rgba(0, 177, 255, .10);
+  animation: vatra-loader-pulse 1.25s ease-in-out infinite;
+}
+.vatra-loading-footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+  color: #a0aabc;
+  font: 500 11px/1.4 Inter, Arial, sans-serif;
+}
+.vatra-loading-footer i {
+  color: #00a2ff;
+  font-style: normal;
+}
+.vatra-loading-screen.vatra-loading--leaving {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+@keyframes vatra-loader-progress {
+  0% { transform: translateX(-115%) scaleX(.62); }
+  55% { transform: translateX(45%) scaleX(1.18); }
+  100% { transform: translateX(245%) scaleX(.78); }
+}
+@keyframes vatra-loader-pulse {
+  0%, 100% { opacity: .55; box-shadow: 0 0 0 3px rgba(0, 177, 255, .08); }
+  50% { opacity: 1; box-shadow: 0 0 0 6px rgba(0, 177, 255, .12); }
+}
+@keyframes vatra-loader-rise {
+  from { opacity: 0; transform: translateY(12px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 480px) {
+  .vatra-loading-card { padding: 30px 24px 24px; border-radius: 24px; }
+  .vatra-loading-mark { flex-basis: 52px; width: 52px; height: 52px; border-radius: 17px; font-size: 34px; }
+  .vatra-loading-wordmark strong { font-size: 23px; }
+  .vatra-loading-heading { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vatra-loading-screen, .vatra-loading-card, .vatra-loading-track span, .vatra-loading-dot {
+    animation: none !important;
+    transition: none !important;
+  }
+  .vatra-loading-track span { width: 65%; }
+}
