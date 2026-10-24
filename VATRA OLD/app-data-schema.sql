@@ -139,23 +139,15 @@ grant execute on function public.vatra_data_can_write(text, jsonb) to authentica
 do $vatra$
 declare p record;
 begin
-  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
-  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+ for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
+ loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
 end;
 $vatra$;
 
-create policy app_data_select on public.app_data for select to anon, authenticated
-using (public.vatra_data_can_read(path, value));
-create policy app_data_insert on public.app_data for insert to authenticated
-with check (public.vatra_data_can_write(path, value));
-create policy app_data_update on public.app_data for update to authenticated
-using (public.vatra_data_can_write(path, value))
-with check (public.vatra_data_can_write(path, value));
-create policy app_data_delete on public.app_data for delete to authenticated
-using (public.vatra_data_can_write(path, value));
-
-
-
+create policy app_data_select on public.app_data for select to anon, authenticated using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated using (public.vatra_data_can_write(path, value)) with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated using (public.vatra_data_can_write(path, value));
 
 -- Файлове сховище для аватарів, обкладинок, фото дописів і відео.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -174,75 +166,8 @@ create policy vatra_media_user_delete on storage.objects for delete to authentic
 
 do $realtime$
 begin
-  if exists (select 1 from pg_publication where pubname='supabase_realtime')
-     and not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='app_data') then
-    alter publication supabase_realtime add table public.app_data;
-  end if;
+ if exists(select 1 from pg_publication where pubname='supabase_realtime') and not exists(select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='app_data') then
+  alter publication supabase_realtime add table public.app_data;
+ end if;
 end;
 $realtime$;
- then
-    return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
-  end if;
-  if _path ~ '^posts/[^/]+
-  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
-  if _path ~ '^saved/[^/]+(/[^/]+)?$' or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
-     or _path ~ '^following/[^/]+(/[^/]+)?$' or _path ~ '^userChats/[^/]+(/[^/]+)?$'
-     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then return parts[2] = uid::text; end if;
-  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
-  if _path ~ '^friends/[^/]+(/[^/]+)?$' or _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
-    return parts[2] = uid::text or (array_length(parts, 1) >= 3 and parts[3] = uid::text);
-  end if;
-  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
-  if _path ~ '^groups/[^/]+$' then return _value ->> 'ownerUid' = uid::text; end if;
-  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
-    return (array_length(parts, 1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid);
-  end if;
-  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid); end if;
-  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
-    return _value ->> 'authorUid' = uid::text and public.vatra_data_is_group_member(parts[2], uid);
-  end if;
-  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
-  if _path ~ '^chats/[^/]+/.+$' then
-    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
-    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
-  end if;
-  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
-  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
-  return false;
-end;
-$vatra$;
-
-alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
-alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
-alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
-alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
-alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
-alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
-grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
-grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
-grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
-grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
-grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
-grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
-
-do $vatra$
-declare p record;
-begin
-  for p in select policyname from pg_policies where schemaname='public' and tablename='app_data'
-  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
-end;
-$vatra$;
-
-create policy app_data_select on public.app_data for select to anon, authenticated
-using (public.vatra_data_can_read(path, value));
-create policy app_data_insert on public.app_data for insert to authenticated
-with check (public.vatra_data_can_write(path, value));
-create policy app_data_update on public.app_data for update to authenticated
-using (public.vatra_data_can_write(path, value))
-with check (public.vatra_data_can_write(path, value));
-create policy app_data_delete on public.app_data for delete to authenticated
-using (public.vatra_data_can_write(path, value));
-
-
-
-
