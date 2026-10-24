@@ -1,4 +1,4 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp } from './vatra-backend.js?v=20261024-2';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp } from './vatra-backend.js?v=20261024-3';
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
 let mode='login',submitting=false,codeSent=false,captchaWidget=null;
