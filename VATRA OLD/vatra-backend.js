@@ -224,8 +224,31 @@ export function onValue(reference, callback, errorCallback) {
     } finally { running = false; }
   };
   void poll();
-  const timer = setInterval(poll, 3500);
-  return () => { active = false; clearInterval(timer); };
+  const channel = client.channel('vatra-watch-' + Math.random().toString(36).slice(2))
+    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, () => { void poll(); })
+    .subscribe();
+  // Realtime delivers changes immediately; this slower fallback repairs missed events.
+  const timer = setInterval(poll, 15000);
+  return () => { active = false; clearInterval(timer); client.removeChannel(channel); };
+}
+
+export async function sendOtp({ email, phone, shouldCreateUser = false, userData = {}, captchaToken = '' }) {
+  const options = { shouldCreateUser, data: userData };
+  if (captchaToken) options.captchaToken = captchaToken;
+  const payload = email ? { email, options } : { phone, options };
+  const { error } = await client.auth.signInWithOtp(payload);
+  if (error) throw authError(error);
+}
+export async function verifyOtp({ email, phone, token, captchaToken = '' }) {
+  const payload = email ? { email, token, type: 'email' } : { phone, token, type: 'sms' };
+  if (captchaToken) payload.options = { captchaToken };
+  const { data, error } = await client.auth.verifyOtp(payload);
+  if (error) throw authError(error);
+  currentAuth.currentUser = toCompatUser(data.user);
+  return { user: currentAuth.currentUser, session: data.session };
+}
+export async function signInWithPhoneOtp(phone, captchaToken = '') {
+  return sendOtp({ phone, shouldCreateUser: false, captchaToken });
 }
 export async function createUserWithEmailAndPassword(_auth, email, password, userData = {}) {
   const { data, error } = await client.auth.signUp({ email, password, options: { data: userData } });
