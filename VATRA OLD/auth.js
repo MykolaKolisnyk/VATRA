@@ -56,4 +56,4 @@ $('#authForm').addEventListener('submit',async e=>{
  }catch(err){submitting=false;$('#error').textContent=errors[err.code]||err.message||'Не вдалося виконати дію. Перевір інтернет і налаштування авторизації.';$('#error').classList.remove('success');if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);}
  finally{btn.disabled=false;btn.textContent=codeSent?'Підтвердити код':'Надіслати код';submitting=false;}
 });
-renderCaptcha();show('login');
+renderCaptcha();show(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');
