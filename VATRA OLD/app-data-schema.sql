@@ -90,18 +90,8 @@ begin
  if _path ~ '^chats/[^/]+$' then return uid is not null and coalesce(_value->'members','{}'::jsonb) ? uid::text; end if;
  if _path ~ '^chats/[^/]+/.+$' then select c.value into parent_value from public.app_data c where c.path='chats/'||parts[2]; return uid is not null and coalesce(parent_value->'members','{}'::jsonb) ? uid::text; end if;
  if _path ~ '^reports/[^/]+(/.*)?$' then return uid is not null and parts[2]=uid::text; end if;
- if _path ~ '^verifiedUsers/[^/]+
- return false;
-end;
-$vatra$;
-
- then return true; end if;
- if _path ~ '^admins/[^/]+
- return false;
-end;
-$vatra$;
-
- then return uid is not null and parts[2]=uid::text; end if;
+ if _path ~ '^verifiedUsers/[^/]+$' then return true; end if;
+ if _path ~ '^admins/[^/]+$' then return uid is not null and parts[2]=uid::text; end if;
  return false;
 end;
 $vatra$;
