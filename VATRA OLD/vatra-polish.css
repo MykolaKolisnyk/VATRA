@@ -139,3 +139,7 @@ button,input,textarea,select{max-width:100%}
 .public-profile-card .profile-info-card{background:#f9fbff}
 .auth-method{min-width:0}
 @media(max-width:560px){.profile-info-card{padding:15px;border-radius:13px}.profile-info-row{grid-template-columns:1fr;gap:4px}.profile-identity{flex-wrap:wrap}.profile-edit{width:100%}}
+
+.profile-info-card .profile-info-row b{overflow-wrap:anywhere}
+.settings-grid select{min-width:0;width:100%}
+.settings-grid label small{display:block;margin-top:5px;color:#8490a3;font-size:11px;line-height:1.45}
