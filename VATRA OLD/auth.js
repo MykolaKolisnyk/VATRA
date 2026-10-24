@@ -47,7 +47,7 @@ $('#authForm').addEventListener('submit',async e=>{
   const verified=await verifyOtp({email:isPhone?undefined:contact,phone:isPhone?contact:undefined,token:otp,captchaToken:token});
   if(reg){
    const user=verified.user,uid=user.uid,handle=(first+'.'+last).toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,24);
-   const profile={firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',coverUrl:'',city:'',location:'',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt:Date.now()};
+   const profile={firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',coverUrl:'',city:'',location:'',phone:isPhone?contact:'',phoneVisibility:'private',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt:Date.now()};
    await set(ref(db,'users/'+uid),profile);
    await set(ref(db,'publicProfiles/'+uid),{firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',coverUrl:'',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt:profile.createdAt,updatedAt:profile.createdAt});
    await set(ref(db,'privateUsers/'+uid),{dateOfBirth:dob,phone:isPhone?contact:null,updatedAt:Date.now()});
