@@ -224,8 +224,12 @@ export function onValue(reference, callback, errorCallback) {
     } finally { running = false; }
   };
   void poll();
+  const watchedPath = cleanPath(reference.path);
   const channel = client.channel('vatra-watch-' + Math.random().toString(36).slice(2))
-    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, () => { void poll(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, payload => {
+      const changedPath = cleanPath(payload?.new?.path || payload?.old?.path || '');
+      if (!changedPath || changedPath === watchedPath || changedPath.startsWith(watchedPath + '/') || watchedPath.startsWith(changedPath + '/')) void poll();
+    })
     .subscribe();
   // Realtime delivers changes immediately; this slower fallback repairs missed events.
   const timer = setInterval(poll, 15000);
