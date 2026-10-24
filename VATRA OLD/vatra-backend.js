@@ -204,6 +204,19 @@ export async function remove(reference) {
   await deleteDescendants(path);
   await removeNode(path);
 }
+const realtimeWatchers = new Map();
+let realtimeChannel = null;
+function ensureRealtimeChannel() {
+  if (realtimeChannel) return;
+  realtimeChannel = client.channel('vatra-live-data')
+    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, payload => {
+      const changedPath = cleanPath(payload?.new?.path || payload?.old?.path || '');
+      for (const watcher of realtimeWatchers.values()) {
+        const watchedPath = watcher.path;
+        if (!changedPath || changedPath === watchedPath || changedPath.startsWith(watchedPath + '/') || watchedPath.startsWith(changedPath + '/')) void watcher.poll();
+      }
+    }).subscribe();
+}
 export function onValue(reference, callback, errorCallback) {
   let active = true, running = false;
   let lastValue = Symbol('first');
@@ -213,27 +226,22 @@ export function onValue(reference, callback, errorCallback) {
     try {
       const value = await readTree(reference.path);
       const encoded = JSON.stringify(value);
-      if (encoded !== lastValue) {
-        lastValue = encoded;
-        callback(new DataSnapshot(reference.path, value));
-      }
+      if (encoded !== lastValue) { lastValue = encoded; callback(new DataSnapshot(reference.path, value)); }
     } catch (error) {
       const wrapped = databaseError(error);
       if (typeof errorCallback === 'function') errorCallback(wrapped);
       else console.warn('Помилка читання даних:', wrapped.message);
     } finally { running = false; }
   };
+  const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  realtimeWatchers.set(id, { path: cleanPath(reference.path), poll });
+  ensureRealtimeChannel();
   void poll();
-  const watchedPath = cleanPath(reference.path);
-  const channel = client.channel('vatra-watch-' + Math.random().toString(36).slice(2))
-    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, payload => {
-      const changedPath = cleanPath(payload?.new?.path || payload?.old?.path || '');
-      if (!changedPath || changedPath === watchedPath || changedPath.startsWith(watchedPath + '/') || watchedPath.startsWith(changedPath + '/')) void poll();
-    })
-    .subscribe();
-  // Realtime delivers changes immediately; this slower fallback repairs missed events.
-  const timer = setInterval(poll, 15000);
-  return () => { active = false; clearInterval(timer); client.removeChannel(channel); };
+  const timer = setInterval(poll, 20000);
+  return () => {
+    active = false; clearInterval(timer); realtimeWatchers.delete(id);
+    if (!realtimeWatchers.size && realtimeChannel) { client.removeChannel(realtimeChannel); realtimeChannel = null; }
+  };
 }
 
 export async function sendOtp({ email, phone, shouldCreateUser = false, userData = {}, captchaToken = '' }) {
