@@ -259,6 +259,8 @@ export async function verifyOtp({ email, phone, token, captchaToken = '' }) {
   currentAuth.currentUser = toCompatUser(data.user);
   return { user: currentAuth.currentUser, session: data.session };
 }
+export async function updatePhoneNumber(phone) { const { error } = await client.auth.updateUser({ phone }); if (error) throw authError(error); }
+export async function verifyPhoneChange(phone, token) { const { data, error } = await client.auth.verifyOtp({ phone, token, type: 'phone_change' }); if (error) throw authError(error); currentAuth.currentUser = toCompatUser(data.user); return currentAuth.currentUser; }
 export async function signInWithPhoneOtp(phone, captchaToken = '') {
   return sendOtp({ phone, shouldCreateUser: false, captchaToken });
 }
