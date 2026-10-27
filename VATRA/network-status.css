@@ -1,0 +1,21 @@
+.vatra-offline-screen[hidden]{display:none!important}
+.vatra-offline-screen{position:fixed;z-index:200000;inset:0;display:grid;place-items:center;overflow:auto;box-sizing:border-box;padding:clamp(14px,3vw,32px);background:radial-gradient(ellipse at 15% 10%,#dbe9ff 0,transparent 42%),radial-gradient(ellipse at 90% 95%,#e0eaff 0,transparent 38%),#f5f8ff;color:#162b49;font-family:Inter,system-ui,sans-serif}
+.vatra-offline-card{width:min(100%,540px);box-sizing:border-box;padding:clamp(22px,5vw,38px);border:1px solid #dce6f6;border-radius:25px;background:rgba(255,255,255,.94);box-shadow:0 24px 75px rgba(32,67,121,.14);text-align:center}
+.vatra-offline-mascot{position:relative;display:grid;place-items:center;width:96px;height:96px;margin:0 auto 18px;border-radius:28px;background:linear-gradient(145deg,#e5efff,#f5f8ff);border:1px solid #dce7fb}
+.vatra-offline-flame{font-size:48px;line-height:1;filter:drop-shadow(0 7px 9px rgba(245,126,47,.2))}
+.vatra-offline-spark{position:absolute;color:#1769ff;font-size:20px;font-weight:800}
+.vatra-offline-spark.spark-one{right:7px;top:6px}.vatra-offline-spark.spark-two{left:8px;bottom:9px;font-size:16px}
+.vatra-offline-kicker{margin:0 0 10px;color:#0757f5;font-size:10px;letter-spacing:.2em;font-weight:800}
+.vatra-offline-card h1{margin:0 auto 12px;max-width:440px;font-size:clamp(24px,5vw,32px);letter-spacing:-.04em;line-height:1.18}
+.vatra-offline-lead{max-width:430px;margin:0 auto 20px;color:#667791;font-size:14px;line-height:1.7}
+.vatra-offline-guide{padding:15px 17px;border:1px solid #e3ebf8;border-radius:15px;background:#f8faff;text-align:left;color:#425570;font-size:13px;line-height:1.6}
+.vatra-offline-guide strong{color:#233955}
+.vatra-offline-guide ol{margin:7px 0 0;padding-left:21px}.vatra-offline-guide li+li{margin-top:4px}
+.vatra-offline-actions{display:flex;justify-content:center;gap:10px;margin-top:19px}
+.vatra-offline-retry{min-height:46px;max-width:100%;padding:0 23px;border:0;border-radius:12px;background:#0757f5;color:#fff;font:750 14px Inter,system-ui,sans-serif;box-shadow:0 7px 17px #0757f52c;cursor:pointer}
+.vatra-offline-retry:hover{background:#004be0}.vatra-offline-retry:focus-visible{outline:3px solid #0757f550;outline-offset:3px}
+.vatra-offline-status{margin:14px 0 0;color:#71819a;font-size:11px;line-height:1.55}
+body.vatra-offline-active{overflow:hidden!important}
+@media(max-width:520px){.vatra-offline-screen{padding:12px}.vatra-offline-card{padding:23px 17px;border-radius:20px}.vatra-offline-mascot{width:78px;height:78px;border-radius:23px}.vatra-offline-flame{font-size:40px}.vatra-offline-lead{font-size:13px}.vatra-offline-guide{font-size:12px;padding:13px}}
+@media(max-height:620px){.vatra-offline-screen{align-items:start}.vatra-offline-card{margin:auto 0;padding:18px}.vatra-offline-mascot{width:58px;height:58px;margin-bottom:10px;border-radius:17px}.vatra-offline-flame{font-size:31px}.vatra-offline-card h1{font-size:23px}.vatra-offline-lead{margin-bottom:12px}.vatra-offline-guide{padding:10px 13px}.vatra-offline-actions{margin-top:12px}}
+@media(prefers-reduced-motion:reduce){.vatra-offline-screen *{scroll-behavior:auto!important;transition:none!important}}
