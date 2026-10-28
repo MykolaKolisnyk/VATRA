@@ -2326,3 +2326,186 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
 .human-captcha .human-captcha-status.is-wrong::before{content:"!";display:grid;place-items:center;flex:0 0 19px;width:19px;height:19px;border-radius:50%;background:#ffdce2;color:#a51e35;font-size:12px;font-weight:900;line-height:1}
 .human-captcha .human-captcha-status.is-passed{display:flex!important;align-items:center!important;gap:8px!important;margin:12px 0 0!important;padding:10px 12px!important;border:1px solid #9bdcb9!important;border-radius:10px!important;background:#effbf4!important;color:#126b45!important;font-size:12px!important;font-weight:750!important;line-height:1.5!important}
 .human-captcha .human-captcha-status.is-passed::before{content:"✓";display:grid;place-items:center;flex:0 0 19px;width:19px;height:19px;border-radius:50%;background:#d4f7e3;color:#08784c}
+
+
+/* VATRA auth refresh: blue brand and its rings span the complete viewport. */
+.auth-layout{
+  position:relative!important;
+  isolation:isolate!important;
+  background:linear-gradient(135deg,#0757f5 0%,#0050e7 58%,#063fc0 100%)!important;
+}
+.auth-layout::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  width:min(112vw,1480px);
+  aspect-ratio:1;
+  left:51%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:50%;
+  box-shadow:0 0 0 48px rgba(255,255,255,.055),0 0 0 104px rgba(255,255,255,.035),0 0 0 176px rgba(255,255,255,.022);
+}
+.auth-layout::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  width:min(58vw,760px);
+  aspect-ratio:1;
+  left:calc(50% + min(13vw,190px));
+  top:50%;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(255,255,255,.085);
+  border-radius:50%;
+  box-shadow:0 0 0 44px rgba(255,255,255,.025);
+}
+.auth-layout>.brand-side,
+.auth-layout>.form-side{
+  position:relative!important;
+  z-index:1!important;
+}
+.auth-layout>.brand-side{
+  background:transparent!important;
+  overflow:visible!important;
+}
+.auth-layout>.brand-side::after{display:none!important}
+.auth-layout>.form-side{background:transparent!important}
+@media(min-width:851px){
+  .auth-layout>.form-side{padding:clamp(20px,2.6vw,36px)!important}
+  .auth-layout .auth-card{
+    width:min(100%,520px)!important;
+    max-width:520px!important;
+    padding:clamp(25px,2.5vw,36px)!important;
+    border-radius:22px!important;
+    box-shadow:0 24px 76px rgba(0,20,80,.18)!important;
+  }
+}
+@media(max-width:850px){
+  .auth-layout>.form-side{
+    width:100%!important;
+    margin:0!important;
+    padding:16px 12px!important;
+    background:transparent!important;
+  }
+  .auth-layout .auth-card{
+    width:100%!important;
+    max-width:520px!important;
+    margin:0 auto!important;
+    padding:clamp(18px,3.4vw,28px)!important;
+    border-radius:20px!important;
+    box-shadow:0 18px 52px rgba(0,20,80,.18)!important;
+  }
+  .auth-layout::before{width:min(150vw,1050px);left:50%;top:50%}
+  .auth-layout::after{width:min(92vw,620px);left:85%;top:47%}
+}
+@media(max-width:560px){
+  .auth-layout>.form-side{padding:12px 10px!important}
+  .auth-layout .auth-card{padding:19px 16px!important}
+}
+@media(max-width:360px){
+  .auth-layout>.form-side{padding:8px 7px!important}
+  .auth-layout .auth-card{padding:16px 12px!important}
+}
+
+/* Give every modal close control a clear, tactile animation. */
+.auth-dialog-close,
+.developer-dialog-close,
+.developer-dialog-done,
+#closeLegalBottom{
+  transform-origin:center;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),background-color .18s ease,color .18s ease,border-color .18s ease,box-shadow .18s ease;
+  will-change:transform;
+}
+.auth-dialog-close:hover,
+.developer-dialog-close:hover{
+  transform:rotate(90deg) scale(1.07);
+  background:#eaf1ff!important;
+  color:#0757f5!important;
+  border-color:#b9d0ff!important;
+  box-shadow:0 5px 16px rgba(7,87,245,.14);
+}
+.developer-dialog-done:hover,
+#closeLegalBottom:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(7,87,245,.18);
+}
+.auth-dialog-close:active,
+.developer-dialog-close:active,
+.developer-dialog-done:active,
+#closeLegalBottom:active{
+  transform:scale(.9);
+  transition-duration:.07s;
+}
+@keyframes vatraDialogEnter{
+  from{opacity:0;transform:translateY(12px) scale(.975);filter:blur(2px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes vatraDialogExit{
+  from{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+  to{opacity:0;transform:translateY(8px) scale(.985);filter:blur(1px)}
+}
+@keyframes vatraBackdropExit{to{background:rgba(11,24,45,0);backdrop-filter:blur(0)}}
+.auth-dialog.is-opening,
+.developer-dialog.is-opening{animation:vatraDialogEnter .24s cubic-bezier(.2,.8,.2,1) both}
+.auth-dialog.is-closing,
+.developer-dialog.is-closing{animation:vatraDialogExit .18s ease-in both;pointer-events:none}
+.auth-dialog.is-closing::backdrop,
+.developer-dialog.is-closing::backdrop{animation:vatraBackdropExit .18s ease-in both}
+@media(prefers-reduced-motion:reduce){
+  .auth-dialog-close,.developer-dialog-close,.developer-dialog-done,#closeLegalBottom{transition:none!important}
+  .auth-dialog.is-opening,.developer-dialog.is-opening,.auth-dialog.is-closing,.developer-dialog.is-closing{animation:none!important}
+}
+
+/* The developer close button lives in its own row, never over the scroll track. */
+#developerDialog .developer-dialog-topbar{
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  min-height:42px!important;
+  margin:0 0 4px!important;
+  position:relative!important;
+  z-index:3!important;
+}
+#developerDialog .developer-dialog-close{
+  position:static!important;
+  flex:0 0 38px!important;
+  width:38px!important;
+  height:38px!important;
+  margin:0!important;
+}
+#developerDialog .developer-dialog-body{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-width:thin!important;
+  scrollbar-color:#1d5ef5 #eaf0fa!important;
+  padding:0 12px 10px 0!important;
+  margin-right:-10px!important;
+  scroll-behavior:smooth!important;
+}
+#developerDialog .developer-dialog-body::-webkit-scrollbar{width:9px}
+#developerDialog .developer-dialog-body::-webkit-scrollbar-track{background:#eaf0fa;border-radius:8px;margin:4px 0}
+#developerDialog .developer-dialog-body::-webkit-scrollbar-thumb{background:#1d5ef5;border:2px solid #eaf0fa;border-radius:8px}
+#developerDialog .developer-dialog-actions{
+  flex:0 0 auto!important;
+  margin-top:8px!important;
+  padding-top:13px!important;
+  border-top:1px solid #e9eef7!important;
+  background:#fff!important;
+}
+#developerDialog.developer-dialog[open]{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:0!important;
+}
+@media(max-width:560px){
+  #developerDialog.developer-dialog[open]{padding:16px!important}
+  #developerDialog .developer-dialog-body{padding-right:8px!important;margin-right:-7px!important}
+}
