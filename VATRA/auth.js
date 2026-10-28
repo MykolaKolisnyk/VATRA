@@ -295,7 +295,7 @@ function show(m){
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
- $('#desc').textContent=reg?'Вкажіть дані та створіть надійний пароль. ВАТРА перевірить, чи контакт уже зареєстровано.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
+ $('#desc').textContent=reg?'Заповніть профіль, оберіть email або телефон для входу та створіть надійний пароль. Так Ви зможете долучитися до ВАТРИ й ділитися своїми історіями.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
  $('#submit').textContent=reg?'Створити акаунт':newPassword?'Зберегти новий пароль':reset?'Надіслати посилання':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const modeSwitch=$('#bottom').querySelector('#switch');
