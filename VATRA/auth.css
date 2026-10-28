@@ -1608,3 +1608,82 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
 .phone-number-control--email{display:block!important}
 .phone-number-control--email>.phone-country-static,.phone-number-control--email>.phone-country-code{display:none!important}
 .phone-number-control--email>input{display:block;width:100%;min-width:0}
+
+
+/* VATRA auth fixes: one page scroll, correct contact-mode visibility, visible legal links. */
+@media (min-width: 851px) {
+  html, body { overflow-x: hidden !important; }
+  body { overflow-y: auto !important; }
+  .auth-layout { min-height: 100dvh !important; }
+  .auth-layout > .form-side {
+    overflow: visible !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    align-self: start !important;
+  }
+  .auth-layout > .brand-side { overflow: hidden !important; }
+}
+@media (max-width: 850px) {
+  html, body { overflow-x: hidden !important; }
+  body { overflow-y: auto !important; }
+  .auth-layout > .form-side {
+    overflow: visible !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+  }
+}
+.phone-country-static[hidden],
+.phone-country-code[hidden] { display: none !important; }
+.phone-number-control--email { display: block !important; }
+.phone-number-control--email > .phone-country-static,
+.phone-number-control--email > .phone-country-code { display: none !important; }
+.phone-number-control--email > input {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 1 1 100% !important;
+}
+.auth-card .legal {
+  display: block !important;
+  margin-top: 20px !important;
+  padding-top: 15px !important;
+  border-top: 1px solid #e8edf5;
+  color: #52627b !important;
+  text-align: center;
+  font-size: 12px !important;
+  line-height: 1.65 !important;
+}
+.auth-card .legal[hidden] { display: none !important; }
+.auth-card .legal-label {
+  display: block;
+  margin-bottom: 9px;
+  color: #53637a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+.auth-card .legal-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 15px;
+}
+.auth-card .legal-links button {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 4px 0;
+  color: #0757f5 !important;
+  font: 700 12px/1.5 Inter, system-ui, sans-serif !important;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.auth-card .password-guidance[hidden],
+.auth-card .password-strength[hidden] { display: none !important; }
+@media (max-width: 480px) {
+  .auth-card .legal-links { display: grid; grid-template-columns: 1fr; gap: 4px; }
+  .auth-card .legal-links button { justify-content: center; min-height: 36px; }
+}
