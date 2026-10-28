@@ -7,7 +7,7 @@
   overlay=document.createElement('section');
   overlay.id='vatraOfflineScreen';overlay.className='vatra-offline-screen';
   overlay.hidden=true;overlay.setAttribute('role','status');overlay.setAttribute('aria-live','polite');
-  overlay.innerHTML='<div class="vatra-offline-card"><div class="vatra-offline-mascot" aria-hidden="true"><span class="vatra-offline-flame">🔥</span><span class="vatra-offline-spark spark-one">✦</span><span class="vatra-offline-spark spark-two">✧</span></div><p class="vatra-offline-kicker">ВАТРА · НА ЗВ’ЯЗКУ</p><h1 id="vatraOfflineTitle">Наш вогник загубив зв’язок</h1><p class="vatra-offline-lead" id="vatraOfflineMessage">Схоже, інтернет тимчасово зник. Нічого страшного — перевіримо з’єднання й повернемося до твоїх історій.</p><div class="vatra-offline-guide"><strong>Що можна зробити:</strong><ol><li>Перевір Wi-Fi або мобільний інтернет.</li><li>Якщо користуєшся VPN, спробуй перепід’єднати його.</li><li>Коли з’єднання з’явиться, натисни кнопку нижче.</li></ol></div><div class="vatra-offline-actions"><button type="button" class="vatra-offline-retry" id="vatraOfflineRetry">Перевірити з’єднання</button></div><p class="vatra-offline-status" id="vatraOfflineStatus" aria-live="polite">ВАТРИК чекає, поки мережа повернеться ✨</p></div>';
+  overlay.innerHTML='<div class="vatra-offline-card"><div class="vatra-offline-mascot" aria-hidden="true"><img class="vatra-offline-flame" src="vatra-flame.svg?v=20261028-3" alt=""></div><p class="vatra-offline-kicker">ВАТРА · НА ЗВ’ЯЗКУ</p><h1 id="vatraOfflineTitle">Наш вогник загубив зв’язок</h1><p class="vatra-offline-lead" id="vatraOfflineMessage">Схоже, інтернет тимчасово зник. Нічого страшного — перевіримо з’єднання й повернемося до твоїх історій.</p><div class="vatra-offline-guide"><strong>Що можна зробити:</strong><ol><li>Перевір Wi-Fi або мобільний інтернет.</li><li>Якщо користуєшся VPN, спробуй перепід’єднати його.</li><li>Коли з’єднання з’явиться, натисни кнопку нижче.</li></ol></div><div class="vatra-offline-actions"><button type="button" class="vatra-offline-retry" id="vatraOfflineRetry">Перевірити з’єднання</button></div><p class="vatra-offline-status" id="vatraOfflineStatus" aria-live="polite">ВАТРИК чекає на повернення зв’язку.</p></div>';
   overlay.querySelector('#vatraOfflineRetry').addEventListener('click',async()=>{
    const status=overlay.querySelector('#vatraOfflineStatus'),button=overlay.querySelector('#vatraOfflineRetry');
    if(!navigator.onLine){status.textContent='З’єднання ще немає. Перевір Wi-Fi, роутер або VPN і спробуй знову.';return;}
@@ -35,7 +35,7 @@
   }else{
    title.textContent='Наш вогник загубив зв’язок';
    message.textContent='Схоже, інтернет тимчасово зник. Нічого страшного — перевіримо з’єднання й повернемося до твоїх історій.';
-   status.textContent='ВАТРИК чекає, поки мережа повернеться ✨';
+   status.textContent='ВАТРИК чекає на повернення зв’язку.';
   }
   el.hidden=false;document.body.classList.add('vatra-offline-active');
  }
@@ -44,7 +44,7 @@
   window.clearTimeout(restoreTimer);
   if(restored){
    const status=overlay.querySelector('#vatraOfflineStatus');
-   if(status)status.textContent='З’єднання відновлено! Повертаємося до ВАТРИ ✨';
+   if(status)status.textContent='З’єднання відновлено! Повертаємося до ВАТРИ.';
    restoreTimer=window.setTimeout(()=>{overlay.hidden=true;document.body.classList.remove('vatra-offline-active');},1800);
    return;
   }
