@@ -395,7 +395,7 @@ function syncCaptchaVisibility(){
 }
 $('#password').addEventListener('input',()=>{updatePasswordStrength();syncCaptchaVisibility();});
 $('#confirm').addEventListener('input',syncCaptchaVisibility);
-onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open)return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
+onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open)return;const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
 $('#authForm').addEventListener('submit',async e=>{
  e.preventDefault();if(submitting)return;
  if(authCooldownRemaining()>0){refreshAuthCooldown();$('#error').textContent=errors['auth/too-many-requests'];return;}
