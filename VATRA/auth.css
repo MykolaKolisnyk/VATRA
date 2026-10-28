@@ -2513,12 +2513,14 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
 
 /* Visual correction after viewport review: rings remain full circles, inside the screen. */
 .auth-layout::before{
+  position:fixed!important;
   width:min(68vmin,1120px)!important;
   left:50%!important;
   top:50%!important;
   box-shadow:0 0 0 30px rgba(255,255,255,.052),0 0 0 78px rgba(255,255,255,.03)!important;
 }
 .auth-layout::after{
+  position:fixed!important;
   width:min(36vmin,680px)!important;
   left:76%!important;
   top:50%!important;
