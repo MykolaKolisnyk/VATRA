@@ -269,6 +269,8 @@ function show(m){
  if(switchingAccountMode){
   $('#email').value='';$('#password').value='';$('#confirm').value='';
   $('#firstName').value='';$('#lastName').value='';$('#birthday').value='';
+  document.querySelectorAll('.birthday-selects select').forEach(select=>{select.value='';select.setCustomValidity('');});
+  const birthdayHint=document.querySelector('.birthday-picker-hint');if(birthdayHint){birthdayHint.classList.remove('is-invalid');birthdayHint.textContent='Оберіть день, місяць і рік. Реєстрація доступна з 13 років; дата за замовчуванням приватна.';}
   $('#legalConsent').checked=false;pendingHumanAction=null;challengePassed=false;
  }else if(previousMode!==m){
   $('#password').value='';$('#confirm').value='';
