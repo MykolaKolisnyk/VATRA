@@ -1380,3 +1380,8 @@ button:disabled{cursor:not-allowed;opacity:.68}
 .community-member-row{align-items:center}
 @media(min-width:761px){.main{min-width:0}.feed{min-width:0}.post,.quick-compose,.settings-card{max-width:100%}}
 @media(max-width:760px){.profile-stats{gap:12px}.profile-hero .profile-cover,.profile-cover{max-height:190px}.settings-grid{grid-template-columns:minmax(0,1fr)}.settings-grid .span-two{grid-column:auto}}
+
+/* Legal documents are reachable from profile settings on every screen size. */
+.settings-legal-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.settings-legal-links a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:40px}
+@media(max-width:560px){.settings-legal-links{display:grid;grid-template-columns:minmax(0,1fr)}.settings-legal-links a{width:100%}}
