@@ -1603,3 +1603,8 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
  .auth-layout>.form-side{display:block!important;margin-left:0!important;width:100%!important;min-width:0!important;min-height:100vh!important;padding:18px 14px 28px!important}
  .auth-layout>.form-side>.auth-card{width:min(100%,590px)!important;margin:0 auto!important}
 }
+
+/* Keep the email input visible when the contact mode is switched from phone. */
+.phone-number-control--email{display:block!important}
+.phone-number-control--email>.phone-country-static,.phone-number-control--email>.phone-country-code{display:none!important}
+.phone-number-control--email>input{display:block;width:100%;min-width:0}
