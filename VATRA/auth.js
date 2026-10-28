@@ -212,7 +212,7 @@ function resetHumanChallenge(notice=''){
   choiceSet.add(distractor);
  }
  const choices=[...choiceSet].sort(()=>Math.random()-.5);
- wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><span aria-hidden="true">✳</span><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status" id="humanCaptchaStatus" aria-live="polite">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
+ wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="vatra-flame.svg?v=20261028-3" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',()=>{
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -265,8 +265,15 @@ function renderCaptcha(){if(!TURNSTILE_SITE_KEY)return;const script=document.cre
 function show(m){
  const previousMode=mode;mode=m;document.body.dataset.authMode=m;
  if(previousMode!==m)window.scrollTo(0,0);
+ const switchingAccountMode=['login','register'].includes(previousMode)&&['login','register'].includes(m)&&previousMode!==m;
+ if(switchingAccountMode){
+  $('#email').value='';$('#password').value='';$('#confirm').value='';
+  $('#firstName').value='';$('#lastName').value='';$('#birthday').value='';
+  $('#legalConsent').checked=false;pendingHumanAction=null;challengePassed=false;
+ }else if(previousMode!==m){
+  $('#password').value='';$('#confirm').value='';
+ }
  $('#loginTab').disabled=false;$('#registerTab').disabled=false;
- if(previousMode!==m){$('#password').value='';$('#confirm').value='';}
  const pageUrl=new URL(location.href);
  if(m==='login'){
   if(pageUrl.pathname.toLowerCase().endsWith('/register.html'))pageUrl.searchParams.set('mode','login');
