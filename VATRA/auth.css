@@ -2509,3 +2509,38 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
   #developerDialog.developer-dialog[open]{padding:16px!important}
   #developerDialog .developer-dialog-body{padding-right:8px!important;margin-right:-7px!important}
 }
+
+
+/* Visual correction after viewport review: rings remain full circles, inside the screen. */
+.auth-layout::before{
+  width:min(68vmin,1120px)!important;
+  left:50%!important;
+  top:50%!important;
+  box-shadow:0 0 0 30px rgba(255,255,255,.052),0 0 0 78px rgba(255,255,255,.03)!important;
+}
+.auth-layout::after{
+  width:min(36vmin,680px)!important;
+  left:76%!important;
+  top:50%!important;
+  box-shadow:0 0 0 24px rgba(255,255,255,.022)!important;
+}
+@media(min-width:851px){
+  .auth-layout .auth-card{
+    width:min(100%,540px)!important;
+    max-width:540px!important;
+  }
+}
+@media(max-width:850px){
+  .auth-layout::before{
+    width:min(70vw,54vh)!important;
+    left:50%!important;
+    top:44%!important;
+    box-shadow:0 0 0 22px rgba(255,255,255,.04),0 0 0 48px rgba(255,255,255,.025)!important;
+  }
+  .auth-layout::after{
+    width:min(42vw,30vh)!important;
+    left:78%!important;
+    top:70%!important;
+    box-shadow:0 0 0 18px rgba(255,255,255,.02)!important;
+  }
+}
