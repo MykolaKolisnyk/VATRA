@@ -60,9 +60,9 @@ check('public client files do not contain obvious server-role secrets', () => {
   }
 });
 
-check('main entry page references the backend and application script', () => {
-  assert.match(indexHtml, /vatra-backend\.js/);
+check('main entry page loads the application module and it imports the backend', () => {
   assert.match(indexHtml, /script\.js/);
+  assert.match(read('script.js'), /vatra-backend\.js/);
 });
 
 console.log('VATRA static checks passed:');
