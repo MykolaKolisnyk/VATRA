@@ -365,7 +365,7 @@ const strengthMarkup=document.createElement('div');strengthMarkup.className='pas
 $('#password').closest('.field').append(strengthMarkup);
 function updatePasswordStrength(){
  const p=$('#password').value;
- const relevantMode=mode==='register';
+ const relevantMode=mode==='register'||mode==='new-password';
  const showMeter=relevantMode&&p.length>0;
  $('#passwordHelp').hidden=!(relevantMode&&!p);
  strengthMarkup.hidden=!(relevantMode&&p.length>0);
