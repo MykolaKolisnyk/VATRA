@@ -14,7 +14,7 @@ function enhancePhoneInput(input,selectId){
  const option=document.createElement('option');option.value=c.dial;option.textContent=c.dial;option.dataset.iso=c.iso;select.append(option);select.value=c.dial;
  const row=document.createElement('div');row.className='phone-number-control';
  const fixed=document.createElement('div');fixed.className='phone-country-static';fixed.setAttribute('aria-label','Україна, код +380');
- fixed.innerHTML='<svg class="phone-country-flag" viewBox="0 0 24 24" role="img" aria-label="Прапор України"><rect width="24" height="12" fill="#0057B8"></rect><rect y="12" width="24" height="12" fill="#FFD700"></rect></svg><span>+380</span>';
+ fixed.innerHTML='<svg class="phone-country-flag" viewBox="0 0 30 20" role="img" aria-label="Прапор України"><rect width="30" height="10" fill="#0057B8"></rect><rect y="10" width="30" height="10" fill="#FFD700"></rect></svg><span>+380</span>';
  input.parentNode.insertBefore(row,input);row.append(fixed,select,input);
  input.placeholder='93X XXX XX XX';
 }
@@ -37,14 +37,27 @@ function setPhoneInputFromFullNumber(input,select,value){
  else input.value=normalized;
 }
 function syncPhoneInputMode(input,select,method){
+ if(!input)return;
  const phone=method==='phone';
  if(select)select.hidden=true;
- const phoneRow=input?.closest('.phone-number-control');
+ const phoneRow=input.closest('.phone-number-control');
  const countryPrefix=phoneRow?.querySelector('.phone-country-static');
  if(phoneRow){phoneRow.hidden=false;phoneRow.classList.toggle('phone-number-control--email',!phone);}
  if(countryPrefix)countryPrefix.hidden=!phone;
- input.type=phone?'tel':'email';input.autocomplete=phone?'tel':'email';input.inputMode=phone?'tel':'email';
- input.placeholder=phone?(select?.value==='+380'?'930 657 340':'Номер без коду країни'):'name@example.com';
+ input.type=phone?'tel':'email';
+ input.autocomplete=phone?'tel':'email';
+ input.inputMode=phone?'tel':'email';
+ input.placeholder=phone?'930 657 340':'name@example.com';
+ input.setAttribute('aria-label',phone?'Номер телефону':'Електронна пошта');
+}
+function syncAuthMethodUI(method){
+ const selected=method==='phone'?'phone':'email';
+ document.querySelectorAll('input[name="authMethod"]').forEach(radio=>{radio.checked=radio.value===selected;});
+ const methodSelect=$('#method');
+ if(methodSelect)methodSelect.value=selected;
+ syncPhoneInputMode($('#email'),$('#countryCode'),selected);
+ const label=$('#contactLabel');
+ if(label)label.textContent=selected==='phone'?'Номер телефону':'Електронна пошта';
 }
 function currentAuthContact(){
  return selectedMethod()==='phone'
@@ -158,14 +171,14 @@ const errors={
  'vatra/registration-data':'Перевірте ім’я, прізвище та пароль.',
  'vatra/account-creation-failed':'Не вдалося створити акаунт. Спробуйте пізніше.'
 };
-let challengeAnswer=null,challengePassed=false;
+let challengeAnswer=null,challengePassed=false,previousChallengeIndex=-1;
 function closeHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
  wrap.classList.remove('captcha-modal');wrap.hidden=true;wrap.removeAttribute('role');wrap.removeAttribute('aria-modal');wrap.removeAttribute('aria-label');document.body.classList.remove('captcha-modal-open');
 }
 function openHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
- resetHumanChallenge();wrap.hidden=false;wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Швидка перевірка');wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
+ resetHumanChallenge();if(wrap.parentElement!==document.body)document.body.appendChild(wrap);wrap.hidden=false;wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Швидка перевірка');wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
  wrap.querySelector('button[data-captcha-answer]')?.focus();
 }
 function resetHumanChallenge(){
@@ -181,7 +194,7 @@ function resetHumanChallenge(){
   ()=>({question:'Що з наведеного не є транспортом?',choices:['🚆 Потяг','🚲 Велосипед','🍉 Кавун'],answer:'🍉 Кавун',status:'Відрізніть транспорт від їжі.'}),
   ()=>({question:'Оберіть символ, який повторює зразок: ▲ ● ▲ ● …',choices:['▲','■','★'],answer:'▲',status:'Продовжіть послідовність.'}),
   ()=>({question:'Яку пару зазвичай використовують разом?',choices:['🔒 Замок і ключ','🌧️ Дощ і окуляри','🍽️ Тарілка й шолом'],answer:'🔒 Замок і ключ',status:'Знайдіть логічну пару.'}),
-  ()=>{const n=3+Math.floor(Math.random()*8);const opts=[String(n),String(n+2),String(Math.max(1,n-1))];return {question:'Скільки кутів має квадрат?',choices:['4','3','5'],answer:'4',status:'Згадайте просту геометричну форму.'};},
+  ()=>({question:'Оберіть тварину, яку зазвичай не тримають удома:',choices:['🐈 Кіт','🐕 Собака','🦁 Лев'],answer:'🦁 Лев',status:'Знайдіть тварину, яка не є звичайним домашнім улюбленцем.'}),
   ()=>({question:'Яке слово має протилежне значення до «високий»?',choices:['Низький','Широкий','Теплий'],answer:'Низький',status:'Оберіть слово з протилежним значенням.'}),
   ()=>({question:'Оберіть послідовність, у якій спочатку день, потім ніч:',choices:['☀️ → 🌙','🌙 → ☀️','☀️ → ☀️'],answer:'☀️ → 🌙',status:'Подумайте, що відбувається протягом доби.'}),
   ()=>({question:'Що краще зробити з паролем, який Ви вже використали на іншому сайті?',choices:['Створити окремий новий','Залишити той самий','Опублікувати його'],answer:'Створити окремий новий',status:'Оберіть безпечний варіант.'}),
@@ -189,7 +202,10 @@ function resetHumanChallenge(){
   ()=>({question:'Який знак найкраще завершує це речення: «Ви прийшли?___»',choices:['?',';','×'],answer:'?',status:'Врахуйте зміст речення.'}),
   ()=>({question:'Знайдіть пару однакових символів:',choices:['🌿 / 🌿','🌿 / 🍃','🌿 / 🌳'],answer:'🌿 / 🌿',status:'Порівняйте обидва символи в кожній відповіді.'})
  ];
- const task=tasks[Math.floor(Math.random()*tasks.length)]();
+ const availableTaskIndexes=tasks.map((_,i)=>i).filter(i=>i!==previousChallengeIndex);
+ const taskIndex=availableTaskIndexes[Math.floor(Math.random()*availableTaskIndexes.length)];
+ previousChallengeIndex=taskIndex;
+ const task=tasks[taskIndex]();
  const choices=[...task.choices].sort(()=>Math.random()-.5);
  challengeAnswer=task.answer;
  wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><span aria-hidden="true">✳</span><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">'+task.question+'</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status" id="humanCaptchaStatus" aria-live="polite">'+task.status+' Це додаткова перевірка, а не гарантія захисту від усіх автоматизованих атак.</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
@@ -263,18 +279,30 @@ function show(m){
  $('#desc').textContent=reg?'Вкажіть дані та створіть надійний пароль. ВАТРА перевірить, чи контакт уже зареєстровано.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
  $('#submit').textContent=reg?'Створити акаунт':newPassword?'Зберегти новий пароль':reset?'Надіслати посилання':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
- const sw=$('#switch');if(sw)sw.onclick=()=>show(reg?'login':'register');
  $('#legal').hidden=reset||newPassword;
  $('#legalConsentWrap').hidden=!reg;$('#legalConsent').required=reg;$('#legalConsent').checked=false;
  $('#legal').innerHTML=reg?'<span class="legal-label">Перед створенням акаунта ознайомтеся з документами:</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button></div>':'<span class="legal-label">Документи ВАТРИ</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button></div>';
- $('#error').textContent='';$('#error').classList.remove('success');const activeMethod=selectedMethod();document.querySelectorAll('input[name="authMethod"]').forEach(radio=>{radio.checked=radio.value===activeMethod;});$('#method').value=activeMethod;
- syncPhoneInputMode($('#email'),$('#countryCode'),activeMethod);$('#contactLabel').textContent=activeMethod==='phone'?'Номер телефону':'Електронна пошта';
+ $('#error').textContent='';$('#error').classList.remove('success');const activeMethod=selectedMethod();syncAuthMethodUI(activeMethod);
  $('#password').autocomplete=reg||newPassword?'new-password':'current-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
  
  refreshAuthCooldown();
 }
-document.querySelectorAll('input[name="authMethod"]').forEach(radio=>radio.addEventListener('change',()=>{const method=selectedMethod();$('#method').value=method;$('#email').value='';$('#submit').textContent=mode==='register'?'Створити акаунт':'Увійти';syncPhoneInputMode($('#email'),$('#countryCode'),method);$('#contactLabel').textContent=method==='phone'?'Номер телефону':'Електронна пошта';$('#error').textContent='';syncCaptchaVisibility();}));
-$('#loginTab').onclick=()=>show('login');$('#registerTab').onclick=()=>show('register');
+document.querySelectorAll('input[name="authMethod"]').forEach(radio=>radio.addEventListener('change',()=>{
+ const method=radio.value;
+ syncAuthMethodUI(method);
+ $('#email').value='';
+ $('#submit').textContent=authSubmitLabel();
+ $('#error').textContent='';
+ syncCaptchaVisibility();
+}));
+$('#loginTab').addEventListener('click',()=>show('login'));
+$('#registerTab').addEventListener('click',()=>show('register'));
+$('#bottom').addEventListener('click',event=>{
+ const switchButton=event.target.closest('#switch');
+ if(!switchButton)return;
+ event.preventDefault();
+ show(mode==='register'?'login':'register');
+});
 
 
 
@@ -463,5 +491,5 @@ $('#authForm').addEventListener('submit',async e=>{
   if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);
  }finally{submitting=false;refreshAuthCooldown();}
 });
-enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();const params=new URLSearchParams(location.search),requestedMode=params.get('mode');const initialMode=['login','register','reset','new-password'].includes(requestedMode)?requestedMode:(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');show(initialMode);$('#method').value=selectedMethod();if(authCooldownRemaining()>0&&!authCooldownTimer)authCooldownTimer=setInterval(refreshAuthCooldown,1000);const requestedLegal=params.get('legal');if(['rules','privacy','terms'].includes(requestedLegal))openLegal(requestedLegal);
+enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();const params=new URLSearchParams(location.search),requestedMode=params.get('mode');const initialMode=['login','register','reset','new-password'].includes(requestedMode)?requestedMode:(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');const emailRadio=document.querySelector('input[name="authMethod"][value="email"]');if(emailRadio)emailRadio.checked=true;$('#method').value='email';show(initialMode);syncAuthMethodUI(selectedMethod());if(authCooldownRemaining()>0&&!authCooldownTimer)authCooldownTimer=setInterval(refreshAuthCooldown,1000);const requestedLegal=params.get('legal');if(['rules','privacy','terms'].includes(requestedLegal))openLegal(requestedLegal);
 window.__vatraAuthReady = true;
