@@ -158,13 +158,27 @@ const errors={
 };
 let challengeAnswer=null,challengePassed=false;
 function closeHumanCaptcha(){
- const wrap=$('#captchaWrap');if(!wrap)return;
- wrap.classList.remove('captcha-modal');wrap.hidden=true;document.body.classList.remove('captcha-modal-open');
+ const wrap=$('#captchaWrap');
+ if(wrap){wrap.classList.remove('captcha-modal');wrap.hidden=true;wrap.removeAttribute('aria-modal');}
+ document.body.classList.remove('captcha-modal-open');
 }
 function openHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
- resetHumanChallenge();wrap.hidden=false;wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
- wrap.querySelector('button[data-captcha-answer]')?.focus();
+ try {
+  resetHumanChallenge();
+  wrap.hidden=false;
+  wrap.setAttribute('role','dialog');
+  wrap.setAttribute('aria-modal','true');
+  wrap.setAttribute('aria-label','Швидка перевірка ВАТРИ');
+  wrap.classList.add('captcha-modal');
+  document.body.classList.add('captcha-modal-open');
+  requestAnimationFrame(()=>wrap.querySelector('button[data-captcha-answer]')?.focus());
+ } catch(error) {
+  closeHumanCaptcha();
+  const message=$('#error');
+  if(message) message.textContent='Не вдалося відкрити перевірку. Оновіть сторінку й спробуйте ще раз.';
+  console.error('VATRA verification dialog failed:',error);
+ }
 }
 function resetHumanChallenge(){
  challengePassed=false;
@@ -254,7 +268,7 @@ function show(m){
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';
- $('#passwordHelp').hidden=!(reg||newPassword);const meter=$('#passwordStrength');if(meter)meter.hidden=!(reg||newPassword);$('#password').closest('.field').hidden=reset||verifySignup;$('#forgot').hidden=reg||reset||newPassword||verifySignup;
+ $('#passwordHelp').hidden=!reg;const meter=$('#passwordStrength');if(meter)meter.hidden=!reg;$('#password').closest('.field').hidden=reset||verifySignup;$('#forgot').hidden=reg||reset||newPassword||verifySignup;
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
@@ -263,7 +277,7 @@ function show(m){
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const sw=$('#switch');if(sw)sw.onclick=()=>show(reg?'login':'register');
  $('#legal').hidden=reset||newPassword;
- $('#legal').innerHTML=reg?'Створюючи акаунт, Ви погоджуєтеся дотримуватися <button type="button" data-legal="rules">Правил ВАТРИ</button> та <button type="button" data-legal="privacy">Політики конфіденційності</button>.':'<button type="button" data-legal="rules">Правила ВАТРИ</button><button type="button" data-legal="privacy">Політика конфіденційності</button>';
+ $('#legal').innerHTML=reg?'Створюючи акаунт, Ви погоджуєтеся дотримуватися <button type="button" data-legal="rules">Правил ВАТРИ</button>, <button type="button" data-legal="privacy">Політики конфіденційності</button> та <button type="button" data-legal="terms">Умов використання</button>.':'<button type="button" data-legal="rules">Правила ВАТРИ</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button>';
  $('#error').textContent='';$('#error').classList.remove('success');$('#method').value=selectedMethod();
  syncPhoneInputMode($('#email'),$('#countryCode'),selectedMethod());$('#contactLabel').textContent=selectedMethod()==='phone'?'Номер телефону':'Електронна пошта';
  $('#password').autocomplete=reg||newPassword?'new-password':'current-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
