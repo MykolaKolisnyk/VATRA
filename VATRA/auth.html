@@ -1,4 +1,4 @@
-<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0059ff"><meta name="color-scheme" content="light"><link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028-2"><meta name="author" content="Микола Колісник"><meta name="robots" content="index,follow"><meta property="og:site_name" content="ВАТРА"><meta property="og:locale" content="uk_UA"><meta property="og:type" content="website"><meta property="og:title" content="ВАТРА — українська соціальна мережа"><meta property="og:description" content="Увійдіть або створіть акаунт у ВАТРІ. Ваш український простір для спілкування."><meta name="twitter:card" content="summary"><meta name="twitter:title" content="ВАТРА — українська соціальна мережа"><meta name="twitter:description" content="Увійдіть або створіть акаунт у ВАТРІ."><title>Вхід до ВАТРИ</title><meta name="description" content="Увійдіть або створіть акаунт у ВАТРІ. Вхід і реєстрація за допомогою пароля."><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="auth.css?v=20261028-14"><link rel="stylesheet" href="vatra-loader.css?v=20261028-1"><link rel="stylesheet" href="network-status.css?v=20261027-2"></head><body><div id="vatraLoader" class="vatra-loading-screen" role="status" aria-live="polite" aria-label="Завантаження ВАТРИ">
+<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0059ff"><meta name="color-scheme" content="light"><link rel="icon" type="image/svg+xml" href="favicon.svg?v=20261028-3"><meta name="author" content="Микола Колісник"><meta name="robots" content="index,follow"><meta property="og:site_name" content="ВАТРА"><meta property="og:locale" content="uk_UA"><meta property="og:type" content="website"><meta property="og:title" content="ВАТРА — українська соціальна мережа"><meta property="og:description" content="Увійдіть або створіть акаунт у ВАТРІ. Ваш український простір для спілкування."><meta name="twitter:card" content="summary"><meta name="twitter:title" content="ВАТРА — українська соціальна мережа"><meta name="twitter:description" content="Увійдіть або створіть акаунт у ВАТРІ."><title>Вхід до ВАТРИ</title><meta name="description" content="Увійдіть або створіть акаунт у ВАТРІ. Вхід і реєстрація за допомогою пароля."><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="auth.css?v=20261028-15"><link rel="stylesheet" href="vatra-loader.css?v=20261028-1"><link rel="stylesheet" href="network-status.css?v=20261028-4"></head><body><div id="vatraLoader" class="vatra-loading-screen" role="status" aria-live="polite" aria-label="Завантаження ВАТРИ">
   <div class="vatra-loading-card">
     <div class="vatra-loading-brand">
       <div class="vatra-loading-mark" aria-hidden="true">в</div>
@@ -30,7 +30,7 @@
       <input id="recoveryContact" type="email" autocomplete="email" placeholder="name@example.com" required>
     </div>
     <section class="recovery-protection" id="recoveryProtection">
-      <div class="recovery-protection-title"><span>✳</span><strong>Захист ВАТРИ</strong></div>
+      <div class="recovery-protection-title"><img class="vatra-mini-mark" src="vatra-flame.svg?v=20261028-3" alt="" aria-hidden="true"><strong>Захист ВАТРИ</strong></div>
       <p>Розв’яжіть короткий приклад, щоб продовжити.</p>
       <div class="recovery-math"><span id="recoveryMath">3 + 4 = ?</span><div id="recoveryAnswers" class="recovery-answers"></div></div>
       <p class="recovery-challenge-status" id="recoveryChallengeStatus" aria-live="polite">Ця перевірка допомагає захистити акаунти від автоматизованих запитів.</p>
@@ -55,6 +55,7 @@
 </dialog>
 <dialog class="developer-dialog" id="developerDialog" aria-labelledby="developerTitle">
   <button type="button" class="developer-dialog-close" id="closeDeveloper" aria-label="Закрити вікно">×</button>
+  <div class="developer-dialog-body" id="developerScrollArea">
   <div class="developer-dialog-mark" aria-hidden="true">В</div>
   <p class="developer-kicker">ПРО РОЗРОБНИКА</p>
   <h2 id="developerTitle">Я — Микола Колісник</h2>
@@ -64,6 +65,7 @@
     <p>У травні 2025 року під час бойового завдання я отримав тяжкі опікові поранення. Далі були операції, пересадка шкіри, тривале лікування та реабілітація. Через наслідки поранення мене звільнили з військової служби. Відновлення змінило мій звичний ритм життя, але не забрало бажання вчитися, створювати й рухатися вперед.</p>
     <p>Тепер я спрямовую сили у ВАТРУ — українську соціальну мережу, яку розробляю самостійно. Працюю над інтерфейсом, кодом, авторизацією, безпекою та майбутніми можливостями платформи. Це великий проєкт, який я розвиваю поступово, крок за кроком, з увагою до деталей і повагою до людей, які ним користуватимуться.</p>
     <p>Для мене ВАТРА — не просто технічна робота. Це нова мета після складного життєвого періоду й можливість перетворити давній інтерес до програмування на корисний український продукт. Я хочу, щоб тут люди могли спілкуватися, ділитися історіями, знаходити однодумців і відчувати, що цей простір створюється з українським характером.</p>
+  </div>
   </div>
   <div class="developer-dialog-actions"><button type="button" class="developer-dialog-done" id="closeDeveloperBottom">Зрозуміло</button></div>
 </dialog>
@@ -154,4 +156,4 @@
   <div class="auth-dialog-actions"><button type="button" class="submit" id="closeLegalBottom">Зрозуміло</button></div>
 </div>
 </dialog>
-<script src="network-status.js?v=20261027-3"></script><script type="module" src="auth.js?v=20261028-14"></script><script src="vatra-loader.js?v=20261028-1"></script></body></html>
+<script src="network-status.js?v=20261028-4"></script><script type="module" src="auth.js?v=20261028-15"></script><script src="vatra-loader.js?v=20261028-1"></script></body></html>
