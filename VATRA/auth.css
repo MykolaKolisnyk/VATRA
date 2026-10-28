@@ -1687,3 +1687,10 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
   .auth-card .legal-links { display: grid; grid-template-columns: 1fr; gap: 4px; }
   .auth-card .legal-links button { justify-content: center; min-height: 36px; }
 }
+
+/* VATRA auth: centered quick human check and registration-only password guidance. */
+#captchaWrap.captcha-modal .human-captcha-title{font-size:14px;}
+#captchaWrap.captcha-modal .human-captcha-tag{margin-left:auto;font-size:10px;}
+#captchaWrap.captcha-modal .human-captcha-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;}
+#captchaWrap.captcha-modal .human-captcha-option{min-height:44px;}
+#passwordHelp[hidden],#passwordStrength[hidden]{display:none!important;}
