@@ -265,6 +265,7 @@ function show(m){
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const sw=$('#switch');if(sw)sw.onclick=()=>show(reg?'login':'register');
  $('#legal').hidden=reset||newPassword;
+ $('#legalConsentWrap').hidden=!reg;$('#legalConsent').required=reg;$('#legalConsent').checked=false;
  $('#legal').innerHTML=reg?'<span class="legal-label">Перед створенням акаунта ознайомтеся з документами:</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button></div>':'<span class="legal-label">Документи ВАТРИ</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button></div>';
  $('#error').textContent='';$('#error').classList.remove('success');const activeMethod=selectedMethod();document.querySelectorAll('input[name="authMethod"]').forEach(radio=>{radio.checked=radio.value===activeMethod;});$('#method').value=activeMethod;
  syncPhoneInputMode($('#email'),$('#countryCode'),activeMethod);$('#contactLabel').textContent=activeMethod==='phone'?'Номер телефону':'Електронна пошта';
@@ -283,6 +284,7 @@ document.getElementById('closeDeveloperBottom').addEventListener('click',()=>doc
 document.getElementById('developerDialog').addEventListener('click',event=>{if(event.target===document.getElementById('developerDialog'))document.getElementById('developerDialog').close();});
 function openLegal(which){const selected=['rules','privacy','terms'].includes(which)?which:'rules';$('#legalRules').hidden=selected!=='rules';$('#legalPrivacy').hidden=selected!=='privacy';$('#legalTerms').hidden=selected!=='terms';document.querySelectorAll('[data-legal-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.legalTab===selected);b.setAttribute('aria-selected',String(b.dataset.legalTab===selected));});const area=$('#legalScrollArea');if(area)area.scrollTop=0;$('#legalDialog').showModal();}
 $('#legal').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b)openLegal(b.dataset.legal);});
+$('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();openLegal(b.dataset.legal);}});
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
 $('#closeLegal').onclick=()=>$('#legalDialog').close();$('#closeLegalBottom').onclick=()=>$('#legalDialog').close();
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))$('#legalDialog').close();});
@@ -405,6 +407,7 @@ $('#authForm').addEventListener('submit',async e=>{
  if(mode!=='new-password'&&isPhone&&!/^\+[1-9]\d{7,14}$/.test(contact)){ $('#error').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX.';return;}
  if(mode!=='new-password'&&!isPhone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){ $('#error').textContent='Введіть коректну адресу електронної пошти.';return;}
  const reg=mode==='register';
+ if(reg&&!$('#legalConsent').checked){$('#error').textContent='Щоб створити акаунт, підтвердьте згоду з Умовами користування та Правилами спільноти й ознайомлення з Політикою конфіденційності.';$('#legalConsentWrap').scrollIntoView({behavior:'smooth',block:'center'});$('#legalConsent').focus();return;}
  let first='',last='',name='';
  if(reg){
   first=$('#firstName').value.trim();last=$('#lastName').value.trim();name=(first+' '+last).trim();
