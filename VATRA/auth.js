@@ -263,7 +263,9 @@ function startAuthRateLimitCooldown(seconds=300){
 
 function renderCaptcha(){if(!TURNSTILE_SITE_KEY)return;const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.onload=()=>{if(window.turnstile&&!captchaWidget)captchaWidget=window.turnstile.render('#turnstileWidget',{sitekey:TURNSTILE_SITE_KEY,theme:'light'});};document.head.append(script);}
 function show(m){
- const previousMode=mode;mode=m;document.body.dataset.authMode=m;$('#loginTab').disabled=false;$('#registerTab').disabled=false;
+ const previousMode=mode;mode=m;document.body.dataset.authMode=m;
+ if(previousMode!==m)window.scrollTo(0,0);
+ $('#loginTab').disabled=false;$('#registerTab').disabled=false;
  if(previousMode!==m){$('#password').value='';$('#confirm').value='';}
  const pageUrl=new URL(location.href);
  if(m==='login'){
