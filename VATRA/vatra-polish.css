@@ -1385,3 +1385,14 @@ button:disabled{cursor:not-allowed;opacity:.68}
 .settings-legal-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .settings-legal-links a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:40px}
 @media(max-width:560px){.settings-legal-links{display:grid;grid-template-columns:minmax(0,1fr)}.settings-legal-links a{width:100%}}
+
+/* VATRA: keep the complete left navigation anchored while the feed scrolls. */
+@media (min-width:761px){
+ .sidebar{position:fixed!important;left:max(12px,calc((100vw - 1260px)/2 + 24px))!important;top:20px!important;width:210px!important;height:calc(100dvh - 40px)!important;max-height:calc(100dvh - 40px)!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#c5d0df transparent;z-index:30;}
+ .sidebar::-webkit-scrollbar{width:6px}.sidebar::-webkit-scrollbar-thumb{background:#c5d0df;border-radius:99px}.sidebar::-webkit-scrollbar-track{background:transparent}
+ .main{grid-column:2!important;}
+ .right{grid-column:3!important;}
+}
+@media (max-width:1180px) and (min-width:761px){.sidebar{width:195px!important;left:22px!important;}}
+@media (max-width:1050px) and (min-width:961px){.sidebar{width:190px!important;left:22px!important;}}
+@media (max-width:960px) and (min-width:761px){.sidebar{width:174px!important;left:17px!important;}}
