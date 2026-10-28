@@ -330,16 +330,31 @@ $('#registerTab').addEventListener('click',()=>show('register'));
 
 
 
-document.querySelectorAll('[data-developer-open]').forEach(button=>button.addEventListener('click',()=>document.getElementById('developerDialog').showModal()));
-document.getElementById('closeDeveloper').addEventListener('click',()=>document.getElementById('developerDialog').close());
-document.getElementById('closeDeveloperBottom').addEventListener('click',()=>document.getElementById('developerDialog').close());
-document.getElementById('developerDialog').addEventListener('click',event=>{if(event.target===document.getElementById('developerDialog'))document.getElementById('developerDialog').close();});
-function openLegal(which){const selected=['rules','privacy','terms'].includes(which)?which:'rules';$('#legalRules').hidden=selected!=='rules';$('#legalPrivacy').hidden=selected!=='privacy';$('#legalTerms').hidden=selected!=='terms';document.querySelectorAll('[data-legal-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.legalTab===selected);b.setAttribute('aria-selected',String(b.dataset.legalTab===selected));});const area=$('#legalScrollArea');if(area)area.scrollTop=0;$('#legalDialog').showModal();}
+function openDialogAnimated(dialog){
+ if(!dialog)return;
+ dialog.classList.remove('is-closing','is-opening');
+ if(!dialog.open)dialog.showModal();
+ void dialog.offsetWidth;
+ dialog.classList.add('is-opening');
+ window.setTimeout(()=>dialog.classList.remove('is-opening'),260);
+}
+function closeDialogAnimated(dialog){
+ if(!dialog||!dialog.open||dialog.classList.contains('is-closing'))return;
+ dialog.classList.remove('is-opening');
+ dialog.classList.add('is-closing');
+ window.setTimeout(()=>{if(dialog.open)dialog.close();dialog.classList.remove('is-closing');},180);
+}
+document.querySelectorAll('[data-developer-open]').forEach(button=>button.addEventListener('click',()=>openDialogAnimated(document.getElementById('developerDialog'))));
+document.getElementById('closeDeveloper').addEventListener('click',()=>closeDialogAnimated(document.getElementById('developerDialog')));
+document.getElementById('closeDeveloperBottom').addEventListener('click',()=>closeDialogAnimated(document.getElementById('developerDialog')));
+document.getElementById('developerDialog').addEventListener('click',event=>{if(event.target===document.getElementById('developerDialog'))closeDialogAnimated(document.getElementById('developerDialog'));});
+document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialogAnimated(dialog);}));
+function openLegal(which){const selected=['rules','privacy','terms'].includes(which)?which:'rules';$('#legalRules').hidden=selected!=='rules';$('#legalPrivacy').hidden=selected!=='privacy';$('#legalTerms').hidden=selected!=='terms';document.querySelectorAll('[data-legal-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.legalTab===selected);b.setAttribute('aria-selected',String(b.dataset.legalTab===selected));});const area=$('#legalScrollArea');if(area)area.scrollTop=0;openDialogAnimated($('#legalDialog'));}
 $('#legal').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b)openLegal(b.dataset.legal);});
 $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();openLegal(b.dataset.legal);}});
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
-$('#closeLegal').onclick=()=>$('#legalDialog').close();$('#closeLegalBottom').onclick=()=>$('#legalDialog').close();
-$('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))$('#legalDialog').close();});
+$('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLegalBottom').onclick=()=>closeDialogAnimated($('#legalDialog'));
+$('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
 function currentRecoveryMethod(){return document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact';
 function resetRecoveryChallenge(){
@@ -367,11 +382,11 @@ function openRecovery(){
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
  const method=selectedMethod(),radio=$('input[name="recoveryMethod"][value="'+method+'"]');if(radio)radio.checked=true;
- syncRecoveryMethod();if(method==='phone')setPhoneInputFromFullNumber($('#recoveryContact'),$('#recoveryCountryCode'),currentAuthContact());else $('#recoveryContact').value=$('#email').value.trim().toLowerCase();resetRecoveryChallenge();$('#recoveryDialog').showModal();
+ syncRecoveryMethod();if(method==='phone')setPhoneInputFromFullNumber($('#recoveryContact'),$('#recoveryCountryCode'),currentAuthContact());else $('#recoveryContact').value=$('#email').value.trim().toLowerCase();resetRecoveryChallenge();openDialogAnimated($('#recoveryDialog'));
 }
 $('#forgot').onclick=openRecovery;
-$('#closeRecovery').onclick=()=>$('#recoveryDialog').close();
-$('#recoveryDialog').addEventListener('click',e=>{if(e.target===$('#recoveryDialog'))$('#recoveryDialog').close();});
+$('#closeRecovery').onclick=()=>closeDialogAnimated($('#recoveryDialog'));
+$('#recoveryDialog').addEventListener('click',e=>{if(e.target===$('#recoveryDialog'))closeDialogAnimated($('#recoveryDialog'));});
 document.querySelectorAll('input[name="recoveryMethod"]').forEach(r=>r.addEventListener('change',()=>{
  $('#recoveryContact').value='';recoveryStep='contact';$('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;$('#recoveryProtection').hidden=false;
  $('#recoveryError').textContent='';syncRecoveryMethod();resetRecoveryChallenge();
