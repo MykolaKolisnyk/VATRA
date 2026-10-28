@@ -1876,3 +1876,36 @@ body{
 /* Keep the password hint and strength meter mutually exclusive in registration. */
 #passwordHelp[hidden],
 #passwordStrength[hidden]{display:none!important}
+
+
+/* Final correction: compact Ukrainian flag and +380 label. */
+.phone-country-static{
+  flex:0 0 56px!important;
+  width:56px!important;
+  min-width:56px!important;
+  height:38px!important;
+  padding:2px!important;
+  border-radius:8px!important;
+}
+.phone-country-static .phone-country-flag{
+  border-radius:6px!important;
+}
+.phone-country-static>span{
+  padding:2px 4px!important;
+  border-radius:5px!important;
+  font-size:10px!important;
+  line-height:1.2!important;
+  box-shadow:0 1px 3px #102a4d26!important;
+}
+@media(max-width:560px){
+  .phone-country-static{
+    flex-basis:52px!important;
+    width:52px!important;
+    min-width:52px!important;
+    height:36px!important;
+  }
+  .phone-country-static>span{font-size:9px!important;padding:2px 3px!important}
+}
+.phone-number-control--email>.phone-country-static,
+.phone-number-control--email>.phone-country-code{display:none!important}
+.phone-country-static[hidden]{display:none!important}
