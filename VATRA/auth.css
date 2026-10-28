@@ -1909,3 +1909,229 @@ body{
 .phone-number-control--email>.phone-country-static,
 .phone-number-control--email>.phone-country-code{display:none!important}
 .phone-country-static[hidden]{display:none!important}
+
+
+/* VATRA auth: consistent scrolling, responsive layout and readable error states. */
+html{
+  height:auto!important;
+  min-height:100%;
+  overflow-x:clip!important;
+  overflow-y:auto!important;
+  scroll-behavior:smooth;
+}
+body{
+  height:auto!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  overflow-x:clip!important;
+  overflow-y:visible!important;
+  overscroll-behavior-y:auto!important;
+}
+.auth-layout{
+  height:auto!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  overflow:visible!important;
+  overflow-x:clip!important;
+}
+.auth-layout>.form-side{
+  height:auto!important;
+  max-height:none!important;
+  overflow:visible!important;
+  overflow-x:clip!important;
+  overflow-y:visible!important;
+  overscroll-behavior:initial!important;
+  align-self:start!important;
+  justify-content:flex-start!important;
+}
+.auth-card{
+  min-width:0!important;
+  width:min(100%,520px)!important;
+  max-width:100%!important;
+  margin-inline:auto!important;
+}
+.auth-card form,
+.auth-card .field,
+.auth-card .password,
+.auth-card .method-choice,
+.auth-card .phone-number-control,
+.auth-card .legal-consent{
+  min-width:0;
+  max-width:100%;
+}
+.auth-card input,
+.auth-card select,
+.auth-card textarea,
+.auth-card button{
+  max-width:100%;
+}
+.auth-card .field input,
+.auth-card .password input{
+  min-width:0;
+}
+.auth-card .desc,
+.auth-card .legal-consent p,
+.auth-card #error,
+.auth-card .legal-description{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+
+/* Keep one page scrollbar and a stable split layout on desktop. */
+@media(min-width:851px){
+  .auth-layout{display:block!important;width:100%!important}
+  .auth-layout>.brand-side{
+    position:fixed!important;
+    left:0!important;right:auto!important;top:0!important;bottom:0!important;
+    width:clamp(330px,40vw,560px)!important;
+    height:100vh!important;height:100dvh!important;
+    min-height:0!important;max-height:none!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+    z-index:2!important;
+    justify-content:space-between!important;
+  }
+  .auth-layout>.form-side{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    margin-left:clamp(330px,40vw,560px)!important;
+    width:auto!important;
+    min-width:0!important;
+    min-height:100vh!important;min-height:100dvh!important;
+    padding:clamp(20px,3vh,34px) clamp(14px,2.4vw,36px) 42px!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+  .auth-card{width:min(100%,520px)!important;padding:clamp(20px,2.6vw,36px)!important}
+}
+@media(max-width:850px){
+  html{overflow-x:hidden!important;overflow-y:auto!important}
+  body{width:100%;min-width:320px!important;overflow-x:hidden!important;overflow-y:visible!important}
+  .auth-layout{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:100vh!important;min-height:100dvh!important;
+    height:auto!important;
+  }
+  .auth-layout>.brand-side{display:none!important}
+  .auth-layout>.form-side{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    margin:0!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:100vh!important;min-height:100dvh!important;
+    height:auto!important;
+    padding:clamp(12px,3.5vw,24px)!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+  .auth-card{
+    width:min(100%,540px)!important;
+    padding:clamp(18px,4vw,30px)!important;
+    border-radius:18px!important;
+  }
+  .auth-card .switcher{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px}
+  .auth-card .switcher button{min-width:0;white-space:normal;line-height:1.35}
+  .auth-card h2{font-size:clamp(23px,5.5vw,29px)!important;overflow-wrap:anywhere}
+  .auth-card .method-choice{grid-template-columns:minmax(0,1fr)}
+  .auth-card .legal-links{gap:4px 12px}
+  .auth-card .legal-links button{max-width:100%;overflow-wrap:anywhere}
+  .form-side footer{text-align:center;line-height:1.5}
+}
+@media(max-width:420px){
+  .auth-layout>.form-side{padding:10px!important}
+  .auth-card{padding:18px 14px!important;border-radius:15px!important}
+  .auth-card .mobile-logo{margin-bottom:18px;font-size:20px}
+  .auth-card .mobile-developer-note{width:100%;min-width:0}
+  .auth-card .switcher{margin-bottom:22px}
+  .auth-card .field{margin-bottom:12px}
+  .auth-card .field input{font-size:16px;min-height:46px}
+  .auth-card .password input{padding-right:82px}
+  .auth-card .legal-consent{padding:10px!important;gap:8px!important;font-size:11px!important}
+  .auth-card .legal-consent input[type="checkbox"]{flex:0 0 16px}
+  .auth-card .submit{min-height:48px;height:auto;padding:12px}
+  .human-captcha-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  #captchaWrap .human-captcha-option{min-width:0;overflow-wrap:anywhere}
+}
+@media(max-width:350px){
+  .auth-card{padding:16px 12px!important}
+  .auth-card .switcher button{font-size:11px!important;padding:10px 3px!important}
+  .auth-card .desc{font-size:13px!important}
+  .phone-country-static{flex-basis:48px!important;width:48px!important;min-width:48px!important}
+  .phone-number-control{gap:5px}
+}
+
+/* Form errors are visible, consistent alert cards rather than plain red text. */
+.auth-card #error:not(:empty),
+.auth-dialog .auth-dialog-error:not(:empty),
+#recoveryError:not(:empty){
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:10px!important;
+  width:100%!important;
+  min-width:0!important;
+  padding:11px 12px!important;
+  margin:10px 0 14px!important;
+  border:1px solid #f3b8bf!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,#fff5f6,#fffafb)!important;
+  color:#99243a!important;
+  font-size:12px!important;
+  font-weight:600!important;
+  line-height:1.55!important;
+  text-align:left!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  box-shadow:0 3px 10px rgba(153,36,58,.045)!important;
+  animation:vatra-alert-in .18s ease-out both;
+}
+.auth-card #error:not(:empty)::before,
+.auth-dialog .auth-dialog-error:not(:empty)::before,
+#recoveryError:not(:empty)::before{
+  content:"!";
+  flex:0 0 21px;
+  display:grid;
+  place-items:center;
+  width:21px;
+  height:21px;
+  margin-top:1px;
+  border-radius:50%;
+  background:#ffe1e5;
+  color:#ad1e37;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+}
+.auth-card #error.success:not(:empty),
+.auth-dialog .auth-dialog-error.success:not(:empty),
+#recoveryError.success:not(:empty){
+  border-color:#a8e1c7!important;
+  background:linear-gradient(135deg,#f0fcf6,#f9fffb)!important;
+  color:#126c49!important;
+  box-shadow:0 3px 10px rgba(18,108,73,.045)!important;
+}
+.auth-card #error.success:not(:empty)::before,
+.auth-dialog .auth-dialog-error.success:not(:empty)::before,
+#recoveryError.success:not(:empty)::before{
+  content:"✓";
+  background:#d6f7e6;
+  color:#08784c;
+}
+.auth-card #error:empty,
+.auth-dialog .auth-dialog-error:empty,
+#recoveryError:empty{display:none!important}
+@keyframes vatra-alert-in{
+  from{opacity:0;transform:translateY(-3px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .auth-card #error:not(:empty),
+  .auth-dialog .auth-dialog-error:not(:empty),
+  #recoveryError:not(:empty){animation:none!important}
+}
