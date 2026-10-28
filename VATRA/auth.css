@@ -1603,3 +1603,34 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
  .auth-layout>.form-side{display:block!important;margin-left:0!important;width:100%!important;min-width:0!important;min-height:100vh!important;padding:18px 14px 28px!important}
  .auth-layout>.form-side>.auth-card{width:min(100%,590px)!important;margin:0 auto!important}
 }
+
+
+/* Auth reliability patch: keep verification dialog above its backdrop. */
+#captchaWrap.captcha-modal, .auth-layout #captchaWrap.captcha-modal {
+ display:block!important; visibility:visible!important; opacity:1!important;
+ pointer-events:auto!important; z-index:2147483001!important;
+}
+body.captcha-modal-open::before { z-index:2147483000!important; }
+#captchaWrap.captcha-modal .human-captcha { display:block!important; visibility:visible!important; color:#203654!important; }
+#captchaWrap.captcha-modal .human-captcha-options { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+#captchaWrap.captcha-modal .human-captcha-option { min-width:0; min-height:44px; white-space:normal; overflow-wrap:anywhere; }
+@media(max-width:850px) {
+ .auth-layout { grid-template-columns:minmax(0,1fr)!important; min-height:100svh; }
+ .brand-side { min-height:auto; padding:24px 22px 12px; }
+ .brand-copy { margin-top:24px; }
+ .brand-copy h1 { font-size:clamp(32px,8vw,48px); line-height:1.08; }
+ .auth-side, .form-side, .auth-panel { width:100%; min-width:0; padding:16px 14px 28px; }
+ .auth-card { width:100%; max-width:560px; margin-inline:auto; }
+}
+@media(max-width:560px) {
+ .brand-copy { margin-top:18px; }
+ .brand-copy>p:not(.eyebrow) { font-size:15px; line-height:1.55; }
+ .auth-side, .form-side, .auth-panel { padding-inline:12px; }
+ .auth-card { padding:22px 18px; border-radius:20px; }
+ .auth-methods { grid-template-columns:minmax(0,1fr)!important; }
+ .auth-card input, .auth-card select, .auth-card button { max-width:100%; }
+ #captchaWrap.captcha-modal { width:calc(100vw - 24px)!important; max-height:84svh!important; overflow-y:auto!important; }
+}
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
