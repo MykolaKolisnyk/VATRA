@@ -200,6 +200,10 @@ function resetHumanChallenge(notice=''){
   a=1+Math.floor(Math.random()*9);b=1+Math.floor(Math.random()*9);
   pairKey=[a,b].sort((x,y)=>x-y).join('+');
  }
+ if(pairKey===previousAdditionKey){
+  b=b%9+1;
+  pairKey=[a,b].sort((x,y)=>x-y).join('+');
+ }
  previousAdditionKey=pairKey;
  challengeAnswer=a+b;
  const choiceSet=new Set([challengeAnswer]);
@@ -227,6 +231,7 @@ function resetHumanChallenge(notice=''){
    $('#authForm').requestSubmit();
   },300);
  }));
+ if(wrap.classList.contains('captcha-modal'))wrap.querySelector('[data-captcha-answer]')?.focus();
 }
 
 function captchaToken(){if(!TURNSTILE_SITE_KEY)return '';try{return window.turnstile&&captchaWidget!==null?window.turnstile.getResponse(captchaWidget):'';}catch{return '';}}
