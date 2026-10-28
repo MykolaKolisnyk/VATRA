@@ -1,0 +1,36 @@
+name: VATRA checks
+
+on:
+  push:
+    paths:
+      - 'VATRA/**'
+      - '.github/workflows/vatra-checks.yml'
+  pull_request:
+    paths:
+      - 'VATRA/**'
+      - '.github/workflows/vatra-checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse browser JavaScript modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in VATRA/auth.js VATRA/script.js VATRA/vatra-backend.js VATRA/vatra-loader.js; do
+            echo "Checking $file"
+            node --input-type=module --check < "$file"
+          done
+      - name: Run VATRA regression checks
+        run: node VATRA/tests/static-checks.mjs
