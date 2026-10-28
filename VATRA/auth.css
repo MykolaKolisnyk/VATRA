@@ -1704,3 +1704,62 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
 .auth-card .legal-consent button:focus-visible{outline:2px solid #0757f5;outline-offset:2px;border-radius:2px}
 .auth-card .legal-consent[hidden]{display:none!important}
 @media(max-width:420px){.auth-card .legal-consent{padding:11px;font-size:11px}}
+
+
+/* Make legal documents visible in the login and registration forms, not just injected by JS. */
+.auth-card .legal{
+  display:block;
+  margin:18px 0 0;
+  padding:14px 15px;
+  border:1px solid #dce5f2;
+  border-radius:12px;
+  background:#f8faff;
+  color:#53637a;
+  font-size:11px;
+  line-height:1.55;
+  text-align:left;
+}
+.auth-card .legal[hidden]{display:none!important}
+.auth-card .legal-label{
+  display:block;
+  margin:0 0 4px;
+  color:#253a59;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0;
+}
+.auth-card .legal-description{
+  margin:0 0 8px;
+  color:#687890;
+  font-size:11px;
+  line-height:1.5;
+}
+.auth-card .legal-links{
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:4px 14px;
+}
+.auth-card .legal-links button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-start;
+  min-height:30px;
+  padding:3px 0;
+  color:#0757f5!important;
+  font:700 12px/1.5 Inter,system-ui,sans-serif!important;
+  text-align:left;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  cursor:pointer;
+}
+.auth-card .legal-consent{
+  background:#f8faff;
+  border-color:#b8cef9;
+  color:#354a69;
+}
+@media(max-width:420px){
+  .auth-card .legal{padding:12px}
+  .auth-card .legal-links{gap:3px 12px}
+}
