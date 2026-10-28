@@ -1,0 +1,24 @@
+name: Export VATRA ZIP
+on:
+  push:
+    branches:
+      - fix/auth-loading-mobile-seo
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/auth-loading-mobile-seo
+      - name: Package project
+        run: zip -r "$RUNNER_TEMP/VATRA-fix-auth-loading-mobile-seo.zip" VATRA
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: VATRA-fix-auth-loading-mobile-seo
+          path: ${{ runner.temp }}/VATRA-fix-auth-loading-mobile-seo.zip
+          if-no-files-found: error
+          retention-days: 1
