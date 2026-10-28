@@ -1386,13 +1386,36 @@ button:disabled{cursor:not-allowed;opacity:.68}
 .settings-legal-links a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:40px}
 @media(max-width:560px){.settings-legal-links{display:grid;grid-template-columns:minmax(0,1fr)}.settings-legal-links a{width:100%}}
 
-/* VATRA: keep the complete left navigation anchored while the feed scrolls. */
+/* VATRA: keep one page scrollbar; the sidebar must never create its own scroll area. */
 @media (min-width:761px){
- .sidebar{position:fixed!important;left:max(12px,calc((100vw - 1260px)/2 + 24px))!important;top:12px!important;width:210px!important;height:auto!important;max-height:calc(100dvh - 24px)!important;overflow:visible!important;z-index:30;padding-top:8px!important;padding-bottom:8px!important;}
- .sidebar .nav{gap:7px!important}.sidebar .nav a,.sidebar .nav button{min-height:36px!important;padding-top:7px!important;padding-bottom:7px!important}.sidebar .brand{margin-bottom:12px!important}.sidebar .sidebar-bottom{margin-top:12px!important;}
- .main{grid-column:2!important;}
- .right{grid-column:3!important;}
+ .sidebar{
+  position:fixed!important;
+  left:max(12px,calc((100vw - 1260px)/2 + 24px))!important;
+  top:12px!important;
+  width:210px!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  overflow-y:visible!important;
+  overflow-x:visible!important;
+  z-index:30;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+ }
+ .sidebar .nav{gap:7px!important}
+ .sidebar .nav a,.sidebar .nav button{min-height:36px!important;padding-top:7px!important;padding-bottom:7px!important}
+ .sidebar .brand{margin-bottom:12px!important}
+ .sidebar .sidebar-bottom{margin-top:12px!important}
+ .main{grid-column:2!important}
+ .right{grid-column:3!important}
 }
-@media (max-width:1229px) and (min-width:961px){.layout{width:min(1000px,100%);grid-template-columns:195px minmax(0,1fr);gap:22px;padding:18px 22px 36px}.right{display:none}.sidebar{width:195px!important;left:max(12px,calc((100vw - 1000px)/2 + 22px))!important}.sidebar .nav{gap:5px!important}.sidebar .nav a,.sidebar .nav button{min-height:33px!important;padding-top:5px!important;padding-bottom:5px!important;font-size:12px!important;}}
-@media (max-width:1050px) and (min-width:961px){.layout{grid-template-columns:190px minmax(0,1fr);gap:16px}.sidebar{width:190px!important;}}
-@media (max-width:960px) and (min-width:761px){.sidebar{width:174px!important;left:17px!important;}}
+@media (max-width:1229px) and (min-width:961px){
+ .layout{width:min(1000px,100%);grid-template-columns:195px minmax(0,1fr);gap:22px;padding:18px 22px 36px}
+ .right{display:none}
+ .sidebar{width:195px!important;left:max(12px,calc((100vw - 1000px)/2 + 22px))!important}
+ .sidebar .nav{gap:5px!important}
+ .sidebar .nav a,.sidebar .nav button{min-height:33px!important;padding-top:5px!important;padding-bottom:5px!important;font-size:12px!important}
+}
+@media (max-width:1050px) and (min-width:961px){.layout{grid-template-columns:190px minmax(0,1fr);gap:16px}.sidebar{width:190px!important}}
+@media (max-width:960px) and (min-width:761px){.sidebar{width:174px!important;left:17px!important}}
