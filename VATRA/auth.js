@@ -161,11 +161,11 @@ const errors={
 let challengeAnswer=null,challengePassed=false;
 function closeHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
- wrap.classList.remove('captcha-modal');wrap.hidden=true;document.body.classList.remove('captcha-modal-open');
+ wrap.classList.remove('captcha-modal');wrap.hidden=true;wrap.removeAttribute('role');wrap.removeAttribute('aria-modal');wrap.removeAttribute('aria-label');document.body.classList.remove('captcha-modal-open');
 }
 function openHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
- resetHumanChallenge();wrap.hidden=false;wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
+ resetHumanChallenge();wrap.hidden=false;wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Швидка перевірка');wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
  wrap.querySelector('button[data-captcha-answer]')?.focus();
 }
 function resetHumanChallenge(){
@@ -256,7 +256,7 @@ function show(m){
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';
- $('#passwordHelp').hidden=!(reg||newPassword);const meter=$('#passwordStrength');if(meter)meter.hidden=!(reg||newPassword);$('#password').closest('.field').hidden=reset||verifySignup;$('#forgot').hidden=reg||reset||newPassword||verifySignup;
+ $('#passwordHelp').hidden=!reg;const meter=$('#passwordStrength');if(meter)meter.hidden=!reg;$('#password').closest('.field').hidden=reset||verifySignup;$('#forgot').hidden=reg||reset||newPassword||verifySignup;
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
@@ -365,7 +365,7 @@ const strengthMarkup=document.createElement('div');strengthMarkup.className='pas
 $('#password').closest('.field').append(strengthMarkup);
 function updatePasswordStrength(){
  const p=$('#password').value;
- const relevantMode=mode==='register'||mode==='new-password';
+ const relevantMode=mode==='register';
  const showMeter=relevantMode&&p.length>0;
  $('#passwordHelp').hidden=!(relevantMode&&!p);
  strengthMarkup.hidden=!(relevantMode&&p.length>0);
