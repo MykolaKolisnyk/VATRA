@@ -40,7 +40,9 @@ function syncPhoneInputMode(input,select,method){
  const phone=method==='phone';
  if(select)select.hidden=true;
  const phoneRow=input?.closest('.phone-number-control');
- if(phoneRow)phoneRow.hidden=!phone;
+ const countryPrefix=phoneRow?.querySelector('.phone-country-static');
+ if(phoneRow){phoneRow.hidden=false;phoneRow.classList.toggle('phone-number-control--email',!phone);}
+ if(countryPrefix)countryPrefix.hidden=!phone;
  input.type=phone?'tel':'email';input.autocomplete=phone?'tel':'email';input.inputMode=phone?'tel':'email';
  input.placeholder=phone?(select?.value==='+380'?'930 657 340':'Номер без коду країни'):'name@example.com';
 }
@@ -263,7 +265,7 @@ function show(m){
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const sw=$('#switch');if(sw)sw.onclick=()=>show(reg?'login':'register');
  $('#legal').hidden=reset||newPassword;
- $('#legal').innerHTML=reg?'Створюючи акаунт, Ви погоджуєтеся дотримуватися <button type="button" data-legal="rules">Правил ВАТРИ</button> та <button type="button" data-legal="privacy">Політики конфіденційності</button>.':'<button type="button" data-legal="rules">Правила ВАТРИ</button><button type="button" data-legal="privacy">Політика конфіденційності</button>';
+ $('#legal').innerHTML=reg?'Створюючи акаунт, Ви погоджуєтеся дотримуватися <button type="button" data-legal="rules">Правил ВАТРИ</button>, <button type="button" data-legal="privacy">Політики конфіденційності</button> та <button type="button" data-legal="terms">Умов використання</button>.':'<button type="button" data-legal="rules">Правила ВАТРИ</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button>';
  $('#error').textContent='';$('#error').classList.remove('success');$('#method').value=selectedMethod();
  syncPhoneInputMode($('#email'),$('#countryCode'),selectedMethod());$('#contactLabel').textContent=selectedMethod()==='phone'?'Номер телефону':'Електронна пошта';
  $('#password').autocomplete=reg||newPassword?'new-password':'current-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
