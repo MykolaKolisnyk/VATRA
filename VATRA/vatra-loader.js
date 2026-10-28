@@ -36,7 +36,7 @@
     if (startupError && !startupError.hidden) hideLoader();
   }, 80);
 
-  const safetyTimeout = window.setTimeout(hideLoader, 12000);
+  const safetyTimeout = window.setTimeout(hideLoader, 5000);
   window.addEventListener('load', () => {
     window.setTimeout(() => {
       if (appIsReady()) hideLoader();
