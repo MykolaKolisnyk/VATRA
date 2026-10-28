@@ -158,13 +158,27 @@ const errors={
 };
 let challengeAnswer=null,challengePassed=false;
 function closeHumanCaptcha(){
- const wrap=$('#captchaWrap');if(!wrap)return;
- wrap.classList.remove('captcha-modal');wrap.hidden=true;document.body.classList.remove('captcha-modal-open');
+ const wrap=$('#captchaWrap');
+ if(wrap){wrap.classList.remove('captcha-modal');wrap.hidden=true;wrap.removeAttribute('aria-modal');}
+ document.body.classList.remove('captcha-modal-open');
 }
 function openHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
- resetHumanChallenge();wrap.hidden=false;wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
- wrap.querySelector('button[data-captcha-answer]')?.focus();
+ try {
+  resetHumanChallenge();
+  wrap.hidden=false;
+  wrap.setAttribute('role','dialog');
+  wrap.setAttribute('aria-modal','true');
+  wrap.setAttribute('aria-label','Швидка перевірка ВАТРИ');
+  wrap.classList.add('captcha-modal');
+  document.body.classList.add('captcha-modal-open');
+  requestAnimationFrame(()=>wrap.querySelector('button[data-captcha-answer]')?.focus());
+ } catch(error) {
+  closeHumanCaptcha();
+  const message=$('#error');
+  if(message) message.textContent='Не вдалося відкрити перевірку. Оновіть сторінку й спробуйте ще раз.';
+  console.error('VATRA verification dialog failed:',error);
+ }
 }
 function resetHumanChallenge(){
  challengePassed=false;
