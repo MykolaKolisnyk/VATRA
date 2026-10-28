@@ -42,13 +42,23 @@ function syncPhoneInputMode(input,select,method){
  if(select)select.hidden=true;
  const phoneRow=input.closest('.phone-number-control');
  const countryPrefix=phoneRow?.querySelector('.phone-country-static');
- if(phoneRow){phoneRow.hidden=false;phoneRow.classList.toggle('phone-number-control--email',!phone);}
- if(countryPrefix)countryPrefix.hidden=!phone;
+ if(phoneRow){
+  phoneRow.hidden=false;
+  phoneRow.classList.toggle('phone-number-control--email',!phone);
+  phoneRow.style.display=phone?'flex':'block';
+ }
+ if(countryPrefix){
+  countryPrefix.hidden=!phone;
+  countryPrefix.style.display=phone?'flex':'none';
+ }
  input.type=phone?'tel':'email';
  input.autocomplete=phone?'tel':'email';
  input.inputMode=phone?'tel':'email';
  input.placeholder=phone?'930 657 340':'name@example.com';
  input.setAttribute('aria-label',phone?'Номер телефону':'Електронна пошта');
+ input.style.flex=phone?'1 1 auto':'1 1 100%';
+ input.style.width=phone?'auto':'100%';
+ input.style.minWidth='0';
 }
 function syncAuthMethodUI(method){
  const selected=method==='phone'?'phone':'email';
@@ -171,7 +181,7 @@ const errors={
  'vatra/registration-data':'Перевірте ім’я, прізвище та пароль.',
  'vatra/account-creation-failed':'Не вдалося створити акаунт. Спробуйте пізніше.'
 };
-let challengeAnswer=null,challengePassed=false,previousChallengeIndex=-1;
+let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
 function closeHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
  wrap.classList.remove('captcha-modal');wrap.hidden=true;wrap.removeAttribute('role');wrap.removeAttribute('aria-modal');wrap.removeAttribute('aria-label');document.body.classList.remove('captcha-modal-open');
@@ -181,42 +191,41 @@ function openHumanCaptcha(){
  resetHumanChallenge();if(wrap.parentElement!==document.body)document.body.appendChild(wrap);wrap.hidden=false;wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Швидка перевірка');wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
  wrap.querySelector('button[data-captcha-answer]')?.focus();
 }
-function resetHumanChallenge(){
+function resetHumanChallenge(notice=''){
  challengePassed=false;
  const wrap=$('#captchaWrap');if(!wrap)return;
- const tasks=[
-  ()=>{const groups=[['🍎','🍐','🍌'],['🚗','🚌','🚲'],['🐈','🐕','🐇'],['🌹','🌷','🌻']];const group=groups[Math.floor(Math.random()*groups.length)];const odd=['🔧','📘','🏠','⚽'][Math.floor(Math.random()*4)];const all=[...group,odd];return {question:'Оберіть те, що не належить до решти:',choices:all,answer:odd,status:'Знайдіть предмет іншої категорії.'};},
-  ()=>{const options=['🔵','🔺','🟡','🟩'];const answer=options[Math.floor(Math.random()*options.length)];return {question:'Знайдіть синю круглу фігуру.',choices:options,answer:'🔵',status:'Порівняйте колір і форму символу.'};},
-  ()=>{const a=['🟦','🟨','🟦','🟨'];return {question:'Продовжіть послідовність: '+a.join(' ')+' …',choices:['🟦','🟩','🔺'],answer:'🟦',status:'Зверніть увагу на чергування символів.'};},
-  ()=>({question:'Що потрібно взяти з собою, щоб відкрити замкнений замок?',choices:['🔑 Ключ','🥄 Ложку','🧤 Рукавицю'],answer:'🔑 Ключ',status:'Оберіть предмет, який підходить за призначенням.'}),
-  ()=>({question:'Оберіть слово, яке є назвою місяця:',choices:['Жовтень','Вікно','Олівець'],answer:'Жовтень',status:'Згадайте календар.'}),
-  ()=>({question:'Яка дія допомагає зберегти приватність акаунта?',choices:['Унікальний пароль','Передати код іншому','Всюди той самий пароль'],answer:'Унікальний пароль',status:'Оберіть безпечну поведінку.'}),
-  ()=>({question:'Що з наведеного не є транспортом?',choices:['🚆 Потяг','🚲 Велосипед','🍉 Кавун'],answer:'🍉 Кавун',status:'Відрізніть транспорт від їжі.'}),
-  ()=>({question:'Оберіть символ, який повторює зразок: ▲ ● ▲ ● …',choices:['▲','■','★'],answer:'▲',status:'Продовжіть послідовність.'}),
-  ()=>({question:'Яку пару зазвичай використовують разом?',choices:['🔒 Замок і ключ','🌧️ Дощ і окуляри','🍽️ Тарілка й шолом'],answer:'🔒 Замок і ключ',status:'Знайдіть логічну пару.'}),
-  ()=>({question:'Оберіть тварину, яку зазвичай не тримають удома:',choices:['🐈 Кіт','🐕 Собака','🦁 Лев'],answer:'🦁 Лев',status:'Знайдіть тварину, яка не є звичайним домашнім улюбленцем.'}),
-  ()=>({question:'Яке слово має протилежне значення до «високий»?',choices:['Низький','Широкий','Теплий'],answer:'Низький',status:'Оберіть слово з протилежним значенням.'}),
-  ()=>({question:'Оберіть послідовність, у якій спочатку день, потім ніч:',choices:['☀️ → 🌙','🌙 → ☀️','☀️ → ☀️'],answer:'☀️ → 🌙',status:'Подумайте, що відбувається протягом доби.'}),
-  ()=>({question:'Що краще зробити з паролем, який Ви вже використали на іншому сайті?',choices:['Створити окремий новий','Залишити той самий','Опублікувати його'],answer:'Створити окремий новий',status:'Оберіть безпечний варіант.'}),
-  ()=>({question:'Оберіть їстівний продукт:',choices:['🥕 Морква','🔩 Болт','🧱 Цегла'],answer:'🥕 Морква',status:'Визначте продукт харчування.'}),
-  ()=>({question:'Який знак найкраще завершує це речення: «Ви прийшли?___»',choices:['?',';','×'],answer:'?',status:'Врахуйте зміст речення.'}),
-  ()=>({question:'Знайдіть пару однакових символів:',choices:['🌿 / 🌿','🌿 / 🍃','🌿 / 🌳'],answer:'🌿 / 🌿',status:'Порівняйте обидва символи в кожній відповіді.'})
- ];
- const availableTaskIndexes=tasks.map((_,i)=>i).filter(i=>i!==previousChallengeIndex);
- const taskIndex=availableTaskIndexes[Math.floor(Math.random()*availableTaskIndexes.length)];
- previousChallengeIndex=taskIndex;
- const task=tasks[taskIndex]();
- const choices=[...task.choices].sort(()=>Math.random()-.5);
- challengeAnswer=task.answer;
- wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><span aria-hidden="true">✳</span><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">'+task.question+'</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status" id="humanCaptchaStatus" aria-live="polite">'+task.status+' Це додаткова перевірка, а не гарантія захисту від усіх автоматизованих атак.</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
+ let a=1+Math.floor(Math.random()*9),b=1+Math.floor(Math.random()*9);
+ let pairKey=[a,b].sort((x,y)=>x-y).join('+');
+ for(let attempt=0;pairKey===previousAdditionKey&&attempt<12;attempt++){
+  a=1+Math.floor(Math.random()*9);b=1+Math.floor(Math.random()*9);
+  pairKey=[a,b].sort((x,y)=>x-y).join('+');
+ }
+ previousAdditionKey=pairKey;
+ challengeAnswer=a+b;
+ const choiceSet=new Set([challengeAnswer]);
+ while(choiceSet.size<3){
+  const distractor=Math.max(1,Math.min(20,challengeAnswer+Math.floor(Math.random()*9)-4));
+  choiceSet.add(distractor);
+ }
+ const choices=[...choiceSet].sort(()=>Math.random()-.5);
+ wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><span aria-hidden="true">✳</span><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status" id="humanCaptchaStatus" aria-live="polite">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',closeHumanCaptcha);
  wrap.querySelectorAll('[data-captcha-answer]').forEach(btn=>btn.addEventListener('click',()=>{
+  const isCorrect=Number(btn.dataset.captchaAnswer)===challengeAnswer;
+  if(!isCorrect){
+   resetHumanChallenge('Відповідь неправильна. Ось новий приклад додавання.');
+   return;
+  }
+  challengePassed=true;
   wrap.querySelectorAll('[data-captcha-answer]').forEach(x=>x.classList.remove('is-correct','is-wrong'));
-  challengePassed=String(btn.dataset.captchaAnswer)===String(challengeAnswer);
-  btn.classList.add(challengePassed?'is-correct':'is-wrong');
-  $('#humanCaptchaStatus').textContent=challengePassed?'Перевірку пройдено. Продовжуємо…':'Це не та відповідь. Спробуйте ще раз.';
-  $('#humanCaptchaStatus').classList.toggle('is-passed',challengePassed);
-  if(challengePassed)window.setTimeout(()=>{closeHumanCaptcha();$('#authForm').requestSubmit();},350);
+  btn.classList.add('is-correct');
+  $('#humanCaptchaStatus').textContent='Правильно! Продовжуємо…';
+  $('#humanCaptchaStatus').classList.add('is-passed');
+  if(window.__vatraCaptchaTimer)clearTimeout(window.__vatraCaptchaTimer);
+  window.__vatraCaptchaTimer=window.setTimeout(()=>{
+   closeHumanCaptcha();
+   $('#authForm').requestSubmit();
+  },300);
  }));
 }
 
@@ -272,13 +281,15 @@ function show(m){
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';
- $('#passwordHelp').hidden=!reg;const meter=$('#passwordStrength');if(meter)meter.hidden=!reg;$('#password').closest('.field').hidden=reset||verifySignup;$('#forgot').hidden=reg||reset||newPassword||verifySignup;
+ $('#passwordHelp').hidden=!reg;const meter=$('#passwordStrength');if(meter)meter.hidden=!reg;$('#password').closest('.field').hidden=reset;$('#forgot').hidden=reg||reset||newPassword;
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
  $('#desc').textContent=reg?'Вкажіть дані та створіть надійний пароль. ВАТРА перевірить, чи контакт уже зареєстровано.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
  $('#submit').textContent=reg?'Створити акаунт':newPassword?'Зберегти новий пароль':reset?'Надіслати посилання':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
+ const modeSwitch=$('#bottom').querySelector('#switch');
+ if(modeSwitch)modeSwitch.addEventListener('click',event=>{event.preventDefault();show(reg?'login':'register');});
  $('#legal').hidden=reset||newPassword;
  $('#legalConsentWrap').hidden=!reg;$('#legalConsent').required=reg;$('#legalConsent').checked=false;
  $('#legal').innerHTML=reg?'<span class="legal-label">Перед створенням акаунта ознайомтеся з документами:</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button></div>':'<span class="legal-label">Документи ВАТРИ</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови використання</button></div>';
@@ -297,12 +308,6 @@ document.querySelectorAll('input[name="authMethod"]').forEach(radio=>radio.addEv
 }));
 $('#loginTab').addEventListener('click',()=>show('login'));
 $('#registerTab').addEventListener('click',()=>show('register'));
-$('#bottom').addEventListener('click',event=>{
- const switchButton=event.target.closest('#switch');
- if(!switchButton)return;
- event.preventDefault();
- show(mode==='register'?'login':'register');
-});
 
 
 
