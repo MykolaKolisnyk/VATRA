@@ -5,7 +5,7 @@
 
   const isAuthPage = Boolean(document.querySelector('.auth-layout'));
   const startedAt = performance.now();
-  const minimumVisible = 850;
+  const minimumVisible = 280;
   let finished = false;
 
   function hideLoader() {
