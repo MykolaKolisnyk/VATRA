@@ -572,4 +572,11 @@ function clearUnrequestedPasswordAutofill(){
 clearUnrequestedPasswordAutofill();
 [120,450,1000].forEach(delay=>window.setTimeout(clearUnrequestedPasswordAutofill,delay));
 window.addEventListener('pageshow',()=>window.setTimeout(clearUnrequestedPasswordAutofill,120));
+function authResetScrollTop(){
+ if(location.hash)return;
+ window.scrollTo(0,0);
+}
+window.addEventListener('pageshow',authResetScrollTop);
+window.addEventListener('load',authResetScrollTop,{once:true});
+requestAnimationFrame(authResetScrollTop);
 window.__vatraAuthReady = true;
