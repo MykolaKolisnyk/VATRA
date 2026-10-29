@@ -377,29 +377,37 @@ document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('cli
 $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLegalBottom').onclick=()=>closeDialogAnimated($('#legalDialog'));
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
 function currentRecoveryMethod(){return document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email';}
-let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact';
+let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact',recoveryPreviousPair='',recoveryFailures=0;
 function resetRecoveryChallenge(notice=''){
- const a=2+Math.floor(Math.random()*9),b=2+Math.floor(Math.random()*9);
- const oldQuestion=$('#recoveryMath')?.textContent||'';
- recoveryAnswer=a+b;recoveryPassed=false;
- let question=a+' + '+b+' = ?';
- if(question===oldQuestion){const next=(a%9)+1;recoveryAnswer=next+b;question=next+' + '+b+' = ?';}
- $('#recoveryMath').textContent=question;
+ let a=2+Math.floor(Math.random()*9),b=2+Math.floor(Math.random()*9);
+ let pair=[a,b].sort((x,y)=>x-y).join('+');
+ for(let attempt=0;pair===recoveryPreviousPair&&attempt<20;attempt++){
+  a=2+Math.floor(Math.random()*9);b=2+Math.floor(Math.random()*9);
+  pair=[a,b].sort((x,y)=>x-y).join('+');
+ }
+ if(pair===recoveryPreviousPair){a=(a%9)+2;pair=[a,b].sort((x,y)=>x-y).join('+');}
+ recoveryPreviousPair=pair;recoveryAnswer=a+b;recoveryPassed=false;
+ $('#recoveryMath').textContent=a+' + '+b+' = ?';
  const options=new Set([recoveryAnswer]);
  while(options.size<4){const distractor=1+Math.floor(Math.random()*19);if(distractor!==recoveryAnswer)options.add(distractor);}
- const shuffled=[...options].sort(()=>Math.random()-.5);
- $('#recoveryAnswers').innerHTML=shuffled.map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
+ $('#recoveryAnswers').innerHTML=[...options].sort(()=>Math.random()-.5).map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
  $('#recoveryChallengeStatus').textContent=notice||'Ця перевірка допомагає захистити акаунти від автоматизованих запитів.';
- $('#recoveryChallengeStatus').classList.remove('is-passed');
- $('#recoveryChallengeStatus').classList.toggle('is-wrong',!!notice);
+ $('#recoveryChallengeStatus').classList.remove('is-passed');$('#recoveryChallengeStatus').classList.toggle('is-wrong',!!notice);
  $('#recoveryAnswers').querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
   const correct=Number(btn.dataset.recoveryAnswer)===recoveryAnswer;
-  if(!correct){resetRecoveryChallenge('Відповідь неправильна. Згенеровано новий приклад — старі варіанти більше не діють.');return;}
+  if(!correct){
+   recoveryFailures++;
+   const delay=Math.min(6000,600*Math.pow(2,Math.min(recoveryFailures-1,3)));
+   resetRecoveryChallenge('Відповідь неправильна. Питання оновлено. Наступна спроба буде доступна через '+Math.ceil(delay/1000)+' с.');
+   const answers=$('#recoveryAnswers').querySelectorAll('button');answers.forEach(option=>option.disabled=true);
+   window.setTimeout(()=>$('#recoveryAnswers')?.querySelectorAll('button').forEach(option=>option.disabled=false),delay);
+   return;
+  }
+  recoveryPassed=true;recoveryFailures=0;
   $('#recoveryAnswers').querySelectorAll('button').forEach(x=>x.classList.remove('is-correct','is-wrong'));
-  recoveryPassed=true;btn.classList.add('is-correct');
+  btn.classList.add('is-correct');
   $('#recoveryChallengeStatus').textContent='Перевірку пройдено.';
-  $('#recoveryChallengeStatus').classList.add('is-passed');
-  $('#recoveryChallengeStatus').classList.remove('is-wrong');
+  $('#recoveryChallengeStatus').classList.add('is-passed');$('#recoveryChallengeStatus').classList.remove('is-wrong');
  }));
 }
 function syncRecoveryMethod(){
@@ -408,7 +416,7 @@ function syncRecoveryMethod(){
  $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати інструкцію';
 }
 function openRecovery(){
- recoveryStep='contact';$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
+ recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
  $('#recoveryMethodWrap').hidden=false;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
