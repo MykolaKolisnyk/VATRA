@@ -18,7 +18,7 @@
     window.setTimeout(() => {
       loader.classList.add('vatra-loading--leaving');
       loader.setAttribute('aria-hidden', 'true');
-      window.setTimeout(() => loader.remove(), 500);
+      window.setTimeout(() => loader.remove(), 320);
     }, delay);
   }
 
