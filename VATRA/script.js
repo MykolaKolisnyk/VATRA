@@ -243,6 +243,34 @@ async function getImageEditor(file,mode='avatar'){
    if(input===yInput)state.y=Number(yInput.value);
    drawPreview();
   }));
+  // Drag the crop directly with a mouse or finger; sliders remain available for precise adjustment.
+  let dragState=null;
+  stage.style.touchAction='none';
+  stage.style.cursor='grab';
+  stage.addEventListener('pointerdown',event=>{
+   if(event.button!==undefined&&event.button!==0)return;
+   dragState={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,baseX:state.x,baseY:state.y};
+   try{stage.setPointerCapture(event.pointerId)}catch{}
+   stage.style.cursor='grabbing';
+   event.preventDefault();
+  });
+  stage.addEventListener('pointermove',event=>{
+   if(!dragState||dragState.pointerId!==event.pointerId)return;
+   const rect=stage.getBoundingClientRect();
+   if(!rect.width||!rect.height)return;
+   state.x=Math.max(-100,Math.min(100,dragState.baseX+(event.clientX-dragState.startX)/rect.width*150));
+   state.y=Math.max(-100,Math.min(100,dragState.baseY+(event.clientY-dragState.startY)/rect.height*150));
+   xInput.value=String(Math.round(state.x));yInput.value=String(Math.round(state.y));
+   drawPreview();
+  });
+  const endCropDrag=event=>{
+   if(!dragState||event.pointerId!==dragState.pointerId)return;
+   dragState=null;stage.style.cursor='grab';
+   try{stage.releasePointerCapture(event.pointerId)}catch{}
+  };
+  stage.addEventListener('pointerup',endCropDrag);
+  stage.addEventListener('pointercancel',endCropDrag);
+  stage.addEventListener('lostpointercapture',()=>{dragState=null;stage.style.cursor='grab'});
   dialog.querySelectorAll('[data-vatra-filter]').forEach(button=>button.addEventListener('click',()=>{
    dialog.querySelectorAll('[data-vatra-filter]').forEach(b=>b.classList.toggle('active',b===button));
    state.filter=button.dataset.vatraFilter;
