@@ -1868,3 +1868,67 @@ button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important
 @media(prefers-reduced-motion:reduce){
  .topbar-popover,.vatra-image-editor,.vatra-site-legal-dialog{scroll-behavior:auto!important}
 }
+
+
+/* Branded form controls across the whole network, not only the sign-in page. */
+.birthday-selects{display:grid!important;grid-template-columns:minmax(0,.8fr) minmax(0,1.35fr) minmax(0,1fr)!important;gap:8px!important;width:100%!important;min-width:0!important}
+.birthday-selects select,
+.settings-grid select,.settings-card select,.settings-form select,
+.community-dialog select,#reportReason,#vatraTextInput,
+.vatra-dialog-field input,.vatra-native-dialog input{
+  min-width:0!important;max-width:100%!important;box-sizing:border-box!important;
+  border:1px solid #d7e2f2!important;border-radius:11px!important;
+  background-color:#f8faff!important;color:#223854!important;
+  font:600 13px/1.45 Inter,system-ui,sans-serif!important;
+  transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease!important;
+}
+.settings-grid select,.settings-card select,.settings-form select,.community-dialog select,#reportReason,.birthday-selects select{
+  appearance:none!important;-webkit-appearance:none!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230757f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;background-position:right 10px center!important;background-size:15px!important;
+  padding:10px 32px 10px 12px!important;min-height:42px!important;
+}
+.settings-grid input[type="checkbox"],.settings-card input[type="checkbox"],
+.settings-form input[type="checkbox"],.settings-grid input[type="radio"],
+.settings-card input[type="radio"],.settings-form input[type="radio"],
+.poll-option-field input[type="checkbox"]{
+  accent-color:#0757f5!important;
+}
+.settings-grid input[type="checkbox"],.settings-card input[type="checkbox"],.settings-form input[type="checkbox"]{
+  width:18px!important;height:18px!important;flex:0 0 18px!important;min-height:18px!important;min-width:18px!important;
+  padding:0!important;border-radius:5px!important;cursor:pointer!important;
+}
+.settings-grid select:focus,.settings-card select:focus,.settings-form select:focus,
+.community-dialog select:focus,#reportReason:focus,.birthday-selects select:focus,
+.settings-grid input:focus,.settings-card input:focus,.settings-form input:focus,
+.settings-grid textarea:focus,.settings-card textarea:focus,.settings-form textarea:focus{
+  outline:0!important;border-color:#4c83fa!important;background-color:#fff!important;box-shadow:0 0 0 3px rgba(7,87,245,.1)!important;
+}
+
+/* The profile-cover crop is wide, matching the actual banner area. */
+.vatra-image-editor.is-cover .vatra-image-stage{
+  aspect-ratio:16/5!important;min-height:140px!important;max-height:42vh!important;
+}
+.vatra-image-editor.is-cover .vatra-image-stage img{object-fit:cover!important}
+.vatra-image-editor.is-cover .vatra-image-editor-layout{grid-template-columns:minmax(0,1.25fr) minmax(245px,.75fr)!important}
+@media(max-width:760px){
+  .vatra-image-editor.is-cover .vatra-image-editor-layout{grid-template-columns:minmax(0,1fr)!important}
+  .vatra-image-editor.is-cover .vatra-image-stage{aspect-ratio:16/6!important;min-height:130px!important;max-height:30vh!important}
+}
+@media(max-width:560px){
+  .birthday-selects{gap:6px!important}
+  .birthday-selects select{padding-left:8px!important;padding-right:27px!important;background-position:right 7px center!important;font-size:12px!important}
+}
+
+/* Polish the small but frequent details: menu badges, link cards and form feedback. */
+#notificationBadge,#notificationNavBadge,#friendsNavBadge{
+  display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;
+  border:2px solid #fff;border-radius:99px;background:#0757f5;color:#fff;font-size:9px;font-weight:800;line-height:1;
+}
+#notificationBadge[hidden],#notificationNavBadge[hidden],#friendsNavBadge[hidden]{display:none!important}
+.profile-photo-tile:hover,.avatar-history-item:hover{border-color:#bfd2f8!important;box-shadow:0 7px 18px rgba(7,87,245,.09)!important;transform:translateY(-1px)}
+.profile-photo-tile img:hover,.avatar-history-item img:hover{filter:saturate(1.03)}
+.account-popover .avatar{object-fit:cover;background-position:center!important;background-size:cover!important}
+.vatra-tour-card{max-width:min(560px,calc(100vw - 24px))!important}
+.vatra-tour-progress span{transition:width .24s ease!important}
+.vatra-tour-actions button,.vatra-tour-skip{min-height:40px!important}
