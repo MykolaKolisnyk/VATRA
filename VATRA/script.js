@@ -289,3 +289,189 @@ document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[
 $('#reportCancel').onclick=()=>$('#reportDialog').close();$('#reportClose').onclick=()=>$('#reportDialog').close();$('#reportDialog').addEventListener('close',()=>{reportingTarget=null;$('#reportForm').reset();$('#reportError').textContent='';});$('#reportForm').addEventListener('submit',async e=>{e.preventDefault();if(!authRequired()||!reportingTarget)return;const fd=new FormData(e.currentTarget),target=reportingTarget,path=`reports/${currentUser.uid}/${target.type}/${target.id}`,reason=String(fd.get('reason')||''),details=String(fd.get('details')||'').trim().slice(0,500),button=e.currentTarget.querySelector('[type=submit]');button.disabled=true;button.textContent='Надсилаємо…';try{const existing=await get(ref(db,path));if(existing.exists()){toastMsg('Ви вже надсилав(-ла) скаргу на цей матеріал.');$('#reportDialog').close();return;}await set(ref(db,path),{reporterUid:currentUser.uid,targetType:target.type,targetId:target.id,reason,details,createdAt:Date.now()});$('#reportDialog').close();toastMsg('Скаргу збережено. Перегляд модератором потребує серверної черги.');}catch(err){$('#reportError').textContent=niceError(err);}finally{button.disabled=false;button.textContent='Надіслати скаргу';}});
 onAuthStateChanged(auth,user=>{if(!user){location.replace('auth.html');return;}currentUser=user;try{const guideKey='vatra-guide-seen-'+user.uid;if(!localStorage.getItem(guideKey)){setTimeout(()=>openVatraGuide(),900);}}catch{}currentProfile={};privateDateOfBirth='';activityReadAt=0;chatReads={};saved={};following={};blockedUsers={};activeProfileUid=null;activeChatBlocked=false;if(user){get(ref(db,`privateUsers/${user.uid}`)).then(async ps=>{privateDateOfBirth=ps.val()?.dateOfBirth||user.user_metadata?.dateOfBirth||'';privatePhone=ps.val()?.phone||user.phone||'';if(!ps.exists()&&privateDateOfBirth)await set(ref(db,`privateUsers/${user.uid}`),{dateOfBirth:privateDateOfBirth,updatedAt:Date.now()});currentProfile.dateOfBirth=privateDateOfBirth;currentProfile.phone=privatePhone;const pd=publicProfileData(currentProfile),fd=friendProfileData(currentProfile);if(JSON.stringify(users[user.uid]||{})!==JSON.stringify(pd))set(ref(db,`publicProfiles/${user.uid}`),pd).catch(()=>{});if(JSON.stringify(friendProfiles[user.uid]||{})!==JSON.stringify(fd))set(ref(db,`friendProfiles/${user.uid}`),fd).catch(()=>{});if(page==='settings')renderSettings();else if(page==='profile')renderProfile();}).catch(()=>{});listenData();get(ref(db,`users/${user.uid}`)).then(async snap=>{if(snap.exists())return;const meta=user.user_metadata||{},name=meta.name||meta.displayName||user.displayName||'Користувач ВАТРИ',handle=(meta.firstName&&meta.lastName?meta.firstName+'.'+meta.lastName:name).toLowerCase().replace(/[^a-zа-яіїєґ0-9]+/giu,'.').slice(0,24);const profile={name,firstName:meta.firstName||name.split(' ')[0],lastName:meta.lastName||name.split(' ').slice(1).join(' '),handle,bio:'',birthdayVisibility:'private',profileVisibility:'public',searchable:true,createdAt:Date.now()};await set(ref(db,`users/${user.uid}`),profile);await set(ref(db,`publicProfiles/${user.uid}`),publicProfileData(profile));}).catch(e=>console.warn('Profile init:',e));}else{stopListeners();stopChatListener();if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}posts={};likes={};comments={};saved={};following={};blockedUsers={};users={};videos={};groups={};groupAdmins={};groupModerators={};chatIndex={};activeChat=null;activeProfileUid=null;activeChatBlocked=false;}updateIdentity();render();});
 setTimeout(()=>{window.__vatraStarted=true;},450);
+
+
+/* Functional header menus, in-app legal docs, and profile image editor. */
+(()=>{
+ const q=s=>document.querySelector(s);
+ const text=(el,value)=>{if(el)el.textContent=value;};
+ let legalSourcePromise=null,activeEdit=null;
+ const photoFilters={normal:'none',vivid:'saturate(1.28) contrast(1.08)',warm:'sepia(.18) saturate(1.14)',mono:'grayscale(1)',soft:'brightness(1.06) saturate(.86)',cool:'hue-rotate(8deg) saturate(.9)'};
+ function closeTopbarMenus(){
+  const n=q('#notificationDropdown'),a=q('#accountDropdown');
+  if(n)n.hidden=true;if(a)a.hidden=true;
+  q('#notificationBell')?.setAttribute('aria-expanded','false');q('#topAvatar')?.setAttribute('aria-expanded','false');
+ }
+ function renderNotificationDropdown(){
+  const box=q('#notificationDropdown');if(!box)return;
+  if(!currentUser){box.innerHTML='<div class="topbar-popover-head"><b>Сповіщення</b></div><p class="topbar-popover-empty">Увійдіть, щоб бачити свої сповіщення.</p>';return;}
+  const items=notificationItems().slice(0,7);
+  const rows=items.map(n=>{
+   const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ'),when=timeAgo(n.createdAt);let title='',attr='';
+   if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+   else if(n.type==='comment'){title=name+' прокоментував(-ла) допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+   else if(n.type==='friend'){title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
+   else{title='Нове повідомлення від '+name;attr='data-notification-chat="'+esc(n.chatUid)+'"';}
+   return '<button type="button" class="topbar-notification-row '+(n.unread?'is-unread':'')+'" '+attr+'>'+avatar(u.name||'Користувач',u.avatarUrl)+'<span><b>'+title+'</b><small>'+when+'</small></span>'+(n.unread?'<i></i>':'')+'</button>';
+  }).join('');
+  box.innerHTML='<div class="topbar-popover-head"><div><b>Сповіщення</b><small>'+items.filter(n=>n.unread).length+' нових</small></div><button type="button" class="text-link" data-notifications-view-all>Усі</button></div>'+(rows||'<p class="topbar-popover-empty">Поки немає сповіщень.</p>');
+ }
+ function renderAccountDropdown(){
+  const box=q('#accountDropdown');if(!box)return;
+  const name=currentProfile.name||currentUser?.displayName||'Мій акаунт';
+  box.innerHTML=currentUser
+   ?'<div class="account-popover-profile">'+avatar(name,currentProfile.avatarUrl)+'<span><b>'+esc(name)+'</b><small>@'+esc(currentProfile.handle||'user')+'</small></span></div><button type="button" data-account-action="profile"><span>♙</span>Мій профіль</button><button type="button" data-account-action="settings"><span>⚙</span>Налаштування</button><button type="button" class="account-logout" data-account-action="logout"><span>↪</span>Вийти з акаунта</button>'
+   :'<button type="button" data-account-action="login">Увійти</button><button type="button" data-account-action="register">Створити акаунт</button>';
+ }
+ const bell=q('#notificationBell'),avatarButton=q('#topAvatar');
+ bell?.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  const box=q('#notificationDropdown'),willOpen=!!box?.hidden;closeTopbarMenus();
+  if(box&&willOpen){renderNotificationDropdown();box.hidden=false;bell.setAttribute('aria-expanded','true');}
+ });
+ avatarButton?.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  const box=q('#accountDropdown'),willOpen=!!box?.hidden;closeTopbarMenus();
+  if(box&&willOpen){renderAccountDropdown();box.hidden=false;avatarButton.setAttribute('aria-expanded','true');}
+ });
+ document.addEventListener('click',event=>{
+  if(!event.target.closest('.topbar-popover')&&!event.target.closest('#notificationBell')&&!event.target.closest('#topAvatar'))closeTopbarMenus();
+ });
+ document.addEventListener('click',async event=>{
+  const account=event.target.closest('[data-account-action]');
+  if(account){
+   closeTopbarMenus();const action=account.dataset.accountAction;
+   if(action==='profile')goPage('profile');else if(action==='settings')goPage('settings');
+   else if(action==='login')openAuth('login');else if(action==='register')openAuth('register');
+   else if(action==='logout')q('#authButton')?.click();
+   return;
+  }
+  if(event.target.closest('[data-notification-post],[data-notification-friends],[data-notification-chat]'))closeTopbarMenus();
+  if(event.target.closest('[data-notifications-view-all]')){closeTopbarMenus();goPage('notifications');return;}
+  const legalLink=event.target.closest('[data-legal-open]');
+  if(legalLink){event.preventDefault();openInAppLegal(legalLink.dataset.legalOpen);return;}
+  const restore=event.target.closest('[data-restore-avatar]');
+  if(restore){await restoreAvatarFromHistory(Number(restore.dataset.restoreAvatar));return;}
+ });
+ async function openInAppLegal(which){
+  const selected=['rules','privacy','terms'].includes(which)?which:'rules';
+  let dialog=q('#vatraSiteLegalDialog');
+  if(!dialog){
+   dialog=document.createElement('dialog');dialog.id='vatraSiteLegalDialog';dialog.className='vatra-site-legal-dialog';
+   dialog.innerHTML='<div class="vatra-site-legal-head"><div><p class="eyebrow">ДОКУМЕНТИ ВАТРИ</p><h2>Правила та умови</h2></div><button type="button" class="vatra-site-legal-close" aria-label="Закрити">×</button></div><div class="vatra-site-legal-tabs" role="tablist"><button type="button" data-site-legal-tab="rules">Правила</button><button type="button" data-site-legal-tab="privacy">Конфіденційність</button><button type="button" data-site-legal-tab="terms">Умови</button></div><div class="vatra-site-legal-body" id="vatraSiteLegalBody"></div><div class="vatra-site-legal-actions"><button type="button" class="primary" data-site-legal-close>Зрозуміло</button></div>';
+   document.body.append(dialog);
+   dialog.querySelector('.vatra-site-legal-close').addEventListener('click',()=>dialog.close());
+   dialog.querySelector('[data-site-legal-close]').addEventListener('click',()=>dialog.close());
+   dialog.querySelectorAll('[data-site-legal-tab]').forEach(button=>button.addEventListener('click',()=>selectSiteLegal(button.dataset.siteLegalTab)));
+   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
+   dialog.addEventListener('close',()=>{const body=dialog.querySelector('#vatraSiteLegalBody');if(body)body.scrollTop=0;});
+  }
+  const body=dialog.querySelector('#vatraSiteLegalBody');
+  if(!body.dataset.loaded){
+   try{
+    if(!legalSourcePromise)legalSourcePromise=fetch('auth.html',{cache:'force-cache'}).then(r=>{if(!r.ok)throw new Error('Не вдалося завантажити документи.');return r.text();});
+    const source=await legalSourcePromise,parsed=new DOMParser().parseFromString(source,'text/html');
+    body.innerHTML=['rules','privacy','terms'].map(key=>{
+     const article=parsed.getElementById('legal'+key.charAt(0).toUpperCase()+key.slice(1));
+     return '<article id="siteLegal-'+key+'" class="site-legal-article" hidden>'+(article?article.innerHTML:'<p>Документ тимчасово недоступний.</p>')+'</article>';
+    }).join('');body.dataset.loaded='1';
+   }catch(error){body.innerHTML='<p class="topbar-popover-empty">Не вдалося завантажити документ. Перевірте з’єднання та повторіть спробу.</p>';body.dataset.loaded='1';}
+  }
+  selectSiteLegal(selected);if(!dialog.open)dialog.showModal();body.scrollTop=0;
+ }
+ function selectSiteLegal(key){
+  const selected=['rules','privacy','terms'].includes(key)?key:'rules',dialog=q('#vatraSiteLegalDialog');if(!dialog)return;
+  dialog.querySelectorAll('.site-legal-article').forEach(article=>article.hidden=article.id!=='siteLegal-'+selected);
+  dialog.querySelectorAll('[data-site-legal-tab]').forEach(button=>button.classList.toggle('active',button.dataset.siteLegalTab===selected));
+  const body=dialog.querySelector('#vatraSiteLegalBody');if(body)body.scrollTop=0;
+ }
+ async function restoreAvatarFromHistory(index){
+  if(!authRequired())return;
+  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[],selected=history[index];
+  if(!selected)return toastMsg('Це фото вже недоступне.');
+  try{
+   const old=currentProfile.avatarUrl;history.splice(index,1);if(old&&old!==selected)history.push(old);
+   const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);
+   await update(ref(db,'users/'+currentUser.uid),{avatarUrl:selected,avatarHistory});
+   currentProfile.avatarUrl=selected;currentProfile.avatarHistory=avatarHistory;
+   await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
+   updateIdentity();render();toastMsg('Попереднє фото повернуто в профіль.');
+  }catch(error){toastMsg(niceError(error));}
+ }
+ function getImageEditor(){
+  let dialog=q('#vatraImageEditor');if(dialog)return dialog;
+  dialog=document.createElement('dialog');dialog.id='vatraImageEditor';dialog.className='vatra-image-editor';
+  dialog.innerHTML='<form class="vatra-image-editor-form"><div class="vatra-image-editor-head"><div><p class="eyebrow">РЕДАКТОР ФОТО</p><h2 id="vatraImageEditorTitle">Редагувати зображення</h2></div><button type="button" class="vatra-image-editor-close" aria-label="Закрити">×</button></div><div class="vatra-image-editor-layout"><div class="vatra-image-stage"><img id="vatraImageEditorPreview" alt="Попередній перегляд фото"></div><div class="vatra-image-editor-tools"><b>Фільтри</b><div class="vatra-photo-filters"><button type="button" data-photo-filter="normal" class="active">Оригінал</button><button type="button" data-photo-filter="vivid">Яскравий</button><button type="button" data-photo-filter="warm">Теплий</button><button type="button" data-photo-filter="mono">Ч/Б</button><button type="button" data-photo-filter="soft">М’який</button><button type="button" data-photo-filter="cool">Холодний</button></div><label class="vatra-editor-range">Масштаб <output id="vatraZoomValue">1.00×</output><input id="vatraPhotoZoom" type="range" min="1" max="2.5" step="0.05" value="1"></label><label class="vatra-editor-range">Горизонтальне обрізання <output id="vatraXValue">50%</output><input id="vatraPhotoX" type="range" min="0" max="100" value="50"></label><label class="vatra-editor-range">Вертикальне обрізання <output id="vatraYValue">50%</output><input id="vatraPhotoY" type="range" min="0" max="100" value="50"></label><button type="button" class="pill vatra-photo-rotate" id="vatraPhotoRotate">↻ Повернути на 90°</button><p class="field-hint">Перетягуйте повзунки, щоб вибрати частину зображення. Обробка відбувається у Вашому браузері.</p></div></div><div class="vatra-image-editor-actions"><button type="button" class="pill" id="vatraPhotoCancel">Скасувати</button><button type="submit" class="primary" id="vatraPhotoSave">Зберегти фото</button></div></form>';
+  document.body.append(dialog);
+  dialog.querySelector('.vatra-image-editor-close').addEventListener('click',()=>dialog.close());
+  dialog.querySelector('#vatraPhotoCancel').addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
+  dialog.addEventListener('close',()=>{if(activeEdit?.objectUrl)URL.revokeObjectURL(activeEdit.objectUrl);activeEdit=null;});
+  dialog.querySelectorAll('[data-photo-filter]').forEach(button=>button.addEventListener('click',()=>{
+   if(!activeEdit)return;activeEdit.filter=button.dataset.photoFilter;
+   dialog.querySelectorAll('[data-photo-filter]').forEach(x=>x.classList.toggle('active',x===button));updatePhotoPreview();
+  }));
+  ['#vatraPhotoZoom','#vatraPhotoX','#vatraPhotoY'].forEach(id=>dialog.querySelector(id).addEventListener('input',()=>{
+   if(!activeEdit)return;
+   activeEdit.zoom=Number(dialog.querySelector('#vatraPhotoZoom').value);activeEdit.x=Number(dialog.querySelector('#vatraPhotoX').value);activeEdit.y=Number(dialog.querySelector('#vatraPhotoY').value);
+   text(dialog.querySelector('#vatraZoomValue'),activeEdit.zoom.toFixed(2)+'×');text(dialog.querySelector('#vatraXValue'),activeEdit.x+'%');text(dialog.querySelector('#vatraYValue'),activeEdit.y+'%');updatePhotoPreview();
+  }));
+  dialog.querySelector('#vatraPhotoRotate').addEventListener('click',()=>{if(!activeEdit)return;activeEdit.rotate=(activeEdit.rotate+90)%360;updatePhotoPreview();});
+  dialog.querySelector('form').addEventListener('submit',async event=>{
+   event.preventDefault();if(!activeEdit||!authRequired())return;
+   const save=dialog.querySelector('#vatraPhotoSave'),oldLabel=save.textContent;save.disabled=true;save.textContent='Обробляємо…';
+   try{
+    const state=activeEdit,isAvatar=state.target==='avatar',width=isAvatar?1000:1600,height=isAvatar?1000:900;
+    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося запустити редактор зображень.');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.filter=photoFilters[state.filter]||'none';
+    const rotated=state.rotate%180!==0,displayW=rotated?state.image.naturalHeight:state.image.naturalWidth,displayH=rotated?state.image.naturalWidth:state.image.naturalHeight;
+    const scale=Math.max(width/displayW,height/displayH)*state.zoom,destW=displayW*scale,destH=displayH*scale;
+    const offsetX=(width-destW)*(state.x/100),offsetY=(height-destH)*(state.y/100);
+    ctx.save();ctx.translate(offsetX+destW/2,offsetY+destH/2);ctx.rotate(state.rotate*Math.PI/180);
+    ctx.drawImage(state.image,-state.image.naturalWidth*scale/2,-state.image.naturalHeight*scale/2,state.image.naturalWidth*scale,state.image.naturalHeight*scale);ctx.restore();ctx.filter='none';
+    const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Не вдалося підготувати обрізане фото.')),'image/jpeg',.9));
+    const file=new File([blob],'vatra-'+state.target+'-'+Date.now()+'.jpg',{type:'image/jpeg',lastModified:Date.now()});
+    if(isAvatar){
+     const avatarUrl=await uploadImage(file,512,.84,'avatars'),history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];
+     if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);
+     const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);
+     await update(ref(db,'users/'+currentUser.uid),{avatarUrl,avatarHistory});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;
+     await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));updateIdentity();toastMsg('Фото профілю збережено.');
+    }else{
+     const coverUrl=await uploadImage(file,1500,.84,'covers');await update(ref(db,'users/'+currentUser.uid),{coverUrl});currentProfile.coverUrl=coverUrl;
+     await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));toastMsg('Обкладинку збережено.');
+    }
+    dialog.close();render();
+   }catch(error){toastMsg(error.message||niceError(error));}
+   finally{save.disabled=false;save.textContent=oldLabel;}
+  });
+  return dialog;
+ }
+ function updatePhotoPreview(){
+  if(!activeEdit)return;const image=q('#vatraImageEditorPreview');if(!image)return;
+  image.style.filter=photoFilters[activeEdit.filter]||'none';image.style.objectPosition=activeEdit.x+'% '+activeEdit.y+'%';image.style.transform='scale('+activeEdit.zoom+') rotate('+activeEdit.rotate+'deg)';
+ }
+ function openPhotoEditor(file,target){
+  if(!file||!file.type?.startsWith('image/'))return toastMsg('Оберіть файл зображення.');
+  if(file.size>15*1024*1024)return toastMsg('Фото має бути меншим за 15 МБ.');
+  const dialog=getImageEditor(),objectUrl=URL.createObjectURL(file),image=new Image();
+  image.onload=()=>{
+   activeEdit={file,target,image,objectUrl,filter:'normal',zoom:1,x:50,y:50,rotate:0};
+   const preview=dialog.querySelector('#vatraImageEditorPreview');preview.src=objectUrl;preview.style.objectFit='cover';
+   text(dialog.querySelector('#vatraImageEditorTitle'),target==='avatar'?'Обрізати фото профілю':'Обрізати обкладинку');
+   dialog.querySelector('#vatraPhotoZoom').value='1';dialog.querySelector('#vatraPhotoX').value='50';dialog.querySelector('#vatraPhotoY').value='50';
+   text(dialog.querySelector('#vatraZoomValue'),'1.00×');text(dialog.querySelector('#vatraXValue'),'50%');text(dialog.querySelector('#vatraYValue'),'50%');
+   dialog.querySelectorAll('[data-photo-filter]').forEach(b=>b.classList.toggle('active',b.dataset.photoFilter==='normal'));
+   updatePhotoPreview();if(!dialog.open)dialog.showModal();
+  };
+  image.onerror=()=>{URL.revokeObjectURL(objectUrl);toastMsg('Не вдалося відкрити це зображення.');};image.src=objectUrl;
+ }
+ document.addEventListener('change',event=>{
+  const input=event.target;if(!input||!input.id)return;
+  const map={avatarUpload:'avatar',settingsAvatarFile:'avatar',coverUpload:'cover',settingsCoverFile:'cover'},target=map[input.id];
+  if(!target||!input.files||!input.files[0])return;
+  const file=input.files[0];event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();input.value='';openPhotoEditor(file,target);
+ },true);
+ window.addEventListener('keydown',event=>{if(event.key==='Escape')closeTopbarMenus();});
+})();
