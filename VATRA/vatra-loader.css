@@ -182,3 +182,9 @@
   }
   .vatra-loading-track span { width: 65%; }
 }
+
+
+/* Brand-consistent loader mark: use VATRA's original SVG rather than a lowercase text glyph. */
+.vatra-loading-mark{letter-spacing:0!important;padding:0!important}
+.vatra-loading-mark img{display:block;width:28px;height:33px;object-fit:contain;filter:brightness(0) invert(1);position:relative;z-index:1}
+@media(max-width:480px){.vatra-loading-mark img{width:25px;height:30px}}
