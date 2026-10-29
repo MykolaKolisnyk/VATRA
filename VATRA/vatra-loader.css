@@ -15,7 +15,7 @@
   backdrop-filter: blur(18px);
   opacity: 1;
   visibility: visible;
-  transition: opacity .42s ease, visibility .42s ease;
+  transition: opacity .28s ease, visibility .28s ease;
 }
 .vatra-loading-screen::before,
 .vatra-loading-screen::after {
