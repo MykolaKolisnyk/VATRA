@@ -313,7 +313,7 @@ function show(m){
  $('#legalConsentWrap').hidden=!reg;$('#legalConsent').required=reg;$('#legalConsent').checked=false;
  $('#legal').innerHTML=reg?'':'<span class="legal-label">Документи ВАТРИ</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови користування</button></div>';
  $('#error').textContent='';$('#error').classList.remove('success');const activeMethod=selectedMethod();syncAuthMethodUI(activeMethod);
- $('#password').autocomplete=reg||newPassword?'new-password':'current-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
+ $('#password').autocomplete='new-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
  
  refreshAuthCooldown();
 }
@@ -330,10 +330,18 @@ $('#registerTab').addEventListener('click',()=>show('register'));
 
 
 
+function resetModalScroll(dialog){
+ if(!dialog)return;
+ dialog.scrollTop=0;
+ dialog.querySelectorAll('.developer-dialog-body,.legal-dialog-body,.legal-dialog-body article').forEach(area=>{area.scrollTop=0;});
+}
 function openDialogAnimated(dialog){
  if(!dialog)return;
  dialog.classList.remove('is-closing','is-opening');
+ resetModalScroll(dialog);
  if(!dialog.open)dialog.showModal();
+ resetModalScroll(dialog);
+ requestAnimationFrame(()=>resetModalScroll(dialog));
  void dialog.offsetWidth;
  dialog.classList.add('is-opening');
  window.setTimeout(()=>dialog.classList.remove('is-opening'),260);
@@ -342,13 +350,17 @@ function closeDialogAnimated(dialog){
  if(!dialog||!dialog.open||dialog.classList.contains('is-closing'))return;
  dialog.classList.remove('is-opening');
  dialog.classList.add('is-closing');
- window.setTimeout(()=>{if(dialog.open)dialog.close();dialog.classList.remove('is-closing');},180);
+ window.setTimeout(()=>{
+  if(dialog.open)dialog.close();
+  dialog.classList.remove('is-closing');
+  resetModalScroll(dialog);
+ },180);
 }
 document.querySelectorAll('[data-developer-open]').forEach(button=>button.addEventListener('click',()=>openDialogAnimated(document.getElementById('developerDialog'))));
 document.getElementById('closeDeveloper').addEventListener('click',()=>closeDialogAnimated(document.getElementById('developerDialog')));
 document.getElementById('closeDeveloperBottom').addEventListener('click',()=>closeDialogAnimated(document.getElementById('developerDialog')));
 document.getElementById('developerDialog').addEventListener('click',event=>{if(event.target===document.getElementById('developerDialog'))closeDialogAnimated(document.getElementById('developerDialog'));});
-document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialogAnimated(dialog);}));
+document.querySelectorAll('dialog').forEach(dialog=>{dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialogAnimated(dialog);});dialog.addEventListener('close',()=>resetModalScroll(dialog));});
 function openLegal(which){const selected=['rules','privacy','terms'].includes(which)?which:'rules';$('#legalRules').hidden=selected!=='rules';$('#legalPrivacy').hidden=selected!=='privacy';$('#legalTerms').hidden=selected!=='terms';document.querySelectorAll('[data-legal-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.legalTab===selected);b.setAttribute('aria-selected',String(b.dataset.legalTab===selected));});const area=$('#legalScrollArea');if(area)area.scrollTop=0;openDialogAnimated($('#legalDialog'));}
 $('#legal').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b)openLegal(b.dataset.legal);});
 $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();openLegal(b.dataset.legal);}});
@@ -536,5 +548,24 @@ $('#authForm').addEventListener('submit',async e=>{
   if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);
  }finally{submitting=false;if(!pendingHumanAction)suppressAuthRedirect=false;refreshAuthCooldown();}
 });
-enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();const params=new URLSearchParams(location.search),requestedMode=params.get('mode');const initialMode=['login','register','reset','new-password'].includes(requestedMode)?requestedMode:(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');const emailRadio=document.querySelector('input[name="authMethod"][value="email"]');if(emailRadio)emailRadio.checked=true;$('#method').value='email';show(initialMode);syncAuthMethodUI(selectedMethod());if(authCooldownRemaining()>0&&!authCooldownTimer)authCooldownTimer=setInterval(refreshAuthCooldown,1000);const requestedLegal=params.get('legal');if(['rules','privacy','terms'].includes(requestedLegal))openLegal(requestedLegal);
+enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();$('#authForm').autocomplete='off';$('#email').autocomplete='off';$('#password').autocomplete='new-password';$('#confirm').autocomplete='new-password';
+$('#password').value='';$('#confirm').value='';
+const params=new URLSearchParams(location.search),requestedMode=params.get('mode');const initialMode=['login','register','reset','new-password'].includes(requestedMode)?requestedMode:(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');const emailRadio=document.querySelector('input[name="authMethod"][value="email"]');if(emailRadio)emailRadio.checked=true;$('#method').value='email';show(initialMode);syncAuthMethodUI(selectedMethod());if(authCooldownRemaining()>0&&!authCooldownTimer)authCooldownTimer=setInterval(refreshAuthCooldown,1000);const requestedLegal=params.get('legal');if(['rules','privacy','terms'].includes(requestedLegal))openLegal(requestedLegal);
+
+// Do not display stale/saved passwords on a fresh visit. Wait briefly for browser autofill,
+// but preserve text once the user actually starts typing or pasting.
+let authPasswordWasManuallyEdited=false,authConfirmWasManuallyEdited=false;
+['keydown','beforeinput','paste','compositionstart'].forEach(type=>{
+ $('#password').addEventListener(type,()=>{authPasswordWasManuallyEdited=true;});
+ $('#confirm').addEventListener(type,()=>{authConfirmWasManuallyEdited=true;});
+});
+function clearUnrequestedPasswordAutofill(){
+ let changed=false;
+ if(!authPasswordWasManuallyEdited&&document.activeElement!==$('#password')&&$('#password').value){$('#password').value='';changed=true;}
+ if(!authConfirmWasManuallyEdited&&document.activeElement!==$('#confirm')&&$('#confirm').value){$('#confirm').value='';changed=true;}
+ if(changed){updatePasswordStrength();syncCaptchaVisibility();}
+}
+clearUnrequestedPasswordAutofill();
+[120,450,1000].forEach(delay=>window.setTimeout(clearUnrequestedPasswordAutofill,delay));
+window.addEventListener('pageshow',()=>window.setTimeout(clearUnrequestedPasswordAutofill,120));
 window.__vatraAuthReady = true;
