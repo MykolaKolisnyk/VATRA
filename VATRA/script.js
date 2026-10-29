@@ -406,7 +406,7 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
   dialog.querySelector('.vatra-image-editor-close').addEventListener('click',()=>dialog.close());
   dialog.querySelector('#vatraPhotoCancel').addEventListener('click',()=>dialog.close());
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
-  dialog.addEventListener('close',()=>{if(activeEdit?.objectUrl)URL.revokeObjectURL(activeEdit.objectUrl);activeEdit=null;});
+  dialog.addEventListener('close',()=>{if(activeEdit?.objectUrl)URL.revokeObjectURL(activeEdit.objectUrl);activeEdit=null;dialog.classList.remove('is-cover');});
   dialog.querySelectorAll('[data-photo-filter]').forEach(button=>button.addEventListener('click',()=>{
    if(!activeEdit)return;activeEdit.filter=button.dataset.photoFilter;
    dialog.querySelectorAll('[data-photo-filter]').forEach(x=>x.classList.toggle('active',x===button));updatePhotoPreview();
@@ -421,7 +421,7 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
    event.preventDefault();if(!activeEdit||!authRequired())return;
    const save=dialog.querySelector('#vatraPhotoSave'),oldLabel=save.textContent;save.disabled=true;save.textContent='Обробляємо…';
    try{
-    const state=activeEdit,isAvatar=state.target==='avatar',width=isAvatar?1000:1600,height=isAvatar?1000:900;
+    const state=activeEdit,isAvatar=state.target==='avatar',width=isAvatar?1000:1600,height=isAvatar?1000:500;
     const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
     const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося запустити редактор зображень.');
     ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.filter=photoFilters[state.filter]||'none';
@@ -455,7 +455,7 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
  function openPhotoEditor(file,target){
   if(!file||!file.type?.startsWith('image/'))return toastMsg('Оберіть файл зображення.');
   if(file.size>15*1024*1024)return toastMsg('Фото має бути меншим за 15 МБ.');
-  const dialog=getImageEditor(),objectUrl=URL.createObjectURL(file),image=new Image();
+  const dialog=getImageEditor(),objectUrl=URL.createObjectURL(file),image=new Image();dialog.classList.toggle('is-cover',target==='cover');
   image.onload=()=>{
    activeEdit={file,target,image,objectUrl,filter:'normal',zoom:1,x:50,y:50,rotate:0};
    const preview=dialog.querySelector('#vatraImageEditorPreview');preview.src=objectUrl;preview.style.objectFit='cover';
