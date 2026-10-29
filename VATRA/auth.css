@@ -3497,3 +3497,36 @@ html,body{
 }
 
 /* Every time a modal is opened, its document starts at the top. */
+
+
+/* Fix: decorative circles must never extend the document's scroll height. */
+.auth-layout::before,
+.auth-layout::after{
+  position:fixed!important;
+  pointer-events:none!important;
+  z-index:1!important;
+}
+.auth-layout::before{
+  top:50vh!important;
+  left:50vw!important;
+  transform:translate(-50%,-50%)!important;
+}
+.auth-layout::after{
+  top:50vh!important;
+  left:78vw!important;
+  transform:translate(-50%,-50%)!important;
+}
+.auth-layout>.brand-side,
+.auth-layout>.form-side{
+  align-self:stretch!important;
+}
+@media(max-width:850px){
+  .auth-layout::before{
+    top:26vh!important;
+    left:50vw!important;
+  }
+  .auth-layout::after{
+    top:42vh!important;
+    left:80vw!important;
+  }
+}
