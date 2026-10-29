@@ -3844,3 +3844,99 @@ body{
   .auth-layout>.form-side>.auth-card{padding:17px 12px!important}
   .auth-layout .auth-card h2{font-size:22px!important}
 }
+
+
+/* Unified VATRA document scrollbar, input controls and focus states across auth dialogs. */
+.auth-dialog,
+#recoveryDialog,
+#developerDialog,
+#legalDialog{
+  scrollbar-width:thin!important;
+  scrollbar-color:#1d5ef5 #eaf0fa!important;
+}
+.auth-dialog::-webkit-scrollbar,
+#recoveryDialog::-webkit-scrollbar,
+#developerDialog::-webkit-scrollbar,
+#legalDialog::-webkit-scrollbar{width:9px!important}
+.auth-dialog::-webkit-scrollbar-track,
+#recoveryDialog::-webkit-scrollbar-track,
+#developerDialog::-webkit-scrollbar-track,
+#legalDialog::-webkit-scrollbar-track{background:#eaf0fa!important;border-radius:8px!important;margin:4px 0!important}
+.auth-dialog::-webkit-scrollbar-thumb,
+#recoveryDialog::-webkit-scrollbar-thumb,
+#developerDialog::-webkit-scrollbar-thumb,
+#legalDialog::-webkit-scrollbar-thumb{background:#1d5ef5!important;border:2px solid #eaf0fa!important;border-radius:8px!important}
+.auth-dialog::-webkit-scrollbar-thumb:hover,
+#recoveryDialog::-webkit-scrollbar-thumb:hover,
+#developerDialog::-webkit-scrollbar-thumb:hover,
+#legalDialog::-webkit-scrollbar-thumb:hover{background:#174ed0!important}
+.auth-dialog input[type="checkbox"],
+.auth-card input[type="checkbox"],
+.auth-dialog input[type="radio"],
+.auth-card input[type="radio"]{
+  accent-color:#0757f5!important;
+}
+.birthday-selects select,
+.auth-card select,
+.auth-dialog select{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  border:1px solid #d4e0f1!important;
+  border-radius:11px!important;
+  color:#213651!important;
+  background-color:#f8faff!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230757f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;
+  background-position:right 11px center!important;
+  background-size:15px!important;
+  padding-right:32px!important;
+  font:600 13px/1.4 Inter,system-ui,sans-serif!important;
+  transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease!important;
+}
+.birthday-selects select:focus,
+.auth-card select:focus,
+.auth-dialog select:focus{
+  outline:0!important;
+  border-color:#0757f5!important;
+  background-color:#fff!important;
+  box-shadow:0 0 0 3px rgba(7,87,245,.12)!important;
+}
+.auth-card .legal-consent{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:10px!important;
+  padding:13px 14px!important;
+  border:1px solid #c8d9f5!important;
+  border-radius:14px!important;
+  background:linear-gradient(135deg,#f8fbff,#f0f5ff)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9)!important;
+}
+.auth-card .legal-consent input[type="checkbox"]{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  flex:0 0 19px!important;
+  width:19px!important;height:19px!important;
+  margin:2px 0 0!important;
+  border:1.5px solid #9bb5dc!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  cursor:pointer!important;
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease!important;
+}
+.auth-card .legal-consent input[type="checkbox"]:checked{
+  border-color:#0757f5!important;
+  background-color:#0757f5!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='m4 10 4 4 8-8' fill='none' stroke='white' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;
+  background-size:15px!important;background-position:center!important;background-repeat:no-repeat!important;
+  box-shadow:0 3px 8px rgba(7,87,245,.23)!important;
+}
+.auth-card .legal-consent input[type="checkbox"]:active{transform:scale(.92)}
+.human-captcha-option:disabled{opacity:.55;cursor:wait!important;transform:none!important}
+@media(max-width:560px){
+  .auth-dialog,.developer-dialog,#legalDialog,#recoveryDialog{max-height:calc(100dvh - 20px)!important}
+  .birthday-selects{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr) minmax(0,1fr)!important;gap:6px!important}
+  .birthday-selects select{height:44px!important;font-size:12px!important;padding-left:8px!important;padding-right:26px!important;background-position:right 7px center!important}
+}
