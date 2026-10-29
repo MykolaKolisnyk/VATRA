@@ -3940,3 +3940,60 @@ body{
   .birthday-selects{grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr) minmax(0,1fr)!important;gap:6px!important}
   .birthday-selects select{height:44px!important;font-size:12px!important;padding-left:8px!important;padding-right:26px!important;background-position:right 7px center!important}
 }
+
+
+/* Use the same VATRA scrollbar in password recovery, developer and legal forms. */
+#recoveryDialog.auth-dialog{
+  max-height:min(88dvh,850px)!important;
+  overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+  scrollbar-width:thin!important;scrollbar-color:#1d5ef5 #eaf0fa!important;
+}
+#recoveryDialog.auth-dialog::-webkit-scrollbar,
+.auth-dialog::-webkit-scrollbar,
+.developer-dialog::-webkit-scrollbar,
+#legalDialog::-webkit-scrollbar{width:9px!important}
+#recoveryDialog.auth-dialog::-webkit-scrollbar-track,
+.auth-dialog::-webkit-scrollbar-track,
+.developer-dialog::-webkit-scrollbar-track,
+#legalDialog::-webkit-scrollbar-track{background:#eaf0fa!important;border-radius:9px!important;margin:4px 0!important}
+#recoveryDialog.auth-dialog::-webkit-scrollbar-thumb,
+.auth-dialog::-webkit-scrollbar-thumb,
+.developer-dialog::-webkit-scrollbar-thumb,
+#legalDialog::-webkit-scrollbar-thumb{
+ background:#1d5ef5!important;border:2px solid #eaf0fa!important;border-radius:9px!important;
+}
+#recoveryDialog.auth-dialog::-webkit-scrollbar-thumb:hover,
+.auth-dialog::-webkit-scrollbar-thumb:hover,
+.developer-dialog::-webkit-scrollbar-thumb:hover,
+#legalDialog::-webkit-scrollbar-thumb:hover{background:#0b4cd4!important}
+.auth-dialog .birthday-selects{width:100%!important;min-width:0!important}
+.auth-dialog .birthday-selects select{
+ min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+ appearance:none!important;-webkit-appearance:none!important;
+ border:1px solid #d8e3f4!important;border-radius:10px!important;
+ background-color:#f8faff!important;color:#233855!important;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230757f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
+ background-repeat:no-repeat!important;background-size:14px!important;background-position:right 8px center!important;
+ padding:10px 29px 10px 10px!important;font:600 12px/1.4 Inter,system-ui,sans-serif!important;
+}
+.auth-card .legal-consent{
+ display:flex!important;align-items:flex-start!important;gap:10px!important;
+ padding:13px 14px!important;border:1px solid #cdddf8!important;border-radius:13px!important;
+ background:linear-gradient(145deg,#f3f7ff,#fbfcff)!important;color:#354a69!important;
+ box-shadow:inset 3px 0 0 #0757f5!important;line-height:1.65!important;
+}
+.auth-card .legal-consent input[type="checkbox"]{
+ appearance:none!important;-webkit-appearance:none!important;
+ flex:0 0 18px!important;width:18px!important;height:18px!important;min-height:18px!important;
+ margin:2px 0 0!important;padding:0!important;border:1.5px solid #9eb8e7!important;
+ border-radius:5px!important;background:#fff!important;cursor:pointer!important;
+ display:grid!important;place-items:center!important;
+}
+.auth-card .legal-consent input[type="checkbox"]::after{
+ content:"";width:8px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;
+ transform:rotate(-45deg) scale(0);transition:transform .13s ease;
+}
+.auth-card .legal-consent input[type="checkbox"]:checked{background:#0757f5!important;border-color:#0757f5!important}
+.auth-card .legal-consent input[type="checkbox"]:checked::after{transform:rotate(-45deg) scale(1)}
+.auth-card .legal-consent input[type="checkbox"]:focus-visible{outline:3px solid #0757f535!important;outline-offset:3px!important}
+.auth-card .legal-consent button{font-weight:800!important;color:#0757f5!important;text-decoration-thickness:1.5px!important}
