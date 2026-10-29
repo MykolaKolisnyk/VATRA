@@ -2761,3 +2761,62 @@ html,body{max-width:100%;overflow-x:hidden!important}
   .auth-layout>.form-side{padding:8px 7px!important}
   .auth-layout>.form-side>.auth-card{padding:16px 12px!important}
 }
+
+
+/* Restore the intended split design: blue brand panel, light form panel, rings across both. */
+.auth-layout{
+  background:linear-gradient(90deg,#0757f5 0%,#0050e7 49.99%,#f6f8fc 50%,#f6f8fc 100%)!important;
+  isolation:isolate!important;
+}
+.auth-layout>.brand-side{
+  background:transparent!important;
+  z-index:2!important;
+}
+.auth-layout>.form-side{
+  background:transparent!important;
+  z-index:3!important;
+}
+.auth-layout::before{
+  position:fixed!important;
+  z-index:1!important;
+  width:min(74vmin,980px)!important;
+  aspect-ratio:1!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  border:1px solid rgba(255,255,255,.15)!important;
+  border-radius:50%!important;
+  box-shadow:0 0 0 30px rgba(7,87,245,.035),0 0 0 72px rgba(7,87,245,.022)!important;
+}
+.auth-layout::after{
+  position:fixed!important;
+  z-index:1!important;
+  width:min(36vmin,520px)!important;
+  aspect-ratio:1!important;
+  left:78%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  border:1px solid rgba(7,87,245,.09)!important;
+  border-radius:50%!important;
+  box-shadow:0 0 0 24px rgba(7,87,245,.018)!important;
+}
+@media(max-width:850px){
+  .auth-layout{
+    background:linear-gradient(180deg,#0757f5 0%,#0050e7 34%,#f6f8fc 34%,#f6f8fc 100%)!important;
+  }
+  .auth-layout>.form-side{background:transparent!important}
+  .auth-layout::before{
+    width:min(86vw,62vh)!important;
+    left:50%!important;
+    top:17%!important;
+    border-color:rgba(255,255,255,.13)!important;
+    box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 48px rgba(255,255,255,.02)!important;
+  }
+  .auth-layout::after{
+    width:min(42vw,30vh)!important;
+    left:80%!important;
+    top:22%!important;
+    border-color:rgba(255,255,255,.1)!important;
+    box-shadow:0 0 0 18px rgba(255,255,255,.018)!important;
+  }
+}
