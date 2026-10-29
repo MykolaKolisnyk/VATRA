@@ -3530,3 +3530,41 @@ html,body{
     left:80vw!important;
   }
 }
+
+
+/* Keep the split background continuous for the entire document height. */
+html{
+  background:#f6f8fc!important;
+}
+body{
+  background:linear-gradient(90deg,#0757f5 0%,#0050e7 49.99%,#f6f8fc 50%,#f6f8fc 100%)!important;
+  background-attachment:scroll!important;
+}
+.auth-layout{
+  background:transparent!important;
+  background-color:transparent!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+.auth-layout>.brand-side{
+  align-self:stretch!important;
+  height:auto!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  background:transparent!important;
+}
+.auth-layout>.form-side{
+  align-self:stretch!important;
+  height:auto!important;
+  min-height:100vh!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  background:transparent!important;
+}
+@media(max-width:850px){
+  body{background:#f6f8fc!important}
+  .auth-layout{background:#f6f8fc!important}
+}
