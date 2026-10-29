@@ -2292,3 +2292,16 @@ input[type="checkbox"]{accent-color:#0757f5}
   color:#233855!important;font:600 12px/1.4 Inter,system-ui,sans-serif!important;
  }
 }
+
+
+/* The top bar owns the brand mark; keep the side rail focused on navigation. */
+.layout>.sidebar>.brand{display:none!important}
+.layout>.sidebar>nav{margin-top:4px!important}
+.layout>.sidebar{padding-top:7px!important}
+@media(max-width:1180px) and (min-width:761px){
+ .layout>.sidebar>.brand{display:none!important}
+ .layout>.sidebar>nav{margin-top:0!important}
+}
+@media(max-width:760px){
+ .layout>.sidebar>.brand{display:none!important}
+}
