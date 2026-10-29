@@ -1,4 +1,8 @@
 import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, setAccountPassword } from './vatra-backend.js?v=20261027-5';
+
+// Prevent the browser from restoring an old scroll position on the sign-in page.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+window.scrollTo(0,0);
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
 const selectedMethod=()=>document.querySelector('input[name="authMethod"]:checked')?.value||$('#method').value||'email';
