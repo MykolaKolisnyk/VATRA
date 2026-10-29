@@ -211,8 +211,8 @@ function resetHumanChallenge(notice=''){
  previousAdditionKey=pairKey;
  challengeAnswer=a+b;
  const choiceSet=new Set([challengeAnswer]);
- while(choiceSet.size<3){
-  const distractor=Math.max(1,Math.min(20,challengeAnswer+Math.floor(Math.random()*9)-4));
+ while(choiceSet.size<4){
+  const distractor=1+Math.floor(Math.random()*20);
   choiceSet.add(distractor);
  }
  const choices=[...choiceSet].sort(()=>Math.random()-.5);
@@ -224,9 +224,14 @@ function resetHumanChallenge(notice=''){
  wrap.querySelectorAll('[data-captcha-answer]').forEach(btn=>btn.addEventListener('click',()=>{
   const isCorrect=Number(btn.dataset.captchaAnswer)===challengeAnswer;
   if(!isCorrect){
-   resetHumanChallenge('Відповідь неправильна. Ось новий приклад додавання.');
+   window.__vatraCaptchaFailures=(window.__vatraCaptchaFailures||0)+1;
+   const delay=Math.min(2500,350*window.__vatraCaptchaFailures);
+   resetHumanChallenge('Відповідь неправильна. Старі варіанти скасовано — згенеровано нове питання.');
+   wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>option.disabled=true);
+   window.setTimeout(()=>wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>option.disabled=false),delay);
    return;
   }
+  window.__vatraCaptchaFailures=0;
   challengePassed=true;
   wrap.querySelectorAll('[data-captcha-answer]').forEach(x=>x.classList.remove('is-correct','is-wrong'));
   btn.classList.add('is-correct');
@@ -373,18 +378,28 @@ $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLeg
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
 function currentRecoveryMethod(){return document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact';
-function resetRecoveryChallenge(){
- const a=2+Math.floor(Math.random()*8),b=2+Math.floor(Math.random()*8);recoveryAnswer=a+b;recoveryPassed=false;
- $('#recoveryMath').textContent=a+' + '+b+' = ?';
- const options=new Set([recoveryAnswer]);while(options.size<3)options.add(recoveryAnswer+Math.floor(Math.random()*9)-4);
- $('#recoveryAnswers').innerHTML=[...options].sort(()=>Math.random()-.5).map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
- $('#recoveryChallengeStatus').textContent='Ця перевірка допомагає захистити акаунти від автоматизованих запитів.';$('#recoveryChallengeStatus').classList.remove('is-passed');
+function resetRecoveryChallenge(notice=''){
+ const a=2+Math.floor(Math.random()*9),b=2+Math.floor(Math.random()*9);
+ const oldQuestion=$('#recoveryMath')?.textContent||'';
+ recoveryAnswer=a+b;recoveryPassed=false;
+ let question=a+' + '+b+' = ?';
+ if(question===oldQuestion){const next=(a%9)+1;recoveryAnswer=next+b;question=next+' + '+b+' = ?';}
+ $('#recoveryMath').textContent=question;
+ const options=new Set([recoveryAnswer]);
+ while(options.size<4){const distractor=1+Math.floor(Math.random()*19);if(distractor!==recoveryAnswer)options.add(distractor);}
+ const shuffled=[...options].sort(()=>Math.random()-.5);
+ $('#recoveryAnswers').innerHTML=shuffled.map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
+ $('#recoveryChallengeStatus').textContent=notice||'Ця перевірка допомагає захистити акаунти від автоматизованих запитів.';
+ $('#recoveryChallengeStatus').classList.remove('is-passed');
+ $('#recoveryChallengeStatus').classList.toggle('is-wrong',!!notice);
  $('#recoveryAnswers').querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
+  const correct=Number(btn.dataset.recoveryAnswer)===recoveryAnswer;
+  if(!correct){resetRecoveryChallenge('Відповідь неправильна. Згенеровано новий приклад — старі варіанти більше не діють.');return;}
   $('#recoveryAnswers').querySelectorAll('button').forEach(x=>x.classList.remove('is-correct','is-wrong'));
-  recoveryPassed=Number(btn.dataset.recoveryAnswer)===recoveryAnswer;
-  btn.classList.add(recoveryPassed?'is-correct':'is-wrong');
-  $('#recoveryChallengeStatus').textContent=recoveryPassed?'Перевірку пройдено.':'Відповідь неправильна. Спробуйте ще раз.';
-  $('#recoveryChallengeStatus').classList.toggle('is-passed',recoveryPassed);
+  recoveryPassed=true;btn.classList.add('is-correct');
+  $('#recoveryChallengeStatus').textContent='Перевірку пройдено.';
+  $('#recoveryChallengeStatus').classList.add('is-passed');
+  $('#recoveryChallengeStatus').classList.remove('is-wrong');
  }));
 }
 function syncRecoveryMethod(){
@@ -484,8 +499,8 @@ onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppre
 $('#authForm').addEventListener('submit',async e=>{
  e.preventDefault();if(submitting)return;
  if(pendingHumanAction&&challengePassed){
-  pendingHumanAction=null;challengePassed=false;suppressAuthRedirect=false;closeHumanCaptcha();
-  location.replace('index.html');return;
+  pendingHumanAction=null;
+  closeHumanCaptcha();
  }
  if(authCooldownRemaining()>0){refreshAuthCooldown();$('#error').textContent=errors['auth/too-many-requests'];return;}
  const btn=$('#submit'),isPhone=selectedMethod()==='phone',contact=isPhone?currentAuthContact():$('#email').value.trim().toLowerCase(),dob=$('#birthday').value,token=captchaToken();
@@ -512,6 +527,12 @@ $('#authForm').addEventListener('submit',async e=>{
   if(!isStrongPassword(newPass)){ $('#error').textContent='Пароль має містити 12+ символів, великі й малі латинські літери, цифру та спецсимвол.';$('#password').focus();return; }
   if(newPass!==confirmation){ $('#error').textContent='Паролі не збігаються.';$('#confirm').focus();return; }
  }
+ if(['login','register'].includes(mode)&&!challengePassed){
+  pendingHumanAction={mode,contact};
+  openHumanCaptcha();
+  return;
+ }
+ if(challengePassed)challengePassed=false;
  const old=btn.textContent;submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent=mode==='login'?'Перевіряємо дані…':mode==='reset'?'Надсилаємо посилання…':mode==='new-password'?'Зберігаємо пароль…':'Перевіряємо дані…';
  try{
 
@@ -526,8 +547,7 @@ $('#authForm').addEventListener('submit',async e=>{
   }
   if(mode==='login'){
    await signInWithPassword(auth,contact,$('#password').value);
-   pendingHumanAction={mode:'login',contact};
-   openHumanCaptcha();
+   location.replace('index.html');
    return;
   }
   const userData={name,displayName:name,firstName:first,lastName:last,dateOfBirth:dob};
@@ -541,8 +561,7 @@ $('#authForm').addEventListener('submit',async e=>{
    err.code='auth/confirmation-required';throw err;
   }
   await finishRegistration({...registrationData,user:signup.user});
-  pendingHumanAction={mode:'register',contact};
-  openHumanCaptcha();
+  location.replace('index.html');
   return;
  }catch(err){
   pendingHumanAction=null;suppressAuthRedirect=false;
