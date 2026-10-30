@@ -1819,7 +1819,7 @@ body[data-page="settings"] .vatra-settings-pane .vatra-extra-setting>label.vatra
   white-space:normal!important;
 }
 /* Custom checkmarks follow the same simple rounded form language as auth. */
-body[data-page="settings"] .vatra-settings-workspace input[type="checkbox"]{
+body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid input[type="checkbox"]{
   -webkit-appearance:none!important;
   appearance:none!important;
   display:inline-grid!important;
@@ -1919,4 +1919,46 @@ body[data-vatra-theme-effective="dark"] .vatra-settings-workspace input[type="ch
   body[data-page="publicProfile"] .vatra-profile-avatar-open>.vatra-profile-photo{
     aspect-ratio:1!important;
   }
+}
+
+
+/* Higher-specificity form overrides: cancel the legacy resize and native-checkbox
+   declarations that were attached to nested labels in the original layout. */
+body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid .vatra-extra-setting>label:first-child>textarea,
+body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid label:not(.settings-check)>textarea{
+  resize:none!important;
+  min-height:82px!important;
+  max-height:220px!important;
+}
+body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-visibility>input[type="checkbox"]{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  display:inline-grid!important;
+  place-items:center!important;
+  position:relative!important;
+  grid-column:auto!important;
+  flex:0 0 18px!important;
+  width:18px!important;
+  height:18px!important;
+  min-width:18px!important;
+  max-width:18px!important;
+  min-height:18px!important;
+  max-height:18px!important;
+  border:1.5px solid #a8b9cf!important;
+  border-radius:5px!important;
+  margin:0!important;
+  background:#fff!important;
+}
+body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-visibility>input[type="checkbox"]:checked{
+  background:var(--vatra-user-accent,#0757f5)!important;
+  border-color:var(--vatra-user-accent,#0757f5)!important;
+}
+body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-visibility>input[type="checkbox"]:checked::after{
+  content:""!important;
+  display:block!important;
+  width:5px!important;
+  height:9px!important;
+  border:solid #fff!important;
+  border-width:0 2px 2px 0!important;
+  transform:rotate(45deg) translate(-1px,-1px)!important;
 }
