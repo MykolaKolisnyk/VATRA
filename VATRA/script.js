@@ -821,19 +821,28 @@ async function getImageEditor(file,mode='avatar'){
 async function uploadAvatar(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;try{const edited=await getImageEditor(f,'avatar');if(!edited)return;toastMsg('Обробляємо фото…');const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));updateIdentity();render();toastMsg('Фото профілю збережено.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}}
 async function uploadCover(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;try{const edited=await getImageEditor(f,'cover');if(!edited)return;toastMsg('Обробляємо обкладинку…');const coverUrl=await uploadImage(edited,1600,.9,'covers');await update(ref(db,`users/${currentUser.uid}`),{coverUrl});currentProfile.coverUrl=coverUrl;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));render();toastMsg('Обкладинку профілю збережено.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}}
 async function uploadProfilePhoto(e){
- const input=e.currentTarget,file=input.files?.[0];if(!file)return;
+ const input=e.currentTarget,files=Array.from(input.files||[]).filter(Boolean);
+ if(!files.length)return;
  if(!authRequired()){input.value='';return;}
+ if(files.length>10){toastMsg('Можна вибрати до 10 фотографій за раз.');input.value='';return;}
+ const previous=Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice():[];
+ if(previous.length+files.length>40){toastMsg('В альбомі може бути до 40 фотографій.');input.value='';return;}
+ const uploaded=[];
  try{
-  const edited=await getImageEditor(file,'gallery');if(!edited)return;
-  toastMsg('Завантажуємо фото до Вашого альбому…');
-  const url=await uploadImage(edited,1600,.9,'posts');
-  const photos=Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice():[];
-  photos.push(url);const savedPhotos=photos.filter((item,index,arr)=>typeof item==='string'&&arr.indexOf(item)===index).slice(-40);
+  for(const file of files){
+   if(!file.type.startsWith('image/')||file.size>MAX_IMAGE){toastMsg('Пропущено файл: потрібне зображення до 15 МБ.');continue;}
+   const edited=await getImageEditor(file,'gallery');
+   if(!edited)continue;
+   toastMsg('Завантажуємо фотографії до альбому…');
+   uploaded.push(await uploadImage(edited,1600,.9,'posts'));
+  }
+  if(!uploaded.length)return;
+  const savedPhotos=[...new Set([...previous,...uploaded])].slice(-40);
   await update(ref(db,'users/'+currentUser.uid),{profilePhotos:savedPhotos,updatedAt:Date.now()});
   currentProfile.profilePhotos=savedPhotos;
   await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
-  render();toastMsg('Фото додано до Вашого альбому.');
- }catch(error){toastMsg(error.message||niceError(error));}
+  render();toastMsg('Фотографії додано до Вашого альбому: '+uploaded.length+'.');
+ }catch(error){toastMsg('Не всі фотографії вдалося зберегти: '+(error?.message||niceError(error)));}
  finally{input.value='';}
 }
 async function deleteProfilePhoto(index){
