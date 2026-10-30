@@ -332,7 +332,8 @@ function renderPublicProfile(uid){
  const detail=(label,value)=>value?'<div class="profile-vk-detail"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
  const birthdayLabel=birthday?new Date(birthday+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const publicPhotos=Array.isArray(u.profilePhotos)?u.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40).reverse():[];
- const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boconst postPhotos=arr.flatMap(p=>postImages(p));mageUrl);
+ const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boolean);
+ const postPhotos=arr.flatMap(p=>postImages(p));
  const photoUrls=[...new Set(publicPhotos.concat(postPhotos))];
  const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.map(url=>'<div class="profile-photo-tile"><img class="post-image profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото профілю"></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const hasDetails=!!(birthdayLabel||city||location||workplace||education||hometown||phone||u.website);
