@@ -206,7 +206,7 @@ document.addEventListener('click',event=>{
  button.setAttribute('aria-expanded',String(expanded));
 });
 function renderPostBody(p){
- return renderCollapsiblePostText(p.text)+renderPostImages(p)+(p.videoUrl?'<video class="post-image" controls playsinline preload="metadata" src="'+esc(p.videoUrl)+'></video>':'');
+ return renderCollapsiblePostText(p.text)+renderPostImages(p)+(p.videoUrl?'<video class="post-image" controls playsinline preload="metadata" src="'+esc(p.videoUrl)+'"></video>':'');
 }
 function postActorStack(map,label){
  const entries=Object.entries(map||{}).sort((a,b)=>(Number(b[1]?.createdAt)||0)-(Number(a[1]?.createdAt)||0)).slice(0,3);
