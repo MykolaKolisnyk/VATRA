@@ -2,7 +2,7 @@
    The legacy component CSS remains untouched. This file, loaded last, owns
    page geometry and type scale at all breakpoints. No global zoom/scale.
    Key ranges: phone <=760, tablet 761–980, laptop 981–1199, wide >=1200. */
-:root{--vatra-page-width:1260px;--vatra-sidebar-width:184px;--vatra-reading-size:14px;--vatra-rail-gap:20px}
+:root{--vatra-page-width:1180px;--vatra-sidebar-width:170px;--vatra-reading-size:14px;--vatra-rail-gap:18px}
 body[data-vatra-font-scale="large"]{--vatra-reading-size:16px}
 html,body{min-width:0!important}
 body,body button,body input,body textarea,body select{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -109,7 +109,7 @@ body .post-actions button.post-action-button{
 }
 body .post-action-button .post-action-count{font-size:12px!important}
 body .profile-vk-layout{
-  display:grid!important;grid-template-columns:184px minmax(0,1fr)!important;
+  display:grid!important;grid-template-columns:236px minmax(0,1fr)!important;
   gap:16px!important;align-items:start!important;min-width:0!important;
   animation:none!important;transform:none!important;
 }
@@ -117,8 +117,8 @@ body .profile-vk-main,body .profile-vk-sidebar{display:grid!important;min-width:
 body .profile-vk-avatar-open{width:100%!important;height:auto!important;aspect-ratio:auto!important}
 body .profile-vk-avatar-open>.profile-vk-photo{
   display:block!important;width:100%!important;height:auto!important;
-  min-height:0!important;max-height:none!important;aspect-ratio:1/1!important;
-  border-radius:12px!important;background-size:cover!important;background-position:center!important;
+  min-height:0!important;max-height:none!important;aspect-ratio:4/5!important;
+  border-radius:7px!important;background-size:cover!important;background-position:center!important;
   object-fit:cover!important;transform:none!important;
 }
 body .profile-vk-title-row h2{font-size:21px!important;line-height:1.3!important}
@@ -132,8 +132,8 @@ body .profile-vk-stats>div>b{font-size:16px!important}
 body .profile-vk-stats>div>span,body .profile-vk-friend>span:last-child{font-size:11px!important}
 body .profile-vk-photos .profile-photo-gallery{display:flex!important;max-width:100%!important;gap:8px!important;overflow-x:auto!important;overscroll-behavior-x:contain}
 body .profile-vk-photos .profile-photo-tile{
-  flex:0 0 clamp(72px,calc((100% - 48px)/7),110px)!important;
-  width:clamp(72px,calc((100% - 48px)/7),110px)!important;max-width:110px!important;min-width:72px!important;
+  flex:0 0 clamp(74px,calc((100% - 48px)/7),110px)!important;
+  width:clamp(74px,calc((100% - 48px)/7),110px)!important;max-width:110px!important;min-width:72px!important;
 }
 body .profile-vk-photos .profile-gallery-open,body .profile-vk-photos .profile-gallery-open img{width:100%!important;height:auto!important;aspect-ratio:1!important}
 body .settings-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
@@ -162,19 +162,19 @@ body button:focus-visible,body a:focus-visible,body input:focus-visible{outline:
 body .post,body .profile-vk-card,body .settings-card,body .layout>.sidebar .nav,
 body .main>.heading h1{filter:none!important;text-shadow:none!important}
 @media (max-width:1199px) and (min-width:981px){
- :root{--vatra-sidebar-width:172px;--vatra-rail-gap:16px}
+ :root{--vatra-sidebar-width:160px;--vatra-rail-gap:14px}
  body .layout{width:calc(100% - 32px)!important}
  body .vatra-global-header{padding-inline:16px!important}
- body .profile-vk-layout{grid-template-columns:168px minmax(0,1fr)!important}
+ body .profile-vk-layout{grid-template-columns:218px minmax(0,1fr)!important}
 }
 @media (max-width:980px) and (min-width:761px){
- :root{--vatra-sidebar-width:162px;--vatra-rail-gap:13px}
+ :root{--vatra-sidebar-width:148px;--vatra-rail-gap:12px}
  body .layout{width:calc(100% - 26px)!important;gap:13px!important}
  body .vatra-global-header{padding-inline:13px!important}
- body .vatra-global-header .mobile-brand{flex-basis:162px!important;font-size:17px!important}
+ body .vatra-global-header .mobile-brand{flex-basis:148px!important;font-size:17px!important}
  body .layout>.sidebar .nav{min-height:38px!important;padding:7px 8px!important;gap:8px!important;font-size:12px!important}
  body .layout>.sidebar .nav .nav-icon,body .layout>.sidebar .nav svg{width:18px!important;height:18px!important;min-width:18px!important}
- body .profile-vk-layout{grid-template-columns:154px minmax(0,1fr)!important;gap:11px!important}
+ body .profile-vk-layout{grid-template-columns:190px minmax(0,1fr)!important;gap:11px!important}
  body .post,body .profile-vk-card,body .quick-compose,body .settings-card{padding:13px!important}
  body .profile-vk-title-row h2{font-size:19px!important}
  body .post-actions{gap:4px!important}
@@ -263,6 +263,179 @@ body .main>.heading h1{filter:none!important;text-shadow:none!important}
  body *,body *::before,body *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
 
+
+
+/* VK-inspired VATRA visual language, based on the provided images.jpg reference.
+   Familiar spatial rhythm, original VATRA identity, no reproduced VK artwork. */
+body{background:#edeef0!important;color:#27313f!important}
+body .vatra-global-header{
+ background:#fff!important;border-bottom:1px solid #dfe3ea!important;
+ box-shadow:0 1px 2px rgba(22,36,54,.035)!important;
+}
+body .vatra-global-header .brand,
+body .vatra-global-header .mobile-brand{color:#0757f5!important;font-weight:850!important;letter-spacing:-.035em!important}
+body .vatra-global-header .search{
+ background:#eef0f3!important;border:1px solid transparent!important;
+ border-radius:8px!important;box-shadow:none!important;
+}
+body .vatra-global-header .search:hover{background:#e7ebf1!important;border-color:#dce2ea!important}
+body .vatra-global-header .search:focus-within{background:#fff!important;border-color:var(--vatra-user-accent,#0757f5)!important}
+body .layout>.sidebar{gap:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+body .layout>.sidebar>.brand{display:none!important}
+body .layout>.sidebar nav{padding:0!important;margin:0!important;background:transparent!important;border:0!important}
+body .layout>.sidebar .nav{
+ border:0!important;border-radius:7px!important;
+ color:#506781!important;background:transparent!important;
+ font-size:13px!important;font-weight:570!important;min-height:37px!important;
+ padding:7px 9px!important;box-shadow:none!important;
+}
+body .layout>.sidebar .nav:hover{
+ background:#e1e7ee!important;color:var(--vatra-user-accent,#0757f5)!important;
+ box-shadow:none!important;transform:none!important;
+}
+body .layout>.sidebar .nav.active{
+ background:#dde6f5!important;color:var(--vatra-user-accent,#0757f5)!important;
+ box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5)!important;
+ font-weight:720!important;
+}
+body .layout>.sidebar .nav .nav-icon,
+body .layout>.sidebar .nav .nav-icon svg{color:#6384a9!important}
+body .layout>.sidebar .nav.active .nav-icon,
+body .layout>.sidebar .nav.active .nav-icon svg{color:var(--vatra-user-accent,#0757f5)!important}
+body .sidebar-footer{
+ margin-top:16px!important;padding:13px 6px!important;border:0!important;
+ color:#8795a9!important;background:transparent!important;box-shadow:none!important;
+}
+body .sidebar-footer .footer-mark{display:none!important}
+body .sidebar-footer a{color:#6e7e96!important}
+body .layout>.sidebar>.sidebar-bottom{display:none!important}
+body .layout>.sidebar .create-button{
+ border-radius:7px!important;min-height:38px!important;margin-top:12px!important;
+ box-shadow:none!important;font-size:12px!important;
+}
+body .main>.heading{margin-bottom:14px!important}
+body .main>.heading h1{font-size:23px!important;font-weight:740!important;letter-spacing:-.025em!important}
+body .main>.heading .eyebrow{color:#8d9aa9!important}
+body .post,body .quick-compose,body .profile-vk-card,
+body .settings-card,body .settings-intro,
+body .messages-page,body .chat-window{
+ background:#fff!important;border:1px solid #dfe3e9!important;border-radius:9px!important;
+ box-shadow:0 1px 2px rgba(25,36,52,.045)!important;
+ backdrop-filter:none!important;filter:none!important;
+}
+body .profile-vk-layout{gap:14px!important}
+body .profile-vk-sidebar,body .profile-vk-main{gap:13px!important}
+body .profile-vk-avatar-card{padding:11px!important}
+body .profile-vk-avatar-open{overflow:hidden!important;border-radius:7px!important}
+body .profile-vk-avatar-open>.profile-vk-photo{
+ border-radius:7px!important;aspect-ratio:4/5!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ border:0!important;box-shadow:none!important;
+}
+body .profile-vk-avatar-card>.primary{
+ width:100%!important;min-height:36px!important;margin-top:10px!important;
+ background:#e8eef7!important;border:1px solid #d7e1ee!important;
+ color:#496989!important;border-radius:7px!important;font-weight:750!important;
+ box-shadow:none!important;transition:background .15s ease,color .15s ease!important;
+}
+body .profile-vk-avatar-card>.primary:hover{background:#dbe9ff!important;color:var(--vatra-user-accent,#0757f5)!important}
+body .profile-vk-avatar-card>.profile-vk-change-photo{
+ width:100%!important;display:block!important;padding:9px 4px!important;
+ border-radius:7px!important;text-align:center!important;font-size:12px!important;
+}
+body .profile-vk-friends .profile-vk-friend-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px 5px!important}
+body .profile-vk-friends .profile-vk-friend-avatar{width:48px!important;height:48px!important;min-width:48px!important}
+body .profile-vk-friends .profile-vk-friend>span:last-child{font-size:11px!important}
+body .profile-vk-overview{padding:21px 22px 0!important}
+body .profile-vk-title-row{gap:10px!important}
+body .profile-vk-title-row h2{
+ font-size:23px!important;line-height:1.25!important;font-weight:780!important;
+ color:#25374c!important;letter-spacing:-.025em!important;
+}
+body .profile-vk-name-line{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important}
+body .profile-vk-name-line .profile-vk-presence{margin:0!important;line-height:1.4!important}
+body .profile-vk-status-row{margin:7px 0 0!important}
+body .profile-vk-status-row .profile-vk-status{font-size:12px!important;background:transparent!important;padding:0!important;border:0!important}
+body .profile-vk-status-edit{font-size:11px!important}
+body .profile-handle{font-size:12px!important;color:#8c9bad!important}
+body .profile-vk-bio{font-size:13px!important;color:#516477!important;margin:16px 0 10px!important}
+body .profile-vk-details{margin-top:12px!important}
+body .profile-vk-detail{
+ border:0!important;padding:5px 0!important;gap:12px!important;
+ font-size:13px!important;line-height:1.45!important;
+}
+body .profile-vk-detail span{color:#8f9cab!important;font-weight:450!important}
+body .profile-vk-detail b{color:#466b97!important;font-weight:600!important}
+body .profile-vk-overview .profile-vk-stats{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:0!important;margin:18px -22px 0!important;
+ padding:9px 9px!important;border-top:1px solid #edf0f5!important;
+}
+body .profile-vk-stats>div{
+ min-height:53px!important;background:transparent!important;border-radius:0!important;
+ box-shadow:none!important;padding:6px 3px!important;
+}
+body .profile-vk-stats>div>b{color:#4c617e!important;font-size:18px!important;font-weight:700!important}
+body .profile-vk-stats>div>span{color:#8795a9!important;font-size:11px!important}
+body .profile-vk-photos{padding:14px 16px!important}
+body .profile-vk-card-head{border:0!important;padding:0!important;margin:0 0 12px!important}
+body .profile-vk-card-head h3{font-size:14px!important;color:#273b52!important;font-weight:760!important}
+body .profile-vk-photos .profile-photo-gallery{
+ display:flex!important;flex-flow:row nowrap!important;gap:8px!important;
+ padding:0 0 5px!important;overflow-x:auto!important;scrollbar-width:thin!important;
+}
+body .profile-vk-photos .profile-photo-tile{flex:0 0 clamp(76px,calc((100% - 48px)/7),116px)!important;width:clamp(76px,calc((100% - 48px)/7),116px)!important;max-width:116px!important}
+body .profile-vk-photos .profile-gallery-open{height:auto!important;aspect-ratio:1!important;border-radius:5px!important}
+body .profile-vk-photos .profile-gallery-open img{height:100%!important;aspect-ratio:1!important;border-radius:5px!important}
+body .profile-vk-photos .profile-gallery-open:hover img{transform:scale(1.035)!important}
+body .profile-vk-compose{
+ padding:10px 13px!important;border-radius:9px!important;
+}
+body .profile-vk-compose-trigger{padding:7px!important;min-height:42px!important}
+body .profile-vk-compose-trigger .profile-vk-compose-avatar{width:33px!important;height:33px!important;min-width:33px!important}
+body .profile-vk-post-tabs{
+ background:#fff!important;border:1px solid #dfe3e9!important;border-radius:9px!important;
+ padding:12px 14px!important;margin:0 0 10px!important;box-shadow:0 1px 2px rgba(25,36,52,.04)!important;
+}
+body .profile-vk-post-tabs>span,body .profile-vk-post-tabs>button{font-size:13px!important}
+body .post{padding:15px!important}
+body .post-text{color:#283a4f!important;font-size:14px!important;line-height:1.6!important}
+body .post-actions{border-top:1px solid #edf0f5!important;margin-top:10px!important}
+body .post-action-button{
+ border-radius:7px!important;transition:background-color .15s ease,color .15s ease!important;
+}
+body .post-action-button:hover{background:#eef4fb!important}
+body .quick-compose{padding:13px!important}
+body .prompt{background:#f4f5f8!important;border-radius:8px!important}
+body .settings-card{padding:18px!important}
+body .chat-window{padding:16px!important}
+@media(min-width:761px) and (max-width:980px){
+ body .profile-vk-layout{gap:10px!important}
+ body .profile-vk-overview{padding:15px 15px 0!important}
+ body .profile-vk-overview .profile-vk-stats{margin:13px -15px 0!important}
+ body .profile-vk-stats>div>b{font-size:15px!important}
+ body .profile-vk-stats>div>span{font-size:9.5px!important}
+ body .profile-vk-avatar-card{padding:8px!important}
+ body .profile-vk-friends .profile-vk-friend-avatar{width:38px!important;height:38px!important;min-width:38px!important}
+}
+@media(max-width:760px){
+ body .main>.heading h1{font-size:21px!important}
+ body .profile-vk-avatar-open>.profile-vk-photo{aspect-ratio:1!important}
+ body .profile-vk-overview{padding:16px 15px 0!important}
+ body .profile-vk-overview .profile-vk-stats{margin:14px -15px 0!important;gap:0!important}
+ body .profile-vk-stats>div{min-height:48px!important}
+ body .profile-vk-stats>div>b{font-size:15px!important}
+ body .profile-vk-stats>div>span{font-size:9.5px!important}
+ body .profile-vk-name-line{align-items:flex-start!important}
+ body .profile-vk-title-row h2{font-size:20px!important}
+ body .profile-vk-detail{grid-template-columns:minmax(100px,.43fr) minmax(0,1fr)!important}
+ body .profile-vk-photos .profile-photo-tile{flex-basis:82px!important;width:82px!important;min-width:82px!important}
+ body .post{padding:13px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body .profile-vk-photos .profile-gallery-open img,
+ body .layout>.sidebar .nav,body .post-action-button{transition:none!important}
+}
 
 /* Secure one-to-one messages: state is visible and never implies a plaintext fallback. */
 body .chat-security{
