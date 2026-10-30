@@ -2178,3 +2178,305 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-pr
   transition:none!important;
  }
 }
+
+
+/* VATRA 2026-10-30 | People discovery: no overlapping actions or legacy person flex rows. */
+body[data-page="explore"] #feed>.vatra-explore-search-header{
+ display:block!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:15px 18px!important;
+ border-radius:12px!important;
+}
+body[data-page="explore"] .vatra-explore-header-content{
+ display:flex!important;
+ justify-content:space-between!important;
+ align-items:center!important;
+ gap:14px!important;
+ min-width:0!important;
+}
+body[data-page="explore"] .vatra-explore-header-content>div{flex:1 1 auto!important;min-width:0!important;}
+body[data-page="explore"] .vatra-explore-header-content h3{
+ margin:0 0 3px!important;
+ font-size:17px!important;
+ font-weight:750!important;
+ line-height:1.35!important;
+ color:#2d4059!important;
+}
+body[data-page="explore"] .vatra-explore-header-content p{
+ margin:0!important;
+ font-size:12.5px!important;
+ line-height:1.5!important;
+ color:#78899f!important;
+}
+body[data-page="explore"] .vatra-explore-result-count{
+ display:grid!important;
+ place-items:center!important;
+ flex:0 0 auto!important;
+ min-width:32px!important;
+ height:28px!important;
+ padding:0 8px!important;
+ border-radius:8px!important;
+ background:#edf3ff!important;
+ color:#2863c4!important;
+ font-weight:750!important;
+ font-size:12.5px!important;
+}
+body[data-page="explore"] .vatra-explore-active-filter{
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:center!important;
+ gap:7px 12px!important;
+ margin-top:10px!important;
+ padding-top:9px!important;
+ border-top:1px solid #edf1f6!important;
+ color:#667c96!important;
+ font-size:12px!important;
+}
+body[data-page="explore"] .vatra-explore-active-filter>span{
+ min-width:0!important;
+ overflow-wrap:anywhere!important;
+ font-weight:650!important;
+}
+body[data-page="explore"] .vatra-explore-active-filter>button{
+ padding:4px 8px!important;
+ margin:0!important;
+ min-height:28px!important;
+ font-size:12px!important;
+}
+body[data-page="explore"] #feed>.vatra-explore-person-card{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ grid-auto-rows:auto!important;
+ align-items:stretch!important;
+ align-content:start!important;
+ justify-content:stretch!important;
+ gap:11px!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:13px 16px!important;
+ border:1px solid #dfe7f1!important;
+ border-radius:12px!important;
+ background:#fff!important;
+ box-shadow:0 2px 8px rgba(22,45,74,.045)!important;
+ overflow:visible!important;
+ transform:none!important;
+}
+body[data-page="explore"] #feed>.vatra-explore-person-card:hover{
+ border-color:#cbd9ec!important;
+ box-shadow:0 5px 15px rgba(22,45,74,.075)!important;
+}
+body[data-page="explore"] .vatra-explore-person-top{
+ display:flex!important;
+ flex-direction:row!important;
+ align-items:center!important;
+ gap:12px!important;
+ min-width:0!important;
+ width:100%!important;
+ max-width:100%!important;
+}
+body[data-page="explore"] .vatra-explore-person-avatar{
+ display:block!important;
+ flex:0 0 52px!important;
+ width:52px!important;
+ height:52px!important;
+ min-width:52px!important;
+ min-height:52px!important;
+ max-width:52px!important;
+ max-height:52px!important;
+}
+body[data-page="explore"] .vatra-explore-person-avatar>.avatar{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:52px!important;
+ height:52px!important;
+ min-width:52px!important;
+ min-height:52px!important;
+ max-width:52px!important;
+ max-height:52px!important;
+ flex:0 0 52px!important;
+ border-radius:50%!important;
+ background-size:cover!important;
+ background-position:center!important;
+ overflow:hidden!important;
+}
+body[data-page="explore"] .vatra-explore-person-info{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:flex-start!important;
+ gap:2px!important;
+ flex:1 1 auto!important;
+ min-width:0!important;
+ max-width:100%!important;
+ margin:0!important;
+}
+body[data-page="explore"] .vatra-explore-person-name{
+ display:inline-block!important;
+ width:auto!important;
+ max-width:100%!important;
+ min-height:0!important;
+ padding:0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:3px!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ text-align:left!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ color:#263b56!important;
+ font-size:15px!important;
+ font-weight:750!important;
+ line-height:1.35!important;
+ cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-explore-person-name:hover{
+ color:var(--vatra-user-accent,#0757f5)!important;
+ text-decoration:underline!important;
+}
+body[data-page="explore"] .vatra-explore-person-handle{
+ display:block!important;
+ min-width:0!important;
+ color:#8a9bb1!important;
+ font-size:12px!important;
+ line-height:1.3!important;
+ overflow-wrap:anywhere!important;
+}
+body[data-page="explore"] .vatra-explore-person-bio{
+ display:-webkit-box!important;
+ -webkit-box-orient:vertical!important;
+ -webkit-line-clamp:2!important;
+ line-clamp:2!important;
+ max-width:100%!important;
+ margin:5px 0 0!important;
+ padding:0!important;
+ overflow:hidden!important;
+ color:#667c96!important;
+ font-size:12.5px!important;
+ line-height:1.5!important;
+ overflow-wrap:anywhere!important;
+}
+body[data-page="explore"] .vatra-explore-person-actions{
+ display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ justify-content:stretch!important;
+ align-items:stretch!important;
+ gap:8px!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ padding:10px 0 0!important;
+ margin:0!important;
+ border-top:1px solid #eff2f6!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action{
+ box-sizing:border-box!important;
+ display:inline-flex!important;
+ flex-direction:row!important;
+ justify-content:center!important;
+ align-items:center!important;
+ gap:6px!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ height:auto!important;
+ min-height:36px!important;
+ margin:0!important;
+ padding:8px 7px!important;
+ border:1px solid #d9e3f0!important;
+ border-radius:8px!important;
+ background:#fff!important;
+ box-shadow:none!important;
+ color:#4c6079!important;
+ cursor:pointer!important;
+ font-family:inherit!important;
+ font-size:12px!important;
+ font-weight:650!important;
+ line-height:1.2!important;
+ text-align:center!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ transition:background .16s ease,border-color .16s ease,color .16s ease!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action svg{
+ display:block!important;
+ width:16px!important;
+ height:16px!important;
+ max-width:16px!important;
+ min-width:16px!important;
+ max-height:16px!important;
+ min-height:16px!important;
+ flex:0 0 16px!important;
+ fill:none!important;
+ stroke:currentColor!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action:hover{
+ background:#eff5ff!important;
+ border-color:#a9c3ee!important;
+ color:var(--vatra-user-accent,#0757f5)!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-follow{
+ background:#edf4ff!important;
+ border-color:#d3e2ff!important;
+ color:var(--vatra-user-accent,#0757f5)!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action.is-active{
+ color:#236b51!important;
+ background:#edf8f4!important;
+ border-color:#d0e9dd!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-message{
+ color:var(--vatra-user-accent,#0757f5)!important;
+}
+body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action:focus-visible{
+ outline:2px solid var(--vatra-user-accent,#0757f5)!important;
+ outline-offset:2px!important;
+}
+@media(max-width:650px){
+ body[data-page="explore"] #feed>.vatra-explore-person-card{
+  padding:12px!important;
+  gap:10px!important;
+ }
+ body[data-page="explore"] .vatra-explore-person-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;
+ }
+ body[data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action{
+  min-height:38px!important;
+  font-size:12px!important;
+  padding:8px 6px!important;
+ }
+ body[data-page="explore"] .vatra-explore-person-avatar,
+ body[data-page="explore"] .vatra-explore-person-avatar>.avatar{
+  flex-basis:46px!important;
+  width:46px!important;height:46px!important;
+  min-width:46px!important;max-width:46px!important;
+  min-height:46px!important;max-height:46px!important;
+ }
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] #feed>.vatra-explore-search-header,
+body[data-vatra-theme-effective="dark"][data-page="explore"] #feed>.vatra-explore-person-card{
+ background:#263345!important;
+ border-color:#3c4c61!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-explore-header-content h3,
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-explore-person-name{
+ color:#e5edf8!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-explore-person-actions{
+ border-color:#3e4f64!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action{
+ background:#2d4055!important;
+ border-color:#425a76!important;
+ color:#d2e3fc!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] #feed .vatra-explore-person-actions>.vatra-explore-action.is-active{
+ background:#204c41!important;
+ color:#a2e7d1!important;
+}
