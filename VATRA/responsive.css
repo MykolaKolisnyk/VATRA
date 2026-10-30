@@ -1,0 +1,131 @@
+/* Layout contract. Explicit body scope supersedes the legacy compact overrides.
+   Breakpoints: mobile <= 760, tablet <= 1100, desktop > 1100. */
+:root { --vatra-sidebar-width: 216px; --vatra-reading-size: 16px; }
+body { font-size:16px; line-height:1.5; }
+body[data-vatra-font-scale="large"] { --vatra-reading-size:18px; }
+body *,body *::before,body *::after { box-sizing:border-box; }
+body [hidden] { display:none!important; }
+body .layout {
+  display:grid!important; grid-template-columns:216px minmax(0,1fr)!important;
+  width:min(1200px,calc(100% - 40px))!important; max-width:1200px!important;
+  gap:24px!important; margin:0 auto!important; padding:24px 0 40px!important;
+  align-items:start!important;
+}
+body .layout>.sidebar {
+  position:sticky!important; top:84px!important; left:auto!important; right:auto!important;
+  width:216px!important; min-width:0!important; max-height:calc(100dvh - 100px)!important;
+  height:auto!important; overflow-y:auto!important; padding:0!important;
+  grid-column:1!important; transform:none!important;
+}
+body .layout>.main { grid-column:2!important; min-width:0!important; width:100%!important; padding:0!important; overflow:visible!important; }
+body .layout>.sidebar .nav { min-height:46px!important; height:auto!important; font-size:15px!important; padding:10px 12px!important; gap:12px!important; border-radius:10px!important; white-space:normal!important; }
+body .layout>.sidebar .nav>span:not(.nav-icon) { white-space:normal!important; overflow:visible!important; }
+body .layout>.sidebar .nav .nav-icon,body .layout>.sidebar .nav .nav-icon svg { width:22px!important; height:22px!important; flex-basis:22px!important; }
+body .layout>.sidebar .create-button { min-height:44px!important; font-size:14px!important; white-space:normal!important; }
+body .sidebar-footer,body .sidebar-footer .footer-legal a { font-size:12px!important; line-height:1.6!important; }
+body .vatra-global-header { position:sticky!important; top:0!important; height:64px!important; min-height:64px!important; padding:8px max(20px,calc((100% - 1200px)/2))!important; gap:12px!important; }
+body .vatra-global-header .mobile-brand { display:flex!important; flex:0 0 auto!important; min-width:110px!important; font-size:20px!important; }
+body .vatra-global-header .search { flex:1 1 420px!important; width:auto!important; max-width:560px!important; min-width:0!important; height:44px!important; min-height:44px!important; }
+body .vatra-global-header .search input { font-size:16px!important; min-width:0!important; width:100%!important; }
+body .vatra-global-header .notification-button,body .vatra-global-header .account-avatar-trigger { width:44px!important; height:44px!important; min-width:44px!important; flex:0 0 44px!important; }
+body .main>.heading { margin-bottom:18px!important; gap:12px!important; align-items:flex-start!important; }
+body .main>.heading h1 { font-size:26px!important; }
+body .main>.heading .eyebrow { font-size:11px!important; }
+body .main>.heading p:last-child { font-size:14px!important; line-height:1.5!important; }
+body .post,body .quick-compose,body .settings-card,body .settings-intro,body .profile-vk-card { padding:18px!important; border-radius:12px!important; }
+body .feed { gap:16px!important; }
+body .post-text,body .profile-vk-bio,body .comment-copy,body .comments .comment-copy>span { font-size:var(--vatra-reading-size)!important; line-height:1.6!important; overflow-wrap:anywhere!important; }
+body .post-head .author b,body .post-head .author .author-link { font-size:15px!important; }
+body .post-head .author small,body .comment-actions button { font-size:12px!important; }
+body .prompt,body .compose-tools button { font-size:14px!important; min-height:44px!important; }
+body .compose-tools { flex-wrap:wrap!important; gap:8px!important; }
+body .post-actions button.post-action-button { font-size:13px!important; min-height:44px!important; white-space:normal!important; flex-wrap:wrap!important; }
+body .post-action-button .post-action-count { font-size:13px!important; }
+body .post-action-button>span { overflow:visible!important; }
+body .profile-vk-layout { grid-template-columns:180px minmax(0,1fr)!important; gap:16px!important; }
+body .profile-vk-main,body .profile-vk-sidebar { min-width:0!important; gap:16px!important; }
+body .profile-vk-avatar-open>.profile-vk-photo { width:100%!important; height:144px!important; min-height:144px!important; max-height:144px!important; border-radius:8px!important; }
+body .profile-vk-avatar-card>.primary,body .profile-vk-avatar-card>.profile-vk-change-photo { font-size:14px!important; min-height:44px!important; }
+body .profile-vk-title-row h2 { font-size:24px!important; overflow-wrap:anywhere!important; }
+body .profile-vk-detail { grid-template-columns:minmax(90px,.4fr) minmax(0,1fr)!important; }
+body .profile-vk-detail,body .profile-vk-detail span,body .profile-vk-detail b { font-size:14px!important; }
+body .profile-vk-status,body .profile-vk-presence,body .profile-handle { font-size:13px!important; }
+body .profile-vk-card-head h3 { font-size:16px!important; }
+body .profile-vk-stats { grid-template-columns:repeat(auto-fit,minmax(76px,1fr))!important; gap:6px!important; }
+body .profile-vk-stats>div { min-height:56px!important; }
+body .profile-vk-stats>div>b { font-size:18px!important; }
+body .profile-vk-stats>div>span,body .profile-vk-friend>span:last-child { font-size:12px!important; }
+body .profile-vk-photos .profile-photo-gallery { max-width:100%!important; overscroll-behavior-x:contain; }
+body .profile-gallery-all { font-size:14px!important; min-height:44px!important; align-items:center!important; }
+body .settings-grid { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:16px!important; }
+body .settings-grid>*,body .settings-card,body .settings-savebar { min-width:0!important; }
+body .settings-intro p,body .settings-card>p,body .settings-card label,body .settings-card small { font-size:14px!important; line-height:1.5!important; }
+body input,body select,body textarea { max-width:100%; }
+body .settings-card input:not([type="checkbox"]):not([type="radio"]),body .settings-card select,body .settings-card textarea,body dialog input,body dialog textarea,body dialog select,body .chat-send input { font-size:16px!important; min-height:44px!important; min-width:0!important; }
+body .settings-savebar,body .settings-legal-links,body .community-dialog-actions { flex-wrap:wrap!important; gap:10px!important; }
+body .chat-row,body .chat-top,body .person,body .person>span { min-width:0!important; }
+body .chat-row .person { flex:1 1 auto!important; }
+body .chat-row .person small { overflow:hidden!important; text-overflow:ellipsis!important; white-space:nowrap!important; max-width:100%!important; }
+body .chat-top { flex-wrap:wrap!important; gap:10px!important; }
+body .chat-top b { flex:1 1 140px!important; overflow-wrap:anywhere!important; }
+body .chat-messages { min-height:180px!important; height:clamp(240px,50dvh,600px)!important; overflow:auto!important; }
+body .chat-send { display:flex!important; flex-wrap:wrap!important; gap:8px!important; }
+body .chat-send input { flex:1 1 140px!important; width:0!important; }
+body .chat-send>.primary { min-height:44px!important; }
+body .chat-send .emoji-picker-wrap { flex:0 0 auto!important; }
+body dialog { max-width:calc(100vw - 24px)!important; max-height:calc(100dvh - 24px)!important; overflow:auto; }
+body dialog:not([open]) { display:none!important; }
+body .modal-actions { flex-wrap:wrap!important; gap:10px!important; }
+body .getting-started-mobile .task-copy b { font-size:14px!important; }
+body .getting-started-mobile .task-copy small,body .getting-started-mobile .getting-head p:last-child { font-size:12px!important; }
+body .mobile-menu { width:440px; padding:20px; margin:auto; border:1px solid #dfe6f1; border-radius:18px; background:#fff; color:#23334d; }
+body .mobile-menu::backdrop { background:rgb(15 28 48 / .45); }
+body .mobile-menu-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
+body .mobile-menu-head h2 { font-size:20px; margin:0; }
+body .mobile-menu-head button { width:44px; height:44px; border:0; border-radius:10px; font-size:26px; background:#eef3fa; }
+body .mobile-menu-links { display:grid; gap:6px; }
+body .mobile-menu-links .nav { display:flex!important; position:static!important; align-items:center!important; justify-content:flex-start!important; gap:14px!important; width:100%!important; min-height:48px!important; padding:10px 12px!important; font-size:16px!important; background:#f6f8fc!important; border:0!important; border-radius:10px!important; }
+body .mobile-menu-links .nav.active { background:#e2ecff!important; color:var(--vatra-user-accent,#0757f5)!important; }
+body .mobile-menu-links .nav-icon,body .mobile-menu-links svg { width:24px!important; height:24px!important; }
+body button:focus-visible,body a:focus-visible { outline:3px solid var(--vatra-user-accent,#0757f5)!important; outline-offset:3px; }
+@media (min-width:761px) and (max-width:1100px) {
+  body .layout { grid-template-columns:64px minmax(0,1fr)!important; width:calc(100% - 32px)!important; gap:16px!important; }
+  body .layout>.sidebar { width:64px!important; }
+  body .layout>.sidebar .nav { justify-content:center!important; padding:10px!important; }
+  body .layout>.sidebar .nav>span:not(.nav-icon) { display:none!important; }
+  body .layout>.sidebar .create-button { font-size:0!important; width:48px!important; }
+  body .layout>.sidebar .create-button span { font-size:24px!important; }
+  body .sidebar-footer { display:none!important; }
+  body .profile-vk-layout { grid-template-columns:160px minmax(0,1fr)!important; }
+}
+@media (max-width:760px) {
+  body .vatra-global-header { height:112px!important; min-height:112px!important; display:flex!important; flex-wrap:wrap!important; padding:8px 12px!important; gap:8px!important; }
+  body .vatra-global-header .mobile-brand { flex:1 1 auto!important; min-width:100px!important; font-size:20px!important; }
+  body .vatra-global-header .search { order:5!important; flex:1 0 100%!important; max-width:none!important; height:40px!important; min-height:40px!important; }
+  body .layout { display:block!important; width:100%!important; max-width:none!important; padding:16px 12px calc(92px + env(safe-area-inset-bottom))!important; }
+  body .layout>.sidebar { display:none!important; }
+  body .layout>.main { width:100%!important; }
+  body .main>.heading h1 { font-size:24px!important; }
+  body .main>.heading .eyebrow { display:none!important; }
+  body .post,body .quick-compose,body .settings-card,body .settings-intro,body .profile-vk-card { padding:14px!important; }
+  body .mobile-nav { display:grid!important; grid-template-columns:repeat(5,minmax(0,1fr))!important; gap:0!important; position:fixed!important; inset:auto 0 0!important; width:100%!important; max-width:none!important; height:auto!important; min-height:68px!important; padding:6px 4px calc(6px + env(safe-area-inset-bottom))!important; border-radius:0!important; background:#fff!important; border-top:1px solid #dfe6f1!important; }
+  body .mobile-nav button { min-width:0!important; width:100%!important; min-height:52px!important; padding:4px 2px!important; gap:3px!important; border-radius:9px!important; }
+  body .mobile-nav button small { font-size:11px!important; line-height:1.3!important; }
+  body .mobile-nav .mobile-icon,body .mobile-nav svg { width:23px!important; height:23px!important; font-size:23px!important; }
+  body .profile-vk-layout { grid-template-columns:minmax(0,1fr)!important; }
+  body .profile-vk-avatar-card { display:grid!important; grid-template-columns:96px minmax(0,1fr)!important; gap:8px 14px!important; }
+  body .profile-vk-avatar-open { grid-column:1!important; grid-row:1 / span 2!important; width:96px!important; min-width:0!important; margin:0!important; }
+  body .profile-vk-avatar-open>.profile-vk-photo { width:96px!important; height:96px!important; min-height:96px!important; max-height:96px!important; }
+  body .profile-vk-avatar-card>.primary { grid-column:2!important; grid-row:1!important; }
+  body .profile-vk-avatar-card>.profile-vk-change-photo { grid-column:2!important; grid-row:2!important; }
+  body .settings-grid { grid-template-columns:minmax(0,1fr)!important; }
+  body .post-actions { grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:6px!important; }
+  body .chat-row { flex-wrap:wrap!important; }
+  body .chat-row .person { width:100%!important; }
+  body .chat-row .person time { font-size:11px!important; }
+  body .topbar-popover { position:fixed!important; top:116px!important; left:12px!important; right:12px!important; width:auto!important; max-width:none!important; max-height:calc(100dvh - 200px)!important; overflow:auto!important; }
+  body .toast { bottom:calc(84px + env(safe-area-inset-bottom))!important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  body *,body *::before,body *::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
+}
