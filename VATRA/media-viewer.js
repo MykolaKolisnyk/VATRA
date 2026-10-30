@@ -21,6 +21,7 @@
     if(!dialog.open)dialog.showModal();
   }
   document.addEventListener('click',function(e){
+    if(e.target.closest('[data-view-profile],[data-avatar-viewer],[data-open-photo],[data-open-profile-gallery],.comment-author-avatar,.comment-avatar,.profile-gallery-open'))return;
     const img=e.target.closest('img.post-image');
     if(img&&img.src){e.preventDefault();openViewer(img.currentSrc||img.src,img.alt||'');return;}
     const surface=e.target.closest('.avatar,.settings-avatar,.profile-cover,.cover-settings-preview');
