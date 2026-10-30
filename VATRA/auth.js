@@ -1,4 +1,4 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, setAccountPassword } from './vatra-backend.js?v=20261027-5';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword } from './vatra-backend.js?v=20261030-1';
 
 // Prevent the browser from restoring an old scroll position on the sign-in page.
 if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -535,7 +535,24 @@ $('#authForm').addEventListener('submit',async e=>{
   if(!isStrongPassword(newPass)){ $('#error').textContent='Пароль має містити 12+ символів, великі й малі латинські літери, цифру та спецсимвол.';$('#password').focus();return; }
   if(newPass!==confirmation){ $('#error').textContent='Паролі не збігаються.';$('#confirm').focus();return; }
  }
- if(['login','register'].includes(mode)&&!challengePassed){
+ if(mode==='login'&&!challengePassed){
+  pendingHumanAction={mode,contact};
+  submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent='Перевіряємо дані…';
+  try{
+   await verifyPasswordCredentials(contact,$('#password').value);
+   openHumanCaptcha();
+  }catch(err){
+   pendingHumanAction=null;
+   $('#error').textContent=errors[err.code]||err.message||'Не вдалося перевірити облікові дані. Перевірте інтернет і спробуйте ще раз.';
+   $('#error').classList.remove('success');
+   if(err.code==='auth/too-many-requests')startAuthRateLimitCooldown(300);
+  }finally{
+   submitting=false;suppressAuthRedirect=false;
+   refreshAuthCooldown();
+  }
+  return;
+ }
+ if(mode==='register'&&!challengePassed){
   pendingHumanAction={mode,contact};
   openHumanCaptcha();
   return;
