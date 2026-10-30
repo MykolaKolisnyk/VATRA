@@ -564,43 +564,57 @@ function vatraExploreIcon(name){
  };
  return '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="display:block!important;width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;min-height:16px!important;max-height:16px!important;flex:0 0 16px!important;fill:none!important;stroke:currentColor!important;" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(paths[name]||'')+'</svg>';
 }
+let vatraSearchCategory='all';
 function vatraExplorePersonMarkup(id,u){
  const uid=esc(id),name=esc(u.name||'Користувач ВАТРИ'),handle=esc(u.handle||'user');
- const isFriend=!!friends[id],requested=!!friendRequests[id],isFollowing=!!following[id];
- const followText=isFollowing?'Відписатися':'Підписатися';
- const friendText=isFriend?'Друг':requested?'Запит надіслано':'Додати в друзі';
- const bio=String(u.bio||'').trim();
- return '<article class="post person-card vatra-explore-person-card">'+
-  '<div class="vatra-explore-person-top">'+
-   '<div class="vatra-explore-person-avatar">'+avatar(u.name||'Користувач ВАТРИ',u.avatarUrl)+'</div>'+
-   '<div class="author vatra-explore-person-info"><button type="button" class="vatra-explore-person-name" data-view-profile="'+uid+'">'+name+'</button><span class="vatra-explore-person-handle">@'+handle+'</span>'+
-    (bio?'<p class="vatra-explore-person-bio">'+esc(bio)+'</p>':'')+
-   '</div>'+
-  '</div>'+
-  '<div class="vatra-explore-person-actions" aria-label="Дії з користувачем '+name+'">'+
-   '<button type="button" class="vatra-explore-action vatra-explore-follow'+(isFollowing?' is-active':'')+'" data-follow="'+uid+'">'+vatraExploreIcon(isFollowing?'following':'follow')+'<span>'+followText+'</span></button>'+
-   '<button type="button" class="vatra-explore-action vatra-explore-friend'+(isFriend?' is-active':'')+'" data-friend-request="'+uid+'">'+vatraExploreIcon(isFriend||requested?'friend':'addFriend')+'<span>'+friendText+'</span></button>'+
-   '<button type="button" class="vatra-explore-action vatra-explore-view" data-view-profile="'+uid+'">'+vatraExploreIcon('profile')+'<span>Профіль</span></button>'+
-   '<button type="button" class="vatra-explore-action vatra-explore-message" data-message-user="'+uid+'">'+vatraExploreIcon('message')+'<span>Написати</span></button>'+
-  '</div>'+
- '</article>';
+ const followed=!!following[id],friend=!!friends[id],requested=!!friendRequests[id];
+ return '<article class="vatra-search-person-row">'+
+  '<button type="button" class="vatra-search-person-photo" data-view-profile="'+uid+'">'+avatar(u.name||'Користувач',u.avatarUrl)+'</button>'+
+  '<div class="vatra-search-person-body"><button type="button" class="vatra-search-person-name" data-view-profile="'+uid+'">'+name+verifiedBadge(id)+'</button>'+
+   '<small>@'+handle+'</small>'+
+   (u.bio?'<p>'+esc(String(u.bio).slice(0,135))+'</p>':'')+
+   '<button type="button" class="vatra-search-message" data-message-user="'+uid+'">'+vatraExploreIcon('message')+'<span>Повідомлення</span></button>'+
+  '</div><div class="vatra-search-person-actions">'+
+   '<button type="button" class="vatra-search-subscribe" data-follow="'+uid+'">'+(followed?'Відписатися':'Підписатися')+'</button>'+
+   (!friend&&!requested?'<button type="button" class="vatra-search-add-friend" data-friend-request="'+uid+'">Додати в друзі</button>':friend?'<span class="vatra-search-friend-state">✓ Друзі</span>':'<span class="vatra-search-friend-state">Запит надіслано</span>')+
+  '</div></article>';
 }
 function renderExplore(){
- const attribute=profileAttributeSearch;
- const norm=x=>String(x||'').trim().toLocaleLowerCase('uk-UA');
- const list=Object.entries(users).filter(([id,u])=>{
-  if(id===currentUser?.uid||blockedUsers[id]||u.searchable===false)return false;
-  if(attribute){const visible=norm(visibleProfileSearchValue(id,u,attribute.field)),target=norm(attribute.value);return !!visible&&!!target&&(visible===target||visible.includes(target)||target.includes(visible));}
-  return !query||norm(u.name+' '+u.handle+' '+u.bio).includes(norm(query));
+ const attribute=profileAttributeSearch,needle=String(attribute?.value||query||'').trim().toLocaleLowerCase('uk-UA');
+ const norm=s=>String(s||'').toLocaleLowerCase('uk-UA');
+ const people=Object.entries(users||{}).filter(([id,u])=>{
+  if(id===currentUser?.uid||blockedUsers[id]||u?.searchable===false)return false;
+  if(attribute){const value=norm(visibleProfileSearchValue(id,u,attribute.field));return !!value&&!!needle&&(value===needle||value.includes(needle));}
+  return !needle||norm((u?.name||'')+' '+(u?.handle||'')+' '+(u?.bio||'')).includes(needle);
  });
- const headerTitle=attribute?'Люди за вибраними даними':query?'Результати пошуку':'Люди ВАТРИ';
- const headerDescription=attribute?'Знайдено за відкритою інформацією профілів. Приватні дані не використовуються.':'Знайомтеся та знаходьте людей за ім’ям або псевдонімом.';
- const count=list.length;
- const title='<div class="vatra-explore-header-content"><div><h3>'+headerTitle+'</h3><p class="muted">'+headerDescription+'</p></div><span class="vatra-explore-result-count" aria-label="Знайдено користувачів: '+count+'">'+count+'</span></div>'+
-  (attribute?'<div class="vatra-explore-active-filter"><span>'+esc(attribute.value)+'</span><button type="button" class="vatra-profile-search-clear" data-clear-profile-search>Скинути фільтр</button></div>':'');
- setFeed('<section class="post vatra-explore-search-header">'+title+'</section>'+list.map(([id,u])=>vatraExplorePersonMarkup(id,u)).join(''),!list.length);
- if(!list.length)$('#empty').innerHTML='<h3>Нікого не знайдено</h3><p>Спробуйте інше ім’я або псевдонім.</p>';
+ const publicGroups=Object.entries(groups||{}).filter(([id,g])=>g?.name&&(g.visibility!=='private'||g.ownerUid===currentUser?.uid||!!groupMembers[id]?.[currentUser?.uid]))
+  .filter(([,g])=>!needle||norm((g.name||'')+' '+(g.category||'')+' '+(g.description||'')).includes(needle));
+ const matchingPosts=allPosts().filter(p=>!needle||norm((p.text||'')+' '+(p.authorName||'')+' '+(p.authorHandle||'')).includes(needle));
+ const categories=[['all','Усі'],['people','Люди'],['posts','Дописи'],['groups','Спільноти']];
+ if(!categories.some(([key])=>key===vatraSearchCategory))vatraSearchCategory='all';
+ const compact=vatraSearchCategory==='all',renderAll=vatraSearchCategory==='all';
+ const groupItem=([id,g])=>'<article class="vatra-search-group-row"><button type="button" data-open-group="'+esc(id)+'" class="vatra-search-group-avatar">'+esc(String(g.name).trim().charAt(0).toLocaleUpperCase('uk-UA'))+'</button><div><button type="button" data-open-group="'+esc(id)+'" class="vatra-search-person-name">'+esc(g.name)+'</button><small>'+esc(g.category||'Спільнота ВАТРИ')+'</small></div><button type="button" class="vatra-search-subscribe" data-open-group="'+esc(id)+'">Відкрити</button></article>';
+ const peopleHTML=people.slice(0,compact?3:100).map(([id,u])=>vatraExplorePersonMarkup(id,u)).join('');
+ const groupsHTML=publicGroups.slice(0,compact?3:100).map(groupItem).join('');
+ const postsHTML=matchingPosts.slice(0,compact?2:50).map(postCard).join('');
+ const section=(key,title,length,content)=>'<section class="vatra-search-section"><div class="vatra-search-section-head"><h3>'+title+' <span>'+length+'</span></h3>'+(compact&&length>3?'<button type="button" data-vatra-search-category="'+key+'">Показати всіх</button>':'')+'</div>'+(content||'<p class="vatra-search-empty">Нічого не знайдено.</p>')+'</section>';
+ const content=compact?section('people','Люди',people.length,peopleHTML)+section('groups','Спільноти',publicGroups.length,groupsHTML)+section('posts','Дописи з доступної стрічки',matchingPosts.length,postsHTML):
+ vatraSearchCategory==='people'?section('people','Люди',people.length,peopleHTML):
+ vatraSearchCategory==='groups'?section('groups','Спільноти',publicGroups.length,groupsHTML):
+ section('posts','Дописи з доступної стрічки',matchingPosts.length,postsHTML);
+ const searchValue=attribute?attribute.value:query;
+ const header='<div class="vatra-search-top"><h2>Результати пошуку</h2><form id="vatraSearchForm" class="vatra-search-form"><label><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input name="term" value="'+esc(searchValue)+'" placeholder="Пошук у ВАТРІ" aria-label="Пошуковий запит"></label><button type="submit">Знайти</button></form>'+(attribute?'<button type="button" class="vatra-profile-search-clear" data-clear-profile-search>Скинути фільтр</button>':'')+'</div>';
+ const rail='<aside class="vatra-search-rail"><nav aria-label="Категорії пошуку">'+categories.map(([key,label])=>'<button type="button" data-vatra-search-category="'+key+'" class="'+(vatraSearchCategory===key?'active':'')+'">'+label+'</button>').join('')+'</nav></aside>';
+ setFeed('<div class="vatra-search-layout"><div class="vatra-search-main">'+header+content+'</div>'+rail+'</div>',false);
+ $('#vatraSearchForm')?.addEventListener('submit',event=>{
+  event.preventDefault();query=String(new FormData(event.currentTarget).get('term')||'').trim();profileAttributeSearch=null;
+  const globalSearch=$('#search');if(globalSearch)globalSearch.value=query;renderExplore();
+ });
+ $$('#feed [data-vatra-search-category]').forEach(button=>button.addEventListener('click',()=>{
+  vatraSearchCategory=button.dataset.vatraSearchCategory;renderExplore();
+ }));
 }
+
 document.addEventListener('click',event=>{
  if(!event.target.closest('[data-clear-profile-search]'))return;
  profileAttributeSearch=null;query='';const search=$('#search');if(search)search.value='';renderExplore();
