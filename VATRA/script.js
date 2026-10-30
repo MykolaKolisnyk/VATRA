@@ -1285,6 +1285,7 @@ document.addEventListener('click',async e=>{
   $$('.vatra-emoji-wrap .emoji-picker').forEach(other=>{other.hidden=true;other.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
   if(willOpen){
    prepareVatraEmojiPanel(panel);
+   const bounds=b.getBoundingClientRect();panel.classList.toggle('vatra-emoji-align-right',window.innerWidth-bounds.left<350);
    panel.hidden=false;b.setAttribute('aria-expanded','true');
    panel.querySelector('[data-emoji-search]')?.focus();
   }
