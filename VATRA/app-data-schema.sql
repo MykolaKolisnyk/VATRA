@@ -7260,8 +7260,634 @@ begin
       and _value ->> 'fingerprint' ~ '^[a-f0-9]{64}$'
       and _value -> 'jwk' ->> 'kty' = 'EC'
       and _value -> 'jwk' ->> 'crv' = 'P-256'
-      and _value ? 'jwk'
-      and not (_value ? 'privateKey');
+      and _value -> 'jwk' ->> 'x' ~ '^[A-Za-z0-9_-]{43}
+  end if;
+  if _path ~ '^users/[^/]+$'
+     or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$'
+     or _path ~ '^friendProfiles/[^/]+$'
+     or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^verifiedUsers/[^/]+$' then
+    return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+
+  -- A friend list is stored as one JSON object per account. Adding an entry
+  -- to someone else's list requires their pending incoming request.
+  if _path ~ '^friends/[^/]+$' then
+    if parts[2] = uid::text then return true; end if;
+    select f.value into old_value from public.app_data f where f.path = 'friends/' || parts[2];
+    if old_value is not null and old_value ? uid::text
+       and (old_value - uid::text) = (_value - uid::text) then return true; end if;
+    return _value ? uid::text
+      and _value ->> uid::text = 'true'
+      and coalesce(old_value - uid::text, '{}'::jsonb) = (_value - uid::text)
+      and exists (
+        select 1 from public.app_data r
+        where r.path = 'friendRequests/' || uid::text || '/' || parts[2]
+          and r.value ->> 'status' = 'pending'
+          and r.value ->> 'direction' = 'incoming'
+      );
+  end if;
+
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts,1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then return parts[2] = uid::text; end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then
+    select a.value into old_value from public.app_data a where a.path = _path;
+    if old_value is null then return _value ->> 'ownerUid' = uid::text; end if;
+    return _value ->> 'ownerUid' = old_value ->> 'ownerUid'
+      and (old_value ->> 'ownerUid' = uid::text
+        or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb));
+  end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts,1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' or _path ~ '^groupModerators/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb); end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
+  if _path ~ '^chats/[^/]+/.+$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname = 'public' and tablename = 'app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+  using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+  using (public.vatra_data_can_write(path, value))
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+  using (public.vatra_data_can_write(path, value));
+
+-- Narrow post policies provide an explicit owner check for publishing, editing,
+-- and deleting one post row without relaxing access to other data.
+drop policy if exists app_data_insert_own_posts on public.app_data;
+create policy app_data_insert_own_posts on public.app_data for insert to authenticated
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_update_own_posts on public.app_data;
+create policy app_data_update_own_posts on public.app_data for update to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text)
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_delete_own_posts on public.app_data;
+create policy app_data_delete_own_posts on public.app_data for delete to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+
+-- Public media URLs are used for content explicitly shown in the feed.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('vatra-media', 'vatra-media', true, 52428800,
+  array['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','video/quicktime','video/ogg','video/x-m4v'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists vatra_media_public_read on storage.objects;
+create policy vatra_media_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'vatra-media');
+
+drop policy if exists vatra_media_user_upload on storage.objects;
+create policy vatra_media_user_upload on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_update on storage.objects;
+create policy vatra_media_user_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_delete on storage.objects;
+create policy vatra_media_user_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+do $realtime$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'app_data'
+     ) then
+    alter publication supabase_realtime add table public.app_data;
+  end if;
+end;
+$realtime$;
+
+      and _value -> 'jwk' ->> 'y' ~ '^[A-Za-z0-9_-]{43}
+  end if;
+  if _path ~ '^users/[^/]+$'
+     or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$'
+     or _path ~ '^friendProfiles/[^/]+$'
+     or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^verifiedUsers/[^/]+$' then
+    return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+
+  -- A friend list is stored as one JSON object per account. Adding an entry
+  -- to someone else's list requires their pending incoming request.
+  if _path ~ '^friends/[^/]+$' then
+    if parts[2] = uid::text then return true; end if;
+    select f.value into old_value from public.app_data f where f.path = 'friends/' || parts[2];
+    if old_value is not null and old_value ? uid::text
+       and (old_value - uid::text) = (_value - uid::text) then return true; end if;
+    return _value ? uid::text
+      and _value ->> uid::text = 'true'
+      and coalesce(old_value - uid::text, '{}'::jsonb) = (_value - uid::text)
+      and exists (
+        select 1 from public.app_data r
+        where r.path = 'friendRequests/' || uid::text || '/' || parts[2]
+          and r.value ->> 'status' = 'pending'
+          and r.value ->> 'direction' = 'incoming'
+      );
+  end if;
+
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts,1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then return parts[2] = uid::text; end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then
+    select a.value into old_value from public.app_data a where a.path = _path;
+    if old_value is null then return _value ->> 'ownerUid' = uid::text; end if;
+    return _value ->> 'ownerUid' = old_value ->> 'ownerUid'
+      and (old_value ->> 'ownerUid' = uid::text
+        or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb));
+  end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts,1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' or _path ~ '^groupModerators/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb); end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
+  if _path ~ '^chats/[^/]+/.+$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname = 'public' and tablename = 'app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+  using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+  using (public.vatra_data_can_write(path, value))
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+  using (public.vatra_data_can_write(path, value));
+
+-- Narrow post policies provide an explicit owner check for publishing, editing,
+-- and deleting one post row without relaxing access to other data.
+drop policy if exists app_data_insert_own_posts on public.app_data;
+create policy app_data_insert_own_posts on public.app_data for insert to authenticated
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_update_own_posts on public.app_data;
+create policy app_data_update_own_posts on public.app_data for update to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text)
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_delete_own_posts on public.app_data;
+create policy app_data_delete_own_posts on public.app_data for delete to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+
+-- Public media URLs are used for content explicitly shown in the feed.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('vatra-media', 'vatra-media', true, 52428800,
+  array['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','video/quicktime','video/ogg','video/x-m4v'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists vatra_media_public_read on storage.objects;
+create policy vatra_media_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'vatra-media');
+
+drop policy if exists vatra_media_user_upload on storage.objects;
+create policy vatra_media_user_upload on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_update on storage.objects;
+create policy vatra_media_user_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_delete on storage.objects;
+create policy vatra_media_user_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+do $realtime$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'app_data'
+     ) then
+    alter publication supabase_realtime add table public.app_data;
+  end if;
+end;
+$realtime$;
+
+      and _value -> 'signJwk' ->> 'kty' = 'EC'
+      and _value -> 'signJwk' ->> 'crv' = 'P-256'
+      and _value -> 'signJwk' ->> 'x' ~ '^[A-Za-z0-9_-]{43}
+  end if;
+  if _path ~ '^users/[^/]+$'
+     or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$'
+     or _path ~ '^friendProfiles/[^/]+$'
+     or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^verifiedUsers/[^/]+$' then
+    return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+
+  -- A friend list is stored as one JSON object per account. Adding an entry
+  -- to someone else's list requires their pending incoming request.
+  if _path ~ '^friends/[^/]+$' then
+    if parts[2] = uid::text then return true; end if;
+    select f.value into old_value from public.app_data f where f.path = 'friends/' || parts[2];
+    if old_value is not null and old_value ? uid::text
+       and (old_value - uid::text) = (_value - uid::text) then return true; end if;
+    return _value ? uid::text
+      and _value ->> uid::text = 'true'
+      and coalesce(old_value - uid::text, '{}'::jsonb) = (_value - uid::text)
+      and exists (
+        select 1 from public.app_data r
+        where r.path = 'friendRequests/' || uid::text || '/' || parts[2]
+          and r.value ->> 'status' = 'pending'
+          and r.value ->> 'direction' = 'incoming'
+      );
+  end if;
+
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts,1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then return parts[2] = uid::text; end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then
+    select a.value into old_value from public.app_data a where a.path = _path;
+    if old_value is null then return _value ->> 'ownerUid' = uid::text; end if;
+    return _value ->> 'ownerUid' = old_value ->> 'ownerUid'
+      and (old_value ->> 'ownerUid' = uid::text
+        or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb));
+  end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts,1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' or _path ~ '^groupModerators/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb); end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
+  if _path ~ '^chats/[^/]+/.+$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname = 'public' and tablename = 'app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+  using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+  using (public.vatra_data_can_write(path, value))
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+  using (public.vatra_data_can_write(path, value));
+
+-- Narrow post policies provide an explicit owner check for publishing, editing,
+-- and deleting one post row without relaxing access to other data.
+drop policy if exists app_data_insert_own_posts on public.app_data;
+create policy app_data_insert_own_posts on public.app_data for insert to authenticated
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_update_own_posts on public.app_data;
+create policy app_data_update_own_posts on public.app_data for update to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text)
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_delete_own_posts on public.app_data;
+create policy app_data_delete_own_posts on public.app_data for delete to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+
+-- Public media URLs are used for content explicitly shown in the feed.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('vatra-media', 'vatra-media', true, 52428800,
+  array['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','video/quicktime','video/ogg','video/x-m4v'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists vatra_media_public_read on storage.objects;
+create policy vatra_media_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'vatra-media');
+
+drop policy if exists vatra_media_user_upload on storage.objects;
+create policy vatra_media_user_upload on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_update on storage.objects;
+create policy vatra_media_user_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_delete on storage.objects;
+create policy vatra_media_user_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+do $realtime$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'app_data'
+     ) then
+    alter publication supabase_realtime add table public.app_data;
+  end if;
+end;
+$realtime$;
+
+      and _value -> 'signJwk' ->> 'y' ~ '^[A-Za-z0-9_-]{43}
+  end if;
+  if _path ~ '^users/[^/]+$'
+     or _path ~ '^privateUsers/[^/]+$'
+     or _path ~ '^publicProfiles/[^/]+$'
+     or _path ~ '^friendProfiles/[^/]+$'
+     or _path ~ '^activityReadAt/[^/]+$' then
+    return parts[2] = uid::text;
+  end if;
+  if _path ~ '^verifiedUsers/[^/]+$' then
+    return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+
+  -- A friend list is stored as one JSON object per account. Adding an entry
+  -- to someone else's list requires their pending incoming request.
+  if _path ~ '^friends/[^/]+$' then
+    if parts[2] = uid::text then return true; end if;
+    select f.value into old_value from public.app_data f where f.path = 'friends/' || parts[2];
+    if old_value is not null and old_value ? uid::text
+       and (old_value - uid::text) = (_value - uid::text) then return true; end if;
+    return _value ? uid::text
+      and _value ->> uid::text = 'true'
+      and coalesce(old_value - uid::text, '{}'::jsonb) = (_value - uid::text)
+      and exists (
+        select 1 from public.app_data r
+        where r.path = 'friendRequests/' || uid::text || '/' || parts[2]
+          and r.value ->> 'status' = 'pending'
+          and r.value ->> 'direction' = 'incoming'
+      );
+  end if;
+
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts,1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then return parts[2] = uid::text; end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then
+    select a.value into old_value from public.app_data a where a.path = _path;
+    if old_value is null then return _value ->> 'ownerUid' = uid::text; end if;
+    return _value ->> 'ownerUid' = old_value ->> 'ownerUid'
+      and (old_value ->> 'ownerUid' = uid::text
+        or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb));
+  end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts,1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' or _path ~ '^groupModerators/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb); end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid' = uid::text and public.vatra_data_is_group_member(parts[2], uid);
+  end if;
+  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
+  if _path ~ '^chats/[^/]+/.+$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname = 'public' and tablename = 'app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+  using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+  using (public.vatra_data_can_write(path, value))
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+  using (public.vatra_data_can_write(path, value));
+
+-- Narrow post policies provide an explicit owner check for publishing, editing,
+-- and deleting one post row without relaxing access to other data.
+drop policy if exists app_data_insert_own_posts on public.app_data;
+create policy app_data_insert_own_posts on public.app_data for insert to authenticated
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_update_own_posts on public.app_data;
+create policy app_data_update_own_posts on public.app_data for update to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text)
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_delete_own_posts on public.app_data;
+create policy app_data_delete_own_posts on public.app_data for delete to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+
+-- Public media URLs are used for content explicitly shown in the feed.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('vatra-media', 'vatra-media', true, 52428800,
+  array['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','video/quicktime','video/ogg','video/x-m4v'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists vatra_media_public_read on storage.objects;
+create policy vatra_media_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'vatra-media');
+
+drop policy if exists vatra_media_user_upload on storage.objects;
+create policy vatra_media_user_upload on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_update on storage.objects;
+create policy vatra_media_user_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_delete on storage.objects;
+create policy vatra_media_user_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+do $realtime$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'app_data'
+     ) then
+    alter publication supabase_realtime add table public.app_data;
+  end if;
+end;
+$realtime$;
+
+      and not (_value ? 'privateKey')
+      and not (_value ? 'privateSignKey');
   end if;
   if _path ~ '^users/[^/]+$'
      or _path ~ '^privateUsers/[^/]+$'
