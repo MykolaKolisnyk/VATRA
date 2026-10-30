@@ -789,3 +789,9 @@ body .comment-form{overflow:visible!important;}
  body .vatra-emoji-trigger,
  body .vatra-emoji-grid button{transition:none!important;transform:none!important;}
 }
+
+
+/* Other users' profiles have only the statistics supported by visible data. */
+body[data-page="publicProfile"] .vatra-profile-stats{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
