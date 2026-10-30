@@ -260,7 +260,8 @@ function renderProfile(){
  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.map((url,index)=>({url,index})).filter(x=>x.url&&x.url!==currentProfile.avatarUrl).slice(-30).reverse():[];
  const avatarPhotos=[currentProfile.avatarUrl,...history.map(item=>item.url)].filter(Boolean);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото профілю"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото профілю, які Ви вирішите залишити.</p>';
- const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.map(p=>'<div class="profile-photo-tile"><img class="post-image profile-gallery-image" loading="lazy" decoding="async" src="'+esc(p.url)+'" alt="'+(p.source==='profile'?'Фото в альбомі профілю':'Фото з допису')+'"><small>'+(p.source==='profile'?'Фото профілю':timeAgo(p.createdAt))+'</small>'+(p.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+p.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>':'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
+ const galleryUrls=gallery.map(item=>item.url);
+ const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.slice(0,7).map((photo,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img loading="lazy" decoding="async" src="'+esc(photo.url)+'" alt="Фото профілю"></button><small>'+(photo.source==='profile'?'Фото профілю':timeAgo(photo.createdAt))+'</small>'+(photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>'+(gallery.length>7?'<button type="button" class="profile-vk-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="0">Переглянути всі ('+gallery.length+')</button>':''):'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>'
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(id=>{const u=users[id]||{};return '<button type="button" class="profile-vk-friend" data-view-profile="'+esc(id)+'">'+avatar(u.name||'Користувач',u.avatarUrl,'profile-vk-friend-avatar')+'<span>'+esc(u.name||'Користувач')+'</span></button>';}).join('');
  const friendBlock='<section class="profile-vk-card profile-vk-friends"><div class="profile-vk-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="profile-vk-friend-grid">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="profile-vk-link" id="profileAllFriends">Усі друзі →</button></section>';
@@ -270,7 +271,7 @@ function renderProfile(){
  const stats='<div class="profile-vk-stats"><div><b>'+friendIds.length+'</b><span>Друзі</span></div><div><b>'+Object.keys(following||{}).length+'</b><span>Підписки</span></div><div><b>'+gallery.length+'</b><span>Фотографії</span></div><div><b>'+myVideos+'</b><span>Відео</span></div><div><b>'+mine.length+'</b><span>Дописи</span></div></div>';
  const profileHtml='<section class="profile-vk-layout">'+
   '<aside class="profile-vk-sidebar">'+
-   '<section class="profile-vk-card profile-vk-avatar-card"><button type="button" class="profile-vk-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(name,currentProfile.avatarUrl,'profile-vk-photo')+'<span>Переглянути фото</span></button><button class="primary wide" id="editProfile">Редагувати профіль</button><label class="profile-vk-link profile-vk-change-photo" for="avatarUpload">Змінити фотографію</label><input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
+   '<section class="profile-vk-card profile-vk-avatar-card"><button type="button" class="profile-vk-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(name,currentProfile.avatarUrl,'profile-vk-photo')+'</button><button class="primary wide" id="editProfile">Редагувати профіль</button><label class="profile-vk-link profile-vk-change-photo" for="avatarUpload">Змінити фотографію</label><input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
    friendBlock+
    '<details class="profile-vk-card profile-vk-history"><summary>Історія фото профілю <span>'+history.length+'</span></summary>'+historyHtml+'</details>'+
   '</aside>'+
@@ -278,7 +279,7 @@ function renderProfile(){
    '<section class="profile-vk-card profile-vk-overview">'+
     '<div class="profile-vk-title-row"><div class="profile-vk-title-info"><div class="profile-vk-name-line"><h2>'+esc(name)+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup(currentProfile,true)+'</div>'+
     '<div class="profile-vk-status-row">'+(currentProfile.status?'<p class="profile-status profile-vk-status">'+esc(currentProfile.status)+'</p>':'<p class="profile-vk-status is-empty">Додайте свій статус</p>')+'<button type="button" class="profile-vk-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
-    '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div><button type="button" class="text-link" id="profileInfoEdit">Редагувати інформацію</button></div>'+
+    '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     '<p class="profile-vk-bio">'+esc(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+'</p>'+
     '<div class="profile-vk-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+
     stats+
@@ -292,7 +293,6 @@ function renderProfile(){
  '</section>';
  setFeed(profileHtml,false);
  $('#editProfile')?.addEventListener('click',editProfile);
- $('#profileInfoEdit')?.addEventListener('click',editProfile);
  $('#profileStatusEdit')?.addEventListener('click',editProfileStatus);
  $('#profileAllFriends')?.addEventListener('click',()=>goPage('friends'));
  $('#avatarUpload')?.addEventListener('change',uploadAvatar);
@@ -343,7 +343,7 @@ function renderPublicProfile(uid){
  const videoCount=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
  const actions='<div class="profile-vk-public-actions"><button class="primary" data-friend-request="'+esc(uid)+'">'+(isFriend?'✓ Друг':req?'Запит надіслано':'＋ Додати в друзі')+'</button><button class="pill" data-follow="'+esc(uid)+'">'+(following[uid]?'Відписатися':'＋ Підписатися')+'</button><button class="pill" data-message-user="'+esc(uid)+'">Написати</button><button class="text-link" data-report-user="'+esc(uid)+'">Поскаржитися</button><button class="danger-link" data-block-user="'+esc(uid)+'">Заблокувати</button></div>';
  const html='<section class="profile-vk-layout profile-vk-public-layout">'+
-  '<aside class="profile-vk-sidebar"><section class="profile-vk-card profile-vk-avatar-card"><button type="button" class="profile-vk-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'profile-vk-photo')+'<span>Переглянути фото</span></button>'+actions+'</section></aside>'+
+  '<aside class="profile-vk-sidebar"><section class="profile-vk-card profile-vk-avatar-card"><button type="button" class="profile-vk-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'profile-vk-photo')+'</button>'+actions+'</section></aside>'+
   '<div class="profile-vk-main">'+
    '<section class="profile-vk-card profile-vk-overview">'+
     '<div class="profile-vk-title-row"><div class="profile-vk-title-info"><div class="profile-vk-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'</div>'+
