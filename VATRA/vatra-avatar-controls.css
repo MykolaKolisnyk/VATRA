@@ -1,0 +1,123 @@
+/* VATRA | Own profile avatar actions, October 2026.
+   Loaded last so this intentionally overrides legacy primary-button styling. */
+body[data-page="profile"] .vatra-profile-avatar-card{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;align-content:start!important;gap:11px!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-wrap{
+ display:block!important;position:relative!important;grid-column:1!important;
+ width:100%!important;min-width:0!important;overflow:hidden!important;
+ border-radius:11px!important;isolation:isolate;background:#e7edf5!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-wrap>.vatra-profile-avatar-open{
+ position:relative!important;display:block!important;width:100%!important;min-width:0!important;
+ height:auto!important;margin:0!important;padding:0!important;overflow:hidden!important;
+ border:0!important;border-radius:11px!important;background:transparent!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-wrap>.vatra-profile-avatar-open>.vatra-profile-photo{
+ display:grid!important;place-items:center!important;width:100%!important;height:auto!important;
+ min-height:0!important;max-height:none!important;aspect-ratio:4/5!important;
+ border-radius:11px!important;transform:none!important;
+ transition:filter .23s ease!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-wrap:is(:hover,:focus-within,.is-open)>.vatra-profile-avatar-open>.vatra-profile-photo{
+ filter:brightness(.76)!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-menu{
+ position:absolute!important;z-index:3!important;inset:auto 0 0!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:1px!important;
+ width:100%!important;margin:0!important;padding:4px!important;
+ background:rgba(15,20,29,.86)!important;color:#fff!important;
+ backdrop-filter:blur(6px);border-radius:0 0 11px 11px!important;
+ opacity:0!important;pointer-events:none!important;transform:translateY(8px)!important;
+ transition:opacity .22s ease,transform .22s ease!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-wrap:is(:hover,:focus-within,.is-open) .vatra-avatar-hover-menu{
+ opacity:1!important;pointer-events:auto!important;transform:translateY(0)!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-menu>button{
+ display:block!important;width:100%!important;min-width:0!important;min-height:31px!important;
+ margin:0!important;padding:6px 5px!important;border:0!important;border-radius:6px!important;
+ color:#f4f7fa!important;background:transparent!important;
+ font:500 11px/1.25 Inter,system-ui,sans-serif!important;text-align:center!important;
+ white-space:normal!important;cursor:pointer!important;opacity:1!important;
+ transform:none!important;box-shadow:none!important;
+ transition:background-color .15s ease!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-menu>button:is(:hover,:focus-visible){
+ background:rgba(255,255,255,.15)!important;color:#fff!important;
+ outline:0!important;box-shadow:none!important;
+}
+body[data-page="profile"] .vatra-avatar-hover-menu>button.vatra-avatar-remove{color:#ffd7d7!important;}
+body[data-page="profile"] .vatra-avatar-hover-menu>button.vatra-avatar-remove:hover{background:rgba(203,76,76,.25)!important;}
+body[data-page="profile"] .vatra-avatar-hover-menu>button:disabled{opacity:.45!important;cursor:not-allowed!important;}
+body[data-page="profile"] .vatra-avatar-touch-toggle{display:none!important;}
+/* Calm, readable profile edit button; drop the saturated primary hover entirely. */
+body[data-page="profile"] .vatra-profile-avatar-card>#editProfile{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ grid-column:1!important;grid-row:auto!important;width:100%!important;min-width:0!important;
+ min-height:41px!important;margin:0!important;padding:10px 12px!important;
+ border:1px solid #cfd9e4!important;border-radius:10px!important;
+ background:#eef2f7!important;color:#385572!important;
+ font:600 12.5px/1.4 Inter,system-ui,sans-serif!important;text-align:center!important;
+ box-shadow:none!important;transform:none!important;filter:none!important;
+ transition:background-color .17s ease,border-color .17s ease,color .17s ease!important;
+}
+body[data-page="profile"] .vatra-profile-avatar-card>#editProfile:hover{
+ background:#e4ebf3!important;border-color:#c2d1e0!important;color:#294b6d!important;
+ box-shadow:none!important;transform:none!important;filter:none!important;
+}
+body[data-page="profile"] .vatra-profile-avatar-card>#editProfile:active{background:#dbe6f0!important;transform:none!important;}
+body[data-page="profile"] .vatra-profile-avatar-card>#editProfile:focus-visible{
+ outline:2px solid #8a9eb3!important;outline-offset:2px!important;box-shadow:none!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-avatar-card>#editProfile{
+ border-color:#4b5f75!important;background:#314358!important;color:#dfebf8!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-avatar-card>#editProfile:hover{
+ background:#3a516a!important;color:#fff!important;
+}
+/* Touch users tap "Дії з фото"; desktop users hover the portrait. */
+@media(hover:none){
+ body[data-page="profile"] .vatra-avatar-hover-wrap:not(.is-open) .vatra-avatar-hover-menu{
+  opacity:0!important;pointer-events:none!important;transform:translateY(8px)!important;
+ }
+ body[data-page="profile"] .vatra-avatar-hover-wrap.is-open .vatra-avatar-hover-menu{
+  opacity:1!important;pointer-events:auto!important;transform:translateY(0)!important;
+ }
+ body[data-page="profile"] .vatra-avatar-hover-wrap:not(.is-open)>.vatra-profile-avatar-open>.vatra-profile-photo{
+  filter:none!important;
+ }
+ body[data-page="profile"] .vatra-avatar-hover-wrap.is-open>.vatra-profile-avatar-open>.vatra-profile-photo{
+  filter:brightness(.76)!important;
+ }
+ body[data-page="profile"] .vatra-avatar-touch-toggle{
+  position:absolute!important;z-index:2!important;inset:auto 0 0!important;
+  display:block!important;width:100%!important;min-height:34px!important;
+  margin:0!important;padding:7px 5px!important;border:0!important;
+  border-radius:0 0 11px 11px!important;background:rgba(17,25,37,.68)!important;
+  color:#fff!important;font:500 11px/1.25 Inter,system-ui,sans-serif!important;
+ }
+ body[data-page="profile"] .vatra-avatar-hover-wrap.is-open .vatra-avatar-touch-toggle{
+  opacity:0!important;pointer-events:none!important;
+ }
+}
+@media(max-width:760px){
+ body[data-page="profile"] .vatra-profile-avatar-card{
+  display:grid!important;grid-template-columns:minmax(110px,38%) minmax(0,1fr)!important;
+  align-items:center!important;gap:10px!important;
+ }
+ body[data-page="profile"] .vatra-avatar-hover-wrap{grid-column:1!important;grid-row:1!important;}
+ body[data-page="profile"] .vatra-profile-avatar-card>#editProfile{
+  grid-column:2!important;grid-row:1!important;min-height:44px!important;
+  font-size:12px!important;padding:9px 8px!important;
+ }
+ body[data-page="profile"] .vatra-avatar-hover-menu>button{font-size:10.5px!important;min-height:30px!important;padding:5px 3px!important;}
+}
+@media(max-width:360px){
+ body[data-page="profile"] .vatra-profile-avatar-card{grid-template-columns:minmax(103px,38%) minmax(0,1fr)!important;gap:7px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="profile"] .vatra-avatar-hover-menu,
+ body[data-page="profile"] .vatra-avatar-hover-wrap>.vatra-profile-avatar-open>.vatra-profile-photo,
+ body[data-page="profile"] .vatra-profile-avatar-card>#editProfile{transition:none!important;}
+}

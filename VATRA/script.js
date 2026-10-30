@@ -626,7 +626,18 @@ function renderProfile(){
  const stats='<div class="vatra-profile-stats"><button type="button" data-profile-stat="friends"><b>'+friendIds.length+'</b><span>Друзі</span></button><button type="button" data-profile-stat="photos"><b>'+gallery.length+'</b><span>Фотографії</span></button><button type="button" data-profile-stat="videos"><b>'+myVideos+'</b><span>Відео</span></button><button type="button" data-profile-stat="posts"><b>'+mine.length+'</b><span>Дописи</span></button></div>';
  const profileHtml='<section class="vatra-profile-layout">'+
   '<aside class="vatra-profile-sidebar">'+
-   '<section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button><button class="primary wide" id="editProfile">Редагувати профіль</button><label class="vatra-profile-link vatra-profile-change-photo" for="avatarUpload">Змінити фотографію</label><input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
+   '<section class="vatra-profile-card vatra-profile-avatar-card">'+
+    '<div class="vatra-avatar-hover-wrap" id="vatraAvatarWrap">'+
+     '<button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'" aria-label="Переглянути фото профілю">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button>'+
+     '<div class="vatra-avatar-hover-menu" id="vatraAvatarMenu" role="group" aria-label="Керування фото профілю">'+
+      '<button type="button" data-avatar-photo-action="change">Змінити фотографію</button>'+
+      '<button type="button" data-avatar-photo-action="edit"'+(currentProfile.avatarUrl?'':' disabled')+'>Редагувати</button>'+
+      '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove"'+(currentProfile.avatarUrl?'':' disabled')+'>Видалити</button>'+
+     '</div>'+
+     '<button type="button" class="vatra-avatar-touch-toggle" data-avatar-menu-toggle aria-expanded="false" aria-controls="vatraAvatarMenu">Дії з фото</button>'+
+    '</div>'+
+    '<button type="button" class="vatra-profile-edit" id="editProfile">Редагувати профіль</button>'+
+    '<input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
    friendBlock+
 
   '</aside>'+
@@ -2109,7 +2120,63 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
   };
   image.onerror=()=>{URL.revokeObjectURL(objectUrl);toastMsg('Не вдалося відкрити це зображення.');};image.src=objectUrl;
  }
- document.addEventListener('change',event=>{
+ 
+/* Avatar controls use existing Supabase profile fields and the existing image editor. */
+document.addEventListener('click',async event=>{
+ const toggle=event.target.closest('[data-avatar-menu-toggle]');
+ if(toggle){
+  event.preventDefault();
+  const wrap=toggle.closest('.vatra-avatar-hover-wrap'),opened=!wrap?.classList.contains('is-open');
+  wrap?.classList.toggle('is-open',opened);
+  toggle.setAttribute('aria-expanded',String(opened));
+  return;
+ }
+ const actionButton=event.target.closest('[data-avatar-photo-action]');
+ if(actionButton){
+  event.preventDefault();
+  if(!currentUser||document.body.dataset.page!=='profile'||actionButton.disabled)return;
+  const action=actionButton.dataset.avatarPhotoAction;
+  if(action==='change'){
+   document.getElementById('avatarUpload')?.click();
+   return;
+  }
+  if(action==='edit'){
+   const url=String(currentProfile.avatarUrl||'');
+   if(!url)return toastMsg('Спочатку додайте фото профілю.');
+   actionButton.disabled=true;
+   try{
+    const response=await fetch(url,{mode:'cors'});
+    if(!response.ok)throw new Error('Сервер не надав поточне фото.');
+    const blob=await response.blob();
+    if(!blob.type.startsWith('image/'))throw new Error('Завантажено не зображення.');
+    const file=new File([blob],'avatar-edit.jpg',{type:blob.type,lastModified:Date.now()});
+    openPhotoEditor(file,'avatar');
+   }catch(error){toastMsg('Не вдалося відкрити фото в редакторі: '+(error?.message||'спробуйте змінити фотографію.'));}
+   finally{if(actionButton.isConnected)actionButton.disabled=false;}
+   return;
+  }
+  if(action==='remove'){
+   if(!currentProfile.avatarUrl)return toastMsg('Фото профілю вже відсутнє.');
+   if(!(await askConfirm('Видалити поточну фотографію профілю?')))return;
+   actionButton.disabled=true;
+   try{
+    await update(ref(db,'users/'+currentUser.uid),{avatarUrl:'',updatedAt:Date.now()});
+    currentProfile.avatarUrl='';
+    await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
+    updateIdentity();render();
+    toastMsg('Фотографію профілю видалено.');
+   }catch(error){toastMsg(niceError(error));}
+   finally{if(actionButton.isConnected)actionButton.disabled=false;}
+   return;
+  }
+ }
+ if(!event.target.closest('.vatra-avatar-hover-wrap')){
+  const wrap=document.getElementById('vatraAvatarWrap');
+  wrap?.classList.remove('is-open');
+  wrap?.querySelector('[data-avatar-menu-toggle]')?.setAttribute('aria-expanded','false');
+ }
+});
+document.addEventListener('change',event=>{
   const input=event.target;if(!input||!input.id)return;
   const map={avatarUpload:'avatar',settingsAvatarFile:'avatar'},target=map[input.id];
   if(!target||!input.files||!input.files[0])return;
