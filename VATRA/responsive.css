@@ -262,3 +262,38 @@ body .main>.heading h1{filter:none!important;text-shadow:none!important}
 @media(prefers-reduced-motion:reduce){
  body *,body *::before,body *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
+
+
+/* Secure one-to-one messages: state is visible and never implies a plaintext fallback. */
+body .chat-security{
+  display:grid;gap:7px;margin:9px 0 13px;padding:10px 12px;
+  border:1px solid #dfe8f5;border-radius:12px;
+  background:linear-gradient(110deg,#f7faff,#fff);
+  color:#526781;font-size:12px;line-height:1.55;
+}
+body .chat-security-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0}
+body #chatSecurityStatus{min-width:0;flex:1;overflow-wrap:anywhere;color:#ad5e20}
+body #chatSecurityStatus[data-ready="true"]{color:#197b5b;font-weight:700}
+body .chat-security-refresh{
+  flex:0 0 auto;min-height:32px;padding:5px 9px;
+  border:1px solid #cdddf8;border-radius:9px;
+  background:#edf4ff;color:#0757f5;font-size:11px;font-weight:700;cursor:pointer;
+}
+body .chat-security-refresh:hover{background:#e1edff;border-color:#b1c9f4}
+body .chat-security-verify{min-width:0;font-size:11px;color:#7b8ca2}
+body .chat-security-verify summary{width:max-content;max-width:100%;cursor:pointer;color:#0757f5;font-weight:650}
+body .chat-security-verify p{margin:6px 0 0;overflow-wrap:anywhere}
+body #chatSecurityKeys{padding:8px;border-radius:8px;background:#eaf3ff;color:#304b70;font-size:11px;overflow-wrap:anywhere}
+body .message-bubble{max-width:min(82%,560px)!important;overflow-wrap:anywhere}
+body .message-bubble small{font-size:10px!important;opacity:.8}
+body .message-bubble p{line-height:1.55}
+body .chat-send input:disabled{
+  background:#f4f6fa!important;color:#7d8ba0!important;cursor:not-allowed;
+}
+body .chat-send>.primary:disabled{opacity:.48!important;cursor:not-allowed!important}
+@media(max-width:760px){
+ body .chat-security{padding:9px 10px;font-size:12px}
+ body .chat-security-row{flex-wrap:wrap}
+ body .chat-security-refresh{min-height:35px}
+ body .message-bubble{max-width:92%!important}
+}
