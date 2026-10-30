@@ -1392,3 +1392,11 @@ body[data-page] .chat-window{min-width:0!important;max-width:100%!important;}
  }
  body[data-page] .layout{padding-inline:8px!important;}
 }
+
+
+/* Specificity correction: prior feed-only 730px rule must not survive the shared frame. */
+body[data-page="feed"] .layout>.main>#feed,
+body[data-page="feed"] .layout>.main>.quick-compose{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ margin-right:0!important;margin-left:0!important;
+}
