@@ -3997,3 +3997,23 @@ body{
 .auth-card .legal-consent input[type="checkbox"]:checked::after{transform:rotate(-45deg) scale(1)}
 .auth-card .legal-consent input[type="checkbox"]:focus-visible{outline:3px solid #0757f535!important;outline-offset:3px!important}
 .auth-card .legal-consent button{font-weight:800!important;color:#0757f5!important;text-decoration-thickness:1.5px!important}
+
+/* Auth legal pages: preserve the form identity while switching document content. */
+.legal-dialog .legal-dialog-body article{transition:opacity .18s ease,transform .18s ease}
+.legal-dialog .legal-dialog-body article.is-active{animation:vatra-auth-legal-in .2s ease both}
+.legal-dialog .legal-dialog-body.is-switching{animation:vatra-auth-legal-area .2s ease both}
+.legal-dialog [data-legal-tab]{transition:background .18s ease,color .18s ease,box-shadow .18s ease}
+.legal-dialog [data-legal-tab].active{background:#eaf1ff;color:#0757f5;box-shadow:inset 0 -2px 0 #0757f5}
+@keyframes vatra-auth-legal-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes vatra-auth-legal-area{from{opacity:.72}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.legal-dialog .legal-dialog-body article,.legal-dialog .legal-dialog-body.is-switching{animation:none!important;transition:none!important}}
+
+/* Keep legal documents inside the auth design and switch them without reopening the dialog. */
+.legal-dialog .legal-dialog-body article{transition:opacity .18s ease,transform .18s ease}
+.legal-dialog .legal-dialog-body article.is-active{animation:vatra-auth-legal-in .2s ease both}
+.legal-dialog .legal-dialog-body.is-switching{animation:vatra-auth-legal-area .2s ease both}
+.legal-dialog [data-legal-tab]{transition:background .18s ease,color .18s ease,box-shadow .18s ease}
+.legal-dialog [data-legal-tab].active{background:#eaf1ff;color:#0757f5;box-shadow:inset 0 -2px 0 #0757f5}
+@keyframes vatra-auth-legal-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes vatra-auth-legal-area{from{opacity:.72}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.legal-dialog .legal-dialog-body article,.legal-dialog .legal-dialog-body.is-switching{animation:none!important;transition:none!important}}
