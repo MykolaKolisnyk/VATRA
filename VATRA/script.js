@@ -701,6 +701,8 @@ async function loadPublicFriends(ownerUid){
  }
 }
 function renderPublicProfile(uid){
+ if(!uid)return;
+ if(uid===currentUser?.uid){activeProfileUid=null;goPage('profile');return;}
  activeProfileUid=uid;page='publicProfile';document.body.dataset.page=page;
  // The news-feed composer publishes only to the signed-in user's own feed.
  // Never leave it above somebody else's profile after opening a user card.
@@ -1544,7 +1546,7 @@ document.addEventListener('click',async e=>{
   b.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');
   return;
  }
- b=e.target.closest('[data-view-profile]');if(b){renderPublicProfile(b.dataset.viewProfile);return;}b=e.target.closest('[data-friend-request]');if(b){if(!authRequired())return;const uid=b.dataset.friendRequest;try{if(!uid||uid===currentUser.uid)return;if(friends[uid])return toastMsg('Ви вже друзі.');if(friendRequests[uid]?.direction==='incoming')return toastMsg('Ця людина вже надіслала запит. Прийміть його в розділі «Друзі».');if(friendRequests[uid]?.status==='pending')return toastMsg('Запит уже надіслано.');await set(ref(db,`friendRequests/${uid}/${currentUser.uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'incoming',createdAt:Date.now()});await set(ref(db,`friendRequests/${currentUser.uid}/${uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'outgoing',createdAt:Date.now()});toastMsg('Запит у друзі надіслано.');}catch(err){toastMsg(niceError(err));}return;}b=e.target.closest('[data-accept-friend]');if(b){
+ b=e.target.closest('[data-view-profile]');if(b){const uid=b.dataset.viewProfile;if(uid===currentUser?.uid){activeProfileUid=null;goPage('profile');}else renderPublicProfile(uid);return;}b=e.target.closest('[data-friend-request]');if(b){if(!authRequired())return;const uid=b.dataset.friendRequest;try{if(!uid||uid===currentUser.uid)return;if(friends[uid])return toastMsg('Ви вже друзі.');if(friendRequests[uid]?.direction==='incoming')return toastMsg('Ця людина вже надіслала запит. Прийміть його в розділі «Друзі».');if(friendRequests[uid]?.status==='pending')return toastMsg('Запит уже надіслано.');await set(ref(db,`friendRequests/${uid}/${currentUser.uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'incoming',createdAt:Date.now()});await set(ref(db,`friendRequests/${currentUser.uid}/${uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'outgoing',createdAt:Date.now()});toastMsg('Запит у друзі надіслано.');}catch(err){toastMsg(niceError(err));}return;}b=e.target.closest('[data-accept-friend]');if(b){
  if(!authRequired())return;
  const uid=b.dataset.acceptFriend,request=friendRequests[uid];
  if(!uid||!request||request.status!=='pending'||request.direction!=='incoming')return toastMsg('Цей запит уже неактуальний. Оновіть список друзів.');
