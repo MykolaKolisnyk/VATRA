@@ -49,6 +49,9 @@ function reportConnection(online, reason = '') {
   } catch {}
 }
 function databaseError(error) {
+  // The query layer may already have classified this error. Preserve its code
+  // rather than converting a useful RLS/schema diagnosis to DATABASE_ERROR.
+  if (['SCHEMA_NOT_READY', 'PERMISSION_DENIED', 'NETWORK_ERROR', 'DATABASE_ERROR'].includes(error?.code)) return error;
   const message = String(error?.message || error || '');
   console.error('[ВАТРА: database]', { message, code: error?.code || '', details: error?.details || '', hint: error?.hint || '' });
   const code = String(error?.code || '').toUpperCase();
@@ -58,9 +61,9 @@ function databaseError(error) {
   const network = /fetch|network|failed to send|load failed|timeout|connection/i.test(message);
   if (network) reportConnection(false, 'network');
   const wrapped = new Error(schemaMissing
-    ? 'Схема бази ВАТРИ неповна: таблицю app_data або потрібний стовпець не знайдено. У Supabase SQL Editor виконай повний файл VATRA OLD/app-data-schema.sql.'
+    ? 'Схема бази ВАТРИ неповна: таблицю app_data або потрібний стовпець не знайдено. У Supabase SQL Editor виконай повний файл VATRA/app-data-schema.sql.'
     : permission
-      ? 'Supabase відхилив запис через правила доступу (RLS). Перевір, що в правильному проєкті виконано актуальний файл VATRA OLD/app-data-schema.sql, а ти ввійшов у свій акаунт.'
+      ? 'Supabase відхилив запис через правила доступу (RLS). Перевір, що в правильному проєкті виконано актуальний файл VATRA/app-data-schema.sql, а ти ввійшов у свій акаунт.'
       : network
         ? 'Не вдається з’єднатися з ВАТРОЮ. Перевір інтернет і спробуй ще раз.'
         : 'Не вдалося виконати дію. Спробуй ще раз трохи пізніше.');
@@ -326,14 +329,30 @@ export function onValue(reference, callback, errorCallback) {
   const poll = async () => {
     if (!active || running) return;
     running = true;
+    let value;
     try {
-      const value = await readTree(reference.path);
-      const encoded = JSON.stringify(value);
-      if (encoded !== lastValue) { lastValue = encoded; callback(new DataSnapshot(reference.path, value)); }
+      value = await readTree(reference.path);
     } catch (error) {
       const wrapped = databaseError(error);
-      if (typeof errorCallback === 'function') errorCallback(wrapped);
-      else console.warn('Помилка читання даних:', wrapped.message);
+      try {
+        if (typeof errorCallback === 'function') errorCallback(wrapped);
+        else console.warn('Помилка читання даних:', wrapped.message);
+      } catch (handlerError) {
+        console.error('[ВАТРА] Помилка обробника помилки читання:', handlerError);
+      } finally { running = false; }
+      return;
+    }
+    try {
+      if (!active) return;
+      const encoded = JSON.stringify(value);
+      if (encoded !== lastValue) {
+        // Rendering errors are not database errors and must not claim missing
+        // SQL/RLS. Retry this value on the next poll if the view failed.
+        await callback(new DataSnapshot(reference.path, value));
+        lastValue = encoded;
+      }
+    } catch (error) {
+      console.error('[ВАТРА] Помилка оновлення інтерфейсу після читання даних:', reference.path, error);
     } finally { running = false; }
   };
   const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
