@@ -1,0 +1,285 @@
+/* VATRA • Авторський класичний інтерфейс, 2026-10-30
+   Надихнувся ритмом звичних соцмереж, але не копіює їхню айдентику.
+   Додається ПІСЛЯ responsive.css. Жодних змін у Supabase / E2EE / JavaScript.
+   Обмеження стилів: основний інтерфейс, стрічка, власний профіль і мобільна навігація.
+*/
+:root {
+  --vatra-page-width:1192px;
+  --vatra-sidebar-width:184px;
+  --vatra-rail-gap:21px;
+  --vatra-shell:#f0f3f7;
+  --vatra-navy:#234568;
+  --vatra-navy-deep:#1b3856;
+  --vatra-flame:#eb9652;
+  --vatra-panel-border:#dce4ed;
+  --vatra-panel-shadow:0 1px 3px rgba(21,42,69,.055);
+  --v-canvas:var(--vatra-shell);
+  --v-line:var(--vatra-panel-border);
+  --v-ink:#27374b;
+  --v-muted:#6e7f94;
+}
+html { background:var(--vatra-shell)!important; }
+body { background:var(--vatra-shell)!important;color:#27374b!important;line-height:1.56; }
+/* Шапка • насичений український синій із теплим акцентом полум'я */
+body .topbar.vatra-global-header {
+  background:var(--vatra-navy)!important;
+  color:#fff!important;
+  border:0!important;
+  border-bottom:2px solid var(--vatra-flame)!important;
+  box-shadow:0 2px 9px rgba(18,42,70,.13)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+body .vatra-global-header .mobile-brand {
+  color:#fff!important;
+  font-weight:800!important;
+  letter-spacing:.015em!important;
+  text-decoration:none!important;
+  opacity:1!important;
+}
+body .vatra-global-header .mobile-brand .brand-icon {
+  background:linear-gradient(150deg,#edaa64,#d87547)!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.28)!important;
+  border-radius:9px!important;
+  box-shadow:0 1px 4px rgba(9,23,42,.17)!important;
+}
+body .vatra-global-header .search {
+  background:var(--vatra-navy-deep)!important;
+  border:1px solid #426588!important;
+  border-radius:8px!important;
+  color:#e1edfa!important;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.08)!important;
+  transform:none!important;
+}
+body .vatra-global-header .search:hover {
+  background:#264e75!important;border-color:#7293b5!important;
+  box-shadow:none!important;
+}
+body .vatra-global-header .search input {
+  color:#fff!important;opacity:1!important;text-shadow:none!important;
+}
+body .vatra-global-header .search input::placeholder {color:#d0e0ef!important;opacity:1!important;}
+body .vatra-global-header .search .search-icon {color:#d9e8f8!important;transform:none!important;}
+body .vatra-global-header .search:focus-within {
+  background:#fff!important;border-color:#f1b47e!important;
+  box-shadow:0 0 0 3px rgba(235,150,82,.21)!important;
+  transform:none!important;
+}
+body .vatra-global-header .search:focus-within input {color:#253d54!important;}
+body .vatra-global-header .search:focus-within input::placeholder{color:#788ba0!important;}
+body .vatra-global-header .search:focus-within .search-icon{color:#355d88!important;transform:none!important;}
+body .vatra-global-header .notification-button {
+  border:1px solid transparent!important;
+  background:transparent!important;
+  color:#f2f7fc!important;
+  box-shadow:none!important;
+  border-radius:8px!important;
+}
+body .vatra-global-header .notification-button:hover {background:rgba(255,255,255,.13)!important;color:#fff!important;}
+body .vatra-global-header .notification-button svg{stroke:currentColor!important;}
+body .vatra-global-header .account-avatar-trigger {
+  border:2px solid rgba(255,255,255,.65)!important;
+  background:#426c97!important;color:#fff!important;
+  box-shadow:none!important;
+}
+body .vatra-global-header .account-avatar-trigger:hover {border-color:#fff!important;}
+body .vatra-global-header .auth-button{
+  border:1px solid rgba(255,255,255,.32)!important;
+  background:rgba(255,255,255,.14)!important;
+  color:#fff!important;
+}
+/* Геометрія сторінки: знайома навігація, але без важких тіней і розмиття */
+body .layout {gap:var(--vatra-rail-gap)!important;}
+body .layout>.main {
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  text-shadow:none!important;
+}
+body .layout>.main.vatra-page-enter {animation:none!important;transform:none!important;}
+body .layout>.sidebar {filter:none!important;text-shadow:none!important;}
+body .layout>.sidebar nav {gap:3px!important;}
+body .layout>.sidebar .nav {
+  border-radius:8px!important;
+  color:#3c5876!important;
+  font-size:13px!important;
+  font-weight:620!important;
+  transition:background-color .14s ease,color .14s ease!important;
+  filter:none!important;
+}
+body .layout>.sidebar .nav .nav-icon,
+body .layout>.sidebar .nav .nav-icon svg{color:#547397!important;}
+body .layout>.sidebar .nav:hover {
+  background:#e2eaf4!important;
+  color:#254e7d!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+body .layout>.sidebar .nav.active {
+  background:#dce7f5!important;
+  color:#244f7b!important;
+  font-weight:780!important;
+  box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5)!important;
+}
+body .layout>.sidebar .nav.active .nav-icon,
+body .layout>.sidebar .nav.active .nav-icon svg {color:var(--vatra-user-accent,#0757f5)!important;}
+body .layout>.sidebar .create-button{min-height:40px!important;border-radius:8px!important;font-size:12px!important;}
+body .sidebar-footer {color:#718199!important;}
+body .sidebar-footer a{color:#476c92!important;text-decoration:none!important;}
+body .sidebar-footer a:hover{text-decoration:underline!important;}
+body .main>.heading {margin-bottom:15px!important;}
+body .main>.heading h1 {
+  color:#24384f!important;
+  letter-spacing:-.025em!important;
+  font-size:25px!important;
+  font-weight:780!important;
+  filter:none!important;text-shadow:none!important;
+}
+body .main>.heading .eyebrow{
+  color:#a86c43!important;
+  font-size:10px!important;letter-spacing:.11em!important;
+}
+body .main>.heading #subtitle{color:#6b7b90!important;font-size:13px!important;}
+/* Оригінальні картки ВАТРИ без скляних ефектів і нечітких шрифтів */
+body .post,body .quick-compose,body .profile-vk-card,
+body .settings-card,body .settings-intro,body .messages-page,
+body .chat-window,body .community-card,body .chat-users .person {
+  background:#fff!important;
+  border:1px solid var(--vatra-panel-border)!important;
+  border-radius:11px!important;
+  box-shadow:var(--vatra-panel-shadow)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  filter:none!important;
+  text-shadow:none!important;
+}
+body .feed{gap:14px!important;}
+body .post{padding:17px!important;}
+body .post-head .author b,body .post-head .author .author-link {
+  color:#2a507a!important;font-weight:760!important;font-size:13px!important;
+}
+body .post-head .author small {color:#8593a5!important;font-size:11px!important;}
+body .post-text {
+  color:#2b3b4b!important;
+  font-size:14px!important;
+  line-height:1.68!important;
+  text-shadow:none!important;
+}
+body .post-image{border-radius:8px!important;}
+body .post-actions{
+  border-top:1px solid #eaf0f5!important;
+  margin-top:11px!important;
+}
+body .post-action-button {border-radius:8px!important;color:#5c718a!important;}
+body .post-action-button:hover{background:#eff4fb!important;color:#285d99!important;}
+body .post-action-button.is-active{color:var(--vatra-user-accent,#0757f5)!important;}
+body .post-action-button .post-action-count{color:#405a78!important;}
+body .quick-compose{padding:15px!important;}
+body .prompt{
+  border-radius:8px!important;
+  background:#f3f6fa!important;
+  border:1px solid #e4ebf3!important;
+  color:#73849a!important;
+  box-shadow:none!important;
+}
+body .prompt:hover{background:#eaf1f8!important;color:#3d5978!important;}
+body .compose-tools{border-top:1px solid #eaf0f5!important;}
+body .compose-tools button {color:#557292!important;font-size:12px!important;}
+body .compose-tools button:hover{color:var(--vatra-user-accent,#0757f5)!important;}
+body .pill {border-radius:8px!important;}
+/* Профіль: аватар ліворуч, інформація й публікації праворуч */
+body .profile-vk-layout {gap:16px!important;}
+body .profile-vk-sidebar,body .profile-vk-main{gap:13px!important;}
+body .profile-vk-avatar-card{padding:12px!important;}
+body .profile-vk-avatar-open,body .profile-vk-avatar-open>.profile-vk-photo{
+  border-radius:8px!important;
+}
+body .profile-vk-avatar-card>.primary {
+  border:1px solid #d3deec!important;
+  border-radius:8px!important;
+  background:#e9f0f8!important;
+  color:#29577f!important;
+  box-shadow:none!important;
+}
+body .profile-vk-avatar-card>.primary:hover{
+  background:#dce9f8!important;
+  color:#1b4a77!important;
+}
+body .profile-vk-overview{border-color:#dce4ed!important;}
+body .profile-vk-title-row h2{
+  color:#273a50!important;font-size:23px!important;
+  font-weight:800!important;letter-spacing:-.025em!important;
+}
+body .profile-vk-status,body .profile-vk-bio{color:#41586f!important;}
+body .profile-vk-detail span{color:#76899f!important;}
+body .profile-vk-detail b{color:#345d86!important;}
+body .profile-vk-overview .profile-vk-stats{
+  border-top:1px solid #e9eef5!important;
+}
+body .profile-vk-stats>div>b{color:#28547f!important;}
+body .profile-vk-stats>div>span{color:#75869a!important;}
+body .profile-vk-photos .profile-gallery-open,
+body .profile-vk-photos .profile-gallery-open img{border-radius:7px!important;}
+body .profile-vk-post-tabs{
+  background:#fff!important;
+  border:1px solid var(--vatra-panel-border)!important;
+  border-radius:10px!important;
+  box-shadow:var(--vatra-panel-shadow)!important;
+}
+body .profile-vk-compose{border-radius:10px!important;}
+body .profile-vk-compose-trigger{border-radius:8px!important;}
+/* Елементи введення, посилання та юридичні документи не прибираємо */
+body .settings-card input,body .settings-card textarea,body .settings-card select,
+body .chat-send input,body .comment-form input {
+  border-color:#d6e0eb!important;
+  border-radius:8px!important;
+  color:#273b53!important;
+}
+body .settings-card label,body .settings-intro p{color:#53677f!important;}
+body .chat-security{border-color:#d8e5f2!important;background:#f8fbff!important;}
+body .chat-security-verify summary{color:#2f659c!important;}
+body .mobile-nav {backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+/* Планшети: зберігаємо існуючу логіку breakpoint-ів responsive.css */
+@media(min-width:761px) and (max-width:980px){
+  :root{--vatra-sidebar-width:148px;--vatra-rail-gap:13px;}
+  body .profile-vk-layout{gap:11px!important;}
+}
+@media(max-width:760px){
+  body .topbar.vatra-global-header{
+    min-height:104px!important;
+    padding:9px 12px!important;
+    gap:8px!important;
+  }
+  body .vatra-global-header .mobile-brand{font-size:18px!important;line-height:1!important;}
+  body .vatra-global-header .search{order:5!important;max-width:none!important;}
+  body .vatra-global-header .search input{font-size:16px!important;}
+  body .layout{padding-top:14px!important;}
+  body .layout>.sidebar{display:none!important;}
+  body .main>.heading h1{font-size:21px!important;}
+  body .profile-vk-layout{grid-template-columns:minmax(0,1fr)!important;gap:11px!important;}
+  body .profile-vk-avatar-card{padding:12px!important;}
+  body .profile-vk-title-row h2{font-size:20px!important;}
+  body .post,body .quick-compose,body .profile-vk-card,body .settings-card{padding:13px!important;}
+  body .post-text{font-size:13.5px!important;line-height:1.62!important;}
+  body .post-actions{margin-top:8px!important;}
+  body .mobile-nav{
+    background:#fff!important;
+    border-top:1px solid #dbe4ed!important;
+    box-shadow:0 -3px 13px rgba(18,40,68,.08)!important;
+  }
+  body .mobile-nav button.active{
+    color:var(--vatra-user-accent,#0757f5)!important;
+    background:#eaf1fb!important;
+  }
+  body .topbar-popover{box-shadow:0 16px 36px rgba(15,35,60,.18)!important;}
+}
+@media(max-width:390px){
+  body .topbar.vatra-global-header{padding-inline:9px!important;gap:6px!important;}
+  body .vatra-global-header .mobile-brand{font-size:16px!important;}
+  body .post,body .quick-compose,body .profile-vk-card{padding:11px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  body .vatra-global-header .search,body .layout>.sidebar .nav{transition:none!important;}
+}
