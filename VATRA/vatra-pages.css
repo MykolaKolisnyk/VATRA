@@ -3622,3 +3622,14 @@ body .vatra-editor-reset{
  body .post-photo-grid.vatra-post-photo-uniform{gap:4px!important;}
  body .vatra-profile-public-friends .vatra-profile-friend-grid{grid-template-columns:minmax(0,1fr)!important;}
 }
+
+
+/* Updated counts: subscriptions are no longer a profile section. */
+body[data-page="profile"] .vatra-profile-summary-compact>.vatra-profile-stats{
+ display:grid!important;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+body[data-page="publicProfile"] .vatra-profile-summary-compact>.vatra-profile-stats{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
