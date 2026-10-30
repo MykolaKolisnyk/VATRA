@@ -3491,3 +3491,128 @@ input[type="checkbox"]:focus-visible{
   .profile-vk-post-tabs>.profile-vk-tab-current{min-height:40px!important;padding:0 10px!important}
   .profile-vk-post-tabs>span:not(.profile-vk-tab-current){padding:0 8px!important}
 }
+
+
+/* Desktop frame tuned to the original reference: compact left rail, generous canvas. */
+.vatra-global-header{
+  width:100%!important;max-width:none!important;
+  min-height:58px!important;height:58px!important;
+  padding-left:clamp(18px,calc((100vw - 1500px)/2 + 18px),72px)!important;
+  padding-right:clamp(18px,calc((100vw - 1500px)/2 + 18px),72px)!important;
+  gap:13px!important;
+}
+.layout{
+  width:100%!important;max-width:1510px!important;
+  grid-template-columns:184px minmax(0,1fr)!important;
+  gap:22px!important;justify-content:stretch!important;
+  padding:12px 20px 32px!important;
+}
+.layout>.right{display:none!important}
+.layout>.sidebar{
+  position:sticky!important;top:70px!important;
+  width:184px!important;height:calc(100dvh - 82px)!important;
+  min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+  padding:12px 8px 14px 0!important;
+  display:flex!important;flex-direction:column!important;
+  scrollbar-width:thin!important;scrollbar-color:#d8e2f2 transparent!important;
+}
+.sidebar .brand{margin:4px 0 20px 5px!important;font-size:19px!important;gap:9px!important}
+.sidebar .brand-icon{width:32px!important;height:32px!important;flex:0 0 32px!important}
+.sidebar nav{display:grid!important;gap:3px!important}
+.sidebar nav .nav{
+  display:flex!important;align-items:center!important;gap:10px!important;
+  min-height:37px!important;height:37px!important;width:100%!important;
+  margin:0!important;padding:0 9px!important;border:0!important;
+  border-radius:10px!important;background:transparent!important;
+  color:#63748b!important;font-size:12px!important;font-weight:650!important;
+  line-height:1.15!important;white-space:nowrap!important;text-align:left!important;
+  transform:none!important;box-shadow:none!important;
+  transition:background-color .16s,color .16s!important;
+}
+.sidebar nav .nav:hover{
+  background:#edf3ff!important;color:#0757f5!important;
+  transform:none!important;box-shadow:none!important;
+}
+.sidebar nav .nav.active{
+  background:linear-gradient(100deg,#e8f0ff,#f1f6ff)!important;
+  color:#0757f5!important;box-shadow:inset 3px 0 0 #0757f5!important;
+  font-weight:800!important;
+}
+.sidebar nav .nav .nav-icon{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:19px!important;min-width:19px!important;height:19px!important;
+  margin:0!important;font-size:16px!important;color:inherit!important;
+}
+.sidebar nav .nav .nav-icon svg{width:18px!important;height:18px!important;stroke:currentColor!important}
+.sidebar nav .nav>span:not(.nav-icon){display:block!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.sidebar nav .nav>i{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-width:16px!important;height:16px!important;margin-left:auto!important;
+  padding:0 5px!important;border-radius:99px!important;background:#ff704f!important;
+  color:#fff!important;font-size:9px!important;font-style:normal!important;
+}
+.sidebar .create-button{
+  width:100%!important;min-height:39px!important;margin:13px 0 12px!important;
+  padding:8px 10px!important;border-radius:11px!important;font-size:11px!important;
+  white-space:nowrap!important;box-shadow:0 5px 13px rgba(7,87,245,.16)!important;
+}
+.sidebar-getting-started{margin:0 0 10px!important}
+.sidebar-footer{
+  display:block!important;margin-top:auto!important;padding:14px 7px 11px!important;
+  border-top:1px solid #e4eaf3!important;color:#7c8aa0!important;
+  font-size:10px!important;line-height:1.55!important;
+}
+.sidebar-footer .footer-mark{
+  display:inline-grid!important;place-items:center!important;
+  width:23px!important;height:23px!important;margin:0 6px 5px 0!important;
+  border-radius:8px!important;background:linear-gradient(140deg,#0757f5,#21a7e8)!important;
+  color:#fff!important;font-weight:900!important;vertical-align:middle!important;
+}
+.sidebar-footer>span:nth-child(2){font-weight:800!important;color:#52647e!important}
+.sidebar-footer p{margin:2px 0!important}
+.sidebar-footer .footer-legal{
+  display:grid!important;gap:5px!important;margin-top:9px!important;
+}
+.sidebar-footer .footer-legal a{
+  color:#6f83a1!important;font-size:10px!important;text-decoration:none!important;
+}
+.sidebar-footer .footer-legal a:hover{color:#0757f5!important;text-decoration:underline!important}
+.sidebar .sidebar-bottom{
+  margin-top:10px!important;padding:10px 4px 0!important;
+  grid-template-columns:8px 1fr!important;gap:8px!important;
+}
+.layout>.main{
+  grid-column:2!important;width:100%!important;max-width:none!important;
+  min-width:0!important;margin:0!important;padding:0 0 40px!important;
+}
+.main>.heading{
+  margin:0!important;padding:18px 0 15px!important;
+  background:transparent!important;border:0!important;border-radius:0!important;
+}
+.main>.heading h1{font-size:25px!important}
+.feed{width:100%!important;max-width:none!important}
+.quick-compose,.post{width:100%!important;max-width:none!important}
+.profile-vk-layout{grid-template-columns:205px minmax(0,1fr)!important;gap:16px!important}
+.profile-vk-main,.profile-vk-sidebar{min-width:0!important}
+@media(max-width:1100px) and (min-width:761px){
+ .layout{grid-template-columns:64px minmax(0,1fr)!important;gap:14px!important;padding:10px 14px 25px!important}
+ .layout>.sidebar{width:64px!important;padding-right:4px!important}
+ .sidebar .brand{justify-content:center!important;margin:4px 0 16px!important}
+ .sidebar .brand>span:last-child{display:none!important}
+ .sidebar nav .nav{justify-content:center!important;padding:0 5px!important;gap:0!important}
+ .sidebar nav .nav>span:not(.nav-icon),.sidebar nav .nav>i{display:none!important}
+ .sidebar .create-button{font-size:0!important;padding:0!important;min-height:38px!important}
+ .sidebar .create-button span{font-size:20px!important}
+ .sidebar-footer,.sidebar-bottom,.sidebar-getting-started{display:none!important}
+ .layout>.main{grid-column:2!important;padding:0!important}
+ .profile-vk-layout{grid-template-columns:190px minmax(0,1fr)!important}
+}
+@media(max-width:760px){
+ .vatra-global-header{
+  padding:0 10px!important;gap:7px!important;
+ }
+ .layout{display:block!important;padding:0 10px 86px!important;width:100%!important;max-width:none!important}
+ .layout>.sidebar,.layout>.right{display:none!important}
+ .layout>.main{width:100%!important;max-width:none!important;padding:8px 0 26px!important}
+ .main>.heading{padding:13px 2px 11px!important}
+}
