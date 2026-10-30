@@ -235,7 +235,11 @@ function renderPoll(p){
  return '<section class="poll-card" aria-label="Опитування"><div class="poll-card-heading"><b>Опитування</b><span>'+total+' голосів</span></div><div class="poll-choices">'+choices+'</div><p class="poll-hint">'+hint+'</p></section>';
 }
 function postImages(p){const urls=Array.isArray(p?.imageUrls)?p.imageUrls.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)):[];if(!urls.length&&p?.imageUrl)urls.push(p.imageUrl);return [...new Set(urls)].slice(0,10);}
-function renderPostImages(p){const urls=postImages(p);if(!urls.length)return '';return '<div class="post-photo-grid count-'+Math.min(urls.length,4)+'">'+urls.map((url,index)=>'<button type="button" class="post-photo-item" data-open-photo="'+esc(p.id)+'" data-photo-urls="'+esc(JSON.stringify(urls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+' з '+urls.length+'"><img src="'+esc(url)+'" alt="Фото до допису '+(index+1)+'" loading="lazy" decoding="async"></button>').join('')+'</div>';}
+function renderPostImages(p){
+ const urls=postImages(p);if(!urls.length)return '';
+ const shown=urls.slice(0,4),extra=urls.length-shown.length;
+ return '<div class="post-photo-grid count-'+shown.length+' vatra-post-photo-uniform">'+shown.map((url,index)=>'<button type="button" class="post-photo-item" data-open-photo="'+esc(p.id)+'" data-photo-urls="'+esc(JSON.stringify(urls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+' з '+urls.length+'"><img src="'+esc(url)+'" alt="Фото до допису '+(index+1)+'" loading="lazy" decoding="async">'+(extra>0&&index===3?'<span class="vatra-post-photo-more">+'+extra+' фото</span>':'')+'</button>').join('')+'</div>';
+}
 function clearEditPostPreviews(){editPostPreviewUrls.forEach(url=>URL.revokeObjectURL(url));editPostPreviewUrls.length=0;}
 function renderEditPostPreviews(form){
  const box=form?.querySelector('[data-edit-photo-preview]');if(!box)return;
@@ -865,8 +869,8 @@ function updateChatSecurityStatus(text,ready=false){
  if(status){status.textContent=text;status.dataset.ready=ready?'true':'false';}
  if(input){input.disabled=!ready;input.placeholder=ready?'Захищене повідомлення…':'Очікуємо захищене з’єднання…';}
  if(button)button.disabled=!ready;
- const keys=$('#chatSecurityKeys');
- if(keys){keys.hidden=!ready;if(ready&&activeSecureSession){keys.textContent='Ваш ключ: '+formatFingerprint(activeSecureSession.ownFingerprint)+' · Ключ співрозмовника: '+formatFingerprint(activeSecureSession.peerFingerprint)+'. Для підтвердження особи звірте код іншим надійним каналом.';}}
+ const retry=$('#chatSecurityRefresh');
+ if(retry)retry.hidden=ready||!text.startsWith('⚠️');
 }
 async function activateSecureChat(key,peerUid){
  const attempt=++secureChatAttempt;activeSecureSession=null;
@@ -875,10 +879,12 @@ async function activateSecureChat(key,peerUid){
   const secure=await prepareSession(currentUser.uid,peerUid,key,readE2EEKey,publishE2EEKey);
   if(attempt!==secureChatAttempt||activeChat!==peerUid||page!=='messages'||!$('#chatMessages'))return;
   activeSecureSession=secure;
-  updateChatSecurityStatus('🔒 Наскрізне шифрування активне на цьому пристрої · перевірте коди безпеки.',true);
+  updateChatSecurityStatus('🔒 Захищений чат',true);
  }catch(err){
   if(attempt!==secureChatAttempt||activeChat!==peerUid)return;
-  updateChatSecurityStatus('⚠️ E2EE недоступне: '+(err?.message||'невідома помилка')+' Нові повідомлення не надсилаються відкритим текстом.',false);
+  console.warn('[ВАТРА] Захищене з’єднання недоступне:',err);
+  const details=err?.code==='PEER_NOT_READY'?'Співрозмовнику потрібно один раз відкрити повідомлення у ВАТРІ.':err?.code==='MISSING_DEVICE_KEY'||err?.code==='OWN_KEY_MISMATCH'?'Захищений ключ збережено на іншому пристрої. Відкрийте чат на пристрої, де його створили.':'Перевірте з’єднання або налаштування браузера.';
+  updateChatSecurityStatus('⚠️ Повідомлення поки недоступні. '+details,false);
  }
  await renderChatBubbles(key);
 }
@@ -918,10 +924,10 @@ function renderMessages(){
   return;
  }
  const other=users[activeChat]||{},key=chatKey(currentUser.uid,activeChat),chatUnavailable=!!blockedUsers[activeChat]||activeChatBlocked;
- setFeed(`<section class="vatra-messenger"><div class="vatra-messenger-shell">${vatraMessengerSidebar(chats)}<article class="post chat-window"><div class="chat-top"><button class="text-link" id="backChats">← Повідомлення</button>${avatar(other.name||'Користувач',other.avatarUrl)}<b>${esc(other.name||'Користувач ВАТРИ')}</b>${blockedUsers[activeChat]?`<button class="pill" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button class="danger-link" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button class="text-link" data-report-user="${esc(activeChat)}">Поскаржитися</button></div><section class="chat-security" aria-live="polite"><div class="chat-security-row"><span id="chatSecurityStatus" data-ready="false">🔐 Готуємо захищений чат…</span><button type="button" class="chat-security-refresh" id="chatSecurityRefresh">Перевірити ключі</button></div><details class="chat-security-verify"><summary>Коди безпеки та обмеження</summary><p id="chatSecurityKeys" hidden></p><p>Шифрування працює лише на пристроях учасників. Перевірте коди іншим каналом. Нові ключі не синхронізуються між пристроями; попередні повідомлення могли зберігатися відкритим текстом.</p></details></section><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання повідомлень зупинене: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages">Завантаження повідомлень…</div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Написати повідомлення…" autocomplete="off" required><button class="primary">Надіслати</button></form></article></div></section>`);
+ setFeed(`<section class="vatra-messenger"><div class="vatra-messenger-shell">${vatraMessengerSidebar(chats)}<article class="post chat-window"><div class="chat-top"><button class="text-link" id="backChats">← Повідомлення</button>${avatar(other.name||'Користувач',other.avatarUrl)}<b>${esc(other.name||'Користувач ВАТРИ')}</b>${blockedUsers[activeChat]?`<button class="pill" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button class="danger-link" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button class="text-link" data-report-user="${esc(activeChat)}">Поскаржитися</button></div><section class="chat-security" aria-live="polite"><div class="chat-security-row"><span id="chatSecurityStatus" data-ready="false">З’єднуємо захищений чат…</span><button type="button" class="chat-security-refresh" id="chatSecurityRefresh" hidden>Повторити з’єднання</button></div></section><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання повідомлень зупинене: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages">Завантаження повідомлень…</div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Написати повідомлення…" autocomplete="off" required><button class="primary">Надіслати</button></form></article></div></section>`);
  vatraMessengerControls();
  $('#backChats').onclick=()=>{activeChat=null;editingMessageId=null;stopChatListener();renderMessages();};
- startChatListener(key);markChatRead(key);updateChatSecurityStatus("🔐 Перевіряємо ключі…",false);activateSecureChat(key,activeChat);$("#chatSecurityRefresh")?.addEventListener("click",()=>activateSecureChat(key,activeChat));
+ startChatListener(key);markChatRead(key);updateChatSecurityStatus("З’єднуємо захищений чат…",false);activateSecureChat(key,activeChat);$("#chatSecurityRefresh")?.addEventListener("click",()=>activateSecureChat(key,activeChat));
  $('#sendMessageForm').onsubmit=async e=>{
   e.preventDefault();
   if(activeChatBlocked||blockedUsers[activeChat])return toastMsg('Надсилання в цьому чаті зупинено.');
@@ -965,7 +971,7 @@ async function renderChatBubbles(key){
    }catch(error){canRead=false;textValue='🔒 Повідомлення недоступне: '+(error?.message||'помилка розшифрування');}
   }else{textValue=String(m.text||'');}
   const editing=mine&&editingMessageId===m.id&&canRead;
-  const stamp=timeAgo(m.createdAt)+(m.editedAt?' · змінено':'')+(encrypted?' · 🔒 E2EE':' · ⚠️ не зашифровано');
+  const stamp=timeAgo(m.createdAt)+(m.editedAt?' · змінено':'')+(encrypted?' · 🔒':' · ⚠️ незахищене');
   return '<div class="message-bubble '+(mine?'mine':'')+'">'+
    (editing?'<form class="message-edit-form" data-edit-message-form="'+esc(m.id)+'"><input name="text" maxlength="2000" value="'+esc(textValue)+'" required><button class="pill">Зберегти</button><button type="button" class="text-link" data-cancel-edit>Скасувати</button></form>':
    '<p>'+ (canRead?safeText(textValue):esc(textValue))+'</p><small>'+stamp+'</small>'+
