@@ -3429,3 +3429,14 @@ body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-rail 
 body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-rail nav>button.active{
  background:#33527a!important;color:#b9d5ff!important;
 }
+
+
+/* A personal news-feed composer must never appear above someone else's profile. */
+body[data-page="publicProfile"] .quick-compose,
+body[data-page="publicProfile"] #sort{
+ display:none!important;
+}
+/* "Friend" is a confirmed state, not a second clickable request. */
+body .vatra-profile-public-actions button[disabled]{
+ cursor:default!important;opacity:1!important;
+}
