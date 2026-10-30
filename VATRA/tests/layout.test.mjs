@@ -50,10 +50,11 @@ const ready=(async()=>{
  await command('Runtime.enable',{},sessionId);
  return sessionId;
 })();
-async function inspect(width){
+async function inspect(width,view='profile'){
  const sessionId=await Promise.race([ready,sleep(15000).then(()=>{throw new Error('Chrome CDP startup timed out');})]);
  await command('Emulation.setDeviceMetricsOverride',{width,height:920,deviceScaleFactor:1,mobile:width<=760},sessionId);
- await command('Page.navigate',{url},sessionId);
+ await command('Runtime.evaluate',{expression:'document.documentElement.removeAttribute("data-smoke")'},sessionId);
+ await command('Page.navigate',{url:url+'?view='+view},sessionId);
  for(let i=0;i<70;i++){
   const evalResult=await command('Runtime.evaluate',{expression:'document.documentElement.getAttribute("data-smoke")',returnByValue:true},sessionId);
   if(evalResult?.result?.value){
@@ -65,21 +66,32 @@ async function inspect(width){
  throw new Error('Could not obtain layout metrics for '+width+'px viewport.');
 }
 for(const width of [390,768,1024,1366]){
- test('Responsive VATRA '+width+'px: no overflow or overlapping navigation',async()=>{
-  const m=await inspect(width);
+ for(const view of ['profile','feed','messages']){
+ test('Responsive VATRA '+view+' '+width+'px: geometry and visibility',async()=>{
+  const m=await inspect(width,view);
   assert.equal(m.width,width,'Emulated width mismatch.');
   assert.ok(m.scrollWidth<=m.width+2,'Horizontal overflow: '+JSON.stringify(m));
-  assert.ok(m.headerRight>=m.clientWidth-2,'Header does not span content viewport: '+JSON.stringify(m));
-  assert.ok(m.avatarW>50&&m.avatarH>50,'Avatar collapsed: '+JSON.stringify(m));
-  assert.ok(m.avatarH/m.avatarW>.76&&m.avatarH/m.avatarW<1.26,'Avatar deformed: '+JSON.stringify(m));
-  assert.ok(m.textSize>=12,'Post text unreadable: '+JSON.stringify(m));
-  if(m.width<=760){
-   assert.equal(m.sidebarVisible,false,'Desktop rail visible on mobile.');
+  assert.ok(m.headerRight>=m.clientWidth-2,'Header does not span viewport: '+JSON.stringify(m));
+  assert.ok(m.textSize>=12,'Text unreadable: '+JSON.stringify(m));
+  if(view==='profile'){
+   assert.ok(m.avatarW>50&&m.avatarH>50,'Avatar collapsed: '+JSON.stringify(m));
+   assert.ok(m.avatarH/m.avatarW>.76&&m.avatarH/m.avatarW<1.26,'Avatar deformed: '+JSON.stringify(m));
+  }else{
+   assert.ok(m.avatarW>=26&&m.avatarH>=26,'Contact avatar missing: '+JSON.stringify(m));
+  }
+  if(width<=760){
+   assert.equal(m.sidebarVisible,false,'Desktop rail visible on phone.');
    assert.equal(m.bottomNavVisible,true,'Mobile bottom nav missing.');
   }else{
-   assert.equal(m.sidebarVisible,true,'Sidebar missing on laptop/tablet.');
+   assert.equal(m.sidebarVisible,true,'Sidebar missing on tablet/desktop.');
    assert.ok(m.sidebarRight<m.mainLeft,'Sidebar overlaps content: '+JSON.stringify(m));
-   assert.ok(m.navRight<=m.sidebarRight+2,'Nav clipping: '+JSON.stringify(m));
+   assert.ok(m.navRight<=m.sidebarRight+2,'Navigation clipped: '+JSON.stringify(m));
   }
+  if(view==='feed'){
+   assert.equal(m.railVisible,width>=1200,'Right information rail breakpoint mismatch: '+JSON.stringify(m));
+   if(width>=1200)assert.ok(m.mainRight<m.railLeft,'News feed overlaps right rail: '+JSON.stringify(m));
+  }
+  if(view==='messages')assert.equal(m.chatPaneVisible,width>760,'Split chat pane breakpoint mismatch: '+JSON.stringify(m));
  });
+ }
 }
