@@ -439,7 +439,7 @@ function renderExplore(){
  const norm=x=>String(x||'').trim().toLocaleLowerCase('uk-UA');
  const list=Object.entries(users).filter(([id,u])=>{
   if(id===currentUser?.uid||blockedUsers[id]||u.searchable===false)return false;
-  if(attribute)return norm(visibleProfileSearchValue(id,u,attribute.field))===norm(attribute.value);
+  if(attribute){const visible=norm(visibleProfileSearchValue(id,u,attribute.field)),target=norm(attribute.value);return !!visible&&!!target&&(visible===target||visible.includes(target)||target.includes(visible));}
   return !query||norm(u.name+' '+u.handle+' '+u.bio).includes(norm(query));
  });
  const title=attribute?'<h3>Люди: '+esc(attribute.value)+'</h3><p class="muted">Знайдено за відкритими даними профілів. Приватна інформація не використовується.</p><button type="button" class="vatra-profile-search-clear" data-clear-profile-search>Показати всіх людей</button>':'<h3>Знайомтеся зі спільнотою ВАТРИ</h3><p class="muted">Шукайте людей за ім’ям або псевдонімом.</p>';
@@ -456,7 +456,7 @@ function renderFriends(){
   setFeed(`<article class="post"><h3>Запити в друзі</h3>${incoming.length?incoming.map(([uid])=>{const u=users[uid]||{};return `<div class="person-card">${avatar(u.name||'Користувач',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Користувач')}</b><small>@${esc(u.handle||'user')}</small></div><button class="primary" data-accept-friend="${esc(uid)}">Прийняти</button><button class="pill" data-decline-friend="${esc(uid)}">Відхилити</button></div>`}).join(''):'<p class="muted">Немає нових запитів.</p>'}</article><article class="post"><h3>Ваші друзі <span class="count-badge">${list.length}</span></h3>${list.length?list.map(([uid])=>{const u=users[uid]||{};return `<div class="person-card">${avatar(u.name||'Користувач',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Користувач')}</b><small>@${esc(u.handle||'user')}</small></div><button class="pill" data-view-profile="${esc(uid)}">Профіль</button><button class="pill" data-message-user="${esc(uid)}">Написати</button><button class="danger-link" data-remove-friend="${esc(uid)}">Видалити з друзів</button></div>`}).join(''):'<p class="muted">Друзів поки немає. Знайдіть людей через пошук.</p>'}</article>`);
 }
 function renderPublicProfile(uid){
- activeProfileUid=uid;
+ activeProfileUid=uid;page='publicProfile';document.body.dataset.page=page;
  const u=users[uid]||{};
  const friendData=friendProfiles[uid]||{};
  if(blockedUsers[uid]){
