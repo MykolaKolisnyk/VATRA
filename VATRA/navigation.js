@@ -33,7 +33,7 @@ export function setupNavigation(onNavigate) {
   dialog.addEventListener('close', () => trigger.setAttribute('aria-expanded', 'false'));
   return {
     setPage(page) {
-      document.querySelectorAll('[data-page], [data-menu-page]').forEach(button => {
+      document.querySelectorAll('button[data-page], [data-menu-page]').forEach(button => {
         const selected = (button.dataset.page || button.dataset.menuPage) === page;
         button.classList.toggle('active', selected);
         if (selected) button.setAttribute('aria-current', 'page');
