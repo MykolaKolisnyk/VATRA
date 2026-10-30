@@ -679,7 +679,7 @@ function vatraExplorePersonMarkup(id,u){
   '<div class="vatra-search-person-body"><button type="button" class="vatra-search-person-name" data-view-profile="'+uid+'">'+name+verifiedBadge(id)+'</button>'+
    '<small>@'+handle+'</small>'+
    (u.bio?'<p>'+esc(String(u.bio).slice(0,135))+'</p>':'')+
-   '<button type="button" class="vatra-search-message" data-message-user="'+uid+'">'+vatraExploreIcon('message')+'<span>Повідомлення</span></button>'+
+   '<button type="button" class="vatra-search-message" data-message-user="'+uid+'">'+vatraExploreIcon('message')+'<span>Написати</span></button>'+
   '</div><div class="vatra-search-person-actions">'+
    ''+
    (!friend&&!requested?'<button type="button" class="vatra-search-add-friend" data-friend-request="'+uid+'">Додати в друзі</button>':friend?'<span class="vatra-search-friend-state">✓ Друзі</span>':friendRequests[id]?.direction==='incoming'?'<button type="button" class="vatra-search-add-friend" data-accept-friend="'+uid+'">Прийняти запит</button>':'<span class="vatra-search-friend-state">Запит надіслано</span>')+
@@ -774,6 +774,33 @@ function vatraProfileFriendThumb(uid){
  return '<button type="button" class="vatra-profile-friend" data-view-profile="'+esc(uid)+'" title="'+esc(name)+'">'+avatar(name,u.avatarUrl,'vatra-profile-friend-avatar')+'<span>'+esc(name)+'</span></button>';
 }
 let vatraProfileFriendsCache=new Map();
+
+function renderPublicFriendsPage(ownerUid,ids){
+ if(!ownerUid||activeProfileUid!==ownerUid)return;
+ const u=users[ownerUid]||{},list=(Array.isArray(ids)?ids:[]).filter(id=>users[id]&&!blockedUsers[id]);
+ page='publicProfile';document.body.dataset.page=page;
+ const rows=list.map(id=>{
+  const p=users[id],name=p.name||'Користувач ВАТРИ';
+  return '<article class="vatra-public-friend-row" data-friend-filter="'+esc((name+' '+(p.handle||'')).toLocaleLowerCase('uk-UA'))+'">'+
+   '<button type="button" data-view-profile="'+esc(id)+'" class="vatra-public-friend-person">'+avatar(name,p.avatarUrl,'vatra-public-friend-avatar')+
+   '<span><b>'+esc(name)+'</b><small>@'+esc(p.handle||'user')+'</small></span></button>'+
+   '<button type="button" data-view-profile="'+esc(id)+'" class="vatra-public-friend-open">Профіль</button></article>';
+ }).join('');
+ setFeed('<section class="vatra-public-friends-page"><header class="vatra-public-friends-head">'+
+  '<button id="vatraFriendsBackToProfile" type="button" aria-label="Повернутися до профілю">←</button>'+
+  '<div><h2>Друзі · '+esc(u.name||'Користувач ВАТРИ')+'</h2><small>'+list.length+' у списку</small></div></header>'+
+  '<label class="vatra-public-friends-search"><span aria-hidden="true">⌕</span><input type="search" id="vatraPublicFriendsSearch" placeholder="Пошук серед друзів" aria-label="Пошук серед друзів"></label>'+
+  '<div class="vatra-public-friends-list">'+(rows||'<p class="vatra-public-friends-empty">Немає доступних друзів.</p>')+'</div>'+
+  '<p class="vatra-public-friends-empty" id="vatraPublicFriendsEmpty" hidden>Нікого не знайдено.</p></section>',false);
+ $('#vatraFriendsBackToProfile').onclick=()=>renderPublicProfile(ownerUid);
+ $('#vatraPublicFriendsSearch').oninput=e=>{
+  const term=e.target.value.trim().toLocaleLowerCase('uk-UA');let n=0;
+  $('#feed [data-friend-filter]').forEach(row=>{row.hidden=!row.dataset.friendFilter.includes(term);if(!row.hidden)n++;});
+  $('#vatraPublicFriendsEmpty').hidden=n>0||list.length===0;
+ };
+ window.scrollTo(0,0);
+}
+
 async function loadPublicFriends(ownerUid){
  const container=$('#vatraPublicFriendList'),count=$('#vatraPublicFriendCount');
  if(!container||!count)return;
@@ -789,18 +816,7 @@ async function loadPublicFriends(ownerUid){
   const makeFriend=vatraProfileFriendThumb;
   container.innerHTML=known.length?known.slice(0,6).map(makeFriend).join(''):'<p class="muted">Немає доступних друзів.</p>';
   const allButton=$('#vatraPublicAllFriends');
-  if(allButton)allButton.onclick=()=>{
-    const dialog=document.createElement('dialog');
-    dialog.className='vatra-public-friends-dialog';
-    dialog.innerHTML='<div class="vatra-public-friends-dialog-head"><h3>Друзі · '+known.length+'</h3><button type="button" data-close-friends-dialog aria-label="Закрити">×</button></div><div class="vatra-public-friends-dialog-grid">'+(known.length?known.map(makeFriend).join(''):'<p class="muted">Немає доступних друзів.</p>')+'</div>';
-    dialog.addEventListener('click',event=>{
-      if(event.target===dialog||event.target.closest('[data-close-friends-dialog]'))dialog.close();
-      else if(event.target.closest('[data-view-profile]'))dialog.close();
-    });
-    dialog.addEventListener('close',()=>dialog.remove(),{once:true});
-    document.body.append(dialog);
-    dialog.showModal();
-  };
+  if(allButton)allButton.onclick=()=>renderPublicFriendsPage(ownerUid,known);
  }catch(err){
   if(activeProfileUid!==ownerUid||!document.body.contains(container))return;
   count.textContent='—';
@@ -1053,10 +1069,10 @@ function vatraMessengerControls(){
  apply();
 }
 function renderMessages(){
- if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися повідомленнями</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
+ if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися месенджером</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
  const chats=Object.entries(chatIndex).filter(([,c])=>Boolean(c?.lastMessage?.text)&&!blockedUsers[c.otherUid]).sort((a,b)=>(b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
  if(!activeChat){
-  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true">✉</div><h2>Ваші повідомлення</h2><p>Виберіть діалог ліворуч або почніть нову розмову з другом.</p><small>Виберіть контакт, щоб почати листування.</small></section></div></section>');
+  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v11H8l-4 3V6Z"/><path d="M8 10h8M8 13h5"/></svg></div><h2>Ваш месенджер</h2><p>Виберіть діалог ліворуч або почніть нову розмову з другом.</p><small>Виберіть контакт, щоб почати листування.</small></section></div></section>');
   vatraMessengerControls();
   return;
  }
@@ -1276,7 +1292,7 @@ function vatraSetupScrollUp(){
 }
 vatraSetupScrollUp();
 function render(){if(!feed)return;document.body.dataset.page=page;if(page==='explore'&&document.activeElement?.closest('#vatraSearchForm'))return;if(currentUser&&(!initialDataReady||(page==='saved'&&!vatraPageDataReady.saved)||(page==='friends'&&!vatraPageDataReady.friends)||(page==='messages'&&!vatraPageDataReady.messages))){renderLoadingSkeletons();return;}renderGettingStarted();if(page==='music')return vatraShowMusic(currentUser?.uid);if(page==='notifications')return renderNotifications();if(page==='saved')return renderSaved();if(page==='settings')return renderSettings();if(page==='groupSettings')return renderGroupSettings(groupId);if(page==='friends')return renderFriends();if(page==='publicProfile')return; if(page==='myVideos')return renderMyVideos();if(page==='videos')return renderVideos();if(page==='photos')return renderPhotos();if(page==='groups')return groupId&&groups[groupId]?renderGroupDetails(groupId):renderGroups();if(page==='messages')return renderMessages();if(page==='explore')return renderExplore();if(page==='profile')return renderProfile();renderFeed();}
-const pages={music:['ВАТРА · МУЗИКА','Музика','Слухайте українські пісні й артистів в офіційному Spotify.'],friends:['ВАШЕ КОЛО','Друзі','Керуйте запитами та знаходьте знайомих.'],notifications:['ВАШЕ КОЛО','Сповіщення','Запити в друзі, реакції на Ваші дописи та нові повідомлення.'],feed:['ВАШЕ КОЛО','Новини','Дописи друзів і спільнот, за якими Ви стежите.'],photos:['МОЇ МОМЕНТИ','Фотографії','Ваш альбом і зображення з дописів.'],videos:['ДИВІТЬСЯ ТА ВІДКРИВАЙТЕ','ВАТРА Shorts','Живі моменти від людей з усієї України.'],myVideos:['МОЇ ВІДЕО','Відео','Ваші власні відеозаписи.'],explore:['ЗНАХОДЬТЕ СВОЄ','Відкриття','Знайомтеся з людьми та відкривайте цікаві дописи.'],messages:['БУДЬТЕ НА ЗВʼЯЗКУ','Повідомлення','Приватні розмови з людьми ВАТРИ.'],groups:['РАЗОМ ЦІКАВІШЕ','Спільноти','Знаходьте людей, з якими є про що говорити.'],saved:['ТЕ, ЩО ВАЖЛИВО','Збережене','Дописи, до яких хочеться повернутися.'],profile:['ВАША ІСТОРІЯ','Профіль','Ваш простір у ВАТРІ.'],settings:['НАЛАШТУВАННЯ','Налаштування профілю','Керуйте інформацією, фотографіями та приватністю сторінки.'],groupSettings:['СПІЛЬНОТА','Керування спільнотою','Налаштовуй опис, діяльність і команду спільноти.']};
+const pages={music:['ВАТРА · МУЗИКА','Музика','Слухайте українські пісні й артистів в офіційному Spotify.'],friends:['ВАШЕ КОЛО','Друзі','Керуйте запитами та знаходьте знайомих.'],notifications:['ВАШЕ КОЛО','Сповіщення','Запити в друзі, реакції на Ваші дописи та нові повідомлення.'],feed:['ВАШЕ КОЛО','Новини','Дописи друзів і спільнот, за якими Ви стежите.'],photos:['МОЇ МОМЕНТИ','Фотографії','Ваш альбом і зображення з дописів.'],videos:['ДИВІТЬСЯ ТА ВІДКРИВАЙТЕ','ВАТРА Shorts','Живі моменти від людей з усієї України.'],myVideos:['МОЇ ВІДЕО','Відео','Ваші власні відеозаписи.'],explore:['ЗНАХОДЬТЕ СВОЄ','Відкриття','Знайомтеся з людьми та відкривайте цікаві дописи.'],messages:['БУДЬТЕ НА ЗВʼЯЗКУ','Месенджер','Приватні розмови з людьми ВАТРИ.'],groups:['РАЗОМ ЦІКАВІШЕ','Спільноти','Знаходьте людей, з якими є про що говорити.'],saved:['ТЕ, ЩО ВАЖЛИВО','Збережене','Дописи, до яких хочеться повернутися.'],profile:['ВАША ІСТОРІЯ','Профіль','Ваш простір у ВАТРІ.'],settings:['НАЛАШТУВАННЯ','Налаштування профілю','Керуйте інформацією, фотографіями та приватністю сторінки.'],groupSettings:['СПІЛЬНОТА','Керування спільнотою','Налаштовуй опис, діяльність і команду спільноти.']};
 function goPage(p){if(!pages[p])p='feed';const previousPage=page;const entering=p!==previousPage;if(entering){if(p==='settings')vatraSettingsSection='profile';if(p==='friends')vatraFriendsTab='all';if(p==='feed')filter='all';if(p!=='explore'&&p!=='feed'){query='';const input=$('#search');if(input)input.value='';}if(p!=='messages')editingMessageId=null;if(p!=='profile'&&p!=='publicProfile')activeProfileUid=null;}if(p!=='explore')profileAttributeSearch=null;navigation.setPage(p);if(p==='settings'&&!authRequired())return;const main=$('.layout>.main');if(main){main.classList.remove('vatra-page-enter');void main.offsetWidth;main.classList.add('vatra-page-enter');}page=p;vatraMusicRouteChanged(p==='music');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}if(p!=='messages')stopChatListener();groupId=null;const c=pages[p]||pages.feed;$('#title').textContent=c[1];$('#subtitle').textContent=c[2];$('.heading .eyebrow').textContent=c[0];$$('button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter&&p==='feed'));const composer=$('.quick-compose');if(composer)composer.hidden=p!=='feed';const sort=$('#sort');if(sort)sort.hidden=p!=='feed';if(p==='messages'&&previousPage!=='messages'){activeChat=null;vatraChatUnreadOnly=false;}render();window.scrollTo(0,0);if(p==='notifications')markNotificationsRead();}
 function resetPollComposer(){const fields=$('#pollOptionFields');fields.innerHTML='<label class="poll-option-field"><span>1</span><input maxlength="80" placeholder="Перший варіант" aria-label="Перший варіант відповіді"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label><label class="poll-option-field"><span>2</span><input maxlength="80" placeholder="Другий варіант" aria-label="Другий варіант відповіді"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label>';$('#pollComposer').hidden=true;$('#togglePoll').setAttribute('aria-expanded','false');}
 $('#togglePoll').addEventListener('click',()=>{const box=$('#pollComposer'),show=box.hidden;box.hidden=!show;$('#togglePoll').setAttribute('aria-expanded',String(show));if(show)$('#pollOptionFields input')?.focus();});

@@ -377,3 +377,63 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-send-b
  body .layout>.sidebar nav button.nav,
  body[data-page="messages"] .vatra-messenger-footer input:before{transition:none!important}
 }
+
+
+/* 2026-10-30: consistent page geometry + navigation + friends (final cascade layer). */
+@media(min-width:981px){
+ body[data-page="messages"]{--vatra-unified-width:1000px;--vatra-unified-main:800px}
+ body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(245px,32%) minmax(0,1fr)!important}
+}
+body[data-page="messages"] .vatra-messenger-shell{width:100%!important;max-width:100%!important;min-width:0!important;box-shadow:none!important;border:1px solid #e4eaf1!important;border-radius:12px!important}
+body .layout>.sidebar nav button.nav{position:relative!important;width:calc(100% + 5px)!important;margin-left:-5px!important;transform:translateX(-2px)!important;transition:transform .2s ease,background-color .2s ease,color .2s ease,box-shadow .2s ease!important}
+body .layout>.sidebar nav button.nav:hover,body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav:hover{transform:translateX(3px)!important;color:var(--vatra-user-accent,#0757f5)!important;background:#e9f1ff!important;box-shadow:inset 2px 0 0 #86b0ed!important}
+body .layout>.sidebar nav button.nav.active{transform:translateX(-2px)!important;box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5)!important}
+body .layout>.sidebar nav button.nav.active:hover{transform:translateX(2px)!important}
+body .layout>.sidebar nav button.nav .nav-icon{transition:transform .2s ease!important}
+body .layout>.sidebar nav button.nav:hover .nav-icon{transform:translateX(1px)!important}
+body .vatra-global-header>#notificationBell,body .vatra-global-header>#vatraMusicHeaderButton{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;display:grid!important;place-items:center!important;padding:6px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#607994!important;transition:transform .18s ease,color .18s ease,background .18s ease!important}
+body .vatra-global-header>#notificationBell:is(:hover,:focus-visible,[aria-expanded="true"]),body .vatra-global-header>#vatraMusicHeaderButton:is(:hover,:focus-visible,[aria-expanded="true"]){transform:translateY(-1px)!important;background:#eaf1ff!important;color:var(--vatra-user-accent,#0757f5)!important}
+body .vatra-global-header>#notificationBell svg,body .vatra-global-header>#vatraMusicHeaderButton svg{width:21px!important;height:21px!important;stroke-width:1.75!important;stroke:currentColor!important;fill:none!important}
+body .vatra-global-header .search{height:34px!important;min-height:34px!important;border-radius:20px!important}
+body .vatra-global-header .search input{font-size:12.5px!important;font-weight:400!important}
+body[data-page="explore"] .vatra-search-form label,body[data-page="friends"] .vatra-friends-search{min-height:36px!important;height:36px!important;border-radius:20px!important}
+body[data-page="explore"] .vatra-search-form input,body[data-page="friends"] .vatra-friends-search input{font-size:12.5px!important;font-weight:400!important}
+body[data-page="messages"] .vatra-messenger-search{height:34px!important;min-height:34px!important;border-radius:19px!important;margin:4px 11px 10px!important;padding:0 12px!important;background:#f1f3f6!important}
+body[data-page="messages"] .vatra-messenger-search input{font-size:12px!important;font-weight:400!important}
+body[data-page="messages"] .vatra-messenger-new-trigger,body[data-page="messages"] .vatra-chat-back,body[data-page="messages"] .vatra-chat-actions-menu>summary{border-radius:50%!important;background:transparent!important;color:#71849a!important}
+body[data-page="messages"] .vatra-messenger-new-trigger:hover,body[data-page="messages"] .vatra-chat-back:hover,body[data-page="messages"] .vatra-chat-actions-menu>summary:hover{background:#e9f1fa!important;color:#255d9b!important}
+body[data-page="messages"] .vatra-messenger-contact-main.active{background:#edf3fa!important;box-shadow:inset 2px 0 0 #4081ca!important}
+body[data-page="messages"] .vatra-messenger-empty-icon{display:grid!important;place-items:center!important;font-size:0!important;width:56px!important;height:56px!important;border:1px solid #e2eaf4!important;border-radius:17px!important;background:transparent!important;color:#879eb7!important}
+body[data-page="messages"] .vatra-messenger-empty-icon svg{width:30px!important;height:30px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.5!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+body[data-page="messages"] .vatra-messenger-shell .chat-send{border-radius:24px!important;box-shadow:none!important}
+body[data-page="messages"] .vatra-chat-send-button{border-radius:50%!important}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend .vatra-profile-friend-avatar,body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend .vatra-profile-friend-avatar{flex:0 0 56px!important;width:56px!important;height:56px!important;min-width:56px!important;min-height:56px!important;max-width:56px!important;max-height:56px!important;border-radius:15px!important}
+body[data-page="friends"] .vatra-friends-photo,body[data-page="friends"] .vatra-friends-photo>.avatar{width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important}
+.vatra-public-friends-page{width:100%;max-width:100%;border:1px solid #e5eaf0;border-radius:13px;background:#fff;overflow:hidden}
+.vatra-public-friends-head{display:flex;align-items:center;gap:12px;border-bottom:1px solid #edf0f4;padding:16px}
+.vatra-public-friends-head h2{font-size:17px;font-weight:620;line-height:1.35;margin:0}
+.vatra-public-friends-head small{font-size:12px;color:#8291a0}
+#vatraFriendsBackToProfile{flex:0 0 34px;width:34px;height:34px;border:0;border-radius:50%;background:#f0f3f8;color:#456381;font-size:22px;cursor:pointer}
+#vatraFriendsBackToProfile:hover{background:#e4edfa;color:#2161a1}
+.vatra-public-friends-search{display:flex;align-items:center;gap:8px;margin:12px 16px;padding:0 13px;height:36px;border-radius:20px;background:#f1f3f6;color:#8999aa}
+.vatra-public-friends-search input{width:100%;min-width:0;background:transparent;border:0;outline:0;font:400 12px Inter,system-ui,sans-serif}
+.vatra-public-friends-list{display:grid;padding:0 10px 14px}
+.vatra-public-friend-row{display:flex;align-items:center;gap:12px;min-height:78px;padding:10px 12px;border-bottom:1px solid #f0f2f5}
+.vatra-public-friend-row:last-child{border-bottom:0}
+.vatra-public-friend-row[hidden]{display:none!important}
+.vatra-public-friend-person{flex:1;min-width:0;display:flex;align-items:center;gap:12px;border:0;padding:0;background:transparent;text-align:left;cursor:pointer}
+.vatra-public-friend-avatar{width:52px;height:52px;min-width:52px;flex:0 0 52px;border-radius:50%;object-fit:cover}
+.vatra-public-friend-person>span:last-child{min-width:0;display:grid;gap:3px}
+.vatra-public-friend-person b{font-size:13px;font-weight:600;color:#304355;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vatra-public-friend-person small{font-size:11px;color:#8597aa}
+.vatra-public-friend-open{border:0;border-radius:8px;background:#edf3fa;color:#32679d;padding:8px 13px;font:500 12px Inter,system-ui,sans-serif;cursor:pointer}
+.vatra-public-friend-open:hover{background:#e1edfd}
+.vatra-public-friends-empty{text-align:center;color:#8293a5;font-size:12px;margin:16px}
+body[data-vatra-theme-effective="dark"] .vatra-public-friends-page{background:#263549;border-color:#46586d}
+body[data-vatra-theme-effective="dark"] .vatra-public-friend-row,body[data-vatra-theme-effective="dark"] .vatra-public-friends-head{border-color:#45566d}
+body[data-vatra-theme-effective="dark"] .vatra-public-friend-person b,body[data-vatra-theme-effective="dark"] .vatra-public-friends-head h2{color:#e1ebf8}
+body[data-vatra-theme-effective="dark"] .vatra-public-friends-search{background:#34445a}
+body[data-vatra-theme-effective="dark"] .vatra-public-friend-open{background:#344d68;color:#cbe3fa}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#notificationBell:is(:hover,:focus-visible,[aria-expanded="true"]),body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderButton:is(:hover,:focus-visible,[aria-expanded="true"]){background:#35485f!important;color:#9dc6ff!important}
+@media(max-width:480px){body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend .vatra-profile-friend-avatar,body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend .vatra-profile-friend-avatar{flex:0 0 50px!important;width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;max-width:50px!important;max-height:50px!important}body[data-page="friends"] .vatra-friends-photo,body[data-page="friends"] .vatra-friends-photo>.avatar{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}}
+@media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav,body .layout>.sidebar nav button.nav .nav-icon,body .vatra-global-header>#vatraMusicHeaderButton,body .vatra-global-header>#notificationBell{transform:none!important;transition:none!important}}
