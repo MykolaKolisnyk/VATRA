@@ -530,7 +530,7 @@ body .vatra-profile-search-clear{
 }
 body .vatra-profile-search-clear:hover{text-decoration:underline!important;}
 
-/* VK-like information density, but styled with VATRA's own components. */
+/* Compact native VATRA profile statistics. */
 body .vatra-profile-overview>.vatra-profile-stats,
 body[data-page="profile"] .vatra-profile-stats{
  display:grid!important;
@@ -984,4 +984,14 @@ body[data-vatra-theme-effective="dark"] .vatra-emoji-head strong{color:#ebf1f8!i
  body .vatra-legal-open{grid-column:2!important;}
  body .vatra-profile-extra-row{grid-template-columns:minmax(92px,35%) minmax(0,1fr);}
  body .vatra-official-documents .vatra-legal-heading h3{font-size:17px!important;}
+}
+
+/* Keep the compact emoji chooser within the viewport. */
+body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
+ left:auto!important;right:0!important;
+}
+@media(max-width:760px){
+ body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
+  max-width:min(310px,calc(100vw - 20px))!important;
+ }
 }
