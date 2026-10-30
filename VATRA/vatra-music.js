@@ -1,5 +1,5 @@
 /* VATRA Music - official Spotify embeds only. No audio is downloaded, proxied, or stored. */
-import { getDatabase, ref, get, set } from './vatra-backend.js?v=20261030-4';
+import { getDatabase, ref, get, update } from './vatra-backend.js?v=20261030-4';
 
 const MUSIC_LIBRARY = Object.freeze([
  {type:'playlist',id:'37i9dQZF1DX5ECfKO3L7Vd',title:'Найкращі пісні солов’їною',artist:'Добірка Spotify',category:'Хіти',tone:1},
@@ -103,6 +103,7 @@ async function loadFavorites(uid){
 }
 function renderMusic(){
  if(document.body.dataset.page!=='music'||!page)return;
+ const oldEmpty=document.getElementById('empty');if(oldEmpty)oldEmpty.hidden=true;
  const list=MUSIC_LIBRARY.filter(item=>(musicTab==='all'||(musicTab==='mine'?musicFavorites.has(key(item)):item.type===musicTab)));
  const cards=list.map(item=>'<article class="vatra-music-card tone-'+item.tone+'" data-music-card data-music-text="'+escapeHtml((item.title+' '+item.artist+' '+item.category).toLocaleLowerCase('uk-UA'))+'"><div class="vatra-music-card-image" aria-hidden="true"><span>'+({track:'♫',artist:'♬',album:'▤',playlist:'♩'}[item.type])+'</span></div><div class="vatra-music-card-info"><small>'+labelFor[item.type]+' · '+escapeHtml(item.category)+'</small><h3>'+escapeHtml(item.title)+'</h3><p>'+escapeHtml(item.artist)+'</p></div><div class="vatra-music-card-actions"><button type="button" class="vatra-music-play" data-music-play="'+escapeHtml(key(item))+'" aria-label="Відкрити програвач: '+escapeHtml(item.title)+'">'+(playerItem&&key(playerItem)===key(item)?'У програвачі':'▶ Слухати')+'</button><button type="button" class="vatra-music-favorite'+(musicFavorites.has(key(item))?' is-saved':'')+'" data-music-favorite="'+escapeHtml(key(item))+'" '+(!musicLoaded?'disabled':'')+' title="'+(musicFavorites.has(key(item))?'Прибрати з моєї музики':'Додати у мою музику')+'" aria-label="'+(musicFavorites.has(key(item))?'Прибрати з обраного: ':'Зберегти в обраному: ')+escapeHtml(item.title)+'" aria-pressed="'+String(musicFavorites.has(key(item)))+'">'+(musicFavorites.has(key(item))?'♥':'♡')+'</button><a href="'+addressFor(item)+'" target="_blank" rel="noopener noreferrer" aria-label="Відкрити '+escapeHtml(item.title)+' на Spotify" title="Spotify">↗</a></div></article>').join('');
  const tabs=[['all','Головна'],['track','Пісні'],['artist','Виконавці'],['album','Альбоми'],['playlist','Плейлисти'],['mine','Моя музика']];
@@ -136,7 +137,7 @@ async function favorite(item,button){
  const next=new Set(musicFavorites);
  if(next.has(key(item)))next.delete(key(item));else next.add(key(item));
  try{
-  await set(ref(db,'privateUsers/'+musicUid+'/musicFavorites'),[...next]);
+  await update(ref(db,'privateUsers/'+musicUid),{musicFavorites:[...next]});
   musicFavorites=next;
   refreshCards();
   notify(next.has(key(item))?'Додано до «Моєї музики».':'Прибрано з «Моєї музики».');
@@ -163,7 +164,7 @@ document.addEventListener('submit',event=>{
 });
 export function vatraShowMusic(uid){
  if(!uid)return;
- if(uid!==musicUid){musicUid=uid;musicFavorites=new Set();musicLoaded=false;musicLoadError='';musicLoading=false;}
+ if(uid!==musicUid){musicUid=uid;musicFavorites=new Set();musicLoaded=false;musicLoadError='';musicLoading=false;musicTab='all';musicQuery='';}
  renderMusic();
  if(!musicLoaded&&!musicLoading)loadFavorites(uid);
 }
