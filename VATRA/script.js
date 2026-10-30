@@ -8,19 +8,50 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const navigation=setupNavigation(p=>goPage(p));
 const modal=$('#composer'), authDialog=$('#authDialog'), feed=$('#feed'), toast=$('#toast');
 let verifiedUsers={},currentUser=null,currentProfile={},privateDateOfBirth='',privatePhone='',privatePendingPhone='',privateProfileSections={},activityReadAt=0,chatReads={},users={},friendProfiles={},posts={},likes={},comments={},pollVotes={},postSaves={},postShares={},saved={},following={},blockedUsers={},videos={},groups={},groupMembers={},groupAdmins={},groupModerators={},groupPostsCache={},friendRequests={},friends={},chatIndex={},chatLiveIndex={},chatOwnedIndex={},activeChat=null,activeChatBlocked=false,activeProfileUid=null,reportingTarget=null,chatMessages={},unsubscribers=[],page='feed',filter='all',query='',authMode='login',imageFile=null,videoFile=null,groupId=null,editingPostId=null,replyingComment=null,imageFiles=[],editPostFiles=[],editPostPreviewUrls=[],imagePreviewUrls=[];
-const MAX_POST_TEXT=20000,MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];let emojiPickerLoadPromise=null;
-function loadVatraEmojiPicker(){
- if(customElements.get('emoji-picker'))return Promise.resolve();
- if(!emojiPickerLoadPromise)emojiPickerLoadPromise=new Promise((resolve,reject)=>{
-  const script=document.createElement('script');script.type='module';script.src='https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js';
-  script.onload=()=>customElements.whenDefined('emoji-picker').then(resolve,reject);
-  script.onerror=()=>reject(new Error('Не вдалося завантажити повну бібліотеку емодзі.'));
-  document.head.append(script);
- });
- return emojiPickerLoadPromise;
+let profileAttributeSearch=null;
+const MAX_POST_TEXT=20000,MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];const VATRA_EMOJI_CATEGORIES=[
+ {id:'popular',label:'Часті',icon:'★',emojis:['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦','🫶','💯','🥹','🙌','🤝','🫡','😴','✅']},
+ {id:'smileys',label:'Обличчя',icon:'☺',emojis:['😀','😃','😄','😁','😆','😅','🤣','😂','🥹','😊','😇','🙂','🙃','😉','😍','🥰','😘','😗','😋','😛','😜','🤪','😝','🫠','🤗','🤭','🫢','🤫','🤔','🫡','🤩','🥳','😎','🥸','😒','🙄','😔','😕','🙁','☹️','😣','😖','😫','🥺','😢','😭','😤','😠','😡','🤯','😳','😱','😨','😴','😪','🤤','🤒','🤕','🤢','🤧','🥶','🥵','😷']},
+ {id:'gestures',label:'Жести',icon:'✋',emojis:['👍','👎','👏','🙌','🫶','🤝','🙏','👋','🤚','✋','🖐️','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✊','👊','🤛','🤜','💪','🫵','🖖','💅','🧠','👀','🗣️']},
+ {id:'hearts',label:'Почуття',icon:'♥',emojis:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','🩷','🩵','🩶','💖','💗','💓','💞','💕','💘','💝','💟','❣️','❤️‍🔥','💔','💯','💢','💥','✨','💫','⭐','🌟','💦','💤']},
+ {id:'nature',label:'Природа',icon:'☀',emojis:['🌻','🌹','🌷','🌸','🌼','🌺','🍀','🌲','🌳','🌿','🍁','🍂','🍃','🌈','☀️','🌤️','⛅','🌧️','⛈️','❄️','☃️','🔥','🌊','🌍','🌎','🌏','🌙','🌕','⭐','🌟','🐱','🐶','🦊','🐻','🐼','🐸','🦋','🐝','🐦','🦉']},
+ {id:'things',label:'Предмети',icon:'♫',emojis:['🎉','🎊','🎁','🎂','🎈','🎀','🎵','🎶','🎧','🎤','🎸','🎹','🥁','📷','📸','🎥','🎬','📱','💻','⌨️','📚','📖','✏️','📝','💡','🔔','🔑','🗝️','📌','📍','🧭','🕹️','🎮','🏆','🥇','⚽','🏀','🚗','🚆','✈️','🏠','🛡️','🇺🇦','✅','❌','❗','❓']}
+];
+const VATRA_EMOJI_TAGS={'❤️':'серце любов кохання','🔥':'вогонь полум’я','🇺🇦':'україна прапор','😂':'сміх смішно','😭':'сльози плач','😍':'кохання захоплення','🎉':'свято радість','💙':'синє серце','👍':'лайк подобається','🙏':'дякую молитва','🫶':'серце руки','🌻':'соняшник','🎵':'музика','📷':'фото камера','💡':'ідея','🎮':'ігри'};
+const VATRA_SMILE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 14.5q4 4 8 0"/><path d="M8.5 9.5h.01M15.5 9.5h.01"/></svg>';
+function emojiControl(){
+ return '<div class="emoji-picker-wrap vatra-emoji-wrap"><button type="button" class="emoji-toggle vatra-emoji-trigger" data-emoji-toggle aria-label="Вибрати емодзі" aria-haspopup="dialog" aria-expanded="false">'+VATRA_SMILE_SVG+'</button><div class="emoji-picker vatra-emoji-popover" hidden></div></div>';
 }
-const quickVatraEmojis=['😀','😃','😄','😁','😆','😅','😂','🤣','🥹','😊','😍','🥰','😘','😎','🤩','🥳','🤗','🤔','🫡','😴','😭','😢','😡','😱','🙌','👏','🙏','🤝','👍','👎','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','💯','🔥','✨','⭐','🎉','🎂','🥂','☀️','🌈','🌻','🌹','🌍','🇺🇦','💪','🫶','✅','❗','💡'];
-function emojiControl(){return '<div class="emoji-picker-wrap"><button type="button" class="emoji-toggle" data-emoji-toggle aria-label="Відкрити всі емодзі">☺</button><div class="emoji-picker" hidden><div class="emoji-quick-grid" aria-label="Популярні емодзі">'+quickVatraEmojis.map(emoji=>'<button type="button" data-insert-emoji="'+emoji+'" aria-label="Додати емодзі '+emoji+'">'+emoji+'</button>').join('')+'</div><div class="emoji-picker-full"><emoji-picker locale="uk" skin-tone-emoji="👍"></emoji-picker></div></div></div>'; }
+function renderVatraEmojiPanel(panel){
+ const text=(panel.querySelector('[data-emoji-search]')?.value||'').trim().toLocaleLowerCase('uk-UA');
+ const selected=VATRA_EMOJI_CATEGORIES.find(group=>group.id===panel.dataset.category)||VATRA_EMOJI_CATEGORIES[0];
+ const choices=text?[...new Set(VATRA_EMOJI_CATEGORIES.flatMap(group=>group.emojis.filter(emoji=>(emoji+' '+group.label+' '+(VATRA_EMOJI_TAGS[emoji]||'')).toLocaleLowerCase('uk-UA').includes(text))))]:selected.emojis;
+ panel.querySelectorAll('[data-emoji-category]').forEach(button=>{
+  const active=button.dataset.emojiCategory===selected.id;
+  button.classList.toggle('active',active);
+  button.setAttribute('aria-pressed',String(active));
+ });
+ const grid=panel.querySelector('[data-emoji-grid]');
+ if(grid)grid.innerHTML=choices.length?choices.slice(0,140).map(emoji=>'<button type="button" data-insert-emoji="'+emoji+'" aria-label="Додати '+emoji+'">'+emoji+'</button>').join(''):'<p class="vatra-emoji-empty">Нічого не знайдено</p>';
+}
+function prepareVatraEmojiPanel(panel){
+ if(panel.dataset.initialized)return;
+ panel.dataset.initialized='true';panel.dataset.category='popular';
+ panel.innerHTML='<div class="vatra-emoji-head"><strong>Емодзі</strong><button type="button" data-emoji-close aria-label="Закрити панель">×</button></div>'+
+  '<label class="vatra-emoji-search"><span aria-hidden="true">⌕</span><input type="search" data-emoji-search placeholder="Пошук емодзі" aria-label="Пошук емодзі" autocomplete="off"></label>'+
+  '<div class="vatra-emoji-categories" role="group" aria-label="Категорії емодзі">'+VATRA_EMOJI_CATEGORIES.map(g=>'<button type="button" data-emoji-category="'+g.id+'" title="'+g.label+'" aria-label="'+g.label+'" aria-pressed="false">'+g.icon+'</button>').join('')+'</div>'+
+  '<div class="vatra-emoji-subtitle"></div><div class="emoji-quick-grid vatra-emoji-grid" data-emoji-grid></div>';
+ panel.querySelector('[data-emoji-search]')?.addEventListener('input',()=>renderVatraEmojiPanel(panel));
+ renderVatraEmojiPanel(panel);
+}
+document.addEventListener('click',event=>{
+ if(event.target.closest('.vatra-emoji-wrap'))return;
+ $('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ $('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
+});
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function localISODate(date=new Date()){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');}
 function initials(n='ВАТРА'){return n.trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toLocaleUpperCase('uk-UA')||'В';}
@@ -62,7 +93,7 @@ function isVatraStrongPassword(password){
 
 function niceError(e){const c=e?.code||'';if(c==='SCHEMA_NOT_READY')return 'База ВАТРИ ще не налаштована повністю. У правильному Supabase-проєкті виконайте актуальний файл VATRA OLD/app-data-schema.sql.';if(c==='PERMISSION_DENIED')return 'Supabase відхилив запис через правила доступу (RLS). Перевірте SQL-схему app_data та політики доступу в тому самому проєкті Supabase.'+(e?.dbCode?' Код: '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+'.':'');if(c==='DATABASE_ERROR')return 'Не вдалося зберегти дані ВАТРИ'+(e?.dbCode?' (код '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+')':'')+'. Спробуйте ще раз; якщо повториться, надішліть цей код розробнику.';if(c==='NETWORK_ERROR')return 'Немає з’єднання із сервером ВАТРИ. Перевірте інтернет і спробуйте ще раз.';return ({'auth/no-session':'Сесія завершилася. Увійдіть до ВАТРИ ще раз.','auth/author-mismatch':'Не вдалося підтвердити власника допису. Оновіть сторінку та увійдіть у свій акаунт знову.','auth/email-already-in-use':'Ця електронна пошта вже зареєстрована. Спробуйте увійти.','auth/invalid-email':'Введіть коректну адресу електронної пошти.','auth/weak-password':'Створіть пароль завдовжки щонайменше 12 символів (краще 16+), із великими й малими латинськими літерами, цифрою та спецсимволом.','auth/invalid-credential':'Неправильна електронна пошта або пароль.','auth/invalid-login-credentials':'Неправильна електронна пошта або пароль.','auth/user-not-found':'Акаунт із такою адресою не знайдено.','auth/wrong-password':'Неправильний пароль.','auth/too-many-requests':'Забагато спроб входу. Зачекайте й спробуйте пізніше.','auth/network-request-failed':'Не вдалося з’єднатися із сервером. Перевірте інтернет.','auth/operation-not-allowed':'Вхід через email вимкнений. У налаштуваннях авторизації увімкніть вхід через email і пароль.','auth/unauthorized-domain':'Цей домен не дозволений у налаштуваннях авторизації для цього домену.','auth/user-disabled':'Цей акаунт вимкнено. Зверніться до підтримки.','PERMISSION_DENIED':'Запит відхилено правилами доступу до бази даних.'})[c]||'Не вдалося виконати дію. Спробуйте ще раз.';}
 function openAuth(mode='login'){location.href=mode==='register'?'auth.html?mode=register':mode==='reset'?'auth.html?mode=reset':'auth.html';}
-function publicProfileData(p={}){const out={name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),bio:String(p.bio||'').slice(0,500),status:String(p.status||'').slice(0,100),avatarUrl:String(p.avatarUrl||''),avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,birthdayVisibility:String(p.birthdayVisibility||'private'),cityVisibility:String(p.cityVisibility||'private'),locationVisibility:String(p.locationVisibility||'private'),phoneVisibility:String(p.phoneVisibility||'private'),workplaceVisibility:String(p.workplaceVisibility||'private'),educationVisibility:String(p.educationVisibility||'private'),hometownVisibility:String(p.hometownVisibility||'private'),allowMessages:p.allowMessages!==false,createdAt:Number(p.createdAt)||0,updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0};if(p.birthdayVisibility==='public'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='public'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='public'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='public'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.website)out.website=String(p.website).slice(0,180);if(p.workplace&&p.workplaceVisibility==='public')out.workplace=String(p.workplace).slice(0,120);if(p.education&&p.educationVisibility==='public')out.education=String(p.education).slice(0,120);if(p.hometown&&p.hometownVisibility==='public')out.hometown=String(p.hometown).slice(0,80);return out;}
+function publicProfileData(p={}){const out={name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),bio:String(p.bio||'').slice(0,500),status:String(p.status||'').slice(0,100),avatarUrl:String(p.avatarUrl||''),avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,birthdayVisibility:String(p.birthdayVisibility||'private'),cityVisibility:String(p.cityVisibility||'private'),locationVisibility:String(p.locationVisibility||'private'),phoneVisibility:String(p.phoneVisibility||'private'),workplaceVisibility:String(p.workplaceVisibility||'private'),educationVisibility:String(p.educationVisibility||'private'),hometownVisibility:String(p.hometownVisibility||'private'),allowMessages:p.allowMessages!==false,createdAt:Number(p.createdAt)||0,updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0};if(p.birthdayVisibility==='public'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='public'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='public'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='public'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.website)out.website=String(p.website).slice(0,180);if(p.workplace&&p.workplaceVisibility==='public')out.workplace=String(p.workplace).slice(0,120);if(p.education&&p.educationVisibility==='public')out.education=String(p.education).slice(0,120);if(p.hometown&&p.hometownVisibility==='public')out.hometown=String(p.hometown).slice(0,80);out.extraVisibility={};out.publicSections={};if(p.profileVisibility!=='private'){for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){for(const key of Object.keys(section.fields)){if(p.extraVisibility?.[key]==='public'){const value=String(p.privateSections?.[key]||'').trim();if(value){out.extraVisibility[key]='public';out.publicSections[key]=value.slice(0,500);}}}}}return out;}
 function friendProfileData(p={}){const out={updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0,isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,avatarHistory:Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]};if(p.status)out.status=String(p.status).slice(0,100);if(p.birthdayVisibility==='friends'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='friends'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='friends'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='friends'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.workplaceVisibility==='friends'&&p.workplace)out.workplace=String(p.workplace).slice(0,120);if(p.educationVisibility==='friends'&&p.education)out.education=String(p.education).slice(0,120);if(p.hometownVisibility==='friends'&&p.hometown)out.hometown=String(p.hometown).slice(0,80);return out;}
 
 function watch(path,cb){let lastErrorSignature='';return onValue(ref(db,path),s=>{lastErrorSignature='';cb(s.val()||{});},err=>{console.error('Database read failed:',path,err);const signature=String(err?.code||'')+'|'+niceError(err);if(signature!==lastErrorSignature){lastErrorSignature=signature;toastMsg(`Не вдалося завантажити дані (${path}): ${niceError(err)}`);}});}
@@ -111,7 +142,28 @@ function startPresence(){if(presenceHeartbeat)clearInterval(presenceHeartbeat);u
 window.addEventListener('pagehide',()=>{if(currentUser)updatePresence(false);});
 document.addEventListener('visibilitychange',()=>{if(currentUser)updatePresence(document.visibilityState==='visible');});
 function profilePresenceMarkup(profile={},isSelf=false){const stamp=Number(profile.lastSeenAt)||0,online=isSelf||(profile.isOnline===true&&stamp>0&&Date.now()-stamp<120000);if(online)return '<span class="vatra-profile-presence is-online"><i></i>Онлайн</span>';if(!stamp)return '<span class="vatra-profile-presence"><i></i>Ще не заходив(-ла)</span>';const date=new Date(stamp),now=new Date(),time=date.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1).toDateString()===date.toDateString(),label=sameDay?'сьогодні о '+time:yesterday?'вчора о '+time:date.toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:date.getFullYear()===now.getFullYear()?undefined:'numeric'})+' о '+time;return '<span class="vatra-profile-presence"><i></i>Був(-ла) в мережі '+esc(label)+'</span>';}
-function applyUserPreferences(profile={}){const root=document.documentElement,body=document.body,scale=profile.fontScale==='large'?'large':'normal',density=profile.contentDensity==='compact'?'compact':'comfortable',accent=({blue:'#0757f5',teal:'#087f83',violet:'#7255d8'})[profile.accentColor]||'#0757f5';body.dataset.vatraFontScale=scale;body.dataset.vatraDensity=density;body.dataset.vatraReduceMotion=profile.reduceMotion===true?'true':'false';root.style.setProperty('--vatra-user-accent',accent);root.style.setProperty('--v-blue',accent);root.style.setProperty('--v-blue-hover',accent);root.style.setProperty('--blue',accent);}
+function applyUserPreferences(profile={}){
+ const root=document.documentElement,body=document.body;
+ const accents={blue:'#0757f5',teal:'#087f83',violet:'#7255d8',orange:'#d36b2d',rose:'#be4d72'};
+ const accent=accents[profile.accentColor]||accents.blue;
+ const theme=['dark','auto'].includes(profile.themeMode)?profile.themeMode:'light';
+ const autoDark=theme==='auto'&&window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+ body.dataset.vatraFontScale=['small','large'].includes(profile.fontScale)?profile.fontScale:'normal';
+ body.dataset.vatraDensity=['compact','spacious'].includes(profile.contentDensity)?profile.contentDensity:'comfortable';
+ body.dataset.vatraReduceMotion=profile.reduceMotion===true?'true':'false';
+ body.dataset.vatraTheme=theme;body.dataset.vatraThemeEffective=theme==='dark'||autoDark?'dark':'light';
+ body.dataset.vatraCardStyle=profile.cardStyle==='square'?'square':'soft';
+ body.dataset.vatraHighContrast=profile.highContrast===true?'true':'false';
+ body.dataset.vatraReduceTransparency=profile.reduceTransparency===true?'true':'false';
+ root.style.setProperty('--vatra-user-accent',accent);
+ root.style.setProperty('--v-blue',accent);root.style.setProperty('--v-blue-hover',accent);root.style.setProperty('--blue',accent);
+ root.style.colorScheme=body.dataset.vatraThemeEffective;
+}
+if(window.matchMedia){
+ window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{
+  if(currentProfile?.themeMode==='auto')applyUserPreferences(currentProfile);
+ });
+}
 function updateIdentity(){applyUserPreferences(currentProfile);const name=currentProfile.name||currentUser?.displayName||'Користувач ВАТРИ',avatar=currentProfile.avatarUrl||'';$('#authButton').textContent=currentUser?'Вийти':'Увійти';['#topAvatar','#composeAvatar','#modalAvatar'].forEach(sel=>{const el=$(sel);if(!el)return;el.textContent=avatar?'':'В';el.style.backgroundImage=avatar?`url("${avatar}")`:'';el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.style.color=avatar?'transparent':'';});$('#modalName').textContent=name;$('#prompt').textContent=currentUser?`Що нового, ${name.split(' ')[0]}?`:'Увійдіть, щоб створити допис';const w=$('.welcome h2');if(w)w.textContent=currentUser?`Привіт, ${name.split(' ')[0]}!`:'Раді бачити у ВАТРІ!';}
 function verifiedBadge(uid){return verifiedUsers?.[uid]?.verified===true?'<span class="vatra-verified-badge" title="Офіційний акаунт ВАТРИ" aria-label="Офіційний акаунт ВАТРИ"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l3-.1.9 2.8 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.8-3-.1-2.5 1.6-2.5-1.6-3 .1-.9-2.8-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.8 3 .1L10 1.4Z" fill="currentColor"/><path d="m6.2 10.2 2.4 2.4 5.2-5.2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>':'';}
 function timeAgo(ts){if(!ts)return'щойно';const d=Date.now()-ts;if(d<60000)return'щойно';if(d<3600000)return`${Math.floor(d/60000)} хв тому`;if(d<86400000)return`${Math.floor(d/3600000)} год тому`;return new Date(ts).toLocaleDateString('uk-UA',{day:'numeric',month:'short'});}
@@ -223,7 +275,28 @@ function postCard(p){
  const actions=postActionItem('like',p.id,liked?'Вподобано':'Вподобати',Object.keys(likeMap).length,likeIcon,liked,postActorStack(likeMap,'Хто вподобав допис'))+postActionItem('comment',p.id,'Коментувати',cs.length,commentIcon,false,postActorStack(commentActors,'Хто коментував допис'))+postActionItem('share',p.id,'Поділитися',Object.keys(shareMap).length,shareIcon,false,postActorStack(shareMap,'Хто поділився дописом'))+postActionItem('save',p.id,isSaved?'Збережено':'Зберегти',Object.keys(saveMap).length,saveIcon,isSaved,postActorStack(saveMap,'Хто зберіг допис'));
  return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+avatar(postAuthorName,postAuthorAvatar)+'<div class="author"><b>'+(p.authorUid&&p.authorUid!==currentUser?.uid?'<button class="author-link" data-view-profile="'+esc(p.authorUid)+'">'+esc(postAuthorName)+'</button>'+verifiedBadge(p.authorUid):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>@'+esc(p.authorHandle||'user')+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.groupName?' · '+esc(p.groupName):'')+'</small></div>'+(canEdit||(currentUser&&p.authorUid!==currentUser.uid)?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом">•••</summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser&&p.authorUid!==currentUser.uid?'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button><button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>':'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div><div class="comments">'+renderComments(p,cs)+'</div>'+(p.commentOpen?'<form class="comment-form" data-form="'+esc(p.id)+'">'+emojiControl()+'<input name="comment" data-emoji-input maxlength="300" placeholder="Написати коментар…" required><button type="submit">Надіслати</button></form>':'')+'</article>';
 }
-function allPosts(){let arr=Object.entries(posts).map(([id,p])=>({...p,id,source:'user'})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));const joined=Object.entries(groupMembers).filter(([gid,m])=>m&&m[currentUser?.uid]).map(([gid])=>gid);for(const gid of joined){const g=groups[gid];Object.entries(groupPostsCache[gid]||{}).forEach(([id,p])=>arr.push({...p,id:'g_'+gid+'_'+id,groupId:gid,groupName:g?.name||'Спільнота',source:'group'}));}arr=arr.filter(p=>p.authorUid===currentUser?.uid||(!blockedUsers[p.authorUid]&&(!!friends[p.authorUid]||!!following[p.authorUid]||(p.source==='group'&&joined.includes(p.groupId)))));arr.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));if(page==='saved')arr=arr.filter(p=>saved[p.id]);if(page==='profile')arr=arr.filter(p=>p.authorUid===currentUser?.uid);if(query){const q=query.toLocaleLowerCase('uk-UA');arr=arr.filter(p=>`${p.authorName} ${p.authorHandle} ${p.text} ${p.groupName||''}`.toLocaleLowerCase('uk-UA').includes(q));}if(page==='feed'&&filter==='popular')arr.sort((a,b)=>Object.keys(likes[b.id]||{}).length-Object.keys(likes[a.id]||{}).length||(b.createdAt||0)-(a.createdAt||0));return arr;}
+function allPosts(){
+ const uid=currentUser?.uid;
+ const memberGroups=new Set(Object.entries(groups||{}).filter(([gid,g])=>g&&(g.ownerUid===uid||!!groupMembers[gid]?.[uid])).map(([gid])=>gid));
+ const arr=Object.entries(posts||{}).map(([id,p])=>({...p,id,source:'user'}));
+ for(const gid of memberGroups){
+  const g=groups[gid];
+  Object.entries(groupPostsCache[gid]||{}).forEach(([id,p])=>arr.push({...p,id:'g_'+gid+'_'+id,groupId:gid,groupName:g?.name||'Спільнота',source:'group'}));
+ }
+ let result=arr.filter(p=>{
+  if(!p||!p.authorUid||blockedUsers[p.authorUid])return false;
+  if(p.source==='group')return memberGroups.has(p.groupId);
+  return p.authorUid===uid||!!friends[p.authorUid];
+ });
+ if(page==='saved')result=result.filter(p=>saved[p.id]);
+ if(page==='profile')result=result.filter(p=>p.authorUid===uid);
+ if(query){
+  const q=query.toLocaleLowerCase('uk-UA');
+  result=result.filter(p=>(String(p.authorName||'')+' '+String(p.authorHandle||'')+' '+String(p.text||'')+' '+String(p.groupName||'')).toLocaleLowerCase('uk-UA').includes(q));
+ }
+ result.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ return result;
+}
 function setFeed(html,empty=false){feed.innerHTML=html;$('#empty').hidden=!empty;}
 function renderBlockedUsersList(){const box=$('#blockedUsersList');if(!box)return;const entries=Object.entries(blockedUsers).filter(([,value])=>!!value);box.innerHTML=entries.map(([uid])=>{const u=users[uid]||{};return `<div class="blocked-user-row">${avatar(u.name||'Користувач',u.avatarUrl)}<span><b>${esc(u.name||'Користувач ВАТРИ')}</b><small>@${esc(u.handle||'user')}</small></span><button class="pill" data-unblock-user="${esc(uid)}">Розблокувати</button></div>`;}).join('')||'<p class="empty-inline">Немає заблокованих користувачів.</p>';}
 function renderFeed(){const arr=allPosts();setFeed(arr.map(postCard).join(''),!arr.length);if(!arr.length)$('#empty').innerHTML=`<h3>${page==='saved'?'Тут поки порожньо':page==='profile'?'Ще немає дописів':'Стрічка пуста'}</h3><p>${page==='saved'?'Зберігай дописи, щоб повернутися до них пізніше.':page==='profile'?'Ваші публікації з’являтимуться тут.':'Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.'}</p>${currentUser&&page==='feed'?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':''}`;$('#emptyCreate')?.addEventListener('click',openComposer);}
@@ -312,6 +385,57 @@ document.addEventListener('click',event=>{
  button.setAttribute('aria-expanded',String(expanded));
  button.textContent=expanded?'Згорнути опис':'Показати весь опис';
 });
+
+const VATRA_SEARCH_FIELDS=new Set(['city','location','workplace','education','hometown']);
+function profileDetailMarkup(label,value,field=''){
+ if(!value)return '';
+ const safe=esc(value);
+ const linked=VATRA_SEARCH_FIELDS.has(field)
+  ?'<button type="button" class="vatra-profile-attribute-link" data-profile-search-field="'+field+'" data-profile-search-value="'+safe+'" title="Знайти людей за цими даними">'+safe+'</button>'
+  :'<b>'+safe+'</b>';
+ return '<div class="vatra-profile-detail"><span>'+label+'</span>'+linked+'</div>';
+}
+function visibleProfileSearchValue(uid,u,field){
+ if(!VATRA_SEARCH_FIELDS.has(field))return '';
+ if(u?.profileVisibility==='private'&&!friends[uid])return '';
+ if(u?.[field+'Visibility']==='public')return String(u[field]||'');
+ if(u?.[field+'Visibility']==='friends'&&friends[uid])return String(friendProfiles[uid]?.[field]||'');
+ return '';
+}
+document.addEventListener('click',event=>{
+ const attr=event.target.closest('[data-profile-search-field]');
+ if(attr){
+  const key=attr.dataset.profileSearchField,value=String(attr.dataset.profileSearchValue||'').trim();
+  if(!VATRA_SEARCH_FIELDS.has(key)||!value)return;
+  profileAttributeSearch={field:key,value};
+  query='';const input=$('#search');if(input)input.value='';
+  goPage('explore');return;
+ }
+ const stat=event.target.closest('[data-profile-stat]');
+ if(!stat)return;
+ const action=stat.dataset.profileStat;
+ if(['friends','photos','videos'].includes(action))goPage(action);
+ else if(action==='posts')document.getElementById('vatraProfilePosts')?.scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+const VATRA_PROFILE_EXTRA_SECTIONS={
+ interests:{title:'Захоплення',fields:{hobbies:'Захоплення',activities:'Діяльність',music:'Улюблена музика',films:'Улюблені фільми',books:'Улюблені книги',games:'Улюблені ігри'}},
+ service:{title:'Військова служба',fields:{serviceNotes:'Про службу'}},
+ life:{title:'Життєва позиція',fields:{lifeNotes:'Погляди та переконання',values:'Головне в житті',inspiration:'Надихають'}}
+};
+function vatraExtraSectionsMarkup(values={},visibility={},owner=false){
+ const output=[];
+ for(const [section,data] of Object.entries(VATRA_PROFILE_EXTRA_SECTIONS)){
+  const rows=[];
+  for(const [key,label] of Object.entries(data.fields)){
+   const text=String(values?.[key]||'').trim();if(!text)continue;
+   const isPublic=visibility?.[key]==='public';if(!owner&&!isPublic)continue;
+   rows.push('<div class="vatra-profile-extra-row"><dt>'+esc(label)+'</dt><dd>'+safeText(text)+'</dd>'+(owner&&!isPublic?'<small>Лише для вас</small>':'')+'</div>');
+  }
+  if(rows.length)output.push('<section class="vatra-profile-extra-card"><h3>'+esc(data.title)+'</h3><dl>'+rows.join('')+'</dl></section>');
+ }
+ return output.length?'<div class="vatra-profile-extras">'+output.join('')+'</div>':'';
+}
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -321,20 +445,20 @@ function renderProfile(){
  const name=currentProfile.name||currentUser.displayName||'Користувач ВАТРИ';
  const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const birthday=currentProfile.dateOfBirth?new Date(currentProfile.dateOfBirth+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
- const detail=(label,value)=>value?'<div class="vatra-profile-detail"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
+ const detail=(label,value,field='')=>profileDetailMarkup(label,value,field);
  const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:0})).filter(item=>item.url):[]),...mine.flatMap(p=>postImages(p).map((url,index)=>({url,createdAt:p.createdAt,source:'post',id:p.id,index})))];
  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.map((url,index)=>({url,index})).filter(x=>x.url&&x.url!==currentProfile.avatarUrl).slice(-30).reverse():[];
  const avatarPhotos=[currentProfile.avatarUrl,...history.map(item=>item.url)].filter(Boolean);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото профілю"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото профілю, які Ви вирішите залишити.</p>';
  const galleryUrls=gallery.map(item=>item.url);
- const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.slice(0,7).map((photo,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img loading="lazy" decoding="async" src="'+esc(photo.url)+'" alt="Фото профілю"></button><small>'+(photo.source==='profile'?'Фото профілю':timeAgo(photo.createdAt))+'</small>'+(photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>'+(gallery.length>7?'<button type="button" class="vatra-profile-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="0">Переглянути всі ('+gallery.length+')</button>':''):'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>'
+ const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.slice(0,4).map((photo,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img loading="lazy" decoding="async" src="'+esc(photo.url)+'" alt="Фото профілю"></button><small>'+(photo.source==='profile'?'Фото профілю':timeAgo(photo.createdAt))+'</small>'+(photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>'+(gallery.length>4?'<button type="button" class="vatra-profile-link profile-gallery-all" id="profileOpenAllPhotos">Відкрити повний альбом ('+gallery.length+')</button>':''):'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>'
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(id=>{const u=users[id]||{};return '<button type="button" class="vatra-profile-friend" data-view-profile="'+esc(id)+'">'+avatar(u.name||'Користувач',u.avatarUrl,'vatra-profile-friend-avatar')+'<span>'+esc(u.name||'Користувач')+'</span></button>';}).join('');
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
- const detailHtml=detail('День народження',birthday)+detail('Місто',currentProfile.city)+detail('Місце проживання',currentProfile.location)+detail('Місце роботи',currentProfile.workplace)+detail('Навчання',currentProfile.education)+detail('Рідне місто',currentProfile.hometown)+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website);
+ const detailHtml=detail('День народження',birthday)+detail('Місто',currentProfile.city,'city')+detail('Місце проживання',currentProfile.location,'location')+detail('Місце роботи',currentProfile.workplace,'workplace')+detail('Навчання',currentProfile.education,'education')+detail('Рідне місто',currentProfile.hometown,'hometown')+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website);
  const hasDetails=!!(birthday||currentProfile.city||currentProfile.location||currentProfile.workplace||currentProfile.education||currentProfile.hometown||currentProfile.phone||privatePhone||currentProfile.website);
  const myVideos=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
- const stats='<div class="vatra-profile-stats"><div><b>'+friendIds.length+'</b><span>Друзі</span></div><div><b>'+Object.keys(following||{}).length+'</b><span>Підписки</span></div><div><b>'+gallery.length+'</b><span>Фотографії</span></div><div><b>'+myVideos+'</b><span>Відео</span></div><div><b>'+mine.length+'</b><span>Дописи</span></div></div>';
+ const stats='<div class="vatra-profile-stats"><button type="button" data-profile-stat="friends"><b>'+friendIds.length+'</b><span>Друзі</span></button><div><b>'+Object.keys(following||{}).length+'</b><span>Підписки</span></div><button type="button" data-profile-stat="photos"><b>'+gallery.length+'</b><span>Фотографії</span></button><button type="button" data-profile-stat="videos"><b>'+myVideos+'</b><span>Відео</span></button><button type="button" data-profile-stat="posts"><b>'+mine.length+'</b><span>Дописи</span></button></div>';
  const profileHtml='<section class="vatra-profile-layout">'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button><button class="primary wide" id="editProfile">Редагувати профіль</button><label class="vatra-profile-link vatra-profile-change-photo" for="avatarUpload">Змінити фотографію</label><input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
@@ -347,12 +471,12 @@ function renderProfile(){
     '<div class="vatra-profile-status-row">'+(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>')+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
-    '<div class="vatra-profile-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+
+    '<div class="vatra-profile-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true)+
     stats+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><button type="button" class="vatra-profile-link" id="profileViewPhotos">Усі фото</button><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
    '<section class="vatra-profile-card vatra-profile-compose"><button type="button" class="vatra-profile-compose-trigger" id="profilePrompt">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-compose-avatar')+'<span>Що у Вас нового?</span><b>＋</b></button></section>'+
-   '<section class="vatra-profile-posts"><div class="vatra-profile-post-tabs"><span class="vatra-profile-tab-current">Мої публікації</span><span>Усі записи</span><button type="button" class="vatra-profile-new-post" id="profileCreatePost">＋ Новий допис</button></div>'+
+   '<section class="vatra-profile-posts" id="vatraProfilePosts"><div class="vatra-profile-post-tabs"><span class="vatra-profile-tab-current">Мої публікації</span><button type="button" class="vatra-profile-new-post" id="profileCreatePost">＋ Новий допис</button></div>'+
     (mine.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><h3>Поки немає дописів</h3><p class="muted">Ваші записи з’являться тут. Поділіться першою історією у ВАТРІ.</p><button type="button" class="primary" id="profileFirstPost">Створити допис</button></article>')+
    '</section>'+
   '</div>'+
@@ -366,17 +490,33 @@ function renderProfile(){
  $('#profilePrompt')?.addEventListener('click',openComposer);
  $('#profileFirstPost')?.addEventListener('click',openComposer);
  $('#profileViewPhotos')?.addEventListener('click',()=>goPage('photos'));
+ $('#profileOpenAllPhotos')?.addEventListener('click',()=>goPage('photos'));
  $('#profileAddPhoto')?.addEventListener('click',()=>{if(authRequired())$('#profilePhotoUpload')?.click();});
  $('#profilePhotoUpload')?.addEventListener('change',uploadProfilePhoto);
 }
-function renderExplore(){const list=Object.entries(users).filter(([id,u])=>id!==currentUser?.uid&&!blockedUsers[id]&&u.searchable!==false&&(!query||`${u.name} ${u.handle} ${u.bio}`.toLowerCase().includes(query.toLowerCase())));setFeed(`<article class="post"><h3>Знайомтеся зі спільнотою ВАТРИ</h3><p class="muted">Пошукай людей за ім’ям або псевдонімом. Підписки збережуться в акаунті.</p></article>${list.map(([id,u])=>`<article class="post person-card">${avatar(u.name||'Користувач',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Користувач')}</b><small>@${esc(u.handle||'user')}</small><p>${esc(u.bio||'')}</p></div><button class="follow" data-follow="${esc(id)}">${following[id]?'Відписатися':'＋ Підписатися'}</button><button class="pill" data-friend-request="${esc(id)}">${friends[id]?'✓ Друг':friendRequests[id]?'Запит надіслано':'＋ Додати в друзі'}</button><button class="pill" data-view-profile="${esc(id)}">Профіль</button><button class="pill" data-message-user="${esc(id)}">Написати</button></article>`).join('')}`,!list.length);if(!list.length)$('#empty').innerHTML='<h3>Поки нікого не знайдено</h3><p>Запросіть друзів до ВАТРИ або спробуйте інший запит.</p>';}
+function renderExplore(){
+ const attribute=profileAttributeSearch;
+ const norm=x=>String(x||'').trim().toLocaleLowerCase('uk-UA');
+ const list=Object.entries(users).filter(([id,u])=>{
+  if(id===currentUser?.uid||blockedUsers[id]||u.searchable===false)return false;
+  if(attribute){const visible=norm(visibleProfileSearchValue(id,u,attribute.field)),target=norm(attribute.value);return !!visible&&!!target&&(visible===target||visible.includes(target)||target.includes(visible));}
+  return !query||norm(u.name+' '+u.handle+' '+u.bio).includes(norm(query));
+ });
+ const title=attribute?'<h3>Люди: '+esc(attribute.value)+'</h3><p class="muted">Знайдено за відкритими даними профілів. Приватна інформація не використовується.</p><button type="button" class="vatra-profile-search-clear" data-clear-profile-search>Показати всіх людей</button>':'<h3>Знайомтеся зі спільнотою ВАТРИ</h3><p class="muted">Шукайте людей за ім’ям або псевдонімом.</p>';
+ setFeed('<article class="post vatra-explore-search-header">'+title+'</article>'+list.map(([id,u])=>'<article class="post person-card">'+avatar(u.name||'Користувач',u.avatarUrl)+'<div class="author"><b>'+esc(u.name||'Користувач')+'</b><small>@'+esc(u.handle||'user')+'</small><p>'+esc(u.bio||'')+'</p></div><button class="follow" data-follow="'+esc(id)+'">'+(following[id]?'Відписатися':'＋ Підписатися')+'</button><button class="pill" data-friend-request="'+esc(id)+'">'+(friends[id]?'✓ Друг':friendRequests[id]?'Запит надіслано':'＋ Додати в друзі')+'</button><button class="pill" data-view-profile="'+esc(id)+'">Профіль</button><button class="pill" data-message-user="'+esc(id)+'">Написати</button></article>').join(''),!list.length);
+ if(!list.length)$('#empty').innerHTML='<h3>Нікого не знайдено</h3><p>Людей із такими відкритими даними поки немає.</p>';
+}
+document.addEventListener('click',event=>{
+ if(!event.target.closest('[data-clear-profile-search]'))return;
+ profileAttributeSearch=null;query='';const search=$('#search');if(search)search.value='';renderExplore();
+});
 function renderFriends(){
   const incoming=Object.entries(friendRequests).filter(([uid,r])=>r&&!friends[uid]&&!blockedUsers[uid]&&r.status==='pending'&&r.direction==='incoming');
   const list=Object.entries(friends).filter(([uid])=>!blockedUsers[uid]);
   setFeed(`<article class="post"><h3>Запити в друзі</h3>${incoming.length?incoming.map(([uid])=>{const u=users[uid]||{};return `<div class="person-card">${avatar(u.name||'Користувач',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Користувач')}</b><small>@${esc(u.handle||'user')}</small></div><button class="primary" data-accept-friend="${esc(uid)}">Прийняти</button><button class="pill" data-decline-friend="${esc(uid)}">Відхилити</button></div>`}).join(''):'<p class="muted">Немає нових запитів.</p>'}</article><article class="post"><h3>Ваші друзі <span class="count-badge">${list.length}</span></h3>${list.length?list.map(([uid])=>{const u=users[uid]||{};return `<div class="person-card">${avatar(u.name||'Користувач',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Користувач')}</b><small>@${esc(u.handle||'user')}</small></div><button class="pill" data-view-profile="${esc(uid)}">Профіль</button><button class="pill" data-message-user="${esc(uid)}">Написати</button><button class="danger-link" data-remove-friend="${esc(uid)}">Видалити з друзів</button></div>`}).join(''):'<p class="muted">Друзів поки немає. Знайдіть людей через пошук.</p>'}</article>`);
 }
 function renderPublicProfile(uid){
- activeProfileUid=uid;
+ activeProfileUid=uid;page='publicProfile';document.body.dataset.page=page;
  const u=users[uid]||{};
  const friendData=friendProfiles[uid]||{};
  if(blockedUsers[uid]){
@@ -399,13 +539,13 @@ function renderPublicProfile(uid){
  const workplace=u.workplaceVisibility==='public'?u.workplace:(canSeeFriends&&u.workplaceVisibility==='friends'?friendData.workplace:'');
  const education=u.educationVisibility==='public'?u.education:(canSeeFriends&&u.educationVisibility==='friends'?friendData.education:'');
  const hometown=u.hometownVisibility==='public'?u.hometown:(canSeeFriends&&u.hometownVisibility==='friends'?friendData.hometown:'');
- const detail=(label,value)=>value?'<div class="vatra-profile-detail"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
+ const detail=(label,value,field='')=>profileDetailMarkup(label,value,field);
  const birthdayLabel=birthday?new Date(birthday+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const publicPhotos=Array.isArray(u.profilePhotos)?u.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40).reverse():[];
  const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boolean);
  const postPhotos=arr.flatMap(p=>postImages(p));
  const photoUrls=[...new Set(publicPhotos.concat(postPhotos))];
- const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,7).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button></div>').join('')+'</div>'+(photoUrls.length>7?'<button type="button" class="vatra-profile-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</button>':''):'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
+ const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,4).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button></div>').join('')+'</div>'+(photoUrls.length>4?'<button type="button" class="vatra-profile-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</button>':''):'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const hasDetails=!!(birthdayLabel||city||location||workplace||education||hometown||phone||u.website);
  const videoCount=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
  const actions='<div class="vatra-profile-public-actions"><button class="primary" data-friend-request="'+esc(uid)+'">'+(isFriend?'✓ Друг':req?'Запит надіслано':'＋ Додати в друзі')+'</button><button class="pill" data-follow="'+esc(uid)+'">'+(following[uid]?'Відписатися':'＋ Підписатися')+'</button><button class="pill" data-message-user="'+esc(uid)+'">Написати</button><button class="text-link" data-report-user="'+esc(uid)+'">Поскаржитися</button><button class="danger-link" data-block-user="'+esc(uid)+'">Заблокувати</button></div>';
@@ -417,11 +557,11 @@ function renderPublicProfile(uid){
     (u.status?'<p class="profile-status vatra-profile-status">'+esc(u.status)+'</p>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (u.bio?profileBioMarkup(u.bio):'')+
-    '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city)+detail('Місце проживання',location)+detail('Місце роботи',workplace)+detail('Навчання',education)+detail('Рідне місто',hometown)+detail('Телефон',phone)+detail('Вебсайт',u.website):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+
+    '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city,'city')+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',u.website):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+vatraExtraSectionsMarkup(u.publicSections||{},u.extraVisibility||{},false)+
     '<div class="vatra-profile-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+photoHtml+'</section>'+
-   '<section class="vatra-profile-posts"><div class="vatra-profile-post-tabs"><span class="vatra-profile-tab-current">Публікації</span><span>Усі записи користувача</span></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
+   '<section class="vatra-profile-posts"><div class="vatra-profile-post-tabs"><span class="vatra-profile-tab-current">Публікації</span></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
   '</div>'+
  '</section>';
  setFeed(html,false);
@@ -670,7 +810,7 @@ function renderGettingStarted(){
 }
 function render(){if(!feed)return;document.body.dataset.page=page;if(currentUser&&!initialDataReady){renderLoadingSkeletons();return;}renderGettingStarted();if(page==='notifications')return renderNotifications();if(page==='settings')return renderSettings();if(page==='groupSettings')return renderGroupSettings(groupId);if(page==='friends')return renderFriends();if(page==='publicProfile')return; if(page==='videos')return renderVideos();if(page==='photos')return renderPhotos();if(page==='groups')return groupId&&groups[groupId]?renderGroupDetails(groupId):renderGroups();if(page==='messages')return renderMessages();if(page==='explore')return renderExplore();if(page==='profile')return renderProfile();renderFeed();}
 const pages={friends:['ВАШЕ КОЛО','Друзі','Керуйте запитами та знаходьте знайомих.'],notifications:['ВАШЕ КОЛО','Сповіщення','Запити в друзі, реакції на Ваші дописи та нові повідомлення.'],feed:['ВАШЕ КОЛО','Новини','Дописи друзів і спільнот, за якими Ви стежите.'],photos:['МОЇ МОМЕНТИ','Фотографії','Ваш альбом і зображення з дописів.'],videos:['ДИВІТЬСЯ ТА ВІДКРИВАЙТЕ','Короткі відео','Живі моменти від людей з усієї України.'],explore:['ЗНАХОДЬТЕ СВОЄ','Відкриття','Знайомтеся з людьми та відкривайте цікаві дописи.'],messages:['БУДЬТЕ НА ЗВʼЯЗКУ','Повідомлення','Приватні розмови з людьми ВАТРИ.'],groups:['РАЗОМ ЦІКАВІШЕ','Спільноти','Знаходьте людей, з якими є про що говорити.'],saved:['ТЕ, ЩО ВАЖЛИВО','Збережене','Дописи, до яких хочеться повернутися.'],profile:['ВАША ІСТОРІЯ','Профіль','Ваш простір у ВАТРІ.'],settings:['НАЛАШТУВАННЯ','Налаштування профілю','Керуйте інформацією, фотографіями та приватністю сторінки.'],groupSettings:['СПІЛЬНОТА','Керування спільнотою','Налаштовуй опис, діяльність і команду спільноти.']};
-function goPage(p){if(!pages[p])p='feed';navigation.setPage(p);if(p==='settings'&&!authRequired())return;const main=$('.layout>.main');if(main){main.classList.remove('vatra-page-enter');void main.offsetWidth;main.classList.add('vatra-page-enter');}page=p;if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}if(p!=='messages')stopChatListener();groupId=null;const c=pages[p]||pages.feed;$('#title').textContent=c[1];$('#subtitle').textContent=c[2];$('.heading .eyebrow').textContent=c[0];$$('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter&&p==='feed'));const composer=$('.quick-compose');if(composer)composer.hidden=p!=='feed';const sort=$('#sort');if(sort)sort.hidden=p!=='feed';if(p==='messages')activeChat=null;render();if(p==='notifications')markNotificationsRead();}
+function goPage(p){if(!pages[p])p='feed';if(p!=='explore')profileAttributeSearch=null;navigation.setPage(p);if(p==='settings'&&!authRequired())return;const main=$('.layout>.main');if(main){main.classList.remove('vatra-page-enter');void main.offsetWidth;main.classList.add('vatra-page-enter');}page=p;if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}if(p!=='messages')stopChatListener();groupId=null;const c=pages[p]||pages.feed;$('#title').textContent=c[1];$('#subtitle').textContent=c[2];$('.heading .eyebrow').textContent=c[0];$$('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===p));$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter&&p==='feed'));const composer=$('.quick-compose');if(composer)composer.hidden=p!=='feed';const sort=$('#sort');if(sort)sort.hidden=p!=='feed';if(p==='messages')activeChat=null;render();if(p==='notifications')markNotificationsRead();}
 function resetPollComposer(){const fields=$('#pollOptionFields');fields.innerHTML='<label class="poll-option-field"><span>1</span><input maxlength="80" placeholder="Перший варіант" aria-label="Перший варіант відповіді"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label><label class="poll-option-field"><span>2</span><input maxlength="80" placeholder="Другий варіант" aria-label="Другий варіант відповіді"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label>';$('#pollComposer').hidden=true;$('#togglePoll').setAttribute('aria-expanded','false');}
 $('#togglePoll').addEventListener('click',()=>{const box=$('#pollComposer'),show=box.hidden;box.hidden=!show;$('#togglePoll').setAttribute('aria-expanded',String(show));if(show)$('#pollOptionFields input')?.focus();});
 $('#addPollOption').addEventListener('click',()=>{const fields=$('#pollOptionFields'),n=fields.querySelectorAll('input').length;if(n>=6)return toastMsg('В опитуванні може бути до 6 варіантів.');const row=document.createElement('label');row.className='poll-option-field';row.innerHTML='<span>'+String(n+1)+'</span><input maxlength="80" placeholder="Варіант '+String(n+1)+'" aria-label="Варіант відповіді '+String(n+1)+'"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button>';fields.append(row);row.querySelector('input').focus();});
@@ -987,18 +1127,49 @@ function vatraOrganizeSettings(){
  };
  for(const [section,fields] of Object.entries(fieldSpecs)){
   const titles={interests:'Захоплення',service:'Військова служба',life:'Життєва позиція'};
-  const grid=makeCard(section,titles[section],'Необов’язкові приватні нотатки. Вони не публікуються у Вашому профілі.');
+  const grid=makeCard(section,titles[section],'Заповнені поля видно Вам у профілі. Для показу іншим окремо увімкніть їхню публічність.');
   for(const [key,labelText] of fields){
    const label=document.createElement('label');label.textContent=labelText;
    const textarea=document.createElement('textarea');textarea.name='private_'+key;textarea.maxLength=500;textarea.rows=2;textarea.placeholder='Не заповнено';textarea.value=String(currentProfile.privateSections?.[key]||'').slice(0,500);
-   label.append(textarea);grid.append(label);
+   label.append(textarea);const vis=document.createElement('label');vis.className='vatra-extra-visibility';const chk=document.createElement('input');chk.type='checkbox';chk.name='extraPublic_'+key;chk.checked=currentProfile.extraVisibility?.[key]==='public';vis.append(chk,document.createTextNode(' Показувати іншим у профілі'));const wrap=document.createElement('div');wrap.className='vatra-extra-setting';wrap.append(label,vis);grid.append(wrap);
   }
  }
  sections.privacy.append(privacyCard,adminCard);
  sections.appearance.append(appearanceCard);
+ const looks=appearanceCard.querySelector('.settings-grid');
+ const prefSelect=(name,label,options,current)=>{
+  const row=document.createElement('label');row.textContent=label;
+  const select=document.createElement('select');select.name=name;
+  for(const [value,title] of options){const option=document.createElement('option');option.value=value;option.textContent=title;select.append(option);}
+  select.value=current;row.append(select);return row;
+ };
+ const oldFont=looks.querySelector('[name="fontScale"]');
+ if(oldFont){oldFont.replaceWith(prefSelect('fontScale','Розмір тексту',[['small','Зменшений'],['normal','Звичайний'],['large','Збільшений']],currentProfile.fontScale||'normal').querySelector('select')); }
+ const oldDensity=looks.querySelector('[name="contentDensity"]');
+ if(oldDensity){oldDensity.replaceWith(prefSelect('contentDensity','Щільність сторінок',[['compact','Компактна'],['comfortable','Зручна'],['spacious','Простора']],currentProfile.contentDensity||'comfortable').querySelector('select'));}
+ const oldAccent=looks.querySelector('[name="accentColor"]');
+ if(oldAccent){oldAccent.replaceWith(prefSelect('accentColor','Акцентний колір',[['blue','Синій'],['teal','Бірюзовий'],['violet','Фіолетовий'],['orange','Помаранчевий ВАТРИ'],['rose','Малиновий']],currentProfile.accentColor||'blue').querySelector('select'));}
+ looks.append(prefSelect('themeMode','Тема оформлення',[['light','Світла'],['dark','Темна'],['auto','Як у системі']],currentProfile.themeMode||'light'));
+ looks.append(prefSelect('cardStyle','Форма карток',[['soft','Заокруглена'],['square','Стримана, із меншими кутами']],currentProfile.cardStyle||'soft'));
+ for(const [name,title] of [['highContrast','Підвищена контрастність'],['reduceTransparency','Менше прозорості та розмиття']]){
+  const label=document.createElement('label');label.className='settings-check vatra-appearance-toggle';
+  const box=document.createElement('input');box.type='checkbox';box.name=name;box.checked=currentProfile[name]===true;
+  label.append(box,document.createTextNode(' '+title));looks.append(label);
+ }
+
  const blocked=page.querySelector('.blocked-users-card'),legal=page.querySelector('.settings-legal-card');
  if(blocked)sections.privacy.append(blocked);
- if(legal)sections.documents.append(legal);
+ if(legal){
+  legal.classList.add('vatra-official-documents');
+  legal.innerHTML='<div class="vatra-legal-heading"><div><span class="vatra-legal-kicker">НОРМАТИВНА ІНФОРМАЦІЯ</span><h3>Документи ВАТРИ</h3><p>Правила платформи, умови використання та відомості про обробку персональних даних. Ознайомтеся з текстом документа перед використанням відповідних можливостей.</p></div></div>'+
+  '<div class="vatra-legal-rows">'+[
+   ['01','rules','Правила спільноти ВАТРИ','Норми поведінки, обмеження контенту та порядок модерації.'],
+   ['02','terms','Умови користування','Права та обов’язки користувачів, умови доступу до сервісу.'],
+   ['03','privacy','Політика конфіденційності','Категорії персональних даних, їх обробка та права користувачів.']
+  ].map(([num,id,title,description])=>'<a href="#'+id+'" data-legal-open="'+id+'" class="vatra-legal-row"><span class="vatra-legal-number">'+num+'</span><span class="vatra-legal-title"><b>'+title+'</b><small>'+description+'</small></span><span class="vatra-legal-open">Ознайомитися</span></a>').join('')+
+  '</div><p class="vatra-legal-footnote">Текст документів відкривається для читання у ВАТРІ. Дата набрання чинності й реквізити визначаються самим документом; ця сторінка не є підтвердженням юридичної експертизи.</p>';
+  sections.documents.append(legal);
+ }
  const info=document.createElement('p');info.className='vatra-settings-private-note';info.textContent='Приватні поля зберігаються окремо від відкритої інформації профілю.';
  sections.service.append(info.cloneNode(true));
  sections.life.append(info);
@@ -1016,7 +1187,7 @@ $('#confirmPhoneVerification').onclick=async()=>{const phone=$('#confirmPhoneVer
 
 get(ref(db,`admins/${currentUser.uid}`)).then(snap=>{const card=$('#officialAdminCard');if(!card)return;const isAdmin=snap.val()===true;if(isAdmin){card.hidden=false;const target=$('#officialTargetUser');if(target){target.value=currentUser.uid;$('#officialAccountToggle').checked=verifiedUsers?.[currentUser.uid]?.verified===true;$('#officialAccountStatus').textContent=$('#officialAccountToggle').checked?'Цей акаунт має офіційний статус.':'Цей акаунт поки не підтверджено.';target.onchange=()=>{const uid=target.value;$('#officialAccountToggle').checked=verifiedUsers?.[uid]?.verified===true;$('#officialAccountStatus').textContent=uid?(verifiedUsers?.[uid]?.verified===true?'Цей акаунт має офіційний статус.':'Цей акаунт поки не підтверджено.'):'Оберіть акаунт зі списку.';};}} }).catch(()=>{});
 $('#saveOfficialAccount').onclick=async()=>{const targetUid=$('#officialTargetUser').value,enabled=$('#officialAccountToggle').checked,btn=$('#saveOfficialAccount'),status=$('#officialAccountStatus');if(!targetUid){status.textContent='Спочатку оберіть акаунт.';return;}btn.disabled=true;status.textContent='Зберігаємо статус…';try{await set(ref(db,`verifiedUsers/${targetUid}`),{verified:enabled,updatedAt:Date.now(),verifiedBy:currentUser.uid});status.textContent=enabled?'Офіційний статус увімкнено.':'Офіційний статус знято.';toastMsg(status.textContent);}catch(err){status.textContent='Не вдалося змінити статус. Перевірте права адміністратора.';toastMsg(niceError(err));}finally{btn.disabled=false;}};
-$('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{toastMsg('Стискаємо й зберігаємо фото…');const edited=await getImageEditor(f,'avatar');if(!edited)return;const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory,updatedAt:Date.now()});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));const preview=$('#settingsAvatarPreview');preview.style.backgroundImage=`url('${avatarUrl}')`;preview.textContent='';updateIdentity();toastMsg('Аватар збережено. Попередні фото залишилися в історії профілю.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}};$('#removeAvatar').onclick=async()=>{try{await update(ref(db,`users/${currentUser.uid}`),{avatarUrl:''});currentProfile.avatarUrl='';await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));$('#settingsAvatarPreview').style.backgroundImage='';$('#settingsAvatarPreview').textContent=initials(currentProfile.name||'ВАТРА');updateIdentity();toastMsg('Фото прибрано.');}catch(e){toastMsg(niceError(e));}};$('#profileSettingsForm').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f);const firstName=String(fd.get('firstName')||'').trim(),lastName=String(fd.get('lastName')||'').trim(),handle=String(fd.get('handle')||'').trim().replace(/^@/,''),bio=String(fd.get('bio')||'').trim(),city=String(fd.get('city')||'').trim(),location=String(fd.get('location')||'').trim(),website=String(fd.get('website')||'').trim(),workplace=String(fd.get('workplace')||'').trim(),education=String(fd.get('education')||'').trim(),hometown=String(fd.get('hometown')||'').trim(),submittedPhone=String(fd.get('phone')||'').trim(),dateOfBirth=String(fd.get('dateOfBirth')||'');if(firstName.length<2||lastName.length<2){$('#settingsError').textContent='Ім’я та прізвище мають містити щонайменше 2 символи.';return;}if((firstName+' '+lastName).length>40){$('#settingsError').textContent='Ім’я та прізвище разом мають бути не довші за 40 символів.';return;}if(!/^[\p{L}\p{N}._-]{2,24}$/u.test(handle)){ $('#settingsError').textContent='Перевірте псевдонім: 2–24 символи, літери, цифри, крапка, _ або -.';return;}if(website&&!/^https?:\/\//i.test(website)){ $('#settingsError').textContent='Посилання має починатися з https:// або http://.';return;}if(dateOfBirth){const bd=new Date(dateOfBirth+'T00:00:00'),now=new Date();if(Number.isNaN(bd.getTime())||bd>now){$('#settingsError').textContent='Перевірте дату народження.';return;}let age=now.getFullYear()-bd.getFullYear();if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))age--;if(age<13){$('#settingsError').textContent='ВАТРА доступна з 13 років.';return;}}const values={firstName,lastName,name:`${firstName} ${lastName}`,handle,bio:bio.slice(0,500),city,location,website,workplace:workplace.slice(0,120),education:education.slice(0,120),hometown:hometown.slice(0,80),profileVisibility:fd.get('profileVisibility')==='private'?'private':'public',searchable:fd.get('searchable')!=='no',birthdayVisibility:String(fd.get('birthdayVisibility')||'private'),birthdayPublic:(String(fd.get('birthdayVisibility')||'private')==='public'?dateOfBirth:''),cityVisibility:String(fd.get('cityVisibility')||'private'),locationVisibility:String(fd.get('locationVisibility')||'private'),phoneVisibility:String(fd.get('phoneVisibility')||'private'),workplaceVisibility:String(fd.get('workplaceVisibility')||'private'),educationVisibility:String(fd.get('educationVisibility')||'private'),hometownVisibility:String(fd.get('hometownVisibility')||'private'),allowMessages:fd.get('allowMessages')==='on',fontScale:fd.get('fontScale')==='large'?'large':'normal',contentDensity:fd.get('contentDensity')==='compact'?'compact':'comfortable',accentColor:['teal','violet'].includes(fd.get('accentColor'))?fd.get('accentColor'):'blue',reduceMotion:fd.get('reduceMotion')==='on',updatedAt:Date.now()};if(submittedPhone&&submittedPhone!==privatePhone&&!/^\+[1-9]\d{7,14}$/.test(submittedPhone)){ $('#settingsError').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX. Після збереження його потрібно буде підтвердити SMS-кодом.';return;}const pendingPhone=submittedPhone&&submittedPhone!==privatePhone?submittedPhone:'';const privateSections={};for(const key of ['hobbies','activities','music','films','books','games','serviceNotes','lifeNotes','values','inspiration'])privateSections[key]=String(fd.get('private_'+key)||'').trim().slice(0,500);try{const btn=f.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Зберігаємо…';await updateProfile(currentUser,{displayName:values.name});await update(ref(db,`users/${currentUser.uid}`),values);currentProfile={...currentProfile,...values};await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));await update(ref(db,`privateUsers/${currentUser.uid}`),{dateOfBirth:dateOfBirth||null,phone:privatePhone||null,pendingPhone:pendingPhone||null,privateSections,updatedAt:Date.now()});privateProfileSections=privateSections;currentProfile.privateSections=privateSections;privatePendingPhone=pendingPhone;privateDateOfBirth=dateOfBirth;currentProfile={...currentProfile,...values,dateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone};await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));await set(ref(db,`friendProfiles/${currentUser.uid}`),friendProfileData(currentProfile));updateIdentity();if(pendingPhone){goPage('settings');const phoneStatus=$('#phoneVerificationStatus');if(phoneStatus)phoneStatus.textContent='Номер збережено як непідтверджений. Натисніть «Надіслати код на телефон», щоб підтвердити його.';toastMsg('Зміни збережено. Номер залишився в налаштуваннях і очікує підтвердження SMS.');}else{toastMsg('Налаштування профілю збережено.');goPage('profile');}}catch(err){$('#settingsError').textContent=niceError(err); }finally{const btn=f.querySelector('[type=submit]');if(btn){btn.disabled=false;btn.textContent='Зберегти налаштування';}}};}
+$('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{toastMsg('Стискаємо й зберігаємо фото…');const edited=await getImageEditor(f,'avatar');if(!edited)return;const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory,updatedAt:Date.now()});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));const preview=$('#settingsAvatarPreview');preview.style.backgroundImage=`url('${avatarUrl}')`;preview.textContent='';updateIdentity();toastMsg('Аватар збережено. Попередні фото залишилися в історії профілю.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}};$('#removeAvatar').onclick=async()=>{try{await update(ref(db,`users/${currentUser.uid}`),{avatarUrl:''});currentProfile.avatarUrl='';await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));$('#settingsAvatarPreview').style.backgroundImage='';$('#settingsAvatarPreview').textContent=initials(currentProfile.name||'ВАТРА');updateIdentity();toastMsg('Фото прибрано.');}catch(e){toastMsg(niceError(e));}};$('#profileSettingsForm').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,fd=new FormData(f);const firstName=String(fd.get('firstName')||'').trim(),lastName=String(fd.get('lastName')||'').trim(),handle=String(fd.get('handle')||'').trim().replace(/^@/,''),bio=String(fd.get('bio')||'').trim(),city=String(fd.get('city')||'').trim(),location=String(fd.get('location')||'').trim(),website=String(fd.get('website')||'').trim(),workplace=String(fd.get('workplace')||'').trim(),education=String(fd.get('education')||'').trim(),hometown=String(fd.get('hometown')||'').trim(),submittedPhone=String(fd.get('phone')||'').trim(),dateOfBirth=String(fd.get('dateOfBirth')||'');if(firstName.length<2||lastName.length<2){$('#settingsError').textContent='Ім’я та прізвище мають містити щонайменше 2 символи.';return;}if((firstName+' '+lastName).length>40){$('#settingsError').textContent='Ім’я та прізвище разом мають бути не довші за 40 символів.';return;}if(!/^[\p{L}\p{N}._-]{2,24}$/u.test(handle)){ $('#settingsError').textContent='Перевірте псевдонім: 2–24 символи, літери, цифри, крапка, _ або -.';return;}if(website&&!/^https?:\/\//i.test(website)){ $('#settingsError').textContent='Посилання має починатися з https:// або http://.';return;}if(dateOfBirth){const bd=new Date(dateOfBirth+'T00:00:00'),now=new Date();if(Number.isNaN(bd.getTime())||bd>now){$('#settingsError').textContent='Перевірте дату народження.';return;}let age=now.getFullYear()-bd.getFullYear();if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))age--;if(age<13){$('#settingsError').textContent='ВАТРА доступна з 13 років.';return;}}const values={extraVisibility,firstName,lastName,name:`${firstName} ${lastName}`,handle,bio:bio.slice(0,500),city,location,website,workplace:workplace.slice(0,120),education:education.slice(0,120),hometown:hometown.slice(0,80),profileVisibility:fd.get('profileVisibility')==='private'?'private':'public',searchable:fd.get('searchable')!=='no',birthdayVisibility:String(fd.get('birthdayVisibility')||'private'),birthdayPublic:(String(fd.get('birthdayVisibility')||'private')==='public'?dateOfBirth:''),cityVisibility:String(fd.get('cityVisibility')||'private'),locationVisibility:String(fd.get('locationVisibility')||'private'),phoneVisibility:String(fd.get('phoneVisibility')||'private'),workplaceVisibility:String(fd.get('workplaceVisibility')||'private'),educationVisibility:String(fd.get('educationVisibility')||'private'),hometownVisibility:String(fd.get('hometownVisibility')||'private'),allowMessages:fd.get('allowMessages')==='on',fontScale:['small','large'].includes(fd.get('fontScale'))?fd.get('fontScale'):'normal',contentDensity:['compact','spacious'].includes(fd.get('contentDensity'))?fd.get('contentDensity'):'comfortable',accentColor:['teal','violet','orange','rose'].includes(fd.get('accentColor'))?fd.get('accentColor'):'blue',themeMode:['dark','auto'].includes(fd.get('themeMode'))?fd.get('themeMode'):'light',cardStyle:fd.get('cardStyle')==='square'?'square':'soft',highContrast:fd.get('highContrast')==='on',reduceTransparency:fd.get('reduceTransparency')==='on',reduceMotion:fd.get('reduceMotion')==='on',updatedAt:Date.now()};if(submittedPhone&&submittedPhone!==privatePhone&&!/^\+[1-9]\d{7,14}$/.test(submittedPhone)){ $('#settingsError').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX. Після збереження його потрібно буде підтвердити SMS-кодом.';return;}const pendingPhone=submittedPhone&&submittedPhone!==privatePhone?submittedPhone:'';const extraVisibility={};for(const spec of Object.values(VATRA_PROFILE_EXTRA_SECTIONS))for(const key of Object.keys(spec.fields))extraVisibility[key]=fd.get('extraPublic_'+key)==='on'?'public':'private';const privateSections={};for(const key of ['hobbies','activities','music','films','books','games','serviceNotes','lifeNotes','values','inspiration'])privateSections[key]=String(fd.get('private_'+key)||'').trim().slice(0,500);try{const btn=f.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Зберігаємо…';await updateProfile(currentUser,{displayName:values.name});await update(ref(db,`users/${currentUser.uid}`),values);currentProfile={...currentProfile,...values};currentProfile.privateSections=privateSections;currentProfile.extraVisibility=extraVisibility;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));await update(ref(db,`privateUsers/${currentUser.uid}`),{dateOfBirth:dateOfBirth||null,phone:privatePhone||null,pendingPhone:pendingPhone||null,privateSections,updatedAt:Date.now()});privateProfileSections=privateSections;privatePendingPhone=pendingPhone;privateDateOfBirth=dateOfBirth;currentProfile={...currentProfile,...values,dateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone};await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));await set(ref(db,`friendProfiles/${currentUser.uid}`),friendProfileData(currentProfile));updateIdentity();if(pendingPhone){goPage('settings');const phoneStatus=$('#phoneVerificationStatus');if(phoneStatus)phoneStatus.textContent='Номер збережено як непідтверджений. Натисніть «Надіслати код на телефон», щоб підтвердити його.';toastMsg('Зміни збережено. Номер залишився в налаштуваннях і очікує підтвердження SMS.');}else{toastMsg('Налаштування профілю збережено.');goPage('profile');}}catch(err){$('#settingsError').textContent=niceError(err); }finally{const btn=f.querySelector('[type=submit]');if(btn){btn.disabled=false;btn.textContent='Зберегти налаштування';}}};}
 function createGroup(){if(!authRequired())return;$('#communityError').textContent='';$('#communityForm').reset();$('#communityDialog').showModal();setTimeout(()=>$('#communityName').focus(),40);}async function editGroup(id){if(!authRequired())return;const g=groups[id];if(!g||g.ownerUid!==currentUser.uid)return toastMsg('Редагувати може лише творець спільноти.');const name=await askText('Назва спільноти',g.name||'');if(name===null)return;const description=await askText('Опис спільноти',g.description||'');if(description===null)return;if(name.trim().length<2)return toastMsg('Назва має містити щонайменше 2 символи.');try{await update(ref(db,`groups/${id}`),{name:name.trim().slice(0,60),description:description.trim().slice(0,500),updatedAt:Date.now()});toastMsg('Спільноту оновлено.');render();}catch(e){toastMsg(niceError(e));}}
 async function uploadVideo(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;if(!f.type.startsWith('video/'))return toastMsg('Виберіть відеофайл.');if(f.size>50*1024*1024)return toastMsg('Відео має бути меншим за 50 МБ.');const text=await askText('Підпис до відео (необов’язково)','');if(text===null){e.target.value='';return;}toastMsg('Завантажуємо відео…');try{const videoUrl=await uploadMedia(f,'videos');const vref=push(ref(db,'videos'));await set(vref,{authorUid:currentUser.uid,authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text:text.slice(0,300),videoUrl,createdAt:Date.now(),mimeType:f.type});toastMsg('Відео опубліковано!');render();}catch(err){toastMsg(niceError(err));}finally{e.target.value='';}}
 async function startChatWith(uid){if(!authRequired()||uid===currentUser.uid)return;if(blockedUsers[uid])return toastMsg('Спочатку розблокуй цього користувача.');if(users[uid]?.allowMessages===false)return toastMsg('Цей користувач вимкнув вхідні повідомлення.');const key=chatKey(currentUser.uid,uid);try{const snap=await get(ref(db,`chats/${key}`));if(!snap.exists())await set(ref(db,`chats/${key}`),{members:{[currentUser.uid]:true,[uid]:true},createdAt:Date.now()});await update(ref(db,`userChats/${currentUser.uid}/${key}`),{otherUid:uid,updatedAt:Date.now()});activeChat=uid;goPage('messages');activeChat=uid;renderMessages();}catch(e){toastMsg(niceError(e));}}
@@ -1081,7 +1252,7 @@ $('#postForm').addEventListener('submit',async e=>{
   const message=niceError(err);if(postError){postError.textContent=message;postError.hidden=false;}else toastMsg(message);
  }finally{btn.disabled=false;btn.textContent='Опублікувати';}
 });
-$$('[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));$$('.tab').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;goPage('feed');});$('#search').addEventListener('input',e=>{query=e.target.value.trim();if(query){if(page!=='explore')goPage('explore');else render();}else{if(page==='explore')render();else if(page==='saved'||page==='profile')goPage('feed');else render();}});$('#search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();goPage('explore');}});$('#sort').onclick=()=>{filter=filter==='popular'?'all':'popular';goPage('feed');toastMsg(filter==='popular'?'Сортування за вподобаннями':'Найновіші дописи');};$('#moment')?.addEventListener('click',openComposer);$$('[data-action="compose"]').forEach(b=>b.addEventListener('click',openComposer));$$('[data-tag]').forEach(b=>b.addEventListener('click',()=>{query=b.dataset.tag;$('#search').value=query;goPage('feed');}));
+$$('[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));$$('.tab').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;goPage('feed');});$('#search').addEventListener('input',e=>{query=e.target.value.trim();profileAttributeSearch=null;if(query){if(page!=='explore')goPage('explore');else render();}else{if(page==='explore')render();else if(page==='saved'||page==='profile')goPage('feed');else render();}});$('#search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();goPage('explore');}});$('#moment')?.addEventListener('click',openComposer);$$('[data-action="compose"]').forEach(b=>b.addEventListener('click',openComposer));$$('[data-tag]').forEach(b=>b.addEventListener('click',()=>{query=b.dataset.tag;$('#search').value=query;goPage('feed');}));
 document.addEventListener('click',async e=>{
  const avatarViewerButton=e.target.closest('[data-avatar-viewer]');if(avatarViewerButton){let photos=[];try{photos=JSON.parse(avatarViewerButton.dataset.avatarUrls||'[]');}catch{}await openAvatarViewer(avatarViewerButton.dataset.avatarViewer,photos,0);return;}
  const postPhotoButton=e.target.closest('[data-open-photo]');if(postPhotoButton){let urls=[];try{urls=JSON.parse(postPhotoButton.dataset.photoUrls||'[]');}catch{}openPostPhotoViewer(urls,Number(postPhotoButton.dataset.photoIndex)||0,postPhotoButton.dataset.openPhoto);return;}
@@ -1108,26 +1279,40 @@ document.addEventListener('click',async e=>{
  b=e.target.closest('[data-delete-message]');if(b){if(!(await askConfirm('Видалити повідомлення?')))return;try{const key=chatKey(currentUser.uid,activeChat);await remove(ref(db,`chats/${key}/messages/${b.dataset.deleteMessage}`));await syncChatPreview(key,activeChat);toastMsg('Повідомлення видалено.');}catch(err){toastMsg(niceError(err));}return;}
  b=e.target.closest('[data-cancel-edit]');if(b){editingMessageId=null;renderMessages();return;}
  b=e.target.closest('[data-emoji-toggle]');if(b){
-  const panel=b.parentElement.querySelector('.emoji-picker'),willOpen=panel.hidden;panel.hidden=!willOpen;
+  const panel=b.closest('.vatra-emoji-wrap')?.querySelector('.emoji-picker');
+  if(!panel)return;
+  const willOpen=panel.hidden;
+  $$('.vatra-emoji-wrap .emoji-picker').forEach(other=>{other.hidden=true;other.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
   if(willOpen){
-   try{
-    await loadVatraEmojiPicker();
-    const picker=panel.querySelector('emoji-picker');
-    if(picker&&!picker.dataset.vatraBound){
-     picker.dataset.vatraBound='1';
-     picker.addEventListener('emoji-click',event=>{
-      const input=b.closest('form')?.querySelector('[data-emoji-input]')||document.querySelector('#postText');
-      if(!input)return;
-      const emoji=event.detail?.unicode||'';if(!emoji)return;
-      const start=input.selectionStart??input.value.length,end=input.selectionEnd??input.value.length;
-      input.setRangeText(emoji,start,end,'end');input.focus();panel.hidden=true;
-     });
-    }
-   }catch(error){panel.innerHTML='<p class="emoji-picker-error">'+esc(error.message)+'</p>';}
+   prepareVatraEmojiPanel(panel);
+   const bounds=b.getBoundingClientRect();panel.classList.toggle('vatra-emoji-align-right',window.innerWidth-bounds.left<350);
+   panel.hidden=false;b.setAttribute('aria-expanded','true');
+   panel.querySelector('[data-emoji-search]')?.focus();
   }
   return;
  }
- b=e.target.closest('[data-insert-emoji]');if(b){const input=b.closest('form')?.querySelector('[data-emoji-input]');if(!input)return;const start=input.selectionStart,end=input.selectionEnd;input.setRangeText(b.dataset.insertEmoji,start,end,'end');input.focus();b.closest('.emoji-picker').hidden=true;return;}
+ b=e.target.closest('[data-emoji-close]');if(b){
+  const panel=b.closest('.emoji-picker');if(panel)panel.hidden=true;
+  b.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');return;
+ }
+ b=e.target.closest('[data-emoji-category]');if(b){
+  const panel=b.closest('.emoji-picker');if(!panel)return;
+  panel.dataset.category=b.dataset.emojiCategory;
+  const search=panel.querySelector('[data-emoji-search]');if(search)search.value='';
+  renderVatraEmojiPanel(panel);return;
+ }
+ b=e.target.closest('[data-insert-emoji]');if(b){
+  const form=b.closest('form'),input=form?.querySelector('[data-emoji-input]')||document.querySelector('#postText');
+  if(!input)return;
+  const emoji=b.dataset.insertEmoji||'';
+  if(typeof input.setRangeText==='function')input.setRangeText(emoji,input.selectionStart??input.value.length,input.selectionEnd??input.value.length,'end');
+  else input.value+=emoji;
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  input.focus();
+  const panel=b.closest('.emoji-picker');if(panel)panel.hidden=true;
+  b.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');
+  return;
+ }
  b=e.target.closest('[data-view-profile]');if(b){renderPublicProfile(b.dataset.viewProfile);return;}b=e.target.closest('[data-friend-request]');if(b){if(!authRequired())return;const uid=b.dataset.friendRequest;try{if(friends[uid])return toastMsg('Ви вже друзі.');await set(ref(db,`friendRequests/${uid}/${currentUser.uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'incoming',createdAt:Date.now()});await set(ref(db,`friendRequests/${currentUser.uid}/${uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'outgoing',createdAt:Date.now()});toastMsg('Запит у друзі надіслано.');}catch(err){toastMsg(niceError(err));}return;}b=e.target.closest('[data-accept-friend]');if(b){
  const uid=b.dataset.acceptFriend,request=friendRequests[uid];
  if(!uid||!request||request.status!=='pending'||request.direction!=='incoming')return toastMsg('Цей запит уже неактуальний. Оновіть список друзів.');
