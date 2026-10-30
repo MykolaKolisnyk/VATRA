@@ -1175,3 +1175,220 @@ body .layout>.sidebar nav .nav.active{
   aspect-ratio:16/10!important;max-height:280px!important;
  }
 }
+
+
+/* Єдина сітка ВАТРИ: кожен розділ та шапка мають спільні координати. */
+:root{
+ --vatra-unified-width:1000px;
+ --vatra-unified-rail:180px;
+ --vatra-unified-gap:20px;
+ --vatra-unified-main:800px;
+}
+@media(min-width:981px){
+ body[data-page] .layout{
+  display:grid!important;
+  width:min(var(--vatra-unified-width),calc(100% - 40px))!important;
+  max-width:var(--vatra-unified-width)!important;
+  grid-template-columns:var(--vatra-unified-rail) minmax(0,1fr)!important;
+  gap:var(--vatra-unified-gap)!important;
+  justify-content:stretch!important;align-items:start!important;
+  margin:0 auto!important;padding:16px 0 40px!important;
+ }
+ body[data-page] .layout>.sidebar{
+  grid-column:1!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;margin:0!important;
+ }
+ body[data-page] .layout>.main{
+  grid-column:2!important;width:100%!important;
+  max-width:var(--vatra-unified-main)!important;min-width:0!important;
+  margin:0!important;padding:0 0 36px!important;
+  justify-self:stretch!important;
+ }
+ body[data-page] .layout>.right{display:none!important;}
+ body[data-page="profile"] .vatra-profile-layout,
+ body[data-page="publicProfile"] .vatra-profile-layout{
+  width:100%!important;max-width:100%!important;
+  grid-template-columns:200px minmax(0,1fr)!important;gap:12px!important;
+ }
+}
+/* Жоден кореневий розділ не створює власну вужчу або ширшу колонку. */
+body[data-page] #feed,
+body[data-page] .layout>.main>.quick-compose,
+body[data-page] .layout>.main>#empty,
+body[data-page] .settings-page,
+body[data-page] .vatra-settings-workspace,
+body[data-page] .vatra-communities-layout,
+body[data-page] .vatra-messenger-shell,
+body[data-page] .vatra-photos-page,
+body[data-page] .messages-page,
+body[data-page] .vatra-profile-layout{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ box-sizing:border-box!important;
+}
+body[data-page] .vatra-profile-main,
+body[data-page] .vatra-profile-sidebar,
+body[data-page] .vatra-communities-main,
+body[data-page] .vatra-communities-rail,
+body[data-page] .vatra-settings-pane,
+body[data-page] .vatra-messenger-sidebar,
+body[data-page] .chat-window{min-width:0!important;max-width:100%!important;}
+@media(min-width:981px){
+ body .vatra-global-header{
+  box-sizing:border-box!important;display:grid!important;
+  grid-template-columns:var(--vatra-unified-rail) minmax(0,1fr) 34px 34px!important;
+  column-gap:var(--vatra-unified-gap)!important;
+  align-items:center!important;justify-items:stretch!important;
+  width:100%!important;max-width:none!important;
+  height:60px!important;min-height:60px!important;
+  margin:0!important;
+  padding:0 max(20px,calc((100% - var(--vatra-unified-width))/2))!important;
+  flex-wrap:nowrap!important;
+ }
+ body .vatra-global-header>.mobile-brand{
+  display:flex!important;grid-column:1!important;grid-row:1!important;
+  flex:none!important;order:0!important;
+  width:auto!important;min-width:0!important;max-width:100%!important;
+  margin:0!important;padding:0!important;justify-self:start!important;
+ }
+ body .vatra-global-header>.search{
+  grid-column:2!important;grid-row:1!important;
+  flex:none!important;order:0!important;width:100%!important;
+  max-width:520px!important;min-width:0!important;
+  margin:0!important;justify-self:start!important;
+ }
+ body .vatra-global-header>#notificationBell,
+ body .vatra-global-header>#topAvatar{
+  width:34px!important;min-width:34px!important;height:34px!important;
+  margin:0!important;flex:none!important;order:0!important;
+  grid-row:1!important;justify-self:center!important;
+ }
+ body .vatra-global-header>#notificationBell{grid-column:3!important;}
+ body .vatra-global-header>#topAvatar{grid-column:4!important;}
+ body .vatra-global-header>.topbar-popover{
+  position:absolute!important;
+  right:max(20px,calc((100% - var(--vatra-unified-width))/2))!important;
+ }
+}
+/* Планшет: ті самі вирівнювання, але компактніша навігація. */
+@media(min-width:761px) and (max-width:980px){
+ body[data-page] .layout{
+  display:grid!important;width:calc(100% - 28px)!important;max-width:none!important;
+  grid-template-columns:150px minmax(0,1fr)!important;gap:14px!important;
+  margin:0 auto!important;padding:14px 0 36px!important;
+ }
+ body[data-page] .layout>.sidebar{grid-column:1!important;width:100%!important;}
+ body[data-page] .layout>.main{
+  grid-column:2!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;padding:0 0 32px!important;
+ }
+ body[data-page] .layout>.right{display:none!important;}
+ body .vatra-global-header{
+  display:grid!important;box-sizing:border-box!important;
+  grid-template-columns:150px minmax(0,1fr) 32px 32px!important;
+  column-gap:14px!important;align-items:center!important;
+  width:100%!important;max-width:none!important;
+  height:58px!important;min-height:58px!important;
+  padding:0 14px!important;margin:0!important;flex-wrap:nowrap!important;
+ }
+ body .vatra-global-header>.mobile-brand{
+  display:flex!important;grid-column:1!important;grid-row:1!important;
+  order:0!important;flex:none!important;width:auto!important;min-width:0!important;
+  max-width:100%!important;margin:0!important;justify-self:start!important;
+ }
+ body .vatra-global-header>.search{
+  grid-column:2!important;grid-row:1!important;
+  order:0!important;flex:none!important;width:100%!important;
+  max-width:480px!important;min-width:0!important;margin:0!important;
+ }
+ body .vatra-global-header>#notificationBell,
+ body .vatra-global-header>#topAvatar{
+  width:32px!important;min-width:32px!important;height:32px!important;
+  flex:none!important;order:0!important;grid-row:1!important;
+  margin:0!important;justify-self:center!important;
+ }
+ body .vatra-global-header>#notificationBell{grid-column:3!important;}
+ body .vatra-global-header>#topAvatar{grid-column:4!important;}
+ body[data-page="profile"] .vatra-profile-layout,
+ body[data-page="publicProfile"] .vatra-profile-layout{
+  width:100%!important;max-width:100%!important;
+  grid-template-columns:minmax(160px,195px) minmax(0,1fr)!important;gap:11px!important;
+ }
+}
+/* Телефон: вся ширина доступна розділу, шапка не переносить пошук на новий рядок. */
+@media(max-width:760px){
+ body[data-page] .layout{
+  display:block!important;box-sizing:border-box!important;
+  width:100%!important;max-width:100%!important;
+  margin:0!important;
+  padding:10px 10px calc(88px + env(safe-area-inset-bottom))!important;
+ }
+ body[data-page] .layout>.main{
+  display:block!important;width:100%!important;max-width:100%!important;
+  min-width:0!important;margin:0!important;padding:0!important;
+ }
+ body[data-page] .layout>.sidebar,
+ body[data-page] .layout>.right{display:none!important;}
+ body .vatra-global-header{
+  display:grid!important;box-sizing:border-box!important;
+  grid-template-columns:76px minmax(0,1fr) 30px 30px!important;
+  column-gap:7px!important;row-gap:0!important;align-items:center!important;
+  width:100%!important;max-width:none!important;
+  height:56px!important;min-height:56px!important;
+  margin:0!important;padding:0 10px!important;flex-wrap:nowrap!important;
+ }
+ body .vatra-global-header>.mobile-brand{
+  display:flex!important;grid-column:1!important;grid-row:1!important;
+  flex:none!important;order:0!important;
+  width:76px!important;min-width:0!important;max-width:76px!important;
+  margin:0!important;padding:0!important;gap:5px!important;
+  font-size:13px!important;white-space:nowrap!important;justify-self:start!important;
+ }
+ body .vatra-global-header>.mobile-brand .brand-icon{
+  width:26px!important;height:26px!important;min-width:26px!important;
+  flex-basis:26px!important;font-size:16px!important;
+ }
+ body .vatra-global-header>.search{
+  display:flex!important;grid-column:2!important;grid-row:1!important;
+  flex:none!important;order:0!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:34px!important;min-height:34px!important;
+  margin:0!important;padding:0 6px!important;
+ }
+ body .vatra-global-header>.search input{
+  min-width:0!important;width:100%!important;font-size:16px!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;
+ }
+ body .vatra-global-header>#notificationBell,
+ body .vatra-global-header>#topAvatar{
+  display:grid!important;place-items:center!important;
+  width:30px!important;min-width:30px!important;height:30px!important;
+  margin:0!important;flex:none!important;order:0!important;grid-row:1!important;
+ }
+ body .vatra-global-header>#notificationBell{grid-column:3!important;}
+ body .vatra-global-header>#topAvatar{grid-column:4!important;}
+ body .vatra-global-header .topbar-popover{
+  right:10px!important;max-width:calc(100vw - 20px)!important;
+ }
+ body[data-page="profile"] .vatra-profile-layout,
+ body[data-page="publicProfile"] .vatra-profile-layout{
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;max-width:100%!important;
+ }
+}
+@media(max-width:360px){
+ body .vatra-global-header{
+  grid-template-columns:67px minmax(0,1fr) 28px 28px!important;
+  gap:5px!important;padding-inline:8px!important;
+ }
+ body .vatra-global-header>.mobile-brand{
+  width:67px!important;max-width:67px!important;font-size:12px!important;gap:4px!important;
+ }
+ body .vatra-global-header>.mobile-brand .brand-icon{
+  width:24px!important;height:24px!important;min-width:24px!important;flex-basis:24px!important;
+ }
+ body .vatra-global-header>#notificationBell,
+ body .vatra-global-header>#topAvatar{
+  width:28px!important;min-width:28px!important;height:28px!important;
+ }
+ body[data-page] .layout{padding-inline:8px!important;}
+}
