@@ -4629,3 +4629,12 @@ body{background:#edeef0!important}
 @media(prefers-reduced-motion:reduce){
  .layout>.sidebar .nav,.layout>.sidebar .create-button,.vatra-global-header .search{transition:none!important}
 }
+
+
+/* Reset the old two-column profile sidebar at tablet widths. */
+@media (min-width:761px) and (max-width:1100px){
+ .profile-vk-sidebar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+ .profile-vk-sidebar>.profile-vk-card{grid-column:auto!important;width:100%!important;max-width:100%!important;min-width:0!important}
+ .profile-vk-avatar-card{display:block!important;width:100%!important}
+ .profile-vk-friends,.profile-vk-history{grid-column:auto!important;width:100%!important}
+}
