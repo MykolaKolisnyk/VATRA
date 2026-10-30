@@ -1202,7 +1202,7 @@ function openVatraGuide(){
   if(currentUser){
    const key='vatra-guide-completed-v2-'+currentUser.uid;
    try{localStorage.setItem(key,'1');}catch{}
-   set(ref(db,'privateUsers/'+currentUser.uid+'/vatraGuideCompletedAt'),Date.now()).catch(error=>console.warn('[ВАТРА] Не вдалося зберегти завершення туру:',error));
+   update(ref(db,'privateUsers/'+currentUser.uid),{vatraGuideCompletedAt:Date.now()}).catch(error=>console.warn('[ВАТРА] Не вдалося зберегти завершення туру:',error));
   }
   if(previousFocus?.isConnected)previousFocus.focus();
  };
