@@ -1074,11 +1074,16 @@ async function getImageEditor(file,mode='avatar'){
  '<label class="vatra-image-control"><span>Масштаб <output data-range-output="zoom">100%</output></span><input type="range" id="vatraEditZoom" min="100" max="300" value="100"></label>'+
  '<label class="vatra-image-control"><span>Горизонталь <output data-range-output="x">0</output></span><input type="range" id="vatraEditX" min="-100" max="100" value="0"></label>'+
  '<label class="vatra-image-control"><span>Вертикаль <output data-range-output="y">0</output></span><input type="range" id="vatraEditY" min="-100" max="100" value="0"></label>'+
- '<div class="vatra-image-rotate"><span>Повернути фото</span><div><button type="button" data-vatra-rotate="-90" aria-label="Повернути ліворуч">↶</button><button type="button" data-vatra-rotate="90" aria-label="Повернути праворуч">↻</button></div></div></section>'+
+ '<div class="vatra-image-rotate"><span>Повернути фото</span><div><button type="button" data-vatra-rotate="-90" aria-label="Повернути ліворуч">↶</button><button type="button" data-vatra-rotate="90" aria-label="Повернути праворуч">↻</button></div></div>'+
+ '<div class="vatra-image-rotate"><span>Віддзеркалити</span><div><button type="button" data-vatra-flip="x" aria-label="Віддзеркалити горизонтально">↔</button><button type="button" data-vatra-flip="y" aria-label="Віддзеркалити вертикально">↕</button></div></div></section>'+
  '<section class="vatra-editor-section"><b>Корекція кольору</b>'+
  '<label class="vatra-image-control"><span>Яскравість <output data-range-output="brightness">100%</output></span><input type="range" id="vatraEditBrightness" min="50" max="160" value="100"></label>'+
  '<label class="vatra-image-control"><span>Контраст <output data-range-output="contrast">100%</output></span><input type="range" id="vatraEditContrast" min="50" max="160" value="100"></label>'+
  '<label class="vatra-image-control"><span>Насиченість <output data-range-output="saturation">100%</output></span><input type="range" id="vatraEditSaturation" min="0" max="180" value="100"></label></section>'+
+ '<section class="vatra-editor-section"><b>Додаткові корекції</b>'+
+ '<label class="vatra-image-control"><span>Відтінок <output data-range-output="hue">0°</output></span><input type="range" id="vatraEditHue" min="-180" max="180" value="0"></label>'+
+ '<label class="vatra-image-control"><span>Пом’якшення <output data-range-output="blur">0</output></span><input type="range" id="vatraEditBlur" min="0" max="5" step="0.5" value="0"></label>'+
+ '<button type="button" class="pill vatra-editor-reset" data-vatra-edit-reset>Скинути редагування</button></section>'+
  '<section class="vatra-editor-section vatra-editor-text"><b>Текст на фото</b>'+
  '<input type="text" id="vatraEditText" maxlength="80" placeholder="Додайте напис або цитату…">'+
  '<div class="vatra-editor-text-options"><label>Колір <input id="vatraEditTextColor" type="color" value="#ffffff"></label><label>Контур <input id="vatraEditTextStroke" type="color" value="#18283f"></label><label>Розмір <input id="vatraEditTextSize" type="range" min="16" max="64" value="32"></label>'+
@@ -1092,9 +1097,9 @@ async function getImageEditor(file,mode='avatar'){
  const overlayPreview=dialog.querySelector('.vatra-image-overlay-preview');
  const stage=dialog.querySelector('.vatra-image-stage');
  const zoom=dialog.querySelector('#vatraEditZoom'),xInput=dialog.querySelector('#vatraEditX'),yInput=dialog.querySelector('#vatraEditY');
- const brightnessInput=dialog.querySelector('#vatraEditBrightness'),contrastInput=dialog.querySelector('#vatraEditContrast'),saturationInput=dialog.querySelector('#vatraEditSaturation');
+ const brightnessInput=dialog.querySelector('#vatraEditBrightness'),contrastInput=dialog.querySelector('#vatraEditContrast'),saturationInput=dialog.querySelector('#vatraEditSaturation'),hueInput=dialog.querySelector('#vatraEditHue'),blurInput=dialog.querySelector('#vatraEditBlur');
  const textInput=dialog.querySelector('#vatraEditText'),textColor=dialog.querySelector('#vatraEditTextColor'),textStroke=dialog.querySelector('#vatraEditTextStroke'),textSize=dialog.querySelector('#vatraEditTextSize'),textPosition=dialog.querySelector('#vatraEditTextPosition'),textAlign=dialog.querySelector('#vatraEditTextAlign'),textFont=dialog.querySelector('#vatraEditTextFont');
- const state={zoom:1,x:0,y:0,rotation:0,brightness:100,saturation:100,contrast:100,sepia:0,filter:'original',text:'',textColor:'#ffffff',textStroke:'#18283f',textSize:32,textPosition:'bottom',textAlign:'center',textFont:'Inter'};
+ const state={zoom:1,x:0,y:0,rotation:0,flipX:1,flipY:1,hue:0,blur:0,brightness:100,saturation:100,contrast:100,sepia:0,filter:'original',text:'',textColor:'#ffffff',textStroke:'#18283f',textSize:32,textPosition:'bottom',textAlign:'center',textFont:'Inter'};
  let finished=false;
  return await new Promise(resolve=>{
   const finish=result=>{
@@ -1102,17 +1107,17 @@ async function getImageEditor(file,mode='avatar'){
   };
   const output=(key,value)=>{const el=dialog.querySelector('[data-range-output="'+key+'"]');if(el)el.textContent=value;};
   const drawPreview=()=>{
-   preview.style.transform='translate('+state.x*.17+'%,'+state.y*.17+'%) scale('+state.zoom+') rotate('+state.rotation+'deg)';
-   preview.style.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%) sepia('+state.sepia+'%)';
+   preview.style.transform='translate('+state.x*.17+'%,'+state.y*.17+'%) rotate('+state.rotation+'deg) scale('+(state.zoom*state.flipX)+','+(state.zoom*state.flipY)+')';
+   preview.style.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%) sepia('+state.sepia+'%) hue-rotate('+state.hue+'deg) blur('+state.blur+'px)';
    output('zoom',Math.round(state.zoom*100)+'%');output('x',String(Math.round(state.x)));output('y',String(Math.round(state.y)));
-   output('brightness',state.brightness+'%');output('contrast',state.contrast+'%');output('saturation',state.saturation+'%');
+   output('brightness',state.brightness+'%');output('contrast',state.contrast+'%');output('saturation',state.saturation+'%');output('hue',state.hue+'°');output('blur',String(state.blur));
    overlayPreview.textContent=state.text;overlayPreview.hidden=!state.text;
    overlayPreview.style.color=state.textColor;overlayPreview.style.fontSize=Math.max(12,Math.round(state.textSize*.72))+'px';
    overlayPreview.style.fontFamily=state.textFont+',sans-serif';overlayPreview.style.setProperty('text-align',state.textAlign,'important');overlayPreview.style.textShadow='0 2px 7px '+state.textStroke;
    overlayPreview.dataset.position=state.textPosition;
   };
   preview.onload=drawPreview;preview.onerror=()=>{dialog.querySelector('.vatra-image-editor-status').textContent='Не вдалося відкрити це фото.';};preview.src=objectUrl;
-  const ranges=[zoom,xInput,yInput,brightnessInput,contrastInput,saturationInput,textSize];
+  const ranges=[zoom,xInput,yInput,brightnessInput,contrastInput,saturationInput,hueInput,blurInput,textSize];
   ranges.forEach(input=>input.addEventListener('input',()=>{
    if(input===zoom)state.zoom=Number(zoom.value)/100;
    if(input===xInput)state.x=Number(xInput.value);
@@ -1120,6 +1125,8 @@ async function getImageEditor(file,mode='avatar'){
    if(input===brightnessInput)state.brightness=Number(brightnessInput.value);
    if(input===contrastInput)state.contrast=Number(contrastInput.value);
    if(input===saturationInput)state.saturation=Number(saturationInput.value);
+   if(input===hueInput)state.hue=Number(hueInput.value);
+   if(input===blurInput)state.blur=Number(blurInput.value);
    if(input===textSize)state.textSize=Number(textSize.value);
    drawPreview();
   }));
@@ -1161,6 +1168,15 @@ async function getImageEditor(file,mode='avatar'){
   dialog.querySelectorAll('[data-vatra-rotate]').forEach(button=>button.addEventListener('click',()=>{
    state.rotation=(state.rotation+Number(button.dataset.vatraRotate)+360)%360;drawPreview();
   }));
+  dialog.querySelectorAll('[data-vatra-flip]').forEach(button=>button.addEventListener('click',()=>{
+   if(button.dataset.vatraFlip==='x')state.flipX*=-1;else state.flipY*=-1;drawPreview();
+  }));
+  dialog.querySelector('[data-vatra-edit-reset]').addEventListener('click',()=>{
+   Object.assign(state,{zoom:1,x:0,y:0,rotation:0,flipX:1,flipY:1,hue:0,blur:0,brightness:100,saturation:100,contrast:100,sepia:0,filter:'original',text:'',textColor:'#ffffff',textStroke:'#18283f',textSize:32,textPosition:'bottom',textAlign:'center',textFont:'Inter'});
+   for(const [el,value] of [[zoom,100],[xInput,0],[yInput,0],[brightnessInput,100],[contrastInput,100],[saturationInput,100],[hueInput,0],[blurInput,0],[textSize,32]])el.value=String(value);
+   textInput.value='';textColor.value=state.textColor;textStroke.value=state.textStroke;textPosition.value=state.textPosition;textAlign.value=state.textAlign;textFont.value=state.textFont;
+   dialog.querySelectorAll('[data-vatra-filter]').forEach(b=>b.classList.toggle('active',b.dataset.vatraFilter==='original'));drawPreview();
+  });
   dialog.querySelector('.vatra-image-editor-close').addEventListener('click',()=>finish(null));
   dialog.querySelector('[data-vatra-edit-cancel]').addEventListener('click',()=>finish(null));
   dialog.addEventListener('cancel',event=>{event.preventDefault();finish(null);});
@@ -1179,8 +1195,8 @@ async function getImageEditor(file,mode='avatar'){
     const bw=iw*Math.abs(Math.cos(rad))+ih*Math.abs(Math.sin(rad));
     const bh=iw*Math.abs(Math.sin(rad))+ih*Math.abs(Math.cos(rad));
     const scale=Math.max(outW/bw,outH/bh)*state.zoom;
-    ctx.save();ctx.translate(outW/2+state.x*outW*.0018,outH/2+state.y*outH*.0018);ctx.rotate(rad);
-    ctx.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%) sepia('+state.sepia+'%)';
+    ctx.save();ctx.translate(outW/2+state.x*outW*.0018,outH/2+state.y*outH*.0018);ctx.rotate(rad);ctx.scale(state.flipX,state.flipY);
+    ctx.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%) sepia('+state.sepia+'%) hue-rotate('+state.hue+'deg) blur('+state.blur+'px)';
     ctx.drawImage(preview,-iw*scale/2,-ih*scale/2,iw*scale,ih*scale);ctx.restore();
     if(state.text){
      const maxWidth=outW*.88,lineHeight=state.textSize*1.25,words=state.text.split(/\s+/),lines=[];let line='';
