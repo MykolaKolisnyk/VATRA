@@ -4,17 +4,28 @@ body:not([data-vatra-theme-effective="dark"]){
  --vatra-user-accent:#0757f5;
  --v-ink:#27313d;
 }
+/* Restore the original bright-blue navigation focus, including its subtle movement. */
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav{
- color:#4d5968!important;font-weight:500!important;border-radius:9px!important;
+ color:#506781!important;font-weight:570!important;border-radius:7px!important;
+ transition:background-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease!important;
 }
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav .nav-icon{color:#748297!important;}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav .nav-icon{color:#6384a9!important;}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav:is(:hover,:focus-visible){
+ color:var(--vatra-user-accent,#0757f5)!important;
+ background:#eaf1ff!important;
+ transform:translateX(2px)!important;
+}
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active{
- color:#222e3c!important;background:#e0e5eb!important;font-weight:630!important;
- box-shadow:inset 3px 0 #596d86!important;
+ color:var(--vatra-user-accent,#0757f5)!important;
+ background:#e2ecff!important;
+ font-weight:650!important;
+ box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5)!important;
 }
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active .nav-icon{color:#3a526e!important}
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav:hover{
- color:#1f2c3c!important;background:#e6eaef!important;
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active .nav-icon,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active .nav-icon svg,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav:is(:hover,:focus-visible) .nav-icon,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav:is(:hover,:focus-visible) .nav-icon svg{
+ color:var(--vatra-user-accent,#0757f5)!important;
 }
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .sidebar-footer a,
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .vatra-footer-legal a{color:#617085!important;font-weight:520!important}
@@ -80,3 +91,107 @@ body[data-vatra-theme-effective="dark"] .vatra-top-music-panel{background:#25344
 body[data-vatra-theme-effective="dark"] .vatra-top-music-symbol{background:#35485f;color:#d4e0f2}
 body[data-vatra-theme-effective="dark"] .vatra-top-music-actions button{background:#334660;color:#dce8f7;border-color:#4b607a}
 @media(max-width:760px){#vatraMusicHeaderButton{width:36px;height:36px;min-width:36px;min-height:36px;flex-basis:36px}.vatra-top-music-panel{top:58px;right:10px}}
+
+
+/* 2026-10-30: global header has FIVE controls, not four.
+   Explicit placement prevents music dropping into an implicit second grid row. */
+@media(min-width:981px){
+ body .vatra-global-header{
+  display:grid!important;
+  grid-template-columns:var(--vatra-unified-rail,180px) minmax(0,1fr) 34px 34px 34px!important;
+  grid-template-rows:minmax(0,1fr)!important;
+ }
+}
+@media(min-width:761px) and (max-width:980px){
+ body .vatra-global-header{
+  display:grid!important;
+  grid-template-columns:150px minmax(0,1fr) 32px 32px 32px!important;
+  grid-template-rows:minmax(0,1fr)!important;
+ }
+}
+@media(max-width:760px){
+ body .vatra-global-header{
+  display:grid!important;
+  grid-template-columns:76px minmax(0,1fr) 30px 30px 30px!important;
+  grid-template-rows:minmax(0,1fr)!important;
+  grid-auto-rows:0!important;
+  row-gap:0!important;
+  overflow:visible!important;
+ }
+}
+@media(max-width:360px){
+ body .vatra-global-header{
+  grid-template-columns:67px minmax(0,1fr) 28px 28px 28px!important;
+ }
+}
+body .vatra-global-header>#notificationBell{
+ display:grid!important;
+ grid-column:3!important;grid-row:1!important;
+ align-self:center!important;justify-self:center!important;
+ margin:0!important;
+}
+body .vatra-global-header>#vatraMusicHeaderButton{
+ position:relative!important;display:grid!important;place-items:center!important;
+ grid-column:4!important;grid-row:1!important;
+ justify-self:center!important;align-self:center!important;
+ flex:none!important;order:0!important;
+ width:34px!important;min-width:34px!important;max-width:34px!important;
+ height:34px!important;min-height:34px!important;max-height:34px!important;
+ margin:0!important;padding:6px!important;
+ border:0!important;border-radius:8px!important;
+ background:transparent!important;color:#607994!important;
+ box-shadow:none!important;
+ transition:background-color .18s ease,color .18s ease,transform .18s ease!important;
+}
+body .vatra-global-header>#vatraMusicHeaderButton svg{
+ width:21px!important;height:21px!important;max-width:21px!important;
+ fill:none!important;stroke:currentColor!important;stroke-width:1.75!important;
+}
+body .vatra-global-header>#vatraMusicHeaderButton:is(:hover,:focus-visible),
+body .vatra-global-header>#vatraMusicHeaderButton[aria-expanded="true"]{
+ color:var(--vatra-user-accent,#0757f5)!important;
+ background:#eaf1ff!important;
+ transform:translateY(-1px)!important;
+}
+body .vatra-global-header>#topAvatar{
+ grid-column:5!important;grid-row:1!important;
+ align-self:center!important;justify-self:center!important;
+ margin:0!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel{
+ position:absolute!important;top:calc(100% + 5px)!important;
+ right:max(14px,calc((100vw - var(--vatra-unified-width,1000px))/2))!important;
+ grid-column:auto!important;grid-row:auto!important;
+ z-index:1350!important;
+}
+@media(min-width:761px) and (max-width:980px){
+ body .vatra-global-header>#vatraMusicHeaderButton{
+  width:32px!important;min-width:32px!important;max-width:32px!important;
+  height:32px!important;min-height:32px!important;max-height:32px!important;
+ }
+}
+@media(max-width:760px){
+ body .vatra-global-header>#vatraMusicHeaderButton{
+  width:30px!important;min-width:30px!important;max-width:30px!important;
+  height:30px!important;min-height:30px!important;max-height:30px!important;
+  padding:5px!important;
+ }
+ body .vatra-global-header>#vatraMusicTopPanel{
+  right:10px!important;max-width:calc(100vw - 20px)!important;
+ }
+}
+@media(max-width:360px){
+ body .vatra-global-header>#vatraMusicHeaderButton{
+  width:28px!important;min-width:28px!important;max-width:28px!important;
+  height:28px!important;min-height:28px!important;max-height:28px!important;
+ }
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderButton{color:#b5c4d6!important;}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderButton:is(:hover,:focus-visible),
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderButton[aria-expanded="true"]{
+ background:#35485f!important;color:#9dc6ff!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-global-header>#vatraMusicHeaderButton,
+ body .layout>.sidebar nav .nav{transition:none!important;transform:none!important;}
+}
