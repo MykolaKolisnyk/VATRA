@@ -860,7 +860,7 @@ function rebuildVisibleChatIndex(){
  chatIndex=combined;
 }
 
-let activeSecureSession=null,secureChatAttempt=0,chatRenderToken=0;
+let activeSecureSession=null,secureChatAttempt=0,chatRenderToken=0,secureAutoRetries=0,secureRetryTimer=null;
 const SECURE_PREVIEW='🔒 Зашифроване повідомлення';
 async function readE2EEKey(uid){const snap=await get(ref(db,'e2eeKeys/'+uid));return snap.val();}
 async function publishE2EEKey(uid,record){return set(ref(db,'e2eeKeys/'+uid),record);}
@@ -879,12 +879,22 @@ async function activateSecureChat(key,peerUid){
   const secure=await prepareSession(currentUser.uid,peerUid,key,readE2EEKey,publishE2EEKey);
   if(attempt!==secureChatAttempt||activeChat!==peerUid||page!=='messages'||!$('#chatMessages'))return;
   activeSecureSession=secure;
+  if(secureRetryTimer){clearTimeout(secureRetryTimer);secureRetryTimer=null;}
+  secureAutoRetries=0;
   updateChatSecurityStatus('🔒 Захищений чат',true);
  }catch(err){
   if(attempt!==secureChatAttempt||activeChat!==peerUid)return;
   console.warn('[ВАТРА] Захищене з’єднання недоступне:',err);
-  const details=err?.code==='PEER_NOT_READY'?'Співрозмовнику потрібно один раз відкрити повідомлення у ВАТРІ.':err?.code==='MISSING_DEVICE_KEY'||err?.code==='OWN_KEY_MISMATCH'?'Захищений ключ збережено на іншому пристрої. Відкрийте чат на пристрої, де його створили.':'Перевірте з’єднання або налаштування браузера.';
+  const details=err?.code==='PEER_NOT_READY'?'Співрозмовнику потрібно один раз відкрити повідомлення у ВАТРІ.':err?.code==='MISSING_DEVICE_KEY'||err?.code==='OWN_KEY_MISMATCH'?'Цей пристрій не має доступу до попередньої захищеної розмови. Відкрийте її у браузері, де листування вже працювало.':'Перевірте з’єднання або налаштування браузера.';
   updateChatSecurityStatus('⚠️ Повідомлення поки недоступні. '+details,false);
+  if(err?.code==='PEER_NOT_READY'&&secureAutoRetries<3){
+   secureAutoRetries++;
+   if(secureRetryTimer)clearTimeout(secureRetryTimer);
+   secureRetryTimer=setTimeout(()=>{
+    secureRetryTimer=null;
+    if(page==='messages'&&currentUser&&activeChat===peerUid&&!activeSecureSession)activateSecureChat(key,peerUid);
+   },15000);
+  }
  }
  await renderChatBubbles(key);
 }
@@ -951,7 +961,8 @@ function renderMessages(){
 }
 let chatUnsub=null,chatBlockUnsub=null,groupDetailsUnsub=null,editingMessageId=null;
 function stopChatListener(){
- secureChatAttempt++;chatRenderToken++;activeSecureSession=null;
+ secureChatAttempt++;chatRenderToken++;activeSecureSession=null;secureAutoRetries=0;
+ if(secureRetryTimer){clearTimeout(secureRetryTimer);secureRetryTimer=null;}
  if(chatUnsub){chatUnsub();chatUnsub=null;}
  if(chatBlockUnsub){chatBlockUnsub();chatBlockUnsub=null;}
  activeChatBlocked=false;
