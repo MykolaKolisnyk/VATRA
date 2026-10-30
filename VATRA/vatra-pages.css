@@ -1400,3 +1400,251 @@ body[data-page="feed"] .layout>.main>.quick-compose{
  width:100%!important;max-width:100%!important;min-width:0!important;
  margin-right:0!important;margin-left:0!important;
 }
+
+
+/* 2026-10-30 | VATRA compact profile overview.
+   Applies to the overview card only, with no changes to the common site grid.
+   Keep real content, visible profile fields, statistics and bio expansion intact. */
+body .vatra-profile-overview.vatra-profile-summary-compact{
+ padding:14px 17px 0!important;
+ background:#fff!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-title-row{
+ margin:0!important;
+ padding:0 0 9px!important;
+ gap:6px!important;
+ align-items:start!important;
+ border-bottom:1px solid #edf1f6!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-title-info{
+ display:grid!important;gap:3px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line{
+ display:flex!important;
+ align-items:center!important;
+ gap:7px!important;
+ flex-wrap:wrap!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-title-row h2{
+ font-size:20px!important;
+ line-height:1.25!important;
+ letter-spacing:-.025em!important;
+ margin:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-status-row{
+ display:flex!important;
+ flex-wrap:wrap!important;
+ align-items:center!important;
+ gap:7px!important;
+ margin:2px 0 0!important;
+ min-height:22px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-status,
+body .vatra-profile-summary-compact .vatra-profile-presence{
+ line-height:1.35!important;
+ margin:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-status-edit{
+ min-height:23px!important;
+ height:auto!important;
+ padding:3px 8px!important;
+ margin:0!important;
+}
+body .vatra-profile-summary-compact .profile-handle{
+ display:block!important;
+ font-size:11px!important;
+ line-height:1.35!important;
+ margin:0!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-block{
+ margin:9px 0 3px!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio{
+ margin:9px 0 5px!important;
+ padding:0!important;
+ font-size:12.5px!important;
+ line-height:1.52!important;
+ overflow-wrap:anywhere!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-block>.vatra-profile-bio{
+ margin:0 0 1px!important;
+ line-height:1.52!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-block:not(.is-expanded)>.vatra-profile-bio{
+ -webkit-line-clamp:3!important;
+ line-clamp:3!important;
+ max-height:4.6em!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-block>.vatra-profile-bio-toggle{
+ display:inline-flex!important;
+ width:auto!important;
+ min-height:28px!important;
+ padding:3px 0!important;
+ margin:0!important;
+ font-size:12px!important;
+ font-weight:700!important;
+ background:transparent!important;
+ border:0!important;
+ box-shadow:none!important;
+}
+/* Tighter two-column information rows, without large empty bands. */
+body .vatra-profile-summary-compact .vatra-profile-details{
+ display:grid!important;
+ gap:0!important;
+ margin:7px 0 7px!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail{
+ display:grid!important;
+ grid-template-columns:minmax(115px,29%) minmax(0,1fr)!important;
+ gap:10px!important;
+ align-items:baseline!important;
+ min-height:27px!important;
+ padding:3px 0!important;
+ margin:0!important;
+ border:0!important;
+ font-size:12.5px!important;
+ line-height:1.5!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail>span{
+ font-size:12px!important;
+ line-height:1.5!important;
+ color:#8998ab!important;
+ font-weight:500!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail>b,
+body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link{
+ font-size:12.5px!important;
+ line-height:1.5!important;
+ font-weight:650!important;
+ overflow-wrap:anywhere!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link:hover{
+ opacity:.8!important;
+ text-decoration:none!important;
+}
+/* Additional profile fields appear as compact information sections, not cards
+   inside a card; privacy text stays beside its own value. */
+body .vatra-profile-summary-compact .vatra-profile-extras{
+ display:grid!important;
+ gap:8px!important;
+ margin:6px 0 9px!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-card{
+ display:block!important;
+ background:#f6f8fb!important;
+ padding:9px 12px!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:8px!important;
+ box-shadow:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-card h3{
+ font-size:12px!important;
+ line-height:1.35!important;
+ margin:0 0 5px!important;
+ padding:0!important;
+ color:#344c66!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-card dl{
+ display:grid!important;
+ gap:5px!important;
+ margin:0!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-row{
+ display:grid!important;
+ grid-template-columns:minmax(105px,29%) minmax(0,1fr)!important;
+ gap:10px!important;
+ align-items:baseline!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-row dt{
+ font-size:11.5px!important;
+ line-height:1.45!important;
+ color:#8a9aae!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-row dd{
+ margin:0!important;
+ padding:0!important;
+ font-size:12px!important;
+ line-height:1.48!important;
+ color:#425b78!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-privacy{
+ display:inline!important;
+ grid-column:auto!important;
+ margin:0 0 0 8px!important;
+ padding:0!important;
+ color:#95a2b1!important;
+ font-size:10px!important;
+ font-weight:500!important;
+ white-space:nowrap!important;
+}
+/* The statistics remain clickable but no longer add a tall footer. */
+body .vatra-profile-summary-compact>.vatra-profile-stats{
+ margin:8px -17px 0!important;
+ padding:4px 8px!important;
+ gap:0!important;
+ min-height:0!important;
+ border-top:1px solid #edf1f6!important;
+ border-radius:0!important;
+}
+body .vatra-profile-summary-compact>.vatra-profile-stats>button,
+body .vatra-profile-summary-compact>.vatra-profile-stats>div{
+ min-height:44px!important;
+ height:auto!important;
+ padding:5px 2px!important;
+ gap:3px!important;
+}
+body .vatra-profile-summary-compact>.vatra-profile-stats b{
+ font-size:16px!important;
+ line-height:1.1!important;
+}
+body .vatra-profile-summary-compact>.vatra-profile-stats span{
+ font-size:10px!important;
+ line-height:1.25!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-card{
+ background:#2b3a4e!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-row dd{
+ color:#e1e9f4!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-card h3{
+ color:#e6edf6!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-title-row,
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact>.vatra-profile-stats{
+ border-color:#3b4b60!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-overview.vatra-profile-summary-compact{
+ background:#232f3f!important;
+}
+@media(max-width:760px){
+ body .vatra-profile-overview.vatra-profile-summary-compact{
+  padding:13px 14px 0!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-title-row h2{
+  font-size:19px!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-detail{
+  grid-template-columns:minmax(95px,34%) minmax(0,1fr)!important;
+  gap:8px!important;
+  min-height:26px!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-extra-row{
+  grid-template-columns:minmax(92px,34%) minmax(0,1fr)!important;
+  gap:8px!important;
+ }
+ body .vatra-profile-summary-compact>.vatra-profile-stats{
+  margin:8px -14px 0!important;
+  padding:4px 4px!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-bio-block>.vatra-profile-bio-toggle{
+  min-height:32px!important;
+ }
+}
