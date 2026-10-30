@@ -343,8 +343,9 @@ function renderPublicProfile(uid){
   '<aside class="profile-vk-sidebar"><section class="profile-vk-card profile-vk-avatar-card"><button type="button" class="profile-vk-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'profile-vk-photo')+'<span>Переглянути фото</span></button>'+actions+'</section></aside>'+
   '<div class="profile-vk-main">'+
    '<section class="profile-vk-card profile-vk-overview">'+
-    '<div class="profile-vk-title-row"><div><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
+    '<div class="profile-vk-title-row"><div class="profile-vk-title-info"><div class="profile-vk-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'</div>'+
     (u.status?'<p class="profile-status profile-vk-status">'+esc(u.status)+'</p>':'')+
+    '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (u.bio?'<p class="profile-vk-bio">'+esc(u.bio)+'</p>':'')+
     '<div class="profile-vk-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city)+detail('Місце проживання',location)+detail('Місце роботи',workplace)+detail('Навчання',education)+detail('Рідне місто',hometown)+detail('Телефон',phone)+detail('Вебсайт',u.website):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+
     '<div class="profile-vk-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
