@@ -9,19 +9,49 @@ const navigation=setupNavigation(p=>goPage(p));
 const modal=$('#composer'), authDialog=$('#authDialog'), feed=$('#feed'), toast=$('#toast');
 let verifiedUsers={},currentUser=null,currentProfile={},privateDateOfBirth='',privatePhone='',privatePendingPhone='',privateProfileSections={},activityReadAt=0,chatReads={},users={},friendProfiles={},posts={},likes={},comments={},pollVotes={},postSaves={},postShares={},saved={},following={},blockedUsers={},videos={},groups={},groupMembers={},groupAdmins={},groupModerators={},groupPostsCache={},friendRequests={},friends={},chatIndex={},chatLiveIndex={},chatOwnedIndex={},activeChat=null,activeChatBlocked=false,activeProfileUid=null,reportingTarget=null,chatMessages={},unsubscribers=[],page='feed',filter='all',query='',authMode='login',imageFile=null,videoFile=null,groupId=null,editingPostId=null,replyingComment=null,imageFiles=[],editPostFiles=[],editPostPreviewUrls=[],imagePreviewUrls=[];
 let profileAttributeSearch=null;
-const MAX_POST_TEXT=20000,MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];let emojiPickerLoadPromise=null;
-function loadVatraEmojiPicker(){
- if(customElements.get('emoji-picker'))return Promise.resolve();
- if(!emojiPickerLoadPromise)emojiPickerLoadPromise=new Promise((resolve,reject)=>{
-  const script=document.createElement('script');script.type='module';script.src='https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js';
-  script.onload=()=>customElements.whenDefined('emoji-picker').then(resolve,reject);
-  script.onerror=()=>reject(new Error('Не вдалося завантажити повну бібліотеку емодзі.'));
-  document.head.append(script);
- });
- return emojiPickerLoadPromise;
+const MAX_POST_TEXT=20000,MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];const VATRA_EMOJI_CATEGORIES=[
+ {id:'popular',label:'Часті',icon:'★',emojis:['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦','🫶','💯','🥹','🙌','🤝','🫡','😴','✅']},
+ {id:'smileys',label:'Обличчя',icon:'☺',emojis:['😀','😃','😄','😁','😆','😅','🤣','😂','🥹','😊','😇','🙂','🙃','😉','😍','🥰','😘','😗','😋','😛','😜','🤪','😝','🫠','🤗','🤭','🫢','🤫','🤔','🫡','🤩','🥳','😎','🥸','😒','🙄','😔','😕','🙁','☹️','😣','😖','😫','🥺','😢','😭','😤','😠','😡','🤯','😳','😱','😨','😴','😪','🤤','🤒','🤕','🤢','🤧','🥶','🥵','😷']},
+ {id:'gestures',label:'Жести',icon:'✋',emojis:['👍','👎','👏','🙌','🫶','🤝','🙏','👋','🤚','✋','🖐️','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✊','👊','🤛','🤜','💪','🫵','🖖','💅','🧠','👀','🗣️']},
+ {id:'hearts',label:'Почуття',icon:'♥',emojis:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','🩷','🩵','🩶','💖','💗','💓','💞','💕','💘','💝','💟','❣️','❤️‍🔥','💔','💯','💢','💥','✨','💫','⭐','🌟','💦','💤']},
+ {id:'nature',label:'Природа',icon:'☀',emojis:['🌻','🌹','🌷','🌸','🌼','🌺','🍀','🌲','🌳','🌿','🍁','🍂','🍃','🌈','☀️','🌤️','⛅','🌧️','⛈️','❄️','☃️','🔥','🌊','🌍','🌎','🌏','🌙','🌕','⭐','🌟','🐱','🐶','🦊','🐻','🐼','🐸','🦋','🐝','🐦','🦉']},
+ {id:'things',label:'Предмети',icon:'♫',emojis:['🎉','🎊','🎁','🎂','🎈','🎀','🎵','🎶','🎧','🎤','🎸','🎹','🥁','📷','📸','🎥','🎬','📱','💻','⌨️','📚','📖','✏️','📝','💡','🔔','🔑','🗝️','📌','📍','🧭','🕹️','🎮','🏆','🥇','⚽','🏀','🚗','🚆','✈️','🏠','🛡️','🇺🇦','✅','❌','❗','❓']}
+];
+const VATRA_EMOJI_TAGS={'❤️':'серце любов кохання','🔥':'вогонь полум’я','🇺🇦':'україна прапор','😂':'сміх смішно','😭':'сльози плач','😍':'кохання захоплення','🎉':'свято радість','💙':'синє серце','👍':'лайк подобається','🙏':'дякую молитва','🫶':'серце руки','🌻':'соняшник','🎵':'музика','📷':'фото камера','💡':'ідея','🎮':'ігри'};
+const VATRA_SMILE_SVG='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 14.5q4 4 8 0"/><path d="M8.5 9.5h.01M15.5 9.5h.01"/></svg>';
+function emojiControl(){
+ return '<div class="emoji-picker-wrap vatra-emoji-wrap"><button type="button" class="emoji-toggle vatra-emoji-trigger" data-emoji-toggle aria-label="Вибрати емодзі" aria-haspopup="dialog" aria-expanded="false">'+VATRA_SMILE_SVG+'</button><div class="emoji-picker vatra-emoji-popover" hidden></div></div>';
 }
-const quickVatraEmojis=['😀','😃','😄','😁','😆','😅','😂','🤣','🥹','😊','😍','🥰','😘','😎','🤩','🥳','🤗','🤔','🫡','😴','😭','😢','😡','😱','🙌','👏','🙏','🤝','👍','👎','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','💯','🔥','✨','⭐','🎉','🎂','🥂','☀️','🌈','🌻','🌹','🌍','🇺🇦','💪','🫶','✅','❗','💡'];
-function emojiControl(){return '<div class="emoji-picker-wrap"><button type="button" class="emoji-toggle" data-emoji-toggle aria-label="Відкрити всі емодзі">☺</button><div class="emoji-picker" hidden><div class="emoji-quick-grid" aria-label="Популярні емодзі">'+quickVatraEmojis.map(emoji=>'<button type="button" data-insert-emoji="'+emoji+'" aria-label="Додати емодзі '+emoji+'">'+emoji+'</button>').join('')+'</div><div class="emoji-picker-full"><emoji-picker locale="uk" skin-tone-emoji="👍"></emoji-picker></div></div></div>'; }
+function renderVatraEmojiPanel(panel){
+ const text=(panel.querySelector('[data-emoji-search]')?.value||'').trim().toLocaleLowerCase('uk-UA');
+ const selected=VATRA_EMOJI_CATEGORIES.find(group=>group.id===panel.dataset.category)||VATRA_EMOJI_CATEGORIES[0];
+ const choices=text?[...new Set(VATRA_EMOJI_CATEGORIES.flatMap(group=>group.emojis.filter(emoji=>(emoji+' '+group.label+' '+(VATRA_EMOJI_TAGS[emoji]||'')).toLocaleLowerCase('uk-UA').includes(text))))]:selected.emojis;
+ panel.querySelectorAll('[data-emoji-category]').forEach(button=>{
+  const active=button.dataset.emojiCategory===selected.id;
+  button.classList.toggle('active',active);
+  button.setAttribute('aria-pressed',String(active));
+ });
+ const grid=panel.querySelector('[data-emoji-grid]');
+ if(grid)grid.innerHTML=choices.length?choices.slice(0,140).map(emoji=>'<button type="button" data-insert-emoji="'+emoji+'" aria-label="Додати '+emoji+'">'+emoji+'</button>').join(''):'<p class="vatra-emoji-empty">Нічого не знайдено</p>';
+}
+function prepareVatraEmojiPanel(panel){
+ if(panel.dataset.initialized)return;
+ panel.dataset.initialized='true';panel.dataset.category='popular';
+ panel.innerHTML='<div class="vatra-emoji-head"><strong>Емодзі</strong><button type="button" data-emoji-close aria-label="Закрити панель">×</button></div>'+
+  '<label class="vatra-emoji-search"><span aria-hidden="true">⌕</span><input type="search" data-emoji-search placeholder="Пошук емодзі" aria-label="Пошук емодзі" autocomplete="off"></label>'+
+  '<div class="vatra-emoji-categories" role="group" aria-label="Категорії емодзі">'+VATRA_EMOJI_CATEGORIES.map(g=>'<button type="button" data-emoji-category="'+g.id+'" title="'+g.label+'" aria-label="'+g.label+'" aria-pressed="false">'+g.icon+'</button>').join('')+'</div>'+
+  '<div class="vatra-emoji-subtitle"></div><div class="emoji-quick-grid vatra-emoji-grid" data-emoji-grid></div>';
+ panel.querySelector('[data-emoji-search]')?.addEventListener('input',()=>renderVatraEmojiPanel(panel));
+ renderVatraEmojiPanel(panel);
+}
+document.addEventListener('click',event=>{
+ if(event.target.closest('.vatra-emoji-wrap'))return;
+ $('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ $('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
+});
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function localISODate(date=new Date()){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');}
 function initials(n='ВАТРА'){return n.trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toLocaleUpperCase('uk-UA')||'В';}
@@ -1158,26 +1188,39 @@ document.addEventListener('click',async e=>{
  b=e.target.closest('[data-delete-message]');if(b){if(!(await askConfirm('Видалити повідомлення?')))return;try{const key=chatKey(currentUser.uid,activeChat);await remove(ref(db,`chats/${key}/messages/${b.dataset.deleteMessage}`));await syncChatPreview(key,activeChat);toastMsg('Повідомлення видалено.');}catch(err){toastMsg(niceError(err));}return;}
  b=e.target.closest('[data-cancel-edit]');if(b){editingMessageId=null;renderMessages();return;}
  b=e.target.closest('[data-emoji-toggle]');if(b){
-  const panel=b.parentElement.querySelector('.emoji-picker'),willOpen=panel.hidden;panel.hidden=!willOpen;
+  const panel=b.closest('.vatra-emoji-wrap')?.querySelector('.emoji-picker');
+  if(!panel)return;
+  const willOpen=panel.hidden;
+  $$('.vatra-emoji-wrap .emoji-picker').forEach(other=>{other.hidden=true;other.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
   if(willOpen){
-   try{
-    await loadVatraEmojiPicker();
-    const picker=panel.querySelector('emoji-picker');
-    if(picker&&!picker.dataset.vatraBound){
-     picker.dataset.vatraBound='1';
-     picker.addEventListener('emoji-click',event=>{
-      const input=b.closest('form')?.querySelector('[data-emoji-input]')||document.querySelector('#postText');
-      if(!input)return;
-      const emoji=event.detail?.unicode||'';if(!emoji)return;
-      const start=input.selectionStart??input.value.length,end=input.selectionEnd??input.value.length;
-      input.setRangeText(emoji,start,end,'end');input.focus();panel.hidden=true;
-     });
-    }
-   }catch(error){panel.innerHTML='<p class="emoji-picker-error">'+esc(error.message)+'</p>';}
+   prepareVatraEmojiPanel(panel);
+   panel.hidden=false;b.setAttribute('aria-expanded','true');
+   panel.querySelector('[data-emoji-search]')?.focus();
   }
   return;
  }
- b=e.target.closest('[data-insert-emoji]');if(b){const input=b.closest('form')?.querySelector('[data-emoji-input]');if(!input)return;const start=input.selectionStart,end=input.selectionEnd;input.setRangeText(b.dataset.insertEmoji,start,end,'end');input.focus();b.closest('.emoji-picker').hidden=true;return;}
+ b=e.target.closest('[data-emoji-close]');if(b){
+  const panel=b.closest('.emoji-picker');if(panel)panel.hidden=true;
+  b.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');return;
+ }
+ b=e.target.closest('[data-emoji-category]');if(b){
+  const panel=b.closest('.emoji-picker');if(!panel)return;
+  panel.dataset.category=b.dataset.emojiCategory;
+  const search=panel.querySelector('[data-emoji-search]');if(search)search.value='';
+  renderVatraEmojiPanel(panel);return;
+ }
+ b=e.target.closest('[data-insert-emoji]');if(b){
+  const form=b.closest('form'),input=form?.querySelector('[data-emoji-input]')||document.querySelector('#postText');
+  if(!input)return;
+  const emoji=b.dataset.insertEmoji||'';
+  if(typeof input.setRangeText==='function')input.setRangeText(emoji,input.selectionStart??input.value.length,input.selectionEnd??input.value.length,'end');
+  else input.value+=emoji;
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  input.focus();
+  const panel=b.closest('.emoji-picker');if(panel)panel.hidden=true;
+  b.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');
+  return;
+ }
  b=e.target.closest('[data-view-profile]');if(b){renderPublicProfile(b.dataset.viewProfile);return;}b=e.target.closest('[data-friend-request]');if(b){if(!authRequired())return;const uid=b.dataset.friendRequest;try{if(friends[uid])return toastMsg('Ви вже друзі.');await set(ref(db,`friendRequests/${uid}/${currentUser.uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'incoming',createdAt:Date.now()});await set(ref(db,`friendRequests/${currentUser.uid}/${uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'outgoing',createdAt:Date.now()});toastMsg('Запит у друзі надіслано.');}catch(err){toastMsg(niceError(err));}return;}b=e.target.closest('[data-accept-friend]');if(b){
  const uid=b.dataset.acceptFriend,request=friendRequests[uid];
  if(!uid||!request||request.status!=='pending'||request.direction!=='incoming')return toastMsg('Цей запит уже неактуальний. Оновіть список друзів.');
