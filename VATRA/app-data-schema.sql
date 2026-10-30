@@ -115,7 +115,7 @@ begin
     return uid is not null and parts[2] = uid::text;
   end if;
   if _path ~ '^posts/[^/]+$' then return public.vatra_data_can_read_post(parts[2], uid); end if;
-  if _path ~ '^postLikes/[^/]+/[^/]+
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^comments/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' or _path ~ '^postSaves/[^/]+/[^/]+$' or _path ~ '^postShares/[^/]+/[^/]+$' then return public.vatra_data_can_read_post(parts[2], uid); end if;
   if _path ~ '^groups/[^/]+$' then
     return coalesce(_value ->> 'visibility', 'public') <> 'private'
       or public.vatra_data_is_group_member(parts[2], uid);
@@ -182,7 +182,8 @@ begin
     return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
   end if;
   if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
-  if _path ~ '^postLikes/[^/]+/[^/]+
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' or _path ~ '^postSaves/[^/]+/[^/]+$' or _path ~ '^postShares/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
 
   -- A friend list is stored as one JSON object per account. Adding an entry
   -- to someone else's list requires their pending incoming request.
