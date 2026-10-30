@@ -1,6 +1,6 @@
 import { ensureIdentity, prepareSession, encryptMessage, decryptMessage, formatFingerprint } from './vatra-e2ee.js?v=2';
 import { setupNavigation } from './navigation.js?v=20261030-21';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange } from './vatra-backend.js?v=20261030-1';
+import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange } from './vatra-backend.js?v=20261030-2';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
@@ -58,8 +58,25 @@ function initials(n='ВАТРА'){return n.trim().split(/\s+/).slice(0,2).map(x=
 function askConfirm(message){return new Promise(resolve=>{const d=$('#vatraConfirmDialog');$('#vatraConfirmMessage').textContent=message;const yes=$('#vatraConfirmYes'),no=$('#vatraConfirmNo');yes.onclick=()=>{d.close();resolve(true)};no.onclick=()=>{d.close();resolve(false)};d.addEventListener('cancel',()=>resolve(false),{once:true});d.showModal();});}
 function askText(title,initial=''){return new Promise(resolve=>{const d=$('#vatraTextDialog'),input=$('#vatraTextInput');$('#vatraTextTitle').textContent=title;$('#vatraTextLabel').textContent=title;input.value=initial||'';const yes=$('#vatraTextYes'),no=$('#vatraTextNo');yes.onclick=()=>{const value=input.value.trim();d.close();resolve(value)};no.onclick=()=>{d.close();resolve(null)};d.addEventListener('cancel',()=>resolve(null),{once:true});d.showModal();input.focus();input.select();});}
 function toastMsg(s){toast.textContent=s;toast.classList.add('show');clearTimeout(window.vatraToast);window.vatraToast=setTimeout(()=>toast.classList.remove('show'),3600);}
-window.addEventListener('unhandledrejection',event=>{console.error('Unhandled application operation:',event.reason);try{toastMsg(niceError(event.reason));}catch{}});
-window.addEventListener('error',event=>{if(!event.error)return;console.error('Application runtime error:',event.error);try{toastMsg('Сталася помилка. Спробуйте ще раз або оновіть сторінку.');}catch{}});
+// Only user actions display errors through their own catch handlers.
+// Unexpected background exceptions are diagnostic events, not a reason to
+// repeatedly cover an otherwise usable page with a generic error banner.
+let lastUnhandledToastAt=0;
+window.addEventListener('unhandledrejection',event=>{
+ console.error('[ВАТРА] Необроблена операція:',event.reason);
+ const code=String(event.reason?.code||'');
+ if(!['SCHEMA_NOT_READY','PERMISSION_DENIED','NETWORK_ERROR','DATABASE_ERROR'].includes(code))return;
+ const now=Date.now();
+ if(now-lastUnhandledToastAt<60000)return;
+ lastUnhandledToastAt=now;
+ try{toastMsg(niceError(event.reason));}catch(error){console.error('[ВАТРА] Не вдалося показати помилку:',error);}
+});
+window.addEventListener('error',event=>{
+ if(!event.error)return;
+ // Exact source, line and stack remain in the browser console for debugging.
+ // Avoid repeated generic user-facing toasts from background render failures.
+ console.error('[ВАТРА] Помилка JavaScript:',event.error);
+});
 
 function safeText(s){return esc(s).replace(/__(.+?)__/g,'<u>$1</u>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/_(.+?)_/g,'<em>$1</em>').replace(/~~(.+?)~~/g,'<s>$1</s>').replace(/^&gt; ?(.+)$/gm,'<span class="post-inline-quote">$1</span>').replace(/(#[\p{L}\p{N}_]+)/gu,'<button type="button" class="tag" data-tag="$1">$1</button>').replace(/\n/g,'<br>');}
 function authRequired(){if(currentUser)return true;location.href='auth.html';return false;}
@@ -91,12 +108,30 @@ function isVatraStrongPassword(password){
  input.addEventListener('input',update);update();
 })();
 
-function niceError(e){const c=e?.code||'';if(c==='SCHEMA_NOT_READY')return 'База ВАТРИ ще не налаштована повністю. У правильному Supabase-проєкті виконайте актуальний файл VATRA OLD/app-data-schema.sql.';if(c==='PERMISSION_DENIED')return 'Supabase відхилив запис через правила доступу (RLS). Перевірте SQL-схему app_data та політики доступу в тому самому проєкті Supabase.'+(e?.dbCode?' Код: '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+'.':'');if(c==='DATABASE_ERROR')return 'Не вдалося зберегти дані ВАТРИ'+(e?.dbCode?' (код '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+')':'')+'. Спробуйте ще раз; якщо повториться, надішліть цей код розробнику.';if(c==='NETWORK_ERROR')return 'Немає з’єднання із сервером ВАТРИ. Перевірте інтернет і спробуйте ще раз.';return ({'auth/no-session':'Сесія завершилася. Увійдіть до ВАТРИ ще раз.','auth/author-mismatch':'Не вдалося підтвердити власника допису. Оновіть сторінку та увійдіть у свій акаунт знову.','auth/email-already-in-use':'Ця електронна пошта вже зареєстрована. Спробуйте увійти.','auth/invalid-email':'Введіть коректну адресу електронної пошти.','auth/weak-password':'Створіть пароль завдовжки щонайменше 12 символів (краще 16+), із великими й малими латинськими літерами, цифрою та спецсимволом.','auth/invalid-credential':'Неправильна електронна пошта або пароль.','auth/invalid-login-credentials':'Неправильна електронна пошта або пароль.','auth/user-not-found':'Акаунт із такою адресою не знайдено.','auth/wrong-password':'Неправильний пароль.','auth/too-many-requests':'Забагато спроб входу. Зачекайте й спробуйте пізніше.','auth/network-request-failed':'Не вдалося з’єднатися із сервером. Перевірте інтернет.','auth/operation-not-allowed':'Вхід через email вимкнений. У налаштуваннях авторизації увімкніть вхід через email і пароль.','auth/unauthorized-domain':'Цей домен не дозволений у налаштуваннях авторизації для цього домену.','auth/user-disabled':'Цей акаунт вимкнено. Зверніться до підтримки.','PERMISSION_DENIED':'Запит відхилено правилами доступу до бази даних.'})[c]||'Не вдалося виконати дію. Спробуйте ще раз.';}
+function niceError(e){const c=e?.code||'';if(c==='SCHEMA_NOT_READY')return 'База ВАТРИ ще не налаштована повністю. У правильному Supabase-проєкті виконайте актуальний файл VATRA/app-data-schema.sql.';if(c==='PERMISSION_DENIED')return 'Supabase відхилив запис через правила доступу (RLS). Перевірте SQL-схему app_data та політики доступу в тому самому проєкті Supabase.'+(e?.dbCode?' Код: '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+'.':'');if(c==='DATABASE_ERROR')return 'Не вдалося зберегти дані ВАТРИ'+(e?.dbCode?' (код '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+')':'')+'. Спробуйте ще раз; якщо повториться, надішліть цей код розробнику.';if(c==='NETWORK_ERROR')return 'Немає з’єднання із сервером ВАТРИ. Перевірте інтернет і спробуйте ще раз.';return ({'auth/no-session':'Сесія завершилася. Увійдіть до ВАТРИ ще раз.','auth/author-mismatch':'Не вдалося підтвердити власника допису. Оновіть сторінку та увійдіть у свій акаунт знову.','auth/email-already-in-use':'Ця електронна пошта вже зареєстрована. Спробуйте увійти.','auth/invalid-email':'Введіть коректну адресу електронної пошти.','auth/weak-password':'Створіть пароль завдовжки щонайменше 12 символів (краще 16+), із великими й малими латинськими літерами, цифрою та спецсимволом.','auth/invalid-credential':'Неправильна електронна пошта або пароль.','auth/invalid-login-credentials':'Неправильна електронна пошта або пароль.','auth/user-not-found':'Акаунт із такою адресою не знайдено.','auth/wrong-password':'Неправильний пароль.','auth/too-many-requests':'Забагато спроб входу. Зачекайте й спробуйте пізніше.','auth/network-request-failed':'Не вдалося з’єднатися із сервером. Перевірте інтернет.','auth/operation-not-allowed':'Вхід через email вимкнений. У налаштуваннях авторизації увімкніть вхід через email і пароль.','auth/unauthorized-domain':'Цей домен не дозволений у налаштуваннях авторизації для цього домену.','auth/user-disabled':'Цей акаунт вимкнено. Зверніться до підтримки.','PERMISSION_DENIED':'Запит відхилено правилами доступу до бази даних.'})[c]||'Не вдалося виконати дію. Спробуйте ще раз.';}
 function openAuth(mode='login'){location.href=mode==='register'?'auth.html?mode=register':mode==='reset'?'auth.html?mode=reset':'auth.html';}
 function publicProfileData(p={}){const out={name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),bio:String(p.bio||'').slice(0,500),status:String(p.status||'').slice(0,100),avatarUrl:String(p.avatarUrl||''),avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,birthdayVisibility:String(p.birthdayVisibility||'private'),cityVisibility:String(p.cityVisibility||'private'),locationVisibility:String(p.locationVisibility||'private'),phoneVisibility:String(p.phoneVisibility||'private'),workplaceVisibility:String(p.workplaceVisibility||'private'),educationVisibility:String(p.educationVisibility||'private'),hometownVisibility:String(p.hometownVisibility||'private'),allowMessages:p.allowMessages!==false,createdAt:Number(p.createdAt)||0,updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0};if(p.birthdayVisibility==='public'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='public'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='public'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='public'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.website)out.website=String(p.website).slice(0,180);if(p.workplace&&p.workplaceVisibility==='public')out.workplace=String(p.workplace).slice(0,120);if(p.education&&p.educationVisibility==='public')out.education=String(p.education).slice(0,120);if(p.hometown&&p.hometownVisibility==='public')out.hometown=String(p.hometown).slice(0,80);out.extraVisibility={};out.publicSections={};if(p.profileVisibility!=='private'){for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){for(const key of Object.keys(section.fields)){if(p.extraVisibility?.[key]==='public'){const value=String(p.privateSections?.[key]||'').trim();if(value){out.extraVisibility[key]='public';out.publicSections[key]=value.slice(0,500);}}}}}return out;}
 function friendProfileData(p={}){const out={updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0,isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,avatarHistory:Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]};if(p.status)out.status=String(p.status).slice(0,100);if(p.birthdayVisibility==='friends'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='friends'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='friends'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='friends'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.workplaceVisibility==='friends'&&p.workplace)out.workplace=String(p.workplace).slice(0,120);if(p.educationVisibility==='friends'&&p.education)out.education=String(p.education).slice(0,120);if(p.hometownVisibility==='friends'&&p.hometown)out.hometown=String(p.hometown).slice(0,80);return out;}
 
-function watch(path,cb){let lastErrorSignature='';return onValue(ref(db,path),s=>{lastErrorSignature='';cb(s.val()||{});},err=>{console.error('Database read failed:',path,err);const signature=String(err?.code||'')+'|'+niceError(err);if(signature!==lastErrorSignature){lastErrorSignature=signature;toastMsg(`Не вдалося завантажити дані (${path}): ${niceError(err)}`);}});}
+let lastReadToastAt=0;
+function watch(path,cb){
+ let lastErrorSignature='';
+ return onValue(ref(db,path),s=>{
+  cb(s.val()||{});
+  lastErrorSignature='';
+ },err=>{
+  console.error('[ВАТРА] Не вдалося прочитати:',path,err);
+  const signature=String(err?.code||'')+'|'+niceError(err);
+  if(signature===lastErrorSignature)return;
+  lastErrorSignature=signature;
+  // One meaningful notification across simultaneous listeners, not one
+  // toast for each subscribed section during a temporary connectivity issue.
+  const now=Date.now();
+  if(now-lastReadToastAt<60000)return;
+  lastReadToastAt=now;
+  toastMsg(`Не вдалося оновити дані ВАТРИ: ${niceError(err)}`);
+ });
+}
 function stopListeners(){unsubscribers.forEach(fn=>fn());unsubscribers=[];}
 function renderLoadingSkeletons(){if(!feed)return;$('#empty').hidden=true;feed.innerHTML='<div class="vatra-skeleton" aria-label="Завантаження новин"><div class="vatra-skeleton-head"><span class="vatra-skeleton-avatar"></span><div class="vatra-skeleton-lines"><span class="vatra-skeleton-line medium"></span><span class="vatra-skeleton-line short"></span></div></div><span class="vatra-skeleton-line" style="margin-top:18px;width:94%"></span><span class="vatra-skeleton-line medium" style="margin-top:9px"></span><div class="vatra-skeleton-block"></div></div>'.repeat(3);}
 let initialLoaded=new Set(),initialDataReady=false;
