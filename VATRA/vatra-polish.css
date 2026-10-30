@@ -3495,8 +3495,8 @@ input[type="checkbox"]:focus-visible{
 
 /* Compact desktop shell — one authoritative layout block. */
 .vatra-global-header{
-  width:min(1060px,calc(100% - 28px))!important;
-  max-width:1060px!important;
+  width:min(1160px,calc(100% - 28px))!important;
+  max-width:1160px!important;
   min-height:52px!important;height:52px!important;
   margin:0 auto 2px!important;padding:0 8px!important;
   gap:9px!important;
@@ -3513,16 +3513,16 @@ input[type="checkbox"]:focus-visible{
   width:32px!important;height:32px!important;flex:0 0 32px!important;
 }
 .layout{
-  width:min(1060px,100%)!important;max-width:1060px!important;
+  width:min(1180px,100%)!important;max-width:1180px!important;
   margin:0 auto!important;
-  grid-template-columns:176px minmax(0,1fr)!important;
+  grid-template-columns:180px minmax(0,1fr)!important;
   gap:18px!important;justify-content:center!important;
   padding:6px 14px 24px!important;
 }
 .layout>.right{display:none!important}
 .layout>.sidebar{
   position:sticky!important;top:58px!important;
-  width:176px!important;height:calc(100dvh - 66px)!important;
+  width:180px!important;height:calc(100dvh - 66px)!important;
   min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
   padding:8px 5px 10px 0!important;
   display:flex!important;flex-direction:column!important;
@@ -3577,7 +3577,7 @@ input[type="checkbox"]:focus-visible{
 }
 .sidebar-getting-started{margin:0 0 8px!important}
 .sidebar-footer{
-  display:block!important;margin-top:auto!important;padding:11px 6px 8px!important;
+  display:block!important;margin-top:12px!important;padding:11px 6px 8px!important;
   border-top:1px solid #e4eaf3!important;color:#7c8aa0!important;
   font-size:9px!important;line-height:1.45!important;
 }
@@ -3594,13 +3594,9 @@ input[type="checkbox"]:focus-visible{
   color:#6f83a1!important;font-size:9px!important;text-decoration:none!important;
 }
 .sidebar-footer .footer-legal a:hover{color:#0757f5!important;text-decoration:underline!important}
-.sidebar .sidebar-bottom{
-  margin-top:8px!important;padding:8px 4px 0!important;
-  grid-template-columns:7px 1fr!important;gap:7px!important;font-size:10px!important;
-}
-.sidebar .sidebar-bottom small{font-size:9px!important}
+.sidebar .sidebar-bottom{display:none!important}
 .layout>.main{
-  grid-column:2!important;width:100%!important;max-width:850px!important;
+  grid-column:2!important;width:100%!important;max-width:980px!important;
   min-width:0!important;margin:0!important;padding:0 0 32px!important;
 }
 .main>.heading{
@@ -3635,7 +3631,7 @@ input[type="checkbox"]:focus-visible{
 .post-meta{font-size:10px!important;padding:2px 0 8px!important}
 .post-actions{gap:4px!important;padding:6px 0!important}
 .post-actions button{min-height:30px!important;padding:6px 7px!important;font-size:10px!important}
-.profile-vk-layout{grid-template-columns:190px minmax(0,1fr)!important;gap:14px!important}
+.profile-vk-layout{width:100%!important;grid-template-columns:190px minmax(0,1fr)!important;gap:16px!important}
 .profile-vk-main,.profile-vk-sidebar{min-width:0!important}
 .profile-vk-stats{gap:5px!important;padding:10px 0 12px!important}
 .profile-vk-stats>div{min-height:50px!important;padding:6px 3px!important;border-radius:10px!important}
@@ -3658,7 +3654,7 @@ input[type="checkbox"]:focus-visible{
   .sidebar nav .nav>span:not(.nav-icon),.sidebar nav .nav>i{display:none!important}
   .sidebar .create-button{font-size:0!important;padding:0!important;min-height:35px!important}
   .sidebar .create-button span{font-size:18px!important}
-  .sidebar-footer,.sidebar-bottom,.sidebar-getting-started{display:none!important}
+  .sidebar-bottom,.sidebar-getting-started{display:none!important}
   .layout>.main{grid-column:2!important;max-width:none!important;padding:0!important}
   .profile-vk-layout{grid-template-columns:172px minmax(0,1fr)!important;gap:12px!important}
 }
@@ -4115,4 +4111,70 @@ emoji-picker{
  .vatra-post-photo-stage{gap:4px!important}
  .vatra-post-photo-stage>img{max-width:calc(100% - 60px)!important}
  .vatra-post-photo-stage>button{flex-basis:28px!important;width:28px!important;height:28px!important;font-size:21px!important}
+}
+
+/* Final alignment and type rendering corrections. */
+@media(min-width:1101px){
+  .vatra-global-header{width:min(1160px,calc(100% - 32px))!important;max-width:1160px!important}
+  .layout{width:min(1180px,100%)!important;max-width:1180px!important}
+  .layout>.main{max-width:980px!important}
+  .layout>.sidebar{width:180px!important}
+  .sidebar-footer{margin-top:12px!important}
+}
+.profile-vk-title-info{display:grid!important;gap:5px!important;min-width:0!important}
+.profile-vk-name-line{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;min-width:0!important}
+.profile-vk-name-line h2{margin:0!important;line-height:1.25!important}
+.profile-vk-title-row{align-items:flex-start!important;gap:14px!important}
+.profile-vk-title-row>.text-link{flex:0 0 auto!important;margin-top:3px!important}
+.profile-vk-status-row{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin:2px 0 0!important}
+.profile-vk-status-row .profile-vk-status{margin:0!important}
+.profile-vk-status-row .profile-vk-status-edit{padding:4px 7px!important;font-size:10px!important}
+.profile-vk-presence{margin:0!important;font-size:10px!important;white-space:nowrap!important}
+.profile-vk-layout .profile-vk-card,
+.profile-vk-layout .profile-vk-stats>div,
+.profile-vk-layout .profile-vk-photo,
+.profile-vk-layout .profile-photo-tile{will-change:auto!important;backface-visibility:visible!important}
+.profile-vk-layout button:not(:disabled):hover,
+.profile-vk-layout button:not(:disabled):active{transform:none!important;filter:none!important}
+button,input,textarea,select,.nav,.post-text,.author,.profile-vk-layout,
+.profile-vk-layout h2,.profile-vk-layout h3,.profile-vk-layout p{
+  -webkit-font-smoothing:antialiased!important;
+  -moz-osx-font-smoothing:auto!important;
+  text-rendering:auto!important;
+  backface-visibility:visible!important;
+}
+button:not(.post-photo-item):hover,button:not(.post-photo-item):active,
+.nav:hover,.nav:active{
+  text-shadow:none!important;filter:none!important;
+}
+button:not(.post-photo-item):active,.nav:active{transform:none!important}
+.composer-photo-actions,.post-edit-photo-actions{
+  position:absolute!important;left:4px!important;right:4px!important;bottom:4px!important;
+  display:flex!important;justify-content:space-between!important;gap:4px!important;
+}
+.composer-photo-preview,.post-edit-photo.new-photo{position:relative!important}
+.composer-photo-actions button,.post-edit-photo-actions button{
+  min-height:24px!important;padding:4px 6px!important;border:1px solid rgba(255,255,255,.55)!important;
+  border-radius:7px!important;background:rgba(20,35,58,.82)!important;color:#fff!important;
+  font-size:9px!important;font-weight:700!important;line-height:1!important;
+}
+.composer-photo-actions button:hover,.post-edit-photo-actions button:hover{
+  background:#0757f5!important;color:#fff!important;
+}
+.post-inline-quote{
+  display:block!important;margin:7px 0!important;padding:6px 10px!important;
+  border-left:3px solid #0757f5!important;border-radius:0 8px 8px 0!important;
+  background:#f2f6ff!important;color:#526781!important;
+}
+.post-edit-toolbar{align-items:center!important}
+.post-edit-toolbar .emoji-picker-wrap{margin-left:auto!important}
+.post-edit-toolbar .emoji-toggle{min-width:31px!important;height:30px!important}
+.post-edit-toolbar .emoji-picker{z-index:200!important}
+.vatra-image-filter-presets{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media(max-width:760px){
+  .profile-vk-title-row{gap:8px!important}
+  .profile-vk-name-line{gap:6px!important}
+  .profile-vk-status-row{gap:6px!important}
+  .profile-vk-presence{white-space:normal!important}
+  .vatra-image-filter-presets{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 }
