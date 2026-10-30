@@ -254,7 +254,28 @@ function postCard(p){
  const actions=postActionItem('like',p.id,liked?'Вподобано':'Вподобати',Object.keys(likeMap).length,likeIcon,liked,postActorStack(likeMap,'Хто вподобав допис'))+postActionItem('comment',p.id,'Коментувати',cs.length,commentIcon,false,postActorStack(commentActors,'Хто коментував допис'))+postActionItem('share',p.id,'Поділитися',Object.keys(shareMap).length,shareIcon,false,postActorStack(shareMap,'Хто поділився дописом'))+postActionItem('save',p.id,isSaved?'Збережено':'Зберегти',Object.keys(saveMap).length,saveIcon,isSaved,postActorStack(saveMap,'Хто зберіг допис'));
  return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+avatar(postAuthorName,postAuthorAvatar)+'<div class="author"><b>'+(p.authorUid&&p.authorUid!==currentUser?.uid?'<button class="author-link" data-view-profile="'+esc(p.authorUid)+'">'+esc(postAuthorName)+'</button>'+verifiedBadge(p.authorUid):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>@'+esc(p.authorHandle||'user')+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.groupName?' · '+esc(p.groupName):'')+'</small></div>'+(canEdit||(currentUser&&p.authorUid!==currentUser.uid)?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом">•••</summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser&&p.authorUid!==currentUser.uid?'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button><button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>':'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div><div class="comments">'+renderComments(p,cs)+'</div>'+(p.commentOpen?'<form class="comment-form" data-form="'+esc(p.id)+'">'+emojiControl()+'<input name="comment" data-emoji-input maxlength="300" placeholder="Написати коментар…" required><button type="submit">Надіслати</button></form>':'')+'</article>';
 }
-function allPosts(){let arr=Object.entries(posts).map(([id,p])=>({...p,id,source:'user'})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));const joined=Object.entries(groupMembers).filter(([gid,m])=>m&&m[currentUser?.uid]).map(([gid])=>gid);for(const gid of joined){const g=groups[gid];Object.entries(groupPostsCache[gid]||{}).forEach(([id,p])=>arr.push({...p,id:'g_'+gid+'_'+id,groupId:gid,groupName:g?.name||'Спільнота',source:'group'}));}arr=arr.filter(p=>p.authorUid===currentUser?.uid||(!blockedUsers[p.authorUid]&&(!!friends[p.authorUid]||!!following[p.authorUid]||(p.source==='group'&&joined.includes(p.groupId)))));arr.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));if(page==='saved')arr=arr.filter(p=>saved[p.id]);if(page==='profile')arr=arr.filter(p=>p.authorUid===currentUser?.uid);if(query){const q=query.toLocaleLowerCase('uk-UA');arr=arr.filter(p=>`${p.authorName} ${p.authorHandle} ${p.text} ${p.groupName||''}`.toLocaleLowerCase('uk-UA').includes(q));}if(page==='feed'&&filter==='popular')arr.sort((a,b)=>Object.keys(likes[b.id]||{}).length-Object.keys(likes[a.id]||{}).length||(b.createdAt||0)-(a.createdAt||0));return arr;}
+function allPosts(){
+ const uid=currentUser?.uid;
+ const memberGroups=new Set(Object.entries(groups||{}).filter(([gid,g])=>g&&(g.ownerUid===uid||!!groupMembers[gid]?.[uid])).map(([gid])=>gid));
+ const arr=Object.entries(posts||{}).map(([id,p])=>({...p,id,source:'user'}));
+ for(const gid of memberGroups){
+  const g=groups[gid];
+  Object.entries(groupPostsCache[gid]||{}).forEach(([id,p])=>arr.push({...p,id:'g_'+gid+'_'+id,groupId:gid,groupName:g?.name||'Спільнота',source:'group'}));
+ }
+ let result=arr.filter(p=>{
+  if(!p||!p.authorUid||blockedUsers[p.authorUid])return false;
+  if(p.source==='group')return memberGroups.has(p.groupId);
+  return p.authorUid===uid||!!friends[p.authorUid];
+ });
+ if(page==='saved')result=result.filter(p=>saved[p.id]);
+ if(page==='profile')result=result.filter(p=>p.authorUid===uid);
+ if(query){
+  const q=query.toLocaleLowerCase('uk-UA');
+  result=result.filter(p=>(String(p.authorName||'')+' '+String(p.authorHandle||'')+' '+String(p.text||'')+' '+String(p.groupName||'')).toLocaleLowerCase('uk-UA').includes(q));
+ }
+ result.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ return result;
+}
 function setFeed(html,empty=false){feed.innerHTML=html;$('#empty').hidden=!empty;}
 function renderBlockedUsersList(){const box=$('#blockedUsersList');if(!box)return;const entries=Object.entries(blockedUsers).filter(([,value])=>!!value);box.innerHTML=entries.map(([uid])=>{const u=users[uid]||{};return `<div class="blocked-user-row">${avatar(u.name||'Користувач',u.avatarUrl)}<span><b>${esc(u.name||'Користувач ВАТРИ')}</b><small>@${esc(u.handle||'user')}</small></span><button class="pill" data-unblock-user="${esc(uid)}">Розблокувати</button></div>`;}).join('')||'<p class="empty-inline">Немає заблокованих користувачів.</p>';}
 function renderFeed(){const arr=allPosts();setFeed(arr.map(postCard).join(''),!arr.length);if(!arr.length)$('#empty').innerHTML=`<h3>${page==='saved'?'Тут поки порожньо':page==='profile'?'Ще немає дописів':'Стрічка пуста'}</h3><p>${page==='saved'?'Зберігай дописи, щоб повернутися до них пізніше.':page==='profile'?'Ваші публікації з’являтимуться тут.':'Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.'}</p>${currentUser&&page==='feed'?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':''}`;$('#emptyCreate')?.addEventListener('click',openComposer);}
