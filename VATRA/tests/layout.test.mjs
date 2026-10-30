@@ -69,7 +69,7 @@ for(const width of [390,768,1024,1366]){
   const m=await inspect(width);
   assert.equal(m.width,width,'Emulated width mismatch.');
   assert.ok(m.scrollWidth<=m.width+2,'Horizontal overflow: '+JSON.stringify(m));
-  assert.ok(m.headerRight>=m.width-2,'Header width: '+JSON.stringify(m));
+  assert.ok(m.headerRight>=m.clientWidth-2,'Header does not span content viewport: '+JSON.stringify(m));
   assert.ok(m.avatarW>50&&m.avatarH>50,'Avatar collapsed: '+JSON.stringify(m));
   assert.ok(m.avatarH/m.avatarW>.76&&m.avatarH/m.avatarW<1.26,'Avatar deformed: '+JSON.stringify(m));
   assert.ok(m.textSize>=12,'Post text unreadable: '+JSON.stringify(m));
