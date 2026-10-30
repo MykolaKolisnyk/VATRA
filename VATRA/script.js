@@ -5,7 +5,18 @@ window.__vatraBackendLoaded=true;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const modal=$('#composer'), authDialog=$('#authDialog'), feed=$('#feed'), toast=$('#toast');
 let verifiedUsers={},currentUser=null,currentProfile={},privateDateOfBirth='',privatePhone='',privatePendingPhone='',activityReadAt=0,chatReads={},users={},friendProfiles={},posts={},likes={},comments={},pollVotes={},saved={},following={},blockedUsers={},videos={},groups={},groupMembers={},groupAdmins={},groupModerators={},groupPostsCache={},friendRequests={},friends={},chatIndex={},activeChat=null,activeChatBlocked=false,activeProfileUid=null,reportingTarget=null,chatMessages={},unsubscribers=[],page='feed',filter='all',query='',authMode='login',imageFile=null,videoFile=null,groupId=null,editingPostId=null,replyingComment=null,imageFiles=[],editPostFiles=[],imagePreviewUrls=[];
-const MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];function emojiControl(){return '<div class="emoji-picker-wrap"><button type="button" class="emoji-toggle" data-emoji-toggle aria-label="Відкрити емодзі">☺</button><div class="emoji-picker" hidden>'+EMOJIS.map(x=>'<button type="button" data-insert-emoji="'+x+'">'+x+'</button>').join('')+'</div></div>'; }
+const MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];let emojiPickerLoadPromise=null;
+function loadVatraEmojiPicker(){
+ if(customElements.get('emoji-picker'))return Promise.resolve();
+ if(!emojiPickerLoadPromise)emojiPickerLoadPromise=new Promise((resolve,reject)=>{
+  const script=document.createElement('script');script.type='module';script.src='https://cdn.jsdelivr.net/npm/emoji-picker-element@1.29.1/index.js';
+  script.onload=()=>customElements.whenDefined('emoji-picker').then(resolve,reject);
+  script.onerror=()=>reject(new Error('Не вдалося завантажити повну бібліотеку емодзі.'));
+  document.head.append(script);
+ });
+ return emojiPickerLoadPromise;
+}
+function emojiControl(){return '<div class="emoji-picker-wrap"><button type="button" class="emoji-toggle" data-emoji-toggle aria-label="Відкрити всі емодзі">☺</button><div class="emoji-picker" hidden><emoji-picker locale="uk" skin-tone-emoji="👍"></emoji-picker></div></div>'; }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function localISODate(date=new Date()){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');}
 function initials(n='ВАТРА'){return n.trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toLocaleUpperCase('uk-UA')||'В';}
@@ -212,8 +223,8 @@ function renderProfile(){
   '</aside>'+
   '<div class="profile-vk-main">'+
    '<section class="profile-vk-card profile-vk-overview">'+
-    '<div class="profile-vk-title-row"><div><h2>'+esc(name)+verifiedBadge(uid)+'</h2><p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div><button type="button" class="text-link" id="profileInfoEdit">Редагувати інформацію</button></div>'+
-    (currentProfile.status?'<p class="profile-status profile-vk-status">'+esc(currentProfile.status)+'</p>':'')+
+    '<div class="profile-vk-title-row"><div><h2>'+esc(name)+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:true,lastSeenAt:currentProfile.lastSeenAt||Date.now()})+'<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div><button type="button" class="text-link" id="profileInfoEdit">Редагувати інформацію</button></div>'+
+    '<div class="profile-vk-status-row">'+(currentProfile.status?'<p class="profile-status profile-vk-status">'+esc(currentProfile.status)+'</p>':'<p class="profile-vk-status is-empty">Додайте свій статус</p>')+'<button type="button" class="profile-vk-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-vk-bio">'+esc(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+'</p>'+
     '<div class="profile-vk-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+
     stats+
@@ -651,6 +662,7 @@ $('#postForm').addEventListener('submit',async e=>{
 });
 $$('[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));$$('.tab').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;goPage('feed');});$('#search').addEventListener('input',e=>{query=e.target.value.trim();if(query){if(page!=='explore')goPage('explore');else render();}else{if(page==='explore')render();else if(page==='saved'||page==='profile')goPage('feed');else render();}});$('#search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();goPage('explore');}});$('#sort').onclick=()=>{filter=filter==='popular'?'all':'popular';goPage('feed');toastMsg(filter==='popular'?'Сортування за вподобаннями':'Найновіші дописи');};$('#moment')?.addEventListener('click',openComposer);$$('[data-action="compose"]').forEach(b=>b.addEventListener('click',openComposer));$$('[data-tag]').forEach(b=>b.addEventListener('click',()=>{query=b.dataset.tag;$('#search').value=query;goPage('feed');}));
 document.addEventListener('click',async e=>{
+ const avatarViewerButton=e.target.closest('[data-avatar-viewer]');if(avatarViewerButton){let photos=[];try{photos=JSON.parse(avatarViewerButton.dataset.avatarUrls||'[]');}catch{}await openAvatarViewer(avatarViewerButton.dataset.avatarViewer,photos,0);return;}
  const tagButton=e.target.closest('[data-tag]');if(tagButton){query=String(tagButton.dataset.tag||'').trim();$('#search').value=query;filter='all';goPage('feed');return;}
  const removeComposerPhoto=e.target.closest('[data-remove-composer-photo]');if(removeComposerPhoto){const index=Number(removeComposerPhoto.dataset.removeComposerPhoto);if(Number.isInteger(index)&&index>=0&&index<imageFiles.length){imageFiles.splice(index,1);renderComposerPhotoPreviews();}return;}
  const deletePhotoButton=e.target.closest('[data-delete-profile-photo]');if(deletePhotoButton){await deleteProfilePhoto(Number(deletePhotoButton.dataset.deleteProfilePhoto));return;}
@@ -664,7 +676,26 @@ document.addEventListener('click',async e=>{
  b=e.target.closest('[data-edit-message]');if(b){editingMessageId=b.dataset.editMessage;renderMessages();return;}
  b=e.target.closest('[data-delete-message]');if(b){if(!(await askConfirm('Видалити повідомлення?')))return;try{const key=chatKey(currentUser.uid,activeChat);await remove(ref(db,`chats/${key}/messages/${b.dataset.deleteMessage}`));await syncChatPreview(key,activeChat);toastMsg('Повідомлення видалено.');}catch(err){toastMsg(niceError(err));}return;}
  b=e.target.closest('[data-cancel-edit]');if(b){editingMessageId=null;renderMessages();return;}
- b=e.target.closest('[data-emoji-toggle]');if(b){const panel=b.parentElement.querySelector('.emoji-picker');panel.hidden=!panel.hidden;return;}
+ b=e.target.closest('[data-emoji-toggle]');if(b){
+  const panel=b.parentElement.querySelector('.emoji-picker'),willOpen=panel.hidden;panel.hidden=!willOpen;
+  if(willOpen){
+   try{
+    await loadVatraEmojiPicker();
+    const picker=panel.querySelector('emoji-picker');
+    if(picker&&!picker.dataset.vatraBound){
+     picker.dataset.vatraBound='1';
+     picker.addEventListener('emoji-click',event=>{
+      const input=b.closest('form')?.querySelector('[data-emoji-input]')||document.querySelector('#postText');
+      if(!input)return;
+      const emoji=event.detail?.unicode||'';if(!emoji)return;
+      const start=input.selectionStart??input.value.length,end=input.selectionEnd??input.value.length;
+      input.setRangeText(emoji,start,end,'end');input.focus();panel.hidden=true;
+     });
+    }
+   }catch(error){panel.innerHTML='<p class="emoji-picker-error">'+esc(error.message)+'</p>';}
+  }
+  return;
+ }
  b=e.target.closest('[data-insert-emoji]');if(b){const input=b.closest('form')?.querySelector('[data-emoji-input]');if(!input)return;const start=input.selectionStart,end=input.selectionEnd;input.setRangeText(b.dataset.insertEmoji,start,end,'end');input.focus();b.closest('.emoji-picker').hidden=true;return;}
  b=e.target.closest('[data-view-profile]');if(b){renderPublicProfile(b.dataset.viewProfile);return;}b=e.target.closest('[data-friend-request]');if(b){if(!authRequired())return;const uid=b.dataset.friendRequest;try{if(friends[uid])return toastMsg('Ви вже друзі.');await set(ref(db,`friendRequests/${uid}/${currentUser.uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'incoming',createdAt:Date.now()});await set(ref(db,`friendRequests/${currentUser.uid}/${uid}`),{from:currentUser.uid,to:uid,status:'pending',direction:'outgoing',createdAt:Date.now()});toastMsg('Запит у друзі надіслано.');}catch(err){toastMsg(niceError(err));}return;}b=e.target.closest('[data-accept-friend]');if(b){
  const uid=b.dataset.acceptFriend,request=friendRequests[uid];
