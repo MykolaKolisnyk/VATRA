@@ -4,6 +4,9 @@ export function setupNavigation(onNavigate) {
   const dialog = document.getElementById('mobileMenu');
   const container = dialog.querySelector('.mobile-menu-links');
   document.querySelectorAll('.sidebar > nav > [data-page]').forEach(source => {
+    const label = source.querySelector('span:not(.nav-icon)')?.textContent.trim() || source.textContent.trim();
+    source.setAttribute('aria-label', label);
+    source.title = label;
     const button = source.cloneNode(true);
     button.removeAttribute('id');
     button.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));

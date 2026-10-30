@@ -1,4 +1,4 @@
-import { setupNavigation } from './navigation.js?v=20261030-20';
+import { setupNavigation } from './navigation.js?v=20261030-21';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange } from './vatra-backend.js?v=20261030-1';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
@@ -262,6 +262,8 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
  dialog.addEventListener('close',()=>dialog.remove());
  await render();dialog.showModal();
 }
+function profileBioMarkup(text){const safe=esc(text||'');if(String(text||'').length<=180)return '<p class="profile-vk-bio">'+safe+'</p>';return '<div class="profile-vk-bio-block"><p class="profile-vk-bio" id="vatraProfileBio">'+safe+'</p><button type="button" class="profile-vk-bio-toggle" data-toggle-profile-bio aria-controls="vatraProfileBio" aria-expanded="false">Докладніше</button></div>';}
+document.addEventListener('click',event=>{const button=event.target.closest('[data-toggle-profile-bio]');if(!button)return;const expanded=button.closest('.profile-vk-bio-block').classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'Згорнути':'Докладніше';});
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -296,7 +298,7 @@ function renderProfile(){
     '<div class="profile-vk-title-row"><div class="profile-vk-title-info"><div class="profile-vk-name-line"><h2>'+esc(name)+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup(currentProfile,true)+'</div>'+
     '<div class="profile-vk-status-row">'+(currentProfile.status?'<p class="profile-status profile-vk-status">'+esc(currentProfile.status)+'</p>':'<p class="profile-vk-status is-empty">Додайте свій статус</p>')+'<button type="button" class="profile-vk-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
-    '<p class="profile-vk-bio">'+esc(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+'</p>'+
+    profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
     '<div class="profile-vk-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+
     stats+
    '</section>'+
@@ -365,7 +367,7 @@ function renderPublicProfile(uid){
     '<div class="profile-vk-title-row"><div class="profile-vk-title-info"><div class="profile-vk-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'</div>'+
     (u.status?'<p class="profile-status profile-vk-status">'+esc(u.status)+'</p>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
-    (u.bio?'<p class="profile-vk-bio">'+esc(u.bio)+'</p>':'')+
+    (u.bio?profileBioMarkup(u.bio):'')+
     '<div class="profile-vk-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city)+detail('Місце проживання',location)+detail('Місце роботи',workplace)+detail('Навчання',education)+detail('Рідне місто',hometown)+detail('Телефон',phone)+detail('Вебсайт',u.website):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+
     '<div class="profile-vk-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
    '</section>'+
@@ -448,7 +450,7 @@ function markNotificationsRead(){if(!currentUser)return;const stamp=Date.now(),u
 function renderNotifications(){const items=notificationItems().slice(0,50);const rows=items.map(n=>{const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ'),when=timeAgo(n.createdAt);let title='',target='';if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';target='data-notification-post="'+esc(n.postId)+'"';}else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис: «'+esc(n.excerpt)+'»';target='data-notification-post="'+esc(n.postId)+'"';}else if(n.type==='friend'){title=name+' надіслав(-ла) запит у друзі';target='data-notification-friends="true"';}else{title='Нове повідомлення від '+name+': «'+esc(n.excerpt)+'»';target='data-notification-chat="'+esc(n.chatUid)+'"';}return '<button class="notification-item '+(n.unread?'is-unread':'')+'" '+target+'>'+avatar(u.name||'Користувач',u.avatarUrl)+'<span class="notification-copy"><b>'+title+'</b><small>'+when+'</small></span>'+(n.unread?'<span class="notification-dot" aria-label="Нове"></span>':'')+'</button>';}).join('');setFeed('<article class="post notifications-page"><div class="notifications-heading"><div><p class="eyebrow">ВАШЕ КОЛО</p><h2>Сповіщення</h2><p class="muted">Запити в друзі, реакції на Ваші дописи та нові повідомлення.</p></div><span class="count-badge">'+items.filter(x=>x.unread).length+' нових</span></div><div class="notification-list">'+(rows||'<div class="empty-inline">Поки немає сповіщень. Нові реакції, запити й повідомлення з’являться тут.</div>')+'</div></article>');}
 function renderGettingStarted(){
  const box=$('#gettingStartedMobile'),side=$('#gettingStarted');if(side){side.hidden=true;side.innerHTML='';}
- if(!box)return;if(!currentUser){box.hidden=true;box.innerHTML='';return;}
+ if(!box)return;if(!currentUser||page!=='feed'){box.hidden=true;box.innerHTML='';return;}
  let dismissed=false;try{dismissed=localStorage.getItem('vatra-guide-hidden-v1-'+currentUser.uid)==='1';}catch{}
  const ownPosts=Object.values(posts||{}).filter(p=>p&&p.authorUid===currentUser.uid),profileReady=!!(currentProfile.bio||currentProfile.city||currentProfile.workplace||currentProfile.education);
  const tasks=[{title:'Додайте фото профілю',desc:'Друзі зможуть упізнати Вас.',done:!!currentProfile.avatarUrl,action:'profile',cta:'Відкрити профіль'},{title:'Заповніть інформацію',desc:'Додайте опис або місто.',done:profileReady,action:'settings',cta:'Налаштувати профіль'},{title:'Опублікуйте перший допис',desc:'Поділіться думкою, фото чи опитуванням.',done:ownPosts.length>0,action:'create',cta:'Створити допис'},{title:'Знайдіть друзів',desc:'Запросіть знайомих до свого кола.',done:Object.keys(friends||{}).length>0,action:'explore',cta:'Знайти людей'}];
