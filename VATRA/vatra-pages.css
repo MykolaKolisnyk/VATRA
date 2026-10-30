@@ -3902,3 +3902,41 @@ body .settings-savebar button[disabled]{
   min-height:44px!important;
  }
 }
+
+
+/* Functional reactions inside the picture viewer, without leaking avatars into counts. */
+.vatra-post-photo-viewer .vatra-media-viewer-context{
+ display:flex!important;
+ align-items:center!important;
+ flex-wrap:wrap!important;
+ gap:9px!important;
+ margin:10px 0!important;
+ padding:11px 0!important;
+ border-top:1px solid #e7edf5!important;
+ border-bottom:1px solid #e7edf5!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-context>button{
+ display:inline-flex!important;
+ align-items:center!important;
+ min-height:30px!important;
+ width:auto!important;
+ max-width:100%!important;
+ padding:5px 8px!important;
+ margin:0!important;
+ border:1px solid #dfe7f1!important;
+ border-radius:8px!important;
+ background:#f6f8fc!important;
+ color:#536b8a!important;
+ font-size:12px!important;
+ font-weight:700!important;
+ cursor:pointer!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-context>.vatra-media-like.is-liked{
+ color:#0757f5!important;
+ background:#edf3ff!important;
+ border-color:#c6dcff!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-context>span{
+ color:#8090a6!important;
+ font-size:11px!important;
+}
