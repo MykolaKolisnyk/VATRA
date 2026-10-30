@@ -481,17 +481,51 @@ function renderMessages(){
  };
 }
 let chatUnsub=null,chatBlockUnsub=null,groupDetailsUnsub=null,editingMessageId=null;
-function stopChatListener(){if(chatUnsub){chatUnsub();chatUnsub=null;}if(chatBlockUnsub){chatBlockUnsub();chatBlockUnsub=null;}activeChatBlocked=false;}
+function stopChatListener(){
+ secureChatAttempt++;chatRenderToken++;activeSecureSession=null;
+ if(chatUnsub){chatUnsub();chatUnsub=null;}
+ if(chatBlockUnsub){chatBlockUnsub();chatBlockUnsub=null;}
+ activeChatBlocked=false;
+}
+async function renderChatBubbles(key){
+ const el=$('#chatMessages'),uid=currentUser?.uid;
+ if(!el||!uid||!activeChat||chatKey(uid,activeChat)!==key)return;
+ const token=++chatRenderToken;
+ const arr=Object.entries(chatMessages||{}).filter(([,m])=>m&&typeof m==='object').map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+ const html=await Promise.all(arr.map(async m=>{
+  const mine=m.senderUid===uid,encrypted=!!m.encrypted;
+  let textValue='',canRead=true;
+  if(encrypted){
+   try{
+    if(!activeSecureSession)throw new Error('Ключ ще не готовий.');
+    textValue=await decryptMessage(activeSecureSession,m);
+   }catch(error){canRead=false;textValue='🔒 Повідомлення недоступне: '+(error?.message||'помилка розшифрування');}
+  }else{textValue=String(m.text||'');}
+  const editing=mine&&editingMessageId===m.id&&canRead;
+  const stamp=timeAgo(m.createdAt)+(m.editedAt?' · змінено':'')+(encrypted?' · 🔒 E2EE':' · ⚠️ не зашифровано');
+  return '<div class="message-bubble '+(mine?'mine':'')+'">'+
+   (editing?'<form class="message-edit-form" data-edit-message-form="'+esc(m.id)+'"><input name="text" maxlength="2000" value="'+esc(textValue)+'" required><button class="pill">Зберегти</button><button type="button" class="text-link" data-cancel-edit>Скасувати</button></form>':
+   '<p>'+ (canRead?safeText(textValue):esc(textValue))+'</p><small>'+stamp+'</small>'+
+   (mine?'<div class="message-actions">'+(canRead?'<button data-edit-message="'+esc(m.id)+'">Редагувати</button>':'')+'<button data-delete-message="'+esc(m.id)+'">Видалити</button></div>':''))+
+   '</div>';
+ }));
+ if(token!==chatRenderToken||!$('#chatMessages')||chatKey(currentUser.uid,activeChat)!==key)return;
+ el.innerHTML=html.join('')||'<p class="muted">Напишіть перше захищене повідомлення 🔒</p>';
+ el.scrollTop=el.scrollHeight;
+}
 function startChatListener(key){
  stopChatListener();
- chatUnsub=watch(`chats/${key}/messages`,v=>{
-  const el=$('#chatMessages');if(!el)return;
-  const arr=Object.entries(v).map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+ chatMessages={};
+ chatUnsub=watch('chats/'+key+'/messages',v=>{
+  chatMessages=v||{};
   markChatRead(key);
-  el.innerHTML=arr.map(m=>{const mine=m.senderUid===currentUser.uid,editing=editingMessageId===m.id;return `<div class="message-bubble ${mine?'mine':''}">${editing?`<form class="message-edit-form" data-edit-message-form="${esc(m.id)}"><input name="text" maxlength="2000" value="${esc(m.text)}" required><button class="pill">Зберегти</button><button type="button" class="text-link" data-cancel-edit>Скасувати</button></form>`:`<p>${safeText(m.text)}</p><small>${timeAgo(m.createdAt)}${m.editedAt?' · змінено':''}</small>${mine?`<div class="message-actions"><button data-edit-message="${esc(m.id)}">Редагувати</button><button data-delete-message="${esc(m.id)}">Видалити</button></div>`:''}`}</div>`;}).join('')||'<p class="muted">Напишіть перше повідомлення 👋</p>';
-  el.scrollTop=el.scrollHeight;
+  renderChatBubbles(key).catch(error=>{const el=$('#chatMessages');if(el)el.textContent='Помилка відображення повідомлень: '+(error?.message||'невідома помилка');});
  });
- chatBlockUnsub=watch(`chatBlocks/${key}`,v=>{activeChatBlocked=Object.keys(v||{}).length>0;const unavailable=activeChatBlocked||!!blockedUsers[activeChat],notice=$('#chatBlockNotice'),form=$('#sendMessageForm');if(notice)notice.hidden=!unavailable;if(form)form.hidden=unavailable;});
+ chatBlockUnsub=watch('chatBlocks/'+key,v=>{
+  activeChatBlocked=Object.keys(v||{}).length>0;
+  const unavailable=activeChatBlocked||!!blockedUsers[activeChat],notice=$('#chatBlockNotice'),form=$('#sendMessageForm');
+  if(notice)notice.hidden=!unavailable;if(form)form.hidden=unavailable;
+ });
 }
 function notificationItems(){if(!currentUser)return [];const items=[],uid=currentUser.uid;Object.entries(posts).forEach(([postId,p])=>{if(p.authorUid!==uid)return;Object.entries(likes[postId]||{}).forEach(([actor,value])=>{const createdAt=Number(value&&typeof value==='object'?value.createdAt:0);if(actor!==uid&&!blockedUsers[actor]&&createdAt)items.push({id:'like_'+postId+'_'+actor,type:'like',actorUid:actor,createdAt,postId,unread:createdAt>activityReadAt});});Object.entries(comments[postId]||{}).forEach(([commentId,c])=>{const createdAt=Number(c.createdAt)||0;if(c.uid!==uid&&!blockedUsers[c.uid]&&createdAt)items.push({id:'comment_'+postId+'_'+commentId,type:'comment',actorUid:c.uid,createdAt,postId,excerpt:String(c.text||'').slice(0,100),unread:createdAt>activityReadAt});});});Object.entries(friendRequests).forEach(([actor,r])=>{if(!r||actor===uid||blockedUsers[actor]||r.status!=='pending'||r.direction!=='incoming')return;const createdAt=Number(r.createdAt)||0;items.push({id:'friend_'+actor,type:'friend',actorUid:actor,createdAt,unread:createdAt>activityReadAt});});Object.entries(chatIndex).forEach(([key,c])=>{const m=c&&c.lastMessage;if(!m||!m.text||m.senderUid===uid||blockedUsers[c.otherUid])return;const createdAt=Number(m.createdAt)||0;items.push({id:'message_'+key,type:'message',actorUid:c.otherUid,createdAt,chatUid:c.otherUid,excerpt:String(m.text).slice(0,100),unread:createdAt>Number(chatReads[key]||0)});});return items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));}
 function updateNotificationBadges(){const items=notificationItems(),count=items.filter(x=>x.unread).length,incoming=Object.entries(friendRequests).filter(([uid,x])=>x&&!friends[uid]&&!blockedUsers[uid]&&x.status==='pending'&&x.direction==='incoming').length;['notificationBadge','notificationNavBadge'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.textContent=count>99?'99+':String(count);el.hidden=count===0;});const friendBadge=document.getElementById('friendsNavBadge');if(friendBadge){friendBadge.textContent=incoming>99?'99+':String(incoming);friendBadge.hidden=incoming===0;}}
