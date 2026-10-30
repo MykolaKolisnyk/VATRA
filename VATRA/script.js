@@ -231,7 +231,7 @@ unsubscribers.push(watch('chats',v=>{
   const arr=Object.values(c.messages||{}).filter(m=>m&&typeof m==='object').sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
   const last=arr.at(-1);
   live[key]={otherUid,updatedAt:Number(last?.createdAt)||Number(c.createdAt)||0,
-   lastMessage:last?{text:last.encrypted?'🔒 Зашифроване повідомлення':String(last.text||'').slice(0,120),senderUid:last.senderUid,createdAt:last.createdAt}:null};
+   lastMessage:last?{text:last.encrypted?SECURE_PREVIEW:String(last.text||'').slice(0,120),senderUid:last.senderUid,createdAt:last.createdAt}:null};
  }
  chatLiveIndex=live;vatraSoundSourceLoaded('chats');rebuildVisibleChatIndex();
  if((page==='messages'&&!activeChat)||page==='notifications')render();
@@ -951,7 +951,7 @@ function rebuildVisibleChatIndex(){
 }
 
 let activeSecureSession=null,secureChatAttempt=0,chatRenderToken=0,secureAutoRetries=0,secureRetryTimer=null;
-const SECURE_PREVIEW='🔒 Зашифроване повідомлення';
+const SECURE_PREVIEW='Повідомлення';
 async function readE2EEKey(uid){const snap=await get(ref(db,'e2eeKeys/'+uid));return snap.val();}
 async function publishE2EEKey(uid,record){return set(ref(db,'e2eeKeys/'+uid),record);}
 function updateChatSecurityStatus(text,ready=false){
@@ -999,9 +999,9 @@ function vatraMessengerSidebar(chats){
  const rows=chats.map(([id,c])=>{
   const other=users[c.otherUid]||{},name=other.name||'Користувач ВАТРИ';
   const active=c.otherUid===activeChat;
-  return '<div class="vatra-messenger-contact" data-messenger-row data-messenger-name="'+esc(name.toLocaleLowerCase('uk-UA'))+'"><button class="vatra-messenger-contact-main '+(active?'active':'')+'" type="button" data-open-chat="'+esc(c.otherUid)+'">'+avatar(name,other.avatarUrl)+'<span><b>'+esc(name)+'</b><small>'+esc(c.lastMessage?.text||'Захищене повідомлення')+'</small></span><time>'+timeAgo(c.updatedAt)+'</time></button><button class="vatra-messenger-delete" type="button" data-delete-chat="'+esc(id)+'" aria-label="Прибрати діалог із '+esc(name)+'">×</button></div>';
+  return '<div class="vatra-messenger-contact" data-messenger-row data-messenger-name="'+esc(name.toLocaleLowerCase('uk-UA'))+'"><button class="vatra-messenger-contact-main '+(active?'active':'')+'" type="button" data-open-chat="'+esc(c.otherUid)+'">'+avatar(name,other.avatarUrl)+'<span><b>'+esc(name)+'</b><small>'+esc(c.lastMessage?.text||'Почніть розмову')+'</small></span><time>'+timeAgo(c.updatedAt)+'</time></button><button class="vatra-messenger-delete" type="button" data-delete-chat="'+esc(id)+'" aria-label="Прибрати діалог із '+esc(name)+'">×</button></div>';
  }).join('');
- return '<aside class="vatra-messenger-sidebar" aria-label="Список діалогів"><header class="vatra-messenger-heading"><h2>Повідомлення</h2><span>'+chats.length+'</span></header><label class="vatra-messenger-search"><span aria-hidden="true">⌕</span><input id="vatraChatSearch" type="search" placeholder="Пошук діалогів" aria-label="Пошук діалогів"></label><div class="vatra-messenger-selector"><strong>Усі діалоги</strong><button id="vatraNewChatToggle" type="button" aria-expanded="false">＋ Новий</button></div><div class="vatra-messenger-contacts" id="vatraMessengerContacts">'+(rows||'<p class="vatra-messenger-nodata">Немає розпочатих діалогів.</p>')+'</div><div class="vatra-messenger-new" id="vatraMessengerNew" hidden><h3>Написати другу</h3>'+(people.map(uid=>{const u=users[uid];return '<button type="button" data-message-user="'+esc(uid)+'">'+avatar(u.name||'Користувач',u.avatarUrl)+'<span>'+esc(u.name||'Користувач')+'</span></button>';}).join('')||'<p>Спочатку додайте друзів у ВАТРІ.</p>')+'</div><footer class="vatra-messenger-footer"><span>🔒 Захищені розмови ВАТРИ</span></footer></aside>';
+ return '<aside class="vatra-messenger-sidebar" aria-label="Список діалогів"><header class="vatra-messenger-heading"><h2>Повідомлення</h2><span>'+chats.length+'</span></header><label class="vatra-messenger-search"><span aria-hidden="true">⌕</span><input id="vatraChatSearch" type="search" placeholder="Пошук діалогів" aria-label="Пошук діалогів"></label><div class="vatra-messenger-selector"><strong>Усі діалоги</strong><button id="vatraNewChatToggle" type="button" aria-expanded="false">＋ Новий</button></div><div class="vatra-messenger-contacts" id="vatraMessengerContacts">'+(rows||'<p class="vatra-messenger-nodata">Немає розпочатих діалогів.</p>')+'</div><div class="vatra-messenger-new" id="vatraMessengerNew" hidden><h3>Написати другу</h3>'+(people.map(uid=>{const u=users[uid];return '<button type="button" data-message-user="'+esc(uid)+'">'+avatar(u.name||'Користувач',u.avatarUrl)+'<span>'+esc(u.name||'Користувач')+'</span></button>';}).join('')||'<p>Спочатку додайте друзів у ВАТРІ.</p>')+'</div><footer class="vatra-messenger-footer"><span>Особисті розмови ВАТРИ</span></footer></aside>';
 }
 function vatraMessengerControls(){
  const toggle=$('#vatraNewChatToggle'),picker=$('#vatraMessengerNew'),search=$('#vatraChatSearch');
@@ -1019,34 +1019,46 @@ function renderMessages(){
  if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися повідомленнями</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
  const chats=Object.entries(chatIndex).filter(([,c])=>Boolean(c?.lastMessage?.text)&&!blockedUsers[c.otherUid]).sort((a,b)=>(b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
  if(!activeChat){
-  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true">✉</div><h2>Ваші повідомлення</h2><p>Виберіть діалог ліворуч або почніть нову розмову з другом.</p><small>Нові повідомлення передаються з наскрізним шифруванням.</small></section></div></section>');
+  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true">✉</div><h2>Ваші повідомлення</h2><p>Виберіть діалог ліворуч або почніть нову розмову з другом.</p><small>Виберіть контакт, щоб почати листування.</small></section></div></section>');
   vatraMessengerControls();
   return;
  }
  const other=users[activeChat]||{},key=chatKey(currentUser.uid,activeChat),chatUnavailable=!!blockedUsers[activeChat]||activeChatBlocked;
- setFeed(`<section class="vatra-messenger"><div class="vatra-messenger-shell">${vatraMessengerSidebar(chats)}<article class="post chat-window"><div class="chat-top"><button class="text-link" id="backChats">← Повідомлення</button>${avatar(other.name||'Користувач',other.avatarUrl)}<b>${esc(other.name||'Користувач ВАТРИ')}</b>${blockedUsers[activeChat]?`<button class="pill" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button class="danger-link" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button class="text-link" data-report-user="${esc(activeChat)}">Поскаржитися</button></div><section class="chat-security" aria-live="polite"><div class="chat-security-row"><span id="chatSecurityStatus" data-ready="false">З’єднуємо захищений чат…</span><button type="button" class="chat-security-refresh" id="chatSecurityRefresh" hidden>Повторити з’єднання</button></div></section><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання повідомлень зупинене: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages">Завантаження повідомлень…</div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Написати повідомлення…" autocomplete="off" required><button class="primary">Надіслати</button></form></article></div></section>`);
+ setFeed(`<section class="vatra-messenger"><div class="vatra-messenger-shell">${vatraMessengerSidebar(chats)}<article class="post chat-window"><div class="chat-top"><button class="text-link" id="backChats">← Повідомлення</button>${avatar(other.name||'Користувач',other.avatarUrl)}<b>${esc(other.name||'Користувач ВАТРИ')}</b>${blockedUsers[activeChat]?`<button class="pill" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button class="danger-link" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button class="text-link" data-report-user="${esc(activeChat)}">Поскаржитися</button></div><p class="vatra-chat-privacy-note">Цю розмову бачать лише її учасники.</p><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання повідомлень зупинене: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages">Завантаження повідомлень…</div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Написати повідомлення…" autocomplete="off" required><button class="primary">Надіслати</button></form></article></div></section>`);
  vatraMessengerControls();
  $('#backChats').onclick=()=>{activeChat=null;editingMessageId=null;stopChatListener();renderMessages();};
- startChatListener(key);markChatRead(key);updateChatSecurityStatus("З’єднуємо захищений чат…",false);activateSecureChat(key,activeChat);$("#chatSecurityRefresh")?.addEventListener("click",()=>activateSecureChat(key,activeChat));
+ startChatListener(key);markChatRead(key);
+  // Only for reading old ciphertext on a device with the original key.
+  // New ordinary messages do not depend on peer key initialization.
+  const legacyAttempt=++secureChatAttempt,legacyPeer=activeChat;
+  prepareSession(currentUser.uid,legacyPeer,key,readE2EEKey,publishE2EEKey).then(session=>{
+   if(legacyAttempt!==secureChatAttempt||activeChat!==legacyPeer||page!=='messages')return;
+   activeSecureSession=session;void renderChatBubbles(key);
+  }).catch(error=>console.debug('[ВАТРА] Попередні повідомлення не прочитати на цьому пристрої:',error?.code||'key'));
  $('#sendMessageForm').onsubmit=async e=>{
   e.preventDefault();
   if(activeChatBlocked||blockedUsers[activeChat])return toastMsg('Надсилання в цьому чаті зупинено.');
   const form=e.currentTarget,input=form.elements.message,text=input.value.trim(),recipient=activeChat,submit=form.querySelector('button.primary');
   if(!text||submit.disabled)return;
-  const session=activeSecureSession;
-  if(!session||session.peerUid!==recipient||session.chatId!==key){toastMsg('Захищений чат ще підключається. Спробуйте ще раз.');return;}
   submit.disabled=true;let written=false;
   try{
-   const createdAt=Date.now(),encrypted=await encryptMessage(session,text,currentUser.uid,createdAt);
-   const cRef=ref(db,'chats/'+key),snap=await get(cRef);
-   if(!snap.exists())await set(cRef,{members:{[currentUser.uid]:true,[recipient]:true},createdAt});
-   const msgRef=push(ref(db,'chats/'+key+'/messages'));
-   await set(msgRef,{senderUid:currentUser.uid,encrypted,createdAt});
+   const createdAt=Date.now();
+   const root=ref(db,'chats/'+key),snapshot=await get(root);
+   if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[recipient]:true},createdAt});
+   const messageRef=push(ref(db,'chats/'+key+'/messages'));
+   await set(messageRef,{senderUid:currentUser.uid,text,createdAt});
    written=true;if(input.value.trim()===text)input.value='';
-   const lastMessage={text:SECURE_PREVIEW,senderUid:currentUser.uid,createdAt},summary={otherUid:recipient,updatedAt:createdAt,lastMessage};
-   await update(ref(db,'userChats/'+currentUser.uid+'/'+key),summary);
-  }catch(err){toastMsg(written?'Зашифроване повідомлення надіслано, але список діалогів не оновився.':'Не вдалося надіслати захищене повідомлення: '+(err?.message||niceError(err)));}
-  finally{submit.disabled=false;}
+   const lastMessage={text:text.slice(0,120),senderUid:currentUser.uid,createdAt};
+   try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:recipient,updatedAt:createdAt,lastMessage});}
+   catch(summaryError){console.warn('[ВАТРА] Індекс діалогів не оновився:',summaryError);toastMsg('Повідомлення надіслано, але список розмов оновиться пізніше.');}
+  }catch(err){
+   const reason=String(err?.message||'');
+   const message=/VATRA E2EE|only signed ciphertext|vatra_e2ee_guard/i.test(reason)
+    ?'Потрібно оновити SQL чату в Supabase (файл chat-message-mode-update.sql).'
+    :'Не вдалося надіслати повідомлення: '+niceError(err);
+   if(!written)toastMsg(message);
+   console.error('[ВАТРА] Помилка надсилання',err);
+  }finally{submit.disabled=false;}
  };
 }
 let chatUnsub=null,chatBlockUnsub=null,groupDetailsUnsub=null,editingMessageId=null;
@@ -1069,10 +1081,10 @@ async function renderChatBubbles(key){
    try{
     if(!activeSecureSession)throw new Error('Ключ ще не готовий.');
     textValue=await decryptMessage(activeSecureSession,m);
-   }catch(error){canRead=false;textValue='🔒 Повідомлення недоступне: '+(error?.message||'помилка розшифрування');}
+   }catch(error){canRead=false;textValue='Попереднє повідомлення недоступне на цьому пристрої.';}
   }else{textValue=String(m.text||'');}
   const editing=mine&&editingMessageId===m.id&&canRead;
-  const stamp=timeAgo(m.createdAt)+(m.editedAt?' · змінено':'')+(encrypted?' · 🔒':' · ⚠️ незахищене');
+  const stamp=timeAgo(m.createdAt)+(m.editedAt?' · змінено':'');
   return '<div class="message-bubble '+(mine?'mine':'')+'">'+
    (editing?'<form class="message-edit-form" data-edit-message-form="'+esc(m.id)+'"><input name="text" maxlength="2000" value="'+esc(textValue)+'" required><button class="pill">Зберегти</button><button type="button" class="text-link" data-cancel-edit>Скасувати</button></form>':
    '<p>'+ (canRead?safeText(textValue):esc(textValue))+'</p><small>'+stamp+'</small>'+
@@ -1080,7 +1092,7 @@ async function renderChatBubbles(key){
    '</div>';
  }));
  if(token!==chatRenderToken||!$('#chatMessages')||chatKey(currentUser.uid,activeChat)!==key)return;
- el.innerHTML=html.join('')||'<p class="muted">Напишіть перше захищене повідомлення 🔒</p>';
+ el.innerHTML=html.join('')||'<div class="vatra-chat-first-message"><b>Розмова починається тут</b><p>Напишіть перше повідомлення.</p></div>';
  el.scrollTop=el.scrollHeight;
 }
 function startChatListener(key){
@@ -1782,17 +1794,21 @@ document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[
  const text=String(new FormData(edit).get('text')||'').trim();
  if(!text)return toastMsg('Повідомлення не може бути порожнім.');
  const key=chatKey(currentUser.uid,activeChat),session=activeSecureSession;
- if(!session||session.chatId!==key)return toastMsg('Без захищеного ключа редагування повідомлень недоступне.');
  try{
   const path='chats/'+key+'/messages/'+edit.dataset.editMessageForm;
   const previous=(await get(ref(db,path))).val();
   if(!previous||previous.senderUid!==currentUser.uid)throw new Error('Редагувати можна лише власне повідомлення.');
-  const encrypted=await encryptMessage(session,text,currentUser.uid,Number(previous.createdAt));
-  await set(ref(db,path),{senderUid:currentUser.uid,createdAt:previous.createdAt,encrypted,editedAt:Date.now()});
+  let payload={senderUid:currentUser.uid,createdAt:previous.createdAt,text,editedAt:Date.now()};
+  if(previous.encrypted){
+   if(!session||session.chatId!==key)throw new Error('Старе повідомлення можна змінити лише на пристрої з його ключем.');
+   const encrypted=await encryptMessage(session,text,currentUser.uid,Number(previous.createdAt));
+   payload={senderUid:currentUser.uid,createdAt:previous.createdAt,encrypted,editedAt:Date.now()};
+  }
+  await set(ref(db,path),payload);
   editingMessageId=null;
   await syncChatPreview(key,activeChat);
-  renderChatBubbles(key);
- }catch(error){toastMsg('Не вдалося зберегти захищене повідомлення: '+(error?.message||niceError(error)));}
+  void renderChatBubbles(key);
+ }catch(error){toastMsg('Не вдалося зберегти повідомлення: '+niceError(error));}
  return;
 }const form=e.target.closest('[data-form]');if(!form)return;e.preventDefault();if(!authRequired())return;const text=new FormData(form).get('comment').trim();if(!text)return;const id=form.dataset.form;try{await set(push(ref(db,`comments/${id}`)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач',avatarUrl:currentProfile.avatarUrl||'',text,createdAt:Date.now()});if(posts[id])posts[id].commentOpen=false;render();}catch(err){toastMsg(niceError(err));}});
 $('#reportCancel').onclick=()=>$('#reportDialog').close();$('#reportClose').onclick=()=>$('#reportDialog').close();$('#reportDialog').addEventListener('close',()=>{reportingTarget=null;$('#reportForm').reset();$('#reportError').textContent='';});$('#reportForm').addEventListener('submit',async e=>{e.preventDefault();if(!authRequired()||!reportingTarget)return;const fd=new FormData(e.currentTarget),target=reportingTarget,path=`reports/${currentUser.uid}/${target.type}/${target.id}`,reason=String(fd.get('reason')||''),details=String(fd.get('details')||'').trim().slice(0,500),button=e.currentTarget.querySelector('[type=submit]');button.disabled=true;button.textContent='Надсилаємо…';try{const existing=await get(ref(db,path));if(existing.exists()){toastMsg('Ви вже надсилав(-ла) скаргу на цей матеріал.');$('#reportDialog').close();return;}await set(ref(db,path),{reporterUid:currentUser.uid,targetType:target.type,targetId:target.id,reason,details,createdAt:Date.now()});$('#reportDialog').close();toastMsg('Скаргу збережено. Перегляд модератором потребує серверної черги.');}catch(err){$('#reportError').textContent=niceError(err);}finally{button.disabled=false;button.textContent='Надіслати скаргу';}});

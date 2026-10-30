@@ -429,16 +429,27 @@ begin
         raise exception 'VATRA E2EE: only the author may edit a message';
       end if;
 
+      -- Sender must always match the authenticated account.
       if jsonb_typeof(message_payload) is distinct from 'object'
-         or not (message_payload ? 'encrypted')
-         or message_payload ? 'text'
-         or message_payload ->> 'senderUid' is distinct from actor_uid
-         or message_payload -> 'encrypted' ->> 'v' is distinct from '1'
-         or message_payload -> 'encrypted' ->> 'alg' is distinct from 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
-         or message_payload -> 'encrypted' ->> 'ciphertext' is null
-         or message_payload -> 'encrypted' ->> 'iv' is null
-         or message_payload -> 'encrypted' ->> 'signature' is null then
-        raise exception 'VATRA E2EE: only signed ciphertext from the sender is accepted';
+         or message_payload ->> 'senderUid' is distinct from actor_uid then
+        raise exception 'VATRA CHAT: invalid sender';
+      end if;
+      if message_payload ? 'encrypted' then
+        -- Keep the original strict format for historic E2EE records.
+        if message_payload ? 'text'
+           or message_payload -> 'encrypted' ->> 'v' is distinct from '1'
+           or message_payload -> 'encrypted' ->> 'alg' is distinct from 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
+           or message_payload -> 'encrypted' ->> 'ciphertext' is null
+           or message_payload -> 'encrypted' ->> 'iv' is null
+           or message_payload -> 'encrypted' ->> 'signature' is null then
+          raise exception 'VATRA CHAT: invalid legacy encrypted record';
+        end if;
+      else
+        -- New ordinary messages: RLS still limits read/write to chat members.
+        if jsonb_typeof(message_payload -> 'text') is distinct from 'string'
+           or length(trim(message_payload ->> 'text')) not between 1 and 2000 then
+          raise exception 'VATRA CHAT: message text must contain 1 to 2000 characters';
+        end if;
       end if;
     end if;
   end loop;
