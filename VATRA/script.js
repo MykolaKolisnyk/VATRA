@@ -298,8 +298,20 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
  dialog.addEventListener('close',()=>dialog.remove());
  await render();dialog.showModal();
 }
-function profileBioMarkup(text){const safe=esc(text||'');if(String(text||'').length<=180)return '<p class="vatra-profile-bio">'+safe+'</p>';return '<div class="vatra-profile-bio-block"><p class="vatra-profile-bio" id="vatraProfileBio">'+safe+'</p><button type="button" class="vatra-profile-bio-toggle" data-toggle-profile-bio aria-controls="vatraProfileBio" aria-expanded="false">Докладніше</button></div>';}
-document.addEventListener('click',event=>{const button=event.target.closest('[data-toggle-profile-bio]');if(!button)return;const expanded=button.closest('.vatra-profile-bio-block').classList.toggle('is-expanded');button.setAttribute('aria-expanded',String(expanded));button.textContent=expanded?'Згорнути':'Докладніше';});
+function profileBioMarkup(text){
+ const safe=esc(text||'');
+ if(String(text||'').length<=180)return '<p class="vatra-profile-bio">'+safe+'</p>';
+ return '<div class="vatra-profile-bio-block"><p class="vatra-profile-bio" id="vatraProfileBio">'+safe+'</p><button type="button" class="vatra-profile-bio-toggle" data-toggle-profile-bio aria-controls="vatraProfileBio" aria-expanded="false">Показати весь опис</button></div>';
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-toggle-profile-bio]');
+ if(!button)return;
+ const block=button.closest('.vatra-profile-bio-block');
+ if(!block)return;
+ const expanded=block.classList.toggle('is-expanded');
+ button.setAttribute('aria-expanded',String(expanded));
+ button.textContent=expanded?'Згорнути опис':'Показати весь опис';
+});
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
