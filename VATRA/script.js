@@ -417,84 +417,100 @@ async function getImageEditor(file,mode='avatar'){
  if(!file||!file.type?.startsWith('image/'))throw new Error('Виберіть файл зображення.');
  if(file.size>MAX_IMAGE)throw new Error('Фото має бути меншим за 15 МБ.');
  const objectUrl=URL.createObjectURL(file);
- const title=mode==='cover'?'Редагування обкладинки':mode==='gallery'?'Редагування фото':'Редагування фото профілю';
- const hint=mode==='cover'?'Перетягніть кадр масштабом і положенням, щоб обкладинка виглядала добре на різних екранах.':mode==='gallery'?'Налаштуйте кадрування й колір перед додаванням фото до профілю.':'Фото буде обрізане у квадрат для аватара.';
+ const title=mode==='cover'?'Редагування обкладинки':mode==='gallery'?'Редагування фотографії':'Редагування аватара';
+ const hint=mode==='avatar'?'Налаштуйте портрет, обріжте зайве та додайте стиль ВАТРИ.':'Відредагуйте кадр, вигляд і за бажанням додайте напис на фото.';
  const dialog=document.createElement('dialog');
  dialog.className='vatra-image-editor '+(mode==='cover'?'is-cover':mode==='gallery'?'is-gallery':'is-avatar');
  dialog.setAttribute('aria-labelledby','vatraImageEditorTitle');
- dialog.innerHTML='<div class="vatra-image-editor-head"><div><p class="eyebrow">ФОТО ВАТРИ</p><h2 id="vatraImageEditorTitle">'+title+'</h2></div><button type="button" class="vatra-image-editor-close" aria-label="Закрити">×</button></div><div class="vatra-image-editor-layout"><div class="vatra-image-stage '+(mode==='cover'?'is-cover':mode==='gallery'?'is-gallery':'is-avatar')+'"><img alt="Попередній перегляд фото"><div class="vatra-image-stage-grid" aria-hidden="true"></div></div><aside class="vatra-image-editor-tools"><p class="vatra-image-editor-hint">'+hint+'</p><div class="vatra-image-filter-presets" role="group" aria-label="Фільтри"><button type="button" class="active" data-vatra-filter="original">Оригінал</button><button type="button" data-vatra-filter="bright">Яскравіше</button><button type="button" data-vatra-filter="warm">Тепло</button><button type="button" data-vatra-filter="mono">Ч/Б</button></div><label class="vatra-image-control"><span>Масштаб <output data-range-output="zoom">100%</output></span><input type="range" id="vatraEditZoom" min="100" max="250" value="100"></label><label class="vatra-image-control"><span>Горизонталь <output data-range-output="x">0</output></span><input type="range" id="vatraEditX" min="-100" max="100" value="0"></label><label class="vatra-image-control"><span>Вертикаль <output data-range-output="y">0</output></span><input type="range" id="vatraEditY" min="-100" max="100" value="0"></label><div class="vatra-image-rotate"><span>Повернути фото</span><div><button type="button" data-vatra-rotate="-90" aria-label="Повернути ліворуч">↶</button><button type="button" data-vatra-rotate="90" aria-label="Повернути праворуч">↻</button></div></div><p class="vatra-image-editor-status" aria-live="polite"></p></aside></div><div class="vatra-image-editor-actions"><button type="button" class="pill" data-vatra-edit-cancel>Скасувати</button><button type="button" class="primary" data-vatra-edit-apply>Застосувати фото</button></div>';
+ dialog.innerHTML='<div class="vatra-image-editor-head"><div><p class="eyebrow">ФОТО ВАТРИ</p><h2 id="vatraImageEditorTitle">'+title+'</h2></div><button type="button" class="vatra-image-editor-close" aria-label="Закрити">×</button></div>'+
+ '<div class="vatra-image-editor-layout"><div class="vatra-image-stage '+(mode==='cover'?'is-cover':mode==='gallery'?'is-gallery':'is-avatar')+'"><img alt="Попередній перегляд фото"><div class="vatra-image-stage-grid" aria-hidden="true"></div><div class="vatra-image-overlay-preview" hidden></div></div>'+
+ '<aside class="vatra-image-editor-tools"><p class="vatra-image-editor-hint">'+hint+'</p>'+
+ '<section class="vatra-editor-section"><b>Фільтри ВАТРИ</b><div class="vatra-image-filter-presets" role="group" aria-label="Фільтри">'+
+ '<button type="button" class="active" data-vatra-filter="original">Оригінал</button><button type="button" data-vatra-filter="vivid">Яскравий</button><button type="button" data-vatra-filter="warm">Теплий</button><button type="button" data-vatra-filter="cool">Холодний</button><button type="button" data-vatra-filter="mono">Ч/Б</button><button type="button" data-vatra-filter="sepia">Сепія</button><button type="button" data-vatra-filter="soft">М’який</button><button type="button" data-vatra-filter="cinema">Кіно</button><button type="button" data-vatra-filter="vintage">Вінтаж</button><button type="button" data-vatra-filter="summer">Літо</button><button type="button" data-vatra-filter="night">Ніч</button><button type="button" data-vatra-filter="matte">Мат</button></div></section>'+
+ '<section class="vatra-editor-section"><b>Кадрування</b>'+
+ '<label class="vatra-image-control"><span>Масштаб <output data-range-output="zoom">100%</output></span><input type="range" id="vatraEditZoom" min="100" max="300" value="100"></label>'+
+ '<label class="vatra-image-control"><span>Горизонталь <output data-range-output="x">0</output></span><input type="range" id="vatraEditX" min="-100" max="100" value="0"></label>'+
+ '<label class="vatra-image-control"><span>Вертикаль <output data-range-output="y">0</output></span><input type="range" id="vatraEditY" min="-100" max="100" value="0"></label>'+
+ '<div class="vatra-image-rotate"><span>Повернути фото</span><div><button type="button" data-vatra-rotate="-90" aria-label="Повернути ліворуч">↶</button><button type="button" data-vatra-rotate="90" aria-label="Повернути праворуч">↻</button></div></div></section>'+
+ '<section class="vatra-editor-section"><b>Корекція кольору</b>'+
+ '<label class="vatra-image-control"><span>Яскравість <output data-range-output="brightness">100%</output></span><input type="range" id="vatraEditBrightness" min="50" max="160" value="100"></label>'+
+ '<label class="vatra-image-control"><span>Контраст <output data-range-output="contrast">100%</output></span><input type="range" id="vatraEditContrast" min="50" max="160" value="100"></label>'+
+ '<label class="vatra-image-control"><span>Насиченість <output data-range-output="saturation">100%</output></span><input type="range" id="vatraEditSaturation" min="0" max="180" value="100"></label></section>'+
+ '<section class="vatra-editor-section vatra-editor-text"><b>Текст на фото</b>'+
+ '<input type="text" id="vatraEditText" maxlength="80" placeholder="Додайте напис або цитату…">'+
+ '<div class="vatra-editor-text-options"><label>Колір <input id="vatraEditTextColor" type="color" value="#ffffff"></label><label>Розмір <input id="vatraEditTextSize" type="range" min="16" max="64" value="32"></label>'+
+ '<label>Розташування <select id="vatraEditTextPosition"><option value="bottom">Унизу</option><option value="center">По центру</option><option value="top">Угорі</option></select></label>'+
+ '<label>Шрифт <select id="vatraEditTextFont"><option value="Inter">Inter</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option><option value="monospace">Моноширинний</option></select></label></div></section>'+
+ '<p class="vatra-image-editor-status" aria-live="polite"></p></aside></div>'+
+ '<div class="vatra-image-editor-actions"><button type="button" class="pill" data-vatra-edit-cancel>Скасувати</button><button type="button" class="primary" data-vatra-edit-apply>Застосувати фото</button></div>';
  document.body.append(dialog);
  const preview=dialog.querySelector('.vatra-image-stage img');
+ const overlayPreview=dialog.querySelector('.vatra-image-overlay-preview');
  const stage=dialog.querySelector('.vatra-image-stage');
  const zoom=dialog.querySelector('#vatraEditZoom'),xInput=dialog.querySelector('#vatraEditX'),yInput=dialog.querySelector('#vatraEditY');
- const state={zoom:1,x:0,y:0,rotation:0,brightness:100,saturation:100,contrast:100,filter:'original'};
+ const brightnessInput=dialog.querySelector('#vatraEditBrightness'),contrastInput=dialog.querySelector('#vatraEditContrast'),saturationInput=dialog.querySelector('#vatraEditSaturation');
+ const textInput=dialog.querySelector('#vatraEditText'),textColor=dialog.querySelector('#vatraEditTextColor'),textSize=dialog.querySelector('#vatraEditTextSize'),textPosition=dialog.querySelector('#vatraEditTextPosition'),textFont=dialog.querySelector('#vatraEditTextFont');
+ const state={zoom:1,x:0,y:0,rotation:0,brightness:100,saturation:100,contrast:100,sepia:0,filter:'original',text:'',textColor:'#ffffff',textSize:32,textPosition:'bottom',textFont:'Inter'};
  let finished=false;
  return await new Promise(resolve=>{
   const finish=result=>{
-   if(finished)return;finished=true;
-   if(dialog.open)dialog.close();
-   dialog.remove();
-   URL.revokeObjectURL(objectUrl);
-   resolve(result);
+   if(finished)return;finished=true;if(dialog.open)dialog.close();dialog.remove();URL.revokeObjectURL(objectUrl);resolve(result);
   };
+  const output=(key,value)=>{const el=dialog.querySelector('[data-range-output="'+key+'"]');if(el)el.textContent=value;};
   const drawPreview=()=>{
    preview.style.transform='translate('+state.x*.17+'%,'+state.y*.17+'%) scale('+state.zoom+') rotate('+state.rotation+'deg)';
-   preview.style.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%)';
-   const zo=dialog.querySelector('[data-range-output="zoom"]'),xo=dialog.querySelector('[data-range-output="x"]'),yo=dialog.querySelector('[data-range-output="y"]');
-   if(zo)zo.textContent=Math.round(state.zoom*100)+'%';if(xo)xo.textContent=String(state.x);if(yo)yo.textContent=String(state.y);
+   preview.style.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%) sepia('+state.sepia+'%)';
+   output('zoom',Math.round(state.zoom*100)+'%');output('x',String(Math.round(state.x)));output('y',String(Math.round(state.y)));
+   output('brightness',state.brightness+'%');output('contrast',state.contrast+'%');output('saturation',state.saturation+'%');
+   overlayPreview.textContent=state.text;overlayPreview.hidden=!state.text;
+   overlayPreview.style.color=state.textColor;overlayPreview.style.fontSize=Math.max(12,Math.round(state.textSize*.72))+'px';
+   overlayPreview.style.fontFamily=state.textFont+',sans-serif';
+   overlayPreview.dataset.position=state.textPosition;
   };
-  preview.onload=drawPreview;
-  preview.onerror=()=>{dialog.querySelector('.vatra-image-editor-status').textContent='Не вдалося відкрити це фото.';};
-  preview.src=objectUrl;
-  [zoom,xInput,yInput].forEach(input=>input.addEventListener('input',()=>{
+  preview.onload=drawPreview;preview.onerror=()=>{dialog.querySelector('.vatra-image-editor-status').textContent='Не вдалося відкрити це фото.';};preview.src=objectUrl;
+  const ranges=[zoom,xInput,yInput,brightnessInput,contrastInput,saturationInput,textSize];
+  ranges.forEach(input=>input.addEventListener('input',()=>{
    if(input===zoom)state.zoom=Number(zoom.value)/100;
    if(input===xInput)state.x=Number(xInput.value);
    if(input===yInput)state.y=Number(yInput.value);
+   if(input===brightnessInput)state.brightness=Number(brightnessInput.value);
+   if(input===contrastInput)state.contrast=Number(contrastInput.value);
+   if(input===saturationInput)state.saturation=Number(saturationInput.value);
+   if(input===textSize)state.textSize=Number(textSize.value);
    drawPreview();
   }));
-  // Drag the crop directly with a mouse or finger; sliders remain available for precise adjustment.
-  let dragState=null;
-  stage.style.touchAction='none';
-  stage.style.cursor='grab';
+  textInput.addEventListener('input',()=>{state.text=textInput.value.trim();drawPreview();});
+  textColor.addEventListener('input',()=>{state.textColor=textColor.value;drawPreview();});
+  textPosition.addEventListener('change',()=>{state.textPosition=textPosition.value;drawPreview();});
+  textFont.addEventListener('change',()=>{state.textFont=textFont.value;drawPreview();});
+  let dragState=null;stage.style.touchAction='none';stage.style.cursor='grab';
   stage.addEventListener('pointerdown',event=>{
    if(event.button!==undefined&&event.button!==0)return;
    dragState={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,baseX:state.x,baseY:state.y};
-   try{stage.setPointerCapture(event.pointerId)}catch{}
-   stage.style.cursor='grabbing';
-   event.preventDefault();
+   try{stage.setPointerCapture(event.pointerId)}catch{}stage.style.cursor='grabbing';event.preventDefault();
   });
   stage.addEventListener('pointermove',event=>{
    if(!dragState||dragState.pointerId!==event.pointerId)return;
-   const rect=stage.getBoundingClientRect();
-   if(!rect.width||!rect.height)return;
+   const rect=stage.getBoundingClientRect();if(!rect.width||!rect.height)return;
    state.x=Math.max(-100,Math.min(100,dragState.baseX+(event.clientX-dragState.startX)/rect.width*150));
    state.y=Math.max(-100,Math.min(100,dragState.baseY+(event.clientY-dragState.startY)/rect.height*150));
-   xInput.value=String(Math.round(state.x));yInput.value=String(Math.round(state.y));
-   drawPreview();
+   xInput.value=String(Math.round(state.x));yInput.value=String(Math.round(state.y));drawPreview();
   });
-  const endCropDrag=event=>{
-   if(!dragState||event.pointerId!==dragState.pointerId)return;
-   dragState=null;stage.style.cursor='grab';
-   try{stage.releasePointerCapture(event.pointerId)}catch{}
-  };
-  stage.addEventListener('pointerup',endCropDrag);
-  stage.addEventListener('pointercancel',endCropDrag);
+  const endCropDrag=event=>{if(!dragState||event.pointerId!==dragState.pointerId)return;dragState=null;stage.style.cursor='grab';try{stage.releasePointerCapture(event.pointerId)}catch{}};
+  stage.addEventListener('pointerup',endCropDrag);stage.addEventListener('pointercancel',endCropDrag);
   stage.addEventListener('lostpointercapture',()=>{dragState=null;stage.style.cursor='grab'});
+  const filters={
+   original:[100,100,100,0],vivid:[106,142,118,0],warm:[108,116,104,12],cool:[100,94,106,0],
+   mono:[100,0,112,0],sepia:[104,92,104,75],soft:[108,84,88,0],cinema:[94,118,132,5],
+   vintage:[105,78,105,30],summer:[112,135,110,0],night:[82,118,128,0],matte:[108,88,88,5]
+  };
   dialog.querySelectorAll('[data-vatra-filter]').forEach(button=>button.addEventListener('click',()=>{
    dialog.querySelectorAll('[data-vatra-filter]').forEach(b=>b.classList.toggle('active',b===button));
-   state.filter=button.dataset.vatraFilter;
-   const presets={
-    original:[100,100,100],
-    bright:[108,116,106],
-    warm:[106,112,103],
-    mono:[100,0,108]
-   };
-   [state.brightness,state.saturation,state.contrast]=presets[state.filter]||presets.original;
-   drawPreview();
+   state.filter=button.dataset.vatraFilter;[state.brightness,state.saturation,state.contrast,state.sepia]=filters[state.filter]||filters.original;
+   brightnessInput.value=String(state.brightness);saturationInput.value=String(state.saturation);contrastInput.value=String(state.contrast);drawPreview();
   }));
   dialog.querySelectorAll('[data-vatra-rotate]').forEach(button=>button.addEventListener('click',()=>{
-   state.rotation=(state.rotation+Number(button.dataset.vatraRotate)+360)%360;
-   drawPreview();
+   state.rotation=(state.rotation+Number(button.dataset.vatraRotate)+360)%360;drawPreview();
   }));
   dialog.querySelector('.vatra-image-editor-close').addEventListener('click',()=>finish(null));
   dialog.querySelector('[data-vatra-edit-cancel]').addEventListener('click',()=>finish(null));
@@ -515,8 +531,19 @@ async function getImageEditor(file,mode='avatar'){
     const bh=iw*Math.abs(Math.sin(rad))+ih*Math.abs(Math.cos(rad));
     const scale=Math.max(outW/bw,outH/bh)*state.zoom;
     ctx.save();ctx.translate(outW/2+state.x*outW*.0018,outH/2+state.y*outH*.0018);ctx.rotate(rad);
-    ctx.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%)';
+    ctx.filter='brightness('+state.brightness+'%) saturate('+state.saturation+'%) contrast('+state.contrast+'%) sepia('+state.sepia+'%)';
     ctx.drawImage(preview,-iw*scale/2,-ih*scale/2,iw*scale,ih*scale);ctx.restore();
+    if(state.text){
+     const maxWidth=outW*.88,lineHeight=state.textSize*1.25,words=state.text.split(/\s+/),lines=[];let line='';
+     ctx.save();ctx.font='800 '+state.textSize+'px '+state.textFont+',sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+     for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}else line=test;}
+     if(line)lines.push(line);
+     const startY=state.textPosition==='top'?outH*.12:state.textPosition==='center'?outH/2:outH*.88;
+     const blockHeight=(lines.length-1)*lineHeight;
+     ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=7;ctx.lineWidth=Math.max(2,state.textSize*.13);ctx.strokeStyle='rgba(0,0,0,.54)';ctx.fillStyle=state.textColor;
+     lines.forEach((txt,i)=>{const y=startY-blockHeight/2+i*lineHeight;ctx.strokeText(txt,outW/2,y,maxWidth);ctx.fillText(txt,outW/2,y,maxWidth);});
+     ctx.restore();
+    }
     const blob=await new Promise((ok,bad)=>canvas.toBlob(b=>b?ok(b):bad(new Error('Не вдалося підготувати фото.')),'image/jpeg',.9));
     const result=new File([blob],(file.name||'vatra-photo').replace(/\.[^.]+$/,'')+'-vatra.jpg',{type:'image/jpeg',lastModified:Date.now()});
     finish(result);
