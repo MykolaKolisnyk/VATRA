@@ -2732,3 +2732,18 @@ input[type="checkbox"]:focus-visible{
   .settings-card{padding:14px!important}
   .settings-page select,.settings-form select{font-size:12px!important;padding-left:9px!important;padding-right:30px!important}
 }
+
+
+/* v13 — compact header, refined search focus and reliable comment identities */
+@media(min-width:761px){
+ .topbar{height:54px;padding-bottom:6px}
+ .search{height:36px}
+}
+.search{transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease}
+.search-icon svg{transform-origin:center;transition:transform .22s ease,color .22s ease}
+.search:focus-within{background:#fff;border-color:#c7d8ff;box-shadow:0 0 0 3px rgba(0,89,255,.07)}
+.search:focus-within .search-icon{color:var(--v-blue)}
+.search:focus-within .search-icon svg{transform:scale(1.08)}
+.search input:focus,.search input:focus-visible{outline:0!important;box-shadow:none!important}
+.comment-avatar{background-repeat:no-repeat!important;background-size:cover!important;background-position:center!important}
+.comment-main{align-items:flex-start}
