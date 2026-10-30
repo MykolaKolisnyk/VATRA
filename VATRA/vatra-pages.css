@@ -3633,3 +3633,272 @@ body[data-page="publicProfile"] .vatra-profile-summary-compact>.vatra-profile-st
  display:grid!important;
  grid-template-columns:repeat(3,minmax(0,1fr))!important;
 }
+
+
+/* VATRA profile and media refinement — 2026-10-30. */
+#topAvatar,
+.vatra-global-header #topAvatar,
+.topbar #topAvatar{
+  border-radius:50%!important;
+  overflow:hidden!important;
+  aspect-ratio:1/1!important;
+  background-size:cover!important;
+  background-position:center!important;
+  object-fit:cover!important;
+  padding:0!important;
+  flex-shrink:0!important;
+}
+#topAvatar>img,#topAvatar>.avatar{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  border-radius:50%!important;
+  object-fit:cover!important;
+}
+body .vatra-profile-avatar-open,
+body .vatra-profile-avatar-open>.vatra-profile-photo,
+body .profile-gallery-open,
+body .profile-gallery-image,
+body .post-photo-item,
+body .post-photo-item img,
+body .vatra-media-viewer-image,
+body .vatra-avatar-viewer-stage img,
+body .vatra-profile-friend,
+body .vatra-profile-friend-avatar,
+body .post-actor-link,
+body .post-actor-avatar,
+body .vatra-friends-photo,
+body .vatra-search-person-photo,
+body .comment-author-avatar,
+body .comment-author-avatar .comment-avatar{
+  cursor:default!important;
+}
+body .post-photo-item:hover img,
+body .vatra-profile-friend:hover .vatra-profile-friend-avatar{
+  transform:none!important;
+  filter:none!important;
+}
+/* Prevent the old global avatar styles from stretching comment photos. */
+body .comment-main>.comment-author-avatar{
+  box-sizing:border-box!important;
+  display:block!important;
+  flex:0 0 34px!important;
+  width:34px!important;
+  min-width:34px!important;
+  max-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  max-height:34px!important;
+  aspect-ratio:1 / 1!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+}
+body .comment-main>.comment-author-avatar>.avatar.comment-avatar,
+body .vatra-comment-item .comment-author-avatar>.avatar.comment-avatar{
+  box-sizing:border-box!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  flex:0 0 34px!important;
+  width:34px!important;
+  min-width:34px!important;
+  max-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  max-height:34px!important;
+  aspect-ratio:1 / 1!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  background-size:cover!important;
+  background-position:center!important;
+  overflow:hidden!important;
+}
+body .vatra-avatar-comment{
+ display:flex!important;
+ align-items:flex-start!important;
+ gap:9px!important;
+ min-width:0!important;
+}
+body .vatra-avatar-comment>.avatar{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:0 0 34px!important;
+ width:34px!important;
+ min-width:34px!important;
+ max-width:34px!important;
+ height:34px!important;
+ min-height:34px!important;
+ max-height:34px!important;
+ aspect-ratio:1!important;
+ border-radius:50%!important;
+ background-size:cover!important;
+ background-position:center!important;
+}
+body .vatra-avatar-comment>div{flex:1 1 auto!important;min-width:0!important;overflow-wrap:anywhere!important;}
+/* Photo lightbox: the image fills the left viewing area; information and comments
+   live in the scrollable right-side column, matching the supplied reference. */
+.vatra-post-photo-viewer,
+.vatra-avatar-viewer{
+ width:min(97vw,1640px)!important;
+ max-width:97vw!important;
+ height:min(92dvh,1040px)!important;
+ max-height:92dvh!important;
+ border:0!important;
+ padding:0!important;
+ border-radius:12px!important;
+ overflow:hidden!important;
+ background:#101820!important;
+ box-shadow:0 30px 100px rgba(0,0,0,.5)!important;
+}
+.vatra-post-photo-viewer::backdrop,
+.vatra-avatar-viewer::backdrop{
+ background:rgba(6,11,19,.88)!important;
+ -webkit-backdrop-filter:none!important;
+ backdrop-filter:none!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-shell,
+.vatra-avatar-viewer .vatra-media-viewer-shell{
+ position:relative!important;
+ height:100%!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-topbar,
+.vatra-avatar-viewer .vatra-media-viewer-topbar{
+ position:absolute!important;
+ left:0!important;
+ top:0!important;
+ right:0!important;
+ z-index:10!important;
+ display:flex!important;
+ flex-direction:row-reverse!important;
+ align-items:center!important;
+ height:50px!important;
+ min-height:50px!important;
+ padding:5px 12px!important;
+ background:linear-gradient(to bottom,rgba(0,0,0,.35),transparent)!important;
+ border:0!important;
+ pointer-events:none!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-brand,
+.vatra-avatar-viewer .vatra-media-viewer-brand{display:flex!important;margin-left:0!important;pointer-events:auto!important;}
+.vatra-post-photo-viewer .vatra-media-viewer-brand>.vatra-viewer-mark,
+.vatra-avatar-viewer .vatra-media-viewer-brand>.vatra-viewer-mark,
+.vatra-post-photo-viewer .vatra-media-viewer-brand>b,
+.vatra-avatar-viewer .vatra-media-viewer-brand>b{display:none!important;}
+.vatra-post-photo-viewer .vatra-viewer-close,
+.vatra-avatar-viewer .vatra-avatar-viewer-close{
+ display:grid!important;
+ place-items:center!important;
+ width:35px!important;
+ height:35px!important;
+ border:0!important;
+ border-radius:50%!important;
+ color:#fff!important;
+ background:rgba(20,28,40,.55)!important;
+ cursor:pointer!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-tools,
+.vatra-avatar-viewer .vatra-media-viewer-tools{pointer-events:auto!important;margin-right:auto!important;}
+.vatra-post-photo-viewer .vatra-media-viewer-tools button,
+.vatra-avatar-viewer .vatra-media-viewer-tools button{
+ background:rgba(12,23,36,.7)!important;
+ border:0!important;
+ border-radius:7px!important;
+ color:#fff!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-tools output,
+.vatra-avatar-viewer .vatra-media-viewer-tools output{color:#fff!important;}
+.vatra-post-photo-viewer .vatra-media-viewer-layout,
+.vatra-avatar-viewer .vatra-avatar-viewer-body{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(300px,24%)!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ height:100%!important;
+ width:100%!important;
+ min-height:0!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-stage,
+.vatra-avatar-viewer .vatra-avatar-viewer-stage{
+ min-width:0!important;
+ min-height:0!important;
+ height:100%!important;
+ display:flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ overflow:hidden!important;
+ background:#161b21!important;
+}
+.vatra-post-photo-viewer img.vatra-media-viewer-image,
+.vatra-avatar-viewer img.vatra-media-viewer-image{
+ display:block!important;
+ width:auto!important;
+ height:auto!important;
+ max-width:100%!important;
+ max-height:100%!important;
+ object-fit:contain!important;
+ border-radius:0!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-side,
+.vatra-avatar-viewer .vatra-avatar-viewer-side{
+ display:flex!important;
+ flex-direction:column!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain!important;
+ padding:61px 15px 16px!important;
+ background:#fff!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-post-head,
+.vatra-avatar-viewer .vatra-avatar-viewer-owner{
+ min-width:0!important;
+ padding:0 0 12px!important;
+ border-bottom:1px solid #e7edf5!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-comment-list,
+.vatra-avatar-viewer .vatra-avatar-comment-list{
+ min-width:0!important;
+ overflow-wrap:anywhere!important;
+}
+.vatra-post-photo-viewer .vatra-media-viewer-comments,
+.vatra-avatar-viewer .vatra-avatar-comments{
+ min-height:0!important;
+}
+body .settings-savebar span[data-state="saved"]{
+ color:#15936d!important;
+ font-weight:750!important;
+}
+body .settings-savebar span[data-state="error"]{
+ color:#bf4256!important;
+ font-weight:700!important;
+}
+body .settings-savebar span[data-state="saving"]{
+ color:#687d96!important;
+}
+body .settings-savebar button[disabled]{
+ opacity:.7!important;
+ cursor:progress!important;
+}
+@media(max-width:740px){
+ .vatra-post-photo-viewer,.vatra-avatar-viewer{
+  width:calc(100vw - 8px)!important;
+  max-width:calc(100vw - 8px)!important;
+  height:calc(100dvh - 8px)!important;
+  max-height:calc(100dvh - 8px)!important;
+ }
+ .vatra-post-photo-viewer .vatra-media-viewer-layout,
+ .vatra-avatar-viewer .vatra-avatar-viewer-body{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(220px,53%) minmax(0,47%)!important;
+ }
+ .vatra-post-photo-viewer .vatra-media-viewer-side,
+ .vatra-avatar-viewer .vatra-avatar-viewer-side{
+  padding:12px 14px!important;
+ }
+ .vatra-post-photo-viewer .vatra-media-viewer-topbar,
+ .vatra-avatar-viewer .vatra-media-viewer-topbar{
+  height:44px!important;
+  min-height:44px!important;
+ }
+}
