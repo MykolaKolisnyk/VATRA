@@ -179,6 +179,16 @@ begin
        where b.path = 'friends/' || f.key
          and b.value ->> owner_uid = 'true'
      )
+     -- A hidden person's identity is not disclosed to unrelated viewers.
+     and exists (
+       select 1 from public.app_data profile
+       where profile.path = 'publicProfiles/' || f.key
+         and (
+           profile.value ->> 'profileVisibility' is distinct from 'private'
+           or f.key = viewer_uid::text
+           or public.vatra_data_is_friend(f.key, viewer_uid)
+         )
+     )
    order by f.key
    limit 150
  ) r;
