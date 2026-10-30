@@ -110,8 +110,68 @@ function isVatraStrongPassword(password){
 
 function niceError(e){const c=e?.code||'';if(c==='FRIENDS_SQL_REQUIRED')return 'ВАТРА потребує оновлення взаємної дружби: у Supabase SQL Editor виконайте файл VATRA/friends-mutual-fix.sql.';if(c==='SCHEMA_NOT_READY')return 'База ВАТРИ ще не налаштована повністю. У правильному Supabase-проєкті виконайте актуальний файл VATRA/app-data-schema.sql.';if(c==='PERMISSION_DENIED')return 'Supabase відхилив запис через правила доступу (RLS). Перевірте SQL-схему app_data та політики доступу в тому самому проєкті Supabase.'+(e?.dbCode?' Код: '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+'.':'');if(c==='DATABASE_ERROR')return 'Не вдалося зберегти дані ВАТРИ'+(e?.dbCode?' (код '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+')':'')+'. Спробуйте ще раз; якщо повториться, надішліть цей код розробнику.';if(c==='NETWORK_ERROR')return 'Немає з’єднання із сервером ВАТРИ. Перевірте інтернет і спробуйте ще раз.';return ({'auth/no-session':'Сесія завершилася. Увійдіть до ВАТРИ ще раз.','auth/author-mismatch':'Не вдалося підтвердити власника допису. Оновіть сторінку та увійдіть у свій акаунт знову.','auth/email-already-in-use':'Ця електронна пошта вже зареєстрована. Спробуйте увійти.','auth/invalid-email':'Введіть коректну адресу електронної пошти.','auth/weak-password':'Створіть пароль завдовжки щонайменше 12 символів (краще 16+), із великими й малими латинськими літерами, цифрою та спецсимволом.','auth/invalid-credential':'Неправильна електронна пошта або пароль.','auth/invalid-login-credentials':'Неправильна електронна пошта або пароль.','auth/user-not-found':'Акаунт із такою адресою не знайдено.','auth/wrong-password':'Неправильний пароль.','auth/too-many-requests':'Забагато спроб входу. Зачекайте й спробуйте пізніше.','auth/network-request-failed':'Не вдалося з’єднатися із сервером. Перевірте інтернет.','auth/operation-not-allowed':'Вхід через email вимкнений. У налаштуваннях авторизації увімкніть вхід через email і пароль.','auth/unauthorized-domain':'Цей домен не дозволений у налаштуваннях авторизації для цього домену.','auth/user-disabled':'Цей акаунт вимкнено. Зверніться до підтримки.','PERMISSION_DENIED':'Запит відхилено правилами доступу до бази даних.'})[c]||'Не вдалося виконати дію. Спробуйте ще раз.';}
 function openAuth(mode='login'){location.href=mode==='register'?'auth.html?mode=register':mode==='reset'?'auth.html?mode=reset':'auth.html';}
-function publicProfileData(p={}){const out={name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),bio:String(p.bio||'').slice(0,500),status:String(p.status||'').slice(0,100),avatarUrl:String(p.avatarUrl||''),avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,birthdayVisibility:String(p.birthdayVisibility||'private'),cityVisibility:String(p.cityVisibility||'private'),locationVisibility:String(p.locationVisibility||'private'),phoneVisibility:String(p.phoneVisibility||'private'),workplaceVisibility:String(p.workplaceVisibility||'private'),educationVisibility:String(p.educationVisibility||'private'),hometownVisibility:String(p.hometownVisibility||'private'),allowMessages:p.allowMessages!==false,createdAt:Number(p.createdAt)||0,updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0};if(p.birthdayVisibility==='public'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='public'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='public'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='public'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.website)out.website=String(p.website).slice(0,180);if(p.workplace&&p.workplaceVisibility==='public')out.workplace=String(p.workplace).slice(0,120);if(p.education&&p.educationVisibility==='public')out.education=String(p.education).slice(0,120);if(p.hometown&&p.hometownVisibility==='public')out.hometown=String(p.hometown).slice(0,80);out.extraVisibility={};out.publicSections={};if(p.profileVisibility!=='private'){for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){for(const key of Object.keys(section.fields)){if(p.extraVisibility?.[key]==='public'){const value=String(p.privateSections?.[key]||'').trim();if(value){out.extraVisibility[key]='public';out.publicSections[key]=value.slice(0,500);}}}}}return out;}
-function friendProfileData(p={}){const out={updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0,isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,avatarHistory:Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]};if(p.status)out.status=String(p.status).slice(0,100);if(p.birthdayVisibility==='friends'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);if(p.cityVisibility==='friends'&&p.city)out.city=String(p.city).slice(0,80);if(p.locationVisibility==='friends'&&p.location)out.location=String(p.location).slice(0,120);if(p.phoneVisibility==='friends'&&p.phone)out.phone=String(p.phone).slice(0,24);if(p.workplaceVisibility==='friends'&&p.workplace)out.workplace=String(p.workplace).slice(0,120);if(p.educationVisibility==='friends'&&p.education)out.education=String(p.education).slice(0,120);if(p.hometownVisibility==='friends'&&p.hometown)out.hometown=String(p.hometown).slice(0,80);return out;}
+function vatraFieldVisibility(value, fallback='private'){
+ return ['public','friends','private'].includes(value)?value:fallback;
+}
+function publicProfileData(p={}){
+ const out={
+  name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),
+  lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),
+  bio:'',status:'',avatarUrl:String(p.avatarUrl||''),
+  avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
+  isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,
+  profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),
+  profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,
+  birthdayVisibility:vatraFieldVisibility(p.birthdayVisibility),cityVisibility:vatraFieldVisibility(p.cityVisibility),
+  locationVisibility:vatraFieldVisibility(p.locationVisibility),phoneVisibility:vatraFieldVisibility(p.phoneVisibility),
+  workplaceVisibility:vatraFieldVisibility(p.workplaceVisibility),educationVisibility:vatraFieldVisibility(p.educationVisibility),
+  hometownVisibility:vatraFieldVisibility(p.hometownVisibility),
+  bioVisibility:vatraFieldVisibility(p.bioVisibility,'public'),
+  statusVisibility:vatraFieldVisibility(p.statusVisibility,'public'),
+  websiteVisibility:vatraFieldVisibility(p.websiteVisibility,'public'),
+  allowMessages:p.allowMessages!==false,createdAt:Number(p.createdAt)||0,
+  updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0
+ };
+ if(out.bioVisibility==='public')out.bio=String(p.bio||'').slice(0,500);
+ if(out.statusVisibility==='public')out.status=String(p.status||'').slice(0,100);
+ if(out.birthdayVisibility==='public'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);
+ for(const [field,maxLength] of Object.entries({city:80,location:120,phone:24,workplace:120,education:120,hometown:80,website:180})){
+  if(out[field+'Visibility']==='public'&&p[field])out[field]=String(p[field]).slice(0,maxLength);
+ }
+ out.extraVisibility={};out.publicSections={};
+ if(out.profileVisibility!=='private'){
+  for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){
+   for(const key of Object.keys(section.fields)){
+    if(vatraFieldVisibility(p.extraVisibility?.[key])!=='public')continue;
+    const value=String(p.privateSections?.[key]||'').trim();
+    if(value){out.extraVisibility[key]='public';out.publicSections[key]=value.slice(0,500);}
+   }
+  }
+ }
+ return out;
+}
+function friendProfileData(p={}){
+ const out={updatedAt:Number(p.updatedAt)||Number(p.createdAt)||0,isOnline:p.isOnline===true,
+  lastSeenAt:Number(p.lastSeenAt)||0,
+  avatarHistory:Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[],
+  friendSections:{},extraVisibility:{}
+ };
+ if(vatraFieldVisibility(p.statusVisibility,'public')==='friends'&&p.status)out.status=String(p.status).slice(0,100);
+ if(vatraFieldVisibility(p.bioVisibility,'public')==='friends'&&p.bio)out.bio=String(p.bio).slice(0,500);
+ if(vatraFieldVisibility(p.websiteVisibility,'public')==='friends'&&p.website)out.website=String(p.website).slice(0,180);
+ if(vatraFieldVisibility(p.birthdayVisibility)==='friends'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);
+ for(const [field,maxLength] of Object.entries({city:80,location:120,phone:24,workplace:120,education:120,hometown:80})){
+  if(vatraFieldVisibility(p[field+'Visibility'])==='friends'&&p[field])out[field]=String(p[field]).slice(0,maxLength);
+ }
+ for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){
+  for(const key of Object.keys(section.fields)){
+   if(vatraFieldVisibility(p.extraVisibility?.[key])!=='friends')continue;
+   const value=String(p.privateSections?.[key]||'').trim();
+   if(value){out.friendSections[key]=value.slice(0,500);out.extraVisibility[key]='friends';}
+  }
+ }
+ return out;
+}
 
 let lastReadToastAt=0;
 function watch(path,cb){
