@@ -195,3 +195,187 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderBu
  body .vatra-global-header>#vatraMusicHeaderButton,
  body .layout>.sidebar nav .nav{transition:none!important;transform:none!important;}
 }
+
+
+/* VATRA: compact header popovers and requested MUSIC -> BELL -> AVATAR layout. */
+body .vatra-global-header>#vatraMusicHeaderButton{
+ grid-column:3!important;grid-row:1!important;
+}
+body .vatra-global-header>#notificationBell{
+ grid-column:4!important;grid-row:1!important;
+}
+body .vatra-global-header>#topAvatar{
+ grid-column:5!important;grid-row:1!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel.vatra-top-music-panel{
+ position:absolute!important;
+ top:calc(100% + 7px)!important;
+ right:max(22px,calc((100vw - var(--vatra-unified-width,1000px))/2 + 67px))!important;
+ left:auto!important;bottom:auto!important;
+ display:block!important;
+ width:min(264px,calc(100vw - 24px))!important;
+ max-width:calc(100vw - 24px)!important;
+ height:auto!important;min-height:0!important;
+ padding:11px!important;
+ background:#fff!important;
+ border:1px solid #e0e7ef!important;
+ border-radius:13px!important;
+ box-shadow:0 12px 30px rgba(25,44,72,.13)!important;
+ color:#2c3948!important;
+ z-index:1360!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel[hidden]{display:none!important;}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-label{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ padding:0 0 8px!important;margin:0!important;
+ border-bottom:1px solid #e9edf2!important;
+ color:#293747!important;font-size:12px!important;font-weight:650!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel #vatraMusicMenuClose{
+ display:grid!important;place-items:center!important;
+ width:24px!important;height:24px!important;min-height:24px!important;padding:0!important;
+ border:0!important;border-radius:7px!important;background:transparent!important;
+ font:400 19px/1 Inter,Arial,sans-serif!important;color:#8291a2!important;cursor:pointer!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel #vatraMusicMenuClose:hover{
+ background:#f0f3f7!important;color:#31475b!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-now{
+ display:flex!important;align-items:center!important;gap:9px!important;padding:10px 0!important;margin:0!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-symbol{
+ flex:0 0 34px!important;width:34px!important;height:34px!important;
+ background:#edf2f7!important;color:#556d87!important;
+ border-radius:9px!important;font-size:19px!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-now>span:last-child{
+ flex:1 1 auto;min-width:0!important;gap:2px!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-now b{
+ color:#344456!important;font-size:11.5px!important;font-weight:600!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-now small{
+ color:#8090a1!important;font-size:10px!important;font-weight:400!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-actions{
+ display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;margin:0!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-actions button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ min-width:0!important;min-height:35px!important;height:35px!important;
+ padding:6px 7px!important;margin:0!important;
+ border:1px solid #dce4ec!important;border-radius:8px!important;
+ background:#f2f5f8!important;color:#40576e!important;
+ font:550 10.5px/1.25 Inter,Arial,sans-serif!important;
+ text-align:center!important;cursor:pointer!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-actions button:hover{
+ background:#e5edf6!important;border-color:#bfd0e4!important;
+ color:#194f85!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel #vatraTopMusicPlayer{
+ background:#eaf1fc!important;color:#245da0!important;border-color:#d5e3f6!important;
+}
+body .vatra-global-header>#vatraMusicTopPanel #vatraTopMusicPlayer:hover{
+ background:#dceaff!important;color:#0757f5!important;
+}
+/* Account menu: smaller spacing, uniform clickable rows, minimal decoration. */
+body .vatra-global-header>#accountDropdown.account-popover{
+ position:absolute!important;top:calc(100% + 7px)!important;
+ right:max(12px,calc((100vw - var(--vatra-unified-width,1000px))/2))!important;
+ left:auto!important;
+ width:min(252px,calc(100vw - 24px))!important;
+ max-width:calc(100vw - 24px)!important;
+ min-height:0!important;height:auto!important;
+ padding:7px!important;
+ background:#fff!important;
+ border:1px solid #e0e6ee!important;border-radius:13px!important;
+ box-shadow:0 14px 36px rgba(26,41,68,.15)!important;
+ overflow:hidden!important;
+}
+body .vatra-global-header>#accountDropdown .account-popover-profile{
+ display:flex!important;align-items:center!important;gap:9px!important;
+ padding:9px 9px 11px!important;margin:0 0 5px!important;
+ border-bottom:1px solid #edf0f4!important;
+}
+body .vatra-global-header>#accountDropdown .account-popover-profile .avatar{
+ flex:0 0 38px!important;width:38px!important;height:38px!important;
+ min-width:38px!important;max-width:38px!important;border-radius:50%!important;
+}
+body .vatra-global-header>#accountDropdown .account-popover-profile>span{
+ display:grid!important;gap:2px!important;overflow:hidden!important;min-width:0!important;
+}
+body .vatra-global-header>#accountDropdown .account-popover-profile b{
+ overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+ font-size:12px!important;font-weight:650!important;color:#2d3c4c!important;
+}
+body .vatra-global-header>#accountDropdown .account-popover-profile small{
+ overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+ font-size:10px!important;color:#8694a3!important;font-weight:400!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item{
+ display:flex!important;align-items:center!important;gap:9px!important;
+ min-height:36px!important;height:36px!important;padding:6px 9px!important;
+ margin:0!important;width:100%!important;
+ border:0!important;border-radius:8px!important;
+ background:transparent!important;color:#3b4d61!important;
+ text-align:left!important;font:550 12px/1.4 Inter,Arial,sans-serif!important;
+ box-shadow:none!important;transform:none!important;
+ transition:background-color .16s ease,color .16s ease!important;cursor:pointer!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item:hover,
+body .vatra-global-header>#accountDropdown>button.vatra-account-item:focus-visible{
+ background:#edf2f8!important;color:#245b9d!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item .vatra-account-item-icon{
+ display:grid!important;place-items:center!important;flex:0 0 20px!important;
+ width:20px!important;height:20px!important;min-width:20px!important;
+ color:#778b9f!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item .vatra-account-item-icon svg{
+ width:17px!important;height:17px!important;fill:none!important;
+ stroke:currentColor!important;stroke-width:1.7!important;stroke-linecap:round!important;stroke-linejoin:round!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item:hover .vatra-account-item-icon{
+ color:#245b9d!important;
+}
+body .vatra-global-header>#accountDropdown .vatra-account-divider{
+ border-top:1px solid #edf0f4!important;margin:5px 7px!important;height:0!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item.account-logout{
+ color:#b54a59!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item.account-logout .vatra-account-item-icon{
+ color:#bf6a72!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item.account-logout:is(:hover,:focus-visible){
+ background:#fff0f2!important;color:#ac3446!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicTopPanel,
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown.account-popover{
+ background:#243348!important;border-color:#40546d!important;color:#e2ebf6!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-label,
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-now b,
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown .account-popover-profile b{
+ color:#e2ebf6!important;border-color:#43546a!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-symbol{
+ background:#334962!important;color:#bdd0e8!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-actions button{
+ background:#334760!important;color:#dce6f4!important;border-color:#53657a!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown>button.vatra-account-item{
+ color:#d7e3f1!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown>button.vatra-account-item:hover{
+ background:#344963!important;color:#abd2ff!important;
+}
+@media(max-width:760px){
+ body .vatra-global-header>#vatraMusicTopPanel.vatra-top-music-panel{right:44px!important;}
+ body .vatra-global-header>#accountDropdown.account-popover{right:10px!important;}
+}
+@media(max-width:360px){
+ body .vatra-global-header>#vatraMusicTopPanel.vatra-top-music-panel{right:26px!important;}
+}

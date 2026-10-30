@@ -74,9 +74,9 @@ function setPlayerExpanded(flag){
 function syncHeaderMusic(){
  const playing=!!playerItem;
  const dot=document.getElementById('vatraMusicPlayingDot');if(dot)dot.hidden=!playing;
- const title=document.getElementById('vatraTopMusicTitle');if(title)title.textContent=playing?playerItem.title:'Поки нічого не вибрано';
- const artist=document.getElementById('vatraTopMusicArtist');if(artist)artist.textContent=playing?playerItem.artist:'Обери музику у каталозі';
- const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton)playerButton.disabled=!playing;
+ const title=document.getElementById('vatraTopMusicTitle');if(title)title.textContent=playing?playerItem.title:'Оберіть музику';
+ const artist=document.getElementById('vatraTopMusicArtist');if(artist)artist.textContent=playing?playerItem.artist:'Українські пісні та плейлисти';
+ const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton){playerButton.disabled=false;playerButton.textContent=playing?'Показати плеєр':'Слухати добірку';}
  if(musicHeader)musicHeader.classList.toggle('has-player',playing);
 }
 function closeMusicMenu(){if(musicTopPanel)musicTopPanel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
@@ -173,7 +173,8 @@ async function favorite(item,button){
 if(musicHeader&&musicTopPanel){
  musicHeader.addEventListener('click',()=>{const showing=musicTopPanel.hidden;musicTopPanel.hidden=!showing;musicHeader.setAttribute('aria-expanded',String(showing));syncHeaderMusic();});
  document.getElementById('vatraTopMusicOpen')?.addEventListener('click',()=>{closeMusicMenu();document.querySelector('.sidebar button[data-page="music"]')?.click();});
- document.getElementById('vatraTopMusicPlayer')?.addEventListener('click',()=>{closeMusicMenu();if(playerItem){activePlayer().hidden=false;setPlayerExpanded(true);}});
+ document.getElementById('vatraTopMusicPlayer')?.addEventListener('click',()=>{closeMusicMenu();if(playerItem){activePlayer().hidden=false;setPlayerExpanded(true);}else{const featured=MUSIC_LIBRARY.find(item=>item.type==='playlist');if(featured)play(featured);}});
+ document.getElementById('vatraMusicMenuClose')?.addEventListener('click',closeMusicMenu);
  document.addEventListener('click',event=>{if(!event.target.closest('#vatraMusicTopPanel')&&!event.target.closest('#vatraMusicHeaderButton'))closeMusicMenu();});
  window.addEventListener('keydown',event=>{if(event.key==='Escape')closeMusicMenu();});
 }
