@@ -1,0 +1,25 @@
+name: VATRA E2EE crypto tests
+on:
+  push:
+    paths:
+      - 'VATRA/vatra-e2ee.js'
+      - 'VATRA/tests/e2ee.test.mjs'
+      - '.github/workflows/e2ee.yml'
+  pull_request:
+    paths:
+      - 'VATRA/vatra-e2ee.js'
+      - 'VATRA/tests/e2ee.test.mjs'
+      - '.github/workflows/e2ee.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  crypto:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run E2EE cryptography regression tests
+        run: node --test VATRA/tests/e2ee.test.mjs
