@@ -7,7 +7,7 @@
 <script>
 window.addEventListener('load',()=>{
  const $=s=>document.querySelector(s),rect=s=>$(s).getBoundingClientRect(),sidebar=rect('.sidebar'),main=rect('.main'),avatar=rect('.profile-vk-photo'),head=rect('.vatra-global-header'),nav=rect('.sidebar nav .nav'),width=innerWidth;
- const values={width,scrollWidth:document.documentElement.scrollWidth,headerRight:Math.round(head.right),sidebarVisible:getComputedStyle($('.sidebar')).display!=='none',sidebarRight:Math.round(sidebar.right),mainLeft:Math.round(main.left),avatarW:Math.round(avatar.width),avatarH:Math.round(avatar.height),navRight:Math.round(nav.right),textSize:parseFloat(getComputedStyle($('.post-text')).fontSize),bottomNavVisible:getComputedStyle($('.mobile-nav')).display!=='none'};
+ const values={width,clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,headerRight:Math.round(head.right),sidebarVisible:getComputedStyle($('.sidebar')).display!=='none',sidebarRight:Math.round(sidebar.right),mainLeft:Math.round(main.left),avatarW:Math.round(avatar.width),avatarH:Math.round(avatar.height),navRight:Math.round(nav.right),textSize:parseFloat(getComputedStyle($('.post-text')).fontSize),bottomNavVisible:getComputedStyle($('.mobile-nav')).display!=='none'};
  document.documentElement.setAttribute('data-smoke',JSON.stringify(values));
 });
 </script></body></html>
