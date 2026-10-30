@@ -90,7 +90,7 @@ function profilePresenceMarkup(profile={}){const stamp=Number(profile.lastSeenAt
 function updateIdentity(){const name=currentProfile.name||currentUser?.displayName||'Користувач ВАТРИ',avatar=currentProfile.avatarUrl||'';$('#authButton').textContent=currentUser?'Вийти':'Увійти';['#topAvatar','#composeAvatar','#modalAvatar'].forEach(sel=>{const el=$(sel);if(!el)return;el.textContent=avatar?'':'В';el.style.backgroundImage=avatar?`url("${avatar}")`:'';el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.style.color=avatar?'transparent':'';});$('#modalName').textContent=name;$('#prompt').textContent=currentUser?`Що нового, ${name.split(' ')[0]}?`:'Увійдіть, щоб створити допис';const w=$('.welcome h2');if(w)w.textContent=currentUser?`Привіт, ${name.split(' ')[0]}!`:'Раді бачити у ВАТРІ!';}
 function verifiedBadge(uid){return verifiedUsers?.[uid]?.verified===true?'<span class="vatra-verified-badge" title="Офіційний акаунт ВАТРИ" aria-label="Офіційний акаунт ВАТРИ"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l3-.1.9 2.8 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.8-3-.1-2.5 1.6-2.5-1.6-3 .1-.9-2.8-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.8 3 .1L10 1.4Z" fill="currentColor"/><path d="m6.2 10.2 2.4 2.4 5.2-5.2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>':'';}
 function timeAgo(ts){if(!ts)return'щойно';const d=Date.now()-ts;if(d<60000)return'щойно';if(d<3600000)return`${Math.floor(d/60000)} хв тому`;if(d<86400000)return`${Math.floor(d/3600000)} год тому`;return new Date(ts).toLocaleDateString('uk-UA',{day:'numeric',month:'short'});}
-function avatar(name,url='',cls='blue'){return `<div class="avatar ${cls}" ${url?`style="background-image:url('${esc(url)}');background-size:cover;background-position:center;color:transparent"`:''}>${esc(initials(name))}</div>`;}
+function avatar(name,url='',cls='blue'){const own=!!currentUser&&(name===currentProfile.name||name===currentUser.displayName),fallback=(cls==='profile-vk-photo'||cls==='profile-vk-compose-avatar'||own)?'В':initials(name);return '<div class="avatar '+esc(cls)+'" '+(url?'style="background-image:url(\''+esc(url)+'\');background-size:cover;background-position:center;color:transparent"':'')+'>'+esc(fallback)+'</div>';}
 function renderComments(p,cs){
  return cs.map(c=>{
   const mine=c.uid===currentUser?.uid,canDelete=mine||p.authorUid===currentUser?.uid;
@@ -224,6 +224,13 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
   }
   if(event.target===dialog)dialog.close();
  });
+ dialog.addEventListener('keydown',async event=>{
+  if(event.key==='ArrowRight'&&photos.length>1){index=(index+1)%photos.length;await render();}
+  else if(event.key==='ArrowLeft'&&photos.length>1){index=(index-1+photos.length)%photos.length;await render();}
+ });
+ let avatarSwipeStartX=null;
+ dialog.addEventListener('touchstart',event=>{avatarSwipeStartX=event.changedTouches?.[0]?.clientX??null;},{passive:true});
+ dialog.addEventListener('touchend',async event=>{if(avatarSwipeStartX===null)return;const end=event.changedTouches?.[0]?.clientX??avatarSwipeStartX,delta=end-avatarSwipeStartX;avatarSwipeStartX=null;if(Math.abs(delta)<45||photos.length<2)return;index=(index+(delta<0?1:-1)+photos.length)%photos.length;await render();},{passive:true});
  dialog.addEventListener('submit',async event=>{
   const form=event.target.closest('[data-avatar-comment-form]');if(!form)return;
   event.preventDefault();if(!authRequired())return;
@@ -471,7 +478,7 @@ async function getImageEditor(file,mode='avatar'){
  '<div class="vatra-image-editor-layout"><div class="vatra-image-stage '+(mode==='cover'?'is-cover':mode==='gallery'?'is-gallery':'is-avatar')+'"><img alt="Попередній перегляд фото"><div class="vatra-image-stage-grid" aria-hidden="true"></div><div class="vatra-image-overlay-preview" hidden></div></div>'+
  '<aside class="vatra-image-editor-tools"><p class="vatra-image-editor-hint">'+hint+'</p>'+
  '<section class="vatra-editor-section"><b>Фільтри ВАТРИ</b><div class="vatra-image-filter-presets" role="group" aria-label="Фільтри">'+
- '<button type="button" class="active" data-vatra-filter="original">Оригінал</button><button type="button" data-vatra-filter="vivid">Яскравий</button><button type="button" data-vatra-filter="warm">Теплий</button><button type="button" data-vatra-filter="cool">Холодний</button><button type="button" data-vatra-filter="mono">Ч/Б</button><button type="button" data-vatra-filter="sepia">Сепія</button><button type="button" data-vatra-filter="soft">М’який</button><button type="button" data-vatra-filter="cinema">Кіно</button><button type="button" data-vatra-filter="vintage">Вінтаж</button><button type="button" data-vatra-filter="summer">Літо</button><button type="button" data-vatra-filter="night">Ніч</button><button type="button" data-vatra-filter="matte">Мат</button></div></section>'+
+ '<button type="button" class="active" data-vatra-filter="original">Оригінал</button><button type="button" data-vatra-filter="vivid">Яскравий</button><button type="button" data-vatra-filter="warm">Теплий</button><button type="button" data-vatra-filter="cool">Холодний</button><button type="button" data-vatra-filter="mono">Ч/Б</button><button type="button" data-vatra-filter="sepia">Сепія</button><button type="button" data-vatra-filter="soft">М’який</button><button type="button" data-vatra-filter="cinema">Кіно</button><button type="button" data-vatra-filter="vintage">Вінтаж</button><button type="button" data-vatra-filter="summer">Літо</button><button type="button" data-vatra-filter="night">Ніч</button><button type="button" data-vatra-filter="matte">Мат</button><button type="button" data-vatra-filter="sunset">Захід сонця</button><button type="button" data-vatra-filter="arctic">Арктика</button><button type="button" data-vatra-filter="rose">Рожевий</button><button type="button" data-vatra-filter="emerald">Смарагд</button><button type="button" data-vatra-filter="golden">Золотий</button><button type="button" data-vatra-filter="lavender">Лаванда</button><button type="button" data-vatra-filter="film">Плівка</button><button type="button" data-vatra-filter="noir">Нуар</button><button type="button" data-vatra-filter="neon">Неон</button><button type="button" data-vatra-filter="pastel">Пастель</button><button type="button" data-vatra-filter="forest">Ліс</button><button type="button" data-vatra-filter="copper">Мідь</button></div></section>'+
  '<section class="vatra-editor-section"><b>Кадрування</b>'+
  '<label class="vatra-image-control"><span>Масштаб <output data-range-output="zoom">100%</output></span><input type="range" id="vatraEditZoom" min="100" max="300" value="100"></label>'+
  '<label class="vatra-image-control"><span>Горизонталь <output data-range-output="x">0</output></span><input type="range" id="vatraEditX" min="-100" max="100" value="0"></label>'+
@@ -483,8 +490,9 @@ async function getImageEditor(file,mode='avatar'){
  '<label class="vatra-image-control"><span>Насиченість <output data-range-output="saturation">100%</output></span><input type="range" id="vatraEditSaturation" min="0" max="180" value="100"></label></section>'+
  '<section class="vatra-editor-section vatra-editor-text"><b>Текст на фото</b>'+
  '<input type="text" id="vatraEditText" maxlength="80" placeholder="Додайте напис або цитату…">'+
- '<div class="vatra-editor-text-options"><label>Колір <input id="vatraEditTextColor" type="color" value="#ffffff"></label><label>Розмір <input id="vatraEditTextSize" type="range" min="16" max="64" value="32"></label>'+
+ '<div class="vatra-editor-text-options"><label>Колір <input id="vatraEditTextColor" type="color" value="#ffffff"></label><label>Контур <input id="vatraEditTextStroke" type="color" value="#18283f"></label><label>Розмір <input id="vatraEditTextSize" type="range" min="16" max="64" value="32"></label>'+
  '<label>Розташування <select id="vatraEditTextPosition"><option value="bottom">Унизу</option><option value="center">По центру</option><option value="top">Угорі</option></select></label>'+
+ '<label>Вирівнювання <select id="vatraEditTextAlign"><option value="center">По центру</option><option value="left">Ліворуч</option><option value="right">Праворуч</option></select></label>'+
  '<label>Шрифт <select id="vatraEditTextFont"><option value="Inter">Inter</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option><option value="monospace">Моноширинний</option></select></label></div></section>'+
  '<p class="vatra-image-editor-status" aria-live="polite"></p></aside></div>'+
  '<div class="vatra-image-editor-actions"><button type="button" class="pill" data-vatra-edit-cancel>Скасувати</button><button type="button" class="primary" data-vatra-edit-apply>Застосувати фото</button></div>';
@@ -494,8 +502,8 @@ async function getImageEditor(file,mode='avatar'){
  const stage=dialog.querySelector('.vatra-image-stage');
  const zoom=dialog.querySelector('#vatraEditZoom'),xInput=dialog.querySelector('#vatraEditX'),yInput=dialog.querySelector('#vatraEditY');
  const brightnessInput=dialog.querySelector('#vatraEditBrightness'),contrastInput=dialog.querySelector('#vatraEditContrast'),saturationInput=dialog.querySelector('#vatraEditSaturation');
- const textInput=dialog.querySelector('#vatraEditText'),textColor=dialog.querySelector('#vatraEditTextColor'),textSize=dialog.querySelector('#vatraEditTextSize'),textPosition=dialog.querySelector('#vatraEditTextPosition'),textFont=dialog.querySelector('#vatraEditTextFont');
- const state={zoom:1,x:0,y:0,rotation:0,brightness:100,saturation:100,contrast:100,sepia:0,filter:'original',text:'',textColor:'#ffffff',textSize:32,textPosition:'bottom',textFont:'Inter'};
+ const textInput=dialog.querySelector('#vatraEditText'),textColor=dialog.querySelector('#vatraEditTextColor'),textStroke=dialog.querySelector('#vatraEditTextStroke'),textSize=dialog.querySelector('#vatraEditTextSize'),textPosition=dialog.querySelector('#vatraEditTextPosition'),textAlign=dialog.querySelector('#vatraEditTextAlign'),textFont=dialog.querySelector('#vatraEditTextFont');
+ const state={zoom:1,x:0,y:0,rotation:0,brightness:100,saturation:100,contrast:100,sepia:0,filter:'original',text:'',textColor:'#ffffff',textStroke:'#18283f',textSize:32,textPosition:'bottom',textAlign:'center',textFont:'Inter'};
  let finished=false;
  return await new Promise(resolve=>{
   const finish=result=>{
@@ -509,7 +517,7 @@ async function getImageEditor(file,mode='avatar'){
    output('brightness',state.brightness+'%');output('contrast',state.contrast+'%');output('saturation',state.saturation+'%');
    overlayPreview.textContent=state.text;overlayPreview.hidden=!state.text;
    overlayPreview.style.color=state.textColor;overlayPreview.style.fontSize=Math.max(12,Math.round(state.textSize*.72))+'px';
-   overlayPreview.style.fontFamily=state.textFont+',sans-serif';
+   overlayPreview.style.fontFamily=state.textFont+',sans-serif';overlayPreview.style.setProperty('text-align',state.textAlign,'important');overlayPreview.style.textShadow='0 2px 7px '+state.textStroke;
    overlayPreview.dataset.position=state.textPosition;
   };
   preview.onload=drawPreview;preview.onerror=()=>{dialog.querySelector('.vatra-image-editor-status').textContent='Не вдалося відкрити це фото.';};preview.src=objectUrl;
@@ -526,7 +534,9 @@ async function getImageEditor(file,mode='avatar'){
   }));
   textInput.addEventListener('input',()=>{state.text=textInput.value.trim();drawPreview();});
   textColor.addEventListener('input',()=>{state.textColor=textColor.value;drawPreview();});
+  textStroke.addEventListener('input',()=>{state.textStroke=textStroke.value;drawPreview();});
   textPosition.addEventListener('change',()=>{state.textPosition=textPosition.value;drawPreview();});
+  textAlign.addEventListener('change',()=>{state.textAlign=textAlign.value;drawPreview();});
   textFont.addEventListener('change',()=>{state.textFont=textFont.value;drawPreview();});
   let dragState=null;stage.style.touchAction='none';stage.style.cursor='grab';
   stage.addEventListener('pointerdown',event=>{
@@ -547,7 +557,10 @@ async function getImageEditor(file,mode='avatar'){
   const filters={
    original:[100,100,100,0],vivid:[106,142,118,0],warm:[108,116,104,12],cool:[100,94,106,0],
    mono:[100,0,112,0],sepia:[104,92,104,75],soft:[108,84,88,0],cinema:[94,118,132,5],
-   vintage:[105,78,105,30],summer:[112,135,110,0],night:[82,118,128,0],matte:[108,88,88,5]
+   vintage:[105,78,105,30],summer:[112,135,110,0],night:[82,118,128,0],matte:[108,88,88,5],
+   sunset:[112,128,108,26],arctic:[106,82,125,0],rose:[108,122,105,18],emerald:[102,128,115,0],
+   golden:[113,124,106,24],lavender:[106,96,112,12],film:[96,108,120,18],noir:[91,0,142,0],
+   neon:[108,155,128,0],pastel:[112,76,92,4],forest:[94,118,120,8],copper:[104,112,118,32]
   };
   dialog.querySelectorAll('[data-vatra-filter]').forEach(button=>button.addEventListener('click',()=>{
    dialog.querySelectorAll('[data-vatra-filter]').forEach(b=>b.classList.toggle('active',b===button));
@@ -580,13 +593,14 @@ async function getImageEditor(file,mode='avatar'){
     ctx.drawImage(preview,-iw*scale/2,-ih*scale/2,iw*scale,ih*scale);ctx.restore();
     if(state.text){
      const maxWidth=outW*.88,lineHeight=state.textSize*1.25,words=state.text.split(/\s+/),lines=[];let line='';
-     ctx.save();ctx.font='800 '+state.textSize+'px '+state.textFont+',sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+     ctx.save();ctx.font='800 '+state.textSize+'px '+state.textFont+',sans-serif';ctx.textAlign=state.textAlign;ctx.textBaseline='middle';ctx.lineJoin='round';
      for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}else line=test;}
      if(line)lines.push(line);
      const startY=state.textPosition==='top'?outH*.12:state.textPosition==='center'?outH/2:outH*.88;
      const blockHeight=(lines.length-1)*lineHeight;
-     ctx.shadowColor='rgba(0,0,0,.45)';ctx.shadowBlur=7;ctx.lineWidth=Math.max(2,state.textSize*.13);ctx.strokeStyle='rgba(0,0,0,.54)';ctx.fillStyle=state.textColor;
-     lines.forEach((txt,i)=>{const y=startY-blockHeight/2+i*lineHeight;ctx.strokeText(txt,outW/2,y,maxWidth);ctx.fillText(txt,outW/2,y,maxWidth);});
+     ctx.shadowColor=state.textStroke;ctx.shadowBlur=7;ctx.lineWidth=Math.max(2,state.textSize*.13);ctx.strokeStyle=state.textStroke;ctx.fillStyle=state.textColor;
+     const textX=state.textAlign==='left'?outW*.07:state.textAlign==='right'?outW*.93:outW/2;
+     lines.forEach((txt,i)=>{const y=startY-blockHeight/2+i*lineHeight;ctx.strokeText(txt,textX,y,maxWidth);ctx.fillText(txt,textX,y,maxWidth);});
      ctx.restore();
     }
     const blob=await new Promise((ok,bad)=>canvas.toBlob(b=>b?ok(b):bad(new Error('Не вдалося підготувати фото.')),'image/jpeg',.9));
