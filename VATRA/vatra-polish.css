@@ -4178,3 +4178,79 @@ button:not(.post-photo-item):active,.nav:active{transform:none!important}
   .profile-vk-presence{white-space:normal!important}
   .vatra-image-filter-presets{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 }
+
+
+/* VATRA: full-width VK-style top bar, compact shell, no sidebar scrollbar, crisp text. */
+@media (min-width:761px){
+  .vatra-global-header{position:sticky!important;top:0!important;z-index:1100!important;display:flex!important;width:100%!important;max-width:none!important;height:62px!important;min-height:62px!important;margin:0!important;padding:0 max(18px,calc((100vw - 1320px)/2 + 18px))!important;box-sizing:border-box!important;gap:12px!important;background:#fff!important;border:0!important;border-bottom:1px solid #e3e8f0!important;border-radius:0!important;box-shadow:0 2px 8px rgba(22,40,70,.035)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .vatra-global-header .mobile-brand{display:flex!important;align-items:center!important;gap:8px!important;flex:0 0 180px!important;min-width:180px!important;margin:0!important;color:#1e293b!important;font-size:20px!important;font-weight:850!important;letter-spacing:-.6px!important;white-space:nowrap!important}
+  .vatra-global-header .mobile-brand .brand-icon{display:grid!important;place-items:center!important;width:32px!important;height:32px!important;border-radius:9px!important;background:#0757f5!important;color:#fff!important;font-size:21px!important;box-shadow:none!important}
+  .vatra-global-header .search{flex:0 1 440px!important;width:min(440px,44vw)!important;max-width:440px!important;height:38px!important;margin:0!important;border-radius:9px!important;background:#f0f2f5!important}
+  .vatra-global-header .notification-button{margin-left:auto!important}
+  .vatra-global-header .account-avatar-trigger{width:36px!important;height:36px!important;flex:0 0 36px!important}
+  .layout{width:min(1320px,100%)!important;max-width:1320px!important;margin:0 auto!important;padding:0 16px 34px!important;grid-template-columns:180px minmax(0,1fr)!important;gap:18px!important;align-items:start!important}
+  .layout>.sidebar{position:sticky!important;top:72px!important;width:180px!important;height:auto!important;min-height:calc(100dvh - 72px)!important;max-height:none!important;overflow:visible!important;overflow-y:visible!important;overflow-x:visible!important;padding:12px 0 12px!important;scrollbar-width:none!important}
+  .layout>.sidebar::-webkit-scrollbar,.layout>.sidebar nav::-webkit-scrollbar{display:none!important}
+  .layout>.sidebar>.brand{display:none!important}
+  .layout>.sidebar>nav{display:grid!important;gap:2px!important;margin:0!important;overflow:visible!important}
+  .layout>.sidebar .nav{width:100%!important;min-height:36px!important;height:36px!important;padding:0 9px!important;gap:9px!important;border-radius:8px!important;font-size:12px!important;line-height:1.2!important;white-space:nowrap!important;transform:none!important;transition:background-color .15s,color .15s!important}
+  .layout>.sidebar .nav:hover{transform:none!important;background:#edf3ff!important}
+  .layout>.sidebar .create-button{min-height:39px!important;margin-top:12px!important;font-size:11px!important}
+  .sidebar-footer{margin-top:12px!important;font-size:9px!important;line-height:1.55!important}
+  .sidebar-footer p{margin:3px 0!important}.sidebar-footer .footer-legal{gap:3px!important}
+  .sidebar-bottom{margin-top:auto!important;padding:12px 6px 0!important}
+  .layout>.main{width:100%!important;min-width:0!important;max-width:none!important;padding:12px 0 34px!important}
+  .layout>.right{display:none!important}
+  .profile-vk-layout{width:100%!important;max-width:100%!important;min-width:0!important;grid-template-columns:166px minmax(0,1fr)!important;gap:12px!important;animation:none!important;transform:none!important}
+  .profile-vk-sidebar,.profile-vk-main{gap:11px!important;min-width:0!important}
+  .profile-vk-card{min-width:0!important;padding:11px!important;border-radius:11px!important;box-shadow:0 1px 4px rgba(20,38,70,.045)!important}
+  .profile-vk-card:hover{transform:none!important;box-shadow:0 2px 7px rgba(20,38,70,.06)!important}
+  .profile-vk-avatar-card{gap:8px!important;padding:10px!important}
+  .profile-vk-avatar-open{display:block!important;width:100%!important;min-width:0!important;padding:0!important;overflow:hidden!important;border-radius:10px!important}
+  .profile-vk-avatar-open>.profile-vk-photo{display:grid!important;place-items:center!important;flex:none!important;width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:1/1.06!important;max-height:190px!important;margin:0!important;border:0!important;border-radius:8px!important;overflow:hidden!important;background-size:cover!important;background-position:center!important;box-shadow:none!important;transform:none!important}
+  .profile-vk-avatar-open>span:last-child{margin-top:6px!important;padding:5px 6px!important;font-size:10px!important}
+  .profile-vk-avatar-card>.primary{min-height:36px!important;padding:7px 8px!important;font-size:11px!important}
+  .profile-vk-change-photo{padding:2px!important;font-size:10px!important}
+  .profile-vk-title-row{gap:10px!important}.profile-vk-title-row h2{font-size:21px!important;line-height:1.25!important}
+  .profile-vk-bio{font-size:13px!important;line-height:1.55!important}
+  .profile-vk-detail{padding:7px 0!important;font-size:11px!important}
+  .profile-vk-stats{gap:4px!important;padding:9px 0!important}
+  .profile-vk-stats>div{min-width:0!important;min-height:42px!important;padding:5px 2px!important}
+  .profile-vk-stats>div>b{font-size:15px!important}.profile-vk-stats>div>span{font-size:9px!important}
+  .profile-vk-photos{padding:10px!important}
+}
+@media (min-width:761px) and (max-width:1100px){
+  .vatra-global-header{padding-inline:14px!important}
+  .vatra-global-header .mobile-brand{flex-basis:145px!important;min-width:145px!important;font-size:18px!important}
+  .vatra-global-header .search{flex-basis:360px!important;width:min(360px,38vw)!important}
+  .layout{grid-template-columns:58px minmax(0,1fr)!important;gap:13px!important;padding-inline:12px!important}
+  .layout>.sidebar{width:58px!important;min-height:calc(100dvh - 72px)!important}
+  .layout>.sidebar .nav{justify-content:center!important;padding-inline:4px!important}
+  .layout>.sidebar .nav>span:not(.nav-icon),.layout>.sidebar .nav>i{display:none!important}
+  .layout>.sidebar .create-button{font-size:0!important;padding:0!important}
+  .layout>.sidebar .create-button span{font-size:18px!important}
+  .sidebar-footer,.sidebar-bottom{display:none!important}
+  .profile-vk-layout{grid-template-columns:156px minmax(0,1fr)!important;gap:10px!important}
+}
+@media (max-width:760px){
+  .vatra-global-header{width:100%!important;max-width:none!important;margin:0!important;height:52px!important;min-height:52px!important;padding:0 10px!important;border-radius:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .vatra-global-header .mobile-brand{display:flex!important}
+  .profile-vk-avatar-card{grid-template-columns:100px minmax(0,1fr)!important;gap:7px 10px!important}
+  .profile-vk-avatar-open{grid-column:1!important;grid-row:1 / span 2!important;width:100px!important;min-width:100px!important}
+  .profile-vk-avatar-open>.profile-vk-photo{width:100px!important;height:118px!important;min-height:0!important;aspect-ratio:auto!important;border-radius:9px!important}
+  .profile-vk-avatar-card>.primary{grid-column:2!important;grid-row:1!important}
+  .profile-vk-avatar-card>.profile-vk-change-photo{grid-column:2!important;grid-row:2!important}
+}
+@media (max-width:390px){
+  .profile-vk-avatar-card{grid-template-columns:88px minmax(0,1fr)!important}
+  .profile-vk-avatar-open{width:88px!important;min-width:88px!important}
+  .profile-vk-avatar-open>.profile-vk-photo{width:88px!important;height:106px!important}
+}
+
+/* Keep interface text and controls rasterized sharply: no transformed text layers. */
+html,body,.topbar,.layout,.sidebar,.main,.feed,.profile-vk-layout,.profile-vk-card{filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;backface-visibility:visible!important;will-change:auto!important}
+body,button,input,textarea,select,a,.nav,.post-text,.author,.profile-vk-layout,.profile-vk-layout h2,.profile-vk-layout h3,.profile-vk-layout p{-webkit-font-smoothing:auto!important;-moz-osx-font-smoothing:auto!important;text-rendering:auto!important;text-shadow:none!important}
+button,a,.nav{filter:none!important;text-shadow:none!important}
+button:not(:disabled),a,.nav{transition:color .15s ease,background-color .15s ease,border-color .15s ease,box-shadow .15s ease!important}
+.layout>.sidebar .nav:hover,.layout>.sidebar .nav:active,.profile-vk-layout button:hover,.profile-vk-layout button:active{transform:none!important;filter:none!important;text-shadow:none!important}
+.profile-vk-layout,.profile-vk-layout *{backface-visibility:visible!important}
