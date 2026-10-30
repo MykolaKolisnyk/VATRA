@@ -3440,3 +3440,185 @@ body[data-page="publicProfile"] #sort{
 body .vatra-profile-public-actions button[disabled]{
  cursor:default!important;opacity:1!important;
 }
+
+
+/* VATRA October 30: requested profile placement, gapless gallery & post rhythm. */
+body .vatra-profile-summary-compact .vatra-profile-name-line{
+ display:flex!important;
+ flex-direction:row!important;
+ flex-wrap:nowrap!important;
+ align-items:baseline!important;
+ justify-content:space-between!important;
+ column-gap:12px!important;
+ width:100%!important;
+ min-width:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line h2{
+ flex:0 1 auto!important;
+ min-width:0!important;
+ margin:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence{
+ flex:0 1 auto!important;
+ margin:0!important;
+ margin-left:auto!important;
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:flex-end!important;
+ text-align:right!important;
+ max-width:52%!important;
+ line-height:1.35!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ font-weight:650!important;
+ font-size:12px!important;
+ color:#71869d!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence.is-online{
+ color:#149c72!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence i{
+ flex:0 0 7px!important;
+ width:7px!important;
+ height:7px!important;
+ margin:0 3px 0 0!important;
+}
+body .vatra-profile-public-friends{padding:12px!important;}
+body .vatra-profile-public-friends .vatra-profile-friend-grid{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:9px!important;
+ min-width:0!important;
+}
+body .vatra-profile-public-friends .vatra-profile-friend{
+ min-width:0!important;
+ overflow-wrap:anywhere!important;
+}
+body .vatra-profile-main{
+ gap:10px!important;
+}
+body .vatra-profile-main .vatra-profile-compose{
+ margin:0!important;
+}
+body .vatra-profile-posts-clean{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ align-content:start!important;
+ gap:10px!important;
+ margin:0!important;
+ padding:0!important;
+}
+body .vatra-profile-posts-clean .vatra-profile-post-tabs{
+ margin:0!important;
+ padding:8px 2px!important;
+}
+body .vatra-profile-posts-clean>.post{
+ display:block!important;
+ min-width:0!important;
+ width:100%!important;
+ margin:0!important;
+ padding:13px 15px!important;
+ border-radius:12px!important;
+}
+body .vatra-profile-posts-clean>.post:last-child{margin-bottom:0!important;}
+/* Four thumbnails at most; opening one displays the full album. */
+body .post-photo-grid.vatra-post-photo-uniform{
+ display:grid!important;
+ width:100%!important;
+ max-width:100%!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ grid-template-rows:auto!important;
+ grid-auto-rows:auto!important;
+ grid-auto-flow:row!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ gap:5px!important;
+ margin:9px 0!important;
+ padding:0!important;
+}
+body .post-photo-grid.vatra-post-photo-uniform .post-photo-item{
+ position:relative!important;
+ display:block!important;
+ box-sizing:border-box!important;
+ grid-area:auto!important;
+ grid-column:auto!important;
+ grid-row:auto!important;
+ justify-self:stretch!important;
+ align-self:stretch!important;
+ min-width:0!important;
+ min-height:0!important;
+ width:100%!important;
+ height:auto!important;
+ max-width:none!important;
+ max-height:none!important;
+ margin:0!important;
+ padding:0!important;
+ aspect-ratio:4/3!important;
+ overflow:hidden!important;
+ border-radius:8px!important;
+}
+body .post-photo-grid.vatra-post-photo-uniform.count-1 .post-photo-item{
+ grid-column:1/-1!important;
+ aspect-ratio:16/9!important;
+}
+body .post-photo-grid.vatra-post-photo-uniform.count-3 .post-photo-item:last-child{
+ grid-column:1/-1!important;
+ aspect-ratio:16/9!important;
+}
+body .post-photo-grid.vatra-post-photo-uniform .post-photo-item img{
+ display:block!important;
+ width:100%!important;
+ height:100%!important;
+ max-width:none!important;
+ max-height:none!important;
+ object-fit:cover!important;
+ object-position:center!important;
+ border-radius:0!important;
+ margin:0!important;
+ padding:0!important;
+}
+body .post-photo-grid.vatra-post-photo-uniform .vatra-post-photo-more{
+ position:absolute!important;
+ inset:0!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ color:#fff!important;
+ background:rgba(9,25,46,.55)!important;
+ font-size:19px!important;
+ font-weight:800!important;
+ text-shadow:0 1px 3px rgba(0,0,0,.3)!important;
+ pointer-events:none!important;
+}
+/* The technical details of chat keys are no longer ordinary interface text. */
+body .chat-security{margin:5px 0 9px!important;padding:5px 9px!important;}
+body .chat-security-row{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:8px!important;
+ flex-wrap:wrap!important;
+}
+body #chatSecurityStatus{font-size:12px!important;line-height:1.5!important;}
+body #chatSecurityRefresh[hidden]{display:none!important;}
+body .vatra-editor-reset{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ width:100%!important;
+ min-height:34px!important;
+ margin-top:8px!important;
+ padding:7px 10px!important;
+ border-radius:8px!important;
+}
+@media(max-width:600px){
+ body .vatra-profile-summary-compact .vatra-profile-name-line{flex-wrap:wrap!important;gap:4px 9px!important;}
+ body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence{
+  max-width:100%!important;
+  margin-left:0!important;
+  justify-content:flex-start!important;
+  text-align:left!important;
+ }
+ body .post-photo-grid.vatra-post-photo-uniform{gap:4px!important;}
+ body .vatra-profile-public-friends .vatra-profile-friend-grid{grid-template-columns:minmax(0,1fr)!important;}
+}
