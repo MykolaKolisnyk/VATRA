@@ -2995,3 +2995,416 @@ body:not([data-vatra-theme-effective="dark"]) .vatra-settings-workspace .setting
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-overview{
   background-color:#fff!important;
 }
+
+
+/* VATRA / October 2026: search, profile readability, posts, videos and scroll assist. */
+/* Two-panel search with independent sections and a separate category rail. */
+body[data-page="explore"] #feed>.vatra-search-layout{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 215px!important;
+ gap:14px!important;align-items:start!important;min-width:0!important;
+ width:100%!important;max-width:100%!important;margin:0!important;
+}
+body[data-page="explore"] .vatra-search-main,
+body[data-page="explore"] .vatra-search-rail{
+ min-width:0!important;border:1px solid #e1e8f1!important;border-radius:13px!important;
+ background:#fff!important;box-shadow:0 2px 8px rgba(28,47,74,.035)!important;
+}
+body[data-page="explore"] .vatra-search-main{padding:18px 19px!important;}
+body[data-page="explore"] .vatra-search-top{margin:0 0 12px!important;}
+body[data-page="explore"] .vatra-search-top h2{
+ color:#2a3f57!important;font-size:20px!important;line-height:1.3!important;
+ letter-spacing:-.02em!important;margin:0 0 14px!important;
+}
+body[data-page="explore"] .vatra-search-form{
+ display:flex!important;align-items:stretch!important;gap:8px!important;min-width:0!important;
+}
+body[data-page="explore"] .vatra-search-form label{
+ display:flex!important;flex:1 1 auto!important;align-items:center!important;
+ min-height:42px!important;gap:8px!important;min-width:0!important;padding:0 11px!important;
+ border-radius:9px!important;border:1px solid #d9e2ee!important;background:#f1f4f8!important;
+ color:#8393a9!important;
+}
+body[data-page="explore"] .vatra-search-form svg{
+ display:block!important;width:18px!important;height:18px!important;
+ min-width:18px!important;max-width:18px!important;flex:0 0 18px!important;
+ fill:none!important;stroke:currentColor!important;
+}
+body[data-page="explore"] .vatra-search-form input{
+ width:100%!important;min-width:0!important;flex:1 1 auto!important;outline:0!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ font:inherit!important;font-size:13px!important;color:#30465f!important;
+}
+body[data-page="explore"] .vatra-search-form>button,
+body[data-page="explore"] .vatra-search-subscribe{
+ flex:0 0 auto!important;min-height:36px!important;max-width:100%!important;
+ border:1px solid #d7e2ef!important;border-radius:8px!important;
+ padding:8px 13px!important;background:#edf3fb!important;color:#245caa!important;
+ font-size:12px!important;font-weight:700!important;white-space:normal!important;
+ cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-search-form>button{
+ background:var(--vatra-user-accent,#0757f5)!important;color:#fff!important;
+ border-color:var(--vatra-user-accent,#0757f5)!important;
+}
+body[data-page="explore"] .vatra-search-rail{position:sticky!important;top:84px!important;padding:9px!important;}
+body[data-page="explore"] .vatra-search-rail nav{
+ display:grid!important;gap:2px!important;
+}
+body[data-page="explore"] .vatra-search-rail nav>button{
+ display:block!important;width:100%!important;min-height:38px!important;
+ border:0!important;border-radius:8px!important;background:transparent!important;
+ color:#51667f!important;font-size:13px!important;text-align:left!important;
+ padding:9px 12px!important;cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-search-rail nav>button.active{
+ background:#edf3fc!important;color:#0757f5!important;font-weight:750!important;
+}
+body[data-page="explore"] .vatra-search-section{margin:17px 0 0!important;min-width:0!important;}
+body[data-page="explore"] .vatra-search-section+.vatra-search-section{border-top:1px solid #e6edf5!important;padding-top:13px!important;}
+body[data-page="explore"] .vatra-search-section-head{
+ display:flex!important;justify-content:space-between!important;align-items:center!important;gap:8px!important;
+ padding-bottom:6px!important;
+}
+body[data-page="explore"] .vatra-search-section-head h3{
+ margin:0!important;font-size:15px!important;line-height:1.4!important;color:#2e435c!important;
+}
+body[data-page="explore"] .vatra-search-section-head h3 span{
+ color:#8b9bb0!important;font-weight:500!important;font-size:12px!important;
+}
+body[data-page="explore"] .vatra-search-section-head>button{
+ background:transparent!important;border:0!important;color:#0757f5!important;
+ font-size:12px!important;font-weight:650!important;cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-search-person-row,
+body[data-page="explore"] .vatra-search-group-row{
+ display:grid!important;grid-template-columns:62px minmax(0,1fr) 122px!important;
+ gap:12px!important;align-items:center!important;min-width:0!important;
+ margin:0!important;padding:13px 0!important;border-bottom:1px solid #eff2f6!important;
+}
+body[data-page="explore"] .vatra-search-person-row:last-child,
+body[data-page="explore"] .vatra-search-group-row:last-child{border-bottom:0!important;}
+body[data-page="explore"] .vatra-search-person-photo{
+ display:block!important;width:62px!important;height:62px!important;min-height:62px!important;
+ min-width:62px!important;padding:0!important;background:none!important;
+ border:0!important;border-radius:50%!important;overflow:hidden!important;cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-search-person-photo .avatar{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:62px!important;height:62px!important;min-width:62px!important;max-width:62px!important;
+ min-height:62px!important;max-height:62px!important;border-radius:50%!important;
+ background-size:cover!important;background-position:center!important;
+}
+body[data-page="explore"] .vatra-search-person-body,
+body[data-page="explore"] .vatra-search-group-row>div{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ gap:4px!important;min-width:0!important;
+}
+body[data-page="explore"] .vatra-search-person-name{
+ display:inline!important;width:auto!important;max-width:100%!important;
+ padding:0!important;margin:0!important;border:0!important;background:transparent!important;
+ color:#263c56!important;font-size:13.5px!important;font-weight:760!important;
+ line-height:1.35!important;text-align:left!important;cursor:pointer!important;
+ overflow-wrap:anywhere!important;
+}
+body[data-page="explore"] .vatra-search-person-name:hover{color:#0757f5!important;}
+body[data-page="explore"] .vatra-search-person-body small,
+body[data-page="explore"] .vatra-search-group-row small{
+ display:block!important;color:#8192a8!important;font-size:11.5px!important;line-height:1.35!important;
+}
+body[data-page="explore"] .vatra-search-person-body p{
+ display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;
+ overflow:hidden!important;margin:0!important;color:#697f99!important;
+ font-size:12px!important;line-height:1.45!important;overflow-wrap:anywhere!important;
+}
+body[data-page="explore"] .vatra-search-message{
+ display:inline-flex!important;align-items:center!important;gap:5px!important;
+ width:auto!important;padding:2px 0!important;margin:0!important;min-height:20px!important;
+ border:0!important;background:transparent!important;color:#336cae!important;
+ font-size:11.5px!important;cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-search-message svg{
+ display:block!important;flex:0 0 16px!important;width:16px!important;height:16px!important;
+ min-width:16px!important;max-width:16px!important;min-height:16px!important;max-height:16px!important;fill:none!important;stroke:currentColor!important;
+}
+body[data-page="explore"] .vatra-search-person-actions{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:6px!important;
+ min-width:0!important;width:100%!important;
+}
+body[data-page="explore"] .vatra-search-person-actions>button{
+ width:100%!important;min-width:0!important;padding:7px 6px!important;min-height:31px!important;
+ font-size:11px!important;border-radius:8px!important;
+}
+body[data-page="explore"] .vatra-search-add-friend{
+ background:#fff!important;border:1px solid #d8e2ef!important;color:#536a88!important;cursor:pointer!important;
+}
+body[data-page="explore"] .vatra-search-friend-state{
+ display:block!important;text-align:center!important;color:#60806b!important;font-size:11px!important;
+}
+body[data-page="explore"] .vatra-search-group-avatar{
+ display:grid!important;place-items:center!important;
+ width:54px!important;height:54px!important;min-width:54px!important;
+ padding:0!important;border:1px solid #d4e2f5!important;border-radius:12px!important;
+ background:#eaf2ff!important;color:#2262bf!important;font-weight:800!important;
+}
+body[data-page="explore"] .vatra-search-empty{color:#8a9aae!important;font-size:13px!important;padding:10px 0!important;}
+body[data-page="explore"] .vatra-search-section>.post{
+ padding:11px!important;margin:8px 0!important;border-radius:10px!important;
+}
+/* Profile: presence shares the actual name baseline, never floats in a corner. */
+body .vatra-profile-summary-compact .vatra-profile-title-info{width:100%!important;}
+body .vatra-profile-summary-compact .vatra-profile-name-line{
+ display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;
+ justify-content:flex-start!important;gap:5px 8px!important;
+ width:100%!important;min-width:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line h2{width:auto!important;min-width:0!important;}
+body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence{
+ display:inline-flex!important;align-items:center!important;gap:5px!important;
+ margin:0!important;padding:0!important;line-height:1.35!important;
+ color:#788ca1!important;font-size:12px!important;font-weight:620!important;
+ white-space:normal!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence.is-online{color:#159d73!important;}
+/* Status is neutral and readable, without its old orange pill. */
+body .vatra-profile-summary-compact .vatra-profile-status-row .vatra-profile-status,
+body .vatra-profile-summary-compact .vatra-profile-status{
+ display:inline-flex!important;align-items:center!important;gap:0!important;
+ width:auto!important;max-width:100%!important;
+ background:#f1f5fa!important;color:#4b6888!important;
+ border:0!important;border-radius:6px!important;
+ box-shadow:none!important;margin:0!important;padding:3px 7px!important;
+ font-size:12px!important;font-weight:650!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-status:before{display:none!important;content:none!important;}
+body .vatra-profile-summary-compact .vatra-profile-status-edit{
+ background:#edf3fd!important;color:#0757f5!important;border-radius:7px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extras.vatra-profile-extras-folded{gap:5px!important;margin:7px 0 9px!important;}
+body .vatra-profile-summary-compact .vatra-profile-extra-card.vatra-profile-extra-fold{border-radius:8px!important;}
+body .vatra-profile-summary-compact .vatra-profile-extra-trigger{min-height:39px!important;padding:7px 10px!important;}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading>.vatra-profile-line-icon{
+ width:26px!important;height:26px!important;flex:0 0 26px!important;border-radius:7px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text{
+ display:inline-flex!important;align-items:center!important;flex-wrap:wrap!important;gap:6px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong{font-size:12.8px!important;}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text small{font-size:11px!important;}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body{padding:8px 11px!important;}
+/* Publications as a clean timeline, with one quiet heading instead of colored tab underlines. */
+body .vatra-profile-posts-clean{display:block!important;margin:10px 0 0!important;padding:0!important;}
+body .vatra-profile-posts-clean .vatra-profile-post-tabs{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:9px!important;margin:0 0 10px!important;padding:9px 4px!important;
+ border:0!important;border-bottom:1px solid #dfe7f1!important;
+ background:transparent!important;
+}
+body .vatra-profile-posts-clean .vatra-profile-post-tabs::before,
+body .vatra-profile-posts-clean .vatra-profile-post-tabs::after{content:none!important;display:none!important;}
+body .vatra-profile-posts-clean .vatra-profile-posts-title{
+ display:inline-flex!important;align-items:center!important;gap:8px!important;min-width:0!important;
+}
+body .vatra-profile-posts-clean .vatra-profile-posts-title h3{
+ margin:0!important;padding:0!important;border:0!important;color:#2c425d!important;
+ font-size:15px!important;font-weight:750!important;
+}
+body .vatra-profile-posts-clean .vatra-profile-posts-title span{
+ display:grid!important;place-items:center!important;min-width:25px!important;height:22px!important;
+ padding:0 5px!important;border-radius:7px!important;background:#e9f1fd!important;
+ color:#3c6ca9!important;font-size:11px!important;font-weight:700!important;
+}
+body .vatra-profile-posts-clean .vatra-profile-new-post{
+ width:auto!important;max-width:55%!important;min-height:32px!important;
+ padding:6px 10px!important;margin:0!important;border-radius:8px!important;
+ border:1px solid #d4e2f6!important;background:#edf4ff!important;
+ color:#0757f5!important;font-size:12px!important;font-weight:700!important;
+}
+body .vatra-profile-main .vatra-profile-compose{margin:8px 0 6px!important;}
+body .vatra-profile-posts-clean>.post{margin:0 0 12px!important;}
+/* Only likes show a small overlapping sample of up to 3 profile photos. */
+body .post-actions{
+ display:grid!important;grid-template-columns:minmax(0,1.65fr) repeat(3,minmax(0,1fr))!important;
+ align-items:center!important;gap:4px!important;
+ margin:0!important;padding:10px 0!important;
+}
+body .post-actions .post-action-item{
+ display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+ flex-wrap:nowrap!important;gap:4px!important;min-width:0!important;
+}
+body .post-actions .post-action-button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ width:auto!important;max-width:100%!important;min-width:0!important;
+ padding:5px 3px!important;font-size:11.5px!important;
+ white-space:normal!important;line-height:1.25!important;
+}
+body .post-actions .post-action-button svg{
+ display:block!important;width:16px!important;height:16px!important;
+ flex:0 0 16px!important;min-width:16px!important;max-width:16px!important;
+}
+body .post-actions .post-action-count{font-size:11px!important;font-weight:750!important;}
+body .post-actions .post-action-item:not(:first-child) .post-actor-stack{display:none!important;}
+body .post-actions .post-actor-stack{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:0!important;min-width:0!important;max-width:55px!important;
+ margin:0!important;padding:0 0 0 5px!important;
+}
+body .post-actions .post-actor-link{
+ display:block!important;width:19px!important;height:19px!important;
+ flex:0 0 19px!important;min-width:19px!important;max-width:19px!important;
+ border:2px solid #fff!important;border-radius:50%!important;
+ margin-left:-5px!important;padding:0!important;background:#fff!important;
+ overflow:hidden!important;box-shadow:none!important;
+}
+body .post-actions .post-actor-avatar{
+ width:100%!important;height:100%!important;min-width:0!important;
+ border-radius:50%!important;font-size:8px!important;
+}
+/* Comments: readable author, timestamp, text, and actions with clear separation. */
+body .post>.vatra-post-comments{
+ display:grid!important;gap:9px!important;padding:11px 0 7px!important;margin:0!important;
+ border-top:1px solid #e6ecf5!important;background:transparent!important;
+}
+body .vatra-comments-heading{
+ display:flex!important;align-items:center!important;gap:6px!important;
+ padding:0 2px 3px!important;font-size:12.5px!important;font-weight:750!important;
+ color:#4a5f79!important;
+}
+body .vatra-comments-heading span{color:#879ab0!important;font-weight:600!important;}
+body .post>.vatra-post-comments>.vatra-comment-item{
+ display:block!important;min-width:0!important;margin:0!important;
+ padding:9px 10px!important;border:1px solid #e9edf5!important;
+ border-radius:9px!important;background:#f7f9fc!important;
+}
+body .vatra-post-comments>.vatra-comment-item.comment-reply{
+ margin-left:24px!important;border-left:2px solid #adc6f5!important;
+}
+body .vatra-comment-item .comment-main{
+ display:flex!important;align-items:flex-start!important;gap:9px!important;min-width:0!important;
+}
+body .vatra-comment-item .comment-author-avatar{
+ display:block!important;flex:0 0 32px!important;width:32px!important;height:32px!important;
+ min-height:32px!important;max-height:32px!important;min-width:32px!important;max-width:32px!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:50%!important;overflow:hidden!important;
+}
+body .vatra-comment-item .comment-avatar{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:32px!important;height:32px!important;min-width:32px!important;max-width:32px!important;
+ min-height:32px!important;max-height:32px!important;border-radius:50%!important;
+ background-size:cover!important;background-position:center!important;
+}
+body .vatra-comment-item .comment-body{display:block!important;flex:1 1 auto!important;min-width:0!important;}
+body .vatra-comment-item .vatra-comment-head{
+ display:flex!important;align-items:baseline!important;flex-wrap:wrap!important;gap:5px 9px!important;
+ margin:0 0 3px!important;
+}
+body .vatra-comment-item .vatra-comment-head .comment-author-name,
+body .vatra-comment-item .vatra-comment-head strong{
+ font-size:12.5px!important;font-weight:750!important;color:#314963!important;
+ margin:0!important;padding:0!important;background:transparent!important;border:0!important;
+}
+body .vatra-comment-item .vatra-comment-head time,
+body .vatra-comment-item .vatra-comment-head small{font-size:10.5px!important;color:#90a0b2!important;}
+body .vatra-comment-item .comment-copy{
+ display:block!important;color:#435874!important;font-size:12.6px!important;
+ font-weight:400!important;line-height:1.55!important;
+ min-width:0!important;overflow-wrap:anywhere!important;
+}
+body .vatra-comment-item .comment-copy span{font-size:inherit!important;color:inherit!important;}
+body .vatra-comment-item .vatra-comment-reply-context{
+ margin:1px 0 3px!important;font-size:11px!important;color:#7b91ac!important;
+}
+body .vatra-comment-item .comment-actions{
+ display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;
+ margin-top:5px!important;
+}
+body .vatra-comment-item .comment-actions>button{
+ min-height:22px!important;margin:0!important;padding:2px 0!important;
+ border:0!important;background:transparent!important;color:#657f9f!important;
+ font-size:11px!important;font-weight:550!important;
+}
+body .vatra-comment-item .comment-actions>button.danger-link{color:#bd5c64!important;}
+/* Actual videos from the signed-in user's Shorts and posts. */
+body[data-page="myVideos"] #feed>.vatra-my-videos{display:block!important;min-width:0!important;width:100%!important;}
+body .vatra-my-videos-header{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ flex-wrap:wrap!important;gap:12px!important;padding:17px 19px!important;
+ background:#fff!important;border:1px solid #e0e8f1!important;border-radius:12px!important;
+ margin-bottom:12px!important;
+}
+body .vatra-my-videos-header h2{margin:0 0 4px!important;font-size:18px!important;color:#2b405a!important;}
+body .vatra-my-videos-header h2 span{font-size:12px!important;color:#8394ab!important;}
+body .vatra-my-videos-header p{font-size:12px!important;color:#7b8ba3!important;margin:0!important;}
+body .vatra-my-videos-tools{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;}
+body .vatra-my-videos-tools button{padding:8px 11px!important;font-size:12px!important;border-radius:8px!important;}
+body .vatra-my-videos-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;}
+body .vatra-my-video{
+ min-width:0!important;padding:12px!important;background:#fff!important;
+ border:1px solid #e2eaf3!important;border-radius:12px!important;
+}
+body .vatra-my-video-info{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin:0 0 9px!important;}
+body .vatra-my-video-info b{font-size:12px!important;color:#304965!important;}
+body .vatra-my-video-info small{font-size:10.5px!important;color:#8294ac!important;}
+body .vatra-my-video video{display:block!important;width:100%!important;max-width:100%!important;aspect-ratio:16/9!important;object-fit:contain!important;background:#101923!important;border-radius:8px!important;}
+body .vatra-my-video p{color:#5a708a!important;font-size:12px!important;line-height:1.5!important;margin:9px 0!important;overflow-wrap:anywhere!important;}
+body .vatra-my-video-empty{grid-column:1/-1!important;padding:20px!important;color:#7d90a7!important;background:#fff!important;border-radius:12px!important;}
+/* Left-side scroll-to-top control only appears after actual scrolling. */
+body .vatra-scroll-to-top{
+ position:fixed!important;z-index:65!important;bottom:26px!important;
+ left:max(12px,calc((100vw - 1200px)/2))!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:6px!important;min-height:38px!important;max-width:140px!important;
+ padding:7px 11px!important;margin:0!important;
+ border:1px solid #d5e1f0!important;border-radius:10px!important;
+ background:#fff!important;color:#526f95!important;
+ box-shadow:0 3px 13px rgba(25,42,69,.09)!important;
+ font-size:12px!important;font-weight:700!important;cursor:pointer!important;
+}
+body .vatra-scroll-to-top[hidden]{display:none!important;}
+body .vatra-scroll-to-top svg{width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;min-height:18px!important;max-height:18px!important;display:block!important;}
+body .vatra-scroll-to-top:hover{background:#edf4ff!important;color:#0757f5!important;}
+body[data-vatra-theme-effective="dark"] .vatra-search-main,
+body[data-vatra-theme-effective="dark"] .vatra-search-rail,
+body[data-vatra-theme-effective="dark"] .vatra-my-videos-header,
+body[data-vatra-theme-effective="dark"] .vatra-my-video,
+body[data-vatra-theme-effective="dark"] .vatra-scroll-to-top{
+ background:#263548!important;border-color:#415571!important;color:#e5edf8!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-search-top h2,
+body[data-vatra-theme-effective="dark"] .vatra-search-section-head h3,
+body[data-vatra-theme-effective="dark"] .vatra-search-person-name,
+body[data-vatra-theme-effective="dark"] .vatra-my-videos-header h2,
+body[data-vatra-theme-effective="dark"] .vatra-my-video-info b,
+body[data-vatra-theme-effective="dark"] .vatra-profile-posts-title h3{
+ color:#e7eef8!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-comment-item{
+ background:#26364a!important;border-color:#45556b!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-comment-item .comment-copy,
+body[data-vatra-theme-effective="dark"] .vatra-comment-item .comment-copy span,
+body[data-vatra-theme-effective="dark"] .vatra-comment-item .vatra-comment-head .comment-author-name{
+ color:#e3e9f3!important;
+}
+@media(max-width:1000px){
+ body[data-page="explore"] #feed>.vatra-search-layout{grid-template-columns:minmax(0,1fr) 185px!important;gap:10px!important;}
+}
+@media(max-width:760px){
+ body[data-page="explore"] #feed>.vatra-search-layout{grid-template-columns:minmax(0,1fr)!important;}
+ body[data-page="explore"] .vatra-search-rail{grid-row:1!important;position:static!important;padding:5px!important;}
+ body[data-page="explore"] .vatra-search-rail nav{display:flex!important;flex-wrap:wrap!important;gap:3px!important;}
+ body[data-page="explore"] .vatra-search-rail nav>button{width:auto!important;min-height:32px!important;padding:6px 9px!important;font-size:12px!important;}
+ body[data-page="explore"] .vatra-search-main{padding:12px!important;}
+ body .vatra-my-videos-grid{grid-template-columns:minmax(0,1fr)!important;}
+ body .vatra-scroll-to-top{bottom:83px!important;left:12px!important;padding:9px!important;}
+ body .vatra-scroll-to-top span{display:none!important;}
+ body .post-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2px!important;}
+ body .post-actions .post-action-item{min-height:33px!important;}
+}
+@media(max-width:480px){
+ body[data-page="explore"] .vatra-search-person-row,
+ body[data-page="explore"] .vatra-search-group-row{grid-template-columns:50px minmax(0,1fr)!important;gap:8px!important;}
+ body[data-page="explore"] .vatra-search-person-actions{grid-column:2!important;flex-direction:row!important;flex-wrap:wrap!important;}
+ body[data-page="explore"] .vatra-search-person-actions>button{width:auto!important;}
+ body[data-page="explore"] .vatra-search-person-photo,body[data-page="explore"] .vatra-search-person-photo .avatar{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;max-width:50px!important;max-height:50px!important;}
+ body[data-page="explore"] .vatra-search-group-row>.vatra-search-subscribe{grid-column:2!important;justify-self:start!important;}
+}
