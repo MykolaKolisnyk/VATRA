@@ -835,7 +835,7 @@ function renderPublicProfile(uid){
   '<div class="vatra-profile-main">'+
    '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'</div>'+
-    (visibleStatus?'<p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p>':'')+
+    (visibleStatus?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (visibleBio?profileBioMarkup(visibleBio):'')+
     '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city,'city')+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends)+

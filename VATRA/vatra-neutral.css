@@ -450,3 +450,43 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown.ac
 body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item.account-logout{
  color:#f5a7b3!important;
 }
+
+
+/* Public and own profile: status badge is sized by text, never the CSS grid track. */
+body .vatra-profile-summary-compact .vatra-profile-title-info>.vatra-profile-status-row{
+ display:flex!important;
+ flex-flow:row wrap!important;
+ justify-content:flex-start!important;
+ align-items:center!important;
+ justify-self:start!important;
+ align-self:start!important;
+ width:auto!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin:2px 0 0!important;
+ gap:7px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-status-row>.vatra-profile-status,
+body .vatra-profile-summary-compact .vatra-profile-title-info>.vatra-profile-status{
+ display:inline-flex!important;
+ flex:0 1 auto!important;
+ align-self:flex-start!important;
+ justify-self:start!important;
+ box-sizing:border-box!important;
+ width:max-content!important;
+ min-width:0!important;
+ max-width:100%!important;
+ height:auto!important;
+ margin:0!important;
+ padding:3px 7px!important;
+ white-space:normal!important;
+ overflow-wrap:anywhere!important;
+ text-align:left!important;
+}
+@media(max-width:760px){
+ body .vatra-profile-summary-compact .vatra-profile-status-row>.vatra-profile-status{
+  width:max-content!important;
+  max-width:100%!important;
+  padding:3px 7px!important;
+ }
+}
