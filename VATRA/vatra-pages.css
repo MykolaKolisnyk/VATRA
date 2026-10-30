@@ -1962,3 +1962,219 @@ body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .setti
   border-width:0 2px 2px 0!important;
   transform:rotate(45deg) translate(-1px,-1px)!important;
 }
+
+
+/* VATRA profile: compact, accessible SVG accordions (owner & visitors). */
+body .vatra-profile-summary-compact .vatra-profile-extras.vatra-profile-extras-folded{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:7px!important;
+ margin:9px 0 11px!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-card.vatra-profile-extra-fold{
+ display:block!important;
+ min-width:0!important;
+ padding:0!important;
+ margin:0!important;
+ border:1px solid #e3eaf3!important;
+ border-radius:9px!important;
+ overflow:hidden!important;
+ background:#f7f9fc!important;
+ box-shadow:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-trigger{
+ width:100%!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:12px!important;
+ padding:10px 12px!important;
+ min-height:46px!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+ color:#304760!important;
+ cursor:pointer!important;
+ text-align:left!important;
+ font:inherit!important;
+ transition:background-color .16s ease!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-trigger:hover{
+ background:#ecf2fa!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-trigger:focus-visible{
+ outline:2px solid var(--vatra-user-accent,#0757f5)!important;
+ outline-offset:-3px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading{
+ display:inline-flex!important;
+ align-items:center!important;
+ gap:10px!important;
+ flex:1 1 auto!important;
+ min-width:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text{
+ display:grid!important;
+ gap:1px!important;
+ min-width:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong{
+ font-size:13px!important;
+ font-weight:750!important;
+ line-height:1.35!important;
+ color:#304862!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text small{
+ font-size:11px!important;
+ font-weight:500!important;
+ line-height:1.3!important;
+ color:#7e90a8!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-line-icon{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ flex:0 0 17px!important;
+ width:17px!important;
+ height:17px!important;
+ color:#6685b2!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-line-icon svg{
+ display:block!important;
+ width:17px!important;
+ height:17px!important;
+ fill:none!important;
+ stroke:currentColor!important;
+ filter:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading>.vatra-profile-line-icon{
+ flex-basis:30px!important;
+ width:30px!important;
+ height:30px!important;
+ border-radius:8px!important;
+ color:var(--vatra-user-accent,#0757f5)!important;
+ background:#e7efff!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-fold-chevron{
+ display:block!important;
+ flex:0 0 17px!important;
+ width:17px!important;
+ height:17px!important;
+ color:#8293a9!important;
+ transform:rotate(0)!important;
+ transition:transform .18s ease!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold.is-open .vatra-profile-fold-chevron{
+ transform:rotate(180deg)!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body{
+ padding:9px 13px 12px!important;
+ margin:0!important;
+ border-top:1px solid #e5ebf4!important;
+ background:#fff!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body[hidden]{
+ display:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body dl{
+ display:grid!important;
+ gap:9px!important;
+ margin:0!important;
+ padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row{
+ display:grid!important;
+ grid-template-columns:minmax(120px,30%) minmax(0,1fr)!important;
+ align-items:start!important;
+ gap:10px!important;
+ min-width:0!important;
+ padding:0!important;
+ margin:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dt{
+ display:inline-flex!important;
+ align-items:start!important;
+ gap:7px!important;
+ min-width:0!important;
+ font-size:12px!important;
+ line-height:1.52!important;
+ color:#788ba3!important;
+ overflow-wrap:anywhere!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dt .vatra-profile-line-icon{
+ margin-top:1px!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dd{
+ margin:0!important;
+ min-width:0!important;
+ font-size:13px!important;
+ line-height:1.52!important;
+ color:#435b78!important;
+ white-space:pre-wrap!important;
+ overflow-wrap:anywhere!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-privacy{
+ display:inline!important;
+ margin-left:7px!important;
+ font-size:10.5px!important;
+ color:#899bb1!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-detail-label{
+ display:inline-flex!important;
+ align-items:baseline!important;
+ gap:8px!important;
+ min-width:0!important;
+ line-height:1.5!important;
+ color:#778aa2!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-detail-label>.vatra-profile-line-icon{
+ position:relative!important;
+ top:3px!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-card.vatra-profile-extra-fold{
+ background:#29384b!important;
+ border-color:#3b4d63!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-trigger{
+ color:#deebfa!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-trigger:hover{
+ background:#354961!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong,
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dd{
+ color:#e1eaf7!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body{
+ background:#263448!important;
+ border-color:#3d5067!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-heading>.vatra-profile-line-icon{
+ background:#344b6a!important;
+ color:#81b0ff!important;
+}
+@media(max-width:760px){
+ body .vatra-profile-summary-compact .vatra-profile-extra-trigger{
+  min-height:45px!important;
+  padding:9px 11px!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body{
+  padding:10px 11px!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:4px!important;
+ }
+ body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dt{
+  font-size:12px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-profile-summary-compact .vatra-profile-fold-chevron,
+ body .vatra-profile-summary-compact .vatra-profile-extra-trigger{
+  transition:none!important;
+ }
+}
