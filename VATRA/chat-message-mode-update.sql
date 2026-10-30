@@ -5,6 +5,8 @@
 -- Paste this entire file into SQL Editor for the existing VATRA Supabase project.
 -- No RLS settings are changed. The operation can be run again safely.
 -- The final status query must return "Готово".
+-- Only this chat guard and trigger are modified; RLS is not disabled.
+-- Existing messages remain untouched. Ordinary text is not end-to-end encrypted.
 
 begin;
 
@@ -102,8 +104,7 @@ drop trigger if exists vatra_require_encrypted_messages on public.app_data;
 create trigger vatra_require_encrypted_messages
 before insert or update of value on public.app_data
 for each row
-when (new.path ~ '^chats/[^/]+(/messages(/.*)?)?
-)
+when (new.path ~ '^chats/[^/]+(/messages(/.*)?)?$')
 execute function public.vatra_e2ee_guard();
 
 commit;
@@ -117,7 +118,9 @@ select case when
     join pg_class c on c.oid=t.tgrelid
     join pg_namespace n on n.oid=c.relnamespace
     where n.nspname='public' and c.relname='app_data'
+      and c.relrowsecurity
       and t.tgname='vatra_require_encrypted_messages'
+      and t.tgenabled in ('O', 'A')
       and not t.tgisinternal
   ) then 'Готово' else 'Потрібна перевірка SQL'
 end as chat_migration_status;

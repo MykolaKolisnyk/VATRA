@@ -371,9 +371,10 @@ end;
 $realtime$;
 
 
--- VATRA E2EE enforcement for newly written direct messages.
--- Legacy plaintext messages remain readable, but any new/modified message
--- must contain signed ciphertext. Only a message's author may change or delete it.
+-- VATRA private chat message validation.
+-- Allows ordinary messages and historic signed ciphertext.
+-- Only the sender may create/edit/remove messages; RLS limits access to participants.
+-- Ordinary messages are NOT end-to-end encrypted.
 -- Covers all storage forms supported by the app_data compatibility adapter.
 create or replace function public.vatra_e2ee_guard()
 returns trigger
