@@ -465,7 +465,7 @@ function vatraExtraSectionsMarkup(values={},visibility={},owner=false){
   for(const [key,label] of Object.entries(data.fields)){
    const text=String(values?.[key]||'').trim();if(!text)continue;
    const isPublic=visibility?.[key]==='public';if(!owner&&!isPublic)continue;
-   rows.push('<div class="vatra-profile-extra-row"><dt>'+esc(label)+'</dt><dd>'+safeText(text)+'</dd>'+(owner&&!isPublic?'<small>Лише для вас</small>':'')+'</div>');
+   rows.push('<div class="vatra-profile-extra-row"><dt>'+esc(label)+'</dt><dd>'+safeText(text)+(owner&&!isPublic?'<small class="vatra-profile-extra-privacy">Лише для вас</small>':'')+'</dd></div>');
   }
   if(rows.length)output.push('<section class="vatra-profile-extra-card"><h3>'+esc(data.title)+'</h3><dl>'+rows.join('')+'</dl></section>');
  }
@@ -501,7 +501,7 @@ function renderProfile(){
    '<details class="vatra-profile-card vatra-profile-history"><summary>Історія фото профілю <span>'+history.length+'</span></summary>'+historyHtml+'</details>'+
   '</aside>'+
   '<div class="vatra-profile-main">'+
-   '<section class="vatra-profile-card vatra-profile-overview">'+
+   '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(name)+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup(currentProfile,true)+'</div>'+
     '<div class="vatra-profile-status-row">'+(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>')+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
@@ -587,7 +587,7 @@ function renderPublicProfile(uid){
  const html='<section class="vatra-profile-layout vatra-profile-public-layout">'+
   '<aside class="vatra-profile-sidebar"><section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'vatra-profile-photo')+'</button>'+actions+'</section></aside>'+
   '<div class="vatra-profile-main">'+
-   '<section class="vatra-profile-card vatra-profile-overview">'+
+   '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'</div>'+
     (u.status?'<p class="profile-status vatra-profile-status">'+esc(u.status)+'</p>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
