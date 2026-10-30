@@ -182,3 +182,124 @@ body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pa
 @media(prefers-reduced-motion:reduce){
  body .layout>.main>.heading h1{transition:none!important;}
 }
+
+
+/* Settings action buttons use the same compact 12–13px scale as Friends.
+   No floating neon-blue blocks or oversized font weight. */
+body[data-page="settings"] .vatra-settings-pane .settings-photo-row{
+ align-items:center!important;
+ gap:12px!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-photo-row>div:last-child{
+ min-width:0!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick,
+body[data-page="settings"] .vatra-settings-pane .settings-card label.file-pick{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ width:auto!important;
+ max-width:100%!important;
+ min-height:36px!important;
+ margin:0!important;
+ padding:8px 13px!important;
+ border:1px solid #d4deeb!important;
+ border-radius:9px!important;
+ background:#eef3f9!important;
+ box-shadow:none!important;
+ color:#385572!important;
+ font:600 12px/1.35 Inter,Arial,sans-serif!important;
+ letter-spacing:normal!important;
+ text-align:center!important;
+ text-decoration:none!important;
+ cursor:pointer!important;
+ transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick:is(:hover,:focus-visible){
+ transform:none!important;
+ background:#e2edfa!important;
+ border-color:#b8cde7!important;
+ color:#165ca2!important;
+ box-shadow:none!important;
+}
+body[data-page="settings"] .vatra-settings-pane #removeAvatar{
+ display:inline-flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ box-sizing:border-box!important;
+ min-height:32px!important;
+ max-width:100%!important;
+ margin:6px 0 0!important;
+ padding:6px 10px!important;
+ border:1px solid transparent!important;
+ border-radius:8px!important;
+ background:transparent!important;
+ color:#65798f!important;
+ text-align:center!important;
+ font:550 12px/1.4 Inter,Arial,sans-serif!important;
+ text-decoration:none!important;
+ cursor:pointer!important;
+}
+body[data-page="settings"] .vatra-settings-pane #removeAvatar:is(:hover,:focus-visible){
+ color:#b44b5c!important;
+ background:#fff0f2!important;
+ border-color:#f5dfe3!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card button.primary,
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar button.primary{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:36px!important;
+ max-width:100%!important;
+ padding:8px 14px!important;
+ font:600 12px/1.4 Inter,Arial,sans-serif!important;
+ letter-spacing:normal!important;
+ border-radius:8px!important;
+ box-shadow:none!important;
+ transform:none!important;
+}
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar button.primary:hover,
+body[data-page="settings"] .vatra-settings-pane .settings-card button.primary:hover{
+ box-shadow:0 3px 9px rgba(7,87,245,.12)!important;
+ transform:none!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button{
+ border:0!important;
+ border-radius:9px!important;
+ font:500 13px/1.4 Inter,Arial,sans-serif!important;
+ transition:background .15s ease,color .15s ease!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button.active{
+ background:#eaf1fb!important;
+ color:#295c97!important;
+ font-weight:600!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button:not(.active):hover{
+ background:#f0f4f8!important;
+ color:#334c66!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-card .file-pick{
+ background:#31445c!important;border-color:#4b617b!important;color:#d6e5f7!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-card .file-pick:hover{
+ background:#3b5572!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane #removeAvatar{
+ color:#c1d1e5!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button.active{
+ background:#354c69!important;color:#b5d5ff!important;
+}
+@media(max-width:760px){
+ body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick{
+  min-height:38px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick,
+ body[data-page="settings"] .vatra-settings-nav-button{
+  transition:none!important;
+ }
+}
