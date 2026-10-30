@@ -142,7 +142,7 @@ function renderProfile(){
    '</section>'+
    '<section class="profile-vk-card profile-vk-photos"><div class="profile-vk-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><button type="button" class="profile-vk-link" id="profileAddPhoto">Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" hidden></div>'+galleryHtml+'</section>'+
    '<section class="profile-vk-card profile-vk-compose"><button type="button" class="profile-vk-compose-trigger" id="profilePrompt">'+avatar(name,currentProfile.avatarUrl,'profile-vk-compose-avatar')+'<span>Що у Вас нового?</span><b>＋</b></button></section>'+
-   '<section class="profile-vk-posts"><div class="profile-vk-post-tabs"><button type="button" class="active">Усі записи</button><span>Мої дописи</span><button type="button" class="profile-vk-new-post" id="profileCreatePost">＋ Новий допис</button></div>'+
+   '<section class="profile-vk-posts"><div class="profile-vk-post-tabs"><span class="profile-vk-tab-current">Мої публікації</span><span>Усі записи</span><button type="button" class="profile-vk-new-post" id="profileCreatePost">＋ Новий допис</button></div>'+
     (mine.map(postCard).join('')||'<article class="post profile-vk-empty-post"><h3>Поки немає дописів</h3><p class="muted">Ваші записи з’являться тут. Поділіться першою історією у ВАТРІ.</p><button type="button" class="primary" id="profileFirstPost">Створити допис</button></article>')+
    '</section>'+
   '</div>'+
@@ -208,7 +208,7 @@ function renderPublicProfile(uid){
     '<div class="profile-vk-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
    '</section>'+
    '<section class="profile-vk-card profile-vk-photos"><div class="profile-vk-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+photoHtml+'</section>'+
-   '<section class="profile-vk-posts"><div class="profile-vk-post-tabs"><button type="button" class="active">Усі записи</button><span>Дописи користувача</span></div>'+(arr.map(postCard).join('')||'<article class="post profile-vk-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
+   '<section class="profile-vk-posts"><div class="profile-vk-post-tabs"><span class="profile-vk-tab-current">Публікації</span><span>Усі записи користувача</span></div>'+(arr.map(postCard).join('')||'<article class="post profile-vk-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
   '</div>'+
  '</section>';
  setFeed(html,false);
