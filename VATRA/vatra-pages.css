@@ -995,3 +995,183 @@ body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
   max-width:min(310px,calc(100vw - 20px))!important;
  }
 }
+
+
+/* VATRA compact desktop pages — 2026-10-30.
+   Limit page width at the layout level, not only the profile's inner cards. */
+@media(min-width:981px){
+ body[data-page="feed"] .layout{
+  width:min(1000px,calc(100% - 40px))!important;
+  max-width:1000px!important;
+  grid-template-columns:190px minmax(0,730px)!important;
+  gap:22px!important;
+  justify-content:center!important;
+ }
+ body[data-page="feed"] .layout>.main{
+  width:100%!important;max-width:730px!important;
+  justify-self:start!important;
+ }
+ body[data-page="feed"] .layout>.main>.quick-compose,
+ body[data-page="feed"] .layout>.main>#feed{max-width:730px!important;}
+ body[data-page="profile"] .layout,
+ body[data-page="publicProfile"] .layout{
+  width:min(1040px,calc(100% - 40px))!important;
+  max-width:1040px!important;
+  grid-template-columns:180px minmax(0,830px)!important;
+  gap:20px!important;
+  justify-content:center!important;
+ }
+ body[data-page="profile"] .layout>.main,
+ body[data-page="publicProfile"] .layout>.main{
+  width:100%!important;max-width:830px!important;
+  justify-self:start!important;
+ }
+ body[data-page="profile"] .vatra-profile-layout,
+ body[data-page="publicProfile"] .vatra-profile-layout{
+  width:100%!important;max-width:830px!important;
+  grid-template-columns:205px minmax(0,1fr)!important;
+  gap:12px!important;
+ }
+}
+/* Keep the card content proportionate to the smaller profile. */
+body[data-page="profile"] .vatra-profile-avatar-card,
+body[data-page="publicProfile"] .vatra-profile-avatar-card{padding:9px!important;}
+body[data-page="profile"] .vatra-profile-overview,
+body[data-page="publicProfile"] .vatra-profile-overview{padding:15px 17px 0!important;}
+body[data-page="profile"] .vatra-profile-title-row h2,
+body[data-page="publicProfile"] .vatra-profile-title-row h2{font-size:21px!important;line-height:1.2!important;}
+body[data-page="profile"] .vatra-profile-bio,
+body[data-page="publicProfile"] .vatra-profile-bio{font-size:12.5px!important;line-height:1.53!important;}
+body[data-page="profile"] .vatra-profile-details,
+body[data-page="publicProfile"] .vatra-profile-details{margin:12px 0!important;gap:5px!important;}
+body[data-page="profile"] .vatra-profile-detail,
+body[data-page="publicProfile"] .vatra-profile-detail{font-size:12px!important;line-height:1.45!important;}
+body[data-page="profile"] .vatra-profile-extra-card,
+body[data-page="publicProfile"] .vatra-profile-extra-card{
+ padding:8px 11px!important;border:0!important;border-radius:6px!important;
+ background:#f8fafc!important;
+}
+body[data-page="profile"] .vatra-profile-extra-card h3,
+body[data-page="publicProfile"] .vatra-profile-extra-card h3{margin:0 0 5px!important;font-size:12px!important;}
+body[data-page="profile"] .vatra-profile-extra-row,
+body[data-page="publicProfile"] .vatra-profile-extra-row{gap:5px!important;}
+body[data-page="profile"] .vatra-profile-stats,
+body[data-page="publicProfile"] .vatra-profile-stats{
+ padding:5px 6px!important;margin-top:10px!important;
+}
+body[data-page="profile"] .vatra-profile-stats>button,
+body[data-page="profile"] .vatra-profile-stats>div,
+body[data-page="publicProfile"] .vatra-profile-stats>div{min-height:49px!important;}
+body[data-page="profile"] .vatra-profile-photos,
+body[data-page="publicProfile"] .vatra-profile-photos{padding:11px!important;}
+body[data-page="profile"] .vatra-profile-photos .profile-photo-gallery,
+body[data-page="publicProfile"] .vatra-profile-photos .profile-photo-gallery{gap:6px!important;}
+/* Stop photographs from turning a single news post into a full-screen panel. */
+body[data-page="feed"] .post{
+ padding:12px 14px 0!important;
+ border-radius:10px!important;
+}
+body[data-page="feed"] .post-text{font-size:12.8px!important;line-height:1.57!important;}
+body[data-page="feed"] .vatra-post-text-container.is-collapsible:not(.is-expanded)>.post-text{
+ -webkit-line-clamp:5!important;line-clamp:5!important;
+ max-height:8em!important;
+}
+body[data-page="feed"] .post-photo-grid,
+body[data-page="profile"] .vatra-profile-posts .post-photo-grid,
+body[data-page="publicProfile"] .vatra-profile-posts .post-photo-grid{
+ gap:5px!important;margin:9px 0 10px!important;border-radius:8px!important;
+}
+body[data-page="feed"] .post-photo-grid .post-photo-item,
+body[data-page="profile"] .vatra-profile-posts .post-photo-grid .post-photo-item,
+body[data-page="publicProfile"] .vatra-profile-posts .post-photo-grid .post-photo-item{
+ aspect-ratio:4/3!important;
+ max-height:250px!important;
+ border-radius:7px!important;
+}
+body[data-page="feed"] .post-photo-grid.count-1 .post-photo-item,
+body[data-page="profile"] .vatra-profile-posts .post-photo-grid.count-1 .post-photo-item,
+body[data-page="publicProfile"] .vatra-profile-posts .post-photo-grid.count-1 .post-photo-item{
+ aspect-ratio:16/9!important;
+ max-height:340px!important;
+}
+body[data-page="feed"] .post-photo-grid .post-photo-item img,
+body[data-page="profile"] .vatra-profile-posts .post-photo-item img,
+body[data-page="publicProfile"] .vatra-profile-posts .post-photo-item img{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:cover!important;
+}
+body[data-page="feed"] .post-image,
+body[data-page="profile"] .vatra-profile-posts .post-image{
+ max-height:350px!important;object-fit:cover!important;
+}
+/* The legacy form's general input rule was stretching each visibility checkbox
+   into a large square and wrapping its label into a separate grid row. */
+body .vatra-settings-pane .settings-grid .vatra-extra-setting{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:6px!important;min-width:0!important;
+}
+body .vatra-settings-pane .settings-grid .vatra-extra-setting>label:first-child{
+ display:grid!important;grid-template-columns:minmax(120px,32%) minmax(0,1fr)!important;
+ gap:10px 16px!important;align-items:start!important;
+}
+body .vatra-settings-pane .settings-grid .vatra-extra-setting>label:first-child>textarea{
+ grid-column:2!important;min-height:66px!important;
+}
+body .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-visibility{
+ display:flex!important;grid-template-columns:none!important;
+ align-items:center!important;justify-content:flex-start!important;
+ gap:8px!important;min-height:24px!important;
+ margin:0 0 6px calc(32% + 16px)!important;
+ padding:0!important;font-size:11px!important;line-height:1.4!important;
+ color:#718298!important;white-space:normal!important;
+}
+body .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-visibility>input[type="checkbox"]{
+ appearance:auto!important;-webkit-appearance:checkbox!important;
+ display:block!important;flex:0 0 15px!important;
+ grid-column:auto!important;align-self:center!important;
+ width:15px!important;min-width:15px!important;max-width:15px!important;
+ height:15px!important;min-height:15px!important;max-height:15px!important;
+ padding:0!important;margin:0!important;
+ border:1px solid #9cabc0!important;border-radius:3px!important;
+ background:#fff!important;box-shadow:none!important;
+ accent-color:var(--vatra-user-accent,#0757f5)!important;
+}
+/* Sidebar keeps a subtle hover, not a selection stripe. */
+body .layout>.sidebar nav .nav.active::before,
+body .layout>.sidebar nav .nav::before,
+body .layout>.sidebar nav .nav.active::after{
+ display:none!important;content:none!important;
+}
+body .layout>.sidebar nav .nav.active{
+ border:0!important;border-left:0!important;
+ background:transparent!important;box-shadow:none!important;
+}
+@media(min-width:761px) and (max-width:980px){
+ body[data-page="feed"] .layout>.main,
+ body[data-page="profile"] .layout>.main,
+ body[data-page="publicProfile"] .layout>.main{max-width:100%!important;}
+ body[data-page="profile"] .vatra-profile-layout,
+ body[data-page="publicProfile"] .vatra-profile-layout{
+  grid-template-columns:minmax(170px,205px) minmax(0,1fr)!important;
+ }
+}
+@media(max-width:760px){
+ body[data-page="feed"] .layout>.main,
+ body[data-page="profile"] .layout>.main,
+ body[data-page="publicProfile"] .layout>.main{max-width:100%!important;}
+ body .vatra-settings-pane .settings-grid .vatra-extra-setting>label:first-child{
+  display:block!important;
+ }
+ body .vatra-settings-pane .settings-grid .vatra-extra-setting>label:first-child>textarea{
+  display:block!important;width:100%!important;margin-top:6px!important;
+ }
+ body .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-visibility{
+  margin:3px 0 5px!important;
+ }
+ body[data-page="feed"] .post-photo-grid .post-photo-item{
+  aspect-ratio:4/3!important;max-height:200px!important;
+ }
+ body[data-page="feed"] .post-photo-grid.count-1 .post-photo-item{
+  aspect-ratio:16/10!important;max-height:280px!important;
+ }
+}
