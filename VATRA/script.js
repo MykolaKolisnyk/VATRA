@@ -46,11 +46,11 @@ function prepareVatraEmojiPanel(panel){
 }
 document.addEventListener('click',event=>{
  if(event.target.closest('.vatra-emoji-wrap'))return;
- $('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
+ $$('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
 });
 document.addEventListener('keydown',event=>{
  if(event.key!=='Escape')return;
- $('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
+ $$('.vatra-emoji-wrap .emoji-picker').forEach(panel=>{panel.hidden=true;panel.closest('.vatra-emoji-wrap')?.querySelector('[data-emoji-toggle]')?.setAttribute('aria-expanded','false');});
 });
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function localISODate(date=new Date()){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');}
@@ -317,6 +317,7 @@ function renderPostEditForm(p){
  return '<form class="post-edit-form post-edit-form-vatra" data-edit-post-form="'+esc(p.id)+'" data-existing-images="'+esc(JSON.stringify(urls))+'">'+
   '<div class="post-edit-toolbar"><button type="button" data-post-format="bold" title="Жирний"><b>B</b></button><button type="button" data-post-format="italic" title="Курсив"><i>I</i></button><button type="button" data-post-format="underline" title="Підкреслений"><u>U</u></button><button type="button" data-post-format="strike" title="Закреслений"><s>S</s></button><button type="button" data-post-format="quote" title="Цитата">❝</button><button type="button" data-post-format="list" title="Список">•</button><button type="button" data-post-format="hashtag" title="Хештег">#</button><span>Форматування</span>'+emojiControl()+'</div>'+
   '<textarea name="text" maxlength="20000" rows="8" data-emoji-input placeholder="Відредагуйте текст допису…">'+esc(p.text||'')+'</textarea>'+
+  '<label class="vatra-post-audience vatra-post-edit-audience"><span>Хто бачить допис</span><select name="visibility" aria-label="Аудиторія допису"><option value="public"'+((p.visibility||'public')==='public'?' selected':'')+'>Для всіх</option><option value="friends"'+(p.visibility==='friends'?' selected':'')+'>Для друзів</option><option value="private"'+(p.visibility==='private'?' selected':'')+'>Лише для себе</option></select></label>'+
   '<div class="post-edit-media"><div class="post-edit-media-head"><b>Фотографії допису</b><label class="post-edit-add-photo">＋ Додати фото<input type="file" accept="image/*" multiple data-edit-post-photos hidden></label></div>'+
   '<div class="post-edit-gallery">'+existing+'</div><div class="post-edit-new-gallery" data-edit-photo-preview></div>'+
   '<small class="post-edit-hint">До 10 фотографій у публікації. Нові фото можна обрізати й відредагувати перед збереженням.</small></div>'+
@@ -386,7 +387,7 @@ function postCard(p){
  const likeMap=likes[p.id]||{},saveMap=postSaves[p.id]||{},shareMap=postShares[p.id]||{},canEdit=p.authorUid===currentUser?.uid&&p.source!=='group',editing=canEdit&&editingPostId===p.id;
  const likeIcon='<path d="M20.8 8.7c0 5.2-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z"/>',commentIcon='<path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/>',shareIcon='<path d="M12 16V3m-5 5 5-5 5 5"/><path d="M5 13v7h14v-7"/>',saveIcon='<path d="M6 4.5h12v16l-6-4-6 4v-16Z"/>';
  const actions=postActionItem('like',p.id,liked?'Вподобано':'Вподобати',Object.keys(likeMap).length,likeIcon,liked,postActorStack(likeMap,'Хто вподобав допис'))+postActionItem('comment',p.id,'Коментувати',cs.length,commentIcon,false)+postActionItem('share',p.id,'Поділитися',Object.keys(shareMap).length,shareIcon,false)+postActionItem('save',p.id,isSaved?'Збережено':'Зберегти',Object.keys(saveMap).length,saveIcon,isSaved);
- return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+avatar(postAuthorName,postAuthorAvatar)+'<div class="author"><b>'+(p.authorUid&&p.authorUid!==currentUser?.uid?'<button class="author-link" data-view-profile="'+esc(p.authorUid)+'">'+esc(postAuthorName)+'</button>'+verifiedBadge(p.authorUid):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>@'+esc(p.authorHandle||'user')+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.groupName?' · '+esc(p.groupName):'')+'</small></div>'+(canEdit||(currentUser&&p.authorUid!==currentUser.uid)?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом">•••</summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser&&p.authorUid!==currentUser.uid?'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button><button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>':'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div>'+(cs.length?'<div class="comments vatra-post-comments"><div class="vatra-comments-heading">Коментарі <span>'+cs.length+'</span></div>'+renderComments(p,cs)+'</div>':'')+(p.commentOpen?'<form class="comment-form" data-form="'+esc(p.id)+'">'+emojiControl()+'<input name="comment" data-emoji-input maxlength="300" placeholder="Написати коментар…" required><button type="submit">Надіслати</button></form>':'')+'</article>';
+ return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+avatar(postAuthorName,postAuthorAvatar)+'<div class="author"><b>'+(p.authorUid&&p.authorUid!==currentUser?.uid?'<button class="author-link" data-view-profile="'+esc(p.authorUid)+'">'+esc(postAuthorName)+'</button>'+verifiedBadge(p.authorUid):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>@'+esc(p.authorHandle||'user')+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.visibility==='private'?' · Лише для себе':p.visibility==='friends'?' · Для друзів':'')+(p.groupName?' · '+esc(p.groupName):'')+'</small></div>'+(canEdit||(currentUser&&p.authorUid!==currentUser.uid)?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом">•••</summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser&&p.authorUid!==currentUser.uid?'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button><button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>':'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div>'+(cs.length?'<div class="comments vatra-post-comments"><div class="vatra-comments-heading">Коментарі <span>'+cs.length+'</span></div>'+renderComments(p,cs)+'</div>':'')+(p.commentOpen?'<form class="comment-form" data-form="'+esc(p.id)+'">'+emojiControl()+'<input name="comment" data-emoji-input maxlength="300" placeholder="Написати коментар…" required><button type="submit">Надіслати</button></form>':'')+'</article>';
 }
 function allPosts(){
  const uid=currentUser?.uid;
@@ -486,7 +487,7 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
 }
 function profileBioMarkup(text){
  const safe=esc(text||'');
- if(String(text||'').length<=180)return '<p class="vatra-profile-bio">'+safe+'</p>';
+ if(String(text||'').length<=95)return '<p class="vatra-profile-bio">'+safe+'</p>';
  return '<div class="vatra-profile-bio-block"><p class="vatra-profile-bio" id="vatraProfileBio">'+safe+'</p><button type="button" class="vatra-profile-bio-toggle" data-toggle-profile-bio aria-controls="vatraProfileBio" aria-expanded="false">Показати весь опис</button></div>';
 }
 document.addEventListener('click',event=>{
@@ -1152,7 +1153,7 @@ async function selectPostPhotos(fileList){
  const note=$('#photoNote');if(note)note.textContent=imageFiles.length?'Додано фото: '+imageFiles.length+' із 10':'';
  if(added)toastMsg(added===1?'Фото додано до допису.':'Додано '+added+' фото до одного допису.');
 }
-function openComposer(){if(!authRequired())return;imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;$('#postText').value='';$('#count').textContent='0 / '+MAX_POST_TEXT;$('#preview').innerHTML='';$('#modalPhoto').value='';$('#photo').value='';const note=$('#photoNote');if(note)note.textContent='';resetPollComposer();modal.showModal();setTimeout(()=>$('#postText').focus(),60);}
+function openComposer(){if(!authRequired())return;imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;$('#postText').value='';$('#count').textContent='0 / '+MAX_POST_TEXT;$('#preview').innerHTML='';$('#modalPhoto').value='';$('#photo').value='';const note=$('#photoNote');if(note)note.textContent='';resetPollComposer();$('#postVisibility').value='public';$('#postVisibility').dispatchEvent(new Event('change'));modal.showModal();setTimeout(()=>$('#postText').focus(),60);}
 function loadImage(file,cb){if(!file)return false;if(!file.type.startsWith('image/')){toastMsg('Виберіть файл зображення.');return false;}if(file.size>MAX_IMAGE){toastMsg('Фото має бути меншим за 15 МБ.');return false;}const r=new FileReader();r.onload=()=>cb(r.result);r.onerror=()=>toastMsg('Не вдалося прочитати файл зображення.');r.readAsDataURL(file);return true;}
 async function uploadImage(file,maxSide=1200,quality=.78,category='posts'){if(!file||!file.type?.startsWith('image/'))throw new Error('Виберіть файл зображення.');if(file.size>15*1024*1024)throw new Error('Фото має бути меншим за 15 МБ.');const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('Не вдалося прочитати фото.'));r.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('Файл зображення пошкоджений.'));i.src=data;});const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося обробити зображення.');ctx.drawImage(img,0,0,canvas.width,canvas.height);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Не вдалося підготувати фото.')),'image/jpeg',quality));const optimized=new File([blob],(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg',lastModified:Date.now()});return await uploadMedia(optimized,category);}
 async function getImageEditor(file,mode='avatar'){
@@ -1593,6 +1594,10 @@ $('#authSwitch').onclick=()=>openAuth(authMode==='register'?'login':'register');
 $('#create')?.addEventListener('click',openComposer);$('#prompt')?.addEventListener('click',openComposer);$('#postNow')?.addEventListener('click',openComposer);$('#mobileCreate')?.addEventListener('click',openComposer);$('#close').onclick=()=>modal.close();$('#postText').addEventListener('input',()=>$('#count').textContent=$('#postText').value.length+' / '+MAX_POST_TEXT);$('#photoBtn').onclick=()=>{if(!authRequired())return;if(!modal.open)openComposer();$('#modalPhoto').click();};
 $('#photo').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length)return;if(!authRequired())return;e.target.value='';if(!modal.open)openComposer();await selectPostPhotos(files);};
 $('#modalPhoto').onchange=async e=>{const files=[...(e.target.files||[])];e.target.value='';if(!authRequired())return;await selectPostPhotos(files);};
+ $('#postVisibility').addEventListener('change',event=>{
+  const descriptions={public:'Допис доступний усім користувачам ВАТРИ.',friends:'Допис бачать Ваші взаємні друзі. Фото можуть залишатися доступними за прямим посиланням.',private:'Допис бачите лише Ви. Фото можуть залишатися доступними за прямим посиланням.'};
+  $('#postAudienceHint').textContent=descriptions[event.target.value]||descriptions.public;
+ });
 
 $('#postForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!authRequired())return;
@@ -1601,12 +1606,14 @@ $('#postForm').addEventListener('submit',async e=>{
  if(entered.length===1)return toastMsg('Для опитування додайте щонайменше 2 варіанти.');
  if(!text&&!imageFiles.length&&!entered.length)return toastMsg('Додайте текст, фото або опитування.');
  if(text.length>MAX_POST_TEXT)return toastMsg('Максимальна довжина допису — 20 000 символів.');
- const pollOptions=entered.length>=2?Object.fromEntries(entered.map((label,index)=>['option_'+(index+1),label.slice(0,80)])):null;
+ const requestedVisibility=$('#postVisibility').value;
+  const postVisibility=['public','friends','private'].includes(requestedVisibility)?requestedVisibility:'public';
+  const pollOptions=entered.length>=2?Object.fromEntries(entered.map((label,index)=>['option_'+(index+1),label.slice(0,80)])):null;
  const btn=e.submitter||e.currentTarget.querySelector('[type="submit"]');btn.disabled=true;btn.textContent='Публікуємо…';
  try{
   const pRef=push(ref(db,'posts')),imageUrls=[];
   for(const file of imageFiles)imageUrls.push(await uploadImage(file,1600,.84,'posts'));
-  const postData={authorUid:String(currentUser.uid),authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text,imageUrl:imageUrls[0]||'',imageUrls,visibility:'public',createdAt:Date.now(),updatedAt:Date.now()};
+  const postData={authorUid:String(currentUser.uid),authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text,imageUrl:imageUrls[0]||'',imageUrls,visibility:postVisibility,createdAt:Date.now(),updatedAt:Date.now()};
   if(!postData.authorUid)throw new Error('Сесія завершилася. Увійдіть у ВАТРУ ще раз.');
   if(pollOptions)postData.pollOptions=pollOptions;
   await createPost(pRef,postData);
@@ -1711,6 +1718,8 @@ document.addEventListener('change',async event=>{
 document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[data-reply-form]');if(replyForm){e.preventDefault();if(!authRequired())return;const text=String(new FormData(replyForm).get('comment')||'').trim(),postId=replyForm.dataset.replyPost,parentId=replyForm.dataset.replyForm;if(!text)return;try{await set(push(ref(db,'comments/'+postId)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач',avatarUrl:currentProfile.avatarUrl||'',text:text.slice(0,300),replyTo:parentId,createdAt:Date.now()});replyingComment=null;render();}catch(err){toastMsg(niceError(err));}return;}const postEdit=e.target.closest('[data-edit-post-form]');if(postEdit){
  e.preventDefault();const id=postEdit.dataset.editPostForm,text=String(new FormData(postEdit).get('text')||'').trim(),post=posts[id];
  if(!post)return toastMsg('Допис не знайдено.');
+  const editVisibilityRaw=new FormData(postEdit).get('visibility');
+  const editVisibility=['public','friends','private'].includes(editVisibilityRaw)?editVisibilityRaw:'public';
  if(text.length>MAX_POST_TEXT)return toastMsg('Максимальна довжина допису — 20 000 символів.');
  let oldUrls=[];try{oldUrls=JSON.parse(postEdit.dataset.existingImages||'[]');}catch{}
  const removed=[...postEdit.querySelectorAll('[data-remove-edit-photo].is-removed')].map(button=>Number(button.dataset.removeEditPhoto));
@@ -1721,7 +1730,7 @@ document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[
  try{
   for(const file of editPostFiles)addedUrls.push(await uploadImage(file,1600,.84,'posts'));
   const imageUrls=[...keptUrls,...addedUrls];
-  await update(ref(db,'posts/'+id),{text,imageUrl:imageUrls[0]||'',imageUrls,editedAt:Date.now(),updatedAt:Date.now()});
+  await update(ref(db,'posts/'+id),{text,imageUrl:imageUrls[0]||'',imageUrls,visibility:editVisibility,editedAt:Date.now(),updatedAt:Date.now()});
   editingPostId=null;editPostFiles=[];clearEditPostPreviews();toastMsg('Допис оновлено.');render();
  }catch(err){toastMsg(niceError(err));}
  finally{if(submit){submit.disabled=false;submit.textContent='Зберегти зміни';}}
