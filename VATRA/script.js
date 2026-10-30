@@ -411,8 +411,8 @@ function renderPhotos(){
  const tile=(url,meta,index)=>'<button type="button" class="vatra-photo-tile" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(unique))+'" data-photo-index="'+unique.indexOf(url)+'" aria-label="Переглянути фотографію '+(index+1)+'"><img src="'+esc(url)+'" loading="lazy" decoding="async" alt="Фото '+(index+1)+'"></button>';
  setFeed('<section class="vatra-photos-page"><div class="vatra-photos-toolbar"><div><h2>Мої фотографії</h2><p>'+unique.length+' фото · Ваш альбом і фотографії з дописів</p></div><div class="vatra-photos-tools"><button type="button" class="primary" id="vatraPhotosUpload">＋ Додати фото</button><input type="file" id="vatraPhotosFile" accept="image/*" multiple hidden></div></div><div class="vatra-photos-tabs" role="tablist" aria-label="Альбоми"><button type="button" role="tab" aria-selected="true" class="active" data-vatra-photo-tab="all">Усі фото ('+unique.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="album">Альбом ('+album.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="posts">З дописів ('+published.length+')</button></div><div class="vatra-photo-grid" id="vatraPhotosGrid">'+(unique.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">Ви ще не додавали фотографій. Завантажте перше фото.</p>')+'</div></section>');
  const grid=$('#vatraPhotosGrid');
- $('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(button=>button.onclick=()=>{
-  $('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(el=>{el.classList.toggle('active',el===button);el.setAttribute('aria-selected',String(el===button));});
+ $$('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(button=>button.onclick=()=>{
+  $$('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(el=>{el.classList.toggle('active',el===button);el.setAttribute('aria-selected',String(el===button));});
   const kind=button.dataset.vatraPhotoTab;
   const urls=[...new Set(kind==='album'?album.map(x=>x.url):kind==='posts'?published.map(x=>x.url):unique)];
   grid.innerHTML=urls.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">У цьому розділі фотографій поки немає.</p>';
@@ -535,7 +535,7 @@ function vatraMessengerControls(){
  });
  search?.addEventListener('input',()=>{
   const q=search.value.toLocaleLowerCase('uk-UA').trim();
-  $('#vatraMessengerContacts [data-messenger-row]').forEach(item=>{item.hidden=!item.dataset.messengerName.includes(q);});
+  $$('#vatraMessengerContacts [data-messenger-row]').forEach(item=>{item.hidden=!item.dataset.messengerName.includes(q);});
  });
 }
 
