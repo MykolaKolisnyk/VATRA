@@ -104,6 +104,11 @@ begin
   uid := auth.uid();
   parts := string_to_array(_path, '/');
 
+  -- E2EE public identity keys may only be read by signed-in users.
+  -- The private key never leaves IndexedDB on the user's device.
+  if _path ~ '^e2eeKeys/[^/]+$' then
+    return uid is not null;
+  end if;
   if _path ~ '^publicProfiles/[^/]+$' then
     return (_value ->> 'profileVisibility' is distinct from 'private')
       or (uid is not null and (parts[2] = uid::text or public.vatra_data_is_friend(parts[2], uid)));
@@ -7246,6 +7251,18 @@ begin
   if uid is null then return false; end if;
   parts := string_to_array(_path, '/');
 
+  -- The identity is writable only by its owner. The public key is
+  -- allowed; a private ECDH key must never be stored in app_data.
+  if _path ~ '^e2eeKeys/[^/]+$' then
+    return parts[2] = uid::text
+      and _value ->> 'v' = '1'
+      and _value ->> 'curve' = 'P-256'
+      and _value ->> 'fingerprint' ~ '^[a-f0-9]{64}$'
+      and _value -> 'jwk' ->> 'kty' = 'EC'
+      and _value -> 'jwk' ->> 'crv' = 'P-256'
+      and _value ? 'jwk'
+      and not (_value ? 'privateKey');
+  end if;
   if _path ~ '^users/[^/]+$'
      or _path ~ '^privateUsers/[^/]+$'
      or _path ~ '^publicProfiles/[^/]+$'
