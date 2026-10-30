@@ -532,7 +532,7 @@ function renderProfile(){
  const galleryUrls=gallery.map(item=>item.url);
  const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.slice(0,4).map((photo,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img loading="lazy" decoding="async" src="'+esc(photo.url)+'" alt="Фото профілю"></button><small>'+(photo.source==='profile'?'Фото профілю':timeAgo(photo.createdAt))+'</small>'+(photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>'+(gallery.length>4?'<button type="button" class="vatra-profile-link profile-gallery-all" id="profileOpenAllPhotos">Відкрити повний альбом ('+gallery.length+')</button>':''):'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>'
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
- const friendPreview=friendIds.slice(0,3).map(vatraProfileFriendThumb).join('');
+ const friendPreview=friendIds.slice(0,6).map(vatraProfileFriendThumb).join('');
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
  const detailHtml=detail('День народження',birthday)+detail('Місто',currentProfile.city,'city')+detail('Місце проживання',currentProfile.location,'location')+detail('Місце роботи',currentProfile.workplace,'workplace')+detail('Навчання',currentProfile.education,'education')+detail('Рідне місто',currentProfile.hometown,'hometown')+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website);
  const hasDetails=!!(birthday||currentProfile.city||currentProfile.location||currentProfile.workplace||currentProfile.education||currentProfile.hometown||currentProfile.phone||privatePhone||currentProfile.website);
@@ -701,7 +701,7 @@ async function loadPublicFriends(ownerUid){
   const known=ids.filter(id=>users[id]&&!blockedUsers[id]);
   count.textContent=String(known.length);
   const makeFriend=vatraProfileFriendThumb;
-  container.innerHTML=known.length?known.slice(0,3).map(makeFriend).join(''):'<p class="muted">Немає доступних друзів.</p>';
+  container.innerHTML=known.length?known.slice(0,6).map(makeFriend).join(''):'<p class="muted">Немає доступних друзів.</p>';
   const allButton=$('#vatraPublicAllFriends');
   if(allButton)allButton.onclick=()=>{
     const dialog=document.createElement('dialog');
