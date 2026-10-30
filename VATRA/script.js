@@ -1,4 +1,4 @@
-import { ensureIdentity, prepareSession, encryptMessage, decryptMessage, formatFingerprint } from './vatra-e2ee.js?v=1';
+import { ensureIdentity, prepareSession, encryptMessage, decryptMessage, formatFingerprint } from './vatra-e2ee.js?v=2';
 import { setupNavigation } from './navigation.js?v=20261030-21';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange } from './vatra-backend.js?v=20261030-1';
 
