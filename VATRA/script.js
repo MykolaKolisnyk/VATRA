@@ -110,25 +110,52 @@ function renderProfile(){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
   $('#profileLogin')?.addEventListener('click',()=>openAuth('login'));return;
  }
+ const uid=currentUser.uid;
  const name=currentProfile.name||currentUser.displayName||'Користувач ВАТРИ';
- const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===currentUser.uid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const birthday=currentProfile.dateOfBirth?new Date(currentProfile.dateOfBirth+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
- const detail=(label,value)=>value?'<div class="profile-info-row"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
+ const detail=(label,value)=>value?'<div class="profile-vk-detail"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
  const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:0})).filter(item=>item.url):[]),...mine.filter(p=>p.imageUrl).map(p=>({url:p.imageUrl,createdAt:p.createdAt,source:'post',id:p.id}))];
  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.map((url,index)=>({url,index})).filter(x=>x.url&&x.url!==currentProfile.avatarUrl).slice(-20).reverse():[];
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото профілю"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото профілю, які Ви вирішите залишити.</p>';
- const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.map(p=>'<div class="profile-photo-tile"><img class="post-image profile-gallery-image" loading="lazy" decoding="async" src="'+esc(p.url)+'" alt="'+(p.source==='profile'?'Фото в альбомі профілю':'Фото з допису')+'"><small>'+(p.source==='profile'?'Фото профілю':timeAgo(p.createdAt))+'</small>'+(p.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+p.index+'">Прибрати з альбому</button>':'')+'</div>').join('')+'</div>':'<p class="muted profile-empty-hint">Додавайте сюди фото або публікуйте їх у дописах — усе збережеться у Вашій фотогалереї.</p>';
- const info='<aside class="profile-info-card profile-info-side"><div class="profile-info-heading"><h3>Інформація користувача</h3><button type="button" class="text-link" id="profileInfoEdit">Редагувати</button></div>'+detail('Місто',currentProfile.city)+detail('Місце проживання',currentProfile.location)+detail('Місце роботи',currentProfile.workplace)+detail('Навчання',currentProfile.education)+detail('Рідне місто',currentProfile.hometown)+detail('Дата народження',birthday)+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website)+(!currentProfile.city&&!currentProfile.location&&!currentProfile.workplace&&!currentProfile.education&&!currentProfile.hometown&&!birthday&&!currentProfile.phone&&!privatePhone&&!currentProfile.website?'<p class="muted">Додайте інформацію в налаштуваннях і вирішіть, що показувати іншим.</p>':'')+'</aside>';
- const primary='<div class="profile-primary"><section class="profile-hero profile-hero-no-cover"><div class="profile-identity">'+avatar(name,currentProfile.avatarUrl)+'<div class="profile-name-block"><h2>'+esc(name)+verifiedBadge(currentUser.uid)+'</h2>'+(currentProfile.status?'<p class="profile-status">'+esc(currentProfile.status)+'</p>':'')+'<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div><button class="primary profile-edit" id="editProfile">Редагувати профіль</button></div><p class="profile-bio">'+esc(currentProfile.bio||'Додайте інформацію про себе, щоб інші могли познайомитися з Вами.')+'</p><div class="profile-stats"><div><b>'+mine.length+'</b><span>Дописи</span></div><div><b>'+Object.keys(friends).length+'</b><span>Друзі</span></div><div><b>'+Object.keys(following).length+'</b><span>Підписки</span></div></div><div class="profile-details"><span>Ваша сторінка ВАТРИ</span><label class="file-action">Змінити фото<input id="avatarUpload" type="file" accept="image/*" hidden></label></div></section><section class="profile-media-section"><div class="profile-section-head"><div><h3>Фото профілю</h3><p>Історія аватарів, які Ви залишили</p></div></div>'+historyHtml+'</section><section class="profile-media-section"><div class="profile-section-head"><div><h3>Мої фото</h3><p>Окремий альбом фото профілю та публікацій</p></div><button type="button" class="pill" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" hidden></div>'+galleryHtml+'</section><div class="profile-post-heading"><h3>Мої дописи</h3><button class="pill" id="profileCreatePost">＋ Новий допис</button></div>'+mine.map(postCard).join('')+'</div>';
- setFeed('<section class="profile-columns">'+primary+info+'</section>',false);
-
+ const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.map(p=>'<div class="profile-photo-tile"><img class="post-image profile-gallery-image" loading="lazy" decoding="async" src="'+esc(p.url)+'" alt="'+(p.source==='profile'?'Фото в альбомі профілю':'Фото з допису')+'"><small>'+(p.source==='profile'?'Фото профілю':timeAgo(p.createdAt))+'</small>'+(p.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+p.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>':'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
+ const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
+ const friendPreview=friendIds.slice(0,6).map(id=>{const u=users[id]||{};return '<button type="button" class="profile-vk-friend" data-view-profile="'+esc(id)+'">'+avatar(u.name||'Користувач',u.avatarUrl,'profile-vk-friend-avatar')+'<span>'+esc(u.name||'Користувач')+'</span></button>';}).join('');
+ const friendBlock='<section class="profile-vk-card profile-vk-friends"><div class="profile-vk-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="profile-vk-friend-grid">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="profile-vk-link" data-page="friends">Усі друзі →</button></section>';
+ const detailHtml=detail('День народження',birthday)+detail('Місто',currentProfile.city)+detail('Місце проживання',currentProfile.location)+detail('Місце роботи',currentProfile.workplace)+detail('Навчання',currentProfile.education)+detail('Рідне місто',currentProfile.hometown)+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website);
+ const hasDetails=!!(birthday||currentProfile.city||currentProfile.location||currentProfile.workplace||currentProfile.education||currentProfile.hometown||currentProfile.phone||privatePhone||currentProfile.website);
+ const myVideos=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
+ const stats='<div class="profile-vk-stats"><div><b>'+friendIds.length+'</b><span>Друзі</span></div><div><b>'+Object.keys(following||{}).length+'</b><span>Підписки</span></div><div><b>'+gallery.length+'</b><span>Фотографії</span></div><div><b>'+myVideos+'</b><span>Відео</span></div><div><b>'+mine.length+'</b><span>Дописи</span></div></div>';
+ const profileHtml='<section class="profile-vk-layout">'+
+  '<aside class="profile-vk-sidebar">'+
+   '<section class="profile-vk-card profile-vk-avatar-card">'+avatar(name,currentProfile.avatarUrl,'profile-vk-photo')+'<button class="primary wide" id="editProfile">Редагувати профіль</button><label class="profile-vk-link profile-vk-change-photo" for="avatarUpload">Змінити фотографію</label><input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
+   friendBlock+
+   '<details class="profile-vk-card profile-vk-history"><summary>Історія фото профілю <span>'+history.length+'</span></summary>'+historyHtml+'</details>'+
+  '</aside>'+
+  '<div class="profile-vk-main">'+
+   '<section class="profile-vk-card profile-vk-overview">'+
+    '<div class="profile-vk-title-row"><div><h2>'+esc(name)+verifiedBadge(uid)+'</h2><p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div><button type="button" class="text-link" id="profileInfoEdit">Редагувати інформацію</button></div>'+
+    (currentProfile.status?'<p class="profile-status profile-vk-status">'+esc(currentProfile.status)+'</p>':'')+
+    '<p class="profile-vk-bio">'+esc(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+'</p>'+
+    '<div class="profile-vk-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+
+    stats+
+   '</section>'+
+   '<section class="profile-vk-card profile-vk-photos"><div class="profile-vk-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><button type="button" class="profile-vk-link" id="profileAddPhoto">Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" hidden></div>'+galleryHtml+'</section>'+
+   '<section class="profile-vk-card profile-vk-compose"><button type="button" class="profile-vk-compose-trigger" id="profilePrompt">'+avatar(name,currentProfile.avatarUrl,'profile-vk-compose-avatar')+'<span>Що у Вас нового?</span><b>＋</b></button></section>'+
+   '<section class="profile-vk-posts"><div class="profile-vk-post-tabs"><button type="button" class="active">Усі записи</button><span>Мої дописи</span><button type="button" class="profile-vk-new-post" id="profileCreatePost">＋ Новий допис</button></div>'+
+    (mine.map(postCard).join('')||'<article class="post profile-vk-empty-post"><h3>Поки немає дописів</h3><p class="muted">Ваші записи з’являться тут. Поділіться першою історією у ВАТРІ.</p><button type="button" class="primary" id="profileFirstPost">Створити допис</button></article>')+
+   '</section>'+
+  '</div>'+
+ '</section>';
+ setFeed(profileHtml,false);
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileInfoEdit')?.addEventListener('click',editProfile);
  $('#avatarUpload')?.addEventListener('change',uploadAvatar);
-
  $('#profileCreatePost')?.addEventListener('click',openComposer);
- $('#profileAddPhoto')?.addEventListener('click',()=>{if(authRequired())$('#profilePhotoUpload')?.click();});$('#profilePhotoUpload')?.addEventListener('change',uploadProfilePhoto);
-
+ $('#profilePrompt')?.addEventListener('click',openComposer);
+ $('#profileFirstPost')?.addEventListener('click',openComposer);
+ $('#profileAddPhoto')?.addEventListener('click',()=>{if(authRequired())$('#profilePhotoUpload')?.click();});
+ $('#profilePhotoUpload')?.addEventListener('change',uploadProfilePhoto);
 }
 function renderExplore(){const list=Object.entries(users).filter(([id,u])=>id!==currentUser?.uid&&!blockedUsers[id]&&u.searchable!==false&&(!query||`${u.name} ${u.handle} ${u.bio}`.toLowerCase().includes(query.toLowerCase())));setFeed(`<article class="post"><h3>Знайомтеся зі спільнотою ВАТРИ</h3><p class="muted">Пошукай людей за ім’ям або псевдонімом. Підписки збережуться в акаунті.</p></article>${list.map(([id,u])=>`<article class="post person-card">${avatar(u.name||'Користувач',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Користувач')}</b><small>@${esc(u.handle||'user')}</small><p>${esc(u.bio||'')}</p></div><button class="follow" data-follow="${esc(id)}">${following[id]?'Відписатися':'＋ Підписатися'}</button><button class="pill" data-friend-request="${esc(id)}">${friends[id]?'✓ Друг':friendRequests[id]?'Запит надіслано':'＋ Додати в друзі'}</button><button class="pill" data-view-profile="${esc(id)}">Профіль</button><button class="pill" data-message-user="${esc(id)}">Написати</button></article>`).join('')}`,!list.length);if(!list.length)$('#empty').innerHTML='<h3>Поки нікого не знайдено</h3><p>Запросіть друзів до ВАТРИ або спробуйте інший запит.</p>';}
 function renderFriends(){
