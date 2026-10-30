@@ -3469,3 +3469,25 @@ input[type="checkbox"]:focus-visible{
     animation:none!important;transition:none!important;scroll-behavior:auto!important;
   }
 }
+
+
+/* Publication header uses a selected label, not an inactive fake tab. */
+.profile-vk-post-tabs>.profile-vk-tab-current{
+  position:relative!important;
+  display:inline-flex!important;align-items:center!important;
+  min-height:42px!important;padding:0 13px!important;
+  color:var(--profile-vatra-blue,#0757f5)!important;
+  font-size:11px!important;font-weight:850!important;
+}
+.profile-vk-post-tabs>.profile-vk-tab-current:after{
+  content:""!important;position:absolute!important;left:12px!important;right:12px!important;bottom:3px!important;
+  height:3px!important;border-radius:99px!important;
+  background:linear-gradient(90deg,#0757f5,#24a8ed)!important;
+}
+.profile-vk-post-tabs>span:not(.profile-vk-tab-current){
+  padding:0 12px!important;color:#94a2b5!important;font-size:10px!important;
+}
+@media(max-width:760px){
+  .profile-vk-post-tabs>.profile-vk-tab-current{min-height:40px!important;padding:0 10px!important}
+  .profile-vk-post-tabs>span:not(.profile-vk-tab-current){padding:0 8px!important}
+}
