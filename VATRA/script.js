@@ -428,7 +428,8 @@ function profileDetailMarkup(label,value,field=''){
  const linked=VATRA_SEARCH_FIELDS.has(field)
   ?'<button type="button" class="vatra-profile-attribute-link" data-profile-search-field="'+field+'" data-profile-search-value="'+safe+'" title="Знайти людей за цими даними">'+safe+'</button>'
   :'<b>'+safe+'</b>';
- return '<div class="vatra-profile-detail"><span>'+label+'</span>'+linked+'</div>';
+ const iconKey=({'День народження':'birthday','Місто':'city','Місце проживання':'location','Місце роботи':'workplace','Навчання':'education','Рідне місто':'hometown','Телефон':'phone','Вебсайт':'website'})[label]||field;
+ return '<div class="vatra-profile-detail"><span class="vatra-profile-detail-label">'+vatraProfileSvgIcon(iconKey)+esc(label)+'</span>'+linked+'</div>';
 }
 function visibleProfileSearchValue(uid,u,field){
  if(!VATRA_SEARCH_FIELDS.has(field))return '';
@@ -458,19 +459,44 @@ const VATRA_PROFILE_EXTRA_SECTIONS={
  service:{title:'Військова служба',fields:{serviceNotes:'Про службу'}},
  life:{title:'Життєва позиція',fields:{lifeNotes:'Погляди та переконання',values:'Головне в житті',inspiration:'Надихають'}}
 };
-function vatraExtraSectionsMarkup(values={},visibility={},owner=false){
+const VATRA_PROFILE_SVG_PATHS={"birthday":"<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M7 3v4M17 3v4M3 10h18\"/>","city":"<path d=\"M3 21V7l7-4v18M10 10l11-4v15M6 10v2m0 3v2m8-4v2m4-5v2m0 3v2\"/>","location":"<path d=\"M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.4\"/>","workplace":"<rect x=\"3\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18\"/>","education":"<path d=\"m2 9 10-5 10 5-10 5L2 9Zm4 2v6c4 3 8 3 12 0v-6M22 9v7\"/>","hometown":"<path d=\"m3 11 9-8 9 8v10H3V11Zm6 10v-7h6v7\"/>","phone":"<path d=\"M6 3h4l1 5-3 2a17 17 0 0 0 6 6l2-3 5 1v4a3 3 0 0 1-3 3A16 16 0 0 1 3 6a3 3 0 0 1 3-3Z\"/>","website":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18\"/>","interests":"<path d=\"m12 2 2.8 6.3L22 9l-5.2 4.6 1.5 7.2L12 17.1l-6.3 3.7 1.5-7.2L2 9l7.2-.7L12 2Z\"/>","hobbies":"<path d=\"m12 2 2.6 6 6.4.6-4.8 4.3 1.3 6.6L12 16l-5.5 3.5 1.3-6.6L3 8.6 9.4 8 12 2Z\"/>","activities":"<rect x=\"3\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18\"/>","music":"<path d=\"M9 18V5l11-2v13M9 9l11-2\"/><ellipse cx=\"6\" cy=\"18\" rx=\"3\" ry=\"2\"/><ellipse cx=\"17\" cy=\"16\" rx=\"3\" ry=\"2\"/>","films":"<rect x=\"3\" y=\"5\" width=\"18\" height=\"15\" rx=\"2\"/><path d=\"M3 10h18M7 5l3 5m3-5 3 5m-7 3 5 3-5 3v-6Z\"/>","books":"<path d=\"M12 6C9 4 6 4 3 5v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v15\"/>","games":"<path d=\"M7 9h10a5 5 0 0 1 4.8 6.5l-1 3a2 2 0 0 1-3 1L14 17h-4l-3.8 2.5a2 2 0 0 1-3-1l-1-3A5 5 0 0 1 7 9Z\"/><path d=\"M7 12v4m-2-2h4M16 13h.01M18 15h.01\"/>","service":"<path d=\"M12 2 20 6v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z\"/><path d=\"m9 12 2 2 4-4\"/>","life":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m15.5 8.5-2 5-5 2 2-5 5-2Z\"/>","values":"<path d=\"M12 21 4 12a5 5 0 0 1 8-6 5 5 0 0 1 8 6l-8 9Z\"/>","inspiration":"<path d=\"M9 18h6M10 21h4M9 15c0-2-4-3-4-7a7 7 0 0 1 14 0c0 4-4 5-4 7v1H9v-1Z\"/>","serviceNotes":"<path d=\"M12 2 20 6v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z\"/><path d=\"m9 12 2 2 4-4\"/>","lifeNotes":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m15.5 8.5-2 5-5 2 2-5 5-2Z\"/>"};
+function vatraProfileSvgIcon(key){const paths=VATRA_PROFILE_SVG_PATHS[key];return paths?'<span class="vatra-profile-line-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+paths+'</svg></span>':'';}
+const VATRA_PROFILE_OPEN_SECTIONS=new Set();
+function vatraExtraSectionsMarkup(values={},visibility={},owner=false,profileId='self'){
  const output=[];
  for(const [section,data] of Object.entries(VATRA_PROFILE_EXTRA_SECTIONS)){
   const rows=[];
   for(const [key,label] of Object.entries(data.fields)){
-   const text=String(values?.[key]||'').trim();if(!text)continue;
-   const isPublic=visibility?.[key]==='public';if(!owner&&!isPublic)continue;
-   rows.push('<div class="vatra-profile-extra-row"><dt>'+esc(label)+'</dt><dd>'+safeText(text)+(owner&&!isPublic?'<small class="vatra-profile-extra-privacy">Лише для вас</small>':'')+'</dd></div>');
+   const value=String(values?.[key]||'').trim();
+   if(!value)continue;
+   const isPublic=visibility?.[key]==='public';
+   if(!owner&&!isPublic)continue;
+   rows.push('<div class="vatra-profile-extra-row"><dt>'+vatraProfileSvgIcon(key)+'<span>'+esc(label)+'</span></dt><dd>'+safeText(value)+(owner&&!isPublic?'<small class="vatra-profile-extra-privacy">Лише для вас</small>':'')+'</dd></div>');
   }
-  if(rows.length)output.push('<section class="vatra-profile-extra-card"><h3>'+esc(data.title)+'</h3><dl>'+rows.join('')+'</dl></section>');
+  if(!rows.length)continue;
+  const key=String(profileId)+':'+section,expanded=VATRA_PROFILE_OPEN_SECTIONS.has(key);
+  const bodyId='vatra-profile-fold-'+(owner?'self-':'other-')+section;
+  const count=rows.length;
+  output.push('<section class="vatra-profile-extra-card vatra-profile-extra-fold'+(expanded?' is-open':'')+'">'+
+   '<button type="button" class="vatra-profile-extra-trigger" data-vatra-profile-fold="'+esc(key)+'" aria-expanded="'+expanded+'" aria-controls="'+bodyId+'">'+
+    '<span class="vatra-profile-extra-heading">'+vatraProfileSvgIcon(section)+'<span class="vatra-profile-extra-heading-text"><strong>'+esc(data.title)+'</strong><small>'+count+' '+(count===1?'поле':count>=2&&count<=4?'поля':'полів')+'</small></span></span>'+
+    '<svg class="vatra-profile-fold-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'+
+   '</button><div class="vatra-profile-extra-body" id="'+bodyId+'"'+(expanded?'':' hidden')+'><dl>'+rows.join('')+'</dl></div></section>');
  }
- return output.length?'<div class="vatra-profile-extras">'+output.join('')+'</div>':'';
+ return output.length?'<div class="vatra-profile-extras vatra-profile-extras-folded">'+output.join('')+'</div>':'';
 }
+document.addEventListener('click',event=>{
+ const trigger=event.target.closest('[data-vatra-profile-fold]');
+ if(!trigger)return;
+ const card=trigger.closest('.vatra-profile-extra-fold'),body=card?.querySelector('.vatra-profile-extra-body');
+ if(!card||!body)return;
+ const expanded=trigger.getAttribute('aria-expanded')!=='true';
+ trigger.setAttribute('aria-expanded',String(expanded));
+ card.classList.toggle('is-open',expanded);
+ body.hidden=!expanded;
+ const key=trigger.dataset.vatraProfileFold;
+ if(expanded)VATRA_PROFILE_OPEN_SECTIONS.add(key);else VATRA_PROFILE_OPEN_SECTIONS.delete(key);
+});
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -506,7 +532,7 @@ function renderProfile(){
     '<div class="vatra-profile-status-row">'+(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>')+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
-    '<div class="vatra-profile-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true)+
+    '<div class="vatra-profile-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid)+
     stats+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><button type="button" class="vatra-profile-link" id="profileViewPhotos">Усі фото</button><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
@@ -592,7 +618,7 @@ function renderPublicProfile(uid){
     (u.status?'<p class="profile-status vatra-profile-status">'+esc(u.status)+'</p>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (u.bio?profileBioMarkup(u.bio):'')+
-    '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city,'city')+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',u.website):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+vatraExtraSectionsMarkup(u.publicSections||{},u.extraVisibility||{},false)+
+    '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city,'city')+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',u.website):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+vatraExtraSectionsMarkup(u.publicSections||{},u.extraVisibility||{},false,uid)+
     '<div class="vatra-profile-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+photoHtml+'</section>'+
