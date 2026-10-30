@@ -209,14 +209,14 @@ function maybeRepairAcceptedFriendships(){
   .catch(error=>console.warn('[ВАТРА] Потрібне оновлення SQL або перевірка дружби:',error));
 }
 function markInitialLoaded(key){initialLoaded.add(key);if(['publicProfiles','users','posts','friends','groups'].every(k=>initialLoaded.has(k))&&!initialDataReady){initialDataReady=true;render();}}
-function listenData(){stopListeners();if(!currentUser)return;initialLoaded=new Set();initialDataReady=false;friendsLoaded=false;friendRequestsLoaded=false;lastFriendRepairSignature='';renderLoadingSkeletons();window.setTimeout(()=>{if(!initialDataReady){initialDataReady=true;render();toastMsg('Деякі дані ще не завантажилися. Перевірте з’єднання й доступ до таблиці app_data в Supabase.');}},6500);
+function listenData(){stopListeners();if(!currentUser)return;vatraSoundSources.clear();vatraSoundKnown.clear();vatraSoundPrimed=false;vatraSoundOpenedAt=Date.now();initialLoaded=new Set();initialDataReady=false;friendsLoaded=false;friendRequestsLoaded=false;lastFriendRepairSignature='';renderLoadingSkeletons();window.setTimeout(()=>{if(!initialDataReady){initialDataReady=true;render();toastMsg('Деякі дані ще не завантажилися. Перевірте з’єднання й доступ до таблиці app_data в Supabase.');}},6500);
  unsubscribers.push(watch('verifiedUsers',v=>{verifiedUsers=v||{};if(page==='feed'||page==='profile'||page==='publicProfile'||page==='friends'||page==='explore'||page==='groups')render();}));
  unsubscribers.push(watch('publicProfiles',v=>{users=v;markInitialLoaded('publicProfiles');updateIdentity();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page!=='settings'||!$('#profileSettingsForm'))render();}));
  unsubscribers.push(watch('friendProfiles',v=>{friendProfiles=v||{};if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);}));
  unsubscribers.push(watch(`users/${currentUser.uid}`,v=>{markInitialLoaded('users');const profile=v||{};currentProfile={...profile,privateSections:privateProfileSections,dateOfBirth:privateDateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone,lastSeenAt:Number(users[currentUser.uid]?.lastSeenAt)||Number(profile.lastSeenAt)||0,isOnline:users[currentUser.uid]?.isOnline===true};updateIdentity();if(!vatraSettingsSaving){const publicData=publicProfileData(currentProfile);if(JSON.stringify(users[currentUser.uid]||{})!==JSON.stringify(publicData))set(ref(db,`publicProfiles/${currentUser.uid}`),publicData).catch(err=>console.warn('Profile sync failed:',err));const friendData=friendProfileData(currentProfile);if(JSON.stringify(friendProfiles[currentUser.uid]||{})!==JSON.stringify(friendData))set(ref(db,`friendProfiles/${currentUser.uid}`),friendData).catch(err=>console.warn('Friend profile sync failed:',err));}if(page==='profile'||(page==='settings'&&!$('#profileSettingsForm')))render();else renderGettingStarted();}));
- unsubscribers.push(watch('posts',v=>{posts=v;markInitialLoaded('posts');if(['feed','saved','profile','notifications','explore','myVideos'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postLikes',v=>{likes=v;if(['feed','saved','profile','notifications','explore'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postSaves',v=>{postSaves=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('postShares',v=>{postShares=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('comments',v=>{comments=v;if(['feed','saved','profile','notifications','explore'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('pollVotes',v=>{pollVotes=v||{};if(page==='feed'||page==='saved'||page==='profile')render();}));
- unsubscribers.push(watch(`saved/${currentUser.uid}`,v=>{saved=v;Object.keys(saved||{}).forEach(id=>{if(!postSaves[id]?.[currentUser.uid])set(ref(db,`postSaves/${id}/${currentUser.uid}`),{createdAt:Date.now()}).catch(error=>console.warn('Save counter index unavailable; apply app-data-schema.sql:',error));});if(page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch(`following/${currentUser.uid}`,v=>{following=v;if(page==='feed'||page==='explore'||page==='profile')render();}));unsubscribers.push(watch('videos',v=>{videos=v; if(page==='videos'||page==='myVideos')render();}));unsubscribers.push(watch('groups',v=>{groups=v;markInitialLoaded('groups');if(page==='groups'||page==='groupSettings'||page==='explore')render();}));unsubscribers.push(watch('groupAdmins',v=>{groupAdmins=v;if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch('groupModerators',v=>{groupModerators=v||{};if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch(`groupMembers`,v=>{groupMembers=v;if(page==='groups'||page==='groupSettings'||page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch('groupPosts',v=>{groupPostsCache=v||{};if(page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch(`friendRequests/${currentUser.uid}`,v=>{friendRequests=v;friendRequestsLoaded=true;maybeRepairAcceptedFriendships();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='notifications')render();updateNotificationBadges();}));unsubscribers.push(watch(`friends/${currentUser.uid}`,v=>{friends=v;friendsLoaded=true;maybeRepairAcceptedFriendships();markInitialLoaded('friends');if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='profile')render();else renderGettingStarted();}));unsubscribers.push(watch(`userChats/${currentUser.uid}`,v=>{
- chatOwnedIndex=v||{};rebuildVisibleChatIndex();
+ unsubscribers.push(watch('posts',v=>{posts=v;markInitialLoaded('posts');if(['feed','saved','profile','notifications','explore','myVideos'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postLikes',v=>{likes=v;vatraSoundSourceLoaded('postLikes');if(['feed','saved','profile','notifications','explore'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postSaves',v=>{postSaves=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('postShares',v=>{postShares=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('comments',v=>{comments=v;vatraSoundSourceLoaded('comments');if(['feed','saved','profile','notifications','explore'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('pollVotes',v=>{pollVotes=v||{};if(page==='feed'||page==='saved'||page==='profile')render();}));
+ unsubscribers.push(watch(`saved/${currentUser.uid}`,v=>{saved=v;Object.keys(saved||{}).forEach(id=>{if(!postSaves[id]?.[currentUser.uid])set(ref(db,`postSaves/${id}/${currentUser.uid}`),{createdAt:Date.now()}).catch(error=>console.warn('Save counter index unavailable; apply app-data-schema.sql:',error));});if(page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch(`following/${currentUser.uid}`,v=>{following=v;if(page==='feed'||page==='explore'||page==='profile')render();}));unsubscribers.push(watch('videos',v=>{videos=v; if(page==='videos'||page==='myVideos')render();}));unsubscribers.push(watch('groups',v=>{groups=v;markInitialLoaded('groups');if(page==='groups'||page==='groupSettings'||page==='explore')render();}));unsubscribers.push(watch('groupAdmins',v=>{groupAdmins=v;if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch('groupModerators',v=>{groupModerators=v||{};if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch(`groupMembers`,v=>{groupMembers=v;if(page==='groups'||page==='groupSettings'||page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch('groupPosts',v=>{groupPostsCache=v||{};if(page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch(`friendRequests/${currentUser.uid}`,v=>{friendRequests=v;vatraSoundSourceLoaded('friendRequests');friendRequestsLoaded=true;maybeRepairAcceptedFriendships();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='notifications')render();updateNotificationBadges();}));unsubscribers.push(watch(`friends/${currentUser.uid}`,v=>{friends=v;friendsLoaded=true;maybeRepairAcceptedFriendships();markInitialLoaded('friends');if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='profile')render();else renderGettingStarted();}));unsubscribers.push(watch(`userChats/${currentUser.uid}`,v=>{
+ chatOwnedIndex=v||{};vatraSoundSourceLoaded('userChats');rebuildVisibleChatIndex();
  if((page==='messages'&&!activeChat)||page==='notifications')render();
  updateNotificationBadges();
 }));
@@ -232,7 +232,7 @@ unsubscribers.push(watch('chats',v=>{
   live[key]={otherUid,updatedAt:Number(last?.createdAt)||Number(c.createdAt)||0,
    lastMessage:last?{text:last.encrypted?'🔒 Зашифроване повідомлення':String(last.text||'').slice(0,120),senderUid:last.senderUid,createdAt:last.createdAt}:null};
  }
- chatLiveIndex=live;rebuildVisibleChatIndex();
+ chatLiveIndex=live;vatraSoundSourceLoaded('chats');rebuildVisibleChatIndex();
  if((page==='messages'&&!activeChat)||page==='notifications')render();
  updateNotificationBadges();
 }));unsubscribers.push(watch('activityReadAt/'+currentUser.uid,v=>{activityReadAt=Number(v)||0;if(page==='notifications')renderNotifications();updateNotificationBadges();}));unsubscribers.push(watch('chatReads/'+currentUser.uid,v=>{chatReads=v||{};if(page==='notifications')renderNotifications();updateNotificationBadges();}));unsubscribers.push(watch(`blockedUsers/${currentUser.uid}`,v=>{blockedUsers=v||{};if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(['feed','saved','profile','explore','messages','notifications','groups','videos','friends'].includes(page))render();}));
@@ -1096,8 +1096,49 @@ function startChatListener(key){
   if(notice)notice.hidden=!unavailable;if(form)form.hidden=unavailable;
  });
 }
+
+let vatraAudio=null,vatraAudioReady=false,vatraLastBeep=0;
+let vatraSoundSources=new Set(),vatraSoundKnown=new Set(),vatraSoundPrimed=false,vatraSoundOpenedAt=0;
+const vatraRequiredSoundSources=['postLikes','comments','friendRequests','userChats','chats'];
+function vatraUnlockSound(){
+ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  if(!vatraAudio)vatraAudio=new C();
+  if(vatraAudio.state==='running')vatraAudioReady=true;
+  else vatraAudio.resume().then(()=>{vatraAudioReady=vatraAudio.state==='running';}).catch(()=>{});
+ }catch(error){console.debug('[ВАТРА] Аудіо недоступне',error);}
+}
+window.addEventListener('pointerdown',vatraUnlockSound,{once:true,capture:true});
+window.addEventListener('keydown',vatraUnlockSound,{once:true,capture:true});
+function vatraBeep(type){
+ if(!currentUser||currentProfile.notificationSounds===false||!vatraAudioReady||vatraAudio?.state!=='running'||Date.now()-vatraLastBeep<1100)return;
+ vatraLastBeep=Date.now();
+ try{const now=vatraAudio.currentTime+.01,notes=type==='message'?[[660,0,.11],[880,.13,.13]]:[[740,0,.1],[555,.13,.14]];
+  for(const [frequency,offset,duration] of notes){
+   const oscillator=vatraAudio.createOscillator(),gain=vatraAudio.createGain(),t=now+offset;
+   oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,t);
+   gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.05,t+.015);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+duration);
+   oscillator.connect(gain);gain.connect(vatraAudio.destination);oscillator.start(t);oscillator.stop(t+duration+.015);
+  }
+ }catch(err){console.warn('[ВАТРА] Не відтворено сигнал',err);}
+}
+function vatraSoundSourceLoaded(x){vatraSoundSources.add(x);}
+function vatraMonitorSounds(items){
+ if(!vatraRequiredSoundSources.every(x=>vatraSoundSources.has(x)))return;
+ if(!vatraSoundPrimed){vatraSoundKnown=new Set(items.map(x=>x.id+':'+x.createdAt));vatraSoundPrimed=true;return;}
+ let newMessage=false,newOther=false;
+ for(const item of items){
+  const key=item.id+':'+item.createdAt;
+  if(vatraSoundKnown.has(key))continue;vatraSoundKnown.add(key);
+  if(!item.unread||item.createdAt<vatraSoundOpenedAt||Date.now()-item.createdAt>120000)continue;
+  if(item.type==='message')newMessage=true;else newOther=true;
+ }
+ if(vatraSoundKnown.size>500)vatraSoundKnown=new Set([...vatraSoundKnown].slice(-250));
+ if(newMessage||newOther)vatraBeep(newMessage?'message':'notification');
+}
+
 function notificationItems(){if(!currentUser)return [];const items=[],uid=currentUser.uid;Object.entries(posts).forEach(([postId,p])=>{if(p.authorUid!==uid)return;Object.entries(likes[postId]||{}).forEach(([actor,value])=>{const createdAt=Number(value&&typeof value==='object'?value.createdAt:0);if(actor!==uid&&!blockedUsers[actor]&&createdAt)items.push({id:'like_'+postId+'_'+actor,type:'like',actorUid:actor,createdAt,postId,unread:createdAt>activityReadAt});});Object.entries(comments[postId]||{}).forEach(([commentId,c])=>{const createdAt=Number(c.createdAt)||0;if(c.uid!==uid&&!blockedUsers[c.uid]&&createdAt)items.push({id:'comment_'+postId+'_'+commentId,type:'comment',actorUid:c.uid,createdAt,postId,excerpt:String(c.text||'').slice(0,100),unread:createdAt>activityReadAt});});});Object.entries(friendRequests).forEach(([actor,r])=>{if(!r||actor===uid||blockedUsers[actor]||r.status!=='pending'||r.direction!=='incoming')return;const createdAt=Number(r.createdAt)||0;items.push({id:'friend_'+actor,type:'friend',actorUid:actor,createdAt,unread:createdAt>activityReadAt});});Object.entries(chatIndex).forEach(([key,c])=>{const m=c&&c.lastMessage;if(!m||!m.text||m.senderUid===uid||blockedUsers[c.otherUid])return;const createdAt=Number(m.createdAt)||0;items.push({id:'message_'+key,type:'message',actorUid:c.otherUid,createdAt,chatUid:c.otherUid,excerpt:String(m.text).slice(0,100),unread:createdAt>Number(chatReads[key]||0)});});return items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));}
-function updateNotificationBadges(){const items=notificationItems(),count=items.filter(x=>x.unread).length,incoming=Object.entries(friendRequests).filter(([uid,x])=>x&&!friends[uid]&&!blockedUsers[uid]&&x.status==='pending'&&x.direction==='incoming').length;['notificationBadge','notificationNavBadge'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.textContent=count>99?'99+':String(count);el.hidden=count===0;});const friendBadge=document.getElementById('friendsNavBadge');if(friendBadge){friendBadge.textContent=incoming>99?'99+':String(incoming);friendBadge.hidden=incoming===0;}}
+function updateNotificationBadges(){const items=notificationItems();vatraMonitorSounds(items);const count=items.filter(x=>x.unread).length,incoming=Object.entries(friendRequests).filter(([uid,x])=>x&&!friends[uid]&&!blockedUsers[uid]&&x.status==='pending'&&x.direction==='incoming').length;['notificationBadge','notificationNavBadge'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.textContent=count>99?'99+':String(count);el.hidden=count===0;});const friendBadge=document.getElementById('friendsNavBadge');if(friendBadge){friendBadge.textContent=incoming>99?'99+':String(incoming);friendBadge.hidden=incoming===0;}}
 function markChatRead(key){if(!currentUser||!key)return;const latest=chatIndex[key]&&chatIndex[key].lastMessage,stamp=Math.max(Date.now(),Number(latest&&latest.createdAt)||0);if(Number(chatReads[key]||0)>=stamp-1000)return;chatReads={...chatReads,[key]:stamp};updateNotificationBadges();set(ref(db,'chatReads/'+currentUser.uid+'/'+key),stamp).catch(err=>console.warn('Chat read receipt failed:',err));}
 function markNotificationsRead(){if(!currentUser)return;const stamp=Date.now(),unreadChats=Object.entries(chatIndex).filter(([key,c])=>c&&c.lastMessage&&c.lastMessage.senderUid!==currentUser.uid&&Number(c.lastMessage.createdAt||0)>Number(chatReads[key]||0)).map(([key])=>key);activityReadAt=stamp;unreadChats.forEach(key=>{chatReads={...chatReads,[key]:stamp};});updateNotificationBadges();renderNotifications();Promise.all([set(ref(db,'activityReadAt/'+currentUser.uid),stamp),...unreadChats.map(key=>set(ref(db,'chatReads/'+currentUser.uid+'/'+key),stamp))]).catch(err=>toastMsg(niceError(err)));}
 function renderNotifications(){const items=notificationItems().slice(0,50);const rows=items.map(n=>{const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ'),when=timeAgo(n.createdAt);let title='',target='';if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';target='data-notification-post="'+esc(n.postId)+'"';}else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис: «'+esc(n.excerpt)+'»';target='data-notification-post="'+esc(n.postId)+'"';}else if(n.type==='friend'){title=name+' надіслав(-ла) запит у друзі';target='data-notification-friends="true"';}else{title='Нове повідомлення від '+name+': «'+esc(n.excerpt)+'»';target='data-notification-chat="'+esc(n.chatUid)+'"';}return '<button class="notification-item '+(n.unread?'is-unread':'')+'" '+target+'>'+avatar(u.name||'Користувач',u.avatarUrl)+'<span class="notification-copy"><b>'+title+'</b><small>'+when+'</small></span>'+(n.unread?'<span class="notification-dot" aria-label="Нове"></span>':'')+'</button>';}).join('');setFeed('<article class="post notifications-page"><div class="notifications-heading"><div><p class="eyebrow">ВАШЕ КОЛО</p><h2>Сповіщення</h2><p class="muted">Запити в друзі, реакції на Ваші дописи та нові повідомлення.</p></div><span class="count-badge">'+items.filter(x=>x.unread).length+' нових</span></div><div class="notification-list">'+(rows||'<div class="empty-inline">Поки немає сповіщень. Нові реакції, запити й повідомлення з’являться тут.</div>')+'</div></article>');}
@@ -1595,7 +1636,7 @@ $('#create')?.addEventListener('click',openComposer);$('#prompt')?.addEventListe
 $('#photo').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length)return;if(!authRequired())return;e.target.value='';if(!modal.open)openComposer();await selectPostPhotos(files);};
 $('#modalPhoto').onchange=async e=>{const files=[...(e.target.files||[])];e.target.value='';if(!authRequired())return;await selectPostPhotos(files);};
  $('#postVisibility').addEventListener('change',event=>{
-  const descriptions={public:'Допис доступний усім користувачам ВАТРИ.',friends:'Допис бачать Ваші взаємні друзі. Фото можуть залишатися доступними за прямим посиланням.',private:'Допис бачите лише Ви. Фото можуть залишатися доступними за прямим посиланням.'};
+  const descriptions={public:'Допис побачать усі користувачі ВАТРИ.',friends:'Лише взаємні друзі. Фото за прямими посиланнями можуть лишатися доступними.',private:'Лише Ви. Фото за прямими посиланнями можуть лишатися доступними.'};
   $('#postAudienceHint').textContent=descriptions[event.target.value]||descriptions.public;
  });
 
@@ -1773,6 +1814,7 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
   const box=q('#notificationDropdown');if(!box)return;
   if(!currentUser){box.innerHTML='<div class="topbar-popover-head"><b>Сповіщення</b></div><p class="topbar-popover-empty">Увійдіть, щоб бачити свої сповіщення.</p>';return;}
   const items=notificationItems().slice(0,7);
+  const soundIsOn=currentProfile.notificationSounds!==false;
   const rows=items.map(n=>{
    const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ'),when=timeAgo(n.createdAt);let title='',attr='';
    if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
@@ -1781,7 +1823,7 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
    else{title='Нове повідомлення від '+name;attr='data-notification-chat="'+esc(n.chatUid)+'"';}
    return '<button type="button" class="topbar-notification-row '+(n.unread?'is-unread':'')+'" '+attr+'>'+avatar(u.name||'Користувач',u.avatarUrl)+'<span><b>'+title+'</b><small>'+when+'</small></span>'+(n.unread?'<i></i>':'')+'</button>';
   }).join('');
-  box.innerHTML='<div class="topbar-popover-head"><div><b>Сповіщення</b><small>'+items.filter(n=>n.unread).length+' нових</small></div><button type="button" class="text-link" data-notifications-view-all>Усі</button></div>'+(rows||'<p class="topbar-popover-empty">Поки немає сповіщень.</p>');
+  box.innerHTML='<div class="topbar-popover-head"><div><b>Сповіщення</b><small>'+items.filter(n=>n.unread).length+' нових</small></div><button type="button" class="text-link" data-notifications-view-all>Усі</button></div>'+(rows||'<p class="topbar-popover-empty">Поки немає сповіщень.</p>')+'<div class="vatra-sound-setting"><button type="button" data-vatra-sound-toggle aria-pressed="'+String(soundIsOn)+'">'+(soundIsOn?'♫ Звуки увімкнено':'♪ Звуки вимкнено')+'</button><small>Після першого натискання на сайті</small></div>';
  }
  function renderAccountDropdown(){
   const box=q('#accountDropdown');if(!box)return;
@@ -1815,6 +1857,11 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
   }
   if(event.target.closest('[data-notification-post],[data-notification-friends],[data-notification-chat]'))closeTopbarMenus();
   if(event.target.closest('[data-notifications-view-all]')){closeTopbarMenus();goPage('notifications');return;}
+  const soundButton=event.target.closest('[data-vatra-sound-toggle]');
+   if(soundButton&&currentUser){soundButton.disabled=true;const enable=currentProfile.notificationSounds===false;
+    try{await update(ref(db,'users/'+currentUser.uid),{notificationSounds:enable});currentProfile.notificationSounds=enable;renderNotificationDropdown();if(enable)vatraUnlockSound();}
+    catch(error){soundButton.disabled=false;toastMsg(niceError(error));}return;
+   }
   const legalLink=event.target.closest('[data-legal-open]');
   if(legalLink){event.preventDefault();openInAppLegal(legalLink.dataset.legalOpen);return;}
   const restore=event.target.closest('[data-restore-avatar]');
