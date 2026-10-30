@@ -142,3 +142,48 @@ revoke all on function public.vatra_repair_my_friends() from public, anon;
 grant execute on function public.vatra_accept_friend(uuid) to authenticated;
 grant execute on function public.vatra_remove_friend(uuid) to authenticated;
 grant execute on function public.vatra_repair_my_friends() to authenticated;
+
+
+-- Return verified mutual friends for profile display, never unconfirmed links.
+-- A private profile exposes its list only to its own account or a mutual friend.
+create or replace function public.vatra_list_profile_friends(p_owner uuid)
+returns jsonb
+language plpgsql stable security definer
+set search_path = ''
+as $vatra_friends$
+declare
+ viewer_uid uuid := (select auth.uid());
+ owner_uid text := p_owner::text;
+ visibility text;
+ answer jsonb;
+begin
+ if viewer_uid is null or p_owner is null then
+   raise exception 'VATRA: authentication required' using errcode = '42501';
+ end if;
+ select p.value ->> 'profileVisibility' into visibility
+ from public.app_data p where p.path = 'publicProfiles/' || owner_uid;
+ if visibility = 'private'
+    and viewer_uid <> p_owner
+    and not public.vatra_data_is_friend(owner_uid, viewer_uid) then
+   return '[]'::jsonb;
+ end if;
+ select coalesce(jsonb_agg(r.friend_uid), '[]'::jsonb) into answer from (
+   select f.key as friend_uid
+   from public.app_data a
+   cross join lateral jsonb_each_text(a.value) as f(key,value)
+   where a.path = 'friends/' || owner_uid
+     and jsonb_typeof(a.value) = 'object'
+     and f.value = 'true'
+     and exists (
+       select 1 from public.app_data b
+       where b.path = 'friends/' || f.key
+         and b.value ->> owner_uid = 'true'
+     )
+   order by f.key
+   limit 150
+ ) r;
+ return answer;
+end;
+$vatra_friends$;
+revoke all on function public.vatra_list_profile_friends(uuid) from public, anon;
+grant execute on function public.vatra_list_profile_friends(uuid) to authenticated;
