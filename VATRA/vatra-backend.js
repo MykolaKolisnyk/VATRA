@@ -263,6 +263,11 @@ export async function removeFriendship(otherUid) {
   if (error) throw friendshipRpcError(error);
   return data === true;
 }
+export async function listProfileFriends(ownerUid) {
+ const { data, error } = await client.rpc('vatra_list_profile_friends', { p_owner: friendUid(ownerUid) });
+ if (error) throw friendshipRpcError(error);
+ return Array.isArray(data) ? data.filter(uid => typeof uid === 'string') : [];
+}
 export async function repairMyFriendships() {
   const { data, error } = await client.rpc('vatra_repair_my_friends');
   if (error) throw friendshipRpcError(error);
