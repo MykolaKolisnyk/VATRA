@@ -1,0 +1,82 @@
+
+/* VATRA · A more restrained palette: blue is a call-to-action, not body text. */
+body:not([data-vatra-theme-effective="dark"]){
+ --vatra-user-accent:#0757f5;
+ --v-ink:#27313d;
+}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav{
+ color:#4d5968!important;font-weight:500!important;border-radius:9px!important;
+}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav .nav-icon{color:#748297!important;}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active{
+ color:#222e3c!important;background:#e0e5eb!important;font-weight:630!important;
+ box-shadow:inset 3px 0 #596d86!important;
+}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active .nav-icon{color:#3a526e!important}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav:hover{
+ color:#1f2c3c!important;background:#e6eaef!important;
+}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .sidebar-footer a,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .vatra-footer-legal a{color:#617085!important;font-weight:520!important}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .sidebar-footer a:hover{color:#0757f5!important}
+body:not([data-vatra-theme-effective="dark"])[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link,
+body:not([data-vatra-theme-effective="dark"])[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link{
+ color:#364555!important;font-weight:520!important;text-decoration:underline dotted #b7c0cc!important;text-underline-offset:3px!important
+}
+body:not([data-vatra-theme-effective="dark"])[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link:is(:hover,:focus-visible),
+body:not([data-vatra-theme-effective="dark"])[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link:is(:hover,:focus-visible){
+ color:#0757f5!important;text-decoration-color:#0757f5!important
+}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-detail>b,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-row dd{
+ color:#354352!important;font-weight:530!important;
+}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-detail-label,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-line-icon{color:#8b98a9!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-heading>.vatra-profile-line-icon{background:#ebeff2!important;color:#697c92!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-card.vatra-profile-extra-fold{background:#f7f8fa!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong{color:#35414d!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact>.vatra-profile-stats b{color:#394a5b!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar .vatra-profile-link,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-photos .vatra-profile-link,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-bio-toggle,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-status-edit{
+ color:#56667a!important;font-weight:520!important;
+}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar .vatra-profile-link:is(:hover,:focus-visible),
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-photos .vatra-profile-link:is(:hover,:focus-visible),
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-bio-toggle:is(:hover,:focus-visible),
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-status-edit:is(:hover,:focus-visible){color:#0757f5!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-status-edit{background:#e9edf2!important}
+body:not([data-vatra-theme-effective="dark"]) .layout .main .vatra-profile-stats span{color:#8a95a3!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-photos .vatra-profile-card-head span{background:#e8ecef!important;color:#506176!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-card-head h3{color:#2b3744!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar .vatra-profile-friends>.vatra-profile-link,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar #vatraPublicAllFriends{color:#516275!important;font-weight:550!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-title-row .vatra-profile-name-line h2{color:#253444!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-status:not(.is-online){color:#566273!important;background:#ebeff2!important}
+/* Header music: placed immediately next to the bell, with anchored compact menu. */
+#vatraMusicHeaderButton{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 40px;min-width:40px;width:40px;height:40px;min-height:40px;padding:8px;color:#6e7c8f;border:0;border-radius:9px;background:transparent;cursor:pointer}
+#vatraMusicHeaderButton svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+#vatraMusicHeaderButton:hover,#vatraMusicHeaderButton[aria-expanded="true"]{background:#edf1f6;color:#314e73}
+#vatraMusicPlayingDot[hidden]{display:none!important}
+#vatraMusicPlayingDot{position:absolute;right:5px;top:5px;width:7px;height:7px;background:#18a984;border-radius:50%}
+.vatra-top-music-panel[hidden]{display:none!important}
+.vatra-top-music-panel{position:absolute;z-index:180;top:calc(100% - 2px);right:max(20px,calc((100vw - 1100px)/2));width:min(320px,calc(100vw - 24px));padding:14px;background:#fff;border:1px solid #dfe5ec;border-radius:13px;box-shadow:0 18px 50px #25344f22;color:#293848}
+.vatra-top-music-label{font-size:12px;font-weight:680;padding:0 0 11px;border-bottom:1px solid #e5eaf0}
+.vatra-top-music-now{display:flex;align-items:center;gap:10px;padding:13px 0}
+.vatra-top-music-symbol{display:grid;place-items:center;background:#edf0f4;color:#4d667f;border-radius:10px;width:42px;height:42px;font-size:23px;flex:none}
+.vatra-top-music-now>span:last-child{min-width:0;display:grid;gap:4px}
+.vatra-top-music-now b{font-size:12px;font-weight:630;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vatra-top-music-now small{font-size:11px;color:#7b8a9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vatra-top-music-actions{display:flex;gap:8px}
+.vatra-top-music-actions button{flex:1;min-height:36px;border:1px solid #dce4ec;background:#f0f3f6;color:#34465a;border-radius:9px;cursor:pointer;font:560 12px Inter,Arial,sans-serif}
+.vatra-top-music-actions button:hover:not(:disabled){background:#e3eaf2}
+.vatra-top-music-actions button:disabled{opacity:.45;cursor:not-allowed}
+.vatra-top-music-panel>p{font-size:10px;color:#8291a0;margin:10px 0 0}
+body[data-vatra-theme-effective="dark"] #vatraMusicHeaderButton{color:#b5c4d6}
+body[data-vatra-theme-effective="dark"] #vatraMusicHeaderButton:hover{background:#35485f;color:#e8f2ff}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-panel{background:#253449;color:#e3edf8;border-color:#445875}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-symbol{background:#35485f;color:#d4e0f2}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-actions button{background:#334660;color:#dce8f7;border-color:#4b607a}
+@media(max-width:760px){#vatraMusicHeaderButton{width:36px;height:36px;min-width:36px;min-height:36px;flex-basis:36px}.vatra-top-music-panel{top:58px;right:10px}}

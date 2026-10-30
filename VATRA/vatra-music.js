@@ -2,6 +2,21 @@
 import { getDatabase, ref, get, update } from './vatra-backend.js?v=20261030-4';
 
 const MUSIC_LIBRARY = Object.freeze([
+ {type:'playlist',id:'6TNFFJnqIFFYifyio5Wha5',title:'Топ українських пісень',artist:'Український чарт',category:'Хіти',tone:1},
+ {type:'playlist',id:'1CyMR0xlnQd6QylPs9HepS',title:'600 годин українського року',artist:'Muzikoda',category:'Рок',tone:2},
+ {type:'playlist',id:'3dctz0iHylItj3CVpafe36',title:'Українська музика 2026',artist:'eSounds Mixes',category:'Популярне',tone:4},
+ {type:'playlist',id:'5BGtRYVJqsXfKnubyV4uAM',title:'Український реп — TOP 30',artist:'rap.ua',category:'Хіп-хоп',tone:3},
+ {type:'playlist',id:'4tvXjMfKnRFOKn3gxT5G8x',title:'Український реп',artist:'Faeton',category:'Хіп-хоп',tone:2},
+ {type:'playlist',id:'65caUdDzMuSxKOYLKYLWLL',title:'Топ українських хітів',artist:'Слухач UA',category:'Хіти',tone:5},
+ {type:'playlist',id:'4VPbIy6r6cnvh8ItkvS5Tx',title:'Українська музика — 2026',artist:'Mystic Songs',category:'Поп',tone:4},
+ {type:'playlist',id:'2rSjuobn32IEBKnczYQTHK',title:'Топ 100 українських пісень',artist:'Sound Mix',category:'Хіти',tone:1},
+ {type:'playlist',id:'3dAlUrO1vJz32RBX5hSqnv',title:'Український реп — новинки',artist:'rap.ua',category:'Хіп-хоп',tone:3},
+ {type:'playlist',id:'1kbv778UlCDaOqRfd6nxYB',title:'Український рок',artist:'NUAM',category:'Рок',tone:2},
+ {type:'playlist',id:'0QlFZzcYfNmFp8Ss6wbbPd',title:'Українська музика 2026',artist:'Discover Playlists',category:'Новинки',tone:5},
+ {type:'playlist',id:'5Wky3JBDT5jCXVPICyOtCn',title:'Трендові пісні 2026',artist:'Redlist',category:'Новинки',tone:4},
+ {type:'playlist',id:'0jabNrHCdpFTgF5xl2S8BH',title:'Свіжа українська музика',artist:'Calm Vibes Charts',category:'Новинки',tone:1},
+ {type:'playlist',id:'38KEb9uVmhUpL1git4qgJA',title:'Українські пісні 2026',artist:'Redlist',category:'Популярне',tone:3},
+ {type:'playlist',id:'6vOlMi4hfQjfxxErClNXH2',title:'Популярні українські пісні',artist:'Redlist',category:'Хіти',tone:4},
  {type:'playlist',id:'37i9dQZF1DX5ECfKO3L7Vd',title:'Найкращі пісні солов’їною',artist:'Добірка Spotify',category:'Хіти',tone:1},
  {type:'playlist',id:'37i9dQZF1DX15i3d3upwXj',title:'Топ українських треків 2025',artist:'Добірка Spotify',category:'Популярне',tone:4},
  {type:'playlist',id:'37i9dQZF1EIVcw7iqpsHFK',title:'KALUSH Mix',artist:'Добірка Spotify',category:'Хіп-хоп',tone:2},
@@ -29,6 +44,8 @@ const MUSIC_LIBRARY = Object.freeze([
 ]);
 const db=getDatabase(), musicIndex=new Map(MUSIC_LIBRARY.map(item=>[item.type+':'+item.id,item]));
 const page=document.getElementById('feed');
+const musicHeader=document.getElementById('vatraMusicHeaderButton');
+const musicTopPanel=document.getElementById('vatraMusicTopPanel');
 let musicTab='all',musicQuery='',musicUid='',musicFavorites=new Set(),musicLoaded=false,musicLoadError='',musicLoading=false,playerItem=null,playerExpanded=false;
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[ch]));
 const key=item=>item.type+':'+item.id;
@@ -53,6 +70,16 @@ function setPlayerExpanded(flag){
  dock.querySelector('[data-music-expand]').textContent=playerExpanded?'▁':'▤';
  dock.querySelector('[data-music-expand]').title=playerExpanded?'Згорнути програвач':'Розгорнути програвач';
 }
+
+function syncHeaderMusic(){
+ const playing=!!playerItem;
+ const dot=document.getElementById('vatraMusicPlayingDot');if(dot)dot.hidden=!playing;
+ const title=document.getElementById('vatraTopMusicTitle');if(title)title.textContent=playing?playerItem.title:'Поки нічого не вибрано';
+ const artist=document.getElementById('vatraTopMusicArtist');if(artist)artist.textContent=playing?playerItem.artist:'Обери музику у каталозі';
+ const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton)playerButton.disabled=!playing;
+ if(musicHeader)musicHeader.classList.toggle('has-player',playing);
+}
+function closeMusicMenu(){if(musicTopPanel)musicTopPanel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
 function play(item){
  if(!item||!['track','album','playlist','artist'].includes(item.type)||!(/^[A-Za-z0-9]{22}$/).test(item.id))return;
  const dock=activePlayer(),frame=dock.querySelector('#vatraMusicFrame');
@@ -66,12 +93,12 @@ function play(item){
   const embed='https://open.spotify.com/embed/'+item.type+'/'+item.id+'?utm_source=generator';
   frame.src=embed;
  }
- document.body.classList.add('vatra-has-music');
+ document.body.classList.add('vatra-has-music');syncHeaderMusic();closeMusicMenu();
  if(document.body.dataset.page==='music')refreshCards();
 }
 function stop(){
  const dock=activePlayer();dock.querySelector('#vatraMusicFrame').removeAttribute('src');
- dock.hidden=true;playerItem=null;document.body.classList.remove('vatra-has-music');
+ dock.hidden=true;playerItem=null;document.body.classList.remove('vatra-has-music');syncHeaderMusic();
  if(document.body.dataset.page==='music')refreshCards();
 }
 function parseSpotify(input){
@@ -142,6 +169,13 @@ async function favorite(item,button){
   refreshCards();
   notify(next.has(key(item))?'Додано до «Моєї музики».':'Прибрано з «Моєї музики».');
  }catch(error){button.disabled=false;notify('Не вдалося зберегти у Supabase. Спробуйте ще раз.',true);console.warn('[ВАТРА] Музика не збережена:',error);}
+}
+if(musicHeader&&musicTopPanel){
+ musicHeader.addEventListener('click',()=>{const showing=musicTopPanel.hidden;musicTopPanel.hidden=!showing;musicHeader.setAttribute('aria-expanded',String(showing));syncHeaderMusic();});
+ document.getElementById('vatraTopMusicOpen')?.addEventListener('click',()=>{closeMusicMenu();document.querySelector('.sidebar button[data-page="music"]')?.click();});
+ document.getElementById('vatraTopMusicPlayer')?.addEventListener('click',()=>{closeMusicMenu();if(playerItem){activePlayer().hidden=false;setPlayerExpanded(true);}});
+ document.addEventListener('click',event=>{if(!event.target.closest('#vatraMusicTopPanel')&&!event.target.closest('#vatraMusicHeaderButton'))closeMusicMenu();});
+ window.addEventListener('keydown',event=>{if(event.key==='Escape')closeMusicMenu();});
 }
 document.addEventListener('click',async event=>{
  const tab=event.target.closest('[data-music-tab]');if(tab){musicTab=tab.dataset.musicTab;renderMusic();return;}
