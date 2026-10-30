@@ -21,7 +21,7 @@
   // Show a startup warning only if the core application never loaded.
   // Network/API errors after startup belong to their own UI and must not block the site.
   window.setTimeout(function () {
-    if (window.__vatraStarted || window.__vatraBackendLoaded) return;
+    if (window.__vatraStarted) return;
     var box = document.getElementById('startupError');
     var message = document.getElementById('startupErrorText');
     if (message) message.textContent = 'Не вдалося завантажити застосунок. Перевірте з’єднання та оновіть сторінку. Якщо проблема повторюється, повідомте розробника.';
