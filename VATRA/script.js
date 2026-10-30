@@ -453,10 +453,32 @@ function renderMessages(){
   return;
  }
  const other=users[activeChat]||{},key=chatKey(currentUser.uid,activeChat),chatUnavailable=!!blockedUsers[activeChat]||activeChatBlocked;
- setFeed(`<article class="post chat-window"><div class="chat-top"><button class="text-link" id="backChats">← Повідомлення</button>${avatar(other.name||'Користувач',other.avatarUrl)}<b>${esc(other.name||'Користувач ВАТРИ')}</b>${blockedUsers[activeChat]?`<button class="pill" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button class="danger-link" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button class="text-link" data-report-user="${esc(activeChat)}">Поскаржитися</button></div><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання повідомлень зупинене: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages">Завантаження повідомлень…</div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Написати повідомлення…" autocomplete="off" required><button class="primary">Надіслати</button></form></article>`);
+ setFeed(`<article class="post chat-window"><div class="chat-top"><button class="text-link" id="backChats">← Повідомлення</button>${avatar(other.name||'Користувач',other.avatarUrl)}<b>${esc(other.name||'Користувач ВАТРИ')}</b>${blockedUsers[activeChat]?`<button class="pill" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button class="danger-link" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button class="text-link" data-report-user="${esc(activeChat)}">Поскаржитися</button></div><section class="chat-security" aria-live="polite"><div class="chat-security-row"><span id="chatSecurityStatus" data-ready="false">🔐 Готуємо захищений чат…</span><button type="button" class="chat-security-refresh" id="chatSecurityRefresh">Перевірити ключі</button></div><details class="chat-security-verify"><summary>Коди безпеки та обмеження</summary><p id="chatSecurityKeys" hidden></p><p>Шифрування працює лише на пристроях учасників. Перевірте коди іншим каналом. Нові ключі не синхронізуються між пристроями; попередні повідомлення могли зберігатися відкритим текстом.</p></details></section><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання повідомлень зупинене: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages">Завантаження повідомлень…</div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Написати повідомлення…" autocomplete="off" required><button class="primary">Надіслати</button></form></article>`);
  $('#backChats').onclick=()=>{activeChat=null;editingMessageId=null;stopChatListener();renderMessages();};
- startChatListener(key);markChatRead(key);
- $('#sendMessageForm').onsubmit=async e=>{e.preventDefault();if(activeChatBlocked||blockedUsers[activeChat])return toastMsg('Надсилання повідомлень у цьому чаті зупинено.');const form=e.currentTarget,input=form.elements.message,text=input.value.trim(),recipient=activeChat,submit=form.querySelector('button.primary');if(!text||submit.disabled)return;submit.disabled=true;let written=false;try{const cRef=ref(db,`chats/${key}`),snap=await get(cRef);if(!snap.exists())await set(cRef,{members:{[currentUser.uid]:true,[recipient]:true},createdAt:Date.now()});const msgRef=push(ref(db,`chats/${key}/messages`)),createdAt=Date.now();await set(msgRef,{senderUid:currentUser.uid,text,createdAt});written=true;if(input.value.trim()===text)input.value='';const lastMessage={text:text.slice(0,120),senderUid:currentUser.uid,createdAt},summary={otherUid:recipient,updatedAt:createdAt,lastMessage};await update(ref(db,`userChats/${currentUser.uid}/${key}`),summary);await update(ref(db,`userChats/${recipient}/${key}`),{otherUid:currentUser.uid,updatedAt:createdAt,lastMessage});}catch(err){toastMsg(written?'Повідомлення надіслано, але список діалогів не оновився.':`Не вдалося надіслати: ${niceError(err)}`);}finally{submit.disabled=false;}};
+ startChatListener(key);markChatRead(key);updateChatSecurityStatus("🔐 Перевіряємо ключі…",false);activateSecureChat(key,activeChat);$("#chatSecurityRefresh")?.addEventListener("click",()=>activateSecureChat(key,activeChat));
+ $('#sendMessageForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(activeChatBlocked||blockedUsers[activeChat])return toastMsg('Надсилання в цьому чаті зупинено.');
+  const form=e.currentTarget,input=form.elements.message,text=input.value.trim(),recipient=activeChat,submit=form.querySelector('button.primary');
+  if(!text||submit.disabled)return;
+  const session=activeSecureSession;
+  if(!session||session.peerUid!==recipient||session.chatId!==key){toastMsg('E2EE ще не готове. Відкритий текст не надсилається.');return;}
+  submit.disabled=true;let written=false;
+  try{
+   const createdAt=Date.now(),encrypted=await encryptMessage(session,text,currentUser.uid,createdAt);
+   const cRef=ref(db,'chats/'+key),snap=await get(cRef);
+   if(!snap.exists())await set(cRef,{members:{[currentUser.uid]:true,[recipient]:true},createdAt});
+   const msgRef=push(ref(db,'chats/'+key+'/messages'));
+   await set(msgRef,{senderUid:currentUser.uid,encrypted,createdAt});
+   written=true;if(input.value.trim()===text)input.value='';
+   const lastMessage={text:SECURE_PREVIEW,senderUid:currentUser.uid,createdAt},summary={otherUid:recipient,updatedAt:createdAt,lastMessage};
+   await Promise.all([
+    update(ref(db,'userChats/'+currentUser.uid+'/'+key),summary),
+    update(ref(db,'userChats/'+recipient+'/'+key),{otherUid:currentUser.uid,updatedAt:createdAt,lastMessage})
+   ]);
+  }catch(err){toastMsg(written?'Зашифроване повідомлення надіслано, але список діалогів не оновився.':'Не вдалося надіслати захищене повідомлення: '+(err?.message||niceError(err)));}
+  finally{submit.disabled=false;}
+ };
 }
 let chatUnsub=null,chatBlockUnsub=null,groupDetailsUnsub=null,editingMessageId=null;
 function stopChatListener(){if(chatUnsub){chatUnsub();chatUnsub=null;}if(chatBlockUnsub){chatBlockUnsub();chatBlockUnsub=null;}activeChatBlocked=false;}
