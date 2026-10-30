@@ -4802,3 +4802,35 @@ body[data-vatra-reduce-motion="true"] *,body[data-vatra-reduce-motion="true"] *:
  .vatra-site-legal-tabs button{flex:1 1 95px!important;min-height:36px!important;font-size:11px!important}
  .vatra-site-legal-body{padding:14px 16px!important}
 }
+
+
+
+/* Gentle page switches, clearer settings forms and focused photo-viewer comments. */
+@keyframes vatra-page-enter{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.layout>.main.vatra-page-enter{animation:vatra-page-enter .2s ease both}
+.settings-card label,.settings-card label>span{font-size:12.5px!important;line-height:1.5!important}
+.settings-card input:not([type=checkbox]),.settings-card select,.settings-card textarea{font-size:13px!important;min-height:39px!important}
+.settings-card .muted,.settings-card .field-hint{font-size:11.5px!important;line-height:1.55!important}
+.interface-settings-card{border-color:#dbe6f5!important;background:linear-gradient(135deg,#fff,#f7faff)!important}
+.interface-settings-card h3{font-size:15px!important}
+.interface-settings-card .settings-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
+.vatra-media-viewer-side .comment-actions{display:none!important}
+.vatra-media-viewer-side .comment-copy{font-size:12px!important}
+.vatra-media-viewer-side .comment-main{gap:8px!important}
+.mobile-nav button.active{color:var(--vatra-user-accent,#0757f5)!important;background:color-mix(in srgb,var(--vatra-user-accent,#0757f5) 9%,white)!important}
+.mobile-nav button.active .mobile-icon{transform:translateY(-1px)!important}
+@media(max-width:760px){
+ .main>.heading h1{font-size:20px!important}
+ .main>.heading p:last-child{font-size:11.5px!important}
+ .post-text{font-size:13px!important;line-height:1.58!important}
+ .post-head .author b,.post-head .author .author-link{font-size:12.5px!important}
+ .post-head .author small{font-size:10.5px!important}
+ .profile-vk-title-row h2{font-size:20px!important}
+ .profile-vk-bio{font-size:12.5px!important}
+ .profile-vk-detail,.profile-vk-detail b{font-size:11.5px!important}
+ .settings-card label{font-size:12px!important}
+ .interface-settings-card .settings-grid{grid-template-columns:minmax(0,1fr)!important}
+ .profile-vk-photos .profile-photo-tile{flex-basis:76px!important;width:76px!important;min-width:76px!important;max-width:76px!important}
+ .profile-vk-photos .profile-gallery-open,.profile-vk-photos .profile-gallery-open img{width:76px!important;height:76px!important}
+}
+@media(prefers-reduced-motion:reduce){.layout>.main.vatra-page-enter{animation:none!important}}
