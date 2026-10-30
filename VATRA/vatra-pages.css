@@ -4339,3 +4339,190 @@ body[data-page="publicProfile"] #vatraPublicFriendList>.muted{
   max-width:41px!important;max-height:41px!important;
  }
 }
+
+
+/* 2026-10-30 VATRA: six friends (two consistent rows of three). */
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends .vatra-profile-friend-grid,
+body[data-page="publicProfile"] .vatra-profile-sidebar #vatraPublicFriendList{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  grid-template-rows:auto!important;
+  grid-auto-rows:auto!important;
+  gap:9px 5px!important;
+  align-items:start!important;
+  justify-items:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend,
+body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend{
+  min-width:0!important;
+  max-width:100%!important;
+  width:100%!important;
+  margin:0!important;
+  padding:3px 1px!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends>.vatra-profile-link,
+body[data-page="publicProfile"] .vatra-profile-sidebar .vatra-profile-public-friends>#vatraPublicAllFriends{
+  display:block!important;
+  width:100%!important;
+  margin:9px auto 0!important;
+  text-align:center!important;
+  font-weight:750!important;
+}
+/* Actors under likes: identical square geometry across the avatar and its wrapper. */
+body .post .post-actions .post-action-item .post-actor-stack,
+body .vatra-profile-posts .post-actions .post-action-item .post-actor-stack{
+  display:inline-flex!important;
+  flex:0 0 auto!important;
+  flex-direction:row!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  min-width:0!important;
+  max-width:64px!important;
+  height:22px!important;
+  min-height:22px!important;
+  margin:0!important;
+  padding:0 0 0 5px!important;
+  overflow:visible!important;
+}
+body .post .post-actions .post-action-item .post-actor-link,
+body .vatra-profile-posts .post-actions .post-action-item .post-actor-link{
+  box-sizing:border-box!important;
+  display:block!important;
+  position:relative!important;
+  flex:0 0 22px!important;
+  width:22px!important;
+  min-width:22px!important;
+  max-width:22px!important;
+  height:22px!important;
+  min-height:22px!important;
+  max-height:22px!important;
+  aspect-ratio:1/1!important;
+  padding:2px!important;
+  margin:0 0 0 -5px!important;
+  border:2px solid #fff!important;
+  border-radius:50%!important;
+  overflow:hidden!important;
+  background:#fff!important;
+  vertical-align:middle!important;
+}
+body .post .post-actions .post-action-item .post-actor-avatar,
+body .vatra-profile-posts .post-actions .post-action-item .post-actor-avatar,
+body .post .post-actions .post-action-item .post-actor-link>.avatar,
+body .vatra-profile-posts .post-actions .post-action-item .post-actor-link>.avatar{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex:0 0 14px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:14px!important;
+  min-width:14px!important;
+  max-width:14px!important;
+  height:14px!important;
+  min-height:14px!important;
+  max-height:14px!important;
+  aspect-ratio:1/1!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  overflow:hidden!important;
+  transform:none!important;
+  font-size:7px!important;
+  line-height:1!important;
+}
+/* Readable, consistently weighted settings navigation, labels and values. */
+body[data-page="settings"] .vatra-settings-nav-button{
+  font-weight:700!important;
+  font-size:14px!important;
+  line-height:1.5!important;
+  letter-spacing:0!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button.active{
+  font-weight:800!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card h3,
+body[data-page="settings"] .vatra-settings-pane .settings-card h4{
+  font-weight:800!important;
+  letter-spacing:-.01em!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid>label,
+body[data-page="settings"] .vatra-settings-pane .vatra-extra-setting>label,
+body[data-page="settings"] .vatra-settings-pane .settings-card>.settings-check{
+  font-weight:700!important;
+  line-height:1.55!important;
+  color:#4f6580!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid select,
+body[data-page="settings"] .vatra-settings-pane .settings-grid input,
+body[data-page="settings"] .vatra-settings-pane .settings-grid textarea{
+  font-size:14px!important;
+  font-weight:600!important;
+  line-height:1.5!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid select option{
+  font-weight:600!important;
+}
+body[data-page="settings"] .vatra-extra-setting{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:8px!important;
+  min-width:0!important;
+  width:100%!important;
+}
+body[data-page="settings"] .vatra-extra-setting>.vatra-extra-visibility{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:5px!important;
+  font-weight:700!important;
+  font-size:12px!important;
+  color:#687d97!important;
+}
+body[data-page="settings"] .vatra-extra-setting>.vatra-extra-visibility>select{
+  box-sizing:border-box!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:40px!important;
+  padding:8px 11px!important;
+  border:1px solid #d5e0ee!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#324966!important;
+  box-shadow:none!important;
+  font-size:13px!important;
+  font-weight:650!important;
+  cursor:pointer!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-extra-setting>.vatra-extra-visibility>select{
+ background:#243448!important;
+ color:#e6effb!important;
+ border-color:#465a72!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-grid>label,
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .vatra-extra-setting>label{
+ color:#ccdaec!important;
+}
+/* Footer: keep its NEW sectioned structure visually legible and free of stray copy. */
+body .layout>.sidebar .sidebar-footer.vatra-sidebar-footer{
+  font-size:12px!important;
+  line-height:1.55!important;
+}
+body .layout>.sidebar .sidebar-footer.vatra-sidebar-footer .vatra-footer-identity>span{
+  font-size:11.5px!important;
+  font-weight:550!important;
+}
+body .layout>.sidebar .sidebar-footer.vatra-sidebar-footer .vatra-footer-legal a{
+  font-size:12px!important;
+  font-weight:650!important;
+  min-height:29px!important;
+}
