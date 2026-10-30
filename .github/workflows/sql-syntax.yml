@@ -1,0 +1,32 @@
+name: VATRA SQL syntax check
+on:
+  push:
+    paths:
+      - 'VATRA/app-data-schema.sql'
+      - '.github/workflows/sql-syntax.yml'
+  pull_request:
+    paths:
+      - 'VATRA/app-data-schema.sql'
+      - '.github/workflows/sql-syntax.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL parser
+        run: python3 -m pip install pglast
+      - name: Parse every PostgreSQL statement
+        run: |
+          python3 - <<'PY'
+          from pglast import parse_sql
+          from pathlib import Path
+          s=Path('VATRA/app-data-schema.sql').read_text(encoding='utf-8')
+          tree=parse_sql(s)
+          assert len(tree)>15, "Expected schema, policies and trigger"
+          assert 'create trigger vatra_require_encrypted_messages' in s.lower()
+          assert s.count('create or replace function public.vatra_data_can_write') == 1
+          print(f'OK: {len(tree)} PostgreSQL statements, {len(s.splitlines())} lines')
+          PY
