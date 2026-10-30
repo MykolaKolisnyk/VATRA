@@ -125,7 +125,7 @@ function renderProfile(){
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileInfoEdit')?.addEventListener('click',editProfile);
  $('#avatarUpload')?.addEventListener('change',uploadAvatar);
- $('#coverUpload')?.addEventListener('change',uploadCover);
+
  $('#profileCreatePost')?.addEventListener('click',openComposer);
  $('#profileAddPhoto')?.addEventListener('click',()=>{if(authRequired())$('#profilePhotoUpload')?.click();});$('#profilePhotoUpload')?.addEventListener('change',uploadProfilePhoto);
 
