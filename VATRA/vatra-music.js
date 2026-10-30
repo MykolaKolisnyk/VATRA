@@ -170,14 +170,13 @@ async function favorite(item,button){
   notify(next.has(key(item))?'Додано до «Моєї музики».':'Прибрано з «Моєї музики».');
  }catch(error){button.disabled=false;notify('Не вдалося зберегти у Supabase. Спробуйте ще раз.',true);console.warn('[ВАТРА] Музика не збережена:',error);}
 }
-if(musicHeader&&musicTopPanel){
- musicHeader.addEventListener('click',()=>{const showing=musicTopPanel.hidden;musicTopPanel.hidden=!showing;musicHeader.setAttribute('aria-expanded',String(showing));syncHeaderMusic();});
- document.getElementById('vatraTopMusicOpen')?.addEventListener('click',()=>{closeMusicMenu();document.querySelector('.sidebar button[data-page="music"]')?.click();});
- document.getElementById('vatraTopMusicPlayer')?.addEventListener('click',()=>{closeMusicMenu();if(playerItem){activePlayer().hidden=false;setPlayerExpanded(true);}else{const featured=MUSIC_LIBRARY.find(item=>item.type==='playlist');if(featured)play(featured);}});
- document.getElementById('vatraMusicMenuClose')?.addEventListener('click',closeMusicMenu);
- document.addEventListener('click',event=>{if(!event.target.closest('#vatraMusicTopPanel')&&!event.target.closest('#vatraMusicHeaderButton'))closeMusicMenu();});
- window.addEventListener('keydown',event=>{if(event.key==='Escape')closeMusicMenu();});
+if(musicHeader){
+ musicHeader.addEventListener('click',event=>{
+  event.preventDefault();closeMusicMenu();
+  window.dispatchEvent(new CustomEvent('vatra:navigate',{detail:'music'}));
+ });
 }
+
 document.addEventListener('click',async event=>{
  const tab=event.target.closest('[data-music-tab]');if(tab){musicTab=tab.dataset.musicTab;renderMusic();return;}
  const listen=event.target.closest('[data-music-play]');if(listen){play(musicIndex.get(listen.dataset.musicPlay));return;}

@@ -1,0 +1,74 @@
+/* VATRA 2026-10-30: balanced UI, no artificial data or backend changes. */
+/* Sidebar motion/hover, remaining accessible. */
+body .layout>.sidebar nav button.nav,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav{width:100%!important;margin:0 0 2px!important;transform:none!important;box-shadow:none!important;border-radius:9px!important;background:transparent!important;color:#566b82!important;transition:color .15s,background .15s!important}
+body .layout>.sidebar nav button.nav:hover,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav:hover{transform:none!important;box-shadow:none!important;background:#e7ebf0!important;color:#344c68!important}
+body .layout>.sidebar nav button.nav .nav-icon,body .layout>.sidebar nav button.nav:hover .nav-icon{transform:none!important}
+body .layout>.sidebar nav button.nav.active,
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav.active{transform:none!important;box-shadow:none!important;color:#245a9a!important;background:#e7eef8!important;font-weight:600!important}
+body .layout>.sidebar nav button.nav.active::before{top:9px!important;bottom:9px!important;width:3px!important;background:#4d80be!important}
+body .layout>.sidebar nav button.nav.active:hover{transform:none!important;background:#e4eaf3!important}
+body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav:hover{background:#344457!important;color:#d4e0ed!important}
+body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav.active{background:#344a60!important;color:#c3dafa!important}
+/* Mouse and touch actions must not leave bright outlines on cards. 
+   Keyboard navigation retains a softer focus indicator. */
+body .post:focus,body .post:focus-within,body .vatra-profile-card:focus,body .vatra-profile-card:focus-within{outline:none!important}
+body :is(button,a,summary,[role="button"],[tabindex]):focus:not(:focus-visible){outline:0!important}
+body :is(button,a,summary,[role="button"],[tabindex]):focus-visible{outline:2px solid #889bad!important;outline-offset:2px!important}
+body .layout .main :is(input,textarea,select):focus-visible{outline:none!important;border-color:#aebdd0!important;box-shadow:0 0 0 2px #7288a529!important}
+body .vatra-photo-tile:hover{outline:0!important;box-shadow:0 0 0 1px #d6dfe9!important}
+/* Clearer news cards: author, message, media, four equal actions. */
+body .feed>.post:not(.chat-window),body .vatra-profile-posts .post,body .vatra-saved-list>.post{padding:16px 18px 0!important;margin:0 0 13px!important;background:#fff!important;border:1px solid #e2e8ef!important;border-radius:13px!important;box-shadow:0 1px 2px #23344908!important}
+body .feed>.post:not(.chat-window):hover,body .vatra-profile-posts .post:hover,body .vatra-saved-list>.post:hover{border-color:#dbe3ed!important;box-shadow:0 1px 2px #23344908!important}
+body .post .post-head{display:flex!important;align-items:center!important;gap:11px!important;min-height:44px!important;margin-bottom:9px!important}
+body .post .post-head>.avatar{flex:0 0 43px!important;width:43px!important;height:43px!important;min-width:43px!important}
+body .post .post-head .author{display:grid!important;gap:3px!important;flex:1!important;min-width:0!important}
+body .post .post-head .author b,body .post .post-head .author-link{font:600 14px/1.35 Inter,system-ui,sans-serif!important;color:#304358!important}
+body .post .post-head .author small{font:400 11.5px/1.4 Inter,system-ui,sans-serif!important;color:#8797a8!important}
+body .post .post-menu>.dots{display:grid!important;place-items:center!important;width:33px!important;height:33px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#8292a4!important}
+body .post .post-menu>.dots:hover{background:#f1f3f6!important;color:#4f6277!important}
+body .post .vatra-post-text-container{max-width:none!important}
+body:not([data-vatra-font-scale="small"]):not([data-vatra-font-scale="large"]) .post .post-text{font:400 14px/1.7 Inter,system-ui,sans-serif!important;color:#384c61!important;letter-spacing:0!important;margin:12px 0 14px!important;overflow-wrap:anywhere!important}
+body[data-vatra-font-scale="small"] .post .post-text{font-size:13px!important}
+body[data-vatra-font-scale="large"] .post .post-text{font-size:16px!important}
+body .post .vatra-post-text-toggle{font-size:12.5px!important;font-weight:550!important;color:#396a9f!important;min-height:30px!important;margin:0 0 9px!important}
+body .post .post-photo-grid{gap:7px!important;margin:12px 0 14px!important;border-radius:10px!important}
+body .post .post-photo-grid .post-photo-item{border-radius:9px!important;overflow:hidden!important}
+body .post .post-actions{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important;margin:11px 0 0!important;padding:9px 0 11px!important;border-top:1px solid #edf1f5!important}
+body .post .post-actions .post-action-item{min-width:0!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important}
+body .post .post-actions .post-action-button{width:100%!important;min-height:37px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;padding:7px 4px!important;background:transparent!important;color:#718297!important;border:0!important;border-radius:8px!important;box-shadow:none!important;font:500 11.5px/1.3 Inter,system-ui,sans-serif!important;white-space:nowrap!important}
+body .post .post-actions .post-action-button:hover{color:#3a5a7a!important;background:#f1f4f7!important}
+body .post .post-actions .post-action-button.is-active{color:#2867ac!important;background:#edf4fc!important}
+body .post .post-actions .post-action-button svg{width:17px!important;height:17px!important;flex:0 0 17px!important}
+body .post .post-actions .post-action-count{font:500 11px/1.25 Inter,system-ui,sans-serif!important;color:#8897a7!important}
+body .post .post-actions .post-actor-stack{display:none!important}
+body[data-vatra-theme-effective="dark"] .feed>.post,body[data-vatra-theme-effective="dark"] .vatra-profile-posts .post{background:#263549!important;border-color:#405268!important}
+body[data-vatra-theme-effective="dark"] .post .post-head .author b,body[data-vatra-theme-effective="dark"] .post .post-text{color:#e2ecf6!important}
+@media(max-width:620px){body .post .post-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}body .post .post-actions .post-action-button{font-size:12px!important}body .feed>.post:not(.chat-window),body .vatra-profile-posts .post{padding:13px 13px 0!important}}
+/* Notification sound setting stays available after direct header navigation. */
+body .notifications-heading .vatra-notification-settings{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:9px!important}
+body .notifications-heading .vatra-notification-sound{min-height:34px!important;padding:8px 10px!important;border:1px solid #d9e2eb!important;border-radius:9px!important;background:#f2f5f8!important;color:#46627d!important;font:500 12px/1.4 Inter,system-ui,sans-serif!important;cursor:pointer!important}
+body .notifications-heading .vatra-notification-sound:hover{background:#e7edf4!important}
+/* Chat: fixed available screen height, independent scrolling history, visible composer. */
+@media(min-width:761px){
+ body[data-page="messages"] .vatra-messenger-shell{height:min(760px,calc(100dvh - 112px))!important;min-height:420px!important;max-height:none!important;overflow:hidden!important;grid-template-columns:minmax(270px,34%) minmax(0,1fr)!important}
+}
+body[data-page="messages"] .vatra-messenger-shell{box-sizing:border-box!important;overflow:hidden!important}
+body[data-page="messages"] .vatra-messenger-shell>.vatra-messenger-sidebar{display:flex!important;flex-direction:column!important;min-height:0!important;max-height:100%!important;overflow:hidden!important}
+body[data-page="messages"] .vatra-messenger-contacts{min-height:0!important;flex:1 1 0!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+body[data-page="messages"] .vatra-messenger-shell>.chat-window{box-sizing:border-box!important;display:flex!important;flex-direction:column!important;min-height:0!important;max-height:100%!important;height:100%!important;padding:0!important;margin:0!important;overflow:hidden!important}
+body[data-page="messages"] .vatra-messenger-shell>.chat-window #chatMessages{flex:1 1 0!important;height:0!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important}
+body[data-page="messages"] .vatra-messenger-shell>.chat-window #sendMessageForm{display:flex!important;flex:0 0 auto!important;align-items:center!important;min-height:56px!important;margin:0 14px 12px!important}
+body[data-page="messages"] .vatra-messenger-shell>.chat-window #sendMessageForm[hidden]{display:none!important}
+body[data-page="messages"] .vatra-messenger-shell>.chat-window #chatSendError:not([hidden]){flex:0 0 auto!important}
+body[data-page="messages"] .vatra-messenger-empty{min-height:0!important;height:100%!important}
+@media(min-width:761px) and (max-width:980px){body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(240px,35%) minmax(0,1fr)!important}}
+@media(max-width:760px){
+ body[data-page="messages"] .vatra-messenger-shell{display:block!important;height:calc(100dvh - 154px)!important;min-height:380px!important;max-height:none!important}
+ body[data-page="messages"] .vatra-messenger-shell>.chat-window{min-height:0!important;max-height:none!important;height:100%!important}
+ body[data-page="messages"] .vatra-messenger-shell>.chat-window #chatMessages{min-height:0!important;max-height:none!important}
+ body[data-page="messages"] .vatra-messenger-shell>.chat-window #sendMessageForm{margin:0 8px 9px!important;min-height:54px!important}
+ body[data-page="messages"] .vatra-messenger-shell>.vatra-messenger-sidebar{min-height:0!important;height:100%!important}
+}
+@media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav{transition:none!important}}
