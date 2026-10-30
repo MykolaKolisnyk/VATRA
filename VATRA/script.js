@@ -137,23 +137,35 @@ function renderPostEditForm(p){
   '<small class="post-edit-hint">До 10 фотографій у публікації. Нові фото можна обрізати й відредагувати перед збереженням.</small></div>'+
   '<div class="post-edit-actions"><button class="primary" type="submit">Зберегти зміни</button><button class="pill" type="button" data-cancel-post-edit>Скасувати</button></div></form>';
 }
-function openPostPhotoViewer(urls,startIndex=0){
- const photos=[...new Set((Array.isArray(urls)?urls:[]).filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)))];
- if(!photos.length)return;
- let index=Math.max(0,Math.min(Number(startIndex)||0,photos.length-1));
+function openPostPhotoViewer(urls,startIndex=0,postId='',ownerUid=''){
+ const photos=[...new Set((Array.isArray(urls)?urls:[]).filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)))];if(!photos.length)return;
+ let index=Math.max(0,Math.min(Number(startIndex)||0,photos.length-1)),zoom=1;
  const dialog=document.createElement('dialog');dialog.className='vatra-post-photo-viewer';document.body.append(dialog);
+ const getPost=()=>postId?posts[postId]||null:null;
+ const getOwner=()=>{const p=getPost(),uid=p?.authorUid||ownerUid;return uid?(uid===currentUser?.uid?currentProfile:(users[uid]||{})):{};};
  const draw=()=>{
-  dialog.innerHTML='<button type="button" class="vatra-post-photo-close" aria-label="Закрити">×</button><div class="vatra-post-photo-stage"><button type="button" data-post-photo-step="-1" '+(photos.length<2?'disabled':'')+' aria-label="Попереднє фото">‹</button><img src="'+esc(photos[index])+'" alt="Фото '+(index+1)+' з '+photos.length+'"><button type="button" data-post-photo-step="1" '+(photos.length<2?'disabled':'')+' aria-label="Наступне фото">›</button></div><small>'+ (index+1) +' / '+photos.length+'</small>';
+  const p=getPost(),u=getOwner(),name=u.name||p?.authorName||'Користувач ВАТРИ',handle=u.handle||p?.authorHandle||'user';
+  const cs=postId?Object.entries(comments[postId]||{}).map(([id,c])=>({...c,id})).filter(c=>c.uid===currentUser?.uid||!blockedUsers[c.uid]).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)):[];
+  zoom=1;
+  dialog.innerHTML='<div class="vatra-media-viewer-shell"><header class="vatra-media-viewer-topbar"><div class="vatra-media-viewer-brand"><button type="button" class="vatra-viewer-close" aria-label="Закрити">×</button><span class="vatra-viewer-mark">В</span><b>ВАТРА</b></div><div class="vatra-media-viewer-tools"><button type="button" data-viewer-zoom="-1" aria-label="Зменшити">−</button><output data-viewer-zoom-value>100%</output><button type="button" data-viewer-zoom="1" aria-label="Збільшити">＋</button><button type="button" data-viewer-fullscreen aria-label="На весь екран">⛶</button></div></header><div class="vatra-media-viewer-layout"><main class="vatra-media-viewer-stage"><button type="button" class="vatra-media-viewer-step prev" data-post-photo-step="-1" '+(photos.length<2?'disabled':'')+' aria-label="Попереднє фото">‹</button><img class="vatra-media-viewer-image" src="'+esc(photos[index])+'" alt="Фото '+(index+1)+' з '+photos.length+'"><button type="button" class="vatra-media-viewer-step next" data-post-photo-step="1" '+(photos.length<2?'disabled':'')+' aria-label="Наступне фото">›</button><div class="vatra-media-viewer-counter">'+(index+1)+' / '+photos.length+'</div></main><aside class="vatra-media-viewer-side"><div class="vatra-media-viewer-post-head">'+avatar(name,u.avatarUrl)+'<div><button type="button" class="comment-author-name" '+((p?.authorUid||ownerUid)?'data-view-profile="'+esc(p?.authorUid||ownerUid)+'"':'')+'>'+esc(name)+'</button><small>@'+esc(handle)+' · '+(p?.createdAt?timeAgo(p.createdAt):'Фото профілю')+'</small></div></div>'+(p?.text?'<p class="vatra-media-viewer-caption">'+safeText(p.text)+'</p>':'<p class="vatra-media-viewer-caption">'+(p?'Фото до допису':'Фото профілю')+'</p>')+(postId?'<div class="vatra-media-viewer-context"><span>'+Object.keys(likes[postId]||{}).length+' вподобань</span><span>'+cs.length+' коментарів</span></div><section class="vatra-media-viewer-comments"><h3>Коментарі</h3><div class="vatra-media-viewer-comment-list">'+renderComments(p,cs)+'</div><form class="vatra-media-viewer-comment-form" data-media-comment="'+esc(postId)+'">'+emojiControl()+'<textarea name="comment" data-emoji-input maxlength="300" rows="2" placeholder="Написати коментар…" required></textarea><button type="submit" class="primary">Надіслати</button></form></section>':'<div class="vatra-media-viewer-photo-note">Фото профілю · використовуйте стрілки або клавіші ← → для перегляду</div>')+'</aside></div></div>';
  };
- dialog.addEventListener('click',event=>{
-  if(event.target.closest('.vatra-post-photo-close')||event.target===dialog){dialog.close();return;}
-  const step=event.target.closest('[data-post-photo-step]');if(step){index=(index+Number(step.dataset.postPhotoStep)+photos.length)%photos.length;draw();}
+ const step=delta=>{index=(index+delta+photos.length)%photos.length;draw();};
+ dialog.addEventListener('click',async event=>{
+  if(event.target.closest('.vatra-viewer-close')||event.target===dialog){dialog.close();return;}
+  const next=event.target.closest('[data-post-photo-step]');if(next){step(Number(next.dataset.postPhotoStep));return;}
+  const z=event.target.closest('[data-viewer-zoom]');if(z){zoom=Math.max(1,Math.min(3,zoom+Number(z.dataset.viewerZoom)*.2));const image=dialog.querySelector('.vatra-media-viewer-image');if(image)image.style.transform='scale('+zoom+')';dialog.querySelector('[data-viewer-zoom-value]').textContent=Math.round(zoom*100)+'%';return;}
+  if(event.target.closest('[data-viewer-fullscreen]')){const stage=dialog.querySelector('.vatra-media-viewer-stage');try{if(!document.fullscreenElement)await stage?.requestFullscreen?.();else await document.exitFullscreen?.();}catch(error){toastMsg('Повноекранний режим недоступний у цьому браузері.');}}
  });
- dialog.addEventListener('keydown',event=>{
-  if(event.key==='ArrowRight'){index=(index+1)%photos.length;draw();}
-  else if(event.key==='ArrowLeft'){index=(index-1+photos.length)%photos.length;draw();}
+ dialog.addEventListener('submit',async event=>{
+  const form=event.target.closest('[data-media-comment]');if(!form)return;
+  event.preventDefault();event.stopPropagation();if(!authRequired())return;
+  const value=String(new FormData(form).get('comment')||'').trim(),id=form.dataset.mediaComment;if(!value)return;
+  try{await set(push(ref(db,'comments/'+id)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',avatarUrl:currentProfile.avatarUrl||'',text:value.slice(0,300),createdAt:Date.now()});const snap=await get(ref(db,'comments/'+id));comments[id]=snap.val()||{};draw();}
+  catch(error){toastMsg(niceError(error));}
  });
- dialog.addEventListener('close',()=>dialog.remove());draw();dialog.showModal();
+ dialog.addEventListener('keydown',event=>{if(event.key==='ArrowRight')step(1);else if(event.key==='ArrowLeft')step(-1);});
+ dialog.addEventListener('close',()=>{if(document.fullscreenElement)document.exitFullscreen?.();dialog.remove();});
+ draw();dialog.showModal();
 }
 function renderPostBody(p){
  return (p.text?'<p class="post-text">'+safeText(p.text)+'</p>':'')+renderPostImages(p)+(p.videoUrl?'<video class="post-image" controls playsinline preload="metadata" src="'+esc(p.videoUrl)+'"></video>':'');
