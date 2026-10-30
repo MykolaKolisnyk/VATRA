@@ -121,7 +121,7 @@ function renderProfile(){
  const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.map(p=>'<div class="profile-photo-tile"><img class="post-image profile-gallery-image" loading="lazy" decoding="async" src="'+esc(p.url)+'" alt="'+(p.source==='profile'?'Фото в альбомі профілю':'Фото з допису')+'"><small>'+(p.source==='profile'?'Фото профілю':timeAgo(p.createdAt))+'</small>'+(p.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+p.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>':'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(id=>{const u=users[id]||{};return '<button type="button" class="profile-vk-friend" data-view-profile="'+esc(id)+'">'+avatar(u.name||'Користувач',u.avatarUrl,'profile-vk-friend-avatar')+'<span>'+esc(u.name||'Користувач')+'</span></button>';}).join('');
- const friendBlock='<section class="profile-vk-card profile-vk-friends"><div class="profile-vk-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="profile-vk-friend-grid">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="profile-vk-link" data-page="friends">Усі друзі →</button></section>';
+ const friendBlock='<section class="profile-vk-card profile-vk-friends"><div class="profile-vk-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="profile-vk-friend-grid">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="profile-vk-link" id="profileAllFriends">Усі друзі →</button></section>';
  const detailHtml=detail('День народження',birthday)+detail('Місто',currentProfile.city)+detail('Місце проживання',currentProfile.location)+detail('Місце роботи',currentProfile.workplace)+detail('Навчання',currentProfile.education)+detail('Рідне місто',currentProfile.hometown)+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website);
  const hasDetails=!!(birthday||currentProfile.city||currentProfile.location||currentProfile.workplace||currentProfile.education||currentProfile.hometown||currentProfile.phone||privatePhone||currentProfile.website);
  const myVideos=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
@@ -150,6 +150,7 @@ function renderProfile(){
  setFeed(profileHtml,false);
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileInfoEdit')?.addEventListener('click',editProfile);
+ $('#profileAllFriends')?.addEventListener('click',()=>goPage('friends'));
  $('#avatarUpload')?.addEventListener('change',uploadAvatar);
  $('#profileCreatePost')?.addEventListener('click',openComposer);
  $('#profilePrompt')?.addEventListener('click',openComposer);
