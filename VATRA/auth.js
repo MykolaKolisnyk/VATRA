@@ -273,7 +273,7 @@ function startAuthRateLimitCooldown(seconds=300){
 function renderCaptcha(){if(!TURNSTILE_SITE_KEY)return;const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.onload=()=>{if(window.turnstile&&!captchaWidget)captchaWidget=window.turnstile.render('#turnstileWidget',{sitekey:TURNSTILE_SITE_KEY,theme:'light'});};document.head.append(script);}
 function show(m){
  const previousMode=mode;mode=m;document.body.dataset.authMode=m;
- if(previousMode!==m)window.scrollTo(0,0);
+ if(previousMode!==m&&!(['login','register'].includes(previousMode)&&['login','register'].includes(m)))window.scrollTo(0,0);
  const switchingAccountMode=['login','register'].includes(previousMode)&&['login','register'].includes(m)&&previousMode!==m;
  if(switchingAccountMode){
   $('#email').value='';$('#password').value='';$('#confirm').value='';
@@ -370,7 +370,7 @@ document.getElementById('closeDeveloper').addEventListener('click',()=>closeDial
 document.getElementById('closeDeveloperBottom').addEventListener('click',()=>closeDialogAnimated(document.getElementById('developerDialog')));
 document.getElementById('developerDialog').addEventListener('click',event=>{if(event.target===document.getElementById('developerDialog'))closeDialogAnimated(document.getElementById('developerDialog'));});
 document.querySelectorAll('dialog').forEach(dialog=>{dialog.addEventListener('cancel',event=>{event.preventDefault();closeDialogAnimated(dialog);});dialog.addEventListener('close',()=>resetModalScroll(dialog));});
-function openLegal(which){const selected=['rules','privacy','terms'].includes(which)?which:'rules';$('#legalRules').hidden=selected!=='rules';$('#legalPrivacy').hidden=selected!=='privacy';$('#legalTerms').hidden=selected!=='terms';document.querySelectorAll('[data-legal-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.legalTab===selected);b.setAttribute('aria-selected',String(b.dataset.legalTab===selected));});const area=$('#legalScrollArea');if(area)area.scrollTop=0;openDialogAnimated($('#legalDialog'));}
+function openLegal(which){const selected=['rules','privacy','terms'].includes(which)?which:'rules',dialog=$('#legalDialog'),wasOpen=dialog.open,area=$('#legalScrollArea');['rules','privacy','terms'].forEach(key=>{const article=$('#legal'+key.charAt(0).toUpperCase()+key.slice(1));if(article){article.hidden=key!==selected;article.classList.toggle('is-active',key===selected);}});document.querySelectorAll('[data-legal-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.legalTab===selected);b.setAttribute('aria-selected',String(b.dataset.legalTab===selected));});if(area)area.scrollTop=0;if(!wasOpen)openDialogAnimated(dialog);else{area?.classList.remove('is-switching');void area?.offsetWidth;area?.classList.add('is-switching');requestAnimationFrame(()=>area?.classList.remove('is-switching'));}}
 $('#legal').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b)openLegal(b.dataset.legal);});
 $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[data-legal]');if(b){e.preventDefault();openLegal(b.dataset.legal);}});
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
