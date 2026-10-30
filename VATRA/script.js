@@ -1,3 +1,4 @@
+import { ensureIdentity, prepareSession, encryptMessage, decryptMessage, formatFingerprint } from './vatra-e2ee.js?v=1';
 import { setupNavigation } from './navigation.js?v=20261030-21';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange } from './vatra-backend.js?v=20261030-1';
 
@@ -412,11 +413,38 @@ function renderGroupSettings(id){
  $('#groupSettingsForm')?.addEventListener('submit',async e=>{e.preventDefault();if(!canEditSettings)return;const fd=new FormData(e.currentTarget),name=String(fd.get('name')||'').trim(),description=String(fd.get('description')||'').trim(),category=String(fd.get('category')||'').trim(),visibility=String(fd.get('visibility')||'public');if(name.length<2){$('#groupSettingsStatus').textContent='Назва має містити щонайменше 2 символи.';return;}const btn=e.currentTarget.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Зберігаємо…';try{await update(ref(db,`groups/${id}`),{name:name.slice(0,60),description:description.slice(0,500),category:category.slice(0,80),visibility,updatedAt:Date.now()});$('#groupSettingsStatus').textContent='Зміни збережено.';toastMsg('Спільноту оновлено.');}catch(err){$('#groupSettingsStatus').textContent=niceError(err);}finally{btn.disabled=false;btn.textContent='Зберегти зміни';}});
 }
 function chatKey(uid1,uid2){return [uid1,uid2].sort().join('_');}
+let activeSecureSession=null,secureChatAttempt=0,chatRenderToken=0;
+const SECURE_PREVIEW='🔒 Зашифроване повідомлення';
+async function readE2EEKey(uid){const snap=await get(ref(db,'e2eeKeys/'+uid));return snap.val();}
+async function publishE2EEKey(uid,record){return set(ref(db,'e2eeKeys/'+uid),record);}
+function updateChatSecurityStatus(text,ready=false){
+ const status=$('#chatSecurityStatus'),form=$('#sendMessageForm'),input=form?.elements?.message,button=form?.querySelector('button.primary');
+ if(status){status.textContent=text;status.dataset.ready=ready?'true':'false';}
+ if(input){input.disabled=!ready;input.placeholder=ready?'Захищене повідомлення…':'Очікуємо захищене з’єднання…';}
+ if(button)button.disabled=!ready;
+ const keys=$('#chatSecurityKeys');
+ if(keys){keys.hidden=!ready;if(ready&&activeSecureSession){keys.textContent='Ваш ключ: '+formatFingerprint(activeSecureSession.ownFingerprint)+' · Ключ співрозмовника: '+formatFingerprint(activeSecureSession.peerFingerprint)+'. Для підтвердження особи звірте код іншим надійним каналом.';}}
+}
+async function activateSecureChat(key,peerUid){
+ const attempt=++secureChatAttempt;activeSecureSession=null;
+ updateChatSecurityStatus('🔐 Перевіряємо захищені ключі…',false);
+ try{
+  const secure=await prepareSession(currentUser.uid,peerUid,key,readE2EEKey,publishE2EEKey);
+  if(attempt!==secureChatAttempt||activeChat!==peerUid||page!=='messages'||!$('#chatMessages'))return;
+  activeSecureSession=secure;
+  updateChatSecurityStatus('🔒 Наскрізне шифрування активне на цьому пристрої · перевірте коди безпеки.',true);
+ }catch(err){
+  if(attempt!==secureChatAttempt||activeChat!==peerUid)return;
+  updateChatSecurityStatus('⚠️ E2EE недоступне: '+(err?.message||'невідома помилка')+' Нові повідомлення не надсилаються відкритим текстом.',false);
+ }
+ await renderChatBubbles(key);
+}
 async function syncChatPreview(key,otherUid){
- const snap=await get(ref(db,`chats/${key}/messages`)),items=Object.entries(snap.val()||{}).map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)),last=items[items.length-1],updatedAt=last?.createdAt||Date.now();
- const lastMessage=last?{text:String(last.text||'').slice(0,120),senderUid:last.senderUid,createdAt:last.createdAt}:null;
- await Promise.all([update(ref(db,`userChats/${currentUser.uid}/${key}`),{otherUid,updatedAt,lastMessage}),update(ref(db,`userChats/${otherUid}/${key}`),{otherUid:currentUser.uid,updatedAt,lastMessage})]);
-}function renderMessages(){
+ const snap=await get(ref(db,'chats/'+key+'/messages')),items=Object.entries(snap.val()||{}).map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)),last=items[items.length-1],updatedAt=last?.createdAt||Date.now();
+ const lastMessage=last?{text:last.encrypted?SECURE_PREVIEW:String(last.text||'').slice(0,120),senderUid:last.senderUid,createdAt:last.createdAt}:null;
+ await Promise.all([update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid,updatedAt,lastMessage}),update(ref(db,'userChats/'+otherUid+'/'+key),{otherUid:currentUser.uid,updatedAt,lastMessage})]);
+}
+function renderMessages(){
  if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися повідомленнями</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
  const chats=Object.entries(chatIndex).filter(([,c])=>Boolean(c?.lastMessage?.text)&&!blockedUsers[c.otherUid]).sort((a,b)=>(b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
  if(!activeChat){
