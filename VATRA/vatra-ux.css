@@ -260,3 +260,15 @@ body[data-vatra-theme-effective="dark"] .vatra-sk-bubble{
  body .vatra-sk-search,body .vatra-sk-input,body .vatra-sk-bubble,
  body .vatra-sk-chat-input{animation:none!important}
 }
+
+/* Persistent chat error: display next to the input, not as a fleeting toast. */
+body[data-page="messages"] .vatra-chat-send-error{
+ box-sizing:border-box!important;width:100%!important;margin:8px 0 0!important;
+ padding:9px 11px!important;border:1px solid #f1cbd0!important;border-radius:8px!important;
+ background:#fff4f6!important;color:#a13749!important;
+ font:450 11.5px/1.55 Inter,Arial,sans-serif!important;overflow-wrap:anywhere!important
+}
+body[data-page="messages"] .vatra-chat-send-error[hidden]{display:none!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-send-error{
+ background:#493039!important;color:#ffc1c9!important;border-color:#774753!important
+}

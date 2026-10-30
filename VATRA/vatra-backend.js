@@ -55,6 +55,20 @@ function databaseError(error) {
   const message = String(error?.message || error || '');
   console.error('[ВАТРА: database]', { message, code: error?.code || '', details: error?.details || '', hint: error?.hint || '' });
   const code = String(error?.code || '').toUpperCase();
+
+  if (code === 'P0001' && /VATRA E2EE: only signed ciphertext|only signed ciphertext from the sender/i.test(message)) {
+    const result = new Error('У Supabase залишилося старе правило чату. Застосуйте файл VATRA/chat-message-mode-update.sql у SQL Editor.');
+    result.code = 'CHAT_SQL_REQUIRED';
+    result.dbCode = 'P0001';
+    return result;
+  }
+  if (code === 'P0001' && /VATRA (?:E2EE|CHAT):/i.test(message)) {
+    const result = new Error('Правило бази даних відхилило запис у чат. Перевірте SQL-оновлення і журнал Supabase.');
+    result.code = 'CHAT_SQL_CONSTRAINT';
+    result.dbCode = 'P0001';
+    return result;
+  }
+
   const schemaMissing = ['42P01', 'PGRST204', 'PGRST205'].includes(code)
     || /relation .*app_data.* does not exist|could not find the table .*app_data|schema cache.*app_data/i.test(message);
   const permission = /permission|row.level.security|not allowed|42501/i.test(message);
