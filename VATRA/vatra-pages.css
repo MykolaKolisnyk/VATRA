@@ -1,0 +1,294 @@
+/* VATRA | рідний інтерфейс сторінок — 2026-10-30.
+   Тільки власні компоненти. Зміни обмежені фото, спільнотами,
+   повідомленнями, налаштуваннями профілю та профілем.
+   Supabase, шифрування, глобальну навігацію й реальні дані не підмінює. */
+:root{
+ --vatra-surface:#fff;
+ --vatra-surface-alt:#f4f6f9;
+ --vatra-surface-line:#dfe5ed;
+ --vatra-surface-ink:#27384d;
+ --vatra-surface-muted:#8291a5;
+ --vatra-surface-shadow:0 1px 3px rgba(22,38,58,.045);
+ --vatra-fire:#e97735;
+}
+body .layout>.sidebar nav .nav:hover{
+ background:color-mix(in srgb,var(--vatra-user-accent,#0757f5) 9%,#fff)!important;
+ color:var(--vatra-user-accent,#0757f5)!important;
+ transform:none!important;box-shadow:none!important;
+}
+body .layout>.sidebar nav .nav:hover .nav-icon{color:var(--vatra-user-accent,#0757f5)!important;}
+body .vatra-global-header{
+ background:#fff!important;color:#26374c!important;
+ border-bottom:1px solid var(--vatra-surface-line)!important;
+}
+body .vatra-global-header .mobile-brand{color:#26374c!important;}
+body .vatra-global-header .search{background:#eff2f6!important;color:#667d96!important;border-color:transparent!important;}
+body .vatra-global-header .search input{color:#2a4056!important;}
+body .vatra-global-header .search input::placeholder{color:#8191a4!important;}
+body .vatra-global-header .notification-button{color:#60738b!important;}
+/* Спільноти */
+body[data-page="groups"] #feed{min-width:0!important;}
+body .vatra-communities-layout{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,290px);
+ gap:18px;width:100%;min-width:0;align-items:start;
+}
+body .vatra-communities-main,body .vatra-communities-rail{display:grid;gap:16px;min-width:0;align-content:start;}
+body .vatra-community-search{
+ display:flex;align-items:center;gap:10px;height:51px;padding:0 18px;
+ background:var(--vatra-surface);border:1px solid var(--vatra-surface-line);
+ border-radius:11px;color:#8092a7;
+}
+body .vatra-community-search span{font-size:25px;line-height:1;}
+body .vatra-community-search input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--vatra-surface-ink);font:inherit;font-size:14px;}
+body .vatra-community-list-card,body .vatra-side-card{
+ min-width:0;background:var(--vatra-surface);border:1px solid var(--vatra-surface-line);
+ border-radius:12px;box-shadow:var(--vatra-surface-shadow);padding:17px;
+}
+body .vatra-community-section-head{display:flex;align-items:baseline;gap:9px;margin-bottom:12px;}
+body .vatra-community-section-head h2{margin:0;color:#2b3c52;font-size:20px;font-weight:800;}
+body .vatra-community-section-head span{color:#8192aa;font-size:12px;}
+body .vatra-community-tabs{display:flex;gap:6px;border-bottom:1px solid #e8edf3;padding-bottom:11px;margin-bottom:10px;}
+body .vatra-community-tabs button{
+ cursor:pointer;min-height:34px;padding:7px 13px;border:0;border-radius:8px;
+ background:transparent;color:#71849b;font-size:12px;font-weight:700;
+}
+body .vatra-community-tabs button:hover{background:#eef3f9;color:#2f5b87;}
+body .vatra-community-tabs button.active{background:#ecf3fc;color:var(--vatra-user-accent,#0757f5);}
+body .vatra-community-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 18px;}
+body .vatra-community-row{
+ min-width:0;display:flex;align-items:center;gap:11px;
+ border-bottom:1px solid #edf1f5;padding:12px 0;
+}
+body .vatra-community-row[hidden]{display:none!important;}
+body .vatra-community-avatar{
+ display:grid;place-items:center;flex:none;width:52px;height:52px;border:0;
+ border-radius:50%;background:linear-gradient(145deg,#e9a366,#a64735);color:#fff;font-size:21px;font-weight:850;
+}
+body .vatra-community-text{flex:1;min-width:0;}
+body .vatra-community-name{display:block;width:100%;padding:0;border:0;background:transparent;text-align:left;color:#293c51;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font-size:13px;font-weight:760;}
+body .vatra-community-name:hover{text-decoration:underline;color:var(--vatra-user-accent,#0757f5);}
+body .vatra-community-text small{display:block;margin-top:5px;color:#8b99aa;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+body .vatra-community-text p{margin:5px 0 0;color:#8192a5;font-size:11px;line-height:1.5;max-height:3em;overflow:hidden;}
+body .vatra-community-open{
+ flex:none;border:1px solid #e2e9f3;border-radius:8px;background:#f4f7fb;color:#426990;padding:7px 9px;font-size:11px;font-weight:700;
+}
+body .vatra-community-open:hover{background:#e5effa;}
+body .vatra-communities-rail .primary{border-radius:8px!important;}
+body .vatra-side-card{padding:16px;}
+body .vatra-side-card h3{margin:0 0 13px;color:#2d4258;font-size:14px;}
+body .vatra-side-card p{margin:11px 0 0;font-size:12px;line-height:1.6;color:#7b8b9d;}
+body .vatra-side-card p b{color:#3a506a;}
+body .vatra-side-card>button:not(.primary){color:#3d6796;border:0;background:transparent;font-size:12px;}
+body .vatra-popular-row{display:flex;align-items:center;gap:9px;width:100%;min-height:49px;padding:6px 0;border:0;border-bottom:1px solid #eef1f6;background:transparent;text-align:left;}
+body .vatra-popular-row:hover{background:#f5f8fc;}
+body .vatra-popular-row>span{display:grid;place-items:center;width:35px;height:35px;flex:none;border-radius:50%;background:#edf2f8;color:#526e8b;font-weight:800;}
+body .vatra-popular-row>b{min-width:0;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#354e68;font-size:12px;}
+body .vatra-popular-row>small{color:#8593a5;font-size:10px;}
+body .vatra-empty-panel{padding:34px 18px;text-align:center;color:#8494a7;font-size:13px;line-height:1.6;}
+/* Відкрита група */
+body[data-page="groups"] #feed:has(>.community-hero){
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(200px,265px)!important;
+ gap:14px!important;align-items:start!important;
+}
+body[data-page="groups"] #feed>.community-hero{grid-column:1/-1!important;min-width:0!important;padding:16px!important;}
+body[data-page="groups"] #feed>.community-hero .community-cover.large{min-height:180px!important;border-radius:10px!important;background:linear-gradient(115deg,#3a6d99,#d88c55)!important;}
+body[data-page="groups"] #feed>.community-hero .community-detail-title{padding:14px 4px 0!important;}
+body[data-page="groups"] #feed>.community-hero .community-detail-title h2{font-size:25px!important;color:#293d53!important;}
+body[data-page="groups"] #feed>.community-hero .community-stats{border-top:1px solid #e9eff5!important;margin-top:14px!important;padding-top:12px!important;}
+body[data-page="groups"] #feed>.vatra-community-detail-aside{grid-column:2!important;grid-row:2 / span 7!important;min-width:0;display:grid;gap:12px;}
+body[data-page="groups"] #feed>.group-compose,
+body[data-page="groups"] #feed>.community-hero~.post{grid-column:1!important;min-width:0;}
+body[data-page="groups"] #feed>.community-hero~.post textarea{min-height:88px!important;}
+/* Повідомлення */
+body[data-page="messages"] #feed{display:block!important;min-width:0!important;}
+body .vatra-messenger{width:100%;min-width:0;}
+body .vatra-messenger-shell{
+ display:grid;grid-template-columns:minmax(235px,310px) minmax(0,1fr);
+ overflow:hidden;width:100%;min-width:0;
+ min-height:min(700px,calc(100dvh - 145px));max-height:calc(100dvh - 140px);
+ background:var(--vatra-surface);border:1px solid var(--vatra-surface-line);
+ border-radius:13px;box-shadow:var(--vatra-surface-shadow);
+}
+body .vatra-messenger-sidebar{
+ display:flex;flex-direction:column;min-width:0;min-height:0;
+ border-right:1px solid #e1e7ef;background:#fff;
+}
+body .vatra-messenger-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:18px 17px 10px;}
+body .vatra-messenger-heading h2{margin:0;color:#283c52;font-size:18px;font-weight:800;}
+body .vatra-messenger-heading span{font-size:12px;color:#8594a7;}
+body .vatra-messenger-search{display:flex;align-items:center;gap:8px;margin:4px 13px 10px;padding:0 12px;height:41px;background:#f0f3f7;border-radius:8px;}
+body .vatra-messenger-search span{color:#778da5;font-size:21px;}
+body .vatra-messenger-search input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font-size:13px;color:#283b4f;}
+body .vatra-messenger-selector{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:7px 13px 11px;border-bottom:1px solid #e9eef4;}
+body .vatra-messenger-selector strong{font-size:12px;color:#334e6b;}
+body .vatra-messenger-selector button{border:0;border-radius:7px;background:#eef4fc;color:var(--vatra-user-accent,#0757f5);padding:6px 8px;font-size:11px;font-weight:750;}
+body .vatra-messenger-contacts{min-height:0;flex:1;overflow:auto;scrollbar-width:thin;}
+body .vatra-messenger-contact{display:flex;align-items:center;min-width:0;position:relative;margin:2px 6px;}
+body .vatra-messenger-contact[hidden]{display:none!important;}
+body .vatra-messenger-contact-main{display:flex;align-items:center;gap:10px;width:100%;min-width:0;min-height:64px;padding:10px 25px 10px 8px;border:0;border-radius:9px;background:transparent;text-align:left;}
+body .vatra-messenger-contact-main:hover{background:#f3f7fc;}
+body .vatra-messenger-contact-main.active{background:#eaf2fb;box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5);}
+body .vatra-messenger-contact-main .avatar{flex:none;width:41px!important;height:41px!important;font-size:12px!important;}
+body .vatra-messenger-contact-main>span{flex:1;min-width:0;display:grid;gap:4px;}
+body .vatra-messenger-contact-main b{font-size:12px;color:#304961;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+body .vatra-messenger-contact-main small{font-size:11px;color:#8091a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+body .vatra-messenger-contact-main time{flex:none;font-size:10px;color:#92a1b0;align-self:flex-start;}
+body .vatra-messenger-delete{position:absolute;right:4px;top:17px;display:grid;place-items:center;width:25px;height:28px;border:0;background:transparent;border-radius:6px;color:#9aabbc;}
+body .vatra-messenger-delete:hover{background:#ffebeb;color:#ba3649;}
+body .vatra-messenger-new{border-top:1px solid #e8edf5;padding:12px 13px;overflow:auto;max-height:38%;}
+body .vatra-messenger-new[hidden]{display:none!important;}
+body .vatra-messenger-new h3{font-size:12px;color:#4b6078;margin:0 0 9px;}
+body .vatra-messenger-new button{display:flex;align-items:center;gap:9px;min-height:43px;width:100%;border:0;border-radius:7px;background:transparent;padding:4px;text-align:left;color:#395777;}
+body .vatra-messenger-new button:hover{background:#f2f6fb;}
+body .vatra-messenger-new .avatar{height:30px!important;width:30px!important;flex:none;}
+body .vatra-messenger-new p,body .vatra-messenger-nodata{padding:12px;color:#8b9aac;font-size:12px;line-height:1.6;}
+body .vatra-messenger-footer{padding:12px;border-top:1px solid #e8edf4;color:#7990a8;font-size:11px;text-align:center;}
+body .vatra-messenger-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:30px;text-align:center;}
+body .vatra-messenger-empty-icon{display:grid;place-items:center;width:82px;height:82px;border-radius:22px;background:#eff4f9;color:#91a9c3;font-size:39px;}
+body .vatra-messenger-empty h2{margin:18px 0 5px;font-size:19px;color:#3a526a;}
+body .vatra-messenger-empty p{max-width:300px;margin:0;color:#8192a6;font-size:13px;line-height:1.6;}
+body .vatra-messenger-empty small{margin-top:15px;color:#93a1b1;font-size:11px;}
+body .vatra-messenger-shell>.chat-window{
+ display:flex!important;flex-direction:column!important;min-width:0!important;
+ min-height:0!important;height:100%!important;margin:0!important;padding:16px!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+body .vatra-messenger-shell .chat-messages{flex:1!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;background:#f8fafc!important;border:1px solid #edf1f5!important;border-radius:9px!important;padding:12px!important;}
+body .vatra-messenger-shell .chat-send{padding-top:12px!important;margin-top:auto!important;display:flex!important;gap:8px!important;}
+body .vatra-messenger-shell .chat-send input{flex:1!important;min-width:0!important;height:40px!important;border-radius:8px!important;}
+/* Фотографії */
+body .vatra-photos-page{background:#fff;border:1px solid var(--vatra-surface-line);border-radius:12px;box-shadow:var(--vatra-surface-shadow);overflow:hidden;}
+body .vatra-photos-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:13px;padding:22px;border-bottom:1px solid #e8edf5;}
+body .vatra-photos-toolbar h2{margin:0;color:#2d4158;font-size:22px;}
+body .vatra-photos-toolbar p{margin:6px 0 0;color:#8291a4;font-size:12px;}
+body .vatra-photos-toolbar .primary{min-height:37px!important;border-radius:8px!important;}
+body .vatra-photos-tabs{display:flex;gap:24px;min-width:0;padding:0 22px;border-bottom:1px solid #edf0f5;overflow:auto;}
+body .vatra-photos-tabs button{min-height:48px;white-space:nowrap;background:transparent;border:0;border-bottom:3px solid transparent;color:#7d8da2;font-size:13px;font-weight:700;}
+body .vatra-photos-tabs button.active{border-bottom-color:var(--vatra-user-accent,#0757f5);color:var(--vatra-user-accent,#0757f5);}
+body .vatra-photo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:19px;min-height:340px;align-content:start;}
+body .vatra-photo-tile{min-width:0;width:100%;aspect-ratio:1;border:0;border-radius:9px;padding:0;background:#f0f3f7;overflow:hidden;}
+body .vatra-photo-tile:hover{outline:2px solid color-mix(in srgb,var(--vatra-user-accent,#0757f5) 50%,transparent);outline-offset:1px;}
+body .vatra-photo-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .18s ease;}
+body .vatra-photo-tile:hover img{transform:scale(1.035);}
+body .vatra-photo-grid>.vatra-empty-panel{grid-column:1/-1;align-self:center;}
+/* Налаштування: сторінки з правим перемикачем, ті самі поля, єдина форма збереження. */
+body[data-page="settings"] .feed{display:block!important;min-width:0!important;}
+body[data-page="settings"] .settings-page{max-width:none!important;width:100%!important;}
+body[data-page="settings"] .settings-intro{max-width:none!important;padding:14px 18px!important;margin-bottom:13px!important;}
+body[data-page="settings"] .settings-intro h2{font-size:20px!important;}
+body .vatra-settings-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(210px,290px);gap:18px;align-items:start;min-width:0;}
+body .vatra-settings-workspace>.settings-form{display:block!important;width:100%!important;min-width:0!important;margin:0!important;max-width:none!important;}
+body .vatra-settings-pane{min-width:0!important;}
+body .vatra-settings-pane[hidden]{display:none!important;}
+body .vatra-settings-pane>.settings-card{width:100%!important;max-width:none!important;margin:0 0 14px!important;padding:20px!important;border:1px solid #e0e6ed!important;border-radius:12px!important;background:#fff!important;box-shadow:var(--vatra-surface-shadow)!important;}
+body .vatra-settings-pane>.settings-card h3{font-size:17px!important;margin:0 0 14px!important;color:#263c54!important;}
+body .vatra-settings-pane .settings-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important;}
+body .vatra-settings-pane .settings-grid label:not(.settings-check){display:grid!important;grid-template-columns:minmax(125px,32%) minmax(0,1fr)!important;gap:10px 16px!important;align-items:start!important;font-size:13px!important;line-height:1.6!important;color:#62768e!important;}
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>input,
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>select,
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>textarea{width:100%!important;grid-column:2!important;min-width:0!important;font-size:13px!important;min-height:40px!important;background:#fff!important;border:1px solid #dae2ea!important;border-radius:8px!important;box-shadow:none!important;}
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>small,
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>.field-hint,
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>button,
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>div{grid-column:2!important;min-width:0!important;}
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>textarea{padding:10px!important;resize:vertical;}
+body .vatra-settings-pane .settings-grid label.span-two{grid-column:1/-1!important;}
+body .vatra-settings-pane .settings-grid label.settings-check{grid-column:1/-1!important;display:flex!important;align-items:center!important;gap:9px!important;}
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>input:focus,
+body .vatra-settings-pane .settings-grid label:not(.settings-check)>textarea:focus{border-color:var(--vatra-user-accent,#0757f5)!important;outline:2px solid color-mix(in srgb,var(--vatra-user-accent,#0757f5) 13%,transparent)!important;outline-offset:0!important;}
+body .vatra-settings-private-note{font-size:12px;color:#8492a1;line-height:1.6;padding:4px 8px;}
+body .vatra-settings-workspace .settings-savebar{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:14px!important;padding:15px!important;border:1px solid var(--vatra-surface-line)!important;background:#fff!important;border-radius:11px!important;}
+body .vatra-settings-workspace .settings-savebar button{min-height:39px!important;padding:9px 18px!important;border-radius:8px!important;}
+body .vatra-settings-workspace .settings-nav{width:100%;}
+body .vatra-settings-nav{position:sticky;top:83px;display:grid;align-content:start;gap:2px;padding:12px;background:#fff;border:1px solid var(--vatra-surface-line);border-radius:12px;min-width:0;box-shadow:var(--vatra-surface-shadow);}
+body .vatra-settings-nav-title{display:grid;gap:4px;padding:9px 12px 13px;border-bottom:1px solid #e5ebf2;margin-bottom:7px;}
+body .vatra-settings-nav-title b{font-size:14px;color:#314960;}
+body .vatra-settings-nav-title small{font-size:11px;color:#8e9caf;}
+body .vatra-settings-nav-button{width:100%;min-height:41px;padding:9px 12px;text-align:left;border:0;border-radius:8px;background:transparent;color:#536b84;font-size:13px;}
+body .vatra-settings-nav-button:hover{background:#eef3f8;color:#315c88;}
+body .vatra-settings-nav-button.active{background:#eef3f8;color:var(--vatra-user-accent,#0757f5);font-weight:750;}
+/* Профіль: розташування, яке спирається на власні компоненти ВАТРИ. */
+body[data-page="profile"] .vatra-profile-layout{display:grid!important;grid-template-columns:minmax(208px,255px) minmax(0,1fr)!important;gap:14px!important;align-items:start!important;}
+body[data-page="profile"] .vatra-profile-sidebar,body[data-page="profile"] .vatra-profile-main{display:grid!important;min-width:0!important;gap:13px!important;}
+body[data-page="profile"] .vatra-profile-card{border:1px solid #e0e6ed!important;border-radius:10px!important;background:#fff!important;box-shadow:var(--vatra-surface-shadow)!important;min-width:0!important;}
+body[data-page="profile"] .vatra-profile-avatar-card{padding:12px!important;}
+body[data-page="profile"] .vatra-profile-avatar-open,body[data-page="profile"] .vatra-profile-avatar-open .vatra-profile-photo{width:100%!important;max-width:none!important;border-radius:8px!important;}
+body[data-page="profile"] .vatra-profile-overview{padding:19px 21px 0!important;}
+body[data-page="profile"] .vatra-profile-title-row h2{font-size:23px!important;color:#263a50!important;font-weight:800!important;}
+body[data-page="profile"] .vatra-profile-status{font-size:12.5px!important;}
+body[data-page="profile"] .vatra-profile-stats{border-top:1px solid #e7ecf2!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;}
+body[data-page="profile"] .vatra-profile-stats>div{min-width:0!important;box-shadow:none!important;border-radius:0!important;}
+body[data-page="profile"] .vatra-profile-stats b{font-size:17px!important;}
+body[data-page="profile"] .vatra-profile-photos{padding:15px!important;}
+body[data-page="profile"] .vatra-profile-card-head{display:flex!important;gap:9px!important;align-items:center!important;flex-wrap:wrap!important;}
+body[data-page="profile"] #profileViewPhotos{margin-left:auto!important;}
+body[data-page="profile"] #profileAddPhoto{color:var(--vatra-fire)!important;}
+body[data-page="profile"] .vatra-profile-post-tabs{border-bottom:2px solid var(--vatra-fire)!important;}
+body[data-page="profile"] .vatra-profile-bio{line-height:1.62!important;}
+body[data-page="profile"] .vatra-profile-friend-avatar{width:43px!important;height:43px!important;}
+@media(max-width:1199px) and (min-width:761px){
+ body .vatra-communities-layout{grid-template-columns:minmax(0,1fr) 225px;gap:12px;}
+ body .vatra-community-rows{grid-template-columns:minmax(0,1fr);}
+ body .vatra-messenger-shell{grid-template-columns:minmax(190px,36%) minmax(0,1fr);}
+ body .vatra-settings-workspace{grid-template-columns:minmax(0,1fr) 200px;gap:11px;}
+}
+@media(max-width:980px) and (min-width:761px){
+ body .vatra-communities-layout{grid-template-columns:minmax(0,1fr);}
+ body .vatra-communities-rail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+ body .vatra-messenger-shell{grid-template-columns:minmax(175px,35%) minmax(0,1fr);}
+ body .vatra-settings-workspace{grid-template-columns:minmax(0,1fr);}
+ body .vatra-settings-nav{position:static;grid-row:1;display:flex;flex-wrap:wrap;}
+ body .vatra-settings-nav-title{width:100%;}
+ body .vatra-settings-nav-button{width:auto;}
+ body[data-page="groups"] #feed:has(>.community-hero){grid-template-columns:minmax(0,1fr)!important;}
+ body[data-page="groups"] #feed>.vatra-community-detail-aside{grid-column:1!important;grid-row:auto!important;grid-template-columns:repeat(2,minmax(0,1fr));}
+ body[data-page="groups"] #feed>.community-hero~.post{grid-column:1!important;}
+ body[data-page="profile"] .vatra-profile-layout{grid-template-columns:minmax(185px,220px) minmax(0,1fr)!important;}
+}
+@media(max-width:760px){
+ body .vatra-communities-layout{grid-template-columns:minmax(0,1fr)!important;gap:11px;}
+ body .vatra-communities-rail{display:grid;grid-template-columns:minmax(0,1fr)!important;gap:10px;}
+ body .vatra-community-rows{grid-template-columns:minmax(0,1fr);}
+ body .vatra-community-list-card{padding:13px;}
+ body .vatra-community-row{gap:9px;padding:10px 0;}
+ body .vatra-community-avatar{width:43px;height:43px;font-size:18px;}
+ body .vatra-community-open{padding:6px;}
+ body[data-page="groups"] #feed:has(>.community-hero){grid-template-columns:minmax(0,1fr)!important;gap:10px!important;}
+ body[data-page="groups"] #feed>.community-hero{grid-column:1!important;}
+ body[data-page="groups"] #feed>.vatra-community-detail-aside{grid-column:1!important;grid-row:auto!important;}
+ body[data-page="groups"] #feed>.community-hero~.post{grid-column:1!important;}
+ body .vatra-messenger-shell{display:block!important;max-height:none!important;min-height:calc(100dvh - 210px)!important;}
+ body .vatra-messenger-sidebar{height:calc(100dvh - 210px);min-height:390px;max-height:730px;border-right:0!important;}
+ body .vatra-messenger-shell:has(>.chat-window)>.vatra-messenger-sidebar{display:none!important;}
+ body .vatra-messenger-shell>.chat-window{min-height:calc(100dvh - 210px)!important;max-height:none!important;}
+ body .vatra-messenger-shell>.chat-window .chat-messages{min-height:220px!important;max-height:50dvh!important;}
+ body .vatra-messenger-empty{min-height:calc(100dvh - 210px)!important;}
+ body .vatra-photos-toolbar{padding:14px!important;}
+ body .vatra-photos-toolbar h2{font-size:19px;}
+ body .vatra-photos-tabs{padding-inline:14px;gap:17px;}
+ body .vatra-photo-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:9px;min-height:260px;}
+ body .vatra-settings-workspace{display:flex!important;flex-direction:column!important;gap:12px!important;}
+ body .vatra-settings-nav{position:static!important;order:-1;width:100%;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:3px!important;padding:8px!important;}
+ body .vatra-settings-nav-title{display:none!important;}
+ body .vatra-settings-nav-button{white-space:nowrap;min-height:35px;padding:7px 12px;}
+ body .vatra-settings-workspace>.settings-form{width:100%!important;}
+ body .vatra-settings-pane>.settings-card{padding:14px!important;}
+ body .vatra-settings-pane .settings-grid label:not(.settings-check){display:block!important;font-size:12px!important;}
+ body .vatra-settings-pane .settings-grid label:not(.settings-check)>input,
+ body .vatra-settings-pane .settings-grid label:not(.settings-check)>select,
+ body .vatra-settings-pane .settings-grid label:not(.settings-check)>textarea{display:block!important;width:100%!important;margin-top:7px!important;font-size:16px!important;}
+ body .vatra-settings-workspace .settings-savebar{flex-wrap:wrap!important;justify-content:center!important;}
+ body[data-page="profile"] .vatra-profile-layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;}
+ body[data-page="profile"] .vatra-profile-overview{padding:15px 14px 0!important;}
+ body[data-page="profile"] .vatra-profile-stats{grid-template-columns:repeat(5,minmax(0,1fr))!important;}
+ body[data-page="profile"] .vatra-profile-stats b{font-size:14px!important;}
+}
+@media(max-width:390px){
+ body .vatra-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+ body .vatra-messenger-heading{padding:12px;}
+ body .vatra-community-open{display:none;}
+ body .vatra-settings-workspace .settings-savebar>span{font-size:11px;}
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-photo-tile img{transition:none!important;transform:none!important;}
+}
