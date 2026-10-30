@@ -3408,3 +3408,24 @@ body[data-vatra-theme-effective="dark"] .vatra-comment-item .vatra-comment-head 
  body[data-page="explore"] .vatra-search-person-photo,body[data-page="explore"] .vatra-search-person-photo .avatar{width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;max-width:50px!important;max-height:50px!important;}
  body[data-page="explore"] .vatra-search-group-row>.vatra-search-subscribe{grid-column:2!important;justify-self:start!important;}
 }
+
+
+/* Readable dark counterparts for the new opaque, compact controls. */
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-status{
+ background:#34465d!important;color:#d4e3f3!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-status-edit{
+ background:#304c71!important;color:#9dc6ff!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-form label{
+ background:#314358!important;border-color:#4b607a!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-form input{
+ color:#e2ecf7!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-rail nav>button{
+ color:#c0cfe2!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-rail nav>button.active{
+ background:#33527a!important;color:#b9d5ff!important;
+}
