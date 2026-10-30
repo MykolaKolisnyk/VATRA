@@ -4774,3 +4774,31 @@ body[data-vatra-font-scale="large"] .post-text,body[data-vatra-font-scale="large
 body[data-vatra-density="compact"] .post,body[data-vatra-density="compact"] .profile-vk-card{padding-block:8px!important}
 body[data-vatra-reduce-motion="true"] *,body[data-vatra-reduce-motion="true"] *::before,body[data-vatra-reduce-motion="true"] *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 @media(prefers-reduced-motion:reduce){.vatra-global-header .search,.layout>.sidebar .nav,.site-legal-article{transition:none!important;animation:none!important}}
+
+
+
+/* Honour per-account VATRA accent choice in interactive elements. */
+:root{--vatra-user-accent:#0757f5}
+.vatra-global-header .search:focus-within{border-color:var(--vatra-user-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--vatra-user-accent) 12%,transparent),0 7px 20px color-mix(in srgb,var(--vatra-user-accent) 12%,transparent)!important}
+.vatra-global-header .search:focus-within .search-icon{color:var(--vatra-user-accent)!important}
+.layout>.sidebar .nav:hover,.layout>.sidebar .nav.active{color:var(--vatra-user-accent)!important}
+.layout>.sidebar .nav.active{background:color-mix(in srgb,var(--vatra-user-accent) 10%,white)!important;box-shadow:inset 3px 0 0 var(--vatra-user-accent)!important}
+.primary,.profile-vk-post-new,.profile-vk-new-post{background:var(--vatra-user-accent)!important;border-color:var(--vatra-user-accent)!important}
+.vatra-site-legal-dialog{width:min(760px,calc(100vw - 28px))!important;max-width:760px!important;border-radius:22px!important;background:#fff!important;box-shadow:0 28px 95px rgba(12,32,70,.28)!important}
+.vatra-site-legal-head{display:flex!important;align-items:center!important;gap:14px!important;padding:20px 24px 14px!important;border-bottom:1px solid #edf1f7!important}
+.vatra-legal-mark{display:grid!important;place-items:center!important;flex:0 0 46px!important;width:46px!important;height:46px!important;border-radius:13px!important;background:linear-gradient(145deg,#0757f5,#2284ff)!important;color:#fff!important;font-size:27px!important;font-weight:850!important;box-shadow:0 7px 20px rgba(7,87,245,.2)!important}
+.vatra-site-legal-head h2{font-size:25px!important;font-weight:800!important;letter-spacing:-.45px!important}
+.vatra-site-legal-tabs{display:flex!important;gap:8px!important;flex-wrap:wrap!important;padding:12px 24px!important;border-bottom:1px solid #edf1f7!important}
+.vatra-site-legal-tabs button{flex:1 1 130px!important;min-height:39px!important;border:1px solid #e3eaf5!important;border-radius:10px!important;background:#fff!important;color:#65748b!important;font-size:12px!important;font-weight:750!important;transition:background .18s,color .18s,transform .18s,box-shadow .18s!important}
+.vatra-site-legal-tabs button.active{border-color:#b6ccff!important;background:#eef4ff!important;color:var(--vatra-user-accent)!important;box-shadow:inset 0 -2px 0 var(--vatra-user-accent)!important}
+.vatra-site-legal-body{padding:20px 26px!important;color:#4b5f7b!important;line-height:1.75!important}
+.site-legal-article[hidden]{display:none!important}
+.site-legal-article{animation:vatra-legal-in .2s ease both}
+@media(max-width:600px){
+ .vatra-site-legal-head{padding:16px 16px 12px!important}
+ .vatra-legal-mark{width:39px!important;height:39px!important;flex-basis:39px!important;border-radius:11px!important;font-size:23px!important}
+ .vatra-site-legal-head h2{font-size:20px!important}
+ .vatra-site-legal-tabs{padding:10px 14px!important;gap:6px!important}
+ .vatra-site-legal-tabs button{flex:1 1 95px!important;min-height:36px!important;font-size:11px!important}
+ .vatra-site-legal-body{padding:14px 16px!important}
+}
