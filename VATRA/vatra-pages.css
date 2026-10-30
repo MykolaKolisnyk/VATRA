@@ -3486,8 +3486,8 @@ body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-pres
 body .vatra-profile-public-friends{padding:12px!important;}
 body .vatra-profile-public-friends .vatra-profile-friend-grid{
  display:grid!important;
- grid-template-columns:repeat(2,minmax(0,1fr))!important;
- gap:9px!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:7px 4px!important;
  min-width:0!important;
 }
 body .vatra-profile-public-friends .vatra-profile-friend{
@@ -4234,4 +4234,108 @@ body[data-vatra-theme-effective="dark"] .layout>.sidebar .vatra-sidebar-footer .
 }
 @media(prefers-reduced-motion:reduce){
  body .layout>.sidebar .vatra-sidebar-footer .vatra-footer-legal a{transition:none!important;}
+}
+
+
+/* One canonical friend preview across every VATRA profile. Max 3 people. */
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends .vatra-profile-friend-grid,
+body[data-page="publicProfile"] .vatra-profile-sidebar #vatraPublicFriendList{
+ box-sizing:border-box!important;
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-template-rows:auto!important;
+ grid-auto-flow:row!important;
+ grid-auto-rows:auto!important;
+ gap:7px 4px!important;
+ align-items:start!important;
+ justify-items:stretch!important;
+ width:100%!important;
+ min-width:0!important;
+ margin:7px 0 0!important;
+ padding:0!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend,
+body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend{
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:center!important;
+ justify-content:flex-start!important;
+ justify-self:stretch!important;
+ min-width:0!important;
+ width:100%!important;
+ max-width:100%!important;
+ margin:0!important;
+ padding:4px 1px!important;
+ text-align:center!important;
+ overflow:hidden!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend .vatra-profile-friend-avatar,
+body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend .vatra-profile-friend-avatar{
+ box-sizing:border-box!important;
+ display:flex!important;
+ flex:0 0 46px!important;
+ width:46px!important;
+ height:46px!important;
+ min-width:46px!important;
+ min-height:46px!important;
+ max-width:46px!important;
+ max-height:46px!important;
+ margin:0 auto 5px!important;
+ padding:0!important;
+ border-radius:14px!important;
+ background-size:cover!important;
+ background-position:center!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend>span:last-child,
+body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend>span:last-child{
+ display:block!important;
+ flex:0 1 auto!important;
+ width:100%!important;
+ max-width:100%!important;
+ min-width:0!important;
+ margin:0!important;
+ padding:0!important;
+ font-size:10px!important;
+ font-weight:650!important;
+ line-height:1.35!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+ white-space:nowrap!important;
+ text-align:center!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends>.vatra-profile-link,
+body[data-page="publicProfile"] .vatra-profile-sidebar .vatra-profile-public-friends>#vatraPublicAllFriends{
+ box-sizing:border-box!important;
+ display:block!important;
+ width:100%!important;
+ min-height:30px!important;
+ max-width:100%!important;
+ margin:9px auto 0!important;
+ padding:5px 8px!important;
+ border:0!important;
+ border-radius:8px!important;
+ background:transparent!important;
+ color:#0757f5!important;
+ font-size:11.5px!important;
+ font-weight:750!important;
+ line-height:1.4!important;
+ text-align:center!important;
+ cursor:pointer!important;
+}
+body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends>.vatra-profile-link:hover,
+body[data-page="publicProfile"] .vatra-profile-sidebar .vatra-profile-public-friends>#vatraPublicAllFriends:hover{
+ background:#edf4ff!important;
+}
+body[data-page="publicProfile"] #vatraPublicFriendList>.muted{
+ grid-column:1 / -1!important;
+}
+@media(max-width:480px){
+ body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend .vatra-profile-friend-avatar,
+ body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend .vatra-profile-friend-avatar{
+  flex-basis:41px!important;
+  width:41px!important;height:41px!important;
+  min-width:41px!important;min-height:41px!important;
+  max-width:41px!important;max-height:41px!important;
+ }
 }
