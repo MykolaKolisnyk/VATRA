@@ -2982,3 +2982,16 @@ body[data-vatra-theme-effective="dark"][data-page="friends"] .vatra-friends-sear
  body[data-page="friends"] .vatra-friends-side-item>button{min-height:32px!important;}
  body[data-page="friends"] .vatra-friends-main{padding:13px!important;}
 }
+
+
+/* VATRA: clarity is a site-wide default, not a checkbox. */
+body *, body *::before, body *::after, dialog::backdrop{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+body:not([data-vatra-theme-effective="dark"]) .vatra-global-header,
+body:not([data-vatra-theme-effective="dark"]) .settings-card,
+body:not([data-vatra-theme-effective="dark"]) .vatra-settings-workspace .settings-savebar,
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-overview{
+  background-color:#fff!important;
+}
