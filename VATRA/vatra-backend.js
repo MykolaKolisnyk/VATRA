@@ -234,6 +234,41 @@ async function deleteDescendants(path) {
     if (data.length < batchSize) break;
   }
 }
+// Friend changes require an atomic, permission-checked database operation.
+// Do not read/write another person's RLS-protected friends/<uid> root in the browser.
+function friendUid(input) {
+  const uid = String(input || '').trim().toLowerCase();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(uid)) {
+    throw new Error('Не вдалося визначити акаунт користувача.');
+  }
+  return uid;
+}
+function friendshipRpcError(error) {
+  const code = String(error?.code || '').toUpperCase();
+  if (code === 'PGRST202' || code === '42883' ||
+      /function public\.vatra_(accept_friend|remove_friend|repair_my_friends).*not found|schema cache.*vatra_/i.test(String(error?.message || ''))) {
+    const setup = new Error('Для взаємної дружби потрібне оновлення Supabase: запустіть SQL із файлу VATRA/friends-mutual-fix.sql у SQL Editor.');
+    setup.code = 'FRIENDS_SQL_REQUIRED';
+    return setup;
+  }
+  return databaseError(error);
+}
+export async function acceptFriendRequest(senderUid) {
+  const { data, error } = await client.rpc('vatra_accept_friend', { p_sender: friendUid(senderUid) });
+  if (error) throw friendshipRpcError(error);
+  return data === true;
+}
+export async function removeFriendship(otherUid) {
+  const { data, error } = await client.rpc('vatra_remove_friend', { p_other: friendUid(otherUid) });
+  if (error) throw friendshipRpcError(error);
+  return data === true;
+}
+export async function repairMyFriendships() {
+  const { data, error } = await client.rpc('vatra_repair_my_friends');
+  if (error) throw friendshipRpcError(error);
+  return Number(data) || 0;
+}
+
 export async function createPost(reference, value) {
   const path = cleanPath(reference.path);
   if (!/^posts\/[^/]+$/.test(path)) {
