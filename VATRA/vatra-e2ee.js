@@ -1,6 +1,7 @@
 /**
  * VATRA device-key E2EE v1 — authenticated peer-to-peer encryption for 1:1 chats.
  * Browser WebCrypto only: P-256 ECDH + HKDF-SHA256 + AES-256-GCM.
+ * ECDSA P-256 signatures authenticate the ciphertext sender.
  * Keys are non-extractable CryptoKey objects kept in this device's IndexedDB.
  * Peer public-key fingerprints use trust-on-first-use (TOFU).
  *
@@ -65,11 +66,22 @@ function validateJwk(value){
   throw new E2EEError('INVALID_KEY','Некоректний відкритий ключ співрозмовника.');
  return {kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y,ext:true};
 }
-async function publicFingerprint(jwk){
- return hex(await sha256('VATRA-E2EE-P256-v1|'+jwk.x+'|'+jwk.y));
+function validateSignJwk(value){
+ const jwk=value?.signJwk;
+ if(!jwk||jwk.kty!=='EC'||jwk.crv!=='P-256'||typeof jwk.x!=='string'||typeof jwk.y!=='string'||!/^[A-Za-z0-9_-]{40,50}$/.test(jwk.x)||!/^[A-Za-z0-9_-]{40,50}$/.test(jwk.y))
+  throw new E2EEError('INVALID_KEY','Відсутній підписний ключ співрозмовника.');
+ return {kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y,ext:true};
+}
+async function publicFingerprint(jwk,signJwk){
+ return hex(await sha256('VATRA-E2EE-P256-ECDSA-v1|'+jwk.x+'|'+jwk.y+'|'+signJwk.x+'|'+signJwk.y));
+}
+function concatBytes(...parts){
+ const size=parts.reduce((n,b)=>n+b.length,0),out=new Uint8Array(size);let pos=0;
+ for(const bytes of parts){out.set(bytes,pos);pos+=bytes.length;}
+ return out;
 }
 function assertRecord(uid,record){
- if(!record||record.uid!==uid||!record.privateKey||!record.publicJwk||typeof record.fingerprint!=='string')
+ if(!record||record.uid!==uid||!record.privateKey||!record.publicJwk||!record.privateSignKey||!record.publicSignJwk||typeof record.fingerprint!=='string')
   throw new E2EEError('LOCAL_KEY','Локальний ключ пошкоджений або не відповідає акаунту.');
  return record;
 }
@@ -83,24 +95,26 @@ export async function ensureIdentity(uid,readKey,writeKey){
   const remote=await readKey(uid);
   if(local){
    local=assertRecord(uid,local);
-   if(await publicFingerprint(local.publicJwk)!==local.fingerprint)
+   if(await publicFingerprint(local.publicJwk,local.publicSignJwk)!==local.fingerprint)
     throw new E2EEError('LOCAL_KEY','Не збігається відбиток локального ключа.');
   }else{
    if(remote)throw new E2EEError('MISSING_DEVICE_KEY','Ключ цього акаунта вже існує, але на цьому пристрої немає приватного ключа. Старі зашифровані чати тут не прочитати. Не скидайте ключ без резервної копії.');
    const pair=await crypto.subtle.generateKey({name:'ECDH',namedCurve:'P-256'},false,['deriveBits']);
-   const jwk=await crypto.subtle.exportKey('jwk',pair.publicKey);
+   const signPair=await crypto.subtle.generateKey({name:'ECDSA',namedCurve:'P-256'},false,['sign','verify']);
+   const jwk=await crypto.subtle.exportKey('jwk',pair.publicKey),signJwk=await crypto.subtle.exportKey('jwk',signPair.publicKey);
    const publicJwk={kty:'EC',crv:'P-256',x:jwk.x,y:jwk.y,ext:true};
-   local={uid,privateKey:pair.privateKey,publicJwk,fingerprint:await publicFingerprint(publicJwk),createdAt:Date.now()};
+   const publicSignJwk={kty:'EC',crv:'P-256',x:signJwk.x,y:signJwk.y,ext:true};
+   local={uid,privateKey:pair.privateKey,publicJwk,privateSignKey:signPair.privateKey,publicSignJwk,fingerprint:await publicFingerprint(publicJwk,publicSignJwk),createdAt:Date.now()};
    await storePut('identity',uid,local);
   }
   if(remote){
-   const jwk=validateJwk(remote),remoteFingerprint=await publicFingerprint(jwk);
+   const jwk=validateJwk(remote),signJwk=validateSignJwk(remote),remoteFingerprint=await publicFingerprint(jwk,signJwk);
    if(remoteFingerprint!==local.fingerprint||remote.fingerprint!==local.fingerprint)
     throw new E2EEError('OWN_KEY_MISMATCH','Відкритий ключ акаунта змінився або не відповідає ключу цього пристрою. Захищені чати зупинені.');
   }else{
-   await writeKey(uid,{v:1,curve:'P-256',jwk:local.publicJwk,fingerprint:local.fingerprint,createdAt:local.createdAt});
+   await writeKey(uid,{v:1,curve:'P-256',jwk:local.publicJwk,signJwk:local.publicSignJwk,fingerprint:local.fingerprint,createdAt:local.createdAt});
    const published=await readKey(uid);
-   if(!published||await publicFingerprint(validateJwk(published))!==local.fingerprint)
+   if(!published||await publicFingerprint(validateJwk(published),validateSignJwk(published))!==local.fingerprint)
     throw new E2EEError('KEY_PUBLISH','Не вдалося підтвердити публікацію відкритого ключа.');
   }
   return local;
@@ -113,13 +127,15 @@ export async function prepareSession(uid,peerUid,chatId,readKey,writeKey){
  const local=await ensureIdentity(uid,readKey,writeKey);
  const remote=await readKey(peerUid);
  if(!remote)throw new E2EEError('PEER_NOT_READY','Співрозмовник ще не створив ключ захищеного спілкування. Йому потрібно відкрити розділ повідомлень у ВАТРІ.');
- const peerJwk=validateJwk(remote),peerFingerprint=await publicFingerprint(peerJwk);
+ const peerJwk=validateJwk(remote),peerSignJwk=validateSignJwk(remote),peerFingerprint=await publicFingerprint(peerJwk,peerSignJwk);
  if(remote.fingerprint!==peerFingerprint)throw new E2EEError('INVALID_KEY','Перевірка відкритого ключа співрозмовника не пройшла.');
  const pinKey=uid+'|'+peerUid,previous=await storeGet('peers',pinKey);
  if(previous?.fingerprint&&previous.fingerprint!==peerFingerprint)
   throw new E2EEError('KEY_CHANGED','Ключ співрозмовника змінився. Не надсилайте повідомлення до перевірки коду безпеки особисто або через інший надійний канал.');
  if(!previous)await storePut('peers',pinKey,{fingerprint:peerFingerprint,firstSeen:Date.now()});
  const publicKey=await crypto.subtle.importKey('jwk',peerJwk,{name:'ECDH',namedCurve:'P-256'},false,[]);
+ const peerVerifyKey=await crypto.subtle.importKey('jwk',peerSignJwk,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
+ const ownVerifyKey=await crypto.subtle.importKey('jwk',local.publicSignJwk,{name:'ECDSA',namedCurve:'P-256'},false,['verify']);
  const shared=await crypto.subtle.deriveBits({name:'ECDH',public:publicKey},local.privateKey,256);
  const hkdf=await crypto.subtle.importKey('raw',shared,'HKDF',false,['deriveKey']);
  const fps=[local.fingerprint,peerFingerprint].sort();
@@ -128,7 +144,7 @@ export async function prepareSession(uid,peerUid,chatId,readKey,writeKey){
   {name:'HKDF',hash:'SHA-256',salt,info:encoder.encode('vatra-message-aes256-gcm-v1')},
   hkdf,{name:'AES-GCM',length:256},false,['encrypt','decrypt']
  );
- return {uid,peerUid,chatId,key,ownFingerprint:local.fingerprint,peerFingerprint};
+ return {uid,peerUid,chatId,key,ownFingerprint:local.fingerprint,peerFingerprint,ownPrivateSignKey:local.privateSignKey,ownVerifyKey,peerVerifyKey};
 }
 function associated(session,senderUid,createdAt,fromFp,toFp){
  return encoder.encode(JSON.stringify(['vatra-e2ee-v1',session.chatId,senderUid,createdAt,fromFp,toFp]));
@@ -141,11 +157,14 @@ export async function encryptMessage(session,text,senderUid,createdAt){
   {name:'AES-GCM',iv,additionalData:associated(session,senderUid,createdAt,session.ownFingerprint,session.peerFingerprint),tagLength:128},
   session.key,encoder.encode(text)
  );
- return {v:1,alg:'ECDH-P256-HKDF-SHA256-AES256GCM',iv:b64(iv),ciphertext:b64(new Uint8Array(cipher)),senderFp:session.ownFingerprint,recipientFp:session.peerFingerprint};
+ const ciphertext=new Uint8Array(cipher);
+ const signatureData=concatBytes(associated(session,senderUid,createdAt,session.ownFingerprint,session.peerFingerprint),iv,ciphertext);
+ const signature=await crypto.subtle.sign({name:'ECDSA',hash:'SHA-256'},session.ownPrivateSignKey,signatureData);
+ return {v:1,alg:'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA',iv:b64(iv),ciphertext:b64(ciphertext),signature:b64(new Uint8Array(signature)),senderFp:session.ownFingerprint,recipientFp:session.peerFingerprint};
 }
 export async function decryptMessage(session,message){
  const payload=message?.encrypted,sender=message?.senderUid,createdAt=Number(message?.createdAt);
- if(!session||!payload||payload.v!==1||payload.alg!=='ECDH-P256-HKDF-SHA256-AES256GCM'||!Number.isSafeInteger(createdAt)||(sender!==session.uid&&sender!==session.peerUid))
+ if(!session||!payload||payload.v!==1||payload.alg!=='ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'||!Number.isSafeInteger(createdAt)||(sender!==session.uid&&sender!==session.peerUid))
   throw new E2EEError('BAD_CIPHER','Захищене повідомлення має невідомий формат.');
  const own=sender===session.uid;
  const fromFp=own?session.ownFingerprint:session.peerFingerprint,toFp=own?session.peerFingerprint:session.ownFingerprint;
@@ -154,6 +173,12 @@ export async function decryptMessage(session,message){
  const iv=un64(payload.iv),ciphertext=un64(payload.ciphertext);
  if(iv.length!==12||ciphertext.length<16||ciphertext.length>10000)
   throw new E2EEError('BAD_CIPHER','Некоректне зашифроване повідомлення.');
+ const signature=un64(payload.signature);
+ if(signature.length!==64)throw new E2EEError('BAD_SIGNATURE','Відсутній криптографічний підпис автора.');
+ const data=concatBytes(associated(session,sender,createdAt,fromFp,toFp),iv,ciphertext);
+ const verifyKey=own?session.ownVerifyKey:session.peerVerifyKey;
+ if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},verifyKey,signature,data))
+  throw new E2EEError('BAD_SIGNATURE','Не вдалося підтвердити справжність автора повідомлення.');
  try{
   const plain=await crypto.subtle.decrypt(
    {name:'AES-GCM',iv,additionalData:associated(session,sender,createdAt,fromFp,toFp),tagLength:128},
