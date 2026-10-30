@@ -379,3 +379,74 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown>bu
 @media(max-width:360px){
  body .vatra-global-header>#vatraMusicTopPanel.vatra-top-music-panel{right:26px!important;}
 }
+
+
+/* VATRA account menu: the old '.account-popover>button>span' rule set
+   width:23px / grid / bright blue on ALL spans, including button labels.
+   Only the first icon may have a fixed width. Labels must occupy the row. */
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item{
+ display:flex!important;
+ flex-flow:row nowrap!important;
+ justify-content:flex-start!important;
+ align-items:center!important;
+ gap:10px!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ min-height:40px!important;
+ height:40px!important;
+ padding:0 11px!important;
+ font-family:Inter,Arial,sans-serif!important;
+ font-size:12.5px!important;
+ font-weight:540!important;
+ line-height:1.35!important;
+ white-space:nowrap!important;
+ color:#3d4d60!important;
+}
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item>.vatra-account-item-icon{
+ display:grid!important;
+ place-items:center!important;
+ flex:0 0 20px!important;
+ width:20px!important;min-width:20px!important;max-width:20px!important;
+ height:20px!important;
+ margin:0!important;padding:0!important;
+ font-size:16px!important;color:#798a9d!important;
+}
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item>span:last-child:not(.vatra-account-item-icon){
+ display:block!important;
+ flex:1 1 auto!important;
+ box-sizing:border-box!important;
+ width:auto!important;
+ min-width:0!important;
+ max-width:none!important;
+ height:auto!important;
+ margin:0!important;padding:0!important;
+ color:inherit!important;
+ background:transparent!important;
+ font:inherit!important;
+ text-align:left!important;
+ white-space:nowrap!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+}
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item.account-logout{
+ color:#bd4d60!important;
+}
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item.account-logout>.vatra-account-item-icon{
+ color:#bd6372!important;
+}
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item:is(:hover,:focus-visible){
+ color:#145d9c!important;
+ background:#ecf3fa!important;
+ transform:none!important;
+}
+body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item.account-logout:is(:hover,:focus-visible){
+ color:#ab334c!important;
+ background:#fff0f3!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item{
+ color:#dbe6f3!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item.account-logout{
+ color:#f5a7b3!important;
+}
