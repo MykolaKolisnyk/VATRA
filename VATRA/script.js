@@ -1159,7 +1159,17 @@ function vatraOrganizeSettings(){
 
  const blocked=page.querySelector('.blocked-users-card'),legal=page.querySelector('.settings-legal-card');
  if(blocked)sections.privacy.append(blocked);
- if(legal)sections.documents.append(legal);
+ if(legal){
+  legal.classList.add('vatra-official-documents');
+  legal.innerHTML='<div class="vatra-legal-heading"><div><span class="vatra-legal-kicker">НОРМАТИВНА ІНФОРМАЦІЯ</span><h3>Документи ВАТРИ</h3><p>Правила платформи, умови використання та відомості про обробку персональних даних. Ознайомтеся з текстом документа перед використанням відповідних можливостей.</p></div></div>'+
+  '<div class="vatra-legal-rows">'+[
+   ['01','rules','Правила спільноти ВАТРИ','Норми поведінки, обмеження контенту та порядок модерації.'],
+   ['02','terms','Умови користування','Права та обов’язки користувачів, умови доступу до сервісу.'],
+   ['03','privacy','Політика конфіденційності','Категорії персональних даних, їх обробка та права користувачів.']
+  ].map(([num,id,title,description])=>'<a href="#'+id+'" data-legal-open="'+id+'" class="vatra-legal-row"><span class="vatra-legal-number">'+num+'</span><span class="vatra-legal-title"><b>'+title+'</b><small>'+description+'</small></span><span class="vatra-legal-open">Ознайомитися</span></a>').join('')+
+  '</div><p class="vatra-legal-footnote">Текст документів відкривається для читання у ВАТРІ. Дата набрання чинності й реквізити визначаються самим документом; ця сторінка не є підтвердженням юридичної експертизи.</p>';
+  sections.documents.append(legal);
+ }
  const info=document.createElement('p');info.className='vatra-settings-private-note';info.textContent='Приватні поля зберігаються окремо від відкритої інформації профілю.';
  sections.service.append(info.cloneNode(true));
  sections.life.append(info);
