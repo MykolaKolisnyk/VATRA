@@ -478,6 +478,23 @@ export async function signInWithEmailAndPassword(_auth, email, password) {
 export async function signInWithPassword(_auth, identifier, password) {
   return signInWithEmailAndPassword(_auth, identifier, password);
 }
+export async function verifyPasswordCredentials(identifier, password) {
+  const contact = String(identifier || '').trim();
+  if (!contact || !password) throw new Error('Введіть контакт і пароль.');
+  const credentials = contact.startsWith('+')
+    ? { phone: contact, password }
+    : { email: contact.toLowerCase(), password };
+  // Validate credentials with a short-lived client so the main browser session
+  // is not created until the user completes the in-app human check.
+  const verifier = createClient(SERVICE_URL, PUBLIC_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
+  const { data, error } = await verifier.auth.signInWithPassword(credentials);
+  if (error) throw authError(error);
+  if (!data?.user?.id) throw new Error('Не вдалося перевірити облікові дані.');
+  try { await verifier.auth.signOut(); } catch {}
+  return true;
+}
 
 export async function setAccountPassword(password) {
   const { error } = await client.auth.updateUser({ password });
