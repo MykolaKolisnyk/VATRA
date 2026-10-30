@@ -253,7 +253,7 @@ function renderProfile(){
  const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const birthday=currentProfile.dateOfBirth?new Date(currentProfile.dateOfBirth+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const detail=(label,value)=>value?'<div class="profile-vk-detail"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
- const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:0})).filter(item=>item.url):[]),...mine.filter(p=>p.imageUrl).map(p=>({url:p.imageUrl,createdAt:p.createdAt,source:'post',id:p.id}))];
+ const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:0})).filter(item=>item.url):[]),...mine.flatMap(p=>postImages(p).map((url,index)=>({url,createdAt:p.createdAt,source:'post',id:p.id,index})))];
  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.map((url,index)=>({url,index})).filter(x=>x.url&&x.url!==currentProfile.avatarUrl).slice(-30).reverse():[];
  const avatarPhotos=[currentProfile.avatarUrl,...history.map(item=>item.url)].filter(Boolean);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото профілю"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото профілю, які Ви вирішите залишити.</p>';
@@ -332,8 +332,7 @@ function renderPublicProfile(uid){
  const detail=(label,value)=>value?'<div class="profile-vk-detail"><span>'+label+'</span><b>'+esc(value)+'</b></div>':'';
  const birthdayLabel=birthday?new Date(birthday+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const publicPhotos=Array.isArray(u.profilePhotos)?u.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40).reverse():[];
- const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boolean);
- const postPhotos=arr.filter(p=>typeof p.imageUrl==='string'&&/^https?:\/\//.test(p.imageUrl)).map(p=>p.imageUrl);
+ const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boconst postPhotos=arr.flatMap(p=>postImages(p));mageUrl);
  const photoUrls=[...new Set(publicPhotos.concat(postPhotos))];
  const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.map(url=>'<div class="profile-photo-tile"><img class="post-image profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото профілю"></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const hasDetails=!!(birthdayLabel||city||location||workplace||education||hometown||phone||u.website);
