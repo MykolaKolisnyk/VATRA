@@ -4589,3 +4589,226 @@ button:not(:disabled),a,.nav{transition:color .15s ease,background-color .15s ea
   .profile-vk-title-row>.text-link{font-size:10px!important}
   .profile-vk-stats>div>span{font-size:8px!important}
 }
+
+
+/* VATRA balanced responsive scale: medium sizing with fluid breakpoints. */
+@media (min-width:761px){
+  .vatra-global-header{
+    width:100%!important;max-width:none!important;height:58px!important;min-height:58px!important;
+    padding:0 max(18px,calc((100vw - 1380px)/2 + 20px))!important;
+    gap:11px!important;background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  }
+  .vatra-global-header .mobile-brand{
+    display:flex!important;flex:0 0 178px!important;min-width:178px!important;
+    align-items:center!important;gap:8px!important;margin:0!important;
+    font-size:19px!important;letter-spacing:-.5px!important;white-space:nowrap!important;
+  }
+  .vatra-global-header .mobile-brand .brand-icon{width:31px!important;height:31px!important;font-size:20px!important}
+  .vatra-global-header .search{flex:0 1 420px!important;width:min(420px,42vw)!important;max-width:420px!important;height:37px!important}
+  .vatra-global-header .notification-button{margin-left:auto!important}
+  .vatra-global-header .account-avatar-trigger{width:34px!important;height:34px!important;flex-basis:34px!important}
+  .layout{
+    display:grid!important;width:min(1360px,calc(100% - 48px))!important;max-width:1360px!important;
+    grid-template-columns:188px minmax(0,1fr)!important;gap:20px!important;
+    margin:0 auto!important;padding:0 0 32px!important;align-items:start!important;
+  }
+  .layout>.sidebar{
+    display:flex!important;position:sticky!important;top:68px!important;width:188px!important;
+    height:auto!important;min-height:calc(100dvh - 68px)!important;max-height:none!important;
+    overflow:visible!important;overflow-y:visible!important;overflow-x:visible!important;
+    padding:12px 0!important;scrollbar-width:none!important;
+  }
+  .layout>.sidebar::-webkit-scrollbar,.layout>.sidebar nav::-webkit-scrollbar{display:none!important}
+  .layout>.sidebar>.brand{display:none!important}
+  .layout>.sidebar>nav{display:grid!important;gap:3px!important;margin:0!important;overflow:visible!important}
+  .layout>.sidebar .nav{
+    display:flex!important;justify-content:flex-start!important;align-items:center!important;gap:9px!important;
+    width:100%!important;height:35px!important;min-height:35px!important;padding:0 9px!important;
+    border-radius:8px!important;font-size:11.5px!important;line-height:1.2!important;
+    white-space:nowrap!important;transform:none!important;
+  }
+  .layout>.sidebar .nav>span:not(.nav-icon){display:block!important;min-width:0!important}
+  .layout>.sidebar .nav>i{display:inline-flex!important}
+  .layout>.sidebar .nav .nav-icon,.layout>.sidebar .nav .nav-icon svg{width:17px!important;height:17px!important}
+  .layout>.sidebar .create-button{
+    display:flex!important;width:100%!important;min-height:36px!important;margin:11px 0 8px!important;
+    padding:7px 9px!important;font-size:10.5px!important;
+  }
+  .sidebar-footer{
+    display:block!important;margin-top:9px!important;padding:10px 6px 7px!important;
+    font-size:8.5px!important;line-height:1.45!important;
+  }
+  .sidebar-footer p{margin:3px 0!important}
+  .sidebar-footer .footer-legal{display:grid!important;gap:3px!important;margin-top:7px!important}
+  .sidebar-footer .footer-legal a{font-size:8.5px!important}
+  .sidebar-bottom{display:none!important}
+  .layout>.main{
+    display:block!important;grid-column:2!important;width:100%!important;max-width:none!important;
+    min-width:0!important;margin:0!important;padding:10px 0 32px!important;
+  }
+  .layout>.right{display:none!important}
+  .main>.heading{padding:10px 0 9px!important;margin:0 0 8px!important}
+  .main>.heading h1{font-size:21px!important;line-height:1.2!important}
+  .main>.heading p:last-child{font-size:11px!important;margin-top:5px!important}
+  .main>.heading .eyebrow{font-size:8px!important;letter-spacing:1.1px!important}
+  .quick-compose{margin:0 0 10px!important;padding:11px 13px 8px!important;border-radius:11px!important}
+  .compose-row .avatar{width:33px!important;height:33px!important}
+  .prompt{min-height:36px!important;padding:7px 11px!important;font-size:11px!important}
+  .compose-tools{gap:9px!important;margin-top:8px!important;padding-top:7px!important}
+  .compose-tools button{min-height:29px!important;padding:4px 6px!important;font-size:10px!important}
+  .compose-tools button svg{width:15px!important;height:15px!important}
+  .compose-tools .post-now{padding:6px 9px!important}
+  .feed{width:100%!important;max-width:none!important;gap:9px!important}
+  .post{width:100%!important;max-width:none!important;padding:12px 13px 0!important;margin:0!important;border-radius:11px!important}
+  .post-head{gap:8px!important}
+  .post-head .avatar{width:34px!important;height:34px!important}
+  .author b{font-size:11.5px!important}.author small{font-size:9.5px!important}
+  .post-text{font-size:12.5px!important;line-height:1.58!important;margin:10px 0!important}
+  .post-image{max-height:560px!important}
+  .post-meta{font-size:9.5px!important;padding:6px 0!important}
+  .post-actions{gap:3px!important;padding:6px 0 8px!important}
+  .post-actions button{min-height:29px!important;padding:4px 7px!important;font-size:9.5px!important}
+  .profile-vk-layout{
+    display:grid!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    grid-template-columns:clamp(175px,18vw,198px) minmax(0,1fr)!important;
+    gap:12px!important;align-items:start!important;animation:none!important;transform:none!important;
+  }
+  .profile-vk-sidebar,.profile-vk-main{display:grid!important;gap:10px!important;min-width:0!important}
+  .profile-vk-card{
+    min-width:0!important;padding:11px!important;border-radius:11px!important;
+    box-shadow:0 1px 5px rgba(20,38,70,.045)!important;
+  }
+  .profile-vk-card:hover{transform:none!important;box-shadow:0 2px 7px rgba(20,38,70,.055)!important}
+  .profile-vk-avatar-card{gap:7px!important;padding:9px!important}
+  .profile-vk-avatar-open{display:block!important;width:100%!important;min-width:0!important;padding:0!important}
+  .profile-vk-avatar-open>.profile-vk-photo{
+    display:grid!important;place-items:center!important;width:100%!important;height:auto!important;
+    min-height:0!important;aspect-ratio:1/1.07!important;max-height:185px!important;
+    margin:0!important;border:0!important;border-radius:8px!important;overflow:hidden!important;
+    background-size:cover!important;background-position:center!important;box-shadow:none!important;
+  }
+  .profile-vk-avatar-open>span:last-child{margin-top:5px!important;padding:4px 6px!important;font-size:9.5px!important}
+  .profile-vk-avatar-card>.primary{width:100%!important;min-height:34px!important;padding:6px 8px!important;font-size:10.5px!important}
+  .profile-vk-change-photo{font-size:9.5px!important}
+  .profile-vk-title-row{gap:10px!important;padding-bottom:9px!important}
+  .profile-vk-title-row h2{font-size:19px!important}
+  .profile-vk-bio{font-size:11.5px!important;line-height:1.55!important;margin:8px 0!important}
+  .profile-vk-detail{grid-template-columns:minmax(95px,.42fr) minmax(0,1fr)!important;padding:4px 0!important;font-size:10.5px!important}
+  .profile-vk-stats{gap:3px!important;padding:8px 0!important}
+  .profile-vk-stats>div{min-width:0!important;min-height:36px!important;padding:4px 1px!important}
+  .profile-vk-stats>div>b{font-size:14px!important}.profile-vk-stats>div>span{font-size:8.5px!important}
+  .profile-vk-card-head{margin-bottom:8px!important}
+  .profile-vk-card-head h3{font-size:11.5px!important}
+  .profile-vk-link{font-size:9.5px!important}
+  .profile-vk-friend-grid{gap:8px 4px!important}
+  .profile-vk-friend-avatar{width:37px!important;height:37px!important;min-width:37px!important}
+  .profile-vk-friend>span:last-child{font-size:9.5px!important}
+  .profile-vk-photos{padding:10px!important}
+  .profile-vk-photos .profile-photo-gallery{gap:6px!important}
+  .profile-vk-photos .profile-photo-tile{flex:1 1 calc(25% - 6px)!important;min-width:56px!important;max-width:none!important}
+  .profile-vk-compose{padding:8px 10px!important}
+  .profile-vk-compose-avatar{width:31px!important;height:31px!important;min-width:31px!important}
+  .profile-vk-compose-trigger>span{padding:8px 10px!important;font-size:10.5px!important}
+  .profile-vk-post-tabs{margin-bottom:8px!important}
+  .profile-vk-post-tabs>span,.profile-vk-post-tabs>button:not(.profile-vk-new-post){padding:8px 10px!important;font-size:9.5px!important}
+  .profile-vk-post-tabs>.profile-vk-new-post{font-size:9.5px!important}
+  .settings-page{gap:12px!important}
+  .settings-card{padding:14px!important}
+  .settings-intro h2{font-size:22px!important}
+  .settings-intro p,.settings-card>p{font-size:11px!important}
+  .settings-grid{gap:11px!important}
+  .section-title{font-size:16px!important;margin:18px 0 10px!important}
+  .person-card{gap:9px!important}.person-card .avatar{width:35px!important;height:35px!important}
+  .chat-window{min-height:360px!important;padding:14px!important}
+}
+@media (min-width:1200px){
+  .layout{width:min(1360px,calc(100% - 64px))!important;grid-template-columns:198px minmax(0,1fr)!important;gap:22px!important}
+  .layout>.sidebar{width:198px!important}
+  .profile-vk-layout{grid-template-columns:198px minmax(0,1fr)!important;gap:14px!important}
+}
+@media (min-width:951px) and (max-width:1199px){
+  .layout{width:calc(100% - 36px)!important;grid-template-columns:174px minmax(0,1fr)!important;gap:16px!important}
+  .layout>.sidebar{width:174px!important}
+  .vatra-global-header .mobile-brand{flex-basis:158px!important;min-width:158px!important}
+  .vatra-global-header .search{width:min(380px,39vw)!important;flex-basis:380px!important}
+  .profile-vk-layout{grid-template-columns:170px minmax(0,1fr)!important;gap:10px!important}
+}
+@media (min-width:761px) and (max-width:950px){
+  .vatra-global-header{padding-inline:13px!important}
+  .vatra-global-header .mobile-brand{flex-basis:135px!important;min-width:135px!important;font-size:17px!important}
+  .vatra-global-header .search{width:min(350px,38vw)!important;flex-basis:350px!important}
+  .layout{width:calc(100% - 24px)!important;grid-template-columns:54px minmax(0,1fr)!important;gap:12px!important}
+  .layout>.sidebar{width:54px!important}
+  .layout>.sidebar .nav{justify-content:center!important;padding-inline:4px!important}
+  .layout>.sidebar .nav>span:not(.nav-icon),.layout>.sidebar .nav>i{display:none!important}
+  .layout>.sidebar .create-button{font-size:0!important;padding:5px!important}
+  .layout>.sidebar .create-button span{font-size:17px!important}
+  .sidebar-footer{display:none!important}
+  .profile-vk-layout{grid-template-columns:150px minmax(0,1fr)!important;gap:9px!important}
+  .profile-vk-card{padding:9px!important}
+}
+@media (max-width:850px) and (min-width:761px){
+  .profile-vk-layout{grid-template-columns:minmax(0,1fr)!important}
+  .profile-vk-sidebar{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:start!important}
+  .profile-vk-avatar-card{grid-column:1!important}
+  .profile-vk-friends,.profile-vk-history{grid-column:2!important}
+  .profile-vk-avatar-open>.profile-vk-photo{max-height:155px!important}
+}
+@media (max-width:760px){
+  .vatra-global-header{height:50px!important;min-height:50px!important;padding:0 9px!important;gap:6px!important}
+  .vatra-global-header .mobile-brand{display:flex!important;font-size:16px!important;gap:6px!important}
+  .vatra-global-header .mobile-brand .brand-icon{width:29px!important;height:29px!important;font-size:19px!important}
+  .vatra-global-header .search{height:34px!important;min-width:0!important}
+  .vatra-global-header .search input{font-size:11px!important}
+  .vatra-global-header .notification-button{width:31px!important;height:31px!important;flex-basis:31px!important}
+  .vatra-global-header .account-avatar-trigger{width:29px!important;height:29px!important;flex-basis:29px!important}
+  .layout{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0 11px 80px!important}
+  .layout>.sidebar,.layout>.right{display:none!important}
+  .layout>.main{display:block!important;width:100%!important;max-width:none!important;padding:7px 0 20px!important}
+  .main>.heading{padding:13px 2px 10px!important;margin:0 0 8px!important}
+  .main>.heading h1{font-size:22px!important}.main>.heading p:last-child{font-size:10.5px!important}
+  .quick-compose{padding:11px!important;margin-bottom:9px!important}
+  .compose-row .avatar{width:33px!important;height:33px!important}
+  .prompt{min-height:37px!important;font-size:10.5px!important}
+  .compose-tools{gap:7px!important;flex-wrap:wrap!important}
+  .compose-tools button{font-size:9.5px!important;min-height:30px!important;padding:4px 5px!important}
+  .post{padding:12px 11px 0!important;margin-bottom:9px!important;border-radius:11px!important}
+  .post-head .avatar{width:33px!important;height:33px!important}
+  .post-text{font-size:12.5px!important;line-height:1.52!important}
+  .post-actions button{font-size:9.5px!important;min-height:30px!important}
+  .profile-vk-layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+  .profile-vk-sidebar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important}
+  .profile-vk-main{gap:9px!important}
+  .profile-vk-card{padding:11px!important;border-radius:11px!important}
+  .profile-vk-avatar-card{display:grid!important;grid-template-columns:96px minmax(0,1fr)!important;gap:7px 10px!important;align-items:center!important;padding:9px!important}
+  .profile-vk-avatar-open{grid-column:1!important;grid-row:1 / span 2!important;width:96px!important;min-width:96px!important}
+  .profile-vk-avatar-open>.profile-vk-photo{width:96px!important;height:112px!important;aspect-ratio:auto!important}
+  .profile-vk-avatar-card>.primary{grid-column:2!important;grid-row:1!important;min-height:34px!important}
+  .profile-vk-avatar-card>.profile-vk-change-photo{grid-column:2!important;grid-row:2!important}
+  .profile-vk-title-row h2{font-size:19px!important}
+  .profile-vk-bio{font-size:11.5px!important}
+  .profile-vk-detail{grid-template-columns:minmax(95px,.4fr) minmax(0,1fr)!important;font-size:10.5px!important}
+  .profile-vk-stats{gap:3px!important;padding:9px 0!important}
+  .profile-vk-stats>div{min-width:0!important}
+  .profile-vk-stats>div>b{font-size:14px!important}.profile-vk-stats>div>span{font-size:8.5px!important}
+  .profile-vk-photos .profile-photo-tile{flex:0 0 calc((100% - 12px)/3)!important;min-width:0!important}
+  .profile-vk-post-tabs>span,.profile-vk-post-tabs>button:not(.profile-vk-new-post){padding:8px!important;font-size:9.5px!important}
+  .settings-grid{grid-template-columns:minmax(0,1fr)!important}
+  .settings-card{padding:13px!important}
+  .section-title{font-size:15px!important}
+}
+@media (max-width:420px){
+  .vatra-global-header{padding-inline:6px!important;gap:4px!important}
+  .vatra-global-header .mobile-brand{font-size:14px!important;gap:4px!important}
+  .vatra-global-header .mobile-brand .brand-icon{width:26px!important;height:26px!important}
+  .vatra-global-header .search{height:32px!important;padding-inline:6px!important}
+  .vatra-global-header .search input{font-size:10px!important}
+  .layout{padding-inline:8px!important}
+  .profile-vk-avatar-card{grid-template-columns:84px minmax(0,1fr)!important;gap:6px 8px!important}
+  .profile-vk-avatar-open{width:84px!important;min-width:84px!important}
+  .profile-vk-avatar-open>.profile-vk-photo{width:84px!important;height:98px!important}
+  .profile-vk-title-row{flex-wrap:wrap!important}
+  .profile-vk-title-row>.text-link{font-size:9px!important}
+  .profile-vk-stats>div>span{font-size:8px!important}
+  .post-actions button{padding-inline:4px!important;font-size:9px!important}
+}
