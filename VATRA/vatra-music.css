@@ -1,0 +1,101 @@
+/* VATRA Music: official embedded Spotify, independent of posts and auth. */
+.vatra-music-page{display:grid;gap:15px;max-width:100%;min-width:0;font-family:Inter,Arial,sans-serif;color:#293c53}
+.vatra-music-page *{box-sizing:border-box}
+.vatra-music-banner{display:flex;justify-content:space-between;min-height:165px;overflow:hidden;border-radius:16px;padding:23px 23px 22px;background:linear-gradient(117deg,#173b83,#0757f5 65%,#43a8ff);color:#fff}
+.vatra-music-eyebrow{font-size:10px!important;letter-spacing:1.3px;font-weight:650;margin:0 0 8px;color:#bdd7ff!important}
+.vatra-music-banner h2{font-size:25px!important;line-height:1.15!important;letter-spacing:-.6px;font-weight:680!important;margin:0 0 9px;color:#fff!important}
+.vatra-music-banner-copy{position:relative;z-index:1}
+.vatra-music-banner-copy>p:last-child{font-size:12px;max-width:420px;line-height:1.5;color:#e4edff;margin:0}
+.vatra-music-banner-art{display:flex;align-items:center;gap:0;min-width:100px;font-size:40px;opacity:.65;transform:rotate(-15deg)}
+.vatra-music-banner-art span:nth-child(2){transform:translateY(-33px);color:#cbe9ff}.vatra-music-banner-art span:nth-child(3){transform:translate(-23px,28px);color:#90e8fb}
+.vatra-music-search{display:flex;align-items:center;gap:10px}
+.vatra-music-search-input{display:flex;align-items:center;gap:9px;flex:1;min-width:0;min-height:42px;padding:0 13px;background:#fff;border:1px solid #dfe7f1;border-radius:11px;color:#7692af}
+.vatra-music-search-input svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;flex:none}
+.vatra-music-search-input input{min-width:0;width:100%;height:40px;border:0!important;outline:0!important;box-shadow:none!important;font:400 13px Inter,Arial,sans-serif;color:#293f5e;background:transparent}
+.vatra-music-search>a{white-space:nowrap;text-decoration:none;background:#eef4ff;color:#0757f5;border-radius:10px;padding:12px 11px;font-size:11px;font-weight:550}
+.vatra-music-search>a:hover{background:#e1ebff}
+.vatra-music-tabs{display:flex;align-items:center;gap:5px;max-width:100%;overflow-x:auto;padding:0 0 6px}
+.vatra-music-tabs button{flex:none;white-space:nowrap;padding:8px 12px;background:transparent;border:1px solid transparent;border-radius:9px;color:#61748e;font:550 12px Inter,Arial,sans-serif;cursor:pointer}
+.vatra-music-tabs button:hover{background:#eaf2ff;color:#1d62a9}.vatra-music-tabs button.active{background:#eaf2ff;border-color:#d7e5fb;color:#0757f5;font-weight:650}
+.vatra-music-tabs span{font-size:11px;padding:1px 4px;background:#dceafe;border-radius:6px}
+.vatra-music-section-head{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
+.vatra-music-section-head h3{font-size:18px!important;font-weight:650!important;letter-spacing:-.25px;margin:0 0 4px}
+.vatra-music-section-head small{color:#7e90a9;font-size:11px}
+.vatra-music-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;min-width:0}
+.vatra-music-card{display:grid;grid-template-columns:66px minmax(0,1fr);grid-template-rows:auto auto;column-gap:11px;row-gap:10px;align-items:center;min-width:0;padding:12px;border-radius:12px;background:#fff;border:1px solid #e4ebf4;box-shadow:0 2px 9px rgba(21,46,87,.035)}
+.vatra-music-card[hidden]{display:none!important}
+.vatra-music-card-image{grid-column:1;grid-row:1;display:grid;place-items:center;width:66px;height:66px;border-radius:11px;background:linear-gradient(140deg,#6ad1b8,#2377bf);color:#fff;font-size:32px}
+.vatra-music-card.tone-2 .vatra-music-card-image{background:linear-gradient(145deg,#899be8,#4f4d9b)}
+.vatra-music-card.tone-3 .vatra-music-card-image{background:linear-gradient(145deg,#ef9ec6,#925cd2)}
+.vatra-music-card.tone-4 .vatra-music-card-image{background:linear-gradient(145deg,#5acdf3,#3063d9)}
+.vatra-music-card.tone-5 .vatra-music-card-image{background:linear-gradient(145deg,#fac178,#dc6975)}
+.vatra-music-card-info{grid-column:2;grid-row:1;min-width:0}
+.vatra-music-card-info>small{display:block;color:#7a91ad;font-size:10px;margin-bottom:3px}
+.vatra-music-card-info h3{font-size:13px!important;font-weight:620!important;line-height:1.4;color:#2f435a;margin:0 0 4px;overflow-wrap:anywhere}
+.vatra-music-card-info p{font-size:11px!important;line-height:1.45;color:#788ba4;margin:0;overflow-wrap:anywhere}
+.vatra-music-card-actions{grid-column:1/-1;grid-row:2;display:flex;align-items:center;gap:6px}
+.vatra-music-card-actions button,.vatra-music-card-actions a{display:inline-flex;align-items:center;justify-content:center;border:1px solid #dce7f6;border-radius:8px;cursor:pointer;color:#3c6e9d;background:#f8fbff;font-size:12px!important;text-decoration:none;height:33px;padding:6px 9px}
+.vatra-music-card-actions .vatra-music-play{flex:1;min-width:0;background:#edf4ff;border-color:#dce7ff;color:#0757f5;font-weight:600!important}
+.vatra-music-card-actions .vatra-music-play:hover{background:#dceaff}
+.vatra-music-card-actions .vatra-music-favorite{width:33px;padding:0;font-size:20px!important}
+.vatra-music-card-actions .vatra-music-favorite.is-saved{color:#dc4260;background:#fff3f5}
+.vatra-music-card-actions button:disabled{opacity:.45;cursor:not-allowed}
+.vatra-music-empty{grid-column:1/-1;padding:25px 15px;text-align:center;color:#7b90a9;background:#f8fafd;border:1px dashed #dce6f2;border-radius:12px;font-size:12px}
+.vatra-music-link-box{padding:18px;background:#fff;border:1px solid #e2eaf5;border-radius:13px}
+.vatra-music-link-box h3{font-size:15px!important;font-weight:640!important;margin:0 0 5px}
+.vatra-music-link-box p{font-size:12px;line-height:1.5;color:#637891;margin:0 0 12px}
+.vatra-music-link-box form{display:flex;gap:8px;padding:0;margin:0}
+.vatra-music-link-box form input{min-width:0;flex:1;padding:10px 12px;border:1px solid #d8e4f1;border-radius:9px;background:#f9fbff;color:#314864;font-size:12px}
+.vatra-music-link-box form button{flex:none;padding:10px 13px;background:#0757f5;color:white;border:0;border-radius:9px;cursor:pointer;font:550 12px Inter,Arial,sans-serif}
+.vatra-music-link-box>small{display:block;margin:10px 0 0;color:#8193a9;font-size:10.5px}
+.vatra-music-legal{line-height:1.55!important;font-size:11px!important;color:#7f8fa6!important;margin:2px 0 20px!important}
+.vatra-music-status{margin:0;padding:9px 11px;border-radius:8px;background:#eef5ff;color:#416489;font-size:11.5px}
+.vatra-music-status.is-error{background:#fff1f0;color:#a7413a}
+.vatra-music-status button{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer}
+.vatra-music-dock[hidden]{display:none!important}
+.vatra-music-dock{box-sizing:border-box;position:fixed;right:18px;bottom:18px;z-index:120;width:min(370px,calc(100vw - 24px));padding:11px;border:1px solid #d7e2f0;border-radius:15px;background:#fff;box-shadow:0 12px 45px rgba(24,43,76,.23);color:#293c53}
+.vatra-music-dock *{box-sizing:border-box}
+.vatra-music-dock-head{display:flex;align-items:center;justify-content:space-between;gap:7px;margin:0 0 8px}
+.vatra-music-dock-head>div:first-child{display:flex;align-items:center;min-width:0;gap:9px}
+.vatra-music-dock-mark{display:grid;place-items:center;flex:none;background:#eaf1ff;color:#0757f5;border-radius:9px;width:34px;height:34px;font-size:21px}
+.vatra-music-dock-meta{display:grid;gap:3px;min-width:0}
+.vatra-music-dock-meta b,.vatra-music-dock-meta small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vatra-music-dock-meta b{font-size:12px;font-weight:650}
+.vatra-music-dock-meta small{font-size:10.5px;color:#8a99af}
+.vatra-music-dock-tools{display:flex;align-items:center;gap:3px}
+.vatra-music-dock-tools button{border:0;background:#f0f4fa;border-radius:7px;color:#53667e;width:30px;height:29px;cursor:pointer;font-size:17px}
+.vatra-music-dock-tools button:hover{background:#e1ebff;color:#0757f5}
+.vatra-music-dock .vatra-music-frame-wrap{overflow:hidden;border-radius:11px}
+.vatra-music-dock iframe{display:block;width:100%;max-width:100%;height:152px;border:0!important;transition:height .2s ease}
+.vatra-music-dock.is-expanded iframe{height:352px}
+.vatra-music-dock-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px 2px 0;color:#8b9caf;font-size:10px}
+.vatra-music-dock-footer a{color:#0757f5;font-size:10.5px;text-decoration:none}
+body[data-vatra-theme-effective="dark"] .vatra-music-card,
+body[data-vatra-theme-effective="dark"] .vatra-music-link-box,
+body[data-vatra-theme-effective="dark"] .vatra-music-dock{background:#213047;border-color:#415774;color:#e8eff9}
+body[data-vatra-theme-effective="dark"] .vatra-music-card-info h3,
+body[data-vatra-theme-effective="dark"] .vatra-music-link-box h3,
+body[data-vatra-theme-effective="dark"] .vatra-music-section-head h3,
+body[data-vatra-theme-effective="dark"] .vatra-music-dock-meta b{color:#e8eff9}
+body[data-vatra-theme-effective="dark"] .vatra-music-search-input,
+body[data-vatra-theme-effective="dark"] .vatra-music-link-box input{background:#293b52;border-color:#475d7b;color:#e8eff9}
+body[data-vatra-theme-effective="dark"] .vatra-music-search-input input{color:#e8eff9}
+@media(max-width:580px){
+ .vatra-music-banner{min-height:130px;padding:18px}
+ .vatra-music-banner-art{display:none}
+ .vatra-music-banner h2{font-size:22px!important}
+ .vatra-music-results{grid-template-columns:minmax(0,1fr)}
+ .vatra-music-search{flex-wrap:wrap}
+ .vatra-music-search>a{padding:9px}
+ .vatra-music-card{grid-template-columns:58px minmax(0,1fr)}
+ .vatra-music-card-image{width:58px;height:58px}
+ .vatra-music-link-box form{flex-wrap:wrap}
+ .vatra-music-link-box form input{flex:1 1 100%}
+}
+@media(max-width:760px){
+ .vatra-music-dock{bottom:78px;right:8px;left:8px;width:auto;max-width:100%;padding:9px;border-radius:12px}
+ .vatra-music-dock.is-expanded iframe{height:min(352px,42vh)}
+ .vatra-music-page{padding-bottom:210px}
+ .vatra-music-link-box{padding:13px}
+}
+@media(prefers-reduced-motion:reduce){.vatra-music-dock iframe{transition:none}}
