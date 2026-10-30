@@ -1,5 +1,5 @@
 import { ensureIdentity, prepareSession, encryptMessage, decryptMessage, formatFingerprint } from './vatra-e2ee.js?v=2';
-import { setupNavigation } from './navigation.js?v=20261030-21';
+import { setupNavigation } from './navigation.js?v=20261030-22';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange } from './vatra-backend.js?v=20261030-2';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
@@ -667,7 +667,7 @@ function renderGroupDetails(id){
   $$('[data-group-settings]').forEach(form=>form.addEventListener('submit',async e=>{e.preventDefault();const fd=new FormData(e.currentTarget),name=String(fd.get('name')||'').trim(),description=String(fd.get('description')||'').trim();if(name.length<2)return toastMsg('Назва має містити щонайменше 2 символи.');try{await update(ref(db,`groups/${id}`),{name:name.slice(0,60),description:description.slice(0,500),updatedAt:Date.now()});toastMsg('Спільноту оновлено.');}catch(err){toastMsg(niceError(err));}}));
  });
 }
-function openGroupSettings(id){if(!authRequired())return;const g=groups[id];if(!g)return;const canManage=g.ownerUid===currentUser.uid||!!groupAdmins[id]?.[currentUser.uid]||!!groupModerators[id]?.[currentUser.uid];if(!canManage)return toastMsg('У Вас немає прав керувати цією спільнотою.');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}groupId=id;page='groupSettings';document.body.dataset.page=page;$('#title').textContent='Керування спільнотою';$('#subtitle').textContent=g.name||'';$('.heading .eyebrow').textContent='СПІЛЬНОТА';$$('[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page==='groups'));const composer=$('.quick-compose');if(composer)composer.hidden=true;const sort=$('#sort');if(sort)sort.hidden=true;renderGroupSettings(id);}
+function openGroupSettings(id){if(!authRequired())return;const g=groups[id];if(!g)return;const canManage=g.ownerUid===currentUser.uid||!!groupAdmins[id]?.[currentUser.uid]||!!groupModerators[id]?.[currentUser.uid];if(!canManage)return toastMsg('У Вас немає прав керувати цією спільнотою.');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}groupId=id;page='groupSettings';document.body.dataset.page=page;$('#title').textContent='Керування спільнотою';$('#subtitle').textContent=g.name||'';$('.heading .eyebrow').textContent='СПІЛЬНОТА';$('button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page==='groups'));const composer=$('.quick-compose');if(composer)composer.hidden=true;const sort=$('#sort');if(sort)sort.hidden=true;renderGroupSettings(id);}
 function renderGroupSettings(id){
  const g=groups[id];if(!g){page='groups';groupId=null;return renderGroups();}
  const isOwner=g.ownerUid===currentUser?.uid,isAdmin=!!groupAdmins[id]?.[currentUser?.uid],isMod=!!groupModerators[id]?.[currentUser?.uid],canEditSettings=isOwner||isAdmin,canManageRoles=isOwner||isAdmin;
