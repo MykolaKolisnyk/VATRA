@@ -32,6 +32,7 @@ function inspect(width){
 for(const width of [390,768,1024,1366]){
  test('Responsive layout '+width+' px does not overlap or overflow',()=>{
   const m=inspect(width);
+  assert.ok(Math.abs(m.width-width)<=2,'Unexpected browser viewport width (requested '+width+'): '+JSON.stringify(m));
   assert.ok(m.scrollWidth<=m.width+2,'Horizontal overflow: '+JSON.stringify(m));
   assert.ok(m.headerRight>=m.width-2,'Header not full-width: '+JSON.stringify(m));
   assert.ok(m.avatarW>50&&m.avatarH>50,'Avatar collapsed: '+JSON.stringify(m));
