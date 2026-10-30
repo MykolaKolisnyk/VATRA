@@ -3100,3 +3100,20 @@ input[type="checkbox"]:focus-visible{
   .profile-vk-stats>div>span{font-size:8px!important}
   .profile-vk-detail{grid-template-columns:minmax(85px,.4fr) minmax(0,1fr)!important;gap:7px!important}
 }
+
+
+/* Actions for another person's profile, kept in the left profile column. */
+.profile-vk-public-actions{
+  display:grid!important;gap:7px!important;margin-top:9px!important;
+}
+.profile-vk-public-actions>button{
+  width:100%!important;min-width:0!important;min-height:34px!important;
+  padding:7px 8px!important;border-radius:3px!important;font-size:11px!important;
+  white-space:normal!important;
+}
+.profile-vk-public-actions>.text-link,
+.profile-vk-public-actions>.danger-link{
+  text-align:center!important;
+}
+.profile-vk-public-layout .profile-vk-avatar-card{align-content:start!important}
+.profile-vk-public-layout .profile-vk-photos{min-width:0!important}
