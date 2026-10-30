@@ -8044,58 +8044,85 @@ end;
 $realtime$;
 
 
--- VATRA E2EE enforcement. Existing legacy plaintext messages remain readable,
--- but newly inserted or changed private messages MUST be signed ciphertext.
--- Applies both to individual message paths and to messages nested in a chat row.
+-- VATRA E2EE enforcement for newly written direct messages.
+-- Legacy plaintext messages remain readable, but any new/modified message
+-- must contain signed ciphertext. Only a message's author may change or delete it.
+-- Covers all storage forms supported by the app_data compatibility adapter.
 create or replace function public.vatra_e2ee_guard()
 returns trigger
 language plpgsql
 set search_path = ''
 as $vatra_e2ee$
 declare
+  actor_uid text := auth.uid()::text;
   old_messages jsonb := '{}'::jsonb;
   new_messages jsonb := '{}'::jsonb;
   message_id text;
   message_payload jsonb;
 begin
+  if actor_uid is null then
+    raise exception 'VATRA E2EE: authentication required';
+  end if;
+
   if new.path ~ '^chats/[^/]+/messages/[^/]+$' then
-    message_payload := new.value;
-    if jsonb_typeof(message_payload) <> 'object'
-       or not (message_payload ? 'encrypted')
-       or message_payload ? 'text'
-       or message_payload ->> 'senderUid' is null
-       or message_payload -> 'encrypted' ->> 'v' <> '1'
-       or message_payload -> 'encrypted' ->> 'alg' <> 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
-       or message_payload -> 'encrypted' ->> 'ciphertext' is null
-       or message_payload -> 'encrypted' ->> 'iv' is null
-       or message_payload -> 'encrypted' ->> 'signature' is null then
-      raise exception 'VATRA E2EE: private messages must contain signed ciphertext';
+    message_id := split_part(new.path, '/', 4);
+    new_messages := jsonb_build_object(message_id, new.value);
+    if tg_op = 'UPDATE' then
+      old_messages := jsonb_build_object(message_id, old.value);
+    end if;
+  elsif new.path ~ '^chats/[^/]+/messages$' then
+    new_messages := new.value;
+    if tg_op = 'UPDATE' then
+      old_messages := old.value;
     end if;
   elsif new.path ~ '^chats/[^/]+$' then
     if tg_op = 'UPDATE' then
+      if coalesce(new.value -> 'members', '{}'::jsonb)
+         is distinct from coalesce(old.value -> 'members', '{}'::jsonb) then
+        raise exception 'VATRA E2EE: chat membership cannot be rewritten';
+      end if;
       old_messages := coalesce(old.value -> 'messages', '{}'::jsonb);
     end if;
     new_messages := coalesce(new.value -> 'messages', '{}'::jsonb);
-    if jsonb_typeof(new_messages) <> 'object' then
-      raise exception 'VATRA E2EE: invalid chat message container';
-    end if;
-    for message_id in select jsonb_object_keys(new_messages) loop
-      message_payload := new_messages -> message_id;
-      if message_payload is distinct from old_messages -> message_id then
-        if jsonb_typeof(message_payload) <> 'object'
-           or not (message_payload ? 'encrypted')
-           or message_payload ? 'text'
-           or message_payload ->> 'senderUid' is null
-           or message_payload -> 'encrypted' ->> 'v' <> '1'
-           or message_payload -> 'encrypted' ->> 'alg' <> 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
-           or message_payload -> 'encrypted' ->> 'ciphertext' is null
-           or message_payload -> 'encrypted' ->> 'iv' is null
-           or message_payload -> 'encrypted' ->> 'signature' is null then
-          raise exception 'VATRA E2EE: private messages must contain signed ciphertext';
-        end if;
-      end if;
-    end loop;
+  else
+    raise exception 'VATRA E2EE: unsupported chat data path';
   end if;
+
+  if jsonb_typeof(new_messages) is distinct from 'object'
+     or jsonb_typeof(old_messages) is distinct from 'object' then
+    raise exception 'VATRA E2EE: invalid message container';
+  end if;
+
+  for message_id in select jsonb_object_keys(new_messages) loop
+    message_payload := new_messages -> message_id;
+
+    if message_payload is distinct from old_messages -> message_id then
+      if (old_messages ? message_id)
+         and old_messages -> message_id ->> 'senderUid' is distinct from actor_uid then
+        raise exception 'VATRA E2EE: only the author may edit a message';
+      end if;
+
+      if jsonb_typeof(message_payload) is distinct from 'object'
+         or not (message_payload ? 'encrypted')
+         or message_payload ? 'text'
+         or message_payload ->> 'senderUid' is distinct from actor_uid
+         or message_payload -> 'encrypted' ->> 'v' is distinct from '1'
+         or message_payload -> 'encrypted' ->> 'alg' is distinct from 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
+         or message_payload -> 'encrypted' ->> 'ciphertext' is null
+         or message_payload -> 'encrypted' ->> 'iv' is null
+         or message_payload -> 'encrypted' ->> 'signature' is null then
+        raise exception 'VATRA E2EE: only signed ciphertext from the sender is accepted';
+      end if;
+    end if;
+  end loop;
+
+  for message_id in select jsonb_object_keys(old_messages) loop
+    if not (new_messages ? message_id)
+       and old_messages -> message_id ->> 'senderUid' is distinct from actor_uid then
+      raise exception 'VATRA E2EE: only the author may remove a message';
+    end if;
+  end loop;
+
   return new;
 end;
 $vatra_e2ee$;
@@ -8104,5 +8131,5 @@ drop trigger if exists vatra_require_encrypted_messages on public.app_data;
 create trigger vatra_require_encrypted_messages
 before insert or update of value on public.app_data
 for each row
-when (new.path ~ '^chats/[^/]+($|/messages/[^/]+$)')
+when (new.path ~ '^chats/[^/]+(/messages(/.*)?)?$')
 execute function public.vatra_e2ee_guard();
