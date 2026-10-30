@@ -143,6 +143,24 @@ function renderPostEditForm(p){
   '<small class="post-edit-hint">До 10 фотографій у публікації. Нові фото можна обрізати й відредагувати перед збереженням.</small></div>'+
   '<div class="post-edit-actions"><button class="primary" type="submit">Зберегти зміни</button><button class="pill" type="button" data-cancel-post-edit>Скасувати</button></div></form>';
 }
+function openPostPhotoViewer(urls,startIndex=0){
+ const photos=[...new Set((Array.isArray(urls)?urls:[]).filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)))];
+ if(!photos.length)return;
+ let index=Math.max(0,Math.min(Number(startIndex)||0,photos.length-1));
+ const dialog=document.createElement('dialog');dialog.className='vatra-post-photo-viewer';document.body.append(dialog);
+ const draw=()=>{
+  dialog.innerHTML='<button type="button" class="vatra-post-photo-close" aria-label="Закрити">×</button><div class="vatra-post-photo-stage"><button type="button" data-post-photo-step="-1" '+(photos.length<2?'disabled':'')+' aria-label="Попереднє фото">‹</button><img src="'+esc(photos[index])+'" alt="Фото '+(index+1)+' з '+photos.length+'"><button type="button" data-post-photo-step="1" '+(photos.length<2?'disabled':'')+' aria-label="Наступне фото">›</button></div><small>'+ (index+1) +' / '+photos.length+'</small>';
+ };
+ dialog.addEventListener('click',event=>{
+  if(event.target.closest('.vatra-post-photo-close')||event.target===dialog){dialog.close();return;}
+  const step=event.target.closest('[data-post-photo-step]');if(step){index=(index+Number(step.dataset.postPhotoStep)+photos.length)%photos.length;draw();}
+ });
+ dialog.addEventListener('keydown',event=>{
+  if(event.key==='ArrowRight'){index=(index+1)%photos.length;draw();}
+  else if(event.key==='ArrowLeft'){index=(index-1+photos.length)%photos.length;draw();}
+ });
+ dialog.addEventListener('close',()=>dialog.remove());draw();dialog.showModal();
+}
 function renderPostBody(p){
  return (p.text?'<p class="post-text">'+safeText(p.text)+'</p>':'')+renderPostImages(p)+(p.videoUrl?'<video class="post-image" controls playsinline preload="metadata" src="'+esc(p.videoUrl)+'"></video>':'');
 }
@@ -715,6 +733,7 @@ $('#postForm').addEventListener('submit',async e=>{
 $$('[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));$$('.tab').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;goPage('feed');});$('#search').addEventListener('input',e=>{query=e.target.value.trim();if(query){if(page!=='explore')goPage('explore');else render();}else{if(page==='explore')render();else if(page==='saved'||page==='profile')goPage('feed');else render();}});$('#search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();goPage('explore');}});$('#sort').onclick=()=>{filter=filter==='popular'?'all':'popular';goPage('feed');toastMsg(filter==='popular'?'Сортування за вподобаннями':'Найновіші дописи');};$('#moment')?.addEventListener('click',openComposer);$$('[data-action="compose"]').forEach(b=>b.addEventListener('click',openComposer));$$('[data-tag]').forEach(b=>b.addEventListener('click',()=>{query=b.dataset.tag;$('#search').value=query;goPage('feed');}));
 document.addEventListener('click',async e=>{
  const avatarViewerButton=e.target.closest('[data-avatar-viewer]');if(avatarViewerButton){let photos=[];try{photos=JSON.parse(avatarViewerButton.dataset.avatarUrls||'[]');}catch{}await openAvatarViewer(avatarViewerButton.dataset.avatarViewer,photos,0);return;}
+ const postPhotoButton=e.target.closest('[data-open-photo]');if(postPhotoButton){const post=posts[postPhotoButton.dataset.openPhoto],urls=postImages(post||{});openPostPhotoViewer(urls,Number(postPhotoButton.dataset.photoIndex)||0);return;}
  const tagButton=e.target.closest('[data-tag]');if(tagButton){query=String(tagButton.dataset.tag||'').trim();$('#search').value=query;filter='all';goPage('feed');return;}
  const removeComposerPhoto=e.target.closest('[data-remove-composer-photo]');if(removeComposerPhoto){const index=Number(removeComposerPhoto.dataset.removeComposerPhoto);if(Number.isInteger(index)&&index>=0&&index<imageFiles.length){imageFiles.splice(index,1);renderComposerPhotoPreviews();}return;}
  const deletePhotoButton=e.target.closest('[data-delete-profile-photo]');if(deletePhotoButton){await deleteProfilePhoto(Number(deletePhotoButton.dataset.deleteProfilePhoto));return;}
