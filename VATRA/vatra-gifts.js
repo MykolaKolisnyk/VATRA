@@ -131,3 +131,5 @@ function queuePreview(){if(previewScheduled)return;previewScheduled=true;request
 const feed=document.querySelector('#feed');
 if(feed)new MutationObserver(queuePreview).observe(feed,{childList:true,subtree:false});
 window.addEventListener('vatra:started',queuePreview);
+
+if(document.body.dataset.page==='gifts')void window.vatraRenderGifts?.(available());
