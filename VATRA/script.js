@@ -2,7 +2,7 @@ import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from '
 import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-3';
-import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261030-5';
+import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-1';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest } from './vatra-backend.js?v=20261031-1';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
@@ -125,6 +125,12 @@ function publicProfileData(p={}){
    photoAlbums:p.profileVisibility==='private'?[]:vatraGetAlbums(p),
    avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
   isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,
+  nowPlaying:p.nowPlaying&&Number(p.nowPlaying.expiresAt)>Date.now()?{
+    uri:String(p.nowPlaying.uri||'').slice(0,80),
+    title:String(p.nowPlaying.title||'Трек Spotify').slice(0,180),
+    artist:String(p.nowPlaying.artist||'Spotify').slice(0,160),
+    expiresAt:Number(p.nowPlaying.expiresAt)
+  }:null,
   profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-120):[]),
   profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,
   birthdayVisibility:vatraFieldVisibility(p.birthdayVisibility),cityVisibility:vatraFieldVisibility(p.cityVisibility),
@@ -692,6 +698,20 @@ document.addEventListener('click',event=>{
  const key=trigger.dataset.vatraProfileFold;
  if(expanded)VATRA_PROFILE_OPEN_SECTIONS.add(key);else VATRA_PROFILE_OPEN_SECTIONS.delete(key);
 });
+function vatraNowPlayingMarkup(profile){
+ const state=profile?.nowPlaying;
+ if(!state||Number(state.expiresAt)<=Date.now()||!/^spotify:track:[A-Za-z0-9]{22}$/.test(state.uri||''))return '';
+ const name=esc(String(state.title||'Трек Spotify').slice(0,180));
+ const artist=esc(String(state.artist||'Spotify').slice(0,160));
+ const href='https://open.spotify.com/track/'+state.uri.split(':')[2];
+ return '<a class="vatra-now-playing-status" href="'+href+'" target="_blank" rel="noopener noreferrer" title="Відкрити композицію у Spotify"><span class="vatra-now-playing-icon">♫</span><span>Слухає: <b>'+name+'</b> · '+artist+'</span></a>';
+}
+window.addEventListener('vatra:music-state',event=>{
+ if(!currentUser)return;
+ currentProfile.nowPlaying=event.detail||null;
+ if(page==='profile')renderProfile();
+ else if(page==='publicProfile'&&activeProfileUid===currentUser.uid)renderPublicProfile(activeProfileUid);
+});
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -735,7 +755,7 @@ function renderProfile(){
   '<div class="vatra-profile-main">'+
    '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(name)+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup(currentProfile,true)+'</div>'+
-    '<div class="vatra-profile-status-row">'+(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>')+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
+    '<div class="vatra-profile-status-row">'+(vatraNowPlayingMarkup(currentProfile)||(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>'))+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
     '<div class="vatra-profile-details">'+(hasDetails?detailHtml:'<p class="muted">Додайте інформацію про себе та виберіть, що буде видно іншим.</p>')+'</div>'+vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid)+
@@ -1005,7 +1025,7 @@ function renderPublicProfile(uid){
   '<div class="vatra-profile-main">'+
    '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0})+'</div>'+
-    (visibleStatus?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
+    (vatraNowPlayingMarkup(u)?'<div class="vatra-profile-status-row">'+vatraNowPlayingMarkup(u)+'</div>':visibleStatus?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (visibleBio?profileBioMarkup(visibleBio):'')+
     '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city,'city')+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends)+
