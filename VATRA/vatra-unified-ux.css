@@ -150,3 +150,57 @@ body .vatra-share-dialog .vatra-share-error{color:#c22f4a;margin:0;font-size:12p
 body .vatra-route-menu{position:fixed;z-index:99999;background:#fff;color:#24405c;border:1px solid #d9e5f2;border-radius:11px;box-shadow:0 8px 30px #081a3440;padding:6px;min-width:215px}
 body .vatra-route-menu button{width:100%;text-align:left;display:flex;gap:9px;align-items:center;border:0;border-radius:7px;background:none;padding:11px;color:inherit;font:600 13px Inter,sans-serif;cursor:pointer}
 body .vatra-route-menu button:hover{background:#edf4fc}
+
+/* Community avatar/cover viewer uses the same dark, spacious photo language. */
+body .vatra-group-media-dialog.vatra-group-media-dark{
+ position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+ max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:#080e15!important;color:#fff!important;
+ overflow:hidden!important
+}
+body .vatra-group-media-dialog.vatra-group-media-dark::backdrop{background:#080e15f2!important}
+body .vatra-group-media-dark .vatra-group-media-shell{
+ width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+ display:flex!important;flex-direction:column!important;justify-content:center!important;
+ align-items:center!important;padding:20px!important;margin:0!important;border:0!important;
+ border-radius:0!important;background:transparent!important;box-sizing:border-box!important;
+}
+body .vatra-group-media-dark .vatra-group-media-shell header{
+ position:fixed!important;top:0!important;left:0!important;right:0!important;
+ height:0!important;padding:0!important;margin:0!important;border:0!important;
+ background:none!important;overflow:visible!important;z-index:12!important
+}
+body .vatra-group-media-dark .vatra-group-media-shell header b{display:none!important}
+body .vatra-group-media-dark [data-close-group-photo]{
+ position:fixed!important;right:24px!important;top:20px!important;width:44px!important;height:44px!important;
+ display:grid!important;place-items:center!important;border:1px solid #ffffff35!important;
+ border-radius:50%!important;background:#14212ed9!important;color:white!important;
+ padding:0!important;margin:0!important;cursor:pointer!important
+}
+body .vatra-group-media-dark [data-close-group-photo] svg{
+ width:22px!important;height:22px!important;fill:none!important;stroke:currentColor!important;
+ stroke-width:2.4!important;stroke-linecap:round!important
+}
+body .vatra-group-media-dark .vatra-group-media-stage{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:1 1 auto!important;min-height:0!important;max-height:calc(100dvh - 110px)!important;
+ width:100%!important;padding:14px!important;margin:0!important;border:0!important;background:none!important
+}
+body .vatra-group-media-dark .vatra-group-media-stage img{
+ width:auto!important;height:auto!important;max-width:100%!important;max-height:calc(100dvh - 145px)!important;
+ object-fit:contain!important;box-shadow:none!important;border-radius:0!important
+}
+body .vatra-group-media-dark .vatra-group-media-shell footer{
+ position:relative!important;display:flex!important;justify-content:center!important;align-items:center!important;
+ gap:9px!important;flex-wrap:wrap!important;width:auto!important;max-width:calc(100vw - 20px)!important;
+ padding:10px 14px!important;margin:0 auto!important;border:1px solid #ffffff22!important;
+ border-radius:12px!important;background:#172433d9!important;color:white!important;font:600 12px Inter,sans-serif!important
+}
+body .vatra-group-media-dark .vatra-group-media-shell footer button{
+ min-height:35px!important;padding:8px 11px!important;border:1px solid #ffffff23!important;
+ border-radius:8px!important;background:#ffffff16!important;color:#fff!important;cursor:pointer!important
+}
+body .vatra-group-media-dark .vatra-group-media-shell footer button:hover{background:#ffffff2c!important}
+body .vatra-svg-close svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+body .vatra-verified-badge{display:inline-flex!important;vertical-align:middle!important;align-items:center!important;justify-content:center!important;margin-left:5px!important;color:#1685ea!important}
+body .vatra-verified-badge svg{width:18px!important;height:18px!important}
