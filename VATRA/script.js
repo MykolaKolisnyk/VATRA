@@ -438,7 +438,11 @@ function openPostPhotoViewer(urls,startIndex=0,postId='',ownerUid=''){
  let index=Math.max(0,Math.min(Number(startIndex)||0,photos.length-1)),zoom=1;
  const dialog=document.createElement('dialog');dialog.className='vatra-post-photo-viewer';document.body.append(dialog);
  const getPost=()=>postId?(posts[postId]||vatraGroupPostById(postId)):null;
- const getOwner=()=>{const p=getPost(),uid=p?.authorUid||ownerUid;return p?.source==='group'&&p.authorType==='group'?(groups[p.groupId]||{}):uid?(uid===currentUser?.uid?currentProfile:(users[uid]||{})):{};};
+ const getOwner=()=>{const p=getPost(),uid=p?.authorUid||ownerUid;
+  if(p?.source==='group'&&p.authorType==='group')return groups[p.groupId]||{};
+  if(typeof ownerUid==='string'&&ownerUid.startsWith('community:'))return groups[ownerUid.slice(10)]||{};
+  return uid?(uid===currentUser?.uid?currentProfile:(users[uid]||{})):{};
+ };
  const draw=()=>{
   const p=getPost(),u=getOwner(),name=u.name||p?.authorName||'Користувач ВАТРИ',handle=u.handle||p?.authorHandle||'user';
   const cs=postId?Object.entries(comments[postId]||{}).map(([id,c])=>({...c,id})).filter(c=>c.uid===currentUser?.uid||!blockedUsers[c.uid]).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)):[];
@@ -1525,8 +1529,10 @@ function renderGroupDetails(id){
    linksCard+'</aside>';
   setFeed('<section class="vatra-group-view'+(canManage?' is-manager':' is-visitor')+'">'+intro+
    '<div class="vatra-group-content-grid"><div class="vatra-group-main">'+
-   '<nav class="vatra-group-tabs" role="tablist" aria-label="Розділи спільноти">'+tab('posts','Дописи')+(canSeeMembers?tab('members','Учасники'):'')+tab('about','Інформація')+'</nav>'+
+   '<nav class="vatra-group-tabs" role="tablist" aria-label="Розділи спільноти">'+tab('posts','Дописи')+tab('photos','Фото')+tab('videos','Відео')+(canSeeMembers?tab('members','Учасники'):'')+tab('about','Інформація')+'</nav>'+
    '<div class="vatra-group-tab-panel" data-vatra-group-panel="posts"'+(vatraGroupActiveTab==='posts'?'':' hidden')+'>'+composer+postsMarkup+'</div>'+
+   '<div class="vatra-group-tab-panel" data-vatra-group-panel="photos"'+(vatraGroupActiveTab==='photos'?'':' hidden')+'></div>'+
+   '<div class="vatra-group-tab-panel" data-vatra-group-panel="videos"'+(vatraGroupActiveTab==='videos'?'':' hidden')+'></div>'+
    '<div class="vatra-group-tab-panel" data-vatra-group-panel="members"'+(vatraGroupActiveTab==='members'?'':' hidden')+'>'+memberTab+'</div>'+
    '<div class="vatra-group-tab-panel" data-vatra-group-panel="about"'+(vatraGroupActiveTab==='about'?'':' hidden')+'>'+about+'</div>'+
    '</div>'+sidebar+'</div></section>',false);
@@ -1535,7 +1541,9 @@ function renderGroupDetails(id){
    vatraGroupActiveTab=button.dataset.vatraGroupTab;
    $$('.vatra-group-tabs [data-vatra-group-tab]').forEach(el=>{const on=el===button;el.classList.toggle('is-active',on);el.setAttribute('aria-selected',String(on));});
    $$('.vatra-group-tab-panel').forEach(el=>{el.hidden=el.dataset.vatraGroupPanel!==vatraGroupActiveTab;});
+   if(vatraGroupActiveTab==='photos'||vatraGroupActiveTab==='videos')void vatraRenderCommunityGallery(id,vatraGroupActiveTab,v);
   }));
+  if(vatraGroupActiveTab==='photos'||vatraGroupActiveTab==='videos')void vatraRenderCommunityGallery(id,vatraGroupActiveTab,v);
   $('[data-vatra-group-jump-members]')?.addEventListener('click',()=>{
    const dialog=document.createElement('dialog');dialog.className='vatra-group-members-dialog';
    dialog.innerHTML='<div class="vatra-group-members-dialog-head"><div><h2>Учасники спільноти</h2><p>'+esc(g.name||'Спільнота')+' · '+memberCount+' учасників</p></div><button type="button" data-close-members aria-label="Закрити">×</button></div>'+
