@@ -12,16 +12,21 @@ body .vatra-viewer-exit{
  opacity:.96!important;transition:background-color .16s ease,opacity .16s ease!important;
 }
 body .vatra-viewer-exit:hover{background:#375477!important;opacity:1!important;}
-body .vatra-post-photo-viewer:fullscreen,
-body .vatra-avatar-viewer:fullscreen{
+/* Fullscreen targets the inner shell: <dialog> itself cannot request native fullscreen. */
+body .vatra-post-photo-viewer.vatra-photo-fullscreen-fallback,
+body .vatra-avatar-viewer.vatra-photo-fullscreen-fallback{
  position:fixed!important;inset:0!important;max-width:none!important;max-height:none!important;
  width:100vw!important;height:100dvh!important;margin:0!important;padding:0!important;
  border:0!important;border-radius:0!important;background:#171b21!important;
 }
-body .vatra-post-photo-viewer:fullscreen .vatra-media-viewer-shell,
-body .vatra-avatar-viewer:fullscreen .vatra-media-viewer-shell{height:100%!important;}
-body .vatra-post-photo-viewer:fullscreen .vatra-viewer-exit,
-body .vatra-avatar-viewer:fullscreen .vatra-viewer-exit{top:66px!important;}
+body .vatra-post-photo-viewer .vatra-media-viewer-shell:fullscreen,
+body .vatra-avatar-viewer .vatra-media-viewer-shell:fullscreen{
+ position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+ max-width:none!important;max-height:none!important;margin:0!important;
+ padding:0!important;overflow:hidden!important;background:#171b21!important;
+}
+body .vatra-post-photo-viewer.vatra-photo-fullscreen-fallback .vatra-media-viewer-shell,
+body .vatra-avatar-viewer.vatra-photo-fullscreen-fallback .vatra-media-viewer-shell{height:100%!important;}
 @media(max-width:760px){
  body .vatra-post-photo-viewer .vatra-viewer-exit,
  body .vatra-avatar-viewer .vatra-viewer-exit{top:52px!important;right:8px!important;min-height:34px!important;padding:7px 10px!important;}
