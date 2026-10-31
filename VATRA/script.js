@@ -836,6 +836,35 @@ async function loadPublicFriends(ownerUid){
   console.warn('[ВАТРА] Помилка списку друзів:',err);
  }
 }
+
+function vatraPublicProfileActions(uid){
+ const id=esc(uid),request=friendRequests[uid],pending=request?.status==='pending';
+ const relation=friends[uid]
+  ?'<span class="vatra-public-relation is-friend" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>У друзях</span>'
+  :pending&&request.direction==='incoming'
+   ?'<button type="button" class="vatra-public-relation-action" data-accept-friend="'+id+'">Прийняти запит</button>'
+   :pending?'<span class="vatra-public-relation is-pending" role="status">Запит надіслано</span>'
+   :'<button type="button" class="vatra-public-relation-action" data-friend-request="'+id+'">Додати в друзі</button>';
+ return '<div class="vatra-profile-public-actions" role="group" aria-label="Дії з профілем">'+
+  '<button type="button" class="vatra-public-message-action" data-message-user="'+id+'">'+
+   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v12H8l-4 3V5.5Z"/><path d="M8 10h8m-8 3h5"/></svg>Написати</button>'+
+  relation+'<details class="vatra-public-actions-more"><summary aria-label="Інші дії з профілем" title="Інші дії">'+
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.65"/><circle cx="12" cy="12" r="1.65"/><circle cx="19" cy="12" r="1.65"/></svg></summary>'+
+  '<div class="vatra-public-actions-dropdown"><button type="button" data-report-user="'+id+'">Поскаржитися</button>'+
+  '<button type="button" class="is-danger" data-block-user="'+id+'">Заблокувати</button></div></details></div>';
+}
+document.addEventListener('click',event=>{
+ document.querySelectorAll('.vatra-public-actions-more[open]').forEach(menu=>{
+  if(!menu.contains(event.target))menu.open=false;
+ });
+});
+document.addEventListener('keydown',event=>{
+ if(event.key!=='Escape')return;
+ document.querySelectorAll('.vatra-public-actions-more[open]').forEach(menu=>{
+  menu.open=false;menu.querySelector('summary')?.focus();
+ });
+});
+
 function renderPublicProfile(uid){
  if(!uid)return;
  if(uid===currentUser?.uid){activeProfileUid=null;goPage('profile');return;}
@@ -853,7 +882,7 @@ function renderPublicProfile(uid){
  }
  if(!users[uid])return toastMsg('Профіль не знайдено.');
  if(u.profileVisibility==='private'&&!friends[uid]&&uid!==currentUser?.uid){
-  setFeed('<article class="post"><button class="text-link" id="backExplore">← Назад</button><div class="profile-panel">'+avatar(u.name||'Користувач',u.avatarUrl)+'<div><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2><p>@'+esc(u.handle||'user')+'</p><p>Ця сторінка закрита. Додайте користувача в друзі, щоб побачити більше.</p></div></div>'+(friendRequests[uid]?.direction==='incoming'&&friendRequests[uid]?.status==='pending'?'<button class="primary" data-accept-friend="'+esc(uid)+'">Прийняти запит</button>':friendRequests[uid]?.status==='pending'?'<button class="pill" disabled>Запит надіслано</button>':'<button class="primary" data-friend-request="'+esc(uid)+'">＋ Додати в друзі</button>')+'<button class="pill" data-report-user="'+esc(uid)+'">Поскаржитися</button><button class="danger-link" data-block-user="'+esc(uid)+'">Заблокувати</button></article>');
+  setFeed('<article class="post"><button class="text-link" id="backExplore">← Назад</button><div class="profile-panel">'+avatar(u.name||'Користувач',u.avatarUrl)+'<div><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2><p>@'+esc(u.handle||'user')+'</p><p>Ця сторінка закрита. Додайте користувача в друзі, щоб побачити більше.</p></div></div>'+vatraPublicProfileActions(uid)+'</article>');
   $('#backExplore').onclick=()=>goPage('explore');return;
  }
  page='publicProfile';
@@ -878,8 +907,7 @@ function renderPublicProfile(uid){
  const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,4).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button></div>').join('')+'</div>'+(photoUrls.length>4?'<button type="button" class="vatra-profile-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</button>':''):'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const hasDetails=!!(birthdayLabel||city||location||workplace||education||hometown||phone||visibleWebsite);
  const videoCount=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
- const friendAction=isFriend?'<button class="primary" type="button" disabled>✓ Друг</button>':friendRequests[uid]?.direction==='incoming'&&friendRequests[uid]?.status==='pending'?'<button class="primary" type="button" data-accept-friend="'+esc(uid)+'">Прийняти запит</button>':req?'<button class="pill" type="button" disabled>Запит надіслано</button>':'<button class="primary" type="button" data-friend-request="'+esc(uid)+'">＋ Додати в друзі</button>';
- const actions='<div class="vatra-profile-public-actions">'+friendAction+'<button class="pill" data-message-user="'+esc(uid)+'">Написати</button><button class="text-link" data-report-user="'+esc(uid)+'">Поскаржитися</button><button class="danger-link" data-block-user="'+esc(uid)+'">Заблокувати</button></div>';
+ const actions=vatraPublicProfileActions(uid);
  const html='<section class="vatra-profile-layout vatra-profile-public-layout">'+
   '<aside class="vatra-profile-sidebar"><section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'vatra-profile-photo')+'</button>'+actions+'</section><section class="vatra-profile-card vatra-profile-friends vatra-profile-public-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b id="vatraPublicFriendCount">…</b></div><div id="vatraPublicFriendList" class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;"><p class="muted">Завантажуємо список друзів…</p></div><button type="button" class="vatra-profile-link" id="vatraPublicAllFriends">Усі друзі →</button></section></aside>'+
   '<div class="vatra-profile-main">'+
