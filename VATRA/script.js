@@ -1394,11 +1394,28 @@ function renderGroupDetails(id){
    const label=type==='cover'?'Обкладинка спільноти':'Фото спільноти';
    const dialog=document.createElement('dialog');dialog.className='vatra-group-media-dialog';
    dialog.setAttribute('aria-label',label);
-   dialog.innerHTML='<div class="vatra-group-media-shell"><header><b>'+esc(label)+'</b><button type="button" data-close-group-photo aria-label="Закрити">×</button></header><div class="vatra-group-media-stage"><img src="'+esc(url)+'" alt="'+esc(label)+'"></div><footer><span>'+esc(g.name||'Спільнота')+'</span>'+(canEditVisuals?'<button type="button" data-edit-group-photo>Змінити або редагувати</button><button type="button" data-remove-group-photo>Видалити</button>':'')+'</footer></div>';
+   dialog.innerHTML='<div class="vatra-group-media-shell"><header><b>'+esc(label)+'</b><button type="button" data-close-group-photo aria-label="Закрити">×</button></header><div class="vatra-group-media-stage"><img src="'+esc(url)+'" alt="'+esc(label)+'"></div><footer><span>'+esc(g.name||'Спільнота')+'</span>'+(canEditVisuals?'<button type="button" data-edit-existing-group-photo>Редагувати фото</button><button type="button" data-edit-group-photo>Замінити</button><button type="button" data-remove-group-photo>Видалити</button>':'')+'</footer></div>';
    document.body.append(dialog);dialog.showModal();
    dialog.addEventListener('click',async event=>{
     if(event.target===dialog||event.target.closest('[data-close-group-photo]')){dialog.close();return;}
     if(event.target.closest('[data-edit-group-photo]')){dialog.close();$('#vatraGroup'+(type==='cover'?'Cover':'Avatar')+'Upload')?.click();return;}
+    if(event.target.closest('[data-edit-existing-group-photo]')&&canEditVisuals){
+     const button=event.target.closest('button');button.disabled=true;
+     try{
+      const response=await fetch(url,{mode:'cors',credentials:'omit'});
+      if(!response.ok)throw new Error('Не вдалося завантажити поточне зображення.');
+      const blob=await response.blob();
+      if(!blob.type.startsWith('image/'))throw new Error('Завантажений файл не є зображенням.');
+      const file=new File([blob],'current-'+type+'.'+(blob.type.split('/')[1]||'jpg'),{type:blob.type});
+      const edited=await getImageEditor(file,type==='cover'?'cover':'avatar');
+      if(!edited)return;
+      const uploaded=await uploadImage(edited,type==='cover'?1600:600,.88,type==='cover'?'covers':'avatars');
+      await update(ref(db,'groups/'+id),{[field]:uploaded,updatedAt:Date.now()});
+      g[field]=uploaded;dialog.close();renderGroupDetails(id);toastMsg('Зміни фотографії збережено.');
+     }catch(error){toastMsg(error.message||niceError(error));}
+     finally{button.disabled=false;}
+     return;
+    }
     if(event.target.closest('[data-remove-group-photo]')&&canEditVisuals){
      if(!(await askConfirm('Видалити '+(type==='cover'?'обкладинку':'фото')+' спільноти?')))return;
      try{await update(ref(db,'groups/'+id),{[field]:'',updatedAt:Date.now()});g[field]='';dialog.close();renderGroupDetails(id);toastMsg('Фотографію спільноти видалено.');}
