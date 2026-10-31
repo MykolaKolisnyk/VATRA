@@ -369,8 +369,56 @@ function renderPostEditForm(p){
   '<small class="post-edit-hint">До 10 фотографій у публікації. Нові фото можна обрізати й відредагувати перед збереженням.</small></div>'+
   '<div class="post-edit-actions"><button class="primary" type="submit">Зберегти зміни</button><button class="pill" type="button" data-cancel-post-edit>Скасувати</button></div></form>';
 }
+function vatraViewerPhotoUrls(values){
+ if(!Array.isArray(values))return [];
+ return [...new Set(values.filter(value=>{
+  if(typeof value!=='string'||!value.trim())return false;
+  try{
+   const parsed=new URL(value,document.baseURI);
+   return ['http:','https:','blob:'].includes(parsed.protocol)||/^data:image\/(?:png|jpeg|webp|gif|avif);base64,/i.test(value);
+  }catch{return false;}
+ }))];
+}
+function vatraViewerClickedPhotos(button,attribute){
+ let urls=[];
+ try{urls=JSON.parse(button.getAttribute(attribute)||'[]');}catch{}
+ if(!Array.isArray(urls))urls=[];
+ if(!urls.length){
+  const img=button.querySelector('img');
+  if(img?.currentSrc||img?.src)urls=[img.currentSrc||img.src];
+  else{
+   const photo=button.querySelector('.avatar');
+   const match=photo&&getComputedStyle(photo).backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+   if(match?.[1])urls=[match[1]];
+  }
+ }
+ return vatraViewerPhotoUrls(urls);
+}
+async function vatraToggleViewerFullscreen(dialog){
+ const shell=dialog.querySelector('.vatra-media-viewer-shell');
+ if(document.fullscreenElement&&dialog.contains(document.fullscreenElement)){
+  try{await document.exitFullscreen();}catch{}
+  return;
+ }
+ if(dialog.classList.contains('vatra-photo-fullscreen-fallback')){
+  dialog.classList.remove('vatra-photo-fullscreen-fallback');return;
+ }
+ try{
+  if(typeof shell?.requestFullscreen!=='function')throw Error('Fullscreen unavailable');
+  await shell.requestFullscreen();
+ }catch{
+  dialog.classList.add('vatra-photo-fullscreen-fallback');
+ }
+}
+async function vatraClosePhotoViewer(dialog){
+ if(document.fullscreenElement&&dialog.contains(document.fullscreenElement)){
+  try{await document.exitFullscreen();}catch{}
+ }
+ dialog.classList.remove('vatra-photo-fullscreen-fallback');
+ if(dialog.open)dialog.close();
+}
 function openPostPhotoViewer(urls,startIndex=0,postId='',ownerUid=''){
- const photos=[...new Set((Array.isArray(urls)?urls:[]).filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)))];if(!photos.length)return;
+ const photos=vatraViewerPhotoUrls(urls);if(!photos.length)return;
  let index=Math.max(0,Math.min(Number(startIndex)||0,photos.length-1)),zoom=1;
  const dialog=document.createElement('dialog');dialog.className='vatra-post-photo-viewer';document.body.append(dialog);
  const getPost=()=>postId?posts[postId]||null:null;
@@ -383,14 +431,14 @@ function openPostPhotoViewer(urls,startIndex=0,postId='',ownerUid=''){
  };
  const step=delta=>{index=(index+delta+photos.length)%photos.length;draw();};
  dialog.addEventListener('click',async event=>{
-  if(event.target.closest('.vatra-viewer-close,.vatra-viewer-exit')||event.target===dialog){if(document.fullscreenElement===dialog)await document.exitFullscreen?.();dialog.close();return;}
+  if(event.target.closest('.vatra-viewer-close,.vatra-viewer-exit')||event.target===dialog){await vatraClosePhotoViewer(dialog);return;}
   const mediaLike=event.target.closest('[data-vatra-media-like]');
   if(mediaLike){if(!authRequired())return;const id=mediaLike.dataset.vatraMediaLike,path='postLikes/'+id+'/'+currentUser.uid;try{const snap=await get(ref(db,path));if(snap.exists())await remove(ref(db,path));else await set(ref(db,path),{createdAt:Date.now()});const latest=await get(ref(db,'postLikes/'+id));likes[id]=latest.val()||{};draw();}catch(error){toastMsg(niceError(error));}return;}
   const mediaShare=event.target.closest('[data-vatra-media-share]');
   if(mediaShare){const id=mediaShare.dataset.vatraMediaShare,url=location.origin+location.pathname+'#post-'+encodeURIComponent(id);try{if(navigator.share)await navigator.share({title:'ВАТРА',url});else{await navigator.clipboard.writeText(url);toastMsg('Посилання на допис скопійовано.');}}catch(error){if(error?.name!=='AbortError')toastMsg('Не вдалося поділитися посиланням.');}return;}
   const next=event.target.closest('[data-post-photo-step]');if(next){step(Number(next.dataset.postPhotoStep));return;}
   const z=event.target.closest('[data-viewer-zoom]');if(z){zoom=Math.max(1,Math.min(3,zoom+Number(z.dataset.viewerZoom)*.2));const image=dialog.querySelector('.vatra-media-viewer-image');if(image)image.style.transform='scale('+zoom+')';dialog.querySelector('[data-viewer-zoom-value]').textContent=Math.round(zoom*100)+'%';return;}
-  if(event.target.closest('[data-viewer-fullscreen]')){try{if(!document.fullscreenElement)await dialog.requestFullscreen?.();else await document.exitFullscreen?.();}catch(error){toastMsg('Повноекранний режим недоступний у цьому браузері.');}}
+  if(event.target.closest('[data-viewer-fullscreen]')){await vatraToggleViewerFullscreen(dialog);return;}
  });
  dialog.addEventListener('submit',async event=>{
   const form=event.target.closest('[data-media-comment]');if(!form)return;
@@ -400,7 +448,7 @@ function openPostPhotoViewer(urls,startIndex=0,postId='',ownerUid=''){
   catch(error){toastMsg(niceError(error));}
  });
  dialog.addEventListener('keydown',event=>{if(event.key==='ArrowRight')step(1);else if(event.key==='ArrowLeft')step(-1);});
- dialog.addEventListener('close',()=>{if(document.fullscreenElement===dialog)document.exitFullscreen?.();dialog.remove();});
+ dialog.addEventListener('close',()=>{if(document.fullscreenElement&&dialog.contains(document.fullscreenElement))document.exitFullscreen?.();dialog.remove();});
  draw();dialog.showModal();
 }
 function renderCollapsiblePostText(text){
@@ -475,7 +523,7 @@ function avatarPhotoKey(url){
  return (hash>>>0).toString(36);
 }
 async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
- const photos=[...new Set((Array.isArray(photoUrls)?photoUrls:[]).filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)))];
+ const photos=vatraViewerPhotoUrls(photoUrls);
  if(!photos.length)return toastMsg('Для цього профілю ще немає фотографій.');
  let index=Math.max(0,Math.min(Number(startIndex)||0,photos.length-1)),zoom=1;
  const dialog=document.createElement('dialog');dialog.className='vatra-avatar-viewer';
@@ -502,9 +550,9 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
   }
  };
  dialog.addEventListener('click',async event=>{
-  const close=event.target.closest('.vatra-avatar-viewer-close,.vatra-viewer-exit');if(close){if(document.fullscreenElement===dialog)await document.exitFullscreen?.();dialog.close();return;}
+  const close=event.target.closest('.vatra-avatar-viewer-close,.vatra-viewer-exit');if(close){await vatraClosePhotoViewer(dialog);return;}
   const zoomButton=event.target.closest('[data-avatar-zoom]');if(zoomButton){zoom=Math.max(1,Math.min(3,zoom+Number(zoomButton.dataset.avatarZoom)*.2));const image=dialog.querySelector('.vatra-media-viewer-image');if(image)image.style.transform='scale('+zoom+')';dialog.querySelector('[data-avatar-zoom-value]').textContent=Math.round(zoom*100)+'%';return;}
-  if(event.target.closest('[data-avatar-fullscreen]')){try{if(!document.fullscreenElement)await dialog.requestFullscreen?.();else await document.exitFullscreen?.();}catch(error){toastMsg('Повноекранний режим недоступний у цьому браузері.');}return;}
+  if(event.target.closest('[data-avatar-fullscreen]')){await vatraToggleViewerFullscreen(dialog);return;}
   const step=event.target.closest('[data-avatar-step]');if(step){index=(index+Number(step.dataset.avatarStep)+photos.length)%photos.length;await render();return;}
   const like=event.target.closest('[data-avatar-like]');if(like){
    if(!authRequired())return;
@@ -538,7 +586,8 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
   }catch(error){toastMsg(niceError(error));}
  });
  dialog.addEventListener('close',()=>dialog.remove());
- await render();dialog.showModal();
+ void render().catch(error=>toastMsg('Не вдалося завантажити дані фотографії: '+niceError(error)));
+ dialog.showModal();
 }
 function profileBioMarkup(text){
  const safe=esc(text||'');
@@ -2041,9 +2090,9 @@ $('#postForm').addEventListener('submit',async e=>{
 // Only actual navigation buttons may trigger route changes. <body data-page> is a CSS state marker, not a clickable page link.
 $$('button[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));$$('.tab').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;goPage('feed');});$('#search').addEventListener('input',e=>{query=e.target.value.trim();profileAttributeSearch=null;if(query){if(page!=='explore')goPage('explore');else render();}else{if(page==='explore')render();else if(page==='saved'||page==='profile')goPage('feed');else render();}});$('#search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();goPage('explore');}});$('#moment')?.addEventListener('click',openComposer);$$('[data-action="compose"]').forEach(b=>b.addEventListener('click',openComposer));$$('[data-tag]').forEach(b=>b.addEventListener('click',()=>{query=b.dataset.tag;$('#search').value=query;goPage('feed');}));
 document.addEventListener('click',async e=>{
- const avatarViewerButton=e.target.closest('[data-avatar-viewer]');if(avatarViewerButton){let photos=[];try{photos=JSON.parse(avatarViewerButton.dataset.avatarUrls||'[]');}catch{}await openAvatarViewer(avatarViewerButton.dataset.avatarViewer,photos,0);return;}
- const postPhotoButton=e.target.closest('[data-open-photo]');if(postPhotoButton){let urls=[];try{urls=JSON.parse(postPhotoButton.dataset.photoUrls||'[]');}catch{}openPostPhotoViewer(urls,Number(postPhotoButton.dataset.photoIndex)||0,postPhotoButton.dataset.openPhoto);return;}
- const profileGalleryButton=e.target.closest('[data-open-profile-gallery]');if(profileGalleryButton){let urls=[];try{urls=JSON.parse(profileGalleryButton.dataset.photoUrls||'[]');}catch{}openPostPhotoViewer(urls,Number(profileGalleryButton.dataset.photoIndex)||0,'',profileGalleryButton.dataset.openProfileGallery);return;}
+ const avatarViewerButton=e.target.closest('[data-avatar-viewer]');if(avatarViewerButton){e.preventDefault();await openAvatarViewer(avatarViewerButton.dataset.avatarViewer,vatraViewerClickedPhotos(avatarViewerButton,'data-avatar-urls'),0);return;}
+ const postPhotoButton=e.target.closest('[data-open-photo]');if(postPhotoButton){e.preventDefault();openPostPhotoViewer(vatraViewerClickedPhotos(postPhotoButton,'data-photo-urls'),Number(postPhotoButton.dataset.photoIndex)||0,postPhotoButton.dataset.openPhoto);return;}
+ const profileGalleryButton=e.target.closest('[data-open-profile-gallery]');if(profileGalleryButton){e.preventDefault();openPostPhotoViewer(vatraViewerClickedPhotos(profileGalleryButton,'data-photo-urls'),Number(profileGalleryButton.dataset.photoIndex)||0,'',profileGalleryButton.dataset.openProfileGallery);return;}
  const tagButton=e.target.closest('[data-tag]');if(tagButton){query=String(tagButton.dataset.tag||'').trim();$('#search').value=query;filter='all';goPage('feed');return;}
  const editComposerPhoto=e.target.closest('[data-edit-composer-photo]');if(editComposerPhoto){const index=Number(editComposerPhoto.dataset.editComposerPhoto);if(!Number.isInteger(index)||index<0||index>=imageFiles.length)return;try{const edited=await getImageEditor(imageFiles[index],'gallery');if(edited){imageFiles[index]=edited;renderComposerPhotoPreviews();}}catch(error){toastMsg(error.message||niceError(error));}return;}
  const removeComposerPhoto=e.target.closest('[data-remove-composer-photo]');if(removeComposerPhoto){const index=Number(removeComposerPhoto.dataset.removeComposerPhoto);if(Number.isInteger(index)&&index>=0&&index<imageFiles.length){imageFiles.splice(index,1);renderComposerPhotoPreviews();const note=$('#photoNote');if(note)note.textContent=imageFiles.length?'Додано фото: '+imageFiles.length+' із 10':'';}return;}
