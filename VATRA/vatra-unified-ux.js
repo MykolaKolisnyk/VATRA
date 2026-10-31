@@ -16,7 +16,7 @@ window.vatraRouteChanged=i=>{
 };
 function backToRoute(){
  const r=window.vatraRouter;if(!r)return false;
- const profile=location.hash.match(/^#\/profile\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/settings)?$/),post=location.hash.match(/^#post-(.+)$/);
+ const profile=location.hash.match(/^#\/profile\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/(?:settings|members))?$/),post=location.hash.match(/^#post-(.+)$/);
  restoring=true;
  try{
   if(post){void r.openPost(decodeURIComponent(post[1]));}
