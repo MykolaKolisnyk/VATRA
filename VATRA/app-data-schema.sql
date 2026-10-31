@@ -338,6 +338,25 @@ create policy app_data_update on public.app_data for update to authenticated
 create policy app_data_delete on public.app_data for delete to authenticated
   using (public.vatra_data_can_write(path, value));
 
+-- Moderators may remove posts from the communities they manage, while
+-- ordinary members may remove only their own posts under existing RLS.
+drop policy if exists app_data_delete_group_managers on public.app_data;
+create policy app_data_delete_group_managers on public.app_data
+for delete to authenticated
+using (
+ path ~ '^groupPosts/[^/]+/[^/]+$'
+ and (
+   public.vatra_data_is_group_owner(split_part(path, '/', 2), (select auth.uid()))
+   or exists (
+     select 1 from public.app_data role
+     where role.path in (
+       'groupAdmins/' || split_part(path, '/', 2) || '/' || (select auth.uid())::text,
+       'groupModerators/' || split_part(path, '/', 2) || '/' || (select auth.uid())::text
+     ) and role.value = 'true'::jsonb
+   )
+ )
+);
+
 -- Narrow post policies provide an explicit owner check for publishing, editing,
 -- and deleting one post row without relaxing access to other data.
 drop policy if exists app_data_insert_own_posts on public.app_data;
