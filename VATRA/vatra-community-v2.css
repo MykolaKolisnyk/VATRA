@@ -1,0 +1,112 @@
+/* VATRA community layout & comment refinements, 31 October 2026.
+   Last-loaded override: consistent scale with profile, accessible controls. */
+body .vatra-group-view{gap:18px!important;font-size:14px!important;}
+body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:18px!important;}
+body .vatra-group-main,body .vatra-group-rail,body .vatra-group-tab-panel{gap:16px!important;}
+body .vatra-group-card{padding:19px!important;border-radius:14px!important;}
+body .vatra-group-card h3{font-size:16px!important;line-height:1.35!important;}
+body .vatra-group-card p{font-size:13px!important;line-height:1.6!important;}
+body .vatra-group-hero .vatra-group-heading h2{font-size:26px!important;}
+body .vatra-group-post-record>.post{padding:20px!important;font-size:14px!important;border-radius:14px!important;}
+body .vatra-group-post-record>.post :is(.post-text,.post-copy,.post-content,.post-body){font-size:14px!important;line-height:1.65!important;}
+body .vatra-group-post-record .post-header{gap:12px!important;}
+body .vatra-group-post-record .post-actions{margin-top:14px!important;}
+body .vatra-group-tabs{gap:3px!important;padding:6px!important;}
+body .vatra-group-tabs>button{min-width:82px!important;padding:10px 12px!important;font-size:12.5px!important;white-space:nowrap!important;}
+body .vatra-group-members-preview{display:grid!important;gap:5px!important;}
+body .vatra-group-member{min-height:57px!important;padding:7px!important;align-items:center!important;}
+body .vatra-group-member b{font-size:12.5px!important;}
+body .vatra-group-member small{font-size:11px!important;}
+body .vatra-group-more-members{width:100%;margin-top:12px!important;min-height:38px!important;background:#f0f4f9!important;border:0!important;border-radius:9px!important;color:#2764b1!important;font-size:12px!important;font-weight:700!important;}
+body .vatra-group-more-members:hover{background:#e7f0ff!important;}
+/* Modal participant directory, with search and a dedicated scroll surface. */
+body .vatra-group-members-dialog{box-sizing:border-box;width:min(690px,calc(100vw - 28px));max-height:min(84dvh,760px);margin:auto;padding:0!important;overflow:hidden!important;border:0!important;border-radius:16px!important;background:#fff!important;box-shadow:0 16px 62px #0e254154!important;}
+body .vatra-group-members-dialog::backdrop{background:#15273c99!important;}
+body .vatra-group-members-dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:22px 24px 14px;border-bottom:1px solid #e4ebf3;}
+body .vatra-group-members-dialog-head h2{margin:0!important;color:#2b425c;font-size:21px!important;}
+body .vatra-group-members-dialog-head p{margin:6px 0 0!important;color:#91a3b8;font-size:12px;}
+body .vatra-group-members-dialog-head button{border:0;background:#eef3f9;border-radius:9px;min-width:35px;min-height:35px;color:#607c99;font-size:23px;cursor:pointer;}
+body .vatra-group-members-search{display:flex;align-items:center;gap:10px;margin:16px 24px;padding:0 13px;min-height:43px;border:1px solid #dce7f2;border-radius:11px;background:#f8fbff;color:#8096af;}
+body .vatra-group-members-search>span{font-size:24px;line-height:1;}
+body .vatra-group-members-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:13px;color:#2c4b67;}
+body .vatra-group-members-dialog-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 20px 22px;overflow-y:auto;max-height:calc(84dvh - 170px);}
+body .vatra-group-members-dialog-list .vatra-group-member[hidden]{display:none!important;}
+/* The same two-step composer for user and community media gallery opt-in. */
+body .vatra-post-gallery-setting[hidden]{display:none!important;}
+body .vatra-post-gallery-toggle,body .vatra-community-create-gallery{display:flex!important;gap:12px!important;align-items:flex-start!important;line-height:1.5!important;}
+body .vatra-post-gallery-toggle input,body .vatra-community-create-gallery input{flex:0 0 18px!important;width:18px!important;height:18px!important;margin-top:3px!important;accent-color:#0961ee;}
+body .vatra-post-gallery-toggle span,body .vatra-community-create-gallery span{display:grid;gap:5px;}
+body .vatra-post-gallery-toggle b,body .vatra-community-create-gallery b{font-size:13px;color:#304c68;}
+body .vatra-post-gallery-toggle small,body .vatra-community-create-gallery small{font-size:11px;color:#8499b0;}
+body .vatra-community-create-gallery{padding:14px 0!important;}
+/* Community photo albums and video library */
+body .vatra-community-gallery{display:grid;gap:17px;min-height:220px;}
+body .vatra-community-gallery-heading{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+body .vatra-community-gallery-heading>div{flex:1 1 100%;min-width:0;}
+body .vatra-community-gallery-heading h3{font-size:19px!important;margin:0 0 4px!important;}
+body .vatra-community-gallery-heading h3 span{color:#6c91c0;font-size:13px;}
+body .vatra-community-gallery-heading p{color:#93a4b9!important;font-size:12px!important;}
+body .vatra-community-gallery-heading>button,body .vatra-community-upload-label{display:inline-flex;justify-content:center;align-items:center;gap:6px;min-height:39px!important;box-sizing:border-box;padding:8px 13px!important;border:1px solid #d7e6f7!important;border-radius:9px!important;background:#f0f6ff!important;color:#185cb0!important;font-size:12px!important;font-weight:750!important;cursor:pointer;}
+body .vatra-community-upload-label{background:#0757f5!important;color:white!important;border-color:#0757f5!important;}
+body .vatra-community-album-choose{display:grid;gap:6px;font-size:12px;font-weight:700;color:#617d9b;}
+body .vatra-community-album-choose select{min-height:40px;border:1px solid #dae6f2;border-radius:9px;background:#fff;padding:8px;color:#324d67;}
+body .vatra-community-gallery-filters{display:flex;align-items:center;gap:7px;max-width:100%;overflow:auto;padding:0 0 6px;border-bottom:1px solid #e4ecf4;}
+body .vatra-community-gallery-filters button{flex:0 0 auto;min-height:36px!important;padding:8px 12px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:#6984a0!important;font-size:12px!important;}
+body .vatra-community-gallery-filters button.is-active{background:#e8f2ff!important;color:#0957d8!important;font-weight:750!important;}
+body .vatra-community-photos-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0;}
+body .vatra-community-media-tile{min-width:0;position:relative;}
+body .vatra-community-media-image{display:block!important;overflow:hidden;width:100%;padding:0!important;aspect-ratio:1;border:0!important;border-radius:9px!important;background:#e9eef5!important;}
+body .vatra-community-media-image>img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .17s;}
+body .vatra-community-media-image:hover img{transform:scale(1.04);}
+body .vatra-community-videos-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;min-width:0;}
+body .vatra-community-video-tile{min-width:0;display:grid;gap:7px;}
+body .vatra-community-video-tile video{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;background:#172230;object-fit:contain;}
+body .vatra-community-video-tile small{font-size:11px;color:#8196ac;}
+body .vatra-community-media-remove{display:block!important;margin:7px 0!important;background:#fff5f6!important;color:#b44c60!important;border:1px solid #f5dbe0!important;border-radius:7px!important;font-size:11px!important;padding:6px 10px!important;}
+body .vatra-community-gallery-empty{grid-column:1/-1;text-align:center!important;padding:44px 12px!important;color:#97a5b6!important;}
+/* Comments: flat VK-like readable text, replies, attached photos and proper menu. */
+body .vatra-post-comments{display:block!important;margin:16px 0 0!important;padding:14px 0 0!important;border-top:1px solid #ebf0f6!important;background:transparent!important;}
+body .vatra-post-comments .vatra-comments-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:0 0 10px!important;}
+body .vatra-comments-heading b{font-size:13px!important;color:#334a65!important;}
+body .vatra-comments-heading span{color:#94a7be!important;font-weight:550!important;}
+body .vatra-comments-heading>button{border:0!important;background:transparent!important;color:#3977ba!important;font-size:12px!important;font-weight:650!important;white-space:nowrap!important;padding:7px 4px!important;}
+body .vatra-comment-item{display:block!important;padding:13px 0 10px!important;border-bottom:1px solid #eff3f7!important;}
+body .vatra-comment-item .comment-main{display:flex!important;align-items:flex-start!important;gap:11px!important;}
+body .vatra-comment-item .comment-body{flex:1!important;min-width:0!important;}
+body .vatra-comment-item .vatra-comment-head{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;}
+body .vatra-comment-item .vatra-comment-head .comment-author-name{font-size:12.5px!important;font-weight:750!important;color:#2f5b8f!important;}
+body .vatra-comment-item .vatra-comment-head time{color:#95a6b7!important;font-size:10.5px!important;}
+body .vatra-comment-item .comment-copy{display:grid!important;gap:8px!important;font-size:13px!important;line-height:1.57!important;overflow-wrap:anywhere!important;padding:5px 0 1px!important;}
+body .vatra-comment-item .comment-actions{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:13px!important;margin:7px 0 0!important;}
+body .vatra-comment-item .comment-actions>button{color:#7894b0!important;font-size:11px!important;background:transparent!important;border:0!important;padding:3px 0!important;}
+body .vatra-comment-item .comment-actions>button:hover{color:#0757f5!important;}
+body .vatra-comment-item .vatra-comment-like{margin-left:auto!important;font-size:13px!important;}
+body .vatra-comment-more{position:relative!important;margin:0!important;}
+body .vatra-comment-more summary{display:grid!important;place-items:center!important;width:30px!important;height:27px!important;padding:0!important;border-radius:7px!important;color:#8ea1b7!important;background:transparent!important;cursor:pointer!important;list-style:none!important;}
+body .vatra-comment-more summary::-webkit-details-marker{display:none!important;}
+body .vatra-comment-more summary svg{fill:currentColor!important;stroke:none!important;}
+body .vatra-comment-more[open] summary,body .vatra-comment-more summary:hover{background:#edf4fc!important;color:#2970c1!important;}
+body .vatra-comment-more>div{position:absolute!important;z-index:20!important;top:100%!important;right:0!important;min-width:170px!important;display:grid!important;gap:3px!important;padding:7px!important;background:white!important;border:1px solid #dee8f4!important;box-shadow:0 10px 32px #1a304029!important;border-radius:10px!important;}
+body .vatra-comment-more>div>button{display:block!important;width:100%!important;min-height:34px!important;padding:8px 10px!important;text-align:left!important;color:#506b87!important;background:transparent!important;border:0!important;border-radius:6px!important;font-size:11.5px!important;}
+body .vatra-comment-more>div>button:hover{background:#eef5fd!important;}
+body .vatra-comment-thread{margin:0 0 0 38px!important;padding-left:13px!important;border-left:2px solid #e7eff9!important;}
+body .vatra-comment-children{display:block;min-width:0;}
+body .vatra-comment-children[hidden]{display:none!important;}
+body .vatra-comment-thread-toggle{margin:9px 0 0!important;background:transparent!important;border:0!important;color:#3776bb!important;font-size:11px!important;font-weight:650!important;padding:5px 0!important;}
+body .vatra-comment-photo{display:block!important;max-width:290px!important;width:100%!important;overflow:hidden!important;border:0!important;border-radius:10px!important;padding:0!important;background:#ebf0f7!important;text-align:left!important;}
+body .vatra-comment-photo img{display:block;width:100%;max-height:290px;object-fit:contain;}
+body .vatra-comment-entry{display:flex!important;flex-wrap:wrap!important;align-items:flex-end!important;gap:8px!important;margin:13px 0 0!important;padding:10px!important;border:1px solid #dfebf6!important;border-radius:12px!important;background:#f9fbfe!important;}
+body .vatra-comment-entry textarea{box-sizing:border-box;flex:1 1 180px!important;min-width:0;min-height:49px!important;max-height:140px;resize:vertical;padding:10px 11px!important;border:1px solid #e1e9f2!important;border-radius:9px!important;background:white!important;color:#2f4962!important;font:400 13px/1.5 inherit!important;}
+body .vatra-comment-entry>.emoji-picker-wrap{flex:0 0 auto;}
+body .vatra-comment-entry>button[type=submit]{align-self:end;min-height:38px!important;padding:8px 15px!important;background:#0757f5!important;color:#fff!important;border:0!important;border-radius:8px!important;font-size:12px!important;font-weight:750!important;}
+body .vatra-comment-attach{display:grid;place-items:center;flex:0 0 36px;width:36px;height:38px;border:1px solid #d8e5f4;border-radius:8px;cursor:pointer;color:#3d6e9e;background:#fff;font-size:18px;}
+body .vatra-comment-file-name{flex-basis:100%;font-size:11px;color:#4281b7;overflow-wrap:anywhere;}
+body .vatra-comment-file-name[hidden]{display:none!important;}
+/* Keep the arrow to the LEFT of the word Вгору. */
+body #vatraScrollToTop{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;white-space:nowrap!important;width:auto!important;height:auto!important;min-width:100px!important;min-height:40px!important;padding:8px 12px!important;}
+body #vatraScrollToTop[hidden]{display:none!important;}
+body #vatraScrollToTop svg{flex:0 0 18px;order:0!important;margin:0!important;}
+body #vatraScrollToTop span{order:1!important;display:inline!important;line-height:1.2!important;}
+@media(max-width:1040px){body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(225px,280px)!important;gap:12px!important;}}
+@media(max-width:760px){body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr)!important;}body .vatra-group-card{padding:15px!important;}body .vatra-group-post-record>.post{padding:15px!important;}body .vatra-group-members-dialog-list{grid-template-columns:minmax(0,1fr);}body .vatra-community-videos-grid{grid-template-columns:minmax(0,1fr);}body .vatra-community-photos-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:430px){body .vatra-community-photos-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body .vatra-comment-entry textarea{flex-basis:100%!important;}body .vatra-group-hero .vatra-group-heading h2{font-size:22px!important;}}
