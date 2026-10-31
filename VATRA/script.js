@@ -2587,7 +2587,25 @@ document.addEventListener('change',async event=>{
  }
  renderEditPostPreviews(form);
 });
-document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[data-reply-form]');if(replyForm){e.preventDefault();if(!authRequired())return;const text=String(new FormData(replyForm).get('comment')||'').trim(),postId=replyForm.dataset.replyPost,parentId=replyForm.dataset.replyForm;if(!text)return;try{await set(push(ref(db,'comments/'+postId)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач',avatarUrl:currentProfile.avatarUrl||'',text:text.slice(0,300),replyTo:parentId,createdAt:Date.now()});replyingComment=null;render();}catch(err){toastMsg(niceError(err));}return;}const postEdit=e.target.closest('[data-edit-post-form]');if(postEdit){
+document.addEventListener('change',event=>{
+ const field=event.target.closest('.vatra-comment-entry input[name="commentPhoto"]');
+ if(!field)return;
+ const note=field.closest('form').querySelector('.vatra-comment-file-name');
+ if(note){note.hidden=!field.files?.length;note.textContent=field.files?.[0]?'Прикріплено: '+field.files[0].name:'';}
+});
+document.addEventListener('click',event=>{
+ const toggle=event.target.closest('[data-sort-comments]');
+ if(!toggle)return;
+ const id=toggle.dataset.sortComments;
+ vatraCommentsOrder[id]=vatraCommentsOrder[id]==='old'?'new':'old';
+ render();
+});
+document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[data-reply-form]');if(replyForm){e.preventDefault();if(!authRequired())return;const text=String(new FormData(replyForm).get('comment')||'').trim(),postId=replyForm.dataset.replyPost,parentId=replyForm.dataset.replyForm;const file=replyForm.querySelector('input[name="commentPhoto"]')?.files?.[0];if(!text&&!file)return;
+if(file&&(file.size>MAX_IMAGE||!file.type.startsWith('image/')))return toastMsg('Прикріпіть фото до 15 МБ.');
+const submit=replyForm.querySelector('[type="submit"]');if(submit)submit.disabled=true;
+try{const imageUrl=file?await uploadImage(file,1280,.8,'comments'):'';
+await set(push(ref(db,'comments/'+postId)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач',avatarUrl:currentProfile.avatarUrl||'',text:text.slice(0,300),...(imageUrl?{imageUrl}:{}),replyTo:parentId,createdAt:Date.now()});replyingComment=null;render();}
+catch(err){toastMsg(niceError(err));}finally{if(submit)submit.disabled=false;}return;}const postEdit=e.target.closest('[data-edit-post-form]');if(postEdit){
  e.preventDefault();const id=postEdit.dataset.editPostForm,text=String(new FormData(postEdit).get('text')||'').trim(),post=posts[id];
  if(!post)return toastMsg('Допис не знайдено.');
   const editVisibilityRaw=new FormData(postEdit).get('visibility');
@@ -2628,7 +2646,17 @@ document.addEventListener('submit',async e=>{const replyForm=e.target.closest('[
   void renderChatBubbles(key);
  }catch(error){toastMsg('Не вдалося зберегти повідомлення: '+niceError(error));}
  return;
-}const form=e.target.closest('[data-form]');if(!form)return;e.preventDefault();if(!authRequired())return;const text=new FormData(form).get('comment').trim();if(!text)return;const id=form.dataset.form;try{await set(push(ref(db,`comments/${id}`)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач',avatarUrl:currentProfile.avatarUrl||'',text,createdAt:Date.now()});if(posts[id])posts[id].commentOpen=false;else if(vatraGroupPostById(id))vatraGroupCommentOpen[id]=false;render();}catch(err){toastMsg(niceError(err));}});
+}const form=e.target.closest('[data-form]');if(!form)return;e.preventDefault();if(!authRequired())return;const text=String(new FormData(form).get('comment')||'').trim(),file=form.querySelector('input[name="commentPhoto"]')?.files?.[0];
+if(!text&&!file)return;
+if(file&&(file.size>MAX_IMAGE||!file.type.startsWith('image/')))return toastMsg('Прикріпіть фото до 15 МБ.');
+const id=form.dataset.form,submit=form.querySelector('[type="submit"]');if(submit)submit.disabled=true;
+try{
+ const groupPost=vatraGroupPostById(id);
+ if(groupPost&&groups[groupPost.groupId]?.commentsEnabled===false)throw new Error('Коментарі спільноти вимкнено.');
+ const imageUrl=file?await uploadImage(file,1280,.8,'comments'):'';
+ await set(push(ref(db,'comments/'+id)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач',avatarUrl:currentProfile.avatarUrl||'',text:text.slice(0,300),...(imageUrl?{imageUrl}:{}),createdAt:Date.now()});
+ if(posts[id])posts[id].commentOpen=false;else if(groupPost)vatraGroupCommentOpen[id]=false;render();
+}catch(err){toastMsg(niceError(err));}finally{if(submit)submit.disabled=false;}});
 $('#reportCancel').onclick=()=>$('#reportDialog').close();$('#reportClose').onclick=()=>$('#reportDialog').close();$('#reportDialog').addEventListener('close',()=>{reportingTarget=null;$('#reportForm').reset();$('#reportError').textContent='';});$('#reportForm').addEventListener('submit',async e=>{e.preventDefault();if(!authRequired()||!reportingTarget)return;const fd=new FormData(e.currentTarget),target=reportingTarget,path=`reports/${currentUser.uid}/${target.type}/${target.id}`,reason=String(fd.get('reason')||''),details=String(fd.get('details')||'').trim().slice(0,500),button=e.currentTarget.querySelector('[type=submit]');button.disabled=true;button.textContent='Надсилаємо…';try{const existing=await get(ref(db,path));if(existing.exists()){toastMsg('Ви вже надсилав(-ла) скаргу на цей матеріал.');$('#reportDialog').close();return;}await set(ref(db,path),{reporterUid:currentUser.uid,targetType:target.type,targetId:target.id,reason,details,createdAt:Date.now()});$('#reportDialog').close();toastMsg('Скаргу збережено. Перегляд модератором потребує серверної черги.');}catch(err){$('#reportError').textContent=niceError(err);}finally{button.disabled=false;button.textContent='Надіслати скаргу';}});
 onAuthStateChanged(auth,user=>{if(!user){location.replace('auth.html');return;}chatLiveIndex={};chatOwnedIndex={};chatIndex={};currentUser=user;startPresence();ensureIdentity(user.uid,readE2EEKey,publishE2EEKey).catch(error=>console.warn('VATRA E2EE identity not ready:',error?.code||'unavailable'));const guideKey='vatra-guide-completed-v2-'+user.uid;let locallyCompleted=false;try{locallyCompleted=localStorage.getItem(guideKey)==='1';}catch{}if(!locallyCompleted){get(ref(db,'privateUsers/'+user.uid+'/vatraGuideCompletedAt')).then(snap=>{if(snap.exists()){try{localStorage.setItem(guideKey,'1')}catch{}return;}setTimeout(()=>{if(currentUser?.uid===user.uid)openVatraGuide()},900);}).catch(()=>{setTimeout(()=>{if(currentUser?.uid===user.uid)openVatraGuide()},900);});}currentProfile={};privateProfileSections={};privateDateOfBirth='';activityReadAt=0;chatReads={};saved={};following={};blockedUsers={};activeProfileUid=null;activeChatBlocked=false;if(user){get(ref(db,`privateUsers/${user.uid}`)).then(async ps=>{privateDateOfBirth=ps.val()?.dateOfBirth||user.user_metadata?.dateOfBirth||'';privatePhone=ps.val()?.phone||user.phone||'';privatePendingPhone=ps.val()?.pendingPhone||'';privateProfileSections=ps.val()?.privateSections||{};currentProfile.privateSections=privateProfileSections;if(!ps.exists()&&privateDateOfBirth)await set(ref(db,`privateUsers/${user.uid}`),{dateOfBirth:privateDateOfBirth,updatedAt:Date.now()});currentProfile.dateOfBirth=privateDateOfBirth;currentProfile.phone=privatePhone;currentProfile.pendingPhone=privatePendingPhone;const pd=publicProfileData(currentProfile),fd=friendProfileData(currentProfile);if(JSON.stringify(users[user.uid]||{})!==JSON.stringify(pd))set(ref(db,`publicProfiles/${user.uid}`),pd).catch(()=>{});if(JSON.stringify(friendProfiles[user.uid]||{})!==JSON.stringify(fd))set(ref(db,`friendProfiles/${user.uid}`),fd).catch(()=>{});if(page==='settings'&&!$('#profileSettingsForm')?.dataset.vatraDirty)renderSettings();else if(page==='profile')renderProfile();}).catch(()=>{});listenData();get(ref(db,`users/${user.uid}`)).then(async snap=>{if(snap.exists())return;const meta=user.user_metadata||{},name=meta.name||meta.displayName||user.displayName||'Користувач ВАТРИ',handle=(meta.firstName&&meta.lastName?meta.firstName+'.'+meta.lastName:name).toLowerCase().replace(/[^a-zа-яіїєґ0-9]+/giu,'.').slice(0,24);const profile={name,firstName:meta.firstName||name.split(' ')[0],lastName:meta.lastName||name.split(' ').slice(1).join(' '),handle,bio:'',birthdayVisibility:'private',profileVisibility:'public',searchable:true,createdAt:Date.now()};await set(ref(db,`users/${user.uid}`),profile);await set(ref(db,`publicProfiles/${user.uid}`),publicProfileData(profile));}).catch(e=>console.warn('Profile init:',e));}else{stopListeners();stopChatListener();if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}posts={};likes={};comments={};postSaves={};postShares={};saved={};following={};blockedUsers={};users={};videos={};groups={};groupAdmins={};groupModerators={};chatIndex={};activeChat=null;activeProfileUid=null;activeChatBlocked=false;}updateIdentity();render();});
 setTimeout(()=>{window.__vatraStarted=true;},450);
