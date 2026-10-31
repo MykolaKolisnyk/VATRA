@@ -1,0 +1,103 @@
+/* ВАТРА: стриманий інтерфейс без смужки навігації та великих заокруглень. */
+body .layout>.sidebar nav button.nav.active::before,
+body .layout>.sidebar nav button.nav.active::after,
+body .layout>.sidebar nav .nav.active::before,
+body .layout>.sidebar nav .nav.active::after{
+  content:none!important;display:none!important;width:0!important;opacity:0!important;
+}
+body .layout>.sidebar nav button.nav.active,
+body .layout>.sidebar nav .nav.active{
+  border-left:0!important;box-shadow:none!important;outline:0!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item,
+body .vatra-global-header>#accountDropdown>button.vatra-account-item>span:last-child{
+  font:580 13px/1.45 Inter,system-ui,sans-serif!important;
+  letter-spacing:0!important;text-decoration:none!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item{
+  min-height:42px!important;height:auto!important;
+  padding:10px 12px!important;border-radius:6px!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item[data-account-action="support"]{
+  background:transparent!important;color:#3b4d61!important;
+}
+body .vatra-global-header>#accountDropdown>button.vatra-account-item[data-account-action="support"]:hover,
+body .vatra-global-header>#accountDropdown>button.vatra-account-item[data-account-action="support"]:focus-visible{
+  background:#edf2f8!important;color:#0757f5!important;
+}
+/* Excludes round avatar and icon-only circular controls. */
+body .primary,body .pill,body .vatra-control-primary,body .vatra-control-secondary,
+body .vatra-support-create,body .vatra-support-back,body .vatra-suspended-support,body .vatra-suspended-back,
+body .settings-savebar button,body .vatra-friends-action,
+body .vatra-control-center button:not(.avatar),body .vatra-support-page button:not(.avatar){
+  border-radius:6px!important;
+}
+body .vatra-control-tabs button,body .vatra-settings-nav-button{border-radius:6px!important}
+/* Official personnel rules: document style and clearly separated role sections. */
+dialog.vatra-staff-policy-dialog{
+  position:fixed!important;inset:0!important;
+  width:min(890px,calc(100vw - 32px))!important;
+  max-width:890px!important;max-height:min(85dvh,820px)!important;
+  margin:auto!important;padding:0!important;overflow:hidden!important;
+  color:#29435e!important;background:#fff!important;
+  border:1px solid #dce4ed!important;border-radius:8px!important;
+  box-shadow:0 24px 65px #14294038!important;
+  font:400 14px/1.65 Inter,system-ui,sans-serif!important;
+}
+dialog.vatra-staff-policy-dialog::backdrop{background:rgba(17,35,58,.58)!important}
+dialog.vatra-staff-policy-dialog>header{
+  position:relative!important;display:flex!important;align-items:center!important;
+  justify-content:space-between!important;gap:14px!important;
+  padding:20px 26px!important;margin:0!important;background:#fff!important;
+  border-bottom:1px solid #e1e8f0!important;
+}
+dialog.vatra-staff-policy-dialog>header h2{
+  color:#223f5d!important;font:750 clamp(18px,2.2vw,23px)/1.35 Inter,system-ui,sans-serif!important;
+  margin:0!important;letter-spacing:-.015em!important;
+}
+dialog.vatra-staff-policy-dialog [data-close-policy]{
+  display:grid!important;place-items:center!important;flex:0 0 38px!important;
+  width:38px!important;height:38px!important;min-height:38px!important;
+  background:#f0f3f7!important;color:#4d647e!important;border:0!important;
+  border-radius:6px!important;cursor:pointer!important;padding:9px!important;
+}
+dialog.vatra-staff-policy-dialog [data-close-policy] svg{
+  width:20px!important;height:20px!important;fill:none!important;
+  stroke:currentColor!important;stroke-width:1.8!important;
+}
+dialog.vatra-staff-policy-dialog .vatra-staff-policy-content{
+  max-height:calc(min(85dvh,820px) - 80px)!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;
+  padding:0 26px 30px!important;
+}
+dialog.vatra-staff-policy-dialog .vatra-policy-intro{
+  margin:0!important;padding:17px 0!important;color:#4e647b!important;
+  border-bottom:1px solid #e5ebf2!important;
+}
+dialog.vatra-staff-policy-dialog .vatra-staff-policy-content>section{
+  padding:19px 0 21px!important;margin:0!important;
+  border-bottom:1px solid #e3eaf1!important;background:#fff!important;
+}
+dialog.vatra-staff-policy-dialog .vatra-staff-policy-content>section:last-child{border-bottom:0!important}
+dialog.vatra-staff-policy-dialog h3{
+  margin:0 0 14px!important;color:#1e4166!important;
+  font:750 18px/1.4 Inter,system-ui,sans-serif!important;
+}
+dialog.vatra-staff-policy-dialog h4{
+  margin:16px 0 7px!important;color:#4b627c!important;
+  font:700 12px/1.5 Inter,system-ui,sans-serif!important;
+  letter-spacing:.02em!important;
+}
+dialog.vatra-staff-policy-dialog ol,dialog.vatra-staff-policy-dialog ul{
+  padding:0 0 0 23px!important;margin:0!important;
+  display:grid!important;gap:7px!important;color:#405872!important;
+}
+dialog.vatra-staff-policy-dialog li{padding:0 0 0 4px!important;line-height:1.65!important}
+dialog.vatra-staff-policy-dialog li::marker{color:#7188a2!important;font-weight:700!important}
+body .vatra-control-card.vatra-policy-section{border-radius:8px!important}
+body .vatra-control-card.vatra-policy-section .vatra-staff-rules{line-height:1.7!important;padding-left:23px!important}
+body .vatra-control-card.vatra-policy-section li{padding:4px 0!important}
+@media(max-width:600px){
+  dialog.vatra-staff-policy-dialog>header{padding:15px!important}
+  dialog.vatra-staff-policy-dialog .vatra-staff-policy-content{padding:0 16px 20px!important}
+}
