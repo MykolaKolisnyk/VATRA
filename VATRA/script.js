@@ -1099,7 +1099,13 @@ function vatraAlbumManager(){
  }
  const upload=panel.querySelector('#vatraAlbumUploadInput');
  if(upload)upload.addEventListener('change',uploadProfilePhoto);
- tabs.addEventListener('click',()=>{vatraSelectedAlbumId='';});
+ const clearAlbumOnTab=event=>{
+  if(!event.target.closest('[data-vatra-photo-tab]'))return;
+  tabs.removeEventListener('click',clearAlbumOnTab);
+  panel.remove();grid.classList.remove('vatra-album-selected-grid');
+  vatraSelectedAlbumId='';vatraAlbumManager();
+ };
+ tabs.addEventListener('click',clearAlbumOnTab);
 }
 
 function renderPhotos(){
