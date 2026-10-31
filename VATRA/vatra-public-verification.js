@@ -3,7 +3,7 @@ const app=initializeApp(),auth=getAuth(app),db=getDatabase(app).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mark='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l3-.1.9 2.8 2.4 1.8-1 2.8 1 2.8-2.4 1.8 1 2.8-2.4 1.8-.9 2.8-3-.1-2.5 1.6-2.5-1.6-3 .1-.9-2.8-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.8 3 .1L10 1.4Z" fill="currentColor"/><path d="m6.2 10.2 2.4 2.4 5.2-5.2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
 window.vatraVerifiedGroupIds=new Set();window.vatraTrustedNotices=[];
-window.vatraGroupBadge=id=>window.vatraVerifiedGroupIds.has(String(id))?'<span class="vatra-verified-badge vatra-verified-group-badge" data-vatra-verification-kind="community" tabindex="0" role="link" title="Спільнота офіційно підтверджена ВАТРОЮ">'+mark+'</span>':'';
+window.vatraGroupBadge=id=>window.vatraVerifiedGroupIds.has(String(id))?'<span class="vatra-verified-badge vatra-verified-group-badge" data-vatra-verification-kind="community" tabindex="0" role="link">'+mark+'</span>':'';
 let tooltip=null,hideTimer=null,queued=false,lastUid='',lastCheck=0;
 function showTip(el){
  tooltip?.remove();tooltip=document.createElement('div');tooltip.className='vatra-verified-tooltip';
