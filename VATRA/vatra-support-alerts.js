@@ -36,7 +36,7 @@ function renderBell(){
  if(!bell)return;
  let dot=bell.querySelector('.vatra-support-header-badge');
  if(!dot){dot=document.createElement('span');dot.className='vatra-support-header-badge';bell.append(dot);}
- dot.textContent=count>99?'99+':String(count);dot.hidden=count===0;
+ const display=count>99?'99+':String(count);if(dot.textContent!==display)dot.textContent=display;dot.hidden=count===0;
 }
 function renderLinks(){
  const selectors=['[data-account-action="support"]','[data-support-settings-link]','[data-control-tab="support"]','[data-admin-open-support]'];
@@ -44,7 +44,7 @@ function renderLinks(){
   for(const el of document.querySelectorAll(selector)){
    let b=el.querySelector('.vatra-support-unread-count');
    if(!b){b=document.createElement('span');b.className='vatra-support-unread-count';el.append(b);}
-   b.hidden=count===0;b.textContent=count>99?'99+':String(count);
+   b.hidden=count===0;const val=count>99?'99+':String(count);if(b.textContent!==val)b.textContent=val;
   }
  }
 }
