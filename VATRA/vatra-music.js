@@ -1,5 +1,5 @@
 /* VATRA Music - official Spotify embeds only. No audio is downloaded, proxied, or stored. */
-import { getDatabase, ref, get, update } from './vatra-backend.js?v=20261031-3';
+import { getDatabase, ref, get, update } from './vatra-backend.js?v=20261031-4';
 
 const MUSIC_LIBRARY = Object.freeze([
  {type:'playlist',id:'6TNFFJnqIFFYifyio5Wha5',title:'Топ українських пісень',artist:'Український чарт',category:'Хіти',tone:1},
