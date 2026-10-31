@@ -1,10 +1,10 @@
 /* VATRA composer controls: local drafts and two-stage publishing. */
 const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function setupPostComposer(api){
- const {modal,getUid,getPhotos,getUrls,getVideo,setVideo,addPhotos,resetPoll,toast,maxVideo,maxText}=api;
+ const {modal,getUid,getDraftScope=()=>null,getPhotos,getUrls,getVideo,setVideo,addPhotos,resetPoll,toast,maxVideo,maxText}=api;
  const q=s=>modal.querySelector(s);
  let draftId=null,videoUrl=null;
- const key=()=> 'vatra-post-drafts-v1-'+(getUid()||'guest');
+ const key=()=> 'vatra-post-drafts-v1-'+(getUid()||'guest')+(getDraftScope()?'-community-'+getDraftScope():'');
  const read=()=>{try{let a=JSON.parse(localStorage.getItem(key())||'[]');return Array.isArray(a)?a.slice(0,10):[];}catch{return []}};
  const write=a=>{try{localStorage.setItem(key(),JSON.stringify(a.slice(0,10)));return true;}catch{toast('Чернетку не вдалося зберегти в браузері.');return false;}};
  const badge=()=>{const n=read().length;q('#composerDraftCount').textContent=n;q('#composerDraftCount').hidden=!n;};
