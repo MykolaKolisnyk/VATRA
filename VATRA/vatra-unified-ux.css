@@ -249,3 +249,24 @@ body .vatra-group-media-dark [data-group-media-manage] svg{width:21px!important;
 body .vatra-group-media-dark [data-group-media-manage]:hover{background:#304866!important}
 body .vatra-group-media-dark.show-actions [data-group-media-manage]{background:#1765d9!important}
 @media(max-width:600px){body .vatra-group-media-dark [data-group-media-manage]{top:12px!important;left:12px!important;width:40px!important;height:40px!important}}
+
+/* Dedicated member directory, same visual rhythm as VATRA friends. */
+body .vatra-community-members-page{display:grid;gap:18px;padding:18px;max-width:100%;min-width:0}
+body .vatra-community-members-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid #e2e9f1;border-radius:14px;padding:18px 22px}
+body .vatra-community-members-heading h2{font:750 clamp(19px,2vw,24px)/1.35 Inter,system-ui,sans-serif;color:#243e5b;margin:3px 0 6px;letter-spacing:-.02em}
+body .vatra-community-members-heading p{margin:0;color:#879ab0;font:500 12px Inter,sans-serif}
+body .vatra-community-members-search{display:flex;align-items:center;gap:10px;min-height:46px;background:#fff;border:1px solid #dce6f1;border-radius:11px;padding:0 14px;color:#7793b1}
+body .vatra-community-members-search svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;flex:0 0 auto}
+body .vatra-community-members-search input{width:100%;border:0!important;outline:none!important;box-shadow:none!important;background:transparent!important;font:500 13px Inter,sans-serif!important;color:#263f58}
+body .vatra-community-members-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body .vatra-community-member-card{display:flex;align-items:center;gap:12px;min-width:0;padding:12px 14px;background:#fff;border:1px solid #e1eaf2;border-radius:12px}
+body .vatra-community-member-card[hidden]{display:none!important}
+body .vatra-member-avatar{border:0;background:transparent;padding:0;border-radius:50%;flex:0 0 auto;cursor:pointer}
+body .vatra-member-avatar .avatar{width:46px;height:46px;border-radius:50%;object-fit:cover}
+body .vatra-member-content{display:grid;gap:3px;flex:1 1 auto;min-width:0}
+body .vatra-member-name{border:0;padding:0;margin:0;text-align:left;background:none;color:#24405e;font:700 13px Inter,sans-serif;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+body .vatra-member-content small{color:#899bb0;font:500 11px Inter,sans-serif;overflow:hidden;text-overflow:ellipsis}
+body .vatra-member-role{flex:0 0 auto;background:#edf4fc;border-radius:7px;padding:5px 8px;font:650 10px Inter,sans-serif;color:#3c6795}
+body .vatra-member-profile{font-size:11px!important;padding:8px!important;flex:0 0 auto}
+body .vatra-community-members-empty{color:#879bb0;font-size:13px;text-align:center}
+@media(max-width:800px){body .vatra-community-members-grid{grid-template-columns:1fr}body .vatra-community-member-card{gap:8px}body .vatra-member-role{display:none}}
