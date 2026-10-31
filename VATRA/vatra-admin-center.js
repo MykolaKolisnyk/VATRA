@@ -112,17 +112,19 @@ async function loadIdentities(cases,accounts,groups,audit,team){
   for(const rec of data||[])identities.set(rec.path,rec.value||{});
  }
 }
+window.vatraStaffDisplay=id=>nameOf(id);
+window.vatraStaffHandle=id=>String(identities.get('publicProfiles/'+id)?.handle||'');
 function banForm(type,list){
  const user=type==='accounts',heading=user?'Блокування користувача':'Блокування спільноти';
- const control=user?'<input name="target" maxlength="36" placeholder="@псевдонім або UID" autocomplete="off" required>':
+ const control=user?'<input name="target" maxlength="41" placeholder="@псевдонім" autocomplete="off" required>':
  '<input name="target" maxlength="128" placeholder="ID спільноти" autocomplete="off" required>';
  const entries=list.slice(0,50).map(v=>'<article class="vatra-control-ban-row"><span>'+nameOf(user?v.user_id:v.group_id,!user)+'</span><small>'+(v.active?'Бан':'Розблоковано')+(v.expires_at?' · до '+time(v.expires_at):'')+'</small><p>'+esc(v.reason||'')+'</p></article>').join('');
  return '<div class="vatra-control-columns"><section class="vatra-control-card"><h3>'+heading+'</h3><p>Рішення записується у журнал. Заблоковані акаунти не можуть публікувати матеріали через базу ВАТРИ.</p>'+
- '<form autocomplete="off" data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@) або UID':'ID спільноти')+control+'</label>'+
+ '<form autocomplete="off" data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@)':'ID спільноти')+control+'</label>'+
  '<label>Причина<textarea name="reason" maxlength="500" rows="3" placeholder="Причина блокування або примітка" required></textarea></label>'+
  '<label>Строк<select name="hours"><option value="0">Безстроково</option><option value="24">24 години</option><option value="72">3 дні</option><option value="168">7 днів</option><option value="720">30 днів</option></select></label>'+
  '<div class="vatra-control-actions"><button class="vatra-control-primary is-danger" type="submit" name="operation" value="ban">Заблокувати</button><button class="vatra-control-secondary" type="submit" name="operation" value="unban">Зняти блокування</button></div><p role="status" class="vatra-control-status"></p></form></section>'+
- '<section class="vatra-control-card"><h3>Історія блокувань</h3><p>Показано останні записи. Зняти блокування можна за тим самим поточним @псевдонімом або ID спільноти.</p><div class="vatra-control-bans">'+(entries||'<p class="vatra-control-muted">Блокувань поки немає.</p>')+'</div></section></div>';
+ '<section class="vatra-control-card"><h3>Історія блокувань</h3><p>Показано останні рішення. Зняти блокування акаунта можна за його поточним @псевдонімом, спільноти — за ID.</p><div class="vatra-control-bans">'+(entries||'<p class="vatra-control-muted">Блокувань поки немає.</p>')+'</div></section></div>';
 }
 function contentForm(list){
  const entries=list.slice(0,60).map(c=>'<article class="vatra-control-ban-row"><span>'+esc(c.content_path)+'</span>'+
@@ -160,9 +162,9 @@ function reportFilters(){
 }
 function casesMarkup(rows){
  const list=rows.map(c=>'<article class="vatra-control-case" data-case-card data-status="'+esc(c.status)+'" data-search="'+esc((c.target_type+' '+c.target_id+' '+c.reason+' '+c.details+' '+c.reporter_uid).toLowerCase())+'">'+
- '<div class="vatra-control-case-title"><strong>№'+c.id+' · '+esc(c.target_type)+' · '+esc(c.target_id)+'</strong>'+
+ '<div class="vatra-control-case-title"><strong>Скарга №'+c.id+' · '+(c.target_type==='profile'?nameOf(c.target_id):c.target_type==='group'?nameOf(c.target_id,true):esc(c.target_id))+'</strong>'+
  '<span class="vatra-control-state state-'+esc(c.status)+'">'+esc(statuses[c.status]||c.status)+'</span></div>'+
- '<small>Причина: '+esc(reasons[c.reason]||c.reason)+' · '+time(c.created_at)+'</small>'+
+ '<small>Відправник: '+nameOf(c.reporter_uid)+' · '+time(c.created_at)+'</small><small>Категорія: '+esc(reasons[c.reason]||c.reason)+'</small>'+
  '<p>'+esc(c.details||'Додаткового опису немає.')+'</p>'+
  '<button type="button" class="vatra-control-secondary" data-open-case="'+c.id+'">Розглянути та відповісти</button></article>').join('');
  return '<section class="vatra-control-card"><h3>Черга скарг <small>'+rows.length+'</small></h3>'+
