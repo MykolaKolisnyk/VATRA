@@ -707,6 +707,14 @@ function vatraNowPlayingMarkup(profile){
  const href='https://open.spotify.com/track/'+state.uri.split(':')[2];
  return '<a class="vatra-now-playing-status" href="'+href+'" target="_blank" rel="noopener noreferrer" title="Відкрити композицію у Spotify"><span class="vatra-now-playing-icon">♫</span><span>Слухає: <b>'+name+'</b> · '+artist+'</span></a>';
 }
+window.setInterval(()=>{
+ if(!['profile','publicProfile'].includes(page))return;
+ const data=page==='profile'?currentProfile:users[activeProfileUid];
+ if(data?.nowPlaying&&Number(data.nowPlaying.expiresAt)>0&&Number(data.nowPlaying.expiresAt)<=Date.now()){
+  if(page==='profile')renderProfile();
+  else if(activeProfileUid)renderPublicProfile(activeProfileUid);
+ }
+},30000);
 window.addEventListener('vatra:music-state',event=>{
  if(!currentUser)return;
  currentProfile.nowPlaying=event.detail||null;
@@ -2001,6 +2009,7 @@ function openComposer(context=null){
  const requested=typeof context?.groupId==='string'?context.groupId:null;
  const g=requested?groups[requested]:null;
  const allowed=g&&(g.ownerUid===currentUser.uid||!!groupMembers[requested]?.[currentUser.uid])&&(g.membersCanPost!==false||g.ownerUid===currentUser.uid||!!groupAdmins[requested]?.[currentUser.uid]);
+ if(requested&&!allowed)return toastMsg('Публікувати в цій спільноті зараз не дозволено.');
  vatraComposerGroupId=allowed?requested:null;
  imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;
  $('#postText').value=vatraComposerGroupId?(vatraGroupDraftText[vatraComposerGroupId]||''):'';
@@ -2444,6 +2453,7 @@ $('#postForm').addEventListener('submit',async e=>{
   const asGroup=!!gid&&$('#vatraComposerGroupAuthor')?.value==='group';
   const allowedGroup=!!g&&(g.ownerUid===currentUser.uid||!!groupAdmins[gid]?.[currentUser.uid]);
   if(asGroup&&!allowedGroup)throw new Error('Публікація від спільноти доступна лише керівникам.');
+  if(scheduled)await vatraListScheduledPosts(); // Check database migration before uploading media.
   const pRef=push(ref(db,gid?'groupPosts/'+gid:'posts')),imageUrls=[];
   for(const file of imageFiles)imageUrls.push(await uploadImage(file,1600,.84,'posts'));
   const postVideoUrl=videoFile?await uploadMedia(videoFile,'videos'):'';
