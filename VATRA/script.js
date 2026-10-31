@@ -1054,6 +1054,7 @@ function renderPublicProfile(uid){
   '</div>'+
  '</section>';
  setFeed(html,false);
+ window.vatraRouteChanged?.({page:'publicProfile',id:uid});
  loadPublicFriends(uid);
  $('#backExplore').onclick=()=>goPage('explore');
 }
@@ -3032,5 +3033,34 @@ document.addEventListener('click',async event=>{
  }catch(error){like.disabled=false;toastMsg(niceError(error));}
 });
 
+/* Shared post permalink resolves a public post directly, not only friends' feed. */
+async function vatraOpenPostLink(postId){
+ if(!postId)return;
+ let p=posts[postId]||vatraGroupPostById(postId)||null,groupId='';
+ if(!p){
+  try{p=(await get(ref(db,'posts/'+postId))).val()||null;}
+  catch(error){toastMsg(niceError(error));return;}
+ }
+ if(!p&&postId.startsWith('g_')){
+  for(const id of Object.keys(groups||{})){
+   const prefix='g_'+id+'_';
+   if(!postId.startsWith(prefix))continue;
+   groupId=id;
+   try{p=(await get(ref(db,'groupPosts/'+id+'/'+postId.slice(prefix.length)))).val()||null;}
+   catch(error){toastMsg(niceError(error));return;}
+   if(p)break;
+  }
+ }
+ if(!p){toastMsg('Цей допис недоступний або його видалено.');return;}
+ if(!groupId&&p.groupId)groupId=p.groupId;
+ page='postDetail';document.body.dataset.page=page;
+ $('.quick-compose')?.setAttribute('hidden','');
+ $('#sort')?.setAttribute('hidden','');
+ const id=String(postId);
+ const record={...p,id,source:groupId?'group':'user',groupId};
+ setFeed('<section class="vatra-permalink-page"><button type="button" class="pill" data-page="feed">← До новин</button>'+postCard(record)+'</section>',false);
+ document.querySelector('.vatra-permalink-page [data-page="feed"]')?.addEventListener('click',()=>goPage('feed'));
+ window.vatraRouteChanged?.({page:'postDetail',id:postId});
+}
 /* Public routing hooks for the shared VATRA link/gallery UI. */
-window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,openPostPhotoViewer,startChatWith};
+window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,openPostPhotoViewer,startChatWith,openPost:vatraOpenPostLink};
