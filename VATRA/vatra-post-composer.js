@@ -29,11 +29,11 @@ export function setupPostComposer(api){
  }
  function review(){
   const first=getUrls()[0],video=getVideo(),text=q('#postText').value.trim();
-  q('#composerReview').innerHTML='<div class="vatra-compose-review-media">'+(first?'<img alt="Фото допису" src="'+h(first)+'">':video&&videoUrl?'<video muted playsinline preload="metadata" src="'+h(videoUrl)+'"></video>':'<span>▧</span>')+'</div><div class="vatra-compose-review-copy"><b>Ваш допис</b><p>'+h(text.slice(0,160)||(first||video?'Медіапублікація':'Текст або медіа ще не додано'))+'</p><small>'+(getPhotos().length?getPhotos().length+' фото':'')+(video?' · 1 відео':'')+'</small></div>';
+  q('#composerReview').innerHTML='<div class="vatra-compose-review-media">'+(first?'<img alt="Фото допису" src="'+h(first)+'">':video&&videoUrl?'<video muted playsinline preload="metadata" src="'+h(videoUrl)+'"></video>':'<span>▧</span>')+'</div><div class="vatra-compose-review-copy"><b>'+(getDraftScope()?'Допис спільноти':'Ваш допис')+'</b><p>'+h(text.slice(0,160)||(first||video?'Медіапублікація':'Текст або медіа ще не додано'))+'</p><small>'+(getPhotos().length?getPhotos().length+' фото':'')+(video?' · 1 відео':'')+'</small></div>';
  }
  function step(name){
   const settings=name==='settings';q('#composerEditStep').hidden=settings;q('#composerSettingsStep').hidden=!settings;
-  q('#vatraComposeTitle').textContent=settings?'Публікація допису':'Новий допис';
+  q('#vatraComposeTitle').textContent=getDraftScope()?(settings?'Публікація у спільноті':'Новий допис у спільноті'):(settings?'Публікація допису':'Новий допис');
   drafts(false);q('#composerMediaMenu').hidden=true;q('#composerMediaMenuTrigger').setAttribute('aria-expanded','false');
   if(settings)review();
   q('#composerSettingsStep .vatra-compose-step-scroll')?.scrollTo(0,0);
