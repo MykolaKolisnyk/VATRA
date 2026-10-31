@@ -270,3 +270,14 @@ body .vatra-member-role{flex:0 0 auto;background:#edf4fc;border-radius:7px;paddi
 body .vatra-member-profile{font-size:11px!important;padding:8px!important;flex:0 0 auto}
 body .vatra-community-members-empty{color:#879bb0;font-size:13px;text-align:center}
 @media(max-width:800px){body .vatra-community-members-grid{grid-template-columns:1fr}body .vatra-community-member-card{gap:8px}body .vatra-member-role{display:none}}
+
+body button.vatra-svg-close{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex-shrink:0!important;line-height:1!important;vertical-align:middle!important;
+ transition:background-color .16s ease,color .16s ease,transform .16s ease!important
+}
+body button.vatra-svg-close svg{display:block!important;flex:0 0 19px!important}
+body .vatra-community-search>span{display:inline-grid!important;place-items:center!important;flex:0 0 20px!important;color:#6d8eac!important}
+body .vatra-community-search>span svg{display:block!important;width:19px!important;height:19px!important}
+body [data-vatra-sound-toggle]{display:flex!important;align-items:center!important;gap:9px!important}
+body [data-vatra-sound-toggle] svg{flex:0 0 18px!important}
