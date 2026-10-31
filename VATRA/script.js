@@ -2,8 +2,8 @@ import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from '
 import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-3';
-import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-1';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost } from './vatra-backend.js?v=20261031-2';
+import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-2';
+import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost } from './vatra-backend.js?v=20261031-3';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
@@ -711,6 +711,7 @@ window.setInterval(()=>{
  if(!['profile','publicProfile'].includes(page))return;
  const data=page==='profile'?currentProfile:users[activeProfileUid];
  if(data?.nowPlaying&&Number(data.nowPlaying.expiresAt)>0&&Number(data.nowPlaying.expiresAt)<=Date.now()){
+  data.nowPlaying=null;
   if(page==='profile')renderProfile();
   else if(activeProfileUid)renderPublicProfile(activeProfileUid);
  }
@@ -1398,8 +1399,8 @@ function renderGroupDetails(id){
    '<div><dt>Доступ</dt><dd>'+(isPrivate?'Закрита':'Відкрита')+'</dd></div>'+
    '<div><dt>Учасників</dt><dd>'+memberCount+'</dd></div>'+
    '<div><dt>Створено</dt><dd>'+timeAgo(g.createdAt)+'</dd></div></dl></section>';
-  const memberTab='<section class="vatra-group-card vatra-group-members-card"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
-   '<div class="vatra-group-members-all">'+people.join('')+'</div></section>';
+  const memberTab=canSeeMembers?'<section class="vatra-group-card vatra-group-members-card"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
+   '<div class="vatra-group-members-all">'+people.join('')+'</div></section>':'<section class="vatra-group-card"><p>Список учасників не показується на сторінці спільноти.</p></section>';
   const communityLinks=(Array.isArray(g.links)?g.links:[]).filter(u=>typeof u==='string'&&/^https:\/\//i.test(u)).slice(0,6);
   const linksCard=g.showLinks!==false&&communityLinks.length?'<section class="vatra-group-card vatra-group-rail-links"><h3>Посилання</h3>'+
     communityLinks.map(url=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(new URL(url).hostname)+'</a>').join('')+'</section>':'';
