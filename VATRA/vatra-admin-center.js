@@ -118,7 +118,7 @@ function banForm(type,list){
  '<input name="target" maxlength="128" placeholder="ID спільноти" autocomplete="off" required>';
  const entries=list.slice(0,50).map(v=>'<article class="vatra-control-ban-row"><span>'+nameOf(user?v.user_id:v.group_id,!user)+'</span><small>'+(v.active?'Бан':'Розблоковано')+(v.expires_at?' · до '+time(v.expires_at):'')+'</small><p>'+esc(v.reason||'')+'</p></article>').join('');
  return '<div class="vatra-control-columns"><section class="vatra-control-card"><h3>'+heading+'</h3><p>Рішення записується у журнал. Заблоковані акаунти не можуть публікувати матеріали через базу ВАТРИ.</p>'+
- '<form data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@) або UID':'ID спільноти')+control+'</label>'+
+ '<form autocomplete="off" data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@) або UID':'ID спільноти')+control+'</label>'+
  '<label>Причина<textarea name="reason" maxlength="500" rows="3" placeholder="Причина блокування або примітка" required></textarea></label>'+
  '<label>Строк<select name="hours"><option value="0">Безстроково</option><option value="24">24 години</option><option value="72">3 дні</option><option value="168">7 днів</option><option value="720">30 днів</option></select></label>'+
  '<div class="vatra-control-actions"><button class="vatra-control-primary is-danger" type="submit" name="operation" value="ban">Заблокувати</button><button class="vatra-control-secondary" type="submit" name="operation" value="unban">Зняти блокування</button></div><p role="status" class="vatra-control-status"></p></form></section>'+
@@ -349,6 +349,13 @@ async function openAdmin(){
 window.vatraAdminResetState=()=>{
  adminOpen=false;adminPending=false;activeTab='reports';caseLimit=300;auditLimit=200;identities.clear();loadingToken++;
 };
+// Restore an accidentally overwritten admin view only while the URL still points here.
+let lastAdminRecover=0;
+setInterval(()=>{
+ if(!signedUid()||!adminOpen||adminPending||location.hash!=='#/admin'||document.body.dataset.page==='adminCenter')return;
+ if(Date.now()-lastAdminRecover<7500)return;
+ lastAdminRecover=Date.now();void renderDashboard();
+},1900);
 window.vatraOpenAdminCenter=openAdmin;
 async function myReports(){
  if(!signedUid())return;
