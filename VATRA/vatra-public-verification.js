@@ -21,7 +21,7 @@ document.addEventListener('mouseover',e=>{
 },true);
 document.addEventListener('click',e=>{
  const b=e.target.closest('.vatra-verified-badge,[data-vatra-how-verified]');
- if(!b)return;e.preventDefault();e.stopImmediatePropagation();tooltip?.remove();showGuide();
+ if(!b)return;e.preventDefault();e.stopImmediatePropagation();tooltip?.remove();document.querySelectorAll('.vatra-post-photo-viewer[open],.vatra-avatar-viewer[open]').forEach(d=>d.close());showGuide();
 },true);
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.vatra-verified-badge')){e.preventDefault();e.stopPropagation();showGuide();}},true);
 function closeBtn(){return '<button type="button" data-verification-close aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M5 5 19 19M19 5 5 19"/></svg></button>';}
