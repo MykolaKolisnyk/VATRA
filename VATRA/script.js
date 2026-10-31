@@ -1581,7 +1581,7 @@ function markChatRead(key){if(!currentUser||!key)return;const latest=chatIndex[k
 function markNotificationsRead(){
  if(!currentUser)return;
  const stamp=Date.now();
- activityReadAt=stamp;updateNotificationBadges();renderNotifications();
+ activityReadAt=stamp;updateNotificationBadges();if(page==='notifications')renderNotifications();
  set(ref(db,'activityReadAt/'+currentUser.uid),stamp).catch(err=>toastMsg(niceError(err)));
 }
 
