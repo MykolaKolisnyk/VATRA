@@ -1569,20 +1569,15 @@ function renderGroupDetails(id){
   $('#vatraOpenGroupComposer')?.addEventListener('click',()=>openComposer({groupId:id}));
   document.querySelectorAll('[data-vatra-group-image]').forEach(button=>button.addEventListener('click',()=>{
    const url=button.dataset.vatraGroupImage;if(!/^https:\/\//i.test(url))return;
-   const dialog=document.createElement('dialog');dialog.className='vatra-group-photo-dialog';
-   dialog.innerHTML='<div class="vatra-group-photo-shell"><button type="button" class="vatra-group-photo-close" aria-label="Закрити фото">×</button><img alt="Фото допису спільноти"><p>Фото спільноти ВАТРА</p></div>';
-   document.body.append(dialog);dialog.querySelector('img').src=url;
-   dialog.querySelector('.vatra-group-photo-close').addEventListener('click',()=>dialog.close());
-   dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
-   dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.showModal();
+   openPostPhotoViewer([url],0,'','community:'+id);
   }));
   const openCommunityPhoto=type=>{
    const field=type==='cover'?'coverUrl':'avatarUrl',url=g[field];
    if(!url)return;
    const label=type==='cover'?'Обкладинка спільноти':'Фото спільноти';
-   const dialog=document.createElement('dialog');dialog.className='vatra-group-media-dialog';
+   const dialog=document.createElement('dialog');dialog.className='vatra-group-media-dialog vatra-group-media-dark';
    dialog.setAttribute('aria-label',label);
-   dialog.innerHTML='<div class="vatra-group-media-shell"><header><b>'+esc(label)+'</b><button type="button" data-close-group-photo aria-label="Закрити">×</button></header><div class="vatra-group-media-stage"><img src="'+esc(url)+'" alt="'+esc(label)+'"></div><footer><span>'+esc(g.name||'Спільнота')+'</span>'+(canEditVisuals?'<button type="button" data-edit-existing-group-photo>Редагувати фото</button><button type="button" data-edit-group-photo>Замінити</button><button type="button" data-remove-group-photo>Видалити</button>':'')+'</footer></div>';
+   dialog.innerHTML='<div class="vatra-group-media-shell"><header><b>'+esc(label)+'</b><button type="button" data-close-group-photo aria-label="Закрити"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg></button></header><div class="vatra-group-media-stage"><img src="'+esc(url)+'" alt="'+esc(label)+'"></div><footer><span>'+esc(g.name||'Спільнота')+'</span>'+(canEditVisuals?'<button type="button" data-edit-existing-group-photo>Редагувати фото</button><button type="button" data-edit-group-photo>Замінити</button><button type="button" data-remove-group-photo>Видалити</button>':'')+'</footer></div>';
    document.body.append(dialog);dialog.showModal();
    dialog.addEventListener('click',async event=>{
     if(event.target===dialog||event.target.closest('[data-close-group-photo]')){dialog.close();return;}
@@ -2833,8 +2828,10 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
  function positionNotificationMenu(){
   const box=q('#notificationDropdown'),bounds=bell?.getBoundingClientRect();
   if(!box||!bounds)return;
-  const desired=Math.max(12,window.innerWidth-bounds.right-30);
-  box.style.setProperty('--vatra-notification-right',Math.round(desired)+'px');
+  const width=Math.min(380,window.innerWidth-24);
+  const center=Math.max(12+width/2,Math.min(window.innerWidth-12-width/2,bounds.left+bounds.width/2));
+  box.style.setProperty('--vatra-notification-center',Math.round(center)+'px');
+  box.style.setProperty('--vatra-notification-top',Math.round(bounds.bottom+9)+'px');
  }
  window.addEventListener('resize',()=>{
   if(!q('#accountDropdown')?.hidden)positionAccountMenu();
