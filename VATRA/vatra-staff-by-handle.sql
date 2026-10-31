@@ -38,7 +38,8 @@ begin
  end if;
  select split_part(path,'/',2)::uuid into agent
  from public.app_data
- where path ~ '^publicProfiles/[0-9a-fA-F-]{36}(btrim(value->>'handle'))=normalized limit 1;
+ where path ~ '^publicProfiles/[0-9a-fA-F-]{36}$'
+  and lower(btrim(value->>'handle'))=normalized limit 1;
  if agent is null then raise exception '@псевдонім не знайдено.'; end if;
  return public.vatra_support_assign(_ticket,agent);
 end $assign$;
