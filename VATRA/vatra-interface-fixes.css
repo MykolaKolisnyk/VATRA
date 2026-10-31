@@ -160,3 +160,18 @@ body .vatra-group-settings-nav button{border-radius:5px!important;font-size:12.5
  body .vatra-group-settings-nav button{flex:0 0 auto!important;white-space:nowrap!important;width:auto!important;}
 }
 @media(max-width:580px){body .vatra-group-settings-content .settings-grid{grid-template-columns:minmax(0,1fr)!important;}}
+
+/* Support row has exactly the same typography as Profile and Settings. */
+html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"],
+html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"]>span:last-child{
+ font-family:Inter,Arial,sans-serif!important;font-size:13px!important;
+ font-weight:550!important;line-height:1.45!important;letter-spacing:0!important;
+ color:#41546b!important;text-shadow:none!important;text-decoration:none!important;
+}
+html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"]{
+ min-height:40px!important;height:40px!important;max-height:40px!important;padding:0 11px!important;border-radius:6px!important;
+}
+html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"]>span:last-child{
+ display:block!important;flex:1 1 auto!important;width:auto!important;max-width:none!important;height:auto!important;
+ background:transparent!important;box-shadow:none!important;
+}
