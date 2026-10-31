@@ -64,7 +64,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
   sticker:'💙',stickers:[],text:'',textColor:'#ffffff',textStroke:'#1d2f46',
   textSize:50,textFont:'Inter',textX:.5,textY:.78
  };
- let state=JSON.parse(copyState(initial)),tool='enhance',painting=null,dragging=null,finished=false;
+ let state=JSON.parse(copyState(initial)),tool='enhance',painting=null,dragging=null,draggingLayer=null,finished=false;
  const past=[copyState(state)],future=[];
  const dialog=document.createElement('dialog');
  dialog.className='vatra-studio-dialog';
@@ -229,7 +229,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
     range('textSize','Розмір',18,105,1,state.textSize,'')+
     '<div class="vatra-studio-colors"><label>Колір тексту<input type="color" data-setting="textColor" value="'+state.textColor+'"></label>'+
     '<label>Контур<input type="color" data-setting="textStroke" value="'+state.textStroke+'"></label></div>'+
-    '<p class="vatra-studio-note">Натисніть на фото, щоб пересунути напис.</p>';
+    '<p class="vatra-studio-note">Натисніть і перетягніть напис у будь-яке місце на фото.</p>';
     break;
    case'brush':
     subtitle='Пензель';body='<p class="vatra-studio-intro">Малюйте прямо на фотографії. Кожен штрих можна скасувати.</p>'+
@@ -239,7 +239,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
       '<button type="button" aria-label="Колір '+color+'" style="background:'+color+'" data-studio-color="'+color+'"></button>').join('')+'</div>';
     break;
    case'stickers':
-    subtitle='Стікери';body='<p class="vatra-studio-intro">Виберіть стікер і торкніться полотна. Натиснувши стікер тут, додасте його по центру.</p>'+
+    subtitle='Стікери';body='<p class="vatra-studio-intro">Додайте стікер, потім перетягніть його пальцем або мишею в потрібне місце.</p>'+
     '<div class="vatra-studio-stickers">'+EMOJI.map(emoji=>
       '<button type="button" data-studio-sticker="'+emoji+'" aria-label="Додати стікер '+emoji+'">'+emoji+'</button>').join('')+'</div>'+
     '<button type="button" class="vatra-studio-minor" data-studio-action="removesticker">Прибрати останній стікер</button>';
@@ -256,7 +256,9 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
   panel.querySelectorAll('[data-setting]').forEach(input=>{
    const key=input.dataset.setting;
    if(input.type==='range'){
-    input.addEventListener('input',()=>{state[key]=Number(input.value);panel.querySelector('[data-output="'+key+'"]').textContent=input.value+(key==='zoom'?'×':key==='brightness'||key==='contrast'||key==='saturation'||key==='vignette'||key==='grain'?'%':key==='hue'?'°':key==='brushSize'?' px':'');drawPreview();});
+    const paintRange=()=>{const min=Number(input.min),max=Number(input.max),current=Number(input.value);input.style.setProperty('--vatra-range-fill',(((current-min)/(max-min||1))*100).toFixed(2)+'%');};
+    paintRange();
+    input.addEventListener('input',()=>{paintRange();state[key]=Number(input.value);panel.querySelector('[data-output="'+key+'"]').textContent=input.value+(key==='zoom'?'×':key==='brightness'||key==='contrast'||key==='saturation'||key==='vignette'||key==='grain'?'%':key==='hue'?'°':key==='brushSize'?' px':'');drawPreview();});
     input.addEventListener('change',commit);
    }else{
     input.addEventListener('input',()=>{state[key]=input.value;drawPreview();});
@@ -271,7 +273,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
    const active=button.dataset.studioTool===next;button.classList.toggle('active',active);
    if(active)button.setAttribute('aria-current','true');else button.removeAttribute('aria-current');
   });
-  canvas.style.cursor=next==='brush'?'crosshair':next==='crop'?'grab':'pointer';
+  canvas.style.cursor=next==='brush'?'crosshair':next==='crop'?'grab':'move';
   renderPanel();drawPreview();
  }
  function point(e){
@@ -324,6 +326,19 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
   canvas.addEventListener('pointerdown',event=>{
    if(event.button!==0)return;
    const p=point(event);
+   /* Overlay objects can be dragged freely without opening another tool. */
+   if(tool!=='brush'&&tool!=='crop'){
+    const found=state.stickers.map((item,index)=>({index,item,dist:Math.hypot((item.x-p[0])*canvas.width,(item.y-p[1])*canvas.height)}))
+      .filter(hit=>hit.dist<Math.max(25,hit.item.size*.65*canvas.width/800)).sort((a,b)=>a.dist-b.dist)[0];
+    if(found){
+     draggingLayer={type:'sticker',index:found.index,dx:p[0]-found.item.x,dy:p[1]-found.item.y};
+     canvas.setPointerCapture(event.pointerId);event.preventDefault();return;
+    }
+    if(state.text&&Math.abs(p[0]-state.textX)<.28&&Math.abs(p[1]-state.textY)<.13){
+     draggingLayer={type:'text',dx:p[0]-state.textX,dy:p[1]-state.textY};
+     canvas.setPointerCapture(event.pointerId);event.preventDefault();return;
+    }
+   }
    if(tool==='brush'){
     painting={color:state.brushColor,size:state.brushSize,points:[p]};state.strokes.push(painting);
    }else if(tool==='crop'){
@@ -336,6 +351,12 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
   });
   canvas.addEventListener('pointermove',event=>{
    if(!canvas.hasPointerCapture(event.pointerId))return;
+   if(draggingLayer){
+    const p=point(event),x=clamp(p[0]-draggingLayer.dx,0,1),y=clamp(p[1]-draggingLayer.dy,0,1);
+    if(draggingLayer.type==='sticker'&&state.stickers[draggingLayer.index]){state.stickers[draggingLayer.index].x=x;state.stickers[draggingLayer.index].y=y;}
+    if(draggingLayer.type==='text'){state.textX=x;state.textY=y;}
+    drawPreview();return;
+   }
    if(painting){painting.points.push(point(event));drawPreview();}
    if(dragging){const r=canvas.getBoundingClientRect();
     state.x=clamp(dragging.baseX+(event.clientX-dragging.x)/r.width*220,-100,100);
@@ -346,7 +367,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
   const stop=e=>{
    if(!canvas.hasPointerCapture(e.pointerId))return;
    canvas.releasePointerCapture(e.pointerId);
-   if(painting||dragging){painting=null;dragging=null;commit();if(tool==='crop')renderPanel();}
+   if(painting||dragging||draggingLayer){painting=null;dragging=null;draggingLayer=null;commit();if(tool==='crop')renderPanel();}
   };
   canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);
   canvas.addEventListener('wheel',e=>{

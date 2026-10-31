@@ -1,6 +1,6 @@
 import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from './vatra-e2ee.js?v=2';
 import { setupNavigation } from './navigation.js?v=20261030-22';
-import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-1';
+import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-2';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-1';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261030-5';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends } from './vatra-backend.js?v=20261030-5';
@@ -121,7 +121,9 @@ function publicProfileData(p={}){
   name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),
   lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),
   bio:'',status:'',avatarUrl:String(p.avatarUrl||''),
-  avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
+  photoUploadedAt:p.profileVisibility==='private'?{}:Object.fromEntries(Object.entries(p.photoUploadedAt||{}).filter(([url,t])=>/^https:\/\//.test(url)&&Number.isFinite(Number(t))).slice(-120)),
+   photoAlbums:p.profileVisibility==='private'?[]:vatraGetAlbums(p),
+   avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
   isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,
   profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),
   profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,
@@ -266,7 +268,7 @@ async function updatePresence(isOnline=true){
 function startPresence(){if(presenceHeartbeat)clearInterval(presenceHeartbeat);updatePresence(true);presenceHeartbeat=window.setInterval(()=>{if(document.visibilityState==='visible')updatePresence(true);},45000);}
 window.addEventListener('pagehide',()=>{if(currentUser)updatePresence(false);});
 document.addEventListener('visibilitychange',()=>{if(currentUser)updatePresence(document.visibilityState==='visible');});
-function profilePresenceMarkup(profile={},isSelf=false){const stamp=Number(profile.lastSeenAt)||0,online=isSelf||(profile.isOnline===true&&stamp>0&&Date.now()-stamp<120000);if(online)return '<span class="vatra-profile-presence is-online"><i></i>Онлайн</span>';if(!stamp)return '<span class="vatra-profile-presence"><i></i>Ще не заходив(-ла)</span>';const date=new Date(stamp),now=new Date(),time=date.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1).toDateString()===date.toDateString(),label=sameDay?'сьогодні о '+time:yesterday?'вчора о '+time:date.toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:date.getFullYear()===now.getFullYear()?undefined:'numeric'})+' о '+time;return '<span class="vatra-profile-presence"><i></i>Був(-ла) в мережі '+esc(label)+'</span>';}
+function profilePresenceMarkup(profile={},isSelf=false){const stamp=Number(profile.lastSeenAt)||0,online=isSelf||(profile.isOnline===true&&stamp>0&&Date.now()-stamp<120000);if(online)return '<span class="vatra-profile-presence is-online">Онлайн</span>';if(!stamp)return '<span class="vatra-profile-presence"><i></i>Ще не заходив(-ла)</span>';const date=new Date(stamp),now=new Date(),time=date.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1).toDateString()===date.toDateString(),label=sameDay?'сьогодні о '+time:yesterday?'вчора о '+time:date.toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:date.getFullYear()===now.getFullYear()?undefined:'numeric'})+' о '+time;return '<span class="vatra-profile-presence"><i></i>Був(-ла) в мережі '+esc(label)+'</span>';}
 function applyUserPreferences(profile={}){
  const root=document.documentElement,body=document.body;
  const theme=['dark','auto'].includes(profile.themeMode)?profile.themeMode:'light';
@@ -433,9 +435,9 @@ function renderBlockedUsersList(){const box=$('#blockedUsersList');if(!box)retur
 function renderSaved(){
  const postsToShow=allPosts();
  const visible=postsToShow.length;
- const content='<section class="vatra-saved-page"><header class="vatra-saved-header"><div class="vatra-saved-headline"><span class="vatra-saved-header-icon" aria-hidden="true">⌑</span><div><h2>Збережене</h2><p>Дописи, до яких можна повернутися пізніше.</p></div></div><span class="vatra-saved-count">'+visible+' '+(visible===1?'допис':visible<5?'дописи':'дописів')+'</span></header>'+
+ const content='<section class="vatra-saved-page"><header class="vatra-saved-header"><div class="vatra-saved-headline"><span class="vatra-saved-header-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5h12v15.5l-6-4-6 4V4.5Z"/></svg></span><div><h2>Збережене</h2><p>Дописи, до яких можна повернутися пізніше.</p></div></div><span class="vatra-saved-count">'+visible+' '+(visible===1?'допис':visible<5?'дописи':'дописів')+'</span></header>'+
  (visible?'<div class="vatra-saved-list">'+postsToShow.map(postCard).join('')+'</div>':
- '<div class="vatra-saved-empty"><span class="vatra-saved-empty-icon" aria-hidden="true">⌑</span><h3>Поки немає збережених дописів</h3><p>Натисніть «Зберегти» під дописом — він з’явиться тут.</p><button type="button" class="vatra-saved-browse">Перейти до новин</button></div>')+'</section>';
+ '<div class="vatra-saved-empty"><span class="vatra-saved-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5h12v15.5l-6-4-6 4V4.5Z"/></svg></span><h3>Поки немає збережених дописів</h3><p>Натисніть «Зберегти» під дописом — він з’явиться тут.</p><button type="button" class="vatra-saved-browse">Перейти до новин</button></div>')+'</section>';
  setFeed(content,false);
  feed.querySelector('.vatra-saved-browse')?.addEventListener('click',()=>goPage('feed'));
 }
@@ -613,7 +615,7 @@ function renderProfile(){
  const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const birthday=currentProfile.dateOfBirth?new Date(currentProfile.dateOfBirth+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const detail=(label,value,field='')=>profileDetailMarkup(label,value,field);
- const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:0})).filter(item=>item.url):[]),...mine.flatMap(p=>postImages(p).map((url,index)=>({url,createdAt:p.createdAt,source:'post',id:p.id,index})))];
+ const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:Number(currentProfile.photoUploadedAt?.[url])||index+1})).filter(item=>item.url):[]),...mine.flatMap(p=>postImages(p).map((url,index)=>({url,createdAt:p.createdAt,source:'post',id:p.id,index})))].sort((a,b)=>b.createdAt-a.createdAt);
  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.map((url,index)=>({url,index})).filter(x=>x.url&&x.url!==currentProfile.avatarUrl).slice(-30).reverse():[];
  const avatarPhotos=[currentProfile.avatarUrl,...history.map(item=>item.url)].filter(Boolean);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото профілю"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото профілю, які Ви вирішите залишити.</p>';
@@ -902,11 +904,12 @@ function renderPublicProfile(uid){
  const hometown=u.hometownVisibility==='public'?u.hometown:(canSeeFriends&&u.hometownVisibility==='friends'?friendData.hometown:'');
  const detail=(label,value,field='')=>profileDetailMarkup(label,value,field);
  const birthdayLabel=birthday?new Date(birthday+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
- const publicPhotos=Array.isArray(u.profilePhotos)?u.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40).reverse():[];
+ const publicPhotos=Array.isArray(u.profilePhotos)?u.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-120).reverse():[];
  const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boolean);
  const postPhotos=arr.flatMap(p=>postImages(p));
- const photoUrls=[...new Set(publicPhotos.concat(postPhotos))];
- const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,4).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button></div>').join('')+'</div>'+(photoUrls.length>4?'<button type="button" class="vatra-profile-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</button>':''):'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
+ const photoUrls=[...new Set([...publicPhotos.map((url,index)=>({url,date:Number(u.photoUploadedAt?.[url])||index+1})),...arr.flatMap(p=>postImages(p).map(url=>({url,date:p.createdAt||0})))].sort((a,b)=>b.date-a.date).map(item=>item.url))];
+ const publicAlbumMarkup=vatraGetAlbums(u).length?'<div class="vatra-public-album-grid">'+vatraGetAlbums(u).map(a=>'<button type="button" class="vatra-public-album-card" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(a.photos))+'" data-photo-index="0"'+(!a.photos.length?' disabled':'')+'><span class="vatra-public-album-cover">'+(a.photos.length?'<img src="'+esc(a.photos[a.photos.length-1])+'" loading="lazy" alt="Обкладинка альбому">':'▧')+'</span><b>'+esc(a.name)+'</b><small>'+a.photos.length+' фото</small></button>').join('')+'</div>':'';
+  const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,4).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button></div>').join('')+'</div>'+(photoUrls.length>4?'<button type="button" class="vatra-profile-link profile-gallery-all" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</button>':''):'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const hasDetails=!!(birthdayLabel||city||location||workplace||education||hometown||phone||visibleWebsite);
  const videoCount=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
  const actions=vatraPublicProfileActions(uid);
@@ -921,7 +924,7 @@ function renderPublicProfile(uid){
     '<div class="vatra-profile-details">'+(hasDetails?detail('День народження',birthdayLabel)+detail('Місто',city,'city')+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite):'<p class="muted">Користувач поки не додав відкритої інформації.</p>')+'</div>'+vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends)+
     '<div class="vatra-profile-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
    '</section>'+
-   '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+photoHtml+'</section>'+
+   '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+publicAlbumMarkup+photoHtml+'</section>'+
    '<section class="vatra-profile-posts vatra-profile-posts-clean"><div class="vatra-profile-post-tabs"><div class="vatra-profile-posts-title"><h3>Дописи</h3><span>'+arr.length+'</span></div></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
   '</div>'+
  '</section>';
@@ -930,12 +933,112 @@ function renderPublicProfile(uid){
  $('#backExplore').onclick=()=>goPage('explore');
 }
 
+
+/* Albums are part of each VATRA profile, never tied to a third-party account. */
+let vatraSelectedAlbumId='';
+function vatraGetAlbums(profile=currentProfile){
+ return (Array.isArray(profile?.photoAlbums)?profile.photoAlbums:[]).slice(0,12)
+  .filter(a=>a&&/^[\w-]{8,80}$/.test(String(a.id||'')))
+  .map(a=>({id:String(a.id),name:String(a.name||'Новий альбом').slice(0,60),createdAt:Number(a.createdAt)||0,
+   photos:[...new Set((Array.isArray(a.photos)?a.photos:[]).filter(url=>typeof url==='string'&&/^https:\/\//i.test(url)).slice(0,40))]}));
+}
+async function vatraSaveAlbums(albums){
+ if(!currentUser||!authRequired())return;
+ const safe=vatraGetAlbums({photoAlbums:albums});
+ await update(ref(db,'users/'+currentUser.uid),{photoAlbums:safe,updatedAt:Date.now()});
+ currentProfile.photoAlbums=safe;
+ await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
+}
+function vatraAlbumManager(){
+ const root=document.querySelector('.vatra-photos-page'),tabs=root?.querySelector('.vatra-photos-tabs'),grid=root?.querySelector('#vatraPhotosGrid');
+ if(!root||!tabs||!grid||!currentUser)return;
+ const albums=vatraGetAlbums(),selected=albums.find(a=>a.id===vatraSelectedAlbumId);
+ const source=[...new Set([
+  ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]),
+  ...Object.entries(posts||{}).filter(([,p])=>p?.authorUid===currentUser.uid)
+    .sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).flatMap(([,p])=>postImages(p))
+ ])].filter(url=>typeof url==='string'&&/^https:\/\//i.test(url));
+ const panel=document.createElement('section');panel.className='vatra-album-management';
+ panel.innerHTML='<div class="vatra-album-manager-head"><h3>Мої альбоми <small>'+albums.length+' / 12</small></h3>'+
+  '<button type="button" class="vatra-album-create" data-vatra-album-create>＋ Створити альбом</button></div>'+
+  '<div class="vatra-public-album-grid vatra-album-own-grid">'+albums.map(a=>
+   '<button type="button" class="vatra-public-album-card'+(selected?.id===a.id?' is-active':'')+'" data-vatra-open-album="'+esc(a.id)+'">'+
+   '<span class="vatra-public-album-cover">'+(a.photos.length?'<img loading="lazy" src="'+esc(a.photos[a.photos.length-1])+'" alt="Обкладинка альбому">':'▧')+'</span>'+
+   '<b>'+esc(a.name)+'</b><small>'+a.photos.length+' фото · Публічний</small></button>').join('')+
+  (albums.length?'':'<p class="muted">Створіть альбом, щоб згрупувати улюблені фотографії. Його зможуть переглядати інші користувачі.</p>')+'</div>'+
+  (selected?'<div class="vatra-album-current"><h3>'+esc(selected.name)+'</h3><p>Фотографії цього альбому видно відвідувачам Вашого профілю.</p>'+
+   '<div class="vatra-album-management-actions"><button type="button" data-vatra-album-rename>Перейменувати</button>'+
+    '<button type="button" data-vatra-album-pick>Додати наявні фото</button>'+
+    '<button type="button" data-vatra-album-upload>Завантажити нові</button>'+
+    '<button type="button" class="is-danger" data-vatra-album-delete>Видалити альбом</button>'+
+    '<button type="button" data-vatra-album-back>Усі фото</button>'+
+    '<input id="vatraAlbumUploadInput" type="file" data-vatra-album-upload-id="'+esc(selected.id)+'" accept="image/*" multiple hidden></div>'+
+   '<div class="vatra-album-chooser" data-vatra-album-chooser hidden><h3>Оберіть фото для альбому</h3>'+
+    '<p>Можна додати власні завантажені фото та фотографії з Ваших дописів.</p>'+
+    '<div class="vatra-album-chooser-grid">'+source.filter(url=>!selected.photos.includes(url)).map((url,i)=>
+      '<button type="button" data-vatra-album-photo="'+i+'"><img loading="lazy" src="'+esc(url)+'" alt="Фото"><span>＋ Додати</span></button>').join('')+'</div></div></div>':'');
+ tabs.after(panel);
+ const original=grid.innerHTML;
+ const reveal=()=>{
+  if(!selected)return;
+  const urls=selected.photos.slice().reverse(),data=esc(JSON.stringify(urls));
+  grid.innerHTML=urls.map((url,i)=>'<div class="vatra-album-photo"><button type="button" class="vatra-photo-tile" data-open-profile-gallery="'+esc(currentUser.uid)+'" data-photo-urls="'+data+'" data-photo-index="'+i+'"><img src="'+esc(url)+'" loading="lazy" decoding="async" alt="Фото альбому '+(i+1)+'"></button>'+
+   '<button type="button" class="vatra-album-unlink" data-vatra-album-unlink="'+i+'">Прибрати з альбому</button></div>').join('')||'<p class="vatra-empty-panel">Цей альбом поки порожній. Додайте фото.</p>';
+ };
+ if(selected)reveal();
+ const commit=async(next,message)=>{
+  try{await vatraSaveAlbums(albums.map(a=>a.id===selected.id?next:a));renderPhotos();toastMsg(message);}
+  catch(error){toastMsg(niceError(error));}
+ };
+ panel.addEventListener('click',async e=>{
+  const button=e.target.closest('button');if(!button)return;
+  if(button.hasAttribute('data-vatra-album-create')){
+   if(albums.length>=12)return toastMsg('Можна створити до 12 альбомів.');
+   const title=await askText('Назва нового альбому','Новий альбом');
+   if(title===null)return;
+   const name=title.trim().slice(0,60);if(!name)return toastMsg('Введіть назву альбому.');
+   const id='album_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+   try{await vatraSaveAlbums([...albums,{id,name,photos:[],createdAt:Date.now()}]);vatraSelectedAlbumId=id;renderPhotos();toastMsg('Альбом створено.');}catch(err){toastMsg(niceError(err));}
+   return;
+  }
+  if(button.dataset.vatraOpenAlbum){vatraSelectedAlbumId=button.dataset.vatraOpenAlbum;renderPhotos();return;}
+  if(!selected)return;
+  if(button.hasAttribute('data-vatra-album-back')){vatraSelectedAlbumId='';renderPhotos();return;}
+  if(button.hasAttribute('data-vatra-album-pick')){const choose=panel.querySelector('[data-vatra-album-chooser]');choose.hidden=!choose.hidden;return;}
+  if(button.hasAttribute('data-vatra-album-upload')){panel.querySelector('#vatraAlbumUploadInput')?.click();return;}
+  if(button.hasAttribute('data-vatra-album-rename')){
+   const title=await askText('Назва альбому',selected.name);
+   if(title!==null&&title.trim())await commit({...selected,name:title.trim().slice(0,60)},'Альбом перейменовано.');
+   return;
+  }
+  if(button.hasAttribute('data-vatra-album-delete')){
+   if(!(await askConfirm('Видалити альбом «'+selected.name+'»? Самі фотографії залишаться в профілі або дописах.')))return;
+   try{await vatraSaveAlbums(albums.filter(a=>a.id!==selected.id));vatraSelectedAlbumId='';renderPhotos();toastMsg('Альбом видалено.');}catch(err){toastMsg(niceError(err));}
+   return;
+  }
+  if(button.hasAttribute('data-vatra-album-photo')){
+   const choices=source.filter(url=>!selected.photos.includes(url)),url=choices[Number(button.dataset.vatraAlbumPhoto)];
+   if(!url)return;
+   if(selected.photos.length>=40)return toastMsg('До альбому можна додати до 40 фото.');
+   await commit({...selected,photos:[...selected.photos,url]},'Фото додано до альбому.');return;
+  }
+ });
+ grid.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-vatra-album-unlink]');if(!b||!selected)return;
+  const url=selected.photos.slice().reverse()[Number(b.dataset.vatraAlbumUnlink)];
+  if(url)await commit({...selected,photos:selected.photos.filter(x=>x!==url)},'Фото прибрано з альбому.');
+ });
+ const upload=panel.querySelector('#vatraAlbumUploadInput');
+ if(upload)upload.addEventListener('change',uploadProfilePhoto);
+ tabs.addEventListener('click',()=>{vatraSelectedAlbumId='';});
+}
+
 function renderPhotos(){
  if(!currentUser){setFeed('<article class="post"><h2>Мої фотографії</h2><p>Увійдіть, щоб переглядати власні фотографії.</p><button class="primary" id="photosLogin">Увійти</button></article>');$('#photosLogin')?.addEventListener('click',()=>openAuth('login'));return;}
  const uid=currentUser.uid;
- const album=(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos:[]).filter(url=>typeof url==='string'&&/^https?:\/\//i.test(url)).map((url,index)=>({url,index}));
+ const album=(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos:[]).filter(url=>typeof url==='string'&&/^https?:\/\//i.test(url)).map((url,index)=>({url,index,date:Number(currentProfile.photoUploadedAt?.[url])||index+1})).sort((a,b)=>b.date-a.date);
  const published=Object.entries(posts||{}).filter(([,p])=>p&&p.authorUid===uid).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).flatMap(([id,p])=>postImages(p).map(url=>({url,id,date:p.createdAt||0})));
- const all=[...album.map(x=>x.url),...published.map(x=>x.url)];
+ const all=[...album.map(x=>({url:x.url,date:x.date})),...published.map(x=>({url:x.url,date:x.date}))].sort((a,b)=>b.date-a.date).map(x=>x.url);
  const unique=[...new Set(all)];
  const tile=(url,meta,index)=>'<button type="button" class="vatra-photo-tile" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(unique))+'" data-photo-index="'+unique.indexOf(url)+'" aria-label="Переглянути фотографію '+(index+1)+'"><img src="'+esc(url)+'" loading="lazy" decoding="async" alt="Фото '+(index+1)+'"></button>';
  setFeed('<section class="vatra-photos-page"><div class="vatra-photos-toolbar"><div><h2>Мої фотографії</h2><p>'+unique.length+' фото · Ваш альбом і фотографії з дописів</p></div><div class="vatra-photos-tools"><button type="button" class="primary" id="vatraPhotosUpload">＋ Додати фото</button><input type="file" id="vatraPhotosFile" accept="image/*" multiple hidden></div></div><div class="vatra-photos-tabs" role="tablist" aria-label="Альбоми"><button type="button" role="tab" aria-selected="true" class="active" data-vatra-photo-tab="all">Усі фото ('+unique.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="album">Альбом ('+album.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="posts">З дописів ('+published.length+')</button></div><div class="vatra-photo-grid" id="vatraPhotosGrid">'+(unique.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">Ви ще не додавали фотографій. Завантажте перше фото.</p>')+'</div></section>');
@@ -948,6 +1051,7 @@ function renderPhotos(){
  });
  $('#vatraPhotosUpload').onclick=()=>$('#vatraPhotosFile')?.click();
  $('#vatraPhotosFile').addEventListener('change',uploadProfilePhoto);
+ vatraAlbumManager();
 }
 
 function renderMyVideos(){
@@ -1370,11 +1474,12 @@ async function getImageEditor(file,mode='avatar'){return await openVatraPhotoStu
 async function uploadCover(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;try{const edited=await getImageEditor(f,'cover');if(!edited)return;toastMsg('Обробляємо обкладинку…');const coverUrl=await uploadImage(edited,1600,.9,'covers');await update(ref(db,`users/${currentUser.uid}`),{coverUrl});currentProfile.coverUrl=coverUrl;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));render();toastMsg('Обкладинку профілю збережено.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}}
 async function uploadProfilePhoto(e){
  const input=e.currentTarget,files=Array.from(input.files||[]).filter(Boolean);
+  const albumId=input.dataset.vatraAlbumUploadId||'';
  if(!files.length)return;
  if(!authRequired()){input.value='';return;}
  if(files.length>10){toastMsg('Можна вибрати до 10 фотографій за раз.');input.value='';return;}
  const previous=Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice():[];
- if(previous.length+files.length>40){toastMsg('В альбомі може бути до 40 фотографій.');input.value='';return;}
+ if(previous.length+files.length>120){toastMsg('До профілю можна завантажити до 120 фотографій.');input.value='';return;}
  const uploaded=[];
  try{
   for(const file of files){
@@ -1386,9 +1491,11 @@ async function uploadProfilePhoto(e){
    catch(error){console.warn('Photo skipped:',error);toastMsg('Не вдалося завантажити одне з фото. Продовжуємо решту.');}
   }
   if(!uploaded.length)return;
-  const savedPhotos=[...new Set([...previous,...uploaded])].slice(-40);
-  await update(ref(db,'users/'+currentUser.uid),{profilePhotos:savedPhotos,updatedAt:Date.now()});
-  currentProfile.profilePhotos=savedPhotos;
+  const savedPhotos=[...new Set([...previous,...uploaded])].slice(-120);
+  const photoUploadedAt={...(currentProfile.photoUploadedAt||{})};uploaded.forEach((url,i)=>{photoUploadedAt[url]=Date.now()+i;});
+  const photoAlbums=vatraGetAlbums(currentProfile).map(a=>a.id===albumId?{...a,photos:[...new Set([...a.photos,...uploaded])].slice(-40)}:a);
+  await update(ref(db,'users/'+currentUser.uid),{profilePhotos:savedPhotos,photoUploadedAt,photoAlbums,updatedAt:Date.now()});
+  currentProfile.profilePhotos=savedPhotos;currentProfile.photoUploadedAt=photoUploadedAt;currentProfile.photoAlbums=photoAlbums;
   await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
   render();toastMsg('Фотографії додано до Вашого альбому: '+uploaded.length+'.');
  }catch(error){toastMsg('Не всі фотографії вдалося зберегти: '+(error?.message||niceError(error)));}
