@@ -125,7 +125,7 @@ function publicProfileData(p={}){
    photoAlbums:p.profileVisibility==='private'?[]:vatraGetAlbums(p),
    avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
   isOnline:p.isOnline===true,lastSeenAt:Number(p.lastSeenAt)||0,
-  profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-40):[]),
+  profilePhotos:p.profileVisibility==='private'?[]:(Array.isArray(p.profilePhotos)?p.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-120):[]),
   profileVisibility:p.profileVisibility==='private'?'private':'public',searchable:p.searchable!==false,
   birthdayVisibility:vatraFieldVisibility(p.birthdayVisibility),cityVisibility:vatraFieldVisibility(p.cityVisibility),
   locationVisibility:vatraFieldVisibility(p.locationVisibility),phoneVisibility:vatraFieldVisibility(p.phoneVisibility),
@@ -955,7 +955,7 @@ function vatraAlbumManager(){
  const albums=vatraGetAlbums(),selected=albums.find(a=>a.id===vatraSelectedAlbumId);
  const source=[...new Set([
   ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]),
-  ...Object.entries(posts||{}).filter(([,p])=>p?.authorUid===currentUser.uid)
+  ...Object.entries(posts||{}).filter(([,p])=>p?.authorUid===currentUser.uid&&p.visibility!=='private'&&p.visibility!=='friends')
     .sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).flatMap(([,p])=>postImages(p))
  ])].filter(url=>typeof url==='string'&&/^https:\/\//i.test(url));
  const panel=document.createElement('section');panel.className='vatra-album-management';
