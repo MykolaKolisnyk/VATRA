@@ -71,6 +71,8 @@ async function show(uid){
 window.vatraRenderGifts=show;
 window.vatraGiftsArt=art;
 document.addEventListener('click',async e=>{
+ const previewLink=e.target.closest('.vatra-gift-preview-link');
+ if(previewLink){window.vatraRouter?.goPage('gifts');return;}
  const tab=e.target.closest('[data-vatra-gifts-tab]');if(tab){selectedTab=tab.dataset.vatraGiftsTab;notice='';view();return;}
  if(e.target.closest('[data-vatra-buy]')){
   status('Платні подарунки продає тільки розробник ВАТРИ. Для придбання зверніться до техпідтримки; видавання можливе лише після підтвердження оплати.');
