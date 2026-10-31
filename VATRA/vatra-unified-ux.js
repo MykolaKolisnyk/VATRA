@@ -34,7 +34,7 @@ function upgrade(){
   d.querySelectorAll('.vatra-viewer-close,.vatra-avatar-viewer-close').forEach(b=>{if(b.dataset.unified)return;b.innerHTML=x;b.dataset.unified='1';});
   d.querySelectorAll('.vatra-media-viewer-step,.vatra-avatar-viewer-nav').forEach(b=>{if(b.dataset.unified)return;b.innerHTML=arrow(b.classList.contains('prev')?'prev':'next');b.dataset.unified='1';});
  });
- document.querySelectorAll('button.close,button[id$="Close"],.vatra-group-members-dialog-head button').forEach(b=>{
+ document.querySelectorAll('button:not([data-unified])').forEach(b=>{
   if(b.dataset.unified||b.querySelector('svg')||!['×','✕'].includes(b.textContent.trim()))return;
   b.innerHTML=x;b.dataset.unified='1';b.classList.add('vatra-svg-close');
  });
