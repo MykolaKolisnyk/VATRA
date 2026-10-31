@@ -16,7 +16,7 @@ function show(html){
  document.body.dataset.page='supportDesk';
  $('#sort')?.setAttribute('hidden','');$('.quick-compose')?.setAttribute('hidden','');
  feed.innerHTML='<section class="vatra-support-page"><header class="vatra-support-header"><span class="vatra-support-icon">'+icons.head+'</span>'+
- '<div><p>ВАТРА · СЛУЖБА ДОПОМОГИ</p><h2>Технічна підтримка</h2><small>Особисті звернення до команди ВАТРИ</small></div>'+
+ '<div><p>ВАТРА · СЛУЖБА ДОПОМОГИ</p><h2>Технічна підтримка</h2><small>Особисті звернення до техпідтримки ВАТРИ</small></div>'+
  '<button type="button" class="vatra-support-back" data-support-back>'+icons.back+' Назад</button></header>'+html+'</section>';
  document.title='Техпідтримка | ВАТРА';
  window.vatraRouteChanged?.({page:'supportDesk'});
