@@ -58,7 +58,7 @@ document.addEventListener('click',e=>{
  if(gallery){e.preventDefault();e.stopImmediatePropagation();openGallery(gallery);return;}
  if(e.target.closest('[data-gallery-back]')){e.stopImmediatePropagation();const uid=currentGallery?.uid;currentGallery=null;if(uid)window.vatraRouter?.renderPublicProfile(uid);return;}
  const photo=e.target.closest('[data-gallery-photo]');
- if(photo&&currentGallery){e.preventDefault();e.stopImmediatePropagation();window.vatraRouter?.openPostPhotoViewer(currentGallery.urls,Number(photo.dataset.galleryPhoto),'',currentGallery.uid);}
+ if(photo&&currentGallery){e.preventDefault();e.stopImmediatePropagation();window.vatraRouter?.openAvatarViewer?.(currentGallery.uid,currentGallery.urls,Number(photo.dataset.galleryPhoto));}
 },true);
 function hashForTarget(el){
  const a=el.closest('[data-view-profile]');if(a)return route({page:'publicProfile',id:a.dataset.viewProfile});
