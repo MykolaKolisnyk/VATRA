@@ -10,7 +10,7 @@ begin
   raise exception 'Лише власник ВАТРИ може призначати працівників.';
  end if;
  normalized:=lower(btrim(regexp_replace(coalesce(_handle,''),'^@','')));
- if normalized !~ '^[a-z0-9][a-z0-9._-]{2,39}$' then
+ if (char_length(normalized)<3 or char_length(normalized)>80 or normalized ~ '[[:space:]@/]') then
   raise exception 'Введіть чинний @псевдонім користувача.';
  end if;
  select split_part(path,'/',2)::uuid into resolved
