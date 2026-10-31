@@ -36,7 +36,7 @@ begin
    into ban_active,ban_reason,until_at,since_at
    from public.vatra_moderation_group_bans where group_id=_target;
   select value into gid from public.app_data where path='groups/'||_target;
-  entitled := coalesce(gid->>'ownerUid','')=coalesce(auth.uid()::text,'') or
+  entitled := (auth.uid() is not null and coalesce(gid->>'ownerUid','')=auth.uid()::text) or
    coalesce(public.vatra_has_permission('view_reports'),false);
  else return jsonb_build_object('blocked',false);
  end if;
