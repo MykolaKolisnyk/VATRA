@@ -229,8 +229,415 @@ begin
      or _path ~ '^activityReadAt/[^/]+$' then
     return parts[2] = uid::text;
   end if;
-  if _path ~ '^verifiedUsers/[^/]+$' then
-    return exists (select 1 from public.app_data a where a.path = 'admins/' || uid::text and a.value = 'true'::jsonb);
+  if _path ~ '^verifiedUsers/[^/]+
+  if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' or _path ~ '^postSaves/[^/]+/[^/]+$' or _path ~ '^postShares/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^comments/[^/]+/[^/]+$' then return _value ->> 'uid' = uid::text; end if;
+
+  -- Reactions are owned by the reacting user. Photo comments by author/owner.
+  if _path ~ '^avatarLikes/[^/]+/[^/]+/[^/]+$' then
+    return parts[4] = uid::text;
+  end if;
+  if _path ~ '^avatarComments/[^/]+/[^/]+/[^/]+$' then
+    return _value ->> 'uid' = uid::text or parts[2] = uid::text;
+  end if;
+
+
+  -- A friend list is stored as one JSON object per account. Adding an entry
+  -- to someone else's list requires their pending incoming request.
+  if _path ~ '^friends/[^/]+$' then
+    if parts[2] = uid::text then return true; end if;
+    select f.value into old_value from public.app_data f where f.path = 'friends/' || parts[2];
+    if old_value is not null and old_value ? uid::text
+       and (old_value - uid::text) = (_value - uid::text) then return true; end if;
+    return _value ? uid::text
+      and _value ->> uid::text = 'true'
+      and coalesce(old_value - uid::text, '{}'::jsonb) = (_value - uid::text)
+      and exists (
+        select 1 from public.app_data r
+        where r.path = 'friendRequests/' || uid::text || '/' || parts[2]
+          and r.value ->> 'status' = 'pending'
+          and r.value ->> 'direction' = 'incoming'
+      );
+  end if;
+
+  if _path ~ '^friendRequests/[^/]+(/[^/]+)?$' then
+    return parts[2] = uid::text or (array_length(parts,1) >= 3 and parts[3] = uid::text);
+  end if;
+  if _path ~ '^saved/[^/]+(/[^/]+)?$'
+     or _path ~ '^blockedUsers/[^/]+(/[^/]+)?$'
+     or _path ~ '^following/[^/]+(/[^/]+)?$'
+     or _path ~ '^userChats/[^/]+(/[^/]+)?$'
+     or _path ~ '^chatReads/[^/]+(/[^/]+)?$' then return parts[2] = uid::text; end if;
+  if _path ~ '^videos/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
+  if _path ~ '^groups/[^/]+$' then
+    select a.value into old_value from public.app_data a where a.path = _path;
+    if old_value is null then return _value ->> 'ownerUid' = uid::text; end if;
+    return _value ->> 'ownerUid' = old_value ->> 'ownerUid'
+      and (old_value ->> 'ownerUid' = uid::text
+        or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb));
+  end if;
+  if _path ~ '^groupMembers/[^/]+(/[^/]+)?$' then
+    return (array_length(parts,1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb);
+  end if;
+  if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' or _path ~ '^groupModerators/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb); end if;
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
+    return _value ->> 'authorUid'=uid::text
+      and (public.vatra_data_is_group_owner(parts[2],uid)
+         or exists (select 1 from public.app_data a where a.path='groupAdmins/'||parts[2]||'/'||uid::text and a.value='true'::jsonb)
+         or (
+          exists (select 1 from public.app_data a where a.path='groupModerators/'||parts[2]||'/'||uid::text and a.value='true'::jsonb)
+          and not exists (select 1 from public.app_data g where g.path='groups/'||parts[2] and g.value->>'moderatorsCanPost'='false')
+         ))
+      and (
+       coalesce(_value->>'authorType','user') <> 'group'
+       or public.vatra_data_is_group_owner(parts[2],uid)
+       or exists (select 1 from public.app_data a where a.path='groupAdmins/'||parts[2]||'/'||uid::text and a.value='true'::jsonb)
+      );
+  end if;
+  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
+  if _path ~ '^chats/[^/]+/.+$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname = 'public' and tablename = 'app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+  using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+  using (public.vatra_data_can_write(path, value))
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+  using (public.vatra_data_can_write(path, value));
+
+-- Moderators may remove posts from the communities they manage, while
+-- ordinary members may remove only their own posts under existing RLS.
+create or replace function public.vatra_data_is_group_manager(_group_id text, _viewer_uid uuid)
+returns boolean language sql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+  select _viewer_uid is not null
+    and (
+      public.vatra_data_is_group_owner(_group_id, _viewer_uid)
+      or exists (
+        select 1 from public.app_data r
+        where r.path in (
+          'groupAdmins/' || _group_id || '/' || _viewer_uid::text,
+          'groupModerators/' || _group_id || '/' || _viewer_uid::text
+        )
+        and r.value = 'true'::jsonb
+      )
+    );
+$vatra$;
+grant execute on function public.vatra_data_is_group_manager(text, uuid) to authenticated;
+
+drop policy if exists app_data_delete_group_managers on public.app_data;
+create policy app_data_delete_group_managers on public.app_data
+for delete to authenticated
+using (
+ path ~ '^groupPosts/[^/]+/[^/]+$'
+ and public.vatra_data_is_group_manager(split_part(path, '/', 2), (select auth.uid()))
+);
+
+-- Narrow post policies provide an explicit owner check for publishing, editing,
+-- and deleting one post row without relaxing access to other data.
+drop policy if exists app_data_insert_own_posts on public.app_data;
+create policy app_data_insert_own_posts on public.app_data for insert to authenticated
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_update_own_posts on public.app_data;
+create policy app_data_update_own_posts on public.app_data for update to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text)
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_delete_own_posts on public.app_data;
+create policy app_data_delete_own_posts on public.app_data for delete to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+
+-- Public media URLs are used for content explicitly shown in the feed.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('vatra-media', 'vatra-media', true, 52428800,
+  array['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','video/quicktime','video/ogg','video/x-m4v'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists vatra_media_public_read on storage.objects;
+create policy vatra_media_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'vatra-media');
+
+drop policy if exists vatra_media_user_upload on storage.objects;
+create policy vatra_media_user_upload on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_update on storage.objects;
+create policy vatra_media_user_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_delete on storage.objects;
+create policy vatra_media_user_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+do $realtime$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'app_data'
+     ) then
+    alter publication supabase_realtime add table public.app_data;
+  end if;
+end;
+$realtime$;
+
+
+-- VATRA private chat message validation.
+-- Allows ordinary messages and historic signed ciphertext.
+-- Only the sender may create/edit/remove messages; RLS limits access to participants.
+-- Ordinary messages are NOT end-to-end encrypted.
+-- Covers all storage forms supported by the app_data compatibility adapter.
+create or replace function public.vatra_e2ee_guard()
+returns trigger
+language plpgsql
+set search_path = ''
+as $vatra_e2ee$
+declare
+  actor_uid text := auth.uid()::text;
+  old_messages jsonb := '{}'::jsonb;
+  new_messages jsonb := '{}'::jsonb;
+  message_id text;
+  message_payload jsonb;
+begin
+  if actor_uid is null then
+    raise exception 'VATRA E2EE: authentication required';
+  end if;
+
+  if new.path ~ '^chats/[^/]+/messages/[^/]+$' then
+    message_id := split_part(new.path, '/', 4);
+    new_messages := jsonb_build_object(message_id, new.value);
+    if tg_op = 'UPDATE' then
+      old_messages := jsonb_build_object(message_id, old.value);
+    end if;
+  elsif new.path ~ '^chats/[^/]+/messages$' then
+    new_messages := new.value;
+    if tg_op = 'UPDATE' then
+      old_messages := old.value;
+    end if;
+  elsif new.path ~ '^chats/[^/]+$' then
+    if tg_op = 'UPDATE' then
+      if coalesce(new.value -> 'members', '{}'::jsonb)
+         is distinct from coalesce(old.value -> 'members', '{}'::jsonb) then
+        raise exception 'VATRA E2EE: chat membership cannot be rewritten';
+      end if;
+      old_messages := coalesce(old.value -> 'messages', '{}'::jsonb);
+    end if;
+    new_messages := coalesce(new.value -> 'messages', '{}'::jsonb);
+  else
+    raise exception 'VATRA E2EE: unsupported chat data path';
+  end if;
+
+  if jsonb_typeof(new_messages) is distinct from 'object'
+     or jsonb_typeof(old_messages) is distinct from 'object' then
+    raise exception 'VATRA E2EE: invalid message container';
+  end if;
+
+  for message_id in select jsonb_object_keys(new_messages) loop
+    message_payload := new_messages -> message_id;
+
+    if message_payload is distinct from old_messages -> message_id then
+      if (old_messages ? message_id)
+         and old_messages -> message_id ->> 'senderUid' is distinct from actor_uid then
+        raise exception 'VATRA E2EE: only the author may edit a message';
+      end if;
+
+      -- Sender must always match the authenticated account.
+      if jsonb_typeof(message_payload) is distinct from 'object'
+         or message_payload ->> 'senderUid' is distinct from actor_uid then
+        raise exception 'VATRA CHAT: invalid sender';
+      end if;
+      if message_payload ? 'encrypted' then
+        -- Keep the original strict format for historic E2EE records.
+        if message_payload ? 'text'
+           or message_payload -> 'encrypted' ->> 'v' is distinct from '1'
+           or message_payload -> 'encrypted' ->> 'alg' is distinct from 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
+           or message_payload -> 'encrypted' ->> 'ciphertext' is null
+           or message_payload -> 'encrypted' ->> 'iv' is null
+           or message_payload -> 'encrypted' ->> 'signature' is null then
+          raise exception 'VATRA CHAT: invalid legacy encrypted record';
+        end if;
+      else
+        -- New ordinary messages: RLS still limits read/write to chat members.
+        if jsonb_typeof(message_payload -> 'text') is distinct from 'string'
+           or length(trim(message_payload ->> 'text')) not between 1 and 2000 then
+          raise exception 'VATRA CHAT: message text must contain 1 to 2000 characters';
+        end if;
+      end if;
+    end if;
+  end loop;
+
+  for message_id in select jsonb_object_keys(old_messages) loop
+    if not (new_messages ? message_id)
+       and old_messages -> message_id ->> 'senderUid' is distinct from actor_uid then
+      raise exception 'VATRA E2EE: only the author may remove a message';
+    end if;
+  end loop;
+
+  return new;
+end;
+$vatra_e2ee$;
+
+drop trigger if exists vatra_require_encrypted_messages on public.app_data;
+create trigger vatra_require_encrypted_messages
+before insert or update of value on public.app_data
+for each row
+when (new.path ~ '^chats/[^/]+(/messages(/.*)?)?$')
+execute function public.vatra_e2ee_guard();
+
+
+-- VATRA community content preferences, enforced in the Supabase database.
+-- Apply after app-data-schema.sql. Existing RLS remains enabled.
+create or replace function public.vatra_enforce_community_content_prefs()
+returns trigger language plpgsql security definer
+set search_path='' set row_security=off
+as $vatra$
+declare uid uuid := auth.uid(); group_id text; grp jsonb; manager boolean;
+begin
+  if uid is null then return new; end if; -- trusted server publisher
+  if new.path ~ '^groupPosts/[^/]+/[^/]+$' then
+    group_id:=split_part(new.path,'/',2);
+    select value into grp from public.app_data where path='groups/'||group_id;
+    if grp is null then raise exception 'Спільнота не існує'; end if;
+    manager := public.vatra_data_is_group_owner(group_id,uid)
+      or exists (select 1 from public.app_data a
+         where a.path='groupAdmins/'||group_id||'/'||uid::text and a.value='true'::jsonb)
+      or (
+       coalesce((grp->>'moderatorsCanPost')::boolean,true)
+       and exists (select 1 from public.app_data a
+         where a.path='groupModerators/'||group_id||'/'||uid::text and a.value='true'::jsonb)
+      );
+    if not manager then raise exception 'Лише керівники або модератори з дозволом можуть публікувати дописи'; end if;
+    if coalesce(new.value->>'authorType','user')='group' and not (
+      public.vatra_data_is_group_owner(group_id,uid)
+      or exists (select 1 from public.app_data a where a.path='groupAdmins/'||group_id||'/'||uid::text and a.value='true'::jsonb)
+    ) then raise exception 'Публікація від імені спільноти недоступна'; end if;
+  elsif new.path ~ '^comments/g_[^_]+_[^_]+/[^/]+$' then
+    group_id:=substring(split_part(new.path,'/',2) from '^g_([^_]+)_');
+    if group_id is not null then
+      select value into grp from public.app_data where path='groups/'||group_id;
+      if grp is not null and coalesce((grp->>'commentsEnabled')::boolean,true)=false then
+        raise exception 'Коментарі спільноти вимкнені';
+      end if;
+    end if;
+  end if;
+  return new;
+end;
+$vatra$;
+revoke all on function public.vatra_enforce_community_content_prefs() from public,anon,authenticated;
+drop trigger if exists vatra_community_content_prefs on public.app_data;
+create trigger vatra_community_content_prefs
+ before insert on public.app_data
+ for each row execute function public.vatra_enforce_community_content_prefs();
+
+
+-- Community gallery RLS (also runnable separately as vatra-community-gallery.sql)
+-- VATRA community gallery data in public.app_data (Supabase, RLS).
+-- Uses SECURITY DEFINER helpers to avoid recursively querying app_data from its own RLS policies.
+create or replace function public.vatra_group_media_can_read(_group_id text)
+returns boolean language sql stable security definer set search_path='' set row_security=off
+as $vatra$
+ select exists (
+  select 1 from public.app_data g where g.path='groups/'||_group_id
+   and (
+    coalesce(g.value->>'visibility','public')<>'private'
+    or public.vatra_data_is_group_member(_group_id,(select auth.uid()))
+   )
+ );
+$vatra$;
+
+create or replace function public.vatra_group_media_can_manage(_group_id text,_allow_mod boolean)
+returns boolean language sql stable security definer set search_path='' set row_security=off
+as $vatra$
+ select (select auth.uid()) is not null and exists (
+  select 1 from public.app_data g where g.path='groups/'||_group_id
+  and (
+   g.value->>'ownerUid'=(select auth.uid())::text
+   or exists (select 1 from public.app_data a where a.path='groupAdmins/'||_group_id||'/'||(select auth.uid())::text and a.value='true'::jsonb)
+   or (_allow_mod and coalesce((g.value->>'moderatorsCanPost')::boolean,true)
+       and exists (select 1 from public.app_data m where m.path='groupModerators/'||_group_id||'/'||(select auth.uid())::text and m.value='true'::jsonb))
+  )
+ );
+$vatra$;
+revoke all on function public.vatra_group_media_can_read(text) from public,anon;
+revoke all on function public.vatra_group_media_can_manage(text,boolean) from public,anon;
+grant execute on function public.vatra_group_media_can_read(text) to authenticated,anon;
+grant execute on function public.vatra_group_media_can_manage(text,boolean) to authenticated;
+
+drop policy if exists vatra_group_media_read on public.app_data;
+create policy vatra_group_media_read on public.app_data for select to anon,authenticated
+ using (path ~ '^groupMedia/[^/]+/[^/]+$'
+    and public.vatra_group_media_can_read(split_part(path,'/',2)));
+
+drop policy if exists vatra_group_media_add on public.app_data;
+create policy vatra_group_media_add on public.app_data for insert to authenticated
+ with check(
+   path ~ '^groupMedia/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+$'
+   and jsonb_typeof(value)='object'
+   and value->>'authorUid'=(select auth.uid())::text
+   and value->>'kind' in ('photo','video')
+   and length(value::text)<4000
+   and value->>'url' ~ '^https://[^ ]{10,1800}$'
+   and public.vatra_group_media_can_manage(split_part(path,'/',2),true)
+ );
+
+drop policy if exists vatra_group_media_remove on public.app_data;
+create policy vatra_group_media_remove on public.app_data for delete to authenticated
+ using (
+   path ~ '^groupMedia/[^/]+/[^/]+$'
+   and (
+     value->>'authorUid'=(select auth.uid())::text
+     or public.vatra_group_media_can_manage(split_part(path,'/',2),false)
+   )
+ );
+-- No client-side update policy. Deletion of a gallery entry does not remove
+-- its Storage object: other posts may still refer to the same file.
+
+ then
+    -- Only the security-definer RPC (and SQL Editor/service role) may write badges.
+    -- The RPC writes as postgres, bypassing client RLS.
+    return false;
   end if;
   if _path ~ '^posts/[^/]+$' then return _value ->> 'authorUid' = uid::text; end if;
   if _path ~ '^postLikes/[^/]+/[^/]+$' or _path ~ '^pollVotes/[^/]+/[^/]+$' or _path ~ '^postSaves/[^/]+/[^/]+$' or _path ~ '^postShares/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
