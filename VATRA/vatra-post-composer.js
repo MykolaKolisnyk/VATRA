@@ -39,6 +39,8 @@ export function setupPostComposer(api){
    review();
    const section=q('#vatraComposerMediaGallerySetting'),label=q('#vatraComposerGalleryHint');
    if(section)section.hidden=!getPhotos().length&&!getVideo();
+   const albumBox=q('#vatraComposerAlbumBox');
+   if(albumBox)albumBox.hidden=!getDraftScope()||!getPhotos().length;
    if(label)label.textContent=getDraftScope()
     ? 'Ці фото й відео будуть додані до галереї спільноти. Вкладення в самому дописі залишаться незалежно від вибору.'
     : 'Ці фото й відео також з’являться у Ваших розділах «Фото» та «Відео». Вкладення в дописі залишаться незалежно від вибору.';
