@@ -1,0 +1,6 @@
+.vatra-verification-panel{border-color:#cfdef1!important;background:#f8fbff!important}
+.vatra-verification-panel label{display:grid;gap:8px;font:600 13px Inter,system-ui,sans-serif;color:#2b4765}
+.vatra-verification-panel input{width:100%;max-width:360px;border:1px solid #dce6f1;border-radius:10px;padding:11px;font:500 14px Inter,system-ui,sans-serif;box-sizing:border-box}
+.vatra-verification-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:13px}
+.vatra-verification-actions button{min-height:39px;border-radius:10px;padding:9px 14px;font:650 13px Inter,system-ui,sans-serif;cursor:pointer}
+.vatra-verification-result{font-size:12px;color:#335778;line-height:1.55;margin-top:12px}
