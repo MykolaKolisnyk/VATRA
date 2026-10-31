@@ -16,6 +16,32 @@ drop policy if exists vatra_account_lifecycle_self on public.vatra_account_lifec
 create policy vatra_account_lifecycle_self on public.vatra_account_lifecycle
   for select to authenticated using (user_id = (select auth.uid()));
 
+-- Mark inactive accounts in a single set-based operation; each receives an
+-- additional 30-day recovery period. This never deletes an account directly.
+create or replace function public.vatra_mark_inactive_users()
+returns integer language plpgsql security definer
+set search_path = '' set row_security = off
+as $vatra$
+declare marked integer;
+begin
+  update public.vatra_account_lifecycle l
+  set deletion_requested_at=now(),
+      delete_after=now()+interval '30 days',
+      deletion_reason='inactivity',updated_at=now()
+  where l.inactivity_days in (7,30,365)
+    and l.delete_after is null
+    and l.last_seen_at + make_interval(days => l.inactivity_days) <= now()
+    and not exists (
+      select 1 from public.app_data g
+      where g.path like 'groups/%' and g.value->>'ownerUid'=l.user_id::text
+    );
+  get diagnostics marked = row_count;
+  return marked;
+end;
+$vatra$;
+revoke all on function public.vatra_mark_inactive_users() from public, anon, authenticated;
+grant execute on function public.vatra_mark_inactive_users() to service_role;
+
 -- Called only by the service-role Edge Function after the 30-day recovery period.
 -- Owned communities must be transferred/deleted BEFORE requesting deletion.
 create or replace function public.vatra_purge_user_data(target_uid uuid)
