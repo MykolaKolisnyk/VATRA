@@ -1236,22 +1236,30 @@ function vatraGroupCategory(value){return VATRA_GROUP_TOPICS[value]||String(valu
 function renderGroups(){
  const arr=Object.entries(groups||{}).filter(([id,g])=>g&&g.name&&(g.visibility!=='private'||g.ownerUid===currentUser?.uid||!!groupMembers[id]?.[currentUser?.uid])).map(([id,g])=>({...g,id})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const joined=id=>!!groupMembers[id]?.[currentUser?.uid]||groups[id]?.ownerUid===currentUser?.uid;
+ const managed=id=>groups[id]?.ownerUid===currentUser?.uid||!!groupAdmins[id]?.[currentUser?.uid]||!!groupModerators[id]?.[currentUser?.uid];
+ let recentIds=[];
+ try{const values=JSON.parse(localStorage.getItem('vatra-recent-communities-'+(currentUser?.uid||'guest'))||'[]');recentIds=Array.isArray(values)?values:[];}catch{}
+ const available=new Map(arr.map(g=>[g.id,g]));
+ const recentlyVisited=[...new Set(recentIds)].map(id=>available.get(id)).filter(Boolean).slice(0,8);
+ const recentMarkup=recentlyVisited.length?
+  '<section class="vatra-group-recents"><div class="vatra-group-recents-heading"><h3>Нещодавно відвідані</h3><span>'+recentlyVisited.length+'</span></div><div class="vatra-group-recent-strip">'+recentlyVisited.map(g=>'<button type="button" data-open-group="'+esc(g.id)+'" title="'+esc(g.name)+'">'+
+  '<span class="vatra-group-recent-avatar">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" loading="lazy" alt="">':esc((g.name||'В').slice(0,1).toUpperCase()))+'</span><small>'+esc(g.name)+'</small></button>').join('')+'</div></section>':'';
  const item=g=>{
   const n=Object.values(groupMembers[g.id]||{}).filter(Boolean).length;
-  const isMine=joined(g.id);
-  return '<article class="vatra-community-row" data-community-item data-community-own="'+String(isMine)+'" data-community-search="'+esc((g.name+' '+(g.category||'')).toLocaleLowerCase('uk-UA'))+'"><button type="button" class="vatra-community-avatar" data-open-group="'+esc(g.id)+'" aria-label="Відкрити '+esc(g.name)+'">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</button><div class="vatra-community-text"><button type="button" data-open-group="'+esc(g.id)+'" class="vatra-community-name">'+esc(g.name)+'</button><small>'+esc(vatraGroupCategory(g.category))+' · '+n+' учасн.</small><p>'+esc((g.description||'').slice(0,120))+'</p></div><button type="button" class="vatra-community-open" data-open-group="'+esc(g.id)+'">Відкрити</button></article>';
+  const isMine=joined(g.id),isManaged=managed(g.id);
+  return '<article class="vatra-community-row" data-community-item data-community-managed="'+String(isManaged)+'" data-community-own="'+String(isMine)+'" data-community-search="'+esc((g.name+' '+(g.category||'')).toLocaleLowerCase('uk-UA'))+'"><button type="button" class="vatra-community-avatar" data-open-group="'+esc(g.id)+'" aria-label="Відкрити '+esc(g.name)+'">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</button><div class="vatra-community-text"><button type="button" data-open-group="'+esc(g.id)+'" class="vatra-community-name">'+esc(g.name)+'</button><small>'+esc(vatraGroupCategory(g.category))+' · '+n+' учасн.</small><p>'+esc((g.description||'').slice(0,120))+'</p></div><button type="button" class="vatra-community-open" data-open-group="'+esc(g.id)+'">Відкрити</button></article>';
  };
  const ranking=arr.slice().sort((a,b)=>Object.values(groupMembers[b.id]||{}).filter(Boolean).length-Object.values(groupMembers[a.id]||{}).filter(Boolean).length).slice(0,5);
- setFeed('<section class="vatra-communities-layout"><div class="vatra-communities-main"><label class="vatra-community-search"><span aria-hidden="true">⌕</span><input id="vatraCommunitySearch" type="search" placeholder="Пошук спільнот" aria-label="Пошук спільнот"></label><div class="vatra-community-list-card"><div class="vatra-community-section-head"><h2>Спільноти</h2><span>'+arr.length+'</span></div><div class="vatra-community-tabs" role="group" aria-label="Фільтр спільнот"><button type="button" class="active" data-community-tab="all">Усі спільноти</button><button type="button" data-community-tab="mine">Мої спільноти</button></div><div class="vatra-community-rows" id="vatraCommunityRows">'+arr.map(item).join('')+'</div><p id="vatraCommunityEmpty" class="vatra-empty-panel" '+(arr.length?'hidden':'')+'>Спільнот поки немає. Ви можете створити першу.</p></div></div><aside class="vatra-communities-rail"><div class="vatra-side-card"><button type="button" class="primary wide" id="createGroup">＋ Створити спільноту</button><p>Збирайте людей навколо спільних інтересів.</p></div><div class="vatra-side-card"><h3>Активні спільноти</h3>'+(ranking.map(g=>'<button type="button" class="vatra-popular-row" data-open-group="'+esc(g.id)+'"><span>'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</span><b>'+esc(g.name)+'</b><small>'+Object.values(groupMembers[g.id]||{}).filter(Boolean).length+'</small></button>').join('')||'<p>Тут будуть спільноти з найбільшою кількістю учасників.</p>')+'</div></aside></section>',false);
+ setFeed('<section class="vatra-communities-layout"><div class="vatra-communities-main"><label class="vatra-community-search"><span aria-hidden="true">⌕</span><input id="vatraCommunitySearch" type="search" placeholder="Пошук спільнот" aria-label="Пошук спільнот"></label>'+recentMarkup+'<div class="vatra-community-list-card"><div class="vatra-community-section-head"><h2>Спільноти</h2><span>'+arr.length+'</span></div><div class="vatra-community-tabs" role="group" aria-label="Фільтр спільнот"><button type="button" class="active" data-community-tab="all">Усі спільноти</button><button type="button" data-community-tab="mine">Мої спільноти</button><button type="button" data-community-tab="managed">Керую</button></div><div class="vatra-community-rows" id="vatraCommunityRows">'+arr.map(item).join('')+'</div><p id="vatraCommunityEmpty" class="vatra-empty-panel" '+(arr.length?'hidden':'')+'>Спільнот поки немає. Ви можете створити першу.</p></div></div><aside class="vatra-communities-rail"><div class="vatra-side-card"><button type="button" class="primary wide" id="createGroup">＋ Створити спільноту</button><p>Збирайте людей навколо спільних інтересів.</p></div><div class="vatra-side-card"><h3>Активні спільноти</h3>'+(ranking.map(g=>'<button type="button" class="vatra-popular-row" data-open-group="'+esc(g.id)+'"><span>'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</span><b>'+esc(g.name)+'</b><small>'+Object.values(groupMembers[g.id]||{}).filter(Boolean).length+'</small></button>').join('')||'<p>Тут будуть спільноти з найбільшою кількістю учасників.</p>')+'</div></aside></section>',false);
  $('#createGroup')?.addEventListener('click',createGroup);
  const search=$('#vatraCommunitySearch'),rows=$$('#vatraCommunityRows [data-community-item]');
  let tab='all';
  const apply=()=>{
   const q=String(search?.value||'').trim().toLocaleLowerCase('uk-UA');
   let visible=0;
-  rows.forEach(node=>{const ok=(tab!=='mine'||node.dataset.communityOwn==='true')&&(!q||node.dataset.communitySearch.includes(q));node.hidden=!ok;if(ok)visible++;});
+  rows.forEach(node=>{const ok=(tab!=='mine'||node.dataset.communityOwn==='true')&&(tab!=='managed'||node.dataset.communityManaged==='true')&&(!q||node.dataset.communitySearch.includes(q));node.hidden=!ok;if(ok)visible++;});
   $('#vatraCommunityEmpty').hidden=visible>0;
-  if(!visible)$('#vatraCommunityEmpty').textContent=q?'За Вашим запитом спільнот не знайдено.':tab==='mine'?'Ви ще не долучилися до спільнот.':'Спільнот поки немає.';
+  if(!visible)$('#vatraCommunityEmpty').textContent=q?'За Вашим запитом спільнот не знайдено.':tab==='mine'?'Ви ще не долучилися до спільнот.':tab==='managed'?'Ви ще не керуєте спільнотами.':'Спільнот поки немає.';
  };
  search?.addEventListener('input',apply);
  $$('.vatra-community-tabs [data-community-tab]').forEach(button=>button.onclick=()=>{
@@ -1265,6 +1273,11 @@ const vatraGroupDraftText=Object.create(null),vatraGroupDraftAs=Object.create(nu
 function renderGroupDetails(id){
  if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
  const initial=groups[id];if(!initial){goPage('groups');return;}
+ try{
+  const key='vatra-recent-communities-'+(currentUser?.uid||'guest');
+  const values=JSON.parse(localStorage.getItem(key)||'[]');
+  localStorage.setItem(key,JSON.stringify([id,...(Array.isArray(values)?values:[]).filter(item=>item!==id)].slice(0,8)));
+ }catch{}
  if(vatraGroupActiveTabId!==id){vatraGroupActiveTabId=id;vatraGroupActiveTab='posts';}
  page='groups';document.body.dataset.page=page;groupId=id;
  const groupTitle=$('#title');if(groupTitle)groupTitle.textContent=groups[id]?.name||'Спільнота';
