@@ -203,9 +203,169 @@ declare normalized text; subject uuid; explanation text; expiration timestamptz;
 begin
  if not public.vatra_moderation_is_admin() then raise exception 'Немає прав адміністратора.'; end if;
  normalized:=lower(btrim(regexp_replace(coalesce(_handle,''),'^@','')));
- select split_part(path,'/',2)::uuid into subject from public.app_data
- where path ~ '^publicProfiles/[0-9a-fA-F-]{36}$'
-   and lower(btrim(value->>'handle'))=normalized limit 1;
+ if normalized ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+ if subject=auth.uid() then raise exception 'Не можна заблокувати власний адміністраторський акаунт.'; end if;
+ if exists(select 1 from public.vatra_verification_admins where user_id=subject)
+ then raise exception 'Адміністратора не можна заблокувати через цю панель.'; end if;
+ explanation:=left(btrim(coalesce(_reason,'')),500);
+ if _ban and length(explanation)<3 then raise exception 'Укажіть причину блокування.'; end if;
+ if _hours<0 or _hours>87600 then raise exception 'Невірний строк блокування.'; end if;
+ expiration:=case when not _ban or _hours=0 then null else now()+make_interval(hours=>_hours) end;
+ insert into public.vatra_moderation_account_bans(user_id,active,reason,expires_at,updated_by)
+ values(subject,_ban,coalesce(nullif(explanation,''),'Розблоковано'),expiration,auth.uid())
+ on conflict(user_id) do update set active=excluded.active,reason=excluded.reason,
+ expires_at=excluded.expires_at,updated_by=auth.uid(),updated_at=now();
+ insert into public.vatra_moderation_audit(actor_uid,action,target,details)
+ values(auth.uid(),case when _ban then 'account_ban' else 'account_unban' end,
+ subject::text,jsonb_build_object('handle',normalized,'reason',explanation,'hours',_hours));
+ return jsonb_build_object('uid',subject,'handle',normalized,'banned',_ban,'expiresAt',expiration);
+end $act$;
+
+create or replace function public.vatra_admin_set_group_ban(
+ _group_id text,_ban boolean,_reason text,_hours integer default 0)
+returns jsonb language plpgsql security definer
+set search_path='' set row_security=off as $act$
+declare explanation text; expiration timestamptz; title text;
+begin
+ if not public.vatra_moderation_is_admin() then raise exception 'Немає прав адміністратора.'; end if;
+ if coalesce(_group_id,'') !~ '^[a-zA-Z0-9_-]{1,128}$' then raise exception 'Невірний ID спільноти.'; end if;
+ select value->>'name' into title from public.app_data where path='groups/'||_group_id;
+ if title is null then raise exception 'Спільноту не знайдено.'; end if;
+ explanation:=left(btrim(coalesce(_reason,'')),500);
+ if _ban and length(explanation)<3 then raise exception 'Укажіть причину блокування.'; end if;
+ if _hours<0 or _hours>87600 then raise exception 'Невірний строк блокування.'; end if;
+ expiration:=case when not _ban or _hours=0 then null else now()+make_interval(hours=>_hours) end;
+ insert into public.vatra_moderation_group_bans(group_id,active,reason,expires_at,updated_by)
+ values(_group_id,_ban,coalesce(nullif(explanation,''),'Розблоковано'),expiration,auth.uid())
+ on conflict(group_id) do update set active=excluded.active,reason=excluded.reason,
+ expires_at=excluded.expires_at,updated_by=auth.uid(),updated_at=now();
+ insert into public.vatra_moderation_audit(actor_uid,action,target,details)
+ values(auth.uid(),case when _ban then 'group_ban' else 'group_unban' end,
+ _group_id,jsonb_build_object('name',title,'reason',explanation,'hours',_hours));
+ return jsonb_build_object('id',_group_id,'name',title,'banned',_ban,'expiresAt',expiration);
+end $act$;
+
+create or replace function public.vatra_admin_review_report(
+ _case_id bigint,_status text,_response text)
+returns jsonb language plpgsql security definer
+set search_path='' set row_security=off as $act$
+declare found_case public.vatra_moderation_cases;
+begin
+ if not public.vatra_moderation_is_admin() then raise exception 'Немає прав адміністратора.'; end if;
+ if _status not in ('open','reviewing','resolved','dismissed') then raise exception 'Невідомий статус.'; end if;
+ if char_length(coalesce(_response,''))>1500 then raise exception 'Відповідь задовга.'; end if;
+ update public.vatra_moderation_cases set status=_status,
+   admin_response=left(btrim(coalesce(_response,'')),1500),
+   reviewed_by=auth.uid(),reviewed_at=now(),updated_at=now()
+ where id=_case_id returning * into found_case;
+ if found_case.id is null then raise exception 'Скаргу не знайдено.'; end if;
+ insert into public.vatra_moderation_audit(actor_uid,action,target,details)
+ values(auth.uid(),'report_'||_status,found_case.id::text,
+   jsonb_build_object('reportPath',found_case.report_path,'response',found_case.admin_response));
+ return jsonb_build_object('id',found_case.id,'status',found_case.status);
+end $act$;
+
+revoke all on function public.vatra_admin_set_account_ban(text,boolean,text,integer) from public,anon;
+revoke all on function public.vatra_admin_set_group_ban(text,boolean,text,integer) from public,anon;
+revoke all on function public.vatra_admin_review_report(bigint,text,text) from public,anon;
+grant execute on function public.vatra_admin_set_account_ban(text,boolean,text,integer) to authenticated;
+grant execute on function public.vatra_admin_set_group_ban(text,boolean,text,integer) to authenticated;
+grant execute on function public.vatra_admin_review_report(bigint,text,text) to authenticated;
+commit;
+
+-- Owner account: add UID ONCE, using the separate verification migration:
+-- insert into public.vatra_verification_admins(user_id) values ('YOUR-AUTH-USER-UUID');
+-- on conflict do nothing;
+--
+-- Moderation is app-level: banned accounts cannot publish/interact through app_data.
+-- Supabase Authentication sign-in itself is not disabled by this SQL.
+-- Use Supabase server/admin API if you also want to disable Auth sign-in.
+ then
+   subject:=normalized::uuid;
+   select value->>'handle' into normalized from public.app_data where path='publicProfiles/'||subject::text;
+   if normalized is null then raise exception 'Акаунт з цим UID не знайдено.'; end if;
+ else
+   select split_part(path,'/',2)::uuid into subject from public.app_data
+   where path ~ '^publicProfiles/[0-9a-fA-F-]{36}
+ if subject=auth.uid() then raise exception 'Не можна заблокувати власний адміністраторський акаунт.'; end if;
+ if exists(select 1 from public.vatra_verification_admins where user_id=subject)
+ then raise exception 'Адміністратора не можна заблокувати через цю панель.'; end if;
+ explanation:=left(btrim(coalesce(_reason,'')),500);
+ if _ban and length(explanation)<3 then raise exception 'Укажіть причину блокування.'; end if;
+ if _hours<0 or _hours>87600 then raise exception 'Невірний строк блокування.'; end if;
+ expiration:=case when not _ban or _hours=0 then null else now()+make_interval(hours=>_hours) end;
+ insert into public.vatra_moderation_account_bans(user_id,active,reason,expires_at,updated_by)
+ values(subject,_ban,coalesce(nullif(explanation,''),'Розблоковано'),expiration,auth.uid())
+ on conflict(user_id) do update set active=excluded.active,reason=excluded.reason,
+ expires_at=excluded.expires_at,updated_by=auth.uid(),updated_at=now();
+ insert into public.vatra_moderation_audit(actor_uid,action,target,details)
+ values(auth.uid(),case when _ban then 'account_ban' else 'account_unban' end,
+ subject::text,jsonb_build_object('handle',normalized,'reason',explanation,'hours',_hours));
+ return jsonb_build_object('uid',subject,'handle',normalized,'banned',_ban,'expiresAt',expiration);
+end $act$;
+
+create or replace function public.vatra_admin_set_group_ban(
+ _group_id text,_ban boolean,_reason text,_hours integer default 0)
+returns jsonb language plpgsql security definer
+set search_path='' set row_security=off as $act$
+declare explanation text; expiration timestamptz; title text;
+begin
+ if not public.vatra_moderation_is_admin() then raise exception 'Немає прав адміністратора.'; end if;
+ if coalesce(_group_id,'') !~ '^[a-zA-Z0-9_-]{1,128}$' then raise exception 'Невірний ID спільноти.'; end if;
+ select value->>'name' into title from public.app_data where path='groups/'||_group_id;
+ if title is null then raise exception 'Спільноту не знайдено.'; end if;
+ explanation:=left(btrim(coalesce(_reason,'')),500);
+ if _ban and length(explanation)<3 then raise exception 'Укажіть причину блокування.'; end if;
+ if _hours<0 or _hours>87600 then raise exception 'Невірний строк блокування.'; end if;
+ expiration:=case when not _ban or _hours=0 then null else now()+make_interval(hours=>_hours) end;
+ insert into public.vatra_moderation_group_bans(group_id,active,reason,expires_at,updated_by)
+ values(_group_id,_ban,coalesce(nullif(explanation,''),'Розблоковано'),expiration,auth.uid())
+ on conflict(group_id) do update set active=excluded.active,reason=excluded.reason,
+ expires_at=excluded.expires_at,updated_by=auth.uid(),updated_at=now();
+ insert into public.vatra_moderation_audit(actor_uid,action,target,details)
+ values(auth.uid(),case when _ban then 'group_ban' else 'group_unban' end,
+ _group_id,jsonb_build_object('name',title,'reason',explanation,'hours',_hours));
+ return jsonb_build_object('id',_group_id,'name',title,'banned',_ban,'expiresAt',expiration);
+end $act$;
+
+create or replace function public.vatra_admin_review_report(
+ _case_id bigint,_status text,_response text)
+returns jsonb language plpgsql security definer
+set search_path='' set row_security=off as $act$
+declare found_case public.vatra_moderation_cases;
+begin
+ if not public.vatra_moderation_is_admin() then raise exception 'Немає прав адміністратора.'; end if;
+ if _status not in ('open','reviewing','resolved','dismissed') then raise exception 'Невідомий статус.'; end if;
+ if char_length(coalesce(_response,''))>1500 then raise exception 'Відповідь задовга.'; end if;
+ update public.vatra_moderation_cases set status=_status,
+   admin_response=left(btrim(coalesce(_response,'')),1500),
+   reviewed_by=auth.uid(),reviewed_at=now(),updated_at=now()
+ where id=_case_id returning * into found_case;
+ if found_case.id is null then raise exception 'Скаргу не знайдено.'; end if;
+ insert into public.vatra_moderation_audit(actor_uid,action,target,details)
+ values(auth.uid(),'report_'||_status,found_case.id::text,
+   jsonb_build_object('reportPath',found_case.report_path,'response',found_case.admin_response));
+ return jsonb_build_object('id',found_case.id,'status',found_case.status);
+end $act$;
+
+revoke all on function public.vatra_admin_set_account_ban(text,boolean,text,integer) from public,anon;
+revoke all on function public.vatra_admin_set_group_ban(text,boolean,text,integer) from public,anon;
+revoke all on function public.vatra_admin_review_report(bigint,text,text) from public,anon;
+grant execute on function public.vatra_admin_set_account_ban(text,boolean,text,integer) to authenticated;
+grant execute on function public.vatra_admin_set_group_ban(text,boolean,text,integer) to authenticated;
+grant execute on function public.vatra_admin_review_report(bigint,text,text) to authenticated;
+commit;
+
+-- Owner account: add UID ONCE, using the separate verification migration:
+-- insert into public.vatra_verification_admins(user_id) values ('YOUR-AUTH-USER-UUID');
+-- on conflict do nothing;
+--
+-- Moderation is app-level: banned accounts cannot publish/interact through app_data.
+-- Supabase Authentication sign-in itself is not disabled by this SQL.
+-- Use Supabase server/admin API if you also want to disable Auth sign-in.
+
+     and lower(btrim(value->>'handle'))=normalized limit 1;
+ end if;
  if subject is null then raise exception 'Акаунт @% не знайдено.',normalized; end if;
  if subject=auth.uid() then raise exception 'Не можна заблокувати власний адміністраторський акаунт.'; end if;
  if exists(select 1 from public.vatra_verification_admins where user_id=subject)
