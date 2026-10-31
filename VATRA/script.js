@@ -3,7 +3,7 @@ import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-2';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost } from './vatra-backend.js?v=20261031-3';
+import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia } from './vatra-backend.js?v=20261031-4';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
@@ -1424,8 +1424,7 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
      if(photo&&!file.type.startsWith('image/'))throw Error('Виберіть зображення.');
      if(!photo&&(!file.type.startsWith('video/')||file.size>50*1024*1024))throw Error('Оберіть відео до 50 МБ.');
      const url=photo?await uploadImage(file,1600,.85,'community-photos'):await uploadMedia(file,'community-videos');
-     await set(push(ref(db,'groupMedia/'+id)),{kind:photo?'photo':'video',url,albumId,
-       authorUid:currentUser.uid,createdAt:Date.now()});
+     await vatraCreateGroupMedia(id,{kind:photo?'photo':'video',url,albumId});
     }
     toastMsg('Медіа додано до спільноти.');
     await vatraRenderCommunityGallery(id,kind,postRecords);
