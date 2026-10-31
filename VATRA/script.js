@@ -497,8 +497,9 @@ function postCard(p){
  const liked=!!likes[p.id]?.[currentUser?.uid],isSaved=!!saved[p.id],cs=Object.entries(comments[p.id]||{}).map(([id,c])=>({...c,id})).filter(c=>c.uid===currentUser?.uid||!blockedUsers[c.uid]).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
  const likeMap=likes[p.id]||{},saveMap=postSaves[p.id]||{},shareMap=postShares[p.id]||{},canEdit=p.authorUid===currentUser?.uid&&p.source!=='group',editing=canEdit&&editingPostId===p.id;
  const likeIcon='<path d="M20.8 8.7c0 5.2-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z"/>',commentIcon='<path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/>',shareIcon='<path d="M12 16V3m-5 5 5-5 5 5"/><path d="M5 13v7h14v-7"/>',saveIcon='<path d="M6 4.5h12v16l-6-4-6 4v-16Z"/>';
- const actions=postActionItem('like',p.id,liked?'Вподобано':'Вподобати',Object.keys(likeMap).length,likeIcon,liked,postActorStack(likeMap,'Хто вподобав допис'))+postActionItem('comment',p.id,'Коментувати',cs.length,commentIcon,false)+postActionItem('share',p.id,'Поділитися',Object.keys(shareMap).length,shareIcon,false)+postActionItem('save',p.id,isSaved?'Збережено':'Зберегти',Object.keys(saveMap).length,saveIcon,isSaved);
- return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+(p.authorUid?'<button type="button" class="vatra-post-avatar-link" '+actorNavigation+' aria-label="'+(groupActor?'Відкрити спільноту':'Відкрити профіль автора')+'">'+avatar(postAuthorName,postAuthorAvatar)+'</button>':avatar(postAuthorName,postAuthorAvatar))+'<div class="author"><b>'+(p.authorUid?'<button type="button" class="author-link" '+actorNavigation+'>'+esc(postAuthorName)+'</button>'+(groupActor?'':verifiedBadge(p.authorUid)):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>'+(groupActor?'Спільнота':'@'+esc(p.authorHandle||'user'))+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.visibility==='private'?' · Лише для себе':p.visibility==='friends'?' · Для друзів':'')+(p.groupName?' · '+esc(p.groupName):'')+'</small></div>'+(canEdit||(currentUser&&p.authorUid!==currentUser.uid)?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом" title="Дії з дописом"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="19" cy="12" r="1.75"/></svg></summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser&&p.authorUid!==currentUser.uid?(p.source==='group'?'<button type="button" data-report-group-post="'+esc(p.groupId)+'" data-post-id="'+esc(p.id.slice(('g_'+p.groupId+'_').length))+'">Поскаржитися</button>':'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button><button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>'):'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div>'+(cs.length?'<div class="comments vatra-post-comments"><div class="vatra-comments-heading">Коментарі <span>'+cs.length+'</span></div>'+renderComments(p,cs)+'</div>':'')+(p.commentOpen?'<form class="comment-form" data-form="'+esc(p.id)+'">'+emojiControl()+'<input name="comment" data-emoji-input maxlength="300" placeholder="Написати коментар…" required><button type="submit">Надіслати</button></form>':'')+'</article>';
+ const allowComments=p.source!=='group'||groups[p.groupId]?.commentsEnabled!==false;
+ const actions=postActionItem('like',p.id,liked?'Вподобано':'Вподобати',Object.keys(likeMap).length,likeIcon,liked,postActorStack(likeMap,'Хто вподобав допис'))+(allowComments?postActionItem('comment',p.id,'Коментувати',cs.length,commentIcon,false):'')+postActionItem('share',p.id,'Поділитися',Object.keys(shareMap).length,shareIcon,false)+postActionItem('save',p.id,isSaved?'Збережено':'Зберегти',Object.keys(saveMap).length,saveIcon,isSaved);
+ return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+(p.authorUid?'<button type="button" class="vatra-post-avatar-link" '+actorNavigation+' aria-label="'+(groupActor?'Відкрити спільноту':'Відкрити профіль автора')+'">'+avatar(postAuthorName,postAuthorAvatar)+'</button>':avatar(postAuthorName,postAuthorAvatar))+'<div class="author"><b>'+(p.authorUid?'<button type="button" class="author-link" '+actorNavigation+'>'+esc(postAuthorName)+'</button>'+(groupActor?'':verifiedBadge(p.authorUid)):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>'+(groupActor?'Спільнота':'@'+esc(p.authorHandle||'user'))+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.visibility==='private'?' · Лише для себе':p.visibility==='friends'?' · Для друзів':'')+(p.groupName?' · '+esc(p.groupName):'')+'</small></div>'+(canEdit||(currentUser&&p.authorUid!==currentUser.uid)?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом" title="Дії з дописом"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="19" cy="12" r="1.75"/></svg></summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser&&p.authorUid!==currentUser.uid?(p.source==='group'?'<button type="button" data-report-group-post="'+esc(p.groupId)+'" data-post-id="'+esc(p.id.slice(('g_'+p.groupId+'_').length))+'">Поскаржитися</button>':'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button><button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>'):'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div>'+(cs.length?'<div class="comments vatra-post-comments"><div class="vatra-comments-heading">Коментарі <span>'+cs.length+'</span></div>'+renderComments(p,cs)+'</div>':'')+(p.commentOpen&&allowComments?'<form class="comment-form" data-form="'+esc(p.id)+'">'+emojiControl()+'<input name="comment" data-emoji-input maxlength="300" placeholder="Написати коментар…" required><button type="submit">Надіслати</button></form>':'')+'</article>';
 }
 function allPosts(){
  const uid=currentUser?.uid;
@@ -1339,6 +1340,9 @@ function renderGroupDetails(id){
   const canManage=isOwner||isAdmin||isMod;
   const canEditVisuals=isOwner||isAdmin;
   const member=isOwner||!!groupMembers[id]?.[currentUser?.uid];
+  const canPost=member&&(g.membersCanPost!==false||isOwner||isAdmin);
+  const canSeeMembers=g.showMembers!==false||canManage;
+  if(!canSeeMembers&&vatraGroupActiveTab==='members')vatraGroupActiveTab='posts';
   if(g.visibility==='private'&&!member&&!canManage){goPage('groups');toastMsg('Ця спільнота закрита.');return;}
   const arr=Object.entries(v||{}).map(([pid,p])=>({...p,id:pid})).filter(p=>p&&(!p.authorUid||!blockedUsers[p.authorUid])).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
   const ids=[...new Set([g.ownerUid,...Object.keys(groupMembers[id]||{}).filter(uid=>groupMembers[id][uid])])].filter(uid=>uid&&!blockedUsers[uid]);
@@ -1374,7 +1378,7 @@ function renderGroupDetails(id){
   const selectedGroupAuthor=canPostAsGroup?'group':'user';
   const groupComposeAvatar=()=>'<span class="vatra-group-compose-photo">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="">':esc((g.name||'В').trim().slice(0,1).toUpperCase()))+'</span>';
   const composeIdentity=(type)=>type==='group'?groupComposeAvatar():avatar(currentProfile.name||currentUser?.displayName||'ВАТРА',currentProfile.avatarUrl);
-  const composer=member?'<section class="vatra-group-card vatra-group-create-entry"><div class="vatra-group-create-identity">'+composeIdentity(selectedGroupAuthor)+'<div><b>Дописи спільноти</b><small>Фото, відео, опитування та текст</small></div></div><button type="button" class="vatra-group-primary" id="vatraOpenGroupComposer">＋ Створити допис</button></section>':'<section class="vatra-group-card vatra-group-join-hint"><span aria-hidden="true">✦</span><div><b>Долучайтеся до спільноти</b><p>Приєднайтеся, щоб публікувати дописи.</p></div></section>';
+  const composer=canPost?'<section class="vatra-group-card vatra-group-create-entry"><div class="vatra-group-create-identity">'+composeIdentity(selectedGroupAuthor)+'<div><b>Дописи спільноти</b><small>Фото, відео, опитування та текст</small></div></div><button type="button" class="vatra-group-primary" id="vatraOpenGroupComposer">＋ Створити допис</button></section>':'<section class="vatra-group-card vatra-group-join-hint"><span aria-hidden="true">✦</span><div><b>Долучайтеся до спільноти</b><p>Приєднайтеся, щоб публікувати дописи.</p></div></section>';
   const postsMarkup=arr.length?arr.map(p=>{
    const post={...p,id:'g_'+id+'_'+p.id,source:'group',groupId:id,groupName:g.name||'Спільнота',commentOpen:!!vatraGroupCommentOpen['g_'+id+'_'+p.id]};
    return '<div class="vatra-group-post-record">'+postCard(post)+
@@ -1388,20 +1392,25 @@ function renderGroupDetails(id){
    '<div><dt>Створено</dt><dd>'+timeAgo(g.createdAt)+'</dd></div></dl></section>';
   const memberTab='<section class="vatra-group-card vatra-group-members-card"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
    '<div class="vatra-group-members-all">'+people.join('')+'</div></section>';
-  const sidebar='<aside class="vatra-group-rail">'+
+  const communityLinks=(Array.isArray(g.links)?g.links:[]).filter(u=>typeof u==='string'&&/^https:\/\//i.test(u)).slice(0,6);
+  const linksCard=g.showLinks!==false&&communityLinks.length?'<section class="vatra-group-card vatra-group-rail-links"><h3>Посилання</h3>'+
+    communityLinks.map(url=>'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(new URL(url).hostname)+'</a>').join('')+'</section>':'';
+  const communityNotice=String(g.pinnedNotice||'').trim().slice(0,500);
+  const noticeCard=communityNotice?'<section class="vatra-group-card vatra-group-rail-notice"><h3>Оголошення</h3><p>'+esc(communityNotice)+'</p></section>':'';
+  const sidebar='<aside class="vatra-group-rail">'+noticeCard+
    '<section class="vatra-group-card vatra-group-rail-about"><h3>Про нас</h3><p>'+esc(g.description||'Спільнота ВАТРИ для тих, хто має спільні інтереси.')+'</p>'+
     '<div class="vatra-group-rail-facts"><span>Напрям <b>'+esc(g.category||'Спільнота')+'</b></span><span>Тип <b>'+(isPrivate?'Закрита':'Відкрита')+'</b></span></div></section>'+
-   '<section class="vatra-group-card vatra-group-rail-people"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
+   (canSeeMembers?'<section class="vatra-group-card vatra-group-rail-people"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
     '<div class="vatra-group-members-preview">'+people.slice(0,6).join('')+'</div>'+
-    (people.length>6?'<button type="button" class="vatra-group-more-members" data-vatra-group-jump-members>Переглянути всіх</button>':'')+'</section>'+
-   '<section class="vatra-group-card vatra-group-rail-contacts"><div class="vatra-group-section-header"><h3>Контакти</h3>'+(canEditVisuals?'<button type="button" data-manage-group="'+esc(id)+'">Керувати</button>':'')+'</div>'+
+    (people.length>6?'<button type="button" class="vatra-group-more-members" data-vatra-group-jump-members>Переглянути всіх</button>':'')+'</section>':'')+
+   (g.showContacts!==false?'<section class="vatra-group-card vatra-group-rail-contacts"><div class="vatra-group-section-header"><h3>Контакти</h3>'+(canEditVisuals?'<button type="button" data-manage-group="'+esc(id)+'">Керувати</button>':'')+'</div>'+
    (Array.isArray(g.contacts)&&g.contacts.length?g.contacts.filter(c=>c&&c.uid&&users[c.uid]).slice(0,12).map(c=>{
      const person=users[c.uid];return '<button type="button" class="vatra-group-contact" data-view-profile="'+esc(c.uid)+'">'+avatar(person.name||'Контакт',person.avatarUrl)+'<span><b>'+esc(person.name||'Користувач ВАТРИ')+'</b><small>'+esc(String(c.title||'Контакт').slice(0,70))+'</small></span></button>';
-    }).join(''):'<p class="vatra-group-contacts-empty">Контакти поки не додані.</p>')+'</section>'+
-   '</aside>';
+    }).join(''):'<p class="vatra-group-contacts-empty">Контакти поки не додані.</p>')+'</section>':'')+
+   linksCard+'</aside>';
   setFeed('<section class="vatra-group-view'+(canManage?' is-manager':' is-visitor')+'">'+intro+
    '<div class="vatra-group-content-grid"><div class="vatra-group-main">'+
-   '<nav class="vatra-group-tabs" role="tablist" aria-label="Розділи спільноти">'+tab('posts','Дописи')+tab('members','Учасники')+tab('about','Інформація')+'</nav>'+
+   '<nav class="vatra-group-tabs" role="tablist" aria-label="Розділи спільноти">'+tab('posts','Дописи')+(canSeeMembers?tab('members','Учасники'):'')+tab('about','Інформація')+'</nav>'+
    '<div class="vatra-group-tab-panel" data-vatra-group-panel="posts"'+(vatraGroupActiveTab==='posts'?'':' hidden')+'>'+composer+postsMarkup+'</div>'+
    '<div class="vatra-group-tab-panel" data-vatra-group-panel="members"'+(vatraGroupActiveTab==='members'?'':' hidden')+'>'+memberTab+'</div>'+
    '<div class="vatra-group-tab-panel" data-vatra-group-panel="about"'+(vatraGroupActiveTab==='about'?'':' hidden')+'>'+about+'</div>'+
@@ -1914,7 +1923,7 @@ function openComposer(context=null){
  if(!authRequired())return;
  const requested=typeof context?.groupId==='string'?context.groupId:null;
  const g=requested?groups[requested]:null;
- const allowed=g&&(g.ownerUid===currentUser.uid||!!groupMembers[requested]?.[currentUser.uid]);
+ const allowed=g&&(g.ownerUid===currentUser.uid||!!groupMembers[requested]?.[currentUser.uid])&&(g.membersCanPost!==false||g.ownerUid===currentUser.uid||!!groupAdmins[requested]?.[currentUser.uid]);
  vatraComposerGroupId=allowed?requested:null;
  imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;
  $('#postText').value=vatraComposerGroupId?(vatraGroupDraftText[vatraComposerGroupId]||''):'';
@@ -2354,6 +2363,7 @@ $('#postForm').addEventListener('submit',async e=>{
   const gid=vatraComposerGroupId,g=gid?groups[gid]:null;
   if(gid&&!g)throw new Error('Спільноту не знайдено.');
   if(gid&&g.ownerUid!==currentUser.uid&&!groupMembers[gid]?.[currentUser.uid])throw new Error('Ви більше не учасник цієї спільноти.');
+  if(gid&&g.membersCanPost===false&&g.ownerUid!==currentUser.uid&&!groupAdmins[gid]?.[currentUser.uid])throw new Error('Публікації учасників вимкнено.');
   const asGroup=!!gid&&$('#vatraComposerGroupAuthor')?.value==='group';
   const allowedGroup=!!g&&(g.ownerUid===currentUser.uid||!!groupAdmins[gid]?.[currentUser.uid]);
   if(asGroup&&!allowedGroup)throw new Error('Публікація від спільноти доступна лише керівникам.');
