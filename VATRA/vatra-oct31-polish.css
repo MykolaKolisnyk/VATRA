@@ -1,0 +1,352 @@
+/* VATRA · viewing, notifications, profiles, comments and editor polish · 31.10.2026 */
+/* The exit action stays in the picture area even when browser fullscreen hides surrounding chrome. */
+body .vatra-post-photo-viewer .vatra-media-viewer-stage,
+body .vatra-avatar-viewer .vatra-avatar-viewer-stage{position:relative!important;}
+body .vatra-viewer-exit{
+ position:absolute!important;top:68px!important;right:17px!important;z-index:80!important;
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;min-height:39px!important;padding:8px 14px!important;
+ border:1px solid #ffffff20!important;border-radius:10px!important;
+ background:#1c2937e6!important;color:#f9fbff!important;font:600 12px/1.2 Inter,system-ui,sans-serif!important;
+ cursor:pointer!important;box-shadow:0 4px 18px #07121e6b!important;
+ opacity:.96!important;transition:background-color .16s ease,opacity .16s ease!important;
+}
+body .vatra-viewer-exit:hover{background:#375477!important;opacity:1!important;}
+body .vatra-post-photo-viewer:fullscreen,
+body .vatra-avatar-viewer:fullscreen{
+ position:fixed!important;inset:0!important;max-width:none!important;max-height:none!important;
+ width:100vw!important;height:100dvh!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:#171b21!important;
+}
+body .vatra-post-photo-viewer:fullscreen .vatra-media-viewer-shell,
+body .vatra-avatar-viewer:fullscreen .vatra-media-viewer-shell{height:100%!important;}
+body .vatra-post-photo-viewer:fullscreen .vatra-viewer-exit,
+body .vatra-avatar-viewer:fullscreen .vatra-viewer-exit{top:66px!important;}
+@media(max-width:760px){
+ body .vatra-post-photo-viewer .vatra-viewer-exit,
+ body .vatra-avatar-viewer .vatra-viewer-exit{top:52px!important;right:8px!important;min-height:34px!important;padding:7px 10px!important;}
+}
+
+/* Vertical scroll-up rail: arrow and word stay together at its lower edge. */
+@media(min-width:900px){
+ body .vatra-scroll-to-top:not([hidden]){
+  position:fixed!important;justify-content:flex-end!important;align-items:center!important;
+  flex-direction:column!important;gap:8px!important;padding-bottom:29px!important;
+ }
+ body .vatra-scroll-to-top:not([hidden]) svg{
+  position:static!important;display:block!important;order:0!important;
+  margin:0!important;transform:none!important;flex:none!important;
+ }
+ body .vatra-scroll-to-top:not([hidden]) span{
+  position:static!important;display:block!important;order:1!important;
+  margin:0!important;transform:none!important;white-space:nowrap!important;
+ }
+}
+
+/* Compact photo-aware profile timeline: consistent surface and controlled spacing. */
+body[data-page="profile"] .vatra-profile-main{gap:10px!important;}
+body[data-page="profile"] .vatra-profile-compose{
+ margin:0!important;border:1px solid #dde6ef!important;border-radius:13px!important;background:#fff!important;
+}
+body[data-page="profile"] .vatra-profile-posts-clean{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:9px!important;margin:0!important;padding:0!important;align-content:start!important;
+}
+body[data-page="profile"] .vatra-profile-posts-clean .vatra-profile-post-tabs{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ flex-wrap:wrap!important;gap:12px!important;
+ padding:13px 16px!important;margin:0!important;
+ border:1px solid #e1e8f1!important;border-radius:12px!important;background:#fff!important;
+ min-height:62px!important;
+}
+body[data-page="profile"] .vatra-profile-posts-title{display:flex!important;align-items:center!important;gap:9px!important;}
+body[data-page="profile"] .vatra-profile-posts-title h3{font-size:17px!important;letter-spacing:-.35px!important;margin:0!important;}
+body[data-page="profile"] .vatra-profile-posts-title span{border-radius:7px!important;padding:3px 7px!important;background:#edf4fd!important;font-size:11px!important;}
+body[data-page="profile"] .vatra-profile-new-post{
+ border-radius:9px!important;min-height:36px!important;background:#edf4ff!important;
+ border:1px solid #d6e6fb!important;color:#0757e1!important;
+ font-size:11.5px!important;font-weight:650!important;padding:8px 12px!important;cursor:pointer!important;
+ transition:background-color .17s ease,border-color .17s ease!important;
+}
+body[data-page="profile"] .vatra-profile-new-post:hover{
+ background:#dfeeff!important;border-color:#c4dbfa!important;color:#0649bd!important;
+}
+body[data-page="profile"] .vatra-profile-posts-clean>.post{
+ border:1px solid #e0e7f0!important;border-radius:13px!important;margin:0!important;
+ padding:16px!important;min-width:0!important;background:#fff!important;
+}
+body[data-page="profile"] .vatra-profile-posts-clean .post-text{margin:12px 0!important;}
+body[data-vatra-theme-effective="dark"][data-page="profile"] :is(.vatra-profile-compose,.vatra-profile-posts-clean .vatra-profile-post-tabs,.vatra-profile-posts-clean>.post){
+ background:#253346!important;border-color:#425773!important;
+}
+
+/* Other people's profile photos and all photo buttons are visibly clickable, without an actions overlay. */
+body[data-page="publicProfile"] .vatra-profile-avatar-open,
+body[data-page="publicProfile"] .vatra-profile-avatar-open .vatra-profile-photo,
+body[data-page="publicProfile"] .vatra-profile-avatar-open .avatar,
+body[data-page="publicProfile"] .profile-gallery-open,
+body[data-page="publicProfile"] .profile-gallery-open img,
+body .vatra-profile-friend,
+body .vatra-profile-friend span,
+body .vatra-profile-friend .avatar,
+body .vatra-group-member,
+body .vatra-post-avatar-link,
+body .post-photo-item,
+body .post-photo-item img{cursor:pointer!important;}
+body[data-page="publicProfile"] .vatra-profile-avatar-open{
+ position:relative!important;overflow:hidden!important;border-radius:12px!important;
+ transition:filter .2s ease,box-shadow .2s ease!important;
+}
+body[data-page="publicProfile"] .vatra-profile-avatar-open img,
+body[data-page="publicProfile"] .vatra-profile-avatar-open .avatar{
+ transition:filter .22s ease,transform .3s ease!important;pointer-events:none!important;
+}
+body[data-page="publicProfile"] .vatra-profile-avatar-open:hover img,
+body[data-page="publicProfile"] .vatra-profile-avatar-open:hover .avatar{
+ filter:brightness(.82)!important;transform:scale(1.015)!important;
+}
+body[data-page="publicProfile"] .vatra-profile-avatar-open:hover{
+ box-shadow:0 6px 18px #1d2b392a!important;
+}
+body[data-page="publicProfile"] .profile-gallery-open img{
+ transition:filter .18s ease,transform .22s ease!important;pointer-events:none!important;
+}
+body[data-page="publicProfile"] .profile-gallery-open:hover img{
+ filter:brightness(.88)!important;transform:scale(1.018)!important;
+}
+/* No "Edit / Delete" hover menu belongs to another member's avatar. */
+body[data-page="publicProfile"] .vatra-avatar-hover-menu{display:none!important;}
+
+/* Account dropdown is anchored at the center of the page's header content, not at the avatar icon. */
+body .vatra-global-header #accountDropdown:not([hidden]){
+ position:fixed!important;top:68px!important;
+ left:var(--vatra-header-center,50%)!important;right:auto!important;
+ transform:translateX(-50%)!important;transform-origin:top center!important;
+ width:min(355px,calc(100vw - 24px))!important;
+ z-index:3000!important;
+ animation:vatra-account-center-in .18s ease-out both!important;
+}
+
+/* Bell dropdown: real activity only. Messages remain in the messenger. */
+body .vatra-global-header #notificationDropdown:not([hidden]){
+ position:fixed!important;top:66px!important;
+ right:var(--vatra-notification-right,7vw)!important;left:auto!important;
+ transform:none!important;width:min(440px,calc(100vw - 24px))!important;
+ max-width:calc(100vw - 24px)!important;max-height:min(560px,calc(100dvh - 84px))!important;
+ display:flex!important;flex-direction:column!important;overflow:hidden!important;
+ background:#fff!important;border:1px solid #dce5ef!important;
+ border-radius:13px!important;box-shadow:0 16px 50px #14284029!important;
+ z-index:3000!important;
+ animation:vatra-popup-drop .17s ease-out both!important;
+}
+@keyframes vatra-popup-drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+body .vatra-global-header #notificationDropdown .topbar-popover-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+ flex:none!important;padding:15px 17px!important;border-bottom:1px solid #e7ecf2!important;
+}
+body #notificationDropdown .topbar-popover-head b{font-size:14px!important;}
+body #notificationDropdown .vatra-notification-popup-mark{
+ display:inline-flex!important;align-items:center!important;border:0!important;border-radius:7px!important;
+ background:#f0f5fb!important;color:#4d7097!important;padding:7px 9px!important;font-size:11px!important;
+ cursor:pointer!important;transition:background-color .17s ease!important;
+}
+body #notificationDropdown .vatra-notification-popup-mark:hover{background:#e1ecfa!important;}
+body #notificationDropdown .vatra-notification-popup-scroll{
+ min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+ padding:4px 6px!important;scrollbar-color:#c5d2df transparent;
+}
+body #notificationDropdown .topbar-notification-row{
+ display:flex!important;align-items:flex-start!important;gap:12px!important;width:100%!important;
+ min-height:64px!important;padding:11px 9px!important;border:0!important;border-radius:9px!important;
+ background:transparent!important;text-align:left!important;cursor:pointer!important;
+ transition:background-color .18s ease!important;
+}
+body #notificationDropdown .topbar-notification-row:hover{background:#f0f5fb!important;}
+body #notificationDropdown .topbar-notification-row.is-unread{background:#f3f7ff!important;}
+body #notificationDropdown .topbar-notification-row .avatar{width:37px!important;height:37px!important;flex:0 0 37px!important;}
+body #notificationDropdown .topbar-notification-row>span{min-width:0!important;flex:1!important;}
+body #notificationDropdown .topbar-notification-row b{display:block!important;font-size:12px!important;line-height:1.5!important;color:#30445f!important;font-weight:610!important;}
+body #notificationDropdown .topbar-notification-row small{display:block!important;margin-top:5px!important;color:#8b9db1!important;font-size:10px!important;}
+body #notificationDropdown .vatra-notification-popup-footer{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:none!important;border-top:1px solid #e8eef5!important;padding:9px!important;background:#fbfdff!important;
+}
+body #notificationDropdown .vatra-notification-popup-footer>button{
+ display:block!important;width:100%!important;min-height:38px!important;
+ border:0!important;border-radius:8px!important;background:#eef5ff!important;
+ color:#075de3!important;font-size:12px!important;font-weight:660!important;cursor:pointer!important;
+ transition:background-color .18s ease!important;
+}
+body #notificationDropdown .vatra-notification-popup-footer>button:hover{background:#deecff!important;}
+body .vatra-notification-excerpt{
+ display:block!important;margin:5px 0 0!important;overflow:hidden!important;text-overflow:ellipsis!important;
+ white-space:nowrap!important;max-width:100%!important;color:#758da7!important;font-size:11px!important;font-weight:400!important;
+}
+/* Full list plus practical category rail and mobile filter chips. */
+body[data-page="notifications"] #feed:has(.vatra-notifications-layout){
+ display:block!important;min-width:0!important;
+}
+body .vatra-notifications-layout{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:16px;align-items:start;min-width:0;}
+body .vatra-notifications-layout .notifications-page{
+ padding:18px!important;border:1px solid #e1e8f1!important;border-radius:12px!important;min-width:0!important;background:#fff!important;
+}
+body .vatra-notifications-layout .notifications-heading{
+ display:flex!important;align-items:start!important;justify-content:space-between!important;
+ gap:12px!important;padding-bottom:14px!important;border-bottom:1px solid #ebeff5!important;margin-bottom:4px!important;
+}
+body .vatra-notifications-layout .notifications-heading h2{font-size:20px!important;margin:3px 0!important;}
+body .vatra-mark-all-read{
+ min-height:34px!important;padding:7px 10px!important;border:0!important;border-radius:8px!important;
+ background:#eef5fc!important;color:#47739b!important;font-size:11px!important;cursor:pointer!important;
+ transition:background-color .18s ease!important;
+}
+body .vatra-mark-all-read:hover{background:#e0efff!important;}
+body .vatra-notifications-layout .notification-item{
+ width:100%!important;padding:12px 8px!important;border-radius:9px!important;
+ display:flex!important;align-items:flex-start!important;gap:12px!important;text-align:left!important;
+ transition:background .17s ease!important;
+}
+body .vatra-notifications-layout .notification-item:hover{background:#f2f6fb!important;}
+body .vatra-notifications-layout .notification-copy{min-width:0!important;flex:1!important;}
+body .vatra-notification-rail{
+ display:grid;gap:10px;padding:16px 12px;background:#fff;border:1px solid #e1e8f1;border-radius:12px;
+}
+body .vatra-notification-rail h3{margin:0 0 4px;padding:0 8px;font-size:13px;color:#354b65;}
+body .vatra-notification-rail nav{display:grid;gap:3px;}
+body .vatra-notification-rail button,
+body .vatra-notification-mobile-filters button{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ border:0;border-radius:8px;min-height:38px;padding:8px 11px;
+ color:#667d98;background:transparent;font-size:12px;cursor:pointer;
+ transition:background .17s ease,color .17s ease!important;
+}
+body .vatra-notification-rail button:hover,
+body .vatra-notification-mobile-filters button:hover{background:#f2f6fc;color:#3d678e;}
+body .vatra-notification-rail button.is-active,
+body .vatra-notification-mobile-filters button.is-active{background:#eaf2ff;color:#0860df;font-weight:650;}
+body .vatra-notification-rail button small,
+body .vatra-notification-mobile-filters button small{font-size:10px;color:#9badbe;}
+body .vatra-notification-rail-separator{border-top:1px solid #ecf0f5;margin-top:4px;}
+body .vatra-notification-mobile-filters{display:none;}
+/* Comments: clear hierarchy, unobtrusive secondary menu, functional reply folds. */
+body .vatra-post-comments{display:grid!important;gap:13px!important;margin-top:10px!important;}
+body .vatra-comment-item{
+ position:relative!important;margin:0!important;border:0!important;padding:8px 0!important;
+ border-radius:0!important;background:transparent!important;
+}
+body .vatra-comment-item .comment-main{display:flex!important;align-items:flex-start!important;gap:10px!important;}
+body .vatra-comment-item .comment-body{flex:1!important;min-width:0!important;}
+body .vatra-comment-item .vatra-comment-head{display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;gap:9px!important;}
+body .vatra-comment-head .comment-author-name{
+ background:transparent!important;color:#334962!important;border:0!important;cursor:pointer!important;
+ font-size:12.5px!important;font-weight:700!important;
+}
+body .vatra-comment-head .comment-author-name:hover{color:#075de0!important;}
+body .vatra-comment-item .comment-copy{
+ margin-top:4px!important;color:#3f536b!important;
+ font-size:12.5px!important;line-height:1.68!important;overflow-wrap:anywhere!important;
+}
+body .vatra-comment-item .comment-actions{
+ display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:9px!important;
+ margin:6px 0 0!important;padding:0!important;position:relative!important;
+}
+body .vatra-comment-item .comment-actions>button{
+ padding:3px 0!important;margin:0!important;color:#8295a9!important;
+ background:transparent!important;border:0!important;font-size:11px!important;
+ font-weight:550!important;cursor:pointer!important;
+}
+body .vatra-comment-item .comment-actions>button:hover{color:#0757f5!important;}
+body .vatra-comment-item .comment-actions .vatra-comment-like{
+ margin-left:auto!important;color:#8295aa!important;font-size:15px!important;letter-spacing:.2px!important;
+}
+body .vatra-comment-item .comment-actions .vatra-comment-like.is-liked{color:#e05270!important;}
+body .vatra-comment-more{position:relative;display:inline-block;flex:none;}
+body .vatra-comment-more summary{
+ display:grid;place-items:center;width:28px;height:26px;list-style:none;cursor:pointer;
+ border:0!important;border-radius:7px!important;color:#92a1b2!important;
+ font-size:16px!important;letter-spacing:1px!important;
+}
+body .vatra-comment-more summary::-webkit-details-marker{display:none;}
+body .vatra-comment-more summary:hover{background:#eff4fa!important;color:#53769b!important;}
+body .vatra-comment-more>div{
+ position:absolute;z-index:90;right:0;top:100%;min-width:164px;
+ display:grid;gap:2px;padding:6px;border:1px solid #e1e7ef;border-radius:10px;
+ background:#fff;box-shadow:0 12px 24px #18324a23;
+}
+body .vatra-comment-more>div button{
+ display:block;min-height:31px;padding:7px 9px;border:0;border-radius:7px;
+ background:transparent;color:#627b97;text-align:left;font-size:11px;cursor:pointer;
+}
+body .vatra-comment-more>div button:hover{background:#f0f5fb;color:#345d89;}
+body .vatra-comment-more>div button.danger-link{color:#cd5366;}
+body .vatra-comment-thread{margin-left:42px!important;min-width:0!important;}
+body .vatra-comment-thread-toggle{
+ min-height:31px;margin:2px 0 3px;padding:5px 8px!important;
+ background:transparent!important;border:0!important;color:#5077a4!important;
+ font-size:11px!important;font-weight:600!important;cursor:pointer!important;
+}
+body .vatra-comment-thread-toggle:hover{color:#0757f5!important;}
+body .vatra-comment-children{margin:0!important;padding-left:12px!important;border-left:2px solid #e5edf7!important;}
+body .vatra-comment-children[hidden]{display:none!important;}
+body .vatra-comment-children .vatra-comment-thread{margin-left:10px!important;}
+body .vatra-comment-item.comment-reply{margin-left:0!important;padding:6px 0!important;border:0!important;background:transparent!important;}
+body .vatra-comment-item .reply-context{color:#8ba0b6!important;font-size:10.5px!important;}
+/* No glaring light-blue border around the selected studio tool. */
+body .vatra-studio-dialog .vatra-studio-toolnav>button{
+ border:0!important;outline:0!important;box-shadow:none!important;
+ border-radius:9px!important;transform:none!important;
+ transition:background-color .18s ease,color .18s ease!important;
+}
+body .vatra-studio-dialog .vatra-studio-toolnav>button.active{
+ background:#364c65!important;color:#f3f7ff!important;
+ border:0!important;outline:0!important;box-shadow:none!important;
+}
+body .vatra-studio-dialog .vatra-studio-toolnav>button:hover{
+ background:#40556e!important;color:#fff!important;box-shadow:none!important;
+}
+body .vatra-studio-dialog .vatra-studio-toolnav>button:focus-visible{
+ outline:0!important;box-shadow:inset 0 0 0 1px #8dabcf75!important;
+}
+body .vatra-studio-dialog .vatra-studio-button-row button,
+body .vatra-studio-dialog .vatra-studio-minor{
+ border-color:#40536b!important;box-shadow:none!important;
+}
+body .vatra-studio-dialog .vatra-studio-button-row button:focus:not(:focus-visible),
+body .vatra-studio-dialog .vatra-studio-toolnav>button:focus:not(:focus-visible){outline:0!important;}
+/* Category dropdown has a real required choice and visible focus feedback. */
+body .community-dialog select#communityCategory{
+ display:block!important;width:100%!important;height:43px!important;
+ margin:6px 0 15px!important;padding:9px 35px 9px 13px!important;
+ border:1px solid #d4e0ee!important;border-radius:9px!important;
+ background:#f9fbfe!important;color:#3a526e!important;font:500 12px Inter,system-ui,sans-serif!important;
+ cursor:pointer!important;
+ transition:border-color .16s ease,box-shadow .16s ease!important;
+}
+body .community-dialog select#communityCategory:focus{
+ outline:0!important;border-color:#8cbafa!important;box-shadow:0 0 0 3px #0c64ea18!important;
+}
+@media(max-width:900px){
+ body .vatra-notifications-layout{grid-template-columns:minmax(0,1fr)!important;}
+ body .vatra-notification-rail{display:none!important;}
+ body .vatra-notification-mobile-filters{
+  display:flex!important;gap:5px!important;overflow-x:auto!important;padding:9px 0!important;
+ }
+ body .vatra-notification-mobile-filters button{flex:0 0 auto;min-height:35px;}
+}
+@media(max-width:600px){
+ body .vatra-global-header #notificationDropdown:not([hidden]){
+  top:60px!important;left:12px!important;right:12px!important;width:auto!important;
+ }
+ body .vatra-global-header #accountDropdown:not([hidden]){top:60px!important;}
+ body .vatra-notifications-layout .notifications-page{padding:12px!important;}
+ body .vatra-notifications-layout .notifications-heading{flex-wrap:wrap!important;}
+ body .vatra-comment-thread{margin-left:20px!important;}
+ body .vatra-comment-children{padding-left:8px!important;}
+ body .vatra-profile-posts-clean .vatra-profile-post-tabs{padding:11px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-profile-avatar-open img,
+ body .vatra-profile-avatar-open .avatar,
+ body .vatra-global-header #notificationDropdown:not([hidden]),
+ body .vatra-viewer-exit{transition:none!important;animation:none!important;}
+}
