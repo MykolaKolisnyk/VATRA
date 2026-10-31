@@ -630,3 +630,45 @@ export async function accountLifecycleRequest(action='status',payload={}){
  if(!response.ok)throw new Error(String(data.error||'Сервер відхилив запит.').slice(0,400));
  return data.lifecycle;
 }
+
+/* Native PostgreSQL scheduled posts. No local timers and no Firebase. */
+export async function vatraSchedulePost({groupId=null,post,scheduledAt}){
+ if(!currentAuth.currentUser?.uid)throw new Error('Увійдіть, щоб запланувати допис.');
+ const date=new Date(scheduledAt),delay=date.getTime()-Date.now();
+ if(!Number.isFinite(date.getTime())||delay<61000||delay>365*86400000)
+  throw new Error('Оберіть дату від 2 хвилин до 1 року в майбутньому.');
+ const row={
+  author_uid:currentAuth.currentUser.uid,
+  group_id:groupId||null,
+  payload:post,
+  scheduled_at:date.toISOString()
+ };
+ const {data,error}=await client.from('vatra_scheduled_posts').insert(row).select('id,scheduled_at,group_id').single();
+ if(error){
+  if(error.code==='42P01'||error.code==='PGRST205')throw new Error('Планування ще не активовано в Supabase. Потрібна міграція vatra-scheduled-posts.sql.');
+  throw databaseError(error);
+ }
+ return data;
+}
+export async function vatraListScheduledPosts(groupId=null){
+ const uid=currentAuth.currentUser?.uid;
+ if(!uid)return [];
+ let query=client.from('vatra_scheduled_posts').select('id,group_id,payload,scheduled_at,published_at,cancelled_at,last_error,published_path')
+  .eq('author_uid',uid).is('published_at',null).is('cancelled_at',null)
+  .order('scheduled_at',{ascending:true}).limit(50);
+ if(groupId)query=query.eq('group_id',groupId);
+ const {data,error}=await query;
+ if(error)throw databaseError(error);
+ return data||[];
+}
+export async function vatraCancelScheduledPost(id){
+ const uid=currentAuth.currentUser?.uid;
+ if(!uid||!/^[0-9a-f-]{36}$/i.test(id))throw new Error('Некоректний ідентифікатор допису.');
+ const {data,error}=await client.from('vatra_scheduled_posts')
+  .update({cancelled_at:new Date().toISOString()})
+  .eq('id',id).eq('author_uid',uid).is('published_at',null).is('cancelled_at',null)
+  .select('id').maybeSingle();
+ if(error)throw databaseError(error);
+ if(!data)throw new Error('Допис уже опубліковано або скасовано.');
+ return true;
+}
