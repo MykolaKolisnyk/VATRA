@@ -19,7 +19,8 @@ function backToRoute(){
  const profile=location.hash.match(/^#\/profile\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/(?:settings|members))?$/),post=location.hash.match(/^#post-(.+)$/);
  restoring=true;
  try{
-  if(location.hash==='#/admin'){void window.vatraOpenAdminCenter?.();}
+  if(location.hash==='#/verification'){window.vatraVerificationGuide?.(true);}
+  else if(location.hash==='#/admin'){void window.vatraOpenAdminCenter?.();}
   else if(location.hash==='#/my-reports'){void window.vatraOpenMyReports?.();}
   else if(post){void r.openPost(decodeURIComponent(post[1]));}
   else if(profile){r.renderPublicProfile(decodeURIComponent(profile[1]));if(profile[2]){const b=$('[data-vatra-open-public-photos]');if(b)openGallery(b,true);}}
