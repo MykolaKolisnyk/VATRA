@@ -466,3 +466,5 @@ body .vatra-photo-fullscreen-fallback .vatra-media-viewer-counter{
   height:38dvh!important;max-height:38dvh!important;padding:18px 15px!important;
  }
 }
+
+.vatra-friends-photo,.vatra-friends-photo *,.vatra-profile-friend,.vatra-profile-friend *,.vatra-search-person-photo,.vatra-search-person-photo *,.vatra-public-friend-person,.vatra-public-friend-person *,.vatra-group-member,.vatra-group-member *{cursor:pointer!important}

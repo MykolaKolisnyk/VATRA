@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="faviconTitle">
-  <title id="faviconTitle">ВАТРА</title>
-  <rect width="64" height="64" rx="15" fill="#0757f5"/>
-  <path d="M22.5 14.5H34c7.1 0 10.8 3.3 10.8 9 0 4.7-2.8 7.6-8 8.5 6.9.5 10.6 3.9 10.6 9.4 0 6.1-4.3 9.1-11.8 9.1H22.5V14.5Z" fill="none" stroke="#fff" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M23.5 32h12" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t"><title id="t">ВАТРА</title><rect width="64" height="64" rx="14" fill="#0757f5"/><path fill="#fff" fill-rule="evenodd" d="M17 13h20c9 0 14 5 14 12 0 4-2 7-6 9 5 2 8 6 8 12 0 9-6 14-16 14H17V13zm10 9v9h10c3 0 5-2 5-5s-2-4-5-4H27zm0 18v11h10c4 0 6-2 6-5s-2-6-6-6H27z"/></svg>
