@@ -76,31 +76,27 @@ async function deleteDueAccount(record:Lifecycle){
  return true;
 }
 async function runSweep(){
- let marked=0,deleted=0,errors=0;
- const now=Date.now();
- // Sweep is intentionally bounded per invocation; cron repeats it daily.
- const {data:all,error}=await service.from('vatra_account_lifecycle')
-  .select('*').order('last_seen_at',{ascending:true}).limit(500);
+ let deleted=0,errors=0;
+ // Mark all eligible inactive users in PostgreSQL without a 500-user cap.
+ const {data:marked,error:markError}=await service.rpc('vatra_mark_inactive_users');
+ if(markError)throw markError;
+ const {data:due,error}=await service.from('vatra_account_lifecycle')
+  .select('*').not('delete_after','is',null)
+  .lte('delete_after',new Date().toISOString())
+  .order('updated_at',{ascending:true}).limit(200);
  if(error)throw error;
- for(const row of (all||[]) as Lifecycle[]){
+ for(const row of (due||[]) as Lifecycle[]){
   try{
-   if(!row.delete_after&&allowedDays.includes(row.inactivity_days||0)){
-    if(now-Date.parse(row.last_seen_at) >= row.inactivity_days!*dayMs){
-     if(await ownsGroups(row.user_id))continue;
-     const requested=new Date().toISOString();
-     const {error:markError}=await service.from('vatra_account_lifecycle').update({
-      deletion_requested_at:requested,delete_after:new Date(now+30*dayMs).toISOString(),
-      deletion_reason:'inactivity',updated_at:requested
-     }).eq('user_id',row.user_id).is('delete_after',null);
-     if(markError)throw markError;
-     marked++;
-    }
-   }else if(row.delete_after&&Date.parse(row.delete_after)<=now){
-    if(await deleteDueAccount(row))deleted++;
-   }
-  }catch(err){errors++;console.error('Account lifecycle sweep entry failed:',row.user_id,err);}
+   if(await deleteDueAccount(row))deleted++;
+  }catch(err){
+   errors++;
+   console.error('Account lifecycle sweep entry failed:',row.user_id,err);
+   // Rotate failed rows to the back of the queue; never mark deletion done.
+   await service.from('vatra_account_lifecycle')
+    .update({updated_at:new Date().toISOString()}).eq('user_id',row.user_id);
+  }
  }
- return {marked,deleted,errors};
+ return {marked:Number(marked)||0,deleted,errors};
 }
 Deno.serve(async(req)=>{
  const origin=req.headers.get('origin');
