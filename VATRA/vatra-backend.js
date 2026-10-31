@@ -134,7 +134,7 @@ export function getAuth() { return currentAuth; }
 export function getDatabase() { return { client }; }
 
 const MEDIA_BUCKET = 'vatra-media';
-const MEDIA_FOLDERS = new Set(['posts', 'avatars', 'covers', 'videos']);
+const MEDIA_FOLDERS = new Set(['posts', 'avatars', 'covers', 'videos', 'comments', 'community-photos', 'community-videos']);
 function safeMediaExtension(type = '') {
   const map = {
     'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
@@ -149,8 +149,8 @@ export async function uploadMedia(file, category = 'posts') {
   const user = currentAuth.currentUser;
   if (!user?.uid) throw new Error('Спочатку увійди у свій акаунт.');
   if (!MEDIA_FOLDERS.has(category)) throw new Error('Непідтримуваний тип файлу.');
-  const maxSize = category === 'videos' ? 50 * 1024 * 1024 : 15 * 1024 * 1024;
-  if (file.size > maxSize) throw new Error(category === 'videos'
+  const maxSize = ['videos','community-videos'].includes(category) ? 50 * 1024 * 1024 : 15 * 1024 * 1024;
+  if (file.size > maxSize) throw new Error(['videos','community-videos'].includes(category)
     ? 'Відео має бути меншим за 50 МБ.'
     : 'Фото має бути меншим за 15 МБ.');
   const ext = safeMediaExtension(file.type);
