@@ -60,10 +60,12 @@ Object.assign(paths,{
  diamond:'<path d="m43 69 23-27h35l22 27-40 70Z" fill="#80D2E4" stroke="#55B0C7" stroke-width="3"/><path d="M43 69h80M66 42l-9 27 26 70 26-70-8-27M83 42v97" stroke="#D7F9FF" stroke-width="3" fill="none"/><path d="m33 46-6-10m104 9 9-9M84 28V16" stroke="#F8D582" stroke-width="5" stroke-linecap="round"/>'
 });
 const giftAccent={halloween:'#F2A264',newyear:'#73BDA2',independence:'#74B6F0',warmth:'#D9AD94',bouquet:'#DF90AD',spark:'#EDC15D',welcome:'#70ABEB',gold_pumpkin:'#F0B459',rose:'#E68AA6',cocoa:'#9CC5E7',cupcake:'#DBB0E7',lantern:'#E7BF77',ribbon:'#8BA8E8',sun:'#EBC867',teddy:'#D6AA8B',hearts:'#E68BAB',firebird:'#E69B71',snowglobe:'#A1CDE8',letter:'#E3A9BF',clover:'#91CDA3',musicbox:'#ACBDEA',swan:'#D1BFE6',diamond:'#9ED0E1'};
+let artSerial=0;
 function art(code){
  const label=catalog.find(x=>x.code===code)?.title||'Подарунок ВАТРИ';
  const color=giftAccent[code]||'#9CBDEC';
- return '<svg class="vatra-gift-art" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+'"><defs><radialGradient id="vatraGiftHalo"><stop stop-color="'+color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#vatraGiftHalo)"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".10"/><g fill="none" filter="drop-shadow(0 4px 3px rgba(37,67,96,.13))">'+(paths[code]||paths.spark)+'</g><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".64"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".55"/></svg>';
+ const gradientId='vatraGiftHalo'+(++artSerial);
+ return '<svg class="vatra-gift-art" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+'"><defs><radialGradient id="'+gradientId+'"><stop stop-color="'+color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#'+gradientId+')"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".10"/><g fill="none" filter="drop-shadow(0 4px 3px rgba(37,67,96,.13))">'+(paths[code]||paths.spark)+'</g><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".64"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".55"/></svg>';
 }
 let opened=0,selectedTab='mine',selectedReceiver='',inventory={items:[],visibility:'everyone'},networkReady=false,showing=false,notice='',orders=[];
 const available=()=>auth.currentUser?.uid;
@@ -91,6 +93,7 @@ function giftToast(message,error=false){
  const n=document.createElement('div');n.id='vatraGiftToast';n.className='vatra-gift-toast'+(error?' is-error':'');n.setAttribute('role',error?'alert':'status');n.append(document.createTextNode(message));
  const b=document.createElement('button');b.type='button';b.textContent='×';b.setAttribute('aria-label','Закрити');b.addEventListener('click',()=>n.remove());n.append(b);document.body.append(n);
 }
+window.vatraGiftToast=giftToast;
 function card(item,owned=false){
  const info=catalog.find(x=>x.code===item.code)||catalog.find(x=>x.code==='spark');
  const price=Number(info.price)||0;
@@ -150,7 +153,7 @@ document.addEventListener('click',async e=>{
   buy.disabled=true;
   try{
    const number=await call('vatra_gifts_place_order',{_code:code});
-   orders=await call('vatra_gifts_my_orders');
+   orders=(await call('vatra_gifts_my_orders')).filter(o=>o.status!=='cancelled');
    notice='Замовлення №'+number+' надіслано адміністрації ВАТРИ. Очікуйте повідомлення від розробника.';
    selectedTab='orders';view();giftToast('Замовлення №'+number+' надіслано адміністрації ВАТРИ.');
   }catch(err){status(err.message||'Помилка замовлення.',true);buy.disabled=false;}
