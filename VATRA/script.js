@@ -996,6 +996,7 @@ document.addEventListener('keydown',event=>{
 
 function renderPublicProfile(uid){
  if(!uid)return;
+ if(window.vatraBanGuardProfile?.(uid,users[uid]?.name,users[uid]?.handle))return;
  if(uid===currentUser?.uid){activeProfileUid=null;goPage('profile');return;}
  activeProfileUid=uid;page='publicProfile';window.vatraRouteChanged?.({page:'publicProfile',id:uid});document.body.dataset.page=page;
  // The news-feed composer publishes only to the signed-in user's own feed.
@@ -1484,6 +1485,7 @@ function renderGroupMembersPage(id){
 }
 
 function renderGroupDetails(id){
+ if(window.vatraBanGuardCommunity?.(id,groups[id]?.name))return;
  if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
  const initial=groups[id];if(!initial){goPage('groups');return;}
  try{
@@ -1498,6 +1500,7 @@ function renderGroupDetails(id){
  const quick=$('.quick-compose');if(quick)quick.hidden=true;
  groupDetailsUnsub=watch('groupPosts/'+id,v=>{
   if(page!=='groups'||groupId!==id)return;
+  if(window.vatraBanGuardCommunity?.(id,groups[id]?.name))return;
   const g=groups[id]||initial;
   const isOwner=g.ownerUid===currentUser?.uid;
   const isAdmin=!!groupAdmins[id]?.[currentUser?.uid],isMod=!!groupModerators[id]?.[currentUser?.uid];
