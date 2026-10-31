@@ -129,3 +129,21 @@ body .vatra-control-tabs{overflow-x:auto}
  body .vatra-verification-page{gap:10px}
  body .vatra-verification-page-header,body .vatra-verification-page-body{padding:18px}
 }
+
+@media(min-width:740px){
+ html body .vatra-post-photo-viewer .vatra-media-viewer-side .vatra-media-viewer-comments,
+ html body .vatra-avatar-viewer .vatra-avatar-viewer-side .vatra-avatar-comments{
+  display:flex!important;flex-direction:column!important;flex:1 1 auto!important;
+  min-height:170px!important;padding:16px 18px 8px!important;
+ }
+ html body .vatra-post-photo-viewer .vatra-media-viewer-comment-list,
+ html body .vatra-avatar-viewer .vatra-avatar-comment-list{
+  flex:1 1 auto!important;overflow-y:auto!important;min-height:100px!important;
+  max-height:none!important;padding-bottom:12px!important;
+ }
+ html body .vatra-post-photo-viewer .vatra-media-viewer-comment-form,
+ html body .vatra-avatar-viewer .vatra-avatar-comments form{
+  position:sticky!important;bottom:0!important;flex:0 0 auto!important;
+  background:#fff!important;border-top:1px solid #e4edf5!important;z-index:3!important;
+ }
+}
