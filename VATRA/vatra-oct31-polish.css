@@ -342,7 +342,7 @@ body .community-dialog select#communityCategory:focus{
  body .vatra-global-header #notificationDropdown:not([hidden]){
   top:60px!important;left:12px!important;right:12px!important;width:auto!important;
  }
- body .vatra-global-header #accountDropdown:not([hidden]){top:60px!important;}
+ body .vatra-global-header #accountDropdown:not([hidden]){top:var(--vatra-avatar-dropdown-top,60px)!important;}
  body .vatra-notifications-layout .notifications-page{padding:12px!important;}
  body .vatra-notifications-layout .notifications-heading{flex-wrap:wrap!important;}
  body .vatra-comment-thread{margin-left:20px!important;}
