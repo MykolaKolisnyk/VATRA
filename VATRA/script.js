@@ -2165,7 +2165,11 @@ function openComposer(context=null){
   };
   select.onchange=refresh;refresh();
  }
- vatraResetScheduleControls();const mediaChoice=$('#vatraComposerAddToGallery');if(mediaChoice)mediaChoice.checked=!(scoped&&g.galleryAutoInclude===false);modal.showModal();postComposerUI.onOpen();
+ vatraResetScheduleControls();const mediaChoice=$('#vatraComposerAddToGallery');if(mediaChoice)mediaChoice.checked=!(scoped&&g.galleryAutoInclude===false);
+ const albumSelect=$('#vatraComposerAlbum');
+ if(albumSelect)albumSelect.innerHTML='<option value="">Без окремого альбому</option>'+
+  (scoped&&Array.isArray(g.photoAlbums)?g.photoAlbums:[]).filter(a=>a?.id&&a?.name).slice(0,12)
+   .map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');modal.showModal();postComposerUI.onOpen();
 }
 function loadImage(file,cb){if(!file)return false;if(!file.type.startsWith('image/')){toastMsg('Виберіть файл зображення.');return false;}if(file.size>MAX_IMAGE){toastMsg('Фото має бути меншим за 15 МБ.');return false;}const r=new FileReader();r.onload=()=>cb(r.result);r.onerror=()=>toastMsg('Не вдалося прочитати файл зображення.');r.readAsDataURL(file);return true;}
 async function uploadImage(file,maxSide=1200,quality=.78,category='posts'){if(!file||!file.type?.startsWith('image/'))throw new Error('Виберіть файл зображення.');if(file.size>15*1024*1024)throw new Error('Фото має бути меншим за 15 МБ.');const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('Не вдалося прочитати фото.'));r.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('Файл зображення пошкоджений.'));i.src=data;});const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося обробити зображення.');ctx.drawImage(img,0,0,canvas.width,canvas.height);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Не вдалося підготувати фото.')),'image/jpeg',quality));const optimized=new File([blob],(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg',lastModified:Date.now()});return await uploadMedia(optimized,category);}
@@ -2590,6 +2594,10 @@ $('#postForm').addEventListener('submit',async e=>{
   if(gid){postData.authorType=asGroup?'group':'user';postData.groupId=gid;}
   if(pollOptions)postData.pollOptions=pollOptions;
   if(imageFiles.length||videoFile)postData.addMediaToGallery=$('#vatraComposerAddToGallery')?.checked!==false;
+  if(gid&&imageFiles.length&&postData.addMediaToGallery&&$('#vatraComposerAlbum')?.value){
+   const albumId=$('#vatraComposerAlbum').value;
+   if((Array.isArray(g.photoAlbums)?g.photoAlbums:[]).some(a=>a?.id===albumId))postData.galleryAlbumId=albumId;
+  }
   if(scheduled){
    await vatraSchedulePost({groupId:gid||null,post:postData,scheduledAt:publishDate.toISOString()});
   }else if(gid)await set(pRef,postData);
