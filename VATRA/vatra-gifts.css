@@ -1,0 +1,43 @@
+/* ВАТРА: власна система векторних подарунків, жодних зовнішніх стікерів. */
+.vatra-gifts-page{width:100%;min-width:0;background:#fff;border:1px solid #dfe7f0;border-radius:7px;padding:24px;color:#2d455e;box-sizing:border-box}
+.vatra-gifts-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid #e5eaf1}
+.vatra-gifts-header h1{font-size:24px;line-height:1.4;margin:3px 0 5px;color:#273b51}
+.vatra-gifts-header p{font-size:13px;color:#75879d;margin:0;line-height:1.6}
+.vatra-gifts-eyebrow{font-size:10px!important;color:#7890ae!important;font-weight:750!important;letter-spacing:.09em}
+.vatra-gift-summary{font-size:27px;font-weight:750;color:#0757f5;text-align:right;white-space:nowrap}
+.vatra-gift-summary small{display:block;font-size:11px;color:#8395ab;font-weight:500}
+.vatra-gifts-tabs{display:flex;gap:22px;border-bottom:1px solid #e4eaf1;margin:15px 0}
+.vatra-gifts-tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:11px 0;color:#687e95;font-size:13px;font-weight:650;cursor:pointer}
+.vatra-gifts-tabs button[aria-current=page]{border-color:#0757f5;color:#0757f5}
+.vatra-gift-privacy{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0;flex-wrap:wrap}
+.vatra-gift-privacy label{font-size:13px;font-weight:650;color:#415a75}
+.vatra-gift-privacy select,.vatra-gift-send select{width:min(270px,100%);padding:10px 12px;border:1px solid #dbe5f0;border-radius:5px;background:#fff;color:#314961;font:500 13px Inter,system-ui,sans-serif}
+.vatra-gifts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin:18px 0}
+.vatra-gift-card{padding:15px 12px 14px;border:1px solid #e1e8f0;border-radius:7px;background:#fff;text-align:center;display:flex;flex-direction:column;align-items:stretch;box-shadow:0 1px 2px #24375709}
+.vatra-gift-card .vatra-gift-image{aspect-ratio:1/1;background:linear-gradient(140deg,#f9fcff,#eff5fc);border-radius:6px;display:grid;place-items:center;overflow:hidden}
+.vatra-gift-art{display:block;width:min(100%,174px);height:auto;aspect-ratio:1/1}
+.vatra-gift-card h3{font-size:13px;font-weight:700;color:#30465c;margin:12px 0 3px}
+.vatra-gift-card p{font-size:11px;color:#8b9db0;line-height:1.45;min-height:31px;margin:0 0 12px}
+.vatra-gift-card button{margin-top:auto;background:#eef4fd;border:1px solid #d4e2f4;color:#1760b5;border-radius:5px;min-height:35px;font-size:12px;font-weight:650;cursor:pointer}
+.vatra-gift-card button:hover{background:#e1edfc}
+.vatra-gift-free-label{font-size:11px;color:#44866b;background:#eaf6f0;padding:9px 5px;border-radius:5px}
+.vatra-gift-muted,.vatra-gift-empty,.vatra-gifts-intro{font-size:13px;color:#758ba4;line-height:1.65}
+.vatra-gift-empty{border:1px dashed #d8e2ee;text-align:center;border-radius:6px;padding:32px 18px}
+.vatra-gift-notice:empty{display:none}
+.vatra-gift-notice{font-size:12px;color:#436b54;margin:9px 0;padding:9px 12px;background:#edf8f0;border-radius:5px}
+.vatra-gift-notice.is-error{color:#bc4c5d;background:#fff2f4}
+.vatra-gift-send{margin:20px 0 0;border:1px solid #dde7f3;border-radius:6px;padding:19px;background:#f9fbfe}
+.vatra-gift-send[hidden]{display:none!important}
+.vatra-gift-send h2{font-size:16px;margin:0 0 4px}
+.vatra-gift-send p{font-size:12px;color:#7186a0;margin:0 0 14px}
+.vatra-gift-send label{display:grid;gap:6px;font-size:12px;font-weight:650}
+.vatra-gift-send-actions{display:flex;gap:8px;margin-top:12px}
+.vatra-gift-send-actions button{border:1px solid #d7e3f0;border-radius:5px;background:#fff;color:#435e7b;padding:10px 15px;cursor:pointer}
+.vatra-gift-send-actions .vatra-gift-primary{background:#0757f5;color:white;border-color:#0757f5}
+.vatra-gift-preview-card{padding:15px!important;border-radius:7px!important;margin-top:12px}
+.vatra-gift-preview-card h3{font-size:15px!important;margin:0 0 10px!important}
+.vatra-gift-preview-card h3 small{color:#8799ab;font-size:12px}
+.vatra-gift-preview-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.vatra-gift-preview-row svg{width:100%;height:auto;min-width:0}
+.vatra-gift-preview-link{width:100%;border:0;background:transparent;color:#1764c0;font-size:12px;margin:8px 0 0;cursor:pointer}
+@media(max-width:600px){.vatra-gifts-page{padding:16px}.vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.vatra-gift-card{padding:10px 8px}.vatra-gifts-header h1{font-size:20px}}
