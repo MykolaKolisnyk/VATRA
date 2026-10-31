@@ -55,9 +55,44 @@ create or replace function public.vatra_data_can_read_post(_post_id text, _viewe
 returns boolean language plpgsql stable security definer
 set search_path = '' set row_security = off
 as $vatra$
-declare post_value jsonb; author_uid text; post_visibility text;
+declare post_value jsonb; author_uid text; post_visibility text; group_id text; group_post_id text; group_value jsonb;
 begin
   select p.value into post_value from public.app_data p where p.path = 'posts/' || _post_id;
+  -- Community cards use stable g_<group_id>_<post_id> identifiers for
+  -- reactions, replies and polls, but are stored at groupPosts/<group>/<post>.
+  if post_value is null and _post_id ~ '^g_[^_]+_[^_]+
+  author_uid := coalesce(post_value ->> 'authorUid', '');
+  post_visibility := coalesce(post_value ->> 'visibility', 'public');
+  if _viewer_uid is not null and author_uid = _viewer_uid::text then return true; end if;
+  if post_visibility = 'public' then return true; end if;
+  if post_visibility = 'friends' and _viewer_uid is not null then
+    return public.vatra_data_is_friend(author_uid, _viewer_uid);
+  end if;
+  return false;
+end;
+$vatra$; then
+    group_id := substring(_post_id from '^g_([^_]+)_');
+    group_post_id := substring(_post_id from '^g_[^_]+_([^_]+)
+  author_uid := coalesce(post_value ->> 'authorUid', '');
+  post_visibility := coalesce(post_value ->> 'visibility', 'public');
+  if _viewer_uid is not null and author_uid = _viewer_uid::text then return true; end if;
+  if post_visibility = 'public' then return true; end if;
+  if post_visibility = 'friends' and _viewer_uid is not null then
+    return public.vatra_data_is_friend(author_uid, _viewer_uid);
+  end if;
+  return false;
+end;
+$vatra$;);
+    select gp.value into post_value
+    from public.app_data gp
+    where gp.path = 'groupPosts/' || group_id || '/' || group_post_id;
+    if post_value is null then return false; end if;
+    select g.value into group_value
+    from public.app_data g where g.path = 'groups/' || group_id;
+    if group_value is null then return false; end if;
+    return coalesce(group_value ->> 'visibility', 'public') <> 'private'
+      or public.vatra_data_is_group_member(group_id, _viewer_uid);
+  end if;
   if post_value is null then return false; end if;
   author_uid := coalesce(post_value ->> 'authorUid', '');
   post_visibility := coalesce(post_value ->> 'visibility', 'public');
