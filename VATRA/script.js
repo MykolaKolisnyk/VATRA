@@ -1442,6 +1442,47 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
  build();
 }
 const vatraGroupGalleryFilter=Object.create(null);
+
+/* Full community member directory, like the dedicated friends page. */
+function renderGroupMembersPage(id){
+ const group=groups[id];
+ if(!group)return goPage('groups');
+ const memberIds=[group.ownerUid,...Object.keys(groupMembers[id]||{})]
+  .filter((uid,index,all)=>uid&&all.indexOf(uid)===index&&!blockedUsers[uid]&&users[uid]);
+ const order=uid=>Number(groupMembers[id]?.[uid]?.joinedAt||groupMembers[id]?.[uid]?.createdAt)||0;
+ memberIds.sort((a,b)=>order(b)-order(a));
+ const role=uid=>uid===group.ownerUid?'Творець':groupAdmins[id]?.[uid]?'Адміністратор':groupModerators[id]?.[uid]?'Модератор':'Учасник';
+ const rows=memberIds.map(uid=>{
+  const u=users[uid]||{},name=u.name||'Користувач ВАТРИ';
+  return '<article class="vatra-community-member-card" data-member-row="'+esc(uid)+'">'+
+   '<button type="button" class="vatra-member-avatar" data-view-profile="'+esc(uid)+'">'+avatar(name,u.avatarUrl)+'</button>'+
+   '<div class="vatra-member-content"><button type="button" data-view-profile="'+esc(uid)+'" class="vatra-member-name">'+esc(name)+verifiedBadge(uid)+'</button>'+
+   '<small>@'+esc(u.handle||'user')+'</small></div><span class="vatra-member-role">'+role(uid)+'</span>'+
+   '<button type="button" class="pill vatra-member-profile" data-view-profile="'+esc(uid)+'">Профіль</button></article>';
+ }).join('');
+ if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
+ page='communityMembers';groupId=id;document.body.dataset.page=page;
+ $('.quick-compose')?.setAttribute('hidden','');$('#sort')?.setAttribute('hidden','');
+ setFeed('<section class="vatra-community-members-page">'+
+  '<header class="vatra-community-members-heading"><div><p class="eyebrow">СПІЛЬНОТА</p><h2>Учасники · '+esc(group.name)+'</h2><p>'+memberIds.length+' учасників</p></div>'+
+  '<button type="button" class="pill" id="vatraMembersBack">← До спільноти</button></header>'+
+  '<label class="vatra-community-members-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg><input type="search" placeholder="Пошук учасників" aria-label="Пошук учасників"></label>'+
+  '<div class="vatra-community-members-grid">'+(rows||'<p class="muted">Учасників поки не знайдено.</p>')+'</div>'+
+  '<p class="vatra-community-members-empty" hidden>За Вашим запитом учасників не знайдено.</p></section>',false);
+ $('#vatraMembersBack')?.addEventListener('click',()=>renderGroupDetails(id));
+ $('.vatra-community-members-search input')?.addEventListener('input',ev=>{
+  const q=ev.currentTarget.value.toLocaleLowerCase('uk-UA').trim();
+  let shown=0;
+  document.querySelectorAll('.vatra-community-member-card').forEach(card=>{
+   card.hidden=!!q&&!card.textContent.toLocaleLowerCase('uk-UA').includes(q);
+   if(!card.hidden)shown++;
+  });
+  const empty=$('.vatra-community-members-empty');if(empty)empty.hidden=shown!==0;
+ });
+ window.vatraRouteChanged?.({page:'communityMembers',id});
+ window.scrollTo({top:0});
+}
+
 function renderGroupDetails(id){
  if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
  const initial=groups[id];if(!initial){goPage('groups');return;}
@@ -1550,23 +1591,7 @@ function renderGroupDetails(id){
    if(vatraGroupActiveTab==='photos'||vatraGroupActiveTab==='videos')void vatraRenderCommunityGallery(id,vatraGroupActiveTab,v);
   }));
   if(vatraGroupActiveTab==='photos'||vatraGroupActiveTab==='videos')void vatraRenderCommunityGallery(id,vatraGroupActiveTab,v);
-  $('[data-vatra-group-jump-members]')?.addEventListener('click',()=>{
-   const dialog=document.createElement('dialog');dialog.className='vatra-group-members-dialog';
-   dialog.innerHTML='<div class="vatra-group-members-dialog-head"><div><h2>Учасники спільноти</h2><p>'+esc(g.name||'Спільнота')+' · '+memberCount+' учасників</p></div><button type="button" data-close-members aria-label="Закрити">×</button></div>'+
-    '<label class="vatra-group-members-search"><span>⌕</span><input type="search" placeholder="Пошук учасників" aria-label="Пошук учасників"></label>'+
-    '<div class="vatra-group-members-dialog-list">'+people.join('')+'</div>';
-   document.body.append(dialog);dialog.showModal();
-   dialog.addEventListener('close',()=>dialog.remove());
-   dialog.addEventListener('click',ev=>{
-    if(ev.target===dialog||ev.target.closest('[data-close-members]')){dialog.close();return;}
-    const profile=ev.target.closest('[data-view-profile]');
-    if(profile){const uid=profile.dataset.viewProfile;dialog.close();if(uid===currentUser?.uid)goPage('profile');else renderPublicProfile(uid);}
-   });
-   dialog.querySelector('input').addEventListener('input',ev=>{
-    const query=ev.target.value.trim().toLocaleLowerCase('uk-UA');
-    dialog.querySelectorAll('.vatra-group-member').forEach(row=>row.hidden=!row.textContent.toLocaleLowerCase('uk-UA').includes(query));
-   });
-  });
+  $('[data-vatra-group-jump-members]')?.addEventListener('click',()=>renderGroupMembersPage(id));
   $('#vatraOpenGroupComposer')?.addEventListener('click',()=>openComposer({groupId:id}));
   document.querySelectorAll('[data-vatra-group-image]').forEach(button=>button.addEventListener('click',()=>{
    const url=button.dataset.vatraGroupImage;if(!/^https:\/\//i.test(url))return;
@@ -3071,4 +3096,4 @@ async function vatraOpenPostLink(postId){
  window.vatraRouteChanged?.({page:'postDetail',id:postId});
 }
 /* Public routing hooks for the shared VATRA link/gallery UI. */
-window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,openPostPhotoViewer,startChatWith,openPost:vatraOpenPostLink};
+window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,renderGroupMembersPage,openPostPhotoViewer,startChatWith,openPost:vatraOpenPostLink};
