@@ -115,10 +115,15 @@ function installSettings(){
   card.querySelector('[data-vatra-verification-request-form]').onclick=showApplication;
  }
 }
-function installCommunityVerification(){
+async function installCommunityVerification(){
  const form=document.querySelector('#groupSettingsForm'),hash=location.hash.match(/^#\/community\/([^/]+)\/settings$/);
- if(!form||!hash||form.querySelector('#vatraCommunityVerificationCard'))return;
- const id=decodeURIComponent(hash[1]),card=document.createElement('section');
+ if(!form||!hash||form.dataset.communityVerificationChecked)return;
+ form.dataset.communityVerificationChecked='1';
+ const id=decodeURIComponent(hash[1]);
+ try{const {data,error}=await db.from('app_data').select('value').eq('path','groups/'+id).maybeSingle();
+  if(error||data?.value?.ownerUid!==auth.currentUser?.uid||!form.isConnected)return;
+ }catch{return;}
+ const card=document.createElement('section');
  card.id='vatraCommunityVerificationCard';card.className='settings-card vatra-public-verification-card';
  card.innerHTML='<h3>Верифікація спільноти</h3><p>Творець спільноти може надіслати заявку на офіційну синю галочку.</p>'+
  '<div><button type="button" data-community-apply>Подати заявку</button><button type="button" data-vatra-how-verified>Умови верифікації</button></div>';
