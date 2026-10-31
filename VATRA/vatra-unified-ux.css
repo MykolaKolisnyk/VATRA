@@ -1,0 +1,152 @@
+/* VATRA | Unified UI polish 2026-10-31
+   One design language for dialogs, fields, media viewer and community. */
+:root{--v26-border:#dce6f1;--v26-focus:#1765d9;--v26-ink:#213b58}
+body :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select):focus-visible,
+body :is(.vatra-community-search,.vatra-group-members-search,.search):focus-within{
+ outline:none!important;border-color:var(--v26-focus)!important;
+ box-shadow:0 0 0 3px rgba(23,101,217,.13)!important;
+ transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease!important
+}
+body :is(input,textarea,select,.search,.vatra-community-search,.vatra-group-members-search){
+ transition:border-color .18s ease,box-shadow .18s ease,background-color .18s ease!important
+}
+body :is(.vatra-community-search,.vatra-group-members-search):focus-within input{outline:none!important;box-shadow:none!important;border-color:transparent!important}
+body :is(.vatra-group-settings-shell,.settings-page,.community-settings-page) input,
+body :is(.vatra-group-settings-shell,.settings-page,.community-settings-page) select,
+body :is(.vatra-group-settings-shell,.settings-page,.community-settings-page) textarea{
+ font-family:Inter,system-ui,sans-serif!important;font-size:13.5px!important;line-height:1.45!important;
+ border-radius:10px!important
+}
+body .community-settings-page :is(.settings-card,.vatra-community-advanced,.vatra-group-settings-shell){
+ color:var(--v26-ink);font-family:Inter,system-ui,sans-serif!important
+}
+body .community-settings-page :is(h2,h3,.settings-intro h2){letter-spacing:-.02em!important}
+body .community-settings-page .vatra-group-settings-nav button{font:600 13px/1.35 Inter,system-ui,sans-serif!important}
+body .vatra-scroll-to-top:not([hidden]){
+ position:fixed!important;inset:9px auto 0 0!important;width:clamp(100px,10.4vw,185px)!important;
+ height:calc(100dvh - 9px)!important;max-height:none!important;min-height:0!important;
+ padding:0 10px 30px!important;display:flex!important;flex-direction:row!important;
+ align-items:flex-end!important;justify-content:center!important;gap:8px!important;
+ background:rgba(65,83,107,.12)!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;color:#36638f!important;z-index:20!important;
+ font:700 14px Inter,system-ui,sans-serif!important
+}
+body .vatra-scroll-to-top:not([hidden]) svg{position:static!important;order:0!important;width:17px!important;height:17px!important;margin:0 0 1px!important}
+body .vatra-scroll-to-top:not([hidden]) span{order:1!important;white-space:nowrap!important}
+body .vatra-scroll-to-top:not([hidden]):hover{background:rgba(65,83,107,.2)!important}
+@media(max-width:1050px){body .vatra-scroll-to-top:not([hidden]){width:62px!important;padding-bottom:24px!important}body .vatra-scroll-to-top span{font-size:11px!important}}
+@media(max-width:899px){body .vatra-scroll-to-top:not([hidden]){inset:auto 14px 76px auto!important;width:auto!important;height:44px!important;border-radius:12px!important;padding:0 13px!important;align-items:center!important;background:#eff5fc!important;box-shadow:0 3px 16px #152b3d25!important}}
+/* Full viewport photo, no white information column, no duplicate close control. */
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer){
+ position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+ max-width:100vw!important;max-height:100dvh!important;margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;background:#080e15!important;color:#f8fbff!important;
+ overflow:hidden!important;box-shadow:none!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer)::backdrop{background:rgba(4,8,12,.95)!important}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) .vatra-media-viewer-shell,
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) .vatra-media-viewer-layout,
+body .vatra-avatar-viewer .vatra-avatar-viewer-body{
+ position:relative!important;display:block!important;width:100%!important;height:100%!important;
+ max-height:100%!important;padding:0!important;margin:0!important;background:transparent!important;
+ border:0!important;border-radius:0!important;overflow:hidden!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-media-viewer-side,.vatra-avatar-viewer-side,.vatra-viewer-exit,.vatra-media-viewer-brand,.vatra-media-viewer-tools){
+ display:none!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) .vatra-media-viewer-topbar{
+ position:fixed!important;inset:0 0 auto 0!important;height:0!important;padding:0!important;
+ margin:0!important;background:none!important;border:0!important;box-shadow:none!important;
+ z-index:100!important;overflow:visible!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) .vatra-media-viewer-topbar .vatra-media-viewer-brand{display:block!important}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-viewer-close,.vatra-avatar-viewer-close){
+ position:fixed!important;right:24px!important;top:20px!important;display:grid!important;
+ place-items:center!important;width:44px!important;height:44px!important;padding:0!important;
+ border:1px solid #ffffff35!important;border-radius:50%!important;
+ background:rgba(20,29,40,.83)!important;color:white!important;cursor:pointer!important;
+ font-size:0!important;line-height:0!important;z-index:100!important;
+ transition:background .17s ease,transform .17s ease!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-viewer-close,.vatra-avatar-viewer-close):hover{background:#334f70!important;transform:scale(1.05)!important}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-viewer-close,.vatra-avatar-viewer-close) svg{
+ display:block!important;width:22px!important;height:22px!important;fill:none!important;stroke:currentColor!important;
+ stroke-width:2.3!important;stroke-linecap:round!important
+}
+body .vatra-post-photo-viewer .vatra-media-viewer-stage,
+body .vatra-avatar-viewer .vatra-avatar-viewer-stage{
+ position:absolute!important;inset:0!important;height:100%!important;width:100%!important;
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ padding:22px 82px!important;margin:0!important;box-sizing:border-box!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ overflow:hidden!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) .vatra-media-viewer-image{
+ position:relative!important;display:block!important;width:auto!important;height:auto!important;
+ min-width:0!important;max-width:100%!important;max-height:calc(100dvh - 44px)!important;
+ object-fit:contain!important;border:0!important;border-radius:0!important;margin:auto!important;
+ box-shadow:none!important;transform-origin:center center!important
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-media-viewer-step,.vatra-avatar-viewer-nav){
+ position:fixed!important;top:50%!important;transform:translateY(-50%)!important;
+ width:48px!important;height:56px!important;display:grid!important;place-items:center!important;
+ padding:0!important;margin:0!important;border:1px solid #ffffff29!important;
+ border-radius:12px!important;background:rgba(22,32,44,.72)!important;color:#fff!important;
+ font-size:0!important;cursor:pointer!important;z-index:20!important
+}
+body .vatra-post-photo-viewer .prev,body .vatra-avatar-viewer .prev{left:17px!important;right:auto!important}
+body .vatra-post-photo-viewer .next,body .vatra-avatar-viewer .next{right:17px!important;left:auto!important}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-media-viewer-step,.vatra-avatar-viewer-nav) svg{
+ width:23px;height:23px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round
+}
+body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-media-viewer-step,.vatra-avatar-viewer-nav):disabled{opacity:.25!important;pointer-events:none}
+body .vatra-post-photo-viewer .vatra-media-viewer-counter,
+body .vatra-avatar-viewer .vatra-avatar-viewer-counter{
+ position:fixed!important;bottom:24px!important;left:50%!important;transform:translateX(-50%)!important;
+ padding:7px 13px!important;background:#090f18d6!important;color:#fff!important;
+ border-radius:20px!important;font:650 12px/1.3 Inter,system-ui,sans-serif!important
+}
+@media(max-width:600px){
+ body .vatra-post-photo-viewer .vatra-media-viewer-stage,body .vatra-avatar-viewer .vatra-avatar-viewer-stage{padding:70px 36px!important}
+ body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-media-viewer-step,.vatra-avatar-viewer-nav){width:30px!important;height:45px!important;border-radius:7px!important}
+ body .vatra-post-photo-viewer .prev,body .vatra-avatar-viewer .prev{left:2px!important}
+ body .vatra-post-photo-viewer .next,body .vatra-avatar-viewer .next{right:2px!important}
+ body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer) :is(.vatra-viewer-close,.vatra-avatar-viewer-close){right:12px!important;top:12px!important;width:40px!important;height:40px!important}
+}
+body .notification-popover:not([hidden]){
+ position:fixed!important;right:auto!important;left:var(--vatra-notification-center,50%)!important;
+ transform:translateX(-50%)!important;top:var(--vatra-notification-top,58px)!important;
+ max-width:min(380px,calc(100vw - 24px))!important
+}
+/* Align compressed post actions and their reaction portraits. */
+body .post-actions{display:flex!important;gap:5px!important;align-items:center!important;justify-content:space-between!important;flex-wrap:nowrap!important}
+body .post-actions > :is(button,a,.post-action){flex:1 1 0!important;min-width:0!important;margin:0!important;padding:9px 5px!important;gap:5px!important;justify-content:center!important}
+body .post-actions :is(.vatra-post-actor-stack,.vatra-actor-stack,.vatra-reaction-avatars){margin-inline:3px!important;gap:0!important}
+body .post-actions :is(svg,img){flex-shrink:0!important}
+body .vatra-community-gallery .vatra-community-media-tile img{object-fit:cover!important}
+body .vatra-community-gallery .vatra-community-gallery-heading,
+body .vatra-profile-photos .vatra-profile-card-head{align-items:center!important;gap:12px!important}
+body .vatra-public-photos-page{padding:20px!important;display:grid;gap:16px}
+body .vatra-public-photos-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body .vatra-public-photos-head h2{font-size:22px;margin:0;color:#243f5d}
+body .vatra-public-photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+body .vatra-public-photos-grid button{padding:0;border:0;border-radius:11px;overflow:hidden;aspect-ratio:1;background:#ebf2fa;cursor:pointer}
+body .vatra-public-photos-grid img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+body .vatra-public-photos-grid button:hover img{transform:scale(1.04)}
+body .vatra-share-dialog{width:min(540px,calc(100vw - 24px));max-height:90dvh;overflow:auto;margin:auto;padding:0;border:1px solid #dfe7f1;border-radius:16px;box-shadow:0 25px 80px #081b3859;background:#fff;color:#243c58;font-family:Inter,system-ui,sans-serif}
+body .vatra-share-dialog::backdrop{background:#091625ac}
+body .vatra-share-dialog header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 14px;border-bottom:1px solid #e7edf4}
+body .vatra-share-dialog header h2{font-size:19px;margin:0}
+body .vatra-share-dialog header button{display:grid;place-items:center;width:35px;height:35px;border:0;background:#edf3fb;color:#40617f;border-radius:10px;cursor:pointer}
+body .vatra-share-dialog form{display:grid;gap:17px;padding:20px 22px}
+body .vatra-share-dialog fieldset{display:grid;gap:10px;border:0;padding:0;margin:0}
+body .vatra-share-dialog legend{font-weight:700;margin-bottom:12px}
+body .vatra-share-choice{display:flex;align-items:center;gap:11px;padding:12px;border:1px solid #dce6f1;border-radius:11px;cursor:pointer}
+body .vatra-share-choice:has(input:checked){background:#f0f6ff;border-color:#80abe8}
+body .vatra-share-dialog select,body .vatra-share-dialog textarea{width:100%;border:1px solid #dce6f1;border-radius:10px;padding:11px;color:#243c58;font:13px Inter,sans-serif;box-sizing:border-box}
+body .vatra-share-dialog .vatra-share-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+body .vatra-share-dialog button.primary{background:#0757f5;color:#fff;border:0;border-radius:10px;padding:11px 17px;cursor:pointer}
+body .vatra-share-dialog .vatra-share-error{color:#c22f4a;margin:0;font-size:12px}
+body .vatra-route-menu{position:fixed;z-index:99999;background:#fff;color:#24405c;border:1px solid #d9e5f2;border-radius:11px;box-shadow:0 8px 30px #081a3440;padding:6px;min-width:215px}
+body .vatra-route-menu button{width:100%;text-align:left;display:flex;gap:9px;align-items:center;border:0;border-radius:7px;background:none;padding:11px;color:inherit;font:600 13px Inter,sans-serif;cursor:pointer}
+body .vatra-route-menu button:hover{background:#edf4fc}
