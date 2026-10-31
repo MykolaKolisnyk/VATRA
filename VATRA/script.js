@@ -1179,7 +1179,7 @@ function renderGroupDetails(id){
  if(vatraGroupActiveTabId!==id){vatraGroupActiveTabId=id;vatraGroupActiveTab='posts';}
  page='groups';document.body.dataset.page=page;groupId=id;
  const groupTitle=$('#title');if(groupTitle)groupTitle.textContent=groups[id]?.name||'Спільнота';
- $('button[data-page]').forEach(button=>button.classList.toggle('active',button.dataset.page==='groups'));
+ document.querySelectorAll('button[data-page]').forEach(button=>button.classList.toggle('active',button.dataset.page==='groups'));
  const quick=$('.quick-compose');if(quick)quick.hidden=true;
  groupDetailsUnsub=watch('groupPosts/'+id,v=>{
   if(page!=='groups'||groupId!==id)return;
@@ -1276,7 +1276,7 @@ function renderGroupDetails(id){
    try{await set(push(ref(db,'groupPosts/'+id)),{authorUid:currentUser.uid,authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',text,createdAt:Date.now()});form.reset();toastMsg('Допис опубліковано.');}
    catch(err){toastMsg(niceError(err));button.disabled=false;}
   });
-  $('[data-vatra-group-image]').forEach(button=>button.addEventListener('click',()=>{
+  document.querySelectorAll('[data-vatra-group-image]').forEach(button=>button.addEventListener('click',()=>{
    const url=button.dataset.vatraGroupImage;if(!/^https:\/\//i.test(url))return;
    const dialog=document.createElement('dialog');dialog.className='vatra-group-photo-dialog';
    dialog.innerHTML='<div class="vatra-group-photo-shell"><button type="button" class="vatra-group-photo-close" aria-label="Закрити фото">×</button><img alt="Фото допису спільноти"><p>Фото спільноти ВАТРА</p></div>';
