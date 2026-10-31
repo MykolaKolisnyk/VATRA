@@ -2837,7 +2837,7 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
    else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
    else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
    return '<button type="button" class="topbar-notification-row '+(n.unread?'is-unread':'')+'" '+attr+'>'+
-    (n.type==='verified'?'<span class="vatra-system-notice-icon">✓</span>':avatar(u.name||'Користувач',u.avatarUrl))+
+    (n.type==='verified'?'<span class="vatra-system-notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg></span>':avatar(u.name||'Користувач',u.avatarUrl))+
     '<span><b>'+title+'</b>'+((n.type==='comment'||n.type==='verified')&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
     (n.unread?'<i aria-label="Нове"></i>':'')+'</button>';
   }).join('');
