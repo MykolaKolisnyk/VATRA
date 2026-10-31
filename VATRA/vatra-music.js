@@ -47,7 +47,7 @@ const page=document.getElementById('feed');
 const musicHeader=document.getElementById('vatraMusicHeaderButton');
 const musicTopPanel=document.getElementById('vatraMusicTopPanel');
 let musicTab='all',musicQuery='',musicUid='',musicFavorites=new Set(),musicLoaded=false,musicLoadError='',musicLoading=false,playerItem=null,playerExpanded=false;
-let spotifyApiPromise=null,spotifyController=null,actualPlayingUri='',actualPlaying=false,metadataSequence=0,playbackEndTimer=null;
+let spotifyApiPromise=null,spotifyController=null,spotifyInitializing=false,actualPlayingUri='',actualPlaying=false,metadataSequence=0,playbackEndTimer=null;
 const nowPlayingKnown=new Map(MUSIC_LIBRARY.filter(i=>i.type==='track').map(i=>['spotify:track:'+i.id,i]));
 function ensureSpotifyApi(){
  if(spotifyApiPromise)return spotifyApiPromise;
@@ -86,6 +86,7 @@ async function resolveCurrentTrack(uri){
 async function setPlayingState(uri,playing,duration=0,position=0){
  const changed=actualPlaying!==playing||actualPlayingUri!==uri;
  actualPlaying=playing;actualPlayingUri=playing?uri:'';
+ syncHeaderMusic();
  if(playbackEndTimer){clearTimeout(playbackEndTimer);playbackEndTimer=null;}
  if(playing&&duration>position&&Number.isFinite(duration-position)){
   playbackEndTimer=setTimeout(()=>{if(actualPlaying)void setPlayingState('',false);},Math.min(duration-position+1500,86400000));
@@ -101,13 +102,17 @@ async function setPlayingState(uri,playing,duration=0,position=0){
 async function attachSpotifyController(item){
  const api=await ensureSpotifyApi();
  if(!playerItem)return;
- const dock=activePlayer(),target=dock.querySelector('#vatraMusicFrame');
- if(spotifyController){
-  spotifyController.loadEntity(addressFor(item));
-  return;
- }
- api.createController(target,{width:'100%',height:item.type==='track'?152:232,url:addressFor(item)},controller=>{
+ if(spotifyController){spotifyController.loadEntity(addressFor(item));return;}
+ if(spotifyInitializing)return;
+ spotifyInitializing=true;
+ const dock=activePlayer(),wrap=dock.querySelector('.vatra-music-frame-wrap');
+ wrap.innerHTML='<div id="vatraMusicFrame" aria-label="Офіційний програвач Spotify"></div>';
+ const target=wrap.querySelector('#vatraMusicFrame');
+ api.createController(target,{width:'100%',height:playerItem.type==='track'?152:232,url:addressFor(playerItem)},controller=>{
+  spotifyInitializing=false;
+  if(!playerItem){controller.destroy();return;}
   spotifyController=controller;
+  if(key(playerItem)!==key(item))controller.loadEntity(addressFor(playerItem));
   controller.addListener('playback_started',event=>{
    const uri=event?.data?.playingURI||'';
    if(uri)void setPlayingState(uri,true);
@@ -144,12 +149,12 @@ function setPlayerExpanded(flag){
 }
 
 function syncHeaderMusic(){
- const playing=!!playerItem;
+ const playing=actualPlaying,selected=!!playerItem;
  const dot=document.getElementById('vatraMusicPlayingDot');if(dot)dot.hidden=!playing;
- const title=document.getElementById('vatraTopMusicTitle');if(title)title.textContent=playing?playerItem.title:'Оберіть музику';
- const artist=document.getElementById('vatraTopMusicArtist');if(artist)artist.textContent=playing?playerItem.artist:'Українські пісні та плейлисти';
- const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton){playerButton.disabled=false;playerButton.textContent=playing?'Показати плеєр':'Слухати добірку';}
- if(musicHeader)musicHeader.classList.toggle('has-player',playing);
+ const title=document.getElementById('vatraTopMusicTitle');if(title)title.textContent=selected?playerItem.title:'Оберіть музику';
+ const artist=document.getElementById('vatraTopMusicArtist');if(artist)artist.textContent=selected?playerItem.artist:'Українські пісні та плейлисти';
+ const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton){playerButton.disabled=false;playerButton.textContent=selected?'Показати плеєр':'Слухати добірку';}
+ if(musicHeader)musicHeader.classList.toggle('has-player',selected);
 }
 function closeMusicMenu(){if(musicTopPanel)musicTopPanel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
 function play(item){
@@ -172,7 +177,7 @@ function play(item){
 function stop(){
  const dock=activePlayer();
  if(spotifyController){try{spotifyController.destroy();}catch{}spotifyController=null;}
- dock.querySelector('#vatraMusicFrame').replaceChildren();
+ dock.querySelector('.vatra-music-frame-wrap').innerHTML='<div id="vatraMusicFrame" aria-label="Офіційний програвач Spotify"></div>';
  dock.hidden=true;playerItem=null;
  void setPlayingState('',false);
  document.body.classList.remove('vatra-has-music');syncHeaderMusic();
