@@ -68,6 +68,12 @@ begin
  end if;
  insert into public.vatra_moderation_audit(actor_uid,action,target,details)
  values(auth.uid(),'staff_role',_uid::text,jsonb_build_object('role',_role));
+ insert into public.vatra_verified_notices(recipient_uid,kind,title,body,target_kind,target_id)
+ values(_uid,case when _role is null then 'staff_removed' else 'staff_appointed' end,
+ case when _role is null then 'Права працівника відкликано' else 'Вам надано роль у ВАТРІ' end,
+ case when _role is null then 'Власник ВАТРИ відкликав Ваші адміністративні повноваження.'
+ else 'Власник ВАТРИ призначив Вам посаду: '||_role||'. Доступні лише дозволені Вашою роллю функції.' end,
+ 'account',_uid::text);
  return jsonb_build_object('uid',_uid,'role',_role);
 end $staff$;
 revoke all on function public.vatra_owner_set_staff(uuid,text) from public,anon;
