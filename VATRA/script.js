@@ -1362,7 +1362,10 @@ function renderGroupDetails(id){
    '<section class="vatra-group-card vatra-group-rail-people"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
     '<div class="vatra-group-members-preview">'+people.slice(0,6).join('')+'</div>'+
     (people.length>6?'<button type="button" class="vatra-group-more-members" data-vatra-group-jump-members>Переглянути всіх</button>':'')+'</section>'+
-   '<section class="vatra-group-card vatra-group-rail-owner"><h3>Творець спільноти</h3><button type="button" data-view-profile="'+esc(g.ownerUid)+'">'+avatar(owner.name||'Творець',owner.avatarUrl)+'<span>'+esc(owner.name||'Користувач ВАТРИ')+'</span></button></section>'+
+   '<section class="vatra-group-card vatra-group-rail-contacts"><div class="vatra-group-section-header"><h3>Контакти</h3>'+(canEditVisuals?'<button type="button" data-manage-group="'+esc(id)+'">Керувати</button>':'')+'</div>'+
+   (Array.isArray(g.contacts)&&g.contacts.length?g.contacts.filter(c=>c&&c.uid&&users[c.uid]).slice(0,12).map(c=>{
+     const person=users[c.uid];return '<button type="button" class="vatra-group-contact" data-view-profile="'+esc(c.uid)+'">'+avatar(person.name||'Контакт',person.avatarUrl)+'<span><b>'+esc(person.name||'Користувач ВАТРИ')+'</b><small>'+esc(String(c.title||'Контакт').slice(0,70))+'</small></span></button>';
+    }).join(''):'<p class="vatra-group-contacts-empty">Контакти поки не додані.</p>')+'</section>'+
    '</aside>';
   setFeed('<section class="vatra-group-view'+(canManage?' is-manager':' is-visitor')+'">'+intro+
    '<div class="vatra-group-content-grid"><div class="vatra-group-main">'+
