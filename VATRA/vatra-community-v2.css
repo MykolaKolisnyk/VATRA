@@ -96,7 +96,7 @@ body .vatra-comment-thread-toggle{margin:9px 0 0!important;background:transparen
 body .vatra-comment-photo{display:block!important;max-width:290px!important;width:100%!important;overflow:hidden!important;border:0!important;border-radius:10px!important;padding:0!important;background:#ebf0f7!important;text-align:left!important;}
 body .vatra-comment-photo img{display:block;width:100%;max-height:290px;object-fit:contain;}
 body .vatra-comment-entry{display:flex!important;flex-wrap:wrap!important;align-items:flex-end!important;gap:8px!important;margin:13px 0 0!important;padding:10px!important;border:1px solid #dfebf6!important;border-radius:12px!important;background:#f9fbfe!important;}
-body .vatra-comment-entry textarea{box-sizing:border-box;flex:1 1 180px!important;min-width:0;min-height:49px!important;max-height:140px;resize:vertical;padding:10px 11px!important;border:1px solid #e1e9f2!important;border-radius:9px!important;background:white!important;color:#2f4962!important;font:400 13px/1.5 inherit!important;}
+body .vatra-comment-entry textarea{box-sizing:border-box;flex:1 1 180px!important;min-width:0;min-height:49px!important;max-height:140px;resize:vertical;padding:10px 11px!important;border:1px solid #e1e9f2!important;border-radius:9px!important;background:white!important;color:#2f4962!important;font-family:inherit!important;font-size:13px!important;font-weight:400!important;line-height:1.5!important;}
 body .vatra-comment-entry>.emoji-picker-wrap{flex:0 0 auto;}
 body .vatra-comment-entry>button[type=submit]{align-self:end;min-height:38px!important;padding:8px 15px!important;background:#0757f5!important;color:#fff!important;border:0!important;border-radius:8px!important;font-size:12px!important;font-weight:750!important;}
 body .vatra-comment-attach{display:grid;place-items:center;flex:0 0 36px;width:36px;height:38px;border:1px solid #d8e5f4;border-radius:8px;cursor:pointer;color:#3d6e9e;background:#fff;font-size:18px;}
@@ -110,3 +110,17 @@ body #vatraScrollToTop span{order:1!important;display:inline!important;line-heig
 @media(max-width:1040px){body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(225px,280px)!important;gap:12px!important;}}
 @media(max-width:760px){body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr)!important;}body .vatra-group-card{padding:15px!important;}body .vatra-group-post-record>.post{padding:15px!important;}body .vatra-group-members-dialog-list{grid-template-columns:minmax(0,1fr);}body .vatra-community-videos-grid{grid-template-columns:minmax(0,1fr);}body .vatra-community-photos-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
 @media(max-width:430px){body .vatra-community-photos-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body .vatra-comment-entry textarea{flex-basis:100%!important;}body .vatra-group-hero .vatra-group-heading h2{font-size:22px!important;}}
+
+/* Album covers mimic the main profile media collections. */
+body .vatra-community-album-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
+body .vatra-community-album-card{display:grid;gap:6px;min-width:0;text-align:left;padding:0 0 5px!important;background:transparent!important;border:0!important;color:#334b65!important;}
+body .vatra-community-album-card:hover b{color:#095dde!important;}
+body .vatra-community-album-cover{display:grid;place-items:center;overflow:hidden;width:100%;aspect-ratio:4/3;border-radius:10px;background:#e9f1fc;color:#8ca4bf;font-size:25px;}
+body .vatra-community-album-cover img{width:100%;height:100%;object-fit:cover;}
+body .vatra-community-album-card b{font-size:12px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+body .vatra-community-album-card small{font-size:11px;color:#8799ae;}
+body .vatra-post-album-select{display:grid;gap:7px;margin-top:12px;padding:12px 0 0;border-top:1px solid #e5ecf5;}
+body .vatra-post-album-select[hidden]{display:none!important;}
+body .vatra-post-album-select label{color:#4a6583;font-size:12px;font-weight:720;}
+body .vatra-post-album-select select{min-height:40px;padding:8px 10px;border:1px solid #d5e5f4;border-radius:9px;background:#fff;color:#38546e;}
+@media(max-width:430px){body .vatra-community-album-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
