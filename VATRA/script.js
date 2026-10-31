@@ -1382,6 +1382,10 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
    (canManage?'<label class="vatra-community-upload-label">＋ Додати '+(photo?'фото':'відео')+'<input type="file" id="vatraCommunityMediaUpload" '+(photo?'accept="image/*" multiple':'accept="video/*"')+' hidden></label>':'')+
    (photo&&canEditAlbums?'<button type="button" data-community-create-album>＋ Новий альбом</button>':'')+'</header>'+
    (photo&&canManage&&albums.length?'<label class="vatra-community-album-choose">Додавати нові фото в альбом <select id="vatraCommunityTargetAlbum"><option value="">Без альбому</option>'+albums.map(a=>'<option value="'+esc(a.id)+'"'+(chosen===a.id?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select></label>':'')+
+   (photo&&albums.length?'<div class="vatra-community-album-cards">'+albums.map(a=>{
+    const files=combined.filter(item=>item.albumId===a.id),cover=files[0]?.url;
+    return '<button type="button" class="vatra-community-album-card" data-community-album="'+esc(a.id)+'"><span class="vatra-community-album-cover">'+(cover?'<img src="'+esc(cover)+'" loading="lazy" alt="">':'<span>▧</span>')+'</span><b>'+esc(a.name)+'</b><small>'+files.length+' фото</small></button>';
+   }).join('')+'</div>':'')+
    '<nav class="vatra-community-gallery-filters" aria-label="Альбоми">'+filters.map(([key,title])=>'<button type="button" data-community-album="'+esc(key)+'" class="'+(key===chosen?'is-active':'')+'">'+esc(title)+'</button>').join('')+'</nav>'+
    '<div class="'+(photo?'vatra-community-photos-grid':'vatra-community-videos-grid')+'">'+(filtered.length?filtered.map(tile).join(''):'<p class="vatra-community-gallery-empty">У цьому розділі ще немає '+(photo?'фотографій.':'відео.')+'</p>')+'</div></section>';
   const photoButtons=panel.querySelectorAll('[data-community-gallery-photo]');
