@@ -154,3 +154,26 @@ END;$f$;
 REVOKE ALL ON FUNCTION public.vatra_gifts_claim_welcome(),public.vatra_gifts_place_order(text),public.vatra_gifts_my_orders(),public.vatra_gifts_admin_orders(),public.vatra_gifts_resolve_handle(text),public.vatra_gifts_admin_inventory(text),public.vatra_gifts_admin_grant(text,text,text),public.vatra_gifts_admin_revoke(text,uuid,text),public.vatra_gifts_admin_fulfill(bigint),public.vatra_gifts_cancel_order(bigint) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.vatra_gifts_claim_welcome(),public.vatra_gifts_place_order(text),public.vatra_gifts_my_orders(),public.vatra_gifts_admin_orders(),public.vatra_gifts_admin_inventory(text),public.vatra_gifts_admin_grant(text,text,text),public.vatra_gifts_admin_revoke(text,uuid,text),public.vatra_gifts_admin_fulfill(bigint),public.vatra_gifts_cancel_order(bigint) TO authenticated;
 -- Допоміжна резолюція псевдоніма використовується лише в SECURITY DEFINER функціях.
+
+-- Офіційні повідомлення по замовленнях. Потрібна vatra-support-desk.sql.
+ALTER TABLE public.vatra_gift_orders ADD COLUMN IF NOT EXISTS support_ticket_id bigint;
+CREATE OR REPLACE FUNCTION public.vatra_gifts_admin_contact_order(_order_id bigint,_message text)
+RETURNS bigint LANGUAGE plpgsql SECURITY DEFINER SET search_path='' SET row_security=off AS $f$
+DECLARE rowx public.vatra_gift_orders%rowtype; ticket bigint; body_text text:=btrim(coalesce(_message,''));
+BEGIN
+ IF auth.uid() IS NULL OR public.vatra_staff_role()<>'owner' THEN RAISE EXCEPTION 'Недостатньо повноважень'; END IF;
+ IF length(body_text)<5 OR length(body_text)>4000 THEN RAISE EXCEPTION 'Повідомлення має містити 5–4000 символів'; END IF;
+ SELECT * INTO rowx FROM public.vatra_gift_orders WHERE id=_order_id FOR UPDATE;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Замовлення не знайдено'; END IF;
+ ticket:=rowx.support_ticket_id;
+ IF ticket IS NULL THEN
+  INSERT INTO public.vatra_support_tickets(requester_uid,assigned_uid,subject,status)
+  VALUES(rowx.buyer_uid,auth.uid(),'Замовлення подарунка ВАТРИ №'||_order_id,'in_progress') RETURNING id INTO ticket;
+  UPDATE public.vatra_gift_orders SET support_ticket_id=ticket WHERE id=_order_id;
+ END IF;
+ INSERT INTO public.vatra_support_messages(ticket_id,sender_uid,body) VALUES(ticket,auth.uid(),body_text);
+ UPDATE public.vatra_support_tickets SET last_activity_at=now(),status='in_progress' WHERE id=ticket;
+ RETURN ticket;
+END;$f$;
+REVOKE ALL ON FUNCTION public.vatra_gifts_admin_contact_order(bigint,text) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.vatra_gifts_admin_contact_order(bigint,text) TO authenticated;

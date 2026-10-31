@@ -222,7 +222,7 @@ function giftAdminMarkup(orders=[]){
  '<div class="vatra-gift-admin-orders">'+
  (orders.length?orders.map(o=>'<article class="vatra-gift-admin-order"><div><strong>№'+esc(o.id)+' · '+esc(giftNames[o.code]||o.code)+'</strong><span>@'+esc(o.handle||'невідомий')+' · '+esc(o.price)+' грн</span><small>UID: '+esc(o.uid)+'</small><small>'+time(o.createdAt)+'</small></div>'+
  '<div><span class="vatra-control-state">'+esc(({pending:'Нове замовлення',fulfilled:'Видано',cancelled:'Скасовано'})[o.status]||o.status)+'</span>'+
- (o.status==='pending'?'<button type="button" class="vatra-control-secondary" data-vatra-gift-contact="'+esc(o.uid)+'">Написати користувачу</button><button type="button" class="vatra-control-primary" data-vatra-gift-fulfill="'+esc(o.id)+'">Оплату отримано · Видати</button>':'')+
+ (o.status==='pending'?'<div class="vatra-gift-admin-message"><textarea data-vatra-gift-message-input="'+esc(o.id)+'" rows="2" maxlength="4000" placeholder="Напишіть повідомлення від ВАТРИ про спосіб оплати..."></textarea><button type="button" class="vatra-control-secondary" data-vatra-gift-contact="'+esc(o.id)+'">Написати від ВАТРИ</button></div><button type="button" class="vatra-control-primary" data-vatra-gift-fulfill="'+esc(o.id)+'">Оплату отримано · Видати</button>':'')+
  '</div></article>').join(''):'<p class="vatra-control-muted">Замовлень поки немає.</p>')+
  '</div></section>'+
  '<section class="vatra-control-card vatra-gift-admin"><h3>Видати подарунок за псевдонімом</h3>'+
@@ -235,9 +235,15 @@ function giftAdminMarkup(orders=[]){
  '<div id="vatraGiftAdminInventory" role="status"></div></section>';
 }
 function installGiftAdminEvents(){
- document.querySelectorAll('[data-vatra-gift-contact]').forEach(button=>button.addEventListener('click',()=>{
-  const uid=button.dataset.vatraGiftContact;
-  if(uid)void window.vatraRouter?.startChatWith(uid);
+ document.querySelectorAll('[data-vatra-gift-contact]').forEach(button=>button.addEventListener('click',async()=>{
+  const id=Number(button.dataset.vatraGiftContact),input=document.querySelector('[data-vatra-gift-message-input="'+id+'"]');
+  const message=input?.value.trim()||'';
+  if(message.length<5){alert('Введіть повідомлення від ВАТРИ.');input?.focus();return;}
+  button.disabled=true;
+  try{
+   await rpc('vatra_gifts_admin_contact_order',{_order_id:id,_message:message});
+   input.value='';alert('Службове повідомлення надіслано. Діалог доступний у техпідтримці.');
+  }catch(err){alert(errorText(err));}finally{button.disabled=false;}
  }));
  document.querySelectorAll('[data-vatra-gift-fulfill]').forEach(button=>button.addEventListener('click',async()=>{
   const id=Number(button.dataset.vatraGiftFulfill);
