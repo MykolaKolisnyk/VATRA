@@ -72,3 +72,99 @@ body[data-page="messages"] .vatra-messenger-empty{min-height:0!important;height:
  body[data-page="messages"] .vatra-messenger-shell>.vatra-messenger-sidebar{min-height:0!important;height:100%!important}
 }
 @media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav{transition:none!important}}
+
+
+/* VATRA 2026-10-31: single blue action palette, semantic removal red, readable profile details. */
+body[data-page="profile"] .vatra-profile-photos #profileAddPhoto{
+ color:var(--vatra-user-accent,#0757f5)!important;
+ background:transparent!important;
+ border:0!important;
+ border-radius:7px!important;
+ font-weight:600!important;
+ box-shadow:none!important;
+ transition:color .18s ease,background-color .18s ease!important;
+}
+body[data-page="profile"] .vatra-profile-photos #profileAddPhoto:hover{
+ color:#034ccf!important;
+ background:#edf3fd!important;
+ box-shadow:none!important;
+}
+body[data-page="profile"] .vatra-profile-photos .profile-photo-remove{
+ color:#b94c5b!important;
+ background:transparent!important;
+ border:0!important;
+ font-weight:550!important;
+ border-radius:6px!important;
+ box-shadow:none!important;
+ text-decoration:none!important;
+ transition:color .17s ease,background-color .17s ease!important;
+}
+body[data-page="profile"] .vatra-profile-photos .profile-photo-remove:hover{
+ color:#a33749!important;
+ background:#fcf0f2!important;
+ border-color:transparent!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dd{
+ font-weight:400!important;
+ color:#43566c!important;
+ line-height:1.6!important;
+ letter-spacing:normal!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dt{
+ font-weight:450!important;
+ color:#788ba2!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong{
+ font-weight:620!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body{
+ background:#fff!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-row dd{
+ color:#dce6f2!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-photos #profileAddPhoto{
+ color:#90b9ff!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-photos #profileAddPhoto:hover{
+ color:#bdd6ff!important;background:#304965!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-photos .profile-photo-remove{
+ color:#f0a9b5!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-photos .profile-photo-remove:hover{
+ color:#ffd0d8!important;background:#513847!important;
+}
+/* SVG rather than a text ellipsis: the three dots can never wrap vertically. */
+body .post .post-menu>summary.dots{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 0 34px!important;width:34px!important;height:34px!important;
+ min-width:34px!important;min-height:34px!important;max-width:34px!important;
+ padding:0!important;margin:0!important;
+ border:0!important;border-radius:8px!important;
+ background:transparent!important;color:#8090a4!important;
+ font-size:0!important;line-height:0!important;letter-spacing:0!important;
+ white-space:nowrap!important;list-style:none!important;cursor:pointer!important;
+ box-shadow:none!important;overflow:hidden!important;
+}
+body .post .post-menu>summary.dots::-webkit-details-marker{display:none!important;}
+body .post .post-menu>summary.dots::marker{content:""!important;font-size:0!important;}
+body .post .post-menu>summary.dots svg{
+ display:block!important;flex:none!important;
+ width:21px!important;height:21px!important;
+ fill:currentColor!important;stroke:none!important;
+}
+body .post .post-menu>summary.dots:hover,
+body .post .post-menu[open]>summary.dots{
+ color:#4b647f!important;background:#f0f3f7!important;
+}
+body[data-vatra-theme-effective="dark"] .post .post-menu>summary.dots:hover,
+body[data-vatra-theme-effective="dark"] .post .post-menu[open]>summary.dots{
+ color:#d2e2f4!important;background:#394b61!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="profile"] .vatra-profile-photos #profileAddPhoto,
+ body[data-page="profile"] .vatra-profile-photos .profile-photo-remove{
+  transition:none!important;
+ }
+}
