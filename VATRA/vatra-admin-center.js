@@ -73,7 +73,7 @@ function askAction(label,detail,{danger=false}={}){
 }
 function navbar(){
  return '<nav class="vatra-control-tabs" aria-label="Розділи адмінпанелі">'+
- [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['content','Контент'],['verification','Галочки'],['requests','Заявки'],['team','Команда'],['audit','Журнал']].filter(([key])=>staffRole==='owner'||(staffRole==='admin'?key!=='team':staffRole==='moderator'?['reports','content'].includes(key):staffRole==='support'?key==='reports':staffRole==='verifier'?['verification','requests'].includes(key):false)).map(([key,label])=>
+ [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['content','Контент'],['verification','Галочки'],['requests','Заявки'],['team','Команда'],['support','Техпідтримка'],['duties','Обов’язки'],['audit','Журнал']].filter(([key])=>staffRole==='owner'||(staffRole==='admin'?['reports','accounts','communities','content','verification','requests','duties'].includes(key):staffRole==='moderator'?['reports','content','duties'].includes(key):staffRole==='support'?['reports','support','duties'].includes(key):staffRole==='verifier'?['verification','requests','duties'].includes(key):false)).map(([key,label])=>
   '<button type="button" data-control-tab="'+key+'" class="'+(activeTab===key?'is-active':'')+'">'+label+(key==='reports'&&queueCount?'<span>'+queueCount+'</span>':'')+'</button>').join('')+'</nav>';
 }
 function activityStats(cases,accounts,groups){
@@ -172,15 +172,15 @@ function caseDetail(c){
 }
 function auditMarkup(events){
  return '<section class="vatra-control-card"><h3>Журнал адміністратора</h3><p>Історія змін незворотна для користувачів інтерфейсу, але її захист залежить від налаштувань бази.</p><div class="vatra-control-audit">'+
- (events.map(a=>'<article><strong>'+esc(a.action)+'</strong><span>'+esc(a.target)+'</span><small>'+time(a.created_at)+'</small></article>').join('')||'<p class="vatra-control-muted">Історія порожня.</p>')+'</div></section>';
+ (events.map(a=>'<article><strong>'+esc(a.action)+'</strong><span>'+esc(a.target)+'</span><small>'+time(a.created_at)+'</small><pre>'+esc(JSON.stringify(a.details||{},null,2))+'</pre><small>Виконавець: '+esc(a.actor_uid)+'</small></article>').join('')||'<p class="vatra-control-muted">Історія порожня.</p>')+'</div></section>';
 }
 async function getRows(table,limit=300,orderBy='created_at'){
  const {data,error}=await client.from(table).select('*').order(orderBy,{ascending:false}).limit(limit);
  if(error)throw error;return Array.isArray(data)?data:[];
 }
 async function renderDashboard(){
- if(!(await checkRole()))return;
- const tabs=staffRole==='owner'?['reports','accounts','communities','content','verification','requests','team','audit']:staffRole==='admin'?['reports','accounts','communities','content','verification','requests','audit']:staffRole==='moderator'?['reports','content']:staffRole==='support'?['reports']:['verification','requests'];
+ if(!(await checkRole(true)))return;
+ const tabs=staffRole==='owner'?['reports','accounts','communities','content','verification','requests','team','support','duties','audit']:staffRole==='admin'?['reports','accounts','communities','content','verification','requests','duties']:staffRole==='moderator'?['reports','content','duties']:staffRole==='support'?['reports','support','duties']:['verification','requests','duties'];
  if(!tabs.includes(activeTab))activeTab=tabs[0];
  const token=++loadingToken;
  show(navbar()+'<div class="vatra-control-loading" role="status">Завантажуємо панель керування…</div>','Адмінпанель ВАТРИ','adminCenter');
@@ -200,6 +200,8 @@ async function renderDashboard(){
    :activeTab==='verification'?verificationForm()+(window.vatraAdminExtras?.groupForm?.()||'')
    :activeTab==='requests'?(window.vatraAdminExtras?.requests?.(requests)||'')
    :activeTab==='team'?(window.vatraAdminExtras?.team?.(team)||'')
+   :activeTab==='support'?'<section class="vatra-control-card"><h3>Діалоги техпідтримки</h3><p>Службові звернення з призначеними операторами. Власник може читати всі розмови.</p><button type="button" class="vatra-control-primary" data-admin-open-support>Відкрити техпідтримку</button></section>'
+   :activeTab==='duties'?(window.vatraAdminExtras?.policy?.(staffRole)||'')
    :auditMarkup(audit);
   show(navbar()+stat+content,'Адмінпанель ВАТРИ','adminCenter');
   installEvents({cases,accounts,groups,audit,hidden,requests,team});
@@ -215,6 +217,7 @@ function installTabs(){
 function installEvents(data){
  installTabs();
  window.vatraAdminExtras?.install?.(data,()=>void renderDashboard(),askAction,rpc,toastInline);
+ $('[data-admin-open-support]')?.addEventListener('click',()=>void window.vatraOpenSupportDesk?.());
  $('[data-control-more-cases]')?.addEventListener('click',()=>{caseLimit+=300;void renderDashboard();});
  const filter=$('#vatraControlReportFilter'),search=$('#vatraControlReportSearch');
  function filterCases(){
