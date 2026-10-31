@@ -1492,6 +1492,7 @@ function renderGroupDetails(id){
  });
 }
 function openGroupSettings(id){if(!authRequired())return;const g=groups[id];if(!g)return;const canManage=g.ownerUid===currentUser.uid||!!groupAdmins[id]?.[currentUser.uid]||!!groupModerators[id]?.[currentUser.uid];if(!canManage)return toastMsg('У Вас немає прав керувати цією спільнотою.');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}groupId=id;page='groupSettings';document.body.dataset.page=page;$('#title').textContent='Керування спільнотою';$('#subtitle').textContent=g.name||'';$('.heading .eyebrow').textContent='СПІЛЬНОТА';$$('button[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page==='groups'));const composer=$('.quick-compose');if(composer)composer.hidden=true;const sort=$('#sort');if(sort)sort.hidden=true;renderGroupSettings(id);}
+let vatraGroupSettingsTab='general';
 function renderGroupSettings(id){
  const g=groups[id];if(!g){page='groups';groupId=null;return renderGroups();}
  const isOwner=g.ownerUid===currentUser?.uid,isAdmin=!!groupAdmins[id]?.[currentUser?.uid],isMod=!!groupModerators[id]?.[currentUser?.uid],canEditSettings=isOwner||isAdmin,canManageRoles=isOwner||isAdmin;
@@ -1575,6 +1576,45 @@ function renderGroupSettings(id){
   await saveGroupContacts(entries.filter(c=>c.uid!==button.dataset.removeGroupContact));
  }));
  $('#groupSettingsForm')?.addEventListener('submit',async e=>{e.preventDefault();if(!canEditSettings)return;const fd=new FormData(e.currentTarget),name=String(fd.get('name')||'').trim(),description=String(fd.get('description')||'').trim(),category=String(fd.get('category')||'').trim(),visibility=String(fd.get('visibility')||'public');if(name.length<2){$('#groupSettingsStatus').textContent='Назва має містити щонайменше 2 символи.';return;}const btn=e.currentTarget.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Зберігаємо…';try{await update(ref(db,`groups/${id}`),{name:name.slice(0,60),description:description.slice(0,500),category:category.slice(0,80),visibility,updatedAt:Date.now()});$('#groupSettingsStatus').textContent='Зміни збережено.';toastMsg('Спільноту оновлено.');}catch(err){$('#groupSettingsStatus').textContent=niceError(err);}finally{btn.disabled=false;btn.textContent='Зберегти зміни';}});
+ // Separate working settings panels, similar to community administration pages.
+ const layout=$('.community-settings-page');
+ const general=layout?.querySelector('#groupSettingsForm');
+ const team=[...(layout?.children||[])].find(node=>node.classList.contains('settings-card')&&!node.classList.contains('vatra-community-contact-settings')&&!node.classList.contains('vatra-community-advanced'));
+ if(layout&&general&&team){
+  const shell=document.createElement('div');shell.className='vatra-group-settings-shell';
+  const nav=document.createElement('nav');nav.className='vatra-group-settings-nav';nav.setAttribute('aria-label','Налаштування спільноти');
+  const content=document.createElement('div');content.className='vatra-group-settings-content';
+  const panels=[
+   ['general','Основна інформація',general],
+   ['content','Контент і коментарі',prefsCard],
+   ['contacts','Контакти',contactsCard],
+   ['team','Керівники й учасники',team]
+  ];
+  const scheduled=document.createElement('section');scheduled.className='settings-card';
+  scheduled.innerHTML='<h3>Заплановані дописи</h3><p class="muted">Публікації від Вашого акаунта, заплановані для цієї спільноти.</p><button class="primary" type="button" id="vatraCommunityScheduleView">Переглянути та скасувати</button>';
+  panels.push(['scheduled','Заплановані дописи',scheduled]);
+  layout.querySelector('.settings-intro')?.insertAdjacentElement('afterend',shell);
+  shell.append(nav,content);
+  panels.forEach(([key,title,element])=>{
+   element.dataset.groupSettingsTab=key;content.append(element);
+   const button=document.createElement('button');button.type='button';button.dataset.groupSettingsTarget=key;button.textContent=title;nav.append(button);
+  });
+  const choose=key=>{
+   vatraGroupSettingsTab=panels.some(item=>item[0]===key)?key:'general';
+   panels.forEach(([id,,element])=>{element.hidden=id!==vatraGroupSettingsTab;});
+   nav.querySelectorAll('button').forEach(button=>{
+    const selected=button.dataset.groupSettingsTarget===vatraGroupSettingsTab;
+    button.classList.toggle('active',selected);
+    button.setAttribute('aria-current',selected?'page':'false');
+   });
+  };
+  nav.addEventListener('click',event=>{
+   const button=event.target.closest('[data-group-settings-target]');
+   if(button)choose(button.dataset.groupSettingsTarget);
+  });
+  scheduled.querySelector('#vatraCommunityScheduleView').addEventListener('click',()=>vatraShowScheduledPosts(id));
+  choose(vatraGroupSettingsTab);
+ }
 }
 function chatKey(uid1,uid2){return [uid1,uid2].sort().join('_');}
 function rebuildVisibleChatIndex(){
