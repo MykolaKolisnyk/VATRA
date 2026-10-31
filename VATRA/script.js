@@ -2031,12 +2031,13 @@ let vatraNotificationsFilter='all';
 function renderNotifications(){
  const all=notificationItems().slice(0,100);
  const items=vatraNotificationsFilter==='all'?all:all.filter(n=>n.type===vatraNotificationsFilter);
- const labels={all:'Усі',like:'Вподобання',comment:'Коментарі',friend:'Друзі'};
- const types=['all','like','comment','friend'];
+ const labels={all:'Усі',like:'Вподобання',comment:'Коментарі',friend:'Друзі',verified:'ВАТРА'};
+ const types=['all','like','comment','friend','verified'];
  const rows=items.map(n=>{
   const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ')+verifiedBadge(n.actorUid),when=timeAgo(n.createdAt);
   let title='',attr='';
-  if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+  if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="true"';}
+   else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
   else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
   else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
   return '<button type="button" class="notification-item '+(n.unread?'is-unread':'')+'" '+attr+'>'+
@@ -2831,11 +2832,12 @@ setTimeout(()=>{window.__vatraStarted=true;},450);
   const rows=items.map(n=>{
    const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ')+verifiedBadge(n.actorUid),when=timeAgo(n.createdAt);
    let title='',attr='';
-   if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+   if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="true"';}
+   else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
    else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
    else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
    return '<button type="button" class="topbar-notification-row '+(n.unread?'is-unread':'')+'" '+attr+'>'+
-    avatar(u.name||'Користувач',u.avatarUrl)+
+    (n.type==='verified'?'<span class="vatra-system-notice-icon">✓</span>':avatar(u.name||'Користувач',u.avatarUrl))+
     '<span><b>'+title+'</b>'+((n.type==='comment'||n.type==='verified')&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
     (n.unread?'<i aria-label="Нове"></i>':'')+'</button>';
   }).join('');
