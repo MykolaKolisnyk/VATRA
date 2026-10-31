@@ -308,3 +308,28 @@ async function checkQueue(){
 }
 setInterval(()=>{void checkQueue();},90000);
 setTimeout(()=>{void checkQueue();},3000);
+
+
+/* Inform the affected person about an actual server-enforced publication ban.
+   This does not pretend to disable Supabase Auth sign-in. */
+async function refreshOwnRestriction(){
+ const uid=signedUid(),existing=document.querySelector('#vatraOwnRestriction');
+ if(!uid){existing?.remove();return;}
+ try{
+  const {data,error}=await client.from('vatra_moderation_account_bans')
+    .select('active,reason,expires_at').eq('user_id',uid).maybeSingle();
+  if(error)return;
+  const active=data?.active&&(!data.expires_at||new Date(data.expires_at)>new Date());
+  if(!active){existing?.remove();return;}
+  let box=existing;
+  if(!box){box=document.createElement('aside');box.id='vatraOwnRestriction';box.className='vatra-own-restriction';box.setAttribute('role','status');document.body.append(box);}
+  const until=data.expires_at?'До '+time(data.expires_at):'Без визначеного строку';
+  box.replaceChildren();
+  const head=document.createElement('strong');head.textContent='Дії акаунта обмежено адміністрацією ВАТРИ';
+  const description=document.createElement('span');
+  description.textContent='Публікації та взаємодії тимчасово недоступні. '+until+'. Причина: '+(data.reason||'не вказана')+'.';
+  box.append(head,description);
+ }catch(error){console.warn('[VATRA moderation] Could not verify own restriction',error?.message);}
+}
+setTimeout(()=>{void refreshOwnRestriction();},4400);
+setInterval(()=>{void refreshOwnRestriction();},120000);
