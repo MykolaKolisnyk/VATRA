@@ -1349,7 +1349,7 @@ function renderGroupDetails(id){
   const canManage=isOwner||isAdmin||isMod;
   const canEditVisuals=isOwner||isAdmin;
   const member=isOwner||!!groupMembers[id]?.[currentUser?.uid];
-  const canPost=member&&(g.membersCanPost!==false||isOwner||isAdmin);
+  const canPost=isOwner||isAdmin||(isMod&&g.moderatorsCanPost!==false);
   const canSeeMembers=g.showMembers!==false||canManage;
   if(!canSeeMembers&&vatraGroupActiveTab==='members')vatraGroupActiveTab='posts';
   if(g.visibility==='private'&&!member&&!canManage){goPage('groups');toastMsg('Ця спільнота закрита.');return;}
@@ -1387,7 +1387,7 @@ function renderGroupDetails(id){
   const selectedGroupAuthor=canPostAsGroup?'group':'user';
   const groupComposeAvatar=()=>'<span class="vatra-group-compose-photo">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="">':esc((g.name||'В').trim().slice(0,1).toUpperCase()))+'</span>';
   const composeIdentity=(type)=>type==='group'?groupComposeAvatar():avatar(currentProfile.name||currentUser?.displayName||'ВАТРА',currentProfile.avatarUrl);
-  const composer=canPost?'<section class="vatra-group-card vatra-group-create-entry"><div class="vatra-group-create-identity">'+composeIdentity(selectedGroupAuthor)+'<div><b>Дописи спільноти</b><small>Фото, відео, опитування та текст</small></div></div><button type="button" class="vatra-group-primary" id="vatraOpenGroupComposer">＋ Створити допис</button></section>':'<section class="vatra-group-card vatra-group-join-hint"><span aria-hidden="true">✦</span><div><b>Долучайтеся до спільноти</b><p>Приєднайтеся, щоб публікувати дописи.</p></div></section>';
+  const composer=canPost?'<section class="vatra-group-card vatra-group-create-entry"><div class="vatra-group-create-identity">'+composeIdentity(selectedGroupAuthor)+'<div><b>Дописи спільноти</b><small>Фото, відео, опитування та текст</small></div></div><button type="button" class="vatra-group-primary" id="vatraOpenGroupComposer">＋ Створити допис</button></section>':'<section class="vatra-group-card vatra-group-join-hint"><span aria-hidden="true">✦</span><div><b>Долучайтеся до спільноти</b><p>Публікувати можуть лише керівники та модератори з дозволом.</p></div></section>';
   const postsMarkup=arr.length?arr.map(p=>{
    const post={...p,id:'g_'+id+'_'+p.id,source:'group',groupId:id,groupName:g.name||'Спільнота',commentOpen:!!vatraGroupCommentOpen['g_'+id+'_'+p.id]};
    return '<div class="vatra-group-post-record">'+postCard(post)+
@@ -1513,7 +1513,7 @@ function renderGroupSettings(id){
  prefsCard.className='settings-card vatra-community-advanced';
  prefsCard.innerHTML='<h3>Публікації, коментарі та оформлення</h3><p class="muted">Налаштування спільноти для учасників і відвідувачів.</p>'+
  '<form id="vatraCommunityPreferences">'+
- [['membersCanPost','Дозволити учасникам публікувати дописи','Коли вимкнено, публікувати можуть лише творець та адміністратори.'],
+ [['moderatorsCanPost','Дозволити модераторам публікувати дописи','Звичайні учасники не можуть публікувати дописи.'],
   ['commentsEnabled','Дозволити коментарі до дописів','Нові коментарі будуть заблоковані, старі залишаться доступними.'],
   ['showMembers','Показувати список учасників','Керівники все одно бачитимуть учасників.'],
   ['showContacts','Показувати контакти спільноти','Приховує блок контактів від відвідувачів.'],
@@ -1534,7 +1534,7 @@ function renderGroupSettings(id){
    try{const u=new URL(url);if(u.protocol!=='https:'||u.username||u.password)throw Error('wrong link');valid.push(u.toString());}
    catch{return toastMsg('Дозволені лише повні HTTPS-посилання.');}
   }
-  const keys=['membersCanPost','commentsEnabled','showMembers','showContacts','showLinks'];
+  const keys=['moderatorsCanPost','commentsEnabled','showMembers','showContacts','showLinks'];
   const patch={links:valid,pinnedNotice:String(data.get('pinnedNotice')||'').trim().slice(0,500),updatedAt:Date.now()};
   keys.forEach(key=>patch[key]=data.get(key)==='on');
   const btn=event.currentTarget.querySelector('[type=submit]');btn.disabled=true;
@@ -2009,7 +2009,7 @@ function openComposer(context=null){
  if(!authRequired())return;
  const requested=typeof context?.groupId==='string'?context.groupId:null;
  const g=requested?groups[requested]:null;
- const allowed=g&&(g.ownerUid===currentUser.uid||!!groupMembers[requested]?.[currentUser.uid])&&(g.membersCanPost!==false||g.ownerUid===currentUser.uid||!!groupAdmins[requested]?.[currentUser.uid]);
+ const allowed=g&&(g.ownerUid===currentUser.uid||!!groupAdmins[requested]?.[currentUser.uid]||(!!groupModerators[requested]?.[currentUser.uid]&&g.moderatorsCanPost!==false));
  if(requested&&!allowed)return toastMsg('Публікувати в цій спільноті зараз не дозволено.');
  vatraComposerGroupId=allowed?requested:null;
  imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;
@@ -2450,7 +2450,7 @@ $('#postForm').addEventListener('submit',async e=>{
   const gid=vatraComposerGroupId,g=gid?groups[gid]:null;
   if(gid&&!g)throw new Error('Спільноту не знайдено.');
   if(gid&&g.ownerUid!==currentUser.uid&&!groupMembers[gid]?.[currentUser.uid])throw new Error('Ви більше не учасник цієї спільноти.');
-  if(gid&&g.membersCanPost===false&&g.ownerUid!==currentUser.uid&&!groupAdmins[gid]?.[currentUser.uid])throw new Error('Публікації учасників вимкнено.');
+  if(gid&&g.ownerUid!==currentUser.uid&&!groupAdmins[gid]?.[currentUser.uid]&&!(groupModerators[gid]?.[currentUser.uid]&&g.moderatorsCanPost!==false))throw new Error('Публікувати можуть лише керівники та модератори з дозволом.');
   const asGroup=!!gid&&$('#vatraComposerGroupAuthor')?.value==='group';
   const allowedGroup=!!g&&(g.ownerUid===currentUser.uid||!!groupAdmins[gid]?.[currentUser.uid]);
   if(asGroup&&!allowedGroup)throw new Error('Публікація від спільноти доступна лише керівникам.');
