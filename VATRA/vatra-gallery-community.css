@@ -511,3 +511,58 @@ body .vatra-group-photo-close:hover{background:#4d6077;}
 @media(prefers-reduced-motion:reduce){
  body .vatra-group-image-open .vatra-group-post-image{transition:none!important;}
 }
+
+
+/* VATRA community controls: consistent sizing, avatar upload, and author choice. */
+body .vatra-community-avatar,body .vatra-popular-row>span{overflow:hidden;}
+body .vatra-community-avatar img,body .vatra-popular-row>span img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit;}
+body .vatra-group-heading{align-items:center!important;gap:16px!important;}
+body .vatra-group-heading-main{flex:1 1 0!important;min-width:0!important;}
+body .vatra-group-heading-actions{flex:0 0 auto!important;max-width:100%!important;gap:9px!important;}
+body .vatra-group-view :is(.vatra-group-primary,.vatra-group-secondary,.vatra-group-owner-tools button,.vatra-group-tabs>button){
+ box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:40px!important;line-height:1.35!important;vertical-align:middle!important;
+ white-space:normal!important;text-align:center!important;cursor:pointer!important;
+ transform:none!important;box-shadow:none!important;
+}
+body .vatra-group-view :is(.vatra-group-primary,.vatra-group-secondary,.vatra-group-owner-tools button):hover{transform:none!important;}
+body .vatra-group-owner-tools>span{margin-right:auto;}
+body .vatra-group-avatar-control{position:relative;flex:0 0 91px;width:91px;height:91px;margin-top:-50px;z-index:3;}
+body .vatra-group-avatar-control .vatra-group-avatar{margin:0!important;width:91px!important;height:91px!important;flex:none!important;display:grid!important;place-items:center!important;padding:0!important;cursor:pointer!important;overflow:hidden!important;}
+body .vatra-group-avatar-control .vatra-group-avatar img{width:100%!important;height:100%!important;object-fit:cover!important;}
+body .vatra-group-avatar-overlay{position:absolute!important;inset:auto 0 0!important;display:grid!important;place-items:center!important;
+ min-height:34px!important;padding:5px 3px!important;background:rgba(15,30,48,.83)!important;color:#fff!important;
+ font-size:10.5px!important;font-weight:650!important;line-height:1.2!important;opacity:0!important;
+ transform:translateY(7px)!important;transition:opacity .16s ease,transform .16s ease!important;
+}
+body .vatra-group-avatar-edit:hover .vatra-group-avatar-overlay,
+body .vatra-group-avatar-edit:focus-visible .vatra-group-avatar-overlay{opacity:1!important;transform:none!important;}
+body .vatra-group-avatar-edit:hover img{filter:brightness(.83);}
+body .vatra-group-compose-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;}
+body .vatra-group-compose-top .vatra-group-compose-title{margin:0!important;flex:1 1 180px;}
+body .vatra-group-compose-top .vatra-group-compose-title>[data-group-compose-identity]{flex:none;display:flex;}
+body .vatra-group-compose-photo{display:grid;place-items:center;width:41px;height:41px;flex:none;border-radius:11px;
+ background:linear-gradient(135deg,#165de5,#5499e3);color:#fff;font-size:18px;font-weight:800;overflow:hidden;}
+body .vatra-group-compose-photo img{width:100%;height:100%;object-fit:cover;}
+body .vatra-group-post-author .vatra-group-compose-photo{width:41px;height:41px;}
+body .vatra-group-post-as{display:flex;align-items:center;gap:9px;flex-wrap:wrap;color:#8295aa;font-size:11.5px;font-weight:600;}
+body .vatra-group-post-as select{min-width:155px!important;min-height:39px!important;
+ padding:7px 32px 7px 12px!important;border:1px solid #d9e5f2!important;border-radius:9px!important;
+ background:#f6f9fd!important;color:#344d69!important;font:600 12px/1.35 Inter,system-ui,sans-serif!important;
+ cursor:pointer!important;outline-offset:2px!important;}
+body .vatra-group-post-as select:focus-visible{outline:2px solid #6f9de4!important;}
+body .vatra-group-compose-footer .vatra-group-primary{min-width:142px!important;}
+@media(max-width:900px){
+ body .vatra-group-heading{flex-wrap:wrap!important;}
+ body .vatra-group-heading-actions{flex:1 1 100%!important;justify-content:flex-start!important;}
+ body .vatra-group-heading-actions .vatra-group-primary{max-width:100%!important;}
+}
+@media(max-width:560px){
+ body .vatra-group-avatar-control,body .vatra-group-avatar-control .vatra-group-avatar{width:77px!important;height:77px!important;}
+ body .vatra-group-avatar-control{flex-basis:77px!important;}
+ body .vatra-group-avatar-overlay{opacity:1!important;transform:none!important;min-height:27px!important;font-size:9px!important;}
+ body .vatra-group-heading-actions>*{flex:1 1 auto!important;}
+ body .vatra-group-post-as{width:100%;justify-content:space-between;}
+ body .vatra-group-post-as select{flex:1 1 140px;}
+ body .vatra-group-compose-footer .vatra-group-primary{width:100%!important;}
+}
