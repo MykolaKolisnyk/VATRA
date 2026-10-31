@@ -220,9 +220,9 @@ function giftAdminMarkup(orders=[]){
  '<h3>Замовлення подарунків <small>'+pending.length+' нових</small></h3>'+
  '<p>Користувач надсилає заявку за ціною в гривнях. Зв’яжіться з ним у месенджері ВАТРИ, узгодьте оплату та видайте подарунок лише після фактичного отримання коштів.</p>'+
  '<div class="vatra-gift-admin-orders">'+
- (orders.length?orders.map(o=>'<article class="vatra-gift-admin-order"><div><strong>№'+esc(o.id)+' · '+esc(giftNames[o.code]||o.code)+'</strong><span>@'+esc(o.handle||'невідомий')+' · '+esc(o.price)+' грн</span><small>UID: '+esc(o.uid)+'</small><small>'+time(o.createdAt)+'</small></div>'+
- '<div><span class="vatra-control-state">'+esc(({pending:'Нове замовлення',fulfilled:'Видано',cancelled:'Скасовано'})[o.status]||o.status)+'</span>'+
- (o.status==='pending'?'<div class="vatra-gift-admin-message"><textarea data-vatra-gift-message-input="'+esc(o.id)+'" rows="2" maxlength="4000" placeholder="Напишіть повідомлення від ВАТРИ про спосіб оплати..."></textarea><button type="button" class="vatra-control-secondary" data-vatra-gift-contact="'+esc(o.id)+'">Написати від ВАТРИ</button></div><button type="button" class="vatra-control-primary" data-vatra-gift-fulfill="'+esc(o.id)+'">Оплату отримано · Видати</button>':'')+
+ (orders.some(o=>o.status!=='cancelled')?orders.filter(o=>o.status!=='cancelled').map(o=>'<article class="vatra-gift-admin-order"><div><strong>№'+esc(o.id)+' · '+esc(giftNames[o.code]||o.code)+'</strong><span>@'+esc(o.handle||'невідомий')+' · '+esc(o.price)+' грн</span><small>UID: '+esc(o.uid)+'</small><small>'+time(o.createdAt)+'</small></div>'+
+ '<div><span class="vatra-control-state">'+esc(({pending:'Нове замовлення',fulfilled:'Видано'})[o.status]||o.status)+'</span>'+
+ (o.status==='pending'?'<div class="vatra-gift-admin-message"><textarea data-vatra-gift-message-input="'+esc(o.id)+'" rows="2" maxlength="4000" placeholder="Напишіть повідомлення від ВАТРИ про спосіб оплати..."></textarea><button type="button" class="vatra-control-secondary" data-vatra-gift-contact="'+esc(o.id)+'">Написати від ВАТРИ</button></div><button type="button" class="vatra-control-primary" data-vatra-gift-fulfill="'+esc(o.id)+'">Оплату отримано · Видати</button><button type="button" class="vatra-control-secondary" data-vatra-gift-order-remove="'+esc(o.id)+'">Відхилити й видалити</button>':'')+
  '</div></article>').join(''):'<p class="vatra-control-muted">Замовлень поки немає.</p>')+
  '</div></section>'+
  '<section class="vatra-control-card vatra-gift-admin"><h3>Видати подарунок за псевдонімом</h3>'+
@@ -244,6 +244,13 @@ function installGiftAdminEvents(){
    await rpc('vatra_gifts_admin_contact_order',{_order_id:id,_message:message});
    input.value='';alert('Службове повідомлення надіслано. Діалог доступний у техпідтримці.');
   }catch(err){alert(errorText(err));}finally{button.disabled=false;}
+ }));
+ document.querySelectorAll('[data-vatra-gift-order-remove]').forEach(button=>button.addEventListener('click',async()=>{
+  const id=Number(button.dataset.vatraGiftOrderRemove);
+  if(!(await askAction('Відхилити замовлення №'+id+'?','Заявка буде повністю видалена зі списків власника та користувача.',{danger:true})))return;
+  button.disabled=true;
+  try{await rpc('vatra_gifts_admin_cancel_order',{_order_id:id});await renderDashboard();}
+  catch(err){button.disabled=false;const box=document.querySelector('.vatra-gift-admin h3');toastInline(box,errorText(err));}
  }));
  document.querySelectorAll('[data-vatra-gift-fulfill]').forEach(button=>button.addEventListener('click',async()=>{
   const id=Number(button.dataset.vatraGiftFulfill);

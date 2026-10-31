@@ -79,7 +79,7 @@ END;$f$;
 CREATE OR REPLACE FUNCTION public.vatra_gifts_my_orders() RETURNS jsonb
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path='' SET row_security=off AS $f$
  SELECT coalesce(jsonb_agg(jsonb_build_object('id',o.id,'code',o.code,'price',o.price_uah,'status',o.status,'date',o.created_at) ORDER BY o.created_at DESC),'[]'::jsonb)
- FROM public.vatra_gift_orders o WHERE o.buyer_uid=auth.uid();
+ FROM public.vatra_gift_orders o WHERE o.buyer_uid=auth.uid() AND o.status<>'cancelled';
 $f$;
 CREATE OR REPLACE FUNCTION public.vatra_gifts_admin_orders() RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path='' SET row_security=off AS $f$
@@ -87,7 +87,7 @@ DECLARE items jsonb;
 BEGIN
  IF auth.uid() IS NULL OR public.vatra_staff_role()<>'owner' THEN RAISE EXCEPTION 'Недостатньо повноважень'; END IF;
  SELECT coalesce(jsonb_agg(jsonb_build_object('id',o.id,'uid',o.buyer_uid,'handle',coalesce((select x.value->>'handle' from public.app_data x WHERE x.path='publicProfiles/'||o.buyer_uid::text),'невідомий'),'code',o.code,'price',o.price_uah,'status',o.status,'createdAt',o.created_at,'completedAt',o.completed_at) ORDER BY o.created_at DESC),'[]'::jsonb)
- INTO items FROM (SELECT * FROM public.vatra_gift_orders ORDER BY created_at DESC LIMIT 150) o;
+ INTO items FROM (SELECT * FROM public.vatra_gift_orders WHERE status<>'cancelled' ORDER BY created_at DESC LIMIT 150) o;
  RETURN items;
 END;$f$;
 CREATE OR REPLACE FUNCTION public.vatra_gifts_resolve_handle(_handle text) RETURNS uuid
@@ -148,7 +148,7 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path='' SET row_security=off AS $f$
 DECLARE changed integer;
 BEGIN
  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Необхідна авторизація'; END IF;
- UPDATE public.vatra_gift_orders SET status='cancelled' WHERE id=_order_id AND buyer_uid=auth.uid() AND status='pending';
+ DELETE FROM public.vatra_gift_orders WHERE id=_order_id AND buyer_uid=auth.uid() AND status='pending';
  GET DIAGNOSTICS changed=ROW_COUNT;RETURN changed=1;
 END;$f$;
 REVOKE ALL ON FUNCTION public.vatra_gifts_claim_welcome(),public.vatra_gifts_place_order(text),public.vatra_gifts_my_orders(),public.vatra_gifts_admin_orders(),public.vatra_gifts_resolve_handle(text),public.vatra_gifts_admin_inventory(text),public.vatra_gifts_admin_grant(text,text,text),public.vatra_gifts_admin_revoke(text,uuid,text),public.vatra_gifts_admin_fulfill(bigint),public.vatra_gifts_cancel_order(bigint) FROM PUBLIC,anon;
