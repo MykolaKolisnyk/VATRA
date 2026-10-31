@@ -4017,3 +4017,15 @@ body{
 @keyframes vatra-auth-legal-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @keyframes vatra-auth-legal-area{from{opacity:.72}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.legal-dialog .legal-dialog-body article,.legal-dialog .legal-dialog-body.is-switching{animation:none!important;transition:none!important}}
+
+/* Registration — keyboard-accessible choice cards */
+.auth-card fieldset.vatra-gender-field{border:0!important;padding:0!important;margin:0 0 17px!important;min-inline-size:0!important}
+.auth-card fieldset.vatra-gender-field[hidden]{display:none!important}
+.auth-card .vatra-gender-field legend{padding:0!important;margin:0 0 9px!important;color:#293c53!important;font:700 13px/1.5 Inter,system-ui,sans-serif!important}
+.auth-card .vatra-gender-choices{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+.auth-card .vatra-gender-choices label{position:relative!important;display:block!important;margin:0!important;cursor:pointer!important}
+.auth-card .vatra-gender-choices input[type=radio]{position:absolute!important;inset:0!important;z-index:1!important;opacity:0!important;margin:0!important;width:100%!important;height:100%!important;cursor:pointer!important}
+.auth-card .vatra-gender-choices span{display:flex!important;align-items:center!important;justify-content:center!important;height:47px!important;box-sizing:border-box!important;border:1px solid #d8e2ee!important;border-radius:6px!important;background:#fff!important;color:#455a72!important;font:600 14px/1.4 Inter,system-ui,sans-serif!important}
+.auth-card .vatra-gender-choices input[type=radio]:checked+span{border-color:#0757f5!important;background:#eef4ff!important;color:#0757f5!important}
+.auth-card .vatra-gender-choices input[type=radio]:focus-visible+span{outline:2px solid #0757f5!important;outline-offset:2px!important}
+.auth-card .vatra-gender-choices label:hover span{border-color:#8bb1ef!important}

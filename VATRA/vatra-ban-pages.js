@@ -32,7 +32,7 @@ function html(kind,id,d,name,handle,own=false){
   (d.sinceAt?'<div><dt>Дата рішення</dt><dd>'+fmt(d.sinceAt)+'</dd></div>':'')+
   (!deleted?'<div><dt>Причина блокування</dt><dd>'+escape(d.reason||'Причину не вказано')+'</dd></div>':'')+
   '<div><dt>'+(deleted?'Видалення':'Термін')+'</dt><dd>'+(deleted?(d.pending?'Заплановано до '+fmt(d.deleteAfter):'Остаточно видалено'):(d.permanent?'Безстроково':d.expiresAt?'До '+fmt(d.expiresAt):'Не вказано'))+'</dd></div></dl>':'';
- const description=deleted?(own&&d.pending?'Ваш акаунт заплановано до видалення. Ви можете скасувати це в налаштуваннях до завершення строку.':'Користувач видалив свою сторінку у ВАТРІ.'):own?'Адміністрація ВАТРИ обмежила доступ до Вашого акаунта. Нижче наведено рішення.':'Ця сторінка тимчасово недоступна. Профіль залишається у пошуку та списках друзів.';
+ const description=deleted?(own&&d.pending?'Ваш акаунт заплановано до видалення. Ви можете скасувати це в налаштуваннях до завершення строку.':'Користувач видалив свою сторінку у ВАТРІ.'):own?'Адміністрація ВАТРИ обмежила доступ до Вашого акаунта. Нижче наведено рішення.':'Ця сторінка тимчасово недоступна.';
  return '<section class="vatra-suspended-page '+(deleted?'is-deleted':'is-blocked')+'" data-vatra-ban-page="'+escape(id)+'" aria-label="'+escape(title)+'">'+
  '<header class="vatra-suspended-profile-head"><p class="vatra-suspended-person">'+escape(name||(community?'Спільнота ВАТРИ':'Користувач ВАТРИ'))+
  (handle?' <small>@'+escape(handle.replace(/^@/,''))+'</small>':'')+'</p><p class="vatra-suspended-profile-subtitle">'+(deleted?'Сторінку видалено':community?'Спільноту заблоковано':'Акаунт заблоковано')+'</p></header>'+

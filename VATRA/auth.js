@@ -277,7 +277,7 @@ function show(m){
  const switchingAccountMode=['login','register'].includes(previousMode)&&['login','register'].includes(m)&&previousMode!==m;
  if(switchingAccountMode){
   $('#email').value='';$('#password').value='';$('#confirm').value='';
-  $('#firstName').value='';$('#lastName').value='';$('#birthday').value='';$('#gender').value='';
+  $('#firstName').value='';$('#lastName').value='';$('#birthday').value='';document.querySelectorAll('input[name="gender"]').forEach(el=>el.checked=false);
   document.querySelectorAll('.birthday-selects select').forEach(select=>{select.value='';select.setCustomValidity('');});
   const birthdayHint=document.querySelector('.birthday-picker-hint');if(birthdayHint){birthdayHint.classList.remove('is-invalid');birthdayHint.textContent='Оберіть день, місяць і рік. Реєстрація доступна з 13 років; дата за замовчуванням приватна.';}
   $('#legalConsent').checked=false;pendingHumanAction=null;challengePassed=false;
@@ -305,7 +305,7 @@ function show(m){
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
  document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=reset&&!isEmail;});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
- $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;$('#gender').required=reg;$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
+ $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';
@@ -522,7 +522,7 @@ $('#authForm').addEventListener('submit',async e=>{
  if(reg){
   first=$('#firstName').value.trim();last=$('#lastName').value.trim();name=(first+' '+last).trim();
   if(first.length<2||last.length<2){$('#error').textContent='Вкажіть ім’я та прізвище (не менше 2 символів кожне).';return;}
-  if(!['male','female'].includes($('#gender').value)){$('#error').textContent='Оберіть стать: чоловік або жінка.';$('#gender').focus();return;}if(!dob){$('#error').textContent='Вкажіть дату народження: день, місяць і рік.';$('#birthday').focus();return;}
+  if(!['male','female'].includes(document.querySelector('input[name="gender"]:checked')?.value)){$('#error').textContent='Оберіть стать: чоловік або жінка.';document.querySelector('input[name="gender"]')?.focus();return;}if(!dob){$('#error').textContent='Вкажіть дату народження: день, місяць і рік.';$('#birthday').focus();return;}
   const birthDate=new Date(dob+'T00:00:00'),today=new Date();let age=today.getFullYear()-birthDate.getFullYear();if(today.getMonth()<birthDate.getMonth()||(today.getMonth()===birthDate.getMonth()&&today.getDate()<birthDate.getDate()))age--;
   if(Number.isNaN(birthDate.getTime())||birthDate>today||age<13){$('#error').textContent='ВАТРА доступна з 13 років. Перевірте дату народження.';return;}
   const password=$('#password').value,confirmation=$('#confirm').value;
@@ -575,7 +575,7 @@ $('#authForm').addEventListener('submit',async e=>{
    location.replace('index.html');
    return;
   }
-  const gender=$('#gender').value;const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob};
+  const gender=document.querySelector('input[name="gender"]:checked')?.value||'';const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob};
   const signup=await signUpWithPassword(isPhone
    ?{phone:contact,password:$('#password').value,userData,captchaToken:token}
    :{email:contact,password:$('#password').value,userData,captchaToken:token});
