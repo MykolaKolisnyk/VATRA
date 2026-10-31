@@ -1,0 +1,61 @@
+/* VATRA: native links, staff documentation, support notifications, case layout */
+body .sidebar nav a.nav{display:flex;align-items:center;text-decoration:none;color:inherit;cursor:pointer;box-sizing:border-box;width:100%}
+body .sidebar nav a.nav:visited{color:inherit}
+body .sidebar nav a.nav:focus-visible{outline:2px solid #0757f5;outline-offset:2px}
+body .vatra-profile-link[href],body .profile-gallery-all[href]{display:inline-flex;align-items:center;text-decoration:none;cursor:pointer}
+body .vatra-support-unread-count{margin-left:auto!important;display:inline-flex!important;align-items:center;justify-content:center;min-width:19px;height:19px;padding:1px 5px;border-radius:99px;background:#0757f5;color:#fff!important;font:700 10px/1 Inter,sans-serif!important}
+body .vatra-support-unread-count[hidden]{display:none!important}
+body .vatra-support-header-badge{position:absolute;top:-4px;right:-5px;display:flex;align-items:center;justify-content:center;padding:2px 5px;min-width:17px;height:17px;border:2px solid white;border-radius:16px;background:#e54861;color:#fff;font:800 9px/1 Inter,sans-serif;z-index:5}
+body .vatra-support-header-badge[hidden]{display:none!important}
+body .notification-button{position:relative}
+body .vatra-support-alert-panel{border-bottom:1px solid #e0e8f3;padding:10px 8px;background:#f5f9ff}
+body .vatra-support-alert-panel h4{display:flex;align-items:center;gap:8px;padding:7px 9px;margin:0;color:#254561;font:750 12px Inter,sans-serif}
+body .vatra-support-alert-panel h4 svg{width:18px;height:18px;color:#0757f5}
+body .vatra-support-alert-panel h4 span{margin-left:auto;font-size:10px;background:#e6f0ff;padding:3px 6px;border-radius:7px;color:#0757f5}
+body .vatra-support-alert-panel button{display:grid;text-align:left;gap:4px;width:100%;padding:10px 12px;margin-top:5px;border:1px solid #d7e5f6;border-radius:9px;background:#fff;color:#2f4e6d;cursor:pointer}
+body .vatra-support-alert-panel button:hover{background:#eaf3ff}
+body .vatra-support-alert-panel button b{font:700 11.5px/1.45 Inter,sans-serif}
+body .vatra-support-alert-panel button small{font:500 10px Inter,sans-serif;color:#8ca0b6}
+body .vatra-support-user{display:inline-flex;align-items:baseline;gap:5px;flex-wrap:wrap;vertical-align:middle;max-width:100%}
+body .vatra-support-user b{font:700 11.5px/1.4 Inter,sans-serif;color:#254a70}
+body .vatra-support-user small{font:500 10.5px Inter,sans-serif;color:#7993ae}
+body .vatra-support-user-missing{font-size:11px;color:#7792ae}
+body .vatra-support-ticket-person{display:block;font:500 11px/1.55 Inter,sans-serif;color:#7b93af;overflow-wrap:anywhere}
+body .vatra-support-ticket-person .vatra-support-user{margin-left:4px}
+body .vatra-support-bubble>small{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+body .vatra-support-grid{min-height:460px;max-height:calc(100dvh - 190px)}
+body .vatra-support-conversation{min-height:460px;max-height:calc(100dvh - 190px)}
+body .vatra-support-thread-messages{min-height:100px}
+body .vatra-support-conversation form[data-support-reply]{flex:0 0 auto;position:sticky;bottom:0;z-index:2}
+body .vatra-support-management{flex:0 0 auto}
+body .vatra-support-page .vatra-support-list-items{max-height:calc(100dvh - 240px)}
+body .vatra-control-center .vatra-control-card:has(.vatra-control-report-filters){padding:22px 24px}
+body .vatra-control-report-filters{display:grid;grid-template-columns:minmax(200px,1fr) minmax(230px,1.4fr);gap:12px;align-items:end;padding:14px 16px;border:1px solid #e0e9f3;border-radius:12px;background:#f8faff;margin:16px 0 20px}
+body .vatra-control-report-filters>label{margin:0}
+body .vatra-control-report-filters :is(select,input){height:44px;border:1px solid #dce6f2!important;box-shadow:none!important;background:#fff!important}
+body .vatra-control-report-list{display:grid;gap:12px}
+body .vatra-control-report-list .vatra-control-case{margin:0!important;background:#fff;border:1px solid #dce6f0;border-radius:12px;padding:19px;display:grid;gap:10px;box-shadow:0 3px 8px #133b5b08}
+body .vatra-control-report-list .vatra-control-case:hover{border-color:#bbd4f5}
+body .vatra-control-report-list .vatra-control-case-title{align-items:flex-start}
+body .vatra-control-case-title strong{font:760 14px/1.4 Inter,sans-serif;min-width:0}
+body .vatra-control-case-title strong small{display:block!important;font:500 10px Inter,sans-serif;color:#8ba0b8}
+body .vatra-control-case>small{font:550 11px/1.5 Inter,sans-serif;color:#7d93ab}
+body .vatra-control-case>p{padding:9px 12px;border-radius:8px;background:#f8faff;border:1px solid #e9eff7}
+body .vatra-control-case>button{min-height:39px!important}
+body .vatra-staff-policy-dialog{width:min(760px,calc(100vw - 24px));max-height:91dvh;border:1px solid #d9e6f4;border-radius:16px;background:#fff;color:#294560;padding:0;box-shadow:0 26px 85px #10284070}
+body .vatra-staff-policy-dialog::backdrop{background:#081b31b8;backdrop-filter:blur(3px)}
+body .vatra-staff-policy-dialog>header{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:19px 22px;background:#fff;border-bottom:1px solid #e0e8f2}
+body .vatra-staff-policy-dialog h2{font:780 20px Inter,sans-serif;margin:0}
+body .vatra-staff-policy-dialog header button{border:0;background:#edf3fb;border-radius:10px;cursor:pointer;min-width:38px;min-height:38px}
+body .vatra-staff-policy-dialog header button svg{height:18px;width:18px;fill:none;stroke:#4a6480;stroke-width:2}
+body .vatra-staff-policy-content{overflow-y:auto;max-height:calc(90dvh - 77px);padding:4px 23px 24px;font:500 13px/1.7 Inter,sans-serif;color:#536f89}
+body .vatra-staff-policy-content section{padding:17px 0;border-bottom:1px solid #e6edf6}
+body .vatra-staff-policy-content h3{font:760 16px Inter,sans-serif;color:#2b4966;margin:6px 0}
+body .vatra-staff-policy-content h4{font:700 12px Inter,sans-serif;color:#55708b;margin:10px 0 5px}
+body .vatra-staff-policy-content li{padding:3px 0}
+@media(max-width:750px){
+ body .vatra-control-report-filters{grid-template-columns:1fr;padding:10px}
+ body .vatra-support-grid{min-height:510px;max-height:none}
+ body .vatra-support-conversation{max-height:64dvh;min-height:390px}
+ body .vatra-support-page .vatra-support-list-items{max-height:185px}
+}
