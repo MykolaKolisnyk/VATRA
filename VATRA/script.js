@@ -1,6 +1,7 @@
 import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from './vatra-e2ee.js?v=2';
 import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-1';
+import { setupPostComposer } from './vatra-post-composer.js?v=20261031-1';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261030-5';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends } from './vatra-backend.js?v=20261030-5';
 
@@ -1344,6 +1345,7 @@ function renderComposerPhotoPreviews(){
  clearComposerPhotoPreviews();
  const box=$('#preview');if(!box)return;
  box.innerHTML=imageFiles.map((file,index)=>{const url=URL.createObjectURL(file);imagePreviewUrls.push(url);return '<div class="composer-photo-preview"><img src="'+url+'" alt="Фото '+(index+1)+'"><div class="composer-photo-actions"><button type="button" data-edit-composer-photo="'+index+'">Редагувати</button><button type="button" data-remove-composer-photo="'+index+'" aria-label="Прибрати фото">×</button></div><small>'+(index+1)+' / '+imageFiles.length+'</small></div>';}).join('');
+ postComposerUI.refreshMedia();
 }
 async function selectPostPhotos(fileList){
  const files=Array.from(fileList||[]).filter(file=>file&&file.type?.startsWith('image/'));
@@ -1359,7 +1361,8 @@ async function selectPostPhotos(fileList){
  const note=$('#photoNote');if(note)note.textContent=imageFiles.length?'Додано фото: '+imageFiles.length+' із 10':'';
  if(added)toastMsg(added===1?'Фото додано до допису.':'Додано '+added+' фото до одного допису.');
 }
-function openComposer(){if(!authRequired())return;imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;$('#postText').value='';$('#count').textContent='0 / '+MAX_POST_TEXT;$('#preview').innerHTML='';$('#modalPhoto').value='';$('#photo').value='';const note=$('#photoNote');if(note)note.textContent='';resetPollComposer();$('#postVisibility').value='public';$('#postVisibility').dispatchEvent(new Event('change'));modal.showModal();setTimeout(()=>$('#postText').focus(),60);}
+const postComposerUI=setupPostComposer({modal,getUid:()=>currentUser?.uid,getPhotos:()=>imageFiles,getUrls:()=>imagePreviewUrls,getVideo:()=>videoFile,setVideo:file=>{videoFile=file;},addPhotos:selectPostPhotos,resetPoll:resetPollComposer,toast:toastMsg,maxVideo:MAX_VIDEO,maxText:MAX_POST_TEXT});
+function openComposer(){if(!authRequired())return;imageFiles=[];clearComposerPhotoPreviews();editPostFiles=[];videoFile=null;$('#postText').value='';$('#count').textContent='0 / '+MAX_POST_TEXT;$('#preview').innerHTML='';$('#modalPhoto').value='';$('#composerMediaFiles').value='';$('#composerVideo').value='';$('#photo').value='';const note=$('#photoNote');if(note)note.textContent='';resetPollComposer();$('#postVisibility').value='public';$('#postVisibility').dispatchEvent(new Event('change'));modal.showModal();postComposerUI.onOpen();}
 function loadImage(file,cb){if(!file)return false;if(!file.type.startsWith('image/')){toastMsg('Виберіть файл зображення.');return false;}if(file.size>MAX_IMAGE){toastMsg('Фото має бути меншим за 15 МБ.');return false;}const r=new FileReader();r.onload=()=>cb(r.result);r.onerror=()=>toastMsg('Не вдалося прочитати файл зображення.');r.readAsDataURL(file);return true;}
 async function uploadImage(file,maxSide=1200,quality=.78,category='posts'){if(!file||!file.type?.startsWith('image/'))throw new Error('Виберіть файл зображення.');if(file.size>15*1024*1024)throw new Error('Фото має бути меншим за 15 МБ.');const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('Не вдалося прочитати фото.'));r.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('Файл зображення пошкоджений.'));i.src=data;});const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося обробити зображення.');ctx.drawImage(img,0,0,canvas.width,canvas.height);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Не вдалося підготувати фото.')),'image/jpeg',quality));const optimized=new File([blob],(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg',lastModified:Date.now()});return await uploadMedia(optimized,category);}
 async function getImageEditor(file,mode='avatar'){return await openVatraPhotoStudio(file,mode);}
@@ -1648,7 +1651,7 @@ $('#postForm').addEventListener('submit',async e=>{
  const postError=$('#postError');if(postError){postError.hidden=true;postError.textContent='';}
  const text=$('#postText').value.trim(),pollVisible=!$('#pollComposer').hidden,entered=pollVisible?[...$('#pollOptionFields').querySelectorAll('input')].map(input=>input.value.trim()).filter(Boolean):[];
  if(entered.length===1)return toastMsg('Для опитування додайте щонайменше 2 варіанти.');
- if(!text&&!imageFiles.length&&!entered.length)return toastMsg('Додайте текст, фото або опитування.');
+ if(!text&&!imageFiles.length&&!videoFile&&!entered.length)return toastMsg('Додайте текст, фото, відео або опитування.');
  if(text.length>MAX_POST_TEXT)return toastMsg('Максимальна довжина допису — 20 000 символів.');
  const requestedVisibility=$('#postVisibility').value;
   const postVisibility=['public','friends','private'].includes(requestedVisibility)?requestedVisibility:'public';
@@ -1657,15 +1660,16 @@ $('#postForm').addEventListener('submit',async e=>{
  try{
   const pRef=push(ref(db,'posts')),imageUrls=[];
   for(const file of imageFiles)imageUrls.push(await uploadImage(file,1600,.84,'posts'));
-  const postData={authorUid:String(currentUser.uid),authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text,imageUrl:imageUrls[0]||'',imageUrls,visibility:postVisibility,createdAt:Date.now(),updatedAt:Date.now()};
+   const postVideoUrl=videoFile?await uploadMedia(videoFile,'videos'):'';
+  const postData={authorUid:String(currentUser.uid),authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text,imageUrl:imageUrls[0]||'',imageUrls,videoUrl:postVideoUrl,visibility:postVisibility,createdAt:Date.now(),updatedAt:Date.now()};
   if(!postData.authorUid)throw new Error('Сесія завершилася. Увійдіть у ВАТРУ ще раз.');
   if(pollOptions)postData.pollOptions=pollOptions;
   await createPost(pRef,postData);
   filter='all';query='';$('#search').value='';$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));
-  goPage('feed');modal.close();imageFiles=[];clearComposerPhotoPreviews();$('#photo').value='';$('#modalPhoto').value='';toastMsg('Допис опубліковано!');
+  postComposerUI.onPublished();goPage('feed');modal.close();imageFiles=[];videoFile=null;clearComposerPhotoPreviews();$('#photo').value='';$('#modalPhoto').value='';toastMsg('Допис опубліковано!');
  }catch(err){
   console.error('VATRA post publish failed:',err?.dbCode||err?.code||err);
-  const message=niceError(err);if(postError){postError.textContent=message;postError.hidden=false;}else toastMsg(message);
+  const message=niceError(err);if(postError){postError.textContent=message;postError.hidden=false;}toastMsg(message);
  }finally{btn.disabled=false;btn.textContent='Опублікувати';}
 });
 // Only actual navigation buttons may trigger route changes. <body data-page> is a CSS state marker, not a clickable page link.
