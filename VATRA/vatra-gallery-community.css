@@ -701,3 +701,59 @@ body .vatra-community-tabs>button{flex:0 0 auto;white-space:nowrap!important;}
  body .vatra-group-recent-strip>button{flex-basis:71px;width:71px!important;}
  body .vatra-group-recent-avatar{width:55px!important;height:55px!important;min-width:55px!important;min-height:55px!important;}
 }
+
+/* Community directory: readable compact rows, no false "active" group ranking. */
+body .vatra-community-more{display:block!important;margin:16px auto 3px!important;padding:10px 23px!important;border-radius:10px!important;border:1px solid #cadaee!important;background:#eef5ff!important;color:#2463a8!important;font:700 12px/1.35 Inter,system-ui,sans-serif!important;cursor:pointer!important;}
+body .vatra-community-more[hidden]{display:none!important;}
+body .vatra-community-more:hover{background:#dcecff!important;}
+body .vatra-community-rows{grid-template-columns:minmax(0,1fr)!important;}
+body .vatra-community-row{width:100%!important;min-height:79px!important;}
+body .vatra-community-row .vatra-community-text{flex:1 1 auto!important;min-width:0!important;}
+body .vatra-community-row .vatra-community-name{font-size:13px!important;}
+body .vatra-popular-row{align-items:center!important;min-width:0!important;}
+body .vatra-popular-row small{flex:0 1 175px!important;white-space:normal!important;line-height:1.35!important;font-size:10px!important;color:#7c90a9!important;text-align:right!important;}
+/* Same creation flow as the profile: compact entry opens the full-screen-capable editor. */
+body .vatra-group-create-entry{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;flex-wrap:wrap!important;padding:17px 19px!important;}
+body .vatra-group-create-identity{display:flex;align-items:center;gap:12px;flex:1 1 200px;min-width:0;}
+body .vatra-group-create-identity>.avatar,body .vatra-group-create-identity>.vatra-group-compose-photo{width:48px!important;height:48px!important;flex:0 0 48px!important;}
+body .vatra-group-create-identity>div{display:grid;gap:5px;min-width:0;}
+body .vatra-group-create-identity b{font-size:15px!important;font-weight:750!important;color:#304861!important;}
+body .vatra-group-create-identity small{font-size:11px!important;color:#8095ac!important;}
+body .vatra-group-create-entry .vatra-group-primary{flex:0 0 auto;min-height:43px!important;border-radius:10px!important;padding:9px 15px!important;white-space:nowrap!important;}
+/* Contacts are curated by managers: each person may have a custom role label. */
+body .vatra-group-rail-contacts .vatra-group-section-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+body .vatra-group-rail-contacts .vatra-group-section-header button{padding:6px 8px!important;border:0!important;border-radius:7px!important;background:#f0f5fc!important;color:#426994!important;font-size:11px!important;font-weight:650!important;cursor:pointer!important;}
+body .vatra-group-contact{display:flex!important;align-items:center!important;gap:11px!important;width:100%!important;padding:9px 0!important;background:none!important;border:0!important;text-align:left!important;cursor:pointer!important;}
+body .vatra-group-contact>.avatar{flex:0 0 42px!important;width:42px!important;height:42px!important;}
+body .vatra-group-contact>span{display:grid;min-width:0;gap:5px;flex:1;}
+body .vatra-group-contact b{font-size:12.5px!important;color:#39536d!important;font-weight:700!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+body .vatra-group-contact small{font-size:11px!important;color:#8597ac!important;overflow-wrap:anywhere;}
+body .vatra-group-contacts-empty{margin:0!important;color:#8899ab!important;font-size:11.5px!important;line-height:1.5!important;}
+body .vatra-community-contact-settings{margin-top:14px!important;}
+body .vatra-group-contact-list{display:grid;gap:9px;margin:15px 0!important;}
+body .vatra-group-contact-edit{display:flex;align-items:center;gap:9px;padding:9px;border:1px solid #e0e9f4;border-radius:10px;}
+body .vatra-group-contact-edit>.avatar{flex:0 0 40px;}
+body .vatra-group-contact-edit>span{display:grid;gap:5px;min-width:0;flex:1;}
+body .vatra-group-contact-edit b{font-size:12px;color:#354e69;}
+body .vatra-group-contact-edit small{font-size:11px;color:#8395a8;}
+body .vatra-group-contact-edit button{border:1px solid #f1d4dd;border-radius:8px;padding:8px;background:#fff9fb;color:#bb5069;cursor:pointer;}
+body .vatra-group-contact-add{display:flex;gap:12px;align-items:end;flex-wrap:wrap;}
+body .vatra-group-contact-add label{display:grid;gap:7px;flex:1 1 180px;font-size:12px;font-weight:650;color:#49617a;}
+body .vatra-group-contact-add :is(select,input){box-sizing:border-box;width:100%;min-height:43px;padding:9px 12px;border:1px solid #cfdeee;border-radius:9px;background:#fff;color:#334b65;}
+body .vatra-group-contact-add>button{min-height:43px!important;border-radius:9px!important;}
+body .vatra-lifecycle-card .vatra-lifecycle-controls[hidden]{display:none!important;}
+body .vatra-lifecycle-controls{display:grid;gap:12px;margin-top:16px;}
+body .vatra-lifecycle-controls>label{display:grid;gap:9px;font-weight:650;font-size:12px;color:#35516c;max-width:390px;}
+body .vatra-lifecycle-controls select{min-height:43px;border:1px solid #d1dfed;border-radius:9px;background:#fff;color:#33526d;padding:9px;}
+body .vatra-lifecycle-status{padding:13px 16px;border:1px solid #d9e5f1;border-radius:10px;background:#f3f8fe;color:#3c5e7e;font-size:12px;line-height:1.55;}
+body .vatra-lifecycle-status.is-pending{background:#fff7ee;border-color:#eed7b6;color:#916232;}
+body .vatra-lifecycle-divider{border-top:1px solid #e3eaf3;margin-top:8px;}
+body .vatra-lifecycle-danger{justify-self:start;padding:10px 15px!important;background:#b33c52!important;color:#fff!important;border:0!important;border-radius:9px!important;font-weight:700!important;cursor:pointer!important;}
+body .vatra-lifecycle-danger:hover{background:#972b3f!important;}
+body .vatra-lifecycle-controls>button[hidden]{display:none!important;}
+@media(max-width:620px){
+ body .vatra-group-create-entry{padding:14px!important;}
+ body .vatra-group-create-entry .vatra-group-primary{flex:1 1 100%!important;}
+ body .vatra-community-row .vatra-community-open{padding:7px 8px!important;}
+ body .vatra-group-contact-add>button{width:100%;}
+}
