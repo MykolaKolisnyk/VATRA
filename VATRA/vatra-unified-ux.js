@@ -9,6 +9,7 @@ const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Д�
 const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
 window.vatraRouteChanged=i=>{
  if(!i?.page)return;
+ if(i.page!=='adminCenter')window.vatraAdminResetState?.();
  const name=i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent:i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА';
  document.title=(name||'ВАТРА')+' | ВАТРА';
  const hash=route(i);
