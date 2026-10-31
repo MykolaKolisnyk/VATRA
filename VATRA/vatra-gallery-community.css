@@ -757,3 +757,7 @@ body .vatra-lifecycle-controls>button[hidden]{display:none!important;}
  body .vatra-community-row .vatra-community-open{padding:7px 8px!important;}
  body .vatra-group-contact-add>button{width:100%;}
 }
+
+/* The account lifecycle pane saves through a secure Edge Function, not the
+   regular profile form. Hide the unrelated global profile save bar here. */
+body .vatra-settings-workspace:has(.vatra-settings-pane[data-settings-section="account"]:not([hidden])) .settings-savebar{display:none!important;}
