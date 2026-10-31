@@ -108,3 +108,24 @@ body .vatra-profile-public-actions .vatra-public-relation{background:#f0f7f5!imp
 body .vatra-profile-public-actions .vatra-public-actions-more>summary{min-width:42px!important;padding:9px!important;border:1px solid #dce7f3!important;background:#f3f7fc!important;color:#516b8a!important}
 body .vatra-profile-public-actions svg{width:17px!important;height:17px!important;flex:0 0 17px!important;stroke:currentColor!important;fill:none!important}
 body .vatra-system-notice-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#e6f0ff;color:#0762e8;font-weight:800}
+
+/* Detailed, shareable official-verification documentation page. */
+body .vatra-verification-page{max-width:830px;margin:0 auto 45px;display:grid;gap:16px;color:#2a4562;font-family:Inter,system-ui,sans-serif}
+body .vatra-verification-page-header{padding:34px 30px;border-radius:16px;border:1px solid #dce7f2;background:linear-gradient(125deg,#f5f9ff,#fff)}
+body .vatra-verification-page-header>p:first-child{color:#0760d9;font-size:10px;font-weight:800;letter-spacing:.1em}
+body .vatra-verification-page-header h1{margin:6px 0 10px;font:800 clamp(23px,2.5vw,32px)/1.2 Inter,system-ui,sans-serif;letter-spacing:-.03em;color:#25415d}
+body .vatra-verification-page-header>p:last-child{color:#7187a0;font:500 13px/1.6 Inter,sans-serif}
+body .vatra-verification-page-body{background:#fff;border:1px solid #dfe9f4;border-radius:16px;padding:26px 30px}
+body .vatra-verification-page-body h2{font:750 17px/1.4 Inter,system-ui,sans-serif;color:#294766;margin:22px 0 7px}
+body .vatra-verification-page-body h2:first-child{margin-top:0}
+body .vatra-verification-page-body p{font:450 13.5px/1.8 Inter,system-ui,sans-serif;color:#526f8c}
+body .vatra-verification-page-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:25px}
+body .vatra-verification-page-actions button{min-height:41px;padding:10px 16px;border-radius:10px;font:750 13px Inter,sans-serif;cursor:pointer}
+body .vatra-verification-page-actions .primary{background:#0757f5;color:#fff;border:0}
+body .vatra-verification-page-actions .pill{background:#f3f7fc;border:1px solid #dce6f1;color:#365878}
+body .vatra-system-notice-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+body .vatra-control-tabs{overflow-x:auto}
+@media(max-width:600px){
+ body .vatra-verification-page{gap:10px}
+ body .vatra-verification-page-header,body .vatra-verification-page-body{padding:18px}
+}
