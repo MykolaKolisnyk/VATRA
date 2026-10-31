@@ -380,10 +380,19 @@ export async function remove(reference) {
 }
 const realtimeWatchers = new Map();
 let realtimeChannel = null;
+// One listener for all subscriptions: background tabs need no repeated full-table fetches.
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible')
+      for (const watcher of realtimeWatchers.values()) void watcher.poll();
+  });
+}
 function ensureRealtimeChannel() {
   if (realtimeChannel) return;
   realtimeChannel = client.channel('vatra-live-data')
     .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, payload => {
+      // Reconcile everything immediately when the user returns to the tab.
+      if (typeof document !== 'undefined' && document.hidden) return;
       const changedPath = cleanPath(payload?.new?.path || payload?.old?.path || '');
       for (const watcher of realtimeWatchers.values()) {
         const watchedPath = watcher.path;
@@ -427,7 +436,12 @@ export function onValue(reference, callback, errorCallback) {
   realtimeWatchers.set(id, { path: cleanPath(reference.path), poll });
   ensureRealtimeChannel();
   void poll();
-  const timer = setInterval(poll, 20000);
+  // Keep conversations responsive, but slow down bulk timeline/profile polling.
+  const path = cleanPath(reference.path);
+  const fast = /^(?:chats|userChats|friendRequests|chatReads)(?:\/|$)/.test(path);
+  const timer = setInterval(() => {
+    if (typeof document === 'undefined' || document.visibilityState === 'visible') void poll();
+  }, fast ? 20000 : 60000);
   return () => {
     active = false; clearInterval(timer); realtimeWatchers.delete(id);
     if (!realtimeWatchers.size && realtimeChannel) { client.removeChannel(realtimeChannel); realtimeChannel = null; }
