@@ -42,6 +42,11 @@ $vatra$;
 revoke all on function public.vatra_mark_inactive_users() from public, anon, authenticated;
 grant execute on function public.vatra_mark_inactive_users() to service_role;
 
+-- Minimal non-personal status record: an old profile link may say that the account was deleted.
+create table if not exists public.vatra_account_tombstones(user_id uuid primary key,deleted_at timestamptz not null default now());
+alter table public.vatra_account_tombstones enable row level security;
+revoke all on public.vatra_account_tombstones from anon,authenticated;
+
 -- Called only by the service-role Edge Function after the 30-day recovery period.
 -- Owned communities must be transferred/deleted BEFORE requesting deletion.
 create or replace function public.vatra_purge_user_data(target_uid uuid)
@@ -55,6 +60,9 @@ begin
     select 1 from public.app_data
     where path like 'groups/%' and value ->> 'ownerUid' = uid
   ) then raise exception 'Transfer ownership of communities before deletion'; end if;
+
+  insert into public.vatra_account_tombstones(user_id,deleted_at) values(target_uid,now())
+  on conflict (user_id) do update set deleted_at=excluded.deleted_at;
 
   -- Remove the user's content, including posts/comments inside other spaces.
   delete from public.app_data
