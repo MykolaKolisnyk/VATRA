@@ -51,7 +51,7 @@ function showGuide(fromHistory=false){
  window.scrollTo(0,0);
 }
 window.vatraVerificationGuide=showGuide;
-function showApplication(){
+function showApplication(selectedKind='account',selectedGroup=''){
  if(!auth.currentUser){window.vatraRouter?.goPage('settings');return;}
  const d=document.createElement('dialog');d.className='vatra-verification-dialog';
  d.innerHTML='<header><div><p>ВАТРА · ЗАЯВКА</p><h2>Отримати офіційну галочку</h2></div>'+closeBtn()+'</header>'+
@@ -64,6 +64,15 @@ function showApplication(){
  document.body.append(d);d.showModal();d.addEventListener('close',()=>d.remove());
  d.querySelectorAll('[data-verification-close]').forEach(b=>b.onclick=()=>d.close());
  const f=d.querySelector('form');f.elements.kind.onchange=()=>{d.querySelector('[data-community-id]').hidden=f.elements.kind.value!=='community';};
+ if(selectedKind==='community'){f.elements.kind.value='community';f.elements.group.value=selectedGroup;f.elements.kind.onchange();}
+ const groupInput=f.elements.group;groupInput.setAttribute('list','vatraOwnedCommunityOptions');
+ const list=document.createElement('datalist');list.id='vatraOwnedCommunityOptions';groupInput.after(list);
+ void db.from('app_data').select('path,value').like('path','groups/%').limit(800).then(({data,error})=>{
+  if(error||!list.isConnected)return;
+  (data||[]).filter(x=>/^groups\/[^/]+$/.test(x.path)&&x.value?.ownerUid===auth.currentUser?.uid).forEach(x=>{
+   const option=document.createElement('option');option.value=x.path.slice(7);option.label=x.value.name||option.value;list.append(option);
+  });
+ }).catch(()=>{});
  f.onsubmit=async e=>{
   e.preventDefault();const kind=f.elements.kind.value,target=kind==='account'?auth.currentUser.uid:f.elements.group.value.trim(),message=f.elements.explanation.value.trim(),url=f.elements.reference.value.trim(),status=f.querySelector('.vatra-verification-status'),submit=f.querySelector('[type=submit]');
   if(!target||message.length<30){status.textContent='Заповніть ID та пояснення від 30 символів.';return;}
@@ -106,7 +115,17 @@ function installSettings(){
   card.querySelector('[data-vatra-verification-request-form]').onclick=showApplication;
  }
 }
-new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;injectGroupBadges();installSettings();});}).observe(document.body,{childList:true,subtree:true});
+function installCommunityVerification(){
+ const form=document.querySelector('#groupSettingsForm'),hash=location.hash.match(/^#\/community\/([^/]+)\/settings$/);
+ if(!form||!hash||form.querySelector('#vatraCommunityVerificationCard'))return;
+ const id=decodeURIComponent(hash[1]),card=document.createElement('section');
+ card.id='vatraCommunityVerificationCard';card.className='settings-card vatra-public-verification-card';
+ card.innerHTML='<h3>Верифікація спільноти</h3><p>Творець спільноти може надіслати заявку на офіційну синю галочку.</p>'+
+ '<div><button type="button" data-community-apply>Подати заявку</button><button type="button" data-vatra-how-verified>Умови верифікації</button></div>';
+ const save=form.querySelector('.settings-savebar');if(save)save.before(card);else form.append(card);
+ card.querySelector('[data-community-apply]').onclick=()=>showApplication('community',id);
+}
+new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;injectGroupBadges();installSettings();installCommunityVerification();});}).observe(document.body,{childList:true,subtree:true});
 async function fetchRemote(){
  const uid=auth.currentUser?.uid||'';
  if(uid!==lastUid){lastUid=uid;lastCheck=0;window.vatraTrustedNotices=[];}
