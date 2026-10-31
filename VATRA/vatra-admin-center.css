@@ -92,3 +92,17 @@ body .vatra-control-confirm-inner footer button{border-radius:10px;min-height:40
 body .vatra-control-confirm-inner .vatra-control-cancel{background:#fff;color:#3d5d7e;border:1px solid #d8e4f1}
 @media(max-width:800px){body .vatra-control-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}body .vatra-control-columns{grid-template-columns:1fr}body .vatra-control-report-filters{grid-template-columns:1fr}body .vatra-control-case-detail dl{grid-template-columns:1fr}body .vatra-control-audit article{grid-template-columns:1fr}}
 @media(max-width:530px){body .vatra-control-center{gap:10px}body .vatra-control-header,body .vatra-control-card{padding:15px}body .vatra-control-tabs button{padding:10px;font-size:11.5px}body .vatra-control-heading h2{font-size:19px}body .vatra-control-stat{padding:12px}}
+
+body .vatra-control-target-link{display:inline-flex;align-items:center;text-decoration:none!important}
+body .vatra-control-case-detail .vatra-control-actions{margin:14px 0 19px}
+body .vatra-own-restriction{
+ position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+ z-index:10005;width:min(690px,calc(100vw - 28px));
+ display:grid;gap:5px;padding:13px 18px;
+ border:1px solid #edbeaa;border-radius:12px;
+ background:#fff9f5;box-shadow:0 8px 32px #321c1429;
+ color:#83422d;font:500 12px/1.5 Inter,system-ui,sans-serif;
+}
+body .vatra-own-restriction strong{font-size:13px;color:#a13524}
+body .vatra-control-tabs button:focus-visible,
+body .vatra-control-center button:focus-visible{outline:2px solid #0757f5;outline-offset:2px}
