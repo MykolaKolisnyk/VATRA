@@ -60,7 +60,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
  const initial={
   preset:'original',zoom:1,x:0,y:0,rotation:0,flipX:1,flipY:1,
   brightness:100,contrast:100,saturation:100,hue:0,temperature:0,vignette:0,grain:0,
-  blur:0,blurType:'all',brushColor:'#ffffff',brushSize:8,strokes:[],
+  blur:0,blurType:'all',blurX:.5,blurY:.5,brushColor:'#ffffff',brushSize:8,strokes:[],
   sticker:'💙',stickers:[],text:'',textColor:'#ffffff',textStroke:'#1d2f46',
   textSize:50,textFont:'Inter',textX:.5,textY:.78
  };
@@ -129,10 +129,10 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
    l.globalCompositeOperation='destination-in';
    let grad;
    if(state.blurType==='radial'){
-    grad=l.createRadialGradient(w*.5,h*.5,Math.min(w,h)*.12,w*.5,h*.5,Math.max(w,h)*.65);
+    grad=l.createRadialGradient(w*state.blurX,h*state.blurY,Math.min(w,h)*.12,w*state.blurX,h*state.blurY,Math.max(w,h)*.65);
     grad.addColorStop(0,'rgba(0,0,0,0)');grad.addColorStop(.35,'rgba(0,0,0,.08)');grad.addColorStop(1,'rgba(0,0,0,1)');
    }else{
-    grad=l.createLinearGradient(0,0,0,h);
+    grad=l.createLinearGradient(0,h*(state.blurY-.5),0,h*(state.blurY+.5));
     grad.addColorStop(0,'rgba(0,0,0,1)');grad.addColorStop(.43,'rgba(0,0,0,0)');
     grad.addColorStop(.57,'rgba(0,0,0,0)');grad.addColorStop(1,'rgba(0,0,0,1)');
    }
@@ -235,6 +235,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
     subtitle='Пензель';body='<p class="vatra-studio-intro">Малюйте прямо на фотографії. Кожен штрих можна скасувати.</p>'+
     range('brushSize','Товщина',2,32,1,state.brushSize,' px')+
     '<label class="vatra-studio-field">Колір пензля<input type="color" data-setting="brushColor" value="'+state.brushColor+'"></label>'+
+    '<p class="vatra-studio-note">Щоб перенести намальований штрих, перейдіть до іншого інструмента і перетягніть його.</p>'+ 
     '<div class="vatra-studio-swatches">'+['#ffffff','#1a2433','#0757f5','#ffd631','#ff5b65','#23c493','#9a72f6'].map(color=>
       '<button type="button" aria-label="Колір '+color+'" style="background:'+color+'" data-studio-color="'+color+'"></button>').join('')+'</div>';
     break;
@@ -248,7 +249,8 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
     subtitle='Розмиття';body='<p class="vatra-studio-intro">Розмийте фон чи краї фотографії, зберігаючи увагу на головному.</p>'+
     '<div class="vatra-studio-blurtypes">'+[['all','Усе фото'],['radial','Радіальне'],['linear','Лінійне']].map(item=>
      '<button type="button" class="'+(state.blurType===item[0]?'is-active':'')+'" data-studio-blur="'+item[0]+'">'+item[1]+'</button>').join('')+'</div>'+
-    range('blur','Інтенсивність',0,18,.5,state.blur,'');
+    range('blur','Інтенсивність',0,18,.5,state.blur,'')+
+    '<p class="vatra-studio-note">Перетягуйте область розмиття на фотографії.</p>';
     break;
   }
   panel.innerHTML='<h3>'+subtitle+'</h3>'+body;
@@ -339,10 +341,21 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
      canvas.setPointerCapture(event.pointerId);event.preventDefault();return;
     }
    }
+   if(tool!=='brush'&&tool!=='crop'){
+    const near=state.strokes.map((stroke,index)=>({
+      index,stroke,dist:stroke.points.length?Math.min(...stroke.points.map(q=>Math.hypot((q[0]-p[0])*canvas.width,(q[1]-p[1])*canvas.height))):Infinity
+    })).filter(x=>x.dist<Math.max(17,x.stroke.size*canvas.width/800)).sort((a,b)=>a.dist-b.dist)[0];
+    if(near){
+     draggingLayer={type:'stroke',index:near.index,start:p,original:near.stroke.points.map(pt=>pt.slice())};
+     canvas.setPointerCapture(event.pointerId);event.preventDefault();return;
+    }
+   }
    if(tool==='brush'){
     painting={color:state.brushColor,size:state.brushSize,points:[p]};state.strokes.push(painting);
    }else if(tool==='crop'){
     dragging={x:event.clientX,y:event.clientY,baseX:state.x,baseY:state.y};
+   }else if(tool==='blur'){
+    state.blurX=p[0];state.blurY=p[1];draggingLayer={type:'blur'};
    }else if(tool==='stickers'){
     state.stickers.push({emoji:state.sticker,x:p[0],y:p[1],size:86});commit();
    }else if(tool==='text'&&state.text){state.textX=p[0];state.textY=p[1];commit();}
@@ -355,6 +368,12 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
     const p=point(event),x=clamp(p[0]-draggingLayer.dx,0,1),y=clamp(p[1]-draggingLayer.dy,0,1);
     if(draggingLayer.type==='sticker'&&state.stickers[draggingLayer.index]){state.stickers[draggingLayer.index].x=x;state.stickers[draggingLayer.index].y=y;}
     if(draggingLayer.type==='text'){state.textX=x;state.textY=y;}
+    if(draggingLayer.type==='blur'){state.blurX=p[0];state.blurY=p[1];}
+    if(draggingLayer.type==='stroke'){
+     const stroke=state.strokes[draggingLayer.index];
+     if(stroke){const dx=p[0]-draggingLayer.start[0],dy=p[1]-draggingLayer.start[1];
+      stroke.points=draggingLayer.original.map(pt=>[clamp(pt[0]+dx,0,1),clamp(pt[1]+dy,0,1)]);}
+    }
     drawPreview();return;
    }
    if(painting){painting.points.push(point(event));drawPreview();}
