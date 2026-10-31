@@ -47,6 +47,78 @@ const page=document.getElementById('feed');
 const musicHeader=document.getElementById('vatraMusicHeaderButton');
 const musicTopPanel=document.getElementById('vatraMusicTopPanel');
 let musicTab='all',musicQuery='',musicUid='',musicFavorites=new Set(),musicLoaded=false,musicLoadError='',musicLoading=false,playerItem=null,playerExpanded=false;
+let spotifyApiPromise=null,spotifyController=null,actualPlayingUri='',actualPlaying=false,metadataSequence=0,playbackEndTimer=null;
+const nowPlayingKnown=new Map(MUSIC_LIBRARY.filter(i=>i.type==='track').map(i=>['spotify:track:'+i.id,i]));
+function ensureSpotifyApi(){
+ if(spotifyApiPromise)return spotifyApiPromise;
+ spotifyApiPromise=new Promise((resolve,reject)=>{
+  const prior=window.onSpotifyIframeApiReady;
+  window.onSpotifyIframeApiReady=api=>{if(typeof prior==='function')try{prior(api);}catch{}resolve(api);};
+  const script=document.createElement('script');
+  script.src='https://open.spotify.com/embed/iframe-api/v1';script.async=true;
+  script.onerror=()=>{spotifyApiPromise=null;reject(new Error('Spotify не завантажив API програвача.'));};
+  document.head.append(script);
+ });
+ return spotifyApiPromise;
+}
+async function publishMusicStatus(data){
+ if(!musicUid)return;
+ try{
+  await update(ref(db,'users/'+musicUid),{nowPlaying:data});
+  await update(ref(db,'publicProfiles/'+musicUid),{nowPlaying:data});
+  window.dispatchEvent(new CustomEvent('vatra:music-state',{detail:data||null}));
+ }catch(error){console.warn('[VATRA music] Could not sync playback status:',error);}
+}
+async function resolveCurrentTrack(uri){
+ if(!/^spotify:track:[A-Za-z0-9]{22}$/.test(uri))return null;
+ const known=nowPlayingKnown.get(uri);if(known)return {title:known.title,artist:known.artist};
+ try{
+  const endpoint='https://open.spotify.com/oembed?url='+encodeURIComponent('https://open.spotify.com/track/'+uri.split(':')[2]);
+  const response=await fetch(endpoint,{mode:'cors'});
+  if(response.ok){
+   const data=await response.json();
+   const title=String(data.title||'').trim().slice(0,180);
+   if(title)return {title,artist:'Spotify'};
+  }
+ }catch{}
+ return {title:'Трек Spotify',artist:'Spotify'};
+}
+async function setPlayingState(uri,playing,duration=0,position=0){
+ const changed=actualPlaying!==playing||actualPlayingUri!==uri;
+ actualPlaying=playing;actualPlayingUri=playing?uri:'';
+ if(playbackEndTimer){clearTimeout(playbackEndTimer);playbackEndTimer=null;}
+ if(playing&&duration>position&&Number.isFinite(duration-position)){
+  playbackEndTimer=setTimeout(()=>{if(actualPlaying)void setPlayingState('',false);},Math.min(duration-position+1500,86400000));
+ }
+ if(!changed)return;
+ const sequence=++metadataSequence;
+ if(!playing){void publishMusicStatus(null);return;}
+ const track=await resolveCurrentTrack(uri);
+ if(sequence!==metadataSequence||!actualPlaying)return;
+ const expiry=Date.now()+Math.min(Math.max(duration-position||60000,10000),6*3600000);
+ void publishMusicStatus({uri,title:track?.title||'Трек Spotify',artist:track?.artist||'Spotify',startedAt:Date.now(),expiresAt:expiry});
+}
+async function attachSpotifyController(item){
+ const api=await ensureSpotifyApi();
+ if(!playerItem)return;
+ const dock=activePlayer(),target=dock.querySelector('#vatraMusicFrame');
+ if(spotifyController){
+  spotifyController.loadEntity(addressFor(item));
+  return;
+ }
+ api.createController(target,{width:'100%',height:item.type==='track'?152:232,url:addressFor(item)},controller=>{
+  spotifyController=controller;
+  controller.addListener('playback_started',event=>{
+   const uri=event?.data?.playingURI||'';
+   if(uri)void setPlayingState(uri,true);
+  });
+  controller.addListener('playback_update',event=>{
+   const d=event?.data||{},uri=d.playingURI||actualPlayingUri;
+   void setPlayingState(uri,!!uri&&!d.isPaused&&!d.isBuffering,Number(d.duration)||0,Number(d.position)||0);
+  });
+ });
+}
+
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[ch]));
 const key=item=>item.type+':'+item.id;
 const labelFor={track:'Пісня',artist:'Виконавець',playlist:'Плейлист',album:'Альбом'};
@@ -60,7 +132,7 @@ function activePlayer(){
  if(dock)return dock;
  dock=document.createElement('aside');dock.id='vatraMusicDock';dock.className='vatra-music-dock';dock.setAttribute('aria-label','Програвач Spotify');
  dock.hidden=true;
- dock.innerHTML='<div class="vatra-music-dock-head"><div><span class="vatra-music-dock-mark">♫</span><span class="vatra-music-dock-meta"><b id="vatraMusicDockTitle">Музика</b><small id="vatraMusicDockArtist">Spotify</small></span></div><div class="vatra-music-dock-tools"><button type="button" data-music-expand aria-label="Змінити висоту програвача" title="Розгорнути або згорнути">▤</button><button type="button" data-music-close aria-label="Закрити програвач" title="Зупинити музику">×</button></div></div><div class="vatra-music-frame-wrap"><iframe id="vatraMusicFrame" title="Ліцензований програвач Spotify" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="vatra-music-dock-footer"><span>Відтворює Spotify</span><a id="vatraMusicSourceLink" target="_blank" rel="noopener noreferrer">Відкрити у Spotify ↗</a></div>';
+ dock.innerHTML='<div class="vatra-music-dock-head"><div><span class="vatra-music-dock-mark">♫</span><span class="vatra-music-dock-meta"><b id="vatraMusicDockTitle">Музика</b><small id="vatraMusicDockArtist">Spotify</small></span></div><div class="vatra-music-dock-tools"><button type="button" data-music-expand aria-label="Змінити висоту програвача" title="Розгорнути або згорнути">▤</button><button type="button" data-music-close aria-label="Закрити програвач" title="Зупинити музику">×</button></div></div><div class="vatra-music-frame-wrap"><div id="vatraMusicFrame" aria-label="Офіційний програвач Spotify"></div></div><div class="vatra-music-dock-footer"><span>Відтворює Spotify</span><a id="vatraMusicSourceLink" target="_blank" rel="noopener noreferrer">Відкрити у Spotify ↗</a></div>';
  document.body.append(dock);return dock;
 }
 function setPlayerExpanded(flag){
@@ -82,23 +154,28 @@ function syncHeaderMusic(){
 function closeMusicMenu(){if(musicTopPanel)musicTopPanel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
 function play(item){
  if(!item||!['track','album','playlist','artist'].includes(item.type)||!(/^[A-Za-z0-9]{22}$/).test(item.id))return;
- const dock=activePlayer(),frame=dock.querySelector('#vatraMusicFrame');
+ const dock=activePlayer();
  const changed=!playerItem||key(playerItem)!==key(item);
  playerItem=item;dock.hidden=false;
  dock.querySelector('#vatraMusicDockTitle').textContent=item.title;
  dock.querySelector('#vatraMusicDockArtist').textContent=item.artist;
  dock.querySelector('#vatraMusicSourceLink').href=addressFor(item);
  setPlayerExpanded(item.type!=='track');
- if(changed){
-  const embed='https://open.spotify.com/embed/'+item.type+'/'+item.id+'?utm_source=generator';
-  frame.src=embed;
- }
+ if(changed)void setPlayingState('',false);
+ void attachSpotifyController(item).catch(error=>{
+  notify('Вбудований Spotify недоступний. Можна відкрити композицію у Spotify.',true);
+  console.warn('[VATRA music]',error);
+ });
  document.body.classList.add('vatra-has-music');syncHeaderMusic();closeMusicMenu();
  if(document.body.dataset.page==='music')refreshCards();
 }
 function stop(){
- const dock=activePlayer();dock.querySelector('#vatraMusicFrame').removeAttribute('src');
- dock.hidden=true;playerItem=null;document.body.classList.remove('vatra-has-music');syncHeaderMusic();
+ const dock=activePlayer();
+ if(spotifyController){try{spotifyController.destroy();}catch{}spotifyController=null;}
+ dock.querySelector('#vatraMusicFrame').replaceChildren();
+ dock.hidden=true;playerItem=null;
+ void setPlayingState('',false);
+ document.body.classList.remove('vatra-has-music');syncHeaderMusic();
  if(document.body.dataset.page==='music')refreshCards();
 }
 function parseSpotify(input){
