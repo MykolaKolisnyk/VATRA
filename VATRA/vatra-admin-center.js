@@ -84,11 +84,11 @@ function activityStats(cases,accounts,groups){
 function selectData(items){return '<option value="">Оберіть строк</option>'+items.map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('');}
 function banForm(type,list){
  const user=type==='accounts',heading=user?'Блокування користувача':'Блокування спільноти';
- const control=user?'<input name="target" maxlength="25" placeholder="@псевдонім" autocomplete="off" required>':
+ const control=user?'<input name="target" maxlength="36" placeholder="@псевдонім або UID" autocomplete="off" required>':
  '<input name="target" maxlength="128" placeholder="ID спільноти" autocomplete="off" required>';
  const entries=list.slice(0,50).map(v=>'<article class="vatra-control-ban-row"><span>'+esc(user?(v.user_id||''):(v.group_id||''))+'</span><small>'+(v.active?'Бан':'Розблоковано')+(v.expires_at?' · до '+time(v.expires_at):'')+'</small><p>'+esc(v.reason||'')+'</p></article>').join('');
  return '<div class="vatra-control-columns"><section class="vatra-control-card"><h3>'+heading+'</h3><p>Рішення записується у журнал. Заблоковані акаунти не можуть публікувати матеріали через базу ВАТРИ.</p>'+
- '<form data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@)':'ID спільноти')+control+'</label>'+
+ '<form data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@) або UID':'ID спільноти')+control+'</label>'+
  '<label>Причина<textarea name="reason" maxlength="500" rows="3" placeholder="Причина блокування або примітка" required></textarea></label>'+
  '<label>Строк<select name="hours"><option value="0">Безстроково</option><option value="24">24 години</option><option value="72">3 дні</option><option value="168">7 днів</option><option value="720">30 днів</option></select></label>'+
  '<div class="vatra-control-actions"><button class="vatra-control-primary is-danger" type="submit" name="operation" value="ban">Заблокувати</button><button class="vatra-control-secondary" type="submit" name="operation" value="unban">Зняти блокування</button></div><p role="status" class="vatra-control-status"></p></form></section>'+
@@ -116,6 +116,20 @@ function casesMarkup(rows){
  reportFilters()+'<div class="vatra-control-report-list">'+(list||'<p class="vatra-control-muted">Немає скарг.</p>')+'</div>'+
  '<p id="vatraControlReportEmpty" class="vatra-control-muted" hidden>За фільтрами скарг немає.</p></section>';
 }
+function caseJumpLink(c){
+ const type=String(c.target_type||''),target=String(c.target_id||'');
+ let hash='';
+ if(type==='profile')hash='#/profile/'+encodeURIComponent(target);
+ else if(type==='group')hash='#/community/'+encodeURIComponent(target);
+ else if(type==='post')hash='#post-'+encodeURIComponent(target);
+ else if(type==='comment')hash='#post-'+encodeURIComponent(target.split('__')[0]);
+ else if(type==='groupPost'){
+  const pair=target.split('__');
+  if(pair.length===2)hash='#post-'+encodeURIComponent('g_'+pair[0]+'_'+pair[1]);
+ }
+ if(!hash)return '';
+ return '<a class="vatra-control-secondary vatra-control-target-link" target="_blank" rel="noopener noreferrer" href="'+hash+'">Переглянути матеріал</a>';
+}
 function caseDetail(c){
  return '<section class="vatra-control-card vatra-control-case-detail"><button class="vatra-control-link" data-case-back type="button">'+icons.back+' До списку скарг</button>'+
  '<h3>Скарга №'+c.id+'</h3>'+
@@ -123,7 +137,7 @@ function caseDetail(c){
  '<div><dt>Автор звернення</dt><dd>'+esc(c.reporter_uid)+'</dd></div>'+
  '<div><dt>Причина</dt><dd>'+esc(reasons[c.reason]||c.reason)+'</dd></div>'+
  '<div><dt>Дата</dt><dd>'+time(c.created_at)+'</dd></div></dl>'+
- '<p>'+esc(c.details||'Опис не надано.')+'</p>'+
+ '<p>'+esc(c.details||'Опис не надано.')+'</p><div class="vatra-control-actions">'+caseJumpLink(c)+(['profile','group'].includes(c.target_type)?'<button type="button" class="vatra-control-secondary" data-case-moderate="'+esc(c.target_type)+'" data-case-target="'+esc(c.target_id)+'">Керувати блокуванням</button>':'')+'</div>'+
  '<form data-control-report="' +c.id+'"><label>Статус<select name="status">'+Object.entries(statuses).map(([v,label])=>'<option value="'+v+'"'+(c.status===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label>'+
  '<label>Відповідь користувачеві<textarea rows="5" name="response" maxlength="1500" placeholder="Поясніть рішення…">'+esc(c.admin_response||'')+'</textarea></label>'+
  '<p class="vatra-control-muted">Відповідь буде доступна автору звернення в розділі «Мої скарги».</p>'+
@@ -183,6 +197,16 @@ function installEvents(data){
   show(navbar()+caseDetail(row),'Розгляд скарги №'+row.id,'adminCenter');
   installTabs();
   $('[data-case-back]')?.addEventListener('click',()=>void renderDashboard());
+  $('[data-case-moderate]')?.addEventListener('click',event=>{
+    const button=event.currentTarget;
+    activeTab=button.dataset.caseModerate==='profile'?'accounts':'communities';
+    void renderDashboard().then(()=>{
+      const form=$('form[data-control-ban]');if(!form)return;
+      form.elements.target.value=button.dataset.caseTarget;
+      form.elements.reason.value='За результатами скарги №'+row.id+': '+(reasons[row.reason]||row.reason);
+      form.elements.target.focus();
+    });
+  });
   $('form[data-control-report]')?.addEventListener('submit',async e=>{
    e.preventDefault();
    const form=e.currentTarget,status=form.elements.status.value,response=form.elements.response.value.trim();
