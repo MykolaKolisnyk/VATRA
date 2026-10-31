@@ -144,7 +144,7 @@ Deno.serve(async(req)=>{
    if(payload?.confirm!=='ВИДАЛИТИ')return json({error:'Confirmation required'},400,origin);
    if(row.delete_after)return json({lifecycle:row},200,origin);
    if(await ownsGroups(uid))return json({
-    error:'Спочатку передайте керування власними спільнотами або видаліть їх. Поки Ви їхній власник, видалення акаунта недоступне.'
+    error:'Ви є власником спільноти. Спочатку видаліть її або зверніться до адміністрації для безпечної передачі права власності.'
    },409,origin);
    const now=Date.now(),stamp=new Date(now).toISOString();
    const {data,error}=await service.from('vatra_account_lifecycle').update({
