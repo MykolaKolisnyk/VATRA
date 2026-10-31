@@ -1,5 +1,5 @@
 import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from './vatra-e2ee.js?v=2';
-import { setupNavigation } from './navigation.js?v=20261030-22';
+import { setupNavigation } from './navigation.js?v=20261031-1';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-3';
