@@ -72,3 +72,23 @@ drop trigger if exists vatra_validate_group_post_author on public.app_data;
 create trigger vatra_validate_group_post_author
 before insert or update on public.app_data
 for each row execute function public.vatra_validate_group_post_author();
+
+
+-- Moderators may remove posts from the communities they manage, while
+-- ordinary members may remove only their own posts under existing RLS.
+drop policy if exists app_data_delete_group_managers on public.app_data;
+create policy app_data_delete_group_managers on public.app_data
+for delete to authenticated
+using (
+ path ~ '^groupPosts/[^/]+/[^/]+$'
+ and (
+   public.vatra_data_is_group_owner(split_part(path, '/', 2), (select auth.uid()))
+   or exists (
+     select 1 from public.app_data role
+     where role.path in (
+       'groupAdmins/' || split_part(path, '/', 2) || '/' || (select auth.uid())::text,
+       'groupModerators/' || split_part(path, '/', 2) || '/' || (select auth.uid())::text
+     ) and role.value = 'true'::jsonb
+   )
+ )
+);
