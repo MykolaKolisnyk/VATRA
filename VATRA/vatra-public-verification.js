@@ -85,7 +85,9 @@ function injectGroupBadges(){
   if(badge&&slot)slot.append(badge);
  });
  document.querySelectorAll('[data-vatra-group-badge-slot]').forEach(el=>{
-  const id=el.dataset.vatraGroupBadgeSlot;
+  const id=el.dataset.vatraGroupBadgeSlot,verified=window.vatraVerifiedGroupIds.has(String(id))?'1':'0';
+  if(el.dataset.verifiedRendered===verified)return;
+  el.dataset.verifiedRendered=verified;
   el.innerHTML=window.vatraGroupBadge(id);
  });
 }
@@ -119,3 +121,5 @@ async function fetchRemote(){
  }
 }
 setTimeout(()=>void fetchRemote(),1600);setInterval(()=>void fetchRemote(),35000);
+let verificationDeepLinkAttempts=0;
+const guideTimer=setInterval(()=>{if(location.hash!=='#/verification'||document.body.dataset.page==='verificationGuide'||verificationDeepLinkAttempts++>=15){clearInterval(guideTimer);return;}if(document.querySelector('#feed'))showGuide(true);},450);
