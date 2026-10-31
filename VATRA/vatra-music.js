@@ -132,19 +132,39 @@ function notify(text,isError=false){
  const note=document.getElementById('vatraMusicNotice');
  if(note){note.textContent=text;note.hidden=false;note.classList.toggle('is-error',isError);}
 }
+
+/* Unified VATRA vector symbols: no text characters standing in for icons. */
+function musicIcon(type){
+ const paths={
+ track:'M9 18V5l11-2v13M9 9l11-2M6 21c2 0 3-1 3-3s-1-3-3-3-3 1-3 3 1 3 3 3ZM17 19c2 0 3-1 3-3s-1-3-3-3-3 1-3 3 1 3 3 3Z',
+ playlist:'M8 5h12M8 11h12M8 17h8M4 5h.01M4 11h.01M4 17h.01',
+ album:'M4 4h16v16H4zM12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM12 12h.01',
+ artist:'M12 12a4 4 0 1 0 0-8a4 4 0 1 0 0 8ZM4 21c0-5 3-7 8-7s8 2 8 7'
+ };
+ return '<svg class="vatra-music-svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="'+(paths[type]||paths.track)+'"/></svg>';
+}
+function musicActionIcon(type){
+ const paths={
+ play:'M8 5l11 7-11 7z',heart:'M20.5 8.7c0 4-8.5 10-8.5 10s-8.5-6-8.5-10a4.8 4.8 0 0 1 8.5-3.1 4.8 4.8 0 0 1 8.5 3.1z',
+ open:'M13 5h6v6M19 5l-9 9M19 14v5H5V5h5',
+ close:'M5 5l14 14M19 5 5 19',expand:'M4 15v5h5M20 9V4h-5M4 20l6-6M20 4l-6 6',
+ collapse:'M9 4v5H4M15 20v-5h5M9 9L3 3M15 15l6 6'
+ };
+ return '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+(paths[type]||paths.play)+'"/></svg>';
+}
 function activePlayer(){
  let dock=document.getElementById('vatraMusicDock');
  if(dock)return dock;
  dock=document.createElement('aside');dock.id='vatraMusicDock';dock.className='vatra-music-dock';dock.setAttribute('aria-label','Програвач Spotify');
  dock.hidden=true;
- dock.innerHTML='<div class="vatra-music-dock-head"><div><span class="vatra-music-dock-mark">♫</span><span class="vatra-music-dock-meta"><b id="vatraMusicDockTitle">Музика</b><small id="vatraMusicDockArtist">Spotify</small></span></div><div class="vatra-music-dock-tools"><button type="button" data-music-expand aria-label="Змінити висоту програвача" title="Розгорнути або згорнути">▤</button><button type="button" data-music-close aria-label="Закрити програвач" title="Зупинити музику">×</button></div></div><div class="vatra-music-frame-wrap"><div id="vatraMusicFrame" aria-label="Офіційний програвач Spotify"></div></div><div class="vatra-music-dock-footer"><span>Відтворює Spotify</span><a id="vatraMusicSourceLink" target="_blank" rel="noopener noreferrer">Відкрити у Spotify ↗</a></div>';
+ dock.innerHTML='<div class="vatra-music-dock-head"><div><span class="vatra-music-dock-mark">'+musicIcon('track')+'</span><span class="vatra-music-dock-meta"><b id="vatraMusicDockTitle">Музика</b><small id="vatraMusicDockArtist">Spotify</small></span></div><div class="vatra-music-dock-tools"><button type="button" data-music-expand aria-label="Змінити висоту програвача" title="Розгорнути або згорнути">'+musicActionIcon('expand')+'</button><button type="button" data-music-close aria-label="Закрити програвач" title="Зупинити музику">'+musicActionIcon('close')+'</button></div></div><div class="vatra-music-frame-wrap"><div id="vatraMusicFrame" aria-label="Офіційний програвач Spotify"></div></div><div class="vatra-music-dock-footer"><span>Відтворює Spotify</span><a id="vatraMusicSourceLink" target="_blank" rel="noopener noreferrer">Відкрити у Spotify '+musicActionIcon('open')+'</a></div>';
  document.body.append(dock);return dock;
 }
 function setPlayerExpanded(flag){
  playerExpanded=!!flag;const dock=activePlayer(),frame=dock.querySelector('#vatraMusicFrame');
  dock.classList.toggle('is-expanded',playerExpanded);
  frame.height=playerExpanded?'352':'152';
- dock.querySelector('[data-music-expand]').textContent=playerExpanded?'▁':'▤';
+ dock.querySelector('[data-music-expand]').innerHTML=musicActionIcon(playerExpanded?'collapse':'expand');
  dock.querySelector('[data-music-expand]').title=playerExpanded?'Згорнути програвач':'Розгорнути програвач';
 }
 
@@ -214,10 +234,10 @@ function renderMusic(){
  if(document.body.dataset.page!=='music'||!page)return;
  const oldEmpty=document.getElementById('empty');if(oldEmpty)oldEmpty.hidden=true;
  const list=MUSIC_LIBRARY.filter(item=>(musicTab==='all'||(musicTab==='mine'?musicFavorites.has(key(item)):item.type===musicTab)));
- const cards=list.map(item=>'<article class="vatra-music-card tone-'+item.tone+'" data-music-card data-music-text="'+escapeHtml((item.title+' '+item.artist+' '+item.category).toLocaleLowerCase('uk-UA'))+'"><div class="vatra-music-card-image" aria-hidden="true"><span>'+({track:'♫',artist:'♬',album:'▤',playlist:'♩'}[item.type])+'</span></div><div class="vatra-music-card-info"><small>'+labelFor[item.type]+' · '+escapeHtml(item.category)+'</small><h3>'+escapeHtml(item.title)+'</h3><p>'+escapeHtml(item.artist)+'</p></div><div class="vatra-music-card-actions"><button type="button" class="vatra-music-play" data-music-play="'+escapeHtml(key(item))+'" aria-label="Відкрити програвач: '+escapeHtml(item.title)+'">'+(playerItem&&key(playerItem)===key(item)?'У програвачі':'▶ Слухати')+'</button><button type="button" class="vatra-music-favorite'+(musicFavorites.has(key(item))?' is-saved':'')+'" data-music-favorite="'+escapeHtml(key(item))+'" '+(!musicLoaded?'disabled':'')+' title="'+(musicFavorites.has(key(item))?'Прибрати з моєї музики':'Додати у мою музику')+'" aria-label="'+(musicFavorites.has(key(item))?'Прибрати з обраного: ':'Зберегти в обраному: ')+escapeHtml(item.title)+'" aria-pressed="'+String(musicFavorites.has(key(item)))+'">'+(musicFavorites.has(key(item))?'♥':'♡')+'</button><a href="'+addressFor(item)+'" target="_blank" rel="noopener noreferrer" aria-label="Відкрити '+escapeHtml(item.title)+' на Spotify" title="Spotify">↗</a></div></article>').join('');
+ const cards=list.map(item=>'<article class="vatra-music-card tone-'+item.tone+'" data-music-card data-music-text="'+escapeHtml((item.title+' '+item.artist+' '+item.category).toLocaleLowerCase('uk-UA'))+'"><div class="vatra-music-card-image" aria-hidden="true"><span>'+musicIcon(item.type)+'</span></div><div class="vatra-music-card-info"><small>'+labelFor[item.type]+' · '+escapeHtml(item.category)+'</small><h3>'+escapeHtml(item.title)+'</h3><p>'+escapeHtml(item.artist)+'</p></div><div class="vatra-music-card-actions"><button type="button" class="vatra-music-play" data-music-play="'+escapeHtml(key(item))+'" aria-label="Відкрити програвач: '+escapeHtml(item.title)+'">'+(playerItem&&key(playerItem)===key(item)?'У програвачі':musicActionIcon('play')+' Слухати')+'</button><button type="button" class="vatra-music-favorite'+(musicFavorites.has(key(item))?' is-saved':'')+'" data-music-favorite="'+escapeHtml(key(item))+'" '+(!musicLoaded?'disabled':'')+' title="'+(musicFavorites.has(key(item))?'Прибрати з моєї музики':'Додати у мою музику')+'" aria-label="'+(musicFavorites.has(key(item))?'Прибрати з обраного: ':'Зберегти в обраному: ')+escapeHtml(item.title)+'" aria-pressed="'+String(musicFavorites.has(key(item)))+'">'+musicActionIcon('heart')+'</button><a href="'+addressFor(item)+'" target="_blank" rel="noopener noreferrer" aria-label="Відкрити '+escapeHtml(item.title)+' на Spotify" title="Spotify">'+musicActionIcon('open')+'</a></div></article>').join('');
  const tabs=[['all','Головна'],['track','Пісні'],['artist','Виконавці'],['album','Альбоми'],['playlist','Плейлисти'],['mine','Моя музика']];
  page.innerHTML='<section class="vatra-music-page">'+
-  '<div class="vatra-music-banner"><div class="vatra-music-banner-copy"><p class="vatra-music-eyebrow">ВАТРА · МУЗИКА</p><h2>Слухай українське</h2><p>Пісні, артисти та плейлисти — через офіційний програвач Spotify. Без завантаження музики на сервер ВАТРИ.</p></div><div class="vatra-music-banner-art" aria-hidden="true"><span>♫</span><span>♪</span><span>♬</span></div></div>'+
+  '<div class="vatra-music-banner"><div class="vatra-music-banner-copy"><p class="vatra-music-eyebrow">ВАТРА · МУЗИКА</p><h2>Слухай українське</h2><p>Пісні, артисти та плейлисти — через офіційний програвач Spotify. Без завантаження музики на сервер ВАТРИ.</p></div><div class="vatra-music-banner-art" aria-hidden="true">'+musicIcon('playlist')+'</div></div>'+
   '<div class="vatra-music-search"><label class="vatra-music-search-input"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="vatraMusicQuery" type="search" autocomplete="off" placeholder="Знайти музику або виконавця" aria-label="Пошук у добірці ВАТРИ" value="'+escapeHtml(musicQuery)+'"></label><a id="vatraMusicGlobalSearch" href="https://open.spotify.com/search/" target="_blank" rel="noopener noreferrer">Шукати в Spotify ↗</a></div>'+
   '<div class="vatra-music-tabs" role="group" aria-label="Категорії музики">'+tabs.map(([v,text])=>'<button type="button" data-music-tab="'+v+'" class="'+(musicTab===v?'active':'')+'" aria-pressed="'+String(musicTab===v)+'">'+text+(v==='mine'?' <span>'+musicFavorites.size+'</span>':'')+'</button>').join('')+'</div>'+
   '<div class="vatra-music-section-head"><div><h3>'+(tabs.find(x=>x[0]===musicTab)||tabs[0])[1]+'</h3><small>Офіційний Spotify · '+list.length+' добірок і записів</small></div></div>'+

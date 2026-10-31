@@ -99,3 +99,15 @@ body[data-vatra-theme-effective="dark"] .vatra-music-search-input input{color:#e
  .vatra-music-link-box{padding:13px}
 }
 @media(prefers-reduced-motion:reduce){.vatra-music-dock iframe{transition:none}}
+
+/* VATRA music: clear, consistent vector controls and calmer cover artwork. */
+.vatra-music-card-image{background:linear-gradient(135deg,#0757f5,#528df9)!important;color:white!important;box-shadow:inset 0 1px 0 #ffffff42}
+.vatra-music-card-image .vatra-music-svg{width:32px;height:32px;display:block}
+.vatra-music-banner-art{transform:none;opacity:.8;min-width:92px;justify-content:center}
+.vatra-music-banner-art .vatra-music-svg{width:74px;height:74px;stroke-width:1.3}
+.vatra-music-dock-mark{display:grid;place-items:center}
+.vatra-music-dock-mark .vatra-music-svg{width:20px;height:20px}
+.vatra-music-card-actions button svg,.vatra-music-card-actions a svg,.vatra-music-dock-tools svg{flex:0 0 auto;display:block}
+.vatra-music-card-actions .vatra-music-play{gap:7px}
+.vatra-music-card-actions .vatra-music-favorite.is-saved svg{fill:rgba(220,66,96,.2);stroke:#dc4260}
+.vatra-music-dock-footer a{display:inline-flex;align-items:center;gap:5px}
