@@ -80,3 +80,9 @@ html body .vatra-verified-badge{cursor:default!important}
 html body :is(.vatra-profile-name-line,.profile-panel,.vatra-group-heading-copy) .vatra-verified-badge{cursor:pointer!important}
 html body #vatraVerificationPane[hidden]{display:none!important}
 html body .vatra-settings-pane[hidden]{display:none!important}
+
+body .vatra-staff-rules{display:grid;gap:10px;padding-left:22px;margin:12px 0;font:500 12.5px/1.6 Inter,system-ui,sans-serif;color:#526f8a}
+body .vatra-control-audit article{grid-template-columns:1fr 2fr auto!important}
+body .vatra-control-audit article pre{grid-column:1/-1;margin:0;max-width:100%;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid #e2ebf5;border-radius:9px;background:#f7faff;padding:9px 12px;font:500 11px/1.6 ui-monospace,SFMono-Regular,monospace;color:#47637f}
+body .vatra-control-audit article>small:last-child{grid-column:1/-1}
+@media(max-width:600px){body .vatra-control-audit article{grid-template-columns:1fr!important}}
