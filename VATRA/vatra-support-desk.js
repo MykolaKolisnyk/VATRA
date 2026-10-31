@@ -124,7 +124,7 @@ async function loadMessages(id,quiet=false){
  const staff=['owner','support'].includes(role);
  const action=(staff?'<div class="vatra-support-management">'+
  (ticket.assigned_uid===null&&role==='support'?'<button type="button" data-support-claim>Взяти звернення</button>':'')+
- (role==='owner'?'<input type="text" data-support-assign maxlength="41" placeholder="@псевдонім працівника"><button type="button" data-support-set-employee>Призначити</button>':'')+
+ (role==='owner'?'<input type="text" data-support-assign maxlength="81" placeholder="@псевдонім працівника"><button type="button" data-support-set-employee>Призначити</button>':'')+
  (ticket.status!=='closed'?'<button type="button" data-support-resolve>Позначити вирішеним</button>':'')+'</div>':'');
  target.innerHTML='<div class="vatra-support-thread-head"><h3>№'+ticket.id+' · '+esc(ticket.subject)+'</h3><small>Статус: '+esc(ticket.status)+' · '+time(ticket.created_at)+'</small></div>'+
  '<div class="vatra-support-thread-messages" aria-live="polite">'+(msgs||info('Ще немає повідомлень.'))+'</div>'+
@@ -144,7 +144,7 @@ async function loadMessages(id,quiet=false){
  });
  target.querySelector('[data-support-set-employee]')?.addEventListener('click',async()=>{
   const employee=target.querySelector('[data-support-assign]').value.trim();
-  if(!/^@?[a-z0-9][a-z0-9._-]{2,39}$/i.test(employee))return;
+  if(!/^@?[\p{L}\p{N}._-]{3,80}$/u.test(employee))return;
   try{await invoke('vatra_support_assign_by_handle',{_ticket:id,_handle:employee});await loadTickets();await loadMessages(id,false);}catch(err){target.title=err.message;}
  });
  target.querySelector('[data-support-resolve]')?.addEventListener('click',async()=>{
