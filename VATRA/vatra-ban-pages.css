@@ -1,0 +1,31 @@
+/* VATRA official account/community suspension state */
+body .vatra-suspended-page{max-width:690px;min-height:500px;margin:22px auto 40px;padding:46px 40px;text-align:center;background:#fff;border:1px solid #dee8f4;border-radius:17px;box-shadow:0 6px 30px #1b334210;font:400 14px/1.65 Inter,system-ui,sans-serif;color:#294460}
+body .vatra-suspended-logo{display:grid;place-items:center;width:76px;height:76px;margin:0 auto 18px;border-radius:50%;background:#fff0f0;color:#c8464d}
+body .vatra-suspended-logo svg{width:39px;height:39px}
+body .vatra-suspended-overline{color:#8b9cb0;font:750 10px/1.3 Inter,sans-serif;letter-spacing:.12em;margin:0 0 11px}
+body .vatra-suspended-page h1{color:#28425e;font:800 clamp(22px,2.4vw,30px)/1.25 Inter,sans-serif;letter-spacing:-.02em;margin:0 0 14px}
+body .vatra-suspended-person{font:750 17px/1.5 Inter,sans-serif;color:#344e6c;margin:0 0 18px}
+body .vatra-suspended-person small{font:500 12px Inter,sans-serif;color:#7d95b0;margin-left:4px}
+body .vatra-suspended-description{color:#6e859c;font:450 13px/1.8 Inter,system-ui,sans-serif;margin:0 auto 16px;max-width:510px}
+body .vatra-suspended-details{max-width:520px;margin:24px auto;padding:13px 21px;border:1px solid #e6edf5;border-radius:12px;background:#f8fbff;text-align:left}
+body .vatra-suspended-details div{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #e7eef5}
+body .vatra-suspended-details div:last-child{border-bottom:0}
+body .vatra-suspended-details dt{color:#7e91a9;font:600 12px Inter,sans-serif;flex:0 0 36%}
+body .vatra-suspended-details dd{margin:0;font:650 12.5px/1.55 Inter,sans-serif;color:#385776;overflow-wrap:anywhere}
+body .vatra-suspended-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:24px}
+body .vatra-suspended-actions button{min-height:43px;padding:11px 17px;border-radius:10px;font:720 12.5px Inter,sans-serif;cursor:pointer}
+body .vatra-suspended-support{border:1px solid #0757f5;background:#0757f5;color:#fff}
+body .vatra-suspended-back{border:1px solid #dce6f1;background:#fff;color:#456782}
+body .vatra-suspended-own-screen{position:fixed;inset:0;z-index:9998;overflow-y:auto;background:#edf1f6;display:grid;place-items:center;padding:20px}
+body .vatra-suspended-own-screen[hidden]{display:none!important}
+body .vatra-suspended-own-screen .vatra-suspended-page{margin:0;width:min(690px,100%);min-height:0;box-shadow:0 17px 55px #102b4833}
+body .vatra-suspended-own-screen~.vatra-own-restriction{display:none}
+body .vatra-control-ban-row .vatra-control-person-id{display:block;color:#8b9db1;font-size:10px;overflow-wrap:anywhere}
+body .vatra-control-ban-row>span strong{display:block;font-size:13px}
+body .vatra-control-ban-row>span small{display:block;font-size:11px;color:#7891ad}
+body .vatra-control-audit article>span strong{display:block}
+body .vatra-control-audit article>span small{display:block;font-size:11px;color:#8298b0}
+body.vatra-photo-menu-suppressed #vatraAvatarMenu,
+body.vatra-photo-menu-suppressed .vatra-avatar-hover-menu,
+body.vatra-photo-menu-suppressed .vatra-avatar-touch-toggle{visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important}
+@media(max-width:650px){body .vatra-suspended-page{padding:28px 16px;min-height:0}body .vatra-suspended-details div{display:grid;gap:7px}body .vatra-suspended-details dt{flex:auto}}
