@@ -1,0 +1,285 @@
+/* ВАТРА • secure administration and report inbox, backed by Supabase RLS/RPC.
+   Requires vatra-moderation-center.sql; no service-role token is present in the browser. */
+import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-4';
+const auth=getAuth(initializeApp()),client=getDatabase(initializeApp()).client;
+const $=s=>document.querySelector(s);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icons={
+ shield:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 20 6v5.5c0 5.5-3.4 8.6-8 10-4.6-1.4-8-4.5-8-10V6l8-3.5Z"/><path d="m9 12 2 2 4-4"/></svg>',
+ close:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19"/></svg>',
+ search:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>',
+ back:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5-7 7 7 7"/></svg>'
+};
+const statuses={open:'Нова',reviewing:'Розглядається',resolved:'Вирішена',dismissed:'Відхилена'};
+const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
+let roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0;
+const signedUid=()=>auth.currentUser?.uid||null;
+const errorText=e=>String(e?.message||'Перевірте з’єднання й налаштування Supabase.');
+async function checkRole(force=false){
+ const uid=signedUid();
+ if(!uid){roleUid='';roleChecked=false;roleResult=false;return false;}
+ if(!force&&roleChecked&&roleUid===uid)return roleResult;
+ if(isRoleLoading)return false;
+ isRoleLoading=true;
+ try{
+  const {data,error}=await client.rpc('vatra_is_verification_admin');
+  roleResult=!error&&data===true;
+  roleUid=uid;roleChecked=true;
+ }catch{roleUid=uid;roleChecked=true;roleResult=false;}
+ finally{isRoleLoading=false;}
+ return roleResult;
+}
+async function rpc(name,args){
+ const {data,error}=await client.rpc(name,args);
+ if(error)throw error;return data;
+}
+function time(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString('uk-UA',{dateStyle:'medium',timeStyle:'short'});}
+function adminFrame(content,title='Адмінпанель ВАТРИ'){
+ return '<section class="vatra-control-center">'+
+ '<header class="vatra-control-header"><div class="vatra-control-heading"><span class="vatra-control-emblem">'+icons.shield+'</span><div><p class="vatra-control-overline">ВАТРА · КЕРУВАННЯ</p><h2>'+title+'</h2><p>Скарги, безпека користувачів та спільнот</p></div></div><button type="button" class="vatra-control-back" data-control-back>'+icons.back+' Налаштування</button></header>'+content+'</section>';
+}
+function show(content,title,routeName){
+ const feed=$('#feed');if(!feed)return;
+ feed.innerHTML=adminFrame(content,title);
+ document.body.dataset.page=routeName;
+ $('#title')?.replaceChildren(document.createTextNode(title));
+ if($('.quick-compose'))$('.quick-compose').hidden=true;
+ if($('#sort'))$('#sort').hidden=true;
+ if(typeof window.vatraRouteChanged==='function')window.vatraRouteChanged({page:routeName});
+ document.title=title+' | ВАТРА';
+ $('#feed [data-control-back]')?.addEventListener('click',()=>window.vatraRouter?.goPage('settings'));
+ window.scrollTo({top:0});
+}
+function toastInline(element,message,success=false){
+ if(!element)return;
+ element.textContent=message;element.dataset.kind=success?'success':'error';
+}
+function askAction(label,detail,{danger=false}={}){
+ return new Promise(resolve=>{
+  const d=document.createElement('dialog');d.className='vatra-control-confirm';
+  d.innerHTML='<div class="vatra-control-confirm-inner"><header><span class="vatra-control-emblem">'+icons.shield+'</span><h3>Підтвердіть дію</h3><button type="button" data-confirm-cancel aria-label="Закрити">'+icons.close+'</button></header>'+
+    '<p>'+esc(label)+'</p><small>'+esc(detail)+'</small><footer><button type="button" class="vatra-control-cancel" data-confirm-cancel>Скасувати</button><button type="button" class="vatra-control-primary'+(danger?' is-danger':'')+'" data-confirm-yes>Підтвердити</button></footer></div>';
+  document.body.append(d);
+  d.querySelectorAll('[data-confirm-cancel]').forEach(b=>b.addEventListener('click',()=>d.close('cancel')));
+  d.querySelector('[data-confirm-yes]').addEventListener('click',()=>d.close('yes'));
+  d.addEventListener('click',e=>{if(e.target===d)d.close('cancel');});
+  d.addEventListener('close',()=>{const accepted=d.returnValue==='yes';d.remove();resolve(accepted);},{once:true});
+  d.showModal();
+ });
+}
+function navbar(){
+ return '<nav class="vatra-control-tabs" aria-label="Розділи адмінпанелі">'+
+ [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['verification','Верифікація'],['audit','Журнал']].map(([key,label])=>
+  '<button type="button" data-control-tab="'+key+'" class="'+(activeTab===key?'is-active':'')+'">'+label+(key==='reports'&&queueCount?'<span>'+queueCount+'</span>':'')+'</button>').join('')+'</nav>';
+}
+function activityStats(cases,accounts,groups){
+ const open=cases.filter(x=>x.status==='open').length,review=cases.filter(x=>x.status==='reviewing').length;
+ const userBans=accounts.filter(x=>x.active&&(!x.expires_at||new Date(x.expires_at)>new Date())).length;
+ const groupBans=groups.filter(x=>x.active&&(!x.expires_at||new Date(x.expires_at)>new Date())).length;
+ queueCount=open+review;
+ return '<div class="vatra-control-stat-grid">'+[
+  ['Нові скарги',open],['На розгляді',review],['Заблоковані акаунти',userBans],['Заблоковані спільноти',groupBans]
+ ].map(([label,count])=>'<div class="vatra-control-stat"><strong>'+count+'</strong><span>'+label+'</span></div>').join('')+'</div>';
+}
+function selectData(items){return '<option value="">Оберіть строк</option>'+items.map(([v,t])=>'<option value="'+v+'">'+t+'</option>').join('');}
+function banForm(type,list){
+ const user=type==='accounts',heading=user?'Блокування користувача':'Блокування спільноти';
+ const control=user?'<input name="target" maxlength="25" placeholder="@псевдонім" autocomplete="off" required>':
+ '<input name="target" maxlength="128" placeholder="ID спільноти" autocomplete="off" required>';
+ const entries=list.slice(0,50).map(v=>'<article class="vatra-control-ban-row"><span>'+esc(user?(v.user_id||''):(v.group_id||''))+'</span><small>'+(v.active?'Бан':'Розблоковано')+(v.expires_at?' · до '+time(v.expires_at):'')+'</small><p>'+esc(v.reason||'')+'</p></article>').join('');
+ return '<div class="vatra-control-columns"><section class="vatra-control-card"><h3>'+heading+'</h3><p>Рішення записується у журнал. Заблоковані акаунти не можуть публікувати матеріали через базу ВАТРИ.</p>'+
+ '<form data-control-ban="'+type+'"><label>'+(user?'Псевдонім (@)':'ID спільноти')+control+'</label>'+
+ '<label>Причина<textarea name="reason" maxlength="500" rows="3" placeholder="Причина блокування або примітка" required></textarea></label>'+
+ '<label>Строк<select name="hours"><option value="0">Безстроково</option><option value="24">24 години</option><option value="72">3 дні</option><option value="168">7 днів</option><option value="720">30 днів</option></select></label>'+
+ '<div class="vatra-control-actions"><button class="vatra-control-primary is-danger" type="submit" name="operation" value="ban">Заблокувати</button><button class="vatra-control-secondary" type="submit" name="operation" value="unban">Зняти блокування</button></div><p role="status" class="vatra-control-status"></p></form></section>'+
+ '<section class="vatra-control-card"><h3>Історія блокувань</h3><p>Показано останні записи. Зняти блокування можна за тим самим поточним @псевдонімом або ID спільноти.</p><div class="vatra-control-bans">'+(entries||'<p class="vatra-control-muted">Блокувань поки немає.</p>')+'</div></section></div>';
+}
+function verificationForm(){
+ return '<section class="vatra-control-card"><h3>Офіційні акаунти <span class="vatra-control-blue-check">'+icons.shield+'</span></h3><p>Видача за унікальним @псевдонімом. Статус назавжди прив’язується до UUID акаунта, доки його не відкличе адміністратор.</p>'+
+ '<form data-control-verify><label>Псевдонім<input name="handle" required maxlength="25" autocomplete="off" placeholder="@псевдонім"></label>'+
+ '<div class="vatra-control-actions"><button type="submit" class="vatra-control-primary" name="operation" value="grant">Видати галочку</button>'+
+ '<button type="submit" class="vatra-control-secondary" name="operation" value="revoke">Забрати галочку</button></div><p role="status" class="vatra-control-status"></p></form></section>';
+}
+function reportFilters(){
+ return '<div class="vatra-control-report-filters"><label>Статус<select id="vatraControlReportFilter"><option value="all">Усі скарги</option>'+
+ Object.entries(statuses).map(([id,name])=>'<option value="'+id+'">'+name+'</option>').join('')+'</select></label>'+
+ '<label>Пошук<input id="vatraControlReportSearch" type="search" placeholder="Причина, ID, текст…" aria-label="Пошук скарг"></label></div>';
+}
+function casesMarkup(rows){
+ const list=rows.map(c=>'<article class="vatra-control-case" data-case-card data-status="'+esc(c.status)+'" data-search="'+esc((c.target_type+' '+c.target_id+' '+c.reason+' '+c.details+' '+c.reporter_uid).toLowerCase())+'">'+
+ '<div class="vatra-control-case-title"><strong>№'+c.id+' · '+esc(c.target_type)+' · '+esc(c.target_id)+'</strong>'+
+ '<span class="vatra-control-state state-'+esc(c.status)+'">'+esc(statuses[c.status]||c.status)+'</span></div>'+
+ '<small>Причина: '+esc(reasons[c.reason]||c.reason)+' · '+time(c.created_at)+'</small>'+
+ '<p>'+esc(c.details||'Додаткового опису немає.')+'</p>'+
+ '<button type="button" class="vatra-control-secondary" data-open-case="'+c.id+'">Розглянути та відповісти</button></article>').join('');
+ return '<section class="vatra-control-card"><h3>Черга скарг <small>'+rows.length+'</small></h3>'+
+ reportFilters()+'<div class="vatra-control-report-list">'+(list||'<p class="vatra-control-muted">Немає скарг.</p>')+'</div>'+
+ '<p id="vatraControlReportEmpty" class="vatra-control-muted" hidden>За фільтрами скарг немає.</p></section>';
+}
+function caseDetail(c){
+ return '<section class="vatra-control-card vatra-control-case-detail"><button class="vatra-control-link" data-case-back type="button">'+icons.back+' До списку скарг</button>'+
+ '<h3>Скарга №'+c.id+'</h3>'+
+ '<dl><div><dt>Мета скарги</dt><dd>'+esc(c.target_type)+' / '+esc(c.target_id)+'</dd></div>'+
+ '<div><dt>Автор звернення</dt><dd>'+esc(c.reporter_uid)+'</dd></div>'+
+ '<div><dt>Причина</dt><dd>'+esc(reasons[c.reason]||c.reason)+'</dd></div>'+
+ '<div><dt>Дата</dt><dd>'+time(c.created_at)+'</dd></div></dl>'+
+ '<p>'+esc(c.details||'Опис не надано.')+'</p>'+
+ '<form data-control-report="' +c.id+'"><label>Статус<select name="status">'+Object.entries(statuses).map(([v,label])=>'<option value="'+v+'"'+(c.status===v?' selected':'')+'>'+label+'</option>').join('')+'</select></label>'+
+ '<label>Відповідь користувачеві<textarea rows="5" name="response" maxlength="1500" placeholder="Поясніть рішення…">'+esc(c.admin_response||'')+'</textarea></label>'+
+ '<p class="vatra-control-muted">Відповідь буде доступна автору звернення в розділі «Мої скарги».</p>'+
+ '<div class="vatra-control-actions"><button class="vatra-control-primary" type="submit">Зберегти рішення</button></div><p role="status" class="vatra-control-status"></p></form></section>';
+}
+function auditMarkup(events){
+ return '<section class="vatra-control-card"><h3>Журнал адміністратора</h3><p>Історія змін незворотна для користувачів інтерфейсу, але її захист залежить від налаштувань бази.</p><div class="vatra-control-audit">'+
+ (events.map(a=>'<article><strong>'+esc(a.action)+'</strong><span>'+esc(a.target)+'</span><small>'+time(a.created_at)+'</small></article>').join('')||'<p class="vatra-control-muted">Історія порожня.</p>')+'</div></section>';
+}
+async function getRows(table,limit=300){
+ const {data,error}=await client.from(table).select('*').order('created_at',{ascending:false}).limit(limit);
+ if(error)throw error;return Array.isArray(data)?data:[];
+}
+async function renderDashboard(){
+ if(!(await checkRole()))return;
+ const token=++loadingToken;
+ show(navbar()+'<div class="vatra-control-loading" role="status">Завантажуємо панель керування…</div>','Адмінпанель ВАТРИ','adminCenter');
+ try{
+  const [cases,accounts,groups,audit]=await Promise.all([
+   getRows('vatra_moderation_cases',300),getRows('vatra_moderation_account_bans',150),
+   getRows('vatra_moderation_group_bans',150),getRows('vatra_moderation_audit',100)
+  ]);
+  if(token!==loadingToken||document.body.dataset.page!=='adminCenter')return;
+  const stat=activityStats(cases,accounts,groups);
+  let content=activeTab==='reports'?casesMarkup(cases)
+   :activeTab==='accounts'?banForm('accounts',accounts)
+   :activeTab==='communities'?banForm('communities',groups)
+   :activeTab==='verification'?verificationForm()
+   :auditMarkup(audit);
+  show(navbar()+stat+content,'Адмінпанель ВАТРИ','adminCenter');
+  installEvents({cases,accounts,groups,audit});
+ }catch(error){
+  if(token!==loadingToken)return;
+  show(navbar()+'<section class="vatra-control-card"><h3>Потрібне налаштування Supabase</h3><p>Панель відкривається лише після запуску <code>VATRA/vatra-moderation-center.sql</code> у SQL Editor. Також перевірте право адміністратора.</p><p class="vatra-control-error">'+esc(errorText(error))+'</p></section>','Адмінпанель ВАТРИ','adminCenter');
+  installTabs();
+ }
+}
+function installTabs(){
+ document.querySelectorAll('[data-control-tab]').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.controlTab;void renderDashboard();}));
+}
+function installEvents(data){
+ installTabs();
+ const filter=$('#vatraControlReportFilter'),search=$('#vatraControlReportSearch');
+ function filterCases(){
+  let count=0;
+  document.querySelectorAll('[data-case-card]').forEach(card=>{
+   card.hidden=(filter?.value!=='all'&&card.dataset.status!==filter.value)||
+    (!!search?.value.trim()&&!card.dataset.search.includes(search.value.trim().toLowerCase()));
+   if(!card.hidden)count++;
+  });
+  if($('#vatraControlReportEmpty'))$('#vatraControlReportEmpty').hidden=count>0;
+ }
+ filter?.addEventListener('change',filterCases);search?.addEventListener('input',filterCases);
+ document.querySelectorAll('[data-open-case]').forEach(b=>b.addEventListener('click',()=>{
+  const row=data.cases.find(c=>String(c.id)===b.dataset.openCase);
+  if(!row)return;
+  show(navbar()+caseDetail(row),'Розгляд скарги №'+row.id,'adminCenter');
+  installTabs();
+  $('[data-case-back]')?.addEventListener('click',()=>void renderDashboard());
+  $('form[data-control-report]')?.addEventListener('submit',async e=>{
+   e.preventDefault();
+   const form=e.currentTarget,status=form.elements.status.value,response=form.elements.response.value.trim();
+   if(!(await askAction('Зберегти рішення щодо скарги №'+row.id+'?', 'Статус: '+(statuses[status]||status))))return;
+   const button=form.querySelector('[type=submit]');button.disabled=true;
+   try{
+    await rpc('vatra_admin_review_report',{_case_id:row.id,_status:status,_response:response});
+    toastInline(form.querySelector('.vatra-control-status'),'Рішення записано. Автор скарги зможе прочитати відповідь.',true);
+    setTimeout(()=>{if(document.body.dataset.page==='adminCenter')void renderDashboard();},900);
+   }catch(error){toastInline(form.querySelector('.vatra-control-status'),errorText(error));}
+   finally{button.disabled=false;}
+  });
+ }));
+ document.querySelectorAll('form[data-control-ban]').forEach(form=>form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const submitter=e.submitter,ban=submitter?.value!=='unban',target=form.elements.target.value.trim(),reason=form.elements.reason.value.trim(),hours=Number(form.elements.hours.value)||0,type=form.dataset.controlBan;
+  if(!target||ban&&reason.length<3){toastInline(form.querySelector('.vatra-control-status'),'Заповніть ціль і причину блокування.');return;}
+  const label=ban?'Заблокувати':'Розблокувати';
+  if(!(await askAction(label+' '+target+'?',reason||'Дію буде записано в журналі.',{danger:ban})))return;
+  form.querySelectorAll('button').forEach(btn=>btn.disabled=true);
+  try{
+   const method=type==='accounts'?'vatra_admin_set_account_ban':'vatra_admin_set_group_ban';
+   const args=type==='accounts'?{_handle:target,_ban:ban,_reason:reason,_hours:hours}:{_group_id:target,_ban:ban,_reason:reason,_hours:hours};
+   await rpc(method,args);
+   toastInline(form.querySelector('.vatra-control-status'),(ban?'Блокування застосовано.':'Блокування знято.'),true);
+   setTimeout(()=>{if(document.body.dataset.page==='adminCenter')void renderDashboard();},900);
+  }catch(error){toastInline(form.querySelector('.vatra-control-status'),errorText(error));}
+  finally{form.querySelectorAll('button').forEach(btn=>btn.disabled=false);}
+ }));
+ $('form[data-control-verify]')?.addEventListener('submit',async e=>{
+  e.preventDefault();const form=e.currentTarget,grant=e.submitter?.value!=='revoke',handle=form.elements.handle.value.trim().replace(/^@/,'');
+  if(!/^[\p{L}\p{N}._-]{2,24}$/u.test(handle)){toastInline(form.querySelector('.vatra-control-status'),'Перевірте @псевдонім.');return;}
+  if(!(await askAction((grant?'Видати':'Забрати')+' галочку для @'+handle+'?', 'Статус буде прив’язаний до незмінного ID акаунта.')))return;
+  form.querySelectorAll('button').forEach(b=>b.disabled=true);
+  try{
+   await rpc('vatra_set_verification_by_handle',{_handle:handle,_verified:grant});
+   toastInline(form.querySelector('.vatra-control-status'),(grant?'Галочку видано.':'Галочку відкликано.'),true);
+  }catch(error){toastInline(form.querySelector('.vatra-control-status'),errorText(error));}
+  finally{form.querySelectorAll('button').forEach(b=>b.disabled=false);}
+ });
+}
+async function openAdmin(){
+ if(!(await checkRole(true)))return;
+ activeTab=activeTab||'reports';
+ await renderDashboard();
+}
+window.vatraOpenAdminCenter=openAdmin;
+async function myReports(){
+ if(!signedUid())return;
+ show('<section class="vatra-control-card"><h3>Мої звернення до модерації</h3><p>Тут з’являються відповіді адміністратора на Ваші скарги.</p><p class="vatra-control-muted">Завантаження…</p></section>','Мої скарги','myReports');
+ try{
+  const {data,error}=await client.from('vatra_moderation_cases').select('id,target_type,target_id,reason,details,status,admin_response,created_at,reviewed_at').eq('reporter_uid',signedUid()).order('created_at',{ascending:false}).limit(100);
+  if(error)throw error;
+  if(document.body.dataset.page!=='myReports')return;
+  show('<section class="vatra-control-card"><h3>Мої звернення</h3><p>Звернення, статус їх розгляду та відповіді ВАТРИ.</p><div class="vatra-control-report-list">'+
+   ((data||[]).map(c=>'<article class="vatra-control-case"><div class="vatra-control-case-title"><strong>№'+c.id+' · '+esc(c.target_type)+'</strong><span class="vatra-control-state state-'+esc(c.status)+'">'+esc(statuses[c.status]||c.status)+'</span></div>'+
+   '<small>'+time(c.created_at)+' · '+esc(reasons[c.reason]||c.reason)+'</small><p>'+esc(c.details||'Опис не додано.')+'</p>'+
+   (c.admin_response?'<div class="vatra-control-reply"><strong>Відповідь ВАТРИ</strong><p>'+esc(c.admin_response)+'</p><small>'+time(c.reviewed_at)+'</small></div>':'')+'</article>').join('')||
+    '<p class="vatra-control-muted">Ваших скарг поки немає.</p>')+
+   '</div></section>','Мої скарги','myReports');
+ }catch(error){
+  show('<section class="vatra-control-card"><h3>Список звернень тимчасово недоступний</h3><p>Потрібна SQL-міграція адміністративної панелі.</p><p>'+esc(errorText(error))+'</p></section>','Мої скарги','myReports');
+ }
+}
+window.vatraOpenMyReports=myReports;
+async function installSettingsLinks(){
+ const form=$('#profileSettingsForm'),nav=$('.vatra-settings-nav');
+ if(!form||!nav||document.body.dataset.page!=='settings'||!signedUid())return;
+ if(!nav.querySelector('[data-vatra-my-reports]')){
+  const btn=document.createElement('button');
+  btn.type='button';btn.className='vatra-settings-nav-button';btn.dataset.vatraMyReports='true';
+  btn.textContent='Мої скарги';btn.addEventListener('click',()=>void myReports());nav.append(btn);
+ }
+ if(!nav.querySelector('[data-vatra-admin-entry]')&&await checkRole()){
+  if(!nav.isConnected||document.body.dataset.page!=='settings')return;
+  const button=document.createElement('button');button.type='button';
+  button.className='vatra-settings-nav-button vatra-control-admin-entry';
+  button.dataset.vatraAdminEntry='true';
+  button.innerHTML=icons.shield+' Адмінпанель ВАТРИ';
+  button.addEventListener('click',()=>void openAdmin());nav.append(button);
+ }
+}
+new MutationObserver(()=>{
+ if(paintPending)return;paintPending=true;
+ requestAnimationFrame(()=>{paintPending=false;void installSettingsLinks();});
+}).observe(document.body,{subtree:true,childList:true});
+void installSettingsLinks();
+// A compact count on the bell lets an admin notice new reports without opening settings.
+// Poll while the site is open; it does not rely on push or background monitoring.
+async function checkQueue(){
+ if(!signedUid()||!(await checkRole()))return;
+ const {count,error}=await client.from('vatra_moderation_cases').select('id',{count:'exact',head:true}).eq('status','open');
+ if(error)return;
+ const bell=$('#notificationBell');if(!bell)return;
+ let badge=bell.querySelector('.vatra-admin-report-count');
+ if(!badge){badge=document.createElement('span');badge.className='vatra-admin-report-count';badge.setAttribute('aria-label','Нові скарги модерації');bell.append(badge);}
+ badge.hidden=!count;badge.textContent=count>99?'99+':String(count||0);
+}
+setInterval(()=>{void checkQueue();},90000);
+setTimeout(()=>{void checkQueue();},3000);
