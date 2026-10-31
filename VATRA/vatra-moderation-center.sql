@@ -188,10 +188,15 @@ create policy vatra_mod_restrict_content_select on public.app_data as restrictiv
 for select to anon, authenticated using (
  (path !~ '^(groups|groupPosts|groupMedia|groupMembers|groupAdmins|groupModerators)/[^/]+'
   or not public.vatra_moderation_group_blocked(split_part(path,'/',2)))
- and (path !~ '^posts/[^/]+$'
+ and (path !~ '^publicProfiles/[^/]+$'
+      or split_part(path,'/',2)=auth.uid()::text
       or not public.vatra_moderation_account_blocked(
-       case when coalesce(value->>'authorUid','') ~ '^[0-9a-fA-F-]{36}$'
-       then (value->>'authorUid')::uuid else null end))
+       case when split_part(path,'/',2) ~ '^[0-9a-fA-F-]{36}$'
+       then split_part(path,'/',2)::uuid else null end))
+ and (path !~ '^(posts|groupPosts|comments|videos)/'
+      or not public.vatra_moderation_account_blocked(
+       case when coalesce(value->>'authorUid',value->>'uid','') ~ '^[0-9a-fA-F-]{36}$'
+       then coalesce(value->>'authorUid',value->>'uid')::uuid else null end))
 );
 
 -- Account ban / unban by CURRENT unique @handle.
