@@ -35,7 +35,14 @@ export function setupPostComposer(api){
   const settings=name==='settings';q('#composerEditStep').hidden=settings;q('#composerSettingsStep').hidden=!settings;
   q('#vatraComposeTitle').textContent=getDraftScope()?(settings?'Публікація у спільноті':'Новий допис у спільноті'):(settings?'Публікація допису':'Новий допис');
   drafts(false);q('#composerMediaMenu').hidden=true;q('#composerMediaMenuTrigger').setAttribute('aria-expanded','false');
-  if(settings)review();
+  if(settings){
+   review();
+   const section=q('#vatraComposerMediaGallerySetting'),label=q('#vatraComposerGalleryHint');
+   if(section)section.hidden=!getPhotos().length&&!getVideo();
+   if(label)label.textContent=getDraftScope()
+    ? 'Ці фото й відео будуть додані до галереї спільноти. Вкладення в самому дописі залишаться незалежно від вибору.'
+    : 'Ці фото й відео також з’являться у Ваших розділах «Фото» та «Відео». Вкладення в дописі залишаться незалежно від вибору.';
+  }
   q('#composerSettingsStep .vatra-compose-step-scroll')?.scrollTo(0,0);
  }
  function saveDraft(){
