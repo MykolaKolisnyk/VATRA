@@ -672,3 +672,19 @@ export async function vatraCancelScheduledPost(id){
  if(!data)throw new Error('Допис уже опубліковано або скасовано.');
  return true;
 }
+
+/* Create an independent community gallery entry as an INSERT, not an UPSERT:
+   the Supabase RLS intentionally does not permit changing media entries. */
+export async function vatraCreateGroupMedia(groupId,item){
+ if(!/^[A-Za-z0-9_-]{4,128}$/.test(String(groupId||'')))throw new Error('Некоректна спільнота.');
+ if(!item||!['photo','video'].includes(item.kind)||!/^https:\/\//i.test(String(item.url||'')))
+  throw new Error('Некоректний медіафайл.');
+ const uid=currentAuth.currentUser?.uid;
+ if(!uid)throw new Error('Необхідно увійти в акаунт.');
+ const refPath=push(ref(getDatabase(),'groupMedia/'+groupId));
+ await insertNode(refPath.path,{
+  kind:item.kind,url:item.url,albumId:String(item.albumId||'').slice(0,90),
+  authorUid:uid,createdAt:Date.now()
+ });
+ return refPath.key;
+}
