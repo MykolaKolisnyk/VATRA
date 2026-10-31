@@ -3099,4 +3099,4 @@ async function vatraOpenPostLink(postId){
  window.vatraRouteChanged?.({page:'postDetail',id:postId});
 }
 /* Public routing hooks for the shared VATRA link/gallery UI. */
-window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,renderGroupMembersPage,openPostPhotoViewer,startChatWith,openPost:vatraOpenPostLink};
+window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,renderGroupMembersPage,openPostPhotoViewer,openAvatarViewer,startChatWith,openPost:vatraOpenPostLink};
