@@ -3,7 +3,7 @@ import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-3';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261030-5';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends } from './vatra-backend.js?v=20261030-5';
+import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest } from './vatra-backend.js?v=20261031-1';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
@@ -1998,6 +1998,59 @@ function vatraPrivacyOptions(value,defaultValue='private'){
  return [['public','Для всіх'],['friends','Для друзів'],['private','Лише для себе']].map(([key,label])=>'<option value="'+key+'"'+(selected===key?' selected':'')+'>'+label+'</option>').join('');
 }
 let vatraSettingsSection='profile',vatraSettingsSaving=false;
+async function vatraRenderAccountLifecycleSettings(section){
+ if(!section||!currentUser)return;
+ section.innerHTML='<section class="settings-card vatra-lifecycle-card"><h3>Зберігання та видалення акаунта</h3>'+
+ '<p class="muted">Ви можете подати запит на видалення. Є 30 днів на відновлення; остаточне видалення виконується сервером після завершення цього строку.</p>'+
+ '<div id="vatraLifecycleStatus" class="vatra-lifecycle-status" role="status" aria-live="polite">Перевіряємо налаштування сервера…</div>'+
+ '<div class="vatra-lifecycle-controls" hidden><label>Видалення через неактивність<select id="vatraInactivityPolicy">'+
+ '<option value="">Вимкнено</option><option value="7">7 днів</option><option value="30">30 днів</option><option value="365">1 рік</option></select></label>'+
+ '<p class="muted">Неактивність рахується за останнім відвідуванням ВАТРИ. Після обраного строку почнеться ще 30-денний термін відновлення. Просто вийти з акаунта — не те саме, що видалити його.</p>'+
+ '<button type="button" id="vatraSaveInactivity" class="pill">Зберегти термін</button>'+
+ '<div class="vatra-lifecycle-divider"></div>'+
+ '<button type="button" id="vatraRequestDeletion" class="vatra-lifecycle-danger">Подати запит на видалення акаунта</button>'+
+ '<button type="button" id="vatraCancelDeletion" class="primary" hidden>Скасувати видалення та відновити акаунт</button>'+
+ '<p class="muted">Якщо Ви володієте спільнотою, спочатку передайте право власності або видаліть її. Це захищає чужі матеріали.</p></div></section>';
+ const status=section.querySelector('#vatraLifecycleStatus');
+ const controls=section.querySelector('.vatra-lifecycle-controls');
+ const policy=section.querySelector('#vatraInactivityPolicy');
+ const request=section.querySelector('#vatraRequestDeletion');
+ const cancel=section.querySelector('#vatraCancelDeletion');
+ const save=section.querySelector('#vatraSaveInactivity');
+ const draw=row=>{
+  if(!section.isConnected)return;
+  controls.hidden=false;
+  policy.value=row?.inactivity_days==null?'':String(row.inactivity_days);
+  const scheduled=!!row?.delete_after;
+  status.textContent=scheduled?'Видалення заплановано на '+new Date(row.delete_after).toLocaleString('uk-UA')+'. Ви можете відновити акаунт до цієї дати.':'Видалення не заплановано. Акаунт активний.';
+  status.classList.toggle('is-pending',scheduled);
+  request.hidden=scheduled;cancel.hidden=!scheduled;
+  policy.disabled=scheduled;save.disabled=scheduled;
+ };
+ try{draw(await accountLifecycleRequest('status'));}
+ catch(error){status.textContent=error.message||'Не вдалося перевірити налаштування.';return;}
+ save.addEventListener('click',async()=>{
+  save.disabled=true;
+  try{draw(await accountLifecycleRequest('set-inactivity',{days:policy.value?Number(policy.value):null}));toastMsg('Термін неактивності збережено.');}
+  catch(error){toastMsg(error.message);}
+  finally{if(!cancel.hidden)save.disabled=true;else save.disabled=false;}
+ });
+ request.addEventListener('click',async()=>{
+  const confirmation=await askText('Введіть ВИДАЛИТИ, щоб запланувати видалення. Після цього буде 30 днів для відновлення.','');
+  if(confirmation!=='ВИДАЛИТИ')return;
+  request.disabled=true;
+  try{draw(await accountLifecycleRequest('schedule',{confirm:confirmation}));toastMsg('Запит на видалення оформлено.');}
+  catch(error){toastMsg(error.message);}
+  finally{request.disabled=false;}
+ });
+ cancel.addEventListener('click',async()=>{
+  cancel.disabled=true;
+  try{draw(await accountLifecycleRequest('cancel'));toastMsg('Видалення скасовано.');}
+  catch(error){toastMsg(error.message);}
+  finally{cancel.disabled=false;}
+ });
+}
+
 function vatraOrganizeSettings(){
  const page=$('.settings-page'),form=$('#profileSettingsForm');if(!page||!form)return;
  const cards=[...form.children].filter(node=>node.classList.contains('settings-card'));
@@ -2008,7 +2061,7 @@ function vatraOrganizeSettings(){
  const tabs=[
   ['profile','Профіль'],['contacts','Контакти'],['interests','Захоплення'],
   ['education','Освіта'],['career',"Кар'єра"],['service','Військова служба'],
-  ['life','Життєва позиція'],['privacy','Приватність'],['appearance','Вигляд ВАТРИ'],['documents','Документи']
+  ['life','Життєва позиція'],['privacy','Приватність'],['appearance','Вигляд ВАТРИ'],['account','Акаунт і видалення'],['documents','Документи']
  ];
  const workspace=document.createElement('div');workspace.className='vatra-settings-workspace';
  form.before(workspace);workspace.append(form);
@@ -2025,6 +2078,7 @@ function vatraOrganizeSettings(){
  const choose=id=>{
   vatraSettingsSection=id;
   for(const [key,pane] of Object.entries(sections))pane.hidden=key!==id;
+  if(id==='account')vatraRenderAccountLifecycleSettings(sections.account);
   nav.querySelectorAll('[data-settings-target]').forEach(button=>{
    const active=button.dataset.settingsTarget===id;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false');
   });
