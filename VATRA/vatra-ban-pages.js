@@ -2,7 +2,7 @@
 import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-4';
 const auth=getAuth(initializeApp()),client=getDatabase(initializeApp()).client;
 const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const byKey=new Map(),ongoing=new Map();let lastUid='',lastFullScreen=false;
+const byKey=new Map(),ongoing=new Map();let lastUid='';
 const key=(kind,id)=>kind+':'+id;
 const uid=()=>auth.currentUser?.uid||'';
 const isBlocked=d=>d?.blocked===true;
@@ -38,7 +38,7 @@ function html(kind,id,d,name,handle,own=false){
  '<div class="vatra-suspended-actions"><button class="vatra-suspended-support" type="button" data-vatra-ban-support>Звернутися до техпідтримки</button>'+
  (!own?'<button class="vatra-suspended-back" type="button" data-vatra-ban-back>Назад</button>':'')+'</div></section>';
 }
-function inject(kind,id,d,{own=false}={}){
+function inject(kind,id,d,{own=false,name='',handle=''}={}){
  const valid=kind==='community'?location.hash==='#/community/'+encodeURIComponent(id):own?uid()===id:location.hash==='#/profile/'+encodeURIComponent(id);
  if(!valid)return;
  if(own){
@@ -49,7 +49,7 @@ function inject(kind,id,d,{own=false}={}){
   wire(shell);
  }else{
   const feed=document.querySelector('#feed');if(!feed)return;
-  feed.innerHTML=html(kind,id,d,kind==='account'?document.querySelector('.vatra-profile-name-line h2')?.textContent:document.querySelector('.vatra-group-heading h2')?.textContent,'');
+  feed.innerHTML=html(kind,id,d,name|| (kind==='account'?document.querySelector('.vatra-profile-name-line h2')?.textContent:document.querySelector('.vatra-group-heading h2')?.textContent),handle);
   feed.dataset.vatraBanView=id;
   wire(feed);
  }
@@ -60,19 +60,19 @@ function wire(root){
   if(history.length>1)history.back();else window.vatraRouter?.goPage('feed');
  });
 }
-async function inspect(kind,id,own=false){
+async function inspect(kind,id,own=false,name='',handle=''){
  const d=await status(kind,id);
- if(d&&isBlocked(d)){inject(kind,id,d,{own});return true;}
+ if(d&&isBlocked(d)){inject(kind,id,d,{own,name,handle});return true;}
  return false;
 }
-function guard(kind,id){
+function guard(kind,id,name='',handle=''){
  const d=cached(kind,id);
- if(isBlocked(d)){inject(kind,id,d);return true;}
- void inspect(kind,id);
+ if(isBlocked(d)){inject(kind,id,d,{name,handle});return true;}
+ void inspect(kind,id,false,name,handle);
  return false;
 }
-window.vatraBanGuardProfile=id=>guard('account',id);
-window.vatraBanGuardCommunity=id=>guard('community',id);
+window.vatraBanGuardProfile=(id,name,handle)=>guard('account',id,name,handle);
+window.vatraBanGuardCommunity=(id,name)=>guard('community',id,name);
 window.vatraBanRefresh=async(kind,id)=>{
  byKey.delete(key(kind,id));
  const d=await status(kind,id,true);
