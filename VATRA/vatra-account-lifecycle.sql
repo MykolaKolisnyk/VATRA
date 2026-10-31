@@ -108,13 +108,13 @@ begin
   set value = jsonb_set(a.value,'{contacts}',
     coalesce((
       select jsonb_agg(item)
-      from jsonb_array_elements(a.value->'contacts') item
+      from jsonb_array_elements(case when jsonb_typeof(a.value->'contacts')='array' then a.value->'contacts' else '[]'::jsonb end) item
       where item->>'uid' is distinct from uid
     ),'[]'::jsonb),true),updated_at=now()
   where a.path like 'groups/%'
     and jsonb_typeof(a.value->'contacts') = 'array'
     and exists (
-      select 1 from jsonb_array_elements(a.value->'contacts') item
+      select 1 from jsonb_array_elements(case when jsonb_typeof(a.value->'contacts')='array' then a.value->'contacts' else '[]'::jsonb end) item
       where item->>'uid' = uid
     );
 end;
