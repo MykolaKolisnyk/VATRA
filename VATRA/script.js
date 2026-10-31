@@ -1952,7 +1952,7 @@ async function renderChatBubbles(key){
   const stamp=timeAgo(m.createdAt)+(m.editedAt?' · змінено':'');
   const author=mine?currentProfile:(users[activeChat]||{});
   const authorName=author.name||(mine?'Ви':'Користувач ВАТРИ');
-  return '<div class="vatra-chat-message-row '+(mine?'is-mine':'is-peer')+'"><span class="vatra-chat-message-avatar">'+avatar(authorName,author.avatarUrl||'')+'</span><div class="message-bubble '+(mine?'mine':'')+'"><div class="vatra-chat-message-meta"><b>'+esc(authorName)+'</b><time>'+esc(stamp)+'</time></div>'+
+  return '<div class="vatra-chat-message-row '+(mine?'is-mine':'is-peer')+'"><span class="vatra-chat-message-avatar">'+avatar(authorName,author.avatarUrl||'')+'</span><div class="message-bubble '+(mine?'mine':'')+'"><div class="vatra-chat-message-meta"><b>'+esc(authorName)+verifiedBadge(mine?uid:activeChat)+'</b><time>'+esc(stamp)+'</time></div>'+
    (editing?'<form class="message-edit-form" data-edit-message-form="'+esc(m.id)+'"><input name="text" maxlength="2000" value="'+esc(textValue)+'" required><button class="pill">Зберегти</button><button type="button" class="text-link" data-cancel-edit>Скасувати</button></form>':
    '<p>'+(canRead?safeText(textValue):esc(textValue))+'</p>'+
    (mine?'<div class="message-actions">'+(canRead?'<button data-edit-message="'+esc(m.id)+'">Редагувати</button>':'')+'<button data-delete-message="'+esc(m.id)+'">Видалити</button></div>':''))+
