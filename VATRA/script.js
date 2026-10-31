@@ -1,7 +1,7 @@
 import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from './vatra-e2ee.js?v=2';
 import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
-import { setupPostComposer } from './vatra-post-composer.js?v=20261031-2';
+import { setupPostComposer } from './vatra-post-composer.js?v=20261031-3';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261030-5';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends } from './vatra-backend.js?v=20261030-5';
 
@@ -2147,7 +2147,7 @@ $('#passwordToggle').onclick=()=>{const input=$('#authPassword'),show=input.type
 $('#resetPassword').onclick=()=>openAuth('reset');
 $('#authSwitch').onclick=()=>openAuth(authMode==='register'?'login':'register');$('#authButton').onclick=()=>signOut(auth).then(()=>location.replace('auth.html')).catch(e=>toastMsg(niceError(e))); $('#authButton').textContent='Вийти';$('#authClose').onclick=()=>authDialog.close();
 $('#create')?.addEventListener('click',openComposer);$('#prompt')?.addEventListener('click',openComposer);$('#postNow')?.addEventListener('click',openComposer);$('#mobileCreate')?.addEventListener('click',openComposer);$('#close').onclick=()=>modal.close();
-modal.addEventListener('close',()=>{if(vatraComposerGroupId)vatraGroupDraftText[vatraComposerGroupId]=$('#postText')?.value||'';vatraComposerGroupId=null;modal.classList.remove('is-community-composer');});$('#postText').addEventListener('input',()=>$('#count').textContent=$('#postText').value.length+' / '+MAX_POST_TEXT);$('#photoBtn').onclick=()=>{if(!authRequired())return;if(!modal.open)openComposer();$('#modalPhoto').click();};
+modal.addEventListener('close',()=>{if(vatraComposerGroupId){const text=$('#postText')?.value||'';vatraGroupDraftText[vatraComposerGroupId]=text;const form=$('#groupPostForm');if(form&&groupId===vatraComposerGroupId){const textarea=form.querySelector('textarea[name="text"]');if(textarea)textarea.value=text;}}vatraComposerGroupId=null;modal.classList.remove('is-community-composer');});$('#postText').addEventListener('input',()=>$('#count').textContent=$('#postText').value.length+' / '+MAX_POST_TEXT);$('#photoBtn').onclick=()=>{if(!authRequired())return;if(!modal.open)openComposer();$('#modalPhoto').click();};
 $('#photo').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length)return;if(!authRequired())return;e.target.value='';if(!modal.open)openComposer();await selectPostPhotos(files);};
 $('#modalPhoto').onchange=async e=>{const files=[...(e.target.files||[])];e.target.value='';if(!authRequired())return;await selectPostPhotos(files);};
  $('#postVisibility').addEventListener('change',event=>{
