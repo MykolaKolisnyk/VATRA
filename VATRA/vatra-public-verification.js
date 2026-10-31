@@ -81,7 +81,7 @@ function injectGroupBadges(){
   if(found)return;
   const markHolder=document.createElement('span');markHolder.innerHTML=window.vatraGroupBadge(id);
   const badge=markHolder.firstElementChild;
-  const slot=el.matches('.vatra-community-name,.vatra-search-person-name')?el:el.querySelector('.vatra-community-name,.vatra-search-person-name,small');
+  const slot=el.matches('.vatra-community-name,.vatra-search-person-name,.author-link')?el:el.querySelector('.vatra-community-name,.vatra-search-person-name,.author-link,small');
   if(badge&&slot)slot.append(badge);
  });
  document.querySelectorAll('[data-vatra-group-badge-slot]').forEach(el=>{
