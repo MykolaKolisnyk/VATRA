@@ -185,7 +185,7 @@ for delete to authenticated using (
 -- Hide disabled communities and their content from normal database reads.
 drop policy if exists vatra_mod_restrict_content_select on public.app_data;
 create policy vatra_mod_restrict_content_select on public.app_data as restrictive
-for select to authenticated using (
+for select to anon, authenticated using (
  (path !~ '^(groups|groupPosts|groupMedia|groupMembers|groupAdmins|groupModerators)/[^/]+'
   or not public.vatra_moderation_group_blocked(split_part(path,'/',2)))
  and (path !~ '^posts/[^/]+$'
@@ -306,7 +306,7 @@ grant execute on function public.vatra_moderation_content_hidden(text) to anon,a
 
 drop policy if exists vatra_mod_restrict_hidden_content_select on public.app_data;
 create policy vatra_mod_restrict_hidden_content_select on public.app_data as restrictive
- for select to authenticated using (
+ for select to anon, authenticated using (
   path !~ '^(posts|groupPosts|comments|videos)/'
   or not public.vatra_moderation_content_hidden(path)
  );
