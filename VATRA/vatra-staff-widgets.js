@@ -38,7 +38,7 @@ window.vatraAdminExtras={
  },
  team(rows){
   return '<div class="vatra-control-columns"><section class="vatra-control-card"><h3>Персонал ВАТРИ</h3><p>Лише власник може призначати та відкликати посади за UID.</p>'+
-   '<form data-vatra-team><label>Псевдонім працівника (@)<input type="text" name="handle" required maxlength="41" placeholder="@псевдонім"></label>'+
+   '<form data-vatra-team><label>Псевдонім працівника (@)<input type="text" name="handle" required maxlength="81" placeholder="@псевдонім"></label>'+
    '<label>Посада<select name="role">'+Object.entries(roles).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+
    '<option value="remove">Зняти всі права</option></select></label>'+
    '<p class="vatra-control-muted">Адміністратор — скарги, блокування й галочки. Модератор — скарги й матеріали. Техпідтримка — відповіді на скарги. Верифікатор — заявки й галочки. Лише власник керує командою.</p>'+
@@ -78,7 +78,7 @@ window.vatraAdminExtras={
   document.querySelector('form[data-vatra-team]')?.addEventListener('submit',async ev=>{
    ev.preventDefault();const form=ev.currentTarget,handle=form.elements.handle.value.trim(),role=form.elements.role.value,
     status=form.querySelector('.vatra-control-status');
-   if(!/^@?[a-z0-9][a-z0-9._-]{2,39}$/i.test(handle)){notify(status,'Введіть коректний @псевдонім.');return;}
+   if(!/^@?[\p{L}\p{N}._-]{3,80}$/u.test(handle)){notify(status,'Введіть коректний @псевдонім.');return;}
    if(!(await ask('Змінити повноваження '+handle+'?',role==='remove'?'Зняти посаду':roles[role],{danger:role==='remove'})))return;
    try{await rpc('vatra_owner_set_staff_by_handle',{_handle:handle,_role:role==='remove'?null:role});notify(status,'Повноваження оновлено.',true);setTimeout(refresh,900);}
    catch(err){notify(status,err.message||'Помилка Supabase');}
