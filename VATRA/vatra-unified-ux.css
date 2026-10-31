@@ -204,3 +204,48 @@ body .vatra-group-media-dark .vatra-group-media-shell footer button:hover{backgr
 body .vatra-svg-close svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 body .vatra-verified-badge{display:inline-flex!important;vertical-align:middle!important;align-items:center!important;justify-content:center!important;margin-left:5px!important;color:#1685ea!important}
 body .vatra-verified-badge svg{width:18px!important;height:18px!important}
+
+/* A compact, shared reaction toolbar for profile and community posts. */
+body .post-actions{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:4px!important;align-items:center!important;padding:8px 4px!important;
+ margin:10px 0 0!important;box-sizing:border-box!important;min-width:0!important
+}
+body .post-actions>.post-action-item{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;min-width:0!important;max-width:100%!important;margin:0!important;padding:0!important;white-space:nowrap!important}
+body .post-actions .post-action-button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ flex:0 1 auto!important;gap:5px!important;min-width:0!important;max-width:100%!important;
+ padding:8px 7px!important;margin:0!important;border-radius:9px!important;
+ font-size:12.5px!important;line-height:1.2!important;font-weight:600!important;
+ white-space:nowrap!important
+}
+body .post-actions .post-action-button>svg{width:17px!important;height:17px!important;min-width:17px!important}
+body .post-actions .post-action-button>span{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .post-actions .post-action-count{font-size:11.5px!important;font-weight:650!important}
+body .post-actions .post-actor-stack{
+ display:inline-flex!important;align-items:center!important;gap:0!important;min-width:0!important;
+ padding:0!important;margin:0 0 0 -2px!important;flex:0 0 auto!important
+}
+body .post-actions .post-actor-link{
+ width:20px!important;height:20px!important;min-width:20px!important;
+ margin-left:-5px!important;padding:0!important;border:2px solid #fff!important;
+ border-radius:50%!important;overflow:hidden!important
+}
+body .post-actions .post-actor-link:first-child{margin-left:0!important}
+body .post-actions .post-actor-avatar{width:100%!important;height:100%!important;min-width:0!important}
+@media(max-width:720px){
+ body .post-actions .post-action-button{font-size:11px!important;padding:9px 3px!important;gap:3px!important}
+ body .post-actions .post-action-button>svg{width:15px!important;height:15px!important;min-width:15px!important}
+ body .post-actions .post-actor-link{width:15px!important;height:15px!important;min-width:15px!important}
+}
+body .vatra-group-media-dark:not(.show-actions) .vatra-group-media-shell footer{display:none!important}
+body .vatra-group-media-dark [data-group-media-manage]{
+ position:fixed!important;top:20px!important;left:24px!important;z-index:15!important;
+ display:grid!important;place-items:center!important;width:44px!important;height:44px!important;
+ background:#14212ed9!important;color:#fff!important;border:1px solid #ffffff35!important;
+ border-radius:50%!important;cursor:pointer!important;box-shadow:none!important
+}
+body .vatra-group-media-dark [data-group-media-manage] svg{width:21px!important;height:21px!important;stroke:currentColor!important;fill:none!important;stroke-width:1.9!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+body .vatra-group-media-dark [data-group-media-manage]:hover{background:#304866!important}
+body .vatra-group-media-dark.show-actions [data-group-media-manage]{background:#1765d9!important}
+@media(max-width:600px){body .vatra-group-media-dark [data-group-media-manage]{top:12px!important;left:12px!important;width:40px!important;height:40px!important}}
