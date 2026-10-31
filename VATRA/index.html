@@ -65,7 +65,16 @@
     <section id="pollComposer" class="poll-composer" hidden><div class="poll-composer-heading"><div><b>Варіанти відповіді</b><small>Від 2 до 6 варіантів</small></div></div><div id="pollOptionFields" class="poll-option-fields"><label class="poll-option-field"><span>1</span><input maxlength="80" placeholder="Перший варіант" aria-label="Перший варіант відповіді"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label><label class="poll-option-field"><span>2</span><input maxlength="80" placeholder="Другий варіант" aria-label="Другий варіант відповіді"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label></div><button type="button" class="text-link" id="addPollOption">＋ Додати варіант</button></section>
    </div>
   </div>
-  <p class="vatra-compose-privacy-note">Перед публікацією перевірте, хто бачитиме допис.</p>
+  <div class="vatra-compose-setting-section vatra-schedule-section">
+ <label class="vatra-schedule-toggle"><input type="checkbox" id="vatraScheduleToggle"><span><b>Запланувати публікацію</b><small>Допис опублікується автоматично у вибраний день і час, навіть якщо ВАТРА закрита.</small></span></label>
+ <div class="vatra-schedule-fields" id="vatraScheduleFields" hidden>
+  <label for="vatraScheduleDateTime">Дата і час публікації</label>
+  <input id="vatraScheduleDateTime" type="datetime-local" step="60" aria-describedby="vatraScheduleTimezone">
+  <small id="vatraScheduleTimezone">Час вашого пристрою. Дата буде безпечно збережена в UTC.</small>
+ </div>
+ <button type="button" class="vatra-scheduled-list-link" id="vatraScheduledPostList">Переглянути заплановані дописи</button>
+ </div>
+ <p class="vatra-compose-privacy-note">Перед публікацією перевірте, хто бачитиме допис.</p>
  </div>
  <footer class="vatra-compose-footer vatra-compose-final-footer"><button type="button" id="composerSaveDraft" class="vatra-compose-save-draft">Зберегти чернетку</button><button type="submit" id="composerPublish" class="vatra-compose-publish">Опублікувати</button></footer>
 </section>
