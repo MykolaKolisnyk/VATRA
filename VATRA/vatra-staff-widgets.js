@@ -1,3 +1,4 @@
+(function(){
 /* VATRA: role-specific admin widgets. Loaded before vatra-admin-center.js. */
 const e=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const roles={admin:'Адміністратор',moderator:'Модератор',support:'Техпідтримка',verifier:'Верифікатор'};
@@ -65,3 +66,4 @@ window.vatraAdminExtras={
   }));
  }
 };
+})();
