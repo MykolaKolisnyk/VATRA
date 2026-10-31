@@ -1354,7 +1354,9 @@ function renderGroupDetails(id){
   if(!canSeeMembers&&vatraGroupActiveTab==='members')vatraGroupActiveTab='posts';
   if(g.visibility==='private'&&!member&&!canManage){goPage('groups');toastMsg('Ця спільнота закрита.');return;}
   const arr=Object.entries(v||{}).map(([pid,p])=>({...p,id:pid})).filter(p=>p&&(!p.authorUid||!blockedUsers[p.authorUid])).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  const ids=[...new Set([g.ownerUid,...Object.keys(groupMembers[id]||{}).filter(uid=>groupMembers[id][uid])])].filter(uid=>uid&&!blockedUsers[uid]);
+  const ids=[...new Set([g.ownerUid,...Object.keys(groupMembers[id]||{}).filter(uid=>groupMembers[id][uid])])]
+   .filter(uid=>uid&&!blockedUsers[uid])
+   .sort((a,b)=>(Number(groupMembers[id]?.[b]?.joinedAt||groupMembers[id]?.[b]?.createdAt)||0)-(Number(groupMembers[id]?.[a]?.joinedAt||groupMembers[id]?.[a]?.createdAt)||0));
   const adminIds=groupAdmins[id]||{},modIds=groupModerators[id]||{},owner=users[g.ownerUid]||{};
   const memberCount=ids.length;
   const isPrivate=g.visibility==='private';
@@ -1411,7 +1413,7 @@ function renderGroupDetails(id){
     '<div class="vatra-group-rail-facts"><span>Напрям <b>'+esc(g.category||'Спільнота')+'</b></span><span>Тип <b>'+(isPrivate?'Закрита':'Відкрита')+'</b></span></div></section>'+
    (canSeeMembers?'<section class="vatra-group-card vatra-group-rail-people"><div class="vatra-group-section-header"><h3>Учасники</h3><span>'+memberCount+'</span></div>'+
     '<div class="vatra-group-members-preview">'+people.slice(0,6).join('')+'</div>'+
-    (people.length>6?'<button type="button" class="vatra-group-more-members" data-vatra-group-jump-members>Переглянути всіх</button>':'')+'</section>':'')+
+    '<button type="button" class="vatra-group-more-members" data-vatra-group-jump-members>Усі учасники ('+memberCount+') →</button>'+'</section>':'')+
    (g.showContacts!==false?'<section class="vatra-group-card vatra-group-rail-contacts"><div class="vatra-group-section-header"><h3>Контакти</h3>'+(canEditVisuals?'<button type="button" data-manage-group="'+esc(id)+'">Керувати</button>':'')+'</div>'+
    (Array.isArray(g.contacts)&&g.contacts.length?g.contacts.filter(c=>c&&c.uid&&users[c.uid]).slice(0,12).map(c=>{
      const person=users[c.uid];return '<button type="button" class="vatra-group-contact" data-view-profile="'+esc(c.uid)+'">'+avatar(person.name||'Контакт',person.avatarUrl)+'<span><b>'+esc(person.name||'Користувач ВАТРИ')+'</b><small>'+esc(String(c.title||'Контакт').slice(0,70))+'</small></span></button>';
@@ -1431,7 +1433,21 @@ function renderGroupDetails(id){
    $$('.vatra-group-tab-panel').forEach(el=>{el.hidden=el.dataset.vatraGroupPanel!==vatraGroupActiveTab;});
   }));
   $('[data-vatra-group-jump-members]')?.addEventListener('click',()=>{
-   const button=$('[data-vatra-group-tab="members"]');button?.click();$('.vatra-group-tabs')?.scrollIntoView({block:'nearest',behavior:'smooth'});
+   const dialog=document.createElement('dialog');dialog.className='vatra-group-members-dialog';
+   dialog.innerHTML='<div class="vatra-group-members-dialog-head"><div><h2>Учасники спільноти</h2><p>'+esc(g.name||'Спільнота')+' · '+memberCount+' учасників</p></div><button type="button" data-close-members aria-label="Закрити">×</button></div>'+
+    '<label class="vatra-group-members-search"><span>⌕</span><input type="search" placeholder="Пошук учасників" aria-label="Пошук учасників"></label>'+
+    '<div class="vatra-group-members-dialog-list">'+people.join('')+'</div>';
+   document.body.append(dialog);dialog.showModal();
+   dialog.addEventListener('close',()=>dialog.remove());
+   dialog.addEventListener('click',ev=>{
+    if(ev.target===dialog||ev.target.closest('[data-close-members]')){dialog.close();return;}
+    const profile=ev.target.closest('[data-view-profile]');
+    if(profile){const uid=profile.dataset.viewProfile;dialog.close();if(uid===currentUser?.uid)goPage('profile');else renderPublicProfile(uid);}
+   });
+   dialog.querySelector('input').addEventListener('input',ev=>{
+    const query=ev.target.value.trim().toLocaleLowerCase('uk-UA');
+    dialog.querySelectorAll('.vatra-group-member').forEach(row=>row.hidden=!row.textContent.toLocaleLowerCase('uk-UA').includes(query));
+   });
   });
   $('#vatraOpenGroupComposer')?.addEventListener('click',()=>openComposer({groupId:id}));
   document.querySelectorAll('[data-vatra-group-image]').forEach(button=>button.addEventListener('click',()=>{
