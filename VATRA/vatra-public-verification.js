@@ -25,18 +25,30 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.vatra-verified-badge')){e.preventDefault();e.stopPropagation();showGuide();}},true);
 function closeBtn(){return '<button type="button" data-verification-close aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M5 5 19 19M19 5 5 19"/></svg></button>';}
-function showGuide(){
- const d=document.createElement('dialog');d.className='vatra-verification-dialog';
- d.innerHTML='<header><div><p>ВАТРА · ДОВІРА</p><h2>Як стати верифікованим?</h2></div>'+closeBtn()+'</header>'+
- '<div class="vatra-verification-dialog-body"><p>Синя галочка означає, що ВАТРА офіційно перевірила справжність користувача або спільноти. Це не означає схвалення кожної публікації.</p>'+
- '<h3>Для користувача</h3><p>Заповніть профіль, використовуйте справжні дані, дотримуйтеся правил і поясніть свою публічну діяльність. Не надсилайте в заявці паролі, паспортні дані чи приватні документи.</p>'+
- '<h3>Для спільноти</h3><p>Творець спільноти подає заявку після заповнення назви, опису, аватара, обкладинки та інформації про організацію чи проєкт.</p>'+
- '<h3>Як проходить перевірка</h3><p>Подайте заявку в налаштуваннях, опишіть підставу й додайте публічне посилання. Команда ВАТРИ розгляне заявку й надішле рішення у сповіщеннях. Верифікація безкоштовна.</p>'+
- '<button type="button" class="primary" data-verification-apply>Подати заявку</button></div>';
- document.body.append(d);d.showModal();d.addEventListener('close',()=>d.remove());
- d.querySelector('[data-verification-close]').onclick=()=>d.close();
- d.querySelector('[data-verification-apply]').onclick=()=>{d.close();showApplication();};
- d.onclick=e=>{if(e.target===d)d.close();};
+function showGuide(fromHistory=false){
+ const feed=document.querySelector('#feed');if(!feed)return;
+ const prev=location.hash&&location.hash!=='#/verification'?location.hash:'#/feed';
+ document.body.dataset.page='verificationGuide';
+ document.querySelector('.quick-compose')?.setAttribute('hidden','');
+ document.querySelector('#sort')?.setAttribute('hidden','');
+ feed.innerHTML='<section class="vatra-verification-page"><header class="vatra-verification-page-header">'+
+ '<p>ВАТРА · ДОВІРА</p><h1>Як стати верифікованим у ВАТРІ?</h1>'+
+ '<p>Офіційна синя галочка підтверджує, що ВАТРА перевірила акаунт або спільноту.</p></header>'+
+ '<article class="vatra-verification-page-body"><h2>Що означає синя галочка?</h2>'+
+ '<p>Це підтвердження справжності сторінки, а не гарантія достовірності всіх її дописів чи підтримка поглядів автора.</p>'+
+ '<h2>Хто може подати заявку?</h2><p><strong>Акаунт:</strong> людина, автор, представник організації, публічний проєкт або інший користувач із підтверджуваною діяльністю.</p>'+
+ '<p><strong>Спільнота:</strong> справжня організація, команда чи проєкт з оформленою сторінкою. Звертається лише її творець.</p>'+
+ '<h2>Що потрібно підготувати?</h2><p>Заповніть профіль чи спільноту, додайте аватар, опис і публічні відомості. У заявці поясніть підставу та за потреби додайте HTTPS-посилання. Не надсилайте паролі та конфіденційні документи.</p>'+
+ '<h2>Як відбувається перевірка?</h2><p>Після подання заявка потрапляє до уповноважених працівників ВАТРИ. Вони перевіряють доступні матеріали, ухвалюють рішення та надсилають відповідь у сповіщеннях. Верифікація безкоштовна.</p>'+
+ '<h2>Чи можна втратити галочку?</h2><p>Так, при порушенні правил або втраті підстав для підтвердження. Зміна @псевдоніма чи назви спільноти сама по собі не прибирає статус: він прив’язаний до UID акаунта або ID спільноти.</p>'+
+ '<div class="vatra-verification-page-actions"><button type="button" class="primary" data-verification-apply>Подати заявку</button>'+
+ '<button type="button" class="pill" data-verification-back>Повернутися</button></div></article></section>';
+ if(!fromHistory && location.hash!=='#/verification')history.pushState({vatra:true},'',location.pathname+location.search+'#/verification');
+ document.title='Як отримати галочку | ВАТРА';
+ const back=feed.querySelector('[data-verification-back]');
+ back.onclick=()=>{if(history.length>1)history.back();else window.vatraRouter?.goPage('feed');};
+ feed.querySelector('[data-verification-apply]').onclick=showApplication;
+ window.scrollTo(0,0);
 }
 window.vatraVerificationGuide=showGuide;
 function showApplication(){
