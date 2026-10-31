@@ -41,3 +41,18 @@ for(const match of main.matchAll(re)){
  assert.ok(existsSync(join(root,local)),'Missing local module: '+local);
 }
 console.log('VATRA check passed: '+passed+' JavaScript modules and navigation/gift/UI invariants.');
+
+// Gift presentation and cancellation regressions
+const giftCss=readFileSync('VATRA/vatra-gifts.css','utf8');
+const ordersSql=readFileSync('VATRA/vatra-gifts-order-cancellation.sql','utf8');
+const giftCatalogSql=readFileSync('VATRA/vatra-gifts-collection-update.sql','utf8');
+assert.ok(!/\b(?:alert|confirm)\s*\(/.test(giftText),'Browser alert/confirm reintroduced');
+assert.ok(giftText.includes('giftConfirm(')&&giftText.includes('giftToast('),'Custom gift dialogs missing');
+assert.ok(giftText.includes('vatra-profile-link vatra-gift-preview-link'),'Friends and gifts must share button class');
+assert.ok(giftCss.includes('vatra-profile-friends button.vatra-profile-link'),'Shared friend/gift hover style missing');
+assert.ok(ordersSql.includes('DELETE FROM public.vatra_gift_orders WHERE id=_order_id'),'Cancelled order must be permanently removed');
+assert.ok(ordersSql.includes("DELETE FROM public.vatra_gift_orders WHERE status='cancelled'"),'Old cancelled orders must be cleaned');
+for(const code of ['snowglobe','letter','clover','musicbox','swan','diamond']){
+ assert.ok(giftText.includes(code+':'),code+' artwork missing');
+ assert.ok(giftCatalogSql.includes("'"+code+"'"),code+' SQL catalog missing');
+}

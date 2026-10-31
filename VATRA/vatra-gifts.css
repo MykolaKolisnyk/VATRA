@@ -102,3 +102,53 @@ body .vatra-gift-toast{position:fixed;z-index:99999;right:24px;bottom:24px;max-w
 body .vatra-gift-toast button{border:0;background:none;color:inherit;cursor:pointer;font-size:21px}
 body .vatra-gift-toast.is-error{background:#933b51}
 @media(max-width:540px){body .vatra-gift-toast{left:14px;right:14px;bottom:14px;max-width:none}}
+
+/* VATRA Gifts 2.0 — calmer collectible gallery, unified 2.5D presentation */
+body .vatra-gifts-page{padding:25px 27px 30px;background:#fff;border:1px solid #e1e8f0;border-radius:6px;box-shadow:none}
+body .vatra-gifts-header{padding-bottom:19px}
+body .vatra-gifts-header h1{font:750 23px/1.35 Inter,Arial,sans-serif;letter-spacing:-.025em;margin:4px 0 6px}
+body .vatra-gifts-header p:not(.vatra-gifts-eyebrow){font-size:12.5px;line-height:1.6}
+body .vatra-gift-summary{font-size:24px}
+body .vatra-gifts-tabs{gap:25px;min-height:48px;overflow-x:auto}
+body .vatra-gifts-tabs button{font:650 12.5px/1.4 Inter,Arial,sans-serif;padding:12px 0;border-bottom-width:2px;transition:color .16s ease,border-color .16s ease}
+body .vatra-gifts-tabs button:hover{color:#0757f5}
+body .vatra-gifts-intro{margin:18px 0 14px;font-size:12.5px;color:#7b8fa6;line-height:1.7}
+body .vatra-gifts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:18px 0}
+body .vatra-gift-card{position:relative;min-width:0;background:#fff;border:1px solid #dfe7f1;border-radius:6px;padding:10px 10px 12px;box-shadow:0 1px 2px #1e3d5808;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+body .vatra-gift-card:hover{transform:translateY(-2px);border-color:#bfd3e9;box-shadow:0 8px 20px #23415b14}
+body .vatra-gift-card .vatra-gift-image{width:100%;aspect-ratio:1/1;max-height:none;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#f8fbff,#eef5fd 60%,#eaf2fa);border-radius:5px}
+body .vatra-gift-card .vatra-gift-art{width:97%;height:97%;max-width:205px;transition:transform .2s ease}
+body .vatra-gift-card:hover .vatra-gift-art{transform:scale(1.04)}
+body .vatra-gift-card h3{margin:11px 0 4px;display:grid;place-items:center;text-align:center;min-height:2.8em;font:700 12.5px/1.4 Inter,Arial,sans-serif;color:#2d435c}
+body .vatra-gift-card p{font-size:11.5px;line-height:1.45;color:#8598ac;min-height:2.9em;margin:0 0 12px;display:grid;place-items:center}
+body .vatra-gift-card p b{font-size:14px;font-weight:750;color:#1b5497}
+body .vatra-gift-card>button{margin-top:auto;min-height:37px;background:#eef4fc;border:1px solid #d5e3f3;border-radius:5px;color:#175eaf;font:650 12px/1.4 Inter,Arial,sans-serif;transition:background .15s ease,color .15s ease}
+body .vatra-gift-card>button:hover{background:#e1edfa;color:#0757f5}
+body .vatra-gift-card .vatra-gift-free-label{color:#4a8b70;background:#edf8f0;border-radius:5px;padding:9px 5px;font-size:10.5px;font-weight:650}
+body .vatra-gift-privacy{background:#f8fbfe;border:1px solid #e5ebf3;border-radius:5px;padding:12px 14px;margin:17px 0;gap:12px}
+body .vatra-gift-privacy select{font:500 12.5px Inter,Arial,sans-serif;max-width:230px}
+body .vatra-gift-preview-card .vatra-profile-card-head{margin-bottom:13px!important}
+body .vatra-profile-sidebar .vatra-profile-friends button.vatra-profile-link,
+body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link{
+ display:block!important;box-sizing:border-box!important;width:100%!important;min-height:34px!important;height:auto!important;
+ margin:9px 0 0!important;padding:7px 9px!important;border:0!important;border-radius:7px!important;
+ background:transparent!important;color:#0757f5!important;box-shadow:none!important;
+ font-family:Inter,Arial,sans-serif!important;font-size:11.5px!important;font-weight:750!important;
+ line-height:1.5!important;letter-spacing:0!important;text-align:center!important;cursor:pointer!important;
+ transition:background-color .15s ease,color .15s ease!important;
+}
+body .vatra-profile-sidebar .vatra-profile-friends button.vatra-profile-link:hover,
+body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link:hover,
+body .vatra-profile-sidebar .vatra-profile-friends button.vatra-profile-link:focus-visible,
+body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link:focus-visible{
+ background:#edf4ff!important;color:#0757f5!important;
+}
+body .vatra-profile-sidebar .vatra-gift-preview-card .vatra-gift-preview-row{gap:7px;margin-bottom:12px}
+body .vatra-profile-sidebar .vatra-gift-preview-card .vatra-gift-preview-item{border:0;background:linear-gradient(145deg,#f8fbff,#eef5fc);border-radius:6px}
+body .vatra-gift-confirm footer .primary{box-shadow:none!important}
+body .vatra-gift-order-row{gap:10px;min-height:48px;font-size:12px}
+body .vatra-gift-order-row button{font-size:12px}
+@media(max-width:1170px){body .vatra-gifts-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:830px){body .vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){body .vatra-gifts-page{padding:15px}body .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)}body .vatra-gift-card .vatra-gift-image{max-height:240px}body .vatra-gifts-tabs{gap:15px}}
+@media(prefers-reduced-motion:reduce){body .vatra-gift-card,body .vatra-gift-card .vatra-gift-art,body .vatra-gifts-tabs button{transition:none!important}}
