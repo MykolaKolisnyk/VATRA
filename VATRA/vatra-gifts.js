@@ -19,7 +19,13 @@ const catalog=[
  {code:'sun',title:'Сонечко',type:'premium',price:25},
  {code:'teddy',title:'Ведмедик ВАТРИ',type:'premium',price:40},
  {code:'hearts',title:'Два серця',type:'premium',price:30},
- {code:'firebird',title:'Вогняний птах',type:'premium',price:75}
+ {code:'firebird',title:'Вогняний птах',type:'premium',price:75},
+ {code:'snowglobe',title:'Снігова куля',type:'premium',price:45},
+ {code:'letter',title:'Листівка з теплом',type:'premium',price:25},
+ {code:'clover',title:'Конюшина удачі',type:'premium',price:25},
+ {code:'musicbox',title:'Музична скринька',type:'premium',price:55},
+ {code:'swan',title:'Лебідь ніжності',type:'premium',price:50},
+ {code:'diamond',title:'Кришталева зоря',type:'premium',price:65}
 ];
 const paths={
  halloween:'<path d="M82 70q-20-17-42-3c-18 13-18 47 2 65 21 21 59 27 84 11 28-19 31-61 10-76-17-12-38-8-54 3Z" fill="#FF9B34" stroke="#D76022" stroke-width="3"/><path d="M80 73q-22 20-14 56m40-55q17 18 9 56" fill="none" stroke="#E77926" stroke-width="5"/><path d="M82 67q-5-18 3-27m0 20q18-17 33-10" fill="none" stroke="#598C58" stroke-width="8" stroke-linecap="round"/><path d="m55 93 11-9 8 13Zm42 1 12-11 7 15Z" fill="#55334B"/><path d="M69 116q17 16 35-1" fill="none" stroke="#55334B" stroke-width="5" stroke-linecap="round"/><path d="M119 55q22-18 27 8m-16-21 5-15" fill="none" stroke="#A9A3F9" stroke-width="3" stroke-linecap="round"/>',
@@ -43,8 +49,21 @@ Object.assign(paths,{
  hearts:'<path d="M61 130C42 116 19 92 25 69c5-23 29-25 37-10 8-15 34-13 37 10 7 23-15 46-37 61Z" fill="#F4A0AC" stroke="#CE6887" stroke-width="3"/><path d="M105 130C85 116 63 92 69 69c5-23 29-25 37-10 9-15 34-13 38 10 6 23-17 46-39 61Z" fill="#E26082" stroke="#BC3F68" stroke-width="3"/><path d="M90 83q9-17 22-16" stroke="#FFC3D1" stroke-width="6" stroke-linecap="round"/>',
  firebird:'<path d="M88 121q-12 24-37 29 10-33 2-42-17 10-37-6 35-17 45-39-4-23 28-32 0 29 25 45 18-4 29-22-1 32-27 49 4 18-28 18Z" fill="#F6A046" stroke="#D65D34" stroke-width="4"/><path d="M76 115q-8-24 10-40 4 22 16 23" fill="#FFDD75"/><circle cx="105" cy="53" r="5" fill="#3B415E"/><path d="m114 62 17 6-17 6Z" fill="#E3B946"/><path d="M66 138q4-19-2-35m19 28q13-18 8-36" stroke="#B94648" stroke-width="5" stroke-linecap="round"/>'
 });
+
+/* New original collectible designs, following VATRA's soft 2.5D palette. */
+Object.assign(paths,{
+ snowglobe:'<circle cx="83" cy="76" r="49" fill="#E4F7FF" fill-opacity=".8" stroke="#96BFE0" stroke-width="3"/><path d="M51 122h64l10 18H42l9-18Z" fill="#7EA7D2" stroke="#638BB8" stroke-width="3"/><path d="M59 123h48" stroke="#EDF9FF" stroke-width="5"/><path d="m61 104 23-34 21 34Z" fill="#7FBBAF"/><path d="m63 110 22-21 21 21Z" fill="#AFDCDA"/><path d="M84 64v60M66 103h37" stroke="#F8FCFF" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="52" r="4" fill="#fff"/><circle cx="109" cy="75" r="4" fill="#fff"/><circle cx="82" cy="44" r="3" fill="#fff"/><path d="M57 109q27 13 52-1" stroke="#A0CCE4" stroke-width="5" fill="none"/>',
+ letter:'<rect x="33" y="53" width="100" height="83" rx="9" fill="#F1CAD9" stroke="#CF9AB3" stroke-width="3"/><path d="m38 65 45 33 45-33M41 127l31-29m52 29L94 98" stroke="#FFF6F7" stroke-width="4" fill="none"/><path d="M83 92C60 76 49 61 55 48c6-12 21-11 28 1 10-13 27-13 33-1 6 15-9 30-33 44Z" fill="#E8799B" stroke="#C8527C" stroke-width="2"/><path d="M68 47q14-11 28 0" stroke="#FFE2EB" stroke-width="4" fill="none" stroke-linecap="round"/>',
+ clover:'<path d="M83 98v46m0-21q21-14 31-8-5 21-30 19" stroke="#609D72" stroke-width="6" fill="none"/><path d="M83 88C51 63 45 45 61 34c12-8 24-1 22 12 1-13 14-20 26-12 16 11 10 29-26 54Z" fill="#9CE2B0" stroke="#579B70" stroke-width="3"/><path d="M83 88C57 55 39 50 31 69c-6 12 3 23 17 22-12 3-18 18-9 28 13 15 27 6 44-31Z" fill="#74CB97" stroke="#4C9A6B" stroke-width="3"/><path d="M83 88c26-33 44-38 52-19 6 12-4 23-17 22 12 3 18 18 9 28-13 15-27 6-44-31Z" fill="#A3E8BA" stroke="#4C9A6B" stroke-width="3"/>',
+ musicbox:'<rect x="39" y="74" width="88" height="62" rx="7" fill="#B3C5F4" stroke="#7F94C7" stroke-width="3"/><path d="M39 95h88" stroke="#EEF4FF" stroke-width="4"/><rect x="31" y="56" width="104" height="20" rx="6" fill="#91A9E7" stroke="#6883BC" stroke-width="3"/><path d="M83 54V28m0 0q22-16 27 8v13" stroke="#738BC6" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M67 111q17 16 33 0" stroke="#FCF5DC" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="114" cy="40" r="6" fill="#F3CA64"/>',
+ swan:'<path d="M34 111q27-28 59-10 9-24-1-48-9-16 0-27 12-14 25 0 8 11 0 24 13 11 13 25-11 8-29 3-9 30 18 48-33 19-57 6-19-3-28-21Z" fill="#FCF8FF" stroke="#CDBDE4" stroke-width="3"/><circle cx="107" cy="40" r="3.4" fill="#544E66"/><path d="m116 50 17 6-18 6Z" fill="#E5B881"/><path d="M41 112q25 25 44 15m-15-21q20 13 34 6" stroke="#D6C8EA" stroke-width="4" fill="none"/>',
+ diamond:'<path d="m43 69 23-27h35l22 27-40 70Z" fill="#80D2E4" stroke="#55B0C7" stroke-width="3"/><path d="M43 69h80M66 42l-9 27 26 70 26-70-8-27M83 42v97" stroke="#D7F9FF" stroke-width="3" fill="none"/><path d="m33 46-6-10m104 9 9-9M84 28V16" stroke="#F8D582" stroke-width="5" stroke-linecap="round"/>'
+});
+const giftAccent={halloween:'#F2A264',newyear:'#73BDA2',independence:'#74B6F0',warmth:'#D9AD94',bouquet:'#DF90AD',spark:'#EDC15D',welcome:'#70ABEB',gold_pumpkin:'#F0B459',rose:'#E68AA6',cocoa:'#9CC5E7',cupcake:'#DBB0E7',lantern:'#E7BF77',ribbon:'#8BA8E8',sun:'#EBC867',teddy:'#D6AA8B',hearts:'#E68BAB',firebird:'#E69B71',snowglobe:'#A1CDE8',letter:'#E3A9BF',clover:'#91CDA3',musicbox:'#ACBDEA',swan:'#D1BFE6',diamond:'#9ED0E1'};
 function art(code){
- return '<svg class="vatra-gift-art" viewBox="0 0 166 166" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(catalog.find(x=>x.code===code)?.title||'Подарунок ВАТРИ')+'"><ellipse cx="83" cy="152" rx="40" ry="6" fill="#24446D" opacity=".08"/>'+(paths[code]||paths.spark)+'</svg>';
+ const label=catalog.find(x=>x.code===code)?.title||'Подарунок ВАТРИ';
+ const color=giftAccent[code]||'#9CBDEC';
+ return '<svg class="vatra-gift-art" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+'"><defs><radialGradient id="vatraGiftHalo"><stop stop-color="'+color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#vatraGiftHalo)"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".10"/><g fill="none" filter="drop-shadow(0 4px 3px rgba(37,67,96,.13))">'+(paths[code]||paths.spark)+'</g><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".64"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".55"/></svg>';
 }
 let opened=0,selectedTab='mine',selectedReceiver='',inventory={items:[],visibility:'everyone'},networkReady=false,showing=false,notice='',orders=[];
 const available=()=>auth.currentUser?.uid;

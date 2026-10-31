@@ -212,7 +212,7 @@ const giftNames={
  independence:'Серце України',warmth:'Теплі обійми',bouquet:'Букет ВАТРИ',spark:'Іскра дружби',
  gold_pumpkin:'Золотий гарбуз',rose:'Квітка дружби',cocoa:'Тепле какао',cupcake:'Святковий кекс',
  lantern:'Ліхтарик ВАТРИ',ribbon:'Стрічка щастя',sun:'Сонечко',teddy:'Ведмедик ВАТРИ',
- hearts:'Два серця',firebird:'Вогняний птах'
+ hearts:'Два серця',firebird:'Вогняний птах',snowglobe:'Снігова куля',letter:'Листівка з теплом',clover:'Конюшина удачі',musicbox:'Музична скринька',swan:'Лебідь ніжності',diamond:'Кришталева зоря'
 };
 function giftAdminMarkup(orders=[]){
  const pending=orders.filter(o=>o.status==='pending');
