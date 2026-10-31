@@ -6,7 +6,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const time=x=>{const d=new Date(x);return isNaN(d.getTime())?'—':d.toLocaleString('uk-UA',{dateStyle:'medium',timeStyle:'short'});};
 const icons={head:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H2v5h5v-5H4Zm16 0h2v5h-5v-5h3ZM20 18a4 4 0 0 1-4 4h-4"/></svg>',
 back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5-7 7 7 7"/></svg>'};
-let role='',ownerUid='',selected=null,tickets=[],refreshing=false,timer=null,renderToken=0,lastMessageId=0,activePanel='user',lastSignedUid='';
+let role='',ownerUid='',selected=null,tickets=[],refreshing=false,timer=null,renderToken=0,lastMessageId=0,activePanel='user',lastSignedUid='',people=new Map();
 async function getRole(){const {data,error}=await db.rpc('vatra_staff_role');role=error?'':String(data||'');return role;}
 async function invoke(method,args){const {data,error}=await db.rpc(method,args);if(error)throw error;return data;}
 function current(){return auth.currentUser?.uid||'';}
@@ -23,12 +23,28 @@ function show(html){
  $('[data-support-back]')?.addEventListener('click',()=>window.vatraRouter?.goPage('settings'));
 }
 function info(message){return '<p class="vatra-support-info">'+esc(message)+'</p>';}
+function person(uid){
+ const p=people.get(String(uid||'')),id=String(uid||'');
+ if(!p)return '<span class="vatra-support-user-missing">Користувач ВАТРИ</span>';
+ const full=p.name||[p.firstName,p.lastName].filter(Boolean).join(' ')||'Користувач ВАТРИ';
+ return '<span class="vatra-support-user"><b>'+esc(full)+'</b>'+(p.handle?'<small>@'+esc(p.handle)+'</small>':'')+'</span>';
+}
+async function fetchPeople(ids){
+ const missing=[...new Set(ids.filter(Boolean).map(String))].filter(id=>!people.has(id)&&/^[a-f0-9-]{36}$/i.test(id));
+ for(let i=0;i<missing.length;i+=65){
+  const chunk=missing.slice(i,i+65);
+  const {data,error}=await db.from('app_data').select('path,value').in('path',chunk.map(x=>'publicProfiles/'+x));
+  if(error)break;
+  for(const id of chunk)people.set(id,{});
+  for(const entry of data||[])people.set(entry.path.slice(15),entry.value||{});
+ }
+}
 function renderInbox(){
  const staff=['owner','support'].includes(role),canSeeAll=role==='owner';
  const card=tickets.map(t=>'<button type="button" class="vatra-support-ticket'+(selected===t.id?' is-selected':'')+'" data-ticket="'+t.id+'">'+
   '<span class="vatra-support-ticket-row"><strong>№'+t.id+' · '+esc(t.subject)+'</strong><span class="vatra-support-state state-'+esc(t.status)+'">'+({open:'Нове',in_progress:'В роботі',resolved:'Вирішене',closed:'Закрите'}[t.status]||esc(t.status))+'</span></span>'+
-  '<small>'+time(t.last_activity_at)+(staff?' · Користувач: '+esc(t.requester_uid):'')+'</small>'+
-  (staff?'<small>Призначено: '+esc(t.assigned_uid||'Очікує призначення')+'</small>':'')+'</button>').join('');
+  '<small>'+time(t.last_activity_at)+'</small>'+(staff?'<span class="vatra-support-ticket-person">Заявник: '+person(t.requester_uid)+'</span>':'')+
+  (staff?'<span class="vatra-support-ticket-person">Призначено: '+(t.assigned_uid?person(t.assigned_uid):'Очікує призначення')+'</span>':'')+'</button>').join('');
  return '<div class="vatra-support-grid"><aside class="vatra-support-list"><div class="vatra-support-list-head"><h3>'+(canSeeAll?'Усі звернення':staff?'Моя черга':'Мої звернення')+'</h3>'+
  (!staff?'<button class="vatra-support-create" type="button" data-support-new>Нове звернення</button>':'')+'</div>'+
  '<div class="vatra-support-list-items">'+(card||info(staff?'Наразі немає призначених звернень.':'Ваших звернень поки немає.'))+'</div></aside>'+
@@ -44,6 +60,7 @@ async function loadTickets(){
   const {data,error}=await db.from('vatra_support_tickets').select('*').order('last_activity_at',{ascending:false}).limit(250);
   if(error)throw error;
   tickets=data||[];
+  await fetchPeople(tickets.flatMap(t=>[t.requester_uid,t.assigned_uid]));
   if(!inside())return;
   const oldSelection=selected;
   const focused=$('#vatraSupportConversation textarea:focus');
@@ -87,6 +104,7 @@ async function selectTicket(id){
  selected=id;lastMessageId=0;
  document.querySelectorAll('[data-ticket]').forEach(b=>b.classList.toggle('is-selected',Number(b.dataset.ticket)===id));
  if(['owner','support'].includes(role)){void invoke('vatra_support_staff_view',{_ticket:id}).catch(()=>{});}
+ void invoke('vatra_support_mark_read',{_ticket:id}).then(()=>window.dispatchEvent(new CustomEvent('vatra:support-read'))).catch(()=>{});
  await loadMessages(id,false);
 }
 async function loadMessages(id,quiet=false){
@@ -95,11 +113,12 @@ async function loadMessages(id,quiet=false){
  const target=$('#vatraSupportConversation'),ticket=tickets.find(t=>t.id===id);
  if(error||!target||!ticket)return;
  const messages=data||[],latest=messages.length?Number(messages[messages.length-1].id):0;
+ await fetchPeople(messages.map(m=>m.sender_uid));
  if(quiet&&lastMessageId===latest&&target.querySelector('form[data-support-reply]'))return;
  const currentDraft=quiet?target.querySelector('form[data-support-reply] textarea')?.value||'':'';
  const msgs=messages.map(m=>{
   const mine=m.sender_uid===current(),fromUser=m.sender_uid===ticket.requester_uid;
-  return '<div class="vatra-support-bubble '+(mine?'is-mine':'')+'"><small>'+(fromUser?'Користувач':role==='owner'&&m.sender_uid===current()?'Власник ВАТРИ':'Техпідтримка')+' · '+time(m.created_at)+'</small><p>'+esc(m.body)+'</p></div>';
+  return '<div class="vatra-support-bubble '+(mine?'is-mine':'')+'"><small>'+person(m.sender_uid)+' · '+time(m.created_at)+'</small><p>'+esc(m.body)+'</p></div>';
  }).join('');
  const canReply=ticket.status!=='closed'&&(ticket.requester_uid===current()||role==='owner'||(role==='support'&&ticket.assigned_uid===current()));
  const staff=['owner','support'].includes(role);
@@ -132,13 +151,14 @@ async function loadMessages(id,quiet=false){
   try{await invoke('vatra_support_status',{_ticket:id,_status:'resolved'});await loadTickets();await loadMessages(id,false);}catch(err){target.title=err.message;}
  });
 }
-async function openSupport(){
+async function openSupport(requestedId=null){
  if(!current())return;
  if(lastSignedUid!==current()){tickets=[];lastSignedUid=current();}
  const token=++renderToken;selected=null;await getRole();if(token!==renderToken)return;
  show(renderInbox());
  document.querySelectorAll('[data-support-new]').forEach(b=>b.onclick=showNewTicket);
  await loadTickets();
+ if(requestedId&&tickets.some(t=>t.id===Number(requestedId)))await selectTicket(Number(requestedId));
  if(location.hash!=='#/support')history.pushState({vatra:true},'',location.pathname+location.search+'#/support');
  window.scrollTo(0,0);
 }
