@@ -1348,7 +1348,9 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
  panel.innerHTML='<section class="vatra-group-card vatra-gallery-loading">Завантаження медіа…</section>';
  let direct={};
  try{direct=(await get(ref(db,'groupMedia/'+id))).val()||{};}
- catch(err){console.warn('[VATRA] Community gallery is unavailable:',err);panel.innerHTML='<section class="vatra-group-card">Не вдалося відкрити галерею. Перевірте підключення таблиці groupMedia в Supabase.</section>';return;}
+ catch(err){console.warn('[VATRA] Direct community media requires the gallery RLS migration:',err);
+  direct={};toastMsg('Окремі завантаження медіа потребують міграції vatra-community-gallery.sql у Supabase.');
+ }
  if(page!=='groups'||groupId!==id||!panel.isConnected)return;
  const photo=kind==='photos';
  const fromPosts=Object.entries(postRecords||{}).flatMap(([postId,p])=>{
