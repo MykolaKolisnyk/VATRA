@@ -25,21 +25,20 @@ async function status(kind,id,force=false){
 }
 function fmt(ts){const date=new Date(ts);return isNaN(date.getTime())?'—':date.toLocaleString('uk-UA',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});}
 function html(kind,id,d,name,handle,own=false){
- const community=kind==='community',deleted=d.deleted===true,disclosed=own===true&&d.canSeeDetails===true;
- const title=deleted?(community?'Цю спільноту видалено':'Цю сторінку видалено'):(community?'Цю спільноту заблоковано ВАТРОЮ':'Цей акаунт заблоковано ВАТРОЮ');
- const icon=deleted?'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3-7 8-7s8 2.5 8 7M4 4l16 16"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 21 6v5.7c0 5-3.2 8.7-9 10.3-5.8-1.6-9-5.3-9-10.3V6l9-4Z"/><path d="M12 7v5m0 4h.01"/></svg>';
+ const community=kind==='community',deleted=d.deleted===true,disclosed=own&&d.canSeeDetails===true;
+ const title=deleted?(community?'Спільноту видалено':'Сторінку видалено'):(community?'Спільноту заблоковано':'Сторінку заблоковано');
+ const message=deleted?(community?'Цю спільноту видалено.':'Цю сторінку видалено.'):(community?'Цю спільноту заблоковано адміністрацією ВАТРИ.':'Цю сторінку заблоковано адміністрацією ВАТРИ.');
+ const note=deleted?(own&&d.pending&&d.deleteAfter?'Ви можете скасувати видалення до '+fmt(d.deleteAfter)+'.':''):(own?'Докладніше про рішення — нижче.':'Ця сторінка тимчасово недоступна.');
  const detail=disclosed?'<dl class="vatra-suspended-details">'+
   (d.sinceAt?'<div><dt>Дата рішення</dt><dd>'+fmt(d.sinceAt)+'</dd></div>':'')+
   (!deleted?'<div><dt>Причина блокування</dt><dd>'+escape(d.reason||'Причину не вказано')+'</dd></div>':'')+
   '<div><dt>'+(deleted?'Видалення':'Термін')+'</dt><dd>'+(deleted?(d.pending?'Заплановано до '+fmt(d.deleteAfter):'Остаточно видалено'):(d.permanent?'Безстроково':d.expiresAt?'До '+fmt(d.expiresAt):'Не вказано'))+'</dd></div></dl>':'';
- const description=deleted?(own&&d.pending?'Ваш акаунт заплановано до видалення. Ви можете скасувати це в налаштуваннях до завершення строку.':'Користувач видалив свою сторінку у ВАТРІ.'):own?'Адміністрація ВАТРИ обмежила доступ до Вашого акаунта. Нижче наведено рішення.':'Ця сторінка тимчасово недоступна.';
  return '<section class="vatra-suspended-page '+(deleted?'is-deleted':'is-blocked')+'" data-vatra-ban-page="'+escape(id)+'" aria-label="'+escape(title)+'">'+
- '<header class="vatra-suspended-profile-head"><p class="vatra-suspended-person">'+escape(name||(community?'Спільнота ВАТРИ':'Користувач ВАТРИ'))+
- (handle?' <small>@'+escape(handle.replace(/^@/,''))+'</small>':'')+'</p><p class="vatra-suspended-profile-subtitle">'+(deleted?'Сторінку видалено':community?'Спільноту заблоковано':'Акаунт заблоковано')+'</p></header>'+
- '<div class="vatra-suspended-content"><div class="vatra-suspended-logo">'+icon+'</div><p class="vatra-suspended-overline">'+(deleted?'СТАТУС СТОРІНКИ':'ОФІЦІЙНЕ РІШЕННЯ ВАТРИ')+'</p>'+
- '<h1>'+title+'</h1><p class="vatra-suspended-description">'+description+'</p></div>'+detail+
- '<div class="vatra-suspended-actions">'+(own&&deleted&&d.pending?'<button class="vatra-suspended-support" type="button" data-vatra-restore>Керувати видаленням</button>':!deleted?'<button class="vatra-suspended-support" type="button" data-vatra-ban-support>Звернутися до техпідтримки</button>':'')+
- (!own?'<button class="vatra-suspended-back" type="button" data-vatra-ban-back>Назад</button>':'')+'</div></section>';
+  '<header class="vatra-suspended-profile-head"><h2 class="vatra-suspended-person">'+escape(name||(community?'Спільнота ВАТРИ':'Користувач ВАТРИ'))+
+  (handle?' <small>@'+escape(handle.replace(/^@/,''))+'</small>':'')+'</h2><p class="vatra-suspended-profile-subtitle">'+title+'</p></header>'+
+  '<div class="vatra-suspended-notice" role="status"><strong>'+message+'</strong>'+(note?'<p>'+note+'</p>':'')+'</div>'+detail+
+  '<div class="vatra-suspended-actions">'+(own&&deleted&&d.pending?'<button class="vatra-suspended-support" type="button" data-vatra-restore>Керувати видаленням</button>':own&&!deleted?'<button class="vatra-suspended-support" type="button" data-vatra-ban-support>Звернутися до техпідтримки</button>':'')+
+  (!own?'<button class="vatra-suspended-back" type="button" data-vatra-ban-back>Назад</button>':'')+'</div></section>';
 }
 function inject(kind,id,d,{own=false,name='',handle=''}={}){
  const valid=kind==='community'?location.hash==='#/community/'+encodeURIComponent(id):own?uid()===id:location.hash==='#/profile/'+encodeURIComponent(id);
@@ -52,6 +51,7 @@ function inject(kind,id,d,{own=false,name='',handle=''}={}){
   wire(shell);
  }else{
   const feed=document.querySelector('#feed');if(!feed)return;
+  feed.removeAttribute('aria-busy');
   feed.innerHTML=html(kind,id,d,name|| (kind==='account'?document.querySelector('.vatra-profile-name-line h2')?.textContent:document.querySelector('.vatra-group-heading h2')?.textContent),handle);
   feed.dataset.vatraBanView=id;
   wire(feed);
@@ -71,7 +71,9 @@ function routeMatches(kind,id){return location.hash===(kind==='community'?'#/com
 function waiting(kind,id,name,handle,error=false){
  if(!routeMatches(kind,id))return;
  const feed=document.querySelector('#feed');if(!feed)return;
- feed.innerHTML='<section class="vatra-suspended-page vatra-suspended-pending"><div class="vatra-suspended-logo"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h1>'+(error?'Не вдалося перевірити сторінку':'Перевіряємо статус сторінки…')+'</h1><p class="vatra-suspended-description">'+(error?'Немає відповіді від сервера. Спробуйте повторити перевірку.':'Перевіряємо, чи доступний профіль.')+'</p>'+(error?'<button type="button" class="vatra-suspended-support" data-vatra-ban-retry>Спробувати знову</button>':'')+'</section>';
+ if(!error){feed.replaceChildren();feed.setAttribute('aria-busy','true');return;}
+ feed.removeAttribute('aria-busy');
+ feed.innerHTML='<section class="vatra-ban-load-error" role="alert"><p>Не вдалося відкрити сторінку. Перевірте з’єднання.</p><button type="button" data-vatra-ban-retry>Повторити</button></section>';
  feed.querySelector('[data-vatra-ban-retry]')?.addEventListener('click',()=>{byKey.delete(key(kind,id));guard(kind,id,name,handle);});
 }
 function showRegular(kind,id){
@@ -83,6 +85,7 @@ async function inspect(kind,id,name='',handle=''){
  const d=await status(kind,id);
  if(!routeMatches(kind,id))return;
  if(!d){waiting(kind,id,name,handle,true);return;}
+ document.querySelector('#feed')?.removeAttribute('aria-busy');
  if(isBlocked(d))inject(kind,id,d,{name,handle});
  else showRegular(kind,id);
 }
