@@ -379,3 +379,13 @@ async function refreshOwnRestriction(){
 }
 setTimeout(()=>{void refreshOwnRestriction();},4400);
 setInterval(()=>{void refreshOwnRestriction();},120000);
+
+
+/* Restore admin and report deep links after Supabase finishes session recovery. */
+function restoreModerationDeepLink(){
+ if(!signedUid())return;
+ if(location.hash==='#/admin'&&document.body.dataset.page!=='adminCenter')void openAdmin();
+ if(location.hash==='#/my-reports'&&document.body.dataset.page!=='myReports')void myReports();
+ if(document.body.dataset.page==='settings')void installSettingsLinks();
+}
+for(const delay of [1200,2800,5200,8500])setTimeout(restoreModerationDeepLink,delay);
