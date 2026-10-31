@@ -631,7 +631,7 @@ export async function accountLifecycleRequest(action='status',payload={}){
  return data.lifecycle;
 }
 
-/* Native PostgreSQL scheduled posts. No local timers and no Firebase. */
+/* Native PostgreSQL scheduled posts. No local timers; PostgreSQL publishes on the server. */
 export async function vatraSchedulePost({groupId=null,post,scheduledAt}){
  if(!currentAuth.currentUser?.uid)throw new Error('Увійдіть, щоб запланувати допис.');
  const date=new Date(scheduledAt),delay=date.getTime()-Date.now();
