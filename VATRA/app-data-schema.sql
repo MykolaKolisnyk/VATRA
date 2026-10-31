@@ -12,7 +12,7 @@ create index if not exists app_data_path_prefix_idx on public.app_data (path tex
 create index if not exists app_data_updated_at_idx on public.app_data (updated_at desc);
 alter table public.app_data enable row level security;
 
--- Normalize a legacy Firebase-style posts root into one row per post.
+-- Normalize a legacy combined posts root into one row per post.
 -- This keeps row-level security able to check each post's author independently.
 do $posts_migration$
 declare root_value jsonb; item record;
@@ -526,3 +526,41 @@ before insert or update of value on public.app_data
 for each row
 when (new.path ~ '^chats/[^/]+(/messages(/.*)?)?$')
 execute function public.vatra_e2ee_guard();
+
+
+-- VATRA community content preferences, enforced in the Supabase database.
+-- Apply after app-data-schema.sql. Existing RLS remains enabled.
+create or replace function public.vatra_enforce_community_content_prefs()
+returns trigger language plpgsql security definer
+set search_path='' set row_security=off
+as $vatra$
+declare uid uuid := auth.uid(); group_id text; grp jsonb; manager boolean;
+begin
+  if uid is null then return new; end if; -- trusted server publisher
+  if new.path ~ '^groupPosts/[^/]+/[^/]+$' then
+    group_id:=split_part(new.path,'/',2);
+    select value into grp from public.app_data where path='groups/'||group_id;
+    if grp is null then raise exception 'Спільнота не існує'; end if;
+    if coalesce((grp->>'membersCanPost')::boolean,true)=false then
+     manager := public.vatra_data_is_group_owner(group_id,uid)
+      or exists (select 1 from public.app_data a
+        where a.path='groupAdmins/'||group_id||'/'||uid::text and a.value='true'::jsonb);
+     if not manager then raise exception 'Публікації учасників вимкнені'; end if;
+    end if;
+  elsif new.path ~ '^comments/g_[^_]+_[^_]+/[^/]+$' then
+    group_id:=substring(split_part(new.path,'/',2) from '^g_([^_]+)_');
+    if group_id is not null then
+      select value into grp from public.app_data where path='groups/'||group_id;
+      if grp is not null and coalesce((grp->>'commentsEnabled')::boolean,true)=false then
+        raise exception 'Коментарі спільноти вимкнені';
+      end if;
+    end if;
+  end if;
+  return new;
+end;
+$vatra$;
+revoke all on function public.vatra_enforce_community_content_prefs() from public,anon,authenticated;
+drop trigger if exists vatra_community_content_prefs on public.app_data;
+create trigger vatra_community_content_prefs
+ before insert on public.app_data
+ for each row execute function public.vatra_enforce_community_content_prefs();
