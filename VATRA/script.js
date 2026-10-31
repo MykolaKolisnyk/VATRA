@@ -1375,9 +1375,9 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
   const urls=filtered.map(item=>item.url);
   const tile=(entry,i)=>photo?
    '<article class="vatra-community-media-tile"><button type="button" class="vatra-community-media-image" data-community-gallery-photo="'+i+'"><img src="'+esc(entry.url)+'" loading="lazy" alt="Фото спільноти '+(i+1)+'"></button>'+
-    (entry.origin==='direct'&&canEditAlbums?'<button type="button" class="vatra-community-media-remove" data-community-remove-media="'+esc(entry.id)+'">Видалити</button>':'')+'</article>':
+    (entry.origin==='direct'&&(canEditAlbums||entry.authorUid===currentUser?.uid)?'<button type="button" class="vatra-community-media-remove" data-community-remove-media="'+esc(entry.id)+'">Видалити</button>':'')+'</article>':
    '<article class="vatra-community-video-tile"><video controls playsinline preload="metadata" src="'+esc(entry.url)+'"></video><small>'+(entry.origin==='posts'?'З допису':'Завантажено до спільноти')+'</small>'+
-   (entry.origin==='direct'&&canEditAlbums?'<button type="button" class="vatra-community-media-remove" data-community-remove-media="'+esc(entry.id)+'">Видалити</button>':'')+'</article>';
+   (entry.origin==='direct'&&(canEditAlbums||entry.authorUid===currentUser?.uid)?'<button type="button" class="vatra-community-media-remove" data-community-remove-media="'+esc(entry.id)+'">Видалити</button>':'')+'</article>';
   panel.innerHTML='<section class="vatra-group-card vatra-community-gallery"><header class="vatra-community-gallery-heading"><div><h3>'+(photo?'Фотографії спільноти':'Відео спільноти')+' <span>'+combined.length+'</span></h3><p>'+(photo?'Альбоми та фото з дописів':'Відео з публікацій та завантажені окремо')+'</p></div>'+
    (canManage?'<label class="vatra-community-upload-label">＋ Додати '+(photo?'фото':'відео')+'<input type="file" id="vatraCommunityMediaUpload" '+(photo?'accept="image/*" multiple':'accept="video/*"')+' hidden></label>':'')+
    (photo&&canEditAlbums?'<button type="button" data-community-create-album>＋ Новий альбом</button>':'')+'</header>'+
