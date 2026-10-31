@@ -96,7 +96,7 @@ DECLARE result uuid; num integer; target text:=lower(trim(leading '@' from trim(
 BEGIN
  IF auth.uid() IS NULL OR public.vatra_staff_role()<>'owner' THEN RAISE EXCEPTION 'Недостатньо повноважень'; END IF;
  IF length(target)<2 THEN RAISE EXCEPTION 'Вкажіть псевдонім користувача'; END IF;
- SELECT count(*),min(substring(path from 16)::uuid) INTO num,result FROM public.app_data
+ SELECT count(*),min(substring(path from 16))::uuid INTO num,result FROM public.app_data
  WHERE path LIKE 'publicProfiles/%' AND lower(value->>'handle')=target
  AND substring(path from 16) ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
  IF num<>1 THEN RAISE EXCEPTION 'Знайдено % акаунтів. Потрібен єдиний псевдонім.',num; END IF;

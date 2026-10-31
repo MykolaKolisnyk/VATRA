@@ -1,5 +1,5 @@
 /* ВАТРА · оригінальні подарунки. Усі операції з власністю — тільки через RPC у Supabase. */
-import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
+import {initializeApp,getAuth,getDatabase,onAuthStateChanged} from './vatra-backend.js?v=20261031-7';
 const client=getDatabase(initializeApp()).client,auth=getAuth(initializeApp());
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const catalog=[
@@ -222,5 +222,22 @@ window.addEventListener('vatra:started',()=>{
  }).catch(err=>console.info('[ВАТРА подарунки] Серверний модуль подарунків ще не підключений:',err.message));
 });
 
+
+
+/* Registration gift is attached to the authenticated UID, not to a browser. */
+const welcomeSeen=new Set();
+onAuthStateChanged(auth,user=>{
+ const uid=user?.uid;
+ if(!uid||welcomeSeen.has(uid))return;
+ welcomeSeen.add(uid);
+ void call('vatra_gifts_claim_welcome').then(wasNew=>{
+  if(wasNew){
+   const card=document.querySelector('.vatra-gift-preview-card');
+   if(card)delete card.dataset.giftPreviewFor;
+   queuePreview();
+  }
+ }).catch(err=>console.info('[ВАТРА] Вітальний подарунок недоступний, перевірте SQL-міграцію:',err.message));
+ if(holidayNowInKyiv())void call('vatra_gifts_claim_holiday').catch(()=>{});
+});
 
 if(document.body.dataset.page==='gifts')void window.vatraRenderGifts?.(available());
