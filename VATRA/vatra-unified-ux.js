@@ -4,7 +4,7 @@ const auth=getAuth(initializeApp()),db=getDatabase(initializeApp()),$=s=>documen
 const x='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
 const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='prev'?'m15 5-7 7 7 7':'m9 5 7 7-7 7')+'" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let currentGallery=null,restoring=false,menu=null;
+let currentGallery=null,restoring=false;
 const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Месенджер',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги',supportDesk:'Техпідтримка'};
 const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
 window.vatraRouteChanged=i=>{
@@ -77,7 +77,7 @@ document.addEventListener('click',e=>{
  if(gallery){e.preventDefault();e.stopImmediatePropagation();openGallery(gallery);return;}
  if(e.target.closest('[data-gallery-back]')){e.stopImmediatePropagation();const uid=currentGallery?.uid;currentGallery=null;if(uid)window.vatraRouter?.renderPublicProfile(uid);return;}
  const photo=e.target.closest('[data-gallery-photo]');
- if(photo&&currentGallery){e.preventDefault();e.stopImmediatePropagation();window.vatraRouter?.openAvatarViewer?.(currentGallery.uid,currentGallery.urls,Number(photo.dataset.galleryPhoto));}
+ if(photo&&currentGallery){if(e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();e.stopImmediatePropagation();window.vatraRouter?.openAvatarViewer?.(currentGallery.uid,currentGallery.urls,Number(photo.dataset.galleryPhoto));}
 },true);
 function hashForTarget(el){
  const a=el.closest('[data-view-profile]');if(a)return route({page:'publicProfile',id:a.dataset.viewProfile});
@@ -89,16 +89,8 @@ function hashForTarget(el){
  return '';
 }
 function openTab(hash){const u=new URL(location.href);u.hash=hash;window.open(u.toString(),'_blank','noopener,noreferrer');}
-document.addEventListener('auxclick',e=>{const h=hashForTarget(e.target);if(e.button!==1||!h)return;e.preventDefault();e.stopImmediatePropagation();openTab(h);},true);
-document.addEventListener('click',e=>{if(!(e.ctrlKey||e.metaKey||e.shiftKey))return;const h=hashForTarget(e.target);if(!h)return;e.preventDefault();e.stopImmediatePropagation();openTab(h);},true);
-document.addEventListener('contextmenu',e=>{
- const h=hashForTarget(e.target);if(!h)return;e.preventDefault();menu?.remove();menu=document.createElement('div');
- menu.className='vatra-route-menu';menu.style.left=Math.max(8,Math.min(innerWidth-235,e.clientX))+'px';menu.style.top=Math.max(8,Math.min(innerHeight-105,e.clientY))+'px';
- menu.innerHTML='<button type="button" data-action="tab">Відкрити в новій вкладці</button><button type="button" data-action="copy">Копіювати посилання</button>';
- menu.onclick=async ev=>{const action=ev.target.closest('button')?.dataset.action;if(action==='tab')openTab(h);if(action==='copy'){const u=new URL(location.href);u.hash=h;try{await navigator.clipboard.writeText(u.toString());}catch{}}menu?.remove();menu=null;};document.body.append(menu);
-},true);
-document.addEventListener('click',e=>{if(menu&&!e.target.closest('.vatra-route-menu')){menu.remove();menu=null;}},true);
-window.addEventListener('keydown',e=>{if(e.key==='Escape'){menu?.remove();menu=null;}});
+document.addEventListener('auxclick',e=>{if(e.target.closest('a[href]'))return;const h=hashForTarget(e.target);if(e.button!==1||!h)return;e.preventDefault();e.stopImmediatePropagation();openTab(h);},true);
+document.addEventListener('click',e=>{if(e.target.closest('a[href]'))return;if(!(e.ctrlKey||e.metaKey||e.shiftKey))return;const h=hashForTarget(e.target);if(!h)return;e.preventDefault();e.stopImmediatePropagation();openTab(h);},true);
 async function read(path){return (await get(ref(db,path))).val()||{};}
 window.vatraOpenShareDialog=async postId=>{
  const user=auth.currentUser;if(!postId)return;if(!user){$('#authButton')?.click();return;}
