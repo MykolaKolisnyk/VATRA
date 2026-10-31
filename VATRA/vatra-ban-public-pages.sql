@@ -19,7 +19,7 @@ for select to anon, authenticated using (
 );
 -- The preexisting hidden-content policy still protects removed material.
 -- Public can see only minimal state. Reason, duration and timestamps are
--- disclosed to the affected account, community creator or authorized staff.
+-- disclosed only to the affected account or the community creator.
 create or replace function public.vatra_public_ban_status(_kind text,_target text)
 returns jsonb language plpgsql stable security definer
 set search_path='' set row_security=off as $ban$
