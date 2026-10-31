@@ -1499,6 +1499,43 @@ function renderGroupSettings(id){
  const members=Object.entries(groupMembers[id]||{}).filter(([uid,val])=>val&&uid&&uid!==g.ownerUid),admins=groupAdmins[id]||{},mods=groupModerators[id]||{},owner=users[g.ownerUid]||{};
  setFeed(`<section class="settings-page community-settings-page"><div class="settings-intro"><div><p class="eyebrow">КЕРУВАННЯ</p><h2>${esc(g.name)}</h2><p>Ця сторінка доступна творцю та команді спільноти. Тут можна змінити дані й керувати ролями.</p></div><button class="pill" id="groupSettingsBack">← До спільноти</button></div><form id="groupSettingsForm" class="settings-form"><section class="settings-card"><h3>Основна інформація</h3><div class="settings-grid"><label>Назва спільноти<input name="name" maxlength="60" required value="${esc(g.name||'')}" ${canEditSettings?'':'disabled'}></label><label>Напрям діяльності<input name="category" maxlength="80" value="${esc(g.category||'')}" placeholder="Наприклад, спорт, освіта, хобі" ${canEditSettings?'':'disabled'}></label><label class="span-two">Опис<textarea name="description" maxlength="500" rows="4" ${canEditSettings?'':'disabled'}>${esc(g.description||'')}</textarea></label><label>Тип спільноти<select name="visibility" ${canEditSettings?'':'disabled'}><option value="public" ${g.visibility!=='private'?'selected':''}>Відкрита</option><option value="private" ${g.visibility==='private'?'selected':''}>Закрита</option></select></label></div>${canEditSettings?'<div class="settings-savebar"><span>Зміни збережуться для всіх учасників.</span><button class="primary" type="submit">Зберегти зміни</button></div>':''}<p id="groupSettingsStatus" class="auth-error" role="status"></p></section></form><section class="settings-card"><h3>Команда спільноти</h3><p class="muted">Творець має повний доступ. Адміністратори та модератори можуть допомагати з управлінням і дописами.</p><div class="community-role-row"><span class="role-badge owner-badge">Творець</span><button class="community-member-chip" data-view-profile="${esc(g.ownerUid)}">${avatar(owner.name||'Творець',owner.avatarUrl)}<span>${esc(owner.name||'Творець спільноти')}</span></button></div><div class="community-member-list">${members.map(([uid])=>{const u=users[uid]||{},isMemberOwner=uid===g.ownerUid,isMemberAdmin=!!admins[uid],isMemberMod=!!mods[uid];return `<div class="community-member-row">${avatar(u.name||'Учасник',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Учасник')}</b><small>@${esc(u.handle||'user')}</small></div>${isMemberOwner?'<span class="role-badge owner-badge">Творець</span>':isMemberAdmin?'<span class="role-badge admin-badge">Адміністратор</span>':isMemberMod?'<span class="role-badge moderator-badge">Модератор</span>':''}${canManageRoles&&!isMemberOwner?`<button class="pill" data-toggle-group-admin="${esc(id)}" data-member-uid="${esc(uid)}">${isMemberAdmin?'Зняти адміністратора':'Призначити адміністратором'}</button><button class="pill" data-toggle-group-moderator="${esc(id)}" data-member-uid="${esc(uid)}">${isMemberMod?'Зняти модератора':'Призначити модератором'}</button><button class="danger-link" data-remove-group-member="${esc(id)}" data-member-uid="${esc(uid)}">Видалити</button>`:''}</div>`;}).join('')||'<p class="muted">Учасників ще немає.</p>'}</div>${isOwner?`<div class="settings-savebar"><button type="button" class="danger-link" data-delete-group="${esc(id)}">Видалити спільноту</button></div>`:''}</section></section>`);
  $('#groupSettingsBack').onclick=()=>renderGroupDetails(id);
+ const prefsCard=document.createElement('section');
+ prefsCard.className='settings-card vatra-community-advanced';
+ prefsCard.innerHTML='<h3>Публікації, коментарі та оформлення</h3><p class="muted">Налаштування спільноти для учасників і відвідувачів.</p>'+
+ '<form id="vatraCommunityPreferences">'+
+ [['membersCanPost','Дозволити учасникам публікувати дописи','Коли вимкнено, публікувати можуть лише творець та адміністратори.'],
+  ['commentsEnabled','Дозволити коментарі до дописів','Нові коментарі будуть заблоковані, старі залишаться доступними.'],
+  ['showMembers','Показувати список учасників','Керівники все одно бачитимуть учасників.'],
+  ['showContacts','Показувати контакти спільноти','Приховує блок контактів від відвідувачів.'],
+  ['showLinks','Показувати посилання','Приховує блок із зовнішніми посиланнями.']].map(([key,title,description])=>
+  '<label class="vatra-community-pref-row"><span><b>'+title+'</b><small>'+description+'</small></span><input type="checkbox" name="'+key+'"'+(g[key]!==false?' checked':'')+' '+(canEditSettings?'':'disabled')+'></label>').join('')+
+ '<label class="vatra-community-pref-field">Оголошення спільноти<textarea name="pinnedNotice" maxlength="500" rows="3" '+(canEditSettings?'':'disabled')+' placeholder="Важливе повідомлення для учасників">'+esc(String(g.pinnedNotice||''))+'</textarea></label>'+
+ '<label class="vatra-community-pref-field">Посилання (по одному HTTPS-посиланню в рядку, до 6)<textarea name="links" maxlength="2000" rows="3" '+(canEditSettings?'':'disabled')+' placeholder="https://example.com">'+esc((Array.isArray(g.links)?g.links:[]).join('\n'))+'</textarea></label>'+
+ (canEditSettings?'<button class="primary" type="submit">Зберегти налаштування</button>':'')+
+ '<p class="vatra-community-pref-status" role="status" aria-live="polite"></p></form>';
+ $('#groupSettingsForm')?.insertAdjacentElement('afterend',prefsCard);
+ prefsCard.querySelector('#vatraCommunityPreferences')?.addEventListener('submit',async event=>{
+  event.preventDefault();if(!canEditSettings)return;
+  const data=new FormData(event.currentTarget);
+  const raw=String(data.get('links')||'').split(/\r?\n/).map(v=>v.trim()).filter(Boolean);
+  if(raw.length>6)return toastMsg('Не більше 6 посилань.');
+  const valid=[];
+  for(const url of raw){
+   try{const u=new URL(url);if(u.protocol!=='https:'||u.username||u.password)throw Error('wrong link');valid.push(u.toString());}
+   catch{return toastMsg('Дозволені лише повні HTTPS-посилання.');}
+  }
+  const keys=['membersCanPost','commentsEnabled','showMembers','showContacts','showLinks'];
+  const patch={links:valid,pinnedNotice:String(data.get('pinnedNotice')||'').trim().slice(0,500),updatedAt:Date.now()};
+  keys.forEach(key=>patch[key]=data.get(key)==='on');
+  const btn=event.currentTarget.querySelector('[type=submit]');btn.disabled=true;
+  try{
+   await update(ref(db,'groups/'+id),patch);
+   groups[id]={...groups[id],...patch};
+   prefsCard.querySelector('.vatra-community-pref-status').textContent='Налаштування збережено.';
+   toastMsg('Налаштування спільноти збережено.');
+  }catch(error){toastMsg(niceError(error));}
+  finally{btn.disabled=false;}
+ });
  const contactsCard=document.createElement('section');
  contactsCard.className='settings-card vatra-community-contact-settings';
  const contactsList=Array.isArray(g.contacts)?g.contacts:[];
