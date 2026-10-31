@@ -268,8 +268,220 @@ begin
     return (array_length(parts,1) >= 3 and parts[3] = uid::text) or public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb);
   end if;
   if _path ~ '^groupAdmins/[^/]+(/[^/]+)?$' or _path ~ '^groupModerators/[^/]+(/[^/]+)?$' then return public.vatra_data_is_group_owner(parts[2], uid) or exists (select 1 from public.app_data a where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text and a.value = 'true'::jsonb); end if;
-  if _path ~ '^groupPosts/[^/]+(/[^/]+)?$' then
-    return _value ->> 'authorUid' = uid::text and public.vatra_data_is_group_member(parts[2], uid);
+  if _path ~ '^groupPosts/[^/]+(/[^/]+)?
+  if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
+  if _path ~ '^chats/[^/]+/.+$' then
+    select c.value into parent_value from public.app_data c where c.path = 'chats/' || parts[2];
+    return coalesce(parent_value -> 'members', '{}'::jsonb) ? uid::text;
+  end if;
+  if _path ~ '^chatBlocks/[^/]+/[^/]+$' then return parts[3] = uid::text; end if;
+  if _path ~ '^reports/[^/]+(/.*)?$' then return parts[2] = uid::text; end if;
+  return false;
+end;
+$vatra$;
+
+alter function public.vatra_data_is_friend(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read_post(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_owner(text, uuid) owner to postgres;
+alter function public.vatra_data_is_group_member(text, uuid) owner to postgres;
+alter function public.vatra_data_can_read(text, jsonb) owner to postgres;
+alter function public.vatra_data_can_write(text, jsonb) owner to postgres;
+grant execute on function public.vatra_data_is_friend(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_can_read_post(text, uuid) to anon, authenticated;
+grant execute on function public.vatra_data_is_group_owner(text, uuid) to authenticated;
+grant execute on function public.vatra_data_is_group_member(text, uuid) to authenticated;
+grant execute on function public.vatra_data_can_read(text, jsonb) to anon, authenticated;
+grant execute on function public.vatra_data_can_write(text, jsonb) to authenticated;
+
+do $vatra$
+declare p record;
+begin
+  for p in select policyname from pg_policies where schemaname = 'public' and tablename = 'app_data'
+  loop execute format('drop policy if exists %I on public.app_data', p.policyname); end loop;
+end;
+$vatra$;
+
+create policy app_data_select on public.app_data for select to anon, authenticated
+  using (public.vatra_data_can_read(path, value));
+create policy app_data_insert on public.app_data for insert to authenticated
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_update on public.app_data for update to authenticated
+  using (public.vatra_data_can_write(path, value))
+  with check (public.vatra_data_can_write(path, value));
+create policy app_data_delete on public.app_data for delete to authenticated
+  using (public.vatra_data_can_write(path, value));
+
+-- Narrow post policies provide an explicit owner check for publishing, editing,
+-- and deleting one post row without relaxing access to other data.
+drop policy if exists app_data_insert_own_posts on public.app_data;
+create policy app_data_insert_own_posts on public.app_data for insert to authenticated
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_update_own_posts on public.app_data;
+create policy app_data_update_own_posts on public.app_data for update to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text)
+  with check (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+drop policy if exists app_data_delete_own_posts on public.app_data;
+create policy app_data_delete_own_posts on public.app_data for delete to authenticated
+  using (path ~ '^posts/[^/]+$' and value ->> 'authorUid' = (select auth.uid())::text);
+
+-- Public media URLs are used for content explicitly shown in the feed.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('vatra-media', 'vatra-media', true, 52428800,
+  array['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','video/quicktime','video/ogg','video/x-m4v'])
+on conflict (id) do update
+set public = true,
+    file_size_limit = 52428800,
+    allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists vatra_media_public_read on storage.objects;
+create policy vatra_media_public_read on storage.objects
+  for select to anon, authenticated
+  using (bucket_id = 'vatra-media');
+
+drop policy if exists vatra_media_user_upload on storage.objects;
+create policy vatra_media_user_upload on storage.objects
+  for insert to authenticated
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_update on storage.objects;
+create policy vatra_media_user_update on storage.objects
+  for update to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists vatra_media_user_delete on storage.objects;
+create policy vatra_media_user_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'vatra-media' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+do $realtime$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'app_data'
+     ) then
+    alter publication supabase_realtime add table public.app_data;
+  end if;
+end;
+$realtime$;
+
+
+-- VATRA private chat message validation.
+-- Allows ordinary messages and historic signed ciphertext.
+-- Only the sender may create/edit/remove messages; RLS limits access to participants.
+-- Ordinary messages are NOT end-to-end encrypted.
+-- Covers all storage forms supported by the app_data compatibility adapter.
+create or replace function public.vatra_e2ee_guard()
+returns trigger
+language plpgsql
+set search_path = ''
+as $vatra_e2ee$
+declare
+  actor_uid text := auth.uid()::text;
+  old_messages jsonb := '{}'::jsonb;
+  new_messages jsonb := '{}'::jsonb;
+  message_id text;
+  message_payload jsonb;
+begin
+  if actor_uid is null then
+    raise exception 'VATRA E2EE: authentication required';
+  end if;
+
+  if new.path ~ '^chats/[^/]+/messages/[^/]+$' then
+    message_id := split_part(new.path, '/', 4);
+    new_messages := jsonb_build_object(message_id, new.value);
+    if tg_op = 'UPDATE' then
+      old_messages := jsonb_build_object(message_id, old.value);
+    end if;
+  elsif new.path ~ '^chats/[^/]+/messages$' then
+    new_messages := new.value;
+    if tg_op = 'UPDATE' then
+      old_messages := old.value;
+    end if;
+  elsif new.path ~ '^chats/[^/]+$' then
+    if tg_op = 'UPDATE' then
+      if coalesce(new.value -> 'members', '{}'::jsonb)
+         is distinct from coalesce(old.value -> 'members', '{}'::jsonb) then
+        raise exception 'VATRA E2EE: chat membership cannot be rewritten';
+      end if;
+      old_messages := coalesce(old.value -> 'messages', '{}'::jsonb);
+    end if;
+    new_messages := coalesce(new.value -> 'messages', '{}'::jsonb);
+  else
+    raise exception 'VATRA E2EE: unsupported chat data path';
+  end if;
+
+  if jsonb_typeof(new_messages) is distinct from 'object'
+     or jsonb_typeof(old_messages) is distinct from 'object' then
+    raise exception 'VATRA E2EE: invalid message container';
+  end if;
+
+  for message_id in select jsonb_object_keys(new_messages) loop
+    message_payload := new_messages -> message_id;
+
+    if message_payload is distinct from old_messages -> message_id then
+      if (old_messages ? message_id)
+         and old_messages -> message_id ->> 'senderUid' is distinct from actor_uid then
+        raise exception 'VATRA E2EE: only the author may edit a message';
+      end if;
+
+      -- Sender must always match the authenticated account.
+      if jsonb_typeof(message_payload) is distinct from 'object'
+         or message_payload ->> 'senderUid' is distinct from actor_uid then
+        raise exception 'VATRA CHAT: invalid sender';
+      end if;
+      if message_payload ? 'encrypted' then
+        -- Keep the original strict format for historic E2EE records.
+        if message_payload ? 'text'
+           or message_payload -> 'encrypted' ->> 'v' is distinct from '1'
+           or message_payload -> 'encrypted' ->> 'alg' is distinct from 'ECDH-P256-HKDF-SHA256-AES256GCM-ECDSA'
+           or message_payload -> 'encrypted' ->> 'ciphertext' is null
+           or message_payload -> 'encrypted' ->> 'iv' is null
+           or message_payload -> 'encrypted' ->> 'signature' is null then
+          raise exception 'VATRA CHAT: invalid legacy encrypted record';
+        end if;
+      else
+        -- New ordinary messages: RLS still limits read/write to chat members.
+        if jsonb_typeof(message_payload -> 'text') is distinct from 'string'
+           or length(trim(message_payload ->> 'text')) not between 1 and 2000 then
+          raise exception 'VATRA CHAT: message text must contain 1 to 2000 characters';
+        end if;
+      end if;
+    end if;
+  end loop;
+
+  for message_id in select jsonb_object_keys(old_messages) loop
+    if not (new_messages ? message_id)
+       and old_messages -> message_id ->> 'senderUid' is distinct from actor_uid then
+      raise exception 'VATRA E2EE: only the author may remove a message';
+    end if;
+  end loop;
+
+  return new;
+end;
+$vatra_e2ee$;
+
+drop trigger if exists vatra_require_encrypted_messages on public.app_data;
+create trigger vatra_require_encrypted_messages
+before insert or update of value on public.app_data
+for each row
+when (new.path ~ '^chats/[^/]+(/messages(/.*)?)?$')
+execute function public.vatra_e2ee_guard();
+ then
+    return _value ->> 'authorUid' = uid::text
+      and public.vatra_data_is_group_member(parts[2], uid)
+      and (
+        coalesce(_value ->> 'authorType', 'user') <> 'group'
+        or public.vatra_data_is_group_owner(parts[2], uid)
+        or exists (
+          select 1 from public.app_data a
+          where a.path = 'groupAdmins/' || parts[2] || '/' || uid::text
+            and a.value = 'true'::jsonb
+        )
+      );
   end if;
   if _path ~ '^chats/[^/]+$' then return coalesce(_value -> 'members', '{}'::jsonb) ? uid::text; end if;
   if _path ~ '^chats/[^/]+/.+$' then
