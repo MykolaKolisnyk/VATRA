@@ -69,7 +69,8 @@ function injectGroupBadges(){
   if(found)return;
   const markHolder=document.createElement('span');markHolder.innerHTML=window.vatraGroupBadge(id);
   const badge=markHolder.firstElementChild;
-  if(badge)el.append(badge);
+  const slot=el.matches('.vatra-community-name,.vatra-search-person-name')?el:el.querySelector('.vatra-community-name,.vatra-search-person-name,small');
+  if(badge&&slot)slot.append(badge);
  });
  document.querySelectorAll('[data-vatra-group-badge-slot]').forEach(el=>{
   const id=el.dataset.vatraGroupBadgeSlot;
