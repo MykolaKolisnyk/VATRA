@@ -1,5 +1,5 @@
 /* VATRA support notifications: own unread alerts, site-only badges and bell entries. */
-import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-4';
+import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
 const auth=getAuth(initializeApp()),db=getDatabase(initializeApp()).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let alerts=[],tickets=new Map(),count=0,lastUser='',busy=false,changedAt=0,queued=false;

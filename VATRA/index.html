@@ -94,7 +94,10 @@
     if (window.__vatraStarted) return;
     var box = document.getElementById('startupError');
     var message = document.getElementById('startupErrorText');
-    if (message) message.textContent = 'Не вдалося завантажити застосунок. Перевірте з’єднання та оновіть сторінку. Якщо проблема повторюється, повідомте розробника.';
+    if (message) {
+      var stage = window.__vatraBackendLoaded ? 'E02 · модуль завантажився, але ініціалізація не завершилась' : 'E01 · не завантажився основний модуль або його залежності';
+      message.textContent = 'Не вдалося завершити запуск ВАТРИ. ' + stage + '. Перевірте інтернет та натисніть «Спробувати знову». Якщо проблема повторюється, повідомте розробника код помилки E01 або E02 та відкрийте F12 → Console, щоб побачити точну причину.';
+    }
     if (box) box.hidden = false;
   }, 16000);
   window.addEventListener('error', function (event) {
@@ -106,7 +109,7 @@
     console.error('VATRA operation rejection:', event.reason);
   });
 </script>
-<script src="vatra-loader.js?v=20261031-2"></script><script src="network-status.js?v=20261028-4"></script><script src="media-viewer.js?v=20261030-3"></script>
+<script src="vatra-loader.js?v=20261031-3"></script><script src="network-status.js?v=20261028-4"></script><script src="media-viewer.js?v=20261030-3"></script>
 
 </body></html>
 

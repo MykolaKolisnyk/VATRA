@@ -1,5 +1,5 @@
 /* VATRA: suspended account/community state and full public explanation pages. */
-import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-4';
+import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
 const auth=getAuth(initializeApp()),client=getDatabase(initializeApp()).client;
 const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const byKey=new Map(),ongoing=new Map();let lastUid='';

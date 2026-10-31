@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-4';
+import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mark='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l3-.1.9 2.8 2.4 1.8-1 2.8 1 2.8-2.4 1.8 1 2.8-2.4 1.8-.9 2.8-3-.1-2.5 1.6-2.5-1.6-3 .1-.9-2.8-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.8 3 .1L10 1.4Z" fill="currentColor"/><path d="m6.2 10.2 2.4 2.4 5.2-5.2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';

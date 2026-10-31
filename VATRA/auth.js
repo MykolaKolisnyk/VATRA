@@ -1,4 +1,4 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword } from './vatra-backend.js?v=20261030-1';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword } from './vatra-backend.js?v=20261031-7';
 
 // Prevent the browser from restoring an old scroll position on the sign-in page.
 if('scrollRestoration' in history)history.scrollRestoration='manual';

@@ -1,6 +1,20 @@
 /* Сумісний шар даних для старого інтерфейсу ВАТРИ.
    Повідомлення про помилки не містять назви конкретного проєкту. */
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// ESM CDNs can be blocked independently by browser networks or VPN providers.
+// Use the first available compatible Supabase module without changing the project.
+let createClient;
+try {
+  ({ createClient } = await import('https://esm.sh/@supabase/supabase-js@2'));
+} catch (primaryError) {
+  console.warn('[ВАТРА] Не завантажилась основна бібліотека Supabase, пробуємо резервний CDN.', primaryError);
+  try {
+    ({ createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'));
+  } catch (backupError) {
+    console.error('[ВАТРА] Обидва джерела бібліотеки Supabase недоступні.', backupError);
+    throw new Error('Не вдалося завантажити модуль Supabase. Перевірте підключення до CDN.', {cause:backupError});
+  }
+}
+
 
 const SERVICE_URL = 'https://rjasunoawrxvetwadylh.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-';

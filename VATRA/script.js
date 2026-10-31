@@ -3,7 +3,7 @@ import { setupNavigation } from './navigation.js?v=20261031-1';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-5';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia } from './vatra-backend.js?v=20261031-4';
+import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia } from './vatra-backend.js?v=20261031-7';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;

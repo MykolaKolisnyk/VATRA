@@ -1,5 +1,5 @@
 /* VATRA: shared controls, URLs, public galleries, share dialog. */
-import {initializeApp,getAuth,getDatabase,ref,get,set,push,createPost} from './vatra-backend.js?v=20261031-4';
+import {initializeApp,getAuth,getDatabase,ref,get,set,push,createPost} from './vatra-backend.js?v=20261031-7';
 const auth=getAuth(initializeApp()),db=getDatabase(initializeApp()),$=s=>document.querySelector(s);
 const x='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
 const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='prev'?'m15 5-7 7 7 7':'m9 5 7 7-7 7')+'" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
