@@ -37,6 +37,14 @@ begin
     or jsonb_typeof(_payload->'imageUrls') not in ('array','null')
     or jsonb_typeof(_payload->'pollOptions') not in ('object','null') then return false; end if;
  if _group_id is null then return coalesce(_payload->>'authorType','user')='user'; end if;
+ if not (
+  public.vatra_data_is_group_owner(_group_id,_uid)
+  or exists (select 1 from public.app_data a where a.path='groupAdmins/'||_group_id||'/'||_uid::text and a.value='true'::jsonb)
+  or (
+   exists (select 1 from public.app_data a where a.path='groupModerators/'||_group_id||'/'||_uid::text and a.value='true'::jsonb)
+   and not exists (select 1 from public.app_data g where g.path='groups/'||_group_id and g.value->>'moderatorsCanPost'='false')
+  )
+ ) then return false; end if;
  if coalesce(_payload->>'groupId','')<>_group_id
     or coalesce(_payload->>'visibility','public')<>'public'
     or not public.vatra_data_is_group_member(_group_id,_uid) then return false; end if;
@@ -121,6 +129,14 @@ begin
         or exists (select 1 from public.app_data a where a.path='groupAdmins/'||job.group_id||'/'||job.author_uid::text and a.value='true'::jsonb)
       )
    then can_publish:=false; end if;
+   if can_publish and job.group_id is not null then
+     can_publish := public.vatra_data_is_group_owner(job.group_id,job.author_uid)
+       or exists (select 1 from public.app_data a where a.path='groupAdmins/'||job.group_id||'/'||job.author_uid::text and a.value='true'::jsonb)
+       or (
+         exists (select 1 from public.app_data a where a.path='groupModerators/'||job.group_id||'/'||job.author_uid::text and a.value='true'::jsonb)
+         and not exists (select 1 from public.app_data g where g.path='groups/'||job.group_id and g.value->>'moderatorsCanPost'='false')
+       );
+   end if;
    if not can_publish then
     update public.vatra_scheduled_posts set cancelled_at=now(),
       last_error='Права на публікацію втрачено.'
