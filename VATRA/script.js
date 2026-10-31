@@ -265,7 +265,19 @@ async function updatePresence(isOnline=true){
  try{await Promise.all([update(ref(db,'publicProfiles/'+uid),patch),update(ref(db,'friendProfiles/'+uid),patch)]);}
  catch(error){console.warn('Presence update failed:',error);}
 }
-function startPresence(){if(presenceHeartbeat)clearInterval(presenceHeartbeat);updatePresence(true);presenceHeartbeat=window.setInterval(()=>{if(document.visibilityState==='visible')updatePresence(true);},45000);}
+let vatraLastLifecycleTouch=0;
+function vatraAccountActivity(){
+ if(!currentUser||document.visibilityState!=='visible'||Date.now()-vatraLastLifecycleTouch<6*3600000)return;
+ vatraLastLifecycleTouch=Date.now();
+ void accountLifecycleRequest('touch').catch(()=>{}); // Optional until the secure function is deployed.
+}
+function startPresence(){
+ if(presenceHeartbeat)clearInterval(presenceHeartbeat);
+ updatePresence(true);vatraAccountActivity();
+ presenceHeartbeat=window.setInterval(()=>{
+  if(document.visibilityState==='visible'){updatePresence(true);vatraAccountActivity();}
+ },45000);
+}
 window.addEventListener('pagehide',()=>{if(currentUser)updatePresence(false);});
 document.addEventListener('visibilitychange',()=>{if(currentUser)updatePresence(document.visibilityState==='visible');});
 function profilePresenceMarkup(profile={},isSelf=false){const stamp=Number(profile.lastSeenAt)||0,online=isSelf||(profile.isOnline===true&&stamp>0&&Date.now()-stamp<120000);if(online)return '<span class="vatra-profile-presence is-online">Онлайн</span>';if(!stamp)return '<span class="vatra-profile-presence"><i></i>Ще не заходив(-ла)</span>';const date=new Date(stamp),now=new Date(),time=date.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'}),sameDay=date.toDateString()===now.toDateString(),yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1).toDateString()===date.toDateString(),label=sameDay?'сьогодні о '+time:yesterday?'вчора о '+time:date.toLocaleDateString('uk-UA',{day:'numeric',month:'short',year:date.getFullYear()===now.getFullYear()?undefined:'numeric'})+' о '+time;return '<span class="vatra-profile-presence"><i></i>Був(-ла) в мережі '+esc(label)+'</span>';}
