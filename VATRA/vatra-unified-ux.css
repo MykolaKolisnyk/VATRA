@@ -281,3 +281,77 @@ body .vatra-community-search>span{display:inline-grid!important;place-items:cent
 body .vatra-community-search>span svg{display:block!important;width:19px!important;height:19px!important}
 body [data-vatra-sound-toggle]{display:flex!important;align-items:center!important;gap:9px!important}
 body [data-vatra-sound-toggle] svg{flex:0 0 18px!important}
+
+
+/* 31 Oct UX correction: ID-specific full-height scroll rail.
+   Older pages.css/refinements.css rules vertically centered the control. */
+@media (min-width:900px){
+  html body #vatraScrollToTop:not([hidden]){
+    position:fixed!important;
+    top:0!important;
+    bottom:auto!important;
+    left:0!important;
+    right:auto!important;
+    width:clamp(124px,8.1vw,162px)!important;
+    min-width:124px!important;
+    max-width:162px!important;
+    height:100dvh!important;
+    min-height:0!important;
+    max-height:100dvh!important;
+    padding:0 12px 23px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:flex-end!important;
+    justify-content:center!important;
+    gap:8px!important;
+    overflow:hidden!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    transform:none!important;
+    font:650 14px/20px Inter,system-ui,sans-serif!important;
+    color:#34618c!important;
+    background:rgba(74,91,112,.10)!important;
+    z-index:20!important;
+  }
+  html body #vatraScrollToTop:not([hidden]):is(:hover,:focus-visible){
+    background:rgba(74,91,112,.20)!important;
+    color:#194d83!important;
+  }
+  html body #vatraScrollToTop:not([hidden]) :is(svg,span){
+    display:block!important;
+    position:static!important;
+    transform:none!important;
+    margin:0!important;
+    padding:0!important;
+    align-self:flex-end!important;
+    order:initial!important;
+    flex:none!important;
+  }
+  html body #vatraScrollToTop:not([hidden]) svg{
+    width:18px!important;height:20px!important;min-width:18px!important;
+    max-width:18px!important;min-height:20px!important;max-height:20px!important;
+  }
+  html body #vatraScrollToTop:not([hidden]) span{
+    line-height:20px!important;
+    white-space:nowrap!important;
+    font-size:14px!important;
+    font-weight:650!important;
+    writing-mode:horizontal-tb!important;
+  }
+}
+html body #vatraScrollToTop[hidden]{display:none!important}
+@media (max-width:899px){
+  html body #vatraScrollToTop:not([hidden]){
+    position:fixed!important;top:auto!important;bottom:76px!important;
+    right:14px!important;left:auto!important;
+    width:auto!important;min-width:0!important;max-width:none!important;
+    height:44px!important;min-height:0!important;max-height:44px!important;
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    gap:7px!important;padding:0 13px!important;border-radius:12px!important;
+    box-sizing:border-box!important;
+  }
+  html body #vatraScrollToTop:not([hidden]) span{display:inline!important}
+}
