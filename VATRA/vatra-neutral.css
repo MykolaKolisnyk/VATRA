@@ -19,7 +19,7 @@ body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active{
  color:var(--vatra-user-accent,#0757f5)!important;
  background:#e2ecff!important;
  font-weight:650!important;
- box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5)!important;
+ box-shadow:none!important;
 }
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active .nav-icon,
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active .nav-icon svg,

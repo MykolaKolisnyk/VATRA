@@ -101,3 +101,62 @@ body .vatra-control-card.vatra-policy-section li{padding:4px 0!important}
   dialog.vatra-staff-policy-dialog>header{padding:15px!important}
   dialog.vatra-staff-policy-dialog .vatra-staff-policy-content{padding:0 16px 20px!important}
 }
+
+/* Highest-specificity active navigation override: actual anchor elements, not buttons. */
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav a.nav.active,
+body[data-vatra-theme-effective="dark"] .layout>.sidebar nav a.nav.active,
+body .layout>.sidebar nav .nav.active{
+  box-shadow:none!important;border-left:0!important;outline:none!important;
+}
+body .layout>.sidebar nav a.nav.active::before,
+body .layout>.sidebar nav a.nav.active::after{display:none!important;content:none!important;}
+/* Support is a standard row, no special giant text or blue selected block. */
+body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"],
+body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"] span:last-child{
+ font:550 13px/1.5 Inter,system-ui,sans-serif!important;
+}
+body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"]{color:#3b4d61!important;background:transparent!important}
+body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"]:hover{color:#245b9d!important;background:#f0f4f9!important}
+/* VK-inspired compact comment threads, without oversized tinted cards. */
+body .post .vatra-post-comments .vatra-comment-item,
+body .post>.vatra-post-comments>.vatra-comment-item{
+ background:#fff!important;border:0!important;border-bottom:1px solid #ebeff4!important;
+ border-radius:0!important;box-shadow:none!important;margin:0!important;
+ padding:11px 0!important;min-height:0!important;overflow:visible!important;
+}
+body .vatra-post-comments,body .vatra-comment-children,body .vatra-comment-thread,body .vatra-comment-item .comment-main,body .vatra-comment-item .comment-body{overflow:visible!important;}
+body .vatra-comment-item .comment-main{display:flex!important;gap:10px!important;align-items:flex-start!important;}
+body .vatra-comment-item .comment-avatar{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;}
+body .vatra-comment-item .comment-copy{font-size:13px!important;line-height:1.55!important;padding:2px 0 0!important;color:#32465b!important;}
+body .vatra-comment-item .comment-actions{display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;margin:6px 0 0!important;min-height:30px!important;}
+body .vatra-comment-item .comment-actions>button{display:inline-flex!important;align-items:center!important;min-height:28px!important;padding:3px 7px!important;border-radius:4px!important;background:transparent!important;color:#768ca3!important;font-size:12px!important;}
+body .vatra-comment-item .comment-actions>button:hover{background:#f0f4f9!important;color:#0757f5!important;}
+body .vatra-comment-item .comment-actions>button.vatra-comment-delete{color:#a56773!important;}
+body .vatra-comment-item .comment-actions>button.vatra-comment-delete:hover{background:#fff0f1!important;color:#bb324c!important;}
+body .vatra-comment-more{position:relative!important;margin-left:auto!important;z-index:5!important;}
+body .vatra-comment-more[open]{z-index:80!important;}
+body .vatra-comment-more>div{position:absolute!important;right:0!important;top:auto!important;bottom:calc(100% + 5px)!important;
+ min-width:170px!important;border:1px solid #dce5ed!important;background:#fff!important;border-radius:5px!important;
+ box-shadow:0 8px 25px #1c304327!important;padding:5px!important;z-index:100!important;}
+body .vatra-comment-more>div>button{border-radius:4px!important;min-height:35px!important;font-size:12px!important;}
+body .vatra-comment-thread{margin-left:18px!important;padding-left:15px!important;border-left:1px solid #dfe7f1!important;}
+/* Community settings: consistent grid and form dimensions; no overlapping panels. */
+body .vatra-group-settings-shell{
+ display:grid!important;grid-template-columns:minmax(165px,220px) minmax(0,1fr)!important;gap:16px!important;
+ align-items:start!important;min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+}
+body .vatra-group-settings-content,body .vatra-group-settings-nav,body .vatra-group-settings-content>.settings-form,
+body .vatra-group-settings-content>.settings-card{min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;}
+body .vatra-group-settings-content .settings-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;}
+body .vatra-group-settings-content .settings-grid>label{display:block!important;min-width:0!important;max-width:100%!important;}
+body .vatra-group-settings-content .settings-grid>label.span-two{grid-column:1/-1!important;}
+body .vatra-group-settings-content :is(input,textarea,select){width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;font-size:13px!important;padding:11px 12px!important;border-radius:5px!important;}
+body .vatra-group-settings-content .settings-card{padding:20px!important;border-radius:7px!important;}
+body .vatra-group-settings-nav{border-radius:7px!important;}
+body .vatra-group-settings-nav button{border-radius:5px!important;font-size:12.5px!important;}
+@media(max-width:950px){
+ body .vatra-group-settings-shell{grid-template-columns:minmax(0,1fr)!important;}
+ body .vatra-group-settings-nav{display:flex!important;overflow-x:auto!important;gap:6px!important;}
+ body .vatra-group-settings-nav button{flex:0 0 auto!important;white-space:nowrap!important;width:auto!important;}
+}
+@media(max-width:580px){body .vatra-group-settings-content .settings-grid{grid-template-columns:minmax(0,1fr)!important;}}
