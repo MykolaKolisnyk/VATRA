@@ -12,7 +12,7 @@ const icons={
 };
 const statuses={open:'Нова',reviewing:'Розглядається',resolved:'Вирішена',dismissed:'Відхилена'};
 const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
-let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,rolePromise=null,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300;
+let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,rolePromise=null,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300,auditLimit=200;
 const signedUid=()=>auth.currentUser?.uid||null;
 const errorText=e=>String(e?.message||'Перевірте з’єднання й налаштування Supabase.');
 async function checkRole(force=false){
@@ -172,7 +172,7 @@ function caseDetail(c){
 }
 function auditMarkup(events){
  return '<section class="vatra-control-card"><h3>Журнал адміністратора</h3><p>Історія змін незворотна для користувачів інтерфейсу, але її захист залежить від налаштувань бази.</p><div class="vatra-control-audit">'+
- (events.map(a=>'<article><strong>'+esc(a.action)+'</strong><span>'+esc(a.target)+'</span><small>'+time(a.created_at)+'</small><pre>'+esc(JSON.stringify(a.details||{},null,2))+'</pre><small>Виконавець: '+esc(a.actor_uid)+'</small></article>').join('')||'<p class="vatra-control-muted">Історія порожня.</p>')+'</div></section>';
+ (events.map(a=>'<article><strong>'+esc(a.action)+'</strong><span>'+esc(a.target)+'</span><small>'+time(a.created_at)+'</small><pre>'+esc(JSON.stringify(a.details||{},null,2))+'</pre><small>Виконавець: '+esc(a.actor_uid)+'</small></article>').join('')||'<p class="vatra-control-muted">Історія порожня.</p>')+'</div>'+(events.length>=auditLimit?'<button type="button" class="vatra-control-secondary" data-vatra-more-audit>Показати ще 200 дій</button>':'')+'</section>';
 }
 async function getRows(table,limit=300,orderBy='created_at'){
  const {data,error}=await client.from(table).select('*').order(orderBy,{ascending:false}).limit(limit);
@@ -187,7 +187,7 @@ async function renderDashboard(){
  try{
   const [cases,accounts,groups,audit,hidden,requests,team]=await Promise.all([
    getRows('vatra_moderation_cases',caseLimit),getRows('vatra_moderation_account_bans',150),
-   getRows('vatra_moderation_group_bans',150),getRows('vatra_moderation_audit',100),getRows('vatra_moderation_hidden_content',150,'updated_at'),
+   getRows('vatra_moderation_group_bans',150),staffRole==='owner'?getRows('vatra_moderation_audit',auditLimit):Promise.resolve([]),getRows('vatra_moderation_hidden_content',150,'updated_at'),
    tabs.includes('requests')?getRows('vatra_verification_requests',300):Promise.resolve([]),
    staffRole==='owner'?getRows('vatra_staff_members',300,'appointed_at'):Promise.resolve([])
   ]);
@@ -217,6 +217,7 @@ function installTabs(){
 function installEvents(data){
  installTabs();
  window.vatraAdminExtras?.install?.(data,()=>void renderDashboard(),askAction,rpc,toastInline);
+ $('[data-vatra-more-audit]')?.addEventListener('click',()=>{auditLimit+=200;void renderDashboard();});
  $('[data-admin-open-support]')?.addEventListener('click',()=>void window.vatraOpenSupportDesk?.());
  $('[data-control-more-cases]')?.addEventListener('click',()=>{caseLimit+=300;void renderDashboard();});
  const filter=$('#vatraControlReportFilter'),search=$('#vatraControlReportSearch');
