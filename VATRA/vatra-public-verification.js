@@ -92,6 +92,11 @@ function showApplication(selectedKind='choose',selectedGroup=''){
 }
 window.vatraOpenVerificationRequest=showApplication;
 function injectGroupBadges(){
+ document.querySelectorAll('.vatra-verified-badge').forEach(b=>{
+  const enabled=badgeIsInteractive(b);
+  b.tabIndex=enabled?0:-1;
+  if(enabled)b.setAttribute('role','link');else b.removeAttribute('role');
+ });
  document.querySelectorAll('[data-open-group]').forEach(el=>{
   const id=el.dataset.openGroup,found=el.querySelector('.vatra-verified-group-badge');
   if(!window.vatraVerifiedGroupIds.has(id)){found?.remove();return;}
