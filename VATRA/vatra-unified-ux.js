@@ -6,7 +6,7 @@ const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='pre
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentGallery=null,restoring=false,menu=null;
 const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Месенджер',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео'};
-const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
+const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
 window.vatraRouteChanged=i=>{
  if(!i?.page)return;
  const name=i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent:i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА';
@@ -16,10 +16,11 @@ window.vatraRouteChanged=i=>{
 };
 function backToRoute(){
  const r=window.vatraRouter;if(!r)return false;
- const profile=location.hash.match(/^#\/profile\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/settings)?$/);
+ const profile=location.hash.match(/^#\/profile\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/settings)?$/),post=location.hash.match(/^#post-(.+)$/);
  restoring=true;
  try{
-  if(profile){r.renderPublicProfile(decodeURIComponent(profile[1]));if(profile[2]){const b=$('[data-vatra-open-public-photos]');if(b)openGallery(b,true);}}
+  if(post){void r.openPost(decodeURIComponent(post[1]));}
+  else if(profile){r.renderPublicProfile(decodeURIComponent(profile[1]));if(profile[2]){const b=$('[data-vatra-open-public-photos]');if(b)openGallery(b,true);}}
   else if(group){const id=decodeURIComponent(group[1]);if(group[2])r.renderGroupSettings(id);else r.renderGroupDetails(id);}
   else if(location.hash.startsWith('#/'))r.goPage(decodeURIComponent(location.hash.substring(2))||'feed');
  }finally{restoring=false;}
@@ -27,7 +28,7 @@ function backToRoute(){
 }
 window.addEventListener('popstate',backToRoute);
 window.addEventListener('hashchange',backToRoute);
-if(location.hash.startsWith('#/')){let n=0;const timer=setInterval(()=>{if(backToRoute()||n++>22)clearInterval(timer);},400);}
+if(location.hash.startsWith('#/')||location.hash.startsWith('#post-')){let n=0;const original=location.hash;const timer=setInterval(()=>{if(backToRoute()||n++>22)clearInterval(timer);},400);setTimeout(()=>{if(location.hash===original)backToRoute();},2500);}
 function upgrade(){
  document.querySelectorAll('.vatra-post-photo-viewer,.vatra-avatar-viewer').forEach(d=>{
   d.querySelectorAll('.vatra-viewer-close,.vatra-avatar-viewer-close').forEach(b=>{if(b.dataset.unified)return;b.innerHTML=x;b.dataset.unified='1';});
@@ -60,6 +61,7 @@ function hashForTarget(el){
  const a=el.closest('[data-view-profile]');if(a)return route({page:'publicProfile',id:a.dataset.viewProfile});
  const g=el.closest('[data-open-group]');if(g)return route({page:'groups',id:g.dataset.openGroup});
  const m=el.closest('[data-manage-group]');if(m)return route({page:'communitySettings',id:m.dataset.manageGroup});
+ const post=el.closest('[data-open-photo],[data-share]');if(post)return route({page:'postDetail',id:post.dataset.openPhoto||post.dataset.share});
  const p=el.closest('[data-page]');if(p)return route({page:p.dataset.page});
  const ph=el.closest('[data-vatra-open-public-photos]');if(ph)return route({page:'publicPhotos',id:ph.dataset.vatraOpenPublicPhotos});
  return '';
