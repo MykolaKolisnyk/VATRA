@@ -72,6 +72,18 @@ alter table public.vatra_verification_admins enable row level security;
 revoke all on public.vatra_verification_admins from anon, authenticated;
 -- Never add an INSERT/UPDATE policy allowing users to make themselves admins.
 
+-- Used only to decide whether to display the admin verification panel.
+create or replace function public.vatra_is_verification_admin()
+returns boolean language sql stable security definer
+set search_path = '' set row_security = off
+as $fn$
+  select auth.uid() is not null and exists (
+    select 1 from public.vatra_verification_admins a where a.user_id = auth.uid()
+  );
+$fn$;
+revoke all on function public.vatra_is_verification_admin() from public, anon;
+grant execute on function public.vatra_is_verification_admin() to authenticated;
+
 create or replace function public.vatra_set_verification_by_handle(
   _handle text, _verified boolean default true
 )
