@@ -61,5 +61,5 @@ const adminGiftSrc=readFileSync('VATRA/vatra-admin-center.js','utf8');
 const adminGiftStart=adminGiftSrc.indexOf('function installGiftAdminEvents(){');
 const adminGiftEnd=adminGiftSrc.indexOf('async function renderDashboard(){',adminGiftStart);
 assert.ok(adminGiftStart>=0&&adminGiftEnd>adminGiftStart,'Gift admin handlers absent');
-assert.ok(!/\\balert\\s*\\(/.test(adminGiftSrc.slice(adminGiftStart,adminGiftEnd)),'Native alert in gift admin');
+assert.ok(!/\balert\s*\(/.test(adminGiftSrc.slice(adminGiftStart,adminGiftEnd)),'Native alert in gift admin');
 assert.ok(giftText.includes('let artSerial=0;'),'Each SVG gift requires a unique gradient id');
