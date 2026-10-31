@@ -12,22 +12,26 @@ const icons={
 };
 const statuses={open:'Нова',reviewing:'Розглядається',resolved:'Вирішена',dismissed:'Відхилена'};
 const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
-let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300;
+let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,rolePromise=null,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300;
 const signedUid=()=>auth.currentUser?.uid||null;
 const errorText=e=>String(e?.message||'Перевірте з’єднання й налаштування Supabase.');
 async function checkRole(force=false){
  const uid=signedUid();
  if(!uid){staffRole='';roleUid='';roleChecked=false;roleResult=false;return false;}
  if(!force&&roleChecked&&roleUid===uid)return roleResult;
- if(isRoleLoading)return false;
+ if(rolePromise)return rolePromise;
  isRoleLoading=true;
- try{
-  const {data,error}=await client.rpc('vatra_staff_role');
-  staffRole=error?'':String(data||'');roleResult=['owner','admin','moderator','support','verifier'].includes(staffRole);
-  roleUid=uid;roleChecked=true;
- }catch{roleUid=uid;roleChecked=true;roleResult=false;}
- finally{isRoleLoading=false;}
- return roleResult;
+ rolePromise=(async()=>{
+  try{
+   const {data,error}=await client.rpc('vatra_staff_role');
+   staffRole=error?'':String(data||'');
+   roleResult=['owner','admin','moderator','support','verifier'].includes(staffRole);
+   roleUid=uid;roleChecked=true;
+  }catch{roleUid=uid;roleChecked=true;roleResult=false;staffRole='';}
+  return roleResult;
+ })();
+ try{return await rolePromise;}
+ finally{rolePromise=null;isRoleLoading=false;}
 }
 async function rpc(name,args){
  const {data,error}=await client.rpc(name,args);
