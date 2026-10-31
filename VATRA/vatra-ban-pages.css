@@ -43,3 +43,19 @@ body .vatra-suspended-pending .vatra-suspended-support{margin-top:12px;cursor:po
 .vatra-avatar-restricted .vatra-restricted-avatar{background-image:none!important;background-color:#f4eef0!important;color:#be4b56!important;display:grid;place-items:center}
 .vatra-avatar-restricted .vatra-restricted-avatar svg{width:52%;height:52%;display:block}
 @media(max-width:650px){body .vatra-suspended-page{padding:32px 18px;min-height:310px}}
+
+/* A familiar social-profile layout: name and status on top, announcement below. */
+body .vatra-suspended-page:not(.vatra-suspended-pending){padding:0!important;min-height:365px!important;overflow:hidden;text-align:left!important}
+body .vatra-suspended-page .vatra-suspended-profile-head{border-bottom:1px solid #e4eaf3;padding:22px 30px 20px;text-align:left}
+body .vatra-suspended-profile-head .vatra-suspended-person{margin:0 0 3px!important;font-size:19px!important;line-height:1.35}
+body .vatra-suspended-profile-subtitle{margin:0;color:#8899af;font-size:12px;font-weight:500}
+body .vatra-suspended-content{margin:28px 30px 8px;padding:19px 24px 25px;background:#f9fbff;border:1px solid #e5ecf6;border-radius:13px;text-align:center}
+body .vatra-suspended-content .vatra-suspended-logo{width:55px;height:55px;margin:0 auto 14px}
+body .vatra-suspended-content .vatra-suspended-logo svg{width:28px;height:28px}
+body .vatra-suspended-content h1{font-size:clamp(20px,2.1vw,25px)!important;line-height:1.34}
+body .vatra-suspended-content .vatra-suspended-description{margin:9px auto 0}
+body .vatra-suspended-page .vatra-suspended-details{margin:18px 30px 0;max-width:none}
+body .vatra-suspended-page .vatra-suspended-actions{margin:21px 30px 30px}
+body .vatra-suspended-own-screen .vatra-suspended-page{width:min(730px,100%)!important}
+.vatra-avatar-restricted:has(.vatra-restricted-avatar svg circle) .vatra-restricted-avatar{background-color:#eff2f7!important;color:#77879d!important}
+@media(max-width:650px){body .vatra-suspended-page .vatra-suspended-profile-head{padding:18px 17px}body .vatra-suspended-content{margin:17px 14px;padding:20px 14px}body .vatra-suspended-page .vatra-suspended-details{margin:14px 14px 0}body .vatra-suspended-page .vatra-suspended-actions{margin:18px 14px 22px}}

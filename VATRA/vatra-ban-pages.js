@@ -34,10 +34,10 @@ function html(kind,id,d,name,handle,own=false){
   '<div><dt>'+(deleted?'Видалення':'Термін')+'</dt><dd>'+(deleted?(d.pending?'Заплановано до '+fmt(d.deleteAfter):'Остаточно видалено'):(d.permanent?'Безстроково':d.expiresAt?'До '+fmt(d.expiresAt):'Не вказано'))+'</dd></div></dl>':'';
  const description=deleted?(own&&d.pending?'Ваш акаунт заплановано до видалення. Ви можете скасувати це в налаштуваннях до завершення строку.':'Користувач видалив свою сторінку у ВАТРІ.'):own?'Адміністрація ВАТРИ обмежила доступ до Вашого акаунта. Нижче наведено рішення.':'Ця сторінка тимчасово недоступна. Профіль залишається у пошуку та списках друзів.';
  return '<section class="vatra-suspended-page '+(deleted?'is-deleted':'is-blocked')+'" data-vatra-ban-page="'+escape(id)+'" aria-label="'+escape(title)+'">'+
- '<div class="vatra-suspended-logo">'+icon+'</div><p class="vatra-suspended-overline">'+(deleted?'СТАТУС СТОРІНКИ':'ОФІЦІЙНЕ РІШЕННЯ ВАТРИ')+'</p>'+
- '<h1>'+title+'</h1><p class="vatra-suspended-person">'+escape(name||(community?'Спільнота ВАТРИ':'Користувач ВАТРИ'))+
- (handle?' <small>@'+escape(handle.replace(/^@/,''))+'</small>':'')+'</p>'+
- '<p class="vatra-suspended-description">'+description+'</p>'+detail+
+ '<header class="vatra-suspended-profile-head"><p class="vatra-suspended-person">'+escape(name||(community?'Спільнота ВАТРИ':'Користувач ВАТРИ'))+
+ (handle?' <small>@'+escape(handle.replace(/^@/,''))+'</small>':'')+'</p><p class="vatra-suspended-profile-subtitle">'+(deleted?'Сторінку видалено':community?'Спільноту заблоковано':'Акаунт заблоковано')+'</p></header>'+
+ '<div class="vatra-suspended-content"><div class="vatra-suspended-logo">'+icon+'</div><p class="vatra-suspended-overline">'+(deleted?'СТАТУС СТОРІНКИ':'ОФІЦІЙНЕ РІШЕННЯ ВАТРИ')+'</p>'+
+ '<h1>'+title+'</h1><p class="vatra-suspended-description">'+description+'</p></div>'+detail+
  '<div class="vatra-suspended-actions">'+(own&&deleted&&d.pending?'<button class="vatra-suspended-support" type="button" data-vatra-restore>Керувати видаленням</button>':!deleted?'<button class="vatra-suspended-support" type="button" data-vatra-ban-support>Звернутися до техпідтримки</button>':'')+
  (!own?'<button class="vatra-suspended-back" type="button" data-vatra-ban-back>Назад</button>':'')+'</div></section>';
 }
@@ -122,7 +122,8 @@ window.addEventListener('hashchange',()=>{const shell=document.querySelector('#v
 
 setInterval(()=>{const el=document.querySelector('#vatraSuspendedOwnScreen');if(el)el.hidden=location.hash==='#/support'||(el.querySelector('.is-deleted')&&location.hash==='#/settings');},950);
 
-const stateIcon='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l9 4v6c0 5-3.2 8.4-9 10-5.8-1.6-9-5-9-10V6z"/><path d="M12 7v6m0 3h.01"/></svg>';
+const blockedStateIcon='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l9 4v6c0 5-3.2 8.4-9 10-5.8-1.6-9-5-9-10V6z"/><path d="M12 7v6m0 3h.01"/></svg>';
+const deletedStateIcon='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3-7 8-7s8 2.5 8 7M3 3l18 18"/></svg>';
 let listScanTimer=0;
 function scanListAvatars(){
  const feed=document.getElementById('feed');if(!feed)return;
@@ -137,7 +138,7 @@ function scanListAvatars(){
    if(!isBlocked(state))return;
    avatar.removeAttribute('style');
    avatar.classList.add('vatra-restricted-avatar');
-   avatar.innerHTML=stateIcon;
+   avatar.innerHTML=state.deleted?deletedStateIcon:blockedStateIcon;
    el.classList.add('vatra-avatar-restricted');
    el.title=state.deleted?'Сторінку видалено':'Акаунт заблоковано ВАТРОЮ';
   };
