@@ -12,7 +12,7 @@ const icons={
 };
 const statuses={open:'Нова',reviewing:'Розглядається',resolved:'Вирішена',dismissed:'Відхилена'};
 const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
-let roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0;
+let roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300;
 const signedUid=()=>auth.currentUser?.uid||null;
 const errorText=e=>String(e?.message||'Перевірте з’єднання й налаштування Supabase.');
 async function checkRole(force=false){
@@ -114,7 +114,7 @@ function casesMarkup(rows){
  '<button type="button" class="vatra-control-secondary" data-open-case="'+c.id+'">Розглянути та відповісти</button></article>').join('');
  return '<section class="vatra-control-card"><h3>Черга скарг <small>'+rows.length+'</small></h3>'+
  reportFilters()+'<div class="vatra-control-report-list">'+(list||'<p class="vatra-control-muted">Немає скарг.</p>')+'</div>'+
- '<p id="vatraControlReportEmpty" class="vatra-control-muted" hidden>За фільтрами скарг немає.</p></section>';
+ '<p id="vatraControlReportEmpty" class="vatra-control-muted" hidden>За фільтрами скарг немає.</p>'+(rows.length>=caseLimit?'<button type="button" class="vatra-control-secondary" data-control-more-cases>Завантажити ще 300 скарг</button>':'')+'</section>';
 }
 function caseJumpLink(c){
  const type=String(c.target_type||''),target=String(c.target_id||'');
@@ -157,7 +157,7 @@ async function renderDashboard(){
  show(navbar()+'<div class="vatra-control-loading" role="status">Завантажуємо панель керування…</div>','Адмінпанель ВАТРИ','adminCenter');
  try{
   const [cases,accounts,groups,audit]=await Promise.all([
-   getRows('vatra_moderation_cases',300),getRows('vatra_moderation_account_bans',150),
+   getRows('vatra_moderation_cases',caseLimit),getRows('vatra_moderation_account_bans',150),
    getRows('vatra_moderation_group_bans',150),getRows('vatra_moderation_audit',100)
   ]);
   if(token!==loadingToken||document.body.dataset.page!=='adminCenter')return;
@@ -180,6 +180,7 @@ function installTabs(){
 }
 function installEvents(data){
  installTabs();
+ $('[data-control-more-cases]')?.addEventListener('click',()=>{caseLimit+=300;void renderDashboard();});
  const filter=$('#vatraControlReportFilter'),search=$('#vatraControlReportSearch');
  function filterCases(){
   let count=0;
