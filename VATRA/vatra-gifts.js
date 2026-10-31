@@ -54,7 +54,7 @@ function view(){
   '<div class="vatra-gift-send" id="vatraGiftSend" hidden><div><h2>Подарувати другу</h2><p>Після надсилання подарунок зникне з Вашої колекції та з’явиться в отримувача.</p></div><label>Одержувач<select data-vatra-gift-recipient><option value="">Оберіть друга</option>'+opts+'</select></label><div class="vatra-gift-send-actions"><button type="button" data-vatra-gift-cancel>Скасувати</button><button type="button" class="vatra-gift-primary" data-vatra-gift-confirm>Надіслати</button></div></div></section>';
 }
 async function show(uid){
- const gen=++opened;showing=false;networkReady=false;notice='';
+ const gen=++opened;showing=false;networkReady=false;
  const box=document.querySelector('#feed');if(!box||document.body.dataset.page!=='gifts')return;
  box.innerHTML='<section class="vatra-gifts-page vatra-gift-loading"><h1>Подарунки</h1><p>Завантаження колекції…</p></section>';
  if(!uid){box.innerHTML='<section class="vatra-gifts-page"><h1>Подарунки</h1><p>Увійдіть до ВАТРИ, щоб переглядати й дарувати подарунки.</p></section>';return;}

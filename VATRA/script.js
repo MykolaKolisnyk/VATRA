@@ -238,7 +238,19 @@ function maybeRepairAcceptedFriendships(){
 function markInitialLoaded(key){initialLoaded.add(key);if(['publicProfiles','users','posts','friends','groups'].every(k=>initialLoaded.has(k))&&!initialDataReady){initialDataReady=true;render();}}
 function listenData(){stopListeners();if(!currentUser)return;vatraSoundSources.clear();vatraSoundKnown.clear();vatraSoundPrimed=false;vatraSoundOpenedAt=Date.now();initialLoaded=new Set();initialDataReady=false;vatraPageDataReady={saved:false,friends:false,messages:false};friendsLoaded=false;friendRequestsLoaded=false;lastFriendRepairSignature='';renderLoadingSkeletons();window.setTimeout(()=>{if(!initialDataReady){initialDataReady=true;render();toastMsg('Деякі дані ще не завантажилися. Перевірте з’єднання й доступ до таблиці app_data в Supabase.');}},6500);
  unsubscribers.push(watch('verifiedUsers',v=>{verifiedUsers=v||{};if(['feed','profile','publicProfile','friends','explore','groups','notifications','messages','communityMembers'].includes(page))render();}));
- unsubscribers.push(watch('publicProfiles',v=>{users=v;markInitialLoaded('publicProfiles');updateIdentity();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page!=='settings'||!$('#profileSettingsForm'))render();}));
+ unsubscribers.push(watch('publicProfiles',v=>{
+ const old=users;
+ users=v||{};markInitialLoaded('publicProfiles');updateIdentity();
+ // The online heartbeat updates only isOnline/lastSeenAt. Do not rebuild the
+ // entire page, close menus, and reset scrolling every time someone pings.
+ const withoutPresence=obj=>JSON.stringify(Object.entries(obj||{}).map(([id,person])=>{
+  const copy={...(person||{})};delete copy.isOnline;delete copy.lastSeenAt;
+  return [id,copy];
+ }));
+ if(withoutPresence(old)===withoutPresence(users))return;
+ if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);
+ else if(page!=='settings'||!$('#profileSettingsForm'))render();
+}));
  unsubscribers.push(watch('friendProfiles',v=>{friendProfiles=v||{};if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);}));
  unsubscribers.push(watch(`users/${currentUser.uid}`,v=>{markInitialLoaded('users');const profile=v||{};currentProfile={...profile,privateSections:privateProfileSections,dateOfBirth:privateDateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone,lastSeenAt:Number(users[currentUser.uid]?.lastSeenAt)||Number(profile.lastSeenAt)||0,isOnline:users[currentUser.uid]?.isOnline===true};updateIdentity();if(!vatraSettingsSaving){const publicData=publicProfileData(currentProfile);if(JSON.stringify(users[currentUser.uid]||{})!==JSON.stringify(publicData))set(ref(db,`publicProfiles/${currentUser.uid}`),publicData).catch(err=>console.warn('Profile sync failed:',err));const friendData=friendProfileData(currentProfile);if(JSON.stringify(friendProfiles[currentUser.uid]||{})!==JSON.stringify(friendData))set(ref(db,`friendProfiles/${currentUser.uid}`),friendData).catch(err=>console.warn('Friend profile sync failed:',err));}if(page==='profile'||(page==='settings'&&!$('#profileSettingsForm')))render();else renderGettingStarted();}));
  unsubscribers.push(watch('posts',v=>{posts=v;markInitialLoaded('posts');if(['feed','saved','profile','notifications','explore','myVideos'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postLikes',v=>{likes=v;vatraSoundSourceLoaded('postLikes');if(['feed','saved','profile','notifications','explore','groups'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postSaves',v=>{postSaves=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('postShares',v=>{postShares=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('comments',v=>{comments=v;vatraSoundSourceLoaded('comments');if(['feed','saved','profile','notifications','explore','groups'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('pollVotes',v=>{pollVotes=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));
@@ -284,7 +296,7 @@ function startPresence(){
  updatePresence(true);vatraAccountActivity();
  presenceHeartbeat=window.setInterval(()=>{
   if(document.visibilityState==='visible'){updatePresence(true);vatraAccountActivity();}
- },45000);
+ },90000);
 }
 window.addEventListener('pagehide',()=>{if(currentUser)updatePresence(false);});
 document.addEventListener('visibilitychange',()=>{if(currentUser)updatePresence(document.visibilityState==='visible');});
@@ -2147,6 +2159,7 @@ function vatraSetupScrollUp(){
 }
 vatraSetupScrollUp();
 function render(){if(!feed)return;
+ if(document.activeElement?.matches?.('#feed input,#feed textarea,#feed select,[contenteditable="true"]'))return;
  const externalRoute={adminCenter:'#/admin',myReports:'#/my-reports',supportDesk:'#/support',verificationGuide:'#/verification'}[document.body.dataset.page];
  if(externalRoute&&location.hash===externalRoute)return;
  document.body.dataset.page=page;if(page==='explore'&&document.activeElement?.closest('#vatraSearchForm'))return;if(currentUser&&(!initialDataReady||(page==='saved'&&!vatraPageDataReady.saved)||(page==='friends'&&!vatraPageDataReady.friends)||(page==='messages'&&!vatraPageDataReady.messages))){renderLoadingSkeletons();return;}renderGettingStarted();if(page==='music')return vatraShowMusic(currentUser?.uid);if(page==='notifications')return renderNotifications();if(page==='saved')return renderSaved();if(page==='settings')return renderSettings();if(page==='groupSettings')return renderGroupSettings(groupId);if(page==='friends')return renderFriends();if(page==='gifts'){setFeed('<section class="vatra-gifts-page">Завантаження подарунків…</section>');void window.vatraRenderGifts?.(currentUser?.uid);return;}if(page==='publicProfile')return; if(page==='myVideos')return renderMyVideos();if(page==='videos')return renderVideos();if(page==='photos')return renderPhotos();if(page==='groups')return groupId&&groups[groupId]?renderGroupDetails(groupId):renderGroups();if(page==='messages')return renderMessages();if(page==='explore')return renderExplore();if(page==='profile')return renderProfile();renderFeed();}
