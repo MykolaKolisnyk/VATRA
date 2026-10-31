@@ -5,8 +5,8 @@ const x='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 
 const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='prev'?'m15 5-7 7 7 7':'m9 5 7 7-7 7')+'" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentGallery=null,restoring=false,menu=null;
-const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Месенджер',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги'};
-const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
+const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Месенджер',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги',supportDesk:'Техпідтримка'};
+const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
 window.vatraRouteChanged=i=>{
  if(!i?.page)return;
  const name=i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent:i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА';
@@ -22,6 +22,7 @@ function backToRoute(){
   if(location.hash==='#/verification'){window.vatraVerificationGuide?.(true);}
   else if(location.hash==='#/admin'){void window.vatraOpenAdminCenter?.();}
   else if(location.hash==='#/my-reports'){void window.vatraOpenMyReports?.();}
+  else if(location.hash==='#/support'){void window.vatraOpenSupportDesk?.();}
   else if(post){void r.openPost(decodeURIComponent(post[1]));}
   else if(profile){r.renderPublicProfile(decodeURIComponent(profile[1]));if(profile[2]){const b=$('[data-vatra-open-public-photos]');if(b)openGallery(b,true);}}
   else if(group){const id=decodeURIComponent(group[1]);if(group[2]==='/settings')r.renderGroupSettings(id);else if(group[2]==='/members')r.renderGroupMembersPage(id);else r.renderGroupDetails(id);}
