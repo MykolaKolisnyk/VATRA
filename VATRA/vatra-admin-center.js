@@ -12,18 +12,18 @@ const icons={
 };
 const statuses={open:'Нова',reviewing:'Розглядається',resolved:'Вирішена',dismissed:'Відхилена'};
 const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
-let roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300;
+let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300;
 const signedUid=()=>auth.currentUser?.uid||null;
 const errorText=e=>String(e?.message||'Перевірте з’єднання й налаштування Supabase.');
 async function checkRole(force=false){
  const uid=signedUid();
- if(!uid){roleUid='';roleChecked=false;roleResult=false;return false;}
+ if(!uid){staffRole='';roleUid='';roleChecked=false;roleResult=false;return false;}
  if(!force&&roleChecked&&roleUid===uid)return roleResult;
  if(isRoleLoading)return false;
  isRoleLoading=true;
  try{
-  const {data,error}=await client.rpc('vatra_is_verification_admin');
-  roleResult=!error&&data===true;
+  const {data,error}=await client.rpc('vatra_staff_role');
+  staffRole=error?'':String(data||'');roleResult=['owner','admin','moderator','support','verifier'].includes(staffRole);
   roleUid=uid;roleChecked=true;
  }catch{roleUid=uid;roleChecked=true;roleResult=false;}
  finally{isRoleLoading=false;}
@@ -69,7 +69,7 @@ function askAction(label,detail,{danger=false}={}){
 }
 function navbar(){
  return '<nav class="vatra-control-tabs" aria-label="Розділи адмінпанелі">'+
- [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['content','Контент'],['verification','Верифікація'],['audit','Журнал']].map(([key,label])=>
+ [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['content','Контент'],['verification','Галочки'],['requests','Заявки'],['team','Команда'],['audit','Журнал']].filter(([key])=>staffRole==='owner'||(staffRole==='admin'?key!=='team':staffRole==='moderator'?['reports','content'].includes(key):staffRole==='support'?key==='reports':staffRole==='verifier'?['verification','requests'].includes(key):false)).map(([key,label])=>
   '<button type="button" data-control-tab="'+key+'" class="'+(activeTab===key?'is-active':'')+'">'+label+(key==='reports'&&queueCount?'<span>'+queueCount+'</span>':'')+'</button>').join('')+'</nav>';
 }
 function activityStats(cases,accounts,groups){
@@ -176,12 +176,16 @@ async function getRows(table,limit=300,orderBy='created_at'){
 }
 async function renderDashboard(){
  if(!(await checkRole()))return;
+ const tabs=staffRole==='owner'?['reports','accounts','communities','content','verification','requests','team','audit']:staffRole==='admin'?['reports','accounts','communities','content','verification','requests','audit']:staffRole==='moderator'?['reports','content']:staffRole==='support'?['reports']:['verification','requests'];
+ if(!tabs.includes(activeTab))activeTab=tabs[0];
  const token=++loadingToken;
  show(navbar()+'<div class="vatra-control-loading" role="status">Завантажуємо панель керування…</div>','Адмінпанель ВАТРИ','adminCenter');
  try{
-  const [cases,accounts,groups,audit,hidden]=await Promise.all([
+  const [cases,accounts,groups,audit,hidden,requests,team]=await Promise.all([
    getRows('vatra_moderation_cases',caseLimit),getRows('vatra_moderation_account_bans',150),
-   getRows('vatra_moderation_group_bans',150),getRows('vatra_moderation_audit',100),getRows('vatra_moderation_hidden_content',150,'updated_at')
+   getRows('vatra_moderation_group_bans',150),getRows('vatra_moderation_audit',100),getRows('vatra_moderation_hidden_content',150,'updated_at'),
+   tabs.includes('requests')?getRows('vatra_verification_requests',300):Promise.resolve([]),
+   staffRole==='owner'?getRows('vatra_staff_members',300,'appointed_at'):Promise.resolve([])
   ]);
   if(token!==loadingToken||document.body.dataset.page!=='adminCenter')return;
   const stat=activityStats(cases,accounts,groups);
@@ -189,10 +193,12 @@ async function renderDashboard(){
    :activeTab==='accounts'?banForm('accounts',accounts)
    :activeTab==='communities'?banForm('communities',groups)
    :activeTab==='content'?contentForm(hidden)
-   :activeTab==='verification'?verificationForm()
+   :activeTab==='verification'?verificationForm()+(window.vatraAdminExtras?.groupForm?.()||'')
+   :activeTab==='requests'?(window.vatraAdminExtras?.requests?.(requests)||'')
+   :activeTab==='team'?(window.vatraAdminExtras?.team?.(team)||'')
    :auditMarkup(audit);
   show(navbar()+stat+content,'Адмінпанель ВАТРИ','adminCenter');
-  installEvents({cases,accounts,groups,audit,hidden});
+  installEvents({cases,accounts,groups,audit,hidden,requests,team});
  }catch(error){
   if(token!==loadingToken)return;
   show(navbar()+'<section class="vatra-control-card"><h3>Потрібне налаштування Supabase</h3><p>Панель відкривається лише після запуску <code>VATRA/vatra-moderation-center.sql</code> у SQL Editor. Також перевірте право адміністратора.</p><p class="vatra-control-error">'+esc(errorText(error))+'</p></section>','Адмінпанель ВАТРИ','adminCenter');
@@ -204,6 +210,7 @@ function installTabs(){
 }
 function installEvents(data){
  installTabs();
+ window.vatraAdminExtras?.install?.(data,()=>void renderDashboard(),askAction,rpc,toastInline);
  $('[data-control-more-cases]')?.addEventListener('click',()=>{caseLimit+=300;void renderDashboard();});
  const filter=$('#vatraControlReportFilter'),search=$('#vatraControlReportSearch');
  function filterCases(){
@@ -344,7 +351,7 @@ void installSettingsLinks();
 // A compact count on the bell lets an admin notice new reports without opening settings.
 // Poll while the site is open; it does not rely on push or background monitoring.
 async function checkQueue(){
- if(!signedUid()||!(await checkRole()))return;
+ if(!signedUid()||!(await checkRole())||!['owner','admin','moderator','support'].includes(staffRole))return;
  const {count,error}=await client.from('vatra_moderation_cases').select('id',{count:'exact',head:true}).eq('status','open');
  if(error)return;
  const bell=$('#notificationBell');if(!bell)return;
