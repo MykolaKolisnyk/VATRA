@@ -83,11 +83,11 @@ function currentAuthContact(){
 async function finishRegistration({user,contact,isPhone,dob,first,last,name}){
  const uid=user?.uid||user?.id;
  if(!uid)throw new Error('Supabase не повернув ідентифікатор нового акаунта. Перевір Authentication → Providers.');
- const handle=(first+'.'+last).toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,24);
+ const handle=(first+'.'+last).toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,15)+'-'+uid.replace(/-/g,'').slice(0,8);
  const createdAt=Date.now();
  const profile={firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',coverUrl:'',city:'',location:'',phone:isPhone?contact:'',phoneVisibility:'private',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt};
- await set(ref(db,'users/'+uid),profile);
  await set(ref(db,'publicProfiles/'+uid),{firstName:first,lastName:last,name,handle,bio:'',avatarUrl:'',coverUrl:'',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt,updatedAt:createdAt});
+ await set(ref(db,'users/'+uid),profile);
  await set(ref(db,'privateUsers/'+uid),{dateOfBirth:dob,phone:isPhone?contact:null,updatedAt:Date.now()});
 
  location.replace('index.html');
