@@ -340,21 +340,31 @@ create policy app_data_delete on public.app_data for delete to authenticated
 
 -- Moderators may remove posts from the communities they manage, while
 -- ordinary members may remove only their own posts under existing RLS.
+create or replace function public.vatra_data_is_group_manager(_group_id text, _viewer_uid uuid)
+returns boolean language sql stable security definer
+set search_path = '' set row_security = off
+as $vatra$
+  select _viewer_uid is not null
+    and (
+      public.vatra_data_is_group_owner(_group_id, _viewer_uid)
+      or exists (
+        select 1 from public.app_data r
+        where r.path in (
+          'groupAdmins/' || _group_id || '/' || _viewer_uid::text,
+          'groupModerators/' || _group_id || '/' || _viewer_uid::text
+        )
+        and r.value = 'true'::jsonb
+      )
+    );
+$vatra$;
+grant execute on function public.vatra_data_is_group_manager(text, uuid) to authenticated;
+
 drop policy if exists app_data_delete_group_managers on public.app_data;
 create policy app_data_delete_group_managers on public.app_data
 for delete to authenticated
 using (
  path ~ '^groupPosts/[^/]+/[^/]+$'
- and (
-   public.vatra_data_is_group_owner(split_part(path, '/', 2), (select auth.uid()))
-   or exists (
-     select 1 from public.app_data role
-     where role.path in (
-       'groupAdmins/' || split_part(path, '/', 2) || '/' || (select auth.uid())::text,
-       'groupModerators/' || split_part(path, '/', 2) || '/' || (select auth.uid())::text
-     ) and role.value = 'true'::jsonb
-   )
- )
+ and public.vatra_data_is_group_manager(split_part(path, '/', 2), (select auth.uid()))
 );
 
 -- Narrow post policies provide an explicit owner check for publishing, editing,
