@@ -37,6 +37,8 @@ document.addEventListener('close',event=>{
  const dialog=event.target;
  if(!dialog.matches?.('.vatra-avatar-viewer,.vatra-post-photo-viewer,.vatra-group-photo-dialog'))return;
  document.body.classList.add('vatra-photo-menu-suppressed');
+ setTimeout(()=>{if(!document.querySelector('#vatraAvatarWrap:hover,.vatra-avatar-hover-wrap:hover'))document.body.classList.remove('vatra-photo-menu-suppressed');},120);
+ document.querySelectorAll('.vatra-verified-tooltip').forEach(el=>el.remove());
  document.querySelectorAll('#vatraAvatarWrap,.vatra-avatar-hover-wrap').forEach(wrap=>{
   wrap.classList.remove('is-open','menu-open','active');
   wrap.querySelector('[data-avatar-menu-toggle]')?.setAttribute('aria-expanded','false');
