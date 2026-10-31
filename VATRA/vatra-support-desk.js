@@ -6,7 +6,7 @@ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const time=x=>{const d=new Date(x);return isNaN(d.getTime())?'—':d.toLocaleString('uk-UA',{dateStyle:'medium',timeStyle:'short'});};
 const icons={head:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H2v5h5v-5H4Zm16 0h2v5h-5v-5h3ZM20 18a4 4 0 0 1-4 4h-4"/></svg>',
 back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5-7 7 7 7"/></svg>'};
-let role='',ownerUid='',selected=null,tickets=[],refreshing=false,timer=null,renderToken=0,lastMessageId=0,activePanel='user';
+let role='',ownerUid='',selected=null,tickets=[],refreshing=false,timer=null,renderToken=0,lastMessageId=0,activePanel='user',lastSignedUid='';
 async function getRole(){const {data,error}=await db.rpc('vatra_staff_role');role=error?'':String(data||'');return role;}
 async function invoke(method,args){const {data,error}=await db.rpc(method,args);if(error)throw error;return data;}
 function current(){return auth.currentUser?.uid||'';}
@@ -58,7 +58,7 @@ async function loadTickets(){
   if(oldSelection&&!tickets.some(t=>t.id===oldSelection)){
    selected=null;if(!focused){const c=$('#vatraSupportConversation');if(c)c.innerHTML=info('Це звернення більше не доступне.');}
   }
-  if(selected&&!focused)await loadMessages(selected,true);
+  if(selected)await loadMessages(selected,true);
  }catch(e){
   if(inside()){const list=$('.vatra-support-list-items');if(list&&!tickets.length)list.innerHTML=info('Не вдалося завантажити звернення. Переконайтеся, що встановлено SQL-модуль техпідтримки. '+e.message);}
  }finally{refreshing=false;}
@@ -134,6 +134,7 @@ async function loadMessages(id,quiet=false){
 }
 async function openSupport(){
  if(!current())return;
+ if(lastSignedUid!==current()){tickets=[];lastSignedUid=current();}
  const token=++renderToken;selected=null;await getRole();if(token!==renderToken)return;
  show(renderInbox());
  document.querySelectorAll('[data-support-new]').forEach(b=>b.onclick=showNewTicket);
