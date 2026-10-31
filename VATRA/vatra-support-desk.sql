@@ -183,4 +183,10 @@ begin
 end $view$;
 revoke all on function public.vatra_support_staff_view(bigint) from public,anon;
 grant execute on function public.vatra_support_staff_view(bigint) to authenticated;
+-- Only the owner may inspect the complete staff audit log; it contains
+-- the text of official support answers and must never leak between employees.
+drop policy if exists vatra_mod_audit_read on public.vatra_moderation_audit;
+create policy vatra_mod_audit_read on public.vatra_moderation_audit
+for select to authenticated using(public.vatra_staff_role()='owner');
+
 commit;
