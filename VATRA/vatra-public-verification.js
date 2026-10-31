@@ -5,6 +5,11 @@ const mark='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l
 window.vatraVerifiedGroupIds=new Set();window.vatraTrustedNotices=[];
 window.vatraGroupBadge=id=>window.vatraVerifiedGroupIds.has(String(id))?'<span class="vatra-verified-badge vatra-verified-group-badge" data-vatra-verification-kind="community" tabindex="0" role="link">'+mark+'</span>':'';
 let tooltip=null,hideTimer=null,queued=false,lastUid='',lastCheck=0;
+function badgeIsInteractive(b){
+ if(!b)return false;
+ if(b.dataset.vatraVerificationKind==='community')return !!b.closest('.vatra-group-heading-copy');
+ return !!b.closest('.vatra-profile-name-line,.profile-panel');
+}
 function showTip(el){
  tooltip?.remove();tooltip=document.createElement('div');tooltip.className='vatra-verified-tooltip';
  tooltip.innerHTML='<strong>'+(el.dataset.vatraVerificationKind==='community'?'Спільнота':'Користувач')+' офіційно підтверджен'+(el.dataset.vatraVerificationKind==='community'?'а':'ий')+' ВАТРОЮ</strong><button type="button" data-vatra-how-verified>Як отримати офіційну галочку?</button>';
@@ -16,14 +21,14 @@ function showTip(el){
 function delayHide(){clearTimeout(hideTimer);hideTimer=setTimeout(()=>{tooltip?.remove();tooltip=null;},320);}
 document.addEventListener('mouseover',e=>{
  const b=e.target.closest('.vatra-verified-badge');
- if(b){clearTimeout(hideTimer);if(!tooltip||window.vatraBadgeHover!==b){window.vatraBadgeHover=b;showTip(b);}}
+ if(b&&badgeIsInteractive(b)){clearTimeout(hideTimer);if(!tooltip||window.vatraBadgeHover!==b){window.vatraBadgeHover=b;showTip(b);}}
  else if(!e.target.closest('.vatra-verified-tooltip')){window.vatraBadgeHover=null;delayHide();}
 },true);
 document.addEventListener('click',e=>{
  const b=e.target.closest('.vatra-verified-badge,[data-vatra-how-verified]');
- if(!b)return;e.preventDefault();e.stopImmediatePropagation();tooltip?.remove();document.querySelectorAll('.vatra-post-photo-viewer[open],.vatra-avatar-viewer[open]').forEach(d=>d.close());showGuide();
+ if(!b||(b.matches('.vatra-verified-badge')&&!badgeIsInteractive(b)))return;e.preventDefault();e.stopImmediatePropagation();tooltip?.remove();document.querySelectorAll('.vatra-post-photo-viewer[open],.vatra-avatar-viewer[open]').forEach(d=>d.close());showGuide();
 },true);
-document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.vatra-verified-badge')){e.preventDefault();e.stopPropagation();showGuide();}},true);
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&badgeIsInteractive(e.target.closest('.vatra-verified-badge'))){e.preventDefault();e.stopPropagation();showGuide();}},true);
 function closeBtn(){return '<button type="button" data-verification-close aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M5 5 19 19M19 5 5 19"/></svg></button>';}
 function showGuide(fromHistory=false){
  const feed=document.querySelector('#feed');if(!feed)return;
@@ -51,7 +56,7 @@ function showGuide(fromHistory=false){
  window.scrollTo(0,0);
 }
 window.vatraVerificationGuide=showGuide;
-function showApplication(selectedKind='account',selectedGroup=''){
+function showApplication(selectedKind='choose',selectedGroup=''){
  if(!auth.currentUser){window.vatraRouter?.goPage('settings');return;}
  const d=document.createElement('dialog');d.className='vatra-verification-dialog';
  d.innerHTML='<header><div><p>ВАТРА · ЗАЯВКА</p><h2>Отримати офіційну галочку</h2></div>'+closeBtn()+'</header>'+
@@ -64,7 +69,10 @@ function showApplication(selectedKind='account',selectedGroup=''){
  document.body.append(d);d.showModal();d.addEventListener('close',()=>d.remove());
  d.querySelectorAll('[data-verification-close]').forEach(b=>b.onclick=()=>d.close());
  const f=d.querySelector('form');f.elements.kind.onchange=()=>{d.querySelector('[data-community-id]').hidden=f.elements.kind.value!=='community';};
- if(selectedKind==='community'){f.elements.kind.value='community';f.elements.group.value=selectedGroup;f.elements.kind.onchange();}
+ if(selectedKind==='community'||selectedKind==='account'){
+ f.elements.kind.value=selectedKind;f.elements.group.value=selectedGroup;f.elements.kind.onchange();
+ f.elements.kind.closest('label').hidden=true;
+}
  const groupInput=f.elements.group;groupInput.setAttribute('list','vatraOwnedCommunityOptions');
  const list=document.createElement('datalist');list.id='vatraOwnedCommunityOptions';groupInput.after(list);
  void db.from('app_data').select('path,value').like('path','groups/%').limit(800).then(({data,error})=>{
@@ -103,16 +111,32 @@ function injectGroupBadges(){
 function installSettings(){
  const nav=document.querySelector('.vatra-settings-nav'),form=document.querySelector('#profileSettingsForm');
  if(!nav||!form||document.body.dataset.page!=='settings')return;
+ let pane=form.querySelector('#vatraVerificationPane');
+ if(!pane){
+  pane=document.createElement('section');pane.id='vatraVerificationPane';pane.className='vatra-settings-pane';
+  pane.dataset.settingsSection='verification';pane.hidden=true;
+  const save=form.querySelector('.settings-savebar');
+  if(save)save.before(pane);else form.append(pane);
+  pane.innerHTML='<section class="settings-card vatra-public-verification-card">'+
+   '<h3>Верифікація акаунта</h3><p>Подайте заявку на підтвердження Вашого акаунта. Статус заявок і відповіді ВАТРИ надходитимуть у сповіщення.</p>'+
+   '<div><button type="button" data-vatra-apply-account>Подати заявку</button>'+
+   '<button type="button" data-vatra-how-verified>Умови верифікації</button></div></section>';
+  pane.querySelector('[data-vatra-apply-account]').onclick=()=>showApplication('account');
+  nav.addEventListener('click',event=>{
+   if(event.target.closest('[data-settings-target]')){pane.hidden=true;nav.querySelector('[data-vatra-verification-request]')?.classList.remove('active');}
+  });
+ }
+ const misplaced=form.querySelector('#vatraVerificationCard');
+ misplaced?.remove();
  if(!nav.querySelector('[data-vatra-verification-request]')){
   const button=document.createElement('button');button.className='vatra-settings-nav-button';button.type='button';
-  button.dataset.vatraVerificationRequest='1';button.textContent='Верифікація';
-  button.onclick=showApplication;nav.append(button);
- }
- if(!form.querySelector('#vatraVerificationCard')){
-  const card=document.createElement('section');card.id='vatraVerificationCard';card.className='settings-card vatra-public-verification-card';
-  card.innerHTML='<h3>Верифікація акаунта або спільноти</h3><p>Подайте заявку до адміністрації ВАТРИ та відстежуйте результат у сповіщеннях.</p><div><button type="button" data-vatra-verification-request-form>Подати заявку</button> <button type="button" data-vatra-how-verified>Як отримати галочку?</button></div>';
-  const bar=form.querySelector('.settings-savebar');if(bar)bar.before(card);else form.append(card);
-  card.querySelector('[data-vatra-verification-request-form]').onclick=showApplication;
+  button.dataset.vatraVerificationRequest='1';button.textContent='Верифікація акаунта';
+  button.onclick=()=>{
+   form.querySelectorAll('.vatra-settings-pane').forEach(section=>section.hidden=true);
+   nav.querySelectorAll('.vatra-settings-nav-button').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-current','false');});
+   pane.hidden=false;button.classList.add('active');button.setAttribute('aria-current','page');
+  };
+  nav.append(button);
  }
 }
 async function installCommunityVerification(){
