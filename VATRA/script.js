@@ -2022,7 +2022,7 @@ async function vatraRenderAccountLifecycleSettings(section){
  '<div class="vatra-lifecycle-divider"></div>'+
  '<button type="button" id="vatraRequestDeletion" class="vatra-lifecycle-danger">Подати запит на видалення акаунта</button>'+
  '<button type="button" id="vatraCancelDeletion" class="primary" hidden>Скасувати видалення та відновити акаунт</button>'+
- '<p class="muted">Якщо Ви володієте спільнотою, спочатку передайте право власності або видаліть її. Це захищає чужі матеріали.</p></div></section>';
+ '<p class="muted">Якщо Ви володієте спільнотою, видаліть її або зверніться до адміністрації для передавання власності. Це захищає чужі матеріали.</p></div></section>';
  const status=section.querySelector('#vatraLifecycleStatus');
  const controls=section.querySelector('.vatra-lifecycle-controls');
  const policy=section.querySelector('#vatraInactivityPolicy');
