@@ -674,3 +674,10 @@ body .vatra-group-media-shell>footer button[data-remove-group-photo]{background:
  body .vatra-group-media-dialog[open]{width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;}
  body .vatra-group-media-stage{padding:10px;}
 }
+
+/* Community composer uses a single real author, not a duplicate personal avatar. */
+#composer.is-community-composer .vatra-composer-identity{display:none!important;}
+#composer #vatraComposerGroupAudienceNote[hidden]{display:none!important;}
+#composer .vatra-group-composer-audience-note:not([hidden]){display:grid!important;gap:6px!important;padding:12px 14px!important;border-radius:10px!important;background:#f0f6ff!important;color:#325b83!important;}
+#composer .vatra-group-composer-audience-note b{font-size:12px!important;}
+#composer .vatra-group-composer-audience-note p{margin:0!important;font-size:11px!important;color:#6386aa!important;}
