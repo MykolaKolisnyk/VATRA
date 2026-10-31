@@ -1332,6 +1332,106 @@ function renderGroups(){
 }
 let vatraGroupActiveTab='posts',vatraGroupActiveTabId='';
 const vatraGroupDraftText=Object.create(null),vatraGroupDraftAs=Object.create(null);
+
+/* Photo albums and videos for a community: post media is opt-in; direct uploads
+   are independent entries protected by Supabase RLS. */
+async function vatraRenderCommunityGallery(id,kind,postRecords){
+ const panel=document.querySelector('[data-vatra-group-panel="'+kind+'"]');
+ const group=groups[id];if(!panel||!group||page!=='groups'||groupId!==id)return;
+ const canManage=group.ownerUid===currentUser?.uid||!!groupAdmins[id]?.[currentUser?.uid]||
+   (!!groupModerators[id]?.[currentUser?.uid]&&group.moderatorsCanPost!==false);
+ const canEditAlbums=group.ownerUid===currentUser?.uid||!!groupAdmins[id]?.[currentUser?.uid];
+ panel.innerHTML='<section class="vatra-group-card vatra-gallery-loading">Завантаження медіа…</section>';
+ let direct={};
+ try{direct=(await get(ref(db,'groupMedia/'+id))).val()||{};}
+ catch(err){console.warn('[VATRA] Community gallery is unavailable:',err);panel.innerHTML='<section class="vatra-group-card">Не вдалося відкрити галерею. Перевірте підключення таблиці groupMedia в Supabase.</section>';return;}
+ if(page!=='groups'||groupId!==id||!panel.isConnected)return;
+ const photo=kind==='photos';
+ const fromPosts=Object.entries(postRecords||{}).flatMap(([postId,p])=>{
+  if(!p||p.addMediaToGallery===false)return [];
+  const urls=photo?postImages(p):(p.videoUrl?[p.videoUrl]:[]);
+  return urls.filter(url=>typeof url==='string'&&/^https:\/\//i.test(url)).map(url=>({
+   id:'post-'+postId,postId,url,origin:'posts',kind:photo?'photo':'video',date:Number(p.createdAt)||0,
+   albumId:String(p.galleryAlbumId||'')
+  }));
+ });
+ const standalone=Object.entries(direct).filter(([,item])=>item&&item.kind===(photo?'photo':'video')&&typeof item.url==='string'&&/^https:\/\//i.test(item.url))
+  .map(([mediaId,item])=>({id:mediaId,url:item.url,kind:item.kind,date:Number(item.createdAt)||0,origin:'direct',
+    albumId:String(item.albumId||''),authorUid:String(item.authorUid||'')}));
+ const combined=[...fromPosts,...standalone].sort((a,b)=>b.date-a.date).filter((item,index,array)=>array.findIndex(other=>other.url===item.url)===index);
+ const albums=(Array.isArray(group.photoAlbums)?group.photoAlbums:[]).filter(a=>a&&a.id&&a.name).slice(0,12);
+ const albumMap=new Map(albums.map(a=>[String(a.id),a]));
+ const filters=photo?[['all','Усі фото'],['posts','З дописів'],['direct','Завантажені'],...albums.map(a=>[String(a.id),a.name])]:[['all','Усі відео'],['posts','З дописів'],['direct','Завантажені']];
+ let chosen=vatraGroupGalleryFilter[id+':'+kind]||'all';
+ if(!filters.some(([key])=>key===chosen))chosen='all';
+ const build=()=>{
+  const filtered=combined.filter(item=>chosen==='all'||(chosen==='posts'&&item.origin==='posts')||(chosen==='direct'&&item.origin==='direct')||item.albumId===chosen);
+  const urls=filtered.map(item=>item.url);
+  const tile=(entry,i)=>photo?
+   '<article class="vatra-community-media-tile"><button type="button" class="vatra-community-media-image" data-community-gallery-photo="'+i+'"><img src="'+esc(entry.url)+'" loading="lazy" alt="Фото спільноти '+(i+1)+'"></button>'+
+    (entry.origin==='direct'&&canEditAlbums?'<button type="button" class="vatra-community-media-remove" data-community-remove-media="'+esc(entry.id)+'">Видалити</button>':'')+'</article>':
+   '<article class="vatra-community-video-tile"><video controls playsinline preload="metadata" src="'+esc(entry.url)+'"></video><small>'+(entry.origin==='posts'?'З допису':'Завантажено до спільноти')+'</small>'+
+   (entry.origin==='direct'&&canEditAlbums?'<button type="button" class="vatra-community-media-remove" data-community-remove-media="'+esc(entry.id)+'">Видалити</button>':'')+'</article>';
+  panel.innerHTML='<section class="vatra-group-card vatra-community-gallery"><header class="vatra-community-gallery-heading"><div><h3>'+(photo?'Фотографії спільноти':'Відео спільноти')+' <span>'+combined.length+'</span></h3><p>'+(photo?'Альбоми та фото з дописів':'Відео з публікацій та завантажені окремо')+'</p></div>'+
+   (canManage?'<label class="vatra-community-upload-label">＋ Додати '+(photo?'фото':'відео')+'<input type="file" id="vatraCommunityMediaUpload" '+(photo?'accept="image/*" multiple':'accept="video/*"')+' hidden></label>':'')+
+   (photo&&canEditAlbums?'<button type="button" data-community-create-album>＋ Новий альбом</button>':'')+'</header>'+
+   (photo&&canManage&&albums.length?'<label class="vatra-community-album-choose">Додавати нові фото в альбом <select id="vatraCommunityTargetAlbum"><option value="">Без альбому</option>'+albums.map(a=>'<option value="'+esc(a.id)+'"'+(chosen===a.id?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select></label>':'')+
+   '<nav class="vatra-community-gallery-filters" aria-label="Альбоми">'+filters.map(([key,title])=>'<button type="button" data-community-album="'+esc(key)+'" class="'+(key===chosen?'is-active':'')+'">'+esc(title)+'</button>').join('')+'</nav>'+
+   '<div class="'+(photo?'vatra-community-photos-grid':'vatra-community-videos-grid')+'">'+(filtered.length?filtered.map(tile).join(''):'<p class="vatra-community-gallery-empty">У цьому розділі ще немає '+(photo?'фотографій.':'відео.')+'</p>')+'</div></section>';
+  const photoButtons=panel.querySelectorAll('[data-community-gallery-photo]');
+  photoButtons.forEach(button=>button.addEventListener('click',()=>{
+   const selected=filtered[Number(button.dataset.communityGalleryPhoto)];
+   if(!selected)return;
+   const postId=selected.origin==='posts'?'g_'+id+'_'+selected.postId:'';
+   openPostPhotoViewer(urls,Number(button.dataset.communityGalleryPhoto)||0,postId,'community:'+id);
+  }));
+  panel.querySelectorAll('[data-community-album]').forEach(button=>button.addEventListener('click',()=>{
+   chosen=button.dataset.communityAlbum;vatraGroupGalleryFilter[id+':'+kind]=chosen;build();
+  }));
+  panel.querySelector('[data-community-create-album]')?.addEventListener('click',async()=>{
+   const name=await askText('Назва нового фотоальбому','');
+   if(name===null)return;
+   const clean=name.trim().slice(0,60);if(!clean)return toastMsg('Введіть назву альбому.');
+   if(albums.length>=12)return toastMsg('Можна створити максимум 12 альбомів.');
+   const albumId='album_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+   const next=[...albums,{id:albumId,name:clean,createdAt:Date.now()}];
+   try{
+    await update(ref(db,'groups/'+id),{photoAlbums:next,updatedAt:Date.now()});
+    groups[id]={...groups[id],photoAlbums:next};
+    vatraGroupGalleryFilter[id+':'+kind]=albumId;
+    await vatraRenderCommunityGallery(id,kind,postRecords);
+    toastMsg('Фотоальбом створено.');
+   }catch(error){toastMsg(niceError(error));}
+  });
+  panel.querySelector('#vatraCommunityMediaUpload')?.addEventListener('change',async event=>{
+   const field=event.currentTarget,files=[...(field.files||[])];if(!files.length)return;
+   if(!canManage)return;
+   const albumId=photo?String(panel.querySelector('#vatraCommunityTargetAlbum')?.value||''):'';
+   if(files.length>10)return toastMsg('За раз можна додати до 10 фото.');
+   field.disabled=true;
+   try{
+    for(const file of files){
+     if(photo&&!file.type.startsWith('image/'))throw Error('Виберіть зображення.');
+     if(!photo&&(!file.type.startsWith('video/')||file.size>50*1024*1024))throw Error('Оберіть відео до 50 МБ.');
+     const url=photo?await uploadImage(file,1600,.85,'community-photos'):await uploadMedia(file,'community-videos');
+     await set(push(ref(db,'groupMedia/'+id)),{kind:photo?'photo':'video',url,albumId,
+       authorUid:currentUser.uid,createdAt:Date.now()});
+    }
+    toastMsg('Медіа додано до спільноти.');
+    await vatraRenderCommunityGallery(id,kind,postRecords);
+   }catch(error){toastMsg(niceError(error)+' Перевірте vatra-community-gallery.sql у Supabase.');}
+   finally{field.disabled=false;field.value='';}
+  });
+  panel.querySelectorAll('[data-community-remove-media]').forEach(button=>button.addEventListener('click',async()=>{
+   if(!(await askConfirm('Прибрати цей файл із галереї спільноти?')))return;
+   button.disabled=true;
+   try{await remove(ref(db,'groupMedia/'+id+'/'+button.dataset.communityRemoveMedia));await vatraRenderCommunityGallery(id,kind,postRecords);}
+   catch(error){toastMsg(niceError(error));button.disabled=false;}
+  }));
+ };
+ build();
+}
+const vatraGroupGalleryFilter=Object.create(null);
 function renderGroupDetails(id){
  if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
  const initial=groups[id];if(!initial){goPage('groups');return;}
