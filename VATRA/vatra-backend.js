@@ -605,3 +605,28 @@ export function onAuthStateChanged(_auth, callback) {
   });
   return () => { active = false; subscription.unsubscribe(); };
 }
+
+
+// Account lifecycle operations must be verified server-side.
+// The frontend only sends its own short-lived Supabase access token.
+export async function accountLifecycleRequest(action='status',payload={}){
+ const {data:{session},error:sessionError}=await client.auth.getSession();
+ if(sessionError||!session?.access_token)throw new Error('Для керування акаунтом увійдіть знову.');
+ let response;
+ try{
+  response=await fetch(SERVICE_URL+'/functions/v1/vatra-account-lifecycle',{
+   method:'POST',
+   headers:{
+    'Content-Type':'application/json',
+    apikey:PUBLIC_KEY,
+    Authorization:'Bearer '+session.access_token
+   },
+   body:JSON.stringify({action,...payload})
+  });
+ }catch{throw new Error('Не вдалося зв’язатися з сервером керування акаунтом.');}
+ if(response.status===404||response.status===503)
+  throw new Error('Функція видалення акаунта ще не активована в Supabase. Зверніться до адміністратора ВАТРИ.');
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok)throw new Error(String(data.error||'Сервер відхилив запит.').slice(0,400));
+ return data.lifecycle;
+}
