@@ -122,10 +122,10 @@ body[data-page="publicProfile"] .profile-gallery-open:hover img{
 /* No "Edit / Delete" hover menu belongs to another member's avatar. */
 body[data-page="publicProfile"] .vatra-avatar-hover-menu{display:none!important;}
 
-/* Account dropdown is anchored at the center of the page's header content, not at the avatar icon. */
+/* Account dropdown tracks the top-right avatar, with viewport clamping. */
 body .vatra-global-header #accountDropdown:not([hidden]){
- position:fixed!important;top:68px!important;
- left:var(--vatra-header-center,50%)!important;right:auto!important;
+ position:fixed!important;top:var(--vatra-avatar-dropdown-top,68px)!important;
+ left:var(--vatra-avatar-center,calc(100vw - 175px))!important;right:auto!important;
  transform:translateX(-50%)!important;transform-origin:top center!important;
  width:min(355px,calc(100vw - 24px))!important;
  z-index:3000!important;
