@@ -31,6 +31,21 @@ function backToRoute(){
  }finally{restoring=false;}
  return true;
 }
+// After closing a photo viewer, suppress the profile photo hover controls
+// until pointer leaves the avatar. This prevents a stuck overlay.
+document.addEventListener('close',event=>{
+ const dialog=event.target;
+ if(!dialog.matches?.('.vatra-avatar-viewer,.vatra-post-photo-viewer,.vatra-group-photo-dialog'))return;
+ document.body.classList.add('vatra-photo-menu-suppressed');
+ document.querySelectorAll('#vatraAvatarWrap,.vatra-avatar-hover-wrap').forEach(wrap=>{
+  wrap.classList.remove('is-open','menu-open','active');
+  wrap.querySelector('[data-avatar-menu-toggle]')?.setAttribute('aria-expanded','false');
+ });
+},{capture:true});
+document.addEventListener('pointerout',event=>{
+ const wrap=event.target.closest?.('#vatraAvatarWrap,.vatra-avatar-hover-wrap');
+ if(wrap&&!wrap.contains(event.relatedTarget))document.body.classList.remove('vatra-photo-menu-suppressed');
+},true);
 window.addEventListener('popstate',backToRoute);
 window.addEventListener('hashchange',backToRoute);
 if(location.hash.startsWith('#/')||location.hash.startsWith('#post-')){let n=0;const original=location.hash;const timer=setInterval(()=>{if(backToRoute()||n++>22)clearInterval(timer);},400);setTimeout(()=>{if(location.hash===original)backToRoute();},2500);}
