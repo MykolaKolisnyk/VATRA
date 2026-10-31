@@ -3,7 +3,7 @@ import { setupNavigation } from './navigation.js?v=20261030-22';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-3';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-1';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest } from './vatra-backend.js?v=20261031-1';
+import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost } from './vatra-backend.js?v=20261031-2';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
@@ -1371,7 +1371,7 @@ function renderGroupDetails(id){
   });
   const tab=(key,name)=>'<button type="button" role="tab" data-vatra-group-tab="'+key+'" aria-selected="'+String(vatraGroupActiveTab===key)+'" class="'+(vatraGroupActiveTab===key?'is-active':'')+'">'+name+'</button>';
   const canPostAsGroup=isOwner||isAdmin;
-  const selectedGroupAuthor=canPostAsGroup&&vatraGroupDraftAs[id]==='group'?'group':'user';
+  const selectedGroupAuthor=canPostAsGroup?'group':'user';
   const groupComposeAvatar=()=>'<span class="vatra-group-compose-photo">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="">':esc((g.name||'В').trim().slice(0,1).toUpperCase()))+'</span>';
   const composeIdentity=(type)=>type==='group'?groupComposeAvatar():avatar(currentProfile.name||currentUser?.displayName||'ВАТРА',currentProfile.avatarUrl);
   const composer=member?'<section class="vatra-group-card vatra-group-create-entry"><div class="vatra-group-create-identity">'+composeIdentity(selectedGroupAuthor)+'<div><b>Дописи спільноти</b><small>Фото, відео, опитування та текст</small></div></div><button type="button" class="vatra-group-primary" id="vatraOpenGroupComposer">＋ Створити допис</button></section>':'<section class="vatra-group-card vatra-group-join-hint"><span aria-hidden="true">✦</span><div><b>Долучайтеся до спільноти</b><p>Приєднайтеся, щоб публікувати дописи.</p></div></section>';
@@ -1930,7 +1930,7 @@ function openComposer(context=null){
   const allowedGroup=g.ownerUid===currentUser.uid||!!groupAdmins[vatraComposerGroupId]?.[currentUser.uid];
   const select=$('#vatraComposerGroupAuthor');
   select.innerHTML='<option value="user">Від себе</option>'+(allowedGroup?'<option value="group">Від спільноти</option>':'');
-  select.value=allowedGroup&&vatraGroupDraftAs[vatraComposerGroupId]==='group'?'group':'user';
+  select.value=allowedGroup?'group':'user';
   $('#vatraComposerGroupName').textContent=g.name||'Спільнота';
   const preview=$('#vatraComposerGroupPreview'),scopeId=vatraComposerGroupId;
   const refresh=()=>{
@@ -1941,7 +1941,7 @@ function openComposer(context=null){
   };
   select.onchange=refresh;refresh();
  }
- modal.showModal();postComposerUI.onOpen();
+ vatraResetScheduleControls();modal.showModal();postComposerUI.onOpen();
 }
 function loadImage(file,cb){if(!file)return false;if(!file.type.startsWith('image/')){toastMsg('Виберіть файл зображення.');return false;}if(file.size>MAX_IMAGE){toastMsg('Фото має бути меншим за 15 МБ.');return false;}const r=new FileReader();r.onload=()=>cb(r.result);r.onerror=()=>toastMsg('Не вдалося прочитати файл зображення.');r.readAsDataURL(file);return true;}
 async function uploadImage(file,maxSide=1200,quality=.78,category='posts'){if(!file||!file.type?.startsWith('image/'))throw new Error('Виберіть файл зображення.');if(file.size>15*1024*1024)throw new Error('Фото має бути меншим за 15 МБ.');const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('Не вдалося прочитати фото.'));r.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('Файл зображення пошкоджений.'));i.src=data;});const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося обробити зображення.');ctx.drawImage(img,0,0,canvas.width,canvas.height);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Не вдалося підготувати фото.')),'image/jpeg',quality));const optimized=new File([blob],(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg',lastModified:Date.now()});return await uploadMedia(optimized,category);}
@@ -2284,6 +2284,53 @@ $('#modalPhoto').onchange=async e=>{const files=[...(e.target.files||[])];e.targ
   $('#postAudienceHint').textContent=descriptions[event.target.value]||descriptions.public;
  });
 
+function vatraFormatLocalDate(date){
+ const p=n=>String(n).padStart(2,'0');
+ return date.getFullYear()+'-'+p(date.getMonth()+1)+'-'+p(date.getDate())+'T'+p(date.getHours())+':'+p(date.getMinutes());
+}
+function vatraResetScheduleControls(){
+ const checkbox=$('#vatraScheduleToggle'),fields=$('#vatraScheduleFields'),date=$('#vatraScheduleDateTime'),button=$('#composerPublish');
+ if(!checkbox||!fields||!date||!button)return;
+ checkbox.checked=false;fields.hidden=true;date.value='';
+ date.min=vatraFormatLocalDate(new Date(Date.now()+2*60000));
+ button.textContent='Опублікувати';
+}
+$('#vatraScheduleToggle')?.addEventListener('change',event=>{
+ const enabled=event.currentTarget.checked;
+ $('#vatraScheduleFields').hidden=!enabled;
+ const button=$('#composerPublish');
+ button.textContent=enabled?'Запланувати допис':'Опублікувати';
+ if(enabled&&!$('#vatraScheduleDateTime').value){
+  const rounded=new Date(Math.ceil((Date.now()+10*60000)/60000)*60000);
+  $('#vatraScheduleDateTime').value=vatraFormatLocalDate(rounded);
+ }
+});
+async function vatraShowScheduledPosts(groupId=null){
+ if(!authRequired())return;
+ const dialog=document.createElement('dialog');dialog.className='vatra-scheduled-list-dialog';
+ dialog.innerHTML='<header class="vatra-schedule-head"><h3>Заплановані дописи</h3><button type="button" data-close-schedule>Закрити</button></header><div class="vatra-schedule-records" role="status">Завантаження…</div>';
+ document.body.append(dialog);dialog.showModal();
+ dialog.addEventListener('close',()=>dialog.remove());
+ dialog.addEventListener('click',async event=>{
+  if(event.target===dialog||event.target.closest('[data-close-schedule]')){dialog.close();return;}
+  const button=event.target.closest('[data-cancel-schedule]');
+  if(!button)return;
+  if(!(await askConfirm('Скасувати цей запланований допис?')))return;
+  button.disabled=true;
+  try{await vatraCancelScheduledPost(button.dataset.cancelSchedule);await load();}
+  catch(error){toastMsg(error.message||niceError(error));button.disabled=false;}
+ });
+ async function load(){
+  const list=dialog.querySelector('.vatra-schedule-records');
+  try{
+   const items=await vatraListScheduledPosts(groupId);
+   list.innerHTML=items.length?items.map(item=>'<div class="vatra-schedule-record"><div><b>'+esc((item.payload?.text||'Допис із медіафайлами').slice(0,180))+'</b><small>Дата публікації: '+new Date(item.scheduled_at).toLocaleString('uk-UA')+(item.group_id?' · Спільнота':' · Мій профіль')+'</small></div><button type="button" data-cancel-schedule="'+esc(item.id)+'">Скасувати</button></div>').join(''):'<p class="muted">Запланованих дописів поки немає.</p>';
+  }catch(error){list.textContent=error.message||niceError(error);}
+ }
+ await load();
+}
+$('#vatraScheduledPostList')?.addEventListener('click',()=>vatraShowScheduledPosts(vatraComposerGroupId));
+
 $('#postForm').addEventListener('submit',async e=>{
  e.preventDefault();if(!authRequired())return;
  const postError=$('#postError');if(postError){postError.hidden=true;postError.textContent='';}
@@ -2294,7 +2341,15 @@ $('#postForm').addEventListener('submit',async e=>{
  const requestedVisibility=$('#postVisibility').value;
   const postVisibility=['public','friends','private'].includes(requestedVisibility)?requestedVisibility:'public';
   const pollOptions=entered.length>=2?Object.fromEntries(entered.map((label,index)=>['option_'+(index+1),label.slice(0,80)])):null;
- const btn=e.submitter||e.currentTarget.querySelector('[type="submit"]');btn.disabled=true;btn.textContent='Публікуємо…';
+ const scheduled=$('#vatraScheduleToggle')?.checked===true;
+ const scheduledValue=$('#vatraScheduleDateTime')?.value||'';
+ const publishDate=scheduled?new Date(scheduledValue):null;
+ if(scheduled&&(!scheduledValue||!Number.isFinite(publishDate?.getTime())||publishDate.getTime()-Date.now()<120000))
+  return toastMsg('Виберіть дату та час щонайменше через 2 хвилини.');
+ if(scheduled&&publishDate.getTime()-Date.now()>365*86400000)
+  return toastMsg('Можна запланувати публікацію не далі ніж на 1 рік.');
+ const btn=e.submitter||e.currentTarget.querySelector('[type="submit"]');
+ btn.disabled=true;btn.textContent=scheduled?'Плануємо…':'Публікуємо…';
  try{
   const gid=vatraComposerGroupId,g=gid?groups[gid]:null;
   if(gid&&!g)throw new Error('Спільноту не знайдено.');
@@ -2308,16 +2363,19 @@ $('#postForm').addEventListener('submit',async e=>{
   const postData={authorUid:String(currentUser.uid),authorName:asGroup?(g.name||'Спільнота'):(currentProfile.name||currentUser.displayName||'Користувач ВАТРИ'),authorHandle:currentProfile.handle||'user',authorAvatar:asGroup?(g.avatarUrl||''):(currentProfile.avatarUrl||''),text,imageUrl:imageUrls[0]||'',imageUrls,videoUrl:postVideoUrl,visibility:gid?'public':postVisibility,createdAt:Date.now(),updatedAt:Date.now()};
   if(gid){postData.authorType=asGroup?'group':'user';postData.groupId=gid;}
   if(pollOptions)postData.pollOptions=pollOptions;
-  if(gid)await set(pRef,postData);else await createPost(pRef,postData);
+  if(scheduled){
+   await vatraSchedulePost({groupId:gid||null,post:postData,scheduledAt:publishDate.toISOString()});
+  }else if(gid)await set(pRef,postData);
+  else await createPost(pRef,postData);
   postComposerUI.onPublished();
   if(gid){delete vatraGroupDraftText[gid];vatraComposerGroupId=null;}
   else{filter='all';query='';$('#search').value='';$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));goPage('feed');}
   modal.close();imageFiles=[];videoFile=null;clearComposerPhotoPreviews();$('#photo').value='';$('#modalPhoto').value='';
-  toastMsg(gid?'Допис у спільноті опубліковано!':'Допис опубліковано!');
+  toastMsg(scheduled?'Допис заплановано на '+publishDate.toLocaleString('uk-UA')+'.':gid?'Допис у спільноті опубліковано!':'Допис опубліковано!');
  }catch(err){
   console.error('VATRA post publish failed:',err?.dbCode||err?.code||err);
   const message=niceError(err);if(postError){postError.textContent=message;postError.hidden=false;}toastMsg(message);
- }finally{btn.disabled=false;btn.textContent='Опублікувати';}
+ }finally{btn.disabled=false;btn.textContent=$('#vatraScheduleToggle')?.checked?'Запланувати допис':'Опублікувати';}
 });
 // Only actual navigation buttons may trigger route changes. <body data-page> is a CSS state marker, not a clickable page link.
 $$('button[data-page]').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));$$('.tab').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;goPage('feed');});$('#search').addEventListener('input',e=>{query=e.target.value.trim();profileAttributeSearch=null;if(query){if(page!=='explore')goPage('explore');else render();}else{if(page==='explore')render();else if(page==='saved'||page==='profile')goPage('feed');else render();}});$('#search').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();goPage('explore');}});$('#moment')?.addEventListener('click',openComposer);$$('[data-action="compose"]').forEach(b=>b.addEventListener('click',openComposer));$$('[data-tag]').forEach(b=>b.addEventListener('click',()=>{query=b.dataset.tag;$('#search').value=query;goPage('feed');}));
