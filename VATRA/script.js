@@ -395,20 +395,14 @@ function vatraViewerClickedPhotos(button,attribute){
  return vatraViewerPhotoUrls(urls);
 }
 async function vatraToggleViewerFullscreen(dialog){
- const shell=dialog.querySelector('.vatra-media-viewer-shell');
- if(document.fullscreenElement&&dialog.contains(document.fullscreenElement)){
-  try{await document.exitFullscreen();}catch{}
-  return;
- }
- if(dialog.classList.contains('vatra-photo-fullscreen-fallback')){
-  dialog.classList.remove('vatra-photo-fullscreen-fallback');return;
- }
- try{
-  if(typeof shell?.requestFullscreen!=='function')throw Error('Fullscreen unavailable');
-  await shell.requestFullscreen();
- }catch{
-  dialog.classList.add('vatra-photo-fullscreen-fallback');
- }
+ // Expand the photo viewer to the application viewport rather than triggering
+ // the intrusive native browser fullscreen permission banner.
+ const expanded=dialog.classList.toggle('vatra-photo-fullscreen-fallback');
+ dialog.querySelectorAll('[data-viewer-fullscreen],[data-avatar-fullscreen]').forEach(button=>{
+  button.setAttribute('aria-label',expanded?'Згорнути перегляд':'Розгорнути перегляд');
+  button.setAttribute('title',expanded?'Згорнути перегляд':'Розгорнути перегляд');
+  button.setAttribute('aria-pressed',String(expanded));
+ });
 }
 async function vatraClosePhotoViewer(dialog){
  if(document.fullscreenElement&&dialog.contains(document.fullscreenElement)){
