@@ -131,5 +131,25 @@ function queuePreview(){if(previewScheduled)return;previewScheduled=true;request
 const feed=document.querySelector('#feed');
 if(feed)new MutationObserver(queuePreview).observe(feed,{childList:true,subtree:false});
 window.addEventListener('vatra:started',queuePreview);
+/* Give the holiday gift on login to VATRA, even if the user opens News first. */
+function holidayNowInKyiv(){
+ try{
+  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kyiv',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const day=Number(parts.find(x=>x.type==='day')?.value);
+  const month=Number(parts.find(x=>x.type==='month')?.value);
+  return month===10&&day===31 || month===1&&day===1 || month===8&&day===24;
+ }catch{return false;}
+}
+window.addEventListener('vatra:started',()=>{
+ if(!available()||!holidayNowInKyiv())return;
+ void call('vatra_gifts_claim_holiday').then(claimed=>{
+  if(Array.isArray(claimed)&&claimed.length){
+   const source=document.querySelector('.vatra-gift-preview-card');
+   if(source)source.removeAttribute('data-gift-preview-for');
+   queuePreview();
+  }
+ }).catch(err=>console.info('[ВАТРА подарунки] Серверний модуль подарунків ще не підключений:',err.message));
+});
+
 
 if(document.body.dataset.page==='gifts')void window.vatraRenderGifts?.(available());
