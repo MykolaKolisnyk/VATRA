@@ -1580,6 +1580,14 @@ function renderGroupDetails(id){
    dialog.setAttribute('aria-label',label);
    dialog.innerHTML='<div class="vatra-group-media-shell"><header><b>'+esc(label)+'</b><button type="button" data-close-group-photo aria-label="Закрити"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg></button></header><div class="vatra-group-media-stage"><img src="'+esc(url)+'" alt="'+esc(label)+'"></div><footer><span>'+esc(g.name||'Спільнота')+'</span>'+(canEditVisuals?'<button type="button" data-edit-existing-group-photo>Редагувати фото</button><button type="button" data-edit-group-photo>Замінити</button><button type="button" data-remove-group-photo>Видалити</button>':'')+'</footer></div>';
    document.body.append(dialog);dialog.showModal();
+   if(canEditVisuals){
+    const manage=document.createElement('button');manage.type='button';manage.dataset.groupMediaManage='';
+    manage.title='Керування фотографією';manage.setAttribute('aria-label','Показати керування фотографією');
+    manage.setAttribute('aria-expanded','false');
+    manage.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.3 15.5 21 17l-2 3-2-.9-2.3 1V22H9.3v-1.9L7 19.1 5 20l-2-3 1.7-1.5-.1-2.8L3 11l2-3 2.1.9L9.3 8V6h5.4v2l2.3.9L19 8l2 3-1.6 1.7Z"/></svg>';
+    dialog.append(manage);
+    manage.addEventListener('click',()=>{const shown=dialog.classList.toggle('show-actions');manage.setAttribute('aria-expanded',String(shown));});
+   }
    dialog.addEventListener('click',async event=>{
     if(event.target===dialog||event.target.closest('[data-close-group-photo]')){dialog.close();return;}
     if(event.target.closest('[data-edit-group-photo]')){dialog.close();$('#vatraGroup'+(type==='cover'?'Cover':'Avatar')+'Upload')?.click();return;}
