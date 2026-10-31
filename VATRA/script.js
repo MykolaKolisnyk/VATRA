@@ -1458,6 +1458,44 @@ function renderGroupSettings(id){
  const members=Object.entries(groupMembers[id]||{}).filter(([uid,val])=>val&&uid&&uid!==g.ownerUid),admins=groupAdmins[id]||{},mods=groupModerators[id]||{},owner=users[g.ownerUid]||{};
  setFeed(`<section class="settings-page community-settings-page"><div class="settings-intro"><div><p class="eyebrow">КЕРУВАННЯ</p><h2>${esc(g.name)}</h2><p>Ця сторінка доступна творцю та команді спільноти. Тут можна змінити дані й керувати ролями.</p></div><button class="pill" id="groupSettingsBack">← До спільноти</button></div><form id="groupSettingsForm" class="settings-form"><section class="settings-card"><h3>Основна інформація</h3><div class="settings-grid"><label>Назва спільноти<input name="name" maxlength="60" required value="${esc(g.name||'')}" ${canEditSettings?'':'disabled'}></label><label>Напрям діяльності<input name="category" maxlength="80" value="${esc(g.category||'')}" placeholder="Наприклад, спорт, освіта, хобі" ${canEditSettings?'':'disabled'}></label><label class="span-two">Опис<textarea name="description" maxlength="500" rows="4" ${canEditSettings?'':'disabled'}>${esc(g.description||'')}</textarea></label><label>Тип спільноти<select name="visibility" ${canEditSettings?'':'disabled'}><option value="public" ${g.visibility!=='private'?'selected':''}>Відкрита</option><option value="private" ${g.visibility==='private'?'selected':''}>Закрита</option></select></label></div>${canEditSettings?'<div class="settings-savebar"><span>Зміни збережуться для всіх учасників.</span><button class="primary" type="submit">Зберегти зміни</button></div>':''}<p id="groupSettingsStatus" class="auth-error" role="status"></p></section></form><section class="settings-card"><h3>Команда спільноти</h3><p class="muted">Творець має повний доступ. Адміністратори та модератори можуть допомагати з управлінням і дописами.</p><div class="community-role-row"><span class="role-badge owner-badge">Творець</span><button class="community-member-chip" data-view-profile="${esc(g.ownerUid)}">${avatar(owner.name||'Творець',owner.avatarUrl)}<span>${esc(owner.name||'Творець спільноти')}</span></button></div><div class="community-member-list">${members.map(([uid])=>{const u=users[uid]||{},isMemberOwner=uid===g.ownerUid,isMemberAdmin=!!admins[uid],isMemberMod=!!mods[uid];return `<div class="community-member-row">${avatar(u.name||'Учасник',u.avatarUrl)}<div class="author"><b>${esc(u.name||'Учасник')}</b><small>@${esc(u.handle||'user')}</small></div>${isMemberOwner?'<span class="role-badge owner-badge">Творець</span>':isMemberAdmin?'<span class="role-badge admin-badge">Адміністратор</span>':isMemberMod?'<span class="role-badge moderator-badge">Модератор</span>':''}${canManageRoles&&!isMemberOwner?`<button class="pill" data-toggle-group-admin="${esc(id)}" data-member-uid="${esc(uid)}">${isMemberAdmin?'Зняти адміністратора':'Призначити адміністратором'}</button><button class="pill" data-toggle-group-moderator="${esc(id)}" data-member-uid="${esc(uid)}">${isMemberMod?'Зняти модератора':'Призначити модератором'}</button><button class="danger-link" data-remove-group-member="${esc(id)}" data-member-uid="${esc(uid)}">Видалити</button>`:''}</div>`;}).join('')||'<p class="muted">Учасників ще немає.</p>'}</div>${isOwner?`<div class="settings-savebar"><button type="button" class="danger-link" data-delete-group="${esc(id)}">Видалити спільноту</button></div>`:''}</section></section>`);
  $('#groupSettingsBack').onclick=()=>renderGroupDetails(id);
+ const contactsCard=document.createElement('section');
+ contactsCard.className='settings-card vatra-community-contact-settings';
+ const contactsList=Array.isArray(g.contacts)?g.contacts:[];
+ const contactRows=contactsList.filter(c=>c&&c.uid).map(c=>{
+  const person=users[c.uid]||{};
+  return '<div class="vatra-group-contact-edit">'+avatar(person.name||'Учасник',person.avatarUrl)+
+   '<span><b>'+esc(person.name||'Учасник')+'</b><small>'+esc(String(c.title||'Контакт').slice(0,70))+'</small></span>'+
+   (canEditSettings?'<button type="button" data-remove-group-contact="'+esc(c.uid)+'">Прибрати</button>':'')+'</div>';
+ }).join('');
+ const eligible=[g.ownerUid,...members.map(([uid])=>uid)].filter((uid,i,items)=>uid&&items.indexOf(uid)===i);
+ contactsCard.innerHTML='<h3>Контакти спільноти</h3><p class="muted">Додайте людей, які представляють спільноту, та підпишіть їхню посаду. Інші учасники не показуються тут автоматично.</p>'+
+ '<div class="vatra-group-contact-list">'+(contactRows||'<p class="muted">Контакти ще не додані.</p>')+'</div>'+
+ (canEditSettings?'<form id="vatraAddGroupContact" class="vatra-group-contact-add"><label>Людина<select name="uid" required><option value="">Оберіть учасника</option>'+
+ eligible.map(uid=>'<option value="'+esc(uid)+'">'+esc(users[uid]?.name||'Учасник ВАТРИ')+'</option>').join('')+
+ '</select></label><label>Посада або підпис<input name="title" maxlength="70" required placeholder="Наприклад, Зв’язки з громадськістю"></label><button type="submit" class="primary">Додати</button></form>':'');
+ $('#groupSettingsForm')?.insertAdjacentElement('afterend',contactsCard);
+ const saveGroupContacts=async(next)=>{
+  if(!canEditSettings)return;
+  try{
+   const contacts=next.filter(c=>c?.uid&&c?.title).slice(0,12);
+   await update(ref(db,'groups/'+id),{contacts,updatedAt:Date.now()});
+   groups[id]={...groups[id],contacts};
+   toastMsg('Контакти спільноти збережено.');
+   renderGroupSettings(id);
+  }catch(error){toastMsg(niceError(error));}
+ };
+ $('#vatraAddGroupContact')?.addEventListener('submit',async event=>{
+  event.preventDefault();
+  const data=new FormData(event.currentTarget),uid=String(data.get('uid')||''),title=String(data.get('title')||'').trim().slice(0,70);
+  if(!eligible.includes(uid)||!title)return toastMsg('Оберіть учасника та заповніть посаду.');
+  const entries=Array.isArray(groups[id].contacts)?groups[id].contacts:[];
+  if(entries.length>=12&&!entries.some(c=>c.uid===uid))return toastMsg('Дозволено максимум 12 контактів.');
+  await saveGroupContacts([...entries.filter(c=>c.uid!==uid),{uid,title}]);
+ });
+ contactsCard.querySelectorAll('[data-remove-group-contact]').forEach(button=>button.addEventListener('click',async()=>{
+  const entries=Array.isArray(groups[id].contacts)?groups[id].contacts:[];
+  await saveGroupContacts(entries.filter(c=>c.uid!==button.dataset.removeGroupContact));
+ }));
  $('#groupSettingsForm')?.addEventListener('submit',async e=>{e.preventDefault();if(!canEditSettings)return;const fd=new FormData(e.currentTarget),name=String(fd.get('name')||'').trim(),description=String(fd.get('description')||'').trim(),category=String(fd.get('category')||'').trim(),visibility=String(fd.get('visibility')||'public');if(name.length<2){$('#groupSettingsStatus').textContent='Назва має містити щонайменше 2 символи.';return;}const btn=e.currentTarget.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Зберігаємо…';try{await update(ref(db,`groups/${id}`),{name:name.slice(0,60),description:description.slice(0,500),category:category.slice(0,80),visibility,updatedAt:Date.now()});$('#groupSettingsStatus').textContent='Зміни збережено.';toastMsg('Спільноту оновлено.');}catch(err){$('#groupSettingsStatus').textContent=niceError(err);}finally{btn.disabled=false;btn.textContent='Зберегти зміни';}});
 }
 function chatKey(uid1,uid2){return [uid1,uid2].sort().join('_');}
