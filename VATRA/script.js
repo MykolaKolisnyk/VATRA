@@ -1271,21 +1271,21 @@ function renderGroups(){
  const ranking=arr.map(g=>({...g,stats:rankStats(g)}))
   .filter(g=>g.stats.members>=20&&g.stats.posts>=3&&g.stats.engagement>=5)
   .sort((a,b)=>b.stats.score-a.stats.score).slice(0,5);
- setFeed('<section class="vatra-communities-layout"><div class="vatra-communities-main"><label class="vatra-community-search"><span aria-hidden="true">⌕</span><input id="vatraCommunitySearch" type="search" placeholder="Пошук спільнот" aria-label="Пошук спільнот"></label>'+recentMarkup+'<div class="vatra-community-list-card"><div class="vatra-community-section-head"><h2>Спільноти</h2><span>'+arr.length+'</span></div><div class="vatra-community-tabs" role="group" aria-label="Фільтр спільнот"><button type="button" class="active" data-community-tab="all">Усі спільноти</button><button type="button" data-community-tab="mine">Мої спільноти</button><button type="button" data-community-tab="managed">Керую</button></div><div class="vatra-community-rows" id="vatraCommunityRows">'+arr.map(item).join('')+'</div><button type="button" id="vatraCommunityMore" class="vatra-community-more" hidden>Показати ще</button><p id="vatraCommunityEmpty" class="vatra-empty-panel" '+(arr.length?'hidden':'')+'>Спільнот поки немає. Ви можете створити першу.</p></div></div><aside class="vatra-communities-rail"><div class="vatra-side-card"><button type="button" class="primary wide" id="createGroup">＋ Створити спільноту</button><p>Збирайте людей навколо спільних інтересів.</p></div><div class="vatra-side-card"><h3>Активні спільноти</h3>'+(ranking.map(g=>'<button type="button" class="vatra-popular-row" data-open-group="'+esc(g.id)+'"><span>'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</span><b>'+esc(g.name)+'</b><small>'+g.stats.members+' учасн. · '+g.stats.posts+' дописів · '+g.stats.engagement+' взаємодій</small></button>').join('')||'<p>Активні спільноти: від 20 учасників, 3 дописів і 5 взаємодій за 30 днів.</p>')+'</div></aside></section>',false);
+ setFeed('<section class="vatra-communities-layout"><div class="vatra-communities-main"><label class="vatra-community-search"><span aria-hidden="true">⌕</span><input id="vatraCommunitySearch" type="search" placeholder="Пошук спільнот" aria-label="Пошук спільнот"></label>'+recentMarkup+'<div class="vatra-community-list-card"><div class="vatra-community-section-head"><h2>Спільноти</h2><span>'+arr.length+'</span></div><div class="vatra-community-tabs" role="group" aria-label="Фільтр спільнот"><button type="button" class="active" data-community-tab="all">Усі спільноти</button><button type="button" data-community-tab="mine">Мої спільноти</button><button type="button" data-community-tab="managed">Керую</button></div><div class="vatra-community-rows" id="vatraCommunityRows"></div><button type="button" id="vatraCommunityMore" class="vatra-community-more" hidden>Показати ще</button><p id="vatraCommunityEmpty" class="vatra-empty-panel" '+(arr.length?'hidden':'')+'>Спільнот поки немає. Ви можете створити першу.</p></div></div><aside class="vatra-communities-rail"><div class="vatra-side-card"><button type="button" class="primary wide" id="createGroup">＋ Створити спільноту</button><p>Збирайте людей навколо спільних інтересів.</p></div><div class="vatra-side-card"><h3>Активні спільноти</h3>'+(ranking.map(g=>'<button type="button" class="vatra-popular-row" data-open-group="'+esc(g.id)+'"><span>'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</span><b>'+esc(g.name)+'</b><small>'+g.stats.members+' учасн. · '+g.stats.posts+' дописів · '+g.stats.engagement+' взаємодій</small></button>').join('')||'<p>Активні спільноти: від 20 учасників, 3 дописів і 5 взаємодій за 30 днів.</p>')+'</div></aside></section>',false);
  $('#createGroup')?.addEventListener('click',createGroup);
- const search=$('#vatraCommunitySearch'),rows=$$('#vatraCommunityRows [data-community-item]');
+ const search=$('#vatraCommunitySearch'),container=$('#vatraCommunityRows');
  let tab='all',visibleLimit=12;
  const apply=()=>{
-  const q=String(search?.value||'').trim().toLocaleLowerCase('uk-UA');let visible=0,total=0;
-  rows.forEach(node=>{
-   const match=(tab!=='mine'||node.dataset.communityOwn==='true')&&(tab!=='managed'||node.dataset.communityManaged==='true')&&(!q||node.dataset.communitySearch.includes(q));
-   if(match)total++;
-   node.hidden=!(match&&visible<visibleLimit);
-   if(!node.hidden)visible++;
-  });
-  const more=$('#vatraCommunityMore');if(more)more.hidden=total<=visibleLimit;
-  $('#vatraCommunityEmpty').hidden=total>0;
-  if(!total)$('#vatraCommunityEmpty').textContent=q?'За запитом нічого не знайдено.':tab==='mine'?'Ви ще не долучилися до спільнот.':tab==='managed'?'Ви ще не керуєте спільнотами.':'Спільнот поки немає.';
+  const q=String(search?.value||'').trim().toLocaleLowerCase('uk-UA');
+  const result=arr.filter(g=>
+   (tab!=='mine'||joined(g.id))&&
+   (tab!=='managed'||managed(g.id))&&
+   (!q||(g.name+' '+(g.category||'')).toLocaleLowerCase('uk-UA').includes(q))
+  );
+  container.innerHTML=result.slice(0,visibleLimit).map(item).join('');
+  const more=$('#vatraCommunityMore');if(more)more.hidden=result.length<=visibleLimit;
+  $('#vatraCommunityEmpty').hidden=result.length>0;
+  if(!result.length)$('#vatraCommunityEmpty').textContent=q?'За запитом нічого не знайдено.':tab==='mine'?'Ви ще не долучилися до спільнот.':tab==='managed'?'Ви ще не керуєте спільнотами.':'Спільнот поки немає.';
  };
  $('#vatraCommunityMore')?.addEventListener('click',()=>{visibleLimit+=12;apply();});
  search?.addEventListener('input',()=>{visibleLimit=12;apply();});
