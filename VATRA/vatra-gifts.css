@@ -75,3 +75,30 @@
 .vatra-gift-admin-instance small{display:block;color:#8b9cae;overflow-wrap:anywhere}
 .vatra-gift-admin-instance button{border:1px solid #efc5cf;background:#fff4f6;color:#bd3c53;padding:8px 13px;border-radius:5px;cursor:pointer}
 @media(max-width:700px){.vatra-gift-admin-order{display:grid}.vatra-gift-admin form{grid-template-columns:minmax(0,1fr)}.vatra-gift-admin-order textarea{width:100%}}
+
+/* Gift preview is visually identical to the Friends block. */
+body .vatra-profile-sidebar>.vatra-gift-preview-card{padding:16px!important;border-radius:7px!important;margin-top:12px!important}
+body .vatra-gift-preview-card .vatra-profile-card-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 12px!important}
+body .vatra-gift-preview-card .vatra-profile-card-head h3{font-size:17px!important;font-weight:700!important;margin:0!important}
+body .vatra-gift-preview-card .vatra-profile-card-head b{font-size:12px!important;color:#8494a6!important;font-weight:500!important}
+body .vatra-gift-preview-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+body .vatra-gift-preview-item{aspect-ratio:1;overflow:hidden;background:linear-gradient(145deg,#f9fcff,#edf5fb);border:1px solid #e1e9f2;border-radius:6px;display:grid;place-items:center}
+body .vatra-gift-preview-item svg{width:100%;height:100%}
+body .vatra-gift-preview-card .vatra-gift-preview-empty{min-height:60px;display:grid;place-items:center;text-align:center;font-size:12px}
+body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link{display:block!important;width:100%!important;height:38px!important;min-height:38px!important;padding:9px!important;margin:8px 0 0!important;border:0!important;border-radius:5px!important;box-shadow:none!important;text-align:center!important;background:transparent!important;color:#647d98!important;font:600 12px/1.5 Inter,Arial,sans-serif!important;cursor:pointer!important;transition:color .16s ease,background-color .16s ease!important}
+body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link:hover{background:#edf3fa!important;color:#0757f5!important}
+dialog.vatra-gift-confirm{position:fixed;inset:0;margin:auto;width:min(460px,calc(100vw - 30px));max-width:460px;padding:0 22px 22px;border:1px solid #dfe6ef;border-radius:7px;background:#fff;color:#304760;box-shadow:0 24px 65px #152d4855}
+dialog.vatra-gift-confirm::backdrop{background:#172c4988}
+dialog.vatra-gift-confirm header{padding:20px 0 15px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid #e5ebf2}
+dialog.vatra-gift-confirm h2{font:750 19px/1.4 Inter,Arial,sans-serif;margin:3px 0 0;color:#2b4158}
+dialog.vatra-gift-confirm header small{font:750 10px Inter,Arial,sans-serif;letter-spacing:.08em;color:#899eb2}
+dialog.vatra-gift-confirm header button{font-size:22px;border:0;border-radius:5px;background:#f0f4f8;padding:4px 11px;color:#6b7c91;cursor:pointer}
+dialog.vatra-gift-confirm>p{margin:19px 0 24px;font:450 13px/1.7 Inter,Arial,sans-serif;color:#5c7085}
+dialog.vatra-gift-confirm footer{display:flex;justify-content:flex-end;gap:9px}
+dialog.vatra-gift-confirm footer button{padding:10px 15px;min-height:39px;border:1px solid #d7e4ef;border-radius:5px;background:#fff;color:#526f8b;cursor:pointer;font:650 12px Inter,Arial,sans-serif}
+dialog.vatra-gift-confirm footer .primary{background:#0757f5;color:#fff;border-color:#0757f5}
+dialog.vatra-gift-confirm footer .danger{background:#be4558;color:#fff;border-color:#be4558}
+body .vatra-gift-toast{position:fixed;z-index:99999;right:24px;bottom:24px;max-width:min(400px,calc(100vw - 30px));padding:13px 15px;display:flex;gap:18px;align-items:center;background:#2b435d;color:#fff;border-radius:6px;box-shadow:0 14px 35px #152b4444;font:500 13px/1.55 Inter,Arial,sans-serif}
+body .vatra-gift-toast button{border:0;background:none;color:inherit;cursor:pointer;font-size:21px}
+body .vatra-gift-toast.is-error{background:#933b51}
+@media(max-width:540px){body .vatra-gift-toast{left:14px;right:14px;bottom:14px;max-width:none}}

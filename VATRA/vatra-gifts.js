@@ -56,6 +56,22 @@ function status(message,error=false){
  if(el){el.textContent=message;el.classList.toggle('is-error',error);}
 }
 
+
+function giftConfirm(title,message,action='Підтвердити',danger=false){
+ return new Promise(resolve=>{
+  const d=document.createElement('dialog');d.className='vatra-gift-confirm';
+  d.innerHTML='<header><div><small>ВАТРА · ПОДАРУНКИ</small><h2>'+esc(title)+'</h2></div><button type="button" data-confirm="no" aria-label="Закрити">×</button></header><p>'+esc(message)+'</p><footer><button type="button" data-confirm="no">Скасувати</button><button type="button" data-confirm="yes" class="'+(danger?'danger':'primary')+'">'+esc(action)+'</button></footer>';
+  let ok=false;
+  d.addEventListener('click',e=>{const b=e.target.closest('[data-confirm]');if(!b)return;ok=b.dataset.confirm==='yes';d.close();});
+  d.addEventListener('close',()=>{d.remove();resolve(ok);},{once:true});
+  document.body.append(d);d.showModal();
+ });
+}
+function giftToast(message,error=false){
+ document.getElementById('vatraGiftToast')?.remove();
+ const n=document.createElement('div');n.id='vatraGiftToast';n.className='vatra-gift-toast'+(error?' is-error':'');n.setAttribute('role',error?'alert':'status');n.append(document.createTextNode(message));
+ const b=document.createElement('button');b.type='button';b.textContent='×';b.setAttribute('aria-label','Закрити');b.addEventListener('click',()=>n.remove());n.append(b);document.body.append(n);
+}
 function card(item,owned=false){
  const info=catalog.find(x=>x.code===item.code)||catalog.find(x=>x.code==='spark');
  const price=Number(info.price)||0;
@@ -91,7 +107,7 @@ async function show(uid){
  try{
   await call('vatra_gifts_claim_welcome');
   await call('vatra_gifts_claim_holiday');
-  const [data,userOrders]=await Promise.all([call('vatra_gifts_inventory'),call('vatra_gifts_my_orders')]);orders=Array.isArray(userOrders)?userOrders:[];if(gen!==opened)return;
+  const [data,userOrders]=await Promise.all([call('vatra_gifts_inventory'),call('vatra_gifts_my_orders')]);orders=Array.isArray(userOrders)?userOrders.filter(o=>o.status!=='cancelled'):[];if(gen!==opened)return;
   inventory=safeData(data);networkReady=true;view();
  }catch(err){
   if(gen!==opened)return;
@@ -111,20 +127,20 @@ document.addEventListener('click',async e=>{
  if(buy){
   const code=buy.dataset.vatraOrder,entry=catalog.find(x=>x.code===code);
   if(!entry||!entry.price)return;
-  if(!confirm('Оформити замовлення «'+entry.title+'» за '+entry.price+' грн? Оплата на сайті не проводиться. Розробник ВАТРИ зв’яжеться з Вами.'))return;
+  if(!(await giftConfirm('Оформлення замовлення','Подарунок «'+entry.title+'» — '+entry.price+' грн. Оплата на сайті не проводиться. Після оформлення ВАТРА зв’яжеться з Вами.','Замовити · '+entry.price+' грн')))return;
   buy.disabled=true;
   try{
    const number=await call('vatra_gifts_place_order',{_code:code});
    orders=await call('vatra_gifts_my_orders');
    notice='Замовлення №'+number+' надіслано адміністрації ВАТРИ. Очікуйте повідомлення від розробника.';
-   selectedTab='orders';view();
+   selectedTab='orders';view();giftToast('Замовлення №'+number+' надіслано адміністрації ВАТРИ.');
   }catch(err){status(err.message||'Помилка замовлення.',true);buy.disabled=false;}
   return;
  }
  const cancelOrder=e.target.closest('[data-vatra-cancel-order]');
  if(cancelOrder){
-  if(!confirm('Скасувати замовлення №'+cancelOrder.dataset.vatraCancelOrder+'?'))return;
-  try{await call('vatra_gifts_cancel_order',{_order_id:Number(cancelOrder.dataset.vatraCancelOrder)});orders=await call('vatra_gifts_my_orders');notice='Замовлення скасовано.';view();}
+  if(!(await giftConfirm('Видалити замовлення?','Заявку №'+cancelOrder.dataset.vatraCancelOrder+' буде видалено без можливості відновлення.','Видалити заявку',true)))return;
+  try{await call('vatra_gifts_cancel_order',{_order_id:Number(cancelOrder.dataset.vatraCancelOrder)});orders=await call('vatra_gifts_my_orders');notice='Замовлення видалено.';view();giftToast('Замовлення видалено.');}
   catch(err){status(err.message||'Не вдалося скасувати замовлення.',true);}
   return;
  }
@@ -143,7 +159,7 @@ document.addEventListener('click',async e=>{
   const pane=document.querySelector('#vatraGiftSend'),select=pane?.querySelector('[data-vatra-gift-recipient]');
   const id=pane?.dataset.itemId,receiver=select?.value;if(!id||!receiver){status('Оберіть друга, якому хочете подарувати.',true);return;}
   const btn=e.target;btn.disabled=true;
-  try{await call('vatra_gifts_send',{_item_id:id,_recipient:receiver});notice='Подарунок успішно передано другу.';pane.hidden=true;await show(available());}
+  try{await call('vatra_gifts_send',{_item_id:id,_recipient:receiver});notice='Подарунок успішно передано другу.';pane.hidden=true;await show(available());giftToast('Подарунок передано другу.');}
   catch(err){status(err.message||'Не вдалося передати подарунок.',true);}
   finally{btn.disabled=false;}
  }
@@ -151,7 +167,7 @@ document.addEventListener('click',async e=>{
 document.addEventListener('change',async e=>{
  if(!e.target.matches('[data-vatra-gift-visibility]'))return;
  const el=e.target;const next=el.value;el.disabled=true;
- try{await call('vatra_gifts_set_visibility',{_visibility:next});inventory.visibility=next;status('Приватність подарунків збережено.');}
+ try{await call('vatra_gifts_set_visibility',{_visibility:next});inventory.visibility=next;giftToast('Приватність подарунків збережено.');}
  catch(err){el.value=inventory.visibility;status(err.message||'Не вдалося зберегти приватність.',true);}
  finally{el.disabled=false;}
 });
@@ -172,16 +188,16 @@ async function showPublicGifts(uid){
 async function refreshPreview(el,owner){
  const id=String(owner||'');if(!/^[0-9a-f-]{36}$/i.test(id))return;
  if(el.dataset.giftPreviewFor===id)return;
- el.dataset.giftPreviewFor=id;el.innerHTML='<h3>Подарунки</h3><p class="vatra-gift-muted">Завантаження…</p>';
+ el.dataset.giftPreviewFor=id;el.innerHTML='<div class="vatra-profile-card-head"><h3>Подарунки</h3><b>—</b></div><p class="muted">Завантаження…</p>';
  try{
   const arr=await call('vatra_gifts_public',{_owner:id});
   if(!el.isConnected||el.dataset.giftPreviewFor!==id)return;
   const items=Array.isArray(arr)?arr:[];
-  el.innerHTML='<h3>Подарунки <small>'+items.length+'</small></h3>'+
-  (items.length?'<div class="vatra-gift-preview-row">'+items.slice(0,3).map(x=>art(x.code)).join('')+'</div>':'<p class="vatra-gift-muted">Подарунків поки немає</p>')+
-  '<button type="button" class="vatra-gift-preview-link">Усі подарунки →</button>';
+  el.innerHTML='<div class="vatra-profile-card-head"><h3>Подарунки</h3><b>'+items.length+'</b></div>'+
+   (items.length?'<div class="vatra-gift-preview-row">'+items.slice(0,3).map(x=>'<div class="vatra-gift-preview-item">'+art(x.code)+'</div>').join('')+'</div>':'<p class="muted vatra-gift-preview-empty">Подарунків поки немає.</p>')+
+   '<button type="button" class="vatra-profile-link vatra-gift-preview-link">Усі подарунки →</button>';
  }catch{
-  el.innerHTML='<h3>Подарунки</h3><p class="vatra-gift-muted">Система ще не підключена</p><button type="button" class="vatra-gift-preview-link">Усі подарунки →</button>';
+  el.innerHTML='<div class="vatra-profile-card-head"><h3>Подарунки</h3><b>—</b></div><p class="muted vatra-gift-preview-empty">Подарунки тимчасово недоступні.</p><button type="button" class="vatra-profile-link vatra-gift-preview-link">Усі подарунки →</button>';
  }
 }
 
