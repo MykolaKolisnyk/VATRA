@@ -2027,7 +2027,7 @@ function renderNotifications(){
   '<div class="notification-list">'+(rows||'<div class="empty-inline">Тут поки немає сповіщень у вибраній категорії.</div>')+'</div></article>'+
   '<aside class="vatra-notification-rail"><h3>Категорії</h3><nav>'+filters+'</nav><div class="vatra-notification-rail-separator"></div>'+
   '<button type="button" data-vatra-sound-toggle aria-pressed="'+String(currentProfile.notificationSounds!==false)+'">'+
-  '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg> '+(currentProfile.notificationSounds!==false?'Звуки ввімкнені':'Звуки вимкнені')+'</button></aside></section>',false);
+  (currentProfile.notificationSounds!==false?'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 4a4 4 0 0 1 0 6m3-9a8 8 0 0 1 0 12"/></svg> Звуки ввімкнені':'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Zm5 4 5 6m0-6-5 6"/></svg> Звуки вимкнені')+'</button></aside></section>',false);
  document.querySelectorAll('[data-vatra-notification-filter]').forEach(button=>button.addEventListener('click',()=>{
   vatraNotificationsFilter=button.dataset.vatraNotificationFilter;renderNotifications();
  }));
