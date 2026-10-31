@@ -40,6 +40,14 @@ begin
  if coalesce(_payload->>'groupId','')<>_group_id
     or coalesce(_payload->>'visibility','public')<>'public'
     or not public.vatra_data_is_group_member(_group_id,_uid) then return false; end if;
+ if exists (
+    select 1 from public.app_data g where g.path='groups/'||_group_id
+      and coalesce((g.value->>'membersCanPost')::boolean,true)=false
+ ) and not (
+    public.vatra_data_is_group_owner(_group_id,_uid)
+    or exists (select 1 from public.app_data a
+       where a.path='groupAdmins/'||_group_id||'/'||_uid::text and a.value='true'::jsonb)
+ ) then return false; end if;
  if coalesce(_payload->>'authorType','user')='group' then
   return public.vatra_data_is_group_owner(_group_id,_uid)
      or exists (
@@ -105,6 +113,14 @@ begin
       );
      end if;
    end if;
+   if can_publish and job.group_id is not null
+      and exists (select 1 from public.app_data g where g.path='groups/'||job.group_id
+        and coalesce((g.value->>'membersCanPost')::boolean,true)=false)
+      and not (
+        public.vatra_data_is_group_owner(job.group_id,job.author_uid)
+        or exists (select 1 from public.app_data a where a.path='groupAdmins/'||job.group_id||'/'||job.author_uid::text and a.value='true'::jsonb)
+      )
+   then can_publish:=false; end if;
    if not can_publish then
     update public.vatra_scheduled_posts set cancelled_at=now(),
       last_error='Права на публікацію втрачено.'
@@ -113,8 +129,8 @@ begin
    end if;
    destination:=case when job.group_id is null then 'posts/' else 'groupPosts/'||job.group_id||'/' end||replace(job.id::text,'-','');
    now_ms:=floor(extract(epoch from clock_timestamp())*1000)::bigint;
-   record_value:=job.payload
-     - 'createdAt' - 'updatedAt'
+   record_value:=(job.payload
+     - 'createdAt' - 'updatedAt')
      || jsonb_build_object('createdAt',now_ms,'updatedAt',now_ms,
                            'authorUid',job.author_uid::text);
    if job.group_id is null then
