@@ -1,0 +1,154 @@
+/* VATRA / 2026-11-03: compact photo browsing, active creative studio, notifications. */
+body .vatra-profile-photo-carousel{
+ position:relative;display:block;width:100%;min-width:0;
+}
+body[data-page="profile"] .vatra-profile-photos .vatra-profile-photo-carousel>.profile-photo-gallery,
+body[data-page="publicProfile"] .vatra-profile-photos .vatra-profile-photo-carousel>.profile-photo-gallery{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:8px!important;width:100%!important;min-width:0!important;
+ overflow:hidden!important;max-width:100%!important;padding:2px!important;
+}
+body[data-page="profile"] .vatra-profile-photos .vatra-profile-photo-carousel .profile-photo-tile,
+body[data-page="publicProfile"] .vatra-profile-photos .vatra-profile-photo-carousel .profile-photo-tile{
+ box-sizing:border-box!important;min-width:0!important;width:100%!important;max-width:100%!important;
+ flex:none!important;margin:0!important;
+ transition:transform .2s ease,box-shadow .2s ease!important;
+}
+body .vatra-gallery-carousel-arrow{
+ position:absolute;top:37%;z-index:4;
+ display:grid;place-items:center;
+ width:33px;height:43px;padding:6px;
+ border:1px solid rgba(187,204,222,.6);border-radius:10px;
+ background:rgba(248,251,255,.91);color:#2c5b91;
+ box-shadow:0 4px 14px #142f5033;
+ backdrop-filter:blur(6px);
+ cursor:pointer;transition:background .2s,transform .2s,box-shadow .2s;
+}
+body .vatra-gallery-carousel-arrow.is-prev{left:4px}
+body .vatra-gallery-carousel-arrow.is-next{right:4px}
+body .vatra-gallery-carousel-arrow:hover{
+ background:#fff;color:#0757f5;box-shadow:0 6px 20px #142f5044;
+ transform:scale(1.07);
+}
+body .vatra-gallery-carousel-arrow:focus-visible{outline:2px solid #0757f5;outline-offset:2px}
+@media(max-width:530px){
+ body[data-page="profile"] .vatra-profile-photos .vatra-profile-photo-carousel>.profile-photo-gallery,
+ body[data-page="publicProfile"] .vatra-profile-photos .vatra-profile-photo-carousel>.profile-photo-gallery{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ }
+}
+/* Consistent animated hover enlargement for own and other peoples' avatars. */
+body .vatra-profile-avatar-card .vatra-profile-avatar-open{overflow:hidden!important;cursor:zoom-in!important}
+body .vatra-profile-avatar-card .vatra-profile-avatar-open>.vatra-profile-photo{
+ transform:scale(1)!important;transition:transform .42s cubic-bezier(.2,.65,.2,1),filter .42s ease!important;will-change:transform;
+}
+@media(hover:hover){
+ body[data-page="profile"] .vatra-profile-avatar-card .vatra-avatar-hover-wrap:hover>.vatra-profile-avatar-open>.vatra-profile-photo,
+ body[data-page="publicProfile"] .vatra-profile-avatar-card>.vatra-profile-avatar-open:hover>.vatra-profile-photo,
+ body .vatra-profile-avatar-card .vatra-profile-avatar-open:focus-visible>.vatra-profile-photo{
+  transform:scale(1.035)!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-profile-avatar-card .vatra-profile-avatar-open>.vatra-profile-photo{transition:none!important}
+}
+/* Edit profile clearly communicates its action with a real vector symbol. */
+body .vatra-profile-avatar-card button.vatra-profile-edit{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:8px!important;cursor:pointer!important;
+}
+body .vatra-profile-avatar-card button.vatra-profile-edit svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:currentColor;stroke-width:1.85}
+body #notificationBell.notification-button{
+ position:relative!important;overflow:visible!important;
+ display:grid!important;place-items:center!important;
+ min-width:36px!important;min-height:38px!important;
+ padding:4px!important;isolation:isolate!important;
+}
+body #notificationBell.notification-button>svg{
+ display:block!important;max-width:none!important;
+ width:21px!important;height:21px!important;overflow:visible!important;
+ flex:0 0 auto!important;stroke-width:1.85!important;
+}
+body #notificationBell #notificationBadge:not([hidden]){
+ display:grid!important;place-items:center!important;
+ position:absolute!important;z-index:5!important;
+ left:auto!important;bottom:auto!important;
+ top:-5px!important;right:-8px!important;
+ width:auto!important;min-width:17px!important;height:17px!important;min-height:17px!important;
+ padding:0 4px!important;border:2px solid #fff!important;
+ border-radius:99px!important;
+ background:#0757f5!important;color:#fff!important;
+ font:750 9px/1 "VATRA Onest",Inter,sans-serif!important;
+ box-sizing:content-box!important;box-shadow:none!important;
+ transform:none!important;
+}
+body #notificationBell .vatra-admin-report-count{display:none!important}
+body[data-vatra-theme-effective="dark"] #notificationBell #notificationBadge:not([hidden]){border-color:#15243a!important}
+
+/* Server-backed collection deletion is available only inside the logged-in owner's view. */
+body .vatra-gift-owned-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:auto}
+body .vatra-gift-owned-actions>button{min-width:0;flex:1;padding:9px 10px;border-radius:9px;cursor:pointer}
+body .vatra-gift-owned-actions>button.vatra-gift-discard,
+body .vatra-gift-discard-all{
+ border:1px solid #f1cbd1!important;border-radius:9px!important;
+ background:#fff6f7!important;color:#bd4259!important;
+ font:690 11.5px/1.4 "VATRA Onest",Inter,sans-serif!important;
+ padding:9px 11px!important;cursor:pointer;
+}
+body .vatra-gift-owned-actions>button.vatra-gift-discard:hover,
+body .vatra-gift-discard-all:hover{background:#fee8ec!important}
+body .vatra-gift-collection-actions{display:flex;justify-content:flex-end;gap:10px;margin:14px 0}
+
+
+/* Equal smooth hover transitions for both own and public profile photos. */
+body[data-page="profile"] .vatra-profile-avatar-card .vatra-avatar-hover-wrap>.vatra-profile-avatar-open>.vatra-profile-photo,
+body[data-page="publicProfile"] .vatra-profile-avatar-card>.vatra-profile-avatar-open>.vatra-profile-photo{
+ transform:scale(1)!important;transition:transform .42s cubic-bezier(.2,.65,.2,1),filter .42s ease!important;transform-origin:center!important;
+}
+@media(hover:hover){
+ body[data-page="profile"] .vatra-profile-avatar-card .vatra-avatar-hover-wrap:hover>.vatra-profile-avatar-open>.vatra-profile-photo,
+ body[data-page="publicProfile"] .vatra-profile-avatar-card>.vatra-profile-avatar-open:hover>.vatra-profile-photo{
+  transform:scale(1.035)!important;
+ }
+}
+
+/* Real image element with a visible letter fallback if a remote avatar fails. */
+body .avatar[data-vatra-avatar-image]{position:relative!important;isolation:isolate;overflow:hidden!important}
+body .avatar[data-vatra-avatar-image]>.vatra-avatar-image{
+ display:block!important;position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:center!important;
+ border-radius:inherit!important;z-index:2!important;
+ background:transparent!important;pointer-events:none!important;
+ transform:none!important;
+}
+body .avatar[data-vatra-avatar-image]>.vatra-avatar-initials{
+ display:grid;place-items:center;position:absolute;inset:0;z-index:1;
+ font:800 1em/1 "VATRA Onest",system-ui,sans-serif;color:inherit;
+}
+body .avatar[data-vatra-avatar-image="yes"]>.vatra-avatar-initials{
+ opacity:0;
+}
+body .avatar[data-vatra-avatar-image="yes"].is-avatar-failed>.vatra-avatar-initials{
+ opacity:1;
+}
+body .avatar[data-vatra-avatar-image="yes"].is-avatar-failed>.vatra-avatar-image{
+ display:none!important;
+}
+body .avatar.vatra-profile-photo[data-vatra-avatar-image="yes"]::before,
+body .avatar.vatra-profile-photo[data-vatra-avatar-image="yes"]::after{
+ display:none!important;content:none!important;
+}
+body .avatar.vatra-profile-photo>.vatra-avatar-image{
+ border-radius:inherit!important;
+}
+body[data-page="profile"] .vatra-profile-avatar-card .vatra-profile-avatar-open,
+body[data-page="publicProfile"] .vatra-profile-avatar-card .vatra-profile-avatar-open{
+ overflow:hidden!important;cursor:zoom-in!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="profile"] .vatra-profile-avatar-card .vatra-profile-avatar-open>.vatra-profile-photo,
+ body[data-page="publicProfile"] .vatra-profile-avatar-card .vatra-profile-avatar-open>.vatra-profile-photo{
+  transition:none!important;
+ }
+}
