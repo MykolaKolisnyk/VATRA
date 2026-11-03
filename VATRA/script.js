@@ -2121,7 +2121,7 @@ function vatraMonitorSounds(items){
   if(item.type==='message')newMessage=true;else newOther=true;
  }
  if(vatraSoundKnown.size>500)vatraSoundKnown=new Set([...vatraSoundKnown].slice(-250));
- if(newMessage||newOther)vatraBeep(newMessage?'message':'notification');
+ if((newMessage||newOther)&&privateNotifyPrefs?.sound!==false)vatraBeep(newMessage?'message':'notification');
 }
 
 function notificationItems(){
@@ -2182,7 +2182,7 @@ function notificationItems(){
   const createdAt=Number(r.createdAt)||0;
   if(createdAt)put({id:'friend_'+actor,type:'friend',actorUid:actor,createdAt});
  }
- return items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ return items.filter(n=>n.type==='verified'||privateNotifyPrefs?.[n.type]!==false).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 }
 function updateNotificationBadges(){updateMessageNavBadge();const items=notificationItems();vatraMonitorSounds(items);const count=items.filter(x=>x.unread).length,incoming=Object.entries(friendRequests).filter(([uid,x])=>x&&!friends[uid]&&!blockedUsers[uid]&&x.status==='pending'&&x.direction==='incoming').length;['notificationBadge','notificationNavBadge'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.textContent=count>99?'99+':String(count);el.hidden=count===0;});const friendBadge=document.getElementById('friendsNavBadge');if(friendBadge){friendBadge.textContent=incoming>99?'99+':String(incoming);friendBadge.hidden=incoming===0;}}
 function updateMessageNavBadge(){
@@ -2639,10 +2639,10 @@ function vatraOrganizeSettings(){
  const tabs=[
   ['profile','Профіль'],['contacts','Контакти'],['interests','Захоплення'],
   ['education','Освіта'],['career',"Кар'єра"],['service','Військова служба'],
-  ['life','Життєва позиція'],['privacy','Приватність'],['appearance','Вигляд ВАТРИ'],['language','Мова інтерфейсу'],['account','Акаунт і видалення'],['documents','Документи']
+  ['life','Життєва позиція'],['privacy','Приватність'],['notifications','Сповіщення'],['blocked','Чорний список'],['appearance','Вигляд ВАТРИ'],['language','Мова інтерфейсу'],['account','Акаунт і видалення'],['documents','Документи']
  ];
  const editMode=vatraSettingsContext==='edit';
- const visibleTabs=new Set(editMode?['profile','contacts','interests','education','career','service','life']:['privacy','appearance','language','account','documents']);
+ const visibleTabs=new Set(editMode?['profile','contacts','interests','education','career','service','life']:['privacy','notifications','blocked','appearance','language','account','documents']);
  page.dataset.vatraSettingsContext=vatraSettingsContext;
  const workspace=document.createElement('div');workspace.className='vatra-settings-workspace';
  form.before(workspace);workspace.append(form);
@@ -2655,11 +2655,13 @@ function vatraOrganizeSettings(){
   const pane=document.createElement('section');pane.className='vatra-settings-pane';pane.dataset.settingsSection=id;pane.setAttribute('aria-label',title);pane.hidden=id!==vatraSettingsSection;
   sections[id]=pane;form.insertBefore(pane,savebar);
   const button=document.createElement('button');button.type='button';button.className='vatra-settings-nav-button';
-  const displayTitles={appearance:'Загальні',language:'Мова інтерфейсу',privacy:'Приватність',account:'Акаунт і безпека',documents:'Документи'};
+  const displayTitles={appearance:'Загальні',language:'Мова інтерфейсу',privacy:'Приватність',notifications:'Сповіщення',blocked:'Чорний список',account:'Акаунт і безпека',documents:'Документи'};
   const iconPaths={
    appearance:'<circle cx="12" cy="12" r="8"/><path d="M12 6v6l4 2"/>',
    language:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4 6 4 9s-1 6-4 9c-3-3-4-6-4-9s1-6 4-9Z"/>',
    privacy:'<path d="M12 2 20 5v7c0 5-3.5 8-8 10-4.5-2-8-5-8-10V5l8-3Z"/><path d="m9 12 2 2 4-4"/>',
+   notifications:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/>',
+   blocked:'<circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/>',
    account:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
    documents:'<path d="M6 3h9l4 4v14H6V3Z"/><path d="M15 3v5h4M9 12h7m-7 4h7"/>'
   };
@@ -2672,7 +2674,7 @@ function vatraOrganizeSettings(){
  const choose=id=>{
   vatraSettingsSection=id;
   for(const [key,pane] of Object.entries(sections))pane.hidden=key!==id;
-  savebar.hidden=!editMode&&['language','account','documents'].includes(id);
+  savebar.hidden=!editMode&&['language','account','documents','notifications','blocked'].includes(id);
   if(id==='account')vatraRenderAccountLifecycleSettings(sections.account);
   nav.querySelectorAll('[data-settings-target]').forEach(button=>{
    const active=button.dataset.settingsTarget===id;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false');
@@ -2782,6 +2784,30 @@ function vatraOrganizeSettings(){
  });
  sections.privacy.append(privacyCard,adminCard);
  sections.appearance.append(appearanceCard);
+ const notificationGrid=makeCard('notifications','Сповіщення ВАТРИ','Налаштуйте, які події показувати у внутрішньому центрі сповіщень. Системні повідомлення про безпеку залишаються доступними.');
+ const notificationCategories=[
+  ['like','Вподобання дописів'],['photoLike','Вподобання фотографій'],
+  ['comment','Коментарі'],['reply','Відповіді на коментарі'],['photoComment','Коментарі до фото'],
+  ['commentLike','Вподобання коментарів'],['friend','Запити в друзі'],
+  ['groupPost','Нові дописи спільнот'],['sound','Звуки нових подій']
+ ];
+ for(const [key,title] of notificationCategories){
+  const label=document.createElement('label');label.className='vatra-notify-setting';
+  const toggle=document.createElement('input');toggle.type='checkbox';toggle.dataset.vatraNotifyPreference=key;
+  toggle.checked=privateNotifyPrefs?.[key]!==false;
+  const text=document.createElement('span');text.textContent=title;
+  label.append(text,toggle);notificationGrid.append(label);
+  toggle.addEventListener('change',async()=>{
+   const old={...privateNotifyPrefs};privateNotifyPrefs[key]=toggle.checked;
+   toggle.disabled=true;
+   try{
+    await update(ref(db,'privateUsers/'+currentUser.uid),{notificationPreferences:privateNotifyPrefs,updatedAt:Date.now()});
+    currentProfile.notificationPreferences=privateNotifyPrefs;updateNotificationBadges();toastMsg('Сповіщення оновлено.');
+   }catch(error){privateNotifyPrefs=old;toggle.checked=old[key]!==false;toastMsg('Не вдалося зберегти: '+niceError(error));}
+   finally{toggle.disabled=false;}
+  });
+ }
+
  // Dedicated, clearly visible language section. This is populated by the
  // shared language module without reloading the profile or discarding edits.
  const languageGrid=makeCard('language','Мова інтерфейсу','Виберіть мову ВАТРИ. Зміни застосовуються одразу, без перезавантаження. Для мов із неповним перекладом інтерфейс тимчасово залишиться українською.');
@@ -2795,7 +2821,25 @@ function vatraOrganizeSettings(){
  };
  looks.append(prefSelect('themeMode','Тема оформлення',[['light','Світла'],['dark','Темна'],['auto','Як у системі']],currentProfile.themeMode||'light'));
  const blocked=page.querySelector('.blocked-users-card'),legal=page.querySelector('.settings-legal-card');
- if(blocked)sections.privacy.append(blocked);
+ if(blocked){
+  sections.blocked.append(blocked);
+  const heading=blocked.querySelector('h3');
+  if(heading)heading.textContent='Чорний список';
+  const search=document.createElement('div');
+  search.className='vatra-blocked-add';
+  search.innerHTML='<label for="vatraBlockedLookup">Знайти користувача за іменем або @псевдонімом</label><input id="vatraBlockedLookup" type="search" autocomplete="off" maxlength="80" placeholder="Пошук користувачів ВАТРИ"><div id="vatraBlockedResults" class="vatra-blocked-results"></div>';
+  const list=blocked.querySelector('#blockedUsersList');if(list)blocked.insertBefore(search,list);
+  const input=search.querySelector('input');
+  input.addEventListener('input',()=>{
+    const query=input.value.trim().toLocaleLowerCase('uk');
+    const matches=query.length>=2?Object.entries(users).filter(([uid,u])=>uid!==currentUser.uid&&!blockedUsers[uid]&&[u?.name,u?.handle].some(v=>String(v||'').toLocaleLowerCase('uk').includes(query))).slice(0,8):[];
+    search.querySelector('#vatraBlockedResults').innerHTML=matches.map(([uid,u])=>'<div class="vatra-blocked-result"><span>'+avatar(u?.name||'Користувач',u?.avatarUrl)+'<b>'+esc(u?.name||'Користувач')+'</b><small>@'+esc(u?.handle||'user')+'</small></span><button type="button" data-vatra-block-from-settings="'+esc(uid)+'">Заблокувати</button></div>').join('')||(query.length>=2?'<p>Нікого не знайдено.</p>':'');
+  });
+  search.addEventListener('click',async event=>{
+    const btn=event.target.closest('[data-vatra-block-from-settings]');if(!btn)return;
+    btn.disabled=true;await blockUser(btn.dataset.vatraBlockFromSettings);
+  });
+ }
  if(legal){
   legal.classList.add('vatra-official-documents');
   legal.innerHTML='<div class="vatra-legal-heading"><div><span class="vatra-legal-kicker">НОРМАТИВНА ІНФОРМАЦІЯ</span><h3>Документи ВАТРИ</h3><p>Правила платформи, умови використання та відомості про обробку персональних даних. Ознайомтеся з текстом документа перед використанням відповідних можливостей.</p></div></div>'+
