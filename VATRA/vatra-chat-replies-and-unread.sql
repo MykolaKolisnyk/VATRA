@@ -184,8 +184,9 @@ begin
   for participant in select jsonb_object_keys(members) loop
     -- Preserve the original chat's otherUid for both sender and recipient.
     if participant !~ '^[0-9a-fA-F-]{36}$' then continue; end if;
-    select key into other_participant from jsonb_object_keys(members) key
-      where key<>participant limit 1;
+    select member_uid into other_participant
+      from jsonb_object_keys(members) as others(member_uid)
+      where member_uid <> participant limit 1;
     if other_participant is null then continue; end if;
     index_path := 'userChats/'||participant||'/'||chat_id;
     row_value := jsonb_build_object(
