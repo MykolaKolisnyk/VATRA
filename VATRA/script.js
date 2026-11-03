@@ -836,7 +836,7 @@ function renderProfile(){
     '<div class="vatra-profile-status-row">'+(vatraNowPlayingMarkup(currentProfile)||(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>'))+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
-    '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(currentProfile.gender))+detail('Місто',currentProfile.city,'city')+detail('Місце роботи',currentProfile.workplace,'workplace')+detail('Навчання',currentProfile.education,'education')+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+selfExtras+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf'):'')+
+    '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(currentProfile.gender))+detail('Місто',currentProfile.city,'city')+detail('Місце роботи',currentProfile.workplace,'workplace')+detail('Навчання',currentProfile.education,'education')+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+selfExtras+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf'):'')+
     stats+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><a class="vatra-profile-link" id="profileViewPhotos" href="#/photos">Усі фото</a><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
@@ -1031,9 +1031,9 @@ function vatraPublicProfileActions(uid){
  const relation=friends[uid]
   ?'<span class="vatra-public-relation is-friend" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>У друзях</span>'
   :pending&&request.direction==='incoming'
-   ?'<button type="button" class="vatra-public-relation-action" data-accept-friend="'+id+'">Прийняти запит</button>'
+   ?'<button type="button" class="vatra-public-relation-action" data-accept-friend="'+id+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l4 4L19 6"/></svg>Прийняти запит</button>'
    :pending?'<span class="vatra-public-relation is-pending" role="status">Запит надіслано</span>'
-   :'<button type="button" class="vatra-public-relation-action" data-friend-request="'+id+'">Додати в друзі</button>';
+   :'<button type="button" class="vatra-public-relation-action" data-friend-request="'+id+'"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2c0-4 3-6 6-6s6 2 6 6v2M19 8v8m-4-4h8"/></svg>Додати в друзі</button>';
  return '<div class="vatra-profile-public-actions" role="group" aria-label="Дії з профілем">'+
   '<button type="button" class="vatra-public-message-action" data-message-user="'+id+'">'+
    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v12H8l-4 3V5.5Z"/><path d="M8 10h8m-8 3h5"/></svg>Написати</button>'+
@@ -1044,7 +1044,7 @@ function vatraPublicProfileActions(uid){
 }
 document.addEventListener('click',event=>{
  document.querySelectorAll('.vatra-public-actions-more[open]').forEach(menu=>{
-  if(!menu.contains(event.target))menu.open=false;
+  if(!menu.contains(event.target)||event.target.closest('.vatra-public-actions-dropdown button'))menu.open=false;
  });
 });
 document.addEventListener('keydown',event=>{
@@ -1108,7 +1108,7 @@ function renderPublicProfile(uid){
     (vatraNowPlayingMarkup(u)?'<div class="vatra-profile-status-row">'+vatraNowPlayingMarkup(u)+'</div>':visibleStatus?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (visibleBio?profileBioMarkup(visibleBio):'')+
-    '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(u.gender))+detail('Місто',city,'city')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
+    '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(u.gender))+detail('Місто',city,'city')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
     detail('День народження',birthdayLabel)+detail('Місце проживання',location,'location')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite)+publicExtras+
     '</div>'+vatraProfileMoreButton(uid,'vatraProfileMorePublic'):'')+
     '<div class="vatra-profile-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
