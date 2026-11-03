@@ -5,3 +5,10 @@
 .vatra-language-pref .vatra-language-select{width:100%}
 .vatra-language-select:focus-visible{outline:2px solid #4f6680!important;outline-offset:2px!important;border-color:#b8c8da!important;box-shadow:none!important}
 @media(max-width:600px){.vatra-language-auth{margin-bottom:22px}.vatra-language-select{min-width:140px}}
+
+.vatra-language-auth{display:flex;flex-wrap:wrap;row-gap:7px}
+.vatra-language-auth>label{max-width:100%;flex-wrap:wrap;justify-content:center}
+.vatra-language-select{min-width:min(230px,100%);max-width:100%;font-size:13px;overflow:hidden;text-overflow:ellipsis}
+.vatra-language-notice{flex:0 0 100%;max-width:490px;margin-inline:auto;text-align:center;font:500 12px/1.55 Inter,system-ui,sans-serif;color:#887050}
+.vatra-language-notice[hidden]{display:none}
+.vatra-language-pref .vatra-language-notice{margin:3px 0 0;max-width:none;text-align:left}
