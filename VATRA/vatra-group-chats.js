@@ -12,7 +12,16 @@ function when(ts){const t=Number(ts)||0;return t?new Date(t).toLocaleString('uk-
 function notify(message){const out=$('#vatraGroupChatNotice');if(out){out.textContent=message;out.hidden=false;}else{const note=document.createElement('div');note.className='vatra-group-toast';note.textContent=message;document.body.append(note);setTimeout(()=>note.remove(),4500);}}
 function eligibleMessage(value){return value&&typeof value==='object'&&typeof value.text==='string'&&value.senderUid;}
 function unreadCount(){return Object.entries(groupIndex).filter(([id,g])=>g?.lastMessage?.senderUid&&g.lastMessage.senderUid!==myUid&&Number(g.lastMessage.createdAt||0)>Number(groupReads[id]||0)).length;}
-function refreshBadge(){window.vatraGroupUnreadCount=unreadCount();window.vatraRefreshMessageBadge?.();}
+function refreshBadge(){
+ const senders=new Set();
+ for(const [id,item] of Object.entries(groupIndex)){
+  const last=item?.lastMessage;
+  if(last?.senderUid&&last.senderUid!==myUid&&Number(last.createdAt||0)>Number(groupReads[id]||0))senders.add(last.senderUid);
+ }
+ window.vatraGroupUnreadSenders=[...senders];
+ window.vatraGroupUnreadCount=senders.size;
+ window.vatraRefreshMessageBadge?.();
+}
 function setStateOfActiveGroup(){
  const section=$('.vatra-messenger .vatra-group-chat-block');if(!section)return;
  section.querySelectorAll('[data-open-vatra-group]').forEach(b=>b.classList.toggle('active',b.dataset.openVatraGroup===activeGroupId));
