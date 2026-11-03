@@ -1,0 +1,8 @@
+body .vatra-translate-button{display:inline-flex;align-items:center;min-height:26px;margin:5px 0 3px;padding:2px 5px;border:0;border-radius:6px;background:transparent;color:#647a92;font:600 12px/1.4 Inter,system-ui,sans-serif;box-shadow:none;cursor:pointer}
+body .vatra-translate-button:hover{color:#314b67;background:#f0f3f7}
+body .vatra-translate-button:disabled{opacity:.65;cursor:wait}
+body .vatra-translation-result{margin:6px 0 8px;padding:9px 13px;border-left:2px solid #a2b3c5;background:#f5f7fa;border-radius:0 8px 8px 0;color:#26364a}
+body .vatra-translation-result small{display:block;margin-bottom:4px;color:#61768b;font:700 11px/1.4 Inter,system-ui,sans-serif}
+body .vatra-translation-result p{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font:400 14px/1.5 Inter,system-ui,sans-serif}
+body .vatra-translation-error{margin:4px 0 8px;color:#ac4d49;font:500 12px/1.4 Inter,system-ui,sans-serif}
+body :is(.vatra-translation-result,.vatra-translation-error)[hidden]{display:none!important}
