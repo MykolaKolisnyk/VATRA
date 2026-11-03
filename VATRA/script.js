@@ -2608,7 +2608,7 @@ function vatraOrganizeSettings(){
  const workspace=document.createElement('div');workspace.className='vatra-settings-workspace';
  form.before(workspace);workspace.append(form);
  const nav=document.createElement('nav');nav.className='vatra-settings-nav';nav.setAttribute('aria-label','Розділи налаштувань профілю');
- page.querySelector('.settings-intro')?.remove();
+ // Keep the settings title and explanatory intro visible above the workspace.
  workspace.append(nav);
  const sections={};
  for(const [id,title] of tabs){
