@@ -279,3 +279,9 @@ document.addEventListener('submit',async event=>{
   catch(e){toast(e.message||'Не вдалося передати подарунок',true);b.disabled=false;}
  }
 });
+
+/* Catch the first gift-page render if modules finished loading in a different order. */
+requestAnimationFrame(()=>{
+ if(document.querySelector('#vatraCreatorGiftsMount'))void render();
+ else if(document.querySelector('#vatraCreatorGiftsMine'))void renderMine();
+});
