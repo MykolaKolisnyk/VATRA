@@ -3615,8 +3615,12 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
  
 async function vatraOpenAvatarPicker(){
  if(!authRequired())return;
+ const postGallery=Object.values(posts||{})
+  .filter(post=>post?.authorUid===currentUser.uid&&post.addMediaToGallery!==false)
+  .flatMap(post=>postImages(post)).filter(Boolean);
  const pictures=[...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[]),
-  ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[])]
+  ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]),
+  ...postGallery]
   .filter((url,index,arr)=>typeof url==='string'&&/^https:\/\//i.test(url)&&arr.indexOf(url)===index).slice(0,60);
  if(!pictures.length){toastMsg('Збережених фотографій не знайдено. Завантажте нове фото.');return;}
  let dlg=document.getElementById('vatraAvatarPickDialog');
