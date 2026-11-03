@@ -109,6 +109,21 @@ CREATE TABLE IF NOT EXISTS public.vatra_chat_messages (
   payload jsonb NOT NULL,
   source_updated_at timestamptz NOT NULL
 );
+CREATE TABLE IF NOT EXISTS public.vatra_group_conversations (
+  source_path text PRIMARY KEY,
+  conversation_id text NOT NULL,
+  owner_uid text,title text,
+  members jsonb NOT NULL DEFAULT '{}'::jsonb,
+  payload jsonb NOT NULL,
+  source_updated_at timestamptz NOT NULL
+);
+CREATE TABLE IF NOT EXISTS public.vatra_group_messages (
+  source_path text PRIMARY KEY,
+  conversation_id text NOT NULL,
+  message_id text,
+  payload jsonb NOT NULL,
+  source_updated_at timestamptz NOT NULL
+);
 CREATE TABLE IF NOT EXISTS public.vatra_v2_sync_errors (
   source_path text PRIMARY KEY,
   sqlstate text,
@@ -126,6 +141,8 @@ CREATE INDEX IF NOT EXISTS vatra_community_members_uid_idx
 CREATE INDEX IF NOT EXISTS vatra_videos_author_idx ON public.vatra_videos(author_uid);
 CREATE INDEX IF NOT EXISTS vatra_chat_messages_chat_idx
   ON public.vatra_chat_messages(chat_id);
+CREATE INDEX IF NOT EXISTS vatra_group_messages_conversation_idx
+  ON public.vatra_group_messages(conversation_id);
 
 -- Захист: поки сайт не перейшов на нові RPC та RLS, нові дані
 -- доступні тільки адміністратору / службі БД.
@@ -136,7 +153,7 @@ BEGIN
     'vatra_users','vatra_private_profiles','vatra_friends',
     'vatra_posts','vatra_communities','vatra_community_members',
     'vatra_videos','vatra_chats','vatra_chat_messages',
-    'vatra_v2_sync_errors'
+    'vatra_group_conversations','vatra_group_messages','vatra_v2_sync_errors'
   ] LOOP
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',name);
     EXECUTE format('REVOKE ALL ON TABLE public.%I FROM PUBLIC, anon, authenticated',name);
@@ -333,6 +350,29 @@ BEGIN
         p_value->>'senderUid',p_value ? 'encrypted',p_value,stamp
       );
     END IF;
+  ELSIF p_path ~ '^groupConversations/[^/]+$' THEN
+    DELETE FROM public.vatra_group_conversations WHERE source_path=p_path;
+    IF p_value IS NOT NULL AND jsonb_typeof(p_value)='object' THEN
+      INSERT INTO public.vatra_group_conversations(
+        source_path,conversation_id,owner_uid,title,members,payload,source_updated_at
+      ) VALUES (
+        p_path,split_part(p_path,'/',2),p_value->>'ownerUid',p_value->>'title',
+        CASE WHEN jsonb_typeof(p_value->'members')='object'
+             THEN p_value->'members' ELSE '{}'::jsonb END,p_value,stamp
+      );
+    END IF;
+
+  ELSIF p_path ~ '^groupMessages/[^/]+(/[^/]+)?$' THEN
+    DELETE FROM public.vatra_group_messages WHERE source_path=p_path;
+    IF p_value IS NOT NULL AND jsonb_typeof(p_value)='object' THEN
+      INSERT INTO public.vatra_group_messages(
+        source_path,conversation_id,message_id,payload,source_updated_at
+      ) VALUES (
+        p_path,split_part(p_path,'/',2),
+        CASE WHEN p_path ~ '^groupMessages/[^/]+/[^/]+$'
+             THEN split_part(p_path,'/',3) ELSE NULL END,p_value,stamp
+      );
+    END IF;
   END IF;
 END
 $sync$;
@@ -353,7 +393,7 @@ BEGIN
   key_path:=CASE WHEN TG_OP='DELETE' THEN OLD.path ELSE NEW.path END;
   -- Не витрачаємо запити на дані, які ще не мають v2-дзеркала.
   IF key_path !~* '^(publicProfiles|privateUsers|friends)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-    AND key_path !~ '^((posts|groups|videos)/[^/]+|groupPosts/[^/]+/[^/]+|groupMembers/[^/]+/[^/]+|chats/[^/]+|chats/[^/]+/messages/[^/]+)$' THEN
+    AND key_path !~ '^((posts|groups|videos|groupConversations)/[^/]+|groupPosts/[^/]+/[^/]+|groupMembers/[^/]+/[^/]+|groupMessages/[^/]+(/[^/]+)?|chats/[^/]+|chats/[^/]+/messages/[^/]+)$' THEN
     IF TG_OP='DELETE' THEN RETURN OLD; END IF;
     RETURN NEW;
   END IF;
@@ -408,6 +448,8 @@ BEGIN
       OR path ~ '^videos/[^/]+$'
       OR path ~ '^chats/[^/]+$'
       OR path ~ '^chats/[^/]+/messages/[^/]+$'
+      OR path ~ '^groupConversations/[^/]+$'
+      OR path ~ '^groupMessages/[^/]+(/[^/]+)?$'
     ORDER BY CASE WHEN path LIKE 'friends/%' THEN 1 ELSE 0 END,path
   LOOP
     PERFORM public.vatra_v2_sync_path(r.path,r.value,r.updated_at);
@@ -517,6 +559,10 @@ COMMENT ON TABLE public.vatra_chats IS
  'ВАТРА 2.0 · Чати; закрите дзеркало включно з шифрованими повідомленнями.';
 COMMENT ON TABLE public.vatra_chat_messages IS
  'ВАТРА 2.0 · Окремі рядки повідомлень; ніколи не розшифровує E2EE.';
+COMMENT ON TABLE public.vatra_group_conversations IS
+ 'ВАТРА 2.0 · Групові бесіди, дзеркало groupConversations/ з app_data.';
+COMMENT ON TABLE public.vatra_group_messages IS
+ 'ВАТРА 2.0 · Повідомлення групових бесід, дзеркало groupMessages/ з app_data.';
 COMMENT ON TABLE public.vatra_v2_sync_errors IS
  'ВАТРА 2.0 · Закритий журнал помилок дзеркалювання; перевіряти перед переключенням сайту.';
 
@@ -532,6 +578,8 @@ UNION ALL SELECT 'vatra_community_members',count(*) FROM public.vatra_community_
 UNION ALL SELECT 'vatra_videos',count(*) FROM public.vatra_videos
 UNION ALL SELECT 'vatra_chats',count(*) FROM public.vatra_chats
 UNION ALL SELECT 'vatra_chat_messages',count(*) FROM public.vatra_chat_messages
+UNION ALL SELECT 'vatra_group_conversations',count(*) FROM public.vatra_group_conversations
+UNION ALL SELECT 'vatra_group_messages',count(*) FROM public.vatra_group_messages
 UNION ALL SELECT 'vatra_v2_sync_errors',count(*) FROM public.vatra_v2_sync_errors
 ORDER BY v2_table;
 
