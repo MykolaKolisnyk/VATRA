@@ -119,28 +119,6 @@ body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-ph
 body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>h3{
  padding:18px 21px 13px!important;margin:0!important;border-bottom:1px solid #e4ebf4!important;
 }
-body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover{
- position:relative!important;width:100%!important;height:175px!important;overflow:hidden!important;
- margin:0!important;border:0!important;background:#eaf1fb!important;
-}
-body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover-backdrop{
- width:100%!important;height:100%!important;display:flex!important;align-items:center!important;
- justify-content:center!important;background:linear-gradient(135deg,#e8f0fb,#d7e5f5)!important;
-}
-body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover-backdrop img{
- width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;
-}
-body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover-backdrop span{
- color:#8faac8!important;font:800 46px/1 Inter,system-ui,sans-serif!important;letter-spacing:.12em!important;
-}
-body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover-button{
- position:absolute!important;right:16px!important;bottom:16px!important;z-index:2!important;
- display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;
- padding:9px 13px!important;border:1px solid #fff7!important;border-radius:9px!important;
- background:#172a43ce!important;color:#fff!important;font:700 12px/1.25 Inter,system-ui,sans-serif!important;
- cursor:pointer!important;backdrop-filter:blur(7px)!important;max-width:calc(100% - 32px)!important;
-}
-body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover-button:hover{background:#0757f5!important}
 body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>.settings-photo-row{
  margin:0!important;padding:20px 22px!important;display:flex!important;gap:20px!important;
 }
@@ -232,7 +210,6 @@ body[data-vatra-theme-effective="dark"] .settings-page[data-vatra-settings-conte
  body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields{grid-template-columns:minmax(0,1fr)!important}
  body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields label:first-child{grid-column:1!important}
  body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-pane>.settings-card{padding:16px!important}
- body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-cover{height:145px!important}
  body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>.settings-photo-row{padding:16px!important}
  body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-visibility{width:100%!important;justify-content:space-between!important}
 }
