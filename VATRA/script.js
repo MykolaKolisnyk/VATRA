@@ -60,7 +60,30 @@ document.addEventListener('keydown',event=>{
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function localISODate(date=new Date()){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-');}
 function initials(n='ВАТРА'){return n.trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toLocaleUpperCase('uk-UA')||'В';}
-function askConfirm(message){return new Promise(resolve=>{const d=$('#vatraConfirmDialog');$('#vatraConfirmMessage').textContent=message;const yes=$('#vatraConfirmYes'),no=$('#vatraConfirmNo');yes.onclick=()=>{d.close();resolve(true)};no.onclick=()=>{d.close();resolve(false)};d.addEventListener('cancel',()=>resolve(false),{once:true});d.showModal();});}
+function askConfirm(message){
+ return new Promise(resolve=>{
+  const d=$('#vatraConfirmDialog'),question=$('#vatraConfirmMessage');
+  const yes=$('#vatraConfirmYes'),no=$('#vatraConfirmNo'),heading=$('#vatraConfirmTitle');
+  const content=String(message||'').trim();
+  const danger=/^(видалити|заблокувати|прибрати|скасувати|очистити|стерти|відмовитися|видалення)\b/i.test(content);
+  question.textContent=content;
+  if(heading)heading.textContent=danger?'Підтвердіть зміну':'Підтвердити дію?';
+  yes.textContent=/^видалити\b/i.test(content)?'Видалити':/^заблокувати\b/i.test(content)?'Заблокувати':/^прибрати\b/i.test(content)?'Прибрати':/^скасувати\b/i.test(content)?'Скасувати дію':'Підтвердити';
+  d.classList.toggle('is-destructive',danger);
+  let completed=false;
+  const finish=value=>{
+   if(completed)return;
+   completed=true;
+   if(d.open)d.close();
+   resolve(value);
+  };
+  yes.onclick=()=>finish(true);
+  no.onclick=()=>finish(false);
+  d.addEventListener('cancel',()=>finish(false),{once:true});
+  d.showModal();
+  no.focus();
+ });
+}
 function askText(title,initial=''){return new Promise(resolve=>{const d=$('#vatraTextDialog'),input=$('#vatraTextInput');$('#vatraTextTitle').textContent=title;$('#vatraTextLabel').textContent=title;input.value=initial||'';const yes=$('#vatraTextYes'),no=$('#vatraTextNo');yes.onclick=()=>{const value=input.value.trim();d.close();resolve(value)};no.onclick=()=>{d.close();resolve(null)};d.addEventListener('cancel',()=>resolve(null),{once:true});d.showModal();input.focus();input.select();});}
 function toastMsg(s){toast.textContent=s;toast.classList.add('show');clearTimeout(window.vatraToast);window.vatraToast=setTimeout(()=>toast.classList.remove('show'),3600);}
 // Only user actions display errors through their own catch handlers.
@@ -1642,7 +1665,7 @@ function renderGroupDetails(id){
   localStorage.setItem(key,JSON.stringify([id,...(Array.isArray(values)?values:[]).filter(item=>item!==id)].slice(0,8)));
  }catch{}
  if(vatraGroupActiveTabId!==id){vatraGroupActiveTabId=id;vatraGroupActiveTab='posts';}
- page='groups';document.body.dataset.page=page;groupId=id;window.vatraRouteChanged?.({page:'groups',id});
+ page='groups';document.body.dataset.page=page;groupId=id;window.vatraRouteChanged?.({page:'groups',id,title:String(groups[id]?.name||'Спільнота')});
  const groupTitle=$('#title');if(groupTitle)groupTitle.textContent=groups[id]?.name||'Спільнота';
  document.querySelectorAll('a[data-page]').forEach(button=>button.classList.toggle('active',button.dataset.page==='groups'));
  const quick=$('.quick-compose');if(quick)quick.hidden=true;
