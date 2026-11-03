@@ -810,6 +810,14 @@ function vatraExtraSectionsMarkup(values={},visibility={},owner=false,profileId=
  }
  return output.length?'<div class="vatra-profile-extras vatra-profile-extras-plain">'+output.join('')+'</div>':'';
 }
+function vatraAvatarActionIcon(kind){
+ const shapes={
+  change:'<path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/>',
+  edit:'<path d="m15 5 4 4M4 20l4.5-1 11-11a2.83 2.83 0 0 0-4-4l-11 11L4 20Z"/>',
+  remove:'<path d="M4 7h16M10 3h4m-7 4 1 14h8l1-14M10 11v6m4-6v6"/>'
+ };
+ return '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+shapes[kind]+'</svg>';
+}
 function vatraProfileMoreButton(uid,id){
  const open=VATRA_PROFILE_MORE_EXPANDED.has(uid);
  return '<button type="button" class="vatra-profile-more-trigger" data-vatra-profile-more="'+esc(uid)+'" data-more-target="'+id+'" aria-expanded="'+open+'" aria-controls="'+id+'"><span>'+(open?'Згорнути':'Показати більше')+'</span></button>';
@@ -883,11 +891,10 @@ function renderProfile(){
     '<div class="vatra-avatar-hover-wrap" id="vatraAvatarWrap">'+
      '<button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'" aria-label="Переглянути фото профілю">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button>'+
      '<div class="vatra-avatar-hover-menu" id="vatraAvatarMenu" role="group" aria-label="Керування фото профілю">'+
-      '<button type="button" data-avatar-photo-action="change">Змінити фотографію</button>'+
-      '<button type="button" data-avatar-photo-action="edit"'+(currentProfile.avatarUrl?'':' disabled')+'>Редагувати</button>'+
-      '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove"'+(currentProfile.avatarUrl?'':' disabled')+'>Видалити</button>'+
+      '<button type="button" data-avatar-photo-action="change">'+vatraAvatarActionIcon('change')+'<span>Змінити фото</span></button>'+
+      '<button type="button" data-avatar-photo-action="edit"'+(currentProfile.avatarUrl?'':' disabled')+'>'+vatraAvatarActionIcon('edit')+'<span>Редагувати фото</span></button>'+
+      '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove"'+(currentProfile.avatarUrl?'':' disabled')+'>'+vatraAvatarActionIcon('remove')+'<span>Видалити фото</span></button>'+
      '</div>'+
-     '<button type="button" class="vatra-avatar-touch-toggle" data-avatar-menu-toggle aria-label="Дії з фото" title="Дії з фото" aria-expanded="false" aria-controls="vatraAvatarMenu"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button>'+
     '</div>'+
     '<button type="button" class="vatra-profile-edit" id="editProfile">Редагувати профіль</button>'+
     '<input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
@@ -3593,19 +3600,25 @@ async function openPhotoEditor(file,target){
  }catch(error){toastMsg(error?.message||niceError(error));}
 }
  /* Avatar controls use existing Supabase profile fields and the existing image editor. */
+// Touch: first tap reveals actions; second tap opens the full-size avatar.
+// Desktops still open the viewer immediately when the photo is clicked.
+document.addEventListener('click',event=>{
+ if(!window.matchMedia?.('(hover: none)').matches)return;
+ const portrait=event.target.closest('.vatra-avatar-hover-wrap > .vatra-profile-avatar-open');
+ if(!portrait||document.body.dataset.page!=='profile')return;
+ const wrap=portrait.closest('.vatra-avatar-hover-wrap');
+ if(!wrap)return;
+ if(wrap.classList.contains('is-open')){wrap.classList.remove('is-open');return;}
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ wrap.classList.add('is-open');
+},true);
 document.addEventListener('click',async event=>{
- const toggle=event.target.closest('[data-avatar-menu-toggle]');
- if(toggle){
-  event.preventDefault();
-  const wrap=toggle.closest('.vatra-avatar-hover-wrap'),opened=!wrap?.classList.contains('is-open');
-  wrap?.classList.toggle('is-open',opened);
-  toggle.setAttribute('aria-expanded',String(opened));
-  return;
- }
  const actionButton=event.target.closest('[data-avatar-photo-action]');
  if(actionButton){
   event.preventDefault();
   if(!currentUser||document.body.dataset.page!=='profile'||actionButton.disabled)return;
+  actionButton.closest('.vatra-avatar-hover-wrap')?.classList.remove('is-open');
   const action=actionButton.dataset.avatarPhotoAction;
   if(action==='change'){
    document.getElementById('avatarUpload')?.click();
@@ -3644,7 +3657,6 @@ document.addEventListener('click',async event=>{
  if(!event.target.closest('.vatra-avatar-hover-wrap')){
   const wrap=document.getElementById('vatraAvatarWrap');
   wrap?.classList.remove('is-open');
-  wrap?.querySelector('[data-avatar-menu-toggle]')?.setAttribute('aria-expanded','false');
  }
 });
 document.addEventListener('change',event=>{
