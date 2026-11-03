@@ -110,7 +110,7 @@ async function openCreateDialog(){
   if(!root||!dialog.open)return;
   root.innerHTML=groupRoster.length?groupRoster.map(friend=>'<label class="vatra-group-friend" data-vatra-friend-name="'+esc((friend.name+' '+friend.handle).toLocaleLowerCase('uk-UA'))+'"><input type="checkbox" value="'+esc(friend.id)+'"><span class="vatra-group-friend-avatar">'+esc(friend.name.trim().charAt(0).toUpperCase())+'</span><span><b>'+esc(friend.name)+'</b><small>'+esc(friend.handle?'@'+friend.handle:'У друзях')+'</small></span></label>').join(''):'<p>У списку друзів поки немає користувачів для запрошення.</p>';
   updateSelectedCount();
- }catch(error){if(dialog.open)$('#vatraGroupFriends').innerHTML='<p>Не вдалося завантажити друзів. Перевірте з’єднання та доступ до Supabase.</p>';}
+ }catch(error){if(dialog.open)$('#vatraGroupFriends').innerHTML='<p>Не вдалося завантажити друзів. Перевірте з’єднання.</p>';}
  finally{groupIsOpening=false;}
 }
 async function createConversation(e){
@@ -133,7 +133,7 @@ async function createConversation(e){
   renderGroupWindow();
  }catch(err){
   error.hidden=false;
-  error.textContent=String(err?.message||'Помилка створення. Перевірте vatra-group-chats.sql у Supabase.');
+  console.warn('[ВАТРА] Створення бесіди:',err);error.textContent='Не вдалося створити бесіду. Спробуйте пізніше або зверніться до техпідтримки.';
  }finally{btn.disabled=false;}
 }
 function stopActiveGroupWatchers(){
