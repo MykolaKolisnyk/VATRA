@@ -398,7 +398,9 @@ if(window.matchMedia){
 function updateIdentity(){applyUserPreferences(currentProfile);const name=currentProfile.name||currentUser?.displayName||'Користувач ВАТРИ',avatar=currentProfile.avatarUrl||'';$('#authButton').textContent=currentUser?'Вийти':'Увійти';['#topAvatar','#composeAvatar','#modalAvatar'].forEach(sel=>{const el=$(sel);if(!el)return;el.textContent=avatar?'':'В';el.style.backgroundImage=avatar?`url("${avatar}")`:'';el.style.backgroundSize='cover';el.style.backgroundPosition='center';el.style.color=avatar?'transparent':'';});$('#modalName').textContent=name;$('#prompt').textContent=currentUser?`Що нового, ${name.split(' ')[0]}?`:'Увійдіть, щоб створити допис';const w=$('.welcome h2');if(w)w.textContent=currentUser?`Привіт, ${name.split(' ')[0]}!`:'Раді бачити у ВАТРІ!';}
 function verifiedBadge(uid){return verifiedUsers?.[uid]?.verified===true?'<span class="vatra-verified-badge" data-vatra-verification-kind="account" tabindex="0" role="link" aria-label="Користувач офіційно підтверджений ВАТРОЮ. Як отримати галочку"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l3-.1.9 2.8 2.4 1.8-1 2.8 1 2.8-2.4 1.8-.9 2.8-3-.1-2.5 1.6-2.5-1.6-3 .1-.9-2.8-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.8 3 .1L10 1.4Z" fill="currentColor"/><path d="m6.2 10.2 2.4 2.4 5.2-5.2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>':'';}
 function timeAgo(ts){if(!ts)return'щойно';const d=Date.now()-ts;if(d<60000)return'щойно';if(d<3600000)return`${Math.floor(d/60000)} хв тому`;if(d<86400000)return`${Math.floor(d/3600000)} год тому`;return new Date(ts).toLocaleDateString('uk-UA',{day:'numeric',month:'short'});}
-function avatar(name,url='',cls='blue'){const own=!!currentUser&&(name===currentProfile.name||name===currentUser.displayName),fallback=(cls==='vatra-profile-photo'||cls==='vatra-profile-compose-avatar'||own)?'В':initials(name);return '<div class="avatar '+esc(cls)+'" '+(url?'style="background-image:url(\''+esc(url)+'\');background-size:cover;background-position:center;color:transparent"':'')+'>'+esc(fallback)+'</div>';}
+function avatar(name,url='',cls='blue'){const fallback=initials(name)||'В';const src=typeof url==='string'&&/^https:\/\//i.test(url)?url:'';return '<div class="avatar '+esc(cls)+'" data-vatra-avatar-image="'+(src?'yes':'no')+'"><span class="vatra-avatar-initials">'+esc(fallback)+'</span>'+(src?'<img class="vatra-avatar-image" src="'+esc(src)+'" alt="" loading="lazy" decoding="async">':'')+'</div>';}
+// A broken image URL must show initials, not an empty/transparent avatar.
+document.addEventListener('error',event=>{const pic=event.target;if(!(pic instanceof HTMLImageElement)||!pic.classList.contains('vatra-avatar-image'))return;pic.closest('.avatar')?.classList.add('is-avatar-failed');},{capture:true});
 const vatraCommentsOrder=Object.create(null);
 function renderComments(p,cs){
  cs=[...cs].sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
@@ -983,7 +985,7 @@ function renderProfile(){
      '<button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'" aria-label="Переглянути фото профілю">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button>'+
      '<div class="vatra-avatar-hover-menu" id="vatraAvatarMenu" role="group" aria-label="Керування фото профілю">'+
       '<button type="button" data-avatar-photo-action="change">'+vatraAvatarActionIcon('change')+'<span>Змінити фото</span></button>'+
-      (currentProfile.avatarUrl?'<button type="button" data-avatar-photo-action="edit">'+vatraAvatarActionIcon('edit')+'<span>Редагувати фото</span></button>'+
+      (currentProfile.avatarUrl?'<button type="button" data-avatar-photo-action="restore">'+vatraAvatarActionIcon('restore')+'<span>Обрати з альбому</span></button>'+'<button type="button" data-avatar-photo-action="edit">'+vatraAvatarActionIcon('edit')+'<span>Редагувати фото</span></button>'+
        '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove">'+vatraAvatarActionIcon('remove')+'<span>Видалити фото</span></button>':
        (history.length||gallery.length?'<button type="button" data-avatar-photo-action="restore">'+vatraAvatarActionIcon('restore')+'<span>Відновити фото</span></button>':''))+
      '</div>'+
@@ -3676,7 +3678,7 @@ async function vatraOpenAvatarPicker(){
  const postGallery=Object.values(posts||{})
   .filter(post=>post?.authorUid===currentUser.uid&&post.addMediaToGallery!==false)
   .flatMap(post=>postImages(post)).filter(Boolean);
- const pictures=[...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[]),
+ const pictures=[...(currentProfile.avatarUrl?[currentProfile.avatarUrl]:[]),...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[]),
   ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]),
   ...postGallery]
   .filter((url,index,arr)=>typeof url==='string'&&/^https:\/\//i.test(url)&&arr.indexOf(url)===index).slice(0,60);
