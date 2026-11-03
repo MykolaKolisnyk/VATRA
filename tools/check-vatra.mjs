@@ -63,3 +63,16 @@ const adminGiftEnd=adminGiftSrc.indexOf('async function renderDashboard(){',admi
 assert.ok(adminGiftStart>=0&&adminGiftEnd>adminGiftStart,'Gift admin handlers absent');
 assert.ok(!/\balert\s*\(/.test(adminGiftSrc.slice(adminGiftStart,adminGiftEnd)),'Native alert in gift admin');
 assert.ok(giftText.includes('let artSerial=0;'),'Each SVG gift requires a unique gradient id');
+
+
+// Sidebar compactness and monetisation placeholders must not regress.
+const footerCss=readFileSync('VATRA/vatra-sidebar-ads.css','utf8');
+const adsJs=readFileSync('VATRA/vatra-sidebar-ads.js','utf8');
+assert.ok(!/id="create"/.test(main),'Removed sidebar compose button reappeared');
+assert.equal((main.match(/data-vatra-ad-slot="[12]"/g)||[]).length,2,'Expected exactly two reserved ad spaces');
+assert.ok(main.includes('vatra-sidebar-ads.css?'),'Sidebar/ad stylesheet not linked');
+assert.ok(main.includes('vatra-sidebar-ads.js?'),'Advertising module not linked');
+assert.ok(main.indexOf('class="vatra-sidebar-ads"')>main.indexOf('class="vatra-footer-credit"'),'Ads should be below legal and developer information');
+assert.ok(footerCss.includes('.vatra-footer-legal a')&&footerCss.includes('.vatra-ad-slot'),'Footer/ad styles missing');
+assert.ok(adsJs.includes('enabled: false'),'Ad loading must remain off until the site is approved');
+assert.ok(adsJs.includes('ca-pub-')&&adsJs.includes('adsbygoogle'),'Missing AdSense integration hooks');
