@@ -1,0 +1,120 @@
+/* VATRA · compact navigation footer and two independently labelled ad placements */
+body .layout > .sidebar .create-button { display:none!important; }
+body .layout > .sidebar .vatra-sidebar-footer {
+  display:block!important;
+  margin:12px 0 0!important;
+  padding:11px 6px 0!important;
+  border-top:1px solid #dbe3ec!important;
+  line-height:1.35!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-identity {
+  gap:1px!important;
+  padding:0 0 7px!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-identity strong {
+  font-size:12px!important;line-height:1.35!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-identity > span {
+  font-size:10.5px!important;line-height:1.35!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-legal {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  align-items:stretch!important;
+  gap:0!important;
+  padding:7px 0!important;
+  margin:0!important;
+  border-top:1px solid #e2e8ef!important;
+  border-bottom:1px solid #e2e8ef!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-label {
+  padding:0 4px 3px!important;
+  color:#73849a!important;
+  font-size:10px!important;
+  line-height:1.25!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-legal a {
+  display:block!important;
+  box-sizing:border-box!important;
+  min-height:0!important;
+  padding:4px!important;
+  margin:0!important;
+  border-radius:6px!important;
+  font-size:11px!important;
+  font-weight:560!important;
+  line-height:1.3!important;
+  letter-spacing:0!important;
+}
+body .layout > .sidebar .vatra-sidebar-footer .vatra-footer-credit {
+  padding:7px 2px 0!important;
+  margin:0!important;
+  line-height:1.35!important;
+  font-size:10px!important;
+}
+body .layout > .sidebar .vatra-sidebar-ads {
+  display:grid;
+  gap:10px;
+  margin:14px 0 18px;
+  padding:0 5px;
+  min-width:0;
+  flex:none;
+}
+body .layout > .sidebar .vatra-sidebar-ads .vatra-ad-slot {
+  box-sizing:border-box;
+  width:100%;
+  min-height:111px;
+  position:relative;
+  overflow:hidden;
+  padding:10px 12px;
+  border:1px solid #e1e6ec;
+  border-radius:10px;
+  background:#f7f9fb;
+  color:#8592a3;
+  box-shadow:none;
+}
+body .layout > .sidebar .vatra-ad-label {
+  display:block;
+  margin:0 0 8px;
+  color:#718096;
+  font-size:10px;
+  font-weight:600;
+  line-height:1.25;
+}
+body .layout > .sidebar .vatra-ad-placeholder {
+  min-height:60px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  font-size:11px;
+  font-weight:500;
+  line-height:1.3;
+  color:#9aa5b3;
+}
+body .layout > .sidebar .vatra-ad-slot[data-vatra-ad-active="true"] {
+  padding:8px 0 0;
+  background:transparent;
+  border:0;
+}
+body .layout > .sidebar .vatra-ad-slot[data-vatra-ad-active="true"] .vatra-ad-label {padding:0 4px}
+body .layout > .sidebar .vatra-ad-slot ins.adsbygoogle {display:block;min-height:90px}
+@media (min-width:761px) {
+  body .layout > .sidebar {
+    overflow-x:hidden;
+    overflow-y:auto;
+    scrollbar-width:thin;
+    scrollbar-color:#d7dee9 transparent;
+    overscroll-behavior:contain;
+  }
+  body .layout > .sidebar .sidebar-bottom {margin-top:0}
+}
+body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-ad-slot {
+  background:#1d293a;
+  color:#bdcada;
+  border-color:#3a4b62;
+}
+body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-ad-label,
+body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-ad-placeholder {color:#b1bed1}
+body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-sidebar-footer,
+body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-footer-legal {
+  border-color:#3a4b62!important;
+}
