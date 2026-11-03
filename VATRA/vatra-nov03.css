@@ -1,7 +1,5 @@
-/* ВАТРА • Узгодження інтерфейсу, 3 листопада 2026 */
 :root{--vatra-line:#dce5f0;--vatra-soft:#f4f7fb;--vatra-ink:#1d304b}
-/* Не малювати друге синє підкреслення активних кнопок.
-   Зберегти помітний, але НЕ синій, контур для клавіатури. */
+
 body .sidebar .nav::before,body .sidebar .nav::after,
 body .nav.active::before,body .nav.active::after{content:none!important;display:none!important}
 body .sidebar .nav.active,body .sidebar .nav[aria-current=page]{
@@ -22,7 +20,6 @@ body :is(button,a,select,input,textarea):focus:not(:focus-visible){outline:none!
 .auth-card .vatra-gender-choices input[type=radio]:checked+span{box-shadow:none!important;background:#f1f5fd!important}
 .auth-card .vatra-gender-choices input[type=radio]:focus-visible+span{outline:2px solid #526782!important;outline-offset:2px!important}
 
-/* Один вигляд юридичних документів на всіх сторінках ВАТРИ. */
 body :is(#legalDialog,#vatraSiteLegalDialog){
  width:min(940px,calc(100vw - 28px))!important;max-width:940px!important;
  height:min(790px,calc(100dvh - 36px))!important;max-height:calc(100dvh - 36px)!important;
@@ -69,7 +66,7 @@ body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal
 body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body) :is(p,li){
  font-size:14px!important;color:#506781!important}
 body #legalDialog .auth-dialog-actions,body #vatraSiteLegalDialog .vatra-site-legal-actions{display:none!important}
-/* Компактні службові сповіщення — без величезного овалу навколо галочки. */
+
 body .topbar-notification-row{
  display:grid!important;grid-template-columns:38px minmax(0,1fr) 8px!important;gap:12px!important;
  align-items:start!important;width:100%!important;padding:13px 12px!important;
@@ -97,7 +94,6 @@ body .topbar-notification-row>i{width:7px!important;height:7px!important;border-
  body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body){padding:17px!important}
 }
 
-/* Profile information: concise header, one disclosure instead of three accordions. */
 body .vatra-profile-overview .vatra-profile-more[hidden],
 body .vatra-profile-more[hidden]{display:none!important}
 body .vatra-profile-more{display:block!important;min-width:0!important;border-top:1px solid #e5ecf5!important;margin-top:11px!important;padding-top:12px!important}
@@ -121,7 +117,6 @@ body .vatra-site-legal-dialog .site-legal-article[hidden]{display:none!important
 body .vatra-profile-extra-plain .vatra-profile-extra-privacy{display:block!important;margin-top:3px!important;font-size:11px!important}
 @media(max-width:600px){body .vatra-profile-extra-plain .vatra-profile-extra-row{grid-template-columns:minmax(95px,38%) minmax(0,1fr)!important}}
 
-/* Group conversations share the ordinary Messages page visual language. */
 body .vatra-group-chat-block{margin:12px 10px 0!important;border-top:1px solid #e4ecf5!important;padding:12px 0 6px!important;min-width:0!important}
 body .vatra-group-chat-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:0 6px 9px!important}
 body .vatra-group-chat-heading h3{margin:0!important;font:700 13px/1.4 Inter,Arial,sans-serif!important;color:#304662!important}
@@ -197,7 +192,6 @@ body[data-page="messages"] .vatra-messenger-sidebar .vatra-group-chat-block{flex
 body[data-page="messages"] .vatra-messenger-sidebar .vatra-group-chat-rows{overflow-y:auto!important;max-height:min(210px,25vh)!important}
 body .vatra-group-avatar svg{width:21px!important;height:21px!important;display:block!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linejoin:round!important;stroke-linecap:round!important}
 
-/* Єдине оформлення інтерактивних елементів */
 .auth-card .vatra-gender-choices input[value="male"]+span .vatra-gender-icon{color:#2767b6!important}
 .auth-card .vatra-gender-choices input[value="female"]+span .vatra-gender-icon{color:#d75486!important}
 .auth-card .vatra-gender-choices input[value="male"]:checked+span{border-color:#96b8ea!important}
@@ -219,7 +213,7 @@ body #notificationBadge[hidden],
 body .vatra-support-header-badge[hidden]{display:none!important;visibility:hidden!important}
 body .sidebar .nav .vatra-message-nav-badge:empty,
 body .vatra-support-unread-count:empty{display:none!important}
-/* Профіль: спокійні текстові дії розгортання */
+
 body .vatra-profile-more-trigger,body .vatra-profile-fold-up{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
  width:auto!important;min-height:30px!important;margin:4px 0 5px!important;
@@ -230,18 +224,18 @@ body .vatra-profile-more-trigger:hover,body .vatra-profile-fold-up:hover{
  background:#f0f4f9!important;color:#24558e!important;text-decoration:none!important}
 body .vatra-profile-more{border:0!important;padding-top:2px!important;margin-top:2px!important}
 body .vatra-profile-fold-up{margin:2px 0 12px!important}
-/* Видимість допису */
+
 body .vatra-post-audience{display:inline-flex!important;vertical-align:middle!important;align-items:center!important;gap:4px!important;margin-left:7px!important;color:#7288a1!important;font:500 11px/1.2 Inter,Arial,sans-serif!important}
 body .vatra-post-audience svg{display:block!important;width:13px!important;height:13px!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;fill:none!important;flex:0 0 13px!important}
 body .vatra-profile-pending-phone{color:#697f96!important;font:500 11px/1.5 Inter,Arial,sans-serif!important}
-/* Подарунки без активних замовлень */
+
 body .vatra-gift-card .vatra-gift-purchase-disabled,
 body .vatra-gift-card .vatra-gift-purchase-disabled:hover{
  background:#ebedf1!important;border:1px solid #d7dce3!important;color:#89939e!important;
  cursor:not-allowed!important;box-shadow:none!important;opacity:1!important;pointer-events:none!important}
 body .vatra-gift-card .vatra-gift-purchase-note{font:500 10px/1.45 Inter,Arial,sans-serif!important;color:#8896a5!important;margin:5px 0 0!important}
 body .vatra-gifts-tabs button[aria-current=page]{border-bottom-color:transparent!important;box-shadow:none!important;color:#0757f5!important}
-/* Великі повідомлення для ПК */
+
 @media(min-width:1120px){
  body[data-page="messages"] .layout{width:min(1500px,100%)!important;max-width:1500px!important;grid-template-columns:200px minmax(0,1fr)!important;gap:22px!important}
  body[data-page="messages"] .layout>.right{display:none!important}
@@ -259,7 +253,7 @@ body .vatra-gifts-tabs button[aria-current=page]{border-bottom-color:transparent
 body .vatra-group-bell{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-width:37px!important;height:37px!important;border:1px solid #dae4ef!important;border-radius:7px!important;background:#f7f9fc!important;color:#68809b!important;box-shadow:none!important;cursor:pointer!important}
 body .vatra-group-bell svg{width:18px!important;height:18px!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important}
 body .vatra-group-bell.is-enabled{background:#e9f1ff!important;color:#1763c0!important;border-color:#c7daf5!important;box-shadow:none!important}
-/* Налаштування: видимість у шапці поля, не під кожним текстовим полем */
+
 body .vatra-extra-setting{display:grid!important;gap:9px!important;border-bottom:1px solid #e9eff6!important;padding:12px 0 15px!important}
 body .vatra-extra-setting>.vatra-extra-setting-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
 body .vatra-extra-setting-head>.vatra-extra-setting-title{font:650 13px/1.4 Inter,Arial,sans-serif!important;color:#304964!important}
@@ -268,7 +262,7 @@ body .vatra-extra-setting-head>.vatra-extra-visibility select{min-height:31px!im
 body .vatra-extra-setting>label{display:block!important;margin:0!important}
 body .vatra-extra-setting textarea{width:100%!important;min-height:90px!important;box-sizing:border-box!important}
 @media(max-width:480px){body .vatra-extra-setting-head>.vatra-extra-visibility{gap:4px!important}body .vatra-extra-setting-head>.vatra-extra-visibility select{max-width:135px!important}}
-/* Універсальні системні повідомлення */
+
 body :is(.auth-error,.settings-error,.vatra-support-error,.vatra-gift-notice.is-error,.vatra-chat-send-error,.vatra-control-error,.vatra-group-form-error):not(:empty),
 body :is(#settingsError,#chatSendError,#reportError):not(:empty):not([hidden]){
  font:500 12px/1.6 Inter,Arial,sans-serif!important;
