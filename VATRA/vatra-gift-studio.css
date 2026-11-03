@@ -89,20 +89,15 @@ body[data-vatra-theme-effective="dark"] #notificationBell #notificationBadge:not
 body .vatra-gift-owned-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin-top:auto}
 body .vatra-gift-owned-actions>button{min-width:0;flex:1;padding:9px 10px;border-radius:9px;cursor:pointer}
 body .vatra-gift-owned-actions>button.vatra-gift-discard,
-body .vatra-creator-card button.vatra-creator-delete,
-body .vatra-creator-clear-all,body .vatra-gift-discard-all{
+body .vatra-gift-discard-all{
  border:1px solid #f1cbd1!important;border-radius:9px!important;
  background:#fff6f7!important;color:#bd4259!important;
  font:690 11.5px/1.4 "VATRA Onest",Inter,sans-serif!important;
  padding:9px 11px!important;cursor:pointer;
 }
 body .vatra-gift-owned-actions>button.vatra-gift-discard:hover,
-body .vatra-creator-card button.vatra-creator-delete:hover,
 body .vatra-gift-discard-all:hover{background:#fee8ec!important}
 body .vatra-gift-collection-actions{display:flex;justify-content:flex-end;gap:10px;margin:14px 0}
-body .vatra-creator-item-actions{display:flex;flex-wrap:wrap;gap:7px}
-body .vatra-creator-item-actions>button{flex:1;min-width:92px}
-body .vatra-creator-clear-all[hidden]{display:none!important}
 
 
 /* Equal smooth hover transitions for both own and public profile photos. */
