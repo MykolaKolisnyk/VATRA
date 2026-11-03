@@ -1,0 +1,93 @@
+/* ВАТРА: identical public and own profile summary, refined disclosure control.
+   Keep this after existing styles to avoid legacy cascades overriding the button. */
+body .vatra-profile-summary-compact .vatra-profile-details{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:3px!important;
+  margin:10px 0 8px!important;
+  padding:0!important;
+  border:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail{
+  border:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-detail-empty .vatra-profile-detail-missing{
+  color:#a1adbb!important;
+  font-size:12.5px!important;
+  font-weight:450!important;
+  line-height:1.5!important;
+  user-select:none;
+}
+body .vatra-profile-summary-compact .vatra-profile-more{
+  border:0!important;
+  border-top:0!important;
+  border-bottom:0!important;
+  padding:7px 0 0!important;
+  margin:5px 0 0!important;
+  box-shadow:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-more[hidden]{display:none!important}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger{
+  display:flex!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  min-height:44px!important;
+  padding:10px 14px!important;
+  margin:10px 0 12px!important;
+  justify-content:center!important;
+  align-items:center!important;
+  gap:0!important;
+  background:rgba(245,248,252,.55)!important;
+  color:#55708b!important;
+  border:1px solid rgba(129,151,179,.20)!important;
+  border-radius:10px!important;
+  box-shadow:none!important;
+  font:650 13px/1.4 Inter,system-ui,sans-serif!important;
+  text-decoration:none!important;
+  transition:background-color .16s ease,border-color .16s ease!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger:hover{
+  background:rgba(237,243,250,.85)!important;
+  border-color:rgba(129,151,179,.28)!important;
+  color:#355e89!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger span{
+  font:inherit!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger svg,
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger .arrow{
+  display:none!important;
+}
+/* No dividers in the summary or beneath the Show More control. */
+body .vatra-profile-overview.vatra-profile-summary-compact>.vatra-profile-stats{
+  border:0!important;
+  border-top:0!important;
+  box-shadow:none!important;
+  margin-top:5px!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact>.vatra-profile-stats>div,
+body .vatra-profile-overview.vatra-profile-summary-compact>.vatra-profile-stats>button{
+  border:0!important;
+  border-left:0!important;
+  border-right:0!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger{
+  background:rgba(160,182,211,.06)!important;
+  border-color:rgba(172,191,217,.18)!important;
+  color:#b6c7de!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger:hover{
+  background:rgba(160,182,211,.12)!important;
+  border-color:rgba(172,191,217,.28)!important;
+  color:#dceaff!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-detail-empty .vatra-profile-detail-missing{
+  color:#7789a0!important;
+}
+@media (prefers-reduced-motion:reduce){
+ body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger{transition:none!important}
+}
