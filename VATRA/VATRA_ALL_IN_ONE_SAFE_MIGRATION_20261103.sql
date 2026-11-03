@@ -288,7 +288,8 @@ BEGIN
 
   ELSIF p_path ~ '^groupMembers/[^/]+/[^/]+$' THEN
     DELETE FROM public.vatra_community_members WHERE source_path=p_path;
-    IF p_value IS NOT NULL AND jsonb_typeof(p_value)<>'null' THEN
+    IF p_value IS NOT NULL AND jsonb_typeof(p_value)<>'null'
+      AND p_value::text NOT IN ('false','"false"') THEN
       INSERT INTO public.vatra_community_members(
         source_path,community_id,member_uid,role,payload,source_updated_at
       ) VALUES (
@@ -350,6 +351,12 @@ AS $trigger$
 DECLARE key_path text;
 BEGIN
   key_path:=CASE WHEN TG_OP='DELETE' THEN OLD.path ELSE NEW.path END;
+  -- Не витрачаємо запити на дані, які ще не мають v2-дзеркала.
+  IF key_path !~* '^(publicProfiles|privateUsers|friends)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    AND key_path !~ '^((posts|groups|videos)/[^/]+|groupPosts/[^/]+/[^/]+|groupMembers/[^/]+/[^/]+|chats/[^/]+|chats/[^/]+/messages/[^/]+)$' THEN
+    IF TG_OP='DELETE' THEN RETURN OLD; END IF;
+    RETURN NEW;
+  END IF;
   BEGIN
     IF TG_OP='DELETE' THEN
       PERFORM public.vatra_v2_sync_path(OLD.path,NULL,now());
