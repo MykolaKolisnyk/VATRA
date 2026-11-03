@@ -124,7 +124,7 @@ window.vatraGiftToast=giftToast;
 function card(item,owned=false){
  const info=catalog.find(x=>x.code===item.code)||catalog.find(x=>x.code==='spark');
  const price=Number(info.price)||0;
- return '<article class="vatra-gift-card" data-gift-code="'+esc(item.code)+'"><div class="vatra-gift-image">'+art(item.code)+'</div><h3>'+esc(info.title)+'</h3><p class="vatra-gift-description">'+esc(giftDescriptions[item.code]||'Особливий подарунок для друга у ВАТРІ.')+'</p>'+(animatedGiftCodes.has(item.code)?'<span class="vatra-gift-animated-label">✦ Анімований</span>':'')+
+ return '<article class="vatra-gift-card" data-gift-code="'+esc(item.code)+'"><div class="vatra-gift-image"><button type="button" class="vatra-gift-art-trigger" data-vatra-gift-open="'+esc(item.code)+'" aria-label="Розглянути подарунок: '+esc(info.title)+'">'+art(item.code)+'<span class="vatra-gift-open-hint">Розглянути <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5"/></svg></span></button></div><h3>'+esc(info.title)+'</h3><p class="vatra-gift-description">'+esc(giftDescriptions[item.code]||'Особливий подарунок для друга у ВАТРІ.')+'</p>'+(animatedGiftCodes.has(item.code)?'<span class="vatra-gift-animated-label">✦ Анімований</span>':'')+
  '<p>'+(owned?(item.source==='welcome'?'Подарунок за реєстрацію':item.source==='holiday'?'Подарунок ВАТРИ':item.source==='developer'?'Подарунок від ВАТРИ':'Подарунок від друга'):(price?'<b>'+price+' грн</b>':info.event?'Безкоштовно · '+esc(info.event):'Безкоштовно'))+'</p>'+
  (owned?'<button type="button" data-vatra-send-item="'+esc(item.id)+'">Подарувати другу</button>':
   price?'<button type="button" class="vatra-gift-purchase-disabled" disabled aria-disabled="true" title="Оплата банківською карткою ще розробляється">Купити · '+price+' грн</button><small class="vatra-gift-purchase-note">Оплата в розробці</small>':
@@ -163,9 +163,63 @@ async function show(uid){
   console.warn('[ВАТРА подарунки]',err.message);
  }
 }
+const giftLongDescriptions={
+  "halloween": "Особливий сувенір до Гелловіну. Його можна надіслати другові на свято чи залишити у власній колекції.",
+  "newyear": "Святковий подарунок із зимовим настроєм. Добре підходить для новорічних привітань та побажань друзям.",
+  "independence": "Серце у кольорах українського прапора. Знак підтримки України та привітання з Днем Незалежності.",
+  "warmth": "Подарунок, що передає турботу і увагу. Надішліть його людині, якій хочете подякувати або підтримати.",
+  "bouquet": "Квіти для особливої події чи приємного спілкування. Доречний знак уваги без додаткового приводу.",
+  "spark": "Символ нових знайомств і спільних моментів. Подарунок для початку або продовження дружби.",
+  "welcome": "Перший пам’ятний подарунок за реєстрацію у ВАТРІ. Залишається в колекції як знак приєднання до мережі.",
+  "gold_pumpkin": "Колекційний золотий гарбуз для осінніх свят. Можна подарувати другу, який любить тематичні сувеніри.",
+  "rose": "Квітка як символ подяки, дружби та уваги. Доречна для особистих привітань і теплих повідомлень.",
+  "cocoa": "Чашка какао для затишного вечора. Невеликий подарунок, який нагадує про розмови та дружні зустрічі.",
+  "cupcake": "Святковий кекс для дня народження або доброї новини. Спосіб додати трохи радості в спілкування.",
+  "lantern": "Ліхтарик із м’яким світлом. Символ підтримки, добрих намірів і важливих спільних моментів.",
+  "ribbon": "Яскрава стрічка на честь успіху або свята. Коротке привітання, яке завжди доречне.",
+  "sun": "Сонечко — побажання гарного настрою на цілий день. Можна надіслати просто так, без приводу.",
+  "teddy": "М’який ведмедик для близької людини. Класичний символ доброти, турботи та щирої симпатії.",
+  "hearts": "Два серця для особливої людини. Анімований подарунок, який допомагає передати теплі почуття.",
+  "firebird": "Яскравий птах з плавною анімацією. Незвичайний колекційний подарунок для пам’ятних моментів.",
+  "snowglobe": "Зимова снігова куля з делікатним рухом. Нагадує про свята, сніг і теплі зустрічі.",
+  "letter": "Листівка з теплими словами. Її можна подарувати як знак вдячності або підтримки.",
+  "clover": "Чотирилиста конюшина — традиційне побажання удачі. Гарний сувенір до нових починань.",
+  "musicbox": "Декоративна музична скринька. Подарунок на згадку про особливі моменти і спільні історії.",
+  "swan": "Витончений лебідь. Підійде, коли хочеться висловити увагу, ніжність або повагу.",
+  "diamond": "Сяюча кришталева зоря з плавною анімацією. Особливий колекційний подарунок для близької людини."
+};
+function openGiftDetail(code){
+ const item=catalog.find(g=>g.code===String(code||''));
+ if(!item)return;
+ let dialog=document.getElementById('vatraGiftDetailDialog');
+ if(!dialog){
+  dialog=document.createElement('dialog');
+  dialog.id='vatraGiftDetailDialog';
+  dialog.className='vatra-gift-detail-dialog';
+  dialog.setAttribute('aria-label','Повноекранний перегляд подарунка');
+  document.body.append(dialog);
+ }
+ const kind=item.type==='holiday'?'Святковий подарунок':item.type==='free'?'Безкоштовний подарунок':'Колекційний подарунок';
+ const availability=item.type==='premium'?'Оплата карткою поки недоступна.':item.type==='holiday'?'Видається ВАТРОЮ під час відповідної події.':'Видається ВАТРОЮ за умовами акції.';
+ dialog.innerHTML='<div class="vatra-gift-detail-inner"><header class="vatra-gift-detail-header"><span>ВАТРА <i aria-hidden="true">•</i> КОЛЕКЦІЯ ПОДАРУНКІВ</span><button type="button" data-vatra-gift-detail-close aria-label="Закрити перегляд"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg></button></header>'+
+ '<div class="vatra-gift-detail-scroll"><div class="vatra-gift-detail-stage">'+art(item.code)+'</div>'+
+ '<section class="vatra-gift-detail-info"><p class="vatra-gift-detail-category">'+esc(kind)+(animatedGiftCodes.has(item.code)?' · Анімований':'')+'</p><h2>'+esc(item.title)+'</h2>'+
+ '<p class="vatra-gift-detail-description">'+esc(giftDescriptions[item.code]||'Подарунок ВАТРИ.')+' '+esc(giftLongDescriptions[item.code]||'Особливий подарунок для друзів і колекції ВАТРИ.')+'</p>'+
+ '<p class="vatra-gift-detail-note">'+esc(availability)+'</p></section></div>'+
+ '<footer class="vatra-gift-detail-footer"><button type="button" data-vatra-gift-detail-close>Закрити перегляд</button></footer></div>';
+ if(!dialog.open)dialog.showModal();
+}
+window.vatraOpenGiftDetail=openGiftDetail;
+document.addEventListener('click',event=>{
+ const close=event.target.closest('[data-vatra-gift-detail-close]');
+ if(close){document.getElementById('vatraGiftDetailDialog')?.close();return;}
+ if(event.target.classList?.contains('vatra-gift-detail-dialog'))event.target.close();
+},true);
 window.vatraRenderGifts=show;
 window.vatraGiftsArt=art;
 document.addEventListener('click',async e=>{
+ const open=e.target.closest('[data-vatra-gift-open]');
+ if(open){e.preventDefault();openGiftDetail(open.dataset.vatraGiftOpen);return;}
  const previewLink=e.target.closest('.vatra-gift-preview-link');
  if(previewLink){const uid=previewLink.closest('[data-gift-preview-for]')?.dataset.giftPreviewFor;if(uid&&uid!==available())void showPublicGifts(uid);else window.vatraRouter?.goPage('gifts');return;}
  if(e.target.closest('[data-vatra-return-profile]')){window.vatraRouter?.goPage('profile');return;}
@@ -221,7 +275,7 @@ async function refreshPreview(el,owner){
   if(!el.isConnected||el.dataset.giftPreviewFor!==id)return;
   const items=Array.isArray(arr)?arr:[];
   el.innerHTML='<div class="vatra-profile-card-head"><h3>Подарунки</h3><b>'+items.length+'</b></div>'+
-   (items.length?'<div class="vatra-gift-preview-row">'+items.slice(0,3).map(x=>'<div class="vatra-gift-preview-item">'+art(x.code)+'</div>').join('')+'</div>':'<p class="muted vatra-gift-preview-empty">Подарунків поки немає.</p>')+
+   (items.length?'<div class="vatra-gift-preview-row">'+items.slice(0,3).map(x=>'<button type="button" class="vatra-gift-preview-item" data-vatra-gift-open="'+esc(x.code)+'" title="Розглянути подарунок" aria-label="Розглянути подарунок: '+esc(catalog.find(g=>g.code===x.code)?.title||'Подарунок ВАТРИ')+'">'+art(x.code)+'</button>').join('')+'</div>':'<p class="muted vatra-gift-preview-empty">Подарунків поки немає.</p>')+
    '<button type="button" class="vatra-profile-link vatra-gift-preview-link">Усі подарунки →</button>';
  }catch{
   el.innerHTML='<div class="vatra-profile-card-head"><h3>Подарунки</h3><b>—</b></div><p class="muted vatra-gift-preview-empty">Подарунки тимчасово недоступні.</p><button type="button" class="vatra-profile-link vatra-gift-preview-link">Усі подарунки →</button>';
