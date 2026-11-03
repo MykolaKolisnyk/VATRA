@@ -1,0 +1,98 @@
+/* ВАТРА • Узгодження інтерфейсу, 3 листопада 2026 */
+:root{--vatra-line:#dce5f0;--vatra-soft:#f4f7fb;--vatra-ink:#1d304b}
+/* Не малювати друге синє підкреслення активних кнопок.
+   Зберегти помітний, але НЕ синій, контур для клавіатури. */
+body .sidebar .nav::before,body .sidebar .nav::after,
+body .nav.active::before,body .nav.active::after{content:none!important;display:none!important}
+body .sidebar .nav.active,body .sidebar .nav[aria-current=page]{
+ box-shadow:none!important;border-left-color:transparent!important;border-inline-start:0!important;
+ background:#e8eef9!important;color:#0757f5!important}
+body :is(button,a,[role=tab])[aria-selected=true],
+body :is(button,a,[role=tab])[aria-pressed=true]{
+ box-shadow:none!important;text-decoration-thickness:auto}
+body :is(.vatra-messenger-filter,.vatra-site-legal-tabs button,.vatra-notification-popup-footer button,.vatra-control-tabs button).active,
+body :is(.vatra-messenger-filter,.vatra-site-legal-tabs button).active::after{
+ box-shadow:none!important;border-bottom-color:transparent!important}
+body :is(button,a,select,input,textarea,[tabindex]):focus-visible{
+ outline:2px solid #526782!important;outline-offset:2px!important}
+body :is(button,a,select,input,textarea):focus:not(:focus-visible){outline:none!important}
+.auth-card .vatra-gender-choices label span{gap:10px!important;font-size:15px!important}
+.auth-card .vatra-gender-choices .vatra-gender-icon{display:block!important;flex:0 0 22px!important;width:22px!important;height:22px!important;border:0!important;border-radius:0!important;background:none!important;color:inherit!important}
+.auth-card .vatra-gender-choices .vatra-gender-icon svg{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.9}
+.auth-card .vatra-gender-choices input[type=radio]:checked+span{box-shadow:none!important;background:#f1f5fd!important}
+.auth-card .vatra-gender-choices input[type=radio]:focus-visible+span{outline:2px solid #526782!important;outline-offset:2px!important}
+
+/* Один вигляд юридичних документів на всіх сторінках ВАТРИ. */
+body :is(#legalDialog,#vatraSiteLegalDialog){
+ width:min(940px,calc(100vw - 28px))!important;max-width:940px!important;
+ height:min(790px,calc(100dvh - 36px))!important;max-height:calc(100dvh - 36px)!important;
+ border:1px solid #dce5f0!important;border-radius:16px!important;
+ padding:0!important;background:#fff!important;color:var(--vatra-ink)!important;
+ box-shadow:0 20px 70px #152b4650!important;overflow:hidden!important}
+body :is(#legalDialog,#vatraSiteLegalDialog)::backdrop{background:rgba(20,39,69,.64)!important;backdrop-filter:blur(3px)}
+body #legalDialog{display:none!important;flex-direction:column!important}
+body #legalDialog[open]{display:flex!important}
+body #vatraSiteLegalDialog[open]{display:flex!important;flex-direction:column!important}
+body :is(#legalDialog .legal-dialog-head,#vatraSiteLegalDialog .vatra-site-legal-head){
+ display:flex!important;align-items:center!important;gap:18px!important;
+ padding:23px 28px 15px!important;flex:0 0 auto!important;background:#fff!important;border:0!important}
+body :is(#legalDialog .auth-dialog-icon,#vatraSiteLegalDialog .vatra-legal-mark){
+ display:grid!important;place-items:center!important;width:48px!important;height:48px!important;
+ min-width:48px!important;border-radius:12px!important;background:#eef3fe!important;color:#0757f5!important;
+ font:800 23px/1 Inter,Arial,sans-serif!important}
+body #vatraSiteLegalDialog .vatra-site-legal-head h2{font:750 24px/1.25 Inter,Arial,sans-serif!important;margin:0!important}
+body #vatraSiteLegalDialog .vatra-site-legal-head .eyebrow{font-size:11px!important;letter-spacing:.1em!important;margin:0 0 5px!important}
+body :is(#legalDialog .auth-dialog-close,#vatraSiteLegalDialog .vatra-site-legal-close){
+ margin-left:auto!important;width:44px!important;height:44px!important;border-radius:9px!important;
+ border:1px solid var(--vatra-line)!important;background:#f7f9fc!important;color:#3d536d!important;
+ font-size:25px!important;line-height:1!important;box-shadow:none!important}
+body :is(#legalDialog .legal-dialog-switcher,#vatraSiteLegalDialog .vatra-site-legal-tabs){
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:9px!important;padding:0 28px 15px!important;margin:0!important;flex:0 0 auto!important;
+ border-bottom:1px solid #e7edf6!important;background:#fff!important}
+body :is(#legalDialog .legal-dialog-switcher button,#vatraSiteLegalDialog .vatra-site-legal-tabs button){
+ min-height:44px!important;padding:10px 8px!important;border:1px solid var(--vatra-line)!important;
+ border-radius:8px!important;background:#fff!important;color:#5a6e87!important;
+ font:650 13px/1.3 Inter,Arial,sans-serif!important;box-shadow:none!important}
+body :is(#legalDialog .legal-dialog-switcher button.active,#vatraSiteLegalDialog .vatra-site-legal-tabs button.active){
+ background:#eff4fd!important;color:#0757f5!important;border-color:#c9dafa!important;
+ box-shadow:none!important}
+body :is(#legalDialog .legal-dialog-switcher button.active,#vatraSiteLegalDialog .vatra-site-legal-tabs button.active)::after{display:none!important}
+body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body){
+ display:block!important;min-height:0!important;flex:1 1 auto!important;overflow-y:auto!important;
+ max-height:none!important;margin:0!important;padding:22px 30px 26px!important;
+ scrollbar-color:#a6b8d0 transparent!important;scrollbar-width:thin!important}
+body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body) h2{
+ font:750 clamp(22px,3vw,29px)/1.3 Inter,Arial,sans-serif!important;color:#1c304c!important}
+body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body) :is(h3,p,li){
+ overflow-wrap:anywhere;line-height:1.75!important}
+body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body) :is(p,li){
+ font-size:14px!important;color:#506781!important}
+body #legalDialog .auth-dialog-actions,body #vatraSiteLegalDialog .vatra-site-legal-actions{display:none!important}
+/* Компактні службові сповіщення — без величезного овалу навколо галочки. */
+body .topbar-notification-row{
+ display:grid!important;grid-template-columns:38px minmax(0,1fr) 8px!important;gap:12px!important;
+ align-items:start!important;width:100%!important;padding:13px 12px!important;
+ border:0!important;border-bottom:1px solid #e9eef5!important;border-radius:8px!important;
+ box-shadow:none!important;background:#fff!important;color:#273e59!important;text-align:left!important}
+body .topbar-notification-row.is-unread{background:#f2f6fc!important}
+body .topbar-notification-row>.vatra-system-notice-icon{
+ display:grid!important;place-items:center!important;flex:none!important;
+ width:38px!important;height:38px!important;min-width:38px!important;max-width:38px!important;
+ min-height:38px!important;max-height:38px!important;
+ margin:0!important;padding:0!important;background:#e7efff!important;border-radius:9px!important}
+body .topbar-notification-row>.vatra-system-notice-icon svg{
+ display:block!important;width:19px!important;height:19px!important;
+ flex:none!important;stroke:#0757f5!important;stroke-width:2!important;
+ fill:none!important;background:none!important;border:0!important}
+body .topbar-notification-row>span:nth-child(2){display:block!important;min-width:0!important;max-width:100%!important}
+body .topbar-notification-row>span:nth-child(2)>b{display:block!important;font:700 13px/1.45 Inter,Arial,sans-serif!important}
+body .topbar-notification-row .vatra-notification-excerpt{display:block!important;font:400 12px/1.5 Inter,Arial,sans-serif!important;color:#61748e!important}
+body .topbar-notification-row>i{width:7px!important;height:7px!important;border-radius:50%!important;background:#0757f5!important}
+@media(max-width:600px){
+ body :is(#legalDialog,#vatraSiteLegalDialog){width:calc(100vw - 14px)!important;height:calc(100dvh - 18px)!important;max-height:calc(100dvh - 18px)!important;border-radius:12px!important}
+ body :is(#legalDialog .legal-dialog-head,#vatraSiteLegalDialog .vatra-site-legal-head){padding:15px 15px 12px!important}
+ body :is(#legalDialog .legal-dialog-switcher,#vatraSiteLegalDialog .vatra-site-legal-tabs){padding:0 13px 12px!important;gap:5px!important}
+ body :is(#legalDialog .legal-dialog-switcher button,#vatraSiteLegalDialog .vatra-site-legal-tabs button){font-size:11px!important}
+ body :is(#legalDialog .legal-dialog-body,#vatraSiteLegalDialog .vatra-site-legal-body){padding:17px!important}
+}
