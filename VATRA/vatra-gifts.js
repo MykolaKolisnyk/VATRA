@@ -27,6 +27,32 @@ const catalog=[
  {code:'swan',title:'Лебідь ніжності',type:'premium',price:50},
  {code:'diamond',title:'Кришталева зоря',type:'premium',price:65}
 ];
+const giftDescriptions={
+ halloween:'Осінній подарунок із веселим гарбузиком для святкового настрою.',
+ newyear:'Нехай новий рік принесе нові зустрічі й добрі події.',
+ independence:'Серце в кольорах України — знак любові до рідної країни.',
+ warmth:'М’які обійми для людини, якій зараз потрібна підтримка.',
+ bouquet:'Яскраві квіти на знак уваги, вдячності та симпатії.',
+ spark:'Маленька іскра, з якої починається велика дружба.',
+ welcome:'Перший пам’ятний подарунок на честь приєднання до ВАТРИ.',
+ gold_pumpkin:'Теплий золотий гарбуз для осінніх свят і веселощів.',
+ rose:'Ніжна квітка, що говорить про дружбу без зайвих слів.',
+ cocoa:'Гаряче какао для затишних розмов у прохолодний день.',
+ cupcake:'Солодке привітання з приємною подією або святом.',
+ lantern:'Маленький вогник, який допомагає знайти своїх.',
+ ribbon:'Святкова стрічка як побажання радості й удачі.',
+ sun:'Сонячний настрій та щирі побажання хорошого дня.',
+ teddy:'Добрий ведмедик, що нагадує про турботу та тепло.',
+ hearts:'Два серця — для особливої людини у вашому житті.',
+ firebird:'Казковий птах світла, сили та натхнення.',
+ snowglobe:'Зимова казка зі сніжинками, що оживають навколо.',
+ letter:'Невеличке послання з теплими словами від душі.',
+ clover:'Чотирилиста конюшина — символ щасливих нагод.',
+ musicbox:'Чарівна скринька з настроєм музики й спогадів.',
+ swan:'Витончений лебідь — символ ніжності та відданості.',
+ diamond:'Сяюча кришталева зоря для найцінніших моментів.'
+};
+const animatedGiftCodes=new Set(['spark','firebird','snowglobe','lantern','newyear','diamond','hearts']);
 const paths={
  halloween:'<path d="M82 70q-20-17-42-3c-18 13-18 47 2 65 21 21 59 27 84 11 28-19 31-61 10-76-17-12-38-8-54 3Z" fill="#FF9B34" stroke="#D76022" stroke-width="3"/><path d="M80 73q-22 20-14 56m40-55q17 18 9 56" fill="none" stroke="#E77926" stroke-width="5"/><path d="M82 67q-5-18 3-27m0 20q18-17 33-10" fill="none" stroke="#598C58" stroke-width="8" stroke-linecap="round"/><path d="m55 93 11-9 8 13Zm42 1 12-11 7 15Z" fill="#55334B"/><path d="M69 116q17 16 35-1" fill="none" stroke="#55334B" stroke-width="5" stroke-linecap="round"/><path d="M119 55q22-18 27 8m-16-21 5-15" fill="none" stroke="#A9A3F9" stroke-width="3" stroke-linecap="round"/>',
  newyear:'<path d="M84 26 44 85h21l-31 42h99l-30-42h20Z" fill="#43AD80" stroke="#167D67" stroke-width="4" stroke-linejoin="round"/><path d="M83 30 77 16l-10 20 21-8Z" fill="#FFD65D" stroke="#F3A531" stroke-width="2"/><path d="M62 58q23 15 44 1M49 96q31 21 70 0" fill="none" stroke="#DFF7DC" stroke-width="6" stroke-linecap="round"/><circle cx="69" cy="76" r="6" fill="#F15F82"/><circle cx="102" cy="85" r="7" fill="#F9C74F"/><circle cx="74" cy="111" r="7" fill="#75B8FF"/><circle cx="103" cy="116" r="5" fill="#F37877"/><path d="M78 128v20h13v-20" fill="#C68652" stroke="#996039" stroke-width="2"/>',
@@ -65,7 +91,7 @@ function art(code){
  const label=catalog.find(x=>x.code===code)?.title||'Подарунок ВАТРИ';
  const color=giftAccent[code]||'#9CBDEC';
  const gradientId='vatraGiftHalo'+(++artSerial);
- return '<svg class="vatra-gift-art" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+'"><defs><radialGradient id="'+gradientId+'"><stop stop-color="'+color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#'+gradientId+')"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".10"/><g fill="none" filter="drop-shadow(0 4px 3px rgba(37,67,96,.13))">'+(paths[code]||paths.spark)+'</g><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".64"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".55"/></svg>';
+ return '<svg class="vatra-gift-art'+(animatedGiftCodes.has(code)?' is-animated':'')+'" data-gift-code="'+esc(code)+'" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+(animatedGiftCodes.has(code)?' — анімований':'')+'"><defs><radialGradient id="'+gradientId+'"><stop stop-color="'+color+'" stop-opacity=".34"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#'+gradientId+')"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".12"/><g class="vatra-gift-figure" fill="none" filter="drop-shadow(0 5px 4px rgba(37,67,96,.20))">'+(paths[code]||paths.spark)+'</g><g class="vatra-gift-glints" aria-hidden="true"><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".8"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".65"/><circle cx="131" cy="116" r="2.5" fill="#fff"/></g></svg>';
 }
 window.vatraGiftArt=art;window.vatraGiftCatalog=catalog;
 let opened=0,selectedTab='mine',selectedReceiver='',inventory={items:[],visibility:'everyone'},networkReady=false,showing=false,notice='';
@@ -98,7 +124,7 @@ window.vatraGiftToast=giftToast;
 function card(item,owned=false){
  const info=catalog.find(x=>x.code===item.code)||catalog.find(x=>x.code==='spark');
  const price=Number(info.price)||0;
- return '<article class="vatra-gift-card"><div class="vatra-gift-image">'+art(item.code)+'</div><h3>'+esc(info.title)+'</h3>'+
+ return '<article class="vatra-gift-card" data-gift-code="'+esc(item.code)+'"><div class="vatra-gift-image">'+art(item.code)+'</div><h3>'+esc(info.title)+'</h3><p class="vatra-gift-description">'+esc(giftDescriptions[item.code]||'Особливий подарунок для друга у ВАТРІ.')+'</p>'+(animatedGiftCodes.has(item.code)?'<span class="vatra-gift-animated-label">✦ Анімований</span>':'')+
  '<p>'+(owned?(item.source==='welcome'?'Подарунок за реєстрацію':item.source==='holiday'?'Подарунок ВАТРИ':item.source==='developer'?'Подарунок від ВАТРИ':'Подарунок від друга'):(price?'<b>'+price+' грн</b>':info.event?'Безкоштовно · '+esc(info.event):'Безкоштовно'))+'</p>'+
  (owned?'<button type="button" data-vatra-send-item="'+esc(item.id)+'">Подарувати другу</button>':
   price?'<button type="button" class="vatra-gift-purchase-disabled" disabled aria-disabled="true" title="Оплата банківською карткою ще розробляється">Купити · '+price+' грн</button><small class="vatra-gift-purchase-note">Оплата в розробці</small>':
