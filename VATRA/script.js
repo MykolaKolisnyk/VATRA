@@ -603,8 +603,12 @@ function postCard(p){
  const likeMap=likes[p.id]||{},saveMap=postSaves[p.id]||{},shareMap=postShares[p.id]||{},canEdit=p.authorUid===currentUser?.uid&&p.source!=='group',editing=canEdit&&editingPostId===p.id;
  const likeIcon='<path d="M20.8 8.7c0 5.2-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z"/>',commentIcon='<path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-9.5A7.5 7.5 0 0 1 10.5 4H12a8 8 0 0 1 8 7.5Z"/>',shareIcon='<path d="M12 16V3m-5 5 5-5 5 5"/><path d="M5 13v7h14v-7"/>',saveIcon='<path d="M6 4.5h12v16l-6-4-6 4v-16Z"/>';
  const allowComments=p.source!=='group'||groups[p.groupId]?.commentsEnabled!==false;
+ const mayPromote=!!currentUser&&((p.source==='group'
+  ?groups[p.groupId]?.ownerUid===currentUser.uid||!!groupAdmins[p.groupId]?.[currentUser.uid]||!!groupModerators[p.groupId]?.[currentUser.uid]
+  :p.authorUid===currentUser.uid))&&(p.visibility||'public')==='public';
+ const promoteAction=mayPromote?'<button type="button" data-vatra-promote-post="'+esc(p.id)+'">Просувати допис</button>':'';
  const actions=postActionItem('like',p.id,liked?'Вподобано':'Вподобати',Object.keys(likeMap).length,likeIcon,liked,postActorStack(likeMap,'Хто вподобав допис'))+(allowComments?postActionItem('comment',p.id,'Коментувати',cs.length,commentIcon,false):'')+postActionItem('share',p.id,'Поділитися',Object.keys(shareMap).length,shareIcon,false)+postActionItem('save',p.id,isSaved?'Збережено':'Зберегти',Object.keys(saveMap).length,saveIcon,isSaved);
- return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+(p.authorUid?'<button type="button" class="vatra-post-avatar-link" '+actorNavigation+' aria-label="'+(groupActor?'Відкрити спільноту':'Відкрити профіль автора')+'">'+avatar(postAuthorName,postAuthorAvatar)+'</button>':avatar(postAuthorName,postAuthorAvatar))+'<div class="author"><b>'+(p.authorUid?'<button type="button" class="author-link" '+actorNavigation+'>'+esc(postAuthorName)+'</button>'+(groupActor?(window.vatraGroupBadge?.(p.groupId)||''):verifiedBadge(p.authorUid)):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>'+(groupActor?'Спільнота':'@'+esc(p.authorHandle||'user'))+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.visibility==='private'?' · Лише для себе':p.visibility==='friends'?' · Для друзів':'')+(p.groupName?' · '+esc(p.groupName):'')+vatraPostAudience(p)+'</small></div>'+(currentUser?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом" title="Дії з дописом"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="19" cy="12" r="1.75"/></svg></summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+(currentUser?(p.source==='group'?'<button type="button" data-report-group-post="'+esc(p.groupId)+'" data-post-id="'+esc(p.id.slice(('g_'+p.groupId+'_').length))+'">Поскаржитися</button>':'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button>'+(p.authorUid!==currentUser.uid?'<button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>':'')):'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div>'+(cs.length?'<div class="comments vatra-post-comments"><div class="vatra-comments-heading"><b>Коментарі <span>'+cs.length+'</span></b><span class="vatra-comments-order-note">Новіші зверху</span></div>'+renderComments(p,cs)+'</div>':'')+(p.commentOpen&&allowComments?'<form class="comment-form vatra-comment-entry" data-form="'+esc(p.id)+'">'+emojiControl()+'<textarea name="comment" data-emoji-input maxlength="300" rows="2" placeholder="Написати коментар…"></textarea><label class="vatra-comment-attach" title="Прикріпити фото">▧<input type="file" name="commentPhoto" accept="image/*" hidden></label><button type="submit">Надіслати</button><small class="vatra-comment-file-name" hidden></small></form>':'')+'</article>';
+ return '<article class="post" id="post-'+esc(p.id)+'"><div class="post-head">'+(p.authorUid?'<button type="button" class="vatra-post-avatar-link" '+actorNavigation+' aria-label="'+(groupActor?'Відкрити спільноту':'Відкрити профіль автора')+'">'+avatar(postAuthorName,postAuthorAvatar)+'</button>':avatar(postAuthorName,postAuthorAvatar))+'<div class="author"><b>'+(p.authorUid?'<button type="button" class="author-link" '+actorNavigation+'>'+esc(postAuthorName)+'</button>'+(groupActor?(window.vatraGroupBadge?.(p.groupId)||''):verifiedBadge(p.authorUid)):esc(postAuthorName)+verifiedBadge(p.authorUid))+'</b><small>'+(groupActor?'Спільнота':'@'+esc(p.authorHandle||'user'))+' · '+timeAgo(p.createdAt)+(p.editedAt?' · змінено':'')+(p.visibility==='private'?' · Лише для себе':p.visibility==='friends'?' · Для друзів':'')+(p.groupName?' · '+esc(p.groupName):'')+vatraPostAudience(p)+'</small></div>'+(currentUser?'<details class="post-menu"><summary class="dots" aria-label="Дії з дописом" title="Дії з дописом"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.75"/><circle cx="12" cy="12" r="1.75"/><circle cx="19" cy="12" r="1.75"/></svg></summary><div class="post-menu-panel">'+(canEdit?'<button type="button" data-edit-post="'+esc(p.id)+'">Редагувати</button><button type="button" class="danger-link" data-delete="'+esc(p.id)+'">Видалити</button>':'')+promoteAction+(currentUser?(p.source==='group'?'<button type="button" data-report-group-post="'+esc(p.groupId)+'" data-post-id="'+esc(p.id.slice(('g_'+p.groupId+'_').length))+'">Поскаржитися</button>':'<button type="button" data-report-post="'+esc(p.id)+'">Поскаржитися</button>'+(p.authorUid!==currentUser.uid?'<button type="button" class="danger-link" data-block-user="'+esc(p.authorUid)+'">Заблокувати автора</button>':'')):'')+'</div></details>':'')+'</div>'+(editing?renderPostEditForm(p):renderPostBody(p))+renderPoll(p)+'<div class="post-actions">'+actions+'</div>'+(cs.length?'<div class="comments vatra-post-comments"><div class="vatra-comments-heading"><b>Коментарі <span>'+cs.length+'</span></b><span class="vatra-comments-order-note">Новіші зверху</span></div>'+renderComments(p,cs)+'</div>':'')+(p.commentOpen&&allowComments?'<form class="comment-form vatra-comment-entry" data-form="'+esc(p.id)+'">'+emojiControl()+'<textarea name="comment" data-emoji-input maxlength="300" rows="2" placeholder="Написати коментар…"></textarea><label class="vatra-comment-attach" title="Прикріпити фото">▧<input type="file" name="commentPhoto" accept="image/*" hidden></label><button type="submit">Надіслати</button><small class="vatra-comment-file-name" hidden></small></form>':'')+'</article>';
 }
 function allPosts(){
  const uid=currentUser?.uid;
@@ -639,7 +643,97 @@ function renderSaved(){
  setFeed(content,false);
  feed.querySelector('.vatra-saved-browse')?.addEventListener('click',()=>goPage('feed'));
 }
-function renderFeed(){const arr=allPosts();const cards=arr.map(postCard);if(arr.length&&currentUser){cards.splice(1,0,'<section class="vatra-fof-panel" id="vatraFriendsOfFriends" hidden aria-label="Люди, яких ви можете знати"></section>');}setFeed(cards.join(''),!arr.length);if(arr.length&&currentUser)void vatraLoadFriendsOfFriends();if(!arr.length)$('#empty').innerHTML=`<h3>${page==='saved'?'Тут поки порожньо':page==='profile'?'Ще немає дописів':'Стрічка пуста'}</h3><p>${page==='saved'?'Зберігай дописи, щоб повернутися до них пізніше.':page==='profile'?'Ваші публікації з’являтимуться тут.':'Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.'}</p>${currentUser&&page==='feed'?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':''}`;$('#emptyCreate')?.addEventListener('click',openComposer);}
+const vatraPromotionPrices={1:49,3:119,7:249,30:799};
+const vatraPromotions={rows:[],loading:false,lastCheck:0};
+function vatraPaidPost(id){
+ if(!id||typeof id!=='string'||id.length>140)return null;
+ if(id.startsWith('g_')){
+  for(const [gid,g] of Object.entries(groups||{})){
+   if(!id.startsWith('g_'+gid+'_'))continue;
+   if(g?.visibility==='private'||g?.isDeleted)return null;
+   const p=groupPostsCache[gid]?.[id.slice(gid.length+3)];
+   return p?.authorUid&&!blockedUsers[p.authorUid]&&(!p.visibility||p.visibility==='public')
+    ?{...p,id,groupId:gid,groupName:g.name||'Спільнота ВАТРИ',source:'group'}:null;
+  }
+  return null;
+ }
+ const p=posts[id];
+ return p?.authorUid&&!blockedUsers[p.authorUid]&&(!p.visibility||p.visibility==='public')
+  ?{...p,id,source:'user'}:null;
+}
+async function vatraCheckPaidPromotions(){
+ if(!currentUser||vatraPromotions.loading||Date.now()-vatraPromotions.lastCheck<120000)return;
+ vatraPromotions.loading=true;
+ try{
+  const time=new Date().toISOString();
+  const {data,error}=await db.client.from('vatra_promotions').select('id,post_id,ends_at')
+   .eq('status','active').lte('starts_at',time).gt('ends_at',time)
+   .order('starts_at',{ascending:false}).limit(100);
+  if(error)throw error;
+  vatraPromotions.rows=(Array.isArray(data)?data:[]).filter(x=>x?.post_id);
+  vatraPromotions.lastCheck=Date.now();
+  if(page==='feed')renderFeed();
+ }catch(error){
+  vatraPromotions.rows=[];vatraPromotions.lastCheck=Date.now();
+  console.info('[ВАТРА] Активні рекламні дописи не завантажено:',error?.message||error);
+ }finally{vatraPromotions.loading=false}
+}
+function renderFeed(){
+ const arr=allPosts(),seen=new Set(),sponsored=[];
+ for(const row of vatraPromotions.rows){
+  if(row.ends_at&&new Date(row.ends_at).getTime()<=Date.now())continue;
+  if(seen.has(row.post_id))continue;
+  const p=vatraPaidPost(row.post_id);
+  if(p){seen.add(row.post_id);sponsored.push(p)}
+ }
+ const identity=String(currentUser?.uid||'guest')+new Date().toISOString().slice(0,10);
+ let seed=0;for(const ch of identity)seed=(seed*31+ch.charCodeAt(0))>>>0;
+ if(sponsored.length)sponsored.push(...sponsored.splice(0,seed%sponsored.length));
+ const featureCount=Math.min(sponsored.length,Math.max(1,Math.ceil(arr.length/4)));
+ const selected=sponsored.slice(0,featureCount),paidIds=new Set(selected.map(p=>p.id));
+ const organic=arr.filter(p=>!paidIds.has(p.id)),cards=organic.map(postCard);
+ if(organic.length&&currentUser)cards.splice(1,0,'<section class="vatra-fof-panel" id="vatraFriendsOfFriends" hidden aria-label="Люди, яких ви можете знати"></section>');
+ let at=Math.min(2,cards.length);
+ for(const item of selected){
+  cards.splice(at,0,'<section class="vatra-sponsored-placement" aria-label="Рекламний допис"><header><strong>Реклама</strong><span>Оплачене просування</span></header>'+postCard(item)+'</section>');
+  at+=5;
+ }
+ const empty=cards.length===0;
+ setFeed(cards.join(''),empty);
+ if(organic.length&&currentUser)void vatraLoadFriendsOfFriends();
+ if(currentUser)void vatraCheckPaidPromotions();
+ if(empty)$('#empty').innerHTML='<h3>Стрічка пуста</h3><p>Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.</p>'+(currentUser?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':'');
+ $('#emptyCreate')?.addEventListener('click',openComposer);
+}
+function vatraOpenPromotionRequest(id){
+ if(!currentUser||!id)return;
+ let dlg=document.getElementById('vatraPromotionDialog');
+ if(!dlg){dlg=document.createElement('dialog');dlg.id='vatraPromotionDialog';dlg.className='vatra-promotion-dialog';document.body.append(dlg)}
+ dlg.innerHTML='<form class="vatra-promotion-form"><header><small>ВАТРА · РЕКЛАМА</small><h2>Просувати допис</h2><p>Просування допоможе показати публічний допис новим людям.</p></header>'+
+ '<label for="vatraPromotionDays">Тривалість просування</label><select id="vatraPromotionDays">'+
+ Object.entries(vatraPromotionPrices).map(([days,price])=>'<option value="'+days+'">'+(days==='1'?'1 день':days==='3'?'3 дні':days==='7'?'7 днів':'30 днів')+' · '+price+' грн</option>').join('')+'</select>'+
+ '<p class="vatra-promotion-note">Оплата карткою ще не підключена. Заявка не списує коштів і не запускає покази. Реклама починається лише після перевірки платежу адміністрацією.</p>'+
+ '<p class="vatra-promotion-error" role="alert" hidden></p><footer><button type="button" data-vatra-promotion-close>Скасувати</button><button class="primary" type="submit">Подати заявку</button></footer></form>';
+ dlg.querySelector('[data-vatra-promotion-close]').onclick=()=>dlg.close();
+ dlg.querySelector('form').onsubmit=async e=>{
+  e.preventDefault();
+  const button=dlg.querySelector('[type="submit"]'),errorBox=dlg.querySelector('.vatra-promotion-error');button.disabled=true;errorBox.hidden=true;
+  try{
+   const days=Number(dlg.querySelector('#vatraPromotionDays').value);
+   const {error}=await db.client.rpc('vatra_promotion_request',{_post_id:id,_days:days});
+   if(error)throw error;
+   dlg.close();toastMsg('Заявку прийнято. Кошти не списувалися.');
+  }catch(err){
+   errorBox.textContent='Не вдалося подати заявку: '+String(err?.message||'перевірте підключення або зверніться до підтримки.');
+   errorBox.hidden=false;
+  }finally{button.disabled=false}
+ };
+ dlg.showModal();
+}
+document.addEventListener('click',e=>{
+ const button=e.target.closest('[data-vatra-promote-post]');
+ if(button){e.preventDefault();e.stopPropagation();vatraOpenPromotionRequest(button.dataset.vatraPromotePost)}
+});
 const vatraFoFCache={uid:'',expires:0,items:[]};
 const vatraFoFHidden=new Set();
 let vatraFoFHiddenOwner='';
