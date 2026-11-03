@@ -154,7 +154,7 @@ function publicProfileData(p={}){
  const out={
   name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),
   lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),gender:['male','female'].includes(p.gender)?p.gender:'',
-  bio:'',status:'',avatarUrl:String(p.avatarUrl||''),coverUrl:p.profileVisibility==='private'?'':(/^https?:\/\//i.test(String(p.coverUrl||''))?String(p.coverUrl).slice(0,500):''),
+  bio:'',status:'',avatarUrl:String(p.avatarUrl||''),
   photoUploadedAt:p.profileVisibility==='private'?{}:Object.fromEntries(Object.entries(p.photoUploadedAt||{}).filter(([url,t])=>/^[a-z0-9]+$/i.test(url)&&Number.isFinite(Number(t))).slice(-120)),
    photoAlbums:p.profileVisibility==='private'?[]:vatraGetAlbums(p),
    avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
@@ -2691,14 +2691,8 @@ function vatraOrganizeSettings(){
   sections[id].append(card);return grid;
  };
  sections.profile.append(photoCard,basicCard);
- // Actual editable cover and avatar, not a decorative static mockup.
  photoCard.classList.add('vatra-editor-profile-photos');
- const hero=document.createElement('div');hero.className='vatra-editor-cover';
- hero.innerHTML='<div class="vatra-editor-cover-backdrop">'+(currentProfile.coverUrl&&/^https?:\/\//.test(currentProfile.coverUrl)?'<img src="'+esc(currentProfile.coverUrl)+'" alt="Обкладинка профілю">':'<span>ВАТРА</span>')+'</div>'+
- '<label class="vatra-editor-cover-button" for="settingsCoverFile"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4-.5L19 8.5a2 2 0 0 0-4-4L4 15.5 4 20Z"/></svg> Змінити обкладинку</label><input id="settingsCoverFile" type="file" accept="image/*" hidden>';
- photoCard.insertBefore(hero,photoCard.querySelector('.settings-photo-row'));
- const removeCover=document.createElement('button');removeCover.type='button';removeCover.id='settingsRemoveCover';removeCover.className='vatra-editor-remove-cover';removeCover.textContent='Прибрати обкладинку';removeCover.hidden=!currentProfile.coverUrl;hero.append(removeCover);
- photoCard.querySelector('h3').textContent='Фото й обкладинка';
+ photoCard.querySelector('h3').textContent='Фотографія профілю';
  const groupSpecs=[
   ['contacts','Контакти',['city','location','hometown','phone','website']],
   ['education','Освіта',['education']],
@@ -2873,37 +2867,6 @@ $('#confirmPhoneVerification').onclick=async()=>{const phone=$('#confirmPhoneVer
 
 get(ref(db,`admins/${currentUser.uid}`)).then(snap=>{const card=$('#officialAdminCard');if(!card)return;const isAdmin=snap.val()===true;if(isAdmin){card.hidden=false;const target=$('#officialTargetUser');if(target){target.value=currentUser.uid;$('#officialAccountToggle').checked=verifiedUsers?.[currentUser.uid]?.verified===true;$('#officialAccountStatus').textContent=$('#officialAccountToggle').checked?'Цей акаунт має офіційний статус.':'Цей акаунт поки не підтверджено.';target.onchange=()=>{const uid=target.value;$('#officialAccountToggle').checked=verifiedUsers?.[uid]?.verified===true;$('#officialAccountStatus').textContent=uid?(verifiedUsers?.[uid]?.verified===true?'Цей акаунт має офіційний статус.':'Цей акаунт поки не підтверджено.'):'Оберіть акаунт зі списку.';};}} }).catch(()=>{});
 $('#saveOfficialAccount').onclick=async()=>{const targetUid=$('#officialTargetUser').value,enabled=$('#officialAccountToggle').checked,btn=$('#saveOfficialAccount'),status=$('#officialAccountStatus');if(!targetUid){status.textContent='Спочатку оберіть акаунт.';return;}btn.disabled=true;status.textContent='Зберігаємо статус…';try{await set(ref(db,`verifiedUsers/${targetUid}`),{verified:enabled,updatedAt:Date.now(),verifiedBy:currentUser.uid});status.textContent=enabled?'Офіційний статус увімкнено.':'Офіційний статус знято.';toastMsg(status.textContent);}catch(err){status.textContent='Не вдалося змінити статус. Перевірте права адміністратора.';toastMsg(niceError(err));}finally{btn.disabled=false;}};
-$('#settingsCoverFile').onchange=async event=>{
- const input=event.target,file=input.files?.[0];if(!file)return;
- if(!file.type.startsWith('image/')||file.size>MAX_IMAGE){toastMsg('Оберіть зображення до 15 МБ.');input.value='';return;}
- const buttons=[...document.querySelectorAll('.vatra-editor-cover-button,#settingsRemoveCover')];
- buttons.forEach(b=>b.classList.add('is-busy'));
- try{
-  const edited=await getImageEditor(file,'cover');if(!edited)return;
-  const coverUrl=await uploadImage(edited,1600,.88,'covers');
-  const draft={...currentProfile,coverUrl,updatedAt:Date.now()};
-  await update(ref(db,'users/'+currentUser.uid),{coverUrl,updatedAt:draft.updatedAt});
-  currentProfile.coverUrl=coverUrl;
-  await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(draft));
-  const backdrop=document.querySelector('.vatra-editor-cover-backdrop');
-  if(backdrop){const img=document.createElement('img');img.src=coverUrl;img.alt='Обкладинка профілю';backdrop.replaceChildren(img);}
-  const remove=document.querySelector('#settingsRemoveCover');if(remove)remove.hidden=false;
-  toastMsg('Обкладинку оновлено.');
- }catch(error){toastMsg('Не вдалося зберегти обкладинку: '+niceError(error));}
- finally{input.value='';buttons.forEach(b=>b.classList.remove('is-busy'));}
-};
-$('#settingsRemoveCover').onclick=async()=>{
- const button=$('#settingsRemoveCover');button.disabled=true;
- try{
-  const draft={...currentProfile,coverUrl:'',updatedAt:Date.now()};
-  await update(ref(db,'users/'+currentUser.uid),{coverUrl:'',updatedAt:draft.updatedAt});
-  currentProfile.coverUrl='';
-  await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(draft));
-  const backdrop=document.querySelector('.vatra-editor-cover-backdrop');if(backdrop){const span=document.createElement('span');span.textContent='ВАТРА';backdrop.replaceChildren(span);}
-  button.hidden=true;toastMsg('Обкладинку прибрано.');
- }catch(error){toastMsg('Не вдалося прибрати обкладинку: '+niceError(error));}
- finally{button.disabled=false;}
-};
 $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{toastMsg('Стискаємо й зберігаємо фото…');const edited=await getImageEditor(f,'avatar');if(!edited)return;const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory,updatedAt:Date.now()});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));const preview=$('#settingsAvatarPreview');preview.style.backgroundImage=`url('${avatarUrl}')`;preview.textContent='';updateIdentity();toastMsg('Аватар збережено. Попередні фото залишилися в історії профілю.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}};$('#removeAvatar').onclick=async()=>{try{await update(ref(db,`users/${currentUser.uid}`),{avatarUrl:''});currentProfile.avatarUrl='';await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));$('#settingsAvatarPreview').style.backgroundImage='';$('#settingsAvatarPreview').textContent=initials(currentProfile.name||'ВАТРА');updateIdentity();toastMsg('Фото прибрано.');}catch(e){toastMsg(niceError(e));}};$('#profileSettingsForm').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,err=f.querySelector('#settingsError');if(err)err.textContent='';const fd=new FormData(f);const firstName=String(fd.get('firstName')||'').trim(),lastName=String(fd.get('lastName')||'').trim(),handle=String(fd.get('handle')||'').trim().replace(/^@/,''),bio=String(fd.get('bio')||'').trim(),city=String(fd.get('city')||'').trim(),location=String(fd.get('location')||'').trim(),website=String(fd.get('website')||'').trim(),workplace=String(fd.get('workplace')||'').trim(),education=String(fd.get('education')||'').trim(),hometown=String(fd.get('hometown')||'').trim(),submittedPhone=String(fd.get('phone')||'').trim(),dateOfBirth=String(fd.get('dateOfBirth')||'');if(firstName.length<2||lastName.length<2){$('#settingsError').textContent='Ім’я та прізвище мають містити щонайменше 2 символи.';return;}if((firstName+' '+lastName).length>40){$('#settingsError').textContent='Ім’я та прізвище разом мають бути не довші за 40 символів.';return;}if(!VATRA_HANDLE_PATTERN.test(handle)){ $('#settingsError').textContent='Перевірте псевдонім: 2–24 символи, літери, цифри, крапка, _ або -.';return;}if(website&&!/^https?:\/\//i.test(website)){ $('#settingsError').textContent='Посилання має починатися з https:// або http://.';return;}if(dateOfBirth){const bd=new Date(dateOfBirth+'T00:00:00'),now=new Date();if(Number.isNaN(bd.getTime())||bd>now){$('#settingsError').textContent='Перевірте дату народження.';return;}let age=now.getFullYear()-bd.getFullYear();if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))age--;if(age<13){$('#settingsError').textContent='ВАТРА доступна з 13 років.';return;}}const extraVisibility={};for(const spec of Object.values(VATRA_PROFILE_EXTRA_SECTIONS))for(const key of Object.keys(spec.fields))extraVisibility[key]=vatraFieldVisibility(fd.get('extraVisibility_'+key));const values={gender:['male','female'].includes(fd.get('gender'))?fd.get('gender'):'',extraVisibility,bioVisibility:vatraFieldVisibility(fd.get('bioVisibility'),'public'),statusVisibility:vatraFieldVisibility(fd.get('statusVisibility'),'public'),websiteVisibility:vatraFieldVisibility(fd.get('websiteVisibility'),'public'),firstName,lastName,name:`${firstName} ${lastName}`,handle,bio:bio.slice(0,500),city,location,website,workplace:workplace.slice(0,120),education:education.slice(0,120),hometown:hometown.slice(0,80),profileVisibility:fd.get('profileVisibility')==='private'?'private':'public',searchable:fd.get('searchable')!=='no',birthdayVisibility:String(fd.get('birthdayVisibility')||'private'),birthdayPublic:(String(fd.get('birthdayVisibility')||'private')==='public'?dateOfBirth:''),cityVisibility:String(fd.get('cityVisibility')||'private'),locationVisibility:String(fd.get('locationVisibility')||'private'),phoneVisibility:String(fd.get('phoneVisibility')||'private'),workplaceVisibility:String(fd.get('workplaceVisibility')||'private'),educationVisibility:String(fd.get('educationVisibility')||'private'),hometownVisibility:String(fd.get('hometownVisibility')||'private'),allowMessages:fd.get('allowMessages')==='on',themeMode:['dark','auto'].includes(fd.get('themeMode'))?fd.get('themeMode'):'light',preferredLanguage:window.vatraLanguage?.language||'uk',updatedAt:Date.now()};if(submittedPhone&&submittedPhone!==privatePhone&&!/^\+[1-9]\d{7,14}$/.test(submittedPhone)){ $('#settingsError').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX. Після збереження його потрібно буде підтвердити SMS-кодом.';return;}const pendingPhone=submittedPhone&&submittedPhone!==privatePhone?submittedPhone:'';const privateSections={};
  for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){
   for(const key of Object.keys(section.fields)){
