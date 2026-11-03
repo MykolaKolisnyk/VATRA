@@ -1597,7 +1597,7 @@ function renderGroupDetails(id){
    '<h2>'+esc(g.name||'Без назви')+'<span data-vatra-group-badge-slot="'+esc(id)+'">'+(window.vatraGroupBadge?.(id)||'')+'</span></h2>'+
    '<p>'+memberCount+' учасників <span aria-hidden="true">·</span> '+arr.length+' дописів <span aria-hidden="true">·</span> '+badge+'</p></div></div>'+
    '<div class="vatra-group-heading-actions">'+actions+(member||canManage?'<button type="button" class="vatra-group-bell'+(communityNotifyPreferences[id]?.enabled?' is-enabled':'')+'" data-vatra-group-bell="'+esc(id)+'" aria-pressed="'+String(communityNotifyPreferences[id]?.enabled===true)+'" title="Сповіщення про нові дописи" aria-label="'+(communityNotifyPreferences[id]?.enabled?'Вимкнути сповіщення':'Отримувати нові дописи')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 6-3 7-3 9h18c0-2-3-3-3-9M9 21h6"/></svg></button>':'')+(canManage&&!isOwner?'<button type="button" class="vatra-group-secondary" data-manage-group="'+esc(id)+'">Керування</button>':'')+(!canManage?'<button type="button" class="vatra-group-secondary" data-report-group="'+esc(id)+'">Поскаржитися</button>':'')+'</div></div>'+
-   (canManage?'<div class="vatra-group-owner-tools"><span>Панель керування</span><button type="button" data-manage-group="'+esc(id)+'">Налаштування та команда</button>'+'</div>':'')+'</header>';
+   ''+'</header>';
   const people=ids.map(uid=>{
    const u=users[uid]||{},name=u.name||'Учасник ВАТРИ';
    const role=uid===g.ownerUid?'Творець':adminIds[uid]?'Адміністратор':modIds[uid]?'Модератор':'Учасник';
