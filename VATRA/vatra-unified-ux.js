@@ -6,7 +6,7 @@ const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='pre
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentGallery=null,restoring=false;
 const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Повідомлення',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги',supportDesk:'Техпідтримка'};
-const route=i=>i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
+const route=i=>i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'#/profile/edit':i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
 window.vatraRouteChanged=i=>{
  if(!i?.page)return;
  if(i.page!=='adminCenter')window.vatraAdminResetState?.();
@@ -24,6 +24,7 @@ function backToRoute(){
   else if(location.hash==='#/admin'){void window.vatraOpenAdminCenter?.();}
   else if(location.hash==='#/my-reports'){void window.vatraOpenMyReports?.();}
   else if(location.hash==='#/support'){void window.vatraOpenSupportDesk?.();}
+  else if(location.hash==='#/profile/edit'){if(!auth.currentUser)return false;r.editProfile?.();}
   else if(post){void r.openPost(decodeURIComponent(post[1]));}
   else if(profile){r.renderPublicProfile(decodeURIComponent(profile[1]));if(profile[2]){const b=$('[data-vatra-open-public-photos]');if(b)openGallery(b,true);}}
   else if(group){const id=decodeURIComponent(group[1]);if(group[2]==='/settings')r.renderGroupSettings(id);else if(group[2]==='/members')r.renderGroupMembersPage(id);else r.renderGroupDetails(id);}
