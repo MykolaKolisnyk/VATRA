@@ -37,16 +37,20 @@ document.addEventListener('close',event=>{
  const dialog=event.target;
  if(!dialog.matches?.('.vatra-avatar-viewer,.vatra-post-photo-viewer,.vatra-group-photo-dialog'))return;
  document.body.classList.add('vatra-photo-menu-suppressed');
- setTimeout(()=>{if(!document.querySelector('#vatraAvatarWrap:hover,.vatra-avatar-hover-wrap:hover'))document.body.classList.remove('vatra-photo-menu-suppressed');},120);
- document.querySelectorAll('.vatra-verified-tooltip').forEach(el=>el.remove());
+ document.querySelectorAll('.vatra-verified-tooltip').forEach(element=>element.remove());
  document.querySelectorAll('#vatraAvatarWrap,.vatra-avatar-hover-wrap').forEach(wrap=>{
   wrap.classList.remove('is-open','menu-open','active');
   wrap.querySelector('[data-avatar-menu-toggle]')?.setAttribute('aria-expanded','false');
+  if(wrap.contains(document.activeElement))document.activeElement.blur?.();
  });
-},{capture:true});
-document.addEventListener('pointerout',event=>{
- const wrap=event.target.closest?.('#vatraAvatarWrap,.vatra-avatar-hover-wrap');
- if(wrap&&!wrap.contains(event.relatedTarget))document.body.classList.remove('vatra-photo-menu-suppressed');
+},true);
+document.addEventListener('pointerenter',event=>{
+ if(event.target.closest?.('#vatraAvatarWrap,.vatra-avatar-hover-wrap'))
+  document.body.classList.remove('vatra-photo-menu-suppressed');
+},true);
+document.addEventListener('pointerleave',event=>{
+ if(event.target.matches?.('#vatraAvatarWrap,.vatra-avatar-hover-wrap'))
+  document.body.classList.remove('vatra-photo-menu-suppressed');
 },true);
 window.addEventListener('popstate',backToRoute);
 window.addEventListener('hashchange',backToRoute);
