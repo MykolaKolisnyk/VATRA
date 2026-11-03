@@ -79,7 +79,7 @@ function card(item,mine=false){
  (mine?'<div class="vatra-creator-list-status">'+(item.listed?'У продажу':'Не виставлено')+'</div>'+
  '<form class="vatra-creator-listing" data-creator-listing="'+esc(item.id)+'"><label>Ціна <input type="number" name="price" min="10" max="5000" value="'+Number(item.price)+'" required></label>'+
  '<label class="vatra-creator-check"><input type="checkbox" name="listed" '+(item.listed?'checked':'')+'> У каталозі</label>'+
- '<button type="submit">Зберегти</button></form><button type="button" data-creator-send="'+esc(item.id)+'">Подарувати другу</button>':
+ '<button type="submit">Зберегти</button></form><div class="vatra-creator-item-actions"><button type="button" data-creator-send="'+esc(item.id)+'">Подарувати другу</button><button type="button" class="vatra-creator-delete" data-creator-delete="'+esc(item.id)+'">Видалити</button></div>':
   item.owner===actor()?'<span class="vatra-creator-own-label">Ваш подарунок</span>':
   '<button type="button" class="vatra-creator-buy" data-creator-order="'+esc(item.id)+'">Запросити купівлю</button>')+'</article>';
 }
@@ -118,15 +118,16 @@ async function render(){
  const root=document.querySelector('#vatraCreatorGiftsMount');
  if(!root||document.body.dataset.page!=='gifts')return;
  const serial=++renderSerial;
- root.innerHTML=editor()+'<section class="vatra-creator-collection"><div class="vatra-creator-section-heading"><h2>Мої авторські подарунки</h2></div><div id="vatraCreatorOwnGrid" class="vatra-creator-grid"></div>'+
+ root.innerHTML=editor()+'<section class="vatra-creator-collection"><div class="vatra-creator-section-heading"><h2>Мої авторські подарунки</h2><button type="button" class="vatra-creator-clear-all" data-creator-clear-all hidden>Очистити колекцію</button></div><div id="vatraCreatorOwnGrid" class="vatra-creator-grid"></div>'+
  '<div id="vatraCreatorSendPanel" hidden class="vatra-creator-send-panel"></div></section>'+
  '<section class="vatra-creator-collection"><div class="vatra-creator-section-heading"><h2>Каталог авторських подарунків</h2><p>Ціну встановлює власник. ВАТРА не перевіряє оплату поза платформою.</p></div><div id="vatraCreatorMarketGrid" class="vatra-creator-grid"></div></section>'+
  '<section class="vatra-creator-collection"><div class="vatra-creator-section-heading"><h2>Заявки та домовленості</h2></div><div id="vatraCreatorOrders"></div></section>';
- requestAnimationFrame(canvasDraw);
+ requestAnimationFrame(()=>{canvasDraw();window.vatraCreatorStudioInit?.();});
  try{
   const data=await loadAll();if(serial!==renderSerial||!root.isConnected)return;
   cached=data;
   root.querySelector('#vatraCreatorOwnGrid').innerHTML=data.mine.length?data.mine.map(x=>card(x,true)).join(''):'<p class="vatra-creator-empty">Ще немає авторських подарунків. Створіть перший вище.</p>';
+  root.querySelector('[data-creator-clear-all]').hidden=!data.mine.length;
   root.querySelector('#vatraCreatorMarketGrid').innerHTML=data.market.length?data.market.map(x=>card(x,false)).join(''):'<p class="vatra-creator-empty">Поки немає подарунків, виставлених на продаж.</p>';
   root.querySelector('#vatraCreatorOrders').innerHTML=data.orders.length?data.orders.map(orderRow).join(''):'<p class="vatra-creator-empty">Активних заявок поки немає.</p>';
  }catch(error){
@@ -175,6 +176,23 @@ document.addEventListener('click',async event=>{
   const img=document.querySelector('#vatraCreatorUploadedPreview');if(img)img.hidden=true;
   document.querySelector('#vatraCreatorCanvas')?.removeAttribute('hidden');
   if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl='';canvasDraw();return;
+ }
+ const deleteOne=event.target.closest('[data-creator-delete]');
+ if(deleteOne){
+  const gift=cached.mine.find(g=>g.id===deleteOne.dataset.creatorDelete);if(!gift)return;
+  if(!await confirmAction('Видалити «'+gift.title+'» із Вашої колекції та продажу? Подарунок буде приховано, активні заявки закрито. Історія угод зберігатиметься для розв’язання спорів.','Видалити'))return;
+  deleteOne.disabled=true;
+  try{await rpc('vatra_creator_gifts_discard',{_gift_id:gift.id});await render();toast('Подарунок видалено з колекції.');}
+  catch(err){deleteOne.disabled=false;toast(err.message||'Помилка видалення',true);}
+  return;
+ }
+ if(event.target.closest('[data-creator-clear-all]')){
+  if(!cached.mine.length)return;
+  if(!await confirmAction('Очистити колекцію з '+cached.mine.length+' авторських подарунків? Усі оголошення будуть прибрані, активні заявки закриті. Історія угод збережеться.','Очистити колекцію'))return;
+  const b=event.target.closest('[data-creator-clear-all]');b.disabled=true;
+  try{const n=await rpc('vatra_creator_gifts_discard_all');await render();toast('Прибрано подарунків: '+Number(n||0));}
+  catch(err){b.disabled=false;toast(err.message||'Не вдалося очистити колекцію',true);}
+  return;
  }
  const toSend=event.target.closest('[data-creator-send]');
  if(toSend){
@@ -258,7 +276,8 @@ document.addEventListener('submit',async event=>{
   let path='';
   try{
    const file=form.querySelector('#vatraCreatorImageFile')?.files?.[0];
-   const blob=file?await fileToPng(file):await fileFromCanvas();
+   const blob=window.vatraCreatorStudioExport?
+    await window.vatraCreatorStudioExport(file):file?await fileToPng(file):await fileFromCanvas();
    if(!blob||blob.size>2097152)throw Error('Не вдалося підготувати зображення до 2 МБ');
    path=actor()+'/gifts/'+crypto.randomUUID()+'.png';
    const {error}=await client.storage.from('vatra-media').upload(path,blob,{contentType:'image/png',cacheControl:'31536000',upsert:false});

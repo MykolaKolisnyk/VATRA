@@ -12,13 +12,13 @@ const icons={
 };
 const statuses={open:'Нова',reviewing:'Розглядається',resolved:'Вирішена',dismissed:'Відхилена'};
 const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
-let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,rolePromise=null,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300,auditLimit=200,adminOpen=false,adminPending=false,identities=new Map();
+let staffRole='',roleUid='',roleChecked=false,roleCheckedAt=0,roleResult=false,isRoleLoading=false,rolePromise=null,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300,auditLimit=200,adminOpen=false,adminPending=false,identities=new Map();
 const signedUid=()=>auth.currentUser?.uid||null;
 const errorText=e=>String(e?.message||'Не вдалося виконати дію. Перевірте з’єднання.');
 async function checkRole(force=false){
  const uid=signedUid();
  if(!uid){staffRole='';roleUid='';roleChecked=false;roleResult=false;return false;}
- if(!force&&roleChecked&&roleUid===uid)return roleResult;
+ if(!force&&roleChecked&&roleUid===uid&&Date.now()-roleCheckedAt<5000)return roleResult;
  if(rolePromise)return rolePromise;
  isRoleLoading=true;
  rolePromise=(async()=>{
@@ -26,7 +26,7 @@ async function checkRole(force=false){
    const {data,error}=await client.rpc('vatra_staff_role');
    staffRole=error?'':String(data||'');
    roleResult=['owner','admin','moderator','support','verifier'].includes(staffRole);
-   roleUid=uid;roleChecked=true;
+   roleUid=uid;roleChecked=true;roleCheckedAt=Date.now();
   }catch{roleUid=uid;roleChecked=true;roleResult=false;staffRole='';}
   return roleResult;
  })();
@@ -214,7 +214,8 @@ const giftNames={
  independence:'Серце України',warmth:'Теплі обійми',bouquet:'Букет ВАТРИ',spark:'Іскра дружби',
  gold_pumpkin:'Золотий гарбуз',rose:'Квітка дружби',cocoa:'Тепле какао',cupcake:'Святковий кекс',
  lantern:'Ліхтарик ВАТРИ',ribbon:'Стрічка щастя',sun:'Сонечко',teddy:'Ведмедик ВАТРИ',
- hearts:'Два серця',firebird:'Вогняний птах',snowglobe:'Снігова куля',letter:'Листівка з теплом',clover:'Конюшина удачі',musicbox:'Музична скринька',swan:'Лебідь ніжності',diamond:'Кришталева зоря'
+ hearts:'Два серця',firebird:'Вогняний птах',snowglobe:'Снігова куля',letter:'Листівка з теплом',clover:'Конюшина удачі',musicbox:'Музична скринька',swan:'Лебідь ніжності',diamond:'Кришталева зоря',
+ zsu_tribute:'Сила ЗСУ',ngu_tribute:'Міць НГУ',dpsu_tribute:'Вартові кордону ДПСУ'
 };
 function giftAdminMarkup(){
  return '<section class="vatra-control-card vatra-gift-admin"><h3>Керування подарунками</h3><p>Платні подарунки тимчасово недоступні для купівлі. Видача й відкликання наявних подарунків залишаються доступними власнику ВАТРИ.</p></section>'+
@@ -413,7 +414,7 @@ function installEvents(data){
  });
 }
 async function openAdmin(){
- if(!(await checkRole(true)))return;
+ if(!(await checkRole(true))||staffRole!=='owner'||signedUid()!==roleUid)return;
  if(!adminOpen)activeTab='reports';
  await renderDashboard();
 }
@@ -429,7 +430,7 @@ setInterval(()=>{
 },1900);
 window.vatraOpenAdminCenter=openAdmin;
 // The account popover only reveals the link after verifying the server-side staff role.
-window.vatraCanOpenAdminCenter=()=>checkRole();
+window.vatraCanOpenAdminCenter=async()=>{await checkRole(true);return staffRole==='owner'&&signedUid()===roleUid;};
 async function myReports(){
  if(!signedUid())return;
  show('<section class="vatra-control-card"><h3>Мої звернення до модерації</h3><p>Тут з’являються відповіді адміністратора на Ваші скарги.</p><p class="vatra-control-muted">Завантаження…</p></section>','Мої скарги','myReports');
@@ -456,34 +457,20 @@ async function installSettingsLinks(){
   btn.type='button';btn.className='vatra-settings-nav-button';btn.dataset.vatraMyReports='true';
   btn.textContent='Мої скарги';btn.addEventListener('click',()=>void myReports());nav.append(btn);
  }
- if(!nav.querySelector('[data-vatra-admin-entry]')&&await checkRole()){
-  if(!nav.isConnected||document.body.dataset.page!=='settings')return;
-  const button=document.createElement('button');button.type='button';
-  button.className='vatra-settings-nav-button vatra-control-admin-entry';
-  button.dataset.vatraAdminEntry='true';
-  button.innerHTML=icons.shield+' Адмінпанель ВАТРИ';
-  button.addEventListener('click',()=>void openAdmin());nav.append(button);
- }
+ // Адмінпанель доступна тільки в меню акаунта. Приберіть стару кнопку, якщо залишилась.
+ nav.querySelectorAll('[data-vatra-admin-entry]').forEach(button=>button.remove());
 }
 new MutationObserver(()=>{
  if(paintPending)return;paintPending=true;
  requestAnimationFrame(()=>{paintPending=false;void installSettingsLinks();});
 }).observe(document.body,{subtree:true,childList:true});
 void installSettingsLinks();
-// A compact count on the bell lets an admin notice new reports without opening settings.
-// Poll while the site is open; it does not rely on push or background monitoring.
-async function checkQueue(){
- if(!signedUid()||!(await checkRole())||!['owner','admin','moderator','support'].includes(staffRole))return;
- const {count,error}=await client.from('vatra_moderation_cases').select('id',{count:'exact',head:true}).eq('status','open');
- if(error)return;
- const bell=$('#notificationBell');if(!bell)return;
- let badge=bell.querySelector('.vatra-admin-report-count');
- if(!badge){badge=document.createElement('span');badge.className='vatra-admin-report-count';badge.setAttribute('aria-label','Нові скарги модерації');bell.append(badge);}
- badge.hidden=!count;badge.textContent=count>99?'99+':String(count||0);
-}
-setInterval(()=>{void checkQueue();},90000);
-setTimeout(()=>{void checkQueue();},3000);
-
+// Admin reports are visible inside the control center, not as a competing red
+// badge over ordinary notifications. Legacy duplicate counters are removed.
+document.querySelector('#notificationBell .vatra-admin-report-count')?.remove();
+new MutationObserver(()=>{
+ document.querySelector('#notificationBell .vatra-admin-report-count')?.remove();
+}).observe(document.querySelector('#notificationBell')||document.body,{childList:true,subtree:false});
 
 /* Inform the affected person about an actual server-enforced publication ban.
    This does not pretend to disable Supabase Auth sign-in. */

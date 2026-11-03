@@ -911,6 +911,46 @@ function vatraProfilePhotoDateMarkup(timestamp){
  const machine=date.toLocaleDateString('sv-SE');
  return '<time class="vatra-profile-photo-date" datetime="'+machine+'" title="Завантажено '+esc(text)+'">'+esc(text)+'</time>';
 }
+// Compact in-place gallery carousel: arrows move the thumbnails without opening a viewer.
+const vatraProfileGalleryCache=new Map();
+function vatraProfileGalleryTile(photo,index,uid,isMine){
+ return '<div class="profile-photo-tile"><button type="button" class="profile-gallery-open"'+
+  ' data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(vatraProfileGalleryCache.get((isMine?'self:':'public:')+uid).photos.map(p=>p.url)))+'"'+
+  ' data-photo-index="'+index+'" aria-label="Відкрити фотографію '+(index+1)+'">'+
+  '<img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(photo.url)+'" alt="Фотографія '+(index+1)+'"></button>'+
+  vatraProfilePhotoDateMarkup(photo.createdAt)+
+  (isMine&&photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>';
+}
+function vatraProfileGalleryCarousel(uid,photos,isMine=false){
+ const key=(isMine?'self:':'public:')+uid;
+ const found=photos.filter(x=>typeof x.url==='string'&&x.url);
+ if(!found.length)return '';
+ vatraProfileGalleryCache.clear();
+ vatraProfileGalleryCache.set(key,{photos:found,offset:0,isMine,uid});
+ const initial=found.slice(0,4).map((photo,i)=>vatraProfileGalleryTile(photo,i,uid,isMine)).join('');
+ const arrow=direction=>'<button type="button" class="vatra-gallery-carousel-arrow '+(direction<0?'is-prev':'is-next')+'" '+
+  ' data-vatra-gallery-step="'+direction+'" aria-label="'+(direction<0?'Попередні':'Наступні')+' фотографії">'+
+  '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+  (direction<0?'<path d="m14.5 5-7 7 7 7"/>':'<path d="m9.5 5 7 7-7 7"/>')+'</svg></button>';
+ return '<div class="vatra-profile-photo-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
+  '<div class="profile-photo-gallery">'+initial+'</div>'+
+  (found.length>4?arrow(-1)+arrow(1):'')+'</div>';
+}
+document.addEventListener('click',event=>{
+ const arrow=event.target.closest('[data-vatra-gallery-step]');
+ if(!arrow)return;
+ event.preventDefault();event.stopPropagation();
+ const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
+ if(!box||!state||state.photos.length<=4)return;
+ const count=state.photos.length,step=Number(arrow.dataset.vatraGalleryStep);
+ state.offset=(state.offset+(step===-1?-1:1)+count)%count;
+ const grid=box.querySelector('.profile-photo-gallery');
+ if(!grid)return;
+ grid.innerHTML=Array.from({length:4},(_,i)=>{
+  const index=(state.offset+i)%count;
+  return vatraProfileGalleryTile(state.photos[index],index,state.uid,state.isMine);
+ }).join('');
+},true);
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -926,7 +966,10 @@ function renderProfile(){
  const avatarPhotos=[currentProfile.avatarUrl,...history.map(item=>item.url)].filter(Boolean);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото профілю"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото профілю, які Ви вирішите залишити.</p>';
  const galleryUrls=gallery.map(item=>item.url);
- const galleryHtml=gallery.length?'<div class="profile-photo-gallery">'+gallery.slice(0,4).map((photo,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(galleryUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img loading="lazy" decoding="async" src="'+esc(photo.url)+'" alt="Фото профілю"></button>'+vatraProfilePhotoDateMarkup(photo.createdAt)+(photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>').join('')+'</div>'+(gallery.length>4?'<a class="vatra-profile-link profile-gallery-all" href="#/photos" id="profileOpenAllPhotos">Відкрити повний альбом ('+gallery.length+')</a>':''):'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>'
+ const galleryHtml=gallery.length?
+  vatraProfileGalleryCarousel(uid,gallery,true)+
+  (gallery.length>4?'<a class="vatra-profile-link profile-gallery-all" href="#/photos" id="profileOpenAllPhotos">Відкрити повний альбом ('+gallery.length+')</a>':'')
+  :'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(vatraProfileFriendThumb).join('');
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
@@ -945,7 +988,7 @@ function renderProfile(){
        (history.length||gallery.length?'<button type="button" data-avatar-photo-action="restore">'+vatraAvatarActionIcon('restore')+'<span>Відновити фото</span></button>':''))+
      '</div>'+
     '</div>'+
-    '<button type="button" class="vatra-profile-edit" id="editProfile">Редагувати профіль</button>'+
+    '<button type="button" class="vatra-profile-edit" id="editProfile"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 4 4 4M4 20l4.4-1 11.1-11.1a2.8 2.8 0 0 0-4-4L4.4 15 4 20Z"/></svg><span>Редагувати профіль</span></button>'+
     '<input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
    friendBlock+
 
@@ -1222,7 +1265,10 @@ function renderPublicProfile(uid){
   ...arr.filter(post=>post.addMediaToGallery!==false).flatMap(post=>postImages(post).map(url=>[url,Number(post.createdAt)||0]))
  ]);
  const publicAlbumMarkup=vatraGetAlbums(u).length?'<div class="vatra-public-album-grid">'+vatraGetAlbums(u).map(a=>'<button type="button" class="vatra-public-album-card" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(a.photos))+'" data-photo-index="0"'+(!a.photos.length?' disabled':'')+'><span class="vatra-public-album-cover">'+(a.photos.length?'<img src="'+esc(a.photos[a.photos.length-1])+'" loading="lazy" alt="Обкладинка альбому">':'▧')+'</span><b>'+esc(a.name)+'</b><small>'+a.photos.length+' фото</small></button>').join('')+'</div>':'';
-  const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,4).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button>'+vatraProfilePhotoDateMarkup(photoDateByUrl.get(url))+'</div>').join('')+'</div>'+'<a class="vatra-profile-link profile-gallery-all" href="#/profile/'+encodeURIComponent(uid)+'/photos" data-vatra-open-public-photos="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</a>':'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
+  const photoHtml=photoUrls.length?
+   vatraProfileGalleryCarousel(uid,photoUrls.map(url=>({url,createdAt:photoDateByUrl.get(url)})))+
+   '<a class="vatra-profile-link profile-gallery-all" href="#/profile/'+encodeURIComponent(uid)+'/photos" data-vatra-open-public-photos="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</a>'
+   :'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const publicExtras=vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends);
  const hasExtraDetails=Boolean(publicExtras);
  const actions=vatraPublicProfileActions(uid);
@@ -3507,13 +3553,18 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
   const box=q('#accountDropdown');if(!box)return;
   const name=currentProfile.name||currentUser?.displayName||'Мій акаунт';
   box.innerHTML=currentUser
-   ?'<div class="account-popover-profile">'+avatar(name,currentProfile.avatarUrl)+'<span><b>'+esc(name)+verifiedBadge(currentUser.uid)+'</b><small>@'+esc(currentProfile.handle||'user')+'</small></span></div><button type="button" class="vatra-account-item" data-account-action="profile"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.7-3.6 3-5.5 7-5.5s6.3 1.9 7 5.5"/></svg></span><span>Мій профіль</span></button><button type="button" class="vatra-account-item" data-account-action="settings"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.5v2M12 18.5v2M3.5 12h2m13 0h2M6 6l1.4 1.4m9.2 9.2L18 18m0-12-1.4 1.4m-9.2 9.2L6 18"/><circle cx="12" cy="12" r="5.3"/><circle cx="12" cy="12" r="1.8"/></svg></span><span>Налаштування</span></button><button type="button" class="vatra-account-item" data-account-action="support" style="font:550 13px/1.45 Inter,Arial,sans-serif!important;color:#41546b!important"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H2v5h5v-5H4Zm16 0h2v5h-5v-5h3ZM20 18a4 4 0 0 1-4 4h-4"/></svg></span><span style="display:block!important;flex:1 1 auto!important;width:auto!important;height:auto!important;font:inherit!important;font-size:13px!important;font-weight:550!important;line-height:1.45!important;color:#41546b!important;text-align:left!important;background:transparent!important">Техпідтримка</span></button><button type="button" class="vatra-account-item vatra-account-admin-link" data-account-action="admin" hidden><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 20 6v6c0 4.6-3.2 7.6-8 9.5C7.2 19.6 4 16.6 4 12V6l8-3.5Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span><span>Адмінпанель ВАТРИ</span></button><div class="vatra-account-divider" role="separator"></div><button type="button" class="vatra-account-item account-logout" data-account-action="logout"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5M14 7l5 5-5 5M19 12H9"/></svg></span><span>Вийти з акаунта</span></button>'
+   ?'<div class="account-popover-profile">'+avatar(name,currentProfile.avatarUrl)+'<span><b>'+esc(name)+verifiedBadge(currentUser.uid)+'</b><small>@'+esc(currentProfile.handle||'user')+'</small></span></div><button type="button" class="vatra-account-item" data-account-action="profile"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.7-3.6 3-5.5 7-5.5s6.3 1.9 7 5.5"/></svg></span><span>Мій профіль</span></button><button type="button" class="vatra-account-item" data-account-action="settings"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.1 2.6h3.8l.7 2.1 1.7.7 2-.9 2.7 2.7-.9 2 .7 1.7 2.1.7v3.8l-2.1.7-.7 1.7.9 2-2.7 2.7-2-.9-1.7.7-.7 2.1h-3.8l-.7-2.1-1.7-.7-2 .9-2.7-2.7.9-2-.7-1.7-2.1-.7v-3.8l2.1-.7.7-1.7-.9-2 2.7-2.7 2 .9 1.7-.7Z"/><circle cx="12" cy="12" r="3.5"/></svg></span><span>Налаштування</span></button><button type="button" class="vatra-account-item" data-account-action="support" style="font:550 13px/1.45 Inter,Arial,sans-serif!important;color:#41546b!important"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H2v5h5v-5H4Zm16 0h2v5h-5v-5h3ZM20 18a4 4 0 0 1-4 4h-4"/></svg></span><span style="display:block!important;flex:1 1 auto!important;width:auto!important;height:auto!important;font:inherit!important;font-size:13px!important;font-weight:550!important;line-height:1.45!important;color:#41546b!important;text-align:left!important;background:transparent!important">Техпідтримка</span></button><button type="button" class="vatra-account-item vatra-account-admin-link" data-account-action="admin" hidden><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 20 6v6c0 4.6-3.2 7.6-8 9.5C7.2 19.6 4 16.6 4 12V6l8-3.5Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></span><span>Адмінпанель ВАТРИ</span></button><div class="vatra-account-divider" role="separator"></div><button type="button" class="vatra-account-item account-logout" data-account-action="logout"><span class="vatra-account-item-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5M14 7l5 5-5 5M19 12H9"/></svg></span><span>Вийти з акаунта</span></button>'
    :'<button type="button" data-account-action="login">Увійти</button><button type="button" data-account-action="register">Створити акаунт</button>';
   if(currentUser){
+   const checkedUid=currentUser.uid;
    Promise.resolve(window.vatraCanOpenAdminCenter?.()).then(allowed=>{
+    // A previous signed-in person's permission must never leak into a new session.
+    if(currentUser?.uid!==checkedUid)return;
     const item=box.querySelector('.vatra-account-admin-link');
-    if(item)item.hidden=!allowed;
-   }).catch(()=>{});
+    if(item)item.hidden=allowed!==true;
+   }).catch(()=>{
+    box.querySelector('.vatra-account-admin-link')?.setAttribute('hidden','');
+   });
   }
  }
  const bell=q('#notificationBell'),avatarButton=q('#topAvatar');
