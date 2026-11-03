@@ -1,0 +1,221 @@
+/* VATRA · creator gift studio, marketplace & polished gift details
+   Loaded after all legacy styles. */
+body svg:not(.vatra-gift-art):not(.vatra-brand-wordmark){
+ shape-rendering:geometricPrecision;
+}
+body :is(.nav-icon svg,.icon-btn svg,.vatra-settings-nav-icon,
+ .vatra-profile-line-icon svg,.vatra-profile-more-icon,
+ .vatra-creator-shape-list svg,
+ .vatra-profile-card button>svg,.vatra-gift-detail-header svg){
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ vector-effect:non-scaling-stroke;
+ filter:none!important;
+ shape-rendering:geometricPrecision;
+}
+body .layout .sidebar .nav-icon svg{width:20px!important;height:20px!important;stroke-width:1.9!important}
+body .topbar :is(.icon-btn svg,.search-icon svg){width:22px!important;height:22px!important;stroke-width:1.85!important}
+body .vatra-profile-line-icon svg{width:18px!important;height:18px!important;stroke-width:1.8!important}
+body :is(.vatra-profile-card,.vatra-gifts-page,.vatra-creator-gifts-mount) :is(button,a,summary){text-shadow:none!important}
+body .vatra-gift-detail-inner :is(button,svg),body .vatra-creator-gifts-mount button{cursor:pointer}
+/* Quiet placeholder while network fetch completes: no large text spinner. */
+.vatra-gifts-loading-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.vatra-gifts-loading-grid span,.vatra-creator-gifts-skeleton{
+ display:block;min-height:150px;border:1px solid #e8edf4;border-radius:12px;background:#f4f7fb;
+}
+.vatra-creator-gifts-skeleton{min-height:140px}
+/* Gift inspection should fit in the viewport without an inner scrollbar. */
+dialog.vatra-gift-detail-dialog[open]{
+ position:fixed!important;inset:0!important;margin:auto!important;
+ display:block!important;box-sizing:border-box!important;
+ width:min(980px,calc(100vw - 28px))!important;
+ max-width:min(980px,calc(100vw - 28px))!important;
+ height:min(720px,calc(100dvh - 36px))!important;
+ max-height:calc(100dvh - 36px)!important;
+ padding:0!important;
+ border:1px solid #dce6f2!important;border-radius:17px!important;
+ background:#fff!important;
+ box-shadow:0 24px 80px rgba(19,40,70,.28)!important;
+ overflow:hidden!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-inner{
+ display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;
+ box-sizing:border-box!important;width:100%!important;max-width:100%!important;
+ height:100%!important;padding:0 22px!important;margin:0!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-header{
+ min-height:64px!important;padding:9px 4px!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-scroll{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ align-items:center!important;gap:18px!important;
+ box-sizing:border-box!important;width:100%!important;height:100%!important;
+ min-height:0!important;max-height:100%!important;
+ overflow:hidden!important;scrollbar-width:none!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-scroll::-webkit-scrollbar{display:none!important}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage{
+ display:grid!important;place-items:center!important;
+ box-sizing:border-box!important;width:100%!important;
+ min-width:0!important;min-height:0!important;
+ height:min(100%,440px)!important;max-height:100%!important;
+ border-radius:14px!important;
+ background:radial-gradient(circle at 50% 48%,#fff 0%,#edf4ff 64%,#f7faff 100%)!important;
+ overflow:hidden!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage .vatra-gift-art{
+ display:block!important;
+ width:min(100%,370px,42dvh)!important;height:auto!important;
+ max-height:90%!important;aspect-ratio:1!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-info{
+ min-width:0!important;max-width:100%!important;
+ padding:12px 7px!important;margin:0!important;
+ text-align:left!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-info h2{
+ font-size:clamp(23px,2.8vw,33px)!important;
+ margin:0 0 9px!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-description{
+ font-size:14px!important;line-height:1.6!important;
+ margin:0 0 10px!important;
+}
+dialog.vatra-gift-detail-dialog .vatra-gift-detail-footer{
+ justify-content:flex-end!important;padding:12px 4px!important;
+ background:transparent!important;
+}
+/* Portrait/mobile: use the full width, avoid internal visible scrollbar. */
+@media(max-width:740px){
+ dialog.vatra-gift-detail-dialog[open]{
+  width:calc(100vw - 18px)!important;max-width:calc(100vw - 18px)!important;
+  height:min(760px,calc(100dvh - 18px))!important;max-height:calc(100dvh - 18px)!important;
+ }
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-inner{
+  padding:0 12px!important;
+ }
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-header{
+  min-height:50px!important;padding:7px 2px!important;
+ }
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-scroll{
+  display:flex!important;flex-direction:column!important;
+  align-items:stretch!important;gap:6px!important;
+  overflow-y:auto!important;scrollbar-width:none!important;
+ }
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage{
+  flex:0 0 auto!important;max-height:33dvh!important;
+  height:33dvh!important;min-height:130px!important;
+ }
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage .vatra-gift-art{
+  width:min(260px,67vw,28dvh)!important;
+ }
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-info{padding:8px 8px!important;text-align:center!important}
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-footer{padding:9px 3px!important}
+}
+@media(max-height:550px) and (min-width:741px){
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage{height:100%!important}
+ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage .vatra-gift-art{width:min(250px,50dvh)!important}
+}
+.vatra-creator-gifts-mount{display:grid;gap:23px;padding:0 0 14px}
+.vatra-creator-editor,.vatra-creator-collection{
+ padding:20px;border:1px solid #e0e8f2;border-radius:14px;background:#fff;
+}
+.vatra-creator-section-heading{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 16px}
+.vatra-creator-section-heading h2{margin:0;color:#243b58;font-size:18px;font-weight:760}
+.vatra-creator-section-heading p{margin:3px 0 0;color:#778ba2;font-size:12px;line-height:1.5}
+.vatra-creator-editor-layout{display:grid;grid-template-columns:minmax(210px,280px) minmax(0,1fr);gap:22px;align-items:start}
+.vatra-creator-image-creator,.vatra-creator-fields{display:grid;gap:12px;min-width:0}
+.vatra-creator-art-preview{aspect-ratio:1;overflow:hidden;border:1px solid #e3eaf4;border-radius:13px;background:#f2f6fc;display:grid;place-items:center}
+.vatra-creator-art-preview canvas,.vatra-creator-art-preview img{display:block;width:100%;height:100%;object-fit:contain}
+.vatra-creator-art-preview canvas[hidden],.vatra-creator-art-preview img[hidden]{display:none!important}
+.vatra-creator-shape-list{display:flex;gap:5px}
+.vatra-creator-shape-list button{display:grid;place-items:center;gap:5px;flex:1;min-height:63px;padding:7px 4px;border:1px solid #dce5f0;background:#f9fbfe;color:#56728d;border-radius:9px;font-size:11px;cursor:pointer}
+.vatra-creator-shape-list button.is-active,.vatra-creator-shape-list button:hover{background:#edf4ff;border-color:#9fc0ee;color:#0757f5}
+.vatra-creator-shape-list svg{width:21px;height:21px}
+.vatra-creator-colors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vatra-creator-colors label{display:flex;flex-wrap:wrap;justify-content:space-between;gap:5px;align-items:center}
+.vatra-creator-colors input[type=color]{width:35px;height:32px;padding:1px;border:1px solid #d9e3ed;border-radius:7px}
+.vatra-creator-fields label,.vatra-creator-upload,.vatra-creator-colors label{font-size:12px;font-weight:650;color:#475e78}
+.vatra-creator-fields>label:not(.vatra-creator-check){display:grid;gap:6px}
+.vatra-creator-fields input:not([type=checkbox]),.vatra-creator-fields textarea,
+.vatra-creator-upload input,.vatra-creator-send-panel select,.vatra-creator-listing input{
+ box-sizing:border-box;width:100%;min-width:0;padding:10px 11px;border-radius:9px;border:1px solid #d9e3ee;
+ background:#fff;color:#223952;font:500 13px/1.5 Inter,system-ui,sans-serif;
+}
+.vatra-creator-fields textarea{resize:vertical;min-height:100px}
+.vatra-creator-upload{display:grid;gap:7px}
+.vatra-creator-check{display:flex!important;align-items:flex-start;gap:8px;line-height:1.5}
+.vatra-creator-check input{width:16px;height:16px;flex:0 0 16px;margin:2px 0 0;accent-color:#0757f5}
+.vatra-creator-price-hint,.vatra-creator-disclaimer{margin:0;font-size:11.5px;line-height:1.55;color:#74889f}
+.vatra-creator-disclaimer{background:#f5f8fc;padding:10px 12px;border-radius:8px}
+.vatra-creator-submit,.vatra-creator-buy{
+ color:#fff!important;background:#0757f5!important;border:0!important;
+ padding:10px 14px;border-radius:9px;font-weight:700;cursor:pointer;
+}
+.vatra-creator-reset-file,.vatra-creator-section-heading button{background:transparent;border:0;color:#1764bd;cursor:pointer;font-size:12px}
+.vatra-creator-submit:disabled{opacity:.5;cursor:wait}
+#vatraCreatorStatus:empty{display:none}
+#vatraCreatorStatus{font-size:12px;color:#2f7d56;margin:0}
+#vatraCreatorStatus.is-error{color:#be4256}
+.vatra-creator-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px}
+.vatra-creator-card{display:flex;flex-direction:column;gap:8px;min-width:0;padding:11px;border:1px solid #e1e9f3;border-radius:11px;background:#fff}
+.vatra-creator-card>h3{font-size:13px;line-height:1.4;font-weight:730;color:#263b55;margin:3px 0 0}
+.vatra-creator-card>p{font-size:11.5px;line-height:1.5;color:#657e95;margin:0;overflow-wrap:anywhere}
+.vatra-creator-card>strong{font-size:15px;color:#233d5c}
+.vatra-creator-preview-open{width:100%;aspect-ratio:1;border:0;background:#edf3fb;border-radius:9px;overflow:hidden;padding:0;cursor:zoom-in}
+.vatra-creator-preview-open img{display:block;width:100%;height:100%;object-fit:contain}
+.vatra-creator-list-status,.vatra-creator-own-label{font-size:11px;color:#5b8e70}
+.vatra-creator-listing{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.vatra-creator-listing label{display:grid;gap:4px;font-size:11px;color:#61768c}
+.vatra-creator-listing button{grid-column:1/-1}
+.vatra-creator-listing button,.vatra-creator-card>button:not(.vatra-creator-preview-open){
+ border:1px solid #d7e3f4;border-radius:8px;background:#f1f6fd;color:#205fae;padding:8px 10px;font-size:11.5px;font-weight:650;cursor:pointer;
+}
+.vatra-creator-card>button.vatra-creator-buy{background:#0757f5!important;color:white!important}
+.vatra-creator-empty{padding:13px;color:#7b8da2;font-size:12px;line-height:1.6;border:1px dashed #dae4f0;border-radius:9px}
+.vatra-creator-order{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #e6edf5}
+.vatra-creator-order>div:first-child{display:grid;gap:4px;min-width:180px;flex:1}
+.vatra-creator-order strong{font-size:13px;color:#2a415d}
+.vatra-creator-order small{font-size:11px;color:#7b8ea5}
+.vatra-creator-order a{color:#0757f5;text-decoration:none}
+.vatra-creator-order>div:last-child{display:flex;gap:7px;flex-wrap:wrap}
+.vatra-creator-order button,.vatra-creator-send-panel button{
+ padding:9px 11px;border:1px solid #dae4f0;border-radius:8px;background:#f7f9fc;color:#2e5e99;font-weight:650;font-size:11.5px;cursor:pointer;
+}
+.vatra-creator-order button.vatra-creator-order-complete{color:#fff;background:#0757f5;border-color:#0757f5}
+.vatra-creator-send-panel{margin:14px 0;padding:14px;border:1px solid #dae6f4;border-radius:10px;background:#f7fafe}
+.vatra-creator-send-panel[hidden]{display:none!important}
+.vatra-creator-send-panel h3{margin:0 0 5px}
+.vatra-creator-send-panel p{font-size:12px;color:#647c96}
+.vatra-creator-send-panel form{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
+.vatra-creator-send-panel form label{display:grid;gap:6px;flex:1;min-width:170px;font-size:12px}
+dialog.vatra-creator-confirm,dialog.vatra-creator-detail{
+ position:fixed;inset:0;margin:auto;width:min(440px,calc(100vw - 28px));
+ max-width:calc(100vw - 28px);max-height:calc(100dvh - 30px);
+ background:#fff;color:#243a57;border:1px solid #dce7f1;border-radius:15px;padding:22px;box-shadow:0 20px 70px #172e4a3a;
+}
+dialog.vatra-creator-confirm::backdrop,dialog.vatra-creator-detail::backdrop{background:#14243a88}
+.vatra-creator-confirm h2{font-size:18px;margin:0 0 12px}
+.vatra-creator-confirm p{font-size:13px;line-height:1.65;color:#647992}
+.vatra-creator-confirm footer{display:flex;gap:9px;justify-content:flex-end}
+.vatra-creator-confirm footer button{padding:10px 14px;border-radius:8px;border:1px solid #dde8f3;background:#f6f9fd;cursor:pointer}
+.vatra-creator-confirm footer .vatra-creator-confirm-main{background:#0757f5;border-color:#0757f5;color:#fff}
+dialog.vatra-creator-detail{width:min(550px,calc(100vw - 28px));padding:16px;text-align:center;overflow:auto;scrollbar-width:none}
+dialog.vatra-creator-detail::-webkit-scrollbar{display:none}
+.vatra-creator-detail>img{display:block;max-width:min(100%,320px);max-height:42dvh;object-fit:contain;margin:auto;border-radius:12px;background:#eef5ff}
+.vatra-creator-detail h2{margin:14px 0 5px}
+.vatra-creator-detail p{color:#637d95;line-height:1.6}
+.vatra-creator-close{position:absolute;top:10px;right:10px;font-size:26px;border:0;background:#eef3fa;color:#466887;border-radius:9px;width:38px;height:38px;cursor:pointer}
+.vatra-gifts-creators-inline{margin:18px 0 0;padding:16px;border:1px solid #e0e9f3;border-radius:11px}
+.vatra-gifts-creators-inline .vatra-creator-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+@media(max-width:690px){
+ .vatra-gifts-loading-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .vatra-creator-editor,.vatra-creator-collection{padding:13px}
+ .vatra-creator-editor-layout{grid-template-columns:1fr}
+ .vatra-creator-image-creator{max-width:330px}
+ .vatra-creator-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .vatra-creator-card{padding:8px}
+}
+@media(max-width:400px){
+ .vatra-creator-grid{grid-template-columns:1fr}
+}
