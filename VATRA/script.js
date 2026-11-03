@@ -695,6 +695,8 @@ function profileDetailMarkup(label,value,field=''){
 }
 // One visual structure for the overview of both own and other people's profiles.
 // Permission filtering happens before public fields reach this renderer.
+// Show only filled profile fields that are visible to this viewer.
+// Hide the entire summary when there are no available values.
 function vatraProfileMainFacts(fields={}){
  const slots=[
   ['Стать','gender',''],
@@ -702,15 +704,12 @@ function vatraProfileMainFacts(fields={}){
   ['Місце роботи','workplace','workplace'],
   ['Навчання','education','education']
  ];
- return slots.map(([label,key,searchField])=>{
+ const rows=slots.map(([label,key,searchField])=>{
   const value=fields[key];
-  if(value!==null&&value!==undefined&&String(value).trim())return profileDetailMarkup(label,value,searchField);
-  // A neutral placeholder means "not available to this viewer" (unset OR private).
-  // Do not expose either a private value or its visibility setting.
-  return '<div class="vatra-profile-detail vatra-profile-detail-empty">'+
-   '<span class="vatra-profile-detail-label">'+vatraProfileSvgIcon(searchField)+esc(label)+'</span>'+
-   '<span class="vatra-profile-detail-missing" aria-label="Значення недоступне">—</span></div>';
- }).join('');
+  return value!==null&&value!==undefined&&String(value).trim()
+   ?profileDetailMarkup(label,value,searchField):'';
+ }).filter(Boolean).join('');
+ return rows?'<div class="vatra-profile-details">'+rows+'</div>':'';
 }
 function visibleProfileSearchValue(uid,u,field){
  if(!VATRA_SEARCH_FIELDS.has(field))return '';
@@ -846,7 +845,7 @@ function renderProfile(){
     '<div class="vatra-profile-status-row">'+(vatraNowPlayingMarkup(currentProfile)||(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>'))+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
-    '<div class="vatra-profile-details">'+vatraProfileMainFacts({gender:vatraGenderLabel(currentProfile.gender),city:currentProfile.city,workplace:currentProfile.workplace,education:currentProfile.education})+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+selfExtras+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf'):'')+
+    vatraProfileMainFacts({gender:vatraGenderLabel(currentProfile.gender),city:currentProfile.city,workplace:currentProfile.workplace,education:currentProfile.education})+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+selfExtras+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf'):'')+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><a class="vatra-profile-link" id="profileViewPhotos" href="#/photos">Усі фото</a><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
    '<section class="vatra-profile-card vatra-profile-compose"><button type="button" class="vatra-profile-compose-trigger" id="profilePrompt">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-compose-avatar')+'<span>Що у Вас нового?</span><b>＋</b></button></section>'+
@@ -1122,7 +1121,7 @@ function renderPublicProfile(uid){
     (vatraNowPlayingMarkup(u)?'<div class="vatra-profile-status-row">'+vatraNowPlayingMarkup(u)+'</div>':visibleStatus?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (visibleBio?profileBioMarkup(visibleBio):'')+
-    '<div class="vatra-profile-details">'+vatraProfileMainFacts({gender:vatraGenderLabel(u.gender),city,workplace,education})+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
+    vatraProfileMainFacts({gender:vatraGenderLabel(u.gender),city,workplace,education})+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
     detail('День народження',birthdayLabel)+detail('Місце проживання',location,'location')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite)+publicExtras+
     '</div>'+vatraProfileMoreButton(uid,'vatraProfileMorePublic'):'')+
    '</section>'+
