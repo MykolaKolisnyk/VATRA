@@ -152,3 +152,76 @@ body .vatra-gift-order-row button{font-size:12px}
 @media(max-width:830px){body .vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){body .vatra-gifts-page{padding:15px}body .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)}body .vatra-gift-card .vatra-gift-image{max-height:240px}body .vatra-gifts-tabs{gap:15px}}
 @media(prefers-reduced-motion:reduce){body .vatra-gift-card,body .vatra-gift-card .vatra-gift-art,body .vatra-gifts-tabs button{transition:none!important}}
+
+/* New gift presentation: high-resolution SVG, meaningful copy, gentle loops. */
+body .vatra-gifts-grid {gap:14px!important;align-items:stretch!important}
+body .vatra-gift-card{
+ padding:13px!important;border:1px solid #e0e8f1!important;border-radius:14px!important;
+ background:#fff!important;box-shadow:0 5px 15px rgba(42,71,105,.035)!important;
+ min-width:0!important;
+}
+body .vatra-gift-card .vatra-gift-image{
+ display:grid!important;place-items:center!important;
+ width:100%!important;aspect-ratio:1/1!important;
+ overflow:hidden!important;border-radius:12px!important;
+ background:radial-gradient(circle at 50% 42%,#fff 12%,#f1f6fc 78%)!important;
+}
+body .vatra-gift-card .vatra-gift-art {
+ display:block!important;width:min(98%,200px)!important;height:auto!important;
+ overflow:visible!important;aspect-ratio:1/1!important;vector-effect:non-scaling-stroke;
+}
+body .vatra-gift-card h3{
+ margin:11px 0 6px!important;line-height:1.35!important;
+ font-size:14px!important;font-weight:750!important;color:#27425e!important;
+}
+body .vatra-gift-description{
+ display:block!important;min-height:0!important;max-width:30ch!important;
+ margin:0 auto 7px!important;font-size:11.6px!important;font-weight:450!important;
+ line-height:1.55!important;color:#607990!important;
+}
+body .vatra-gift-animated-label{
+ display:inline-flex!important;align-self:center!important;justify-content:center!important;
+ align-items:center!important;gap:4px!important;margin:0 auto 8px!important;
+ border-radius:99px!important;background:#edf6ff!important;color:#3979bb!important;
+ padding:4px 9px!important;font-size:10px!important;font-weight:650!important;
+}
+body .vatra-gift-card>p:not(.vatra-gift-description){margin-top:auto!important;min-height:0!important}
+body .vatra-gift-art.is-animated .vatra-gift-figure{
+ transform-origin:50% 55%;transform-box:fill-box;
+ animation:vatra-gift-float 3.8s ease-in-out infinite;
+}
+body .vatra-gift-art.is-animated .vatra-gift-glints{
+ transform-origin:50% 50%;transform-box:fill-box;
+ animation:vatra-gift-glow 2.3s ease-in-out infinite;
+}
+body .vatra-gift-art[data-gift-code="snowglobe"].is-animated .vatra-gift-figure{
+ animation:vatra-gift-snow 4.5s ease-in-out infinite;
+}
+body .vatra-gift-art[data-gift-code="firebird"].is-animated .vatra-gift-figure{
+ animation:vatra-gift-firebird 3.1s ease-in-out infinite;
+}
+body .vatra-gift-art[data-gift-code="hearts"].is-animated .vatra-gift-figure,
+body .vatra-gift-art[data-gift-code="spark"].is-animated .vatra-gift-figure{
+ animation:vatra-gift-heart 2.6s ease-in-out infinite;
+}
+@keyframes vatra-gift-float{
+ 0%,100%{transform:translateY(0) rotate(-1deg)}
+ 50%{transform:translateY(-5px) rotate(1deg)}
+}
+@keyframes vatra-gift-glow{0%,100%{opacity:.45;transform:scale(.95)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes vatra-gift-snow{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+@keyframes vatra-gift-firebird{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(4deg)}}
+@keyframes vatra-gift-heart{0%,100%{transform:scale(1)}40%{transform:scale(1.045)}60%{transform:scale(1)}}
+body[data-vatra-theme-effective="dark"] .vatra-gift-card {
+ background:#1e2c3e!important;border-color:#40546a!important;box-shadow:none!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-gift-image {
+ background:radial-gradient(circle at 50% 42%,#2e4963 0%,#223347 83%)!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-gift-card h3{color:#e6f0fb!important}
+body[data-vatra-theme-effective="dark"] .vatra-gift-card .vatra-gift-description{color:#b3c3d5!important}
+body[data-vatra-theme-effective="dark"] .vatra-gift-animated-label{background:#233f5c!important;color:#a7d5ff!important}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-gift-art.is-animated .vatra-gift-figure,
+ body .vatra-gift-art.is-animated .vatra-gift-glints{animation:none!important}
+}
