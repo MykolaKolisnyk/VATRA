@@ -12,7 +12,7 @@ function labels(){return texts[language()]||texts.en;}
 function annotate(node){
  if(node.dataset.vatraTranslateReady||!node.isConnected)return;
  const value=(node.textContent||'').trim();
- if(value.length<8)return;
+ if(value.length<8||value.length>2500)return;
  node.dataset.vatraTranslateReady='1';
  const button=document.createElement('button');
  button.type='button';button.className='vatra-translate-button';button.textContent=labels().translate;
@@ -49,7 +49,6 @@ function annotate(node){
   output.setAttribute('lang',lang);output.hidden=false;node.hidden=true;
   translated=true;button.textContent=labels().original;
  });
- node.addEventListener('DOMNodeRemoved',()=>{translated=false;});
 }
 let pending=false;
 function scan(){document.querySelectorAll(selectors).forEach(annotate);}
