@@ -1056,6 +1056,8 @@ document.addEventListener('keydown',event=>{
 
 function renderPublicProfile(uid){
  if(!uid)return;
+ const openingNewProfile=page!=='publicProfile'||activeProfileUid!==uid;
+ if(openingNewProfile)requestAnimationFrame(()=>window.scrollTo(0,0));
  if(uid===currentUser?.uid){activeProfileUid=null;goPage('profile');return;}
  activeProfileUid=uid;page='publicProfile';window.vatraRouteChanged?.({page:'publicProfile',id:uid});document.body.dataset.page=page;
  if(window.vatraBanGuardProfile?.(uid,users[uid]?.name,users[uid]?.handle))return;
@@ -1548,6 +1550,8 @@ function renderGroupMembersPage(id){
 }
 
 function renderGroupDetails(id){
+ const openingNewGroup=page!=='groups'||groupId!==id;
+ if(openingNewGroup)requestAnimationFrame(()=>window.scrollTo(0,0));
  if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
  const initial=groups[id];if(!initial){goPage('groups');return;}
  try{
@@ -1731,6 +1735,7 @@ function renderGroupDetails(id){
 function openGroupSettings(id){if(!authRequired())return;const g=groups[id];if(!g)return;const canManage=g.ownerUid===currentUser.uid||!!groupAdmins[id]?.[currentUser.uid]||!!groupModerators[id]?.[currentUser.uid];if(!canManage)return toastMsg('У Вас немає прав керувати цією спільнотою.');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}groupId=id;page='groupSettings';document.body.dataset.page=page;$('#title').textContent='Керування спільнотою';$('#subtitle').textContent=g.name||'';$('.heading .eyebrow').textContent='СПІЛЬНОТА';$$('a[data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page==='groups'));const composer=$('.quick-compose');if(composer)composer.hidden=true;const sort=$('#sort');if(sort)sort.hidden=true;renderGroupSettings(id);}
 let vatraGroupSettingsTab='general';
 function renderGroupSettings(id){
+ if(page!=='groupSettings'||groupId!==id)requestAnimationFrame(()=>window.scrollTo(0,0));
  const g=groups[id];if(!g){page='groups';groupId=null;return renderGroups();}
  if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}
  page='groupSettings';groupId=id;document.body.dataset.page=page;
