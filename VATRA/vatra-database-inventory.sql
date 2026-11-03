@@ -43,7 +43,7 @@ WITH mapping(group_code, group_name, table_name, purpose, lifecycle) AS (
     c.relrowsecurity AS rls_enabled,
     COALESCE(st.n_live_tup,0) AS estimated_rows,
     pg_total_relation_size(c.oid) AS bytes_total,
-    obj_description(c.oid,'pg_class') AS comment
+    obj_description(c.oid,'pg_class') AS table_comment
   FROM pg_class c
   JOIN pg_namespace n ON n.oid=c.relnamespace
   LEFT JOIN pg_stat_user_tables st ON st.relid=c.oid
@@ -65,7 +65,7 @@ SELECT
       AND (f.conrelid=t.relation_id OR f.confrelid=t.relation_id)
   ) AS foreign_key_links,
   t.rls_enabled,
-  t.comment
+  t.table_comment
 FROM tables t
 LEFT JOIN mapping m ON m.table_name=t.table_name
  AND t.schema_name='public'
