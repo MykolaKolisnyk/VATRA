@@ -2,7 +2,6 @@
 import {initializeApp,getDatabase} from './vatra-backend.js?v=20261031-7';
 const client=getDatabase(initializeApp()).client;
 const cache=new Map();
-const resetters=new Set();
 let languageRevision=0;
 const selectors='.post .post-text,.post .vatra-post-text,.comment .comment-copy > span,.vatra-my-video > p';
 const texts={
@@ -26,7 +25,7 @@ function annotate(node){
  node.insertAdjacentElement('afterend',button);
  let translated=false;
  const reset=()=>{translated=false;node.hidden=false;output.hidden=true;status.hidden=true;button.disabled=false;button.textContent=labels().translate;button.title=labels().note;};
- resetters.add(reset);
+ node.vatraResetTranslation=reset;
  button.addEventListener('click',async()=>{
   if(translated){translated=false;node.hidden=false;output.hidden=true;button.textContent=labels().translate;return;}
   status.hidden=true;
@@ -60,5 +59,5 @@ function annotate(node){
 let pending=false;
 function scan(){document.querySelectorAll(selectors).forEach(annotate);}
 new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;scan();});}).observe(document.body,{childList:true,subtree:true});
-document.addEventListener('vatra:languagechange',()=>{languageRevision++;cache.clear();for(const reset of resetters)reset();});
+document.addEventListener('vatra:languagechange',()=>{languageRevision++;cache.clear();document.querySelectorAll('[data-vatra-translate-ready]').forEach(node=>node.vatraResetTranslation?.());});
 scan();
