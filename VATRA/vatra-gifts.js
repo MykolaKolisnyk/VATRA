@@ -148,6 +148,8 @@ function view(){
  '<div class="vatra-gift-notice" data-vatra-gift-message role="status">'+esc(notice)+'</div>'+markup+
  (tab==='mine'?'<section class="vatra-gifts-creators-inline" id="vatraCreatorGiftsMine"></section>':'')+
  '<div class="vatra-gift-send" id="vatraGiftSend" hidden><div><h2>Подарувати другу</h2><p>Подарунок перейде до отримувача.</p></div><label>Одержувач<select data-vatra-gift-recipient><option value="">Оберіть друга</option>'+opts+'</select></label><div class="vatra-gift-send-actions"><button type="button" data-vatra-gift-cancel>Скасувати</button><button type="button" class="vatra-gift-primary" data-vatra-gift-confirm>Надіслати</button></div></div></section>';
+ if(tab==='creators')requestAnimationFrame(()=>window.vatraCreatorGiftsRender?.());
+ if(tab==='mine')requestAnimationFrame(()=>window.vatraCreatorGiftsRenderMine?.());
 }
 
 async function show(uid){
