@@ -30,4 +30,13 @@ for name,frame in targets:
     output=Path('VATRA')/name
     frame.save(output,optimize=True,compress_level=9)
     print(name,frame.size)
-print('VATRA: exported original SVG artwork, without black outer background')
+# A vector trace of the creator's horizontal PNG maintains its actual glyph
+# outlines; export a PNG copy for places that require raster branding.
+wordmark=Path('VATRA/vatra-header.svg')
+if wordmark.exists():
+    output=Path('VATRA/vatra-header.png')
+    output.write_bytes(cairosvg.svg2png(
+        bytestring=wordmark.read_bytes(),output_width=1060,output_height=184
+    ))
+    print(output, '1060x184')
+print('VATRA: exported creator-provided logo artwork, without background artifacts')
