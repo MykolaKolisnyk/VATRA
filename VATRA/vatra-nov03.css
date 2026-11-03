@@ -120,3 +120,65 @@ body .vatra-message-nav-badge[hidden]{display:none!important}
 body .vatra-site-legal-dialog .site-legal-article[hidden]{display:none!important}
 body .vatra-profile-extra-plain .vatra-profile-extra-privacy{display:block!important;margin-top:3px!important;font-size:11px!important}
 @media(max-width:600px){body .vatra-profile-extra-plain .vatra-profile-extra-row{grid-template-columns:minmax(95px,38%) minmax(0,1fr)!important}}
+
+/* Group conversations share the ordinary Messages page visual language. */
+body .vatra-group-chat-block{margin:12px 10px 0!important;border-top:1px solid #e4ecf5!important;padding:12px 0 6px!important;min-width:0!important}
+body .vatra-group-chat-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:0 6px 9px!important}
+body .vatra-group-chat-heading h3{margin:0!important;font:700 13px/1.4 Inter,Arial,sans-serif!important;color:#304662!important}
+body #vatraGroupChatCreate{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:30px!important;padding:5px 9px!important;background:#eef3fa!important;border:1px solid #dce7f5!important;border-radius:6px!important;box-shadow:none!important;color:#0757f5!important;font:600 12px/1.3 Inter,Arial,sans-serif!important;cursor:pointer!important}
+body .vatra-group-chat-rows{display:grid!important;gap:3px!important;max-height:230px!important;overflow-y:auto!important}
+body .vatra-group-row{display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;padding:9px 6px!important;border:0!important;border-radius:7px!important;box-shadow:none!important;background:transparent!important;color:#253b55!important;text-align:left!important;cursor:pointer!important}
+body .vatra-group-row:hover,body .vatra-group-row.active{background:#eaf1fc!important}
+body .vatra-group-avatar{display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 34px!important;width:34px!important;height:34px!important;background:#dfeafa!important;border-radius:10px!important;color:#1a63ca!important;font:700 20px/1 Inter,Arial,sans-serif!important}
+body .vatra-group-copy{display:grid!important;min-width:0!important;flex:1!important;gap:3px!important}
+body .vatra-group-copy b{font:650 12px/1.4 Inter,Arial,sans-serif!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .vatra-group-copy small{font:400 11px/1.4 Inter,Arial,sans-serif!important;color:#7b899a!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+body .vatra-group-unread{width:8px!important;height:8px!important;flex:0 0 8px!important;border-radius:50%!important;background:#0757f5!important}
+body .vatra-group-empty{margin:4px 6px 10px!important;font:400 12px/1.5 Inter,Arial,sans-serif!important;color:#8490a2!important}
+body .vatra-group-chat-window{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:430px!important;overflow:hidden!important;padding:0!important}
+body .vatra-group-window-head{display:flex!important;align-items:center!important;gap:11px!important;padding:14px 17px!important;border-bottom:1px solid #e3ebf5!important;background:#fff!important}
+body .vatra-group-window-head span:nth-last-child(1){display:grid!important;gap:3px!important}
+body .vatra-group-window-head b{font:700 15px/1.4 Inter,Arial,sans-serif!important;color:#213952!important}
+body .vatra-group-window-head small{font:400 12px/1.4 Inter,Arial,sans-serif!important;color:#7890a8!important}
+body .vatra-group-back{display:grid!important;place-items:center!important;min-width:32px!important;height:32px!important;border:0!important;border-radius:7px!important;background:#f1f5fb!important;color:#4e6381!important;font-size:29px!important;cursor:pointer!important}
+body .vatra-group-message-list{flex:1 1 auto!important;height:auto!important;min-height:270px!important;max-height:50vh!important;padding:22px!important;overflow-y:auto!important;display:flex!important;flex-direction:column!important;gap:12px!important;align-items:stretch!important;background:#fafcff!important}
+body .vatra-group-bubble{max-width:min(78%,490px)!important;align-self:flex-start!important;padding:11px 14px!important;border:1px solid #e2eaf3!important;border-radius:9px!important;background:#fff!important;box-shadow:none!important}
+body .vatra-group-bubble.mine{align-self:flex-end!important;border-color:#cfddf6!important;background:#eaf2ff!important}
+body .vatra-group-bubble-meta{display:flex!important;align-items:center!important;gap:10px!important;margin-bottom:4px!important}
+body .vatra-group-bubble-meta b{font:700 12px/1.4 Inter,Arial,sans-serif!important;color:#25486b!important}
+body .vatra-group-bubble-meta small{font-size:11px!important;color:#778ba3!important}
+body .vatra-group-bubble p{margin:0!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;line-height:1.55!important;font-size:13px!important}
+body .vatra-group-no-messages{margin:auto!important;text-align:center!important;color:#61758d!important}
+body .vatra-group-send{display:flex!important;gap:9px!important;align-items:center!important;padding:14px!important;border-top:1px solid #e5edf7!important;background:#fff!important}
+body .vatra-group-send input{flex:1!important;min-width:0!important;min-height:42px!important;padding:9px 12px!important;border:1px solid #dbe5f0!important;border-radius:7px!important;background:#fff!important}
+body .vatra-group-send button{min-height:42px!important;padding:8px 15px!important;border-radius:7px!important;white-space:nowrap!important}
+body .vatra-group-dialog{width:min(550px,calc(100vw - 26px))!important;max-height:calc(100dvh - 40px)!important;padding:0!important;border:1px solid #dce5f0!important;border-radius:14px!important;background:#fff!important;color:#273b53!important;box-shadow:0 23px 70px #14274455!important;overflow-y:auto!important}
+body .vatra-group-dialog::backdrop{background:#10223e88!important;backdrop-filter:blur(3px)!important}
+body .vatra-group-dialog form{display:flex!important;flex-direction:column!important;gap:11px!important;padding:0 22px 20px!important}
+body .vatra-group-dialog header{display:flex!important;justify-content:space-between!important;align-items:center!important;margin:0 -22px 8px!important;padding:19px 22px!important;border-bottom:1px solid #e6edf7!important}
+body .vatra-group-dialog header h2{font:750 20px/1.3 Inter,Arial,sans-serif!important;margin:4px 0 0!important}
+body .vatra-group-dialog header small{font:700 11px Inter,Arial,sans-serif!important;letter-spacing:.06em!important;color:#0757f5!important}
+body .vatra-group-dialog-close{display:grid!important;place-items:center!important;min-width:35px!important;min-height:35px!important;border:1px solid #dfe7f1!important;border-radius:8px!important;color:#4c6077!important;background:#f6f8fb!important;font-size:25px!important}
+body .vatra-group-dialog :is(label,.vatra-group-members-label){display:flex!important;justify-content:space-between!important;align-items:center!important;font-size:13px!important;font-weight:700!important;color:#344b68!important}
+body .vatra-group-dialog :is(input[type=text],input[type=search]){min-height:43px!important;padding:10px 12px!important;border:1px solid #dce5ef!important;border-radius:7px!important;background:#fff!important;font:400 13px Inter,Arial,sans-serif!important}
+body .vatra-group-friends{display:grid!important;gap:3px!important;max-height:230px!important;min-height:70px!important;overflow-y:auto!important;padding:5px!important;border:1px solid #e0e8f2!important;border-radius:7px!important}
+body .vatra-group-friends .vatra-group-friend{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:11px!important;padding:8px!important;border-radius:6px!important;cursor:pointer!important}
+body .vatra-group-friend:hover{background:#f3f6fa!important}
+body .vatra-group-friend[hidden]{display:none!important}
+body .vatra-group-friend input{width:17px!important;height:17px!important;accent-color:#0757f5!important}
+body .vatra-group-friend-avatar{display:grid!important;place-items:center!important;width:28px!important;height:28px!important;background:#edf3fe!important;border-radius:8px!important;color:#0757f5!important}
+body .vatra-group-friend>span:last-child{display:grid!important;gap:2px!important}
+body .vatra-group-friend small{font-size:11px!important;color:#8190a2!important}
+body .vatra-group-dialog footer{display:flex!important;justify-content:flex-end!important;gap:8px!important;margin-top:8px!important}
+body .vatra-group-dialog footer button{border-radius:7px!important;min-height:39px!important;padding:8px 15px!important;font:600 13px Inter,Arial,sans-serif!important}
+body .vatra-group-primary{border:1px solid #0757f5!important;background:#0757f5!important;color:#fff!important}
+body .vatra-group-secondary{border:1px solid #dce6f0!important;background:#f4f7fb!important;color:#45607d!important}
+body .vatra-group-form-error,#vatraGroupChatNotice{font-size:12px!important;color:#ac253d!important}
+body .vatra-group-toast{position:fixed!important;bottom:32px!important;left:50%!important;transform:translateX(-50%)!important;z-index:20000!important;background:#263b56!important;color:#fff!important;padding:12px 18px!important;border-radius:8px!important;font:500 13px Inter,Arial,sans-serif!important;box-shadow:0 8px 35px #21304a3d!important}
+@media(max-width:650px){
+ body .vatra-group-chat-block{margin:8px 6px 0!important}
+ body .vatra-group-dialog form{padding:0 14px 16px!important}
+ body .vatra-group-dialog header{margin:0 -14px 8px!important;padding:16px 14px!important}
+ body .vatra-group-message-list{padding:12px!important}
+ body .vatra-group-bubble{max-width:92%!important}
+}
