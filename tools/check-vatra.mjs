@@ -96,3 +96,28 @@ assert.ok(main.includes('vatra-settings-community-fix.css'),'Updated profile/com
 assert.ok(existsSync('VATRA/vatra-header.svg'),'User-derived horizontal brand SVG missing');
 assert.ok(main.includes('vatra-header.svg'),'Horizontal wordmark not linked in website navigation');
 assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
+
+
+// November 3 international UX regressions.
+const finalUx=readFileSync('VATRA/vatra-ui-finish.css','utf8');
+const routeScroll=readFileSync('VATRA/vatra-route-scroll.js','utf8');
+const languageCss=readFileSync('VATRA/vatra-language.css','utf8');
+assert.ok(main.includes('vatra-ui-finish.css?'),'Final profile/dark theme style is not linked');
+assert.ok(main.includes('vatra-route-scroll.js?'),'Route scroll fix must be linked');
+assert.ok(routeScroll.includes("window.addEventListener('hashchange'"),'Hash navigation must scroll to top');
+assert.ok(finalUx.includes('vatra-avatar-hover-wrap:not(.is-open)'),'Avatar controls must remain hidden until requested');
+assert.ok(finalUx.includes('vatra-profile-public-actions'),'Foreign profile action layout missing');
+assert.ok(finalUx.includes('vatra-language-select'),'Language dropdown and flag styling missing');
+assert.ok(languageModule.includes('languageFlag(code)'),'Language options must have flag labels');
+assert.ok(languageModule.includes('const seoTitles='),'Translated meta titles missing');
+assert.ok(languageModule.includes('ensureMeta('),'Meta title/description updater missing');
+assert.ok(giftText.includes('giftDescriptions'),'Gift descriptions missing');
+assert.ok(giftText.includes('animatedGiftCodes'),'Looping gift SVG animations missing');
+assert.ok(readFileSync('VATRA/vatra-gifts.css','utf8').includes('@keyframes vatra-gift-float'),'Animated gift CSS missing');
+assert.ok(!main.includes('class="vatra-footer-credit"'),'Sidebar developer credit came back');
+assert.ok(readFileSync('VATRA/sitemap.xml','utf8').includes('/lang/en/'),'International sitemap entries missing');
+for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
+ assert.ok(existsSync('VATRA/lang/'+locale+'/index.html'),'Static multilingual landing missing: '+locale);
+ const content=readFileSync('VATRA/lang/'+locale+'/index.html','utf8');
+ assert.ok(content.includes('hreflang="'+locale+'"'),'Missing locale SEO alternates: '+locale);
+}
