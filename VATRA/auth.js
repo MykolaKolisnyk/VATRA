@@ -186,6 +186,21 @@ const errors={
  'vatra/account-creation-failed':'Не вдалося створити акаунт. Спробуйте пізніше.'
 };
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
+let humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);
+let humanPauseTimer=null;
+function vatrapauseHumanCheck(wrap){
+ const remaining=Math.ceil((humanPauseUntil-Date.now())/1000);
+ if(remaining<=0)return false;
+ wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>{option.disabled=true;});
+ const text=wrap.querySelector('#humanCaptchaStatus');
+ if(text)text.textContent='Забагато неправильних відповідей. Перевірка буде доступна через '+Math.ceil(remaining/60)+' хв.';
+ clearTimeout(humanPauseTimer);
+ humanPauseTimer=setTimeout(()=>{
+  if(Date.now()>=humanPauseUntil){humanPauseUntil=0;sessionStorage.removeItem('vatra-human-check-pause');window.__vatraCaptchaFailures=0;if(wrap.classList.contains('captcha-modal'))resetHumanChallenge();}
+  else vatrapauseHumanCheck(wrap);
+ },Math.min(remaining*1000,20000));
+ return true;
+}
 function closeHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
  wrap.classList.remove('captcha-modal');wrap.hidden=true;wrap.removeAttribute('role');wrap.removeAttribute('aria-modal');wrap.removeAttribute('aria-label');document.body.classList.remove('captcha-modal-open');
@@ -216,7 +231,7 @@ function resetHumanChallenge(notice=''){
   choiceSet.add(distractor);
  }
  const choices=[...choiceSet].sort(()=>Math.random()-.5);
- wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="vatra-flame.svg?v=20261028-3" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
+ wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="logo.png?v=20261103-2" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',()=>{
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -225,6 +240,13 @@ function resetHumanChallenge(notice=''){
   const isCorrect=Number(btn.dataset.captchaAnswer)===challengeAnswer;
   if(!isCorrect){
    window.__vatraCaptchaFailures=(window.__vatraCaptchaFailures||0)+1;
+   if(window.__vatraCaptchaFailures>=5){
+    humanPauseUntil=Date.now()+120000;
+    try{sessionStorage.setItem('vatra-human-check-pause',String(humanPauseUntil));}catch{}
+    resetHumanChallenge('Забагато неправильних відповідей.');
+    vatrapauseHumanCheck(wrap);
+    return;
+   }
    const delay=Math.min(2500,350*window.__vatraCaptchaFailures);
    resetHumanChallenge('Відповідь неправильна. Старі варіанти скасовано — згенеровано нове питання.');
    wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>option.disabled=true);
@@ -243,6 +265,7 @@ function resetHumanChallenge(notice=''){
    $('#authForm').requestSubmit();
   },300);
  }));
+ if(vatrapauseHumanCheck(wrap))return;
  if(wrap.classList.contains('captcha-modal'))wrap.querySelector('[data-captcha-answer]')?.focus();
 }
 
