@@ -147,3 +147,17 @@ assert.ok(giftText.includes('function openGiftDetail(code)'),'Fullscreen gift vi
 assert.ok(giftText.includes('data-vatra-gift-open'),'Gift card zoom action missing');
 assert.ok(giftText.includes('giftLongDescriptions'),'Expanded description for gifts missing');
 assert.ok(readFileSync('VATRA/vatra-gifts.css','utf8').includes('.vatra-gift-detail-dialog[open]'),'Fullscreen gift styling missing');
+
+
+// Profile editor and additional settings (source-level non-regression checks).
+const editorCss=readFileSync('VATRA/vatra-profile-editor.css','utf8');
+assert.ok(main.includes('vatra-profile-editor.css'),'New branded editor styles must be loaded');
+assert.ok(scriptText.includes('VATRA_PROFILE_RECORD_SCHEMAS'),'Education, career and military record schemas missing');
+assert.ok(scriptText.includes('vatraGetRecordLists(f)'),'Multi-entry profile records must be validated on save');
+assert.ok(scriptText.includes('recordLists,updatedAt:values.updatedAt'),'Private record-list persistence missing');
+assert.ok(scriptText.includes('notificationPreferences:privateNotifyPrefs'),'Notification preferences must be persisted');
+assert.ok(scriptText.includes("data-vatra-block-from-settings"),'Blacklisted user management missing');
+assert.ok(editorCss.includes('.vatra-record-editor'),'Multi-entry form styling missing');
+assert.ok(editorCss.includes('.vatra-notify-setting'),'Notification controls styling missing');
+assert.ok(!scriptText.includes('settingsCoverFile')&&!scriptText.includes('settingsRemoveCover'),'Profile editor must not offer cover editing');
+assert.ok(!editorCss.includes('.vatra-editor-cover'),'Profile editor must not render cover UI');
