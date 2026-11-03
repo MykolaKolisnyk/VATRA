@@ -67,6 +67,7 @@ function art(code){
  const gradientId='vatraGiftHalo'+(++artSerial);
  return '<svg class="vatra-gift-art" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+'"><defs><radialGradient id="'+gradientId+'"><stop stop-color="'+color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#'+gradientId+')"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".10"/><g fill="none" filter="drop-shadow(0 4px 3px rgba(37,67,96,.13))">'+(paths[code]||paths.spark)+'</g><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".64"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".55"/></svg>';
 }
+window.vatraGiftArt=art;window.vatraGiftCatalog=catalog;
 let opened=0,selectedTab='mine',selectedReceiver='',inventory={items:[],visibility:'everyone'},networkReady=false,showing=false,notice='';
 const available=()=>auth.currentUser?.uid;
 function safeData(data){return data&&Array.isArray(data.items)?data:{items:[],visibility:'everyone'};}
