@@ -23,6 +23,9 @@ create unique index if not exists vatra_creator_gifts_unique_asset on public.vat
 create index if not exists vatra_creator_gifts_market_idx on public.vatra_creator_gifts(listed,created_at desc);
 create index if not exists vatra_creator_gifts_owner_idx on public.vatra_creator_gifts(owner_uid,created_at desc);
 create index if not exists vatra_creator_gifts_creator_idx on public.vatra_creator_gifts(creator_uid,created_at desc);
+-- Keep gift/order history for accounting and fraud review when owners remove a gift.
+alter table public.vatra_creator_gifts add column if not exists deleted_at timestamptz;
+
 
 create table if not exists public.vatra_creator_gift_orders (
  id uuid primary key default gen_random_uuid(),
@@ -91,7 +94,7 @@ begin
   'imagePath',image_path,'creator',creator_uid,'owner',owner_uid,
   'listed',listed,'createdAt',created_at
  ) order by created_at desc),'[]'::jsonb)
- into result from public.vatra_creator_gifts where owner_uid=actor;
+ into result from public.vatra_creator_gifts where owner_uid=actor and deleted_at is null;
  return result;
 end;
 $mine$;
@@ -108,7 +111,7 @@ begin
  ) order by created_at desc),'[]'::jsonb)
  into result from (
   select id,title,description,price_uah,image_path,creator_uid,owner_uid,created_at
-  from public.vatra_creator_gifts where listed=true
+  from public.vatra_creator_gifts where listed=true and deleted_at is null
   order by created_at desc limit 100
  ) found;
  return result;
@@ -132,7 +135,7 @@ begin
  'id',id,'title',title,'description',description,'price',price_uah,
  'imagePath',image_path,'creator',creator_uid,'owner',owner_uid,'listed',listed
  ) order by created_at desc),'[]'::jsonb)
- into result from public.vatra_creator_gifts where owner_uid=_owner;
+ into result from public.vatra_creator_gifts where owner_uid=_owner and deleted_at is null;
  return result;
 end;
 $pub$;
@@ -147,10 +150,10 @@ begin
  if _price_uah is null or _price_uah not between 10 and 5000 then
   raise exception 'Дозволена ціна від 10 до 5 000 грн';end if;
  select price_uah into prev_price from public.vatra_creator_gifts
-  where id=_gift_id and owner_uid=actor for update;
+  where id=_gift_id and owner_uid=actor and deleted_at is null for update;
  if not found then raise exception 'Подарунок Вам не належить';end if;
  update public.vatra_creator_gifts set price_uah=_price_uah,listed=coalesce(_listed,false),changed_at=now()
-  where id=_gift_id and owner_uid=actor;
+  where id=_gift_id and owner_uid=actor and deleted_at is null;
  if prev_price<>_price_uah or not coalesce(_listed,false) then
   update public.vatra_creator_gift_orders set status='declined',updated_at=now()
   where gift_id=_gift_id and status='pending';
@@ -172,7 +175,7 @@ begin
   raise exception 'Надіслати подарунок можна лише другу';end if;
  update public.vatra_creator_gifts
  set owner_uid=_recipient,sender_uid=actor,listed=false,transferred_at=now(),changed_at=now()
- where id=_gift_id and owner_uid=actor;
+ where id=_gift_id and owner_uid=actor and deleted_at is null;
  get diagnostics changed=row_count;
  if changed<>1 then raise exception 'Ви вже не володієте подарунком';end if;
  update public.vatra_creator_gift_orders set status='declined',updated_at=now()
@@ -188,7 +191,7 @@ declare actor uuid:=auth.uid(); gift_record record; order_id uuid;
 begin
  if actor is null then raise exception 'Увійдіть у ВАТРУ';end if;
  select owner_uid,price_uah,listed into gift_record from public.vatra_creator_gifts
-  where id=_gift_id for update;
+  where id=_gift_id and deleted_at is null for update;
  if not found or gift_record.listed=false then raise exception 'Оголошення вже недоступне';end if;
  if actor=gift_record.owner_uid then raise exception 'Власний подарунок купувати не потрібно';end if;
  if exists(select 1 from public.vatra_creator_gift_orders
@@ -240,7 +243,7 @@ begin
  end if;
  if actor<>order_record.seller_uid then raise exception 'Лише продавець може обробити заявку';end if;
  select owner_uid into gift_owner from public.vatra_creator_gifts
- where id=order_record.gift_id for update;
+ where id=order_record.gift_id and deleted_at is null for update;
  if gift_owner is distinct from actor then raise exception 'Подарунок більше не належить продавцю';end if;
  if _action='decline' then
   update public.vatra_creator_gift_orders set status='declined',updated_at=now() where id=_order_id;
@@ -251,7 +254,7 @@ begin
  update public.vatra_creator_gifts
  set owner_uid=order_record.buyer_uid,sender_uid=actor,listed=false,
      transferred_at=now(),changed_at=now()
- where id=order_record.gift_id and owner_uid=actor;
+ where id=order_record.gift_id and owner_uid=actor and deleted_at is null;
  update public.vatra_creator_gift_orders set status='completed',updated_at=now() where id=_order_id;
  update public.vatra_creator_gift_orders set status='declined',updated_at=now()
  where gift_id=order_record.gift_id and id<>_order_id and status='pending';
