@@ -118,7 +118,7 @@ function selectMarkup(){
 }
 function syncLanguageNotice(){
  const status=translatedLanguages.has(language)?'':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
- document.querySelectorAll('.vatra-language-notice').forEach(el=>{el.textContent=status;el.hidden=!status;});
+ document.querySelectorAll('.vatra-language-notice').forEach(el=>{if(el.textContent!==status)el.textContent=status;if(el.hidden===Boolean(status))el.hidden=!status;});
 }
 function install(){
  const auth=document.querySelector('.form-side .auth-card');
