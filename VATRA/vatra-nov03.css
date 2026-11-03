@@ -319,3 +319,26 @@ body .vatra-community-pref-row>span{min-width:0!important}
  body .community-settings-page .vatra-group-settings-nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important}
  body .community-settings-page .vatra-group-settings-content .settings-card{padding:17px!important}
 }
+
+body .vatra-post-comments{gap:5px!important;margin-top:7px!important}
+body .vatra-post-comments .vatra-comment-item{padding:5px 0!important;margin:0!important;min-height:0!important}
+body .vatra-post-comments .vatra-comment-item .comment-copy{margin-top:2px!important;line-height:1.5!important}
+body .vatra-post-comments .vatra-comment-item .comment-actions{margin-top:2px!important;gap:12px!important}
+body .vatra-post-comments .vatra-comment-item .comment-actions>button{padding:2px 0!important}
+body .vatra-post-comments .vatra-comment-item+.vatra-comment-item{border-top:1px solid #f0f3f6!important}
+body .vatra-comments-order-note{font-size:11px!important;color:#8695a8!important;font-weight:500!important}
+body .vatra-communities-rail .vatra-side-card,
+body .vatra-community-row,
+body .vatra-group-view .vatra-group-card{border-radius:10px!important}
+body :is(.vatra-communities-layout,.vatra-group-view,.vatra-community-tabs,.vatra-group-tabs) :is(button.is-active,button.active,[aria-current="page"]):not(.primary){
+ box-shadow:none!important;border-inline-start:0!important;border-bottom-color:transparent!important}
+body .vatra-community-tabs button.active,
+body .vatra-group-tabs button.is-active{background:#ebf0f6!important;color:#284968!important}
+@media(min-width:1120px){
+ body[data-page="messages"] .layout{width:min(1170px,calc(100% - 32px))!important;max-width:1170px!important;grid-template-columns:205px minmax(0,1fr)!important;gap:20px!important;margin-inline:auto!important}
+ body[data-page="messages"] .vatra-messenger-shell{height:min(730px,calc(100dvh - 166px))!important;min-height:570px!important;grid-template-columns: minmax(286px,34%) minmax(0,1fr)!important}
+ body[data-page="messages"] .vatra-messenger{max-width:100%!important;margin-inline:auto!important}
+}
+@media(max-width:1119px){
+ body[data-page="messages"] .vatra-messenger-shell{height:min(700px,calc(100dvh - 144px))!important;min-height:500px!important}
+}
