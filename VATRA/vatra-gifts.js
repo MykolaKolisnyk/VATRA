@@ -222,6 +222,7 @@ function vatraGiftAtmosphere(code){
  return '<div class="vatra-gift-atmosphere" data-kind="'+kind+'" aria-hidden="true">'+
   Array.from({length:16},(_,i)=>particle(i)).join('')+'</div>';
 }
+window.vatraGiftAtmosphere=vatraGiftAtmosphere;
 function openGiftDetail(code){
  const item=catalog.find(g=>g.code===String(code||''));
  if(!item)return;
