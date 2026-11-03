@@ -81,3 +81,17 @@ assert.ok(adsJs.includes('ca-pub-')&&adsJs.includes('adsbygoogle'),'Missing AdSe
 const musicSrc=readFileSync('VATRA/vatra-music.js','utf8');
 assert.ok(musicSrc.includes('spotifyController.loadEntity(addressFor(playerItem||item))'),'Spotify track switching must reuse the existing iframe');
 assert.ok(scriptText.includes("err=f.querySelector('#settingsError');if(err)err.textContent=''"),'Settings errors must clear on a new save attempt');
+
+
+// Profile language picker, community settings and original brand regression checks.
+const languageModule=readFileSync('VATRA/vatra-language.js','utf8');
+const layouts=readFileSync('VATRA/vatra-settings-community-fix.css','utf8');
+assert.ok(scriptText.includes("['language','Мова інтерфейсу']"),'Language settings tab missing');
+assert.ok(scriptText.includes("className='vatra-language-settings-mount'"),'Language settings mount missing');
+assert.ok(languageModule.includes("querySelector('.vatra-language-settings-mount')"),'Language picker injection missing');
+assert.ok(layouts.includes('.vatra-group-view .vatra-group-back'),'Community back navigation layout missing');
+assert.ok(layouts.includes('.birthday-selects'),'Date of birth controls layout missing');
+assert.ok(main.includes('vatra-settings-community-fix.css'),'Updated profile/community stylesheet missing');
+assert.ok(existsSync('VATRA/vatra-header.svg'),'User-derived horizontal brand SVG missing');
+assert.ok(main.includes('vatra-header.svg'),'Horizontal wordmark not linked in website navigation');
+assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
