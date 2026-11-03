@@ -2121,18 +2121,21 @@ let vatraNotificationsFilter='all';
 function renderNotifications(){
  const all=notificationItems().slice(0,100);
  const items=vatraNotificationsFilter==='all'?all:all.filter(n=>n.type===vatraNotificationsFilter);
- const labels={all:'Усі',like:'Вподобання',comment:'Коментарі',friend:'Друзі',verified:'ВАТРА'};
- const types=['all','like','comment','friend','verified'];
+ const labels={all:'Усі',like:'Вподобання',comment:'Коментарі',reply:'Відповіді',commentLike:'Вподобання коментарів',groupPost:'Спільноти',friend:'Друзі',verified:'ВАТРА'};
+ const types=['all','like','comment','reply','commentLike','groupPost','friend','verified'];
  const rows=items.map(n=>{
   const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ')+verifiedBadge(n.actorUid),when=timeAgo(n.createdAt);
   let title='',attr='';
-  if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="true"';}
-   else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+  if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="'+esc(n.id)+'"';}
+  else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис або фото';attr='data-notification-post="'+esc(n.postId)+'"';}
   else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+  else if(n.type==='reply'){title=name+' відповів(-ла) на Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
+  else if(n.type==='commentLike'){title=name+' вподобав(-ла) Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
+  else if(n.type==='groupPost'){title='Новий допис у спільноті '+esc(groups[n.groupId]?.name||'ВАТРА');attr='data-notification-group="'+esc(n.groupId)+'"';}
   else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
   return '<button type="button" class="notification-item '+(n.unread?'is-unread':'')+'" '+attr+'>'+
    (n.type==='verified'?'<span class="vatra-system-notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg></span>':avatar(u.name||'Користувач',u.avatarUrl))+
-   '<span class="notification-copy"><b>'+title+'</b>'+((n.type==='comment'||n.type==='verified')&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
+   '<span class="notification-copy"><b>'+title+'</b>'+(['comment','reply','verified'].includes(n.type)&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
    (n.unread?'<span class="notification-dot" aria-label="Нове"></span>':'')+'</button>';
  }).join('');
  const filters=types.map(type=>'<button type="button" data-vatra-notification-filter="'+type+'" class="'+(type===vatraNotificationsFilter?'is-active':'')+'">'+labels[type]+' <small>'+ (type==='all'?all.length:all.filter(n=>n.type===type).length)+'</small></button>').join('');
@@ -2961,13 +2964,16 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
   const rows=items.map(n=>{
    const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ')+verifiedBadge(n.actorUid),when=timeAgo(n.createdAt);
    let title='',attr='';
-   if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="true"';}
-   else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+   if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="'+esc(n.id)+'"';}
+   else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис або фото';attr='data-notification-post="'+esc(n.postId)+'"';}
    else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
+   else if(n.type==='reply'){title=name+' відповів(-ла) на Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
+   else if(n.type==='commentLike'){title=name+' вподобав(-ла) Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
+   else if(n.type==='groupPost'){title='Новий допис у спільноті '+esc(groups[n.groupId]?.name||'ВАТРА');attr='data-notification-group="'+esc(n.groupId)+'"';}
    else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
    return '<button type="button" class="topbar-notification-row '+(n.unread?'is-unread':'')+'" '+attr+'>'+
     (n.type==='verified'?'<span class="vatra-system-notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg></span>':avatar(u.name||'Користувач',u.avatarUrl))+
-    '<span><b>'+title+'</b>'+((n.type==='comment'||n.type==='verified')&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
+    '<span><b>'+title+'</b>'+(['comment','reply','verified'].includes(n.type)&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
     (n.unread?'<i aria-label="Нове"></i>':'')+'</button>';
   }).join('');
   box.innerHTML='<div class="topbar-popover-head"><div><b>Сповіщення</b><small>'+all.filter(n=>n.unread).length+' нових</small></div>'+
@@ -3027,7 +3033,7 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
    else if(action==='logout')q('#authButton')?.click();
    return;
   }
-  if(event.target.closest('[data-notification-post],[data-notification-friends],[data-notification-chat]'))closeTopbarMenus();
+  if(event.target.closest('[data-notification-post],[data-notification-friends],[data-notification-chat],[data-notification-group],[data-verification-notice]'))closeTopbarMenus();
   if(event.target.closest('[data-notifications-view-all]')){closeTopbarMenus();vatraNotificationsFilter='all';goPage('notifications');return;}
   if(event.target.closest('[data-vatra-popup-mark-read]')){markNotificationsRead();renderNotificationDropdown();return;}
   const soundButton=event.target.closest('[data-vatra-sound-toggle]');
