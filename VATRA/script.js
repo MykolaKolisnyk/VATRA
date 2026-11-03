@@ -2078,13 +2078,13 @@ function renderNotifications(){
   else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
   else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
   return '<button type="button" class="notification-item '+(n.unread?'is-unread':'')+'" '+attr+'>'+
-   avatar(u.name||'Користувач',u.avatarUrl)+
+   (n.type==='verified'?'<span class="vatra-system-notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg></span>':avatar(u.name||'Користувач',u.avatarUrl))+
    '<span class="notification-copy"><b>'+title+'</b>'+((n.type==='comment'||n.type==='verified')&&n.excerpt?'<span class="vatra-notification-excerpt">'+esc(n.excerpt)+'</span>':'')+'<small>'+when+'</small></span>'+
    (n.unread?'<span class="notification-dot" aria-label="Нове"></span>':'')+'</button>';
  }).join('');
  const filters=types.map(type=>'<button type="button" data-vatra-notification-filter="'+type+'" class="'+(type===vatraNotificationsFilter?'is-active':'')+'">'+labels[type]+' <small>'+ (type==='all'?all.length:all.filter(n=>n.type===type).length)+'</small></button>').join('');
  setFeed('<section class="vatra-notifications-layout"><article class="post notifications-page">'+
-  '<div class="notifications-heading"><div><p class="eyebrow">ВАШЕ КОЛО</p><h2>Сповіщення</h2><p class="muted">Реакції, коментарі й запити в друзі. Особисті повідомлення — у повідомленнях.</p></div>'+
+  '<div class="notifications-heading"><div><p class="eyebrow">ВАШЕ КОЛО</p><h2>Сповіщення</h2><p class="muted">Реакції, коментарі й запити в друзі. Особисті повідомлення — у розділі «Повідомлення».</p></div>'+
   '<button type="button" class="vatra-mark-all-read" data-vatra-mark-all-read>Позначити прочитаними</button></div>'+
   '<div class="vatra-notification-mobile-filters">'+filters+'</div>'+
   '<div class="notification-list">'+(rows||'<div class="empty-inline">Тут поки немає сповіщень у вибраній категорії.</div>')+'</div></article>'+
