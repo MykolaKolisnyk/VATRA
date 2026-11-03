@@ -5,7 +5,7 @@ import {initializeApp,getAuth,getDatabase,onAuthStateChanged,ref,get,set,push,on
 const groupAuth=getAuth(initializeApp()),groupDb=getDatabase(initializeApp());
 let myUid='',groupIndex={},groupReads={},activeGroupId='',activeGroupMessages={},activeGroupMeta=null;
 let stopIndex=null,stopReads=null,stopMessages=null,stopMetadata=null;
-let groupRoster=[],groupIsOpening=false;
+let groupRoster=[],groupIsOpening=false;const groupMemberNames=Object.create(null);
 const $=selector=>document.querySelector(selector);
 function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function when(ts){const t=Number(ts)||0;return t?new Date(t).toLocaleString('uk-UA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';}
@@ -96,9 +96,10 @@ async function openCreateDialog(){
    }catch{return null;}
   }));
   groupRoster=friendRows.filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name,'uk-UA'));
+  groupRoster.forEach(person=>groupMemberNames[person.id]=person.name);
   const root=$('#vatraGroupFriends');
   if(!root||!dialog.open)return;
-  root.innerHTML=groupRoster.length?groupRoster.map(friend=>'<label class="vatra-group-friend" data-vatra-friend-name="'+esc((friend.name+' '+friend.handle).toLocaleLowerCase('uk-UA'))+'"><input type="checkbox" value="'+esc(friend.id)+'"><span class="vatra-group-friend-avatar">◎</span><span><b>'+esc(friend.name)+'</b><small>'+esc(friend.handle?'@'+friend.handle:'У друзях')+'</small></span></label>').join(''):'<p>У списку друзів поки немає користувачів для запрошення.</p>';
+  root.innerHTML=groupRoster.length?groupRoster.map(friend=>'<label class="vatra-group-friend" data-vatra-friend-name="'+esc((friend.name+' '+friend.handle).toLocaleLowerCase('uk-UA'))+'"><input type="checkbox" value="'+esc(friend.id)+'"><span class="vatra-group-friend-avatar">'+esc(friend.name.trim().charAt(0).toUpperCase())+'</span><span><b>'+esc(friend.name)+'</b><small>'+esc(friend.handle?'@'+friend.handle:'У друзях')+'</small></span></label>').join(''):'<p>У списку друзів поки немає користувачів для запрошення.</p>';
   updateSelectedCount();
  }catch(error){if(dialog.open)$('#vatraGroupFriends').innerHTML='<p>Не вдалося завантажити друзів. Перевірте з’єднання та доступ до Supabase.</p>';}
  finally{groupIsOpening=false;}
@@ -131,6 +132,16 @@ function stopActiveGroupWatchers(){
  stopMetadata?.();stopMetadata=null;
  activeGroupMessages={};activeGroupMeta=null;
 }
+async function loadParticipantNames(id,members){
+ const ids=Object.keys(members||{}).filter(uid=>uid!==myUid&&!groupMemberNames[uid]).slice(0,25);
+ if(!ids.length)return;
+ await Promise.all(ids.map(async uid=>{
+  try{const data=(await get(ref(groupDb,'publicProfiles/'+uid))).val();
+   groupMemberNames[uid]=String(data?.name||'Учасник');}
+  catch{groupMemberNames[uid]='Учасник';}
+ }));
+ if(activeGroupId===id)renderGroupMessages();
+}
 function openGroup(id){
  if(!myUid||!groupIndex[id])return;
  if(activeGroupId!==id){stopActiveGroupWatchers();activeGroupId=id;}
@@ -141,6 +152,7 @@ function openGroup(id){
    stopActiveGroupWatchers();activeGroupId='';mount();notify('Ви більше не є учасником цієї бесіди.');return;
   }
   activeGroupMeta=item;
+  void loadParticipantNames(id,item.members);
   renderGroupWindow();
  },error=>notify('Не вдалося перевірити учасників бесіди: '+error.message));
  stopMessages=onValue(ref(groupDb,'groupMessages/'+id),snapshot=>{
@@ -163,19 +175,21 @@ function renderGroupWindow(){
   original.replaceWith(article);win=article;
  }
  const count=Object.keys(g.members||{}).length;
+ const draft=win.querySelector('input[name=message]')?.value||'';
  win.innerHTML='<header class="vatra-group-window-head"><button type="button" class="vatra-group-back" data-leave-vatra-group aria-label="До списку бесід">‹</button>'+
   '<span class="vatra-group-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.2 19.5c.4-3.2 2.4-5 5.8-5s5.4 1.8 5.8 5M17 5.7a3 3 0 0 1 0 5.8M16 14.5c2.9 0 4.5 1.7 4.8 5"/></svg></span><span><b>'+esc(g.title||'Групова бесіда')+'</b><small>'+count+' учасників</small></span></header>'+
   '<div id="vatraGroupMessageList" class="chat-messages vatra-group-message-list" aria-live="polite"></div>'+
   '<form id="vatraGroupSendForm" class="chat-send vatra-group-send"><input name="message" maxlength="2000" required placeholder="Написати в бесіду…" aria-label="Нове повідомлення"><button class="primary" type="submit">Надіслати</button></form>'+
   '<p id="vatraGroupChatNotice" role="status" hidden></p>';
  win.querySelector('form').addEventListener('submit',sendGroupMessage);
+ const field=win.querySelector('input[name=message]');if(field&&draft)field.value=draft;
  renderGroupMessages();setStateOfActiveGroup();
 }
 function renderGroupMessages(){
  const container=$('#vatraGroupMessageList');if(!container||!activeGroupId)return;
  const arr=Object.entries(activeGroupMessages).filter(([,m])=>eligibleMessage(m))
   .map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).slice(-150);
- const knownRoster=Object.fromEntries(groupRoster.map(x=>[x.id,x.name]));
+ const knownRoster=groupMemberNames;
  container.innerHTML=arr.length?arr.map(m=>{
   const mine=m.senderUid===myUid;
   const sender=mine?'Ви':knownRoster[m.senderUid]||'Учасник';
@@ -226,6 +240,7 @@ onAuthStateChanged(groupAuth,user=>{
  if(uid===myUid)return;
  stopIndex?.();stopReads?.();stopActiveGroupWatchers();
  myUid=uid;activeGroupId='';groupIndex={};groupReads={};groupRoster=[];
+ for(const key of Object.keys(groupMemberNames))delete groupMemberNames[key];
  if(!uid){refreshBadge();return;}
  stopIndex=onValue(ref(groupDb,'groupChatIndex/'+uid),snapshot=>{
   groupIndex=snapshot.val()||{};
