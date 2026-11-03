@@ -25,7 +25,7 @@ function renderGroupList(){
   const unread=g?.lastMessage?.senderUid!==myUid&&Number(g?.lastMessage?.createdAt||0)>Number(groupReads[id]||0);
   const count=Object.keys(g?.members||{}).length;
   return '<button type="button" class="vatra-group-row'+(id===activeGroupId?' active':'')+'" data-open-vatra-group="'+esc(id)+'">'+
-   '<span class="vatra-group-avatar" aria-hidden="true">♧</span><span class="vatra-group-copy"><b>'+esc(g.title||'Бесіда')+'</b><small>'+esc(g.lastMessage?.text||(count+' учасників'))+'</small></span>'+
+   '<span class="vatra-group-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.2 19.5c.4-3.2 2.4-5 5.8-5s5.4 1.8 5.8 5M17 5.7a3 3 0 0 1 0 5.8M16 14.5c2.9 0 4.5 1.7 4.8 5"/></svg></span><span class="vatra-group-copy"><b>'+esc(g.title||'Бесіда')+'</b><small>'+esc(g.lastMessage?.text||(count+' учасників'))+'</small></span>'+
    (unread?'<span class="vatra-group-unread" aria-label="Нове повідомлення"></span>':'')+
    '</button>';
  }).join('');
@@ -46,7 +46,7 @@ function mount(){
   if(footer)footer.before(block);else side.append(block);
  }
  renderGroupList();
- if(activeGroupId)renderGroupWindow();
+ if(activeGroupId)setTimeout(()=>{if(activeGroupId&&$('.vatra-messenger-shell'))renderGroupWindow();},0);
 }
 function ensureDialog(){
  let dialog=$('#vatraGroupCreateDialog');
@@ -164,7 +164,7 @@ function renderGroupWindow(){
  }
  const count=Object.keys(g.members||{}).length;
  win.innerHTML='<header class="vatra-group-window-head"><button type="button" class="vatra-group-back" data-leave-vatra-group aria-label="До списку бесід">‹</button>'+
-  '<span class="vatra-group-avatar" aria-hidden="true">♧</span><span><b>'+esc(g.title||'Групова бесіда')+'</b><small>'+count+' учасників</small></span></header>'+
+  '<span class="vatra-group-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.2 19.5c.4-3.2 2.4-5 5.8-5s5.4 1.8 5.8 5M17 5.7a3 3 0 0 1 0 5.8M16 14.5c2.9 0 4.5 1.7 4.8 5"/></svg></span><span><b>'+esc(g.title||'Групова бесіда')+'</b><small>'+count+' учасників</small></span></header>'+
   '<div id="vatraGroupMessageList" class="chat-messages vatra-group-message-list" aria-live="polite"></div>'+
   '<form id="vatraGroupSendForm" class="chat-send vatra-group-send"><input name="message" maxlength="2000" required placeholder="Написати в бесіду…" aria-label="Нове повідомлення"><button class="primary" type="submit">Надіслати</button></form>'+
   '<p id="vatraGroupChatNotice" role="status" hidden></p>';
