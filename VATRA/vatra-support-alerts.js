@@ -32,20 +32,19 @@ function badge(n,cls){
  return n>0?'<span class="'+cls+'" aria-label="'+n+' непрочитаних звернень">'+(n>99?'99+':n)+'</span>':'';
 }
 function renderBell(){
- const bell=document.querySelector('#notificationBell');
- if(!bell)return;
+ const bell=document.querySelector('#notificationBell');if(!bell)return;
  let dot=bell.querySelector('.vatra-support-header-badge');
+ if(!count){dot?.remove();return;}
  if(!dot){dot=document.createElement('span');dot.className='vatra-support-header-badge';bell.append(dot);}
- const display=count>99?'99+':String(count);if(dot.textContent!==display)dot.textContent=display;dot.hidden=count===0;
+ dot.textContent=count>99?'99+':String(count);dot.hidden=false;
 }
 function renderLinks(){
  const selectors=['[data-account-action="support"]','[data-support-settings-link]','[data-control-tab="support"]','[data-admin-open-support]'];
- for(const selector of selectors){
-  for(const el of document.querySelectorAll(selector)){
-   let b=el.querySelector('.vatra-support-unread-count');
-   if(!b){b=document.createElement('span');b.className='vatra-support-unread-count';el.append(b);}
-   b.hidden=count===0;const val=count>99?'99+':String(count);if(b.textContent!==val)b.textContent=val;
-  }
+ for(const selector of selectors)for(const el of document.querySelectorAll(selector)){
+  let badge=el.querySelector('.vatra-support-unread-count');
+  if(!count){badge?.remove();continue;}
+  if(!badge){badge=document.createElement('span');badge.className='vatra-support-unread-count';el.append(badge);}
+  badge.textContent=count>99?'99+':String(count);badge.hidden=false;
  }
 }
 function renderDrop(){
