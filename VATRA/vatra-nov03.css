@@ -189,3 +189,10 @@ body .notification-item>.vatra-system-notice-icon svg{display:block!important;wi
 body .notification-item .notification-copy{min-width:0!important;flex:1 1 auto!important}
 body .notification-item .notification-copy b{font-size:13px!important;font-weight:650!important}
 body .notification-item .vatra-notification-excerpt{font:400 12px/1.5 Inter,Arial,sans-serif!important;color:#677b95!important}
+
+body[data-page="messages"] .vatra-messenger-shell .vatra-group-chat-window .vatra-group-send{border-radius:0!important;box-shadow:none!important}
+body[data-page="messages"] .vatra-messenger-shell .vatra-group-chat-window .vatra-group-send input{border-radius:7px!important}
+body[data-page="messages"] .vatra-messenger-shell .vatra-group-chat-window .vatra-group-send button{border-radius:7px!important;box-shadow:none!important}
+body[data-page="messages"] .vatra-messenger-sidebar .vatra-group-chat-block{flex:0 1 auto!important;min-height:0!important}
+body[data-page="messages"] .vatra-messenger-sidebar .vatra-group-chat-rows{overflow-y:auto!important;max-height:min(210px,25vh)!important}
+body .vatra-group-avatar svg{width:21px!important;height:21px!important;display:block!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linejoin:round!important;stroke-linecap:round!important}
