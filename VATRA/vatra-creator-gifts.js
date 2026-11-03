@@ -178,6 +178,21 @@ document.addEventListener('click',async event=>{
   panel.scrollIntoView({behavior:'smooth',block:'nearest'});return;
  }
  if(event.target.closest('[data-creator-send-cancel]')){document.querySelector('#vatraCreatorSendPanel').hidden=true;return;}
+ const publicGift=event.target.closest('[data-vatra-creator-public-open]');
+ if(publicGift){
+  const owner=publicGift.dataset.vatraCreatorOwner;
+  try{
+   const items=await rpc('vatra_creator_gifts_public',{_owner:owner});
+   const gift=(Array.isArray(items)?items:[]).find(x=>x.id===publicGift.dataset.vatraCreatorPublicOpen);
+   if(!gift)return;
+   let d=document.getElementById('vatraCreatorDetailDialog');
+   if(!d){d=document.createElement('dialog');d.id='vatraCreatorDetailDialog';d.className='vatra-creator-detail';document.body.append(d);}
+   d.innerHTML='<button type="button" class="vatra-creator-close" data-creator-detail-close aria-label="Закрити">×</button>'+
+     '<img src="'+esc(imageUrl(gift.imagePath))+'" alt="'+esc(gift.title)+'"><div><h2>'+esc(gift.title)+'</h2><p>'+esc(gift.description)+'</p><strong>'+priceString(gift.price)+'</strong></div>';
+   d.showModal();
+  }catch(err){console.warn('[ВАТРА] Подарунок недоступний:',err.message);}
+  return;
+ }
  const open=event.target.closest('[data-vatra-creator-open]');
  if(open){
   const gift=[...cached.mine,...cached.market].find(x=>x.id===open.dataset.vatraCreatorOpen);if(!gift)return;
