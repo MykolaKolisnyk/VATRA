@@ -342,3 +342,11 @@ body .vatra-group-tabs button.is-active{background:#ebf0f6!important;color:#2849
 @media(max-width:1119px){
  body[data-page="messages"] .vatra-messenger-shell{height:min(700px,calc(100dvh - 144px))!important;min-height:500px!important}
 }
+
+body .vatra-gift-admin-preview{grid-column:1/-1;display:flex;align-items:center;gap:16px;max-width:100%;padding:14px 16px;border:1px solid #e1e8ef;border-radius:10px;background:#f8fafc}
+body .vatra-gift-admin-preview .vatra-gift-art{width:116px!important;height:116px!important;max-width:32%!important;flex:none}
+body .vatra-gift-admin-preview strong{font:700 15px/1.5 Inter,Arial,sans-serif;color:#30445e}
+body .vatra-gift-admin-instance{gap:12px!important}
+body .vatra-gift-admin-instance .vatra-gift-art{width:48px!important;height:48px!important;flex:none!important}
+body .vatra-gift-admin-instance span{flex:1!important;min-width:0!important}
+body .vatra-gift-admin .vatra-control-primary{width:auto!important;min-height:42px!important;padding:10px 18px!important}
