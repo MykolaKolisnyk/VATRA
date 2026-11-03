@@ -3505,4 +3505,5 @@ async function vatraOpenPostLink(postId){
 window.vatraGiftFriends=()=>Object.keys(friends||{}).filter(uid=>!!friends[uid]).map(uid=>({uid,name:users[uid]?.name||'Користувач ВАТРИ'}));
 window.vatraGiftProfileUid=()=>page==='profile'?currentUser?.uid:page==='publicProfile'?activeProfileUid:null;
 /* Public routing hooks for the shared VATRA link/gallery UI. */
-window.vatraRouter={goPage,renderPublicProfile,renderGroupDetails,renderGroupSettings,renderGroupMembersPage,openPostPhotoViewer,openAvatarViewer,startChatWith,openPost:vatraOpenPostLink};
+window.vatraSettingsContext=()=>vatraSettingsContext;
+window.vatraRouter={goPage,editProfile,renderPublicProfile,renderGroupDetails,renderGroupSettings,renderGroupMembersPage,openPostPhotoViewer,openAvatarViewer,startChatWith,openPost:vatraOpenPostLink};
