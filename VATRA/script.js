@@ -2603,7 +2603,7 @@ function vatraOrganizeSettings(){
  const tabs=[
   ['profile','Профіль'],['contacts','Контакти'],['interests','Захоплення'],
   ['education','Освіта'],['career',"Кар'єра"],['service','Військова служба'],
-  ['life','Життєва позиція'],['privacy','Приватність'],['appearance','Вигляд ВАТРИ'],['account','Акаунт і видалення'],['documents','Документи']
+  ['life','Життєва позиція'],['privacy','Приватність'],['appearance','Вигляд ВАТРИ'],['language','Мова інтерфейсу'],['account','Акаунт і видалення'],['documents','Документи']
  ];
  const workspace=document.createElement('div');workspace.className='vatra-settings-workspace';
  form.before(workspace);workspace.append(form);
@@ -2672,6 +2672,10 @@ function vatraOrganizeSettings(){
  }
  sections.privacy.append(privacyCard,adminCard);
  sections.appearance.append(appearanceCard);
+ // Dedicated, clearly visible language section. This is populated by the
+ // shared language module without reloading the profile or discarding edits.
+ const languageGrid=makeCard('language','Мова інтерфейсу','Виберіть мову ВАТРИ. Зміни застосовуються одразу, без перезавантаження. Для мов із неповним перекладом інтерфейс тимчасово залишиться українською.');
+ const languageMount=document.createElement('div');languageMount.className='vatra-language-settings-mount';languageGrid.append(languageMount);
  const looks=appearanceCard.querySelector('.settings-grid');
  const prefSelect=(name,label,options,current)=>{
   const row=document.createElement('label');row.textContent=label;
