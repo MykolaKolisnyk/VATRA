@@ -76,3 +76,8 @@ assert.ok(main.indexOf('class="vatra-sidebar-ads"')>main.indexOf('class="vatra-f
 assert.ok(footerCss.includes('.vatra-footer-legal a')&&footerCss.includes('.vatra-ad-slot'),'Footer/ad styles missing');
 assert.ok(adsJs.includes('enabled: false'),'Ad loading must remain off until the site is approved');
 assert.ok(adsJs.includes('ca-pub-')&&adsJs.includes('adsbygoogle'),'Missing AdSense integration hooks');
+
+// Playback and profile-save UX regressions.
+const musicSrc=readFileSync('VATRA/vatra-music.js','utf8');
+assert.ok(musicSrc.includes('spotifyController.loadEntity(addressFor(playerItem||item))'),'Spotify track switching must reuse the existing iframe');
+assert.ok(scriptText.includes("err=f.querySelector('#settingsError');if(err)err.textContent=''"),'Settings errors must clear on a new save attempt');
