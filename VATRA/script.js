@@ -2642,6 +2642,7 @@ function vatraOrganizeSettings(){
  const choose=id=>{
   vatraSettingsSection=id;
   for(const [key,pane] of Object.entries(sections))pane.hidden=key!==id;
+  savebar.hidden=!editMode&&['language','account','documents'].includes(id);
   if(id==='account')vatraRenderAccountLifecycleSettings(sections.account);
   nav.querySelectorAll('[data-settings-target]').forEach(button=>{
    const active=button.dataset.settingsTarget===id;button.classList.toggle('active',active);button.setAttribute('aria-current',active?'page':'false');
