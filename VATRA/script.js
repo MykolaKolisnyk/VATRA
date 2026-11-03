@@ -1017,7 +1017,7 @@ async function loadPublicFriends(ownerUid){
  }catch(err){
   if(activeProfileUid!==ownerUid||!document.body.contains(container))return;
   count.textContent='—';
-  container.textContent=err?.code==='FRIENDS_SQL_REQUIRED'?'Список друзів стане доступним після оновлення SQL у Supabase.':'Список друзів зараз недоступний.';
+  container.textContent=err?.code==='FRIENDS_SQL_REQUIRED'?'Список друзів тимчасово недоступний.':'Список друзів зараз недоступний.';
   const allButton=$('#vatraPublicAllFriends');if(allButton)allButton.onclick=()=>toastMsg(container.textContent);
   console.warn('[ВАТРА] Помилка списку друзів:',err);
  }
@@ -1412,7 +1412,7 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
  let direct={};
  try{direct=(await get(ref(db,'groupMedia/'+id))).val()||{};}
  catch(err){console.warn('[VATRA] Direct community media requires the gallery RLS migration:',err);
-  direct={};toastMsg('Окремі завантаження медіа потребують міграції vatra-community-gallery.sql у Supabase.');
+  direct={};toastMsg('Ця дія з медіафайлами тимчасово недоступна.');
  }
  if(page!=='groups'||groupId!==id||!panel.isConnected)return;
  const photo=kind==='photos';
@@ -1491,7 +1491,7 @@ async function vatraRenderCommunityGallery(id,kind,postRecords){
     }
     toastMsg('Медіа додано до спільноти.');
     await vatraRenderCommunityGallery(id,kind,postRecords);
-   }catch(error){toastMsg(niceError(error)+' Перевірте vatra-community-gallery.sql у Supabase.');}
+   }catch(error){toastMsg(niceError(error)+'');}
    finally{field.disabled=false;field.value='';}
   });
   panel.querySelectorAll('[data-community-remove-media]').forEach(button=>button.addEventListener('click',async()=>{
@@ -1984,8 +1984,8 @@ function renderMessages(){
    const code=String(err?.code||''),sqlFailure=code==='CHAT_SQL_REQUIRED'||code==='CHAT_SQL_CONSTRAINT'||err?.dbCode==='P0001';
    const message=sqlFailure
     ?code==='CHAT_SQL_REQUIRED'
-      ?'Повідомлення не відправлено: у Supabase ще діє старе правило чату. Застосуйте файл vatra-chat-replies-and-unread.sql у SQL Editor.'
-      :'Повідомлення не відправлено: Supabase відхилив запис правилом SQL (P0001). Перевірте vatra-chat-replies-and-unread.sql і журнал Supabase.'
+      ?'Повідомлення тимчасово не надсилаються. Зверніться до техпідтримки ВАТРИ.'
+      :'Не вдалося надіслати повідомлення через обмеження безпеки.'
     :'Повідомлення не відправлено: '+niceError(err);
    if(!written){if(errorBox){errorBox.textContent=message;errorBox.hidden=false;}else toastMsg(message);}
    console.error('[ВАТРА] Помилка надсилання повідомлення',err);
@@ -2655,7 +2655,7 @@ $('#communityForm').addEventListener('submit',async e=>{e.preventDefault();if(!a
   }
   if(modeAtSubmit==='register'){
    const parts=name.trim().split(/\s+/);const cred=await createUserWithEmailAndPassword(auth,email,password,{displayName:name,name,firstName:parts[0],lastName:parts.slice(1).join(' '),dateOfBirth:$('#authBirthday').value});
-   if(!cred.session){$('#authError').textContent='Supabase очікує підтвердження email. Код має надійти на вказану адресу. Якщо він не прийшов, перевірте SMTP і журнал Authentication → Logs у Supabase; не вимикайте підтвердження для обходу помилки.';return;}
+   if(!cred.session){$('#authError').textContent='Для завершення реєстрації потрібно підтвердити електронну пошту. Перевірте вхідні листи та папку «Спам».';return;}
    try{await updateProfile(cred.user,{displayName:name});}catch(profileErr){console.warn('Display name update deferred:',profileErr);}
    const handle=name.toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,24)||'user';
    try{const parts=name.trim().split(/\s+/);const profile={name,firstName:parts[0],lastName:parts.slice(1).join(' '),handle,bio:'',gender:['male','female'].includes(meta.gender)?meta.gender:'',birthdayVisibility:'private',profileVisibility:'public',searchable:true,createdAt:Date.now()};await set(ref(db,`users/${cred.user.uid}`),profile);await set(ref(db,`publicProfiles/${cred.user.uid}`),publicProfileData(profile));await set(ref(db,`privateUsers/${cred.user.uid}`),{dateOfBirth:$('#authBirthday').value,updatedAt:Date.now()});}
