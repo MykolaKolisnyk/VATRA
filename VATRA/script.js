@@ -680,9 +680,63 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
  dialog.showModal();
 }
 function profileBioMarkup(text){
- // Show the complete "Про себе" description. A toggle is meaningless when no text is hidden.
- return '<p class="vatra-profile-bio vatra-profile-bio-full">'+esc(text||'')+'</p>';
+ const value=String(text||'');
+ return '<div class="vatra-profile-bio-block vatra-profile-bio-smart" data-vatra-bio>'+
+  '<p class="vatra-profile-bio">'+esc(value)+'</p>'+
+  '<button type="button" class="vatra-profile-bio-toggle" data-vatra-bio-toggle aria-expanded="false" hidden>Показати весь опис</button></div>';
 }
+function vatraProfileSameText(a,b){
+ const clean=x=>String(x||'').trim().replace(/\s+/g,' ');
+ return !!clean(a)&&!!clean(b)&&clean(a)===clean(b);
+}
+function vatraSyncBioToggles(){
+ document.querySelectorAll('.vatra-profile-summary-compact').forEach(card=>{
+  // No duplicate biographies, including those added by other profile widgets.
+  const bios=Array.from(card.querySelectorAll('.vatra-profile-bio'));
+  bios.slice(1).forEach(item=>{
+   if(vatraProfileSameText(item.textContent,bios[0]?.textContent)){
+    const container=item.closest('[data-vatra-bio]');
+    if(container&&container!==bios[0]?.closest('[data-vatra-bio]'))container.remove();
+   }
+  });
+  card.querySelectorAll('[data-vatra-bio]').forEach(block=>{
+   const bio=block.querySelector('.vatra-profile-bio'),button=block.querySelector('[data-vatra-bio-toggle]');
+   if(!bio||!button)return;
+   const width=bio.getBoundingClientRect().width;
+   if(width<1)return;
+   // Measure the unrestricted text at precisely the same width as its visible copy.
+   // Character-count thresholds were wrong when a two-line description wrapped.
+   const probe=bio.cloneNode(true);
+   probe.setAttribute('aria-hidden','true');
+   probe.style.cssText='position:absolute!important;left:-99999px!important;top:0!important;'+
+    'width:'+width+'px!important;height:auto!important;max-height:none!important;'+
+    'display:block!important;overflow:visible!important;white-space:pre-wrap!important;'+
+    '-webkit-line-clamp:unset!important;line-clamp:unset!important;'+
+    '-webkit-box-orient:initial!important;margin:0!important;padding:0!important;';
+   block.append(probe);
+   const height=probe.getBoundingClientRect().height;
+   probe.remove();
+   const lineHeight=parseFloat(getComputedStyle(bio).lineHeight)||18;
+   const needsToggle=height>lineHeight*2+2;
+   button.hidden=!needsToggle;
+   if(!needsToggle){
+    block.classList.remove('is-expanded');
+    button.setAttribute('aria-expanded','false');
+    button.textContent='Показати весь опис';
+   }
+  });
+ });
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-vatra-bio-toggle]');
+ if(!button)return;
+ const block=button.closest('[data-vatra-bio]');
+ if(!block)return;
+ const expanded=block.classList.toggle('is-expanded');
+ button.setAttribute('aria-expanded',String(expanded));
+ button.textContent=expanded?'Згорнути опис':'Показати весь опис';
+});
+window.addEventListener('resize',()=>requestAnimationFrame(vatraSyncBioToggles));
 const VATRA_SEARCH_FIELDS=new Set(['city','location','workplace','education','hometown']);
 function profileDetailMarkup(label,value,field=''){
  if(!value)return '';
@@ -822,6 +876,7 @@ function renderProfile(){
  const detailHtml=detail('День народження',birthday)+detail('Місце проживання',currentProfile.location,'location')+detail('Рідне місто',currentProfile.hometown,'hometown')+detail('Телефон',currentProfile.phone||privatePhone||currentProfile.pendingPhone||privatePendingPhone)+(currentProfile.pendingPhone&&!privatePhone?'<p class="vatra-profile-pending-phone">Номер очікує підтвердження. Доступний лише Вам.</p>':'')+detail('Вебсайт',currentProfile.website);
  const selfExtras=vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid);
  const hasExtraDetails=Boolean(detailHtml||selfExtras);
+ const selfStatusMarkup=vatraNowPlayingMarkup(currentProfile)||(currentProfile.status&&!vatraProfileSameText(currentProfile.status,currentProfile.bio)?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':(!currentProfile.status?'<p class="vatra-profile-status is-empty">Додайте свій статус</p>':''));
  const profileHtml='<section class="vatra-profile-layout">'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card">'+
@@ -842,7 +897,7 @@ function renderProfile(){
   '<div class="vatra-profile-main">'+
    '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(name)+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup(currentProfile,true)+'</div>'+
-    '<div class="vatra-profile-status-row">'+(vatraNowPlayingMarkup(currentProfile)||(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>'))+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
+    '<div class="vatra-profile-status-row">'+selfStatusMarkup+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
     vatraProfileMainFacts({gender:vatraGenderLabel(currentProfile.gender),city:currentProfile.city,workplace:currentProfile.workplace,education:currentProfile.education})+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+selfExtras+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf'):'')+
@@ -855,6 +910,7 @@ function renderProfile(){
   '</div>'+
  '</section>';
  setFeed(profileHtml,false);
+ requestAnimationFrame(vatraSyncBioToggles);
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileStatusEdit')?.addEventListener('click',editProfileStatus);
  $('#profileAllFriends')?.addEventListener('click',()=>goPage('friends'));
@@ -1118,7 +1174,7 @@ function renderPublicProfile(uid){
   '<div class="vatra-profile-main">'+
    '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0,gender:u.gender})+'</div>'+
-    (vatraNowPlayingMarkup(u)?'<div class="vatra-profile-status-row">'+vatraNowPlayingMarkup(u)+'</div>':visibleStatus?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
+    (vatraNowPlayingMarkup(u)?'<div class="vatra-profile-status-row">'+vatraNowPlayingMarkup(u)+'</div>':visibleStatus&&!vatraProfileSameText(visibleStatus,visibleBio)?'<div class="vatra-profile-status-row"><p class="profile-status vatra-profile-status">'+esc(visibleStatus)+'</p></div>':'')+
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (visibleBio?profileBioMarkup(visibleBio):'')+
     vatraProfileMainFacts({gender:vatraGenderLabel(u.gender),city,workplace,education})+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
@@ -1130,6 +1186,7 @@ function renderPublicProfile(uid){
   '</div>'+
  '</section>';
  setFeed(html,false);
+ requestAnimationFrame(vatraSyncBioToggles);
  window.vatraRouteChanged?.({page:'publicProfile',id:uid});
  loadPublicFriends(uid);
  $('#backExplore').onclick=()=>goPage('explore');
