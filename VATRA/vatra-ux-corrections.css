@@ -27,7 +27,7 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
  box-sizing:border-box!important;
  display:flex!important;align-items:center!important;
  width:100%!important;max-width:100%!important;
- height:37px!important;min-height:37px!important;max-height:37px!important;
+ height:39px!important;min-height:39px!important;max-height:39px!important;
  gap:9px!important;
  margin:0!important;
  padding:5px 9px!important;
@@ -39,7 +39,7 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
  box-shadow:none!important;
  filter:none!important;
  color:#536a83!important;
- font-size:12.65px!important;
+ font-size:14px!important;
  line-height:1.25!important;
  letter-spacing:0!important;
  font-weight:610!important;
@@ -74,16 +74,16 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover,
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover,
  html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover{
-  background:#edf2f9!important;
-  background-image:linear-gradient(90deg,rgba(78,138,212,.085),rgba(245,248,252,0))!important;
+  background:#f0f5fc!important;
+  background-image:none!important;
   box-shadow:none!important;
   color:#315b8b!important;
-  transform:translateX(3px)!important;
+  transform:none!important;
  }
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover .nav-icon svg,
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover .nav-icon svg{
   color:#3d7cc4!important;stroke:#3d7cc4!important;
-  transform:scale(1.04)!important;
+  transform:none!important;
  }
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:focus-visible{
@@ -217,3 +217,20 @@ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage>.vatra-gift-art{
  .vatra-gift-atmosphere .vatra-gift-particle{animation:none!important;opacity:.25!important;transform:none!important}
 }
 
+
+/* Searchable profile values must not look like links with dotted underlines. */
+body .vatra-profile-detail>.vatra-profile-attribute-link,
+body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link{
+ text-decoration:none!important;
+ text-decoration-line:none!important;
+ text-decoration-style:solid!important;
+ border-bottom:0!important;
+ box-shadow:none!important;
+ background-image:none!important;
+}
+body .vatra-profile-detail>.vatra-profile-attribute-link:hover,
+body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link:hover{
+ text-decoration:none!important;
+ border-bottom:0!important;
+ color:#0757f5!important;
+}
