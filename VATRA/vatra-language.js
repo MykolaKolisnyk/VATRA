@@ -256,6 +256,53 @@ function selectMarkup(){
  select.addEventListener('change',()=>setLanguage(select.value));
  return select;
 }
+function vatraFlagSVG(code){
+ const region=flagRegions[code]||(()=>{try{return new Intl.Locale(code).maximize().region||''}catch{return ''}})();
+ const defs={
+  UA:'<path fill="#2879c5" d="M0 0h28v10H0z"/><path fill="#ffd64d" d="M0 10h28v10H0z"/>',
+  PL:'<path fill="#fff" d="M0 0h28v10H0z"/><path fill="#dc3c53" d="M0 10h28v10H0z"/>',
+  DE:'<path fill="#222" d="M0 0h28v7H0z"/><path fill="#d64240" d="M0 7h28v7H0z"/><path fill="#ffca44" d="M0 14h28v6H0z"/>',
+  FR:'<path fill="#2159ad" d="M0 0h9v20H0z"/><path fill="#fff" d="M9 0h10v20H9z"/><path fill="#d94a4a" d="M19 0h9v20h-9z"/>',
+  GB:'<path fill="#244d9c" d="M0 0h28v20H0z"/><path stroke="#fff" stroke-width="5" d="m0 0 28 20M28 0 0 20"/><path stroke="#d94655" stroke-width="2" d="m0 0 28 20M28 0 0 20"/><path stroke="#fff" stroke-width="7" d="M14 0v20M0 10h28"/><path stroke="#dc3d52" stroke-width="3.5" d="M14 0v20M0 10h28"/>',
+  ES:'<path fill="#c83a48" d="M0 0h28v5H0zM0 15h28v5H0z"/><path fill="#f8c84b" d="M0 5h28v10H0z"/>',
+  PT:'<path fill="#218a69" d="M0 0h12v20H0z"/><path fill="#d54245" d="M12 0h16v20H12z"/><circle cx="12" cy="10" r="4" stroke="#f4cf65" fill="none" stroke-width="1.8"/>',
+  IT:'<path fill="#26966e" d="M0 0h9v20H0z"/><path fill="#fff" d="M9 0h10v20H9z"/><path fill="#d64c50" d="M19 0h9v20h-9z"/>'
+ };
+ if(defs[region])return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false"><rect width="28" height="20" rx="2" fill="#fff"/>'+defs[region]+'</svg>';
+ return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false"><rect x="1" y="1" width="26" height="18" rx="3" fill="#edf4fd" stroke="#cfdeef"/><circle cx="14" cy="10" r="6.5" fill="none" stroke="#5583b5" stroke-width="1.3"/><path d="M7.5 10h13M14 3.5c-5 4-5 9 0 13M14 3.5c5 4 5 9 0 13" fill="none" stroke="#5583b5" stroke-width="1.1"/></svg>';
+}
+function vatraEnhanceLanguageSelect(select){
+ if(select.dataset.vatraEnhanced==='true')return;
+ select.dataset.vatraEnhanced='true';select.classList.add('vatra-language-native-hidden');
+ const wrap=document.createElement('div');wrap.className='vatra-language-picker';
+ const trigger=document.createElement('button');trigger.type='button';trigger.className='vatra-language-picker-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+ const popup=document.createElement('div');popup.className='vatra-language-picker-popup';popup.hidden=true;
+ const search=document.createElement('input');search.type='search';search.className='vatra-language-picker-search';search.placeholder='Знайти мову…';search.setAttribute('aria-label','Пошук мови');
+ const list=document.createElement('div');list.className='vatra-language-picker-list';list.setAttribute('role','listbox');
+ const make=(code,name)=>'<button type="button" class="vatra-language-picker-option" role="option" aria-selected="'+String(code===language)+'" data-vatra-language-code="'+code+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+(translatedLanguages.has(code)?'':'<small>Готується</small>')+'</button>';
+ list.innerHTML='<div class="vatra-language-picker-category">Основні мови інтерфейсу</div>'+
+  languages.filter(([code])=>translatedLanguages.has(code)).map(([code,name])=>make(code,name)).join('')+
+  '<div class="vatra-language-picker-category">Інші мови · переклад готується</div>'+
+  languages.filter(([code])=>!translatedLanguages.has(code)).map(([code,name])=>make(code,name)).join('');
+ popup.append(search,list);wrap.append(trigger,popup);select.insertAdjacentElement('afterend',wrap);
+ const update=()=>{
+  const selected=languages.find(([code])=>code===select.value)||languages[0];
+  trigger.innerHTML=vatraFlagSVG(selected[0])+'<span>'+selected[1]+'</span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  list.querySelectorAll('[data-vatra-language-code]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vatraLanguageCode===selected[0])));
+ };
+ update();
+ trigger.addEventListener('click',event=>{event.preventDefault();const open=popup.hidden;document.querySelectorAll('.vatra-language-picker-popup').forEach(p=>p.hidden=true);
+  popup.hidden=!open;trigger.setAttribute('aria-expanded',String(open));if(open){search.value='';list.querySelectorAll('[data-vatra-language-code]').forEach(b=>b.hidden=false);search.focus();}
+ });
+ list.addEventListener('click',event=>{
+  const button=event.target.closest('[data-vatra-language-code]');if(!button)return;
+  select.value=button.dataset.vatraLanguageCode;popup.hidden=true;trigger.setAttribute('aria-expanded','false');select.dispatchEvent(new Event('change',{bubbles:true}));update();
+ });
+ search.addEventListener('input',()=>{const q=search.value.trim().toLocaleLowerCase('uk-UA');list.querySelectorAll('[data-vatra-language-code]').forEach(b=>{b.hidden=!b.textContent.toLocaleLowerCase('uk-UA').includes(q)})});
+ document.addEventListener('pointerdown',event=>{if(!wrap.contains(event.target)){popup.hidden=true;trigger.setAttribute('aria-expanded','false')}});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!popup.hidden){popup.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.focus()}});
+ select.addEventListener('change',update);
+}
 function syncLanguageNotice(){
  const status=translatedLanguages.has(language)?'':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
  document.querySelectorAll('.vatra-language-notice').forEach(el=>{if(el.textContent!==status)el.textContent=status;if(el.hidden===Boolean(status))el.hidden=!status;});
@@ -276,7 +323,7 @@ function install(){
   const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');row.append(hint);
   languageMount.append(row);
  }
- document.querySelectorAll('.vatra-language-select').forEach(select=>{if(select.value!==language)select.value=language;});
+ document.querySelectorAll('.vatra-language-select').forEach(select=>{if(select.value!==language){select.value=language;select.dispatchEvent(new Event('change',{bubbles:false}));}vatraEnhanceLanguageSelect(select);});
  syncLanguageNotice();
 }
 function setLanguage(code){
