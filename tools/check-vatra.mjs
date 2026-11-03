@@ -161,3 +161,21 @@ assert.ok(editorCss.includes('.vatra-record-editor'),'Multi-entry form styling m
 assert.ok(editorCss.includes('.vatra-notify-setting'),'Notification controls styling missing');
 assert.ok(!scriptText.includes('settingsCoverFile')&&!scriptText.includes('settingsRemoveCover'),'Profile editor must not offer cover editing');
 assert.ok(!editorCss.includes('.vatra-editor-cover'),'Profile editor must not render cover UI');
+
+// November 3 latest: editor navigation and Latin @handle.
+const latinAuth=readFileSync('VATRA/auth.js','utf8');
+const latinSQL=readFileSync('VATRA/vatra-latin-handles-2026-11-03.sql','utf8');
+const unifiedLayout=readFileSync('VATRA/vatra-layout-cleanup.css','utf8');
+assert.ok(!main.includes('<aside class="sidebar"><a class="brand"'),'The desktop sidebar must not repeat the topbar logo');
+assert.ok(main.includes('vatra-layout-cleanup.css'),'Shared editor/settings and photo-date CSS is not linked');
+assert.ok(scriptText.includes("navPage=p==='settings'&&vatraSettingsContext==='edit'?'profile':p"),'The editor must highlight the profile nav, not settings');
+assert.ok(scriptText.includes("$$('a[data-page]').forEach"),'Navigation must use the querySelectorAll helper');
+assert.ok(scriptText.includes('setFeed(`<section class="settings-page"><form id="profileSettingsForm"'),'Remove redundant profile edit / settings header panels');
+assert.ok(scriptText.includes("const VATRA_HANDLE_PATTERN=/^[a-z][a-z0-9._-]{0,22}[a-z0-9]$/"),'Handles must contain Latin ASCII only');
+assert.ok(scriptText.includes("handle=vatraNormalizeHandle(fd.get('handle'))"),'Handle must be lowercased on save');
+assert.ok(scriptText.includes('function vatraProfilePhotoDateMarkup(timestamp)'),'Profile photo calendar dates must be visible');
+assert.ok(scriptText.includes('photoDateByUrl.get(url)'),'Public photos need accurate dates when available');
+assert.ok(unifiedLayout.includes('.vatra-profile-photo-date'),'Photo dates need readable non-clipped styling');
+assert.ok(unifiedLayout.includes('.vatra-settings-nav-button.active'),'Settings and editor must share nav styling');
+assert.ok(latinAuth.includes('function vatraLatinHandlePart(value)'),'New registrations must get a Latin @handle');
+assert.ok(latinSQL.includes('create or replace function public.vatra_check_public_handle'),'Server-side Latin aliases must be enforceable');
