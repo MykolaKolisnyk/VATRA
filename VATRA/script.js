@@ -67,8 +67,15 @@ function askConfirm(message){
   const content=String(message||'').trim();
   const action=content.toLocaleLowerCase('uk-UA').match(/^[а-щьюяґєії'-]+/u)?.[0]||'';
   const danger=new Set(['видалити','заблокувати','прибрати','скасувати','очистити','стерти','відмовитися','видалення']).has(action);
-  question.textContent=content;
-  if(heading)heading.textContent=danger?'Підтвердіть зміну':'Підтвердити дію?';
+  const questionEnd=content.indexOf('?');
+  const contextualTitle=questionEnd>3&&questionEnd<88?content.slice(0,questionEnd+1):'';
+  if(heading)heading.textContent=contextualTitle||(danger?'Підтвердити зміну?':'Підтвердити дію?');
+  const explanation=contextualTitle?content.slice(questionEnd+1).trim():content;
+  question.textContent=explanation||(
+    action==='видалити'&&/фото|фотограф/i.test(content)
+     ?'Фото зникне з аватара, але залишиться доступним для відновлення.'
+     :'Перевірте вибрану дію перед підтвердженням.'
+  );
   yes.textContent=action==='видалити'?'Видалити':action==='заблокувати'?'Заблокувати':action==='прибрати'?'Прибрати':action==='скасувати'?'Скасувати дію':'Підтвердити';
   d.classList.toggle('is-destructive',danger);
   let completed=false;
