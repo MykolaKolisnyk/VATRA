@@ -568,20 +568,55 @@ COMMENT ON TABLE public.vatra_v2_sync_errors IS
 
 COMMIT;
 
--- 7. ПІДСУМКОВА ПЕРЕВІРКА: окремий результат із наявністю та кількістю.
-SELECT 'vatra_users' AS v2_table,count(*) AS mirrored_rows FROM public.vatra_users
-UNION ALL SELECT 'vatra_private_profiles',count(*) FROM public.vatra_private_profiles
-UNION ALL SELECT 'vatra_friends',count(*) FROM public.vatra_friends
-UNION ALL SELECT 'vatra_posts',count(*) FROM public.vatra_posts
-UNION ALL SELECT 'vatra_communities',count(*) FROM public.vatra_communities
-UNION ALL SELECT 'vatra_community_members',count(*) FROM public.vatra_community_members
-UNION ALL SELECT 'vatra_videos',count(*) FROM public.vatra_videos
-UNION ALL SELECT 'vatra_chats',count(*) FROM public.vatra_chats
-UNION ALL SELECT 'vatra_chat_messages',count(*) FROM public.vatra_chat_messages
-UNION ALL SELECT 'vatra_group_conversations',count(*) FROM public.vatra_group_conversations
-UNION ALL SELECT 'vatra_group_messages',count(*) FROM public.vatra_group_messages
-UNION ALL SELECT 'vatra_v2_sync_errors',count(*) FROM public.vatra_v2_sync_errors
-ORDER BY v2_table;
+-- 7. ПІДСУМКОВА ПЕРЕВІРКА. Supabase показує ОДИН підсумковий результат.
+-- source_rows для друзів відсутні: джерело містить об'єкти списків,
+-- а нормалізована таблиця містить 2 орієнтовані рядки на кожну дружбу.
+-- Дані у складених кореневих шляхах перевіряють окремо.
+WITH report (object_name,source_rows,mirrored_rows) AS (
+  SELECT 'vatra_users',
+    (SELECT count(*) FROM public.app_data WHERE path ~* '^publicProfiles/[0-9a-f-]{36}$'),
+    (SELECT count(*) FROM public.vatra_users)
+  UNION ALL SELECT 'vatra_private_profiles',
+    (SELECT count(*) FROM public.app_data WHERE path ~* '^privateUsers/[0-9a-f-]{36}$'),
+    (SELECT count(*) FROM public.vatra_private_profiles)
+  UNION ALL SELECT 'vatra_friends',NULL::bigint,
+    (SELECT count(*) FROM public.vatra_friends)
+  UNION ALL SELECT 'vatra_posts',
+    (SELECT count(*) FROM public.app_data
+      WHERE path ~ '^posts/[^/]+$' OR path ~ '^groupPosts/[^/]+/[^/]+$'),
+    (SELECT count(*) FROM public.vatra_posts)
+  UNION ALL SELECT 'vatra_communities',
+    (SELECT count(*) FROM public.app_data WHERE path ~ '^groups/[^/]+$'),
+    (SELECT count(*) FROM public.vatra_communities)
+  UNION ALL SELECT 'vatra_community_members',NULL::bigint,
+    (SELECT count(*) FROM public.vatra_community_members)
+  UNION ALL SELECT 'vatra_videos',
+    (SELECT count(*) FROM public.app_data WHERE path ~ '^videos/[^/]+$'),
+    (SELECT count(*) FROM public.vatra_videos)
+  UNION ALL SELECT 'vatra_chats',
+    (SELECT count(*) FROM public.app_data WHERE path ~ '^chats/[^/]+$'),
+    (SELECT count(*) FROM public.vatra_chats)
+  UNION ALL SELECT 'vatra_chat_messages',NULL::bigint,
+    (SELECT count(*) FROM public.vatra_chat_messages)
+  UNION ALL SELECT 'vatra_group_conversations',
+    (SELECT count(*) FROM public.app_data WHERE path ~ '^groupConversations/[^/]+$'),
+    (SELECT count(*) FROM public.vatra_group_conversations)
+  UNION ALL SELECT 'vatra_group_messages',NULL::bigint,
+    (SELECT count(*) FROM public.vatra_group_messages)
+  UNION ALL SELECT 'vatra_v2_sync_errors',0::bigint,
+    (SELECT count(*) FROM public.vatra_v2_sync_errors)
+)
+SELECT object_name,source_rows,mirrored_rows,
+  CASE
+    WHEN object_name='vatra_v2_sync_errors' AND mirrored_rows>0
+      THEN 'ПОТРІБНО ПЕРЕВІРИТИ ЖУРНАЛ'
+    WHEN source_rows IS NOT NULL AND source_rows<>mirrored_rows
+      THEN 'ПОТРІБНО ПЕРЕВІРИТИ РОЗБІЖНІСТЬ'
+    ELSE 'OK / ПОТРІБНІ ФУНКЦІОНАЛЬНІ ТЕСТИ'
+  END AS migration_state,
+  to_regclass('public.app_data') IS NOT NULL AS legacy_site_data_preserved
+FROM report ORDER BY object_name;
 
--- Точні джерела і діючі RPC залишаються у app_data до окремого
--- перевіреного переключення JavaScript/RLS/API. Архів не є full backup.
+-- Цей SQL не перемикає сайт із app_data на нові таблиці:
+-- без змін JavaScript, RLS і RPC це неможливо безпечно зробити одним SQL.
+-- Не видаляйте app_data, profiles та private_profiles.
