@@ -1,0 +1,47 @@
+name: Bundle VATRA local Onest font
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/vatra-local-fonts.yml"
+      - "VATRA/vatra-local-fonts.css"
+      - "VATRA/assets/fonts/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bundle-font:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out VATRA
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download original Onest variable font into the site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p VATRA/assets/fonts
+          file="VATRA/assets/fonts/Onest-Variable.ttf"
+          if [ -s "$file" ]; then
+            echo "Local font already committed"
+            exit 0
+          fi
+          url="https://raw.githubusercontent.com/google/fonts/main/ofl/onest/Onest%5Bwght%5D.ttf"
+          curl --fail --location --retry 3 --retry-delay 2 --silent --show-error "$url" -o "$file"
+          test "$(wc -c < "$file")" -gt 100000
+          if [ "$(head -c 4 "$file" | od -An -tx1 | tr -d ' \n')" != "00010000" ]; then
+            echo "Downloaded asset was not a valid TrueType font" >&2
+            exit 1
+          fi
+          git add "$file"
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "assets: bundle local Onest variable font for VATRA"
+          git push origin HEAD:main

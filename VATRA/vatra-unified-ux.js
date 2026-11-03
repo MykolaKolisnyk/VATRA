@@ -10,8 +10,9 @@ const route=i=>i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'#/
 window.vatraRouteChanged=i=>{
  if(!i?.page)return;
  if(i.page!=='adminCenter')window.vatraAdminResetState?.();
- const name=i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'Редагування профілю':i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent:i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА';
- document.title=(name||'ВАТРА')+' | ВАТРА';
+ const name=i.title||(i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'Редагування профілю':i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent||'Спільнота':i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА');
+ const label=String(name||'ВАТРА').trim();
+ document.title=label==='ВАТРА'?'ВАТРА':label+' | ВАТРА';
  const hash=route(i);
  if(!restoring&&location.hash!==hash)history.pushState({vatra:true},'',location.pathname+location.search+hash);
 };
