@@ -1,9 +1,14 @@
 (function(){
 'use strict';
-const languages=[
- ['uk','Українська'],['en','English'],['pl','Polski'],['de','Deutsch'],
- ['fr','Français'],['es','Español'],['pt','Português'],['it','Italiano']
-];
+const translatedLanguages=new Set(['uk','en','pl','de','fr','es','pt','it']);
+const languageCodes=["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"];
+const ukNames=new Intl.DisplayNames(['uk'],{type:'language'});
+const languages=languageCodes.map(code=>{
+ let nativeName=code;
+ try{nativeName=new Intl.DisplayNames([code],{type:'language'}).of(code)||code;}catch{}
+ const ukrainian=ukNames.of(code)||code;
+ return [code,nativeName===ukrainian?nativeName:nativeName+' — '+ukrainian];
+}).sort((a,b)=>Number(translatedLanguages.has(b[0]))-Number(translatedLanguages.has(a[0]))||a[1].localeCompare(b[1],'uk'));
 const base={
  'Мій профіль':'Profile','Друзі':'Friends','Новини':'News','Повідомлення':'Messages',
  'Спільноти':'Communities','Відео':'Videos','Збережене':'Saved','Налаштування':'Settings',
@@ -62,7 +67,7 @@ function translateText(node){
  }
  const original=record.original.trim();
  if(!base[original])return;
- const value=language==='uk'?original:(overrides[language]&&overrides[language][original])||(language==='en'?base[original]:base[original]);
+ const value=language==='uk'?original:(overrides[language]?.[original]||(language==='en'?base[original]:original));
  const whitespaceLeft=record.original.match(/^\s*/)[0],whitespaceRight=record.original.match(/\s*$/)[0];
  const translated=whitespaceLeft+value+whitespaceRight;
  if(text!==translated){node.nodeValue=translated;record.last=translated;}
@@ -80,12 +85,12 @@ function translateRoot(root){
  root.querySelectorAll?.('input[placeholder]').forEach(el=>{
   const original=el.dataset.vatraOriginalPlaceholder||el.getAttribute('placeholder');
   if(!el.dataset.vatraOriginalPlaceholder)el.dataset.vatraOriginalPlaceholder=original;
-  const text=language==='uk'?original:(overrides[language]?.[original]||base[original]||original);
+  const text=language==='uk'?original:(overrides[language]?.[original]||(language==='en'?base[original]:original));
   if(el.placeholder!==text)el.placeholder=text;
  });
 }
 function updateMeta(){
- document.documentElement.lang=language;
+ document.documentElement.lang=translatedLanguages.has(language)?language:'uk';
  const description=descriptions[language]||descriptions.uk;
  for(const sel of ['meta[name="description"]','meta[property="og:description"]']){
   let meta=document.head.querySelector(sel);
@@ -94,29 +99,43 @@ function updateMeta(){
  }
  let locale=document.head.querySelector('meta[property="og:locale"]');
  if(!locale){locale=document.createElement('meta');locale.setAttribute('property','og:locale');document.head.append(locale);}
- locale.content=language==='uk'?'uk_UA':language+'_'+language.toUpperCase();
+ locale.content=translatedLanguages.has(language)?(language==='uk'?'uk_UA':language+'_'+language.toUpperCase()):'uk_UA';
+ let languageMeta=document.head.querySelector('meta[name="content-language"]');if(!languageMeta){languageMeta=document.createElement('meta');languageMeta.name='content-language';document.head.append(languageMeta);}languageMeta.content=translatedLanguages.has(language)?language:'uk';
 }
 function selectMarkup(){
- const select=document.createElement('select');select.className='vatra-language-select';select.setAttribute('aria-label','Мова інтерфейсу');
- for(const [code,name] of languages){const option=document.createElement('option');option.value=code;option.textContent=name;select.append(option);}
- select.value=language;
+ const select=document.createElement('select');
+ select.className='vatra-language-select';
+ select.setAttribute('aria-label','Мова інтерфейсу');
+ const ready=document.createElement('optgroup');ready.label='Основні мови інтерфейсу';
+ const other=document.createElement('optgroup');other.label='Інші мови (переклад готується)';
+ for(const [code,name] of languages){
+  const option=document.createElement('option');option.value=code;option.textContent=name;
+  (translatedLanguages.has(code)?ready:other).append(option);
+ }
+ select.append(ready,other);select.value=language;
  select.addEventListener('change',()=>setLanguage(select.value));
  return select;
+}
+function syncLanguageNotice(){
+ const status=translatedLanguages.has(language)?'':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
+ document.querySelectorAll('.vatra-language-notice').forEach(el=>{el.textContent=status;el.hidden=!status;});
 }
 function install(){
  const auth=document.querySelector('.form-side .auth-card');
  if(auth&&!document.querySelector('.vatra-language-auth')){
   const wrap=document.createElement('div');wrap.className='vatra-language-auth';
   const label=document.createElement('label');label.textContent='Мова інтерфейсу';label.append(selectMarkup());wrap.append(label);
+  const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');wrap.append(hint);
   auth.insertAdjacentElement('afterend',wrap);
  }
  const appearance=document.querySelector('.interface-settings-card .settings-grid');
  if(appearance&&!appearance.querySelector('.vatra-language-pref')){
   const wrap=document.createElement('label');wrap.className='vatra-language-pref';
   wrap.append(document.createTextNode('Мова інтерфейсу'));
-  wrap.append(selectMarkup());appearance.append(wrap);
+  wrap.append(selectMarkup());const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');wrap.append(hint);appearance.append(wrap);
  }
  document.querySelectorAll('.vatra-language-select').forEach(select=>{if(select.value!==language)select.value=language;});
+ syncLanguageNotice();
 }
 function setLanguage(code){
  if(!languages.some(pair=>pair[0]===code))return;
@@ -132,5 +151,5 @@ new MutationObserver(()=>{
 }).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 function start(){running=true;try{install();setLanguage(language);}finally{running=false;}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-window.vatraLanguage={get language(){return language;},set:setLanguage,available:languages.map(([code])=>code)};
+window.vatraLanguage={get language(){return language;},get isFullyLocalized(){return translatedLanguages.has(language);},set:setLanguage,available:languages.map(([code])=>code)};
 })();
