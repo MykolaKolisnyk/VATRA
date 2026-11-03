@@ -52,7 +52,53 @@ const footerLabels={
 const footerLabelKeys=new Set(Object.keys(footerLabels.en));
 function interfaceLabel(original){
  if(language==='uk')return original;
- return footerLabels[language]?.[original]||overrides[language]?.[original]||(language==='en'?base[original]:original);
+ return footerLabels[language]?.[original]||overrides[language]?.[original]||base[original]||original;
+}
+const additionalEnglish={
+ 'УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА':'UKRAINIAN SOCIAL NETWORK',
+ 'Твої люди.':'Your people.','Твої історії.':'Your stories.','Твоя ВАТРА.':'Your VATRA.',
+ 'Ваші люди.':'Your people.','Ваші історії.':'Your stories.','Ваша ВАТРА.':'Your VATRA.',
+ 'Українська соціальна мережа для спілкування та обміну моментами.':'A Ukrainian social network for meaningful conversations and sharing moments.',
+ 'РАДІ БАЧИТИ ЗНОВУ':'GOOD TO SEE YOU AGAIN','З поверненням до ВАТРИ':'Welcome back to VATRA',
+ 'Увійдіть, щоб побачити свою стрічку та друзів.':'Sign in to see your feed and friends.',
+ 'Спосіб входу або реєстрації':'Sign-in or registration method',
+ 'Вхід за паролем · без коду':'Password sign-in · no code',
+ 'Вхід за паролем · без SMS-коду':'Password sign-in · no SMS',
+ 'Номер телефону':'Phone number','Введіть пароль':'Enter your password',
+ 'Показати':'Show','Приховати':'Hide','Забули пароль?':'Forgot password?',
+ 'Зареєструватися':'Sign up','Ще немає акаунта?':'New to VATRA?',
+ 'Повторіть пароль':'Confirm password','Погоджуюся':'I agree',
+ 'Про розробника':'About the creator','Документи ВАТРИ':'VATRA documents',
+ 'Умови користування':'Terms of service','Правила спільноти':'Community rules',
+ 'Політика конфіденційності':'Privacy policy',
+ 'Правила спільноти ВАТРИ':'VATRA community rules',
+ 'Повага. Відкритість. Спільність.':'Respect. Openness. Community.',
+ 'З поверненням до ВАТРИ':'Welcome back to VATRA',
+ 'З поверненням до ВАТРИ':'Welcome back to VATRA',
+ 'Мова сайту':'Site language','Мова інтерфейсу':'Interface language',
+ 'Вигляд ВАТРИ':'VATRA appearance','Є незбережені зміни.':'You have unsaved changes.',
+ 'Мої фотографії':'My photos','Мій профіль':'My profile',
+ 'Про себе':'About me','Додати в друзі':'Add friend','Написати':'Message',
+ 'У друзях':'Friends','Видалити з друзів':'Remove friend',
+ 'Поскаржитися':'Report','Заблокувати':'Block','Інші дії':'More actions',
+ 'Усі друзі':'All friends','Відповісти':'Reply','Коментарі':'Comments',
+ 'Учасники':'Members','Дописи':'Posts','Фотографії':'Photos',
+ 'Показати більше':'Show more','Згорнути':'Show less',
+ 'Інформація':'Information','Контакти':'Contacts','Навчання':'Education',
+ 'Керувати спільнотою':'Manage community','Основна інформація':'Basic information',
+ 'Контент і коментарі':'Content and comments','Керівники й учасники':'Team and members',
+ 'Заплановані дописи':'Scheduled posts','Зберегти зміни':'Save changes',
+ 'Мої':'Mine','Безкоштовні':'Free','Платні':'Premium',
+ 'Мої подарунки':'My gifts','Подарувати другу':'Send as gift',
+ 'Відкрити':'Open','Місце для реклами':'Advertising space'
+};
+Object.assign(base,additionalEnglish);
+const flagRegions={uk:'UA',en:'GB',pl:'PL',de:'DE',fr:'FR',es:'ES',pt:'PT',it:'IT',zh:'CN',ja:'JP',ko:'KR',ar:'SA',hi:'IN',yi:'IL',eo:'EU'};
+function languageFlag(code){
+ let region=flagRegions[code]||'';
+ if(!region)try{region=new Intl.Locale(code).maximize().region||'';}catch{}
+ if(!/^[A-Z]{2}$/.test(region))return '🌐';
+ return [...region].map(ch=>String.fromCodePoint(ch.charCodeAt(0)+127397)).join('');
 }
 const descriptions={
  uk:'ВАТРА — українська соціальна мережа. Друзі, спільноти, дописи, фото та повідомлення.',
@@ -71,7 +117,7 @@ const saved=new WeakMap();
 let running=false;
 function translateText(node){
  const parent=node.parentElement;
- if(!parent||parent.closest('script,style,textarea,option,[contenteditable],.post,.comment,.message,.vatra-messenger-text,.vatra-notification-text,.vatra-feed-post'))return;
+ if(!parent||parent.closest('script,style,textarea,option,[contenteditable],.post-text,.vatra-post-text,.comment-copy,.message-body,.vatra-messenger-text,.vatra-notification-text,.vatra-feed-post-text,.vatra-profile-bio,.profile-bio,.vatra-profile-status,.vatra-translation-result'))return;
  const text=node.nodeValue;
  if(!text||!text.trim())return;
  let record=saved.get(node);
@@ -89,9 +135,9 @@ function translateText(node){
 function translateRoot(root){
  if(root.nodeType===3){translateText(root);return;}
  if(root.nodeType!==1&&root.nodeType!==9)return;
- const allowed=root.matches?.('.auth-layout,.sidebar,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal');
- if(!allowed&&!root.closest?.('.auth-layout,.sidebar,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal')){
-  root.querySelectorAll?.('.auth-layout,.sidebar,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal').forEach(translateRoot);
+ const allowed=root.matches?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout');
+ if(!allowed&&!root.closest?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout')){
+  root.querySelectorAll?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout').forEach(translateRoot);
   return;
  }
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
@@ -123,7 +169,7 @@ function selectMarkup(){
  const ready=document.createElement('optgroup');ready.label='Основні мови інтерфейсу';
  const other=document.createElement('optgroup');other.label='Інші мови (переклад готується)';
  for(const [code,name] of languages){
-  const option=document.createElement('option');option.value=code;option.textContent=name;
+  const option=document.createElement('option');option.value=code;option.textContent=languageFlag(code)+'  '+name;
   (translatedLanguages.has(code)?ready:other).append(option);
  }
  select.append(ready,other);select.value=language;
