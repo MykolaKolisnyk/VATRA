@@ -425,6 +425,8 @@ setInterval(()=>{
  lastAdminRecover=Date.now();void renderDashboard();
 },1900);
 window.vatraOpenAdminCenter=openAdmin;
+// The account popover only reveals the link after verifying the server-side staff role.
+window.vatraCanOpenAdminCenter=()=>checkRole();
 async function myReports(){
  if(!signedUid())return;
  show('<section class="vatra-control-card"><h3>Мої звернення до модерації</h3><p>Тут з’являються відповіді адміністратора на Ваші скарги.</p><p class="vatra-control-muted">Завантаження…</p></section>','Мої скарги','myReports');
