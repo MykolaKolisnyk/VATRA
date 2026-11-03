@@ -93,6 +93,44 @@ const additionalEnglish={
  'Відкрити':'Open','Місце для реклами':'Advertising space'
 };
 Object.assign(base,additionalEnglish);
+
+Object.assign(base,{
+ 'Вхід до ВАТРИ':'Sign in to VATRA',
+ 'УКРАЇНСЬКА МЕРЕЖА':'UKRAINIAN NETWORK',
+ 'Готуємо Вашу ВАТРУ':'Preparing your VATRA',
+ 'Ще мить — і Ви у своєму просторі':'Your space is almost ready',
+ 'Завантаження сторінки…':'Loading page…',
+ 'Ваші люди':'Your people','Ваші історії':'Your stories','Ваша ВАТРА':'Your VATRA',
+ 'Про розробника ↗':'About the developer ↗','Про розробника ВАТРИ':'About the creator of VATRA',
+ 'Я самостійно розробляю ВАТРУ':'I am developing VATRA independently',
+ 'Детальніше ↗':'Learn more ↗',
+ 'Потрібна для налаштування вікових функцій. За замовчуванням дата буде приватною.':'Used for age-appropriate features. Your date of birth is private by default.',
+ 'Захист від ботів активується після налаштування CAPTCHA у параметрах авторизації та додавання публічного ключа сайту.':'Bot protection activates after CAPTCHA is configured.',
+ 'Я погоджуюся з':'I agree to',
+ 'та':'and','і підтверджую, що ознайомився(-лася) з':'and confirm that I have read',
+ 'ВАТРИ.':'of VATRA.',
+ '© 2026 ВАТРА · Український простір для своїх':'© 2026 VATRA · Ukrainian social network',
+ 'ВІДНОВЛЕННЯ ДОСТУПУ':'ACCOUNT RECOVERY',
+ 'Повернення до ВАТРИ':'Return to VATRA',
+ 'Куди надіслати підтвердження?':'Where should we send confirmation?',
+ 'Посилання для створення нового пароля':'Password reset link',
+ 'Код у SMS':'Code by SMS','Захист ВАТРИ':'VATRA security',
+ 'Розв’яжіть короткий приклад, щоб продовжити.':'Solve a short exercise to continue.',
+ 'Ця перевірка допомагає захистити акаунти від автоматизованих запитів.':'This check helps protect accounts from automated requests.',
+ 'Код із SMS':'SMS code','Новий пароль':'New password',
+ 'Повторіть новий пароль':'Confirm new password','Надіслати інструкцію':'Send instructions',
+ 'Якщо акаунт існує, повідомлення надійде на вказаний контакт. Не передавайте код нікому.':'If the account exists, you will receive a message at that contact. Never share your code.',
+ 'Зрозуміло':'Got it','Мої скарги':'My reports','Адмінпанель ВАТРИ':'VATRA admin panel',
+ 'Верифікація акаунта':'Account verification','Зв’язатися з техпідтримкою':'Contact support',
+ 'Акаунт і видалення':'Account and deletion','Приватність сторінки':'Profile privacy',
+ 'Життєва позиція':'Life outlook','Кар’єра':'Career','Військова служба':'Military service',
+ 'Захоплення':'Interests','Освіта':'Education',
+ 'Зберегти налаштування':'Save settings','Тема оформлення':'Appearance theme',
+ 'Додаткова інформація профілю':'More profile details',
+ 'Показати всі':'Show all','Усі учасники':'All members',
+ 'Слухати':'Listen','Користувач':'User','Користувач ВАТРИ':'VATRA user'
+});
+
 const flagRegions={uk:'UA',en:'GB',pl:'PL',de:'DE',fr:'FR',es:'ES',pt:'PT',it:'IT',zh:'CN',ja:'JP',ko:'KR',ar:'SA',hi:'IN',yi:'IL',eo:'EU'};
 function languageFlag(code){
  let region=flagRegions[code]||'';
