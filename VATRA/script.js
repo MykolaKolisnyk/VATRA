@@ -2117,13 +2117,13 @@ function notificationItems(){
  for(const [photoId,likes] of Object.entries(myAvatarLikes||{})){
   for(const [actor,record] of Object.entries(likes||{})){
    const createdAt=Number(record?.createdAt)||0;
-   if(createdAt)put({id:'photoLike_'+photoId+'_'+actor,type:'photoLike',actorUid:actor,createdAt});
+   if(createdAt)put({id:'photoLike_'+photoId+'_'+actor,type:'photoLike',actorUid:actor,photoId,createdAt});
   }
  }
  for(const [photoId,messages] of Object.entries(myAvatarComments||{})){
   for(const [commentId,comment] of Object.entries(messages||{})){
    const createdAt=Number(comment?.createdAt)||0;
-   if(createdAt)put({id:'photoComment_'+photoId+'_'+commentId,type:'photoComment',actorUid:comment.uid,createdAt,excerpt:String(comment.text||'').slice(0,100)});
+   if(createdAt)put({id:'photoComment_'+photoId+'_'+commentId,type:'photoComment',actorUid:comment.uid,photoId,createdAt,excerpt:String(comment.text||'').slice(0,100)});
   }
  }
   for(const [gid,setting] of Object.entries(communityNotifyPreferences||{})){
@@ -2174,9 +2174,9 @@ function renderNotifications(){
   else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
   else if(n.type==='reply'){title=name+' відповів(-ла) на Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
   else if(n.type==='commentLike'){title=name+' вподобав(-ла) Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
-    else if(n.type==='photoLike'){title=name+' вподобав(-ла) Ваше фото';attr='data-notification-profile="true"';}
-    else if(n.type==='photoComment'){title=name+' прокоментував(-ла) Ваше фото';attr='data-notification-profile="true"';}
-  else if(n.type==='groupPost'){title='Новий допис у спільноті '+esc(groups[n.groupId]?.name||'ВАТРА');attr='data-notification-group="'+esc(n.groupId)+'"';}
+    else if(n.type==='photoLike'){title=name+' вподобав(-ла) Ваше фото';attr='data-notification-avatar="'+esc(n.photoId)+'"';}
+    else if(n.type==='photoComment'){title=name+' прокоментував(-ла) Ваше фото';attr='data-notification-avatar="'+esc(n.photoId)+'"';}
+  else if(n.type==='groupPost'){title='Новий допис у спільноті '+esc(groups[n.groupId]?.name||'ВАТРА');attr='data-notification-group="'+esc(n.groupId)+'" data-notification-group-post="'+esc(n.postId)+'"';}
   else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
   return '<button type="button" class="notification-item '+(n.unread?'is-unread':'')+'" '+attr+'>'+
    (n.type==='verified'?'<span class="vatra-system-notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg></span>':avatar(u.name||'Користувач',u.avatarUrl))+
@@ -2813,18 +2813,49 @@ document.addEventListener('click',async e=>{
   }catch(error){toastMsg(niceError(error));}finally{groupBell.disabled=false;}
   return;
  }
- const notifProfile=e.target.closest('[data-notification-profile]');if(notifProfile){e.preventDefault();goPage('profile');return;}
+ const notifAvatar=e.target.closest('[data-notification-avatar]');
+ if(notifAvatar){
+  e.preventDefault();
+  const photoId=notifAvatar.dataset.notificationAvatar;
+  const urls=[currentProfile.avatarUrl,...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[])].filter(Boolean);
+  const idx=urls.findIndex(url=>avatarPhotoKey(url)===photoId);
+  goPage('profile');
+  if(idx>=0)setTimeout(()=>void openAvatarViewer(currentUser.uid,urls,idx),90);
+  else document.querySelector('.vatra-profile-photos')?.scrollIntoView({block:'start'});
+  return;
+ }
  const notifGroup=e.target.closest('[data-notification-group]');
  if(notifGroup){
   e.preventDefault();const gid=notifGroup.dataset.notificationGroup;
-  if(groups[gid]){goPage('groups');setTimeout(()=>renderGroupDetail(gid),50);}return;
+  const postId=notifGroup.dataset.notificationGroupPost;
+  if(groups[gid]){
+   goPage('groups');
+   renderGroupDetails(gid);
+   if(postId){
+    const focus=()=>{
+     const element=document.getElementById('post-'+postId);
+     if(!element)return false;
+     element.scrollIntoView({behavior:'smooth',block:'center'});
+     return true;
+    };
+    if(!focus()){
+     const box=document.querySelector('#feed');
+     if(box){
+      const observer=new MutationObserver(()=>{if(focus())observer.disconnect();});
+      observer.observe(box,{subtree:true,childList:true});
+      setTimeout(()=>observer.disconnect(),7000);
+     }
+    }
+   }
+  }
+  return;
  }
  const noticeLink=e.target.closest('[data-verification-notice]');
  if(noticeLink){
   e.preventDefault();
   const notice=(window.vatraTrustedNotices||[]).find(n=>String(n.id)===noticeLink.dataset.verificationNotice);
   if(['group','community'].includes(notice?.targetKind)){
-   if(groups[notice.targetId]){goPage('groups');setTimeout(()=>renderGroupDetail(notice.targetId),50);}
+   if(groups[notice.targetId]){goPage('groups');setTimeout(()=>renderGroupDetails(notice.targetId),50);}
   }else if(String(notice?.title||'').includes('роль'))window.vatraOpenAdminCenter?.();
   else goPage('profile');
   return;
@@ -3015,9 +3046,9 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
    else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
    else if(n.type==='reply'){title=name+' відповів(-ла) на Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
    else if(n.type==='commentLike'){title=name+' вподобав(-ла) Ваш коментар';attr='data-notification-post="'+esc(n.postId)+'"';}
-    else if(n.type==='photoLike'){title=name+' вподобав(-ла) Ваше фото';attr='data-notification-profile="true"';}
-    else if(n.type==='photoComment'){title=name+' прокоментував(-ла) Ваше фото';attr='data-notification-profile="true"';}
-   else if(n.type==='groupPost'){title='Новий допис у спільноті '+esc(groups[n.groupId]?.name||'ВАТРА');attr='data-notification-group="'+esc(n.groupId)+'"';}
+    else if(n.type==='photoLike'){title=name+' вподобав(-ла) Ваше фото';attr='data-notification-avatar="'+esc(n.photoId)+'"';}
+    else if(n.type==='photoComment'){title=name+' прокоментував(-ла) Ваше фото';attr='data-notification-avatar="'+esc(n.photoId)+'"';}
+   else if(n.type==='groupPost'){title='Новий допис у спільноті '+esc(groups[n.groupId]?.name||'ВАТРА');attr='data-notification-group="'+esc(n.groupId)+'" data-notification-group-post="'+esc(n.postId)+'"';}
    else{title=name+' надіслав(-ла) запит у друзі';attr='data-notification-friends="true"';}
    return '<button type="button" class="topbar-notification-row '+(n.unread?'is-unread':'')+'" '+attr+'>'+
     (n.type==='verified'?'<span class="vatra-system-notice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4 10-10"/></svg></span>':avatar(u.name||'Користувач',u.avatarUrl))+
@@ -3081,7 +3112,7 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
    else if(action==='logout')q('#authButton')?.click();
    return;
   }
-  if(event.target.closest('[data-notification-post],[data-notification-profile],[data-notification-friends],[data-notification-chat],[data-notification-group],[data-verification-notice]'))closeTopbarMenus();
+  if(event.target.closest('[data-notification-post],[data-notification-avatar],[data-notification-friends],[data-notification-chat],[data-notification-group],[data-verification-notice]'))closeTopbarMenus();
   if(event.target.closest('[data-notifications-view-all]')){closeTopbarMenus();vatraNotificationsFilter='all';goPage('notifications');return;}
   if(event.target.closest('[data-vatra-popup-mark-read]')){markNotificationsRead();renderNotificationDropdown();return;}
   const soundButton=event.target.closest('[data-vatra-sound-toggle]');
