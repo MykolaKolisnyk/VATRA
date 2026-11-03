@@ -182,7 +182,7 @@ async function showPublicGifts(uid){
   if(!dialog.open)return;
   const items=Array.isArray(rows)?rows:[];
   dialog.innerHTML='<div class="vatra-public-gift-header"><h2>Подарунки <small>'+items.length+'</small></h2><button type="button" data-vatra-public-gifts-close>Закрити</button></div>'+
-  (items.length?'<div class="vatra-gifts-grid">'+items.map(x=>card(x,false).replace(/<button[^>]*data-vatra-order[^>]*>.*?<\/button>/g,'')).join('')+'</div>':'<p class="vatra-gift-empty">Подарунки недоступні або приховані власником.</p>');
+  (items.length?'<div class="vatra-gifts-grid">'+items.map(x=>card(x,false).replace(/<button[^>]*class="vatra-gift-purchase-disabled"[^>]*>.*?<\/button><small class="vatra-gift-purchase-note">.*?<\/small>/g,'')).join('')+'</div>':'<p class="vatra-gift-empty">Подарунки недоступні або приховані власником.</p>');
  }catch(err){dialog.innerHTML='<div class="vatra-public-gift-header"><h2>Подарунки</h2><button type="button" data-vatra-public-gifts-close>Закрити</button></div><p>Не вдалося завантажити подарунки.</p>';}
 }
 async function refreshPreview(el,owner){
