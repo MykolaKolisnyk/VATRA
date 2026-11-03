@@ -12,7 +12,7 @@ window.__vatraBackendLoaded=true;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const navigation=setupNavigation(p=>goPage(p));
 const modal=$('#composer'), authDialog=$('#authDialog'), feed=$('#feed'), toast=$('#toast');
-let verifiedUsers={},currentUser=null,currentProfile={},privateDateOfBirth='',privatePhone='',privatePendingPhone='',privateProfileSections={},activityReadAt=0,chatReads={},users={},friendProfiles={},posts={},likes={},comments={},pollVotes={},postSaves={},postShares={},saved={},following={},blockedUsers={},videos={},groups={},groupMembers={},groupAdmins={},groupModerators={},groupPostsCache={},friendRequests={},friends={},chatIndex={},chatLiveIndex={},chatOwnedIndex={},activeChat=null,activeChatBlocked=false,activeProfileUid=null,reportingTarget=null,chatMessages={},unsubscribers=[],page='feed',filter='all',query='',authMode='login',imageFile=null,videoFile=null,groupId=null,editingPostId=null,replyingComment=null,imageFiles=[],editPostFiles=[],editPostPreviewUrls=[],imagePreviewUrls=[];
+let communityNotifyPreferences={},verifiedUsers={},currentUser=null,currentProfile={},privateDateOfBirth='',privatePhone='',privatePendingPhone='',privateProfileSections={},activityReadAt=0,chatReads={},users={},friendProfiles={},posts={},likes={},comments={},pollVotes={},postSaves={},postShares={},saved={},following={},blockedUsers={},videos={},groups={},groupMembers={},groupAdmins={},groupModerators={},groupPostsCache={},friendRequests={},friends={},chatIndex={},chatLiveIndex={},chatOwnedIndex={},activeChat=null,activeChatBlocked=false,activeProfileUid=null,reportingTarget=null,chatMessages={},unsubscribers=[],page='feed',filter='all',query='',authMode='login',imageFile=null,videoFile=null,groupId=null,editingPostId=null,replyingComment=null,imageFiles=[],editPostFiles=[],editPostPreviewUrls=[],imagePreviewUrls=[];
 let profileAttributeSearch=null;
 const MAX_POST_TEXT=20000,MAX_IMAGE=15*1024*1024,MAX_VIDEO=50*1024*1024,EMOJIS=['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦'];const VATRA_EMOJI_CATEGORIES=[
  {id:'popular',label:'Часті',icon:'★',emojis:['😀','😂','🥰','😍','😊','😉','😎','😭','❤️','🔥','👍','🙏','🎉','🤔','😢','👏','💙','✨','🌻','🇺🇦','🫶','💯','🥹','🙌','🤝','🫡','😴','✅']},
@@ -262,7 +262,7 @@ function listenData(){stopListeners();if(!currentUser)return;vatraSoundSources.c
 }));
  unsubscribers.push(watch(`users/${currentUser.uid}`,v=>{markInitialLoaded('users');const profile=v||{};currentProfile={...profile,privateSections:privateProfileSections,dateOfBirth:privateDateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone,lastSeenAt:Number(users[currentUser.uid]?.lastSeenAt)||Number(profile.lastSeenAt)||0,isOnline:users[currentUser.uid]?.isOnline===true};updateIdentity();if(!vatraSettingsSaving){const publicData=publicProfileData(currentProfile);if(JSON.stringify(users[currentUser.uid]||{})!==JSON.stringify(publicData))set(ref(db,`publicProfiles/${currentUser.uid}`),publicData).catch(err=>console.warn('Profile sync failed:',err));const friendData=friendProfileData(currentProfile);if(JSON.stringify(friendProfiles[currentUser.uid]||{})!==JSON.stringify(friendData))set(ref(db,`friendProfiles/${currentUser.uid}`),friendData).catch(err=>console.warn('Friend profile sync failed:',err));}if(page==='profile'||(page==='settings'&&!$('#profileSettingsForm')))render();else renderGettingStarted();}));
  unsubscribers.push(watch('posts',v=>{posts=v;markInitialLoaded('posts');if(['feed','saved','profile','notifications','explore','myVideos'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postLikes',v=>{likes=v;vatraSoundSourceLoaded('postLikes');if(['feed','saved','profile','notifications','explore','groups'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postSaves',v=>{postSaves=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('postShares',v=>{postShares=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('comments',v=>{comments=v;vatraSoundSourceLoaded('comments');if(['feed','saved','profile','notifications','explore','groups'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('pollVotes',v=>{pollVotes=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));
- unsubscribers.push(watch(`saved/${currentUser.uid}`,v=>{saved=v;vatraPageDataReady.saved=true;Object.keys(saved||{}).forEach(id=>{if(!postSaves[id]?.[currentUser.uid])set(ref(db,`postSaves/${id}/${currentUser.uid}`),{createdAt:Date.now()}).catch(error=>console.warn('Save counter index unavailable; apply app-data-schema.sql:',error));});if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));unsubscribers.push(watch(`following/${currentUser.uid}`,v=>{following=v;if(page==='feed'||page==='explore'||page==='profile')render();}));unsubscribers.push(watch('videos',v=>{videos=v; if(page==='videos'||page==='myVideos')render();}));unsubscribers.push(watch('groups',v=>{groups=v;markInitialLoaded('groups');if(page==='groups'||page==='groupSettings'||page==='explore')render();}));unsubscribers.push(watch('groupAdmins',v=>{groupAdmins=v;if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch('groupModerators',v=>{groupModerators=v||{};if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch(`groupMembers`,v=>{groupMembers=v;if(page==='groups'||page==='groupSettings'||page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch('groupPosts',v=>{groupPostsCache=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));unsubscribers.push(watch(`friendRequests/${currentUser.uid}`,v=>{friendRequests=v;vatraPageDataReady.friends=true;vatraSoundSourceLoaded('friendRequests');friendRequestsLoaded=true;maybeRepairAcceptedFriendships();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='notifications')render();updateNotificationBadges();}));unsubscribers.push(watch(`friends/${currentUser.uid}`,v=>{friends=v;friendsLoaded=true;maybeRepairAcceptedFriendships();markInitialLoaded('friends');if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='profile')render();else renderGettingStarted();}));unsubscribers.push(watch(`userChats/${currentUser.uid}`,v=>{
+ unsubscribers.push(watch(`saved/${currentUser.uid}`,v=>{saved=v;vatraPageDataReady.saved=true;Object.keys(saved||{}).forEach(id=>{if(!postSaves[id]?.[currentUser.uid])set(ref(db,`postSaves/${id}/${currentUser.uid}`),{createdAt:Date.now()}).catch(error=>console.warn('Save counter index unavailable; apply app-data-schema.sql:',error));});if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));unsubscribers.push(watch(`following/${currentUser.uid}`,v=>{following=v;if(page==='feed'||page==='explore'||page==='profile')render();}));unsubscribers.push(watch('videos',v=>{videos=v; if(page==='videos'||page==='myVideos')render();}));unsubscribers.push(watch('groups',v=>{groups=v;markInitialLoaded('groups');if(page==='groups'||page==='groupSettings'||page==='explore')render();}));unsubscribers.push(watch('groupAdmins',v=>{groupAdmins=v;if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch('groupModerators',v=>{groupModerators=v||{};if(page==='groups'||page==='groupSettings')render();}));unsubscribers.push(watch(`groupMembers`,v=>{groupMembers=v;if(page==='groups'||page==='groupSettings'||page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch('groupPosts',v=>{groupPostsCache=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();updateNotificationBadges();}));unsubscribers.push(watch('groupNotifications/'+currentUser.uid,v=>{communityNotifyPreferences=v||{};updateNotificationBadges();}));unsubscribers.push(watch(`friendRequests/${currentUser.uid}`,v=>{friendRequests=v;vatraPageDataReady.friends=true;vatraSoundSourceLoaded('friendRequests');friendRequestsLoaded=true;maybeRepairAcceptedFriendships();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='notifications')render();updateNotificationBadges();}));unsubscribers.push(watch(`friends/${currentUser.uid}`,v=>{friends=v;friendsLoaded=true;maybeRepairAcceptedFriendships();markInitialLoaded('friends');if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='profile')render();else renderGettingStarted();}));unsubscribers.push(watch(`userChats/${currentUser.uid}`,v=>{
  vatraPageDataReady.messages=true;chatOwnedIndex=v||{};vatraSoundSourceLoaded('userChats');rebuildVisibleChatIndex();
  if((page==='messages'&&!activeChat)||page==='notifications')render();
  updateNotificationBadges();
@@ -2046,13 +2046,60 @@ function vatraMonitorSounds(items){
  if(newMessage||newOther)vatraBeep(newMessage?'message':'notification');
 }
 
-function notificationItems(){if(!currentUser)return [];const items=[...(window.vatraTrustedNotices||[]).map(n=>({...n,unread:n.createdAt>activityReadAt}))],uid=currentUser.uid;Object.entries(posts).forEach(([postId,p])=>{if(p.authorUid!==uid)return;Object.entries(likes[postId]||{}).forEach(([actor,value])=>{const createdAt=Number(value&&typeof value==='object'?value.createdAt:0);if(actor!==uid&&!blockedUsers[actor]&&createdAt)items.push({id:'like_'+postId+'_'+actor,type:'like',actorUid:actor,createdAt,postId,unread:createdAt>activityReadAt});});Object.entries(comments[postId]||{}).forEach(([commentId,c])=>{const createdAt=Number(c.createdAt)||0;if(c.uid!==uid&&!blockedUsers[c.uid]&&createdAt)items.push({id:'comment_'+postId+'_'+commentId,type:'comment',actorUid:c.uid,createdAt,postId,excerpt:String(c.text||'').slice(0,100),unread:createdAt>activityReadAt});});});Object.entries(friendRequests).forEach(([actor,r])=>{if(!r||actor===uid||blockedUsers[actor]||r.status!=='pending'||r.direction!=='incoming')return;const createdAt=Number(r.createdAt)||0;items.push({id:'friend_'+actor,type:'friend',actorUid:actor,createdAt,unread:createdAt>activityReadAt});});return items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));}
+function notificationItems(){
+ if(!currentUser)return [];
+ const uid=currentUser.uid;
+ const items=[...(window.vatraTrustedNotices||[]).map(n=>({...n,unread:n.createdAt>activityReadAt}))];
+ const put=n=>{if(n.actorUid===uid||blockedUsers[n.actorUid])return;items.push({...n,unread:n.createdAt>activityReadAt});};
+ for(const [postId,p] of Object.entries(posts||{})){
+  if(p.authorUid!==uid)continue;
+  for(const [actor,value] of Object.entries(likes[postId]||{})){
+   const createdAt=Number(value&&typeof value==='object'?value.createdAt:0);
+   if(createdAt)put({id:'like_'+postId+'_'+actor,type:'like',actorUid:actor,postId,createdAt});
+  }
+ }
+ for(const [postId,map] of Object.entries(comments||{})){
+  const parentPost=posts?.[postId]||null;
+  for(const [commentId,c] of Object.entries(map||{})){
+   if(!c||typeof c!=='object')continue;
+   const createdAt=Number(c.createdAt)||0;
+   const parent=c.replyTo?map?.[c.replyTo]:null;
+   if(createdAt&&parent?.uid===uid&&c.uid!==uid){
+    put({id:'reply_'+postId+'_'+commentId,type:'reply',actorUid:c.uid,postId,commentId,createdAt,excerpt:String(c.text||'').slice(0,100)});
+   }else if(createdAt&&parentPost?.authorUid===uid&&c.uid!==uid){
+    put({id:'comment_'+postId+'_'+commentId,type:'comment',actorUid:c.uid,postId,commentId,createdAt,excerpt:String(c.text||'').slice(0,100)});
+   }
+   if(c.uid===uid){
+    for(const [actor,record] of Object.entries(c.likedBy||{})){
+     const likedAt=Number(record&&typeof record==='object'?record.createdAt:0);
+     if(likedAt)put({id:'commentLike_'+postId+'_'+commentId+'_'+actor,type:'commentLike',actorUid:actor,postId,commentId,createdAt:likedAt});
+    }
+   }
+  }
+ }
+ for(const [gid,setting] of Object.entries(communityNotifyPreferences||{})){
+  const from=Number(setting?.enabledAt)||0;
+  if(!from||setting?.enabled!==true)continue;
+  for(const [postId,p] of Object.entries(groupPostsCache?.[gid]||{})){
+   const createdAt=Number(p?.createdAt)||0;
+   if(createdAt>from&&p?.authorUid!==uid){
+    put({id:'groupPost_'+gid+'_'+postId,type:'groupPost',actorUid:p.authorUid,groupId:gid,postId:'g_'+gid+'_'+postId,createdAt});
+   }
+  }
+ }
+ for(const [actor,r] of Object.entries(friendRequests||{})){
+  if(!r||r.status!=='pending'||r.direction!=='incoming')continue;
+  const createdAt=Number(r.createdAt)||0;
+  if(createdAt)put({id:'friend_'+actor,type:'friend',actorUid:actor,createdAt});
+ }
+ return items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+}
 function updateNotificationBadges(){updateMessageNavBadge();const items=notificationItems();vatraMonitorSounds(items);const count=items.filter(x=>x.unread).length,incoming=Object.entries(friendRequests).filter(([uid,x])=>x&&!friends[uid]&&!blockedUsers[uid]&&x.status==='pending'&&x.direction==='incoming').length;['notificationBadge','notificationNavBadge'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.textContent=count>99?'99+':String(count);el.hidden=count===0;});const friendBadge=document.getElementById('friendsNavBadge');if(friendBadge){friendBadge.textContent=incoming>99?'99+':String(incoming);friendBadge.hidden=incoming===0;}}
 function updateMessageNavBadge(){
  const badge=document.getElementById('messagesNavBadge');
  if(!badge)return;
- const count=Object.entries(chatIndex||{}).filter(([key,c])=>c?.lastMessage?.senderUid&&c.lastMessage.senderUid!==currentUser?.uid&&Number(c.lastMessage.createdAt||0)>Number(chatReads[key]||0)).length+Number(window.vatraGroupUnreadCount||0);
- badge.textContent=count>99?'99+':String(count);badge.hidden=count===0;
+ const writers=new Set(Object.entries(chatIndex||{}).filter(([key,c])=>c?.lastMessage?.senderUid&&c.lastMessage.senderUid!==currentUser?.uid&&Number(c.lastMessage.createdAt||0)>Number(chatReads[key]||0)).map(([,c])=>c.lastMessage.senderUid));for(const uid of window.vatraGroupUnreadSenders||[])if(uid&&uid!==currentUser?.uid)writers.add(uid);const count=writers.size;
+ badge.textContent=count?(count>99?'99+':String(count)):'';badge.hidden=count===0;
  badge.setAttribute('aria-label',count+' непрочитаних діалогів');
 }
 window.vatraRefreshMessageBadge=updateMessageNavBadge;
@@ -3109,7 +3156,7 @@ document.addEventListener('click',async event=>{
  try{
   const snapshot=await get(ref(db,path));
   if(snapshot.exists())await remove(ref(db,path));
-  else await set(ref(db,path),true);
+  else await set(ref(db,path),{createdAt:Date.now()});
  }catch(error){like.disabled=false;toastMsg(niceError(error));}
 });
 
