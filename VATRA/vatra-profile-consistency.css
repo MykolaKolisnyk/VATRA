@@ -91,3 +91,20 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-pr
 @media (prefers-reduced-motion:reduce){
  body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger{transition:none!important}
 }
+
+/* Profile cleanup: no redundant counters in the overview and no fake biography folding. */
+body[data-page="profile"] .vatra-profile-overview>.vatra-profile-stats,
+body[data-page="publicProfile"] .vatra-profile-overview>.vatra-profile-stats{
+  display:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-full{
+  display:block!important;
+  -webkit-line-clamp:unset!important;
+  line-clamp:unset!important;
+  -webkit-box-orient:initial!important;
+  max-height:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:pre-wrap!important;
+  overflow-wrap:anywhere!important;
+}

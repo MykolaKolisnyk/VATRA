@@ -680,20 +680,9 @@ async function openAvatarViewer(ownerUid,photoUrls,startIndex=0){
  dialog.showModal();
 }
 function profileBioMarkup(text){
- const safe=esc(text||'');
- if(String(text||'').length<=95)return '<p class="vatra-profile-bio">'+safe+'</p>';
- return '<div class="vatra-profile-bio-block"><p class="vatra-profile-bio" id="vatraProfileBio">'+safe+'</p><button type="button" class="vatra-profile-bio-toggle" data-toggle-profile-bio aria-controls="vatraProfileBio" aria-expanded="false">Показати весь опис</button></div>';
+ // Show the complete "Про себе" description. A toggle is meaningless when no text is hidden.
+ return '<p class="vatra-profile-bio vatra-profile-bio-full">'+esc(text||'')+'</p>';
 }
-document.addEventListener('click',event=>{
- const button=event.target.closest('[data-toggle-profile-bio]');
- if(!button)return;
- const block=button.closest('.vatra-profile-bio-block');
- if(!block)return;
- const expanded=block.classList.toggle('is-expanded');
- button.setAttribute('aria-expanded',String(expanded));
- button.textContent=expanded?'Згорнути опис':'Показати весь опис';
-});
-
 const VATRA_SEARCH_FIELDS=new Set(['city','location','workplace','education','hometown']);
 function profileDetailMarkup(label,value,field=''){
  if(!value)return '';
@@ -739,11 +728,6 @@ document.addEventListener('click',event=>{
   query='';const input=$('#search');if(input)input.value='';
   goPage('explore');return;
  }
- const stat=event.target.closest('[data-profile-stat]');
- if(!stat)return;
- const action=stat.dataset.profileStat;
- if(['friends','photos','videos'].includes(action))goPage(action==='videos'?'myVideos':action);
- else if(action==='posts')document.getElementById('vatraProfilePosts')?.scrollIntoView({behavior:'smooth',block:'start'});
 });
 
 const VATRA_PROFILE_EXTRA_SECTIONS={
@@ -839,8 +823,6 @@ function renderProfile(){
  const detailHtml=detail('День народження',birthday)+detail('Місце проживання',currentProfile.location,'location')+detail('Рідне місто',currentProfile.hometown,'hometown')+detail('Телефон',currentProfile.phone||privatePhone||currentProfile.pendingPhone||privatePendingPhone)+(currentProfile.pendingPhone&&!privatePhone?'<p class="vatra-profile-pending-phone">Номер очікує підтвердження. Доступний лише Вам.</p>':'')+detail('Вебсайт',currentProfile.website);
  const selfExtras=vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid);
  const hasExtraDetails=Boolean(detailHtml||selfExtras);
- const myVideos=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
- const stats='<div class="vatra-profile-stats"><button type="button" data-profile-stat="friends"><b>'+friendIds.length+'</b><span>Друзі</span></button><button type="button" data-profile-stat="photos"><b>'+gallery.length+'</b><span>Фотографії</span></button><button type="button" data-profile-stat="videos"><b>'+myVideos+'</b><span>Відео</span></button><button type="button" data-profile-stat="posts"><b>'+mine.length+'</b><span>Дописи</span></button></div>';
  const profileHtml='<section class="vatra-profile-layout">'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card">'+
@@ -865,7 +847,6 @@ function renderProfile(){
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
     '<div class="vatra-profile-details">'+vatraProfileMainFacts({gender:vatraGenderLabel(currentProfile.gender),city:currentProfile.city,workplace:currentProfile.workplace,education:currentProfile.education})+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+selfExtras+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf'):'')+
-    stats+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><a class="vatra-profile-link" id="profileViewPhotos" href="#/photos">Усі фото</a><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
    '<section class="vatra-profile-card vatra-profile-compose"><button type="button" class="vatra-profile-compose-trigger" id="profilePrompt">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-compose-avatar')+'<span>Що у Вас нового?</span><b>＋</b></button></section>'+
@@ -1132,7 +1113,6 @@ function renderPublicProfile(uid){
   const photoHtml=photoUrls.length?'<div class="profile-photo-gallery">'+photoUrls.slice(0,4).map((url,index)=>'<div class="profile-photo-tile"><button type="button" class="profile-gallery-open" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="'+index+'" aria-label="Відкрити фото '+(index+1)+'"><img class="profile-gallery-image" loading="lazy" decoding="async" src="'+esc(url)+'" alt="Фото користувача"></button>'+vatraProfilePhotoDateMarkup(photoDateByUrl.get(url))+'</div>').join('')+'</div>'+'<a class="vatra-profile-link profile-gallery-all" href="#/profile/'+encodeURIComponent(uid)+'/photos" data-vatra-open-public-photos="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</a>':'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
  const publicExtras=vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends);
  const hasExtraDetails=Boolean(birthdayLabel||location||hometown||phone||visibleWebsite||publicExtras);
- const videoCount=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
  const actions=vatraPublicProfileActions(uid);
  const html='<section class="vatra-profile-layout vatra-profile-public-layout">'+
   '<aside class="vatra-profile-sidebar"><section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'vatra-profile-photo')+'</button>'+actions+'</section><section class="vatra-profile-card vatra-profile-friends vatra-profile-public-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b id="vatraPublicFriendCount">…</b></div><div id="vatraPublicFriendList" class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;"><p class="muted">Завантажуємо список друзів…</p></div><button type="button" class="vatra-profile-link" id="vatraPublicAllFriends">Усі друзі →</button></section></aside>'+
@@ -1145,7 +1125,6 @@ function renderPublicProfile(uid){
     '<div class="vatra-profile-details">'+vatraProfileMainFacts({gender:vatraGenderLabel(u.gender),city,workplace,education})+'</div>'+(hasExtraDetails?'<div class="vatra-profile-more" role="region" aria-label="Додаткова інформація профілю" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
     detail('День народження',birthdayLabel)+detail('Місце проживання',location,'location')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite)+publicExtras+
     '</div>'+vatraProfileMoreButton(uid,'vatraProfileMorePublic'):'')+
-    '<div class="vatra-profile-stats"><div><b>'+arr.length+'</b><span>Дописи</span></div><div><b>'+photoUrls.length+'</b><span>Фотографії</span></div><div><b>'+videoCount+'</b><span>Відео</span></div></div>'+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+publicAlbumMarkup+photoHtml+'</section>'+
    '<section class="vatra-profile-posts vatra-profile-posts-clean"><div class="vatra-profile-post-tabs"><div class="vatra-profile-posts-title"><h3>Дописи</h3><span>'+arr.length+'</span></div></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
