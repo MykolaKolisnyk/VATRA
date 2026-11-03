@@ -227,7 +227,7 @@ async function loadFavorites(uid){
   const raw=snapshot.val(),array=Array.isArray(raw)?raw:[];
   musicFavorites=new Set(array.filter(x=>typeof x==='string'&&musicIndex.has(x)).slice(0,200));
   musicLoaded=true;musicLoadError='';
- }catch(error){if(musicUid===uid){musicLoadError='Не вдалося завантажити обране з Supabase. Перевірте з’єднання.';console.warn('[ВАТРА] Обране музики:',error);}}
+ }catch(error){if(musicUid===uid){musicLoadError='Не вдалося завантажити обрану музику. Перевірте з’єднання.';console.warn('[ВАТРА] Обране музики:',error);}}
  finally{musicLoading=false;if(musicUid===uid&&document.body.dataset.page==='music')renderMusic();}
 }
 function renderMusic(){
@@ -270,7 +270,7 @@ async function favorite(item,button){
   musicFavorites=next;
   refreshCards();
   notify(next.has(key(item))?'Додано до «Моєї музики».':'Прибрано з «Моєї музики».');
- }catch(error){button.disabled=false;notify('Не вдалося зберегти у Supabase. Спробуйте ще раз.',true);console.warn('[ВАТРА] Музика не збережена:',error);}
+ }catch(error){button.disabled=false;notify('Не вдалося зберегти композицію. Спробуйте ще раз.',true);console.warn('[ВАТРА] Музика не збережена:',error);}
 }
 if(musicHeader){
  musicHeader.addEventListener('click',event=>{
