@@ -1,0 +1,35 @@
+name: VATRA public search pages
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 */6 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "tools/build-vatra-seo.mjs"
+      - ".github/workflows/vatra-seo.yml"
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: vatra-seo-generator
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node tools/build-vatra-seo.mjs
+      - name: Publish public profile and community snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A VATRA/people VATRA/communities VATRA/sitemap.xml
+          if ! git diff --cached --quiet; then
+            git commit -m "seo: refresh indexable public VATRA pages"
+            git push
+          fi
