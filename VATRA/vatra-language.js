@@ -142,6 +142,14 @@ function install(){
   const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');wrap.append(hint);
   auth.insertAdjacentElement('afterend',wrap);
  }
+ const languageMount=document.querySelector('.vatra-language-settings-mount');
+ if(languageMount&&!languageMount.querySelector('.vatra-language-select')){
+  const row=document.createElement('label');row.className='vatra-language-pref vatra-language-dedicated';
+  const heading=document.createElement('span');heading.textContent='Мова сайту';
+  const selector=selectMarkup();selector.name='preferredLanguage';row.append(heading,selector);
+  const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');row.append(hint);
+  languageMount.append(row);
+ }
  const appearance=document.querySelector('.interface-settings-card .settings-grid');
  if(appearance&&!appearance.querySelector('.vatra-language-pref')){
   const wrap=document.createElement('label');wrap.className='vatra-language-pref';
