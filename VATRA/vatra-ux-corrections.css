@@ -105,9 +105,9 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
 /* Force true content-sized centered native confirmation, never viewport-height. */
 html body #vatraConfirmDialog.vatra-native-dialog.vatra-confirm-dialog[open]{
  position:fixed!important;
+ inset:auto!important;
  top:50%!important;left:50%!important;
  right:auto!important;bottom:auto!important;
- inset:auto!important;
  transform:translate(-50%,-50%)!important;
  margin:0!important;
  display:block!important;
