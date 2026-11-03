@@ -376,3 +376,13 @@ body .vatra-search-history-row button:last-child:hover{background:#e5ecf2!import
 body .vatra-search-history-empty{padding:13px!important;color:#8494a4!important;font:500 12px system-ui,sans-serif!important}
 body.vatra-photo-menu-suppressed .vatra-avatar-hover-menu{opacity:0!important;pointer-events:none!important;transform:translateY(8px)!important}
 body.vatra-photo-menu-suppressed .vatra-avatar-hover-wrap>.vatra-profile-avatar-open>.vatra-profile-photo{filter:none!important}
+
+body .vatra-search-history-anchor{position:relative!important;overflow:visible!important}
+body .vatra-search-history-anchor>.vatra-search-history{min-width:min(300px,calc(100vw - 32px))!important;max-width:min(430px,calc(100vw - 32px))!important;width:100%!important;box-sizing:border-box!important}
+body .vatra-search-history-anchor:focus-within{outline:none!important}
+body .vatra-lifecycle-retry{margin:12px 0 2px!important;min-height:38px!important;padding:9px 15px!important;border:1px solid #d7e2ec!important;border-radius:8px!important;background:#f3f6f9!important;color:#425b76!important;font:600 12px Inter,system-ui,sans-serif!important;box-shadow:none!important;cursor:pointer!important}
+body .vatra-lifecycle-retry:hover{background:#eaf0f6!important}
+body :is(.settings-page,.community-settings-page) :is(input[type=text],input[type=email],input[type=tel],input[type=number],input[type=search],textarea,select):focus:not(:focus-visible){
+ outline:none!important;box-shadow:none!important;border-color:#c2ccd7!important}
+body :is(.settings-page,.community-settings-page) :is(input,textarea,select):focus-visible{
+ box-shadow:none!important;outline:2px solid #71849a!important;outline-offset:1px!important}
