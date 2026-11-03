@@ -213,3 +213,61 @@ body[data-vatra-theme-effective="dark"] .settings-page[data-vatra-settings-conte
  body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>.settings-photo-row{padding:16px!important}
  body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-visibility{width:100%!important;justify-content:space-between!important}
 }
+
+/* Additional independent settings panels: notifications and blacklist. */
+body .settings-page[data-vatra-settings-context="settings"] .vatra-settings-pane[data-settings-section="notifications"] .settings-grid{
+ display:flex!important;flex-direction:column!important;gap:0!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:space-between!important;gap:16px!important;min-height:55px!important;
+ margin:0!important;padding:12px 3px!important;border-bottom:1px solid #e7edf5!important;
+ color:#47617e!important;font:600 13px/1.4 Inter,system-ui,sans-serif!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting:last-child{border-bottom:0!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting span{flex:1 1 auto!important;min-width:0!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting input[type="checkbox"]{
+ width:39px!important;height:22px!important;flex:0 0 auto!important;
+ accent-color:#0757f5!important;cursor:pointer!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-add{
+ margin:14px 0 20px!important;padding:14px!important;
+ background:#f6f9fc!important;border:1px solid #e0e8f2!important;border-radius:11px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-add>label{
+ display:block!important;margin:0 0 9px!important;
+ font-size:12px!important;font-weight:650!important;color:#506c89!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] #vatraBlockedLookup{
+ display:block!important;box-sizing:border-box!important;min-height:42px!important;
+ width:100%!important;max-width:100%!important;padding:10px 12px!important;
+ border:1px solid #d4dfea!important;border-radius:9px!important;
+ background:#fff!important;color:#233d5a!important;font-size:13px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-results{
+ display:flex!important;flex-direction:column!important;gap:7px!important;margin-top:11px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:10px!important;flex-wrap:wrap!important;padding:9px!important;
+ background:#fff!important;border:1px solid #dfe7f1!important;border-radius:9px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>span{
+ display:flex!important;align-items:center!important;min-width:0!important;gap:9px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>span b{font-size:12px!important;color:#304d68!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>span small{font-size:11px!important;color:#8ca0b6!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>button{
+ min-height:34px!important;padding:7px 12px!important;border-radius:8px!important;
+ background:#fff4f6!important;border:1px solid #f1cbd2!important;
+ color:#b13c54!important;font-size:12px!important;font-weight:650!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page .vatra-notify-setting{
+ color:#d5e2f1!important;border-color:#3a5068!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page :is(.vatra-blocked-add,.vatra-blocked-result){
+ background:#2a3b50!important;border-color:#4a5c73!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page #vatraBlockedLookup{
+ background:#1f2d40!important;border-color:#52657d!important;color:#f5f9ff!important;
+}
