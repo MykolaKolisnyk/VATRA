@@ -220,7 +220,7 @@ function giftAdminMarkup(){
  '<p>Спочатку перевірте @псевдонім користувача. Подарунок закріплюється за його UID, навіть якщо згодом псевдонім зміниться.</p>'+
  '<form id="vatraGiftAdminIssue"><label>Псевдонім<input name="handle" placeholder="@псевдонім" required autocomplete="off"></label><label>Подарунок<select name="code">'+Object.entries(giftNames).map(([c,n])=>'<option value="'+esc(c)+'">'+esc(n)+'</option>').join('')+'</select></label>'+
  '<label>Примітка<input name="reason" placeholder="Наприклад, підтверджено оплату" maxlength="500"></label>'+
- '<button type="submit" class="vatra-control-primary">Видати</button><p class="vatra-control-status" role="status"></p></form></section>'+
+ '<div class="vatra-gift-admin-preview" id="vatraGiftAdminPreview" aria-live="polite"></div><button type="submit" class="vatra-control-primary">Видати</button><p class="vatra-control-status" role="status"></p></form></section>'+
  '<section class="vatra-control-card vatra-gift-admin"><h3>Перевірити або забрати подарунок</h3>'+
  '<form id="vatraGiftAdminLookup"><label>Псевдонім<input name="handle" placeholder="@псевдонім" required autocomplete="off"></label><button type="submit" class="vatra-control-secondary">Знайти подарунки</button></form>'+
  '<div id="vatraGiftAdminInventory" role="status"></div></section>';
@@ -234,6 +234,8 @@ function giftAdminToast(message,error=false){
 }
 function installGiftAdminEvents(){
  const issue=$('#vatraGiftAdminIssue');
+ const showGift=()=>{const slot=$('#vatraGiftAdminPreview'),code=issue?.elements.code?.value;if(slot)slot.innerHTML=(window.vatraGiftArt?.(code)||'')+'<strong>'+esc(giftNames[code]||'Подарунок ВАТРИ')+'</strong>';};
+ issue?.elements.code?.addEventListener('change',showGift);showGift();
  issue?.addEventListener('submit',async e=>{
   e.preventDefault();const f=e.currentTarget,handle=f.elements.handle.value.trim().replace(/^@/,''),code=f.elements.code.value,reason=f.elements.reason.value.trim();
   if(!(await askAction('Видати «'+(giftNames[code]||code)+'» користувачу @'+handle+'?','Подарунок буде прив’язано до UID знайденого акаунта.')))return;
@@ -252,7 +254,7 @@ function installGiftAdminEvents(){
    const data=await rpc('vatra_gifts_admin_inventory',{_handle:handle});
    const rows=data?.items||[];
    target.innerHTML='<p><strong>@'+esc(handle)+'</strong> · UID: '+esc(data.uid)+'</p>'+
-     (rows.length?rows.map(item=>'<div class="vatra-gift-admin-instance"><span>'+esc(giftNames[item.code]||item.code)+' <small>'+esc(item.id)+'</small></span><button type="button" data-vatra-gift-revoke="'+esc(item.id)+'" data-vatra-gift-handle="'+esc(handle)+'">Забрати</button></div>').join(''):'<p>У користувача немає подарунків.</p>');
+     (rows.length?rows.map(item=>'<div class="vatra-gift-admin-instance">'+(window.vatraGiftArt?.(item.code)||'')+'<span>'+esc(giftNames[item.code]||item.code)+' <small>'+esc(item.id)+'</small></span><button type="button" data-vatra-gift-revoke="'+esc(item.id)+'" data-vatra-gift-handle="'+esc(handle)+'">Забрати</button></div>').join(''):'<p>У користувача немає подарунків.</p>');
   }catch(err){target.textContent=errorText(err);}
  });
  $('#vatraGiftAdminInventory')?.addEventListener('click',async e=>{
