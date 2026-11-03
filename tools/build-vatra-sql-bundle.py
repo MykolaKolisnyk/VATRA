@@ -20,6 +20,7 @@ guide='''ВАТРА · SQL-комплект
 6. vatra-group-chats.sql
 7. vatra-community-bell.sql
 8. vatra-disable-gift-orders.sql
+9. vatra-translation-quota.sql (ліміт для необов’язкової функції перекладу)
 
 Примітки:
 - Якщо пункт уже застосований, ознайомтеся з його SQL перед повтором.
@@ -32,6 +33,7 @@ guide='''ВАТРА · SQL-комплект
 - Платні замовлення вимкнені до впровадження справжньої оплати.
 - Файли з назвами gifts-orders, gifts-order-cancellation і chat-message-mode-update
   залишені для історичної сумісності, це не інструкція виконувати їх зараз.
+- Автоматичний переклад вимагає Edge Function vatra-translate та секрет DEEPL_API_KEY.
 - Робочі зміни не активуються просто від завантаження архіву.
 '''
 with ZipFile(output,'w',compression=ZIP_DEFLATED,compresslevel=8) as archive:
