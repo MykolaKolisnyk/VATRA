@@ -52,7 +52,7 @@ const footerLabels={
 const footerLabelKeys=new Set(Object.keys(footerLabels.en));
 function interfaceLabel(original){
  if(language==='uk')return original;
- return footerLabels[language]?.[original]||overrides[language]?.[original]||base[original]||original;
+ return footerLabels[language]?.[original]||overrides[language]?.[original]||(language==='en'?base[original]:null)||original;
 }
 const additionalEnglish={
  'УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА':'UKRAINIAN SOCIAL NETWORK',
@@ -149,18 +149,58 @@ function translateRoot(root){
   if(el.placeholder!==text)el.placeholder=text;
  });
 }
+const seoTitles={
+ uk:'ВАТРА — українська соціальна мережа',
+ en:'VATRA — Ukrainian Social Network',
+ pl:'VATRA — ukraińska sieć społecznościowa',
+ de:'VATRA — Ukrainisches soziales Netzwerk',
+ fr:'VATRA — Réseau social ukrainien',
+ es:'VATRA — Red social ucraniana',
+ pt:'VATRA — Rede social ucraniana',
+ it:'VATRA — Social network ucraino'
+};
+const seoKeywords={
+ uk:'ВАТРА, українська соціальна мережа, спільноти, друзі, дописи',
+ en:'VATRA, Ukrainian social network, friends, communities, posts',
+ pl:'VATRA, ukraińska sieć społecznościowa, znajomi, społeczności',
+ de:'VATRA, ukrainisches soziales Netzwerk, Freunde, Community',
+ fr:'VATRA, réseau social ukrainien, amis, communautés',
+ es:'VATRA, red social ucraniana, amigos, comunidades',
+ pt:'VATRA, rede social ucraniana, amigos, comunidades',
+ it:'VATRA, social network ucraino, amici, comunità'
+};
+const seoLocales={uk:'uk_UA',en:'en_US',pl:'pl_PL',de:'de_DE',fr:'fr_FR',es:'es_ES',pt:'pt_PT',it:'it_IT'};
+function ensureMeta(attribute,name,content){
+ let el=document.head.querySelector('meta['+attribute+'="'+name+'"]');
+ if(!el){el=document.createElement('meta');el.setAttribute(attribute,name);document.head.append(el);}
+ el.content=content;
+}
 function updateMeta(){
- document.documentElement.lang=translatedLanguages.has(language)?language:'uk';
- const description=descriptions[language]||descriptions.uk;
- for(const sel of ['meta[name="description"]','meta[property="og:description"]']){
-  let meta=document.head.querySelector(sel);
-  if(!meta){meta=document.createElement('meta');if(sel.includes('property'))meta.setAttribute('property','og:description');else meta.name='description';document.head.append(meta);}
-  meta.content=description;
- }
- let locale=document.head.querySelector('meta[property="og:locale"]');
- if(!locale){locale=document.createElement('meta');locale.setAttribute('property','og:locale');document.head.append(locale);}
- locale.content=translatedLanguages.has(language)?({uk:'uk_UA',en:'en_US',pl:'pl_PL',de:'de_DE',fr:'fr_FR',es:'es_ES',pt:'pt_PT',it:'it_IT'}[language]||'uk_UA'):'uk_UA';
- let languageMeta=document.head.querySelector('meta[name="content-language"]');if(!languageMeta){languageMeta=document.createElement('meta');languageMeta.name='content-language';document.head.append(languageMeta);}languageMeta.content=translatedLanguages.has(language)?language:'uk';
+ // Meta data must never claim that an untranslated language is rendered.
+ const active=translatedLanguages.has(language)?language:'uk';
+ const page=location.pathname.toLowerCase();
+ const authPage=page.endsWith('/auth.html');
+ const registerPage=page.endsWith('/register.html');
+ const title=seoTitles[active]||seoTitles.uk;
+ const description=descriptions[active]||descriptions.uk;
+ const pagePrefix=authPage?({uk:'Вхід',en:'Sign in',pl:'Logowanie',de:'Anmelden',fr:'Connexion',es:'Iniciar sesión',pt:'Entrar',it:'Accedi'}[active]):
+  registerPage?({uk:'Реєстрація',en:'Create account',pl:'Rejestracja',de:'Registrierung',fr:'Inscription',es:'Registro',pt:'Registo',it:'Registrazione'}[active]):'';
+ document.documentElement.lang=active;
+ document.title=pagePrefix?pagePrefix+' | '+title:title;
+ ensureMeta('name','description',description);
+ ensureMeta('name','keywords',seoKeywords[active]||seoKeywords.uk);
+ ensureMeta('name','content-language',active);
+ ensureMeta('property','og:title',document.title);
+ ensureMeta('property','og:description',description);
+ ensureMeta('property','og:locale',seoLocales[active]||'uk_UA');
+ ensureMeta('name','twitter:card','summary');
+ ensureMeta('name','twitter:title',document.title);
+ ensureMeta('name','twitter:description',description);
+ const canonical=location.origin+location.pathname;
+ ensureMeta('property','og:url',canonical);
+ let link=document.head.querySelector('link[rel="canonical"]');
+ if(!link){link=document.createElement('link');link.rel='canonical';document.head.append(link);}
+ link.href=canonical;
 }
 function selectMarkup(){
  const select=document.createElement('select');
@@ -195,12 +235,6 @@ function install(){
   const selector=selectMarkup();selector.name='preferredLanguage';row.append(heading,selector);
   const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');row.append(hint);
   languageMount.append(row);
- }
- const appearance=document.querySelector('.interface-settings-card .settings-grid');
- if(appearance&&!appearance.querySelector('.vatra-language-pref')){
-  const wrap=document.createElement('label');wrap.className='vatra-language-pref';
-  wrap.append(document.createTextNode('Мова інтерфейсу'));
-  const selector=selectMarkup();selector.name='preferredLanguage';wrap.append(selector);const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');wrap.append(hint);appearance.append(wrap);
  }
  document.querySelectorAll('.vatra-language-select').forEach(select=>{if(select.value!==language)select.value=language;});
  syncLanguageNotice();
