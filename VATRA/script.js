@@ -2689,6 +2689,13 @@ function vatraOrganizeSettings(){
   sections[id].append(card);return grid;
  };
  sections.profile.append(photoCard,basicCard);
+ // Actual editable cover and avatar, not a decorative static mockup.
+ photoCard.classList.add('vatra-editor-profile-photos');
+ const hero=document.createElement('div');hero.className='vatra-editor-cover';
+ hero.innerHTML='<div class="vatra-editor-cover-backdrop">'+(currentProfile.coverUrl&&/^https?:\/\//.test(currentProfile.coverUrl)?'<img src="'+esc(currentProfile.coverUrl)+'" alt="Обкладинка профілю">':'<span>ВАТРА</span>')+'</div>'+
+ '<label class="vatra-editor-cover-button" for="settingsCoverFile"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m15 5 4 4M4 20l4-.5L19 8.5a2 2 0 0 0-4-4L4 15.5 4 20Z"/></svg> Змінити обкладинку</label><input id="settingsCoverFile" type="file" accept="image/*" hidden>';
+ photoCard.insertBefore(hero,photoCard.querySelector('.settings-photo-row'));
+ photoCard.querySelector('h3').textContent='Фото й обкладинка';
  const groupSpecs=[
   ['contacts','Контакти',['city','location','hometown','phone','website']],
   ['education','Освіта',['education']],
@@ -2702,16 +2709,33 @@ function vatraOrganizeSettings(){
   }
  }
  const fieldSpecs={
-  interests:[['hobbies','Захоплення'],['activities','Діяльність'],['music','Улюблена музика'],['films','Улюблені фільми'],['books','Улюблені книги'],['games','Улюблені ігри']],
+  personal:[['familyStatus','Сімейний стан'],['spokenLanguages','Знання мов'],['familyNotes','Родина (необов’язково)']],
+  interests:[['activities','Діяльність'],['hobbies','Захоплення'],['music','Улюблена музика'],['tv','Улюблені телешоу'],['films','Улюблені фільми'],['books','Улюблені книги'],['games','Улюблені ігри'],['quotes','Улюблені цитати']],
   service:[['serviceNotes','Про військову службу']],
-  life:[['lifeNotes','Життєва позиція'],['values','Головне в житті'],['inspiration','Надихають']]
+  life:[['politics','Політичні переконання'],['worldview','Світогляд'],['values','Головне в житті'],['peopleValues','Головне в людях'],['smoking','Ставлення до куріння'],['alcohol','Ставлення до алкоголю'],['inspiration','Надихають'],['lifeNotes','Додатково про життєву позицію']]
  };
  for(const [section,fields] of Object.entries(fieldSpecs)){
-  const titles={interests:'Захоплення',service:'Військова служба',life:'Життєва позиція'};
-  const grid=makeCard(section,titles[section],'Заповнені поля видно Вам у профілі. Для показу іншим окремо увімкніть їхню публічність.');
+  const titles={personal:'Особисті відомості',interests:'Захоплення',service:'Військова служба',life:'Життєва позиція'};
+  const target=section==='personal'?'profile':section;
+  const grid=makeCard(target,titles[section],'Ви керуєте видимістю кожного поля окремо. Приватні дані не публікуються.');
+  const selectValues={
+    familyStatus:['','Не вказано','Неодружений / незаміжня','У стосунках','Заручений / заручена','Одружений / заміжня','У цивільному партнерстві','Розлучений / розлучена','Вдівець / вдова'].slice(1),
+    politics:['Не вказано','Ліберальні','Помірковані','Консервативні','Соціал-демократичні','Інші'].slice(0),
+    worldview:['Не вказано','Світський','Агностичний','Атеїстичний','Християнський','Юдейський','Мусульманський','Буддійський','Інший'].slice(0),
+    values:['Не вказано','Родина','Кар’єра','Саморозвиток','Наука та освіта','Свобода','Творчість','Друзі','Інше'],
+    peopleValues:['Не вказано','Чесність','Доброта','Відповідальність','Сміливість','Гумор','Повага','Інше'],
+    smoking:['Не вказано','Негативне','Нейтральне','Позитивне','Не хочу відповідати'],
+    alcohol:['Не вказано','Негативне','Нейтральне','Позитивне','Не хочу відповідати']
+  };
   for(const [key,labelText] of fields){
    const label=document.createElement('label');label.textContent='';
-   const textarea=document.createElement('textarea');textarea.name='private_'+key;textarea.maxLength=500;textarea.rows=2;textarea.setAttribute('aria-label',labelText);textarea.placeholder='Не заповнено';textarea.value=String(currentProfile.privateSections?.[key]||'').slice(0,500);
+   const textarea=document.createElement(selectValues[key]?'select':(key==='spokenLanguages'?'input':'textarea'));
+   textarea.name='private_'+key;
+   if(selectValues[key]){
+    const options=['',...selectValues[key].filter(x=>x!=='Не вказано')];
+    for(const opt of options){const item=document.createElement('option');item.value=opt;item.textContent=opt||'Не вибрано';textarea.append(item);}
+   }else{textarea.maxLength=5000;if(textarea.tagName==='TEXTAREA')textarea.rows=2;else textarea.type='text';textarea.placeholder=key==='spokenLanguages'?'Наприклад: Українська, English':'Не заповнено';}
+   textarea.setAttribute('aria-label',labelText);textarea.value=String(currentProfile.privateSections?.[key]||'').slice(0,5000);
    label.append(textarea);
    const vis=document.createElement('label');vis.className='vatra-extra-visibility';vis.textContent='Хто бачить це поле';
    const select=document.createElement('select');select.name='extraVisibility_'+key;
@@ -2723,6 +2747,39 @@ function vatraOrganizeSettings(){
    const wrap=document.createElement('div');wrap.className='vatra-extra-setting';const head=document.createElement('div');head.className='vatra-extra-setting-head';const title=document.createElement('span');title.className='vatra-extra-setting-title';title.textContent=labelText;head.append(title,vis);wrap.append(head,label);grid.append(wrap);
   }
  }
+ // Multi-entry data is editable, removable and saved in privateUsers.
+ for(const [key,schema] of Object.entries(VATRA_PROFILE_RECORD_SCHEMAS)){
+  const section=key==='educationRecords'?'education':key==='careerRecords'?'career':'service';
+  const grid=makeCard(section,schema.title,'Додайте записи у своєму порядку. Максимум 8 записів у кожному розділі.');
+  const holder=document.createElement('div');holder.className='vatra-record-editor';holder.dataset.vatraRecordEditor=key;
+  const visibility=document.createElement('label');visibility.className='vatra-record-visibility';visibility.textContent='Хто бачить записи';
+  const select=document.createElement('select');select.name='extraVisibility_'+key;
+  for(const [value,title] of [['public','Для всіх'],['friends','Для друзів'],['private','Лише для себе']]){
+   const option=document.createElement('option');option.value=value;option.textContent=title;select.append(option);
+  }
+  select.value=vatraFieldVisibility(currentProfile.extraVisibility?.[key]);
+  visibility.append(select);
+  holder.innerHTML='<div class="vatra-record-list"></div><button class="vatra-record-add" type="button" data-vatra-record-add="'+key+'">+ '+esc(schema.add)+'</button>';
+  holder.prepend(visibility);grid.append(holder);
+  vatraRecordRows(holder,key,currentProfile.recordLists?.[key]||[]);
+ }
+ workspace.addEventListener('click',event=>{
+  const add=event.target.closest('[data-vatra-record-add]');
+  if(add){
+   const key=add.dataset.vatraRecordAdd,holder=workspace.querySelector('[data-vatra-record-editor="'+key+'"]');
+   if(!holder)return;
+   const rows=[...holder.querySelectorAll('[data-vatra-record-row]')].map(el=>Object.fromEntries(VATRA_PROFILE_RECORD_SCHEMAS[key].fields.map(([field])=>[field,el.querySelector('[data-vatra-record-field="'+field+'"]')?.value||''])));
+   if(rows.length<8){rows.push({});vatraRecordRows(holder,key,rows);holder.querySelector('.vatra-record-row:last-child input')?.focus();}
+   return;
+  }
+  const remove=event.target.closest('[data-vatra-record-remove]');
+  if(remove){
+   const holder=remove.closest('[data-vatra-record-editor]'),key=holder?.dataset.vatraRecordEditor;
+   if(!key)return;
+   const rows=[...holder.querySelectorAll('[data-vatra-record-row]')].filter(el=>el!==remove.closest('[data-vatra-record-row]')).map(el=>Object.fromEntries(VATRA_PROFILE_RECORD_SCHEMAS[key].fields.map(([field])=>[field,el.querySelector('[data-vatra-record-field="'+field+'"]')?.value||''])));
+   vatraRecordRows(holder,key,rows);
+  }
+ });
  sections.privacy.append(privacyCard,adminCard);
  sections.appearance.append(appearanceCard);
  // Dedicated, clearly visible language section. This is populated by the
