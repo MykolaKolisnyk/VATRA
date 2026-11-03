@@ -1,6 +1,6 @@
 /* ВАТРА: identical public and own profile summary, refined disclosure control.
    Keep this after existing styles to avoid legacy cascades overriding the button. */
-body :is([data-page="profile"],[data-page="publicProfile"]) .vatra-profile-summary-compact .vatra-profile-details{
+body .vatra-profile-summary-compact .vatra-profile-details{
   display:grid!important;
   grid-template-columns:minmax(0,1fr)!important;
   gap:3px!important;
