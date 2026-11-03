@@ -775,7 +775,7 @@ function vatraExtraSectionsMarkup(values={},visibility={},owner=false,profileId=
 }
 function vatraProfileMoreButton(uid,id){
  const open=VATRA_PROFILE_MORE_EXPANDED.has(uid);
- return '<button type="button" class="vatra-profile-more-trigger" data-vatra-profile-more="'+esc(uid)+'" data-more-target="'+id+'" aria-expanded="'+open+'" aria-controls="'+id+'"><span>'+(open?'Згорнути':'Показати більше')+'</span>+'</button>';
+ return '<button type="button" class="vatra-profile-more-trigger" data-vatra-profile-more="'+esc(uid)+'" data-more-target="'+id+'" aria-expanded="'+open+'" aria-controls="'+id+'"><span>'+(open?'Згорнути':'Показати більше')+'</span></button>';
 }
 document.addEventListener('click',event=>{
  const button=event.target.closest('[data-vatra-profile-more]');
@@ -783,7 +783,7 @@ document.addEventListener('click',event=>{
  const target=document.getElementById(button.dataset.moreTarget);
  if(!target)return;
  const open=button.getAttribute('aria-expanded')!=='true';
- target.hidden=!open;document.querySelectorAll('[data-more-target="'+button.dataset.moreTarget+'"]').forEach(b=>{b.setAttribute('aria-expanded',String(open));b.innerHTML='<span>'+(open?'Згорнути':'Показати більше')+'</span>;});
+ target.hidden=!open;document.querySelectorAll('[data-more-target="'+button.dataset.moreTarget+'"]').forEach(b=>{b.setAttribute('aria-expanded',String(open));b.innerHTML='<span>'+(open?'Згорнути':'Показати більше')+'</span>';});
  if(open)VATRA_PROFILE_MORE_EXPANDED.add(button.dataset.vatraProfileMore);
  else VATRA_PROFILE_MORE_EXPANDED.delete(button.dataset.vatraProfileMore);
 });
