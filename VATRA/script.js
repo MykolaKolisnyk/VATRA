@@ -2051,10 +2051,11 @@ function updateNotificationBadges(){updateMessageNavBadge();const items=notifica
 function updateMessageNavBadge(){
  const badge=document.getElementById('messagesNavBadge');
  if(!badge)return;
- const count=Object.entries(chatIndex||{}).filter(([key,c])=>c?.lastMessage?.senderUid&&c.lastMessage.senderUid!==currentUser?.uid&&Number(c.lastMessage.createdAt||0)>Number(chatReads[key]||0)).length;
+ const count=Object.entries(chatIndex||{}).filter(([key,c])=>c?.lastMessage?.senderUid&&c.lastMessage.senderUid!==currentUser?.uid&&Number(c.lastMessage.createdAt||0)>Number(chatReads[key]||0)).length+Number(window.vatraGroupUnreadCount||0);
  badge.textContent=count>99?'99+':String(count);badge.hidden=count===0;
  badge.setAttribute('aria-label',count+' непрочитаних діалогів');
 }
+window.vatraRefreshMessageBadge=updateMessageNavBadge;
 function markChatRead(key){if(!currentUser||!key)return;const latest=chatIndex[key]&&chatIndex[key].lastMessage,stamp=Math.max(Date.now(),Number(latest&&latest.createdAt)||0);if(Number(chatReads[key]||0)>=stamp-1000)return;chatReads={...chatReads,[key]:stamp};updateNotificationBadges();set(ref(db,'chatReads/'+currentUser.uid+'/'+key),stamp).catch(err=>console.warn('Chat read receipt failed:',err));}
 function markNotificationsRead(){
  if(!currentUser)return;
