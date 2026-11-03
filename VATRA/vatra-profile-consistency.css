@@ -274,3 +274,38 @@ body.vatra-photo-menu-suppressed[data-page="profile"] .vatra-profile-avatar-card
     transition:none!important;
   }
 }
+
+
+/* Profile disclosure refinement: no divider line; button stays anchored before extra content. */
+body .vatra-profile-summary-compact .vatra-profile-details,
+body .vatra-profile-summary-compact .vatra-profile-more,
+body .vatra-profile-summary-compact .vatra-profile-extras,
+body .vatra-profile-summary-compact .vatra-profile-extra-plain {
+ border-top:0!important;border-bottom:0!important;box-shadow:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-more {
+ margin:0!important;padding:10px 0 2px!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger {
+ margin:10px 0 8px!important;
+ gap:8px!important;
+ border-color:rgba(129,151,179,.13)!important;
+ background:rgba(245,248,252,.38)!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger svg.vatra-profile-more-icon {
+ display:block!important;
+ width:17px!important;height:17px!important;
+ flex:0 0 17px!important;
+ stroke:currentColor!important;
+ transform:rotate(0)!important;
+ transition:transform .2s ease!important;
+}
+body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger[aria-expanded="true"] svg.vatra-profile-more-icon {
+ transform:rotate(180deg)!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-more[hidden] {
+ display:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger svg.vatra-profile-more-icon {transition:none!important}
+}
