@@ -14,7 +14,7 @@ const statuses={open:'Нова',reviewing:'Розглядається',resolved:
 const reasons={spam:'Спам',harassment:'Переслідування',hate:'Мова ворожнечі',unsafe:'Небезпечний контент',other:'Інше'};
 let staffRole='',roleUid='',roleChecked=false,roleResult=false,isRoleLoading=false,rolePromise=null,activeTab='reports',queueCount=0,tabInitialized=false,paintPending=false,loadingToken=0,caseLimit=300,auditLimit=200,adminOpen=false,adminPending=false,identities=new Map();
 const signedUid=()=>auth.currentUser?.uid||null;
-const errorText=e=>String(e?.message||'Перевірте з’єднання й налаштування Supabase.');
+const errorText=e=>String(e?.message||'Не вдалося виконати дію. Перевірте з’єднання.');
 async function checkRole(force=false){
  const uid=signedUid();
  if(!uid){staffRole='';roleUid='';roleChecked=false;roleResult=false;return false;}
@@ -304,7 +304,7 @@ async function renderDashboard(){
   installEvents({cases,accounts,groups,audit,hidden,requests,team});
  }catch(error){
   if(token!==loadingToken)return;
-  show(navbar()+'<section class="vatra-control-card"><h3>Потрібне налаштування Supabase</h3><p>Панель відкривається лише після запуску <code>VATRA/vatra-moderation-center.sql</code> у SQL Editor. Також перевірте право адміністратора.</p><p class="vatra-control-error">'+esc(errorText(error))+'</p></section>','Адмінпанель ВАТРИ','adminCenter');
+  show(navbar()+'<section class="vatra-control-card"><h3>Панель керування тимчасово недоступна</h3><p>Перевірте права доступу. Якщо проблема повторюється, зверніться до техпідтримки ВАТРИ.</p><p class="vatra-control-error">'+esc(errorText(error))+'</p></section>','Адмінпанель ВАТРИ','adminCenter');
   installTabs();
  }finally{adminPending=false;}
 }
