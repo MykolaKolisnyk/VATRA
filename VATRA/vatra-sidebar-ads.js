@@ -7,8 +7,8 @@
     slots: ['', '']  // numeric ad unit IDs, ordered by sidebar position
   };
   const nodes = [...document.querySelectorAll('.vatra-sidebar-ads [data-vatra-ad-slot]')];
-  const validPublisher = /^ca-pub-\\d{16}$/.test(ads.publisher);
-  const validSlots = ads.slots.length === 2 && ads.slots.every(x => /^\\d{8,}$/.test(x));
+  const validPublisher = /^ca-pub-\d{16}$/.test(ads.publisher);
+  const validSlots = ads.slots.length === 2 && ads.slots.every(x => /^\d{8,}$/.test(x));
   if (!ads.enabled || !validPublisher || !validSlots || nodes.length !== 2) return;
 
   // A site using personalised ads must integrate the required consent system
