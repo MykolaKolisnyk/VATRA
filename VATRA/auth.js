@@ -80,10 +80,16 @@ function currentAuthContact(){
 }
 
 
+function vatraLatinHandlePart(value){
+ const translit={а:'a',б:'b',в:'v',г:'h',ґ:'g',д:'d',е:'e',є:'ie',ж:'zh',з:'z',и:'y',і:'i',ї:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ь:'',ю:'iu',я:'ia',ы:'y',э:'e',ъ:''};
+ return [...String(value||'').toLocaleLowerCase('uk-UA')].map(ch=>translit[ch]??ch).join('').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');
+}
 async function finishRegistration({user,contact,isPhone,dob,first,last,name,gender}){
  const uid=user?.uid||user?.id;
  if(!uid)throw new Error('Supabase не повернув ідентифікатор нового акаунта. Перевір Authentication → Providers.');
- const handle=(first+'.'+last).toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,15)+'-'+uid.replace(/-/g,'').slice(0,8);
+ const latinName=[vatraLatinHandlePart(first),vatraLatinHandlePart(last)].filter(Boolean).join('.');
+ const safePrefix=/^[a-z]/.test(latinName)?latinName:'user';
+ const handle=safePrefix.slice(0,14).replace(/[._-]+$/,'')+'-'+uid.replace(/-/g,'').slice(0,8);
  const createdAt=Date.now();
  const profile={firstName:first,lastName:last,name,handle,gender,bio:'',avatarUrl:'',coverUrl:'',city:'',location:'',phone:isPhone?contact:'',phoneVisibility:'private',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt};
  await set(ref(db,'publicProfiles/'+uid),{firstName:first,lastName:last,name,handle,gender,bio:'',avatarUrl:'',coverUrl:'',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt,updatedAt:createdAt});
