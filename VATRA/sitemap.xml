@@ -1,97 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/index.html</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/people/09b763c3-79a0-41d2-9240-421ff90b7f10/</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/people/421112df-4681-4c6f-959b-75bb6a465f58/</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/people/5cdcb3a5-a943-4986-9a26-720e5f8f1438/</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/people/8a0dee06-c3be-4fce-9d7b-edee55ce9449/</loc></url>
+  <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/communities/25bff3189cc24738ae9632957aa17c7e/</loc></url>
+  <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/communities/356b93f2cee34bda986ab66478be716d/</loc></url>
   <url><loc>https://mykolakolisnyk.github.io/VATRA/VATRA/communities/439939780b9d4ed9ae410b968861d155/</loc></url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
-  <url>
-    <loc>https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/</loc>
-    <xhtml:link rel="alternate" hreflang="uk" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/uk/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/en/"/>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pl/"/>
-    <xhtml:link rel="alternate" hreflang="de" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/de/"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/fr/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/es/"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/pt/"/>
-    <xhtml:link rel="alternate" hreflang="it" href="https://mykolakolisnyk.github.io/VATRA/VATRA/lang/it/"/>
-  </url>
 </urlset>
