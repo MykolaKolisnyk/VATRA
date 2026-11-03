@@ -83,6 +83,16 @@ function card(item,mine=false){
   item.owner===actor()?'<span class="vatra-creator-own-label">Ваш подарунок</span>':
   '<button type="button" class="vatra-creator-buy" data-creator-order="'+esc(item.id)+'">Запросити купівлю</button>')+'</article>';
 }
+function vatraCreatorGiftAtmosphere(gift){
+ const name=(gift.title+' '+gift.description).toLocaleLowerCase('uk-UA');
+ const theme=/серц|любов|кохан|обійм/.test(name)?'hearts':
+  /сніг|зим|лід|новоріч/.test(name)?'snowglobe':
+  /музик|мелод|пісн/.test(name)?'musicbox':
+  /квіт|троянд|пелюст/.test(name)?'rose':
+  /осін|лист|гарбуз/.test(name)?'halloween':
+  /іскр|полум|вогн|жар/.test(name)?'spark':'diamond';
+ return window.vatraGiftAtmosphere?.(theme)||'';
+}
 function orderRow(o){
  const selling=o.seller===actor(),other=selling?o.buyer:o.seller;
  const state={pending:'Очікує домовленості',completed:'Подарунок передано',declined:'Відхилено',withdrawn:'Відкликано'}[o.status]||'Заявка';
@@ -188,7 +198,7 @@ document.addEventListener('click',async event=>{
    let d=document.getElementById('vatraCreatorDetailDialog');
    if(!d){d=document.createElement('dialog');d.id='vatraCreatorDetailDialog';d.className='vatra-creator-detail';document.body.append(d);}
    d.innerHTML='<button type="button" class="vatra-creator-close" data-creator-detail-close aria-label="Закрити">×</button>'+
-     '<img src="'+esc(imageUrl(gift.imagePath))+'" alt="'+esc(gift.title)+'"><div><h2>'+esc(gift.title)+'</h2><p>'+esc(gift.description)+'</p><strong>'+priceString(gift.price)+'</strong></div>';
+     '<div class="vatra-creator-detail-art">'+vatraCreatorGiftAtmosphere(gift)+'<img src="'+esc(imageUrl(gift.imagePath))+'" alt="'+esc(gift.title)+'"></div><div><h2>'+esc(gift.title)+'</h2><p>'+esc(gift.description)+'</p><strong>'+priceString(gift.price)+'</strong></div>';
    d.showModal();
   }catch(err){console.warn('[ВАТРА] Подарунок недоступний:',err.message);}
   return;
@@ -198,7 +208,7 @@ document.addEventListener('click',async event=>{
   const gift=[...cached.mine,...cached.market].find(x=>x.id===open.dataset.vatraCreatorOpen);if(!gift)return;
   let d=document.getElementById('vatraCreatorDetailDialog');if(!d){d=document.createElement('dialog');d.id='vatraCreatorDetailDialog';d.className='vatra-creator-detail';document.body.append(d);}
   d.innerHTML='<button type="button" class="vatra-creator-close" data-creator-detail-close aria-label="Закрити">×</button>'+
-    '<img src="'+esc(imageUrl(gift.imagePath))+'" alt="'+esc(gift.title)+'"><div><h2>'+esc(gift.title)+'</h2><p>'+esc(gift.description)+'</p><strong>'+priceString(gift.price)+'</strong></div>';
+    '<div class="vatra-creator-detail-art">'+vatraCreatorGiftAtmosphere(gift)+'<img src="'+esc(imageUrl(gift.imagePath))+'" alt="'+esc(gift.title)+'"></div><div><h2>'+esc(gift.title)+'</h2><p>'+esc(gift.description)+'</p><strong>'+priceString(gift.price)+'</strong></div>';
   d.showModal();return;
  }
  if(event.target.closest('[data-creator-detail-close]')){document.getElementById('vatraCreatorDetailDialog')?.close();return;}
