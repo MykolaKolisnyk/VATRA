@@ -154,7 +154,7 @@ function publicProfileData(p={}){
  const out={
   name:String(p.name||'Користувач ВАТРИ').slice(0,40),firstName:String(p.firstName||'').slice(0,40),
   lastName:String(p.lastName||'').slice(0,40),handle:String(p.handle||'user').slice(0,24),gender:['male','female'].includes(p.gender)?p.gender:'',
-  bio:'',status:'',avatarUrl:String(p.avatarUrl||''),
+  bio:'',status:'',avatarUrl:String(p.avatarUrl||''),coverUrl:p.profileVisibility==='private'?'':(/^https?:\/\//i.test(String(p.coverUrl||''))?String(p.coverUrl).slice(0,500):''),
   photoUploadedAt:p.profileVisibility==='private'?{}:Object.fromEntries(Object.entries(p.photoUploadedAt||{}).filter(([url,t])=>/^[a-z0-9]+$/i.test(url)&&Number.isFinite(Number(t))).slice(-120)),
    photoAlbums:p.profileVisibility==='private'?[]:vatraGetAlbums(p),
    avatarHistory:p.profileVisibility==='private'?[]:(Array.isArray(p.avatarHistory)?p.avatarHistory.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-30):[]),
@@ -189,7 +189,7 @@ function publicProfileData(p={}){
    for(const key of Object.keys(section.fields)){
     if(vatraFieldVisibility(p.extraVisibility?.[key])!=='public')continue;
     const value=String(p.privateSections?.[key]||'').trim();
-    if(value){out.extraVisibility[key]='public';out.publicSections[key]=value.slice(0,500);}
+    if(value){out.extraVisibility[key]='public';out.publicSections[key]=value.slice(0,5000);}
    }
   }
  }
@@ -212,7 +212,7 @@ function friendProfileData(p={}){
   for(const key of Object.keys(section.fields)){
    if(vatraFieldVisibility(p.extraVisibility?.[key])!=='friends')continue;
    const value=String(p.privateSections?.[key]||'').trim();
-   if(value){out.friendSections[key]=value.slice(0,500);out.extraVisibility[key]='friends';}
+   if(value){out.friendSections[key]=value.slice(0,5000);out.extraVisibility[key]='friends';}
   }
  }
  return out;
@@ -2769,7 +2769,7 @@ function vatraOrganizeSettings(){
    const key=add.dataset.vatraRecordAdd,holder=workspace.querySelector('[data-vatra-record-editor="'+key+'"]');
    if(!holder)return;
    const rows=[...holder.querySelectorAll('[data-vatra-record-row]')].map(el=>Object.fromEntries(VATRA_PROFILE_RECORD_SCHEMAS[key].fields.map(([field])=>[field,el.querySelector('[data-vatra-record-field="'+field+'"]')?.value||''])));
-   if(rows.length<8){rows.push({});vatraRecordRows(holder,key,rows);holder.querySelector('.vatra-record-row:last-child input')?.focus();}
+   if(rows.length<8){rows.push({});vatraRecordRows(holder,key,rows);form.dataset.vatraDirty='true';holder.querySelector('.vatra-record-row:last-child input')?.focus();}
    return;
   }
   const remove=event.target.closest('[data-vatra-record-remove]');
@@ -2777,7 +2777,7 @@ function vatraOrganizeSettings(){
    const holder=remove.closest('[data-vatra-record-editor]'),key=holder?.dataset.vatraRecordEditor;
    if(!key)return;
    const rows=[...holder.querySelectorAll('[data-vatra-record-row]')].filter(el=>el!==remove.closest('[data-vatra-record-row]')).map(el=>Object.fromEntries(VATRA_PROFILE_RECORD_SCHEMAS[key].fields.map(([field])=>[field,el.querySelector('[data-vatra-record-field="'+field+'"]')?.value||''])));
-   vatraRecordRows(holder,key,rows);
+   vatraRecordRows(holder,key,rows);form.dataset.vatraDirty='true';
   }
  });
  sections.privacy.append(privacyCard,adminCard);
@@ -2828,7 +2828,18 @@ $('#confirmPhoneVerification').onclick=async()=>{const phone=$('#confirmPhoneVer
 
 get(ref(db,`admins/${currentUser.uid}`)).then(snap=>{const card=$('#officialAdminCard');if(!card)return;const isAdmin=snap.val()===true;if(isAdmin){card.hidden=false;const target=$('#officialTargetUser');if(target){target.value=currentUser.uid;$('#officialAccountToggle').checked=verifiedUsers?.[currentUser.uid]?.verified===true;$('#officialAccountStatus').textContent=$('#officialAccountToggle').checked?'Цей акаунт має офіційний статус.':'Цей акаунт поки не підтверджено.';target.onchange=()=>{const uid=target.value;$('#officialAccountToggle').checked=verifiedUsers?.[uid]?.verified===true;$('#officialAccountStatus').textContent=uid?(verifiedUsers?.[uid]?.verified===true?'Цей акаунт має офіційний статус.':'Цей акаунт поки не підтверджено.'):'Оберіть акаунт зі списку.';};}} }).catch(()=>{});
 $('#saveOfficialAccount').onclick=async()=>{const targetUid=$('#officialTargetUser').value,enabled=$('#officialAccountToggle').checked,btn=$('#saveOfficialAccount'),status=$('#officialAccountStatus');if(!targetUid){status.textContent='Спочатку оберіть акаунт.';return;}btn.disabled=true;status.textContent='Зберігаємо статус…';try{await set(ref(db,`verifiedUsers/${targetUid}`),{verified:enabled,updatedAt:Date.now(),verifiedBy:currentUser.uid});status.textContent=enabled?'Офіційний статус увімкнено.':'Офіційний статус знято.';toastMsg(status.textContent);}catch(err){status.textContent='Не вдалося змінити статус. Перевірте права адміністратора.';toastMsg(niceError(err));}finally{btn.disabled=false;}};
-$('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{toastMsg('Стискаємо й зберігаємо фото…');const edited=await getImageEditor(f,'avatar');if(!edited)return;const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory,updatedAt:Date.now()});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));const preview=$('#settingsAvatarPreview');preview.style.backgroundImage=`url('${avatarUrl}')`;preview.textContent='';updateIdentity();toastMsg('Аватар збережено. Попередні фото залишилися в історії профілю.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}};$('#removeAvatar').onclick=async()=>{try{await update(ref(db,`users/${currentUser.uid}`),{avatarUrl:''});currentProfile.avatarUrl='';await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));$('#settingsAvatarPreview').style.backgroundImage='';$('#settingsAvatarPreview').textContent=initials(currentProfile.name||'ВАТРА');updateIdentity();toastMsg('Фото прибрано.');}catch(e){toastMsg(niceError(e));}};$('#profileSettingsForm').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,err=f.querySelector('#settingsError');if(err)err.textContent='';const fd=new FormData(f);const firstName=String(fd.get('firstName')||'').trim(),lastName=String(fd.get('lastName')||'').trim(),handle=String(fd.get('handle')||'').trim().replace(/^@/,''),bio=String(fd.get('bio')||'').trim(),city=String(fd.get('city')||'').trim(),location=String(fd.get('location')||'').trim(),website=String(fd.get('website')||'').trim(),workplace=String(fd.get('workplace')||'').trim(),education=String(fd.get('education')||'').trim(),hometown=String(fd.get('hometown')||'').trim(),submittedPhone=String(fd.get('phone')||'').trim(),dateOfBirth=String(fd.get('dateOfBirth')||'');if(firstName.length<2||lastName.length<2){$('#settingsError').textContent='Ім’я та прізвище мають містити щонайменше 2 символи.';return;}if((firstName+' '+lastName).length>40){$('#settingsError').textContent='Ім’я та прізвище разом мають бути не довші за 40 символів.';return;}if(!VATRA_HANDLE_PATTERN.test(handle)){ $('#settingsError').textContent='Перевірте псевдонім: 2–24 символи, літери, цифри, крапка, _ або -.';return;}if(website&&!/^https?:\/\//i.test(website)){ $('#settingsError').textContent='Посилання має починатися з https:// або http://.';return;}if(dateOfBirth){const bd=new Date(dateOfBirth+'T00:00:00'),now=new Date();if(Number.isNaN(bd.getTime())||bd>now){$('#settingsError').textContent='Перевірте дату народження.';return;}let age=now.getFullYear()-bd.getFullYear();if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))age--;if(age<13){$('#settingsError').textContent='ВАТРА доступна з 13 років.';return;}}const extraVisibility={};for(const spec of Object.values(VATRA_PROFILE_EXTRA_SECTIONS))for(const key of Object.keys(spec.fields))extraVisibility[key]=vatraFieldVisibility(fd.get('extraVisibility_'+key));const values={gender:['male','female'].includes(fd.get('gender'))?fd.get('gender'):'',extraVisibility,bioVisibility:vatraFieldVisibility(fd.get('bioVisibility'),'public'),statusVisibility:vatraFieldVisibility(fd.get('statusVisibility'),'public'),websiteVisibility:vatraFieldVisibility(fd.get('websiteVisibility'),'public'),firstName,lastName,name:`${firstName} ${lastName}`,handle,bio:bio.slice(0,500),city,location,website,workplace:workplace.slice(0,120),education:education.slice(0,120),hometown:hometown.slice(0,80),profileVisibility:fd.get('profileVisibility')==='private'?'private':'public',searchable:fd.get('searchable')!=='no',birthdayVisibility:String(fd.get('birthdayVisibility')||'private'),birthdayPublic:(String(fd.get('birthdayVisibility')||'private')==='public'?dateOfBirth:''),cityVisibility:String(fd.get('cityVisibility')||'private'),locationVisibility:String(fd.get('locationVisibility')||'private'),phoneVisibility:String(fd.get('phoneVisibility')||'private'),workplaceVisibility:String(fd.get('workplaceVisibility')||'private'),educationVisibility:String(fd.get('educationVisibility')||'private'),hometownVisibility:String(fd.get('hometownVisibility')||'private'),allowMessages:fd.get('allowMessages')==='on',themeMode:['dark','auto'].includes(fd.get('themeMode'))?fd.get('themeMode'):'light',preferredLanguage:window.vatraLanguage?.language||'uk',updatedAt:Date.now()};if(submittedPhone&&submittedPhone!==privatePhone&&!/^\+[1-9]\d{7,14}$/.test(submittedPhone)){ $('#settingsError').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX. Після збереження його потрібно буде підтвердити SMS-кодом.';return;}const pendingPhone=submittedPhone&&submittedPhone!==privatePhone?submittedPhone:'';const privateSections={};for(const key of ['hobbies','activities','music','films','books','games','serviceNotes','lifeNotes','values','inspiration'])privateSections[key]=String(fd.get('private_'+key)||'').trim().slice(0,500);try{
+$('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{toastMsg('Стискаємо й зберігаємо фото…');const edited=await getImageEditor(f,'avatar');if(!edited)return;const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory,updatedAt:Date.now()});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));const preview=$('#settingsAvatarPreview');preview.style.backgroundImage=`url('${avatarUrl}')`;preview.textContent='';updateIdentity();toastMsg('Аватар збережено. Попередні фото залишилися в історії профілю.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}};$('#removeAvatar').onclick=async()=>{try{await update(ref(db,`users/${currentUser.uid}`),{avatarUrl:''});currentProfile.avatarUrl='';await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));$('#settingsAvatarPreview').style.backgroundImage='';$('#settingsAvatarPreview').textContent=initials(currentProfile.name||'ВАТРА');updateIdentity();toastMsg('Фото прибрано.');}catch(e){toastMsg(niceError(e));}};$('#profileSettingsForm').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget,err=f.querySelector('#settingsError');if(err)err.textContent='';const fd=new FormData(f);const firstName=String(fd.get('firstName')||'').trim(),lastName=String(fd.get('lastName')||'').trim(),handle=String(fd.get('handle')||'').trim().replace(/^@/,''),bio=String(fd.get('bio')||'').trim(),city=String(fd.get('city')||'').trim(),location=String(fd.get('location')||'').trim(),website=String(fd.get('website')||'').trim(),workplace=String(fd.get('workplace')||'').trim(),education=String(fd.get('education')||'').trim(),hometown=String(fd.get('hometown')||'').trim(),submittedPhone=String(fd.get('phone')||'').trim(),dateOfBirth=String(fd.get('dateOfBirth')||'');if(firstName.length<2||lastName.length<2){$('#settingsError').textContent='Ім’я та прізвище мають містити щонайменше 2 символи.';return;}if((firstName+' '+lastName).length>40){$('#settingsError').textContent='Ім’я та прізвище разом мають бути не довші за 40 символів.';return;}if(!VATRA_HANDLE_PATTERN.test(handle)){ $('#settingsError').textContent='Перевірте псевдонім: 2–24 символи, літери, цифри, крапка, _ або -.';return;}if(website&&!/^https?:\/\//i.test(website)){ $('#settingsError').textContent='Посилання має починатися з https:// або http://.';return;}if(dateOfBirth){const bd=new Date(dateOfBirth+'T00:00:00'),now=new Date();if(Number.isNaN(bd.getTime())||bd>now){$('#settingsError').textContent='Перевірте дату народження.';return;}let age=now.getFullYear()-bd.getFullYear();if(now.getMonth()<bd.getMonth()||(now.getMonth()===bd.getMonth()&&now.getDate()<bd.getDate()))age--;if(age<13){$('#settingsError').textContent='ВАТРА доступна з 13 років.';return;}}const extraVisibility={};for(const spec of Object.values(VATRA_PROFILE_EXTRA_SECTIONS))for(const key of Object.keys(spec.fields))extraVisibility[key]=vatraFieldVisibility(fd.get('extraVisibility_'+key));const values={gender:['male','female'].includes(fd.get('gender'))?fd.get('gender'):'',extraVisibility,bioVisibility:vatraFieldVisibility(fd.get('bioVisibility'),'public'),statusVisibility:vatraFieldVisibility(fd.get('statusVisibility'),'public'),websiteVisibility:vatraFieldVisibility(fd.get('websiteVisibility'),'public'),firstName,lastName,name:`${firstName} ${lastName}`,handle,bio:bio.slice(0,500),city,location,website,workplace:workplace.slice(0,120),education:education.slice(0,120),hometown:hometown.slice(0,80),profileVisibility:fd.get('profileVisibility')==='private'?'private':'public',searchable:fd.get('searchable')!=='no',birthdayVisibility:String(fd.get('birthdayVisibility')||'private'),birthdayPublic:(String(fd.get('birthdayVisibility')||'private')==='public'?dateOfBirth:''),cityVisibility:String(fd.get('cityVisibility')||'private'),locationVisibility:String(fd.get('locationVisibility')||'private'),phoneVisibility:String(fd.get('phoneVisibility')||'private'),workplaceVisibility:String(fd.get('workplaceVisibility')||'private'),educationVisibility:String(fd.get('educationVisibility')||'private'),hometownVisibility:String(fd.get('hometownVisibility')||'private'),allowMessages:fd.get('allowMessages')==='on',themeMode:['dark','auto'].includes(fd.get('themeMode'))?fd.get('themeMode'):'light',preferredLanguage:window.vatraLanguage?.language||'uk',updatedAt:Date.now()};if(submittedPhone&&submittedPhone!==privatePhone&&!/^\+[1-9]\d{7,14}$/.test(submittedPhone)){ $('#settingsError').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX. Після збереження його потрібно буде підтвердити SMS-кодом.';return;}const pendingPhone=submittedPhone&&submittedPhone!==privatePhone?submittedPhone:'';const privateSections={};
+ for(const section of Object.values(VATRA_PROFILE_EXTRA_SECTIONS)){
+  for(const key of Object.keys(section.fields)){
+   if(VATRA_PROFILE_RECORD_SCHEMAS[key])continue;
+   privateSections[key]=String(fd.get('private_'+key)||'').trim().slice(0,5000);
+  }
+ }
+ const checkedRecords=vatraGetRecordLists(f);
+ if(checkedRecords.errors.length){$('#settingsError').textContent=checkedRecords.errors.join(' ');return;}
+ const recordLists=checkedRecords.all;
+ for(const key of Object.keys(VATRA_PROFILE_RECORD_SCHEMAS))privateSections[key]=vatraSummaryForRecords(recordLists[key]);
+ try{
  const btn=f.querySelector('[type=submit]'),errBox=f.querySelector('#settingsError');
  if(vatraSettingsSaving)return;
  if(!await f.vatraValidateHandle?.()){
@@ -2839,7 +2850,7 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
  if(errBox)errBox.textContent='';
  btn.disabled=true;btn.textContent='Зберігаємо…';
  const uid=currentUser.uid;
- const draft={...currentProfile,...values,privateSections,extraVisibility,dateOfBirth,phone:privatePhone,pendingPhone:pendingPhone};
+ const draft={...currentProfile,...values,privateSections,recordLists,extraVisibility,dateOfBirth,phone:privatePhone,pendingPhone:pendingPhone};
  const saveSteps={account:false,private:false,publicProfile:false,friendsProfile:false};
  const handleChanged=vatraNormalizeHandle(values.handle)!==vatraNormalizeHandle(currentProfile.handle);
  if(handleChanged){
@@ -2850,7 +2861,7 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
  saveSteps.account=true;
  await update(ref(db,`privateUsers/${uid}`),{
   dateOfBirth:dateOfBirth||null,phone:privatePhone||null,
-  pendingPhone:pendingPhone||null,privateSections,updatedAt:values.updatedAt
+  pendingPhone:pendingPhone||null,privateSections,recordLists,updatedAt:values.updatedAt
  });
  saveSteps.private=true;
  const externalViews=await Promise.allSettled([
@@ -2863,6 +2874,7 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
   console.warn('[ВАТРА] Дані акаунта збережено, але публічний вигляд очікує синхронізації.');
  }
  privateProfileSections=privateSections;
+ privateRecordLists=recordLists;
  privatePendingPhone=pendingPhone;
  privateDateOfBirth=dateOfBirth;
  currentProfile={...draft};
