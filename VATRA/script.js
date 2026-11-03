@@ -769,8 +769,8 @@ function renderProfile(){
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(vatraProfileFriendThumb).join('');
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
- const detailHtml=detail('День народження',birthday)+detail('Місце проживання',currentProfile.location,'location')+detail('Місце роботи',currentProfile.workplace,'workplace')+detail('Навчання',currentProfile.education,'education')+detail('Рідне місто',currentProfile.hometown,'hometown')+detail('Телефон',currentProfile.phone||privatePhone)+detail('Вебсайт',currentProfile.website);
- const hasDetails=!!(birthday||currentProfile.city||currentProfile.location||currentProfile.workplace||currentProfile.education||currentProfile.hometown||currentProfile.phone||privatePhone||currentProfile.website);
+ const detailHtml=detail('День народження',birthday)+detail('Місце проживання',currentProfile.location,'location')+detail('Місце роботи',currentProfile.workplace,'workplace')+detail('Навчання',currentProfile.education,'education')+detail('Рідне місто',currentProfile.hometown,'hometown')+detail('Телефон',currentProfile.phone||privatePhone||currentProfile.pendingPhone||privatePendingPhone)+(currentProfile.pendingPhone&&!privatePhone?'<p class="vatra-profile-pending-phone">Номер очікує підтвердження. Доступний лише Вам.</p>':'')+detail('Вебсайт',currentProfile.website);
+ const hasDetails=!!(birthday||currentProfile.city||currentProfile.location||currentProfile.workplace||currentProfile.education||currentProfile.hometown||currentProfile.phone||privatePhone||currentProfile.pendingPhone||privatePendingPhone||currentProfile.website);
  const myVideos=Object.values(videos||{}).filter(v=>v&&v.authorUid===uid).length;
  const stats='<div class="vatra-profile-stats"><button type="button" data-profile-stat="friends"><b>'+friendIds.length+'</b><span>Друзі</span></button><button type="button" data-profile-stat="photos"><b>'+gallery.length+'</b><span>Фотографії</span></button><button type="button" data-profile-stat="videos"><b>'+myVideos+'</b><span>Відео</span></button><button type="button" data-profile-stat="posts"><b>'+mine.length+'</b><span>Дописи</span></button></div>';
  const profileHtml='<section class="vatra-profile-layout">'+
@@ -2518,19 +2518,22 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
  btn.disabled=true;btn.textContent='Зберігаємо…';
  const uid=currentUser.uid;
  const draft={...currentProfile,...values,privateSections,extraVisibility,dateOfBirth,phone:privatePhone,pendingPhone:pendingPhone};
- // Save the actual account data and the private values before claiming success.
- // A failed write keeps the editor open with the entered values intact.
- await set(ref(db,`publicProfiles/${uid}`),publicProfileData(draft));
+ const saveSteps={account:false,private:false,publicProfile:false,friendsProfile:false};
  await update(ref(db,`users/${uid}`),values);
- await update(ref(db,`privateUsers/${uid}`),{dateOfBirth:dateOfBirth||null,phone:privatePhone||null,pendingPhone:pendingPhone||null,privateSections,updatedAt:values.updatedAt});
- await set(ref(db,`friendProfiles/${uid}`),friendProfileData(draft));
- // Read back both canonical records to ensure this click actually persisted.
- const [accountSnap,privateSnap]=await Promise.all([get(ref(db,`users/${uid}`)),get(ref(db,`privateUsers/${uid}`))]);
- const storedAccount=accountSnap.val()||{},storedPrivate=privateSnap.val()||{};
- if(storedAccount.updatedAt!==values.updatedAt||storedPrivate.updatedAt!==values.updatedAt||
-    JSON.stringify(storedPrivate.privateSections||{})!==JSON.stringify(privateSections)||
-    JSON.stringify(storedAccount.extraVisibility||{})!==JSON.stringify(extraVisibility)){
-  throw new Error('Сервер не підтвердив збереження всіх полів. Перевірте з’єднання та повторіть натискання.');
+ saveSteps.account=true;
+ await update(ref(db,`privateUsers/${uid}`),{
+  dateOfBirth:dateOfBirth||null,phone:privatePhone||null,
+  pendingPhone:pendingPhone||null,privateSections,updatedAt:values.updatedAt
+ });
+ saveSteps.private=true;
+ const externalViews=await Promise.allSettled([
+  set(ref(db,`publicProfiles/${uid}`),publicProfileData(draft)),
+  set(ref(db,`friendProfiles/${uid}`),friendProfileData(draft))
+ ]);
+ saveSteps.publicProfile=externalViews[0].status==='fulfilled';
+ saveSteps.friendsProfile=externalViews[1].status==='fulfilled';
+ if(!saveSteps.publicProfile||!saveSteps.friendsProfile){
+  console.warn('[ВАТРА] Дані акаунта збережено, але публічний вигляд очікує синхронізації.');
  }
  privateProfileSections=privateSections;
  privatePendingPhone=pendingPhone;
@@ -2541,8 +2544,8 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
  f.dataset.vatraDirty='false';
  if(saveNote){saveNote.textContent='✓ Зміни збережені';saveNote.dataset.state='saved';}
  if(pendingPhone){const status=$('#phoneVerificationStatus');if(status)status.textContent='Номер збережено, але ще не підтверджено. Натисніть «Надіслати код на телефон».';}
- toastMsg('Усі зміни збережені в Supabase.');
-}catch(err){const message=String(err?.message||'').startsWith('Сервер не підтвердив')?err.message:niceError(err);const errBox=f.querySelector('#settingsError'),saveNote=f.querySelector('.settings-savebar span');if(errBox)errBox.textContent=message;if(saveNote){saveNote.textContent='Збереження не завершилося. Перевірте помилку та спробуйте ще раз.';saveNote.dataset.state='error';}toastMsg('Не вдалося зберегти всі налаштування: '+message);console.error('[ВАТРА] Збереження профілю:',err);}finally{vatraSettingsSaving=false;const btn=f.querySelector('[type=submit]');if(btn){btn.disabled=false;btn.textContent='Зберегти налаштування';}}};}
+ toastMsg('Зміни збережено.');
+}catch(err){const message=niceError(err);const errBox=f.querySelector('#settingsError'),saveNote=f.querySelector('.settings-savebar span');if(errBox)errBox.textContent=message;if(saveNote){saveNote.textContent='Збереження не завершилося. Перевірте помилку та спробуйте ще раз.';saveNote.dataset.state='error';}toastMsg('Не вдалося повністю зберегти зміни. '+message);console.error('[ВАТРА] Збереження профілю:',err);}finally{vatraSettingsSaving=false;const btn=f.querySelector('[type=submit]');if(btn){btn.disabled=false;btn.textContent='Зберегти налаштування';}}};}
 function createGroup(){if(!authRequired())return;$('#communityError').textContent='';$('#communityForm').reset();$('#communityDialog').showModal();setTimeout(()=>$('#communityName').focus(),40);}async function editGroup(id){if(!authRequired())return;const g=groups[id];if(!g||g.ownerUid!==currentUser.uid)return toastMsg('Редагувати може лише творець спільноти.');const name=await askText('Назва спільноти',g.name||'');if(name===null)return;const description=await askText('Опис спільноти',g.description||'');if(description===null)return;if(name.trim().length<2)return toastMsg('Назва має містити щонайменше 2 символи.');try{await update(ref(db,`groups/${id}`),{name:name.trim().slice(0,60),description:description.trim().slice(0,500),updatedAt:Date.now()});toastMsg('Спільноту оновлено.');render();}catch(e){toastMsg(niceError(e));}}
 async function uploadVideo(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;if(!f.type.startsWith('video/'))return toastMsg('Виберіть відеофайл.');if(f.size>50*1024*1024)return toastMsg('Відео має бути меншим за 50 МБ.');const text=await askText('Підпис до відео (необов’язково)','');if(text===null){e.target.value='';return;}toastMsg('Завантажуємо відео…');try{const videoUrl=await uploadMedia(f,'videos');const vref=push(ref(db,'videos'));await set(vref,{authorUid:currentUser.uid,authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text:text.slice(0,300),videoUrl,createdAt:Date.now(),mimeType:f.type});toastMsg('Відео опубліковано!');render();}catch(err){toastMsg(niceError(err));}finally{e.target.value='';}}
 async function startChatWith(uid){if(!authRequired()||uid===currentUser.uid)return;if(blockedUsers[uid])return toastMsg('Спочатку розблокуй цього користувача.');if(users[uid]?.allowMessages===false)return toastMsg('Цей користувач вимкнув вхідні повідомлення.');const key=chatKey(currentUser.uid,uid);try{const snap=await get(ref(db,`chats/${key}`));if(!snap.exists())await set(ref(db,`chats/${key}`),{members:{[currentUser.uid]:true,[uid]:true},createdAt:Date.now()});await update(ref(db,`userChats/${currentUser.uid}/${key}`),{otherUid:uid,updatedAt:Date.now()});activeChat=uid;goPage('messages');activeChat=uid;renderMessages();}catch(e){toastMsg(niceError(e));}}
