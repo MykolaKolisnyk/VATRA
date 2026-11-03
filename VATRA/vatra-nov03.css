@@ -270,3 +270,52 @@ body :is(#settingsError,#chatSendError,#reportError):not(:empty):not([hidden]){
  border:1px solid #f3cbd1!important;border-radius:7px!important;
  box-shadow:none!important;padding:10px 12px!important}
 body .vatra-gift-toast,body .vatra-group-toast{border:1px solid #dae4f1!important;border-radius:8px!important;font:500 12px/1.5 Inter,Arial,sans-serif!important}
+
+body .brand-icon,body .auth-brand-mark,body .vatra-loading-mark,
+body .auth-layout .logo .vatra-brand-art,body .auth-layout .mobile-logo .vatra-brand-art,
+body .auth-layout .logo>span:first-child,body .auth-layout .mobile-logo>span:first-child{
+ display:inline-grid!important;place-items:center!important;flex:none!important;
+ background:transparent!important;background-image:none!important;color:transparent!important;
+ box-shadow:none!important;border:none!important;border-radius:0!important;overflow:visible!important;
+ padding:0!important}
+body .brand-icon img,body .auth-brand-mark img,body .vatra-loading-mark img,
+body .auth-layout .logo img,body .auth-layout .mobile-logo img{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;max-width:100%!important;max-height:100%!important}
+body .brand-icon{width:32px!important;height:32px!important}
+body .auth-brand-mark{width:39px!important;height:39px!important}
+body .auth-layout .logo>span:first-child{width:42px!important;height:42px!important}
+body .vatra-loading-mark{width:46px!important;height:46px!important}
+body .vatra-handle-availability{display:block;margin-top:7px;font:600 12px/1.4 Inter,Arial,sans-serif}
+body .vatra-handle-availability[data-status="available"]{color:#287f65}
+body .vatra-handle-availability[data-status="taken"],
+body .vatra-handle-availability[data-status="invalid"],
+body .vatra-handle-availability[data-status="unavailable"]{color:#b23c50}
+body .vatra-handle-availability[data-status="checking"]{color:#71859f}
+body .settings-savebar{display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:12px!important}
+body .settings-savebar:has(>button:only-child){padding:13px 0!important}
+body .settings-page .settings-card{min-width:0!important;overflow-wrap:anywhere}
+body .settings-page .settings-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:17px!important;row-gap:17px!important}
+body .settings-page .settings-grid>label{display:flex!important;flex-direction:column!important;gap:7px!important;min-width:0!important;max-width:100%!important;line-height:1.5!important}
+body .settings-page .settings-grid>label.span-two{grid-column:1/-1!important}
+body .settings-page .settings-grid :is(input,textarea,select){
+ box-sizing:border-box!important;min-width:0!important;max-width:100%!important;width:100%!important;
+ height:auto!important;min-height:44px!important;border-radius:8px!important}
+body .settings-page .settings-grid textarea{min-height:108px!important}
+body .settings-page .vatra-extra-setting-head{min-width:0!important;flex-wrap:wrap!important}
+body .settings-page .vatra-extra-setting-head .vatra-extra-visibility{margin-left:auto!important}
+body .community-settings-page>.vatra-group-settings-shell{display:grid!important;grid-template-columns:minmax(192px,228px) minmax(0,1fr)!important;align-items:start!important;gap:18px!important}
+body .community-settings-page .vatra-group-settings-content{min-width:0!important}
+body .community-settings-page .vatra-group-settings-content .settings-card{padding:22px!important;border:1px solid #e3eaf2!important;border-radius:11px!important;box-shadow:none!important}
+body .community-settings-page .vatra-group-settings-content .settings-card h3{font-size:18px!important}
+body .community-settings-page .vatra-group-settings-nav button{border-left:0!important;border-bottom:0!important;box-shadow:none!important;background:transparent!important;color:#556d83!important}
+body .community-settings-page .vatra-group-settings-nav button.active{background:#eaf0f7!important;color:#213b56!important;font-weight:700!important}
+body .vatra-community-pref-row{min-width:0!important;gap:14px!important}
+body .vatra-community-pref-row>span{min-width:0!important}
+@media(max-width:760px){
+ body .settings-page .settings-grid{grid-template-columns:minmax(0,1fr)!important}
+ body .settings-page .settings-grid>label.span-two{grid-column:auto!important}
+ body .community-settings-page>.vatra-group-settings-shell{grid-template-columns:minmax(0,1fr)!important}
+ body .community-settings-page .vatra-group-settings-nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important}
+ body .community-settings-page .vatra-group-settings-content .settings-card{padding:17px!important}
+}
