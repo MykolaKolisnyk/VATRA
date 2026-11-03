@@ -245,3 +245,22 @@ body[data-vatra-theme-effective="dark"] .settings-page .settings-grid :is(input,
 body[data-vatra-theme-effective="dark"] .community-settings-page .settings-grid :is(input,textarea,select){
  background:#25354b!important;border-color:#48617a!important;color:#e7eef8!important;
 }
+
+/* A date split into three selectors must have the full row, not half a field. */
+body .settings-page .settings-grid>label:has(.birthday-selects),
+body .settings-page .vatra-settings-pane .settings-grid>label:has(.birthday-selects){
+ grid-column:1/-1!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ min-width:0!important;max-width:100%!important;
+}
+body .settings-page .settings-grid>label:has(.birthday-selects) .birthday-selects{
+ width:min(100%,570px)!important;max-width:100%!important;
+ grid-template-columns:minmax(88px,.9fr) minmax(160px,1.4fr) minmax(100px,1fr)!important;
+ gap:10px!important;
+}
+@media(max-width:480px){
+ body .settings-page .settings-grid>label:has(.birthday-selects) .birthday-selects{
+  grid-template-columns:minmax(64px,1fr) minmax(105px,1.35fr) minmax(76px,1fr)!important;
+  gap:5px!important;
+ }
+}
