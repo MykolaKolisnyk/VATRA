@@ -720,7 +720,7 @@ function vatraExtraSectionsMarkup(values={},visibility={},owner=false,profileId=
 }
 function vatraProfileMoreButton(uid,id){
  const open=VATRA_PROFILE_MORE_EXPANDED.has(uid);
- return '<button type="button" class="vatra-profile-more-trigger" data-vatra-profile-more="'+esc(uid)+'" data-more-target="'+id+'" aria-expanded="'+open+'" aria-controls="'+id+'">'+(open?'Показати менше':'Показати більше')+' <span aria-hidden="true">'+(open?'⌃':'⌄')+'</span></button>';
+ return '<button type="button" class="vatra-profile-more-trigger" data-vatra-profile-more="'+esc(uid)+'" data-more-target="'+id+'" aria-expanded="'+open+'" aria-controls="'+id+'">'+(open?'Згорнути':'Показати більше')+' <span aria-hidden="true">'+(open?'↑':'⌄')+'</span></button>';
 }
 document.addEventListener('click',event=>{
  const button=event.target.closest('[data-vatra-profile-more]');
@@ -728,8 +728,7 @@ document.addEventListener('click',event=>{
  const target=document.getElementById(button.dataset.moreTarget);
  if(!target)return;
  const open=button.getAttribute('aria-expanded')!=='true';
- target.hidden=!open;button.setAttribute('aria-expanded',String(open));
- button.innerHTML=(open?'Показати менше':'Показати більше')+' <span aria-hidden="true">'+(open?'⌃':'⌄')+'</span>';
+ target.hidden=!open;document.querySelectorAll('[data-more-target="'+button.dataset.moreTarget+'"]').forEach(b=>{b.setAttribute('aria-expanded',String(open));b.innerHTML=(open?'Згорнути':'Показати більше')+' <span aria-hidden="true">'+(open?'↑':'⌄')+'</span>';});
  if(open)VATRA_PROFILE_MORE_EXPANDED.add(button.dataset.vatraProfileMore);
  else VATRA_PROFILE_MORE_EXPANDED.delete(button.dataset.vatraProfileMore);
 });
@@ -802,7 +801,7 @@ function renderProfile(){
     '<div class="vatra-profile-status-row">'+(vatraNowPlayingMarkup(currentProfile)||(currentProfile.status?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':'<p class="vatra-profile-status is-empty">Додайте свій статус</p>'))+'<button type="button" class="vatra-profile-status-edit" id="profileStatusEdit">'+(currentProfile.status?'Змінити статус':'Додати статус')+'</button></div>'+
     '<p class="profile-handle">@'+esc(currentProfile.handle||'user')+'</p></div></div>'+
     profileBioMarkup(currentProfile.bio||'Додайте коротку інформацію про себе в налаштуваннях профілю.')+
-    '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(currentProfile.gender))+detail('Місто',currentProfile.city,'city')+'</div>'+'<div class="vatra-profile-more" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+detailHtml+vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid)+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf')+
+    '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(currentProfile.gender))+detail('Місто',currentProfile.city,'city')+'</div>'+'<div class="vatra-profile-more" id="vatraProfileMoreSelf"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf')+detailHtml+vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid)+'</div>'+vatraProfileMoreButton(uid,'vatraProfileMoreSelf')+
     stats+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><a class="vatra-profile-link" id="profileViewPhotos" href="#/photos">Усі фото</a><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
@@ -1074,7 +1073,7 @@ function renderPublicProfile(uid){
     '<p class="profile-handle">@'+esc(u.handle||'user')+'</p></div><button type="button" class="text-link" id="backExplore">← Назад</button></div>'+
     (visibleBio?profileBioMarkup(visibleBio):'')+
     '<div class="vatra-profile-details">'+detail('Стать',vatraGenderLabel(u.gender))+detail('Місто',city,'city')+'</div>'+
-    '<div class="vatra-profile-more" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+
+    '<div class="vatra-profile-more" id="vatraProfileMorePublic"'+(VATRA_PROFILE_MORE_EXPANDED.has(uid)?'':' hidden')+'>'+vatraProfileMoreButton(uid,'vatraProfileMorePublic')+
     (hasDetails?detail('День народження',birthdayLabel)+detail('Місце проживання',location,'location')+detail('Місце роботи',workplace,'workplace')+detail('Навчання',education,'education')+detail('Рідне місто',hometown,'hometown')+detail('Телефон',phone)+detail('Вебсайт',visibleWebsite):'')+
     vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends)+
     '</div>'+vatraProfileMoreButton(uid,'vatraProfileMorePublic')+
@@ -2508,8 +2507,8 @@ function vatraOrganizeSettings(){
   const titles={interests:'Захоплення',service:'Військова служба',life:'Життєва позиція'};
   const grid=makeCard(section,titles[section],'Заповнені поля видно Вам у профілі. Для показу іншим окремо увімкніть їхню публічність.');
   for(const [key,labelText] of fields){
-   const label=document.createElement('label');label.textContent=labelText;
-   const textarea=document.createElement('textarea');textarea.name='private_'+key;textarea.maxLength=500;textarea.rows=2;textarea.placeholder='Не заповнено';textarea.value=String(currentProfile.privateSections?.[key]||'').slice(0,500);
+   const label=document.createElement('label');label.textContent='';
+   const textarea=document.createElement('textarea');textarea.name='private_'+key;textarea.maxLength=500;textarea.rows=2;textarea.setAttribute('aria-label',labelText);textarea.placeholder='Не заповнено';textarea.value=String(currentProfile.privateSections?.[key]||'').slice(0,500);
    label.append(textarea);
    const vis=document.createElement('label');vis.className='vatra-extra-visibility';vis.textContent='Хто бачить це поле';
    const select=document.createElement('select');select.name='extraVisibility_'+key;
@@ -2518,7 +2517,7 @@ function vatraOrganizeSettings(){
    }
    select.value=vatraFieldVisibility(currentProfile.extraVisibility?.[key]);
    vis.append(select);
-   const wrap=document.createElement('div');wrap.className='vatra-extra-setting';wrap.append(label,vis);grid.append(wrap);
+   const wrap=document.createElement('div');wrap.className='vatra-extra-setting';const head=document.createElement('div');head.className='vatra-extra-setting-head';const title=document.createElement('span');title.className='vatra-extra-setting-title';title.textContent=labelText;head.append(title,vis);wrap.append(head,label);grid.append(wrap);
   }
  }
  sections.privacy.append(privacyCard,adminCard);
