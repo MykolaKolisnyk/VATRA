@@ -182,3 +182,10 @@ body .vatra-group-toast{position:fixed!important;bottom:32px!important;left:50%!
  body .vatra-group-message-list{padding:12px!important}
  body .vatra-group-bubble{max-width:92%!important}
 }
+
+body .notification-list .notification-item{display:flex!important;align-items:flex-start!important;gap:13px!important}
+body .notification-item>.vatra-system-notice-icon{display:grid!important;place-items:center!important;align-self:flex-start!important;flex:0 0 38px!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;max-width:38px!important;max-height:38px!important;margin:0!important;padding:0!important;border:0!important;border-radius:9px!important;background:#e9f0fd!important;color:#0757f5!important}
+body .notification-item>.vatra-system-notice-icon svg{display:block!important;width:19px!important;height:19px!important;fill:none!important;stroke:#0757f5!important;stroke-width:2!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+body .notification-item .notification-copy{min-width:0!important;flex:1 1 auto!important}
+body .notification-item .notification-copy b{font-size:13px!important;font-weight:650!important}
+body .notification-item .vatra-notification-excerpt{font:400 12px/1.5 Inter,Arial,sans-serif!important;color:#677b95!important}
