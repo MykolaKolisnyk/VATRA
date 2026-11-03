@@ -25,7 +25,10 @@ const catalog=[
  {code:'clover',title:'Конюшина удачі',type:'premium',price:25},
  {code:'musicbox',title:'Музична скринька',type:'premium',price:55},
  {code:'swan',title:'Лебідь ніжності',type:'premium',price:50},
- {code:'diamond',title:'Кришталева зоря',type:'premium',price:65}
+ {code:'diamond',title:'Кришталева зоря',type:'premium',price:65},
+ {code:'zsu_tribute',title:'Сила ЗСУ',type:'premium',price:60},
+ {code:'ngu_tribute',title:'Міць НГУ',type:'premium',price:65},
+ {code:'dpsu_tribute',title:'Вартові кордону ДПСУ',type:'premium',price:65}
 ];
 const giftDescriptions={
  halloween:'Осінній подарунок із веселим гарбузиком для святкового настрою.',
@@ -50,7 +53,10 @@ const giftDescriptions={
  clover:'Чотирилиста конюшина — символ щасливих нагод.',
  musicbox:'Чарівна скринька з настроєм музики й спогадів.',
  swan:'Витончений лебідь — символ ніжності та відданості.',
- diamond:'Сяюча кришталева зоря для найцінніших моментів.'
+ diamond:'Сяюча кришталева зоря для найцінніших моментів.',
+ zsu_tribute:'Символ вдячності захисникам і захисницям Збройних Сил України. Авторський знак ВАТРИ, не офіційна відзнака.',
+ ngu_tribute:'Подарунок пошани військовослужбовцям Національної гвардії України. Дизайн ВАТРИ, не державна нагорода.',
+ dpsu_tribute:'Символ поваги до тих, хто охороняє державний кордон України. Не є офіційною відзнакою ДПСУ.'
 };
 const animatedGiftCodes=new Set(['spark','firebird','snowglobe','lantern','newyear','diamond','hearts']);
 const paths={
@@ -85,7 +91,13 @@ Object.assign(paths,{
  swan:'<path d="M34 111q27-28 59-10 9-24-1-48-9-16 0-27 12-14 25 0 8 11 0 24 13 11 13 25-11 8-29 3-9 30 18 48-33 19-57 6-19-3-28-21Z" fill="#FCF8FF" stroke="#CDBDE4" stroke-width="3"/><circle cx="107" cy="40" r="3.4" fill="#544E66"/><path d="m116 50 17 6-18 6Z" fill="#E5B881"/><path d="M41 112q25 25 44 15m-15-21q20 13 34 6" stroke="#D6C8EA" stroke-width="4" fill="none"/>',
  diamond:'<path d="m43 69 23-27h35l22 27-40 70Z" fill="#80D2E4" stroke="#55B0C7" stroke-width="3"/><path d="M43 69h80M66 42l-9 27 26 70 26-70-8-27M83 42v97" stroke="#D7F9FF" stroke-width="3" fill="none"/><path d="m33 46-6-10m104 9 9-9M84 28V16" stroke="#F8D582" stroke-width="5" stroke-linecap="round"/>'
 });
-const giftAccent={halloween:'#F2A264',newyear:'#73BDA2',independence:'#74B6F0',warmth:'#D9AD94',bouquet:'#DF90AD',spark:'#EDC15D',welcome:'#70ABEB',gold_pumpkin:'#F0B459',rose:'#E68AA6',cocoa:'#9CC5E7',cupcake:'#DBB0E7',lantern:'#E7BF77',ribbon:'#8BA8E8',sun:'#EBC867',teddy:'#D6AA8B',hearts:'#E68BAB',firebird:'#E69B71',snowglobe:'#A1CDE8',letter:'#E3A9BF',clover:'#91CDA3',musicbox:'#ACBDEA',swan:'#D1BFE6',diamond:'#9ED0E1'};
+/* Author-created tribute art. These are not official heraldic badges or awards. */
+Object.assign(paths,{
+ zsu_tribute:'<path d="M83 21 137 41v46c0 28-18 46-54 61-36-15-54-33-54-61V41Z" fill="#496A6D" stroke="#294B5D" stroke-width="4"/><path d="M83 28 129 45v41c0 23-14 39-46 53-32-14-46-30-46-53V45Z" fill="#627C5A" stroke="#A1B48A" stroke-width="2"/><path d="M83 43v42M63 63h40M71 63l12-17 12 17" stroke="#EDD79B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M60 103h46" stroke="#EFC95A" stroke-width="3"/><text x="83" y="121" text-anchor="middle" font-size="25" font-weight="900" fill="#FFF4CF" font-family="sans-serif">ЗСУ</text><path d="m47 95-9-10m82 10 9-10" stroke="#D6C68C" stroke-width="4" stroke-linecap="round"/>',
+ ngu_tribute:'<path d="M83 21 135 48v42c0 31-18 43-52 58-34-15-52-27-52-58V48Z" fill="#274F69" stroke="#183D5A" stroke-width="4"/><path d="M83 29 127 53v36c0 25-13 38-44 51-31-13-44-26-44-51V53Z" fill="#3B6F78" stroke="#6EABB0" stroke-width="2"/><circle cx="83" cy="76" r="29" fill="#2D6873" stroke="#D9C98B" stroke-width="4"/><path d="m83 50 8 18 18 8-18 7-8 19-8-19-18-7 18-8Z" fill="#E3C788" stroke="#F7E8B2" stroke-width="1.5"/><text x="83" y="125" text-anchor="middle" font-size="23" font-weight="900" fill="#E5EFCF" font-family="sans-serif">НГУ</text>',
+ dpsu_tribute:'<path d="M83 20 139 43v44c0 26-20 46-56 61-36-15-56-35-56-61V43Z" fill="#2C7E76" stroke="#174C51" stroke-width="4"/><path d="M83 28 131 49v38c0 21-14 39-48 52-34-13-48-31-48-52V49Z" fill="#3C9382" stroke="#7BD0B1" stroke-width="2"/><path d="M48 84 64 67l15 16 23-29 17 17" stroke="#D9F3E7" stroke-width="6" stroke-linejoin="round" fill="none"/><circle cx="102" cy="55" r="7" fill="#ECD78E"/><path d="M58 100h50" stroke="#F6E4AB" stroke-width="3" stroke-linecap="round"/><text x="83" y="124" text-anchor="middle" font-size="18" font-weight="900" fill="#F9F2D3" font-family="sans-serif">ДПСУ</text>'
+});
+const giftAccent={halloween:'#F2A264',newyear:'#73BDA2',independence:'#74B6F0',warmth:'#D9AD94',bouquet:'#DF90AD',spark:'#EDC15D',welcome:'#70ABEB',gold_pumpkin:'#F0B459',rose:'#E68AA6',cocoa:'#9CC5E7',cupcake:'#DBB0E7',lantern:'#E7BF77',ribbon:'#8BA8E8',sun:'#EBC867',teddy:'#D6AA8B',hearts:'#E68BAB',firebird:'#E69B71',snowglobe:'#A1CDE8',letter:'#E3A9BF',clover:'#91CDA3',musicbox:'#ACBDEA',swan:'#D1BFE6',diamond:'#9ED0E1',zsu_tribute:'#97AD8B',ngu_tribute:'#87B8BF',dpsu_tribute:'#82CAB3'};
 let artSerial=0;
 function art(code){
  const label=catalog.find(x=>x.code===code)?.title||'Подарунок ВАТРИ';
@@ -193,9 +205,11 @@ const giftLongDescriptions={
   "swan": "Витончений лебідь. Підійде, коли хочеться висловити увагу, ніжність або повагу.",
   "diamond": "Сяюча кришталева зоря з плавною анімацією. Особливий колекційний подарунок для близької людини."
 };
+Object.assign(giftLongDescriptions,{zsu_tribute:'Незалежна символічна ілюстрація подяки воїнам ЗСУ.',ngu_tribute:'Оригінальна ілюстрація ВАТРИ на знак пошани НГУ.',dpsu_tribute:'Подарунок присвячено охоронцям державного кордону України.'});
+
 /* Each collectible gets its own gentle SVG particle atmosphere behind the gift. */
 function vatraGiftAtmosphere(code){
- const kindByCode={
+ const kindByCode={zsu_tribute:'glimmer',ngu_tribute:'spark',dpsu_tribute:'leaf',
   halloween:'leaf',newyear:'snow',independence:'glimmer',
   warmth:'hearts',bouquet:'petal',spark:'spark',welcome:'glimmer',
   gold_pumpkin:'leaf',rose:'petal',cocoa:'glimmer',cupcake:'spark',
