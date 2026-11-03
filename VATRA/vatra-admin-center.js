@@ -73,7 +73,7 @@ function askAction(label,detail,{danger=false}={}){
 }
 function navbar(){
  return '<nav class="vatra-control-tabs" aria-label="Розділи адмінпанелі">'+
- [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['content','Контент'],['verification','Галочки'],['requests','Заявки'],['team','Команда'],['gifts','Замовлення подарунків'],['support','Техпідтримка'],['duties','Обов’язки'],['audit','Журнал']].filter(([key])=>staffRole==='owner'||(staffRole==='admin'?['reports','accounts','communities','content','verification','requests','duties'].includes(key):staffRole==='moderator'?['reports','content','duties'].includes(key):staffRole==='support'?['reports','support','duties'].includes(key):staffRole==='verifier'?['verification','requests','duties'].includes(key):false)).map(([key,label])=>
+ [['reports','Скарги'],['accounts','Користувачі'],['communities','Спільноти'],['content','Контент'],['verification','Галочки'],['requests','Заявки'],['team','Команда'],['gifts','Подарунки'],['support','Техпідтримка'],['duties','Обов’язки'],['audit','Журнал']].filter(([key])=>staffRole==='owner'||(staffRole==='admin'?['reports','accounts','communities','content','verification','requests','duties'].includes(key):staffRole==='moderator'?['reports','content','duties'].includes(key):staffRole==='support'?['reports','support','duties'].includes(key):staffRole==='verifier'?['verification','requests','duties'].includes(key):false)).map(([key,label])=>
   '<button type="button" data-control-tab="'+key+'" class="'+(activeTab===key?'is-active':'')+'">'+label+(key==='reports'&&queueCount?'<span>'+queueCount+'</span>':'')+'</button>').join('')+'</nav>';
 }
 function activityStats(cases,accounts,groups){
@@ -214,17 +214,8 @@ const giftNames={
  lantern:'Ліхтарик ВАТРИ',ribbon:'Стрічка щастя',sun:'Сонечко',teddy:'Ведмедик ВАТРИ',
  hearts:'Два серця',firebird:'Вогняний птах',snowglobe:'Снігова куля',letter:'Листівка з теплом',clover:'Конюшина удачі',musicbox:'Музична скринька',swan:'Лебідь ніжності',diamond:'Кришталева зоря'
 };
-function giftAdminMarkup(orders=[]){
- const pending=orders.filter(o=>o.status==='pending');
- return '<section class="vatra-control-card vatra-gift-admin">'+
- '<h3>Замовлення подарунків <small>'+pending.length+' нових</small></h3>'+
- '<p>Користувач надсилає заявку за ціною в гривнях. Зв’яжіться з ним у месенджері ВАТРИ, узгодьте оплату та видайте подарунок лише після фактичного отримання коштів.</p>'+
- '<div class="vatra-gift-admin-orders">'+
- (orders.some(o=>o.status!=='cancelled')?orders.filter(o=>o.status!=='cancelled').map(o=>'<article class="vatra-gift-admin-order"><div><strong>№'+esc(o.id)+' · '+esc(giftNames[o.code]||o.code)+'</strong><span>@'+esc(o.handle||'невідомий')+' · '+esc(o.price)+' грн</span><small>UID: '+esc(o.uid)+'</small><small>'+time(o.createdAt)+'</small></div>'+
- '<div><span class="vatra-control-state">'+esc(({pending:'Нове замовлення',fulfilled:'Видано'})[o.status]||o.status)+'</span>'+
- (o.status==='pending'?'<div class="vatra-gift-admin-message"><textarea data-vatra-gift-message-input="'+esc(o.id)+'" rows="2" maxlength="4000" placeholder="Напишіть повідомлення від ВАТРИ про спосіб оплати..."></textarea><button type="button" class="vatra-control-secondary" data-vatra-gift-contact="'+esc(o.id)+'">Написати від ВАТРИ</button></div><button type="button" class="vatra-control-primary" data-vatra-gift-fulfill="'+esc(o.id)+'">Оплату отримано · Видати</button><button type="button" class="vatra-control-secondary" data-vatra-gift-order-remove="'+esc(o.id)+'">Відхилити й видалити</button>':'')+
- '</div></article>').join(''):'<p class="vatra-control-muted">Замовлень поки немає.</p>')+
- '</div></section>'+
+function giftAdminMarkup(){
+ return '<section class="vatra-control-card vatra-gift-admin"><h3>Керування подарунками</h3><p>Платні подарунки тимчасово недоступні для купівлі. Видача й відкликання наявних подарунків залишаються доступними власнику ВАТРИ.</p></section>'+
  '<section class="vatra-control-card vatra-gift-admin"><h3>Видати подарунок за псевдонімом</h3>'+
  '<p>Спочатку перевірте @псевдонім користувача. Подарунок закріплюється за його UID, навіть якщо згодом псевдонім зміниться.</p>'+
  '<form id="vatraGiftAdminIssue"><label>Псевдонім<input name="handle" placeholder="@псевдонім" required autocomplete="off"></label><label>Подарунок<select name="code">'+Object.entries(giftNames).map(([c,n])=>'<option value="'+esc(c)+'">'+esc(n)+'</option>').join('')+'</select></label>'+
@@ -242,30 +233,6 @@ function giftAdminToast(message,error=false){
  const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Закрити');close.addEventListener('click',()=>div.remove());div.append(close);document.body.append(div);
 }
 function installGiftAdminEvents(){
- document.querySelectorAll('[data-vatra-gift-contact]').forEach(button=>button.addEventListener('click',async()=>{
-  const id=Number(button.dataset.vatraGiftContact),input=document.querySelector('[data-vatra-gift-message-input="'+id+'"]');
-  const message=input?.value.trim()||'';
-  if(message.length<5){giftAdminToast('Введіть повідомлення від ВАТРИ.',true);input?.focus();return;}
-  button.disabled=true;
-  try{
-   await rpc('vatra_gifts_admin_contact_order',{_order_id:id,_message:message});
-   input.value='';giftAdminToast('Службове повідомлення надіслано. Діалог доступний у техпідтримці.');
-  }catch(err){giftAdminToast(errorText(err),true);}finally{button.disabled=false;}
- }));
- document.querySelectorAll('[data-vatra-gift-order-remove]').forEach(button=>button.addEventListener('click',async()=>{
-  const id=Number(button.dataset.vatraGiftOrderRemove);
-  if(!(await askAction('Відхилити замовлення №'+id+'?','Заявка буде повністю видалена зі списків власника та користувача.',{danger:true})))return;
-  button.disabled=true;
-  try{await rpc('vatra_gifts_admin_cancel_order',{_order_id:id});await renderDashboard();}
-  catch(err){button.disabled=false;const box=document.querySelector('.vatra-gift-admin h3');toastInline(box,errorText(err));}
- }));
- document.querySelectorAll('[data-vatra-gift-fulfill]').forEach(button=>button.addEventListener('click',async()=>{
-  const id=Number(button.dataset.vatraGiftFulfill);
-  if(!(await askAction('Підтвердити оплату та видати подарунок за замовленням №'+id+'?','Підтверджуйте тільки після фактичного отримання коштів.')))return;
-  button.disabled=true;
-  try{await rpc('vatra_gifts_admin_fulfill',{_order_id:id});await renderDashboard();}
-  catch(e){button.disabled=false;giftAdminToast(errorText(e),true);}
- }));
  const issue=$('#vatraGiftAdminIssue');
  issue?.addEventListener('submit',async e=>{
   e.preventDefault();const f=e.currentTarget,handle=f.elements.handle.value.trim().replace(/^@/,''),code=f.elements.code.value,reason=f.elements.reason.value.trim();
@@ -308,9 +275,8 @@ async function renderDashboard(){
  show(navbar()+'<div class="vatra-control-loading" role="status">Завантажуємо панель керування…</div>','Адмінпанель ВАТРИ','adminCenter');
  try{
   if(activeTab==='gifts'){
-   const giftOrders=await rpc('vatra_gifts_admin_orders',{});
    if(token!==loadingToken||document.body.dataset.page!=='adminCenter')return;
-   show(navbar()+giftAdminMarkup(Array.isArray(giftOrders)?giftOrders:[]),'Адмінпанель ВАТРИ','adminCenter');
+   show(navbar()+giftAdminMarkup(),'Адмінпанель ВАТРИ','adminCenter');
    installTabs();installGiftAdminEvents();
    return;
   }
