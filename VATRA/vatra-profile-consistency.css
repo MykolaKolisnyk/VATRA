@@ -97,7 +97,28 @@ body[data-page="profile"] .vatra-profile-overview>.vatra-profile-stats,
 body[data-page="publicProfile"] .vatra-profile-overview>.vatra-profile-stats{
   display:none!important;
 }
-body .vatra-profile-summary-compact .vatra-profile-bio-full{
+/* Short biography: no button. A real overflow past two lines enables the button. */
+body .vatra-profile-summary-compact .vatra-profile-bio-smart{
+  display:block!important;
+  position:relative!important;
+  min-width:0!important;
+  margin:7px 0 6px!important;
+  padding:0!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-smart>.vatra-profile-bio{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  line-clamp:2!important;
+  max-height:3em!important;
+  overflow:hidden!important;
+  margin:0!important;
+  padding:0!important;
+  white-space:pre-wrap!important;
+  overflow-wrap:anywhere!important;
+  text-overflow:ellipsis!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-smart.is-expanded>.vatra-profile-bio{
   display:block!important;
   -webkit-line-clamp:unset!important;
   line-clamp:unset!important;
@@ -105,6 +126,25 @@ body .vatra-profile-summary-compact .vatra-profile-bio-full{
   max-height:none!important;
   overflow:visible!important;
   text-overflow:clip!important;
-  white-space:pre-wrap!important;
-  overflow-wrap:anywhere!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-smart>.vatra-profile-bio-toggle{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:25px!important;
+  margin:3px 0 0!important;
+  padding:2px 0!important;
+  color:#436e9b!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  font:600 12px/1.35 Inter,system-ui,sans-serif!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-smart>.vatra-profile-bio-toggle[hidden]{
+  display:none!important;
+}
+body .vatra-profile-summary-compact .vatra-profile-bio-smart>.vatra-profile-bio-toggle:hover{
+  text-decoration:underline!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-bio-smart>.vatra-profile-bio-toggle{
+  color:#a9c8ee!important;
 }
