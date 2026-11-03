@@ -100,9 +100,19 @@ async function setPlayingState(uri,playing,duration=0,position=0){
  void publishMusicStatus({uri,title:track?.title||'Трек Spotify',artist:track?.artist||'Spotify',startedAt:Date.now(),expiresAt:expiry});
 }
 async function attachSpotifyController(item){
+ // Reuse Spotify's controller instead of tearing down the iframe when a new
+ // track, album or playlist is selected. This also prevents stacked players.
+ if(spotifyController){
+  try{spotifyController.loadEntity(addressFor(playerItem||item));return;}
+  catch(error){console.warn('[VATRA music] Could not switch media in place',error);try{spotifyController.destroy();}catch{}spotifyController=null;}
+ }
+ if(spotifyInitializing)return;
  const api=await ensureSpotifyApi();
  if(!playerItem)return;
- if(spotifyController){try{spotifyController.destroy();}catch{}spotifyController=null;}
+ if(spotifyController){
+  try{spotifyController.loadEntity(addressFor(playerItem));return;}
+  catch{try{spotifyController.destroy();}catch{}spotifyController=null;}
+ }
  if(spotifyInitializing)return;
  spotifyInitializing=true;
  const dock=activePlayer(),wrap=dock.querySelector('.vatra-music-frame-wrap');
