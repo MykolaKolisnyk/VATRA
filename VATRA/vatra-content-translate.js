@@ -2,6 +2,8 @@
 import {initializeApp,getDatabase} from './vatra-backend.js?v=20261031-7';
 const client=getDatabase(initializeApp()).client;
 const cache=new Map();
+const resetters=new Set();
+let languageRevision=0;
 const selectors='.post .post-text,.post .vatra-post-text,.comment .comment-copy > span,.vatra-my-video > p';
 const texts={
  uk:{translate:'Перекласти',original:'Показати оригінал',working:'Перекладаємо…',title:'Переклад',error:'Переклад поки недоступний. Спробуйте пізніше.',rate:'Забагато перекладів. Спробуйте пізніше.',signin:'Увійдіть, щоб перекладати.',note:'Текст буде передано сервісу перекладу.'},
@@ -23,10 +25,12 @@ function annotate(node){
  node.insertAdjacentElement('afterend',output);
  node.insertAdjacentElement('afterend',button);
  let translated=false;
+ const reset=()=>{translated=false;node.hidden=false;output.hidden=true;status.hidden=true;button.disabled=false;button.textContent=labels().translate;button.title=labels().note;};
+ resetters.add(reset);
  button.addEventListener('click',async()=>{
   if(translated){translated=false;node.hidden=false;output.hidden=true;button.textContent=labels().translate;return;}
   status.hidden=true;
-  const lang=language(),key=lang+'|'+value;
+  const lang=language(),key=lang+'|'+value,revision=languageRevision;
   if(!cache.has(key)){
    button.disabled=true;button.textContent=labels().working;
    try{
@@ -36,12 +40,15 @@ function annotate(node){
      if(!reason&&error?.context?.json){try{reason=(await error.context.json())?.error;}catch{}}
      const copy=labels();throw new Error(reason==='RATE_LIMITED'?copy.rate:reason==='SIGN_IN_REQUIRED'?copy.signin:copy.error);
     }
+    if(revision!==languageRevision)return;
     cache.set(key,data.translation);
    }catch(error){
+    if(revision!==languageRevision)return;
     status.textContent=error?.message||labels().error;status.hidden=false;button.textContent=labels().translate;button.disabled=false;return;
    }
    button.disabled=false;
   }
+  if(revision!==languageRevision)return;
   output.replaceChildren();
   const caption=document.createElement('small');caption.textContent=labels().title;
   const translatedText=document.createElement('p');translatedText.textContent=cache.get(key);
@@ -53,5 +60,5 @@ function annotate(node){
 let pending=false;
 function scan(){document.querySelectorAll(selectors).forEach(annotate);}
 new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;scan();});}).observe(document.body,{childList:true,subtree:true});
-document.addEventListener('vatra:languagechange',()=>{cache.clear();document.querySelectorAll('.vatra-translate-button').forEach(button=>{button.textContent=labels().translate;button.title=labels().note;});document.querySelectorAll('.vatra-translation-result').forEach(result=>result.hidden=true);document.querySelectorAll(selectors).forEach(node=>node.hidden=false);});
+document.addEventListener('vatra:languagechange',()=>{languageRevision++;cache.clear();for(const reset of resetters)reset();});
 scan();
