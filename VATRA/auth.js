@@ -453,7 +453,7 @@ $('#recoveryForm').addEventListener('submit',async e=>{
    $('#recoveryOtpWrap').hidden=false;$('#recoveryNewPasswordWrap').hidden=false;$('#recoveryConfirmWrap').hidden=false;
    $('#recoveryOtp').required=true;$('#recoveryNewPassword').required=true;$('#recoveryConfirmPassword').required=true;
    btn.textContent='Підтвердити код і змінити пароль';feedback('Якщо номер прив’язаний до акаунта, код надіслано SMS. Не передавайте його нікому.',true);return;
-  }catch(err){feedback(errors[err.code]||err.message||'Не вдалося надіслати повідомлення. Перевірте налаштування Supabase.');return;}
+  }catch(err){feedback(errors[err.code]||'Не вдалося надіслати повідомлення. Перевірте з’єднання з ВАТРОЮ.');return;}
   finally{btn.disabled=false;if(recoveryStep==='contact')syncRecoveryMethod();}
  }
  const code=$('#recoveryOtp').value.trim(),password=$('#recoveryNewPassword').value,confirmation=$('#recoveryConfirmPassword').value;
@@ -464,7 +464,7 @@ $('#recoveryForm').addEventListener('submit',async e=>{
  try{
   await verifyOtp({phone:contact,token:code});await setAccountPassword(password);
   feedback('Пароль змінено. Ви входите у ВАТРУ.',true);location.replace('index.html');
- }catch(err){feedback(errors[err.code]||err.message||'Не вдалося змінити пароль. Перевірте код і спробуйте ще раз.');}
+ }catch(err){feedback(errors[err.code]||'Не вдалося змінити пароль. Перевірте код і спробуйте ще раз.');}
  finally{btn.disabled=false;btn.textContent='Підтвердити код і змінити пароль';submitting=false;}
 });
 $('#showPassword').closest('.field').hidden=false;
@@ -543,7 +543,7 @@ $('#authForm').addEventListener('submit',async e=>{
    openHumanCaptcha();
   }catch(err){
    pendingHumanAction=null;
-   $('#error').textContent=errors[err.code]||err.message||'Не вдалося перевірити облікові дані. Перевірте інтернет і спробуйте ще раз.';
+   $('#error').textContent=errors[err.code]||'Не вдалося перевірити облікові дані. Перевірте інтернет і спробуйте ще раз.';
    $('#error').classList.remove('success');
    if(err.code==='auth/too-many-requests')startAuthRateLimitCooldown(300);
   }finally{
@@ -590,7 +590,7 @@ $('#authForm').addEventListener('submit',async e=>{
   return;
  }catch(err){
   pendingHumanAction=null;suppressAuthRedirect=false;
-  $('#error').textContent=errors[err.code]||err.message||'Не вдалося виконати дію. Перевірте інтернет і налаштування авторизації.';
+  $('#error').textContent=errors[err.code]||'Не вдалося виконати дію. Перевірте інтернет і налаштування авторизації.';
   $('#error').classList.remove('success');
   if(err.code==='auth/too-many-requests')startAuthRateLimitCooldown(300);
   if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);
