@@ -514,3 +514,32 @@ body .vatra-language-picker-option>small{font-size:9px;color:#9aacc1;white-space
  body .vatra-fof-photo img{transition:none!important}
  body .vatra-clips-feed{scroll-behavior:auto!important}
 }
+
+
+/* Sponsored posts: visually distinct but native to VATRA. */
+body .vatra-sponsored-placement{display:grid;gap:0;min-width:0}
+body .vatra-sponsored-placement>header{display:flex;align-items:center;gap:8px;padding:8px 14px 9px;font:600 11px/1.4 "VATRA Onest",system-ui,sans-serif;color:#71869f}
+body .vatra-sponsored-placement>header strong{font-weight:760;color:#315f95}
+body .vatra-sponsored-placement>header span{font-weight:500}
+body .vatra-sponsored-placement>.post{margin-top:0!important}
+body .vatra-promotion-dialog{position:fixed;inset:0;margin:auto;width:min(440px,calc(100vw - 28px));max-height:min(94dvh,640px);overflow:auto;padding:0;border:1px solid #dce7f5;border-radius:15px;box-shadow:0 20px 70px #192e4755;background:#fff;color:#243c57}
+body .vatra-promotion-dialog::backdrop{background:#111d3180}
+body .vatra-promotion-form{display:grid;gap:13px;padding:25px}
+body .vatra-promotion-form header small{font-size:10px;letter-spacing:.1em;color:#7493b5;font-weight:750}
+body .vatra-promotion-form h2{font-size:21px;line-height:1.25;margin:8px 0 6px;color:inherit}
+body .vatra-promotion-form header p{margin:0;color:#75879c;font-size:12px;line-height:1.65}
+body .vatra-promotion-form>label{font-size:12px;font-weight:700}
+body .vatra-promotion-form>select{width:100%;min-height:42px;appearance:auto;background:#f8fbfe;color:#254466;border:1px solid #d9e4f0;border-radius:9px;padding:8px 11px;font-size:13px}
+body .vatra-promotion-form .vatra-promotion-note{margin:0;padding:10px 12px;background:#f5f8fc;color:#647f9a;font-size:11px;line-height:1.55;border-radius:9px}
+body .vatra-promotion-form .vatra-promotion-error{margin:0;color:#ad354e;font-size:12px;line-height:1.5}
+body .vatra-promotion-form footer{display:flex;justify-content:flex-end;gap:9px;margin-top:4px}
+body .vatra-promotion-form footer button{min-height:38px;padding:9px 14px;border-radius:9px;cursor:pointer;border:1px solid #d9e5f1;background:#fff;color:#3b6080;font-size:12px;font-weight:700}
+body .vatra-promotion-form footer button.primary{background:#0757f5;border-color:#0757f5;color:#fff}
+body .vatra-promotion-form footer button:disabled{opacity:.6;cursor:wait}
+body[data-vatra-theme-effective="dark"] .vatra-sponsored-placement>header{color:#9eb3c9}
+body[data-vatra-theme-effective="dark"] .vatra-sponsored-placement>header strong{color:#a9ccf9}
+body[data-vatra-theme-effective="dark"] .vatra-promotion-dialog{background:#1e2a3b;color:#f0f6fc;border-color:#405167}
+body[data-vatra-theme-effective="dark"] .vatra-promotion-form>select,body[data-vatra-theme-effective="dark"] .vatra-promotion-form .vatra-promotion-note{background:#27354b;color:#d6e4f4;border-color:#506177}
+body[data-vatra-theme-effective="dark"] .vatra-promotion-form header p{color:#b0c0d3}
+body[data-vatra-theme-effective="dark"] .vatra-promotion-form footer button:not(.primary){background:#2c3d51;color:#e2eefa;border-color:#4d6076}
+@media(prefers-reduced-motion:reduce){body .vatra-sponsored-placement *{scroll-behavior:auto!important}}
