@@ -186,7 +186,7 @@ const errors={
  'vatra/account-creation-failed':'Не вдалося створити акаунт. Спробуйте пізніше.'
 };
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
-let humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);
+let humanPauseUntil=0;try{humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);}catch{}
 let humanPauseTimer=null;
 function vatrapauseHumanCheck(wrap){
  const remaining=Math.ceil((humanPauseUntil-Date.now())/1000);
