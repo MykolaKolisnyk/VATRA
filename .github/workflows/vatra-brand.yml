@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'VATRA/favicon.svg'
+      - 'VATRA/vatra-header.svg'
       - 'tools/prepare-vatra-brand.py'
       - '.github/workflows/vatra-brand.yml'
 permissions:
@@ -26,7 +27,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add VATRA/logo.png VATRA/vatra-icon.png VATRA/favicon.png VATRA/favicon-small.png
+          git add VATRA/logo.png VATRA/vatra-icon.png VATRA/vatra-header.png VATRA/favicon.png VATRA/favicon-small.png
           if ! git diff --cached --quiet; then
             git commit -m "brand: original user artwork, transparent outside favicon"
             git push
