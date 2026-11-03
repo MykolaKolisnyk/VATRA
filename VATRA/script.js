@@ -2,7 +2,7 @@ import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from '
 import { setupNavigation } from './navigation.js?v=20261031-1';
 import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
-import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261031-5';
+import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261103-3';
 // Install the moderation route guards before the first profile or group is rendered.
 import './vatra-ban-pages.js?v=20261031-9';
 import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia } from './vatra-backend.js?v=20261031-7';
