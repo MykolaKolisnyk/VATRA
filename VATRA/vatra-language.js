@@ -40,6 +40,20 @@ const overrides={
  pt:{'Мій профіль':'Meu perfil','Друзі':'Amigos','Новини':'Notícias','Повідомлення':'Mensagens','Спільноти':'Comunidades','Відео':'Vídeos','Збережене':'Salvos','Налаштування':'Configurações','Сповіщення':'Notificações','Музика':'Música','Пошук':'Buscar','Увійти':'Entrar','Створити акаунт':'Criar conta','Ім’я':'Nome','Прізвище':'Sobrenome','Дата народження':'Data de nascimento','Стать':'Gênero','Чоловік':'Homem','Жінка':'Mulher','Електронна пошта':'E-mail','Телефон':'Telefone','Пароль':'Senha','Продовжити':'Continuar','Зберегти налаштування':'Salvar configurações','Мова інтерфейсу':'Idioma','Створити допис':'Criar publicação','Фото':'Foto','Фотографії':'Fotos','Згорнути':'Mostrar menos','Показати більше':'Mostrar mais','Пошук людей і дописів':'Buscar pessoas e publicações'},
  it:{'Мій профіль':'Il mio profilo','Друзі':'Amici','Новини':'Notizie','Повідомлення':'Messaggi','Спільноти':'Comunità','Відео':'Video','Збережене':'Salvati','Налаштування':'Impostazioni','Сповіщення':'Notifiche','Музика':'Musica','Пошук':'Cerca','Увійти':'Accedi','Створити акаунт':'Crea account','Ім’я':'Nome','Прізвище':'Cognome','Дата народження':'Data di nascita','Стать':'Genere','Чоловік':'Uomo','Жінка':'Donna','Електронна пошта':'Email','Телефон':'Telefono','Пароль':'Password','Продовжити':'Continua','Зберегти налаштування':'Salva impostazioni','Мова інтерфейсу':'Lingua','Створити допис':'Crea post','Фото':'Foto','Фотографії':'Foto','Згорнути':'Mostra meno','Показати більше':'Mostra altro','Пошук людей і дописів':'Cerca persone e post'}
 };
+const footerLabels={
+ en:{'Українська соціальна мережа':'Ukrainian social network','Конфіденційність':'Privacy','Розробник:':'Developer:','Реклама':'Advertisement','Місце для реклами':'Advertising space'},
+ pl:{'Українська соціальна мережа':'Ukraińska sieć społecznościowa','Конфіденційність':'Prywatność','Розробник:':'Twórca:','Реклама':'Reklama','Місце для реклами':'Miejsce na reklamę'},
+ de:{'Українська соціальна мережа':'Ukrainisches soziales Netzwerk','Конфіденційність':'Datenschutz','Розробник:':'Entwickler:','Реклама':'Werbung','Місце для реклами':'Werbefläche'},
+ fr:{'Українська соціальна мережа':'Réseau social ukrainien','Конфіденційність':'Confidentialité','Розробник:':'Développeur :','Реклама':'Publicité','Місце для реклами':'Espace publicitaire'},
+ es:{'Українська соціальна мережа':'Red social ucraniana','Конфіденційність':'Privacidad','Розробник:':'Desarrollador:','Реклама':'Publicidad','Місце для реклами':'Espacio publicitario'},
+ pt:{'Українська соціальна мережа':'Rede social ucraniana','Конфіденційність':'Privacidade','Розробник:':'Desenvolvedor:','Реклама':'Publicidade','Місце для реклами':'Espaço publicitário'},
+ it:{'Українська соціальна мережа':'Social network ucraino','Конфіденційність':'Privacy','Розробник:':'Sviluppatore:','Реклама':'Pubblicità','Місце для реклами':'Spazio pubblicitario'}
+};
+const footerLabelKeys=new Set(Object.keys(footerLabels.en));
+function interfaceLabel(original){
+ if(language==='uk')return original;
+ return footerLabels[language]?.[original]||overrides[language]?.[original]||(language==='en'?base[original]:original);
+}
 const descriptions={
  uk:'ВАТРА — українська соціальна мережа. Друзі, спільноти, дописи, фото та повідомлення.',
  en:'VATRA is a Ukrainian social network for friends, communities, posts, photos and messages.',
@@ -66,8 +80,8 @@ function translateText(node){
   saved.set(node,record);
  }
  const original=record.original.trim();
- if(!base[original])return;
- const value=language==='uk'?original:(overrides[language]?.[original]||(language==='en'?base[original]:original));
+ if(!base[original]&&!footerLabelKeys.has(original))return;
+ const value=interfaceLabel(original);
  const whitespaceLeft=record.original.match(/^\s*/)[0],whitespaceRight=record.original.match(/\s*$/)[0];
  const translated=whitespaceLeft+value+whitespaceRight;
  if(text!==translated){node.nodeValue=translated;record.last=translated;}
@@ -85,7 +99,7 @@ function translateRoot(root){
  root.querySelectorAll?.('input[placeholder]').forEach(el=>{
   const original=el.dataset.vatraOriginalPlaceholder||el.getAttribute('placeholder');
   if(!el.dataset.vatraOriginalPlaceholder)el.dataset.vatraOriginalPlaceholder=original;
-  const text=language==='uk'?original:(overrides[language]?.[original]||(language==='en'?base[original]:original));
+  const text=interfaceLabel(original);
   if(el.placeholder!==text)el.placeholder=text;
  });
 }
