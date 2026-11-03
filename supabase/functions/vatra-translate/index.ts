@@ -10,7 +10,7 @@ function response(req,data,status=200){
  if(ORIGINS.has(origin))headers['Access-Control-Allow-Origin']=origin;
  headers['Access-Control-Allow-Headers']='authorization,apikey,content-type,x-client-info';
  headers['Access-Control-Allow-Methods']='POST, OPTIONS';
- return new Response(JSON.stringify(data),{status,headers});
+ return new Response(status===204?null:JSON.stringify(data),{status,headers});
 }
 Deno.serve(async req=>{
  const origin=req.headers.get('origin');
