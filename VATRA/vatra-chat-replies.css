@@ -1,0 +1,21 @@
+body .vatra-chat-reply-preview[hidden]{display:none!important}
+body .vatra-chat-reply-preview{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:10px 14px;margin:0 13px 5px;min-width:0;
+ border-left:3px solid #7f91a8;border-radius:8px;background:#f1f5f8;color:#31445b;
+ font:500 13px/1.4 Inter,system-ui,sans-serif
+}
+body .vatra-chat-reply-preview span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body .vatra-chat-reply-preview button{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border:0;background:transparent;color:#5a6f85;cursor:pointer;font-size:20px}
+body .vatra-chat-quoted{
+ display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+ max-width:100%;padding:7px 10px;margin-bottom:7px;text-align:left;
+ border:0;border-left:3px solid #899eb6;border-radius:5px;background:rgba(125,144,166,.13);
+ color:inherit;cursor:pointer;box-shadow:none!important;
+ font:500 12px/1.4 Inter,system-ui,sans-serif
+}
+body .vatra-chat-quoted b{font-size:12px}
+body .vatra-chat-quoted span{display:block;width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
+body .vatra-chat-message-row.is-referenced .message-bubble{outline:2px solid #8498ac!important;outline-offset:3px;transition:outline-color .25s}
+body .vatra-chat-message-row .message-actions button[data-reply-chat-message]{white-space:nowrap}
+@media(max-width:600px){body .vatra-chat-reply-preview{margin:0 8px 5px}body .vatra-chat-quoted{max-width:100%}}
