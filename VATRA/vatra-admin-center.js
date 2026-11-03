@@ -214,7 +214,8 @@ const giftNames={
  independence:'Серце України',warmth:'Теплі обійми',bouquet:'Букет ВАТРИ',spark:'Іскра дружби',
  gold_pumpkin:'Золотий гарбуз',rose:'Квітка дружби',cocoa:'Тепле какао',cupcake:'Святковий кекс',
  lantern:'Ліхтарик ВАТРИ',ribbon:'Стрічка щастя',sun:'Сонечко',teddy:'Ведмедик ВАТРИ',
- hearts:'Два серця',firebird:'Вогняний птах',snowglobe:'Снігова куля',letter:'Листівка з теплом',clover:'Конюшина удачі',musicbox:'Музична скринька',swan:'Лебідь ніжності',diamond:'Кришталева зоря'
+ hearts:'Два серця',firebird:'Вогняний птах',snowglobe:'Снігова куля',letter:'Листівка з теплом',clover:'Конюшина удачі',musicbox:'Музична скринька',swan:'Лебідь ніжності',diamond:'Кришталева зоря',
+ zsu_tribute:'Сила ЗСУ',ngu_tribute:'Міць НГУ',dpsu_tribute:'Вартові кордону ДПСУ'
 };
 function giftAdminMarkup(){
  return '<section class="vatra-control-card vatra-gift-admin"><h3>Керування подарунками</h3><p>Платні подарунки тимчасово недоступні для купівлі. Видача й відкликання наявних подарунків залишаються доступними власнику ВАТРИ.</p></section>'+
