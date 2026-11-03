@@ -151,7 +151,9 @@ function reportContentPath(c){
 }
 function verificationForm(){
  return '<section class="vatra-control-card"><h3>Офіційні акаунти <span class="vatra-control-blue-check">'+icons.shield+'</span></h3><p>Видача за унікальним @псевдонімом. Статус назавжди прив’язується до UUID акаунта, доки його не відкличе адміністратор.</p>'+
+ '<p>Перед видачею перевірте: від 5 000 справжніх підписників, принаймні 1 оригінальна публічна публікація за останні 30 днів, відсутність накрутки та підтвердження справжності власника. Для установ і документально підтверджених організацій можливий окремий обґрунтований розгляд.</p>'+ 
  '<form data-control-verify><label>Псевдонім<input name="handle" required maxlength="25" autocomplete="off" placeholder="@псевдонім"></label>'+
+ '<label class="vatra-verify-manual-check"><input type="checkbox" name="criteriaReviewed"> Я перевірив(ла) підстави для видачі галочки</label>'+
  '<div class="vatra-control-actions"><button type="submit" class="vatra-control-primary" name="operation" value="grant">Видати галочку</button>'+
  '<button type="submit" class="vatra-control-secondary" name="operation" value="revoke">Забрати галочку</button></div><p role="status" class="vatra-control-status"></p></form></section>';
 }
@@ -400,6 +402,7 @@ function installEvents(data){
  $('form[data-control-verify]')?.addEventListener('submit',async e=>{
   e.preventDefault();const form=e.currentTarget,grant=e.submitter?.value!=='revoke',handle=form.elements.handle.value.trim().replace(/^@/,'');
   if(!/^[\p{L}\p{N}._-]{2,24}$/u.test(handle)){toastInline(form.querySelector('.vatra-control-status'),'Перевірте @псевдонім.');return;}
+  if(grant&&!form.elements.criteriaReviewed.checked){toastInline(form.querySelector('.vatra-control-status'),'Перш ніж видати галочку, перевірте критерії та підтвердьте перевірку.');return;}
   if(!(await askAction((grant?'Видати':'Забрати')+' галочку для @'+handle+'?', 'Статус буде прив’язаний до незмінного ID акаунта.')))return;
   form.querySelectorAll('button').forEach(b=>b.disabled=true);
   try{
