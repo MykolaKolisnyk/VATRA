@@ -70,8 +70,18 @@ function databaseError(error) {
   console.error('[ВАТРА: database]', { message, code: error?.code || '', details: error?.details || '', hint: error?.hint || '' });
   const code = String(error?.code || '').toUpperCase();
 
+  if (code === 'P0001' && /VATRA RATE:/i.test(message)) {
+    const wrapped = new Error('Ви надто часто публікуєте дописи або коментарі. Спробуйте трохи пізніше.');
+    wrapped.code = 'RATE_LIMITED'; wrapped.dbCode = code;
+    return wrapped;
+  }
+  if (code === 'P0001' && /VATRA GROUP:/i.test(message)) {
+    const wrapped = new Error('Не вдалося виконати дію в груповій бесіді. Перевірте назву, учасників і свої права.');
+    wrapped.code = 'GROUP_CHAT_CONSTRAINT'; wrapped.dbCode = code;
+    return wrapped;
+  }
   if (code === 'P0001' && /VATRA E2EE: only signed ciphertext|only signed ciphertext from the sender/i.test(message)) {
-    const result = new Error('У Supabase залишилося старе правило чату. Застосуйте файл VATRA/chat-message-mode-update.sql у SQL Editor.');
+    const result = new Error('У Supabase залишилося старе правило чату. Застосуйте файл VATRA/vatra-chat-replies-and-unread.sql у SQL Editor.');
     result.code = 'CHAT_SQL_REQUIRED';
     result.dbCode = 'P0001';
     return result;
