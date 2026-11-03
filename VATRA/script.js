@@ -2439,7 +2439,7 @@ function vatraPrivacyOptions(value,defaultValue='private'){
  return [['public','Для всіх'],['friends','Для друзів'],['private','Лише для себе']].map(([key,label])=>'<option value="'+key+'"'+(selected===key?' selected':'')+'>'+label+'</option>').join('');
 }
 let vatraSettingsSection='profile',vatraSettingsSaving=false;
-const VATRA_HANDLE_PATTERN=/^[\\p{L}\\p{N}._-]{2,24}$/u;
+const VATRA_HANDLE_PATTERN=/^[\p{L}\p{N}._-]{2,24}$/u;
 function vatraNormalizeHandle(value){return String(value||'').trim().replace(/^@/,'').toLocaleLowerCase('uk-UA');}
 async function vatraCheckHandleAvailability(value){
  const handle=vatraNormalizeHandle(value);
