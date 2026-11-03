@@ -259,8 +259,8 @@ document.addEventListener('submit',async event=>{
    });
    await render();toast('Подарунок створено й додано до вашої колекції.');
   }catch(err){
-   if(path)await client.storage.from('vatra-media').remove([path]).catch(()=>{});
-   toast(err.message||'Не вдалося створити подарунок',true);submit.disabled=false;
+   // A response can be lost after a successful server commit: never delete its image blindly.
+   toast(err.message||'Не вдалося створити подарунок. Перевірте колекцію перед повторним створенням.',true);submit.disabled=false;
   }return;
  }
  if(form.matches('[data-creator-listing]')){
