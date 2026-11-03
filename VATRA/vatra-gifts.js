@@ -193,6 +193,36 @@ const giftLongDescriptions={
   "swan": "Витончений лебідь. Підійде, коли хочеться висловити увагу, ніжність або повагу.",
   "diamond": "Сяюча кришталева зоря з плавною анімацією. Особливий колекційний подарунок для близької людини."
 };
+/* Each collectible gets its own gentle SVG particle atmosphere behind the gift. */
+function vatraGiftAtmosphere(code){
+ const kindByCode={
+  halloween:'leaf',newyear:'snow',independence:'glimmer',
+  warmth:'hearts',bouquet:'petal',spark:'spark',welcome:'glimmer',
+  gold_pumpkin:'leaf',rose:'petal',cocoa:'glimmer',cupcake:'spark',
+  lantern:'spark',ribbon:'petal',sun:'spark',teddy:'hearts',
+  hearts:'hearts',firebird:'spark',snowglobe:'snow',
+  letter:'hearts',clover:'leaf',musicbox:'music',swan:'petal',diamond:'glimmer'
+ };
+ const vectors={
+  hearts:'<path d="M12 21c-5-4-9-8-9-12 0-5 6-7 9-2 3-5 9-3 9 2 0 4-4 8-9 12Z"/>',
+  snow:'<g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19M8 4l4 4 4-4M8 20l4-4 4 4"/></g>',
+  leaf:'<path d="M20 4C10 5 4 7 4 15c0 4 4 6 7 4 7-4 7-10 9-15ZM6 20c2-6 5-9 11-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
+  spark:'<path d="m12 1 2.4 8.5L23 12l-8.6 2.5L12 23l-2.4-8.5L1 12l8.6-2.5Z"/>',
+  glimmer:'<path d="m12 1 2.7 8.3L23 12l-8.3 2.7L12 23l-2.7-8.3L1 12l8.3-2.7Z"/>',
+  petal:'<path d="M12 3C1 7 5 17 12 21c7-4 11-14 0-18Z"/>',
+  music:'<path d="M9 18V5l11-2v13M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="17" cy="16" rx="3" ry="2"/>'
+ };
+ const kind=kindByCode[code]||'glimmer';
+ const particle=(i)=>{
+  const top=16+(i*31%74),left=4+(i*37%90),size=9+(i*13%15),duration=8+(i*7%9),drift=18+(i*11%48);
+  const delay=-(i*1.7+2.2).toFixed(1);
+  return '<span class="vatra-gift-particle" style="--top:'+top+'%;--left:'+left+'%;--size:'+size+'px;--duration:'+duration+'s;--drift:'+drift+'px;--delay:'+delay+'s">'+
+  '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+vectors[kind]+'</svg></span>';
+ };
+ return '<div class="vatra-gift-atmosphere" data-kind="'+kind+'" aria-hidden="true">'+
+  Array.from({length:16},(_,i)=>particle(i)).join('')+'</div>';
+}
+window.vatraGiftAtmosphere=vatraGiftAtmosphere;
 function openGiftDetail(code){
  const item=catalog.find(g=>g.code===String(code||''));
  if(!item)return;
@@ -207,7 +237,7 @@ function openGiftDetail(code){
  const kind=item.type==='holiday'?'Святковий подарунок':item.type==='free'?'Безкоштовний подарунок':'Колекційний подарунок';
  const availability=item.type==='premium'?'Оплата карткою поки недоступна.':item.type==='holiday'?'Видається ВАТРОЮ під час відповідної події.':'Видається ВАТРОЮ за умовами акції.';
  dialog.innerHTML='<div class="vatra-gift-detail-inner"><header class="vatra-gift-detail-header"><span>ВАТРА <i aria-hidden="true">•</i> КОЛЕКЦІЯ ПОДАРУНКІВ</span><button type="button" data-vatra-gift-detail-close aria-label="Закрити перегляд"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg></button></header>'+
- '<div class="vatra-gift-detail-scroll"><div class="vatra-gift-detail-stage">'+art(item.code)+'</div>'+
+ '<div class="vatra-gift-detail-scroll"><div class="vatra-gift-detail-stage">'+vatraGiftAtmosphere(item.code)+art(item.code)+'</div>'+
  '<section class="vatra-gift-detail-info"><p class="vatra-gift-detail-category">'+esc(kind)+(animatedGiftCodes.has(item.code)?' · Анімований':'')+'</p><h2>'+esc(item.title)+'</h2>'+
  '<p class="vatra-gift-detail-description">'+esc(giftDescriptions[item.code]||'Подарунок ВАТРИ.')+' '+esc(giftLongDescriptions[item.code]||'Особливий подарунок для друзів і колекції ВАТРИ.')+'</p>'+
  '<p class="vatra-gift-detail-note">'+esc(availability)+'</p></section></div>'+

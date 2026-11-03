@@ -67,8 +67,15 @@ function askConfirm(message){
   const content=String(message||'').trim();
   const action=content.toLocaleLowerCase('uk-UA').match(/^[а-щьюяґєії'-]+/u)?.[0]||'';
   const danger=new Set(['видалити','заблокувати','прибрати','скасувати','очистити','стерти','відмовитися','видалення']).has(action);
-  question.textContent=content;
-  if(heading)heading.textContent=danger?'Підтвердіть зміну':'Підтвердити дію?';
+  const questionEnd=content.indexOf('?');
+  const contextualTitle=questionEnd>3&&questionEnd<88?content.slice(0,questionEnd+1):'';
+  if(heading)heading.textContent=contextualTitle||(danger?'Підтвердити зміну?':'Підтвердити дію?');
+  const explanation=contextualTitle?content.slice(questionEnd+1).trim():content;
+  question.textContent=explanation||(
+    action==='видалити'&&/фото|фотограф/i.test(content)
+     ?'Фото зникне з аватара, але залишиться доступним для відновлення.'
+     :'Перевірте вибрану дію перед підтвердженням.'
+  );
   yes.textContent=action==='видалити'?'Видалити':action==='заблокувати'?'Заблокувати':action==='прибрати'?'Прибрати':action==='скасувати'?'Скасувати дію':'Підтвердити';
   d.classList.toggle('is-destructive',danger);
   let completed=false;
@@ -851,7 +858,8 @@ function vatraAvatarActionIcon(kind){
  const shapes={
   change:'<path d="M4 7h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3.5"/>',
   edit:'<path d="m15 5 4 4M4 20l4.5-1 11-11a2.83 2.83 0 0 0-4-4l-11 11L4 20Z"/>',
-  remove:'<path d="M4 7h16M10 3h4m-7 4 1 14h8l1-14M10 11v6m4-6v6"/>'
+  remove:'<path d="M4 7h16M10 3h4m-7 4 1 14h8l1-14M10 11v6m4-6v6"/>',
+  restore:'<path d="M3 12a9 9 0 1 0 2.6-6.4L3 8M3 3v5h5"/><path d="M12 7v5l3 2"/>'
  };
  return '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+shapes[kind]+'</svg>';
 }
@@ -932,8 +940,9 @@ function renderProfile(){
      '<button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'" aria-label="Переглянути фото профілю">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button>'+
      '<div class="vatra-avatar-hover-menu" id="vatraAvatarMenu" role="group" aria-label="Керування фото профілю">'+
       '<button type="button" data-avatar-photo-action="change">'+vatraAvatarActionIcon('change')+'<span>Змінити фото</span></button>'+
-      '<button type="button" data-avatar-photo-action="edit"'+(currentProfile.avatarUrl?'':' disabled')+'>'+vatraAvatarActionIcon('edit')+'<span>Редагувати фото</span></button>'+
-      '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove"'+(currentProfile.avatarUrl?'':' disabled')+'>'+vatraAvatarActionIcon('remove')+'<span>Видалити фото</span></button>'+
+      (currentProfile.avatarUrl?'<button type="button" data-avatar-photo-action="edit">'+vatraAvatarActionIcon('edit')+'<span>Редагувати фото</span></button>'+
+       '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove">'+vatraAvatarActionIcon('remove')+'<span>Видалити фото</span></button>':
+       (history.length||gallery.length?'<button type="button" data-avatar-photo-action="restore">'+vatraAvatarActionIcon('restore')+'<span>Відновити фото</span></button>':''))+
      '</div>'+
     '</div>'+
     '<button type="button" class="vatra-profile-edit" id="editProfile">Редагувати профіль</button>'+
@@ -3611,6 +3620,40 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
   }catch(error){toastMsg(niceError(error));}
  }
  
+async function vatraOpenAvatarPicker(){
+ if(!authRequired())return;
+ const postGallery=Object.values(posts||{})
+  .filter(post=>post?.authorUid===currentUser.uid&&post.addMediaToGallery!==false)
+  .flatMap(post=>postImages(post)).filter(Boolean);
+ const pictures=[...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[]),
+  ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]),
+  ...postGallery]
+  .filter((url,index,arr)=>typeof url==='string'&&/^https:\/\//i.test(url)&&arr.indexOf(url)===index).slice(0,60);
+ if(!pictures.length){toastMsg('Збережених фотографій не знайдено. Завантажте нове фото.');return;}
+ let dlg=document.getElementById('vatraAvatarPickDialog');
+ if(!dlg){dlg=document.createElement('dialog');dlg.id='vatraAvatarPickDialog';dlg.className='vatra-avatar-pick-dialog';document.body.append(dlg);}
+ dlg.innerHTML='<h2>Відновити фото профілю</h2><p>Оберіть зображення з історії чи альбому. Файл не потрібно завантажувати повторно.</p>'+
+  '<div class="vatra-avatar-pick-grid">'+pictures.map((url,index)=>'<button type="button" data-avatar-pick-index="'+index+'" aria-label="Встановити фото профілю"><img src="'+esc(url)+'" loading="lazy" alt="Збережене фото"></button>').join('')+'</div>'+
+  '<footer><button type="button" data-avatar-pick-cancel>Скасувати</button></footer>';
+ dlg.onclick=async event=>{
+  if(event.target.closest('[data-avatar-pick-cancel]')){dlg.close();return;}
+  const b=event.target.closest('[data-avatar-pick-index]');if(!b)return;
+  const url=pictures[Number(b.dataset.avatarPickIndex)];if(!url)return;
+  b.disabled=true;
+  try{
+   const prev=currentProfile.avatarUrl||'';
+   const history=(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory:[]).filter(item=>item&&item!==url);
+   if(prev&&prev!==url)history.push(prev);
+   const avatarHistory=history.slice(-30);
+   await update(ref(db,'users/'+currentUser.uid),{avatarUrl:url,avatarHistory,updatedAt:Date.now()});
+   currentProfile.avatarUrl=url;currentProfile.avatarHistory=avatarHistory;
+   await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
+   dlg.close();updateIdentity();render();
+   toastMsg('Фото профілю відновлено.');
+  }catch(error){toastMsg(niceError(error));b.disabled=false;}
+ };
+ dlg.showModal();
+}
 /* Editing an existing avatar uses the same studio, then the existing cloud save. */
 async function openPhotoEditor(file,target){
  if(!file||!file.type?.startsWith('image/'))return toastMsg('Оберіть зображення.');
@@ -3663,6 +3706,10 @@ document.addEventListener('click',async event=>{
    document.getElementById('avatarUpload')?.click();
    return;
   }
+  if(action==='restore'){
+   await vatraOpenAvatarPicker();
+   return;
+  }
   if(action==='edit'){
    const url=String(currentProfile.avatarUrl||'');
    if(!url)return toastMsg('Спочатку додайте фото профілю.');
@@ -3683,11 +3730,18 @@ document.addEventListener('click',async event=>{
    if(!(await askConfirm('Видалити поточну фотографію профілю?')))return;
    actionButton.disabled=true;
    try{
-    await update(ref(db,'users/'+currentUser.uid),{avatarUrl:'',updatedAt:Date.now()});
-    currentProfile.avatarUrl='';
+    // Remove only the CURRENT avatar assignment; keep its file in photo history.
+    // This makes the picture recoverable without another upload.
+    const oldPhoto=currentProfile.avatarUrl;
+    const history=(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory:[])
+      .filter(url=>url&&url!==oldPhoto);
+    history.push(oldPhoto);
+    const avatarHistory=history.slice(-30);
+    await update(ref(db,'users/'+currentUser.uid),{avatarUrl:'',avatarHistory,updatedAt:Date.now()});
+    currentProfile.avatarUrl='';currentProfile.avatarHistory=avatarHistory;
     await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
     updateIdentity();render();
-    toastMsg('Фотографію профілю видалено.');
+    toastMsg('Фото прибрано з аватара. Його можна повернути через «Відновити фото».');
    }catch(error){toastMsg(niceError(error));}
    finally{if(actionButton.isConnected)actionButton.disabled=false;}
    return;
