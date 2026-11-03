@@ -367,7 +367,7 @@ function startPresence(){
  if(presenceHeartbeat)clearInterval(presenceHeartbeat);
  updatePresence(true);vatraAccountActivity();
  presenceHeartbeat=window.setInterval(()=>{
-  if(document.visibilityState==='visible'){updatePresence(true);vatraAccountActivity();}
+  if(document.visibilityState==='visible'){updatePresence(true);vatraAccountActivity();updateNotificationBadges();}
  },90000);
 }
 window.addEventListener('pagehide',()=>{if(currentUser)updatePresence(false);});
@@ -2291,6 +2291,63 @@ function vatraMonitorSounds(items){
  if((newMessage||newOther)&&privateNotifyPrefs?.sound!==false)vatraBeep(newMessage?'message':'notification');
 }
 
+function vatraTodayKyiv(){
+ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kyiv',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+ return {year:Number(parts.year),month:Number(parts.month),day:Number(parts.day)};
+}
+function vatraFriendBirthdaysToday(){
+ if(!currentUser)return [];
+ const now=vatraTodayKyiv(),result=[];
+ for(const uid of Object.keys(friends||{})){
+  if(uid===currentUser.uid||blockedUsers[uid]||users[uid]?.searchable===false)continue;
+  const shared=friendProfiles[uid]||{},profile=users[uid]||{};
+  // A private birth date must never be inferred or displayed from privateUsers.
+  const raw=String(shared.birthdayPublic||profile.birthdayPublic||'');
+  const match=raw.match(/^\d{4}-(\d{2})-(\d{2})$/);
+  if(!match||Number(match[1])!==now.month||Number(match[2])!==now.day)continue;
+  result.push({uid,year:now.year,name:String(profile.name||shared.name||'Друг ВАТРИ').slice(0,80)});
+ }
+ return result;
+}
+function vatraBirthdayAlreadySent(uid,year){
+ try{return localStorage.getItem('vatra-birthday-sent-'+currentUser?.uid+'-'+uid+'-'+year)==='1'}catch{return false}
+}
+function vatraBirthdayGreetText(name){
+ const first=String(name||'друже').trim().split(/\s+/)[0].slice(0,40);
+ return '🎉 З днем народження, '+first+'! 🎂\n\nНехай у твоєму житті завжди буде місце для щасливих моментів, щирих усмішок, теплих зустрічей і мрій, які здійснюються. Бажаю міцного здоров’я, натхнення, добрих людей поруч та мирного неба над головою. Нехай новий рік життя принесе багато світла, любові й нових перемог! 💙💛\n\nЗ найкращими побажаннями у ВАТРІ! ✨';
+}
+function vatraBirthdayGiftPrompt(uid){
+ let dialog=document.getElementById('vatraBirthdayGiftPrompt');
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='vatraBirthdayGiftPrompt';dialog.className='vatra-birthday-dialog';document.body.append(dialog);}
+ dialog.innerHTML='<div class="vatra-birthday-dialog-art" aria-hidden="true">🎁</div><h2>Привітання надіслано!</h2>'+
+ '<p>Можна також подарувати щось особливе. Це необов’язково.</p>'+
+ '<footer><button type="button" data-birthday-close>Не зараз</button><button type="button" class="primary" data-birthday-gift>Обрати подарунок</button></footer>';
+ dialog.onclick=e=>{
+  if(e.target.closest('[data-birthday-close]')||e.target===dialog){dialog.close();return}
+  if(e.target.closest('[data-birthday-gift]')){dialog.close();goPage('gifts');}
+ };
+ dialog.showModal();
+}
+async function vatraSendBirthdayGreet(uid,button){
+ if(!currentUser||!friends[uid]||blockedUsers[uid])return toastMsg('Привітати можна лише доступного друга.');
+ if(users[uid]?.allowMessages===false)return toastMsg('Друг обмежив особисті повідомлення.');
+ const {year}=vatraTodayKyiv();if(vatraBirthdayAlreadySent(uid,year))return toastMsg('Цього року ви вже привітали цього друга.');
+ button.disabled=true;
+ try{
+  const key=chatKey(currentUser.uid,uid),createdAt=Date.now(),message=vatraBirthdayGreetText(users[uid]?.name||friendProfiles[uid]?.name);
+  const root=ref(db,'chats/'+key),snapshot=await get(root);
+  if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[uid]:true},createdAt});
+  await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,text:message,createdAt});
+  try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:createdAt,lastMessage:{text:message.slice(0,120),senderUid:currentUser.uid,createdAt}})}catch(e){console.warn('Birthday chat preview:',e)}
+  try{localStorage.setItem('vatra-birthday-sent-'+currentUser.uid+'-'+uid+'-'+year,'1')}catch{}
+  updateNotificationBadges();if(page==='notifications')renderNotifications();
+  vatraBirthdayGiftPrompt(uid);
+ }catch(error){button.disabled=false;toastMsg('Не вдалося надіслати привітання: '+niceError(error))}
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-vatra-birthday-greet]');
+ if(button){event.preventDefault();event.stopPropagation();void vatraSendBirthdayGreet(button.dataset.vatraBirthdayGreet,button)}
+});
 function notificationItems(){
  if(!currentUser)return [];
  const uid=currentUser.uid;
@@ -2344,6 +2401,10 @@ function notificationItems(){
    }
   }
  }
+ for(const birthday of vatraFriendBirthdaysToday()){
+  const midnightUTC=Date.UTC(birthday.year,vatraTodayKyiv().month-1,vatraTodayKyiv().day)-4*3600000;
+  put({id:'birthday_'+birthday.year+'_'+birthday.uid,type:'birthday',actorUid:birthday.uid,createdAt:midnightUTC,birthdayYear:birthday.year});
+ }
  for(const [actor,r] of Object.entries(friendRequests||{})){
   if(!r||r.status!=='pending'||r.direction!=='incoming')continue;
   const createdAt=Number(r.createdAt)||0;
@@ -2372,11 +2433,19 @@ let vatraNotificationsFilter='all';
 function renderNotifications(){
  const all=notificationItems().slice(0,100);
  const items=vatraNotificationsFilter==='all'?all:all.filter(n=>n.type===vatraNotificationsFilter);
- const labels={all:'Усі',like:'Вподобання',photoLike:'Фото',photoComment:'Коментарі до фото',comment:'Коментарі',reply:'Відповіді',commentLike:'Вподобання коментарів',groupPost:'Спільноти',friend:'Друзі',verified:'ВАТРА'};
- const types=['all','like','photoLike','photoComment','comment','reply','commentLike','groupPost','friend','verified'];
+ const labels={birthday:'Дні народження',all:'Усі',like:'Вподобання',photoLike:'Фото',photoComment:'Коментарі до фото',comment:'Коментарі',reply:'Відповіді',commentLike:'Вподобання коментарів',groupPost:'Спільноти',friend:'Друзі',verified:'ВАТРА'};
+ const types=['all','birthday','like','photoLike','photoComment','comment','reply','commentLike','groupPost','friend','verified'];
  const rows=items.map(n=>{
   const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ')+verifiedBadge(n.actorUid),when=timeAgo(n.createdAt);
   let title='',attr='';
+  if(n.type==='birthday'){
+   const sent=vatraBirthdayAlreadySent(n.actorUid,n.birthdayYear);
+   return '<div class="notification-item vatra-birthday-notification '+(n.unread?'is-unread':'')+'">'+
+    avatar(u.name||'Друг ВАТРИ',u.avatarUrl)+
+    '<span class="notification-copy"><b>🎂 Сьогодні день народження у '+esc(u.name||'Вашого друга')+'!</b>'+
+    '<span>Привітайте друга та за бажанням подаруйте подарунок.</span><small>Сьогодні</small></span>'+
+    '<button type="button" data-vatra-birthday-greet="'+esc(n.actorUid)+'" '+(sent?'disabled':'')+'>'+(sent?'Привітали ✓':'Привітати')+'</button></div>';
+  }
   if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="'+esc(n.id)+'"';}
   else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис або фото';attr='data-notification-post="'+esc(n.postId)+'"';}
   else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
@@ -3532,6 +3601,12 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
   const rows=items.map(n=>{
    const u=users[n.actorUid]||{},name=esc(u.name||'Користувач ВАТРИ')+verifiedBadge(n.actorUid),when=timeAgo(n.createdAt);
    let title='',attr='';
+   if(n.type==='birthday'){
+    const sent=vatraBirthdayAlreadySent(n.actorUid,n.birthdayYear);
+    return '<div class="topbar-notification-row vatra-birthday-notification">'+avatar(u.name||'Друг ВАТРИ',u.avatarUrl)+
+     '<span><b>🎂 Сьогодні день народження у '+esc(u.name||'Вашого друга')+'</b><small>Привітайте та подаруйте подарунок</small></span>'+
+     '<button type="button" data-vatra-birthday-greet="'+esc(n.actorUid)+'" '+(sent?'disabled':'')+'>'+(sent?'Привітали':'Привітати')+'</button></div>';
+   }
    if(n.type==='verified'){title=esc(n.title||'Офіційне повідомлення ВАТРИ');attr='data-verification-notice="'+esc(n.id)+'"';}
    else if(n.type==='like'){title=name+' вподобав(-ла) Ваш допис або фото';attr='data-notification-post="'+esc(n.postId)+'"';}
    else if(n.type==='comment'){title=name+' прокоментував(-ла) Ваш допис';attr='data-notification-post="'+esc(n.postId)+'"';}
