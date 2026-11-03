@@ -65,10 +65,11 @@ function askConfirm(message){
   const d=$('#vatraConfirmDialog'),question=$('#vatraConfirmMessage');
   const yes=$('#vatraConfirmYes'),no=$('#vatraConfirmNo'),heading=$('#vatraConfirmTitle');
   const content=String(message||'').trim();
-  const danger=/^(видалити|заблокувати|прибрати|скасувати|очистити|стерти|відмовитися|видалення)\b/i.test(content);
+  const action=content.toLocaleLowerCase('uk-UA').match(/^[а-щьюяґєії'-]+/u)?.[0]||'';
+  const danger=new Set(['видалити','заблокувати','прибрати','скасувати','очистити','стерти','відмовитися','видалення']).has(action);
   question.textContent=content;
   if(heading)heading.textContent=danger?'Підтвердіть зміну':'Підтвердити дію?';
-  yes.textContent=/^видалити\b/i.test(content)?'Видалити':/^заблокувати\b/i.test(content)?'Заблокувати':/^прибрати\b/i.test(content)?'Прибрати':/^скасувати\b/i.test(content)?'Скасувати дію':'Підтвердити';
+  yes.textContent=action==='видалити'?'Видалити':action==='заблокувати'?'Заблокувати':action==='прибрати'?'Прибрати':action==='скасувати'?'Скасувати дію':'Підтвердити';
   d.classList.toggle('is-destructive',danger);
   let completed=false;
   const finish=value=>{
@@ -79,7 +80,7 @@ function askConfirm(message){
   };
   yes.onclick=()=>finish(true);
   no.onclick=()=>finish(false);
-  d.addEventListener('cancel',()=>finish(false),{once:true});
+  d.oncancel=event=>{event.preventDefault();finish(false);};
   d.showModal();
   no.focus();
  });
