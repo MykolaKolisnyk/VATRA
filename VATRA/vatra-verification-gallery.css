@@ -165,3 +165,7 @@ body .vatra-verification-page-body ul{padding-left:20px;color:#526f8c;font:450 1
 body .vatra-verification-page-body li+li{margin-top:9px}
 body .vatra-verification-criteria-note{display:grid;gap:6px;padding:13px 15px;border:1px solid #dce8f7;border-radius:11px;background:#f5f9ff;font-size:12.5px;line-height:1.6;color:#4f6781}
 body .vatra-verification-criteria-note strong{color:#234c7f;font-weight:750}
+
+/* Staff must consciously confirm a manual review before issuing a blue badge. */
+body .vatra-verify-manual-check{display:flex!important;align-items:flex-start;gap:9px;max-width:520px;margin:12px 0;font-size:12.5px;line-height:1.55;color:#46617d}
+body .vatra-verify-manual-check input{width:16px!important;height:16px!important;min-width:16px!important;margin-top:2px;accent-color:#0757f5}
