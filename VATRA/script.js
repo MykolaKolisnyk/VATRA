@@ -2445,15 +2445,29 @@ async function vatraCheckHandleAvailability(value){
  const handle=vatraNormalizeHandle(value);
  if(!VATRA_HANDLE_PATTERN.test(handle)||handle.startsWith('.')||handle.endsWith('.'))return 'invalid';
  if(handle===vatraNormalizeHandle(currentProfile.handle))return 'available';
- try{
-  const {data,error}=await db.client.rpc('vatra_handle_availability',{_handle:handle});
+ const attempt=async()=>{
+  try{
+   const {data,error}=await db.client.rpc('vatra_handle_availability',{_handle:handle});
+   if(!error&&['available','taken','invalid'].includes(data?.status))return data.status;
+  }catch(error){console.debug('[ВАТРА] Handle check RPC:',error?.code||'offline');}
+  const {data,error}=await db.client.from('app_data').select('path').like('path','publicProfiles/%').ilike('value->>handle',handle).limit(3);
   if(error)throw error;
-  return data?.status==='available'?'available':data?.status==='taken'?'taken':data?.status==='invalid'?'invalid':'unavailable';
- }catch(error){console.warn('[ВАТРА] Перевірка псевдоніма недоступна:',error?.code||'connection');return 'unavailable';}
+  const ownPath='publicProfiles/'+currentUser.uid;
+  return (data||[]).some(row=>row.path!==ownPath)?'taken':'available';
+ };
+ try{
+  return await Promise.race([
+   attempt(),
+   new Promise(resolve=>setTimeout(()=>resolve('unavailable'),6500))
+  ]);
+ }catch(error){
+  console.warn('[ВАТРА] Перевірка псевдоніма:',error?.code||'offline');
+  return 'unavailable';
+ }
 }
 function vatraInstallHandleChecker(form){
  const input=form?.querySelector('[name="handle"]');if(!input)return;
- let request=0,timer=0,currentStatus='available',previousValue=vatraNormalizeHandle(input.value);
+ let request=0,timer=0,currentStatus='available';
  const status=document.createElement('small');status.className='vatra-handle-availability';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
  input.insertAdjacentElement('afterend',status);
  const paint=(result)=>{currentStatus=result;status.dataset.status=result;status.textContent=({
@@ -2462,7 +2476,7 @@ function vatraInstallHandleChecker(form){
  })[result]||'';input.setCustomValidity(result==='taken'?'Псевдонім уже зайнятий.':result==='invalid'?'Недопустимий псевдонім.':'');};
  const check=async()=>{
   const token=++request,value=vatraNormalizeHandle(input.value);
-  if(value===previousValue&&currentStatus==='available')return;
+  if(value===vatraNormalizeHandle(currentProfile.handle)){paint('available');return;}
   if(!value){paint('invalid');return;}
   paint('checking');
   const result=await vatraCheckHandleAvailability(value);
@@ -2479,7 +2493,7 @@ function vatraInstallHandleChecker(form){
   clearTimeout(timer);await check();
   return currentStatus==='available'&&VATRA_HANDLE_PATTERN.test(vatraNormalizeHandle(input.value));
  };
- if(previousValue)paint('available');
+ if(vatraNormalizeHandle(input.value)===vatraNormalizeHandle(currentProfile.handle))paint('available');
 }
 async function vatraRenderAccountLifecycleSettings(section){
  if(!section||!currentUser)return;
