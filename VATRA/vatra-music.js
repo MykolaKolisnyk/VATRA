@@ -102,7 +102,7 @@ async function setPlayingState(uri,playing,duration=0,position=0){
 async function attachSpotifyController(item){
  const api=await ensureSpotifyApi();
  if(!playerItem)return;
- if(spotifyController){spotifyController.loadEntity(addressFor(item));return;}
+ if(spotifyController){try{spotifyController.destroy();}catch{}spotifyController=null;}
  if(spotifyInitializing)return;
  spotifyInitializing=true;
  const dock=activePlayer(),wrap=dock.querySelector('.vatra-music-frame-wrap');
