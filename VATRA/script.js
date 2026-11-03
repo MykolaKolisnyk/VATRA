@@ -642,9 +642,11 @@ function renderSaved(){
 function renderFeed(){const arr=allPosts();const cards=arr.map(postCard);if(arr.length&&currentUser){cards.splice(1,0,'<section class="vatra-fof-panel" id="vatraFriendsOfFriends" hidden aria-label="Люди, яких ви можете знати"></section>');}setFeed(cards.join(''),!arr.length);if(arr.length&&currentUser)void vatraLoadFriendsOfFriends();if(!arr.length)$('#empty').innerHTML=`<h3>${page==='saved'?'Тут поки порожньо':page==='profile'?'Ще немає дописів':'Стрічка пуста'}</h3><p>${page==='saved'?'Зберігай дописи, щоб повернутися до них пізніше.':page==='profile'?'Ваші публікації з’являтимуться тут.':'Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.'}</p>${currentUser&&page==='feed'?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':''}`;$('#emptyCreate')?.addEventListener('click',openComposer);}
 const vatraFoFCache={uid:'',expires:0,items:[]};
 const vatraFoFHidden=new Set();
+let vatraFoFHiddenOwner='';
 async function vatraLoadFriendsOfFriends(){
  const userUid=currentUser?.uid,container=document.getElementById('vatraFriendsOfFriends');
  if(!userUid||!container||page!=='feed')return;
+ if(vatraFoFHiddenOwner!==userUid){vatraFoFHiddenOwner=userUid;vatraFoFHidden.clear();}
  const renderItems=items=>{
   if(page!=='feed'||currentUser?.uid!==userUid||!container.isConnected)return;
   const shown=items.filter(x=>!vatraFoFHidden.has(x.uid)&&!friends[x.uid]&&!blockedUsers[x.uid]).slice(0,5);
@@ -2251,10 +2253,12 @@ function renderMessages(){
    const createdAt=Date.now();
    const root=ref(db,'chats/'+key),snapshot=await get(root);
    if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[recipient]:true},createdAt});
+   if(!activeSecureSession||activeSecureSession.chatId!==key)throw new Error('Захищений чат ще не готовий. Спробуйте пізніше.');
+   const encrypted=await encryptMessage(activeSecureSession,text,currentUser.uid,createdAt);
    const messageRef=push(ref(db,'chats/'+key+'/messages'));
-   await set(messageRef,{senderUid:currentUser.uid,text,createdAt,...(replyingMessageId?{replyTo:replyingMessageId}:{})});
+   await set(messageRef,{senderUid:currentUser.uid,encrypted,createdAt,...(replyingMessageId?{replyTo:replyingMessageId}:{})});
    written=true;if(input.value.trim()===text)input.value='';replyingMessageId=null;const replyPreview=$('#chatReplyPreview');if(replyPreview)replyPreview.hidden=true;
-   const lastMessage={text:text.slice(0,120),senderUid:currentUser.uid,createdAt};
+   const lastMessage={text:SECURE_PREVIEW,senderUid:currentUser.uid,createdAt};
    try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:recipient,updatedAt:createdAt,lastMessage});}
    catch(summaryError){console.warn('[ВАТРА] Індекс діалогів не оновився:',summaryError);toastMsg('Повідомлення надіслано, але список розмов оновиться пізніше.');}
   }catch(err){
@@ -2407,10 +2411,12 @@ async function vatraSendBirthdayGreet(uid,button){
  button.disabled=true;
  try{
   const key=chatKey(currentUser.uid,uid),createdAt=Date.now(),message=vatraBirthdayGreetText(users[uid]?.name||friendProfiles[uid]?.name);
+  const secure=await prepareSession(currentUser.uid,uid,key,readE2EEKey,publishE2EEKey);
+  const encrypted=await encryptMessage(secure,message,currentUser.uid,createdAt);
   const root=ref(db,'chats/'+key),snapshot=await get(root);
   if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[uid]:true},createdAt});
-  await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,text:message,createdAt});
-  try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:createdAt,lastMessage:{text:message.slice(0,120),senderUid:currentUser.uid,createdAt}})}catch(e){console.warn('Birthday chat preview:',e)}
+  await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,encrypted,createdAt});
+  try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:createdAt,lastMessage:{text:SECURE_PREVIEW,senderUid:currentUser.uid,createdAt}})}catch(e){console.warn('Birthday chat preview:',e)}
   try{localStorage.setItem('vatra-birthday-sent-'+currentUser.uid+'-'+uid+'-'+year,'1')}catch{}
   updateNotificationBadges();if(page==='notifications')renderNotifications();
   vatraBirthdayGiftPrompt(uid);
