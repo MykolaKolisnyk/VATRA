@@ -217,36 +217,3 @@ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage>.vatra-gift-art{
  .vatra-gift-atmosphere .vatra-gift-particle{animation:none!important;opacity:.25!important;transform:none!important}
 }
 
-/* Creator gifts use the same floating atmosphere as the built-in collection. */
-dialog.vatra-creator-detail .vatra-creator-detail-art{
- position:relative!important;isolation:isolate!important;
- display:grid!important;place-items:center!important;
- box-sizing:border-box!important;
- width:100%!important;
- height:min(380px,48dvh)!important;
- min-height:140px!important;
- border-radius:12px!important;
- background:radial-gradient(circle at center,#fff,#eff5fd 78%)!important;
- overflow:hidden!important;
- margin:12px auto 10px!important;
-}
-dialog.vatra-creator-detail .vatra-creator-detail-art>img{
- position:relative!important;z-index:2!important;
- display:block!important;
- width:min(100%,300px)!important;
- height:min(100%,310px)!important;
- max-height:calc(100% - 15px)!important;
- object-fit:contain!important;
- border-radius:10px!important;
- background:transparent!important;
- margin:auto!important;
- box-shadow:0 4px 24px rgba(41,62,103,.08)!important;
-}
-dialog.vatra-creator-detail .vatra-creator-detail-art .vatra-gift-atmosphere{
- position:absolute!important;inset:0!important;z-index:1!important;
-}
-@media(max-height:570px){
- dialog.vatra-creator-detail .vatra-creator-detail-art{
-  height:min(210px,42dvh)!important;
- }
-}
