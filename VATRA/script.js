@@ -113,7 +113,39 @@ function isVatraStrongPassword(password){
  input.addEventListener('input',update);update();
 })();
 
-function niceError(e){const c=e?.code||'';if(/vatra_public_handle_unique|duplicate key value violates unique constraint.*handle/i.test(String(e?.message||'')))return 'Цей псевдонім (@) уже зайнятий. Оберіть інший.';if(c==='FRIENDS_SQL_REQUIRED')return 'ВАТРА потребує оновлення взаємної дружби: у Supabase SQL Editor виконайте файл VATRA/friends-mutual-fix.sql.';if(c==='CHAT_SQL_REQUIRED'||c==='CHAT_SQL_CONSTRAINT')return e.message;if(c==='SCHEMA_NOT_READY')return 'База ВАТРИ ще не налаштована повністю. У правильному Supabase-проєкті виконайте актуальний файл VATRA/app-data-schema.sql.';if(c==='PERMISSION_DENIED')return 'Supabase відхилив запис через правила доступу (RLS). Перевірте SQL-схему app_data та політики доступу в тому самому проєкті Supabase.'+(e?.dbCode?' Код: '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+'.':'');if(c==='DATABASE_ERROR')return 'Не вдалося зберегти дані ВАТРИ'+(e?.dbCode?' (код '+String(e.dbCode).replace(/[^A-Za-z0-9_-]/g,'').slice(0,24)+')':'')+'. Спробуйте ще раз; якщо повториться, надішліть цей код розробнику.';if(c==='NETWORK_ERROR')return 'Немає з’єднання із сервером ВАТРИ. Перевірте інтернет і спробуйте ще раз.';return ({'auth/no-session':'Сесія завершилася. Увійдіть до ВАТРИ ще раз.','auth/author-mismatch':'Не вдалося підтвердити власника допису. Оновіть сторінку та увійдіть у свій акаунт знову.','auth/email-already-in-use':'Ця електронна пошта вже зареєстрована. Спробуйте увійти.','auth/invalid-email':'Введіть коректну адресу електронної пошти.','auth/weak-password':'Створіть пароль завдовжки щонайменше 12 символів (краще 16+), із великими й малими латинськими літерами, цифрою та спецсимволом.','auth/invalid-credential':'Неправильна електронна пошта або пароль.','auth/invalid-login-credentials':'Неправильна електронна пошта або пароль.','auth/user-not-found':'Акаунт із такою адресою не знайдено.','auth/wrong-password':'Неправильний пароль.','auth/too-many-requests':'Забагато спроб входу. Зачекайте й спробуйте пізніше.','auth/network-request-failed':'Не вдалося з’єднатися із сервером. Перевірте інтернет.','auth/operation-not-allowed':'Вхід через email вимкнений. У налаштуваннях авторизації увімкніть вхід через email і пароль.','auth/unauthorized-domain':'Цей домен не дозволений у налаштуваннях авторизації для цього домену.','auth/user-disabled':'Цей акаунт вимкнено. Зверніться до підтримки.','PERMISSION_DENIED':'Запит відхилено правилами доступу до бази даних.'})[c]||'Не вдалося виконати дію. Спробуйте ще раз.';}
+function niceError(error){
+ const code=String(error?.code||'');
+ const raw=String(error?.message||'');
+ if(/vatra_public_handle_unique|duplicate key.*handle/i.test(raw))return 'Цей псевдонім уже зайнятий. Оберіть інший.';
+ const map={
+  RATE_LIMITED:'Ви надто часто виконуєте цю дію. Спробуйте пізніше.',
+  CHAT_SQL_REQUIRED:'Надсилання повідомлень тимчасово недоступне. Служба ВАТРИ перевіряє з’єднання.',
+  CHAT_SQL_CONSTRAINT:'Повідомлення відхилено правилами безпеки. Спробуйте ще раз.',
+  GROUP_CHAT_CONSTRAINT:'Дія недоступна: перевірте учасників бесіди та свої права.',
+  FRIENDS_SQL_REQUIRED:'Операція з друзями тимчасово недоступна.',
+  SCHEMA_NOT_READY:'Ця функція ВАТРИ тимчасово недоступна. Ми працюємо над її відновленням.',
+  PERMISSION_DENIED:'У Вас немає прав на цю дію або доступ тимчасово обмежено.',
+  DATABASE_ERROR:'Не вдалося виконати операцію. Спробуйте ще раз.',
+  NETWORK_ERROR:'З’єднання перервано. Перевірте інтернет і повторіть спробу.',
+  'auth/no-session':'Час Вашої сесії завершився. Увійдіть ще раз.',
+  'auth/author-mismatch':'Не вдалося підтвердити авторство. Увійдіть ще раз.',
+  'auth/email-already-in-use':'Ця електронна пошта вже зареєстрована.',
+  'auth/invalid-email':'Введіть правильну адресу електронної пошти.',
+  'auth/weak-password':'Пароль має містити щонайменше 12 символів, літери різного регістру, цифру і спецсимвол.',
+  'auth/invalid-credential':'Адреса електронної пошти або пароль неправильні.',
+  'auth/invalid-login-credentials':'Адреса електронної пошти або пароль неправильні.',
+  'auth/user-not-found':'Акаунт не знайдено.',
+  'auth/wrong-password':'Неправильний пароль.',
+  'auth/too-many-requests':'Забагато спроб. Повторіть спробу пізніше.',
+  'auth/network-request-failed':'Немає з’єднання з ВАТРОЮ.',
+  'auth/user-disabled':'Акаунт обмежено. Зверніться до техпідтримки.'
+ };
+ if(map[code])return map[code];
+ if(/VATRA RATE:|too many requests/i.test(raw))return map.RATE_LIMITED;
+ if(/P0001|row.level.security|permission denied/i.test(raw))return map.PERMISSION_DENIED;
+ if(/network|failed to fetch|timeout/i.test(raw))return map.NETWORK_ERROR;
+ return 'Не вдалося завершити дію. Якщо проблема повториться, зверніться до техпідтримки ВАТРИ.';
+}
 function openAuth(mode='login'){location.href=mode==='register'?'auth.html?mode=register':mode==='reset'?'auth.html?mode=reset':'auth.html';}
 function vatraFieldVisibility(value, fallback='private'){
  return ['public','friends','private'].includes(value)?value:fallback;
