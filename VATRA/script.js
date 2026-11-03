@@ -1038,7 +1038,7 @@ function vatraPublicProfileActions(uid){
    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v12H8l-4 3V5.5Z"/><path d="M8 10h8m-8 3h5"/></svg>Написати</button>'+
   relation+'<details class="vatra-public-actions-more"><summary aria-label="Інші дії з профілем" title="Інші дії">'+
   '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.65"/><circle cx="12" cy="12" r="1.65"/><circle cx="19" cy="12" r="1.65"/></svg></summary>'+
-  '<div class="vatra-public-actions-dropdown"><button type="button" data-report-user="'+id+'">Поскаржитися</button>'+
+  '<div class="vatra-public-actions-dropdown">'+(friends[uid]?'<button type="button" class="is-danger" data-remove-friend="'+id+'">Видалити з друзів</button>':'')+'<button type="button" data-report-user="'+id+'">Поскаржитися</button>'+
   '<button type="button" class="is-danger" data-block-user="'+id+'">Заблокувати</button></div></details></div>';
 }
 document.addEventListener('click',event=>{
@@ -2759,7 +2759,52 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
 }catch(err){const message=niceError(err);const errBox=f.querySelector('#settingsError');if(errBox)errBox.textContent=message;toastMsg('Не вдалося повністю зберегти зміни. '+message);console.error('[ВАТРА] Збереження профілю:',err);}finally{vatraSettingsSaving=false;const btn=f.querySelector('[type=submit]');if(btn){btn.disabled=false;btn.textContent='Зберегти налаштування';}}};}
 function createGroup(){if(!authRequired())return;$('#communityError').textContent='';$('#communityForm').reset();$('#communityDialog').showModal();setTimeout(()=>$('#communityName').focus(),40);}async function editGroup(id){if(!authRequired())return;const g=groups[id];if(!g||g.ownerUid!==currentUser.uid)return toastMsg('Редагувати може лише творець спільноти.');const name=await askText('Назва спільноти',g.name||'');if(name===null)return;const description=await askText('Опис спільноти',g.description||'');if(description===null)return;if(name.trim().length<2)return toastMsg('Назва має містити щонайменше 2 символи.');try{await update(ref(db,`groups/${id}`),{name:name.trim().slice(0,60),description:description.trim().slice(0,500),updatedAt:Date.now()});toastMsg('Спільноту оновлено.');render();}catch(e){toastMsg(niceError(e));}}
 async function uploadVideo(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;if(!f.type.startsWith('video/'))return toastMsg('Виберіть відеофайл.');if(f.size>50*1024*1024)return toastMsg('Відео має бути меншим за 50 МБ.');const text=await askText('Підпис до відео (необов’язково)','');if(text===null){e.target.value='';return;}toastMsg('Завантажуємо відео…');try{const videoUrl=await uploadMedia(f,'videos');const vref=push(ref(db,'videos'));await set(vref,{authorUid:currentUser.uid,authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',text:text.slice(0,300),videoUrl,createdAt:Date.now(),mimeType:f.type});toastMsg('Відео опубліковано!');render();}catch(err){toastMsg(niceError(err));}finally{e.target.value='';}}
-async function startChatWith(uid){if(!authRequired()||uid===currentUser.uid)return;if(blockedUsers[uid])return toastMsg('Спочатку розблокуй цього користувача.');if(users[uid]?.allowMessages===false)return toastMsg('Цей користувач вимкнув вхідні повідомлення.');const key=chatKey(currentUser.uid,uid);try{const snap=await get(ref(db,`chats/${key}`));if(!snap.exists())await set(ref(db,`chats/${key}`),{members:{[currentUser.uid]:true,[uid]:true},createdAt:Date.now()});await update(ref(db,`userChats/${currentUser.uid}/${key}`),{otherUid:uid,updatedAt:Date.now()});replyingMessageId=null;activeChat=uid;goPage('messages');activeChat=uid;renderMessages();}catch(e){toastMsg(niceError(e));}}
+function vatraGetFirstMessageDialog(){
+ let dialog=document.getElementById('vatraFirstMessageDialog');
+ if(dialog)return dialog;
+ dialog=document.createElement('dialog');
+ dialog.id='vatraFirstMessageDialog';
+ dialog.className='vatra-first-message-dialog';
+ dialog.innerHTML='<form id="vatraFirstMessageForm"><header><div><small>ПОВІДОМЛЕННЯ ВАТРИ</small><h2>Нове повідомлення</h2><p id="vatraFirstMessageRecipient"></p></div><button type="button" data-vatra-compose-close aria-label="Закрити">×</button></header><label for="vatraFirstMessageText">Текст повідомлення</label><textarea id="vatraFirstMessageText" name="message" minlength="1" maxlength="2000" rows="5" required placeholder="Напишіть своє повідомлення…"></textarea><p class="vatra-compose-error" role="alert" hidden></p><footer><button type="button" data-vatra-compose-close>Скасувати</button><button class="primary" type="submit">Надіслати</button></footer></form>';
+ document.body.append(dialog);
+ dialog.addEventListener('click',event=>{
+  if(event.target===dialog||event.target.closest('[data-vatra-compose-close]'))dialog.close();
+ });
+ return dialog;
+}
+async function startChatWith(uid){
+ if(!authRequired()||uid===currentUser.uid)return;
+ if(blockedUsers[uid])return toastMsg('Спочатку розблокуйте цього користувача.');
+ if(users[uid]?.allowMessages===false)return toastMsg('Цей користувач вимкнув вхідні повідомлення.');
+ const key=chatKey(currentUser.uid,uid);
+ try{
+  const messages=(await get(ref(db,'chats/'+key+'/messages'))).val()||{};
+  if(Object.keys(messages).length){
+   activeChat=uid;goPage('messages');activeChat=uid;renderMessages();return;
+  }
+ }catch(error){console.warn('[ВАТРА] Не вдалося перевірити історію чату:',error);toastMsg(niceError(error));return;}
+ const dialog=vatraGetFirstMessageDialog();
+ const form=dialog.querySelector('form'),submit=form.querySelector('[type=submit]');
+ form.reset();dialog.querySelector('.vatra-compose-error').hidden=true;
+ dialog.querySelector('#vatraFirstMessageRecipient').textContent='Кому: '+(users[uid]?.name||'Користувач ВАТРИ');
+ submit.disabled=false;dialog.showModal();form.elements.message.focus();
+ form.onsubmit=async event=>{
+  event.preventDefault();
+  const message=form.elements.message.value.trim();if(!message||submit.disabled)return;
+  submit.disabled=true;
+  const notice=dialog.querySelector('.vatra-compose-error');notice.hidden=true;
+  try{
+   const at=Date.now(),root=ref(db,'chats/'+key),snapshot=await get(root);
+   if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[uid]:true},createdAt:at});
+   await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,text:message,createdAt:at});
+   try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:at,lastMessage:{text:message.slice(0,120),senderUid:currentUser.uid,createdAt:at}});}catch(indexError){console.warn('[ВАТРА] Прев’ю діалогу оновиться пізніше:',indexError);}
+   dialog.close();activeChat=uid;goPage('messages');activeChat=uid;renderMessages();
+  }catch(error){
+   notice.textContent=niceError(error);notice.hidden=false;
+   console.error('[ВАТРА] Перше повідомлення:',error);
+  }finally{submit.disabled=false;}
+ };
+}
 $('#communityClose').onclick=()=>$('#communityDialog').close();$('#communityCancel').onclick=()=>$('#communityDialog').close();
 $('#communityForm').addEventListener('submit',async e=>{e.preventDefault();if(!authRequired())return;const form=e.currentTarget,fd=new FormData(form),name=String(fd.get('name')||'').trim(),description=String(fd.get('description')||'').trim(),category=VATRA_GROUP_TOPICS[String(fd.get('category')||'').trim()]||'',btn=form.querySelector('[type=submit]');if(!category){$('#communityError').textContent='Оберіть тематику спільноти.';$('#communityCategory')?.focus();return;}if(name.length<2){$('#communityError').textContent='Назва має містити щонайменше 2 символи.';return;}btn.disabled=true;btn.textContent='Створюємо…';let groupRef=null;try{groupRef=push(ref(db,'groups'));await set(groupRef,{name:name.slice(0,60),description:description.slice(0,500),category:category.slice(0,80),ownerUid:currentUser.uid,galleryAutoInclude:fd.get('galleryAutoInclude')==='on',moderatorsCanPost:true,createdAt:Date.now()});try{await set(ref(db,`groupMembers/${groupRef.key}/${currentUser.uid}`),{joinedAt:Date.now()});}catch(err){await remove(groupRef);throw err;}$('#communityDialog').close();form.reset();goPage('groups');toastMsg('Спільноту створено. Ви — її творець.');}catch(err){$('#communityError').textContent=niceError(err);}finally{btn.disabled=false;btn.textContent='Створити спільноту';}});$('#authForm').addEventListener('submit',async e=>{
  e.preventDefault();const email=$('#authEmail').value.trim().toLowerCase(),password=$('#authPassword').value,name=$('#authName').value.trim(),confirmPassword=$('#authConfirmPassword').value,btn=$('#authSubmit');
