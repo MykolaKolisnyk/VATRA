@@ -111,7 +111,7 @@ const descriptions={
  it:'VATRA è una rete sociale ucraina per amici, comunità e messaggi.'
 };
 let language='uk';
-try{language=localStorage.getItem('vatra-language')||'uk';}catch{}
+try{language=new URL(location.href).searchParams.get('lang')||localStorage.getItem('vatra-language')||'uk';}catch{try{language=localStorage.getItem('vatra-language')||'uk';}catch{}}
 if(!languages.some(pair=>pair[0]===language))language='uk';
 const saved=new WeakMap();
 let running=false;
