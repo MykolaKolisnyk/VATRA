@@ -2524,8 +2524,24 @@ async function vatraRenderAccountLifecycleSettings(section){
   request.hidden=scheduled;cancel.hidden=!scheduled;
   policy.disabled=scheduled;save.disabled=scheduled;
  };
- try{draw(await accountLifecycleRequest('status'));}
- catch(error){status.textContent=error.message||'Не вдалося перевірити налаштування.';return;}
+ const load=async()=>{
+  status.textContent='Перевіряємо можливість керування акаунтом…';
+  const prior=section.querySelector('#vatraLifecycleRetry');prior?.remove();
+  try{draw(await accountLifecycleRequest('status'));}
+  catch(error){
+   console.warn('[ВАТРА] Lifecycle unavailable:',error?.message);
+   controls.hidden=true;
+   status.textContent='Керування видаленням акаунта тимчасово недоступне. Жодних змін із Вашим акаунтом не відбулося.';
+   const retry=document.createElement('button');
+   retry.type='button';retry.id='vatraLifecycleRetry';
+   retry.className='vatra-lifecycle-retry';
+   retry.textContent='Перевірити ще раз';
+   retry.addEventListener('click',load);
+   status.insertAdjacentElement('afterend',retry);
+  }
+ };
+ await load();
+
  save.addEventListener('click',async()=>{
   save.disabled=true;
   try{draw(await accountLifecycleRequest('set-inactivity',{days:policy.value?Number(policy.value):null}));toastMsg('Термін неактивності збережено.');}
