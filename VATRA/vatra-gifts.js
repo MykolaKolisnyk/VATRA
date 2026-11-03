@@ -67,7 +67,7 @@ function art(code){
  const gradientId='vatraGiftHalo'+(++artSerial);
  return '<svg class="vatra-gift-art" viewBox="0 0 166 166" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+esc(label)+'"><defs><radialGradient id="'+gradientId+'"><stop stop-color="'+color+'" stop-opacity=".28"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></radialGradient></defs><ellipse cx="83" cy="80" rx="72" ry="68" fill="url(#'+gradientId+')"/><ellipse cx="83" cy="151" rx="37" ry="6" fill="#526B90" opacity=".10"/><g fill="none" filter="drop-shadow(0 4px 3px rgba(37,67,96,.13))">'+(paths[code]||paths.spark)+'</g><path d="m138 40 4 8 8 4-8 4-4 8-4-8-8-4 8-4Z" fill="'+color+'" opacity=".64"/><path d="m29 110 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="'+color+'" opacity=".55"/></svg>';
 }
-let opened=0,selectedTab='mine',selectedReceiver='',inventory={items:[],visibility:'everyone'},networkReady=false,showing=false,notice='',orders=[];
+let opened=0,selectedTab='mine',selectedReceiver='',inventory={items:[],visibility:'everyone'},networkReady=false,showing=false,notice='';
 const available=()=>auth.currentUser?.uid;
 function safeData(data){return data&&Array.isArray(data.items)?data:{items:[],visibility:'everyone'};}
 function friends(){return (window.vatraGiftFriends?.()||[]).filter(x=>x&&x.uid&&x.uid!==available());}
@@ -100,7 +100,7 @@ function card(item,owned=false){
  return '<article class="vatra-gift-card"><div class="vatra-gift-image">'+art(item.code)+'</div><h3>'+esc(info.title)+'</h3>'+
  '<p>'+(owned?(item.source==='welcome'?'Подарунок за реєстрацію':item.source==='holiday'?'Подарунок ВАТРИ':item.source==='developer'?'Подарунок від ВАТРИ':'Подарунок від друга'):(price?'<b>'+price+' грн</b>':info.event?'Безкоштовно · '+esc(info.event):'Безкоштовно'))+'</p>'+
  (owned?'<button type="button" data-vatra-send-item="'+esc(item.id)+'">Подарувати другу</button>':
-  price?'<button type="button" data-vatra-order="'+esc(item.code)+'">Замовити · '+price+' грн</button>':
+  price?'<button type="button" class="vatra-gift-purchase-disabled" disabled aria-disabled="true" title="Оплата банківською карткою ще розробляється">Купити · '+price+' грн</button><small class="vatra-gift-purchase-note">Оплата в розробці</small>':
   '<span class="vatra-gift-free-label">Видається ВАТРОЮ</span>')+'</article>';
 }
 function view(){
@@ -111,12 +111,11 @@ function view(){
  const markup=tab==='mine'
  ?'<div class="vatra-gift-privacy"><label for="vatraGiftPrivacy">Хто бачить мої подарунки</label><select id="vatraGiftPrivacy" data-vatra-gift-visibility><option value="everyone" '+(inventory.visibility==='everyone'?'selected':'')+'>Для всіх</option><option value="friends" '+(inventory.visibility==='friends'?'selected':'')+'>Для друзів</option><option value="only_me" '+(inventory.visibility==='only_me'?'selected':'')+'>Лише для мене</option></select></div>'+
   (own.length?'<div class="vatra-gifts-grid">'+own.map(x=>card(x,true)).join('')+'</div>':'<p class="vatra-gift-empty">Подарунків ще немає. Після реєстрації ВАТРА дарує першу іскру.</p>')
- :tab==='orders'?'<div class="vatra-gift-orders"><h2>Мої замовлення</h2>'+
-  (orders.length?orders.map(o=>'<div class="vatra-gift-order-row"><span>№'+esc(o.id)+' · '+esc(catalog.find(x=>x.code===o.code)?.title||o.code)+' · <b>'+esc(o.price)+' грн</b></span><span>'+esc(({pending:'Очікує зв’язку',fulfilled:'Видано',cancelled:'Скасовано'})[o.status]||o.status)+'</span>'+(o.status==='pending'?'<button type="button" data-vatra-cancel-order="'+esc(o.id)+'">Скасувати</button>':'')+'</div>').join(''):'<p>Поки немає замовлень.</p>')+'</div>'
- :'<p class="vatra-gifts-intro">'+(tab==='premium'?'Після оформлення замовлення розробник ВАТРИ зв’яжеться з Вами та узгодить зручний спосіб оплати. Оплата на сайті не проводиться.':'Подарунок за реєстрацію видається один раз. Святкові подарунки доступні у день події.')+'</p><div class="vatra-gifts-grid">'+selected.map(x=>card(x)).join('')+'</div>';
+
+ :'<p class="vatra-gifts-intro">'+(tab==='premium'?'Оплата карткою буде доступна після запуску платіжної системи. Наразі купівля платних подарунків недоступна.':'Подарунок за реєстрацію видається один раз. Святкові подарунки доступні у день події.')+'</p><div class="vatra-gifts-grid">'+selected.map(x=>card(x)).join('')+'</div>';
  box.innerHTML='<section class="vatra-gifts-page"><header class="vatra-gifts-header"><div><button type="button" class="vatra-gift-return" data-vatra-return-profile>← До профілю</button><p class="vatra-gifts-eyebrow">КОЛЕКЦІЯ ВАТРИ</p><h1>Подарунки</h1><p>Збирайте оригінальні подарунки та передавайте друзям.</p></div><div class="vatra-gift-summary">'+own.length+' <small>у колекції</small></div></header>'+
  '<nav class="vatra-gifts-tabs" aria-label="Категорії подарунків">'+
- [['mine','Мої'],['free','Безкоштовні'],['premium','Платні'],['orders','Замовлення']].map(([id,label])=>'<button data-vatra-gifts-tab="'+id+'" '+(tab===id?'aria-current="page"':'')+'>'+label+'</button>').join('')+'</nav>'+
+ [['mine','Мої'],['free','Безкоштовні'],['premium','Платні']].map(([id,label])=>'<button data-vatra-gifts-tab="'+id+'" '+(tab===id?'aria-current="page"':'')+'>'+label+'</button>').join('')+'</nav>'+
  '<div class="vatra-gift-notice" data-vatra-gift-message role="status">'+esc(notice)+'</div>'+markup+
  '<div class="vatra-gift-send" id="vatraGiftSend" hidden><div><h2>Подарувати другу</h2><p>Подарунок перейде до отримувача.</p></div><label>Одержувач<select data-vatra-gift-recipient><option value="">Оберіть друга</option>'+opts+'</select></label><div class="vatra-gift-send-actions"><button type="button" data-vatra-gift-cancel>Скасувати</button><button type="button" class="vatra-gift-primary" data-vatra-gift-confirm>Надіслати</button></div></div></section>';
 }
@@ -129,11 +128,11 @@ async function show(uid){
  try{
   await call('vatra_gifts_claim_welcome');
   await call('vatra_gifts_claim_holiday');
-  const [data,userOrders]=await Promise.all([call('vatra_gifts_inventory'),call('vatra_gifts_my_orders')]);orders=Array.isArray(userOrders)?userOrders.filter(o=>o.status!=='cancelled'):[];if(gen!==opened)return;
+  const data=await call('vatra_gifts_inventory');if(gen!==opened)return;
   inventory=safeData(data);networkReady=true;view();
  }catch(err){
   if(gen!==opened)return;
-  box.innerHTML='<section class="vatra-gifts-page"><h1>Подарунки</h1><p>Систему подарунків ще не активовано в Supabase. Розробник має виконати SQL-міграцію <code>vatra-gifts.sql</code>.</p><p class="vatra-gift-muted">Поки сервер не налаштований, чужі або вигадані подарунки не відображаються.</p></section>';
+  box.innerHTML='<section class="vatra-gifts-page"><h1>Подарунки</h1><p>Подарунки тимчасово недоступні. Будь ласка, спробуйте пізніше.</p><p class="vatra-gift-muted">Поки сервер не налаштований, чужі або вигадані подарунки не відображаються.</p></section>';
   console.warn('[ВАТРА подарунки]',err.message);
  }
 }
@@ -145,27 +144,6 @@ document.addEventListener('click',async e=>{
  if(e.target.closest('[data-vatra-return-profile]')){window.vatraRouter?.goPage('profile');return;}
  if(e.target.closest('[data-vatra-public-gifts-close]')){document.getElementById('vatraPublicGiftDialog')?.close();return;}
  const tab=e.target.closest('[data-vatra-gifts-tab]');if(tab){selectedTab=tab.dataset.vatraGiftsTab;notice='';view();return;}
- const buy=e.target.closest('[data-vatra-order]');
- if(buy){
-  const code=buy.dataset.vatraOrder,entry=catalog.find(x=>x.code===code);
-  if(!entry||!entry.price)return;
-  if(!(await giftConfirm('Оформлення замовлення','Подарунок «'+entry.title+'» — '+entry.price+' грн. Оплата на сайті не проводиться. Після оформлення ВАТРА зв’яжеться з Вами.','Замовити · '+entry.price+' грн')))return;
-  buy.disabled=true;
-  try{
-   const number=await call('vatra_gifts_place_order',{_code:code});
-   orders=(await call('vatra_gifts_my_orders')).filter(o=>o.status!=='cancelled');
-   notice='Замовлення №'+number+' надіслано адміністрації ВАТРИ. Очікуйте повідомлення від розробника.';
-   selectedTab='orders';view();giftToast('Замовлення №'+number+' надіслано адміністрації ВАТРИ.');
-  }catch(err){status(err.message||'Помилка замовлення.',true);buy.disabled=false;}
-  return;
- }
- const cancelOrder=e.target.closest('[data-vatra-cancel-order]');
- if(cancelOrder){
-  if(!(await giftConfirm('Видалити замовлення?','Заявку №'+cancelOrder.dataset.vatraCancelOrder+' буде видалено без можливості відновлення.','Видалити заявку',true)))return;
-  try{await call('vatra_gifts_cancel_order',{_order_id:Number(cancelOrder.dataset.vatraCancelOrder)});orders=await call('vatra_gifts_my_orders');notice='Замовлення видалено.';view();giftToast('Замовлення видалено.');}
-  catch(err){status(err.message||'Не вдалося скасувати замовлення.',true);}
-  return;
- }
  const gift=e.target.closest('[data-vatra-send-item]');
  if(gift){
   if(!networkReady)return;
