@@ -11,7 +11,7 @@ try {
     ({ createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'));
   } catch (backupError) {
     console.error('[ВАТРА] Обидва джерела бібліотеки Supabase недоступні.', backupError);
-    throw new Error('Не вдалося завантажити модуль Supabase. Перевірте підключення до CDN.', {cause:backupError});
+    throw new Error('Не вдалося завантажити необхідні компоненти ВАТРИ. Перевірте інтернет-з’єднання та повторіть спробу.', {cause:backupError});
   }
 }
 
@@ -81,13 +81,13 @@ function databaseError(error) {
     return wrapped;
   }
   if (code === 'P0001' && /VATRA E2EE: only signed ciphertext|only signed ciphertext from the sender/i.test(message)) {
-    const result = new Error('У Supabase залишилося старе правило чату. Застосуйте файл VATRA/vatra-chat-replies-and-unread.sql у SQL Editor.');
+    const result = new Error('Повідомлення тимчасово недоступні через технічне оновлення. Повторіть спробу пізніше.');
     result.code = 'CHAT_SQL_REQUIRED';
     result.dbCode = 'P0001';
     return result;
   }
   if (code === 'P0001' && /VATRA (?:E2EE|CHAT):/i.test(message)) {
-    const result = new Error('Правило бази даних відхилило запис у чат. Перевірте SQL-оновлення і журнал Supabase.');
+    const result = new Error('Не вдалося надіслати повідомлення. Перевірте права доступу та повторіть спробу.');
     result.code = 'CHAT_SQL_CONSTRAINT';
     result.dbCode = 'P0001';
     return result;
@@ -185,8 +185,8 @@ export async function uploadMedia(file, category = 'posts') {
   });
   if (error) {
     const message = String(error.message || '');
-    if (/bucket.*not found|no such bucket/i.test(message)) throw new Error('Файлове сховище ще не налаштоване. Виконай оновлений SQL-файл з архіву.');
-    if (/row.level.security|permission|not allowed/i.test(message)) throw new Error('Завантаження заборонене правилами доступу. Виконай оновлений SQL-файл з архіву.');
+    if (/bucket.*not found|no such bucket/i.test(message)) throw new Error('Завантаження файлів тимчасово недоступне. Спробуйте пізніше.');
+    if (/row.level.security|permission|not allowed/i.test(message)) throw new Error('Не вдалося завантажити файл: недостатньо прав доступу.');
     if (/too large|payload|size/i.test(message)) throw new Error('Файл завеликий. Спробуй менше фото або відео.');
     throw databaseError(error);
   }
@@ -285,7 +285,7 @@ function friendshipRpcError(error) {
   const code = String(error?.code || '').toUpperCase();
   if (code === 'PGRST202' || code === '42883' ||
       /function public\.vatra_(accept_friend|remove_friend|repair_my_friends).*not found|schema cache.*vatra_/i.test(String(error?.message || ''))) {
-    const setup = new Error('Для взаємної дружби потрібне оновлення Supabase: запустіть SQL із файлу VATRA/friends-mutual-fix.sql у SQL Editor.');
+    const setup = new Error('Запити в друзі тимчасово недоступні. Повторіть спробу пізніше.');
     setup.code = 'FRIENDS_SQL_REQUIRED';
     return setup;
   }
@@ -663,7 +663,7 @@ export async function accountLifecycleRequest(action='status',payload={}){
   });
  }catch{throw new Error('Не вдалося зв’язатися з сервером керування акаунтом.');}
  if(response.status===404||response.status===503)
-  throw new Error('Функція видалення акаунта ще не активована в Supabase. Зверніться до адміністратора ВАТРИ.');
+  throw new Error('Керування видаленням акаунта тимчасово недоступне. Зверніться до підтримки ВАТРИ.');
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw new Error(String(data.error||'Сервер відхилив запит.').slice(0,400));
  return data.lifecycle;
@@ -683,7 +683,7 @@ export async function vatraSchedulePost({groupId=null,post,scheduledAt}){
  };
  const {data,error}=await client.from('vatra_scheduled_posts').insert(row).select('id,scheduled_at,group_id').single();
  if(error){
-  if(error.code==='42P01'||error.code==='PGRST205')throw new Error('Планування ще не активовано в Supabase. Потрібна міграція vatra-scheduled-posts.sql.');
+  if(error.code==='42P01'||error.code==='PGRST205')throw new Error('Планування дописів тимчасово недоступне. Спробуйте пізніше.');
   throw databaseError(error);
  }
  return data;
