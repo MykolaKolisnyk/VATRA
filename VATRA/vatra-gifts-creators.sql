@@ -19,6 +19,7 @@ create table if not exists public.vatra_creator_gifts (
  transferred_at timestamptz,
  sender_uid uuid references auth.users(id) on delete set null
 );
+create unique index if not exists vatra_creator_gifts_unique_asset on public.vatra_creator_gifts(creator_uid,image_path);
 create index if not exists vatra_creator_gifts_market_idx on public.vatra_creator_gifts(listed,created_at desc);
 create index if not exists vatra_creator_gifts_owner_idx on public.vatra_creator_gifts(owner_uid,created_at desc);
 create index if not exists vatra_creator_gifts_creator_idx on public.vatra_creator_gifts(creator_uid,created_at desc);
@@ -68,6 +69,7 @@ begin
  if exists(select 1 from public.vatra_creator_gifts
            where creator_uid=actor and image_path=_image_path) then
   raise exception 'Це зображення вже використано для подарунка';end if;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext(actor::text));
  if (select count(*) from public.vatra_creator_gifts
      where creator_uid=actor and created_at>now()-interval '24 hours')>=5 then
   raise exception 'Дозволено не більше 5 нових подарунків на добу';end if;
@@ -192,6 +194,7 @@ begin
  if exists(select 1 from public.vatra_creator_gift_orders
     where gift_id=_gift_id and buyer_uid=actor and status='pending') then
   raise exception 'Ви вже подали заявку на цей подарунок';end if;
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext(actor::text));
  if (select count(*) from public.vatra_creator_gift_orders
   where buyer_uid=actor and created_at>now()-interval '24 hours')>=20 then
   raise exception 'Ліміт — 20 нових заявок на добу';end if;
