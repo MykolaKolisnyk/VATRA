@@ -1970,6 +1970,7 @@ function renderMessages(){
  $('#chatMessages')?.addEventListener('click',event=>{
   const button=event.target.closest('[data-reply-chat-message]');
   if(button){
+   if(activeChatBlocked||blockedUsers[activeChat])return;
    const id=button.dataset.replyChatMessage,message=chatMessages[id];
    if(!message)return;
    replyingMessageId=id;
@@ -2798,7 +2799,7 @@ async function startChatWith(uid){
    if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[uid]:true},createdAt:at});
    await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,text:message,createdAt:at});
    try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:at,lastMessage:{text:message.slice(0,120),senderUid:currentUser.uid,createdAt:at}});}catch(indexError){console.warn('[ВАТРА] Прев’ю діалогу оновиться пізніше:',indexError);}
-   dialog.close();activeChat=uid;goPage('messages');activeChat=uid;renderMessages();
+   dialog.close();replyingMessageId=null;activeChat=uid;goPage('messages');activeChat=uid;renderMessages();
   }catch(error){
    notice.textContent=niceError(error);notice.hidden=false;
    console.error('[ВАТРА] Перше повідомлення:',error);
