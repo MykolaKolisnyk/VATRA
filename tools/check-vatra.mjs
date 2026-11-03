@@ -121,3 +121,29 @@ for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
  const content=readFileSync('VATRA/lang/'+locale+'/index.html','utf8');
  assert.ok(content.includes('hreflang="'+locale+'"'),'Missing locale SEO alternates: '+locale);
 }
+
+
+// Account settings and expanded gift viewing: November 3 design references.
+const authPage=readFileSync('VATRA/auth.html','utf8');
+const registerPage=readFileSync('VATRA/register.html','utf8');
+const loaderCss=readFileSync('VATRA/vatra-loader.css','utf8');
+const adminSource=readFileSync('VATRA/vatra-admin-center.js','utf8');
+assert.ok(scriptText.includes("vatraSettingsContext='settings'"),'Profile editing and account settings must be separate');
+assert.ok(scriptText.includes("vatraOpeningEditProfile=true"),'Edit-profile button must enter edit context');
+assert.ok(layouts.includes('data-vatra-settings-context="settings"'),'Separate account settings layout missing');
+assert.ok(layouts.includes('.vatra-settings-nav-button[hidden]'),'Hidden account/edit navigation links must remain hidden');
+assert.ok(scriptText.includes('vatra-account-admin-link'),'Admin center missing after account support entry');
+assert.ok(scriptText.includes("action==='admin'"),'Admin menu click handler missing');
+assert.ok(adminSource.includes('vatraCanOpenAdminCenter'),'Staff role must be checked before showing admin link');
+assert.ok(languageModule.includes("excludedLanguageCodes=new Set(['ru','be'])"),'Russian and Belarusian language options must be excluded');
+assert.ok(languageModule.includes('capitalizeLanguage(nativeName)'),'Language names must begin with a capital');
+for(const html of [authPage,registerPage]){
+ assert.ok(html.includes('class="developer-dialog vatra-developer-modern"'),'Founder modal redesign missing');
+ assert.ok(html.includes('vatra-loading-wordmark-image'),'Minimal social-network loader missing');
+ assert.ok(!html.includes('ВАТРА — це не просто сайт у моєму комп’ютері.'),'Old sentimental founder copy remains');
+}
+assert.ok(loaderCss.includes('Lightweight launch state for a social network'),'Quiet loader styling missing');
+assert.ok(giftText.includes('function openGiftDetail(code)'),'Fullscreen gift viewer handler missing');
+assert.ok(giftText.includes('data-vatra-gift-open'),'Gift card zoom action missing');
+assert.ok(giftText.includes('giftLongDescriptions'),'Expanded description for gifts missing');
+assert.ok(readFileSync('VATRA/vatra-gifts.css','utf8').includes('.vatra-gift-detail-dialog[open]'),'Fullscreen gift styling missing');
