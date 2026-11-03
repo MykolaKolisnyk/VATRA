@@ -219,3 +219,20 @@ dialog.vatra-creator-detail::-webkit-scrollbar{display:none}
 @media(max-width:400px){
  .vatra-creator-grid{grid-template-columns:1fr}
 }
+
+/* Creator gifts use the same compact thumbnails as original profile gifts. */
+body .vatra-gift-preview-row .vatra-creator-preview-item img,
+body .vatra-creator-public-card .vatra-creator-preview-item img{
+ display:block!important;
+ width:100%!important;height:100%!important;max-height:100%!important;
+ object-fit:contain!important;border-radius:8px!important;
+}
+body .vatra-creator-public-card .vatra-creator-preview-item{
+ display:grid!important;place-items:center!important;
+ width:100%!important;height:100%!important;
+ padding:6px!important;
+ border:0!important;border-radius:10px!important;
+ background:linear-gradient(140deg,#f7fbff,#eef4fc)!important;
+ cursor:zoom-in!important;
+}
+body .vatra-creator-public-card .vatra-gift-image{aspect-ratio:1}
