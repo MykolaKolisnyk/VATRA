@@ -1,7 +1,6 @@
 -- VATRA · private gift removal controls, 2026-11-03
--- Run AFTER app-data-schema.sql, vatra-gifts.sql, and latest vatra-gifts-creators.sql.
+-- Run AFTER app-data-schema.sql and vatra-gifts.sql.
 -- Server-side ownership is mandatory. Official gifts are deleted only at owner request.
--- Creator gifts are SOFT deleted: order and seller history are preserved.
 begin;
 
 create or replace function public.vatra_gifts_discard(_item_id uuid)
