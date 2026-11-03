@@ -639,7 +639,50 @@ function renderSaved(){
  setFeed(content,false);
  feed.querySelector('.vatra-saved-browse')?.addEventListener('click',()=>goPage('feed'));
 }
-function renderFeed(){const arr=allPosts();setFeed(arr.map(postCard).join(''),!arr.length);if(!arr.length)$('#empty').innerHTML=`<h3>${page==='saved'?'Тут поки порожньо':page==='profile'?'Ще немає дописів':'Стрічка пуста'}</h3><p>${page==='saved'?'Зберігай дописи, щоб повернутися до них пізніше.':page==='profile'?'Ваші публікації з’являтимуться тут.':'Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.'}</p>${currentUser&&page==='feed'?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':''}`;$('#emptyCreate')?.addEventListener('click',openComposer);}
+function renderFeed(){const arr=allPosts();const cards=arr.map(postCard);if(arr.length&&currentUser){cards.splice(1,0,'<section class="vatra-fof-panel" id="vatraFriendsOfFriends" hidden aria-label="Люди, яких ви можете знати"></section>');}setFeed(cards.join(''),!arr.length);if(arr.length&&currentUser)void vatraLoadFriendsOfFriends();if(!arr.length)$('#empty').innerHTML=`<h3>${page==='saved'?'Тут поки порожньо':page==='profile'?'Ще немає дописів':'Стрічка пуста'}</h3><p>${page==='saved'?'Зберігай дописи, щоб повернутися до них пізніше.':page==='profile'?'Ваші публікації з’являтимуться тут.':'Новин поки немає. Дописи друзів і спільнот, за якими Ви стежите, з’являться тут.'}</p>${currentUser&&page==='feed'?'<button class="primary" id="emptyCreate">＋ Створити допис</button>':''}`;$('#emptyCreate')?.addEventListener('click',openComposer);}
+const vatraFoFCache={uid:'',expires:0,items:[]};
+const vatraFoFHidden=new Set();
+async function vatraLoadFriendsOfFriends(){
+ const userUid=currentUser?.uid,container=document.getElementById('vatraFriendsOfFriends');
+ if(!userUid||!container||page!=='feed')return;
+ const renderItems=items=>{
+  if(page!=='feed'||currentUser?.uid!==userUid||!container.isConnected)return;
+  const shown=items.filter(x=>!vatraFoFHidden.has(x.uid)&&!friends[x.uid]&&!blockedUsers[x.uid]).slice(0,5);
+  if(!shown.length){container.hidden=true;return}
+  container.hidden=false;
+  container.innerHTML='<div class="vatra-fof-heading"><div><span class="vatra-fof-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2c0-4 3-6 6-6s6 2 6 6v2M17 8a3 3 0 0 1 0 6M19 15a5 5 0 0 1 2 5"/></svg></span><h2>Люди, яких ви можете знати</h2></div><button type="button" data-vatra-fof-all>Усі</button></div>'+
+   '<div class="vatra-fof-track">'+shown.map(({uid,u,mutual})=>
+    '<article class="vatra-fof-card"><button class="vatra-fof-dismiss" type="button" data-vatra-fof-hide="'+esc(uid)+'" aria-label="Не рекомендувати цього користувача">×</button>'+
+    '<button type="button" data-view-profile="'+esc(uid)+'" class="vatra-fof-photo">'+avatar(u.name||'Користувач',u.avatarUrl)+'</button>'+
+    '<button type="button" data-view-profile="'+esc(uid)+'" class="vatra-fof-name">'+esc(u.name||'Користувач')+'</button>'+
+    '<small>'+mutual+' '+(mutual===1?'спільний друг':'спільних друзів')+'</small>'+
+    '<button type="button" class="vatra-fof-add" data-friend-request="'+esc(uid)+'">Додати в друзі</button></article>'
+   ).join('')+'</div>';
+  container.querySelector('[data-vatra-fof-all]')?.addEventListener('click',()=>goPage('explore'));
+  container.querySelectorAll('[data-vatra-fof-hide]').forEach(btn=>btn.addEventListener('click',()=>{
+   const uid=btn.dataset.vatraFofHide;vatraFoFHidden.add(uid);
+   try{localStorage.setItem('vatra-fof-hide-'+userUid+'-'+uid,String(Date.now()))}catch{}
+   renderItems(items);
+  }));
+ };
+ if(vatraFoFCache.uid===userUid&&Date.now()<vatraFoFCache.expires){renderItems(vatraFoFCache.items);return;}
+ const firstIds=Object.keys(friends||{}).filter(uid=>uid&&uid!==userUid&&!blockedUsers[uid]).slice(0,8);
+ if(!firstIds.length)return;
+ const results=await Promise.all(firstIds.map(async friendUid=>{
+  try{return await listProfileFriends(friendUid)}catch{return []}
+ }));
+ if(currentUser?.uid!==userUid||page!=='feed')return;
+ const scores=new Map();
+ for(const linked of results)for(const uid of linked){
+  if(!uid||uid===userUid||friends[uid]||blockedUsers[uid])continue;
+  const u=users[uid];if(!u?.name||u.searchable===false||u.profileVisibility==='private')continue;
+  if(!vatraFoFHidden.has(uid)){try{const at=Number(localStorage.getItem('vatra-fof-hide-'+userUid+'-'+uid)||0);if(at&&Date.now()-at<30*86400000){vatraFoFHidden.add(uid);continue}}catch{}}
+  scores.set(uid,(scores.get(uid)||0)+1);
+ }
+ const items=[...scores].sort((a,b)=>b[1]-a[1]).slice(0,16).map(([uid,mutual])=>({uid,u:users[uid],mutual}));
+ vatraFoFCache.uid=userUid;vatraFoFCache.items=items;vatraFoFCache.expires=Date.now()+2*60*1000;
+ renderItems(items);
+}
 function avatarPhotoKey(url){
  let hash=2166136261;
  for(let i=0;i<String(url||'').length;i++){hash^=String(url).charCodeAt(i);hash=Math.imul(hash,16777619);}
