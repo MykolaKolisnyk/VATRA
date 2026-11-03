@@ -2602,6 +2602,33 @@ async function vatraRenderAccountLifecycleSettings(section){
  });
 }
 
+/* Each extended profile entry is stored privately. Public/friends read models are
+   generated from explicit, per-field visibility — never from the raw records. */
+const VATRA_PROFILE_RECORD_SCHEMAS={
+ educationRecords:{title:'Заклади освіти',add:'Додати заклад',fields:[['title','Назва навчального закладу'],['detail','Спеціальність або рівень освіти'],['period','Роки навчання']]},
+ careerRecords:{title:'Місця роботи',add:'Додати роботу',fields:[['title','Компанія чи організація'],['detail','Посада'],['period','Період роботи']]},
+ serviceRecords:{title:'Військова служба',add:'Додати запис',fields:[['title','Формування чи підрозділ'],['detail','Посада або вид служби'],['period','Період служби']]}
+};
+function vatraRecordRows(holder,key,records=[]){
+ const schema=VATRA_PROFILE_RECORD_SCHEMAS[key];if(!schema)return;
+ const list=holder.querySelector('.vatra-record-list');if(!list)return;
+ const clean=Array.isArray(records)?records.slice(0,8):[];
+ list.innerHTML=clean.map((item,i)=>'<div class="vatra-record-row" data-vatra-record-row="'+esc(key)+'"><div class="vatra-record-head"><b>Запис '+(i+1)+'</b><button type="button" data-vatra-record-remove aria-label="Видалити запис '+(i+1)+'">Видалити</button></div><div class="vatra-record-fields">'+schema.fields.map(([field,title])=>'<label>'+esc(title)+'<input type="text" data-vatra-record-field="'+field+'" maxlength="120" value="'+esc(item?.[field]||'')+'" placeholder="'+esc(title)+'" autocomplete="off"></label>').join('')+'</div></div>').join('');
+ holder.querySelector('[data-vatra-record-add]').disabled=clean.length>=8;
+}
+function vatraGetRecordLists(form){
+ const all={};const errors=[];
+ for(const [key,schema] of Object.entries(VATRA_PROFILE_RECORD_SCHEMAS)){
+  const holder=form.querySelector('[data-vatra-record-editor="'+key+'"]');
+  const list=holder?[...holder.querySelectorAll('[data-vatra-record-row]')]:[];
+  all[key]=list.map(row=>Object.fromEntries(schema.fields.map(([field])=>[field,String(row.querySelector('[data-vatra-record-field="'+field+'"]')?.value||'').trim().slice(0,120)]))).filter(row=>Object.values(row).some(Boolean)).slice(0,8);
+  if(all[key].some(row=>!row.title))errors.push(schema.title+': у кожному записі вкажіть назву.');
+ }
+ return {all,errors};
+}
+function vatraSummaryForRecords(rows=[]){
+ return rows.map(row=>[row.title,row.detail,row.period].filter(Boolean).join(' — ')).join('\n').slice(0,5000);
+}
 function vatraOrganizeSettings(){
  const page=$('.settings-page'),form=$('#profileSettingsForm');if(!page||!form)return;
  const cards=[...form.children].filter(node=>node.classList.contains('settings-card'));
