@@ -12,7 +12,7 @@ function labels(){return texts[language()]||texts.en;}
 // Avoid showing Translate for text already written in the reader's interface language.
 // Language hint wins; otherwise check reliable script/grammar markers rather than guessing blindly.
 function vatraContentLanguage(node,value){
- const hint=(node.getAttribute('lang')||node.closest('[lang]')?.getAttribute('lang')||'').trim().toLowerCase().split('-')[0];
+ const hint=(node.getAttribute('lang')||node.closest('[lang]:not(html):not(body)')?.getAttribute('lang')||'').trim().toLowerCase().split('-')[0];
  if(hint && hint!=='und' && ['uk','en','ru','pl','de','fr','es','it','pt'].includes(hint))return hint;
  const str=String(value||'').replace(/https?:\/\/\S+/g,'').trim();
  if(/[іїєґІЇЄҐ]/u.test(str))return 'uk';
