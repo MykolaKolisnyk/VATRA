@@ -44,7 +44,8 @@ async function resolveProfileToken(token,photos=false){
   }
  }
  if(!uid)return false;
- if(!location.hash.startsWith('#/u/'+encodeURIComponent(token))&&!location.hash.startsWith('#/profile/'+encodeURIComponent(token)))return false;
+ const currentToken=location.hash.match(/^#\/(?:u|profile)\/([^/]+)/)?.[1]||'';
+ if(decodeURIComponent(currentToken).replace(/^@/,'').toLocaleLowerCase('uk')!==requested)return false;
  const router=window.vatraRouter;
  if(!router)return false;
  restoring=true;
