@@ -13,8 +13,8 @@ for(const name of names){
  assert.match(backend,expression,'Backend is missing imported export: '+name);
 }
 for(const name of ['getStoryMediaUrl','uploadStoryMedia','removeStoryMedia'])assert.ok(names.includes(name),'Core must load private Stories API: '+name);
-assert.ok(page.includes('script.js?v=20261104-startup-fix1'),'Entry script cache must be refreshed');
-assert.ok(imports[0][2].includes('startup-fix'),'Entry and backend must use compatible fresh versions');
+assert.ok(page.includes('script.js?v=20261104-storage-split1'),'Entry script cache must be refreshed');
+assert.ok(imports[0][2].includes('storage-split'),'Entry and backend must use compatible fresh versions');
 assert.ok(!page.includes('id="vatraScrollToTop"'),'Floating back-to-top overlay should not cover content');
 
 const def=iconSource.match(/const GLYPHS=(\{[\s\S]+?\});\s*const ALIASES=/);
@@ -36,4 +36,19 @@ for(const [name,markup] of Object.entries(glyphs)){
   }
  }
 }
-console.log('VATRA startup: '+names.length+' named backend imports and SVG paths validated.');
+const categories={
+ posts:'vatra-photos',comments:'vatra-photos','community-photos':'vatra-photos',
+ videos:'vatra-videos','community-videos':'vatra-videos',avatars:'vatra-avatars',
+ covers:'vatra-covers',gifts:'vatra-gifts'
+};
+for(const [type,bucket] of Object.entries(categories)){
+ const quoted=JSON.stringify(type).replaceAll('"',"'")+':'+JSON.stringify(bucket).replaceAll('"',"'");
+ const key=type==='posts'||type==='comments'||type==='videos'||type==='avatars'||type==='covers'||type==='gifts'?type+":'"+bucket+"'":quoted;
+ assert.ok(backend.includes(key),'Wrong media bucket routing for '+type);
+}
+assert.ok(backend.includes("const STORY_BUCKET='vatra-stories'"),'Stories must stay in private Storage');
+assert.ok(backend.includes('client.storage.from(bucket).upload')&&
+          backend.includes('client.storage.from(bucket).getPublicUrl'),
+          'Upload and public URL generation must use the same content-specific bucket');
+assert.ok(backend.includes("const MEDIA_BUCKET = 'vatra-media'"),'Historical bucket identifier must remain for compatibility');
+console.log('VATRA startup: '+names.length+' named backend imports, SVG paths and Storage routing validated.');
