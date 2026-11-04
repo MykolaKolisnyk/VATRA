@@ -203,7 +203,7 @@ function setPhoneInputFromFullNumber(input,select,value){
  const normalized=raw.replace(/[\s().-]/g,'');
  if(!normalized.startsWith('+')){input.value=raw;return;}
  const match=PHONE_COUNTRIES.filter(c=>normalized.startsWith(c.dial)).sort((a,b)=>b.dial.length-a.dial.length)[0];
- if(match){const preferred=match.dial==='+1'?'US':match.iso;const optionIndex=[...select.options].findIndex(o=>o.dataset.iso===preferred);if(optionIndex>=0)select.selectedIndex=optionIndex;else select.value=match.dial;input.value=normalized.slice(match.dial.length).replace(/\D/g,'');select.dispatchEvent(new Event('change',{bubbles:true}));}
+ if(match){const preferred=match.dial==='+1'?'US':match.iso;const optionIndex=[...select.options].findIndex(o=>o.dataset.iso===preferred);if(optionIndex>=0)select.selectedIndex=optionIndex;else select.value=match.dial;input.value=vatraPhoneLocalDigits(normalized,select);select.dispatchEvent(new Event('change',{bubbles:true}));}
  else input.value=normalized;
 }
 function syncPhoneInputMode(input,select,method){
