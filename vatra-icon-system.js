@@ -62,7 +62,8 @@
  "game": "<path d=\"M7 8h10c2.4 0 3.8 1.6 4.5 4.1l1 4c.8 3.1-2.2 4.8-4.5 3l-2.7-2H8.7l-2.7 2c-2.3 1.8-5.3.1-4.5-3l1-4C3.2 9.6 4.6 8 7 8Z\"/><path d=\"M7 11v5M4.5 13.5h5M16.5 12h.01M19 14.5h.01\"/>",
  "list": "<path d=\"M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01\"/>",
  "leaf": "<path d=\"M20 4C10 5 4 7 4 15c0 4 4 6 7 4 7-4 7-10 9-15ZM6 20c2-6 5-9 11-12\"/>",
- "mute": "<path d=\"M3 9h4l5-4v14l-5-4H3V9ZM16 9l5 6m0-6-5 6\"/>"
+ "mute": "<path d=\"M3 9h4l5-4v14l-5-4H3V9ZM16 9l5 6m0-6-5 6\"/>",
+ "volume": "<path d=\"M3 9h4l5-4v14l-5-4H3V9Z\"/><path d=\"M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12\"/>"
 };
  const ALIASES=Object.freeze({
   notifications:'bell',appearance:'sun',contacts:'message',name:'profile',url:'website',

@@ -10,6 +10,29 @@ body .vatra-clips-feed::-webkit-scrollbar{display:none}
 body .vatra-clips-feed .vatra-clip{position:relative!important;display:block!important;box-sizing:border-box!important;width:min(440px,calc(100% - 16px))!important;height:calc(100dvh - 250px)!important;min-height:335px!important;max-height:740px!important;margin:0 auto!important;padding:0!important;overflow:hidden!important;border:1px solid #254063!important;border-radius:16px!important;background:#0b1424!important;scroll-snap-align:start!important;scroll-snap-stop:always!important;box-shadow:0 13px 35px #12345b2b!important}
 body .vatra-clips-feed .vatra-clip-frame{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important}
 body .vatra-clips-feed .vatra-clip-media{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;background:#0a1525!important}
+/* Playback surface keeps the original compact clip card and sidebar sizes. */
+body .vatra-clips-feed .vatra-clip-play-toggle{
+ position:absolute;z-index:4;top:50%;left:50%;transform:translate(-50%,-50%);
+ display:grid;place-items:center;width:60px;height:60px;padding:0;border:1px solid #ffffff70;
+ border-radius:50%;background:#0b2348b0;color:#fff;cursor:pointer;
+ transition:opacity .18s ease,background .18s ease
+}
+body .vatra-clips-feed .vatra-clip-play-toggle svg{
+ width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round
+}
+body .vatra-clips-feed .vatra-clip-play-toggle:hover{background:#0757f5}
+body .vatra-clips-feed .vatra-clip.is-playing .vatra-clip-play-toggle{opacity:0;pointer-events:none}
+body .vatra-clips-feed .vatra-clip-play-toggle:focus-visible{opacity:1;pointer-events:auto;outline:2px solid #fff;outline-offset:3px}
+body .vatra-clips-feed .vatra-clip-progress{
+ position:absolute;bottom:0;left:0;right:0;height:4px;z-index:6;
+ background:#ffffff45;pointer-events:none
+}
+body .vatra-clips-feed .vatra-clip-progress>span{
+ display:block;height:100%;width:0;background:#57a6ff;transition:width .1s linear
+}
+@media(prefers-reduced-motion:reduce){
+ body .vatra-clips-feed .vatra-clip-play-toggle,body .vatra-clips-feed .vatra-clip-progress>span{transition:none}
+}
 body .vatra-clip-top-label{position:absolute;z-index:4;top:13px;left:15px;right:15px;display:flex;justify-content:space-between;gap:10px;pointer-events:none;color:#fff;text-shadow:0 2px 8px #0008;font-size:11px;font-weight:750}
 body .vatra-clip-top-label span:last-child{padding:5px 8px;border:1px solid #ffffff36;border-radius:9px;background:#102a48b0}
 body .vatra-clip-rail{position:absolute;z-index:5;top:48%;right:10px;display:flex;flex-direction:column;gap:10px;transform:translateY(-50%)}
