@@ -123,6 +123,19 @@ const unreachableJS=files.filter(path=>path.endsWith('.js')&&!reachableJS.has(pa
  .map(path=>({path,mentions:liveCode.filter(([source,contents])=>source!==path&&contents.includes(basename(path))).map(([source])=>source).slice(0,5)}));
 const rootCssUnloaded=files.filter(path=>path.endsWith('.css')&&!htmlStyles.has(path) && !path.includes('/'));
 
+// Fail CI if browser code accidentally contains server-side credentials.
+const privateKeyBlock='-----BEGIN PRIVATE KEY-----';
+const unsafeFrontend=[];
+for(const [path,source] of textFiles){
+ if(path.includes('/')||!path.endsWith('.js')&&!path.endsWith('.html'))continue;
+ const problems=[];
+ if(source.includes('sb_secret_'))problems.push('Supabase secret key');
+ if(source.includes('SUPABASE_SERVICE_ROLE_KEY'))problems.push('Server service role in browser');
+ if(source.includes(privateKeyBlock))problems.push('PEM private key');
+ if(problems.length)unsafeFrontend.push({path,problems});
+}
+const committedEnv=files.filter(path=>/(?:^|\/)\.env(?:\.|$)/.test(path)&&path!=='.env.example');
+
 const report={
  counts:{
   files:files.length,folders:[...new Set(files.filter(x=>x.includes('/')).map(x=>dirname(x)))].length,
@@ -132,9 +145,11 @@ const report={
   workflows:files.filter(x=>x.startsWith('.github/workflows/')).length,
   checkedLinks:checkedLinks.length
  },
- candidates,duplicates,hardMissing,jsErrors,crossCSS,assetMentions,unreachableJS,rootCssUnloaded
+ candidates,duplicates,hardMissing,jsErrors,crossCSS,assetMentions,unreachableJS,rootCssUnloaded,unsafeFrontend,committedEnv
 };
 console.log('VATRA FULL REPOSITORY AUDIT');
 console.log(JSON.stringify(report,null,2));
 if(jsErrors.length)throw Error('Syntax errors found in '+jsErrors.length+' JavaScript files');
 if(hardMissing.length)throw Error('Missing '+hardMissing.length+' local website dependencies');
+if(unreachableJS.length||rootCssUnloaded.length)throw Error('Unreferenced production JavaScript or CSS discovered');
+if(unsafeFrontend.length||committedEnv.length)throw Error('Potential secret material in public web repository');
