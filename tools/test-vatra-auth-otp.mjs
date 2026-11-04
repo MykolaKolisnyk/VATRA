@@ -1,5 +1,6 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
+import {runInNewContext} from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
 const auth=read('auth.js'),backend=read('vatra-backend.js'),css=read('auth.css');
 for(const file of ['auth.html','register.html']){
@@ -48,4 +49,71 @@ const sms=read('supabase/auth-templates/otp-sms.txt');
 assert.ok(email.includes('{{ .Token }}')&&email.includes('ВАТРА'),'Email template missing brand or token');
 assert.ok(sms.includes('{{ .Code }}')&&sms.includes('ВАТРА'),'SMS template missing brand or token');
 for(const template of [email,sms])assert.ok(!/sb_secret_|sk_(?:live|test)_/.test(template),'Template contains secret material');
+
+// Exercise the actual confirmOtp implementation with a fake, already verified
+// user. No network requests, real accounts, or live SMS/email are involved.
+const retryStart=auth.indexOf('async function confirmOtp(){');
+const retryEnd=auth.indexOf("\n$('#otpChange')",retryStart);
+assert.ok(retryStart>=0&&retryEnd>retryStart,'Cannot isolate confirmOtp for behavioral tests');
+const confirmationImplementation=auth.slice(retryStart,retryEnd);
+const newAccount={id:'new-account-test',created_at:new Date().toISOString()};
+const elements={
+ '#otpCode':{value:'123456',required:true,readOnly:false},
+ '#submit':{textContent:'',disabled:false},
+};
+const notices=[],navigations=[];
+let verificationCalls=0,profileLookups=0,passwordChanges=0,registrationAttempts=0;
+const challenge={kind:'signup',contact:'test@example.invalid',isPhone:false,password:'not-a-real-password',requestedAt:Date.now()};
+const context={
+ pendingOtp:challenge,
+ submitting:false,
+ suppressAuthRedirect:false,
+ db:{},
+ errors:{},
+ $:selector=>elements[selector]||null,
+ otpNotice:(message,isError)=>notices.push({message,isError}),
+ syncOtpCooldown:()=>{},
+ startAuthRateLimitCooldown:()=>{},
+ ref:(_db,path)=>({path}),
+ get:async()=>{profileLookups++;return {exists:()=>false};},
+ verifyOtp:async()=>{verificationCalls++;return {user:newAccount,session:{access_token:'test-only'}};},
+ setAccountPassword:async()=>{passwordChanges++;},
+ finishRegistration:async()=>{registrationAttempts++;if(registrationAttempts===1)throw new Error('Temporary storage failure');},
+ location:{replace:path=>navigations.push(path)}
+};
+const confirm=runInNewContext(confirmationImplementation+'\nconfirmOtp;',context);
+await confirm();
+assert.equal(verificationCalls,1,'Initial valid code must be verified once');
+assert.equal(profileLookups,1,'New account must be checked before first write');
+assert.equal(registrationAttempts,1,'First registration write attempted');
+assert.equal(context.pendingOtp,challenge,'Incomplete registration must retain verified session state');
+assert.equal(challenge.verifiedUser,newAccount,'Successful verification must persist for retry');
+assert.equal(elements['#otpCode'].required,false,'Spent OTP must not block retry');
+assert.equal(elements['#submit'].textContent,'Завершити реєстрацію');
+assert.ok(notices.some(x=>x.isError),'Write failure should be visible');
+elements['#otpCode'].value='';
+await confirm();
+assert.equal(verificationCalls,1,'Retry must never re-use an already consumed OTP');
+assert.equal(profileLookups,1,'Retry must not reject partial new-profile data as existing account');
+assert.equal(registrationAttempts,2,'Retry should finish pending page creation');
+assert.equal(passwordChanges,2,'Password update remains retryable after transient failure');
+assert.equal(context.pendingOtp,null,'Successful completion clears pending challenge');
+
+const existingChecks=[],existingNavigation=[];
+const existingChallenge={kind:'signup',contact:'registered@example.invalid',isPhone:false,password:'not-a-real-password',requestedAt:Date.now()};
+const existingContext={
+ ...context,pendingOtp:existingChallenge,
+ $:selector=>elements[selector]||null,
+ get:async()=>{existingChecks.push(true);return {exists:()=>true};},
+ verifyOtp:async()=>({user:{id:'existing-account-test',created_at:new Date(0).toISOString()},session:{access_token:'test-only'}}),
+ setAccountPassword:async()=>{throw new Error('Existing password must never change');},
+ finishRegistration:async()=>{throw new Error('Existing profile must never change');},
+ location:{replace:path=>existingNavigation.push(path)}
+};
+const confirmExisting=runInNewContext(confirmationImplementation+'\nconfirmOtp;',existingContext);
+elements['#otpCode'].value='123456';
+await confirmExisting();
+assert.equal(existingChecks.length,1,'Existing account must be checked');
+assert.deepEqual(existingNavigation,['index.html'],'An existing user should go to their current page');
+
 console.log('VATRA auth OTP: registration, passwordless login, recovery, resend, markup, branding validated.');
