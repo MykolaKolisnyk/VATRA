@@ -11,6 +11,13 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '22'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check both Supabase Edge Functions
+        run: deno check supabase/functions/vatra-account-lifecycle/index.ts supabase/functions/vatra-translate/index.ts
+      - name: Validate Python tooling syntax
+        run: python3 -c "import ast,pathlib; [ast.parse(p.read_text(encoding='utf-8'),filename=str(p)) for p in pathlib.Path('tools').rglob('*.py')]"
       - name: Check VATRA source and UI invariants
         run: node tools/check-vatra.mjs
       - name: Audit all tracked folders, source, assets and duplicates
