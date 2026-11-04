@@ -1,4 +1,3 @@
-/* VATRA Support Desk: access-controlled ticket chat and official help inbox. */
 import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app).client;
 const $=s=>document.querySelector(s);

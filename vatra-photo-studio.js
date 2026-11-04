@@ -1,4 +1,3 @@
-/* VATRA Photo Studio — canvas-based editor; no external services required. */
 const PRESETS={
  original:{label:'Оригінал',css:'none'},
  vivid:{label:'Жвавий',css:'saturate(1.35) contrast(1.08)'},

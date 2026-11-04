@@ -1,4 +1,3 @@
-/* Керує лише стартовою заставкою та не втручається в логіку сторінки. */
 (() => {
   const loader = document.getElementById('vatraLoader');
   if (!loader) return;

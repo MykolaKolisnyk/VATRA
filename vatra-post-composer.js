@@ -1,4 +1,3 @@
-/* VATRA composer controls: local drafts and two-stage publishing. */
 const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function setupPostComposer(api){
  const {modal,getUid,getDraftScope=()=>null,getPhotos,getUrls,getVideo,setVideo,addPhotos,resetPoll,toast,maxVideo,maxText}=api;

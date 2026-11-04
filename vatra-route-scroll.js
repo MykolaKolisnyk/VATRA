@@ -1,5 +1,3 @@
-/* VATRA route scroll: route changes always begin at the top of the new view.
-   Do not reset on ordinary data updates, typing, or expanding information. */
 (() => {
  'use strict';
  if('scrollRestoration' in history)history.scrollRestoration='manual';

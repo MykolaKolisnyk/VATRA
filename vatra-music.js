@@ -1,4 +1,3 @@
-/* VATRA Music - official Spotify embeds only. No audio is downloaded, proxied, or stored. */
 import { getDatabase, ref, get, update } from './vatra-backend.js?v=20261031-7';
 
 const MUSIC_LIBRARY = Object.freeze([

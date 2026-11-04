@@ -1,4 +1,3 @@
-/* VATRA ad slots. Activate only after ad network approval and consent configuration. */
 (() => {
   'use strict';
   const ads = {
