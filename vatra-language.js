@@ -158,6 +158,61 @@ Object.assign(base,{
  'Слухати':'Listen','Користувач':'User','Користувач ВАТРИ':'VATRA user'
 });
 
+Object.assign(base,{
+ 'Шортс':'Shorts','ВАТРА Шортс':'VATRA Shorts','Короткі вертикальні відео тривалістю до 3 хвилин.':'Short vertical videos up to 3 minutes long.',
+ 'Ще немає кліпів. Поділіться першим!':'No Shorts yet. Share the first one!',
+ 'Додати кліп':'Add Short','Видалити кліп':'Delete Short',
+ 'Загальні':'General','Сповіщення ВАТРИ':'VATRA notifications',
+ 'Налаштуйте, які події показувати у внутрішньому центрі сповіщень. Системні повідомлення про безпеку залишаються доступними.':'Choose which events appear in VATRA notifications. Security alerts remain available.',
+ 'Вподобання дописів':'Post likes','Вподобання фотографій':'Photo likes','Коментарі':'Comments',
+ 'Відповіді на коментарі':'Comment replies','Коментарі до фото':'Photo comments',
+ 'Вподобання коментарів':'Comment likes','Запити в друзі':'Friend requests',
+ 'Нові дописи спільнот':'New community posts','Звуки нових подій':'Notification sounds',
+ 'Сповіщення оновлено.':'Notification preferences updated.',
+ 'Сповіщення':'Notifications','Чорний список':'Blocked users','Акаунт і безпека':'Account and security',
+ 'Виберіть мову ВАТРИ. Зміни застосовуються одразу, без перезавантаження. Для мов із неповним перекладом інтерфейс тимчасово залишиться українською.':'Choose your VATRA language. Changes apply instantly. Untranslated sections may remain in Ukrainian.',
+ 'Виберіть мову інтерфейсу. Поточна мова позначена галочкою.':'Choose your interface language. The selected language is checked.',
+ 'Мова ВАТРИ':'VATRA language','Мова сайту':'Site language','Знайти мову…':'Find a language…',
+ 'Мови з перекладом':'Languages with translations','Частковий переклад інтерфейсу':'Partially translated',
+ 'Інші мови · переклад готується':'Other languages · translation in progress',
+ 'Обрати мову':'Choose language','Мова інтерфейсу':'Interface language',
+ 'Мої фотографії':'My photos','Мої друзі':'My friends','Мої відео':'My videos','Усі фото':'All photos',
+ 'Додати фото':'Add photo','Відкрити повний альбом':'Open full album',
+ 'Відкрити повний альбом (52)':'Open full album (52)',
+ 'Попередні':'Previous','Наступні':'Next','Попередні фотографії':'Previous photos','Наступні фотографії':'Next photos',
+ 'Оберіть фото профілю':'Choose profile photo','Обрати фото профілю':'Choose profile photo','Встановити фото':'Set profile photo',
+ 'Усі фото':'All photos','Історія':'History','Із дописів':'From posts','Альбоми':'Albums',
+ 'Збережених фотографій не знайдено. Завантажте нове фото.':'No saved photos found. Upload a new photo.',
+ 'Налаштування профілю':'Profile settings','Налаштування':'Settings','Загальні налаштування':'General settings',
+ 'Видалити акаунт':'Delete account','Усі учасники':'All members','Сімейний стан':'Relationship status','Знання мов':'Languages',
+ 'Про родину':'About family','Особисте':'Personal','Діяльність':'Activities','Улюблена музика':'Favorite music',
+ 'Улюблені фільми':'Favorite movies','Улюблені книги':'Favorite books','Улюблені телешоу':'Favorite TV shows',
+ 'Улюблені ігри':'Favorite games','Улюблені цитати':'Favorite quotes','Навчальні заклади':'Schools',
+ 'Місця роботи':'Workplaces','Про службу':'Service','Записи про службу':'Service history',
+ 'Погляди та переконання':'Beliefs and views','Політичні погляди':'Political views','Світогляд':'Worldview',
+ 'Головне в житті':'Life priorities','Головне в людях':'What I value in others',
+ 'Ставлення до куріння':'Smoking','Ставлення до алкоголю':'Alcohol','Надихають':'Inspiration',
+ 'День народження':'Birthday','Місце проживання':'Location','Рідне місто':'Hometown',
+ 'Місце роботи':'Workplace','Вебсайт':'Website','Відкрити профіль':'Open profile','Додати друга':'Add friend',
+ 'Профіль приховано':'Profile hidden','Поки немає дописів':'No posts yet',
+ 'Цей користувач ще нічого не опублікував.':'This user has not published anything yet.',
+ 'Лише для себе':'Only me','Для друзів':'Friends only','Для всіх':'Everyone',
+ 'Створити допис':'Create post','Опублікувати':'Publish','Редагувати допис':'Edit post','Видалити допис':'Delete post',
+ 'Показати повністю':'Show more','Згорнути':'Show less',
+ 'Перекласти':'Translate','Показати оригінал':'Show original',
+ 'Моя музика':'My music','Слухати':'Listen','Слухати добірку':'Play collection',
+ 'Знайти друзів':'Find friends','За запитом нікого не знайдено.':'No people found matching your search.',
+ 'Моя стрічка':'My feed','Увійдіть, щоб переглянути власні відео.':'Sign in to view your videos.',
+ 'Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Шортс».':'Saved videos from your posts. Short videos are available in Shorts.',
+ 'Відеозаписів поки немає.':'No videos yet.','Короткі вертикальні відео від спільноти ВАТРИ.':'Short vertical videos shared by the VATRA community.',
+ 'Швидка перевірка':'Quick check','Скільки буде':'What is','Обчисліть суму та виберіть правильну відповідь.':'Calculate the sum and select the correct answer.',
+ 'Правила ВАТРИ':'VATRA rules','Правила спільноти ВАТРИ':'VATRA community rules',
+ 'Вступ':'Introduction','Про розробника':'About the developer',
+ 'Надіслати скаргу':'Submit a report','Зв’язатися з техпідтримкою':'Contact support',
+ 'Технічна підтримка':'Technical support','Нове звернення':'New request','Мої звернення':'My requests',
+ 'Завантажити аватар':'Upload avatar','Прибрати фото':'Remove photo','Фотографії':'Photos',
+ 'Скасувати':'Cancel','Зберегти':'Save','Закрити':'Close'
+});
 const flagRegions={uk:'UA',en:'GB',pl:'PL',de:'DE',fr:'FR',es:'ES',pt:'PT',it:'IT',zh:'CN',ja:'JP',ko:'KR',ar:'SA',hi:'IN',yi:'IL',eo:'EU'};
 function languageFlag(code){
  let region=flagRegions[code]||'';
@@ -191,7 +246,7 @@ function translateText(node){
   saved.set(node,record);
  }
  const original=record.original.trim();
- if(!base[original]&&!footerLabelKeys.has(original))return;
+ if(!base[original]&&!footerLabelKeys.has(original)&&!overrides[language]?.[original])return;
  const value=interfaceLabel(original);
  const whitespaceLeft=record.original.match(/^\s*/)[0],whitespaceRight=record.original.match(/\s*$/)[0];
  const translated=whitespaceLeft+value+whitespaceRight;
@@ -207,11 +262,22 @@ function translateRoot(root){
  }
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  while(walker.nextNode())translateText(walker.currentNode);
- root.querySelectorAll?.('input[placeholder]').forEach(el=>{
+ root.querySelectorAll?.('input[placeholder],textarea[placeholder]').forEach(el=>{
   const original=el.dataset.vatraOriginalPlaceholder||el.getAttribute('placeholder');
   if(!el.dataset.vatraOriginalPlaceholder)el.dataset.vatraOriginalPlaceholder=original;
   const text=interfaceLabel(original);
   if(el.placeholder!==text)el.placeholder=text;
+ });
+ root.querySelectorAll?.('[aria-label],[title]').forEach(el=>{
+  for(const attribute of ['aria-label','title']){
+   if(!el.hasAttribute(attribute))continue;
+   const datasetKey=attribute==='title'?'vatraOriginalTitle':'vatraOriginalAriaLabel';
+   const current=el.getAttribute(attribute);
+   const original=el.dataset[datasetKey]||current;
+   if(!el.dataset[datasetKey])el.dataset[datasetKey]=original;
+   const translation=interfaceLabel(original);
+   if(translation!==current)el.setAttribute(attribute,translation);
+  }
  });
 }
 const seoTitles={
@@ -353,7 +419,7 @@ function vatraEnhanceLanguageSelect(select){
  document.addEventListener('vatra:languagechange',update);
 }
 function syncLanguageNotice(){
- const status=translatedLanguages.has(language)?'':partialLanguages.has(language)?'Цією мовою перекладено основну навігацію та елементи входу. Повний переклад ще готується.':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
+ const status=language==='uk'?'':translatedLanguages.has(language)?'Основні елементи інтерфейсу перекладено. Переклад окремих розділів ще доповнюється.':partialLanguages.has(language)?'Цією мовою перекладено основну навігацію та елементи входу. Повний переклад ще готується.':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
  document.querySelectorAll('.vatra-language-notice').forEach(el=>{if(el.textContent!==status)el.textContent=status;if(el.hidden===Boolean(status))el.hidden=!status;});
 }
 function install(){
@@ -389,5 +455,5 @@ new MutationObserver(()=>{
 }).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 function start(){running=true;try{install();setLanguage(language);}finally{running=false;}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-window.vatraLanguage={get language(){return language;},get isFullyLocalized(){return translatedLanguages.has(language);},set:setLanguage,available:languages.map(([code])=>code)};
+window.vatraLanguage={get language(){return language;},get isFullyLocalized(){return language==='uk';},set:setLanguage,available:languages.map(([code])=>code)};
 })();
