@@ -42,6 +42,9 @@ assert.equal(normalize('+4915112345678','+380'),'+4915112345678');
 assert.ok(js.includes('if(changedHandle&&(!f.vatraValidateHandle||!await f.vatraValidateHandle()))'),'Unchanged handle must not block name or gender edits');
 for(const code of ['+380','+48','+49','+33','+34','+351','+39','+44','+1'])assert.ok(js.includes('value="'+code+'"'),'Phone country missing '+code);
 assert.ok(auth.includes('const verifiedUser=verifiedData?.user')&&auth.includes('verifiedUser.email_confirmed_at'),'New pages must require server-confirmed OTP');
+assert.ok(!js.includes('createUserWithEmailAndPassword('),'Legacy site registration bypass must not remain');
+assert.ok(js.includes("if(authMode==='register'){location.assign('auth.html?mode=register');return;}"),'Legacy modal registration must redirect to OTP page');
+
 for(const file of ['index.html','auth.html','register.html']){
  assert.ok(!read(file).includes('для своїх'),file+': exclusive slogan still present');
 }
