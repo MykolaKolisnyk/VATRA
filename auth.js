@@ -159,7 +159,7 @@ function enhanceDatePicker(input){
 }
 
 let mode='login',submitting=false,captchaWidget=null,authCooldownTimer=null,pendingHumanAction=null,suppressAuthRedirect=false;
-let pendingOtp=null,loginByCode=false,otpCooldownUntil=0,otpCooldownTimer=null;
+let pendingOtp=null,loginByCode=true,otpCooldownUntil=0,otpCooldownTimer=null;
 function resetOtpStep(){
  pendingOtp=null;otpCooldownUntil=0;
  if(otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
