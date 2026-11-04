@@ -1,4 +1,4 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword } from './vatra-backend.js?v=20261031-7';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
 
 // Prevent the browser from restoring an old scroll position on the sign-in page.
 if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -341,7 +341,7 @@ function show(m){
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';
- $('#passwordHelp').hidden=!reg;const meter=$('#passwordStrength');if(meter)meter.hidden=!reg;$('#password').closest('.field').hidden=reset;$('#forgot').hidden=reg||reset||newPassword;
+ $('#passwordHelp').hidden=!reg;const meter=$('#passwordStrength');if(meter)meter.hidden=!reg;$('#password').closest('.field').hidden=reset;$('#forgot').hidden=reg||reset||newPassword;const rememberRow=$('#rememberRow');if(rememberRow)rememberRow.hidden=m!=='login';
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
@@ -603,6 +603,7 @@ $('#authForm').addEventListener('submit',async e=>{
    $('#error').classList.add('success');return;
   }
   if(mode==='login'){
+   setRememberMe($('#rememberMe')?.checked===true);
    await signInWithPassword(auth,contact,$('#password').value);
    location.replace('index.html');
    return;
@@ -628,7 +629,8 @@ $('#authForm').addEventListener('submit',async e=>{
   if(window.turnstile&&captchaWidget!==null)window.turnstile.reset(captchaWidget);
  }finally{submitting=false;if(!pendingHumanAction)suppressAuthRedirect=false;refreshAuthCooldown();}
 });
-enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();$('#authForm').autocomplete='off';$('#email').autocomplete='off';$('#password').autocomplete='new-password';$('#confirm').autocomplete='new-password';
+enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();if($('#rememberMe'))$('#rememberMe').checked=false;
+$('#authForm').autocomplete='off';$('#email').autocomplete='off';$('#password').autocomplete='new-password';$('#confirm').autocomplete='new-password';
 $('#password').value='';$('#confirm').value='';
 const params=new URLSearchParams(location.search),requestedMode=params.get('mode');const initialMode=['login','register','reset','new-password'].includes(requestedMode)?requestedMode:(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');const emailRadio=document.querySelector('input[name="authMethod"][value="email"]');if(emailRadio)emailRadio.checked=true;$('#method').value='email';show(initialMode);syncAuthMethodUI(selectedMethod());if(authCooldownRemaining()>0&&!authCooldownTimer)authCooldownTimer=setInterval(refreshAuthCooldown,1000);const requestedLegal=params.get('legal');if(['rules','privacy','terms'].includes(requestedLegal))openLegal(requestedLegal);
 
