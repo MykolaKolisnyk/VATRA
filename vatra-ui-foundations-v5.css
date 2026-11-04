@@ -305,3 +305,107 @@ html body[data-vatra-theme-effective="dark"] :is(
  .post .author small,.post .post-meta,.vatra-profile-detail-label,.vatra-friends-presence-last,
  .vatra-messenger-contact-side,.vatra-chat-message-meta,.vatra-group-section-header small
 ){color:#b1c6de!important;opacity:1!important}
+
+/* === Form, tab, button and empty-state parity across all VATRA routes === */
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .auth-card .field-label,.auth-card .field>label,.auth-card label:not(.legal-consent),
+ .settings-page .settings-grid>label,.vatra-group-settings-shell label,
+ .vatra-community-advanced label,.vatra-photo-studio label,.vatra-music-page label,
+ .vatra-support-page label,.vatra-gifts-page label
+){color:#334a62!important;font-size:13px!important;font-weight:660!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .auth-card .desc,.auth-card .bottom,.auth-card .legal,
+ .auth-layout .brand-copy p,.developer-dialog-copy,.legal-dialog-body p,
+ .settings-page .field-hint,.vatra-group-settings-shell .field-hint,.vatra-support-info,
+ .vatra-friends-empty,.vatra-messenger-nodata,.vatra-music-empty,.vatra-gift-empty,
+ .vatra-community-list-card .muted,.vatra-notifications-layout .empty-inline
+){color:#526c86!important;opacity:1!important;line-height:1.65!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .auth-card h1,.auth-card h2,.auth-card .switcher,
+ .developer-dialog h2,.legal-dialog h2,.auth-dialog h2,
+ .vatra-support-page h1,.vatra-support-page h2,.vatra-community-list-card h2,
+ .vatra-messenger-new h3,.vatra-control-heading h2,.vatra-control-card h3
+){color:#20354d!important;font-weight:740!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .auth-card .field :is(input,select,textarea),
+ .settings-page .settings-grid :is(input,select,textarea),
+ .vatra-group-settings-shell :is(input,select,textarea),
+ .vatra-community-search input,.vatra-messenger-search input,.vatra-music-search input,
+ .vatra-support-page :is(input,select,textarea)
+){color:#23384f!important;font-weight:530!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .auth-card .field :is(input,select,textarea)::placeholder,
+ .settings-page .settings-grid :is(input,textarea)::placeholder,
+ .vatra-community-search input::placeholder,.vatra-messenger-search input::placeholder,
+ .vatra-support-page :is(input,textarea)::placeholder
+){color:#71859d!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-group-tabs>button,.vatra-community-tabs>button,
+ .vatra-profile-post-tabs>button,.vatra-friends-tabs>button,
+ .vatra-messenger-filter,.vatra-music-tabs>button,
+ .vatra-gifts-tabs>button,.vatra-control-tabs>button
+){
+ color:#3a5878!important;opacity:1!important;font-weight:690!important;
+ font-size:13px!important;letter-spacing:0!important;
+ text-shadow:none!important;box-shadow:none!important;transform:none!important;
+ transition:background-color .18s ease,color .18s ease,border-color .18s ease!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-group-tabs>button,.vatra-community-tabs>button,.vatra-profile-post-tabs>button,
+ .vatra-friends-tabs>button,.vatra-messenger-filter,.vatra-music-tabs>button,
+ .vatra-gifts-tabs>button,.vatra-control-tabs>button
+):hover:not(:disabled){background:#edf4ff!important;color:#0758b8!important;transform:none!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-group-tabs>button,.vatra-community-tabs>button,.vatra-profile-post-tabs>button,
+ .vatra-friends-tabs>button,.vatra-messenger-filter,.vatra-music-tabs>button,
+ .vatra-gifts-tabs>button,.vatra-control-tabs>button
+):is(.active,.is-active,[aria-selected="true"],[aria-current="page"]){
+ color:#0757e8!important;font-weight:750!important;background:#e6f0ff!important;
+}
+/* Deliberate readable type on cards and actionable UI instead of thin transparent labels. */
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-community-row,.vatra-community-open,.vatra-group-card,.vatra-group-member,
+ .vatra-profile-link,.vatra-friends-row,.vatra-messenger-contact,
+ .vatra-notifications-layout .notification-item,.vatra-support-ticket-row,
+ .vatra-gift-card,.vatra-music-card
+){opacity:1!important;text-shadow:none!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-community-row b,.vatra-group-member b,.vatra-friends-row b,
+ .vatra-profile-friend-grid b,.vatra-messenger-contact-copy b,
+ .vatra-support-ticket-row b,.vatra-gift-card h3,.vatra-music-card-info b
+){color:#243b54!important;font-weight:710!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-community-row small,.vatra-group-member small,.vatra-friends-row small,
+ .vatra-profile-friend-grid small,.vatra-messenger-contact-copy small,
+ .vatra-support-ticket-row small,.vatra-gift-card p,.vatra-music-card-info small
+){color:#5d7590!important;font-weight:500!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-control-overline,.vatra-control-stat span,.vatra-control-heading p,
+ .vatra-control-card p,.vatra-control-card h3 small
+){color:#526f8e!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) .auth-card :is(.submit,button.primary){
+ font-weight:740!important;letter-spacing:0!important;
+}
+/* Modal content uses the same readable hierarchy as the surrounding page. */
+html body:not([data-vatra-theme-effective="dark"]) :is(dialog[open],.vatra-profile-photos,.vatra-profile-overview) :is(
+ .muted,.field-hint,.vatra-profile-extra-privacy,.vatra-media-viewer-caption
+){color:#59738d!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(.vatra-admin-center,.vatra-control-center) :is(button,select,input){
+ font-weight:590!important;
+}
+/* Don't change the intended white-on-dark clip overlay or vibrant media branding. */
+html body[data-vatra-theme-effective="dark"] :is(
+ .auth-card .field-label,.settings-page .settings-grid>label,
+ .vatra-group-settings-shell label,.vatra-support-page label,
+ .vatra-group-tabs>button,.vatra-community-tabs>button,
+ .vatra-profile-post-tabs>button,.vatra-messenger-filter,
+ .vatra-gifts-tabs>button,.vatra-control-tabs>button
+){color:#d9e8f8!important;opacity:1!important}
+html body[data-vatra-theme-effective="dark"] :is(
+ .vatra-community-row b,.vatra-group-member b,.vatra-friends-row b,
+ .vatra-messenger-contact-copy b,.vatra-support-ticket-row b,.vatra-gift-card h3
+){color:#eef5ff!important}
+html body[data-vatra-theme-effective="dark"] :is(
+ .vatra-community-row small,.vatra-group-member small,.vatra-friends-row small,
+ .vatra-messenger-contact-copy small,.vatra-support-ticket-row small
+){color:#b1c6dd!important;opacity:1!important}
