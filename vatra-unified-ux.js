@@ -5,19 +5,59 @@ const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='pre
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentGallery=null,restoring=false;
 const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Повідомлення',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги',supportDesk:'Техпідтримка'};
-const route=i=>i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'#/profile/edit':i.page==='publicProfile'?'#/profile/'+encodeURIComponent(i.id):i.page==='publicPhotos'?'#/profile/'+encodeURIComponent(i.id)+'/photos':i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):'#/'+encodeURIComponent(i.page||'feed');
+const publicSlug=uid=>{
+ const handle=window.vatraPublicHandle?.(uid)||'';
+ return handle?encodeURIComponent(handle):encodeURIComponent(uid||'');
+};
+const route=i=>i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'#/profile/edit':
+ i.page==='publicProfile'?'#/u/'+publicSlug(i.id):
+ i.page==='publicPhotos'?'#/u/'+publicSlug(i.id)+'/photos':
+ i.page==='profile'&&auth.currentUser?.uid?'#/u/'+publicSlug(auth.currentUser.uid):
+ i.page==='communitySettings'?'#/community/'+encodeURIComponent(i.id)+'/settings':
+ i.page==='communityMembers'?'#/community/'+encodeURIComponent(i.id)+'/members':
+ i.page==='groups'&&i.id?'#/community/'+encodeURIComponent(i.id):
+ i.page==='adminCenter'?'#/admin':i.page==='myReports'?'#/my-reports':
+ i.page==='supportDesk'?'#/support':i.page==='postDetail'?'#post-'+encodeURIComponent(i.id):
+ '#/'+encodeURIComponent(i.page||'feed');
 window.vatraRouteChanged=i=>{
  if(!i?.page)return;
  if(i.page!=='adminCenter')window.vatraAdminResetState?.();
- const name=i.title||(i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'Редагування профілю':i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent||'Спільнота':i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА');
+ const name=i.title||(i.page==='settings'&&window.vatraSettingsContext?.()==='edit'?'Редагування сторінки':i.page==='publicProfile'?$('.vatra-profile-public-layout h2')?.textContent:i.page==='groups'&&i.id?$('.vatra-group-heading h2')?.textContent||'Спільнота':i.page==='publicPhotos'?'Фотографії користувача':titleMap[i.page]||'ВАТРА');
  const label=String(name||'ВАТРА').trim();
  document.title=label==='ВАТРА'?'ВАТРА':label+' | ВАТРА';
  const hash=route(i);
  if(!restoring&&location.hash!==hash)history.pushState({vatra:true},'',location.pathname+location.search+hash);
 };
+async function resolveProfileToken(token,photos=false){
+ if(!auth.currentUser?.uid)return false;
+ const requested=decodeURIComponent(token||'').replace(/^@/,'').toLocaleLowerCase('uk').trim();
+ const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+ let uid=UUID.test(requested)?requested:'';
+ if(!uid){
+  if(window.vatraPublicHandle?.(auth.currentUser.uid)===requested)uid=auth.currentUser.uid;
+  else{
+   try{
+    const profiles=await read('publicProfiles');
+    const matched=Object.entries(profiles).find(([,p])=>String(p?.handle||'').replace(/^@/,'').toLocaleLowerCase('uk')===requested);
+    uid=matched?.[0]||'';
+   }catch(e){console.warn('[VATRA] Could not resolve profile pseudonym:',e?.code||'offline');}
+  }
+ }
+ if(!uid)return false;
+ if(!location.hash.startsWith('#/u/'+encodeURIComponent(token))&&!location.hash.startsWith('#/profile/'+encodeURIComponent(token)))return false;
+ const router=window.vatraRouter;
+ if(!router)return false;
+ restoring=true;
+ try{
+  if(uid===auth.currentUser.uid)router.goPage('profile');
+  else router.renderPublicProfile(uid);
+  if(photos){const card=$('[data-vatra-open-public-photos]');if(card)openGallery(card,true);}
+ }finally{restoring=false;}
+ return true;
+}
 function backToRoute(){
  const r=window.vatraRouter;if(!r)return false;
- const profile=location.hash.match(/^#\/profile\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/(?:settings|members))?$/),post=location.hash.match(/^#post-(.+)$/);
+ const profile=location.hash.match(/^#\/(?:u|profile)\/([^/]+)(\/photos)?$/),group=location.hash.match(/^#\/community\/([^/]+)(\/(?:settings|members))?$/),post=location.hash.match(/^#post-(.+)$/);
  restoring=true;
  try{
   if(location.hash==='#/verification'){window.vatraVerificationGuide?.(true);}
@@ -26,7 +66,7 @@ function backToRoute(){
   else if(location.hash==='#/support'){void window.vatraOpenSupportDesk?.();}
   else if(location.hash==='#/profile/edit'){if(!auth.currentUser)return false;r.editProfile?.();}
   else if(post){void r.openPost(decodeURIComponent(post[1]));}
-  else if(profile){r.renderPublicProfile(decodeURIComponent(profile[1]));if(profile[2]){const b=$('[data-vatra-open-public-photos]');if(b)openGallery(b,true);}}
+  else if(profile){void resolveProfileToken(profile[1],Boolean(profile[2]));}
   else if(group){const id=decodeURIComponent(group[1]);if(group[2]==='/settings')r.renderGroupSettings(id);else if(group[2]==='/members')r.renderGroupMembersPage(id);else r.renderGroupDetails(id);}
   else if(location.hash.startsWith('#/'))r.goPage(decodeURIComponent(location.hash.substring(2))||'feed');
  }finally{restoring=false;}
