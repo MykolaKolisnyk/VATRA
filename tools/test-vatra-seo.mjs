@@ -38,7 +38,7 @@ try{
  assert.ok(existsSync(join('people',second,'index.html')));
  assert.ok(existsSync(join('people','pershyi','index.html')));
  assert.ok(existsSync(join('people','другий.юзер','index.html')));
- assert.ok(readFileSync(join('people','pershyi','index.html'),'utf8').includes('index.html#/u/pershyi'));
+ assert.ok(readFileSync(join('people','pershyi','index.html'),'utf8').includes('#/u/pershyi'));
  assert.ok(existsSync(join('communities',group,'index.html')));
  activeProfiles=[first];activeGroups=[];
  await run(2);
