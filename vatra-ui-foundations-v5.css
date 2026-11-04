@@ -333,12 +333,13 @@ html body:not([data-vatra-theme-effective="dark"]) :is(
  .vatra-community-search input,.vatra-messenger-search input,.vatra-music-search input,
  .vatra-support-page :is(input,select,textarea)
 ){color:#23384f!important;font-weight:530!important}
-html body:not([data-vatra-theme-effective="dark"]) :is(
- .auth-card .field :is(input,select,textarea)::placeholder,
- .settings-page .settings-grid :is(input,textarea)::placeholder,
- .vatra-community-search input::placeholder,.vatra-messenger-search input::placeholder,
- .vatra-support-page :is(input,textarea)::placeholder
-){color:#71859d!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) .auth-card .field :is(input,textarea)::placeholder,
+html body:not([data-vatra-theme-effective="dark"]) .settings-page .settings-grid :is(input,textarea)::placeholder,
+html body:not([data-vatra-theme-effective="dark"]) .vatra-community-search input::placeholder,
+html body:not([data-vatra-theme-effective="dark"]) .vatra-messenger-search input::placeholder,
+html body:not([data-vatra-theme-effective="dark"]) .vatra-support-page :is(input,textarea)::placeholder{
+ color:#71859d!important;opacity:1!important;
+}
 html body:not([data-vatra-theme-effective="dark"]) :is(
  .vatra-group-tabs>button,.vatra-community-tabs>button,
  .vatra-profile-post-tabs>button,.vatra-friends-tabs>button,
