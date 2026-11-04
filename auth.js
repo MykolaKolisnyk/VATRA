@@ -92,6 +92,7 @@ function enhanceCountryMenu(select,row){
   }
  });
  document.addEventListener('pointerdown',event=>{if(!row.contains(event.target))close();});
+ row.addEventListener('focusout',event=>{if(!row.contains(event.relatedTarget))close();});
  select.addEventListener('change',update);
  update();return {button,menu,close};
 }
@@ -390,6 +391,9 @@ const errors={
  'auth/unknown':'Не вдалося надіслати або перевірити код. Перевірте налаштування SMS-провайдера та спробуйте ще раз.',
 };
 function authContactErrorText(err,isPhone,flow){
+ if(flow==='recovery'&&isPhone&&['auth/operation-not-allowed','auth/sms-delivery-failed'].includes(err?.code)){
+  return 'SMS-відновлення зараз недоступне: потрібно підключити SMS-провайдера у Supabase. Скористайтеся відновленням через email.';
+ }
  if(err?.code==='auth/email-already-in-use'){
   const contact=isPhone?'Номер телефону':'Електронна пошта';
   return flow==='register'
