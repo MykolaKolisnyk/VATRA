@@ -19,6 +19,12 @@ for(const file of ['index.html','script.js','vatra-gifts.js','vatra-unified-ux.j
  'vatra-public-verification.js','vatra-language.js','auth.html','register.html']){
  assert.ok(!/[Пп]рофіл/.test(read(file)), 'Outdated public-facing profile terminology in '+file);
 }
+// The brand can state VATRA is Ukrainian, without excluding international users.
+for(const file of ['index.html','auth.html','register.html','script.js','vatra-language.js']){
+ const content=read(file);
+ assert.ok(!/для своїх|свої серед своїх|лише для українців|тільки для українців/i.test(content),'Exclusionary branding text in '+file);
+}
+assert.ok(main.includes('Українська соціальна мережа'),'Ukrainian origin should remain visible');
 assert.ok(language.includes("'Моя сторінка':'My page'"), 'English page translation missing');
 assert.ok(language.includes("'Моя сторінка':'Moja strona'"), 'Polish page translation missing');
 assert.ok(language.includes("'Налаштування сторінки':'Page settings'"), 'Page settings translation missing');
