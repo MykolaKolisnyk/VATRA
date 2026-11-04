@@ -59,4 +59,11 @@ assert.ok(index.includes('vatra-header.svg?v=20261104-ribbon1'),'Site wordmark c
 assert.ok(index.includes('social-preview.png?v=20261104-ribbon1'),'Raster social preview must match the new brand');
 assert.ok(read('vatra-language.js').includes('favicon.svg?v=20261104-ribbon1'),
  'Language picker must use updated mark');
+// Social scrapers expect PNG, not the original SVG MIME type.
+for(const page of ['index.html','auth.html','register.html']){
+ const html=read(page);
+ assert.ok(html.includes('social-preview.png?v=20261104-ribbon1'),page+': social image must use current ribbon asset');
+ assert.ok(html.includes('<meta property="og:image:type" content="image/png">'),page+': incorrect Open Graph image MIME type');
+ assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'),page+': large social image card expected');
+}
 console.log('VATRA: unified shield, progressive lockouts, contained recovery and shared ribbon mark validated.');
