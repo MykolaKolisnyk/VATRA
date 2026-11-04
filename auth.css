@@ -4074,3 +4074,59 @@ dialog#developerDialog.vatra-developer-modern:not([open]){display:none!important
 #recoveryDialog #recoveryProtection .recovery-answer.is-correct{border-color:#24a370!important;background:#e5f8ef!important;color:#0c784d!important}
 #recoveryDialog #recoveryProtection .recovery-challenge-status{display:block!important;color:#74859c!important;margin:10px 0 0!important;font-size:11px!important}
 @media(max-width:430px){#recoveryDialog #recoveryProtection .recovery-answers{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* Country codes use SVG flags: native options stay hidden as source of truth. */
+.phone-number-control{position:relative!important;align-items:stretch!important;gap:9px!important;min-width:0!important;overflow:visible!important}
+.phone-number-control>.phone-country-code{display:none!important}
+.phone-number-control>.vatra-phone-country-trigger{
+ flex:0 0 130px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:7px!important;min-width:0!important;min-height:47px!important;
+ margin:0!important;padding:0 9px!important;box-sizing:border-box!important;
+ background:#fff!important;color:#24415f!important;border:1px solid #c9d8eb!important;border-radius:11px!important;
+ box-shadow:none!important;font:700 13px/1.3 Inter,system-ui,sans-serif!important;cursor:pointer!important;
+}
+.phone-number-control>.vatra-phone-country-trigger[hidden]{display:none!important}
+.phone-number-control>.vatra-phone-country-trigger:focus-visible{outline:2px solid #2574ff!important;outline-offset:2px!important}
+.phone-number-control>.vatra-phone-country-trigger>span{white-space:nowrap!important}
+.phone-number-control .vatra-phone-flag{width:28px!important;height:20px!important;flex:none!important;border-radius:3px!important;box-shadow:0 0 0 1px #102a4d18!important}
+.phone-number-control .vatra-phone-chevron{width:15px!important;height:15px!important;margin-left:auto!important;flex:none!important}
+.phone-number-control>.vatra-phone-country-menu{
+ position:absolute!important;z-index:10002!important;top:calc(100% + 5px)!important;left:0!important;
+ width:min(360px,calc(100vw - 42px))!important;max-height:300px!important;overflow-y:auto!important;
+ padding:5px!important;border:1px solid #d5e2f1!important;border-radius:12px!important;
+ background:#fff!important;box-shadow:0 18px 48px #142d4b2e!important;
+}
+.phone-number-control>.vatra-phone-country-menu[hidden]{display:none!important}
+.phone-number-control .vatra-phone-country-option{
+ width:100%!important;min-height:43px!important;display:flex!important;gap:11px!important;align-items:center!important;
+ padding:8px 10px!important;border:0!important;border-radius:8px!important;
+ color:#2a4566!important;background:transparent!important;font:600 13px/1.4 Inter,system-ui,sans-serif!important;
+ cursor:pointer!important;text-align:left!important;
+}
+.phone-number-control .vatra-phone-country-option>span{flex:1!important}
+.phone-number-control .vatra-phone-country-option>b{font-weight:750!important;color:#567392!important}
+.phone-number-control .vatra-phone-country-option:is(:hover,:focus-visible){background:#f0f5fd!important;outline:0!important}
+.phone-number-control .vatra-phone-country-option[aria-selected="true"]{background:#eaf2ff!important;color:#0757f5!important}
+.phone-number-control--email>.vatra-phone-country-menu{display:none!important}
+#recoveryDialog #recoveryMethodWrap{display:block!important;margin:12px 0 17px!important}
+#recoveryDialog #recoveryMethodWrap[hidden]{display:none!important}
+#recoveryDialog .vatra-recovery-methods{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+#recoveryDialog .vatra-recovery-methods>.vatra-auth-method-card{
+ display:flex!important;align-items:center!important;gap:9px!important;min-width:0!important;min-height:64px!important;
+ padding:11px!important;border:1px solid #d9e5f2!important;border-radius:11px!important;cursor:pointer!important;
+}
+#recoveryDialog .vatra-recovery-methods>.vatra-auth-method-card:has(input:checked){
+ border-color:#5c97ff!important;background:#ebf3ff!important;box-shadow:0 0 0 1px #5c97ff55!important;
+}
+#recoveryDialog .vatra-recovery-methods .vatra-method-symbol{display:grid!important;place-items:center!important;flex:none!important;width:26px!important;height:26px!important;color:#1560db!important}
+#recoveryDialog .vatra-recovery-methods .vatra-method-symbol svg{width:21px!important;height:21px!important}
+#recoveryDialog .vatra-recovery-methods span b{display:block!important;font-size:12px!important}
+#recoveryDialog .vatra-recovery-methods span small{display:block!important;font-size:10px!important;font-weight:500!important;line-height:1.4!important;color:#68819b!important}
+#recoveryDialog .vatra-recovery-method-note{margin:8px 0 0!important;padding:9px 11px!important;font-size:11.5px!important;line-height:1.5!important;color:#647d9c!important;background:#f0f5fc!important;border-radius:8px!important}
+#recoveryDialog .vatra-recovery-method-note[hidden]{display:none!important}
+@media(max-width:420px){
+ .phone-number-control>.vatra-phone-country-trigger{flex-basis:104px!important;padding:0 7px!important}
+ #recoveryDialog .vatra-recovery-methods{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ #recoveryDialog .vatra-recovery-methods>.vatra-auth-method-card{padding:8px 6px!important;gap:6px!important}
+ #recoveryDialog .vatra-recovery-methods .vatra-method-symbol{width:20px!important;height:23px!important}
+}
