@@ -127,6 +127,7 @@ window.vatraBanGuardCommunity=(id,name)=>guard('community',id,name);
 window.vatraBanRefresh=async(kind,id)=>{
  byKey.delete(key(kind,id));
  const d=await status(kind,id,true);
+ if(!d)return null;
  if(kind==='account'&&uid()===id&&d){
   lastOwnResult=d;verifiedOwnUid=id;rememberOwnState(id,d);
  }
@@ -135,7 +136,7 @@ window.vatraBanRefresh=async(kind,id)=>{
  if(kind==='account'&&uid()===id)syncRestrictedPresentation();
  return d;
 };
-let ownCheckPromise=null,lastOwnCheckAt=0,verifiedOwnUid='',lastOwnResult=null,restrictionSupportOpening=false;
+let ownCheckPromise=null,ownCheckForUid='',lastOwnCheckAt=0,verifiedOwnUid='',lastOwnResult=null,restrictionSupportOpening=false;
 function accountCheckScreen(){
  let el=document.getElementById('vatraAccountCheckScreen');
  if(!el){
@@ -190,7 +191,8 @@ async function ownCheck(){
   }
  }
  if(!id)return;
- if(ownCheckPromise)return ownCheckPromise;
+ if(ownCheckPromise&&ownCheckForUid===id)return ownCheckPromise;
+ ownCheckForUid=id;
  const gate=accountCheckScreen();
  if(verifiedOwnUid!==id&&!isBlocked(lastOwnResult)){gate.hidden=false;gate.querySelector('.vatra-access-error').hidden=true;}
  else gate.hidden=true;
@@ -207,8 +209,10 @@ async function ownCheck(){
   if(isBlocked(result))inject('account',id,result,{own:true,name:auth.currentUser?.displayName||'Ваш акаунт'});
   else document.getElementById('vatraSuspendedOwnScreen')?.remove();
   syncRestrictedPresentation();
- })().finally(()=>{lastOwnCheckAt=Date.now();ownCheckPromise=null;});
- return ownCheckPromise;
+ })();
+ const finalPromise=ownCheckPromise.finally(()=>{if(ownCheckForUid===id){lastOwnCheckAt=Date.now();ownCheckPromise=null;ownCheckForUid='';}});
+ ownCheckPromise=finalPromise;
+ return finalPromise;
 }
 // Auth event drives immediate restriction checks; timer is only fallback/refresh.
 onAuthStateChanged(auth,()=>{void ownCheck();});
