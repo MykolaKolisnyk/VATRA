@@ -159,8 +159,8 @@ Object.assign(base,{
 });
 
 Object.assign(base,{
- 'Шортс':'Shorts','ВАТРА Шортс':'VATRA Shorts','Короткі вертикальні відео тривалістю до 3 хвилин.':'Short vertical videos up to 3 minutes long.',
- 'Ще немає кліпів. Поділіться першим!':'No Shorts yet. Share the first one!',
+ 'Кліпи':'Clips','ВАТРА Кліпи':'VATRA Clips','Короткі вертикальні відео тривалістю до 3 хвилин.':'Short vertical videos up to 3 minutes long.',
+ 'Ще немає кліпів. Поділіться першим!':'No Clips yet. Share the first one!',
  'Додати кліп':'Add Short','Видалити кліп':'Delete Short',
  'Загальні':'General','Сповіщення ВАТРИ':'VATRA notifications',
  'Налаштуйте, які події показувати у внутрішньому центрі сповіщень. Системні повідомлення про безпеку залишаються доступними.':'Choose which events appear in VATRA notifications. Security alerts remain available.',
@@ -203,7 +203,7 @@ Object.assign(base,{
  'Моя музика':'My music','Слухати':'Listen','Слухати добірку':'Play collection',
  'Знайти друзів':'Find friends','За запитом нікого не знайдено.':'No people found matching your search.',
  'Моя стрічка':'My feed','Увійдіть, щоб переглянути власні відео.':'Sign in to view your videos.',
- 'Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Шортс».':'Saved videos from your posts. Short videos are available in Shorts.',
+ 'Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Кліпи».':'Saved videos from your posts. Short videos are available in Clips.',
  'Відеозаписів поки немає.':'No videos yet.','Короткі вертикальні відео від спільноти ВАТРИ.':'Short vertical videos shared by the VATRA community.',
  'Швидка перевірка':'Quick check','Скільки буде':'What is','Обчисліть суму та виберіть правильну відповідь.':'Calculate the sum and select the correct answer.',
  'Правила ВАТРИ':'VATRA rules','Правила спільноти ВАТРИ':'VATRA community rules',
@@ -212,6 +212,31 @@ Object.assign(base,{
  'Технічна підтримка':'Technical support','Нове звернення':'New request','Мої звернення':'My requests',
  'Завантажити аватар':'Upload avatar','Прибрати фото':'Remove photo','Фотографії':'Photos',
  'Скасувати':'Cancel','Зберегти':'Save','Закрити':'Close'
+});
+// Clips are a dedicated vertical-video experience; ordinary profile Videos remain separate.
+Object.assign(base,{
+ 'Кліпи':'Clips',
+ 'ВАТРА Кліпи':'VATRA Clips',
+ 'ВАТРА · КЛІПИ':'VATRA · CLIPS',
+ 'Завантажити кліп':'Upload clip',
+ '+ Завантажити кліп':'+ Upload clip',
+ 'Опублікувати кліп':'Publish clip',
+ 'Опис кліпу':'Clip caption',
+ 'Новий кліп':'New clip',
+ 'Про що цей кліп?':'What is this clip about?',
+ 'Першим опублікуйте вертикальне відео — окремо від звичайних дописів.':'Be the first to share a vertical clip, separate from regular posts.',
+ 'Кліпів поки немає':'No clips yet',
+ 'Короткі вертикальні відео':'Short vertical videos',
+ 'До 3 хвилин':'Up to 3 minutes',
+ 'Вертикальне відео':'Vertical video',
+ 'Попередній кліп':'Previous clip',
+ 'Наступний кліп':'Next clip',
+ 'Увімкнути звук':'Unmute',
+ 'Вимкнути звук':'Mute',
+ 'Кліпи не потрапляють автоматично у дописи чи відео профілю.':'Clips are not automatically added to profile posts or videos.',
+ 'Вертикальна стрічка коротких відео. Кліпи не потрапляють автоматично у дописи чи відео профілю.':'A vertical short-video feed. Clips stay separate from profile posts and videos.',
+ 'Відеозаписи з Ваших дописів у профілі. Кліпи публікуються окремо у розділі «Кліпи» та сюди не додаються.':'Videos from your profile posts. Clips are published separately and never appear here automatically.',
+ 'Цей ролик буде опублікований тільки у стрічці «Кліпи». Він не додається автоматично до дописів або розділу «Відео» Вашого профілю.':'This clip appears only in the Clips feed. It is not automatically added to posts or the Videos section of your profile.'
 });
 const flagRegions={uk:'UA',en:'GB',pl:'PL',de:'DE',fr:'FR',es:'ES',pt:'PT',it:'IT',zh:'CN',ja:'JP',ko:'KR',ar:'SA',hi:'IN',yi:'IL',eo:'EU'};
 function languageFlag(code){
@@ -369,7 +394,7 @@ function vatraLanguageDialog(){
  dlg=document.createElement('dialog');dlg.id='vatraLanguageDialog';dlg.className='vatra-language-dialog';
  dlg.setAttribute('aria-labelledby','vatraLanguageDialogTitle');
  const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-selected="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+(translatedLanguages.has(code)?'':partialLanguages.has(code)?'<small>Частково</small>':'<small>Переклад готується</small>')+'</button>';
- dlg.innerHTML='<header><div class="vatra-language-dialog-brand"><img src="vatra-flame.svg?v=20261029-2" width="34" height="34" alt=""><div><h2 id="vatraLanguageDialogTitle">Мова ВАТРИ</h2><p>Виберіть мову інтерфейсу. Поточна мова позначена галочкою.</p></div></div><button type="button" class="vatra-language-close" data-vatra-language-close aria-label="Закрити вибір мови">×</button></header>'+
+ dlg.innerHTML='<header><div class="vatra-language-dialog-brand"><img src="vatra-header.svg?v=20261103-1" class="vatra-language-dialog-logo" width="174" height="31" alt="ВАТРА" decoding="async"><div><h2 id="vatraLanguageDialogTitle">Мова ВАТРИ</h2><p>Виберіть мову інтерфейсу. Поточна мова позначена галочкою.</p></div></div><button type="button" class="vatra-language-close" data-vatra-language-close aria-label="Закрити вибір мови">×</button></header>'+
  '<input class="vatra-language-search" type="search" placeholder="Знайти мову…" aria-label="Пошук мови" autocomplete="off">'+
  '<div class="vatra-language-picker-list" role="group" aria-label="Вибір мови">'+
  '<div class="vatra-language-picker-category">Мови з перекладом</div>'+languages.filter(([code])=>translatedLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+
