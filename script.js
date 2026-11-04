@@ -3417,25 +3417,59 @@ async function vatraClipMetadata(file){
   });
  }finally{video.src='';URL.revokeObjectURL(url)}
 }
+async function vatraClipPublishDialog(file,meta){
+ let dialog=document.getElementById('vatraClipPublishDialog');
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='vatraClipPublishDialog';dialog.className='vatra-clip-publish-dialog';document.body.append(dialog);}
+ const objectUrl=URL.createObjectURL(file);
+ dialog.innerHTML='<form class="vatra-clip-publish-form">'+
+  '<header><div class="vatra-clip-publish-brand"><span class="vatra-clip-mark">В</span><div><small>ВАТРА · КЛІПИ</small><h2>Опублікувати кліп</h2></div></div><button type="button" data-vatra-clip-cancel aria-label="Закрити">×</button></header>'+
+  '<div class="vatra-clip-publish-content"><div class="vatra-clip-publish-preview"><video controls playsinline muted loop preload="metadata" src="'+esc(objectUrl)+'"></video></div>'+
+  '<div class="vatra-clip-publish-fields"><h3>Новий кліп</h3><p>Цей ролик буде опублікований тільки у стрічці «Кліпи». Він не додається автоматично до дописів або розділу «Відео» Вашого профілю.</p>'+
+   '<label for="vatraClipCaption">Опис кліпу</label><textarea id="vatraClipCaption" name="caption" maxlength="300" rows="5" placeholder="Про що цей кліп?"></textarea>'+
+   '<div class="vatra-clip-publish-specs"><span>До 3 хвилин</span><span>Вертикальне відео</span><span>'+esc((file.size/1048576).toFixed(1))+' МБ</span></div>'+
+   '<small>Тривалість: '+Math.max(1,Math.round(meta.duration))+' с</small></div></div>'+
+  '<footer><button type="button" data-vatra-clip-cancel>Скасувати</button><button class="primary" type="submit">Опублікувати кліп</button></footer></form>';
+ try{
+  return await new Promise(resolve=>{
+   const form=dialog.querySelector('form');
+   const onClose=()=>resolve(null);
+   dialog.addEventListener('close',onClose,{once:true});
+   form.querySelectorAll('[data-vatra-clip-cancel]').forEach(button=>button.addEventListener('click',()=>dialog.close()));
+   form.addEventListener('submit',event=>{
+    event.preventDefault();
+    const description=form.elements.caption.value.trim().slice(0,300);
+    dialog.removeEventListener('close',onClose);
+    dialog.close();
+    resolve(description);
+   });
+   dialog.showModal();
+   form.elements.caption.focus({preventScroll:true});
+  });
+ }finally{URL.revokeObjectURL(objectUrl);}
+}
 async function uploadVideo(e){
- const file=e.target.files?.[0];if(!file)return;if(!authRequired())return;
- if(!file.type.startsWith('video/')){toastMsg('Виберіть відеофайл.');e.target.value='';return;}
+ const file=e.target.files?.[0];if(!file)return;
+ if(!authRequired()){e.target.value='';return;}
+ if(!file.type.startsWith('video/')){toastMsg('Оберіть відеофайл для кліпу.');e.target.value='';return;}
  if(file.size>50*1024*1024){toastMsg('Кліп має бути не більше 50 МБ.');e.target.value='';return;}
  try{
   const meta=await vatraClipMetadata(file);
-  if(!Number.isFinite(meta.duration)||meta.duration<=0||meta.duration>180)throw new Error('Кліпи мають тривати не більше 3 хвилин.');
+  if(!Number.isFinite(meta.duration)||meta.duration<=0||meta.duration>180)throw new Error('Кліп має тривати не більше 3 хвилин.');
   if(!meta.width||!meta.height||meta.width>meta.height*1.16)throw new Error('Для кліпів оберіть вертикальне або квадратне відео.');
-  const description=await askText('Підпис до кліпу (необов’язково)','');
+  const description=await vatraClipPublishDialog(file,meta);
   if(description===null)return;
-  toastMsg('Завантажуємо кліп…');
+  toastMsg('Завантажуємо кліп у ВАТРУ…');
+  // Clips are explicitly separate from user posts: post videos are created only by the post composer.
   const videoUrl=await uploadMedia(file,'videos');
   const vref=push(ref(db,'videos'));
   await set(vref,{authorUid:currentUser.uid,authorName:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',
    authorHandle:currentProfile.handle||'user',authorAvatar:currentProfile.avatarUrl||'',
-   text:description.slice(0,300),videoUrl,createdAt:Date.now(),mimeType:file.type,
+   text:description,videoUrl,createdAt:Date.now(),mimeType:file.type,
    duration:Math.round(meta.duration),width:meta.width,height:meta.height,kind:'clip'});
-  toastMsg('Кліп опубліковано!');render();
- }catch(err){toastMsg(err.message||niceError(err))}finally{e.target.value=''}
+  toastMsg('Кліп опубліковано тільки в розділі «Кліпи».');
+  if(page==='videos')render();
+ }catch(err){toastMsg(err.message||niceError(err));}
+ finally{e.target.value='';}
 }
 function vatraGetFirstMessageDialog(){
  let dialog=document.getElementById('vatraFirstMessageDialog');
