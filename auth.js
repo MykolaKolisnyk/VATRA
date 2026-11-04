@@ -7,6 +7,9 @@ const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
 // SMS is intentionally unavailable until a real SMS provider is configured and tested.
 const VATRA_SMS_AUTH_ENABLED=false;
+// Keep new-account SMS signup off until the provider is commissioned. Recovery
+// may attempt SMS for an existing, verified phone (server decides availability).
+const VATRA_SMS_RECOVERY_UI_ENABLED=true;
 const selectedMethod=()=>(VATRA_SMS_AUTH_ENABLED||mode==='login')?(document.querySelector('input[name="authMethod"]:checked')?.value||$('#method')?.value||'email'):'email';
 function vatraSignupLanguage(){
  const supported=['uk','en','pl','de','fr','es','pt','it'];
@@ -623,7 +626,7 @@ $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[d
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
 $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLegalBottom').onclick=()=>closeDialogAnimated($('#legalDialog'));
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
-function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email'):'email';}
+function currentRecoveryMethod(){return VATRA_SMS_RECOVERY_UI_ENABLED?(document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email'):'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact',recoveryPreviousPair='',recoveryFailures=0;
 let recoveryOtpCooldownUntil=0,recoveryOtpCooldownTimer=null;
 function syncRecoveryResend(){
@@ -686,13 +689,14 @@ function syncRecoveryMethod(){
  $('#recoveryContactLabel').textContent=phone?'Номер телефону':'Електронна пошта';
  $('#recoveryContact').placeholder=phone?'Номер у міжнародному форматі':'name@example.com';
  $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати код на email';
+ const phoneNote=$('#vatraRecoveryPhoneNote');if(phoneNote)phoneNote.hidden=!phone;
 }
 function openRecovery(){
  recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';recoveryOtpCooldownUntil=0;if(recoveryOtpCooldownTimer){clearInterval(recoveryOtpCooldownTimer);recoveryOtpCooldownTimer=null;}$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
- $('#recoveryMethodWrap').hidden=!VATRA_SMS_AUTH_ENABLED;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
+ $('#recoveryMethodWrap').hidden=false;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
- document.querySelectorAll('input[name="recoveryMethod"]').forEach(option=>{option.disabled=option.value==='phone'&&!VATRA_SMS_AUTH_ENABLED;});
+ document.querySelectorAll('input[name="recoveryMethod"]').forEach(option=>{option.disabled=false;});
  const method=selectedMethod(),radio=$('input[name="recoveryMethod"][value="'+method+'"]');if(radio)radio.checked=true;
  syncRecoveryMethod();if(method==='phone')setPhoneInputFromFullNumber($('#recoveryContact'),$('#recoveryCountryCode'),currentAuthContact());else $('#recoveryContact').value=$('#email').value.trim().toLowerCase();resetRecoveryChallenge();openDialogAnimated($('#recoveryDialog'));
 }
@@ -712,7 +716,6 @@ $('#recoveryForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=$('#recoverySubmit'),phone=currentRecoveryMethod()==='phone',contact=phone?normalizePhone($('#recoveryContact'),$('#recoveryCountryCode')):$('#recoveryContact').value.trim().toLowerCase();
  const feedback=(message,success=false)=>{$('#recoveryError').textContent=message;$('#recoveryError').classList.toggle('success',success);};
  if(recoveryStep==='contact'){
-  if(phone&&!VATRA_SMS_AUTH_ENABLED){feedback('Відновлення за SMS поки недоступне. Оберіть email.');return;}
   if(!recoveryPassed){feedback('Спочатку пройдіть «Захист ВАТРИ».');return;}
   if(phone&&!/^\+[1-9]\d{7,14}$/.test(contact)){feedback('Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX.');return;}
   if(!phone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){feedback('Введіть коректну адресу електронної пошти.');return;}
