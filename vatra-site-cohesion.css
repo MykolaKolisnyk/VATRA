@@ -79,8 +79,16 @@ html body .vatra-friend-birthday-banner>header b{color:#25425f;font-size:15px}
 html body .vatra-friend-birthday-banner>header small{color:#6f849b;font-size:11.5px}
 html body .vatra-friend-birthday-people{display:grid;gap:8px}
 html body .vatra-friend-birthday-person{display:flex;align-items:center;gap:11px;padding:11px 13px;background:#f6f9fd;border-radius:11px}
-html body .vatra-friend-birthday-person>.avatar{width:38px;height:38px;flex:none}
-html body .vatra-friend-birthday-person>span{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+html body .vatra-friend-birthday-person .vatra-birthday-visit{
+ padding:0!important;min-height:0!important;border:0!important;background:transparent!important;flex:none;
+}
+html body .vatra-friend-birthday-person .vatra-birthday-visit .avatar{width:38px;height:38px}
+html body .vatra-friend-birthday-person .vatra-birthday-name{
+ min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;
+ padding:0!important;border:0!important;background:transparent!important;color:inherit!important;
+}
+html body .vatra-friend-birthday-person .vatra-birthday-name:hover b{text-decoration:underline}
+
 html body .vatra-friend-birthday-person b{color:#2c4d6b;font-size:13px}
 html body .vatra-friend-birthday-person small{color:#788ea5;font-size:11px}
 html body .vatra-friend-birthday-person button{
@@ -157,4 +165,100 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
   font-size:clamp(20px,5vw,24px)!important;
  }
  html body .vatra-global-header .search input{font-size:16px!important;}
+}
+
+/* VATRA sidebar navigation: compact, single intentional divider before utilities. */
+@media(min-width:761px){
+ html body .layout>.sidebar nav{gap:0!important}
+ html body .layout>.sidebar nav>a.nav{min-height:37px!important;margin:0!important;padding:5px 10px!important;gap:9px!important;font-size:12.8px!important;border-radius:9px!important}
+ html body .layout>.sidebar nav>a.nav .nav-icon{width:19px!important;flex-basis:19px!important}
+ html body .layout>.sidebar nav>a.nav .nav-icon svg{width:18px!important;height:18px!important}
+ html body .layout>.sidebar nav>a.vatra-nav-section-start{
+  margin-top:10px!important;padding-top:15px!important;
+  border-top:1px solid var(--vatra-ui-border-soft)!important;border-radius:0 0 9px 9px!important;
+ }
+}
+.vatra-birthday-compose{
+ width:min(480px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 40px);margin:auto;
+ padding:24px;border-radius:20px;border:1px solid #dfe7f2;background:#fff;color:#203952;
+ box-shadow:0 26px 90px #10284e35;overflow:auto;
+}
+.vatra-birthday-compose::backdrop{background:#142a4ba6;backdrop-filter:blur(3px)}
+.vatra-birthday-compose-top{display:flex;align-items:center;justify-content:space-between}
+.vatra-birthday-compose-emoji{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#f0f5ff;font-size:24px}
+.vatra-birthday-compose-top button{width:36px;height:36px;border:0;border-radius:11px;background:#f3f6fc;color:#617894;font-size:22px}
+.vatra-birthday-compose h2{font-size:22px;line-height:1.25;margin:15px 0 6px}
+.vatra-birthday-compose p{margin:0 0 17px;color:#73859a;font-size:13px;line-height:1.5}
+.vatra-birthday-compose label{display:block;margin-bottom:8px;font-size:12px;font-weight:750}
+.vatra-birthday-compose textarea{
+ display:block;width:100%;box-sizing:border-box;min-height:150px;resize:vertical;
+ padding:14px;border:1px solid #d8e3f3;border-radius:13px;background:#f8faff;color:#243d58;
+ font:500 14px/1.55 var(--vatra-ui-font,system-ui,sans-serif)
+}
+.vatra-birthday-compose textarea:focus{outline:2px solid #b5cfff;border-color:#377ef5}
+.vatra-birthday-compose-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0 22px}
+.vatra-birthday-compose-actions>button{background:#edf4ff;border:1px solid #d5e5fd;border-radius:9px;padding:9px 12px;color:#0757f5;font-size:12px;font-weight:720}
+.vatra-birthday-compose-actions small{color:#8191a3;font-size:11px}
+.vatra-birthday-compose footer{display:flex;justify-content:flex-end;gap:9px}
+.vatra-birthday-compose footer button{min-height:40px;padding:9px 14px;border-radius:10px}
+.vatra-birthday-compose footer>button:first-child{border:1px solid #dce5f2;background:#f7f9fd;color:#506780}
+@media(max-width:520px){.vatra-birthday-compose{padding:17px}.vatra-birthday-compose footer{flex-direction:column-reverse}.vatra-birthday-compose footer button{width:100%}}
+
+/* VATRA Stories — a small, original 24-hour feed surface with a media viewer. */
+.vatra-stories-rail{padding:16px 17px;margin:0 0 15px;background:#fff;border:1px solid #dfe8f3;border-radius:16px}
+.vatra-stories-rail>header{display:flex;align-items:baseline;gap:12px;margin-bottom:13px}
+.vatra-stories-rail>header b{font-size:15px;color:#203957}
+.vatra-stories-rail>header small{font-size:11px;color:#8595a9}
+.vatra-story-tiles{display:flex;align-items:stretch;gap:10px;overflow-x:auto;scrollbar-width:thin;padding:1px 0 5px}
+.vatra-story-tile{position:relative;flex:0 0 106px;width:106px;height:155px;overflow:hidden;display:flex;align-items:center;justify-content:center;
+ border:1px solid #dce6f4;border-radius:14px;background:linear-gradient(160deg,#b9cbee,#e6eefc);color:#fff;cursor:pointer;text-align:center}
+.vatra-story-tile>img{width:100%;height:100%;object-fit:cover}
+.vatra-story-video-symbol{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:#142c504b;font-size:22px}
+.vatra-story-user{position:absolute;bottom:0;left:0;right:0;min-height:50px;display:flex;align-items:flex-end;justify-content:center;
+ flex-direction:column;gap:3px;padding:16px 7px 9px;background:linear-gradient(transparent,#101e31ce);color:#fff}
+.vatra-story-user .avatar{width:28px;height:28px;position:absolute;left:7px;bottom:26px;border:1px solid #fff}
+.vatra-story-user b{width:100%;font-size:10.5px;line-height:1.35;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;color:#fff}
+.vatra-story-tile.vatra-story-create{border-style:dashed;border-color:#a8c5f0;background:linear-gradient(155deg,#eaf2ff,#bfd7ff)}
+.vatra-story-create-mark{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#fff;color:#0757f5;font-size:29px}
+.vatra-story-create .vatra-story-user{background:linear-gradient(transparent,#2c569ad1)}
+.vatra-story-create .vatra-story-user small{font-size:10px;color:#dfeaff}
+.vatra-story-tile:hover{border-color:#5791ef;transform:translateY(-1px)}
+.vatra-story-dialog{width:min(480px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 30px);margin:auto;
+ padding:0;overflow:auto;border:1px solid #39485b;border-radius:17px;background:#151a25;color:#fff;box-shadow:0 30px 100px #040b1570}
+.vatra-story-dialog::backdrop{background:#040a14ca;backdrop-filter:blur(4px)}
+.vatra-story-shell{position:relative;display:flex;flex-direction:column;min-height:min(76vh,660px);padding:12px 14px 16px;gap:12px;background:#181b25;color:#fff}
+.vatra-story-progress{display:flex;gap:3px;height:3px}
+.vatra-story-progress i{flex:1;height:3px;border-radius:8px;background:#ffffff44}
+.vatra-story-progress i.is-done{background:#fff}
+.vatra-story-shell>header{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff}
+.vatra-story-shell>header>button{display:flex;align-items:center;gap:8px;background:transparent;border:0;color:#fff;text-align:left}
+.vatra-story-shell>header>button>.avatar{width:32px;height:32px}
+.vatra-story-shell>header>button span{display:flex;flex-direction:column;gap:2px}
+.vatra-story-shell>header>button small{font-size:11px;color:#d1d6e2}
+.vatra-story-shell>header>button[data-story-close],.vatra-story-compose [data-story-cancel]{font-size:23px;padding:4px 7px}
+.vatra-story-media{display:block;width:100%;height:min(63dvh,510px);object-fit:contain;background:#10131b;border-radius:10px}
+.vatra-story-caption{position:absolute;left:24px;right:24px;bottom:87px;padding:12px 13px;text-align:center;
+ font-size:19px;font-weight:750;line-height:1.4;overflow-wrap:anywhere;text-shadow:0 2px 8px #000,0 0 4px #000;background:#1118;border-radius:9px}
+.vatra-story-shell footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vatra-story-shell footer>button{background:#ffffff22;border:1px solid #ffffff30;border-radius:10px;color:white;padding:7px 13px;min-width:40px}
+.vatra-story-shell footer>button:disabled{opacity:.3}
+.vatra-story-shell .vatra-story-delete{align-self:center;border:0;background:transparent;color:#ff9eac;padding:5px;font-size:12px}
+.vatra-story-compose .vatra-story-shell{padding:16px;min-height:auto}
+.vatra-story-compose .vatra-story-media{height:min(46dvh,390px)}
+.vatra-story-compose label{font-size:12px;font-weight:700;color:#eef3ff}
+.vatra-story-compose textarea{width:100%;min-height:75px;padding:11px;border:1px solid #60728e;border-radius:10px;resize:vertical;
+ box-sizing:border-box;background:#282f3f;color:#fff;font:14px/1.5 system-ui,sans-serif}
+.vatra-story-colors{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.vatra-story-colors>button{width:28px;height:28px;border:2px solid #7e8596;border-radius:50%}
+.vatra-story-colors>button[aria-pressed="true"]{outline:2px solid #fff;outline-offset:2px}
+.vatra-story-compose-status{font-size:12px;color:#ffb6c5;line-height:1.4}
+.vatra-story-compose footer{margin-top:6px}
+.vatra-story-compose footer button{flex:1;min-height:42px;font-weight:680}
+.vatra-story-compose footer .primary{border:0;background:#0757f5;color:#fff}
+@media(max-width:520px){
+ .vatra-stories-rail{padding:13px 11px;border-radius:12px}
+ .vatra-story-tile{flex-basis:96px;width:96px;height:143px}
+ .vatra-story-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}
+ .vatra-story-shell{min-height:min(85dvh,650px)}
+ .vatra-story-compose .vatra-story-shell{min-height:auto}
 }

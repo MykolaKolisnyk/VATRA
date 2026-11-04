@@ -30,6 +30,8 @@ jobs:
         run: node tools/test-vatra-clips-social.mjs
       - name: Verify readable typography, clean CSS and page labels
         run: node tools/test-vatra-typography-page-names.mjs
+      - name: Test VATRA Stories, birthdays, account page edits and navigation
+        run: node tools/test-vatra-social-rework.mjs
       - name: Verify VATRA email and SMS authentication OTP flows
         run: node tools/test-vatra-auth-otp.mjs
       - name: Verify secure SMTP/SMS provider config and Management API patch

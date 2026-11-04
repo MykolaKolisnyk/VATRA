@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+
+const read=p=>readFileSync(p,'utf8');
+const js=read('script.js'),html=read('index.html'),css=read('vatra-site-cohesion.css');
+const auth=read('auth.js');
+const sidebar=html.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
+const sidebarOrder=['profile','friends','feed','messages','groups','photos','myVideos','videos','gifts','saved','settings'];
+assert.ok(sidebar.length>0,'Missing navigation');
+const indices=sidebarOrder.map(page=>sidebar.indexOf('data-page="'+page+'"'));
+assert.ok(indices.every((p,i)=>p>=0&&(!i||p>indices[i-1])),'Sidebar order does not match user request');
+assert.ok(html.includes('href="#vatra-i-news"'),'News icon must not be a house');
+assert.ok(!html.includes('Свої серед своїх'),'No exclusive positioning in the sidebar');
+assert.ok(js.includes('vatra-birthday-visit')&&js.includes('vatra-birthday-name'),'Birthday names and avatars should navigate to pages');
+assert.ok(js.includes('vatraBirthdayComposeMessage(uid)'),'Birthday greeting must be reviewed before sending');
+assert.ok(js.includes('Math.floor(Math.random()*VATRA_BIRTHDAY_MESSAGES.length)'),'Birthday greetings must rotate');
+assert.ok(css.includes('.vatra-birthday-compose'),'Birthday editor needs visual styles');
+const i=js.indexOf('const VATRA_BIRTHDAY_MESSAGES=');
+const j=js.indexOf('function vatraBirthdayComposeMessage(',i);
+assert.ok(i>=0&&j>i);
+const greetingCode=js.slice(i,j);
+const count=(greetingCode.match(/'🎉|🎂|✨|🥳|💛|🎈|🌟|🎊|🌷|🎁|💫|🍰|☀️|💐|🥂|🫶|🌼/g)||[]).length;
+assert.ok(count>=20,'Expected at least 20 birthday greeting variants');
+const greeting=runInNewContext(greetingCode+'\nvatraBirthdayGreetText;', {Math});
+assert.match(greeting('Олена Гончаренко'),/Олена/);
+assert.ok(!greeting('Олена').includes('{name}'));
+assert.ok(js.includes("p.kind==='story'"),'Stories need a distinct post type');
+assert.ok(js.includes('createPost(entry,{kind:\'story\''),'Stories must be persisted with ownership checks');
+assert.ok(js.includes('VATRA_STORY_LIFETIME_MS=24*60*60*1000'),'24-hour story lifetime expected');
+assert.ok(js.includes("Object.entries(posts||{}).filter(([,p])=>p?.kind!=='story')"),'Stories cannot leak into regular posts');
+assert.ok(js.includes('data-create-story')&&js.includes('data-open-story')&&js.includes('data-story-delete'));
+assert.ok(js.includes("uploadMedia(file,'videos')")&&js.includes("uploadImage(file,1280,.82,'posts')"));
+assert.ok(js.includes("visibility:'friends'"),'Friends-only stories must remain private from strangers');
+assert.ok(css.includes('.vatra-stories-rail')&&css.includes('.vatra-story-dialog'));
+const normStart=js.indexOf('function vatraNormalizeSettingsPhone(');
+const normEnd=js.indexOf('\nfunction renderSettings(){',normStart);
+assert.ok(normStart>=0&&normEnd>normStart);
+const normalize=runInNewContext(js.slice(normStart,normEnd)+'\nvatraNormalizeSettingsPhone;', {});
+assert.equal(normalize('0931234567','+380'),'+380931234567');
+assert.equal(normalize('0612345678','+33'),'+33612345678');
+assert.equal(normalize('+4915112345678','+380'),'+4915112345678');
+assert.ok(js.includes('if(changedHandle&&(!f.vatraValidateHandle||!await f.vatraValidateHandle()))'),'Unchanged handle must not block name or gender edits');
+for(const code of ['+380','+48','+49','+33','+34','+351','+39','+44','+1'])assert.ok(js.includes('value="'+code+'"'),'Phone country missing '+code);
+assert.ok(auth.includes('const verifiedUser=verifiedData?.user')&&auth.includes('verifiedUser.email_confirmed_at'),'New pages must require server-confirmed OTP');
+assert.ok(!js.includes('createUserWithEmailAndPassword('),'Legacy site registration bypass must not remain');
+assert.ok(js.includes("if(authMode==='register'){location.assign('auth.html?mode=register');return;}"),'Legacy modal registration must redirect to OTP page');
+
+for(const file of ['index.html','auth.html','register.html']){
+ assert.ok(!read(file).includes('для своїх'),file+': exclusive slogan still present');
+}
+assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
+console.log('VATRA: birthday greetings, profile links, stories, phone countries, verified signup and sidebar verified.');

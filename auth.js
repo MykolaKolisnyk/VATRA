@@ -19,18 +19,25 @@ function vatraSignupLanguage(){
 
 
 
-const PHONE_COUNTRIES = [{"iso":"UA","name":"Україна","dial":"+380"}];
+const PHONE_COUNTRIES = [
+ {iso:'UA',name:'Україна',dial:'+380'},
+ {iso:'PL',name:'Польща',dial:'+48'},
+ {iso:'DE',name:'Німеччина',dial:'+49'},
+ {iso:'FR',name:'Франція',dial:'+33'},
+ {iso:'ES',name:'Іспанія',dial:'+34'},
+ {iso:'PT',name:'Португалія',dial:'+351'},
+ {iso:'IT',name:'Італія',dial:'+39'},
+ {iso:'GB',name:'Велика Британія',dial:'+44'},
+ {iso:'US',name:'США',dial:'+1'}
+];
 function countryFlag(iso){return String(iso||'').toUpperCase().replace(/[A-Z]/g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));}
 function enhancePhoneInput(input,selectId){
  if(!input||document.getElementById(selectId))return;
  // Keep +380 for normalization, but render a fixed Ukrainian flag and code instead of a dropdown.
- const select=document.createElement('select');select.id=selectId;select.className='phone-country-code';select.setAttribute('aria-label','Код країни');select.hidden=true;
- const c=PHONE_COUNTRIES[0]||{iso:'UA',name:'Україна',dial:'+380'};
- const option=document.createElement('option');option.value=c.dial;option.textContent=c.dial;option.dataset.iso=c.iso;select.append(option);select.value=c.dial;
+ const select=document.createElement('select');select.id=selectId;select.className='phone-country-code';select.setAttribute('aria-label','Країна і телефонний код');select.hidden=true;
+ for(const c of PHONE_COUNTRIES){const option=document.createElement('option');option.value=c.dial;option.textContent=countryFlag(c.iso)+' '+c.dial+' · '+c.name;option.dataset.iso=c.iso;select.append(option);}select.value='+380';
  const row=document.createElement('div');row.className='phone-number-control';
- const fixed=document.createElement('div');fixed.className='phone-country-static';fixed.setAttribute('aria-label','Україна, код +380');
- fixed.innerHTML='<svg class="phone-country-flag" viewBox="0 0 30 20" role="img" aria-label="Прапор України"><rect width="30" height="10" fill="#0057B8"></rect><rect y="10" width="30" height="10" fill="#FFD700"></rect></svg><span>+380</span>';
- input.parentNode.insertBefore(row,input);row.append(fixed,select,input);
+ input.parentNode.insertBefore(row,input);row.append(select,input);
  input.placeholder='93X XXX XX XX';
 }
 function normalizePhone(input,select){
@@ -54,7 +61,7 @@ function setPhoneInputFromFullNumber(input,select,value){
 function syncPhoneInputMode(input,select,method){
  if(!input)return;
  const phone=method==='phone';
- if(select)select.hidden=true;
+ if(select){select.hidden=!phone;select.style.display=phone?'block':'none';}
  const phoneRow=input.closest('.phone-number-control');
  const countryPrefix=phoneRow?.querySelector('.phone-country-static');
  if(phoneRow){
@@ -98,6 +105,13 @@ function vatraLatinHandlePart(value){
 async function finishRegistration({user,contact,isPhone,dob,first,last,name,gender}){
  const uid=user?.uid||user?.id;
  if(!uid)throw new Error('Supabase не повернув ідентифікатор нового акаунта. Перевір Authentication → Providers.');
+ // A client cannot create a VATRA page merely because a Supabase Auth row exists.
+ // Require the server to confirm the email/phone OTP before any profile writes.
+ const {data:verifiedData,error:verificationError}=await db.client.auth.getUser();
+ const verifiedUser=verifiedData?.user;
+ if(verificationError||verifiedUser?.id!==uid||!(isPhone?verifiedUser.phone_confirmed_at:(verifiedUser.email_confirmed_at||verifiedUser.confirmed_at))){
+  throw new Error('Контакт ще не підтверджено кодом. Поверніться до кроку підтвердження.');
+ }
  const latinName=[vatraLatinHandlePart(first),vatraLatinHandlePart(last)].filter(Boolean).join('.');
  const safePrefix=/^[a-z]/.test(latinName)?latinName:'user';
  const handle=safePrefix.slice(0,14).replace(/[._-]+$/,'')+'-'+uid.replace(/-/g,'').slice(0,8);
@@ -691,7 +705,7 @@ function syncCaptchaVisibility(){
 }
 $('#password').addEventListener('input',()=>{updatePasswordStrength();syncCaptchaVisibility();});
 $('#confirm').addEventListener('input',syncCaptchaVisibility);
-onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppressAuthRedirect||pendingHumanAction||pendingOtp)return;const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
+onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppressAuthRedirect||pendingHumanAction||pendingOtp)return;if(mode==='register'){const notice=$('#error');if(notice)notice.textContent='Ви вже увійшли в акаунт. Для створення іншого акаунта вийдіть із поточного або відкрийте приватне вікно.';return;}const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
 $('#authForm').addEventListener('submit',async e=>{
  e.preventDefault();if(submitting)return;
  if(pendingOtp){await confirmOtp();return;}
@@ -706,6 +720,7 @@ $('#authForm').addEventListener('submit',async e=>{
  if(mode!=='new-password'&&isPhone&&!/^\+[1-9]\d{7,14}$/.test(contact)){ $('#error').textContent='Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX.';return;}
  if(mode!=='new-password'&&!isPhone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){ $('#error').textContent='Введіть коректну адресу електронної пошти.';return;}
  const reg=mode==='register';
+ if(reg&&auth.currentUser){$('#error').textContent='У цьому браузері вже відкрито інший акаунт. Вийдіть із нього або використайте приватне вікно для нової реєстрації.';return;}
  if(reg&&!$('#legalConsent').checked){$('#error').textContent='Щоб створити акаунт, підтвердьте згоду з Умовами користування та Правилами спільноти й ознайомлення з Політикою конфіденційності.';$('#legalConsentWrap').scrollIntoView({behavior:'smooth',block:'center'});$('#legalConsent').focus();return;}
  let first='',last='',name='';
  if(reg){

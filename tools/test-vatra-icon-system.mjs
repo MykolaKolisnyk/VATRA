@@ -14,8 +14,8 @@ assert.ok(Object.values(glyphs).every(markup=>/^</.test(markup)&&/<\/(?:path|cir
 const sidebar=html.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.[1];
 assert.ok(sidebar,'Sidebar not found');
 const expected={
- profile:'profile',feed:'home',messages:'message',friends:'friends',
- groups:'community',photos:'photos',music:'music',myVideos:'video',
+ profile:'profile',friends:'friends',feed:'news',messages:'message',
+ groups:'community',photos:'photos',myVideos:'video',
  videos:'clips',gifts:'gift',saved:'bookmark',settings:'settings'
 };
 for(const [page,icon] of Object.entries(expected)){
@@ -25,6 +25,11 @@ for(const [page,icon] of Object.entries(expected)){
  assert.ok(link.includes('href="#vatra-i-'+icon+'"'),'Unexpected glyph for '+page);
  assert.ok(names.has(icon),'Missing shared sprite glyph '+icon);
 }
+const expectedOrder=['profile','friends','feed','messages','groups','photos','myVideos','videos','gifts','saved','settings'];
+const positions=expectedOrder.map(p=>sidebar.indexOf('data-page="'+p+'"'));
+assert.ok(positions.every(p=>p>=0)&&positions.every((p,i)=>!i||p>positions[i-1]),'VATRA sidebar order mismatch');
+assert.ok(!sidebar.includes('data-page="music"'),'Music remains accessible from header, not duplicated in compact sidebar');
+assert.ok(sidebar.includes('vatra-nav-section-start'),'Utility group must have a divider');
 assert.ok(/data-menu-page="supportDesk"/.test(sidebar),'Support link is missing');
 assert.ok(sidebar.includes('href="#vatra-i-support"'),'Support needs an independent headset glyph');
 const references=[...html.matchAll(/<use href="#vatra-i-([\w-]+)"/g)].map(x=>x[1]);
