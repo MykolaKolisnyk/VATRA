@@ -1,4 +1,4 @@
-/* VATRA: native links, staff documentation, support notifications, case layout */
+
 body .sidebar nav a.nav{display:flex;align-items:center;text-decoration:none;color:inherit;cursor:pointer;box-sizing:border-box;width:100%}
 body .sidebar nav a.nav:visited{color:inherit}
 body .sidebar nav a.nav:focus-visible{outline:2px solid #0757f5;outline-offset:2px}

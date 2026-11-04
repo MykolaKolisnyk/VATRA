@@ -1,8 +1,5 @@
 
-/* VATRA | unified interface typography, 2026-10-30
-   "My Friends" is the visual baseline: restrained hierarchy, readable labels,
-   light field text and no heavy headings in the settings panel.
-   Intentionally loaded after all previous style layers. */
+
 :root{
  --vatra-type-page:19px;
  --vatra-type-section:16px;
@@ -18,8 +15,7 @@ body .layout>.main,body .feed{
  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
  letter-spacing:normal;
 }
-/* Headings across main sections: comparable to the successful Friends layout.
-   Friends itself remains unchanged. */
+
 body .layout>.main>.heading h1,
 body .layout>.main>.heading h2{
  font-size:var(--vatra-type-page)!important;
@@ -54,7 +50,7 @@ body .post .post-text,
 body .post .comment-copy{
  font-weight:400!important;
 }
-/* SETTINGS: equal hierarchy to "Мої друзі", not enlarged labels / bold inputs. */
+
 body[data-page="settings"] .vatra-settings-workspace{
  --vatra-type-title-weight:650;
  font-size:var(--vatra-type-body)!important;
@@ -153,7 +149,7 @@ body[data-page="settings"] .vatra-settings-workspace .settings-savebar span{
 body[data-page="settings"] .vatra-settings-pane .settings-check{
  font-weight:var(--vatra-type-label-weight)!important;
 }
-/* Allow every name/label to wrap naturally without squashing form controls. */
+
 body[data-page="settings"] .vatra-settings-pane .settings-grid,
 body[data-page="settings"] .vatra-settings-pane .settings-grid>label{
  min-width:0!important;
@@ -163,7 +159,7 @@ body[data-page="settings"] .vatra-settings-pane .settings-card textarea[name="bi
  font-weight:400!important;
  line-height:1.5!important;
 }
-/* Preserve color contrast in dark mode while matching the same type scale. */
+
 body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-grid>label,
 body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-card>label{
  color:#c7d6e9!important;
@@ -174,7 +170,7 @@ body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pa
  body[data-page="settings"] .vatra-settings-pane .settings-grid textarea,
  body[data-page="settings"] .vatra-settings-pane .birthday-selects select,
  body[data-page="settings"] .vatra-settings-pane .vatra-extra-visibility>select{
-  font-size:16px!important; /* prevent automatic zoom on iOS */
+  font-size:16px!important; 
  }
  body[data-page="settings"] .vatra-settings-nav-button{font-size:13px!important;}
  body .layout>.main>.heading h1{font-size:19px!important;}
@@ -184,8 +180,7 @@ body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pa
 }
 
 
-/* Settings action buttons use the same compact 12–13px scale as Friends.
-   No floating neon-blue blocks or oversized font weight. */
+
 body[data-page="settings"] .vatra-settings-pane .settings-photo-row{
  align-items:center!important;
  gap:12px!important;

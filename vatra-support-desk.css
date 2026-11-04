@@ -1,4 +1,4 @@
-/* VATRA Support Desk — site-native customer support messaging. */
+
 body .vatra-support-page{display:grid;gap:14px;width:100%;max-width:1150px;margin:0 auto 45px;font:400 13px/1.5 Inter,system-ui,sans-serif;color:#2a435f}
 body .vatra-support-page *{box-sizing:border-box}
 body .vatra-support-header{display:flex;align-items:center;gap:12px;padding:18px 21px;background:#fff;border:1px solid #dce7f2;border-radius:15px}
@@ -66,7 +66,7 @@ body .vatra-support-error{font-size:12px;color:#b92b4f}
  body .vatra-support-header{padding:14px}
  body .vatra-support-header h2{font-size:18px}
 }
-/* Interactive zoom lens removed: every clickable photo uses the standard pointer. */
+
 html body [data-open-profile-gallery],html body [data-vatra-open-public-photos],
 html body [data-photo-index],html body [data-avatar-viewer],
 html body [data-view-group-media],html body [data-post-image],
@@ -75,7 +75,7 @@ html body .vatra-profile-photo,html body .vatra-group-cover-preview,
 html body .vatra-media-viewer-image,html body .vatra-avatar-viewer-stage img,
 html body .vatra-post-photo-viewer img,html body .post-image,
 html body .vatra-public-photos-grid img{cursor:pointer!important}
-/* Badges remain visible everywhere; only badges on a profile/group header are clickable. */
+
 html body .vatra-verified-badge{cursor:default!important}
 html body :is(.vatra-profile-name-line,.profile-panel,.vatra-group-heading-copy) .vatra-verified-badge{cursor:pointer!important}
 html body #vatraVerificationPane[hidden]{display:none!important}

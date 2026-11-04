@@ -1,4 +1,4 @@
-/* VATRA · 2026-11-03 profile controls, language picker and real dark palette */
+
 body .vatra-profile-overview .vatra-profile-more-trigger,
 body .vatra-profile-public-layout .vatra-profile-more-trigger {
  box-sizing:border-box!important;display:flex!important;justify-content:center!important;align-items:center!important;
@@ -52,7 +52,7 @@ body .vatra-profile-public-actions .vatra-public-actions-dropdown button{
  body .vatra-profile-public-actions{grid-template-columns:minmax(0,1fr) minmax(0,.95fr) 40px!important;gap:4px!important}
  body .vatra-profile-public-actions>:is(button,span,details){font-size:11px!important}
 }
-/* Photo management is explicit: do NOT keep an intrusive menu open on hover. */
+
 body[data-page="profile"] .vatra-avatar-hover-wrap:not(.is-open) .vatra-avatar-hover-menu,
 body[data-page="profile"] .vatra-avatar-hover-wrap:not(.is-open):is(:hover,:focus-within) .vatra-avatar-hover-menu{
  opacity:0!important;visibility:hidden!important;pointer-events:none!important;transform:translateY(8px)!important;
@@ -78,7 +78,7 @@ body[data-page="profile"] .vatra-avatar-hover-wrap .vatra-avatar-touch-toggle[ar
 body[data-page="profile"] .vatra-avatar-hover-wrap .vatra-avatar-touch-toggle svg{
  width:21px!important;height:21px!important;stroke:currentColor!important;
 }
-/* Language is always a full select, with Unicode flag per option and visible chevron. */
+
 body .vatra-language-select{
  display:block!important;width:100%!important;max-width:100%!important;min-height:47px!important;
  padding:10px 38px 10px 13px!important;border:1px solid #cedaea!important;border-radius:10px!important;
@@ -96,7 +96,7 @@ body .vatra-language-auth{max-width:min(570px,95%)!important;margin-inline:auto!
 body .vatra-language-auth label{min-width:0!important;max-width:100%!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important}
 body .vatra-language-auth .vatra-language-select{width:min(300px,100%)!important}
 body[data-page="settings"] .vatra-language-settings-mount .vatra-language-select {min-height:50px!important}
-/* Complete dark surfaces for main UI, navigation, settings, cards, menus and controls */
+
 body[data-vatra-theme-effective="dark"]{
  color-scheme:dark!important;
  --vatra-dark-bg:#121b29;--vatra-dark-surface:#1e2c3e;--vatra-dark-raised:#25364b;

@@ -1,5 +1,4 @@
-/* VATRA | Unified UI polish 2026-10-31
-   One design language for dialogs, fields, media viewer and community. */
+
 :root{--v26-border:#dce6f1;--v26-focus:#1765d9;--v26-ink:#213b58}
 body :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),textarea,select):focus-visible,
 body :is(.vatra-community-search,.vatra-group-members-search,.search):focus-within{
@@ -36,7 +35,7 @@ body .vatra-scroll-to-top:not([hidden]) span{order:1!important;white-space:nowra
 body .vatra-scroll-to-top:not([hidden]):hover{background:rgba(65,83,107,.2)!important}
 @media(max-width:1050px){body .vatra-scroll-to-top:not([hidden]){width:62px!important;padding-bottom:24px!important}body .vatra-scroll-to-top span{font-size:11px!important}}
 @media(max-width:899px){body .vatra-scroll-to-top:not([hidden]){inset:auto 14px 76px auto!important;width:auto!important;height:44px!important;border-radius:12px!important;padding:0 13px!important;align-items:center!important;background:#eff5fc!important;box-shadow:0 3px 16px #152b3d25!important}}
-/* Full viewport photo, no white information column, no duplicate close control. */
+
 body :is(.vatra-post-photo-viewer,.vatra-avatar-viewer){
  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
  max-width:100vw!important;max-height:100dvh!important;margin:0!important;padding:0!important;
@@ -118,7 +117,7 @@ body .notification-popover:not([hidden]){
  transform:translateX(-50%)!important;top:var(--vatra-notification-top,58px)!important;
  max-width:min(380px,calc(100vw - 24px))!important
 }
-/* Align compressed post actions and their reaction portraits. */
+
 body .post-actions{display:flex!important;gap:5px!important;align-items:center!important;justify-content:space-between!important;flex-wrap:nowrap!important}
 body .post-actions > :is(button,a,.post-action){flex:1 1 0!important;min-width:0!important;margin:0!important;padding:9px 5px!important;gap:5px!important;justify-content:center!important}
 body .post-actions :is(.vatra-post-actor-stack,.vatra-actor-stack,.vatra-reaction-avatars){margin-inline:3px!important;gap:0!important}
@@ -151,7 +150,7 @@ body .vatra-route-menu{position:fixed;z-index:99999;background:#fff;color:#24405
 body .vatra-route-menu button{width:100%;text-align:left;display:flex;gap:9px;align-items:center;border:0;border-radius:7px;background:none;padding:11px;color:inherit;font:600 13px Inter,sans-serif;cursor:pointer}
 body .vatra-route-menu button:hover{background:#edf4fc}
 
-/* Community avatar/cover viewer uses the same dark, spacious photo language. */
+
 body .vatra-group-media-dialog.vatra-group-media-dark{
  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
  max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;
@@ -205,7 +204,7 @@ body .vatra-svg-close svg{width:19px;height:19px;fill:none;stroke:currentColor;s
 body .vatra-verified-badge{display:inline-flex!important;vertical-align:middle!important;align-items:center!important;justify-content:center!important;margin-left:5px!important;color:#1685ea!important}
 body .vatra-verified-badge svg{width:18px!important;height:18px!important}
 
-/* A compact, shared reaction toolbar for profile and community posts. */
+
 body .post-actions{
  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
  gap:4px!important;align-items:center!important;padding:8px 4px!important;
@@ -250,7 +249,7 @@ body .vatra-group-media-dark [data-group-media-manage]:hover{background:#304866!
 body .vatra-group-media-dark.show-actions [data-group-media-manage]{background:#1765d9!important}
 @media(max-width:600px){body .vatra-group-media-dark [data-group-media-manage]{top:12px!important;left:12px!important;width:40px!important;height:40px!important}}
 
-/* Dedicated member directory, same visual rhythm as VATRA friends. */
+
 body .vatra-community-members-page{display:grid;gap:18px;padding:18px;max-width:100%;min-width:0}
 body .vatra-community-members-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid #e2e9f1;border-radius:14px;padding:18px 22px}
 body .vatra-community-members-heading h2{font:750 clamp(19px,2vw,24px)/1.35 Inter,system-ui,sans-serif;color:#243e5b;margin:3px 0 6px;letter-spacing:-.02em}
@@ -283,8 +282,7 @@ body [data-vatra-sound-toggle]{display:flex!important;align-items:center!importa
 body [data-vatra-sound-toggle] svg{flex:0 0 18px!important}
 
 
-/* 31 Oct UX correction: ID-specific full-height scroll rail.
-   Older pages.css/refinements.css rules vertically centered the control. */
+
 @media (min-width:900px){
   html body #vatraScrollToTop:not([hidden]){
     position:fixed!important;

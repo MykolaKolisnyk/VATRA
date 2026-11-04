@@ -1,6 +1,5 @@
-/* VATRA / unified typography, compact sidebar and confirmation dialogs.
-   Final stylesheet: intentionally wins older 2026 legacy rules. */
-/* Onest is a locally hosted file. Never load remote fonts. */
+
+
 html body,
 html body :is(a,button,input,textarea,select,option,label,h1,h2,h3,h4,h5,h6,
  p,span,small,strong,b,em,i,li,dd,dt,summary,legend,blockquote,table,th,td,div){
@@ -9,7 +8,7 @@ html body :is(a,button,input,textarea,select,option,label,h1,h2,h3,h4,h5,h6,
 html body :is(.emoji-picker,.vatra-emoji-picker,.emoji-button,.emoji-item) :is(span,i){
  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
 }
-/* Navigation has a neutral resting state regardless of the active route. */
+
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]{
  display:grid!important;
  grid-auto-rows:min-content!important;
@@ -102,7 +101,7 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
 @media(prefers-reduced-motion:reduce){
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{transition:none!important}
 }
-/* Force true content-sized centered native confirmation, never viewport-height. */
+
 html body #vatraConfirmDialog.vatra-native-dialog.vatra-confirm-dialog[open]{
  position:fixed!important;
  inset:auto!important;
@@ -156,7 +155,7 @@ html body #vatraConfirmDialog.vatra-native-dialog.vatra-confirm-dialog[open]::ba
   padding:18px 17px!important;
  }
 }
-/* Easily recover an old avatar. Hover actions remain compact. */
+
 body[data-page="profile"] .vatra-avatar-hover-menu>button[data-avatar-photo-action="restore"]{color:#d7e9ff!important}
 body .vatra-avatar-pick-dialog{
  position:fixed;inset:0;margin:auto;box-sizing:border-box;
@@ -174,7 +173,7 @@ body .vatra-avatar-pick-dialog::backdrop{background:#101f3455}
 .vatra-avatar-pick-grid img{width:100%;height:100%;object-fit:cover;display:block}
 .vatra-avatar-pick-dialog footer{display:flex;justify-content:flex-end;margin-top:14px}
 .vatra-avatar-pick-dialog footer button{min-height:36px;border:1px solid #dde6f0;border-radius:8px;background:#f5f8fb;color:#48637d;padding:8px 15px;cursor:pointer}
-/* Ambient art behind each collectible, with zero pointer interference. */
+
 dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage{
  position:relative!important;isolation:isolate!important;
 }
@@ -218,7 +217,7 @@ dialog.vatra-gift-detail-dialog .vatra-gift-detail-stage>.vatra-gift-art{
 }
 
 
-/* Searchable profile values must not look like links with dotted underlines. */
+
 body .vatra-profile-detail>.vatra-profile-attribute-link,
 body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link{
  text-decoration:none!important;

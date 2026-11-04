@@ -1,5 +1,5 @@
 
-/* VATRA UX: first-use guide, clean messages and Saved page */
+
 body .vatra-onboarding-modern.vatra-tour-overlay{
  position:fixed!important;inset:0!important;z-index:99998!important;
  display:flex!important;align-items:center!important;justify-content:center!important;
@@ -166,7 +166,7 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .message-bubble:no
 @media(prefers-reduced-motion:reduce){.vatra-onboarding-modern .vatra-tour-progress span{transition:none!important}}
 
 
-/* 2026-10-30: real-data loading placeholders. Never present these as posts. */
+
 body .vatra-sk-screen{display:grid;gap:13px;min-width:0;align-content:start}
 body .vatra-sk-card{box-sizing:border-box;border:1px solid #e3e9f0;background:#fff;border-radius:12px;min-width:0;overflow:hidden}
 body .vatra-sk-accessible{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
@@ -210,8 +210,7 @@ body .vatra-sk-bubble.mine{width:36%;align-self:flex-end}
 body .vatra-sk-chat-input{height:42px;border-radius:9px;margin-top:auto}
 body .vatra-sk-chat-loading{display:flex;flex-direction:column;gap:14px;padding:12px}
 body .vatra-sk-chat-loading .vatra-sk-bubble{flex:0 0 51px}
-/* Readability: larger consistent post body, with natural paragraph rhythm.
-   Honor a user's explicit font-scale preference. */
+
 body:not([data-vatra-font-scale="small"]):not([data-vatra-font-scale="large"]) .post-text{
  font-size:14.5px!important;line-height:1.72!important;font-weight:400!important;
  letter-spacing:.003em!important;color:#34465b!important
@@ -223,7 +222,7 @@ body .post .vatra-post-text-container>.post-text{margin:13px 0 11px!important}
 body .post .vatra-post-text-container .post-text strong{font-weight:600!important}
 body .post .vatra-post-text-toggle{font-size:12.5px!important;font-weight:600!important;letter-spacing:normal!important}
 body[data-vatra-theme-effective="dark"] .post-text{color:#e3ebf5!important}
-/* Give desktop chat a little more space, retaining the responsive mobile layout. */
+
 @media(min-width:1200px){
  body[data-page="messages"]{--vatra-unified-width:1080px;--vatra-unified-main:880px}
  body[data-page="messages"] .vatra-messenger-shell{
@@ -261,7 +260,7 @@ body[data-vatra-theme-effective="dark"] .vatra-sk-bubble{
  body .vatra-sk-chat-input{animation:none!important}
 }
 
-/* Persistent chat error: display next to the input, not as a fleeting toast. */
+
 body[data-page="messages"] .vatra-chat-send-error{
  box-sizing:border-box!important;width:100%!important;margin:8px 0 0!important;
  padding:9px 11px!important;border:1px solid #f1cbd0!important;border-radius:8px!important;
