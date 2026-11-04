@@ -1,0 +1,142 @@
+/* VATRA full-screen gifts: all information fits inside viewport, no inner scrollbar. */
+html body dialog#vatraGiftDetailDialog[open]{
+ position:fixed!important;inset:0!important;
+ display:block!important;width:100vw!important;height:100dvh!important;
+ max-width:100vw!important;max-height:100dvh!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;
+ border:0!important;border-radius:0!important;background:#f4f7fc!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-inner{
+ box-sizing:border-box!important;
+ width:min(1120px,100%)!important;max-width:1120px!important;
+ height:100%!important;max-height:100%!important;min-height:0!important;
+ margin:0 auto!important;padding:0 clamp(15px,3vw,40px)!important;
+ display:flex!important;flex-direction:column!important;
+ gap:0!important;overflow:hidden!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-header{
+ flex:0 0 74px!important;box-sizing:border-box!important;
+ min-height:0!important;height:74px!important;
+ padding:12px 0!important;
+ border-bottom:1px solid #dce6f2!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-header>span{
+ font:760 12px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+ letter-spacing:.045em!important;color:#4b6381!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-header button{
+ width:42px!important;height:42px!important;border-radius:12px!important;
+ border:1px solid #d7e3f1!important;background:#fff!important;color:#3a5e88!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-header button:hover{
+ background:#eaf2fd!important;border-color:#bdd2ed!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-scroll{
+ box-sizing:border-box!important;
+ flex:1 1 auto!important;min-height:0!important;height:0!important;
+ display:grid!important;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr)!important;
+ grid-template-rows:minmax(0,1fr)!important;gap:clamp(12px,2vw,30px)!important;
+ justify-items:stretch!important;align-items:center!important;
+ padding:clamp(10px,2vw,22px) 0!important;margin:0!important;
+ overflow:hidden!important;overscroll-behavior:none!important;
+ scrollbar-width:none!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-scroll::-webkit-scrollbar{display:none!important;width:0!important}
+html body #vatraGiftDetailDialog .vatra-gift-detail-stage{
+ box-sizing:border-box!important;
+ display:grid!important;place-items:center!important;
+ width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+ padding:0!important;margin:0!important;
+ overflow:hidden!important;position:relative!important;
+ border:1px solid #e4ebf6!important;border-radius:22px!important;
+ background:radial-gradient(circle at 50% 47%,#fff 0%,#ecf3fc 67%,#f4f7fc 100%)!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-stage .vatra-gift-art{
+ box-sizing:border-box!important;
+ display:block!important;width:min(460px,90%,min(53dvh,40vw))!important;
+ height:auto!important;aspect-ratio:1/1!important;max-height:95%!important;max-width:95%!important;
+ margin:auto!important;object-fit:contain!important;overflow:visible!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-info{
+ box-sizing:border-box!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ padding:clamp(10px,2vw,24px)!important;margin:0!important;
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ justify-content:center!important;gap:clamp(8px,1.2vw,17px)!important;
+ text-align:left!important;overflow:visible!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-category{
+ font:770 11px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+ color:#2565af!important;letter-spacing:.065em!important;margin:0!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-info h2{
+ margin:0!important;color:#1d3757!important;
+ font:770 clamp(27px,3.2vw,42px)/1.2 "VATRA Onest",system-ui,sans-serif!important;
+ letter-spacing:-.025em!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-description{
+ max-width:430px!important;margin:0!important;
+ font:450 clamp(13px,1.1vw,16px)/1.65 "VATRA Onest",system-ui,sans-serif!important;
+ color:#4c6580!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-note{
+ max-width:440px!important;margin:0!important;padding:11px 13px!important;
+ border:1px solid #dae6f4!important;border-radius:11px!important;background:#fff!important;
+ color:#58728c!important;
+ font:550 12px/1.45 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-footer{
+ flex:0 0 72px!important;min-height:0!important;height:72px!important;
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ padding:12px 0!important;border-top:1px solid #dfe8f2!important;
+ background:transparent!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-footer button{
+ min-height:42px!important;padding:10px 22px!important;border-radius:11px!important;
+ background:#0757e8!important;box-shadow:none!important;
+ color:#fff!important;font:690 13px/1.3 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body #vatraGiftDetailDialog .vatra-gift-detail-footer button:hover{background:#064bc7!important}
+@media(max-width:760px){
+ html body #vatraGiftDetailDialog .vatra-gift-detail-header{flex-basis:57px!important;height:57px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-scroll{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1.1fr) minmax(0,.9fr)!important;
+  gap:5px!important;padding:8px 0!important;
+ }
+ html body #vatraGiftDetailDialog .vatra-gift-detail-stage{border:0!important;border-radius:15px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-stage .vatra-gift-art{
+  width:min(330px,65vw,35dvh)!important;max-height:90%!important;
+ }
+ html body #vatraGiftDetailDialog .vatra-gift-detail-info{
+  align-items:center!important;text-align:center!important;gap:7px!important;
+  padding:4px clamp(6px,2vw,14px)!important;justify-content:center!important;
+ }
+ html body #vatraGiftDetailDialog .vatra-gift-detail-info h2{font-size:clamp(22px,4.5vw,30px)!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-description{font-size:12.5px!important;line-height:1.5!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-note{font-size:11px!important;padding:6px 10px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-footer{flex-basis:58px!important;height:58px!important;padding:7px 0!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-header>span{font-size:10px!important}
+}
+@media(max-height:620px) and (min-width:761px){
+ html body #vatraGiftDetailDialog .vatra-gift-detail-header{flex-basis:56px!important;height:56px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-footer{flex-basis:52px!important;height:52px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-stage .vatra-gift-art{width:min(45dvh,36vw)!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-description{font-size:12px!important;line-height:1.45!important}
+}
+@media(max-height:580px) and (max-width:760px){
+ html body #vatraGiftDetailDialog .vatra-gift-detail-header{flex-basis:46px!important;height:46px!important;padding:3px 0!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-header button{width:34px!important;height:34px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-scroll{grid-template-rows:minmax(0,.85fr) minmax(0,1.15fr)!important;padding:2px 0!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-stage .vatra-gift-art{width:min(170px,43vw,26dvh)!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-info{gap:3px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-info h2{font-size:21px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-description{font-size:11px!important;line-height:1.35!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-note{font-size:10px!important;padding:3px 6px!important}
+ html body #vatraGiftDetailDialog .vatra-gift-detail-footer{flex-basis:46px!important;height:46px!important;padding:2px 0!important}
+}
+body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog[open]{background:#172435!important}
+body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog .vatra-gift-detail-stage{border-color:#364b64!important;background:radial-gradient(circle,#2d4765 0%,#192b43 75%)!important}
+body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog .vatra-gift-detail-info h2{color:#f3f7ff!important}
+body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog .vatra-gift-detail-description{color:#c5d3e4!important}
+body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog .vatra-gift-detail-note{background:#263b54!important;border-color:#3b5570!important;color:#d2e0f0!important}
