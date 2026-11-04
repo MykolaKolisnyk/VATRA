@@ -46,10 +46,10 @@ export function makeAuthPayload(env = process.env) {
    smtp_port:port,
    smtp_user:smtpUser,
    smtp_pass:required('VATRA_SMTP_PASSWORD'),
-   smtp_sender_name:'ВАТРА',
-   mailer_subjects_confirmation:'ВАТРА — підтвердження акаунта',
-   mailer_subjects_magic_link:'ВАТРА — код входу',
-   mailer_subjects_recovery:'ВАТРА — відновлення доступу',
+   smtp_sender_name:'VATRA',
+   mailer_subjects_confirmation:'VATRA — Verify your email',
+   mailer_subjects_magic_link:'VATRA — Verification code',
+   mailer_subjects_recovery:'VATRA — Reset your password',
    mailer_templates_confirmation_content:TEMPLATE('supabase/auth-templates/otp-email.html'),
    mailer_templates_magic_link_content:TEMPLATE('supabase/auth-templates/otp-email.html'),
    mailer_templates_recovery_content:TEMPLATE('supabase/auth-templates/otp-email.html')
@@ -90,7 +90,7 @@ export function deliverySummary(payload) {
  return {
   project:PROJECT_REF,
   website:SITE_URL,
-  email:{configured:hasEmail,senderName:hasEmail?'ВАТРА':null,senderDomain:emailDomain,templates:hasEmail?3:0,deliveryConfirmed:false},
+  email:{configured:hasEmail,senderName:hasEmail?'VATRA':null,senderDomain:emailDomain,templates:hasEmail?3:0,deliveryConfirmed:false},
   sms:{configured:hasSms,provider:payload.sms_provider||null,senderIdVerified:false,deliveryConfirmed:false},
   accountAutoConfirm:false,
   credentialsPrinted:false
