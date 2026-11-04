@@ -214,7 +214,9 @@ function closeHumanCaptcha(){
 function openHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
  resetHumanChallenge();if(wrap.parentElement!==document.body)document.body.appendChild(wrap);wrap.hidden=false;wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Швидка перевірка');wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
- wrap.querySelector('button[data-captcha-answer]')?.focus();
+ // Do not focus the first answer: the blue focus ring looked like a hint.
+ const prompt=wrap.querySelector('.human-captcha-question');
+ if(prompt){prompt.setAttribute('tabindex','-1');prompt.focus({preventScroll:true});}
 }
 function resetHumanChallenge(notice=''){
  challengePassed=false;
@@ -236,7 +238,8 @@ function resetHumanChallenge(notice=''){
   const distractor=1+Math.floor(Math.random()*20);
   choiceSet.add(distractor);
  }
- const choices=[...choiceSet].sort(()=>Math.random()-.5);
+ const choices=[...choiceSet];
+ for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
  wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="logo.png?v=20261103-2" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',()=>{
   pendingHumanAction=null;
@@ -272,7 +275,7 @@ function resetHumanChallenge(notice=''){
   },300);
  }));
  if(vatrapauseHumanCheck(wrap))return;
- if(wrap.classList.contains('captcha-modal'))wrap.querySelector('[data-captcha-answer]')?.focus();
+ // Answer options remain visually neutral until the user chooses one.
 }
 
 function captchaToken(){if(!TURNSTILE_SITE_KEY)return '';try{return window.turnstile&&captchaWidget!==null?window.turnstile.getResponse(captchaWidget):'';}catch{return '';}}
