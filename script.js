@@ -212,7 +212,10 @@ function publicProfileData(p={}){
  };
  if(out.bioVisibility==='public')out.bio=String(p.bio||'').slice(0,500);
  if(out.statusVisibility==='public')out.status=String(p.status||'').slice(0,100);
- if(out.birthdayVisibility==='public'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);
+ if(out.birthdayVisibility==='public'&&p.dateOfBirth){
+   out.birthdayPublic=String(p.dateOfBirth);
+   out.birthdayUpdatedAt=Math.max(0,Number(p.birthdayUpdatedAt)||0);
+  }
  for(const [field,maxLength] of Object.entries({city:80,location:120,phone:24,workplace:120,education:120,hometown:80,website:180})){
   if(out[field+'Visibility']==='public'&&p[field])out[field]=String(p[field]).slice(0,maxLength);
  }
@@ -237,7 +240,10 @@ function friendProfileData(p={}){
  if(vatraFieldVisibility(p.statusVisibility,'public')==='friends'&&p.status)out.status=String(p.status).slice(0,100);
  if(vatraFieldVisibility(p.bioVisibility,'public')==='friends'&&p.bio)out.bio=String(p.bio).slice(0,500);
  if(vatraFieldVisibility(p.websiteVisibility,'public')==='friends'&&p.website)out.website=String(p.website).slice(0,180);
- if(vatraFieldVisibility(p.birthdayVisibility)==='friends'&&p.dateOfBirth)out.birthdayPublic=String(p.dateOfBirth);
+ if(vatraFieldVisibility(p.birthdayVisibility)==='friends'&&p.dateOfBirth){
+   out.birthdayPublic=String(p.dateOfBirth);
+   out.birthdayUpdatedAt=Math.max(0,Number(p.birthdayUpdatedAt)||0);
+  }
  for(const [field,maxLength] of Object.entries({city:80,location:120,phone:24,workplace:120,education:120,hometown:80})){
   if(vatraFieldVisibility(p[field+'Visibility'])==='friends'&&p[field])out[field]=String(p[field]).slice(0,maxLength);
  }
@@ -306,6 +312,10 @@ function listenData(){stopListeners();if(!currentUser)return;vatraSoundSources.c
  unsubscribers.push(watch('publicProfiles',v=>{
  const old=users;
  users=v||{};markInitialLoaded('publicProfiles');updateIdentity();
+ if(!window.__vatraProfileDirectorySignaled){
+  window.__vatraProfileDirectorySignaled=true;
+  window.dispatchEvent(new Event('vatra:profile-directory-ready'));
+ }
  // The online heartbeat updates only isOnline/lastSeenAt. Do not rebuild the
  // entire page, close menus, and reset scrolling every time someone pings.
  const withoutPresence=obj=>JSON.stringify(Object.entries(obj||{}).map(([id,person])=>{
@@ -2547,9 +2557,17 @@ function vatraMonitorSounds(items){
  if((newMessage||newOther)&&privateNotifyPrefs?.sound!==false)vatraBeep(newMessage?'message':'notification');
 }
 
-function vatraTodayKyiv(){
- const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kyiv',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+function vatraTodayKyiv(date=new Date()){
+ const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kyiv',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date).map(x=>[x.type,x.value]));
  return {year:Number(parts.year),month:Number(parts.month),day:Number(parts.day)};
+}
+// Compute Kyiv local midnight using the current timezone offset, not UTC+4.
+function vatraKyivMidnightUtc(parts){
+ const stamp=Date.UTC(parts.year,parts.month-1,parts.day);
+ const zone=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Kyiv',timeZoneName:'shortOffset'}).formatToParts(new Date(stamp)).find(p=>p.type==='timeZoneName')?.value||'GMT+2';
+ const offset=/^GMT([+-])(\d{1,2})(?::(\d{2}))?$/.exec(zone);
+ const minutes=offset?(offset[1]==='-'?-1:1)*(Number(offset[2])*60+Number(offset[3]||0)):120;
+ return stamp-minutes*60000;
 }
 function vatraFriendBirthdaysToday(){
  if(!currentUser)return [];
@@ -2564,7 +2582,8 @@ function vatraFriendBirthdaysToday(){
   );
   const match=raw.match(/^\d{4}-(\d{2})-(\d{2})$/);
   if(!match||Number(match[1])!==now.month||Number(match[2])!==now.day)continue;
-  result.push({uid,year:now.year,name:String(profile.name||shared.name||'Друг ВАТРИ').slice(0,80)});
+  result.push({uid,year:now.year,name:String(profile.name||shared.name||'Друг ВАТРИ').slice(0,80),
+    birthdayUpdatedAt:Number(profile.birthdayVisibility==='public'?profile.birthdayUpdatedAt:shared.birthdayUpdatedAt)||0});
  }
  return result;
 }
@@ -2663,8 +2682,12 @@ function notificationItems(){
   }
  }
  for(const birthday of vatraFriendBirthdaysToday()){
-  const midnightUTC=Date.UTC(birthday.year,vatraTodayKyiv().month-1,vatraTodayKyiv().day)-4*3600000;
-  put({id:'birthday_'+birthday.year+'_'+birthday.uid,type:'birthday',actorUid:birthday.uid,createdAt:midnightUTC,birthdayYear:birthday.year});
+  const today=vatraTodayKyiv(),midnightUTC=vatraKyivMidnightUtc(today),changed=birthday.birthdayUpdatedAt;
+  const changedDay=changed?vatraTodayKyiv(new Date(changed)):null;
+  const changedToday=changedDay?.year===today.year&&changedDay?.month===today.month&&changedDay?.day===today.day;
+  // Birth dates newly set to today must become new notifications even after prior read.
+  const createdAt=changedToday?Math.max(midnightUTC,changed):midnightUTC;
+  put({id:'birthday_'+birthday.year+'_'+birthday.uid,type:'birthday',actorUid:birthday.uid,createdAt,birthdayYear:birthday.year});
  }
  for(const [actor,r] of Object.entries(friendRequests||{})){
   if(!r||r.status!=='pending'||r.direction!=='incoming')continue;
@@ -3414,6 +3437,10 @@ $('#settingsAvatarFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)re
  if(errBox)errBox.textContent='';
  btn.disabled=true;btn.textContent='Зберігаємо…';
  const uid=currentUser.uid;
+ const birthdayChanged=dateOfBirth!==String(currentProfile.dateOfBirth||'')||
+   values.birthdayVisibility!==String(currentProfile.birthdayVisibility||'private');
+ // Private birth dates never enter the public/friend snapshots.
+ values.birthdayUpdatedAt=birthdayChanged?Date.now():Math.max(0,Number(currentProfile.birthdayUpdatedAt)||0);
  const draft={...currentProfile,...values,privateSections,recordLists,extraVisibility,dateOfBirth,phone:privatePhone,pendingPhone:pendingPhone};
  const saveSteps={account:false,private:false,publicProfile:false,friendsProfile:false};
  const handleChanged=vatraNormalizeHandle(values.handle)!==vatraNormalizeHandle(currentProfile.handle);
@@ -4353,6 +4380,10 @@ window.vatraGiftProfileUid=()=>page==='profile'?currentUser?.uid:page==='publicP
 window.vatraPublicHandle=uid=>{
  const p=uid===currentUser?.uid?currentProfile:users[uid];
  return String(p?.handle||'').trim().replace(/^@/,'').toLocaleLowerCase('uk');
+};
+window.vatraPublicUid=handle=>{
+ const normalized=String(handle||'').trim().replace(/^@/,'').toLocaleLowerCase('uk');
+ return Object.entries(users||{}).find(([,person])=>String(person?.handle||'').replace(/^@/,'').toLocaleLowerCase('uk')===normalized)?.[0]||'';
 };
 window.vatraSettingsContext=()=>vatraSettingsContext;
 window.vatraRouter={goPage,editProfile,renderPublicProfile,renderGroupDetails,renderGroupSettings,renderGroupMembersPage,openPostPhotoViewer,openAvatarViewer,startChatWith,openPost:vatraOpenPostLink};
