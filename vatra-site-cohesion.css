@@ -159,6 +159,19 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
  html body .vatra-global-header .search input{font-size:16px!important;}
 }
 
+/* The global header shares the real user page's width and nav column. */
+body[data-page="profile"]{
+ --vatra-unified-width:1520px;
+ --vatra-unified-rail:212px;
+ --vatra-unified-gap:20px;
+}
+@media(min-width:761px) and (max-width:1259px){
+ body[data-page="profile"]{
+  --vatra-unified-width:1160px;
+  --vatra-unified-rail:190px;
+  --vatra-unified-gap:16px;
+ }
+}
 /* Owned page, not a mockup: real profile cover, usable editor, responsive content rail.
    The older 830px page cap was removed from vatra-pages.css. */
 html body[data-page="profile"] .vatra-own-page-layout{
