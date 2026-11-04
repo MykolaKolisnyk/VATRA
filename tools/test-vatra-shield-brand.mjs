@@ -56,7 +56,7 @@ for(const asset of [favicon,header,preview]){
 assert.ok(!favicon.includes('M433.31 136.6'),'Old V logo must be replaced');
 assert.ok(index.includes('favicon.svg?v=20261104-ribbon1'),'Website favicon cache must be updated');
 assert.ok(index.includes('vatra-header.svg?v=20261104-ribbon1'),'Site wordmark cache must be updated');
-assert.ok(index.includes('social-preview.svg'),'Social meta preview must continue to work');
+assert.ok(index.includes('social-preview.png?v=20261104-ribbon1'),'Raster social preview must match the new brand');
 assert.ok(read('vatra-language.js').includes('favicon.svg?v=20261104-ribbon1'),
  'Language picker must use updated mark');
 console.log('VATRA: unified shield, progressive lockouts, contained recovery and shared ribbon mark validated.');
