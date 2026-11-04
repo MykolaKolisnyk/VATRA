@@ -383,10 +383,12 @@ function authCooldownRemaining(){
  try{return Math.max(0,Number(sessionStorage.getItem(AUTH_COOLDOWN_KEY)||0)-Date.now());}catch{return 0;}
 }
 function authSubmitLabel(){
- return mode==='login'?'Увійти':mode==='register'?'Створити акаунт':mode==='reset'?'Надіслати посилання':mode==='new-password'?'Зберегти новий пароль':'Увійти';
+ if(pendingOtp)return 'Підтвердити код';
+ return mode==='login'?(loginByCode?'Надіслати код':'Увійти'):mode==='register'?'Отримати код':mode==='reset'?'Надіслати код':mode==='new-password'?'Зберегти новий пароль':'Увійти';
 }
 function refreshAuthCooldown(){
  const button=$('#submit');if(!button)return;
+ if(pendingOtp){button.disabled=!!submitting;button.textContent='Підтвердити код';return;}
  const remaining=authCooldownRemaining();
  if(remaining>0){button.disabled=true;button.textContent='Тимчасове обмеження · '+Math.ceil(remaining/1000)+' с';return;}
  if(authCooldownTimer){clearInterval(authCooldownTimer);authCooldownTimer=null;}
