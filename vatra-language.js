@@ -145,7 +145,7 @@ Object.assign(base,{
  'Я погоджуюся з':'I agree to',
  'та':'and','і підтверджую, що ознайомився(-лася) з':'and confirm that I have read',
  'ВАТРИ.':'of VATRA.',
- '© 2026 ВАТРА · Український простір для своїх':'© 2026 VATRA · Ukrainian social network',
+ '© 2026 ВАТРА · Українська соціальна мережа':'© 2026 VATRA · Ukrainian social network',
  'ВІДНОВЛЕННЯ ДОСТУПУ':'ACCOUNT RECOVERY',
  'Повернення до ВАТРИ':'Return to VATRA',
  'Куди надіслати підтвердження?':'Where should we send confirmation?',
