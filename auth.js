@@ -5,7 +5,9 @@ if('scrollRestoration' in history)history.scrollRestoration='manual';
 window.scrollTo(0,0);
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
-const selectedMethod=()=>document.querySelector('input[name="authMethod"]:checked')?.value||$('#method').value||'email';
+// SMS is intentionally unavailable until a real SMS provider is configured and tested.
+const VATRA_SMS_AUTH_ENABLED=false;
+const selectedMethod=()=>VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="authMethod"]:checked')?.value||$('#method')?.value||'email'):'email';
 function vatraSignupLanguage(){
  const supported=['uk','en','pl','de','fr','es','pt','it'];
  let language=window.vatraLanguage?.language||'';
@@ -74,7 +76,7 @@ function syncPhoneInputMode(input,select,method){
  input.style.minWidth='0';
 }
 function syncAuthMethodUI(method){
- const selected=method==='phone'?'phone':'email';
+ const selected=VATRA_SMS_AUTH_ENABLED&&method==='phone'?'phone':'email';
  document.querySelectorAll('input[name="authMethod"]').forEach(radio=>{radio.checked=radio.value===selected;});
  const methodSelect=$('#method');
  if(methodSelect)methodSelect.value=selected;
@@ -203,6 +205,7 @@ function syncLoginCodeMode(){
  }
 }
 async function startOtp(kind,details){
+ if(details.isPhone&&!VATRA_SMS_AUTH_ENABLED)throw new Error('SMS-підтвердження ще не налаштоване. Використайте електронну пошту.');
  const {contact,isPhone}=details;
  const fields=isPhone?{phone:contact}:{email:contact};
  const requestedAt=Date.now();
@@ -436,7 +439,7 @@ function show(m){
  if(pageUrl.href!==location.href)history.replaceState(null,'',pageUrl);
  document.title=m==='register'?'Реєстрація у ВАТРІ':m==='reset'?'Відновлення пароля — ВАТРА':m==='new-password'?'Новий пароль — ВАТРА':'Вхід до ВАТРИ';
  const description=document.querySelector('meta[name="description"]');
- if(description)description.content=m==='register'?'Реєстрація у ВАТРІ з кодом на email або телефон.':m==='reset'?'Безпечне відновлення доступу до ВАТРИ.':'Вхід до ВАТРИ за кодом або паролем.';
+ if(description)description.content=m==='register'?'Реєстрація у ВАТРІ з підтвердженням електронної пошти.':m==='reset'?'Безпечне відновлення доступу до ВАТРИ.':'Вхід до ВАТРИ за кодом або паролем.';
 
  closeHumanCaptcha();resetHumanChallenge();
  
@@ -444,9 +447,9 @@ function show(m){
  const emailHint=document.querySelector('input[name="authMethod"][value="email"]')?.closest('label')?.querySelector('small');
  const phoneHint=document.querySelector('input[name="authMethod"][value="phone"]')?.closest('label')?.querySelector('small');
  if(emailHint)emailHint.textContent=reg?'Підтвердження кодом на email':'Код на email або пароль';
- if(phoneHint)phoneHint.textContent=reg?'Підтвердження кодом у SMS':'SMS-код або пароль';
+ if(phoneHint)phoneHint.textContent=VATRA_SMS_AUTH_ENABLED?(reg?'Підтвердження кодом у SMS':'SMS-код або пароль'):'SMS буде доступне пізніше';
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
- document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=reset&&!isEmail;});
+ document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=!isEmail&&(!VATRA_SMS_AUTH_ENABLED||reset);});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
  $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
@@ -456,7 +459,7 @@ function show(m){
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
- $('#desc').textContent=reg?'Заповніть дані, оберіть email або телефон і підтвердьте контакт кодом ВАТРИ. Після підтвердження створиться Ваша сторінка.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
+ $('#desc').textContent=reg?'Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти та пароля або одноразового коду.';
  $('#submit').textContent=reg?'Отримати код':newPassword?'Зберегти новий пароль':reset?'Надіслати код':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const modeSwitch=$('#bottom').querySelector('#switch');
@@ -519,7 +522,7 @@ $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[d
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
 $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLegalBottom').onclick=()=>closeDialogAnimated($('#legalDialog'));
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
-function currentRecoveryMethod(){return document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email';}
+function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email'):'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact',recoveryPreviousPair='',recoveryFailures=0;
 let recoveryOtpCooldownUntil=0,recoveryOtpCooldownTimer=null;
 function syncRecoveryResend(){
