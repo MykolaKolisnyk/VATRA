@@ -105,7 +105,8 @@ html body .vatra-profile-photo-carousel .vatra-gallery-controls>.vatra-gallery-c
  opacity:.3!important;cursor:default!important;transform:translateY(-50%)!important;
 }
 html body .vatra-profile-photo-carousel .vatra-gallery-position{font-size:12px!important;color:#7388a5!important}
-html body .vatra-profile-photo-carousel .vatra-gallery-track>.profile-photo-tile{align-self:stretch!important;height:100%!important}
+html body .vatra-profile-photo-carousel .vatra-gallery-track{align-items:start!important;grid-auto-rows:max-content!important}
+html body .vatra-profile-photo-carousel .vatra-gallery-track>.profile-photo-tile{align-self:start!important;height:auto!important;min-height:0!important;max-height:none!important}
 html body .vatra-profile-photo-carousel .vatra-gallery-track>.profile-photo-tile .profile-gallery-open{cursor:pointer!important}
 /* Different photo surfaces, especially another user's profile, must use pointer. */
 html body[data-page="publicProfile"] :is(.vatra-profile-avatar-card,.vatra-profile-avatar-open,.vatra-profile-photo,.profile-gallery-open,.profile-gallery-image,.vatra-profile-photo-carousel button,.vatra-profile-photo-carousel img,.vatra-public-album-card) {cursor:pointer!important}
@@ -206,3 +207,12 @@ html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{dis
 @media(max-width:590px){html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:flex!important}}
 html body :is(.vatra-language-dialog,#legalDialog,#developerDialog,.developer-dialog) :is(button,input){font-family:"VATRA Onest",Inter,system-ui,sans-serif}
 html body .vatra-shorts-nav:focus-visible{outline:2px solid #9ebef6!important;outline-offset:2px}
+
+/* Prevent tall empty tiles after the gallery was converted to a sliding grid. */
+html body .vatra-profile-photo-carousel .vatra-gallery-track>.profile-photo-tile :is(.profile-gallery-open,.profile-gallery-image){display:block;max-width:100%}
+html body .vatra-profile-photo-carousel .vatra-gallery-track>.profile-photo-tile .profile-photo-date{
+ min-height:0!important;padding:8px 10px!important;
+}
+html body .vatra-profile-photo-carousel .vatra-gallery-viewport{
+ height:auto!important;max-height:none!important;
+}
