@@ -15,7 +15,7 @@ function checkAsset(spec){
  if(!existsSync(local))throw new Error('Missing website dependency: '+local);
  checked++;
 }
-for(const page of ['index.html','auth.html','register.html']){
+for(const page of ['index.html','auth.html','register.html','404.html']){
  const body=readFileSync(join(root,page),'utf8');
  const tags=body.match(/<(?:script|link)\b[^>]*>/gi)||[];
  for(const tag of tags){
@@ -31,3 +31,23 @@ for(const file of files.filter(f=>f.endsWith('.js'))){
 }
 // The public site is intentionally documentation-free. No .md files are required.
 console.log('VATRA layout check passed:',checked,'local paths resolved.');
+
+const notFound=readFileSync(join(root,'404.html'),'utf8');
+if(!notFound.includes('Сторінку не знайдено') ||
+   !notFound.includes('vatra-header.svg') ||
+   !notFound.includes("location.replace(current")) {
+ throw new Error('Custom VATRA 404 page or legacy redirect is missing');
+}
+const loaderStyles=readFileSync(join(root,'vatra-loader.css'),'utf8');
+if(!loaderStyles.includes('.vatra-loading-kicker') ||
+   !loaderStyles.includes('.vatra-loading-status') ||
+   loaderStyles.includes('@media(prefers-color-scheme:dark)')) {
+ throw new Error('Branded loading screen styling is incomplete or has conflicting dark mode');
+}
+for(const page of ['index.html','auth.html','register.html']){
+ const html=readFileSync(join(root,page),'utf8');
+ if(!html.includes('vatra-loading-kicker') || !html.includes('vatra-loading-status') ||
+     !html.includes('vatra-loader.css?v=20261104-1')) {
+   throw new Error('Outdated loading UI on '+page);
+ }
+}
