@@ -47,7 +47,7 @@ function page(type,id,data,slug=id){
   (person?'Публічний профіль учасника соціальної мережі ВАТРА.':'Відкрита спільнота української соціальної мережі ВАТРА.');
  const url=base+(person?'people/':'communities/')+encodeURIComponent(slug)+'/';
  const redirect=base+'#/'+(person?'u/':'community/')+encodeURIComponent(slug);
- const image=absoluteImage(data.avatarUrl)||base+'social-preview.svg';
+ const image=absoluteImage(data.avatarUrl)||base+'social-preview.png';
  const jsonLd=JSON.stringify({'@context':'https://schema.org','@type':person?'ProfilePage':'CollectionPage',
   'name':name+' — ВАТРА','description':summary,'url':url,'mainEntity':{'@type':person?'Person':'Organization','name':name}}).replace(/</g,'\\u003c');
  return '<!doctype html>\n<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
