@@ -72,4 +72,52 @@ try {
 }catch(e){errors.push(e.message);}
 assert.equal(errors.length,1);
 assert.ok(!errors[0].includes(env.VATRA_SMTP_PASSWORD),'API error must not leak provider response');
+// The live site runs on GitHub Pages. Gmail can provision a pilot email sender
+// without own DNS, but the SMTP login and From mailbox must match.
+const gmailEnv={
+ VATRA_SUPABASE_ACCESS_TOKEN:env.VATRA_SUPABASE_ACCESS_TOKEN,
+ VATRA_AUTH_CHANNEL:'email',
+ VATRA_EMAIL_FROM:'vatra.test@gmail.com',
+ VATRA_SMTP_HOST:'smtp.gmail.com',
+ VATRA_SMTP_PORT:'587',
+ VATRA_SMTP_USER:'vatra.test@gmail.com',
+ VATRA_SMTP_PASSWORD:'mock-google-app-password'
+};
+const gmailPayload=makeAuthPayload(gmailEnv);
+assert.equal(gmailPayload.smtp_sender_name,'ВАТРА');
+assert.equal(gmailPayload.smtp_admin_email,'vatra.test@gmail.com');
+assert.equal(gmailPayload.external_email_enabled,true);
+assert.ok(!Object.hasOwn(gmailPayload,'external_phone_enabled'),'Email-only must not enable SMS');
+assert.ok(!Object.hasOwn(gmailPayload,'sms_provider'),'Email-only must not require Twilio');
+assert.ok(gmailPayload.mailer_templates_confirmation_content.includes('{{ .Token }}'));
+let emailOnlyRequest;
+const emailResult=await configureAuth({
+ env:gmailEnv,apply:true,fetchFn:async(url,options)=>{emailOnlyRequest=JSON.parse(options.body);return {ok:true,status:200};}
+});
+assert.equal(emailResult.mode,'applied');
+assert.equal(emailResult.email.configured,true);
+assert.equal(emailResult.sms.configured,false);
+assert.equal(emailResult.email.deliveryConfirmed,false);
+assert.equal(emailResult.sms.deliveryConfirmed,false);
+assert.ok(!Object.hasOwn(emailOnlyRequest,'sms_provider'),'Email config must not overwrite existing SMS provider');
+assert.ok(!Object.hasOwn(emailOnlyRequest,'external_phone_enabled'),'Email config must not change phone enablement');
+assert.throws(()=>makeAuthPayload({...gmailEnv,VATRA_EMAIL_FROM:'other@gmail.com'}),/збігатися/);
+assert.throws(()=>makeAuthPayload({...gmailEnv,VATRA_SMTP_PORT:'2525'}),/порт 465 або 587/);
+assert.throws(()=>makeAuthPayload({...gmailEnv,VATRA_AUTH_CHANNEL:'unknown'}),/VATRA_AUTH_CHANNEL/);
+
+// Configure SMS separately later, without requiring SMTP or touching email auth.
+const smsOnlyEnv={
+ VATRA_AUTH_CHANNEL:'sms',
+ VATRA_SMS_PROVIDER:'twilio',
+ VATRA_SMS_TWILIO_ACCOUNT_SID:env.VATRA_SMS_TWILIO_ACCOUNT_SID,
+ VATRA_SMS_TWILIO_AUTH_TOKEN:env.VATRA_SMS_TWILIO_AUTH_TOKEN,
+ VATRA_SMS_TWILIO_MESSAGE_SERVICE_SID:env.VATRA_SMS_TWILIO_MESSAGE_SERVICE_SID
+};
+const smsOnly=makeAuthPayload(smsOnlyEnv);
+assert.ok(!Object.hasOwn(smsOnly,'smtp_admin_email'),'SMS setup must not require a domain');
+assert.ok(!Object.hasOwn(smsOnly,'external_email_enabled'),'SMS setup must leave existing email settings unchanged');
+assert.equal(smsOnly.external_phone_enabled,true);
+assert.equal(deliverySummary(smsOnly).email.configured,false);
+assert.equal(deliverySummary(smsOnly).sms.configured,true);
+
 console.log('VATRA auth delivery setup: dry-run, payload, provider validation and safe Management API patch verified.');
