@@ -53,9 +53,9 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
  }catch(error){URL.revokeObjectURL(url);throw error;}
  const originalWidth=image.naturalWidth,originalHeight=image.naturalHeight;
  if(!originalWidth||!originalHeight){URL.revokeObjectURL(url);throw new Error('Зображення порожнє.');}
- const isCover=mode==='cover',isAvatar=mode==='avatar';
- const width=isCover?1600:isAvatar?800:1200,height=isCover?560:isAvatar?800:900;
- const title=isCover?'Редагування обкладинки':isAvatar?'Редагування аватара':'Редагування фотографії';
+ const isCover=mode==='cover',isAvatar=mode==='avatar',isStory=mode==='story';
+ const width=isCover?1600:isAvatar?800:isStory?900:1200,height=isCover?560:isAvatar?800:isStory?1600:900;
+ const title=isCover?'Редагування обкладинки':isAvatar?'Редагування аватара':isStory?'Редактор історії':'Редагування фотографії';
  const initial={
   preset:'original',zoom:1,x:0,y:0,rotation:0,flipX:1,flipY:1,
   brightness:100,contrast:100,saturation:100,hue:0,temperature:0,vignette:0,grain:0,
@@ -95,7 +95,7 @@ export async function openVatraPhotoStudio(file,mode='avatar'){
  const redoBtn=dialog.querySelector('[data-studio-action="redo"]');
  const saveBtn=dialog.querySelector('[data-studio-action="save"]');
  if(!ctx){dialog.remove();URL.revokeObjectURL(url);throw new Error('Браузер не підтримує редагування фото.');}
- canvas.width=isCover?980:isAvatar?680:800;canvas.height=Math.round(canvas.width*height/width);
+ canvas.width=isCover?980:isAvatar?680:isStory?450:800;canvas.height=Math.round(canvas.width*height/width);
  function commit(){
   const snapshot=copyState(state);
   if(past[past.length-1]!==snapshot){past.push(snapshot);if(past.length>35)past.shift();future.length=0;}

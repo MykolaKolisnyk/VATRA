@@ -4054,3 +4054,23 @@ dialog#developerDialog.vatra-developer-modern:not([open]){display:none!important
 .captcha-wrap.captcha-modal .human-captcha-question{outline:0!important;box-shadow:none!important;border:0!important;background:transparent!important}
 .captcha-wrap.captcha-modal .human-captcha-option:focus:not(:focus-visible){outline:0!important;box-shadow:none!important}
 .captcha-wrap.captcha-modal .human-captcha-option:focus-visible{outline:2px solid #699be1!important;outline-offset:2px!important}
+
+/* Unified human verification: sign-in, sign-up and recovery share one visual language. */
+#recoveryDialog #recoveryProtection.human-captcha{
+ width:100%!important;box-sizing:border-box!important;
+ margin:12px 0 16px!important;padding:15px!important;
+ background:#f8faff!important;border:1px solid #dbe7fa!important;
+ border-radius:14px!important;box-shadow:none!important;
+}
+#recoveryDialog #recoveryProtection .human-captcha-title{display:flex!important;gap:9px!important;align-items:center!important;color:#213955!important;font-size:13px!important}
+#recoveryDialog #recoveryProtection .human-captcha-title>span:first-of-type{display:block!important;font-weight:750!important}
+#recoveryDialog #recoveryProtection .human-captcha-tag{margin-left:auto!important;font-size:10px!important;color:#68809f!important}
+#recoveryDialog #recoveryProtection .recovery-help{margin:10px 0 3px!important;color:#60758f!important;font-size:12px!important}
+#recoveryDialog #recoveryProtection .recovery-math{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;align-items:start!important}
+#recoveryDialog #recoveryProtection .human-captcha-question{font:750 24px/1.25 Inter,system-ui,sans-serif!important;color:#203955!important;margin:5px 0!important;padding:0!important}
+#recoveryDialog #recoveryProtection .recovery-answers{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important;width:100%!important}
+#recoveryDialog #recoveryProtection .recovery-answer{display:grid!important;place-items:center!important;min-width:0!important;min-height:44px!important;border-radius:10px!important;border:1px solid #d1e1f7!important;background:#fff!important;color:#203956!important;font:750 14px/1 Inter,system-ui,sans-serif!important}
+#recoveryDialog #recoveryProtection .recovery-answer:is(:hover,:focus-visible){border-color:#327af2!important;background:#f0f6ff!important}
+#recoveryDialog #recoveryProtection .recovery-answer.is-correct{border-color:#24a370!important;background:#e5f8ef!important;color:#0c784d!important}
+#recoveryDialog #recoveryProtection .recovery-challenge-status{display:block!important;color:#74859c!important;margin:10px 0 0!important;font-size:11px!important}
+@media(max-width:430px){#recoveryDialog #recoveryProtection .recovery-answers{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

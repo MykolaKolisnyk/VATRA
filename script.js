@@ -3,7 +3,7 @@ import { setupNavigation } from './navigation.js?v=20261031-1';
 import { compressVatraClip } from './vatra-clip-compress.js?v=20261104-1';
 import { mountVatraClipSocial } from './vatra-clips-social.js?v=20261104-1';
 import { enhanceVatraSettings } from './vatra-editor-experience.js?v=20261104-8';
-import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
+import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261104-stories1';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261104-8';
 // Install the moderation route guards before the first profile or group is rendered.
@@ -700,13 +700,61 @@ async function vatraCheckPaidPromotions(){
    Uses existing owner-protected posts/<id> records rather than an unprotected
    new collection; stories are excluded from normal posts and search. */
 const VATRA_STORY_LIFETIME_MS=24*60*60*1000;
-function vatraActiveStories(){
+let vatraStoryCleanupAt=0,vatraStoryCleanupRunning=false;
+/* Only remove a story's own unique upload in VATRA's public media bucket.
+   Never pass an arbitrary user-supplied URL to Storage.remove(). */
+async function vatraRemoveOwnStoryMedia(story){
+ if(!currentUser?.uid||story?.authorUid!==currentUser.uid||!story.mediaUrl)return;
+ let url,origin;
+ try{
+  url=new URL(story.mediaUrl);
+  origin=new URL(db.client.supabaseUrl).origin;
+ }catch{return;}
+ const prefix='/storage/v1/object/public/vatra-media/';
+ if(url.origin!==origin||!url.pathname.startsWith(prefix))return;
+ let path;
+ try{path=decodeURIComponent(url.pathname.slice(prefix.length));}catch{return;}
+ const parts=path.split('/');
+ if(parts.length!==3||parts[0]!==currentUser.uid||
+    !['posts','videos','stories','story-videos'].includes(parts[1])||
+    !/^[a-zA-Z0-9._-]+$/.test(parts[2]))return;
+ const {error}=await db.client.storage.from('vatra-media').remove([path]);
+ if(error)throw error;
+}
+/* Opportunistic owner-side cleanup: a logged-in author removes expired
+   stories and their uploads. A scheduled server cleanup is still required
+   to enforce expiry when the author does not return to VATRA. */
+async function vatraCleanupExpiredOwnStories(){
+ const now=Date.now();
+ if(!currentUser?.uid||vatraStoryCleanupRunning||now-vatraStoryCleanupAt<5*60*1000)return;
+ vatraStoryCleanupAt=now;vatraStoryCleanupRunning=true;
+ try{
+  const expired=Object.entries(posts||{}).filter(([,p])=>
+   p?.kind==='story'&&p.authorUid===currentUser.uid&&Number(p.createdAt)>0&&
+   (now-Number(p.createdAt)>=VATRA_STORY_LIFETIME_MS||
+    (Number(p.expiresAt)>0&&Number(p.expiresAt)<=now))).slice(0,10);
+  for(const [id,p] of expired){
+   try{
+    await vatraRemoveOwnStoryMedia(p);
+    await remove(ref(db,'posts/'+id));
+   }catch(error){console.warn('[ВАТРА] Не вдалося очистити прострочену історію:',error);}
+  }
+ }finally{vatraStoryCleanupRunning=false;}
+}
+function vatraStoryVisibleToViewer(story){
+ if(story.authorUid===currentUser?.uid)return true;
+ if(story.visibility==='private')return false;
+ if(story.visibility==='friends')return !!friends[story.authorUid];
+ return story.visibility==='public';
+}
+function vatraActiveStories(authorUid=null){
  const now=Date.now();
  return Object.entries(posts||{}).map(([id,p])=>({...p,id})).filter(p=>
   p.kind==='story'&&p.authorUid&&p.mediaUrl&&['image','video'].includes(p.mediaType)&&
   Number(p.createdAt)>0&&now-Number(p.createdAt)<VATRA_STORY_LIFETIME_MS&&
   Number(p.expiresAt||p.createdAt+VATRA_STORY_LIFETIME_MS)>now&&
-  (p.authorUid===currentUser?.uid||!!friends[p.authorUid])&&!blockedUsers[p.authorUid]
+  (authorUid?p.authorUid===authorUid:(p.authorUid===currentUser?.uid||!!friends[p.authorUid]))&&
+  vatraStoryVisibleToViewer(p)&&!blockedUsers[p.authorUid]
  ).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
 }
 function vatraStoryRail(){
@@ -724,7 +772,10 @@ function vatraStoryRail(){
   '<button type="button" class="vatra-story-tile vatra-story-create" data-create-story aria-label="Опублікувати історію"><span class="vatra-story-create-mark">＋</span><span class="vatra-story-user"><b>Моя історія</b><small>Створити</small></span></button>'+tiles+'</div></section>';
 }
 function vatraOpenStoryViewer(firstId){
- const items=vatraActiveStories();let current=items.findIndex(x=>x.id===firstId);if(current<0)return toastMsg('Історія недоступна або термін дії завершився.');
+ const first=posts[firstId];
+ const items=first?.authorUid?vatraActiveStories(first.authorUid):[];
+ let current=items.findIndex(x=>x.id===firstId);
+ if(current<0)return toastMsg('Історія недоступна або термін дії завершився.');
  let dlg=document.getElementById('vatraStoryViewer');
  if(!dlg){dlg=document.createElement('dialog');dlg.id='vatraStoryViewer';dlg.className='vatra-story-dialog';document.body.append(dlg);}
  const close=()=>{dlg.querySelector('video')?.pause();if(dlg.open)dlg.close();};
@@ -744,7 +795,7 @@ function vatraOpenStoryViewer(firstId){
   dlg.querySelector('[data-story-profile]').onclick=()=>{close();if(story.authorUid===currentUser?.uid){activeProfileUid=null;goPage('profile');}else renderPublicProfile(story.authorUid);};
   dlg.querySelector('[data-story-delete]')?.addEventListener('click',async()=>{
    if(!(await askConfirm('Видалити цю історію?')))return;
-   try{await remove(ref(db,'posts/'+story.id));close();renderFeed();toastMsg('Історію видалено.');}
+   try{await vatraRemoveOwnStoryMedia(story);await remove(ref(db,'posts/'+story.id));close();render();toastMsg('Історію видалено.');}
    catch(err){toastMsg(niceError(err));}
   });
  };
@@ -761,11 +812,17 @@ function vatraCreateStory(){
   const isVideo=file.type.startsWith('video/'),isImage=file.type.startsWith('image/');
   if(!isImage&&!isVideo)return toastMsg('Оберіть фото або відео.');
   if(file.size>(isVideo?MAX_VIDEO:MAX_IMAGE))return toastMsg('Файл завеликий. Фото до 15 МБ, відео до 50 МБ.');
-  const url=URL.createObjectURL(file);
+  let preparedFile=file;
+  if(isImage){
+   try{preparedFile=await getImageEditor(file,'story');if(!preparedFile)return;}
+   catch(error){toastMsg('Не вдалося відкрити редактор історії: '+niceError(error));return;}
+  }
+  const url=URL.createObjectURL(preparedFile);
   const dialog=document.createElement('dialog');dialog.className='vatra-story-dialog vatra-story-compose';document.body.append(dialog);
   dialog.innerHTML='<form class="vatra-story-shell" method="dialog"><header><b>Нова історія</b><button type="button" data-story-cancel aria-label="Закрити">×</button></header>'+
     (isVideo?'<video class="vatra-story-media" controls playsinline src="'+url+'"></video>':'<img class="vatra-story-media" src="'+url+'" alt="Попередній перегляд">')+
     '<label for="vatraStoryCaption">Текст історії</label><textarea id="vatraStoryCaption" maxlength="220" rows="3" placeholder="Додайте текст (необов’язково)"></textarea>'+
+    '<label class="vatra-story-visibility-field" for="vatraStoryVisibility">Хто бачитиме історію<select id="vatraStoryVisibility" required><option value="public">Для всіх</option><option value="friends">Тільки друзі</option><option value="private">Лише я</option></select></label>'+
     '<div class="vatra-story-colors" aria-label="Колір тексту"><label>Колір тексту</label>'+['#ffffff','#ffe36d','#bce9ff','#ffb8dd'].map((color,i)=>'<button type="button" style="background:'+color+'" data-story-color="'+color+'" aria-label="Колір '+(i+1)+'" aria-pressed="'+(i===0)+'"></button>').join('')+'</div>'+
     '<footer><button type="button" data-story-cancel>Скасувати</button><button type="submit" class="primary">Опублікувати історію</button></footer><p class="vatra-story-compose-status" role="status"></p></form>';
   let textColor='#ffffff',publishing=false;
@@ -782,14 +839,14 @@ function vatraCreateStory(){
    const btn=dialog.querySelector('button[type="submit"]'),status=dialog.querySelector('.vatra-story-compose-status');
    btn.disabled=true;btn.textContent='Публікуємо…';
    try{
-    const mediaUrl=isVideo?await uploadMedia(file,'videos'):await uploadImage(file,1280,.82,'posts');
+    const mediaUrl=isVideo?await uploadMedia(preparedFile,'videos'):await uploadImage(preparedFile,1280,.82,'posts');
     const stamp=Date.now(),entry=push(ref(db,'posts'));
     await createPost(entry,{kind:'story',authorUid:currentUser.uid,authorName:currentProfile.name||'Користувач ВАТРИ',
       authorHandle:currentProfile.handle||'',mediaUrl,mediaType:isVideo?'video':'image',
       caption:dialog.querySelector('textarea').value.trim().slice(0,220),
-      textColor,visibility:'friends',createdAt:stamp,expiresAt:stamp+VATRA_STORY_LIFETIME_MS});
+      textColor,visibility:dialog.querySelector('#vatraStoryVisibility').value,createdAt:stamp,expiresAt:stamp+VATRA_STORY_LIFETIME_MS});
     publishing=false;dialog.close();toastMsg('Історію опубліковано на 24 години.');
-    if(page==='feed')renderFeed();
+    render();
    }catch(err){publishing=false;btn.disabled=false;btn.textContent='Опублікувати історію';status.textContent='Не вдалося опублікувати: '+niceError(err);}
   };
   dialog.showModal();
@@ -804,6 +861,7 @@ document.addEventListener('click',e=>{
 });
 
 function renderFeed(){
+ if(currentUser)void vatraCleanupExpiredOwnStories();
  const arr=allPosts(),seen=new Set(),sponsored=[];
  for(const row of vatraPromotions.rows){
   if(row.ends_at&&new Date(row.ends_at).getTime()<=Date.now())continue;
@@ -1272,12 +1330,13 @@ function renderProfile(){
  }
  const uid=currentUser.uid;
  const name=currentProfile.name||currentUser.displayName||'Користувач ВАТРИ';
- const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ const mine=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid&&p.kind!=='story').sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const birthday=currentProfile.dateOfBirth?new Date(currentProfile.dateOfBirth+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const detail=(label,value,field='')=>profileDetailMarkup(label,value,field);
  const gallery=[...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.map((url,index)=>({url,index,source:'profile',createdAt:Number(currentProfile.photoUploadedAt?.[avatarPhotoKey(url)])||index+1})).filter(item=>item.url):[]),...mine.filter(p=>p.addMediaToGallery!==false).flatMap(p=>postImages(p).map((url,index)=>({url,createdAt:p.createdAt,source:'post',id:p.id,index})))].sort((a,b)=>b.createdAt-a.createdAt);
  const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.map((url,index)=>({url,index})).filter(x=>x.url&&x.url!==currentProfile.avatarUrl).slice(-30).reverse():[];
  const avatarPhotos=[currentProfile.avatarUrl,...history.map(item=>item.url)].filter(Boolean);
+ const myStory=vatraActiveStories(uid).at(-1);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото сторінки"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото сторінки, які Ви вирішите залишити.</p>';
  const galleryUrls=gallery.map(item=>item.url);
  const galleryHtml=gallery.length?
@@ -1293,15 +1352,18 @@ function renderProfile(){
  const profileHtml='<section class="vatra-profile-layout">'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card">'+
-    '<div class="vatra-avatar-hover-wrap" id="vatraAvatarWrap">'+
+    '<div class="vatra-avatar-hover-wrap'+(myStory?' vatra-avatar-has-story':'')+'" id="vatraAvatarWrap">'+
      '<button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'" aria-label="Переглянути фото сторінки">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-photo')+'</button>'+
      '<div class="vatra-avatar-hover-menu" id="vatraAvatarMenu" role="group" aria-label="Керування фото сторінки">'+
+      '<button type="button" data-create-story>＋ <span>Нова історія</span></button>'+
+      (myStory?'<button type="button" data-open-story="'+esc(myStory.id)+'">◉ <span>Переглянути історію</span></button>':'')+
       '<button type="button" data-avatar-photo-action="change">'+vatraAvatarActionIcon('change')+'<span>Змінити фото</span></button>'+
       (currentProfile.avatarUrl?'<button type="button" data-avatar-photo-action="restore">'+vatraAvatarActionIcon('restore')+'<span>Обрати з альбому</span></button>'+'<button type="button" data-avatar-photo-action="edit">'+vatraAvatarActionIcon('edit')+'<span>Редагувати фото</span></button>'+
        '<button type="button" class="vatra-avatar-remove" data-avatar-photo-action="remove">'+vatraAvatarActionIcon('remove')+'<span>Видалити фото</span></button>':
        (history.length||gallery.length?'<button type="button" data-avatar-photo-action="restore">'+vatraAvatarActionIcon('restore')+'<span>Відновити фото</span></button>':''))+
      '</div>'+
     '</div>'+
+    (myStory?'<button type="button" class="vatra-profile-story-link" data-open-story="'+esc(myStory.id)+'">◉ Переглянути історію</button>':'')+
     '<button type="button" class="vatra-profile-edit" id="editProfile"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 4 4 4M4 20l4.4-1 11.1-11.1a2.8 2.8 0 0 0-4-4L4.4 15 4 20Z"/></svg><span>Редагувати сторінку</span></button>'+
     '<input id="avatarUpload" type="file" accept="image/*" hidden></section>'+
    friendBlock+
@@ -1556,7 +1618,7 @@ function renderPublicProfile(uid){
   $('#backExplore').onclick=()=>goPage('explore');return;
  }
  page='publicProfile';
- const arr=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid&&!blockedUsers[p.authorUid]).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ const arr=Object.entries(posts).map(([id,p])=>({...p,id})).filter(p=>p.authorUid===uid&&p.kind!=='story'&&!blockedUsers[p.authorUid]).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const isFriend=!!friends[uid],req=!!friendRequests[uid],canSeeFriends=isFriend||uid===currentUser?.uid;
  const birthday=u.birthdayVisibility==='public'?u.birthdayPublic:(canSeeFriends&&u.birthdayVisibility==='friends'?friendData.birthdayPublic:'');
  const visibleBio=u.bioVisibility==='public'||!u.bioVisibility?u.bio:(canSeeFriends&&u.bioVisibility==='friends'?friendData.bio:'');
@@ -1572,6 +1634,7 @@ function renderPublicProfile(uid){
  const birthdayLabel=birthday?new Date(birthday+'T00:00:00').toLocaleDateString('uk-UA',{day:'numeric',month:'long',year:'numeric'}):'';
  const publicPhotos=Array.isArray(u.profilePhotos)?u.profilePhotos.filter(url=>typeof url==='string'&&/^https?:\/\//.test(url)).slice(-120).reverse():[];
  const avatarPhotos=[u.avatarUrl,...(Array.isArray(u.avatarHistory)?u.avatarHistory:(canSeeFriends&&Array.isArray(friendData.avatarHistory)?friendData.avatarHistory:[])).slice().reverse()].filter(Boolean);
+ const profileStory=vatraActiveStories(uid).at(-1);
  const postPhotos=arr.filter(p=>p.addMediaToGallery!==false).flatMap(p=>postImages(p));
  const photoUrls=[...new Set([...publicPhotos.map((url,index)=>({url,date:Number(u.photoUploadedAt?.[avatarPhotoKey(url)])||index+1})),...arr.filter(p=>p.addMediaToGallery!==false).flatMap(p=>postImages(p).map(url=>({url,date:p.createdAt||0})))].sort((a,b)=>b.date-a.date).map(item=>item.url))];
  const photoDateByUrl=new Map([
@@ -1587,7 +1650,7 @@ function renderPublicProfile(uid){
  const hasExtraDetails=Boolean(publicExtras);
  const actions=vatraPublicProfileActions(uid);
  const html='<section class="vatra-profile-layout vatra-profile-public-layout">'+
-  '<aside class="vatra-profile-sidebar"><section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'vatra-profile-photo')+'</button>'+actions+'</section><section class="vatra-profile-card vatra-profile-friends vatra-profile-public-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b id="vatraPublicFriendCount">…</b></div><div id="vatraPublicFriendList" class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;"><p class="muted">Завантажуємо список друзів…</p></div><button type="button" class="vatra-profile-link" id="vatraPublicAllFriends">Усі друзі →</button></section></aside>'+
+  '<aside class="vatra-profile-sidebar"><section class="vatra-profile-card vatra-profile-avatar-card"><button type="button" class="vatra-profile-avatar-open'+(profileStory?' vatra-avatar-has-story':'')+'" data-avatar-viewer="'+esc(uid)+'" data-avatar-urls="'+esc(JSON.stringify(avatarPhotos))+'">'+avatar(u.name||'Користувач',u.avatarUrl,'vatra-profile-photo')+'</button>'+(profileStory?'<button type="button" class="vatra-profile-story-link" data-open-story="'+esc(profileStory.id)+'">◉ Переглянути історію</button>':'')+actions+'</section><section class="vatra-profile-card vatra-profile-friends vatra-profile-public-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b id="vatraPublicFriendCount">…</b></div><div id="vatraPublicFriendList" class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;"><p class="muted">Завантажуємо список друзів…</p></div><button type="button" class="vatra-profile-link" id="vatraPublicAllFriends">Усі друзі →</button></section></aside>'+
   '<div class="vatra-profile-main">'+
    '<section class="vatra-profile-card vatra-profile-overview vatra-profile-summary-compact">'+
     '<div class="vatra-profile-title-row"><div class="vatra-profile-title-info"><div class="vatra-profile-name-line"><h2>'+esc(u.name||'Користувач ВАТРИ')+verifiedBadge(uid)+'</h2>'+profilePresenceMarkup({isOnline:u.isOnline===true||friendData.isOnline===true,lastSeenAt:Number(u.lastSeenAt)||Number(friendData.lastSeenAt)||0,gender:u.gender})+'</div>'+

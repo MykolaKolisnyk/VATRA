@@ -262,3 +262,28 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
  .vatra-story-shell{min-height:min(85dvh,650px)}
  .vatra-story-compose .vatra-story-shell{min-height:auto}
 }
+
+/* Stories: clear audience picker and profile indicators without duplicate UI layers. */
+.vatra-story-visibility-field{display:grid;gap:7px;margin-top:5px}
+.vatra-story-visibility-field select{display:block;width:100%;height:44px;border:1px solid #60728e;border-radius:10px;background:#282f3f;color:#fff;padding:0 12px;font:600 13px Inter,system-ui,sans-serif}
+.vatra-story-visibility-field select:focus-visible{outline:2px solid #86b4ff;outline-offset:2px}
+body[data-page="profile"] .vatra-avatar-hover-wrap.vatra-avatar-has-story::after,
+body[data-page="publicProfile"] .vatra-profile-avatar-open.vatra-avatar-has-story::after{
+ content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+ border:4px solid #236dff;border-radius:11px;box-shadow:inset 0 0 0 2px #fff8;
+}
+body[data-page="publicProfile"] .vatra-profile-avatar-open.vatra-avatar-has-story{position:relative;overflow:hidden}
+.vatra-profile-story-link{display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-height:38px;margin:6px 0 4px!important;padding:9px 10px!important;
+ border:1px solid #9ac2ff!important;border-radius:10px!important;background:#edf4ff!important;
+ color:#0757f5!important;font:700 12px/1.35 Inter,system-ui,sans-serif!important;cursor:pointer!important}
+.vatra-profile-story-link:hover{background:#e0edff!important;border-color:#6f9ef4!important}
+body[data-vatra-theme-effective="dark"] .vatra-profile-story-link{background:#1c3352!important;color:#afccff!important;border-color:#4c79b9!important}
+/* A single consistent anchored tooltip, unobtrusive on desktop and keyboard. */
+.vatra-tooltip{position:fixed;z-index:200000;max-width:min(275px,calc(100vw - 20px));width:max-content;
+ padding:8px 11px;border:1px solid #dbe5f2;border-radius:10px;background:#fff;color:#304765;
+ font:600 12px/1.35 Inter,system-ui,sans-serif;box-shadow:0 9px 28px #17294425;
+ pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .14s ease,transform .14s ease}
+.vatra-tooltip.is-visible{opacity:1;transform:translateY(0)}
+body[data-vatra-theme-effective="dark"] .vatra-tooltip{background:#253346;color:#edf4ff;border-color:#455d78}
+@media(prefers-reduced-motion:reduce){.vatra-tooltip{transition:none}}
