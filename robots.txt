@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /VATRA/
+Sitemap: https://mykolakolisnyk.github.io/VATRA/sitemap.xml
