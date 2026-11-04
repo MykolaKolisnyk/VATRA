@@ -250,3 +250,43 @@ body[data-vatra-theme-effective="dark"] .vatra-top-music-panel .vatra-menu-track
  html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){transition:none!important}
  html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:none!important}
 }
+
+/* Final compact music menu controls */
+body .vatra-top-music-panel .vatra-menu-dismiss{
+ flex:none;display:grid!important;place-items:center!important;
+ width:33px;height:33px;padding:0!important;border:0!important;
+ border-radius:9px!important;background:#eef4fd!important;
+ color:#58759a!important;font-size:21px!important;cursor:pointer;
+}
+body .vatra-top-music-panel .vatra-menu-no-music{
+ grid-column:1/-1;margin:0;padding:20px 10px;text-align:center;
+ color:#7188a6;font-size:11px;line-height:1.6;
+}
+body .vatra-top-music-panel .vatra-menu-feature svg{
+ width:21px;height:21px;display:block;margin:auto;fill:none;stroke:currentColor;
+ stroke-width:1.8;
+}
+body .vatra-top-music-panel .vatra-menu-track-play svg{
+ width:15px;height:15px;display:block;stroke:currentColor;
+}
+body .vatra-top-music-panel .vatra-menu-player-slot.has-music{
+ background:#fff;border-color:#dce6f6;
+}
+body .vatra-top-music-panel .vatra-menu-player-slot.has-music{
+ color:transparent!important;
+}
+body .vatra-top-music-panel .vatra-menu-player-slot.has-music+*{box-sizing:border-box}
+body .vatra-music-dock.is-menu-dock .vatra-music-frame-wrap{max-height:156px;overflow:hidden}
+body .vatra-music-dock.is-menu-dock .vatra-music-dock-tools button{
+ width:25px!important;height:24px!important;
+}
+@media(max-height:780px){
+ body .vatra-top-music-panel{overflow-y:auto!important;overscroll-behavior:contain!important}
+ body .vatra-top-music-panel .vatra-menu-results{max-height:105px}
+ body .vatra-top-music-panel .vatra-menu-player-slot{height:183px}
+}
+@media(max-width:580px){
+ body .vatra-top-music-panel .vatra-menu-footer{gap:9px}
+ body .vatra-top-music-panel .vatra-menu-footer small{max-width:50%;line-height:1.5}
+ body .vatra-top-music-panel .vatra-menu-track{min-height:39px}
+}
