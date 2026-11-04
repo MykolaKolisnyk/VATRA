@@ -79,8 +79,16 @@ html body .vatra-friend-birthday-banner>header b{color:#25425f;font-size:15px}
 html body .vatra-friend-birthday-banner>header small{color:#6f849b;font-size:11.5px}
 html body .vatra-friend-birthday-people{display:grid;gap:8px}
 html body .vatra-friend-birthday-person{display:flex;align-items:center;gap:11px;padding:11px 13px;background:#f6f9fd;border-radius:11px}
-html body .vatra-friend-birthday-person>.avatar{width:38px;height:38px;flex:none}
-html body .vatra-friend-birthday-person>span{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+html body .vatra-friend-birthday-person .vatra-birthday-visit{
+ padding:0!important;min-height:0!important;border:0!important;background:transparent!important;flex:none;
+}
+html body .vatra-friend-birthday-person .vatra-birthday-visit .avatar{width:38px;height:38px}
+html body .vatra-friend-birthday-person .vatra-birthday-name{
+ min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;
+ padding:0!important;border:0!important;background:transparent!important;color:inherit!important;
+}
+html body .vatra-friend-birthday-person .vatra-birthday-name:hover b{text-decoration:underline}
+
 html body .vatra-friend-birthday-person b{color:#2c4d6b;font-size:13px}
 html body .vatra-friend-birthday-person small{color:#788ea5;font-size:11px}
 html body .vatra-friend-birthday-person button{
@@ -158,3 +166,40 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
  }
  html body .vatra-global-header .search input{font-size:16px!important;}
 }
+
+/* VATRA sidebar navigation: compact, single intentional divider before utilities. */
+@media(min-width:761px){
+ html body .layout>.sidebar nav{gap:0!important}
+ html body .layout>.sidebar nav>a.nav{min-height:37px!important;margin:0!important;padding:5px 10px!important;gap:9px!important;font-size:12.8px!important;border-radius:9px!important}
+ html body .layout>.sidebar nav>a.nav .nav-icon{width:19px!important;flex-basis:19px!important}
+ html body .layout>.sidebar nav>a.nav .nav-icon svg{width:18px!important;height:18px!important}
+ html body .layout>.sidebar nav>a.vatra-nav-section-start{
+  margin-top:10px!important;padding-top:15px!important;
+  border-top:1px solid var(--vatra-ui-border-soft)!important;border-radius:0 0 9px 9px!important;
+ }
+}
+.vatra-birthday-compose{
+ width:min(480px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 40px);margin:auto;
+ padding:24px;border-radius:20px;border:1px solid #dfe7f2;background:#fff;color:#203952;
+ box-shadow:0 26px 90px #10284e35;overflow:auto;
+}
+.vatra-birthday-compose::backdrop{background:#142a4ba6;backdrop-filter:blur(3px)}
+.vatra-birthday-compose-top{display:flex;align-items:center;justify-content:space-between}
+.vatra-birthday-compose-emoji{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#f0f5ff;font-size:24px}
+.vatra-birthday-compose-top button{width:36px;height:36px;border:0;border-radius:11px;background:#f3f6fc;color:#617894;font-size:22px}
+.vatra-birthday-compose h2{font-size:22px;line-height:1.25;margin:15px 0 6px}
+.vatra-birthday-compose p{margin:0 0 17px;color:#73859a;font-size:13px;line-height:1.5}
+.vatra-birthday-compose label{display:block;margin-bottom:8px;font-size:12px;font-weight:750}
+.vatra-birthday-compose textarea{
+ display:block;width:100%;box-sizing:border-box;min-height:150px;resize:vertical;
+ padding:14px;border:1px solid #d8e3f3;border-radius:13px;background:#f8faff;color:#243d58;
+ font:500 14px/1.55 var(--vatra-ui-font,system-ui,sans-serif)
+}
+.vatra-birthday-compose textarea:focus{outline:2px solid #b5cfff;border-color:#377ef5}
+.vatra-birthday-compose-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0 22px}
+.vatra-birthday-compose-actions>button{background:#edf4ff;border:1px solid #d5e5fd;border-radius:9px;padding:9px 12px;color:#0757f5;font-size:12px;font-weight:720}
+.vatra-birthday-compose-actions small{color:#8191a3;font-size:11px}
+.vatra-birthday-compose footer{display:flex;justify-content:flex-end;gap:9px}
+.vatra-birthday-compose footer button{min-height:40px;padding:9px 14px;border-radius:10px}
+.vatra-birthday-compose footer>button:first-child{border:1px solid #dce5f2;background:#f7f9fd;color:#506780}
+@media(max-width:520px){.vatra-birthday-compose{padding:17px}.vatra-birthday-compose footer{flex-direction:column-reverse}.vatra-birthday-compose footer button{width:100%}}
