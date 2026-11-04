@@ -3173,35 +3173,109 @@ html,body{
   background:#fff!important;
   box-shadow:0 0 0 3px rgba(7,87,245,.1)!important;
 }
+/* Authentication choice cards are the sole canonical VATRA method styling. */
 .auth-layout .auth-card .method-choice{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  align-items:stretch!important;
-  gap:8px!important;
-  width:100%!important;
-  margin:0!important;
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:10px!important;width:100%!important;margin:4px 0 2px!important;
 }
 .auth-layout .auth-card .method-choice>label{
-  display:flex!important;
-  align-items:flex-start!important;
-  gap:9px!important;
-  min-width:0!important;
-  margin:0!important;
-  padding:11px!important;
-  border:1px solid #dce4f1!important;
-  border-radius:12px!important;
-  background:#fff!important;
-  box-sizing:border-box!important;
-  cursor:pointer!important;
+ position:relative!important;display:flex!important;align-items:center!important;gap:11px!important;
+ min-width:0!important;min-height:76px!important;box-sizing:border-box!important;
+ margin:0!important;padding:12px!important;border:1px solid #dfe6f2!important;border-radius:14px!important;
+ background:#f9fbfe!important;box-shadow:none!important;cursor:pointer!important;
+ transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+}
+.auth-layout .auth-card .method-choice>label:hover{
+ border-color:#9ec4fb!important;background:#f5f9ff!important;
+}
+.auth-layout .auth-card .method-choice>label:has(input:disabled){
+ opacity:.56!important;cursor:not-allowed!important;background:#f2f5fa!important;
+}
+.auth-layout .auth-card .method-choice>label:has(input:disabled):hover{
+ border-color:#dfe6f2!important;background:#f2f5fa!important;
+}
+.auth-dialog .method-choice>label:has(input:disabled){
+ opacity:.56;cursor:not-allowed;
 }
 .auth-layout .auth-card .method-choice>label:has(input:checked){
-  border-color:#3979ff!important;
-  background:#f2f6ff!important;
-  box-shadow:0 0 0 1px rgba(7,87,245,.05)!important;
+ border-color:#347ffe!important;background:#edf4ff!important;
+ box-shadow:0 0 0 1px rgba(52,127,254,.14)!important;
 }
-.auth-layout .auth-card .method-choice label span{display:grid!important;gap:4px!important;min-width:0!important}
-.auth-layout .auth-card .method-choice label b{font-size:12px!important;line-height:1.4!important}
-.auth-layout .auth-card .method-choice label small{font-size:11px!important;line-height:1.45!important;color:#718096!important}
+.auth-layout .auth-card .method-choice>label:focus-within{
+ outline:2px solid #74a3ee!important;outline-offset:2px!important;
+}
+.auth-layout .auth-card .method-choice>label>input[type=radio]{
+ appearance:none!important;-webkit-appearance:none!important;position:absolute!important;
+ width:1px!important;min-width:1px!important;height:1px!important;min-height:1px!important;
+ margin:0!important;padding:0!important;opacity:0!important;pointer-events:none!important;
+}
+.auth-layout .auth-card .method-choice>label>input[type=radio]:focus-visible{outline:none!important;}
+.auth-layout .auth-card .method-choice label span{
+ display:grid!important;gap:4px!important;min-width:0!important;flex:1 1 auto!important;
+}
+.auth-layout .auth-card .method-choice label b{
+ font:730 13px/1.35 Inter,system-ui,sans-serif!important;color:#233b59!important;
+}
+.auth-layout .auth-card .method-choice label small{
+ font:500 11px/1.4 Inter,system-ui,sans-serif!important;color:#6a7f9c!important;
+}
+.auth-layout .auth-card .vatra-method-symbol{
+ display:grid!important;place-items:center!important;flex:0 0 39px!important;
+ width:39px!important;height:39px!important;border-radius:11px!important;
+ background:#eaf1fd!important;color:#2771d4!important;
+}
+.auth-layout .auth-card .vatra-method-symbol svg{width:21px!important;height:21px!important;stroke:currentColor!important;fill:none!important;}
+.auth-layout .auth-card .method-choice>label:has(input:checked) .vatra-method-symbol{
+ background:#dbeaff!important;color:#095fe4!important;
+}
+.auth-layout .auth-card .vatra-auth-otp-toggle{
+ display:inline-flex;align-items:center;gap:7px;margin:3px 0 12px;padding:2px 0;
+ border:0;background:transparent;color:#1260cf;font:650 12px/1.5 Inter,system-ui,sans-serif;
+ cursor:pointer;
+}
+.auth-layout .auth-card .vatra-auth-otp-toggle:hover{text-decoration:underline;}
+.auth-layout .auth-card .vatra-auth-otp-toggle[hidden],.auth-layout .auth-card .vatra-auth-otp[hidden]{display:none!important;}
+.auth-layout .auth-card .vatra-auth-otp{
+ padding:18px!important;margin:10px 0 15px!important;border:1px solid #d8e6fa!important;
+ border-radius:16px!important;background:#f4f8ff!important;min-width:0!important;
+}
+.auth-layout .auth-card .vatra-otp-heading{display:flex;align-items:flex-start;gap:12px;margin-bottom:15px}
+.auth-layout .auth-card .vatra-otp-heading>i{
+ display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:11px;
+ background:#dfeeff;color:#0757f5;
+}
+.auth-layout .auth-card .vatra-otp-heading svg{width:22px;height:22px}
+.auth-layout .auth-card .vatra-otp-heading h3{
+ margin:0 0 4px!important;color:#233954!important;font:750 16px/1.35 Inter,system-ui,sans-serif!important;
+}
+.auth-layout .auth-card .vatra-otp-heading p{
+ margin:0!important;color:#677b96!important;font:500 12px/1.55 Inter,system-ui,sans-serif!important;
+ overflow-wrap:anywhere;
+}
+.auth-layout .auth-card .vatra-auth-otp>label{
+ display:block;margin:0 0 8px!important;color:#304660!important;font:680 12px/1.5 Inter,system-ui,sans-serif!important;
+}
+.auth-layout .auth-card #otpCode{
+ box-sizing:border-box;width:100%;height:56px;padding:0 12px!important;
+ border:1px solid #cbdcf3;border-radius:11px;background:#fff;color:#1b3659;
+ font:780 23px/1.2 Inter,system-ui,sans-serif!important;letter-spacing:.22em;
+ text-align:center;font-variant-numeric:tabular-nums;
+}
+.auth-layout .auth-card #otpCode:focus{outline:0;border-color:#347ffe;box-shadow:0 0 0 3px rgba(52,127,254,.15)}
+.auth-layout .auth-card .vatra-otp-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px 15px;margin-top:12px}
+.auth-layout .auth-card .vatra-otp-actions button{
+ border:0;background:transparent;color:#115cc8;font:650 12px/1.5 Inter,system-ui,sans-serif;cursor:pointer;padding:4px 0;
+}
+.auth-layout .auth-card .vatra-otp-actions button:disabled{color:#8799af;cursor:not-allowed;}
+.auth-layout .auth-card #otpStatus{font:500 12px/1.55 Inter,system-ui,sans-serif;color:#577390;margin:9px 0 0}
+.auth-layout .auth-card #otpStatus.is-error{color:#bd3150}
+.auth-layout #authForm.is-awaiting-code>:not(#otpWrap):not(#error):not(#submit){display:none!important;}
+.auth-layout #authForm.is-awaiting-code>#otpWrap{display:block!important;}
+@media(max-width:420px){
+ .auth-layout .auth-card .method-choice{grid-template-columns:minmax(0,1fr)!important;gap:8px!important}
+ .auth-layout .auth-card .method-choice>label{min-height:66px!important;padding:10px 12px!important}
+ .auth-layout .auth-card .vatra-auth-otp{padding:14px!important}
+}
 .auth-layout .auth-card .submit{
   width:100%!important;
   min-height:48px!important;

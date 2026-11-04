@@ -1,11 +1,22 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, get, set, sendOtp, verifyOtp, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
 
 // Prevent the browser from restoring an old scroll position on the sign-in page.
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 window.scrollTo(0,0);
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
-const selectedMethod=()=>document.querySelector('input[name="authMethod"]:checked')?.value||$('#method').value||'email';
+// SMS is intentionally unavailable until a real SMS provider is configured and tested.
+const VATRA_SMS_AUTH_ENABLED=false;
+const selectedMethod=()=>VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="authMethod"]:checked')?.value||$('#method')?.value||'email'):'email';
+function vatraSignupLanguage(){
+ const supported=['uk','en','pl','de','fr','es','pt','it'];
+ let language=window.vatraLanguage?.language||'';
+ if(!language){
+  try{language=new URL(location.href).searchParams.get('lang')||localStorage.getItem('vatra-language')||'';}catch{}
+ }
+ return supported.includes(language)?language:'en';
+}
+
 
 
 const PHONE_COUNTRIES = [{"iso":"UA","name":"Україна","dial":"+380"}];
@@ -65,7 +76,7 @@ function syncPhoneInputMode(input,select,method){
  input.style.minWidth='0';
 }
 function syncAuthMethodUI(method){
- const selected=method==='phone'?'phone':'email';
+ const selected=VATRA_SMS_AUTH_ENABLED&&method==='phone'?'phone':'email';
  document.querySelectorAll('input[name="authMethod"]').forEach(radio=>{radio.checked=radio.value===selected;});
  const methodSelect=$('#method');
  if(methodSelect)methodSelect.value=selected;
@@ -159,6 +170,118 @@ function enhanceDatePicker(input){
 }
 
 let mode='login',submitting=false,captchaWidget=null,authCooldownTimer=null,pendingHumanAction=null,suppressAuthRedirect=false;
+let pendingOtp=null,loginByCode=true,otpCooldownUntil=0,otpCooldownTimer=null;
+function resetOtpStep(){
+ pendingOtp=null;otpCooldownUntil=0;
+ if(otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
+ $('#authForm')?.classList.remove('is-awaiting-code');
+ const wrap=$('#otpWrap');if(wrap)wrap.hidden=true;
+ const input=$('#otpCode');if(input){input.value='';input.required=false;input.readOnly=false;}
+}
+function otpNotice(message,error=false){
+ const status=$('#otpStatus');if(!status)return;
+ status.textContent=message;status.classList.toggle('is-error',error);
+}
+function syncOtpCooldown(){
+ const button=$('#otpResend');if(!button)return;
+ const left=Math.max(0,Math.ceil((otpCooldownUntil-Date.now())/1000));
+ button.disabled=left>0||submitting;
+ button.textContent=left?'Надіслати повторно через '+left+' с':'Надіслати код ще раз';
+ if(!left&&otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
+}
+function setOtpCooldown(){
+ otpCooldownUntil=Date.now()+60000;
+ if(otpCooldownTimer)clearInterval(otpCooldownTimer);
+ otpCooldownTimer=setInterval(syncOtpCooldown,1000);syncOtpCooldown();
+}
+function syncLoginCodeMode(){
+ const enabled=mode==='login'&&loginByCode;
+ const toggle=$('#loginOtpToggle');
+ if(toggle){toggle.hidden=mode!=='login';toggle.textContent=enabled?'Увійти з паролем':'Увійти за одноразовим кодом';toggle.setAttribute('aria-pressed',String(enabled));}
+ if(mode==='login'){
+  $('#password').closest('.field').hidden=enabled;
+  $('#password').required=!enabled;
+  $('#submit').textContent=enabled?'Надіслати код':'Увійти';
+ }
+}
+async function startOtp(kind,details){
+ if(details.isPhone&&!VATRA_SMS_AUTH_ENABLED)throw new Error('SMS-підтвердження ще не налаштоване. Використайте електронну пошту.');
+ const {contact,isPhone}=details;
+ const fields=isPhone?{phone:contact}:{email:contact};
+ const requestedAt=Date.now();
+ await sendOtp({...fields,shouldCreateUser:kind==='signup',userData:kind==='signup'?details.userData:{}});
+ pendingOtp={kind,requestedAt,...details};
+ $('#authForm').classList.add('is-awaiting-code');
+ $('#otpWrap').hidden=false;$('#otpCode').required=true;$('#otpCode').value='';
+ $('#otpTitle').textContent=kind==='signup'?'Підтвердіть реєстрацію':'Підтвердіть вхід';
+ $('#otpDestination').textContent='ВАТРА надіслала запит на '+(isPhone?'SMS для ':'лист для ')+contact+'. Введіть отриманий код.';
+ $('#submit').textContent='Підтвердити код';$('#error').textContent='';
+ otpNotice('Код діє обмежений час. Не повідомляйте його нікому.');
+ setOtpCooldown();$('#otpCode').focus();
+}
+async function confirmOtp(){
+ const challenge=pendingOtp;if(!challenge)return;
+ const code=$('#otpCode').value.trim().replace(/\s/g,'');
+ if(!challenge.verifiedUser&&!/^\d{6,8}$/.test(code)){otpNotice('Введіть код із 6–8 цифр.',true);return;}
+ const button=$('#submit');submitting=true;suppressAuthRedirect=true;button.disabled=true;button.textContent='Перевіряємо код…';
+ try{
+  const contact=challenge.contact;
+  const result=challenge.verifiedUser?{user:challenge.verifiedUser,session:true}:await verifyOtp(challenge.isPhone?{phone:contact,token:code}:{email:contact,token:code,type:'email'});
+  const user=result?.user,uid=user?.uid||user?.id;
+  if(!uid||!result?.session)throw new Error('Supabase не підтвердив сесію. Повторіть спробу.');
+  if(challenge.kind==='signup'){
+   // A verified OTP is single-use. If writing the new page fails, retries must
+   // finish the already-authenticated signup instead of consuming the code again.
+   challenge.verifiedUser=user;
+   // Confirmed owners of existing accounts may receive OTPs, but registration
+   // must never overwrite their profile or change their password. Check once:
+   // a partial first write could create users/{uid} before the other writes finish.
+   if(!challenge.checkedNewAccount){
+    const existing=await get(ref(db,'users/'+uid));
+    const createdAt=Date.parse(user.created_at||user.createdAt||'');
+    if(existing?.exists?.()||(Number.isFinite(createdAt)&&createdAt<challenge.requestedAt-60000)){
+     pendingOtp=null;location.replace('index.html');return;
+    }
+    challenge.checkedNewAccount=true;
+   }
+   await setAccountPassword(challenge.password);
+   await finishRegistration({...challenge,user});
+   pendingOtp=null;return;
+  }
+  setRememberMe($('#rememberMe')?.checked===true);
+  pendingOtp=null;location.replace('index.html');
+ }catch(err){
+  if(challenge.verifiedUser){
+   const otpField=$('#otpCode');otpField.required=false;otpField.readOnly=true;
+   otpNotice('Контакт підтверджено, але завершення реєстрації не вдалося. Натисніть «Завершити реєстрацію» ще раз. '+(errors[err.code]||err.message||''),true);
+  }else{
+   otpNotice(errors[err.code]||err.message||'Код не вдалося перевірити.',true);
+  }
+  if(err.code==='auth/too-many-requests')startAuthRateLimitCooldown(300);
+ }finally{
+  submitting=false;suppressAuthRedirect=false;button.disabled=false;
+  button.textContent=pendingOtp?(pendingOtp.verifiedUser?'Завершити реєстрацію':'Підтвердити код'):mode==='register'?'Отримати код':'Надіслати код';
+  syncOtpCooldown();
+ }
+}
+$('#otpChange')?.addEventListener('click',()=>{
+ resetOtpStep();syncLoginCodeMode();$('#submit').textContent=mode==='register'?'Отримати код':'Надіслати код';
+ $('#error').textContent='';$('#email').focus();
+});
+$('#otpResend')?.addEventListener('click',async()=>{
+ if(!pendingOtp||Date.now()<otpCooldownUntil||submitting)return;
+ const details=pendingOtp,button=$('#otpResend');button.disabled=true;
+ try{
+  const fields=details.isPhone?{phone:details.contact}:{email:details.contact};
+  await sendOtp({...fields,shouldCreateUser:details.kind==='signup',userData:details.kind==='signup'?details.userData:{}});
+  otpNotice('Запит на новий код прийнято. Перевірте '+(details.isPhone?'SMS.':'пошту та «Спам».'));
+  $('#otpCode').value='';setOtpCooldown();
+ }catch(err){otpNotice(errors[err.code]||err.message||'Не вдалося повторно надіслати код.',true);syncOtpCooldown();}
+});
+$('#loginOtpToggle')?.addEventListener('click',()=>{
+ loginByCode=!loginByCode;resetOtpStep();$('#error').textContent='';syncLoginCodeMode();
+});
+
 const AUTH_COOLDOWN_KEY='vatra-auth-rate-limit-until-v1';
 const TURNSTILE_SITE_KEY=''; // Optional: set a real Turnstile site key and enable server-side verification for stronger protection.
 const errors={
@@ -172,24 +295,12 @@ const errors={
  'auth/network-request-failed':'Немає з’єднання з інтернетом.',
  'auth/operation-not-allowed':'Цей спосіб авторизації ще не увімкнений у налаштуваннях.',
  'auth/invalid-credential':'Пароль неправильний або акаунт не знайдено. Перевірте дані та спробуйте ще раз.',
- 'auth/confirmation-required':'Щоб реєстрація працювала без коду, у Supabase Dashboard → Authentication → Providers вимкніть Confirm email і Confirm phone. Унікальність контакту перевірятиме сам Supabase.',
  'auth/user-not-found':'Акаунт не знайдено. Спочатку створіть акаунт.',
  'auth/weak-password':'Пароль занадто слабкий.',
  'auth/invalid-phone-number':'Перевірте номер у міжнародному форматі, наприклад +380XXXXXXXXX.',
  'auth/invalid-otp':'Код неправильний. Перевірте цифри та спробуйте ще раз.',
  'auth/otp-expired':'Термін дії коду завершився. Запросіть новий код.',
  'auth/unknown':'Не вдалося надіслати або перевірити код. Перевірте налаштування SMS-провайдера та спробуйте ще раз.',
- 'vatra/rate-limited':'Забагато кодів за останню годину. Спробуйте пізніше.',
- 'vatra/wait-resend':'Зачекайте 30 секунд перед повторним надсиланням.',
- 'vatra/delivery-not-configured':'Надсилання email або SMS ВАТРИ ще не налаштоване на сервері.',
- 'vatra/service-not-configured':'Сервер підтвердження ВАТРИ ще не налаштований. Потрібно розгорнути функцію та додати секрети пошти/SMS у Supabase.',
- 'vatra/delivery-failed':'Supabase не доставив код. Для email потрібен налаштований SMTP і шаблон із {{ .Token }}; для SMS — увімкнений Phone provider та SMS-провайдер. Причину перевірте у Supabase → Authentication → Logs.',
- 'vatra/invalid-code':'Код неправильний. Перевірте його та спробуйте ще раз.',
- 'vatra/code-expired':'Термін дії коду завершився. Надішліть новий код.',
- 'vatra/too-many-attempts':'Забагато неправильних спроб. Надішліть новий код.',
- 'vatra/verify-failed':'Не вдалося підтвердити код. Перевірте налаштування ВАТРИ.',
- 'vatra/registration-data':'Перевірте ім’я, прізвище та пароль.',
- 'vatra/account-creation-failed':'Не вдалося створити акаунт. Спробуйте пізніше.'
 };
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
 let humanPauseUntil=0;try{humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);}catch{}
@@ -285,10 +396,12 @@ function authCooldownRemaining(){
  try{return Math.max(0,Number(sessionStorage.getItem(AUTH_COOLDOWN_KEY)||0)-Date.now());}catch{return 0;}
 }
 function authSubmitLabel(){
- return mode==='login'?'Увійти':mode==='register'?'Створити акаунт':mode==='reset'?'Надіслати посилання':mode==='new-password'?'Зберегти новий пароль':'Увійти';
+ if(pendingOtp)return 'Підтвердити код';
+ return mode==='login'?(loginByCode?'Надіслати код':'Увійти'):mode==='register'?'Отримати код':mode==='reset'?'Надіслати код':mode==='new-password'?'Зберегти новий пароль':'Увійти';
 }
 function refreshAuthCooldown(){
  const button=$('#submit');if(!button)return;
+ if(pendingOtp){button.disabled=!!submitting;button.textContent='Підтвердити код';return;}
  const remaining=authCooldownRemaining();
  if(remaining>0){button.disabled=true;button.textContent='Тимчасове обмеження · '+Math.ceil(remaining/1000)+' с';return;}
  if(authCooldownTimer){clearInterval(authCooldownTimer);authCooldownTimer=null;}
@@ -305,7 +418,7 @@ function startAuthRateLimitCooldown(seconds=300){
 
 function renderCaptcha(){if(!TURNSTILE_SITE_KEY)return;const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.onload=()=>{if(window.turnstile&&!captchaWidget)captchaWidget=window.turnstile.render('#turnstileWidget',{sitekey:TURNSTILE_SITE_KEY,theme:'light'});};document.head.append(script);}
 function show(m){
- const previousMode=mode;mode=m;document.body.dataset.authMode=m;
+ resetOtpStep();const previousMode=mode;mode=m;document.body.dataset.authMode=m;
  if(previousMode!==m&&!(['login','register'].includes(previousMode)&&['login','register'].includes(m)))window.scrollTo(0,0);
  const switchingAccountMode=['login','register'].includes(previousMode)&&['login','register'].includes(m)&&previousMode!==m;
  if(switchingAccountMode){
@@ -326,17 +439,17 @@ function show(m){
  if(pageUrl.href!==location.href)history.replaceState(null,'',pageUrl);
  document.title=m==='register'?'Реєстрація у ВАТРІ':m==='reset'?'Відновлення пароля — ВАТРА':m==='new-password'?'Новий пароль — ВАТРА':'Вхід до ВАТРИ';
  const description=document.querySelector('meta[name="description"]');
- if(description)description.content=m==='register'?'Створення акаунта ВАТРИ з перевіркою унікальності контакту й надійним паролем.':m==='reset'?'Безпечне відновлення доступу до ВАТРИ.':'Вхід до ВАТРИ за допомогою пошти або номера й пароля.';
+ if(description)description.content=m==='register'?'Реєстрація у ВАТРІ з підтвердженням електронної пошти.':m==='reset'?'Безпечне відновлення доступу до ВАТРИ.':'Вхід до ВАТРИ за кодом або паролем.';
 
  closeHumanCaptcha();resetHumanChallenge();
  
  const reg=m==='register',reset=m==='reset',newPassword=m==='new-password',hideContact=newPassword;
  const emailHint=document.querySelector('input[name="authMethod"][value="email"]')?.closest('label')?.querySelector('small');
  const phoneHint=document.querySelector('input[name="authMethod"][value="phone"]')?.closest('label')?.querySelector('small');
- if(emailHint)emailHint.textContent=reg?'Перевірка, чи пошта вже використовується':'Вхід за паролем';
- if(phoneHint)phoneHint.textContent=reg?'Перевірка, чи номер уже використовується':'Вхід за паролем · без SMS';
+ if(emailHint)emailHint.textContent=reg?'Підтвердження кодом на email':'Код на email або пароль';
+ if(phoneHint)phoneHint.textContent=VATRA_SMS_AUTH_ENABLED?(reg?'Підтвердження кодом у SMS':'SMS-код або пароль'):'SMS буде доступне пізніше';
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
- document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=reset&&!isEmail;});
+ document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=!isEmail&&(!VATRA_SMS_AUTH_ENABLED||reset);});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
  $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
@@ -346,8 +459,8 @@ function show(m){
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
- $('#desc').textContent=reg?'Заповніть профіль, оберіть email або телефон для входу та створіть надійний пароль. Так Ви зможете долучитися до ВАТРИ й ділитися своїми історіями.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
- $('#submit').textContent=reg?'Створити акаунт':newPassword?'Зберегти новий пароль':reset?'Надіслати посилання':'Увійти';$('#bottom').hidden=reset||newPassword;
+ $('#desc').textContent=reg?'Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти та пароля або одноразового коду.';
+ $('#submit').textContent=reg?'Отримати код':newPassword?'Зберегти новий пароль':reset?'Надіслати код':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const modeSwitch=$('#bottom').querySelector('#switch');
  if(modeSwitch)modeSwitch.addEventListener('click',event=>{event.preventDefault();show(reg?'login':'register');});
@@ -357,7 +470,7 @@ function show(m){
  $('#error').textContent='';$('#error').classList.remove('success');const activeMethod=selectedMethod();syncAuthMethodUI(activeMethod);
  $('#password').autocomplete='new-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
  
- refreshAuthCooldown();
+ syncLoginCodeMode();refreshAuthCooldown();
 }
 document.querySelectorAll('input[name="authMethod"]').forEach(radio=>radio.addEventListener('change',()=>{
  const method=radio.value;
@@ -409,8 +522,32 @@ $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[d
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
 $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLegalBottom').onclick=()=>closeDialogAnimated($('#legalDialog'));
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
-function currentRecoveryMethod(){return document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email';}
+function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email'):'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact',recoveryPreviousPair='',recoveryFailures=0;
+let recoveryOtpCooldownUntil=0,recoveryOtpCooldownTimer=null;
+function syncRecoveryResend(){
+ const button=$('#recoveryResendOtp');if(!button)return;
+ const seconds=Math.max(0,Math.ceil((recoveryOtpCooldownUntil-Date.now())/1000));
+ button.disabled=seconds>0;button.textContent=seconds?'Повторно через '+seconds+' с':'Надіслати код ще раз';
+ if(!seconds&&recoveryOtpCooldownTimer){clearInterval(recoveryOtpCooldownTimer);recoveryOtpCooldownTimer=null;}
+}
+function beginRecoveryCooldown(){
+ recoveryOtpCooldownUntil=Date.now()+60000;
+ if(recoveryOtpCooldownTimer)clearInterval(recoveryOtpCooldownTimer);
+ recoveryOtpCooldownTimer=setInterval(syncRecoveryResend,1000);syncRecoveryResend();
+}
+$('#recoveryResendOtp')?.addEventListener('click',async()=>{
+ if(recoveryStep!=='verify'||Date.now()<recoveryOtpCooldownUntil)return;
+ const button=$('#recoveryResendOtp'),isPhone=currentRecoveryMethod()==='phone';
+ const contact=isPhone?normalizePhone($('#recoveryContact'),$('#recoveryCountryCode')):$('#recoveryContact').value.trim().toLowerCase();
+ button.disabled=true;
+ try{
+  if(isPhone)await sendOtp({phone:contact,shouldCreateUser:false});
+  else await sendPasswordResetEmail(auth,contact);
+  $('#recoveryError').textContent='Запит на повторне надсилання прийнято. Перевірте '+(isPhone?'SMS.':'пошту та «Спам».');
+  $('#recoveryError').classList.add('success');beginRecoveryCooldown();
+ }catch(err){$('#recoveryError').textContent=errors[err.code]||err.message||'Не вдалося надіслати код.';$('#recoveryError').classList.remove('success');syncRecoveryResend();}
+});
 function resetRecoveryChallenge(notice=''){
  let a=2+Math.floor(Math.random()*9),b=2+Math.floor(Math.random()*9);
  let pair=[a,b].sort((x,y)=>x-y).join('+');
@@ -446,10 +583,10 @@ function resetRecoveryChallenge(notice=''){
 function syncRecoveryMethod(){
  const phone=currentRecoveryMethod()==='phone';syncPhoneInputMode($('#recoveryContact'),$('#recoveryCountryCode'),phone?'phone':'email');
  $('#recoveryContactLabel').textContent=phone?'Номер телефону':'Електронна пошта';
- $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати інструкцію';
+ $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати код на email';
 }
 function openRecovery(){
- recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
+ recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';recoveryOtpCooldownUntil=0;if(recoveryOtpCooldownTimer){clearInterval(recoveryOtpCooldownTimer);recoveryOtpCooldownTimer=null;}$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
  $('#recoveryMethodWrap').hidden=false;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
@@ -477,25 +614,23 @@ $('#recoveryForm').addEventListener('submit',async e=>{
   if(!phone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){feedback('Введіть коректну адресу електронної пошти.');return;}
   btn.disabled=true;btn.textContent='Надсилаємо…';
   try{
-   if(!phone){
-    await sendPasswordResetEmail(auth,contact.toLowerCase());
-    feedback('Якщо акаунт існує, на пошту надійде посилання для створення нового пароля. Перевірте також папку «Спам».',true);return;
-   }
-   await sendOtp({phone:contact,shouldCreateUser:false});
+   if(phone)await sendOtp({phone:contact,shouldCreateUser:false});
+   else await sendPasswordResetEmail(auth,contact.toLowerCase());
    recoveryStep='verify';$('#recoveryMethodWrap').hidden=true;$('#recoveryContact').readOnly=true;$('#recoveryProtection').hidden=true;
    $('#recoveryOtpWrap').hidden=false;$('#recoveryNewPasswordWrap').hidden=false;$('#recoveryConfirmWrap').hidden=false;
    $('#recoveryOtp').required=true;$('#recoveryNewPassword').required=true;$('#recoveryConfirmPassword').required=true;
-   btn.textContent='Підтвердити код і змінити пароль';feedback('Якщо номер прив’язаний до акаунта, код надіслано SMS. Не передавайте його нікому.',true);return;
+   $('#recoveryOtpWrap label').textContent=phone?'Код із SMS':'Код із листа ВАТРИ';
+   btn.textContent='Підтвердити код і змінити пароль';feedback('Якщо контакт прив’язаний до акаунта, перевірте '+(phone?'SMS.':'пошту: лист має містити код або посилання для відновлення.')+' Не передавайте код нікому.',true);beginRecoveryCooldown();return;
   }catch(err){feedback(errors[err.code]||'Не вдалося надіслати повідомлення. Перевірте з’єднання з ВАТРОЮ.');return;}
   finally{btn.disabled=false;if(recoveryStep==='contact')syncRecoveryMethod();}
  }
  const code=$('#recoveryOtp').value.trim(),password=$('#recoveryNewPassword').value,confirmation=$('#recoveryConfirmPassword').value;
- if(!/^\d{6}$/.test(code)){feedback('Введіть 6-значний код із SMS.');return;}
+ if(!/^\d{6,8}$/.test(code)){feedback('Введіть код із 6–8 цифр.');return;}
  if(!isStrongPassword(password)){feedback('Пароль має містити 12+ символів, великі й малі латинські літери, цифру та спецсимвол.');return;}
  if(password!==confirmation){feedback('Нові паролі не збігаються.');return;}
  btn.disabled=true;btn.textContent='Перевіряємо код…';submitting=true;
  try{
-  await verifyOtp({phone:contact,token:code});await setAccountPassword(password);
+  await verifyOtp(phone?{phone:contact,token:code}:{email:contact,token:code,type:'recovery'});await setAccountPassword(password);
   feedback('Пароль змінено. Ви входите у ВАТРУ.',true);location.replace('index.html');
  }catch(err){feedback(errors[err.code]||'Не вдалося змінити пароль. Перевірте код і спробуйте ще раз.');}
  finally{btn.disabled=false;btn.textContent='Підтвердити код і змінити пароль';submitting=false;}
@@ -536,9 +671,10 @@ function syncCaptchaVisibility(){
 }
 $('#password').addEventListener('input',()=>{updatePasswordStrength();syncCaptchaVisibility();});
 $('#confirm').addEventListener('input',syncCaptchaVisibility);
-onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppressAuthRedirect||pendingHumanAction)return;const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
+onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppressAuthRedirect||pendingHumanAction||pendingOtp)return;const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
 $('#authForm').addEventListener('submit',async e=>{
  e.preventDefault();if(submitting)return;
+ if(pendingOtp){await confirmOtp();return;}
  if(pendingHumanAction&&challengePassed){
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -562,13 +698,13 @@ $('#authForm').addEventListener('submit',async e=>{
   if(!isStrongPassword(password)){$('#error').textContent='Створіть пароль на 12+ символів із малою й великою латинськими літерами, цифрою та спеціальним символом.';$('#password').focus();return;}
   if(password!==confirmation){$('#error').textContent='Паролі не збігаються.';$('#confirm').focus();return;}
  }
- if((mode==='login'||mode==='new-password')&&!$('#password').value){$('#error').textContent='Введіть пароль.';$('#password').focus();return;}
+ if(((mode==='login'&&!loginByCode)||mode==='new-password')&&!$('#password').value){$('#error').textContent='Введіть пароль.';$('#password').focus();return;}
  if(mode==='new-password'){
   const newPass=$('#password').value,confirmation=$('#confirm').value;
   if(!isStrongPassword(newPass)){ $('#error').textContent='Пароль має містити 12+ символів, великі й малі латинські літери, цифру та спецсимвол.';$('#password').focus();return; }
   if(newPass!==confirmation){ $('#error').textContent='Паролі не збігаються.';$('#confirm').focus();return; }
  }
- if(mode==='login'&&!challengePassed){
+ if(mode==='login'&&!loginByCode&&!challengePassed){
   pendingHumanAction={mode,contact};
   submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent='Перевіряємо дані…';
   try{
@@ -585,13 +721,16 @@ $('#authForm').addEventListener('submit',async e=>{
   }
   return;
  }
+ if(mode==='login'&&loginByCode&&!challengePassed){
+  pendingHumanAction={mode,contact};openHumanCaptcha();return;
+ }
  if(mode==='register'&&!challengePassed){
   pendingHumanAction={mode,contact};
   openHumanCaptcha();
   return;
  }
  if(challengePassed)challengePassed=false;
- const old=btn.textContent;submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent=mode==='login'?'Перевіряємо дані…':mode==='reset'?'Надсилаємо посилання…':mode==='new-password'?'Зберігаємо пароль…':'Перевіряємо дані…';
+ const old=btn.textContent;submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent=mode==='login'?'Перевіряємо дані…':mode==='reset'?'Надсилаємо код…':mode==='new-password'?'Зберігаємо пароль…':'Надсилаємо код…';
  try{
 
   if(mode==='new-password'){
@@ -604,26 +743,18 @@ $('#authForm').addEventListener('submit',async e=>{
    $('#error').classList.add('success');return;
   }
   if(mode==='login'){
+   if(loginByCode){await startOtp('login',{contact,isPhone});return;}
    setRememberMe($('#rememberMe')?.checked===true);
    try { await signInWithPassword(auth,contact,$('#password').value); }
    catch (loginError) { setRememberMe(false); throw loginError; }
    location.replace('index.html');
    return;
   }
-  const gender=document.querySelector('input[name="gender"]:checked')?.value||'';const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob};
-  const signup=await signUpWithPassword(isPhone
-   ?{phone:contact,password:$('#password').value,userData,captchaToken:token}
-   :{email:contact,password:$('#password').value,userData,captchaToken:token});
-  if(!signup?.user)throw new Error('Supabase не повернув нового користувача. Перевірте Authentication → Providers.');
-  const registrationData={contact,isPhone,dob,first,last,name,gender};
-  if(!signup.session){
-   const err=new Error('Щоб створювати акаунти без кодів, у Supabase → Authentication → Providers вимкніть Confirm email і Confirm phone. Поки ці параметри ввімкнені, Supabase сам надсилає підтвердження, а клієнтський код не може безпечно обійти це правило.');
-   err.code='auth/confirmation-required';throw err;
-  }
-  await finishRegistration({...registrationData,user:signup.user});
-  location.replace('index.html');
+  const gender=document.querySelector('input[name="gender"]:checked')?.value||'';
+  const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob,preferredLanguage:vatraSignupLanguage()};
+  await startOtp('signup',{contact,isPhone,dob,first,last,name,gender,password:$('#password').value,userData});
   return;
- }catch(err){
+  }catch(err){
   pendingHumanAction=null;suppressAuthRedirect=false;
   $('#error').textContent=errors[err.code]||'Не вдалося виконати дію. Перевірте інтернет і налаштування авторизації.';
   $('#error').classList.remove('success');
