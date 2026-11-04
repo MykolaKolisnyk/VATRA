@@ -3966,6 +3966,7 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
  let legalSourcePromise=null,activeEdit=null;
  const photoFilters={normal:'none',vivid:'saturate(1.28) contrast(1.08)',warm:'sepia(.18) saturate(1.14)',mono:'grayscale(1)',soft:'brightness(1.06) saturate(.86)',cool:'hue-rotate(8deg) saturate(.9)'};
  function closeTopbarMenus(){
+  window.dispatchEvent(new Event('vatra:close-music-menu'));
   const n=q('#notificationDropdown'),a=q('#accountDropdown');
   if(n)n.hidden=true;if(a)a.hidden=true;
   q('#notificationBell')?.setAttribute('aria-expanded','false');q('#topAvatar')?.setAttribute('aria-expanded','false');
@@ -4020,6 +4021,7 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
    });
   }
  }
+ window.addEventListener('vatra:music-menu-open',closeTopbarMenus);
  const bell=q('#notificationBell'),avatarButton=q('#topAvatar');
  function positionAccountMenu(){
   const box=q('#accountDropdown'),bounds=avatarButton?.getBoundingClientRect();
