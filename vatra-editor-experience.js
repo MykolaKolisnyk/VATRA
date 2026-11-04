@@ -1,36 +1,21 @@
 // Shared VATRA page/settings editor: readable cards, contextual SVGs and opt-in place suggestions.
 // Field queries use only the city typed into the form; no device geolocation.
-const icons={
- profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3-8 8-8s8 3 8 8"/>',
- photos:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8" cy="9" r="1.6"/><path d="m5 18 5-6 3 3 2-2 4 5"/>',
- contacts:'<path d="M4 5h16v14H4zM8 9h4m-4 4h8"/><circle cx="16" cy="9" r="2"/>',
- education:'<path d="m2 9 10-5 10 5-10 5L2 9Zm5 3v6c3 2 7 2 10 0v-6M22 9v8"/>',
- career:'<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18m-10 0v2h2v-2"/>',
- interests:'<path d="m12 3 2.7 6 6.5.6-5 4.3 1.5 6.3L12 17l-5.7 3.2 1.5-6.3-5-4.3 6.5-.6L12 3Z"/>',
- service:'<path d="m12 2 8 4v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/>',
- life:'<path d="M12 22V7m0 8c-5 0-7-4-7-8 5 0 7 2 7 7m0-5c0-4 2-6 7-6 0 4-2 8-7 8"/>',
- privacy:'<path d="M12 2 20 5v7c0 5-3 8-8 10-5-2-8-5-8-10V5l8-3Z"/><path d="m9 12 2 2 4-4"/>',
- notifications:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/>',
- appearance:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
- language:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 4 6 4 9s-1 6-4 9c-3-3-4-6-4-9s1-6 4-9Z"/>',
- account:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
- documents:'<path d="M6 3h9l4 4v14H6V3Z"/><path d="M15 3v5h4M9 12h7m-7 4h7"/>',
- blocked:'<circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/>',
- pin:'<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
- name:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-5 3-8 8-8s8 3 8 8"/>',
- url:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>',
- message:'<path d="M4 5h16v12H9l-5 3V5Z"/><path d="M8 9h8M8 13h6"/>',
- calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
- phone:'<path d="M7 2h5l1 5-3 2c1.5 3 3 4.5 6 6l2-3 4 1v5c0 2-2 3-4 3C9 21 3 15 3 6c0-2 1-4 4-4Z"/>',
- music:'<path d="M9 18V5l11-2v13M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="17" cy="16" rx="3" ry="2"/>',
- info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/>',
- edit:'<path d="m16 4 4 4M4 20l4-1 12-12a3 3 0 0 0-4-4L4 15 4 20Z"/>'
+// Render all field icons from the single central VATRA icon sprite.
+function svg(key){return window.vatraIcon?.(key,'vatra-editor-icon')||'';}
+const kinds={
+ firstName:'profile',lastName:'profile',handle:'profile',gender:'gender',
+ city:'pin',location:'pin',hometown:'pin',workplace:'career',education:'education',
+ bio:'document',phone:'phone',dateOfBirth:'calendar',website:'website',
+ profileVisibility:'privacy',searchable:'search',birthdayVisibility:'calendar',
+ cityVisibility:'pin',locationVisibility:'pin',phoneVisibility:'phone',
+ workplaceVisibility:'career',educationVisibility:'education',hometownVisibility:'pin',
+ bioVisibility:'document',statusVisibility:'quote',websiteVisibility:'website',
+ familyStatus:'friends',spokenLanguages:'language',familyNotes:'document',
+ activities:'star',hobbies:'leaf',music:'music',tv:'video',films:'video',
+ books:'document',games:'game',quotes:'quote',serviceNotes:'shield',
+ politics:'language',worldview:'website',values:'heart',peopleValues:'friends',
+ smoking:'leaf',alcohol:'info',inspiration:'star',lifeNotes:'document'
 };
-function svg(key){return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">'+(icons[key]||icons.info)+'</svg>';}
-const kinds={firstName:'name',lastName:'name',handle:'profile',gender:'profile',city:'pin',location:'pin',hometown:'pin',workplace:'career',education:'education',bio:'info',phone:'phone',dateOfBirth:'calendar',website:'url',
- profileVisibility:'privacy',searchable:'privacy',birthdayVisibility:'privacy',cityVisibility:'privacy',locationVisibility:'privacy',phoneVisibility:'privacy',workplaceVisibility:'privacy',educationVisibility:'privacy',hometownVisibility:'privacy',bioVisibility:'privacy',statusVisibility:'privacy',websiteVisibility:'privacy',
- familyStatus:'profile',spokenLanguages:'language',familyNotes:'profile',activities:'career',hobbies:'interests',music:'music',tv:'interests',films:'interests',books:'education',games:'interests',quotes:'info',serviceNotes:'service',
- politics:'life',worldview:'life',values:'life',peopleValues:'life',smoking:'life',alcohol:'life',inspiration:'interests',lifeNotes:'info'};
 function iconType(control){
  const key=(control.name||'').replace(/^private_|extraVisibility_/,'');
  return kinds[key]||((control.closest('[data-vatra-record-editor]')?.dataset.vatraRecordEditor)==='educationRecords'?'education':'info');
