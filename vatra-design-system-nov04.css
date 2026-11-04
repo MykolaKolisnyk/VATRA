@@ -187,7 +187,7 @@ html body :is(.vatra-support-create,.vatra-clip-action,.vatra-group-secondary,.v
 html body :is(.vatra-support-create,.vatra-clip-action,.vatra-group-secondary,.vatra-music-play,.vatra-friends-find,.vatra-profile-button):hover:not(:disabled){
  transform:none!important;box-shadow:none!important;
 }
-html body .vatra-shorts-nav .nav-icon svg{fill:none!important;stroke:currentColor!important}
+html body .vatra-clips-nav .nav-icon svg{fill:none!important;stroke:currentColor!important}
 @media(max-width:600px){
  html body .vatra-profile-photo-carousel[data-vatra-gallery-carousel]{padding-inline:34px!important}
  html body .vatra-profile-photo-carousel .vatra-gallery-controls>.vatra-gallery-carousel-arrow{width:27px!important;min-width:27px!important;height:38px!important}
@@ -206,7 +206,7 @@ html body .vatra-language-dialog-brand>div{min-width:0}
 html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:none!important}
 @media(max-width:590px){html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:flex!important}}
 html body :is(.vatra-language-dialog,#legalDialog,#developerDialog,.developer-dialog) :is(button,input){font-family:"VATRA Onest",Inter,system-ui,sans-serif}
-html body .vatra-shorts-nav:focus-visible{outline:2px solid #9ebef6!important;outline-offset:2px}
+html body .vatra-clips-nav:focus-visible{outline:2px solid #9ebef6!important;outline-offset:2px}
 
 /* Prevent tall empty tiles after the gallery was converted to a sliding grid. */
 html body .vatra-profile-photo-carousel .vatra-gallery-track>.profile-photo-tile :is(.profile-gallery-open,.profile-gallery-image){display:block;max-width:100%}
