@@ -213,6 +213,31 @@ Object.assign(base,{
  'Завантажити аватар':'Upload avatar','Прибрати фото':'Remove photo','Фотографії':'Photos',
  'Скасувати':'Cancel','Зберегти':'Save','Закрити':'Close'
 });
+// Clips are a dedicated vertical-video experience; ordinary profile Videos remain separate.
+Object.assign(base,{
+ 'Кліпи':'Clips',
+ 'ВАТРА Кліпи':'VATRA Clips',
+ 'ВАТРА · КЛІПИ':'VATRA · CLIPS',
+ 'Завантажити кліп':'Upload clip',
+ '+ Завантажити кліп':'+ Upload clip',
+ 'Опублікувати кліп':'Publish clip',
+ 'Опис кліпу':'Clip caption',
+ 'Новий кліп':'New clip',
+ 'Про що цей кліп?':'What is this clip about?',
+ 'Першим опублікуйте вертикальне відео — окремо від звичайних дописів.':'Be the first to share a vertical clip, separate from regular posts.',
+ 'Кліпів поки немає':'No clips yet',
+ 'Короткі вертикальні відео':'Short vertical videos',
+ 'До 3 хвилин':'Up to 3 minutes',
+ 'Вертикальне відео':'Vertical video',
+ 'Попередній кліп':'Previous clip',
+ 'Наступний кліп':'Next clip',
+ 'Увімкнути звук':'Unmute',
+ 'Вимкнути звук':'Mute',
+ 'Кліпи не потрапляють автоматично у дописи чи відео профілю.':'Clips are not automatically added to profile posts or videos.',
+ 'Вертикальна стрічка коротких відео. Кліпи не потрапляють автоматично у дописи чи відео профілю.':'A vertical short-video feed. Clips stay separate from profile posts and videos.',
+ 'Відеозаписи з Ваших дописів у профілі. Кліпи публікуються окремо у розділі «Кліпи» та сюди не додаються.':'Videos from your profile posts. Clips are published separately and never appear here automatically.',
+ 'Цей ролик буде опублікований тільки у стрічці «Кліпи». Він не додається автоматично до дописів або розділу «Відео» Вашого профілю.':'This clip appears only in the Clips feed. It is not automatically added to posts or the Videos section of your profile.'
+});
 const flagRegions={uk:'UA',en:'GB',pl:'PL',de:'DE',fr:'FR',es:'ES',pt:'PT',it:'IT',zh:'CN',ja:'JP',ko:'KR',ar:'SA',hi:'IN',yi:'IL',eo:'EU'};
 function languageFlag(code){
  let region=flagRegions[code]||'';
