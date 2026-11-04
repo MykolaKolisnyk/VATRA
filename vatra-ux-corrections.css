@@ -110,6 +110,15 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]):hover{background:#edf4ff!important;color:#104e9c!important}
 
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"]{
+ background:#25496f!important;color:#f0f6ff!important;
+}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active :is(.nav-icon,.nav-icon svg),
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"] :is(.nav-icon,.nav-icon svg){
+ color:#9fceff!important;stroke:#9fceff!important;
+}
+
 html body #vatraConfirmDialog.vatra-native-dialog.vatra-confirm-dialog[open]{
  position:fixed!important;
  inset:auto!important;
