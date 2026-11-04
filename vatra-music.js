@@ -392,6 +392,7 @@ function placeMusicMenu(){
 }
 function openMusicMenu(){
  if(!musicHeader)return;
+ window.dispatchEvent(new Event('vatra:music-menu-open'));
  const id=getAuth().currentUser?.uid||'';
  if(id&&id!==musicUid){musicUid=id;musicFavorites=new Set();musicLoaded=false;musicLoading=false;}
  if(id&&!musicLoaded&&!musicLoading)void loadFavorites(id).then(()=>{renderPopupMusic();});
@@ -399,6 +400,7 @@ function openMusicMenu(){
  panel.hidden=false;musicHeader.setAttribute('aria-expanded','true');
  renderPopupMusic();placeMusicMenu();
 }
+window.addEventListener('vatra:close-music-menu',closeMusicMenu);
 if(musicHeader){
  musicHeader.setAttribute('aria-haspopup','dialog');
  musicHeader.addEventListener('click',event=>{
