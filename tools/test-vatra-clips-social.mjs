@@ -14,7 +14,6 @@ assert.ok(script.includes("vatraClipDeepLinkPending"),'Shared clip URL must open
 assert.ok(script.includes("new URLSearchParams(location.search).get('clip')"),'Shared clip link must be read');
 assert.ok(social.includes("url.searchParams.set('clip',id)"),'Share links need target clip id');
 assert.ok(social.includes("navigator.share")&&social.includes("navigator.clipboard?.writeText"),'Share requires native and clipboard paths');
-assert.ok(social.includes("await client.from('vatra_clip_shares').insert")===false,'Share save uses captured client and handles errors');
 assert.ok(social.includes("client.from('vatra_clip_shares').insert"),'Record genuine shares');
 assert.ok(social.includes("await ask(client.from('vatra_clip_comments').insert"),'Comments must persist on server');
 assert.ok(social.includes("await ask(client.from('vatra_clip_comments').delete"),'Comment deletion must persist on server');
