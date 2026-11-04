@@ -197,3 +197,12 @@ html body .vatra-shorts-nav .nav-icon svg{fill:none!important;stroke:currentColo
 @media(prefers-reduced-motion:reduce){
  html body .vatra-notify-setting>input[type="checkbox"]::before,html body .vatra-language-dialog button{transition:none!important}
 }
+
+/* Branded modal heading shared with the other legal/developer dialogs. */
+html body .vatra-language-dialog-brand{display:flex;align-items:center;gap:13px;min-width:0}
+html body .vatra-language-dialog-brand>img{box-sizing:border-box;flex:none;width:39px;height:39px;padding:7px;object-fit:contain;border-radius:11px;background:#edf3ff}
+html body .vatra-language-dialog-brand>div{min-width:0}
+html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:none!important}
+@media(max-width:590px){html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:flex!important}}
+html body :is(.vatra-language-dialog,#legalDialog,#developerDialog,.developer-dialog) :is(button,input){font-family:"VATRA Onest",Inter,system-ui,sans-serif}
+html body .vatra-shorts-nav:focus-visible{outline:2px solid #9ebef6!important;outline-offset:2px}
