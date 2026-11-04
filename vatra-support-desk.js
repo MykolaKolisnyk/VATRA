@@ -3,8 +3,8 @@ const app=initializeApp(),auth=getAuth(app),db=getDatabase(app).client;
 const $=s=>document.querySelector(s);
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const time=x=>{const d=new Date(x);return isNaN(d.getTime())?'—':d.toLocaleString('uk-UA',{dateStyle:'medium',timeStyle:'short'});};
-const icons={head:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H2v5h5v-5H4Zm16 0h2v5h-5v-5h3ZM20 18a4 4 0 0 1-4 4h-4"/></svg>',
-back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5-7 7 7 7"/></svg>'};
+// Icons are shared with navigation and settings, never duplicated in this module.
+const icons={head:window.vatraIcon?.('support')||'',back:window.vatraIcon?.('arrow-left')||''};
 let role='',ownerUid='',selected=null,tickets=[],refreshing=false,timer=null,renderToken=0,lastMessageId=0,activePanel='user',lastSignedUid='',people=new Map();
 async function getRole(){const {data,error}=await db.rpc('vatra_staff_role');role=error?'':String(data||'');return role;}
 async function invoke(method,args){const {data,error}=await db.rpc(method,args);if(error)throw error;return data;}
