@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
+import {initializeApp,getAuth,getDatabase,onAuthStateChanged} from './vatra-backend.js?v=20261031-7';
 const auth=getAuth(initializeApp()),client=getDatabase(initializeApp()).client;
 const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const byKey=new Map(),ongoing=new Map();let lastUid='';
@@ -32,6 +32,21 @@ function html(kind,id,d,name,handle,own=false){
   (d.sinceAt?'<div><dt>Дата рішення</dt><dd>'+fmt(d.sinceAt)+'</dd></div>':'')+
   (!deleted?'<div><dt>Причина блокування</dt><dd>'+escape(d.reason||'Причину не вказано')+'</dd></div>':'')+
   '<div><dt>'+(deleted?'Видалення':'Термін')+'</dt><dd>'+(deleted?(d.pending?'Заплановано до '+fmt(d.deleteAfter):'Остаточно видалено'):(d.permanent?'Безстроково':d.expiresAt?'До '+fmt(d.expiresAt):'Не вказано'))+'</dd></div></dl>':'';
+ if(own){
+  return '<section class="vatra-suspended-page vatra-restriction-landing '+(deleted?'is-deleted':'is-blocked')+'" data-vatra-ban-page="'+escape(id)+'" aria-label="'+escape(title)+'">'+
+   '<header class="vatra-restriction-header"><img src="vatra-header.svg?v=20261104-1" alt="ВАТРА" width="176" height="38"><span class="vatra-restriction-brand-status"><i></i> Українська соціальна мережа</span></header>'+
+   '<div class="vatra-restriction-hero"><div class="vatra-restriction-copy">'+
+    '<span class="vatra-restriction-chip">'+(deleted?'СТОРІНКА НЕДОСТУПНА':'ДОСТУП ОБМЕЖЕНО')+'</span>'+
+    '<h1>'+(deleted?'Сторінку <em>видалено</em>':'Акаунт <em>заблоковано</em>')+'</h1>'+
+    '<p class="vatra-restriction-lead">'+(deleted?'Профіль недоступний. Якщо видалення ще не завершене, Ви можете відновити акаунт у встановлений термін.':'Доступ до ВАТРИ обмежений рішенням адміністрації. Нижче наведено інформацію та можливість звернутися до техпідтримки.')+'</p>'+
+    (detail||'<p class="vatra-restriction-note">'+escape(note||message)+'</p>')+
+    '<div class="vatra-restriction-actions">'+
+     (!deleted?'<button class="vatra-suspended-support" type="button" data-vatra-ban-support>Звернутися до техпідтримки</button>':'')+
+     (deleted&&d.pending?'<button class="vatra-suspended-support" type="button" data-vatra-restore>Керувати видаленням</button>':'')+
+    '</div></div>'+
+    '<div class="vatra-restriction-art" aria-hidden="true"><div class="vatra-restriction-window"><div class="vatra-restriction-dots"><i></i><i></i><i></i><span></span></div><div class="vatra-restriction-glyph">'+(deleted?deletedStateIcon:blockedStateIcon)+'</div><strong>'+(deleted?'410':'403')+'</strong><div class="vatra-restriction-lines"><i></i><i></i></div></div><span class="vatra-restriction-float">Захист спільноти ВАТРА</span></div></div>'+
+   '<footer class="vatra-restriction-footer"><strong>ВАТРА</strong><span>Твій простір для спілкування</span></footer></section>';
+ }
  return '<section class="vatra-suspended-page '+(deleted?'is-deleted':'is-blocked')+'" data-vatra-ban-page="'+escape(id)+'" aria-label="'+escape(title)+'">'+
   '<header class="vatra-suspended-profile-head"><h2 class="vatra-suspended-person">'+escape(name||(community?'Спільнота ВАТРИ':'Користувач ВАТРИ'))+
   (handle?' <small>@'+escape(handle.replace(/^@/,''))+'</small>':'')+'</h2><p class="vatra-suspended-profile-subtitle">'+title+'</p></header>'+
@@ -59,9 +74,15 @@ function inject(kind,id,d,{own=false,name='',handle=''}={}){
 function wire(root){
  root.querySelector('[data-vatra-restore]')?.addEventListener('click',()=>{root.closest('#vatraSuspendedOwnScreen')?.setAttribute('hidden','');window.vatraRouter?.goPage('settings');setTimeout(()=>document.querySelector('[data-settings-target="account"]')?.click(),120);});
  root.querySelector('[data-vatra-ban-support]')?.addEventListener('click',()=>{
- const overlay=document.querySelector('#vatraSuspendedOwnScreen');if(overlay)overlay.hidden=true;
- void window.vatraOpenSupportDesk?.();
-});
+   document.body.classList.add('vatra-restricted-support-mode');
+   const overlay=document.getElementById('vatraSuspendedOwnScreen');
+   if(overlay)overlay.hidden=true;
+   const work=window.vatraOpenSupportDesk?.();
+   if(work&&typeof work.catch==='function')void work.catch(()=>{
+    document.body.classList.remove('vatra-restricted-support-mode');
+    if(overlay)overlay.hidden=false;
+   });
+ });
  root.querySelector('[data-vatra-ban-back]')?.addEventListener('click',()=>{
   if(history.length>1)history.back();else window.vatraRouter?.goPage('feed');
  });
