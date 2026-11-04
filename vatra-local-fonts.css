@@ -1,4 +1,4 @@
-/* Onest is bundled in VATRA; no runtime font requests go to a third party.
+/* Onest is bundled in VATRA as an offline fallback for the Inter interface.
    Copyright 2021 Onest Project Authors. Licensed under SIL OFL 1.1.
    See assets/fonts/OFL-Onest.txt. */
 @font-face{
@@ -9,13 +9,6 @@
   font-display:swap;
 }
 
-@font-face{
-  font-family:Inter;
-  src:url("./assets/fonts/Onest-Variable.ttf") format("truetype");
-  font-style:normal;
-  font-weight:100 900;
-  font-display:swap;
-}
 html,body,button,input,textarea,select,option{
-  font-family:"VATRA Onest",Inter,"Segoe UI",system-ui,sans-serif;
+  font-family:Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
 }
