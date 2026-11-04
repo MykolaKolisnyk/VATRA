@@ -86,7 +86,7 @@ for(const [path,text] of textFiles)if(path.endsWith('.css')){
  }
 }
 const crossCSS=[...selectors].filter(([,refs])=>refs.size>=4).sort((a,b)=>b[1].size-a[1].size)
- .slice(0,16).map(([selector,refs])=>({selector:selector.slice(0,130),sheets:refs.size}));
+ .slice(0,16).map(([selector,refs])=>({selector:selector.slice(0,130),sheets:refs.size,files:[...refs]}));
 
 const liveCode=[...textFiles].filter(([path])=>/\.(?:html|css|js|ts)$/.test(path) &&
  !path.startsWith('tools/') && !path.startsWith('.github/'));
