@@ -86,11 +86,14 @@ assert.ok(countryTools.countryFlagSvg('GB').includes('#244d9c'),'UK SVG flag mus
 assert.ok(countryTools.countryFlagSvg('US').includes('#244d9c'),'USA SVG flag must be available');
 assert.equal(countryTools.normalizePhone({value:'0930657340'},{value:'+380'}),'+380930657340');
 assert.equal(countryTools.normalizePhone({value:'15112345678'},{value:'+49'}),'+4915112345678');
-const countrySelect={value:'+380',selectedIndex:0,options:[
- {dataset:{iso:'UA'}},{dataset:{iso:'PL'}},{dataset:{iso:'DE'}}],dispatchEvent(){this.changed=true;}};
+const countrySelect={value:'+380',_index:0,options:[
+ {value:'+380',dataset:{iso:'UA'}},{value:'+48',dataset:{iso:'PL'}},{value:'+49',dataset:{iso:'DE'}}],
+ get selectedIndex(){return this._index;},
+ set selectedIndex(index){this._index=index;this.value=this.options[index].value;},
+ dispatchEvent(){this.changed=true;}};
 const countryInput={value:''};
 countryTools.setPhoneInputFromFullNumber(countryInput,countrySelect,'+4915112345678');
-assert.equal(countrySelect.value,'+380' /* selectedIndex is source of truth for native select simulation */);
+assert.equal(countrySelect.value,'+49');
 assert.equal(countrySelect.selectedIndex,2);
 assert.equal(countryInput.value,'15112345678');
 assert.ok(countrySelect.changed,'Country popup must reflect number changes');
