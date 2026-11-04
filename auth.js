@@ -214,9 +214,10 @@ function closeHumanCaptcha(){
 function openHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
  resetHumanChallenge();if(wrap.parentElement!==document.body)document.body.appendChild(wrap);wrap.hidden=false;wrap.setAttribute('role','dialog');wrap.setAttribute('aria-modal','true');wrap.setAttribute('aria-label','Швидка перевірка');wrap.classList.add('captcha-modal');document.body.classList.add('captcha-modal-open');
- // Do not focus the first answer: the blue focus ring looked like a hint.
- const prompt=wrap.querySelector('.human-captcha-question');
- if(prompt){prompt.setAttribute('tabindex','-1');prompt.focus({preventScroll:true});}
+ // Focus the dialog container for keyboard/screen-reader access, never the
+ // question text: global input-focus styles otherwise draw a misleading box.
+ wrap.setAttribute('tabindex','-1');
+ wrap.focus({preventScroll:true});
 }
 function resetHumanChallenge(notice=''){
  challengePassed=false;
