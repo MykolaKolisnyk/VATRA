@@ -75,6 +75,25 @@ assert.ok(auth.includes("verifyOtp(phone?{phone:contact,token:code}"),'Phone rec
 assert.ok(auth.includes('function countryFlagSvg(iso)')&&auth.includes('function enhanceCountryMenu(select,row)'),'SVG flag picker must exist');
 assert.ok(auth.includes('aria-selected')&&auth.includes("role','listbox'"),'Country picker must support accessible selection');
 assert.ok(css.includes('.vatra-phone-country-trigger')&&css.includes('.vatra-phone-country-option'),'Custom flags picker must have responsive styles');
+const countryStart=auth.indexOf('const PHONE_COUNTRIES = [');
+const countryEnd=auth.indexOf('\nfunction vatraLatinHandlePart(',countryStart);
+assert.ok(countryStart>=0&&countryEnd>countryStart,'Country picker logic should be testable');
+const countryTools=runInNewContext(auth.slice(countryStart,countryEnd)+
+ '\n({countryFlagSvg,normalizePhone,setPhoneInputFromFullNumber})', {Event:class Event{constructor(type){this.type=type;}}});
+assert.match(countryTools.countryFlagSvg('UA'),/<svg[^>]+/,'SVG flags must render without emoji fonts');
+assert.ok(countryTools.countryFlagSvg('UA').includes('#2879c5')&&countryTools.countryFlagSvg('UA').includes('#ffd64d'),'Ukrainian SVG flag must be blue and yellow');
+assert.ok(countryTools.countryFlagSvg('GB').includes('#244d9c'),'UK SVG flag must be available');
+assert.ok(countryTools.countryFlagSvg('US').includes('#244d9c'),'USA SVG flag must be available');
+assert.equal(countryTools.normalizePhone({value:'0930657340'},{value:'+380'}),'+380930657340');
+assert.equal(countryTools.normalizePhone({value:'15112345678'},{value:'+49'}),'+4915112345678');
+const countrySelect={value:'+380',selectedIndex:0,options:[
+ {dataset:{iso:'UA'}},{dataset:{iso:'PL'}},{dataset:{iso:'DE'}}],dispatchEvent(){this.changed=true;}};
+const countryInput={value:''};
+countryTools.setPhoneInputFromFullNumber(countryInput,countrySelect,'+4915112345678');
+assert.equal(countrySelect.value,'+380' /* selectedIndex is source of truth for native select simulation */);
+assert.equal(countrySelect.selectedIndex,2);
+assert.equal(countryInput.value,'15112345678');
+assert.ok(countrySelect.changed,'Country popup must reflect number changes');
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
 const email=read('supabase/auth-templates/otp-email.html');
 const sms=read('supabase/auth-templates/otp-sms.txt');
