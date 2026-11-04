@@ -1,4 +1,4 @@
-import { getDatabase, ref, get, update } from './vatra-backend.js?v=20261031-7';
+import { getAuth, getDatabase, ref, get, update } from './vatra-backend.js?v=20261031-7';
 
 const MUSIC_LIBRARY = Object.freeze([
  {type:'playlist',id:'6TNFFJnqIFFYifyio5Wha5',title:'Топ українських пісень',artist:'Український чарт',category:'Хіти',tone:1},
@@ -281,49 +281,139 @@ async function favorite(item,button){
   notify(next.has(key(item))?'Додано до «Моєї музики».':'Прибрано з «Моєї музики».');
  }catch(error){button.disabled=false;notify('Не вдалося зберегти композицію. Спробуйте ще раз.',true);console.warn('[ВАТРА] Музика не збережена:',error);}
 }
-// The header icon opens a compact player menu; navigation requires a separate action.
+// A genuine music menu: browse/search saved music and use the official Spotify
+// controller directly within the popover. The controller remains alive in the
+// floating dock when the menu closes (CSS reposition only; no iframe reparent).
+let popupMusicTab='all',popupMusicSearch='';
+function popupSongs(){
+ const q=popupMusicSearch.trim().toLocaleLowerCase('uk-UA');
+ return MUSIC_LIBRARY.filter(item=>(popupMusicTab!=='mine'||musicFavorites.has(key(item)))&&
+  (!q||(item.title+' '+item.artist+' '+item.category).toLocaleLowerCase('uk-UA').includes(q)))
+  .slice(0,q?22:8);
+}
+function renderPopupMusic(){
+ const panel=document.getElementById('vatraMusicTopPanel');
+ if(!panel)return;
+ const results=panel.querySelector('#vatraTopMusicResults');
+ if(!results)return;
+ const songs=popupSongs();
+ results.innerHTML=songs.length?songs.map(item=>
+  '<button type="button" class="vatra-menu-track'+(playerItem&&key(playerItem)===key(item)?' is-selected':'')+'" data-vatra-popup-play="'+escapeHtml(key(item))+'" aria-label="Відкрити програвач: '+escapeHtml(item.title)+'">'+
+  '<span class="vatra-menu-track-icon">'+musicIcon(item.type)+'</span>'+
+  '<span class="vatra-menu-track-meta"><b>'+escapeHtml(item.title)+'</b><small>'+escapeHtml(item.artist)+'</small></span>'+
+  '<span class="vatra-menu-track-play" aria-hidden="true">'+musicActionIcon('play')+'</span></button>'
+ ).join(''):'<p class="vatra-menu-no-music">Нічого не знайдено. Спробуйте інший пошук або додайте пісні у розділі музики.</p>';
+ panel.querySelectorAll('[data-vatra-popup-tab]').forEach(button=>{
+  button.setAttribute('aria-selected',String(button.dataset.vatraPopupTab===popupMusicTab));
+ });
+ const title=panel.querySelector('#vatraTopMusicTitle'),artist=panel.querySelector('#vatraTopMusicArtist');
+ if(title)title.textContent=playerItem?.title||'Слухати українську музику';
+ if(artist)artist.textContent=playerItem?.artist||'Добірки, пісні та альбоми';
+ const count=panel.querySelector('#vatraTopMusicCount');
+ if(count)count.textContent=popupMusicTab==='mine'?'Моя музика':'Рекомендовані добірки';
+ const slot=panel.querySelector('#vatraMenuPlayerSlot');
+ if(slot){slot.classList.toggle('has-music',Boolean(playerItem));slot.setAttribute('aria-label',playerItem?'Програвач Spotify':'Оберіть пісню, щоб відкрити програвач Spotify');}
+ const starter=panel.querySelector('#vatraTopMusicPlayer');
+ if(starter)starter.setAttribute('aria-label',playerItem?'Показати програвач':'Слухати добірку');
+}
+function resetMenuDock(){
+ const dock=document.getElementById('vatraMusicDock');if(!dock)return;
+ dock.classList.remove('is-menu-dock');
+ dock.style.removeProperty('left');dock.style.removeProperty('top');
+ dock.style.removeProperty('width');dock.style.removeProperty('height');
+ dock.style.removeProperty('visibility');
+}
+function positionMenuDock(){
+ const panel=document.getElementById('vatraMusicTopPanel'),dock=document.getElementById('vatraMusicDock');
+ if(!panel||panel.hidden||!dock||!playerItem||dock.hidden){resetMenuDock();return;}
+ const slot=panel.querySelector('#vatraMenuPlayerSlot');if(!slot)return;
+ const box=slot.getBoundingClientRect();
+ dock.classList.add('is-menu-dock');
+ dock.style.left=(box.left+3)+'px';
+ dock.style.top=(box.top+3)+'px';
+ dock.style.width=Math.max(210,box.width-6)+'px';
+ dock.style.height=Math.max(150,box.height-6)+'px';
+ dock.style.visibility='visible';
+}
+function closeMusicMenu(){
+ const panel=document.getElementById('vatraMusicTopPanel');
+ if(panel)panel.hidden=true;
+ resetMenuDock();
+ if(musicHeader)musicHeader.setAttribute('aria-expanded','false');
+}
 function ensureMusicTopPanel(){
- let panel=document.getElementById('vatraMusicTopPanel');
- if(panel)return panel;
+ let panel=document.getElementById('vatraMusicTopPanel');if(panel)return panel;
  panel=document.createElement('section');
  panel.id='vatraMusicTopPanel';panel.className='vatra-top-music-panel';
- panel.hidden=true;panel.setAttribute('aria-label','Меню музики');
- panel.innerHTML='<div class="vatra-menu-heading"><span class="vatra-menu-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="17" cy="16" rx="3" ry="2"/></svg></span><div><strong>Музика ВАТРИ</strong><small>Твоя музика поруч</small></div></div><div class="vatra-menu-current"><b id="vatraTopMusicTitle">Оберіть музику</b><p id="vatraTopMusicArtist">Українські пісні та плейлисти</p></div><div class="vatra-menu-actions"><button type="button" data-vatra-music-open>Перейти до музики</button><button type="button" data-vatra-music-player id="vatraTopMusicPlayer">Слухати добірку</button></div>';
+ panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label','Музика ВАТРИ');
+ panel.innerHTML=
+  '<div class="vatra-menu-heading"><div><strong>Музика ВАТРИ</strong><small>Відкривайте пісні просто тут</small></div><button type="button" data-vatra-popup-dismiss aria-label="Закрити меню музики" class="vatra-menu-dismiss">×</button></div>'+
+  '<label class="vatra-menu-search"><span aria-hidden="true">⌕</span><input type="search" id="vatraPopupMusicSearch" placeholder="Пошук музики" aria-label="Пошук музики" autocomplete="off"></label>'+
+  '<div class="vatra-menu-tabs" role="tablist" aria-label="Вибір музики"><button type="button" role="tab" data-vatra-popup-tab="all" aria-selected="true">Головна</button><button type="button" role="tab" data-vatra-popup-tab="mine" aria-selected="false">Моя музика</button></div>'+
+  '<div class="vatra-menu-feature"><div><strong id="vatraTopMusicTitle">Слухати українську музику</strong><p id="vatraTopMusicArtist">Пісні, добірки та альбоми</p></div><button type="button" data-vatra-popup-feature id="vatraTopMusicPlayer" aria-label="Слухати добірку">'+musicActionIcon('play')+'</button></div>'+
+  '<div class="vatra-menu-results-heading"><span id="vatraTopMusicCount">Рекомендовані добірки</span><a href="#/music" data-vatra-popup-full>Усі пісні</a></div>'+
+  '<div class="vatra-menu-results" id="vatraTopMusicResults" aria-label="Список музики"></div>'+
+  '<h3 class="vatra-menu-player-title">Програвач</h3><div class="vatra-menu-player-slot" id="vatraMenuPlayerSlot">Оберіть пісню або добірку вище</div>'+
+  '<div class="vatra-menu-footer"><small>Відтворення через офіційний програвач Spotify</small><button type="button" data-vatra-popup-full>Перейти до музики</button></div>';
  document.body.append(panel);
  panel.addEventListener('click',event=>{
-  if(event.target.closest('[data-vatra-music-open]')){
-   closeMusicMenu();window.dispatchEvent(new CustomEvent('vatra:navigate',{detail:'music'}));
-  }else if(event.target.closest('[data-vatra-music-player]')){
-   if(playerItem){activePlayer().hidden=false;closeMusicMenu();}
-   else play(MUSIC_LIBRARY.find(item=>item.type==='playlist'));
+  if(event.target.closest('[data-vatra-popup-dismiss]')){closeMusicMenu();return;}
+  if(event.target.closest('[data-vatra-popup-full]')){
+   event.preventDefault();closeMusicMenu();
+   window.dispatchEvent(new CustomEvent('vatra:navigate',{detail:'music'}));
+   return;
   }
+  const tab=event.target.closest('[data-vatra-popup-tab]');
+  if(tab){popupMusicTab=tab.dataset.vatraPopupTab;renderPopupMusic();return;}
+  const item=event.target.closest('[data-vatra-popup-play]');
+  if(item){
+   const selected=musicIndex.get(item.dataset.vatraPopupPlay);
+   if(selected){play(selected);openMusicMenu();}
+   return;
+  }
+  if(event.target.closest('[data-vatra-popup-feature]')){
+   const chosen=playerItem||MUSIC_LIBRARY.find(item=>item.type==='playlist');
+   if(chosen){play(chosen);openMusicMenu();}
+  }
+ });
+ panel.querySelector('#vatraPopupMusicSearch').addEventListener('input',event=>{
+  popupMusicSearch=event.target.value;renderPopupMusic();
  });
  return panel;
 }
 function placeMusicMenu(){
  const panel=ensureMusicTopPanel(),rect=musicHeader.getBoundingClientRect();
- const width=Math.min(340,innerWidth-24);
- panel.style.width=width+'px';
- panel.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.right-width))+'px';
- panel.style.top=Math.min(innerHeight-panel.offsetHeight-12,rect.bottom+10)+'px';
+ const width=panel.getBoundingClientRect().width||Math.min(560,innerWidth-24);
+ const center=rect.left+rect.width/2;
+ const left=Math.max(12,Math.min(innerWidth-width-12,center-width/2));
+ panel.style.left=left+'px';
+ panel.style.setProperty('--vatra-music-arrow-x',Math.max(16,Math.min(width-16,center-left))+'px');
+ panel.style.top=Math.max(12,Math.min(innerHeight-panel.offsetHeight-12,rect.bottom+12))+'px';
+ positionMenuDock();
+}
+function openMusicMenu(){
+ if(!musicHeader)return;
+ const id=getAuth().currentUser?.uid||'';
+ if(id&&id!==musicUid){musicUid=id;musicFavorites=new Set();musicLoaded=false;musicLoading=false;}
+ if(id&&!musicLoaded&&!musicLoading)void loadFavorites(id).then(()=>{renderPopupMusic();});
+ const panel=ensureMusicTopPanel();
+ panel.hidden=false;musicHeader.setAttribute('aria-expanded','true');
+ renderPopupMusic();placeMusicMenu();
 }
 if(musicHeader){
  musicHeader.setAttribute('aria-haspopup','dialog');
  musicHeader.addEventListener('click',event=>{
   event.preventDefault();event.stopPropagation();
-  const panel=ensureMusicTopPanel(),wasOpen=!panel.hidden;
-  closeMusicMenu();
-  if(!wasOpen){syncHeaderMusic();panel.hidden=false;musicHeader.setAttribute('aria-expanded','true');placeMusicMenu();}
+  const wasOpen=!ensureMusicTopPanel().hidden;
+  if(wasOpen)closeMusicMenu();else openMusicMenu();
  });
  document.addEventListener('click',event=>{
-  if(!event.target.closest('#vatraMusicTopPanel')&&!event.target.closest('#vatraMusicHeaderButton'))closeMusicMenu();
+  if(!event.target.closest('#vatraMusicTopPanel')&&!event.target.closest('#vatraMusicHeaderButton')&&!event.target.closest('#vatraMusicDock'))closeMusicMenu();
  });
  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMusicMenu();});
  window.addEventListener('resize',()=>{if(!ensureMusicTopPanel().hidden)placeMusicMenu();});
- window.addEventListener('scroll',()=>{if(!ensureMusicTopPanel().hidden)placeMusicMenu();},true);
  window.addEventListener('hashchange',closeMusicMenu);
 }
-
 document.addEventListener('click',async event=>{
  const tab=event.target.closest('[data-music-tab]');if(tab){musicTab=tab.dataset.musicTab;renderMusic();return;}
  const listen=event.target.closest('[data-music-play]');if(listen){play(musicIndex.get(listen.dataset.musicPlay));return;}
