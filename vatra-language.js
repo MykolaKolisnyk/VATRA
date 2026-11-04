@@ -3,7 +3,7 @@
 const translatedLanguages=new Set(['uk','en','pl','de','fr','es','pt','it']);
 const languageCodes=["aa","ab","ae","af","ak","am","an","ar","as","av","ay","az","ba","be","bg","bh","bi","bm","bn","bo","br","bs","ca","ce","ch","co","cr","cs","cv","cy","da","de","dv","dz","ee","el","en","eo","es","et","eu","fa","ff","fi","fj","fo","fr","fy","ga","gd","gl","gn","gu","gv","ha","he","hi","ho","hr","ht","hu","hy","hz","ia","id","ie","ig","ii","ik","io","is","it","iu","ja","jv","ka","kg","ki","kj","kk","kl","km","kn","ko","kr","ks","ku","kv","kw","ky","la","lb","lg","li","ln","lo","lt","lu","lv","mg","mh","mi","mk","ml","mn","mr","ms","mt","my","na","nb","nd","ne","ng","nl","nn","no","nr","nv","ny","oc","oj","om","or","os","pa","pi","pl","ps","pt","qu","rm","rn","ro","rw","sa","sc","sd","se","sg","si","sk","sl","sm","sn","so","sq","sr","ss","st","su","sv","sw","ta","te","tg","th","ti","tk","tl","tn","to","tr","ts","tt","tw","ty","ug","uk","ur","uz","ve","vi","vo","wa","wo","xh","yi","yo","za","zh","zu"];
 const ukNames=new Intl.DisplayNames(['uk'],{type:'language'});
-const excludedLanguageCodes=new Set(['ru','be']);
+const excludedLanguageCodes=new Set();
 const capitalizeLanguage=name=>name?name.slice(0,1).toLocaleUpperCase('uk')+name.slice(1):'';
 const languages=languageCodes.filter(code=>!excludedLanguageCodes.has(code)).map(code=>{
  let nativeName=code;
@@ -42,6 +42,31 @@ const overrides={
  pt:{'Мій профіль':'Meu perfil','Друзі':'Amigos','Новини':'Notícias','Повідомлення':'Mensagens','Спільноти':'Comunidades','Відео':'Vídeos','Збережене':'Salvos','Налаштування':'Configurações','Сповіщення':'Notificações','Музика':'Música','Пошук':'Buscar','Увійти':'Entrar','Створити акаунт':'Criar conta','Ім’я':'Nome','Прізвище':'Sobrenome','Дата народження':'Data de nascimento','Стать':'Gênero','Чоловік':'Homem','Жінка':'Mulher','Електронна пошта':'E-mail','Телефон':'Telefone','Пароль':'Senha','Продовжити':'Continuar','Зберегти налаштування':'Salvar configurações','Мова інтерфейсу':'Idioma','Створити допис':'Criar publicação','Фото':'Foto','Фотографії':'Fotos','Згорнути':'Mostrar menos','Показати більше':'Mostrar mais','Пошук людей і дописів':'Buscar pessoas e publicações'},
  it:{'Мій профіль':'Il mio profilo','Друзі':'Amici','Новини':'Notizie','Повідомлення':'Messaggi','Спільноти':'Comunità','Відео':'Video','Збережене':'Salvati','Налаштування':'Impostazioni','Сповіщення':'Notifiche','Музика':'Musica','Пошук':'Cerca','Увійти':'Accedi','Створити акаунт':'Crea account','Ім’я':'Nome','Прізвище':'Cognome','Дата народження':'Data di nascita','Стать':'Genere','Чоловік':'Uomo','Жінка':'Donna','Електронна пошта':'Email','Телефон':'Telefono','Пароль':'Password','Продовжити':'Continua','Зберегти налаштування':'Salva impostazioni','Мова інтерфейсу':'Lingua','Створити допис':'Crea post','Фото':'Foto','Фотографії':'Foto','Згорнути':'Mostra meno','Показати більше':'Mostra altro','Пошук людей і дописів':'Cerca persone e post'}
 };
+// Additional language foundations for navigation and account UI.
+// Not marked as fully localized; untranslated strings remain in Ukrainian.
+const partialLanguages=new Set(["cs","sk","ro","hu","nl","sv","da","fi","el","tr","ja","zh","ko","ar","hi","he","et","lt","lv","bg"]);
+Object.assign(overrides,{
+"cs":{"Мій профіль":"Můj profil","Друзі":"Přátelé","Новини":"Novinky","Повідомлення":"Zprávy","Спільноти":"Komunity","Відео":"Videa","Збережене":"Uložené","Налаштування":"Nastavení","Сповіщення":"Oznámení","Музика":"Hudba","Пошук":"Hledat","Увійти":"Přihlásit se","Створити акаунт":"Vytvořit účet","Продовжити":"Pokračovat","Скасувати":"Zrušit","Закрити":"Zavřít","Мова інтерфейсу":"Jazyk rozhraní"},
+"sk":{"Мій профіль":"Môj profil","Друзі":"Priatelia","Новини":"Novinky","Повідомлення":"Správy","Спільноти":"Komunity","Відео":"Videá","Збережене":"Uložené","Налаштування":"Nastavenia","Сповіщення":"Upozornenia","Музика":"Hudba","Пошук":"Hľadať","Увійти":"Prihlásiť sa","Створити акаунт":"Vytvoriť účet","Продовжити":"Pokračovať","Скасувати":"Zrušiť","Закрити":"Zavrieť","Мова інтерфейсу":"Jazyk rozhrania"},
+"ro":{"Мій профіль":"Profilul meu","Друзі":"Prieteni","Новини":"Noutăți","Повідомлення":"Mesaje","Спільноти":"Comunități","Відео":"Videoclipuri","Збережене":"Salvate","Налаштування":"Setări","Сповіщення":"Notificări","Музика":"Muzică","Пошук":"Căutare","Увійти":"Conectare","Створити акаунт":"Creează cont","Продовжити":"Continuă","Скасувати":"Anulează","Закрити":"Închide","Мова інтерфейсу":"Limba interfeței"},
+"hu":{"Мій профіль":"Profilom","Друзі":"Barátok","Новини":"Hírek","Повідомлення":"Üzenetek","Спільноти":"Közösségek","Відео":"Videók","Збережене":"Mentett","Налаштування":"Beállítások","Сповіщення":"Értesítések","Музика":"Zene","Пошук":"Keresés","Увійти":"Bejelentkezés","Створити акаунт":"Fiók létrehozása","Продовжити":"Folytatás","Скасувати":"Mégse","Закрити":"Bezárás","Мова інтерфейсу":"Felület nyelve"},
+"nl":{"Мій профіль":"Mijn profiel","Друзі":"Vrienden","Новини":"Nieuws","Повідомлення":"Berichten","Спільноти":"Gemeenschappen","Відео":"Video’s","Збережене":"Opgeslagen","Налаштування":"Instellingen","Сповіщення":"Meldingen","Музика":"Muziek","Пошук":"Zoeken","Увійти":"Inloggen","Створити акаунт":"Account maken","Продовжити":"Doorgaan","Скасувати":"Annuleren","Закрити":"Sluiten","Мова інтерфейсу":"Interfacetaal"},
+"sv":{"Мій профіль":"Min profil","Друзі":"Vänner","Новини":"Nyheter","Повідомлення":"Meddelanden","Спільноти":"Grupper","Відео":"Videor","Збережене":"Sparat","Налаштування":"Inställningar","Сповіщення":"Aviseringar","Музика":"Musik","Пошук":"Sök","Увійти":"Logga in","Створити акаунт":"Skapa konto","Продовжити":"Fortsätt","Скасувати":"Avbryt","Закрити":"Stäng","Мова інтерфейсу":"Gränssnittsspråk"},
+"da":{"Мій профіль":"Min profil","Друзі":"Venner","Новини":"Nyheder","Повідомлення":"Beskeder","Спільноти":"Fællesskaber","Відео":"Videoer","Збережене":"Gemt","Налаштування":"Indstillinger","Сповіщення":"Notifikationer","Музика":"Musik","Пошук":"Søg","Увійти":"Log ind","Створити акаунт":"Opret konto","Продовжити":"Fortsæt","Скасувати":"Annuller","Закрити":"Luk","Мова інтерфейсу":"Grænsefladesprog"},
+"fi":{"Мій профіль":"Oma profiili","Друзі":"Ystävät","Новини":"Uutiset","Повідомлення":"Viestit","Спільноти":"Yhteisöt","Відео":"Videot","Збережене":"Tallennetut","Налаштування":"Asetukset","Сповіщення":"Ilmoitukset","Музика":"Musiikki","Пошук":"Haku","Увійти":"Kirjaudu sisään","Створити акаунт":"Luo tili","Продовжити":"Jatka","Скасувати":"Peruuta","Закрити":"Sulje","Мова інтерфейсу":"Käyttöliittymän kieli"},
+"el":{"Мій профіль":"Το προφίλ μου","Друзі":"Φίλοι","Новини":"Νέα","Повідомлення":"Μηνύματα","Спільноти":"Κοινότητες","Відео":"Βίντεο","Збережене":"Αποθηκευμένα","Налаштування":"Ρυθμίσεις","Сповіщення":"Ειδοποιήσεις","Музика":"Μουσική","Пошук":"Αναζήτηση","Увійти":"Σύνδεση","Створити акаунт":"Δημιουργία λογαριασμού","Продовжити":"Συνέχεια","Скасувати":"Ακύρωση","Закрити":"Κλείσιμο","Мова інтерфейсу":"Γλώσσα διεπαφής"},
+"tr":{"Мій профіль":"Profilim","Друзі":"Arkadaşlar","Новини":"Haberler","Повідомлення":"Mesajlar","Спільноти":"Topluluklar","Відео":"Videolar","Збережене":"Kaydedilenler","Налаштування":"Ayarlar","Сповіщення":"Bildirimler","Музика":"Müzik","Пошук":"Ara","Увійти":"Giriş yap","Створити акаунт":"Hesap oluştur","Продовжити":"Devam et","Скасувати":"İptal","Закрити":"Kapat","Мова інтерфейсу":"Arayüz dili"},
+"ja":{"Мій профіль":"マイプロフィール","Друзі":"友達","Новини":"ニュース","Повідомлення":"メッセージ","Спільноти":"コミュニティ","Відео":"動画","Збережене":"保存済み","Налаштування":"設定","Сповіщення":"通知","Музика":"音楽","Пошук":"検索","Увійти":"ログイン","Створити акаунт":"アカウント作成","Продовжити":"続ける","Скасувати":"キャンセル","Закрити":"閉じる","Мова інтерфейсу":"表示言語"},
+"zh":{"Мій профіль":"我的主页","Друзі":"好友","Новини":"动态","Повідомлення":"消息","Спільноти":"社群","Відео":"视频","Збережене":"已保存","Налаштування":"设置","Сповіщення":"通知","Музика":"音乐","Пошук":"搜索","Увійти":"登录","Створити акаунт":"创建账号","Продовжити":"继续","Скасувати":"取消","Закрити":"关闭","Мова інтерфейсу":"界面语言"},
+"ko":{"Мій профіль":"내 프로필","Друзі":"친구","Новини":"소식","Повідомлення":"메시지","Спільноти":"커뮤니티","Відео":"동영상","Збережене":"저장됨","Налаштування":"설정","Сповіщення":"알림","Музика":"음악","Пошук":"검색","Увійти":"로그인","Створити акаунт":"계정 만들기","Продовжити":"계속","Скасувати":"취소","Закрити":"닫기","Мова інтерфейсу":"인터페이스 언어"},
+"ar":{"Мій профіль":"ملفي الشخصي","Друзі":"الأصدقاء","Новини":"الأخبار","Повідомлення":"الرسائل","Спільноти":"المجتمعات","Відео":"الفيديوهات","Збережене":"المحفوظات","Налаштування":"الإعدادات","Сповіщення":"الإشعارات","Музика":"الموسيقى","Пошук":"بحث","Увійти":"تسجيل الدخول","Створити акаунт":"إنشاء حساب","Продовжити":"متابعة","Скасувати":"إلغاء","Закрити":"إغلاق","Мова інтерфейсу":"لغة الواجهة"},
+"hi":{"Мій профіль":"मेरी प्रोफ़ाइल","Друзі":"मित्र","Новини":"समाचार","Повідомлення":"संदेश","Спільноти":"समुदाय","Відео":"वीडियो","Збережене":"सहेजे गए","Налаштування":"सेटिंग्स","Сповіщення":"सूचनाएँ","Музика":"संगीत","Пошук":"खोजें","Увійти":"लॉग इन","Створити акаунт":"खाता बनाएँ","Продовжити":"जारी रखें","Скасувати":"रद्द करें","Закрити":"बंद करें","Мова інтерфейсу":"इंटरफ़ेस भाषा"},
+"he":{"Мій профіль":"הפרופיל שלי","Друзі":"חברים","Новини":"חדשות","Повідомлення":"הודעות","Спільноти":"קהילות","Відео":"סרטונים","Збережене":"שמורים","Налаштування":"הגדרות","Сповіщення":"התראות","Музика":"מוזיקה","Пошук":"חיפוש","Увійти":"התחברות","Створити акаунт":"יצירת חשבון","Продовжити":"המשך","Скасувати":"ביטול","Закрити":"סגירה","Мова інтерфейсу":"שפת ממשק"},
+"et":{"Мій профіль":"Minu profiil","Друзі":"Sõbrad","Новини":"Uudised","Повідомлення":"Sõnumid","Спільноти":"Kogukonnad","Відео":"Videod","Збережене":"Salvestatud","Налаштування":"Seaded","Сповіщення":"Teavitused","Музика":"Muusika","Пошук":"Otsing","Увійти":"Logi sisse","Створити акаунт":"Loo konto","Продовжити":"Jätka","Скасувати":"Tühista","Закрити":"Sulge","Мова інтерфейсу":"Liidese keel"},
+"lt":{"Мій профіль":"Mano profilis","Друзі":"Draugai","Новини":"Naujienos","Повідомлення":"Žinutės","Спільноти":"Bendruomenės","Відео":"Vaizdo įrašai","Збережене":"Išsaugota","Налаштування":"Nustatymai","Сповіщення":"Pranešimai","Музика":"Muzika","Пошук":"Paieška","Увійти":"Prisijungti","Створити акаунт":"Sukurti paskyrą","Продовжити":"Tęsti","Скасувати":"Atšaukti","Закрити":"Uždaryti","Мова інтерфейсу":"Sąsajos kalba"},
+"lv":{"Мій профіль":"Mans profils","Друзі":"Draugi","Новини":"Jaunumi","Повідомлення":"Ziņojumi","Спільноти":"Kopienas","Відео":"Video","Збережене":"Saglabātie","Налаштування":"Iestatījumi","Сповіщення":"Paziņojumi","Музика":"Mūzika","Пошук":"Meklēt","Увійти":"Pieteikties","Створити акаунт":"Izveidot kontu","Продовжити":"Turpināt","Скасувати":"Atcelt","Закрити":"Aizvērt","Мова інтерфейсу":"Saskarnes valoda"},
+"bg":{"Мій профіль":"Моят профил","Друзі":"Приятели","Новини":"Новини","Повідомлення":"Съобщения","Спільноти":"Общности","Відео":"Видеа","Збережене":"Запазени","Налаштування":"Настройки","Сповіщення":"Известия","Музика":"Музика","Пошук":"Търсене","Увійти":"Вход","Створити акаунт":"Създай акаунт","Продовжити":"Продължи","Скасувати":"Отказ","Закрити":"Затвори","Мова інтерфейсу":"Език на интерфейса"}
+});
 const footerLabels={
  en:{'Українська соціальна мережа':'Ukrainian social network','Конфіденційність':'Privacy','Розробник:':'Developer:','Реклама':'Advertisement','Місце для реклами':'Advertising space'},
  pl:{'Українська соціальна мережа':'Ukraińska sieć społecznościowa','Конфіденційність':'Prywatność','Розробник:':'Twórca:','Реклама':'Reklama','Місце для реклами':'Miejsce na reklamę'},
@@ -175,9 +200,9 @@ function translateText(node){
 function translateRoot(root){
  if(root.nodeType===3){translateText(root);return;}
  if(root.nodeType!==1&&root.nodeType!==9)return;
- const allowed=root.matches?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout');
- if(!allowed&&!root.closest?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout')){
-  root.querySelectorAll?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout').forEach(translateRoot);
+ const allowed=root.matches?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout,.vatra-avatar-pick-dialog,.vatra-language-dialog,.vatra-music-page,.vatra-suspended-own-screen,dialog[open]');
+ if(!allowed&&!root.closest?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout,.vatra-avatar-pick-dialog,.vatra-language-dialog,.vatra-music-page,.vatra-suspended-own-screen,dialog[open]')){
+  root.querySelectorAll?.('.auth-layout,.layout,.topbar,.mobile-nav,.mobile-menu,.settings-page,.quick-compose,.vatra-settings-nav,.vatra-settings-pane,.vatra-site-legal-head,.vatra-footer-legal,.vatra-gifts-page,.vatra-group-view,.vatra-profile-layout,.vatra-avatar-pick-dialog,.vatra-language-dialog,.vatra-music-page,.vatra-suspended-own-screen,dialog[open]').forEach(translateRoot);
   return;
  }
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
@@ -271,40 +296,64 @@ function vatraFlagSVG(code){
  if(defs[region])return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false"><rect width="28" height="20" rx="2" fill="#fff"/>'+defs[region]+'</svg>';
  return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false"><rect x="1" y="1" width="26" height="18" rx="3" fill="#edf4fd" stroke="#cfdeef"/><circle cx="14" cy="10" r="6.5" fill="none" stroke="#5583b5" stroke-width="1.3"/><path d="M7.5 10h13M14 3.5c-5 4-5 9 0 13M14 3.5c5 4 5 9 0 13" fill="none" stroke="#5583b5" stroke-width="1.1"/></svg>';
 }
+let activeLanguageSelect=null;
+function vatraLanguageDialog(){
+ let dlg=document.getElementById('vatraLanguageDialog');
+ if(dlg)return dlg;
+ dlg=document.createElement('dialog');dlg.id='vatraLanguageDialog';dlg.className='vatra-language-dialog';
+ dlg.setAttribute('aria-labelledby','vatraLanguageDialogTitle');
+ const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-selected="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+(translatedLanguages.has(code)?'':partialLanguages.has(code)?'<small>Частково</small>':'<small>Переклад готується</small>')+'</button>';
+ dlg.innerHTML='<header><div><h2 id="vatraLanguageDialogTitle">Мова ВАТРИ</h2><p>Виберіть мову інтерфейсу. Поточна мова позначена галочкою.</p></div><button type="button" class="vatra-language-close" data-vatra-language-close aria-label="Закрити вибір мови">×</button></header>'+
+ '<input class="vatra-language-search" type="search" placeholder="Знайти мову…" aria-label="Пошук мови" autocomplete="off">'+
+ '<div class="vatra-language-picker-list" role="group" aria-label="Вибір мови">'+
+ '<div class="vatra-language-picker-category">Мови з перекладом</div>'+languages.filter(([code])=>translatedLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+
+ '<div class="vatra-language-picker-category">Частковий переклад інтерфейсу</div>'+languages.filter(([code])=>partialLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+ '<div class="vatra-language-picker-category">Інші мови · переклад готується</div>'+languages.filter(([code])=>!translatedLanguages.has(code)&&!partialLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+'</div>';
+ document.body.append(dlg);
+ const search=dlg.querySelector('.vatra-language-search');
+ search.addEventListener('input',()=>{
+  const query=search.value.toLocaleLowerCase('uk-UA').trim();
+  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>{button.hidden=!!query&&!button.textContent.toLocaleLowerCase('uk-UA').includes(query)&&!button.dataset.vatraLanguageCode.includes(query);});
+ });
+ dlg.addEventListener('click',event=>{
+  if(event.target===dlg||event.target.closest('[data-vatra-language-close]')){dlg.close();return;}
+  const button=event.target.closest('[data-vatra-language-code]');
+  if(!button||!activeLanguageSelect)return;
+  const chosen=button.dataset.vatraLanguageCode;
+  activeLanguageSelect.value=chosen;
+  activeLanguageSelect.dispatchEvent(new Event('change',{bubbles:true}));
+  dlg.close();
+ });
+ return dlg;
+}
 function vatraEnhanceLanguageSelect(select){
  if(select.dataset.vatraEnhanced==='true')return;
  select.dataset.vatraEnhanced='true';select.classList.add('vatra-language-native-hidden');
  const wrap=document.createElement('div');wrap.className='vatra-language-picker';
- const trigger=document.createElement('button');trigger.type='button';trigger.className='vatra-language-picker-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
- const popup=document.createElement('div');popup.className='vatra-language-picker-popup';popup.hidden=true;
- const search=document.createElement('input');search.type='search';search.className='vatra-language-picker-search';search.placeholder='Знайти мову…';search.setAttribute('aria-label','Пошук мови');
- const list=document.createElement('div');list.className='vatra-language-picker-list';list.setAttribute('role','listbox');
- const make=(code,name)=>'<button type="button" class="vatra-language-picker-option" role="option" aria-selected="'+String(code===language)+'" data-vatra-language-code="'+code+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+(translatedLanguages.has(code)?'':'<small>Готується</small>')+'</button>';
- list.innerHTML='<div class="vatra-language-picker-category">Основні мови інтерфейсу</div>'+
-  languages.filter(([code])=>translatedLanguages.has(code)).map(([code,name])=>make(code,name)).join('')+
-  '<div class="vatra-language-picker-category">Інші мови · переклад готується</div>'+
-  languages.filter(([code])=>!translatedLanguages.has(code)).map(([code,name])=>make(code,name)).join('');
- popup.append(search,list);wrap.append(trigger,popup);select.insertAdjacentElement('afterend',wrap);
+ const trigger=document.createElement('button');trigger.type='button';trigger.className='vatra-language-picker-trigger';
+ trigger.setAttribute('aria-haspopup','dialog');trigger.setAttribute('aria-controls','vatraLanguageDialog');
  const update=()=>{
   const selected=languages.find(([code])=>code===select.value)||languages[0];
-  trigger.innerHTML=vatraFlagSVG(selected[0])+'<span>'+selected[1]+'</span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
-  list.querySelectorAll('[data-vatra-language-code]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.vatraLanguageCode===selected[0])));
+  trigger.replaceChildren();
+  const glyph=document.createElement('span');glyph.innerHTML=vatraFlagSVG(selected[0]);glyph.style.flex='0 0 auto';
+  const label=document.createElement('span');label.textContent=selected[1];
+  const arrow=document.createElement('span');arrow.textContent='⌄';arrow.setAttribute('aria-hidden','true');
+  trigger.append(glyph,label,arrow);
+  trigger.setAttribute('aria-label','Обрати мову. Поточна мова: '+selected[1]);
  };
- update();
- trigger.addEventListener('click',event=>{event.preventDefault();const open=popup.hidden;document.querySelectorAll('.vatra-language-picker-popup').forEach(p=>p.hidden=true);
-  popup.hidden=!open;trigger.setAttribute('aria-expanded',String(open));if(open){search.value='';list.querySelectorAll('[data-vatra-language-code]').forEach(b=>b.hidden=false);search.focus();}
+ update();wrap.append(trigger);select.insertAdjacentElement('afterend',wrap);
+ trigger.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  const dlg=vatraLanguageDialog();activeLanguageSelect=select;
+  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.vatraLanguageCode===language)));
+  const search=dlg.querySelector('.vatra-language-search');search.value='';
+  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.hidden=false);
+  dlg.showModal();search.focus();
  });
- list.addEventListener('click',event=>{
-  const button=event.target.closest('[data-vatra-language-code]');if(!button)return;
-  select.value=button.dataset.vatraLanguageCode;popup.hidden=true;trigger.setAttribute('aria-expanded','false');select.dispatchEvent(new Event('change',{bubbles:true}));update();
- });
- search.addEventListener('input',()=>{const q=search.value.trim().toLocaleLowerCase('uk-UA');list.querySelectorAll('[data-vatra-language-code]').forEach(b=>{b.hidden=!b.textContent.toLocaleLowerCase('uk-UA').includes(q)})});
- document.addEventListener('pointerdown',event=>{if(!wrap.contains(event.target)){popup.hidden=true;trigger.setAttribute('aria-expanded','false')}});
- document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!popup.hidden){popup.hidden=true;trigger.setAttribute('aria-expanded','false');trigger.focus()}});
  select.addEventListener('change',update);
+ document.addEventListener('vatra:languagechange',update);
 }
 function syncLanguageNotice(){
- const status=translatedLanguages.has(language)?'':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
+ const status=translatedLanguages.has(language)?'':partialLanguages.has(language)?'Цією мовою перекладено основну навігацію та елементи входу. Повний переклад ще готується.':'Повний переклад інтерфейсу цією мовою ще готується. Поки доступна українська версія.';
  document.querySelectorAll('.vatra-language-notice').forEach(el=>{if(el.textContent!==status)el.textContent=status;if(el.hidden===Boolean(status))el.hidden=!status;});
 }
 function install(){
