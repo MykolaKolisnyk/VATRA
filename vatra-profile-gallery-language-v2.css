@@ -92,19 +92,6 @@ body[data-vatra-theme-effective="dark"] .vatra-language-dialog .vatra-language-p
 body[data-vatra-theme-effective="dark"] .vatra-avatar-pick-dialog .vatra-avatar-pick-header,
 body[data-vatra-theme-effective="dark"] .vatra-avatar-pick-dialog .vatra-avatar-pick-footer{background:#253a56;border-color:#405777}
 body :is(.vatra-settings-icon,.settings-icon,.vatra-setting-icon, .settings-section-heading svg){width:21px!important;height:21px!important;min-width:21px!important;min-height:21px!important;overflow:visible!important;flex:none!important}
-/* The user's wider page has a dedicated 2-thumbnail media rail.
-   Photo gallery carousels on other pages retain the standard four visible cards. */
-@media(min-width:1260px){
- body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos .vatra-gallery-track.profile-photo-gallery{
-  grid-auto-columns:calc((100% - var(--vatra-gallery-gap)) / 2)!important;
- }
- body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos .vatra-gallery-viewport{
-  overflow:hidden!important;
- }
- body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos .vatra-gallery-footer.is-mobile-only{
-  display:flex!important;
- }
-}
 @media(max-width:590px){
  body .vatra-profile-photo-carousel .vatra-gallery-track.profile-photo-gallery{grid-auto-columns:calc((100% - var(--vatra-gallery-gap)) / 2)!important}
  body .vatra-avatar-pick-dialog .vatra-avatar-pick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}

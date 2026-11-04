@@ -1118,14 +1118,13 @@ function vatraProfileGalleryCarousel(uid,photos,isMine=false){
   (direction<0?'<path d="m14.5 5-7 7 7 7"/>':'<path d="m9.5 5 7 7-7 7"/>')+'</svg></button>';
  return '<div class="vatra-profile-photo-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
   '<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+
-  (found.length>2?'<div class="vatra-gallery-footer'+(found.length<=4&&!(isMine&&window.matchMedia('(min-width:1260px)').matches)?' is-mobile-only':'')+'"><span class="vatra-gallery-position" aria-live="polite">1–'+Math.min(isMine&&window.matchMedia('(min-width:1260px)').matches?2:4,found.length)+' із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
+  (found.length>2?'<div class="vatra-gallery-footer'+(found.length<=4?' is-mobile-only':'')+'"><span class="vatra-gallery-position" aria-live="polite">1–'+Math.min(4,found.length)+' із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
 }
 function vatraShiftProfileGallery(box,state){
  if(!box||!state)return;
  const track=box.querySelector('.vatra-gallery-track'),tiles=track?.children;
  if(!track||!tiles?.length)return;
- const narrowRail=Boolean(box.closest('.vatra-own-page-layout .vatra-profile-photos'))&&window.matchMedia('(min-width:1260px)').matches;
- const viewportCount=Math.min(narrowRail||window.matchMedia('(max-width:590px)').matches?2:4,tiles.length);
+ const viewportCount=Math.min(window.matchMedia('(max-width:590px)').matches?2:4,tiles.length);
  const maxOffset=Math.max(0,tiles.length-viewportCount);
  state.offset=Math.max(0,Math.min(state.offset,maxOffset));
  const first=tiles[0].offsetLeft;
@@ -1144,8 +1143,7 @@ document.addEventListener('click',event=>{
  const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
  if(!box||!state||state.photos.length<=(window.matchMedia('(max-width:590px)').matches?2:4))return;
  const direction=Number(arrow.dataset.vatraGalleryStep);
- const narrowRail=Boolean(box.closest('.vatra-own-page-layout .vatra-profile-photos'))&&window.matchMedia('(min-width:1260px)').matches;
- const visible=narrowRail||window.matchMedia('(max-width:590px)').matches?2:4;
+ const visible=window.matchMedia('(max-width:590px)').matches?2:4;
  if(direction>0){
   if(state.offset<state.photos.length-visible){state.history.push(state.offset);state.offset=Math.min(state.photos.length-visible,state.offset+visible);}
  }else{
@@ -1183,7 +1181,7 @@ function renderProfile(){
  const selfExtras=vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid);
  const hasExtraDetails=Boolean(selfExtras);
  const selfStatusMarkup=vatraNowPlayingMarkup(currentProfile)||(currentProfile.status&&!vatraProfileSameText(currentProfile.status,currentProfile.bio)?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':(!currentProfile.status?'<p class="vatra-profile-status is-empty">Додайте свій статус</p>':''));
- const profileHtml='<section class="vatra-profile-layout vatra-own-page-layout">'+
+ const profileHtml='<section class="vatra-profile-layout">'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card">'+
     '<div class="vatra-avatar-hover-wrap" id="vatraAvatarWrap">'+

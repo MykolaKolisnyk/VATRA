@@ -10,7 +10,7 @@
  grid-template-columns:190px minmax(0,1fr)!important;gap:21px!important;}
  html body .layout>.main{min-width:0!important;max-width:none!important;}
  html body .vatra-global-header .search{max-width:510px!important;}
- html body[data-page="profile"] .vatra-own-page-layout{grid-template-columns:250px minmax(0,1fr)!important;gap:18px!important;}
+ html body .vatra-profile-layout{grid-template-columns:252px minmax(0,1fr)!important;gap:19px!important;}
  html body .vatra-profile-main,html body .vatra-profile-sidebar{gap:16px!important;}
 }
 html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card){
@@ -157,116 +157,4 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
   font-size:clamp(20px,5vw,24px)!important;
  }
  html body .vatra-global-header .search input{font-size:16px!important;}
-}
-
-/* The global header shares the real user page's width and nav column. */
-body[data-page="profile"]{
- --vatra-unified-width:1520px;
- --vatra-unified-rail:212px;
- --vatra-unified-gap:20px;
-}
-@media(min-width:761px) and (max-width:1259px){
- body[data-page="profile"]{
-  --vatra-unified-width:1160px;
-  --vatra-unified-rail:190px;
-  --vatra-unified-gap:16px;
- }
-}
-/* User page layout without a cover. Preserve the responsive columns and original avatar card. */
-html body[data-page="profile"] .vatra-own-page-layout{
- display:grid!important;
- grid-template-columns:minmax(205px,250px) minmax(0,1fr)!important;
- gap:16px!important;align-items:start!important;
- min-width:0!important;max-width:none!important;width:100%!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-sidebar{
- grid-column:1!important;grid-row:1!important;min-width:0!important;
- display:grid!important;align-content:start!important;gap:14px!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-main{
- grid-column:2!important;grid-row:1!important;min-width:0!important;
- display:grid!important;align-content:start!important;gap:14px!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-avatar-card{
- margin-top:0!important;padding:11px!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-overview{
- padding:22px 22px 12px!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-name-line h2{
- font-size:clamp(22px,2vw,27px)!important;font-weight:750!important;
- line-height:1.24!important;letter-spacing:-.025em!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos{
- min-height:0!important;padding:15px!important;
-}
-html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-posts{
- min-width:0!important;max-width:100%!important;
-}
-html body:not([data-vatra-theme-effective="dark"])[data-page="profile"]{
- background:#f5f7fa!important;
-}
-@media(min-width:1260px){
- html body[data-page="profile"] .layout{
-  box-sizing:border-box!important;width:min(1520px,calc(100% - 36px))!important;
-  max-width:1520px!important;
-  grid-template-columns:212px minmax(0,1fr)!important;gap:20px!important;
-  justify-content:center!important;
- }
- html body[data-page="profile"] .layout>.main,
- html body[data-page="profile"] .layout>.main>#feed{
-  width:100%!important;max-width:none!important;min-width:0!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout{
-  grid-template-columns:252px minmax(0,1fr)!important;gap:18px!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-main{
-  grid-template-columns:minmax(0,1fr) minmax(252px,295px)!important;
-  gap:14px!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-overview{
-  grid-column:1/-1!important;grid-row:1!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-compose{
-  grid-column:1!important;grid-row:2!important;margin:0!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-posts{
-  grid-column:1!important;grid-row:3!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos{
-  grid-column:2!important;grid-row:2 / span 3!important;
-  align-self:start!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos .vatra-profile-card-head{
-  gap:6px!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos .vatra-profile-card-head h3{
-  font-size:15px!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-photos .vatra-profile-card-head :is(#profileViewPhotos,#profileAddPhoto){
-  font-size:11px!important;
- }
-}
-@media(min-width:761px) and (max-width:1259px){
- html body[data-page="profile"] .layout{
-  width:min(1160px,calc(100% - 24px))!important;max-width:1160px!important;
-  grid-template-columns:190px minmax(0,1fr)!important;gap:16px!important;
- }
- html body[data-page="profile"] .layout>.main{max-width:none!important;min-width:0!important}
- html body[data-page="profile"] .vatra-own-page-layout{grid-template-columns:minmax(195px,230px) minmax(0,1fr)!important}
-}
-@media(max-width:760px){
- html body[data-page="profile"] .vatra-own-page-layout{
-  display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-sidebar{
-  grid-column:1!important;grid-row:1!important;gap:10px!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-main{
-  grid-column:1!important;grid-row:2!important;grid-template-columns:minmax(0,1fr)!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-avatar-card{
-  margin:0 12px!important;width:min(220px,calc(100% - 24px))!important;
- }
- html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-overview{padding:16px!important}
 }
