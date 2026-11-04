@@ -144,22 +144,10 @@ function notify(text,isError=false){
 
 /* Unified VATRA vector symbols: no text characters standing in for icons. */
 function musicIcon(type){
- const paths={
- track:'M9 18V5l11-2v13M9 9l11-2M6 21c2 0 3-1 3-3s-1-3-3-3-3 1-3 3 1 3 3 3ZM17 19c2 0 3-1 3-3s-1-3-3-3-3 1-3 3 1 3 3 3Z',
- playlist:'M8 5h12M8 11h12M8 17h8M4 5h.01M4 11h.01M4 17h.01',
- album:'M4 4h16v16H4zM12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM12 12h.01',
- artist:'M12 12a4 4 0 1 0 0-8a4 4 0 1 0 0 8ZM4 21c0-5 3-7 8-7s8 2 8 7'
- };
- return '<svg class="vatra-music-svg" viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="'+(paths[type]||paths.track)+'"/></svg>';
+ return window.vatraIcon?.(type==='track'?'music':type,'vatra-music-svg')||'';
 }
 function musicActionIcon(type){
- const paths={
- play:'M8 5l11 7-11 7z',heart:'M20.5 8.7c0 4-8.5 10-8.5 10s-8.5-6-8.5-10a4.8 4.8 0 0 1 8.5-3.1 4.8 4.8 0 0 1 8.5 3.1z',
- open:'M13 5h6v6M19 5l-9 9M19 14v5H5V5h5',
- close:'M5 5l14 14M19 5 5 19',expand:'M4 15v5h5M20 9V4h-5M4 20l6-6M20 4l-6 6',
- collapse:'M9 4v5H4M15 20v-5h5M9 9L3 3M15 15l6 6'
- };
- return '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+(paths[type]||paths.play)+'"/></svg>';
+ return window.vatraIcon?.(type,'vatra-music-action-icon')||'';
 }
 function activePlayer(){
  let dock=document.getElementById('vatraMusicDock');
@@ -246,7 +234,7 @@ function renderMusic(){
  const tabs=[['all','Головна'],['track','Пісні'],['artist','Виконавці'],['album','Альбоми'],['playlist','Плейлисти'],['mine','Моя музика']];
  page.innerHTML='<section class="vatra-music-page">'+
   '<div class="vatra-music-banner"><div class="vatra-music-banner-copy"><p class="vatra-music-eyebrow">ВАТРА · МУЗИКА</p><h2>Слухай українське</h2><p>Пісні, артисти та плейлисти — через офіційний програвач Spotify. Без завантаження музики на сервер ВАТРИ.</p></div><div class="vatra-music-banner-art" aria-hidden="true">'+musicIcon('playlist')+'</div></div>'+
-  '<div class="vatra-music-search"><label class="vatra-music-search-input"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="vatraMusicQuery" type="search" autocomplete="off" placeholder="Знайти музику або виконавця" aria-label="Пошук у добірці ВАТРИ" value="'+escapeHtml(musicQuery)+'"></label><a id="vatraMusicGlobalSearch" href="https://open.spotify.com/search/" target="_blank" rel="noopener noreferrer">Шукати в Spotify ↗</a></div>'+
+  '<div class="vatra-music-search"><label class="vatra-music-search-input">' + window.vatraIcon('search') + '<input id="vatraMusicQuery" type="search" autocomplete="off" placeholder="Знайти музику або виконавця" aria-label="Пошук у добірці ВАТРИ" value="'+escapeHtml(musicQuery)+'"></label><a id="vatraMusicGlobalSearch" href="https://open.spotify.com/search/" target="_blank" rel="noopener noreferrer">Шукати в Spotify ↗</a></div>'+
   '<div class="vatra-music-tabs" role="group" aria-label="Категорії музики">'+tabs.map(([v,text])=>'<button type="button" data-music-tab="'+v+'" class="'+(musicTab===v?'active':'')+'" aria-pressed="'+String(musicTab===v)+'">'+text+(v==='mine'?' <span>'+musicFavorites.size+'</span>':'')+'</button>').join('')+'</div>'+
   '<div class="vatra-music-section-head"><div><h3>'+(tabs.find(x=>x[0]===musicTab)||tabs[0])[1]+'</h3><small>Офіційний Spotify · '+list.length+' добірок і записів</small></div></div>'+
   (musicLoadError?'<div class="vatra-music-status is-error">'+escapeHtml(musicLoadError)+' <button type="button" data-music-retry>Повторити</button></div>':!musicLoaded?'<div class="vatra-music-status">Завантаження збереженої музики…</div>':'')+

@@ -2,7 +2,7 @@ export function setupNavigation(onNavigate) {
   const trigger = document.getElementById('mobileMore');
   const dialog = document.getElementById('mobileMenu');
   const container = dialog.querySelector('.mobile-menu-links');
-  document.querySelectorAll('.sidebar > nav > [data-page]').forEach(source => {
+  document.querySelectorAll('.sidebar > nav > [data-page], .sidebar > nav > [data-menu-page]').forEach(source => {
     const label = source.querySelector('span:not(.nav-icon)')?.textContent.trim() || source.textContent.trim();
     source.setAttribute('aria-label', label);
     source.title = label;
@@ -10,8 +10,15 @@ export function setupNavigation(onNavigate) {
     button.removeAttribute('id');
     button.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
     button.querySelectorAll('i').forEach(node => node.remove());
-    button.dataset.menuPage = button.dataset.page;
+    button.dataset.menuPage = source.dataset.page || source.dataset.menuPage;
     delete button.dataset.page;
+    if (source.dataset.menuPage === 'supportDesk') {
+      source.addEventListener('click', event => {
+        if (typeof window.vatraOpenSupportDesk !== 'function') return; // fallback to #/support
+        event.preventDefault();
+        window.vatraOpenSupportDesk();
+      });
+    }
     button.type = 'button';
     container.append(button);
   });
@@ -23,7 +30,13 @@ export function setupNavigation(onNavigate) {
   dialog.querySelector('[data-close-menu]').addEventListener('click', close);
   dialog.addEventListener('click', event => {
     const button = event.target.closest('[data-menu-page]');
-    if (button) { close(); onNavigate(button.dataset.menuPage); }
+    if (button) {
+      close();
+      if (button.dataset.menuPage === 'supportDesk') {
+        if (typeof window.vatraOpenSupportDesk === 'function') window.vatraOpenSupportDesk();
+        else location.hash = '#/support';
+      } else onNavigate(button.dataset.menuPage);
+    }
     else if (event.target === dialog) {
       const box = dialog.getBoundingClientRect();
       if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) close();

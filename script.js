@@ -1681,7 +1681,7 @@ function renderPhotos(){
  const all=[...album.map(x=>({url:x.url,date:x.date})),...published.map(x=>({url:x.url,date:x.date}))].sort((a,b)=>b.date-a.date).map(x=>x.url);
  const unique=[...new Set(all)];
  const tile=(url,meta,index)=>'<button type="button" class="vatra-photo-tile" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(unique))+'" data-photo-index="'+unique.indexOf(url)+'" aria-label="Переглянути фотографію '+(index+1)+'"><img src="'+esc(url)+'" loading="lazy" decoding="async" alt="Фото '+(index+1)+'"></button>';
- setFeed('<section class="vatra-photos-page"><div class="vatra-photos-toolbar"><div><h2>Мої фотографії</h2><p>'+unique.length+' фото · Ваш альбом і фотографії з дописів</p></div><div class="vatra-photos-tools"><button type="button" class="primary" id="vatraPhotosUpload">＋ Додати фото</button><input type="file" id="vatraPhotosFile" accept="image/*" multiple hidden></div></div><div class="vatra-photos-tabs" role="tablist" aria-label="Альбоми"><button type="button" role="tab" aria-selected="true" class="active" data-vatra-photo-tab="all">Усі фото ('+unique.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="album">Альбом ('+album.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="posts">З дописів ('+published.length+')</button></div><div class="vatra-photo-grid" id="vatraPhotosGrid">'+(unique.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">Ви ще не додавали фотографій. Завантажте перше фото.</p>')+'</div></section>');
+ setFeed('<section class="vatra-photos-page"><div class="vatra-photos-toolbar"><div><h2>'+window.vatraIcon('photos')+' Мої фотографії</h2><p>'+unique.length+' фото · Ваш альбом і фотографії з дописів</p></div><div class="vatra-photos-tools"><button type="button" class="primary" id="vatraPhotosUpload">' + window.vatraIcon('plus') + ' Додати фото</button><input type="file" id="vatraPhotosFile" accept="image/*" multiple hidden></div></div><div class="vatra-photos-tabs" role="tablist" aria-label="Альбоми"><button type="button" role="tab" aria-selected="true" class="active" data-vatra-photo-tab="all">Усі фото ('+unique.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="album">Альбом ('+album.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="posts">З дописів ('+published.length+')</button></div><div class="vatra-photo-grid" id="vatraPhotosGrid">'+(unique.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">Ви ще не додавали фотографій. Завантажте перше фото.</p>')+'</div></section>');
  const grid=$('#vatraPhotosGrid');
  $$('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(button=>button.onclick=()=>{
   $$('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(el=>{el.classList.toggle('active',el===button);el.setAttribute('aria-selected',String(el===button));});
@@ -1720,11 +1720,11 @@ function renderVideos(){
   '<div class="vatra-clip-top-label"><span>Кліп '+(index+1)+' із '+arr.length+'</span><span>ВАТРА</span></div>'+
   '<div class="vatra-clip-rail">'+
    '<button type="button" data-vatra-clip-mute aria-label="Увімкнути звук" title="Увімкнути звук">'+
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 5 6m0-6-5 6"/></svg></button>'+
+    window.vatraIcon('mute')+'</button>'+
    '<button type="button" data-vatra-clip-up aria-label="Попередній кліп" title="Попередній кліп"'+(index===0?' disabled':'')+'>'+
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>'+
+    window.vatraIcon('chevron-up')+'</button>'+
    '<button type="button" data-vatra-clip-down aria-label="Наступний кліп" title="Наступний кліп"'+(index===arr.length-1?' disabled':'')+'>'+
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>'+
+    window.vatraIcon('chevron-down')+'</button>'+
   '</div>'+
   '<div class="vatra-clip-bottom"><button type="button" data-view-profile="'+esc(v.authorUid)+'" class="vatra-clip-user">'+
    avatar(v.authorName||'Користувач',v.authorAvatar)+'<span><b>'+esc(v.authorName||'Користувач ВАТРИ')+verifiedBadge(v.authorUid)+'</b><small>@'+esc(v.authorHandle||'user')+'</small></span></button>'+

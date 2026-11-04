@@ -1,0 +1,141 @@
+/* VATRA outline icon system — matches the clear navigation in the supplied reference.
+   Central SVG geometries are defined only in vatra-icon-system.js. */
+:root{
+ --vatra-icon-blue:#438fdb;
+ --vatra-icon-muted:#6594cb;
+ --vatra-icon-weight:1.9;
+}
+html body svg.vatra-icon{
+ display:inline-block;
+ width:20px;height:20px;
+ flex:none;
+ overflow:visible;
+ fill:none!important;
+ stroke:currentColor!important;
+ stroke-width:var(--vatra-icon-weight)!important;
+ stroke-linecap:round!important;
+ stroke-linejoin:round!important;
+ vertical-align:middle;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{
+ min-height:41px!important;height:41px!important;max-height:none!important;
+ gap:12px!important;
+ padding:7px 10px!important;
+ border-radius:10px!important;
+ line-height:1.35!important;
+ text-decoration:none!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon{
+ flex:0 0 22px!important;width:22px!important;height:22px!important;
+ display:grid!important;place-items:center!important;
+ color:var(--vatra-icon-blue)!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg.vatra-icon{
+ display:block!important;width:21px!important;height:21px!important;
+ color:inherit!important;stroke:currentColor!important;
+ stroke-width:1.95!important;fill:none!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav>span:not(.nav-icon){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+ font-size:14.5px!important;font-weight:560!important;
+ line-height:1.3!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
+ background:transparent!important;box-shadow:none!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.vatra-nav-section-start{
+ margin-top:7px!important;
+ padding-top:8px!important;
+}
+@media(hover:hover){
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
+  background:rgba(67,143,219,.09)!important;transform:none!important;
+ }
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover .nav-icon{
+  color:#166fd0!important;
+ }
+}
+html body .mobile-nav .mobile-icon svg.vatra-icon,
+html body .mobile-menu-links .nav-icon svg.vatra-icon{
+ width:21px!important;height:21px!important;stroke-width:1.95!important;
+ color:var(--vatra-icon-blue)!important;
+}
+html body .mobile-menu-links :is(.nav-icon,.mobile-icon){color:var(--vatra-icon-blue)!important}
+html body #mobileMore .vatra-icon{width:23px;height:23px}
+html body :is(.search-icon,.compose-tools,.vatra-top-music-trigger,.notification-button) svg.vatra-icon{width:20px;height:20px;fill:none!important;stroke:currentColor!important}
+html body .vatra-settings-nav-icon svg.vatra-icon,
+html body .vatra-editor-field-icon svg.vatra-icon,
+html body .vatra-editor-heading-icon svg.vatra-icon{width:18px;height:18px;stroke-width:1.9!important}
+html body .vatra-support-icon svg.vatra-icon{width:26px;height:26px}
+html body .vatra-support-back svg.vatra-icon{width:18px;height:18px}
+html body .vatra-music-svg.vatra-icon{width:28px;height:28px}
+html body .vatra-music-dock-tools svg.vatra-icon{width:17px;height:17px}
+html body .vatra-music-banner-art svg.vatra-icon{width:72px;height:72px}
+
+/* Apply the approved Inter hierarchy to the sections added to navigation. */
+html body :is(.vatra-photos-page,.vatra-music-page,.vatra-gifts-page,.settings-page,.vatra-support-page){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+}
+html body :is(.vatra-photos-toolbar h2,.vatra-music-banner h2,.vatra-gifts-header h1,.settings-intro h2,.vatra-support-header h2){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+ font-size:clamp(22px,2.5vw,25px)!important;
+ font-weight:760!important;letter-spacing:-.023em!important;
+ line-height:1.28!important;
+}
+html body :is(.vatra-photos-toolbar p,.vatra-music-section-head small,.vatra-gifts-header p,.settings-intro p,.vatra-support-header small){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+ font-size:13px!important;font-weight:450!important;line-height:1.55!important;
+}
+html body :is(.vatra-photos-tabs button,.vatra-music-tabs button,.vatra-gifts-tabs button,.vatra-settings-nav-button,.vatra-support-list-head button){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+ font-size:13.5px!important;font-weight:620!important;
+}
+html body :is(.vatra-photo-album-card h3,.vatra-music-card h3,.vatra-gift-card h3,.vatra-settings-pane .settings-card h3,.vatra-support-list-head h3){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+ font-size:15px!important;font-weight:700!important;
+ letter-spacing:-.008em!important;
+}
+html body :is(.vatra-music-card p,.vatra-gift-card p,.vatra-support-info,.vatra-support-ticket,.vatra-photos-page .vatra-empty-panel){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+ font-size:13.5px!important;line-height:1.58!important;
+}
+html body .vatra-photos-tools .primary svg.vatra-icon{width:17px;height:17px}
+html body :is(.vatra-gifts-eyebrow,.vatra-music-section-head small,.vatra-support-header p){
+ font-family:var(--vatra-ui-font,Inter,sans-serif)!important;
+}
+html body[data-vatra-theme-effective="dark"]{
+ --vatra-icon-blue:#6caeff;
+ --vatra-icon-muted:#87add9;
+}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon{color:#6caeff!important}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{background:rgba(108,174,255,.12)!important}
+@media(max-width:760px){
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{min-height:40px!important}
+ html body :is(.vatra-photos-toolbar h2,.vatra-gifts-header h1,.vatra-support-header h2){font-size:21px!important}
+ html body :is(.vatra-photos-tabs button,.vatra-music-tabs button,.vatra-gifts-tabs button){font-size:13px!important}
+}
+
+/* Visual icon treatment for the newly promoted standalone sections. */
+html body .vatra-photos-toolbar h2,
+html body .vatra-gifts-header h1{
+ display:flex;align-items:center;gap:9px;
+}
+html body .vatra-photos-toolbar h2 svg.vatra-icon,
+html body .vatra-gifts-header h1 svg.vatra-icon{
+ display:inline-block;width:22px;height:22px;
+ color:var(--vatra-icon-blue)!important;stroke:currentColor!important;
+}
+html body .vatra-photos-tools #vatraPhotosUpload{
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+html body .vatra-photos-tools #vatraPhotosUpload svg.vatra-icon{
+ width:17px;height:17px;
+}
+html body .vatra-clips-page .vatra-clip-rail svg.vatra-icon{
+ width:21px;height:21px;stroke:currentColor!important;stroke-width:1.95!important;fill:none!important;
+}
+html body .vatra-music-search-input svg.vatra-icon{width:18px;height:18px}
+html body .vatra-music-card-actions svg.vatra-icon{width:17px;height:17px}
+html body .vatra-support-header>.vatra-support-icon svg.vatra-icon{
+ width:26px;height:26px;color:inherit!important;
+}
