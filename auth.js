@@ -165,7 +165,7 @@ function resetOtpStep(){
  if(otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
  $('#authForm')?.classList.remove('is-awaiting-code');
  const wrap=$('#otpWrap');if(wrap)wrap.hidden=true;
- const input=$('#otpCode');if(input){input.value='';input.required=false;}
+ const input=$('#otpCode');if(input){input.value='';input.required=false;input.readOnly=false;}
 }
 function otpNotice(message,error=false){
  const status=$('#otpStatus');if(!status)return;
@@ -210,32 +210,45 @@ async function startOtp(kind,details){
 async function confirmOtp(){
  const challenge=pendingOtp;if(!challenge)return;
  const code=$('#otpCode').value.trim().replace(/\s/g,'');
- if(!/^\d{6,8}$/.test(code)){otpNotice('Введіть код із 6–8 цифр.',true);return;}
+ if(!challenge.verifiedUser&&!/^\d{6,8}$/.test(code)){otpNotice('Введіть код із 6–8 цифр.',true);return;}
  const button=$('#submit');submitting=true;suppressAuthRedirect=true;button.disabled=true;button.textContent='Перевіряємо код…';
  try{
   const contact=challenge.contact;
-  const result=await verifyOtp(challenge.isPhone?{phone:contact,token:code}:{email:contact,token:code,type:'email'});
+  const result=challenge.verifiedUser?{user:challenge.verifiedUser,session:true}:await verifyOtp(challenge.isPhone?{phone:contact,token:code}:{email:contact,token:code,type:'email'});
   const user=result?.user,uid=user?.uid||user?.id;
   if(!uid||!result?.session)throw new Error('Supabase не підтвердив сесію. Повторіть спробу.');
   if(challenge.kind==='signup'){
+   // A verified OTP is single-use. If writing the new page fails, retries must
+   // finish the already-authenticated signup instead of consuming the code again.
+   challenge.verifiedUser=user;
    // Confirmed owners of existing accounts may receive OTPs, but registration
-   // must never overwrite their profile or change their password.
-   const existing=await get(ref(db,'users/'+uid));
-   const createdAt=Date.parse(user.created_at||user.createdAt||'');
-   if(existing?.exists?.()||(Number.isFinite(createdAt)&&createdAt<challenge.requestedAt-60000)){
-    pendingOtp=null;location.replace('index.html');return;
+   // must never overwrite their profile or change their password. Check once:
+   // a partial first write could create users/{uid} before the other writes finish.
+   if(!challenge.checkedNewAccount){
+    const existing=await get(ref(db,'users/'+uid));
+    const createdAt=Date.parse(user.created_at||user.createdAt||'');
+    if(existing?.exists?.()||(Number.isFinite(createdAt)&&createdAt<challenge.requestedAt-60000)){
+     pendingOtp=null;location.replace('index.html');return;
+    }
+    challenge.checkedNewAccount=true;
    }
    await setAccountPassword(challenge.password);
-   pendingOtp=null;await finishRegistration({...challenge,user});return;
+   await finishRegistration({...challenge,user});
+   pendingOtp=null;return;
   }
   setRememberMe($('#rememberMe')?.checked===true);
   pendingOtp=null;location.replace('index.html');
  }catch(err){
-  otpNotice(errors[err.code]||err.message||'Код не вдалося перевірити.',true);
+  if(challenge.verifiedUser){
+   const otpField=$('#otpCode');otpField.required=false;otpField.readOnly=true;
+   otpNotice('Контакт підтверджено, але завершення реєстрації не вдалося. Натисніть «Завершити реєстрацію» ще раз. '+(errors[err.code]||err.message||''),true);
+  }else{
+   otpNotice(errors[err.code]||err.message||'Код не вдалося перевірити.',true);
+  }
   if(err.code==='auth/too-many-requests')startAuthRateLimitCooldown(300);
  }finally{
   submitting=false;suppressAuthRedirect=false;button.disabled=false;
-  button.textContent=pendingOtp?'Підтвердити код':mode==='register'?'Отримати код':'Надіслати код';
+  button.textContent=pendingOtp?(pendingOtp.verifiedUser?'Завершити реєстрацію':'Підтвердити код'):mode==='register'?'Отримати код':'Надіслати код';
   syncOtpCooldown();
  }
 }
