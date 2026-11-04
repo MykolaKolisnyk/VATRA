@@ -18,11 +18,7 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  padding:0!important;
  align-content:start!important;
 }
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav,
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"],
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active{
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{
  box-sizing:border-box!important;
  display:flex!important;align-items:center!important;
  width:100%!important;max-width:100%!important;
@@ -37,11 +33,11 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
  background-image:none!important;
  box-shadow:none!important;
  filter:none!important;
- color:#536a83!important;
+ color:#253952!important;
  font-size:14px!important;
  line-height:1.25!important;
  letter-spacing:0!important;
- font-weight:610!important;
+ font-weight:720!important;
  text-shadow:none!important;
  text-decoration:none!important;
  transform:none!important;
@@ -53,15 +49,13 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  flex:0 0 19px!important;width:19px!important;height:19px!important;
  margin:0!important;padding:0!important;
  background:transparent!important;
- color:#8098b2!important;
+ color:#476c96!important;
 }
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg,
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active .nav-icon svg,
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active .nav-icon svg{
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg{
  display:block!important;
  width:18px!important;height:18px!important;
  fill:none!important;
- color:#8098b2!important;stroke:#8098b2!important;stroke-width:1.85!important;
+ color:#476c96!important;stroke:#8098b2!important;stroke-width:1.85!important;
  transition:stroke .18s ease,transform .18s ease!important;
  filter:none!important;
 }
@@ -70,18 +64,16 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  display:none!important;content:none!important;box-shadow:none!important;
 }
 @media(hover:hover){
- html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover,
- html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover,
- html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover{
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
   background:#f0f5fc!important;
   background-image:none!important;
   box-shadow:none!important;
-  color:#315b8b!important;
+  color:#154e94!important;
   transform:none!important;
  }
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover .nav-icon svg,
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover .nav-icon svg{
-  color:#3d7cc4!important;stroke:#3d7cc4!important;
+  color:#1458ad!important;stroke:#1458ad!important;
   transform:none!important;
  }
 }
@@ -90,7 +82,7 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
 }
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav,
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active{
- background:transparent!important;background-image:none!important;color:#b0c2d9!important;
+ background:transparent!important;background-image:none!important;color:#e0eafa!important;
 }
 @media(hover:hover){
  html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover,
@@ -100,6 +92,31 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
 }
 @media(prefers-reduced-motion:reduce){
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{transition:none!important}
+}
+
+
+/* Sidebar contrast corrected at the original high-specificity source. */
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden])>span:not(.nav-icon){
+ font-size:14px!important;font-weight:720!important;color:inherit!important;opacity:1!important;
+ letter-spacing:0!important;text-shadow:none!important;transform:none!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"]{
+ background:#e5efff!important;color:#0757df!important;font-weight:750!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon,
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon svg{
+ color:#0757df!important;stroke:#0757df!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]):hover{background:#edf4ff!important;color:#104e9c!important}
+
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"]{
+ background:#25496f!important;color:#f0f6ff!important;
+}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active :is(.nav-icon,.nav-icon svg),
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"] :is(.nav-icon,.nav-icon svg){
+ color:#9fceff!important;stroke:#9fceff!important;
 }
 
 html body #vatraConfirmDialog.vatra-native-dialog.vatra-confirm-dialog[open]{

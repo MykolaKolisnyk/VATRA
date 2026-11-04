@@ -1,15 +1,15 @@
 
 
 :root{
- --vatra-type-page:19px;
- --vatra-type-section:16px;
- --vatra-type-body:13px;
- --vatra-type-control:13px;
- --vatra-type-small:11.5px;
- --vatra-type-title-weight:650;
- --vatra-type-label-weight:500;
- --vatra-type-control-weight:450;
- --vatra-type-action-weight:600;
+ --vatra-type-page:21px;
+ --vatra-type-section:17px;
+ --vatra-type-body:14px;
+ --vatra-type-control:13.5px;
+ --vatra-type-small:12px;
+ --vatra-type-title-weight:720;
+ --vatra-type-label-weight:620;
+ --vatra-type-control-weight:540;
+ --vatra-type-action-weight:690;
 }
 body .layout>.main,body .feed{
  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;

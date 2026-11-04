@@ -2,12 +2,12 @@
 .vatra-gifts-page{width:100%;min-width:0;background:#fff;border:1px solid #dfe7f0;border-radius:7px;padding:24px;color:#2d455e;box-sizing:border-box}
 .vatra-gifts-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid #e5eaf1}
 .vatra-gifts-header h1{font-size:24px;line-height:1.4;margin:3px 0 5px;color:#273b51}
-.vatra-gifts-header p{font-size:13px;color:#75879d;margin:0;line-height:1.6}
+.vatra-gifts-header p{font-size:13px;color:#5b7390;margin:0;line-height:1.6}
 .vatra-gifts-eyebrow{font-size:10px!important;color:#7890ae!important;font-weight:750!important;letter-spacing:.09em}
 .vatra-gift-summary{font-size:27px;font-weight:750;color:#0757f5;text-align:right;white-space:nowrap}
-.vatra-gift-summary small{display:block;font-size:11px;color:#8395ab;font-weight:500}
+.vatra-gift-summary small{display:block;font-size:11px;color:#5d7690;font-weight:500}
 .vatra-gifts-tabs{display:flex;gap:22px;border-bottom:1px solid #e4eaf1;margin:15px 0}
-.vatra-gifts-tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:11px 0;color:#687e95;font-size:13px;font-weight:650;cursor:pointer}
+.vatra-gifts-tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:11px 0;color:#425e7b;font-size:13px;font-weight:650;cursor:pointer}
 .vatra-gifts-tabs button[aria-current=page]{border-color:#0757f5;color:#0757f5}
 .vatra-gift-privacy{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0;flex-wrap:wrap}
 .vatra-gift-privacy label{font-size:13px;font-weight:650;color:#415a75}
@@ -17,7 +17,7 @@
 .vatra-gift-card .vatra-gift-image{aspect-ratio:1/1;background:linear-gradient(140deg,#f9fcff,#eff5fc);border-radius:6px;display:grid;place-items:center;overflow:hidden}
 .vatra-gift-art{display:block;width:min(100%,174px);height:auto;aspect-ratio:1/1}
 .vatra-gift-card h3{font-size:13px;font-weight:700;color:#30465c;margin:12px 0 3px}
-.vatra-gift-card p{font-size:11px;color:#8b9db0;line-height:1.45;min-height:31px;margin:0 0 12px}
+.vatra-gift-card p{font-size:11px;color:#627993;line-height:1.45;min-height:31px;margin:0 0 12px}
 .vatra-gift-card button{margin-top:auto;background:#eef4fd;border:1px solid #d4e2f4;color:#1760b5;border-radius:5px;min-height:35px;font-size:12px;font-weight:650;cursor:pointer}
 .vatra-gift-card button:hover{background:#e1edfc}
 .vatra-gift-free-label{font-size:11px;color:#44866b;background:#eaf6f0;padding:9px 5px;border-radius:5px}

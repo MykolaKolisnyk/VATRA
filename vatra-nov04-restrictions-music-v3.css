@@ -2,13 +2,13 @@
 /* Calm navigation: animate only the label, never shift the whole click target. */
 html body .layout>.sidebar>nav>a.nav{
  display:flex!important;align-items:center!important;gap:11px!important;
- background:transparent!important;color:#465e7b!important;opacity:1!important;
+ background:transparent!important;color:#24384e!important;opacity:1!important;
  box-shadow:none!important;transform:none!important;
  border:1px solid transparent!important;border-radius:11px!important;
  transition:background-color .18s ease,color .18s ease,border-color .18s ease!important;
 }
 html body .layout>.sidebar>nav>a.nav .nav-icon{
- color:#7899ba!important;transform:none!important;
+ color:#416b97!important;transform:none!important;
  transition:color .2s ease!important;
 }
 html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){
@@ -16,16 +16,16 @@ html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){
  transform:translate3d(0,0,0)!important;
 }
 html body .layout>.sidebar>nav>a.nav:hover{
- color:#1d4b86!important;
+ color:#124e9b!important;
  background:rgba(7,87,245,.055)!important;
  border-color:rgba(7,87,245,.045)!important;
  box-shadow:none!important;transform:none!important;
 }
-html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:translate3d(3px,0,0)!important}
+html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:none!important}
 html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#1861bb!important;transform:none!important}
 html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
  background:rgba(7,87,245,.075)!important;
- color:#0757f5!important;font-weight:670!important;
+ color:#0757f5!important;font-weight:740!important;
  box-shadow:none!important;border-color:transparent!important;
 }
 html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}

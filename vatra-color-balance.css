@@ -1,15 +1,15 @@
 
 
 body[data-page="profile"],body[data-page="publicProfile"]{
- --profile-neutral-ink:#344b63;
- --profile-neutral-link:#48637e;
- --profile-neutral-muted:#778ba1;
- --profile-neutral-icon:#869bb2;
+ --profile-neutral-ink:#293d54;
+ --profile-neutral-link:#315879;
+ --profile-neutral-muted:#516c87;
+ --profile-neutral-icon:#4b769f;
 }
 body[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link,
 body[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link{
  color:var(--profile-neutral-link)!important;
- font-weight:560!important;
+ font-weight:610!important;
  text-decoration-line:underline!important;
  text-decoration-style:dotted!important;
  text-decoration-color:#bdcbdc!important;
@@ -28,7 +28,7 @@ body[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-de
 }
 body[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>b,
 body[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>b{
- color:var(--profile-neutral-ink)!important;font-weight:570!important;
+ color:var(--profile-neutral-ink)!important;font-weight:630!important;
 }
 body[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-detail-label,
 body[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-detail-label{
@@ -36,7 +36,7 @@ body[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-de
 }
 body[data-page="profile"] .vatra-profile-summary-compact>.vatra-profile-stats b,
 body[data-page="publicProfile"] .vatra-profile-summary-compact>.vatra-profile-stats b{
- color:#49647f!important;font-weight:640!important;
+ color:#315576!important;font-weight:640!important;
 }
 body[data-page="profile"] .vatra-profile-summary-compact>.vatra-profile-stats>button:hover b,
 body[data-page="profile"] .vatra-profile-summary-compact>.vatra-profile-stats>button:focus-visible b{
@@ -90,7 +90,7 @@ body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends>.vatra-p
 body[data-page="publicProfile"] .vatra-profile-sidebar .vatra-profile-public-friends>#vatraPublicAllFriends,
 body[data-page="profile"] .vatra-profile-photos .vatra-profile-link,
 body[data-page="publicProfile"] .vatra-profile-photos .vatra-profile-link{
- color:#536d87!important;font-weight:560!important;
+ color:#536d87!important;font-weight:610!important;
  transition:color .15s ease,background-color .15s ease!important;
 }
 body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-change-photo:is(:hover,:focus-visible),

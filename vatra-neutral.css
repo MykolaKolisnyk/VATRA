@@ -6,14 +6,14 @@ body:not([data-vatra-theme-effective="dark"]){
 }
 
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav{
- color:#506781!important;font-weight:570!important;border-radius:7px!important;
+ color:#263b54!important;font-weight:710!important;border-radius:7px!important;
  transition:background-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease!important;
 }
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav .nav-icon{color:#6384a9!important;}
+body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav .nav-icon{color:#456f9c!important;}
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav:is(:hover,:focus-visible){
  color:var(--vatra-user-accent,#0757f5)!important;
  background:#eaf1ff!important;
- transform:translateX(2px)!important;
+ transform:none!important;
 }
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav.active{
  color:var(--vatra-user-accent,#0757f5)!important;
@@ -32,7 +32,7 @@ body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .vatra-footer-leg
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar .sidebar-footer a:hover{color:#0757f5!important}
 body:not([data-vatra-theme-effective="dark"])[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link,
 body:not([data-vatra-theme-effective="dark"])[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link{
- color:#364555!important;font-weight:520!important;text-decoration:underline dotted #b7c0cc!important;text-underline-offset:3px!important
+ color:#304960!important;font-weight:610!important;text-decoration:underline dotted #b7c0cc!important;text-underline-offset:3px!important
 }
 body:not([data-vatra-theme-effective="dark"])[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link:is(:hover,:focus-visible),
 body:not([data-vatra-theme-effective="dark"])[data-page="publicProfile"] .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribute-link:is(:hover,:focus-visible){
@@ -40,19 +40,19 @@ body:not([data-vatra-theme-effective="dark"])[data-page="publicProfile"] .vatra-
 }
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-detail>b,
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-row dd{
- color:#354352!important;font-weight:530!important;
+ color:#293f55!important;font-weight:610!important;
 }
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-detail-label,
-body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-line-icon{color:#8b98a9!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-line-icon{color:#577493!important}
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-heading>.vatra-profile-line-icon{background:#ebeff2!important;color:#697c92!important}
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-card.vatra-profile-extra-fold{background:#f7f8fa!important}
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong{color:#35414d!important}
-body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact>.vatra-profile-stats b{color:#394a5b!important}
+body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact>.vatra-profile-stats b{color:#2e4760!important}
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar .vatra-profile-link,
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-photos .vatra-profile-link,
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-bio-toggle,
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-status-edit{
- color:#56667a!important;font-weight:520!important;
+ color:#3b5c7d!important;font-weight:520!important;
 }
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar .vatra-profile-link:is(:hover,:focus-visible),
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-photos .vatra-profile-link:is(:hover,:focus-visible),
