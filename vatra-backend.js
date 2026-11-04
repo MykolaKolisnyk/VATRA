@@ -253,7 +253,7 @@ export async function getStoryMediaUrl(story){
   }
   const path=String(story.mediaPath||'');
   if(!/^[a-f0-9-]{36}\/stories\/[a-zA-Z0-9_-]{12,64}\.(jpg|png|webp|gif|avif|mp4|webm|mov|ogv|m4v)$/.test(path))throw new Error('Невірний шлях історії.');
-  const {data,error}=await client.storage.from(STORY_BUCKET).createSignedUrl(path,60);
+  const {data,error}=await client.storage.from(STORY_BUCKET).createSignedUrl(path,300);
   if(error||!data?.signedUrl)throw new Error('Немає доступу до історії або її термін дії завершився.');
   return data.signedUrl;
 }
