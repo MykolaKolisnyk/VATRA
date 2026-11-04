@@ -1440,7 +1440,7 @@ function renderPublicProfile(uid){
     vatraProfileMainFacts({gender:vatraGenderLabel(u.gender),city,workplace,education,birthday:birthdayLabel,location,hometown,phone,website:visibleWebsite},publicExtras,uid,'vatraProfileMorePublic')+
    '</section>'+
    '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+publicAlbumMarkup+photoHtml+'</section>'+
-   '<section class="vatra-profile-posts vatra-profile-posts-clean"><div class="vatra-profile-post-tabs"><div class="vatra-profile-posts-title"><h3>Дописи</h3><span>'+arr.length+'</span></div></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
+   '<section class="vatra-profile-posts vatra-profile-posts-clean" id="vatraProfilePosts"><div class="vatra-profile-post-tabs"><div class="vatra-profile-posts-title"><h3>Дописи</h3><span>'+arr.length+'</span></div></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><h3>Поки немає дописів</h3><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
   '</div>'+
  '</section>';
  setFeed(html,false);
@@ -3969,24 +3969,54 @@ setTimeout(()=>{window.__vatraStarted=true;document.getElementById('startupError
  
 async function vatraOpenAvatarPicker(){
  if(!authRequired())return;
- const postGallery=Object.values(posts||{})
-  .filter(post=>post?.authorUid===currentUser.uid&&post.addMediaToGallery!==false)
-  .flatMap(post=>postImages(post)).filter(Boolean);
- const pictures=[...(currentProfile.avatarUrl?[currentProfile.avatarUrl]:[]),...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[]),
-  ...(Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]),
-  ...postGallery]
-  .filter((url,index,arr)=>typeof url==='string'&&/^https:\/\//i.test(url)&&arr.indexOf(url)===index).slice(0,60);
+ const sources=[
+  ['history',[...(currentProfile.avatarUrl?[currentProfile.avatarUrl]:[]),...(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice().reverse():[])]],
+  ['profile',Array.isArray(currentProfile.profilePhotos)?currentProfile.profilePhotos.slice().reverse():[]],
+  ['posts',Object.values(posts||{}).filter(post=>post?.authorUid===currentUser.uid&&post.addMediaToGallery!==false).flatMap(post=>postImages(post))],
+  ['albums',vatraGetAlbums(currentProfile).flatMap(album=>album.photos)]
+ ];
+ const indexed=new Map();
+ for(const [source,urls] of sources)for(const url of urls){
+  if(typeof url!=='string'||!/^https:\/\//i.test(url))continue;
+  const item=indexed.get(url)||{url,kinds:new Set()};
+  item.kinds.add(source);indexed.set(url,item);
+ }
+ const pictures=[...indexed.values()].slice(0,140);
  if(!pictures.length){toastMsg('Збережених фотографій не знайдено. Завантажте нове фото.');return;}
  let dlg=document.getElementById('vatraAvatarPickDialog');
  if(!dlg){dlg=document.createElement('dialog');dlg.id='vatraAvatarPickDialog';dlg.className='vatra-avatar-pick-dialog';document.body.append(dlg);}
- dlg.innerHTML='<h2>Відновити фото профілю</h2><p>Оберіть зображення з історії чи альбому. Файл не потрібно завантажувати повторно.</p>'+
-  '<div class="vatra-avatar-pick-grid">'+pictures.map((url,index)=>'<button type="button" data-avatar-pick-index="'+index+'" aria-label="Встановити фото профілю"><img src="'+esc(url)+'" loading="lazy" alt="Збережене фото"></button>').join('')+'</div>'+
-  '<footer><button type="button" data-avatar-pick-cancel>Скасувати</button></footer>';
+ let selected=-1,category='all',saving=false;
+ const categories=[['all','Усі фото'],['history','Історія'],['profile','Мої фото'],['posts','Із дописів'],['albums','Альбоми']];
+ const tile=(item,index)=>'<button type="button" data-avatar-pick-index="'+index+'" data-avatar-pick-sources="'+[...item.kinds].join(',')+'" aria-pressed="false" aria-label="Обрати збережену фотографію '+(index+1)+'"><img src="'+esc(item.url)+'" loading="lazy" decoding="async" alt="Фотографія '+(index+1)+'"></button>';
+ dlg.innerHTML='<div class="vatra-avatar-pick-shell">'+
+  '<header class="vatra-avatar-pick-header"><div><h2>Обрати фото профілю</h2><p>Оберіть фотографію з історії, своїх дописів або альбомів. Повторне завантаження не потрібне.</p></div><button type="button" data-avatar-pick-cancel aria-label="Закрити">×</button></header>'+
+  '<nav class="vatra-avatar-pick-controls" aria-label="Джерела фотографій">'+categories.map(([code,title])=>'<button type="button" data-avatar-pick-filter="'+code+'" aria-pressed="'+String(code===category)+'">'+title+'</button>').join('')+'</nav>'+
+  '<div class="vatra-avatar-pick-grid" role="group" aria-label="Збережені фотографії">'+pictures.map(tile).join('')+'</div>'+
+  '<footer class="vatra-avatar-pick-footer"><span id="vatraAvatarPickerCount">'+pictures.length+' фотографій · оберіть одну</span><button type="button" data-avatar-pick-confirm disabled>Встановити фото</button></footer>'+
+  '</div>';
+ const grid=dlg.querySelector('.vatra-avatar-pick-grid'),label=dlg.querySelector('#vatraAvatarPickerCount'),confirm=dlg.querySelector('[data-avatar-pick-confirm]');
+ const refresh=()=>{
+  let count=0;
+  grid.querySelectorAll('[data-avatar-pick-index]').forEach(button=>{
+   const index=Number(button.dataset.avatarPickIndex);
+   button.hidden=category!=='all'&&!pictures[index].kinds.has(category);
+   button.setAttribute('aria-pressed',String(index===selected));
+   if(!button.hidden)count++;
+  });
+  dlg.querySelectorAll('[data-avatar-pick-filter]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.avatarPickFilter===category)));
+  confirm.disabled=selected<0||saving;
+  label.textContent=count+' фотографій'+(selected>=0?' · фото вибрано':' · оберіть одну');
+ };
+ refresh();
  dlg.onclick=async event=>{
-  if(event.target.closest('[data-avatar-pick-cancel]')){dlg.close();return;}
-  const b=event.target.closest('[data-avatar-pick-index]');if(!b)return;
-  const url=pictures[Number(b.dataset.avatarPickIndex)];if(!url)return;
-  b.disabled=true;
+  if(event.target.closest('[data-avatar-pick-cancel]')){if(!saving)dlg.close();return;}
+  const filter=event.target.closest('[data-avatar-pick-filter]');
+  if(filter){category=filter.dataset.avatarPickFilter;selected=-1;refresh();grid.scrollTop=0;return;}
+  const photo=event.target.closest('[data-avatar-pick-index]');
+  if(photo){selected=Number(photo.dataset.avatarPickIndex);refresh();return;}
+  if(!event.target.closest('[data-avatar-pick-confirm]')||selected<0||saving)return;
+  const url=pictures[selected]?.url;if(!url)return;
+  saving=true;refresh();
   try{
    const prev=currentProfile.avatarUrl||'';
    const history=(Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory:[]).filter(item=>item&&item!==url);
@@ -3995,9 +4025,8 @@ async function vatraOpenAvatarPicker(){
    await update(ref(db,'users/'+currentUser.uid),{avatarUrl:url,avatarHistory,updatedAt:Date.now()});
    currentProfile.avatarUrl=url;currentProfile.avatarHistory=avatarHistory;
    await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
-   dlg.close();updateIdentity();render();
-   toastMsg('Фото профілю відновлено.');
-  }catch(error){toastMsg(niceError(error));b.disabled=false;}
+   dlg.close();updateIdentity();render();toastMsg('Фото профілю змінено.');
+  }catch(error){toastMsg(niceError(error));}finally{saving=false;refresh();}
  };
  dlg.showModal();
 }
