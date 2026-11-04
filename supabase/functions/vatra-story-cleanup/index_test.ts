@@ -1,4 +1,4 @@
-import { storyIsExpired, storyMediaPath } from "./index.ts";
+import { storyIsExpired, storyMediaPath, storyPrivateMediaPath } from "./index.ts";
 
 const owner = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
@@ -24,4 +24,15 @@ Deno.test("cleanup only deletes a same-owner VATRA media object", () => {
   expect(storyMediaPath(row(1, site + "/storage/v1/object/public/vatra-media/" + other + "/posts/a.jpg"), site) === null, "Other user must be protected");
   expect(storyMediaPath(row(1, "https://evil.example/storage/v1/object/public/vatra-media/" + owner + "/posts/a.jpg"), site) === null, "Other origins must be rejected");
   expect(storyMediaPath(row(1, site + "/storage/v1/object/public/vatra-media/" + owner + "/posts/%2e%2e%2fother.jpg"), site) === null, "Path traversal must be rejected");
+});
+
+Deno.test("private Stories cleanup accepts only its own complete path",()=>{
+ const id="1234567890abcdef1234567890abcdef";
+ const data={path:"posts/"+id,value:{kind:"story",authorUid:owner,createdAt:1,
+   mediaBucket:"vatra-stories",mediaPath:owner+"/stories/"+id+".webp"}};
+ expect(storyPrivateMediaPath(data)===data.value.mediaPath,"Private file belongs to story");
+ expect(storyPrivateMediaPath({...data,value:{...data.value,mediaPath:other+"/stories/"+id+".webp"}})===null,"Never delete another author's file");
+ expect(storyPrivateMediaPath({...data,value:{...data.value,mediaPath:owner+"/stories/different123456789012345678901234.webp"}})===null,"Never delete unrelated story media");
+ expect(storyPrivateMediaPath({...data,value:{...data.value,mediaPath:owner+"/stories/"+id+".webp/../x"}})===null,"Refuse traversal");
+ expect(storyPrivateMediaPath({...data,value:{...data.value,mediaBucket:"vatra-media"}})===null,"Require private bucket");
 });
