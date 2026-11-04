@@ -24,7 +24,7 @@ for(const [code,description] of [
  ["document.removeEventListener('visibilitychange',onVisibility)","Clean up visibility handler"]
 ])assert.ok(script.includes(code),description+' is missing');
 assert.ok(script.includes("if(best&&best[1]>=.55)activateClip(best[0])"),'Only dominant visible clip activates');
-assert.ok(script.includes("page==='videos'&&document.visibilityState==='visible'"),'Clip playback must be route and visibility-scoped');
+assert.ok(script.includes("page!=='videos'||document.visibilityState!=='visible'"),'Clip playback must be route and visibility-scoped');
 assert.ok(!script.includes('preload="metadata" muted controls src='),'Never eagerly load every clip on render');
 assert.ok(css.includes('.vatra-clip-play-toggle')&&css.includes('.vatra-clip-progress>span'),'Missing clip playback CSS');
 assert.ok(css.includes('prefers-reduced-motion'),'Reduced motion behavior must be retained');
