@@ -15,8 +15,8 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="recoveryMethodWrap"')&&!html.includes('id="recoveryMethodWrap" hidden'),'Recovery method switch must be visible');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261104-auth-recovery-flags3'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-auth-recovery-flags3'),file+': stale auth CSS version');
+ assert.ok(html.includes('auth.js?v=20261104-phone-numeric2'),file+': stale auth JS version');
+ assert.ok(html.includes('auth.css?v=20261104-phone-compact2'),file+': stale auth CSS version');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
 const required=[
@@ -95,8 +95,40 @@ const countryInput={value:''};
 countryTools.setPhoneInputFromFullNumber(countryInput,countrySelect,'+4915112345678');
 assert.equal(countrySelect.value,'+49');
 assert.equal(countrySelect.selectedIndex,2);
-assert.equal(countryInput.value,'15112345678');
+assert.equal(countryInput.value,'015112345678');
 assert.ok(countrySelect.changed,'Country popup must reflect number changes');
+assert.ok(auth.includes('const VATRA_PHONE_RULES=Object.freeze({'),'Country-specific national lengths must be defined');
+const phoneTools=runInNewContext(auth.slice(countryStart,countryEnd)+
+ '\n({vatraPhoneLocalDigits,vatraApplyPhoneRule,vatraPhoneError,vatraPhoneCountry,normalizePhone})',
+ {Event:class Event{constructor(type){this.type=type;}}});
+const countryTest=(iso,dial)=>{
+ const index=['UA','PL','DE','FR','ES','PT','IT','GB','US'].indexOf(iso);
+ return {value:dial,selectedIndex:index,options:[
+  {dataset:{iso:'UA'}},{dataset:{iso:'PL'}},{dataset:{iso:'DE'}},{dataset:{iso:'FR'}},
+  {dataset:{iso:'ES'}},{dataset:{iso:'PT'}},{dataset:{iso:'IT'}},{dataset:{iso:'GB'}},{dataset:{iso:'US'}}
+ ]};
+};
+const ua=countryTest('UA','+380'),de=countryTest('DE','+49'),it=countryTest('IT','+39');
+assert.equal(phoneTools.vatraPhoneLocalDigits('093x0657340',ua),'0930657340');
+assert.equal(phoneTools.vatraPhoneLocalDigits('+380930657340',ua),'0930657340');
+assert.equal(phoneTools.vatraPhoneLocalDigits('093065734012345',ua),'0930657340');
+assert.equal(phoneTools.vatraPhoneLocalDigits('+4915112345678',de),'015112345678');
+assert.equal(phoneTools.vatraPhoneLocalDigits('+390212345678',it),'0212345678','Italian leading zero remains part of E.164');
+assert.equal(phoneTools.vatraPhoneError({value:'0930657340'},ua),'','Valid Ukrainian number passes');
+assert.match(phoneTools.vatraPhoneError({value:'930657340'},ua),/починатися з 0/);
+assert.match(phoneTools.vatraPhoneError({value:'0930657abc'},ua),/лише цифри/);
+assert.equal(phoneTools.normalizePhone({value:'0930657340'},ua),'+380930657340');
+assert.equal(phoneTools.normalizePhone({value:'0212345678'},it),'+390212345678');
+const mobileField={value:'0930657340',type:'email',placeholder:'name@example.com',
+ setAttribute(name,value){this[name]=value;},removeAttribute(name){delete this[name];}};
+phoneTools.vatraApplyPhoneRule(mobileField,ua);
+assert.equal(mobileField.type,'tel');
+assert.equal(mobileField.inputMode,'numeric');
+assert.equal(mobileField.maxLength,10);
+assert.equal(mobileField.placeholder,'0930657340');
+assert.equal(mobileField.value,'0930657340');
+assert.ok((auth.match(/vatraPhoneError\(/g)||[]).length>=3,'Both authentication and recovery must validate the country rules');
+assert.ok(css.includes('max-height:min(236px')&&css.includes('scrollbar-color:#97b2d8'),'Country popup must be smaller and use VATRA scrollbar styling');
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
 const email=read('supabase/auth-templates/otp-email.html');
 const sms=read('supabase/auth-templates/otp-sms.txt');
