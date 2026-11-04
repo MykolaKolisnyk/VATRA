@@ -700,6 +700,47 @@ async function vatraCheckPaidPromotions(){
    Uses existing owner-protected posts/<id> records rather than an unprotected
    new collection; stories are excluded from normal posts and search. */
 const VATRA_STORY_LIFETIME_MS=24*60*60*1000;
+let vatraStoryCleanupAt=0,vatraStoryCleanupRunning=false;
+/* Only remove a story's own unique upload in VATRA's public media bucket.
+   Never pass an arbitrary user-supplied URL to Storage.remove(). */
+async function vatraRemoveOwnStoryMedia(story){
+ if(!currentUser?.uid||story?.authorUid!==currentUser.uid||!story.mediaUrl)return;
+ let url,origin;
+ try{
+  url=new URL(story.mediaUrl);
+  origin=new URL(db.client.supabaseUrl).origin;
+ }catch{return;}
+ const prefix='/storage/v1/object/public/vatra-media/';
+ if(url.origin!==origin||!url.pathname.startsWith(prefix))return;
+ let path;
+ try{path=decodeURIComponent(url.pathname.slice(prefix.length));}catch{return;}
+ const parts=path.split('/');
+ if(parts.length!==3||parts[0]!==currentUser.uid||
+    !['posts','videos','stories','story-videos'].includes(parts[1])||
+    !/^[a-zA-Z0-9._-]+$/.test(parts[2]))return;
+ const {error}=await db.client.storage.from('vatra-media').remove([path]);
+ if(error)throw error;
+}
+/* Opportunistic owner-side cleanup: a logged-in author removes expired
+   stories and their uploads. A scheduled server cleanup is still required
+   to enforce expiry when the author does not return to VATRA. */
+async function vatraCleanupExpiredOwnStories(){
+ const now=Date.now();
+ if(!currentUser?.uid||vatraStoryCleanupRunning||now-vatraStoryCleanupAt<5*60*1000)return;
+ vatraStoryCleanupAt=now;vatraStoryCleanupRunning=true;
+ try{
+  const expired=Object.entries(posts||{}).filter(([,p])=>
+   p?.kind==='story'&&p.authorUid===currentUser.uid&&Number(p.createdAt)>0&&
+   (now-Number(p.createdAt)>=VATRA_STORY_LIFETIME_MS||
+    (Number(p.expiresAt)>0&&Number(p.expiresAt)<=now))).slice(0,10);
+  for(const [id,p] of expired){
+   try{
+    await vatraRemoveOwnStoryMedia(p);
+    await remove(ref(db,'posts/'+id));
+   }catch(error){console.warn('[ВАТРА] Не вдалося очистити прострочену історію:',error);}
+  }
+ }finally{vatraStoryCleanupRunning=false;}
+}
 function vatraActiveStories(){
  const now=Date.now();
  return Object.entries(posts||{}).map(([id,p])=>({...p,id})).filter(p=>
@@ -744,7 +785,7 @@ function vatraOpenStoryViewer(firstId){
   dlg.querySelector('[data-story-profile]').onclick=()=>{close();if(story.authorUid===currentUser?.uid){activeProfileUid=null;goPage('profile');}else renderPublicProfile(story.authorUid);};
   dlg.querySelector('[data-story-delete]')?.addEventListener('click',async()=>{
    if(!(await askConfirm('Видалити цю історію?')))return;
-   try{await remove(ref(db,'posts/'+story.id));close();renderFeed();toastMsg('Історію видалено.');}
+   try{await vatraRemoveOwnStoryMedia(story);await remove(ref(db,'posts/'+story.id));close();renderFeed();toastMsg('Історію видалено.');}
    catch(err){toastMsg(niceError(err));}
   });
  };
@@ -761,7 +802,12 @@ function vatraCreateStory(){
   const isVideo=file.type.startsWith('video/'),isImage=file.type.startsWith('image/');
   if(!isImage&&!isVideo)return toastMsg('Оберіть фото або відео.');
   if(file.size>(isVideo?MAX_VIDEO:MAX_IMAGE))return toastMsg('Файл завеликий. Фото до 15 МБ, відео до 50 МБ.');
-  const url=URL.createObjectURL(file);
+  let preparedFile=file;
+  if(isImage){
+   try{preparedFile=await getImageEditor(file,'story');if(!preparedFile)return;}
+   catch(error){toastMsg('Не вдалося відкрити редактор історії: '+niceError(error));return;}
+  }
+  const url=URL.createObjectURL(preparedFile);
   const dialog=document.createElement('dialog');dialog.className='vatra-story-dialog vatra-story-compose';document.body.append(dialog);
   dialog.innerHTML='<form class="vatra-story-shell" method="dialog"><header><b>Нова історія</b><button type="button" data-story-cancel aria-label="Закрити">×</button></header>'+
     (isVideo?'<video class="vatra-story-media" controls playsinline src="'+url+'"></video>':'<img class="vatra-story-media" src="'+url+'" alt="Попередній перегляд">')+
@@ -782,7 +828,7 @@ function vatraCreateStory(){
    const btn=dialog.querySelector('button[type="submit"]'),status=dialog.querySelector('.vatra-story-compose-status');
    btn.disabled=true;btn.textContent='Публікуємо…';
    try{
-    const mediaUrl=isVideo?await uploadMedia(file,'videos'):await uploadImage(file,1280,.82,'posts');
+    const mediaUrl=isVideo?await uploadMedia(preparedFile,'videos'):await uploadImage(preparedFile,1280,.82,'posts');
     const stamp=Date.now(),entry=push(ref(db,'posts'));
     await createPost(entry,{kind:'story',authorUid:currentUser.uid,authorName:currentProfile.name||'Користувач ВАТРИ',
       authorHandle:currentProfile.handle||'',mediaUrl,mediaType:isVideo?'video':'image',
@@ -804,6 +850,7 @@ document.addEventListener('click',e=>{
 });
 
 function renderFeed(){
+ if(currentUser)void vatraCleanupExpiredOwnStories();
  const arr=allPosts(),seen=new Set(),sponsored=[];
  for(const row of vatraPromotions.rows){
   if(row.ends_at&&new Date(row.ends_at).getTime()<=Date.now())continue;
