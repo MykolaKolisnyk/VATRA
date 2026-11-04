@@ -22,7 +22,11 @@ const giftText=readFileSync('vatra-gifts.js','utf8');
 const sql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const styling=readFileSync('vatra-interface-fixes.css','utf8');
 for(const [label,test] of [
- ['Gifts not in sidebar',!/class="nav" data-page="gifts"/.test(main)],
+ ['Gifts restored in sidebar',/data-page="gifts"/.test(main)],
+ ['Photos in sidebar',/data-page="photos"/.test(main)],
+ ['Music in sidebar',/data-page="music"/.test(main)],
+ ['Account settings in sidebar',/data-page="settings"/.test(main)],
+ ['Technical support in sidebar',/data-menu-page="supportDesk"/.test(main)],
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
  ['Manual gift orders',readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8').includes('vatra_gifts_place_order')],
  ['Gifts module',/src="vatra-gifts\.js\?v=[^"]+"/.test(main)],
