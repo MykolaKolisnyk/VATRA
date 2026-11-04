@@ -1,10 +1,10 @@
 /* VATRA UI Foundations — one coherent typography and interaction layer.
    Intentionally loaded after legacy component styles, replacing conflicting visual rules. */
 :root{
- --vatra-ui-ink:#263b55;
+ --vatra-ui-ink:#26384c;
  --vatra-ui-strong:#172f4e;
- --vatra-ui-muted:#60758f;
- --vatra-ui-secondary:#526a86;
+ --vatra-ui-muted:#52677f;
+ --vatra-ui-secondary:#415b78;
  --vatra-ui-border:#dbe4ef;
  --vatra-ui-field-border:#d1deeb;
  --vatra-ui-hover:#f2f6fc;
@@ -21,11 +21,11 @@ html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-n
  opacity:1!important;text-shadow:none!important;
 }
 html body .layout>.sidebar>nav>a.nav:not([hidden]){
- color:#334d6b!important;font-size:13.5px!important;font-weight:600!important;
+ color:#24374f!important;font-size:14px!important;font-weight:720!important;
  line-height:1.45!important;opacity:1!important;letter-spacing:0!important;
  min-height:42px!important;transform:none!important;
 }
-html body .layout>.sidebar>nav>a.nav .nav-icon{color:#607fa3!important;opacity:1!important}
+html body .layout>.sidebar>nav>a.nav .nav-icon{color:#416c98!important;opacity:1!important}
 html body .layout>.sidebar>nav>a.nav:hover{background:#f0f4fb!important;color:#144f9a!important}
 html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#2864b2!important}
 html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
@@ -117,11 +117,11 @@ html body :is(button,[role="button"],a):disabled{opacity:.55!important;cursor:no
 /* Settings navigation and media cards use the same active treatment. */
 html body[data-page="settings"] .vatra-settings-nav-button:not([hidden]){
  min-height:43px!important;font-size:13.5px!important;font-weight:600!important;
- color:#405c7a!important;opacity:1!important;letter-spacing:0!important;border-radius:10px!important;
+ color:#29425d!important;opacity:1!important;letter-spacing:0!important;border-radius:10px!important;
 }
 html body[data-page="settings"] .vatra-settings-nav-button:not([hidden]):hover{background:#eff4fb!important;color:#22558e!important}
 html body[data-page="settings"] .vatra-settings-nav-button.active{background:#e9f1ff!important;color:#095be4!important;font-weight:710!important}
-html body[data-page="settings"] .vatra-settings-nav-icon{opacity:1!important;color:#6686a9!important}
+html body[data-page="settings"] .vatra-settings-nav-icon{opacity:1!important;color:#446f9e!important}
 html body[data-page="settings"] .vatra-settings-nav-button.active .vatra-settings-nav-icon{color:#095be4!important}
 @media(prefers-reduced-motion:reduce){
  html body :is(input,button,textarea,select,.nav,.vatra-settings-nav-button){transition:none!important}
@@ -211,3 +211,97 @@ html body .topbar :is(.icon-btn,.vatra-header-action){box-shadow:none!important}
 html body .topbar :is(.icon-btn,.vatra-header-action):hover{background:#edf4ff!important;color:#175cae!important}
 html body[data-vatra-theme-effective="dark"] :is(.vatra-friends-tabs button,.vatra-photos-tabs button):hover:not(:disabled),
 html body[data-vatra-theme-effective="dark"] .post .post-actions button:hover{background:#2b4664!important;color:#f2f7ff!important}
+
+
+/* === Full-site typography audit: actual classes rendered by VATRA modules === */
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]),
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden])>span:not(.nav-icon){
+ color:#21374f!important;opacity:1!important;font-size:14px!important;
+ font-weight:720!important;letter-spacing:0!important;text-shadow:none!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]),
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){
+ color:#0757e8!important;font-weight:760!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav :is(.nav-icon,.nav-icon svg){
+ color:#36669a!important;stroke:#36669a!important;opacity:1!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(:hover,.active,[aria-current="page"]) :is(.nav-icon,.nav-icon svg){
+ color:#0757e8!important;stroke:#0757e8!important;
+}
+html body .layout>.sidebar>nav>a.nav .nav-icon svg{stroke-width:2!important}
+/* Header and global navigation: precise icon and label contrast */
+html body:not([data-vatra-theme-effective="dark"]) .topbar.vatra-global-header :is(.icon-btn,.notification-button,.vatra-top-music-trigger,.search-icon){
+ color:#315a85!important;opacity:1!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .topbar.vatra-global-header .search{
+ background:#f1f4f8!important;border-color:transparent!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .topbar.vatra-global-header .search input{
+ color:#233950!important;font-size:13px!important;font-weight:540!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .topbar.vatra-global-header .search input::placeholder{
+ color:#667b92!important;opacity:1!important;font-weight:520!important;
+}
+/* Section labels and headings retain real contrast rather than faded alphachannel paint. */
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .heading h1,.heading h2,.notifications-heading h2,.vatra-profile-name-line,
+ .vatra-profile-card-head h3,.vatra-profile-posts-title h3,.vatra-group-section-header h2,
+ .vatra-group-section-header h3,.vatra-community-section-head h2,.vatra-community-section-head h3,
+ .vatra-friends-top h2,.vatra-messenger-heading h2,.vatra-music-section-head h3,
+ .vatra-support-header h2,.vatra-gifts-header h1,.settings-card h3,.vatra-clips-header h2
+){color:#20344c!important;opacity:1!important;font-weight:750!important;letter-spacing:-.016em!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .post .author-link,.post .author b,.comment-author-name,.vatra-friends-name,
+ .vatra-friends-row .vatra-friends-info b,.vatra-community-name,.vatra-group-primary,
+ .vatra-group-card h3,.vatra-messenger-contact-copy b,.vatra-chat-person b,
+ .vatra-search-person-name,.vatra-search-group-name,.vatra-music-card-info b,
+ .vatra-menu-track-meta b,.vatra-profile-extra-heading-text strong,.vatra-profile-detail b
+){color:#24374e!important;font-weight:700!important;opacity:1!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .post .post-text,.post .comment-copy,.vatra-profile-bio,.vatra-profile-detail-value,
+ .vatra-profile-extra-row dd,.vatra-community-description,.vatra-group-description,
+ .vatra-messenger-contact-copy,.vatra-chat-message-row,.vatra-friends-info,
+ .vatra-community-text,.vatra-support-page p,.vatra-music-card-info,
+ .vatra-public-photos-page p,.vatra-gifts-intro p
+){color:#344a63!important;opacity:1!important;font-weight:450!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-profile-detail-label,.vatra-profile-extra-privacy,.vatra-profile-photo-date,
+ .post .post-meta,.post .author small,.post .muted,.vatra-friends-presence-last,
+ .vatra-messenger-contact-side,.vatra-chat-message-meta,.vatra-group-section-header small,
+ .vatra-community-text small,.vatra-community-row small,.vatra-music-card-info small,
+ .vatra-menu-track-meta small,.vatra-support-header small,.vatra-profile-status,
+ .vatra-gift-description,.vatra-settings-private-note,.vatra-friends-info small
+){color:#5b7089!important;opacity:1!important;font-weight:520!important}
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .vatra-profile-link,.vatra-profile-bio-toggle,.vatra-profile-status-edit,.vatra-profile-post-tabs button,
+ .vatra-community-tabs button,.vatra-friends-tabs button,.vatra-messenger-filter,
+ .vatra-group-secondary,.vatra-group-back,.vatra-support-back,.vatra-music-tabs button
+){color:#365c84!important;opacity:1!important;font-weight:650!important}
+/* Use fixed solid backgrounds: alpha-translucent menu states blurred the underlying text */
+html body:not([data-vatra-theme-effective="dark"]) :is(.vatra-friends-tabs,.vatra-community-tabs,.vatra-profile-post-tabs,.vatra-messenger-selector,.vatra-music-tabs){
+ color:#2e4763!important;opacity:1!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) :is(.vatra-group-card,.vatra-community-list-card,.vatra-profile-card,.vatra-friends-main,.vatra-friends-panel,.vatra-messenger-sidebar,.settings-card,.vatra-support-page,.vatra-music-card){
+ opacity:1!important;
+}
+html body :is(.post .post-text,.post .comment-copy,.vatra-profile-bio,.vatra-community-description,.vatra-group-description,.vatra-support-page p){
+ line-height:1.68!important;letter-spacing:0!important;
+}
+html body .vatra-messenger-layout :is(.vatra-messenger-contact-copy,.vatra-messenger-contact-side,.vatra-messenger-heading){text-shadow:none!important}
+/* Dark color palette matches the same hierarchy without fading. */
+html body[data-vatra-theme-effective="dark"] :is(
+ .heading h1,.heading h2,.notifications-heading h2,.vatra-profile-name-line,
+ .vatra-profile-card-head h3,.vatra-profile-posts-title h3,.vatra-group-section-header h2,
+ .vatra-community-section-head h2,.vatra-friends-top h2,.vatra-messenger-heading h2,
+ .vatra-music-section-head h3,.vatra-support-header h2,.vatra-gifts-header h1,.settings-card h3,
+ .vatra-community-name,.vatra-friends-name,.vatra-messenger-contact-copy b
+){color:#f0f6ff!important;font-weight:720!important;opacity:1!important}
+html body[data-vatra-theme-effective="dark"] :is(
+ .post .post-text,.post .comment-copy,.vatra-profile-bio,.vatra-community-description,
+ .vatra-group-description,.vatra-messenger-contact-copy,.vatra-support-page p
+){color:#d8e6f5!important;opacity:1!important}
+html body[data-vatra-theme-effective="dark"] :is(
+ .post .author small,.post .post-meta,.vatra-profile-detail-label,.vatra-friends-presence-last,
+ .vatra-messenger-contact-side,.vatra-chat-message-meta,.vatra-group-section-header small
+){color:#b1c6de!important;opacity:1!important}
