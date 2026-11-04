@@ -46,9 +46,19 @@ assert.ok(css.includes('.vatra-method-symbol')&&css.includes('is-awaiting-code')
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
 const email=read('supabase/auth-templates/otp-email.html');
 const sms=read('supabase/auth-templates/otp-sms.txt');
-assert.ok(email.includes('{{ .Token }}')&&email.includes('ВАТРА'),'Email template missing brand or token');
-assert.ok(sms.includes('{{ .Code }}')&&sms.includes('ВАТРА'),'SMS template missing brand or token');
+assert.ok(email.includes('{{ .Token }}')&&email.includes('VATRA'),'Email template missing global brand or token');
+assert.ok(sms.includes('{{ .Code }}')&&sms.includes('VATRA'),'SMS template missing global brand or token');
 for(const template of [email,sms])assert.ok(!/sb_secret_|sk_(?:live|test)_/.test(template),'Template contains secret material');
+assert.ok(auth.includes('preferredLanguage:vatraSignupLanguage()'),'Signup must attach chosen language to Supabase user metadata');
+assert.ok(auth.includes("localStorage.getItem('vatra-language')"),'Signup should recover the selected language from VATRA settings');
+for(const lang of ['uk','pl','de','fr','es','pt','it']){
+ assert.ok(email.includes('eq .Data.preferredLanguage "'+lang+'"'),'Missing locale branch: '+lang);
+}
+assert.ok(email.includes('Your verification code'),'English fallback must be present');
+assert.ok(!/для своїх|тільки для українців|українська соціальна мережа/i.test(email),'No nationality-exclusive marketing in OTP mail');
+assert.ok(!sms.includes('ВАТРА')&&sms.includes('Never share'),'SMS fallback must be understandable internationally');
+assert.ok(email.includes('https://mykolakolisnyk.github.io/VATRA/'),'Keep VATRA website link');
+
 
 // Exercise the actual confirmOtp implementation with a fake, already verified
 // user. No network requests, real accounts, or live SMS/email are involved.
