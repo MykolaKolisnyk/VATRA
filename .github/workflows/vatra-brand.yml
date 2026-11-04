@@ -29,6 +29,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add logo.png vatra-icon.png vatra-header.png favicon.png favicon-small.png
           if ! git diff --cached --quiet; then
-            git commit -m "brand: original user artwork, transparent outside favicon"
+            git commit -m "brand: regenerate VATRA ribbon V icons and wordmark PNG"
             git push
           fi
