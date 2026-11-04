@@ -25,7 +25,7 @@ assert.ok(payload.mailer_templates_confirmation_content.includes('{{ .Token }}')
 assert.ok(payload.mailer_templates_magic_link_content.includes('{{ .Token }}'));
 assert.ok(payload.mailer_templates_recovery_content.includes('{{ .Token }}'));
 assert.ok(payload.sms_template.includes('{{ .Code }}'));
-assert.ok(payload.uri_allow_list.includes('mode=new-password'));
+assert.ok(!Object.hasOwn(payload,'uri_allow_list'),'Never replace existing redirect URLs.');
 for(const forbidden of ['smtp_password','smtp_secret','smtp_auth_token'])assert.ok(!Object.hasOwn(payload,forbidden));
 const sanitized=JSON.stringify(deliverySummary(payload));
 for(const secret of ['smtp-private-do-not-print','twilio-private-do-not-print','token-private-do-not-print'])
