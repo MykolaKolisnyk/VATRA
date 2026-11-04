@@ -1066,16 +1066,32 @@ function vatraProfileGalleryCarousel(uid,photos,isMine=false){
  const key=(isMine?'self:':'public:')+uid;
  const found=photos.filter(x=>typeof x.url==='string'&&x.url);
  if(!found.length)return '';
- vatraProfileGalleryCache.clear();
  vatraProfileGalleryCache.set(key,{photos:found,offset:0,isMine,uid});
- const initial=found.slice(0,4).map((photo,i)=>vatraProfileGalleryTile(photo,i,uid,isMine)).join('');
+ const tiles=found.map((photo,i)=>vatraProfileGalleryTile(photo,i,uid,isMine)).join('');
  const arrow=direction=>'<button type="button" class="vatra-gallery-carousel-arrow '+(direction<0?'is-prev':'is-next')+'" '+
-  ' data-vatra-gallery-step="'+direction+'" aria-label="'+(direction<0?'Попередні':'Наступні')+' фотографії">'+
+  'data-vatra-gallery-step="'+direction+'" '+(direction<0?'disabled ':'')+
+  'aria-label="'+(direction<0?'Попередні':'Наступні')+' фотографії">'+
   '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
   (direction<0?'<path d="m14.5 5-7 7 7 7"/>':'<path d="m9.5 5 7 7-7 7"/>')+'</svg></button>';
  return '<div class="vatra-profile-photo-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
-  '<div class="profile-photo-gallery">'+initial+'</div>'+
-  (found.length>4?arrow(-1)+arrow(1):'')+'</div>';
+  '<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+
+  (found.length>4?'<div class="vatra-gallery-footer"><span class="vatra-gallery-position" aria-live="polite">1–4 із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
+}
+function vatraShiftProfileGallery(box,state){
+ if(!box||!state)return;
+ const track=box.querySelector('.vatra-gallery-track'),tiles=track?.children;
+ if(!track||!tiles?.length)return;
+ const viewportCount=Math.min(4,tiles.length);
+ const maxOffset=Math.max(0,tiles.length-viewportCount);
+ state.offset=Math.max(0,Math.min(state.offset,maxOffset));
+ const first=tiles[0].offsetLeft;
+ const left=tiles[state.offset].offsetLeft-first;
+ track.style.transform='translate3d('+(-left)+'px,0,0)';
+ const previous=box.querySelector('[data-vatra-gallery-step="-1"]'),next=box.querySelector('[data-vatra-gallery-step="1"]');
+ if(previous)previous.disabled=state.offset===0;
+ if(next)next.disabled=state.offset===maxOffset;
+ const position=box.querySelector('.vatra-gallery-position');
+ if(position)position.textContent=(state.offset+1)+'–'+(state.offset+viewportCount)+' із '+tiles.length;
 }
 document.addEventListener('click',event=>{
  const arrow=event.target.closest('[data-vatra-gallery-step]');
@@ -1083,15 +1099,15 @@ document.addEventListener('click',event=>{
  event.preventDefault();event.stopPropagation();
  const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
  if(!box||!state||state.photos.length<=4)return;
- const count=state.photos.length,step=Number(arrow.dataset.vatraGalleryStep);
- state.offset=(state.offset+(step===-1?-1:1)+count)%count;
- const grid=box.querySelector('.profile-photo-gallery');
- if(!grid)return;
- grid.innerHTML=Array.from({length:4},(_,i)=>{
-  const index=(state.offset+i)%count;
-  return vatraProfileGalleryTile(state.photos[index],index,state.uid,state.isMine);
- }).join('');
+ const direction=Number(arrow.dataset.vatraGalleryStep);
+ state.offset=Math.max(0,Math.min(state.photos.length-4,state.offset+(direction<0?-4:4)));
+ vatraShiftProfileGallery(box,state);
 },true);
+window.addEventListener('resize',()=>{
+ document.querySelectorAll('[data-vatra-gallery-carousel]').forEach(box=>{
+  vatraShiftProfileGallery(box,vatraProfileGalleryCache.get(box.dataset.vatraGalleryCarousel));
+ });
+});
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити профіль</h3><button class="primary" id="profileLogin">Увійти</button></article>');
