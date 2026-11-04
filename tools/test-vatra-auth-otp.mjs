@@ -5,35 +5,35 @@ const read=p=>readFileSync(p,'utf8');
 const auth=read('auth.js'),backend=read('vatra-backend.js'),css=read('auth.css');
 for(const file of ['auth.html','register.html']){
  const html=read(file);
- for(const id of ['authForm','otpWrap','otpCode','otpResend','otpChange','otpStatus','otpTitle','loginOtpToggle','recoveryResendOtp']){
+ for(const id of ['authForm','otpWrap','otpCode','otpResend','otpChange','otpStatus','otpTitle','recoveryResendOtp']){
   assert.ok(html.includes('id="'+id+'"'),file+': missing '+id);
  }
- assert.ok(html.includes('Код на email')&&html.includes('Код у SMS'),file+': missing delivery choices');
+ assert.ok(html.includes('Вхід з паролем')&&html.includes('Код у SMS'),file+': missing password-login choice');
  assert.ok(html.includes('name="authMethod" value="email"')&&html.includes('name="authMethod" value="phone" disabled'),file+': email auth active and SMS deliberately disabled');
  assert.ok(html.includes('name="recoveryMethod" value="phone" disabled'),file+': SMS recovery should be disabled until delivery exists');
  assert.ok(!html.includes('Український простір для своїх'),file+': remove exclusive brand slogan');
  assert.ok(html.includes('id="recoveryMethodWrap" hidden'),'Recovery must be email-only while SMS is unavailable');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261104-international1'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-international1'),file+': stale auth CSS version');
+ assert.ok(html.includes('auth.js?v=20261104-signup-verify2'),file+': stale auth JS version');
+ assert.ok(html.includes('auth.css?v=20261104-unified-captcha2'),file+': stale auth CSS version');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
 const required=[
- "shouldCreateUser:kind==='signup'",
+ "await signUpWithPassword({...fields,password:details.password,userData:details.userData})",
  "if(pendingOtp){await confirmOtp();return;}",
  "await startOtp('signup'",
- "await startOtp('login'",
+ "const enabled=false; // Login always uses an account password.",
  "existing?.exists?.()",
- "await setAccountPassword(challenge.password)",
+ "await resendSignupOtp(fields)",
  "await finishRegistration({...challenge,user})",
  "await verifyOtp(challenge.isPhone?",
  "type:'email'",
  "type:'recovery'",
  "await sendPasswordResetEmail(auth,contact.toLowerCase())",
  "beginRecoveryCooldown()",
- "if(loginByCode){await startOtp('login'",
- "loginByCode=true",
+ "$('#password').autocomplete=m==='login'?'current-password':'new-password'",
+ "loginByCode=false",
 ];
 for(const snippet of required)assert.ok(auth.includes(snippet),'Auth flow regression: '+snippet);
 // An OTP can only be consumed once. A database failure after successful code
@@ -43,10 +43,10 @@ assert.ok(auth.includes("if(!challenge.checkedNewAccount){"),'Existing-account p
 assert.ok(auth.includes("otpField.required=false;otpField.readOnly=true;"),'Verified signup should not require the spent code');
 assert.match(auth,/await finishRegistration\(\{\.\.\.challenge,user\}\);\s*pendingOtp=null;return;/,'Do not clear OTP guard before profile writes finish');
 assert.ok(auth.includes("input.readOnly=false;"),'Changing contact must reset the OTP field state');
-assert.ok(!auth.includes('signUpWithPassword('),'Old registration bypasses OTP');
+assert.ok(auth.includes('signUpWithPassword('),'New signup must refuse duplicate accounts before sending OTP');
 assert.ok(!auth.includes('await sendVatraOtp'),'Missing custom Edge Function must not be used');
 assert.ok(auth.includes('const VATRA_SMS_AUTH_ENABLED=false'),'Production rollout must not advertise unavailable SMS OTP');
-assert.ok(auth.includes("selectedMethod=()=>VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate UI selection');
+assert.ok(auth.includes("VATRA_SMS_AUTH_ENABLED||mode==='login'"),'Phone password login should remain available while signup SMS is off');
 assert.ok(auth.includes("function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate recovery selection');
 assert.ok(auth.includes("if(details.isPhone&&!VATRA_SMS_AUTH_ENABLED)"),'Hidden or modified SMS controls cannot start delivery');
 assert.ok(auth.includes("verifiedUser.email_confirmed_at"),'Registration must check server-confirmed email before creating any VATRA profile');
@@ -134,7 +134,7 @@ await confirm();
 assert.equal(verificationCalls,1,'Retry must never re-use an already consumed OTP');
 assert.equal(profileLookups,1,'Retry must not reject partial new-profile data as existing account');
 assert.equal(registrationAttempts,2,'Retry should finish pending page creation');
-assert.equal(passwordChanges,2,'Password update remains retryable after transient failure');
+assert.equal(passwordChanges,0,'Confirmed signup must not overwrite the password after OTP');
 assert.equal(context.pendingOtp,null,'Successful completion clears pending challenge');
 
 const existingChecks=[],existingNavigation=[];
@@ -154,4 +154,11 @@ await confirmExisting();
 assert.equal(existingChecks.length,1,'Existing account must be checked');
 assert.deepEqual(existingNavigation,['index.html'],'An existing user should go to their current page');
 
-console.log('VATRA auth OTP: registration, passwordless login, recovery, resend, markup, branding validated.');
+assert.ok(!auth.includes("if(loginByCode){await startOtp('login'"),'Normal login must not send an OTP');
+assert.ok(auth.includes("type:challenge.kind==='signup'?'signup':'email'"),'Signup confirmation must use signup OTP type');
+assert.ok(backend.includes('data.user.identities.length === 0'),'Supabase duplicate identity guard must remain');
+for(const file of ['auth.html','register.html']){
+ const html=read(file);
+ assert.ok(html.includes('class="recovery-protection human-captcha"'),'Recovery must reuse the same human-check presentation');
+}
+console.log('VATRA auth: verified signup, occupied-email checks, password login, recovery and markup validated.');
