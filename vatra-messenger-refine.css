@@ -64,7 +64,7 @@ body[data-page="messages"] .vatra-messenger-heading{
  min-height:55px!important;padding:10px 15px 8px!important;gap:9px!important;
 }
 body[data-page="messages"] .vatra-messenger-heading h2{
- margin:0!important;font:650 15px/1.4 Inter,system-ui,sans-serif!important;color:#29394b!important;
+ margin:0!important;font:710 16px/1.4 Inter,system-ui,sans-serif!important;color:#29394b!important;
 }
 body[data-page="messages"] .vatra-messenger-new-trigger{
  display:grid!important;place-items:center!important;margin-left:auto!important;
@@ -100,15 +100,15 @@ body[data-page="messages"] .vatra-messenger-selector{
 }
 body[data-page="messages"] .vatra-messenger-filter{
  min-height:29px!important;padding:5px 9px!important;border:1px solid transparent!important;
- border-radius:8px!important;background:transparent!important;color:#7b8da1!important;
- font:550 11.5px/1.35 Inter,system-ui,sans-serif!important;
+ border-radius:8px!important;background:transparent!important;color:#3a587b!important;
+ font:650 12.5px/1.4 Inter,system-ui,sans-serif!important;
 }
 body[data-page="messages"] .vatra-messenger-filter.active{
  background:#fff!important;color:#2863a4!important;
  border-color:#e0e6ee!important;box-shadow:0 2px 6px rgba(35,54,77,.07)!important;
 }
 body[data-page="messages"] .vatra-messenger-filter span{
- color:#8395aa!important;font-size:10px!important;font-weight:500!important;
+ color:#4c6a8b!important;font-size:10px!important;font-weight:500!important;
 }
 body[data-page="messages"] .vatra-messenger-contacts{padding:6px!important;scrollbar-width:thin!important}
 body[data-page="messages"] .vatra-messenger-contact{position:relative!important;margin:0 0 2px!important}
@@ -130,11 +130,11 @@ body[data-page="messages"] .vatra-messenger-contact-copy{
  display:grid!important;flex:1 1 auto!important;min-width:0!important;gap:4px!important;
 }
 body[data-page="messages"] .vatra-messenger-contact-copy b{
- font:600 12.5px/1.3 Inter,system-ui,sans-serif!important;color:#314053!important;
+ font:700 13.5px/1.4 Inter,system-ui,sans-serif!important;color:#24384f!important;
  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
 }
 body[data-page="messages"] .vatra-messenger-contact-copy small{
- font:400 11px/1.4 Inter,system-ui,sans-serif!important;color:#8897a8!important;
+ font:470 12px/1.45 Inter,system-ui,sans-serif!important;color:#5c738f!important;
  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
 }
 body[data-page="messages"] .vatra-messenger-contact-side{
@@ -143,7 +143,7 @@ body[data-page="messages"] .vatra-messenger-contact-side{
  flex:0 0 auto!important;max-width:65px!important;overflow:hidden!important;
 }
 body[data-page="messages"] .vatra-messenger-contact-side time{
- font:400 9.5px/1.35 Inter,system-ui,sans-serif!important;color:#94a1ae!important;
+ font:400 9.5px/1.35 Inter,system-ui,sans-serif!important;color:#617a97!important;
  white-space:nowrap!important;
 }
 body[data-page="messages"] .vatra-messenger-unread-dot{
@@ -158,7 +158,7 @@ body[data-page="messages"] .vatra-messenger-delete:focus-visible{opacity:1!impor
 body[data-page="messages"] .vatra-messenger-nodata,
 body[data-page="messages"] .vatra-chat-no-results{
  margin:10px!important;padding:8px!important;text-align:center!important;
- color:#8998a9!important;font-size:11px!important;line-height:1.45!important;
+ color:#596f87!important;font-size:11px!important;line-height:1.45!important;
 }
 body[data-page="messages"] #vatraChatNoResults[hidden]{display:none!important}
 body[data-page="messages"] .vatra-messenger-new{
@@ -554,7 +554,7 @@ body[data-page="messages"] .vatra-chat-message-meta b{
   font:600 13.5px/1.35 Inter,system-ui,sans-serif!important;
 }
 body[data-page="messages"] .vatra-chat-message-meta time{
-  font:400 11px/1.4 Inter,system-ui,sans-serif!important;
+  font:470 12px/1.45 Inter,system-ui,sans-serif!important;
 }
 body[data-page="messages"] .message-bubble p{
   font:400 14px/1.58 Inter,system-ui,sans-serif!important;
