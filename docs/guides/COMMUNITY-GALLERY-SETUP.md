@@ -4,12 +4,12 @@
 
 ## Порядок розгортання
 
-1. Запустіть [vatra-community-settings-rls.sql](vatra-community-settings-rls.sql).
+1. Запустіть [vatra-community-settings-rls.sql](../../database/reference/communities/vatra-community-settings-rls.sql).
    Цей захищений тригер забороняє створювати нові групові дописи звичайним учасникам **навіть при старих RLS-політиках**. Творець/адміністратор може публікувати від спільноти чи від себе, модератор (якщо `moderatorsCanPost` не вимкнуто) — тільки від себе. Також тригер забороняє нові коментарі в спільноті з вимкненими коментарями.
-2. Запустіть [vatra-community-gallery.sql](vatra-community-gallery.sql).
+2. Запустіть [vatra-community-gallery.sql](../../database/reference/communities/vatra-community-gallery.sql).
    Додає RLS на записи `groupMedia/<groupId>/<mediaId>` у наявній таблиці `app_data`: перегляд відповідно до типу групи, завантаження тільки творцем/адміном/дозволеним модератором, видалення власником запису або адміном/творцем.
-3. Якщо використовуєте відкладені дописи — повторно застосуйте [vatra-scheduled-posts.sql](vatra-scheduled-posts.sql), щоб планувальник перевіряв нові права ролей перед публікацією.
-4. Основний файл [app-data-schema.sql](app-data-schema.sql) теж оновлений для **нових установок**. Для чинної бази достатньо цільових міграцій вище; без потреби не запускайте усі історичні міграції повторно.
+3. Якщо використовуєте відкладені дописи — повторно застосуйте [vatra-scheduled-posts.sql](../../database/reference/content/vatra-scheduled-posts.sql), щоб планувальник перевіряв нові права ролей перед публікацією.
+4. Основний файл [app-data-schema.sql](../../database/reference/core/app-data-schema.sql) теж оновлений для **нових установок**. Для чинної бази достатньо цільових міграцій вище; без потреби не запускайте усі історичні міграції повторно.
 
 ## Як це працює
 

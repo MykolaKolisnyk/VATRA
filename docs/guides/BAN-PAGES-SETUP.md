@@ -4,7 +4,7 @@
 
 Після встановлення `vatra-moderation-center.sql`, `vatra-staff-verification.sql` і `vatra-support-desk.sql` виконайте через **Supabase → SQL Editor**:
 
-**`VATRA/vatra-ban-public-pages.sql`**
+**`database/reference/security/vatra-ban-public-pages.sql`**
 
 Вона змінює сувору політику читання `app_data`: публічні профілі й метадані спільнот більше не приховуються через бан. Контент та дії заблокованих залишаються обмеженими попередніми RLS-політиками. Зверніть увагу: це **не** відключає вхід у Supabase Auth.
 
@@ -52,8 +52,8 @@
 ### Сервер: що застосувати власнику проєкту
 
 1. Переконайтесь, що в потрібному проєкті виконано базові міграції `vatra-moderation-center.sql`, `vatra-staff-verification.sql`, `vatra-support-desk.sql`.
-2. Виконайте **`VATRA/vatra-account-lifecycle.sql`**, щоб створити таблицю життєвого циклу, статусні записи та оновити функцію очищення.
-3. Виконайте **`VATRA/vatra-ban-public-pages.sql`**, щоб оновити RLS і RPC `vatra_public_ban_status`.
+2. Виконайте **`database/reference/accounts/vatra-account-lifecycle.sql`**, щоб створити таблицю життєвого циклу, статусні записи та оновити функцію очищення.
+3. Виконайте **`database/reference/security/vatra-ban-public-pages.sql`**, щоб оновити RLS і RPC `vatra_public_ban_status`.
 4. Перевірте результат в іншому акаунті: RPC має повернути `canSeeDetails: false`, а `reason`, `expiresAt`, `sinceAt` — `null`. Власник заблокованого акаунта має отримувати свій статус з `canSeeDetails: true`.
 5. Не запускайте повне видалення живих акаунтів як тест. Процедура фонового очищення потребує **окремо розгорнутих Edge Function та cron** (див. `ACCOUNT-LIFECYCLE-DEPLOY.md`); сама SQL-міграція цього не робить.
 
