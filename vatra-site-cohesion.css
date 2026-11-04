@@ -4,53 +4,6 @@
  --vatra-ui-hover-ink:#245a91;--vatra-ui-hover-bg:#eaf1fa;
  --vatra-ui-border-soft:#dfe7f0;--vatra-ui-strong:#253d57;
 }
-/* Sidebar: no visual selected state. Accessiblity aria-current remains in markup. */
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]),
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:not([hidden]){
- color:var(--vatra-ui-quiet)!important;background:transparent!important;background-image:none!important;
- box-shadow:none!important;text-shadow:none!important;filter:none!important;
- font:620 14px/1.4 Inter,"VATRA Onest",system-ui,sans-serif!important;
- border:0!important;outline-offset:2px;opacity:1!important;
- transform:none!important;
- transition:background-color .19s ease,color .19s ease,transform .19s ease!important;
-}
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]),
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
- background:transparent!important;color:var(--vatra-ui-quiet)!important;
- font-weight:620!important;box-shadow:none!important;transform:none!important;
-}
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav :is(.nav-icon,.nav-icon svg),
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav :is(.nav-icon,.nav-icon svg),
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) :is(.nav-icon,.nav-icon svg){
- color:var(--vatra-ui-quiet-icon)!important;stroke:var(--vatra-ui-quiet-icon)!important;
- opacity:1!important;stroke-width:1.85!important;transform:none!important;
-}
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden])>span:not(.nav-icon){
- color:inherit!important;font-weight:inherit!important;text-shadow:none!important;
-}
-@media(hover:hover){
- html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]):hover,
- html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:not([hidden]):hover{
-  color:var(--vatra-ui-hover-ink)!important;background:var(--vatra-ui-hover-bg)!important;
-  box-shadow:none!important;transform:translateX(2px)!important;
- }
- html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]):hover :is(.nav-icon,.nav-icon svg){
-  color:#326fa8!important;stroke:#326fa8!important;transform:none!important;
- }
-}
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav,
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
- background:transparent!important;background-image:none!important;color:#b9cade!important;
- font-weight:610!important;box-shadow:none!important;
-}
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) :is(.nav-icon,.nav-icon svg){
- color:#93adca!important;stroke:#93adca!important;
-}
-@media(hover:hover){
- html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
- background:#293f57!important;color:#eff6ff!important;transform:translateX(2px)!important;
- }
-}
 /* Moderately larger content, without edge-to-edge stretching. */
 @media(min-width:1200px){
  html body .layout{max-width:1320px!important;width:min(1320px,calc(100% - 40px))!important;
@@ -78,7 +31,7 @@ html body .vatra-profile-sidebar :is(.vatra-profile-friends,.vatra-gift-preview-
  margin:12px 0 0!important;padding:8px 12px!important;
  border:1px solid #e5ecf4!important;border-radius:10px!important;
  background:#f7faff!important;color:#3b648d!important;
- font:650 12.5px/1.4 Inter,"VATRA Onest",system-ui,sans-serif!important;
+ font:650 12.5px/1.4 var(--vatra-ui-font,"Manrope",Inter,"VATRA Onest",system-ui,sans-serif),system-ui,sans-serif!important;
  text-align:center!important;letter-spacing:0!important;box-shadow:none!important;
  transition:background-color .18s ease,border-color .18s ease,color .18s ease!important;
 }
@@ -141,27 +94,14 @@ html body .vatra-friend-birthday-person button:disabled{opacity:.6;cursor:defaul
  html body .settings-page .vatra-editor-id-button{margin-left:53px}
  html body .vatra-friend-birthday-person{flex-wrap:wrap}
 }
-@media(prefers-reduced-motion:reduce){html body .layout>.sidebar>nav>a.nav{transition:none!important;transform:none!important;}}
 
 /* Reference typography, November 2026: clear Inter lettering and intentional hierarchy.
    Visual reference applies to both themes; never hardcode light-theme text colors here. */
 :root{
  --vatra-ref-body-size:14.5px;
- --vatra-ref-nav-size:15px;
 }
 body[data-vatra-font-scale="large"]{
  --vatra-ref-body-size:16px;
- --vatra-ref-nav-size:16px;
-}
-html body .layout>.sidebar>nav>a.nav:not([hidden]){
- font-family:var(--vatra-ui-font)!important;
- font-size:var(--vatra-ref-nav-size)!important;
- font-weight:550!important;
- letter-spacing:-.01em!important;
- line-height:1.35!important;
-}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
- font-weight:590!important;
 }
 html body .vatra-global-header :is(.search input,.account-avatar-trigger,.notification-button,.vatra-top-music-trigger){
  font-family:var(--vatra-ui-font)!important;
