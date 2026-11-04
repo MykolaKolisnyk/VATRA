@@ -66,4 +66,23 @@ for(const page of ['index.html','auth.html','register.html']){
  assert.ok(html.includes('<meta property="og:image:type" content="image/png">'),page+': incorrect Open Graph image MIME type');
  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'),page+': large social image card expected');
 }
+
+// Recovery must use a branded header with the scroll container clipped by the dialog.
+// The final stylesheet must be loaded after earlier auth and design layers.
+const recoveryFinal=read('vatra-recovery-final.css');
+for(const page of ['auth.html','register.html']){
+ const source=read(page);
+ assert.ok(source.includes('<header class="vatra-recovery-head">'),page+': recovery header missing');
+ assert.ok(source.includes('<div class="vatra-recovery-body">'),page+': recovery form body missing');
+ assert.ok(source.includes('vatra-recovery-final.css?v=20261104-recovery-unified2'),page+': final stylesheet missing');
+ assert.ok(source.lastIndexOf('vatra-recovery-final.css')>source.lastIndexOf('vatra-ui-foundations-v5.css'),
+  page+': final recovery styles must load after global auth styles');
+}
+assert.ok(recoveryFinal.includes('#recoveryDialog #recoveryForm::-webkit-scrollbar'),
+ 'Recovery scrollbar must stay inside clipped dialog');
+assert.ok(recoveryFinal.includes('overflow:hidden!important')&&recoveryFinal.includes('.vatra-recovery-head'),
+ 'Recovery card must clip scrolling and expose its distinct VATRA-blue header');
+assert.ok(recoveryFinal.includes('html body #captchaWrap.captcha-modal .human-captcha-options')&&
+ recoveryFinal.includes('html body #recoveryDialog #recoveryProtection .human-captcha-options'),
+ 'Both human checks must share visual rules');
 console.log('VATRA: unified shield, progressive lockouts, contained recovery and shared ribbon mark validated.');
