@@ -165,3 +165,49 @@ html body[data-vatra-theme-effective="dark"] :is(input,textarea)::placeholder{co
 html body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button:not([hidden]){color:#cbdbee!important}
 html body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button:not([hidden]):hover{color:#f0f6ff!important;background:#2b4561!important}
 html body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button.active{background:#244e83!important;color:#f0f6ff!important}
+
+/* Shared card, list, sidebar and composer details, without altering page routing. */
+html body :is(.quick-compose,.post,.vatra-friends-main,.vatra-profile-card,.vatra-friends-rail,.vatra-notification-rail,.vatra-group-list-card,.vatra-messenger-layout,.vatra-settings-pane .settings-card){
+ border-radius:14px!important;
+}
+html body :is(.quick-compose,.post) .author,
+html body :is(.vatra-profile-card-head,.vatra-profile-posts-title,.vatra-friends-top){
+ letter-spacing:0!important;
+}
+html body :is(.vatra-friends-tabs button,.vatra-photos-tabs button,.vatra-settings-nav-button,.vatra-profile-more-trigger){
+ font-size:13px!important;line-height:1.4!important;opacity:1!important;
+}
+html body :is(.vatra-friends-tabs button,.vatra-photos-tabs button):hover:not(:disabled){
+ background:#f0f5fc!important;border-color:#cedbea!important;color:#245e9e!important;
+}
+html body :is(.vatra-friends-tabs button,.vatra-photos-tabs button).is-active,
+html body :is(.vatra-friends-tabs button,.vatra-photos-tabs button).active{
+ background:#eaf2ff!important;color:#0757df!important;font-weight:720!important;
+}
+html body .vatra-messenger-layout :is(.chat-row,.vatra-chat-item,.vatra-messenger-list-item){
+ opacity:1!important;transition:background-color .16s ease!important;
+}
+html body .vatra-messenger-layout :is(.chat-row,.vatra-chat-item,.vatra-messenger-list-item):hover{
+ background:#f0f5fc!important;
+}
+html body :is(.post .post-actions,.vatra-profile-info,.vatra-profile-details,.vatra-community-about,.vatra-community-posts){
+ color:var(--vatra-ui-ink)!important;
+}
+html body :is(.post .post-actions button,.vatra-profile-card-head button,.vatra-profile-posts-title button){
+ opacity:1!important;transition:background-color .16s ease,color .16s ease!important;
+}
+html body :is(.post .post-actions button,.vatra-profile-card-head button,.vatra-profile-posts-title button):hover:not(:disabled){
+ background:#eff4fc!important;color:#1253a4!important;
+}
+html body :is(.settings-card,.vatra-community-card,.vatra-profile-card,.post) :is(p,small){
+ text-shadow:none!important;
+}
+html body .settings-grid>label{font-size:13px!important;font-weight:600!important;color:#405d7a!important}
+html body .settings-grid>label>small{font-size:11.5px!important;color:#687d95!important}
+html body :is(.vatra-search-person-name,.vatra-search-group-name,.vatra-friends-row b){
+ font-size:13.5px!important;line-height:1.42!important;
+}
+html body .topbar :is(.icon-btn,.vatra-header-action){box-shadow:none!important}
+html body .topbar :is(.icon-btn,.vatra-header-action):hover{background:#edf4ff!important;color:#175cae!important}
+html body[data-vatra-theme-effective="dark"] :is(.vatra-friends-tabs button,.vatra-photos-tabs button):hover:not(:disabled),
+html body[data-vatra-theme-effective="dark"] .post .post-actions button:hover{background:#2b4664!important;color:#f2f7ff!important}
