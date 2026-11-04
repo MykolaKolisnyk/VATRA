@@ -605,7 +605,8 @@ $('#authForm').addEventListener('submit',async e=>{
   }
   if(mode==='login'){
    setRememberMe($('#rememberMe')?.checked===true);
-   await signInWithPassword(auth,contact,$('#password').value);
+   try { await signInWithPassword(auth,contact,$('#password').value); }
+   catch (loginError) { setRememberMe(false); throw loginError; }
    location.replace('index.html');
    return;
   }
