@@ -27,12 +27,11 @@ const base={
  'Налаштування сторінки':'Page settings','Акаунт і видалення':'Account & deletion',
  'Приватність':'Privacy','Контакти':'Contacts','Освіта':'Education',"Кар'єра":'Career',
  'Захоплення':'Interests','Військова служба':'Military service','Життєва позиція':'Life outlook',
- 'Документи':'Documents','Основна інформація':'Basic information','Фотографії':'Photos',
+ 'Документи':'Documents','Основна інформація':'Basic information',
  'Правила':'Rules','Умови користування':'Terms of service','Політика конфіденційності':'Privacy policy',
  'Номер телефону':'Phone number','Створити':'Create','Скасувати':'Cancel','Закрити':'Close',
  'Надіслати':'Send','Завантажити':'Upload','Видалити':'Delete','Редагувати':'Edit',
- 'Місто / населений пункт':'City or town','Рідне місто':'Hometown',
- 'Пошук людей і дописів':'Search people and posts'
+ 'Місто / населений пункт':'City or town','Рідне місто':'Hometown'
 };
 const overrides={
  pl:{'Моя сторінка':'Moja strona','Друзі':'Znajomi','Новини':'Aktualności','Повідомлення':'Wiadomości','Спільноти':'Społeczności','Відео':'Wideo','Збережене':'Zapisane','Налаштування':'Ustawienia','Сповіщення':'Powiadomienia','Музика':'Muzyka','Пошук':'Szukaj','Увійти':'Zaloguj się','Створити акаунт':'Utwórz konto','Ім’я':'Imię','Прізвище':'Nazwisko','Дата народження':'Data urodzenia','Стать':'Płeć','Чоловік':'Mężczyzna','Жінка':'Kobieta','Електронна пошта':'E-mail','Телефон':'Telefon','Пароль':'Hasło','Продовжити':'Kontynuuj','Зберегти налаштування':'Zapisz ustawienia','Мова інтерфейсу':'Język interfejsu','Створити допис':'Utwórz post','Фото':'Zdjęcie','Фотографії':'Zdjęcia','Згорнути':'Zwiń','Показати більше':'Pokaż więcej','Налаштування сторінки':'Ustawienia strony','Пошук людей і дописів':'Szukaj osób i postów'},
@@ -112,10 +111,9 @@ const additionalEnglish={
  'Правила спільноти ВАТРИ':'VATRA community rules',
  'Повага. Відкритість. Спільність.':'Respect. Openness. Community.',
  'З поверненням до ВАТРИ':'Welcome back to VATRA',
- 'З поверненням до ВАТРИ':'Welcome back to VATRA',
  'Мова сайту':'Site language','Мова інтерфейсу':'Interface language',
  'Вигляд ВАТРИ':'VATRA appearance','Є незбережені зміни.':'You have unsaved changes.',
- 'Мої фотографії':'My photos','Моя сторінка':'My page',
+ 'Мої фотографії':'My photos',
  'Про себе':'About me','Додати в друзі':'Add friend','Написати':'Message',
  'У друзях':'Friends','Видалити з друзів':'Remove friend',
  'Поскаржитися':'Report','Заблокувати':'Block','Інші дії':'More actions',
