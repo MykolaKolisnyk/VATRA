@@ -91,6 +91,16 @@ html body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]
 }
 html body :is(input,textarea)::placeholder{color:#7d8fa5!important;opacity:1!important}
 html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field) input::placeholder{color:#778ca4!important;opacity:1!important}
+/* Last-wins inner-field reset; prevents the inner square ring inside rounded search boxes. */
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field) input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):is(:focus,:focus-visible){
+ outline:0!important;outline-offset:0!important;border:0!important;
+ box-shadow:none!important;background:transparent!important;border-radius:0!important;
+}
+html body .search:focus-within,
+html body .vatra-friends-search:focus-within{
+ border-radius:12px!important;
+ box-shadow:0 0 0 2px rgba(49,112,201,.1)!important;
+}
 html body :is(button,a,summary,[role="button"],[role="tab"]):focus:not(:focus-visible){outline:0!important;box-shadow:none!important}
 html body :is(button,a,summary,[role="button"],[role="tab"]):focus-visible{
  outline:2px solid #6b97cb!important;outline-offset:2px!important;
@@ -117,3 +127,9 @@ html body[data-page="settings"] .vatra-settings-nav-button.active .vatra-setting
  html body :is(input,button,textarea,select,.nav,.vatra-settings-nav-button){transition:none!important}
 }
 @media(forced-colors:active){html body :is(input,button,a,textarea,select):focus-visible{outline:2px solid Highlight!important}}
+
+/* Replaces the legacy focus-clean stylesheet's active decoration reset. */
+html body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.mobile-nav button).active::before,
+html body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.mobile-nav button).active::after{
+ display:none!important;content:none!important;
+}
