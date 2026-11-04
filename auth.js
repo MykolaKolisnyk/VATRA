@@ -270,7 +270,7 @@ const errors={
  'auth/network-request-failed':'Немає з’єднання з інтернетом.',
  'auth/operation-not-allowed':'Цей спосіб авторизації ще не увімкнений у налаштуваннях.',
  'auth/invalid-credential':'Пароль неправильний або акаунт не знайдено. Перевірте дані та спробуйте ще раз.',
- 'auth/confirmation-required':'Щоб реєстрація працювала без коду, у Supabase Dashboard → Authentication → Providers вимкніть Confirm email і Confirm phone. Унікальність контакту перевірятиме сам Supabase.',
+ 'auth/confirmation-required':'Для реєстрації з кодом увімкніть Confirm email / Confirm phone у Supabase та налаштуйте доставку кодів.',
  'auth/user-not-found':'Акаунт не знайдено. Спочатку створіть акаунт.',
  'auth/weak-password':'Пароль занадто слабкий.',
  'auth/invalid-phone-number':'Перевірте номер у міжнародному форматі, наприклад +380XXXXXXXXX.',
@@ -403,7 +403,7 @@ function startAuthRateLimitCooldown(seconds=300){
 
 function renderCaptcha(){if(!TURNSTILE_SITE_KEY)return;const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.onload=()=>{if(window.turnstile&&!captchaWidget)captchaWidget=window.turnstile.render('#turnstileWidget',{sitekey:TURNSTILE_SITE_KEY,theme:'light'});};document.head.append(script);}
 function show(m){
- const previousMode=mode;mode=m;document.body.dataset.authMode=m;
+ resetOtpStep();const previousMode=mode;mode=m;document.body.dataset.authMode=m;
  if(previousMode!==m&&!(['login','register'].includes(previousMode)&&['login','register'].includes(m)))window.scrollTo(0,0);
  const switchingAccountMode=['login','register'].includes(previousMode)&&['login','register'].includes(m)&&previousMode!==m;
  if(switchingAccountMode){
@@ -424,15 +424,15 @@ function show(m){
  if(pageUrl.href!==location.href)history.replaceState(null,'',pageUrl);
  document.title=m==='register'?'Реєстрація у ВАТРІ':m==='reset'?'Відновлення пароля — ВАТРА':m==='new-password'?'Новий пароль — ВАТРА':'Вхід до ВАТРИ';
  const description=document.querySelector('meta[name="description"]');
- if(description)description.content=m==='register'?'Створення акаунта ВАТРИ з перевіркою унікальності контакту й надійним паролем.':m==='reset'?'Безпечне відновлення доступу до ВАТРИ.':'Вхід до ВАТРИ за допомогою пошти або номера й пароля.';
+ if(description)description.content=m==='register'?'Реєстрація у ВАТРІ з кодом на email або телефон.':m==='reset'?'Безпечне відновлення доступу до ВАТРИ.':'Вхід до ВАТРИ за кодом або паролем.';
 
  closeHumanCaptcha();resetHumanChallenge();
  
  const reg=m==='register',reset=m==='reset',newPassword=m==='new-password',hideContact=newPassword;
  const emailHint=document.querySelector('input[name="authMethod"][value="email"]')?.closest('label')?.querySelector('small');
  const phoneHint=document.querySelector('input[name="authMethod"][value="phone"]')?.closest('label')?.querySelector('small');
- if(emailHint)emailHint.textContent=reg?'Перевірка, чи пошта вже використовується':'Вхід за паролем';
- if(phoneHint)phoneHint.textContent=reg?'Перевірка, чи номер уже використовується':'Вхід за паролем · без SMS';
+ if(emailHint)emailHint.textContent=reg?'Підтвердження кодом на email':'Код на email або пароль';
+ if(phoneHint)phoneHint.textContent=reg?'Підтвердження кодом у SMS':'SMS-код або пароль';
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
  document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=reset&&!isEmail;});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
@@ -444,8 +444,8 @@ function show(m){
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
- $('#desc').textContent=reg?'Заповніть профіль, оберіть email або телефон для входу та створіть надійний пароль. Так Ви зможете долучитися до ВАТРИ й ділитися своїми історіями.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
- $('#submit').textContent=reg?'Створити акаунт':newPassword?'Зберегти новий пароль':reset?'Надіслати посилання':'Увійти';$('#bottom').hidden=reset||newPassword;
+ $('#desc').textContent=reg?'Заповніть дані, оберіть email або телефон і підтвердьте контакт кодом ВАТРИ. Після підтвердження створиться Ваша сторінка.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти або номера телефону та пароля.';
+ $('#submit').textContent=reg?'Отримати код':newPassword?'Зберегти новий пароль':reset?'Надіслати код':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const modeSwitch=$('#bottom').querySelector('#switch');
  if(modeSwitch)modeSwitch.addEventListener('click',event=>{event.preventDefault();show(reg?'login':'register');});
@@ -455,7 +455,7 @@ function show(m){
  $('#error').textContent='';$('#error').classList.remove('success');const activeMethod=selectedMethod();syncAuthMethodUI(activeMethod);
  $('#password').autocomplete='new-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
  
- refreshAuthCooldown();
+ syncLoginCodeMode();refreshAuthCooldown();
 }
 document.querySelectorAll('input[name="authMethod"]').forEach(radio=>radio.addEventListener('change',()=>{
  const method=radio.value;
@@ -634,9 +634,10 @@ function syncCaptchaVisibility(){
 }
 $('#password').addEventListener('input',()=>{updatePasswordStrength();syncCaptchaVisibility();});
 $('#confirm').addEventListener('input',syncCaptchaVisibility);
-onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppressAuthRedirect||pendingHumanAction)return;const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
+onAuthStateChanged(auth,u=>{if(!u||submitting||$('#recoveryDialog').open||suppressAuthRedirect||pendingHumanAction||pendingOtp)return;const legalRequest=new URLSearchParams(location.search).get('legal');if(['rules','privacy','terms'].includes(legalRequest))return;if(new URLSearchParams(location.search).get('mode')==='new-password'){show('new-password');return;}location.replace('index.html');});
 $('#authForm').addEventListener('submit',async e=>{
  e.preventDefault();if(submitting)return;
+ if(pendingOtp){await confirmOtp();return;}
  if(pendingHumanAction&&challengePassed){
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -660,13 +661,13 @@ $('#authForm').addEventListener('submit',async e=>{
   if(!isStrongPassword(password)){$('#error').textContent='Створіть пароль на 12+ символів із малою й великою латинськими літерами, цифрою та спеціальним символом.';$('#password').focus();return;}
   if(password!==confirmation){$('#error').textContent='Паролі не збігаються.';$('#confirm').focus();return;}
  }
- if((mode==='login'||mode==='new-password')&&!$('#password').value){$('#error').textContent='Введіть пароль.';$('#password').focus();return;}
+ if(((mode==='login'&&!loginByCode)||mode==='new-password')&&!$('#password').value){$('#error').textContent='Введіть пароль.';$('#password').focus();return;}
  if(mode==='new-password'){
   const newPass=$('#password').value,confirmation=$('#confirm').value;
   if(!isStrongPassword(newPass)){ $('#error').textContent='Пароль має містити 12+ символів, великі й малі латинські літери, цифру та спецсимвол.';$('#password').focus();return; }
   if(newPass!==confirmation){ $('#error').textContent='Паролі не збігаються.';$('#confirm').focus();return; }
  }
- if(mode==='login'&&!challengePassed){
+ if(mode==='login'&&!loginByCode&&!challengePassed){
   pendingHumanAction={mode,contact};
   submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent='Перевіряємо дані…';
   try{
@@ -683,13 +684,16 @@ $('#authForm').addEventListener('submit',async e=>{
   }
   return;
  }
+ if(mode==='login'&&loginByCode&&!challengePassed){
+  pendingHumanAction={mode,contact};openHumanCaptcha();return;
+ }
  if(mode==='register'&&!challengePassed){
   pendingHumanAction={mode,contact};
   openHumanCaptcha();
   return;
  }
  if(challengePassed)challengePassed=false;
- const old=btn.textContent;submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent=mode==='login'?'Перевіряємо дані…':mode==='reset'?'Надсилаємо посилання…':mode==='new-password'?'Зберігаємо пароль…':'Перевіряємо дані…';
+ const old=btn.textContent;submitting=true;suppressAuthRedirect=true;btn.disabled=true;btn.textContent=mode==='login'?'Перевіряємо дані…':mode==='reset'?'Надсилаємо код…':mode==='new-password'?'Зберігаємо пароль…':'Надсилаємо код…';
  try{
 
   if(mode==='new-password'){
@@ -702,26 +706,18 @@ $('#authForm').addEventListener('submit',async e=>{
    $('#error').classList.add('success');return;
   }
   if(mode==='login'){
+   if(loginByCode){await startOtp('login',{contact,isPhone});return;}
    setRememberMe($('#rememberMe')?.checked===true);
    try { await signInWithPassword(auth,contact,$('#password').value); }
    catch (loginError) { setRememberMe(false); throw loginError; }
    location.replace('index.html');
    return;
   }
-  const gender=document.querySelector('input[name="gender"]:checked')?.value||'';const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob};
-  const signup=await signUpWithPassword(isPhone
-   ?{phone:contact,password:$('#password').value,userData,captchaToken:token}
-   :{email:contact,password:$('#password').value,userData,captchaToken:token});
-  if(!signup?.user)throw new Error('Supabase не повернув нового користувача. Перевірте Authentication → Providers.');
-  const registrationData={contact,isPhone,dob,first,last,name,gender};
-  if(!signup.session){
-   const err=new Error('Щоб створювати акаунти без кодів, у Supabase → Authentication → Providers вимкніть Confirm email і Confirm phone. Поки ці параметри ввімкнені, Supabase сам надсилає підтвердження, а клієнтський код не може безпечно обійти це правило.');
-   err.code='auth/confirmation-required';throw err;
-  }
-  await finishRegistration({...registrationData,user:signup.user});
-  location.replace('index.html');
+  const gender=document.querySelector('input[name="gender"]:checked')?.value||'';
+  const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob};
+  await startOtp('signup',{contact,isPhone,dob,first,last,name,gender,password:$('#password').value,userData});
   return;
- }catch(err){
+  }catch(err){
   pendingHumanAction=null;suppressAuthRedirect=false;
   $('#error').textContent=errors[err.code]||'Не вдалося виконати дію. Перевірте інтернет і налаштування авторизації.';
   $('#error').classList.remove('success');
