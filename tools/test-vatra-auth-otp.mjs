@@ -55,7 +55,8 @@ for(const lang of ['uk','pl','de','fr','es','pt','it']){
  assert.ok(email.includes('eq .Data.preferredLanguage "'+lang+'"'),'Missing locale branch: '+lang);
 }
 assert.ok(email.includes('Your verification code'),'English fallback must be present');
-assert.ok(!/для своїх|тільки для українців|українська соціальна мережа/i.test(email),'No nationality-exclusive marketing in OTP mail');
+assert.ok(email.includes('Українська соціальна мережа')&&email.includes('Ukrainian social network'),'Brand should identify VATRA as Ukrainian in localized email');
+assert.ok(!/для своїх|тільки для українців|лише для українців/i.test(email),'No exclusionary slogan in VATRA mail');
 assert.ok(!sms.includes('ВАТРА')&&sms.includes('Never share'),'SMS fallback must be understandable internationally');
 assert.ok(email.includes('https://mykolakolisnyk.github.io/VATRA/'),'Keep VATRA website link');
 
