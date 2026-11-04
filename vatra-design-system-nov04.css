@@ -265,3 +265,58 @@ html body .vatra-language-dialog .vatra-language-picker-list{
  html body .vatra-language-dialog header{min-height:0!important}
  html body .vatra-language-dialog header h2{font-size:19px!important}
 }
+
+/* Language picker header: one compact mark, one clear heading, no duplicate wordmark. */
+html body .vatra-language-dialog{
+ width:min(800px,calc(100vw - 28px))!important;
+ max-width:800px!important;height:min(720px,calc(100dvh - 28px))!important;
+ min-height:0!important;max-height:calc(100dvh - 28px)!important;
+}
+html body .vatra-language-dialog header.vatra-language-dialog-header{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:14px!important;min-height:86px!important;height:auto!important;
+ padding:17px 22px!important;border-bottom:1px solid #e3eaf3!important;
+}
+html body .vatra-language-dialog header .vatra-language-dialog-brand{
+ display:flex!important;align-items:center!important;gap:14px!important;flex:1 1 auto!important;
+ min-width:0!important;max-width:calc(100% - 50px)!important;
+}
+html body .vatra-language-dialog .vatra-language-dialog-logo{
+ display:block!important;box-sizing:border-box!important;
+ width:44px!important;min-width:44px!important;max-width:44px!important;
+ height:44px!important;min-height:44px!important;max-height:44px!important;
+ flex:0 0 44px!important;object-fit:contain!important;
+ padding:9px!important;margin:0!important;border-radius:12px!important;
+ background:#edf3ff!important;
+}
+html body .vatra-language-dialog .vatra-language-dialog-brand>div{
+ display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important;
+}
+html body .vatra-language-dialog header.vatra-language-dialog-header h2{
+ margin:0!important;font-size:clamp(19px,2.4vw,24px)!important;
+ font-weight:790!important;line-height:1.2!important;
+}
+html body .vatra-language-dialog header.vatra-language-dialog-header p{
+ margin:0!important;color:#7085a1!important;font-size:12px!important;line-height:1.45!important;
+}
+html body .vatra-language-dialog header.vatra-language-dialog-header .vatra-language-close{
+ margin:0!important;align-self:flex-start!important;min-width:38px!important;min-height:38px!important;
+}
+html body .vatra-language-dialog .vatra-language-search{
+ margin:13px 22px 10px!important;min-height:44px!important;
+}
+html body .vatra-language-dialog .vatra-language-picker-list{
+ padding:0 22px 20px!important;gap:7px 12px!important;
+}
+@media(max-width:600px){
+ html body .vatra-language-dialog{height:min(670px,calc(100dvh - 18px))!important;width:calc(100vw - 16px)!important}
+ html body .vatra-language-dialog header.vatra-language-dialog-header{padding:14px 15px!important;min-height:74px!important}
+ html body .vatra-language-dialog header.vatra-language-dialog-header .vatra-language-dialog-brand{
+  flex-direction:row!important;align-items:center!important;gap:10px!important;
+ }
+ html body .vatra-language-dialog .vatra-language-dialog-logo{width:39px!important;height:39px!important;min-width:39px!important;min-height:39px!important;max-width:39px!important;max-height:39px!important;flex-basis:39px!important;padding:8px!important}
+ html body .vatra-language-dialog header.vatra-language-dialog-header h2{font-size:19px!important}
+ html body .vatra-language-dialog header.vatra-language-dialog-header p{font-size:11px!important}
+ html body .vatra-language-dialog .vatra-language-search{margin:11px 15px 8px!important}
+ html body .vatra-language-dialog .vatra-language-picker-list{padding:0 15px 15px!important}
+}
