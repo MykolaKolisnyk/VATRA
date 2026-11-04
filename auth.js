@@ -493,21 +493,57 @@ $('#authGoLogin')?.addEventListener('click',()=>{
  syncExistingAccountHelp(false);show('login');
  if($('#email'))$('#email').value=contact;
 });
+/* One progressive client-side cooldown for every VATRA human check.
+   This is UI abuse-friction, NOT a server security boundary. Supabase Auth
+   quotas and server-verified CAPTCHA must protect delivery endpoints. */
+const VATRA_SHIELD_KEY='vatra-human-shield-v2';
+const VATRA_SHIELD_DELAYS=[120,300,600,1800,3600];
+const shieldTimers=new WeakMap();
+function vatraShieldRead(){
+ try{
+  const value=JSON.parse(localStorage.getItem(VATRA_SHIELD_KEY)||'{}');
+  if(Date.now()-Number(value.lastFailure||0)>86400000)return {failed:0,stage:0,until:0,lastFailure:0};
+  return {failed:Math.max(0,Number(value.failed)||0),stage:Math.max(0,Number(value.stage)||0),
+   until:Math.max(0,Number(value.until)||0),lastFailure:Number(value.lastFailure)||0};
+ }catch{return {failed:0,stage:0,until:0,lastFailure:0};}
+}
+function vatraShieldWrite(value){try{localStorage.setItem(VATRA_SHIELD_KEY,JSON.stringify(value));}catch{}}
+function vatraShieldRemaining(){return Math.max(0,vatraShieldRead().until-Date.now());}
+function vatraShieldFail(){
+ const v=vatraShieldRead();if(v.until>Date.now())return v.until-Date.now();
+ v.failed+=1;v.lastFailure=Date.now();
+ if(v.failed>=3){
+  const seconds=VATRA_SHIELD_DELAYS[Math.min(v.stage,VATRA_SHIELD_DELAYS.length-1)];
+  v.until=Date.now()+seconds*1000;v.stage+=1;v.failed=0;
+ }
+ vatraShieldWrite(v);return Math.max(0,v.until-Date.now());
+}
+function vatraShieldPass(){
+ const v=vatraShieldRead();
+ if(v.until>Date.now())return false;
+ v.failed=0;vatraShieldWrite(v);return true;
+}
+function vatraShieldEnforce(root,selector,statusSelector){
+ if(!root)return false;
+ const pending=shieldTimers.get(root);if(pending)clearTimeout(pending);
+ const remaining=vatraShieldRemaining(),locked=remaining>0;
+ root.querySelectorAll(selector).forEach(button=>button.disabled=locked);
+ const status=root.querySelector(statusSelector);
+ if(locked){
+  const seconds=Math.ceil(remaining/1000),minutes=Math.floor(seconds/60);
+  const countdown=String(minutes).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+  if(status)status.textContent='Захист ВАТРИ: забагато неправильних відповідей. Нова спроба через '+countdown+'.';
+  root.dataset.vatraShieldLocked='true';
+  shieldTimers.set(root,setTimeout(()=>vatraShieldEnforce(root,selector,statusSelector),1000));
+ }else if(root.dataset.vatraShieldLocked==='true'){
+  delete root.dataset.vatraShieldLocked;
+  if(status)status.textContent='Час очікування завершився. Спробуйте ще раз.';
+ }
+ return locked;
+}
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
-let humanPauseUntil=0;try{humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);}catch{}
-let humanPauseTimer=null;
 function vatrapauseHumanCheck(wrap){
- const remaining=Math.ceil((humanPauseUntil-Date.now())/1000);
- if(remaining<=0)return false;
- wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>{option.disabled=true;});
- const text=wrap.querySelector('#humanCaptchaStatus');
- if(text)text.textContent='Забагато неправильних відповідей. Перевірка буде доступна через '+Math.ceil(remaining/60)+' хв.';
- clearTimeout(humanPauseTimer);
- humanPauseTimer=setTimeout(()=>{
-  if(Date.now()>=humanPauseUntil){humanPauseUntil=0;sessionStorage.removeItem('vatra-human-check-pause');window.__vatraCaptchaFailures=0;if(wrap.classList.contains('captcha-modal'))resetHumanChallenge();}
-  else vatrapauseHumanCheck(wrap);
- },Math.min(remaining*1000,20000));
- return true;
+ return vatraShieldEnforce(wrap,'[data-captcha-answer]','#humanCaptchaStatus');
 }
 function closeHumanCaptcha(){
  const wrap=$('#captchaWrap');if(!wrap)return;
@@ -543,7 +579,7 @@ function resetHumanChallenge(notice=''){
  }
  const choices=[...choiceSet];
  for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
- wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="logo.png?v=20261103-2" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Швидка перевірка</span><span class="human-captcha-tag">Захист ВАТРИ</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
+ wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="favicon.svg?v=20261104-ribbon1" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Захист ВАТРИ</span><span class="human-captcha-tag">Швидка перевірка</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',()=>{
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -551,21 +587,17 @@ function resetHumanChallenge(notice=''){
  wrap.querySelectorAll('[data-captcha-answer]').forEach(btn=>btn.addEventListener('click',()=>{
   const isCorrect=Number(btn.dataset.captchaAnswer)===challengeAnswer;
   if(!isCorrect){
-   window.__vatraCaptchaFailures=(window.__vatraCaptchaFailures||0)+1;
-   if(window.__vatraCaptchaFailures>=5){
-    humanPauseUntil=Date.now()+120000;
-    try{sessionStorage.setItem('vatra-human-check-pause',String(humanPauseUntil));}catch{}
-    resetHumanChallenge('Забагато неправильних відповідей.');
-    vatrapauseHumanCheck(wrap);
-    return;
-   }
-   const delay=Math.min(2500,350*window.__vatraCaptchaFailures);
-   resetHumanChallenge('Відповідь неправильна. Старі варіанти скасовано — згенеровано нове питання.');
+   const lock=vatraShieldFail();
+   resetHumanChallenge(lock?'Три неправильні відповіді — тимчасова пауза.':'Неправильна відповідь. Спробуйте нове питання.');
+   if(lock){vatrapauseHumanCheck(wrap);return;}
    wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>option.disabled=true);
-   window.setTimeout(()=>wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>option.disabled=false),delay);
+   window.setTimeout(()=>{
+    if(!vatraShieldEnforce(wrap,'[data-captcha-answer]','#humanCaptchaStatus'))
+     wrap.querySelectorAll('[data-captcha-answer]').forEach(option=>option.disabled=false);
+   },600);
    return;
   }
-  window.__vatraCaptchaFailures=0;
+  if(!vatraShieldPass())return;
   challengePassed=true;
   wrap.querySelectorAll('[data-captcha-answer]').forEach(x=>x.classList.remove('is-correct','is-wrong'));
   btn.classList.add('is-correct');
@@ -748,28 +780,33 @@ function resetRecoveryChallenge(notice=''){
  }
  if(pair===recoveryPreviousPair){a=(a%9)+2;pair=[a,b].sort((x,y)=>x-y).join('+');}
  recoveryPreviousPair=pair;recoveryAnswer=a+b;recoveryPassed=false;
- $('#recoveryMath').textContent=a+' + '+b+' = ?';
+ $('#recoveryMath').textContent='Скільки буде '+a+' + '+b+'?';
  const options=new Set([recoveryAnswer]);
  while(options.size<4){const distractor=1+Math.floor(Math.random()*19);if(distractor!==recoveryAnswer)options.add(distractor);}
  $('#recoveryAnswers').innerHTML=[...options].sort(()=>Math.random()-.5).map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
- $('#recoveryChallengeStatus').textContent=notice||'Ця перевірка допомагає захистити акаунти від автоматизованих запитів.';
+ $('#recoveryChallengeStatus').textContent=notice||'Обчисліть суму та оберіть правильну відповідь.';
  $('#recoveryChallengeStatus').classList.remove('is-passed');$('#recoveryChallengeStatus').classList.toggle('is-wrong',!!notice);
  $('#recoveryAnswers').querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
   const correct=Number(btn.dataset.recoveryAnswer)===recoveryAnswer;
   if(!correct){
-   recoveryFailures++;
-   const delay=Math.min(6000,600*Math.pow(2,Math.min(recoveryFailures-1,3)));
-   resetRecoveryChallenge('Відповідь неправильна. Питання оновлено. Наступна спроба буде доступна через '+Math.ceil(delay/1000)+' с.');
+   const lock=vatraShieldFail();
+   resetRecoveryChallenge(lock?'Три неправильні відповіді — тимчасова пауза.':'Неправильна відповідь. Спробуйте нове питання.');
+   if(lock){vatraShieldEnforce($('#recoveryProtection'),'[data-recovery-answer]','#recoveryChallengeStatus');return;}
    const answers=$('#recoveryAnswers').querySelectorAll('button');answers.forEach(option=>option.disabled=true);
-   window.setTimeout(()=>$('#recoveryAnswers')?.querySelectorAll('button').forEach(option=>option.disabled=false),delay);
+   window.setTimeout(()=>{
+    if(!vatraShieldEnforce($('#recoveryProtection'),'[data-recovery-answer]','#recoveryChallengeStatus'))
+     $('#recoveryAnswers')?.querySelectorAll('button').forEach(option=>option.disabled=false);
+   },600);
    return;
   }
+  if(!vatraShieldPass())return;
   recoveryPassed=true;recoveryFailures=0;
   $('#recoveryAnswers').querySelectorAll('button').forEach(x=>x.classList.remove('is-correct','is-wrong'));
   btn.classList.add('is-correct');
   $('#recoveryChallengeStatus').textContent='Перевірку пройдено.';
   $('#recoveryChallengeStatus').classList.add('is-passed');$('#recoveryChallengeStatus').classList.remove('is-wrong');
  }));
+ vatraShieldEnforce($('#recoveryProtection'),'[data-recovery-answer]','#recoveryChallengeStatus');
 }
 function syncRecoveryMethod(){
  const phone=currentRecoveryMethod()==='phone';syncPhoneInputMode($('#recoveryContact'),$('#recoveryCountryCode'),phone?'phone':'email');
@@ -803,6 +840,7 @@ $('#recoveryForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=$('#recoverySubmit'),phone=currentRecoveryMethod()==='phone',contact=phone?normalizePhone($('#recoveryContact'),$('#recoveryCountryCode')):$('#recoveryContact').value.trim().toLowerCase();
  const feedback=(message,success=false)=>{$('#recoveryError').textContent=message;$('#recoveryError').classList.toggle('success',success);};
  if(recoveryStep==='contact'){
+  if(vatraShieldRemaining()>0){feedback('Захист ВАТРИ тимчасово обмежений після неправильних відповідей.');return;}
   if(!recoveryPassed){feedback('Спочатку пройдіть «Захист ВАТРИ».');return;}
   if(phone){const invalid=vatraPhoneError($('#recoveryContact'),$('#recoveryCountryCode'));if(invalid){feedback(invalid);return;}}
   if(!phone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){feedback('Введіть коректну адресу електронної пошти.');return;}

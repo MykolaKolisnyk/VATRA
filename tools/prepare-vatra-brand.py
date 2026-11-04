@@ -14,7 +14,7 @@ if embedded is not None:
         raise ValueError('Embedded original logo is not a PNG data URI')
     source=Image.open(BytesIO(b64decode(url.split(',',1)[1]))).convert('RGBA')
 else:
-    # This SVG is the original vector artwork uploaded by VATRA's creator.
+    # Render the current VATRA ribbon-mark vector into PNG variants.
     source=Image.open(BytesIO(cairosvg.svg2png(
         bytestring=svg_path.read_bytes(),output_width=1024,output_height=1024
     ))).convert('RGBA')
@@ -36,4 +36,8 @@ if wordmark.exists():
         bytestring=wordmark.read_bytes(),output_width=1060,output_height=184
     ))
     print(output, '1060x184')
-print('VATRA: exported creator-provided logo artwork, without background artifacts')
+preview=Path('social-preview.svg')
+if preview.exists():
+    Path('social-preview.png').write_bytes(cairosvg.svg2png(bytestring=preview.read_bytes(),output_width=1200,output_height=630))
+    print('social-preview.png', '1200x630')
+print('VATRA: exported shared ribbon V logo for favicons, app icons and social UI')
