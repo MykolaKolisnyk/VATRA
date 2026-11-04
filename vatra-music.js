@@ -281,11 +281,47 @@ async function favorite(item,button){
   notify(next.has(key(item))?'Додано до «Моєї музики».':'Прибрано з «Моєї музики».');
  }catch(error){button.disabled=false;notify('Не вдалося зберегти композицію. Спробуйте ще раз.',true);console.warn('[ВАТРА] Музика не збережена:',error);}
 }
-if(musicHeader){
- musicHeader.addEventListener('click',event=>{
-  event.preventDefault();closeMusicMenu();
-  window.dispatchEvent(new CustomEvent('vatra:navigate',{detail:'music'}));
+// The header icon opens a compact player menu; navigation requires a separate action.
+function ensureMusicTopPanel(){
+ let panel=document.getElementById('vatraMusicTopPanel');
+ if(panel)return panel;
+ panel=document.createElement('section');
+ panel.id='vatraMusicTopPanel';panel.className='vatra-top-music-panel';
+ panel.hidden=true;panel.setAttribute('aria-label','Меню музики');
+ panel.innerHTML='<div class="vatra-menu-heading"><span class="vatra-menu-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13M9 9l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="17" cy="16" rx="3" ry="2"/></svg></span><div><strong>Музика ВАТРИ</strong><small>Твоя музика поруч</small></div></div><div class="vatra-menu-current"><b id="vatraTopMusicTitle">Оберіть музику</b><p id="vatraTopMusicArtist">Українські пісні та плейлисти</p></div><div class="vatra-menu-actions"><button type="button" data-vatra-music-open>Перейти до музики</button><button type="button" data-vatra-music-player id="vatraTopMusicPlayer">Слухати добірку</button></div>';
+ document.body.append(panel);
+ panel.addEventListener('click',event=>{
+  if(event.target.closest('[data-vatra-music-open]')){
+   closeMusicMenu();window.dispatchEvent(new CustomEvent('vatra:navigate',{detail:'music'}));
+  }else if(event.target.closest('[data-vatra-music-player]')){
+   if(playerItem){activePlayer().hidden=false;closeMusicMenu();}
+   else play(MUSIC_LIBRARY.find(item=>item.type==='playlist'));
+  }
  });
+ return panel;
+}
+function placeMusicMenu(){
+ const panel=ensureMusicTopPanel(),rect=musicHeader.getBoundingClientRect();
+ const width=Math.min(340,innerWidth-24);
+ panel.style.width=width+'px';
+ panel.style.left=Math.max(12,Math.min(innerWidth-width-12,rect.right-width))+'px';
+ panel.style.top=Math.min(innerHeight-panel.offsetHeight-12,rect.bottom+10)+'px';
+}
+if(musicHeader){
+ musicHeader.setAttribute('aria-haspopup','dialog');
+ musicHeader.addEventListener('click',event=>{
+  event.preventDefault();event.stopPropagation();
+  const panel=ensureMusicTopPanel(),wasOpen=!panel.hidden;
+  closeMusicMenu();
+  if(!wasOpen){syncHeaderMusic();panel.hidden=false;musicHeader.setAttribute('aria-expanded','true');placeMusicMenu();}
+ });
+ document.addEventListener('click',event=>{
+  if(!event.target.closest('#vatraMusicTopPanel')&&!event.target.closest('#vatraMusicHeaderButton'))closeMusicMenu();
+ });
+ document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMusicMenu();});
+ window.addEventListener('resize',()=>{if(!ensureMusicTopPanel().hidden)placeMusicMenu();});
+ window.addEventListener('scroll',()=>{if(!ensureMusicTopPanel().hidden)placeMusicMenu();},true);
+ window.addEventListener('hashchange',closeMusicMenu);
 }
 
 document.addEventListener('click',async event=>{
