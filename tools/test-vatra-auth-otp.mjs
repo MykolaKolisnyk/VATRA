@@ -10,13 +10,13 @@ for(const file of ['auth.html','register.html']){
  }
  assert.ok(html.includes('Вхід з паролем')&&html.includes('Код у SMS'),file+': missing password-login choice');
  assert.ok(html.includes('name="authMethod" value="email"')&&html.includes('name="authMethod" value="phone" disabled'),file+': email auth active and SMS deliberately disabled');
- assert.ok(html.includes('name="recoveryMethod" value="phone" disabled'),file+': SMS recovery should be disabled until delivery exists');
+ assert.ok(html.includes('name="recoveryMethod" value="phone"')&&!html.includes('name="recoveryMethod" value="phone" disabled'),file+': phone recovery option must be selectable');
  assert.ok(!html.includes('Український простір для своїх'),file+': remove exclusive brand slogan');
- assert.ok(html.includes('id="recoveryMethodWrap" hidden'),'Recovery must be email-only while SMS is unavailable');
+ assert.ok(html.includes('id="recoveryMethodWrap"')&&!html.includes('id="recoveryMethodWrap" hidden'),'Recovery method switch must be visible');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261104-signup-verify2'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-unified-captcha2'),file+': stale auth CSS version');
+ assert.ok(html.includes('auth.js?v=20261104-auth-recovery-flags3'),file+': stale auth JS version');
+ assert.ok(html.includes('auth.css?v=20261104-auth-recovery-flags3'),file+': stale auth CSS version');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
 const required=[
@@ -47,13 +47,13 @@ assert.ok(auth.includes('signUpWithPassword('),'New signup must refuse duplicate
 assert.ok(!auth.includes('await sendVatraOtp'),'Missing custom Edge Function must not be used');
 assert.ok(auth.includes('const VATRA_SMS_AUTH_ENABLED=false'),'Production rollout must not advertise unavailable SMS OTP');
 assert.ok(auth.includes("VATRA_SMS_AUTH_ENABLED||mode==='login'"),'Phone password login should remain available while signup SMS is off');
-assert.ok(auth.includes("function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate recovery selection');
+assert.ok(auth.includes("function currentRecoveryMethod(){return VATRA_SMS_RECOVERY_UI_ENABLED?"),'Phone/email recovery selector should be readable without SMS signup');
 assert.ok(auth.includes("if(details.isPhone&&!VATRA_SMS_AUTH_ENABLED)"),'Hidden or modified SMS controls cannot start delivery');
 assert.ok(auth.includes("verifiedUser.email_confirmed_at"),'Registration must check server-confirmed email before creating any VATRA profile');
 assert.ok(auth.includes("await db.client.auth.getUser()"),'Verification must call the trusted Supabase Auth server');
 for(const code of ['+380','+48','+49','+33','+34','+351','+39','+44','+1'])assert.ok(auth.includes("dial:'"+code+"'"),'Country dial code missing: '+code);
 assert.ok(auth.includes("if(reg&&auth.currentUser)"),'Active session must never silently register another account');
-assert.ok(auth.includes("$('#recoveryMethodWrap').hidden=!VATRA_SMS_AUTH_ENABLED"),'Only configured recovery methods should be presented');
+assert.ok(auth.includes("$('#recoveryMethodWrap').hidden=false"),'Recovery choice must always be visible');
 assert.ok(auth.includes("syncExistingAccountHelp(mode==='register'&&err?.code==='auth/email-already-in-use')"),'Duplicate account should show a useful login action');
 assert.ok(css.includes('Recovery dialog: compact, readable, responsive'),'Recovery must have compact modal layout');
 const errorFnStart=auth.indexOf('function authContactErrorText(');
@@ -67,8 +67,36 @@ assert.match(contactError({code:'auth/email-already-in-use'},true,'register'),/�
 assert.equal(contactError({code:'auth/too-many-requests'},false,'register'),'Спробуйте пізніше.');
 
 assert.ok(backend.includes('client.auth.signInWithOtp')&&backend.includes('client.auth.verifyOtp'),'Supabase OTP calls missing');
-assert.ok(css.includes('.vatra-auth-otp')&&css.includes('.vatra-auth-method-card')===false,'Auth CSS missing or duplicate component layer');
+assert.ok(css.includes('.vatra-auth-otp')&&css.includes('#recoveryDialog .vatra-recovery-methods'),'Recovery options should reuse VATRA style');
 assert.ok(css.includes('.vatra-method-symbol')&&css.includes('is-awaiting-code'),'OTP CSS missing');
+assert.ok(auth.includes('const VATRA_SMS_RECOVERY_UI_ENABLED=true'),'SMS recovery is opt-in at the UI only, never SMS registration');
+assert.ok(auth.includes('sendOtp({phone:contact,shouldCreateUser:false})'),'Recovery SMS must NEVER create new accounts');
+assert.ok(auth.includes("verifyOtp(phone?{phone:contact,token:code}"),'Phone recovery verifies OTP before password change');
+assert.ok(auth.includes('function countryFlagSvg(iso)')&&auth.includes('function enhanceCountryMenu(select,row)'),'SVG flag picker must exist');
+assert.ok(auth.includes('aria-selected')&&auth.includes("role','listbox'"),'Country picker must support accessible selection');
+assert.ok(css.includes('.vatra-phone-country-trigger')&&css.includes('.vatra-phone-country-option'),'Custom flags picker must have responsive styles');
+const countryStart=auth.indexOf('const PHONE_COUNTRIES = [');
+const countryEnd=auth.indexOf('\nfunction vatraLatinHandlePart(',countryStart);
+assert.ok(countryStart>=0&&countryEnd>countryStart,'Country picker logic should be testable');
+const countryTools=runInNewContext(auth.slice(countryStart,countryEnd)+
+ '\n({countryFlagSvg,normalizePhone,setPhoneInputFromFullNumber})', {Event:class Event{constructor(type){this.type=type;}}});
+assert.match(countryTools.countryFlagSvg('UA'),/<svg[^>]+/,'SVG flags must render without emoji fonts');
+assert.ok(countryTools.countryFlagSvg('UA').includes('#2879c5')&&countryTools.countryFlagSvg('UA').includes('#ffd64d'),'Ukrainian SVG flag must be blue and yellow');
+assert.ok(countryTools.countryFlagSvg('GB').includes('#244d9c'),'UK SVG flag must be available');
+assert.ok(countryTools.countryFlagSvg('US').includes('#244d9c'),'USA SVG flag must be available');
+assert.equal(countryTools.normalizePhone({value:'0930657340'},{value:'+380'}),'+380930657340');
+assert.equal(countryTools.normalizePhone({value:'15112345678'},{value:'+49'}),'+4915112345678');
+const countrySelect={value:'+380',_index:0,options:[
+ {value:'+380',dataset:{iso:'UA'}},{value:'+48',dataset:{iso:'PL'}},{value:'+49',dataset:{iso:'DE'}}],
+ get selectedIndex(){return this._index;},
+ set selectedIndex(index){this._index=index;this.value=this.options[index].value;},
+ dispatchEvent(){this.changed=true;}};
+const countryInput={value:''};
+countryTools.setPhoneInputFromFullNumber(countryInput,countrySelect,'+4915112345678');
+assert.equal(countrySelect.value,'+49');
+assert.equal(countrySelect.selectedIndex,2);
+assert.equal(countryInput.value,'15112345678');
+assert.ok(countrySelect.changed,'Country popup must reflect number changes');
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
 const email=read('supabase/auth-templates/otp-email.html');
 const sms=read('supabase/auth-templates/otp-sms.txt');

@@ -287,3 +287,36 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-story-link{background:#1c
 .vatra-tooltip.is-visible{opacity:1;transform:translateY(0)}
 body[data-vatra-theme-effective="dark"] .vatra-tooltip{background:#253346;color:#edf4ff;border-color:#455d78}
 @media(prefers-reduced-motion:reduce){.vatra-tooltip{transition:none}}
+
+/* Section divider is its own navigation row, never a border on Gifts. */
+html body .layout>.sidebar nav>.vatra-sidebar-divider{
+ display:block!important;align-self:center!important;grid-column:1/-1!important;
+ height:1px!important;min-height:1px!important;width:calc(100% - 20px)!important;
+ padding:0!important;margin:11px 10px 9px!important;border:0!important;
+ border-radius:0!important;background:#d6e0ed!important;pointer-events:none!important;
+}
+body[data-vatra-theme-effective="dark"] .layout>.sidebar nav>.vatra-sidebar-divider{background:#40546e!important}
+@media(max-width:760px){
+ html body .layout>.sidebar nav>.vatra-sidebar-divider{margin:9px 10px!important}
+}
+/* Make searchable profile values unmistakably clickable: no dotted underlines. */
+html body .vatra-profile-summary-compact .vatra-profile-detail button.vatra-profile-attribute-link,
+html body .vatra-profile-detail button.vatra-profile-attribute-link{
+ display:inline!important;max-width:100%!important;width:auto!important;
+ border:0!important;border-bottom:0!important;padding:0 0 2px!important;margin:0!important;
+ background:transparent!important;box-shadow:none!important;
+ color:#1454c5!important;cursor:pointer!important;font:inherit!important;font-weight:680!important;
+ text-decoration:underline solid 1px!important;text-decoration-color:#9ab6df!important;
+ text-underline-offset:3px!important;text-decoration-thickness:1px!important;
+ text-align:left!important;overflow-wrap:anywhere!important;
+}
+html body .vatra-profile-summary-compact .vatra-profile-detail button.vatra-profile-attribute-link:is(:hover,:focus-visible),
+html body .vatra-profile-detail button.vatra-profile-attribute-link:is(:hover,:focus-visible){
+ color:#034cff!important;text-decoration-color:currentColor!important;
+}
+html body .vatra-profile-detail button.vatra-profile-attribute-link:focus-visible{
+ outline:2px solid #86b5ff!important;outline-offset:3px!important;border-radius:3px!important;
+}
+body[data-vatra-theme-effective="dark"] .vatra-profile-detail button.vatra-profile-attribute-link{
+ color:#91bdff!important;text-decoration-color:#6287b4!important;
+}

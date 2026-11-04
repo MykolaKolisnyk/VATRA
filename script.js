@@ -1142,8 +1142,16 @@ const VATRA_SEARCH_FIELDS=new Set(['city','location','workplace','education','ho
 function profileDetailMarkup(label,value,field=''){
  if(!value)return '';
  const safe=esc(value);
+ const hints={
+  city:'Переглянути людей із міста «'+value+'»',
+  location:'Знайти людей, які вказали місце проживання «'+value+'»',
+  workplace:'Знайти людей, які працюють у «'+value+'»',
+  education:'Знайти людей, які навчалися у «'+value+'»',
+  hometown:'Знайти людей, для яких «'+value+'» — рідне місто'
+ };
+ const description=hints[field]||'Шукати людей за цим полем';
  const linked=VATRA_SEARCH_FIELDS.has(field)
-  ?'<button type="button" class="vatra-profile-attribute-link" data-profile-search-field="'+field+'" data-profile-search-value="'+safe+'" title="Знайти людей за цими даними">'+safe+'</button>'
+  ?'<button type="button" class="vatra-profile-attribute-link" data-profile-search-field="'+field+'" data-profile-search-value="'+safe+'" title="'+esc(description)+'" aria-label="'+esc(description)+'">'+safe+'</button>'
   :'<b>'+safe+'</b>';
  const iconKey=({'Стать':'gender','День народження':'birthday','Місто':'city','Місце проживання':'location','Місце роботи':'workplace','Навчання':'education','Рідне місто':'hometown','Телефон':'phone','Вебсайт':'website'})[label]||field;
  return '<div class="vatra-profile-detail"><span class="vatra-profile-detail-label">'+vatraProfileSvgIcon(iconKey)+esc(label)+'</span>'+linked+'</div>';

@@ -10,6 +10,18 @@ const sidebarOrder=['profile','friends','feed','messages','groups','photos','myV
 assert.ok(sidebar.length>0,'Missing navigation');
 const indices=sidebarOrder.map(page=>sidebar.indexOf('data-page="'+page+'"'));
 assert.ok(indices.every((p,i)=>p>=0&&(!i||p>indices[i-1])),'Sidebar order does not match user request');
+const clipsPos=sidebar.indexOf('data-page="videos"'),dividerPos=sidebar.indexOf('class="vatra-sidebar-divider"'),giftsPos=sidebar.indexOf('data-page="gifts"');
+assert.ok(clipsPos>=0&&clipsPos<dividerPos&&dividerPos<giftsPos,'Dedicated divider must be between Clips and Gifts');
+assert.ok(!sidebar.includes('vatra-nav-section-start'),'Gifts must not use a border pretending to be a divider');
+assert.ok(css.includes('.layout>.sidebar nav>.vatra-sidebar-divider'),'Dedicated divider needs layout styles');
+for(const hint of ['Переглянути людей із міста','які працюють у','які навчалися у','рідне місто']){
+ assert.ok(js.includes(hint),'Contextual search hint missing: '+hint);
+}
+assert.ok(css.includes('text-decoration:underline solid 1px'),'Profile links must not use dotted underlines');
+const languageJs=read('vatra-language.js'),languageCss=read('vatra-design-system-nov04.css');
+assert.ok(languageJs.includes('class="vatra-language-dialog-header"'),'Language header must use compact layout');
+assert.ok(languageJs.includes('vatra-flame.svg')&&!languageJs.includes('vatra-header.svg?v=20261103-1" class="vatra-language-dialog-logo"'),'Language header must avoid a giant duplicate wordmark');
+assert.ok(languageCss.includes('width:min(800px')&&languageCss.includes('vatra-language-dialog-header'),'Language dialog layout must fit desktop and mobile');
 assert.ok(html.includes('href="#vatra-i-news"'),'News icon must not be a house');
 assert.ok(!html.includes('Свої серед своїх'),'No exclusive positioning in the sidebar');
 assert.ok(js.includes('vatra-birthday-visit')&&js.includes('vatra-birthday-name'),'Birthday names and avatars should navigate to pages');

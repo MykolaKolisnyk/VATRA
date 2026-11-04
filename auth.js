@@ -7,6 +7,9 @@ const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
 // SMS is intentionally unavailable until a real SMS provider is configured and tested.
 const VATRA_SMS_AUTH_ENABLED=false;
+// Keep new-account SMS signup off until the provider is commissioned. Recovery
+// may attempt SMS for an existing, verified phone (server decides availability).
+const VATRA_SMS_RECOVERY_UI_ENABLED=true;
 const selectedMethod=()=>(VATRA_SMS_AUTH_ENABLED||mode==='login')?(document.querySelector('input[name="authMethod"]:checked')?.value||$('#method')?.value||'email'):'email';
 function vatraSignupLanguage(){
  const supported=['uk','en','pl','de','fr','es','pt','it'];
@@ -30,14 +33,79 @@ const PHONE_COUNTRIES = [
  {iso:'GB',name:'Велика Британія',dial:'+44'},
  {iso:'US',name:'США',dial:'+1'}
 ];
-function countryFlag(iso){return String(iso||'').toUpperCase().replace(/[A-Z]/g,c=>String.fromCodePoint(127397+c.charCodeAt(0)));}
+/* Use crisp SVG flags in the selected country and each menu row.
+   Native <option> nodes cannot reliably render HTML/SVG, so the native
+   select remains the single source of truth and this is its visual control. */
+function countryFlagSvg(iso){
+ const flags={
+  UA:'<path fill="#2879c5" d="M0 0h28v10H0z"/><path fill="#ffd64d" d="M0 10h28v10H0z"/>',
+  PL:'<path fill="#fff" d="M0 0h28v10H0z"/><path fill="#dc3c53" d="M0 10h28v10H0z"/>',
+  DE:'<path fill="#222" d="M0 0h28v7H0z"/><path fill="#d64240" d="M0 7h28v7H0z"/><path fill="#ffca44" d="M0 14h28v6H0z"/>',
+  FR:'<path fill="#2159ad" d="M0 0h9v20H0z"/><path fill="#fff" d="M9 0h10v20H9z"/><path fill="#d94a4a" d="M19 0h9v20h-9z"/>',
+  GB:'<path fill="#244d9c" d="M0 0h28v20H0z"/><path stroke="#fff" stroke-width="5" d="m0 0 28 20M28 0 0 20"/><path stroke="#d94655" stroke-width="2" d="m0 0 28 20M28 0 0 20"/><path stroke="#fff" stroke-width="7" d="M14 0v20M0 10h28"/><path stroke="#dc3d52" stroke-width="3.5" d="M14 0v20M0 10h28"/>',
+  ES:'<path fill="#c83a48" d="M0 0h28v5H0zM0 15h28v5H0z"/><path fill="#f8c84b" d="M0 5h28v10H0z"/>',
+  PT:'<path fill="#218a69" d="M0 0h12v20H0z"/><path fill="#d54245" d="M12 0h16v20H12z"/><circle cx="12" cy="10" r="4" stroke="#f4cf65" fill="none" stroke-width="1.8"/>',
+  IT:'<path fill="#26966e" d="M0 0h9v20H0z"/><path fill="#fff" d="M9 0h10v20H9z"/><path fill="#d64c50" d="M19 0h9v20h-9z"/>',
+  US:'<path fill="#fff" d="M0 0h28v20H0z"/><path fill="#c43b4b" d="M0 0h28v2H0zm0 4h28v2H0zm0 4h28v2H0zm0 4h28v2H0zm0 4h28v2H0z"/><path fill="#244d9c" d="M0 0h12v11H0z"/><path fill="#fff" d="M2 2h2v2H2zm4 0h2v2H6zm3 3h2v2H9zm-7 2h2v2H2zm4 0h2v2H6z"/>'
+ };
+ return '<svg viewBox="0 0 28 20" width="28" height="20" class="vatra-phone-flag" aria-hidden="true" focusable="false"><rect width="28" height="20" rx="2" fill="#fff"/>'+(flags[iso]||flags.UA)+'</svg>';
+}
+function enhanceCountryMenu(select,row){
+ const button=document.createElement('button');button.type='button';button.className='vatra-phone-country-trigger';
+ button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');
+ button.setAttribute('aria-label','Оберіть країну та телефонний код');
+ const menu=document.createElement('div');menu.id=select.id+'Menu';menu.className='vatra-phone-country-menu';menu.setAttribute('role','listbox');
+ menu.setAttribute('aria-label','Країни та телефонні коди');menu.hidden=true;
+ button.setAttribute('aria-controls',menu.id);
+ for(const c of PHONE_COUNTRIES){
+  const item=document.createElement('button');item.type='button';item.className='vatra-phone-country-option';
+  item.setAttribute('role','option');item.dataset.iso=c.iso;item.dataset.dial=c.dial;
+  item.innerHTML=countryFlagSvg(c.iso)+'<span>'+c.name+'</span><b>'+c.dial+'</b>';
+  item.addEventListener('click',()=>{
+   select.value=c.dial;select.dispatchEvent(new Event('change',{bubbles:true}));
+   close();button.focus();
+  });
+  menu.append(item);
+ }
+ row.insertBefore(button,inputPlaceholderForCountry(row));row.append(menu);
+ function update(){
+  const option=select.options[select.selectedIndex],iso=option?.dataset.iso||'UA';
+  const c=PHONE_COUNTRIES.find(country=>country.iso===iso)||PHONE_COUNTRIES[0];
+  button.innerHTML=countryFlagSvg(c.iso)+'<span>'+c.dial+'</span><svg viewBox="0 0 20 20" aria-hidden="true" class="vatra-phone-chevron"><path d="m5 7 5 5 5-5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  button.title=c.name+' ('+c.dial+')';
+  menu.querySelectorAll('[role="option"]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.iso===iso)));
+ }
+ function close(){menu.hidden=true;button.setAttribute('aria-expanded','false');}
+ button.addEventListener('click',()=>{
+  const wasOpen=!menu.hidden;
+  menu.hidden=wasOpen;button.setAttribute('aria-expanded',String(!wasOpen));
+  if(!wasOpen)menu.querySelector('[aria-selected="true"]')?.focus();
+ });
+ menu.addEventListener('keydown',event=>{
+  const items=[...menu.querySelectorAll('[role="option"]')];
+  const i=items.indexOf(document.activeElement);
+  if(event.key==='Escape'){event.preventDefault();close();button.focus();}
+  else if(event.key==='ArrowDown'||event.key==='ArrowUp'){
+   event.preventDefault();items[(i+(event.key==='ArrowDown'?1:items.length-1))%items.length]?.focus();
+  }else if(event.key==='Home'||event.key==='End'){
+   event.preventDefault();items[event.key==='Home'?0:items.length-1]?.focus();
+  }
+ });
+ document.addEventListener('pointerdown',event=>{if(!row.contains(event.target))close();});
+ row.addEventListener('focusout',event=>{if(!row.contains(event.relatedTarget))close();});
+ select.addEventListener('change',update);
+ update();return {button,menu,close};
+}
+function inputPlaceholderForCountry(row){return row.querySelector('input');}
 function enhancePhoneInput(input,selectId){
  if(!input||document.getElementById(selectId))return;
  // Keep +380 for normalization, but render a fixed Ukrainian flag and code instead of a dropdown.
  const select=document.createElement('select');select.id=selectId;select.className='phone-country-code';select.setAttribute('aria-label','Країна і телефонний код');select.hidden=true;
- for(const c of PHONE_COUNTRIES){const option=document.createElement('option');option.value=c.dial;option.textContent=countryFlag(c.iso)+' '+c.dial+' · '+c.name;option.dataset.iso=c.iso;select.append(option);}select.value='+380';
+ for(const c of PHONE_COUNTRIES){const option=document.createElement('option');option.value=c.dial;option.textContent=c.dial+' · '+c.name;option.dataset.iso=c.iso;select.append(option);}select.value='+380';
+ select.setAttribute('aria-hidden','true');select.tabIndex=-1;
  const row=document.createElement('div');row.className='phone-number-control';
  input.parentNode.insertBefore(row,input);row.append(select,input);
+ enhanceCountryMenu(select,row);
  input.placeholder='93X XXX XX XX';
 }
 function normalizePhone(input,select){
@@ -55,13 +123,17 @@ function setPhoneInputFromFullNumber(input,select,value){
  const normalized=raw.replace(/[\s().-]/g,'');
  if(!normalized.startsWith('+')){input.value=raw;return;}
  const match=PHONE_COUNTRIES.filter(c=>normalized.startsWith(c.dial)).sort((a,b)=>b.dial.length-a.dial.length)[0];
- if(match){const preferred=match.dial==='+1'?'US':match.iso;const optionIndex=[...select.options].findIndex(o=>o.dataset.iso===preferred);if(optionIndex>=0)select.selectedIndex=optionIndex;else select.value=match.dial;input.value=normalized.slice(match.dial.length).replace(/\D/g,'');}
+ if(match){const preferred=match.dial==='+1'?'US':match.iso;const optionIndex=[...select.options].findIndex(o=>o.dataset.iso===preferred);if(optionIndex>=0)select.selectedIndex=optionIndex;else select.value=match.dial;input.value=normalized.slice(match.dial.length).replace(/\D/g,'');select.dispatchEvent(new Event('change',{bubbles:true}));}
  else input.value=normalized;
 }
 function syncPhoneInputMode(input,select,method){
  if(!input)return;
  const phone=method==='phone';
- if(select){select.hidden=!phone;select.style.display=phone?'block':'none';}
+ if(select){select.hidden=true;select.style.display='none';}
+ const countryButton=input.closest('.phone-number-control')?.querySelector('.vatra-phone-country-trigger');
+ const countryMenu=input.closest('.phone-number-control')?.querySelector('.vatra-phone-country-menu');
+ if(countryButton)countryButton.hidden=!phone;
+ if(!phone&&countryMenu)countryMenu.hidden=true;
  const phoneRow=input.closest('.phone-number-control');
  const countryPrefix=phoneRow?.querySelector('.phone-country-static');
  if(phoneRow){
@@ -319,6 +391,9 @@ const errors={
  'auth/unknown':'Не вдалося надіслати або перевірити код. Перевірте налаштування SMS-провайдера та спробуйте ще раз.',
 };
 function authContactErrorText(err,isPhone,flow){
+ if(flow==='recovery'&&isPhone&&['auth/operation-not-allowed','auth/sms-delivery-failed'].includes(err?.code)){
+  return 'SMS-відновлення зараз недоступне: потрібно підключити SMS-провайдера у Supabase. Скористайтеся відновленням через email.';
+ }
  if(err?.code==='auth/email-already-in-use'){
   const contact=isPhone?'Номер телефону':'Електронна пошта';
   return flow==='register'
@@ -555,7 +630,7 @@ $('#legalConsentWrap').addEventListener('click',e=>{const b=e.target.closest('[d
 document.querySelectorAll('[data-legal-tab]').forEach(b=>b.addEventListener('click',()=>openLegal(b.dataset.legalTab)));
 $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLegalBottom').onclick=()=>closeDialogAnimated($('#legalDialog'));
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
-function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email'):'email';}
+function currentRecoveryMethod(){return VATRA_SMS_RECOVERY_UI_ENABLED?(document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email'):'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact',recoveryPreviousPair='',recoveryFailures=0;
 let recoveryOtpCooldownUntil=0,recoveryOtpCooldownTimer=null;
 function syncRecoveryResend(){
@@ -618,13 +693,14 @@ function syncRecoveryMethod(){
  $('#recoveryContactLabel').textContent=phone?'Номер телефону':'Електронна пошта';
  $('#recoveryContact').placeholder=phone?'Номер у міжнародному форматі':'name@example.com';
  $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати код на email';
+ const phoneNote=$('#vatraRecoveryPhoneNote');if(phoneNote)phoneNote.hidden=!phone;
 }
 function openRecovery(){
  recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';recoveryOtpCooldownUntil=0;if(recoveryOtpCooldownTimer){clearInterval(recoveryOtpCooldownTimer);recoveryOtpCooldownTimer=null;}$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
- $('#recoveryMethodWrap').hidden=!VATRA_SMS_AUTH_ENABLED;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
+ $('#recoveryMethodWrap').hidden=false;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
- document.querySelectorAll('input[name="recoveryMethod"]').forEach(option=>{option.disabled=option.value==='phone'&&!VATRA_SMS_AUTH_ENABLED;});
+ document.querySelectorAll('input[name="recoveryMethod"]').forEach(option=>{option.disabled=false;});
  const method=selectedMethod(),radio=$('input[name="recoveryMethod"][value="'+method+'"]');if(radio)radio.checked=true;
  syncRecoveryMethod();if(method==='phone')setPhoneInputFromFullNumber($('#recoveryContact'),$('#recoveryCountryCode'),currentAuthContact());else $('#recoveryContact').value=$('#email').value.trim().toLowerCase();resetRecoveryChallenge();openDialogAnimated($('#recoveryDialog'));
 }
@@ -644,7 +720,6 @@ $('#recoveryForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=$('#recoverySubmit'),phone=currentRecoveryMethod()==='phone',contact=phone?normalizePhone($('#recoveryContact'),$('#recoveryCountryCode')):$('#recoveryContact').value.trim().toLowerCase();
  const feedback=(message,success=false)=>{$('#recoveryError').textContent=message;$('#recoveryError').classList.toggle('success',success);};
  if(recoveryStep==='contact'){
-  if(phone&&!VATRA_SMS_AUTH_ENABLED){feedback('Відновлення за SMS поки недоступне. Оберіть email.');return;}
   if(!recoveryPassed){feedback('Спочатку пройдіть «Захист ВАТРИ».');return;}
   if(phone&&!/^\+[1-9]\d{7,14}$/.test(contact)){feedback('Введіть номер у міжнародному форматі, наприклад +380XXXXXXXXX.');return;}
   if(!phone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){feedback('Введіть коректну адресу електронної пошти.');return;}

@@ -29,7 +29,7 @@ const expectedOrder=['profile','friends','feed','messages','groups','photos','my
 const positions=expectedOrder.map(p=>sidebar.indexOf('data-page="'+p+'"'));
 assert.ok(positions.every(p=>p>=0)&&positions.every((p,i)=>!i||p>positions[i-1]),'VATRA sidebar order mismatch');
 assert.ok(!sidebar.includes('data-page="music"'),'Music remains accessible from header, not duplicated in compact sidebar');
-assert.ok(sidebar.includes('vatra-nav-section-start'),'Utility group must have a divider');
+assert.ok(sidebar.includes('class="vatra-sidebar-divider"')&&sidebar.indexOf('data-page="videos"')<sidebar.indexOf('class="vatra-sidebar-divider"')&&sidebar.indexOf('class="vatra-sidebar-divider"')<sidebar.indexOf('data-page="gifts"'),'Utility group must have a separate line after Clips');
 assert.ok(/data-menu-page="supportDesk"/.test(sidebar),'Support link is missing');
 assert.ok(sidebar.includes('href="#vatra-i-support"'),'Support needs an independent headset glyph');
 const references=[...html.matchAll(/<use href="#vatra-i-([\w-]+)"/g)].map(x=>x[1]);
