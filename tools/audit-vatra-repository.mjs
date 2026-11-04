@@ -136,6 +136,37 @@ for(const [path,source] of textFiles){
 }
 const committedEnv=files.filter(path=>/(?:^|\/)\.env(?:\.|$)/.test(path)&&path!=='.env.example');
 
+// High-confidence exact CSS blocks removed during cleanup must not return.
+function sameScopeCssDuplicates(source){
+ const stack=[],seen=new Set();let start=0,quote='',escape=false,comment=false,duplicates=0;
+ for(let i=0;i<source.length;i++){
+  const ch=source[i],next=source[i+1]||'';
+  if(comment){if(ch==='*'&&next==='/'){comment=false;i++}continue}
+  if(quote){if(escape){escape=false;continue}if(ch==='\\'){escape=true;continue}if(ch===quote)quote='';continue}
+  if(ch==='/'&&next==='*'){comment=true;i++;continue}
+  if(ch==='"'||ch==="'"){quote=ch;continue}
+  if(ch===';'){start=i+1;continue}
+  if(ch==='{'){
+   const raw=source.slice(start,i),selector=raw.replace(/\/\*[\s\S]*?\*\//g,'').trim();
+   if(stack.length)stack[stack.length-1].nested=true;
+   stack.push({raw,open:i,selector,at:selector.startsWith('@'),nested:false});start=i+1;
+  }else if(ch==='}'){
+   const frame=stack.pop();if(!frame){start=i+1;continue}
+   if(!frame.at&&!frame.nested&&!stack.some(parent=>!parent.at)&&frame.selector&&!frame.raw.includes('/*')){
+    const raw=source.slice(frame.open+1,i),body=raw.trim();
+    if(body&&!raw.includes('/*')){
+     const key=stack.filter(parent=>parent.at).map(parent=>parent.selector).join('|')+'|'+frame.selector+'|'+body;
+     if(seen.has(key))duplicates++;else seen.add(key);
+    }
+   }
+   start=i+1;
+  }
+ }
+ return duplicates;
+}
+const guardedCss=['auth.css','style.css','vatra-polish.css','vatra-pages.css'];
+const exactCssRepeats=Object.fromEntries(guardedCss.map(path=>[path,sameScopeCssDuplicates(textFiles.get(path)||'')]));
+
 const report={
  counts:{
   files:files.length,folders:[...new Set(files.filter(x=>x.includes('/')).map(x=>dirname(x)))].length,
@@ -145,7 +176,7 @@ const report={
   workflows:files.filter(x=>x.startsWith('.github/workflows/')).length,
   checkedLinks:checkedLinks.length
  },
- candidates,duplicates,hardMissing,jsErrors,crossCSS,assetMentions,unreachableJS,rootCssUnloaded,unsafeFrontend,committedEnv
+ candidates,duplicates,hardMissing,jsErrors,crossCSS,assetMentions,unreachableJS,rootCssUnloaded,unsafeFrontend,committedEnv,exactCssRepeats
 };
 console.log('VATRA FULL REPOSITORY AUDIT');
 console.log(JSON.stringify(report,null,2));
@@ -153,3 +184,4 @@ if(jsErrors.length)throw Error('Syntax errors found in '+jsErrors.length+' JavaS
 if(hardMissing.length)throw Error('Missing '+hardMissing.length+' local website dependencies');
 if(unreachableJS.length||rootCssUnloaded.length)throw Error('Unreferenced production JavaScript or CSS discovered');
 if(unsafeFrontend.length||committedEnv.length)throw Error('Potential secret material in public web repository');
+if(Object.values(exactCssRepeats).some(count=>count>0))throw Error('Exact duplicate CSS declarations returned in cleaned stylesheets');
