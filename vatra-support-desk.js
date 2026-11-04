@@ -16,10 +16,10 @@ function show(html){
  $('#sort')?.setAttribute('hidden','');$('.quick-compose')?.setAttribute('hidden','');
  feed.innerHTML='<section class="vatra-support-page"><header class="vatra-support-header"><span class="vatra-support-icon">'+icons.head+'</span>'+
  '<div><p>ВАТРА · СЛУЖБА ДОПОМОГИ</p><h2>Технічна підтримка</h2><small>Особисті звернення до техпідтримки ВАТРИ</small></div>'+
- '<button type="button" class="vatra-support-back" data-support-back>'+icons.back+' Назад</button></header>'+html+'</section>';
+ '<button type="button" class="vatra-support-back" data-support-back>'+icons.back+' '+(document.body.classList.contains('vatra-restricted-support-mode')?'До блокування':'Назад')+'</button></header>'+html+'</section>';
  document.title='Техпідтримка | ВАТРА';
  window.vatraRouteChanged?.({page:'supportDesk'});
- $('[data-support-back]')?.addEventListener('click',()=>window.vatraRouter?.goPage('settings'));
+ $('[data-support-back]')?.addEventListener('click',()=>{if(document.body.classList.contains('vatra-restricted-support-mode'))window.vatraReturnToBanScreen?.();else window.vatraRouter?.goPage('settings');});
 }
 function info(message){return '<p class="vatra-support-info">'+esc(message)+'</p>';}
 function person(uid){
