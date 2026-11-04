@@ -189,8 +189,15 @@ export function initializeApp(config = {}) { return { name: '[DEFAULT]', options
 export function getAuth() { return currentAuth; }
 export function getDatabase() { return { client }; }
 
+// Keep the original vatra-media bucket available for existing permanent URLs.
+// New uploads are routed by media purpose; private stories use vatra-stories.
 const MEDIA_BUCKET = 'vatra-media';
-const MEDIA_FOLDERS = new Set(['posts', 'avatars', 'covers', 'videos', 'comments', 'community-photos', 'community-videos']);
+const MEDIA_FOLDERS = new Set(['posts', 'avatars', 'covers', 'videos', 'comments', 'community-photos', 'community-videos', 'gifts']);
+const MEDIA_BUCKET_BY_FOLDER = Object.freeze({
+ posts:'vatra-photos', comments:'vatra-photos','community-photos':'vatra-photos',
+ videos:'vatra-videos','community-videos':'vatra-videos',
+ avatars:'vatra-avatars',covers:'vatra-covers',gifts:'vatra-gifts'
+});
 function safeMediaExtension(type = '') {
   const map = {
     'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
@@ -209,10 +216,17 @@ export async function uploadMedia(file, category = 'posts') {
   if (file.size > maxSize) throw new Error(['videos','community-videos'].includes(category)
     ? 'Відео має бути меншим за 50 МБ.'
     : 'Фото має бути меншим за 15 МБ.');
+  const isVideoCategory=['videos','community-videos'].includes(category);
+  if(isVideoCategory&&!String(file.type||'').startsWith('video/'))
+    throw new Error('Для цього розділу оберіть відеофайл.');
+  if(!isVideoCategory&&!String(file.type||'').startsWith('image/'))
+    throw new Error('Для цього розділу оберіть зображення.');
+  const bucket=MEDIA_BUCKET_BY_FOLDER[category];
+  if(!bucket)throw new Error('Не вдалося визначити сховище файлу.');
   const ext = safeMediaExtension(file.type);
   const id = globalThis.crypto?.randomUUID?.() || (Date.now().toString(36) + Math.random().toString(36).slice(2));
   const path = user.uid + '/' + category + '/' + Date.now() + '-' + id + '.' + ext;
-  const { data, error } = await client.storage.from(MEDIA_BUCKET).upload(path, file, {
+  const { data, error } = await client.storage.from(bucket).upload(path, file, {
     cacheControl: '31536000', upsert: false, contentType: file.type || 'application/octet-stream'
   });
   if (error) {
@@ -222,7 +236,7 @@ export async function uploadMedia(file, category = 'posts') {
     if (/too large|payload|size/i.test(message)) throw new Error('Файл завеликий. Спробуй менше фото або відео.');
     throw databaseError(error);
   }
-  const { data: publicData } = client.storage.from(MEDIA_BUCKET).getPublicUrl(data?.path || path);
+  const { data: publicData } = client.storage.from(bucket).getPublicUrl(data?.path || path);
   if (!publicData?.publicUrl) throw new Error('Файл завантажився, але посилання не вдалося створити.');
   return publicData.publicUrl;
 }
