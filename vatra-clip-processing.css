@@ -1,0 +1,14 @@
+/* VATRA clip optimizer */
+html body .vatra-clip-processing{position:fixed;inset:0;margin:auto;max-width:470px;width:calc(100vw - 28px);max-height:90dvh;padding:0;border-radius:18px;border:1px solid #dbe6f5;background:#fff;box-shadow:0 22px 65px #0c2e5860;color:#294765}
+html body .vatra-clip-processing::backdrop{background:#0b1e3fa8;backdrop-filter:blur(3px)}
+html body .vatra-clip-processing-card{display:flex;flex-direction:column;gap:14px;padding:26px;font-family:"VATRA Onest",system-ui,sans-serif}
+html body .vatra-clip-processing h2{font-size:20px;color:#213c59;line-height:1.35;margin:0}
+html body .vatra-clip-processing p{font-size:13px;color:#627d99;line-height:1.6;margin:0}
+html body .vatra-clip-processing-icon{display:grid;place-items:center;width:45px;height:45px;border-radius:13px;background:#eaf2ff;color:#0757e8}
+html body .vatra-clip-progress-line{height:8px;overflow:hidden;border-radius:20px;background:#e5eef9}
+html body .vatra-clip-progress-line>div{width:0;height:100%;background:#0757e8;border-radius:20px;transition:width .3s ease}
+html body .vatra-clip-progress-text{font-size:12px;color:#56748e}
+html body .vatra-clip-progress-text b{color:#1e5895}
+html body .vatra-clip-processing button{padding:12px 16px;background:#f4f8ff;border:1px solid #d7e5f4;color:#315a83;border-radius:10px;cursor:pointer}
+html body .vatra-clip-processing button:hover{background:#eaf2ff}
+html body .vatra-translate-button[hidden]{display:none!important}
