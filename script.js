@@ -631,7 +631,7 @@ function postCard(p){
 function allPosts(){
  const uid=currentUser?.uid;
  const memberGroups=new Set(Object.entries(groups||{}).filter(([gid,g])=>g&&(g.ownerUid===uid||!!groupMembers[gid]?.[uid])).map(([gid])=>gid));
- const arr=Object.entries(posts||{}).map(([id,p])=>({...p,id,source:'user'}));
+ const arr=Object.entries(posts||{}).filter(([,p])=>p?.kind!=='story').map(([id,p])=>({...p,id,source:'user'}));
  for(const gid of memberGroups){
   const g=groups[gid];
   Object.entries(groupPostsCache[gid]||{}).forEach(([id,p])=>arr.push({...p,id:'g_'+gid+'_'+id,groupId:gid,groupName:g?.name||'Спільнота',source:'group'}));
@@ -696,6 +696,113 @@ async function vatraCheckPaidPromotions(){
   console.info('[ВАТРА] Активні рекламні дописи не завантажено:',error?.message||error);
  }finally{vatraPromotions.loading=false}
 }
+/* VATRA Stories: 24-hour media shared with the author's friends.
+   Uses existing owner-protected posts/<id> records rather than an unprotected
+   new collection; stories are excluded from normal posts and search. */
+const VATRA_STORY_LIFETIME_MS=24*60*60*1000;
+function vatraActiveStories(){
+ const now=Date.now();
+ return Object.entries(posts||{}).map(([id,p])=>({...p,id})).filter(p=>
+  p.kind==='story'&&p.authorUid&&p.mediaUrl&&['image','video'].includes(p.mediaType)&&
+  Number(p.createdAt)>0&&now-Number(p.createdAt)<VATRA_STORY_LIFETIME_MS&&
+  Number(p.expiresAt||p.createdAt+VATRA_STORY_LIFETIME_MS)>now&&
+  (p.authorUid===currentUser?.uid||!!friends[p.authorUid])&&!blockedUsers[p.authorUid]
+ ).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+}
+function vatraStoryRail(){
+ if(!currentUser)return '';
+ const stories=vatraActiveStories(),latest=new Map();
+ for(const story of stories)if(!latest.has(story.authorUid))latest.set(story.authorUid,story);
+ const tiles=[...latest.values()].slice(0,14).map(story=>{
+  const p=story.authorUid===currentUser.uid?currentProfile:users[story.authorUid]||{};
+  const name=story.authorUid===currentUser.uid?'Моя історія':String(p.name||story.authorName||'Користувач ВАТРИ');
+  const visual=story.mediaType==='image'?'<img loading="lazy" src="'+esc(story.mediaUrl)+'" alt="">':'<span class="vatra-story-video-symbol" aria-hidden="true">▶</span>';
+  return '<button type="button" class="vatra-story-tile" data-open-story="'+esc(story.id)+'" aria-label="Переглянути історію '+esc(name)+'">'+visual+
+   '<span class="vatra-story-user">'+avatar(name,p.avatarUrl,'vatra-story-user-avatar')+'<b>'+esc(name)+'</b></span></button>';
+ }).join('');
+ return '<section class="vatra-stories-rail" aria-label="Історії"><header><b>Історії</b><small>Моменти на 24 години</small></header><div class="vatra-story-tiles">'+
+  '<button type="button" class="vatra-story-tile vatra-story-create" data-create-story aria-label="Опублікувати історію"><span class="vatra-story-create-mark">＋</span><span class="vatra-story-user"><b>Моя історія</b><small>Створити</small></span></button>'+tiles+'</div></section>';
+}
+function vatraOpenStoryViewer(firstId){
+ const items=vatraActiveStories();let current=items.findIndex(x=>x.id===firstId);if(current<0)return toastMsg('Історія недоступна або термін дії завершився.');
+ let dlg=document.getElementById('vatraStoryViewer');
+ if(!dlg){dlg=document.createElement('dialog');dlg.id='vatraStoryViewer';dlg.className='vatra-story-dialog';document.body.append(dlg);}
+ const close=()=>{dlg.querySelector('video')?.pause();if(dlg.open)dlg.close();};
+ const draw=()=>{
+  const story=items[current],profile=story.authorUid===currentUser?.uid?currentProfile:users[story.authorUid]||{},name=profile.name||story.authorName||'Користувач ВАТРИ';
+  dlg.querySelector('video')?.pause();
+  dlg.innerHTML='<div class="vatra-story-shell"><div class="vatra-story-progress">'+items.map((_,i)=>'<i class="'+(i<=current?'is-done':'')+'"></i>').join('')+'</div>'+
+   '<header><button type="button" data-story-profile data-uid="'+esc(story.authorUid)+'">'+avatar(name,profile.avatarUrl)+'<span><b>'+esc(name)+'</b><small>'+esc(timeAgo(story.createdAt))+'</small></span></button>'+
+   '<button type="button" data-story-close aria-label="Закрити історію">×</button></header>'+
+   (story.mediaType==='image'?'<img class="vatra-story-media" src="'+esc(story.mediaUrl)+'" alt="Історія '+esc(name)+'">':'<video class="vatra-story-media" src="'+esc(story.mediaUrl)+'" controls autoplay playsinline preload="metadata"></video>')+
+   (story.caption?'<div class="vatra-story-caption" style="color:'+(['#ffffff','#ffe36d','#bce9ff','#ffb8dd'].includes(story.textColor)?story.textColor:'#ffffff')+'">'+esc(story.caption)+'</div>':'')+
+   '<footer><button type="button" data-story-previous '+(current===0?'disabled':'')+' aria-label="Попередня історія">‹</button><span>'+(current+1)+' / '+items.length+'</span><button type="button" data-story-next '+(current===items.length-1?'disabled':'')+' aria-label="Наступна історія">›</button></footer>'+
+   (story.authorUid===currentUser?.uid?'<button type="button" class="vatra-story-delete" data-story-delete>Видалити історію</button>':'')+'</div>';
+  dlg.querySelector('[data-story-close]').onclick=close;
+  dlg.querySelector('[data-story-previous]').onclick=()=>{if(current>0){current--;draw();}};
+  dlg.querySelector('[data-story-next]').onclick=()=>{if(current<items.length-1){current++;draw();}};
+  dlg.querySelector('[data-story-profile]').onclick=()=>{close();showUserProfile(story.authorUid);};
+  dlg.querySelector('[data-story-delete]')?.addEventListener('click',async()=>{
+   if(!(await askConfirm('Видалити цю історію?')))return;
+   try{await remove(ref(db,'posts/'+story.id));close();renderFeed();toastMsg('Історію видалено.');}
+   catch(err){toastMsg(niceError(err));}
+  });
+ };
+ dlg.oncancel=()=>dlg.querySelector('video')?.pause();
+ dlg.onclick=e=>{if(e.target===dlg)close();};
+ dlg.onkeydown=e=>{if(e.key==='ArrowLeft'&&current>0){e.preventDefault();current--;draw();}if(e.key==='ArrowRight'&&current<items.length-1){e.preventDefault();current++;draw();}};
+ draw();dlg.showModal();
+}
+function vatraCreateStory(){
+ if(!authRequired())return;
+ const input=document.createElement('input');input.type='file';input.accept='image/*,video/mp4,video/webm,video/quicktime';input.hidden=true;document.body.append(input);
+ input.onchange=async()=>{
+  const file=input.files?.[0];input.remove();if(!file)return;
+  const isVideo=file.type.startsWith('video/'),isImage=file.type.startsWith('image/');
+  if(!isImage&&!isVideo)return toastMsg('Оберіть фото або відео.');
+  if(file.size>(isVideo?MAX_VIDEO:MAX_IMAGE))return toastMsg('Файл завеликий. Фото до 15 МБ, відео до 50 МБ.');
+  const url=URL.createObjectURL(file);
+  const dialog=document.createElement('dialog');dialog.className='vatra-story-dialog vatra-story-compose';document.body.append(dialog);
+  dialog.innerHTML='<form class="vatra-story-shell" method="dialog"><header><b>Нова історія</b><button type="button" data-story-cancel aria-label="Закрити">×</button></header>'+
+    (isVideo?'<video class="vatra-story-media" controls playsinline src="'+url+'"></video>':'<img class="vatra-story-media" src="'+url+'" alt="Попередній перегляд">')+
+    '<label for="vatraStoryCaption">Текст історії</label><textarea id="vatraStoryCaption" maxlength="220" rows="3" placeholder="Додайте текст (необов’язково)"></textarea>'+
+    '<div class="vatra-story-colors" aria-label="Колір тексту"><label>Колір тексту</label>'+['#ffffff','#ffe36d','#bce9ff','#ffb8dd'].map((color,i)=>'<button type="button" style="background:'+color+'" data-story-color="'+color+'" aria-label="Колір '+(i+1)+'" aria-pressed="'+(i===0)+'"></button>').join('')+'</div>'+
+    '<footer><button type="button" data-story-cancel>Скасувати</button><button type="submit" class="primary">Опублікувати історію</button></footer><p class="vatra-story-compose-status" role="status"></p></form>';
+  let textColor='#ffffff',publishing=false;
+  const dismiss=()=>{if(!publishing)dialog.close();};
+  const cleanup=()=>{URL.revokeObjectURL(url);dialog.remove();};
+  dialog.addEventListener('close',cleanup,{once:true});
+  dialog.querySelectorAll('[data-story-cancel]').forEach(button=>button.onclick=dismiss);
+  dialog.querySelectorAll('[data-story-color]').forEach(button=>button.onclick=()=>{
+   textColor=button.dataset.storyColor;
+   dialog.querySelectorAll('[data-story-color]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+  });
+  dialog.querySelector('form').onsubmit=async e=>{
+   e.preventDefault();if(publishing)return;publishing=true;
+   const btn=dialog.querySelector('button[type="submit"]'),status=dialog.querySelector('.vatra-story-compose-status');
+   btn.disabled=true;btn.textContent='Публікуємо…';
+   try{
+    const mediaUrl=isVideo?await uploadMedia(file,'videos'):await uploadImage(file,1280,.82,'posts');
+    const stamp=Date.now(),entry=push(ref(db,'posts'));
+    await createPost(entry,{kind:'story',authorUid:currentUser.uid,authorName:currentProfile.name||'Користувач ВАТРИ',
+      authorHandle:currentProfile.handle||'',mediaUrl,mediaType:isVideo?'video':'image',
+      caption:dialog.querySelector('textarea').value.trim().slice(0,220),
+      textColor,visibility:'friends',createdAt:stamp,expiresAt:stamp+VATRA_STORY_LIFETIME_MS});
+    publishing=false;dialog.close();toastMsg('Історію опубліковано на 24 години.');
+    if(page==='feed')renderFeed();
+   }catch(err){publishing=false;btn.disabled=false;btn.textContent='Опублікувати історію';status.textContent='Не вдалося опублікувати: '+niceError(err);}
+  };
+  dialog.showModal();
+ };
+ input.click();
+}
+document.addEventListener('click',e=>{
+ const add=e.target.closest('[data-create-story]');
+ if(add){e.preventDefault();vatraCreateStory();return;}
+ const story=e.target.closest('[data-open-story]');
+ if(story){e.preventDefault();vatraOpenStoryViewer(story.dataset.openStory);}
+});
+
 function renderFeed(){
  const arr=allPosts(),seen=new Set(),sponsored=[];
  for(const row of vatraPromotions.rows){
@@ -726,6 +833,7 @@ function renderFeed(){
   }).join('');
   cards.unshift('<section class="vatra-friend-birthday-banner" aria-label="Дні народження друзів"><header><span class="vatra-birthday-icon" aria-hidden="true">🎂</span><span><b>Сьогодні святкують друзі</b><small>Привітайте у ВАТРІ або надішліть подарунок</small></span></header><div class="vatra-friend-birthday-people">'+birthdayCards+'</div></section>');
  }
+ if(currentUser)cards.unshift(vatraStoryRail());
  const empty=cards.length===0;
  setFeed(cards.join(''),empty);
  if(organic.length&&currentUser)void vatraLoadFriendsOfFriends();
