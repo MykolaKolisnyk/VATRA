@@ -4,7 +4,7 @@
 // Dry-run is the default. --apply makes the production change only after all
 // external credentials are provided as environment variables.
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 const ROOT = new URL('../', import.meta.url);
 const TEMPLATE = p => readFileSync(new URL(p, ROOT), 'utf8').trim();
@@ -104,7 +104,7 @@ export async function configureAuth({env=process.env,fetchFn=fetch,apply=false}=
  }
  return {mode:'applied',...summary,deliveryConfirmed:false};
 }
-const direct = process.argv[1] && fileURLToPath(import.meta.url)===fileURLToPath(new URL('file://' + process.argv[1]));
+const direct = process.argv[1] && pathToFileURL(process.argv[1]).href===import.meta.url;
 if (direct) {
  const apply = process.argv.includes('--apply');
  const argv = process.argv.slice(2);
