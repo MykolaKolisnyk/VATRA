@@ -36,4 +36,8 @@ if wordmark.exists():
         bytestring=wordmark.read_bytes(),output_width=1060,output_height=184
     ))
     print(output, '1060x184')
+preview=Path('social-preview.svg')
+if preview.exists():
+    Path('social-preview.png').write_bytes(cairosvg.svg2png(bytestring=preview.read_bytes(),output_width=1200,output_height=630))
+    print('social-preview.png', '1200x630')
 print('VATRA: exported shared ribbon V logo for favicons, app icons and social UI')
