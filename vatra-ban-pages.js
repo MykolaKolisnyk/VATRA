@@ -74,11 +74,13 @@ function inject(kind,id,d,{own=false,name='',handle=''}={}){
 function wire(root){
  root.querySelector('[data-vatra-restore]')?.addEventListener('click',()=>{root.closest('#vatraSuspendedOwnScreen')?.setAttribute('hidden','');window.vatraRouter?.goPage('settings');setTimeout(()=>document.querySelector('[data-settings-target="account"]')?.click(),120);});
  root.querySelector('[data-vatra-ban-support]')?.addEventListener('click',()=>{
+   restrictionSupportOpening=true;
    document.body.classList.add('vatra-restricted-support-mode');
    const overlay=document.getElementById('vatraSuspendedOwnScreen');
    if(overlay)overlay.hidden=true;
    const work=window.vatraOpenSupportDesk?.();
    if(work&&typeof work.catch==='function')void work.catch(()=>{
+    restrictionSupportOpening=false;
     document.body.classList.remove('vatra-restricted-support-mode');
     if(overlay)overlay.hidden=false;
    });
@@ -129,58 +131,90 @@ window.vatraBanRefresh=async(kind,id)=>{
  else {document.querySelector('#vatraSuspendedOwnScreen')?.remove();}
  return d;
 };
-let ownCheckPromise=null,lastOwnCheckAt=0,verifiedOwnUid='';
+let ownCheckPromise=null,lastOwnCheckAt=0,verifiedOwnUid='',lastOwnResult=null,restrictionSupportOpening=false;
 function accountCheckScreen(){
  let el=document.getElementById('vatraAccountCheckScreen');
  if(!el){
   el=document.createElement('div');el.id='vatraAccountCheckScreen';el.className='vatra-account-check-screen';
-  el.setAttribute('role','status');el.setAttribute('aria-live','polite');
-  el.innerHTML='<div><span class="vatra-check-icon">В</span><h2>Перевіряємо акаунт</h2><p id="vatraAccountCheckText">Перевіряємо стан профілю та доступ до ВАТРИ.</p><button type="button" data-vatra-check-retry hidden>Повторити перевірку</button></div>';
+  el.setAttribute('aria-label','ВАТРА');
+  // Quiet access gate. A denied session never reveals the regular app layout.
+  el.innerHTML='<div class="vatra-access-error" hidden><p>Не вдалося підключитися до ВАТРИ. Перевірте з’єднання.</p><button type="button" data-vatra-check-retry>Повторити</button></div>';
   document.body.append(el);
   el.querySelector('[data-vatra-check-retry]').addEventListener('click',()=>{lastOwnCheckAt=0;void ownCheck();});
  }
  return el;
 }
+function rememberOwnState(id,value){
+ try{
+  const k='vatra-own-restriction:'+id;
+  if(isBlocked(value))sessionStorage.setItem(k,JSON.stringify({value,time:Date.now()}));
+  else sessionStorage.removeItem(k);
+ }catch{}
+}
+function restoreOwnState(id){
+ try{const item=JSON.parse(sessionStorage.getItem('vatra-own-restriction:'+id)||'null');
+  return item&&Date.now()-item.time<43200000&&isBlocked(item.value)?item.value:null;
+ }catch{return null;}
+}
+function syncRestrictedPresentation(){
+ const restricted=isBlocked(lastOwnResult),support=restricted&&(restrictionSupportOpening||location.hash==='#/support');
+ document.body.classList.toggle('vatra-restricted-support-mode',support);
+ const shell=document.getElementById('vatraSuspendedOwnScreen');
+ if(shell)shell.hidden=support||(lastOwnResult?.deleted===true&&location.hash==='#/settings');
+}
+window.vatraReturnToBanScreen=()=>{
+ restrictionSupportOpening=false;
+ document.body.classList.remove('vatra-restricted-support-mode');
+ const shell=document.getElementById('vatraSuspendedOwnScreen');
+ if(shell)shell.hidden=false;
+ window.vatraRouter?.goPage('feed');
+ syncRestrictedPresentation();
+};
 async function ownCheck(){
- const currentUid=uid();
- if(lastUid!==currentUid){
-  lastUid=currentUid;verifiedOwnUid='';lastOwnCheckAt=0;byKey.clear();
-  document.querySelector('#vatraSuspendedOwnScreen')?.remove();
-  if(!currentUid)document.querySelector('#vatraAccountCheckScreen')?.remove();
+ const id=uid();
+ if(lastUid!==id){
+  lastUid=id;verifiedOwnUid='';lastOwnCheckAt=0;byKey.clear();lastOwnResult=null;restrictionSupportOpening=false;
+  document.getElementById('vatraSuspendedOwnScreen')?.remove();
+  if(!id){document.getElementById('vatraAccountCheckScreen')?.remove();document.body.classList.remove('vatra-restricted-support-mode');}
+  else{
+   const prior=restoreOwnState(id);
+   if(prior){
+    lastOwnResult=prior;
+    inject('account',id,prior,{own:true,name:auth.currentUser?.displayName||'Ваш акаунт'});
+    syncRestrictedPresentation();
+   }
+  }
  }
- if(!currentUid)return;
+ if(!id)return;
  if(ownCheckPromise)return ownCheckPromise;
- const screen=accountCheckScreen();
- if(verifiedOwnUid!==currentUid){screen.hidden=false;screen.querySelector('[data-vatra-check-retry]').hidden=true;}
+ const gate=accountCheckScreen();
+ if(verifiedOwnUid!==id&&!isBlocked(lastOwnResult)){gate.hidden=false;gate.querySelector('.vatra-access-error').hidden=true;}
+ else gate.hidden=true;
  ownCheckPromise=(async()=>{
-  const result=await status('account',currentUid,true);
-  if(uid()!==currentUid)return;
+  const result=await status('account',id,true);
+  if(uid()!==id)return;
   if(!result){
-   if(verifiedOwnUid!==currentUid){
-    screen.hidden=false;
-    screen.querySelector('#vatraAccountCheckText').textContent='Не вдалося перевірити доступ. Перевірте з’єднання та повторіть спробу.';
-    screen.querySelector('[data-vatra-check-retry]').hidden=false;
+   if(verifiedOwnUid!==id&&!isBlocked(lastOwnResult)){
+    gate.hidden=false;gate.querySelector('.vatra-access-error').hidden=false;
    }
    return;
   }
-  verifiedOwnUid=currentUid;screen.hidden=true;
-  if(isBlocked(result))inject('account',currentUid,result,{own:true,name:auth.currentUser?.displayName||auth.currentUser?.user_metadata?.name||'Ваш акаунт'});
-  else document.querySelector('#vatraSuspendedOwnScreen')?.remove();
-  const shell=document.querySelector('#vatraSuspendedOwnScreen');
-  if(shell)shell.hidden=location.hash==='#/support'||(shell.querySelector('.is-deleted')&&location.hash==='#/settings');
+  verifiedOwnUid=id;lastOwnResult=result;gate.hidden=true;rememberOwnState(id,result);
+  if(isBlocked(result))inject('account',id,result,{own:true,name:auth.currentUser?.displayName||'Ваш акаунт'});
+  else document.getElementById('vatraSuspendedOwnScreen')?.remove();
+  syncRestrictedPresentation();
  })().finally(()=>{lastOwnCheckAt=Date.now();ownCheckPromise=null;});
  return ownCheckPromise;
 }
-// Pick up the authenticated session as soon as it becomes available.
-// Keep unverified sessions behind a noninteractive check screen.
-setInterval(()=>{
- const activeUid=uid();
- if(activeUid!==lastUid){void ownCheck();return;}
- if(activeUid&&!document.hidden&&Date.now()-lastOwnCheckAt>15000)void ownCheck();
-},750);
+// Auth event drives immediate restriction checks; timer is only fallback/refresh.
+onAuthStateChanged(auth,()=>{void ownCheck();});
 queueMicrotask(()=>void ownCheck());
-window.addEventListener('hashchange',()=>{const shell=document.querySelector('#vatraSuspendedOwnScreen');if(shell)shell.hidden=location.hash==='#/support'||(shell.querySelector('.is-deleted')&&location.hash==='#/settings');});
-
+setInterval(()=>{
+ const id=uid();
+ if(id!==lastUid){void ownCheck();return;}
+ if(id&&!document.hidden&&Date.now()-lastOwnCheckAt>15000)void ownCheck();
+},3000);
+window.addEventListener('hashchange',()=>{restrictionSupportOpening=false;syncRestrictedPresentation();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void ownCheck();});
 
 const blockedStateIcon='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l9 4v6c0 5-3.2 8.4-9 10-5.8-1.6-9-5-9-10V6z"/><path d="M12 7v6m0 3h.01"/></svg>';
