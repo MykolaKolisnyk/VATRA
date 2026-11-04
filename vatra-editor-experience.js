@@ -167,7 +167,7 @@ function setupPlaceSuggestions(page){
   setTimeout(()=>{if(!input.parentElement?.contains(document.activeElement))hide(input);},140);
  });
 }
-export function enhanceVatraSettings(page,{editMode=false}={}){
+export function enhanceVatraSettings(page,{editMode=false,uid=''}={}){
  if(!page||page.dataset.vatraEditorEnhanced)return;
  page.dataset.vatraEditorEnhanced='1';page.classList.add('vatra-editor-polished');
  const workspace=page.querySelector('.vatra-settings-workspace');
@@ -175,6 +175,17 @@ export function enhanceVatraSettings(page,{editMode=false}={}){
  const top=document.createElement('header');top.className='vatra-editor-page-header';
  top.innerHTML='<span class="vatra-editor-page-symbol">'+svg(editMode?'edit':'appearance')+'</span><div><small>ВАТРА · '+(editMode?'ВАША СТОРІНКА':'ПАРАМЕТРИ')+'</small><h1>'+(editMode?'Редагування сторінки':'Налаштування ВАТРИ')+'</h1><p>'+(editMode?'Заповнюйте інформацію про себе й обирайте, хто може її бачити. Всі зміни зберігаються кнопкою внизу.':'Налаштуйте приватність, сповіщення, мову та безпеку Вашого акаунта.')+'</p></div>';
  workspace.before(top);
+ if(editMode&&/^[0-9a-f-]{36}$/i.test(uid)){
+  const identity=document.createElement('div');identity.className='vatra-editor-id-card';
+  identity.innerHTML='<span class="vatra-editor-id-icon">'+svg('profile')+'</span><span class="vatra-editor-id-copy"><b>ID користувача</b><small>Постійний номер у базі ВАТРИ. Для посилання на сторінку використовується @псевдонім.</small><code></code></span><button type="button" class="vatra-editor-id-button" aria-label="Скопіювати ID">Скопіювати</button>';
+  identity.querySelector('code').textContent=uid;
+  identity.querySelector('button').addEventListener('click',async ()=>{
+   try{await navigator.clipboard.writeText(uid);identity.querySelector('button').textContent='Скопійовано ✓';}
+   catch{identity.querySelector('button').textContent='Виділіть ID для копіювання';}
+  });
+  top.after(identity);
+ }
+
  page.querySelectorAll('.vatra-settings-pane').forEach(decoratePane);
  const nav=page.querySelector('.vatra-settings-nav');
  nav?.querySelectorAll('[data-settings-target]').forEach(button=>{

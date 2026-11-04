@@ -14,7 +14,7 @@
   scheduled=false;
   const page=document.body.dataset.page||'feed';
   const hash=decodeURIComponent(location.hash||'');
-  const profileId=hash.match(/^#\/profile\/([0-9a-f-]{36})(?:\/|$)/i)?.[1]||'';
+  const profileId=hash.match(/^#\/(?:u|profile)\/([^/]+)(?:\/|$)/i)?.[1]||'';
   const groupId=hash.match(/^#\/community\/([A-Za-z0-9_-]{8,128})(?:\/|$)/)?.[1]||'';
   const feed=document.querySelector('#feed');
   const restricted=!!feed?.querySelector('.vatra-suspended-page,.vatra-ban-load-error');

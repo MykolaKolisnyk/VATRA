@@ -21,7 +21,7 @@ html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-n
  opacity:1!important;text-shadow:none!important;
 }
 html body .layout>.sidebar>nav>a.nav:not([hidden]){
- color:#24374f!important;font-size:14px!important;font-weight:720!important;
+ color:#536b85!important;font-size:14px!important;font-weight:620!important;
  line-height:1.45!important;opacity:1!important;letter-spacing:0!important;
  min-height:42px!important;transform:none!important;
 }
@@ -29,9 +29,9 @@ html body .layout>.sidebar>nav>a.nav .nav-icon{color:#416c98!important;opacity:1
 html body .layout>.sidebar>nav>a.nav:hover{background:#f0f4fb!important;color:#144f9a!important}
 html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#2864b2!important}
 html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
- background:#e8f0ff!important;color:#0757df!important;font-weight:720!important;
+ background:transparent!important;color:#536b85!important;font-weight:620!important;
 }
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757df!important}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#7191ad!important}
 /* Text hierarchy and crisp readable sizes, using the locally bundled Onest. */
 html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-profile-detail-label,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){
  font-family:var(--vatra-ui-font)!important;
@@ -154,7 +154,7 @@ html body[data-vatra-theme-effective="dark"]{
 html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:not([hidden]){color:#d2e1f2!important}
 html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav .nav-icon{color:#9eb6d3!important}
 html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover{background:#2d4561!important;color:#f4f8ff!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){background:#244e83!important;color:#e9f4ff!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){background:transparent!important;color:#d4e1ef!important}
 html body[data-vatra-theme-effective="dark"] :is(.post .author b,.post .author-link,.vatra-friends-row b,.vatra-search-person-name,.vatra-search-group-name,.vatra-profile-card-head h3,.settings-card h3){
  color:#edf4ff!important
 }
@@ -221,7 +221,7 @@ html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-lab
 }
 html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]),
 html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){
- color:#0757e8!important;font-weight:760!important;
+ color:#536b85!important;font-weight:620!important;
 }
 html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav :is(.nav-icon,.nav-icon svg){
  color:#36669a!important;stroke:#36669a!important;opacity:1!important;

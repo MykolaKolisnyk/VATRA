@@ -15,8 +15,44 @@ try {
 const SERVICE_URL = 'https://rjasunoawrxvetwadylh.supabase.co';
 const PUBLIC_KEY = 'sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-';
 const TABLE = 'app_data';
+// Authentication is session-only by default. An explicit "Запам'ятати мене"
+// opt-in moves token storage to localStorage for future browser visits.
+// Supabase stores access/refresh tokens, never passwords, using this adapter.
+const REMEMBER_KEY='vatra-remember-me-v1';
+const storageKey='sb-'+new URL(SERVICE_URL).hostname.split('.')[0]+'-auth-token';
+function vatraRememberEnabled(){try{return localStorage.getItem(REMEMBER_KEY)==='1';}catch{return false;}}
+const vatraAuthStorage={
+ getItem(key){
+  try{return (vatraRememberEnabled()?localStorage:sessionStorage).getItem(key);}catch{return null;}
+ },
+ setItem(key,value){
+  try{
+   const target=vatraRememberEnabled()?localStorage:sessionStorage;
+   const other=vatraRememberEnabled()?sessionStorage:localStorage;
+   target.setItem(key,value);other.removeItem(key);
+  }catch(error){console.warn('[VATRA] Session storage unavailable:',error?.name||error);}
+ },
+ removeItem(key){
+  try{localStorage.removeItem(key);}catch{}
+  try{sessionStorage.removeItem(key);}catch{}
+ }
+};
+// Old releases remembered everyone automatically. Ignore their persistent
+// tokens unless the user has explicitly enabled "remember me".
+if(!vatraRememberEnabled()){try{localStorage.removeItem(storageKey);}catch{}}
+export function setRememberMe(enabled){
+ const remember=enabled===true;
+ try{
+  if(remember)localStorage.setItem(REMEMBER_KEY,'1');
+  else localStorage.removeItem(REMEMBER_KEY);
+  // Do not keep an old session in the other storage after switching modes.
+  if(remember)sessionStorage.removeItem(storageKey);
+  else localStorage.removeItem(storageKey);
+ }catch(error){console.warn('[VATRA] Could not change remember setting:',error?.name||error);}
+}
+export function getRememberMe(){return vatraRememberEnabled();}
 const client = createClient(SERVICE_URL, PUBLIC_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: vatraAuthStorage, storageKey }
 });
 const currentAuth = { currentUser: null };
 

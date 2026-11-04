@@ -40,13 +40,13 @@ async function readVisibleIds(rpc,column){
  }
  return new Set(data.map(row=>row[column]));
 }
-function page(type,id,data){
+function page(type,id,data,slug=id){
  const person=type==='person';
  const name=String(data.name||'').trim().slice(0,110);
  const summary=String(data.bio||data.description||'').trim().replace(/\s+/g,' ').slice(0,330) ||
   (person?'Публічний профіль учасника соціальної мережі ВАТРА.':'Відкрита спільнота української соціальної мережі ВАТРА.');
- const url=base+(person?'people/':'communities/')+encodeURIComponent(id)+'/';
- const redirect=base+'#/'+(person?'profile/':'community/')+encodeURIComponent(id);
+ const url=base+(person?'people/':'communities/')+encodeURIComponent(slug)+'/';
+ const redirect=base+'#/'+(person?'u/':'community/')+encodeURIComponent(slug);
  const image=absoluteImage(data.avatarUrl)||base+'social-preview.svg';
  const jsonLd=JSON.stringify({'@context':'https://schema.org','@type':person?'ProfilePage':'CollectionPage',
   'name':name+' — ВАТРА','description':summary,'url':url,'mainEntity':{'@type':person?'Person':'Organization','name':name}}).replace(/</g,'\\u003c');
@@ -61,16 +61,48 @@ function page(type,id,data){
   '<h1>'+esc(name)+'</h1><p>'+esc(summary)+'</p><a href="'+esc(redirect)+'">'+(person?'Переглянути профіль у ВАТРІ':'Переглянути спільноту у ВАТРІ')+'</a>'+
   '<p><small>ВАТРА · українська соціальна мережа</small></p></main></body></html>\n';
 }
+// Canonical profile URLs must use the account's public @handle, not its UUID.
+// Validate before using a username as a directory to prevent path traversal.
+function profileSlug(value){
+ const slug=String(value||'').normalize('NFC').trim().replace(/^@/,'').toLocaleLowerCase('uk-UA');
+ return [...slug].length<=40 && /^[\p{L}\p{N}][\p{L}\p{N}._-]*[\p{L}\p{N}]$/u.test(slug) ? slug : '';
+}
+function oldProfileRedirect(slug){
+ const canonical=base+'people/'+encodeURIComponent(slug)+'/';
+ return '<!doctype html><html lang="uk"><head><meta charset="utf-8">'+
+  '<meta name="robots" content="noindex,follow"><link rel="canonical" href="'+esc(canonical)+'">'+
+  '<meta http-equiv="refresh" content="0;url='+esc(canonical)+'">'+
+  '<title>Профіль переміщено — ВАТРА</title></head><body>'+
+  '<p>Профіль має нову адресу: <a href="'+esc(canonical)+'">відкрити сторінку</a>.</p></body></html>';
+}
 function writeSnapshots(folder,items,type){
  const target=join(folder);
  if(existsSync(target))rmSync(target,{recursive:true,force:true});
  mkdirSync(target,{recursive:true});
- const urls=[];
+ const urls=[],seen=new Set();
+ const accountIds=new Set(type==='person'?items.map(([id])=>id):[]);
  for(const [id,value] of items){
-  const targetFolder=join(target,id);
+  const slug=type==='person'?profileSlug(value.handle):id;
+  if(!slug){
+   // Profiles without a valid public handle are not indexed under opaque IDs.
+   if(type==='person')console.warn('Skip SEO profile without a valid public username:',id);
+   continue;
+  }
+  if(seen.has(slug)|| (type==='person'&&slug!==id&&accountIds.has(slug))){
+   console.warn('Skip duplicated or colliding public username:',slug);
+   continue;
+  }
+  seen.add(slug);
+  const targetFolder=join(target,slug);
   mkdirSync(targetFolder,{recursive:true});
-  writeFileSync(join(targetFolder,'index.html'),page(type,id,value),'utf8');
-  urls.push(base+folder+'/'+encodeURIComponent(id)+'/');
+  writeFileSync(join(targetFolder,'index.html'),page(type,id,value,slug),'utf8');
+  urls.push(base+folder+'/'+encodeURIComponent(slug)+'/');
+  // Previously shared UUID URLs remain accessible but are not indexed.
+  if(type==='person'&&slug!==id&&!seen.has(id)){
+   const alias=join(target,id);
+   mkdirSync(alias,{recursive:true});
+   writeFileSync(join(alias,'index.html'),oldProfileRedirect(slug),'utf8');
+  }
  }
  return urls;
 }

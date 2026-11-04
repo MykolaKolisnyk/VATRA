@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase,onAuthStateChanged} from './vatra-backend.js?v=20261031-7';
+import {initializeApp,getAuth,getDatabase,onAuthStateChanged} from './vatra-backend.js?v=20261104-8';
 const client=getDatabase(initializeApp()).client,auth=getAuth(initializeApp());
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const catalog=[

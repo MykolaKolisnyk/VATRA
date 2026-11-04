@@ -4108,3 +4108,20 @@ dialog#developerDialog.vatra-developer-modern .developer-dialog-done{
 }
 
 dialog#developerDialog.vatra-developer-modern:not([open]){display:none!important}
+
+/* Opt-in login session: neutral, consistent VATRA UI. */
+.vatra-remember-row{margin:5px 0 14px;display:block;}
+.vatra-remember-row[hidden]{display:none!important}
+.vatra-remember-choice{display:flex;align-items:center;gap:12px;cursor:pointer;min-height:43px;padding:5px 2px;color:#2d425d}
+.vatra-remember-choice>input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.vatra-remember-box{display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px;border-radius:7px;border:1.5px solid #b9cbe0;background:#fff;color:transparent;box-sizing:border-box;transition:background .16s ease,border-color .16s ease}
+.vatra-remember-box svg{width:14px;height:14px}
+.vatra-remember-choice input:checked+.vatra-remember-box{background:#0757e8;border-color:#0757e8;color:#fff}
+.vatra-remember-choice input:focus-visible+.vatra-remember-box{outline:2px solid #7ea9ed;outline-offset:3px}
+.vatra-remember-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.vatra-remember-copy strong{font-size:13px;font-weight:670;color:#304b68}
+.vatra-remember-copy small{font-size:11px;line-height:1.35;color:#7689a2;font-weight:490}
+.captcha-wrap.captcha-modal:focus{outline:none!important;box-shadow:none!important}
+.captcha-wrap.captcha-modal .human-captcha-question{outline:0!important;box-shadow:none!important;border:0!important;background:transparent!important}
+.captcha-wrap.captcha-modal .human-captcha-option:focus:not(:focus-visible){outline:0!important;box-shadow:none!important}
+.captcha-wrap.captcha-modal .human-captcha-option:focus-visible{outline:2px solid #699be1!important;outline-offset:2px!important}

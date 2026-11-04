@@ -1,0 +1,144 @@
+/* VATRA cohesive UI: final shared tokens; narrow and safe overrides only */
+:root{
+ --vatra-ui-quiet:#536b85;--vatra-ui-quiet-icon:#7191ad;
+ --vatra-ui-hover-ink:#245a91;--vatra-ui-hover-bg:#eaf1fa;
+ --vatra-ui-border-soft:#dfe7f0;--vatra-ui-strong:#253d57;
+}
+/* Sidebar: no visual selected state. Accessiblity aria-current remains in markup. */
+html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]),
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:not([hidden]){
+ color:var(--vatra-ui-quiet)!important;background:transparent!important;background-image:none!important;
+ box-shadow:none!important;text-shadow:none!important;filter:none!important;
+ font:620 14px/1.4 "VATRA Onest",Inter,system-ui,sans-serif!important;
+ border:0!important;outline-offset:2px;opacity:1!important;
+ transform:none!important;
+ transition:background-color .19s ease,color .19s ease,transform .19s ease!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]),
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
+ background:transparent!important;color:var(--vatra-ui-quiet)!important;
+ font-weight:620!important;box-shadow:none!important;transform:none!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav :is(.nav-icon,.nav-icon svg),
+html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav :is(.nav-icon,.nav-icon svg),
+html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) :is(.nav-icon,.nav-icon svg){
+ color:var(--vatra-ui-quiet-icon)!important;stroke:var(--vatra-ui-quiet-icon)!important;
+ opacity:1!important;stroke-width:1.85!important;transform:none!important;
+}
+html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden])>span:not(.nav-icon){
+ color:inherit!important;font-weight:inherit!important;text-shadow:none!important;
+}
+@media(hover:hover){
+ html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]):hover,
+ html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:not([hidden]):hover{
+  color:var(--vatra-ui-hover-ink)!important;background:var(--vatra-ui-hover-bg)!important;
+  box-shadow:none!important;transform:translateX(2px)!important;
+ }
+ html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]):hover :is(.nav-icon,.nav-icon svg){
+  color:#326fa8!important;stroke:#326fa8!important;transform:none!important;
+ }
+}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav,
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
+ background:transparent!important;background-image:none!important;color:#b9cade!important;
+ font-weight:610!important;box-shadow:none!important;
+}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) :is(.nav-icon,.nav-icon svg){
+ color:#93adca!important;stroke:#93adca!important;
+}
+@media(hover:hover){
+ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
+ background:#293f57!important;color:#eff6ff!important;transform:translateX(2px)!important;
+ }
+}
+/* Moderately larger content, without edge-to-edge stretching. */
+@media(min-width:1200px){
+ html body .layout{max-width:1320px!important;width:min(1320px,calc(100% - 40px))!important;
+ grid-template-columns:190px minmax(0,1fr)!important;gap:21px!important;}
+ html body .layout>.main{min-width:0!important;max-width:none!important;}
+ html body .vatra-global-header .search{max-width:510px!important;}
+ html body .vatra-profile-layout{grid-template-columns:252px minmax(0,1fr)!important;gap:19px!important;}
+ html body .vatra-profile-main,html body .vatra-profile-sidebar{gap:16px!important;}
+}
+html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card){
+ border-radius:14px!important;border-color:var(--vatra-ui-border-soft)!important;
+}
+html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card) :is(h2,h3){
+ letter-spacing:-.01em!important;
+}
+html body .layout>.main :is(.vatra-profile-card-head h3,.vatra-profile-title-row h2,.vatra-friends-top h2){
+ color:var(--vatra-ui-strong)!important;font-weight:720!important;
+}
+/* Friends and Gifts: precisely identical look, hit-area, padding, and hover. */
+html body .vatra-profile-sidebar :is(.vatra-profile-friends,.vatra-gift-preview-card) :is(
+ button.vatra-profile-link,button.vatra-gift-preview-link.vatra-profile-link
+){
+ box-sizing:border-box!important;display:flex!important;align-items:center!important;justify-content:center!important;
+ min-height:39px!important;height:39px!important;width:100%!important;
+ margin:12px 0 0!important;padding:8px 12px!important;
+ border:1px solid #e5ecf4!important;border-radius:10px!important;
+ background:#f7faff!important;color:#3b648d!important;
+ font:650 12.5px/1.4 "VATRA Onest",Inter,system-ui,sans-serif!important;
+ text-align:center!important;letter-spacing:0!important;box-shadow:none!important;
+ transition:background-color .18s ease,border-color .18s ease,color .18s ease!important;
+}
+html body .vatra-profile-sidebar :is(.vatra-profile-friends,.vatra-gift-preview-card) :is(
+ button.vatra-profile-link,button.vatra-gift-preview-link.vatra-profile-link
+):hover{background:#eaf3ff!important;border-color:#d5e5f6!important;color:#1e5ca2!important;transform:none!important;}
+/* Clear, understated microcopy on every section, no faded 10px labels. */
+html body:not([data-vatra-theme-effective="dark"]) :is(
+ .sidebar-bottom small,.vatra-profile-friend-grid small,
+ .vatra-profile-card-head>b,.vatra-gift-preview-card .vatra-profile-card-head b,
+ .vatra-profile-detail-label,.vatra-friends-side small,
+ .settings-page .settings-grid label>small,.settings-page .field-hint,
+ .vatra-post-timestamp,.vatra-post-meta
+){color:#71869e!important;opacity:1!important;font-weight:500!important;}
+/* Database ID: readonly identifier, distinct from the public @handle. */
+html body .settings-page .vatra-editor-id-card{
+ display:flex;align-items:center;gap:14px;padding:16px 20px;margin:0 0 16px;
+ border:1px solid #dfe9f4;border-radius:14px;background:#f8fbff;
+}
+html body .settings-page .vatra-editor-id-icon{
+ display:grid;place-items:center;flex:none;width:39px;height:39px;border-radius:11px;
+ background:#e8f2ff;color:#2e72b6;
+}
+html body .settings-page .vatra-editor-id-icon svg{width:20px;height:20px}
+html body .settings-page .vatra-editor-id-copy{display:flex;flex-direction:column;min-width:0;flex:1;gap:4px}
+html body .settings-page .vatra-editor-id-copy b{color:#2b4560;font-size:13px;font-weight:680}
+html body .settings-page .vatra-editor-id-copy small{color:#7289a2;font-size:11px;line-height:1.5}
+html body .settings-page .vatra-editor-id-copy code{
+ color:#48617b;font:550 12px/1.5 ui-monospace,monospace;overflow-wrap:anywhere;
+}
+html body .settings-page .vatra-editor-id-button{
+ border:1px solid #d0e1f3;border-radius:10px;padding:10px 13px;background:#fff;
+ color:#315f91;font-weight:700;font-size:12px;cursor:pointer;flex:none;
+}
+html body .settings-page .vatra-editor-id-button:hover{background:#eaf3ff}
+/* Celebrations are visible on feed only when the birth date is shared. */
+html body .vatra-friend-birthday-banner{
+ padding:18px 20px;border:1px solid #dfebf5;border-radius:15px;background:#fff;
+ display:flex;flex-direction:column;gap:15px;margin-bottom:15px;
+}
+html body .vatra-friend-birthday-banner>header{display:flex;align-items:center;gap:12px}
+html body .vatra-birthday-icon{display:grid;place-items:center;background:#eef4ff;border-radius:12px;width:42px;height:42px;font-size:20px}
+html body .vatra-friend-birthday-banner>header>span:last-child{display:flex;flex-direction:column;gap:4px}
+html body .vatra-friend-birthday-banner>header b{color:#25425f;font-size:15px}
+html body .vatra-friend-birthday-banner>header small{color:#6f849b;font-size:11.5px}
+html body .vatra-friend-birthday-people{display:grid;gap:8px}
+html body .vatra-friend-birthday-person{display:flex;align-items:center;gap:11px;padding:11px 13px;background:#f6f9fd;border-radius:11px}
+html body .vatra-friend-birthday-person>.avatar{width:38px;height:38px;flex:none}
+html body .vatra-friend-birthday-person>span{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+html body .vatra-friend-birthday-person b{color:#2c4d6b;font-size:13px}
+html body .vatra-friend-birthday-person small{color:#788ea5;font-size:11px}
+html body .vatra-friend-birthday-person button{
+ min-height:34px;border:1px solid #d8e6f7;border-radius:9px;background:#fff;color:#225fa2;padding:7px 12px;
+ font-size:12px;font-weight:680;cursor:pointer;
+}
+html body .vatra-friend-birthday-person button:hover{background:#eaf3ff}
+html body .vatra-friend-birthday-person button:disabled{opacity:.6;cursor:default}
+@media(max-width:800px){
+ html body .settings-page .vatra-editor-id-card{flex-wrap:wrap;padding:14px}
+ html body .settings-page .vatra-editor-id-button{margin-left:53px}
+ html body .vatra-friend-birthday-person{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){html body .layout>.sidebar>nav>a.nav{transition:none!important;transform:none!important;}}
