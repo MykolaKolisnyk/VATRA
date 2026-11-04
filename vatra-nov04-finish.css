@@ -1,0 +1,54 @@
+
+/* ВАТРА · navigation, music, account state · 2026-11-04 */
+html body .layout>.sidebar>nav>a.nav {
+ color:#263b58!important;opacity:1!important;
+ transition:background-color .2s ease,color .2s ease,transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease!important;
+ border-radius:12px!important;position:relative!important;
+}
+html body .layout>.sidebar>nav>a.nav .nav-icon {color:#375879!important;transition:transform .2s ease,color .2s ease}
+html body .layout>.sidebar>nav>a.nav:hover {background:#edf4ff!important;color:#0757f5!important;transform:translateX(4px)!important;box-shadow:inset 3px 0 #4792ff!important}
+html body .layout>.sidebar>nav>a.nav:hover .nav-icon {color:#0757f5!important;transform:scale(1.08)}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) {background:#e7f0ff!important;color:#0757f5!important;font-weight:750!important;box-shadow:inset 3px 0 #0757f5!important}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav{color:#e3edfa!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav .nav-icon{color:#bdd5f5!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover,
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){background:#1c365b!important;color:#fff!important}
+.vatra-top-music-panel[hidden],.vatra-account-check-screen[hidden]{display:none!important}
+.vatra-top-music-panel{position:fixed;z-index:2000;width:min(340px,calc(100vw - 24px));padding:16px;background:#fff;border:1px solid #dce6f6;border-radius:18px;box-shadow:0 18px 50px #1e3e752e;color:#1c3455;font-family:"VATRA Onest",Inter,system-ui,sans-serif}
+.vatra-top-music-panel .vatra-menu-heading{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.vatra-top-music-panel .vatra-menu-mark{display:grid;place-items:center;flex:none;width:42px;height:42px;color:#0757f5;background:#eaf2ff;border-radius:13px}
+.vatra-top-music-panel .vatra-menu-mark svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8}
+.vatra-top-music-panel strong{display:block;font-size:15px;font-weight:780}
+.vatra-top-music-panel small{display:block;margin-top:2px;color:#657d9e;font-size:12px}
+.vatra-top-music-panel .vatra-menu-current{background:#f5f8ff;border:1px solid #e5edfa;border-radius:12px;padding:12px;margin-bottom:12px}
+.vatra-top-music-panel .vatra-menu-current b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.vatra-top-music-panel .vatra-menu-current p{margin:4px 0 0;color:#6d819c;font-size:12px}
+.vatra-top-music-panel .vatra-menu-actions{display:flex;gap:8px}
+.vatra-top-music-panel button{font:650 12px "VATRA Onest",Inter,sans-serif;cursor:pointer;border-radius:10px;padding:11px 12px}
+.vatra-top-music-panel [data-vatra-music-open]{flex:1;border:0;color:white;background:#0757f5}
+.vatra-top-music-panel [data-vatra-music-player]{border:1px solid #d8e5f5;color:#0757f5;background:#fff}
+.vatra-top-music-panel [data-vatra-music-player]:disabled{opacity:.5;cursor:not-allowed}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-panel{background:#20324a;color:#f5f8ff;border-color:#415675}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-panel .vatra-menu-current{background:#293c56;border-color:#415675}
+body .vatra-music-page{gap:20px!important}
+body .vatra-music-banner{border-radius:22px!important;background:linear-gradient(120deg,#063ea9,#0757f5 60%,#328cff)!important;min-height:190px!important;padding:28px!important}
+body .vatra-music-card{border-radius:17px!important;border-color:#e3eaf6!important;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}
+body .vatra-music-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px #164b9a1a!important;border-color:#a8c7ff!important}
+body .vatra-music-card-image{border-radius:13px!important}
+body .vatra-music-tabs button{transition:background-color .2s ease,color .2s ease,transform .2s ease!important}
+body .vatra-music-tabs button:hover{transform:translateY(-1px)}
+body .vatra-suspended-own-screen{z-index:5000!important}
+.vatra-account-check-screen{position:fixed;inset:0;z-index:4999;display:grid;place-items:center;background:#f5f8fd;color:#273f60;padding:20px;font-family:"VATRA Onest",Inter,system-ui,sans-serif}
+.vatra-account-check-screen>div{text-align:center;width:min(360px,100%);padding:28px 23px;background:white;border:1px solid #e0eafa;border-radius:20px;box-shadow:0 20px 55px #173e7920}
+.vatra-account-check-screen .vatra-check-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 auto 15px;border-radius:15px;background:#e8f0ff;color:#0757f5;font-size:24px;font-weight:800}
+.vatra-account-check-screen h2{margin:0 0 6px;font-size:18px}
+.vatra-account-check-screen p{color:#627a9c;font-size:13px;line-height:1.5}
+.vatra-account-check-screen button{border:0;border-radius:10px;background:#0757f5;color:white;padding:10px 18px;cursor:pointer;font-weight:650}
+body .vatra-suspended-page:not(.vatra-suspended-pending){border-radius:18px!important;box-shadow:0 16px 45px #27466b13!important}
+body .vatra-suspended-page .vatra-suspended-profile-head{background:linear-gradient(120deg,#f4f8ff,#fff)!important}
+body .vatra-suspended-page .vatra-suspended-notice{border-radius:13px!important;border:1px solid #d9e4f5!important;background:#f6f9ff!important}
+body .vatra-suspended-page .vatra-suspended-details{border-radius:12px!important}
+body .vatra-suspended-page .vatra-suspended-actions button{border-radius:10px!important}
+@media(max-width:640px){body .vatra-music-banner{padding:20px!important;min-height:150px!important}html body .layout>.sidebar>nav>a.nav:hover{transform:none!important}}
+@media(prefers-reduced-motion:reduce){html body .layout>.sidebar>nav>a.nav,html body .layout>.sidebar>nav>a.nav .nav-icon,body .vatra-music-card{transition:none!important}html body .layout>.sidebar>nav>a.nav:hover,body .vatra-music-card:hover{transform:none!important}}
