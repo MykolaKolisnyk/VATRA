@@ -14,7 +14,7 @@ const env = {
  VATRA_SMS_TWILIO_MESSAGE_SERVICE_SID:'MG012345678901234567890123456789'
 };
 const payload=makeAuthPayload(env);
-assert.equal(payload.smtp_sender_name,'ВАТРА');
+assert.equal(payload.smtp_sender_name,'VATRA');
 assert.equal(payload.smtp_admin_email,env.VATRA_EMAIL_FROM);
 assert.equal(payload.sms_provider,'twilio');
 assert.equal(payload.sms_autoconfirm,false);
@@ -25,6 +25,11 @@ assert.ok(payload.mailer_templates_confirmation_content.includes('{{ .Token }}')
 assert.ok(payload.mailer_templates_magic_link_content.includes('{{ .Token }}'));
 assert.ok(payload.mailer_templates_recovery_content.includes('{{ .Token }}'));
 assert.ok(payload.sms_template.includes('{{ .Code }}'));
+assert.equal(payload.mailer_subjects_confirmation,'VATRA — Verify your email');
+assert.equal(payload.mailer_subjects_magic_link,'VATRA — Verification code');
+assert.equal(payload.mailer_subjects_recovery,'VATRA — Reset your password');
+assert.ok(payload.mailer_templates_confirmation_content.includes('.Data.preferredLanguage'),'Localized email templates must be configured for all auth flows');
+
 assert.ok(!Object.hasOwn(payload,'uri_allow_list'),'Never replace existing redirect URLs.');
 for(const forbidden of ['smtp_password','smtp_secret','smtp_auth_token'])assert.ok(!Object.hasOwn(payload,forbidden));
 const sanitized=JSON.stringify(deliverySummary(payload));
@@ -84,7 +89,7 @@ const gmailEnv={
  VATRA_SMTP_PASSWORD:'mock-google-app-password'
 };
 const gmailPayload=makeAuthPayload(gmailEnv);
-assert.equal(gmailPayload.smtp_sender_name,'ВАТРА');
+assert.equal(gmailPayload.smtp_sender_name,'VATRA');
 assert.equal(gmailPayload.smtp_admin_email,'vatra.test@gmail.com');
 assert.equal(gmailPayload.external_email_enabled,true);
 assert.ok(!Object.hasOwn(gmailPayload,'external_phone_enabled'),'Email-only must not enable SMS');
