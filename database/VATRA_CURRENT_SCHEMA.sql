@@ -3410,4 +3410,54 @@ INSERT INTO public.vatra_gift_catalog (code,title,category,enabled,event_month,e
 INSERT INTO public.vatra_gift_catalog (code,title,category,enabled,event_month,event_day,sort_order,price_uah) VALUES ('welcome', 'Перша іскра ВАТРИ', 'holiday', TRUE, NULL, NULL, 1, 0);
 INSERT INTO public.vatra_gift_catalog (code,title,category,enabled,event_month,event_day,sort_order,price_uah) VALUES ('zsu_tribute', 'Сила ЗСУ', 'premium', TRUE, NULL, NULL, 210, 0);
 
+
+-- Публічні списки видимих профілів і спільнот для SEO; без приватних даних.
+CREATE OR REPLACE FUNCTION public.vatra_seo_visible_community_ids()
+ RETURNS TABLE(group_id text)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+  SELECT substring(g.path FROM 8) AS group_id
+  FROM public.app_data AS g
+  JOIN auth.users AS u
+    ON u.id::text = g.value->>'ownerUid'
+  LEFT JOIN public.vatra_account_lifecycle AS lifecycle
+    ON lifecycle.user_id = u.id
+  WHERE g.path ~ '^groups/[A-Za-z0-9_-]{6,128}
+
+    AND jsonb_typeof(g.value) = 'object'
+    AND nullif(btrim(g.value->>'name'), '') IS NOT NULL
+    AND coalesce(g.value->>'visibility', 'public') = 'public'
+    AND coalesce(g.value->>'isDeleted', 'false') <> 'true'
+    AND coalesce(g.value->>'deleted', 'false') <> 'true'
+    AND (g.value->>'deletedAt') IS NULL
+    AND lifecycle.delete_after IS NULL;
+$function$
+REVOKE ALL ON FUNCTION public.vatra_seo_visible_community_ids() FROM PUBLIC, authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.vatra_seo_visible_community_ids() TO anon;
+CREATE OR REPLACE FUNCTION public.vatra_seo_visible_profile_ids()
+ RETURNS TABLE(uid uuid)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+  SELECT u.id
+  FROM auth.users AS u
+  JOIN public.profiles AS p ON p.id = u.id
+  JOIN public.app_data AS a ON a.path = 'publicProfiles/' || u.id::text
+  LEFT JOIN public.vatra_account_lifecycle AS lifecycle ON lifecycle.user_id = u.id
+  WHERE lifecycle.delete_after IS NULL
+    AND jsonb_typeof(a.value) = 'object'
+    AND nullif(btrim(a.value->>'name'), '') IS NOT NULL
+    AND coalesce(a.value->>'profileVisibility', 'public') = 'public'
+    AND coalesce(a.value->>'searchable', 'true') = 'true'
+    AND coalesce(a.value->>'isDeleted', 'false') <> 'true'
+    AND coalesce(a.value->>'deleted', 'false') <> 'true'
+    AND (a.value->>'deletedAt') IS NULL
+    AND coalesce(a.value->>'status', '') <> 'deleted';
+$function$
+REVOKE ALL ON FUNCTION public.vatra_seo_visible_profile_ids() FROM PUBLIC, authenticated, anon;
+GRANT EXECUTE ON FUNCTION public.vatra_seo_visible_profile_ids() TO anon;
+
 COMMIT;
