@@ -94,3 +94,19 @@ html body .vatra-birthday-notification>button{border-radius:9px!important}
  html body .vatra-notify-group-heading{padding:14px 0 11px!important}
  html body .vatra-notify-copy>small{font-size:11px!important}
 }
+
+/* Matching notification surfaces in the dark palette. */
+html body[data-vatra-theme-effective="dark"] .vatra-notify-group,
+html body[data-vatra-theme-effective="dark"] .vatra-notification-rail{background:#23354b!important;border-color:#3b526b!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notify-group-heading,
+html body[data-vatra-theme-effective="dark"] .vatra-notify-setting,
+html body[data-vatra-theme-effective="dark"] .vatra-notifications-layout .notification-item{border-color:#3d5167!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notify-group-symbol{background:#2a4b73!important;color:#add1ff!important}
+html body[data-vatra-theme-effective="dark"] :is(.vatra-notify-group-heading b,.vatra-notify-copy>b,.vatra-notification-rail h3,.vatra-notifications-layout .notification-copy>b){color:#e9f2ff!important}
+html body[data-vatra-theme-effective="dark"] :is(.vatra-notify-group-heading small,.vatra-notify-copy>small,.vatra-notifications-layout .notification-copy>small){color:#b4c7dc!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notifications-layout .notification-item{background:#22344a!important;color:#dbe8f7!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notifications-layout .notification-item:hover,
+html body[data-vatra-theme-effective="dark"] .vatra-notify-setting:hover{background:#2b4260!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notifications-layout .notification-item.is-unread{background:#27466b!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notification-rail nav button{color:#c8d9ed!important}
+html body[data-vatra-theme-effective="dark"] .vatra-notification-rail nav button:is(.is-active,:hover){background:#2a4b74!important;color:#eaf4ff!important}
