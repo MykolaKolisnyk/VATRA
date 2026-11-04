@@ -741,7 +741,7 @@ function vatraOpenStoryViewer(firstId){
   dlg.querySelector('[data-story-close]').onclick=close;
   dlg.querySelector('[data-story-previous]').onclick=()=>{if(current>0){current--;draw();}};
   dlg.querySelector('[data-story-next]').onclick=()=>{if(current<items.length-1){current++;draw();}};
-  dlg.querySelector('[data-story-profile]').onclick=()=>{close();showUserProfile(story.authorUid);};
+  dlg.querySelector('[data-story-profile]').onclick=()=>{close();if(story.authorUid===currentUser?.uid){activeProfileUid=null;goPage('profile');}else renderPublicProfile(story.authorUid);};
   dlg.querySelector('[data-story-delete]')?.addEventListener('click',async()=>{
    if(!(await askConfirm('Видалити цю історію?')))return;
    try{await remove(ref(db,'posts/'+story.id));close();renderFeed();toastMsg('Історію видалено.');}
