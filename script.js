@@ -4234,13 +4234,6 @@ async function openPhotoEditor(file,target){
    currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;
    await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
    updateIdentity();render();toastMsg('Фото сторінки збережено.');
-  }else if(target==='cover'){
-   toastMsg('Зберігаємо обкладинку…');
-   const coverUrl=await uploadImage(edited,1600,.9,'covers');
-   await update(ref(db,'users/'+currentUser.uid),{coverUrl});
-   currentProfile.coverUrl=coverUrl;
-   await set(ref(db,'publicProfiles/'+currentUser.uid),publicProfileData(currentProfile));
-   render();toastMsg('Обкладинку збережено.');
   }
  }catch(error){toastMsg(error?.message||niceError(error));}
 }
