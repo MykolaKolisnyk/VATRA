@@ -3487,7 +3487,7 @@ async function vatraClipCompressWithProgress(file){
 async function uploadVideo(e){
  const file=e.target.files?.[0];if(!file)return;
  if(!authRequired()){e.target.value='';return;}
- if(!file.type.startsWith('video/')&&!/\\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name)){toastMsg('Оберіть відеофайл для кліпу.');e.target.value='';return;}
+ if(!file.type.startsWith('video/')&&!/\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name)){toastMsg('Оберіть відеофайл для кліпу.');e.target.value='';return;}
  if(file.size>300*1024*1024){toastMsg('Файл завеликий для обробки у браузері (максимум 300 МБ).');e.target.value='';return;}
  try{
   const meta=await vatraClipMetadata(file);
