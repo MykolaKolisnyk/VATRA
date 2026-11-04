@@ -1,14 +1,175 @@
 <!doctype html>
-<html lang="uk"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ВАТРА — сторінку не знайдено</title>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f5f7fb;color:#263750;font:16px system-ui,sans-serif}main{text-align:center;padding:28px}a{color:#0757f5}</style>
-<script>
-(function(){
- const old='/VATRA/VATRA/',current='/VATRA/';
- const path=location.pathname;
- if(!path.startsWith(old))return;
- const rest=path.slice(old.length);
- if(!/^(?:|index\.html|auth\.html|register\.html|(?:people|communities)\/[A-Za-z0-9_-]{6,128}\/(?:index\.html)?|lang\/(?:uk|en|pl|de|fr|es|pt|it)\/(?:index\.html)?)$/.test(rest))return;
- const next=rest==='index.html'?'':rest;
- location.replace(current+next+location.search+location.hash);
-})();
-</script></head><body><main><h1>Сторінку не знайдено</h1><p>Поверніться до соціальної мережі ВАТРА.</p><a href="/VATRA/">На головну</a></main></body></html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f9fd">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Сторінку не знайдено · ВАТРА</title>
+  <meta name="description" content="Цю сторінку ВАТРИ не знайдено. Поверніться до спілкування, дописів та спільнот.">
+  <script>
+    (function () {
+      var old = '/VATRA/VATRA/';
+      var current = '/VATRA/';
+      var path = location.pathname;
+      if (path.startsWith(old)) {
+        var rest = path.slice(old.length);
+        if (/^(?:|index\.html|auth\.html|register\.html|(?:people|communities)\/[A-Za-z0-9_-]{6,128}\/(?:index\.html)?|lang\/(?:uk|en|pl|de|fr|es|pt|it)\/(?:index\.html)?)$/.test(rest)) {
+          location.replace(current + (rest === 'index.html' ? '' : rest) + location.search + location.hash);
+          return;
+        }
+      }
+      if (location.protocol !== 'file:') {
+        var base = document.createElement('base');
+        base.href = '/VATRA/';
+        document.head.appendChild(base);
+      }
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="stylesheet" href="vatra-local-fonts.css?v=20261103-1">
+  <style>
+    :root{color-scheme:light;--blue:#0757f5;--blue-dark:#004acf;--ink:#172b47;--muted:#64758f;--line:#e3eaf5;--bg:#f6f8fd}
+    *{box-sizing:border-box}
+    html{min-width:320px}
+    body{margin:0;min-height:100svh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font-family:"VATRA Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+    a{text-decoration:none}
+    .site-header{width:min(1176px,calc(100% - 64px));margin:auto;display:flex;align-items:center;justify-content:space-between;min-height:106px;gap:24px}
+    .site-brand{display:inline-flex;align-items:center;gap:13px;min-height:45px}
+    .site-brand img{width:161px;height:auto;display:block}
+    .header-label{display:inline-flex;gap:9px;align-items:center;font-size:12px;font-weight:650;letter-spacing:.01em;color:#677a93}
+    .header-label::before{content:"";width:8px;height:8px;background:#0757f5;box-shadow:0 0 0 4px #e1ebff;border-radius:50%}
+    .notfound-wrap{flex:1;display:grid;place-items:center;width:100%;padding:30px 32px 72px}
+    .notfound-content{width:min(1110px,100%);display:grid;grid-template-columns:minmax(0,1.08fr) minmax(350px,.92fr);align-items:center;gap:clamp(35px,6vw,102px)}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;background:#e8efff;border:1px solid #d8e5ff;border-radius:99px;padding:9px 14px;color:#0752dc;font-size:11px;font-weight:750;letter-spacing:.09em;text-transform:uppercase}
+    .eyebrow svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    h1{font-size:clamp(40px,5.3vw,65px);line-height:1.09;letter-spacing:-.056em;font-weight:780;margin:24px 0 22px;max-width:710px}
+    h1 span{color:var(--blue)}
+    .lead{max-width:460px;font-size:16px;line-height:1.78;color:#687994;margin:0}
+    .actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:34px}
+    .action{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:48px;padding:0 21px;font-size:14px;line-height:1.3;font-weight:700;border:1px solid transparent;border-radius:12px;transition:background .18s ease,box-shadow .18s ease,transform .18s ease}
+    .action svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .action-primary{background:var(--blue);color:white;box-shadow:0 10px 22px rgba(7,87,245,.16)}
+    .action-primary:hover{background:var(--blue-dark);box-shadow:0 13px 25px rgba(7,87,245,.23);transform:translateY(-1px)}
+    .action-secondary{background:#fff;color:#2c4260;border-color:#dce5f0}
+    .action-secondary:hover{border-color:#baccea;background:#fafeff}
+    a:focus-visible{outline:3px solid rgba(7,87,245,.35);outline-offset:4px}
+    .help-note{display:flex;align-items:flex-start;gap:9px;max-width:480px;margin:27px 0 0;color:#8a97ab;font-size:12px;line-height:1.6}
+    .help-note svg{flex:none;width:16px;height:16px;stroke:#9baac0;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+    .illustration{position:relative;isolation:isolate;padding:24px 0 24px 22px}
+    .illustration::before{content:"";position:absolute;z-index:-1;inset:3% 0 0 8%;border-radius:50%;background:radial-gradient(circle at 56% 45%,#dfeaff 0,#e9f0fc 42%,transparent 72%);filter:blur(10px)}
+    .illustration-window{position:relative;overflow:hidden;border-radius:25px;background:#fff;border:1px solid #e2eaf5;box-shadow:0 30px 85px rgba(29,56,103,.09),0 7px 24px rgba(29,56,103,.035);min-height:338px;transform:rotate(-2deg)}
+    .window-top{display:flex;align-items:center;gap:7px;height:48px;padding:0 22px;border-bottom:1px solid #edf1f7}
+    .window-dot{width:7px;height:7px;background:#d4dfec;border-radius:50%}
+    .window-top .fake-url{margin-left:20px;width:115px;height:8px;background:#f0f3f8;border-radius:9px}
+    .window-body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px 30px;text-align:center}
+    .window-symbol{display:grid;place-items:center;width:64px;height:64px;background:#eaf1ff;border:1px solid #e0eaff;border-radius:21px;transform:rotate(8deg)}
+    .window-symbol img{width:39px;height:39px;transform:rotate(-8deg)}
+    .error-number{font-size:clamp(85px,10vw,128px);font-weight:820;letter-spacing:-.09em;line-height:1.05;color:#0757f5;margin:4px 0 0;padding-right:10px}
+    .fake-line{height:9px;width:192px;border-radius:9px;background:#e9eef7;margin-top:12px}
+    .fake-line.short{width:124px;margin-top:10px;background:#f0f3f8}
+    .floating-badge{position:absolute;bottom:4px;left:-10px;display:flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid #e2eaf5;border-radius:15px;background:#fff;box-shadow:0 14px 35px rgba(29,56,103,.10);font-size:12px;font-weight:650;color:#4f6583}
+    .floating-badge span{display:grid;place-items:center;width:29px;height:29px;border-radius:10px;background:#ebf3ff;color:#0757f5}
+    .floating-badge svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .site-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;width:min(1176px,calc(100% - 64px));min-height:64px;margin:auto;border-top:1px solid #e7edf6;color:#8b99ac;font-size:12px}
+    .footer-brand{font-weight:700;letter-spacing:.06em;color:#627995}
+    @media(max-width:790px){
+      .site-header{min-height:80px;width:calc(100% - 40px)}
+      .site-brand img{width:138px}
+      .header-label{font-size:11px}
+      .notfound-wrap{padding:28px 24px 58px}
+      .notfound-content{grid-template-columns:minmax(0,1fr);gap:20px}
+      .copy{text-align:center}
+      .eyebrow{margin:auto}
+      .lead{margin-left:auto;margin-right:auto}
+      .actions{justify-content:center}
+      .help-note{justify-content:center;margin-left:auto;margin-right:auto;text-align:left}
+      .illustration{width:min(430px,100%);margin:auto;padding:10px 20px 24px}
+      .illustration-window{min-height:280px}
+      .window-body{padding:14px 18px 25px}
+      .window-symbol{width:54px;height:54px}
+      .window-symbol img{width:32px;height:32px}
+      .error-number{font-size:95px}
+    }
+    @media(max-width:480px){
+      .site-header{width:calc(100% - 36px);min-height:72px}
+      .site-brand img{width:124px}
+      .header-label{display:none}
+      .notfound-wrap{padding:22px 18px 45px}
+      h1{font-size:39px;margin:20px auto 16px}
+      .lead{font-size:14px;line-height:1.7}
+      .actions{gap:9px;margin-top:26px}
+      .action{flex:1;min-width:140px;padding:0 13px;font-size:13px}
+      .illustration{padding:12px 16px 24px;margin-top:10px}
+      .illustration-window{min-height:244px;border-radius:20px}
+      .window-top{height:38px}
+      .window-body{padding:12px 10px 19px}
+      .window-symbol{width:48px;height:48px;border-radius:15px}
+      .window-symbol img{width:29px;height:29px}
+      .error-number{font-size:84px}
+      .fake-line{margin-top:5px}
+      .floating-badge{left:0;bottom:5px;padding:9px 11px}
+      .site-footer{width:calc(100% - 36px);font-size:11px;min-height:60px}
+    }
+    @media(prefers-reduced-motion:reduce){.action{transition:none}.action-primary:hover{transform:none}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-brand" href="index.html" aria-label="ВАТРА — головна">
+    <img src="vatra-header.svg" alt="ВАТРА" width="161" height="28">
+  </a>
+  <span class="header-label">Українська соціальна мережа</span>
+</header>
+<main class="notfound-wrap">
+  <div class="notfound-content">
+    <section class="copy" aria-labelledby="notfound-title">
+      <span class="eyebrow">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 4h.01"/></svg>
+        Помилка 404
+      </span>
+      <h1 id="notfound-title">Сторінку <span>не знайдено</span></h1>
+      <p class="lead">Схоже, це посилання більше не працює. Можливо, сторінку видалено, зроблено приватною або адресу змінено.</p>
+      <div class="actions">
+        <a class="action action-primary" href="index.html">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/></svg>
+          На головну
+        </a>
+        <a class="action action-secondary" href="auth.html">
+          Увійти до ВАТРИ
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        </a>
+      </div>
+      <p class="help-note">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>
+        Перевірте адресу або поверніться до ВАТРИ, щоб знайти потрібну сторінку.
+      </p>
+    </section>
+    <div class="illustration" aria-hidden="true">
+      <div class="illustration-window">
+        <div class="window-top">
+          <span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span>
+          <span class="fake-url"></span>
+        </div>
+        <div class="window-body">
+          <div class="window-symbol"><img src="favicon.svg" alt=""></div>
+          <div class="error-number">404</div>
+          <div class="fake-line"></div>
+          <div class="fake-line short"></div>
+        </div>
+      </div>
+      <div class="floating-badge">
+        <span><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg></span>
+        Продовжуймо спілкування
+      </div>
+    </div>
+  </div>
+</main>
+<footer class="site-footer">
+  <span class="footer-brand">ВАТРА</span>
+  <span>Твій простір для спілкування</span>
+</footer>
+</body>
+</html>
