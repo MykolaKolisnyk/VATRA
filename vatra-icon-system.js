@@ -62,6 +62,12 @@
  "leaf": "<path d=\"M20 4C10 5 4 7 4 15c0 4 4 6 7 4 7-4 7-10 9-15ZM6 20c2-6 5-9 11-12\"/>",
  "mute": "<path d=\"M3 9h4l5-4v14l-5-4H3V9ZM16 9l5 6m0-6-5 6\"/>"
 };
+ const ALIASES=Object.freeze({
+  notifications:'bell',appearance:'sun',contacts:'message',name:'profile',url:'website',
+  life:'leaf',service:'shield',interests:'star',account:'privacy',documents:'document',
+  head:'support',back:'arrow-left',track:'music',library:'playlist',news:'home',
+  comments:'message',favorite:'heart',gifts:'gift',searchable:'search',videoClip:'clips'
+ });
  const allowed=Object.freeze(Object.keys(GLYPHS));
  function mount(){
   if(document.getElementById('vatra-icon-sprite')||!document.body)return;
@@ -75,7 +81,8 @@
   document.body.prepend(holder);
  }
  window.vatraIcon=(name,className='')=>{
-  const key=Object.prototype.hasOwnProperty.call(GLYPHS,name)?name:'info';
+  const resolved=Object.prototype.hasOwnProperty.call(GLYPHS,name)?name:ALIASES[name];
+  const key=resolved&&Object.prototype.hasOwnProperty.call(GLYPHS,resolved)?resolved:'info';
   const extra=String(className).replace(/[^\w\s-]/g,'').trim();
   return '<svg class="vatra-icon'+(extra?' '+extra:'')+'" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor"><use href="#vatra-i-'+key+'"></use></svg>';
  };
