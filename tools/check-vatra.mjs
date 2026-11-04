@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 
 const root='VATRA';
 const files=readdirSync(root).filter(x=>x.endsWith('.js'));
+assert.ok(!readdirSync(root).some(x=>/\.(?:sql|md|zip)$/i.test(x)), 'SQL, guides and archives must stay outside the deployed VATRA directory');
 let passed=0;
 for(const filename of files){
  const source=readFileSync(join(root,filename),'utf8');
@@ -18,12 +19,12 @@ for(const filename of files){
 const main=readFileSync('VATRA/index.html','utf8');
 const scriptText=readFileSync('VATRA/script.js','utf8');
 const giftText=readFileSync('VATRA/vatra-gifts.js','utf8');
-const sql=readFileSync('VATRA/vatra-gifts.sql','utf8');
+const sql=readFileSync('database/reference/gifts/vatra-gifts.sql','utf8');
 const styling=readFileSync('VATRA/vatra-interface-fixes.css','utf8');
 for(const [label,test] of [
  ['Gifts not in sidebar',!/class="nav" data-page="gifts"/.test(main)],
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
- ['Manual gift orders',readFileSync('VATRA/vatra-gifts-orders.sql','utf8').includes('vatra_gifts_place_order')],
+ ['Manual gift orders',readFileSync('database/reference/gifts/vatra-gifts-orders.sql','utf8').includes('vatra_gifts_place_order')],
  ['Gifts module',/src="vatra-gifts\.js\?v=[^"]+"/.test(main)],
  ['Gifts stylesheet',/href="vatra-gifts\.css\?v=[^"]+"/.test(main)],
  ['Gifts page handling',scriptText.includes("if(page==='gifts'){")],
@@ -44,8 +45,8 @@ console.log('VATRA check passed: '+passed+' JavaScript modules and navigation/gi
 
 // Gift presentation and cancellation regressions
 const giftCss=readFileSync('VATRA/vatra-gifts.css','utf8');
-const ordersSql=readFileSync('VATRA/vatra-gifts-order-cancellation.sql','utf8');
-const giftCatalogSql=readFileSync('VATRA/vatra-gifts-collection-update.sql','utf8');
+const ordersSql=readFileSync('database/reference/gifts/vatra-gifts-order-cancellation.sql','utf8');
+const giftCatalogSql=readFileSync('database/reference/gifts/vatra-gifts-collection-update.sql','utf8');
 assert.ok(!/\b(?:alert|confirm)\s*\(/.test(giftText),'Browser alert/confirm reintroduced');
 assert.ok(giftText.includes('giftConfirm(')&&giftText.includes('giftToast('),'Custom gift dialogs missing');
 assert.ok(giftText.includes('vatra-profile-link vatra-gift-preview-link'),'Friends and gifts must share button class');
@@ -164,7 +165,7 @@ assert.ok(!editorCss.includes('.vatra-editor-cover'),'Profile editor must not re
 
 // November 3 latest: editor navigation and Latin @handle.
 const latinAuth=readFileSync('VATRA/auth.js','utf8');
-const latinSQL=readFileSync('VATRA/vatra-latin-handles-2026-11-03.sql','utf8');
+const latinSQL=readFileSync('database/reference/accounts/vatra-latin-handles-2026-11-03.sql','utf8');
 const unifiedLayout=readFileSync('VATRA/vatra-layout-cleanup.css','utf8');
 assert.ok(!main.includes('<aside class="sidebar"><a class="brand"'),'The desktop sidebar must not repeat the topbar logo');
 assert.ok(main.includes('vatra-layout-cleanup.css'),'Shared editor/settings and photo-date CSS is not linked');
