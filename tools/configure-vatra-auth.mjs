@@ -33,7 +33,8 @@ export function makeAuthPayload(env = process.env) {
  if (!['twilio','vonage','messagebird'].includes(provider)) fail('SMS-провайдер: twilio, vonage або messagebird.');
  const payload = {
   site_url: SITE_URL,
-  uri_allow_list: SITE_URL + 'auth.html,' + SITE_URL + 'auth.html?mode=new-password,' + SITE_URL + 'register.html',
+  // Do not overwrite existing allowed redirect URLs. Admins may have other apps.
+  // Verify auth.html?mode=new-password in the dashboard before live activation.
   external_email_enabled: true,
   mailer_autoconfirm: false,
   mailer_secure_email_change_enabled: true,
