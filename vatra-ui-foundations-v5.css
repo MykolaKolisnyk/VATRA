@@ -142,3 +142,26 @@ html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group
 html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field):has(input:focus-visible){
  box-shadow:0 0 0 2px rgba(37,100,190,.12)!important
 }
+
+/* Dark theme keeps the same readable hierarchy without light-mode ink leakage. */
+html body[data-vatra-theme-effective="dark"]{
+ --vatra-ui-ink:#dce8f6;--vatra-ui-strong:#f4f8ff;
+ --vatra-ui-muted:#a5bad2;--vatra-ui-secondary:#bfd0e5;
+ --vatra-ui-border:#3b536e;--vatra-ui-field-border:#4a607a;
+ --vatra-ui-hover:#263c57;--vatra-ui-active:#254970;
+ --vatra-ui-surface:#202f43;color:#dce8f6!important;
+}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:not([hidden]){color:#d2e1f2!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav .nav-icon{color:#9eb6d3!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover{background:#2d4561!important;color:#f4f8ff!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){background:#244e83!important;color:#e9f4ff!important}
+html body[data-vatra-theme-effective="dark"] :is(.post .author b,.post .author-link,.vatra-friends-row b,.vatra-search-person-name,.vatra-search-group-name,.vatra-profile-card-head h3,.settings-card h3){
+ color:#edf4ff!important
+}
+html body[data-vatra-theme-effective="dark"] :is(.post .author small,.vatra-friends-row small,.post .muted,.settings-card .muted,.vatra-profile-label,.vatra-profile-detail-label,.vatra-notifications-layout small){color:#a5bad2!important}
+html body[data-vatra-theme-effective="dark"] :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){color:#d3e1f1!important}
+html body[data-vatra-theme-effective="dark"] :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search):focus-within{background:#293e56!important;border-color:#659ad3!important}
+html body[data-vatra-theme-effective="dark"] :is(input,textarea)::placeholder{color:#a9bfd5!important}
+html body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button:not([hidden]){color:#cbdbee!important}
+html body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button:not([hidden]):hover{color:#f0f6ff!important;background:#2b4561!important}
+html body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button.active{background:#244e83!important;color:#f0f6ff!important}
