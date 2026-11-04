@@ -1,0 +1,52 @@
+
+/* VATRA Clips: full-height swipe feed, independent of Videos from profile posts. */
+body .vatra-clips-page{max-width:760px!important;margin:auto!important;min-width:0}
+body .vatra-clips-header{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:17px 20px!important;border:1px solid #e1e9f4;border-radius:15px;background:#fff;margin-bottom:14px!important}
+body .vatra-clips-header h2{font-size:22px!important;margin:0 0 6px!important;color:#213c61}
+body .vatra-clips-header p{font-size:12px!important;line-height:1.6!important;margin:0!important;color:#7087a5;max-width:480px}
+body .vatra-clips-header .primary{white-space:nowrap;min-height:42px;padding:9px 15px;border-radius:10px}
+body .vatra-clips-feed{display:grid!important;justify-items:center!important;align-content:start!important;gap:12px!important;height:calc(100dvh - 238px)!important;min-height:340px!important;padding:0 0 8px!important;overflow-y:auto!important;overflow-x:hidden!important;scroll-snap-type:y mandatory!important;scroll-behavior:smooth!important;overscroll-behavior:contain!important;scrollbar-width:none!important}
+body .vatra-clips-feed::-webkit-scrollbar{display:none}
+body .vatra-clips-feed .vatra-clip{position:relative!important;display:block!important;box-sizing:border-box!important;width:min(440px,calc(100% - 16px))!important;height:calc(100dvh - 250px)!important;min-height:335px!important;max-height:740px!important;margin:0 auto!important;padding:0!important;overflow:hidden!important;border:1px solid #254063!important;border-radius:16px!important;background:#0b1424!important;scroll-snap-align:start!important;scroll-snap-stop:always!important;box-shadow:0 13px 35px #12345b2b!important}
+body .vatra-clips-feed .vatra-clip-frame{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important}
+body .vatra-clips-feed .vatra-clip-media{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;background:#0a1525!important}
+body .vatra-clip-top-label{position:absolute;z-index:4;top:13px;left:15px;right:15px;display:flex;justify-content:space-between;gap:10px;pointer-events:none;color:#fff;text-shadow:0 2px 8px #0008;font-size:11px;font-weight:750}
+body .vatra-clip-top-label span:last-child{padding:5px 8px;border:1px solid #ffffff36;border-radius:9px;background:#102a48b0}
+body .vatra-clip-rail{position:absolute;z-index:5;top:48%;right:10px;display:flex;flex-direction:column;gap:10px;transform:translateY(-50%)}
+body .vatra-clip-rail button{display:grid;place-items:center;width:41px;height:41px;min-width:41px;padding:0;border-radius:50%;border:1px solid #ffffff55;background:#0b2348c9;color:#fff;cursor:pointer;backdrop-filter:blur(5px);transition:background .2s ease}
+body .vatra-clip-rail button:hover:not(:disabled),body .vatra-clip-rail button.is-unmuted{background:#0757f5;border-color:#a7cfff}
+body .vatra-clip-rail button:disabled{opacity:.3;cursor:default}
+body .vatra-clip-rail button svg{display:block;width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body .vatra-clips-feed .vatra-clip-bottom{position:absolute!important;z-index:3;left:0;right:0;bottom:0;padding:55px 58px 18px 17px!important;color:white!important;background:linear-gradient(transparent,#071321e8)!important;pointer-events:none}
+body .vatra-clips-feed .vatra-clip-bottom>*{pointer-events:auto}
+body .vatra-clips-feed .vatra-clip-bottom p{line-height:1.55;color:white}
+body .vatra-clip-action{border-radius:9px!important;border:1px solid #ffffff77!important;background:#ffffff22!important;color:white!important;padding:7px 11px!important}
+body .vatra-clips-empty{box-sizing:border-box;width:100%;border:1px dashed #ccdaeb;border-radius:16px;background:#fafcff;padding:45px 25px;text-align:center;color:#6b839d}
+body .vatra-clips-empty h3{margin:0 0 8px;font-size:18px;color:#213f64}
+body .vatra-clips-empty p{line-height:1.65}
+/* Stand-alone clip upload composer (never the post composer). */
+body .vatra-clip-publish-dialog{box-sizing:border-box;position:fixed;inset:0;margin:auto;padding:0;width:min(760px,calc(100vw - 26px));max-width:760px;max-height:90dvh;border:1px solid #dbe6f5;border-radius:19px;background:#fff;box-shadow:0 23px 75px #0b29545c;overflow:hidden;color:#28486b}
+body .vatra-clip-publish-dialog::backdrop{background:#0c1c39aa;backdrop-filter:blur(4px)}
+body .vatra-clip-publish-form{max-height:90dvh;display:flex;flex-direction:column}
+body .vatra-clip-publish-form header,body .vatra-clip-publish-form footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px;flex:none;border-bottom:1px solid #e3ebf6}
+body .vatra-clip-publish-form footer{justify-content:flex-end;border-bottom:0;border-top:1px solid #e3ebf6;background:#fafcff}
+body .vatra-clip-publish-brand{display:flex;align-items:center;gap:12px}
+body .vatra-clip-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#eaf1ff;color:#0757f5;font-size:23px;font-weight:800}
+body .vatra-clip-publish-brand small{color:#0757f5;font-size:10px;font-weight:750;letter-spacing:.06em}
+body .vatra-clip-publish-brand h2{margin:4px 0 0;font-size:20px;color:#203b5e}
+body .vatra-clip-publish-form header [data-vatra-clip-cancel]{width:36px;height:36px;font-size:22px}
+body .vatra-clip-publish-form button{border:1px solid #d9e4f2;border-radius:10px;padding:9px 13px;background:#f7faff;color:#476681;cursor:pointer}
+body .vatra-clip-publish-form button.primary{border-color:#0757f5;background:#0757f5;color:#fff;font-weight:720}
+body .vatra-clip-publish-content{display:grid;grid-template-columns:minmax(170px,.75fr) minmax(0,1.25fr);gap:20px;padding:20px 22px;min-height:0;overflow-y:auto}
+body .vatra-clip-publish-preview{width:100%;max-height:410px;aspect-ratio:9/16;background:#0a1526;border-radius:14px;overflow:hidden}
+body .vatra-clip-publish-preview video{width:100%;height:100%;display:block;object-fit:contain}
+body .vatra-clip-publish-fields{display:flex;flex-direction:column;gap:12px;min-width:0}
+body .vatra-clip-publish-fields h3{margin:0;color:#28486a;font-size:18px}
+body .vatra-clip-publish-fields p{margin:0;color:#6982a0;font-size:12px;line-height:1.7}
+body .vatra-clip-publish-fields label{font-size:12px;font-weight:750}
+body .vatra-clip-publish-fields textarea{box-sizing:border-box;width:100%;min-height:130px;border:1px solid #d8e4f3;border-radius:11px;padding:10px 12px;background:#f9fbff;color:#233f61;font:500 13px/1.5 "VATRA Onest",Inter,system-ui,sans-serif;resize:vertical}
+body .vatra-clip-publish-specs{display:flex;flex-wrap:wrap;gap:7px}
+body .vatra-clip-publish-specs span{background:#edf4ff;padding:6px 8px;border-radius:8px;color:#426fa5;font-size:10px;font-weight:700}
+body .vatra-clip-publish-fields>small{color:#8195ae;font-size:11px}
+@media(max-width:650px){body .vatra-clips-header{flex-wrap:wrap;padding:13px!important}body .vatra-clips-feed{height:calc(100dvh - 205px)!important}body .vatra-clips-feed .vatra-clip{width:100%!important;height:calc(100dvh - 215px)!important;min-height:315px!important;border-radius:12px!important}body .vatra-clip-rail button{width:36px;height:36px;min-width:36px}body .vatra-clip-publish-dialog{max-height:95dvh}body .vatra-clip-publish-form{max-height:95dvh}body .vatra-clip-publish-content{grid-template-columns:1fr;padding:13px 16px}body .vatra-clip-publish-preview{justify-self:center;width:min(210px,100%);max-height:280px}body .vatra-clip-publish-form header,body .vatra-clip-publish-form footer{padding:13px 16px}}
+@media(prefers-reduced-motion:reduce){body .vatra-clips-feed{scroll-behavior:auto!important}}
