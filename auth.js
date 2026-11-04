@@ -6,6 +6,15 @@ window.scrollTo(0,0);
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
 const selectedMethod=()=>document.querySelector('input[name="authMethod"]:checked')?.value||$('#method').value||'email';
+function vatraSignupLanguage(){
+ const supported=['uk','en','pl','de','fr','es','pt','it'];
+ let language=window.vatraLanguage?.language||'';
+ if(!language){
+  try{language=new URL(location.href).searchParams.get('lang')||localStorage.getItem('vatra-language')||'';}catch{}
+ }
+ return supported.includes(language)?language:'en';
+}
+
 
 
 const PHONE_COUNTRIES = [{"iso":"UA","name":"Україна","dial":"+380"}];
@@ -739,7 +748,7 @@ $('#authForm').addEventListener('submit',async e=>{
    return;
   }
   const gender=document.querySelector('input[name="gender"]:checked')?.value||'';
-  const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob};
+  const userData={name,displayName:name,firstName:first,lastName:last,gender,dateOfBirth:dob,preferredLanguage:vatraSignupLanguage()};
   await startOtp('signup',{contact,isPhone,dob,first,last,name,gender,password:$('#password').value,userData});
   return;
   }catch(err){
