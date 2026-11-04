@@ -1293,6 +1293,9 @@ body[data-auth-mode="register"] .form-side{justify-content:flex-start;padding-to
 .form-side footer{margin-top:12px;text-align:center;line-height:1.5}
 .phone-number-control{display:flex;align-items:stretch;gap:8px;width:100%;min-width:0}
 .phone-number-control[hidden]{display:none!important}
+.phone-country-code{display:block;flex:0 0 140px;width:140px;min-width:0;height:44px;padding:0 7px;border:1px solid #dbe4f1;border-radius:10px;background:#f7faff;color:#17314f;font-size:12px;font-weight:680;cursor:pointer}
+.phone-country-code[hidden],.phone-number-control--email>.phone-country-code{display:none!important}
+@media(max-width:560px){.phone-country-code{flex-basis:105px;width:105px;font-size:11px}}
 .phone-country-static{display:flex;align-items:center;justify-content:center;gap:8px;flex:0 0 86px;min-width:0;height:44px;padding:0 9px;border:1px solid #dbe4f1;border-radius:10px;background:#f7faff;color:#17314f;font-weight:750;font-size:13px}
 .phone-country-flag{display:block;width:24px!important;height:16px!important;flex:0 0 24px;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px #102a4d12}
 .phone-number-control>input{flex:1;min-width:0;width:0}
