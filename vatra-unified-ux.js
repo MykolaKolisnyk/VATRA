@@ -4,7 +4,7 @@ const x='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 
 const arrow=d=>'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d==='prev'?'m15 5-7 7 7 7':'m9 5 7 7-7 7')+'" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentGallery=null,restoring=false;
-const titleMap={feed:'Новини',profile:'Мій профіль',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Повідомлення',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги',supportDesk:'Техпідтримка'};
+const titleMap={feed:'Новини',profile:'Моя сторінка',friends:'Друзі',photos:'Фотографії',groups:'Спільноти',settings:'Налаштування',messages:'Повідомлення',notifications:'Сповіщення',saved:'Збережене',explore:'Пошук',music:'Музика',myVideos:'Відео',communityMembers:'Учасники спільноти',postDetail:'Допис',adminCenter:'Адмінпанель ВАТРИ',myReports:'Мої скарги',supportDesk:'Техпідтримка'};
 const publicSlug=uid=>{
  const handle=window.vatraPublicHandle?.(uid)||'';
  return handle?encodeURIComponent(handle):encodeURIComponent(uid||'');
@@ -121,7 +121,7 @@ function openGallery(b,historical=false){
  const uid=b.dataset.vatraOpenPublicPhotos||b.dataset.openProfileGallery;
  if(!uid)return;currentGallery={uid,urls};
  const name=$('.vatra-profile-public-layout h2')?.textContent||'Користувача';
- $('#feed').innerHTML='<section class="vatra-profile-card vatra-public-photos-page"><header class="vatra-public-photos-head"><h2>Фотографії · '+esc(name)+'</h2><button type="button" class="pill" data-gallery-back>← До профілю</button></header><div class="vatra-public-photos-grid">'+urls.map((u,i)=>'<button type="button" data-gallery-photo="'+i+'" aria-label="Фото '+(i+1)+'"><img loading="lazy" src="'+esc(u)+'" alt="Фото '+(i+1)+'"></button>').join('')+'</div></section>';
+ $('#feed').innerHTML='<section class="vatra-profile-card vatra-public-photos-page"><header class="vatra-public-photos-head"><h2>Фотографії · '+esc(name)+'</h2><button type="button" class="pill" data-gallery-back>← На сторінку</button></header><div class="vatra-public-photos-grid">'+urls.map((u,i)=>'<button type="button" data-gallery-photo="'+i+'" aria-label="Фото '+(i+1)+'"><img loading="lazy" src="'+esc(u)+'" alt="Фото '+(i+1)+'"></button>').join('')+'</div></section>';
  if(historical)document.title='Фотографії користувача | ВАТРА';else window.vatraRouteChanged({page:'publicPhotos',id:uid});
  window.scrollTo(0,0);
 }

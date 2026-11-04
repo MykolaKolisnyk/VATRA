@@ -1,18 +1,18 @@
 
 
 :root{
- --vatra-type-page:24px;
- --vatra-type-section:16px;
+ --vatra-type-page:25px;
+ --vatra-type-section:17px;
  --vatra-type-body:14.5px;
- --vatra-type-control:14px;
+ --vatra-type-control:14.5px;
  --vatra-type-small:12.5px;
- --vatra-type-title-weight:740;
- --vatra-type-label-weight:600;
- --vatra-type-control-weight:540;
+ --vatra-type-title-weight:770;
+ --vatra-type-label-weight:640;
+ --vatra-type-control-weight:560;
  --vatra-type-action-weight:650;
 }
 body .layout>.main,body .feed{
- font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif);
  letter-spacing:normal;
 }
 
@@ -59,7 +59,7 @@ body[data-page="settings"] .vatra-settings-workspace{
 }
 body[data-page="settings"] .vatra-settings-pane>.settings-card,
 body[data-page="settings"] .vatra-settings-pane .settings-card{
- font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
 }
 body[data-page="settings"] .vatra-settings-pane .settings-card h3,
 body[data-page="settings"] .vatra-settings-pane .settings-card h4,
@@ -105,7 +105,7 @@ body[data-page="settings"] .vatra-settings-pane .birthday-selects select,
 body[data-page="settings"] .vatra-settings-pane .settings-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 body[data-page="settings"] .vatra-settings-pane .settings-card>select,
 body[data-page="settings"] .vatra-settings-pane .settings-card>textarea{
- font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
  font-size:var(--vatra-type-control)!important;
  font-weight:var(--vatra-type-control-weight)!important;
  line-height:1.45!important;

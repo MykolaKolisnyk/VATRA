@@ -11,7 +11,8 @@
  --vatra-ui-active:#e9f1ff;
  --vatra-ui-primary:#0757e8;
  --vatra-ui-surface:#fff;
- --vatra-ui-font:Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
+ --vatra-ui-font:"Manrope",Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
+ --vatra-ui-body-font:Inter,"Manrope","VATRA Onest",system-ui,sans-serif;
  --vatra-ui-radius:11px;
 }
 html body{font-family:var(--vatra-ui-font)!important;color:var(--vatra-ui-ink)!important;font-size:14.5px;line-height:1.55;font-weight:400;letter-spacing:0}
@@ -20,18 +21,6 @@ html body :is(.layout,.topbar,.sidebar,.post,.quick-compose,.settings-page,.vatr
 html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-notification-rail button,.vatra-group-nav button,.post-actions button,.post-menu button,.vatra-profile-button){
  opacity:1!important;text-shadow:none!important;
 }
-html body .layout>.sidebar>nav>a.nav:not([hidden]){
- color:#536b85!important;font-size:14px!important;font-weight:620!important;
- line-height:1.45!important;opacity:1!important;letter-spacing:0!important;
- min-height:42px!important;transform:none!important;
-}
-html body .layout>.sidebar>nav>a.nav .nav-icon{color:#416c98!important;opacity:1!important}
-html body .layout>.sidebar>nav>a.nav:hover{background:#f0f4fb!important;color:#144f9a!important}
-html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#2864b2!important}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
- background:transparent!important;color:#536b85!important;font-weight:620!important;
-}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#7191ad!important}
 /* Text hierarchy: Inter for the reference aesthetic; local Onest remains an offline fallback. */
 html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-profile-detail-label,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){
  font-family:var(--vatra-ui-font)!important;
@@ -135,8 +124,6 @@ html body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.
 }
 
 /* Hover without sliding labels or moving clickable areas. */
-html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon),
-html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){transform:none!important}
 /* Mouse focus has a single rounded border; keyboard focus adds a quiet accessible halo. */
 html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field):focus-within{box-shadow:none!important}
 html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field):has(input:focus-visible){
@@ -151,10 +138,6 @@ html body[data-vatra-theme-effective="dark"]{
  --vatra-ui-hover:#263c57;--vatra-ui-active:#254970;
  --vatra-ui-surface:#202f43;color:#dce8f6!important;
 }
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:not([hidden]){color:#d2e1f2!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav .nav-icon{color:#9eb6d3!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover{background:#2d4561!important;color:#f4f8ff!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){background:transparent!important;color:#d4e1ef!important}
 html body[data-vatra-theme-effective="dark"] :is(.post .author b,.post .author-link,.vatra-friends-row b,.vatra-search-person-name,.vatra-search-group-name,.vatra-profile-card-head h3,.settings-card h3){
  color:#edf4ff!important
 }
@@ -214,22 +197,6 @@ html body[data-vatra-theme-effective="dark"] .post .post-actions button:hover{ba
 
 
 /* === Full-site typography audit: actual classes rendered by VATRA modules === */
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden]),
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:not([hidden])>span:not(.nav-icon){
- color:#21374f!important;opacity:1!important;font-size:14px!important;
- font-weight:720!important;letter-spacing:0!important;text-shadow:none!important;
-}
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]),
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){
- color:#536b85!important;font-weight:620!important;
-}
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav :is(.nav-icon,.nav-icon svg){
- color:#36669a!important;stroke:#36669a!important;opacity:1!important;
-}
-html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(:hover,.active,[aria-current="page"]) :is(.nav-icon,.nav-icon svg){
- color:#0757e8!important;stroke:#0757e8!important;
-}
-html body .layout>.sidebar>nav>a.nav .nav-icon svg{stroke-width:2!important}
 /* Header and global navigation: precise icon and label contrast */
 html body:not([data-vatra-theme-effective="dark"]) .topbar.vatra-global-header :is(.icon-btn,.notification-button,.vatra-top-music-trigger,.search-icon){
  color:#315a85!important;opacity:1!important;
