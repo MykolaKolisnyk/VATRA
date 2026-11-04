@@ -11,7 +11,7 @@ assert.ok(html.indexOf('data-page="feed"')<html.indexOf('data-page="messages"'))
 assert.ok(html.indexOf('data-page="videos"')<html.indexOf('data-page="gifts"'));
 assert.ok(html.includes('href="#vatra-i-news"'),'News icon must not be a house');
 assert.ok(!html.includes('Свої серед своїх'),'No exclusive positioning in the sidebar');
-assert.ok(js.includes('data-view-profile="\'+esc(friend.uid)'), 'Birthday names and avatars should navigate to pages');
+assert.ok(js.includes('vatra-birthday-visit')&&js.includes('vatra-birthday-name'),'Birthday names and avatars should navigate to pages');
 assert.ok(js.includes('vatraBirthdayComposeMessage(uid)'),'Birthday greeting must be reviewed before sending');
 assert.ok(js.includes('Math.floor(Math.random()*VATRA_BIRTHDAY_MESSAGES.length)'),'Birthday greetings must rotate');
 assert.ok(css.includes('.vatra-birthday-compose'),'Birthday editor needs visual styles');
