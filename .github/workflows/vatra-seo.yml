@@ -31,5 +31,17 @@ jobs:
           git add -A people communities sitemap.xml
           if ! git diff --cached --quiet; then
             git commit -m "seo: refresh indexable public VATRA pages"
-            git push
+            # The brand generator can push a newer main while SEO pages are
+            # being prepared. Rebase this generated snapshot before publishing.
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                exit 0
+              fi
+              echo "Concurrent update to main, retrying ($attempt/3)"
+              sleep $((attempt * 2))
+            done
+            echo "Unable to publish VATRA SEO snapshots after three attempts" >&2
+            exit 1
           fi
