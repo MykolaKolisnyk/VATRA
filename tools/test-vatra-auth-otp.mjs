@@ -66,6 +66,7 @@ let verificationCalls=0,profileLookups=0,passwordChanges=0,registrationAttempts=
 const challenge={kind:'signup',contact:'test@example.invalid',isPhone:false,password:'not-a-real-password',requestedAt:Date.now()};
 const context={
  pendingOtp:challenge,
+ mode:'register',
  submitting:false,
  suppressAuthRedirect:false,
  db:{},
