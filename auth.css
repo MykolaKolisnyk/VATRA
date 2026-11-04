@@ -3188,6 +3188,15 @@ html,body{
 .auth-layout .auth-card .method-choice>label:hover{
  border-color:#9ec4fb!important;background:#f5f9ff!important;
 }
+.auth-layout .auth-card .method-choice>label:has(input:disabled){
+ opacity:.56!important;cursor:not-allowed!important;background:#f2f5fa!important;
+}
+.auth-layout .auth-card .method-choice>label:has(input:disabled):hover{
+ border-color:#dfe6f2!important;background:#f2f5fa!important;
+}
+.auth-dialog .method-choice>label:has(input:disabled){
+ opacity:.56;cursor:not-allowed;
+}
 .auth-layout .auth-card .method-choice>label:has(input:checked){
  border-color:#347ffe!important;background:#edf4ff!important;
  box-shadow:0 0 0 1px rgba(52,127,254,.14)!important;
