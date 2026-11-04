@@ -780,7 +780,7 @@ function resetRecoveryChallenge(notice=''){
  }
  if(pair===recoveryPreviousPair){a=(a%9)+2;pair=[a,b].sort((x,y)=>x-y).join('+');}
  recoveryPreviousPair=pair;recoveryAnswer=a+b;recoveryPassed=false;
- $('#recoveryMath').textContent=a+' + '+b+' = ?';
+ $('#recoveryMath').textContent='Скільки буде '+a+' + '+b+'?';
  const options=new Set([recoveryAnswer]);
  while(options.size<4){const distractor=1+Math.floor(Math.random()*19);if(distractor!==recoveryAnswer)options.add(distractor);}
  $('#recoveryAnswers').innerHTML=[...options].sort(()=>Math.random()-.5).map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
