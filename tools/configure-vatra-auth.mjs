@@ -12,10 +12,6 @@ const PROJECT_REF = 'rjasunoawrxvetwadylh';
 const SITE_URL = 'https://mykolakolisnyk.github.io/VATRA/';
 const clean = value => String(value || '').trim();
 const validEmail = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-const secretNames = [
- 'VATRA_SUPABASE_ACCESS_TOKEN','VATRA_SMTP_PASSWORD','VATRA_SMS_TWILIO_AUTH_TOKEN',
- 'VATRA_SMS_VONAGE_API_SECRET','VATRA_SMS_MESSAGEBIRD_ACCESS_KEY'
-];
 function fail(message) { throw new Error(message); }
 export function makeAuthPayload(env = process.env) {
  const read = name => clean(env[name]);
@@ -24,62 +20,78 @@ export function makeAuthPayload(env = process.env) {
   if (!value) fail('Не заповнено ' + label + ' (змінна ' + name + ').');
   return value;
  };
- const from = required('VATRA_EMAIL_FROM');
- if (!validEmail(from)) fail('VATRA_EMAIL_FROM має бути правильною email-адресою з підтвердженого домену.');
- const host = required('VATRA_SMTP_HOST');
- const port = required('VATRA_SMTP_PORT');
- if (!/^\d{2,5}$/.test(port) || Number(port)<1 || Number(port)>65535) fail('Некоректний SMTP порт.');
- const provider = required('VATRA_SMS_PROVIDER').toLowerCase();
- if (!['twilio','vonage','messagebird'].includes(provider)) fail('SMS-провайдер: twilio, vonage або messagebird.');
- const payload = {
-  site_url: SITE_URL,
-  // Do not overwrite existing allowed redirect URLs. Admins may have other apps.
-  // Verify auth.html?mode=new-password in the dashboard before live activation.
-  external_email_enabled: true,
-  mailer_autoconfirm: false,
-  mailer_secure_email_change_enabled: true,
-  smtp_admin_email: from,
-  smtp_host: host,
-  smtp_port: port,
-  smtp_user: required('VATRA_SMTP_USER'),
-  smtp_pass: required('VATRA_SMTP_PASSWORD'),
-  smtp_sender_name: 'ВАТРА',
-  mailer_subjects_confirmation: 'ВАТРА — підтвердження акаунта',
-  mailer_subjects_magic_link: 'ВАТРА — код входу',
-  mailer_subjects_recovery: 'ВАТРА — відновлення доступу',
-  mailer_templates_confirmation_content: TEMPLATE('supabase/auth-templates/otp-email.html'),
-  mailer_templates_magic_link_content: TEMPLATE('supabase/auth-templates/otp-email.html'),
-  mailer_templates_recovery_content: TEMPLATE('supabase/auth-templates/otp-email.html'),
-  external_phone_enabled: true,
-  sms_autoconfirm: false,
-  sms_template: TEMPLATE('supabase/auth-templates/otp-sms.txt'),
-  sms_provider: provider
+ const channel=(read('VATRA_AUTH_CHANNEL')||'both').toLowerCase();
+ if(!['email','sms','both'].includes(channel))fail('VATRA_AUTH_CHANNEL має бути email, sms або both.');
+ const payload={
+  site_url:SITE_URL
+  // Не змінюємо наявний redirect allowlist: він може містити інші адреси.
  };
- if (provider === 'twilio') Object.assign(payload, {
-  sms_twilio_account_sid: required('VATRA_SMS_TWILIO_ACCOUNT_SID'),
-  sms_twilio_auth_token: required('VATRA_SMS_TWILIO_AUTH_TOKEN'),
-  sms_twilio_message_service_sid: required('VATRA_SMS_TWILIO_MESSAGE_SERVICE_SID')
- });
- if (provider === 'vonage') Object.assign(payload, {
-  sms_vonage_api_key: required('VATRA_SMS_VONAGE_API_KEY'),
-  sms_vonage_api_secret: required('VATRA_SMS_VONAGE_API_SECRET'),
-  sms_vonage_from: required('VATRA_SMS_VONAGE_FROM')
- });
- if (provider === 'messagebird') Object.assign(payload, {
-  sms_messagebird_access_key: required('VATRA_SMS_MESSAGEBIRD_ACCESS_KEY'),
-  sms_messagebird_originator: required('VATRA_SMS_MESSAGEBIRD_ORIGINATOR')
- });
+ if(channel==='email'||channel==='both'){
+  const from=required('VATRA_EMAIL_FROM');
+  if(!validEmail(from))fail('VATRA_EMAIL_FROM має бути дійсною адресою поштової скриньки.');
+  const host=required('VATRA_SMTP_HOST');
+  const port=required('VATRA_SMTP_PORT');
+  if(!/^\d{2,5}$/.test(port)||Number(port)<1||Number(port)>65535)fail('Некоректний SMTP порт.');
+  const smtpUser=required('VATRA_SMTP_USER');
+  if(host.toLowerCase()==='smtp.gmail.com'){
+   if(!/^(465|587)$/.test(port))fail('Для Gmail SMTP використовуйте порт 465 або 587.');
+   if(from.toLowerCase()!==smtpUser.toLowerCase())fail('Для Gmail SMTP VATRA_EMAIL_FROM має збігатися з VATRA_SMTP_USER.');
+  }
+  Object.assign(payload,{
+   external_email_enabled:true,
+   mailer_autoconfirm:false,
+   mailer_secure_email_change_enabled:true,
+   smtp_admin_email:from,
+   smtp_host:host,
+   smtp_port:port,
+   smtp_user:smtpUser,
+   smtp_pass:required('VATRA_SMTP_PASSWORD'),
+   smtp_sender_name:'ВАТРА',
+   mailer_subjects_confirmation:'ВАТРА — підтвердження акаунта',
+   mailer_subjects_magic_link:'ВАТРА — код входу',
+   mailer_subjects_recovery:'ВАТРА — відновлення доступу',
+   mailer_templates_confirmation_content:TEMPLATE('supabase/auth-templates/otp-email.html'),
+   mailer_templates_magic_link_content:TEMPLATE('supabase/auth-templates/otp-email.html'),
+   mailer_templates_recovery_content:TEMPLATE('supabase/auth-templates/otp-email.html')
+  });
+ }
+ if(channel==='sms'||channel==='both'){
+  const provider=required('VATRA_SMS_PROVIDER').toLowerCase();
+  if(!['twilio','vonage','messagebird'].includes(provider))fail('SMS-провайдер: twilio, vonage або messagebird.');
+  Object.assign(payload,{
+   external_phone_enabled:true,
+   sms_autoconfirm:false,
+   sms_template:TEMPLATE('supabase/auth-templates/otp-sms.txt'),
+   sms_provider:provider
+  });
+  if(provider==='twilio')Object.assign(payload,{
+   sms_twilio_account_sid:required('VATRA_SMS_TWILIO_ACCOUNT_SID'),
+   sms_twilio_auth_token:required('VATRA_SMS_TWILIO_AUTH_TOKEN'),
+   sms_twilio_message_service_sid:required('VATRA_SMS_TWILIO_MESSAGE_SERVICE_SID')
+  });
+  if(provider==='vonage')Object.assign(payload,{
+   sms_vonage_api_key:required('VATRA_SMS_VONAGE_API_KEY'),
+   sms_vonage_api_secret:required('VATRA_SMS_VONAGE_API_SECRET'),
+   sms_vonage_from:required('VATRA_SMS_VONAGE_FROM')
+  });
+  if(provider==='messagebird')Object.assign(payload,{
+   sms_messagebird_access_key:required('VATRA_SMS_MESSAGEBIRD_ACCESS_KEY'),
+   sms_messagebird_originator:required('VATRA_SMS_MESSAGEBIRD_ORIGINATOR')
+  });
+ }
  // A named sender requires carrier/provider-side approval. This script does
  // not claim VATRA appears as the actual sender until the provider confirms it.
  return payload;
 }
 export function deliverySummary(payload) {
- const emailDomain = payload.smtp_admin_email.split('@')[1] || '';
+ const hasEmail=!!payload.smtp_admin_email;
+ const hasSms=!!payload.sms_provider;
+ const emailDomain=(payload.smtp_admin_email||'').split('@')[1]||null;
  return {
-  project: PROJECT_REF,
-  website: SITE_URL,
-  email: {configured:true, senderName:payload.smtp_sender_name, senderDomain:emailDomain, templates:3},
-  sms: {configured:true, provider:payload.sms_provider, senderIdVerified:false},
+  project:PROJECT_REF,
+  website:SITE_URL,
+  email:{configured:hasEmail,senderName:hasEmail?'ВАТРА':null,senderDomain:emailDomain,templates:hasEmail?3:0,deliveryConfirmed:false},
+  sms:{configured:hasSms,provider:payload.sms_provider||null,senderIdVerified:false,deliveryConfirmed:false},
   accountAutoConfirm:false,
   credentialsPrinted:false
  };
