@@ -3,7 +3,7 @@ import { setupNavigation } from './navigation.js?v=20261031-1';
 import { compressVatraClip } from './vatra-clip-compress.js?v=20261104-1';
 import { mountVatraClipSocial } from './vatra-clips-social.js?v=20261104-1';
 import { enhanceVatraSettings } from './vatra-editor-experience.js?v=20261104-8';
-import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261031-3';
+import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261104-stories1';
 import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261104-8';
 // Install the moderation route guards before the first profile or group is rendered.
