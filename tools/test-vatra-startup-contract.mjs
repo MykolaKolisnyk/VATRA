@@ -36,4 +36,19 @@ for(const [name,markup] of Object.entries(glyphs)){
   }
  }
 }
-console.log('VATRA startup: '+names.length+' named backend imports and SVG paths validated.');
+const categories={
+ posts:'vatra-photos',comments:'vatra-photos','community-photos':'vatra-photos',
+ videos:'vatra-videos','community-videos':'vatra-videos',avatars:'vatra-avatars',
+ covers:'vatra-covers',gifts:'vatra-gifts'
+};
+for(const [type,bucket] of Object.entries(categories)){
+ assert.ok(backend.includes(type+\":'\")+bucket+"'")||
+           backend.includes("'"+type+"':'"+bucket+"'"),
+   'Wrong media bucket routing for '+type);
+}
+assert.ok(backend.includes("const STORY_BUCKET='vatra-stories'"),'Stories must stay in private Storage');
+assert.ok(backend.includes('client.storage.from(bucket).upload')&&
+          backend.includes('client.storage.from(bucket).getPublicUrl'),
+          'Upload and public URL generation must use the same content-specific bucket');
+assert.ok(backend.includes("const MEDIA_BUCKET = 'vatra-media'"),'Historical bucket identifier must remain for compatibility');
+console.log('VATRA startup: '+names.length+' named backend imports, SVG paths and Storage routing validated.');
