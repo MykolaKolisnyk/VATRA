@@ -1008,7 +1008,6 @@ body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
  }
  body[data-page="feed"] .layout>.main>.quick-compose,
  body[data-page="feed"] .layout>.main>#feed{max-width:730px!important;}
- body[data-page="profile"] .layout,
  body[data-page="publicProfile"] .layout{
   width:min(1040px,calc(100% - 40px))!important;
   max-width:1040px!important;
@@ -1016,12 +1015,10 @@ body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
   gap:20px!important;
   justify-content:center!important;
  }
- body[data-page="profile"] .layout>.main,
  body[data-page="publicProfile"] .layout>.main{
   width:100%!important;max-width:830px!important;
   justify-self:start!important;
  }
- body[data-page="profile"] .vatra-profile-layout,
  body[data-page="publicProfile"] .vatra-profile-layout{
   width:100%!important;max-width:830px!important;
   grid-template-columns:205px minmax(0,1fr)!important;
