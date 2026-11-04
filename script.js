@@ -1075,7 +1075,7 @@ function vatraProfileGalleryCarousel(uid,photos,isMine=false){
   (direction<0?'<path d="m14.5 5-7 7 7 7"/>':'<path d="m9.5 5 7 7-7 7"/>')+'</svg></button>';
  return '<div class="vatra-profile-photo-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
   '<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+
-  (found.length>4?'<div class="vatra-gallery-footer"><span class="vatra-gallery-position" aria-live="polite">1–4 із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
+  (found.length>2?'<div class="vatra-gallery-footer'+(found.length<=4?' is-mobile-only':'')+'"><span class="vatra-gallery-position" aria-live="polite">1–'+Math.min(4,found.length)+' із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
 }
 function vatraShiftProfileGallery(box,state){
  if(!box||!state)return;
@@ -1098,7 +1098,7 @@ document.addEventListener('click',event=>{
  if(!arrow)return;
  event.preventDefault();event.stopPropagation();
  const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
- if(!box||!state||state.photos.length<=4)return;
+ if(!box||!state||state.photos.length<=(window.matchMedia('(max-width:590px)').matches?2:4))return;
  const direction=Number(arrow.dataset.vatraGalleryStep);
  const visible=window.matchMedia('(max-width:590px)').matches?2:4;
  state.offset=Math.max(0,Math.min(state.photos.length-visible,state.offset+(direction<0?-visible:visible)));
