@@ -87,6 +87,42 @@ for(const [path,text] of textFiles)if(path.endsWith('.css')){
 }
 const crossCSS=[...selectors].filter(([,refs])=>refs.size>=4).sort((a,b)=>b[1].size-a[1].size)
  .slice(0,16).map(([selector,refs])=>({selector:selector.slice(0,130),sheets:refs.size}));
+
+const liveCode=[...textFiles].filter(([path])=>/\.(?:html|css|js|ts)$/.test(path) &&
+ !path.startsWith('tools/') && !path.startsWith('.github/'));
+const assetMentions={};
+for(const asset of ['logo.png','vatra-icon.png','favicon.png','vatra-header.png']){
+ assetMentions[asset]=liveCode.filter(([path,contents])=>path!==asset&&contents.includes(asset)).map(([path])=>path);
+}
+const htmlScriptRoots=new Set();
+const htmlStyles=new Set();
+for(const [path,contents] of textFiles)if(path.endsWith('.html')){
+ for(const m of contents.matchAll(/<(?:script|link)\\b[^>]*>/gi)){
+  const tag=m[0];
+  const attr=tag.match(/\\b(?:src|href)=["']([^"']+)["']/i)?.[1];
+  if(!attr||isExternal(attr))continue;
+  const clean=attr.split(/[?#]/)[0];
+  const local=relative(ROOT,resolve(ROOT,dirname(path),clean)).split(sep).join('/');
+  if(tag.startsWith('<script')&&local.endsWith('.js'))htmlScriptRoots.add(local);
+  if(tag.startsWith('<link')&&local.endsWith('.css'))htmlStyles.add(local);
+ }
+}
+const reachableJS=new Set(htmlScriptRoots);
+let active=true;
+while(active){
+ active=false;
+ for(const path of [...reachableJS]){
+  const contents=textFiles.get(path);if(!contents)continue;
+  for(const m of contents.matchAll(/\\b(?:from\\s*|import\\s*\\(\\s*|import\\s*)["'](\\.\\.?\\/[^"']+\\.js(?:\\?[^"']*)?)["']/g)){
+   const file=relative(ROOT,resolve(ROOT,dirname(path),m[1].split('?')[0])).split(sep).join('/');
+   if(textFiles.has(file)&&!reachableJS.has(file)){reachableJS.add(file);active=true;}
+  }
+ }
+}
+const unreachableJS=files.filter(path=>path.endsWith('.js')&&!reachableJS.has(path))
+ .map(path=>({path,mentions:liveCode.filter(([source,contents])=>source!==path&&contents.includes(basename(path))).map(([source])=>source).slice(0,5)}));
+const rootCssUnloaded=files.filter(path=>path.endsWith('.css')&&!htmlStyles.has(path) && !path.includes('/'));
+
 const report={
  counts:{
   files:files.length,folders:[...new Set(files.filter(x=>x.includes('/')).map(x=>dirname(x)))].length,
@@ -96,7 +132,7 @@ const report={
   workflows:files.filter(x=>x.startsWith('.github/workflows/')).length,
   checkedLinks:checkedLinks.length
  },
- candidates,duplicates,hardMissing,jsErrors,crossCSS
+ candidates,duplicates,hardMissing,jsErrors,crossCSS,assetMentions,unreachableJS,rootCssUnloaded
 };
 console.log('VATRA FULL REPOSITORY AUDIT');
 console.log(JSON.stringify(report,null,2));
