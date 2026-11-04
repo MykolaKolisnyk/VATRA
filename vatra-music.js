@@ -185,7 +185,7 @@ function syncHeaderMusic(){
  const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton){playerButton.disabled=false;playerButton.textContent=selected?'Показати плеєр':'Слухати добірку';}
  if(musicHeader)musicHeader.classList.toggle('has-player',selected);
 }
-function closeMusicMenu(){if(musicTopPanel)musicTopPanel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
+function closeMusicMenu(){const panel=document.getElementById('vatraMusicTopPanel');if(panel)panel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
 function play(item){
  if(!item||!['track','album','playlist','artist'].includes(item.type)||!(/^[A-Za-z0-9]{22}$/).test(item.id))return;
  const dock=activePlayer();
