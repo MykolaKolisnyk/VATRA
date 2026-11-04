@@ -59,7 +59,7 @@ const contactError=runInNewContext(auth.slice(errorFnStart,errorFnEnd)+'\nauthCo
  errors:{'auth/too-many-requests':'Спробуйте пізніше.'}
 });
 assert.match(contactError({code:'auth/email-already-in-use'},false,'register'),/Електронна пошта вже зареєстрована/);
-assert.match(contactError({code:'auth/email-already-in-use'},true,'register'),/Номер телефону вже зареєстрований/);
+assert.match(contactError({code:'auth/email-already-in-use'},true,'register'),/Номер телефону уже зареєстрований/);
 assert.equal(contactError({code:'auth/too-many-requests'},false,'register'),'Спробуйте пізніше.');
 
 assert.ok(backend.includes('client.auth.signInWithOtp')&&backend.includes('client.auth.verifyOtp'),'Supabase OTP calls missing');
