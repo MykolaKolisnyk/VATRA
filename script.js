@@ -1118,13 +1118,14 @@ function vatraProfileGalleryCarousel(uid,photos,isMine=false){
   (direction<0?'<path d="m14.5 5-7 7 7 7"/>':'<path d="m9.5 5 7 7-7 7"/>')+'</svg></button>';
  return '<div class="vatra-profile-photo-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
   '<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+
-  (found.length>2?'<div class="vatra-gallery-footer'+(found.length<=4?' is-mobile-only':'')+'"><span class="vatra-gallery-position" aria-live="polite">1–'+Math.min(4,found.length)+' із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
+  (found.length>2?'<div class="vatra-gallery-footer'+(found.length<=4&&!(isMine&&window.matchMedia('(min-width:1260px)').matches)?' is-mobile-only':'')+'"><span class="vatra-gallery-position" aria-live="polite">1–'+Math.min(isMine&&window.matchMedia('(min-width:1260px)').matches?2:4,found.length)+' із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
 }
 function vatraShiftProfileGallery(box,state){
  if(!box||!state)return;
  const track=box.querySelector('.vatra-gallery-track'),tiles=track?.children;
  if(!track||!tiles?.length)return;
- const viewportCount=Math.min(window.matchMedia('(max-width:590px)').matches?2:4,tiles.length);
+ const narrowRail=Boolean(box.closest('.vatra-own-page-layout .vatra-profile-photos'))&&window.matchMedia('(min-width:1260px)').matches;
+ const viewportCount=Math.min(narrowRail||window.matchMedia('(max-width:590px)').matches?2:4,tiles.length);
  const maxOffset=Math.max(0,tiles.length-viewportCount);
  state.offset=Math.max(0,Math.min(state.offset,maxOffset));
  const first=tiles[0].offsetLeft;
@@ -1143,7 +1144,8 @@ document.addEventListener('click',event=>{
  const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
  if(!box||!state||state.photos.length<=(window.matchMedia('(max-width:590px)').matches?2:4))return;
  const direction=Number(arrow.dataset.vatraGalleryStep);
- const visible=window.matchMedia('(max-width:590px)').matches?2:4;
+ const narrowRail=Boolean(box.closest('.vatra-own-page-layout .vatra-profile-photos'))&&window.matchMedia('(min-width:1260px)').matches;
+ const visible=narrowRail||window.matchMedia('(max-width:590px)').matches?2:4;
  if(direction>0){
   if(state.offset<state.photos.length-visible){state.history.push(state.offset);state.offset=Math.min(state.photos.length-visible,state.offset+visible);}
  }else{
@@ -1177,11 +1179,22 @@ function renderProfile(){
   :'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(vatraProfileFriendThumb).join('');
+ const coverUrl=/^https:\/\//i.test(String(currentProfile.coverUrl||''))?String(currentProfile.coverUrl):'';
+ const coverImage=coverUrl?'<img class="vatra-own-cover-image" src="'+esc(coverUrl)+'" alt="Обкладинка моєї сторінки" loading="eager" decoding="async">':'';
+ const coverActions='<button type="button" class="vatra-own-cover-edit" id="vatraOwnCoverEdit">'+
+  (window.vatraIcon?.('camera')||'')+' Змінити обкладинку</button>'+
+  '<input type="file" accept="image/*" id="vatraOwnCoverInput" hidden>';
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
  const selfExtras=vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid);
  const hasExtraDetails=Boolean(selfExtras);
  const selfStatusMarkup=vatraNowPlayingMarkup(currentProfile)||(currentProfile.status&&!vatraProfileSameText(currentProfile.status,currentProfile.bio)?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':(!currentProfile.status?'<p class="vatra-profile-status is-empty">Додайте свій статус</p>':''));
- const profileHtml='<section class="vatra-profile-layout">'+
+ const profileHtml='<section class="vatra-profile-layout vatra-own-page-layout">'+
+  '<header class="vatra-own-cover" aria-label="Обкладинка сторінки">'+coverImage+
+   '<div class="vatra-own-cover-actions">'+coverActions+'</div>'+
+   '<div class="vatra-own-cover-stats" aria-label="Статистика сторінки">'+
+    '<span><b>'+friendIds.length+'</b> друзів</span>'+
+    '<span><b>'+gallery.length+'</b> фотографій</span>'+
+    '<span><b>'+mine.length+'</b> дописів</span></div></header>'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card">'+
     '<div class="vatra-avatar-hover-wrap" id="vatraAvatarWrap">'+
@@ -1216,6 +1229,8 @@ function renderProfile(){
  '</section>';
  setFeed(profileHtml,false);
  requestAnimationFrame(vatraSyncBioToggles);
+ $('#vatraOwnCoverEdit')?.addEventListener('click',()=>$('#vatraOwnCoverInput')?.click());
+ $('#vatraOwnCoverInput')?.addEventListener('change',uploadCover);
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileStatusEdit')?.addEventListener('click',editProfileStatus);
  $('#profileAllFriends')?.addEventListener('click',()=>goPage('friends'));

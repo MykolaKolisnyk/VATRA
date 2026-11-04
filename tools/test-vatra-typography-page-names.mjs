@@ -28,8 +28,8 @@ for(const file of ['index.html','auth.html','register.html']){
  assert.ok(html.includes('family=Manrope:wght@400..800'), 'Manrope missing in '+file);
  assert.ok(html.includes('family=Inter:wght@400..800'), 'Inter fallback missing in '+file);
 }
-assert.ok(foundations.includes('--vatra-ui-font:"Manrope",Inter'), 'Shared Manrope font token missing');
-assert.ok(icons.includes('font-size:15.5px!important;font-weight:670!important'),'Readable desktop navigation not applied');
+assert.ok(foundations.includes('--vatra-ui-font:Inter'), 'Readability: Inter must be the sitewide font');
+assert.ok(icons.includes('font-size:15px!important;font-weight:610!important'),'Balanced desktop navigation not applied');
 assert.ok(icons.includes('data-vatra-theme-effective="dark"'),'Dark mode navigation is unstyled');
 
 const legacyNavPattern=/nav\[aria-label="Основна навігація"\]>a\.nav/;
@@ -40,3 +40,15 @@ for(const [path,text] of [['vatra-ux-corrections.css',ux],['vatra-site-cohesion.
 assert.equal((main.match(/<meta name="theme-color"/g)||[]).length,1,'Duplicate theme color metadata');
 assert.equal((main.match(/<meta name="application-name"/g)||[]).length,1,'Duplicate application metadata');
 console.log('VATRA typography/cleanup: Manrope, clean nav CSS, consistent page terminology and i18n verified.');
+
+const original=read('script.js');
+const pageCss=read('vatra-site-cohesion.css');
+const galleryCss=read('vatra-profile-gallery-language-v2.css');
+assert.ok(original.includes('vatra-own-page-layout'),'Dedicated profile layout not rendered');
+assert.ok(original.includes('vatraOwnCoverInput')&&original.includes("addEventListener('change',uploadCover)"),'Profile cover upload missing');
+assert.ok(original.includes('currentProfile.coverUrl'),'Saved user cover image not used');
+assert.ok(original.includes('vatra-own-cover-stats'),'Actual profile counters missing');
+assert.ok(pageCss.includes('--vatra-unified-width:1520px'),'Header and profile max width are not aligned');
+assert.ok(pageCss.includes('.vatra-own-page-layout .vatra-profile-photos'),'Compact photo rail absent');
+assert.ok(galleryCss.includes('grid-auto-columns:calc((100% - var(--vatra-gallery-gap)) / 2)'),'Compact photo gallery CSS is missing');
+console.log('VATRA profile cover, working upload, responsive content rail and header width checked.');

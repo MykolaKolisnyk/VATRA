@@ -52,7 +52,7 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav>span:not(.nav-icon){
  font-family:var(--vatra-ui-font,"Manrope",Inter,sans-serif)!important;
- font-size:15.5px!important;font-weight:670!important;
+ font-size:15px!important;font-weight:610!important;
  line-height:1.35!important;letter-spacing:-.012em!important;color:inherit!important;
  text-shadow:none!important;
 }
