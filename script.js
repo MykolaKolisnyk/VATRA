@@ -1706,21 +1706,28 @@ function renderMyVideos(){
  setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><div><h2>Мої відео <span>'+items.length+'</span></h2><p>Відеозаписи з Ваших дописів на сторінці. Кліпи публікуються окремо у розділі «Кліпи» та сюди не додаються.</p></div></div>'+
   '<div class="vatra-my-videos-grid">'+(grid||'<p class="vatra-my-video-empty">Відеозаписів поки немає.</p>')+'</div></section>',false);
 }
-let vatraClipsObserver=null;
+let vatraClipsObserver=null,vatraClipsVisibilityCleanup=null;
 let vatraClipsMuted=true;
+function teardownVatraClips(){
+ if(vatraClipsObserver){vatraClipsObserver.disconnect();vatraClipsObserver=null;}
+ if(vatraClipsVisibilityCleanup){vatraClipsVisibilityCleanup();vatraClipsVisibilityCleanup=null;}
+ document.querySelectorAll('.vatra-clips-feed video').forEach(video=>video.pause());
+}
 // The dedicated Clips feed uses ONLY records explicitly published as clips.
 // Ordinary post videos stay in the person's "Відео" section.
 function renderVideos(){
- if(vatraClipsObserver){vatraClipsObserver.disconnect();vatraClipsObserver=null;}
+ teardownVatraClips();
  const arr=Object.entries(videos||{}).map(([id,v])=>({...v,id}))
-  .filter(v=>v?.kind==='clip'&&v.videoUrl&&v.authorUid&&!blockedUsers[v.authorUid])
+  .filter(v=>v?.kind==='clip'&&typeof v.videoUrl==='string'&&/^https:\/\//i.test(v.videoUrl)&&v.authorUid&&!blockedUsers[v.authorUid])
   .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
  const rows=arr.map((v,index)=>'<article class="vatra-clip" data-vatra-clip="'+esc(v.id)+'">'+
-  '<div class="vatra-clip-frame"><video class="vatra-clip-media" playsinline loop preload="metadata" muted controls src="'+esc(v.videoUrl)+'" aria-label="Кліп: '+esc(v.text||v.authorName||'ВАТРА')+'"></video></div>'+
+  '<div class="vatra-clip-frame"><video class="vatra-clip-media" playsinline loop preload="none" muted data-vatra-clip-source="'+esc(v.videoUrl)+'" aria-label="Кліп: '+esc(v.text||v.authorName||'ВАТРА')+'"></video>'+
+   '<button type="button" class="vatra-clip-play-toggle" data-vatra-clip-play aria-label="Відтворити кліп">'+window.vatraIcon('play')+'</button>'+
+   '<div class="vatra-clip-progress" role="progressbar" aria-label="Прогрес кліпу" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div></div>'+
   '<div class="vatra-clip-top-label"><span>Кліп '+(index+1)+' із '+arr.length+'</span><span>ВАТРА</span></div>'+
   '<div class="vatra-clip-rail">'+
    '<button type="button" data-vatra-clip-mute aria-label="Увімкнути звук" title="Увімкнути звук">'+
-    window.vatraIcon('mute')+'</button>'+
+    window.vatraIcon(vatraClipsMuted?'mute':'volume')+'</button>'+
    '<button type="button" data-vatra-clip-up aria-label="Попередній кліп" title="Попередній кліп"'+(index===0?' disabled':'')+'>'+
     window.vatraIcon('chevron-up')+'</button>'+
    '<button type="button" data-vatra-clip-down aria-label="Наступний кліп" title="Наступний кліп"'+(index===arr.length-1?' disabled':'')+'>'+
@@ -1740,36 +1747,92 @@ function renderVideos(){
  $('#uploadVideoBtn')?.addEventListener('click',()=>$('#videoUpload')?.click());
  $('#videoUpload')?.addEventListener('change',uploadVideo);
  const clips=$('#feed .vatra-clips-feed');if(!clips)return;
+ const items=[...clips.querySelectorAll('.vatra-clip')];
+ const ratios=new Map(items.map(item=>[item,0]));
+ let activeItem=null;
+ const ensureClipSource=(item,preload='metadata')=>{
+  const video=item?.querySelector('video');if(!video)return;
+  if(!video.hasAttribute('src')&&video.dataset.vatraClipSource){
+   video.preload=preload;video.src=video.dataset.vatraClipSource;video.load();
+  }else if(video.hasAttribute('src'))video.preload=preload;
+ };
+ const syncClipAudio=video=>{
+  const button=video.closest('.vatra-clip')?.querySelector('[data-vatra-clip-mute]');
+  if(!button)return;
+  button.innerHTML=window.vatraIcon(video.muted?'mute':'volume');
+  button.classList.toggle('is-unmuted',!video.muted);
+  button.setAttribute('aria-label',video.muted?'Увімкнути звук':'Вимкнути звук');
+  button.setAttribute('title',video.muted?'Увімкнути звук':'Вимкнути звук');
+ };
+ const pauseAllClips=()=>items.forEach(item=>item.querySelector('video')?.pause());
+ const activateClip=item=>{
+  if(!item||page!=='videos'||document.visibilityState!=='visible')return;
+  activeItem=item;
+  const activeIndex=items.indexOf(item);
+  items.forEach((candidate,index)=>{
+   const video=candidate.querySelector('video');if(!video)return;
+   if(candidate===item){
+    ensureClipSource(candidate,'auto');video.muted=vatraClipsMuted;syncClipAudio(video);
+    if(video.paused&&candidate.dataset.vatraClipPaused!=='true')void video.play().catch(()=>{video.controls=true;});
+   }else{
+    video.pause();delete candidate.dataset.vatraClipPaused;
+    if(Math.abs(index-activeIndex)===1)ensureClipSource(candidate,'metadata');
+   }
+  });
+ };
+ items.forEach(item=>{
+  const video=item.querySelector('video');if(!video)return;
+  const refreshPlay=()=>{
+   item.classList.toggle('is-playing',!video.paused);
+   const button=item.querySelector('[data-vatra-clip-play]');
+   if(button){
+    button.innerHTML=window.vatraIcon(video.paused?'play':'pause');
+    button.setAttribute('aria-label',video.paused?'Відтворити кліп':'Призупинити кліп');
+   }
+  };
+  const refreshProgress=()=>{
+   const track=item.querySelector('.vatra-clip-progress');
+   if(!track)return;
+   const progress=Number.isFinite(video.duration)&&video.duration>0?Math.max(0,Math.min(100,100*video.currentTime/video.duration)):0;
+   track.firstElementChild.style.width=progress.toFixed(2)+'%';
+   track.setAttribute('aria-valuenow',String(Math.round(progress)));
+  };
+  video.addEventListener('play',()=>{items.forEach(other=>{if(other!==item)other.querySelector('video')?.pause();});refreshPlay();});
+  video.addEventListener('pause',refreshPlay);
+  video.addEventListener('timeupdate',refreshProgress);
+  video.addEventListener('durationchange',refreshProgress);
+  refreshPlay();
+ });
  clips.addEventListener('click',event=>{
   const item=event.target.closest('.vatra-clip');if(!item)return;
   const video=item.querySelector('video');if(!video)return;
   if(event.target.closest('[data-vatra-clip-mute]')){
-   video.muted=!video.muted;vatraClipsMuted=video.muted;
-   clips.querySelectorAll('video').forEach(other=>{if(other!==video)other.muted=vatraClipsMuted;});
-   const button=item.querySelector('[data-vatra-clip-mute]');
-   button.setAttribute('aria-label',video.muted?'Увімкнути звук':'Вимкнути звук');
-   button.setAttribute('title',video.muted?'Увімкнути звук':'Вимкнути звук');
-   button.classList.toggle('is-unmuted',!video.muted);
-   if(!video.paused)void video.play().catch(()=>{});
+   vatraClipsMuted=!video.muted;video.muted=vatraClipsMuted;syncClipAudio(video);
+   if(!video.paused)void video.play().catch(()=>{video.controls=true;});
   }else if(event.target.closest('[data-vatra-clip-up],[data-vatra-clip-down]')){
    const move=event.target.closest('[data-vatra-clip-up]')?-1:1;
-   const items=[...clips.querySelectorAll('.vatra-clip')],target=items[items.indexOf(item)+move];
-   target?.scrollIntoView({behavior:'smooth',block:'start'});
+   const target=items[items.indexOf(item)+move];
+   target?.scrollIntoView({behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches?'auto':'smooth',block:'start'});
+  }else if(event.target.closest('[data-vatra-clip-play],video.vatra-clip-media')){
+   if(video.paused){
+    delete item.dataset.vatraClipPaused;
+    ensureClipSource(item,'auto');activeItem=item;
+    items.forEach(other=>{if(other!==item)other.querySelector('video')?.pause();});
+    void video.play().catch(()=>{video.controls=true;});
+   }else{
+    item.dataset.vatraClipPaused='true';video.pause();
+   }
   }
  });
  vatraClipsObserver=new IntersectionObserver(entries=>{
-  for(const entry of entries){
-   const video=entry.target.querySelector('video');if(!video)continue;
-   if(entry.isIntersecting&&entry.intersectionRatio>=.72&&page==='videos'&&document.visibilityState==='visible'){
-    clips.querySelectorAll('video').forEach(other=>{if(other!==video)other.pause();});
-    video.muted=vatraClipsMuted;
-    const button=entry.target.querySelector('[data-vatra-clip-mute]');
-    if(button){button.classList.toggle('is-unmuted',!video.muted);button.setAttribute('aria-label',video.muted?'Увімкнути звук':'Вимкнути звук');}
-    void video.play().catch(()=>{video.setAttribute('controls','');});
-   }else video.pause();
-  }
- },{root:clips,threshold:[0,.72,1]});
- clips.querySelectorAll('.vatra-clip').forEach(item=>vatraClipsObserver.observe(item));
+  entries.forEach(entry=>ratios.set(entry.target,entry.isIntersecting?entry.intersectionRatio:0));
+  const best=[...ratios].sort((a,b)=>b[1]-a[1])[0];
+  if(best&&best[1]>=.55)activateClip(best[0]);else pauseAllClips();
+ },{root:clips,threshold:[0,.55,.72,1]});
+ items.forEach(item=>vatraClipsObserver.observe(item));
+ const onVisibility=()=>{if(document.visibilityState!=='visible')pauseAllClips();else if(activeItem)activateClip(activeItem);};
+ document.addEventListener('visibilitychange',onVisibility);
+ vatraClipsVisibilityCleanup=()=>document.removeEventListener('visibilitychange',onVisibility);
 }
 let vatraComposerGroupId=null;
 const vatraGroupCommentOpen=Object.create(null);
@@ -2843,7 +2906,7 @@ function render(){if(!feed)return;
  if(externalRoute&&location.hash===externalRoute)return;
  document.body.dataset.page=page;if(page==='explore'&&document.activeElement?.closest('#vatraSearchForm'))return;if(currentUser&&(!initialDataReady||(page==='saved'&&!vatraPageDataReady.saved)||(page==='friends'&&!vatraPageDataReady.friends)||(page==='messages'&&!vatraPageDataReady.messages))){renderLoadingSkeletons();return;}renderGettingStarted();if(page==='music')return vatraShowMusic(currentUser?.uid);if(page==='notifications')return renderNotifications();if(page==='saved')return renderSaved();if(page==='settings')return renderSettings();if(page==='groupSettings')return renderGroupSettings(groupId);if(page==='friends')return renderFriends();if(page==='gifts'){setFeed('<section class="vatra-gifts-page">Завантаження подарунків…</section>');void window.vatraRenderGifts?.(currentUser?.uid);return;}if(page==='publicProfile')return; if(page==='myVideos')return renderMyVideos();if(page==='videos')return renderVideos();if(page==='photos')return renderPhotos();if(page==='groups')return groupId&&groups[groupId]?renderGroupDetails(groupId):renderGroups();if(page==='messages')return renderMessages();if(page==='explore')return renderExplore();if(page==='profile')return renderProfile();renderFeed();}
 const pages={music:['ВАТРА · МУЗИКА','Музика','Слухайте українські пісні й артистів в офіційному Spotify.'],friends:['ВАШЕ КОЛО','Друзі','Керуйте запитами та знаходьте знайомих.'],gifts:['ВАШЕ КОЛО','Подарунки','Колекція подарунків ВАТРИ для Вас і Ваших друзів.'],notifications:['ВАШЕ КОЛО','Сповіщення','Запити в друзі, реакції на Ваші дописи та нові повідомлення.'],feed:['ВАШЕ КОЛО','Новини','Дописи друзів і спільнот, за якими Ви стежите.'],photos:['МОЇ МОМЕНТИ','Фотографії','Ваш альбом і зображення з дописів.'],videos:['ВАТРА · КЛІПИ','ВАТРА Кліпи','Окремі короткі вертикальні відео у стрічці ВАТРИ.'],myVideos:['МОЇ ВІДЕО','Відео','Ваші власні відеозаписи.'],explore:['ЗНАХОДЬТЕ СВОЄ','Відкриття','Знайомтеся з людьми та відкривайте цікаві дописи.'],messages:['БУДЬТЕ НА ЗВʼЯЗКУ','Повідомлення','Приватні розмови з людьми ВАТРИ.'],groups:['РАЗОМ ЦІКАВІШЕ','Спільноти','Знаходьте людей, з якими є про що говорити.'],saved:['ТЕ, ЩО ВАЖЛИВО','Збережене','Дописи, до яких хочеться повернутися.'],profile:['ВАША ІСТОРІЯ','Сторінка','Ваш простір у ВАТРІ.'],settings:['НАЛАШТУВАННЯ','Налаштування сторінки','Керуйте інформацією, фотографіями та приватністю сторінки.'],groupSettings:['СПІЛЬНОТА','Керування спільнотою','Налаштовуй опис, діяльність і команду спільноти.']};
-function goPage(p){if(!pages[p])p='feed';const previousPage=page;const entering=p!==previousPage;if(p==='settings'){vatraSettingsContext=vatraOpeningEditProfile?'edit':'settings';vatraSettingsSection=vatraOpeningEditProfile?'profile':'appearance';}if(entering){if(p==='friends')vatraFriendsTab='all';if(p==='feed')filter='all';if(p!=='explore'&&p!=='feed'){query='';const input=$('#search');if(input)input.value='';}if(p!=='messages')editingMessageId=null;if(p!=='profile'&&p!=='publicProfile')activeProfileUid=null;}if(p!=='explore')profileAttributeSearch=null;navigation.setPage(p);if(p==='settings'&&!authRequired())return;const main=$('.layout>.main');if(main){main.classList.remove('vatra-page-enter');void main.offsetWidth;main.classList.add('vatra-page-enter');}page=p;window.vatraRouteChanged?.({page:p});vatraMusicRouteChanged(p==='music');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}if(p!=='messages')stopChatListener();groupId=null;const c=pages[p]||pages.feed;$('#title').textContent=p==='settings'&&vatraSettingsContext==='edit'?'Редагування сторінки':c[1];$('#subtitle').textContent=p==='settings'&&vatraSettingsContext==='edit'?'Оновіть інформацію та приватність полів Вашої сторінки.':c[2];$('.heading .eyebrow').textContent=c[0];const navPage=p==='settings'&&vatraSettingsContext==='edit'?'profile':p;$$('a[data-page]').forEach(b=>{const active=b.dataset.page===navPage;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});$$('.mobile-nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===navPage));$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter&&p==='feed'));const composer=$('.quick-compose');if(composer)composer.hidden=p!=='feed';const sort=$('#sort');if(sort)sort.hidden=p!=='feed';if(p==='messages'&&previousPage!=='messages'){activeChat=null;vatraChatUnreadOnly=false;}render();window.scrollTo(0,0);if(p==='notifications')markNotificationsRead();}
+function goPage(p){if(!pages[p])p='feed';const previousPage=page;if(previousPage==='videos'&&p!=='videos')teardownVatraClips();const entering=p!==previousPage;if(p==='settings'){vatraSettingsContext=vatraOpeningEditProfile?'edit':'settings';vatraSettingsSection=vatraOpeningEditProfile?'profile':'appearance';}if(entering){if(p==='friends')vatraFriendsTab='all';if(p==='feed')filter='all';if(p!=='explore'&&p!=='feed'){query='';const input=$('#search');if(input)input.value='';}if(p!=='messages')editingMessageId=null;if(p!=='profile'&&p!=='publicProfile')activeProfileUid=null;}if(p!=='explore')profileAttributeSearch=null;navigation.setPage(p);if(p==='settings'&&!authRequired())return;const main=$('.layout>.main');if(main){main.classList.remove('vatra-page-enter');void main.offsetWidth;main.classList.add('vatra-page-enter');}page=p;window.vatraRouteChanged?.({page:p});vatraMusicRouteChanged(p==='music');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}if(p!=='messages')stopChatListener();groupId=null;const c=pages[p]||pages.feed;$('#title').textContent=p==='settings'&&vatraSettingsContext==='edit'?'Редагування сторінки':c[1];$('#subtitle').textContent=p==='settings'&&vatraSettingsContext==='edit'?'Оновіть інформацію та приватність полів Вашої сторінки.':c[2];$('.heading .eyebrow').textContent=c[0];const navPage=p==='settings'&&vatraSettingsContext==='edit'?'profile':p;$$('a[data-page]').forEach(b=>{const active=b.dataset.page===navPage;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});$$('.mobile-nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===navPage));$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter&&p==='feed'));const composer=$('.quick-compose');if(composer)composer.hidden=p!=='feed';const sort=$('#sort');if(sort)sort.hidden=p!=='feed';if(p==='messages'&&previousPage!=='messages'){activeChat=null;vatraChatUnreadOnly=false;}render();window.scrollTo(0,0);if(p==='notifications')markNotificationsRead();}
 window.addEventListener('vatra:navigate',event=>{if(['music','notifications'].includes(event.detail))goPage(event.detail);});
 window.addEventListener('vatra:verified-notices',()=>{updateNotificationBadges();if(page==='notifications')renderNotifications();try{renderNotificationDropdown();}catch{}});
 function resetPollComposer(){const fields=$('#pollOptionFields');fields.innerHTML='<label class="poll-option-field"><span>1</span><input name="pollOption" maxlength="80" placeholder="Перший варіант" aria-label="Перший варіант відповіді" autocomplete="off"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label><label class="poll-option-field"><span>2</span><input name="pollOption" maxlength="80" placeholder="Другий варіант" aria-label="Другий варіант відповіді" autocomplete="off"><button type="button" data-remove-poll-option aria-label="Видалити варіант">×</button></label>';$('#pollComposer').hidden=true;$('#togglePoll').setAttribute('aria-expanded','false');}
