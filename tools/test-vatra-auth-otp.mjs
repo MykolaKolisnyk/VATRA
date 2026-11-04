@@ -15,8 +15,8 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="recoveryMethodWrap" hidden'),'Recovery must be email-only while SMS is unavailable');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261104-recovery2'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-recovery2'),file+': stale auth CSS version');
+ assert.ok(html.includes('auth.js?v=20261104-international1'),file+': stale auth JS version');
+ assert.ok(html.includes('auth.css?v=20261104-international1'),file+': stale auth CSS version');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
 const required=[
@@ -49,6 +49,10 @@ assert.ok(auth.includes('const VATRA_SMS_AUTH_ENABLED=false'),'Production rollou
 assert.ok(auth.includes("selectedMethod=()=>VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate UI selection');
 assert.ok(auth.includes("function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate recovery selection');
 assert.ok(auth.includes("if(details.isPhone&&!VATRA_SMS_AUTH_ENABLED)"),'Hidden or modified SMS controls cannot start delivery');
+assert.ok(auth.includes("verifiedUser.email_confirmed_at"),'Registration must check server-confirmed email before creating any VATRA profile');
+assert.ok(auth.includes("await db.client.auth.getUser()"),'Verification must call the trusted Supabase Auth server');
+for(const code of ['+380','+48','+49','+33','+34','+351','+39','+44','+1'])assert.ok(auth.includes("dial:'"+code+"'"),'Country dial code missing: '+code);
+assert.ok(auth.includes("if(reg&&auth.currentUser)"),'Active session must never silently register another account');
 assert.ok(auth.includes("$('#recoveryMethodWrap').hidden=!VATRA_SMS_AUTH_ENABLED"),'Only configured recovery methods should be presented');
 assert.ok(auth.includes("syncExistingAccountHelp(mode==='register'&&err?.code==='auth/email-already-in-use')"),'Duplicate account should show a useful login action');
 assert.ok(css.includes('Recovery dialog: compact, readable, responsive'),'Recovery must have compact modal layout');
