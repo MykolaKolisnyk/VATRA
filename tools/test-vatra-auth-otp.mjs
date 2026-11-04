@@ -15,8 +15,8 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="recoveryMethodWrap"')&&!html.includes('id="recoveryMethodWrap" hidden'),'Recovery method switch must be visible');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261104-auth-recovery-flags3'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-auth-recovery-flags3'),file+': stale auth CSS version');
+ assert.ok(html.includes('auth.js?v=20261104-phone-numeric2'),file+': stale auth JS version');
+ assert.ok(html.includes('auth.css?v=20261104-phone-compact2'),file+': stale auth CSS version');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
 const required=[
