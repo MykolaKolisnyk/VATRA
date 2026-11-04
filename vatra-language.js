@@ -297,6 +297,7 @@ function translateRoot(root){
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  while(walker.nextNode())translateText(walker.currentNode);
  root.querySelectorAll?.('input[placeholder],textarea[placeholder]').forEach(el=>{
+   if(el.matches('input[type="tel"]'))return; // Keep the live country-specific phone example.
   const original=el.dataset.vatraOriginalPlaceholder||el.getAttribute('placeholder');
   if(!el.dataset.vatraOriginalPlaceholder)el.dataset.vatraOriginalPlaceholder=original;
   const text=interfaceLabel(original);
@@ -403,7 +404,7 @@ function vatraLanguageDialog(){
  dlg=document.createElement('dialog');dlg.id='vatraLanguageDialog';dlg.className='vatra-language-dialog';
  dlg.setAttribute('aria-labelledby','vatraLanguageDialogTitle');
  const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-selected="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+(translatedLanguages.has(code)?'':partialLanguages.has(code)?'<small>Частково</small>':'<small>Переклад готується</small>')+'</button>';
- dlg.innerHTML='<header class="vatra-language-dialog-header"><div class="vatra-language-dialog-brand"><img src="vatra-flame.svg?v=20261104-1" class="vatra-language-dialog-logo" width="44" height="44" alt="" aria-hidden="true" decoding="async"><div><h2 id="vatraLanguageDialogTitle">Мова ВАТРИ</h2><p>Оберіть мову інтерфейсу. Активну позначено галочкою.</p></div></div><button type="button" class="vatra-language-close" data-vatra-language-close aria-label="Закрити вибір мови">×</button></header>'+
+ dlg.innerHTML='<header class="vatra-language-dialog-header"><div class="vatra-language-dialog-brand"><img src="favicon.svg?v=20261103-original" class="vatra-language-dialog-logo" width="44" height="44" alt="" aria-hidden="true" decoding="async"><div><h2 id="vatraLanguageDialogTitle">Мова ВАТРИ</h2><p>Оберіть мову інтерфейсу. Активну позначено галочкою.</p></div></div><button type="button" class="vatra-language-close" data-vatra-language-close aria-label="Закрити вибір мови">×</button></header>'+
  '<input class="vatra-language-search" type="search" placeholder="Знайти мову…" aria-label="Пошук мови" autocomplete="off">'+
  '<div class="vatra-language-picker-list" role="group" aria-label="Вибір мови">'+
  '<div class="vatra-language-picker-category">Мови з перекладом</div>'+languages.filter(([code])=>translatedLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+
@@ -417,13 +418,71 @@ function vatraLanguageDialog(){
  dlg.addEventListener('click',event=>{
   if(event.target===dlg||event.target.closest('[data-vatra-language-close]')){dlg.close();return;}
   const button=event.target.closest('[data-vatra-language-code]');
-  if(!button||!activeLanguageSelect)return;
+  if(!button)return;
   const chosen=button.dataset.vatraLanguageCode;
-  activeLanguageSelect.value=chosen;
-  activeLanguageSelect.dispatchEvent(new Event('change',{bubbles:true}));
+  if(activeLanguageSelect){
+   activeLanguageSelect.value=chosen;
+   activeLanguageSelect.dispatchEvent(new Event('change',{bubbles:true}));
+  }else setLanguage(chosen);
   dlg.close();
  });
  return dlg;
+}
+function vatraShowLanguageDialog(select=null){
+ const dlg=vatraLanguageDialog();
+ activeLanguageSelect=select;
+ dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>
+  button.setAttribute('aria-selected',String(button.dataset.vatraLanguageCode===language)));
+ const search=dlg.querySelector('.vatra-language-search');search.value='';
+ dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.hidden=false);
+ dlg.showModal();search.focus();
+}
+/* Four shortcuts on the blue panel; mobile has a compact equivalent below
+   the form because the blue side is intentionally hidden on small screens. */
+function vatraInstallAuthLanguageQuick(){
+ const brand=document.querySelector('.auth-layout>.brand-side');
+ const form=document.querySelector('.auth-layout>.form-side');
+ if(!brand||!form)return;
+ let desktop=brand.querySelector('.vatra-auth-language-quick');
+ if(!desktop){
+  desktop=document.createElement('nav');desktop.className='vatra-auth-language-quick';
+  desktop.setAttribute('aria-label','Швидкий вибір мови');
+  const foot=brand.querySelector('.brand-foot');
+  if(foot)foot.before(desktop);else brand.append(desktop);
+ }
+ let mobile=form.querySelector('.vatra-auth-language-mobile');
+ if(!mobile){
+  mobile=document.createElement('nav');mobile.className='vatra-auth-language-mobile';
+  mobile.setAttribute('aria-label','Швидкий вибір мови');
+  const copyright=form.querySelector('.vatra-auth-mobile-copyright');
+  if(copyright)copyright.before(mobile);else form.append(mobile);
+ }
+ const codes=[...new Set([language,'uk','en','pl','de'])].slice(0,4);
+ for(const host of [desktop,mobile]){
+  if(host.dataset.renderedLanguage===language&&host.childElementCount)return;
+  host.replaceChildren();
+  const heading=document.createElement('p');heading.className='vatra-auth-language-heading';
+  heading.textContent='Мова інтерфейсу';host.append(heading);
+  const row=document.createElement('div');row.className='vatra-auth-language-list';
+  for(const code of codes){
+   const choice=document.createElement('button');choice.type='button';
+   choice.className='vatra-auth-language-option';choice.dataset.vatraAuthLanguage=code;
+   if(code===language){choice.classList.add('is-active');choice.setAttribute('aria-current','true');}
+   const flag=document.createElement('span');flag.className='vatra-auth-language-flag';
+   flag.innerHTML=vatraFlagSVG(code);
+   const label=document.createElement('span');
+   label.textContent=({uk:'Українська',en:'English',pl:'Polski',de:'Deutsch',fr:'Français',es:'Español',pt:'Português',it:'Italiano'})[code]||
+      (languages.find(([id])=>id===code)?.[1]||code).split(' — ')[0];
+   choice.append(flag,label);
+   choice.addEventListener('click',()=>setLanguage(code));
+   row.append(choice);
+  }
+  const more=document.createElement('button');more.type='button';
+  more.className='vatra-auth-language-all';more.textContent='Усі мови';
+  more.addEventListener('click',()=>vatraShowLanguageDialog());
+  row.append(more);host.append(row);
+  host.dataset.renderedLanguage=language;
+ }
 }
 function vatraEnhanceLanguageSelect(select){
  if(select.dataset.vatraEnhanced==='true')return;
@@ -443,11 +502,7 @@ function vatraEnhanceLanguageSelect(select){
  update();wrap.append(trigger);select.insertAdjacentElement('afterend',wrap);
  trigger.addEventListener('click',event=>{
   event.preventDefault();event.stopPropagation();
-  const dlg=vatraLanguageDialog();activeLanguageSelect=select;
-  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.setAttribute('aria-selected',String(button.dataset.vatraLanguageCode===language)));
-  const search=dlg.querySelector('.vatra-language-search');search.value='';
-  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.hidden=false);
-  dlg.showModal();search.focus();
+  vatraShowLanguageDialog(select);
  });
  select.addEventListener('change',update);
  document.addEventListener('vatra:languagechange',update);
@@ -457,13 +512,7 @@ function syncLanguageNotice(){
  document.querySelectorAll('.vatra-language-notice').forEach(el=>{if(el.textContent!==status)el.textContent=status;if(el.hidden===Boolean(status))el.hidden=!status;});
 }
 function install(){
- const auth=document.querySelector('.form-side .auth-card');
- if(auth&&!document.querySelector('.vatra-language-auth')){
-  const wrap=document.createElement('div');wrap.className='vatra-language-auth';
-  const label=document.createElement('label');label.textContent='Мова інтерфейсу';label.append(selectMarkup());wrap.append(label);
-  const hint=document.createElement('small');hint.className='vatra-language-notice';hint.setAttribute('role','status');wrap.append(hint);
-  auth.insertAdjacentElement('afterend',wrap);
- }
+ vatraInstallAuthLanguageQuick();
  const languageMount=document.querySelector('.vatra-language-settings-mount');
  if(languageMount&&!languageMount.querySelector('.vatra-language-select')){
   const row=document.createElement('label');row.className='vatra-language-pref vatra-language-dedicated';

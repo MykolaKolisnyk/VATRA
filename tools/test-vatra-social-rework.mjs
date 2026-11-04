@@ -20,7 +20,7 @@ for(const hint of ['Переглянути людей із міста','які �
 assert.ok(css.includes('text-decoration:underline solid 1px'),'Profile links must not use dotted underlines');
 const languageJs=read('vatra-language.js'),languageCss=read('vatra-design-system-nov04.css');
 assert.ok(languageJs.includes('class="vatra-language-dialog-header"'),'Language header must use compact layout');
-assert.ok(languageJs.includes('vatra-flame.svg')&&!languageJs.includes('vatra-header.svg?v=20261103-1" class="vatra-language-dialog-logo"'),'Language header must avoid a giant duplicate wordmark');
+assert.ok(languageJs.includes('src="favicon.svg?v=20261103-original" class="vatra-language-dialog-logo"')&&!languageJs.includes('vatra-flame.svg'),'Language header must use actual VATRA V brand mark, never flame');
 assert.ok(languageCss.includes('width:min(800px')&&languageCss.includes('vatra-language-dialog-header'),'Language dialog layout must fit desktop and mobile');
 assert.ok(html.includes('href="#vatra-i-news"'),'News icon must not be a house');
 assert.ok(!html.includes('Свої серед своїх'),'No exclusive positioning in the sidebar');

@@ -16,9 +16,29 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
  assert.ok(html.includes('auth.js?v=20261104-phone-numeric2'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-phone-compact2'),file+': stale auth CSS version');
+ assert.ok(html.includes('auth.css?v=20261104-blue-auth4'),file+': stale auth CSS version');
+ assert.ok(html.includes('vatra-language.js?v=20261104-quick-blue4'),file+': language module cache must be current');
+ assert.ok(html.includes('vatra-design-system-nov04.css?v=20261104-v-logo4'),file+': V logo modal style must be current');
+ assert.ok(html.includes('class="vatra-auth-brand-copyright"'),file+': copyright must be on blue panel');
+ assert.ok(html.includes('class="vatra-auth-mobile-copyright"'),file+': mobile must keep a visible copyright');
+ assert.ok(!html.includes('<footer>© 2026 ВАТРА'),file+': do not keep desktop copyright under the form');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
+const language=read('vatra-language.js');
+const langCss=read('vatra-design-system-nov04.css');
+assert.ok(language.includes('function vatraInstallAuthLanguageQuick()'),'Blue-panel quick selector is required');
+assert.ok(language.includes("new Set([language,'uk','en','pl','de'])"),'Current language must be first among four choices');
+assert.ok(language.includes("more.textContent='Усі мови'"),'Quick language strip needs full language dialog action');
+assert.ok(language.includes("choice.classList.add('is-active')"),'Active quick language must be visibly distinguished');
+assert.ok(language.includes('vatraShowLanguageDialog()'),'All languages must open the existing modal');
+assert.ok(language.includes('else setLanguage(chosen)'),'Language modal must work without an underlying select');
+assert.ok(language.includes("el.matches('input[type=\"tel\"]')"),'Language translator must not restore email placeholder on a phone field');
+assert.ok(!language.includes('auth.insertAdjacentElement(\'afterend\',wrap)'),'Standalone language picker under the form must be removed');
+assert.ok(!language.includes('vatra-flame.svg'),'Language modal must not use fire');
+assert.ok(language.includes('favicon.svg?v=20261103-original'),'Language modal must use the VATRA mark');
+assert.ok(css.includes('.vatra-auth-brand-copyright')&&css.includes('.vatra-auth-language-quick'),'Blue panel language and copyright require styles');
+assert.ok(css.includes('margin:0 auto!important')&&css.includes('min-height:0!important'),'Authentication page should avoid forced blank scroll');
+assert.ok(langCss.includes('background:transparent!important'),'V logo must not inherit the old white-padded flame box');
 const required=[
  "await signUpWithPassword({...fields,password:details.password,userData:details.userData})",
  "if(pendingOtp){await confirmOtp();return;}",
