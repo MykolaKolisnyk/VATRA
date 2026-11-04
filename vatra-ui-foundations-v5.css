@@ -133,3 +133,12 @@ html body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.
 html body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.mobile-nav button).active::after{
  display:none!important;content:none!important;
 }
+
+/* Hover without sliding labels or moving clickable areas. */
+html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon),
+html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){transform:none!important}
+/* Mouse focus has a single rounded border; keyboard focus adds a quiet accessible halo. */
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field):focus-within{box-shadow:none!important}
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field):has(input:focus-visible){
+ box-shadow:0 0 0 2px rgba(37,100,190,.12)!important
+}
