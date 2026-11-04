@@ -28,7 +28,7 @@ const required=[
  "await resendSignupOtp(fields)",
  "await finishRegistration({...challenge,user})",
  "await verifyOtp(challenge.isPhone?",
- "type:'email'",
+ "type:challenge.kind==='signup'?'signup':'email'",
  "type:'recovery'",
  "await sendPasswordResetEmail(auth,contact.toLowerCase())",
  "beginRecoveryCooldown()",
