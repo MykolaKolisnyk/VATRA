@@ -270,24 +270,12 @@ const errors={
  'auth/network-request-failed':'Немає з’єднання з інтернетом.',
  'auth/operation-not-allowed':'Цей спосіб авторизації ще не увімкнений у налаштуваннях.',
  'auth/invalid-credential':'Пароль неправильний або акаунт не знайдено. Перевірте дані та спробуйте ще раз.',
- 'auth/confirmation-required':'Для реєстрації з кодом увімкніть Confirm email / Confirm phone у Supabase та налаштуйте доставку кодів.',
  'auth/user-not-found':'Акаунт не знайдено. Спочатку створіть акаунт.',
  'auth/weak-password':'Пароль занадто слабкий.',
  'auth/invalid-phone-number':'Перевірте номер у міжнародному форматі, наприклад +380XXXXXXXXX.',
  'auth/invalid-otp':'Код неправильний. Перевірте цифри та спробуйте ще раз.',
  'auth/otp-expired':'Термін дії коду завершився. Запросіть новий код.',
  'auth/unknown':'Не вдалося надіслати або перевірити код. Перевірте налаштування SMS-провайдера та спробуйте ще раз.',
- 'vatra/rate-limited':'Забагато кодів за останню годину. Спробуйте пізніше.',
- 'vatra/wait-resend':'Зачекайте 30 секунд перед повторним надсиланням.',
- 'vatra/delivery-not-configured':'Надсилання email або SMS ВАТРИ ще не налаштоване на сервері.',
- 'vatra/service-not-configured':'Сервер підтвердження ВАТРИ ще не налаштований. Потрібно розгорнути функцію та додати секрети пошти/SMS у Supabase.',
- 'vatra/delivery-failed':'Supabase не доставив код. Для email потрібен налаштований SMTP і шаблон із {{ .Token }}; для SMS — увімкнений Phone provider та SMS-провайдер. Причину перевірте у Supabase → Authentication → Logs.',
- 'vatra/invalid-code':'Код неправильний. Перевірте його та спробуйте ще раз.',
- 'vatra/code-expired':'Термін дії коду завершився. Надішліть новий код.',
- 'vatra/too-many-attempts':'Забагато неправильних спроб. Надішліть новий код.',
- 'vatra/verify-failed':'Не вдалося підтвердити код. Перевірте налаштування ВАТРИ.',
- 'vatra/registration-data':'Перевірте ім’я, прізвище та пароль.',
- 'vatra/account-creation-failed':'Не вдалося створити акаунт. Спробуйте пізніше.'
 };
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
 let humanPauseUntil=0;try{humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);}catch{}
