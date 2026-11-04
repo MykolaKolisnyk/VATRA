@@ -8,7 +8,7 @@ import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
 import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261104-8';
 // Install the moderation route guards before the first profile or group is rendered.
 import './vatra-ban-pages.js?v=20261104-8';
-import { initializeApp, getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia } from './vatra-backend.js?v=20261104-8';
+import { initializeApp, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia } from './vatra-backend.js?v=20261104-8';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
@@ -3871,7 +3871,8 @@ async function startChatWith(uid){
 }
 $('#communityClose').onclick=()=>$('#communityDialog').close();$('#communityCancel').onclick=()=>$('#communityDialog').close();
 $('#communityForm').addEventListener('submit',async e=>{e.preventDefault();if(!authRequired())return;const form=e.currentTarget,fd=new FormData(form),name=String(fd.get('name')||'').trim(),description=String(fd.get('description')||'').trim(),category=VATRA_GROUP_TOPICS[String(fd.get('category')||'').trim()]||'',btn=form.querySelector('[type=submit]');if(!category){$('#communityError').textContent='Оберіть тематику спільноти.';$('#communityCategory')?.focus();return;}if(name.length<2){$('#communityError').textContent='Назва має містити щонайменше 2 символи.';return;}btn.disabled=true;btn.textContent='Створюємо…';let groupRef=null;try{groupRef=push(ref(db,'groups'));await set(groupRef,{name:name.slice(0,60),description:description.slice(0,500),category:category.slice(0,80),ownerUid:currentUser.uid,galleryAutoInclude:fd.get('galleryAutoInclude')==='on',moderatorsCanPost:true,createdAt:Date.now()});try{await set(ref(db,`groupMembers/${groupRef.key}/${currentUser.uid}`),{joinedAt:Date.now()});}catch(err){await remove(groupRef);throw err;}$('#communityDialog').close();form.reset();goPage('groups');toastMsg('Спільноту створено. Ви — її творець.');}catch(err){$('#communityError').textContent=niceError(err);}finally{btn.disabled=false;btn.textContent='Створити спільноту';}});$('#authForm').addEventListener('submit',async e=>{
- e.preventDefault();const email=$('#authEmail').value.trim().toLowerCase(),password=$('#authPassword').value,name=$('#authName').value.trim(),confirmPassword=$('#authConfirmPassword').value,btn=$('#authSubmit');
+ e.preventDefault();
+ if(authMode==='register'){location.assign('auth.html?mode=register');return;}const email=$('#authEmail').value.trim().toLowerCase(),password=$('#authPassword').value,name=$('#authName').value.trim(),confirmPassword=$('#authConfirmPassword').value,btn=$('#authSubmit');
  $('#authError').textContent='';$('#authError').classList.remove('success');
  if(!email||!$('#authEmail').validity.valid){$('#authError').textContent='Введіть коректну адресу електронної пошти.';$('#authEmail').focus();return;}
  if(authMode==='register'&&name.trim().split(/\s+/).length<2){$('#authError').textContent='Вкажіть ім’я та прізвище.';$('#authName').focus();return;}
@@ -3887,15 +3888,11 @@ $('#communityForm').addEventListener('submit',async e=>{e.preventDefault();if(!a
    $('#authError').textContent='Якщо акаунт із цією адресою існує, на неї надіслано лист для відновлення пароля.';$('#authError').classList.add('success');return;
   }
   if(modeAtSubmit==='register'){
-   const parts=name.trim().split(/\s+/);const cred=await createUserWithEmailAndPassword(auth,email,password,{displayName:name,name,firstName:parts[0],lastName:parts.slice(1).join(' '),dateOfBirth:$('#authBirthday').value});
-   if(!cred.session){$('#authError').textContent='Для завершення реєстрації потрібно підтвердити електронну пошту. Перевірте вхідні листи та папку «Спам».';return;}
-   try{await updateProfile(cred.user,{displayName:name});}catch(profileErr){console.warn('Display name update deferred:',profileErr);}
-   const handle=name.toLocaleLowerCase('uk-UA').replace(/[^\p{L}\p{N}]+/gu,'.').replace(/^\.|\.$/g,'').slice(0,24)||'user';
-   try{const parts=name.trim().split(/\s+/);const profile={name,firstName:parts[0],lastName:parts.slice(1).join(' '),handle,bio:'',gender:['male','female'].includes(meta.gender)?meta.gender:'',birthdayVisibility:'private',profileVisibility:'public',searchable:true,createdAt:Date.now()};await set(ref(db,`users/${cred.user.uid}`),profile);await set(ref(db,`publicProfiles/${cred.user.uid}`),publicProfileData(profile));await set(ref(db,`privateUsers/${cred.user.uid}`),{dateOfBirth:$('#authBirthday').value,updatedAt:Date.now()});}
-   catch(profileDbErr){console.warn('Profile write will be retried by auth state handler:',profileDbErr);}
-  }else{
-   await signInWithEmailAndPassword(auth,email,password);
+   // Removed old password-only signup. All registration uses the dedicated
+   // VATRA OTP screen (Supabase verifies the contact before page creation).
+   location.replace('auth.html?mode=register');return;
   }
+  await signInWithEmailAndPassword(auth,email,password);
   authDialog.close();$('#authForm').reset();toastMsg(modeAtSubmit==='register'?'Акаунт створено. Ласкаво просимо до ВАТРИ!':'Вхід виконано. Раді бачити Вас знову!');
  }catch(err){$('#authError').textContent=niceError(err);}
  finally{btn.disabled=false;$('#authSwitch').disabled=false;$('#resetPassword').disabled=false;btn.textContent=authMode==='register'?'Створити акаунт':authMode==='reset'?'Надіслати посилання':'Увійти';}
