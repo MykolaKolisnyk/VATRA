@@ -1,7 +1,6 @@
 -- VATRA Clips: isolated social data; never touch existing account/post records.
 -- Only authenticated visitors may read visible clips. Private bookmarks are owner-only.
 -- RLS checks clip existence through already-protected app_data.
-begin;
 create table if not exists public.vatra_clip_likes (
   clip_id text not null check (length(clip_id) between 1 and 100),
   user_id uuid not null default auth.uid(),
@@ -113,4 +112,3 @@ comment on table public.vatra_clip_likes is 'VATRA | Clips | likes';
 comment on table public.vatra_clip_comments is 'VATRA | Clips | comments';
 comment on table public.vatra_clip_bookmarks is 'VATRA | Clips | private saved clips';
 comment on table public.vatra_clip_shares is 'VATRA | Clips | unique sharers';
-commit;
