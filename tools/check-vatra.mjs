@@ -24,7 +24,7 @@ const styling=readFileSync('vatra-interface-fixes.css','utf8');
 for(const [label,test] of [
  ['Gifts restored in sidebar',/data-page="gifts"/.test(main)],
  ['Photos in sidebar',/data-page="photos"/.test(main)],
- ['Music in sidebar',/data-page="music"/.test(main)],
+ ['Music in header',/id="vatraMusicHeaderButton"/.test(main)],
  ['Account settings in sidebar',/data-page="settings"/.test(main)],
  ['Technical support in sidebar',/data-menu-page="supportDesk"/.test(main)],
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
