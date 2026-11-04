@@ -20,13 +20,15 @@
   const restricted=!!feed?.querySelector('.vatra-suspended-page,.vatra-ban-load-error');
   let title='',description=baseDescription,url=location.origin+location.pathname,type='website',photo='';
   let schema=null;
-  if(profileId&&page==='publicProfile'&&feed?.querySelector('.vatra-profile-public-layout')&&!restricted){
-   const name=clean(feed.querySelector('.vatra-profile-name-line h2')?.textContent,88)||'Публічний профіль';
+  if(profileId&&['publicProfile','profile'].includes(page)&&feed?.querySelector('.vatra-profile-public-layout,.vatra-profile-layout')&&!restricted){
+   const name=clean(feed.querySelector('.vatra-profile-name-line h2,.vatra-profile-title-row h2')?.textContent,88)||'Публічний профіль';
    title=name+' · ВАТРА';
    description=clean(feed.querySelector('.vatra-profile-bio,.profile-bio')?.textContent)||'Публічний профіль у ВАТРІ: дописи, друзі, фотографії та спілкування.';
    const img=feed.querySelector('.vatra-profile-avatar-open img')?.src||'';
    if(img.startsWith('https://'))photo=img;
-   url=ORIGIN+'people/'+encodeURIComponent(profileId)+'/';type='profile';
+   const displayedHandle=clean(feed.querySelector('.profile-handle')?.textContent,80).replace(/^@/,'');
+   const canonicalHandle=window.vatraPublicHandle?.(profileId)||displayedHandle||profileId;
+   url=ORIGIN+'people/'+encodeURIComponent(canonicalHandle)+'/';type='profile';
    schema={'@context':'https://schema.org','@type':'ProfilePage',name:title,url,description,mainEntity:{'@type':'Person',name}};
   }else if(groupId&&page==='groups'&&feed?.querySelector('.vatra-group-heading')&&!restricted){
    const name=clean(feed.querySelector('.vatra-group-heading h2')?.textContent,88)||'Спільнота';

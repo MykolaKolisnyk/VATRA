@@ -35,6 +35,7 @@ async function resolveProfileToken(token,photos=false){
  let uid=UUID.test(requested)?requested:'';
  if(!uid){
   if(window.vatraPublicHandle?.(auth.currentUser.uid)===requested)uid=auth.currentUser.uid;
+  else if(window.vatraPublicUid?.(requested))uid=window.vatraPublicUid(requested);
   else{
    try{
     const profiles=await read('publicProfiles');
@@ -96,6 +97,12 @@ document.addEventListener('pointerleave',event=>{
 },true);
 window.addEventListener('popstate',backToRoute);
 window.addEventListener('hashchange',backToRoute);
+// Shared links can be parsed before auth and the public directory finish loading.
+const retryProfileRoute=()=>{
+ if(/^#\/(?:u|profile)\//.test(location.hash)&&auth.currentUser?.uid)backToRoute();
+};
+window.addEventListener('vatra:started',retryProfileRoute);
+window.addEventListener('vatra:profile-directory-ready',retryProfileRoute);
 if(location.hash.startsWith('#/')||location.hash.startsWith('#post-')){let n=0;const original=location.hash;const timer=setInterval(()=>{if(backToRoute()||n++>22)clearInterval(timer);},400);setTimeout(()=>{if(location.hash===original)backToRoute();},2500);}
 function upgrade(){
  document.querySelectorAll('.vatra-post-photo-viewer,.vatra-avatar-viewer').forEach(d=>{

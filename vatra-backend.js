@@ -646,6 +646,7 @@ export async function setAccountPassword(password) {
 export async function signOut() {
   const { error } = await client.auth.signOut();
   if (error) throw authError(error);
+  setRememberMe(false); // Logging out revokes the remember-me preference.
   currentAuth.currentUser = null;
 }
 export async function updateProfile(_user, profile) {
