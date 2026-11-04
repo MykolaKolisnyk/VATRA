@@ -546,10 +546,10 @@ function resetRecoveryChallenge(notice=''){
 function syncRecoveryMethod(){
  const phone=currentRecoveryMethod()==='phone';syncPhoneInputMode($('#recoveryContact'),$('#recoveryCountryCode'),phone?'phone':'email');
  $('#recoveryContactLabel').textContent=phone?'Номер телефону':'Електронна пошта';
- $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати інструкцію';
+ $('#recoverySubmit').textContent=recoveryStep==='verify'?'Підтвердити код і змінити пароль':phone?'Надіслати SMS-код':'Надіслати код на email';
 }
 function openRecovery(){
- recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
+ recoveryFailures=0;recoveryPreviousPair='';recoveryStep='contact';recoveryOtpCooldownUntil=0;if(recoveryOtpCooldownTimer){clearInterval(recoveryOtpCooldownTimer);recoveryOtpCooldownTimer=null;}$('#recoveryForm').reset();$('#recoveryError').textContent='';$('#recoveryError').classList.remove('success');
  $('#recoveryMethodWrap').hidden=false;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
@@ -577,25 +577,23 @@ $('#recoveryForm').addEventListener('submit',async e=>{
   if(!phone&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)){feedback('Введіть коректну адресу електронної пошти.');return;}
   btn.disabled=true;btn.textContent='Надсилаємо…';
   try{
-   if(!phone){
-    await sendPasswordResetEmail(auth,contact.toLowerCase());
-    feedback('Якщо акаунт існує, на пошту надійде посилання для створення нового пароля. Перевірте також папку «Спам».',true);return;
-   }
-   await sendOtp({phone:contact,shouldCreateUser:false});
+   if(phone)await sendOtp({phone:contact,shouldCreateUser:false});
+   else await sendPasswordResetEmail(auth,contact.toLowerCase());
    recoveryStep='verify';$('#recoveryMethodWrap').hidden=true;$('#recoveryContact').readOnly=true;$('#recoveryProtection').hidden=true;
    $('#recoveryOtpWrap').hidden=false;$('#recoveryNewPasswordWrap').hidden=false;$('#recoveryConfirmWrap').hidden=false;
    $('#recoveryOtp').required=true;$('#recoveryNewPassword').required=true;$('#recoveryConfirmPassword').required=true;
-   btn.textContent='Підтвердити код і змінити пароль';feedback('Якщо номер прив’язаний до акаунта, код надіслано SMS. Не передавайте його нікому.',true);return;
+   $('#recoveryOtpWrap label').textContent=phone?'Код із SMS':'Код із листа ВАТРИ';
+   btn.textContent='Підтвердити код і змінити пароль';feedback('Якщо контакт прив’язаний до акаунта, перевірте '+(phone?'SMS.':'пошту: лист має містити код або посилання для відновлення.')+' Не передавайте код нікому.',true);beginRecoveryCooldown();return;
   }catch(err){feedback(errors[err.code]||'Не вдалося надіслати повідомлення. Перевірте з’єднання з ВАТРОЮ.');return;}
   finally{btn.disabled=false;if(recoveryStep==='contact')syncRecoveryMethod();}
  }
  const code=$('#recoveryOtp').value.trim(),password=$('#recoveryNewPassword').value,confirmation=$('#recoveryConfirmPassword').value;
- if(!/^\d{6}$/.test(code)){feedback('Введіть 6-значний код із SMS.');return;}
+ if(!/^\d{6,8}$/.test(code)){feedback('Введіть код із 6–8 цифр.');return;}
  if(!isStrongPassword(password)){feedback('Пароль має містити 12+ символів, великі й малі латинські літери, цифру та спецсимвол.');return;}
  if(password!==confirmation){feedback('Нові паролі не збігаються.');return;}
  btn.disabled=true;btn.textContent='Перевіряємо код…';submitting=true;
  try{
-  await verifyOtp({phone:contact,token:code});await setAccountPassword(password);
+  await verifyOtp(phone?{phone:contact,token:code}:{email:contact,token:code,type:'recovery'});await setAccountPassword(password);
   feedback('Пароль змінено. Ви входите у ВАТРУ.',true);location.replace('index.html');
  }catch(err){feedback(errors[err.code]||'Не вдалося змінити пароль. Перевірте код і спробуйте ще раз.');}
  finally{btn.disabled=false;btn.textContent='Підтвердити код і змінити пароль';submitting=false;}
