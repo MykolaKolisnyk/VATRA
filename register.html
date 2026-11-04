@@ -23,13 +23,14 @@
     <div class="auth-dialog-icon" aria-hidden="true">↻</div>
     <p class="eyebrow">БЕЗПЕЧНИЙ ДОСТУП</p>
     <h2 id="recoveryTitle">Відновлення пароля</h2>
-    <p class="auth-dialog-desc">Введіть пошту свого акаунта — надішлемо одноразовий код для створення нового пароля.</p>
-    <div class="field method-field" id="recoveryMethodWrap" hidden>
-      <span class="field-label">Куди надіслати підтвердження?</span>
-      <div class="method-choice" role="radiogroup" aria-label="Спосіб відновлення">
-        <label><input type="radio" name="recoveryMethod" value="email" checked><span><b>Електронна пошта</b><small>Код для зміни пароля</small></span></label>
-        <label><input type="radio" name="recoveryMethod" value="phone" disabled aria-label="SMS поки недоступні"><span><b>Номер телефону</b><small>Код у SMS — скоро</small></span></label>
+    <p class="auth-dialog-desc">Оберіть email або підтверджений номер телефону. Надішлемо код для безпечної зміни пароля.</p>
+    <div class="field method-field" id="recoveryMethodWrap">
+      <span class="field-label">Виберіть спосіб відновлення</span>
+      <div class="method-choice vatra-recovery-methods" role="radiogroup" aria-label="Спосіб відновлення">
+        <label class="vatra-auth-method-card"><input type="radio" name="recoveryMethod" value="email" checked><i class="vatra-method-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 8 8 6 8-6"/></svg></i><span><b>Електронна пошта</b><small>Код на пошту</small></span></label>
+        <label class="vatra-auth-method-card"><input type="radio" name="recoveryMethod" value="phone"><i class="vatra-method-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg></i><span><b>Номер телефону</b><small>SMS на підтверджений номер</small></span></label>
       </div>
+      <p class="vatra-recovery-method-note" id="vatraRecoveryPhoneNote" hidden>SMS працює лише після підключення SMS-провайдера у ВАТРІ. Якщо SMS не надходить, скористайтеся email.</p>
     </div>
     <div class="field">
       <label for="recoveryContact" id="recoveryContactLabel">Електронна пошта</label>
