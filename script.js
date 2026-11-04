@@ -916,7 +916,7 @@ function profileDetailMarkup(label,value,field=''){
  const linked=VATRA_SEARCH_FIELDS.has(field)
   ?'<button type="button" class="vatra-profile-attribute-link" data-profile-search-field="'+field+'" data-profile-search-value="'+safe+'" title="Знайти людей за цими даними">'+safe+'</button>'
   :'<b>'+safe+'</b>';
- const iconKey=({'День народження':'birthday','Місто':'city','Місце проживання':'location','Місце роботи':'workplace','Навчання':'education','Рідне місто':'hometown','Телефон':'phone','Вебсайт':'website'})[label]||field;
+ const iconKey=({'Стать':'gender','День народження':'birthday','Місто':'city','Місце проживання':'location','Місце роботи':'workplace','Навчання':'education','Рідне місто':'hometown','Телефон':'phone','Вебсайт':'website'})[label]||field;
  return '<div class="vatra-profile-detail"><span class="vatra-profile-detail-label">'+vatraProfileSvgIcon(iconKey)+esc(label)+'</span>'+linked+'</div>';
 }
 // One visual structure for the overview of both own and other people's profiles.
@@ -978,7 +978,23 @@ const VATRA_PROFILE_EXTRA_SECTIONS={
  life:{title:'Життєва позиція',fields:{lifeNotes:'Погляди та переконання',politics:'Політичні погляди',worldview:'Світогляд',values:'Головне в житті',peopleValues:'Головне в людях',smoking:'Ставлення до куріння',alcohol:'Ставлення до алкоголю',inspiration:'Надихають'}}
 };
 const VATRA_PROFILE_SVG_PATHS={"birthday":"<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M7 3v4M17 3v4M3 10h18\"/>","city":"<path d=\"M3 21V7l7-4v18M10 10l11-4v15M6 10v2m0 3v2m8-4v2m4-5v2m0 3v2\"/>","location":"<path d=\"M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.4\"/>","workplace":"<rect x=\"3\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18\"/>","education":"<path d=\"m2 9 10-5 10 5-10 5L2 9Zm4 2v6c4 3 8 3 12 0v-6M22 9v7\"/>","hometown":"<path d=\"m3 11 9-8 9 8v10H3V11Zm6 10v-7h6v7\"/>","phone":"<path d=\"M6 3h4l1 5-3 2a17 17 0 0 0 6 6l2-3 5 1v4a3 3 0 0 1-3 3A16 16 0 0 1 3 6a3 3 0 0 1 3-3Z\"/>","website":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18\"/>","interests":"<path d=\"m12 2 2.8 6.3L22 9l-5.2 4.6 1.5 7.2L12 17.1l-6.3 3.7 1.5-7.2L2 9l7.2-.7L12 2Z\"/>","hobbies":"<path d=\"m12 2 2.6 6 6.4.6-4.8 4.3 1.3 6.6L12 16l-5.5 3.5 1.3-6.6L3 8.6 9.4 8 12 2Z\"/>","activities":"<rect x=\"3\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18\"/>","music":"<path d=\"M9 18V5l11-2v13M9 9l11-2\"/><ellipse cx=\"6\" cy=\"18\" rx=\"3\" ry=\"2\"/><ellipse cx=\"17\" cy=\"16\" rx=\"3\" ry=\"2\"/>","films":"<rect x=\"3\" y=\"5\" width=\"18\" height=\"15\" rx=\"2\"/><path d=\"M3 10h18M7 5l3 5m3-5 3 5m-7 3 5 3-5 3v-6Z\"/>","books":"<path d=\"M12 6C9 4 6 4 3 5v15c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Zm0 0v15\"/>","games":"<path d=\"M7 9h10a5 5 0 0 1 4.8 6.5l-1 3a2 2 0 0 1-3 1L14 17h-4l-3.8 2.5a2 2 0 0 1-3-1l-1-3A5 5 0 0 1 7 9Z\"/><path d=\"M7 12v4m-2-2h4M16 13h.01M18 15h.01\"/>","service":"<path d=\"M12 2 20 6v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z\"/><path d=\"m9 12 2 2 4-4\"/>","life":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m15.5 8.5-2 5-5 2 2-5 5-2Z\"/>","values":"<path d=\"M12 21 4 12a5 5 0 0 1 8-6 5 5 0 0 1 8 6l-8 9Z\"/>","inspiration":"<path d=\"M9 18h6M10 21h4M9 15c0-2-4-3-4-7a7 7 0 0 1 14 0c0 4-4 5-4 7v1H9v-1Z\"/>","serviceNotes":"<path d=\"M12 2 20 6v6c0 5-3 8-8 10-5-2-8-5-8-10V6l8-4Z\"/><path d=\"m9 12 2 2 4-4\"/>","lifeNotes":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m15.5 8.5-2 5-5 2 2-5 5-2Z\"/>"};
-function vatraProfileSvgIcon(key){const paths=VATRA_PROFILE_SVG_PATHS[key];return paths?'<span class="vatra-profile-line-icon" aria-hidden="true" style="display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 18px!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;min-height:18px!important;max-height:18px!important;vertical-align:middle!important;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="display:block!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;min-height:18px!important;max-height:18px!important;flex:0 0 18px!important;fill:none!important;stroke:currentColor!important;" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+paths+'</svg></span>':'';}
+Object.assign(VATRA_PROFILE_SVG_PATHS,{
+ gender:'<circle cx="12" cy="8" r="4"/><path d="M5 21c0-5 2.8-8 7-8s7 3 7 8"/>',
+ familyStatus:'<path d="M12 21 3 12a5 5 0 0 1 9-3 5 5 0 0 1 9 3l-9 9Z"/>',
+ spokenLanguages:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-4 5-4 13 0 18 4-5 4-13 0-18"/>',
+ familyNotes:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M2 21c0-5 3-8 7-8s7 3 7 8M16 14c3.1 0 6 2 6 7"/>',
+ tv:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M9 22h6M12 19v3"/>',
+ quotes:'<path d="M10 7H5v6h5l-2 5M20 7h-5v6h5l-2 5"/>',
+ educationRecords:'<path d="m2 9 10-5 10 5-10 5-10-5ZM6 12v6c4 3 8 3 12 0v-6"/>',
+ careerRecords:'<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 13h18"/>',
+ serviceRecords:'<path d="M12 2 21 7v5c0 5-4 9-9 10-5-1-9-5-9-10V7l9-5Z"/>',
+ politics:'<path d="M5 21V3l7 3 7-3v18l-7-3-7 3Z"/>',
+ worldview:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-4 5-4 13 0 18 4-5 4-13 0-18"/>',
+ peopleValues:'<path d="M5 21c.3-4 2.8-7 7-7s6.7 3 7 7M8 7a4 4 0 0 1 8 0 4 4 0 0 1-8 0Z"/>',
+ smoking:'<path d="M2 15h14v4H2zM18 15h4v4h-4M18 8c2 0 3 2 1 4"/>',
+ alcohol:'<path d="M6 3h12l-1 7c0 4-3 6-5 6s-5-2-5-6L6 3ZM12 16v5M8 21h8"/>'
+});
+function vatraProfileSvgIcon(key){const paths=VATRA_PROFILE_SVG_PATHS[key]||'<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/>';return paths?'<span class="vatra-profile-line-icon" aria-hidden="true" style="display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 18px!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;min-height:18px!important;max-height:18px!important;vertical-align:middle!important;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="display:block!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;min-height:18px!important;max-height:18px!important;flex:0 0 18px!important;fill:none!important;stroke:currentColor!important;" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+paths+'</svg></span>':'';}
 const VATRA_PROFILE_OPEN_SECTIONS=new Set();
 function vatraExtraSectionsMarkup(values={},visibility={},owner=false,profileId='self',canSeeFriends=false){
  const output=[];
@@ -1660,7 +1676,7 @@ function renderMyVideos(){
   .sort((a,b)=>b.createdAt-a.createdAt);
  const grid=items.map(v=>'<article class="vatra-my-video"><div class="vatra-my-video-info"><b>Відео з допису</b><small>'+timeAgo(v.createdAt)+'</small></div>'+
   '<video controls playsinline preload="metadata" src="'+esc(v.url)+'"></video>'+(v.text?'<p>'+safeText(v.text)+'</p>':'')+'</article>').join('');
- setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><div><h2>Мої відео <span>'+items.length+'</span></h2><p>Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Кліпах».</p></div></div>'+
+ setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><div><h2>Мої відео <span>'+items.length+'</span></h2><p>Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Шортс».</p></div></div>'+
   '<div class="vatra-my-videos-grid">'+(grid||'<p class="vatra-my-video-empty">Відеозаписів поки немає.</p>')+'</div></section>',false);
 }
 let vatraClipsObserver=null;
@@ -1677,7 +1693,7 @@ function renderVideos(){
   (v.authorUid===currentUser?.uid?'<button type="button" class="vatra-clip-action" data-delete-video="'+esc(v.id)+'">Видалити кліп</button>':
    currentUser?'<button type="button" class="vatra-clip-action" data-report-video="'+esc(v.id)+'">Поскаржитися</button>':'')+
   '</div></article>').join('');
- setFeed('<section class="vatra-clips-page"><header class="vatra-clips-header"><div><h2>ВАТРА Кліпи</h2><p>Короткі вертикальні відео тривалістю до 3 хвилин.</p></div>'+
+ setFeed('<section class="vatra-clips-page"><header class="vatra-clips-header"><div><h2>ВАТРА Шортс</h2><p>Короткі вертикальні відео тривалістю до 3 хвилин.</p></div>'+
   (currentUser?'<div><button type="button" class="primary" id="uploadVideoBtn">+ Додати кліп</button><input id="videoUpload" type="file" accept="video/*" hidden></div>':
    '<button type="button" class="primary" id="videoLogin">Увійти</button>')+'</header>'+
   '<div class="vatra-clips-feed">'+(rows||'<p class="vatra-clips-empty">Ще немає кліпів. Поділіться першим!</p>')+'</div></section>',!arr.length);
@@ -2751,7 +2767,7 @@ function render(){if(!feed)return;
  const externalRoute={adminCenter:'#/admin',myReports:'#/my-reports',supportDesk:'#/support',verificationGuide:'#/verification'}[document.body.dataset.page];
  if(externalRoute&&location.hash===externalRoute)return;
  document.body.dataset.page=page;if(page==='explore'&&document.activeElement?.closest('#vatraSearchForm'))return;if(currentUser&&(!initialDataReady||(page==='saved'&&!vatraPageDataReady.saved)||(page==='friends'&&!vatraPageDataReady.friends)||(page==='messages'&&!vatraPageDataReady.messages))){renderLoadingSkeletons();return;}renderGettingStarted();if(page==='music')return vatraShowMusic(currentUser?.uid);if(page==='notifications')return renderNotifications();if(page==='saved')return renderSaved();if(page==='settings')return renderSettings();if(page==='groupSettings')return renderGroupSettings(groupId);if(page==='friends')return renderFriends();if(page==='gifts'){setFeed('<section class="vatra-gifts-page">Завантаження подарунків…</section>');void window.vatraRenderGifts?.(currentUser?.uid);return;}if(page==='publicProfile')return; if(page==='myVideos')return renderMyVideos();if(page==='videos')return renderVideos();if(page==='photos')return renderPhotos();if(page==='groups')return groupId&&groups[groupId]?renderGroupDetails(groupId):renderGroups();if(page==='messages')return renderMessages();if(page==='explore')return renderExplore();if(page==='profile')return renderProfile();renderFeed();}
-const pages={music:['ВАТРА · МУЗИКА','Музика','Слухайте українські пісні й артистів в офіційному Spotify.'],friends:['ВАШЕ КОЛО','Друзі','Керуйте запитами та знаходьте знайомих.'],gifts:['ВАШЕ КОЛО','Подарунки','Колекція подарунків ВАТРИ для Вас і Ваших друзів.'],notifications:['ВАШЕ КОЛО','Сповіщення','Запити в друзі, реакції на Ваші дописи та нові повідомлення.'],feed:['ВАШЕ КОЛО','Новини','Дописи друзів і спільнот, за якими Ви стежите.'],photos:['МОЇ МОМЕНТИ','Фотографії','Ваш альбом і зображення з дописів.'],videos:['КЛІПИ ВАТРИ','ВАТРА Кліпи','Короткі вертикальні відео від спільноти ВАТРИ.'],myVideos:['МОЇ ВІДЕО','Відео','Ваші власні відеозаписи.'],explore:['ЗНАХОДЬТЕ СВОЄ','Відкриття','Знайомтеся з людьми та відкривайте цікаві дописи.'],messages:['БУДЬТЕ НА ЗВʼЯЗКУ','Повідомлення','Приватні розмови з людьми ВАТРИ.'],groups:['РАЗОМ ЦІКАВІШЕ','Спільноти','Знаходьте людей, з якими є про що говорити.'],saved:['ТЕ, ЩО ВАЖЛИВО','Збережене','Дописи, до яких хочеться повернутися.'],profile:['ВАША ІСТОРІЯ','Профіль','Ваш простір у ВАТРІ.'],settings:['НАЛАШТУВАННЯ','Налаштування профілю','Керуйте інформацією, фотографіями та приватністю сторінки.'],groupSettings:['СПІЛЬНОТА','Керування спільнотою','Налаштовуй опис, діяльність і команду спільноти.']};
+const pages={music:['ВАТРА · МУЗИКА','Музика','Слухайте українські пісні й артистів в офіційному Spotify.'],friends:['ВАШЕ КОЛО','Друзі','Керуйте запитами та знаходьте знайомих.'],gifts:['ВАШЕ КОЛО','Подарунки','Колекція подарунків ВАТРИ для Вас і Ваших друзів.'],notifications:['ВАШЕ КОЛО','Сповіщення','Запити в друзі, реакції на Ваші дописи та нові повідомлення.'],feed:['ВАШЕ КОЛО','Новини','Дописи друзів і спільнот, за якими Ви стежите.'],photos:['МОЇ МОМЕНТИ','Фотографії','Ваш альбом і зображення з дописів.'],videos:['ВАТРА · ШОРТС','ВАТРА Шортс','Короткі вертикальні відео від спільноти ВАТРИ.'],myVideos:['МОЇ ВІДЕО','Відео','Ваші власні відеозаписи.'],explore:['ЗНАХОДЬТЕ СВОЄ','Відкриття','Знайомтеся з людьми та відкривайте цікаві дописи.'],messages:['БУДЬТЕ НА ЗВʼЯЗКУ','Повідомлення','Приватні розмови з людьми ВАТРИ.'],groups:['РАЗОМ ЦІКАВІШЕ','Спільноти','Знаходьте людей, з якими є про що говорити.'],saved:['ТЕ, ЩО ВАЖЛИВО','Збережене','Дописи, до яких хочеться повернутися.'],profile:['ВАША ІСТОРІЯ','Профіль','Ваш простір у ВАТРІ.'],settings:['НАЛАШТУВАННЯ','Налаштування профілю','Керуйте інформацією, фотографіями та приватністю сторінки.'],groupSettings:['СПІЛЬНОТА','Керування спільнотою','Налаштовуй опис, діяльність і команду спільноти.']};
 function goPage(p){if(!pages[p])p='feed';const previousPage=page;const entering=p!==previousPage;if(p==='settings'){vatraSettingsContext=vatraOpeningEditProfile?'edit':'settings';vatraSettingsSection=vatraOpeningEditProfile?'profile':'appearance';}if(entering){if(p==='friends')vatraFriendsTab='all';if(p==='feed')filter='all';if(p!=='explore'&&p!=='feed'){query='';const input=$('#search');if(input)input.value='';}if(p!=='messages')editingMessageId=null;if(p!=='profile'&&p!=='publicProfile')activeProfileUid=null;}if(p!=='explore')profileAttributeSearch=null;navigation.setPage(p);if(p==='settings'&&!authRequired())return;const main=$('.layout>.main');if(main){main.classList.remove('vatra-page-enter');void main.offsetWidth;main.classList.add('vatra-page-enter');}page=p;window.vatraRouteChanged?.({page:p});vatraMusicRouteChanged(p==='music');if(groupDetailsUnsub){groupDetailsUnsub();groupDetailsUnsub=null;}if(p!=='messages')stopChatListener();groupId=null;const c=pages[p]||pages.feed;$('#title').textContent=c[1];$('#subtitle').textContent=c[2];$('.heading .eyebrow').textContent=c[0];const navPage=p==='settings'&&vatraSettingsContext==='edit'?'profile':p;$$('a[data-page]').forEach(b=>{const active=b.dataset.page===navPage;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});$$('.mobile-nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===navPage));$$('.tab').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter&&p==='feed'));const composer=$('.quick-compose');if(composer)composer.hidden=p!=='feed';const sort=$('#sort');if(sort)sort.hidden=p!=='feed';if(p==='messages'&&previousPage!=='messages'){activeChat=null;vatraChatUnreadOnly=false;}render();window.scrollTo(0,0);if(p==='notifications')markNotificationsRead();}
 window.addEventListener('vatra:navigate',event=>{if(['music','notifications'].includes(event.detail))goPage(event.detail);});
 window.addEventListener('vatra:verified-notices',()=>{updateNotificationBadges();if(page==='notifications')renderNotifications();try{renderNotificationDropdown();}catch{}});
@@ -3069,9 +3085,9 @@ function vatraOrganizeSettings(){
  const savebar=form.querySelector('.settings-savebar');
  if(!mainGrid||!savebar)return;
  const tabs=[
-  ['profile','Профіль'],['contacts','Контакти'],['interests','Захоплення'],
+  ['appearance','Вигляд ВАТРИ'],['profile','Профіль'],['contacts','Контакти'],['interests','Захоплення'],
   ['education','Освіта'],['career',"Кар'єра"],['service','Військова служба'],
-  ['life','Життєва позиція'],['privacy','Приватність'],['notifications','Сповіщення'],['blocked','Чорний список'],['appearance','Вигляд ВАТРИ'],['language','Мова інтерфейсу'],['account','Акаунт і видалення'],['documents','Документи']
+  ['life','Життєва позиція'],['privacy','Приватність'],['notifications','Сповіщення'],['blocked','Чорний список'],['language','Мова інтерфейсу'],['account','Акаунт і видалення'],['documents','Документи']
  ];
  const editMode=vatraSettingsContext==='edit';
  const visibleTabs=new Set(editMode?['profile','contacts','interests','education','career','service','life']:['privacy','notifications','blocked','appearance','language','account','documents']);
@@ -3222,16 +3238,17 @@ function vatraOrganizeSettings(){
   const label=document.createElement('label');label.className='vatra-notify-setting';
   const toggle=document.createElement('input');toggle.type='checkbox';toggle.dataset.vatraNotifyPreference=key;
   toggle.checked=privateNotifyPrefs?.[key]!==false;
+  toggle.setAttribute('role','switch');toggle.setAttribute('aria-checked',String(toggle.checked));toggle.setAttribute('aria-label',title);
   const text=document.createElement('span');text.textContent=title;
   label.append(text,toggle);notificationGrid.append(label);
   toggle.addEventListener('change',async()=>{
    const old={...privateNotifyPrefs};privateNotifyPrefs[key]=toggle.checked;
-   toggle.disabled=true;
+   toggle.setAttribute('aria-checked',String(toggle.checked));toggle.disabled=true;
    try{
     await update(ref(db,'privateUsers/'+currentUser.uid),{notificationPreferences:privateNotifyPrefs,updatedAt:Date.now()});
     currentProfile.notificationPreferences=privateNotifyPrefs;updateNotificationBadges();toastMsg('Сповіщення оновлено.');
    }catch(error){privateNotifyPrefs=old;toggle.checked=old[key]!==false;toastMsg('Не вдалося зберегти: '+niceError(error));}
-   finally{toggle.disabled=false;}
+   finally{toggle.disabled=false;toggle.setAttribute('aria-checked',String(toggle.checked));}
   });
  }
 
