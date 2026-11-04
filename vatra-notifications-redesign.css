@@ -41,14 +41,14 @@ html body[data-page="settings"] .settings-page .vatra-notify-group .vatra-notify
  min-width:0!important;flex:1 1 auto!important;display:flex!important;flex-direction:column!important;
  align-items:flex-start!important;gap:4px!important;padding:0!important;
 }
-html body .vatra-notify-copy>b{font:620 13px/1.4 "VATRA Onest",system-ui,sans-serif!important;color:#304d6a!important}
-html body .vatra-notify-copy>small{font:440 11.5px/1.5 "VATRA Onest",system-ui,sans-serif!important;color:#6c8199!important}
+html body .vatra-notify-copy>b{font:690 13.5px/1.45 "VATRA Onest",system-ui,sans-serif!important;color:#29425e!important}
+html body .vatra-notify-copy>small{font:500 12px/1.5 "VATRA Onest",system-ui,sans-serif!important;color:#5c738d!important}
 html body[data-page="settings"] .settings-page .vatra-notify-group .vatra-notify-setting>input[type=checkbox]{
  flex:none!important;width:45px!important;min-width:45px!important;height:25px!important;min-height:25px!important;max-height:25px!important;
  margin:0 2px 0 8px!important;padding:0!important;border-radius:30px!important;
 }
 html body .vatra-notifications-layout .notifications-heading h2{font-size:21px!important;color:#1e3858!important}
-html body .vatra-notifications-layout .notifications-heading .muted{color:#607c9a!important;font-size:13px!important;line-height:1.5!important}
+html body .vatra-notifications-layout .notifications-heading .muted{color:#526e8e!important;font-size:13px!important;line-height:1.5!important}
 html body .vatra-notifications-layout .notification-list{display:flex!important;flex-direction:column!important;gap:0!important;margin-top:12px!important}
 html body .vatra-notifications-layout .notification-item{
  display:flex!important;align-items:flex-start!important;gap:12px!important;
@@ -64,8 +64,8 @@ html body .vatra-notifications-layout .notification-item:hover{background:#f5f8f
 html body .vatra-notifications-layout .notification-item.is-unread{background:#f2f7ff!important}
 html body .vatra-notifications-layout .notification-item.is-unread:hover{background:#eaf2ff!important}
 html body .vatra-notifications-layout .notification-copy{display:flex!important;flex-direction:column!important;gap:4px!important;flex:1!important;min-width:0!important}
-html body .vatra-notifications-layout .notification-copy>b{font:620 13.5px/1.5 "VATRA Onest",system-ui,sans-serif!important;color:#2c4563!important}
-html body .vatra-notifications-layout .notification-copy>small{font:450 11.5px/1.4 "VATRA Onest",system-ui,sans-serif!important;color:#7489a4!important}
+html body .vatra-notifications-layout .notification-copy>b{font:690 13.5px/1.5 "VATRA Onest",system-ui,sans-serif!important;color:#253d59!important}
+html body .vatra-notifications-layout .notification-copy>small{font:450 11.5px/1.4 "VATRA Onest",system-ui,sans-serif!important;color:#607990!important}
 html body .vatra-notifications-layout .notification-item .avatar{flex:none!important}
 html body .vatra-notifications-layout .vatra-notification-excerpt{font-size:12px!important;line-height:1.55!important;color:#607990!important}
 html body .vatra-notifications-layout .notification-dot{background:#0757e8!important;box-shadow:none!important}
@@ -78,7 +78,7 @@ html body .vatra-notification-rail nav{display:flex!important;flex-direction:col
 html body .vatra-notification-rail nav button,
 html body .vatra-notification-mobile-filters button{
  box-shadow:none!important;transform:none!important;opacity:1!important;
- font:620 12.5px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+ font:690 12.5px/1.4 "VATRA Onest",system-ui,sans-serif!important;
  border-radius:9px!important;color:#4b6684!important;
 }
 html body .vatra-notification-rail nav button:hover,
