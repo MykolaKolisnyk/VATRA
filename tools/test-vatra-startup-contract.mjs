@@ -42,9 +42,9 @@ const categories={
  covers:'vatra-covers',gifts:'vatra-gifts'
 };
 for(const [type,bucket] of Object.entries(categories)){
- assert.ok(backend.includes(type+\":'\")+bucket+"'")||
-           backend.includes("'"+type+"':'"+bucket+"'"),
-   'Wrong media bucket routing for '+type);
+ const quoted=JSON.stringify(type).replaceAll('"',"'")+':'+JSON.stringify(bucket).replaceAll('"',"'");
+ const key=type==='posts'||type==='comments'||type==='videos'||type==='avatars'||type==='covers'||type==='gifts'?type+":'"+bucket+"'":quoted;
+ assert.ok(backend.includes(key),'Wrong media bucket routing for '+type);
 }
 assert.ok(backend.includes("const STORY_BUCKET='vatra-stories'"),'Stories must stay in private Storage');
 assert.ok(backend.includes('client.storage.from(bucket).upload')&&
