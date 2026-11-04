@@ -4,7 +4,7 @@ import { runInNewContext } from 'node:vm';
 
 const read=p=>readFileSync(p,'utf8');
 const js=read('script.js'),html=read('index.html'),css=read('vatra-site-cohesion.css');
-const auth=read('auth.js');
+const auth=read('auth.js'),studio=read('vatra-photo-studio.js');
 const sidebar=html.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
 const sidebarOrder=['profile','friends','feed','messages','groups','photos','myVideos','videos','gifts','saved','settings'];
 assert.ok(sidebar.length>0,'Missing navigation');
@@ -30,7 +30,13 @@ assert.ok(js.includes('createPost(entry,{kind:\'story\''),'Stories must be persi
 assert.ok(js.includes('VATRA_STORY_LIFETIME_MS=24*60*60*1000'),'24-hour story lifetime expected');
 assert.ok(js.includes("Object.entries(posts||{}).filter(([,p])=>p?.kind!=='story')"),'Stories cannot leak into regular posts');
 assert.ok(js.includes('data-create-story')&&js.includes('data-open-story')&&js.includes('data-story-delete'));
-assert.ok(js.includes("uploadMedia(file,'videos')")&&js.includes("uploadImage(file,1280,.82,'posts')"));
+assert.ok(js.includes("uploadMedia(preparedFile,'videos')")&&js.includes("uploadImage(preparedFile,1280,.82,'posts')"));
+assert.ok(js.includes("getImageEditor(file,'story')"),'Story photos must use the shared editor');
+assert.ok(studio.includes("isStory=mode==='story'")&&studio.includes('isStory?1600:900'),'Stories must export 9:16 images');
+assert.ok(studio.includes("['brush','pencil','Пензель']")&&studio.includes("['stickers','smile','Стікери']")&&studio.includes("['filters','sliders-horizontal','Фільтри']"),'Story editor must include brush, stickers and filters');
+assert.ok(js.includes("await vatraRemoveOwnStoryMedia(story);await remove(ref(db,'posts/'+story.id))"),'Deleting a story must also clean its owned media');
+assert.ok(js.includes("void vatraCleanupExpiredOwnStories()"),'Expired stories must be cleaned up on visits');
+assert.ok(js.includes("parts[0]!==currentUser.uid")&&js.includes("url.origin!==origin"),'Storage deletion must be ownership- and origin-restricted');
 assert.ok(js.includes("visibility:'friends'"),'Friends-only stories must remain private from strangers');
 assert.ok(css.includes('.vatra-stories-rail')&&css.includes('.vatra-story-dialog'));
 const normStart=js.indexOf('function vatraNormalizeSettingsPhone(');
