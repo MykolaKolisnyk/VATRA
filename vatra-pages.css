@@ -4514,10 +4514,6 @@ body .layout>.sidebar .sidebar-footer.vatra-sidebar-footer .vatra-footer-legal a
   font-weight:650!important;
   min-height:29px!important;
 }
-
-
-
-body[data-page="settings"] .vatra-settings-nav-button{font-weight:500!important}
 body[data-page="settings"] .vatra-settings-nav-button.active{font-weight:650!important}
 body[data-page="settings"] .vatra-settings-pane .settings-card h3,
 body[data-page="settings"] .vatra-settings-pane .settings-card h4{font-weight:650!important}

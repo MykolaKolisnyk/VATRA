@@ -12,9 +12,9 @@ function deeplLanguage(code:string){
 
 const url=Deno.env.get('SUPABASE_URL')||'';
 const publicKey=Deno.env.get('VATRA_PUBLIC_KEY')||'sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-';
-function response(req,data,status=200){
+function response(req:Request,data:unknown,status=200){
  const origin=req.headers.get('origin')||'';
- const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Vary':'Origin'};
+ const headers:Record<string,string>={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Vary':'Origin'};
  if(ORIGINS.has(origin))headers['Access-Control-Allow-Origin']=origin;
  headers['Access-Control-Allow-Headers']='authorization,apikey,content-type,x-client-info';
  headers['Access-Control-Allow-Methods']='POST, OPTIONS';
