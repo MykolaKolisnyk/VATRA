@@ -35,7 +35,7 @@ assert.ok(language.includes('else setLanguage(chosen)'),'Language modal must wor
 assert.ok(language.includes("el.matches('input[type=\"tel\"]')"),'Language translator must not restore email placeholder on a phone field');
 assert.ok(!language.includes('auth.insertAdjacentElement(\'afterend\',wrap)'),'Standalone language picker under the form must be removed');
 assert.ok(!language.includes('vatra-flame.svg'),'Language modal must not use fire');
-assert.ok(language.includes('favicon.svg?v=20261103-original'),'Language modal must use the VATRA mark');
+assert.ok(language.includes('favicon.svg?v=20261104-ribbon1'),'Language modal must use the VATRA mark');
 assert.ok(css.includes('.vatra-auth-brand-copyright')&&css.includes('.vatra-auth-language-quick'),'Blue panel language and copyright require styles');
 assert.ok(css.includes('margin:0 auto!important')&&css.includes('min-height:0!important'),'Authentication page should avoid forced blank scroll');
 assert.ok(langCss.includes('background:transparent!important'),'V logo must not inherit the old white-padded flame box');
