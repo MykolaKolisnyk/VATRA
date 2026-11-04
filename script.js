@@ -1066,7 +1066,7 @@ function vatraProfileGalleryCarousel(uid,photos,isMine=false){
  const key=(isMine?'self:':'public:')+uid;
  const found=photos.filter(x=>typeof x.url==='string'&&x.url);
  if(!found.length)return '';
- vatraProfileGalleryCache.set(key,{photos:found,offset:0,isMine,uid});
+ vatraProfileGalleryCache.set(key,{photos:found,offset:0,history:[],isMine,uid});
  const tiles=found.map((photo,i)=>vatraProfileGalleryTile(photo,i,uid,isMine)).join('');
  const arrow=direction=>'<button type="button" class="vatra-gallery-carousel-arrow '+(direction<0?'is-prev':'is-next')+'" '+
   'data-vatra-gallery-step="'+direction+'" '+(direction<0?'disabled ':'')+
@@ -1101,7 +1101,11 @@ document.addEventListener('click',event=>{
  if(!box||!state||state.photos.length<=(window.matchMedia('(max-width:590px)').matches?2:4))return;
  const direction=Number(arrow.dataset.vatraGalleryStep);
  const visible=window.matchMedia('(max-width:590px)').matches?2:4;
- state.offset=Math.max(0,Math.min(state.photos.length-visible,state.offset+(direction<0?-visible:visible)));
+ if(direction>0){
+  if(state.offset<state.photos.length-visible){state.history.push(state.offset);state.offset=Math.min(state.photos.length-visible,state.offset+visible);}
+ }else{
+  state.offset=state.history.length?state.history.pop():Math.max(0,state.offset-visible);
+ }
  vatraShiftProfileGallery(box,state);
 },true);
 window.addEventListener('resize',()=>{
