@@ -143,7 +143,7 @@ for(const html of [authPage,registerPage]){
  assert.ok(html.includes('vatra-loading-wordmark-image'),'Minimal social-network loader missing');
  assert.ok(!html.includes('ВАТРА — це не просто сайт у моєму комп’ютері.'),'Old sentimental founder copy remains');
 }
-assert.ok(loaderCss.includes('Lightweight launch state for a social network'),'Quiet loader styling missing');
+assert.ok(loaderCss.includes('.vatra-loading-screen{'),'Quiet loader styling missing');
 assert.ok(giftText.includes('function openGiftDetail(code)'),'Fullscreen gift viewer handler missing');
 assert.ok(giftText.includes('data-vatra-gift-open'),'Gift card zoom action missing');
 assert.ok(giftText.includes('giftLongDescriptions'),'Expanded description for gifts missing');

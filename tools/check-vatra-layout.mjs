@@ -1,6 +1,7 @@
 import {existsSync,readFileSync,readdirSync} from 'node:fs';
 import {join,normalize} from 'node:path';
 const root='.';
+if(!existsSync('index.html')||existsSync('VATRA/index.html')||!existsSync('.nojekyll'))throw new Error('GitHub Pages site must be deployed from repository root');
 const files=readdirSync(root);
 const junk=files.filter(f=>/\.(?:sql|md|zip)$/i.test(f));
 if(junk.length)throw new Error('Website directory contains documentation or SQL: '+junk.join(', '));
