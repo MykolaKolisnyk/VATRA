@@ -15,6 +15,8 @@ jobs:
         run: node tools/check-vatra.mjs
       - name: Verify centralized SVG icons and all navigation entries
         run: node tools/test-vatra-icon-system.mjs
+      - name: Verify readable typography, clean CSS and page labels
+        run: node tools/test-vatra-typography-page-names.mjs
       - name: Check website file paths and repository layout
         run: node tools/check-vatra-layout.mjs
       - name: Check SEO generator syntax
