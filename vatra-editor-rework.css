@@ -1,0 +1,257 @@
+/* VATRA / professional unified page editor and settings — post legacy cascade */
+html body .settings-page.vatra-editor-polished{
+ --vatra-field-ink:#243b55;--vatra-field-muted:#71859b;--vatra-field-line:#dce6f1;
+ --vatra-field-accent:#2566b9;
+ font-family:"VATRA Onest",Inter,system-ui,sans-serif!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-editor-page-header{
+ box-sizing:border-box;display:flex;align-items:center;gap:17px;width:100%;
+ padding:23px 27px;margin:0 0 19px;
+ border:1px solid #dfe8f3;border-radius:16px;
+ background:linear-gradient(116deg,#fff 60%,#f1f6ff);
+}
+html body .settings-page .vatra-editor-page-symbol{
+ box-sizing:border-box;display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;
+ border-radius:15px;background:#eaf1ff;color:#0757ee;border:1px solid #d5e5fa;
+}
+html body .settings-page .vatra-editor-page-symbol svg{width:27px;height:27px}
+html body .settings-page .vatra-editor-page-header h1{
+ font:760 23px/1.25 "VATRA Onest",system-ui,sans-serif!important;
+ letter-spacing:-.018em!important;color:#203b5a!important;margin:4px 0 5px!important;
+}
+html body .settings-page .vatra-editor-page-header small{
+ display:block;color:#3e70b1!important;font:750 10px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+ letter-spacing:.075em;
+}
+html body .settings-page .vatra-editor-page-header p{
+ margin:0!important;font:480 12.5px/1.6 "VATRA Onest",system-ui,sans-serif!important;color:#607c99!important;
+}
+html body .settings-page .vatra-editor-pane-subtitle{
+ box-sizing:border-box;display:flex;align-items:center;gap:11px;
+ padding:14px 17px!important;margin:0!important;
+ background:#f5f8fd!important;border:1px solid #e2eaf5;border-radius:12px;
+ color:#5b7794!important;font:500 12.5px/1.6 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body .settings-page .vatra-editor-pane-subtitle::before{
+ content:"";width:4px;height:23px;flex:none;border-radius:3px;background:#9bbceb;
+}
+/* Navigation: stable items, visible icons, calm solid active states */
+html body .settings-page.vatra-editor-polished .vatra-settings-nav{
+ border:1px solid #dfe8f3!important;border-radius:15px!important;
+ background:#fff!important;padding:16px 12px!important;gap:3px!important;
+ box-shadow:none!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-settings-nav-heading{
+ margin:0 10px 10px!important;padding:1px 0 9px!important;
+ color:#7a8da4!important;font:750 10px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+ letter-spacing:.075em!important;border-bottom:1px solid #ecf0f6;
+}
+html body .settings-page.vatra-editor-polished .vatra-settings-nav-button:not([hidden]){
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;
+ box-sizing:border-box!important;width:100%!important;padding:10px 12px!important;
+ min-height:44px!important;margin:1px 0!important;
+ border:1px solid transparent!important;border-radius:11px!important;
+ background:#fff!important;color:#39536e!important;
+ font:680 13px/1.45 "VATRA Onest",system-ui,sans-serif!important;
+ opacity:1!important;transform:none!important;text-shadow:none!important;
+ transition:background-color .16s ease,border-color .16s ease,color .16s ease!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-settings-nav-button:not([hidden]):hover{
+ background:#f2f6fd!important;color:#174f94!important;border-color:#e4ebf5!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-settings-nav-button.active:not([hidden]){
+ background:#eaf2ff!important;color:#0757dd!important;border-color:#d8e6ff!important;font-weight:750!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-settings-nav-button .vatra-settings-nav-icon{
+ flex:none!important;width:19px!important;height:19px!important;max-width:19px!important;
+ color:var(--vatra-section-color,#4779ac)!important;stroke:currentColor!important;
+ opacity:1!important;transform:none!important;
+}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="profile"],
+html body .settings-page .vatra-settings-nav-button[data-settings-target="contacts"]{--vatra-section-color:#1976c2}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="interests"],
+html body .settings-page .vatra-settings-nav-button[data-settings-target="life"]{--vatra-section-color:#9c62cf}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="education"]{--vatra-section-color:#299e78}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="career"]{--vatra-section-color:#de8b38}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="service"]{--vatra-section-color:#55849d}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="privacy"],
+html body .settings-page .vatra-settings-nav-button[data-settings-target="account"]{--vatra-section-color:#3c78bf}
+html body .settings-page .vatra-settings-nav-button[data-settings-target="notifications"]{--vatra-section-color:#ca8395}
+/* Cards have a consistent rhythm instead of small disconnected lines. */
+html body .settings-page.vatra-editor-polished .vatra-settings-pane>.settings-card{
+ border:1px solid #e0e8f2!important;border-radius:15px!important;
+ background:#fff!important;padding:23px 25px!important;box-shadow:none!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-settings-pane>.settings-card>h3{
+ display:flex!important;align-items:center!important;gap:12px!important;
+ font:750 17px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+ color:#203b58!important;letter-spacing:-.01em!important;margin:0 0 15px!important;
+}
+html body .settings-page .vatra-editor-heading-icon{
+ width:37px;height:37px;flex:none;display:grid;place-items:center;
+ border-radius:11px;border:1px solid #dae8fb;background:#ecf4ff;
+ color:var(--vatra-section-color,#2c6bad);
+}
+html body .settings-page .vatra-editor-heading-icon svg{width:20px;height:20px}
+html body .settings-page .vatra-settings-pane[data-settings-section="interests"]{--vatra-section-color:#9060c8}
+html body .settings-page .vatra-settings-pane[data-settings-section="education"]{--vatra-section-color:#24916e}
+html body .settings-page .vatra-settings-pane[data-settings-section="career"]{--vatra-section-color:#c48138}
+html body .settings-page .vatra-settings-pane[data-settings-section="service"]{--vatra-section-color:#538197}
+html body .settings-page .vatra-settings-pane[data-settings-section="life"]{--vatra-section-color:#9669bf}
+html body .settings-page .vatra-settings-pane[data-settings-section="contacts"]{--vatra-section-color:#2778b9}
+html body .settings-page.vatra-editor-polished .vatra-settings-pane>.settings-card>.muted{
+ color:#627b94!important;font:470 12.5px/1.65 "VATRA Onest",system-ui,sans-serif!important;
+ margin:0 0 16px!important;
+}
+html body .settings-page.vatra-editor-polished .settings-grid{
+ gap:19px 17px!important;align-items:start!important;
+}
+html body .settings-page.vatra-editor-polished .settings-grid>label:not(.settings-check),
+html body .settings-page.vatra-editor-polished .vatra-record-fields>label{
+ position:relative!important;min-width:0!important;
+ font:570 13px/1.5 "VATRA Onest",system-ui,sans-serif!important;color:#36526e!important;
+}
+html body .settings-page .vatra-editor-field-heading{
+ display:flex;align-items:center;gap:9px;min-height:25px;
+ color:#344f6b!important;font:680 12.5px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body .settings-page .vatra-editor-field-icon{
+ box-sizing:border-box;display:grid;place-items:center;flex:none;width:27px;height:27px;
+ border-radius:8px;color:#4f779b;background:#edf3fb;
+}
+html body .settings-page .vatra-editor-field-icon[data-kind="education"]{color:#238868;background:#e6f6ef}
+html body .settings-page .vatra-editor-field-icon[data-kind="career"]{color:#be7b37;background:#fdf1e4}
+html body .settings-page .vatra-editor-field-icon[data-kind="interests"],
+html body .settings-page .vatra-editor-field-icon[data-kind="life"]{color:#9161c0;background:#f4edfd}
+html body .settings-page .vatra-editor-field-icon[data-kind="phone"],
+html body .settings-page .vatra-editor-field-icon[data-kind="pin"]{color:#2d77b6;background:#eaf4ff}
+html body .settings-page .vatra-editor-field-icon[data-kind="music"]{color:#be6c94;background:#feeff6}
+html body .settings-page .vatra-editor-field-icon[data-kind="privacy"]{color:#548094;background:#eef4f8}
+html body .settings-page .vatra-editor-field-icon svg{width:16px;height:16px}
+html body .settings-page.vatra-editor-polished .settings-grid :is(input:not([type="checkbox"]),select,textarea),
+html body .settings-page.vatra-editor-polished :is(.vatra-record-row input,.vatra-record-visibility select),
+html body .settings-page.vatra-editor-polished .vatra-extra-setting>label :is(input,select,textarea){
+ box-sizing:border-box!important;width:100%!important;min-height:45px!important;
+ border-radius:11px!important;border:1px solid #d5e1ee!important;
+ background:#fafcff!important;color:#263f59!important;
+ padding:10px 13px!important;font:520 13px/1.55 "VATRA Onest",system-ui,sans-serif!important;
+ transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease!important;
+}
+html body .settings-page.vatra-editor-polished .settings-grid :is(input:not([type="checkbox"]),select,textarea):focus,
+html body .settings-page.vatra-editor-polished :is(.vatra-record-row input,.vatra-record-visibility select):focus{
+ outline:0!important;border-color:#81aade!important;background:#fff!important;box-shadow:none!important;
+}
+html body .settings-page.vatra-editor-polished .settings-grid :is(input:not([type="checkbox"]),select,textarea):focus-visible,
+html body .settings-page.vatra-editor-polished :is(.vatra-record-row input,.vatra-record-visibility select):focus-visible{
+ box-shadow:0 0 0 3px rgba(46,111,203,.1)!important;
+}
+html body .settings-page.vatra-editor-polished .settings-grid :is(input,textarea)::placeholder{color:#8195aa!important;opacity:1!important}
+html body .settings-page.vatra-editor-polished .settings-grid>label>small,
+html body .settings-page.vatra-editor-polished .field-hint{
+ color:#7d8fa5!important;font:460 11.5px/1.55 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-extra-setting{
+ border-bottom:1px solid #edf1f6!important;padding:15px 0!important;gap:11px!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-extra-setting-head{align-items:center!important;gap:13px!important}
+html body .settings-page.vatra-editor-polished .vatra-extra-setting-title{
+ display:flex!important;align-items:center!important;gap:10px!important;
+ color:#314d68!important;font:690 13px/1.45 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-extra-visibility{
+ color:#758ca3!important;font-size:11.5px!important;font-weight:530!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-extra-visibility select{
+ min-width:155px!important;width:auto!important;max-width:210px!important;
+ padding:7px 10px!important;min-height:37px!important;font-size:12px!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-record-visibility{
+ color:#516a86!important;font-size:12.5px!important;padding:0 0 14px!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-record-row{
+ border:1px solid #dfe8f3!important;background:#f8fafd!important;border-radius:12px!important;
+ padding:16px!important;
+}
+html body .settings-page.vatra-editor-polished .vatra-record-head b{font-size:13px!important;color:#294664!important;font-weight:720!important}
+html body .settings-page.vatra-editor-polished .vatra-record-fields label{color:#516a84!important;font-size:12px!important}
+html body .settings-page.vatra-editor-polished .vatra-record-add{
+ border-radius:10px!important;background:#edf5ff!important;color:#155bb0!important;
+ border:1px solid #d1e3fa!important;font-weight:700!important;
+}
+html body .settings-page.vatra-editor-polished .settings-savebar{
+ border:1px solid #dce6f2!important;border-radius:14px!important;
+ background:#fff!important;padding:16px 22px!important;
+}
+html body .settings-page.vatra-editor-polished .settings-savebar .primary{font-weight:730!important}
+/* Searchable suggestions for places and education — inside the field's own labelled group. */
+html body .settings-page .vatra-place-suggestions{
+ box-sizing:border-box;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:160;
+ display:flex;flex-direction:column;gap:2px;
+ max-height:305px;overflow:auto;padding:7px;
+ background:#fff;border:1px solid #d2e1f1;border-radius:12px;
+ box-shadow:0 17px 40px rgba(29,61,104,.16);
+}
+html body .settings-page .vatra-place-suggestions[hidden]{display:none!important}
+html body .settings-page .vatra-place-option{
+ display:flex;align-items:center;gap:11px;width:100%;min-height:46px;
+ padding:8px 10px;border:0;border-radius:9px;background:#fff;text-align:left;
+ cursor:pointer;color:#243e59;transition:background-color .15s ease;
+}
+html body .settings-page .vatra-place-option:hover,
+html body .settings-page .vatra-place-option:focus-visible{background:#edf5ff;color:#135da9}
+html body .settings-page .vatra-place-option-icon{
+ display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border-radius:9px;background:#eaf4ff;color:#3477b7;
+}
+html body .settings-page .vatra-place-option-icon svg{width:18px;height:18px}
+html body .settings-page .vatra-place-option-copy{display:flex;flex-direction:column;min-width:0;gap:2px}
+html body .settings-page .vatra-place-option-copy b{
+ color:#24405e;font:660 12.5px/1.35 "VATRA Onest",system-ui,sans-serif;
+ white-space:normal;overflow-wrap:anywhere;
+}
+html body .settings-page .vatra-place-option-copy small{
+ color:#6b819a;font:490 11px/1.35 "VATRA Onest",system-ui,sans-serif;
+}
+html body .settings-page .vatra-place-attribution,
+html body .settings-page .vatra-place-empty{
+ display:block;padding:9px 11px!important;margin:0!important;
+ color:#7187a0!important;font:470 11px/1.5 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body .settings-page .vatra-place-attribution{border-top:1px solid #ebf1f7;margin-top:5px!important}
+/* Use native checkboxes, decorated as coherent low-noise toggle switches where appropriate. */
+html body .settings-page.vatra-editor-polished .settings-check{
+ display:flex!important;align-items:center!important;gap:10px!important;
+ color:#344c67!important;font:580 12.5px/1.55 "VATRA Onest",system-ui,sans-serif!important;
+ padding:12px 0!important;
+}
+html body .settings-page.vatra-editor-polished .settings-check input[type="checkbox"]{
+ flex:none!important;width:19px!important;height:19px!important;margin:0!important;
+ accent-color:#0757e8!important;outline-offset:2px;
+}
+/* In dark theme keep contrast without light opaque boxes. */
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished .vatra-editor-page-header,
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished :is(.vatra-settings-nav,.vatra-settings-pane>.settings-card,.settings-savebar){
+ background:#213248!important;border-color:#3c536d!important;
+}
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-editor-page-header h1,
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished .vatra-settings-pane>.settings-card>h3,
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-editor-field-heading,
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-extra-setting-title{color:#edf5ff!important}
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished .vatra-settings-nav-button:not([hidden]){background:transparent!important;color:#c7d9ec!important}
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished .vatra-settings-nav-button.active{background:#26456a!important;color:#e8f3ff!important}
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished .settings-grid :is(input:not([type="checkbox"]),select,textarea),
+html body[data-vatra-theme-effective="dark"] .settings-page.vatra-editor-polished :is(.vatra-record-row input,.vatra-record-visibility select){background:#263b53!important;color:#e8f1fc!important;border-color:#49627e!important}
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-place-suggestions{background:#233750;border-color:#425f7e}
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-place-option{background:#233750;color:#dbe9f8}
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-place-option:hover{background:#304c6f}
+html body[data-vatra-theme-effective="dark"] .settings-page .vatra-place-option-copy b{color:#f1f6ff}
+@media(max-width:720px){
+ html body .settings-page .vatra-editor-page-header{padding:17px 15px;margin-bottom:12px;gap:11px}
+ html body .settings-page .vatra-editor-page-symbol{flex-basis:42px;width:42px;height:42px}
+ html body .settings-page .vatra-editor-page-header h1{font-size:19px!important}
+ html body .settings-page.vatra-editor-polished .vatra-settings-pane>.settings-card{padding:17px 15px!important}
+ html body .settings-page.vatra-editor-polished .settings-grid{grid-template-columns:minmax(0,1fr)!important}
+ html body .settings-page.vatra-editor-polished .vatra-extra-visibility{width:100%;justify-content:space-between}
+}
+@media(prefers-reduced-motion:reduce){
+ html body .settings-page.vatra-editor-polished :is(button,input,select,textarea){transition:none!important}
+}
