@@ -1,5 +1,5 @@
 *{box-sizing:border-box} :root{font-family:Inter,system-ui,sans-serif;color:#14233b;background:#f6f8fc;font-synthesis:none}body{margin:0;min-height:100vh}.auth-layout{min-height:100vh;display:grid;grid-template-columns:minmax(320px,0.92fr) minmax(440px,1.08fr)}.brand-side{background:linear-gradient(145deg,#0757f5,#0050e7 65%,#063fc0);color:white;padding:clamp(28px,5vw,76px);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}.brand-side:after{content:"";position:absolute;width:500px;height:500px;border:1px solid #ffffff22;border-radius:50%;right:-210px;bottom:-170px;box-shadow:0 0 0 50px #ffffff08,0 0 0 100px #ffffff06}.logo{color:white;text-decoration:none;font-size:23px;font-weight:800;display:flex;align-items:center;gap:12px;letter-spacing:-.7px}.logo span,.mobile-logo span{display:grid;place-items:center;background:white;color:#0757f5;border-radius:13px;width:42px;height:42px;font-size:25px;box-shadow:0 8px 22px #002c8b2e}.brand-copy{max-width:520px;position:relative;z-index:1}.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:#2165ff;margin:0 0 15px}.brand-side .eyebrow{color:#c6d8ff}.brand-copy h1{font-size:clamp(40px,5.2vw,70px);line-height:1.06;letter-spacing:-3px;margin:0 0 24px}.brand-copy h1 em{font-style:normal;color:#c9dcff}.brand-copy>p:last-child{font-size:16px;line-height:1.8;color:#e1eaff;max-width:410px}.brand-foot{font-size:12px;color:#d3e0ff;position:relative;z-index:1}.form-side{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:35px 24px}.auth-card{width:min(100%,440px);background:#fff;border:1px solid #e7ecf5;border-radius:24px;padding:clamp(24px,4vw,42px);box-shadow:0 18px 65px #193d7410}.switcher{display:grid;grid-template-columns:1fr 1fr;background:#f2f5fa;border-radius:12px;padding:4px;margin-bottom:34px}.switcher button{border:0;border-radius:9px;background:transparent;padding:12px 6px;color:#687790;font:600 13px Inter;cursor:pointer}.switcher button.selected{background:#fff;color:#0757f5;box-shadow:0 2px 8px #172b4d12}.auth-card h2{font-size:30px;line-height:1.2;letter-spacing:-1px;margin:0 0 10px}.desc{font-size:14px;color:#738198;line-height:1.65;margin:0 0 27px}.field{margin:0 0 17px}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}.field input{width:100%;height:48px;border:1px solid #dce3ee;border-radius:11px;padding:0 14px;background:#fbfcfe;color:#14233b;font:14px Inter;outline:none}.field input:focus{border-color:#3979ff;box-shadow:0 0 0 3px #0059ff14;background:white}.password{display:flex;align-items:center;position:relative}.password input{padding-right:88px}.password button{position:absolute;right:10px;border:0;background:none;color:#0757f5;font:600 12px Inter;cursor:pointer}.forgot{display:block;margin:-3px 0 14px auto;border:0;background:none;color:#0757f5;font:600 12px Inter;cursor:pointer}#error{font-size:13px;line-height:1.5;color:#bd3434;margin:0 0 12px;min-height:0}#error.success{color:#14815c}.submit{width:100%;height:50px;border:0;border-radius:12px;background:#0757f5;color:white;font:700 14px Inter;cursor:pointer;box-shadow:0 7px 15px #0059ff2b}.submit:hover{background:#004be0}.submit:disabled{opacity:.65;cursor:wait}.bottom{text-align:center;font-size:13px;color:#758198;margin:22px 0}.bottom button{border:0;background:none;color:#0757f5;font:700 13px Inter;cursor:pointer}.legal{text-align:center;color:#9aa5b7;font-size:10px;line-height:1.7;margin:22px 0 0}.form-side footer{font-size:11px;color:#9aa5b7;margin-top:22px}.mobile-logo{display:none}[hidden]{display:none!important}@media(max-width:850px){.auth-layout{grid-template-columns:1fr}.brand-side{display:none}.form-side{min-height:100vh;padding:20px}.auth-card{border-radius:20px;box-shadow:0 12px 40px #193d7410}.mobile-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;margin-bottom:28px}.mobile-logo span{background:#0757f5;color:#fff;width:38px;height:38px}.switcher{margin-bottom:28px}.auth-card h2{font-size:27px}}@media(max-width:420px){.form-side{padding:12px}.auth-card{padding:22px 18px}.switcher button{font-size:12px}.auth-card h2{font-size:25px}}
-/* Registration fields and refined compact form */
+
 .auth-card{border-radius:18px;box-shadow:0 8px 32px #193d740a}.field input{border-radius:8px;background:#f7f8fa}.field input[type=date]{display:block;min-height:48px;padding:0 12px;color:#253248}.birthday-field small{display:block;color:#7c8797;font-size:11px;line-height:1.5;margin-top:7px}.field{margin-bottom:14px}.switcher{margin-bottom:25px}.submit{border-radius:8px;box-shadow:none}.logo span,.mobile-logo span{border-radius:9px}.auth-card h2{letter-spacing:-.7px}.legal{font-size:10px}
 
 .auth-method{width:100%;height:48px;border:1px solid #dce3ee;border-radius:10px;padding:0 12px;background:#fbfcfe;color:#14233b;font:14px Inter}
@@ -11,7 +11,7 @@
 
 .human-captcha{padding:14px;border:1px solid #e0e8f5;border-radius:13px;background:linear-gradient(135deg,#f7faff,#fff)}.human-captcha-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;color:#253c5c}.human-captcha-title>span:first-child{display:grid;place-items:center;width:24px;height:24px;border-radius:8px;background:#e6efff;color:#1769ff;font-size:15px}.human-captcha-tag{margin-left:auto;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#72819a}.human-captcha p{font-size:11px;line-height:1.5;color:#78859a;margin:10px 0}.human-captcha-question{font-size:22px;font-weight:800;color:#172d4d;letter-spacing:.04em;margin:12px 0}.human-captcha-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.human-captcha-option{height:42px;border:1px solid #dce5f3;border-radius:9px;background:#fff;color:#203654;font-weight:800;cursor:pointer}.human-captcha-option:hover{border-color:#1769ff;background:#f3f7ff}.human-captcha-option.is-correct{background:#e5f8ef;border-color:#21a56c;color:#087447}.human-captcha-option.is-wrong{background:#fff0f0;border-color:#df6060;color:#b42a2a}.human-captcha .human-captcha-status{margin-bottom:0}.human-captcha-status.is-passed{color:#087447;font-weight:700}
 
-/* Final form refinements for registration and verification */
+
 .auth-card{width:min(100%,500px);box-sizing:border-box}
 .auth-card input,.auth-card select,.auth-card button{max-width:100%}
 .auth-card input:focus-visible,.auth-card select:focus-visible,.auth-card button:focus-visible{outline:3px solid #1769ff35;outline-offset:2px}
@@ -22,7 +22,7 @@
 @media(max-width:420px){.auth-card{padding:22px 16px}.human-captcha{padding:11px}.human-captcha-options{gap:6px}.human-captcha-option{height:40px}}
 
 
-/* Refined date, verification-method and one-time-code controls */
+
 .auth-card .field input[type="date"]{appearance:none;-webkit-appearance:none;width:100%;min-height:54px;padding:0 15px;border:1px solid #dbe4f1;border-radius:13px;background:linear-gradient(180deg,#fff,#f7faff);color:#172943;font:500 14px Inter,system-ui,sans-serif;box-shadow:0 2px 8px #153c7908;cursor:pointer}
 .auth-card .field input[type="date"]:focus{border-color:#1769ff;outline:0;box-shadow:0 0 0 4px #1769ff18}
 .auth-card .field input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;width:21px;height:21px;padding:5px;border-radius:7px;background-color:#edf4ff}
@@ -51,7 +51,7 @@
 .method-choice small{margin-top:3px;color:#718096;font-size:10px}
 @media(max-width:420px){.birthday-selects{grid-template-columns:.7fr 1.4fr 1fr;gap:6px}.birthday-selects select{height:44px;padding:0 6px;font-size:12px}.method-choice{grid-template-columns:1fr}}
 
-/* VATRA auth final polish */
+
 .method-choice{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .method-choice>label{display:flex;align-items:flex-start;gap:10px;min-width:0;padding:12px;border:1px solid #dce4f1;border-radius:12px;background:#fff;cursor:pointer;transition:border-color .16s,background .16s}
 .method-choice>label:has(input:checked){border-color:#0757f5;background:#f1f6ff;box-shadow:0 0 0 2px #0757f510}
@@ -63,7 +63,7 @@
 @media(max-width:560px){.method-choice{grid-template-columns:minmax(0,1fr)}.birthday-selects{grid-template-columns:.8fr 1.4fr 1fr}.auth-card{padding:22px;border-radius:18px}}
 
 
-/* VATRA auth: tighter registration rhythm and accessible password strength. */
+
 .auth-card .switcher{margin-bottom:22px}
 .auth-card .desc{margin-bottom:18px;line-height:1.5}
 .auth-card .field{margin-bottom:12px}
@@ -80,12 +80,12 @@
 @media(max-width:560px){.auth-card .desc{margin-bottom:16px}.auth-card .switcher{margin-bottom:20px}}
 
 
-/* Compact auth split-screen: avoid pushing the brand copy too far down. */
+
 @media(min-width:851px){.brand-side{justify-content:flex-start;gap:clamp(28px,6vh,64px)}.brand-copy{margin:auto 0}.brand-foot{margin-top:auto}.brand-copy h1{font-size:clamp(38px,4.5vw,62px);line-height:1.08;margin-bottom:16px}.brand-copy>p:last-child{line-height:1.65;margin-bottom:0}}
 .password-strength{display:block;width:100%}.password-strength-track{width:100%}
 
 
-/* Compact auth layout and native Supabase OTP */
+
 .brand-side{justify-content:flex-start;gap:clamp(48px,10vh,110px)}
 .brand-copy{margin:0;max-width:520px}
 .brand-copy h1{margin-bottom:18px}
@@ -105,7 +105,7 @@
 @media(min-width:851px) and (max-height:850px){.brand-side{gap:clamp(28px,6vh,56px)}.brand-copy h1{font-size:clamp(36px,4vw,56px)}.form-side{padding:18px 24px}.auth-card{padding:26px 30px}}
 
 
-/* Readable password guidance and strength indicator */
+
 .password-strength{display:block;margin-top:12px;padding:13px 14px;border:1px solid #e0e8f5;border-radius:12px;background:#f7f9fd}
 .password-strength-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;color:#263957;font-size:13px}
 .password-strength-status{font-size:12px;font-weight:800;color:#738198}
@@ -120,13 +120,13 @@
 @media(max-width:420px){.password-strength{padding:11px}.password-rules span{font-size:11px}}
 
 
-/* Final registration/login spacing and readable password meter */
+
 @media(min-width:851px){.auth-layout .brand-side{justify-content:space-between!important;gap:24px!important}.auth-layout .brand-copy{margin:auto 0!important}.auth-layout .brand-foot{margin-top:0!important;padding-top:0!important}.auth-layout .brand-copy h1{font-size:clamp(36px,4vw,58px)!important;line-height:1.06!important;margin-bottom:14px!important}.auth-layout .brand-copy>p:last-child{margin-top:10px!important;line-height:1.55!important}}
 .password-strength[hidden]{display:none!important}.password-strength{width:100%;margin-top:12px;padding:13px 14px;border:1px solid #e0e8f5;border-radius:12px;background:#f7f9fd}.password-strength-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;color:#263957;font-size:13px}.password-strength-status{font-size:12px;font-weight:800;color:#738198}.password-strength-track{height:7px!important;width:100%;overflow:hidden;border-radius:99px;background:#e4eaf3}.password-strength-track span{display:block;height:100%;width:0;border-radius:inherit;background:#d94b4b;transition:width .2s,background .2s}.password-strength-track span[data-level="medium"]{background:#e3a126}.password-strength-track span[data-level="strong"]{background:#159766}.password-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px;margin:10px 0}.password-rules span{font-size:12px;line-height:1.4;color:#687790}.password-rules span:before{content:"○";display:inline-block;margin-right:7px;color:#8c9bb0;font-weight:800}.password-rules span.is-met{color:#087447;font-weight:650}.password-rules span.is-met:before{content:"✓";color:#159766}.password-strength-label{display:block!important;margin-top:8px!important;color:#53637b!important;font-size:12px!important;line-height:1.55!important}
 @media(max-width:850px){.auth-layout .brand-side{display:none}}@media(max-width:420px){.password-strength{padding:11px}.password-rules span{font-size:11px}}
 
 
-/* Auth correction pass: compact branded panel and readable registration password guidance. */
+
 @media (min-width: 851px) {
   .auth-layout .brand-side {
     justify-content: flex-start !important;
@@ -195,7 +195,7 @@
   .password-guidance { font-size: 13px; }
 }
 
-/* Auth refinements: balanced brand panel, password instructions and modal windows. */
+
 .auth-layout .brand-preview{position:relative;z-index:2;margin-top:clamp(30px,6vh,64px);margin-bottom:auto;width:min(100%,500px);padding:18px;border:1px solid #ffffff35;border-radius:19px;background:linear-gradient(145deg,#ffffff1d,#ffffff0b);box-shadow:0 18px 44px #00359b25;backdrop-filter:blur(8px)}
 .brand-preview-top{display:flex;align-items:center;gap:12px;min-width:0}.brand-preview-avatars{display:flex;align-items:center;padding-left:0;flex:none}.brand-preview-avatars span{display:grid;place-items:center;width:33px;height:33px;margin-left:-6px;border:2px solid #1460ed;border-radius:50%;background:#f2f6ff;color:#0757f5;font-size:11px;font-weight:800}.brand-preview-avatars span:first-child{margin-left:0;background:#dce8ff}.brand-preview-avatars span:nth-child(2){background:#fff}.brand-preview-avatars span:nth-child(3){background:#bed4ff}.brand-preview-avatars span:last-child{background:#0c49c9;color:#fff;border-color:#2b70ff}.brand-preview-title{display:grid;gap:4px;min-width:0;flex:1}.brand-preview-title strong{font-size:13px;color:#fff}.brand-preview-title small{font-size:10px;color:#d3e3ff;line-height:1.4}.brand-preview-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid #ffffff3d;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.06em;color:#fff}.brand-preview-badge i{width:6px;height:6px;border-radius:50%;background:#7bffcb;box-shadow:0 0 10px #7bffcb7a}.brand-preview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}.brand-preview-tile{display:grid;gap:6px;min-width:0;padding:12px 10px;border:1px solid #ffffff28;border-radius:12px;background:#ffffff0b}.brand-preview-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:#ffffff1b;color:#fff;font-size:18px}.brand-preview-tile b{font-size:11px;color:#fff}.brand-preview-tile small{font-size:9px;line-height:1.45;color:#d5e3ff;overflow-wrap:anywhere}
 .auth-card .password-guidance{font-size:14px;line-height:1.7;color:#283c58;background:#f3f7ff;border:1px solid #d7e5fb;border-radius:12px;padding:13px 14px;margin-top:10px}.auth-card .password-strength{padding:16px!important}.auth-card .password-strength-heading{font-size:15px!important}.auth-card .password-rules{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px}.auth-card .password-rules span{font-size:13px!important;line-height:1.55!important}.auth-card .password-strength-label{font-size:13px!important;line-height:1.65!important;color:#354863!important}
@@ -206,7 +206,7 @@
 @media(max-width:480px){.auth-dialog{width:calc(100vw - 18px);max-height:calc(100dvh - 24px);padding:22px 16px}.recovery-math{align-items:flex-start;flex-direction:column}.legal-dialog-switcher{display:grid;grid-template-columns:1fr}.legal-dialog-switcher button{flex:none}.auth-card .password-rules{grid-template-columns:minmax(0,1fr)}}
 
 
-/* VATRA auth refresh — calm brand panel, compact form, document-only scrollbar. */
+
 @media (min-width: 851px) {
   .auth-layout { align-items: start; }
   .auth-layout .brand-side {
@@ -373,7 +373,7 @@
   line-height: 1.6 !important;
   color: #42536d !important;
 }
-/* Only the legal-document window gets a custom scrollbar; the page keeps its normal scrollbar. */
+
 .legal-dialog {
   display: flex;
   flex-direction: column;
@@ -459,7 +459,7 @@
 }
 
 
-/* Fix native dialogs: the legal window has display:flex, so closed dialogs must be hidden explicitly. */
+
 .auth-dialog:not([open]) { display: none !important; }
 .auth-dialog[open] { display: flex; }
 .auth-dialog#recoveryDialog[open] { display: block; }
@@ -519,7 +519,7 @@
  .password-rules{grid-template-columns:1fr}
 }
 
-/* Readable developer attribution: high contrast and a dedicated details dialog. */
+
 .developer-card{display:block;width:100%;max-width:650px;margin:0;padding:19px 21px;border:1px solid #d7e4ff;border-radius:18px;background:#fff;color:#172943;box-shadow:0 12px 32px rgba(20,59,126,.09);position:relative;z-index:2}
 .developer-card .developer-kicker{margin:0 0 7px;color:#0757f5;font-size:10px;letter-spacing:1.5px;font-weight:850}
 .developer-card>strong{display:block;color:#172943;font-size:17px;line-height:1.4}
@@ -548,7 +548,7 @@
 @media(max-width:850px){.developer-card{display:none!important}.mobile-developer-note{display:flex!important}.developer-dialog{padding:25px 21px}.developer-dialog-copy p{font-size:13px}}
 
 
-/* Final registration/login polish: compact left panel, clearer password rules, consistent date controls. */
+
 @media(min-width:851px){
   .auth-layout .brand-side{
     justify-content:flex-start!important;
@@ -645,7 +645,7 @@
 }
 
 
-/* Developer references: clearly separated, accessible links to the two supplied sources. */
+
 .developer-sources{display:grid;gap:9px;margin-top:18px}
 .developer-sources a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #dfe8f6;border-radius:12px;background:#f8faff;color:#214368;text-decoration:none;font-size:13px;line-height:1.45;font-weight:650;transition:background .15s,border-color .15s}
 .developer-sources a b{flex:none;color:#0757f5;font-size:17px}
@@ -653,7 +653,7 @@
 .developer-sources a:focus-visible{outline:3px solid #1769ff45;outline-offset:2px}
 
 
-/* Final pass: bring the left-side story up and keep the registration form scrollable. */
+
 @media (min-width:851px){
   .auth-layout .brand-side{
     justify-content:flex-start!important;
@@ -713,7 +713,7 @@
 .developer-sources{display:none!important}
 
 
-/* Phone calling-code selector for international registration and recovery. */
+
 .phone-number-control{display:flex;align-items:stretch;gap:8px;width:100%;min-width:0}
 .phone-number-control input{flex:1 1 auto;min-width:0;width:100%;box-sizing:border-box}
 .phone-country-code{flex:0 0 min(46%,220px);width:min(46%,220px);min-width:0;height:48px;padding:0 10px;border:1px solid #dbe4f1;border-radius:11px;background:#fff;color:#253752;font:500 12px/1.3 Inter,system-ui,sans-serif;text-overflow:ellipsis}
@@ -733,7 +733,7 @@
 @media(max-width:560px){.phone-number-control{gap:6px}.phone-country-code{flex-basis:46%;width:46%;height:46px;padding:0 6px;font-size:11px}.phone-number-control input{font-size:14px}.developer-sources a{font-size:11px}}
 
 
-/* Final auth fixes: keep source links visible and the inputs readable. */
+
 .developer-sources{display:grid!important;gap:8px!important;margin-top:14px!important}
 .developer-sources a{display:flex!important;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;border:1px solid #dce7f6;border-radius:11px;background:#f8faff;color:#214368;font-size:12px;line-height:1.5;text-decoration:none}
 .developer-sources a:hover{background:#eef5ff;border-color:#a9c5fc}
@@ -759,7 +759,7 @@
 }
 
 
-/* Unified responsive layout — final cascade. Keep the auth form balanced on every viewport. */
+
 html { min-height:100%; }
 body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; }
 .auth-layout {
@@ -911,7 +911,7 @@ body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; 
 .auth-layout .legal button { font:inherit; }
 .auth-layout .form-side footer { width:100%; text-align:center; margin-top:15px; line-height:1.5; }
 
-/* Tablet: one column avoids a squeezed brand panel and keeps registration scrollable. */
+
 @media (max-width:900px) {
   .auth-layout { display:block; min-height:100vh; min-height:100dvh; }
   .auth-layout .brand-side { display:none !important; }
@@ -967,7 +967,7 @@ body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; 
   .auth-layout *, .auth-layout *::before, .auth-layout *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 
-/* Cross-device safety: preserve natural document scrolling for long registration forms. */
+
 .auth-layout{min-height:100vh;min-height:100dvh;height:auto;overflow-x:clip}
 .auth-layout .auth-card{box-sizing:border-box;width:min(100%,500px);min-width:0}
 .auth-layout .auth-card input,.auth-layout .auth-card select,.auth-layout .auth-card button{max-width:100%;min-width:0}
@@ -996,7 +996,7 @@ body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; 
 }
 
 
-/* RESTORE: classic VATRA blue split-screen. Keep the improved form controls above. */
+
 @media (min-width:901px) {
   .auth-layout {
     display:grid !important;
@@ -1159,7 +1159,7 @@ body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; 
 .saved-account-remove:hover { color:#c53b49; border-color:#e7aab0; background:#fff8f8; }
 
 
-/* Requested correction: restore the light left panel and keep auth method controls truly circular. */
+
 @media (min-width:901px) {
   .auth-layout > .brand-side {
     color:#173052 !important;
@@ -1207,7 +1207,7 @@ body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; 
 .auth-layout .method-choice > label > span { flex:1 1 auto; min-width:0; }
 
 
-/* 2026-10-27: tighten the desktop auth layout and make password advice readable. */
+
 .auth-layout .password-guidance{font-size:14px!important;line-height:1.7!important;margin:9px 0 12px!important;color:#394d68!important}
 .auth-layout .password-strength-label{font-size:14px!important;line-height:1.65!important}
 .auth-layout .password-rules span{font-size:13px!important;line-height:1.55!important}
@@ -1224,7 +1224,7 @@ body { min-width:320px; min-height:100vh; min-height:100dvh; overflow-x:hidden; 
 @media(max-width:900px){.auth-layout .password-guidance{font-size:13px!important;line-height:1.6!important}}
 
 
-/* VATRA auth polish — fixed-size brand panel, a soft right-side halo, and readable password guidance */
+
 .auth-layout{align-items:start;grid-template-columns:minmax(320px,.92fr) minmax(440px,1.08fr)}
 .brand-side{height:100vh;min-height:100vh;align-self:start;justify-content:flex-start;gap:clamp(24px,5vh,58px)}
 .brand-side .brand-copy{margin:auto 0;max-width:500px}
@@ -1274,7 +1274,7 @@ body[data-auth-mode="register"] .form-side{justify-content:flex-start;padding-to
 }
 
 
-/* 2026-10 auth layout pass: compact, balanced and responsive on all screens. */
+
 .auth-layout{min-height:100dvh;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);align-items:stretch}
 .brand-side{min-height:100dvh;padding:clamp(24px,3.2vw,48px);gap:clamp(22px,4vh,42px);justify-content:space-between}
 .brand-copy{margin:auto 0;max-width:500px}
@@ -1392,8 +1392,7 @@ body.captcha-modal-open::before{content:"";position:fixed;z-index:100000;inset:0
 @media(prefers-reduced-motion:reduce){.password-strength-track span{transition:none}}
 
 
-/* Authentication refinement: balanced desktop layout, visible password guidance,
-   readable saved-account chips, keyboard focus, and a compact three-tab legal dialog. */
+
 .brand-side{justify-content:flex-start;gap:clamp(34px,7vh,76px);padding:clamp(28px,4vw,58px)}
 .brand-copy h1{font-size:clamp(38px,4.6vw,60px);line-height:1.08;letter-spacing:-2.4px;margin-bottom:18px}
 .brand-copy>p:last-child{line-height:1.65;margin-bottom:0;max-width:430px}
@@ -1443,7 +1442,7 @@ body.captcha-modal-open::before{content:"";position:fixed;z-index:100000;inset:0
 @media(max-width:560px){.password-guidance{font-size:12px!important;padding:10px}.password-strength{padding:11px}.password-rules{grid-template-columns:1fr}.birthday-selects{grid-template-columns:minmax(0,.72fr) minmax(0,1.35fr) minmax(0,1fr);gap:6px}.birthday-selects select{height:46px;padding:0 6px;font-size:12px}.legal-dialog-switcher{grid-template-columns:1fr}.legal-dialog-switcher button{width:100%}}
 
 
-/* Larger, readable password instructions requested for the registration form. */
+
 .auth-card .password-guidance{font-size:14px!important;line-height:1.72!important;padding:13px 14px!important;color:#304764!important}
 .auth-card .password-strength-label{font-size:13px!important;line-height:1.65!important}
 .auth-card .password-strength-status{font-size:13px!important}
@@ -1454,7 +1453,7 @@ body.captcha-modal-open::before{content:"";position:fixed;z-index:100000;inset:0
 }
 
 
-/* VATRA auth refinement: fixed brand panel, compact copy, comfortable form scrolling. */
+
 @media(min-width:851px){
   .auth-layout{align-items:start;grid-template-rows:minmax(100vh,auto)}
   .brand-side{
@@ -1497,7 +1496,7 @@ body.captcha-modal-open::before{content:"";position:fixed;z-index:100000;inset:0
 #passwordHelp[hidden],#passwordStrength[hidden]{display:none!important}
 .saved-accounts{display:none!important}
 
-/* VATRA auth refinements: compact spacing, legible guidance, accessible birth-date and OTP controls. */
+
 @media(min-width:851px){
  .auth-layout{grid-template-columns:minmax(300px,.82fr) minmax(470px,1.18fr)}
  .brand-side{padding:clamp(26px,3.4vw,58px);gap:clamp(24px,4.4vh,48px)}
@@ -1534,7 +1533,7 @@ body.captcha-modal-open::before{content:"";position:fixed;z-index:100000;inset:0
 .developer-sources a:hover{text-decoration:underline}
 @media(max-width:560px){.birthday-selects{grid-template-columns:.78fr 1.3fr .9fr;gap:6px}.birthday-selects select{padding:0 7px;font-size:12px}.password-guidance{font-size:12.5px}.saved-accounts{padding:10px}}
 
-/* Requested final auth layout override */
+
 @media(min-width:851px){
  html,body{min-height:100%;overflow-x:hidden}
  .auth-layout{display:grid!important;grid-template-columns:minmax(320px,44vw) minmax(480px,56vw)!important;align-items:start!important;grid-template-rows:auto!important}
@@ -1581,7 +1580,7 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
 .human-captcha-option{min-height:46px;overflow-wrap:anywhere;white-space:normal;line-height:1.45;padding:10px 12px}
 @media(max-width:420px){.human-captcha-options{grid-template-columns:1fr}.auth-card .password-guidance{font-size:13px!important}}
 
-/* Stable split layout override: the brand panel is fixed to the viewport and never scrolls. */
+
 @media(min-width:851px){
  .auth-layout{display:block!important;min-height:100vh!important;overflow:visible!important}
  .auth-layout>.brand-side{position:fixed!important;left:0!important;right:auto!important;top:0!important;bottom:0!important;width:44vw!important;height:100vh!important;height:100dvh!important;min-height:0!important;max-height:100vh!important;max-height:100dvh!important;overflow:hidden!important;box-sizing:border-box!important;z-index:2!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:clamp(12px,2.5vh,28px)!important;padding:clamp(20px,3vw,48px)!important}
@@ -1604,13 +1603,13 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
  .auth-layout>.form-side>.auth-card{width:min(100%,590px)!important;margin:0 auto!important}
 }
 
-/* Keep the email input visible when the contact mode is switched from phone. */
+
 .phone-number-control--email{display:block!important}
 .phone-number-control--email>.phone-country-static,.phone-number-control--email>.phone-country-code{display:none!important}
 .phone-number-control--email>input{display:block;width:100%;min-width:0}
 
 
-/* VATRA auth fixes: one page scroll, correct contact-mode visibility, visible legal links. */
+
 @media (min-width: 851px) {
   html, body { overflow-x: hidden !important; }
   body { overflow-y: auto !important; }
@@ -1688,7 +1687,7 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
   .auth-card .legal-links button { justify-content: center; min-height: 36px; }
 }
 
-/* VATRA auth: centered quick human check and registration-only password guidance. */
+
 #captchaWrap.captcha-modal .human-captcha-title{font-size:14px;}
 #captchaWrap.captcha-modal .human-captcha-tag{margin-left:auto;font-size:10px;}
 #captchaWrap.captcha-modal .human-captcha-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:9px;}
@@ -1696,7 +1695,7 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
 #passwordHelp[hidden],#passwordStrength[hidden]{display:none!important;}
 
 
-/* Registration consent: clear, accessible and visible like mainstream social-network signup flows. */
+
 .auth-card .legal-consent{display:flex;align-items:flex-start;gap:9px;margin:0 0 15px;padding:12px 13px;border:1px solid #dce5f2;border-radius:12px;background:#f8faff;color:#53637a;font-size:11px;line-height:1.65;text-align:left}
 .auth-card .legal-consent p{margin:0;flex:1;min-width:0}
 .auth-card .legal-consent input[type="checkbox"]{flex:0 0 16px;width:16px;height:16px;margin:2px 0 0;accent-color:#0757f5;cursor:pointer}
@@ -1706,7 +1705,7 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
 @media(max-width:420px){.auth-card .legal-consent{padding:11px;font-size:11px}}
 
 
-/* Make legal documents visible in the login and registration forms, not just injected by JS. */
+
 .auth-card .legal{
   display:block;
   margin:18px 0 0;
@@ -1765,7 +1764,7 @@ dialog::backdrop{background:rgba(7,18,39,.70);backdrop-filter:blur(5px);-webkit-
 }
 
 
-/* VATRA usability fixes, 28 Oct 2026. Keep the page to one scrollbar. */
+
 html{
   height:100%;
   overflow:hidden!important;
@@ -1802,7 +1801,7 @@ body{
   width:0!important;
 }
 
-/* Clearer, more readable message on the left brand panel. */
+
 .auth-layout .brand-copy .eyebrow{
   font-size:13px!important;
   line-height:1.5!important;
@@ -1822,7 +1821,7 @@ body{
   .auth-layout .brand-copy>p:last-child{font-size:16px!important;line-height:1.6!important}
 }
 
-/* Ukrainian flag replaces the plain country-code box in phone mode. */
+
 .phone-country-static{
   position:relative!important;
   flex:0 0 84px!important;
@@ -1873,12 +1872,12 @@ body{
   .phone-country-static>span{padding:3px 5px!important;font-size:11px!important}
 }
 
-/* Keep the password hint and strength meter mutually exclusive in registration. */
+
 #passwordHelp[hidden],
 #passwordStrength[hidden]{display:none!important}
 
 
-/* Final correction: compact Ukrainian flag and +380 label. */
+
 .phone-country-static{
   flex:0 0 56px!important;
   width:56px!important;
@@ -1911,7 +1910,7 @@ body{
 .phone-country-static[hidden]{display:none!important}
 
 
-/* VATRA auth: consistent scrolling, responsive layout and readable error states. */
+
 html{
   height:auto!important;
   min-height:100%;
@@ -1977,7 +1976,7 @@ body{
   word-break:normal;
 }
 
-/* Keep one page scrollbar and a stable split layout on desktop. */
+
 @media(min-width:851px){
   .auth-layout{display:block!important;width:100%!important}
   .auth-layout>.brand-side{
@@ -2066,7 +2065,7 @@ body{
   .phone-number-control{gap:5px}
 }
 
-/* Form errors are visible, consistent alert cards rather than plain red text. */
+
 .auth-card #error:not(:empty),
 .auth-dialog .auth-dialog-error:not(:empty),
 #recoveryError:not(:empty){
@@ -2137,7 +2136,7 @@ body{
 }
 
 
-/* Compact auth redesign: smaller card, tighter spacing and a restrained phone flag. */
+
 .auth-card{width:min(100%,410px)!important;padding:22px 24px!important;border-radius:16px!important}
 .auth-card .switcher{margin:0 0 18px!important;padding:3px!important}
 .auth-card .switcher button{min-height:36px!important;padding:8px 5px!important;font-size:12px!important}
@@ -2226,13 +2225,13 @@ body{
  .auth-card .method-choice{grid-template-columns:minmax(0,1fr)!important}
 }
 
-/* Auth visual pass — one page scrollbar, centered split, consistent typography. */
+
 html{overflow-x:clip!important;overflow-y:auto!important}
 body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;min-width:0!important;height:auto!important;min-height:100%!important;overflow:visible!important;overflow-x:clip!important;overflow-y:visible!important}
 .auth-layout{width:100%!important;height:auto!important;min-height:100dvh!important;overflow:visible!important;overflow-x:clip!important}
 .auth-layout>.form-side{height:auto!important;max-height:none!important;min-height:100dvh!important;overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important}
 
-/* The left and right sides meet at exactly 50% of the desktop viewport. */
+
 @media(min-width:851px){
  .auth-layout{display:block!important;min-height:100dvh!important}
  .auth-layout>.brand-side{position:fixed!important;inset:0 auto 0 0!important;width:50vw!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;padding:clamp(18px,2.8vw,42px)!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:space-between!important;gap:clamp(10px,2.1vh,22px)!important;overflow:hidden!important;box-sizing:border-box!important;z-index:2!important}
@@ -2254,7 +2253,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
  .auth-card{padding:16px!important}
 }
 
-/* Tablet and phone: all vertical movement belongs to the document, not the form column. */
+
 @media(max-width:850px){
  .auth-layout{display:block!important;width:100%!important;min-height:100dvh!important;height:auto!important}
  .auth-layout>.brand-side{display:none!important}
@@ -2280,7 +2279,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
  .auth-card .field input,.auth-card .auth-method{height:40px!important;min-height:40px!important}
 }
 
-/* Readable and consistent type scale for every part of authentication. */
+
 .auth-card{font-family:Inter,system-ui,sans-serif!important;font-size:14px!important;line-height:1.5!important}
 .auth-card .field label,.auth-card .field-label{font-size:12px!important;line-height:1.4!important;font-weight:650!important}
 .auth-card .field input,.auth-card .auth-method{font-size:14px!important;line-height:1.4!important}
@@ -2296,7 +2295,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
 #legalDialog .legal-dialog-body article h3,#developerDialog .developer-dialog-body h3{margin:17px 0 6px!important;font-size:14px!important}
 #legalDialog .legal-dialog-body .auth-dialog-desc{font-size:13px!important;line-height:1.7!important}
 
-/* The developer dialog shares the legal-document inner scrollbar and thumb colour. */
+
 #developerDialog.developer-dialog[open]{display:flex!important;flex-direction:column!important;width:min(620px,calc(100vw - 28px))!important;max-height:calc(100dvh - 24px)!important;overflow:hidden!important;overscroll-behavior:contain!important;padding:24px!important}
 #developerDialog .developer-dialog-body{flex:1 1 auto!important;min-height:0!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;scrollbar-width:thin!important;scrollbar-color:#1d5ef5 #eaf0fa!important;padding:0 12px 8px 0!important;margin-right:-10px!important}
 #developerDialog .developer-dialog-body::-webkit-scrollbar{width:9px}
@@ -2310,14 +2309,14 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
  #developerDialog .developer-dialog-copy p{font-size:12.5px!important;line-height:1.65!important}
 }
 
-/* Polished Ukrainian flag badge, with the country code beside the flag. */
+
 .auth-card .phone-country-static{display:flex!important;position:static!important;flex:0 0 72px!important;width:72px!important;min-width:72px!important;height:41px!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:0 6px!important;overflow:hidden!important;border:1px solid #dbe4f1!important;border-radius:9px!important;background:linear-gradient(180deg,#fff,#f7faff)!important;box-shadow:0 1px 3px #183e7a0a!important}
 .auth-card .phone-country-static .phone-country-flag{position:static!important;inset:auto!important;display:block!important;flex:0 0 22px!important;width:22px!important;height:15px!important;border-radius:3px!important;box-shadow:0 0 0 1px #12365a16!important}
 .auth-card .phone-country-static>span{position:static!important;z-index:auto!important;display:inline!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;color:#1d3655!important;font-size:11px!important;font-weight:750!important;line-height:1.2!important;box-shadow:none!important;backdrop-filter:none!important}
 .auth-card .phone-country-static[hidden],.auth-card .phone-number-control--email>.phone-country-static,.auth-card .phone-number-control--email>.phone-country-code{display:none!important}
 @media(max-width:560px){.auth-card .phone-country-static{flex-basis:67px!important;width:67px!important;min-width:67px!important;height:39px!important;gap:5px!important}.auth-card .phone-country-static .phone-country-flag{flex-basis:20px!important;width:20px!important;height:14px!important}.auth-card .phone-country-static>span{font-size:10px!important}}
 
-/* Reuse the VATRA flame mark and make wrong answers unmistakable. */
+
 .vatra-mini-mark{display:block;flex:0 0 22px;width:22px;height:22px;object-fit:contain}
 .human-captcha-title .vatra-mini-mark,.recovery-protection-title .vatra-mini-mark{width:23px;height:23px;flex-basis:23px}
 .human-captcha-title{gap:9px!important}
@@ -2328,7 +2327,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
 .human-captcha .human-captcha-status.is-passed::before{content:"✓";display:grid;place-items:center;flex:0 0 19px;width:19px;height:19px;border-radius:50%;background:#d4f7e3;color:#08784c}
 
 
-/* VATRA auth refresh: blue brand and its rings span the complete viewport. */
+
 .auth-layout{
   position:relative!important;
   isolation:isolate!important;
@@ -2410,7 +2409,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
   .auth-layout .auth-card{padding:16px 12px!important}
 }
 
-/* Give every modal close control a clear, tactile animation. */
+
 .auth-dialog-close,
 .developer-dialog-close,
 .developer-dialog-done,
@@ -2459,7 +2458,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
   .auth-dialog.is-opening,.developer-dialog.is-opening,.auth-dialog.is-closing,.developer-dialog.is-closing{animation:none!important}
 }
 
-/* The developer close button lives in its own row, never over the scroll track. */
+
 #developerDialog .developer-dialog-topbar{
   display:flex!important;
   flex:0 0 auto!important;
@@ -2511,7 +2510,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
 }
 
 
-/* Visual correction after viewport review: rings remain full circles, inside the screen. */
+
 .auth-layout::before{
   position:fixed!important;
   width:min(68vmin,1120px)!important;
@@ -2548,7 +2547,7 @@ body:not(.captcha-modal-open):not(.vatra-offline-active){width:100%!important;mi
 }
 
 
-/* Critical layout repair: keep the form inside the viewport, beside the fixed brand panel. */
+
 html,body{max-width:100%;overflow-x:hidden!important}
 .auth-layout{
   display:block!important;
@@ -2763,7 +2762,7 @@ html,body{max-width:100%;overflow-x:hidden!important}
 }
 
 
-/* Restore the intended split design: blue brand panel, light form panel, rings across both. */
+
 .auth-layout{
   background:linear-gradient(90deg,#0757f5 0%,#0050e7 49.99%,#f6f8fc 50%,#f6f8fc 100%)!important;
   isolation:isolate!important;
@@ -2822,7 +2821,7 @@ html,body{max-width:100%;overflow-x:hidden!important}
 }
 
 
-/* Final background correction: white page, blue only on the left half, full-page rings. */
+
 html,body{
   background:#f6f8fc!important;
   max-width:100%!important;
@@ -3063,7 +3062,7 @@ html,body{
 }
 
 
-/* VATRA authentication layout reset: one fluid grid for the full page. */
+
 html,body{
   min-height:100%;
   margin:0;
@@ -3466,7 +3465,7 @@ html,body{
   .auth-layout::before,.auth-layout::after{scroll-behavior:auto!important}
 }
 
-/* Developer modal close control: align with the header, not the scrollbar. */
+
 #developerDialog .developer-dialog-topbar{
   display:flex!important;
   align-items:center!important;
@@ -3496,10 +3495,10 @@ html,body{
   scroll-behavior:smooth!important;
 }
 
-/* Every time a modal is opened, its document starts at the top. */
 
 
-/* Fix: decorative circles must never extend the document's scroll height. */
+
+
 .auth-layout::before,
 .auth-layout::after{
   position:fixed!important;
@@ -3532,7 +3531,7 @@ html,body{
 }
 
 
-/* Keep the split background continuous for the entire document height. */
+
 html{
   background:#f6f8fc!important;
 }
@@ -3570,7 +3569,7 @@ body{
 }
 
 
-/* FINAL FIX: pin the blue brand panel to the viewport while the form scrolls normally. */
+
 html,body{
   width:100%!important;
   min-height:100%!important;
@@ -3846,7 +3845,7 @@ body{
 }
 
 
-/* Unified VATRA document scrollbar, input controls and focus states across auth dialogs. */
+
 .auth-dialog,
 #recoveryDialog,
 #developerDialog,
@@ -3942,7 +3941,7 @@ body{
 }
 
 
-/* Use the same VATRA scrollbar in password recovery, developer and legal forms. */
+
 #recoveryDialog.auth-dialog{
   max-height:min(88dvh,850px)!important;
   overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;
@@ -3998,7 +3997,7 @@ body{
 .auth-card .legal-consent input[type="checkbox"]:focus-visible{outline:3px solid #0757f535!important;outline-offset:3px!important}
 .auth-card .legal-consent button{font-weight:800!important;color:#0757f5!important;text-decoration-thickness:1.5px!important}
 
-/* Auth legal pages: preserve the form identity while switching document content. */
+
 .legal-dialog .legal-dialog-body article{transition:opacity .18s ease,transform .18s ease}
 .legal-dialog .legal-dialog-body article.is-active{animation:vatra-auth-legal-in .2s ease both}
 .legal-dialog .legal-dialog-body.is-switching{animation:vatra-auth-legal-area .2s ease both}
@@ -4008,7 +4007,7 @@ body{
 @keyframes vatra-auth-legal-area{from{opacity:.72}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.legal-dialog .legal-dialog-body article,.legal-dialog .legal-dialog-body.is-switching{animation:none!important;transition:none!important}}
 
-/* Keep legal documents inside the auth design and switch them without reopening the dialog. */
+
 .legal-dialog .legal-dialog-body article{transition:opacity .18s ease,transform .18s ease}
 .legal-dialog .legal-dialog-body article.is-active{animation:vatra-auth-legal-in .2s ease both}
 .legal-dialog .legal-dialog-body.is-switching{animation:vatra-auth-legal-area .2s ease both}
@@ -4018,7 +4017,7 @@ body{
 @keyframes vatra-auth-legal-area{from{opacity:.72}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.legal-dialog .legal-dialog-body article,.legal-dialog .legal-dialog-body.is-switching{animation:none!important;transition:none!important}}
 
-/* Registration — keyboard-accessible choice cards */
+
 .auth-card fieldset.vatra-gender-field{border:0!important;padding:0!important;margin:0 0 17px!important;min-inline-size:0!important}
 .auth-card fieldset.vatra-gender-field[hidden]{display:none!important}
 .auth-card .vatra-gender-field legend{padding:0!important;margin:0 0 9px!important;color:#293c53!important;font:700 13px/1.5 Inter,system-ui,sans-serif!important}
@@ -4031,7 +4030,7 @@ body{
 .auth-card .vatra-gender-choices label:hover span{border-color:#8bb1ef!important}
 
 
-/* VATRA developer card — professional editorial layout, shared auth aesthetics */
+
 dialog#developerDialog.vatra-developer-modern {
   width:min(640px,calc(100vw - 32px))!important;
   max-width:640px!important;max-height:min(86dvh,820px)!important;

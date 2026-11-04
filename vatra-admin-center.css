@@ -1,4 +1,4 @@
-/* VATRA • Administration UI, 31 Oct 2026 */
+
 body .vatra-control-center{display:grid;gap:17px;max-width:1160px;width:100%;margin:0 auto 45px;font:400 14px/1.48 Inter,system-ui,sans-serif;color:#2a405c}
 body .vatra-control-center *{box-sizing:border-box}
 body .vatra-control-center h2,body .vatra-control-center h3,body .vatra-control-center p{margin-top:0}

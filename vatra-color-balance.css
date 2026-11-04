@@ -1,7 +1,5 @@
 
-/* VATRA · Muted default palette for profile data.
-   Electric blue remains for primary CTA and active navigation.
-   Search links reveal the brighter accent on hover and focus. */
+
 body[data-page="profile"],body[data-page="publicProfile"]{
  --profile-neutral-ink:#344b63;
  --profile-neutral-link:#48637e;
@@ -110,7 +108,7 @@ body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend>span:last
 body[data-page="publicProfile"] .vatra-profile-sidebar .vatra-profile-friend>span:last-child{
  color:#5d728b!important;
 }
-/* Dark theme: retain readable values and focus feedback. */
+
 body[data-vatra-theme-effective="dark"][data-page="profile"],
 body[data-vatra-theme-effective="dark"][data-page="publicProfile"]{
  --profile-neutral-ink:#d7e4f2;

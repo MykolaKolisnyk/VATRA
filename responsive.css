@@ -1,7 +1,4 @@
-/* VATRA responsive layout contract — 2026-10-30.
-   The legacy component CSS remains untouched. This file, loaded last, owns
-   page geometry and type scale at all breakpoints. No global zoom/scale.
-   Key ranges: phone <=760, tablet 761–980, laptop 981–1199, wide >=1200. */
+
 :root{--vatra-page-width:1180px;--vatra-sidebar-width:170px;--vatra-reading-size:14px;--vatra-rail-gap:18px}
 body[data-vatra-font-scale="large"]{--vatra-reading-size:16px}
 html,body{min-width:0!important}
@@ -265,7 +262,7 @@ body .main>.heading h1{filter:none!important;text-shadow:none!important}
 
 
 
-/* VATRA original profile layout and visual styling. */
+
 body{background:#edeef0!important;color:#27313f!important}
 body .vatra-global-header{
  background:#fff!important;border-bottom:1px solid #dfe3ea!important;
@@ -436,7 +433,7 @@ body .chat-window{padding:16px!important}
  body .layout>.sidebar .nav,body .post-action-button{transition:none!important}
 }
 
-/* Secure one-to-one messages: state is visible and never implies a plaintext fallback. */
+
 body .chat-security{
   display:grid;gap:7px;margin:9px 0 13px;padding:10px 12px;
   border:1px solid #dfe8f5;border-radius:12px;

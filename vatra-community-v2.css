@@ -1,5 +1,4 @@
-/* VATRA community layout & comment refinements, 31 October 2026.
-   Last-loaded override: consistent scale with profile, accessible controls. */
+
 body .vatra-group-view{gap:18px!important;font-size:14px!important;}
 body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:18px!important;}
 body .vatra-group-main,body .vatra-group-rail,body .vatra-group-tab-panel{gap:16px!important;}
@@ -19,7 +18,7 @@ body .vatra-group-member b{font-size:12.5px!important;}
 body .vatra-group-member small{font-size:11px!important;}
 body .vatra-group-more-members{width:100%;margin-top:12px!important;min-height:38px!important;background:#f0f4f9!important;border:0!important;border-radius:9px!important;color:#2764b1!important;font-size:12px!important;font-weight:700!important;}
 body .vatra-group-more-members:hover{background:#e7f0ff!important;}
-/* Modal participant directory, with search and a dedicated scroll surface. */
+
 body .vatra-group-members-dialog{box-sizing:border-box;width:min(690px,calc(100vw - 28px));max-height:min(84dvh,760px);margin:auto;padding:0!important;overflow:hidden!important;border:0!important;border-radius:16px!important;background:#fff!important;box-shadow:0 16px 62px #0e254154!important;}
 body .vatra-group-members-dialog::backdrop{background:#15273c99!important;}
 body .vatra-group-members-dialog-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:22px 24px 14px;border-bottom:1px solid #e4ebf3;}
@@ -31,7 +30,7 @@ body .vatra-group-members-search>span{font-size:24px;line-height:1;}
 body .vatra-group-members-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:13px;color:#2c4b67;}
 body .vatra-group-members-dialog-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0 20px 22px;overflow-y:auto;max-height:calc(84dvh - 170px);}
 body .vatra-group-members-dialog-list .vatra-group-member[hidden]{display:none!important;}
-/* The same two-step composer for user and community media gallery opt-in. */
+
 body .vatra-post-gallery-setting[hidden]{display:none!important;}
 body .vatra-post-gallery-toggle,body .vatra-community-create-gallery{display:flex!important;gap:12px!important;align-items:flex-start!important;line-height:1.5!important;}
 body .vatra-post-gallery-toggle input,body .vatra-community-create-gallery input{flex:0 0 18px!important;width:18px!important;height:18px!important;margin-top:3px!important;accent-color:#0961ee;}
@@ -39,7 +38,7 @@ body .vatra-post-gallery-toggle span,body .vatra-community-create-gallery span{d
 body .vatra-post-gallery-toggle b,body .vatra-community-create-gallery b{font-size:13px;color:#304c68;}
 body .vatra-post-gallery-toggle small,body .vatra-community-create-gallery small{font-size:11px;color:#8499b0;}
 body .vatra-community-create-gallery{padding:14px 0!important;}
-/* Community photo albums and video library */
+
 body .vatra-community-gallery{display:grid;gap:17px;min-height:220px;}
 body .vatra-community-gallery-heading{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
 body .vatra-community-gallery-heading>div{flex:1 1 100%;min-width:0;}
@@ -64,7 +63,7 @@ body .vatra-community-video-tile video{display:block;width:100%;aspect-ratio:16/
 body .vatra-community-video-tile small{font-size:11px;color:#8196ac;}
 body .vatra-community-media-remove{display:block!important;margin:7px 0!important;background:#fff5f6!important;color:#b44c60!important;border:1px solid #f5dbe0!important;border-radius:7px!important;font-size:11px!important;padding:6px 10px!important;}
 body .vatra-community-gallery-empty{grid-column:1/-1;text-align:center!important;padding:44px 12px!important;color:#97a5b6!important;}
-/* Comments: flat VK-like readable text, replies, attached photos and proper menu. */
+
 body .vatra-post-comments{display:block!important;margin:16px 0 0!important;padding:14px 0 0!important;border-top:1px solid #ebf0f6!important;background:transparent!important;}
 body .vatra-post-comments .vatra-comments-heading{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:0 0 10px!important;}
 body .vatra-comments-heading b{font-size:13px!important;color:#334a65!important;}
@@ -102,7 +101,7 @@ body .vatra-comment-entry>button[type=submit]{align-self:end;min-height:38px!imp
 body .vatra-comment-attach{display:grid;place-items:center;flex:0 0 36px;width:36px;height:38px;border:1px solid #d8e5f4;border-radius:8px;cursor:pointer;color:#3d6e9e;background:#fff;font-size:18px;}
 body .vatra-comment-file-name{flex-basis:100%;font-size:11px;color:#4281b7;overflow-wrap:anywhere;}
 body .vatra-comment-file-name[hidden]{display:none!important;}
-/* Keep the arrow to the LEFT of the word Вгору. */
+
 body #vatraScrollToTop{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;white-space:nowrap!important;width:auto!important;height:auto!important;min-width:100px!important;min-height:40px!important;padding:8px 12px!important;}
 body #vatraScrollToTop[hidden]{display:none!important;}
 body #vatraScrollToTop svg{flex:0 0 18px;order:0!important;margin:0!important;}
@@ -111,7 +110,7 @@ body #vatraScrollToTop span{order:1!important;display:inline!important;line-heig
 @media(max-width:760px){body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr)!important;}body .vatra-group-card{padding:15px!important;}body .vatra-group-post-record>.post{padding:15px!important;}body .vatra-group-members-dialog-list{grid-template-columns:minmax(0,1fr);}body .vatra-community-videos-grid{grid-template-columns:minmax(0,1fr);}body .vatra-community-photos-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
 @media(max-width:430px){body .vatra-community-photos-grid{grid-template-columns:repeat(2,minmax(0,1fr));}body .vatra-comment-entry textarea{flex-basis:100%!important;}body .vatra-group-hero .vatra-group-heading h2{font-size:22px!important;}}
 
-/* Album covers mimic the main profile media collections. */
+
 body .vatra-community-album-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
 body .vatra-community-album-card{display:grid;gap:6px;min-width:0;text-align:left;padding:0 0 5px!important;background:transparent!important;border:0!important;color:#334b65!important;}
 body .vatra-community-album-card:hover b{color:#095dde!important;}

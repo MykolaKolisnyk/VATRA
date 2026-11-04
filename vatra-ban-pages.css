@@ -1,4 +1,4 @@
-/* VATRA official account/community suspension state */
+
 body .vatra-suspended-page{max-width:690px;min-height:500px;margin:22px auto 40px;padding:46px 40px;text-align:center;background:#fff;border:1px solid #dee8f4;border-radius:17px;box-shadow:0 6px 30px #1b334210;font:400 14px/1.65 Inter,system-ui,sans-serif;color:#294460}
 body .vatra-suspended-logo{display:grid;place-items:center;width:76px;height:76px;margin:0 auto 18px;border-radius:50%;background:#fff0f0;color:#c8464d}
 body .vatra-suspended-logo svg{width:39px;height:39px}
@@ -30,7 +30,7 @@ body.vatra-photo-menu-suppressed .vatra-avatar-hover-menu,
 body.vatra-photo-menu-suppressed .vatra-avatar-touch-toggle{visibility:hidden!important;opacity:0!important;pointer-events:none!important;transform:none!important}
 @media(max-width:650px){body .vatra-suspended-page{padding:28px 16px;min-height:0}body .vatra-suspended-details div{display:grid;gap:7px}body .vatra-suspended-details dt{flex:auto}}
 
-/* VATRA: minimal public account-status screen, owner-only decision details */
+
 body .vatra-suspended-page{max-width:730px;min-height:390px;padding:50px 40px 42px;box-shadow:0 10px 36px rgba(23,45,83,.065);border-radius:16px}
 body .vatra-suspended-page h1{font-size:clamp(22px,2.45vw,30px)!important;margin-bottom:12px}
 body .vatra-suspended-description{max-width:490px;margin-top:14px}
@@ -44,7 +44,7 @@ body .vatra-suspended-pending .vatra-suspended-support{margin-top:12px;cursor:po
 .vatra-avatar-restricted .vatra-restricted-avatar svg{width:52%;height:52%;display:block}
 @media(max-width:650px){body .vatra-suspended-page{padding:32px 18px;min-height:310px}}
 
-/* A familiar social-profile layout: name and status on top, announcement below. */
+
 body .vatra-suspended-page:not(.vatra-suspended-pending){padding:0!important;min-height:365px!important;overflow:hidden;text-align:left!important}
 body .vatra-suspended-page .vatra-suspended-profile-head{border-bottom:1px solid #e4eaf3;padding:22px 30px 20px;text-align:left}
 body .vatra-suspended-profile-head .vatra-suspended-person{margin:0 0 3px!important;font-size:19px!important;line-height:1.35}
@@ -60,7 +60,7 @@ body .vatra-suspended-own-screen .vatra-suspended-page{width:min(730px,100%)!imp
 .vatra-avatar-restricted:has(.vatra-restricted-avatar svg circle) .vatra-restricted-avatar{background-color:#eff2f7!important;color:#77879d!important}
 @media(max-width:650px){body .vatra-suspended-page .vatra-suspended-profile-head{padding:18px 17px}body .vatra-suspended-content{margin:17px 14px;padding:20px 14px}body .vatra-suspended-page .vatra-suspended-details{margin:14px 14px 0}body .vatra-suspended-page .vatra-suspended-actions{margin:18px 14px 22px}}
 
-/* VATRA 2026-10-31: compact deleted/blocked page like the provided example. */
+
 body .vatra-suspended-page:not(.vatra-suspended-pending){
  width:min(700px,100%)!important;max-width:700px!important;min-height:230px!important;
  padding:0!important;margin:16px auto 30px!important;
