@@ -1,4 +1,4 @@
-/* Onest is bundled in VATRA as an offline fallback for the Inter interface.
+/* Onest is bundled in VATRA as an offline fallback for Manrope and Inter.
    Copyright 2021 Onest Project Authors. Licensed under SIL OFL 1.1.
    See assets/fonts/OFL-Onest.txt. */
 @font-face{
@@ -10,5 +10,5 @@
 }
 
 html,body,button,input,textarea,select,option{
-  font-family:Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
+  font-family:"Manrope",Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
 }
