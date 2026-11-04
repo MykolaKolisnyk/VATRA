@@ -4271,3 +4271,14 @@ html body #recoveryDialog .vatra-method-symbol svg{
  html body .vatra-auth-language-all,
  html body .auth-card .switcher>button{transition:none!important}
 }
+
+@media(min-width:851px) and (max-height:780px){
+ html body .auth-layout>.brand-side{
+  padding:clamp(17px,3vh,26px) clamp(22px,3vw,44px)!important;
+  gap:10px!important;
+ }
+ html body .auth-layout>.brand-side .brand-copy h1{font-size:clamp(28px,3.25vw,45px)!important;line-height:1.08!important}
+ html body .auth-layout>.brand-side .brand-copy>p:last-child{font-size:13px!important;line-height:1.5!important}
+ html body .auth-layout>.brand-side>.vatra-auth-language-quick{margin-bottom:9px!important}
+ html body .auth-layout>.brand-side .brand-foot{gap:5px!important}
+}
