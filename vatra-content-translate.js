@@ -9,6 +9,27 @@ const texts={
 };
 function language(){return window.vatraLanguage?.language||'uk';}
 function labels(){return texts[language()]||texts.en;}
+// Avoid showing Translate for text already written in the reader's interface language.
+// Language hint wins; otherwise check reliable script/grammar markers rather than guessing blindly.
+function vatraContentLanguage(node,value){
+ const hint=(node.getAttribute('lang')||node.closest('[lang]')?.getAttribute('lang')||'').trim().toLowerCase().split('-')[0];
+ if(hint && hint!=='und' && ['uk','en','ru','pl','de','fr','es','it','pt'].includes(hint))return hint;
+ const str=String(value||'').replace(/https?:\/\/\S+/g,'').trim();
+ if(/[іїєґІЇЄҐ]/u.test(str))return 'uk';
+ if(/[ыэъёЫЭЪЁ]/u.test(str))return 'ru';
+ if(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/u.test(str))return 'pl';
+ if(/[а-яА-Я]/u.test(str))return 'unknown-cyrillic';
+ if(/[a-z]/i.test(str)){
+  if(/\b(the|and|you|with|this|that|from|have|your|about|are|was|what|for|they|can|not)\b/i.test(str))return 'en';
+  return 'unknown-latin';
+ }
+ return 'unknown';
+}
+function vatraSameLanguage(node,value){
+ const detected=vatraContentLanguage(node,value),current=language();
+ return detected===current || (current==='uk'&&detected==='unknown-cyrillic' &&
+   /\b(це|та|що|для|про|від|або|також|ми|ви|вона|вони|його|мені|можна|тільки)\b/iu.test(value));
+}
 function annotate(node){
  if(node.dataset.vatraTranslateReady||!node.isConnected)return;
  const value=(node.textContent||'').trim();
@@ -25,7 +46,15 @@ function annotate(node){
  let translated=false;
  const reset=()=>{translated=false;node.hidden=false;output.hidden=true;status.hidden=true;button.disabled=false;button.textContent=labels().translate;button.title=labels().note;};
  node.vatraResetTranslation=reset;
+ const applyVisibility=()=>{
+  const hidden=vatraSameLanguage(node,value);
+  button.hidden=hidden;
+  if(hidden)reset();
+ };
+ node.vatraUpdateTranslateVisibility=applyVisibility;
+ applyVisibility();
  button.addEventListener('click',async()=>{
+  if(vatraSameLanguage(node,value)){applyVisibility();return;}
   if(translated){translated=false;node.hidden=false;output.hidden=true;button.textContent=labels().translate;return;}
   status.hidden=true;
   const lang=language(),key=lang+'|'+value,revision=languageRevision;
@@ -58,5 +87,5 @@ function annotate(node){
 let pending=false;
 function scan(){document.querySelectorAll(selectors).forEach(annotate);}
 new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;scan();});}).observe(document.body,{childList:true,subtree:true});
-document.addEventListener('vatra:languagechange',()=>{languageRevision++;cache.clear();document.querySelectorAll('[data-vatra-translate-ready]').forEach(node=>node.vatraResetTranslation?.());});
+document.addEventListener('vatra:languagechange',()=>{languageRevision++;cache.clear();document.querySelectorAll('[data-vatra-translate-ready]').forEach(node=>{node.vatraResetTranslation?.();node.vatraUpdateTranslateVisibility?.();});});
 scan();
