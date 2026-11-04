@@ -23,8 +23,8 @@ body .layout>.sidebar nav :is(a.nav,button.nav)[aria-current="page"]{
  border-radius:9px!important;
  outline:0!important;
  background:transparent!important;
- color:#48617f!important;
- font-weight:630!important;
+ color:#233850!important;
+ font-weight:710!important;
  font-size:13.8px!important;
  line-height:1.4!important;
  letter-spacing:0!important;
@@ -40,15 +40,15 @@ body .layout>.sidebar nav :is(a.nav,button.nav)::after{
 }
 body .layout>.sidebar nav :is(a.nav,button.nav) :is(.nav-icon,svg),
 body .layout>.sidebar nav :is(a.nav,button.nav).active :is(.nav-icon,svg){
- color:#7692ae!important;
- stroke:#7692ae!important;
+ color:#416995!important;
+ stroke:#416995!important;
  filter:none!important;
  transition:color .17s ease,stroke .17s ease!important;
 }
 body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{
  width:19px!important;
  height:19px!important;
- stroke-width:1.85!important;
+ stroke-width:2!important;
  stroke-linecap:round!important;
  stroke-linejoin:round!important;
 }
@@ -57,7 +57,7 @@ body .layout>.sidebar nav :is(a.nav,button.nav).active:hover,
 body .layout>.sidebar nav :is(a.nav,button.nav)[aria-current="page"]:hover{
  color:#175fc2!important;
  background:rgba(224,235,251,.58)!important;
- transform:translateX(3px)!important;
+ transform:none!important;
 }
 body .layout>.sidebar nav :is(a.nav,button.nav):hover :is(.nav-icon,svg){
  color:#175fc2!important;
