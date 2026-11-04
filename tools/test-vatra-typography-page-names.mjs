@@ -29,7 +29,8 @@ for(const file of ['index.html','auth.html','register.html']){
  assert.ok(html.includes('family=Inter:wght@400..800'), 'Inter fallback missing in '+file);
 }
 assert.ok(foundations.includes('--vatra-ui-font:Inter'), 'Readability: Inter must be the sitewide font');
-assert.ok(icons.includes('font-size:15px!important;font-weight:610!important'),'Balanced desktop navigation not applied');
+assert.ok(icons.includes('font-size:14px!important;font-weight:580!important'),'Compact readable desktop navigation not applied');
+assert.ok(icons.includes('height:38px!important'),'Sidebar buttons must remain compact');
 assert.ok(icons.includes('data-vatra-theme-effective="dark"'),'Dark mode navigation is unstyled');
 
 const legacyNavPattern=/nav\[aria-label="Основна навігація"\]>a\.nav/;
@@ -44,12 +45,16 @@ console.log('VATRA typography/cleanup: Manrope, clean nav CSS, consistent page t
 const original=read('script.js');
 const pageCss=read('vatra-site-cohesion.css');
 const galleryCss=read('vatra-profile-gallery-language-v2.css');
-assert.ok(original.includes('vatra-own-page-layout'),'Dedicated profile layout not rendered');
+assert.ok(original.includes('vatra-profile-layout'),'Original compact profile layout not rendered');
+assert.ok(!original.includes('vatra-own-page-layout'),'Unrequested expanded layout must not return');
 assert.ok(!original.includes('vatra-own-cover')&&!original.includes('vatraOwnCoverInput'),'Unrequested personal cover must not be rendered');
 assert.ok(!original.includes('async function uploadCover('),'Unused cover upload handler must be removed');
 assert.ok(!pageCss.includes('vatra-own-cover'),'Old cover CSS must not remain');
 assert.ok(!pageCss.includes('margin-top:-100px'),'Avatar must not overlap a removed cover');
-assert.ok(pageCss.includes('--vatra-unified-width:1520px'),'Header and profile max width are not aligned');
-assert.ok(pageCss.includes('.vatra-own-page-layout .vatra-profile-photos'),'Compact photo rail absent');
-assert.ok(galleryCss.includes('grid-auto-columns:calc((100% - var(--vatra-gallery-gap)) / 2)'),'Compact photo gallery CSS is missing');
-console.log('VATRA cover-free page, responsive content rail and header width checked.');
+assert.ok(!pageCss.includes('1520px'),'Old page expansion must not return');
+const basePages=read('vatra-pages.css');
+assert.ok(basePages.includes('width:min(1040px,calc(100% - 40px))'),'Compact profile width must be restored');
+assert.ok(basePages.includes('max-width:830px!important'),'Compact content width must be restored');
+assert.ok(!pageCss.includes('.vatra-own-page-layout'),'Old wide layout CSS must be removed');
+assert.ok(galleryCss.includes('grid-auto-columns:calc((100% - 3 * var(--vatra-gallery-gap)) / 4)'),'Original photo carousel sizing must remain');
+console.log('VATRA cover-free compact page and original photo gallery verified.');
