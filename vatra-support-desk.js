@@ -158,6 +158,7 @@ async function openSupport(requestedId=null){
  document.querySelectorAll('[data-support-new]').forEach(b=>b.onclick=showNewTicket);
  await loadTickets();
  if(requestedId&&tickets.some(t=>t.id===Number(requestedId)))await selectTicket(Number(requestedId));
+ if(!inside()||token!==renderToken)return;
  if(location.hash!=='#/support')history.pushState({vatra:true},'',location.pathname+location.search+'#/support');
  window.scrollTo(0,0);
 }
