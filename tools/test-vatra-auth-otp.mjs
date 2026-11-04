@@ -35,7 +35,7 @@ for(const snippet of required)assert.ok(auth.includes(snippet),'Auth flow regres
 assert.ok(auth.includes("challenge.verifiedUser?{user:challenge.verifiedUser,session:true}:await verifyOtp("),'Verified signup must be retryable without consuming the OTP twice');
 assert.ok(auth.includes("if(!challenge.checkedNewAccount){"),'Existing-account protection should run once, not after partial profile writes');
 assert.ok(auth.includes("otpField.required=false;otpField.readOnly=true;"),'Verified signup should not require the spent code');
-assert.ok(auth.includes("await finishRegistration({...challenge,user});\\n   pendingOtp=null;return;"),'Do not clear OTP guard before profile writes finish');
+assert.match(auth,/await finishRegistration\(\{\.\.\.challenge,user\}\);\s*pendingOtp=null;return;/,'Do not clear OTP guard before profile writes finish');
 assert.ok(auth.includes("input.readOnly=false;"),'Changing contact must reset the OTP field state');
 assert.ok(!auth.includes('signUpWithPassword('),'Old registration bypasses OTP');
 assert.ok(!auth.includes('await sendVatraOtp'),'Missing custom Edge Function must not be used');
