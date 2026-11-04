@@ -720,8 +720,8 @@ function renderFeed(){
  if(birthdays.length){
   const birthdayCards=birthdays.slice(0,4).map(friend=>{
    const sent=vatraBirthdayAlreadySent(friend.uid,friend.year);
-   return '<div class="vatra-friend-birthday-person">'+avatar(friend.name,users[friend.uid]?.avatarUrl)+
-    '<span><b>'+esc(friend.name)+'</b><small>Сьогодні день народження</small></span>'+
+   return '<div class="vatra-friend-birthday-person"><button type="button" class="vatra-birthday-visit" data-view-profile="'+esc(friend.uid)+'" aria-label="Відкрити сторінку '+esc(friend.name)+'">'+avatar(friend.name,users[friend.uid]?.avatarUrl)+'</button>'+
+    '<button type="button" class="vatra-birthday-name" data-view-profile="'+esc(friend.uid)+'"><b>'+esc(friend.name)+'</b><small>Сьогодні день народження</small></button>'+
     '<button type="button" data-vatra-birthday-greet="'+esc(friend.uid)+'" '+(sent?'disabled':'')+'>'+(sent?'Привітали':'Привітати')+'</button></div>';
   }).join('');
   cards.unshift('<section class="vatra-friend-birthday-banner" aria-label="Дні народження друзів"><header><span class="vatra-birthday-icon" aria-hidden="true">🎂</span><span><b>Сьогодні святкують друзі</b><small>Привітайте у ВАТРІ або надішліть подарунок</small></span></header><div class="vatra-friend-birthday-people">'+birthdayCards+'</div></section>');
@@ -2681,9 +2681,53 @@ function vatraFriendBirthdaysToday(){
 function vatraBirthdayAlreadySent(uid,year){
  try{return localStorage.getItem('vatra-birthday-sent-'+currentUser?.uid+'-'+uid+'-'+year)==='1'}catch{return false}
 }
+const VATRA_BIRTHDAY_MESSAGES=[
+ '🎉 З днем народження, {name}! Бажаю тобі щасливих митей, гарних новин і здійснення найсміливіших мрій! 🎂',
+ '🎂 {name}, нехай цей день подарує море усмішок, тепла та приємних сюрпризів! 🎁',
+ '✨ З днем народження, {name}! Бажаю натхнення, любові й незабутніх пригод!',
+ '🥳 {name}, вітаю! Хай кожен твій новий день буде цікавішим за попередній!',
+ '💛 Вітаю з днем народження, {name}! Нехай поруч завжди будуть люди, які дарують щастя.',
+ '🎈 {name}, нехай здійснюється все, про що мрієш. Святкуй цей день так, як хочеться саме тобі!',
+ '🌟 З днем народження! {name}, бажаю сил, здоров’я, здійснення планів і справжніх друзів.',
+ '🎊 Вітаю, {name}! Бажаю більше спонтанних радощів і менше причин для хвилювань.',
+ '🌷 {name}, нехай цей рік принесе тобі багато добрих новин та приводів посміхатися!',
+ '🎁 З днем народження, {name}! Нехай кожен подарунок долі буде приємним сюрпризом.',
+ '💫 {name}, бажаю тобі впевненості у собі та безмежних можливостей. Зі святом!',
+ '🍰 Нехай сьогодні здійсниться хоча б одна велика мрія, а завтра — ще більше. Вітаю, {name}!',
+ '🎉 {name}, нехай усе задумане виходить, а щасливі моменти тривають довше!',
+ '☀️ З днем народження, {name}! Більше сонячних днів, підтримки й теплих зустрічей!',
+ '💐 {name}, бажаю здоров’я, гармонії й безліч прекрасних причин для радості!',
+ '🎈 Вітаю з твоїм днем! Нехай життя приносить яскраві враження, {name}!',
+ '🥂 {name}, за нові мрії, нові перемоги й найкращі спогади! З днем народження!',
+ '🫶 З днем народження, {name}! Нехай вдається знаходити щастя навіть у дрібницях.',
+ '🎂 {name}, сьогодні твій день! Бажаю зробити його особливим і незабутнім!',
+ '🌼 Бажаю радості, душевного спокою та щасливих історій! З днем народження, {name}!'
+];
 function vatraBirthdayGreetText(name){
  const first=String(name||'друже').trim().split(/\s+/)[0].slice(0,40);
- return '🎉 З днем народження, '+first+'! 🎂\n\nНехай у твоєму житті завжди буде місце для щасливих моментів, щирих усмішок, теплих зустрічей і мрій, які здійснюються. Бажаю міцного здоров’я, натхнення, добрих людей поруч та мирного неба над головою. Нехай новий рік життя принесе багато світла, любові й нових перемог! 💙💛\n\nЗ найкращими побажаннями у ВАТРІ! ✨';
+ const random=VATRA_BIRTHDAY_MESSAGES[Math.floor(Math.random()*VATRA_BIRTHDAY_MESSAGES.length)];
+ return random.replaceAll('{name}',first);
+}
+function vatraBirthdayComposeMessage(uid){
+ const name=users[uid]?.name||friendProfiles[uid]?.name||'друга';
+ let dialog=document.getElementById('vatraBirthdayCompose');
+ if(!dialog){dialog=document.createElement('dialog');dialog.id='vatraBirthdayCompose';dialog.className='vatra-birthday-compose';document.body.append(dialog);}
+ dialog.innerHTML='<form method="dialog"><div class="vatra-birthday-compose-top"><span class="vatra-birthday-compose-emoji" aria-hidden="true">🎂</span><button type="button" data-birthday-compose-close aria-label="Закрити">×</button></div>'+
+  '<h2>Привітати з днем народження</h2><p>Привітання для <b>'+esc(name)+'</b>. Виберіть готове або напишіть своє.</p>'+
+  '<label for="vatraBirthdayMessage">Текст привітання</label><textarea id="vatraBirthdayMessage" maxlength="1500" rows="6"></textarea>'+
+  '<div class="vatra-birthday-compose-actions"><button type="button" data-birthday-generate>↻ Інше привітання</button><small>Можна змінити будь-який текст</small></div>'+
+  '<footer><button type="button" data-birthday-compose-close>Скасувати</button><button type="submit" class="primary">Надіслати привітання</button></footer></form>';
+ const field=dialog.querySelector('textarea');field.value=vatraBirthdayGreetText(name);
+ return new Promise(resolve=>{
+  let done=false;
+  const finish=value=>{if(done)return;done=true;dialog.removeEventListener('cancel',cancel);dialog.close();resolve(value);};
+  const cancel=e=>{e.preventDefault();finish(null);};
+  dialog.addEventListener('cancel',cancel);
+  dialog.querySelectorAll('[data-birthday-compose-close]').forEach(btn=>btn.addEventListener('click',()=>finish(null)));
+  dialog.querySelector('[data-birthday-generate]').addEventListener('click',()=>{field.value=vatraBirthdayGreetText(name);field.focus();});
+  dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const value=field.value.trim();if(!value){field.setCustomValidity('Напишіть привітання.');field.reportValidity();field.setCustomValidity('');return;}finish(value.slice(0,1500));};
+  dialog.showModal();field.focus({preventScroll:true});
+ });
 }
 function vatraBirthdayGiftPrompt(uid){
  let dialog=document.getElementById('vatraBirthdayGiftPrompt');
@@ -2701,9 +2745,12 @@ async function vatraSendBirthdayGreet(uid,button){
  if(!currentUser||!friends[uid]||blockedUsers[uid])return toastMsg('Привітати можна лише доступного друга.');
  if(users[uid]?.allowMessages===false)return toastMsg('Друг обмежив особисті повідомлення.');
  const {year}=vatraTodayKyiv();if(vatraBirthdayAlreadySent(uid,year))return toastMsg('Цього року ви вже привітали цього друга.');
+ const message=await vatraBirthdayComposeMessage(uid);
+ if(!message)return;
+ if(vatraBirthdayAlreadySent(uid,year))return toastMsg('Цього року ви вже привітали цього друга.');
  button.disabled=true;
  try{
-  const key=chatKey(currentUser.uid,uid),createdAt=Date.now(),message=vatraBirthdayGreetText(users[uid]?.name||friendProfiles[uid]?.name);
+  const key=chatKey(currentUser.uid,uid),createdAt=Date.now();
   const secure=await prepareSession(currentUser.uid,uid,key,readE2EEKey,publishE2EEKey);
   const encrypted=await encryptMessage(secure,message,currentUser.uid,createdAt);
   const root=ref(db,'chats/'+key),snapshot=await get(root);
