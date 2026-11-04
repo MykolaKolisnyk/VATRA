@@ -18,11 +18,7 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  padding:0!important;
  align-content:start!important;
 }
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav,
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav[aria-current="page"],
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active,
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active{
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{
  box-sizing:border-box!important;
  display:flex!important;align-items:center!important;
  width:100%!important;max-width:100%!important;
@@ -55,9 +51,7 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  background:transparent!important;
  color:#476c96!important;
 }
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg,
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active .nav-icon svg,
-html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active .nav-icon svg{
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg{
  display:block!important;
  width:18px!important;height:18px!important;
  fill:none!important;
@@ -70,9 +64,7 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  display:none!important;content:none!important;box-shadow:none!important;
 }
 @media(hover:hover){
- html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover,
- html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover,
- html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.active:hover{
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
   background:#f0f5fc!important;
   background-image:none!important;
   box-shadow:none!important;
