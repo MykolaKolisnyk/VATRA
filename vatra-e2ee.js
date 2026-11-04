@@ -1,14 +1,3 @@
-/**
- * VATRA device-key E2EE v1 — authenticated peer-to-peer encryption for 1:1 chats.
- * Browser WebCrypto only: P-256 ECDH + HKDF-SHA256 + AES-256-GCM.
- * ECDSA P-256 signatures authenticate the ciphertext sender.
- * Keys are non-extractable CryptoKey objects kept in this device's IndexedDB.
- * Peer public-key fingerprints use trust-on-first-use (TOFU).
- *
- * LIMITATIONS: static keys (no forward secrecy / Double Ratchet), no device sync,
- * no identity verification unless fingerprints are compared out-of-band.
- * Never claim Signal-equivalent security, and never auto-downgrade to plaintext.
- */
 const DB_NAME='vatra-e2ee-v1', DB_VERSION=1;
 const encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{fatal:true});
 let openPromise;

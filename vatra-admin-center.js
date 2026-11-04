@@ -1,5 +1,3 @@
-/* ВАТРА • secure administration and report inbox, backed by Supabase RLS/RPC.
-   Requires vatra-moderation-center.sql; no service-role token is present in the browser. */
 import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
 const auth=getAuth(initializeApp()),client=getDatabase(initializeApp()).client;
 const $=s=>document.querySelector(s);

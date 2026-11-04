@@ -1,7 +1,3 @@
-/* Сумісний шар даних для старого інтерфейсу ВАТРИ.
-   Повідомлення про помилки не містять назви конкретного проєкту. */
-// ESM CDNs can be blocked independently by browser networks or VPN providers.
-// Use the first available compatible Supabase module without changing the project.
 let createClient;
 try {
   ({ createClient } = await import('https://esm.sh/@supabase/supabase-js@2'));

@@ -1,4 +1,3 @@
-// One source of labels/icons for desktop navigation and the mobile menu.
 export function setupNavigation(onNavigate) {
   const trigger = document.getElementById('mobileMore');
   const dialog = document.getElementById('mobileMenu');

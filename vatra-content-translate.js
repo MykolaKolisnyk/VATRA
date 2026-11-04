@@ -1,4 +1,3 @@
-// VATRA: on-demand translation only. User-generated text remains unchanged in storage.
 import {initializeApp,getDatabase} from './vatra-backend.js?v=20261031-7';
 const client=getDatabase(initializeApp()).client;
 const cache=new Map();

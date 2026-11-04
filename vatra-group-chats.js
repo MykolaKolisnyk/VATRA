@@ -1,5 +1,3 @@
-/* VATRA • Group conversations. Uses the same Supabase-backed app_data layer.
-   Apply vatra-group-chats.sql BEFORE using this module. */
 import {initializeApp,getAuth,getDatabase,onAuthStateChanged,ref,get,set,push,onValue} from './vatra-backend.js?v=20261031-7';
 
 const groupAuth=getAuth(initializeApp()),groupDb=getDatabase(initializeApp());
