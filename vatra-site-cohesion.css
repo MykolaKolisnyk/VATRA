@@ -172,67 +172,23 @@ body[data-page="profile"]{
   --vatra-unified-gap:16px;
  }
 }
-/* Owned page, not a mockup: real profile cover, usable editor, responsive content rail.
-   The older 830px page cap was removed from vatra-pages.css. */
+/* User page layout without a cover. Preserve the responsive columns and original avatar card. */
 html body[data-page="profile"] .vatra-own-page-layout{
  display:grid!important;
  grid-template-columns:minmax(205px,250px) minmax(0,1fr)!important;
  gap:16px!important;align-items:start!important;
  min-width:0!important;max-width:none!important;width:100%!important;
 }
-html body[data-page="profile"] .vatra-own-page-layout>.vatra-own-cover{
- position:relative!important;grid-column:1/-1!important;grid-row:1!important;
- width:100%!important;min-width:0!important;height:250px!important;
- overflow:hidden!important;border-radius:16px!important;
- border:1px solid rgba(96,146,214,.26)!important;
- background:
-  radial-gradient(ellipse at 83% 18%,rgba(99,166,255,.47),transparent 44%),
-  radial-gradient(ellipse at 17% 85%,rgba(28,84,170,.6),transparent 55%),
-  linear-gradient(125deg,#17283f 0%,#1d4175 58%,#376eb0 100%)!important;
- box-shadow:0 3px 14px rgba(18,34,58,.11)!important;
- isolation:isolate;
-}
-html body[data-page="profile"] .vatra-own-cover-image{
- position:absolute;inset:0;width:100%;height:100%;
- object-fit:cover;object-position:center;display:block;
-}
-html body[data-page="profile"] .vatra-own-cover::after{
- content:"";position:absolute;inset:55% 0 0;z-index:0;pointer-events:none;
- background:linear-gradient(0deg,rgba(4,13,28,.6),transparent);
-}
-html body[data-page="profile"] .vatra-own-cover-actions{
- position:absolute;right:18px;bottom:18px;z-index:2;
-}
-html body[data-page="profile"] .vatra-own-cover-edit{
- display:flex!important;align-items:center!important;justify-content:center!important;
- gap:8px!important;min-height:40px!important;padding:9px 14px!important;
- border:1px solid rgba(255,255,255,.24)!important;border-radius:10px!important;
- background:rgba(10,21,40,.82)!important;color:#fff!important;
- font:650 13px/1.3 var(--vatra-ui-font,Inter,system-ui,sans-serif)!important;
- backdrop-filter:blur(8px);cursor:pointer;
-}
-html body[data-page="profile"] .vatra-own-cover-edit:hover{background:#1454a3!important}
-html body[data-page="profile"] .vatra-own-cover-edit svg{width:19px;height:19px;color:#fff!important}
-html body[data-page="profile"] .vatra-own-cover-stats{
- position:absolute;bottom:21px;left:22px;z-index:2;
- display:flex;align-items:center;gap:17px;flex-wrap:wrap;
- max-width:calc(100% - 250px);color:#f6f9ff;
- font:500 12px/1.4 var(--vatra-ui-font,Inter,system-ui,sans-serif)!important;
-}
-html body[data-page="profile"] .vatra-own-cover-stats span{display:flex;align-items:baseline;gap:5px}
-html body[data-page="profile"] .vatra-own-cover-stats b{font-size:16px;font-weight:780}
 html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-sidebar{
- grid-column:1!important;grid-row:2!important;min-width:0!important;
+ grid-column:1!important;grid-row:1!important;min-width:0!important;
  display:grid!important;align-content:start!important;gap:14px!important;
 }
 html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-main{
- grid-column:2!important;grid-row:2!important;min-width:0!important;
+ grid-column:2!important;grid-row:1!important;min-width:0!important;
  display:grid!important;align-content:start!important;gap:14px!important;
 }
 html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-avatar-card{
- position:relative;z-index:4;margin-top:-100px!important;
- padding:11px!important;background:var(--vatra-ui-surface,#fff)!important;
- box-shadow:0 6px 22px rgba(15,32,54,.16)!important;
+ margin-top:0!important;padding:11px!important;
 }
 html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-overview{
  padding:22px 22px 12px!important;
@@ -303,24 +259,14 @@ html body:not([data-vatra-theme-effective="dark"])[data-page="profile"]{
  html body[data-page="profile"] .vatra-own-page-layout{
   display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important;
  }
- html body[data-page="profile"] .vatra-own-page-layout>.vatra-own-cover{
-  grid-column:1!important;grid-row:1!important;
-  height:180px!important;border-radius:0 0 13px 13px!important;
- }
  html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-sidebar{
-  grid-column:1!important;grid-row:2!important;gap:10px!important;
+  grid-column:1!important;grid-row:1!important;gap:10px!important;
  }
  html body[data-page="profile"] .vatra-own-page-layout>.vatra-profile-main{
-  grid-column:1!important;grid-row:3!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-column:1!important;grid-row:2!important;grid-template-columns:minmax(0,1fr)!important;
  }
  html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-avatar-card{
-  margin:-62px 12px 0!important;width:min(220px,calc(100% - 24px))!important;
+  margin:0 12px!important;width:min(220px,calc(100% - 24px))!important;
  }
- html body[data-page="profile"] .vatra-own-cover-stats{
-  bottom:62px;left:15px;max-width:calc(100% - 30px);gap:10px;font-size:11px!important;
- }
- html body[data-page="profile"] .vatra-own-cover-stats b{font-size:13px}
- html body[data-page="profile"] .vatra-own-cover-actions{right:12px;bottom:10px}
- html body[data-page="profile"] .vatra-own-cover-edit{min-height:35px!important;padding:6px 10px!important;font-size:11px!important}
  html body[data-page="profile"] .vatra-own-page-layout .vatra-profile-overview{padding:16px!important}
 }
