@@ -1,5 +1,5 @@
 
-:root{--vatra-page-width:1180px;--vatra-sidebar-width:170px;--vatra-reading-size:14px;--vatra-rail-gap:18px}
+:root{--vatra-page-width:1320px;--vatra-sidebar-width:190px;--vatra-reading-size:14px;--vatra-rail-gap:21px}
 body[data-vatra-font-scale="large"]{--vatra-reading-size:16px}
 html,body{min-width:0!important}
 body,body button,body input,body textarea,body select{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -20,7 +20,7 @@ body .vatra-global-header .mobile-brand{
   font-size:19px!important;line-height:1!important;
 }
 body .vatra-global-header .search{
-  flex:1 1 320px!important;max-width:460px!important;
+  flex:1 1 320px!important;max-width:510px!important;
   min-width:0!important;width:auto!important;height:38px!important;min-height:38px!important;
   border-radius:12px!important;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease!important;
 }
@@ -106,7 +106,7 @@ body .post-actions button.post-action-button{
 }
 body .post-action-button .post-action-count{font-size:12px!important}
 body .vatra-profile-layout{
-  display:grid!important;grid-template-columns:236px minmax(0,1fr)!important;
+  display:grid!important;grid-template-columns:252px minmax(0,1fr)!important;
   gap:16px!important;align-items:start!important;min-width:0!important;
   animation:none!important;transform:none!important;
 }
