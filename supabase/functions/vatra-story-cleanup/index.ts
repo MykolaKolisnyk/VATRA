@@ -5,6 +5,8 @@ type StoryValue = {
   authorUid?: unknown;
   createdAt?: unknown;
   mediaUrl?: unknown;
+  mediaBucket?: unknown;
+  mediaPath?: unknown;
 };
 type StoryRow = { path: string; value: StoryValue };
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -21,6 +23,19 @@ export function storyIsExpired(row: StoryRow, now = Date.now()): boolean {
 }
 
 /** Refuse any URL that is not an upload to the authenticated author's own bucket folder. */
+/** Only delete the file whose name embeds the exact story id and author. */
+export function storyPrivateMediaPath(row: StoryRow): string | null {
+ const owner=row?.value?.authorUid;
+ if(typeof owner!=="string"||!UUID.test(owner))return null;
+ if(!/^posts\/[a-zA-Z0-9_-]{12,64}$/.test(row.path))return null;
+ if(row.value.mediaBucket!=="vatra-stories"||typeof row.value.mediaPath!=="string")return null;
+ const id=row.path.slice(6);
+ const path=row.value.mediaPath;
+ const prefix=owner+"/stories/"+id+".";
+ if(!path.startsWith(prefix))return null;
+ const ext=path.slice(prefix.length);
+ return ["jpg","png","webp","gif","avif","mp4","webm","mov","ogv","m4v"].includes(ext)?path:null;
+}
 export function storyMediaPath(row: StoryRow, supabaseUrl: string): string | null {
   const owner = row?.value?.authorUid;
   if (typeof owner !== "string" || !UUID.test(owner)) return null;
@@ -76,11 +91,15 @@ export default {
     for (const row of expired) {
       if (dryRun) continue;
       try {
-        const path = storyMediaPath(row, serviceUrl);
+        const privatePath=storyPrivateMediaPath(row);
+        const path=privatePath||storyMediaPath(row,serviceUrl);
+        if(row.value.mediaBucket==="vatra-stories"&&!privatePath)
+          throw new Error("Invalid private story path");
+
         if (path) {
           // Storage API deletes the binary. NEVER delete directly from storage.objects.
           const { error: mediaError } = await context.supabaseAdmin
-            .storage.from(BUCKET).remove([path]);
+            .storage.from(privatePath?"vatra-stories":BUCKET).remove([path]);
           if (mediaError) throw mediaError;
         }
         const { error: rowError } = await context.supabaseAdmin

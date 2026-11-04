@@ -226,6 +226,46 @@ export async function uploadMedia(file, category = 'posts') {
   if (!publicData?.publicUrl) throw new Error('Файл завантажився, але посилання не вдалося створити.');
   return publicData.publicUrl;
 }
+const STORY_BUCKET='vatra-stories';
+const STORY_ID_PATTERN=/^[a-zA-Z0-9_-]{12,64}$/;
+export async function uploadStoryMedia(file,storyId){
+  const signedIn=await client.auth.getUser();
+  const uid=signedIn.data?.user?.id;
+  if(signedIn.error||!uid)throw new Error('Для публікації історії увійдіть у ВАТРУ.');
+  if(!STORY_ID_PATTERN.test(String(storyId||'')))throw new Error('Невірний ідентифікатор історії.');
+  if(!file||!/^image\/(jpeg|png|webp|gif|avif)$|^video\/(mp4|webm|quicktime|ogg|x-m4v)$/.test(file.type||''))throw new Error('Оберіть підтримуване фото або відео.');
+  const limit=file.type.startsWith('video/')?50*1024*1024:15*1024*1024;
+  if(file.size>limit)throw new Error('Файл історії перевищує допустимий розмір.');
+  const path=uid+'/stories/'+storyId+'.'+safeMediaExtension(file.type);
+  const {error}=await client.storage.from(STORY_BUCKET).upload(path,file,{
+    upsert:false,cacheControl:'60',contentType:file.type
+  });
+  if(error)throw databaseError(error);
+  return {mediaBucket:STORY_BUCKET,mediaPath:path};
+}
+/* Signed URLs expire quickly; never persist one in app_data. Access is enforced
+   against the story's visibility and expiry by storage.objects RLS. */
+export async function getStoryMediaUrl(story){
+  if(!story||story.kind!=='story')throw new Error('Історію не знайдено.');
+  if(story.mediaBucket!==STORY_BUCKET){
+    if(typeof story.mediaUrl==='string'&&story.mediaUrl.startsWith('https://'))return story.mediaUrl;
+    throw new Error('Файл історії недоступний.');
+  }
+  const path=String(story.mediaPath||'');
+  if(!/^[a-f0-9-]{36}\/stories\/[a-zA-Z0-9_-]{12,64}\.(jpg|png|webp|gif|avif|mp4|webm|mov|ogv|m4v)$/.test(path))throw new Error('Невірний шлях історії.');
+  const {data,error}=await client.storage.from(STORY_BUCKET).createSignedUrl(path,300);
+  if(error||!data?.signedUrl)throw new Error('Немає доступу до історії або її термін дії завершився.');
+  return data.signedUrl;
+}
+export async function removeStoryMedia(story){
+  if(!story||story.mediaBucket!==STORY_BUCKET)return false;
+  const uid=(await client.auth.getUser()).data?.user?.id;
+  const path=String(story.mediaPath||'');
+  if(!uid||!path.startsWith(uid+'/stories/')||!/^[a-zA-Z0-9_-]{12,64}\.(jpg|png|webp|gif|avif|mp4|webm|mov|ogv|m4v)$/.test(path.split('/')[2]||''))return false;
+  const {error}=await client.storage.from(STORY_BUCKET).remove([path]);
+  if(error)throw databaseError(error);
+  return true;
+}
 export function ref(_db, path = '') { return { path: cleanPath(path) }; }
 export function push(reference) {
   const template = 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx';
