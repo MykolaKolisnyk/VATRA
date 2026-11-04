@@ -53,7 +53,8 @@
   setMeta('name','twitter:description',description);
   setMeta('property','og:type',type);
   setMeta('property','og:url',url);
-  if(photo){setMeta('property','og:image',photo);setMeta('name','twitter:image',photo);}
+  const preview=photo||ORIGIN+'social-preview.png?v=20261104-ribbon1';
+   setMeta('property','og:image',preview);setMeta('name','twitter:image',preview);
   const canonical=document.head.querySelector('link[rel="canonical"]');
   if(canonical)canonical.href=url;
   let json=document.getElementById('vatraLivePageSchema');
