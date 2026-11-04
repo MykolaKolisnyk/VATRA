@@ -1,4 +1,4 @@
-import { getAuth, getDatabase, ref, get, update } from './vatra-backend.js?v=20261031-7';
+import { getAuth, getDatabase, ref, get, update } from './vatra-backend.js?v=20261104-8';
 
 const MUSIC_LIBRARY = Object.freeze([
  {type:'playlist',id:'6TNFFJnqIFFYifyio5Wha5',title:'Топ українських пісень',artist:'Український чарт',category:'Хіти',tone:1},
