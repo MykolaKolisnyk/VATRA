@@ -1,4 +1,4 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, get, set, sendOtp, verifyOtp, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, get, set, sendOtp, signUpWithPassword, resendSignupOtp, verifyOtp, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
 
 // Prevent the browser from restoring an old scroll position on the sign-in page.
 if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -7,7 +7,7 @@ const app=initializeApp(),auth=getAuth(app),db=getDatabase(app);
 const $=s=>document.querySelector(s);
 // SMS is intentionally unavailable until a real SMS provider is configured and tested.
 const VATRA_SMS_AUTH_ENABLED=false;
-const selectedMethod=()=>VATRA_SMS_AUTH_ENABLED?(document.querySelector('input[name="authMethod"]:checked')?.value||$('#method')?.value||'email'):'email';
+const selectedMethod=()=>(VATRA_SMS_AUTH_ENABLED||mode==='login')?(document.querySelector('input[name="authMethod"]:checked')?.value||$('#method')?.value||'email'):'email';
 function vatraSignupLanguage(){
  const supported=['uk','en','pl','de','fr','es','pt','it'];
  let language=window.vatraLanguage?.language||'';
@@ -83,7 +83,7 @@ function syncPhoneInputMode(input,select,method){
  input.style.minWidth='0';
 }
 function syncAuthMethodUI(method){
- const selected=VATRA_SMS_AUTH_ENABLED&&method==='phone'?'phone':'email';
+ const selected=(VATRA_SMS_AUTH_ENABLED||mode==='login')&&method==='phone'?'phone':'email';
  document.querySelectorAll('input[name="authMethod"]').forEach(radio=>{radio.checked=radio.value===selected;});
  const methodSelect=$('#method');
  if(methodSelect)methodSelect.value=selected;
@@ -184,7 +184,7 @@ function enhanceDatePicker(input){
 }
 
 let mode='login',submitting=false,captchaWidget=null,authCooldownTimer=null,pendingHumanAction=null,suppressAuthRedirect=false;
-let pendingOtp=null,loginByCode=true,otpCooldownUntil=0,otpCooldownTimer=null;
+let pendingOtp=null,loginByCode=false,otpCooldownUntil=0,otpCooldownTimer=null;
 function resetOtpStep(){
  pendingOtp=null;otpCooldownUntil=0;
  if(otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
@@ -209,9 +209,9 @@ function setOtpCooldown(){
  otpCooldownTimer=setInterval(syncOtpCooldown,1000);syncOtpCooldown();
 }
 function syncLoginCodeMode(){
- const enabled=mode==='login'&&loginByCode;
+ const enabled=false; // Login always uses an account password.
  const toggle=$('#loginOtpToggle');
- if(toggle){toggle.hidden=mode!=='login';toggle.textContent=enabled?'Увійти з паролем':'Увійти за одноразовим кодом';toggle.setAttribute('aria-pressed',String(enabled));}
+ if(toggle){toggle.hidden=true;toggle.setAttribute('aria-pressed','false');}
  if(mode==='login'){
   $('#password').closest('.field').hidden=enabled;
   $('#password').required=!enabled;
@@ -223,7 +223,10 @@ async function startOtp(kind,details){
  const {contact,isPhone}=details;
  const fields=isPhone?{phone:contact}:{email:contact};
  const requestedAt=Date.now();
- await sendOtp({...fields,shouldCreateUser:kind==='signup',userData:kind==='signup'?details.userData:{}});
+ if(kind==='signup'){
+  const signup=await signUpWithPassword({...fields,password:details.password,userData:details.userData});
+  if(signup.session)throw new Error('У Supabase вимкнене підтвердження контактів. Увімкніть email confirmation перед реєстрацією.');
+ }else await sendOtp({...fields,shouldCreateUser:false});
  pendingOtp={kind,requestedAt,...details};
  $('#authForm').classList.add('is-awaiting-code');
  $('#otpWrap').hidden=false;$('#otpCode').required=true;$('#otpCode').value='';
@@ -240,7 +243,7 @@ async function confirmOtp(){
  const button=$('#submit');submitting=true;suppressAuthRedirect=true;button.disabled=true;button.textContent='Перевіряємо код…';
  try{
   const contact=challenge.contact;
-  const result=challenge.verifiedUser?{user:challenge.verifiedUser,session:true}:await verifyOtp(challenge.isPhone?{phone:contact,token:code}:{email:contact,token:code,type:'email'});
+  const result=challenge.verifiedUser?{user:challenge.verifiedUser,session:true}:await verifyOtp(challenge.isPhone?{phone:contact,token:code,type:'sms'}:{email:contact,token:code,type:challenge.kind==='signup'?'signup':'email'});
   const user=result?.user,uid=user?.uid||user?.id;
   if(!uid||!result?.session)throw new Error('Supabase не підтвердив сесію. Повторіть спробу.');
   if(challenge.kind==='signup'){
@@ -258,7 +261,7 @@ async function confirmOtp(){
     }
     challenge.checkedNewAccount=true;
    }
-   await setAccountPassword(challenge.password);
+   // Supabase signUp already stored the password; no second write needed.
    await finishRegistration({...challenge,user});
    pendingOtp=null;return;
   }
@@ -287,14 +290,13 @@ $('#otpResend')?.addEventListener('click',async()=>{
  const details=pendingOtp,button=$('#otpResend');button.disabled=true;
  try{
   const fields=details.isPhone?{phone:details.contact}:{email:details.contact};
-  await sendOtp({...fields,shouldCreateUser:details.kind==='signup',userData:details.kind==='signup'?details.userData:{}});
+  if(details.kind==='signup')await resendSignupOtp(fields);
+  else await sendOtp({...fields,shouldCreateUser:false});
   otpNotice('Запит на новий код прийнято. Перевірте '+(details.isPhone?'SMS.':'пошту та «Спам».'));
   $('#otpCode').value='';setOtpCooldown();
  }catch(err){otpNotice(errors[err.code]||err.message||'Не вдалося повторно надіслати код.',true);syncOtpCooldown();}
 });
-$('#loginOtpToggle')?.addEventListener('click',()=>{
- loginByCode=!loginByCode;resetOtpStep();$('#error').textContent='';syncLoginCodeMode();
-});
+// OTP is for new registrations and recovery, never ordinary login.
 
 const AUTH_COOLDOWN_KEY='vatra-auth-rate-limit-until-v1';
 const TURNSTILE_SITE_KEY=''; // Optional: set a real Turnstile site key and enable server-side verification for stronger protection.
@@ -428,7 +430,7 @@ function authCooldownRemaining(){
 }
 function authSubmitLabel(){
  if(pendingOtp)return 'Підтвердити код';
- return mode==='login'?(loginByCode?'Надіслати код':'Увійти'):mode==='register'?'Отримати код':mode==='reset'?'Надіслати код':mode==='new-password'?'Зберегти новий пароль':'Увійти';
+ return mode==='login'?'Увійти':mode==='register'?'Отримати код':mode==='reset'?'Надіслати код':mode==='new-password'?'Зберегти новий пароль':'Увійти';
 }
 function refreshAuthCooldown(){
  const button=$('#submit');if(!button)return;
@@ -477,10 +479,10 @@ function show(m){
  const reg=m==='register',reset=m==='reset',newPassword=m==='new-password',hideContact=newPassword;
  const emailHint=document.querySelector('input[name="authMethod"][value="email"]')?.closest('label')?.querySelector('small');
  const phoneHint=document.querySelector('input[name="authMethod"][value="phone"]')?.closest('label')?.querySelector('small');
- if(emailHint)emailHint.textContent=reg?'Підтвердження кодом на email':'Код на email або пароль';
- if(phoneHint)phoneHint.textContent=VATRA_SMS_AUTH_ENABLED?(reg?'Підтвердження кодом у SMS':'SMS-код або пароль'):'SMS буде доступне пізніше';
+ if(emailHint)emailHint.textContent=reg?'Підтвердження email-кодом':'Вхід з паролем';
+ if(phoneHint)phoneHint.textContent=reg?(VATRA_SMS_AUTH_ENABLED?'Підтвердження через SMS':'SMS-реєстрація поки недоступна'):'Вхід за номером і паролем';
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
- document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=!isEmail&&(!VATRA_SMS_AUTH_ENABLED||reset);});
+ document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=!isEmail&&(reset||(reg&&!VATRA_SMS_AUTH_ENABLED));});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
  $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
@@ -490,7 +492,7 @@ function show(m){
  $('#email').required=!hideContact;$('#email').closest('.field').hidden=hideContact;$('#method').disabled=hideContact||reset;$('#method').closest('.field').hidden=hideContact||reset;$('#captchaWrap').hidden=true;$('#confirm').value='';
  $('#eyebrow').textContent=reg?'ВАША ІСТОРІЯ ПОЧИНАЄТЬСЯ ТУТ':reset?'ВІДНОВЛЕННЯ ДОСТУПУ':newPassword?'БЕЗПЕЧНЕ ВІДНОВЛЕННЯ':'РАДІ БАЧИТИ ЗНОВУ';
  $('#title').textContent=reg?'Створіть акаунт ВАТРИ':reset?'Відновіть пароль':newPassword?'Створіть новий пароль':'З поверненням до ВАТРИ';
- $('#desc').textContent=reg?'Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою пошти та пароля або одноразового коду.';
+ $('#desc').textContent=reg?'Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.':reset?'Вкажіть електронну пошту, щоб отримати інструкцію для відновлення пароля.':newPassword?'Створіть новий надійний пароль для свого акаунта.':'Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.';
  $('#submit').textContent=reg?'Отримати код':newPassword?'Зберегти новий пароль':reset?'Надіслати код':'Увійти';$('#bottom').hidden=reset||newPassword;
  $('#bottom').innerHTML=reg?'Вже маєте акаунт? <button id="switch" type="button">Увійти</button>':'Ще немає акаунта? <button id="switch" type="button">Зареєструватися</button>';
  const modeSwitch=$('#bottom').querySelector('#switch');
@@ -499,7 +501,7 @@ function show(m){
  $('#legalConsentWrap').hidden=!reg;$('#legalConsent').required=reg;$('#legalConsent').checked=false;
  $('#legal').innerHTML=reg?'':'<span class="legal-label">Документи ВАТРИ</span><div class="legal-links"><button type="button" data-legal="rules">Правила спільноти</button><button type="button" data-legal="privacy">Політика конфіденційності</button><button type="button" data-legal="terms">Умови користування</button></div>';
  $('#error').textContent='';$('#error').classList.remove('success');syncExistingAccountHelp(false);const activeMethod=selectedMethod();syncAuthMethodUI(activeMethod);
- $('#password').autocomplete='new-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
+ $('#password').autocomplete=m==='login'?'current-password':'new-password';const today=new Date();$('#birthday').max=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');syncCaptchaVisibility();updatePasswordStrength();
  
  syncLoginCodeMode();refreshAuthCooldown();
 }
@@ -756,9 +758,6 @@ $('#authForm').addEventListener('submit',async e=>{
   }
   return;
  }
- if(mode==='login'&&loginByCode&&!challengePassed){
-  pendingHumanAction={mode,contact};openHumanCaptcha();return;
- }
  if(mode==='register'&&!challengePassed){
   pendingHumanAction={mode,contact};
   openHumanCaptcha();
@@ -778,7 +777,6 @@ $('#authForm').addEventListener('submit',async e=>{
    $('#error').classList.add('success');return;
   }
   if(mode==='login'){
-   if(loginByCode){await startOtp('login',{contact,isPhone});return;}
    setRememberMe($('#rememberMe')?.checked===true);
    try { await signInWithPassword(auth,contact,$('#password').value); }
    catch (loginError) { setRememberMe(false); throw loginError; }
@@ -799,7 +797,7 @@ $('#authForm').addEventListener('submit',async e=>{
  }finally{submitting=false;if(!pendingHumanAction)suppressAuthRedirect=false;refreshAuthCooldown();}
 });
 enhanceDatePicker($('#birthday'));enhancePhoneInput($('#email'),'countryCode');enhancePhoneInput($('#recoveryContact'),'recoveryCountryCode');const captchaWrap=$('#captchaWrap');$('#confirmWrap').insertAdjacentElement('afterend',captchaWrap);renderCaptcha();if($('#rememberMe'))$('#rememberMe').checked=false;
-$('#authForm').autocomplete='off';$('#email').autocomplete='off';$('#password').autocomplete='new-password';$('#confirm').autocomplete='new-password';
+$('#authForm').autocomplete='on';$('#email').autocomplete='email';$('#password').autocomplete='current-password';$('#confirm').autocomplete='new-password';
 $('#password').value='';$('#confirm').value='';
 const params=new URLSearchParams(location.search),requestedMode=params.get('mode');const initialMode=['login','register','reset','new-password'].includes(requestedMode)?requestedMode:(location.pathname.toLowerCase().endsWith('register.html')?'register':'login');const emailRadio=document.querySelector('input[name="authMethod"][value="email"]');if(emailRadio)emailRadio.checked=true;$('#method').value='email';show(initialMode);syncAuthMethodUI(selectedMethod());if(authCooldownRemaining()>0&&!authCooldownTimer)authCooldownTimer=setInterval(refreshAuthCooldown,1000);const requestedLegal=params.get('legal');if(['rules','privacy','terms'].includes(requestedLegal))openLegal(requestedLegal);
 
@@ -812,7 +810,7 @@ let authPasswordWasManuallyEdited=false,authConfirmWasManuallyEdited=false;
 });
 function clearUnrequestedPasswordAutofill(){
  let changed=false;
- if(!authPasswordWasManuallyEdited&&document.activeElement!==$('#password')&&$('#password').value){$('#password').value='';changed=true;}
+ if(mode!=='login'&&!authPasswordWasManuallyEdited&&document.activeElement!==$('#password')&&$('#password').value){$('#password').value='';changed=true;}
  if(!authConfirmWasManuallyEdited&&document.activeElement!==$('#confirm')&&$('#confirm').value){$('#confirm').value='';changed=true;}
  if(changed){updatePasswordStrength();syncCaptchaVisibility();}
 }
