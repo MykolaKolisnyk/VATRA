@@ -182,10 +182,9 @@ function syncHeaderMusic(){
  const dot=document.getElementById('vatraMusicPlayingDot');if(dot)dot.hidden=!playing;
  const title=document.getElementById('vatraTopMusicTitle');if(title)title.textContent=selected?playerItem.title:'Оберіть музику';
  const artist=document.getElementById('vatraTopMusicArtist');if(artist)artist.textContent=selected?playerItem.artist:'Українські пісні та плейлисти';
- const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton){playerButton.disabled=false;playerButton.textContent=selected?'Показати плеєр':'Слухати добірку';}
+ const playerButton=document.getElementById('vatraTopMusicPlayer');if(playerButton){playerButton.disabled=false;playerButton.title=selected?'Показати програвач':'Слухати добірку';playerButton.setAttribute('aria-label',playerButton.title);}
  if(musicHeader)musicHeader.classList.toggle('has-player',selected);
 }
-function closeMusicMenu(){const panel=document.getElementById('vatraMusicTopPanel');if(panel)panel.hidden=true;if(musicHeader)musicHeader.setAttribute('aria-expanded','false');}
 function play(item){
  if(!item||!['track','album','playlist','artist'].includes(item.type)||!(/^[A-Za-z0-9]{22}$/).test(item.id))return;
  const dock=activePlayer();
@@ -419,7 +418,7 @@ document.addEventListener('click',async event=>{
  const listen=event.target.closest('[data-music-play]');if(listen){play(musicIndex.get(listen.dataset.musicPlay));return;}
  const heart=event.target.closest('[data-music-favorite]');if(heart){await favorite(musicIndex.get(heart.dataset.musicFavorite),heart);return;}
  const expand=event.target.closest('[data-music-expand]');if(expand){setPlayerExpanded(!playerExpanded);return;}
- if(event.target.closest('[data-music-close]')){stop();return;}
+ if(event.target.closest('[data-music-close]')){stop();renderPopupMusic();return;}
  if(event.target.closest('[data-music-retry]')){musicLoadError='';musicLoaded=false;loadFavorites(musicUid);return;}
 });
 document.addEventListener('input',event=>{
