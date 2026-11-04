@@ -511,6 +511,30 @@ $('#closeLegal').onclick=()=>closeDialogAnimated($('#legalDialog'));$('#closeLeg
 $('#legalDialog').addEventListener('click',e=>{if(e.target===$('#legalDialog'))closeDialogAnimated($('#legalDialog'));});
 function currentRecoveryMethod(){return document.querySelector('input[name="recoveryMethod"]:checked')?.value||'email';}
 let recoveryAnswer=0,recoveryPassed=false,recoveryStep='contact',recoveryPreviousPair='',recoveryFailures=0;
+let recoveryOtpCooldownUntil=0,recoveryOtpCooldownTimer=null;
+function syncRecoveryResend(){
+ const button=$('#recoveryResendOtp');if(!button)return;
+ const seconds=Math.max(0,Math.ceil((recoveryOtpCooldownUntil-Date.now())/1000));
+ button.disabled=seconds>0;button.textContent=seconds?'Повторно через '+seconds+' с':'Надіслати код ще раз';
+ if(!seconds&&recoveryOtpCooldownTimer){clearInterval(recoveryOtpCooldownTimer);recoveryOtpCooldownTimer=null;}
+}
+function beginRecoveryCooldown(){
+ recoveryOtpCooldownUntil=Date.now()+60000;
+ if(recoveryOtpCooldownTimer)clearInterval(recoveryOtpCooldownTimer);
+ recoveryOtpCooldownTimer=setInterval(syncRecoveryResend,1000);syncRecoveryResend();
+}
+$('#recoveryResendOtp')?.addEventListener('click',async()=>{
+ if(recoveryStep!=='verify'||Date.now()<recoveryOtpCooldownUntil)return;
+ const button=$('#recoveryResendOtp'),isPhone=currentRecoveryMethod()==='phone';
+ const contact=isPhone?normalizePhone($('#recoveryContact'),$('#recoveryCountryCode')):$('#recoveryContact').value.trim().toLowerCase();
+ button.disabled=true;
+ try{
+  if(isPhone)await sendOtp({phone:contact,shouldCreateUser:false});
+  else await sendPasswordResetEmail(auth,contact);
+  $('#recoveryError').textContent='Запит на повторне надсилання прийнято. Перевірте '+(isPhone?'SMS.':'пошту та «Спам».');
+  $('#recoveryError').classList.add('success');beginRecoveryCooldown();
+ }catch(err){$('#recoveryError').textContent=errors[err.code]||err.message||'Не вдалося надіслати код.';$('#recoveryError').classList.remove('success');syncRecoveryResend();}
+});
 function resetRecoveryChallenge(notice=''){
  let a=2+Math.floor(Math.random()*9),b=2+Math.floor(Math.random()*9);
  let pair=[a,b].sort((x,y)=>x-y).join('+');
