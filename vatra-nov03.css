@@ -405,7 +405,7 @@ body .vatra-first-message-dialog .vatra-compose-error:not([hidden]){padding:10px
 body .vatra-public-actions-dropdown button[data-remove-friend]{color:#a84455!important}
 
 
-/* Mutual-friend recommendations after first news post. */
+
 body .vatra-fof-panel{min-width:0;margin:12px 0 16px!important;padding:15px!important;border:1px solid #e2e9f2!important;border-radius:14px!important;background:#fff!important}
 body .vatra-fof-panel[hidden]{display:none!important}
 body .vatra-fof-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
@@ -427,7 +427,7 @@ body .vatra-fof-add:hover{background:#deebfd!important}
 body .vatra-fof-dismiss{position:absolute!important;top:6px;right:6px;z-index:3;width:27px;height:27px;border:1px solid #fff4;border-radius:50%;background:#1b2f4d8c;color:#fff;font-size:19px;line-height:1;cursor:pointer}
 @media(max-width:650px){body .vatra-fof-track{grid-auto-columns:155px}body .vatra-fof-panel{padding:11px!important}}
 
-/* Today's friend birthdays, with one clear CTA and optional gift prompt. */
+
 body .vatra-birthday-notification{display:flex!important;align-items:center!important;gap:11px!important;min-width:0}
 body .vatra-birthday-notification>.avatar{flex:0 0 40px}
 body .vatra-birthday-notification .notification-copy{flex:1;min-width:0;display:grid;gap:3px}
@@ -449,7 +449,7 @@ body .vatra-birthday-dialog footer{display:flex;gap:10px;justify-content:center;
 body .vatra-birthday-dialog footer button{min-height:38px;padding:9px 15px;border-radius:9px;cursor:pointer;border:1px solid #d8e5f4;background:#f4f8fc;color:#3a5b7b;font-size:12px}
 body .vatra-birthday-dialog footer .primary{background:#0757f5;border-color:#0757f5;color:white}
 
-/* VATRA Clips: one immersive vertical video per snap point. */
+
 body .vatra-clips-page{max-width:780px;margin:0 auto;min-width:0}
 body .vatra-clips-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px;padding:13px 17px;border:1px solid #e2e9f3;border-radius:12px;background:#fff}
 body .vatra-clips-header h2{font-size:20px;margin:0 0 4px;color:#2c415c}
@@ -474,7 +474,7 @@ body .vatra-clips-empty{padding:40px;text-align:center;color:#6b839b}
  body .vatra-clip{min-height:calc(100dvh - 186px);border-radius:10px}
 }
 
-/* Language picker: native select remains functional but uses custom SVG-flag UI. */
+
 body .vatra-language-native-hidden{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;clip-path:inset(50%)!important}
 body .vatra-language-picker{position:relative;width:100%;min-width:0}
 body .vatra-language-picker-trigger{
@@ -516,7 +516,7 @@ body .vatra-language-picker-option>small{font-size:9px;color:#9aacc1;white-space
 }
 
 
-/* Sponsored posts: visually distinct but native to VATRA. */
+
 body .vatra-sponsored-placement{display:grid;gap:0;min-width:0}
 body .vatra-sponsored-placement>header{display:flex;align-items:center;gap:8px;padding:8px 14px 9px;font:600 11px/1.4 "VATRA Onest",system-ui,sans-serif;color:#71869f}
 body .vatra-sponsored-placement>header strong{font-weight:760;color:#315f95}

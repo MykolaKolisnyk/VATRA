@@ -1,4 +1,4 @@
-/* VATRA 2026-10-31 — elegant two-step publication composer, no stories. */
+
 body #composer.vatra-compose-dialog[open]{
  display:block!important;position:fixed!important;inset:0!important;
  width:min(710px,calc(100vw - 28px))!important;max-width:710px!important;
@@ -324,7 +324,7 @@ body[data-vatra-theme-effective="dark"] #composer .vatra-compose-review-copy b{c
  #composer .vatra-compose-upload,#composer :is(button,select,input,textarea){transition:none!important;}
 }
 
-/* One shared schedule picker for personal and community posts. */
+
 body .vatra-schedule-section{display:grid;gap:13px!important;}
 body .vatra-schedule-toggle{display:flex!important;align-items:flex-start!important;gap:12px!important;cursor:pointer!important;}
 body .vatra-schedule-toggle input{width:18px!important;height:18px!important;flex:0 0 18px!important;accent-color:#0757f5;margin-top:3px!important;}

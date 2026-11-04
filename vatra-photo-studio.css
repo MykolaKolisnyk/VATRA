@@ -1,4 +1,4 @@
-/* VATRA Photo Studio: spacious dark editor with accessible controls. */
+
 .vatra-studio-dialog{
  position:fixed!important;inset:0!important;
  width:min(1480px,calc(100vw - 44px))!important;

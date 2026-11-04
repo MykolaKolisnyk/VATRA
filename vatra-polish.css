@@ -1,4 +1,4 @@
-/* ВАТРА — cohesive interface system v8 */
+
 :root{--v-blue:#0059ff;--v-blue-hover:#004be0;--v-blue-soft:#edf3ff;--v-ink:#1e293b;--v-muted:#748197;--v-line:#e2e8f0;--v-canvas:#f3f5f8;--v-card:#fff;--v-radius:14px;--v-shadow:0 2px 8px rgba(20,38,70,.035)}
 *{box-sizing:border-box}html{background:var(--v-canvas);scroll-behavior:smooth}body{background:var(--v-canvas);color:var(--v-ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #b8d0ff;outline-offset:2px}button:disabled{cursor:not-allowed;opacity:.55}
 .layout{width:min(1260px,100%);margin:0 auto;padding:20px 24px 42px;display:grid;grid-template-columns:210px minmax(0,640px) 270px;gap:24px;align-items:start}.sidebar{position:sticky;top:20px;height:calc(100vh - 40px);min-width:0;padding:6px 0 14px;display:flex;flex-direction:column;background:transparent;border:0}.brand{display:flex;align-items:center;gap:10px;margin:0 0 30px 7px;text-decoration:none;color:var(--v-ink);font-size:22px;font-weight:800;letter-spacing:-.7px}.brand>span:last-child{display:grid;gap:1px}.brand small{display:block;color:#8995a7;font-size:8px;letter-spacing:1.2px;font-weight:800}.brand-icon,.welcome-mark{width:36px;height:36px;display:grid;place-items:center;flex:none;border-radius:11px;background:var(--v-blue);color:#fff;font-size:23px;font-weight:800;box-shadow:0 5px 12px #0059ff20}.sidebar nav{display:grid;gap:4px}.sidebar .nav{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:transparent;color:#526176;text-align:left;font-size:13px;font-weight:650;transition:background .15s,color .15s}.sidebar .nav:hover{background:#e9edf3;color:#29384d}.sidebar .nav.active{background:#e2ebff;color:var(--v-blue)}.nav-icon{display:grid;place-items:center;width:21px;height:21px;flex:none;color:inherit}.nav-icon svg,.mobile-icon svg,.search-icon svg,.compose-tools svg,.pill svg,.poll-toggle svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.nav i{margin-left:auto;font-style:normal;background:var(--v-blue);color:white;border-radius:20px;padding:2px 7px;font-size:10px}.primary{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:40px;padding:0 15px;border:1px solid var(--v-blue);border-radius:10px;background:var(--v-blue);color:white;font-size:12px;font-weight:750;box-shadow:none;transition:background .15s,border-color .15s,transform .15s}.primary:hover{background:var(--v-blue-hover);border-color:var(--v-blue-hover)}.wide{width:100%;margin-top:17px}.sidebar-bottom{display:flex;gap:10px;align-items:flex-start;margin-top:auto;padding:17px 8px 0;border-top:1px solid #dfe5ed;color:#647187;font-size:11px}.sidebar-spark{color:var(--v-blue);font-size:16px}.sidebar-bottom small{display:block;margin-top:4px;color:#8995a7;font-size:10px}
@@ -6,7 +6,7 @@
 .heading{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:22px 0 17px;margin:0}.eyebrow{margin:0 0 5px;color:var(--v-blue);font-size:9px;letter-spacing:1.4px;font-weight:800}.heading h1{margin:0;color:#182438;font-size:27px;line-height:1.2;letter-spacing:-.8px;font-weight:800}.heading p:last-child{max-width:470px;margin:7px 0 0;color:var(--v-muted);font-size:12px;line-height:1.55}.heading .pill{align-self:center}.stories{display:flex;gap:17px;overflow:auto;padding:2px 1px 19px;scrollbar-width:none}.stories::-webkit-scrollbar{display:none}.story{display:flex;flex:0 0 54px;flex-direction:column;align-items:center;gap:7px;padding:0;border:0;background:none;color:#65748a}.story small{max-width:65px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}.story-ring{display:grid;place-items:center;width:53px;height:53px;border:3px solid white;border-radius:50%;outline:2px solid #70a0ff;background:#e2ebff;color:#3159a4;font-size:12px;font-weight:800}.story-ring.add{outline:1px dashed #a9bde4;background:#f6f8fc;color:var(--v-blue);font-size:23px}.quick-compose,.post,.settings-card,.profile-hero,.community-card,.welcome,.side-block,.chat-users .person{border:1px solid var(--v-line);border-radius:var(--v-radius);background:var(--v-card);box-shadow:var(--v-shadow)}.quick-compose{margin:0 0 14px;padding:16px 17px 12px}.compose-row{display:flex;align-items:center;gap:11px}.prompt{flex:1;min-width:0;min-height:42px;padding:0 14px;border:1px solid #edf0f5;border-radius:999px;background:#f4f6f9;color:#8793a3;text-align:left;font-size:12px}.prompt:hover{background:#eef3fa;color:#536176}.compose-tools{display:flex;align-items:center;gap:17px;margin-top:13px;padding-top:11px;border-top:1px solid #edf0f4}.compose-tools button{display:inline-flex;align-items:center;gap:6px;padding:4px 0;border:0;background:transparent;color:#64748b;font-size:11px;font-weight:650}.compose-tools button:hover{color:var(--v-blue)}.compose-tools button svg{width:16px;height:16px}.compose-tools button:first-child{color:#209b76}.compose-tools button:nth-child(2){color:#7967c8}.compose-tools .post-now{margin-left:auto;padding:9px 13px;border-radius:9px;background:var(--v-blue-soft);color:var(--v-blue);font-size:11px}.feed{display:grid;gap:13px;min-width:0}.post{min-width:0;padding:17px 17px 0;overflow:hidden}.post-head{display:flex;align-items:center;gap:10px;min-width:0}.post-head .avatar{width:39px;height:39px}.author{flex:1;min-width:0}.author b{color:#253249;font-size:12px;font-weight:750}.author small{display:block;margin-top:3px;color:#8a96a8;font-size:10px;line-height:1.4}.verified{margin-left:4px;color:var(--v-blue)}.dots{padding:5px 7px;border:0;border-radius:8px;background:transparent;color:#8d98a8;letter-spacing:2px}.dots:hover{background:#f2f5f9}.post-text{margin:14px 0;color:#344155;font-size:13px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere}.post-image{display:block;width:100%;max-height:620px;margin:12px 0 4px;border-radius:11px;object-fit:contain;background:#f3f5f8}.post-meta{display:flex;justify-content:space-between;gap:12px;padding:9px 2px;color:#8591a2;font-size:10px}.post-actions{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:9px 0 11px;border-top:1px solid #edf0f4}.post-actions button{display:inline-flex;align-items:center;gap:5px;min-height:31px;padding:0 9px;border:0;border-radius:8px;background:transparent;color:#68778b;font-size:10px;font-weight:650}.post-actions button:hover{background:#f2f5fa;color:var(--v-blue)}.post-actions .liked{color:#e54d70}.post-actions .saved{color:var(--v-blue)}.share{margin-left:auto}.comments{display:grid;gap:9px;padding:0 0 12px;color:#536176;font-size:11px}.comment{display:flex;gap:7px;flex-wrap:wrap}.comment b{color:#28364a}.comment-form{display:flex;gap:8px;padding-bottom:13px}.comment-form input,.chat-send input{min-width:0;flex:1;border:1px solid var(--v-line);border-radius:10px;background:#fff;padding:10px 12px;font-size:12px}.comment-form button{padding:0 13px;border:0;border-radius:9px;background:var(--v-blue);color:white;font-size:11px}.empty{padding:42px 16px;text-align:center;color:var(--v-muted)}.empty h3{margin:0 0 5px;color:var(--v-ink);font-size:16px}.empty p{margin:0;font-size:12px}
 .right{position:sticky;top:20px;display:grid;gap:17px;min-width:0;padding:6px 0 20px;border:0;background:transparent}.welcome{position:relative;padding:18px;overflow:hidden;background:linear-gradient(145deg,#fff 25%,#f2f6ff 100%)}.welcome-top{display:flex;align-items:center;gap:10px;margin-bottom:18px}.welcome-mark{width:34px;height:34px;border-radius:10px;font-size:21px;box-shadow:none}.welcome-label{color:#8290a5;font-size:9px;font-weight:800;letter-spacing:1px}.welcome h2{position:relative;z-index:1;margin:0 0 8px;color:#1d2b40;font-size:17px;line-height:1.35;letter-spacing:-.3px}.welcome>p{position:relative;z-index:1;margin:0 0 14px;color:#78869b;font-size:11px;line-height:1.7}.welcome button,.side-tip button{position:relative;z-index:1;border:0;background:transparent;color:var(--v-blue);font-size:11px;font-weight:800;padding:0}.welcome-art{position:absolute;right:-20px;bottom:-25px;width:110px;height:95px;opacity:.28;pointer-events:none}.welcome-art i{position:absolute;display:block;border:13px solid #bcd1ff;border-radius:28px;transform:rotate(25deg)}.welcome-art i:nth-child(1){width:80px;height:80px;right:0;bottom:0}.welcome-art i:nth-child(2){width:53px;height:53px;right:45px;bottom:24px}.welcome-art i:nth-child(3){width:30px;height:30px;right:5px;bottom:55px}.side-block{padding:16px 17px}.side-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.side-heading h3{margin:0;font-size:12px;font-weight:800}.side-kicker{color:#94a0b1;font-size:8px;letter-spacing:1px;font-weight:800}.side-tip{display:grid;grid-template-columns:25px minmax(0,1fr);gap:8px;padding:13px 0;border-top:1px solid #edf0f4}.tip-number{padding-top:1px;color:var(--v-blue);font-size:10px;font-weight:800}.side-tip b{font-size:11px}.side-tip p{margin:5px 0 9px;color:#8290a4;font-size:10px;line-height:1.55}.side-tip button{padding:7px 9px;border-radius:8px;background:#edf3ff;font-size:10px}.right footer{margin:0 4px;color:#9aa5b4;font-size:10px;line-height:1.9}.footer-mark{display:none}
 .mobile-nav{display:none}dialog{width:min(540px,calc(100% - 28px));max-height:min(88dvh,780px);padding:0;overflow:auto;border:1px solid #e4e9f1;border-radius:18px;background:#fff;color:var(--v-ink);box-shadow:0 24px 100px #172a4a35}dialog::backdrop{background:#15233b66;backdrop-filter:blur(4px)}dialog form{padding:22px}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:15px;border-bottom:1px solid var(--v-line)}.modal-head h2{margin:0;font-size:18px}.close{width:32px;height:32px;border:0;border-radius:50%;background:#f1f4f8;color:#657185;font-size:22px}.modal-user{display:flex;align-items:center;gap:10px;margin:17px 0}.modal-user b,.modal-user small{display:block}.modal-user b{font-size:12px}.modal-user small{margin-top:4px;color:var(--v-muted);font-size:10px}textarea{width:100%;min-height:120px;padding:12px;border:1px solid #e5eaf1;border-radius:11px;resize:vertical;outline:0;color:var(--v-ink);font-size:13px;line-height:1.6}textarea::placeholder{color:#9aa5b4}.modal-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:14px;border-top:1px solid var(--v-line)}.modal-actions label{color:var(--v-blue);font-size:11px;font-weight:750;cursor:pointer}.modal-actions span{margin-left:auto;color:#8c98a8;font-size:10px}.toast{position:fixed;z-index:200;left:50%;bottom:24px;max-width:calc(100% - 30px);padding:12px 17px;border-radius:11px;background:#1e293b;color:#fff;font-size:12px;box-shadow:0 10px 35px #14233b2b;opacity:0;pointer-events:none;transform:translate(-50%,12px);transition:opacity .18s,transform .18s}.toast.show{opacity:1;transform:translate(-50%,0)}
-/* Secondary screens */
+
 .section-title{margin:22px 0 12px;font-size:18px;letter-spacing:-.3px}.muted{color:var(--v-muted);line-height:1.6}.text-link,.danger-link{border:0;background:transparent;font-weight:700;cursor:pointer}.text-link{padding:7px 0;color:var(--v-blue)}.danger-link{color:#cf3d4d}.file-action{display:inline-flex;align-items:center;padding:9px 12px;border:1px solid var(--v-line);border-radius:9px;background:#fff;color:var(--v-blue);font-size:12px;font-weight:650;cursor:pointer}.person-card{display:flex;align-items:center;gap:12px;min-width:0}.person-card .author{flex:1;min-width:0}.person-card .author p{margin:5px 0 0;color:var(--v-muted);font-size:12px}.person-card .pill,.person-card .follow{white-space:nowrap}.follow{width:34px;height:34px;border:1px solid #d8e5ff;border-radius:9px;background:#f0f5ff;color:var(--v-blue);font-size:17px}.follow.on{background:var(--v-blue);color:#fff}.chat-users{display:grid;gap:7px;margin-top:15px}.chat-users .person{display:flex;align-items:center;gap:11px;width:100%;padding:11px;border-radius:11px;text-align:left;cursor:pointer}.chat-users .person span:nth-child(2){display:grid;gap:3px;flex:1;min-width:0}.chat-users small{color:var(--v-muted)}.chat-window{min-height:420px;padding:17px;border:1px solid var(--v-line);border-radius:var(--v-radius);background:#fff}.chat-top{display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid #edf0f4}.chat-top .text-link{margin-right:auto}.chat-messages{display:flex;flex-direction:column;gap:10px;min-height:230px;max-height:440px;overflow:auto;padding:16px 2px}.message-bubble{align-self:flex-start;max-width:82%;padding:10px 13px;border-radius:14px 14px 14px 4px;background:#f0f3f8;overflow-wrap:anywhere}.message-bubble.mine{align-self:flex-end;border-radius:14px 14px 4px 14px;background:#e5efff}.message-bubble p{margin:0;line-height:1.5}.message-bubble small{display:block;margin-top:5px;color:var(--v-muted);font-size:10px}.chat-send{display:flex;gap:8px;padding-top:14px;border-top:1px solid #edf0f4}.chat-send .primary{white-space:nowrap}.settings-page{min-width:0;padding-bottom:24px}.settings-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 16px}.settings-intro h2{margin:0;font-size:25px;letter-spacing:-.7px}.settings-intro p{margin:6px 0 0;color:var(--v-muted);font-size:12px}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.settings-card{min-width:0;padding:19px}.settings-card h3{margin:0 0 5px;font-size:14px}.settings-card>p{margin:0 0 15px;color:var(--v-muted);font-size:11px;line-height:1.6}.span-two{grid-column:1/-1}.settings-savebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:13px 16px;border:1px solid var(--v-line);border-radius:12px;background:white}.settings-photo-row{display:flex;align-items:center;gap:16px}.settings-avatar{width:88px;height:88px}.profile-hero{overflow:hidden}.profile-cover{height:145px;background:linear-gradient(120deg,#dbe8ff,#f3f7ff 55%,#c7dcff)}.profile-identity{display:flex;align-items:center;gap:14px;padding:0 22px;margin-top:-34px;position:relative}.profile-identity .avatar{width:82px;height:82px;border:4px solid white;font-size:17px}.profile-name-block{flex:1;min-width:0;padding-top:32px}.profile-name-block h2{margin:0 0 4px;font-size:23px;letter-spacing:-.6px}.profile-name-block p,.profile-bio,.profile-details{color:#6d7b91;font-size:12px}.profile-edit{margin:30px 0 0 auto}.profile-bio{margin:14px 0;padding:0 22px;line-height:1.65;overflow-wrap:anywhere}.profile-details{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 22px 17px}.profile-stats{display:flex;gap:0;padding:15px 22px;border-top:1px solid #edf0f4}.profile-stats div{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}.profile-stats b{font-size:18px}.profile-stats span{color:var(--v-muted);font-size:10px}.profile-post-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 2px 13px}.profile-post-heading h3{margin:0;font-size:17px}.groups-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px!important}.community-cover{height:110px;background:linear-gradient(115deg,#dbe7ff,#f5f8ff 55%,#c8dcff)}.community-cover.large{height:145px;margin:-17px -17px 0}.community-hero{padding:18px!important}.community-stats{display:flex;gap:20px}.community-stats div{display:flex;flex-direction:column;gap:3px}.community-stats span{color:var(--v-muted);font-size:10px}.community-member-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.community-member-row .pill{margin-left:auto}
 @media(min-width:1500px){.layout{grid-template-columns:220px minmax(0,680px) 280px;gap:26px}}
 @media(max-width:1180px) and (min-width:761px){.layout{width:min(1000px,100%);grid-template-columns:195px minmax(0,1fr);gap:22px;padding:18px 22px 36px}.right{display:none}.main{max-width:none}.sidebar{padding-right:0}}
@@ -16,7 +16,7 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 
-/* v9 fixes: remove hard-coded onboarding panel and make profile cover actionable */
+
 .side-block{display:none!important}
 .profile-cover{position:relative;min-height:150px;background-color:#e8effb;background-image:linear-gradient(135deg,#e5edff,#f8faff);background-position:center;background-size:cover;overflow:hidden}
 .cover-change{position:absolute;right:14px;bottom:12px;display:inline-flex;align-items:center;padding:9px 12px;border-radius:9px;background:#fff;color:#0059ff;font-size:12px;font-weight:700;box-shadow:0 2px 10px #15274418;cursor:pointer}
@@ -40,15 +40,15 @@
 @media(max-width:760px){.profile-cover{min-height:125px}.cover-change{right:9px;bottom:9px;padding:8px 10px;font-size:11px}.post-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}.post-actions button{font-size:10px;padding:5px 2px;white-space:normal}.comment-actions{gap:10px}.cover-settings-row{align-items:flex-start;flex-direction:column}.cover-settings-preview{width:100%;height:100px}}
 
 
-/* v10 — layout consistency, accessible post actions and useful onboarding */
+
 :root{--v-space:12px}
-/* The feed should start with content, not a duplicate marketing headline. */
+
 body[data-page="feed"] .heading{padding:0 0 10px;margin:0;justify-content:flex-end}body[data-page="feed"] .heading>div{display:none}
-/* Replace the promotional filler panel with a compact, functional checklist. */
+
 .getting-started{display:block;min-width:0;padding:17px 16px;border:1px solid var(--v-line);border-radius:14px;background:#fff;box-shadow:0 2px 8px rgba(20,38,70,.035)}
 .getting-started[hidden]{display:none!important}
 .getting-head{display:flex;align-items:flex-start;gap:10px}.getting-mark{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:10px;background:#edf3ff;color:#0059ff;font-size:18px}.getting-head .eyebrow{margin:0 0 4px}.getting-head h3{margin:0;color:#1e293b;font-size:14px;line-height:1.35}.getting-head p:last-child{margin:4px 0 0;color:#7b8799;font-size:11px}.getting-progress{height:5px;margin:15px 0 8px;border-radius:99px;background:#edf1f7;overflow:hidden}.getting-progress span{display:block;height:100%;border-radius:inherit;background:#0059ff;transition:width .2s ease}.getting-tasks{display:grid;gap:0}.getting-task{display:flex;align-items:center;gap:9px;padding:11px 0;border-bottom:1px solid #eef1f5;min-width:0}.getting-task:last-child{border-bottom:0}.task-number{display:grid;place-items:center;width:25px;height:25px;flex:0 0 25px;border:1px solid #dfe7f5;border-radius:8px;color:#0059ff;background:#f8faff;font-size:11px;font-weight:800}.task-copy{display:grid;gap:3px;flex:1;min-width:0}.task-copy b{font-size:11px;line-height:1.35;color:#273449}.task-copy small{font-size:10px;line-height:1.4;color:#8390a2}.getting-task button{display:grid;place-items:center;width:29px;height:29px;flex:0 0 29px;border:1px solid #e0e7f2;border-radius:9px;background:#fff;color:#0059ff;font-size:20px;line-height:1}.getting-task button:hover{background:#edf3ff;border-color:#c7d8ff}.getting-help{width:100%;margin-top:10px;padding:10px 0 0;border:0;border-top:1px solid #edf0f5;background:transparent;color:#0059ff;text-align:left;font-size:11px;font-weight:700}.right footer{margin-top:0;line-height:1.8;overflow-wrap:anywhere}
-/* Make every post action use the same icon, label, and hit area. */
+
 .post-actions{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:5px!important}
 .post-actions button{display:flex!important;justify-content:center;align-items:center;gap:6px;min-width:0;min-height:38px;padding:6px 5px!important;border-radius:9px!important;white-space:normal!important;line-height:1.25;font-size:11px!important}
 .post-actions button svg{width:17px;height:17px;flex:0 0 17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -56,7 +56,7 @@ body[data-page="feed"] .heading{padding:0 0 10px;margin:0;justify-content:flex-e
 .post-actions button.liked svg{fill:#ffe4ec;stroke:#e54d70}
 .post-actions button.saved svg{fill:#e8efff;stroke:#0059ff}
 .post-actions .share{margin-left:0}
-/* Stable alignment for comments, cards, settings and profile metadata. */
+
 .person-card{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}.person-card .author{min-width:100px;flex:1}.person-card>button{max-width:100%}
 .profile-hero,.settings-card,.community-card,.post{min-width:0;overflow-wrap:anywhere}
 .profile-identity{min-width:0}.profile-name-block{overflow-wrap:anywhere}.profile-edit{flex:0 0 auto}.profile-cover{background-repeat:no-repeat;background-position:center;background-size:cover}.cover-change input{display:none}
@@ -67,13 +67,13 @@ body[data-page="feed"] .heading{padding:0 0 10px;margin:0;justify-content:flex-e
 @media(max-width:760px){body[data-page="feed"] .heading{padding:0 0 10px;margin:0;justify-content:flex-end}body[data-page="feed"] .heading>div{display:none}.post-actions{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:2px!important}.post-actions button{flex-direction:column;gap:3px;min-height:45px;padding:5px 2px!important;font-size:9px!important}.post-actions button svg{width:18px;height:18px;flex-basis:18px}.profile-identity{align-items:center}.profile-edit{max-width:100%;white-space:normal}.getting-started{display:none!important}.guide-dialog{width:calc(100% - 24px);max-width:520px}}
 @media(max-width:360px){.post-actions button span{font-size:8px}.post-actions{gap:0!important}.post-actions button{padding:4px 1px!important}.profile-name-block h2{font-size:17px}}
 
-/* v12 — show the same onboarding checklist on phones, where the right rail is hidden. */
+
 .getting-started-mobile{display:none}
 @media(max-width:1180px){.getting-started-mobile{display:block!important;margin:0 0 12px}.right .getting-started{display:none!important}}
 @media(min-width:1181px){.getting-started-mobile{display:none!important}}
 
 
-/* Vatra layout refinement: consistent card alignment and responsive actions */
+
 .feed{min-width:0;align-items:stretch}
 .feed>.post,.feed>.profile-hero,.feed>.community-card,.feed>.person-card{width:100%;min-width:0}
 .post-head,.profile-identity,.community-detail-title,.community-actions,.community-meta,.person-card{min-width:0}
@@ -128,7 +128,7 @@ button,input,textarea,select{max-width:100%}
 }
 
 
-/* Profile information and clean responsive alignment */
+
 .profile-info-card{margin:18px 0 4px;padding:18px 20px;background:#fff;border:1px solid #e6ebf3;border-radius:16px;min-width:0}
 .profile-info-card h3{margin:0 0 12px;font-size:15px;font-weight:800;color:#1c2b43}
 .profile-info-row{display:grid;grid-template-columns:minmax(120px,.7fr) minmax(0,1.3fr);gap:14px;padding:11px 0;border-top:1px solid #edf0f5;align-items:start}
@@ -144,7 +144,7 @@ button,input,textarea,select{max-width:100%}
 .settings-grid select{min-width:0;width:100%}
 .settings-grid label small{display:block;margin-top:5px;color:#8490a3;font-size:11px;line-height:1.45}
 
-/* Responsive refinement, verified-account mark, first-run guided tour and loading skeletons */
+
 .vatra-verified-badge{display:inline-flex;vertical-align:middle;width:18px;height:18px;margin-inline-start:5px;color:#1677ff;flex:0 0 auto;align-items:center;justify-content:center}.vatra-verified-badge svg{width:100%;height:100%}
 .official-admin-card{border-color:#b8d5ff;background:linear-gradient(145deg,#f7faff,#fff)}.official-admin-card[hidden]{display:none!important}
 .vatra-tour-overlay{position:fixed;inset:0;z-index:100000;display:flex;align-items:flex-end;justify-content:center;padding:24px;background:rgba(10,22,43,.68);backdrop-filter:blur(3px);opacity:0;visibility:hidden;transition:opacity .22s ease,visibility .22s ease}.vatra-tour-overlay.is-visible{opacity:1;visibility:visible}.vatra-tour-card{width:min(480px,100%);padding:24px;border:1px solid #e4eaf4;border-radius:22px;background:#fff;box-shadow:0 24px 80px #071a3a45;color:#172943;position:relative;margin-bottom:clamp(0px,4vh,36px)}.vatra-tour-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.vatra-tour-kicker{font-size:10px;font-weight:800;letter-spacing:.12em;color:#3975df}.vatra-tour-skip{border:0;background:transparent;color:#63728a;font:600 12px inherit;cursor:pointer;padding:8px}.vatra-tour-progress{height:4px;border-radius:20px;background:#eaf0f8;margin:18px 0 14px;overflow:hidden}.vatra-tour-progress span{display:block;width:0;height:100%;background:#1769ff;transition:width .25s ease}.vatra-tour-count{font-size:11px;color:#8a96a9;margin-bottom:8px}.vatra-tour-card h2{font-size:23px;line-height:1.2;margin:0 0 10px;letter-spacing:-.03em}.vatra-tour-card p{font-size:14px;line-height:1.65;color:#61718a;margin:0}.vatra-tour-actions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.vatra-tour-highlight{position:relative!important;z-index:100001!important;outline:3px solid #2f80ff!important;outline-offset:5px!important;box-shadow:0 0 0 7px #fff,0 0 0 10px #3787ff!important;border-radius:12px!important}
@@ -155,7 +155,7 @@ button,input,textarea,select{max-width:100%}
 @media(max-width:380px){.main{padding-inline:8px}.heading h1{font-size:22px}.vatra-tour-card{padding:16px}.auth-card{padding:20px}}
 @media(prefers-reduced-motion:reduce){.vatra-tour-overlay,.vatra-tour-progress span{transition:none}.vatra-skeleton-line,.vatra-skeleton-avatar,.vatra-skeleton-block{animation:none}}
 
-/* Final responsive and loading refinements */
+
 .vatra-skeleton{animation:vatra-skeleton-in .22s ease both}
 .vatra-skeleton-line,.vatra-skeleton-avatar,.vatra-skeleton-block{background-size:220% 100%;animation:vatra-skeleton-shimmer 1.35s ease-in-out infinite}
 @keyframes vatra-skeleton-shimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
@@ -171,7 +171,7 @@ button,input,textarea,select{max-width:100%}
 @media(prefers-reduced-motion:reduce){.vatra-skeleton-line,.vatra-skeleton-avatar,.vatra-skeleton-block,.vatra-skeleton{animation:none!important}}
 
 
-/* ВАТРА UI refinement — October 2026 */
+
 :root{--vatra-blue:#0059ff;--vatra-blue-soft:#edf4ff;--vatra-ink:#18263d;--vatra-muted:#718096}
 body{scroll-behavior:smooth}
 button,a,input,textarea,select,.post,.settings-card,.community-card,.profile-hero,.message-bubble{transition:color .18s ease,background-color .18s ease,border-color .18s ease,box-shadow .2s ease,transform .2s ease}
@@ -244,7 +244,7 @@ body[data-page="feed"] .heading{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){.feed>.post,.feed>.profile-hero,.feed>.community-card,.feed>.person-card{animation:none!important}button,a,input,textarea,select,.post,.settings-card,.community-card,.profile-hero,.message-bubble{transition:none!important}}
 
-/* v13 — restore balanced profile proportions and normalize card rhythm */
+
 .profile-hero{border-radius:16px!important;box-shadow:0 3px 16px #1b376708!important}
 .profile-cover{height:168px!important}
 .profile-identity{padding:0 20px!important;margin-top:-36px!important;gap:14px!important;align-items:center!important}
@@ -300,7 +300,7 @@ body[data-page="feed"] .heading{display:none!important}
  .method-choice{grid-template-columns:1fr}
 }
 
-/* Accessible birthday selectors shared by registration and profile settings */
+
 .birthday-selects{display:grid;grid-template-columns:minmax(70px,.75fr) minmax(110px,1.45fr) minmax(84px,1fr);gap:8px;margin-top:8px}
 .birthday-selects select{width:100%;min-width:0;height:46px;padding:0 10px;border:1px solid #dbe4f1;border-radius:10px;background:#fff;color:#26354b;font:500 13px Inter,system-ui,sans-serif}
 .birthday-selects select:focus{outline:0;border-color:#1769ff;box-shadow:0 0 0 3px #1769ff16}
@@ -319,7 +319,7 @@ body[data-page="feed"] .heading{display:none!important}
 .community-settings-page .community-member-row{padding:10px 0;border-bottom:1px solid #edf1f6}
 .community-settings-page .community-member-row:last-child{border-bottom:0}
 
-/* Branded replacements for native browser prompts and confirmations */
+
 .vatra-native-dialog{width:min(440px,calc(100vw - 28px));padding:24px;border:1px solid #e3eaf4;border-radius:20px;background:#fff;color:#1e293b;box-shadow:0 24px 80px #10264a35}
 .vatra-native-dialog::backdrop{background:rgba(12,25,47,.48);backdrop-filter:blur(3px)}
 .vatra-native-dialog h2{margin:0 0 10px;font-size:20px;letter-spacing:-.3px}
@@ -331,7 +331,7 @@ body[data-page="feed"] .heading{display:none!important}
 .vatra-dialog-field input{width:100%;min-height:44px;padding:10px 12px;border:1px solid #dce4f0;border-radius:10px;font:inherit;font-weight:500}
 .vatra-dialog-field input:focus{outline:0;border-color:#1769ff;box-shadow:0 0 0 3px #1769ff16}
 
-/* Restore the section title that had been hidden with the redundant heading block */
+
 body .heading{display:flex!important;align-items:center;justify-content:space-between;gap:14px;padding:15px 0 12px;margin:0!important}
 body .heading h1{margin:0;font-size:25px;line-height:1.2;letter-spacing:-.55px;color:#1e293b}
 body .heading .eyebrow{margin:0 0 4px;font-size:9px}
@@ -344,7 +344,7 @@ body[data-page="feed"] .heading{padding-top:8px!important;padding-bottom:10px!im
 @media(max-width:760px){body .heading{padding:10px 0!important}body .heading h1{font-size:22px}body .heading #subtitle{font-size:11px}}
 
 
-/* v14 — consistent page grid, readable forms and stable responsive cards */
+
 #feed{min-width:0;width:100%;}
 #feed>.post,#feed>.settings-page,#feed>.profile-hero,#feed>.community-hero{min-width:0;max-width:100%;}
 .settings-page{width:100%;max-width:100%;min-width:0;}
@@ -375,7 +375,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 }
 
 
-/* Balanced profile sizing: keep the profile useful without dominating the feed. */
+
 .profile-cover{height:158px!important;min-height:158px!important}
 .profile-identity{padding-inline:22px!important;margin-top:-40px!important;gap:14px!important}
 .profile-identity>.avatar{width:88px!important;height:88px!important;flex-basis:88px!important;border-width:4px!important}
@@ -401,7 +401,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 }
 
 
-/* Final consistency pass: keep profile, feed and community settings on the same grid. */
+
 .profile-page,.settings-page,.group-settings-page,.group-page{width:100%;max-width:100%;min-width:0;margin-inline:auto}
 .profile-page{gap:16px}
 .profile-hero,.profile-info,.profile-tabs,.profile-posts,.profile-details,.profile-friends{min-width:0;max-width:100%}
@@ -434,7 +434,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 }
 
 
-/* VATRA layout refinement — consistent rhythm, calmer profile sizing, responsive cards. */
+
 :root{--vatra-card-radius:18px;--vatra-line:#e4eaf3;--vatra-ink:#172943;--vatra-muted:#718096}
 .main{min-width:0}
 .main>.heading{align-items:center;gap:16px;margin-bottom:20px}
@@ -503,13 +503,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(prefers-reduced-motion:reduce){.post,.community-card,.profile-hero{animation:none!important;transition:none!important}}
 
 
-/* ВАТРА: прибрати дубльований вступний банер з кожного розділу.
-   Назва сторінки лишається в навігації, а основний контент починається одразу. */
+
 .main > .heading,
 main .heading {
   display: none !important;
 }
-/* Не дозволяємо довгим елементам розтягувати центральну колонку. */
+
 .layout,
 .main,
 #feed,
@@ -557,7 +556,7 @@ main .heading {
   }
 }
 
-/* VATRA final consistency pass: aligned surfaces and visible form feedback. */
+
 .composer-error{margin:10px 0 0;padding:10px 12px;border:1px solid #fecaca;border-radius:10px;background:#fff1f2;color:#b42318;font-size:13px;line-height:1.45}
 .composer-error[hidden]{display:none}
 #composer[open]{width:min(640px,calc(100vw - 28px));max-height:min(90vh,900px);overflow:auto}
@@ -603,7 +602,7 @@ button,input,textarea,select{max-width:100%}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 
-/* Final auth and tour fixes: keep the left brand panel balanced and put the selected tour target above the dim layer. */
+
 @media(min-width:851px){.auth-layout .brand-side{justify-content:space-between!important;gap:24px!important}.auth-layout .brand-copy{margin:auto 0!important}.auth-layout .brand-foot{margin-top:0!important;padding-top:0!important}.auth-layout .brand-copy h1{font-size:clamp(36px,4vw,58px)!important;line-height:1.06!important;margin-bottom:14px!important}.auth-layout .brand-copy>p:last-child{margin-top:10px!important;line-height:1.55!important}}
 .vatra-tour-overlay{isolation:isolate!important;backdrop-filter:none!important;background:rgba(11,24,45,.78)!important}
 .vatra-tour-highlight{position:relative!important;z-index:10002!important;isolation:isolate!important;outline:3px solid #1769ff!important;outline-offset:5px!important;box-shadow:0 0 0 9999px rgba(11,24,45,.74),0 0 0 8px rgba(23,105,255,.28)!important;border-radius:12px!important;filter:none!important}
@@ -611,7 +610,7 @@ button,input,textarea,select{max-width:100%}
 @media(prefers-reduced-motion:reduce){.vatra-tour-highlight{scroll-behavior:auto!important}}
 
 
-/* Final balanced profile and community pass — keep content compact and aligned. */
+
 #feed > .profile-hero {
   width: 100%;
   max-width: 100%;
@@ -813,7 +812,7 @@ button,input,textarea,select{max-width:100%}
 }
 
 
-/* Consistent sizing and alignment across the core social-network screens. */
+
 #feed > .profile-hero {
   padding-bottom: 14px;
   border-radius: 18px;
@@ -896,7 +895,7 @@ button,input,textarea,select{max-width:100%}
 }
 
 
-/* Final layout repair: keep profile, feed and community sections on the same visual scale. */
+
 .profile-hero,.profile-info-card,.profile-stats,.profile-details,.profile-post-heading,.community-hero,.community-settings-page,.settings-page{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
 .profile-hero{overflow:hidden;border-radius:16px}
 .profile-cover{height:clamp(150px,24vw,205px);min-width:0;background-color:#e8effb;background-size:cover;background-position:center}
@@ -968,7 +967,7 @@ button,input,textarea,select{max-width:100%}
 @media(prefers-reduced-motion:reduce){.vatra-tour-highlight,.profile-hero,.saved-accounts-panel{transition:none!important}}
 
 
-/* Final consistency pass for profile, feed, community and legal footer. */
+
 .footer-legal{display:flex;flex-wrap:wrap;gap:8px 13px;margin-top:12px;padding-top:11px;border-top:1px solid #e5ebf4}
 .footer-legal a{color:#41618d;font-size:11px;line-height:1.5;text-decoration:none}
 .footer-legal a:hover{color:#0757f5;text-decoration:underline;text-underline-offset:3px}
@@ -1024,7 +1023,7 @@ button,input,textarea,select{max-width:100%}
 }
 
 
-/* Final compact profile pass: keep the hero, details and statistics visually balanced. */
+
 #feed>.profile-hero{
   width:100%;
   max-width:100%;
@@ -1118,7 +1117,7 @@ button,input,textarea,select{max-width:100%}
   #feed>.profile-hero .profile-info-row>span{font-size:11px}
 }
 
-/* Final sizing and alignment corrections across profile, community and settings screens. */
+
 .profile-hero{max-width:100%;margin-bottom:18px!important;border-radius:18px!important}
 .profile-cover{height:112px!important}
 .profile-identity{padding:0 20px!important;margin-top:-30px!important;gap:12px!important;align-items:flex-end!important}
@@ -1204,7 +1203,7 @@ button:disabled{cursor:not-allowed;opacity:.68}
 }
 
 
-/* Final layout consistency for profiles, member lists and controls. */
+
 .profile-hero{width:100%;max-width:100%;margin:0 0 16px!important;overflow:hidden;border:1px solid var(--vatra-line,#e5eaf2)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 5px 18px rgba(27,47,82,.05)!important}
 .profile-cover{height:158px!important;position:relative;background-color:#e9f0fb!important;background-position:center!important;background-size:cover!important}
 .profile-identity{display:flex!important;align-items:center!important;gap:14px!important;flex-wrap:wrap!important;position:relative!important;margin:0!important;padding:0 20px!important}
@@ -1277,7 +1276,7 @@ button:disabled{cursor:not-allowed;opacity:.68}
 
 
 
-/* Consistent password-strength guidance in the in-app authentication dialog */
+
 .modal-password-strength{margin-top:10px;padding-top:2px}
 .modal-password-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;font-size:12px}
 .modal-password-head strong{font-size:13px;color:#223550}
@@ -1295,7 +1294,7 @@ button:disabled{cursor:not-allowed;opacity:.68}
 @media(max-width:560px){.modal-password-rules{grid-template-columns:1fr}}
 
 
-/* Finishing pass for profiles, news, communities and settings forms. */
+
 :root{--vatra-layout-gap:16px}
 #feed{min-width:0}
 .post,.profile-hero,.settings-card,.community-card,.community-detail,.video-card{box-sizing:border-box;min-width:0}
@@ -1320,7 +1319,7 @@ button:disabled{cursor:not-allowed;opacity:.68}
 @media(max-width:700px){.settings-intro{flex-direction:column}.settings-intro>#settingsBack{align-self:flex-start}.settings-savebar{align-items:stretch}.settings-savebar button{width:100%}.settings-grid{grid-template-columns:minmax(0,1fr)!important}.settings-grid .span-two{grid-column:auto}.post-actions{flex-wrap:wrap}}
 
 
-/* Final density pass: keep profile proportions aligned with feed cards. */
+
 .profile-hero{
   border-radius:14px!important;
   margin:0 0 14px!important;
@@ -1351,7 +1350,7 @@ button:disabled{cursor:not-allowed;opacity:.68}
   .profile-stats{padding:0 13px 13px!important}
 }
 
-/* Final balance pass: keep profile and community panels aligned with the feed width. */
+
 .profile-page,.profile-layout,.profile-main,.settings-page,.community-settings-page{min-width:0;max-width:100%}
 .profile-hero{max-width:100%;overflow:hidden}
 .profile-hero .profile-cover,.profile-cover{max-height:260px;min-height:150px}
@@ -1366,7 +1365,7 @@ button:disabled{cursor:not-allowed;opacity:.68}
 @media(min-width:761px){.main{min-width:0}.feed{min-width:0}.post,.quick-compose,.settings-card{max-width:100%}}
 @media(max-width:760px){.profile-stats{gap:12px}.profile-hero .profile-cover,.profile-cover{max-height:190px}.settings-grid{grid-template-columns:minmax(0,1fr)}.settings-grid .span-two{grid-column:auto}}
 
-/* Final layout polish for profile, community, and settings panels */
+
 .profile-page,.profile-layout,.profile-main,.settings-page,.community-settings-page{min-width:0;max-width:100%}
 .profile-hero{max-width:100%;overflow:hidden}
 .profile-hero .profile-cover,.profile-cover{max-height:260px;min-height:150px}
@@ -1381,12 +1380,12 @@ button:disabled{cursor:not-allowed;opacity:.68}
 @media(min-width:761px){.main{min-width:0}.feed{min-width:0}.post,.quick-compose,.settings-card{max-width:100%}}
 @media(max-width:760px){.profile-stats{gap:12px}.profile-hero .profile-cover,.profile-cover{max-height:190px}.settings-grid{grid-template-columns:minmax(0,1fr)}.settings-grid .span-two{grid-column:auto}}
 
-/* Legal documents are reachable from profile settings on every screen size. */
+
 .settings-legal-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .settings-legal-links a{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;min-height:40px}
 @media(max-width:560px){.settings-legal-links{display:grid;grid-template-columns:minmax(0,1fr)}.settings-legal-links a{width:100%}}
 
-/* VATRA: keep one page scrollbar; the sidebar must never create its own scroll area. */
+
 @media (min-width:761px){
  .sidebar{
   position:fixed!important;
@@ -1420,13 +1419,13 @@ button:disabled{cursor:not-allowed;opacity:.68}
 @media (max-width:1050px) and (min-width:961px){.layout{grid-template-columns:190px minmax(0,1fr);gap:16px}.sidebar{width:190px!important}}
 @media (max-width:960px) and (min-width:761px){.sidebar{width:174px!important;left:17px!important}}
 
-/* Use VATRA's SVG flame as its own visual mark, not a text sparkle glyph. */
+
 .sidebar-spark{display:grid!important;place-items:center!important;flex:0 0 22px!important;width:22px!important;height:22px!important;font-size:0!important}
 .sidebar-spark .vatra-ui-flame{display:block;width:20px;height:20px;object-fit:contain}
 .getting-mark .vatra-ui-flame{display:block;width:22px;height:22px;object-fit:contain}
 
 
-/* ───────── VATRA responsive systems refresh • 29 Oct 2026 ───────── */
+
 :root{
   --vatra-accent:#0757f5;
   --vatra-accent-dark:#0646c7;
@@ -1455,7 +1454,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
 
-/* The main toolbar is fixed to the top as the social network is browsed. */
+
 .main{min-width:0}
 .topbar{
   position:sticky!important;
@@ -1561,7 +1560,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 .account-popover>button.account-logout{color:#c43e50!important}
 .account-popover>button.account-logout>span{color:#c43e50!important}
 
-/* Profile: wide cover, true aspect-ratio imagery, and readable information column. */
+
 .profile-columns{
   display:grid!important;
   grid-template-columns:minmax(0,1.45fr) minmax(235px,.78fr)!important;
@@ -1647,7 +1646,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 .profile-empty-hint{font-size:11px!important;line-height:1.6!important;margin:5px 0!important}
 .profile-gallery-image{cursor:zoom-in!important}
 
-/* Fix photo distortion in feed; keep the original aspect ratio rather than squeezing faces. */
+
 .post-image{
   width:100%!important;max-width:100%!important;height:auto!important;max-height:min(76vh,780px)!important;
   object-fit:contain!important;object-position:center!important;background:#f4f7fc!important;
@@ -1665,7 +1664,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 .post-actions button.liked svg{animation:vatraHeartPop .28s cubic-bezier(.2,.8,.2,1)}
 @keyframes vatraHeartPop{0%{transform:scale(.8)}55%{transform:scale(1.24)}100%{transform:scale(1)}}
 
-/* Shared animation: controls should respond to hover, keyboard focus, and press. */
+
 .primary,.pill,.submit,.file-pick,.icon-btn,.nav,.post-actions button,.compose-tools button,.getting-help,.getting-task button,.mobile-nav button,.comment-form button,.poll-choice,.profile-edit{
   transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s ease,background-color .18s ease,border-color .18s ease,color .18s ease,opacity .18s ease!important;
 }
@@ -1678,7 +1677,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important}
 .search:focus-within{border-color:#9dbaf3!important;box-shadow:0 0 0 3px rgba(7,87,245,.075)!important}
 
-/* Fully functional dropdowns and modal controls have comfortable scrollable geometry. */
+
 .vatra-site-legal-dialog,.vatra-image-editor{
   width:min(900px,calc(100vw - 28px))!important;
   max-width:900px!important;max-height:calc(100dvh - 28px)!important;
@@ -1750,7 +1749,7 @@ button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important
 .vatra-tour-overlay{z-index:9998!important}
 .vatra-tour-highlight{outline:3px solid #0757f5!important;outline-offset:4px!important;box-shadow:0 0 0 7px rgba(7,87,245,.15)!important;border-radius:12px!important}
 
-/* Responsive layout corrections for tablets, mobiles and browser zoom. */
+
 @media(max-width:1200px) and (min-width:761px){
  .layout{grid-template-columns:190px minmax(0,1fr)!important;gap:18px!important;width:100%!important;max-width:100%!important;padding:0 18px!important}
  .right{display:none!important}
@@ -1870,7 +1869,7 @@ button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important
 }
 
 
-/* Branded form controls across the whole network, not only the sign-in page. */
+
 .birthday-selects{display:grid!important;grid-template-columns:minmax(0,.8fr) minmax(0,1.35fr) minmax(0,1fr)!important;gap:8px!important;width:100%!important;min-width:0!important}
 .birthday-selects select,
 .settings-grid select,.settings-card select,.settings-form select,
@@ -1905,7 +1904,7 @@ button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important
   outline:0!important;border-color:#4c83fa!important;background-color:#fff!important;box-shadow:0 0 0 3px rgba(7,87,245,.1)!important;
 }
 
-/* The profile-cover crop is wide, matching the actual banner area. */
+
 .vatra-image-editor.is-cover .vatra-image-stage{
   aspect-ratio:16/5!important;min-height:140px!important;max-height:42vh!important;
 }
@@ -1920,7 +1919,7 @@ button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important
   .birthday-selects select{padding-left:8px!important;padding-right:27px!important;background-position:right 7px center!important;font-size:12px!important}
 }
 
-/* Polish the small but frequent details: menu badges, link cards and form feedback. */
+
 #notificationBadge,#notificationNavBadge,#friendsNavBadge{
   display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;
   border:2px solid #fff;border-radius:99px;background:#0757f5;color:#fff;font-size:9px;font-weight:800;line-height:1;
@@ -1934,7 +1933,7 @@ button:active:not(:disabled),.poll-choice:active{transform:scale(.975)!important
 .vatra-tour-actions button,.vatra-tour-skip{min-height:40px!important}
 
 
-/* === VATRA 2026 interface correction: fixed blue global header, legible profile, responsive controls === */
+
 html{scroll-padding-top:82px}
 body{overflow-x:clip!important}
 .layout{padding-top:82px!important;align-items:start!important}
@@ -2155,7 +2154,7 @@ input[type="checkbox"]{accent-color:#0757f5}
 }
 
 
-/* Functional VATRA photo editor — responsive preview, crop controls and filter presets. */
+
 .vatra-image-editor{
   width:min(1000px,calc(100vw - 28px))!important;
   max-width:1000px!important;max-height:calc(100dvh - 28px)!important;
@@ -2267,7 +2266,7 @@ input[type="checkbox"]{accent-color:#0757f5}
   .vatra-image-editor-actions button{min-width:0!important;width:100%!important;padding:0 8px!important;font-size:11px!important}
 }
 
-/* One scrollbar treatment across all authentication and legal dialogs. */
+
 .auth-dialog,.developer-dialog,.legal-dialog,#recoveryDialog,#developerDialog,#legalDialog,
 .vatra-site-legal-dialog,.vatra-image-editor{
   scrollbar-width:thin!important;scrollbar-color:#1d5ef5 #eaf0fa!important;
@@ -2294,7 +2293,7 @@ input[type="checkbox"]{accent-color:#0757f5}
 }
 
 
-/* The top bar owns the brand mark; keep the side rail focused on navigation. */
+
 .layout>.sidebar>.brand{display:none!important}
 .layout>.sidebar>nav{margin-top:4px!important}
 .layout>.sidebar{padding-top:7px!important}
@@ -2307,7 +2306,7 @@ input[type="checkbox"]{accent-color:#0757f5}
 }
 
 
-/* VATRA desktop/mobile shell: compact, pinned global header with subtle search animation. */
+
 html,body{max-width:100%;overflow-x:hidden}
 body{background:#f2f5fa}
 .vatra-global-header{
@@ -2636,7 +2635,7 @@ button:focus-visible,.primary:focus-visible,.pill:focus-visible,.icon-btn:focus-
 }
 
 
-/* VATRA original profile layout and visual styling. */
+
 .layout{
   width:100%!important;max-width:1510px!important;margin:0 auto!important;
   grid-template-columns:210px minmax(0,760px) 272px!important;
@@ -2660,7 +2659,7 @@ button:focus-visible,.primary:focus-visible,.pill:focus-visible,.icon-btn:focus-
 .profile-photo-gallery img,.avatar-history-grid img{object-fit:cover!important;object-position:center!important}
 
 
-/* Consistent VATRA controls: custom select arrows, accessible checkboxes and polished focus states. */
+
 .settings-page select,
 .settings-form select,
 #reportDialog select,
@@ -2734,7 +2733,7 @@ input[type="checkbox"]:focus-visible{
 }
 
 
-/* v13 — compact header, refined search focus and reliable comment identities */
+
 @media(min-width:761px){
  .topbar{height:54px;padding-bottom:6px}
  .search{height:36px}
@@ -2749,7 +2748,7 @@ input[type="checkbox"]:focus-visible{
 .comment-main{align-items:flex-start}
 
 
-/* Coverless social profile layout: identity starts at the top of the card. */
+
 .profile-hero-no-cover{
   display:block!important;
   padding:22px 22px 0!important;
@@ -2867,7 +2866,7 @@ input[type="checkbox"]:focus-visible{
 }
 
 
-/* VATRA original profile layout and visual styling. */
+
 .main:has(#feed .vatra-profile-layout)>.heading{display:none!important}
 .vatra-profile-layout{
   display:grid!important;
@@ -3102,7 +3101,7 @@ input[type="checkbox"]:focus-visible{
 }
 
 
-/* Actions for another person's profile, kept in the left profile column. */
+
 .vatra-profile-public-actions{
   display:grid!important;gap:7px!important;margin-top:9px!important;
 }
@@ -3119,7 +3118,7 @@ input[type="checkbox"]:focus-visible{
 .vatra-profile-public-layout .vatra-profile-photos{min-width:0!important}
 
 
-/* VATRA signature finish: blue light, warm ember accents, soft surfaces and lively feedback. */
+
 :root{
   --profile-vatra-blue:#0757f5;
   --profile-vatra-blue-deep:#0647d5;
@@ -3386,7 +3385,7 @@ input[type="checkbox"]:focus-visible{
   color:#c34b60!important;background:#fff6f7!important;border-radius:10px!important;
 }
 
-/* Unified VATRA interaction language for all controls inside the redesigned profile. */
+
 .vatra-profile-layout button,
 .vatra-profile-layout .vatra-profile-change-photo{
   -webkit-tap-highlight-color:transparent;
@@ -3471,7 +3470,7 @@ input[type="checkbox"]:focus-visible{
 }
 
 
-/* Publication header uses a selected label, not an inactive fake tab. */
+
 .vatra-profile-post-tabs>.vatra-profile-tab-current{
   position:relative!important;
   display:inline-flex!important;align-items:center!important;
@@ -3493,7 +3492,7 @@ input[type="checkbox"]:focus-visible{
 }
 
 
-/* Compact desktop shell — one authoritative layout block. */
+
 .vatra-global-header{
   width:min(1160px,calc(100% - 28px))!important;
   max-width:1160px!important;
@@ -3689,7 +3688,7 @@ input[type="checkbox"]:focus-visible{
 }
 
 
-/* Compact, crisp Vatra shell and profile controls. */
+
 html,body,.layout,.main,.feed,.vatra-profile-layout{filter:none!important}
 body,button,input,textarea,select,.vatra-profile-layout,.sidebar nav .nav{
   -webkit-font-smoothing:antialiased!important;
@@ -3753,7 +3752,7 @@ body,button,input,textarea,select,.vatra-profile-layout,.sidebar nav .nav{
   color:#0757f5!important;font-size:46px!important;font-weight:900!important;letter-spacing:-.08em!important;
 }
 
-/* Multiple image posts and selection previews. */
+
 .post-photo-grid{
   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:7px!important;margin:12px 0 14px!important;overflow:hidden!important;border-radius:14px!important;
@@ -3796,7 +3795,7 @@ body,button,input,textarea,select,.vatra-profile-layout,.sidebar nav .nav{
 }
 .post-text .tag:hover,.tag:hover{background:#dfeaff!important;text-decoration:underline!important}
 
-/* Full Unicode emoji picker. */
+
 .emoji-picker-wrap{position:relative!important}
 .emoji-picker{
   position:absolute!important;z-index:180!important;right:0!important;bottom:calc(100% + 8px)!important;
@@ -3813,7 +3812,7 @@ emoji-picker{
 }
 .emoji-picker-error{padding:12px;color:#b94a5a;font-size:11px}
 
-/* Avatar lightbox with carousel, reactions and comments. */
+
 .vatra-avatar-viewer{
   width:min(1120px,calc(100vw - 30px))!important;max-width:1120px!important;
   max-height:min(92dvh,900px)!important;padding:0!important;overflow:hidden!important;
@@ -3911,7 +3910,7 @@ emoji-picker{
 }
 
 
-/* Expanded photo editor: 12 looks, precise color tuning and text overlays. */
+
 .vatra-image-editor{
   width:min(1040px,calc(100vw - 28px))!important;max-width:1040px!important;
   max-height:94dvh!important;padding:0!important;overflow:hidden!important;
@@ -4025,7 +4024,7 @@ emoji-picker{
   .vatra-image-editor-actions button{flex:1!important}
 }
 
-/* In-place editing tools for existing posts. */
+
 .post-edit-form-vatra{
   display:grid!important;gap:11px!important;padding:12px!important;
   border:1px solid #dfe8f5!important;border-radius:15px!important;
@@ -4113,7 +4112,7 @@ emoji-picker{
  .vatra-post-photo-stage>button{flex-basis:28px!important;width:28px!important;height:28px!important;font-size:21px!important}
 }
 
-/* Final alignment and type rendering corrections. */
+
 @media(min-width:1101px){
   .vatra-global-header{width:min(1160px,calc(100% - 32px))!important;max-width:1160px!important}
   .layout{width:min(1180px,100%)!important;max-width:1180px!important}
@@ -4179,7 +4178,7 @@ button:not(.post-photo-item):active,.nav:active{transform:none!important}
   .vatra-image-filter-presets{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 }
 
-/* VATRA final responsive system — balanced sizing, readable typography and animated navigation. */
+
 :root{--vatra-shell-width:1260px;--vatra-sidebar-width:180px;--vatra-shell-gap:18px}
 html,body{max-width:100%;overflow-x:hidden}
 body{font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -4400,7 +4399,7 @@ button,input,textarea,select{font:inherit}
 
 
 
-/* VATRA original profile layout and visual styling. */
+
 :root{--vatra-shell-width:1140px;--vatra-sidebar-width:156px;--vatra-shell-gap:14px}
 html,body{max-width:100%!important;overflow-x:hidden!important}
 body{background:#edeef0!important}
@@ -4631,7 +4630,7 @@ body{background:#edeef0!important}
 }
 
 
-/* Reset the old two-column profile sidebar at tablet widths. */
+
 @media (min-width:761px) and (max-width:1100px){
  .vatra-profile-sidebar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
  .vatra-profile-sidebar>.vatra-profile-card{grid-column:auto!important;width:100%!important;max-width:100%!important;min-width:0!important}
@@ -4641,7 +4640,7 @@ body{background:#edeef0!important}
 
 
 
-/* VATRA readability and interaction design — profile, feed, navigation and media. */
+
 :root{--vatra-sidebar-width:170px}
 .vatra-global-header .search{
  position:relative!important;height:38px!important;min-height:38px!important;
@@ -4777,7 +4776,7 @@ body[data-vatra-reduce-motion="true"] *,body[data-vatra-reduce-motion="true"] *:
 
 
 
-/* Honour per-account VATRA accent choice in interactive elements. */
+
 :root{--vatra-user-accent:#0757f5}
 .vatra-global-header .search:focus-within{border-color:var(--vatra-user-accent)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--vatra-user-accent) 12%,transparent),0 7px 20px color-mix(in srgb,var(--vatra-user-accent) 12%,transparent)!important}
 .vatra-global-header .search:focus-within .search-icon{color:var(--vatra-user-accent)!important}
@@ -4805,7 +4804,7 @@ body[data-vatra-reduce-motion="true"] *,body[data-vatra-reduce-motion="true"] *:
 
 
 
-/* Gentle page switches, clearer settings forms and focused photo-viewer comments. */
+
 @keyframes vatra-page-enter{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .layout>.main.vatra-page-enter{animation:vatra-page-enter .2s ease both}
 .settings-card label,.settings-card label>span{font-size:12.5px!important;line-height:1.5!important}

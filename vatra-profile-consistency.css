@@ -1,5 +1,4 @@
-/* ВАТРА: identical public and own profile summary, refined disclosure control.
-   Keep this after existing styles to avoid legacy cascades overriding the button. */
+
 body .vatra-profile-summary-compact .vatra-profile-details{
   display:grid!important;
   grid-template-columns:minmax(0,1fr)!important;
@@ -62,7 +61,7 @@ body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-t
 body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger .arrow{
   display:none!important;
 }
-/* No dividers in the summary or beneath the Show More control. */
+
 body .vatra-profile-overview.vatra-profile-summary-compact>.vatra-profile-stats{
   border:0!important;
   border-top:0!important;
@@ -92,12 +91,12 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-pr
  body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger{transition:none!important}
 }
 
-/* Profile cleanup: no redundant counters in the overview and no fake biography folding. */
+
 body[data-page="profile"] .vatra-profile-overview>.vatra-profile-stats,
 body[data-page="publicProfile"] .vatra-profile-overview>.vatra-profile-stats{
   display:none!important;
 }
-/* Short biography: no button. A real overflow past two lines enables the button. */
+
 body .vatra-profile-summary-compact .vatra-profile-bio-smart{
   display:block!important;
   position:relative!important;
@@ -150,7 +149,7 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-pr
 }
 
 
-/* VATRA portrait actions: compact slide-up tray from the bottom of the photo. */
+
 body[data-page="profile"] .vatra-profile-avatar-card .vatra-avatar-hover-wrap{
   position:relative!important;
   overflow:hidden!important;
@@ -276,7 +275,7 @@ body.vatra-photo-menu-suppressed[data-page="profile"] .vatra-profile-avatar-card
 }
 
 
-/* Profile disclosure refinement: no divider line; button stays anchored before extra content. */
+
 body .vatra-profile-summary-compact .vatra-profile-details,
 body .vatra-profile-summary-compact .vatra-profile-more,
 body .vatra-profile-summary-compact .vatra-profile-extras,

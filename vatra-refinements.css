@@ -1,6 +1,6 @@
-/* VATRA Refinement • 31 Oct 2026. Brand-only visual system. */
 
-/* Account menu opens centered below the main header, independent of the avatar's edge. */
+
+
 body .vatra-global-header #accountDropdown:not([hidden]){
  position:fixed!important;
  top:68px!important;left:50%!important;right:auto!important;
@@ -15,7 +15,7 @@ body .vatra-global-header #accountDropdown:not([hidden]){
  to{opacity:1;transform:translate(-50%,0)}
 }
 
-/* Avatar actions feel integrated into the image, not like three stacked navigation cards. */
+
 body[data-page="profile"] .vatra-avatar-hover-menu{
  padding:7px!important;gap:3px!important;
  border-top:1px solid #ffffff18!important;
@@ -55,7 +55,7 @@ body[data-vatra-theme-effective="dark"][data-page="profile"] .vatra-profile-avat
  background:#3f5a7a!important;border-color:#7194c0!important;color:#fff!important;
 }
 
-/* Presence is a restrained status chip, no green dot. */
+
 body .vatra-profile-presence.is-online,
 body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence.is-online,
 body .vatra-profile-summary-compact .vatra-profile-presence-corner .vatra-profile-presence.is-online{
@@ -73,7 +73,7 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-presence.is-online{
  background:#234f46!important;color:#b1f5de!important;border-color:#3d7868!important;
 }
 
-/* An actual bookmark icon replaces the confusing decorative symbol. */
+
 body .vatra-saved-header-icon,
 body .vatra-saved-empty-icon{
  display:grid!important;place-items:center!important;
@@ -86,7 +86,7 @@ body[data-vatra-theme-effective="dark"] .vatra-saved-empty-icon{
  background:#304b67!important;color:#c2dbfa!important;
 }
 
-/* The sidebar's label belongs near the bottom; arrow remains near the top. */
+
 @media(min-width:1320px){
  body .vatra-scroll-to-top:not([hidden]){
   display:flex!important;flex-direction:column!important;
@@ -109,7 +109,7 @@ body[data-vatra-theme-effective="dark"] .vatra-saved-empty-icon{
  }
 }
 
-/* Public albums: names and covers on the visitor's profile. */
+
 body .vatra-public-album-grid{
  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important;
  gap:10px!important;margin:9px 0 15px!important;
@@ -132,7 +132,7 @@ body .vatra-public-album-cover img{width:100%!important;height:100%!important;ob
 body .vatra-public-album-card b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px!important;font-weight:600!important;}
 body .vatra-public-album-card small{font-size:10.5px!important;color:#8699ad!important;}
 
-/* Album manager and the selected-image grid. */
+
 body .vatra-album-create{padding:10px 13px!important;border:1px solid #cbdcf0!important;background:#f1f6fd!important;color:#0757f5!important;border-radius:9px!important;font-weight:600!important;}
 body .vatra-album-create:hover{background:#e4f0ff!important;}
 body .vatra-album-management{
@@ -166,7 +166,7 @@ body .vatra-album-unlink{
 }
 body .vatra-album-unlink:hover{background:#b44459!important;}
 
-/* The photo studio tools should be legible, touch-friendly, and animated. */
+
 body .vatra-studio-dialog .vatra-studio-workspace{
  grid-template-columns:minmax(0,1fr) minmax(430px,490px)!important;
 }

@@ -1,4 +1,4 @@
-/* VATRA visitor-profile controls: compact social actions and hidden moderation. */
+
 body[data-page="publicProfile"] .vatra-profile-public-layout .vatra-profile-avatar-card{overflow:visible!important}
 body[data-page="publicProfile"] .vatra-profile-public-actions{
  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px!important;

@@ -1,5 +1,4 @@
-/* VATRA 03 Nov 2026 — coherent settings, communities and language.
-   This file is intentionally last: it resolves conflicting legacy layout rules. */
+
 body .settings-page,
 body .community-settings-page,
 body .vatra-group-view {min-width:0!important;max-width:100%!important;overflow-wrap:break-word}
@@ -121,7 +120,7 @@ body .settings-page .vatra-language-settings-mount .vatra-language-select{
 body .settings-page .vatra-language-settings-mount .vatra-language-notice{
  text-align:left!important;margin:0!important;font-size:12px!important;max-width:none!important;
 }
-/* Community management — clear, steady columns and full-width controls. */
+
 body .community-settings-page>.vatra-group-settings-shell{
  display:grid!important;grid-template-columns:minmax(190px,220px) minmax(0,1fr)!important;
  align-items:start!important;gap:20px!important;min-width:0!important;
@@ -170,7 +169,7 @@ body .community-settings-page .community-member-row{
 }
 body .community-settings-page .community-member-row .author{min-width:110px!important;flex:1 1 160px!important}
 body .community-settings-page .community-member-row>button{max-width:100%!important;white-space:normal!important}
-/* Community profile, controls and back navigation. */
+
 body .vatra-group-view .vatra-group-cover{position:relative!important;overflow:hidden!important;border-radius:16px 16px 0 0!important}
 body .vatra-group-view .vatra-group-cover-image{width:100%!important;height:100%!important;object-fit:cover!important}
 body .vatra-group-view .vatra-group-back{
@@ -246,7 +245,7 @@ body[data-vatra-theme-effective="dark"] .community-settings-page .settings-grid 
  background:#25354b!important;border-color:#48617a!important;color:#e7eef8!important;
 }
 
-/* A date split into three selectors must have the full row, not half a field. */
+
 body .settings-page .settings-grid>label:has(.birthday-selects),
 body .settings-page .vatra-settings-pane .settings-grid>label:has(.birthday-selects){
  grid-column:1/-1!important;
@@ -266,7 +265,7 @@ body .settings-page .settings-grid>label:has(.birthday-selects) .birthday-select
 }
 
 
-/* Dedicated VATRA account settings; profile editing remains a separate workflow. */
+
 body .settings-page .vatra-settings-nav-button[hidden],
 body .settings-page .vatra-settings-pane[hidden],
 body .settings-page .settings-savebar[hidden],

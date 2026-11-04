@@ -1,7 +1,4 @@
-/* VATRA | рідний інтерфейс сторінок — 2026-10-30.
-   Тільки власні компоненти. Зміни обмежені фото, спільнотами,
-   повідомленнями, налаштуваннями профілю та профілем.
-   Supabase, шифрування, глобальну навігацію й реальні дані не підмінює. */
+
 :root{
  --vatra-surface:#fff;
  --vatra-surface-alt:#f4f6f9;
@@ -26,7 +23,7 @@ body .vatra-global-header .search{background:#eff2f6!important;color:#667d96!imp
 body .vatra-global-header .search input{color:#2a4056!important;}
 body .vatra-global-header .search input::placeholder{color:#8191a4!important;}
 body .vatra-global-header .notification-button{color:#60738b!important;}
-/* Спільноти */
+
 body[data-page="groups"] #feed{min-width:0!important;}
 body .vatra-communities-layout{
  display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,290px);
@@ -85,7 +82,7 @@ body .vatra-popular-row>span{display:grid;place-items:center;width:35px;height:3
 body .vatra-popular-row>b{min-width:0;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#354e68;font-size:12px;}
 body .vatra-popular-row>small{color:#8593a5;font-size:10px;}
 body .vatra-empty-panel{padding:34px 18px;text-align:center;color:#8494a7;font-size:13px;line-height:1.6;}
-/* Відкрита група */
+
 body[data-page="groups"] #feed:has(>.community-hero){
  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(200px,265px)!important;
  gap:14px!important;align-items:start!important;
@@ -99,7 +96,7 @@ body[data-page="groups"] #feed>.vatra-community-detail-aside{grid-column:2!impor
 body[data-page="groups"] #feed>.group-compose,
 body[data-page="groups"] #feed>.community-hero~.post{grid-column:1!important;min-width:0;}
 body[data-page="groups"] #feed>.community-hero~.post textarea{min-height:88px!important;}
-/* Повідомлення */
+
 body[data-page="messages"] #feed{display:block!important;min-width:0!important;}
 body .vatra-messenger{width:100%;min-width:0;}
 body .vatra-messenger-shell{
@@ -156,7 +153,7 @@ body .vatra-messenger-shell>.chat-window{
 body .vatra-messenger-shell .chat-messages{flex:1!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;background:#f8fafc!important;border:1px solid #edf1f5!important;border-radius:9px!important;padding:12px!important;}
 body .vatra-messenger-shell .chat-send{padding-top:12px!important;margin-top:auto!important;display:flex!important;gap:8px!important;}
 body .vatra-messenger-shell .chat-send input{flex:1!important;min-width:0!important;height:40px!important;border-radius:8px!important;}
-/* Фотографії */
+
 body .vatra-photos-page{background:#fff;border:1px solid var(--vatra-surface-line);border-radius:12px;box-shadow:var(--vatra-surface-shadow);overflow:hidden;}
 body .vatra-photos-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:13px;padding:22px;border-bottom:1px solid #e8edf5;}
 body .vatra-photos-toolbar h2{margin:0;color:#2d4158;font-size:22px;}
@@ -171,7 +168,7 @@ body .vatra-photo-tile:hover{outline:2px solid color-mix(in srgb,var(--vatra-use
 body .vatra-photo-tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .18s ease;}
 body .vatra-photo-tile:hover img{transform:scale(1.035);}
 body .vatra-photo-grid>.vatra-empty-panel{grid-column:1/-1;align-self:center;}
-/* Налаштування: сторінки з правим перемикачем, ті самі поля, єдина форма збереження. */
+
 body[data-page="settings"] .feed{display:block!important;min-width:0!important;}
 body[data-page="settings"] .settings-page{max-width:none!important;width:100%!important;}
 body[data-page="settings"] .settings-intro{max-width:none!important;padding:14px 18px!important;margin-bottom:13px!important;}
@@ -207,7 +204,7 @@ body .vatra-settings-nav-title small{font-size:11px;color:#8e9caf;}
 body .vatra-settings-nav-button{width:100%;min-height:41px;padding:9px 12px;text-align:left;border:0;border-radius:8px;background:transparent;color:#536b84;font-size:13px;}
 body .vatra-settings-nav-button:hover{background:#eef3f8;color:#315c88;}
 body .vatra-settings-nav-button.active{background:#eef3f8;color:var(--vatra-user-accent,#0757f5);font-weight:750;}
-/* Профіль: розташування, яке спирається на власні компоненти ВАТРИ. */
+
 body[data-page="profile"] .vatra-profile-layout{display:grid!important;grid-template-columns:minmax(208px,255px) minmax(0,1fr)!important;gap:14px!important;align-items:start!important;}
 body[data-page="profile"] .vatra-profile-sidebar,body[data-page="profile"] .vatra-profile-main{display:grid!important;min-width:0!important;gap:13px!important;}
 body[data-page="profile"] .vatra-profile-card{border:1px solid #e0e6ed!important;border-radius:10px!important;background:#fff!important;box-shadow:var(--vatra-surface-shadow)!important;min-width:0!important;}
@@ -294,7 +291,7 @@ body[data-page="profile"] .vatra-profile-friend-avatar{width:43px!important;heig
 }
 
 
-/* 2026-10-30: прибрати зайві повторювані заголовки й порожні блоки сторінок. */
+
 body .layout>.main>.heading,
 body .main>.heading[hidden]{
  display:none!important;min-height:0!important;height:0!important;
@@ -320,7 +317,7 @@ body .vatra-settings-nav-title #settingsBack{
  background:#f4f7fb!important;color:#45688e!important;
  font-size:11px!important;border-radius:7px!important;box-shadow:none!important;
 }
-/* Допис зберігається повністю. Обмежується лише висота попереднього перегляду. */
+
 body .vatra-post-text-container{min-width:0;overflow-wrap:anywhere;}
 body .vatra-post-text-container.is-collapsible:not(.is-expanded)>.post-text{
  display:-webkit-box!important;-webkit-box-orient:vertical!important;
@@ -351,7 +348,7 @@ body #postText{max-height:min(53vh,460px)!important;overflow-y:auto!important;re
 }
 
 
-/* VATRA profile: власний текстовий перемикач опису, без стандартної кнопки браузера. */
+
 body .vatra-profile-bio-block{
  display:block!important;
  min-width:0!important;
@@ -428,10 +425,9 @@ body .vatra-profile-bio-block>.vatra-profile-bio-toggle:focus-visible{
 }
 
 
-/* VATRA / October 30: compact native profile and navigation refinements.
-   Visual references guide spacing only; no borrowed branding or libraries. */
 
-/* Main navigation is text with a restrained hover transition — never outlined. */
+
+
 body .layout>.sidebar nav button.nav,
 body .layout>.sidebar nav button.nav.active,
 body .layout>.sidebar nav button.nav:hover{
@@ -463,7 +459,7 @@ body .layout>.sidebar nav button.nav:focus-visible{
  border-radius:6px!important;
 }
 
-/* Profile proportions: narrower page, comfortable two-column layout. */
+
 @media(min-width:981px){
  body[data-page="profile"] .layout>.main{
   width:100%!important;
@@ -530,7 +526,7 @@ body .vatra-profile-search-clear{
 }
 body .vatra-profile-search-clear:hover{text-decoration:underline!important;}
 
-/* Compact native VATRA profile statistics. */
+
 body .vatra-profile-overview>.vatra-profile-stats,
 body[data-page="profile"] .vatra-profile-stats{
  display:grid!important;
@@ -587,7 +583,7 @@ body .vatra-profile-stats>button{cursor:pointer!important;transition:background-
 body .vatra-profile-stats>button:hover{background:#f4f7fb!important;}
 body .vatra-profile-stats>button:focus-visible{outline:2px solid var(--vatra-user-accent,#0757f5)!important;outline-offset:-2px!important;}
 
-/* Exactly four visible images; full gallery opens by action. */
+
 body[data-page="profile"] .vatra-profile-photos .profile-photo-gallery,
 body[data-page="publicProfile"] .vatra-profile-photos .profile-photo-gallery{
  display:grid!important;
@@ -631,7 +627,7 @@ body .vatra-profile-photos #profileOpenAllPhotos{
 }
 body .vatra-profile-photos .profile-gallery-all:hover{text-decoration:underline!important;}
 
-/* Single 'Мої публікації' heading — unused 'Усі записи' tab removed from HTML. */
+
 body .vatra-profile-post-tabs{
  gap:14px!important;
  border:0!important;
@@ -648,7 +644,7 @@ body .vatra-profile-tab-current{
  border-bottom:2px solid var(--vatra-user-accent,#0757f5)!important;
 }
 
-/* Original emoji picker — stable on phones, dialogs, comments, edit forms. */
+
 body .vatra-emoji-wrap{position:relative!important;display:inline-flex!important;flex:0 0 auto!important;}
 body .vatra-emoji-trigger{
  appearance:none!important;-webkit-appearance:none!important;
@@ -791,13 +787,13 @@ body .comment-form{overflow:visible!important;}
 }
 
 
-/* Other users' profiles have only the statistics supported by visible data. */
+
 body[data-page="publicProfile"] .vatra-profile-stats{
  grid-template-columns:repeat(3,minmax(0,1fr))!important;
 }
 
 
-/* VATRA: personal details, accessibility preferences and formal legal directory. */
+
 body .vatra-profile-extras{display:grid;gap:9px;margin:12px 0 0!important;}
 body .vatra-profile-extra-card{
  min-width:0;background:#fff;padding:13px 15px;border-radius:9px;
@@ -894,7 +890,7 @@ body .vatra-legal-title small{font-size:11px;color:#8293a8;line-height:1.5;}
 body .vatra-legal-open{font-size:11px;font-weight:760;color:var(--vatra-user-accent,#0757f5);}
 body .vatra-legal-footnote{margin:13px 0 0;color:#8999aa;font-size:10.5px;line-height:1.65;}
 
-/* Saved appearance preferences. */
+
 body[data-vatra-font-scale="small"] .post-text,
 body[data-vatra-font-scale="small"] .vatra-profile-bio,
 body[data-vatra-font-scale="small"] .vatra-profile-detail,
@@ -926,7 +922,7 @@ body[data-vatra-reduce-transparency="true"] .topbar-popover{
  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
  box-shadow:none!important;
 }
-/* Dark mode is a user choice, not a global redesign. */
+
 body[data-vatra-theme-effective="dark"]{background:#171e28!important;color:#e2e9f2!important;}
 body[data-vatra-theme-effective="dark"] .layout,
 body[data-vatra-theme-effective="dark"] .layout>.main{background:transparent!important;color:#e2e9f2!important;}
@@ -986,7 +982,7 @@ body[data-vatra-theme-effective="dark"] .vatra-emoji-head strong{color:#ebf1f8!i
  body .vatra-official-documents .vatra-legal-heading h3{font-size:17px!important;}
 }
 
-/* Keep the compact emoji chooser within the viewport. */
+
 body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
  left:auto!important;right:0!important;
 }
@@ -997,8 +993,7 @@ body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
 }
 
 
-/* VATRA compact desktop pages — 2026-10-30.
-   Limit page width at the layout level, not only the profile's inner cards. */
+
 @media(min-width:981px){
  body[data-page="feed"] .layout{
   width:min(1000px,calc(100% - 40px))!important;
@@ -1033,7 +1028,7 @@ body .emoji-picker.vatra-emoji-popover.vatra-emoji-align-right{
   gap:12px!important;
  }
 }
-/* Keep the card content proportionate to the smaller profile. */
+
 body[data-page="profile"] .vatra-profile-avatar-card,
 body[data-page="publicProfile"] .vatra-profile-avatar-card{padding:9px!important;}
 body[data-page="profile"] .vatra-profile-overview,
@@ -1066,7 +1061,7 @@ body[data-page="profile"] .vatra-profile-photos,
 body[data-page="publicProfile"] .vatra-profile-photos{padding:11px!important;}
 body[data-page="profile"] .vatra-profile-photos .profile-photo-gallery,
 body[data-page="publicProfile"] .vatra-profile-photos .profile-photo-gallery{gap:6px!important;}
-/* Stop photographs from turning a single news post into a full-screen panel. */
+
 body[data-page="feed"] .post{
  padding:12px 14px 0!important;
  border-radius:10px!important;
@@ -1104,8 +1099,7 @@ body[data-page="feed"] .post-image,
 body[data-page="profile"] .vatra-profile-posts .post-image{
  max-height:350px!important;object-fit:cover!important;
 }
-/* The legacy form's general input rule was stretching each visibility checkbox
-   into a large square and wrapping its label into a separate grid row. */
+
 body .vatra-settings-pane .settings-grid .vatra-extra-setting{
  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
  gap:6px!important;min-width:0!important;
@@ -1136,7 +1130,7 @@ body .vatra-settings-pane .settings-grid .vatra-extra-setting>label.vatra-extra-
  background:#fff!important;box-shadow:none!important;
  accent-color:var(--vatra-user-accent,#0757f5)!important;
 }
-/* Sidebar keeps a subtle hover, not a selection stripe. */
+
 body .layout>.sidebar nav .nav.active::before,
 body .layout>.sidebar nav .nav::before,
 body .layout>.sidebar nav .nav.active::after{
@@ -1177,7 +1171,7 @@ body .layout>.sidebar nav .nav.active{
 }
 
 
-/* Єдина сітка ВАТРИ: кожен розділ та шапка мають спільні координати. */
+
 :root{
  --vatra-unified-width:1000px;
  --vatra-unified-rail:180px;
@@ -1211,7 +1205,7 @@ body .layout>.sidebar nav .nav.active{
   grid-template-columns:200px minmax(0,1fr)!important;gap:12px!important;
  }
 }
-/* Жоден кореневий розділ не створює власну вужчу або ширшу колонку. */
+
 body[data-page] #feed,
 body[data-page] .layout>.main>.quick-compose,
 body[data-page] .layout>.main>#empty,
@@ -1269,7 +1263,7 @@ body[data-page] .chat-window{min-width:0!important;max-width:100%!important;}
   right:max(20px,calc((100% - var(--vatra-unified-width))/2))!important;
  }
 }
-/* Планшет: ті самі вирівнювання, але компактніша навігація. */
+
 @media(min-width:761px) and (max-width:980px){
  body[data-page] .layout{
   display:grid!important;width:calc(100% - 28px)!important;max-width:none!important;
@@ -1314,7 +1308,7 @@ body[data-page] .chat-window{min-width:0!important;max-width:100%!important;}
   grid-template-columns:minmax(160px,195px) minmax(0,1fr)!important;gap:11px!important;
  }
 }
-/* Телефон: вся ширина доступна розділу, шапка не переносить пошук на новий рядок. */
+
 @media(max-width:760px){
  body[data-page] .layout{
   display:block!important;box-sizing:border-box!important;
@@ -1394,7 +1388,7 @@ body[data-page] .chat-window{min-width:0!important;max-width:100%!important;}
 }
 
 
-/* Specificity correction: prior feed-only 730px rule must not survive the shared frame. */
+
 body[data-page="feed"] .layout>.main>#feed,
 body[data-page="feed"] .layout>.main>.quick-compose{
  width:100%!important;max-width:100%!important;min-width:0!important;
@@ -1402,9 +1396,7 @@ body[data-page="feed"] .layout>.main>.quick-compose{
 }
 
 
-/* 2026-10-30 | VATRA compact profile overview.
-   Applies to the overview card only, with no changes to the common site grid.
-   Keep real content, visible profile fields, statistics and bio expansion intact. */
+
 body .vatra-profile-overview.vatra-profile-summary-compact{
  padding:14px 17px 0!important;
  background:#fff!important;
@@ -1489,7 +1481,7 @@ body .vatra-profile-summary-compact .vatra-profile-bio-block>.vatra-profile-bio-
  border:0!important;
  box-shadow:none!important;
 }
-/* Tighter two-column information rows, without large empty bands. */
+
 body .vatra-profile-summary-compact .vatra-profile-details{
  display:grid!important;
  gap:0!important;
@@ -1525,8 +1517,7 @@ body .vatra-profile-summary-compact .vatra-profile-detail>.vatra-profile-attribu
  opacity:.8!important;
  text-decoration:none!important;
 }
-/* Additional profile fields appear as compact information sections, not cards
-   inside a card; privacy text stays beside its own value. */
+
 body .vatra-profile-summary-compact .vatra-profile-extras{
  display:grid!important;
  gap:8px!important;
@@ -1584,7 +1575,7 @@ body .vatra-profile-summary-compact .vatra-profile-extra-privacy{
  font-weight:500!important;
  white-space:nowrap!important;
 }
-/* The statistics remain clickable but no longer add a tall footer. */
+
 body .vatra-profile-summary-compact>.vatra-profile-stats{
  margin:8px -17px 0!important;
  padding:4px 8px!important;
@@ -1650,8 +1641,7 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-overview.vatra-profile-su
 }
 
 
-/* VATRA | 2026-10-30: consistent profile and settings controls.
-   Desktop coordinates follow the common 1000px site grid. */
+
 @media (min-width:981px){
   body[data-page] .vatra-global-header>.mobile-brand{
     padding-inline-start:11px!important;
@@ -1678,7 +1668,7 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-overview.vatra-profile-su
     gap:12px!important;
   }
 }
-/* A slightly larger, sharp portrait without stretching the actual image. */
+
 body[data-page="profile"] .vatra-profile-avatar-card,
 body[data-page="publicProfile"] .vatra-profile-avatar-card{
   min-width:0!important;
@@ -1692,7 +1682,7 @@ body[data-page="publicProfile"] .vatra-profile-avatar-open>.vatra-profile-photo{
   object-fit:cover!important;
   image-rendering:auto!important;
 }
-/* Improve native text rasterization; avoid compositing an entire reading area. */
+
 body .layout>.main,
 body .vatra-profile-summary-compact,
 body .vatra-settings-workspace{
@@ -1729,7 +1719,7 @@ body .sidebar-footer a{
   font-size:12px!important;
   line-height:1.48!important;
 }
-/* Settings: compact rhythm, readable fields and no browser resize handles. */
+
 body[data-page="settings"] .vatra-settings-pane>.settings-card{
   padding:17px 19px!important;
   margin-bottom:11px!important;
@@ -1818,7 +1808,7 @@ body[data-page="settings"] .vatra-settings-pane .vatra-extra-setting>label.vatra
   color:#60738c!important;
   white-space:normal!important;
 }
-/* Custom checkmarks follow the same simple rounded form language as auth. */
+
 body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid input[type="checkbox"]{
   -webkit-appearance:none!important;
   appearance:none!important;
@@ -1922,8 +1912,7 @@ body[data-vatra-theme-effective="dark"] .vatra-settings-workspace input[type="ch
 }
 
 
-/* Higher-specificity form overrides: cancel the legacy resize and native-checkbox
-   declarations that were attached to nested labels in the original layout. */
+
 body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid .vatra-extra-setting>label:first-child>textarea,
 body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .settings-grid label:not(.settings-check)>textarea{
   resize:none!important;
@@ -1964,7 +1953,7 @@ body[data-page="settings"] .vatra-settings-workspace .vatra-settings-pane .setti
 }
 
 
-/* VATRA profile: compact, accessible SVG accordions (owner & visitors). */
+
 body .vatra-profile-summary-compact .vatra-profile-extras.vatra-profile-extras-folded{
  display:grid!important;
  grid-template-columns:minmax(0,1fr)!important;
@@ -2180,7 +2169,7 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-pr
 }
 
 
-/* VATRA 2026-10-30 | People discovery: no overlapping actions or legacy person flex rows. */
+
 body[data-page="explore"] #feed>.vatra-explore-search-header{
  display:block!important;
  width:100%!important;
@@ -2482,8 +2471,8 @@ body[data-vatra-theme-effective="dark"][data-page="explore"] #feed .vatra-explor
 }
 
 
-/* VATRA 2026-10-30: clear surfaces, compact friends, profile status in corner. */
-/* No frosted glass, including when old saved appearance flags exist. */
+
+
 body .vatra-global-header,body .topbar,body .topbar-popover,
 body .layout>.sidebar,body .layout>.main,body .post,body .vatra-profile-card,
 body .settings-card,body .vatra-settings-nav,body .vatra-friends-panel,
@@ -2558,7 +2547,7 @@ body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-ext
  body .vatra-profile-summary-compact .vatra-profile-presence-corner{max-width:100%!important;justify-content:flex-start!important;}
  body .vatra-profile-summary-compact .vatra-profile-presence-corner .vatra-profile-presence{text-align:left!important;}
 }
-/* Friends work area: one main list + one compact directory rail. */
+
 body[data-page="friends"] #feed>.vatra-friends-layout{
  display:grid!important;
  grid-template-columns:minmax(0,1fr) 232px!important;
@@ -2984,7 +2973,7 @@ body[data-vatra-theme-effective="dark"][data-page="friends"] .vatra-friends-sear
 }
 
 
-/* VATRA: clarity is a site-wide default, not a checkbox. */
+
 body *, body *::before, body *::after, dialog::backdrop{
   -webkit-backdrop-filter:none!important;
   backdrop-filter:none!important;
@@ -2997,8 +2986,8 @@ body:not([data-vatra-theme-effective="dark"]) .vatra-profile-overview{
 }
 
 
-/* VATRA / October 2026: search, profile readability, posts, videos and scroll assist. */
-/* Two-panel search with independent sections and a separate category rail. */
+
+
 body[data-page="explore"] #feed>.vatra-search-layout{
  display:grid!important;grid-template-columns:minmax(0,1fr) 215px!important;
  gap:14px!important;align-items:start!important;min-width:0!important;
@@ -3150,7 +3139,7 @@ body[data-page="explore"] .vatra-search-empty{color:#8a9aae!important;font-size:
 body[data-page="explore"] .vatra-search-section>.post{
  padding:11px!important;margin:8px 0!important;border-radius:10px!important;
 }
-/* Profile: presence shares the actual name baseline, never floats in a corner. */
+
 body .vatra-profile-summary-compact .vatra-profile-title-info{width:100%!important;}
 body .vatra-profile-summary-compact .vatra-profile-name-line{
  display:flex!important;flex-wrap:wrap!important;align-items:baseline!important;
@@ -3165,7 +3154,7 @@ body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-pres
  white-space:normal!important;
 }
 body .vatra-profile-summary-compact .vatra-profile-name-line .vatra-profile-presence.is-online{color:#159d73!important;}
-/* Status is neutral and readable, without its old orange pill. */
+
 body .vatra-profile-summary-compact .vatra-profile-status-row .vatra-profile-status,
 body .vatra-profile-summary-compact .vatra-profile-status{
  display:inline-flex!important;align-items:center!important;gap:0!important;
@@ -3191,7 +3180,7 @@ body .vatra-profile-summary-compact .vatra-profile-extra-heading-text{
 body .vatra-profile-summary-compact .vatra-profile-extra-heading-text strong{font-size:12.8px!important;}
 body .vatra-profile-summary-compact .vatra-profile-extra-heading-text small{font-size:11px!important;}
 body .vatra-profile-summary-compact .vatra-profile-extra-fold .vatra-profile-extra-body{padding:8px 11px!important;}
-/* Publications as a clean timeline, with one quiet heading instead of colored tab underlines. */
+
 body .vatra-profile-posts-clean{display:block!important;margin:10px 0 0!important;padding:0!important;}
 body .vatra-profile-posts-clean .vatra-profile-post-tabs{
  display:flex!important;align-items:center!important;justify-content:space-between!important;
@@ -3221,7 +3210,7 @@ body .vatra-profile-posts-clean .vatra-profile-new-post{
 }
 body .vatra-profile-main .vatra-profile-compose{margin:8px 0 6px!important;}
 body .vatra-profile-posts-clean>.post{margin:0 0 12px!important;}
-/* Only likes show a small overlapping sample of up to 3 profile photos. */
+
 body .post-actions{
  display:grid!important;grid-template-columns:minmax(0,1.65fr) repeat(3,minmax(0,1fr))!important;
  align-items:center!important;gap:4px!important;
@@ -3259,7 +3248,7 @@ body .post-actions .post-actor-avatar{
  width:100%!important;height:100%!important;min-width:0!important;
  border-radius:50%!important;font-size:8px!important;
 }
-/* Comments: readable author, timestamp, text, and actions with clear separation. */
+
 body .post>.vatra-post-comments{
  display:grid!important;gap:9px!important;padding:11px 0 7px!important;margin:0!important;
  border-top:1px solid #e6ecf5!important;background:transparent!important;
@@ -3323,7 +3312,7 @@ body .vatra-comment-item .comment-actions>button{
  font-size:11px!important;font-weight:550!important;
 }
 body .vatra-comment-item .comment-actions>button.danger-link{color:#bd5c64!important;}
-/* Actual videos from the signed-in user's Shorts and posts. */
+
 body[data-page="myVideos"] #feed>.vatra-my-videos{display:block!important;min-width:0!important;width:100%!important;}
 body .vatra-my-videos-header{
  display:flex!important;align-items:center!important;justify-content:space-between!important;
@@ -3347,7 +3336,7 @@ body .vatra-my-video-info small{font-size:10.5px!important;color:#8294ac!importa
 body .vatra-my-video video{display:block!important;width:100%!important;max-width:100%!important;aspect-ratio:16/9!important;object-fit:contain!important;background:#101923!important;border-radius:8px!important;}
 body .vatra-my-video p{color:#5a708a!important;font-size:12px!important;line-height:1.5!important;margin:9px 0!important;overflow-wrap:anywhere!important;}
 body .vatra-my-video-empty{grid-column:1/-1!important;padding:20px!important;color:#7d90a7!important;background:#fff!important;border-radius:12px!important;}
-/* Left-side scroll-to-top control only appears after actual scrolling. */
+
 body .vatra-scroll-to-top{
  position:fixed!important;z-index:65!important;bottom:26px!important;
  left:max(12px,calc((100vw - 1200px)/2))!important;
@@ -3410,7 +3399,7 @@ body[data-vatra-theme-effective="dark"] .vatra-comment-item .vatra-comment-head 
 }
 
 
-/* Readable dark counterparts for the new opaque, compact controls. */
+
 body[data-vatra-theme-effective="dark"] .vatra-profile-summary-compact .vatra-profile-status{
  background:#34465d!important;color:#d4e3f3!important;
 }
@@ -3431,18 +3420,18 @@ body[data-vatra-theme-effective="dark"][data-page="explore"] .vatra-search-rail 
 }
 
 
-/* A personal news-feed composer must never appear above someone else's profile. */
+
 body[data-page="publicProfile"] .quick-compose,
 body[data-page="publicProfile"] #sort{
  display:none!important;
 }
-/* "Friend" is a confirmed state, not a second clickable request. */
+
 body .vatra-profile-public-actions button[disabled]{
  cursor:default!important;opacity:1!important;
 }
 
 
-/* VATRA October 30: requested profile placement, gapless gallery & post rhythm. */
+
 body .vatra-profile-summary-compact .vatra-profile-name-line{
  display:flex!important;
  flex-direction:row!important;
@@ -3521,7 +3510,7 @@ body .vatra-profile-posts-clean>.post{
  border-radius:12px!important;
 }
 body .vatra-profile-posts-clean>.post:last-child{margin-bottom:0!important;}
-/* Four thumbnails at most; opening one displays the full album. */
+
 body .post-photo-grid.vatra-post-photo-uniform{
  display:grid!important;
  width:100%!important;
@@ -3590,7 +3579,7 @@ body .post-photo-grid.vatra-post-photo-uniform .vatra-post-photo-more{
  text-shadow:0 1px 3px rgba(0,0,0,.3)!important;
  pointer-events:none!important;
 }
-/* The technical details of chat keys are no longer ordinary interface text. */
+
 body .chat-security{margin:5px 0 9px!important;padding:5px 9px!important;}
 body .chat-security-row{
  display:flex!important;
@@ -3624,7 +3613,7 @@ body .vatra-editor-reset{
 }
 
 
-/* Updated counts: subscriptions are no longer a profile section. */
+
 body[data-page="profile"] .vatra-profile-summary-compact>.vatra-profile-stats{
  display:grid!important;
  grid-template-columns:repeat(4,minmax(0,1fr))!important;
@@ -3635,7 +3624,7 @@ body[data-page="publicProfile"] .vatra-profile-summary-compact>.vatra-profile-st
 }
 
 
-/* VATRA profile and media refinement — 2026-10-30. */
+
 #topAvatar,
 .vatra-global-header #topAvatar,
 .topbar #topAvatar{
@@ -3678,7 +3667,7 @@ body .vatra-profile-friend:hover .vatra-profile-friend-avatar{
   transform:none!important;
   filter:none!important;
 }
-/* Prevent the old global avatar styles from stretching comment photos. */
+
 body .comment-main>.comment-author-avatar{
   box-sizing:border-box!important;
   display:block!important;
@@ -3739,8 +3728,7 @@ body .vatra-avatar-comment>.avatar{
  background-position:center!important;
 }
 body .vatra-avatar-comment>div{flex:1 1 auto!important;min-width:0!important;overflow-wrap:anywhere!important;}
-/* Photo lightbox: the image fills the left viewing area; information and comments
-   live in the scrollable right-side column, matching the supplied reference. */
+
 .vatra-post-photo-viewer,
 .vatra-avatar-viewer{
  width:min(97vw,1640px)!important;
@@ -3904,7 +3892,7 @@ body .settings-savebar button[disabled]{
 }
 
 
-/* Functional reactions inside the picture viewer, without leaking avatars into counts. */
+
 .vatra-post-photo-viewer .vatra-media-viewer-context{
  display:flex!important;
  align-items:center!important;
@@ -3942,7 +3930,7 @@ body .settings-savebar button[disabled]{
 }
 
 
-/* Same friend card for my profile and other accessible profiles. */
+
 body .vatra-profile-friends .vatra-profile-friend-grid,
 body .vatra-profile-public-friends .vatra-profile-friend-grid{
  display:grid!important;
@@ -4098,7 +4086,7 @@ body[data-vatra-theme-effective="dark"] .vatra-public-friends-dialog-grid .vatra
 }
 
 
-/* VATRA sidebar: clearly separated project, legal documents and creator. */
+
 body .layout>.sidebar .vatra-sidebar-footer{
  display:flex!important;
  flex-direction:column!important;
@@ -4237,7 +4225,7 @@ body[data-vatra-theme-effective="dark"] .layout>.sidebar .vatra-sidebar-footer .
 }
 
 
-/* One canonical friend preview across every VATRA profile. Max 3 people. */
+
 body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends .vatra-profile-friend-grid,
 body[data-page="publicProfile"] .vatra-profile-sidebar #vatraPublicFriendList{
  box-sizing:border-box!important;
@@ -4341,7 +4329,7 @@ body[data-page="publicProfile"] #vatraPublicFriendList>.muted{
 }
 
 
-/* 2026-10-30 VATRA: six friends (two consistent rows of three). */
+
 body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friends .vatra-profile-friend-grid,
 body[data-page="publicProfile"] .vatra-profile-sidebar #vatraPublicFriendList{
   display:grid!important;
@@ -4372,7 +4360,7 @@ body[data-page="publicProfile"] .vatra-profile-sidebar .vatra-profile-public-fri
   text-align:center!important;
   font-weight:750!important;
 }
-/* Actors under likes: identical square geometry across the avatar and its wrapper. */
+
 body .post .post-actions .post-action-item .post-actor-stack,
 body .vatra-profile-posts .post-actions .post-action-item .post-actor-stack{
   display:inline-flex!important;
@@ -4438,7 +4426,7 @@ body .vatra-profile-posts .post-actions .post-action-item .post-actor-link>.avat
   font-size:7px!important;
   line-height:1!important;
 }
-/* Readable, consistently weighted settings navigation, labels and values. */
+
 body[data-page="settings"] .vatra-settings-nav-button{
   font-weight:700!important;
   font-size:14px!important;
@@ -4512,7 +4500,7 @@ body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pa
 body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .vatra-extra-setting>label{
  color:#ccdaec!important;
 }
-/* Footer: keep its NEW sectioned structure visually legible and free of stray copy. */
+
 body .layout>.sidebar .sidebar-footer.vatra-sidebar-footer{
   font-size:12px!important;
   line-height:1.55!important;
@@ -4528,7 +4516,7 @@ body .layout>.sidebar .sidebar-footer.vatra-sidebar-footer .vatra-footer-legal a
 }
 
 
-/* 2026-10-30: more natural typography in settings; compact About; audience picker */
+
 body[data-page="settings"] .vatra-settings-nav-button{font-weight:500!important}
 body[data-page="settings"] .vatra-settings-nav-button.active{font-weight:650!important}
 body[data-page="settings"] .vatra-settings-pane .settings-card h3,
@@ -4567,7 +4555,7 @@ body[data-vatra-theme-effective="dark"] .post-edit-form .vatra-post-audience sel
 }
 
 
-/* VATRA 30.10.2026: calm typography, integrated audience selector, left scroll rail, sounds */
+
 #composer #postForm>.vatra-composer-identity{
  display:grid!important;grid-template-columns:40px minmax(0,1fr) auto!important;align-items:center!important;gap:8px 11px!important;
  margin:14px 0 14px!important;padding:0 0 14px!important;border-bottom:1px solid #e3ebf4!important;min-width:0!important}
