@@ -159,8 +159,8 @@ Object.assign(base,{
 });
 
 Object.assign(base,{
- 'Шортс':'Shorts','ВАТРА Шортс':'VATRA Shorts','Короткі вертикальні відео тривалістю до 3 хвилин.':'Short vertical videos up to 3 minutes long.',
- 'Ще немає кліпів. Поділіться першим!':'No Shorts yet. Share the first one!',
+ 'Кліпи':'Clips','ВАТРА Кліпи':'VATRA Clips','Короткі вертикальні відео тривалістю до 3 хвилин.':'Short vertical videos up to 3 minutes long.',
+ 'Ще немає кліпів. Поділіться першим!':'No Clips yet. Share the first one!',
  'Додати кліп':'Add Short','Видалити кліп':'Delete Short',
  'Загальні':'General','Сповіщення ВАТРИ':'VATRA notifications',
  'Налаштуйте, які події показувати у внутрішньому центрі сповіщень. Системні повідомлення про безпеку залишаються доступними.':'Choose which events appear in VATRA notifications. Security alerts remain available.',
@@ -203,7 +203,7 @@ Object.assign(base,{
  'Моя музика':'My music','Слухати':'Listen','Слухати добірку':'Play collection',
  'Знайти друзів':'Find friends','За запитом нікого не знайдено.':'No people found matching your search.',
  'Моя стрічка':'My feed','Увійдіть, щоб переглянути власні відео.':'Sign in to view your videos.',
- 'Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Шортс».':'Saved videos from your posts. Short videos are available in Shorts.',
+ 'Збережені відео з ваших дописів. Короткі ролики доступні окремо в «Кліпи».':'Saved videos from your posts. Short videos are available in Clips.',
  'Відеозаписів поки немає.':'No videos yet.','Короткі вертикальні відео від спільноти ВАТРИ.':'Short vertical videos shared by the VATRA community.',
  'Швидка перевірка':'Quick check','Скільки буде':'What is','Обчисліть суму та виберіть правильну відповідь.':'Calculate the sum and select the correct answer.',
  'Правила ВАТРИ':'VATRA rules','Правила спільноти ВАТРИ':'VATRA community rules',
