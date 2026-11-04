@@ -1,9 +1,9 @@
-/* VATRA interface focus style: visible for keyboard access, never blue underlines/rings. */
+
 :root{--vatra-focus-neutral:#687c91;--vatra-field-border:#d8e0e9}
 body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),textarea,select){
  border-color:var(--vatra-field-border);border-radius:11px;box-shadow:none;
 }
-/* Text fields use one subtle neutral border instead of a large focus rectangle. */
+
 body :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus,
 body :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus-visible,
 body :is(.search,.vatra-community-search,.vatra-group-members-search):focus-within{
@@ -11,7 +11,7 @@ body :is(.search,.vatra-community-search,.vatra-group-members-search):focus-with
  border-color:var(--vatra-focus-neutral)!important;
  box-shadow:none!important;
 }
-/* Buttons and links keep a visible keyboard-only focus indicator. */
+
 body :is(button,a,[role="button"],[role="tab"]):focus-visible{
  outline:2px solid var(--vatra-focus-neutral)!important;outline-offset:2px!important;box-shadow:none!important
 }

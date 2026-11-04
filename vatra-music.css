@@ -1,4 +1,4 @@
-/* VATRA Music: official embedded Spotify, independent of posts and auth. */
+
 .vatra-music-page{display:grid;gap:15px;max-width:100%;min-width:0;font-family:Inter,Arial,sans-serif;color:#293c53}
 .vatra-music-page *{box-sizing:border-box}
 .vatra-music-banner{display:flex;justify-content:space-between;min-height:165px;overflow:hidden;border-radius:16px;padding:23px 23px 22px;background:linear-gradient(117deg,#173b83,#0757f5 65%,#43a8ff);color:#fff}
@@ -100,7 +100,7 @@ body[data-vatra-theme-effective="dark"] .vatra-music-search-input input{color:#e
 }
 @media(prefers-reduced-motion:reduce){.vatra-music-dock iframe{transition:none}}
 
-/* VATRA music: clear, consistent vector controls and calmer cover artwork. */
+
 .vatra-music-card-image{background:linear-gradient(135deg,#0757f5,#528df9)!important;color:white!important;box-shadow:inset 0 1px 0 #ffffff42}
 .vatra-music-card-image .vatra-music-svg{width:32px;height:32px;display:block}
 .vatra-music-banner-art{transform:none;opacity:.8;min-width:92px;justify-content:center}

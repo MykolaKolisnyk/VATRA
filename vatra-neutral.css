@@ -1,10 +1,10 @@
 
-/* VATRA · A more restrained palette: blue is a call-to-action, not body text. */
+
 body:not([data-vatra-theme-effective="dark"]){
  --vatra-user-accent:#0757f5;
  --v-ink:#27313d;
 }
-/* Restore the original bright-blue navigation focus, including its subtle movement. */
+
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav .nav{
  color:#506781!important;font-weight:570!important;border-radius:7px!important;
  transition:background-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease!important;
@@ -66,7 +66,7 @@ body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar .vatra-prof
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-sidebar #vatraPublicAllFriends{color:#516275!important;font-weight:550!important}
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-title-row .vatra-profile-name-line h2{color:#253444!important}
 body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .vatra-profile-status:not(.is-online){color:#566273!important;background:#ebeff2!important}
-/* Header music: placed immediately next to the bell, with anchored compact menu. */
+
 #vatraMusicHeaderButton{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 40px;min-width:40px;width:40px;height:40px;min-height:40px;padding:8px;color:#6e7c8f;border:0;border-radius:9px;background:transparent;cursor:pointer}
 #vatraMusicHeaderButton svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
 #vatraMusicHeaderButton:hover,#vatraMusicHeaderButton[aria-expanded="true"]{background:#edf1f6;color:#314e73}
@@ -93,8 +93,7 @@ body[data-vatra-theme-effective="dark"] .vatra-top-music-actions button{backgrou
 @media(max-width:760px){#vatraMusicHeaderButton{width:36px;height:36px;min-width:36px;min-height:36px;flex-basis:36px}.vatra-top-music-panel{top:58px;right:10px}}
 
 
-/* 2026-10-30: global header has FIVE controls, not four.
-   Explicit placement prevents music dropping into an implicit second grid row. */
+
 @media(min-width:981px){
  body .vatra-global-header{
   display:grid!important;
@@ -197,7 +196,7 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderBu
 }
 
 
-/* VATRA: compact header popovers and requested MUSIC -> BELL -> AVATAR layout. */
+
 body .vatra-global-header>#vatraMusicHeaderButton{
  grid-column:3!important;grid-row:1!important;
 }
@@ -279,7 +278,7 @@ body .vatra-global-header>#vatraMusicTopPanel #vatraTopMusicPlayer{
 body .vatra-global-header>#vatraMusicTopPanel #vatraTopMusicPlayer:hover{
  background:#dceaff!important;color:#0757f5!important;
 }
-/* Account menu: smaller spacing, uniform clickable rows, minimal decoration. */
+
 body .vatra-global-header>#accountDropdown.account-popover{
  position:absolute!important;top:calc(100% + 7px)!important;
  right:max(12px,calc((100vw - var(--vatra-unified-width,1000px))/2))!important;
@@ -381,9 +380,7 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown>bu
 }
 
 
-/* VATRA account menu: the old '.account-popover>button>span' rule set
-   width:23px / grid / bright blue on ALL spans, including button labels.
-   Only the first icon may have a fixed width. Labels must occupy the row. */
+
 body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item{
  display:flex!important;
  flex-flow:row nowrap!important;
@@ -452,7 +449,7 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#accountDropdown.ac
 }
 
 
-/* Public and own profile: status badge is sized by text, never the CSS grid track. */
+
 body .vatra-profile-summary-compact .vatra-profile-title-info>.vatra-profile-status-row{
  display:flex!important;
  flex-flow:row wrap!important;

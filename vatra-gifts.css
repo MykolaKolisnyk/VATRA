@@ -1,4 +1,4 @@
-/* ВАТРА: власна система векторних подарунків, жодних зовнішніх стікерів. */
+
 .vatra-gifts-page{width:100%;min-width:0;background:#fff;border:1px solid #dfe7f0;border-radius:7px;padding:24px;color:#2d455e;box-sizing:border-box}
 .vatra-gifts-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid #e5eaf1}
 .vatra-gifts-header h1{font-size:24px;line-height:1.4;margin:3px 0 5px;color:#273b51}
@@ -42,7 +42,7 @@
 .vatra-gift-preview-link{width:100%;border:0;background:transparent;color:#1764c0;font-size:12px;margin:8px 0 0;cursor:pointer}
 @media(max-width:600px){.vatra-gifts-page{padding:16px}.vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.vatra-gift-card{padding:10px 8px}.vatra-gifts-header h1{font-size:20px}}
 
-/* Gift collection is accessible from profiles only (no main navigation item). */
+
 .vatra-gift-return{display:inline-block;min-height:30px;border:0;background:transparent;color:#1761b2;cursor:pointer;font-weight:600;font-size:12px;margin:0 0 13px;padding:0}
 .vatra-gifts-tabs{gap:15px;overflow-x:auto;white-space:nowrap}
 .vatra-gifts-intro{margin:16px 0}
@@ -76,7 +76,7 @@
 .vatra-gift-admin-instance button{border:1px solid #efc5cf;background:#fff4f6;color:#bd3c53;padding:8px 13px;border-radius:5px;cursor:pointer}
 @media(max-width:700px){.vatra-gift-admin-order{display:grid}.vatra-gift-admin form{grid-template-columns:minmax(0,1fr)}.vatra-gift-admin-order textarea{width:100%}}
 
-/* Gift preview is visually identical to the Friends block. */
+
 body .vatra-profile-sidebar>.vatra-gift-preview-card{padding:16px!important;border-radius:7px!important;margin-top:12px!important}
 body .vatra-gift-preview-card .vatra-profile-card-head{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0 0 12px!important}
 body .vatra-gift-preview-card .vatra-profile-card-head h3{font-size:17px!important;font-weight:700!important;margin:0!important}
@@ -103,7 +103,7 @@ body .vatra-gift-toast button{border:0;background:none;color:inherit;cursor:poin
 body .vatra-gift-toast.is-error{background:#933b51}
 @media(max-width:540px){body .vatra-gift-toast{left:14px;right:14px;bottom:14px;max-width:none}}
 
-/* VATRA Gifts 2.0 — calmer collectible gallery, unified 2.5D presentation */
+
 body .vatra-gifts-page{padding:25px 27px 30px;background:#fff;border:1px solid #e1e8f0;border-radius:6px;box-shadow:none}
 body .vatra-gifts-header{padding-bottom:19px}
 body .vatra-gifts-header h1{font:750 23px/1.35 Inter,Arial,sans-serif;letter-spacing:-.025em;margin:4px 0 6px}
@@ -153,7 +153,7 @@ body .vatra-gift-order-row button{font-size:12px}
 @media(max-width:560px){body .vatra-gifts-page{padding:15px}body .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)}body .vatra-gift-card .vatra-gift-image{max-height:240px}body .vatra-gifts-tabs{gap:15px}}
 @media(prefers-reduced-motion:reduce){body .vatra-gift-card,body .vatra-gift-card .vatra-gift-art,body .vatra-gifts-tabs button{transition:none!important}}
 
-/* New gift presentation: high-resolution SVG, meaningful copy, gentle loops. */
+
 body .vatra-gifts-grid {gap:14px!important;align-items:stretch!important}
 body .vatra-gift-card{
  padding:13px!important;border:1px solid #e0e8f1!important;border-radius:14px!important;
@@ -227,7 +227,7 @@ body[data-vatra-theme-effective="dark"] .vatra-gift-animated-label{background:#2
 }
 
 
-/* Gift collection — open crisp vectors in a full-screen museum-like viewer. */
+
 .vatra-gift-card .vatra-gift-art-trigger{
   display:grid!important;place-items:center!important;position:relative!important;
   width:100%!important;height:100%!important;padding:0!important;
@@ -375,7 +375,7 @@ body[data-vatra-theme-effective="dark"] .vatra-gift-detail-header button{
 }
 
 
-/* Simple VATRA gift gallery. The art is central; particles are decoration, never controls. */
+
 body .vatra-gifts-page{
  border-radius:14px!important;
  background:#fff!important;

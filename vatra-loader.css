@@ -1,4 +1,4 @@
-/* ВАТРА — стартовий екран. Окремі класи, щоб не змінювати стилі основного сайту. */
+
 .vatra-loading-screen {
   position: fixed;
   inset: 0;
@@ -184,13 +184,13 @@
 }
 
 
-/* Brand-consistent loader mark: use VATRA's original SVG rather than a lowercase text glyph. */
+
 .vatra-loading-mark{letter-spacing:0!important;padding:0!important}
 .vatra-loading-mark img{display:block;width:28px;height:33px;object-fit:contain;filter:brightness(0) invert(1);position:relative;z-index:1}
 @media(max-width:480px){.vatra-loading-mark img{width:25px;height:30px}}
 
 
-/* Lightweight launch state for a social network: no floating glass card or logo animation. */
+
 .vatra-loading-screen{
   background:rgba(249,251,254,.985)!important;
   backdrop-filter:none!important;-webkit-backdrop-filter:none!important;

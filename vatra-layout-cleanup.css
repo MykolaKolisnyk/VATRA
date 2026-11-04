@@ -1,5 +1,4 @@
-/* VATRA — final unified profile editor / settings and photo-date polish.
- * Shared dimensions, tokens and responsive layout; avoid page-specific one-offs. */
+
 body .layout>.sidebar>.brand{display:none!important}
 body .layout>.sidebar>nav{margin-top:0!important;padding-top:0!important}
 body[data-page="settings"] .settings-page>.settings-intro{display:none!important}
@@ -123,7 +122,7 @@ body[data-page="settings"] .settings-page .vatra-record-row{
  border:1px solid var(--vatra-form-border)!important;border-radius:10px!important;
  background:var(--vatra-form-hover)!important;
 }
-/* Keep photo and upload dates in their own readable row, never in the square crop. */
+
 body[data-page="profile"] .vatra-profile-photos .profile-photo-gallery,
 body[data-page="publicProfile"] .vatra-profile-photos .profile-photo-gallery{
  display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
@@ -171,7 +170,7 @@ body[data-page="profile"] .vatra-profile-photos .profile-photo-tile .profile-pho
  width:calc(100% - 16px)!important;min-height:30px!important;padding:6px 8px!important;
  border-radius:7px!important;box-sizing:border-box!important;
 }
-/* System / dark themes: use the same surfaces in editor and account settings. */
+
 body[data-vatra-theme-effective="dark"][data-page="settings"] .settings-page{
  --vatra-form-border:#3b4e65;--vatra-form-surface:#202f42;
  --vatra-form-ink:#ebf3fe;--vatra-form-subtle:#b6c8dd;

@@ -1,4 +1,4 @@
-/* ВАТРА: стриманий інтерфейс без смужки навігації та великих заокруглень. */
+
 body .layout>.sidebar nav button.nav.active::before,
 body .layout>.sidebar nav button.nav.active::after,
 body .layout>.sidebar nav .nav.active::before,
@@ -25,7 +25,7 @@ body .vatra-global-header>#accountDropdown>button.vatra-account-item[data-accoun
 body .vatra-global-header>#accountDropdown>button.vatra-account-item[data-account-action="support"]:focus-visible{
   background:#edf2f8!important;color:#0757f5!important;
 }
-/* Excludes round avatar and icon-only circular controls. */
+
 body .primary,body .pill,body .vatra-control-primary,body .vatra-control-secondary,
 body .vatra-support-create,body .vatra-support-back,body .vatra-suspended-support,body .vatra-suspended-back,
 body .settings-savebar button,body .vatra-friends-action,
@@ -33,7 +33,7 @@ body .vatra-control-center button:not(.avatar),body .vatra-support-page button:n
   border-radius:6px!important;
 }
 body .vatra-control-tabs button,body .vatra-settings-nav-button{border-radius:6px!important}
-/* Official personnel rules: document style and clearly separated role sections. */
+
 dialog.vatra-staff-policy-dialog{
   position:fixed!important;inset:0!important;
   width:min(890px,calc(100vw - 32px))!important;
@@ -102,7 +102,7 @@ body .vatra-control-card.vatra-policy-section li{padding:4px 0!important}
   dialog.vatra-staff-policy-dialog .vatra-staff-policy-content{padding:0 16px 20px!important}
 }
 
-/* Highest-specificity active navigation override: actual anchor elements, not buttons. */
+
 body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav a.nav.active,
 body[data-vatra-theme-effective="dark"] .layout>.sidebar nav a.nav.active,
 body .layout>.sidebar nav .nav.active{
@@ -110,14 +110,14 @@ body .layout>.sidebar nav .nav.active{
 }
 body .layout>.sidebar nav a.nav.active::before,
 body .layout>.sidebar nav a.nav.active::after{display:none!important;content:none!important;}
-/* Support is a standard row, no special giant text or blue selected block. */
+
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"],
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"] span:last-child{
  font:550 13px/1.5 Inter,system-ui,sans-serif!important;
 }
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"]{color:#3b4d61!important;background:transparent!important}
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"]:hover{color:#245b9d!important;background:#f0f4f9!important}
-/* VK-inspired compact comment threads, without oversized tinted cards. */
+
 body .post .vatra-post-comments .vatra-comment-item,
 body .post>.vatra-post-comments>.vatra-comment-item{
  background:#fff!important;border:0!important;border-bottom:1px solid #ebeff4!important;
@@ -140,7 +140,7 @@ body .vatra-comment-more>div{position:absolute!important;right:0!important;top:a
  box-shadow:0 8px 25px #1c304327!important;padding:5px!important;z-index:100!important;}
 body .vatra-comment-more>div>button{border-radius:4px!important;min-height:35px!important;font-size:12px!important;}
 body .vatra-comment-thread{margin-left:18px!important;padding-left:15px!important;border-left:1px solid #dfe7f1!important;}
-/* Community settings: consistent grid and form dimensions; no overlapping panels. */
+
 body .vatra-group-settings-shell{
  display:grid!important;grid-template-columns:minmax(165px,220px) minmax(0,1fr)!important;gap:16px!important;
  align-items:start!important;min-width:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;
@@ -161,7 +161,7 @@ body .vatra-group-settings-nav button{border-radius:5px!important;font-size:12.5
 }
 @media(max-width:580px){body .vatra-group-settings-content .settings-grid{grid-template-columns:minmax(0,1fr)!important;}}
 
-/* Support row has exactly the same typography as Profile and Settings. */
+
 html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"],
 html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"]>span:last-child{
  font-family:Inter,Arial,sans-serif!important;font-size:13px!important;

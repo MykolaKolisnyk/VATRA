@@ -8,8 +8,7 @@
   font-weight:100 900;
   font-display:swap;
 }
-/* Compatibility alias: historical VATRA styles request Inter.
-   They now resolve to the same locally hosted Onest variable font. */
+
 @font-face{
   font-family:Inter;
   src:url("./assets/fonts/Onest-Variable.ttf") format("truetype");

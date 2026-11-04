@@ -1,5 +1,4 @@
-/* VATRA | unified navigation + desktop messenger, 30 October 2026
-   Functional layout inspired by familiar messaging UX, without borrowed branding. */
+
 :root{--vatra-nav-item-height:39px;--vatra-nav-font:12.5px}
 body .layout>.sidebar nav:not(.footer-legal){
  display:flex!important;flex-direction:column!important;gap:2px!important
@@ -330,7 +329,7 @@ body[data-page="messages"] .vatra-chat-send-button svg{width:19px!important;heig
 body[data-page="messages"] .vatra-chat-send-error{margin:0 13px 10px!important;flex:none!important}
 body[data-page="messages"] .vatra-chat-no-results[hidden],
 body[data-page="messages"] .vatra-messenger-contact[hidden]{display:none!important}
-/* Dark theme */
+
 body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav{color:#bac9d9!important}
 body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav.active{color:#a8d1ff!important;background:#34485f!important}
 body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav:hover{color:#c3ddf9!important;background:#344357!important}
@@ -379,7 +378,7 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-send-b
 }
 
 
-/* 2026-10-30: consistent page geometry + navigation + friends (final cascade layer). */
+
 @media(min-width:981px){
  body[data-page="messages"]{--vatra-unified-width:1000px;--vatra-unified-main:800px}
  body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(245px,32%) minmax(0,1fr)!important}
@@ -438,9 +437,8 @@ body[data-vatra-theme-effective="dark"] .vatra-global-header>#notificationBell:i
 @media(max-width:480px){body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend .vatra-profile-friend-avatar,body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend .vatra-profile-friend-avatar{flex:0 0 50px!important;width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;max-width:50px!important;max-height:50px!important}body[data-page="friends"] .vatra-friends-photo,body[data-page="friends"] .vatra-friends-photo>.avatar{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}}
 @media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav,body .layout>.sidebar nav button.nav .nav-icon,body .vatra-global-header>#vatraMusicHeaderButton,body .vatra-global-header>#notificationBell{transform:none!important;transition:none!important}}
 
-/* 2026-10-30: balanced messenger sizing without changing other page widths. */
-/* Follow the same 13-14px reading scale as the rest of VATRA.
-   Keep the shared 1000px page grid and restrained blue/graphite palette. */
+
+
 body[data-page="messages"] .vatra-messenger-shell {
   min-height:min(780px,calc(100dvh - 118px))!important;
   max-height:calc(100dvh - 118px)!important;
