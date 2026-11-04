@@ -127,7 +127,7 @@ assert.equal(mobileField.inputMode,'numeric');
 assert.equal(mobileField.maxLength,10);
 assert.equal(mobileField.placeholder,'0930657340');
 assert.equal(mobileField.value,'0930657340');
-assert.ok(auth.includes('const invalid=vatraPhoneError(\'\#')===false || auth.includes('vatraPhoneError('),'Both authentication and recovery must validate the country rules');
+assert.ok((auth.match(/vatraPhoneError\(/g)||[]).length>=3,'Both authentication and recovery must validate the country rules');
 assert.ok(css.includes('max-height:min(236px')&&css.includes('scrollbar-color:#97b2d8'),'Country popup must be smaller and use VATRA scrollbar styling');
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
 const email=read('supabase/auth-templates/otp-email.html');
