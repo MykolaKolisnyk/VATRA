@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261031-7';
+import {initializeApp,getAuth,getDatabase} from './vatra-backend.js?v=20261104-8';
 const auth=getAuth(initializeApp()),db=getDatabase(initializeApp()).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let alerts=[],tickets=new Map(),count=0,lastUser='',busy=false,changedAt=0,queued=false;
