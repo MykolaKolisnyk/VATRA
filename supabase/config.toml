@@ -1,0 +1,5 @@
+# Supabase Edge function authentication
+# The cleanup worker is service-to-service only. It validates the secret
+# apikey via @supabase/server and MUST NOT be callable with a public key.
+[functions.vatra-story-cleanup]
+verify_jwt = false
