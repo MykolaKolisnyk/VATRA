@@ -320,3 +320,17 @@ html body .vatra-language-dialog .vatra-language-picker-list{
  html body .vatra-language-dialog .vatra-language-search{margin:11px 15px 8px!important}
  html body .vatra-language-dialog .vatra-language-picker-list{padding:0 15px 15px!important}
 }
+
+/* Use the actual VATRA V mark, never the unrelated flame illustration. */
+html body .vatra-language-dialog .vatra-language-dialog-logo{
+ width:43px!important;height:43px!important;min-width:43px!important;min-height:43px!important;
+ max-width:43px!important;max-height:43px!important;flex:0 0 43px!important;
+ padding:0!important;background:transparent!important;border-radius:11px!important;
+ object-fit:contain!important;
+}
+@media(max-width:600px){
+ html body .vatra-language-dialog .vatra-language-dialog-logo{
+  width:39px!important;height:39px!important;min-width:39px!important;min-height:39px!important;
+  max-width:39px!important;max-height:39px!important;flex-basis:39px!important;padding:0!important;
+ }
+}
