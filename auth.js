@@ -1,4 +1,4 @@
-import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, set, sendOtp, verifyOtp, signUpWithPassword, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
+import { initializeApp, getAuth, onAuthStateChanged, sendPasswordResetEmail, getDatabase, ref, get, set, sendOtp, verifyOtp, signInWithPassword, verifyPasswordCredentials, setAccountPassword, setRememberMe, getRememberMe } from './vatra-backend.js?v=20261104-8';
 
 // Prevent the browser from restoring an old scroll position on the sign-in page.
 if('scrollRestoration' in history)history.scrollRestoration='manual';
@@ -159,6 +159,104 @@ function enhanceDatePicker(input){
 }
 
 let mode='login',submitting=false,captchaWidget=null,authCooldownTimer=null,pendingHumanAction=null,suppressAuthRedirect=false;
+let pendingOtp=null,loginByCode=false,otpCooldownUntil=0,otpCooldownTimer=null;
+function resetOtpStep(){
+ pendingOtp=null;otpCooldownUntil=0;
+ if(otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
+ $('#authForm')?.classList.remove('is-awaiting-code');
+ const wrap=$('#otpWrap');if(wrap)wrap.hidden=true;
+ const input=$('#otpCode');if(input){input.value='';input.required=false;}
+}
+function otpNotice(message,error=false){
+ const status=$('#otpStatus');if(!status)return;
+ status.textContent=message;status.classList.toggle('is-error',error);
+}
+function syncOtpCooldown(){
+ const button=$('#otpResend');if(!button)return;
+ const left=Math.max(0,Math.ceil((otpCooldownUntil-Date.now())/1000));
+ button.disabled=left>0||submitting;
+ button.textContent=left?'Надіслати повторно через '+left+' с':'Надіслати код ще раз';
+ if(!left&&otpCooldownTimer){clearInterval(otpCooldownTimer);otpCooldownTimer=null;}
+}
+function setOtpCooldown(){
+ otpCooldownUntil=Date.now()+60000;
+ if(otpCooldownTimer)clearInterval(otpCooldownTimer);
+ otpCooldownTimer=setInterval(syncOtpCooldown,1000);syncOtpCooldown();
+}
+function syncLoginCodeMode(){
+ const enabled=mode==='login'&&loginByCode;
+ const toggle=$('#loginOtpToggle');
+ if(toggle){toggle.hidden=mode!=='login';toggle.textContent=enabled?'Увійти з паролем':'Увійти за одноразовим кодом';toggle.setAttribute('aria-pressed',String(enabled));}
+ if(mode==='login'){
+  $('#password').closest('.field').hidden=enabled;
+  $('#password').required=!enabled;
+  $('#submit').textContent=enabled?'Надіслати код':'Увійти';
+ }
+}
+async function startOtp(kind,details){
+ const {contact,isPhone}=details;
+ const fields=isPhone?{phone:contact}:{email:contact};
+ const requestedAt=Date.now();
+ await sendOtp({...fields,shouldCreateUser:kind==='signup',userData:kind==='signup'?details.userData:{}});
+ pendingOtp={kind,requestedAt,...details};
+ $('#authForm').classList.add('is-awaiting-code');
+ $('#otpWrap').hidden=false;$('#otpCode').required=true;$('#otpCode').value='';
+ $('#otpTitle').textContent=kind==='signup'?'Підтвердіть реєстрацію':'Підтвердіть вхід';
+ $('#otpDestination').textContent='ВАТРА надіслала запит на '+(isPhone?'SMS для ':'лист для ')+contact+'. Введіть отриманий код.';
+ $('#submit').textContent='Підтвердити код';$('#error').textContent='';
+ otpNotice('Код діє обмежений час. Не повідомляйте його нікому.');
+ setOtpCooldown();$('#otpCode').focus();
+}
+async function confirmOtp(){
+ const challenge=pendingOtp;if(!challenge)return;
+ const code=$('#otpCode').value.trim().replace(/\s/g,'');
+ if(!/^\d{6,8}$/.test(code)){otpNotice('Введіть код із 6–8 цифр.',true);return;}
+ const button=$('#submit');submitting=true;suppressAuthRedirect=true;button.disabled=true;button.textContent='Перевіряємо код…';
+ try{
+  const contact=challenge.contact;
+  const result=await verifyOtp(challenge.isPhone?{phone:contact,token:code}:{email:contact,token:code,type:'email'});
+  const user=result?.user,uid=user?.uid||user?.id;
+  if(!uid||!result?.session)throw new Error('Supabase не підтвердив сесію. Повторіть спробу.');
+  if(challenge.kind==='signup'){
+   // Confirmed owners of existing accounts may receive OTPs, but registration
+   // must never overwrite their profile or change their password.
+   const existing=await get(ref(db,'users/'+uid));
+   const createdAt=Date.parse(user.created_at||user.createdAt||'');
+   if(existing?.exists?.()||(Number.isFinite(createdAt)&&createdAt<challenge.requestedAt-60000)){
+    pendingOtp=null;location.replace('index.html');return;
+   }
+   await setAccountPassword(challenge.password);
+   pendingOtp=null;await finishRegistration({...challenge,user});return;
+  }
+  setRememberMe($('#rememberMe')?.checked===true);
+  pendingOtp=null;location.replace('index.html');
+ }catch(err){
+  otpNotice(errors[err.code]||err.message||'Код не вдалося перевірити.',true);
+  if(err.code==='auth/too-many-requests')startAuthRateLimitCooldown(300);
+ }finally{
+  submitting=false;suppressAuthRedirect=false;button.disabled=false;
+  button.textContent=pendingOtp?'Підтвердити код':mode==='register'?'Отримати код':'Надіслати код';
+  syncOtpCooldown();
+ }
+}
+$('#otpChange')?.addEventListener('click',()=>{
+ resetOtpStep();syncLoginCodeMode();$('#submit').textContent=mode==='register'?'Отримати код':'Надіслати код';
+ $('#error').textContent='';$('#email').focus();
+});
+$('#otpResend')?.addEventListener('click',async()=>{
+ if(!pendingOtp||Date.now()<otpCooldownUntil||submitting)return;
+ const details=pendingOtp,button=$('#otpResend');button.disabled=true;
+ try{
+  const fields=details.isPhone?{phone:details.contact}:{email:details.contact};
+  await sendOtp({...fields,shouldCreateUser:details.kind==='signup',userData:details.kind==='signup'?details.userData:{}});
+  otpNotice('Запит на новий код прийнято. Перевірте '+(details.isPhone?'SMS.':'пошту та «Спам».'));
+  $('#otpCode').value='';setOtpCooldown();
+ }catch(err){otpNotice(errors[err.code]||err.message||'Не вдалося повторно надіслати код.',true);syncOtpCooldown();}
+});
+$('#loginOtpToggle')?.addEventListener('click',()=>{
+ loginByCode=!loginByCode;resetOtpStep();$('#error').textContent='';syncLoginCodeMode();
+});
+
 const AUTH_COOLDOWN_KEY='vatra-auth-rate-limit-until-v1';
 const TURNSTILE_SITE_KEY=''; // Optional: set a real Turnstile site key and enable server-side verification for stronger protection.
 const errors={
