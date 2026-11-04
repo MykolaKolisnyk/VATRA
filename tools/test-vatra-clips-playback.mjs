@@ -31,7 +31,7 @@ assert.ok(css.includes('prefers-reduced-motion'),'Reduced motion behavior must b
 assert.ok(icons.includes('"mute":')&&icons.includes('"volume":'),'Distinct mute and volume icons must exist');
 assert.ok(icons.includes('window.vatraIcon=(name'),'Both icons must use the shared icon renderer');
 for(const src of ['vatra-clips-v2.css','vatra-icon-system.js','script.js']){
- const matched=html.match(new RegExp(src.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&')+'\\?v=20261104-clips2','g'))||[];
+ const matched=html.match(new RegExp(src.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&')+'\\?v=20261104-social1','g'))||[];
  assert.equal(matched.length,1,'Expected one versioned include: '+src);
 }
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'Clip CSS braces mismatch');
