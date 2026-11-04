@@ -97,9 +97,9 @@ for(const asset of ['logo.png','vatra-icon.png','favicon.png','vatra-header.png'
 const htmlScriptRoots=new Set();
 const htmlStyles=new Set();
 for(const [path,contents] of textFiles)if(path.endsWith('.html')){
- for(const m of contents.matchAll(/<(?:script|link)\\b[^>]*>/gi)){
+ for(const m of contents.matchAll(/<(?:script|link)\b[^>]*>/gi)){
   const tag=m[0];
-  const attr=tag.match(/\\b(?:src|href)=["']([^"']+)["']/i)?.[1];
+  const attr=tag.match(/\b(?:src|href)=["']([^"']+)["']/i)?.[1];
   if(!attr||isExternal(attr))continue;
   const clean=attr.split(/[?#]/)[0];
   const local=relative(ROOT,resolve(ROOT,dirname(path),clean)).split(sep).join('/');
@@ -113,7 +113,7 @@ while(active){
  active=false;
  for(const path of [...reachableJS]){
   const contents=textFiles.get(path);if(!contents)continue;
-  for(const m of contents.matchAll(/\\b(?:from\\s*|import\\s*\\(\\s*|import\\s*)["'](\\.\\.?\\/[^"']+\\.js(?:\\?[^"']*)?)["']/g)){
+  for(const m of contents.matchAll(/\b(?:from\s*|import\s*\(\s*|import\s*)["'](\.\.?\/[^"']+\.js(?:\?[^"']*)?)["']/g)){
    const file=relative(ROOT,resolve(ROOT,dirname(path),m[1].split('?')[0])).split(sep).join('/');
    if(textFiles.has(file)&&!reachableJS.has(file)){reachableJS.add(file);active=true;}
   }
