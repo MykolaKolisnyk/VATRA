@@ -112,7 +112,7 @@ function setupPlaceSuggestions(page){
   const kind=pick(input);if(!kind||activeInput!==input)return;
   const city=root.querySelector('input[name="city"]')?.value.trim().slice(0,80)||'';
   const typed=input.value.trim().slice(0,100);
-  if(!typed&&!city){show(input,[],'Вкажіть місто у розділі «Контакти», щоб переглянути місцеві пропозиції.');return;}
+  if(!typed&&!city){show(input,[],kind==='city'?'Почніть вводити назву міста.':'Вкажіть місто у розділі «Контакти», щоб переглянути місцеві пропозиції.');return;}
   const q=([typed||(kind==='education'?'школа':kind==='workplace'?'компанія':'місто'),kind==='city'?'':city].filter(Boolean)).join(' ');
   const key=kind+'|'+q.toLocaleLowerCase('uk');
   const current=++sequence;
@@ -135,7 +135,7 @@ function setupPlaceSuggestions(page){
     const p=item.properties||{},name=String(p.name||'').trim();
     if(!name||seen.has(name.toLocaleLowerCase('uk')))return false;
     if(kind==='education' && !['school','college','university','kindergarten','library','education'].includes(String(p.osm_value||'').toLowerCase())
-       && typed.length<2 && !/школ|універс|ліце|гімназ|коледж|інститут|академ|освіт/i.test(name))return false;
+       && !/школ|універс|ліце|гімназ|коледж|інститут|академ|освіт/i.test(name))return false;
     seen.add(name.toLocaleLowerCase('uk'));return true;
    }).slice(0,8).map(item=>{
     const p=item.properties||{};return{name:String(p.name).slice(0,120),
