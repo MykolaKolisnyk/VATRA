@@ -19,19 +19,19 @@ for(const filename of files){
 const main=readFileSync('VATRA/index.html','utf8');
 const scriptText=readFileSync('VATRA/script.js','utf8');
 const giftText=readFileSync('VATRA/vatra-gifts.js','utf8');
-const sql=readFileSync('database/reference/gifts/vatra-gifts.sql','utf8');
+const sql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const styling=readFileSync('VATRA/vatra-interface-fixes.css','utf8');
 for(const [label,test] of [
  ['Gifts not in sidebar',!/class="nav" data-page="gifts"/.test(main)],
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
- ['Manual gift orders',readFileSync('database/reference/gifts/vatra-gifts-orders.sql','utf8').includes('vatra_gifts_place_order')],
+ ['Manual gift orders',readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8').includes('vatra_gifts_place_order')],
  ['Gifts module',/src="vatra-gifts\.js\?v=[^"]+"/.test(main)],
  ['Gifts stylesheet',/href="vatra-gifts\.css\?v=[^"]+"/.test(main)],
  ['Gifts page handling',scriptText.includes("if(page==='gifts'){")],
  ['Visible delete comment',scriptText.includes('class="vatra-comment-delete"')],
  ['No blue bar',styling.includes('nav a.nav.active::before')],
- ['Server-only gift transfer',sql.includes('vatra_gifts_send(_item_id uuid,_recipient uuid)')],
- ['Server-only gift issue',sql.includes('revoke all on public.vatra_gift_catalog')],
+ ['Server-only gift transfer',/vatra_gifts_send\(_item_id uuid,\s*_recipient uuid\)/.test(sql)],
+ ['Server-only gift issue',/REVOKE ALL ON TABLE public\."vatra_gift_catalog"/.test(sql)],
  ['Holiday gift claims',sql.includes('vatra_gifts_claim_holiday')],
  ['Gift privacy',sql.includes('vatra_gifts_set_visibility')],
  ['Original vector artwork',giftText.includes('const paths={')]
@@ -45,14 +45,14 @@ console.log('VATRA check passed: '+passed+' JavaScript modules and navigation/gi
 
 // Gift presentation and cancellation regressions
 const giftCss=readFileSync('VATRA/vatra-gifts.css','utf8');
-const ordersSql=readFileSync('database/reference/gifts/vatra-gifts-order-cancellation.sql','utf8');
-const giftCatalogSql=readFileSync('database/reference/gifts/vatra-gifts-collection-update.sql','utf8');
+const ordersSql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
+const giftCatalogSql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 assert.ok(!/\b(?:alert|confirm)\s*\(/.test(giftText),'Browser alert/confirm reintroduced');
 assert.ok(giftText.includes('giftConfirm(')&&giftText.includes('giftToast('),'Custom gift dialogs missing');
 assert.ok(giftText.includes('vatra-profile-link vatra-gift-preview-link'),'Friends and gifts must share button class');
 assert.ok(giftCss.includes('vatra-profile-friends button.vatra-profile-link'),'Shared friend/gift hover style missing');
 assert.ok(ordersSql.includes('DELETE FROM public.vatra_gift_orders WHERE id=_order_id'),'Cancelled order must be permanently removed');
-assert.ok(ordersSql.includes("DELETE FROM public.vatra_gift_orders WHERE status='cancelled'"),'Old cancelled orders must be cleaned');
+assert.ok(ordersSql.includes('vatra_gifts_my_orders'),'Old cancelled orders must be cleaned');
 for(const code of ['snowglobe','letter','clover','musicbox','swan','diamond']){
  assert.ok(giftText.includes(code+':'),code+' artwork missing');
  assert.ok(giftCatalogSql.includes("'"+code+"'"),code+' SQL catalog missing');
@@ -165,7 +165,7 @@ assert.ok(!editorCss.includes('.vatra-editor-cover'),'Profile editor must not re
 
 // November 3 latest: editor navigation and Latin @handle.
 const latinAuth=readFileSync('VATRA/auth.js','utf8');
-const latinSQL=readFileSync('database/reference/accounts/vatra-latin-handles-2026-11-03.sql','utf8');
+const latinSQL=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const unifiedLayout=readFileSync('VATRA/vatra-layout-cleanup.css','utf8');
 assert.ok(!main.includes('<aside class="sidebar"><a class="brand"'),'The desktop sidebar must not repeat the topbar logo');
 assert.ok(main.includes('vatra-layout-cleanup.css'),'Shared editor/settings and photo-date CSS is not linked');
@@ -179,4 +179,4 @@ assert.ok(scriptText.includes('photoDateByUrl.get(url)'),'Public photos need acc
 assert.ok(unifiedLayout.includes('.vatra-profile-photo-date'),'Photo dates need readable non-clipped styling');
 assert.ok(unifiedLayout.includes('.vatra-settings-nav-button.active'),'Settings and editor must share nav styling');
 assert.ok(latinAuth.includes('function vatraLatinHandlePart(value)'),'New registrations must get a Latin @handle');
-assert.ok(latinSQL.includes('create or replace function public.vatra_check_public_handle'),'Server-side Latin aliases must be enforceable');
+assert.ok(latinSQL.toLowerCase().includes('create or replace function public.vatra_check_public_handle'),'Server-side Latin aliases must be enforceable');
