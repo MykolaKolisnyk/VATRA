@@ -313,7 +313,9 @@ function listenData(){stopListeners();if(!currentUser)return;vatraSoundSources.c
   return [id,copy];
  }));
  if(withoutPresence(old)===withoutPresence(users))return;
- if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);
+ updateNotificationBadges();
+ if(page==='notifications')renderNotifications();
+ else if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);
  else if(page!=='settings'||!$('#profileSettingsForm'))render();
 }));
  unsubscribers.push(watch('friendProfiles',v=>{
@@ -323,7 +325,10 @@ function listenData(){stopListeners();if(!currentUser)return;vatraSoundSources.c
   const copy={...(item||{})};delete copy.isOnline;delete copy.lastSeenAt;return [id,copy];
  }));
  if(visual(previous)===visual(friendProfiles))return;
- if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);
+ updateNotificationBadges();
+ if(page==='notifications')renderNotifications();
+ else if(page==='feed')renderFeed();
+ else if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);
 }));
  unsubscribers.push(watch(`users/${currentUser.uid}`,v=>{markInitialLoaded('users');const profile=v||{};currentProfile={...profile,privateSections:privateProfileSections,recordLists:privateRecordLists,notificationPreferences:privateNotifyPrefs,dateOfBirth:privateDateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone,lastSeenAt:Number(users[currentUser.uid]?.lastSeenAt)||Number(profile.lastSeenAt)||0,isOnline:users[currentUser.uid]?.isOnline===true};if(vatraAppliedProfileLanguageUid!==currentUser.uid){vatraAppliedProfileLanguageUid=currentUser.uid;const userLocale=currentProfile.preferredLanguage;if(userLocale&&window.vatraLanguage?.available.includes(userLocale))window.vatraLanguage.set(userLocale);}updateIdentity();if(!vatraSettingsSaving){const publicData=publicProfileData(currentProfile);if(JSON.stringify(users[currentUser.uid]||{})!==JSON.stringify(publicData))set(ref(db,`publicProfiles/${currentUser.uid}`),publicData).catch(err=>console.warn('Profile sync failed:',err));const friendData=friendProfileData(currentProfile);if(JSON.stringify(friendProfiles[currentUser.uid]||{})!==JSON.stringify(friendData))set(ref(db,`friendProfiles/${currentUser.uid}`),friendData).catch(err=>console.warn('Friend profile sync failed:',err));}if(page==='profile'||(page==='settings'&&!$('#profileSettingsForm')))render();else renderGettingStarted();}));
  unsubscribers.push(watch('posts',v=>{posts=v;markInitialLoaded('posts');if(['feed','saved','profile','notifications','explore','myVideos'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postLikes',v=>{likes=v;vatraSoundSourceLoaded('postLikes');if(['feed','saved','profile','notifications','explore','groups'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('postSaves',v=>{postSaves=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('postShares',v=>{postShares=v||{};if(['feed','saved','profile','explore'].includes(page))render();}));unsubscribers.push(watch('comments',v=>{comments=v;vatraSoundSourceLoaded('comments');if(['feed','saved','profile','notifications','explore','groups'].includes(page))render();updateNotificationBadges();}));unsubscribers.push(watch('pollVotes',v=>{pollVotes=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));
@@ -699,6 +704,16 @@ function renderFeed(){
  for(const item of selected){
   cards.splice(at,0,'<section class="vatra-sponsored-placement" aria-label="Рекламний допис"><header><strong>Реклама</strong><span>Оплачене просування</span></header>'+postCard(item)+'</section>');
   at+=5;
+ }
+ const birthdays=vatraFriendBirthdaysToday();
+ if(birthdays.length){
+  const birthdayCards=birthdays.slice(0,4).map(friend=>{
+   const sent=vatraBirthdayAlreadySent(friend.uid,friend.year);
+   return '<div class="vatra-friend-birthday-person">'+avatar(friend.name,users[friend.uid]?.avatarUrl)+
+    '<span><b>'+esc(friend.name)+'</b><small>Сьогодні день народження</small></span>'+
+    '<button type="button" data-vatra-birthday-greet="'+esc(friend.uid)+'" '+(sent?'disabled':'')+'>'+(sent?'Привітали':'Привітати')+'</button></div>';
+  }).join('');
+  cards.unshift('<section class="vatra-friend-birthday-banner" aria-label="Дні народження друзів"><header><span class="vatra-birthday-icon" aria-hidden="true">🎂</span><span><b>Сьогодні святкують друзі</b><small>Привітайте у ВАТРІ або надішліть подарунок</small></span></header><div class="vatra-friend-birthday-people">'+birthdayCards+'</div></section>');
  }
  const empty=cards.length===0;
  setFeed(cards.join(''),empty);
@@ -2540,10 +2555,13 @@ function vatraFriendBirthdaysToday(){
  if(!currentUser)return [];
  const now=vatraTodayKyiv(),result=[];
  for(const uid of Object.keys(friends||{})){
-  if(uid===currentUser.uid||blockedUsers[uid]||users[uid]?.searchable===false)continue;
+  if(uid===currentUser.uid||!friends[uid]||blockedUsers[uid])continue;
   const shared=friendProfiles[uid]||{},profile=users[uid]||{};
   // A private birth date must never be inferred or displayed from privateUsers.
-  const raw=String(shared.birthdayPublic||profile.birthdayPublic||'');
+  const raw=String(
+   profile.birthdayVisibility==='public'?profile.birthdayPublic:
+   profile.birthdayVisibility==='friends'?shared.birthdayPublic:''
+  );
   const match=raw.match(/^\d{4}-(\d{2})-(\d{2})$/);
   if(!match||Number(match[1])!==now.month||Number(match[2])!==now.day)continue;
   result.push({uid,year:now.year,name:String(profile.name||shared.name||'Друг ВАТРИ').slice(0,80)});
@@ -3175,6 +3193,15 @@ function vatraOrganizeSettings(){
  sections.profile.append(photoCard,basicCard);
  photoCard.classList.add('vatra-editor-profile-photos');
  photoCard.querySelector('h3').textContent='Фотографія профілю';
+ if(editMode){
+  const birthChoice=privacyCard?.querySelector('[name="birthdayVisibility"]')?.closest('label');
+  if(birthChoice){
+   birthChoice.firstChild.textContent='Хто бачить день народження';
+   const note=document.createElement('small');note.className='vatra-birthday-privacy-note';
+   note.textContent='Привітання друзів і нагадування з’являються лише якщо вибрано «Для друзів» або «Для всіх». У режимі «Лише для себе» дата прихована.';
+   birthChoice.append(note);mainGrid.append(birthChoice);
+  }
+ }
  const groupSpecs=[
   ['contacts','Контакти',['city','location','hometown','phone','website']],
   ['education','Освіта',['education']],
