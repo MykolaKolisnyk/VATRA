@@ -12,6 +12,7 @@
     finished = true;
     window.clearInterval(checkReady);
     window.clearTimeout(safetyTimeout);
+    window.clearTimeout(longWaitTimer);
 
     const delay = Math.max(0, minimumVisible - (performance.now() - startedAt));
     window.setTimeout(() => {
@@ -36,6 +37,13 @@
   }, 80);
 
   const safetyTimeout = window.setTimeout(hideLoader, 17000);
+  const longWaitTimer = window.setTimeout(() => {
+    if (finished) return;
+    const subtitle = loader.querySelector('.vatra-loading-subtitle');
+    const status = loader.querySelector('.vatra-loading-status');
+    if (subtitle) subtitle.textContent = 'Підключення займає трохи більше часу. Перевіряємо з’єднання.';
+    if (status) status.textContent = 'Очікуємо відповідь';
+  }, 7000);
   window.addEventListener('load', () => {
     window.setTimeout(() => {
       if (appIsReady()) hideLoader();
