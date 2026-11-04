@@ -314,7 +314,11 @@ function authContactErrorText(err,isPhone,flow){
 function syncExistingAccountHelp(visible){
  const help=$('#authExistingHelp');if(help)help.hidden=!visible;
 }
-$('#authGoLogin')?.addEventListener('click',()=>{syncExistingAccountHelp(false);show('login');});
+$('#authGoLogin')?.addEventListener('click',()=>{
+ const contact=$('#email')?.value||'';
+ syncExistingAccountHelp(false);show('login');
+ if($('#email'))$('#email').value=contact;
+});
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
 let humanPauseUntil=0;try{humanPauseUntil=Number(sessionStorage.getItem('vatra-human-check-pause')||0);}catch{}
 let humanPauseTimer=null;
@@ -604,6 +608,7 @@ function openRecovery(){
  $('#recoveryMethodWrap').hidden=!VATRA_SMS_AUTH_ENABLED;$('#recoveryContact').readOnly=false;$('#recoveryContact').closest('.field').hidden=false;$('#recoveryProtection').hidden=false;
  $('#recoveryOtpWrap').hidden=true;$('#recoveryNewPasswordWrap').hidden=true;$('#recoveryConfirmWrap').hidden=true;
  $('#recoveryOtp').required=false;$('#recoveryNewPassword').required=false;$('#recoveryConfirmPassword').required=false;
+ document.querySelectorAll('input[name="recoveryMethod"]').forEach(option=>{option.disabled=option.value==='phone'&&!VATRA_SMS_AUTH_ENABLED;});
  const method=selectedMethod(),radio=$('input[name="recoveryMethod"][value="'+method+'"]');if(radio)radio.checked=true;
  syncRecoveryMethod();if(method==='phone')setPhoneInputFromFullNumber($('#recoveryContact'),$('#recoveryCountryCode'),currentAuthContact());else $('#recoveryContact').value=$('#email').value.trim().toLowerCase();resetRecoveryChallenge();openDialogAnimated($('#recoveryDialog'));
 }
