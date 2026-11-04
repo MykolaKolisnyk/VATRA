@@ -114,3 +114,28 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
  html body :is(.vatra-photos-toolbar h2,.vatra-gifts-header h1,.vatra-support-header h2){font-size:21px!important}
  html body :is(.vatra-photos-tabs button,.vatra-music-tabs button,.vatra-gifts-tabs button){font-size:13px!important}
 }
+
+/* Visual icon treatment for the newly promoted standalone sections. */
+html body .vatra-photos-toolbar h2,
+html body .vatra-gifts-header h1{
+ display:flex;align-items:center;gap:9px;
+}
+html body .vatra-photos-toolbar h2 svg.vatra-icon,
+html body .vatra-gifts-header h1 svg.vatra-icon{
+ display:inline-block;width:22px;height:22px;
+ color:var(--vatra-icon-blue)!important;stroke:currentColor!important;
+}
+html body .vatra-photos-tools #vatraPhotosUpload{
+ display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+html body .vatra-photos-tools #vatraPhotosUpload svg.vatra-icon{
+ width:17px;height:17px;
+}
+html body .vatra-clips-page .vatra-clip-rail svg.vatra-icon{
+ width:21px;height:21px;stroke:currentColor!important;stroke-width:1.95!important;fill:none!important;
+}
+html body .vatra-music-search-input svg.vatra-icon{width:18px;height:18px}
+html body .vatra-music-card-actions svg.vatra-icon{width:17px;height:17px}
+html body .vatra-support-header>.vatra-support-icon svg.vatra-icon{
+ width:26px;height:26px;color:inherit!important;
+}
