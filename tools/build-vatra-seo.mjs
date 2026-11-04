@@ -1,11 +1,11 @@
 import {readFileSync,writeFileSync,readdirSync,mkdirSync,rmSync,existsSync} from 'node:fs';
 import {join} from 'node:path';
 
-const source=readFileSync('VATRA/vatra-backend.js','utf8');
+const source=readFileSync('vatra-backend.js','utf8');
 const endpoint=source.match(/const SERVICE_URL\s*=\s*['"]([^'"]+)['"]/);
 const publishable=source.match(/const PUBLIC_KEY\s*=\s*['"]([^'"]+)['"]/);
 if(!endpoint||!publishable||!/^https:\/\//.test(endpoint[1]))throw new Error('Не знайдено публічної конфігурації ВАТРИ.');
-const base='https://mykolakolisnyk.github.io/VATRA/VATRA/';
+const base='https://mykolakolisnyk.github.io/VATRA/';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const absoluteImage=s=>typeof s==='string'&&/^https:\/\//i.test(s)?s:'';
 async function readPublic(prefix){
@@ -27,13 +27,26 @@ async function readPublic(prefix){
  }
  return rows;
 }
+async function readVisibleIds(rpc,column){
+ const response=await fetch(endpoint[1]+'/rest/v1/rpc/'+rpc,{
+  method:'POST',
+  headers:{apikey:publishable[1],Authorization:'Bearer '+publishable[1],'Content-Type':'application/json'},
+  body:'{}',signal:AbortSignal.timeout(25000)
+ });
+ if(!response.ok)throw new Error('Не вдалося перевірити публічні SEO-записи: HTTP '+response.status);
+ const data=await response.json();
+ if(!Array.isArray(data)||data.some(row=>!row||typeof row[column]!=='string')){
+  throw new Error('Невірна відповідь безпечного SEO-каталогу '+rpc);
+ }
+ return new Set(data.map(row=>row[column]));
+}
 function page(type,id,data){
  const person=type==='person';
  const name=String(data.name||'').trim().slice(0,110);
  const summary=String(data.bio||data.description||'').trim().replace(/\s+/g,' ').slice(0,330) ||
   (person?'Публічний профіль учасника соціальної мережі ВАТРА.':'Відкрита спільнота української соціальної мережі ВАТРА.');
  const url=base+(person?'people/':'communities/')+encodeURIComponent(id)+'/';
- const redirect=base+'index.html#/'+(person?'profile/':'community/')+encodeURIComponent(id);
+ const redirect=base+'#/'+(person?'profile/':'community/')+encodeURIComponent(id);
  const image=absoluteImage(data.avatarUrl)||base+'social-preview.svg';
  const jsonLd=JSON.stringify({'@context':'https://schema.org','@type':person?'ProfilePage':'CollectionPage',
   'name':name+' — ВАТРА','description':summary,'url':url,'mainEntity':{'@type':person?'Person':'Organization','name':name}}).replace(/</g,'\\u003c');
@@ -49,7 +62,7 @@ function page(type,id,data){
   '<p><small>ВАТРА · українська соціальна мережа</small></p></main></body></html>\n';
 }
 function writeSnapshots(folder,items,type){
- const target=join('VATRA',folder);
+ const target=join(folder);
  if(existsSync(target))rmSync(target,{recursive:true,force:true});
  mkdirSync(target,{recursive:true});
  const urls=[];
@@ -61,13 +74,17 @@ function writeSnapshots(folder,items,type){
  }
  return urls;
 }
-const [profiles,groups]=await Promise.all([readPublic('publicProfiles'),readPublic('groups')]);
+const [profiles,groups,visiblePeople,visibleCommunities]=await Promise.all([
+ readPublic('publicProfiles'),readPublic('groups'),
+ readVisibleIds('vatra_seo_visible_profile_ids','uid'),
+ readVisibleIds('vatra_seo_visible_community_ids','group_id')
+]);
 const entries=rows=>rows.map(r=>[String(r.path||'').split('/')[1],r.value]).filter(([id,v])=>/^[A-Za-z0-9_-]{6,128}$/.test(id)&&v&&typeof v==='object');
-const people=entries(profiles).filter(([,p])=>p.profileVisibility!=='private'&&p.searchable!==false&&p.name&&p.isDeleted!==true&&p.deletedAt==null);
-const communities=entries(groups).filter(([,g])=>g.visibility!=='private'&&g.name&&g.deletedAt==null);
+const people=entries(profiles).filter(([id,p])=>visiblePeople.has(id)&&p.profileVisibility!=='private'&&p.searchable!==false&&p.name&&p.isDeleted!==true&&p.deletedAt==null);
+const communities=entries(groups).filter(([id,g])=>visibleCommunities.has(id)&&g.visibility!=='private'&&g.name&&g.isDeleted!==true&&g.deletedAt==null);
 const languages=['uk','en','pl','de','fr','es','pt','it'];
 const links=[base+'index.html',...languages.map(lang=>base+'lang/'+lang+'/'),...writeSnapshots('people',people,'person'),...writeSnapshots('communities',communities,'group')];
 const sitemap='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
  links.map(url=>'  <url><loc>'+esc(url)+'</loc></url>').join('\n')+'\n</urlset>\n';
-writeFileSync('VATRA/sitemap.xml',sitemap,'utf8');
+writeFileSync('sitemap.xml',sitemap,'utf8');
 console.log('Публічних профілів:',people.length,'публічних спільнот:',communities.length);

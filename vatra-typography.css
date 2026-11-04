@@ -1,0 +1,300 @@
+
+
+:root{
+ --vatra-type-page:19px;
+ --vatra-type-section:16px;
+ --vatra-type-body:13px;
+ --vatra-type-control:13px;
+ --vatra-type-small:11.5px;
+ --vatra-type-title-weight:650;
+ --vatra-type-label-weight:500;
+ --vatra-type-control-weight:450;
+ --vatra-type-action-weight:600;
+}
+body .layout>.main,body .feed{
+ font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ letter-spacing:normal;
+}
+
+body .layout>.main>.heading h1,
+body .layout>.main>.heading h2{
+ font-size:var(--vatra-type-page)!important;
+ line-height:1.28!important;
+ font-weight:var(--vatra-type-title-weight)!important;
+ letter-spacing:-.015em!important;
+}
+body .vatra-profile-card-head h3,
+body .vatra-profile-posts-title h3,
+body .vatra-messenger-heading h2,
+body .notifications-heading h2,
+body .vatra-music-section-head h3{
+ font-size:var(--vatra-type-section)!important;
+ line-height:1.35!important;
+ font-weight:var(--vatra-type-title-weight)!important;
+ letter-spacing:-.01em!important;
+}
+body .vatra-profile-card-head button,
+body .vatra-profile-posts-title button,
+body .vatra-messenger-heading button,
+body .notifications-heading button{
+ font-size:12px!important;
+ font-weight:var(--vatra-type-action-weight)!important;
+}
+body .post .author b,
+body .post .author-link,
+body .vatra-search-person-name,
+body .vatra-search-group-name{
+ font-weight:600!important;
+}
+body .post .post-text,
+body .post .comment-copy{
+ font-weight:400!important;
+}
+
+body[data-page="settings"] .vatra-settings-workspace{
+ --vatra-type-title-weight:650;
+ font-size:var(--vatra-type-body)!important;
+ font-weight:400!important;
+ line-height:1.5!important;
+}
+body[data-page="settings"] .vatra-settings-pane>.settings-card,
+body[data-page="settings"] .vatra-settings-pane .settings-card{
+ font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card h3,
+body[data-page="settings"] .vatra-settings-pane .settings-card h4,
+body[data-page="settings"] .vatra-settings-pane .interface-settings-card h3{
+ font-size:var(--vatra-type-section)!important;
+ line-height:1.35!important;
+ font-weight:var(--vatra-type-title-weight)!important;
+ letter-spacing:-.015em!important;
+ margin-top:0!important;
+ margin-bottom:10px!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button,
+body[data-page="settings"] .vatra-settings-nav>button{
+ display:flex!important;
+ align-items:center!important;
+ font-size:var(--vatra-type-control)!important;
+ font-weight:500!important;
+ line-height:1.35!important;
+ letter-spacing:normal!important;
+ min-height:38px!important;
+ padding:8px 12px!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button.active,
+body[data-page="settings"] .vatra-settings-nav>button.active{
+ font-weight:600!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid>label,
+body[data-page="settings"] .vatra-settings-pane .settings-grid label:not(.settings-check),
+body[data-page="settings"] .vatra-settings-pane .vatra-extra-setting>label,
+body[data-page="settings"] .vatra-settings-pane .vatra-extra-setting>.vatra-extra-visibility,
+body[data-page="settings"] .vatra-settings-pane .settings-card>.settings-check,
+body[data-page="settings"] .vatra-settings-pane .settings-card>label{
+ font-size:var(--vatra-type-control)!important;
+ font-weight:var(--vatra-type-label-weight)!important;
+ line-height:1.45!important;
+ letter-spacing:normal!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+body[data-page="settings"] .vatra-settings-pane .settings-grid select,
+body[data-page="settings"] .vatra-settings-pane .settings-grid textarea,
+body[data-page="settings"] .vatra-settings-pane .vatra-extra-visibility>select,
+body[data-page="settings"] .vatra-settings-pane .birthday-selects select,
+body[data-page="settings"] .vatra-settings-pane .settings-card input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+body[data-page="settings"] .vatra-settings-pane .settings-card>select,
+body[data-page="settings"] .vatra-settings-pane .settings-card>textarea{
+ font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ font-size:var(--vatra-type-control)!important;
+ font-weight:var(--vatra-type-control-weight)!important;
+ line-height:1.45!important;
+ letter-spacing:normal!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid input::placeholder,
+body[data-page="settings"] .vatra-settings-pane .settings-grid textarea::placeholder{
+ font-weight:400!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-grid select option{
+ font-weight:400!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card p,
+body[data-page="settings"] .vatra-settings-pane .settings-card .muted,
+body[data-page="settings"] .vatra-settings-pane .settings-card .field-hint,
+body[data-page="settings"] .vatra-settings-pane .settings-card small,
+body[data-page="settings"] .vatra-settings-pane .birthday-picker-hint,
+body[data-page="settings"] .vatra-settings-pane .settings-grid label>small,
+body[data-page="settings"] .vatra-settings-pane .vatra-settings-private-note{
+ font-size:var(--vatra-type-small)!important;
+ font-weight:400!important;
+ line-height:1.5!important;
+ letter-spacing:normal!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card .primary,
+body[data-page="settings"] .vatra-settings-pane .settings-card .pill,
+body[data-page="settings"] .vatra-settings-pane .settings-card .text-link,
+body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick,
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar button,
+body[data-page="settings"] .vatra-settings-pane .settings-legal-links a{
+ font-size:12px!important;
+ font-weight:var(--vatra-type-action-weight)!important;
+ line-height:1.4!important;
+ letter-spacing:normal!important;
+}
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar,
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar span{
+ font-size:var(--vatra-type-small)!important;
+ font-weight:450!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-check{
+ font-weight:var(--vatra-type-label-weight)!important;
+}
+
+body[data-page="settings"] .vatra-settings-pane .settings-grid,
+body[data-page="settings"] .vatra-settings-pane .settings-grid>label{
+ min-width:0!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card textarea[name="bio"]{
+ font-size:13px!important;
+ font-weight:400!important;
+ line-height:1.5!important;
+}
+
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-grid>label,
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-card>label{
+ color:#c7d6e9!important;
+}
+@media(max-width:760px){
+ body[data-page="settings"] .vatra-settings-pane .settings-grid input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+ body[data-page="settings"] .vatra-settings-pane .settings-grid select,
+ body[data-page="settings"] .vatra-settings-pane .settings-grid textarea,
+ body[data-page="settings"] .vatra-settings-pane .birthday-selects select,
+ body[data-page="settings"] .vatra-settings-pane .vatra-extra-visibility>select{
+  font-size:16px!important; 
+ }
+ body[data-page="settings"] .vatra-settings-nav-button{font-size:13px!important;}
+ body .layout>.main>.heading h1{font-size:19px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ body .layout>.main>.heading h1{transition:none!important;}
+}
+
+
+
+body[data-page="settings"] .vatra-settings-pane .settings-photo-row{
+ align-items:center!important;
+ gap:12px!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-photo-row>div:last-child{
+ min-width:0!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick,
+body[data-page="settings"] .vatra-settings-pane .settings-card label.file-pick{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ width:auto!important;
+ max-width:100%!important;
+ min-height:36px!important;
+ margin:0!important;
+ padding:8px 13px!important;
+ border:1px solid #d4deeb!important;
+ border-radius:9px!important;
+ background:#eef3f9!important;
+ box-shadow:none!important;
+ color:#385572!important;
+ font:600 12px/1.35 Inter,Arial,sans-serif!important;
+ letter-spacing:normal!important;
+ text-align:center!important;
+ text-decoration:none!important;
+ cursor:pointer!important;
+ transition:background-color .14s ease,border-color .14s ease,color .14s ease!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick:is(:hover,:focus-visible){
+ transform:none!important;
+ background:#e2edfa!important;
+ border-color:#b8cde7!important;
+ color:#165ca2!important;
+ box-shadow:none!important;
+}
+body[data-page="settings"] .vatra-settings-pane #removeAvatar{
+ display:inline-flex!important;
+ justify-content:center!important;
+ align-items:center!important;
+ box-sizing:border-box!important;
+ min-height:32px!important;
+ max-width:100%!important;
+ margin:6px 0 0!important;
+ padding:6px 10px!important;
+ border:1px solid transparent!important;
+ border-radius:8px!important;
+ background:transparent!important;
+ color:#65798f!important;
+ text-align:center!important;
+ font:550 12px/1.4 Inter,Arial,sans-serif!important;
+ text-decoration:none!important;
+ cursor:pointer!important;
+}
+body[data-page="settings"] .vatra-settings-pane #removeAvatar:is(:hover,:focus-visible){
+ color:#b44b5c!important;
+ background:#fff0f2!important;
+ border-color:#f5dfe3!important;
+}
+body[data-page="settings"] .vatra-settings-pane .settings-card button.primary,
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar button.primary{
+ display:inline-flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ min-height:36px!important;
+ max-width:100%!important;
+ padding:8px 14px!important;
+ font:600 12px/1.4 Inter,Arial,sans-serif!important;
+ letter-spacing:normal!important;
+ border-radius:8px!important;
+ box-shadow:none!important;
+ transform:none!important;
+}
+body[data-page="settings"] .vatra-settings-workspace .settings-savebar button.primary:hover,
+body[data-page="settings"] .vatra-settings-pane .settings-card button.primary:hover{
+ box-shadow:0 3px 9px rgba(7,87,245,.12)!important;
+ transform:none!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button{
+ border:0!important;
+ border-radius:9px!important;
+ font:500 13px/1.4 Inter,Arial,sans-serif!important;
+ transition:background .15s ease,color .15s ease!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button.active{
+ background:#eaf1fb!important;
+ color:#295c97!important;
+ font-weight:600!important;
+}
+body[data-page="settings"] .vatra-settings-nav-button:not(.active):hover{
+ background:#f0f4f8!important;
+ color:#334c66!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-card .file-pick{
+ background:#31445c!important;border-color:#4b617b!important;color:#d6e5f7!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane .settings-card .file-pick:hover{
+ background:#3b5572!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-pane #removeAvatar{
+ color:#c1d1e5!important;
+}
+body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-nav-button.active{
+ background:#354c69!important;color:#b5d5ff!important;
+}
+@media(max-width:760px){
+ body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick{
+  min-height:38px!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-page="settings"] .vatra-settings-pane .settings-card .file-pick,
+ body[data-page="settings"] .vatra-settings-nav-button{
+  transition:none!important;
+ }
+}

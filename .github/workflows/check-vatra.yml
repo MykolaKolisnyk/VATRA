@@ -15,3 +15,7 @@ jobs:
         run: node tools/check-vatra.mjs
       - name: Check website file paths and repository layout
         run: node tools/check-vatra-layout.mjs
+      - name: Check SEO generator syntax
+        run: node --check tools/build-vatra-seo.mjs
+      - name: Test SEO deletion and recovery without touching Supabase
+        run: node tools/test-vatra-seo.mjs

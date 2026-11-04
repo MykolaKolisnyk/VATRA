@@ -1,0 +1,25 @@
+
+:root{--vatra-focus-neutral:#687c91;--vatra-field-border:#d8e0e9}
+body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),textarea,select){
+ border-color:var(--vatra-field-border);border-radius:11px;box-shadow:none;
+}
+
+body :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus,
+body :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select):focus-visible,
+body :is(.search,.vatra-community-search,.vatra-group-members-search):focus-within{
+ outline:none!important;
+ border-color:var(--vatra-focus-neutral)!important;
+ box-shadow:none!important;
+}
+
+body :is(button,a,[role="button"],[role="tab"]):focus-visible{
+ outline:2px solid var(--vatra-focus-neutral)!important;outline-offset:2px!important;box-shadow:none!important
+}
+body :is(button,a,[role="button"],[role="tab"]):focus:not(:focus-visible){outline:none!important;box-shadow:none}
+body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.mobile-nav button).active::before,
+body :is(.vatra-settings-nav-button,.vatra-group-settings-nav button,.nav,.mobile-nav button).active::after{display:none!important;content:none!important}
+body .vatra-search-history :is(button,input):focus-visible{outline:2px solid var(--vatra-focus-neutral)!important}
+body :is(input,textarea,select)[disabled]{cursor:not-allowed}
+@media(forced-colors:active){
+ body :is(input,textarea,select,button,a):focus-visible{outline:2px solid Highlight!important}
+}

@@ -3,7 +3,7 @@ import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 
-const root='VATRA';
+const root='.';
 const files=readdirSync(root).filter(x=>x.endsWith('.js'));
 assert.ok(!readdirSync(root).some(x=>/\.(?:sql|md|zip)$/i.test(x)), 'SQL, guides and archives must stay outside the deployed VATRA directory');
 let passed=0;
@@ -16,11 +16,11 @@ for(const filename of files){
    throw new Error(filename+': querySelector() result used like an array');
  passed++;
 }
-const main=readFileSync('VATRA/index.html','utf8');
-const scriptText=readFileSync('VATRA/script.js','utf8');
-const giftText=readFileSync('VATRA/vatra-gifts.js','utf8');
+const main=readFileSync('index.html','utf8');
+const scriptText=readFileSync('script.js','utf8');
+const giftText=readFileSync('vatra-gifts.js','utf8');
 const sql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
-const styling=readFileSync('VATRA/vatra-interface-fixes.css','utf8');
+const styling=readFileSync('vatra-interface-fixes.css','utf8');
 for(const [label,test] of [
  ['Gifts not in sidebar',!/class="nav" data-page="gifts"/.test(main)],
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
@@ -44,7 +44,7 @@ for(const match of main.matchAll(re)){
 console.log('VATRA check passed: '+passed+' JavaScript modules and navigation/gift/UI invariants.');
 
 // Gift presentation and cancellation regressions
-const giftCss=readFileSync('VATRA/vatra-gifts.css','utf8');
+const giftCss=readFileSync('vatra-gifts.css','utf8');
 const ordersSql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const giftCatalogSql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 assert.ok(!/\b(?:alert|confirm)\s*\(/.test(giftText),'Browser alert/confirm reintroduced');
@@ -58,7 +58,7 @@ for(const code of ['snowglobe','letter','clover','musicbox','swan','diamond']){
  assert.ok(giftCatalogSql.includes("'"+code+"'"),code+' SQL catalog missing');
 }
 
-const adminGiftSrc=readFileSync('VATRA/vatra-admin-center.js','utf8');
+const adminGiftSrc=readFileSync('vatra-admin-center.js','utf8');
 const adminGiftStart=adminGiftSrc.indexOf('function installGiftAdminEvents(){');
 const adminGiftEnd=adminGiftSrc.indexOf('async function renderDashboard(){',adminGiftStart);
 assert.ok(adminGiftStart>=0&&adminGiftEnd>adminGiftStart,'Gift admin handlers absent');
@@ -67,8 +67,8 @@ assert.ok(giftText.includes('let artSerial=0;'),'Each SVG gift requires a unique
 
 
 // Sidebar compactness and monetisation placeholders must not regress.
-const footerCss=readFileSync('VATRA/vatra-sidebar-ads.css','utf8');
-const adsJs=readFileSync('VATRA/vatra-sidebar-ads.js','utf8');
+const footerCss=readFileSync('vatra-sidebar-ads.css','utf8');
+const adsJs=readFileSync('vatra-sidebar-ads.js','utf8');
 assert.ok(!/id="create"/.test(main),'Removed sidebar compose button reappeared');
 assert.equal((main.match(/data-vatra-ad-slot="[12]"/g)||[]).length,2,'Expected exactly two reserved ad spaces');
 assert.ok(main.includes('vatra-sidebar-ads.css?'),'Sidebar/ad stylesheet not linked');
@@ -80,29 +80,29 @@ assert.ok(adsJs.includes('enabled: false'),'Ad loading must remain off until the
 assert.ok(adsJs.includes('ca-pub-')&&adsJs.includes('adsbygoogle'),'Missing AdSense integration hooks');
 
 // Playback and profile-save UX regressions.
-const musicSrc=readFileSync('VATRA/vatra-music.js','utf8');
+const musicSrc=readFileSync('vatra-music.js','utf8');
 assert.ok(musicSrc.includes('spotifyController.loadEntity(addressFor(playerItem||item))'),'Spotify track switching must reuse the existing iframe');
 assert.ok(scriptText.includes("err=f.querySelector('#settingsError');if(err)err.textContent=''"),'Settings errors must clear on a new save attempt');
 
 
 // Profile language picker, community settings and original brand regression checks.
-const languageModule=readFileSync('VATRA/vatra-language.js','utf8');
-const layouts=readFileSync('VATRA/vatra-settings-community-fix.css','utf8');
+const languageModule=readFileSync('vatra-language.js','utf8');
+const layouts=readFileSync('vatra-settings-community-fix.css','utf8');
 assert.ok(scriptText.includes("['language','Мова інтерфейсу']"),'Language settings tab missing');
 assert.ok(scriptText.includes("className='vatra-language-settings-mount'"),'Language settings mount missing');
 assert.ok(languageModule.includes("querySelector('.vatra-language-settings-mount')"),'Language picker injection missing');
 assert.ok(layouts.includes('.vatra-group-view .vatra-group-back'),'Community back navigation layout missing');
 assert.ok(layouts.includes('.birthday-selects'),'Date of birth controls layout missing');
 assert.ok(main.includes('vatra-settings-community-fix.css'),'Updated profile/community stylesheet missing');
-assert.ok(existsSync('VATRA/vatra-header.svg'),'User-derived horizontal brand SVG missing');
+assert.ok(existsSync('vatra-header.svg'),'User-derived horizontal brand SVG missing');
 assert.ok(main.includes('vatra-header.svg'),'Horizontal wordmark not linked in website navigation');
 assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
 
 
 // November 3 international UX regressions.
-const finalUx=readFileSync('VATRA/vatra-ui-finish.css','utf8');
-const routeScroll=readFileSync('VATRA/vatra-route-scroll.js','utf8');
-const languageCss=readFileSync('VATRA/vatra-language.css','utf8');
+const finalUx=readFileSync('vatra-ui-finish.css','utf8');
+const routeScroll=readFileSync('vatra-route-scroll.js','utf8');
+const languageCss=readFileSync('vatra-language.css','utf8');
 assert.ok(main.includes('vatra-ui-finish.css?'),'Final profile/dark theme style is not linked');
 assert.ok(main.includes('vatra-route-scroll.js?'),'Route scroll fix must be linked');
 assert.ok(routeScroll.includes("window.addEventListener('hashchange'"),'Hash navigation must scroll to top');
@@ -114,21 +114,21 @@ assert.ok(languageModule.includes('const seoTitles='),'Translated meta titles mi
 assert.ok(languageModule.includes('ensureMeta('),'Meta title/description updater missing');
 assert.ok(giftText.includes('giftDescriptions'),'Gift descriptions missing');
 assert.ok(giftText.includes('animatedGiftCodes'),'Looping gift SVG animations missing');
-assert.ok(readFileSync('VATRA/vatra-gifts.css','utf8').includes('@keyframes vatra-gift-float'),'Animated gift CSS missing');
+assert.ok(readFileSync('vatra-gifts.css','utf8').includes('@keyframes vatra-gift-float'),'Animated gift CSS missing');
 assert.ok(!main.includes('class="vatra-footer-credit"'),'Sidebar developer credit came back');
-assert.ok(readFileSync('VATRA/sitemap.xml','utf8').includes('/lang/en/'),'International sitemap entries missing');
+assert.ok(readFileSync('sitemap.xml','utf8').includes('/lang/en/'),'International sitemap entries missing');
 for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
- assert.ok(existsSync('VATRA/lang/'+locale+'/index.html'),'Static multilingual landing missing: '+locale);
- const content=readFileSync('VATRA/lang/'+locale+'/index.html','utf8');
+ assert.ok(existsSync('lang/'+locale+'/index.html'),'Static multilingual landing missing: '+locale);
+ const content=readFileSync('lang/'+locale+'/index.html','utf8');
  assert.ok(content.includes('hreflang="'+locale+'"'),'Missing locale SEO alternates: '+locale);
 }
 
 
 // Account settings and expanded gift viewing: November 3 design references.
-const authPage=readFileSync('VATRA/auth.html','utf8');
-const registerPage=readFileSync('VATRA/register.html','utf8');
-const loaderCss=readFileSync('VATRA/vatra-loader.css','utf8');
-const adminSource=readFileSync('VATRA/vatra-admin-center.js','utf8');
+const authPage=readFileSync('auth.html','utf8');
+const registerPage=readFileSync('register.html','utf8');
+const loaderCss=readFileSync('vatra-loader.css','utf8');
+const adminSource=readFileSync('vatra-admin-center.js','utf8');
 assert.ok(scriptText.includes("vatraSettingsContext='settings'"),'Profile editing and account settings must be separate');
 assert.ok(scriptText.includes("vatraOpeningEditProfile=true"),'Edit-profile button must enter edit context');
 assert.ok(layouts.includes('data-vatra-settings-context="settings"'),'Separate account settings layout missing');
@@ -143,15 +143,15 @@ for(const html of [authPage,registerPage]){
  assert.ok(html.includes('vatra-loading-wordmark-image'),'Minimal social-network loader missing');
  assert.ok(!html.includes('ВАТРА — це не просто сайт у моєму комп’ютері.'),'Old sentimental founder copy remains');
 }
-assert.ok(loaderCss.includes('Lightweight launch state for a social network'),'Quiet loader styling missing');
+assert.ok(loaderCss.includes('.vatra-loading-screen{'),'Quiet loader styling missing');
 assert.ok(giftText.includes('function openGiftDetail(code)'),'Fullscreen gift viewer handler missing');
 assert.ok(giftText.includes('data-vatra-gift-open'),'Gift card zoom action missing');
 assert.ok(giftText.includes('giftLongDescriptions'),'Expanded description for gifts missing');
-assert.ok(readFileSync('VATRA/vatra-gifts.css','utf8').includes('.vatra-gift-detail-dialog[open]'),'Fullscreen gift styling missing');
+assert.ok(readFileSync('vatra-gifts.css','utf8').includes('.vatra-gift-detail-dialog[open]'),'Fullscreen gift styling missing');
 
 
 // Profile editor and additional settings (source-level non-regression checks).
-const editorCss=readFileSync('VATRA/vatra-profile-editor.css','utf8');
+const editorCss=readFileSync('vatra-profile-editor.css','utf8');
 assert.ok(main.includes('vatra-profile-editor.css'),'New branded editor styles must be loaded');
 assert.ok(scriptText.includes('VATRA_PROFILE_RECORD_SCHEMAS'),'Education, career and military record schemas missing');
 assert.ok(scriptText.includes('vatraGetRecordLists(f)'),'Multi-entry profile records must be validated on save');
@@ -164,9 +164,9 @@ assert.ok(!scriptText.includes('settingsCoverFile')&&!scriptText.includes('setti
 assert.ok(!editorCss.includes('.vatra-editor-cover'),'Profile editor must not render cover UI');
 
 // November 3 latest: editor navigation and Latin @handle.
-const latinAuth=readFileSync('VATRA/auth.js','utf8');
+const latinAuth=readFileSync('auth.js','utf8');
 const latinSQL=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
-const unifiedLayout=readFileSync('VATRA/vatra-layout-cleanup.css','utf8');
+const unifiedLayout=readFileSync('vatra-layout-cleanup.css','utf8');
 assert.ok(!main.includes('<aside class="sidebar"><a class="brand"'),'The desktop sidebar must not repeat the topbar logo');
 assert.ok(main.includes('vatra-layout-cleanup.css'),'Shared editor/settings and photo-date CSS is not linked');
 assert.ok(scriptText.includes("navPage=p==='settings'&&vatraSettingsContext==='edit'?'profile':p"),'The editor must highlight the profile nav, not settings');

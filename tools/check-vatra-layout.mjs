@@ -1,6 +1,7 @@
 import {existsSync,readFileSync,readdirSync} from 'node:fs';
 import {join,normalize} from 'node:path';
-const root='VATRA';
+const root='.';
+if(!existsSync('index.html')||existsSync('VATRA/index.html')||!existsSync('.nojekyll'))throw new Error('GitHub Pages site must be deployed from repository root');
 const files=readdirSync(root);
 const junk=files.filter(f=>/\.(?:sql|md|zip)$/i.test(f));
 if(junk.length)throw new Error('Website directory contains documentation or SQL: '+junk.join(', '));
@@ -10,7 +11,7 @@ function checkAsset(spec){
  const clean=spec.split(/[?#]/,1)[0];
  if(!clean||clean.startsWith('/'))return;
  const local=normalize(join(root,clean));
- if(!local.startsWith(root+'/')&&local!==root)throw new Error('Path escapes website: '+spec);
+ if(local==='..'||local.startsWith('../')||local.startsWith('..\\'))throw new Error('Path escapes website: '+spec);
  if(!existsSync(local))throw new Error('Missing website dependency: '+local);
  checked++;
 }

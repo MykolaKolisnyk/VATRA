@@ -5,8 +5,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/vatra-local-fonts.yml"
-      - "VATRA/vatra-local-fonts.css"
-      - "VATRA/assets/fonts/**"
+      - "vatra-local-fonts.css"
+      - "assets/fonts/**"
   workflow_dispatch:
 
 permissions:
@@ -24,8 +24,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p VATRA/assets/fonts
-          file="VATRA/assets/fonts/Onest-Variable.ttf"
+          mkdir -p assets/fonts
+          file="assets/fonts/Onest-Variable.ttf"
           if [ -s "$file" ]; then
             echo "Local font already committed"
             exit 0

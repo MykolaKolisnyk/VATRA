@@ -1,0 +1,272 @@
+
+body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"]{width:100%;max-width:100%;min-width:0}
+body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .settings-intro{
+ padding:14px 21px!important;margin:0 0 16px!important;border-radius:13px!important;
+ background:#fff!important;border:1px solid #e2e9f2!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-intro .eyebrow{font-size:10px!important;color:#5274a0!important}
+body .settings-page[data-vatra-settings-context="edit"] .settings-intro h2{
+ font-size:20px!important;letter-spacing:-.02em!important;color:#223c58!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-intro p:not(.eyebrow){
+ font-size:12.5px!important;color:#768aa2!important;margin:4px 0 0!important;
+}
+body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .vatra-settings-workspace{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(210px,250px)!important;
+ gap:18px!important;align-items:start!important;width:100%!important;
+}
+body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .vatra-settings-workspace>.settings-form{
+ grid-row:1!important;grid-column:1!important;min-width:0!important;max-width:none!important;
+ width:100%!important;margin:0!important;padding:0!important;
+ background:transparent!important;border:none!important;box-shadow:none!important;
+}
+body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .vatra-settings-workspace>.vatra-settings-nav{
+ grid-row:1!important;grid-column:2!important;position:sticky!important;top:88px!important;
+ display:flex!important;flex-direction:column!important;max-height:calc(100dvh - 110px)!important;
+ overflow-y:auto!important;overflow-x:hidden!important;gap:2px!important;
+ padding:12px!important;border:1px solid #e2e9f2!important;
+ border-radius:13px!important;background:#fff!important;box-shadow:none!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-nav-button:not([hidden]){
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ width:100%!important;min-height:43px!important;padding:10px 13px!important;
+ border-radius:8px!important;white-space:normal!important;
+ font:600 13px/1.35 Inter,system-ui,sans-serif!important;
+ border:0!important;color:#47627e!important;background:transparent!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-nav-button:not([hidden]):hover{
+ background:#f0f5fc!important;color:#1454bd!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-nav-button.active{
+ background:#e9f1ff!important;color:#0757f5!important;font-weight:750!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-pane:not([hidden]){
+ display:flex!important;flex-direction:column!important;gap:14px!important;width:100%!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-pane>.settings-card{
+ box-sizing:border-box!important;padding:21px!important;margin:0!important;
+ width:100%!important;min-width:0!important;
+ border:1px solid #e2e9f2!important;border-radius:13px!important;
+ background:#fff!important;box-shadow:none!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-pane>.settings-card h3{
+ margin:0 0 17px!important;color:#243d5a!important;font-size:16px!important;
+ font-weight:750!important;line-height:1.35!important;letter-spacing:-.01em!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-grid{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:16px!important;align-items:start!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-grid>label:not(.settings-check){
+ display:flex!important;flex-direction:column!important;gap:7px!important;
+ font-size:12px!important;line-height:1.5!important;font-weight:650!important;color:#516d89!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-grid :is(input:not([type="checkbox"]),select,textarea),
+body .settings-page[data-vatra-settings-context="edit"] :is(.vatra-record-row input,.vatra-record-visibility select){
+ min-height:43px!important;padding:9px 12px!important;
+ border:1px solid #d9e3ee!important;border-radius:9px!important;
+ background:#fff!important;color:#243e5b!important;
+ font:500 13px/1.4 Inter,system-ui,sans-serif!important;box-shadow:none!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] :is(input,select,textarea):focus{
+ outline:none!important;border-color:#4c8df7!important;box-shadow:0 0 0 2px #0757f51c!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] textarea{resize:vertical!important;min-height:82px!important}
+body .settings-page[data-vatra-settings-context="edit"] .settings-grid>.vatra-extra-setting,
+body .settings-page[data-vatra-settings-context="edit"] .settings-grid>.vatra-record-editor{grid-column:1 / -1!important}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;
+ padding:13px 0!important;border-bottom:1px solid #eef2f7!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting:last-child{border-bottom:0!important}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting-head{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:12px!important;flex-wrap:wrap!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting-title{
+ color:#4a6280!important;font-size:13px!important;font-weight:650!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-visibility{
+ display:flex!important;align-items:center!important;flex-direction:row!important;
+ gap:8px!important;font-size:11px!important;color:#7991ab!important;font-weight:500!important;
+ max-width:100%!important;min-width:0!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-visibility select{
+ width:auto!important;min-width:130px!important;max-width:190px!important;
+ padding:6px 8px!important;min-height:34px!important;font-size:11px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting>label:not(.vatra-extra-visibility){
+ width:100%!important;margin:0!important;display:block!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting>label>textarea,
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting>label>select,
+body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-setting>label>input{
+ display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-savebar{
+ display:flex!important;justify-content:flex-end!important;align-items:center!important;
+ padding:14px 19px!important;margin:0!important;border:1px solid #e2e9f2!important;
+ border-radius:12px!important;background:#fff!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .settings-savebar button{
+ min-height:43px!important;padding:10px 24px!important;border-radius:9px!important;
+ background:#0757f5!important;color:#fff!important;font-weight:700!important;box-shadow:none!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos{
+ overflow:hidden!important;padding:0!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>h3{
+ padding:18px 21px 13px!important;margin:0!important;border-bottom:1px solid #e4ebf4!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>.settings-photo-row{
+ margin:0!important;padding:20px 22px!important;display:flex!important;gap:20px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>.muted{
+ margin:0!important;padding:10px 21px!important;color:#8395aa!important;font-size:12px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos .settings-avatar{
+ width:98px!important;height:98px!important;flex:0 0 98px!important;
+ border:3px solid #fff!important;box-shadow:0 0 0 1px #dce7f2!important;
+ border-radius:22px!important;background-size:cover!important;background-position:center!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-editor{width:100%!important;min-width:0!important}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-visibility{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:space-between!important;gap:12px!important;padding:0 0 13px!important;
+ border-bottom:1px solid #eef2f6!important;font-size:12px!important;font-weight:650!important;color:#58708b!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-visibility select{
+ width:170px!important;min-height:38px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-list{
+ display:flex!important;flex-direction:column!important;gap:12px!important;margin:13px 0!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-row{
+ padding:14px!important;background:#f7f9fc!important;
+ border:1px solid #e2eaf3!important;border-radius:11px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-head{
+ display:flex!important;justify-content:space-between!important;align-items:center!important;gap:12px!important;margin-bottom:10px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-head b{
+ color:#365573!important;font-size:12px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-head button{
+ color:#bf4155!important;background:transparent!important;border:none!important;padding:4px 6px!important;
+ font-size:12px!important;font-weight:650!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields label{
+ display:flex!important;flex-direction:column!important;gap:6px!important;min-width:0!important;
+ color:#647d98!important;font-size:11px!important;font-weight:600!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields label:first-child{
+ grid-column:1/-1!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields label input{
+ width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-add{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;min-height:40px!important;padding:8px 17px!important;
+ background:#eaf2ff!important;color:#0757f5!important;border:1px solid #cfe0fa!important;
+ border-radius:9px!important;font-size:12px!important;font-weight:750!important;
+ box-shadow:none!important;
+}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-add:hover{background:#dceafe!important}
+body .settings-page[data-vatra-settings-context="edit"] .vatra-record-add:disabled{opacity:.5!important;cursor:not-allowed!important}
+body[data-vatra-theme-effective="dark"] .settings-page[data-vatra-settings-context="edit"] :is(.settings-intro,.vatra-settings-nav,.vatra-settings-pane>.settings-card,.settings-savebar){
+ background:#1f2d40!important;border-color:#40566d!important;color:#e7f0fa!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page[data-vatra-settings-context="edit"] :is(h2,h3,.vatra-extra-setting-title,.vatra-record-head b){color:#edf4ff!important}
+body[data-vatra-theme-effective="dark"] .settings-page[data-vatra-settings-context="edit"] :is(.vatra-record-row){
+ background:#263a51!important;border-color:#435872!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page[data-vatra-settings-context="edit"] :is(.vatra-record-row input,.vatra-record-visibility select){
+ background:#2b415a!important;color:#eef6ff!important;border-color:#4a6480!important;
+}
+@media(max-width:1020px){
+ body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .vatra-settings-workspace{
+  grid-template-columns:1fr!important;
+ }
+ body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .vatra-settings-workspace>.vatra-settings-nav{
+  grid-column:1!important;grid-row:1!important;position:static!important;display:flex!important;
+  flex-direction:row!important;max-height:none!important;
+  overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;
+ }
+ body[data-page="settings"] .settings-page[data-vatra-settings-context="edit"] .vatra-settings-workspace>.settings-form{
+  grid-column:1!important;grid-row:2!important;
+ }
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-nav-button:not([hidden]){
+  width:auto!important;flex:0 0 auto!important;white-space:nowrap!important;
+ }
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-nav-heading{display:none!important}
+}
+@media(max-width:600px){
+ body .settings-page[data-vatra-settings-context="edit"] .settings-grid,
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields{grid-template-columns:minmax(0,1fr)!important}
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-record-fields label:first-child{grid-column:1!important}
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-settings-pane>.settings-card{padding:16px!important}
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-editor-profile-photos>.settings-photo-row{padding:16px!important}
+ body .settings-page[data-vatra-settings-context="edit"] .vatra-extra-visibility{width:100%!important;justify-content:space-between!important}
+}
+
+
+body .settings-page[data-vatra-settings-context="settings"] .vatra-settings-pane[data-settings-section="notifications"] .settings-grid{
+ display:flex!important;flex-direction:column!important;gap:0!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ justify-content:space-between!important;gap:16px!important;min-height:55px!important;
+ margin:0!important;padding:12px 3px!important;border-bottom:1px solid #e7edf5!important;
+ color:#47617e!important;font:600 13px/1.4 Inter,system-ui,sans-serif!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting:last-child{border-bottom:0!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting span{flex:1 1 auto!important;min-width:0!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-notify-setting input[type="checkbox"]{
+ width:39px!important;height:22px!important;flex:0 0 auto!important;
+ accent-color:#0757f5!important;cursor:pointer!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-add{
+ margin:14px 0 20px!important;padding:14px!important;
+ background:#f6f9fc!important;border:1px solid #e0e8f2!important;border-radius:11px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-add>label{
+ display:block!important;margin:0 0 9px!important;
+ font-size:12px!important;font-weight:650!important;color:#506c89!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] #vatraBlockedLookup{
+ display:block!important;box-sizing:border-box!important;min-height:42px!important;
+ width:100%!important;max-width:100%!important;padding:10px 12px!important;
+ border:1px solid #d4dfea!important;border-radius:9px!important;
+ background:#fff!important;color:#233d5a!important;font-size:13px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-results{
+ display:flex!important;flex-direction:column!important;gap:7px!important;margin-top:11px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:10px!important;flex-wrap:wrap!important;padding:9px!important;
+ background:#fff!important;border:1px solid #dfe7f1!important;border-radius:9px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>span{
+ display:flex!important;align-items:center!important;min-width:0!important;gap:9px!important;
+}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>span b{font-size:12px!important;color:#304d68!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>span small{font-size:11px!important;color:#8ca0b6!important}
+body .settings-page[data-vatra-settings-context="settings"] .vatra-blocked-result>button{
+ min-height:34px!important;padding:7px 12px!important;border-radius:8px!important;
+ background:#fff4f6!important;border:1px solid #f1cbd2!important;
+ color:#b13c54!important;font-size:12px!important;font-weight:650!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page .vatra-notify-setting{
+ color:#d5e2f1!important;border-color:#3a5068!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page :is(.vatra-blocked-add,.vatra-blocked-result){
+ background:#2a3b50!important;border-color:#4a5c73!important;
+}
+body[data-vatra-theme-effective="dark"] .settings-page #vatraBlockedLookup{
+ background:#1f2d40!important;border-color:#52657d!important;color:#f5f9ff!important;
+}
