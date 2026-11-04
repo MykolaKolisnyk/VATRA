@@ -3259,29 +3259,43 @@ function vatraOrganizeSettings(){
  });
  sections.privacy.append(privacyCard,adminCard);
  sections.appearance.append(appearanceCard);
- const notificationGrid=makeCard('notifications','Сповіщення ВАТРИ','Налаштуйте, які події показувати у внутрішньому центрі сповіщень. Системні повідомлення про безпеку залишаються доступними.');
- const notificationCategories=[
-  ['like','Вподобання дописів'],['photoLike','Вподобання фотографій'],
-  ['comment','Коментарі'],['reply','Відповіді на коментарі'],['photoComment','Коментарі до фото'],
-  ['commentLike','Вподобання коментарів'],['friend','Запити в друзі'],
-  ['groupPost','Нові дописи спільнот'],['sound','Звуки нових подій']
+ const notificationGrid=makeCard('notifications','Сповіщення ВАТРИ','Оберіть, які події показувати у ВАТРІ. Важливі повідомлення про безпеку залишатимуться доступними.');
+ notificationGrid.classList.add('vatra-notification-preferences');
+ // Keep the existing persisted keys and handlers. Only the layout is grouped.
+ const notificationGroups=[
+  {title:'На сайті',description:'Керування звуковими сигналами',icon:'<path d="m10 5-5 4H2v6h3l5 4V5Zm4 3a5 5 0 0 1 0 8m3-11a9 9 0 0 1 0 14"/>',
+   entries:[['sound','Звуки сповіщень','Програвати короткий сигнал про нові події']]},
+  {title:'Реакції та обговорення',description:'Відгуки на Ваші публікації та коментарі',icon:'<path d="M20.8 8.7c0 5.2-8.8 10.2-8.8 10.2S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.4a4.7 4.7 0 0 1 8.8 2.3Z"/>',
+   entries:[['like','Вподобання дописів','Коли хтось уподобав Ваш допис'],['photoLike','Вподобання фотографій','Реакції на Ваші фотографії'],['comment','Коментарі до дописів','Коли коментують Ваш допис'],['reply','Відповіді на коментарі','Нові відповіді на Ваші коментарі'],['photoComment','Коментарі до фото','Обговорення Ваших фотографій'],['commentLike','Вподобання коментарів','Реакції на залишені Вами коментарі']]},
+  {title:'Люди та спільноти',description:'Запити у друзі та новини Ваших спільнот',icon:'<circle cx="8" cy="8" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2M16 7a3 3 0 0 1 0 6m2 2a5 5 0 0 1 4 5"/>',
+   entries:[['friend','Запити в друзі','Нові запрошення та зміни в дружбі'],['groupPost','Нові дописи спільнот','Публікації спільнот, на які Ви підписані']]}
  ];
- for(const [key,title] of notificationCategories){
-  const label=document.createElement('label');label.className='vatra-notify-setting';
-  const toggle=document.createElement('input');toggle.type='checkbox';toggle.dataset.vatraNotifyPreference=key;
-  toggle.checked=privateNotifyPrefs?.[key]!==false;
-  toggle.setAttribute('role','switch');toggle.setAttribute('aria-checked',String(toggle.checked));toggle.setAttribute('aria-label',title);
-  const text=document.createElement('span');text.textContent=title;
-  label.append(text,toggle);notificationGrid.append(label);
-  toggle.addEventListener('change',async()=>{
-   const old={...privateNotifyPrefs};privateNotifyPrefs[key]=toggle.checked;
-   toggle.setAttribute('aria-checked',String(toggle.checked));toggle.disabled=true;
-   try{
-    await update(ref(db,'privateUsers/'+currentUser.uid),{notificationPreferences:privateNotifyPrefs,updatedAt:Date.now()});
-    currentProfile.notificationPreferences=privateNotifyPrefs;updateNotificationBadges();toastMsg('Сповіщення оновлено.');
-   }catch(error){privateNotifyPrefs=old;toggle.checked=old[key]!==false;toastMsg('Не вдалося зберегти: '+niceError(error));}
-   finally{toggle.disabled=false;toggle.setAttribute('aria-checked',String(toggle.checked));}
-  });
+ for(const group of notificationGroups){
+  const section=document.createElement('section');section.className='vatra-notify-group';section.setAttribute('aria-label',group.title);
+  const heading=document.createElement('header');heading.className='vatra-notify-group-heading';
+  heading.innerHTML='<span class="vatra-notify-group-symbol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+group.icon+'</svg></span>'+
+   '<span><b>'+group.title+'</b><small>'+group.description+'</small></span>';
+  section.append(heading);
+  for(const [key,title,description] of group.entries){
+   const label=document.createElement('label');label.className='vatra-notify-setting';
+   const toggle=document.createElement('input');toggle.type='checkbox';toggle.dataset.vatraNotifyPreference=key;
+   toggle.checked=privateNotifyPrefs?.[key]!==false;
+   toggle.setAttribute('role','switch');toggle.setAttribute('aria-checked',String(toggle.checked));toggle.setAttribute('aria-label',title);
+   const copy=document.createElement('span');copy.className='vatra-notify-copy';
+   const name=document.createElement('b');name.textContent=title;
+   const note=document.createElement('small');note.textContent=description;
+   copy.append(name,note);label.append(copy,toggle);section.append(label);
+   toggle.addEventListener('change',async()=>{
+    const old={...privateNotifyPrefs};privateNotifyPrefs[key]=toggle.checked;
+    toggle.setAttribute('aria-checked',String(toggle.checked));toggle.disabled=true;
+    try{
+     await update(ref(db,'privateUsers/'+currentUser.uid),{notificationPreferences:privateNotifyPrefs,updatedAt:Date.now()});
+     currentProfile.notificationPreferences=privateNotifyPrefs;updateNotificationBadges();toastMsg('Сповіщення оновлено.');
+    }catch(error){privateNotifyPrefs=old;toggle.checked=old[key]!==false;toastMsg('Не вдалося зберегти: '+niceError(error));}
+    finally{toggle.disabled=false;toggle.setAttribute('aria-checked',String(toggle.checked));}
+   });
+  }
+  notificationGrid.append(section);
  }
 
  // Dedicated, clearly visible language section. This is populated by the

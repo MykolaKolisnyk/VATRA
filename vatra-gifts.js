@@ -248,7 +248,7 @@ function openGiftDetail(code){
  dialog.innerHTML='<div class="vatra-gift-detail-inner"><header class="vatra-gift-detail-header"><span>ВАТРА <i aria-hidden="true">•</i> КОЛЕКЦІЯ ПОДАРУНКІВ</span><button type="button" data-vatra-gift-detail-close aria-label="Закрити перегляд"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m5 5 14 14M19 5 5 19"/></svg></button></header>'+
  '<div class="vatra-gift-detail-scroll"><div class="vatra-gift-detail-stage">'+vatraGiftAtmosphere(item.code)+art(item.code)+'</div>'+
  '<section class="vatra-gift-detail-info"><p class="vatra-gift-detail-category">'+esc(kind)+(animatedGiftCodes.has(item.code)?' · Анімований':'')+'</p><h2>'+esc(item.title)+'</h2>'+
- '<p class="vatra-gift-detail-description">'+esc(giftDescriptions[item.code]||'Подарунок ВАТРИ.')+' '+esc(giftLongDescriptions[item.code]||'Особливий подарунок для друзів і колекції ВАТРИ.')+'</p>'+
+ '<p class="vatra-gift-detail-description">'+esc(giftDescriptions[item.code]||giftLongDescriptions[item.code]||'Особливий подарунок для друзів і колекції ВАТРИ.')+'</p>'+
  '<p class="vatra-gift-detail-note">'+esc(availability)+'</p></section></div>'+
  '<footer class="vatra-gift-detail-footer"><button type="button" data-vatra-gift-detail-close>Закрити перегляд</button></footer></div>';
  if(!dialog.open)dialog.showModal();
