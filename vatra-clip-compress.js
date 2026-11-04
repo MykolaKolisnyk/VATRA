@@ -77,7 +77,8 @@ export async function compressVatraClip(source,{signal,onProgress=()=>{},maxByte
    if(done)return;
    const blob=new Blob(chunks,{type:rec.mimeType||mime});
    if(!blob.size||blob.size>maxBytes){fail(new Error('Стиснений кліп усе ще перевищує 50 МБ. Спробуйте коротший ролик.'));return;}
-   const type=blob.type||mime,ext=type.includes('mp4')?'mp4':'webm';
+   const containerType=blob.type||mime,ext=containerType.includes('mp4')?'mp4':'webm';
+   const type=ext==='mp4'?'video/mp4':'video/webm';
    done=true;clean();onProgress(100);
    resolvePromise(new File([blob],'vatra-clip-'+Date.now()+'.'+ext,{type,lastModified:Date.now()}));
   };
