@@ -1,0 +1,119 @@
+/* VATRA UI Foundations — one coherent typography and interaction layer.
+   Intentionally loaded after legacy component styles, replacing conflicting visual rules. */
+:root{
+ --vatra-ui-ink:#263b55;
+ --vatra-ui-strong:#172f4e;
+ --vatra-ui-muted:#60758f;
+ --vatra-ui-secondary:#526a86;
+ --vatra-ui-border:#dbe4ef;
+ --vatra-ui-field-border:#d1deeb;
+ --vatra-ui-hover:#f2f6fc;
+ --vatra-ui-active:#e9f1ff;
+ --vatra-ui-primary:#0757e8;
+ --vatra-ui-surface:#fff;
+ --vatra-ui-font:"VATRA Onest","Segoe UI",system-ui,sans-serif;
+ --vatra-ui-radius:11px;
+}
+html body{font-family:var(--vatra-ui-font)!important;color:var(--vatra-ui-ink)!important;font-size:14px;line-height:1.52;font-weight:400;letter-spacing:0}
+html body :is(button,input,textarea,select,option){font-family:var(--vatra-ui-font)!important}
+html body :is(.layout,.topbar,.sidebar,.post,.quick-compose,.settings-page,.vatra-profile-overview,.vatra-friends-layout,.vatra-messenger-layout,.vatra-notifications-layout,.vatra-gifts-page){font-family:var(--vatra-ui-font)!important}
+html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-notification-rail button,.vatra-group-nav button,.post-actions button,.post-menu button,.vatra-profile-button){
+ opacity:1!important;text-shadow:none!important;
+}
+html body .layout>.sidebar>nav>a.nav:not([hidden]){
+ color:#334d6b!important;font-size:13.5px!important;font-weight:600!important;
+ line-height:1.45!important;opacity:1!important;letter-spacing:0!important;
+ min-height:42px!important;transform:none!important;
+}
+html body .layout>.sidebar>nav>a.nav .nav-icon{color:#607fa3!important;opacity:1!important}
+html body .layout>.sidebar>nav>a.nav:hover{background:#f0f4fb!important;color:#144f9a!important}
+html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#2864b2!important}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
+ background:#e8f0ff!important;color:#0757df!important;font-weight:720!important;
+}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757df!important}
+/* Text hierarchy and crisp readable sizes, using the locally bundled Onest. */
+html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-profile-detail-label,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:14px!important;line-height:1.65!important;font-weight:400!important;
+ text-shadow:none!important;opacity:1!important;
+}
+html body :is(.post .author b,.post .author-link,.vatra-friends-row b,.vatra-search-person-name,.vatra-search-group-name,.vatra-profile-card-head h3,.settings-card h3){
+ color:var(--vatra-ui-strong)!important;opacity:1!important;font-weight:680!important;
+}
+html body :is(.post .author small,.vatra-friends-row small,.post .muted,.settings-card .muted,.vatra-profile-label,.vatra-profile-detail-label,.vatra-notifications-layout small){
+ color:var(--vatra-ui-muted)!important;opacity:1!important;text-shadow:none!important;
+}
+html body :is(.post .author small,.vatra-friends-row small,.post .muted){font-size:12px!important;line-height:1.5!important}
+html body :is(.heading h1,.heading h2,.vatra-profile-card-head h3,.vatra-profile-posts-title h3,.settings-card h3,.notifications-heading h2){
+ letter-spacing:-.018em!important;line-height:1.32!important;
+}
+html body :is(.post,.quick-compose,.vatra-profile-card,.vatra-friends-main,.vatra-friends-rail,.vatra-settings-pane .settings-card,.vatra-notification-rail,.vatra-community-card){
+ border-color:var(--vatra-ui-border)!important;box-shadow:none!important;
+}
+html body :is(.post .post-actions button,.vatra-profile-posts-title button,.vatra-profile-card-head button,.vatra-friends-top button){
+ font-weight:650!important;opacity:1!important;color:#3e6289!important;
+}
+/* One clear focus system: the container gets the ring; nested inputs do not. */
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field){
+ box-sizing:border-box!important;min-width:0!important;
+ border:1px solid var(--vatra-ui-field-border)!important;
+ border-radius:12px!important;box-shadow:none!important;
+ transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease!important;
+}
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field):focus-within{
+ border-color:#84a9d9!important;outline:none!important;
+ background:#fff!important;box-shadow:0 0 0 2px rgba(49,112,201,.10)!important;
+}
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field) input:is(:focus,:focus-visible),
+html body .topbar .search input:is(:focus,:focus-visible){
+ outline:none!important;outline-offset:0!important;border:0!important;
+ box-shadow:none!important;background:transparent!important;
+ border-radius:0!important;
+}
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field) input{
+ min-width:0!important;font-size:13.5px!important;letter-spacing:0!important;
+}
+html body input:is([type="text"],[type="email"],[type="tel"],[type="url"],[type="password"],[type="search"],[type="number"],[type="date"]):not(.vatra-music-track-progress):not(.vatra-player-progress),
+html body :is(textarea,select){
+ font-size:13.5px!important;line-height:1.5!important;
+ color:var(--vatra-ui-ink)!important;
+ border-radius:var(--vatra-ui-radius)!important;
+ transition:border-color .16s ease,background-color .16s ease,box-shadow .16s ease!important;
+}
+html body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),textarea,select):focus{
+ outline:none!important;outline-offset:0!important;
+ border-color:#8aaedb!important;box-shadow:none!important;
+}
+html body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),textarea,select):focus-visible{
+ outline:none!important;border-color:#6f9fd9!important;
+ box-shadow:0 0 0 2px rgba(42,113,214,.12)!important;
+}
+html body :is(input,textarea)::placeholder{color:#7d8fa5!important;opacity:1!important}
+html body :is(.search,.vatra-friends-search,.vatra-community-search,.vatra-group-members-search,.vatra-messenger-search,.vatra-music-search,.vatra-search-history-search,.vatra-search-field) input::placeholder{color:#778ca4!important;opacity:1!important}
+html body :is(button,a,summary,[role="button"],[role="tab"]):focus:not(:focus-visible){outline:0!important;box-shadow:none!important}
+html body :is(button,a,summary,[role="button"],[role="tab"]):focus-visible{
+ outline:2px solid #6b97cb!important;outline-offset:2px!important;
+ box-shadow:none!important;
+}
+/* Crisp controls: 0 opacity/transparency hacks and no hover jumps. */
+html body :is(button,.primary,.vatra-profile-button,.vatra-settings-nav-button,.vatra-friends-tabs button,.vatra-notification-rail button){
+ text-shadow:none!important;transform:none!important;letter-spacing:0!important;
+ transition:background-color .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease!important;
+}
+html body :is(.primary,button.primary){background:var(--vatra-ui-primary)!important;color:#fff!important;font-weight:700!important;box-shadow:none!important;border-radius:10px!important}
+html body :is(.primary,button.primary):hover:not(:disabled){background:#064bc7!important;box-shadow:none!important;transform:none!important}
+html body :is(button,[role="button"],a):disabled{opacity:.55!important;cursor:not-allowed!important}
+/* Settings navigation and media cards use the same active treatment. */
+html body[data-page="settings"] .vatra-settings-nav-button:not([hidden]){
+ min-height:43px!important;font-size:13.5px!important;font-weight:600!important;
+ color:#405c7a!important;opacity:1!important;letter-spacing:0!important;border-radius:10px!important;
+}
+html body[data-page="settings"] .vatra-settings-nav-button:not([hidden]):hover{background:#eff4fb!important;color:#22558e!important}
+html body[data-page="settings"] .vatra-settings-nav-button.active{background:#e9f1ff!important;color:#095be4!important;font-weight:710!important}
+html body[data-page="settings"] .vatra-settings-nav-icon{opacity:1!important;color:#6686a9!important}
+html body[data-page="settings"] .vatra-settings-nav-button.active .vatra-settings-nav-icon{color:#095be4!important}
+@media(prefers-reduced-motion:reduce){
+ html body :is(input,button,textarea,select,.nav,.vatra-settings-nav-button){transition:none!important}
+}
+@media(forced-colors:active){html body :is(input,button,a,textarea,select):focus-visible{outline:2px solid Highlight!important}}
