@@ -127,8 +127,12 @@ window.vatraBanGuardCommunity=(id,name)=>guard('community',id,name);
 window.vatraBanRefresh=async(kind,id)=>{
  byKey.delete(key(kind,id));
  const d=await status(kind,id,true);
+ if(kind==='account'&&uid()===id&&d){
+  lastOwnResult=d;verifiedOwnUid=id;rememberOwnState(id,d);
+ }
  if(isBlocked(d))inject(kind,id,d,{own:kind==='account'&&uid()===id});
  else {document.querySelector('#vatraSuspendedOwnScreen')?.remove();}
+ if(kind==='account'&&uid()===id)syncRestrictedPresentation();
  return d;
 };
 let ownCheckPromise=null,lastOwnCheckAt=0,verifiedOwnUid='',lastOwnResult=null,restrictionSupportOpening=false;
