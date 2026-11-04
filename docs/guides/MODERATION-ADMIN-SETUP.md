@@ -1,15 +1,15 @@
 # Адмінпанель ВАТРИ — встановлення та використання
 
-> **Оновлення 31.10.2026:** Для розподілу посад, заявок на верифікацію та галочок спільнот обов’язково застосуйте також `VATRA/vatra-staff-verification.sql` і вручну призначте власника в `vatra_network_owners`. Повна нова інструкція: [`STAFF-VERIFICATION-SETUP.md`](./STAFF-VERIFICATION-SETUP.md). Попередній механізм `vatra_verification_admins` більше не визначає ролі в новій адмінпанелі.
+> **Оновлення 31.10.2026:** Для розподілу посад, заявок на верифікацію та галочок спільнот обов’язково застосуйте також `database/reference/accounts/vatra-staff-verification.sql` і вручну призначте власника в `vatra_network_owners`. Повна нова інструкція: [`STAFF-VERIFICATION-SETUP.md`](./STAFF-VERIFICATION-SETUP.md). Попередній механізм `vatra_verification_admins` більше не визначає ролі в новій адмінпанелі.
 
 
 ## Підготовка
 
 Перед запуском переконайтеся, що застосовані, **у такому порядку**:
 
-1. `VATRA/app-data-schema.sql`
-2. `VATRA/vatra-unique-handles-verification.sql`
-3. **`VATRA/vatra-moderation-center.sql`** — новий модуль модерації.
+1. `database/reference/core/app-data-schema.sql`
+2. `database/reference/accounts/vatra-unique-handles-verification.sql`
+3. **`database/reference/security/vatra-moderation-center.sql`** — новий модуль модерації.
 
 Виконувати у **Supabase → SQL Editor** із правами власника бази. Третій файл містить SQL-транзакцію (`begin; … commit;`) та не видаляє наявні скарги/блокування. Повторний запуск підтримується.
 

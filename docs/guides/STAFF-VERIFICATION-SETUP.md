@@ -4,10 +4,10 @@
 
 Для нової адмінпанелі потрібні **чотири** SQL-файли, що виконуються через Supabase → SQL Editor у такому порядку:
 
-1. `VATRA/app-data-schema.sql` — базова структура, якщо вона ще не встановлена.
-2. `VATRA/vatra-unique-handles-verification.sql` — унікальні @псевдоніми та початкова верифікація акаунтів.
-3. `VATRA/vatra-moderation-center.sql` — скарги, блокування, журнал і модерація.
-4. **`VATRA/vatra-staff-verification.sql` — власник, ролі працівників, верифікація спільнот, заявки, відповіді та сповіщення.**
+1. `database/reference/core/app-data-schema.sql` — базова структура, якщо вона ще не встановлена.
+2. `database/reference/accounts/vatra-unique-handles-verification.sql` — унікальні @псевдоніми та початкова верифікація акаунтів.
+3. `database/reference/security/vatra-moderation-center.sql` — скарги, блокування, журнал і модерація.
+4. **`database/reference/accounts/vatra-staff-verification.sql` — власник, ролі працівників, верифікація спільнот, заявки, відповіді та сповіщення.**
 
 **Обережно:** повторний запуск базового `app-data-schema.sql` може скинути RLS-політики `app_data`. Після нього треба повторно застосувати решту міграцій у наведеному порядку. Не запускайте базовий SQL без необхідності на живому сайті.
 

@@ -2,7 +2,7 @@
 
 Потрібні **всі попередні міграції** (база, унікальні @псевдоніми, модерація, штатні ролі) та **нова**:
 
-**`VATRA/vatra-support-desk.sql`**
+**`database/reference/support/vatra-support-desk.sql`**
 
 Відкрийте Supabase → SQL Editor і виконайте файл після `vatra-staff-verification.sql`. Виконувати власником бази даних, не з браузера користувача. Файл не видаляє існуючі дані. SQL працює в одній транзакції `begin / commit`.
 

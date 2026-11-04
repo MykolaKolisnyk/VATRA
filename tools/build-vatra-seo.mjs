@@ -65,7 +65,8 @@ const [profiles,groups]=await Promise.all([readPublic('publicProfiles'),readPubl
 const entries=rows=>rows.map(r=>[String(r.path||'').split('/')[1],r.value]).filter(([id,v])=>/^[A-Za-z0-9_-]{6,128}$/.test(id)&&v&&typeof v==='object');
 const people=entries(profiles).filter(([,p])=>p.profileVisibility!=='private'&&p.searchable!==false&&p.name&&p.isDeleted!==true&&p.deletedAt==null);
 const communities=entries(groups).filter(([,g])=>g.visibility!=='private'&&g.name&&g.deletedAt==null);
-const links=[base+'index.html',...writeSnapshots('people',people,'person'),...writeSnapshots('communities',communities,'group')];
+const languages=['uk','en','pl','de','fr','es','pt','it'];
+const links=[base+'index.html',...languages.map(lang=>base+'lang/'+lang+'/'),...writeSnapshots('people',people,'person'),...writeSnapshots('communities',communities,'group')];
 const sitemap='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
  links.map(url=>'  <url><loc>'+esc(url)+'</loc></url>').join('\n')+'\n</urlset>\n';
 writeFileSync('VATRA/sitemap.xml',sitemap,'utf8');

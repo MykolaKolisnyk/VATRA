@@ -7,7 +7,7 @@ Supabase Edge Function, SQL-міграція і регулярний серве�
 ## Розгортання власником Supabase
 
 1. У **Supabase → SQL Editor** запустити
-   [vatra-account-lifecycle.sql](vatra-account-lifecycle.sql).
+   [vatra-account-lifecycle.sql](../../database/reference/accounts/vatra-account-lifecycle.sql).
    Він створює таблицю `vatra_account_lifecycle` із RLS і серверну процедуру
    `vatra_purge_user_data`. Не вимикайте RLS.
 2. У Supabase CLI / проєкті, якому належить цей URL, встановити секрет:

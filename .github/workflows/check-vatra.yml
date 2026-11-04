@@ -13,3 +13,5 @@ jobs:
           node-version: '22'
       - name: Check VATRA source and UI invariants
         run: node tools/check-vatra.mjs
+      - name: Check website file paths and repository layout
+        run: node tools/check-vatra-layout.mjs

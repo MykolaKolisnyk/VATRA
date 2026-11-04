@@ -3,7 +3,7 @@
 Використовується **Supabase**, не Firebase. Галочка зберігається за незмінним **UUID користувача**, а @псевдонім використовується лише для пошуку під час видачі або відкликання.
 
 ## 1. Міграція
-У Supabase → SQL Editor (проєкт ВАТРИ) переконайтеся, що вже застосовано `VATRA/app-data-schema.sql`. Тоді виконайте весь вміст `VATRA/vatra-unique-handles-verification.sql`.
+У Supabase → SQL Editor (проєкт ВАТРИ) переконайтеся, що вже застосовано `database/reference/core/app-data-schema.sql`. Тоді виконайте весь вміст `database/reference/accounts/vatra-unique-handles-verification.sql`.
 
 **Якщо SQL повідомляє про duplicate existing @handle**, існують акаунти з однаковим @псевдонімом. Міграція навмисно зупиниться, щоб не привласнити чужий псевдонім і не загубити дані. Знайдіть їх:
 

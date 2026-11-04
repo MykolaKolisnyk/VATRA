@@ -5,11 +5,11 @@
 ## 1. Міграція PostgreSQL
 
 Відкрийте Supabase-проєкт `rjasunoawrxvetwadylh`. У SQL Editor виконайте
-[vatra-scheduled-posts.sql](vatra-scheduled-posts.sql).
+[vatra-scheduled-posts.sql](../../database/reference/content/vatra-scheduled-posts.sql).
 
 Міграція створює таблицю `public.vatra_scheduled_posts` із RLS. Користувач бачить і скасовує **тільки власні** заплановані публікації. Змінити автора, текст, час або спільноту після створення через клієнт не можна. Спільнота перевіряється під час постановки в чергу і повторно перед виходом допису.
 
-Перевірте застосування [vatra-community-settings-rls.sql](vatra-community-settings-rls.sql), щоб правила учасників та коментарів перевірялися на сервері.
+Перевірте застосування [vatra-community-settings-rls.sql](../../database/reference/communities/vatra-community-settings-rls.sql), щоб правила учасників та коментарів перевірялися на сервері.
 
 ## 2. Запуск щохвилини без браузера
 
