@@ -17,8 +17,8 @@ jobs:
       group: vatra-brand-build
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: python -m pip install --disable-pip-version-check Pillow==11.3.0 CairoSVG==2.8.2
