@@ -1179,22 +1179,11 @@ function renderProfile(){
   :'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(vatraProfileFriendThumb).join('');
- const coverUrl=/^https:\/\//i.test(String(currentProfile.coverUrl||''))?String(currentProfile.coverUrl):'';
- const coverImage=coverUrl?'<img class="vatra-own-cover-image" src="'+esc(coverUrl)+'" alt="Обкладинка моєї сторінки" loading="eager" decoding="async">':'';
- const coverActions='<button type="button" class="vatra-own-cover-edit" id="vatraOwnCoverEdit">'+
-  (window.vatraIcon?.('camera')||'')+' Змінити обкладинку</button>'+
-  '<input type="file" accept="image/*" id="vatraOwnCoverInput" hidden>';
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
  const selfExtras=vatraExtraSectionsMarkup(currentProfile.privateSections||privateProfileSections,currentProfile.extraVisibility||{},true,uid);
  const hasExtraDetails=Boolean(selfExtras);
  const selfStatusMarkup=vatraNowPlayingMarkup(currentProfile)||(currentProfile.status&&!vatraProfileSameText(currentProfile.status,currentProfile.bio)?'<p class="profile-status vatra-profile-status">'+esc(currentProfile.status)+'</p>':(!currentProfile.status?'<p class="vatra-profile-status is-empty">Додайте свій статус</p>':''));
  const profileHtml='<section class="vatra-profile-layout vatra-own-page-layout">'+
-  '<header class="vatra-own-cover" aria-label="Обкладинка сторінки">'+coverImage+
-   '<div class="vatra-own-cover-actions">'+coverActions+'</div>'+
-   '<div class="vatra-own-cover-stats" aria-label="Статистика сторінки">'+
-    '<span><b>'+friendIds.length+'</b> друзів</span>'+
-    '<span><b>'+gallery.length+'</b> фотографій</span>'+
-    '<span><b>'+mine.length+'</b> дописів</span></div></header>'+
   '<aside class="vatra-profile-sidebar">'+
    '<section class="vatra-profile-card vatra-profile-avatar-card">'+
     '<div class="vatra-avatar-hover-wrap" id="vatraAvatarWrap">'+
@@ -1229,8 +1218,6 @@ function renderProfile(){
  '</section>';
  setFeed(profileHtml,false);
  requestAnimationFrame(vatraSyncBioToggles);
- $('#vatraOwnCoverEdit')?.addEventListener('click',()=>$('#vatraOwnCoverInput')?.click());
- $('#vatraOwnCoverInput')?.addEventListener('change',uploadCover);
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileStatusEdit')?.addEventListener('click',editProfileStatus);
  $('#profileAllFriends')?.addEventListener('click',()=>goPage('friends'));
@@ -2929,7 +2916,6 @@ function loadImage(file,cb){if(!file)return false;if(!file.type.startsWith('imag
 async function uploadImage(file,maxSide=1200,quality=.78,category='posts'){if(!file||!file.type?.startsWith('image/'))throw new Error('Виберіть файл зображення.');if(file.size>15*1024*1024)throw new Error('Фото має бути меншим за 15 МБ.');const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('Не вдалося прочитати фото.'));r.readAsDataURL(file);});const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('Файл зображення пошкоджений.'));i.src=data;});const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Не вдалося обробити зображення.');ctx.drawImage(img,0,0,canvas.width,canvas.height);const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('Не вдалося підготувати фото.')),'image/jpeg',quality));const optimized=new File([blob],(file.name||'photo').replace(/\.[^.]+$/,'')+'.jpg',{type:'image/jpeg',lastModified:Date.now()});return await uploadMedia(optimized,category);}
 async function getImageEditor(file,mode='avatar'){return await openVatraPhotoStudio(file,mode);}
  async function uploadAvatar(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;try{const edited=await getImageEditor(f,'avatar');if(!edited)return;toastMsg('Обробляємо фото…');const avatarUrl=await uploadImage(edited,512,.9,'avatars');const history=Array.isArray(currentProfile.avatarHistory)?currentProfile.avatarHistory.slice():[];if(currentProfile.avatarUrl&&currentProfile.avatarUrl!==avatarUrl)history.push(currentProfile.avatarUrl);const avatarHistory=history.filter((url,i,arr)=>url&&arr.indexOf(url)===i).slice(-30);await update(ref(db,`users/${currentUser.uid}`),{avatarUrl,avatarHistory});currentProfile.avatarUrl=avatarUrl;currentProfile.avatarHistory=avatarHistory;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));updateIdentity();render();toastMsg('Фото сторінки збережено.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}}
-async function uploadCover(e){const f=e.target.files?.[0];if(!f)return;if(!authRequired())return;try{const edited=await getImageEditor(f,'cover');if(!edited)return;toastMsg('Обробляємо обкладинку…');const coverUrl=await uploadImage(edited,1600,.9,'covers');await update(ref(db,`users/${currentUser.uid}`),{coverUrl});currentProfile.coverUrl=coverUrl;await set(ref(db,`publicProfiles/${currentUser.uid}`),publicProfileData(currentProfile));render();toastMsg('Обкладинку сторінки збережено.');}catch(err){toastMsg(err.message||niceError(err));}finally{e.target.value='';}}
 async function uploadProfilePhoto(e){
  const input=e.currentTarget,files=Array.from(input.files||[]).filter(Boolean);
   const albumId=input.dataset.vatraAlbumUploadId||'';
