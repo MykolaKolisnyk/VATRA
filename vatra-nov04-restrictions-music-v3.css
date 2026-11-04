@@ -1,0 +1,252 @@
+/* VATRA · focused restriction, navigation and music popover · 2026-11-04 */
+/* Calm navigation: animate only the label, never shift the whole click target. */
+html body .layout>.sidebar>nav>a.nav{
+ display:flex!important;align-items:center!important;gap:11px!important;
+ background:transparent!important;color:#465e7b!important;opacity:1!important;
+ box-shadow:none!important;transform:none!important;
+ border:1px solid transparent!important;border-radius:11px!important;
+ transition:background-color .18s ease,color .18s ease,border-color .18s ease!important;
+}
+html body .layout>.sidebar>nav>a.nav .nav-icon{
+ color:#7899ba!important;transform:none!important;
+ transition:color .2s ease!important;
+}
+html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){
+ transition:transform .24s cubic-bezier(.2,.75,.25,1),color .18s ease!important;
+ transform:translate3d(0,0,0)!important;
+}
+html body .layout>.sidebar>nav>a.nav:hover{
+ color:#1d4b86!important;
+ background:rgba(7,87,245,.055)!important;
+ border-color:rgba(7,87,245,.045)!important;
+ box-shadow:none!important;transform:none!important;
+}
+html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:translate3d(3px,0,0)!important}
+html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#1861bb!important;transform:none!important}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
+ background:rgba(7,87,245,.075)!important;
+ color:#0757f5!important;font-weight:670!important;
+ box-shadow:none!important;border-color:transparent!important;
+}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]):hover{
+ background:rgba(7,87,245,.1)!important;
+}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav{
+ color:#c6d7ea!important;background:transparent!important;
+}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover,
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
+ color:#dfeeff!important;background:rgba(79,151,255,.12)!important;
+}
+/* Blank, non-interactive access gate while server authorization is pending. */
+body .vatra-account-check-screen{
+ position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
+ padding:22px;background:#f6f8fd!important;
+}
+body .vatra-account-check-screen[hidden]{display:none!important}
+body .vatra-account-check-screen>.vatra-access-error[hidden]{display:none!important}
+body .vatra-account-check-screen>.vatra-access-error{
+ width:min(380px,100%);padding:28px;text-align:center;
+ background:#fff;border:1px solid #d8e6fa;border-radius:18px;
+ box-shadow:0 15px 45px #102c591a;
+}
+body .vatra-account-check-screen>.vatra-access-error p{margin:0 0 16px;color:#47617d;line-height:1.6}
+body .vatra-account-check-screen>.vatra-access-error button{
+ color:white;background:#0757f5;border:0;border-radius:10px;padding:11px 17px;cursor:pointer;
+}
+/* 404-like full-page treatment for the signed-in user's own suspended account. */
+body .vatra-suspended-own-screen{
+ position:fixed!important;inset:0!important;z-index:9998!important;
+ display:block!important;overflow:auto!important;
+ padding:0!important;background:#f5f8ff!important;
+}
+body .vatra-suspended-own-screen[hidden]{display:none!important}
+body .vatra-suspended-own-screen .vatra-suspended-page.vatra-restriction-landing{
+ box-sizing:border-box!important;
+ display:flex!important;flex-direction:column!important;
+ min-height:100dvh!important;width:100%!important;max-width:100%!important;
+ padding:0!important;margin:0!important;overflow:visible!important;
+ border:0!important;border-radius:0!important;background:#f5f8ff!important;
+ box-shadow:none!important;text-align:left!important;
+}
+body .vatra-restriction-landing .vatra-restriction-header{
+ width:min(1290px,calc(100% - 60px));margin:0 auto;
+ display:flex;align-items:center;justify-content:space-between;
+ gap:15px;padding:38px 0 15px;
+}
+body .vatra-restriction-header img{width:176px;height:auto;max-height:40px;object-fit:contain}
+body .vatra-restriction-brand-status{display:flex;align-items:center;gap:9px;color:#647d9f;font-size:12px;font-weight:650}
+body .vatra-restriction-brand-status i{display:block;width:8px;height:8px;border-radius:50%;background:#0757f5;box-shadow:0 0 0 5px #e5eeff}
+body .vatra-restriction-hero{
+ flex:1;width:min(1290px,calc(100% - 60px));margin:0 auto;
+ display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);
+ align-items:center;gap:clamp(32px,5vw,85px);padding:65px 0 75px;
+}
+body .vatra-restriction-chip{
+ display:inline-flex;align-items:center;padding:9px 15px;background:#eaf1ff;
+ border:1px solid #d7e4fc;border-radius:50px;
+ color:#0757f5;font-size:11px;font-weight:780;letter-spacing:.08em;
+}
+body .vatra-restriction-copy h1{
+ max-width:700px;margin:23px 0 20px!important;
+ color:#172c49!important;font-size:clamp(40px,5.6vw,76px)!important;
+ line-height:1.04!important;letter-spacing:-.056em!important;font-weight:850!important;
+}
+body .vatra-restriction-copy h1 em{color:#0757f5!important;font-style:normal}
+body .vatra-restriction-lead{
+ max-width:550px;margin:0 0 24px!important;color:#627b9b!important;
+ font-size:clamp(14px,1.35vw,17px)!important;line-height:1.8!important;
+}
+body .vatra-restriction-landing .vatra-suspended-details{
+ display:grid!important;gap:0!important;width:min(540px,100%)!important;
+ margin:0 0 24px!important;padding:13px 20px!important;max-width:540px!important;
+ border:1px solid #dce7f7!important;border-radius:15px!important;
+ background:#fff!important;box-shadow:0 8px 27px #1e4a9110;
+}
+body .vatra-restriction-landing .vatra-suspended-details>div{
+ display:flex!important;align-items:flex-start;justify-content:space-between;gap:18px;
+ padding:11px 0!important;border-bottom:1px solid #edf1f8;
+}
+body .vatra-restriction-landing .vatra-suspended-details>div:last-child{border-bottom:0}
+body .vatra-restriction-landing .vatra-suspended-details dt{font-size:12px;color:#7790ae!important}
+body .vatra-restriction-landing .vatra-suspended-details dd{font-size:13px;color:#2b4c74!important;text-align:right!important;overflow-wrap:anywhere}
+body .vatra-restriction-landing .vatra-restriction-note{font-size:13px;color:#587491}
+body .vatra-restriction-landing .vatra-restriction-actions{display:flex;flex-wrap:wrap;gap:12px}
+body .vatra-restriction-landing .vatra-restriction-actions .vatra-suspended-support{
+ min-height:48px;border-radius:12px!important;background:#0757f5!important;
+ border:1px solid #0757f5!important;color:white!important;padding:12px 21px!important;
+ font-size:13px!important;font-weight:720!important;cursor:pointer;
+ box-shadow:0 9px 21px #0757f522!important;
+}
+body .vatra-restriction-landing .vatra-restriction-actions .vatra-suspended-support:hover{background:#064edb!important}
+body .vatra-restriction-art{min-width:0;position:relative;perspective:900px}
+body .vatra-restriction-window{
+ position:relative;width:min(480px,100%);aspect-ratio:1.25;margin:0 auto;
+ transform:rotate(-3deg);background:#fff;border:1px solid #e1e9f4;
+ border-radius:25px;box-shadow:0 28px 80px #224c8919;overflow:hidden;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+body .vatra-restriction-dots{position:absolute;top:0;left:0;right:0;height:49px;border-bottom:1px solid #e6edf7;display:flex;gap:8px;align-items:center;padding:0 21px}
+body .vatra-restriction-dots i{width:8px;height:8px;border-radius:50%;background:#dce6f3}
+body .vatra-restriction-dots span{margin-left:17px;width:120px;height:8px;border-radius:5px;background:#eff3f9}
+body .vatra-restriction-glyph{width:72px;height:72px;display:grid;place-items:center;border-radius:21px;background:#eaf2ff;color:#0757f5}
+body .vatra-restriction-glyph svg{width:39px;height:39px}
+body .vatra-restriction-window strong{color:#0757f5;font:850 clamp(75px,10vw,140px)/1.2 "VATRA Onest",Inter,sans-serif;letter-spacing:-.07em}
+body .vatra-restriction-lines{display:grid;justify-items:center;gap:8px;width:60%}
+body .vatra-restriction-lines i{display:block;width:100%;height:9px;background:#edf2fa;border-radius:8px}
+body .vatra-restriction-lines i:last-child{width:65%}
+body .vatra-restriction-float{position:absolute;bottom:-8px;left:-28px;padding:16px 19px;background:#fff;border-radius:13px;box-shadow:0 12px 35px #1c447a24;color:#3262aa;font-size:12px;font-weight:700}
+body .vatra-restriction-footer{width:min(1290px,calc(100% - 60px));margin:0 auto;padding:20px 0 25px;display:flex;justify-content:space-between;gap:12px;border-top:1px solid #e3eaf5;color:#879bb5;font-size:12px}
+body .vatra-restriction-footer strong{color:#5a789c;letter-spacing:.04em}
+/* A restricted user may open their support desk, but must not see or operate the app. */
+body.vatra-restricted-support-mode{background:#f5f8ff!important}
+body.vatra-restricted-support-mode :is(.topbar,.sidebar,.mobile-nav,.mobile-menu,.quick-compose,.heading,.rightbar,.right-sidebar,.footer,.vatra-sidebar-ads,#vatraMusicDock){display:none!important}
+body.vatra-restricted-support-mode .layout{
+ display:block!important;width:min(1100px,calc(100% - 36px))!important;
+ max-width:none!important;margin:0 auto!important;padding:24px 0 55px!important;
+}
+body.vatra-restricted-support-mode .layout>.main{
+ float:none!important;display:block!important;min-width:0!important;
+ max-width:none!important;width:100%!important;margin:0!important;padding:0!important;
+}
+body.vatra-restricted-support-mode:not([data-page="supportDesk"]) #feed{visibility:hidden!important}
+body.vatra-restricted-support-mode #feed{width:100%!important;min-width:0!important}
+body.vatra-restricted-support-mode #feed>.vatra-support-page{max-width:100%!important;margin:0!important}
+body.vatra-restricted-support-mode .vatra-support-page::before{
+ content:"ВАТРА  ·  СЛУЖБА ДОПОМОГИ";display:block;margin:0 0 21px;
+ color:#0757f5;font-size:13px;font-weight:850;letter-spacing:.07em;
+}
+body.vatra-restricted-support-mode .vatra-support-back{background:#eaf2ff;border-color:#d1e2f9;color:#0757f5}
+/* Music popup centered on the music icon; content scrolls inside the result list only. */
+body .vatra-top-music-panel{
+ z-index:2500!important;box-sizing:border-box!important;
+ width:min(560px,calc(100vw - 24px))!important;max-width:min(560px,calc(100vw - 24px))!important;
+ max-height:calc(100dvh - 85px)!important;overflow:visible!important;
+ padding:17px 19px 15px!important;border-radius:17px!important;
+ border:1px solid #dde6f4!important;background:#fff!important;
+ box-shadow:0 18px 60px #173e742a!important;
+}
+body .vatra-top-music-panel::before{
+ content:"";position:absolute;top:-7px;left:var(--vatra-music-arrow-x,50%);
+ width:12px;height:12px;transform:translateX(-50%) rotate(45deg);
+ border-left:1px solid #dde6f4;border-top:1px solid #dde6f4;background:#fff;
+}
+body .vatra-top-music-panel .vatra-menu-heading{margin:0 0 12px;display:flex;align-items:center;justify-content:space-between}
+body .vatra-top-music-panel .vatra-menu-heading strong{font-size:17px;color:#213c61}
+body .vatra-top-music-panel .vatra-menu-heading small{font-size:11px;color:#7289a7}
+body .vatra-top-music-panel .vatra-menu-search{
+ display:flex;align-items:center;gap:10px;height:39px;padding:0 12px;
+ border:1px solid #dbe5f3;border-radius:10px;background:#f7f9fc;color:#7187a4;
+}
+body .vatra-top-music-panel .vatra-menu-search input{border:0;outline:0;min-width:0;flex:1;background:transparent;font:500 12px "VATRA Onest",Inter,sans-serif;color:#25476a}
+body .vatra-top-music-panel .vatra-menu-tabs{display:flex;align-items:center;gap:9px;padding:10px 0}
+body .vatra-top-music-panel .vatra-menu-tabs button{padding:7px 12px;background:transparent;border:0;border-radius:9px;color:#6a829e;font-size:12px;font-weight:650}
+body .vatra-top-music-panel .vatra-menu-tabs button[aria-selected=true]{color:#0757f5;background:#edf4ff}
+body .vatra-top-music-panel .vatra-menu-feature{border-radius:14px;background:radial-gradient(circle at 15% 70%,#d7f8ff 0,transparent 29%),radial-gradient(circle at 85% 25%,#d9e1ff 0,transparent 31%),#f5f8ff;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:13px 16px}
+body .vatra-top-music-panel .vatra-menu-feature strong{font-size:13px;color:#28486d}
+body .vatra-top-music-panel .vatra-menu-feature p{margin:4px 0 0;font-size:11px;color:#7187a4}
+body .vatra-top-music-panel .vatra-menu-feature button{flex:none;width:39px;height:39px;border:0;border-radius:50%;background:#0757f5;color:#fff;padding:0;font-size:21px}
+body .vatra-top-music-panel .vatra-menu-results-heading{display:flex;align-items:center;justify-content:space-between;padding:10px 0 5px;font-size:12px;font-weight:750;color:#2d4768}
+body .vatra-top-music-panel .vatra-menu-results-heading a{color:#0757f5;text-decoration:none;font-size:11px}
+body .vatra-top-music-panel .vatra-menu-results{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ column-gap:10px;row-gap:2px;min-height:80px;max-height:176px;
+ overflow-y:auto;overscroll-behavior:contain;padding:2px;
+ scrollbar-width:thin;scrollbar-color:#cedaea transparent;
+}
+body .vatra-top-music-panel .vatra-menu-track{
+ box-sizing:border-box;display:flex;align-items:center;gap:9px;min-width:0;
+ width:100%;min-height:44px;border:0;background:transparent;padding:5px 7px;
+ text-align:left;border-radius:9px;color:#2e4a68;cursor:pointer;
+}
+body .vatra-top-music-panel .vatra-menu-track:hover,
+body .vatra-top-music-panel .vatra-menu-track.is-selected{background:#edf4ff}
+body .vatra-top-music-panel .vatra-menu-track-icon{
+ flex:none;width:32px;height:32px;display:grid;place-items:center;
+ background:#e2ecff;color:#0757f5;border-radius:9px;
+}
+body .vatra-top-music-panel .vatra-menu-track-icon svg{width:18px;height:18px}
+body .vatra-top-music-panel .vatra-menu-track-meta{display:grid;gap:3px;min-width:0;flex:1}
+body .vatra-top-music-panel .vatra-menu-track-meta b{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body .vatra-top-music-panel .vatra-menu-track-meta small{font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body .vatra-top-music-panel .vatra-menu-track-play{font-size:15px;color:#0757f5}
+body .vatra-top-music-panel .vatra-menu-player-title{margin:9px 0 5px;font-size:12px;font-weight:760;color:#28496c}
+body .vatra-top-music-panel .vatra-menu-player-slot{
+ height:195px;display:grid;place-items:center;position:relative;
+ background:#f6f9ff;border:1px solid #e2eaf7;border-radius:12px;
+ color:#8294af;font-size:12px;text-align:center;
+}
+body .vatra-top-music-panel .vatra-menu-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px}
+body .vatra-top-music-panel .vatra-menu-footer button{background:#0757f5;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+body .vatra-top-music-panel .vatra-menu-footer small{font-size:10px;color:#7d90a9}
+body .vatra-music-dock.is-menu-dock{
+ box-sizing:border-box!important;z-index:2600!important;position:fixed!important;
+ margin:0!important;bottom:auto!important;right:auto!important;
+ padding:7px!important;border:0!important;border-radius:10px!important;
+ box-shadow:none!important;max-width:none!important;
+}
+body .vatra-music-dock.is-menu-dock .vatra-music-frame-wrap iframe{height:152px!important}
+body .vatra-music-dock.is-menu-dock .vatra-music-dock-head{margin-bottom:5px}
+body .vatra-music-dock.is-menu-dock .vatra-music-dock-footer{padding-top:4px}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-panel{background:#20334d!important;border-color:#435a78!important;color:#f0f5ff}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-panel::before{background:#20334d;border-color:#435a78}
+body[data-vatra-theme-effective="dark"] .vatra-top-music-panel .vatra-menu-track{color:#dce9fa}
+@media(max-width:830px){body .vatra-restriction-hero{grid-template-columns:1fr;padding:48px 0;gap:45px}body .vatra-restriction-art{max-width:420px;justify-self:center;width:100%}}
+@media(max-width:580px){
+ body .vatra-restriction-landing .vatra-restriction-header,body .vatra-restriction-hero,body .vatra-restriction-footer{width:calc(100% - 32px)}
+ body .vatra-restriction-landing .vatra-restriction-header{padding:19px 0}
+ body .vatra-restriction-header img{width:130px}
+ body .vatra-restriction-brand-status{font-size:10px}
+ body .vatra-restriction-hero{gap:38px;padding:27px 0 45px}
+ body .vatra-restriction-copy h1{font-size:clamp(37px,10vw,55px)!important}
+ body .vatra-restriction-float{left:4px}
+ body .vatra-top-music-panel{padding:13px!important}
+ body .vatra-top-music-panel .vatra-menu-results{grid-template-columns:1fr;max-height:125px}
+ body .vatra-top-music-panel .vatra-menu-player-slot{height:186px}
+ body .vatra-music-dock.is-menu-dock .vatra-music-dock-footer{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){transition:none!important}
+ html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:none!important}
+}
