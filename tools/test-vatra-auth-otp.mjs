@@ -9,7 +9,9 @@ for(const file of ['auth.html','register.html']){
   assert.ok(html.includes('id="'+id+'"'),file+': missing '+id);
  }
  assert.ok(html.includes('Код на email')&&html.includes('Код у SMS'),file+': missing delivery choices');
- assert.ok(html.includes('name="authMethod" value="email"')&&html.includes('name="authMethod" value="phone"'),file+': missing auth methods');
+ assert.ok(html.includes('name="authMethod" value="email"')&&html.includes('name="authMethod" value="phone" disabled'),file+': email auth active and SMS deliberately disabled');
+ assert.ok(html.includes('name="recoveryMethod" value="phone" disabled'),file+': SMS recovery should be disabled until delivery exists');
+ assert.ok(!html.includes('Український простір для своїх'),file+': remove exclusive brand slogan');
  assert.ok(html.includes('auth.js?v=20261104-otp1'),file+': stale auth JS version');
  assert.ok(html.includes('auth.css?v=20261104-otp1'),file+': stale auth CSS version');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
@@ -40,6 +42,10 @@ assert.match(auth,/await finishRegistration\(\{\.\.\.challenge,user\}\);\s*pendi
 assert.ok(auth.includes("input.readOnly=false;"),'Changing contact must reset the OTP field state');
 assert.ok(!auth.includes('signUpWithPassword('),'Old registration bypasses OTP');
 assert.ok(!auth.includes('await sendVatraOtp'),'Missing custom Edge Function must not be used');
+assert.ok(auth.includes('const VATRA_SMS_AUTH_ENABLED=false'),'Production rollout must not advertise unavailable SMS OTP');
+assert.ok(auth.includes("selectedMethod=()=>VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate UI selection');
+assert.ok(auth.includes("function currentRecoveryMethod(){return VATRA_SMS_AUTH_ENABLED?"),'SMS disabled flag must gate recovery selection');
+assert.ok(auth.includes("if(details.isPhone&&!VATRA_SMS_AUTH_ENABLED)"),'Hidden or modified SMS controls cannot start delivery');
 assert.ok(backend.includes('client.auth.signInWithOtp')&&backend.includes('client.auth.verifyOtp'),'Supabase OTP calls missing');
 assert.ok(css.includes('.vatra-auth-otp')&&css.includes('.vatra-auth-method-card')===false,'Auth CSS missing or duplicate component layer');
 assert.ok(css.includes('.vatra-method-symbol')&&css.includes('is-awaiting-code'),'OTP CSS missing');
