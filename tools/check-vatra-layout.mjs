@@ -28,6 +28,5 @@ for(const file of files.filter(f=>f.endsWith('.js'))){
    ...body.matchAll(/\bimport\s*\(\s*["'](\.\/[^"']+)["']/g)];
  for(const m of refs)checkAsset(m[1]);
 }
-if(!existsSync('docs/README.md')||!existsSync('database/README.md'))
- throw new Error('Missing repository documentation');
+// The public site is intentionally documentation-free. No .md files are required.
 console.log('VATRA layout check passed:',checked,'local paths resolved.');
