@@ -40,7 +40,7 @@ assert.ok(js.includes("parts[0]!==currentUser.uid")&&js.includes("url.origin!==o
 assert.ok(js.includes("vatraStoryVisibility")&&js.includes('value="public"')&&js.includes('value="friends"')&&js.includes('value="private"'),'Stories need explicit all/friends/only-me audience choices');
 assert.ok(js.includes("function vatraStoryVisibleToViewer(")&&js.includes("if(story.visibility==='private')return false"),'Viewer audience must be checked for every story');
 assert.ok(js.includes("vatra-profile-story-link")&&js.includes("vatra-avatar-has-story"),'Profiles must show active stories on avatars and under photos');
-assert.ok(js.includes("p.authorUid===uid&&p.kind!=='story'"),'Stories cannot appear in profile's normal posts');
+assert.ok(js.includes("p.authorUid===uid&&p.kind!=='story'"),'Stories cannot appear in regular profile posts');
 assert.ok(css.includes('.vatra-profile-story-link')&&css.includes('.vatra-story-visibility-field'),'Story visibility controls need finished styles');
 assert.ok(css.includes('.vatra-stories-rail')&&css.includes('.vatra-story-dialog'));
 const normStart=js.indexOf('function vatraNormalizeSettingsPhone(');
