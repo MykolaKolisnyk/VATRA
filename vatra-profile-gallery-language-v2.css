@@ -120,3 +120,6 @@ body .sidebar [data-page="settings"] .nav-icon svg{overflow:visible!important;mi
   inset:calc(100% + 5px) 0 auto!important;border-radius:12px!important;box-shadow:0 10px 28px #05193448!important;
  }
 }
+
+body .vatra-gallery-footer.is-mobile-only{display:none!important}
+@media(max-width:590px){body .vatra-gallery-footer.is-mobile-only{display:flex!important}}
