@@ -23,7 +23,7 @@
     <div class="auth-dialog-icon" aria-hidden="true">↻</div>
     <p class="eyebrow">ВІДНОВЛЕННЯ ДОСТУПУ</p>
     <h2 id="recoveryTitle">Повернення до ВАТРИ</h2>
-    <p class="auth-dialog-desc">Вкажіть пошту або номер, прив’язаний до акаунта. ВАТРА не надсилатиме готовий пароль у відкритому вигляді — Ви безпечно створиш новий.</p>
+    <p class="auth-dialog-desc">Вкажіть пошту або номер, прив’язаний до акаунта. ВАТРА ніколи не надсилає пароль у відкритому вигляді. Підтвердьте email або телефон кодом, щоб створити новий пароль.</p>
     <div class="field method-field" id="recoveryMethodWrap">
       <span class="field-label">Куди надіслати підтвердження?</span>
       <div class="method-choice" role="radiogroup" aria-label="Спосіб відновлення">
@@ -43,7 +43,8 @@
     </section>
     <div class="field recovery-otp-field" id="recoveryOtpWrap" hidden>
       <label for="recoveryOtp">Код від ВАТРИ</label>
-      <input id="recoveryOtp" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456">
+      <input id="recoveryOtp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="••••••">
+      <button type="button" class="forgot vatra-recovery-resend" id="recoveryResendOtp" disabled>Надіслати код ще раз</button>
     </div>
     <div class="field" id="recoveryNewPasswordWrap" hidden>
       <label for="recoveryNewPassword">Новий пароль</label>
@@ -55,7 +56,7 @@
       <input id="recoveryConfirmPassword" type="password" autocomplete="new-password" placeholder="Повторіть новий пароль">
     </div>
     <p class="auth-dialog-error" id="recoveryError" role="alert" aria-live="polite"></p>
-    <button class="submit" id="recoverySubmit" type="submit">Надіслати інструкцію</button>
+    <button class="submit" id="recoverySubmit" type="submit">Надіслати код</button>
     <p class="auth-dialog-note">Якщо акаунт існує, повідомлення надійде на вказаний контакт. Не передавайте код нікому.</p>
   </form>
 </dialog>
