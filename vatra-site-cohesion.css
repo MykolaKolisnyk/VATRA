@@ -9,7 +9,7 @@ html body:not([data-vatra-theme-effective="dark"]) .layout>aside.sidebar>nav[ari
 html body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar>nav>a.nav:not([hidden]){
  color:var(--vatra-ui-quiet)!important;background:transparent!important;background-image:none!important;
  box-shadow:none!important;text-shadow:none!important;filter:none!important;
- font:620 14px/1.4 "VATRA Onest",Inter,system-ui,sans-serif!important;
+ font:620 14px/1.4 Inter,"VATRA Onest",system-ui,sans-serif!important;
  border:0!important;outline-offset:2px;opacity:1!important;
  transform:none!important;
  transition:background-color .19s ease,color .19s ease,transform .19s ease!important;
@@ -78,7 +78,7 @@ html body .vatra-profile-sidebar :is(.vatra-profile-friends,.vatra-gift-preview-
  margin:12px 0 0!important;padding:8px 12px!important;
  border:1px solid #e5ecf4!important;border-radius:10px!important;
  background:#f7faff!important;color:#3b648d!important;
- font:650 12.5px/1.4 "VATRA Onest",Inter,system-ui,sans-serif!important;
+ font:650 12.5px/1.4 Inter,"VATRA Onest",system-ui,sans-serif!important;
  text-align:center!important;letter-spacing:0!important;box-shadow:none!important;
  transition:background-color .18s ease,border-color .18s ease,color .18s ease!important;
 }
@@ -142,3 +142,79 @@ html body .vatra-friend-birthday-person button:disabled{opacity:.6;cursor:defaul
  html body .vatra-friend-birthday-person{flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){html body .layout>.sidebar>nav>a.nav{transition:none!important;transform:none!important;}}
+
+/* Reference typography, November 2026: clear Inter lettering and intentional hierarchy.
+   Visual reference applies to both themes; never hardcode light-theme text colors here. */
+:root{
+ --vatra-ref-body-size:14.5px;
+ --vatra-ref-nav-size:15px;
+}
+body[data-vatra-font-scale="large"]{
+ --vatra-ref-body-size:16px;
+ --vatra-ref-nav-size:16px;
+}
+html body .layout>.sidebar>nav>a.nav:not([hidden]){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:var(--vatra-ref-nav-size)!important;
+ font-weight:550!important;
+ letter-spacing:-.01em!important;
+ line-height:1.35!important;
+}
+html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
+ font-weight:590!important;
+}
+html body .vatra-global-header :is(.search input,.account-avatar-trigger,.notification-button,.vatra-top-music-trigger){
+ font-family:var(--vatra-ui-font)!important;
+}
+html body .vatra-global-header .search input{
+ font-size:14.5px!important;
+ font-weight:450!important;
+}
+html body :is(.vatra-profile-title-row h2,.vatra-profile-name-line h2){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:clamp(22px,2.2vw,26px)!important;
+ font-weight:780!important;
+ line-height:1.22!important;
+ letter-spacing:-.025em!important;
+}
+html body :is(.vatra-profile-card-head h3,.vatra-profile-posts-title h3,.vatra-friends-top h2,.settings-card h3){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:16px!important;
+ font-weight:720!important;
+ line-height:1.35!important;
+ letter-spacing:-.012em!important;
+}
+html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail,.vatra-profile-detail-value,.vatra-group-description,.vatra-community-description,.vatra-friends-row,.chat-message){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:var(--vatra-ref-body-size)!important;
+ line-height:1.6!important;
+ font-weight:450!important;
+}
+html body :is(.post .author b,.post .author-link,.vatra-friends-name,.vatra-profile-friend b){
+ font-weight:680!important;
+ letter-spacing:-.008em!important;
+}
+html body .vatra-profile-stats>div>b{
+ font-family:var(--vatra-ui-font)!important;
+ font-size:18px!important;
+ font-weight:750!important;
+ font-variant-numeric:tabular-nums;
+}
+html body :is(.vatra-profile-detail-label,.post .author small,.vatra-profile-presence,.vatra-profile-status,.vatra-friends-row small){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:12.5px!important;
+ font-weight:450!important;
+ line-height:1.45!important;
+}
+html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,.vatra-friends-top button,.post-actions button){
+ font-family:var(--vatra-ui-font)!important;
+ font-size:13px!important;
+ font-weight:630!important;
+}
+@media(max-width:760px){
+ html body .layout>.sidebar>nav>a.nav:not([hidden]){font-size:14px!important;}
+ html body :is(.vatra-profile-title-row h2,.vatra-profile-name-line h2){
+  font-size:clamp(20px,5vw,24px)!important;
+ }
+ html body .vatra-global-header .search input{font-size:16px!important;}
+}

@@ -11,10 +11,10 @@
  --vatra-ui-active:#e9f1ff;
  --vatra-ui-primary:#0757e8;
  --vatra-ui-surface:#fff;
- --vatra-ui-font:"VATRA Onest","Segoe UI",system-ui,sans-serif;
+ --vatra-ui-font:Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
  --vatra-ui-radius:11px;
 }
-html body{font-family:var(--vatra-ui-font)!important;color:var(--vatra-ui-ink)!important;font-size:14px;line-height:1.52;font-weight:400;letter-spacing:0}
+html body{font-family:var(--vatra-ui-font)!important;color:var(--vatra-ui-ink)!important;font-size:14.5px;line-height:1.55;font-weight:400;letter-spacing:0}
 html body :is(button,input,textarea,select,option){font-family:var(--vatra-ui-font)!important}
 html body :is(.layout,.topbar,.sidebar,.post,.quick-compose,.settings-page,.vatra-profile-overview,.vatra-friends-layout,.vatra-messenger-layout,.vatra-notifications-layout,.vatra-gifts-page){font-family:var(--vatra-ui-font)!important}
 html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-notification-rail button,.vatra-group-nav button,.post-actions button,.post-menu button,.vatra-profile-button){
@@ -32,7 +32,7 @@ html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
  background:transparent!important;color:#536b85!important;font-weight:620!important;
 }
 html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#7191ad!important}
-/* Text hierarchy and crisp readable sizes, using the locally bundled Onest. */
+/* Text hierarchy: Inter for the reference aesthetic; local Onest remains an offline fallback. */
 html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-profile-detail-label,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){
  font-family:var(--vatra-ui-font)!important;
  font-size:14px!important;line-height:1.65!important;font-weight:400!important;

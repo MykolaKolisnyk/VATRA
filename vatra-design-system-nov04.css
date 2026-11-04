@@ -61,7 +61,7 @@ html body .vatra-language-picker-trigger{
  width:100%!important;min-width:0!important;min-height:48px!important;
  padding:10px 13px!important;gap:10px!important;border:1px solid #d6e2f1!important;
  border-radius:12px!important;background:#fff!important;color:#304e70!important;
- font:650 13px/1.5 "VATRA Onest",Inter,system-ui,sans-serif!important;
+ font:650 13px/1.5 Inter,"VATRA Onest",system-ui,sans-serif!important;
  box-shadow:none!important;transform:none!important;cursor:pointer!important;
 }
 html body .vatra-language-picker-trigger:hover{border-color:#a9bddb!important;background:#fafcff!important}
@@ -126,7 +126,7 @@ html body .vatra-post-text-container>.vatra-post-text-toggle{
  grid-row:2!important;grid-column:1!important;justify-self:start!important;
  width:auto!important;min-height:30px!important;margin:7px 0 3px!important;
  background:transparent!important;border:0!important;color:#3464a3!important;
- font:650 12px/1.4 "VATRA Onest",Inter,sans-serif!important;
+ font:650 12px/1.4 Inter,"VATRA Onest",sans-serif!important;
  cursor:pointer!important;
 }
 html body .vatra-post-text-container>.vatra-translate-button{
@@ -205,7 +205,7 @@ html body .vatra-language-dialog-brand>img{box-sizing:border-box;flex:none;width
 html body .vatra-language-dialog-brand>div{min-width:0}
 html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:none!important}
 @media(max-width:590px){html body .vatra-profile-photo-carousel .vatra-gallery-footer.is-mobile-only{display:flex!important}}
-html body :is(.vatra-language-dialog,#legalDialog,#developerDialog,.developer-dialog) :is(button,input){font-family:"VATRA Onest",Inter,system-ui,sans-serif}
+html body :is(.vatra-language-dialog,#legalDialog,#developerDialog,.developer-dialog) :is(button,input){font-family:Inter,"VATRA Onest",system-ui,sans-serif}
 html body .vatra-clips-nav:focus-visible{outline:2px solid #9ebef6!important;outline-offset:2px}
 
 /* Prevent tall empty tiles after the gallery was converted to a sliding grid. */
