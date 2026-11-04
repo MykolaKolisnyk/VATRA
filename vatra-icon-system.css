@@ -160,3 +160,30 @@ html body .vatra-music-card-actions svg.vatra-icon{width:17px;height:17px}
 html body .vatra-support-header>.vatra-support-icon svg.vatra-icon{
  width:26px;height:26px;color:inherit!important;
 }
+
+/* Current route is semantic (aria-current), not a permanent visual selection.
+   Preserve a smooth hover and keyboard focus cue only. */
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]):not(:hover):not(:focus-visible),
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not(:hover):not(:focus-visible){
+ background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important;
+ color:#24354b!important;transform:none!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{
+ color:var(--vatra-icon-blue)!important;
+}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{
+ transition:background-color .17s ease,color .17s ease,transform .17s ease!important;
+}
+@media(hover:hover){
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
+  background:rgba(67,143,219,.09)!important;transform:translateX(2px)!important;
+ }
+}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]):not(:hover):not(:focus-visible),
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not(:hover):not(:focus-visible){
+ color:#ebf3fc!important;background:transparent!important;
+}
+@media(prefers-reduced-motion:reduce){
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{transition:none!important}
+ html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{transform:none!important}
+}

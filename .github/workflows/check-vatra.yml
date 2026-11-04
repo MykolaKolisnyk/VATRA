@@ -26,6 +26,8 @@ jobs:
         run: node tools/audit-vatra-repository.mjs
       - name: Verify centralized SVG icons and all navigation entries
         run: node tools/test-vatra-icon-system.mjs
+      - name: Validate backend imports and every shared SVG path
+        run: node tools/test-vatra-startup-contract.mjs
       - name: Validate VATRA Clips playback, lazy video loading and cleanup
         run: node tools/test-vatra-clips-playback.mjs
       - name: Validate clip social actions and protected database permissions
