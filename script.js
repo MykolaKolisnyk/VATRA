@@ -1081,7 +1081,7 @@ function vatraShiftProfileGallery(box,state){
  if(!box||!state)return;
  const track=box.querySelector('.vatra-gallery-track'),tiles=track?.children;
  if(!track||!tiles?.length)return;
- const viewportCount=Math.min(4,tiles.length);
+ const viewportCount=Math.min(window.matchMedia('(max-width:590px)').matches?2:4,tiles.length);
  const maxOffset=Math.max(0,tiles.length-viewportCount);
  state.offset=Math.max(0,Math.min(state.offset,maxOffset));
  const first=tiles[0].offsetLeft;
@@ -1100,7 +1100,8 @@ document.addEventListener('click',event=>{
  const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
  if(!box||!state||state.photos.length<=4)return;
  const direction=Number(arrow.dataset.vatraGalleryStep);
- state.offset=Math.max(0,Math.min(state.photos.length-4,state.offset+(direction<0?-4:4)));
+ const visible=window.matchMedia('(max-width:590px)').matches?2:4;
+ state.offset=Math.max(0,Math.min(state.photos.length-visible,state.offset+(direction<0?-visible:visible)));
  vatraShiftProfileGallery(box,state);
 },true);
 window.addEventListener('resize',()=>{
