@@ -34,6 +34,8 @@ jobs:
         run: node tools/audit-vatra-repository.mjs
       - name: Verify centralized SVG icons and all navigation entries
         run: node tools/test-vatra-icon-system.mjs
+      - name: Audit unchanged RLS permissions and cached auth identity migration
+        run: node tools/test-vatra-rls-auth-initplan.mjs
       - name: Verify keyset pagination of large Supabase app_data trees
         run: node tools/test-vatra-tree-keyset.mjs
       - name: Validate backend imports and every shared SVG path
