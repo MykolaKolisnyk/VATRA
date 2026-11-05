@@ -13,7 +13,7 @@ const uiRefs=[
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-layout-quiz2'),page+': consolidated CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-media-handle1'),page+': consolidated CSS missing');
  assert.equal((html.match(/href="vatra-auth-unified\.css\?/g)||[]).length,1,page+': duplicated unified styles');
  assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared logo CSS missing');
  assert.equal((html.match(/href="vatra-brand-text\.css\?/g)||[]).length,1,page+': duplicate logo CSS');
@@ -21,7 +21,7 @@ for(const page of ['auth.html','register.html']){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
  assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
- assert.ok(html.includes('auth.js?v=20261105-layout-quiz2'),page+': stale auth script');
+ assert.ok(html.includes('auth.js?v=20261105-media-handle1'),page+': stale auth script');
  assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': canonical auth styles must load last');
 }
