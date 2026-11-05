@@ -16,9 +16,9 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
  assert.ok(html.includes('auth.js?v=20261105-media-handle1'),file+': stale auth JS version');
- assert.ok(html.includes('auth.css?v=20261104-ribbon-shield1'),file+': stale auth CSS version');
+ assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-auth-bundle1')&&JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('auth.css'),file+': missing compiled auth stylesheet');
  assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),file+': language module cache must be current');
- assert.ok(html.includes('vatra-design-system-nov04.css?v=20261104-v-logo4'),file+': V logo modal style must be current');
+ assert.ok(JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('vatra-design-system-nov04.css'),file+': V logo styles missing from auth bundle');
  assert.ok(html.includes('class="vatra-auth-brand-copyright"'),file+': copyright must be on blue panel');
  assert.ok(html.includes('class="vatra-auth-mobile-copyright"'),file+': mobile must keep a visible copyright');
  assert.ok(!html.includes('<footer>© 2026 ВАТРА'),file+': do not keep desktop copyright under the form');

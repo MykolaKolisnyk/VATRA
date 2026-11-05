@@ -119,9 +119,10 @@ for(const match of snapshotGenerator.matchAll(/(?:src|href)="\.\.\/\.\.\/([a-z0-
 }
 // Production links to one compiled sheet; its ordered source modules are
 // intentionally retained as editable files and must not be flagged as unused.
-if(htmlStyles.has('assets/styles/vatra.css')){
- const manifest=JSON.parse(textFiles.get('assets/styles/manifest.json')||'{}');
- if(!Array.isArray(manifest.files))throw Error('Bundled VATRA stylesheet missing its manifest');
+for(const [bundle,manifestPath] of [['assets/styles/vatra.css','assets/styles/manifest.json'],['assets/styles/vatra-auth.css','assets/styles/auth-manifest.json']]){
+ if(!htmlStyles.has(bundle))continue;
+ const manifest=JSON.parse(textFiles.get(manifestPath)||'{}');
+ if(!Array.isArray(manifest.files))throw Error('Bundled stylesheet missing manifest: '+bundle);
  for(const name of manifest.files){
   if(!textFiles.has(name))throw Error('Missing CSS source module: '+name);
   htmlStyles.add(name);

@@ -1,0 +1,15 @@
+{
+  "description": "VATRA login and registration CSS sources in exact historic cascade order; delivered as a single file.",
+  "files": [
+    "auth.css",
+    "vatra-loader.css",
+    "network-status.css",
+    "vatra-nov03.css",
+    "vatra-local-fonts.css",
+    "vatra-profile-gallery-language-v2.css",
+    "vatra-design-system-nov04.css",
+    "vatra-ui-foundations-v5.css",
+    "vatra-brand-text.css",
+    "vatra-auth-unified.css"
+  ]
+}
