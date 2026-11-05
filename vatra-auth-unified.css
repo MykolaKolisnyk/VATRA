@@ -839,3 +839,12 @@ html body #captchaWrap.captcha-modal .human-captcha-status.is-passed::before,
 html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed::before{
  content:none!important;display:none!important;
 }
+
+/* VATRA readable, automatically assigned nickname preview. */
+html body .auth-card .vatra-signup-handle-preview:not([hidden]){
+ display:block!important;margin:0 0 14px!important;padding:10px 12px!important;
+ border:1px solid #d1e3fc!important;border-radius:10px!important;
+ background:#f0f6ff!important;color:#24527e!important;
+ font:650 12px/1.5 Inter,system-ui,sans-serif!important;
+ overflow-wrap:anywhere!important;
+}
