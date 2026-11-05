@@ -1,4 +1,4 @@
-import { getAuth, getDatabase, ref, get, update } from '../backend/client.js?v=20261104-8';
+import { getAuth, getDatabase, ref, get, update } from '../backend/client.js?v=20261105-singleton2';
 
 const MUSIC_LIBRARY = Object.freeze([
  {type:'playlist',id:'6TNFFJnqIFFYifyio5Wha5',title:'Топ українських пісень',artist:'Український чарт',category:'Хіти',tone:1},

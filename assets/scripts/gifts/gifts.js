@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase,onAuthStateChanged} from '../backend/client.js?v=20261104-8';
+import {initializeApp,getAuth,getDatabase,onAuthStateChanged} from '../backend/client.js?v=20261105-singleton2';
 const client=getDatabase(initializeApp()).client,auth=getAuth(initializeApp());
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const catalog=[

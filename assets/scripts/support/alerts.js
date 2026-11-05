@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase} from '../backend/client.js?v=20261104-8';
+import {initializeApp,getAuth,getDatabase} from '../backend/client.js?v=20261105-singleton2';
 const auth=getAuth(initializeApp()),db=getDatabase(initializeApp()).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let alerts=[],tickets=new Map(),count=0,lastUser='',busy=false,changedAt=0,queued=false;

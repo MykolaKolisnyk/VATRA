@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase} from '../backend/client.js?v=20261104-8';
+import {initializeApp,getAuth,getDatabase} from '../backend/client.js?v=20261105-singleton2';
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mark='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m23 12-2.44-2.78.34-3.68-3.61-.82L15.4 1.5 12 2.96 8.6 1.5 6.71 4.72l-3.61.81.34 3.69L1 12l2.44 2.78-.34 3.69 3.61.82L8.6 22.5l3.4-1.46 3.4 1.46 1.9-3.22 3.6-.82-.34-3.68Z"/><path fill="#fff" d="m10 15.5-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5Z"/></svg>';
