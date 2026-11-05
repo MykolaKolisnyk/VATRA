@@ -32,7 +32,7 @@ assert.ok(icons.includes('"mute":')&&icons.includes('"volume":'),'Distinct mute 
 assert.ok(icons.includes('window.vatraIcon=(name'),'Both icons must use the shared icon renderer');
 for(const src of ['vatra-clips-v2.css','vatra-icon-system.js','script.js']){
  const matched=[...html.matchAll(/(?:href|src)="([^"]+)"/g)].filter(match=>match[1].startsWith(src+'?v='));
- assert.equal(matched.length,1,'Expected one versioned include: '+src);
+ assert.ok(src.endsWith('.css')?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files.includes(src):matched.length===1,'Expected one versioned include or CSS bundle entry: '+src);
 }
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'Clip CSS braces mismatch');
 console.log('VATRA clips: lazy playback, visible-only autoplay, pause, progress, sound and cleanup validated.');
