@@ -1,0 +1,12 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const code=readFileSync('script.js','utf8'),page=readFileSync('index.html','utf8');
+assert.ok(code.includes('let tab=\'all\',visibleLimit=12'),'Community list must start with twelve entries');
+assert.ok(code.includes('result.slice(0,visibleLimit).map(item)'),'Community list must not eagerly create all rows');
+assert.ok(code.includes('requestAnimationFrame(watchCommunityMore)'),'Community observer must reconnect after filters and batches');
+assert.ok(code.includes('vatraCommunityMoreObserver.observe(more)'),'Long community lists must automatically load on scroll');
+assert.ok(code.includes("more.click();"),'Automatic scroll must use the same tested load-more handler');
+assert.ok(code.includes("more.hidden||page!=='groups'||groupId"),'Observer must ignore stale and hidden community buttons');
+assert.ok(code.includes("vatraCommunityMoreObserver?.disconnect();vatraCommunityMoreObserver=null;feed.removeAttribute('aria-busy')"),'Leaving a community list must disconnect the previous observer');
+assert.ok(page.includes('script.js?v=20261105-community-scroll1'),'Browser must use the refreshed renderer');
+console.log('VATRA communities: twelve rows initially, automatic scroll plus manual load-more.');
