@@ -74,11 +74,11 @@ assert.ok(giftText.includes('let artSerial=0;'),'Each SVG gift requires a unique
 
 // Sidebar compactness and monetisation placeholders must not regress.
 const footerCss=readFileSync('vatra-sidebar-ads.css','utf8');
-const adsJs=readFileSync('vatra-sidebar-ads.js','utf8');
+const adsJs=readFileSync('assets/scripts/sidebar/ads.js','utf8');
 assert.ok(!/id="create"/.test(main),'Removed sidebar compose button reappeared');
 assert.equal((main.match(/data-vatra-ad-slot="[12]"/g)||[]).length,2,'Expected exactly two reserved ad spaces');
 assert.ok(stylesheetLoaded('vatra-sidebar-ads.css'),'Sidebar/ad stylesheet not linked');
-assert.ok(main.includes('vatra-sidebar-ads.js?'),'Advertising module not linked');
+assert.ok(main.includes('assets/scripts/sidebar/ads.js?v='),'Advertising module not linked');
 assert.ok(main.indexOf('class="vatra-sidebar-ads"')>main.indexOf('class="vatra-footer-identity"'),'Ads should be below sidebar copyright');
 assert.ok(!main.includes('class="vatra-footer-credit"')&&!main.includes('class="footer-legal vatra-footer-legal"'),'Sidebar must not show developer/legal links');
 assert.ok(footerCss.includes('.vatra-footer-legal a')&&footerCss.includes('.vatra-ad-slot'),'Footer/ad styles missing');
@@ -107,10 +107,10 @@ assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
 
 // November 3 international UX regressions.
 const finalUx=readFileSync('vatra-ui-finish.css','utf8');
-const routeScroll=readFileSync('vatra-route-scroll.js','utf8');
+const routeScroll=readFileSync('assets/scripts/navigation/route-scroll.js','utf8');
 const languageCss=readFileSync('vatra-language.css','utf8');
 assert.ok(stylesheetLoaded('vatra-ui-finish.css'),'Final profile/dark theme style is not linked');
-assert.ok(main.includes('vatra-route-scroll.js?'),'Route scroll fix must be linked');
+assert.ok(main.includes('assets/scripts/navigation/route-scroll.js?v='),'Route scroll fix must be linked');
 assert.ok(routeScroll.includes("window.addEventListener('hashchange'"),'Hash navigation must scroll to top');
 assert.ok(finalUx.includes('vatra-avatar-hover-wrap:not(.is-open)'),'Avatar controls must remain hidden until requested');
 assert.ok(finalUx.includes('vatra-profile-public-actions'),'Foreign profile action layout missing');
