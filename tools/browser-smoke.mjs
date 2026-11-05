@@ -35,6 +35,9 @@ try{
      assert.ok(response?.ok(),item.id+': HTML endpoint failed');
      await page.locator(item.selector).first().waitFor({state:'attached',timeout:10000});
      await page.waitForTimeout(1100);
+     const finalUrl=new URL(page.url());
+     const redirectedToLogin=item.id==='home'&&finalUrl.pathname.endsWith('/auth.html');
+     const expectedCss=redirectedToLogin?'vatra-auth.css':item.stylesheet;
      metric=await page.evaluate((name)=>{
       const link=[...document.querySelectorAll('link[rel="stylesheet"]')].find(node=>node.href.includes(name));
       const brand=[...document.querySelectorAll('.vatra-wordmark')].some(node=>{
@@ -46,7 +49,9 @@ try{
        cssLoaded:!!link && !!link.sheet,
        brandVisible:brand,
        startupErrorVisible:!!document.querySelector('#startupError:not([hidden])')};
-     },item.stylesheet);
+     },expectedCss);
+     metric.finalUrl=finalUrl.pathname;
+     metric.redirectedToLogin=redirectedToLogin;
      await page.screenshot({path:output+'/'+item.id+'-'+viewport.id+'.png',animations:'disabled'});
      assert.ok(metric.cssLoaded,item.id+': local stylesheet did not load');
      assert.ok(metric.brandVisible,item.id+': wordmark is not visible');
