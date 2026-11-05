@@ -20,6 +20,10 @@ jobs:
         run: deno test --allow-env --allow-net supabase/functions/vatra-story-cleanup/index_test.ts
       - name: Validate Python tooling syntax
         run: python3 -c "import ast,pathlib; [ast.parse(p.read_text(encoding='utf-8'),filename=str(p)) for p in pathlib.Path('tools').rglob('*.py')]"
+      - name: Rebuild the single VATRA stylesheet and verify it is current
+        run: |
+          node tools/build-vatra-css.mjs
+          git diff --exit-code -- assets/styles/vatra.css
       - name: Check VATRA source and UI invariants
         run: node tools/check-vatra.mjs
       - name: Audit all tracked folders, source, assets and duplicates
