@@ -5384,7 +5384,7 @@ body .vatra-gallery-footer.is-mobile-only{display:none!important}
 @media(max-width:590px){body .vatra-gallery-footer.is-mobile-only{display:flex!important}}
 
 
-/* VATRA media carousel: six ordered thumbnails in ONE horizontal row.
+/* VATRA media carousel: four legible thumbnails in ONE horizontal row.
    The selector is scoped to the component, not body[data-page]. */
 body .vatra-profile-photos .vatra-profile-card-head{
  display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;
@@ -5398,7 +5398,7 @@ body .vatra-profile-photos .vatra-profile-card-head .vatra-media-tab{
  display:inline-flex!important;align-items:center!important;gap:6px!important;
  min-height:36px!important;padding:7px 13px!important;border:1px solid #dbe5f4!important;
  border-radius:10px!important;background:#f3f7fc!important;color:#436080!important;
- font:700 13px/1.25 Inter,system-ui,sans-serif!important;cursor:pointer!important;
+ font:660 13px/1.25 var(--vatra-ui-font,"VATRA Onest",system-ui,sans-serif)!important;cursor:pointer!important;
  box-shadow:none!important;
 }
 body .vatra-profile-photos .vatra-profile-card-head .vatra-media-tab.is-active{
@@ -5426,7 +5426,7 @@ body .vatra-profile-media-carousel .vatra-gallery-viewport{
  width:100%!important;min-width:0!important;overflow:hidden!important;border-radius:12px!important;
 }
 body .vatra-profile-media-carousel .vatra-gallery-track.profile-photo-gallery{
- display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
  grid-auto-flow:column!important;grid-template-rows:minmax(0,1fr)!important;
  gap:9px!important;width:100%!important;min-width:0!important;
  margin:0!important;padding:0!important;transform:none!important;transition:none!important;
