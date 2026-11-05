@@ -42,6 +42,8 @@ jobs:
         run: node tools/test-vatra-shield-brand.mjs
       - name: Check readable VATRA wordmarks and balanced authentication brand panel
         run: node tools/test-vatra-brand-text.mjs
+      - name: Check consolidated VATRA forms, recovery scroll and language order
+        run: node tools/test-vatra-auth-unified.mjs
       - name: Verify secure SMTP/SMS provider config and Management API patch
         run: node tools/test-vatra-auth-delivery.mjs
       - name: Check website file paths and repository layout
