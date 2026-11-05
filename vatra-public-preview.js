@@ -71,6 +71,8 @@
     const url = new URL(endpoint);
     url.searchParams.set('select', 'path,value');
     url.searchParams.set('path', 'like.' + (kind === 'person' ? 'posts/*' : 'groupPosts/' + id + '/*'));
+    // Never download private/friends-only content and filter only in the browser.
+    url.searchParams.set('value->>visibility', 'eq.public');
     if (kind === 'person') url.searchParams.set('value->>authorUid', 'eq.' + id);
     // JSON sorting avoids downloading the whole feed before choosing a batch.
     url.searchParams.set('order', 'value->>createdAt.desc');
