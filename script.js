@@ -879,12 +879,16 @@ function vatraOpenStoryViewer(firstId){
   const version=++drawVersion;
   const story=items[current],profile=story.authorUid===currentUser?.uid?currentProfile:users[story.authorUid]||{},name=profile.name||story.authorName||'Користувач ВАТРИ';
   dlg.querySelector('video')?.pause();
-  dlg.innerHTML='<div class="vatra-story-shell"><div class="vatra-story-progress">'+items.map((_,i)=>'<i class="'+(i<=current?'is-done':'')+'"></i>').join('')+'</div>'+
+  const storyTheme=['clear','midnight','warm','ocean'].includes(story.overlayTheme)?story.overlayTheme:'clear';
+  const captionPosition=['top','center','bottom'].includes(story.captionPosition)?story.captionPosition:'bottom';
+  const storySticker=['🔥','💙','✨','🌻','❤️'].includes(story.sticker)?story.sticker:'';
+  dlg.innerHTML='<div class="vatra-story-shell vatra-story-theme-'+storyTheme+'"><div class="vatra-story-progress">'+items.map((_,i)=>'<i class="'+(i<=current?'is-done':'')+'"></i>').join('')+'</div>'+
    '<header><button type="button" data-story-profile data-uid="'+esc(story.authorUid)+'">'+avatar(name,profile.avatarUrl)+'<span><b>'+esc(name)+'</b><small>'+esc(timeAgo(story.createdAt))+'</small></span></button>'+
    '<button type="button" data-story-close aria-label="Закрити історію">×</button></header>'+
    (story.mediaType==='image'?'<img class="vatra-story-media" data-story-media-image alt="Історія '+esc(name)+'">':'<video class="vatra-story-media" data-story-media-video controls playsinline preload="metadata"></video>')+
    '<p class="vatra-story-compose-status" data-story-media-status>Завантажуємо історію…</p>'+
-   (story.caption?'<div class="vatra-story-caption" style="color:'+(['#ffffff','#ffe36d','#bce9ff','#ffb8dd'].includes(story.textColor)?story.textColor:'#ffffff')+'">'+esc(story.caption)+'</div>':'')+
+   (storySticker?'<span class="vatra-story-view-sticker" aria-hidden="true">'+storySticker+'</span>':'')+
+   (story.caption?'<div class="vatra-story-caption is-'+captionPosition+'" style="color:'+(['#ffffff','#ffe36d','#bce9ff','#ffb8dd'].includes(story.textColor)?story.textColor:'#ffffff')+'">'+esc(story.caption)+'</div>':'')+
    '<footer><button type="button" data-story-previous '+(current===0?'disabled':'')+' aria-label="Попередня історія">‹</button><span>'+(current+1)+' / '+items.length+'</span><button type="button" data-story-next '+(current===items.length-1?'disabled':'')+' aria-label="Наступна історія">›</button></footer>'+
    (story.authorUid===currentUser?.uid?'<button type="button" class="vatra-story-delete" data-story-delete>Видалити історію</button>':'')+'</div>';
   void getStoryMediaUrl(story).then(url=>{
@@ -917,67 +921,92 @@ function vatraOpenStoryViewer(firstId){
 }
 function vatraCreateStory(){
  if(!authRequired())return;
- const input=document.createElement('input');input.type='file';input.accept='image/*,video/mp4,video/webm,video/quicktime';input.hidden=true;document.body.append(input);
- input.onchange=async()=>{
+ const input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime';input.hidden=true;
+ document.body.append(input);
+ input.onchange=()=>{
   const file=input.files?.[0];input.remove();if(!file)return;
   const isVideo=file.type.startsWith('video/'),isImage=file.type.startsWith('image/');
   if(!isImage&&!isVideo)return toastMsg('Оберіть фото або відео.');
   if(file.size>(isVideo?MAX_VIDEO:MAX_IMAGE))return toastMsg('Файл завеликий. Фото до 15 МБ, відео до 50 МБ.');
-  let preparedFile=file;
-  if(isImage){
-   try{preparedFile=await getImageEditor(file,'story');if(!preparedFile)return;}
-   catch(error){toastMsg('Не вдалося відкрити редактор історії: '+niceError(error));return;}
-  }
-  const url=URL.createObjectURL(preparedFile);
-  const dialog=document.createElement('dialog');dialog.className='vatra-story-dialog vatra-story-compose';document.body.append(dialog);
-  dialog.innerHTML='<form class="vatra-story-shell" method="dialog"><header><b>Нова історія</b><button type="button" data-story-cancel aria-label="Закрити">×</button></header>'+
-    (isVideo?'<video class="vatra-story-media" controls playsinline src="'+url+'"></video>':'<img class="vatra-story-media" src="'+url+'" alt="Попередній перегляд">')+
-    '<label for="vatraStoryCaption">Текст історії</label><textarea id="vatraStoryCaption" maxlength="220" rows="3" placeholder="Додайте текст (необов’язково)"></textarea>'+
-    '<label class="vatra-story-visibility-field" for="vatraStoryVisibility">Хто бачитиме історію<select id="vatraStoryVisibility" required><option value="public">Для всіх</option><option value="friends">Тільки друзі</option><option value="private">Лише я</option></select></label>'+
-    '<div class="vatra-story-colors" aria-label="Колір тексту"><label>Колір тексту</label>'+['#ffffff','#ffe36d','#bce9ff','#ffb8dd'].map((color,i)=>'<button type="button" style="background:'+color+'" data-story-color="'+color+'" aria-label="Колір '+(i+1)+'" aria-pressed="'+(i===0)+'"></button>').join('')+'</div>'+
-    '<footer><button type="button" data-story-cancel>Скасувати</button><button type="submit" class="primary">Опублікувати історію</button></footer><p class="vatra-story-compose-status" role="status"></p></form>';
-  let textColor='#ffffff',publishing=false;
+  // Stories have their own editor. Do not invoke the profile photo studio.
+  const url=URL.createObjectURL(file);
+  const dialog=document.createElement('dialog');dialog.className='vatra-story-dialog vatra-story-compose';
+  document.body.append(dialog);
+  const colorChoices=['#ffffff','#ffe36d','#bce9ff','#ffb8dd'];
+  const themeChoices=[['clear','Чистий'],['midnight','Ніч'],['warm','Тепло'],['ocean','Хвиля']];
+  const stickers=['','🔥','💙','✨','🌻','❤️'];
+  dialog.innerHTML='<form class="vatra-story-shell" method="dialog">'+
+   '<header class="vatra-story-editor-header"><div><small>ВАТРА ІСТОРІЇ</small><b>Створити історію</b></div><button type="button" data-story-cancel aria-label="Закрити">×</button></header>'+
+   '<div class="vatra-story-preview-stage vatra-story-theme-clear" data-story-preview>'+
+   (isVideo?'<video class="vatra-story-media" controls playsinline preload="metadata" src="'+url+'"></video>':'<img class="vatra-story-media" src="'+url+'" alt="Попередній перегляд історії">')+
+   '<span class="vatra-story-editor-sticker" data-story-sticker-preview aria-hidden="true"></span>'+
+   '<div class="vatra-story-editor-text is-bottom" data-story-caption-preview hidden></div></div>'+
+   '<label for="vatraStoryCaption">Напис на історії</label>'+
+   '<textarea id="vatraStoryCaption" maxlength="220" rows="2" placeholder="Додайте свій текст… (необов’язково)"></textarea>'+
+   '<div class="vatra-story-editor-tools"><fieldset class="vatra-story-theme-choices"><legend>Атмосфера</legend>'+
+   themeChoices.map(([id,label],index)=>'<button type="button" data-story-theme="'+id+'" aria-pressed="'+(index===0)+'">'+label+'</button>').join('')+'</fieldset>'+
+   '<fieldset class="vatra-story-position-choices"><legend>Розташування тексту</legend>'+
+   [['top','Зверху'],['center','Посередині'],['bottom','Знизу']].map(([id,label])=>'<button type="button" data-story-position="'+id+'" aria-pressed="'+(id==='bottom')+'">'+label+'</button>').join('')+'</fieldset>'+
+   '<fieldset class="vatra-story-sticker-choices"><legend>Наклейка</legend>'+
+   stickers.map((value,i)=>'<button type="button" data-story-sticker="'+value+'" aria-pressed="'+(i===0)+'" aria-label="'+(value?'Наклейка '+value:'Без наклейки')+'">'+(value||'Без')+'</button>').join('')+'</fieldset></div>'+
+   '<div class="vatra-story-colors" aria-label="Колір тексту"><label>Колір напису</label>'+
+   colorChoices.map((color,i)=>'<button type="button" style="background:'+color+'" data-story-color="'+color+'" aria-label="Колір '+(i+1)+'" aria-pressed="'+(i===0)+'"></button>').join('')+'</div>'+
+   '<label class="vatra-story-visibility-field" for="vatraStoryVisibility">Хто бачитиме історію<select id="vatraStoryVisibility" required><option value="public">Для всіх</option><option value="friends">Тільки друзі</option><option value="private">Лише я</option></select></label>'+
+   '<footer><button type="button" data-story-cancel>Скасувати</button><button type="submit" class="primary">Опублікувати історію</button></footer>'+
+   '<p class="vatra-story-compose-status" role="status" aria-live="polite"></p></form>';
+  let textColor='#ffffff',position='bottom',theme='clear',sticker='',publishing=false;
+  const preview=dialog.querySelector('[data-story-preview]');
+  const captionPreview=dialog.querySelector('[data-story-caption-preview]');
+  const updatePreview=()=>{
+   const text=dialog.querySelector('#vatraStoryCaption').value.trim().slice(0,220);
+   captionPreview.textContent=text;captionPreview.hidden=!text;
+   captionPreview.style.color=textColor;captionPreview.className='vatra-story-editor-text is-'+position;
+   preview.className='vatra-story-preview-stage vatra-story-theme-'+theme;
+   dialog.querySelector('[data-story-sticker-preview]').textContent=sticker;
+  };
+  const choose=(field,value,update)=>{
+   dialog.querySelectorAll('[data-story-'+field+']').forEach(button=>{
+    button.setAttribute('aria-pressed',String(button.dataset['story'+field[0].toUpperCase()+field.slice(1)]===value));
+   });
+   update();
+  };
+  dialog.querySelector('#vatraStoryCaption').addEventListener('input',updatePreview);
+  dialog.querySelectorAll('[data-story-color]').forEach(button=>button.onclick=()=>{textColor=button.dataset.storyColor;choose('color',textColor,updatePreview);});
+  dialog.querySelectorAll('[data-story-position]').forEach(button=>button.onclick=()=>{position=button.dataset.storyPosition;choose('position',position,updatePreview);});
+  dialog.querySelectorAll('[data-story-theme]').forEach(button=>button.onclick=()=>{theme=button.dataset.storyTheme;choose('theme',theme,updatePreview);});
+  dialog.querySelectorAll('[data-story-sticker]').forEach(button=>button.onclick=()=>{sticker=button.dataset.storySticker;choose('sticker',sticker,updatePreview);});
   const dismiss=()=>{if(!publishing)dialog.close();};
-  const cleanup=()=>{URL.revokeObjectURL(url);dialog.remove();};
-  dialog.addEventListener('close',cleanup,{once:true});
   dialog.querySelectorAll('[data-story-cancel]').forEach(button=>button.onclick=dismiss);
-  dialog.querySelectorAll('[data-story-color]').forEach(button=>button.onclick=()=>{
-   textColor=button.dataset.storyColor;
-   dialog.querySelectorAll('[data-story-color]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
-  });
-  dialog.querySelector('form').onsubmit=async e=>{
-   e.preventDefault();if(publishing)return;publishing=true;
-   const btn=dialog.querySelector('button[type="submit"]'),status=dialog.querySelector('.vatra-story-compose-status');
-   btn.disabled=true;btn.textContent='Публікуємо…';
+  dialog.addEventListener('close',()=>{URL.revokeObjectURL(url);dialog.remove();},{once:true});
+  updatePreview();
+  dialog.querySelector('form').onsubmit=async event=>{
+   event.preventDefault();if(publishing||!currentUser)return;publishing=true;
+   const button=dialog.querySelector('button[type="submit"]'),status=dialog.querySelector('.vatra-story-compose-status');
+   button.disabled=true;button.textContent='Публікуємо…';status.textContent='';
    try{
     const entry=push(ref(db,'posts')),stamp=Date.now();
-    const uploaded=await uploadStoryMedia(preparedFile,entry.key);
+    const uploaded=await uploadStoryMedia(file,entry.key);
     try{
      await createPost(entry,{kind:'story',authorUid:currentUser.uid,authorName:currentProfile.name||'Користувач ВАТРИ',
-       authorHandle:currentProfile.handle||'',...uploaded,mediaType:isVideo?'video':'image',
-       caption:dialog.querySelector('textarea').value.trim().slice(0,220),
-       textColor,visibility:dialog.querySelector('#vatraStoryVisibility').value,createdAt:stamp,expiresAt:stamp+VATRA_STORY_LIFETIME_MS});
+      authorHandle:currentProfile.handle||'',...uploaded,mediaType:isVideo?'video':'image',
+      caption:dialog.querySelector('#vatraStoryCaption').value.trim().slice(0,220),
+      textColor,captionPosition:position,overlayTheme:theme,sticker,
+      visibility:dialog.querySelector('#vatraStoryVisibility').value,createdAt:stamp,
+      expiresAt:stamp+VATRA_STORY_LIFETIME_MS});
     }catch(postError){
      try{await removeStoryMedia({...uploaded,kind:'story'});}catch(cleanupError){console.warn('[ВАТРА] Не вдалося прибрати незавершене завантаження:',cleanupError);}
      throw postError;
     }
-    publishing=false;dialog.close();toastMsg('Історію опубліковано на 24 години.');
-    render();
-   }catch(err){publishing=false;btn.disabled=false;btn.textContent='Опублікувати історію';status.textContent='Не вдалося опублікувати: '+niceError(err);}
+    publishing=false;dialog.close();toastMsg('Історію опубліковано на 24 години.');render();
+   }catch(error){
+    publishing=false;button.disabled=false;button.textContent='Опублікувати історію';
+    status.textContent='Не вдалося опублікувати: '+niceError(error);
+   }
   };
   dialog.showModal();
  };
  input.click();
 }
-document.addEventListener('click',event=>{
- const button=event.target.closest('[data-vatra-feed-filter]');
- if(!button||page!=='feed')return;
- event.preventDefault();
- const next=button.dataset.vatraFeedFilter;
- if(!['all','friends','groups'].includes(next)||filter===next)return;
- filter=next;vatraFeedVisibleCount=VATRA_FEED_BATCH_SIZE;
- renderFeed();
-});
 document.addEventListener('click',e=>{
  const add=e.target.closest('[data-create-story]');
  if(add){e.preventDefault();vatraCreateStory();return;}
