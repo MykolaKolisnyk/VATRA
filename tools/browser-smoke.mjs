@@ -114,7 +114,10 @@ try{
     postFamily:getComputedStyle(post).fontFamily,authorSize:getComputedStyle(author).fontSize,
     sidebarSize:getComputedStyle(side).fontSize,
     navActiveBackground:getComputedStyle(activeNav).backgroundColor,
-    navIdleBackground:getComputedStyle(idleNav).backgroundColor,cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};
+    navIdleBackground:getComputedStyle(idleNav).backgroundColor,
+    navActiveWeight:getComputedStyle(activeNav.querySelector('span:not(.nav-icon)')).fontWeight,
+    navIdleWeight:getComputedStyle(idleNav.querySelector('span:not(.nav-icon)')).fontWeight,
+    cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};
   });
   assert.ok(visualStyle.cssLoaded,'Actual site stylesheet must load on feed fixture');
   assert.ok(visualStyle.fontFaces>0,'Bundled Onest variable font must load');
@@ -122,14 +125,15 @@ try{
   assert.equal(visualStyle.postSize,'16px','Readable body text must be 16px on desktop');
   assert.ok(parseFloat(visualStyle.authorSize)>=15,'Post author must be legible');
   assert.ok(parseFloat(visualStyle.sidebarSize)>=14,'Navigation labels must be legible');
-  assert.notEqual(visualStyle.navActiveBackground,visualStyle.navIdleBackground,'The selected route must be visible in light mode');
+  assert.equal(visualStyle.navActiveBackground,visualStyle.navIdleBackground,'The active route must remain visually neutral in light mode');
+  assert.equal(visualStyle.navActiveWeight,visualStyle.navIdleWeight,'Active route must not have a heavier font');
   await visual.screenshot({path:output+'/vatra-visual-system-desktop.png',animations:'disabled'});
   await visual.evaluate(()=>{document.body.dataset.vatraThemeEffective='dark';});
   const darkNav=await visual.evaluate(()=>({
    active:getComputedStyle(document.querySelector('.sidebar .nav.active')).backgroundColor,
    idle:getComputedStyle(document.querySelector('.sidebar .nav:not(.active)')).backgroundColor
   }));
-  assert.notEqual(darkNav.active,darkNav.idle,'The selected route must be visible in dark mode');
+  assert.equal(darkNav.active,darkNav.idle,'The active route must remain visually neutral in dark mode');
   await visual.screenshot({path:output+'/vatra-visual-system-dark-desktop.png',animations:'disabled'});
   visualStyle.darkNav=darkNav;
   results.push({case:'vatra-visual-system',viewport:'desktop',...visualStyle});
