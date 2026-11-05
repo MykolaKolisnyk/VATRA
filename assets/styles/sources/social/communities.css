@@ -123,3 +123,35 @@ body .vatra-post-album-select[hidden]{display:none!important;}
 body .vatra-post-album-select label{color:#4a6583;font-size:12px;font-weight:720;}
 body .vatra-post-album-select select{min-height:40px;padding:8px 10px;border:1px solid #d5e5f4;border-radius:9px;background:#fff;color:#38546e;}
 @media(max-width:430px){body .vatra-community-album-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+/* VATRA comments and community dialogs: consistent focus and both themes. */
+body .vatra-post-comments :is(button,summary,textarea,select):focus-visible,
+body .vatra-group-members-dialog :is(button,input):focus-visible{outline:2px solid #7ea9f8!important;outline-offset:2px!important}
+body .vatra-comment-item .comment-actions>button{min-height:29px!important;border-radius:7px!important}
+body .vatra-comment-more summary{min-height:30px!important}
+body .vatra-comment-entry textarea{min-width:0!important}
+body[data-vatra-theme-effective="dark"] .vatra-post-comments{border-color:#40536d!important;color:#e6eef9!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-item{border-color:#3b516b!important;color:#e7effb!important}
+body[data-vatra-theme-effective="dark"] .vatra-comments-heading b,
+body[data-vatra-theme-effective="dark"] .vatra-comment-item .comment-copy,
+body[data-vatra-theme-effective="dark"] .vatra-post-gallery-toggle b{color:#ecf3ff!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-item .comment-author-name,
+body[data-vatra-theme-effective="dark"] .vatra-comments-heading>button,
+body[data-vatra-theme-effective="dark"] .vatra-comment-thread-toggle{color:#b7d5ff!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-head :is(time,small),
+body[data-vatra-theme-effective="dark"] .vatra-comments-heading span,
+body[data-vatra-theme-effective="dark"] .vatra-comment-item .comment-actions>button{color:#b5c5da!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-entry{background:#283a52!important;border-color:#4d637f!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-entry textarea{background:#223249!important;border-color:#566d8a!important;color:#eff5ff!important;caret-color:#c8dbff!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-entry textarea::placeholder{color:#b2c4d8!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-attach{background:#344b68!important;border-color:#526d8c!important;color:#c6dcff!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-more>div{background:#293d56!important;border-color:#4b6180!important;box-shadow:0 12px 32px #09172966!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-more>div>button{color:#e4edfa!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-more>div>button:hover,
+body[data-vatra-theme-effective="dark"] .vatra-comment-more:is([open],:focus-within)>summary{background:#395477!important;color:#fff!important}
+body[data-vatra-theme-effective="dark"] .vatra-comment-thread{border-left-color:#48617d!important}
+body[data-vatra-theme-effective="dark"] .vatra-group-members-dialog{background:#223248!important;color:#edf3ff!important;border:1px solid #485f7b!important}
+body[data-vatra-theme-effective="dark"] .vatra-group-members-dialog-head{border-bottom-color:#4c607d!important}
+body[data-vatra-theme-effective="dark"] .vatra-group-members-dialog-head h2{color:#edf4ff!important}
+body[data-vatra-theme-effective="dark"] .vatra-group-members-search{background:#293d55!important;border-color:#4c6682!important}
+body[data-vatra-theme-effective="dark"] .vatra-group-members-search input{color:#eff5ff!important}

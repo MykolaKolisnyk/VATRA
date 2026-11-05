@@ -1,43 +1,4 @@
 
-:root{--vatra-nav-item-height:39px;--vatra-nav-font:12.5px}
-body .layout>.sidebar nav:not(.footer-legal){
- display:flex!important;flex-direction:column!important;gap:2px!important
-}
-body .layout>.sidebar nav button.nav{
- box-sizing:border-box!important;width:100%!important;
- min-height:var(--vatra-nav-item-height)!important;height:var(--vatra-nav-item-height)!important;
- margin:0!important;padding:0 11px!important;gap:11px!important;
- border:0!important;border-radius:8px!important;
- background:transparent!important;box-shadow:none!important;outline-offset:2px!important;
- font:500 var(--vatra-nav-font)/1.4 Inter,system-ui,sans-serif!important;
- letter-spacing:normal!important;color:#586d85!important;
- transform:none!important;transition:background .17s ease,color .17s ease!important;
-}
-body .layout>.sidebar nav button.nav .nav-icon{
- display:grid!important;place-items:center!important;flex:0 0 19px!important;
- width:19px!important;height:19px!important;color:#7190b0!important;
-}
-body .layout>.sidebar nav button.nav .nav-icon svg{
- display:block!important;width:19px!important;height:19px!important;
- fill:none!important;stroke:currentColor!important;stroke-width:1.7!important;
- stroke-linecap:round!important;stroke-linejoin:round!important;
-}
-body .layout>.sidebar nav button.nav:hover,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav:hover{
- color:#255e9e!important;background:#eef3f9!important;transform:none!important;box-shadow:none!important;
-}
-body .layout>.sidebar nav button.nav.active,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav.active{
- position:relative!important;color:#155cc1!important;background:#e9f1fd!important;
- font-weight:610!important;box-shadow:none!important;border-radius:8px!important;
-}
-body .layout>.sidebar nav button.nav.active:before{
- display:block!important;content:""!important;position:absolute!important;
- width:2px!important;left:0!important;top:7px!important;bottom:7px!important;
- background:#2b69c5!important;border-radius:2px!important;
-}
-body .layout>.sidebar nav button.nav.active .nav-icon,
-body .layout>.sidebar nav button.nav.active .nav-icon svg{color:#2467c4!important}
 body .layout>.sidebar>.create-button{
  display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;
  box-sizing:border-box!important;width:100%!important;
@@ -325,9 +286,6 @@ body[data-page="messages"] .vatra-chat-send-error{margin:0 13px 10px!important;f
 body[data-page="messages"] .vatra-chat-no-results[hidden],
 body[data-page="messages"] .vatra-messenger-contact[hidden]{display:none!important}
 
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav{color:#bac9d9!important}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav.active{color:#a8d1ff!important;background:#34485f!important}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav:hover{color:#c3ddf9!important;background:#344357!important}
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell,
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-sidebar,
 body[data-vatra-theme-effective="dark"][data-page="messages"] .chat-window,
@@ -368,7 +326,6 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-send-b
  body[data-page="messages"] .vatra-chat-message-row .message-actions{opacity:1!important}
 }
 @media(prefers-reduced-motion:reduce){
- body .layout>.sidebar nav button.nav,
  body[data-page="messages"] .vatra-messenger-footer input:before{transition:none!important}
 }
 
@@ -379,12 +336,6 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-send-b
  body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(245px,32%) minmax(0,1fr)!important}
 }
 body[data-page="messages"] .vatra-messenger-shell{width:100%!important;max-width:100%!important;min-width:0!important;box-shadow:none!important;border:1px solid #e4eaf1!important;border-radius:12px!important}
-body .layout>.sidebar nav button.nav{position:relative!important;width:calc(100% + 5px)!important;margin-left:-5px!important;transform:translateX(-2px)!important;transition:transform .2s ease,background-color .2s ease,color .2s ease,box-shadow .2s ease!important}
-body .layout>.sidebar nav button.nav:hover,body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav:hover{transform:translateX(3px)!important;color:var(--vatra-user-accent,#0757f5)!important;background:#e9f1ff!important;box-shadow:inset 2px 0 0 #86b0ed!important}
-body .layout>.sidebar nav button.nav.active{transform:translateX(-2px)!important;box-shadow:inset 3px 0 0 var(--vatra-user-accent,#0757f5)!important}
-body .layout>.sidebar nav button.nav.active:hover{transform:translateX(2px)!important}
-body .layout>.sidebar nav button.nav .nav-icon{transition:transform .2s ease!important}
-body .layout>.sidebar nav button.nav:hover .nav-icon{transform:translateX(1px)!important}
 body .vatra-global-header>#notificationBell,body .vatra-global-header>#vatraMusicHeaderButton{width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;display:grid!important;place-items:center!important;padding:6px!important;border:0!important;border-radius:10px!important;background:transparent!important;color:#607994!important;transition:transform .18s ease,color .18s ease,background .18s ease!important}
 body .vatra-global-header>#notificationBell:is(:hover,:focus-visible,[aria-expanded="true"]),body .vatra-global-header>#vatraMusicHeaderButton:is(:hover,:focus-visible,[aria-expanded="true"]){transform:translateY(-1px)!important;background:#eaf1ff!important;color:var(--vatra-user-accent,#0757f5)!important}
 body .vatra-global-header>#notificationBell svg,body .vatra-global-header>#vatraMusicHeaderButton svg{width:21px!important;height:21px!important;stroke-width:1.75!important;stroke:currentColor!important;fill:none!important}
@@ -430,7 +381,7 @@ body[data-vatra-theme-effective="dark"] .vatra-public-friends-search{background:
 body[data-vatra-theme-effective="dark"] .vatra-public-friend-open{background:#344d68;color:#cbe3fa}
 body[data-vatra-theme-effective="dark"] .vatra-global-header>#notificationBell:is(:hover,:focus-visible,[aria-expanded="true"]),body[data-vatra-theme-effective="dark"] .vatra-global-header>#vatraMusicHeaderButton:is(:hover,:focus-visible,[aria-expanded="true"]){background:#35485f!important;color:#9dc6ff!important}
 @media(max-width:480px){body[data-page="profile"] .vatra-profile-sidebar .vatra-profile-friend-grid>.vatra-profile-friend .vatra-profile-friend-avatar,body[data-page="publicProfile"] #vatraPublicFriendList>.vatra-profile-friend .vatra-profile-friend-avatar{flex:0 0 50px!important;width:50px!important;height:50px!important;min-width:50px!important;min-height:50px!important;max-width:50px!important;max-height:50px!important}body[data-page="friends"] .vatra-friends-photo,body[data-page="friends"] .vatra-friends-photo>.avatar{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}}
-@media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav,body .layout>.sidebar nav button.nav .nav-icon,body .vatra-global-header>#vatraMusicHeaderButton,body .vatra-global-header>#notificationBell{transform:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){body .vatra-global-header>#vatraMusicHeaderButton,body .vatra-global-header>#notificationBell{transform:none!important;transition:none!important}}
 
 
 
@@ -626,3 +577,34 @@ body[data-page="messages"] .vatra-messenger-empty p{
     margin:0 8px 10px!important;
   }
 }
+
+/* Shared VATRA conversation controls for keyboard, touch, light and dark themes. */
+body[data-page="messages"] .vatra-messenger-shell :is(button,input):focus-visible{outline:2px solid #7ba5f5!important;outline-offset:2px!important}
+body[data-page="messages"] .vatra-chat-message-row .message-actions button{border-radius:7px!important;min-height:30px!important}
+body[data-page="messages"] .vatra-chat-message-row .message-actions button:focus-visible{background:#eaf1fc!important;color:#145ca4!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-sidebar,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .chat-window,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .chat-messages,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-empty{background:#233248!important;border-color:#43566f!important;color:#e8f0fb!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-selector{border-color:#425671!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-search{background:#2c4059!important;color:#acc0d7!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-search input{color:#eef4ff!important;caret-color:#c8dcff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-search input::placeholder{color:#b4c5da!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-filter{color:#c8d8ec!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-filter.active{background:#354d6b!important;color:#f0f6ff!important;border-color:#5a7391!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-contact-copy small,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-contact-side time,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-meta time,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-person small{color:#b2c3d7!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-meta b{color:#b3d3ff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-row .message-bubble p{color:#e6effb!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-row .message-actions button{color:#b2cdf1!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-row .message-actions button:is(:hover,:focus-visible){background:#385577!important;color:#f7faff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell .chat-send{background:#2a3d56!important;border-color:#526781!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell .chat-send input{color:#f3f7ff!important;caret-color:#d5e5ff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell .chat-send input::placeholder{color:#b5c6d8!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-new,
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header-actions{background:#2b3e58!important;border-color:#4a6180!important;color:#e5efff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header-actions button{color:#deebfc!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header-actions button:hover{background:#385373!important}

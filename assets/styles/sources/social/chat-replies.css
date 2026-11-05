@@ -19,3 +19,9 @@ body .vatra-chat-quoted span{display:block;width:100%;max-width:100%;overflow:hi
 body .vatra-chat-message-row.is-referenced .message-bubble{outline:2px solid #8498ac!important;outline-offset:3px;transition:outline-color .25s}
 body .vatra-chat-message-row .message-actions button[data-reply-chat-message]{white-space:nowrap}
 @media(max-width:600px){body .vatra-chat-reply-preview{margin:0 8px 5px}body .vatra-chat-quoted{max-width:100%}}
+
+/* Reply previews share the same dark surface as the conversation composer. */
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-reply-preview{background:#2b415d!important;border-color:#526c8a!important;color:#e7efff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-quoted{background:#2b4563!important;border-color:#536f8f!important;color:#eef5ff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-quoted span{color:#c3d3e7!important;opacity:1!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-row.is-referenced .message-bubble{outline-color:#8eb9fa!important}
