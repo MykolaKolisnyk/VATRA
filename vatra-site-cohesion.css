@@ -346,3 +346,18 @@ html body #vatraScrollToTop.vatra-scroll-to-top svg{display:block!important}
 @media(prefers-reduced-motion:reduce){
  html body #vatraScrollToTop.vatra-scroll-to-top{transition:none!important;transform:none!important}
 }
+
+
+/* Progressive loading indicator is a real action for accessibility;
+   a shared IntersectionObserver requests the next DOM batch near viewport. */
+html body .vatra-progressive-more{
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ padding:16px 10px 22px!important;min-height:64px!important;box-sizing:border-box!important;
+}
+html body .vatra-progressive-more button{
+ min-width:180px!important;min-height:42px!important;
+ padding:10px 18px!important;border:1px solid #cbdcf5!important;border-radius:11px!important;
+ color:#0757f5!important;background:#f1f6ff!important;font:750 13px/1.35 Inter,system-ui,sans-serif!important;
+ box-shadow:none!important;cursor:pointer!important;
+}
+html body .vatra-progressive-more button:is(:hover,:focus-visible){background:#e6f0ff!important;outline-offset:2px!important}
