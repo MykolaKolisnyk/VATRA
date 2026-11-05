@@ -642,7 +642,9 @@ function startAuthRateLimitCooldown(seconds=300){
 function renderCaptcha(){if(!TURNSTILE_SITE_KEY)return;const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.onload=()=>{if(window.turnstile&&!captchaWidget)captchaWidget=window.turnstile.render('#turnstileWidget',{sitekey:TURNSTILE_SITE_KEY,theme:'light'});};document.head.append(script);}
 function show(m){
  resetOtpStep();const previousMode=mode;mode=m;document.body.dataset.authMode=m;
- if(previousMode!==m&&!(['login','register'].includes(previousMode)&&['login','register'].includes(m)))window.scrollTo(0,0);
+ // Switching between sign-in and registration must not preserve the long
+ // registration page's previous scroll position, which leaves a blank viewport.
+ if(previousMode!==m){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}
  const switchingAccountMode=['login','register'].includes(previousMode)&&['login','register'].includes(m)&&previousMode!==m;
  if(switchingAccountMode){
   $('#email').value='';$('#password').value='';$('#confirm').value='';

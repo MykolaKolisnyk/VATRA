@@ -69,13 +69,13 @@ for(const page of ['index.html','auth.html','register.html']){
 
 // Recovery must use a branded header with the scroll container clipped by the dialog.
 // The final stylesheet must be loaded after earlier auth and design layers.
-const recoveryFinal=read('vatra-recovery-final.css');
+const recoveryFinal=read('vatra-auth-unified.css');
 for(const page of ['auth.html','register.html']){
  const source=read(page);
  assert.ok(source.includes('<header class="vatra-recovery-head">'),page+': recovery header missing');
  assert.ok(source.includes('<div class="vatra-recovery-body">'),page+': recovery form body missing');
- assert.ok(source.includes('vatra-recovery-final.css?v=20261104-recovery-unified2'),page+': final stylesheet missing');
- assert.ok(source.lastIndexOf('vatra-recovery-final.css')>source.lastIndexOf('vatra-ui-foundations-v5.css'),
+ assert.ok(source.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': final stylesheet missing');
+ assert.ok(source.lastIndexOf('vatra-auth-unified.css')>source.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': final recovery styles must load after global auth styles');
 }
 assert.ok(recoveryFinal.includes('#recoveryDialog #recoveryForm::-webkit-scrollbar'),
