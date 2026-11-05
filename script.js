@@ -722,6 +722,8 @@ function allPosts(){
  });
  if(page==='saved')result=result.filter(p=>saved[p.id]);
  if(page==='profile')result=result.filter(p=>p.authorUid===uid);
+ if(page==='feed'&&filter==='friends')result=result.filter(p=>p.source==='user'&&p.authorUid!==uid&&!!friends[p.authorUid]);
+ if(page==='feed'&&filter==='groups')result=result.filter(p=>p.source==='group');
  if(query){
   const q=query.toLocaleLowerCase('uk-UA');
   result=result.filter(p=>(String(p.authorName||'')+' '+String(p.authorHandle||'')+' '+String(p.text||'')+' '+String(p.groupName||'')).toLocaleLowerCase('uk-UA').includes(q));
@@ -967,6 +969,15 @@ function vatraCreateStory(){
  };
  input.click();
 }
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-vatra-feed-filter]');
+ if(!button||page!=='feed')return;
+ event.preventDefault();
+ const next=button.dataset.vatraFeedFilter;
+ if(!['all','friends','groups'].includes(next)||filter===next)return;
+ filter=next;vatraFeedVisibleCount=VATRA_FEED_BATCH_SIZE;
+ renderFeed();
+});
 document.addEventListener('click',e=>{
  const add=e.target.closest('[data-create-story]');
  if(add){e.preventDefault();vatraCreateStory();return;}
@@ -1018,7 +1029,7 @@ function renderFeed(){
  const selected=sponsored.slice(0,featureCount),paidIds=new Set(selected.map(p=>p.id));
  const organicAll=arr.filter(p=>!paidIds.has(p.id)),hasMore=organicAll.length>vatraFeedVisibleCount||(vatraPostMode==='paged'&&vatraPostHasMore);
  const organic=organicAll.slice(0,vatraFeedVisibleCount),cards=organic.map(postCard);
- if(organic.length&&currentUser)cards.splice(1,0,'<section class="vatra-fof-panel" id="vatraFriendsOfFriends" hidden aria-label="Люди, яких ви можете знати"></section>');
+ if(organic.length&&currentUser&&filter==='all')cards.splice(1,0,'<section class="vatra-fof-panel" id="vatraFriendsOfFriends" hidden aria-label="Люди, яких ви можете знати"></section>');
  let at=Math.min(2,cards.length);
  for(const item of selected){
   cards.splice(at,0,'<section class="vatra-sponsored-placement" aria-label="Рекламний допис"><header><strong>Реклама</strong><span>Оплачене просування</span></header>'+postCard(item)+'</section>');
@@ -1034,7 +1045,18 @@ function renderFeed(){
   }).join('');
   cards.unshift('<section class="vatra-friend-birthday-banner" aria-label="Дні народження друзів"><header><span class="vatra-birthday-icon" aria-hidden="true">🎂</span><span><b>Сьогодні святкують друзі</b><small>Привітайте у ВАТРІ або надішліть подарунок</small></span></header><div class="vatra-friend-birthday-people">'+birthdayCards+'</div></section>');
  }
- if(currentUser)cards.unshift(vatraStoryRail());
+ if(currentUser){
+  const host=document.getElementById('vatraFeedStories');
+  if(host){host.hidden=false;host.innerHTML=vatraStoryRail();}
+ }
+ const filters=document.getElementById('vatraFeedFilters');
+ if(filters){
+  filters.hidden=false;
+  filters.querySelectorAll('[data-vatra-feed-filter]').forEach(button=>{
+   const active=button.dataset.vatraFeedFilter===filter;
+   button.classList.toggle('is-active',active);button.setAttribute('aria-pressed',String(active));
+  });
+ }
  if(hasMore)cards.push('<div id="vatraFeedMore" class="vatra-feed-more"><button class="pill" type="button">Показати ще дописи</button></div>');
  const empty=cards.length===0;
  setFeed(cards.join(''),empty);
@@ -3340,6 +3362,9 @@ function vatraSetupScrollUp(){
 }
 vatraSetupScrollUp();
 function render(){if(currentUser)vatraSetPostMode();if(!feed)return;
+ const stories=document.getElementById('vatraFeedStories'),filters=document.getElementById('vatraFeedFilters');
+ if(stories&&page!=='feed'){stories.hidden=true;stories.replaceChildren();}
+ if(filters)filters.hidden=page!=='feed';
  if(document.activeElement?.matches?.('#feed input,#feed textarea,#feed select,[contenteditable="true"]'))return;
  const externalRoute={adminCenter:'#/admin',myReports:'#/my-reports',supportDesk:'#/support',verificationGuide:'#/verification'}[document.body.dataset.page];
  if(externalRoute&&location.hash===externalRoute)return;
