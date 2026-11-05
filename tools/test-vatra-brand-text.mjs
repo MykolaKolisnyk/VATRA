@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import assert from 'node:assert/strict';
 
 const read=file=>readFileSync(file,'utf8');
@@ -40,4 +40,16 @@ assert.ok(panel.includes('max-width:1180px')&&panel.includes('max-height:650px')
 assert.ok(!panel.includes('.vatra-wordmark .vatra-wordmark-text'), 'Auth CSS must not clone shared logo styles');
 assert.ok(panel.includes('.vatra-auth-language-quick')&&panel.includes('.brand-foot'),
  'Blue-side languages and footer must share the new layout');
+
+for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
+ const html=read('lang/'+locale+'/index.html');
+ assert.ok(html.includes('class="vatra-landing-brand"')&&
+  html.includes('src="../../favicon.svg"')&&html.includes('<span>ВАТРА</span>'),
+  'Locale '+locale+': must render live VATRA text beside icon');
+ assert.ok(!html.includes('vatra-header.svg'),
+  'Locale '+locale+': retired image-based wordmark reference remains');
+}
+for(const asset of ['vatra-header.svg','vatra-header.png','logo.png']){
+ assert.ok(!existsSync(asset),'Retired duplicate image asset still tracked: '+asset);
+}
 console.log('VATRA: large blue panel, readable text wordmarks and responsive breakpoints validated.');
