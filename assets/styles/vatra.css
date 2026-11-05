@@ -22454,8 +22454,11 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  text-shadow:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
- background:transparent!important;box-shadow:none!important;color:#24354b!important;
+ background:#e8f1ff!important;color:#0757f5!important;
+ box-shadow:inset 3px 0 0 #0757f5!important;
 }
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){font-weight:750!important}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.vatra-nav-section-start{
  margin-top:4px!important;
  padding-top:5px!important;
@@ -22520,10 +22523,12 @@ html body[data-vatra-theme-effective="dark"]{
  --vatra-icon-blue:#6caeff;
  --vatra-icon-muted:#87add9;
 }
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav,
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{color:#ebf3fc!important;background:transparent!important}
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
- color:#ebf3fc!important;background:transparent!important;
+ color:#e7f2ff!important;background:#263e59!important;
+ box-shadow:inset 3px 0 0 #76b1ff!important;
 }
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#9dc7ff!important}
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon{color:#6caeff!important}
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{background:rgba(108,174,255,.12)!important}
 @media(max-width:760px){
@@ -22558,28 +22563,7 @@ html body .vatra-support-header>.vatra-support-icon svg.vatra-icon{
  width:26px;height:26px;color:inherit!important;
 }
 
-/* Current route is semantic (aria-current), not a permanent visual selection.
-   Preserve a smooth hover and keyboard focus cue only. */
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]):not(:hover):not(:focus-visible),
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not(:hover):not(:focus-visible){
- background:transparent!important;border:0!important;box-shadow:none!important;filter:none!important;
- color:#24354b!important;transform:none!important;
-}
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{
- color:var(--vatra-icon-blue)!important;
-}
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{
- transition:background-color .17s ease,color .17s ease,transform .17s ease!important;
-}
-@media(hover:hover){
- html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{
-  background:rgba(67,143,219,.09)!important;transform:translateX(2px)!important;
- }
-}
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]):not(:hover):not(:focus-visible),
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:not(:hover):not(:focus-visible){
- color:#ebf3fc!important;background:transparent!important;
-}
+/* Keep active route visibly selected in both themes; keyboard focus remains distinct. */
 @media(prefers-reduced-motion:reduce){
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{transition:none!important}
  html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{transform:none!important}
@@ -22608,7 +22592,7 @@ html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-labe
  display:block!important;flex:none!important;min-width:0!important;width:auto!important;height:auto!important;
  padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
  background:transparent!important;box-shadow:none!important;filter:none!important;
- color:inherit!important;font-family:Inter,"Manrope","VATRA Onest",system-ui,sans-serif!important;
+ color:inherit!important;font-family:var(--vatra-ui-font,"VATRA Onest",Inter,system-ui,sans-serif)!important;
  font-size:24px!important;font-weight:850!important;letter-spacing:-.055em!important;
  line-height:1.08!important;white-space:nowrap!important;text-transform:uppercase!important;
 }

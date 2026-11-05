@@ -102,15 +102,19 @@ try{
  const visual=await browser.newPage({viewport:{width:1280,height:850},deviceScaleFactor:1});
  try{
   await visual.goto(base+'/404.html',{waitUntil:'domcontentloaded'});
-  await visual.setContent(`<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="feed"><div class="layout"><aside class="sidebar"><nav><a class="nav active" href="#"><span>Новини</span></a></nav></aside><main class="main"><section class="feed"><article class="post"><div class="post-head"><div class="author"><b><button class="author-link">ВАТРА</button></b><small>Новини спільноти</small></div></div><p class="post-text">Текст допису має бути чітким, читабельним і достатнього розміру.</p><div class="post-actions"><button class="post-action-button">Вподобати</button></div></article></section></main></div></body></html>`,{waitUntil:'load'});
+  await visual.setContent(`<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="feed"><div class="layout"><aside class="sidebar"><nav aria-label="Основна навігація"><a class="nav" href="#"><span class="nav-icon"><svg class="vatra-icon" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span><span>Друзі</span></a><a class="nav active" href="#"><span class="nav-icon"><svg class="vatra-icon" viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h10"/></svg></span><span>Новини</span></a></nav></aside><main class="main"><section class="feed"><article class="post"><div class="post-head"><div class="author"><b><button class="author-link">ВАТРА</button></b><small>Новини спільноти</small></div></div><p class="post-text">Текст допису має бути чітким, читабельним і достатнього розміру.</p><div class="post-actions"><button class="post-action-button">Вподобати</button></div></article></section></main></div></body></html>`,{waitUntil:'load'});
   const visualStyle=await visual.evaluate(async()=>{
    const loaded=await document.fonts.load('500 16px "VATRA Onest"');
    const post=document.querySelector('.post-text');
    const author=document.querySelector('.author-link');
    const side=document.querySelector('.sidebar .nav>span:not(.nav-icon)');
+   const activeNav=document.querySelector('.sidebar .nav.active');
+   const idleNav=document.querySelector('.sidebar .nav:not(.active)');
    return {fontFaces:loaded.length,postSize:getComputedStyle(post).fontSize,
     postFamily:getComputedStyle(post).fontFamily,authorSize:getComputedStyle(author).fontSize,
-    sidebarSize:getComputedStyle(side).fontSize,cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};
+    sidebarSize:getComputedStyle(side).fontSize,
+    navActiveBackground:getComputedStyle(activeNav).backgroundColor,
+    navIdleBackground:getComputedStyle(idleNav).backgroundColor,cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};
   });
   assert.ok(visualStyle.cssLoaded,'Actual site stylesheet must load on feed fixture');
   assert.ok(visualStyle.fontFaces>0,'Bundled Onest variable font must load');
@@ -118,7 +122,16 @@ try{
   assert.equal(visualStyle.postSize,'16px','Readable body text must be 16px on desktop');
   assert.ok(parseFloat(visualStyle.authorSize)>=15,'Post author must be legible');
   assert.ok(parseFloat(visualStyle.sidebarSize)>=14,'Navigation labels must be legible');
+  assert.notEqual(visualStyle.navActiveBackground,visualStyle.navIdleBackground,'The selected route must be visible in light mode');
   await visual.screenshot({path:output+'/vatra-visual-system-desktop.png',animations:'disabled'});
+  await visual.evaluate(()=>{document.body.dataset.vatraThemeEffective='dark';});
+  const darkNav=await visual.evaluate(()=>({
+   active:getComputedStyle(document.querySelector('.sidebar .nav.active')).backgroundColor,
+   idle:getComputedStyle(document.querySelector('.sidebar .nav:not(.active)')).backgroundColor
+  }));
+  assert.notEqual(darkNav.active,darkNav.idle,'The selected route must be visible in dark mode');
+  await visual.screenshot({path:output+'/vatra-visual-system-dark-desktop.png',animations:'disabled'});
+  visualStyle.darkNav=darkNav;
   results.push({case:'vatra-visual-system',viewport:'desktop',...visualStyle});
   console.log('PASS VATRA visual system',JSON.stringify(visualStyle));
  }catch(error){

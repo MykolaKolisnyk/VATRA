@@ -16,7 +16,7 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes(wordmark)&&html.includes(icon),page+': mark or real VATRA text missing');
  assert.ok(html.includes('class="vatra-brand-values"'),page+': footer spacing structure missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': do not put text into a horizontal logo image');
- assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-onest-design1'),page+': shared compiled auth stylesheet missing');
+ assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-onest-design2'),page+': shared compiled auth stylesheet missing');
  assert.ok(authModules.includes('assets/styles/sources/branding/wordmark.css'),page+': shared text logo source missing');
  assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': unified VATRA UI must load after shared component styles');
@@ -24,7 +24,7 @@ for(const page of ['auth.html','register.html']){
 for(const page of ['index.html','404.html']){
  const html=read(page);
  assert.ok(html.includes(icon)&&html.includes(wordmark),page+': logo must be a standalone icon + real text');
- assert.ok(page==='index.html'?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(read('assets/styles/manifest.json')).files.includes('assets/styles/sources/branding/wordmark.css'):html.includes('assets/styles/sources/branding/wordmark.css?v=20261105-wordmark1'),page+': global wordmark CSS missing');
+ assert.ok(page==='index.html'?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(read('assets/styles/manifest.json')).files.includes('assets/styles/sources/branding/wordmark.css'):html.includes('assets/styles/sources/branding/wordmark.css?v=20261105-wordmark2'),page+': global wordmark CSS missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': stale image wordmark remains');
 }
 const index=read('index.html');
@@ -56,3 +56,5 @@ for(const asset of ['vatra-header.svg','vatra-header.png','logo.png']){
 assert.ok(brand.includes(':is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-symbol'),'All legal and developer logos must use the same mark dimensions');
 assert.ok(panel.includes('grid-template-columns:minmax(0,1fr) auto!important'),'Developer footer link must align with brand values');
 console.log('VATRA: large blue panel, readable text wordmarks and responsive breakpoints validated.');
+
+assert.ok(brand.includes('font-family:var(--vatra-ui-font,"VATRA Onest"'), 'The VATRA wordmark must follow the Onest typography system');

@@ -14,7 +14,7 @@ const uiRefs=[
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-onest-design1'),page+': consolidated CSS missing');
+ assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-onest-design2'),page+': consolidated CSS missing');
  assert.equal((html.match(/href="assets\/styles\/vatra-auth\.css\?/g)||[]).length,1,page+': duplicated auth bundle');
  assert.ok(authModules.includes('assets/styles/sources/branding/wordmark.css'),page+': logo source missing from auth bundle');
  assert.equal(authModules.at(-1),'assets/styles/sources/auth/auth-shared.css',page+': final auth styles must load last');

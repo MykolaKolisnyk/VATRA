@@ -19,7 +19,7 @@
  display:block!important;flex:none!important;min-width:0!important;width:auto!important;height:auto!important;
  padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
  background:transparent!important;box-shadow:none!important;filter:none!important;
- color:inherit!important;font-family:Inter,"Manrope","VATRA Onest",system-ui,sans-serif!important;
+ color:inherit!important;font-family:var(--vatra-ui-font,"VATRA Onest",Inter,system-ui,sans-serif)!important;
  font-size:24px!important;font-weight:850!important;letter-spacing:-.055em!important;
  line-height:1.08!important;white-space:nowrap!important;text-transform:uppercase!important;
 }

@@ -94,3 +94,7 @@ assert.ok(read('assets/styles/sources/branding/brand.css').includes('--vatra-bra
 assert.ok(read('assets/styles/sources/branding/brand.css').includes('-webkit-font-smoothing:antialiased!important'),'Main site must not override its text smoothing to auto');
 assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('font-family:"VATRA Onest"'),'Local Onest must be bundled for all site routes');
 console.log('VATRA font: 404/app typography unified through local Onest.');
+
+assert.ok(icons.includes('background:#e8f1ff!important'), 'The selected desktop nav must be visible in light mode');
+assert.ok(icons.includes('background:#263e59!important'), 'The selected desktop nav must be visible in dark mode');
+assert.ok(!icons.includes('Current route is semantic'), 'Old rules must not neutralize selected navigation');
