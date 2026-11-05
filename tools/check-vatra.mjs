@@ -17,6 +17,8 @@ for(const filename of files){
  passed++;
 }
 const main=readFileSync('index.html','utf8');
+const vatraStyleModules=JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files;
+const stylesheetLoaded=name=>main.includes('assets/styles/vatra.css?v=')&&vatraStyleModules.includes(name);
 const scriptText=readFileSync('script.js','utf8');
 const giftText=readFileSync('vatra-gifts.js','utf8');
 const sql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
@@ -30,7 +32,7 @@ for(const [label,test] of [
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
  ['Manual gift orders',readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8').includes('vatra_gifts_place_order')],
  ['Gifts module',/src="vatra-gifts\.js\?v=[^"]+"/.test(main)],
- ['Gifts stylesheet',/href="vatra-gifts\.css\?v=[^"]+"/.test(main)],
+ ['Gifts stylesheet',stylesheetLoaded('vatra-gifts.css')],
  ['Gifts page handling',scriptText.includes("if(page==='gifts'){")],
  ['Visible delete comment',scriptText.includes('class="vatra-comment-delete"')],
  ['No blue bar',styling.includes('nav a.nav.active::before')],
@@ -75,7 +77,7 @@ const footerCss=readFileSync('vatra-sidebar-ads.css','utf8');
 const adsJs=readFileSync('vatra-sidebar-ads.js','utf8');
 assert.ok(!/id="create"/.test(main),'Removed sidebar compose button reappeared');
 assert.equal((main.match(/data-vatra-ad-slot="[12]"/g)||[]).length,2,'Expected exactly two reserved ad spaces');
-assert.ok(main.includes('vatra-sidebar-ads.css?'),'Sidebar/ad stylesheet not linked');
+assert.ok(stylesheetLoaded('vatra-sidebar-ads.css'),'Sidebar/ad stylesheet not linked');
 assert.ok(main.includes('vatra-sidebar-ads.js?'),'Advertising module not linked');
 assert.ok(main.indexOf('class="vatra-sidebar-ads"')>main.indexOf('class="vatra-footer-identity"'),'Ads should be below sidebar copyright');
 assert.ok(!main.includes('class="vatra-footer-credit"')&&!main.includes('class="footer-legal vatra-footer-legal"'),'Sidebar must not show developer/legal links');
@@ -97,7 +99,7 @@ assert.ok(scriptText.includes("className='vatra-language-settings-mount'"),'Lang
 assert.ok(languageModule.includes("querySelector('.vatra-language-settings-mount')"),'Language picker injection missing');
 assert.ok(layouts.includes('.vatra-group-view .vatra-group-back'),'Community back navigation layout missing');
 assert.ok(layouts.includes('.birthday-selects'),'Date of birth controls layout missing');
-assert.ok(main.includes('vatra-settings-community-fix.css'),'Updated profile/community stylesheet missing');
+assert.ok(stylesheetLoaded('vatra-settings-community-fix.css'),'Updated profile/community stylesheet missing');
 assert.ok(existsSync('favicon.svg'),'Standalone VATRA icon SVG missing');
 assert.ok(main.includes('class="vatra-wordmark vatra-header-wordmark"'),'Text brand mark not linked in website navigation');
 assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
@@ -107,7 +109,7 @@ assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
 const finalUx=readFileSync('vatra-ui-finish.css','utf8');
 const routeScroll=readFileSync('vatra-route-scroll.js','utf8');
 const languageCss=readFileSync('vatra-language.css','utf8');
-assert.ok(main.includes('vatra-ui-finish.css?'),'Final profile/dark theme style is not linked');
+assert.ok(stylesheetLoaded('vatra-ui-finish.css'),'Final profile/dark theme style is not linked');
 assert.ok(main.includes('vatra-route-scroll.js?'),'Route scroll fix must be linked');
 assert.ok(routeScroll.includes("window.addEventListener('hashchange'"),'Hash navigation must scroll to top');
 assert.ok(finalUx.includes('vatra-avatar-hover-wrap:not(.is-open)'),'Avatar controls must remain hidden until requested');
@@ -156,7 +158,7 @@ assert.ok(readFileSync('vatra-gifts.css','utf8').includes('.vatra-gift-detail-di
 
 // Profile editor and additional settings (source-level non-regression checks).
 const editorCss=readFileSync('vatra-profile-editor.css','utf8');
-assert.ok(main.includes('vatra-profile-editor.css'),'New branded editor styles must be loaded');
+assert.ok(stylesheetLoaded('vatra-profile-editor.css'),'New branded editor styles must be loaded');
 assert.ok(scriptText.includes('VATRA_PROFILE_RECORD_SCHEMAS'),'Education, career and military record schemas missing');
 assert.ok(scriptText.includes('vatraGetRecordLists(f)'),'Multi-entry profile records must be validated on save');
 assert.ok(scriptText.includes('recordLists,updatedAt:values.updatedAt'),'Private record-list persistence missing');
@@ -172,7 +174,7 @@ const latinAuth=readFileSync('auth.js','utf8');
 const latinSQL=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const unifiedLayout=readFileSync('vatra-layout-cleanup.css','utf8');
 assert.ok(!main.includes('<aside class="sidebar"><a class="brand"'),'The desktop sidebar must not repeat the topbar logo');
-assert.ok(main.includes('vatra-layout-cleanup.css'),'Shared editor/settings and photo-date CSS is not linked');
+assert.ok(stylesheetLoaded('vatra-layout-cleanup.css'),'Shared editor/settings and photo-date CSS is not linked');
 assert.ok(scriptText.includes("navPage=p==='settings'&&vatraSettingsContext==='edit'?'profile':p"),'The editor must highlight the profile nav, not settings');
 assert.ok(scriptText.includes("$$('a[data-page]').forEach"),'Navigation must use the querySelectorAll helper');
 assert.ok(scriptText.includes('setFeed(`<section class="settings-page"><form id="profileSettingsForm"'),'Remove redundant profile edit / settings header panels');
