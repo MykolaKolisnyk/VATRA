@@ -11,7 +11,7 @@ for(const name of manifest){
  assert.ok(next>offset,'Auth CSS cascade order changed for '+name);
  offset=next;
 }
-assert.ok(bundle.includes('../.././assets/fonts/Onest-Variable.ttf'),'CSS font path must resolve from assets/styles');
+assert.ok(bundle.includes('../fonts/Onest-Variable.ttf'),'CSS font path must resolve from assets/styles');
 for(const page of ['auth.html','register.html']){
  const html=read(page);
  const local=[...html.matchAll(/<link\s+rel="stylesheet"\s+href="([^"]+\.css(?:\?[^"]+)?)"/g)].map(match=>match[1]);
