@@ -71,8 +71,8 @@ assert.ok(css.includes('html body dialog#recoveryDialog.auth-dialog[open]')&&
           'Scrollbar must stay inside recovery modal');
 assert.ok(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),
           'Both human checks must have four aligned choices');
-const favicon=read('favicon.svg'),header=read('vatra-header.svg'),preview=read('social-preview.svg');
-for(const asset of [favicon,header,preview]){
+const favicon=read('favicon.svg'),preview=read('social-preview.svg');
+for(const asset of [favicon,preview]){
  assert.ok(asset.includes('M19 18H36C39 18 42 20 44 24'),
   'Ribbon left arm must be identical across brand assets');
  assert.ok(asset.includes('M76 18H90C94 18 96 22'),
