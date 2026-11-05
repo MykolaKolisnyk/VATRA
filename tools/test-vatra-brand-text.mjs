@@ -16,14 +16,14 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes('class="vatra-brand-values"'),page+': footer spacing structure missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': do not put text into a horizontal logo image');
  assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': new panel CSS missing');
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': shared wordmark CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': consolidated wordmark CSS missing');
  assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': unified VATRA UI must load after shared component styles');
 }
 for(const page of ['index.html','404.html']){
  const html=read(page);
  assert.ok(html.includes(icon)&&html.includes(wordmark),page+': logo must be a standalone icon + real text');
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': wordmark CSS missing');
+ assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark1'),page+': global wordmark CSS missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': stale image wordmark remains');
 }
 const index=read('index.html');
