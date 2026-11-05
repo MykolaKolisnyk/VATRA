@@ -6,12 +6,12 @@ const read=p=>readFileSync(p,'utf8');
 const js=read('assets/scripts/app/main.js'),html=read('index.html'),css=read('assets/styles/sources/foundation/shared-tokens.css');
 const auth=read('assets/scripts/auth/auth.js'),studio=read('assets/scripts/media/photo-studio.js');
 const sidebar=html.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
-const sidebarOrder=['profile','friends','feed','messages','groups','photos','myVideos','videos','gifts','saved','settings'];
+const sidebarOrder=['profile','friends','feed','messages','groups','photos','myVideos','gifts','saved','settings'];
 assert.ok(sidebar.length>0,'Missing navigation');
 const indices=sidebarOrder.map(page=>sidebar.indexOf('data-page="'+page+'"'));
 assert.ok(indices.every((p,i)=>p>=0&&(!i||p>indices[i-1])),'Sidebar order does not match user request');
-const clipsPos=sidebar.indexOf('data-page="videos"'),dividerPos=sidebar.indexOf('class="vatra-sidebar-divider"'),giftsPos=sidebar.indexOf('data-page="gifts"');
-assert.ok(clipsPos>=0&&clipsPos<dividerPos&&dividerPos<giftsPos,'Dedicated divider must be between Clips and Gifts');
+const dividerPos=sidebar.indexOf('class="vatra-sidebar-divider"'),giftsPos=sidebar.indexOf('data-page="gifts"'),savedPos=sidebar.indexOf('data-page="saved"');
+assert.ok(giftsPos>=0&&giftsPos<dividerPos&&dividerPos<savedPos,'Dedicated divider must be between Gifts and Saved');assert.ok(!sidebar.includes('data-page="videos"'),'Clips must be removed');
 assert.ok(!sidebar.includes('vatra-nav-section-start'),'Gifts must not use a border pretending to be a divider');
 assert.ok(css.includes('.layout>.sidebar nav>.vatra-sidebar-divider'),'Dedicated divider needs layout styles');
 for(const hint of ['Переглянути людей із міста','які працюють у','які навчалися у','рідне місто']){

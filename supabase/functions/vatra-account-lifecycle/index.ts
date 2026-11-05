@@ -21,7 +21,7 @@ type Lifecycle={
 const allowedDays=[7,30,365];
 const cors=(origin:string|null)=>({
  'Access-Control-Allow-Origin':origins.has(origin||'')?origin!:'https://mykolakolisnyk.github.io',
- 'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-vatra-cron-secret',
+ 'Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info,x-retry-count,traceparent,tracestate,baggage,x-vatra-cron-secret',
  'Access-Control-Allow-Methods':'POST, OPTIONS',
  'Vary':'Origin',
 });

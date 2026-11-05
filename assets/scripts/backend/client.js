@@ -51,9 +51,9 @@ export function setRememberMe(enabled){
  }catch(error){console.warn('[VATRA] Could not change remember setting:',error?.name||error);}
 }
 export function getRememberMe(){return vatraRememberEnabled();}
-const client = createClient(SERVICE_URL, PUBLIC_KEY, {
+const client = globalThis.__vatraSupabaseSingleton || (globalThis.__vatraSupabaseSingleton = createClient(SERVICE_URL, PUBLIC_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: vatraAuthStorage, storageKey }
-});
+}));
 const currentAuth = { currentUser: null };
 
 function cleanPath(path = '') { return String(path).split('/').filter(Boolean).join('/'); }

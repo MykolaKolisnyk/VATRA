@@ -16,7 +16,7 @@ assert.ok(sidebar,'Sidebar not found');
 const expected={
  profile:'profile',friends:'friends',feed:'news',messages:'message',
  groups:'community',photos:'photos',myVideos:'video',
- videos:'clips',gifts:'gift',saved:'bookmark',settings:'settings'
+ gifts:'gift',saved:'bookmark',settings:'settings'
 };
 for(const [page,icon] of Object.entries(expected)){
  const link=sidebar.match(new RegExp('<a[^>]*data-page="'+page+'"[^>]*>[\\s\\S]*?<\\/a>'))?.[0];
@@ -25,11 +25,11 @@ for(const [page,icon] of Object.entries(expected)){
  assert.ok(link.includes('href="#vatra-i-'+icon+'"'),'Unexpected glyph for '+page);
  assert.ok(names.has(icon),'Missing shared sprite glyph '+icon);
 }
-const expectedOrder=['profile','friends','feed','messages','groups','photos','myVideos','videos','gifts','saved','settings'];
+const expectedOrder=['profile','friends','feed','messages','groups','photos','myVideos','gifts','saved','settings'];
 const positions=expectedOrder.map(p=>sidebar.indexOf('data-page="'+p+'"'));
 assert.ok(positions.every(p=>p>=0)&&positions.every((p,i)=>!i||p>positions[i-1]),'VATRA sidebar order mismatch');
 assert.ok(!sidebar.includes('data-page="music"'),'Music remains accessible from header, not duplicated in compact sidebar');
-assert.ok(sidebar.includes('class="vatra-sidebar-divider"')&&sidebar.indexOf('data-page="videos"')<sidebar.indexOf('class="vatra-sidebar-divider"')&&sidebar.indexOf('class="vatra-sidebar-divider"')<sidebar.indexOf('data-page="gifts"'),'Utility group must have a separate line after Clips');
+assert.ok(sidebar.includes('class="vatra-sidebar-divider"')&&sidebar.indexOf('data-page="gifts"')<sidebar.indexOf('class="vatra-sidebar-divider"')&&sidebar.indexOf('class="vatra-sidebar-divider"')<sidebar.indexOf('data-page="saved"'),'Utility group must have a separate line after Gifts');
 assert.ok(/data-menu-page="supportDesk"/.test(sidebar),'Support link is missing');
 assert.ok(sidebar.includes('href="#vatra-i-support"'),'Support needs an independent headset glyph');
 const references=[...html.matchAll(/<use href="#vatra-i-([\w-]+)"/g)].map(x=>x[1]);

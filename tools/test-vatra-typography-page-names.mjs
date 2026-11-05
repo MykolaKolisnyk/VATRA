@@ -62,7 +62,7 @@ const basePages=read('assets/styles/sources/layout/pages.css');
 assert.ok(basePages.includes('width:min(1040px,calc(100% - 40px))'),'Compact profile width must be restored');
 assert.ok(basePages.includes('max-width:830px!important'),'Compact content width must be restored');
 assert.ok(!pageCss.includes('.vatra-own-page-layout'),'Old wide layout CSS must be removed');
-assert.ok(galleryCss.includes('grid-template-columns:repeat(6,minmax(0,1fr))!important')&&galleryCss.includes('grid-auto-flow:column!important')&&galleryCss.includes('overflow:hidden!important'),'Media carousel must use six thumbnails in one horizontal row');
+assert.ok(galleryCss.includes('grid-template-columns:repeat(4,minmax(0,1fr))!important')&&galleryCss.includes('grid-auto-flow:column!important')&&galleryCss.includes('overflow:hidden!important'),'Media carousel must use six thumbnails in one horizontal row');
 const flagsCss=read('assets/styles/sources/layout/interaction-states.css');
 assert.ok(flagsCss.includes('body .vatra-language-flag{display:block;flex:0 0 28px;border:0!important;outline:0!important'),'Language SVG flag must not receive an extra border or outline');
 const appForPerformance=read('assets/scripts/app/main.js');
