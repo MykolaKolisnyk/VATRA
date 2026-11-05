@@ -11,7 +11,9 @@ assert.ok(fonts.includes('--vatra-radius-card:13px')&&fonts.includes('--vatra-co
 assert.ok(fonts.includes('--vatra-ui-font:"VATRA Onest"'),'Onest must be primary');
 assert.ok(group.includes('flex-wrap:nowrap;white-space:nowrap'),'Community tabs must not wrap');
 assert.ok(editor.includes('position:sticky!important;bottom:12px!important'),'Profile editor Save must be reachable');
-assert.ok(settings.includes('minmax(175px,198px)'),'Settings navigation must be compact');
+assert.ok(settings.includes('grid-template-columns:minmax(175px,198px) minmax(0,1fr)!important'),'Settings navigation must be compact');
+assert.ok(settings.includes('min-height:40px!important;padding:8px 10px!important'),'Settings rows must not be oversized');
+assert.ok(settings.includes('background:transparent!important;'),'Settings introduction must not be another large card');
 assert.ok(ads.includes('[data-page="messages"]')&&ads.includes('display:none!important'),'No ads around conversations');
 assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&css.includes('box-shadow:none!important;'),'Selected sidebar must remain visually neutral');
 console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');
