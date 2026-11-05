@@ -99,7 +99,7 @@ assert.ok(layouts.includes('.vatra-group-view .vatra-group-back'),'Community bac
 assert.ok(layouts.includes('.birthday-selects'),'Date of birth controls layout missing');
 assert.ok(main.includes('vatra-settings-community-fix.css'),'Updated profile/community stylesheet missing');
 assert.ok(existsSync('vatra-header.svg'),'User-derived horizontal brand SVG missing');
-assert.ok(main.includes('vatra-header.svg'),'Horizontal wordmark not linked in website navigation');
+assert.ok(main.includes('class="vatra-wordmark vatra-header-wordmark"'),'Text brand mark not linked in website navigation');
 assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
 
 
@@ -144,7 +144,7 @@ assert.ok(languageModule.includes("excludedLanguageCodes=new Set(['ru','be'])"),
 assert.ok(languageModule.includes('capitalizeLanguage(nativeName)'),'Language names must begin with a capital');
 for(const html of [authPage,registerPage]){
  assert.ok(html.includes('class="developer-dialog vatra-developer-modern"'),'Founder modal redesign missing');
- assert.ok(html.includes('vatra-loading-wordmark-image'),'Minimal social-network loader missing');
+ assert.ok(html.includes('vatra-loader-wordmark')&&html.includes('vatra-wordmark-text'),'Accessible text loader brand missing');
  assert.ok(!html.includes('ВАТРА — це не просто сайт у моєму комп’ютері.'),'Old sentimental founder copy remains');
 }
 assert.ok(loaderCss.includes('.vatra-loading-screen{'),'Quiet loader styling missing');
