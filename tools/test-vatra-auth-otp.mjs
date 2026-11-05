@@ -15,9 +15,9 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="recoveryMethodWrap"')&&!html.includes('id="recoveryMethodWrap" hidden'),'Recovery method switch must be visible');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261105-auth-scroll1'),file+': stale auth JS version');
+ assert.ok(html.includes('auth.js?v=20261105-layout-quiz2'),file+': stale auth JS version');
  assert.ok(html.includes('auth.css?v=20261104-ribbon-shield1'),file+': stale auth CSS version');
- assert.ok(html.includes('vatra-language.js?v=20261105-language-order1'),file+': language module cache must be current');
+ assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),file+': language module cache must be current');
  assert.ok(html.includes('vatra-design-system-nov04.css?v=20261104-v-logo4'),file+': V logo modal style must be current');
  assert.ok(html.includes('class="vatra-auth-brand-copyright"'),file+': copyright must be on blue panel');
  assert.ok(html.includes('class="vatra-auth-mobile-copyright"'),file+': mobile must keep a visible copyright');
