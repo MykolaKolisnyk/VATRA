@@ -34,7 +34,7 @@ for(const file of ['index.html','auth.html','register.html']){
  assert.ok(html.includes('family=Manrope:wght@400..800'), 'Manrope missing in '+file);
  assert.ok(html.includes('family=Inter:wght@400..800'), 'Inter fallback missing in '+file);
 }
-assert.ok(foundations.includes('--vatra-ui-font:Inter'), 'Readability: Inter must be the sitewide font');
+assert.ok(foundations.includes('--vatra-ui-font:"VATRA Onest"'), 'The app must use the same crisp local Onest font as its 404 page');
 assert.ok(icons.includes('font-size:14px!important;font-weight:580!important'),'Compact readable desktop navigation not applied');
 assert.ok(icons.includes('height:38px!important'),'Sidebar buttons must remain compact');
 assert.ok(icons.includes('data-vatra-theme-effective="dark"'),'Dark mode navigation is unstyled');
@@ -84,9 +84,13 @@ const mainUi=read('assets/styles/sources/foundation/shared-tokens.css');
 const legacyMedia=read('assets/styles/sources/media/media-access.css');
 const giftsUi=read('assets/styles/sources/gifts/catalog.css');
 assert.ok(mainUi.includes('/* VATRA common visual language: crisp, clear and consistent across pages. */'),'Shared crisp UI needs one canonical owner');
-assert.ok(mainUi.includes('font-size:14.5px!important;font-weight:450!important;line-height:1.73!important'),'Post body readability must not regress');
+assert.ok(mainUi.includes('font-size:16px!important;font-weight:450!important;line-height:1.72!important'),'Post body readability must not regress');
 assert.ok(mainUi.includes('.post-action-button'),'Feed buttons must have a consistent click target');
 assert.ok(mainUi.includes('body[data-vatra-theme-effective="dark"] .layout>.main .post:not(.chat-window)'),'Posts must be legible in dark theme');
 assert.ok(giftsUi.includes('body[data-vatra-theme-effective="dark"] .vatra-gifts-page'),'Gifts must honor selected dark theme');
 assert.ok(!legacyMedia.includes('.layout>.sidebar>nav>a.nav'),'Old media stylesheet must not restyle the canonical sidebar');
 console.log('VATRA crisp card typography, actions, gifts and single navigation owner verified.');
+assert.ok(read('assets/styles/sources/branding/brand.css').includes('--vatra-brand-canvas:#f3f6fc'),'Main site must match the clear public page canvas');
+assert.ok(read('assets/styles/sources/branding/brand.css').includes('-webkit-font-smoothing:antialiased!important'),'Main site must not override its text smoothing to auto');
+assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('font-family:"VATRA Onest"'),'Local Onest must be bundled for all site routes');
+console.log('VATRA font: 404/app typography unified through local Onest.');

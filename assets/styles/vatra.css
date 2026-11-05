@@ -19261,17 +19261,17 @@ body .vatra-profile-summary-compact .vatra-profile-more[hidden] {
 
 :root{--vatra-polish-ink:#253b54;--vatra-polish-muted:#617993;--vatra-polish-blue:#0757f5}
 html,html body{
- -webkit-font-smoothing:auto!important;
+ -webkit-font-smoothing:antialiased!important;
  text-rendering:optimizeLegibility;
  font-kerning:normal;
 }
 body :is(button,a,summary,h1,h2,h3,h4,h5,p,label,small,strong,b,span,dt,dd){
- -webkit-font-smoothing:auto!important;
+ -webkit-font-smoothing:antialiased!important;
  text-shadow:none!important;
 }
 
 /* VATRA identity across routed pages; existing features and elements are preserved. */
-:root{--vatra-brand-ember:#b65b43;--vatra-brand-ember-soft:#fbefe9;--vatra-brand-ink:#253447;--vatra-brand-muted:#69798a;--vatra-brand-border:#e3e7ec;--vatra-brand-canvas:#f7f7f6;--vatra-brand-shadow:0 5px 22px rgba(30,44,64,.045)}
+:root{--vatra-brand-ember:#0757f5;--vatra-brand-ember-soft:#eaf2ff;--vatra-brand-ink:#253447;--vatra-brand-muted:#69798a;--vatra-brand-border:#e3e7ec;--vatra-brand-canvas:#f3f6fc;--vatra-brand-shadow:0 5px 22px rgba(30,44,64,.045)}
 html body:not([data-vatra-theme-effective="dark"]){--v-canvas:var(--vatra-brand-canvas);--vatra-ui-border-soft:var(--vatra-brand-border);--vatra-ui-strong:var(--vatra-brand-ink)}
 html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-color:var(--vatra-brand-border)!important;border-radius:16px!important;box-shadow:var(--vatra-brand-shadow)!important}
 html body .layout>.main :is(.vatra-profile-card-head h3,.vatra-profile-title-row h2,.vatra-friends-top h2,.vatra-group-heading h2,.vatra-group-card h3,.vatra-community-gallery-heading h3){letter-spacing:-.018em!important}
@@ -19286,12 +19286,12 @@ html body[data-vatra-theme-effective="dark"] .layout>.main :is(.post,.quick-comp
 
 /* Canonical VATRA navigation, owned by this brand module. */
 html body .layout>.sidebar nav:not(.footer-legal){display:flex!important;flex-direction:column!important;gap:2px!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:13px!important;font-weight:620!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:14.5px!important;font-weight:660!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav)::before,html body .layout>.sidebar nav :is(a.nav,button.nav)::after{content:none!important;display:none!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{display:grid!important;place-items:center!important;flex:0 0 27px!important;width:27px!important;height:27px!important;border-radius:9px!important;background:transparent!important;color:#617b9b!important;transition:background-color .16s ease,color .16s ease!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:18px!important;height:18px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:20px!important;height:20px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible){background:#edf3fc!important;color:#164f9b!important;transform:none!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 var(--vatra-brand-ember)!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 #0757f5!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#dce8ff!important;color:#0757f5!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible) .nav-icon{color:#0757f5!important}
 html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav){color:#c7d3e3!important;background:transparent!important}
@@ -20884,8 +20884,8 @@ body .vatra-clip-publish-fields>small{color:#8195ae;font-size:11px}
  --vatra-ui-active:#e9f1ff;
  --vatra-ui-primary:#0757e8;
  --vatra-ui-surface:#fff;
- --vatra-ui-font:Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
- --vatra-ui-body-font:Inter,"Manrope","VATRA Onest",system-ui,sans-serif;
+ --vatra-ui-font:"VATRA Onest",Inter,"Segoe UI",system-ui,sans-serif;
+ --vatra-ui-body-font:"VATRA Onest",Inter,"Manrope",system-ui,sans-serif;
  --vatra-ui-radius:11px;
 }
 html body{font-family:var(--vatra-ui-font)!important;color:var(--vatra-ui-ink)!important;font-size:14.5px;line-height:1.55;font-weight:400;letter-spacing:0}
@@ -20894,7 +20894,7 @@ html body :is(.layout,.topbar,.sidebar,.post,.quick-compose,.settings-page,.vatr
 html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-notification-rail button,.vatra-group-nav button,.post-actions button,.post-menu button,.vatra-profile-button){
  opacity:1!important;text-shadow:none!important;
 }
-/* Text hierarchy: Inter for the reference aesthetic; local Onest remains an offline fallback. */
+/* The same local Onest lettering used by the VATRA 404 and public preview. */
 html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-profile-detail-label,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){
  font-family:var(--vatra-ui-font)!important;
  font-size:14px!important;line-height:1.65!important;font-weight:400!important;
@@ -22159,20 +22159,20 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-detail button.vatra-profi
 
 /* VATRA common visual language: crisp, clear and consistent across pages. */
 html body{
- --vatra-quality-ink:#26384f;
- --vatra-quality-muted:#62748a;
+ --vatra-quality-ink:#182e50;
+ --vatra-quality-muted:#5c7290;
  --vatra-quality-line:#dfe7f0;
  --vatra-quality-elevation:0 4px 18px rgba(24,44,70,.055);
 }
 html body .layout>.main :is(.post:not(.chat-window),.vatra-profile-card,.settings-card,.vatra-group-card,.vatra-gift-card){
- border-radius:15px!important;
+ border-radius:16px!important;
 }
 html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.post:not(.chat-window),.vatra-profile-card,.settings-card,.vatra-group-card,.vatra-gift-card){
  background:#fff!important;border:1px solid var(--vatra-quality-line)!important;
  box-shadow:var(--vatra-quality-elevation)!important;
 }
 html body .layout>.main .post:not(.chat-window){
- padding:18px 20px 10px!important;margin-bottom:14px!important;
+ padding:22px 22px 12px!important;margin-bottom:14px!important;
  font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
  letter-spacing:normal!important;
 }
@@ -22180,7 +22180,7 @@ html body .layout>.main .post:not(.chat-window) :is(.post-head,.post-text,.post-
  text-shadow:none!important;filter:none!important;
 }
 html body .layout>.main .post:not(.chat-window) .post-head{
- display:flex!important;align-items:center!important;gap:12px!important;
+ display:flex!important;align-items:center!important;gap:13px!important;
  margin:0 0 12px!important;
 }
 html body .layout>.main .post:not(.chat-window) .post-head .avatar{
@@ -22191,7 +22191,7 @@ html body .layout>.main .post:not(.chat-window) .post-head .author{
 }
 html body .layout>.main .post:not(.chat-window) :is(.author-link,.author>b){
  font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
- font-size:14px!important;font-weight:750!important;line-height:1.4!important;
+ font-size:15.5px!important;font-weight:750!important;line-height:1.4!important;
  letter-spacing:-.012em!important;
 }
 html body:not([data-vatra-theme-effective="dark"]) .layout>.main .post:not(.chat-window) :is(.author-link,.author>b){
@@ -22205,7 +22205,7 @@ html body:not([data-vatra-theme-effective="dark"]) .layout>.main .post:not(.chat
 }
 html body .layout>.main .post:not(.chat-window) .post-text{
  font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
- font-size:14.5px!important;font-weight:450!important;line-height:1.73!important;
+ font-size:16px!important;font-weight:450!important;line-height:1.72!important;
  letter-spacing:0!important;overflow-wrap:anywhere!important;
 }
 html body:not([data-vatra-theme-effective="dark"]) .layout>.main .post:not(.chat-window) .post-text{
@@ -22223,7 +22223,7 @@ html body .layout>.main .post:not(.chat-window) .post-action-button{
  gap:7px!important;min-height:39px!important;box-sizing:border-box!important;
  padding:8px 11px!important;border-radius:10px!important;
  font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
- font-size:12.5px!important;font-weight:670!important;line-height:1.35!important;
+ font-size:13.5px!important;font-weight:700!important;line-height:1.35!important;
  letter-spacing:0!important;white-space:nowrap!important;
  transform:none!important;text-shadow:none!important;filter:none!important;
 }
@@ -22303,7 +22303,7 @@ html body:not([data-vatra-theme-effective="dark"])[data-page="feed"] .layout>.ma
 html body[data-page="feed"] .layout>.main>.quick-compose .prompt{
  border-radius:11px!important;padding:12px 15px!important;min-height:46px!important;
  font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
- font-size:13.5px!important;font-weight:570!important;line-height:1.4!important;
+ font-size:15px!important;font-weight:550!important;line-height:1.4!important;
 }
 html body:not([data-vatra-theme-effective="dark"])[data-page="feed"] .layout>.main>.quick-compose .prompt{
  background:#f3f6fa!important;color:#566d84!important;

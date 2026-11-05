@@ -1,17 +1,17 @@
 
 :root{--vatra-polish-ink:#253b54;--vatra-polish-muted:#617993;--vatra-polish-blue:#0757f5}
 html,html body{
- -webkit-font-smoothing:auto!important;
+ -webkit-font-smoothing:antialiased!important;
  text-rendering:optimizeLegibility;
  font-kerning:normal;
 }
 body :is(button,a,summary,h1,h2,h3,h4,h5,p,label,small,strong,b,span,dt,dd){
- -webkit-font-smoothing:auto!important;
+ -webkit-font-smoothing:antialiased!important;
  text-shadow:none!important;
 }
 
 /* VATRA identity across routed pages; existing features and elements are preserved. */
-:root{--vatra-brand-ember:#b65b43;--vatra-brand-ember-soft:#fbefe9;--vatra-brand-ink:#253447;--vatra-brand-muted:#69798a;--vatra-brand-border:#e3e7ec;--vatra-brand-canvas:#f7f7f6;--vatra-brand-shadow:0 5px 22px rgba(30,44,64,.045)}
+:root{--vatra-brand-ember:#0757f5;--vatra-brand-ember-soft:#eaf2ff;--vatra-brand-ink:#253447;--vatra-brand-muted:#69798a;--vatra-brand-border:#e3e7ec;--vatra-brand-canvas:#f3f6fc;--vatra-brand-shadow:0 5px 22px rgba(30,44,64,.045)}
 html body:not([data-vatra-theme-effective="dark"]){--v-canvas:var(--vatra-brand-canvas);--vatra-ui-border-soft:var(--vatra-brand-border);--vatra-ui-strong:var(--vatra-brand-ink)}
 html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-color:var(--vatra-brand-border)!important;border-radius:16px!important;box-shadow:var(--vatra-brand-shadow)!important}
 html body .layout>.main :is(.vatra-profile-card-head h3,.vatra-profile-title-row h2,.vatra-friends-top h2,.vatra-group-heading h2,.vatra-group-card h3,.vatra-community-gallery-heading h3){letter-spacing:-.018em!important}
@@ -26,12 +26,12 @@ html body[data-vatra-theme-effective="dark"] .layout>.main :is(.post,.quick-comp
 
 /* Canonical VATRA navigation, owned by this brand module. */
 html body .layout>.sidebar nav:not(.footer-legal){display:flex!important;flex-direction:column!important;gap:2px!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:13px!important;font-weight:620!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:14.5px!important;font-weight:660!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav)::before,html body .layout>.sidebar nav :is(a.nav,button.nav)::after{content:none!important;display:none!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{display:grid!important;place-items:center!important;flex:0 0 27px!important;width:27px!important;height:27px!important;border-radius:9px!important;background:transparent!important;color:#617b9b!important;transition:background-color .16s ease,color .16s ease!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:18px!important;height:18px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:20px!important;height:20px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible){background:#edf3fc!important;color:#164f9b!important;transform:none!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 var(--vatra-brand-ember)!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 #0757f5!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#dce8ff!important;color:#0757f5!important}
 html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible) .nav-icon{color:#0757f5!important}
 html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav){color:#c7d3e3!important;background:transparent!important}

@@ -5876,8 +5876,8 @@ html body .vatra-language-dialog .vatra-language-dialog-logo{
  --vatra-ui-active:#e9f1ff;
  --vatra-ui-primary:#0757e8;
  --vatra-ui-surface:#fff;
- --vatra-ui-font:Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
- --vatra-ui-body-font:Inter,"Manrope","VATRA Onest",system-ui,sans-serif;
+ --vatra-ui-font:"VATRA Onest",Inter,"Segoe UI",system-ui,sans-serif;
+ --vatra-ui-body-font:"VATRA Onest",Inter,"Manrope",system-ui,sans-serif;
  --vatra-ui-radius:11px;
 }
 html body{font-family:var(--vatra-ui-font)!important;color:var(--vatra-ui-ink)!important;font-size:14.5px;line-height:1.55;font-weight:400;letter-spacing:0}
@@ -5886,7 +5886,7 @@ html body :is(.layout,.topbar,.sidebar,.post,.quick-compose,.settings-page,.vatr
 html body :is(.nav,.vatra-settings-nav-button,.vatra-friends-top button,.vatra-notification-rail button,.vatra-group-nav button,.post-actions button,.post-menu button,.vatra-profile-button){
  opacity:1!important;text-shadow:none!important;
 }
-/* Text hierarchy: Inter for the reference aesthetic; local Onest remains an offline fallback. */
+/* The same local Onest lettering used by the VATRA 404 and public preview. */
 html body :is(.post .post-text,.post .comment-copy,.vatra-profile-detail-value,.vatra-profile-detail-label,.vatra-community-description,.vatra-group-description,.vatra-friends-row,.chat-message,.vatra-support-page p,.settings-card p){
  font-family:var(--vatra-ui-font)!important;
  font-size:14px!important;line-height:1.65!important;font-weight:400!important;
