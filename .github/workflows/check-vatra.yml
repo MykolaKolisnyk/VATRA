@@ -32,6 +32,8 @@ jobs:
         run: node tools/audit-vatra-repository.mjs
       - name: Verify centralized SVG icons and all navigation entries
         run: node tools/test-vatra-icon-system.mjs
+      - name: Verify keyset pagination of large Supabase app_data trees
+        run: node tools/test-vatra-tree-keyset.mjs
       - name: Validate backend imports and every shared SVG path
         run: node tools/test-vatra-startup-contract.mjs
       - name: Validate VATRA Clips playback, lazy video loading and cleanup
