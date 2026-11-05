@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 
 const read=file=>readFileSync(file,'utf8');
-const brand=read('vatra-auth-unified.css');
+const brand=read('vatra-brand-text.css');
 const panel=read('vatra-auth-unified.css');
 const wordmark='class="vatra-wordmark-text">ВАТРА</span>';
 const icon='class="vatra-wordmark-symbol" src="favicon.svg?v=20261104-ribbon1"';
@@ -15,8 +15,8 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes(wordmark)&&html.includes(icon),page+': mark or real VATRA text missing');
  assert.ok(html.includes('class="vatra-brand-values"'),page+': footer spacing structure missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': do not put text into a horizontal logo image');
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': new panel CSS missing');
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': consolidated wordmark CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-brand-single-source1'),page+': new panel CSS missing');
+ assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared text logo stylesheet missing');
  assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': unified VATRA UI must load after shared component styles');
 }
@@ -37,6 +37,7 @@ assert.ok(panel.includes('font:860 clamp(57px,4.55vw,87px)'),
  'Desktop headline must be restored to large type');
 assert.ok(panel.includes('max-width:1180px')&&panel.includes('max-height:650px'),
  'Hero headline must remain responsive on narrower and shorter screens');
+assert.ok(!panel.includes('.vatra-wordmark .vatra-wordmark-text'), 'Auth CSS must not clone shared logo styles');
 assert.ok(panel.includes('.vatra-auth-language-quick')&&panel.includes('.brand-foot'),
  'Blue-side languages and footer must share the new layout');
 console.log('VATRA: large blue panel, readable text wordmarks and responsive breakpoints validated.');

@@ -5,14 +5,18 @@ const read=path=>readFileSync(path,'utf8');
 const css=read('vatra-auth-unified.css');
 const js=read('auth.js');
 const lang=read('vatra-language.js');
+const logoCss=read('vatra-brand-text.css');
+assert.ok(logoCss.includes('.vatra-wordmark-text')&&!css.includes('.vatra-wordmark .vatra-wordmark-text'),'A single shared logo stylesheet must own text+icon rules');
 const uiRefs=[
  'vatra-language.css','vatra-recovery-final.css',
- 'vatra-brand-text.css','vatra-auth-brand-refresh.css'
+ 'vatra-auth-brand-refresh.css'
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-auth-consolidated1'),page+': consolidated CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-brand-single-source1'),page+': consolidated CSS missing');
  assert.equal((html.match(/href="vatra-auth-unified\.css\?/g)||[]).length,1,page+': duplicated unified styles');
+ assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared logo CSS missing');
+ assert.equal((html.match(/href="vatra-brand-text\.css\?/g)||[]).length,1,page+': duplicate logo CSS');
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
