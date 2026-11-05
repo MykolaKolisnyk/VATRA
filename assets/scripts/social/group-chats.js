@@ -182,27 +182,45 @@ function renderGroupWindow(){
   original.replaceWith(article);win=article;
  }
  const count=Object.keys(g.members||{}).length;
- const draft=win.querySelector('input[name=message]')?.value||'';
+ // Keep each conversation draft private to that conversation when changing groups.
+ const sameGroup=win.dataset.vatraGroupId===activeGroupId;
+ const previousInput=win.querySelector('input[name=message]');
+ const restoreFocus=sameGroup&&document.activeElement===previousInput;
+ const previousCaret=restoreFocus?previousInput.selectionStart:null;
+ const previousList=win.querySelector('#vatraGroupMessageList');
+ const restorePosition=sameGroup&&!!previousList?.querySelector('.vatra-group-bubble')&&previousList.scrollHeight-previousList.clientHeight-previousList.scrollTop>96;
+ const previousPosition=previousList?.scrollTop||0;
+ const draft=sameGroup?(previousInput?.value||''):'';
+ win.dataset.vatraGroupId=activeGroupId;
  win.innerHTML='<header class="vatra-group-window-head"><button type="button" class="vatra-group-back" data-leave-vatra-group aria-label="До списку бесід">‹</button>'+
   '<span class="vatra-group-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.2 19.5c.4-3.2 2.4-5 5.8-5s5.4 1.8 5.8 5M17 5.7a3 3 0 0 1 0 5.8M16 14.5c2.9 0 4.5 1.7 4.8 5"/></svg></span><span><b>'+esc(g.title||'Групова бесіда')+'</b><small>'+count+' учасників</small></span></header>'+
   '<div id="vatraGroupMessageList" class="chat-messages vatra-group-message-list" aria-live="polite"></div>'+
   '<form id="vatraGroupSendForm" class="chat-send vatra-group-send"><input name="message" maxlength="2000" required placeholder="Написати в бесіду…" aria-label="Нове повідомлення"><button class="primary" type="submit">Надіслати</button></form>'+
   '<p id="vatraGroupChatNotice" role="status" hidden></p>';
  win.querySelector('form').addEventListener('submit',sendGroupMessage);
- const field=win.querySelector('input[name=message]');if(field&&draft)field.value=draft;
- renderGroupMessages();setStateOfActiveGroup();
+ const field=win.querySelector('input[name=message]');
+ if(field&&draft)field.value=draft;
+ if(restoreFocus&&field){
+  field.focus();
+  if(previousCaret!==null)field.setSelectionRange(previousCaret,previousCaret);
+ }
+ renderGroupMessages();
+ if(restorePosition)win.querySelector('#vatraGroupMessageList').scrollTop=previousPosition;
+ setStateOfActiveGroup();
 }
 function renderGroupMessages(){
  const container=$('#vatraGroupMessageList');if(!container||!activeGroupId)return;
  const arr=Object.entries(activeGroupMessages).filter(([,m])=>eligibleMessage(m))
   .map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).slice(-150);
  const knownRoster=groupMemberNames;
+ const keepGroupAtEnd=!container.querySelector('.vatra-group-bubble')||(container.scrollHeight-container.clientHeight-container.scrollTop<=96);
+ const previousGroupScroll=container.scrollTop;
  container.innerHTML=arr.length?arr.map(m=>{
   const mine=m.senderUid===myUid;
   const sender=mine?'Ви':knownRoster[m.senderUid]||'Учасник';
   return '<div class="vatra-group-bubble'+(mine?' mine':'')+'"><div class="vatra-group-bubble-meta"><b>'+esc(sender)+'</b><small>'+esc(when(m.createdAt))+'</small></div><p>'+esc(m.text)+'</p></div>';
  }).join(''):'<div class="vatra-group-no-messages"><b>Бесіда створена</b><p>Напишіть перше повідомлення своїм друзям.</p></div>';
- container.scrollTop=container.scrollHeight;
+ container.scrollTop=keepGroupAtEnd?container.scrollHeight:previousGroupScroll;
 }
 async function sendGroupMessage(e){
  e.preventDefault();if(!myUid||!activeGroupId)return;

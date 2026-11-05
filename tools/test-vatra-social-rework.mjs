@@ -128,3 +128,12 @@ assert.equal(sentReceipts.length,1,'Returning to the latest visible chat should 
 assert.ok(js.includes("$('#chatMessages')?.addEventListener('scroll',()=>markChatRead(key),{passive:true})"),
  'Scrolling to newer messages must refresh read receipts');
 console.log('VATRA: unread chat status respects scroll position and tab visibility.');
+
+const groupChatJs=read('assets/scripts/social/group-chats.js');
+const groupChatCss=read('assets/styles/sources/layout/interaction-states.css');
+assert.ok(groupChatJs.includes('win.dataset.vatraGroupId=activeGroupId'),'Group drafts must not leak between conversations');
+assert.ok(groupChatJs.includes("const draft=sameGroup?(previousInput?.value||''):''"),'New group draft should be empty');
+assert.ok(groupChatJs.includes('container.scrollTop=keepGroupAtEnd?container.scrollHeight:previousGroupScroll'),'Group history scroll must be preserved');
+assert.ok(groupChatJs.includes('if(restoreFocus&&field)'),'Group composer must retain focus after metadata refresh');
+assert.ok(groupChatCss.includes('body[data-vatra-theme-effective="dark"] .vatra-group-bubble.mine'),'Dark group bubbles must be legible');
+console.log('VATRA group chat focused composing, separate drafts, scrolling and themes verified.');
