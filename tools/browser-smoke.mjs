@@ -57,6 +57,35 @@ try{
      assert.ok(metric.brandVisible,item.id+': wordmark is not visible');
      assert.ok(metric.scrollWidth-metric.viewport<=8,item.id+': horizontal overflow of '+(metric.scrollWidth-metric.viewport)+'px');
      assert.deepEqual(missing,[],item.id+': broken local asset paths');
+     if(item.id==='login'||item.id==='register'){
+      // These are real click-through checks: a styled but non-functional
+      // form must fail CI, even when the initial screenshot looks fine.
+      await page.waitForFunction(()=>window.__vatraAuthReady===true,null,{timeout:18000});
+      const initialMode=item.id==='register'?'register':'login';
+      assert.equal(await page.locator('body').getAttribute('data-auth-mode'),initialMode,'Unexpected initial auth mode');
+      await page.locator('#registerTab').click();
+      assert.equal(await page.locator('body').getAttribute('data-auth-mode'),'register','Register tab does not switch form');
+      assert.equal(await page.locator('#firstNameWrap').isVisible(),true,'Registration name field is hidden');
+      const registerSize=await page.evaluate(()=>({
+       client:document.documentElement.clientWidth,
+       scroll:document.documentElement.scrollWidth
+      }));
+      assert.ok(registerSize.scroll-registerSize.client<=8,'Registration overflows on '+viewport.id);
+      await page.screenshot({path:output+'/'+item.id+'-register-tab-'+viewport.id+'.png',animations:'disabled'});
+      await page.locator('#loginTab').click();
+      assert.equal(await page.locator('body').getAttribute('data-auth-mode'),'login','Login tab does not switch form');
+      assert.equal(await page.locator('#firstNameWrap').isVisible(),false,'Registration-only fields remain on login');
+      await page.locator('#showPassword').click();
+      assert.equal(await page.locator('#password').getAttribute('type'),'text','Show password button is non-functional');
+      await page.locator('#showPassword').click();
+      assert.equal(await page.locator('#password').getAttribute('type'),'password','Hide password button is non-functional');
+      await page.locator('#forgot').click();
+      assert.equal(await page.locator('#recoveryDialog').evaluate(dialog=>dialog.open),true,'Recovery dialog did not open');
+      await page.locator('#closeRecovery').click();
+      await page.waitForFunction(()=>!document.querySelector('#recoveryDialog')?.open,null,{timeout:4000});
+      metric.authClickThrough=true;
+     }
+     assert.deepEqual(missing,[],item.id+': broken local asset paths after interactions');
      console.log('PASS',item.id,viewport.id,JSON.stringify(metric));
     }catch(error){
      failed=true;
