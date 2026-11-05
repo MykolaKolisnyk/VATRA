@@ -11,7 +11,7 @@ const first='11111111-1111-4111-8111-111111111111';
 const second='22222222-2222-4222-8222-222222222222';
 const group='group_test_123';
 const profiles=[
- {path:'publicProfiles/'+first,value:{name:'Перший профіль',handle:'pershyi',profileVisibility:'public',searchable:true}},
+ {path:'publicProfiles/'+first,value:{name:'Перший профіль',handle:'pershyi',profileVisibility:'public',searchable:true,updatedAt:Date.UTC(2026,10,4,11,0,0)}},
  {path:'publicProfiles/'+second,value:{name:'Другий профіль',handle:'другий.юзер',profileVisibility:'public',searchable:true}}
 ];
 const groups=[
@@ -44,6 +44,8 @@ try{
  assert.ok(guestProfile.includes('vatra-public-preview.js'),'Guest page must load RLS-limited public posts');
  assert.ok(guestProfile.includes('auth.html?mode=register'),'Guest page must include registration in the topbar');
  assert.ok(guestProfile.includes('id="vatraPublicPosts"'),'Guest page must have an accessible post mount');
+ assert.ok(guestProfile.includes('og:updated_time')&&guestProfile.includes('2026-11-04T11:00:00.000Z'),'Public snapshot must show the actual profile update timestamp');
+ assert.ok(readFileSync('sitemap.xml','utf8').includes('<lastmod>2026-11-04</lastmod>'),'Sitemap must show the actual edit date');
  assert.ok(existsSync(join('communities',group,'index.html')));
  assert.ok(readFileSync(join('communities',group,'index.html'),'utf8').includes('data-vatra-public-kind="group"'),'Group page must allow public preview');
  activeProfiles=[first];activeGroups=[];
