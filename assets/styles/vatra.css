@@ -12109,10 +12109,6 @@ body[data-page="messages"] .vatra-messenger-contact-main:hover{background:#f1f4f
 body[data-page="messages"] .vatra-messenger-contact-main.active{
  background:#e9eef5!important;box-shadow:none!important;
 }
-body[data-page="messages"] .vatra-messenger-contact-main .avatar{
- width:43px!important;height:43px!important;min-width:43px!important;
- flex:0 0 43px!important;border-radius:50%!important;
-}
 body[data-page="messages"] .vatra-messenger-contact-copy{
  display:grid!important;flex:1 1 auto!important;min-width:0!important;gap:4px!important;
 }
@@ -12201,7 +12197,6 @@ body[data-page="messages"] .vatra-chat-person{
  min-width:0!important;text-align:left!important;border:0!important;background:transparent!important;
  cursor:pointer!important;
 }
-body[data-page="messages"] .vatra-chat-person>.avatar{flex:0 0 37px!important;width:37px!important;height:37px!important;min-width:37px!important}
 body[data-page="messages"] .vatra-chat-person>span:last-child{display:grid!important;gap:3px!important;min-width:0!important}
 body[data-page="messages"] .vatra-chat-person b{font:600 12.5px/1.25 Inter,system-ui,sans-serif!important;color:#2d3e51!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
 body[data-page="messages"] .vatra-chat-person small{font:400 10.5px/1.3 Inter,system-ui,sans-serif!important;color:#8b9bad!important}
@@ -12469,8 +12464,10 @@ body[data-page="messages"] .vatra-messenger-contact-main{
   padding:11px 12px!important;border-radius:10px!important;
 }
 body[data-page="messages"] .vatra-messenger-contact-main .avatar{
-  flex:0 0 47px!important;
+  box-sizing:border-box!important;flex:0 0 47px!important;
   width:47px!important;height:47px!important;min-width:47px!important;
+  max-width:47px!important;max-height:47px!important;overflow:hidden!important;
+  display:grid!important;place-items:center!important;border-radius:50%!important;
 }
 body[data-page="messages"] .vatra-messenger-contact-copy{
   gap:5px!important;
@@ -12512,8 +12509,10 @@ body[data-page="messages"] .chat-window>.chat-top{
   padding:10px 16px!important;gap:11px!important;
 }
 body[data-page="messages"] .vatra-chat-person>.avatar{
-  flex:0 0 43px!important;
+  box-sizing:border-box!important;flex:0 0 43px!important;
   width:43px!important;height:43px!important;min-width:43px!important;
+  max-width:43px!important;max-height:43px!important;overflow:hidden!important;
+  display:grid!important;place-items:center!important;border-radius:50%!important;
 }
 body[data-page="messages"] .vatra-chat-person b{
   font:600 14px/1.35 Inter,system-ui,sans-serif!important;
@@ -12608,7 +12607,7 @@ body[data-page="messages"] .vatra-messenger-empty p{
     min-height:70px!important;
   }
   body[data-page="messages"] .vatra-messenger-contact-main .avatar{
-    flex-basis:44px!important;width:44px!important;height:44px!important;min-width:44px!important;
+    flex-basis:44px!important;width:44px!important;height:44px!important;min-width:44px!important;max-width:44px!important;max-height:44px!important;
   }
   body[data-page="messages"] .vatra-messenger-shell .chat-send{
     margin:0 8px 10px!important;
