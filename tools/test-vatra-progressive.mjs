@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const app=readFileSync('script.js','utf8'),index=readFileSync('index.html','utf8');
+assert.match(app,/let vatraFeedVisible=12,vatraOwnPostsVisible=12,vatraPublicPostsVisible=12/);
+assert.ok(app.includes('organicAll.slice(0,vatraFeedVisible)'),'Feed should render only first requested batch');
+assert.ok(app.includes('mine.slice(0,vatraOwnPostsVisible).map(postCard)'),'Own page must window posts');
+assert.ok(app.includes('arr.slice(0,vatraPublicPostsVisible).map(postCard)'),'Public profile must window posts');
+assert.ok(app.includes("vatraLoadMoreControl('feed',true)"));
+assert.ok(app.includes("vatraLoadMoreControl('profile',mine.length>vatraOwnPostsVisible)"));
+assert.ok(app.includes("vatraLoadMoreControl('publicProfile',arr.length>vatraPublicPostsVisible)"));
+assert.ok(app.includes('IntersectionObserver(entries=>'),'Sentinel must auto-load near viewport');
+assert.ok(app.includes("groupMoreObserver=new IntersectionObserver("),'Community list must auto-load more rows');
+assert.ok(app.includes("const more=event.target.closest('[data-vatra-load-more]')"),'Manual load-more must remain functional');
+assert.ok(index.includes('script.js?v=20261105-progressive1'));
+assert.ok(index.includes('vatra-site-cohesion.css?v=20261105-progressive1'));
+console.log('VATRA progressive loading: windowed feed, profiles and communities verified.');
