@@ -485,7 +485,7 @@ body .vatra-language-picker-trigger:hover{border-color:#9dbfe8;background:#fbfdf
 body .vatra-language-picker-trigger>.vatra-language-flag{flex:0 0 28px}
 body .vatra-language-picker-trigger>span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body .vatra-language-picker-trigger>svg:last-child{flex:0 0 17px;color:#7194b8}
-body .vatra-language-flag{display:block;flex:0 0 28px;border-radius:3px;box-shadow:0 0 0 1px #244b761f;overflow:hidden}
+body .vatra-language-flag{display:block;flex:0 0 28px;border:0!important;outline:0!important;border-radius:3px;box-shadow:none!important;overflow:hidden}
 body .vatra-language-picker-popup{
  position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:180;
  padding:10px;min-width:min(360px,calc(100vw - 40px));
