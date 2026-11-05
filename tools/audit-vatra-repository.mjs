@@ -107,6 +107,16 @@ for(const [path,contents] of textFiles)if(path.endsWith('.html')){
   if(tag.startsWith('<link')&&local.endsWith('.css'))htmlStyles.add(local);
  }
 }
+// SEO snapshots are regenerated on main by tools/build-vatra-seo.mjs after
+// merge. In PR checks their old HTML has not been regenerated yet, so discover
+// real script/link dependencies from the page generator as well.
+const snapshotGenerator=textFiles.get('tools/build-vatra-seo.mjs')||'';
+for(const match of snapshotGenerator.matchAll(/(?:src|href)="\.\.\/\.\.\/([a-z0-9-]+\.(?:js|css))(?:\?[^"]*)?"/gi)){
+ const asset=match[1];
+ if(!textFiles.has(asset))continue;
+ if(asset.endsWith('.js'))htmlScriptRoots.add(asset);
+ if(asset.endsWith('.css'))htmlStyles.add(asset);
+}
 const reachableJS=new Set(htmlScriptRoots);
 let active=true;
 while(active){

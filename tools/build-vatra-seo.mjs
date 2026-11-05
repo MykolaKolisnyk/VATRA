@@ -56,10 +56,21 @@ function page(type,id,data,slug=id){
   '<meta property="og:type" content="'+(person?'profile':'website')+'"><meta property="og:title" content="'+esc(name)+' — ВАТРА"><meta property="og:description" content="'+esc(summary)+'">'+
   '<meta property="og:image" content="'+esc(image)+'"><meta property="og:url" content="'+esc(url)+'">'+
   '<script type="application/ld+json">'+jsonLd+'</script>'+
-  '<style>body{margin:0;background:#f0f3f8;color:#263b55;font:16px/1.6 system-ui,sans-serif}main{max-width:740px;margin:8vh auto;padding:28px;border:1px solid #dce5ef;border-radius:14px;background:#fff}h1{font-size:clamp(24px,4vw,34px)}a{display:inline-block;margin-top:12px;background:#0757f5;color:#fff;padding:10px 17px;border-radius:6px;text-decoration:none}img{max-width:96px;height:96px;object-fit:cover;border-radius:50%}</style></head><body><main>'+
-  (data.avatarUrl?'<img src="'+esc(image)+'" alt="">':'')+
-  '<h1>'+esc(name)+'</h1><p>'+esc(summary)+'</p><a href="'+esc(redirect)+'">'+(person?'Переглянути профіль у ВАТРІ':'Переглянути спільноту у ВАТРІ')+'</a>'+
-  '<p><small>ВАТРА · українська соціальна мережа</small></p></main></body></html>\n';
+  '<link rel="stylesheet" href="../../vatra-public-preview.css?v=20261105-1"></head><body>'+
+  '<header class="vatra-public-topbar"><a class="vatra-public-brand" href="'+esc(base)+'"><img src="../../favicon.svg" alt=""><span>ВАТРА</span></a>'+
+  '<nav class="vatra-public-nav" aria-label="Акаунт"><a href="../../auth.html">Увійти</a><a href="../../auth.html?mode=register">Зареєструватися</a></nav></header>'+
+  '<main class="vatra-public-main" data-vatra-public-kind="'+(person?'person':'group')+'" data-vatra-public-id="'+esc(id)+'" data-vatra-public-name="'+esc(name)+'">'+
+  '<section class="vatra-public-profile"><div class="vatra-public-profile-head">'+
+  '<img class="vatra-public-avatar" src="'+esc(image)+'" alt="" loading="lazy"><div><p class="vatra-public-kicker">'+(person?'Публічна сторінка':'Публічна спільнота')+'</p>'+
+  '<h1>'+esc(name)+'</h1></div></div><p>'+esc(summary)+'</p></section>'+
+  '<h2 class="vatra-public-section-head" id="vatraPublicStatus" aria-live="polite">Завантажуємо відкриті дописи…</h2>'+
+  '<section id="vatraPublicPosts" aria-label="Публічні дописи"></section>'+
+  '<section class="vatra-public-gate"><h2>Більше можливостей у ВАТРІ</h2>'+
+  '<p>Ви переглядаєте відкриту частину сторінки. Увійдіть або зареєструйтеся, щоб переглядати стрічку, підписуватися та спілкуватися.</p>'+
+  '<div class="vatra-public-actions"><a href="../../auth.html">Увійти</a><a href="../../auth.html?mode=register">Зареєструватися</a></div>'+
+  '<p><a href="'+esc(redirect)+'">Відкрити у ВАТРІ</a></p></section>'+
+  '<footer class="vatra-public-footer">ВАТРА · українська соціальна мережа</footer></main>'+
+  '<script defer src="../../vatra-public-preview.js?v=20261105-1"></script></body></html>\n';
 }
 // Canonical profile URLs must use the account's public @handle, not its UUID.
 // Validate before using a username as a directory to prevent path traversal.

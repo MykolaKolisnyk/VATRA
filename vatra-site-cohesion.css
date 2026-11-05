@@ -346,3 +346,8 @@ html body #vatraScrollToTop.vatra-scroll-to-top svg{display:block!important}
 @media(prefers-reduced-motion:reduce){
  html body #vatraScrollToTop.vatra-scroll-to-top{transition:none!important;transform:none!important}
 }
+
+/* Progressive rendering: the news feed reveals additional post cards near the viewport. */
+.vatra-feed-more{display:flex;align-items:center;justify-content:center;padding:16px 12px 24px;min-height:68px}
+.vatra-feed-more .pill{border:1px solid #dce5f3;border-radius:12px;background:#fff;color:#0757f5;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}
+.vatra-feed-more .pill:hover,.vatra-feed-more .pill:focus-visible{background:#eff5ff;border-color:#b4cef7}

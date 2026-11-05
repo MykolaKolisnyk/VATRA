@@ -184,3 +184,9 @@ assert.ok(unifiedLayout.includes('.vatra-profile-photo-date'),'Photo dates need 
 assert.ok(unifiedLayout.includes('.vatra-settings-nav-button.active'),'Settings and editor must share nav styling');
 assert.ok(latinAuth.includes('function vatraLatinHandlePart(value)'),'New registrations must get a Latin @handle');
 assert.ok(latinSQL.toLowerCase().includes('create or replace function public.vatra_check_public_handle'),'Server-side Latin aliases must be enforceable');
+
+// Regression checks for incremental feed rendering without losing manual navigation.
+assert.ok(scriptText.includes('const VATRA_FEED_BATCH_SIZE=12'),'News must initially render twelve posts');
+assert.ok(scriptText.includes('organicAll.slice(0,vatraFeedVisibleCount)'),'News must avoid rendering all cards at once');
+assert.ok(scriptText.includes("vatraFeedMoreObserver=new IntersectionObserver"),'News must progressively reveal further cards');
+assert.ok(main.includes('script.js?v=20261105-feed-batch1'),'News script cache key must be updated');
