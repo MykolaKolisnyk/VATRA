@@ -51,4 +51,27 @@ assert.ok(!lang.includes("new Set([language,'uk','en','pl','de'])"),
  'Old selection-dependent order unexpectedly remains');
 assert.ok(read('index.html').includes('vatra-language.js?v=20261105-layout-quiz2'),
  'Main site must load the same language order');
+
+assert.ok(css.includes('html body .auth-layout .vatra-auth-language-flag svg'),
+ 'Quick-language flag must fit precisely inside its chip');
+assert.ok(css.includes('.vatra-auth-method-card:focus-within')&&
+ css.includes('html body #recoveryDialog .vatra-recovery-methods>label.vatra-auth-method-card:has(input:checked)'),
+ 'Auth and recovery cards must have unified single-border focus rules');
+assert.ok(css.includes('html body #captchaWrap.captcha-modal .human-captcha-status.is-wrong::before'),
+ 'Error cards must suppress the old misaligned warning bubble');
+const siteCss=read('vatra-site-cohesion.css'),index=read('index.html'),app=read('script.js');
+assert.ok(index.includes('id="vatraScrollToTop"')&&
+ index.includes('aria-label="Прокрутити сторінку вгору"'),
+ 'Missing user-requested left-side scroll-to-top button');
+assert.ok(app.includes("document.getElementById('vatraScrollToTop')")&&
+ app.includes("button.addEventListener('click',()=>window.scrollTo"),
+ 'Scroll-to-top button must connect to its existing behavior');
+assert.ok(siteCss.includes('#vatraScrollToTop[hidden]')&&
+ siteCss.includes('left:20px!important'),
+ 'Scroll-to-top button must appear at the left and respect its hidden state');
+for(const page of ['index.html','auth.html','register.html','404.html']){
+ const links=[...read(page).matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+\.css(?:\?[^"]*)?)"[^>]*>/gi)]
+  .map(match=>match[1].split('?')[0]);
+ assert.equal(new Set(links).size,links.length,page+': exact duplicate CSS imports');
+}
 console.log('VATRA: fixed language order, no blank form scroll, inset recovery scrollbar, one auth stylesheet.');
