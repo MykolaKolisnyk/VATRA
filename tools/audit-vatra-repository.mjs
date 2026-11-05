@@ -91,7 +91,7 @@ const crossCSS=[...selectors].filter(([,refs])=>refs.size>=4).sort((a,b)=>b[1].s
 const liveCode=[...textFiles].filter(([path])=>/\.(?:html|css|js|ts)$/.test(path) &&
  !path.startsWith('tools/') && !path.startsWith('.github/'));
 const assetMentions={};
-for(const asset of ['logo.png','vatra-icon.png','favicon.png','vatra-header.png']){
+for(const asset of ['vatra-icon.png','favicon.png','favicon-small.png','social-preview.png']){
  assetMentions[asset]=liveCode.filter(([path,contents])=>path!==asset&&contents.includes(asset)).map(([path])=>path);
 }
 const htmlScriptRoots=new Set();

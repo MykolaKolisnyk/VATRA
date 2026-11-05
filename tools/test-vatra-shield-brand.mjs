@@ -25,6 +25,31 @@ assert.ok(shield.vatraShieldPass(),'User can pass after expiry');
 assert.equal(shield.vatraShieldRead().failed,0);
 now+=86_400_001;
 assert.equal(shield.vatraShieldRead().stage,0,'Penalty decays after a clean day');
+
+const generatorStart=auth.indexOf('function vatraNewHumanQuestion(');
+const generatorEnd=auth.indexOf('function vatrapauseHumanCheck(',generatorStart);
+assert.ok(generatorStart>0&&generatorEnd>generatorStart,
+ 'Shared challenge generator must exist before both auth CAPTCHA implementations');
+const generateQuestion=runInNewContext(auth.slice(generatorStart,generatorEnd)+'\nvatraNewHumanQuestion',{Math});
+const kinds=new Set();let lastKey='';
+for(let i=0;i<180;i++){
+ const question=generateQuestion(lastKey);
+ assert.equal(question.choices.length,4,'Question must have exactly four answer buttons');
+ assert.equal(new Set(question.choices).size,4,'Every choice must be different');
+ assert.ok(question.choices.includes(question.answer),'The correct answer must be offered');
+ assert.ok(question.choices.every(v=>Number.isInteger(v)&&v>=0),'Answers must be accessible numeric values');
+ assert.notEqual(question.key,lastKey,'Consecutive questions must differ');
+ assert.ok(question.prompt.endsWith('?'),'Prompt must be understandable without an image');
+ if(question.prompt.includes(' + '))kinds.add('sum');
+ else if(question.prompt.includes(' − '))kinds.add('subtract');
+ else if(question.prompt.includes(' × '))kinds.add('multiply');
+ else if(question.prompt.includes(' чи '))kinds.add('compare');
+ lastKey=question.key;
+}
+assert.equal(kinds.size,4,'Challenge must offer addition, subtraction, comparison and multiplication');
+assert.ok(auth.includes('vatraNewHumanQuestion(recoveryPreviousPair)')&&
+ auth.includes('vatraNewHumanQuestion(previousAdditionKey)'),
+ 'Registration and recovery must use the same question generator');
 assert.ok(auth.includes("vatraShieldEnforce($('#recoveryProtection')"),'Recovery must share the same cooldown state');
 assert.ok(auth.includes('vatraShieldEnforce(wrap'), 'Standalone verification must share the cooldown');
 assert.ok(auth.includes('if(vatraShieldRemaining()>0)'), 'Recovery delivery must respect cooldown');
@@ -46,8 +71,8 @@ assert.ok(css.includes('html body dialog#recoveryDialog.auth-dialog[open]')&&
           'Scrollbar must stay inside recovery modal');
 assert.ok(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),
           'Both human checks must have four aligned choices');
-const favicon=read('favicon.svg'),header=read('vatra-header.svg'),preview=read('social-preview.svg');
-for(const asset of [favicon,header,preview]){
+const favicon=read('favicon.svg'),preview=read('social-preview.svg');
+for(const asset of [favicon,preview]){
  assert.ok(asset.includes('M19 18H36C39 18 42 20 44 24'),
   'Ribbon left arm must be identical across brand assets');
  assert.ok(asset.includes('M76 18H90C94 18 96 22'),
@@ -74,7 +99,7 @@ for(const page of ['auth.html','register.html']){
  const source=read(page);
  assert.ok(source.includes('<header class="vatra-recovery-head">'),page+': recovery header missing');
  assert.ok(source.includes('<div class="vatra-recovery-body">'),page+': recovery form body missing');
- assert.ok(source.includes('vatra-auth-unified.css?v=20261105-brand-single-source1'),page+': final stylesheet missing');
+ assert.ok(source.includes('vatra-auth-unified.css?v=20261105-layout-quiz2'),page+': final stylesheet missing');
  assert.ok(source.lastIndexOf('vatra-auth-unified.css')>source.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': final recovery styles must load after global auth styles');
 }

@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import assert from 'node:assert/strict';
 
 const read=file=>readFileSync(file,'utf8');
@@ -15,7 +15,7 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes(wordmark)&&html.includes(icon),page+': mark or real VATRA text missing');
  assert.ok(html.includes('class="vatra-brand-values"'),page+': footer spacing structure missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': do not put text into a horizontal logo image');
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-brand-single-source1'),page+': new panel CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-layout-quiz2'),page+': new panel CSS missing');
  assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared text logo stylesheet missing');
  assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': unified VATRA UI must load after shared component styles');
@@ -40,4 +40,16 @@ assert.ok(panel.includes('max-width:1180px')&&panel.includes('max-height:650px')
 assert.ok(!panel.includes('.vatra-wordmark .vatra-wordmark-text'), 'Auth CSS must not clone shared logo styles');
 assert.ok(panel.includes('.vatra-auth-language-quick')&&panel.includes('.brand-foot'),
  'Blue-side languages and footer must share the new layout');
+
+for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
+ const html=read('lang/'+locale+'/index.html');
+ assert.ok(html.includes('class="vatra-landing-brand"')&&
+  html.includes('src="../../favicon.svg"')&&html.includes('<span>ВАТРА</span>'),
+  'Locale '+locale+': must render live VATRA text beside icon');
+ assert.ok(!html.includes('vatra-header.svg'),
+  'Locale '+locale+': retired image-based wordmark reference remains');
+}
+for(const asset of ['vatra-header.svg','vatra-header.png','logo.png']){
+ assert.ok(!existsSync(asset),'Retired duplicate image asset still tracked: '+asset);
+}
 console.log('VATRA: large blue panel, readable text wordmarks and responsive breakpoints validated.');

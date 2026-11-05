@@ -15,7 +15,10 @@ for(const name of names){
 for(const name of ['getStoryMediaUrl','uploadStoryMedia','removeStoryMedia'])assert.ok(names.includes(name),'Core must load private Stories API: '+name);
 assert.ok(page.includes('script.js?v=20261104-ribbon-shield1'),'Entry script cache must be refreshed');
 assert.ok(imports[0][2].includes('storage-split'),'Entry and backend must use compatible fresh versions');
-assert.ok(!page.includes('id="vatraScrollToTop"'),'Floating back-to-top overlay should not cover content');
+assert.ok(page.includes('id="vatraScrollToTop"')&&page.includes('hidden><svg'),
+ 'User-requested scroll-to-top must be restored but hidden until a user scrolls');
+assert.ok(app.includes("document.getElementById('vatraScrollToTop')")&&app.includes('button.hidden='),
+ 'Restored button must remain conditional on actual page scrolling');
 
 const def=iconSource.match(/const GLYPHS=(\{[\s\S]+?\});\s*const ALIASES=/);
 assert.ok(def,'Shared SVG icon definitions not found');

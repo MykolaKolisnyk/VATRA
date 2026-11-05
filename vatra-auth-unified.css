@@ -700,3 +700,142 @@ html body #recoveryDialog :is(.vatra-auth-method-card,.human-captcha-option,.rec
   transition:none!important;
  }
 }
+
+
+/* VATRA final geometry — one consistent layout for sign-in, registration,
+   quick languages, recovery cards and both challenge error states. */
+@media(min-width:851px){
+ html body .auth-layout>.brand-side{
+  padding:clamp(38px,5.5vh,62px) clamp(28px,4vw,78px) clamp(25px,3vh,40px)!important;
+ }
+ html body .auth-layout>.brand-side>.brand-copy{
+  margin:clamp(108px,14vh,174px) 0 auto!important;
+  max-width:710px!important;
+ }
+ html body .auth-layout>.brand-side>.brand-copy h1{
+  font-size:clamp(58px,4.55vw,85px)!important;line-height:1.045!important;
+ }
+ html body .auth-layout>.brand-side>.vatra-auth-language-quick{
+  max-width:710px!important;margin:0 0 15px!important;
+  padding:18px 0 0!important;
+ }
+ html body .auth-layout>.brand-side>.brand-foot{
+  max-width:710px!important;align-items:center!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  row-gap:8px!important;column-gap:16px!important;
+ }
+ html body .auth-layout>.brand-side>.brand-foot .developer-compact{
+  justify-self:end!important;align-self:center!important;
+ }
+ html body .auth-layout>.brand-side>.brand-foot .vatra-auth-brand-copyright{
+  line-height:1.5!important;
+ }
+}
+@media(min-width:851px) and (max-height:760px){
+ html body .auth-layout>.brand-side>.brand-copy{margin-top:clamp(40px,8vh,90px)!important}
+ html body .auth-layout>.brand-side>.brand-copy h1{font-size:clamp(43px,4.1vw,66px)!important}
+ html body .auth-layout>.brand-side>.vatra-auth-language-quick{padding-top:12px!important}
+}
+@media(min-width:851px) and (max-height:600px){
+ html body .auth-layout>.brand-side>.brand-copy{margin-top:24px!important}
+ html body .auth-layout>.brand-side>.brand-copy h1{font-size:clamp(38px,3.7vw,56px)!important}
+ html body .auth-layout>.brand-side{overflow-y:auto!important}
+}
+/* Flags must be centered, clipped, and never larger than their chip border. */
+html body .auth-layout .vatra-auth-language-list{
+ display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+ gap:8px!important;
+}
+html body .auth-layout .vatra-auth-language-option,
+html body .auth-layout .vatra-auth-language-all{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:8px!important;min-height:42px!important;
+ padding:8px 12px!important;border-radius:12px!important;
+ line-height:1.2!important;box-sizing:border-box!important;
+ vertical-align:middle!important;white-space:nowrap!important;
+}
+html body .auth-layout .vatra-auth-language-option{
+ border:1px solid rgba(227,241,255,.29)!important;
+ box-shadow:none!important;
+}
+html body .auth-layout .vatra-auth-language-option.is-active{
+ border:1px solid #fff!important;color:#0757f5!important;
+ background:#fff!important;box-shadow:none!important;
+}
+html body .auth-layout .vatra-auth-language-flag{
+ display:inline-grid!important;place-items:center!important;
+ flex:0 0 25px!important;box-sizing:border-box!important;
+ width:25px!important;height:18px!important;
+ padding:0!important;margin:0!important;
+ overflow:hidden!important;border-radius:3px!important;
+ border:1px solid rgba(23,65,118,.16)!important;
+ box-shadow:none!important;vertical-align:middle!important;
+}
+html body .auth-layout .vatra-auth-language-flag svg,
+html body .auth-layout .vatra-auth-language-flag .vatra-language-flag{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+ min-width:0!important;min-height:0!important;
+ margin:0!important;padding:0!important;box-shadow:none!important;
+ border:0!important;border-radius:0!important;overflow:hidden!important;
+}
+html body .auth-layout .vatra-auth-language-option span:not(.vatra-auth-language-flag){
+ display:inline!important;line-height:1.2!important;white-space:nowrap!important;
+}
+html body .auth-layout .vatra-auth-language-option:focus-visible,
+html body .auth-layout .vatra-auth-language-all:focus-visible{
+ outline:2px solid #b2d7ff!important;outline-offset:2px!important;
+}
+/* One border for selected auth and recovery method cards.
+   Keyboard focus has its own outline only when actually keyboard-visible. */
+html body .auth-layout .auth-card .method-choice>label.vatra-auth-method-card,
+html body #recoveryDialog .vatra-recovery-methods>label.vatra-auth-method-card{
+ box-sizing:border-box!important;
+ border:1px solid #d3e1f3!important;border-radius:13px!important;
+ outline:0!important;outline-offset:0!important;
+ box-shadow:none!important;
+}
+html body .auth-layout .auth-card .method-choice>label.vatra-auth-method-card:has(input:checked),
+html body #recoveryDialog .vatra-recovery-methods>label.vatra-auth-method-card:has(input:checked){
+ border:1px solid #2577f5!important;
+ outline:0!important;box-shadow:none!important;
+ background:#edf4ff!important;
+}
+html body .auth-layout .auth-card .method-choice>label.vatra-auth-method-card:focus-within,
+html body #recoveryDialog .vatra-recovery-methods>label.vatra-auth-method-card:focus-within{
+ outline:0!important;box-shadow:none!important;
+}
+html body .auth-layout .auth-card .method-choice>label.vatra-auth-method-card:has(input:focus-visible),
+html body #recoveryDialog .vatra-recovery-methods>label.vatra-auth-method-card:has(input:focus-visible){
+ outline:2px solid #71a6ff!important;outline-offset:2px!important;
+}
+html body .auth-layout .auth-card .method-choice>label.vatra-auth-method-card:has(input:disabled){
+ opacity:.55!important;background:#f6f8fc!important;
+}
+/* A warning uses a single balanced text block; old pseudo-icon caused
+   uneven wrapping of short errors and 2-minute cooldown text. */
+html body #captchaWrap.captcha-modal .human-captcha-status.is-wrong,
+html body #recoveryDialog #recoveryProtection .human-captcha-status.is-wrong{
+ display:block!important;box-sizing:border-box!important;
+ width:100%!important;min-width:0!important;
+ margin:13px 0 0!important;padding:12px 13px!important;
+ border:1px solid #f3b4be!important;border-left:3px solid #d53c51!important;
+ border-radius:10px!important;background:#fff2f4!important;
+ color:#a62b42!important;text-align:left!important;
+ font:700 13px/1.55 Inter,system-ui,sans-serif!important;
+ overflow-wrap:anywhere!important;white-space:normal!important;
+}
+html body #captchaWrap.captcha-modal .human-captcha-status.is-wrong::before,
+html body #recoveryDialog #recoveryProtection .human-captcha-status.is-wrong::before{
+ content:none!important;display:none!important;
+}
+html body #captchaWrap.captcha-modal .human-captcha-status.is-passed,
+html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
+ display:block!important;box-sizing:border-box!important;
+ padding:11px 12px!important;border-radius:10px!important;
+ background:#effaf4!important;color:#177a52!important;
+}
+html body #captchaWrap.captcha-modal .human-captcha-status.is-passed::before,
+html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed::before{
+ content:none!important;display:none!important;
+}
