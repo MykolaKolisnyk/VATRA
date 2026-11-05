@@ -1,7 +1,7 @@
 import {initializeApp,getAuth,getDatabase} from '../backend/client.js?v=20261104-8';
 const app=initializeApp(),auth=getAuth(app),db=getDatabase(app).client;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const mark='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.4 12.5 3l3-.1.9 2.8 2.4 1.8-1 2.8 1 2.8-2.4 1.8 1 2.8-2.4 1.8-.9 2.8-3-.1-2.5 1.6-2.5-1.6-3 .1-.9-2.8-2.4-1.8 1-2.8-1-2.8 2.4-1.8.9-2.8 3 .1L10 1.4Z" fill="currentColor"/><path d="m6.2 10.2 2.4 2.4 5.2-5.2" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
+const mark='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m23 12-2.44-2.78.34-3.68-3.61-.82L15.4 1.5 12 2.96 8.6 1.5 6.71 4.72l-3.61.81.34 3.69L1 12l2.44 2.78-.34 3.69 3.61.82L8.6 22.5l3.4-1.46 3.4 1.46 1.9-3.22 3.6-.82-.34-3.68Z"/><path fill="#fff" d="m10 15.5-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5Z"/></svg>';
 window.vatraVerifiedGroupIds=new Set();window.vatraTrustedNotices=[];
 window.vatraGroupBadge=id=>window.vatraVerifiedGroupIds.has(String(id))?'<span class="vatra-verified-badge vatra-verified-group-badge" data-vatra-verification-kind="community" tabindex="0" role="link">'+mark+'</span>':'';
 let tooltip=null,hideTimer=null,queued=false,lastUid='',lastCheck=0;

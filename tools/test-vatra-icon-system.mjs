@@ -42,3 +42,6 @@ assert.ok(navigation.includes("source.dataset.page || source.dataset.menuPage"),
 assert.ok(html.includes('assets/scripts/ui/icons.js?')&&html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files.includes('assets/styles/sources/foundation/icons.css'),'Icon system assets are not loaded');
 assert.ok(css.includes('data-vatra-theme-effective="dark"'),'Dark theme icons are unstyled');
 console.log('VATRA icons/navigation: '+names.size+' symbols, '+Object.keys(expected).length+' routes + support, consistent SVG references.');
+
+const badge=readFileSync('assets/scripts/public/verification.js','utf8');
+assert.ok(badge.includes('viewBox="0 0 24 24"')&&badge.includes('fill="#fff"'), 'Verified community badge must have crisp contrasting SVG check');

@@ -9,9 +9,14 @@ assert.ok(app.includes("vatraProfileMoreMarkup('public',arr.length,vatraPublicPo
 assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('own'))"),'Own profile must attach its lazy observer');
 assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('public',uid))"),'Public profile must attach its lazy observer');
 assert.ok(app.includes('button.addEventListener(\'click\',loadMore,{once:true})'),'Manual fallback must remain available');
-assert.ok(html.includes('assets/scripts/app/main.js?v=20261105-vatra-clean2'),'Browser must load the new profile renderer');
+assert.ok(html.includes('assets/scripts/app/main.js?v=20261105-profile-sync1'),'Browser must load the new profile renderer');
 console.log('VATRA profiles: twelve posts first, infinite scroll + button fallback.');
 
 assert.ok(app.includes('const VATRA_GROUP_POST_BATCH_SIZE=12'),'Community posts must render in modest batches');
 assert.ok(app.includes('arr.slice(0,visibleGroupPosts).map(postRow)'),'Community posts must not eagerly render all cards');
 assert.ok(app.includes('vatraGroupPostObserver.observe(moreGroupPosts)'),'Community posts must load on scroll');
+
+// A partial auth callback must never try to reserve the globally unique @user handle.
+assert.ok(app.includes('function vatraCanSyncPublicProfile(p)'), 'Public profile sync must validate a loaded profile');
+assert.ok(app.includes('if(vatraCanSyncPublicProfile(currentProfile))'), 'Async profile writes must be gated on a real handle');
+assert.ok(!app.includes("handle:String(p.handle||'user')"), 'Never generate duplicate placeholder @user handles');
