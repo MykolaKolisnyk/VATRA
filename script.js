@@ -1546,11 +1546,13 @@ function vatraSyncProfileMediaHead(){
  if(add)add.textContent=kind==='videos'?'＋ Додати відео':'＋ Додати фото';
  const publicAll=section.querySelector('#vatraPublicOpenAllMedia');
  if(publicAll)publicAll.textContent=kind==='videos'?'Усі відео':'Усі фото';
+ const mediaBox=section.querySelector('[data-vatra-gallery-carousel]');
+ if(mediaBox)vatraShiftProfileGallery(mediaBox,vatraProfileGalleryCache.get(mediaBox.dataset.vatraGalleryCarousel));
 }
 document.addEventListener('click',event=>{
  const tab=event.target.closest('[data-vatra-gallery-kind]');
  if(tab){
-  const box=tab.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
+  const box=tab.closest('.vatra-profile-photos')?.querySelector('[data-vatra-gallery-carousel]')||tab.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
   if(!box||!state)return;
   event.preventDefault();event.stopPropagation();
   const kind=tab.dataset.vatraGalleryKind;if(kind===state.kind)return;
