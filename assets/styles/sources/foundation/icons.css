@@ -57,8 +57,8 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  text-shadow:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
- background:#e8f1ff!important;color:#0757f5!important;
- box-shadow:inset 3px 0 0 #0757f5!important;
+ background-color:var(--vatra-blue-soft)!important;color:var(--vatra-blue)!important;
+ box-shadow:inset 3px 0 0 var(--vatra-blue)!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){font-weight:750!important}
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}

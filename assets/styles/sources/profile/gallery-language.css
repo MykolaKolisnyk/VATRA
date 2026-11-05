@@ -212,7 +212,7 @@ body .vatra-profile-media-carousel :is(.vatra-gallery-carousel-arrow,.vatra-medi
 body .vatra-profile-media-carousel :is(.vatra-gallery-position,.vatra-gallery-footer){display:none!important}
 @media(max-width:960px){
  body .vatra-profile-media-carousel .vatra-gallery-track.profile-photo-gallery{
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
  }
 }
 @media(max-width:620px){

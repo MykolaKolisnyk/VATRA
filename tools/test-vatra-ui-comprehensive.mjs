@@ -1,0 +1,17 @@
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+const read=p=>readFileSync(p,'utf8');
+const fonts=read('assets/styles/sources/foundation/local-fonts.css');
+const css=read('assets/styles/vatra.css');
+const group=read('assets/styles/sources/social/community-gallery.css');
+const editor=read('assets/styles/sources/profile/editor.css');
+const settings=read('assets/styles/sources/profile/settings-community.css');
+const ads=read('assets/styles/sources/layout/sidebar-ads.css');
+assert.ok(fonts.includes('--vatra-radius-card:13px')&&fonts.includes('--vatra-control-height:38px'),'Shared design tokens must exist');
+assert.ok(fonts.includes('--vatra-ui-font:"VATRA Onest"'),'Onest must be primary');
+assert.ok(group.includes('flex-wrap:nowrap;white-space:nowrap'),'Community tabs must not wrap');
+assert.ok(editor.includes('position:sticky!important;bottom:12px!important'),'Profile editor Save must be reachable');
+assert.ok(settings.includes('minmax(175px,198px)'),'Settings navigation must be compact');
+assert.ok(ads.includes('[data-page="messages"]')&&ads.includes('display:none!important'),'No ads around conversations');
+assert.ok(css.includes('background-color:var(--vatra-blue-soft)!important'),'Selected sidebar uses palette token');
+console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');

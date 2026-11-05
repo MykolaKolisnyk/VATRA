@@ -3335,7 +3335,7 @@ body .vatra-my-video-info b{font-size:12px!important;color:#304965!important;}
 body .vatra-my-video-info small{font-size:10.5px!important;color:#8294ac!important;}
 body .vatra-my-video video{display:block!important;width:100%!important;max-width:100%!important;aspect-ratio:16/9!important;object-fit:contain!important;background:#101923!important;border-radius:8px!important;}
 body .vatra-my-video p{color:#5a708a!important;font-size:12px!important;line-height:1.5!important;margin:9px 0!important;overflow-wrap:anywhere!important;}
-body .vatra-my-video-empty{grid-column:1/-1!important;padding:20px!important;color:#7d90a7!important;background:#fff!important;border-radius:12px!important;}
+body .vatra-my-video-empty{grid-column:1/-1!important;padding:18px!important;margin:0!important;color:var(--vatra-muted)!important;background:var(--vatra-surface)!important;border-radius:var(--vatra-radius-card)!important;}
 
 body .vatra-scroll-to-top{
  position:fixed!important;z-index:65!important;bottom:26px!important;

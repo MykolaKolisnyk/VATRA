@@ -1,5 +1,5 @@
 
-.vatra-gifts-page{width:100%;min-width:0;background:#fff;border:1px solid #dfe7f0;border-radius:7px;padding:24px;color:#2d455e;box-sizing:border-box}
+.vatra-gifts-page{width:100%;min-width:0;background:var(--vatra-surface);border:1px solid var(--vatra-border);border-radius:var(--vatra-radius-card);padding:18px;color:#2d455e;box-sizing:border-box}
 .vatra-gifts-header{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid #e5eaf1}
 .vatra-gifts-header h1{font-size:24px;line-height:1.4;margin:3px 0 5px;color:#273b51}
 .vatra-gifts-header p{font-size:13px;color:#5b7390;margin:0;line-height:1.6}
@@ -472,8 +472,8 @@ body .vatra-gifts-tabs button:hover{
  background:#eaf1fb!important;color:#175ec0!important;
 }
 body .vatra-gifts-grid{
- grid-template-columns:repeat(3,minmax(0,1fr))!important;
- gap:13px!important;margin:14px 0!important;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))!important;
+ gap:12px!important;margin:12px 0!important;
 }
 body .vatra-gift-card{
  padding:11px!important;
@@ -512,8 +512,8 @@ body .vatra-gift-card h3{
  color:#29435d!important;font-size:13px!important;line-height:1.35!important;
 }
 body .vatra-gift-card .vatra-gift-description{
- min-height:0!important;line-height:1.5!important;margin:0 0 8px!important;
- font-size:11.5px!important;color:#71849b!important;
+ min-height:0!important;max-height:2.85em!important;overflow:hidden!important;line-height:1.42!important;margin:0 0 8px!important;
+ font-size:12px!important;color:var(--vatra-muted)!important;
 }
 body .vatra-gift-card>p:not(.vatra-gift-description){
  min-height:0!important;margin:0 0 9px!important;
@@ -559,5 +559,5 @@ body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-l
 }
 @media(min-width:1450px){body .vatra-gifts-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 @media(max-width:870px){body .vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:520px){body .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)!important}}
+@media(max-width:380px){body .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)!important}}
 @media(prefers-reduced-motion:reduce){body .vatra-gift-preview-item .vatra-gift-particle{animation:none!important}}

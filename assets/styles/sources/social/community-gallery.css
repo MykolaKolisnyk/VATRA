@@ -295,7 +295,8 @@ body .vatra-group-content-grid{
 body .vatra-group-main,.vatra-group-rail{min-width:0;display:grid;align-content:start;gap:14px;}
 body .vatra-group-tabs{
  display:flex;align-items:center;gap:4px;min-width:0;
- border:1px solid #e0e7f0;border-radius:12px;background:#fff;padding:6px;overflow-x:auto;
+ flex-wrap:nowrap;white-space:nowrap;scrollbar-width:thin;scrollbar-color:#cddbeb transparent;
+ border:1px solid var(--vatra-border);border-radius:12px;background:var(--vatra-surface);padding:5px;overflow-x:auto;
 }
 body .vatra-group-tabs>button{
  position:relative;flex:1 0 auto;min-height:38px!important;padding:9px 13px!important;
@@ -465,7 +466,7 @@ body .vatra-studio-dialog .vatra-studio-canvas{cursor:move;}
  body .vatra-group-content-grid{gap:10px;}
  body .vatra-group-rail{grid-template-columns:minmax(0,1fr);}
  body .vatra-group-card{padding:13px;}
- body .vatra-group-tabs>button{font-size:11px!important;padding:8px 10px!important;}
+ body .vatra-group-tabs>button{flex:0 0 auto!important;white-space:nowrap!important;font-size:12px!important;padding:8px 11px!important;min-height:36px!important;}
  body .vatra-group-members-all{grid-template-columns:minmax(0,1fr);}
 }
 @media(prefers-reduced-motion:reduce){
@@ -752,7 +753,7 @@ body .vatra-lifecycle-danger{justify-self:start;padding:10px 15px!important;back
 body .vatra-lifecycle-danger:hover{background:#972b3f!important;}
 body .vatra-lifecycle-controls>button[hidden]{display:none!important;}
 @media(max-width:620px){
- body .vatra-group-create-entry{padding:14px!important;}
+ body .vatra-group-create-entry{padding:12px 14px!important;gap:10px!important;border-radius:var(--vatra-radius-card)!important;}
  body .vatra-group-create-entry .vatra-group-primary{flex:1 1 100%!important;}
  body .vatra-community-row .vatra-community-open{padding:7px 8px!important;}
  body .vatra-group-contact-add>button{width:100%;}

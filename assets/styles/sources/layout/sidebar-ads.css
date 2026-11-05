@@ -67,8 +67,8 @@ body .layout > .sidebar .vatra-sidebar-ads .vatra-ad-slot {
   overflow:hidden;
   padding:10px 12px;
   border:1px solid #e1e6ec;
-  border-radius:10px;
-  background:#f7f9fb;
+  border-radius:var(--vatra-radius-control);
+  background:var(--vatra-surface-muted);
   color:#8592a3;
   box-shadow:none;
 }
@@ -118,3 +118,6 @@ body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-sidebar-footer
 body[data-vatra-theme-effective="dark"] .layout > .sidebar .vatra-footer-legal {
   border-color:#3a4b62!important;
 }
+
+/* Ads are excluded from private conversations, account settings and moderation forms. */
+body:is([data-page="messages"],[data-page="settings"],[data-page="groupSettings"]) .layout>.sidebar .vatra-sidebar-ads{display:none!important}
