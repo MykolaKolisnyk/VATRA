@@ -39,7 +39,13 @@ try{
  assert.ok(existsSync(join('people','pershyi','index.html')));
  assert.ok(existsSync(join('people','другий.юзер','index.html')));
  assert.ok(readFileSync(join('people','pershyi','index.html'),'utf8').includes('#/u/pershyi'));
+ const guestProfile=readFileSync(join('people','pershyi','index.html'),'utf8');
+ assert.ok(guestProfile.includes('data-vatra-public-id="'+first+'"'),'Guest page must identify the profile, not its vanity slug');
+ assert.ok(guestProfile.includes('vatra-public-preview.js'),'Guest page must load RLS-limited public posts');
+ assert.ok(guestProfile.includes('auth.html?mode=register'),'Guest page must include registration in the topbar');
+ assert.ok(guestProfile.includes('id="vatraPublicPosts"'),'Guest page must have an accessible post mount');
  assert.ok(existsSync(join('communities',group,'index.html')));
+ assert.ok(readFileSync(join('communities',group,'index.html'),'utf8').includes('data-vatra-public-kind="group"'),'Group page must allow public preview');
  activeProfiles=[first];activeGroups=[];
  await run(2);
  assert.ok(!existsSync(join('people',second,'index.html')),'Deleted profile SEO page must be removed');
