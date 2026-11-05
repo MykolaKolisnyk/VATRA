@@ -5,7 +5,7 @@ const read=file=>readFileSync(file,'utf8');
 const brand=read('vatra-brand-text.css');
 const panel=read('vatra-auth-unified.css');
 const wordmark='class="vatra-wordmark-text">ВАТРА</span>';
-const icon='class="vatra-wordmark-symbol" src="favicon.svg?v=20261104-ribbon1"';
+const icon='class="vatra-wordmark-symbol" src="favicon.svg?v=20261105-original-v1"';
 for(const page of ['auth.html','register.html']){
  const html=read(page);
  assert.ok(html.includes('class="vatra-wordmark vatra-auth-wordmark"'),page+': missing desktop text wordmark');
@@ -15,7 +15,7 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes(wordmark)&&html.includes(icon),page+': mark or real VATRA text missing');
  assert.ok(html.includes('class="vatra-brand-values"'),page+': footer spacing structure missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': do not put text into a horizontal logo image');
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-layout-quiz2'),page+': new panel CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-media-handle1'),page+': new panel CSS missing');
  assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared text logo stylesheet missing');
  assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': unified VATRA UI must load after shared component styles');
