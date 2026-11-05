@@ -96,6 +96,34 @@ try{
    }
   }finally{await context.close();}
  }
+
+ // The authenticated feed is not reachable without test credentials. Verify
+ // its published visual contract with the real stylesheet and a safe fixture.
+ const visual=await browser.newPage({viewport:{width:1280,height:850},deviceScaleFactor:1});
+ try{
+  await visual.goto(base+'/404.html',{waitUntil:'domcontentloaded'});
+  await visual.setContent(`<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="feed"><div class="layout"><aside class="sidebar"><nav><a class="nav active" href="#">Новини</a></nav></aside><main class="main"><section class="feed"><article class="post"><div class="post-head"><div class="author"><b><button class="author-link">ВАТРА</button></b><small>Новини спільноти</small></div></div><p class="post-text">Текст допису має бути чітким, читабельним і достатнього розміру.</p><div class="post-actions"><button class="post-action-button">Вподобати</button></div></article></section></main></div></body></html>`,{waitUntil:'load'});
+  const visualStyle=await visual.evaluate(async()=>{
+   const loaded=await document.fonts.load('500 16px "VATRA Onest"');
+   const post=document.querySelector('.post-text');
+   const author=document.querySelector('.author-link');
+   const side=document.querySelector('.sidebar .nav');
+   return {fontFaces:loaded.length,postSize:getComputedStyle(post).fontSize,
+    postFamily:getComputedStyle(post).fontFamily,authorSize:getComputedStyle(author).fontSize,
+    sidebarSize:getComputedStyle(side).fontSize,cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};
+  });
+  assert.ok(visualStyle.cssLoaded,'Actual site stylesheet must load on feed fixture');
+  assert.ok(visualStyle.fontFaces>0,'Bundled Onest variable font must load');
+  assert.ok(visualStyle.postFamily.includes('VATRA Onest'),'Posts must use the same Onest font as the 404 page');
+  assert.equal(visualStyle.postSize,'16px','Readable body text must be 16px on desktop');
+  assert.ok(parseFloat(visualStyle.authorSize)>=15,'Post author must be legible');
+  assert.ok(parseFloat(visualStyle.sidebarSize)>=14,'Navigation labels must be legible');
+  await visual.screenshot({path:output+'/vatra-visual-system-desktop.png',animations:'disabled'});
+  results.push({case:'vatra-visual-system',viewport:'desktop',...visualStyle});
+  console.log('PASS VATRA visual system',JSON.stringify(visualStyle));
+ }catch(error){
+  failed=true;console.error('FAIL VATRA visual system',error?.stack||error);
+ }finally{await visual.close();}
 }finally{await browser.close();}
 await writeFile(output+'/metrics.json',JSON.stringify(results,null,2)+'\n');
 if(failed)process.exitCode=1;
