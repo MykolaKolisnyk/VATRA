@@ -46,7 +46,7 @@ for(let i=0;i<180;i++){
  else if(question.prompt.includes(' чи '))kinds.add('compare');
  lastKey=question.key;
 }
-assert.equal(kinds.size,4,'Challenge must offer addition, subtraction, comparison and multiplication');
+assert.deepEqual([...kinds],['sum'],'Human check should present addition only, never subtraction, comparison, or multiplication');
 assert.ok(auth.includes('vatraNewHumanQuestion(recoveryPreviousPair)')&&
  auth.includes('vatraNewHumanQuestion(previousAdditionKey)'),
  'Registration and recovery must use the same question generator');
