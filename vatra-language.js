@@ -10,7 +10,7 @@ const languages=languageCodes.filter(code=>!excludedLanguageCodes.has(code)).map
  try{nativeName=new Intl.DisplayNames([code],{type:'language'}).of(code)||code;}catch{}
  const ukrainian=ukNames.of(code)||code;
  return [code,capitalizeLanguage(nativeName)===capitalizeLanguage(ukrainian)?capitalizeLanguage(nativeName):capitalizeLanguage(nativeName)+' — '+capitalizeLanguage(ukrainian)];
-}).sort((a,b)=>Number(translatedLanguages.has(b[0]))-Number(translatedLanguages.has(a[0]))||a[1].localeCompare(b[1],'uk'));
+}).sort((a,b)=>Number(b[0]==='uk')-Number(a[0]==='uk')||Number(translatedLanguages.has(b[0]))-Number(translatedLanguages.has(a[0]))||a[1].localeCompare(b[1],'uk'));
 const base={
  'Моя сторінка':'My page','Друзі':'Friends','Новини':'News','Повідомлення':'Messages',
  'Спільноти':'Communities','Відео':'Videos','Збережене':'Saved','Налаштування':'Settings',
@@ -457,7 +457,10 @@ function vatraInstallAuthLanguageQuick(){
   const copyright=form.querySelector('.vatra-auth-mobile-copyright');
   if(copyright)copyright.before(mobile);else form.append(mobile);
  }
- const codes=[...new Set([language,'uk','en','pl','de'])].slice(0,4);
+ // Keep the same fixed sequence as the full language picker: Ukrainian first,
+ // then the selected shortcuts in their actual picker order.
+ const shortcutCodes=new Set(['uk','en','pl','de']);
+ const codes=languages.filter(([code])=>shortcutCodes.has(code)).map(([code])=>code);
  for(const host of [desktop,mobile]){
   if(host.dataset.renderedLanguage===language&&host.childElementCount)return;
   host.replaceChildren();
