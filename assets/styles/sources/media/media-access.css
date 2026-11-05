@@ -1,44 +1,5 @@
 /* VATRA · focused restriction, navigation and music popover · 2026-11-04 */
-/* Calm navigation: animate only the label, never shift the whole click target. */
-html body .layout>.sidebar>nav>a.nav{
- display:flex!important;align-items:center!important;gap:11px!important;
- background:transparent!important;color:#24384e!important;opacity:1!important;
- box-shadow:none!important;transform:none!important;
- border:1px solid transparent!important;border-radius:11px!important;
- transition:background-color .18s ease,color .18s ease,border-color .18s ease!important;
-}
-html body .layout>.sidebar>nav>a.nav .nav-icon{
- color:#416b97!important;transform:none!important;
- transition:color .2s ease!important;
-}
-html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){
- transition:transform .24s cubic-bezier(.2,.75,.25,1),color .18s ease!important;
- transform:translate3d(0,0,0)!important;
-}
-html body .layout>.sidebar>nav>a.nav:hover{
- color:#124e9b!important;
- background:rgba(7,87,245,.055)!important;
- border-color:rgba(7,87,245,.045)!important;
- box-shadow:none!important;transform:none!important;
-}
-html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:none!important}
-html body .layout>.sidebar>nav>a.nav:hover .nav-icon{color:#1861bb!important;transform:none!important}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
- background:rgba(7,87,245,.075)!important;
- color:#0757f5!important;font-weight:740!important;
- box-shadow:none!important;border-color:transparent!important;
-}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]):hover{
- background:rgba(7,87,245,.1)!important;
-}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav{
- color:#c6d7ea!important;background:transparent!important;
-}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover,
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){
- color:#dfeeff!important;background:rgba(79,151,255,.12)!important;
-}
+/* Shared navigation is styled only by branding/brand.css. */
 /* Blank, non-interactive access gate while server authorization is pending. */
 body .vatra-account-check-screen{
  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;
@@ -246,10 +207,7 @@ body[data-vatra-theme-effective="dark"] .vatra-top-music-panel .vatra-menu-track
  body .vatra-top-music-panel .vatra-menu-player-slot{height:186px}
  body .vatra-music-dock.is-menu-dock .vatra-music-dock-footer{display:none!important}
 }
-@media(prefers-reduced-motion:reduce){
- html body .layout>.sidebar>nav>a.nav>span:not(.nav-icon){transition:none!important}
- html body .layout>.sidebar>nav>a.nav:hover>span:not(.nav-icon){transform:none!important}
-}
+
 
 /* Final compact music menu controls */
 body .vatra-top-music-panel .vatra-menu-dismiss{

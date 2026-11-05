@@ -77,3 +77,16 @@ const brandVisual=read('assets/styles/sources/branding/brand.css');
 const accountStates=read('assets/styles/sources/layout/navigation-states.css');
 assert.ok(brandVisual.includes('--vatra-brand-ember:')&&brandVisual.includes('.vatra-group-card')&&brandVisual.includes('.settings-card'),'VATRA visual system must cover multiple sections');
 assert.ok(!accountStates.includes('html body .layout>.sidebar>nav>a.nav'),'Duplicate navigation styling must not return');
+
+
+/* Keep the polished, readable VATRA look consistent without a new CSS layer. */
+const mainUi=read('assets/styles/sources/foundation/shared-tokens.css');
+const legacyMedia=read('assets/styles/sources/media/media-access.css');
+const giftsUi=read('assets/styles/sources/gifts/catalog.css');
+assert.ok(mainUi.includes('/* VATRA common visual language: crisp, clear and consistent across pages. */'),'Shared crisp UI needs one canonical owner');
+assert.ok(mainUi.includes('font-size:14.5px!important;font-weight:450!important;line-height:1.73!important'),'Post body readability must not regress');
+assert.ok(mainUi.includes('.post-action-button'),'Feed buttons must have a consistent click target');
+assert.ok(mainUi.includes('body[data-vatra-theme-effective="dark"] .layout>.main .post:not(.chat-window)'),'Posts must be legible in dark theme');
+assert.ok(giftsUi.includes('body[data-vatra-theme-effective="dark"] .vatra-gifts-page'),'Gifts must honor selected dark theme');
+assert.ok(!legacyMedia.includes('.layout>.sidebar>nav>a.nav'),'Old media stylesheet must not restyle the canonical sidebar');
+console.log('VATRA crisp card typography, actions, gifts and single navigation owner verified.');

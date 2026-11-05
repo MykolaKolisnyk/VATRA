@@ -212,6 +212,70 @@ body .vatra-gift-art[data-gift-code="spark"].is-animated .vatra-gift-figure{
 @keyframes vatra-gift-snow{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
 @keyframes vatra-gift-firebird{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(4deg)}}
 @keyframes vatra-gift-heart{0%,100%{transform:scale(1)}40%{transform:scale(1.045)}60%{transform:scale(1)}}
+
+/* Gift catalog uses the same readable VАТРА surface in both themes. */
+html body .vatra-gifts-page{border-radius:15px!important}
+html body .vatra-gifts-page :is(button,select,input,textarea):focus-visible,
+html body .vatra-public-gift-dialog :is(button,select,input):focus-visible{
+ outline:2px solid #7ea8f1!important;outline-offset:2px!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gifts-page{
+ background:#24354a!important;color:#edf4ff!important;border-color:#405674!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gifts-header,
+html body[data-vatra-theme-effective="dark"] .vatra-gifts-tabs{
+ border-color:#425873!important;
+}
+html body[data-vatra-theme-effective="dark"] :is(.vatra-gifts-header h1,.vatra-gift-send h2,.vatra-gift-orders h2){
+ color:#edf4ff!important;
+}
+html body[data-vatra-theme-effective="dark"] :is(.vatra-gifts-header p,.vatra-gifts-intro,.vatra-gift-empty,.vatra-gift-summary small,.vatra-gift-muted){
+ color:#b9cbdf!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gifts-tabs button{
+ color:#cbddef!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gifts-tabs button[aria-current="page"]{
+ color:#d6e8ff!important;border-bottom-color:#8ab8f7!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-privacy label,
+html body[data-vatra-theme-effective="dark"] .vatra-gift-send label{
+ color:#dceaf9!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-privacy select,
+html body[data-vatra-theme-effective="dark"] .vatra-gift-send select{
+ background:#2c425d!important;color:#f1f6ff!important;border-color:#526d8c!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-send{
+ background:#283b53!important;border-color:#526a85!important;color:#edf4ff!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-send p,
+html body[data-vatra-theme-effective="dark"] .vatra-gift-order-row{
+ color:#c7d8eb!important;border-color:#465d78!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-card button:not(.vatra-gift-art-trigger){
+ color:#d8e8fc!important;background:#334d6b!important;border-color:#536d8e!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-card button:not(.vatra-gift-art-trigger):hover{
+ background:#3e5a7b!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-notice{
+ background:#294a3f!important;color:#bee9cf!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-notice.is-error{
+ background:#513449!important;color:#ffcad5!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-gift-empty{border-color:#506683!important}
+html body[data-vatra-theme-effective="dark"] .vatra-public-gift-dialog{
+ background:#24354a!important;color:#edf4ff!important;border-color:#526985!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-public-gift-header{
+ border-color:#475d76!important;
+}
+html body[data-vatra-theme-effective="dark"] .vatra-public-gift-header button{
+ background:#354d68!important;color:#e8f2ff!important;border-color:#53708e!important;
+}
+
 body[data-vatra-theme-effective="dark"] .vatra-gift-card {
  background:#1e2c3e!important;border-color:#40546a!important;box-shadow:none!important;
 }
