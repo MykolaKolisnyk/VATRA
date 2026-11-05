@@ -2956,6 +2956,8 @@ function vatraMessengerControls(){
  apply();
 }
 function renderMessages(){
+ // Keep message styles coherent even when opened directly from chat links.
+ document.body.dataset.page='messages';
  if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися повідомленнями</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
  const chats=Object.entries(chatIndex).filter(([,c])=>Boolean(c?.lastMessage?.text)&&!blockedUsers[c.otherUid]).sort((a,b)=>(b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
  if(!activeChat){
@@ -3459,7 +3461,8 @@ function render(){if(currentUser)vatraSetPostMode();if(!feed)return;
  const stories=document.getElementById('vatraFeedStories'),filters=document.getElementById('vatraFeedFilters');
  if(stories&&page!=='feed'){stories.hidden=true;stories.replaceChildren();}
  if(filters)filters.hidden=page!=='feed';
- if(document.activeElement?.matches?.('#feed input,#feed textarea,#feed select,[contenteditable="true"]'))return;
+ // Preserve typing on the current page, but never block a route change while an old field is focused.
+ if(document.body.dataset.page===page&&document.activeElement?.matches?.('#feed input,#feed textarea,#feed select,[contenteditable="true"]'))return;
  const externalRoute={adminCenter:'#/admin',myReports:'#/my-reports',supportDesk:'#/support',verificationGuide:'#/verification'}[document.body.dataset.page];
  if(externalRoute&&location.hash===externalRoute)return;
  document.body.dataset.page=page;if(page==='explore'&&document.activeElement?.closest('#vatraSearchForm'))return;if(currentUser&&(!vatraPageMinimumReady()||(page==='saved'&&!vatraPageDataReady.saved)||(page==='friends'&&!vatraPageDataReady.friends)||(page==='messages'&&!vatraPageDataReady.messages))){renderLoadingSkeletons();return;}renderGettingStarted();if(page==='music')return vatraShowMusic(currentUser?.uid);if(page==='notifications')return renderNotifications();if(page==='saved')return renderSaved();if(page==='settings')return renderSettings();if(page==='groupSettings')return renderGroupSettings(groupId);if(page==='friends')return renderFriends();if(page==='gifts'){setFeed('<section class="vatra-gifts-page">Завантаження подарунків…</section>');void window.vatraRenderGifts?.(currentUser?.uid);return;}if(page==='publicProfile')return; if(page==='myVideos')return renderMyVideos();if(page==='videos')return renderVideos();if(page==='photos')return renderPhotos();if(page==='groups')return groupId&&groups[groupId]?renderGroupDetails(groupId):renderGroups();if(page==='messages')return renderMessages();if(page==='explore')return renderExplore();if(page==='profile')return renderProfile();renderFeed();}
