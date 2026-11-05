@@ -137,3 +137,23 @@ assert.ok(groupChatJs.includes('container.scrollTop=keepGroupAtEnd?container.scr
 assert.ok(groupChatJs.includes('if(restoreFocus&&field)'),'Group composer must retain focus after metadata refresh');
 assert.ok(groupChatCss.includes('body[data-vatra-theme-effective="dark"] .vatra-group-bubble.mine'),'Dark group bubbles must be legible');
 console.log('VATRA group chat focused composing, separate drafts, scrolling and themes verified.');
+
+
+/* Photos and videos: the selected tab must control the photo viewer collection. */
+const photoHelperStart=js.indexOf('function vatraPhotoGridMarkup(');
+const photoHelperEnd=js.indexOf('function renderPhotos(){',photoHelperStart);
+assert.ok(photoHelperStart>0&&photoHelperEnd>photoHelperStart,'Photo gallery helper missing');
+const vatraPhotoGridBuilder=runInNewContext(js.slice(photoHelperStart,photoHelperEnd)+'\nvatraPhotoGridMarkup;',{
+ esc:value=>String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+});
+const photoMarkup=vatraPhotoGridBuilder(['https://cdn.example/a.jpg','https://cdn.example/b.jpg'],'user-1');
+assert.equal((photoMarkup.match(/class="vatra-photo-tile"/g)||[]).length,2,'Photo tiles must match the selected tab');
+assert.ok(photoMarkup.includes('data-photo-index="1"'),'Photo tab must use its own zero-based index');
+const photoCollections=[...photoMarkup.matchAll(/data-photo-urls="([^"]+)"/g)].map(match=>JSON.parse(match[1].replace(/&quot;/g,'"')));
+assert.equal(photoCollections.length,2);
+assert.equal(JSON.stringify(photoCollections[0]),JSON.stringify(['https://cdn.example/a.jpg','https://cdn.example/b.jpg']),'Viewer must not mix other photo tabs');
+assert.ok(js.includes('grid.innerHTML=vatraPhotoGridMarkup(urls,uid)'),'Photo tabs must pass their own images');
+assert.ok(js.includes("photoTabs[next].focus();photoTabs[next].click()"),'Photo tabs must support keyboard navigation');
+assert.ok(js.includes("event.target?.closest?.('input,textarea,select,[contenteditable],[role=\"textbox\"]')"),'Photo viewer arrow keys must not interrupt comment typing');
+assert.ok(js.includes('preload="none" aria-label="Відеозапис із допису"'),'My videos must defer downloading until playback');
+console.log('VATRA photos/video: scoped photo tabs, keyboard shortcuts and lazy video loading verified.');

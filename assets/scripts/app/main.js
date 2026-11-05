@@ -698,7 +698,13 @@ function openPostPhotoViewer(urls,startIndex=0,postId='',ownerUid=''){
   try{await set(push(ref(db,'comments/'+id)),{uid:currentUser.uid,name:currentProfile.name||currentUser.displayName||'Користувач ВАТРИ',avatarUrl:currentProfile.avatarUrl||'',text:value.slice(0,300),createdAt:Date.now()});const snap=await get(ref(db,'comments/'+id));comments[id]=snap.val()||{};draw();}
   catch(error){toastMsg(niceError(error));}
  });
- dialog.addEventListener('keydown',event=>{if(event.key==='ArrowRight')step(1);else if(event.key==='ArrowLeft')step(-1);});
+ dialog.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+  if(event.target?.closest?.('input,textarea,select,[contenteditable],[role="textbox"]'))return;
+  if(event.key==='ArrowRight'||event.key==='ArrowLeft'){
+   event.preventDefault();step(event.key==='ArrowRight'?1:-1);
+  }
+ });
  dialog.addEventListener('close',()=>{if(document.fullscreenElement&&dialog.contains(document.fullscreenElement))document.exitFullscreen?.();dialog.remove();});
  draw();dialog.showModal();
 }
@@ -2199,6 +2205,11 @@ function vatraAlbumManager(){
  tabs.addEventListener('click',clearAlbumOnTab);
 }
 
+function vatraPhotoGridMarkup(urls,uid){
+ const photos=[...new Set((Array.isArray(urls)?urls:[]).filter(url=>typeof url==='string'&&/^https?:\/\//i.test(url)))];
+ const gallery=esc(JSON.stringify(photos));
+ return photos.map((url,index)=>'<button type="button" class="vatra-photo-tile" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+gallery+'" data-photo-index="'+index+'" aria-label="Переглянути фотографію '+(index+1)+' з '+photos.length+'"><img src="'+esc(url)+'" loading="lazy" decoding="async" alt="Фото '+(index+1)+'"></button>').join('');
+}
 function renderPhotos(){
  if(!currentUser){setFeed('<article class="post"><h2>Мої фотографії</h2><p>Увійдіть, щоб переглядати власні фотографії.</p><button class="primary" id="photosLogin">Увійти</button></article>');$('#photosLogin')?.addEventListener('click',()=>openAuth('login'));return;}
  const uid=currentUser.uid;
@@ -2206,14 +2217,23 @@ function renderPhotos(){
  const published=Object.entries(posts||{}).filter(([,p])=>p&&p.authorUid===uid&&p.addMediaToGallery!==false).sort((a,b)=>(b[1].createdAt||0)-(a[1].createdAt||0)).flatMap(([id,p])=>postImages(p).map(url=>({url,id,date:p.createdAt||0})));
  const all=[...album.map(x=>({url:x.url,date:x.date})),...published.map(x=>({url:x.url,date:x.date}))].sort((a,b)=>b.date-a.date).map(x=>x.url);
  const unique=[...new Set(all)];
- const tile=(url,meta,index)=>'<button type="button" class="vatra-photo-tile" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(unique))+'" data-photo-index="'+unique.indexOf(url)+'" aria-label="Переглянути фотографію '+(index+1)+'"><img src="'+esc(url)+'" loading="lazy" decoding="async" alt="Фото '+(index+1)+'"></button>';
- setFeed('<section class="vatra-photos-page"><div class="vatra-photos-toolbar"><div><h2>'+window.vatraIcon('photos')+' Мої фотографії</h2><p>'+unique.length+' фото · Ваш альбом і фотографії з дописів</p></div><div class="vatra-photos-tools"><button type="button" class="primary" id="vatraPhotosUpload">' + window.vatraIcon('plus') + ' Додати фото</button><input type="file" id="vatraPhotosFile" accept="image/*" multiple hidden></div></div><div class="vatra-photos-tabs" role="tablist" aria-label="Альбоми"><button type="button" role="tab" aria-selected="true" class="active" data-vatra-photo-tab="all">Усі фото ('+unique.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="album">Альбом ('+album.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="posts">З дописів ('+published.length+')</button></div><div class="vatra-photo-grid" id="vatraPhotosGrid">'+(unique.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">Ви ще не додавали фотографій. Завантажте перше фото.</p>')+'</div></section>');
+
+ setFeed('<section class="vatra-photos-page"><div class="vatra-photos-toolbar"><div><h2>'+window.vatraIcon('photos')+' Мої фотографії</h2><p>'+unique.length+' фото · Ваш альбом і фотографії з дописів</p></div><div class="vatra-photos-tools"><button type="button" class="primary" id="vatraPhotosUpload">' + window.vatraIcon('plus') + ' Додати фото</button><input type="file" id="vatraPhotosFile" accept="image/*" multiple hidden></div></div><div class="vatra-photos-tabs" role="tablist" aria-label="Альбоми"><button type="button" role="tab" aria-selected="true" class="active" data-vatra-photo-tab="all">Усі фото ('+unique.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="album">Альбом ('+album.length+')</button><button type="button" role="tab" aria-selected="false" data-vatra-photo-tab="posts">З дописів ('+published.length+')</button></div><div class="vatra-photo-grid" id="vatraPhotosGrid">'+(vatraPhotoGridMarkup(unique,uid)||'<p class="vatra-empty-panel">Ви ще не додавали фотографій. Завантажте перше фото.</p>')+'</div></section>');
  const grid=$('#vatraPhotosGrid');
- $$('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(button=>button.onclick=()=>{
-  $$('.vatra-photos-tabs [data-vatra-photo-tab]').forEach(el=>{el.classList.toggle('active',el===button);el.setAttribute('aria-selected',String(el===button));});
+ const photoTabs=$('.vatra-photos-tabs [data-vatra-photo-tab]');
+ photoTabs.forEach((button,i)=>{button.tabIndex=i===0?0:-1;button.onclick=()=>{
+  photoTabs.forEach(el=>{el.classList.toggle('active',el===button);el.setAttribute('aria-selected',String(el===button));el.tabIndex=el===button?0:-1;});
   const kind=button.dataset.vatraPhotoTab;
   const urls=[...new Set(kind==='album'?album.map(x=>x.url):kind==='posts'?published.map(x=>x.url):unique)];
-  grid.innerHTML=urls.map((url,i)=>tile(url,null,i)).join('')||'<p class="vatra-empty-panel">У цьому розділі фотографій поки немає.</p>';
+  grid.innerHTML=vatraPhotoGridMarkup(urls,uid)||'<p class="vatra-empty-panel">У цьому розділі фотографій поки немає.</p>';
+ };});
+ $('.vatra-photos-tabs')?.addEventListener('keydown',event=>{
+  const selected=photoTabs.indexOf(event.target);
+  if(selected<0||!['ArrowRight','ArrowLeft','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const next=event.key==='Home'?0:event.key==='End'?photoTabs.length-1:
+   (selected+(event.key==='ArrowRight'?1:-1)+photoTabs.length)%photoTabs.length;
+  photoTabs[next].focus();photoTabs[next].click();
  });
  $('#vatraPhotosUpload').onclick=()=>$('#vatraPhotosFile')?.click();
  $('#vatraPhotosFile').addEventListener('change',uploadProfilePhoto);
@@ -2228,8 +2248,8 @@ function renderMyVideos(){
   .filter(v=>typeof v.url==='string'&&/^https:\/\//i.test(v.url)&&!unique.has(v.url)&&unique.add(v.url))
   .sort((a,b)=>b.createdAt-a.createdAt);
  const grid=items.map(v=>'<article class="vatra-my-video"><div class="vatra-my-video-info"><b>Відео з допису</b><small>'+timeAgo(v.createdAt)+'</small></div>'+
-  '<video controls playsinline preload="metadata" src="'+esc(v.url)+'"></video>'+(v.text?'<p>'+safeText(v.text)+'</p>':'')+'</article>').join('');
- setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><div><h2>Мої відео <span>'+items.length+'</span></h2><p>Відеозаписи з Ваших дописів на сторінці. Кліпи публікуються окремо у розділі «Кліпи» та сюди не додаються.</p></div></div>'+
+  '<video controls playsinline preload="none" aria-label="Відеозапис із допису" src="'+esc(v.url)+'"></video>'+(v.text?'<p>'+safeText(v.text)+'</p>':'')+'</article>').join('');
+ setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><div><h2>Мої відео <span>'+items.length+'</span></h2><p>Відеозаписи з Ваших дописів на сторінці.</p></div></div>'+
   '<div class="vatra-my-videos-grid">'+(grid||'<p class="vatra-my-video-empty">Відеозаписів поки немає.</p>')+'</div></section>',false);
 }
 let vatraClipsObserver=null,vatraClipsVisibilityCleanup=null,vatraClipsSocial=null;
