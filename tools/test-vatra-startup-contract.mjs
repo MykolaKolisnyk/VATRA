@@ -13,7 +13,7 @@ for(const name of names){
  assert.match(backend,expression,'Backend is missing imported export: '+name);
 }
 for(const name of ['getStoryMediaUrl','uploadStoryMedia','removeStoryMedia'])assert.ok(names.includes(name),'Core must load private Stories API: '+name);
-assert.ok(page.includes('assets/scripts/app/main.js?v=20261105-vatra-clean2'),'Entry script cache must be refreshed');
+assert.ok(page.includes('assets/scripts/app/main.js?v=20261105-profile-sync1'),'Entry script cache must be refreshed');
 assert.ok(imports[0][2].includes('storage-split'),'Entry and backend must use compatible fresh versions');
 assert.ok(page.includes('id="vatraScrollToTop"')&&page.includes('hidden><svg'),
  'User-requested scroll-to-top must be restored but hidden until a user scrolls');
