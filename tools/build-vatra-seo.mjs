@@ -65,7 +65,7 @@ function page(type,id,data,slug=id){
   '<meta property="og:image" content="'+esc(image)+'"><meta property="og:url" content="'+esc(url)+'">'+
   (updated?'<meta property="og:updated_time" content="'+esc(updated)+'">':'')+
   '<script type="application/ld+json">'+jsonLd+'</script>'+
-  '<link rel="stylesheet" href="../../vatra-public-preview.css?v=20261105-1"></head><body>'+
+  '<link rel="stylesheet" href="../../assets/styles/sources/public/public-preview.css?v=20261105-1"></head><body>'+
   '<header class="vatra-public-topbar"><a class="vatra-public-brand" href="'+esc(base)+'"><img src="../../favicon.svg" alt=""><span>ВАТРА</span></a>'+
   '<nav class="vatra-public-nav" aria-label="Акаунт"><a href="../../auth.html">Увійти</a><a href="../../auth.html?mode=register">Зареєструватися</a></nav></header>'+
   '<main class="vatra-public-main" data-vatra-public-kind="'+(person?'person':'group')+'" data-vatra-public-id="'+esc(id)+'" data-vatra-public-name="'+esc(name)+'">'+

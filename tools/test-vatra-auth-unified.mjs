@@ -2,28 +2,28 @@ import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const read=path=>readFileSync(path,'utf8');
 
-const css=read('vatra-auth-unified.css');
+const css=read('assets/styles/sources/auth/auth-shared.css');
 const js=read('auth.js');
 const lang=read('vatra-language.js');
-const logoCss=read('vatra-brand-text.css');
+const logoCss=read('assets/styles/sources/branding/wordmark.css');
 const authModules=JSON.parse(read('assets/styles/auth-manifest.json')).files;
 assert.ok(logoCss.includes('.vatra-wordmark-text')&&!css.includes('.vatra-wordmark .vatra-wordmark-text'),'A single shared logo stylesheet must own text+icon rules');
 const uiRefs=[
- 'vatra-language.css','vatra-recovery-final.css',
+ 'assets/styles/sources/system/language.css','vatra-recovery-final.css',
  'vatra-auth-brand-refresh.css'
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
  assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-auth-bundle1'),page+': consolidated CSS missing');
  assert.equal((html.match(/href="assets\/styles\/vatra-auth\.css\?/g)||[]).length,1,page+': duplicated auth bundle');
- assert.ok(authModules.includes('vatra-brand-text.css'),page+': logo source missing from auth bundle');
- assert.equal(authModules.at(-1),'vatra-auth-unified.css',page+': final auth styles must load last');
+ assert.ok(authModules.includes('assets/styles/sources/branding/wordmark.css'),page+': logo source missing from auth bundle');
+ assert.equal(authModules.at(-1),'assets/styles/sources/auth/auth-shared.css',page+': final auth styles must load last');
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
  assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
  assert.ok(html.includes('auth.js?v=20261105-media-handle1'),page+': stale auth script');
- assert.ok(authModules.indexOf('vatra-auth-unified.css')>authModules.indexOf('vatra-ui-foundations-v5.css'),
+ assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': canonical auth styles must load last');
 }
 assert.ok(css.includes('html body .auth-layout>.form-side')&&css.includes('min-height:0!important'),
@@ -60,14 +60,14 @@ assert.ok(css.includes('.vatra-auth-method-card:focus-within')&&
  'Auth and recovery cards must have unified single-border focus rules');
 assert.ok(css.includes('html body #captchaWrap.captcha-modal .human-captcha-status.is-wrong::before'),
  'Error cards must suppress the old misaligned warning bubble');
-const siteCss=read('vatra-site-cohesion.css'),index=read('index.html'),app=read('script.js');
+const siteCss=read('assets/styles/sources/foundation/shared-tokens.css'),index=read('index.html'),app=read('script.js');
 assert.ok(index.includes('id="vatraScrollToTop"')&&
  index.includes('aria-label="Прокрутити сторінку вгору"'),
  'Missing user-requested left-side scroll-to-top button');
 assert.ok(app.includes("document.getElementById('vatraScrollToTop')")&&
  app.includes("button.addEventListener('click',()=>window.scrollTo"),
  'Scroll-to-top button must connect to its existing behavior');
-const pagesCss=read('vatra-pages.css');
+const pagesCss=read('assets/styles/sources/layout/pages.css');
 assert.ok(pagesCss.includes('.vatra-scroll-to-top[hidden]')&&
  pagesCss.includes('height:100dvh!important')&&
  pagesCss.includes('left:0!important'),

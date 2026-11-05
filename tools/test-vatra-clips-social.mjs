@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const read=path=>readFileSync(path,'utf8');
-const script=read('script.js'),social=read('vatra-clips-social.js'),css=read('vatra-clips-v2.css');
+const script=read('script.js'),social=read('vatra-clips-social.js'),css=read('assets/styles/sources/media/clips.css');
 const icons=read('vatra-icon-system.js'),html=read('index.html'),sql=read('database/vatra_clip_social.sql');
 
 for(const action of ['like','comment','save','share','follow']){
@@ -23,7 +23,7 @@ assert.ok(social.includes("escape(String(c.body||''))"),'Comments must be escape
 assert.ok(social.includes("pending.has(kind+':'+id)"),'Double-submit reaction guard missing');
 assert.ok(css.includes('.vatra-clip-social-rail')&&css.includes('.vatra-clip-comments-dialog'),'Missing social UI styling');
 assert.ok(icons.includes('"share":')&&icons.includes('"heart":')&&icons.includes('"bookmark":'),'Clip icons must reuse centralized SVG');
-for(const asset of ['vatra-clips-v2.css','vatra-icon-system.js','script.js']){
+for(const asset of ['assets/styles/sources/media/clips.css','vatra-icon-system.js','script.js']){
  assert.ok(asset.endsWith('.css')?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(read('assets/styles/manifest.json')).files.includes(asset):html.includes(asset+'?v='),asset+' must be included with a cache version');
 }
 const tables=['vatra_clip_likes','vatra_clip_comments','vatra_clip_bookmarks','vatra_clip_shares'];

@@ -3,7 +3,7 @@
    See assets/fonts/OFL-Onest.txt. */
 @font-face{
   font-family:"VATRA Onest";
-  src:url("./assets/fonts/Onest-Variable.ttf") format("truetype");
+  src:url("../../../fonts/Onest-Variable.ttf") format("truetype");
   font-style:normal;
   font-weight:100 900;
   font-display:swap;

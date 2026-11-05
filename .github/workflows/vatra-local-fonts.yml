@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/vatra-local-fonts.yml"
-      - "vatra-local-fonts.css"
+      - "assets/styles/sources/foundation/local-fonts.css"
       - "assets/fonts/**"
   workflow_dispatch:
 

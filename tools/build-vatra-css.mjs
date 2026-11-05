@@ -1,9 +1,10 @@
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
-import {dirname,resolve} from 'node:path';
+import {dirname,resolve,posix} from 'node:path';
 const root=resolve(import.meta.dirname,'..');
-const rewriteUrls=css=>css.replace(/url\(\s*(['"]?)([^'"()]+)\1\s*\)/g,(full,quote,link)=>{
+const rewriteUrls=(css,file)=>css.replace(/url\(\s*(['"]?)([^'"()]+)\1\s*\)/g,(full,quote,link)=>{
  if(/^(?:data:|https?:|\/\/|\/|#|blob:)/i.test(link))return full;
- return 'url('+quote+'../../'+link+quote+')';
+ const path=posix.relative('assets/styles',posix.normalize(posix.join(posix.dirname(file),link)));
+ return 'url('+quote+path+quote+')';
 });
 function build(manifestPath,outputPath){
  const manifest=JSON.parse(readFileSync(resolve(root,manifestPath),'utf8'));
@@ -14,7 +15,7 @@ function build(manifestPath,outputPath){
   seen.add(file);
   const raw=readFileSync(resolve(root,file),'utf8');
   if(/@import\s/i.test(raw))throw new Error('CSS @import must be moved before bundling: '+file);
-  return '/* ORIGINAL FILE: '+file+'. Keep order from index.html. */\n'+rewriteUrls(raw)+'\n';
+  return '/* ORIGINAL FILE: '+file+'. Keep order from index.html. */\n'+rewriteUrls(raw,file)+'\n';
  });
  const target=resolve(root,outputPath);
  mkdirSync(dirname(target),{recursive:true});

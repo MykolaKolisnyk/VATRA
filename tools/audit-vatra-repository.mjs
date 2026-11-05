@@ -185,7 +185,7 @@ function sameScopeCssDuplicates(source){
  }
  return duplicates;
 }
-const guardedCss=['auth.css','style.css','vatra-polish.css','vatra-pages.css'];
+const guardedCss=['assets/styles/sources/auth/auth-form.css','assets/styles/sources/foundation/base.css','assets/styles/sources/layout/app-shell.css','assets/styles/sources/layout/pages.css'];
 const exactCssRepeats=Object.fromEntries(guardedCss.map(path=>[path,sameScopeCssDuplicates(textFiles.get(path)||'')]));
 
 const report={

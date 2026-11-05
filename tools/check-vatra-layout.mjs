@@ -38,7 +38,7 @@ if(!notFound.includes('Сторінку не знайдено') ||
    !notFound.includes("location.replace(current")) {
  throw new Error('Custom VATRA 404 page or legacy redirect is missing');
 }
-const loaderStyles=readFileSync(join(root,'vatra-loader.css'),'utf8');
+const loaderStyles=readFileSync(join(root,'assets/styles/sources/system/loader.css'),'utf8');
 if(!loaderStyles.includes('.vatra-loading-kicker') ||
    !loaderStyles.includes('.vatra-loading-status') ||
    loaderStyles.includes('@media(prefers-color-scheme:dark)')) {
@@ -47,7 +47,7 @@ if(!loaderStyles.includes('.vatra-loading-kicker') ||
 for(const page of ['index.html','auth.html','register.html']){
  const html=readFileSync(join(root,page),'utf8');
  if(!html.includes('vatra-loading-kicker') || !html.includes('vatra-loading-status') ||
-     !(page==='index.html'?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync(join(root,'assets/styles/manifest.json'),'utf8')).files.includes('vatra-loader.css'):html.includes('assets/styles/vatra-auth.css?v=20261105-auth-bundle1')&&JSON.parse(readFileSync(join(root,'assets/styles/auth-manifest.json'),'utf8')).files.includes('vatra-loader.css'))) {
+     !(page==='index.html'?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync(join(root,'assets/styles/manifest.json'),'utf8')).files.includes('assets/styles/sources/system/loader.css'):html.includes('assets/styles/vatra-auth.css?v=20261105-auth-bundle1')&&JSON.parse(readFileSync(join(root,'assets/styles/auth-manifest.json'),'utf8')).files.includes('assets/styles/sources/system/loader.css'))) {
    throw new Error('Outdated loading UI on '+page);
  }
 }

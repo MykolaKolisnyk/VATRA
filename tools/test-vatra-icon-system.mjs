@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 const html=readFileSync('index.html','utf8');
 const sprite=readFileSync('vatra-icon-system.js','utf8');
 const navigation=readFileSync('navigation.js','utf8');
-const css=readFileSync('vatra-icon-system.css','utf8');
+const css=readFileSync('assets/styles/sources/foundation/icons.css','utf8');
 const defs=sprite.match(/const GLYPHS=(\{[\s\S]+?\});\s*const ALIASES=/);
 assert.ok(defs,'Central SVG definitions not found');
 const glyphs=JSON.parse(defs[1]);
@@ -39,6 +39,6 @@ const newGlyphs=['photos','music','gift','settings','support'].map(name=>glyphs[
 assert.equal(new Set(newGlyphs).size,newGlyphs.length,'Five distinct sections cannot share the same icon shape');
 assert.ok(navigation.includes("button.dataset.menuPage === 'supportDesk'"),'Mobile support navigation is not functional');
 assert.ok(navigation.includes("source.dataset.page || source.dataset.menuPage"),'Mobile clone drops support route');
-assert.ok(html.includes('vatra-icon-system.js?')&&html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files.includes('vatra-icon-system.css'),'Icon system assets are not loaded');
+assert.ok(html.includes('vatra-icon-system.js?')&&html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files.includes('assets/styles/sources/foundation/icons.css'),'Icon system assets are not loaded');
 assert.ok(css.includes('data-vatra-theme-effective="dark"'),'Dark theme icons are unstyled');
 console.log('VATRA icons/navigation: '+names.size+' symbols, '+Object.keys(expected).length+' routes + support, consistent SVG references.');

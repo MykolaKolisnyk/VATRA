@@ -1,15 +1,15 @@
 {
   "description": "VATRA login and registration CSS sources in exact historic cascade order; delivered as a single file.",
   "files": [
-    "auth.css",
-    "vatra-loader.css",
-    "network-status.css",
-    "vatra-nov03.css",
-    "vatra-local-fonts.css",
-    "vatra-profile-gallery-language-v2.css",
-    "vatra-design-system-nov04.css",
-    "vatra-ui-foundations-v5.css",
-    "vatra-brand-text.css",
-    "vatra-auth-unified.css"
+    "assets/styles/sources/auth/auth-form.css",
+    "assets/styles/sources/system/loader.css",
+    "assets/styles/sources/system/network-status.css",
+    "assets/styles/sources/layout/interaction-states.css",
+    "assets/styles/sources/foundation/local-fonts.css",
+    "assets/styles/sources/profile/gallery-language.css",
+    "assets/styles/sources/foundation/dialogs-and-controls.css",
+    "assets/styles/sources/foundation/forms-and-controls.css",
+    "assets/styles/sources/branding/wordmark.css",
+    "assets/styles/sources/auth/auth-shared.css"
   ]
 }

@@ -1,15 +1,15 @@
 import {readFileSync,existsSync} from 'node:fs';
 import assert from 'node:assert/strict';
 const modules=[
- ['vatra-music.css','assets/styles/sources/media/vatra-music.css'],
- ['vatra-community-v2.css','assets/styles/sources/social/vatra-community-v2.css'],
- ['vatra-post-composer.css','assets/styles/sources/social/vatra-post-composer.css'],
- ['vatra-color-balance.css','assets/styles/sources/foundation/vatra-color-balance.css'],
- ['vatra-neutral.css','assets/styles/sources/foundation/vatra-neutral.css'],
- ['vatra-ux.css','assets/styles/sources/foundation/vatra-ux.css'],
- ['vatra-notifications-redesign.css','assets/styles/sources/social/vatra-notifications-redesign.css'],
- ['vatra-clip-processing.css','assets/styles/sources/media/vatra-clip-processing.css'],
- ['vatra-editor-rework.css','assets/styles/sources/social/vatra-editor-rework.css']
+ ['vatra-music.css','assets/styles/sources/media/music.css'],
+ ['vatra-community-v2.css','assets/styles/sources/social/communities.css'],
+ ['vatra-post-composer.css','assets/styles/sources/social/post-composer.css'],
+ ['vatra-color-balance.css','assets/styles/sources/foundation/color-tokens.css'],
+ ['vatra-neutral.css','assets/styles/sources/foundation/neutral-surfaces.css'],
+ ['vatra-ux.css','assets/styles/sources/foundation/base-interactions.css'],
+ ['vatra-notifications-redesign.css','assets/styles/sources/social/notifications.css'],
+ ['vatra-clip-processing.css','assets/styles/sources/media/clip-processing.css'],
+ ['vatra-editor-rework.css','assets/styles/sources/social/post-editor.css']
 ];
 const paths=JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files;
 const compiled=readFileSync('assets/styles/vatra.css','utf8');

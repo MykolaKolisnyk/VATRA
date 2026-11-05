@@ -7,10 +7,10 @@ const main=read('index.html');
 const sidebar=main.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
 const script=read('script.js');
 const language=read('vatra-language.js');
-const icons=read('vatra-icon-system.css');
-const foundations=read('vatra-ui-foundations-v5.css');
-const ux=read('vatra-ux-corrections.css');
-const cohesion=read('vatra-site-cohesion.css');
+const icons=read('assets/styles/sources/foundation/icons.css');
+const foundations=read('assets/styles/sources/foundation/forms-and-controls.css');
+const ux=read('assets/styles/sources/foundation/typography-consistency.css');
+const cohesion=read('assets/styles/sources/foundation/shared-tokens.css');
 
 assert.ok(sidebar.includes('Моя сторінка'), 'Sidebar must say Моя сторінка');
 assert.ok(/data-page="profile"/.test(sidebar),'Retain stable profile route');
@@ -40,7 +40,7 @@ assert.ok(icons.includes('height:38px!important'),'Sidebar buttons must remain c
 assert.ok(icons.includes('data-vatra-theme-effective="dark"'),'Dark mode navigation is unstyled');
 
 const legacyNavPattern=/nav\[aria-label="Основна навігація"\]>a\.nav/;
-for(const [path,text] of [['vatra-ux-corrections.css',ux],['vatra-site-cohesion.css',cohesion],['vatra-ui-foundations-v5.css',foundations]]){
+for(const [path,text] of [['assets/styles/sources/foundation/typography-consistency.css',ux],['assets/styles/sources/foundation/shared-tokens.css',cohesion],['assets/styles/sources/foundation/forms-and-controls.css',foundations]]){
  assert.ok(!legacyNavPattern.test(text), 'Competing legacy nav selector remains in '+path);
  assert.equal((text.match(/\{/g)||[]).length,(text.match(/\}/g)||[]).length,'Unbalanced CSS in '+path);
 }
@@ -49,8 +49,8 @@ assert.equal((main.match(/<meta name="application-name"/g)||[]).length,1,'Duplic
 console.log('VATRA typography/cleanup: Manrope, clean nav CSS, consistent page terminology and i18n verified.');
 
 const original=read('script.js');
-const pageCss=read('vatra-site-cohesion.css');
-const galleryCss=read('vatra-profile-gallery-language-v2.css');
+const pageCss=read('assets/styles/sources/foundation/shared-tokens.css');
+const galleryCss=read('assets/styles/sources/profile/gallery-language.css');
 assert.ok(original.includes('vatra-profile-layout'),'Original compact profile layout not rendered');
 assert.ok(!original.includes('vatra-own-page-layout'),'Unrequested expanded layout must not return');
 assert.ok(!original.includes('vatra-own-cover')&&!original.includes('vatraOwnCoverInput'),'Unrequested personal cover must not be rendered');
@@ -58,16 +58,16 @@ assert.ok(!original.includes('async function uploadCover('),'Unused cover upload
 assert.ok(!pageCss.includes('vatra-own-cover'),'Old cover CSS must not remain');
 assert.ok(!pageCss.includes('margin-top:-100px'),'Avatar must not overlap a removed cover');
 assert.ok(!pageCss.includes('1520px'),'Old page expansion must not return');
-const basePages=read('vatra-pages.css');
+const basePages=read('assets/styles/sources/layout/pages.css');
 assert.ok(basePages.includes('width:min(1040px,calc(100% - 40px))'),'Compact profile width must be restored');
 assert.ok(basePages.includes('max-width:830px!important'),'Compact content width must be restored');
 assert.ok(!pageCss.includes('.vatra-own-page-layout'),'Old wide layout CSS must be removed');
 assert.ok(galleryCss.includes('grid-template-columns:repeat(6,minmax(0,1fr))!important')&&galleryCss.includes('grid-auto-flow:column!important')&&galleryCss.includes('overflow:hidden!important'),'Media carousel must use six thumbnails in one horizontal row');
-const flagsCss=read('vatra-nov03.css');
+const flagsCss=read('assets/styles/sources/layout/interaction-states.css');
 assert.ok(flagsCss.includes('body .vatra-language-flag{display:block;flex:0 0 28px;border:0!important;outline:0!important'),'Language SVG flag must not receive an extra border or outline');
 const appForPerformance=read('script.js');
 assert.ok(appForPerformance.includes('function vatraRequestRender()')&&appForPerformance.includes('if(vatraRenderQueued)return'),'Realtime callbacks must batch duplicate redraws');
-const messengerCss=read('vatra-messenger-refine.css');
+const messengerCss=read('assets/styles/sources/social/messenger.css');
 assert.equal(messengerCss.split('body[data-page="messages"] .vatra-chat-person>.avatar{').length-1,1,'Messenger avatar must not be defined by two competing rules');
 assert.ok(messengerCss.includes('max-width:43px!important;max-height:43px!important'),'Chat avatar size must remain bounded');
 assert.ok(original.includes('document.body.dataset.page===page&&document.activeElement?.matches?.'),'Focused inputs must never prevent navigation to another page');

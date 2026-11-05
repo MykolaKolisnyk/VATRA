@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 const script=readFileSync('script.js','utf8');
-const css=readFileSync('vatra-clips-v2.css','utf8');
+const css=readFileSync('assets/styles/sources/media/clips.css','utf8');
 const icons=readFileSync('vatra-icon-system.js','utf8');
 const html=readFileSync('index.html','utf8');
 
@@ -30,7 +30,7 @@ assert.ok(css.includes('.vatra-clip-play-toggle')&&css.includes('.vatra-clip-pro
 assert.ok(css.includes('prefers-reduced-motion'),'Reduced motion behavior must be retained');
 assert.ok(icons.includes('"mute":')&&icons.includes('"volume":'),'Distinct mute and volume icons must exist');
 assert.ok(icons.includes('window.vatraIcon=(name'),'Both icons must use the shared icon renderer');
-for(const src of ['vatra-clips-v2.css','vatra-icon-system.js','script.js']){
+for(const src of ['assets/styles/sources/media/clips.css','vatra-icon-system.js','script.js']){
  const matched=[...html.matchAll(/(?:href|src)="([^"]+)"/g)].filter(match=>match[1].startsWith(src+'?v='));
  assert.ok(src.endsWith('.css')?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files.includes(src):matched.length===1,'Expected one versioned include or CSS bundle entry: '+src);
 }
