@@ -2582,7 +2582,7 @@ function renderGroupDetails(id){
    return '<button type="button" class="vatra-group-member" data-view-profile="'+esc(uid)+'">'+avatar(name,u.avatarUrl)+
     '<span><b>'+esc(name)+verifiedBadge(uid)+'</b><small>'+role+'</small></span></button>';
   });
-  const tab=(key,name)=>'<button type="button" role="tab" data-vatra-group-tab="'+key+'" aria-selected="'+String(vatraGroupActiveTab===key)+'" class="'+(vatraGroupActiveTab===key?'is-active':'')+'">'+name+'</button>';
+  const tab=(key,name)=>'<button type="button" id="vatra-group-tab-'+key+'" role="tab" data-vatra-group-tab="'+key+'" aria-controls="vatra-group-panel-'+key+'" aria-selected="'+String(vatraGroupActiveTab===key)+'" tabindex="'+(vatraGroupActiveTab===key?'0':'-1')+'" class="'+(vatraGroupActiveTab===key?'is-active':'')+'">'+name+'</button>';
   const canPostAsGroup=isOwner||isAdmin;
   const selectedGroupAuthor=canPostAsGroup?'group':'user';
   const groupComposeAvatar=()=>'<span class="vatra-group-compose-photo">'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="">':esc((g.name||'В').trim().slice(0,1).toUpperCase()))+'</span>';
@@ -2622,11 +2622,11 @@ function renderGroupDetails(id){
   setFeed('<section class="vatra-group-view'+(canManage?' is-manager':' is-visitor')+'">'+intro+
    '<div class="vatra-group-content-grid"><div class="vatra-group-main">'+
    '<nav class="vatra-group-tabs" role="tablist" aria-label="Розділи спільноти">'+tab('posts','Дописи')+tab('photos','Фото')+tab('videos','Відео')+(canSeeMembers?tab('members','Учасники'):'')+tab('about','Інформація')+'</nav>'+
-   '<div class="vatra-group-tab-panel" data-vatra-group-panel="posts"'+(vatraGroupActiveTab==='posts'?'':' hidden')+'>'+composer+postsMarkup+'</div>'+
-   '<div class="vatra-group-tab-panel" data-vatra-group-panel="photos"'+(vatraGroupActiveTab==='photos'?'':' hidden')+'></div>'+
-   '<div class="vatra-group-tab-panel" data-vatra-group-panel="videos"'+(vatraGroupActiveTab==='videos'?'':' hidden')+'></div>'+
-   '<div class="vatra-group-tab-panel" data-vatra-group-panel="members"'+(vatraGroupActiveTab==='members'?'':' hidden')+'>'+memberTab+'</div>'+
-   '<div class="vatra-group-tab-panel" data-vatra-group-panel="about"'+(vatraGroupActiveTab==='about'?'':' hidden')+'>'+about+'</div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-posts" role="tabpanel" aria-labelledby="vatra-group-tab-posts" data-vatra-group-panel="posts"'+(vatraGroupActiveTab==='posts'?'':' hidden')+'>'+composer+postsMarkup+'</div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-photos" role="tabpanel" aria-labelledby="vatra-group-tab-photos" data-vatra-group-panel="photos"'+(vatraGroupActiveTab==='photos'?'':' hidden')+'></div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-videos" role="tabpanel" aria-labelledby="vatra-group-tab-videos" data-vatra-group-panel="videos"'+(vatraGroupActiveTab==='videos'?'':' hidden')+'></div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-members" role="tabpanel" aria-labelledby="vatra-group-tab-members" data-vatra-group-panel="members"'+(vatraGroupActiveTab==='members'?'':' hidden')+'>'+memberTab+'</div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-about" role="tabpanel" aria-labelledby="vatra-group-tab-about" data-vatra-group-panel="about"'+(vatraGroupActiveTab==='about'?'':' hidden')+'>'+about+'</div>'+
    '</div>'+sidebar+'</div></section>',false);
   const moreGroupPosts=feed.querySelector('#vatraGroupPostLoadMore');
   if(moreGroupPosts){
@@ -2650,10 +2650,20 @@ function renderGroupDetails(id){
   const back=$('#backGroups');if(back)back.onclick=()=>goPage('groups');
   $$('.vatra-group-tabs [data-vatra-group-tab]').forEach(button=>button.addEventListener('click',()=>{
    vatraGroupActiveTab=button.dataset.vatraGroupTab;
-   $$('.vatra-group-tabs [data-vatra-group-tab]').forEach(el=>{const on=el===button;el.classList.toggle('is-active',on);el.setAttribute('aria-selected',String(on));});
+   $$('.vatra-group-tabs [data-vatra-group-tab]').forEach(el=>{const on=el===button;el.classList.toggle('is-active',on);el.setAttribute('aria-selected',String(on));el.tabIndex=on?0:-1;});
    $$('.vatra-group-tab-panel').forEach(el=>{el.hidden=el.dataset.vatraGroupPanel!==vatraGroupActiveTab;});
    if(vatraGroupActiveTab==='photos'||vatraGroupActiveTab==='videos')void vatraRenderCommunityGallery(id,vatraGroupActiveTab,v);
   }));
+  const groupTabList=feed.querySelector('.vatra-group-tabs');
+  groupTabList?.addEventListener('keydown',event=>{
+   if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+   const options=[...groupTabList.querySelectorAll('[data-vatra-group-tab]')];
+   const position=options.indexOf(document.activeElement);
+   if(position<0||!options.length)return;
+   event.preventDefault();
+   const next=event.key==='Home'?0:event.key==='End'?options.length-1:(position+(event.key==='ArrowRight'?1:-1)+options.length)%options.length;
+   options[next].focus();options[next].click();options[next].scrollIntoView({block:'nearest',inline:'nearest'});
+  });
   if(vatraGroupActiveTab==='photos'||vatraGroupActiveTab==='videos')void vatraRenderCommunityGallery(id,vatraGroupActiveTab,v);
   $('[data-vatra-group-jump-members]')?.addEventListener('click',()=>renderGroupMembersPage(id));
   $('#vatraOpenGroupComposer')?.addEventListener('click',()=>openComposer({groupId:id}));
@@ -3026,6 +3036,8 @@ function renderMessages(){
   }finally{submit.disabled=false;}
  };
 }
+const VATRA_CHAT_BATCH_SIZE=60;
+let vatraChatVisibleCount=VATRA_CHAT_BATCH_SIZE,vatraChatScrollRestore=null;
 let chatUnsub=null,chatBlockUnsub=null,groupDetailsUnsub=null,editingMessageId=null,replyingMessageId=null;
 function stopChatListener(){
  secureChatAttempt++;chatRenderToken++;activeSecureSession=null;secureAutoRetries=0;
@@ -3038,8 +3050,10 @@ async function renderChatBubbles(key){
  const el=$('#chatMessages'),uid=currentUser?.uid;
  if(!el||!uid||!activeChat||chatKey(uid,activeChat)!==key)return;
  const token=++chatRenderToken;
- const arr=Object.entries(chatMessages||{}).filter(([,m])=>m&&typeof m==='object').map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
- const html=await Promise.all(arr.map(async m=>{
+ const allMessages=Object.entries(chatMessages||{}).filter(([,m])=>m&&typeof m==='object').map(([id,m])=>({...m,id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+ const olderCount=Math.max(0,allMessages.length-vatraChatVisibleCount);
+ const visibleMessages=allMessages.slice(-vatraChatVisibleCount);
+ const html=await Promise.all(visibleMessages.map(async m=>{
   const mine=m.senderUid===uid,encrypted=!!m.encrypted;
   let textValue='',canRead=true;
   if(encrypted){
@@ -3062,13 +3076,23 @@ async function renderChatBubbles(key){
    '</div></div>';
  }));
  if(token!==chatRenderToken||!$('#chatMessages')||chatKey(currentUser.uid,activeChat)!==key)return;
- const keepChatAtEnd=!el.querySelector('[data-chat-message-id]')||(el.scrollHeight-el.clientHeight-el.scrollTop<=96);
+ const restore=vatraChatScrollRestore?.key===key?vatraChatScrollRestore:null;
+ const keepChatAtEnd=!restore&&(!el.querySelector('[data-chat-message-id]')||(el.scrollHeight-el.clientHeight-el.scrollTop<=96));
  const previousChatScroll=el.scrollTop;
- el.removeAttribute('aria-busy');el.innerHTML=html.join('')||'<div class="vatra-chat-first-message"><b>Розмова починається тут</b><p>Напишіть перше повідомлення.</p></div>';
- el.scrollTop=keepChatAtEnd?el.scrollHeight:previousChatScroll;
+ const more=olderCount?'<button type="button" class="vatra-chat-load-older" data-vatra-chat-load-older>Показати попередні повідомлення ('+olderCount+')</button>':'';
+ el.removeAttribute('aria-busy');
+ el.innerHTML=html.length?more+html.join(''):'<div class="vatra-chat-first-message"><b>Розмова починається тут</b><p>Напишіть перше повідомлення.</p></div>';
+ el.scrollTop=restore?Math.max(0,el.scrollHeight-restore.height+restore.top):keepChatAtEnd?el.scrollHeight:previousChatScroll;
+ if(restore)vatraChatScrollRestore=null;
+ el.querySelector('[data-vatra-chat-load-older]')?.addEventListener('click',()=>{
+  vatraChatScrollRestore={key,height:el.scrollHeight,top:el.scrollTop};
+  vatraChatVisibleCount+=VATRA_CHAT_BATCH_SIZE;
+  renderChatBubbles(key).catch(error=>console.error('[ВАТРА] Старі повідомлення не завантажені',error));
+ });
 }
 function startChatListener(key){
  stopChatListener();
+ vatraChatVisibleCount=VATRA_CHAT_BATCH_SIZE;vatraChatScrollRestore=null;
  chatMessages={};
  chatUnsub=watch('chats/'+key+'/messages',v=>{
   chatMessages=v||{};
