@@ -92,7 +92,7 @@ assert.ok(!legacyMedia.includes('.layout>.sidebar>nav>a.nav'),'Old media stylesh
 console.log('VATRA crisp card typography, actions, gifts and single navigation owner verified.');
 assert.ok(read('assets/styles/sources/branding/brand.css').includes('--vatra-brand-canvas:#f3f6fc'),'Main site must match the clear public page canvas');
 assert.ok(read('assets/styles/sources/branding/brand.css').includes('-webkit-font-smoothing:antialiased!important'),'Main site must not override its text smoothing to auto');
-assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('font-family:"VATRA Onest"'),'Local Onest must be bundled for all site routes');
+assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('--vatra-ui-font:"VATRA Onest"'),'Local Onest must be bundled for all site routes');
 console.log('VATRA font: 404/app typography unified through local Onest.');
 
 assert.ok(icons.includes('background:#e8f1ff!important'), 'The selected desktop nav must be visible in light mode');

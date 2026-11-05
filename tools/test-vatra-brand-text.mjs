@@ -16,7 +16,7 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes(wordmark)&&html.includes(icon),page+': mark or real VATRA text missing');
  assert.ok(html.includes('class="vatra-brand-values"'),page+': footer spacing structure missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': do not put text into a horizontal logo image');
- assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-onest-design2'),page+': shared compiled auth stylesheet missing');
+ assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-ui-foundation1'),page+': shared compiled auth stylesheet missing');
  assert.ok(authModules.includes('assets/styles/sources/branding/wordmark.css'),page+': shared text logo source missing');
  assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': unified VATRA UI must load after shared component styles');
