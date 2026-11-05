@@ -406,27 +406,26 @@ body .vatra-public-actions-dropdown button[data-remove-friend]{color:#a84455!imp
 
 
 
-body .vatra-fof-panel{min-width:0;margin:12px 0 16px!important;padding:15px!important;border:1px solid #e2e9f2!important;border-radius:14px!important;background:#fff!important}
+/* VATRA suggested friends: compact identity cards instead of large photo blocks. */
+body .vatra-fof-panel{min-width:0;margin:12px 0 16px!important;padding:16px!important;border:1px solid #e0e8f3!important;border-radius:17px!important;background:#fff!important;box-shadow:0 2px 12px #102e5509}
 body .vatra-fof-panel[hidden]{display:none!important}
-body .vatra-fof-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
-body .vatra-fof-heading>div{display:flex;align-items:center;gap:8px}
-body .vatra-fof-heading h2{font-size:15px!important;font-weight:750!important;margin:0!important;color:#273e57!important}
-body .vatra-fof-icon{width:29px;height:29px;display:grid;place-items:center;color:#5783b5}
-body .vatra-fof-icon svg{width:23px;height:23px}
-body .vatra-fof-heading>button{background:transparent;border:0;color:#2764ad;font-size:12px;font-weight:700;cursor:pointer}
-body .vatra-fof-track{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(140px,1fr);gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:1px 1px 7px}
-body .vatra-fof-card{position:relative;scroll-snap-align:start;min-width:140px;border:1px solid #e0e8f1;border-radius:12px;background:#fff;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 4px #25466d0d}
-body .vatra-fof-photo{border:0;display:block;width:100%;height:140px;padding:0;background:#ecf3fa;cursor:pointer;overflow:hidden}
-body .vatra-fof-photo>.avatar{width:100%!important;height:100%!important;border:0!important;border-radius:0!important;font-size:28px!important}
-body .vatra-fof-photo img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
-body .vatra-fof-photo:hover img{transform:scale(1.045)}
-body .vatra-fof-name{font-size:12px;font-weight:730;color:#274660;text-align:left;padding:10px 10px 2px;border:0;background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
-body .vatra-fof-card>small{font-size:10px;color:#8193a7;padding:0 10px 10px}
-body .vatra-fof-add{margin:auto 9px 10px!important;min-height:33px!important;border:1px solid #cfe0f7!important;border-radius:8px!important;background:#eaf3ff!important;color:#1559b7!important;font-weight:700!important;font-size:11px!important;cursor:pointer}
-body .vatra-fof-add:hover{background:#deebfd!important}
-body .vatra-fof-dismiss{position:absolute!important;top:6px;right:6px;z-index:3;width:27px;height:27px;border:1px solid #fff4;border-radius:50%;background:#1b2f4d8c;color:#fff;font-size:19px;line-height:1;cursor:pointer}
-@media(max-width:650px){body .vatra-fof-track{grid-auto-columns:155px}body .vatra-fof-panel{padding:11px!important}}
-
+body .vatra-fof-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+body .vatra-fof-heading>div{display:flex;align-items:center;gap:10px}
+body .vatra-fof-heading h2{font-size:15px!important;font-weight:750!important;margin:0!important;color:#233b5a!important}
+body .vatra-fof-icon{width:34px;height:34px;display:grid;place-items:center;color:#0757f5;background:#eaf3ff;border-radius:11px}
+body .vatra-fof-icon svg{width:19px;height:19px}
+body .vatra-fof-heading>button{background:#f1f6ff;border:0;border-radius:8px;color:#0757f5;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer}
+body .vatra-fof-track{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(155px,1fr);gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 1px 8px;scrollbar-width:thin;scrollbar-color:#b7c8e2 transparent}
+body .vatra-fof-card{position:relative;scroll-snap-align:start;min-width:152px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:15px 11px 11px;border:1px solid #e2e9f4;border-radius:13px;background:#f8faff;box-shadow:none}
+body .vatra-fof-photo{display:grid;place-items:center;width:66px;height:66px;padding:0;border:0;border-radius:50%;background:#e4efff;cursor:pointer;overflow:hidden}
+body .vatra-fof-photo>.avatar{width:66px!important;height:66px!important;border-radius:50%!important;border:3px solid #fff!important;font-size:25px!important}
+body .vatra-fof-photo img{width:100%;height:100%;object-fit:cover}
+body .vatra-fof-name{width:100%;font-size:12px;font-weight:750;color:#233c5a;text-align:center;padding:7px 2px 0;border:0;background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+body .vatra-fof-card>small{font-size:10px;color:#7489a5;padding:0 0 8px;text-align:center}
+body .vatra-fof-add{width:100%!important;margin:auto 0 0!important;min-height:34px!important;border:1px solid #bdd5fa!important;border-radius:9px!important;background:#e8f1ff!important;color:#0757f5!important;font-weight:730!important;font-size:11px!important;cursor:pointer}
+body .vatra-fof-add:hover{background:#d8e8ff!important}
+body .vatra-fof-dismiss{position:absolute!important;top:6px;right:6px;z-index:3;width:25px;height:25px;border:0;border-radius:50%;background:#eaf0f8;color:#667f9e;font-size:18px;line-height:1;cursor:pointer}
+@media(max-width:650px){body .vatra-fof-track{grid-auto-columns:150px}body .vatra-fof-panel{padding:12px!important}}
 
 body .vatra-birthday-notification{display:flex!important;align-items:center!important;gap:11px!important;min-width:0}
 body .vatra-birthday-notification>.avatar{flex:0 0 40px}
