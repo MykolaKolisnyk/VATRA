@@ -13,15 +13,15 @@ const uiRefs=[
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-brand-single-source1'),page+': consolidated CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-layout-quiz2'),page+': consolidated CSS missing');
  assert.equal((html.match(/href="vatra-auth-unified\.css\?/g)||[]).length,1,page+': duplicated unified styles');
  assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared logo CSS missing');
  assert.equal((html.match(/href="vatra-brand-text\.css\?/g)||[]).length,1,page+': duplicate logo CSS');
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
- assert.ok(html.includes('vatra-language.js?v=20261105-language-order1'),page+': stale translation JS');
- assert.ok(html.includes('auth.js?v=20261105-auth-scroll1'),page+': stale auth script');
+ assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
+ assert.ok(html.includes('auth.js?v=20261105-layout-quiz2'),page+': stale auth script');
  assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': canonical auth styles must load last');
 }
@@ -43,12 +43,12 @@ assert.ok(css.includes('html body dialog#recoveryDialog.auth-dialog #recoveryFor
 assert.ok(css.includes('html body #recoveryDialog .vatra-recovery-head{')&&
  css.includes('flex:0 0 auto!important'),
  'Recovery header must be fixed when scrolling the white content');
-assert.ok(lang.includes("Number(b[0]==='uk')-Number(a[0]==='uk')"),
+assert.ok(lang.includes("const vatraPrimaryLanguageOrder=['uk','en','pl','de','es','fr','it','pt']"),
  'Ukrainian must always sort first in the main language dialog');
 assert.ok(lang.includes("const codes=languages.filter(([code])=>shortcutCodes.has(code)).map(([code])=>code);"),
  'Quick language strip must follow the full language picker rather than selection history');
 assert.ok(!lang.includes("new Set([language,'uk','en','pl','de'])"),
  'Old selection-dependent order unexpectedly remains');
-assert.ok(read('index.html').includes('vatra-language.js?v=20261105-language-order1'),
+assert.ok(read('index.html').includes('vatra-language.js?v=20261105-layout-quiz2'),
  'Main site must load the same language order');
 console.log('VATRA: fixed language order, no blank form scroll, inset recovery scrollbar, one auth stylesheet.');
