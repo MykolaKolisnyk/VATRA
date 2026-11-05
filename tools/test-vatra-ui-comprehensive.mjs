@@ -12,6 +12,8 @@ const main=read('assets/scripts/app/main.js');
 assert.ok(fonts.includes('--vatra-radius-card:13px')&&fonts.includes('--vatra-control-height:38px'),'Shared design tokens must exist');
 assert.ok(fonts.includes('--vatra-ui-font:"VATRA Onest"'),'Onest must be primary');
 assert.ok(group.includes('flex-wrap:nowrap;white-space:nowrap'),'Community tabs must not wrap');
+assert.ok(group.includes('body .vatra-group-tab-panel[hidden]{display:none!important;}'),'Inactive community tabs must actually be hidden');
+assert.ok(main.includes('role="tabpanel" tabindex="0"'),'Community panels must be keyboard focusable');
 assert.ok(editor.includes('position:sticky!important;bottom:12px!important'),'Profile editor Save must be reachable');
 assert.ok(settings.includes('grid-template-columns:minmax(175px,198px) minmax(0,1fr)!important'),'Settings navigation must be compact');
 assert.ok(settings.includes('min-height:40px!important;padding:8px 10px!important'),'Settings rows must not be oversized');

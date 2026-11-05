@@ -2622,11 +2622,11 @@ function renderGroupDetails(id){
   setFeed('<section class="vatra-group-view'+(canManage?' is-manager':' is-visitor')+'">'+intro+
    '<div class="vatra-group-content-grid"><div class="vatra-group-main">'+
    '<nav class="vatra-group-tabs" role="tablist" aria-label="Розділи спільноти">'+tab('posts','Дописи')+tab('photos','Фото')+tab('videos','Відео')+(canSeeMembers?tab('members','Учасники'):'')+tab('about','Інформація')+'</nav>'+
-   '<div class="vatra-group-tab-panel" id="vatra-group-panel-posts" role="tabpanel" aria-labelledby="vatra-group-tab-posts" data-vatra-group-panel="posts"'+(vatraGroupActiveTab==='posts'?'':' hidden')+'>'+composer+postsMarkup+'</div>'+
-   '<div class="vatra-group-tab-panel" id="vatra-group-panel-photos" role="tabpanel" aria-labelledby="vatra-group-tab-photos" data-vatra-group-panel="photos"'+(vatraGroupActiveTab==='photos'?'':' hidden')+'></div>'+
-   '<div class="vatra-group-tab-panel" id="vatra-group-panel-videos" role="tabpanel" aria-labelledby="vatra-group-tab-videos" data-vatra-group-panel="videos"'+(vatraGroupActiveTab==='videos'?'':' hidden')+'></div>'+
-   '<div class="vatra-group-tab-panel" id="vatra-group-panel-members" role="tabpanel" aria-labelledby="vatra-group-tab-members" data-vatra-group-panel="members"'+(vatraGroupActiveTab==='members'?'':' hidden')+'>'+memberTab+'</div>'+
-   '<div class="vatra-group-tab-panel" id="vatra-group-panel-about" role="tabpanel" aria-labelledby="vatra-group-tab-about" data-vatra-group-panel="about"'+(vatraGroupActiveTab==='about'?'':' hidden')+'>'+about+'</div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-posts" role="tabpanel" tabindex="0" aria-labelledby="vatra-group-tab-posts" data-vatra-group-panel="posts"'+(vatraGroupActiveTab==='posts'?'':' hidden')+'>'+composer+postsMarkup+'</div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-photos" role="tabpanel" tabindex="0" aria-labelledby="vatra-group-tab-photos" data-vatra-group-panel="photos"'+(vatraGroupActiveTab==='photos'?'':' hidden')+'></div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-videos" role="tabpanel" tabindex="0" aria-labelledby="vatra-group-tab-videos" data-vatra-group-panel="videos"'+(vatraGroupActiveTab==='videos'?'':' hidden')+'></div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-members" role="tabpanel" tabindex="0" aria-labelledby="vatra-group-tab-members" data-vatra-group-panel="members"'+(vatraGroupActiveTab==='members'?'':' hidden')+'>'+memberTab+'</div>'+
+   '<div class="vatra-group-tab-panel" id="vatra-group-panel-about" role="tabpanel" tabindex="0" aria-labelledby="vatra-group-tab-about" data-vatra-group-panel="about"'+(vatraGroupActiveTab==='about'?'':' hidden')+'>'+about+'</div>'+
    '</div>'+sidebar+'</div></section>',false);
   const moreGroupPosts=feed.querySelector('#vatraGroupPostLoadMore');
   if(moreGroupPosts){
