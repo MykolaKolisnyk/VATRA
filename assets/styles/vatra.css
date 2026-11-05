@@ -12598,19 +12598,7 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header
 
 
 /* ORIGINAL FILE: assets/styles/sources/layout/navigation-profile.css. Keep order from index.html. */
-
-
-body .layout>.sidebar nav button.nav,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav{width:100%!important;margin:0 0 2px!important;transform:none!important;box-shadow:none!important;border-radius:9px!important;background:transparent!important;color:#566b82!important;transition:color .15s,background .15s!important}
-body .layout>.sidebar nav button.nav:hover,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav:hover{transform:none!important;box-shadow:none!important;background:#e7ebf0!important;color:#344c68!important}
-body .layout>.sidebar nav button.nav .nav-icon,body .layout>.sidebar nav button.nav:hover .nav-icon{transform:none!important}
-body .layout>.sidebar nav button.nav.active,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav.active{transform:none!important;box-shadow:none!important;color:#245a9a!important;background:#e7eef8!important;font-weight:600!important}
-body .layout>.sidebar nav button.nav.active::before{top:9px!important;bottom:9px!important;width:3px!important;background:#4d80be!important}
-body .layout>.sidebar nav button.nav.active:hover{transform:none!important;background:#e4eaf3!important}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav:hover{background:#344457!important;color:#d4e0ed!important}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav.active{background:#344a60!important;color:#c3dafa!important}
+/* Desktop navigation is owned by foundation/icons.css. */
 
 body .post:focus,body .post:focus-within,body .vatra-profile-card:focus,body .vatra-profile-card:focus-within{outline:none!important}
 body :is(button,a,summary,[role="button"],[tabindex]):focus:not(:focus-visible){outline:0!important}
@@ -12670,7 +12658,6 @@ body[data-page="messages"] .vatra-messenger-empty{min-height:0!important;height:
  body[data-page="messages"] .vatra-messenger-shell>.chat-window #sendMessageForm{margin:0 8px 9px!important;min-height:54px!important}
  body[data-page="messages"] .vatra-messenger-shell>.vatra-messenger-sidebar{min-height:0!important;height:100%!important}
 }
-@media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav{transition:none!important}}
 
 
 
@@ -16347,17 +16334,7 @@ body .vatra-ban-load-error button{
 
 
 /* ORIGINAL FILE: assets/styles/sources/layout/interface-corrections.css. Keep order from index.html. */
-
-body .layout>.sidebar nav button.nav.active::before,
-body .layout>.sidebar nav button.nav.active::after,
-body .layout>.sidebar nav .nav.active::before,
-body .layout>.sidebar nav .nav.active::after{
-  content:none!important;display:none!important;width:0!important;opacity:0!important;
-}
-body .layout>.sidebar nav button.nav.active,
-body .layout>.sidebar nav .nav.active{
-  border-left:0!important;box-shadow:none!important;outline:0!important;
-}
+/* Sidebar active styles are owned by foundation/icons.css. */
 body .vatra-global-header>#accountDropdown>button.vatra-account-item,
 body .vatra-global-header>#accountDropdown>button.vatra-account-item>span:last-child{
   font:580 13px/1.45 Inter,system-ui,sans-serif!important;
@@ -16451,14 +16428,6 @@ body .vatra-control-card.vatra-policy-section li{padding:4px 0!important}
   dialog.vatra-staff-policy-dialog .vatra-staff-policy-content{padding:0 16px 20px!important}
 }
 
-
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav a.nav.active,
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav a.nav.active,
-body .layout>.sidebar nav .nav.active{
-  box-shadow:none!important;border-left:0!important;outline:none!important;
-}
-body .layout>.sidebar nav a.nav.active::before,
-body .layout>.sidebar nav a.nav.active::after{display:none!important;content:none!important;}
 
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"],
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"] span:last-child{
@@ -21847,17 +21816,7 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
  html body .vatra-global-header .search input{font-size:16px!important;}
 }
 
-/* VATRA sidebar navigation: compact, single intentional divider before utilities. */
-@media(min-width:761px){
- html body .layout>.sidebar nav{gap:0!important}
- html body .layout>.sidebar nav>a.nav{min-height:34px!important;margin:0!important;padding:4px 9px!important;gap:8px!important;font-size:12.5px!important;border-radius:9px!important}
- html body .layout>.sidebar nav>a.nav .nav-icon{width:19px!important;flex-basis:19px!important}
- html body .layout>.sidebar nav>a.nav .nav-icon svg{width:18px!important;height:18px!important}
- html body .layout>.sidebar nav>a.vatra-nav-section-start{
-  margin-top:10px!important;padding-top:15px!important;
-  border-top:1px solid var(--vatra-ui-border-soft)!important;border-radius:0 0 9px 9px!important;
- }
-}
+/* Desktop sidebar dimensions and icon hierarchy live in foundation/icons.css. */
 .vatra-birthday-compose{
  width:min(480px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 40px);margin:auto;
  padding:24px;border-radius:20px;border:1px solid #dfe7f2;background:#fff;color:#203952;

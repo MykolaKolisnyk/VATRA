@@ -1,16 +1,4 @@
-
-
-body .layout>.sidebar nav button.nav,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav{width:100%!important;margin:0 0 2px!important;transform:none!important;box-shadow:none!important;border-radius:9px!important;background:transparent!important;color:#566b82!important;transition:color .15s,background .15s!important}
-body .layout>.sidebar nav button.nav:hover,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav:hover{transform:none!important;box-shadow:none!important;background:#e7ebf0!important;color:#344c68!important}
-body .layout>.sidebar nav button.nav .nav-icon,body .layout>.sidebar nav button.nav:hover .nav-icon{transform:none!important}
-body .layout>.sidebar nav button.nav.active,
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav button.nav.active{transform:none!important;box-shadow:none!important;color:#245a9a!important;background:#e7eef8!important;font-weight:600!important}
-body .layout>.sidebar nav button.nav.active::before{top:9px!important;bottom:9px!important;width:3px!important;background:#4d80be!important}
-body .layout>.sidebar nav button.nav.active:hover{transform:none!important;background:#e4eaf3!important}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav:hover{background:#344457!important;color:#d4e0ed!important}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav button.nav.active{background:#344a60!important;color:#c3dafa!important}
+/* Desktop navigation is owned by foundation/icons.css. */
 
 body .post:focus,body .post:focus-within,body .vatra-profile-card:focus,body .vatra-profile-card:focus-within{outline:none!important}
 body :is(button,a,summary,[role="button"],[tabindex]):focus:not(:focus-visible){outline:0!important}
@@ -70,7 +58,6 @@ body[data-page="messages"] .vatra-messenger-empty{min-height:0!important;height:
  body[data-page="messages"] .vatra-messenger-shell>.chat-window #sendMessageForm{margin:0 8px 9px!important;min-height:54px!important}
  body[data-page="messages"] .vatra-messenger-shell>.vatra-messenger-sidebar{min-height:0!important;height:100%!important}
 }
-@media(prefers-reduced-motion:reduce){body .layout>.sidebar nav button.nav{transition:none!important}}
 
 
 

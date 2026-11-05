@@ -23,7 +23,7 @@ const stylesheetLoaded=name=>main.includes('assets/styles/vatra.css?v=')&&vatraS
 const scriptText=readFileSync('assets/scripts/app/main.js','utf8');
 const giftText=readFileSync('assets/scripts/gifts/gifts.js','utf8');
 const sql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
-const styling=readFileSync('assets/styles/sources/layout/interface-corrections.css','utf8');
+const styling=readFileSync('assets/styles/sources/foundation/icons.css','utf8');
 for(const [label,test] of [
  ['Gifts restored in sidebar',/data-page="gifts"/.test(main)],
  ['Photos in sidebar',/data-page="photos"/.test(main)],
@@ -36,7 +36,7 @@ for(const [label,test] of [
  ['Gifts stylesheet',stylesheetLoaded('assets/styles/sources/gifts/catalog.css')],
  ['Gifts page handling',scriptText.includes("if(page==='gifts'){")],
  ['Visible delete comment',scriptText.includes('class="vatra-comment-delete"')],
- ['No blue bar',styling.includes('nav a.nav.active::before')],
+ ['No blue bar',styling.includes('background:transparent!important;color:#24354b!important;')&&!styling.includes('box-shadow:inset 3px 0 0 var(--vatra-blue)!important')],
  ['Server-only gift transfer',/vatra_gifts_send\(_item_id uuid,\s*_recipient uuid\)/.test(sql)],
  ['Server-only gift issue',/REVOKE ALL ON TABLE public\."vatra_gift_catalog"/.test(sql)],
  ['Holiday gift claims',sql.includes('vatra_gifts_claim_holiday')],

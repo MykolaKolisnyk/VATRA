@@ -1,14 +1,4 @@
-
-body .layout>.sidebar nav button.nav.active::before,
-body .layout>.sidebar nav button.nav.active::after,
-body .layout>.sidebar nav .nav.active::before,
-body .layout>.sidebar nav .nav.active::after{
-  content:none!important;display:none!important;width:0!important;opacity:0!important;
-}
-body .layout>.sidebar nav button.nav.active,
-body .layout>.sidebar nav .nav.active{
-  border-left:0!important;box-shadow:none!important;outline:0!important;
-}
+/* Sidebar active styles are owned by foundation/icons.css. */
 body .vatra-global-header>#accountDropdown>button.vatra-account-item,
 body .vatra-global-header>#accountDropdown>button.vatra-account-item>span:last-child{
   font:580 13px/1.45 Inter,system-ui,sans-serif!important;
@@ -102,14 +92,6 @@ body .vatra-control-card.vatra-policy-section li{padding:4px 0!important}
   dialog.vatra-staff-policy-dialog .vatra-staff-policy-content{padding:0 16px 20px!important}
 }
 
-
-body:not([data-vatra-theme-effective="dark"]) .layout>.sidebar nav a.nav.active,
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav a.nav.active,
-body .layout>.sidebar nav .nav.active{
-  box-shadow:none!important;border-left:0!important;outline:none!important;
-}
-body .layout>.sidebar nav a.nav.active::before,
-body .layout>.sidebar nav a.nav.active::after{display:none!important;content:none!important;}
 
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"],
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"] span:last-child{

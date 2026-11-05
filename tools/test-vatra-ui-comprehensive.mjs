@@ -16,4 +16,6 @@ assert.ok(settings.includes('min-height:40px!important;padding:8px 10px!importan
 assert.ok(settings.includes('background:transparent!important;'),'Settings introduction must not be another large card');
 assert.ok(ads.includes('[data-page="messages"]')&&ads.includes('display:none!important'),'No ads around conversations');
 assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&css.includes('box-shadow:none!important;'),'Selected sidebar must remain visually neutral');
+assert.ok(!read('assets/styles/sources/layout/navigation-profile.css').includes('sidebar nav button.nav.active'),'Legacy button nav rules must be removed');
+assert.ok(!read('assets/styles/sources/layout/interface-corrections.css').includes('sidebar nav a.nav.active'),'Legacy active sidebar overrides must be removed');
 console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');
