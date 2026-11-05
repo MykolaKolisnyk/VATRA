@@ -21,7 +21,7 @@ for(const page of ['auth.html','register.html']){
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
- assert.ok(html.includes('assets/scripts/i18n/language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
+ assert.ok(html.includes('assets/scripts/i18n/language.js?v=20261105-no-clips1'),page+': stale translation JS');
  assert.ok(html.includes('assets/scripts/auth/auth.js?v=20261105-media-handle1'),page+': stale auth script');
  assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': canonical auth styles must load last');
@@ -50,7 +50,7 @@ assert.ok(lang.includes('function vatraAuthRecentCodes()')&&lang.includes('const
  'Quick language strip must show the last four chosen languages');
 assert.ok(!lang.includes("new Set([language,'uk','en','pl','de'])"),
  'Old selection-dependent order unexpectedly remains');
-assert.ok(read('index.html').includes('assets/scripts/i18n/language.js?v=20261105-layout-quiz2'),
+assert.ok(read('index.html').includes('assets/scripts/i18n/language.js?v=20261105-no-clips1'),
  'Main site must load the same language order');
 
 assert.ok(css.includes('html body .auth-layout .vatra-auth-language-flag svg'),
