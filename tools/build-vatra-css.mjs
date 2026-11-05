@@ -14,7 +14,7 @@ const parts=manifest.files.map(file=>{
  seen.add(file);
  const raw=readFileSync(resolve(root,file),'utf8');
  if(/@import\s/i.test(raw))throw new Error('CSS @import must be moved before bundling: '+file);
- return '/* ORIGINAL FILE: '+file+'. Keep order from manifest.json. */\n'+rewriteUrls(raw)+'\n';
+ return '/* ORIGINAL FILE: '+file+'. Keep order from index.html. */\n'+rewriteUrls(raw)+'\n';
 });
 const target=resolve(root,'assets/styles/vatra.css');
 mkdirSync(dirname(target),{recursive:true});
