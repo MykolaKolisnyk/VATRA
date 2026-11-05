@@ -1495,6 +1495,20 @@ document.addEventListener('click',event=>{
  box.querySelectorAll('video').forEach(v=>v.pause());vatraShiftProfileGallery(box,state);
 },true);
 window.addEventListener('resize',()=>document.querySelectorAll('[data-vatra-gallery-carousel]').forEach(box=>vatraShiftProfileGallery(box,vatraProfileGalleryCache.get(box.dataset.vatraGalleryCarousel))));
+async function vatraUploadProfileVideo(event){
+ const file=event.target.files?.[0];event.target.value='';
+ if(!file||!currentUser||!authRequired())return;
+ if(!/^video\/(mp4|webm|quicktime)$/.test(file.type)||file.size>MAX_VIDEO){toastMsg('Оберіть відео MP4, WebM або MOV до 50 МБ.');return;}
+ const button=$('#profileAddPhoto');if(button)button.disabled=true;
+ try{
+  const videoUrl=await uploadMedia(file,'videos'),now=Date.now();
+  await createPost(push(ref(db,'posts')),{authorUid:currentUser.uid,authorName:currentProfile.name||'Користувач ВАТРИ',
+   authorHandle:currentProfile.handle||'',authorAvatar:currentProfile.avatarUrl||'',text:'',
+   videoUrl,visibility:'public',addMediaToGallery:true,createdAt:now,updatedAt:now});
+  toastMsg('Відео додано до Вашої сторінки.');
+ }catch(error){toastMsg('Не вдалося додати відео: '+niceError(error));}
+ finally{if(button)button.disabled=false;}
+}
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити сторінку</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -1549,7 +1563,7 @@ function renderProfile(){
     vatraProfileMainFacts({gender:vatraGenderLabel(currentProfile.gender),city:currentProfile.city,workplace:currentProfile.workplace,education:currentProfile.education,birthday,location:currentProfile.location,hometown:currentProfile.hometown,phone:currentProfile.phone||privatePhone||currentProfile.pendingPhone||privatePendingPhone,website:currentProfile.website},selfExtras,uid,'vatraProfileMoreSelf')+
     (currentProfile.pendingPhone&&!privatePhone?'<p class="vatra-profile-pending-phone">Номер очікує підтвердження. Доступний лише Вам.</p>':'')+
    '</section>'+
-   '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Мої фотографії <span>'+gallery.length+'</span></h3><a class="vatra-profile-link" id="profileViewPhotos" href="#/photos">Усі фото</a><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden></div>'+galleryHtml+'</section>'+
+   '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Медіа сторінки</h3><a class="vatra-profile-link" id="profileViewPhotos" href="#/photos">Усі фото</a><button type="button" class="vatra-profile-link" id="profileAddPhoto">＋ Додати фото</button><input id="profilePhotoUpload" type="file" accept="image/*" multiple hidden><input id="profileVideoUpload" type="file" accept="video/mp4,video/webm,video/quicktime" hidden></div>'+galleryHtml+'</section>'+
    '<section class="vatra-profile-card vatra-profile-compose"><button type="button" class="vatra-profile-compose-trigger" id="profilePrompt">'+avatar(name,currentProfile.avatarUrl,'vatra-profile-compose-avatar')+'<span>Що у Вас нового?</span><b>＋</b></button></section>'+
    '<section class="vatra-profile-posts vatra-profile-posts-clean" id="vatraProfilePosts"><div class="vatra-profile-post-tabs"><div class="vatra-profile-posts-title"><h3>Мої дописи</h3><span>'+mine.length+'</span></div><button type="button" class="vatra-profile-new-post" id="profileCreatePost">＋ Створити допис</button></div>'+
     (mine.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><h3>Поки немає дописів</h3><p class="muted">Ваші записи з’являться тут. Поділіться першою історією у ВАТРІ.</p><button type="button" class="primary" id="profileFirstPost">Створити допис</button></article>')+
@@ -1557,6 +1571,7 @@ function renderProfile(){
   '</div>'+
  '</section>';
  setFeed(profileHtml,false);
+ vatraSyncProfileMediaHead();
  requestAnimationFrame(vatraSyncBioToggles);
  $('#editProfile')?.addEventListener('click',editProfile);
  $('#profileStatusEdit')?.addEventListener('click',editProfileStatus);
@@ -1565,10 +1580,11 @@ function renderProfile(){
  $('#profileCreatePost')?.addEventListener('click',openComposer);
  $('#profilePrompt')?.addEventListener('click',openComposer);
  $('#profileFirstPost')?.addEventListener('click',openComposer);
- $('#profileViewPhotos')?.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.button!==0)return;event.preventDefault();goPage('photos');});
+ $('#profileViewPhotos')?.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.button!==0)return;event.preventDefault();goPage(feed.querySelector('.vatra-profile-photos .vatra-media-tab.is-active')?.dataset.vatraGalleryKind==='videos'?'myVideos':'photos');});
  $('#profileOpenAllPhotos')?.addEventListener('click',event=>{if(event.ctrlKey||event.metaKey||event.shiftKey||event.button!==0)return;event.preventDefault();goPage('photos');});
- $('#profileAddPhoto')?.addEventListener('click',()=>{if(authRequired())$('#profilePhotoUpload')?.click();});
+ $('#profileAddPhoto')?.addEventListener('click',()=>{if(!authRequired())return;const videos=feed.querySelector('.vatra-profile-photos .vatra-media-tab.is-active')?.dataset.vatraGalleryKind==='videos';$(videos?'#profileVideoUpload':'#profilePhotoUpload')?.click();});
  $('#profilePhotoUpload')?.addEventListener('change',uploadProfilePhoto);
+ $('#profileVideoUpload')?.addEventListener('change',vatraUploadProfileVideo);
 }
 function vatraExploreIcon(name){
  const paths={
@@ -1830,11 +1846,17 @@ function renderPublicProfile(uid){
     (visibleBio?profileBioMarkup(visibleBio):'')+
     vatraProfileMainFacts({gender:vatraGenderLabel(u.gender),city,workplace,education,birthday:birthdayLabel,location,hometown,phone,website:visibleWebsite},publicExtras,uid,'vatraProfileMorePublic')+
    '</section>'+
-   '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Фотографії <span>'+photoUrls.length+'</span></h3></div>'+publicAlbumMarkup+photoHtml+'</section>'+
+   '<section class="vatra-profile-card vatra-profile-photos"><div class="vatra-profile-card-head"><h3>Медіа сторінки</h3><button type="button" class="vatra-profile-link" id="vatraPublicOpenAllMedia">Усі фото</button></div>'+publicAlbumMarkup+photoHtml+'</section>'+
    '<section class="vatra-profile-posts vatra-profile-posts-clean" id="vatraProfilePosts"><div class="vatra-profile-post-tabs"><div class="vatra-profile-posts-title"><h3>Дописи</h3><span>'+arr.length+'</span></div></div>'+(arr.map(postCard).join('')||'<article class="post vatra-profile-empty-post"><h3>Поки немає дописів</h3><p class="muted">Цей користувач ще нічого не опублікував.</p></article>')+'</section>'+
   '</div>'+
  '</section>';
  setFeed(html,false);
+ vatraSyncProfileMediaHead();
+ $('#vatraPublicOpenAllMedia')?.addEventListener('click',()=>{
+  const kind=feed.querySelector('.vatra-profile-photos .vatra-media-tab.is-active')?.dataset.vatraGalleryKind;
+  if(kind==='videos')feed.querySelector('.vatra-profile-video-tile video')?.focus();
+  else void openAvatarViewer(uid,photoUrls,0);
+ });
  requestAnimationFrame(vatraSyncBioToggles);
  window.vatraRouteChanged?.({page:'publicProfile',id:uid});
  loadPublicFriends(uid);
