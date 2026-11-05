@@ -29,7 +29,7 @@ body .mobile-nav :is(button,a),
 body .mobile-nav :is(button,a).active{
  background:transparent!important;
  box-shadow:none!important;
- font-weight:600!important;
+ font-weight:500!important;
 }
 body .mobile-nav :is(button,a):hover{
  background:rgba(224,235,251,.52)!important;

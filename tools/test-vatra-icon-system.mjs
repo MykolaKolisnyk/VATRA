@@ -5,6 +5,8 @@ const html=readFileSync('index.html','utf8');
 const sprite=readFileSync('assets/scripts/ui/icons.js','utf8');
 const navigation=readFileSync('assets/scripts/navigation/state.js','utf8');
 const css=readFileSync('assets/styles/sources/foundation/icons.css','utf8');
+assert.ok(css.includes('font-size:14px!important;font-weight:500!important'),'Navigation labels must use regular-weight Onest');
+assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&!css.includes('box-shadow:inset 3px 0 0 var(--vatra-blue)!important'),'Active route must not show a blue selection bar');
 const defs=sprite.match(/const GLYPHS=(\{[\s\S]+?\});\s*const ALIASES=/);
 assert.ok(defs,'Central SVG definitions not found');
 const glyphs=JSON.parse(defs[1]);

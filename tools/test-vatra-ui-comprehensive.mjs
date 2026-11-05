@@ -13,5 +13,5 @@ assert.ok(group.includes('flex-wrap:nowrap;white-space:nowrap'),'Community tabs 
 assert.ok(editor.includes('position:sticky!important;bottom:12px!important'),'Profile editor Save must be reachable');
 assert.ok(settings.includes('minmax(175px,198px)'),'Settings navigation must be compact');
 assert.ok(ads.includes('[data-page="messages"]')&&ads.includes('display:none!important'),'No ads around conversations');
-assert.ok(css.includes('background-color:var(--vatra-blue-soft)!important'),'Selected sidebar uses palette token');
+assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&css.includes('box-shadow:none!important;'),'Selected sidebar must remain visually neutral');
 console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');
