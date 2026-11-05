@@ -322,30 +322,8 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-detail button.vatra-profi
 }
 
 
-/* Restored VATRA left-hand page-up action. Hidden until there is real scroll. */
-html body #vatraScrollToTop[hidden]{display:none!important}
-html body #vatraScrollToTop.vatra-scroll-to-top{
- position:fixed!important;z-index:800!important;left:20px!important;bottom:24px!important;
- display:grid!important;place-items:center!important;
- box-sizing:border-box!important;width:43px!important;height:43px!important;
- padding:0!important;border:1px solid #c8daf4!important;border-radius:13px!important;
- background:#fff!important;color:#0757f5!important;
- box-shadow:0 10px 24px rgba(9,41,100,.16)!important;
- cursor:pointer!important;transition:transform .15s ease,background .15s ease!important;
-}
-html body #vatraScrollToTop.vatra-scroll-to-top:hover{
- background:#eaf2ff!important;transform:translateY(-2px)!important;
-}
-html body #vatraScrollToTop.vatra-scroll-to-top:focus-visible{
- outline:3px solid #78a9ff!important;outline-offset:2px!important;
-}
-html body #vatraScrollToTop.vatra-scroll-to-top svg{display:block!important}
-@media(max-width:850px){
- html body #vatraScrollToTop.vatra-scroll-to-top{left:12px!important;bottom:calc(77px + env(safe-area-inset-bottom,0px))!important;width:42px!important;height:42px!important;}
-}
-@media(prefers-reduced-motion:reduce){
- html body #vatraScrollToTop.vatra-scroll-to-top{transition:none!important;transform:none!important}
-}
+/* Use the original VK-style full-height scroll rail from vatra-pages.css;
+   the competing floating button from this sheet was removed. */
 
 /* Progressive rendering: the news feed reveals additional post cards near the viewport. */
 .vatra-feed-more{display:flex;align-items:center;justify-content:center;padding:16px 12px 24px;min-height:68px}
