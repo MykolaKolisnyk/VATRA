@@ -14,6 +14,9 @@ body .vatra-chat-quoted{
  color:inherit;cursor:pointer;box-shadow:none!important;
  font:500 12px/1.4 Inter,system-ui,sans-serif
 }
+body .vatra-chat-quoted:is(:hover,:focus-visible){background:rgba(67,111,172,.14)!important;border-left-color:#467fc0!important}
+body .vatra-chat-quoted:focus-visible,body .vatra-chat-reply-preview button:focus-visible{outline:2px solid #7aa7ef!important;outline-offset:2px!important}
+body .vatra-chat-reply-preview button:hover{background:#e2eaf5!important;color:#2a5a90!important;border-radius:7px}
 body .vatra-chat-quoted b{font-size:12px}
 body .vatra-chat-quoted span{display:block;width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
 body .vatra-chat-message-row.is-referenced .message-bubble{outline:2px solid #8498ac!important;outline-offset:3px;transition:outline-color .25s}
@@ -25,3 +28,6 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-reply-
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-quoted{background:#2b4563!important;border-color:#536f8f!important;color:#eef5ff!important}
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-quoted span{color:#c3d3e7!important;opacity:1!important}
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-message-row.is-referenced .message-bubble{outline-color:#8eb9fa!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-reply-preview button{color:#d5e6ff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-reply-preview button:hover{background:#405b7a!important;color:#fff!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-quoted:is(:hover,:focus-visible){background:#385474!important;border-left-color:#9bc1fa!important}

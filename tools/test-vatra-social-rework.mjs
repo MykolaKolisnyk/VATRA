@@ -82,3 +82,21 @@ assert.ok(js.includes('el.scrollTop=keepChatAtEnd?el.scrollHeight:previousChatSc
 assert.ok(js.includes('textarea[name="comment"]'),'Comment reply focus must target the text box');
 assert.ok(js.includes("String(other.handle||'')"),'Chat search must match profile handles');
 console.log('VATRA chat reading position, comment reply focus and contact @handle search verified.');
+
+
+const sortStart=js.indexOf('function vatraSortCommentsForPost(');
+const sortEnd=js.indexOf('\nfunction renderComments(',sortStart);
+assert.ok(sortStart>=0&&sortEnd>sortStart,'Comments must use an actual sort implementation');
+const sortSandbox={vatraCommentsOrder:Object.create(null)};
+const sortComments=runInNewContext(js.slice(sortStart,sortEnd)+'\nvatraSortCommentsForPost;',sortSandbox);
+const originals=[{id:'b',createdAt:200},{id:'a',createdAt:100},{id:'c',createdAt:300}];
+assert.deepEqual(Array.from(sortComments('post1',originals),c=>c.id),['c','b','a']);
+sortSandbox.vatraCommentsOrder.post1='old';
+assert.deepEqual(Array.from(sortComments('post1',originals),c=>c.id),['a','b','c']);
+assert.equal(originals[0].id,'b','Comment sorting must preserve cached order');
+assert.ok(js.includes('class="vatra-comments-sort" data-sort-comments='),'Sort button must be rendered');
+const commentsCSS=read('assets/styles/sources/social/communities.css');
+const replyCSS=read('assets/styles/sources/social/chat-replies.css');
+assert.ok(commentsCSS.includes('data-vatra-theme-effective="dark"] .vatra-comments-heading>.vatra-comments-sort'));
+assert.ok(replyCSS.includes('data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-reply-preview button'));
+console.log('VATRA: comment sorting in both directions; dark chat reply controls verified.');
