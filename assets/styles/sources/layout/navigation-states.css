@@ -35,5 +35,5 @@ body .vatra-suspended-page .vatra-suspended-profile-head{background:linear-gradi
 body .vatra-suspended-page .vatra-suspended-notice{border-radius:13px!important;border:1px solid #d9e4f5!important;background:#f6f9ff!important}
 body .vatra-suspended-page .vatra-suspended-details{border-radius:12px!important}
 body .vatra-suspended-page .vatra-suspended-actions button{border-radius:10px!important}
-@media(max-width:640px){body .vatra-music-banner{padding:20px!important;min-height:150px!important}html body .layout>.sidebar>nav>a.nav:hover{transform:none!important}}
-@media(prefers-reduced-motion:reduce){html body .layout>.sidebar>nav>a.nav,html body .layout>.sidebar>nav>a.nav .nav-icon,body .vatra-music-card{transition:none!important}html body .layout>.sidebar>nav>a.nav:hover,body .vatra-music-card:hover{transform:none!important}}
+@media(max-width:640px){body .vatra-music-banner{padding:20px!important;min-height:150px!important}}
+@media(prefers-reduced-motion:reduce){body .vatra-music-card{transition:none!important}body .vatra-music-card:hover{transform:none!important}}
