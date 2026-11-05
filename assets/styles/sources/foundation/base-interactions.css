@@ -20,26 +20,26 @@ body .vatra-onboarding-modern .vatra-tour-card{
  gap:8px!important;margin:0 0 20px!important;
 }
 .vatra-onboarding-modern .vatra-tour-kicker{
- font:650 10px/1.4 Inter,Arial,sans-serif!important;letter-spacing:.8px!important;color:#778aa0!important;
+ font:650 10px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;letter-spacing:.8px!important;color:#778aa0!important;
 }
 .vatra-onboarding-modern .vatra-tour-skip{
  margin:0!important;min-height:32px!important;padding:7px 10px!important;
  border:0!important;border-radius:8px!important;background:#f2f5f8!important;
- color:#576b82!important;font:550 11px/1.3 Inter,Arial,sans-serif!important;
+ color:#576b82!important;font:550 11px/1.3 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 .vatra-onboarding-modern .vatra-tour-brand{
  display:flex!important;align-items:center!important;gap:11px!important;
- margin:0 0 25px!important;color:#2f4258!important;font:700 17px/1.2 Inter,Arial,sans-serif!important;
+ margin:0 0 25px!important;color:#2f4258!important;font:700 17px/1.2 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 .vatra-onboarding-modern .vatra-tour-brand small{
- display:block!important;margin-top:4px!important;color:#8291a4!important;font:400 11px/1.3 Inter,Arial,sans-serif!important;
+ display:block!important;margin-top:4px!important;color:#8291a4!important;font:400 11px/1.3 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 .vatra-onboarding-modern .vatra-tour-brand-icon{
  display:grid!important;place-items:center!important;width:48px!important;height:48px!important;
- border-radius:12px!important;background:#0757f5!important;color:#fff!important;font:750 22px/1 Inter,Arial,sans-serif!important;
+ border-radius:12px!important;background:#0757f5!important;color:#fff!important;font:750 22px/1 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 .vatra-onboarding-modern .vatra-tour-count{
- color:#6a8098!important;font:550 11px/1.4 Inter,Arial,sans-serif!important;margin-bottom:7px!important;
+ color:#6a8098!important;font:550 11px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;margin-bottom:7px!important;
 }
 .vatra-onboarding-modern .vatra-tour-card h2{
  font-size:22px!important;line-height:1.22!important;font-weight:670!important;
@@ -62,7 +62,7 @@ body .vatra-onboarding-modern .vatra-tour-card{
 }
 .vatra-onboarding-modern .vatra-tour-actions button{
  min-height:38px!important;border-radius:9px!important;
- font:600 12px/1.4 Inter,Arial,sans-serif!important;padding:9px 15px!important;
+ font:600 12px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;padding:9px 15px!important;
 }
 .vatra-onboarding-modern .vatra-tour-actions #vatraTourPrev{
  margin-right:auto!important;background:#f0f3f8!important;color:#526780!important;border:1px solid #e0e7ef!important;
@@ -79,7 +79,7 @@ body .vatra-saved-headline{display:flex!important;align-items:center!important;g
 body .vatra-saved-header-icon,body .vatra-saved-empty-icon{
  display:grid!important;place-items:center!important;flex:none!important;
  border-radius:11px!important;background:#eef2f6!important;color:#667f98!important;
- font:650 27px/1 Inter,Arial,sans-serif!important;
+ font:650 27px/1 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 body .vatra-saved-header-icon{width:42px!important;height:42px!important}
 body .vatra-saved-header h2{margin:0 0 3px!important;color:#2a3949!important;font-size:18px!important;font-weight:660!important}
@@ -101,7 +101,7 @@ body .vatra-saved-empty p{margin:0 0 16px!important;font-size:12px!important;lin
 body .vatra-saved-browse{
  min-height:37px!important;padding:8px 15px!important;background:#e9f0fa!important;
  border:1px solid #d7e4f3!important;border-radius:8px!important;color:#315d89!important;
- font:600 12px/1.4 Inter,Arial,sans-serif!important;cursor:pointer!important;
+ font:600 12px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;cursor:pointer!important;
 }
 body .vatra-saved-browse:hover{background:#dae9fd!important;color:#0757f5!important}
 body[data-page="messages"] .vatra-messenger-shell{border-radius:13px!important;border-color:#e0e7ee!important}
@@ -117,11 +117,11 @@ body[data-page="messages"] .vatra-chat-back{
 }
 body[data-page="messages"] .vatra-chat-person{display:flex!important;align-items:center!important;gap:9px!important;min-width:0!important;flex:1 1 140px!important}
 body[data-page="messages"] .vatra-chat-person>.avatar{flex:none!important;width:36px!important;height:36px!important;min-width:36px!important}
-body[data-page="messages"] .vatra-chat-person>b{font:620 13px/1.4 Inter,Arial,sans-serif!important;color:#304255!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+body[data-page="messages"] .vatra-chat-person>b{font:620 13px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;color:#304255!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 body[data-page="messages"] .vatra-chat-header-actions{display:flex!important;align-items:center!important;gap:5px!important;margin-left:auto!important}
 body[data-page="messages"] .vatra-chat-header-actions>button{
  min-height:30px!important;margin:0!important;padding:5px 8px!important;
- border-radius:7px!important;font:550 11px/1.35 Inter,Arial,sans-serif!important;
+ border-radius:7px!important;font:550 11px/1.35 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 body[data-page="messages"] .vatra-chat-header-actions>.danger-link{color:#b65869!important;background:#fff6f7!important}
 body[data-page="messages"] .vatra-chat-header-actions>.text-link{color:#657e9b!important}
@@ -129,14 +129,14 @@ body[data-page="messages"] .vatra-chat-header-actions>button:hover{background:#e
 body[data-page="messages"] .vatra-chat-privacy-note{
  padding:8px 11px!important;margin:10px 0!important;border:1px solid #e3eaf0!important;
  background:#f7f9fb!important;border-radius:8px!important;color:#8293a4!important;
- font:400 11px/1.5 Inter,Arial,sans-serif!important;
+ font:400 11px/1.5 var(--vatra-ui-font),Arial,sans-serif!important;
 }
 body[data-page="messages"] .vatra-messenger-shell .chat-messages{background:#f8fafc!important;padding:15px!important;border-color:#e9eef3!important}
 body[data-page="messages"] .message-bubble{max-width:min(78%,510px)!important;border-radius:14px!important;padding:10px 13px!important;box-shadow:none!important}
 body[data-page="messages"] .message-bubble.mine{background:#e8f1fd!important;color:#2b4661!important;border:1px solid #d6e5f7!important;border-bottom-right-radius:5px!important}
 body[data-page="messages"] .message-bubble:not(.mine){background:#fff!important;color:#33475c!important;border:1px solid #e5ebf1!important;border-bottom-left-radius:5px!important}
-body[data-page="messages"] .message-bubble p{font:400 12.5px/1.55 Inter,Arial,sans-serif!important;overflow-wrap:anywhere!important}
-body[data-page="messages"] .message-bubble small{font:400 10px/1.4 Inter,Arial,sans-serif!important;color:#8494a5!important}
+body[data-page="messages"] .message-bubble p{font:400 12.5px/1.55 var(--vatra-ui-font),Arial,sans-serif!important;overflow-wrap:anywhere!important}
+body[data-page="messages"] .message-bubble small{font:400 10px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;color:#8494a5!important}
 body[data-page="messages"] .vatra-chat-first-message{
  display:grid!important;justify-items:center!important;gap:7px!important;align-content:center!important;
  min-height:210px!important;padding:22px!important;text-align:center!important;color:#465b70!important;
@@ -265,7 +265,7 @@ body[data-page="messages"] .vatra-chat-send-error{
  box-sizing:border-box!important;width:100%!important;margin:8px 0 0!important;
  padding:9px 11px!important;border:1px solid #f1cbd0!important;border-radius:8px!important;
  background:#fff4f6!important;color:#a13749!important;
- font:450 11.5px/1.55 Inter,Arial,sans-serif!important;overflow-wrap:anywhere!important
+ font:450 11.5px/1.55 var(--vatra-ui-font),Arial,sans-serif!important;overflow-wrap:anywhere!important
 }
 body[data-page="messages"] .vatra-chat-send-error[hidden]{display:none!important}
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-send-error{

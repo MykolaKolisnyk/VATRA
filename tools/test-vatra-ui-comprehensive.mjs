@@ -32,4 +32,8 @@ assert.ok(!read('assets/styles/sources/layout/interface-corrections.css').includ
 for(const path of ["assets/styles/sources/social/messenger.css","assets/styles/sources/gifts/catalog.css","assets/styles/sources/social/post-composer.css","assets/styles/sources/support/desk.css","assets/styles/sources/layout/app-shell.css","assets/styles/sources/layout/pages.css","assets/styles/sources/foundation/base.css","assets/styles/sources/foundation/neutral-surfaces.css","assets/styles/sources/foundation/typography.css","assets/styles/sources/media/music.css"]){
  assert.ok(!read(path).includes('Inter'),path+': legacy font override reintroduced');
 }
+
+for(const path of ["assets/styles/sources/foundation/base-interactions.css","assets/styles/sources/foundation/interaction-patterns.css","assets/styles/sources/layout/interface-corrections.css","assets/styles/sources/layout/popovers-and-dialogs.css","assets/styles/sources/admin/center.css","assets/styles/sources/admin/verification.css","assets/styles/sources/admin/verification-gallery.css","assets/styles/sources/admin/ban-pages.css","assets/styles/sources/support/notifications.css"]){
+ assert.ok(!read(path).includes('Inter'),path+': older font would override Onest');
+}
 console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');

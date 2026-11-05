@@ -63,7 +63,7 @@ body .vatra-profile-summary-compact .vatra-profile-presence-corner .vatra-profil
  width:auto!important;margin:0!important;padding:5px 10px!important;
  border:1px solid #c7e7dc!important;border-radius:999px!important;
  color:#247b67!important;background:#e9f8f2!important;
- font:600 11.5px/1.2 Inter,system-ui,sans-serif!important;
+ font:600 11.5px/1.2 var(--vatra-ui-font),system-ui,sans-serif!important;
  white-space:nowrap!important;
 }
 body .vatra-profile-presence.is-online i,

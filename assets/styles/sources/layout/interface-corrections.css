@@ -1,7 +1,7 @@
 /* Sidebar active styles are owned by foundation/icons.css. */
 body .vatra-global-header>#accountDropdown>button.vatra-account-item,
 body .vatra-global-header>#accountDropdown>button.vatra-account-item>span:last-child{
-  font:580 13px/1.45 Inter,system-ui,sans-serif!important;
+  font:580 13px/1.45 var(--vatra-ui-font),system-ui,sans-serif!important;
   letter-spacing:0!important;text-decoration:none!important;
 }
 body .vatra-global-header>#accountDropdown>button.vatra-account-item{
@@ -32,7 +32,7 @@ dialog.vatra-staff-policy-dialog{
   color:#29435e!important;background:#fff!important;
   border:1px solid #dce4ed!important;border-radius:8px!important;
   box-shadow:0 24px 65px #14294038!important;
-  font:400 14px/1.65 Inter,system-ui,sans-serif!important;
+  font:400 14px/1.65 var(--vatra-ui-font),system-ui,sans-serif!important;
 }
 dialog.vatra-staff-policy-dialog::backdrop{background:rgba(17,35,58,.58)!important}
 dialog.vatra-staff-policy-dialog>header{
@@ -42,7 +42,7 @@ dialog.vatra-staff-policy-dialog>header{
   border-bottom:1px solid #e1e8f0!important;
 }
 dialog.vatra-staff-policy-dialog>header h2{
-  color:#223f5d!important;font:750 clamp(18px,2.2vw,23px)/1.35 Inter,system-ui,sans-serif!important;
+  color:#223f5d!important;font:750 clamp(18px,2.2vw,23px)/1.35 var(--vatra-ui-font),system-ui,sans-serif!important;
   margin:0!important;letter-spacing:-.015em!important;
 }
 dialog.vatra-staff-policy-dialog [data-close-policy]{
@@ -71,11 +71,11 @@ dialog.vatra-staff-policy-dialog .vatra-staff-policy-content>section{
 dialog.vatra-staff-policy-dialog .vatra-staff-policy-content>section:last-child{border-bottom:0!important}
 dialog.vatra-staff-policy-dialog h3{
   margin:0 0 14px!important;color:#1e4166!important;
-  font:750 18px/1.4 Inter,system-ui,sans-serif!important;
+  font:750 18px/1.4 var(--vatra-ui-font),system-ui,sans-serif!important;
 }
 dialog.vatra-staff-policy-dialog h4{
   margin:16px 0 7px!important;color:#4b627c!important;
-  font:700 12px/1.5 Inter,system-ui,sans-serif!important;
+  font:700 12px/1.5 var(--vatra-ui-font),system-ui,sans-serif!important;
   letter-spacing:.02em!important;
 }
 dialog.vatra-staff-policy-dialog ol,dialog.vatra-staff-policy-dialog ul{
@@ -95,7 +95,7 @@ body .vatra-control-card.vatra-policy-section li{padding:4px 0!important}
 
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"],
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"] span:last-child{
- font:550 13px/1.5 Inter,system-ui,sans-serif!important;
+ font:550 13px/1.5 var(--vatra-ui-font),system-ui,sans-serif!important;
 }
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"]{color:#3b4d61!important;background:transparent!important}
 body .vatra-global-header #accountDropdown>button.vatra-account-item[data-account-action="support"]:hover{color:#245b9d!important;background:#f0f4f9!important}
@@ -146,7 +146,7 @@ body .vatra-group-settings-nav button{border-radius:5px!important;font-size:12.5
 
 html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"],
 html body .topbar.vatra-global-header>#accountDropdown.account-popover>button.vatra-account-item[data-account-action="support"]>span:last-child{
- font-family:Inter,Arial,sans-serif!important;font-size:13px!important;
+ font-family:var(--vatra-ui-font),Arial,sans-serif!important;font-size:13px!important;
  font-weight:550!important;line-height:1.45!important;letter-spacing:0!important;
  color:#41546b!important;text-shadow:none!important;text-decoration:none!important;
 }
