@@ -13,9 +13,9 @@ const uiRefs=[
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-media-handle1'),page+': consolidated CSS missing');
+ assert.ok(html.includes('vatra-auth-unified.css?v=20261105-brand-flags1'),page+': consolidated CSS missing');
  assert.equal((html.match(/href="vatra-auth-unified\.css\?/g)||[]).length,1,page+': duplicated unified styles');
- assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark2'),page+': shared logo CSS missing');
+ assert.ok(html.includes('vatra-brand-text.css?v=20261105-brand-flags1'),page+': shared logo CSS missing');
  assert.equal((html.match(/href="vatra-brand-text\.css\?/g)||[]).length,1,page+': duplicate logo CSS');
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);

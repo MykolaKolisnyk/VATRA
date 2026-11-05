@@ -79,3 +79,25 @@ html body .site-brand .vatra-404-wordmark .vatra-wordmark-text{
 body[data-vatra-theme-effective="dark"] .topbar .vatra-header-wordmark .vatra-wordmark-text{
  color:#fff!important;
 }
+
+/* Shared, equally sized VATRA symbol + readable name in every legal/developer form. */
+html body :is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ gap:9px!important;flex:0 1 auto!important;min-width:0!important;margin:0!important;
+}
+html body :is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-symbol{
+ width:37px!important;height:37px!important;min-width:37px!important;min-height:37px!important;
+ max-width:37px!important;max-height:37px!important;object-fit:contain!important;
+ border:0!important;box-shadow:none!important;padding:0!important;
+}
+html body :is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-text{
+ font-size:22px!important;line-height:1.05!important;font-weight:850!important;
+ letter-spacing:-.055em!important;white-space:nowrap!important;
+}
+@media(max-width:420px){
+ html body :is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-symbol{
+  width:33px!important;height:33px!important;min-width:33px!important;min-height:33px!important;
+  max-width:33px!important;max-height:33px!important;
+ }
+ html body :is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-text{font-size:20px!important}
+}
