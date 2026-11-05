@@ -1,0 +1,83 @@
+/* ORIGINAL FILE: vatra-brand-text.css. Keep order from index.html. */
+/* VATRA text identity · icon stays a standalone SVG, name is selectable HTML text. */
+.vatra-wordmark{
+ display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;
+ flex:0 1 auto!important;gap:10px!important;
+ box-sizing:border-box!important;min-width:0!important;width:auto!important;height:auto!important;
+ margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;filter:none!important;
+ color:inherit!important;text-decoration:none!important;
+}
+.vatra-wordmark .vatra-wordmark-symbol{
+ display:block!important;flex:none!important;
+ box-sizing:border-box!important;width:43px!important;height:43px!important;min-width:43px!important;
+ min-height:43px!important;max-width:43px!important;max-height:43px!important;
+ margin:0!important;padding:0!important;border:0!important;
+ border-radius:11px!important;background:transparent!important;box-shadow:none!important;
+ object-fit:contain!important;object-position:center!important;filter:none!important;
+}
+.vatra-wordmark .vatra-wordmark-text{
+ display:block!important;flex:none!important;min-width:0!important;width:auto!important;height:auto!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;filter:none!important;
+ color:inherit!important;font-family:Inter,"Manrope","VATRA Onest",system-ui,sans-serif!important;
+ font-size:24px!important;font-weight:850!important;letter-spacing:-.055em!important;
+ line-height:1.08!important;white-space:nowrap!important;text-transform:uppercase!important;
+}
+html body .topbar .brand .vatra-header-wordmark{
+ display:inline-flex!important;align-items:center!important;gap:9px!important;
+ width:auto!important;max-width:100%!important;height:auto!important;
+ color:#142c52!important;
+}
+html body .topbar .brand .vatra-header-wordmark .vatra-wordmark-symbol{
+ width:37px!important;height:37px!important;min-width:37px!important;min-height:37px!important;
+ max-width:37px!important;max-height:37px!important;
+}
+html body .topbar .brand .vatra-header-wordmark .vatra-wordmark-text{
+ font-size:23px!important;color:#142c52!important;font-weight:850!important;
+}
+html body .vatra-loading-brand .vatra-loader-wordmark{
+ display:inline-flex!important;justify-content:center!important;color:#163759!important;
+}
+html body .vatra-loading-brand .vatra-loader-wordmark .vatra-wordmark-symbol{
+ width:42px!important;height:42px!important;min-width:42px!important;
+ min-height:42px!important;max-width:42px!important;max-height:42px!important;
+}
+html body .vatra-loading-brand .vatra-loader-wordmark .vatra-wordmark-text{
+ font-size:26px!important;color:#163759!important;
+}
+html body .developer-dialog .vatra-developer-wordmark{
+ display:inline-flex!important;align-items:center!important;gap:10px!important;
+ width:auto!important;height:auto!important;max-width:100%!important;color:#203c66!important;
+ aspect-ratio:auto!important;
+}
+html body .developer-dialog .vatra-developer-wordmark .vatra-wordmark-symbol{
+ width:37px!important;height:37px!important;min-width:37px!important;min-height:37px!important;
+ max-width:37px!important;max-height:37px!important;
+}
+html body .developer-dialog .vatra-developer-wordmark .vatra-wordmark-text{
+ font-size:23px!important;color:#203c66!important;
+}
+html body .site-brand .vatra-404-wordmark{
+ display:inline-flex!important;align-items:center!important;gap:10px!important;
+ width:auto!important;height:auto!important;color:#17355c!important;
+}
+html body .site-brand .vatra-404-wordmark .vatra-wordmark-symbol{
+ display:block!important;width:40px!important;height:40px!important;
+ min-width:40px!important;min-height:40px!important;max-width:40px!important;max-height:40px!important;
+}
+html body .site-brand .vatra-404-wordmark .vatra-wordmark-text{
+ color:#17355c!important;font-size:24px!important;
+}
+@media(max-width:760px){
+ html body .topbar .brand .vatra-header-wordmark .vatra-wordmark-symbol{
+  width:33px!important;height:33px!important;min-width:33px!important;min-height:33px!important;
+  max-width:33px!important;max-height:33px!important;
+ }
+ html body .topbar .brand .vatra-header-wordmark .vatra-wordmark-text{font-size:20px!important}
+ html body .topbar .brand .vatra-header-wordmark{gap:7px!important}
+}
+body[data-vatra-theme-effective="dark"] .topbar .vatra-header-wordmark .vatra-wordmark-text{
+ color:#fff!important;
+}
+
