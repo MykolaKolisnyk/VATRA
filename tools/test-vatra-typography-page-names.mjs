@@ -62,5 +62,5 @@ const basePages=read('vatra-pages.css');
 assert.ok(basePages.includes('width:min(1040px,calc(100% - 40px))'),'Compact profile width must be restored');
 assert.ok(basePages.includes('max-width:830px!important'),'Compact content width must be restored');
 assert.ok(!pageCss.includes('.vatra-own-page-layout'),'Old wide layout CSS must be removed');
-assert.ok(galleryCss.includes('grid-auto-columns:calc((100% - 3 * var(--vatra-gallery-gap)) / 4)'),'Original photo carousel sizing must remain');
+assert.ok(galleryCss.includes('grid-template-columns:repeat(6,minmax(0,1fr))!important')&&galleryCss.includes('grid-auto-flow:column!important')&&galleryCss.includes('overflow:hidden!important'),'Media carousel must use six thumbnails in one horizontal row');
 console.log('VATRA cover-free compact page and original photo gallery verified.');
