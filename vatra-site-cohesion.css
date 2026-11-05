@@ -322,32 +322,112 @@ body[data-vatra-theme-effective="dark"] .vatra-profile-detail button.vatra-profi
 }
 
 
-/* Restored VATRA left-hand page-up action. Hidden until there is real scroll. */
-html body #vatraScrollToTop[hidden]{display:none!important}
-html body #vatraScrollToTop.vatra-scroll-to-top{
- position:fixed!important;z-index:800!important;left:20px!important;bottom:24px!important;
- display:grid!important;place-items:center!important;
- box-sizing:border-box!important;width:43px!important;height:43px!important;
- padding:0!important;border:1px solid #c8daf4!important;border-radius:13px!important;
- background:#fff!important;color:#0757f5!important;
- box-shadow:0 10px 24px rgba(9,41,100,.16)!important;
- cursor:pointer!important;transition:transform .15s ease,background .15s ease!important;
-}
-html body #vatraScrollToTop.vatra-scroll-to-top:hover{
- background:#eaf2ff!important;transform:translateY(-2px)!important;
-}
-html body #vatraScrollToTop.vatra-scroll-to-top:focus-visible{
- outline:3px solid #78a9ff!important;outline-offset:2px!important;
-}
-html body #vatraScrollToTop.vatra-scroll-to-top svg{display:block!important}
-@media(max-width:850px){
- html body #vatraScrollToTop.vatra-scroll-to-top{left:12px!important;bottom:calc(77px + env(safe-area-inset-bottom,0px))!important;width:42px!important;height:42px!important;}
-}
-@media(prefers-reduced-motion:reduce){
- html body #vatraScrollToTop.vatra-scroll-to-top{transition:none!important;transform:none!important}
-}
+/* Use the original VK-style full-height scroll rail from vatra-pages.css;
+   the competing floating button from this sheet was removed. */
 
 /* Progressive rendering: the news feed reveals additional post cards near the viewport. */
 .vatra-feed-more{display:flex;align-items:center;justify-content:center;padding:16px 12px 24px;min-height:68px}
 .vatra-feed-more .pill{border:1px solid #dce5f3;border-radius:12px;background:#fff;color:#0757f5;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}
 .vatra-feed-more .pill:hover,.vatra-feed-more .pill:focus-visible{background:#eff5ff;border-color:#b4cef7}
+
+/* News layout: the same VATRA card rhythm for Stories, the composer and posts. */
+body:not([data-page="feed"]) #vatraFeedStories,
+body:not([data-page="feed"]) #vatraFeedFilters{display:none!important}
+body[data-page="feed"] #vatraFeedStories{margin:0 0 14px;min-width:0}
+body[data-page="feed"] .layout>.main>.quick-compose{
+ order:initial!important;display:block!important;margin:0 0 14px!important;
+ padding:14px 18px!important;border:1px solid #e0e8f2!important;
+ border-radius:16px!important;background:#fff!important;
+ box-shadow:0 2px 12px rgba(20,50,95,.035)!important;
+}
+body[data-page="feed"] .layout>.main>.quick-compose .prompt{
+ border-radius:12px!important;background:#f2f5f9!important;
+ padding:12px 15px!important;min-height:45px!important;
+ font:500 14px/1.4 Inter,system-ui,sans-serif!important;color:#7687a0!important;
+}
+body[data-page="feed"] .layout>.main>.quick-compose .compose-tools{
+ margin-top:12px!important;padding-top:11px!important;border-top:1px solid #ebf0f7!important;
+ display:flex!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important;
+}
+body[data-page="feed"] .layout>.main>.quick-compose .compose-tools button{
+ border-radius:9px!important;min-height:36px!important;display:inline-flex!important;align-items:center!important;
+ gap:7px!important;padding:7px 11px!important;font:650 12px/1.3 Inter,system-ui,sans-serif!important;
+}
+body[data-page="feed"] .layout>.main>.quick-compose .compose-tools .post-now{
+ margin-left:auto!important;background:#ecf3ff!important;color:#0757f5!important;
+}
+#vatraFeedFilters.vatra-feed-filters{
+ display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;
+ padding:5px 1px 13px;margin:0;
+}
+#vatraFeedFilters[hidden]{display:none!important}
+.vatra-feed-filters-title{font:700 12px/1.3 Inter,system-ui,sans-serif;color:#778aa3;margin-right:auto}
+#vatraFeedFilters button{
+ min-height:35px;border:1px solid #dde8f6;border-radius:10px;
+ padding:7px 12px;background:#fff;color:#4a607b;font:650 12px/1.25 Inter,system-ui,sans-serif;
+ cursor:pointer;
+}
+#vatraFeedFilters button:hover{background:#f4f8ff;border-color:#bdcff1}
+#vatraFeedFilters button.is-active,#vatraFeedFilters button[aria-pressed="true"]{
+ background:#eaf2ff;border-color:#9ac1fc;color:#0757f5;
+}
+@media(max-width:650px){
+ #vatraFeedFilters{justify-content:flex-start!important}
+ .vatra-feed-filters-title{width:100%!important}
+ #vatraFeedFilters button{font-size:11px;padding:7px 9px}
+}
+
+/* Dedicated Stories creation experience, not the profile image editor. */
+.vatra-story-compose .vatra-story-shell{padding:17px!important;gap:10px!important;max-height:92dvh;overflow-y:auto}
+.vatra-story-editor-header small{display:block;font-size:10px;letter-spacing:.11em;color:#85adff;font-weight:750}
+.vatra-story-editor-header b{display:block;font-size:19px;line-height:1.25;color:#fff}
+.vatra-story-preview-stage{
+ position:relative;isolation:isolate;flex:none;overflow:hidden;border-radius:16px;
+ height:clamp(210px,43dvh,420px);background:#0e1729;
+ box-shadow:inset 0 0 0 1px #ffffff15;
+}
+.vatra-story-preview-stage .vatra-story-media{
+ display:block;width:100%;height:100%!important;object-fit:contain;
+ border-radius:16px!important;background:#0a101b;
+}
+.vatra-story-preview-stage::after{
+ content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+ background:linear-gradient(180deg,#00000030,transparent 35%,#00000070);
+}
+.vatra-story-theme-midnight .vatra-story-media{filter:brightness(.76) contrast(1.14) saturate(.9)}
+.vatra-story-theme-warm .vatra-story-media{filter:sepia(.16) saturate(1.13)}
+.vatra-story-theme-ocean .vatra-story-media{filter:hue-rotate(9deg) saturate(1.15)}
+.vatra-story-editor-text{
+ position:absolute;left:16px;right:16px;z-index:2;
+ padding:10px 12px;border-radius:12px;text-align:center;
+ font:800 clamp(18px,3vw,24px)/1.25 Inter,system-ui,sans-serif;
+ overflow-wrap:anywhere;background:#070d1e77;text-shadow:0 2px 9px #000;
+}
+.vatra-story-editor-text[hidden]{display:none!important}
+.vatra-story-editor-text.is-top{top:16px}
+.vatra-story-editor-text.is-center{top:50%;transform:translateY(-50%)}
+.vatra-story-editor-text.is-bottom{bottom:16px}
+.vatra-story-editor-sticker,.vatra-story-view-sticker{
+ position:absolute;z-index:3;top:19%;right:11%;font-size:52px;line-height:1;
+ filter:drop-shadow(0 5px 10px #0009);pointer-events:none;
+}
+.vatra-story-editor-tools{display:grid;gap:9px}
+.vatra-story-editor-tools fieldset{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0;padding:0;border:0}
+.vatra-story-editor-tools legend{display:block;width:100%;margin-bottom:5px;color:#dbe6f8;font-size:12px;font-weight:700}
+.vatra-story-editor-tools button{
+ border:1px solid #465978;border-radius:9px;min-height:32px;padding:6px 10px;
+ background:#232d40;color:#dce8ff;font:650 12px/1.25 Inter,system-ui,sans-serif;cursor:pointer;
+}
+.vatra-story-editor-tools button[aria-pressed="true"]{border-color:#8eb7ff;background:#1f488c;color:#fff}
+.vatra-story-colors label{margin-right:8px}
+.vatra-story-compose .vatra-story-visibility-field{display:grid;gap:5px}
+.vatra-story-compose .vatra-story-visibility-field select{
+ display:block;width:100%;padding:9px 12px;border-radius:9px;border:1px solid #526885;
+ background:#222f44;color:#f4f8ff;
+}
+.vatra-story-caption.is-top{top:95px;bottom:auto}
+.vatra-story-caption.is-center{top:50%;bottom:auto;transform:translateY(-50%)}
+.vatra-story-caption.is-bottom{bottom:87px}
+.vatra-story-shell.vatra-story-theme-midnight>.vatra-story-media{filter:brightness(.76) contrast(1.14) saturate(.9)}
+.vatra-story-shell.vatra-story-theme-warm>.vatra-story-media{filter:sepia(.16) saturate(1.13)}
+.vatra-story-shell.vatra-story-theme-ocean>.vatra-story-media{filter:hue-rotate(9deg) saturate(1.15)}

@@ -400,8 +400,8 @@ function vatraFlagSVG(code){
   PT:'<path fill="#218a69" d="M0 0h12v20H0z"/><path fill="#d54245" d="M12 0h16v20H12z"/><circle cx="12" cy="10" r="4" stroke="#f4cf65" fill="none" stroke-width="1.8"/>',
   IT:'<path fill="#26966e" d="M0 0h9v20H0z"/><path fill="#fff" d="M9 0h10v20H9z"/><path fill="#d64c50" d="M19 0h9v20h-9z"/>'
  };
- if(defs[region])return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false"><rect width="28" height="20" rx="2" fill="#fff"/>'+defs[region]+'</svg>';
- return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false"><rect x="1" y="1" width="26" height="18" rx="3" fill="#edf4fd" stroke="#cfdeef"/><circle cx="14" cy="10" r="6.5" fill="none" stroke="#5583b5" stroke-width="1.3"/><path d="M7.5 10h13M14 3.5c-5 4-5 9 0 13M14 3.5c5 4 5 9 0 13" fill="none" stroke="#5583b5" stroke-width="1.1"/></svg>';
+ if(defs[region])return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false" style="border:0;outline:0;box-shadow:none;stroke:none"><rect width="28" height="20" rx="2" fill="#fff"/>'+defs[region]+'</svg>';
+ return '<svg viewBox="0 0 28 20" width="28" height="20" aria-hidden="true" class="vatra-language-flag" focusable="false" style="border:0;outline:0;box-shadow:none;stroke:none"><rect x="1" y="1" width="26" height="18" rx="3" fill="#edf4fd" stroke="#cfdeef"/><circle cx="14" cy="10" r="6.5" fill="none" stroke="#5583b5" stroke-width="1.3"/><path d="M7.5 10h13M14 3.5c-5 4-5 9 0 13M14 3.5c5 4 5 9 0 13" fill="none" stroke="#5583b5" stroke-width="1.1"/></svg>';
 }
 let activeLanguageSelect=null;
 function vatraLanguageDialog(){
@@ -443,6 +443,20 @@ function vatraShowLanguageDialog(select=null){
  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.hidden=false);
  dlg.showModal();search.focus();
 }
+const VATRA_AUTH_RECENT_LANGUAGES='vatra-language-recent-v1';
+function vatraAuthRecentCodes(){
+ const defaults=['uk','en','pl','de'];
+ let recent=[];
+ try{
+  const stored=JSON.parse(localStorage.getItem(VATRA_AUTH_RECENT_LANGUAGES)||'[]');
+  if(Array.isArray(stored))recent=stored.filter(code=>languages.some(pair=>pair[0]===code));
+ }catch{}
+ return [...new Set([...recent,...defaults])].slice(0,4);
+}
+function vatraRememberAuthLanguage(code){
+ const ordered=[code,...vatraAuthRecentCodes().filter(value=>value!==code)];
+ try{localStorage.setItem(VATRA_AUTH_RECENT_LANGUAGES,JSON.stringify(ordered.slice(0,4)));}catch{}
+}
 /* Four shortcuts on the blue panel; mobile has a compact equivalent below
    the form because the blue side is intentionally hidden on small screens. */
 function vatraInstallAuthLanguageQuick(){
@@ -465,10 +479,9 @@ function vatraInstallAuthLanguageQuick(){
  }
  // Keep the same fixed sequence as the full language picker: Ukrainian first,
  // then the selected shortcuts in their actual picker order.
- const shortcutCodes=new Set(['uk','en','pl','de']);
- const codes=languages.filter(([code])=>shortcutCodes.has(code)).map(([code])=>code);
+ const codes=vatraAuthRecentCodes();
  for(const host of [desktop,mobile]){
-  if(host.dataset.renderedLanguage===language&&host.childElementCount)return;
+  if(host.dataset.renderedLanguage===language+'|'+codes.join(',')&&host.childElementCount)return;
   host.replaceChildren();
   const heading=document.createElement('p');heading.className='vatra-auth-language-heading';
   heading.textContent='Мова інтерфейсу';host.append(heading);
@@ -490,7 +503,7 @@ function vatraInstallAuthLanguageQuick(){
   more.className='vatra-auth-language-all';more.textContent='Усі мови';
   more.addEventListener('click',()=>vatraShowLanguageDialog());
   row.append(more);host.append(row);
-  host.dataset.renderedLanguage=language;
+  host.dataset.renderedLanguage=language+'|'+codes.join(',');
  }
 }
 function vatraEnhanceLanguageSelect(select){
@@ -536,14 +549,32 @@ function install(){
 function setLanguage(code){
  if(!languages.some(pair=>pair[0]===code))return;
  language=code;
+ vatraRememberAuthLanguage(code);
  try{localStorage.setItem('vatra-language',code);}catch{}
  updateMeta();install();translateRoot(document);
  document.dispatchEvent(new CustomEvent('vatra:languagechange',{detail:{language:code}}));
 }
+// Translate newly inserted or changed nodes after UI updates.
+// A full document pass still runs when a user actually switches language.
 let queued=false;
-new MutationObserver(()=>{
- if(running||queued)return;queued=true;
- requestAnimationFrame(()=>{queued=false;running=true;try{install();translateRoot(document);}finally{running=false;}});
+const pendingTranslationRoots=new Set();
+new MutationObserver(records=>{
+ if(running)return;
+ for(const record of records){
+  if(record.type==='characterData'&&record.target?.isConnected)pendingTranslationRoots.add(record.target);
+  for(const node of record.addedNodes||[]){
+   if(node.nodeType===1||node.nodeType===3)pendingTranslationRoots.add(node);
+  }
+ }
+ if(queued||!pendingTranslationRoots.size)return;queued=true;
+ requestAnimationFrame(()=>{
+  queued=false;running=true;
+  try{
+   install();
+   const roots=[...pendingTranslationRoots];pendingTranslationRoots.clear();
+   for(const node of roots)if(node.isConnected)translateRoot(node);
+  }finally{running=false;}
+ });
 }).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 function start(){running=true;try{install();setLanguage(language);}finally{running=false;}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();

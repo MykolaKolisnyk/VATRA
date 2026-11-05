@@ -45,8 +45,8 @@ assert.ok(css.includes('html body #recoveryDialog .vatra-recovery-head{')&&
  'Recovery header must be fixed when scrolling the white content');
 assert.ok(lang.includes("const vatraPrimaryLanguageOrder=['uk','en','pl','de','es','fr','it','pt']"),
  'Ukrainian must always sort first in the main language dialog');
-assert.ok(lang.includes("const codes=languages.filter(([code])=>shortcutCodes.has(code)).map(([code])=>code);"),
- 'Quick language strip must follow the full language picker rather than selection history');
+assert.ok(lang.includes('function vatraAuthRecentCodes()')&&lang.includes('const codes=vatraAuthRecentCodes();'),
+ 'Quick language strip must show the last four chosen languages');
 assert.ok(!lang.includes("new Set([language,'uk','en','pl','de'])"),
  'Old selection-dependent order unexpectedly remains');
 assert.ok(read('index.html').includes('vatra-language.js?v=20261105-layout-quiz2'),
@@ -66,9 +66,13 @@ assert.ok(index.includes('id="vatraScrollToTop"')&&
 assert.ok(app.includes("document.getElementById('vatraScrollToTop')")&&
  app.includes("button.addEventListener('click',()=>window.scrollTo"),
  'Scroll-to-top button must connect to its existing behavior');
-assert.ok(siteCss.includes('#vatraScrollToTop[hidden]')&&
- siteCss.includes('left:20px!important'),
- 'Scroll-to-top button must appear at the left and respect its hidden state');
+const pagesCss=read('vatra-pages.css');
+assert.ok(pagesCss.includes('.vatra-scroll-to-top[hidden]')&&
+ pagesCss.includes('height:100dvh!important')&&
+ pagesCss.includes('left:0!important'),
+ 'VK-style left scroll rail must be full height on desktop and hide until needed');
+assert.ok(!siteCss.includes('html body #vatraScrollToTop.vatra-scroll-to-top{'),
+ 'Do not override the full-height scroll rail with a second floating button');
 for(const page of ['index.html','auth.html','register.html','404.html']){
  const links=[...read(page).matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+\.css(?:\?[^"]*)?)"[^>]*>/gi)]
   .map(match=>match[1].split('?')[0]);

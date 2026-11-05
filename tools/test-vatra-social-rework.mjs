@@ -42,10 +42,11 @@ assert.ok(js.includes('createPost(entry,{kind:\'story\''),'Stories must be persi
 assert.ok(js.includes('VATRA_STORY_LIFETIME_MS=24*60*60*1000'),'24-hour story lifetime expected');
 assert.ok(js.includes("Object.entries(posts||{}).filter(([,p])=>p?.kind!=='story')"),'Stories cannot leak into regular posts');
 assert.ok(js.includes('data-create-story')&&js.includes('data-open-story')&&js.includes('data-story-delete'));
-assert.ok(js.includes("uploadStoryMedia(preparedFile,entry.key)"),'Stories must use a private media bucket');
+assert.ok(js.includes("uploadStoryMedia(file,entry.key)"),'Stories must use a private media bucket');
 assert.ok(js.includes("getStoryMediaUrl(story)"),'Viewer must request a short-lived private media URL');
 assert.ok(js.includes("removeStoryMedia(story)"),'Story deletion must handle private uploads');
-assert.ok(js.includes("getImageEditor(file,'story')"),'Story photos must use the shared editor');
+assert.ok(!js.includes("getImageEditor(file,'story')"),'Stories must not invoke the generic profile photo editor');
+assert.ok(js.includes('vatra-story-preview-stage')&&js.includes('captionPosition:position,overlayTheme:theme'),'Stories must provide a dedicated live preview with styling');
 assert.ok(studio.includes("isStory=mode==='story'")&&studio.includes('isStory?1600:900'),'Stories must export 9:16 images');
 assert.ok(studio.includes("['brush','pencil','Пензель']")&&studio.includes("['stickers','smile','Стікери']")&&studio.includes("['filters','sliders-horizontal','Фільтри']"),'Story editor must include brush, stickers and filters');
 assert.ok(js.includes("await vatraRemoveOwnStoryMedia(story);await remove(ref(db,'posts/'+story.id))"),'Deleting a story must also clean its owned media');

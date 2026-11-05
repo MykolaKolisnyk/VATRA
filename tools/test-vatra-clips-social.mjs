@@ -24,7 +24,7 @@ assert.ok(social.includes("pending.has(kind+':'+id)"),'Double-submit reaction gu
 assert.ok(css.includes('.vatra-clip-social-rail')&&css.includes('.vatra-clip-comments-dialog'),'Missing social UI styling');
 assert.ok(icons.includes('"share":')&&icons.includes('"heart":')&&icons.includes('"bookmark":'),'Clip icons must reuse centralized SVG');
 for(const asset of ['vatra-clips-v2.css','vatra-icon-system.js','script.js']){
- assert.ok(html.includes(asset+'?v='),asset+' must be included with a cache version');
+ assert.ok(asset.endsWith('.css')?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(read('assets/styles/manifest.json')).files.includes(asset):html.includes(asset+'?v='),asset+' must be included with a cache version');
 }
 const tables=['vatra_clip_likes','vatra_clip_comments','vatra_clip_bookmarks','vatra_clip_shares'];
 for(const table of tables){

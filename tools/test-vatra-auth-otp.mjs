@@ -27,7 +27,8 @@ for(const file of ['auth.html','register.html']){
 const language=read('vatra-language.js');
 const langCss=read('vatra-design-system-nov04.css');
 assert.ok(language.includes('function vatraInstallAuthLanguageQuick()'),'Blue-panel quick selector is required');
-assert.ok(language.includes("new Set(['uk','en','pl','de'])"),'Current language must be first among four choices');
+assert.ok(language.includes("const defaults=['uk','en','pl','de']")&&language.includes("function vatraAuthRecentCodes()"),'Four language shortcuts must start with defaults and remember recent choices');
+assert.ok(language.includes("vatraRememberAuthLanguage(code)"),'Recently selected language must move to the front');
 assert.ok(language.includes("more.textContent='Усі мови'"),'Quick language strip needs full language dialog action');
 assert.ok(language.includes("choice.classList.add('is-active')"),'Active quick language must be visibly distinguished');
 assert.ok(language.includes('vatraShowLanguageDialog()'),'All languages must open the existing modal');

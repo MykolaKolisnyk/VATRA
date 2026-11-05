@@ -23,7 +23,7 @@ for(const page of ['auth.html','register.html']){
 for(const page of ['index.html','404.html']){
  const html=read(page);
  assert.ok(html.includes(icon)&&html.includes(wordmark),page+': logo must be a standalone icon + real text');
- assert.ok(html.includes('vatra-brand-text.css?v=20261105-wordmark1'),page+': global wordmark CSS missing');
+ assert.ok(page==='index.html'?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(read('assets/styles/manifest.json')).files.includes('vatra-brand-text.css'):html.includes('vatra-brand-text.css?v=20261105-wordmark1'),page+': global wordmark CSS missing');
  assert.ok(!html.includes('vatra-header.svg?v='),page+': stale image wordmark remains');
 }
 const index=read('index.html');
