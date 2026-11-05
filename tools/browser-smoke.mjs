@@ -102,12 +102,12 @@ try{
  const visual=await browser.newPage({viewport:{width:1280,height:850},deviceScaleFactor:1});
  try{
   await visual.goto(base+'/404.html',{waitUntil:'domcontentloaded'});
-  await visual.setContent(`<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="feed"><div class="layout"><aside class="sidebar"><nav><a class="nav active" href="#">Новини</a></nav></aside><main class="main"><section class="feed"><article class="post"><div class="post-head"><div class="author"><b><button class="author-link">ВАТРА</button></b><small>Новини спільноти</small></div></div><p class="post-text">Текст допису має бути чітким, читабельним і достатнього розміру.</p><div class="post-actions"><button class="post-action-button">Вподобати</button></div></article></section></main></div></body></html>`,{waitUntil:'load'});
+  await visual.setContent(`<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="feed"><div class="layout"><aside class="sidebar"><nav><a class="nav active" href="#"><span>Новини</span></a></nav></aside><main class="main"><section class="feed"><article class="post"><div class="post-head"><div class="author"><b><button class="author-link">ВАТРА</button></b><small>Новини спільноти</small></div></div><p class="post-text">Текст допису має бути чітким, читабельним і достатнього розміру.</p><div class="post-actions"><button class="post-action-button">Вподобати</button></div></article></section></main></div></body></html>`,{waitUntil:'load'});
   const visualStyle=await visual.evaluate(async()=>{
    const loaded=await document.fonts.load('500 16px "VATRA Onest"');
    const post=document.querySelector('.post-text');
    const author=document.querySelector('.author-link');
-   const side=document.querySelector('.sidebar .nav');
+   const side=document.querySelector('.sidebar .nav>span:not(.nav-icon)');
    return {fontFaces:loaded.length,postSize:getComputedStyle(post).fontSize,
     postFamily:getComputedStyle(post).fontFamily,authorSize:getComputedStyle(author).fontSize,
     sidebarSize:getComputedStyle(side).fontSize,cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};

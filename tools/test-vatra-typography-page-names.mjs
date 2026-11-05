@@ -35,7 +35,7 @@ for(const file of ['index.html','auth.html','register.html']){
  assert.ok(html.includes('family=Inter:wght@400..800'), 'Inter fallback missing in '+file);
 }
 assert.ok(foundations.includes('--vatra-ui-font:"VATRA Onest"'), 'The app must use the same crisp local Onest font as its 404 page');
-assert.ok(icons.includes('font-size:14px!important;font-weight:580!important'),'Compact readable desktop navigation not applied');
+assert.ok(icons.includes('font-size:15px!important;font-weight:660!important'),'Compact readable desktop navigation not applied');
 assert.ok(icons.includes('height:38px!important'),'Sidebar buttons must remain compact');
 assert.ok(icons.includes('data-vatra-theme-effective="dark"'),'Dark mode navigation is unstyled');
 

@@ -41,18 +41,18 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  content:none!important;display:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon{
- flex:0 0 19px!important;width:19px!important;height:19px!important;
+ flex:0 0 20px!important;width:20px!important;height:20px!important;
  display:grid!important;place-items:center!important;
  color:var(--vatra-icon-blue)!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg.vatra-icon{
- display:block!important;width:19px!important;height:19px!important;
+ display:block!important;width:20px!important;height:20px!important;
  color:inherit!important;stroke:currentColor!important;
  stroke-width:1.95!important;fill:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav>span:not(.nav-icon){
  font-family:var(--vatra-ui-font,"Manrope",Inter,sans-serif)!important;
- font-size:14px!important;font-weight:580!important;
+ font-size:15px!important;font-weight:660!important;
  line-height:1.35!important;letter-spacing:-.012em!important;color:inherit!important;
  text-shadow:none!important;
 }

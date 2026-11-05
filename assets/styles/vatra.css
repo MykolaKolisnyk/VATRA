@@ -19284,21 +19284,7 @@ html body[data-vatra-theme-effective="dark"]{--vatra-brand-ink:#edf2f9;--vatra-b
 html body[data-vatra-theme-effective="dark"] .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-radius:16px!important}
 @media(prefers-reduced-motion:reduce){html body .layout>.sidebar nav a.nav,html body .layout>.sidebar nav a.nav .nav-icon{transition:none!important}}
 
-/* Canonical VATRA navigation, owned by this brand module. */
-html body .layout>.sidebar nav:not(.footer-legal){display:flex!important;flex-direction:column!important;gap:2px!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:14.5px!important;font-weight:660!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav)::before,html body .layout>.sidebar nav :is(a.nav,button.nav)::after{content:none!important;display:none!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{display:grid!important;place-items:center!important;flex:0 0 27px!important;width:27px!important;height:27px!important;border-radius:9px!important;background:transparent!important;color:#617b9b!important;transition:background-color .16s ease,color .16s ease!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:20px!important;height:20px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible){background:#edf3fc!important;color:#164f9b!important;transform:none!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 #0757f5!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#dce8ff!important;color:#0757f5!important}
-html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible) .nav-icon{color:#0757f5!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav){color:#c7d3e3!important;background:transparent!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{color:#a8bbd4!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible,.active,[aria-current="page"]){background:#263c57!important;color:#f0f6ff!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#385579!important;color:#dceafe!important}
-
+/* Desktop navigation is defined in foundation/icons.css (final cascade owner). */
 body .mobile-nav :is(button,a),
 body .mobile-nav :is(button,a).active{
  background:transparent!important;
@@ -19499,14 +19485,6 @@ body #vatraConfirmDialog.is-destructive #vatraConfirmYes{
 }
 body #vatraConfirmDialog.is-destructive #vatraConfirmYes:hover{
  background:#b93849!important;
-}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav),
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav).active{
- background:transparent!important;color:#b3c4d8!important;
-}
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):hover,
-body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav).active:hover{
- background:rgba(96,135,184,.17)!important;color:#e2efff!important;
 }
 body[data-vatra-theme-effective="dark"] .sidebar-footer.vatra-sidebar-footer .vatra-footer-identity>strong{color:#d6e3f4!important}
 body[data-vatra-theme-effective="dark"] .sidebar-footer.vatra-sidebar-footer .vatra-footer-identity>span{color:#9bacbf!important}
@@ -22460,18 +22438,18 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  content:none!important;display:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon{
- flex:0 0 19px!important;width:19px!important;height:19px!important;
+ flex:0 0 20px!important;width:20px!important;height:20px!important;
  display:grid!important;place-items:center!important;
  color:var(--vatra-icon-blue)!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon svg.vatra-icon{
- display:block!important;width:19px!important;height:19px!important;
+ display:block!important;width:20px!important;height:20px!important;
  color:inherit!important;stroke:currentColor!important;
  stroke-width:1.95!important;fill:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav>span:not(.nav-icon){
  font-family:var(--vatra-ui-font,"Manrope",Inter,sans-serif)!important;
- font-size:14px!important;font-weight:580!important;
+ font-size:15px!important;font-weight:660!important;
  line-height:1.35!important;letter-spacing:-.012em!important;color:inherit!important;
  text-shadow:none!important;
 }
