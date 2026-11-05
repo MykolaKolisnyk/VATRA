@@ -6,6 +6,7 @@ const css=read('vatra-auth-unified.css');
 const js=read('auth.js');
 const lang=read('vatra-language.js');
 const logoCss=read('vatra-brand-text.css');
+const authModules=JSON.parse(read('assets/styles/auth-manifest.json')).files;
 assert.ok(logoCss.includes('.vatra-wordmark-text')&&!css.includes('.vatra-wordmark .vatra-wordmark-text'),'A single shared logo stylesheet must own text+icon rules');
 const uiRefs=[
  'vatra-language.css','vatra-recovery-final.css',
@@ -13,16 +14,16 @@ const uiRefs=[
 ];
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('vatra-auth-unified.css?v=20261105-brand-flags1'),page+': consolidated CSS missing');
- assert.equal((html.match(/href="vatra-auth-unified\.css\?/g)||[]).length,1,page+': duplicated unified styles');
- assert.ok(html.includes('vatra-brand-text.css?v=20261105-brand-flags1'),page+': shared logo CSS missing');
- assert.equal((html.match(/href="vatra-brand-text\.css\?/g)||[]).length,1,page+': duplicate logo CSS');
+ assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-auth-bundle1'),page+': consolidated CSS missing');
+ assert.equal((html.match(/href="assets\/styles\/vatra-auth\.css\?/g)||[]).length,1,page+': duplicated auth bundle');
+ assert.ok(authModules.includes('vatra-brand-text.css'),page+': logo source missing from auth bundle');
+ assert.equal(authModules.at(-1),'vatra-auth-unified.css',page+': final auth styles must load last');
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
  assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
  assert.ok(html.includes('auth.js?v=20261105-media-handle1'),page+': stale auth script');
- assert.ok(html.lastIndexOf('vatra-auth-unified.css')>html.lastIndexOf('vatra-ui-foundations-v5.css'),
+ assert.ok(authModules.indexOf('vatra-auth-unified.css')>authModules.indexOf('vatra-ui-foundations-v5.css'),
   page+': canonical auth styles must load last');
 }
 assert.ok(css.includes('html body .auth-layout>.form-side')&&css.includes('min-height:0!important'),
