@@ -27,4 +27,9 @@ assert.ok(editor.includes('font:520 13px/1.4 var(--vatra-ui-font)!important'),'P
 assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&css.includes('box-shadow:none!important;'),'Selected sidebar must remain visually neutral');
 assert.ok(!read('assets/styles/sources/layout/navigation-profile.css').includes('sidebar nav button.nav.active'),'Legacy button nav rules must be removed');
 assert.ok(!read('assets/styles/sources/layout/interface-corrections.css').includes('sidebar nav a.nav.active'),'Legacy active sidebar overrides must be removed');
+
+// All visible VATRA sections use the same Onest variable font, including shorthand rules.
+for(const path of ["assets/styles/sources/social/messenger.css","assets/styles/sources/gifts/catalog.css","assets/styles/sources/social/post-composer.css","assets/styles/sources/support/desk.css","assets/styles/sources/layout/app-shell.css","assets/styles/sources/layout/pages.css","assets/styles/sources/foundation/base.css","assets/styles/sources/foundation/neutral-surfaces.css","assets/styles/sources/foundation/typography.css","assets/styles/sources/media/music.css"]){
+ assert.ok(!read(path).includes('Inter'),path+': legacy font override reintroduced');
+}
 console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');

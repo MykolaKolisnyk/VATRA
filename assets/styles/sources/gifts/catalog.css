@@ -11,7 +11,7 @@
 .vatra-gifts-tabs button[aria-current=page]{border-color:#0757f5;color:#0757f5}
 .vatra-gift-privacy{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0;flex-wrap:wrap}
 .vatra-gift-privacy label{font-size:13px;font-weight:650;color:#415a75}
-.vatra-gift-privacy select,.vatra-gift-send select{width:min(270px,100%);padding:10px 12px;border:1px solid #dbe5f0;border-radius:5px;background:#fff;color:#314961;font:500 13px Inter,system-ui,sans-serif}
+.vatra-gift-privacy select,.vatra-gift-send select{width:min(270px,100%);padding:10px 12px;border:1px solid #dbe5f0;border-radius:5px;background:#fff;color:#314961;font:500 13px var(--vatra-ui-font),system-ui,sans-serif}
 .vatra-gifts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin:18px 0}
 .vatra-gift-card{padding:15px 12px 14px;border:1px solid #e1e8f0;border-radius:7px;background:#fff;text-align:center;display:flex;flex-direction:column;align-items:stretch;box-shadow:0 1px 2px #24375709}
 .vatra-gift-card .vatra-gift-image{aspect-ratio:1/1;background:linear-gradient(140deg,#f9fcff,#eff5fc);border-radius:6px;display:grid;place-items:center;overflow:hidden}
@@ -85,20 +85,20 @@ body .vatra-gift-preview-row{display:grid;grid-template-columns:repeat(3,minmax(
 body .vatra-gift-preview-item{aspect-ratio:1;overflow:hidden;background:linear-gradient(145deg,#f9fcff,#edf5fb);border:1px solid #e1e9f2;border-radius:6px;display:grid;place-items:center}
 body .vatra-gift-preview-item svg{width:100%;height:100%}
 body .vatra-gift-preview-card .vatra-gift-preview-empty{min-height:60px;display:grid;place-items:center;text-align:center;font-size:12px}
-body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link{display:block!important;width:100%!important;height:38px!important;min-height:38px!important;padding:9px!important;margin:8px 0 0!important;border:0!important;border-radius:5px!important;box-shadow:none!important;text-align:center!important;background:transparent!important;color:#647d98!important;font:600 12px/1.5 Inter,Arial,sans-serif!important;cursor:pointer!important;transition:color .16s ease,background-color .16s ease!important}
+body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link{display:block!important;width:100%!important;height:38px!important;min-height:38px!important;padding:9px!important;margin:8px 0 0!important;border:0!important;border-radius:5px!important;box-shadow:none!important;text-align:center!important;background:transparent!important;color:#647d98!important;font:600 12px/1.5 var(--vatra-ui-font),Arial,sans-serif!important;cursor:pointer!important;transition:color .16s ease,background-color .16s ease!important}
 body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link:hover{background:#edf3fa!important;color:#0757f5!important}
 dialog.vatra-gift-confirm{position:fixed;inset:0;margin:auto;width:min(460px,calc(100vw - 30px));max-width:460px;padding:0 22px 22px;border:1px solid #dfe6ef;border-radius:7px;background:#fff;color:#304760;box-shadow:0 24px 65px #152d4855}
 dialog.vatra-gift-confirm::backdrop{background:#172c4988}
 dialog.vatra-gift-confirm header{padding:20px 0 15px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid #e5ebf2}
-dialog.vatra-gift-confirm h2{font:750 19px/1.4 Inter,Arial,sans-serif;margin:3px 0 0;color:#2b4158}
-dialog.vatra-gift-confirm header small{font:750 10px Inter,Arial,sans-serif;letter-spacing:.08em;color:#899eb2}
+dialog.vatra-gift-confirm h2{font:750 19px/1.4 var(--vatra-ui-font),Arial,sans-serif;margin:3px 0 0;color:#2b4158}
+dialog.vatra-gift-confirm header small{font:750 10px var(--vatra-ui-font),Arial,sans-serif;letter-spacing:.08em;color:#899eb2}
 dialog.vatra-gift-confirm header button{font-size:22px;border:0;border-radius:5px;background:#f0f4f8;padding:4px 11px;color:#6b7c91;cursor:pointer}
-dialog.vatra-gift-confirm>p{margin:19px 0 24px;font:450 13px/1.7 Inter,Arial,sans-serif;color:#5c7085}
+dialog.vatra-gift-confirm>p{margin:19px 0 24px;font:450 13px/1.7 var(--vatra-ui-font),Arial,sans-serif;color:#5c7085}
 dialog.vatra-gift-confirm footer{display:flex;justify-content:flex-end;gap:9px}
-dialog.vatra-gift-confirm footer button{padding:10px 15px;min-height:39px;border:1px solid #d7e4ef;border-radius:5px;background:#fff;color:#526f8b;cursor:pointer;font:650 12px Inter,Arial,sans-serif}
+dialog.vatra-gift-confirm footer button{padding:10px 15px;min-height:39px;border:1px solid #d7e4ef;border-radius:5px;background:#fff;color:#526f8b;cursor:pointer;font:650 12px var(--vatra-ui-font),Arial,sans-serif}
 dialog.vatra-gift-confirm footer .primary{background:#0757f5;color:#fff;border-color:#0757f5}
 dialog.vatra-gift-confirm footer .danger{background:#be4558;color:#fff;border-color:#be4558}
-body .vatra-gift-toast{position:fixed;z-index:99999;right:24px;bottom:24px;max-width:min(400px,calc(100vw - 30px));padding:13px 15px;display:flex;gap:18px;align-items:center;background:#2b435d;color:#fff;border-radius:6px;box-shadow:0 14px 35px #152b4444;font:500 13px/1.55 Inter,Arial,sans-serif}
+body .vatra-gift-toast{position:fixed;z-index:99999;right:24px;bottom:24px;max-width:min(400px,calc(100vw - 30px));padding:13px 15px;display:flex;gap:18px;align-items:center;background:#2b435d;color:#fff;border-radius:6px;box-shadow:0 14px 35px #152b4444;font:500 13px/1.55 var(--vatra-ui-font),Arial,sans-serif}
 body .vatra-gift-toast button{border:0;background:none;color:inherit;cursor:pointer;font-size:21px}
 body .vatra-gift-toast.is-error{background:#933b51}
 @media(max-width:540px){body .vatra-gift-toast{left:14px;right:14px;bottom:14px;max-width:none}}
@@ -106,11 +106,11 @@ body .vatra-gift-toast.is-error{background:#933b51}
 
 body .vatra-gifts-page{padding:25px 27px 30px;background:#fff;border:1px solid #e1e8f0;border-radius:6px;box-shadow:none}
 body .vatra-gifts-header{padding-bottom:19px}
-body .vatra-gifts-header h1{font:750 23px/1.35 Inter,Arial,sans-serif;letter-spacing:-.025em;margin:4px 0 6px}
+body .vatra-gifts-header h1{font:750 23px/1.35 var(--vatra-ui-font),Arial,sans-serif;letter-spacing:-.025em;margin:4px 0 6px}
 body .vatra-gifts-header p:not(.vatra-gifts-eyebrow){font-size:12.5px;line-height:1.6}
 body .vatra-gift-summary{font-size:24px}
 body .vatra-gifts-tabs{gap:25px;min-height:48px;overflow-x:auto}
-body .vatra-gifts-tabs button{font:650 12.5px/1.4 Inter,Arial,sans-serif;padding:12px 0;border-bottom-width:2px;transition:color .16s ease,border-color .16s ease}
+body .vatra-gifts-tabs button{font:650 12.5px/1.4 var(--vatra-ui-font),Arial,sans-serif;padding:12px 0;border-bottom-width:2px;transition:color .16s ease,border-color .16s ease}
 body .vatra-gifts-tabs button:hover{color:#0757f5}
 body .vatra-gifts-intro{margin:18px 0 14px;font-size:12.5px;color:#7b8fa6;line-height:1.7}
 body .vatra-gifts-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:18px 0}
@@ -119,21 +119,21 @@ body .vatra-gift-card:hover{transform:translateY(-2px);border-color:#bfd3e9;box-
 body .vatra-gift-card .vatra-gift-image{width:100%;aspect-ratio:1/1;max-height:none;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#f8fbff,#eef5fd 60%,#eaf2fa);border-radius:5px}
 body .vatra-gift-card .vatra-gift-art{width:97%;height:97%;max-width:205px;transition:transform .2s ease}
 body .vatra-gift-card:hover .vatra-gift-art{transform:scale(1.04)}
-body .vatra-gift-card h3{margin:11px 0 4px;display:grid;place-items:center;text-align:center;min-height:2.8em;font:700 12.5px/1.4 Inter,Arial,sans-serif;color:#2d435c}
+body .vatra-gift-card h3{margin:11px 0 4px;display:grid;place-items:center;text-align:center;min-height:2.8em;font:700 12.5px/1.4 var(--vatra-ui-font),Arial,sans-serif;color:#2d435c}
 body .vatra-gift-card p{font-size:11.5px;line-height:1.45;color:#8598ac;min-height:2.9em;margin:0 0 12px;display:grid;place-items:center}
 body .vatra-gift-card p b{font-size:14px;font-weight:750;color:#1b5497}
-body .vatra-gift-card>button{margin-top:auto;min-height:37px;background:#eef4fc;border:1px solid #d5e3f3;border-radius:5px;color:#175eaf;font:650 12px/1.4 Inter,Arial,sans-serif;transition:background .15s ease,color .15s ease}
+body .vatra-gift-card>button{margin-top:auto;min-height:37px;background:#eef4fc;border:1px solid #d5e3f3;border-radius:5px;color:#175eaf;font:650 12px/1.4 var(--vatra-ui-font),Arial,sans-serif;transition:background .15s ease,color .15s ease}
 body .vatra-gift-card>button:hover{background:#e1edfa;color:#0757f5}
 body .vatra-gift-card .vatra-gift-free-label{color:#4a8b70;background:#edf8f0;border-radius:5px;padding:9px 5px;font-size:10.5px;font-weight:650}
 body .vatra-gift-privacy{background:#f8fbfe;border:1px solid #e5ebf3;border-radius:5px;padding:12px 14px;margin:17px 0;gap:12px}
-body .vatra-gift-privacy select{font:500 12.5px Inter,Arial,sans-serif;max-width:230px}
+body .vatra-gift-privacy select{font:500 12.5px var(--vatra-ui-font),Arial,sans-serif;max-width:230px}
 body .vatra-gift-preview-card .vatra-profile-card-head{margin-bottom:13px!important}
 body .vatra-profile-sidebar .vatra-profile-friends button.vatra-profile-link,
 body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-link.vatra-profile-link{
  display:block!important;box-sizing:border-box!important;width:100%!important;min-height:34px!important;height:auto!important;
  margin:9px 0 0!important;padding:7px 9px!important;border:0!important;border-radius:7px!important;
  background:transparent!important;color:#0757f5!important;box-shadow:none!important;
- font-family:Inter,Arial,sans-serif!important;font-size:11.5px!important;font-weight:750!important;
+ font-family:var(--vatra-ui-font),Arial,sans-serif!important;font-size:11.5px!important;font-weight:750!important;
  line-height:1.5!important;letter-spacing:0!important;text-align:center!important;cursor:pointer!important;
  transition:background-color .15s ease,color .15s ease!important;
 }
@@ -311,7 +311,7 @@ body[data-vatra-theme-effective="dark"] .vatra-gift-animated-label{background:#2
   transform:translateX(-50%)!important;display:inline-flex!important;
   align-items:center!important;justify-content:center!important;
   gap:6px!important;white-space:nowrap!important;
-  font:700 11px/1.25 Inter,system-ui,sans-serif!important;
+  font:700 11px/1.25 var(--vatra-ui-font),system-ui,sans-serif!important;
   border-radius:8px!important;padding:7px 11px!important;
   color:#235c9e!important;background:rgba(255,255,255,.88)!important;
   border:1px solid rgba(206,223,242,.85)!important;
@@ -349,7 +349,7 @@ dialog.vatra-gift-detail-dialog::backdrop{background:rgba(12,24,42,.77)!importan
   gap:20px!important;padding:16px 0!important;border-bottom:1px solid #e3eaf3!important;
 }
 .vatra-gift-detail-header>span{
-  font:800 12px/1.4 Inter,system-ui,sans-serif!important;
+  font:800 12px/1.4 var(--vatra-ui-font),system-ui,sans-serif!important;
   color:#395774!important;letter-spacing:.065em!important;
 }
 .vatra-gift-detail-header>span i{padding:0 7px!important;color:#89a1b8!important;font-style:normal!important}
@@ -382,21 +382,21 @@ dialog.vatra-gift-detail-dialog::backdrop{background:rgba(12,24,42,.77)!importan
 }
 .vatra-gift-detail-category{
   display:block!important;margin:0 0 7px!important;
-  font:750 11px/1.5 Inter,system-ui,sans-serif!important;
+  font:750 11px/1.5 var(--vatra-ui-font),system-ui,sans-serif!important;
   color:#3f75b2!important;letter-spacing:.065em!important;text-transform:uppercase!important;
 }
 .vatra-gift-detail-info h2{
-  margin:0 0 12px!important;font:800 clamp(25px,3vw,34px)/1.22 Inter,system-ui,sans-serif!important;
+  margin:0 0 12px!important;font:800 clamp(25px,3vw,34px)/1.22 var(--vatra-ui-font),system-ui,sans-serif!important;
   letter-spacing:-.025em!important;color:#223953!important;
 }
 .vatra-gift-detail-description{
-  font:450 15px/1.75 Inter,system-ui,sans-serif!important;
+  font:450 15px/1.75 var(--vatra-ui-font),system-ui,sans-serif!important;
   color:#536d88!important;margin:0 0 17px!important;
   white-space:normal!important;
 }
 .vatra-gift-detail-note{
   margin:0!important;color:#8499ac!important;
-  font:550 12px/1.55 Inter,system-ui,sans-serif!important;
+  font:550 12px/1.55 var(--vatra-ui-font),system-ui,sans-serif!important;
 }
 .vatra-gift-detail-footer{
   flex:0 0 auto!important;display:flex!important;justify-content:center!important;
@@ -407,7 +407,7 @@ dialog.vatra-gift-detail-dialog::backdrop{background:rgba(12,24,42,.77)!importan
   min-height:43px!important;padding:10px 24px!important;
   border:0!important;border-radius:10px!important;
   background:#0757f5!important;color:#fff!important;
-  font:700 13px/1.3 Inter,system-ui,sans-serif!important;
+  font:700 13px/1.3 var(--vatra-ui-font),system-ui,sans-serif!important;
   cursor:pointer!important;box-shadow:none!important;
 }
 .vatra-gift-detail-footer button:hover{background:#0049d8!important}

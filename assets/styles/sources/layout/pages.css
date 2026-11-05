@@ -1750,7 +1750,7 @@ body[data-page="settings"] .vatra-settings-pane .settings-grid textarea{
   background:#fff!important;
   box-shadow:none!important;
   color:#2b3e55!important;
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  font-family:var(--vatra-ui-font),system-ui,-apple-system,"Segoe UI",sans-serif!important;
   font-size:14px!important;
   line-height:1.55!important;
   padding:10px 12px!important;
@@ -4539,9 +4539,9 @@ body .vatra-profile-summary-compact .vatra-profile-bio-block>.vatra-profile-bio-
  box-sizing:border-box;display:block;width:100%;max-width:100%;
  min-height:39px;padding:8px 34px 8px 11px;
  border:1px solid #d5e0ee;border-radius:9px;
- background:#fff;color:#263e5b;font:500 13px/1.4 Inter,Arial,sans-serif;cursor:pointer}
+ background:#fff;color:#263e5b;font:500 13px/1.4 var(--vatra-ui-font),Arial,sans-serif;cursor:pointer}
 #composer .vatra-post-audience select:focus-visible,.post-edit-form .vatra-post-audience select:focus-visible{outline:2px solid #0757f5;outline-offset:2px}
-#composer .vatra-post-audience-hint{display:block;max-width:100%;margin:4px 0 10px;color:#697d96;font:400 11.5px/1.45 Inter,Arial,sans-serif}
+#composer .vatra-post-audience-hint{display:block;max-width:100%;margin:4px 0 10px;color:#697d96;font:400 11.5px/1.45 var(--vatra-ui-font),Arial,sans-serif}
 .post-edit-form .vatra-post-edit-audience{margin:12px 0}
 body[data-vatra-theme-effective="dark"] #composer .vatra-post-audience select,
 body[data-vatra-theme-effective="dark"] .post-edit-form .vatra-post-audience select{background:#243448;color:#e6effb;border-color:#465a72}
@@ -4558,14 +4558,14 @@ body[data-vatra-theme-effective="dark"] .post-edit-form .vatra-post-audience sel
 #composer .vatra-composer-identity>.avatar{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;border-radius:50%!important}
 #composer .vatra-composer-person{display:grid!important;gap:3px!important;min-width:0!important}
 #composer .vatra-composer-person #modalName{font-size:13px!important;font-weight:600!important}
-#composer .vatra-composer-person .vatra-post-audience-hint{display:block!important;max-width:100%!important;margin:0!important;color:#74859c!important;font:400 11px/1.35 Inter,Arial,sans-serif!important}
+#composer .vatra-composer-person .vatra-post-audience-hint{display:block!important;max-width:100%!important;margin:0!important;color:#74859c!important;font:400 11px/1.35 var(--vatra-ui-font),Arial,sans-serif!important}
 #composer .vatra-composer-audience{position:relative!important;display:inline-flex!important;align-items:center!important;justify-self:end!important;margin:0!important;padding:0!important;max-width:180px!important;min-width:0!important}
 #composer .vatra-composer-audience svg{position:absolute!important;z-index:1;pointer-events:none!important;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:#58708d;stroke-width:1.65}
 #composer .vatra-composer-audience select{
  display:block!important;appearance:auto!important;box-sizing:border-box!important;min-width:122px!important;max-width:180px!important;width:auto!important;
  height:36px!important;min-height:36px!important;margin:0!important;padding:6px 24px 6px 30px!important;
  border:1px solid #dae5f2!important;border-radius:18px!important;background:#f5f8fc!important;box-shadow:none!important;
- color:#354c69!important;font:500 12px/1.35 Inter,Arial,sans-serif!important;cursor:pointer!important}
+ color:#354c69!important;font:500 12px/1.35 var(--vatra-ui-font),Arial,sans-serif!important;cursor:pointer!important}
 #composer .vatra-composer-audience select:hover{background:#eaf2fe!important;border-color:#bcd2ef!important}
 #composer .vatra-composer-audience select:focus-visible{outline:2px solid #0757f5!important;outline-offset:2px}
 body[data-page="profile"] .vatra-profile-summary-compact .vatra-profile-title-row h2,
@@ -4612,7 +4612,7 @@ body[data-vatra-theme-effective="dark"] #composer .vatra-composer-identity{borde
 body[data-vatra-theme-effective="dark"] #composer .vatra-composer-audience select{background:#26374d!important;color:#e7effb!important;border-color:#465a72!important}
 body[data-vatra-theme-effective="dark"] #composer .vatra-composer-audience svg{stroke:#c0d3e7!important}
 body .topbar-popover .vatra-sound-setting{display:grid!important;gap:4px!important;padding:10px 14px!important;border-top:1px solid #e5ecf5!important}
-body .topbar-popover .vatra-sound-setting button{display:inline-flex!important;align-items:center!important;min-height:32px!important;padding:7px 9px!important;border:1px solid #d8e4f2!important;border-radius:8px!important;background:#f5f8fc!important;color:#365473!important;font:550 12px/1.35 Inter,Arial,sans-serif!important;cursor:pointer!important}
+body .topbar-popover .vatra-sound-setting button{display:inline-flex!important;align-items:center!important;min-height:32px!important;padding:7px 9px!important;border:1px solid #d8e4f2!important;border-radius:8px!important;background:#f5f8fc!important;color:#365473!important;font:550 12px/1.35 var(--vatra-ui-font),Arial,sans-serif!important;cursor:pointer!important}
 body .topbar-popover .vatra-sound-setting button:hover{background:#eaf2ff!important}
-body .topbar-popover .vatra-sound-setting small{font:400 10.5px/1.4 Inter,Arial,sans-serif!important;color:#71849b!important}
+body .topbar-popover .vatra-sound-setting small{font:400 10.5px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;color:#71849b!important}
 @media(prefers-reduced-motion:reduce){body .vatra-scroll-to-top,body .vatra-scroll-to-top svg{transition:none!important}}

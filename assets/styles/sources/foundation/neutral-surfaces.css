@@ -81,7 +81,7 @@ body:not([data-vatra-theme-effective="dark"]) .vatra-profile-summary-compact .va
 .vatra-top-music-now b{font-size:12px;font-weight:630;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vatra-top-music-now small{font-size:11px;color:#7b8a9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vatra-top-music-actions{display:flex;gap:8px}
-.vatra-top-music-actions button{flex:1;min-height:36px;border:1px solid #dce4ec;background:#f0f3f6;color:#34465a;border-radius:9px;cursor:pointer;font:560 12px Inter,Arial,sans-serif}
+.vatra-top-music-actions button{flex:1;min-height:36px;border:1px solid #dce4ec;background:#f0f3f6;color:#34465a;border-radius:9px;cursor:pointer;font:560 12px var(--vatra-ui-font),Arial,sans-serif}
 .vatra-top-music-actions button:hover:not(:disabled){background:#e3eaf2}
 .vatra-top-music-actions button:disabled{opacity:.45;cursor:not-allowed}
 .vatra-top-music-panel>p{font-size:10px;color:#8291a0;margin:10px 0 0}
@@ -234,7 +234,7 @@ body .vatra-global-header>#vatraMusicTopPanel #vatraMusicMenuClose{
  display:grid!important;place-items:center!important;
  width:24px!important;height:24px!important;min-height:24px!important;padding:0!important;
  border:0!important;border-radius:7px!important;background:transparent!important;
- font:400 19px/1 Inter,Arial,sans-serif!important;color:#8291a2!important;cursor:pointer!important;
+ font:400 19px/1 var(--vatra-ui-font),Arial,sans-serif!important;color:#8291a2!important;cursor:pointer!important;
 }
 body .vatra-global-header>#vatraMusicTopPanel #vatraMusicMenuClose:hover{
  background:#f0f3f7!important;color:#31475b!important;
@@ -265,7 +265,7 @@ body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-actions button{
  padding:6px 7px!important;margin:0!important;
  border:1px solid #dce4ec!important;border-radius:8px!important;
  background:#f2f5f8!important;color:#40576e!important;
- font:550 10.5px/1.25 Inter,Arial,sans-serif!important;
+ font:550 10.5px/1.25 var(--vatra-ui-font),Arial,sans-serif!important;
  text-align:center!important;cursor:pointer!important;
 }
 body .vatra-global-header>#vatraMusicTopPanel .vatra-top-music-actions button:hover{
@@ -318,7 +318,7 @@ body .vatra-global-header>#accountDropdown>button.vatra-account-item{
  margin:0!important;width:100%!important;
  border:0!important;border-radius:8px!important;
  background:transparent!important;color:#3b4d61!important;
- text-align:left!important;font:550 12px/1.4 Inter,Arial,sans-serif!important;
+ text-align:left!important;font:550 12px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;
  box-shadow:none!important;transform:none!important;
  transition:background-color .16s ease,color .16s ease!important;cursor:pointer!important;
 }
@@ -393,7 +393,7 @@ body .vatra-global-header>#accountDropdown.account-popover>button.vatra-account-
  min-height:40px!important;
  height:40px!important;
  padding:0 11px!important;
- font-family:Inter,Arial,sans-serif!important;
+ font-family:var(--vatra-ui-font),Arial,sans-serif!important;
  font-size:12.5px!important;
  font-weight:540!important;
  line-height:1.35!important;
