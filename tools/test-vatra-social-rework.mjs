@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 
 const read=p=>readFileSync(p,'utf8');
-const js=read('script.js'),html=read('index.html'),css=read('assets/styles/sources/foundation/shared-tokens.css');
-const auth=read('auth.js'),studio=read('vatra-photo-studio.js');
+const js=read('assets/scripts/app/main.js'),html=read('index.html'),css=read('assets/styles/sources/foundation/shared-tokens.css');
+const auth=read('assets/scripts/auth/auth.js'),studio=read('assets/scripts/media/photo-studio.js');
 const sidebar=html.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.[1]||'';
 const sidebarOrder=['profile','friends','feed','messages','groups','photos','myVideos','videos','gifts','saved','settings'];
 assert.ok(sidebar.length>0,'Missing navigation');
@@ -18,7 +18,7 @@ for(const hint of ['Переглянути людей із міста','які �
  assert.ok(js.includes(hint),'Contextual search hint missing: '+hint);
 }
 assert.ok(css.includes('text-decoration:underline solid 1px'),'Profile links must not use dotted underlines');
-const languageJs=read('vatra-language.js'),languageCss=read('assets/styles/sources/foundation/dialogs-and-controls.css');
+const languageJs=read('assets/scripts/i18n/language.js'),languageCss=read('assets/styles/sources/foundation/dialogs-and-controls.css');
 assert.ok(languageJs.includes('class="vatra-language-dialog-header"'),'Language header must use compact layout');
 assert.ok(languageJs.includes('src="favicon.svg?v=20261105-original-v1" class="vatra-language-dialog-logo"')&&!languageJs.includes('vatra-flame.svg'),'Language header must use actual VATRA V brand mark, never flame');
 assert.ok(languageCss.includes('width:min(800px')&&languageCss.includes('vatra-language-dialog-header'),'Language dialog layout must fit desktop and mobile');

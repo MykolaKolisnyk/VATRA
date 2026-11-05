@@ -1,4 +1,4 @@
-import {initializeApp,getAuth,getDatabase,onAuthStateChanged,ref,get,set,push,onValue} from './vatra-backend.js?v=20261104-8';
+import {initializeApp,getAuth,getDatabase,onAuthStateChanged,ref,get,set,push,onValue} from '../backend/client.js?v=20261104-8';
 
 const groupAuth=getAuth(initializeApp()),groupDb=getDatabase(initializeApp());
 let myUid='',groupIndex={},groupReads={},activeGroupId='',activeGroupMessages={},activeGroupMeta=null;

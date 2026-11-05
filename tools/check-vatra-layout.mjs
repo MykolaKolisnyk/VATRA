@@ -1,5 +1,5 @@
 import {existsSync,readFileSync,readdirSync} from 'node:fs';
-import {join,normalize} from 'node:path';
+import {join,normalize,dirname} from 'node:path';
 const root='.';
 if(!existsSync('index.html')||existsSync('VATRA/index.html')||!existsSync('.nojekyll'))throw new Error('GitHub Pages site must be deployed from repository root');
 const files=readdirSync(root);
@@ -23,11 +23,22 @@ for(const page of ['index.html','auth.html','register.html','404.html']){
   if(m)checkAsset(m[1]);
  }
 }
-for(const file of files.filter(f=>f.endsWith('.js'))){
- const body=readFileSync(join(root,file),'utf8');
- const refs=[...body.matchAll(/\bfrom\s*["'](\.\/[^"']+)["']/g),
-   ...body.matchAll(/\bimport\s*\(\s*["'](\.\/[^"']+)["']/g)];
- for(const m of refs)checkAsset(m[1]);
+// Every JavaScript module has one source path. Resolve imports relative to the
+// importing module, not relative to the document root.
+const modules=readdirSync('assets/scripts',{recursive:true})
+ .filter(name=>name.endsWith('.js'))
+ .map(name=>join('assets/scripts',name));
+if(modules.length<24)throw new Error('VATRA application modules missing from categorized folders');
+for(const file of modules){
+ const body=readFileSync(file,'utf8');
+ const refs=[...body.matchAll(/\bfrom\s*["'](\.\.?\/[^"']+)["']/g),
+  ...body.matchAll(/\bimport\s*\(\s*["'](\.\.?\/[^"']+)["']/g)];
+ for(const [,url] of refs){
+  const clean=url.split(/[?#]/)[0];
+  const target=normalize(join(dirname(file),clean));
+  if(!existsSync(target))throw new Error(file+': missing dependency '+target);
+  checked++;
+ }
 }
 // The public site is intentionally documentation-free. No .md files are required.
 console.log('VATRA layout check passed:',checked,'local paths resolved.');

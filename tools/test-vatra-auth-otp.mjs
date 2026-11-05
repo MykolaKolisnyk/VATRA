@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 import {runInNewContext} from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
-const auth=read('auth.js'),backend=read('vatra-backend.js'),css=read('assets/styles/sources/auth/auth-form.css');
+const auth=read('assets/scripts/auth/auth.js'),backend=read('assets/scripts/backend/client.js'),css=read('assets/styles/sources/auth/auth-form.css');
 for(const file of ['auth.html','register.html']){
  const html=read(file);
  for(const id of ['authForm','otpWrap','otpCode','otpResend','otpChange','otpStatus','otpTitle','recoveryResendOtp']){
@@ -15,16 +15,16 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="recoveryMethodWrap"')&&!html.includes('id="recoveryMethodWrap" hidden'),'Recovery method switch must be visible');
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
- assert.ok(html.includes('auth.js?v=20261105-media-handle1'),file+': stale auth JS version');
+ assert.ok(html.includes('assets/scripts/auth/auth.js?v=20261105-media-handle1'),file+': stale auth JS version');
  assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-auth-bundle1')&&JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('assets/styles/sources/auth/auth-form.css'),file+': missing compiled auth stylesheet');
- assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),file+': language module cache must be current');
+ assert.ok(html.includes('assets/scripts/i18n/language.js?v=20261105-layout-quiz2'),file+': language module cache must be current');
  assert.ok(JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('assets/styles/sources/foundation/dialogs-and-controls.css'),file+': V logo styles missing from auth bundle');
  assert.ok(html.includes('class="vatra-auth-brand-copyright"'),file+': copyright must be on blue panel');
  assert.ok(html.includes('class="vatra-auth-mobile-copyright"'),file+': mobile must keep a visible copyright');
  assert.ok(!html.includes('<footer>© 2026 ВАТРА'),file+': do not keep desktop copyright under the form');
  assert.ok(!html.includes('без SMS-коду')&&!html.includes('без коду'),file+': outdated password-only description');
 }
-const language=read('vatra-language.js');
+const language=read('assets/scripts/i18n/language.js');
 const langCss=read('assets/styles/sources/foundation/dialogs-and-controls.css');
 assert.ok(language.includes('function vatraInstallAuthLanguageQuick()'),'Blue-panel quick selector is required');
 assert.ok(language.includes("const defaults=['uk','en','pl','de']")&&language.includes("function vatraAuthRecentCodes()"),'Four language shortcuts must start with defaults and remember recent choices');

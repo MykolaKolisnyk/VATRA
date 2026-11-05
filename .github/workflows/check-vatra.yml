@@ -66,12 +66,14 @@ jobs:
         run: node tools/test-vatra-auth-unified.mjs
       - name: Verify secure SMTP/SMS provider config and Management API patch
         run: node tools/test-vatra-auth-delivery.mjs
+      - name: Verify complete JavaScript module layout and no root duplicates
+        run: node tools/test-vatra-js-source-layout.mjs
       - name: Check moved frontend scripts and prevent stale root copies
         run: node tools/test-vatra-script-folders.mjs
       - name: Check website file paths and repository layout
         run: node tools/check-vatra-layout.mjs
       - name: Check new public preview and core page syntax
-        run: node --check vatra-public-preview.js && node --check script.js
+        run: node --check assets/scripts/public/preview.js && node --check assets/scripts/app/main.js
       - name: Check SEO generator syntax
         run: node --check tools/build-vatra-seo.mjs
       - name: Test SEO deletion and recovery without touching Supabase

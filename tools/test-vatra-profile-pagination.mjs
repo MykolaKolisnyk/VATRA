@@ -1,6 +1,6 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
-const app=readFileSync('script.js','utf8'), html=readFileSync('index.html','utf8');
+const app=readFileSync('assets/scripts/app/main.js','utf8'), html=readFileSync('index.html','utf8');
 assert.ok(app.includes('const VATRA_PROFILE_POST_BATCH_SIZE=12'),'Profile rendering must use a modest batch');
 assert.ok(app.includes('mine.slice(0,vatraOwnPostVisibleCount).map(postCard)'),'Own posts must not create the entire DOM at once');
 assert.ok(app.includes('arr.slice(0,vatraPublicPostVisibleCount).map(postCard)'),'Public posts must not create the entire DOM at once');
@@ -9,5 +9,5 @@ assert.ok(app.includes("vatraProfileMoreMarkup('public',arr.length,vatraPublicPo
 assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('own'))"),'Own profile must attach its lazy observer');
 assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('public',uid))"),'Public profile must attach its lazy observer');
 assert.ok(app.includes('button.addEventListener(\'click\',loadMore,{once:true})'),'Manual fallback must remain available');
-assert.ok(html.includes('script.js?v=20261105-idle-posts1'),'Browser must load the new profile renderer');
+assert.ok(html.includes('assets/scripts/app/main.js?v=20261105-idle-posts1'),'Browser must load the new profile renderer');
 console.log('VATRA profiles: twelve posts first, infinite scroll + button fallback.');

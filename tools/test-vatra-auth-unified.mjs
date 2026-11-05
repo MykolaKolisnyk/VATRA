@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 const read=path=>readFileSync(path,'utf8');
 
 const css=read('assets/styles/sources/auth/auth-shared.css');
-const js=read('auth.js');
-const lang=read('vatra-language.js');
+const js=read('assets/scripts/auth/auth.js');
+const lang=read('assets/scripts/i18n/language.js');
 const logoCss=read('assets/styles/sources/branding/wordmark.css');
 const authModules=JSON.parse(read('assets/styles/auth-manifest.json')).files;
 assert.ok(logoCss.includes('.vatra-wordmark-text')&&!css.includes('.vatra-wordmark .vatra-wordmark-text'),'A single shared logo stylesheet must own text+icon rules');
@@ -21,8 +21,8 @@ for(const page of ['auth.html','register.html']){
  for(const legacy of uiRefs){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
- assert.ok(html.includes('vatra-language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
- assert.ok(html.includes('auth.js?v=20261105-media-handle1'),page+': stale auth script');
+ assert.ok(html.includes('assets/scripts/i18n/language.js?v=20261105-layout-quiz2'),page+': stale translation JS');
+ assert.ok(html.includes('assets/scripts/auth/auth.js?v=20261105-media-handle1'),page+': stale auth script');
  assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': canonical auth styles must load last');
 }
@@ -50,7 +50,7 @@ assert.ok(lang.includes('function vatraAuthRecentCodes()')&&lang.includes('const
  'Quick language strip must show the last four chosen languages');
 assert.ok(!lang.includes("new Set([language,'uk','en','pl','de'])"),
  'Old selection-dependent order unexpectedly remains');
-assert.ok(read('index.html').includes('vatra-language.js?v=20261105-layout-quiz2'),
+assert.ok(read('index.html').includes('assets/scripts/i18n/language.js?v=20261105-layout-quiz2'),
  'Main site must load the same language order');
 
 assert.ok(css.includes('html body .auth-layout .vatra-auth-language-flag svg'),
@@ -60,7 +60,7 @@ assert.ok(css.includes('.vatra-auth-method-card:focus-within')&&
  'Auth and recovery cards must have unified single-border focus rules');
 assert.ok(css.includes('html body #captchaWrap.captcha-modal .human-captcha-status.is-wrong::before'),
  'Error cards must suppress the old misaligned warning bubble');
-const siteCss=read('assets/styles/sources/foundation/shared-tokens.css'),index=read('index.html'),app=read('script.js');
+const siteCss=read('assets/styles/sources/foundation/shared-tokens.css'),index=read('index.html'),app=read('assets/scripts/app/main.js');
 assert.ok(index.includes('id="vatraScrollToTop"')&&
  index.includes('aria-label="Прокрутити сторінку вгору"'),
  'Missing user-requested left-side scroll-to-top button');

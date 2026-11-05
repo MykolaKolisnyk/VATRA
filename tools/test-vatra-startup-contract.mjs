@@ -2,9 +2,9 @@ import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
 
 const read=path=>readFileSync(path,'utf8');
-const app=read('script.js'), backend=read('vatra-backend.js'), page=read('index.html');
-const iconSource=read('vatra-icon-system.js');
-const imports=[...app.matchAll(/^import\s*\{([^}]*)\}\s*from\s*['"]\.\/vatra-backend\.js\?v=([^'"]+)['"]/gm)];
+const app=read('assets/scripts/app/main.js'), backend=read('assets/scripts/backend/client.js'), page=read('index.html');
+const iconSource=read('assets/scripts/ui/icons.js');
+const imports=[...app.matchAll(/^import\s*\{([^}]*)\}\s*from\s*['"]\.\.\/backend\/client\.js\?v=([^'"]+)['"]/gm)];
 assert.equal(imports.length,1,'Core VATRA module must import exactly one shared backend');
 const names=imports[0][1].split(',').map(s=>s.trim().split(/\s+as\s+/)[0]).filter(Boolean);
 assert.ok(names.length>20,'Expected complete backend import contract');
@@ -13,7 +13,7 @@ for(const name of names){
  assert.match(backend,expression,'Backend is missing imported export: '+name);
 }
 for(const name of ['getStoryMediaUrl','uploadStoryMedia','removeStoryMedia'])assert.ok(names.includes(name),'Core must load private Stories API: '+name);
-assert.ok(page.includes('script.js?v=20261105-idle-posts1'),'Entry script cache must be refreshed');
+assert.ok(page.includes('assets/scripts/app/main.js?v=20261105-idle-posts1'),'Entry script cache must be refreshed');
 assert.ok(imports[0][2].includes('storage-split'),'Entry and backend must use compatible fresh versions');
 assert.ok(page.includes('id="vatraScrollToTop"')&&page.includes('hidden><svg'),
  'User-requested scroll-to-top must be restored but hidden until a user scrolls');

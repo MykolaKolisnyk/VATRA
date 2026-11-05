@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import assert from 'node:assert/strict';
 const read=path=>readFileSync(path,'utf8');
-const auth=read('auth.js'),css=read('assets/styles/sources/auth/auth-form.css'),index=read('index.html');
+const auth=read('assets/scripts/auth/auth.js'),css=read('assets/styles/sources/auth/auth-form.css'),index=read('index.html');
 const a=auth.indexOf("const VATRA_SHIELD_KEY='vatra-human-shield-v2'");
 const b=auth.indexOf("let challengeAnswer=null,challengePassed=false",a);
 assert.ok(a>0&&b>a,'Shared progressive verification helper is missing');
@@ -82,7 +82,7 @@ assert.ok(!favicon.includes('M19 18H36C39 18 42 20 44 24'),'Retired ribbon emble
 assert.ok(index.includes('favicon.svg?v=20261105-original-v1'),'Website favicon cache must be updated');
 assert.ok(index.includes('vatra-header-wordmark')&&!index.includes('vatra-header.svg?v='),'Website header must use symbol and selectable text');
 assert.ok(index.includes('social-preview.png?v=20261105-original-v1'),'Raster social preview must match the new brand');
-assert.ok(read('vatra-language.js').includes('favicon.svg?v=20261105-original-v1'),
+assert.ok(read('assets/scripts/i18n/language.js').includes('favicon.svg?v=20261105-original-v1'),
  'Language picker must use updated mark');
 // Social scrapers expect PNG, not the original SVG MIME type.
 for(const page of ['index.html','auth.html','register.html']){

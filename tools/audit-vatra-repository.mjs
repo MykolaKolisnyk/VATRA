@@ -111,7 +111,7 @@ for(const [path,contents] of textFiles)if(path.endsWith('.html')){
 // merge. In PR checks their old HTML has not been regenerated yet, so discover
 // real script/link dependencies from the page generator as well.
 const snapshotGenerator=textFiles.get('tools/build-vatra-seo.mjs')||'';
-for(const match of snapshotGenerator.matchAll(/(?:src|href)="\.\.\/\.\.\/([a-z0-9-]+\.(?:js|css))(?:\?[^"]*)?"/gi)){
+for(const match of snapshotGenerator.matchAll(/(?:src|href)="\.\.\/\.\.\/([a-z0-9_./-]+\.(?:js|css))(?:\?[^"]*)?"/gi)){
  const asset=match[1];
  if(!textFiles.has(asset))continue;
  if(asset.endsWith('.js'))htmlScriptRoots.add(asset);
@@ -148,7 +148,7 @@ const rootCssUnloaded=files.filter(path=>path.endsWith('.css')&&!htmlStyles.has(
 const privateKeyBlock='-----BEGIN PRIVATE KEY-----';
 const unsafeFrontend=[];
 for(const [path,source] of textFiles){
- if(path.includes('/')||!path.endsWith('.js')&&!path.endsWith('.html'))continue;
+ if(!path.endsWith('.html')&&!path.startsWith('assets/scripts/'))continue;
  const problems=[];
  if(source.includes('sb_secret_'))problems.push('Supabase secret key');
  if(source.includes('SUPABASE_SERVICE_ROLE_KEY'))problems.push('Server service role in browser');

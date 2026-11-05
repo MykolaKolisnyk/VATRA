@@ -1,4 +1,4 @@
-import {mkdtempSync,mkdirSync,copyFileSync,existsSync,readFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,existsSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -30,7 +30,6 @@ globalThis.fetch=async(url)=>{
  throw new Error('Unexpected SEO URL '+url);
 };
 try{
- copyFileSync('vatra-backend.js',join(tmp,'vatra-backend.js'));
  process.chdir(tmp);
  const run=async(v)=>import(moduleUrl+'?test='+v);
  await run(1);
@@ -41,7 +40,7 @@ try{
  assert.ok(readFileSync(join('people','pershyi','index.html'),'utf8').includes('#/u/pershyi'));
  const guestProfile=readFileSync(join('people','pershyi','index.html'),'utf8');
  assert.ok(guestProfile.includes('data-vatra-public-id="'+first+'"'),'Guest page must identify the profile, not its vanity slug');
- assert.ok(guestProfile.includes('vatra-public-preview.js'),'Guest page must load RLS-limited public posts');
+ assert.ok(guestProfile.includes('assets/scripts/public/preview.js'),'Guest page must load RLS-limited public posts');
  assert.ok(guestProfile.includes('auth.html?mode=register'),'Guest page must include registration in the topbar');
  assert.ok(guestProfile.includes('id="vatraPublicPosts"'),'Guest page must have an accessible post mount');
  assert.ok(guestProfile.includes('og:updated_time')&&guestProfile.includes('2026-11-04T11:00:00.000Z'),'Public snapshot must show the actual profile update timestamp');

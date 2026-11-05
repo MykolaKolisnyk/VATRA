@@ -4,7 +4,8 @@ import {spawnSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const root='.';
-const files=readdirSync(root).filter(x=>x.endsWith('.js'));
+const files=readdirSync('assets/scripts',{recursive:true}).filter(x=>x.endsWith('.js')).map(x=>'assets/scripts/'+x);
+assert.ok(files.length>=24,'All VATRA modules must remain in categorized folders');
 assert.ok(!readdirSync(root).some(x=>/\.(?:sql|md|zip)$/i.test(x)), 'SQL, guides and archives must stay outside the deployed VATRA directory');
 let passed=0;
 for(const filename of files){
@@ -19,8 +20,8 @@ for(const filename of files){
 const main=readFileSync('index.html','utf8');
 const vatraStyleModules=JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files;
 const stylesheetLoaded=name=>main.includes('assets/styles/vatra.css?v=')&&vatraStyleModules.includes(name);
-const scriptText=readFileSync('script.js','utf8');
-const giftText=readFileSync('vatra-gifts.js','utf8');
+const scriptText=readFileSync('assets/scripts/app/main.js','utf8');
+const giftText=readFileSync('assets/scripts/gifts/gifts.js','utf8');
 const sql=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const styling=readFileSync('assets/styles/sources/layout/interface-corrections.css','utf8');
 for(const [label,test] of [
@@ -31,7 +32,7 @@ for(const [label,test] of [
  ['Technical support in sidebar',/data-menu-page="supportDesk"/.test(main)],
  ['Profile gift preview',giftText.includes('vatra-gift-preview-card')],
  ['Manual gift orders',readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8').includes('vatra_gifts_place_order')],
- ['Gifts module',/src="vatra-gifts\.js\?v=[^"]+"/.test(main)],
+ ['Gifts module',/src="assets\/scripts\/gifts\/gifts\.js\?v=[^"]+"/.test(main)],
  ['Gifts stylesheet',stylesheetLoaded('assets/styles/sources/gifts/catalog.css')],
  ['Gifts page handling',scriptText.includes("if(page==='gifts'){")],
  ['Visible delete comment',scriptText.includes('class="vatra-comment-delete"')],
@@ -64,7 +65,7 @@ for(const code of ['snowglobe','letter','clover','musicbox','swan','diamond']){
  assert.ok(giftCatalogSql.includes("'"+code+"'"),code+' SQL catalog missing');
 }
 
-const adminGiftSrc=readFileSync('vatra-admin-center.js','utf8');
+const adminGiftSrc=readFileSync('assets/scripts/admin/center.js','utf8');
 const adminGiftStart=adminGiftSrc.indexOf('function installGiftAdminEvents(){');
 const adminGiftEnd=adminGiftSrc.indexOf('async function renderDashboard(){',adminGiftStart);
 assert.ok(adminGiftStart>=0&&adminGiftEnd>adminGiftStart,'Gift admin handlers absent');
@@ -86,13 +87,13 @@ assert.ok(adsJs.includes('enabled: false'),'Ad loading must remain off until the
 assert.ok(adsJs.includes('ca-pub-')&&adsJs.includes('adsbygoogle'),'Missing AdSense integration hooks');
 
 // Playback and profile-save UX regressions.
-const musicSrc=readFileSync('vatra-music.js','utf8');
+const musicSrc=readFileSync('assets/scripts/media/music.js','utf8');
 assert.ok(musicSrc.includes('spotifyController.loadEntity(addressFor(playerItem||item))'),'Spotify track switching must reuse the existing iframe');
 assert.ok(scriptText.includes("err=f.querySelector('#settingsError');if(err)err.textContent=''"),'Settings errors must clear on a new save attempt');
 
 
 // Profile language picker, community settings and original brand regression checks.
-const languageModule=readFileSync('vatra-language.js','utf8');
+const languageModule=readFileSync('assets/scripts/i18n/language.js','utf8');
 const layouts=readFileSync('assets/styles/sources/profile/settings-community.css','utf8');
 assert.ok(scriptText.includes("['language','Мова інтерфейсу']"),'Language settings tab missing');
 assert.ok(scriptText.includes("className='vatra-language-settings-mount'"),'Language settings mount missing');
@@ -134,7 +135,7 @@ for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
 const authPage=readFileSync('auth.html','utf8');
 const registerPage=readFileSync('register.html','utf8');
 const loaderCss=readFileSync('assets/styles/sources/system/loader.css','utf8');
-const adminSource=readFileSync('vatra-admin-center.js','utf8');
+const adminSource=readFileSync('assets/scripts/admin/center.js','utf8');
 assert.ok(scriptText.includes("vatraSettingsContext='settings'"),'Profile editing and account settings must be separate');
 assert.ok(scriptText.includes("vatraOpeningEditProfile=true"),'Edit-profile button must enter edit context');
 assert.ok(layouts.includes('data-vatra-settings-context="settings"'),'Separate account settings layout missing');
@@ -170,7 +171,7 @@ assert.ok(!scriptText.includes('settingsCoverFile')&&!scriptText.includes('setti
 assert.ok(!editorCss.includes('.vatra-editor-cover'),'Profile editor must not render cover UI');
 
 // November 3 latest: editor navigation and Latin @handle.
-const latinAuth=readFileSync('auth.js','utf8');
+const latinAuth=readFileSync('assets/scripts/auth/auth.js','utf8');
 const latinSQL=readFileSync('database/VATRA_CURRENT_SCHEMA.sql','utf8');
 const unifiedLayout=readFileSync('assets/styles/sources/layout/shared-layout.css','utf8');
 assert.ok(!main.includes('<aside class="sidebar"><a class="brand"'),'The desktop sidebar must not repeat the topbar logo');
@@ -191,9 +192,9 @@ assert.ok(latinSQL.toLowerCase().includes('create or replace function public.vat
 assert.ok(scriptText.includes('const VATRA_FEED_BATCH_SIZE=12'),'News must initially render twelve posts');
 assert.ok(scriptText.includes('organicAll.slice(0,vatraFeedVisibleCount)'),'News must avoid rendering all cards at once');
 assert.ok(scriptText.includes("vatraFeedMoreObserver=new IntersectionObserver"),'News must progressively reveal further cards');
-assert.ok(main.includes('script.js?v=20261105-idle-posts1'),'News script cache key must be updated');
+assert.ok(main.includes('assets/scripts/app/main.js?v=20261105-idle-posts1'),'News script cache key must be updated');
 
-const cursorBackend=readFileSync('vatra-backend.js','utf8');
+const cursorBackend=readFileSync('assets/scripts/backend/client.js','utf8');
 const cursorSql=readFileSync('database/vatra_post_pagination.sql','utf8');
 assert.ok(cursorBackend.includes("export async function vatraFetchPostPage"),'Paginated backend API missing');
 assert.ok(cursorBackend.includes("client.rpc('vatra_page_posts'"),'Paginated backend must use server-side cursor');

@@ -1,4 +1,4 @@
-import {initializeApp,getDatabase} from './vatra-backend.js?v=20261104-8';
+import {initializeApp,getDatabase} from '../backend/client.js?v=20261104-8';
 const client=getDatabase(initializeApp()).client;
 const cache=new Map();
 let languageRevision=0;

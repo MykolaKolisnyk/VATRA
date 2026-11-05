@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
-const source=readFileSync('vatra-backend.js','utf8');
+const source=readFileSync('assets/scripts/backend/client.js','utf8');
 const start=source.indexOf('async function readTree(path) {');
 const end=source.indexOf('export async function get(reference)',start);
 assert.ok(start>=0&&end>start,'Read tree must be a standalone backend routine');

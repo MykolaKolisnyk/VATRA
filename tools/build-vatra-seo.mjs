@@ -1,7 +1,7 @@
 import {readFileSync,writeFileSync,readdirSync,mkdirSync,rmSync,existsSync} from 'node:fs';
 import {join} from 'node:path';
 
-const source=readFileSync('vatra-backend.js','utf8');
+const source=readFileSync('assets/scripts/backend/client.js','utf8');
 const endpoint=source.match(/const SERVICE_URL\s*=\s*['"]([^'"]+)['"]/);
 const publishable=source.match(/const PUBLIC_KEY\s*=\s*['"]([^'"]+)['"]/);
 if(!endpoint||!publishable||!/^https:\/\//.test(endpoint[1]))throw new Error('Не знайдено публічної конфігурації ВАТРИ.');
@@ -79,7 +79,7 @@ function page(type,id,data,slug=id){
   '<div class="vatra-public-actions"><a href="../../auth.html">Увійти</a><a href="../../auth.html?mode=register">Зареєструватися</a></div>'+
   '<p><a href="'+esc(redirect)+'">Відкрити у ВАТРІ</a></p></section>'+
   '<footer class="vatra-public-footer">ВАТРА · українська соціальна мережа</footer></main>'+
-  '<script defer src="../../vatra-public-preview.js?v=20261105-1"></script></body></html>\n';
+  '<script defer src="../../assets/scripts/public/preview.js?v=20261105-1"></script></body></html>\n';
 }
 // Canonical profile URLs must use the account's public @handle, not its UUID.
 // Validate before using a username as a directory to prevent path traversal.

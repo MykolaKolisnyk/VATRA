@@ -1,14 +1,14 @@
-import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from './vatra-e2ee.js?v=2';
-import { setupNavigation } from './navigation.js?v=20261031-1';
-import { compressVatraClip } from './vatra-clip-compress.js?v=20261104-1';
-import { mountVatraClipSocial } from './vatra-clips-social.js?v=20261104-1';
-import { enhanceVatraSettings } from './vatra-editor-experience.js?v=20261104-8';
-import { openVatraPhotoStudio } from './vatra-photo-studio.js?v=20261104-stories1';
-import { setupPostComposer } from './vatra-post-composer.js?v=20261031-4';
-import { vatraShowMusic, vatraMusicRouteChanged } from './vatra-music.js?v=20261104-8';
+import { ensureIdentity, prepareSession, encryptMessage, decryptMessage } from '../security/e2ee.js?v=2';
+import { setupNavigation } from '../navigation/state.js?v=20261031-1';
+import { compressVatraClip } from '../media/clip-compress.js?v=20261104-1';
+import { mountVatraClipSocial } from '../media/clip-actions.js?v=20261104-1';
+import { enhanceVatraSettings } from '../editor/experience.js?v=20261104-8';
+import { openVatraPhotoStudio } from '../media/photo-studio.js?v=20261104-stories1';
+import { setupPostComposer } from '../editor/post-composer.js?v=20261031-4';
+import { vatraShowMusic, vatraMusicRouteChanged } from '../media/music.js?v=20261104-8';
 // Install the moderation route guards before the first profile or group is rendered.
-import './vatra-ban-pages.js?v=20261104-8';
-import { initializeApp, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, uploadStoryMedia, getStoryMediaUrl, removeStoryMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia, vatraFetchPostPage } from './vatra-backend.js?v=20261105-storage-split-post-pages1';
+import '../admin/ban-pages.js?v=20261104-8';
+import { initializeApp, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateProfile, sendPasswordResetEmail, getDatabase, ref, push, createPost, set, update, onValue, remove, get, uploadMedia, uploadStoryMedia, getStoryMediaUrl, removeStoryMedia, updatePhoneNumber, verifyPhoneChange, acceptFriendRequest, removeFriendship, repairMyFriendships, listProfileFriends, accountLifecycleRequest, vatraSchedulePost, vatraListScheduledPosts, vatraCancelScheduledPost, vatraCreateGroupMedia, vatraFetchPostPage } from '../backend/client.js?v=20261105-storage-split-post-pages1';
 
 const app=initializeApp(), auth=getAuth(app), db=getDatabase(app);
 window.__vatraBackendLoaded=true;
