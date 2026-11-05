@@ -554,10 +554,27 @@ function setLanguage(code){
  updateMeta();install();translateRoot(document);
  document.dispatchEvent(new CustomEvent('vatra:languagechange',{detail:{language:code}}));
 }
+// Translate newly inserted or changed nodes after UI updates.
+// A full document pass still runs when a user actually switches language.
 let queued=false;
-new MutationObserver(()=>{
- if(running||queued)return;queued=true;
- requestAnimationFrame(()=>{queued=false;running=true;try{install();translateRoot(document);}finally{running=false;}});
+const pendingTranslationRoots=new Set();
+new MutationObserver(records=>{
+ if(running)return;
+ for(const record of records){
+  if(record.type==='characterData'&&record.target?.isConnected)pendingTranslationRoots.add(record.target);
+  for(const node of record.addedNodes||[]){
+   if(node.nodeType===1||node.nodeType===3)pendingTranslationRoots.add(node);
+  }
+ }
+ if(queued||!pendingTranslationRoots.size)return;queued=true;
+ requestAnimationFrame(()=>{
+  queued=false;running=true;
+  try{
+   install();
+   const roots=[...pendingTranslationRoots];pendingTranslationRoots.clear();
+   for(const node of roots)if(node.isConnected)translateRoot(node);
+  }finally{running=false;}
+ });
 }).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 function start(){running=true;try{install();setLanguage(language);}finally{running=false;}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
