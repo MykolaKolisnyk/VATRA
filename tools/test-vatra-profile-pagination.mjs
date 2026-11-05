@@ -9,5 +9,5 @@ assert.ok(app.includes("vatraProfileMoreMarkup('public',arr.length,vatraPublicPo
 assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('own'))"),'Own profile must attach its lazy observer');
 assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('public',uid))"),'Public profile must attach its lazy observer');
 assert.ok(app.includes('button.addEventListener(\'click\',loadMore,{once:true})'),'Manual fallback must remain available');
-assert.ok(html.includes('script.js?v=20261105-profile-scroll1'),'Browser must load the new profile renderer');
+assert.ok(html.includes('script.js?v=20261105-community-scroll1'),'Browser must load the new profile renderer');
 console.log('VATRA profiles: twelve posts first, infinite scroll + button fallback.');

@@ -767,6 +767,7 @@ const VATRA_PROFILE_POST_BATCH_SIZE=12;
 let vatraOwnPostVisibleCount=VATRA_PROFILE_POST_BATCH_SIZE;
 let vatraPublicPostVisibleCount=VATRA_PROFILE_POST_BATCH_SIZE;
 let vatraProfileMoreObserver=null;
+let vatraCommunityMoreObserver=null;
 function vatraProfileMoreMarkup(kind,total,visible){
  return total>visible?'<div class="vatra-progressive-more" id="vatraProfileLoadMore"><button type="button" class="vatra-community-more" data-vatra-profile-more="'+kind+'">Показати ще дописи</button></div>':'';
 }
@@ -795,7 +796,7 @@ function vatraObserveProfileMore(kind,uid=''){
   vatraProfileMoreObserver.observe(sentinel);
  }
 }
-function setFeed(html,empty=false){feed.removeAttribute('aria-busy');feed.innerHTML=html;$('#empty').hidden=!empty;}
+function setFeed(html,empty=false){vatraCommunityMoreObserver?.disconnect();vatraCommunityMoreObserver=null;feed.removeAttribute('aria-busy');feed.innerHTML=html;$('#empty').hidden=!empty;}
 function renderBlockedUsersList(){const box=$('#blockedUsersList');if(!box)return;const entries=Object.entries(blockedUsers).filter(([,value])=>!!value);box.innerHTML=entries.map(([uid])=>{const u=users[uid]||{};return `<div class="blocked-user-row">${avatar(u.name||'Користувач',u.avatarUrl)}<span><b>${esc(u.name||'Користувач ВАТРИ')}</b><small>@${esc(u.handle||'user')}</small></span><button class="pill" data-unblock-user="${esc(uid)}">Розблокувати</button></div>`;}).join('')||'<p class="empty-inline">Немає заблокованих користувачів.</p>';}
 function renderSaved(){
  const postsToShow=allPosts();
@@ -2427,8 +2428,20 @@ function renderGroups(){
   );
   container.innerHTML=result.slice(0,visibleLimit).map(item).join('');
   const more=$('#vatraCommunityMore');if(more)more.hidden=result.length<=visibleLimit;
+  requestAnimationFrame(watchCommunityMore);
   $('#vatraCommunityEmpty').hidden=result.length>0;
   if(!result.length)$('#vatraCommunityEmpty').textContent=q?'За запитом нічого не знайдено.':tab==='mine'?'Ви ще не долучилися до спільнот.':tab==='managed'?'Ви ще не керуєте спільнотами.':'Спільнот поки немає.';
+ };
+ const watchCommunityMore=()=>{
+  vatraCommunityMoreObserver?.disconnect();vatraCommunityMoreObserver=null;
+  const more=$('#vatraCommunityMore');
+  if(!more||more.hidden||page!=='groups'||groupId||typeof IntersectionObserver!=='function')return;
+  vatraCommunityMoreObserver=new IntersectionObserver(entries=>{
+   if(!entries.some(entry=>entry.isIntersecting)||!more.isConnected||more.hidden||page!=='groups'||groupId)return;
+   vatraCommunityMoreObserver?.disconnect();vatraCommunityMoreObserver=null;
+   more.click();
+  },{rootMargin:'360px 0px'});
+  vatraCommunityMoreObserver.observe(more);
  };
  $('#vatraCommunityMore')?.addEventListener('click',()=>{visibleLimit+=12;apply();});
  search?.addEventListener('input',()=>{visibleLimit=12;apply();});
