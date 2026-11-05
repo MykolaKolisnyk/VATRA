@@ -170,7 +170,7 @@ html body :is(.vatra-profile-posts-title button,.vatra-profile-card-head button,
 /* VATRA sidebar navigation: compact, single intentional divider before utilities. */
 @media(min-width:761px){
  html body .layout>.sidebar nav{gap:0!important}
- html body .layout>.sidebar nav>a.nav{min-height:37px!important;margin:0!important;padding:5px 10px!important;gap:9px!important;font-size:12.8px!important;border-radius:9px!important}
+ html body .layout>.sidebar nav>a.nav{min-height:34px!important;margin:0!important;padding:4px 9px!important;gap:8px!important;font-size:12.5px!important;border-radius:9px!important}
  html body .layout>.sidebar nav>a.nav .nav-icon{width:19px!important;flex-basis:19px!important}
  html body .layout>.sidebar nav>a.nav .nav-icon svg{width:18px!important;height:18px!important}
  html body .layout>.sidebar nav>a.vatra-nav-section-start{

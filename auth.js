@@ -257,6 +257,10 @@ function vatraLatinHandlePart(value){
  const translit={а:'a',б:'b',в:'v',г:'h',ґ:'g',д:'d',е:'e',є:'ie',ж:'zh',з:'z',и:'y',і:'i',ї:'i',й:'i',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ь:'',ю:'iu',я:'ia',ы:'y',э:'e',ъ:''};
  return [...String(value||'').toLocaleLowerCase('uk-UA')].map(ch=>translit[ch]??ch).join('').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'.').replace(/^\.+|\.+$/g,'');
 }
+function vatraSuggestedHandle(first,last){
+ const value=[vatraLatinHandlePart(first),vatraLatinHandlePart(last)].filter(Boolean).join('').replace(/[^a-z0-9]/g,'');
+ return /^[a-z]/.test(value)?value.slice(0,24):'user';
+}
 async function finishRegistration({user,contact,isPhone,dob,first,last,name,gender}){
  const uid=user?.uid||user?.id;
  if(!uid)throw new Error('Supabase не повернув ідентифікатор нового акаунта. Перевір Authentication → Providers.');
@@ -267,17 +271,43 @@ async function finishRegistration({user,contact,isPhone,dob,first,last,name,gend
  if(verificationError||verifiedUser?.id!==uid||!(isPhone?verifiedUser.phone_confirmed_at:(verifiedUser.email_confirmed_at||verifiedUser.confirmed_at))){
   throw new Error('Контакт ще не підтверджено кодом. Поверніться до кроку підтвердження.');
  }
- const latinName=[vatraLatinHandlePart(first),vatraLatinHandlePart(last)].filter(Boolean).join('.');
- const safePrefix=/^[a-z]/.test(latinName)?latinName:'user';
- const handle=safePrefix.slice(0,14).replace(/[._-]+$/,'')+'-'+uid.replace(/-/g,'').slice(0,8);
- const createdAt=Date.now();
+ const baseHandle=vatraSuggestedHandle(first,last);
+ // Check the database before assigning a readable @username. The unique
+ // database index is the final authority when two people register at once.
+ const handleCandidates=[baseHandle,...Array.from({length:19},(_,i)=>baseHandle.slice(0,23-String(i+2).length)+String(i+2)),
+  'user'+uid.replace(/-/g,'').slice(0,12)];
+ let handle='',createdAt=Date.now();
+ for(const candidate of handleCandidates){
+  try{
+   const {data,error}=await db.client.rpc('vatra_handle_availability',{_handle:candidate});
+   if(error||data?.status==='unavailable')throw error||new Error('Не вдалося перевірити псевдонім');
+   if(data?.status==='taken'||data?.status==='invalid')continue;
+   await set(ref(db,'publicProfiles/'+uid),{firstName:first,lastName:last,name,handle:candidate,gender,bio:'',avatarUrl:'',coverUrl:'',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt,updatedAt:createdAt});
+   handle=candidate;break;
+  }catch(error){
+   const conflict=/unique|duplicate|23505|already.*taken/i.test(String(error?.message||'')+' '+String(error?.code||''));
+   if(!conflict)throw error;
+  }
+ }
+ if(!handle)throw new Error('Не вдалося підібрати унікальний псевдонім. Спробуйте реєстрацію ще раз.');
  const profile={firstName:first,lastName:last,name,handle,gender,bio:'',avatarUrl:'',coverUrl:'',city:'',location:'',phone:isPhone?contact:'',phoneVisibility:'private',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt};
- await set(ref(db,'publicProfiles/'+uid),{firstName:first,lastName:last,name,handle,gender,bio:'',avatarUrl:'',coverUrl:'',birthdayVisibility:'private',cityVisibility:'private',locationVisibility:'private',profileVisibility:'public',searchable:true,allowMessages:true,createdAt,updatedAt:createdAt});
+ // Public handle has already been written atomically above.
  await set(ref(db,'users/'+uid),profile);
  await set(ref(db,'privateUsers/'+uid),{dateOfBirth:dob,phone:isPhone?contact:null,updatedAt:Date.now()});
 
  location.replace('index.html');
 }
+
+
+function vatraUpdateSignupHandlePreview(){
+ const el=document.getElementById('vatraSignupHandlePreview');
+ if(!el)return;
+ const first=document.getElementById('firstName')?.value.trim()||'';
+ const last=document.getElementById('lastName')?.value.trim()||'';
+ el.textContent=(first||last)?'Майбутній псевдонім: @'+vatraSuggestedHandle(first,last):'Псевдонім автоматично створимо з імені та прізвища';
+}
+for(const id of ['firstName','lastName'])document.getElementById(id)?.addEventListener('input',vatraUpdateSignupHandlePreview);
+vatraUpdateSignupHandlePreview();
 
 function enhanceDatePicker(input){
  if(!input||input.dataset.datePickerEnhanced)return;
@@ -585,7 +615,7 @@ function resetHumanChallenge(notice=''){
  const wrap=$('#captchaWrap');if(!wrap)return;
  const question=vatraNewHumanQuestion(previousAdditionKey);
  previousAdditionKey=question.key;challengeAnswer=question.answer;
- wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="favicon.svg?v=20261104-ribbon1" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Захист ВАТРИ</span><span class="human-captcha-tag">Швидка перевірка</span></div><p class="human-captcha-question">'+question.prompt+'</p><div class="human-captcha-options">'+question.choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Оберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
+ wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="favicon.svg?v=20261105-original-v1" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Захист ВАТРИ</span><span class="human-captcha-tag">Швидка перевірка</span></div><p class="human-captcha-question">'+question.prompt+'</p><div class="human-captcha-options">'+question.choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Оберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',()=>{
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -682,7 +712,7 @@ function show(m){
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
  document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=!isEmail&&(reset||(reg&&!VATRA_SMS_AUTH_ENABLED));});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
- $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
+ $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#vatraSignupHandlePreview').hidden=!reg;if(reg)vatraUpdateSignupHandlePreview();$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';

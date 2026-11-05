@@ -1315,57 +1315,62 @@ function vatraProfileGalleryTile(photo,index,uid,isMine){
   vatraProfilePhotoDateMarkup(photo.createdAt)+
   (isMine&&photo.source==='profile'?'<button type="button" class="profile-photo-remove" data-delete-profile-photo="'+photo.index+'">Прибрати</button>':'')+'</div>';
 }
-function vatraProfileGalleryCarousel(uid,photos,isMine=false){
+function vatraProfileGalleryCarousel(uid,photos,isMine=false,videos=[]){
  const key=(isMine?'self:':'public:')+uid;
- const found=photos.filter(x=>typeof x.url==='string'&&x.url);
- if(!found.length)return '';
- vatraProfileGalleryCache.set(key,{photos:found,offset:0,history:[],isMine,uid});
- const tiles=found.map((photo,i)=>vatraProfileGalleryTile(photo,i,uid,isMine)).join('');
- const arrow=direction=>'<button type="button" class="vatra-gallery-carousel-arrow '+(direction<0?'is-prev':'is-next')+'" '+
-  'data-vatra-gallery-step="'+direction+'" '+(direction<0?'disabled ':'')+
-  'aria-label="'+(direction<0?'Попередні':'Наступні')+' фотографії">'+
-  '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
-  (direction<0?'<path d="m14.5 5-7 7 7 7"/>':'<path d="m9.5 5 7 7-7 7"/>')+'</svg></button>';
- return '<div class="vatra-profile-photo-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
-  '<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+
-  (found.length>2?'<div class="vatra-gallery-footer'+(found.length<=4?' is-mobile-only':'')+'"><span class="vatra-gallery-position" aria-live="polite">1–'+Math.min(4,found.length)+' із '+found.length+'</span><div class="vatra-gallery-controls">'+arrow(-1)+arrow(1)+'</div></div>':'')+'</div>';
+ const found=photos.filter(p=>typeof p.url==='string'&&/^https?:\/\//i.test(p.url));
+ const videoItems=videos.filter(v=>typeof v.url==='string'&&/^https?:\/\//i.test(v.url));
+ if(!found.length&&!videoItems.length)return '';
+ const state={uid,isMine,photoItems:found,videoItems,photos:found.length?found:videoItems,kind:found.length?'photos':'videos',offset:0,history:[]};
+ vatraProfileGalleryCache.set(key,state);
+ const tiles=vatraProfileMediaTiles(state);
+ const tab=(kind,label,count)=>'<button type="button" class="vatra-media-tab'+(state.kind===kind?' is-active':'')+'" role="tab" aria-selected="'+(state.kind===kind)+'" data-vatra-gallery-kind="'+kind+'">'+label+' <span>'+count+'</span></button>';
+ const arrow=direction=>'<button type="button" class="vatra-gallery-carousel-arrow '+(direction<0?'is-prev':'is-next')+'" data-vatra-gallery-step="'+direction+'" aria-label="'+(direction<0?'Попередні':'Наступні')+' медіа"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(direction<0?'<path d="m15 5-7 7 7 7"/>':'<path d="m9 5 7 7-7 7"/>')+'</svg></button>';
+ return '<div class="vatra-profile-photo-carousel vatra-profile-media-carousel" data-vatra-gallery-carousel="'+esc(key)+'">'+
+ '<div class="vatra-media-tabs" role="tablist" aria-label="Медіа сторінки">'+tab('photos','Фотографії',found.length)+tab('videos','Відео',videoItems.length)+'</div>'+
+ '<div class="vatra-gallery-stage">'+arrow(-1)+'<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+arrow(1)+'</div></div>';
 }
+function vatraProfileMediaTiles(state){
+ return state.kind==='videos'?state.videoItems.map((v,i)=>'<article class="profile-photo-tile vatra-profile-video-tile"><video controls playsinline preload="none" src="'+esc(v.url)+'" aria-label="Відео '+(i+1)+'"></video>'+vatraProfilePhotoDateMarkup(v.createdAt)+'</article>').join(''):
+ state.photoItems.map((p,i)=>vatraProfileGalleryTile(p,i,state.uid,state.isMine)).join('');
+}
+const vatraGalleryVisible=()=>window.matchMedia('(max-width:590px)').matches?2:3;
 function vatraShiftProfileGallery(box,state){
  if(!box||!state)return;
  const track=box.querySelector('.vatra-gallery-track'),tiles=track?.children;
- if(!track||!tiles?.length)return;
- const viewportCount=Math.min(window.matchMedia('(max-width:590px)').matches?2:4,tiles.length);
- const maxOffset=Math.max(0,tiles.length-viewportCount);
- state.offset=Math.max(0,Math.min(state.offset,maxOffset));
- const first=tiles[0].offsetLeft;
- const left=tiles[state.offset].offsetLeft-first;
- track.style.transform='translate3d('+(-left)+'px,0,0)';
- const previous=box.querySelector('[data-vatra-gallery-step="-1"]'),next=box.querySelector('[data-vatra-gallery-step="1"]');
- if(previous)previous.disabled=state.offset===0;
- if(next)next.disabled=state.offset===maxOffset;
- const position=box.querySelector('.vatra-gallery-position');
- if(position)position.textContent=(state.offset+1)+'–'+(state.offset+viewportCount)+' із '+tiles.length;
+ if(!track||!tiles)return;
+ const count=tiles.length,visible=Math.min(vatraGalleryVisible(),count),maxOffset=Math.max(0,count-visible);
+ state.offset=Math.min(Math.max(0,state.offset),maxOffset);
+ if(count)track.style.transform='translate3d('+(-(tiles[state.offset].offsetLeft-tiles[0].offsetLeft))+'px,0,0)';
+ for(const direction of [-1,1]){
+  const arrow=box.querySelector('[data-vatra-gallery-step="'+direction+'"]');
+  if(arrow){arrow.disabled=direction<0?state.offset===0:state.offset>=maxOffset;arrow.hidden=count<=visible;}
+ }
 }
 document.addEventListener('click',event=>{
+ const tab=event.target.closest('[data-vatra-gallery-kind]');
+ if(tab){
+  const box=tab.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
+  if(!box||!state)return;
+  event.preventDefault();event.stopPropagation();
+  const kind=tab.dataset.vatraGalleryKind;if(kind===state.kind)return;
+  box.querySelectorAll('video').forEach(v=>v.pause());
+  state.kind=kind;state.photos=kind==='videos'?state.videoItems:state.photoItems;state.offset=0;state.history=[];
+  const track=box.querySelector('.vatra-gallery-track');
+  track.innerHTML=vatraProfileMediaTiles(state);track.style.transform='';
+  box.querySelectorAll('[data-vatra-gallery-kind]').forEach(button=>{const active=button.dataset.vatraGalleryKind===kind;button.classList.toggle('is-active',active);button.setAttribute('aria-selected',String(active));});
+  vatraShiftProfileGallery(box,state);return;
+ }
  const arrow=event.target.closest('[data-vatra-gallery-step]');
  if(!arrow)return;
  event.preventDefault();event.stopPropagation();
  const box=arrow.closest('[data-vatra-gallery-carousel]'),state=vatraProfileGalleryCache.get(box?.dataset.vatraGalleryCarousel);
- if(!box||!state||state.photos.length<=(window.matchMedia('(max-width:590px)').matches?2:4))return;
- const direction=Number(arrow.dataset.vatraGalleryStep);
- const visible=window.matchMedia('(max-width:590px)').matches?2:4;
- if(direction>0){
-  if(state.offset<state.photos.length-visible){state.history.push(state.offset);state.offset=Math.min(state.photos.length-visible,state.offset+visible);}
- }else{
-  state.offset=state.history.length?state.history.pop():Math.max(0,state.offset-visible);
- }
- vatraShiftProfileGallery(box,state);
+ if(!box||!state||state.photos.length<=vatraGalleryVisible())return;
+ const direction=Number(arrow.dataset.vatraGalleryStep),visible=vatraGalleryVisible();
+ if(direction>0){if(state.offset<state.photos.length-visible){state.history.push(state.offset);state.offset=Math.min(state.photos.length-visible,state.offset+visible);}}
+ else state.offset=state.history.length?state.history.pop():Math.max(0,state.offset-visible);
+ box.querySelectorAll('video').forEach(v=>v.pause());vatraShiftProfileGallery(box,state);
 },true);
-window.addEventListener('resize',()=>{
- document.querySelectorAll('[data-vatra-gallery-carousel]').forEach(box=>{
-  vatraShiftProfileGallery(box,vatraProfileGalleryCache.get(box.dataset.vatraGalleryCarousel));
- });
-});
+window.addEventListener('resize',()=>document.querySelectorAll('[data-vatra-gallery-carousel]').forEach(box=>vatraShiftProfileGallery(box,vatraProfileGalleryCache.get(box.dataset.vatraGalleryCarousel))));
 function renderProfile(){
  if(!currentUser){
   setFeed('<article class="post"><h3>Увійдіть, щоб відкрити сторінку</h3><button class="primary" id="profileLogin">Увійти</button></article>');
@@ -1382,10 +1387,10 @@ function renderProfile(){
  const myStory=vatraActiveStories(uid).at(-1);
  const historyHtml=history.length?'<div class="avatar-history-grid">'+history.map(item=>'<div class="avatar-history-item"><img class="post-image" loading="lazy" decoding="async" src="'+esc(item.url)+'" alt="Попереднє фото сторінки"><button type="button" class="pill" data-restore-avatar="'+item.index+'">Поставити аватар</button></div>').join('')+'</div>':'<p class="muted profile-empty-hint">Тут з’являтимуться попередні фото сторінки, які Ви вирішите залишити.</p>';
  const galleryUrls=gallery.map(item=>item.url);
- const galleryHtml=gallery.length?
-  vatraProfileGalleryCarousel(uid,gallery,true)+
-  (gallery.length>4?'<a class="vatra-profile-link profile-gallery-all" href="#/photos" id="profileOpenAllPhotos">Відкрити повний альбом ('+gallery.length+')</a>':'')
-  :'<p class="muted profile-empty-hint">У цьому альбомі поки немає фотографій.</p>';
+ const profileVideos=mine.filter(p=>p.addMediaToGallery!==false&&p.videoUrl).map(p=>({url:p.videoUrl,createdAt:p.createdAt||0}));
+ const galleryHtml=(gallery.length||profileVideos.length)?vatraProfileGalleryCarousel(uid,gallery,true,profileVideos)+
+  (gallery.length>4?'<a class="vatra-profile-link profile-gallery-all" href="#/photos" id="profileOpenAllPhotos">Відкрити всі фото ('+gallery.length+')</a>':''):
+  '<p class="muted profile-empty-hint">Ви ще не додали фото чи відео.</p>';
  const friendIds=Object.keys(friends||{}).filter(id=>id&&id!==uid&&users[id]&&!blockedUsers[id]);
  const friendPreview=friendIds.slice(0,6).map(vatraProfileFriendThumb).join('');
  const friendBlock='<section class="vatra-profile-card vatra-profile-friends"><div class="vatra-profile-card-head"><h3>Друзі</h3><b>'+friendIds.length+'</b></div>'+(friendPreview?'<div class="vatra-profile-friend-grid" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important;">'+friendPreview+'</div>':'<p class="muted">Друзі з’являться тут після додавання.</p>')+'<button type="button" class="vatra-profile-link" id="profileAllFriends">Усі друзі →</button></section>';
@@ -1685,10 +1690,11 @@ function renderPublicProfile(uid){
   ...arr.filter(post=>post.addMediaToGallery!==false).flatMap(post=>postImages(post).map(url=>[url,Number(post.createdAt)||0]))
  ]);
  const publicAlbumMarkup=vatraGetAlbums(u).length?'<div class="vatra-public-album-grid">'+vatraGetAlbums(u).map(a=>'<button type="button" class="vatra-public-album-card" data-open-profile-gallery="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(a.photos))+'" data-photo-index="0"'+(!a.photos.length?' disabled':'')+'><span class="vatra-public-album-cover">'+(a.photos.length?'<img src="'+esc(a.photos[a.photos.length-1])+'" loading="lazy" alt="Обкладинка альбому">':'▧')+'</span><b>'+esc(a.name)+'</b><small>'+a.photos.length+' фото</small></button>').join('')+'</div>':'';
-  const photoHtml=photoUrls.length?
-   vatraProfileGalleryCarousel(uid,photoUrls.map(url=>({url,createdAt:photoDateByUrl.get(url)})))+
-   '<a class="vatra-profile-link profile-gallery-all" href="#/profile/'+encodeURIComponent(uid)+'/photos" data-vatra-open-public-photos="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі ('+photoUrls.length+')</a>'
-   :'<p class="muted profile-empty-hint">Користувач поки не додав фотографій.</p>';
+  const publicVideos=arr.filter(p=>p.addMediaToGallery!==false&&p.videoUrl&&p.visibility==='public').map(p=>({url:p.videoUrl,createdAt:p.createdAt||0}));
+ const photoHtml=(photoUrls.length||publicVideos.length)?
+  vatraProfileGalleryCarousel(uid,photoUrls.map(url=>({url,createdAt:photoDateByUrl.get(url)})),false,publicVideos)+
+  (photoUrls.length?'<a class="vatra-profile-link profile-gallery-all" href="#/profile/'+encodeURIComponent(uid)+'/photos" data-vatra-open-public-photos="'+esc(uid)+'" data-photo-urls="'+esc(JSON.stringify(photoUrls))+'" data-photo-index="0">Переглянути всі фото ('+photoUrls.length+')</a>':''):
+  '<p class="muted profile-empty-hint">Користувач поки не додав фото чи відео.</p>';
  const publicExtras=vatraExtraSectionsMarkup({...u.publicSections,...(canSeeFriends?friendData.friendSections:{})},{...u.extraVisibility,...(canSeeFriends?friendData.extraVisibility:{})},false,uid,canSeeFriends);
  const hasExtraDetails=Boolean(publicExtras);
  const actions=vatraPublicProfileActions(uid);
