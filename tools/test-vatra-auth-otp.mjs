@@ -16,7 +16,7 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('id="authExistingHelp" hidden')&&html.includes('id="authGoLogin"'),file+': existing account sign-in action missing');
  assert.ok(html.includes('<h2 id="recoveryTitle">Відновлення пароля</h2>'),file+': old recovery heading remained');
  assert.ok(html.includes('assets/scripts/auth/auth.js?v=20261105-singleton2'),file+': stale auth JS version');
- assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-ui-foundation1')&&JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('assets/styles/sources/auth/auth-form.css'),file+': missing compiled auth stylesheet');
+ assert.ok(html.includes('assets/styles/vatra-auth.css?v=20261105-onest-unified1')&&JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('assets/styles/sources/auth/auth-form.css'),file+': missing compiled auth stylesheet');
  assert.ok(html.includes('assets/scripts/i18n/language.js?v=20261105-no-clips1'),file+': language module cache must be current');
  assert.ok(JSON.parse(read('assets/styles/auth-manifest.json')).files.includes('assets/styles/sources/foundation/dialogs-and-controls.css'),file+': V logo styles missing from auth bundle');
  assert.ok(html.includes('class="vatra-auth-brand-copyright"'),file+': copyright must be on blue panel');

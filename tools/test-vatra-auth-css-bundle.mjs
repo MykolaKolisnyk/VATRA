@@ -15,6 +15,9 @@ assert.ok(bundle.includes('../fonts/Onest-Variable.ttf'),'CSS font path must res
 for(const page of ['auth.html','register.html']){
  const html=read(page);
  const local=[...html.matchAll(/<link\s+rel="stylesheet"\s+href="([^"]+\.css(?:\?[^"]+)?)"/g)].map(match=>match[1]);
- assert.deepEqual(local,['assets/styles/vatra-auth.css?v=20261105-ui-foundation1'],page+': only one compiled stylesheet may load');
+ assert.deepEqual(local,['assets/styles/vatra-auth.css?v=20261105-onest-unified1'],page+': only one compiled stylesheet may load');
+}
+for(const file of ['assets/styles/sources/auth/auth-form.css','assets/styles/sources/auth/auth-shared.css']){
+ assert.ok(!read(file).includes('Inter'),file+': do not override VATRA Onest with legacy fonts');
 }
 console.log('VATRA auth: two pages load one ordered stylesheet, shared fonts resolve.');

@@ -100,7 +100,7 @@ for(const page of ['auth.html','register.html']){
  const source=read(page);
  assert.ok(source.includes('<header class="vatra-recovery-head">'),page+': recovery header missing');
  assert.ok(source.includes('<div class="vatra-recovery-body">'),page+': recovery form body missing');
- assert.ok(source.includes('assets/styles/vatra-auth.css?v=20261105-ui-foundation1'),page+': final stylesheet bundle missing');
+ assert.ok(source.includes('assets/styles/vatra-auth.css?v=20261105-onest-unified1'),page+': final stylesheet bundle missing');
  assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': final recovery styles must load after global auth styles');
 }
