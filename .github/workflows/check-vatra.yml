@@ -40,6 +40,8 @@ jobs:
         run: node tools/test-vatra-auth-otp.mjs
       - name: Check shared verification rate limits, recovery UI and ribbon brand assets
         run: node tools/test-vatra-shield-brand.mjs
+      - name: Check readable VATRA wordmarks and balanced authentication brand panel
+        run: node tools/test-vatra-brand-text.mjs
       - name: Verify secure SMTP/SMS provider config and Management API patch
         run: node tools/test-vatra-auth-delivery.mjs
       - name: Check website file paths and repository layout

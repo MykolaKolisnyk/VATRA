@@ -34,7 +34,7 @@ console.log('VATRA layout check passed:',checked,'local paths resolved.');
 
 const notFound=readFileSync(join(root,'404.html'),'utf8');
 if(!notFound.includes('Сторінку не знайдено') ||
-   !notFound.includes('vatra-header.svg') ||
+   !notFound.includes('vatra-404-wordmark') ||
    !notFound.includes("location.replace(current")) {
  throw new Error('Custom VATRA 404 page or legacy redirect is missing');
 }
