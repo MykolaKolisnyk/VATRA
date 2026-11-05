@@ -10,63 +10,33 @@ body :is(button,a,summary,h1,h2,h3,h4,h5,p,label,small,strong,b,span,dt,dd){
  text-shadow:none!important;
 }
 
-body .layout>.sidebar nav :is(a.nav,button.nav),
-body .layout>.sidebar nav :is(a.nav,button.nav).active,
-body .layout>.sidebar nav :is(a.nav,button.nav)[aria-current="page"]{
- display:flex!important;
- align-items:center!important;
- gap:12px!important;
- min-height:45px!important;
- padding:9px 12px!important;
- margin:1px 0!important;
- border:0!important;
- border-radius:9px!important;
- outline:0!important;
- background:transparent!important;
- color:#233850!important;
- font-weight:710!important;
- font-size:13.8px!important;
- line-height:1.4!important;
- letter-spacing:0!important;
- box-shadow:none!important;
- filter:none!important;
- text-decoration:none!important;
- transform:translateX(0)!important;
- transition:color .17s ease,background-color .17s ease,transform .19s ease!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav)::before,
-body .layout>.sidebar nav :is(a.nav,button.nav)::after{
- content:none!important;display:none!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav) :is(.nav-icon,svg),
-body .layout>.sidebar nav :is(a.nav,button.nav).active :is(.nav-icon,svg){
- color:#416995!important;
- stroke:#416995!important;
- filter:none!important;
- transition:color .17s ease,stroke .17s ease!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{
- width:19px!important;
- height:19px!important;
- stroke-width:2!important;
- stroke-linecap:round!important;
- stroke-linejoin:round!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav):hover,
-body .layout>.sidebar nav :is(a.nav,button.nav).active:hover,
-body .layout>.sidebar nav :is(a.nav,button.nav)[aria-current="page"]:hover{
- color:#175fc2!important;
- background:rgba(224,235,251,.58)!important;
- transform:none!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav):hover :is(.nav-icon,svg){
- color:#175fc2!important;
- stroke:#175fc2!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav):focus-visible{
- outline:2px solid rgba(7,87,245,.55)!important;
- outline-offset:2px!important;
-}
+/* VATRA identity across routed pages; existing features and elements are preserved. */
+:root{--vatra-brand-ember:#b65b43;--vatra-brand-ember-soft:#fbefe9;--vatra-brand-ink:#253447;--vatra-brand-muted:#69798a;--vatra-brand-border:#e3e7ec;--vatra-brand-canvas:#f7f7f6;--vatra-brand-shadow:0 5px 22px rgba(30,44,64,.045)}
+html body:not([data-vatra-theme-effective="dark"]){--v-canvas:var(--vatra-brand-canvas);--vatra-ui-border-soft:var(--vatra-brand-border);--vatra-ui-strong:var(--vatra-brand-ink)}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-color:var(--vatra-brand-border)!important;border-radius:16px!important;box-shadow:var(--vatra-brand-shadow)!important}
+html body .layout>.main :is(.vatra-profile-card-head h3,.vatra-profile-title-row h2,.vatra-friends-top h2,.vatra-group-heading h2,.vatra-group-card h3,.vatra-community-gallery-heading h3){letter-spacing:-.018em!important}
+html body:not([data-vatra-theme-effective="dark"]) .vatra-global-header .search{background:#fff!important;border-color:var(--vatra-brand-border)!important;box-shadow:0 2px 10px rgba(35,52,71,.025)!important}
+html body:not([data-vatra-theme-effective="dark"]) .vatra-global-header .search:focus-within{border-color:#8baff0!important;box-shadow:0 0 0 3px rgba(7,87,245,.09)!important}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card) :is(h2,h3){color:var(--vatra-brand-ink)!important}
+html body .layout>.main :is(.primary,.post-now):focus-visible,html body .layout>.sidebar a.nav:focus-visible{outline:2px solid #7aa4f7!important;outline-offset:2px!important}
+html body .vatra-group-tabs>button:is(.active,.is-active,[aria-selected="true"]){box-shadow:inset 0 -2px 0 var(--vatra-brand-ember)!important}
+html body[data-vatra-theme-effective="dark"]{--vatra-brand-ink:#edf2f9;--vatra-brand-muted:#a7b6c8;--vatra-brand-border:#34465b}
+html body[data-vatra-theme-effective="dark"] .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-radius:16px!important}
+@media(prefers-reduced-motion:reduce){html body .layout>.sidebar nav a.nav,html body .layout>.sidebar nav a.nav .nav-icon{transition:none!important}}
+
+/* Canonical VATRA navigation, owned by this brand module. */
+html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:13px!important;font-weight:620!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav)::before,html body .layout>.sidebar nav :is(a.nav,button.nav)::after{content:none!important;display:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{display:grid!important;place-items:center!important;flex:0 0 27px!important;width:27px!important;height:27px!important;border-radius:9px!important;background:transparent!important;color:#617b9b!important;transition:background-color .16s ease,color .16s ease!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:18px!important;height:18px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible){background:#edf3fc!important;color:#164f9b!important;transform:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 var(--vatra-brand-ember)!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#dce8ff!important;color:#0757f5!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible) .nav-icon{color:#0757f5!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav){color:#c7d3e3!important;background:transparent!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{color:#a8bbd4!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible,.active,[aria-current="page"]){background:#263c57!important;color:#f0f6ff!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#385579!important;color:#dceafe!important}
 
 body .mobile-nav :is(button,a),
 body .mobile-nav :is(button,a).active{

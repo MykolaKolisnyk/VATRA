@@ -15194,7 +15194,7 @@ body .vatra-photo-fullscreen-fallback .vatra-media-viewer-counter{
 body .vatra-group-view{gap:18px!important;font-size:14px!important;}
 body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:18px!important;}
 body .vatra-group-main,body .vatra-group-rail,body .vatra-group-tab-panel{gap:16px!important;}
-body .vatra-group-card{padding:19px!important;border-radius:14px!important;}
+body .vatra-group-card{padding:19px!important;border-radius:16px!important;}
 body .vatra-group-card h3{font-size:16px!important;line-height:1.35!important;}
 body .vatra-group-card p{font-size:13px!important;line-height:1.6!important;}
 body .vatra-group-hero .vatra-group-heading h2{font-size:26px!important;}
@@ -15202,7 +15202,7 @@ body .vatra-group-post-record>.post{padding:20px!important;font-size:14px!import
 body .vatra-group-post-record>.post :is(.post-text,.post-copy,.post-content,.post-body){font-size:14px!important;line-height:1.65!important;}
 body .vatra-group-post-record .post-header{gap:12px!important;}
 body .vatra-group-post-record .post-actions{margin-top:14px!important;}
-body .vatra-group-tabs{gap:3px!important;padding:6px!important;}
+body .vatra-group-tabs{gap:4px!important;padding:5px!important;}
 body .vatra-group-tabs>button{min-width:82px!important;padding:10px 12px!important;font-size:12.5px!important;white-space:nowrap!important;}
 body .vatra-group-members-preview{display:grid!important;gap:5px!important;}
 body .vatra-group-member{min-height:57px!important;padding:7px!important;align-items:center!important;}
@@ -19139,63 +19139,33 @@ body :is(button,a,summary,h1,h2,h3,h4,h5,p,label,small,strong,b,span,dt,dd){
  text-shadow:none!important;
 }
 
-body .layout>.sidebar nav :is(a.nav,button.nav),
-body .layout>.sidebar nav :is(a.nav,button.nav).active,
-body .layout>.sidebar nav :is(a.nav,button.nav)[aria-current="page"]{
- display:flex!important;
- align-items:center!important;
- gap:12px!important;
- min-height:45px!important;
- padding:9px 12px!important;
- margin:1px 0!important;
- border:0!important;
- border-radius:9px!important;
- outline:0!important;
- background:transparent!important;
- color:#233850!important;
- font-weight:710!important;
- font-size:13.8px!important;
- line-height:1.4!important;
- letter-spacing:0!important;
- box-shadow:none!important;
- filter:none!important;
- text-decoration:none!important;
- transform:translateX(0)!important;
- transition:color .17s ease,background-color .17s ease,transform .19s ease!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav)::before,
-body .layout>.sidebar nav :is(a.nav,button.nav)::after{
- content:none!important;display:none!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav) :is(.nav-icon,svg),
-body .layout>.sidebar nav :is(a.nav,button.nav).active :is(.nav-icon,svg){
- color:#416995!important;
- stroke:#416995!important;
- filter:none!important;
- transition:color .17s ease,stroke .17s ease!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{
- width:19px!important;
- height:19px!important;
- stroke-width:2!important;
- stroke-linecap:round!important;
- stroke-linejoin:round!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav):hover,
-body .layout>.sidebar nav :is(a.nav,button.nav).active:hover,
-body .layout>.sidebar nav :is(a.nav,button.nav)[aria-current="page"]:hover{
- color:#175fc2!important;
- background:rgba(224,235,251,.58)!important;
- transform:none!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav):hover :is(.nav-icon,svg){
- color:#175fc2!important;
- stroke:#175fc2!important;
-}
-body .layout>.sidebar nav :is(a.nav,button.nav):focus-visible{
- outline:2px solid rgba(7,87,245,.55)!important;
- outline-offset:2px!important;
-}
+/* VATRA identity across routed pages; existing features and elements are preserved. */
+:root{--vatra-brand-ember:#b65b43;--vatra-brand-ember-soft:#fbefe9;--vatra-brand-ink:#253447;--vatra-brand-muted:#69798a;--vatra-brand-border:#e3e7ec;--vatra-brand-canvas:#f7f7f6;--vatra-brand-shadow:0 5px 22px rgba(30,44,64,.045)}
+html body:not([data-vatra-theme-effective="dark"]){--v-canvas:var(--vatra-brand-canvas);--vatra-ui-border-soft:var(--vatra-brand-border);--vatra-ui-strong:var(--vatra-brand-ink)}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-color:var(--vatra-brand-border)!important;border-radius:16px!important;box-shadow:var(--vatra-brand-shadow)!important}
+html body .layout>.main :is(.vatra-profile-card-head h3,.vatra-profile-title-row h2,.vatra-friends-top h2,.vatra-group-heading h2,.vatra-group-card h3,.vatra-community-gallery-heading h3){letter-spacing:-.018em!important}
+html body:not([data-vatra-theme-effective="dark"]) .vatra-global-header .search{background:#fff!important;border-color:var(--vatra-brand-border)!important;box-shadow:0 2px 10px rgba(35,52,71,.025)!important}
+html body:not([data-vatra-theme-effective="dark"]) .vatra-global-header .search:focus-within{border-color:#8baff0!important;box-shadow:0 0 0 3px rgba(7,87,245,.09)!important}
+html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card) :is(h2,h3){color:var(--vatra-brand-ink)!important}
+html body .layout>.main :is(.primary,.post-now):focus-visible,html body .layout>.sidebar a.nav:focus-visible{outline:2px solid #7aa4f7!important;outline-offset:2px!important}
+html body .vatra-group-tabs>button:is(.active,.is-active,[aria-selected="true"]){box-shadow:inset 0 -2px 0 var(--vatra-brand-ember)!important}
+html body[data-vatra-theme-effective="dark"]{--vatra-brand-ink:#edf2f9;--vatra-brand-muted:#a7b6c8;--vatra-brand-border:#34465b}
+html body[data-vatra-theme-effective="dark"] .layout>.main :is(.post,.quick-compose,.vatra-profile-card,.vatra-group-card,.settings-card,.vatra-music-card,.vatra-gift-preview-card,.vatra-gift-card,.vatra-support-card){border-radius:16px!important}
+@media(prefers-reduced-motion:reduce){html body .layout>.sidebar nav a.nav,html body .layout>.sidebar nav a.nav .nav-icon{transition:none!important}}
+
+/* Canonical VATRA navigation, owned by this brand module. */
+html body .layout>.sidebar nav :is(a.nav,button.nav){display:flex!important;align-items:center!important;gap:10px!important;box-sizing:border-box!important;min-height:39px!important;margin:1px 0!important;padding:6px 10px!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#34465c!important;font-size:13px!important;font-weight:620!important;line-height:1.35!important;text-decoration:none!important;text-shadow:none!important;box-shadow:none!important;filter:none!important;transform:none!important;transition:background-color .16s ease,color .16s ease!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav)::before,html body .layout>.sidebar nav :is(a.nav,button.nav)::after{content:none!important;display:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{display:grid!important;place-items:center!important;flex:0 0 27px!important;width:27px!important;height:27px!important;border-radius:9px!important;background:transparent!important;color:#617b9b!important;transition:background-color .16s ease,color .16s ease!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon svg{width:18px!important;height:18px!important;color:inherit!important;stroke:currentColor!important;stroke-width:1.9!important;filter:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible){background:#edf3fc!important;color:#164f9b!important;transform:none!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]){background:#e9f0ff!important;color:#0757f5!important;font-weight:720!important;box-shadow:inset 3px 0 0 var(--vatra-brand-ember)!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#dce8ff!important;color:#0757f5!important}
+html body .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible) .nav-icon{color:#0757f5!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav){color:#c7d3e3!important;background:transparent!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav) .nav-icon{color:#a8bbd4!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):is(:hover,:focus-visible,.active,[aria-current="page"]){background:#263c57!important;color:#f0f6ff!important}
+html body[data-vatra-theme-effective="dark"] .layout>.sidebar nav :is(a.nav,button.nav):is(.active,[aria-current="page"]) .nav-icon{background:#385579!important;color:#dceafe!important}
 
 body .mobile-nav :is(button,a),
 body .mobile-nav :is(button,a).active{
@@ -19726,22 +19696,7 @@ body[data-page="publicProfile"] .vatra-profile-avatar-card .vatra-profile-avatar
 
 
 /* ORIGINAL FILE: assets/styles/sources/layout/navigation-states.css. Keep order from index.html. */
-
-/* ВАТРА · navigation, music, account state · 2026-11-04 */
-html body .layout>.sidebar>nav>a.nav {
- color:#263b58!important;opacity:1!important;
- transition:background-color .2s ease,color .2s ease,transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s ease!important;
- border-radius:12px!important;position:relative!important;
-}
-html body .layout>.sidebar>nav>a.nav .nav-icon {color:#375879!important;transition:transform .2s ease,color .2s ease}
-html body .layout>.sidebar>nav>a.nav:hover {background:#edf4ff!important;color:#0757f5!important;transform:translateX(4px)!important;box-shadow:inset 3px 0 #4792ff!important}
-html body .layout>.sidebar>nav>a.nav:hover .nav-icon {color:#0757f5!important;transform:scale(1.08)}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) {background:#e7f0ff!important;color:#0757f5!important;font-weight:750!important;box-shadow:inset 3px 0 #0757f5!important}
-html body .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav{color:#e3edfa!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav .nav-icon{color:#bdd5f5!important}
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:hover,
-html body[data-vatra-theme-effective="dark"] .layout>.sidebar>nav>a.nav:is(.active,[aria-current="page"]){background:#1c365b!important;color:#fff!important}
+/* Navigation is styled in branding/brand.css; music and account states remain here. */
 .vatra-top-music-panel[hidden],.vatra-account-check-screen[hidden]{display:none!important}
 .vatra-top-music-panel{position:fixed;z-index:2000;width:min(340px,calc(100vw - 24px));padding:16px;background:#fff;border:1px solid #dce6f6;border-radius:18px;box-shadow:0 18px 50px #1e3e752e;color:#1c3455;font-family:"VATRA Onest",Inter,system-ui,sans-serif}
 .vatra-top-music-panel .vatra-menu-heading{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -21781,9 +21736,9 @@ html body .vatra-translate-button[hidden]{display:none!important}
 /* ORIGINAL FILE: assets/styles/sources/foundation/shared-tokens.css. Keep order from index.html. */
 /* VATRA cohesive UI: final shared tokens; narrow and safe overrides only */
 :root{
- --vatra-ui-quiet:#536b85;--vatra-ui-quiet-icon:#7191ad;
- --vatra-ui-hover-ink:#245a91;--vatra-ui-hover-bg:#eaf1fa;
- --vatra-ui-border-soft:#dfe7f0;--vatra-ui-strong:#253d57;
+ --vatra-ui-quiet:#657688;--vatra-ui-quiet-icon:#7890a8;
+ --vatra-ui-hover-ink:#145ca4;--vatra-ui-hover-bg:#f0f4fc;
+ --vatra-ui-border-soft:#e3e7ec;--vatra-ui-strong:#253447;
 }
 /* Moderately larger content, without edge-to-edge stretching. */
 @media(min-width:1200px){
@@ -21795,7 +21750,7 @@ html body .vatra-translate-button[hidden]{display:none!important}
  html body .vatra-profile-main,html body .vatra-profile-sidebar{gap:16px!important;}
 }
 html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card){
- border-radius:14px!important;border-color:var(--vatra-ui-border-soft)!important;
+ border-radius:16px!important;border-color:var(--vatra-ui-border-soft)!important;
 }
 html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card) :is(h2,h3){
  letter-spacing:-.01em!important;

@@ -1,8 +1,8 @@
 /* VATRA cohesive UI: final shared tokens; narrow and safe overrides only */
 :root{
- --vatra-ui-quiet:#536b85;--vatra-ui-quiet-icon:#7191ad;
- --vatra-ui-hover-ink:#245a91;--vatra-ui-hover-bg:#eaf1fa;
- --vatra-ui-border-soft:#dfe7f0;--vatra-ui-strong:#253d57;
+ --vatra-ui-quiet:#657688;--vatra-ui-quiet-icon:#7890a8;
+ --vatra-ui-hover-ink:#145ca4;--vatra-ui-hover-bg:#f0f4fc;
+ --vatra-ui-border-soft:#e3e7ec;--vatra-ui-strong:#253447;
 }
 /* Moderately larger content, without edge-to-edge stretching. */
 @media(min-width:1200px){
@@ -14,7 +14,7 @@
  html body .vatra-profile-main,html body .vatra-profile-sidebar{gap:16px!important;}
 }
 html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card){
- border-radius:14px!important;border-color:var(--vatra-ui-border-soft)!important;
+ border-radius:16px!important;border-color:var(--vatra-ui-border-soft)!important;
 }
 html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card) :is(h2,h3){
  letter-spacing:-.01em!important;

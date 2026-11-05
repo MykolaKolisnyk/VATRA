@@ -72,3 +72,8 @@ assert.equal(messengerCss.split('body[data-page="messages"] .vatra-chat-person>.
 assert.ok(messengerCss.includes('max-width:43px!important;max-height:43px!important'),'Chat avatar size must remain bounded');
 assert.ok(original.includes('document.body.dataset.page===page&&document.activeElement?.matches?.'),'Focused inputs must never prevent navigation to another page');
 console.log('VATRA cover-free compact page and original photo gallery verified.');
+
+const brandVisual=read('assets/styles/sources/branding/brand.css');
+const accountStates=read('assets/styles/sources/layout/navigation-states.css');
+assert.ok(brandVisual.includes('--vatra-brand-ember:')&&brandVisual.includes('.vatra-group-card')&&brandVisual.includes('.settings-card'),'VATRA visual system must cover multiple sections');
+assert.ok(!accountStates.includes('html body .layout>.sidebar>nav>a.nav'),'Duplicate navigation styling must not return');

@@ -2,7 +2,7 @@
 body .vatra-group-view{gap:18px!important;font-size:14px!important;}
 body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:18px!important;}
 body .vatra-group-main,body .vatra-group-rail,body .vatra-group-tab-panel{gap:16px!important;}
-body .vatra-group-card{padding:19px!important;border-radius:14px!important;}
+body .vatra-group-card{padding:19px!important;border-radius:16px!important;}
 body .vatra-group-card h3{font-size:16px!important;line-height:1.35!important;}
 body .vatra-group-card p{font-size:13px!important;line-height:1.6!important;}
 body .vatra-group-hero .vatra-group-heading h2{font-size:26px!important;}
@@ -10,7 +10,7 @@ body .vatra-group-post-record>.post{padding:20px!important;font-size:14px!import
 body .vatra-group-post-record>.post :is(.post-text,.post-copy,.post-content,.post-body){font-size:14px!important;line-height:1.65!important;}
 body .vatra-group-post-record .post-header{gap:12px!important;}
 body .vatra-group-post-record .post-actions{margin-top:14px!important;}
-body .vatra-group-tabs{gap:3px!important;padding:6px!important;}
+body .vatra-group-tabs{gap:4px!important;padding:5px!important;}
 body .vatra-group-tabs>button{min-width:82px!important;padding:10px 12px!important;font-size:12.5px!important;white-space:nowrap!important;}
 body .vatra-group-members-preview{display:grid!important;gap:5px!important;}
 body .vatra-group-member{min-height:57px!important;padding:7px!important;align-items:center!important;}
