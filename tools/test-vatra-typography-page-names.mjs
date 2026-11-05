@@ -67,4 +67,8 @@ const flagsCss=read('vatra-nov03.css');
 assert.ok(flagsCss.includes('body .vatra-language-flag{display:block;flex:0 0 28px;border:0!important;outline:0!important'),'Language SVG flag must not receive an extra border or outline');
 const appForPerformance=read('script.js');
 assert.ok(appForPerformance.includes('function vatraRequestRender()')&&appForPerformance.includes('if(vatraRenderQueued)return'),'Realtime callbacks must batch duplicate redraws');
+const messengerCss=read('vatra-messenger-refine.css');
+assert.equal(messengerCss.split('body[data-page="messages"] .vatra-chat-person>.avatar{').length-1,1,'Messenger avatar must not be defined by two competing rules');
+assert.ok(messengerCss.includes('max-width:43px!important;max-height:43px!important'),'Chat avatar size must remain bounded');
+assert.ok(original.includes('document.body.dataset.page===page&&document.activeElement?.matches?.'),'Focused inputs must never prevent navigation to another page');
 console.log('VATRA cover-free compact page and original photo gallery verified.');
