@@ -575,26 +575,21 @@ let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
 // Accessible question variety is UX only; server-verified anti-bot controls remain essential.
 function vatraNewHumanQuestion(previousKey=''){
  const n=(low,high)=>low+Math.floor(Math.random()*(high-low+1));
- let type,a,b,prompt,answer,key;
+ let a,b,key;
  for(let attempt=0;attempt<24;attempt++){
-  type=n(0,3);
-  if(type===0){a=n(2,10);b=n(2,9);answer=a+b;prompt='Скільки буде '+a+' + '+b+'?';}
-  else if(type===1){a=n(7,19);b=n(1,a-2);answer=a-b;prompt='Скільки буде '+a+' − '+b+'?';}
-  else if(type===2){a=n(3,18);b=n(2,17);if(a===b)b=b===17?16:b+1;answer=Math.max(a,b);prompt='Яке число більше: '+a+' чи '+b+'?';}
-  else{a=n(2,5);b=n(2,4);answer=a*b;prompt='Скільки буде '+a+' × '+b+'?';}
-  key=type+':'+a+':'+b;
+  a=n(2,19);b=n(1,18);key=a+':'+b;
   if(key!==previousKey)break;
  }
+ const answer=a+b,prompt='Скільки буде '+a+' + '+b+'?';
  const options=new Set([answer]);
  while(options.size<4){
-  const candidate=answer+n(-8,8);
+  const candidate=answer+n(-7,7);
   if(candidate>=0&&candidate!==answer)options.add(candidate);
  }
  const choices=[...options];
  for(let i=choices.length-1;i>0;i--){const j=n(0,i);[choices[i],choices[j]]=[choices[j],choices[i]];}
  return {key,prompt,answer,choices};
 }
-
 function vatrapauseHumanCheck(wrap){
  return vatraShieldEnforce(wrap,'[data-captcha-answer]','#humanCaptchaStatus');
 }
