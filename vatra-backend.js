@@ -303,15 +303,26 @@ async function readTree(path) {
   const ancestors = [];
   for (let i = 1; i < parts.length; i++) ancestors.push(parts.slice(0, i).join('/'));
   if (ancestors.length) conditions.push('path.in.(' + ancestors.join(',') + ')');
+  // Query in stable path order. OFFSET/range pagination can skip or repeat
+  // rows when a concurrent writer inserts or removes a row between requests.
+  // Keyset scanning uses the app_data primary-key index at every page depth.
   const rows = [];
-  const pageSize = 1000;
-  for (let from = 0; ; from += pageSize) {
-    const { data, error } = await client.from(TABLE).select('path,value')
-      .or(conditions.join(',')).range(from, from + pageSize - 1);
+  const pageSize = 500;
+  let afterPath = null;
+  for (;;) {
+    let query = client.from(TABLE).select('path,value').or(conditions.join(','));
+    if (afterPath !== null) query = query.gt('path', afterPath);
+    const { data, error } = await query.order('path', { ascending: true }).limit(pageSize);
     if (error) throw databaseError(error);
     reportConnection(true);
-    rows.push(...(data || []));
-    if (!data || data.length < pageSize) break;
+    if (!data?.length) break;
+    const last = data[data.length - 1]?.path;
+    if (typeof last !== 'string' || (afterPath !== null && last <= afterPath)) {
+      throw new Error('Некоректний порядок результатів бази VATRA.');
+    }
+    rows.push(...data);
+    afterPath = last;
+    if (data.length < pageSize) break;
   }
   rows.sort((a, b) => a.path.split('/').length - b.path.split('/').length || a.path.localeCompare(b.path));
   const root = {};
