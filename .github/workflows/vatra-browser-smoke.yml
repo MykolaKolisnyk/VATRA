@@ -1,5 +1,13 @@
 name: VATRA browser smoke (desktop and mobile)
 on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.js'
+      - '**/*.mjs'
+      - '.github/workflows/vatra-browser-smoke.yml'
   pull_request:
     paths:
       - '**/*.html'
