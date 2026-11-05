@@ -3030,6 +3030,7 @@ function renderMessages(){
  window.dispatchEvent(new Event('vatra:messenger-rendered'));
  $('#backChats').onclick=()=>{activeChat=null;editingMessageId=null;replyingMessageId=null;stopChatListener();renderMessages();};
  startChatListener(key);markChatRead(key);
+ $('#chatMessages')?.addEventListener('scroll',()=>markChatRead(key),{passive:true});
   // Only for reading old ciphertext on a device with the original key.
   // New ordinary messages do not depend on peer key initialization.
   const legacyAttempt=++secureChatAttempt,legacyPeer=activeChat;
@@ -3385,7 +3386,27 @@ function updateMessageNavBadge(){
  badge.setAttribute('aria-label',count+' непрочитаних діалогів');
 }
 window.vatraRefreshMessageBadge=updateMessageNavBadge;
-function markChatRead(key){if(!currentUser||!key)return;const latest=chatIndex[key]&&chatIndex[key].lastMessage,stamp=Math.max(Date.now(),Number(latest&&latest.createdAt)||0);if(Number(chatReads[key]||0)>=stamp-1000)return;chatReads={...chatReads,[key]:stamp};updateNotificationBadges();set(ref(db,'chatReads/'+currentUser.uid+'/'+key),stamp).catch(err=>console.warn('Chat read receipt failed:',err));}
+function vatraChatIsAtLatest(key){
+ if(!currentUser||!activeChat||page!=='messages'||chatKey(currentUser.uid,activeChat)!==key)return false;
+ if(document.visibilityState==='hidden')return false;
+ const viewport=$('#chatMessages');
+ if(!viewport)return false;
+ return viewport.scrollHeight-viewport.clientHeight-viewport.scrollTop<=96;
+}
+function markChatRead(key){
+ if(!currentUser||!key||!vatraChatIsAtLatest(key))return;
+ const latest=chatIndex[key]?.lastMessage;
+ const stamp=Math.max(Date.now(),Number(latest?.createdAt)||0);
+ if(Number(chatReads[key]||0)>=stamp-1000)return;
+ chatReads={...chatReads,[key]:stamp};
+ updateNotificationBadges();
+ set(ref(db,'chatReads/'+currentUser.uid+'/'+key),stamp).catch(err=>console.warn('Chat read receipt failed:',err));
+}
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible'&&currentUser&&activeChat&&page==='messages'){
+  markChatRead(chatKey(currentUser.uid,activeChat));
+ }
+});
 function markNotificationsRead(){
  if(!currentUser)return;
  const stamp=Date.now();

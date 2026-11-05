@@ -100,3 +100,31 @@ const replyCSS=read('assets/styles/sources/social/chat-replies.css');
 assert.ok(commentsCSS.includes('data-vatra-theme-effective="dark"] .vatra-comments-heading>.vatra-comments-sort'));
 assert.ok(replyCSS.includes('data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-reply-preview button'));
 console.log('VATRA: comment sorting in both directions; dark chat reply controls verified.');
+
+
+// Keep read receipts tied to messages actually visible at the newest edge.
+const receiptStart=js.indexOf('function vatraChatIsAtLatest(');
+const receiptEnd=js.indexOf("document.addEventListener('visibilitychange'",receiptStart);
+assert.ok(receiptStart>=0&&receiptEnd>receiptStart,'Visibility-aware chat read helper not found');
+const receiptViewport={scrollHeight:1200,clientHeight:500,scrollTop:50};
+const receiptDocument={visibilityState:'visible'};
+const sentReceipts=[];
+const receiptState={
+ currentUser:{uid:'u1'},activeChat:'u2',page:'messages',document:receiptDocument,
+ $:()=>receiptViewport,chatKey:()=> 'u1_u2',chatIndex:{u1_u2:{lastMessage:{createdAt:100}}},
+ chatReads:{},db:{},ref:(_db,path)=>path,set:(path,time)=>{sentReceipts.push({path,time});return Promise.resolve()},
+ updateNotificationBadges:()=>{},console
+};
+const receiptHelpers=runInNewContext(js.slice(receiptStart,receiptEnd)+'\n({vatraChatIsAtLatest,markChatRead})',receiptState);
+receiptHelpers.markChatRead('u1_u2');
+assert.equal(sentReceipts.length,0,'Reading older chat history must not mark new messages as seen');
+receiptViewport.scrollTop=700;
+receiptDocument.visibilityState='hidden';
+receiptHelpers.markChatRead('u1_u2');
+assert.equal(sentReceipts.length,0,'A background tab must not mark messages as read');
+receiptDocument.visibilityState='visible';
+receiptHelpers.markChatRead('u1_u2');
+assert.equal(sentReceipts.length,1,'Returning to the latest visible chat should mark it as read');
+assert.ok(js.includes("$('#chatMessages')?.addEventListener('scroll',()=>markChatRead(key),{passive:true})"),
+ 'Scrolling to newer messages must refresh read receipts');
+console.log('VATRA: unread chat status respects scroll position and tab visibility.');
