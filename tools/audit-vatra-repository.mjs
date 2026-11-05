@@ -117,6 +117,16 @@ for(const match of snapshotGenerator.matchAll(/(?:src|href)="\.\.\/\.\.\/([a-z0-
  if(asset.endsWith('.js'))htmlScriptRoots.add(asset);
  if(asset.endsWith('.css'))htmlStyles.add(asset);
 }
+// Production links to one compiled sheet; its ordered source modules are
+// intentionally retained as editable files and must not be flagged as unused.
+if(htmlStyles.has('assets/styles/vatra.css')){
+ const manifest=JSON.parse(textFiles.get('assets/styles/manifest.json')||'{}');
+ if(!Array.isArray(manifest.files))throw Error('Bundled VATRA stylesheet missing its manifest');
+ for(const name of manifest.files){
+  if(!textFiles.has(name))throw Error('Missing CSS source module: '+name);
+  htmlStyles.add(name);
+ }
+}
 const reachableJS=new Set(htmlScriptRoots);
 let active=true;
 while(active){
