@@ -62,7 +62,7 @@ for(const page of ['auth.html','register.html']){
  assert.ok(recovery.includes('class="recovery-answers human-captcha-options"'));
  assert.ok(html.includes('class="vatra-recovery-brand"')||
            html.includes('class="auth-dialog-icon vatra-recovery-brand"'),'Branded recovery header missing');
- assert.ok(html.includes('favicon.svg?v=20261104-ribbon1'),'Auth must use current ribbon logo');
+ assert.ok(html.includes('favicon.svg?v=20261105-original-v1'),'Auth must use current ribbon logo');
  assert.ok(html.includes('vatra-loader-wordmark')&&html.includes('vatra-wordmark-text'),'Loading brand must use icon + text');
 }
 assert.ok(css.includes('VATRA Unified Shield v2'), 'Shared visual shield CSS must exist');
@@ -73,21 +73,21 @@ assert.ok(css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),
           'Both human checks must have four aligned choices');
 const favicon=read('favicon.svg'),preview=read('social-preview.svg');
 for(const asset of [favicon,preview]){
- assert.ok(asset.includes('M19 18H36C39 18 42 20 44 24'),
+ assert.ok(asset.includes('M433.31 136.6'),
   'Ribbon left arm must be identical across brand assets');
- assert.ok(asset.includes('M76 18H90C94 18 96 22'),
+ assert.ok(asset.includes('M78.69 137.5'),
   'Ribbon right arm must be identical across brand assets');
 }
-assert.ok(!favicon.includes('M433.31 136.6'),'Old V logo must be replaced');
-assert.ok(index.includes('favicon.svg?v=20261104-ribbon1'),'Website favicon cache must be updated');
+assert.ok(!favicon.includes('M19 18H36C39 18 42 20 44 24'),'Retired ribbon emblem must not return');
+assert.ok(index.includes('favicon.svg?v=20261105-original-v1'),'Website favicon cache must be updated');
 assert.ok(index.includes('vatra-header-wordmark')&&!index.includes('vatra-header.svg?v='),'Website header must use symbol and selectable text');
-assert.ok(index.includes('social-preview.png?v=20261104-ribbon1'),'Raster social preview must match the new brand');
-assert.ok(read('vatra-language.js').includes('favicon.svg?v=20261104-ribbon1'),
+assert.ok(index.includes('social-preview.png?v=20261105-original-v1'),'Raster social preview must match the new brand');
+assert.ok(read('vatra-language.js').includes('favicon.svg?v=20261105-original-v1'),
  'Language picker must use updated mark');
 // Social scrapers expect PNG, not the original SVG MIME type.
 for(const page of ['index.html','auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('social-preview.png?v=20261104-ribbon1'),page+': social image must use current ribbon asset');
+ assert.ok(html.includes('social-preview.png?v=20261105-original-v1'),page+': social image must use current ribbon asset');
  assert.ok(html.includes('<meta property="og:image:type" content="image/png">'),page+': incorrect Open Graph image MIME type');
  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'),page+': large social image card expected');
 }
@@ -99,7 +99,7 @@ for(const page of ['auth.html','register.html']){
  const source=read(page);
  assert.ok(source.includes('<header class="vatra-recovery-head">'),page+': recovery header missing');
  assert.ok(source.includes('<div class="vatra-recovery-body">'),page+': recovery form body missing');
- assert.ok(source.includes('vatra-auth-unified.css?v=20261105-layout-quiz2'),page+': final stylesheet missing');
+ assert.ok(source.includes('vatra-auth-unified.css?v=20261105-media-handle1'),page+': final stylesheet missing');
  assert.ok(source.lastIndexOf('vatra-auth-unified.css')>source.lastIndexOf('vatra-ui-foundations-v5.css'),
   page+': final recovery styles must load after global auth styles');
 }
