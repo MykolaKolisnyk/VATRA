@@ -542,6 +542,29 @@ function vatraShieldEnforce(root,selector,statusSelector){
  return locked;
 }
 let challengeAnswer=null,challengePassed=false,previousAdditionKey='';
+// Accessible question variety is UX only; server-verified anti-bot controls remain essential.
+function vatraNewHumanQuestion(previousKey=''){
+ const n=(low,high)=>low+Math.floor(Math.random()*(high-low+1));
+ let type,a,b,prompt,answer,key;
+ for(let attempt=0;attempt<24;attempt++){
+  type=n(0,3);
+  if(type===0){a=n(2,10);b=n(2,9);answer=a+b;prompt='Скільки буде '+a+' + '+b+'?';}
+  else if(type===1){a=n(7,19);b=n(1,a-2);answer=a-b;prompt='Скільки буде '+a+' − '+b+'?';}
+  else if(type===2){a=n(3,18);b=n(2,17);if(a===b)b=b===17?16:b+1;answer=Math.max(a,b);prompt='Яке число більше: '+a+' чи '+b+'?';}
+  else{a=n(2,5);b=n(2,4);answer=a*b;prompt='Скільки буде '+a+' × '+b+'?';}
+  key=type+':'+a+':'+b;
+  if(key!==previousKey)break;
+ }
+ const options=new Set([answer]);
+ while(options.size<4){
+  const candidate=answer+n(-8,8);
+  if(candidate>=0&&candidate!==answer)options.add(candidate);
+ }
+ const choices=[...options];
+ for(let i=choices.length-1;i>0;i--){const j=n(0,i);[choices[i],choices[j]]=[choices[j],choices[i]];}
+ return {key,prompt,answer,choices};
+}
+
 function vatrapauseHumanCheck(wrap){
  return vatraShieldEnforce(wrap,'[data-captcha-answer]','#humanCaptchaStatus');
 }
@@ -560,26 +583,9 @@ function openHumanCaptcha(){
 function resetHumanChallenge(notice=''){
  challengePassed=false;
  const wrap=$('#captchaWrap');if(!wrap)return;
- let a=1+Math.floor(Math.random()*9),b=1+Math.floor(Math.random()*9);
- let pairKey=[a,b].sort((x,y)=>x-y).join('+');
- for(let attempt=0;pairKey===previousAdditionKey&&attempt<12;attempt++){
-  a=1+Math.floor(Math.random()*9);b=1+Math.floor(Math.random()*9);
-  pairKey=[a,b].sort((x,y)=>x-y).join('+');
- }
- if(pairKey===previousAdditionKey){
-  b=b%9+1;
-  pairKey=[a,b].sort((x,y)=>x-y).join('+');
- }
- previousAdditionKey=pairKey;
- challengeAnswer=a+b;
- const choiceSet=new Set([challengeAnswer]);
- while(choiceSet.size<4){
-  const distractor=1+Math.floor(Math.random()*20);
-  choiceSet.add(distractor);
- }
- const choices=[...choiceSet];
- for(let i=choices.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[choices[i],choices[j]]=[choices[j],choices[i]];}
- wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="favicon.svg?v=20261104-ribbon1" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Захист ВАТРИ</span><span class="human-captcha-tag">Швидка перевірка</span></div><p class="human-captcha-question">Скільки буде '+a+' + '+b+'?</p><div class="human-captcha-options">'+choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Обчисліть суму та виберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
+ const question=vatraNewHumanQuestion(previousAdditionKey);
+ previousAdditionKey=question.key;challengeAnswer=question.answer;
+ wrap.innerHTML='<div class="human-captcha"><div class="human-captcha-title"><img src="favicon.svg?v=20261104-ribbon1" class="vatra-mini-mark" alt="" aria-hidden="true"><span>Захист ВАТРИ</span><span class="human-captcha-tag">Швидка перевірка</span></div><p class="human-captcha-question">'+question.prompt+'</p><div class="human-captcha-options">'+question.choices.map(value=>'<button type="button" class="human-captcha-option" data-captcha-answer="'+value+'">'+value+'</button>').join('')+'</div><p class="human-captcha-status'+(notice?' is-wrong':'')+'" id="humanCaptchaStatus" aria-live="assertive">'+(notice||'Оберіть правильну відповідь.')+'</p><button type="button" class="human-captcha-cancel" id="humanCaptchaCancel">Скасувати</button></div>';
  wrap.querySelector('#humanCaptchaCancel').addEventListener('click',()=>{
   pendingHumanAction=null;
   closeHumanCaptcha();
@@ -774,19 +780,11 @@ $('#recoveryResendOtp')?.addEventListener('click',async()=>{
  }catch(err){$('#recoveryError').textContent=errors[err.code]||err.message||'Не вдалося надіслати код.';$('#recoveryError').classList.remove('success');syncRecoveryResend();}
 });
 function resetRecoveryChallenge(notice=''){
- let a=2+Math.floor(Math.random()*9),b=2+Math.floor(Math.random()*9);
- let pair=[a,b].sort((x,y)=>x-y).join('+');
- for(let attempt=0;pair===recoveryPreviousPair&&attempt<20;attempt++){
-  a=2+Math.floor(Math.random()*9);b=2+Math.floor(Math.random()*9);
-  pair=[a,b].sort((x,y)=>x-y).join('+');
- }
- if(pair===recoveryPreviousPair){a=(a%9)+2;pair=[a,b].sort((x,y)=>x-y).join('+');}
- recoveryPreviousPair=pair;recoveryAnswer=a+b;recoveryPassed=false;
- $('#recoveryMath').textContent='Скільки буде '+a+' + '+b+'?';
- const options=new Set([recoveryAnswer]);
- while(options.size<4){const distractor=1+Math.floor(Math.random()*19);if(distractor!==recoveryAnswer)options.add(distractor);}
- $('#recoveryAnswers').innerHTML=[...options].sort(()=>Math.random()-.5).map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
- $('#recoveryChallengeStatus').textContent=notice||'Обчисліть суму та оберіть правильну відповідь.';
+ const question=vatraNewHumanQuestion(recoveryPreviousPair);
+ recoveryPreviousPair=question.key;recoveryAnswer=question.answer;recoveryPassed=false;
+ $('#recoveryMath').textContent=question.prompt;
+ $('#recoveryAnswers').innerHTML=question.choices.map(n=>'<button type="button" class="recovery-answer" data-recovery-answer="'+n+'">'+n+'</button>').join('');
+ $('#recoveryChallengeStatus').textContent=notice||'Оберіть правильну відповідь.';
  $('#recoveryChallengeStatus').classList.remove('is-passed');$('#recoveryChallengeStatus').classList.toggle('is-wrong',!!notice);
  $('#recoveryAnswers').querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{
   const correct=Number(btn.dataset.recoveryAnswer)===recoveryAnswer;
