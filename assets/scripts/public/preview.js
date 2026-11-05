@@ -8,7 +8,11 @@
   if (!root || !list || !status) return;
   const kind = root.dataset.vatraPublicKind;
   const id = root.dataset.vatraPublicId || '';
-  const pageSize = 5;
+  const pageSize = 12;
+  let offset = 0,loading = false,finished = false,observer = null;
+  const more = document.createElement('button');
+  more.type='button';more.className='vatra-public-more';more.textContent='Показати ще дописи';more.hidden=true;
+  list.after(more);
   if (!['person', 'group'].includes(kind) || !/^[a-z0-9-]{32,36}$/i.test(id)) {
     status.textContent = 'Не вдалося визначити публічну сторінку.';
     return;
@@ -68,6 +72,9 @@
     return article;
   }
   async function load() {
+    if(loading||finished)return;
+    loading=true;more.disabled=true;
+    try{
     const url = new URL(endpoint);
     url.searchParams.set('select', 'path,value');
     url.searchParams.set('path', 'like.' + (kind === 'person' ? 'posts/*' : 'groupPosts/' + id + '/*'));
@@ -77,6 +84,7 @@
     // JSON sorting avoids downloading the whole feed before choosing a batch.
     url.searchParams.set('order', 'value->>createdAt.desc');
     url.searchParams.set('limit', String(pageSize));
+    url.searchParams.set('offset', String(offset));
     const response = await fetch(url, {
       headers: { apikey: publicKey },
       cache:'no-store',
@@ -89,10 +97,15 @@
       .map(row => row && typeof row.value === 'object' ? row.value : null)
       .filter(post => post && (post.visibility == null || post.visibility === 'public')
         && (kind === 'group' || post.authorUid === id));
-    list.replaceChildren(...posts.map(card));
-    status.textContent = posts.length ? 'Останні відкриті дописи' : 'Поки немає відкритих дописів.';
+    list.append(...posts.map(card));
+    offset+=rows.length;finished=rows.length<pageSize;more.hidden=finished;
+    status.textContent = list.children.length ? 'Відкриті дописи' : 'Поки немає відкритих дописів.';
     status.dataset.state = 'ready';
+    }finally{loading=false;more.disabled=false;}
   }
+  more.addEventListener('click',()=>void load().catch(showError));
+  function showError(){status.textContent='Зараз не вдалося завантажити відкриті дописи. Спробуйте пізніше.';status.dataset.state='error';}
+  if('IntersectionObserver' in window){observer=new IntersectionObserver(entries=>{if(entries.some(x=>x.isIntersecting)&&!more.hidden)void load().catch(showError);},{rootMargin:'300px 0px'});observer.observe(more);}
   load().catch(() => {
     // Do not fall back to cached private data or an unfiltered query.
     status.textContent = 'Зараз не вдалося завантажити відкриті дописи. Спробуйте пізніше.';

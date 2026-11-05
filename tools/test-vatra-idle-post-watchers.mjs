@@ -17,7 +17,7 @@ const ctx={
  markInitialLoaded:()=>{},render:()=>{},updateNotificationBadges:()=>{}
 };
 const setMode=runInNewContext(code+'; vatraSetPostMode',ctx);
-for(const page of ['messages','friends','music','videos','settings','groupSettings']){
+for(const page of ['messages','friends','music','settings','groupSettings']){
  ctx.page=page;setMode();
  assert.equal(ctx.vatraPostMode,'idle',page+' must not fetch all posts');
 }

@@ -11,3 +11,7 @@ assert.ok(app.includes("requestAnimationFrame(()=>vatraObserveProfileMore('publi
 assert.ok(app.includes('button.addEventListener(\'click\',loadMore,{once:true})'),'Manual fallback must remain available');
 assert.ok(html.includes('assets/scripts/app/main.js?v=20261105-idle-posts1'),'Browser must load the new profile renderer');
 console.log('VATRA profiles: twelve posts first, infinite scroll + button fallback.');
+
+assert.ok(app.includes('const VATRA_GROUP_POST_BATCH_SIZE=12'),'Community posts must render in modest batches');
+assert.ok(app.includes('arr.slice(0,visibleGroupPosts).map(postRow)'),'Community posts must not eagerly render all cards');
+assert.ok(app.includes('vatraGroupPostObserver.observe(moreGroupPosts)'),'Community posts must load on scroll');
