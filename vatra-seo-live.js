@@ -53,7 +53,7 @@
   setMeta('name','twitter:description',description);
   setMeta('property','og:type',type);
   setMeta('property','og:url',url);
-  const preview=photo||ORIGIN+'social-preview.png?v=20261104-ribbon1';
+  const preview=photo||ORIGIN+'social-preview.png?v=20261105-original-v1';
    setMeta('property','og:image',preview);setMeta('name','twitter:image',preview);
   const canonical=document.head.querySelector('link[rel="canonical"]');
   if(canonical)canonical.href=url;
