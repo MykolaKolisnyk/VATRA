@@ -1,22 +1,23 @@
-/* VATRA public snapshot, deliberately isolated from authenticated app styles. */
-:root{color-scheme:light;font-family:Onest,Inter,system-ui,-apple-system,sans-serif;--brand:#0757f5;--ink:#182e50;--line:#e3eaf4;--muted:#63728b}
+/* VATRA public preview uses the same product typography without any login requirement. */
+@font-face{font-family:"VATRA Onest";src:url("../../../fonts/Onest-Variable.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
+:root{color-scheme:light;font-family:"VATRA Onest",system-ui,sans-serif;--brand:#0757f5;--ink:#233a52;--line:#e0e8f0;--muted:#62788f}
 *{box-sizing:border-box}
-body{margin:0;background:#f3f6fc;color:var(--ink);line-height:1.55}
+body{margin:0;background:#edf1f5;color:var(--ink);line-height:1.55;font-family:"VATRA Onest",system-ui,sans-serif}
 a{color:var(--brand)}
 .vatra-public-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px max(20px,calc((100% - 1000px)/2));background:white;border-bottom:1px solid var(--line)}
-.vatra-public-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-size:21px;font-weight:800;letter-spacing:.025em}
+.vatra-public-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-size:21px;font-weight:720;letter-spacing:-.015em}
 .vatra-public-brand img{width:35px;height:35px;border-radius:9px}
 .vatra-public-nav{display:flex;gap:8px;align-items:center}
 .vatra-public-nav a,.vatra-public-gate a{display:inline-flex;align-items:center;justify-content:center;border-radius:11px;padding:9px 15px;text-decoration:none;font-size:14px;font-weight:700;border:1px solid #dbe5f5}
 .vatra-public-nav a:last-child,.vatra-public-gate a:first-of-type{background:var(--brand);border-color:var(--brand);color:white}
 .vatra-public-main{max-width:760px;margin:26px auto 55px;padding:0 16px}
-.vatra-public-profile,.vatra-public-post,.vatra-public-gate{background:white;border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:16px;box-shadow:0 6px 25px rgba(10,40,95,.035)}
+.vatra-public-profile,.vatra-public-post,.vatra-public-gate{background:white;border:1px solid var(--line);border-radius:13px;padding:20px;margin-bottom:14px;box-shadow:0 4px 16px rgba(10,40,95,.035)}
 .vatra-public-profile-head{display:flex;align-items:center;gap:17px}
 .vatra-public-avatar{width:94px;height:94px;border-radius:50%;object-fit:cover;background:#edf2fc;flex:none}
 .vatra-public-profile h1{font-size:clamp(22px,4vw,32px);margin:0 0 5px;line-height:1.2}
 .vatra-public-profile p{color:var(--muted);white-space:pre-line;overflow-wrap:anywhere;margin:10px 0 0}
 .vatra-public-profile .vatra-public-kicker{color:var(--brand);font-weight:700;font-size:12px;letter-spacing:.09em;text-transform:uppercase;margin:0 0 8px}
-.vatra-public-section-head{font-size:18px;font-weight:750;margin:27px 2px 13px}
+.vatra-public-section-head{font-size:18px;font-weight:690;margin:24px 2px 13px}
 .vatra-public-post header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px}
 .vatra-public-post header strong{font-size:15px}
 .vatra-public-post header time{font-size:12px;color:var(--muted)}

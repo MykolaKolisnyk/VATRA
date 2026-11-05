@@ -3,7 +3,7 @@
 html body,
 html body :is(a,button,input,textarea,select,option,label,h1,h2,h3,h4,h5,h6,
  p,span,small,strong,b,em,i,li,dd,dt,summary,legend,blockquote,table,th,td,div){
- font-family:var(--vatra-ui-font,"Manrope",Inter,"VATRA Onest",system-ui,sans-serif)!important;
+ font-family:var(--vatra-ui-font,"VATRA Onest",system-ui,sans-serif)!important;
 }
 html body :is(.emoji-picker,.vatra-emoji-picker,.emoji-button,.emoji-item) :is(span,i){
  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;

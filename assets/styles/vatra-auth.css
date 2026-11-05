@@ -5240,20 +5240,51 @@ body[data-vatra-theme-effective="dark"] .vatra-group-dialog-close{background:#34
 
 
 /* ORIGINAL FILE: assets/styles/sources/foundation/local-fonts.css. Keep order from index.html. */
-/* Onest is bundled in VATRA as an offline fallback for Manrope and Inter.
-   Copyright 2021 Onest Project Authors. Licensed under SIL OFL 1.1.
-   See assets/fonts/OFL-Onest.txt. */
+/* VATRA UI: the locally bundled variable Onest is the product's primary font.
+   Copyright 2021 Onest Project Authors; SIL OFL 1.1 (assets/fonts/OFL-Onest.txt). */
 @font-face{
-  font-family:"VATRA Onest";
-  src:url("../fonts/Onest-Variable.ttf") format("truetype");
-  font-style:normal;
-  font-weight:100 900;
-  font-display:swap;
+ font-family:"VATRA Onest";
+ src:url("../fonts/Onest-Variable.ttf") format("truetype");
+ font-style:normal;
+ font-weight:100 900;
+ font-display:swap;
 }
-
-html,body,button,input,textarea,select,option{
-  font-family:"Manrope",Inter,"VATRA Onest","Segoe UI",system-ui,sans-serif;
+:root{
+ --vatra-ui-font:"VATRA Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+ --vatra-blue:#0757f5;
+ --vatra-blue-hover:#0649cb;
+ --vatra-blue-soft:#eaf1fc;
+ --vatra-icon:#587b9e;
+ --vatra-canvas:#edf1f5;
+ --vatra-surface:#fff;
+ --vatra-surface-muted:#f5f8fc;
+ --vatra-ink:#253b53;
+ --vatra-muted:#667d95;
+ --vatra-border:#dfe6ee;
+ --vatra-radius-card:13px;
+ --vatra-radius-control:9px;
+ --vatra-space-1:4px;
+ --vatra-space-2:8px;
+ --vatra-space-3:12px;
+ --vatra-space-4:16px;
+ --vatra-space-5:20px;
+ --vatra-control-height:38px;
+ --vatra-shadow-card:0 3px 15px rgba(24,49,81,.035);
 }
+body[data-vatra-theme-effective="dark"]{
+ --vatra-blue:#7caeff;
+ --vatra-blue-hover:#a5c8ff;
+ --vatra-blue-soft:#304965;
+ --vatra-icon:#abc2dd;
+ --vatra-canvas:#152131;
+ --vatra-surface:#223247;
+ --vatra-surface-muted:#2c4058;
+ --vatra-ink:#eef5ff;
+ --vatra-muted:#afc0d4;
+ --vatra-border:#40556e;
+ --vatra-shadow-card:0 4px 18px rgba(0,0,0,.12);
+}
+html,body,button,input,textarea,select,option{font-family:var(--vatra-ui-font)!important}
 
 
 /* ORIGINAL FILE: assets/styles/sources/profile/gallery-language.css. Keep order from index.html. */

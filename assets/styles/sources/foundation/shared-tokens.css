@@ -2,7 +2,7 @@
 :root{
  --vatra-ui-quiet:#657688;--vatra-ui-quiet-icon:#7890a8;
  --vatra-ui-hover-ink:#145ca4;--vatra-ui-hover-bg:#f0f4fc;
- --vatra-ui-border-soft:#e3e7ec;--vatra-ui-strong:#253447;
+ --vatra-ui-border-soft:var(--vatra-border);--vatra-ui-strong:var(--vatra-ink);
 }
 /* Moderately larger content, without edge-to-edge stretching. */
 @media(min-width:1200px){
@@ -103,7 +103,7 @@ html body .vatra-friend-birthday-person button:disabled{opacity:.6;cursor:defaul
  html body .vatra-friend-birthday-person{flex-wrap:wrap}
 }
 
-/* Reference typography, November 2026: clear Inter lettering and intentional hierarchy.
+/* VATRA Onest reference typography: balanced reading and headings and intentional hierarchy.
    Visual reference applies to both themes; never hardcode light-theme text colors here. */
 :root{
  --vatra-ref-body-size:14.5px;
@@ -347,7 +347,7 @@ html body:not([data-vatra-theme-effective="dark"]) .layout>.main :is(.post:not(.
 }
 html body .layout>.main .post:not(.chat-window){
  padding:22px 22px 12px!important;margin-bottom:14px!important;
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
+ font-family:var(--vatra-ui-font)!important;
  letter-spacing:normal!important;
 }
 html body .layout>.main .post:not(.chat-window) :is(.post-head,.post-text,.post-actions,.comment-copy,.author){
@@ -364,7 +364,7 @@ html body .layout>.main .post:not(.chat-window) .post-head .author{
  min-width:0!important;line-height:1.35!important;
 }
 html body .layout>.main .post:not(.chat-window) :is(.author-link,.author>b){
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
+ font-family:var(--vatra-ui-font)!important;
  font-size:15.5px!important;font-weight:750!important;line-height:1.4!important;
  letter-spacing:-.012em!important;
 }
@@ -378,7 +378,7 @@ html body:not([data-vatra-theme-effective="dark"]) .layout>.main .post:not(.chat
  color:var(--vatra-quality-muted)!important;
 }
 html body .layout>.main .post:not(.chat-window) .post-text{
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
+ font-family:var(--vatra-ui-font)!important;
  font-size:16px!important;font-weight:450!important;line-height:1.72!important;
  letter-spacing:0!important;overflow-wrap:anywhere!important;
 }
@@ -396,7 +396,7 @@ html body .layout>.main .post:not(.chat-window) .post-action-button{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
  gap:7px!important;min-height:39px!important;box-sizing:border-box!important;
  padding:8px 11px!important;border-radius:10px!important;
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
+ font-family:var(--vatra-ui-font)!important;
  font-size:13.5px!important;font-weight:700!important;line-height:1.35!important;
  letter-spacing:0!important;white-space:nowrap!important;
  transform:none!important;text-shadow:none!important;filter:none!important;
@@ -466,74 +466,7 @@ html body[data-vatra-theme-effective="dark"] .layout>.main .post:not(.chat-windo
 body:not([data-page="feed"]) #vatraFeedStories,
 body:not([data-page="feed"]) #vatraFeedFilters{display:none!important}
 body[data-page="feed"] #vatraFeedStories{margin:0 0 14px;min-width:0}
-html body[data-page="feed"] .layout>.main>.quick-compose{
- order:initial!important;display:block!important;margin:0 0 14px!important;
- padding:16px 18px!important;border:1px solid var(--vatra-quality-line)!important;
- border-radius:15px!important;box-shadow:var(--vatra-quality-elevation)!important;
-}
-html body:not([data-vatra-theme-effective="dark"])[data-page="feed"] .layout>.main>.quick-compose{
- background:#fff!important;
-}
-html body[data-page="feed"] .layout>.main>.quick-compose .prompt{
- border-radius:11px!important;padding:12px 15px!important;min-height:46px!important;
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
- font-size:15px!important;font-weight:550!important;line-height:1.4!important;
-}
-html body:not([data-vatra-theme-effective="dark"])[data-page="feed"] .layout>.main>.quick-compose .prompt{
- background:#f3f6fa!important;color:#566d84!important;
-}
-html body[data-page="feed"] .layout>.main>.quick-compose .compose-tools{
- margin-top:12px!important;padding-top:11px!important;
- display:flex!important;align-items:center!important;gap:7px!important;flex-wrap:wrap!important;
-}
-html body:not([data-vatra-theme-effective="dark"])[data-page="feed"] .layout>.main>.quick-compose .compose-tools{
- border-top:1px solid #e8edf3!important;
-}
-html body[data-page="feed"] .layout>.main>.quick-compose .compose-tools button{
- min-height:38px!important;display:inline-flex!important;align-items:center!important;
- gap:7px!important;padding:8px 12px!important;border-radius:9px!important;
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif)!important;
- font-size:12.5px!important;font-weight:690!important;line-height:1.35!important;
-}
-html body[data-page="feed"] .layout>.main>.quick-compose .compose-tools .post-now{
- margin-left:auto!important;
-}
-html body:not([data-vatra-theme-effective="dark"])[data-page="feed"] .layout>.main>.quick-compose .compose-tools .post-now{
- background:#eaf2ff!important;color:#0757f5!important;
-}
-#vatraFeedFilters.vatra-feed-filters{
- display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;
- padding:5px 1px 13px;margin:0;
-}
-#vatraFeedFilters[hidden]{display:none!important}
-.vatra-feed-filters-title{
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif);
- font-size:12.5px;font-weight:740;line-height:1.3;color:var(--vatra-quality-muted,#62748a);
- margin-right:auto;
-}
-#vatraFeedFilters button{
- min-height:37px;border:1px solid #d9e4f1;border-radius:10px;
- padding:8px 12px;background:#fff;color:#526881;
- font-family:var(--vatra-ui-font,"Manrope",Inter,system-ui,sans-serif);
- font-size:12.5px;font-weight:680;line-height:1.25;cursor:pointer;
-}
-#vatraFeedFilters button:hover{background:#f1f5ff;border-color:#b6ccef}
-#vatraFeedFilters button.is-active,#vatraFeedFilters button[aria-pressed="true"]{
- background:#eaf2ff;border-color:#9ec1f5;color:#0757f5;
-}
-body[data-vatra-theme-effective="dark"] #vatraFeedFilters button{
- background:#2b4059;border-color:#4e6684;color:#dae7f9;
-}
-body[data-vatra-theme-effective="dark"] #vatraFeedFilters button.is-active,
-body[data-vatra-theme-effective="dark"] #vatraFeedFilters button[aria-pressed="true"]{
- background:#34527a;border-color:#648ebf;color:#f3f8ff;
-}
-@media(max-width:650px){
- #vatraFeedFilters{justify-content:flex-start!important}
- .vatra-feed-filters-title{width:100%!important}
- #vatraFeedFilters button{font-size:12px;padding:7px 10px}
-}
-
+/* The create menu is owned by icons.css; obsolete .prompt and filter bar rules removed. */
 /* Dedicated Stories creation experience, not the profile image editor. */
 .vatra-story-compose .vatra-story-shell{padding:17px!important;gap:10px!important;max-height:92dvh;overflow-y:auto}
 .vatra-story-editor-header small{display:block;font-size:10px;letter-spacing:.11em;color:#85adff;font-weight:750}
@@ -557,7 +490,7 @@ body[data-vatra-theme-effective="dark"] #vatraFeedFilters button[aria-pressed="t
 .vatra-story-editor-text{
  position:absolute;left:16px;right:16px;z-index:2;
  padding:10px 12px;border-radius:12px;text-align:center;
- font:800 clamp(18px,3vw,24px)/1.25 Inter,system-ui,sans-serif;
+ font:740 clamp(18px,3vw,24px)/1.25 var(--vatra-ui-font);
  overflow-wrap:anywhere;background:#070d1e77;text-shadow:0 2px 9px #000;
 }
 .vatra-story-editor-text[hidden]{display:none!important}
@@ -573,7 +506,7 @@ body[data-vatra-theme-effective="dark"] #vatraFeedFilters button[aria-pressed="t
 .vatra-story-editor-tools legend{display:block;width:100%;margin-bottom:5px;color:#dbe6f8;font-size:12px;font-weight:700}
 .vatra-story-editor-tools button{
  border:1px solid #465978;border-radius:9px;min-height:32px;padding:6px 10px;
- background:#232d40;color:#dce8ff;font:650 12px/1.25 Inter,system-ui,sans-serif;cursor:pointer;
+ background:#232d40;color:#dce8ff;font:630 12px/1.25 var(--vatra-ui-font);cursor:pointer;
 }
 .vatra-story-editor-tools button[aria-pressed="true"]{border-color:#8eb7ff;background:#1f488c;color:#fff}
 .vatra-story-colors label{margin-right:8px}

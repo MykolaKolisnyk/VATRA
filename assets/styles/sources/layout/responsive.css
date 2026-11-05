@@ -2,7 +2,7 @@
 :root{--vatra-page-width:1320px;--vatra-sidebar-width:190px;--vatra-reading-size:14px;--vatra-rail-gap:21px}
 body[data-vatra-font-scale="large"]{--vatra-reading-size:16px}
 html,body{min-width:0!important}
-body,body button,body input,body textarea,body select{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+body,body button,body input,body textarea,body select{font-family:var(--vatra-ui-font,"VATRA Onest",system-ui,sans-serif)}
 body{font-size:var(--vatra-reading-size);line-height:1.52}
 body *,body *::before,body *::after{box-sizing:border-box}
 body [hidden]{display:none!important}
