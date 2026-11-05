@@ -47,7 +47,7 @@ if(!loaderStyles.includes('.vatra-loading-kicker') ||
 for(const page of ['index.html','auth.html','register.html']){
  const html=readFileSync(join(root,page),'utf8');
  if(!html.includes('vatra-loading-kicker') || !html.includes('vatra-loading-status') ||
-     !html.includes('vatra-loader.css?v=20261104-1')) {
+     !(page==='index.html'?html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync(join(root,'assets/styles/manifest.json'),'utf8')).files.includes('vatra-loader.css'):html.includes('vatra-loader.css?v=20261104-1'))) {
    throw new Error('Outdated loading UI on '+page);
  }
 }
