@@ -22,7 +22,7 @@ for(const page of ['auth.html','register.html']){
   assert.ok(!html.includes('href="'+legacy+'?'),page+': duplicated legacy stylesheet '+legacy);
  }
  assert.ok(html.includes('assets/scripts/i18n/language.js?v=20261105-no-clips1'),page+': stale translation JS');
- assert.ok(html.includes('assets/scripts/auth/auth.js?v=20261105-media-handle1'),page+': stale auth script');
+ assert.ok(html.includes('assets/scripts/auth/auth.js?v=20261105-singleton2'),page+': stale auth script');
  assert.ok(authModules.indexOf('assets/styles/sources/auth/auth-shared.css')>authModules.indexOf('assets/styles/sources/foundation/forms-and-controls.css'),
   page+': canonical auth styles must load last');
 }
