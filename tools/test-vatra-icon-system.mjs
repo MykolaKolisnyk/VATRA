@@ -45,3 +45,7 @@ console.log('VATRA icons/navigation: '+names.size+' symbols, '+Object.keys(expec
 
 const badge=readFileSync('assets/scripts/public/verification.js','utf8');
 assert.ok(badge.includes('viewBox="0 0 24 24"')&&badge.includes('fill="#fff"'), 'Verified community badge must have crisp contrasting SVG check');
+
+const appMain=readFileSync('assets/scripts/app/main.js','utf8');
+assert.ok(html.includes('id="vatraFeedFilterOptions"')&&html.includes('id="vatraFeedFilterToggle"'),'News filters must be a compact dropdown');
+assert.ok(appMain.includes("newsFilter?.addEventListener('click'")&&appMain.includes('filter=chosen;vatraFeedVisibleCount=VATRA_FEED_BATCH_SIZE'),'News filter choices must change the feed');
