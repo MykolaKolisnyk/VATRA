@@ -35,5 +35,5 @@ assert.equal(ctx.vatraPostMode,'idle');
 ctx.page='saved';setMode();
 assert.equal(ctx.vatraPostMode,'full','Saved posts must keep their existing data source');
 assert.equal(counts.watch,2);
-assert.ok(readFileSync('index.html','utf8').includes('assets/scripts/app/main.js?v=20261105-profile-sync1'));
+assert.ok(readFileSync('index.html','utf8').includes('assets/scripts/app/main.js?v=20261105-group-scope1'));
 console.log('VATRA post subscriptions: idle routes avoid full timeline, feed paged, profiles and saved keep post data.');

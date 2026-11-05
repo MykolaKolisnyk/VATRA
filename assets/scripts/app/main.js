@@ -281,7 +281,41 @@ function watch(path,cb){
   toastMsg(`Не вдалося оновити дані ВАТРИ: ${niceError(err)}`);
  });
 }
-function stopListeners(){unsubscribers.forEach(fn=>fn());unsubscribers=[];}
+// Only subscribe to timelines for communities the signed-in user belongs to.
+// Loading groupPosts/ for every community is unbounded as VATRA grows.
+const vatraGroupPostStops=new Map();
+let vatraGroupRecentStats={},vatraGroupStatsAt=0,vatraGroupStatsKey='',vatraGroupStatsBusy=false;
+function vatraStopGroupPosts(){for(const stop of vatraGroupPostStops.values())stop();vatraGroupPostStops.clear();groupPostsCache={};}
+function vatraSyncGroupPosts(){
+ const uid=currentUser?.uid;if(!uid)return;
+ const wanted=new Set(Object.entries(groups||{}).filter(([gid,g])=>g&&(g.ownerUid===uid||!!groupMembers[gid]?.[uid])).map(([gid])=>gid));
+ for(const [gid,stop] of vatraGroupPostStops){if(wanted.has(gid))continue;stop();vatraGroupPostStops.delete(gid);delete groupPostsCache[gid];}
+ for(const gid of wanted){if(vatraGroupPostStops.has(gid))continue;
+  vatraGroupPostStops.set(gid,watch('groupPosts/'+gid,v=>{
+   if(currentUser?.uid!==uid)return;
+   groupPostsCache[gid]=v||{};
+   if(['feed','saved','profile','groups','notifications'].includes(page))vatraRequestRender();
+   updateNotificationBadges();
+  }));
+ }
+}
+async function vatraRequestGroupStats(ids){
+ const groupIds=[...new Set(ids.filter(id=>/^[0-9a-f-]{36}$/i.test(id)))].sort();
+ if(!groupIds.length||vatraGroupStatsBusy)return;
+ const key=groupIds.join('|'),now=Date.now();
+ if(key===vatraGroupStatsKey&&now-vatraGroupStatsAt<300000)return;
+ vatraGroupStatsBusy=true;
+ try{
+  // SECURITY INVOKER counts; returns only RLS-readable posts (no media payloads).
+  const {data,error}=await db.client.rpc('vatra_group_recent_counts',{p_group_ids:groupIds});
+  if(error)throw error;
+  vatraGroupRecentStats=Object.fromEntries((data||[]).map(item=>[item.group_id,Number(item.recent_posts)||0]));
+  vatraGroupStatsAt=Date.now();vatraGroupStatsKey=key;
+  if(page==='groups'&&!groupId)renderGroups();
+ }catch(error){vatraGroupStatsAt=Date.now();vatraGroupStatsKey=key;console.warn('[ВАТРА] Дані активності спільнот недоступні:',error?.message||error);}
+ finally{vatraGroupStatsBusy=false;}
+}
+function stopListeners(){vatraStopGroupPosts();unsubscribers.forEach(fn=>fn());unsubscribers=[];}
 function renderLoadingSkeletons(){
  if(!feed)return;
  const type=['friends','messages','settings','profile','saved','photos','videos','groups','music','notifications','explore'].includes(page)?page:'feed';
@@ -458,7 +492,7 @@ function listenData(){stopListeners();vatraStopPostMode();vatraBadgeReadySources
 }));
  unsubscribers.push(watch(`users/${currentUser.uid}`,v=>{markInitialLoaded('users');const profile=v||{};currentProfile={...profile,privateSections:privateProfileSections,recordLists:privateRecordLists,notificationPreferences:privateNotifyPrefs,dateOfBirth:privateDateOfBirth,phone:privatePhone,pendingPhone:privatePendingPhone,lastSeenAt:Number(users[currentUser.uid]?.lastSeenAt)||Number(profile.lastSeenAt)||0,isOnline:users[currentUser.uid]?.isOnline===true};if(vatraAppliedProfileLanguageUid!==currentUser.uid){vatraAppliedProfileLanguageUid=currentUser.uid;const userLocale=currentProfile.preferredLanguage;if(userLocale&&window.vatraLanguage?.available.includes(userLocale))window.vatraLanguage.set(userLocale);}updateIdentity();if(!vatraSettingsSaving&&v){if(vatraCanSyncPublicProfile(currentProfile)){const publicData=publicProfileData(currentProfile);if(JSON.stringify(users[currentUser.uid]||{})!==JSON.stringify(publicData))set(ref(db,`publicProfiles/${currentUser.uid}`),publicData).catch(err=>console.warn('Profile sync failed:',niceError(err)));}const friendData=friendProfileData(currentProfile);if(JSON.stringify(friendProfiles[currentUser.uid]||{})!==JSON.stringify(friendData))set(ref(db,`friendProfiles/${currentUser.uid}`),friendData).catch(err=>console.warn('Friend profile sync failed:',niceError(err)));}if(page==='profile'||(page==='settings'&&!$('#profileSettingsForm')))render();else renderGettingStarted();}));
  unsubscribers.push(watch('postLikes',v=>{likes=v;vatraBadgeSourceReady('postLikes');vatraSoundSourceLoaded('postLikes');if(['feed','saved','profile','notifications','explore','groups'].includes(page))vatraRequestRender();updateNotificationBadges();}));unsubscribers.push(watch('postSaves',v=>{postSaves=v||{};if(['feed','saved','profile','explore'].includes(page))vatraRequestRender();}));unsubscribers.push(watch('postShares',v=>{postShares=v||{};if(['feed','saved','profile','explore'].includes(page))vatraRequestRender();}));unsubscribers.push(watch('comments',v=>{comments=v;vatraBadgeSourceReady('comments');vatraSoundSourceLoaded('comments');if(['feed','saved','profile','notifications','explore','groups'].includes(page))vatraRequestRender();updateNotificationBadges();}));unsubscribers.push(watch('pollVotes',v=>{pollVotes=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')vatraRequestRender();}));
- unsubscribers.push(watch(`saved/${currentUser.uid}`,v=>{saved=v;vatraPageDataReady.saved=true;Object.keys(saved||{}).forEach(id=>{if(!postSaves[id]?.[currentUser.uid])set(ref(db,`postSaves/${id}/${currentUser.uid}`),{createdAt:Date.now()}).catch(error=>console.warn('Save counter index unavailable; apply app-data-schema.sql:',error));});if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));unsubscribers.push(watch(`following/${currentUser.uid}`,v=>{following=v;if(page==='feed'||page==='explore'||page==='profile')render();}));unsubscribers.push(watch('groups',v=>{groups=v;markInitialLoaded('groups');if(page==='groups'||page==='groupSettings'||page==='explore')render();}));unsubscribers.push(watch('groupAdmins',v=>{groupAdmins=v;if(page==='groups'||page==='groupSettings')vatraRequestRender();}));unsubscribers.push(watch('groupModerators',v=>{groupModerators=v||{};if(page==='groups'||page==='groupSettings')vatraRequestRender();}));unsubscribers.push(watch(`groupMembers`,v=>{groupMembers=v;if(page==='groups'||page==='groupSettings'||page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch('groupPosts',v=>{groupPostsCache=v||{};if(page==='feed'||page==='saved'||page==='profile'||page==='groups')vatraRequestRender();updateNotificationBadges();}));unsubscribers.push(watch('groupNotifications/'+currentUser.uid,v=>{communityNotifyPreferences=v||{};updateNotificationBadges();}));unsubscribers.push(watch('avatarLikes/'+currentUser.uid,v=>{myAvatarLikes=v||{};updateNotificationBadges();}));unsubscribers.push(watch('avatarComments/'+currentUser.uid,v=>{myAvatarComments=v||{};updateNotificationBadges();}));unsubscribers.push(watch(`friendRequests/${currentUser.uid}`,v=>{friendRequests=v;vatraBadgeSourceReady('friendRequests');vatraPageDataReady.friends=true;vatraSoundSourceLoaded('friendRequests');friendRequestsLoaded=true;maybeRepairAcceptedFriendships();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='notifications')render();updateNotificationBadges();}));unsubscribers.push(watch(`friends/${currentUser.uid}`,v=>{friends=v;friendsLoaded=true;
+ unsubscribers.push(watch(`saved/${currentUser.uid}`,v=>{saved=v;vatraPageDataReady.saved=true;Object.keys(saved||{}).forEach(id=>{if(!postSaves[id]?.[currentUser.uid])set(ref(db,`postSaves/${id}/${currentUser.uid}`),{createdAt:Date.now()}).catch(error=>console.warn('Save counter index unavailable; apply app-data-schema.sql:',error));});if(page==='feed'||page==='saved'||page==='profile'||page==='groups')render();}));unsubscribers.push(watch(`following/${currentUser.uid}`,v=>{following=v;if(page==='feed'||page==='explore'||page==='profile')render();}));unsubscribers.push(watch('groups',v=>{groups=v;vatraSyncGroupPosts();markInitialLoaded('groups');if(page==='groups'||page==='groupSettings'||page==='explore')render();}));unsubscribers.push(watch('groupAdmins',v=>{groupAdmins=v;if(page==='groups'||page==='groupSettings')vatraRequestRender();}));unsubscribers.push(watch('groupModerators',v=>{groupModerators=v||{};if(page==='groups'||page==='groupSettings')vatraRequestRender();}));unsubscribers.push(watch(`groupMembers`,v=>{groupMembers=v;vatraSyncGroupPosts();if(page==='groups'||page==='groupSettings'||page==='feed'||page==='saved'||page==='profile')render();}));unsubscribers.push(watch('groupNotifications/'+currentUser.uid,v=>{communityNotifyPreferences=v||{};updateNotificationBadges();}));unsubscribers.push(watch('avatarLikes/'+currentUser.uid,v=>{myAvatarLikes=v||{};updateNotificationBadges();}));unsubscribers.push(watch('avatarComments/'+currentUser.uid,v=>{myAvatarComments=v||{};updateNotificationBadges();}));unsubscribers.push(watch(`friendRequests/${currentUser.uid}`,v=>{friendRequests=v;vatraBadgeSourceReady('friendRequests');vatraPageDataReady.friends=true;vatraSoundSourceLoaded('friendRequests');friendRequestsLoaded=true;maybeRepairAcceptedFriendships();if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='notifications')render();updateNotificationBadges();}));unsubscribers.push(watch(`friends/${currentUser.uid}`,v=>{friends=v;friendsLoaded=true;
  const signature=vatraPostAuthorIds().join(',');
  if(vatraPostMode==='paged'&&signature!==vatraPostAuthorSignature){vatraPostAuthorSignature=signature;void vatraLoadPostPage({reset:true});}
  maybeRepairAcceptedFriendships();markInitialLoaded('friends');if(page==='publicProfile'&&activeProfileUid)renderPublicProfile(activeProfileUid);else if(page==='explore'||page==='friends'||page==='profile')render();else renderGettingStarted();}));unsubscribers.push(watch(`userChats/${currentUser.uid}`,v=>{
@@ -2274,6 +2308,7 @@ const VATRA_GROUP_TOPICS={"games":"Ігри та геймінг","technology":"�
 function vatraGroupCategory(value){return VATRA_GROUP_TOPICS[value]||String(value||"Спільнота ВАТРИ");}
 function renderGroups(){
  const arr=Object.entries(groups||{}).filter(([id,g])=>g&&g.name&&(g.visibility!=='private'||g.ownerUid===currentUser?.uid||!!groupMembers[id]?.[currentUser?.uid])).map(([id,g])=>({...g,id})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+ if(!groupId&&page==='groups')void vatraRequestGroupStats(arr.map(g=>g.id));
  const joined=id=>!!groupMembers[id]?.[currentUser?.uid]||groups[id]?.ownerUid===currentUser?.uid;
  const managed=id=>groups[id]?.ownerUid===currentUser?.uid||!!groupAdmins[id]?.[currentUser?.uid]||!!groupModerators[id]?.[currentUser?.uid];
  let recentIds=[];
@@ -2290,15 +2325,16 @@ function renderGroups(){
  };
  const rankStats=g=>{
   const members=Object.values(groupMembers[g.id]||{}).filter(Boolean).length+(groupMembers[g.id]?.[g.ownerUid]?0:1);
-  const recent=Object.entries(groupPostsCache[g.id]||{}).filter(([,p])=>p&&Number(p.createdAt)>Date.now()-30*86400000);
-  const likesCount=recent.reduce((sum,[pid])=>sum+Object.keys(likes['g_'+g.id+'_'+pid]||{}).length,0);
-  const commentsCount=recent.reduce((sum,[pid])=>sum+Object.keys(comments['g_'+g.id+'_'+pid]||{}).length,0);
-  return {members,posts:recent.length,engagement:likesCount+commentsCount,score:members*2+recent.length*4+(likesCount+commentsCount)*3};
+  const localRecent=Object.entries(groupPostsCache[g.id]||{}).filter(([,p])=>p&&Number(p.createdAt)>Date.now()-30*86400000);
+  const recentPosts=vatraGroupRecentStats[g.id]??localRecent.length;
+  const likesCount=localRecent.reduce((sum,[pid])=>sum+Object.keys(likes['g_'+g.id+'_'+pid]||{}).length,0);
+  const commentsCount=localRecent.reduce((sum,[pid])=>sum+Object.keys(comments['g_'+g.id+'_'+pid]||{}).length,0);
+  return {members,posts:recentPosts,engagement:likesCount+commentsCount,score:members*2+recentPosts*4+(likesCount+commentsCount)*3};
  };
  const ranking=arr.map(g=>({...g,stats:rankStats(g)}))
-  .filter(g=>g.stats.members>=20&&g.stats.posts>=3&&g.stats.engagement>=5)
+  .filter(g=>g.stats.members>=20&&g.stats.posts>=3)
   .sort((a,b)=>b.stats.score-a.stats.score).slice(0,5);
- setFeed('<section class="vatra-communities-layout"><div class="vatra-communities-main"><label class="vatra-community-search"><span aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg></span><input id="vatraCommunitySearch" type="search" placeholder="Пошук спільнот" aria-label="Пошук спільнот"></label>'+recentMarkup+'<div class="vatra-community-list-card"><div class="vatra-community-section-head"><h2>Спільноти</h2><span>'+arr.length+'</span></div><div class="vatra-community-tabs" role="group" aria-label="Фільтр спільнот"><button type="button" class="active" data-community-tab="all">Усі спільноти</button><button type="button" data-community-tab="mine">Мої спільноти</button><button type="button" data-community-tab="managed">Керую</button></div><div class="vatra-community-rows" id="vatraCommunityRows"></div><button type="button" id="vatraCommunityMore" class="vatra-community-more" hidden>Показати ще</button><p id="vatraCommunityEmpty" class="vatra-empty-panel" '+(arr.length?'hidden':'')+'>Спільнот поки немає. Ви можете створити першу.</p></div></div><aside class="vatra-communities-rail"><div class="vatra-side-card"><button type="button" class="primary wide" id="createGroup">＋ Створити спільноту</button><p>Збирайте людей навколо спільних інтересів.</p></div><div class="vatra-side-card"><h3>Активні спільноти</h3>'+(ranking.map(g=>'<button type="button" class="vatra-popular-row" data-open-group="'+esc(g.id)+'"><span>'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</span><b>'+esc(g.name)+'</b><small>'+g.stats.members+' учасн. · '+g.stats.posts+' дописів · '+g.stats.engagement+' взаємодій</small></button>').join('')||'<p>Активні спільноти: від 20 учасників, 3 дописів і 5 взаємодій за 30 днів.</p>')+'</div></aside></section>',false);
+ setFeed('<section class="vatra-communities-layout"><div class="vatra-communities-main"><label class="vatra-community-search"><span aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg></span><input id="vatraCommunitySearch" type="search" placeholder="Пошук спільнот" aria-label="Пошук спільнот"></label>'+recentMarkup+'<div class="vatra-community-list-card"><div class="vatra-community-section-head"><h2>Спільноти</h2><span>'+arr.length+'</span></div><div class="vatra-community-tabs" role="group" aria-label="Фільтр спільнот"><button type="button" class="active" data-community-tab="all">Усі спільноти</button><button type="button" data-community-tab="mine">Мої спільноти</button><button type="button" data-community-tab="managed">Керую</button></div><div class="vatra-community-rows" id="vatraCommunityRows"></div><button type="button" id="vatraCommunityMore" class="vatra-community-more" hidden>Показати ще</button><p id="vatraCommunityEmpty" class="vatra-empty-panel" '+(arr.length?'hidden':'')+'>Спільнот поки немає. Ви можете створити першу.</p></div></div><aside class="vatra-communities-rail"><div class="vatra-side-card"><button type="button" class="primary wide" id="createGroup">＋ Створити спільноту</button><p>Збирайте людей навколо спільних інтересів.</p></div><div class="vatra-side-card"><h3>Популярні спільноти</h3>'+(ranking.map(g=>'<button type="button" class="vatra-popular-row" data-open-group="'+esc(g.id)+'"><span>'+(g.avatarUrl?'<img src="'+esc(g.avatarUrl)+'" alt="" loading="lazy">':esc(g.name.trim().slice(0,1).toLocaleUpperCase('uk-UA')))+'</span><b>'+esc(g.name)+'</b><small>'+g.stats.members+' учасн. · '+g.stats.posts+' дописів за 30 днів</small></button>').join('')||'<p>Спільноти з активними дописами з’являться тут.</p>')+'</div></aside></section>',false);
  $('#createGroup')?.addEventListener('click',createGroup);
  const search=$('#vatraCommunitySearch'),container=$('#vatraCommunityRows');
  let tab='all',visibleLimit=12;
