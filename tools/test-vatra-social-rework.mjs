@@ -76,3 +76,9 @@ for(const file of ['index.html','auth.html','register.html']){
 }
 assert.equal((css.match(/\{/g)||[]).length,(css.match(/\}/g)||[]).length,'CSS braces mismatch');
 console.log('VATRA: birthday greetings, profile links, stories, phone countries, verified signup and sidebar verified.');
+
+assert.ok(js.includes("const keepChatAtEnd=!el.querySelector('[data-chat-message-id]')"),'Reading old chat messages must not force a jump to bottom');
+assert.ok(js.includes('el.scrollTop=keepChatAtEnd?el.scrollHeight:previousChatScroll'),'Near-bottom chat auto-scroll must be conditional');
+assert.ok(js.includes('textarea[name="comment"]'),'Comment reply focus must target the text box');
+assert.ok(js.includes("String(other.handle||'')"),'Chat search must match profile handles');
+console.log('VATRA chat reading position, comment reply focus and contact @handle search verified.');
