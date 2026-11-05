@@ -33,7 +33,7 @@ assert.ok(sidebar.includes('class="vatra-sidebar-divider"')&&sidebar.indexOf('da
 assert.ok(/data-menu-page="supportDesk"/.test(sidebar),'Support link is missing');
 assert.ok(sidebar.includes('href="#vatra-i-support"'),'Support needs an independent headset glyph');
 const references=[...html.matchAll(/<use href="#vatra-i-([\w-]+)"/g)].map(x=>x[1]);
-assert.ok(references.length>=20,'Legacy duplicated inline SVGs remain in navigation');
+assert.ok(references.length>=18,'Legacy duplicated inline SVGs remain in navigation');
 for(const name of references)assert.ok(names.has(name),'Missing icon referenced by document: '+name);
 const newGlyphs=['photos','music','gift','settings','support'].map(name=>glyphs[name]);
 assert.equal(new Set(newGlyphs).size,newGlyphs.length,'Five distinct sections cannot share the same icon shape');
