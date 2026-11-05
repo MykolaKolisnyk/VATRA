@@ -387,13 +387,17 @@ function vatraSchedulePostHeadRefresh(){
   if(document.visibilityState==='visible')void vatraLoadPostPage({refresh:true});
  },650);
 }
+// Independent pages must not repeatedly download the entire social timeline.
+// Posts remain available where cards, media galleries or shared links need them.
+const VATRA_POST_IDLE_PAGES=new Set(['messages','friends','music','videos','settings','groupSettings']);
 function vatraSetPostMode(){
  if(!currentUser)return;
- const target=page==='feed'?'paged':'full';
+ const target=page==='feed'?'paged':VATRA_POST_IDLE_PAGES.has(page)?'idle':'full';
  if(target===vatraPostMode)return;
  if(vatraFullPostStop){vatraFullPostStop();vatraFullPostStop=null;}
  if(vatraPostRefreshTimer){clearTimeout(vatraPostRefreshTimer);vatraPostRefreshTimer=null;}
  ++vatraPostRequestVersion;vatraPostMode=target;vatraPostLoading=false;
+ if(target==='idle')return;
  if(target==='full'){
   vatraPostHasMore=false;
   vatraFullPostStop=watch('posts',v=>{

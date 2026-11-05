@@ -46,6 +46,8 @@ jobs:
         run: node tools/test-vatra-typography-page-names.mjs
       - name: Verify infinite scrolling for the communities directory
         run: node tools/test-vatra-community-scroll.mjs
+      - name: Verify idle pages do not fetch the entire post timeline
+        run: node tools/test-vatra-idle-post-watchers.mjs
       - name: Verify progressive own and public profile post rendering
         run: node tools/test-vatra-profile-pagination.mjs
       - name: Test VATRA Stories, birthdays, account page edits and navigation
