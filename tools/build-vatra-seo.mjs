@@ -8,6 +8,13 @@ if(!endpoint||!publishable||!/^https:\/\//.test(endpoint[1]))throw new Error('Н
 const base='https://mykolakolisnyk.github.io/VATRA/';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const absoluteImage=s=>typeof s==='string'&&/^https:\/\//i.test(s)?s:'';
+const changeDate=value=>{
+ const n=Number(value?.updatedAt||value?.modifiedAt||value?.createdAt)||0;
+ const ms=n>1000000000&&n<100000000000?n*1000:n;
+ return Number.isFinite(ms)&&ms>=1577836800000&&ms<Date.now()+86400000
+  ?new Date(ms).toISOString():'';
+};
+
 async function readPublic(prefix){
  const rows=[];
  for(let offset=0;offset<50000;offset+=1000){
@@ -48,13 +55,15 @@ function page(type,id,data,slug=id){
  const url=base+(person?'people/':'communities/')+encodeURIComponent(slug)+'/';
  const redirect=base+'#/'+(person?'u/':'community/')+encodeURIComponent(slug);
  const image=absoluteImage(data.avatarUrl)||base+'social-preview.png';
+ const updated=changeDate(data);
  const jsonLd=JSON.stringify({'@context':'https://schema.org','@type':person?'ProfilePage':'CollectionPage',
-  'name':name+' — ВАТРА','description':summary,'url':url,'mainEntity':{'@type':person?'Person':'Organization','name':name}}).replace(/</g,'\\u003c');
+  'name':name+' — ВАТРА','description':summary,'url':url,...(updated?{'dateModified':updated}:{}),'mainEntity':{'@type':person?'Person':'Organization','name':name}}).replace(/</g,'\\u003c');
  return '<!doctype html>\n<html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
   '<title>'+esc(name)+' — ВАТРА</title><meta name="description" content="'+esc(summary)+'"><meta name="robots" content="index,follow,max-image-preview:large">'+
   '<link rel="canonical" href="'+esc(url)+'"><link rel="icon" type="image/svg+xml" href="'+esc(base+'favicon.svg')+'">'+
   '<meta property="og:type" content="'+(person?'profile':'website')+'"><meta property="og:title" content="'+esc(name)+' — ВАТРА"><meta property="og:description" content="'+esc(summary)+'">'+
   '<meta property="og:image" content="'+esc(image)+'"><meta property="og:url" content="'+esc(url)+'">'+
+  (updated?'<meta property="og:updated_time" content="'+esc(updated)+'">':'')+
   '<script type="application/ld+json">'+jsonLd+'</script>'+
   '<link rel="stylesheet" href="../../vatra-public-preview.css?v=20261105-1"></head><body>'+
   '<header class="vatra-public-topbar"><a class="vatra-public-brand" href="'+esc(base)+'"><img src="../../favicon.svg" alt=""><span>ВАТРА</span></a>'+
@@ -86,6 +95,7 @@ function oldProfileRedirect(slug){
   '<title>Профіль переміщено — ВАТРА</title></head><body>'+
   '<p>Профіль має нову адресу: <a href="'+esc(canonical)+'">відкрити сторінку</a>.</p></body></html>';
 }
+const sitemapChanges=new Map();
 function writeSnapshots(folder,items,type){
  const target=join(folder);
  if(existsSync(target))rmSync(target,{recursive:true,force:true});
@@ -107,7 +117,10 @@ function writeSnapshots(folder,items,type){
   const targetFolder=join(target,slug);
   mkdirSync(targetFolder,{recursive:true});
   writeFileSync(join(targetFolder,'index.html'),page(type,id,value,slug),'utf8');
-  urls.push(base+folder+'/'+encodeURIComponent(slug)+'/');
+  const url=base+folder+'/'+encodeURIComponent(slug)+'/';
+  urls.push(url);
+  const modified=changeDate(value);
+  if(modified)sitemapChanges.set(url,modified.slice(0,10));
   // Previously shared UUID URLs remain accessible but are not indexed.
   if(type==='person'&&slug!==id&&!seen.has(id)){
    const alias=join(target,id);
@@ -128,6 +141,6 @@ const communities=entries(groups).filter(([id,g])=>visibleCommunities.has(id)&&g
 const languages=['uk','en','pl','de','fr','es','pt','it'];
 const links=[base+'index.html',...languages.map(lang=>base+'lang/'+lang+'/'),...writeSnapshots('people',people,'person'),...writeSnapshots('communities',communities,'group')];
 const sitemap='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+
- links.map(url=>'  <url><loc>'+esc(url)+'</loc></url>').join('\n')+'\n</urlset>\n';
+ links.map(url=>'  <url><loc>'+esc(url)+'</loc>'+(sitemapChanges.has(url)?'<lastmod>'+sitemapChanges.get(url)+'</lastmod>':'')+'</url>').join('\n')+'\n</urlset>\n';
 writeFileSync('sitemap.xml',sitemap,'utf8');
 console.log('Публічних профілів:',people.length,'публічних спільнот:',communities.length);
