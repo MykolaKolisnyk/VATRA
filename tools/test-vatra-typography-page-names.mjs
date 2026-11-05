@@ -31,9 +31,10 @@ assert.ok(language.includes("'Налаштування сторінки':'Page s
 
 for(const file of ['index.html','auth.html','register.html']){
  const html=read(file);
- assert.ok(html.includes('family=Manrope:wght@400..800'), 'Manrope missing in '+file);
- assert.ok(html.includes('family=Inter:wght@400..800'), 'Inter fallback missing in '+file);
+ const bundle=file==='index.html'?'vatra.css':'vatra-auth.css';
+ assert.ok(html.includes('assets/styles/'+bundle+'?v='), 'Shared Onest stylesheet missing in '+file);
 }
+assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('Onest-Variable.ttf'),'Local variable Onest font missing');
 assert.ok(foundations.includes('--vatra-ui-font:"VATRA Onest"'), 'The app must use the same crisp local Onest font as its 404 page');
 assert.ok(icons.includes('font-size:14px!important;font-weight:500!important'),'Lightweight Onest navigation typography not applied');
 assert.ok(icons.includes('height:38px!important'),'Sidebar buttons must remain compact');
@@ -46,7 +47,7 @@ for(const [path,text] of [['assets/styles/sources/foundation/typography-consiste
 }
 assert.equal((main.match(/<meta name="theme-color"/g)||[]).length,1,'Duplicate theme color metadata');
 assert.equal((main.match(/<meta name="application-name"/g)||[]).length,1,'Duplicate application metadata');
-console.log('VATRA typography/cleanup: Manrope, clean nav CSS, consistent page terminology and i18n verified.');
+console.log('VATRA typography/cleanup: Onest, clean nav CSS, consistent page terminology and i18n verified.');
 
 const original=read('assets/scripts/app/main.js');
 const pageCss=read('assets/styles/sources/foundation/shared-tokens.css');
@@ -95,6 +96,6 @@ assert.ok(read('assets/styles/sources/branding/brand.css').includes('-webkit-fon
 assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('--vatra-ui-font:"VATRA Onest"'),'Local Onest must be bundled for all site routes');
 console.log('VATRA font: 404/app typography unified through local Onest.');
 
-assert.ok(icons.includes('background:#e8f1ff!important'), 'The selected desktop nav must be visible in light mode');
-assert.ok(icons.includes('background:#263e59!important'), 'The selected desktop nav must be visible in dark mode');
-assert.ok(!icons.includes('Current route is semantic'), 'Old rules must not neutralize selected navigation');
+assert.ok(icons.includes('background:transparent!important;color:#24354b!important;'), 'Active desktop nav must remain neutral in light mode');
+assert.ok(icons.includes('color:#ebf3fc!important;background:transparent!important;'), 'Active desktop nav must remain neutral in dark mode');
+assert.ok(icons.includes('font-size:14px!important;font-weight:500!important'), 'Sidebar labels must stay regular-weight Onest');
