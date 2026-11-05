@@ -38,7 +38,7 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes('class="vatra-recovery-brand"')||
            html.includes('class="auth-dialog-icon vatra-recovery-brand"'),'Branded recovery header missing');
  assert.ok(html.includes('favicon.svg?v=20261104-ribbon1'),'Auth must use current ribbon logo');
- assert.ok(html.includes('vatra-header.svg?v=20261104-ribbon1'),'Loading logo must be current');
+ assert.ok(html.includes('vatra-loader-wordmark')&&html.includes('vatra-wordmark-text'),'Loading brand must use icon + text');
 }
 assert.ok(css.includes('VATRA Unified Shield v2'), 'Shared visual shield CSS must exist');
 assert.ok(css.includes('html body dialog#recoveryDialog.auth-dialog[open]')&&
@@ -55,7 +55,7 @@ for(const asset of [favicon,header,preview]){
 }
 assert.ok(!favicon.includes('M433.31 136.6'),'Old V logo must be replaced');
 assert.ok(index.includes('favicon.svg?v=20261104-ribbon1'),'Website favicon cache must be updated');
-assert.ok(index.includes('vatra-header.svg?v=20261104-ribbon1'),'Site wordmark cache must be updated');
+assert.ok(index.includes('vatra-header-wordmark')&&!index.includes('vatra-header.svg?v='),'Website header must use symbol and selectable text');
 assert.ok(index.includes('social-preview.png?v=20261104-ribbon1'),'Raster social preview must match the new brand');
 assert.ok(read('vatra-language.js').includes('favicon.svg?v=20261104-ribbon1'),
  'Language picker must use updated mark');
