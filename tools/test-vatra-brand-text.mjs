@@ -52,4 +52,6 @@ for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
 for(const asset of ['vatra-header.svg','vatra-header.png','logo.png']){
  assert.ok(!existsSync(asset),'Retired duplicate image asset still tracked: '+asset);
 }
+assert.ok(brand.includes(':is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-symbol'),'All legal and developer logos must use the same mark dimensions');
+assert.ok(panel.includes('grid-template-columns:minmax(0,1fr) auto!important'),'Developer footer link must align with brand values');
 console.log('VATRA: large blue panel, readable text wordmarks and responsive breakpoints validated.');
