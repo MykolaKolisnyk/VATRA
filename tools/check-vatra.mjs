@@ -189,4 +189,14 @@ assert.ok(latinSQL.toLowerCase().includes('create or replace function public.vat
 assert.ok(scriptText.includes('const VATRA_FEED_BATCH_SIZE=12'),'News must initially render twelve posts');
 assert.ok(scriptText.includes('organicAll.slice(0,vatraFeedVisibleCount)'),'News must avoid rendering all cards at once');
 assert.ok(scriptText.includes("vatraFeedMoreObserver=new IntersectionObserver"),'News must progressively reveal further cards');
-assert.ok(main.includes('script.js?v=20261105-feed-batch1'),'News script cache key must be updated');
+assert.ok(main.includes('script.js?v=20261105-post-pages1'),'News script cache key must be updated');
+
+const cursorBackend=readFileSync('vatra-backend.js','utf8');
+const cursorSql=readFileSync('database/vatra_post_pagination.sql','utf8');
+assert.ok(cursorBackend.includes("export async function vatraFetchPostPage"),'Paginated backend API missing');
+assert.ok(cursorBackend.includes("client.rpc('vatra_page_posts'"),'Paginated backend must use server-side cursor');
+assert.ok(scriptText.includes("vatraSetPostMode();"),'Feed must switch between server pages and full views');
+assert.ok(!scriptText.includes("unsubscribers.push(watch('posts'"),'News must not directly subscribe to all posts');
+assert.ok(cursorSql.includes('security invoker'),'Post pagination must obey RLS');
+assert.ok(cursorSql.includes('p_before_created_at'),'Post pagination must accept a stable cursor');
+assert.ok(cursorSql.includes('to authenticated'),'Post pagination must require a signed-in user');

@@ -320,6 +320,23 @@ async function readTree(path) {
   return clone(getDeep(root, parts));
 }
 export async function get(reference) { return new DataSnapshot(reference.path, await readTree(reference.path)); }
+// Cursor pagination for the news feed. The SQL function is SECURITY INVOKER,
+// so a request can only read posts allowed by app_data RLS.
+export async function vatraFetchPostPage({before=null,limit=48,authors=[]}={}){
+ const size=Math.min(48,Math.max(1,Number(limit)||48));
+ const ids=[...new Set((Array.isArray(authors)?authors:[]).map(id=>String(id||'')).filter(id=>/^[a-f0-9-]{36}$/i.test(id)))].slice(0,5000);
+ if(!ids.length)return [];
+ const {data,error}=await client.rpc('vatra_page_posts',{
+  p_before_created_at:before&&Number.isFinite(Number(before.createdAt))?Number(before.createdAt):null,
+  p_before_path:before&&typeof before.path==='string'?before.path:null,
+  p_limit:size,
+  p_author_ids:ids
+ });
+ if(error)throw databaseError(error);
+ if(!Array.isArray(data))throw new Error('Не вдалося отримати сторінку дописів.');
+ return data.filter(row=>typeof row?.path==='string'&&/^posts\/[^/]+$/.test(row.path)&&row.value&&typeof row.value==='object').map(row=>({path:row.path,value:row.value}));
+}
+
 async function findStoredAncestors(path) {
   const parts = path.split('/').filter(Boolean);
   const candidates = [];
@@ -490,6 +507,7 @@ function ensureRealtimeChannel() {
       // Reconcile everything immediately when the user returns to the tab.
       if (typeof document !== 'undefined' && document.hidden) return;
       const changedPath = cleanPath(payload?.new?.path || payload?.old?.path || '');
+      if(changedPath.startsWith('posts/'))window.dispatchEvent(new Event('vatra:posts-changed'));
       for (const watcher of realtimeWatchers.values()) {
         const watchedPath = watcher.path;
         if (!changedPath || changedPath === watchedPath || changedPath.startsWith(watchedPath + '/') || watchedPath.startsWith(changedPath + '/')) void watcher.poll();
