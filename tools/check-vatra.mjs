@@ -98,7 +98,7 @@ assert.ok(languageModule.includes("querySelector('.vatra-language-settings-mount
 assert.ok(layouts.includes('.vatra-group-view .vatra-group-back'),'Community back navigation layout missing');
 assert.ok(layouts.includes('.birthday-selects'),'Date of birth controls layout missing');
 assert.ok(main.includes('vatra-settings-community-fix.css'),'Updated profile/community stylesheet missing');
-assert.ok(existsSync('vatra-header.svg'),'User-derived horizontal brand SVG missing');
+assert.ok(existsSync('favicon.svg'),'Standalone VATRA icon SVG missing');
 assert.ok(main.includes('class="vatra-wordmark vatra-header-wordmark"'),'Text brand mark not linked in website navigation');
 assert.ok(main.includes('favicon.svg'),'Original icon vector not linked');
 
