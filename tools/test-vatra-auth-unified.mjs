@@ -45,8 +45,8 @@ assert.ok(css.includes('html body #recoveryDialog .vatra-recovery-head{')&&
  'Recovery header must be fixed when scrolling the white content');
 assert.ok(lang.includes("const vatraPrimaryLanguageOrder=['uk','en','pl','de','es','fr','it','pt']"),
  'Ukrainian must always sort first in the main language dialog');
-assert.ok(lang.includes("const codes=languages.filter(([code])=>shortcutCodes.has(code)).map(([code])=>code);"),
- 'Quick language strip must follow the full language picker rather than selection history');
+assert.ok(lang.includes('function vatraAuthRecentCodes()')&&lang.includes('const codes=vatraAuthRecentCodes();'),
+ 'Quick language strip must show the last four chosen languages');
 assert.ok(!lang.includes("new Set([language,'uk','en','pl','de'])"),
  'Old selection-dependent order unexpectedly remains');
 assert.ok(read('index.html').includes('vatra-language.js?v=20261105-layout-quiz2'),
