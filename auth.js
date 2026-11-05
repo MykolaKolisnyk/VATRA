@@ -712,7 +712,7 @@ function show(m){
  if(reset){const emailChoice=document.querySelector('input[name="authMethod"][value="email"]');if(emailChoice)emailChoice.checked=true;}
  document.querySelectorAll('input[name="authMethod"]').forEach(input=>{const card=input.closest('label')||input.parentElement;const isEmail=input.value==='email';if(card)card.hidden=reset&&!isEmail;input.disabled=!isEmail&&(reset||(reg&&!VATRA_SMS_AUTH_ENABLED));});
  $('#loginTab').classList.toggle('selected',m==='login');$('#registerTab').classList.toggle('selected',reg);
- $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
+ $('#firstNameWrap').hidden=!reg;$('#lastNameWrap').hidden=!reg;$('#vatraSignupHandlePreview').hidden=!reg;if(reg)vatraUpdateSignupHandlePreview();$('#birthdayWrap').hidden=!reg;$('#genderWrap').hidden=!reg;document.querySelectorAll('input[name="gender"]').forEach(el=>el.required=reg);$('#birthday').required=reg;document.querySelectorAll('.birthday-selects select').forEach(select=>select.required=reg);
  $('#confirmWrap').hidden=!(reg||newPassword);$('#confirm').required=reg||newPassword;
  $('#firstName').required=reg;$('#lastName').required=reg;
  $('#password').required=!reset;$('#password').minLength=reg||newPassword?12:0;$('#password').placeholder='Введіть пароль';
