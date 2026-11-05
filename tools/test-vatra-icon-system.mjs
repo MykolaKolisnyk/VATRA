@@ -39,6 +39,6 @@ const newGlyphs=['photos','music','gift','settings','support'].map(name=>glyphs[
 assert.equal(new Set(newGlyphs).size,newGlyphs.length,'Five distinct sections cannot share the same icon shape');
 assert.ok(navigation.includes("button.dataset.menuPage === 'supportDesk'"),'Mobile support navigation is not functional');
 assert.ok(navigation.includes("source.dataset.page || source.dataset.menuPage"),'Mobile clone drops support route');
-assert.ok(html.includes('vatra-icon-system.js?')&&html.includes('vatra-icon-system.css?'),'Icon system assets are not loaded');
+assert.ok(html.includes('vatra-icon-system.js?')&&html.includes('assets/styles/vatra.css?v=')&&JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files.includes('vatra-icon-system.css'),'Icon system assets are not loaded');
 assert.ok(css.includes('data-vatra-theme-effective="dark"'),'Dark theme icons are unstyled');
 console.log('VATRA icons/navigation: '+names.size+' symbols, '+Object.keys(expected).length+' routes + support, consistent SVG references.');
