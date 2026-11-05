@@ -19911,7 +19911,7 @@ body .vatra-gallery-footer.is-mobile-only{display:none!important}
 @media(max-width:590px){body .vatra-gallery-footer.is-mobile-only{display:flex!important}}
 
 
-/* VATRA media carousel: a single 3×2 page of photos or videos.
+/* VATRA media carousel: six ordered thumbnails in ONE horizontal row.
    The selector is scoped to the component, not body[data-page]. */
 body .vatra-profile-photos .vatra-profile-card-head{
  display:flex!important;align-items:center!important;justify-content:flex-end!important;flex-wrap:wrap!important;
@@ -19947,15 +19947,15 @@ body .vatra-profile-media-carousel{width:100%!important;min-width:0!important;ma
 body .vatra-profile-media-carousel .vatra-media-tabs{display:none!important}
 body .vatra-profile-media-carousel .vatra-gallery-stage{
  position:relative!important;display:block!important;min-width:0!important;
- padding:0 7px!important;margin:0!important;
+ padding:0 30px!important;margin:0!important;
 }
 body .vatra-profile-media-carousel .vatra-gallery-viewport{
- width:100%!important;min-width:0!important;overflow:visible!important;border-radius:12px!important;
+ width:100%!important;min-width:0!important;overflow:hidden!important;border-radius:12px!important;
 }
 body .vatra-profile-media-carousel .vatra-gallery-track.profile-photo-gallery{
- display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
- grid-auto-columns:auto!important;grid-auto-flow:row!important;grid-template-rows:none!important;
- gap:12px!important;width:100%!important;min-width:0!important;
+ display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ grid-auto-flow:column!important;grid-template-rows:minmax(0,1fr)!important;
+ gap:9px!important;width:100%!important;min-width:0!important;
  margin:0!important;padding:0!important;transform:none!important;transition:none!important;
 }
 body .vatra-profile-media-carousel .profile-photo-tile{
@@ -19966,28 +19966,29 @@ body .vatra-profile-media-carousel .profile-photo-tile{
  box-shadow:none!important;
 }
 body .vatra-profile-media-carousel .profile-photo-tile .profile-gallery-open,
+body .vatra-profile-media-carousel .profile-photo-tile .vatra-gallery-video-open,
 body .vatra-profile-media-carousel .vatra-profile-video-tile video{
  display:block!important;width:100%!important;height:auto!important;min-height:0!important;
- aspect-ratio:4/3!important;object-fit:cover!important;overflow:hidden!important;
+ aspect-ratio:1/1!important;object-fit:cover!important;overflow:hidden!important;
  padding:0!important;margin:0!important;border:0!important;border-radius:12px!important;
  background:#edf3fb!important;
 }
 body .vatra-profile-media-carousel .profile-photo-tile .profile-gallery-image{
- width:100%!important;height:100%!important;aspect-ratio:4/3!important;
+ width:100%!important;height:100%!important;aspect-ratio:1/1!important;
  object-fit:cover!important;border-radius:12px!important;display:block!important;
 }
 body .vatra-profile-media-carousel .vatra-profile-video-tile video{background:#172639!important}
 body .vatra-profile-media-carousel .profile-photo-tile .vatra-profile-photo-date{display:none!important}
 body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow{
  position:absolute!important;z-index:5!important;top:50%!important;
- width:38px!important;height:48px!important;padding:0!important;margin:0!important;
+ width:29px!important;height:44px!important;padding:0!important;margin:0!important;
  display:grid!important;place-items:center!important;transform:translateY(-50%)!important;
  border:1px solid #d6e5f9!important;border-radius:12px!important;
  color:#0757f5!important;background:#fff!important;box-shadow:0 7px 20px #12284722!important;
  cursor:pointer!important;
 }
-body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-prev{left:-12px!important}
-body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-next{right:-12px!important}
+body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-prev{left:0!important}
+body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-next{right:0!important}
 body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow[hidden]{display:none!important}
 body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow:disabled{opacity:.25!important;pointer-events:none!important}
 body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow:hover:not(:disabled){background:#edf4ff!important}
@@ -19995,17 +19996,58 @@ body .vatra-profile-media-carousel :is(.vatra-gallery-carousel-arrow,.vatra-medi
  outline:2px solid #87b5ff!important;outline-offset:2px!important;
 }
 body .vatra-profile-media-carousel :is(.vatra-gallery-position,.vatra-gallery-footer){display:none!important}
-@media(max-width:590px){
+@media(max-width:960px){
+ body .vatra-profile-media-carousel .vatra-gallery-track.profile-photo-gallery{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ }
+}
+@media(max-width:620px){
  body .vatra-profile-photos .vatra-profile-card-head{gap:6px 8px!important;justify-content:flex-start!important}
  body .vatra-profile-photos .vatra-profile-card-head .vatra-media-tabs{width:100%!important}
  body .vatra-profile-media-carousel .vatra-gallery-track.profile-photo-gallery{
   grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
  }
- body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow{width:30px!important;height:42px!important}
- body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-prev{left:-8px!important}
- body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-next{right:-8px!important}
+ body .vatra-profile-media-carousel .vatra-gallery-stage{padding-inline:25px!important}
+ body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow{width:24px!important;height:40px!important}
+ body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-prev{left:0!important}
+ body .vatra-profile-media-carousel .vatra-gallery-carousel-arrow.is-next{right:0!important}
  body .vatra-profile-photos .vatra-profile-card-head .vatra-media-tab{font-size:12px!important;padding:7px 9px!important}
 }
+
+/* Media thumbnails remain an ordered horizontal row; video opens full-size. */
+body .vatra-profile-media-carousel .vatra-gallery-video-open{
+ position:relative!important;display:block!important;cursor:pointer!important;
+ color:#fff!important;background:linear-gradient(145deg,#193e70,#0b1e36)!important;
+}
+body .vatra-profile-media-carousel .vatra-gallery-video-open video{
+ position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+ pointer-events:none!important;object-fit:cover!important;border-radius:inherit!important;
+}
+body .vatra-profile-media-carousel .vatra-gallery-video-open::after{
+ content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#07182b90,transparent 60%);
+}
+body .vatra-profile-media-carousel .vatra-gallery-video-play{
+ position:absolute;z-index:2;inset:0;display:grid;place-items:center;
+ font-size:24px;text-shadow:0 3px 12px #071a34ab;transition:transform .16s ease;
+}
+body .vatra-profile-media-carousel .vatra-gallery-video-open:hover .vatra-gallery-video-play{transform:scale(1.12)}
+body .vatra-profile-media-carousel .vatra-gallery-video-label{
+ position:absolute;z-index:3;bottom:7px;left:8px;font:700 11px/1.2 Inter,system-ui,sans-serif;
+}
+body .vatra-profile-media-carousel .vatra-gallery-video-open:focus-visible{outline:2px solid #0757f5!important;outline-offset:2px!important}
+dialog.vatra-profile-video-dialog{
+ width:min(900px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 30px);
+ margin:auto;padding:0;border:1px solid #d9e5f6;border-radius:17px;
+ background:#101b2d;color:#fff;box-shadow:0 25px 80px #04142c80;overflow:hidden;
+}
+dialog.vatra-profile-video-dialog::backdrop{background:#061324ba;backdrop-filter:blur(5px)}
+.vatra-profile-video-shell{display:flex;flex-direction:column;max-height:calc(100dvh - 30px)}
+.vatra-profile-video-shell header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px}
+.vatra-profile-video-brand{font:800 16px/1.3 Inter,system-ui,sans-serif}
+.vatra-profile-video-shell header button{border:0;border-radius:9px;background:#ffffff20;color:#fff;font-size:25px;line-height:1;width:35px;height:35px;cursor:pointer}
+.vatra-profile-video-shell>video{display:block;width:100%;max-height:min(70dvh,680px);background:#020714}
+.vatra-profile-video-date{padding:10px 16px;color:#c5d5f0;font:500 12px/1.4 Inter,system-ui,sans-serif}
+.vatra-profile-video-date .vatra-profile-photo-date{display:inline!important;color:inherit!important}
 
 
 /* ORIGINAL FILE: vatra-nov04-restrictions-music-v3.css. Keep order from index.html. */
