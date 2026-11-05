@@ -1,4 +1,4 @@
-import {mkdtempSync,mkdirSync,existsSync,readFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,copyFileSync,existsSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -30,6 +30,8 @@ globalThis.fetch=async(url)=>{
  throw new Error('Unexpected SEO URL '+url);
 };
 try{
+ mkdirSync(join(tmp,'assets/scripts/backend'),{recursive:true});
+ copyFileSync('assets/scripts/backend/client.js',join(tmp,'assets/scripts/backend/client.js'));
  process.chdir(tmp);
  const run=async(v)=>import(moduleUrl+'?test='+v);
  await run(1);
