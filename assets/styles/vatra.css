@@ -10647,7 +10647,7 @@ body .topbar-popover .vatra-sound-setting small{font:400 10.5px/1.4 Inter,Arial,
 @media(prefers-reduced-motion:reduce){body .vatra-scroll-to-top,body .vatra-scroll-to-top svg{transition:none!important}}
 
 
-/* ORIGINAL FILE: vatra-music.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/media/vatra-music.css. Keep order from index.html. */
 
 .vatra-music-page{display:grid;gap:15px;max-width:100%;min-width:0;font-family:Inter,Arial,sans-serif;color:#293c53}
 .vatra-music-page *{box-sizing:border-box}
@@ -10763,7 +10763,7 @@ body[data-vatra-theme-effective="dark"] .vatra-music-search-input input{color:#e
 .vatra-music-dock-footer a{display:inline-flex;align-items:center;gap:5px}
 
 
-/* ORIGINAL FILE: vatra-color-balance.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/foundation/vatra-color-balance.css. Keep order from index.html. */
 
 
 body[data-page="profile"],body[data-page="publicProfile"]{
@@ -10913,7 +10913,7 @@ body[data-vatra-theme-effective="dark"][data-page="publicProfile"] .vatra-profil
 }
 
 
-/* ORIGINAL FILE: vatra-neutral.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/foundation/vatra-neutral.css. Keep order from index.html. */
 
 
 body:not([data-vatra-theme-effective="dark"]){
@@ -11708,7 +11708,7 @@ body[data-vatra-theme-effective="dark"][data-page="settings"] .vatra-settings-na
 }
 
 
-/* ORIGINAL FILE: vatra-ux.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/foundation/vatra-ux.css. Keep order from index.html. */
 
 
 body .vatra-onboarding-modern.vatra-tour-overlay{
@@ -13312,7 +13312,7 @@ body[data-vatra-theme-effective="dark"][data-page="publicProfile"] .vatra-public
 }
 
 
-/* ORIGINAL FILE: vatra-post-composer.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/social/vatra-post-composer.css. Keep order from index.html. */
 
 body #composer.vatra-compose-dialog[open]{
  display:block!important;position:fixed!important;inset:0!important;
@@ -15189,7 +15189,7 @@ body .vatra-photo-fullscreen-fallback .vatra-media-viewer-counter{
 .vatra-friends-photo,.vatra-friends-photo *,.vatra-profile-friend,.vatra-profile-friend *,.vatra-search-person-photo,.vatra-search-person-photo *,.vatra-public-friend-person,.vatra-public-friend-person *,.vatra-group-member,.vatra-group-member *{cursor:pointer!important}
 
 
-/* ORIGINAL FILE: vatra-community-v2.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/social/vatra-community-v2.css. Keep order from index.html. */
 
 body .vatra-group-view{gap:18px!important;font-size:14px!important;}
 body .vatra-group-content-grid{grid-template-columns:minmax(0,1fr) minmax(280px,320px)!important;gap:18px!important;}
@@ -21207,7 +21207,7 @@ html body[data-vatra-theme-effective="dark"] :is(
 ){color:#b1c6dd!important;opacity:1!important}
 
 
-/* ORIGINAL FILE: vatra-notifications-redesign.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/social/vatra-notifications-redesign.css. Keep order from index.html. */
 /* VATRA notification preferences and center — grouped and readable */
 html body[data-page="settings"] .settings-page .vatra-notification-preferences{
  display:flex!important;flex-direction:column!important;align-items:stretch!important;
@@ -21501,7 +21501,7 @@ body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog .vatra-gift-detai
 body[data-vatra-theme-effective="dark"] #vatraGiftDetailDialog .vatra-gift-detail-note{background:#263b54!important;border-color:#3b5570!important;color:#d2e0f0!important}
 
 
-/* ORIGINAL FILE: vatra-editor-rework.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/social/vatra-editor-rework.css. Keep order from index.html. */
 /* VATRA / professional unified page editor and settings — post legacy cascade */
 html body .settings-page.vatra-editor-polished{
  --vatra-field-ink:#243b55;--vatra-field-muted:#71859b;--vatra-field-line:#dce6f1;
@@ -21761,7 +21761,7 @@ html body[data-vatra-theme-effective="dark"] .settings-page .vatra-place-option-
 }
 
 
-/* ORIGINAL FILE: vatra-clip-processing.css. Keep order from index.html. */
+/* ORIGINAL FILE: assets/styles/sources/media/vatra-clip-processing.css. Keep order from index.html. */
 /* VATRA clip optimizer */
 html body .vatra-clip-processing{position:fixed;inset:0;margin:auto;max-width:470px;width:calc(100vw - 28px);max-height:90dvh;padding:0;border-radius:18px;border:1px solid #dbe6f5;background:#fff;box-shadow:0 22px 65px #0c2e5860;color:#294765}
 html body .vatra-clip-processing::backdrop{background:#0b1e3fa8;backdrop-filter:blur(3px)}
