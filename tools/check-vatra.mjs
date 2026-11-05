@@ -191,7 +191,7 @@ assert.ok(latinSQL.toLowerCase().includes('create or replace function public.vat
 assert.ok(scriptText.includes('const VATRA_FEED_BATCH_SIZE=12'),'News must initially render twelve posts');
 assert.ok(scriptText.includes('organicAll.slice(0,vatraFeedVisibleCount)'),'News must avoid rendering all cards at once');
 assert.ok(scriptText.includes("vatraFeedMoreObserver=new IntersectionObserver"),'News must progressively reveal further cards');
-assert.ok(main.includes('script.js?v=20261105-post-pages1'),'News script cache key must be updated');
+assert.ok(main.includes('script.js?v=20261105-horizontal-media1'),'News script cache key must be updated');
 
 const cursorBackend=readFileSync('vatra-backend.js','utf8');
 const cursorSql=readFileSync('database/vatra_post_pagination.sql','utf8');
