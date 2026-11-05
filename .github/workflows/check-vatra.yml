@@ -42,10 +42,6 @@ jobs:
         run: node tools/test-vatra-tree-keyset.mjs
       - name: Validate backend imports and every shared SVG path
         run: node tools/test-vatra-startup-contract.mjs
-      - name: Validate VATRA Clips playback, lazy video loading and cleanup
-        run: node tools/test-vatra-clips-playback.mjs
-      - name: Validate clip social actions and protected database permissions
-        run: node tools/test-vatra-clips-social.mjs
       - name: Verify readable typography, clean CSS and page labels
         run: node tools/test-vatra-typography-page-names.mjs
       - name: Verify infinite scrolling for the communities directory

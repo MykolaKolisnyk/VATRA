@@ -8,7 +8,7 @@ const modules=[
  ['vatra-neutral.css','assets/styles/sources/foundation/neutral-surfaces.css'],
  ['vatra-ux.css','assets/styles/sources/foundation/base-interactions.css'],
  ['vatra-notifications-redesign.css','assets/styles/sources/social/notifications.css'],
- ['vatra-clip-processing.css','assets/styles/sources/media/clip-processing.css'],
+ ['vatra-photo-studio.css','assets/styles/sources/media/photo-studio.css'],
  ['vatra-editor-rework.css','assets/styles/sources/social/post-editor.css']
 ];
 const paths=JSON.parse(readFileSync('assets/styles/manifest.json','utf8')).files;

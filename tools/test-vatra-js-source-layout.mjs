@@ -5,7 +5,7 @@ const rootJs=readdirSync('.').filter(name=>name.endsWith('.js'));
 assert.deepEqual(rootJs,[],'Legacy root JavaScript duplicates remain');
 const dirs=['app','auth','backend','admin','editor','gifts','i18n','media','navigation','public','security','social','support','ui'];
 const modules=readdirSync('assets/scripts',{recursive:true}).filter(p=>p.endsWith('.js')).map(p=>join('assets/scripts',p));
-assert.ok(modules.length>=32,'Application modules missing from categorized folders');
+assert.ok(modules.length>=30,'Application modules missing from categorized folders');
 for(const dir of dirs)assert.ok(modules.some(p=>p.includes('/'+dir+'/')),dir+': missing logical module folder');
 const seen=new Set();
 for(const module of modules){
