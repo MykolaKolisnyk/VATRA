@@ -76,7 +76,7 @@
     url.searchParams.set('order', 'value->>createdAt.desc');
     url.searchParams.set('limit', String(pageSize));
     const response = await fetch(url, {
-      headers: { apikey: publicKey, Authorization:'Bearer ' + publicKey },
+      headers: { apikey: publicKey },
       cache:'no-store',
       signal: AbortSignal.timeout(12000)
     });
