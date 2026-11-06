@@ -64,9 +64,9 @@ try{
       if(viewport.id==='desktop'){
        const contrast=await page.locator('.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline)').evaluate(el=>{
         const rgb=getComputedStyle(el).color.match(/\d+/g)?.map(Number)||[];
-        return rgb.length>=3?Math.min(...rgb.slice(0,3)):0;
+        return rgb.length>=3?Math.max(...rgb.slice(0,3)):255;
        });
-       assert.ok(contrast>=175,'Blue hero description has poor text contrast');
+       assert.ok(contrast<=170,'Light editorial hero needs dark, readable description text');
       }
       // These are real click-through checks: a styled but non-functional
       // form must fail CI, even when the initial screenshot looks fine.
@@ -76,6 +76,7 @@ try{
       await page.locator('#registerTab').click();
       assert.equal(await page.locator('body').getAttribute('data-auth-mode'),'register','Register tab does not switch form');
       assert.equal(await page.locator('#firstNameWrap').isVisible(),true,'Registration name field is hidden');
+      assert.equal(await page.locator('#password').getAttribute('autocomplete'),'new-password','Registration must offer new password autofill');
       const registerSize=await page.evaluate(()=>({
        client:document.documentElement.clientWidth,
        scroll:document.documentElement.scrollWidth
@@ -85,6 +86,9 @@ try{
       await page.locator('#loginTab').click();
       assert.equal(await page.locator('body').getAttribute('data-auth-mode'),'login','Login tab does not switch form');
       assert.equal(await page.locator('#firstNameWrap').isVisible(),false,'Registration-only fields remain on login');
+      assert.equal(await page.locator('#password').getAttribute('autocomplete'),'current-password','Login must allow existing password autofill');
+      assert.equal(await page.locator('#email').getAttribute('autocomplete'),'email','Email autofill must remain enabled');
+      assert.equal(await page.locator('#authForm').getAttribute('autocomplete'),'on','Password manager must not be blocked');
       await page.locator('#showPassword').click();
       assert.equal(await page.locator('#password').getAttribute('type'),'text','Show password button is non-functional');
       await page.locator('#showPassword').click();

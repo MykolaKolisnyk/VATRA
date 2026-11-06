@@ -119,3 +119,24 @@ assert.ok(catalogCodes.length>100,'Do not reduce the international language cata
 assert.equal(JSON.parse(readyCodes).length,8,'Only eight primary UI translations should be flagged as available');
 assert.ok(lang.includes('Доступна</small>')&&lang.includes('Частково · у розробці')&&lang.includes('У розробці</small>'),'Missing honest language readiness badges');
 assert.ok(lang.includes("get isFullyLocalized(){return language==='uk';}"),'Do not describe incomplete translations as fully localized');
+
+
+// The login and signup entry HTML must work with password managers before hydration.
+for(const path of ['auth.html','register.html']){
+ const html=read(path);
+ assert.ok(html.includes('id="authForm" novalidate autocomplete="on"'),path+': autocomplete must be enabled');
+ assert.ok(html.includes('id="email" type="email" autocomplete="email"'),path+': email autofill missing');
+ assert.ok(html.includes('id="password" type="password" autocomplete="current-password"'),path+': login password intent missing');
+ assert.ok(!/id="birthday"[^>]*max="2026-10-27"/.test(html),path+': fixed stale date cap');
+ assert.ok(html.includes('&amp;ui=light404'),path+': new UI must bust the old CSS cache');
+}
+const authSource=read('assets/scripts/auth/auth.js');
+assert.ok(authSource.includes("$('#password').autocomplete=m==='login'?'current-password':'new-password'"),
+ 'Password autofill must switch as the auth mode changes');
+assert.ok(authSource.includes("$('#birthday').max=[today.getFullYear()"),
+ 'The birthday date limit must be set from today's date at runtime');
+assert.ok(css.includes('linear-gradient(150deg,#fbfcff 0%,#f5f8fe 53%,#ecf3ff 100%)'),
+ 'The light VATRA entry hero must share the 404 visual palette');
+assert.ok(css.includes('background:#e8f0ff!important;color:#0757f5!important'),
+ 'Selected language must be legible on the light entry hero');
+console.log('VATRA: light entry UI, cache refresh, password-manager semantics and dynamic birthday bound.');

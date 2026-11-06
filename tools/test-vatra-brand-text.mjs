@@ -40,7 +40,7 @@ assert.ok(panel.includes('max-width:1180px')&&panel.includes('max-height:650px')
  'Hero headline must remain responsive on narrower and shorter screens');
 assert.ok(!panel.includes('.vatra-wordmark .vatra-wordmark-text'), 'Auth CSS must not clone shared logo styles');
 assert.ok(panel.includes('.vatra-auth-language-quick')&&panel.includes('.brand-foot'),
- 'Blue-side languages and footer must share the new layout');
+ 'Light-side languages and footer must share the new layout');
 
 for(const locale of ['uk','en','pl','de','fr','es','pt','it']){
  const html=read('lang/'+locale+'/index.html');
@@ -55,6 +55,6 @@ for(const asset of ['vatra-header.svg','vatra-header.png','logo.png']){
 }
 assert.ok(brand.includes(':is(.legal-dialog-head,.developer-dialog-topbar,.vatra-site-legal-head) .vatra-wordmark-symbol'),'All legal and developer logos must use the same mark dimensions');
 assert.ok(panel.includes('grid-template-columns:minmax(0,1fr) auto!important'),'Developer footer link must align with brand values');
-console.log('VATRA: large blue panel, readable text wordmarks and responsive breakpoints validated.');
+console.log('VATRA: light editorial panel, readable text wordmarks and responsive breakpoints validated.');
 
 assert.ok(brand.includes('font-family:var(--vatra-ui-font,"VATRA Onest"'), 'The VATRA wordmark must follow the Onest typography system');
