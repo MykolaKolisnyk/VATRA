@@ -101,3 +101,8 @@ for(const locale of ['en','pl','de','fr','es','pt','it']){
 for(const page of ['index.html','auth.html','register.html']){
  assert.ok(read(page).includes('language.js?v=20261105-no-clips1&amp;circle=1'),page+': cache-bust localized words');
 }
+
+for(const page of ['auth.html','register.html']){
+ assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=circle2'),page+': updated social promise CSS cache missing');
+}
+assert.ok(read('index.html').includes('vatra.css?v=20261106-social-circle-1'),'Updated VATRA social-circle CSS cache missing');
