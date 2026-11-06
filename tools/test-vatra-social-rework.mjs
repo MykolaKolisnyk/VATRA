@@ -156,5 +156,5 @@ assert.equal(JSON.stringify(photoCollections[0]),JSON.stringify(['https://cdn.ex
 assert.ok(js.includes('grid.innerHTML=vatraPhotoGridMarkup(urls,uid)'),'Photo tabs must pass their own images');
 assert.ok(js.includes("photoTabs[next].focus();photoTabs[next].click()"),'Photo tabs must support keyboard navigation');
 assert.ok(js.includes("event.target?.closest?.('input,textarea,select,[contenteditable],[role=\"textbox\"]')"),'Photo viewer arrow keys must not interrupt comment typing');
-assert.ok(js.includes('preload="none" aria-label="Відеозапис із допису"'),'My videos must defer downloading until playback');
+assert.ok(js.includes('preload="none" loading="lazy"')&&js.includes('aria-label="Відеозапис із допису"'),'My videos must defer downloading until playback');
 console.log('VATRA photos/video: scoped photo tabs, keyboard shortcuts and lazy video loading verified.');

@@ -1,5 +1,5 @@
 
-:root{--vatra-page-width:1320px;--vatra-sidebar-width:190px;--vatra-reading-size:14px;--vatra-rail-gap:21px}
+:root{--vatra-page-width:1000px;--vatra-sidebar-width:180px;--vatra-reading-size:14px;--vatra-rail-gap:20px}
 body[data-vatra-font-scale="large"]{--vatra-reading-size:16px}
 html,body{min-width:0!important}
 body,body button,body input,body textarea,body select{font-family:var(--vatra-ui-font,"VATRA Onest",system-ui,sans-serif)}

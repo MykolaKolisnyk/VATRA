@@ -10,6 +10,7 @@ const ads=read('assets/styles/sources/layout/sidebar-ads.css');
 const messenger=read('assets/styles/sources/social/messenger.css');
 const main=read('assets/scripts/app/main.js');
 const shared=read('assets/styles/sources/foundation/shared-tokens.css');
+const responsive=read('assets/styles/sources/layout/responsive.css');
 const profileGallery=read('assets/styles/sources/profile/gallery-language.css');
 const pageStyles=read('assets/styles/sources/layout/pages.css');
 assert.ok(fonts.includes('--vatra-radius-card:13px')&&fonts.includes('--vatra-control-height:38px'),'Shared design tokens must exist');
@@ -22,6 +23,7 @@ assert.ok(settings.includes('grid-template-columns:minmax(175px,198px) minmax(0,
 assert.ok(settings.includes('min-height:40px!important;padding:8px 10px!important'),'Settings rows must not be oversized');
 assert.ok(settings.includes('background:transparent!important;'),'Settings introduction must not be another large card');
 assert.ok(ads.includes('[data-page="messages"]')&&ads.includes('display:none!important'),'No ads around conversations');
+assert.ok(responsive.includes('--vatra-page-width:1000px;--vatra-sidebar-width:180px'),'Header and layout must share compact sizing tokens');
 assert.ok(!shared.includes('max-width:1320px')&&!shared.includes('width:min(1320px'),'Wide screens must not expand VATRA beyond the compact layout cap');
 assert.ok(main.includes("matches?2:window.matchMedia('(max-width:960px)').matches?3:4"),'Profile gallery must match the 4/3/2 column CSS');
 assert.ok(profileGallery.includes('grid-template-columns:repeat(4,minmax(0,1fr))!important')&&profileGallery.includes('grid-template-columns:repeat(3,minmax(0,1fr))!important')&&profileGallery.includes('grid-template-columns:repeat(2,minmax(0,1fr))!important'),'Gallery needs a consistent responsive grid');
