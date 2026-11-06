@@ -51,3 +51,7 @@ for(const path of ["assets/styles/sources/foundation/base-interactions.css","ass
  assert.ok(!read(path).includes('Inter'),path+': older font would override Onest');
 }
 console.log('VATRA: compact editor/settings, single-line group tabs, restrained gifts, private ad suppression.');
+
+assert.ok(read('assets/styles/sources/foundation/shared-tokens.css').includes('VATRA UI 2026 / shell-and-feed'),'New VATRA UI shell absent');
+assert.ok(read('assets/styles/sources/profile/profile-layout.css').includes('VATRA UI 2026 / personal-page'),'Profile layout treatment absent');
+assert.ok(read('assets/styles/sources/social/post-composer.css').includes('VATRA UI 2026 / publish-entry'),'News publish component absent');

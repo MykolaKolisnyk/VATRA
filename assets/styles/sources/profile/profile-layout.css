@@ -308,3 +308,26 @@ body .vatra-profile-summary-compact .vatra-profile-more[hidden] {
 @media(prefers-reduced-motion:reduce){
  body .vatra-profile-overview.vatra-profile-summary-compact .vatra-profile-more-trigger svg.vatra-profile-more-icon {transition:none!important}
 }
+
+/* VATRA UI 2026 / personal-page: concise identity, media, friends and publications. */
+body[data-page="profile"] .vatra-profile-layout,body[data-page="publicProfile"] .vatra-profile-layout{gap:14px!important;align-items:start!important;max-width:100%!important}
+body[data-page="profile"] .vatra-profile-sidebar,body[data-page="publicProfile"] .vatra-profile-sidebar{gap:12px!important;min-width:0!important}
+body[data-page="profile"] .vatra-profile-main,body[data-page="publicProfile"] .vatra-profile-main{gap:12px!important;min-width:0!important}
+body[data-page="profile"] .vatra-profile-card,body[data-page="publicProfile"] .vatra-profile-card{padding:16px!important;margin-bottom:0!important;min-width:0!important}
+body[data-page="profile"] .vatra-profile-avatar-card,body[data-page="publicProfile"] .vatra-profile-avatar-card{padding:15px!important;text-align:center!important}
+body[data-page="profile"] .vatra-profile-overview,body[data-page="publicProfile"] .vatra-profile-overview{padding:19px 21px!important}
+body .vatra-profile-title-row h2{font:680 clamp(20px,2vw,25px)/1.25 var(--vatra-ui-font)!important;letter-spacing:-.035em!important;color:var(--vatra-ink)!important}
+body .vatra-profile-overview .profile-handle{margin-top:5px!important;font-size:12.5px!important;color:var(--vatra-muted)!important}
+body .vatra-profile-overview .vatra-profile-bio{font-size:13px!important;line-height:1.58!important}
+body .vatra-profile-overview .vatra-profile-details{margin-top:12px!important;gap:5px!important}
+body .vatra-profile-card-head{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin-bottom:12px!important}
+body .vatra-profile-card-head h3{font-size:15px!important;font-weight:650!important;margin-right:auto!important}
+body .vatra-profile-photos{overflow:hidden!important}
+body .vatra-profile-photos .vatra-gallery-track{gap:9px!important;min-width:0!important}
+body .vatra-profile-compose{padding:11px 13px!important}
+body .vatra-profile-compose-trigger{min-height:45px!important;border-radius:12px!important;gap:10px!important}
+body .vatra-profile-post-tabs{padding:11px 14px!important;margin-bottom:10px!important;border:1px solid var(--vatra-border)!important;border-radius:12px!important;background:var(--vatra-surface)!important}
+body .vatra-profile-posts-title h3{font-size:15px!important;font-weight:660!important}
+body .vatra-profile-posts>.post{margin-bottom:12px!important}
+body[data-vatra-theme-effective="dark"] .vatra-profile-post-tabs{background:var(--vatra-surface)!important}
+@media(max-width:760px){body[data-page="profile"] .vatra-profile-layout,body[data-page="publicProfile"] .vatra-profile-layout{grid-template-columns:minmax(0,1fr)!important;gap:11px!important}body[data-page="profile"] .vatra-profile-card,body[data-page="publicProfile"] .vatra-profile-card{padding:14px!important}body[data-page="profile"] .vatra-profile-overview,body[data-page="publicProfile"] .vatra-profile-overview{padding:16px!important}body .vatra-profile-post-tabs{padding:10px!important}}
