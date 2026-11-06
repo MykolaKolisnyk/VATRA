@@ -274,3 +274,19 @@ assert.ok(js.includes("if(vatraMessageDraftOwner!==user.uid){vatraMessageDrafts.
 assert.ok(js.includes("if(input.value.trim()===text){input.value='';vatraMessageDrafts.delete(key);}"),'Successful delivery must remove the sent draft');
 assert.ok(!js.includes("localStorage.setItem('vatra-message-draft"),'Never persist private message drafts to localStorage');
 console.log('VATRA messenger: in-memory drafts survive navigation and clear after delivery / account switch.');
+
+
+/* Composer must not unlock after a rejected send or a lost/changed encrypted session. */
+const chatSendStart=js.indexOf("$('#sendMessageForm').onsubmit=async e=>{");
+const chatSendEnd=js.indexOf("const VATRA_CHAT_BATCH_SIZE=60",chatSendStart);
+assert.ok(chatSendStart>=0&&chatSendEnd>chatSendStart,'Secure chat form is missing');
+const chatSendCode=js.slice(chatSendStart,chatSendEnd);
+assert.ok(chatSendCode.includes('const canSend=!!activeSecureSession&&activeSecureSession.chatId===key'),
+ 'Async chat send must validate current E2EE session before reenabling composer');
+assert.ok(chatSendCode.includes("activeChat===recipient&&!activeChatBlocked&&!blockedUsers[recipient]"),
+ 'Chat send must stay locked after navigation or blocking');
+assert.ok(chatSendCode.includes('submit.disabled=!canSend;'),
+ 'Send button must reflect current security readiness');
+assert.ok(!chatSendCode.includes('finally{submit.disabled=false;}'),
+ 'A failed encrypted session may never unlock the send action');
+console.log('VATRA messenger: send button remains locked when session, recipient or block status changes.');

@@ -3097,7 +3097,14 @@ function renderMessages(){
     :'Повідомлення не відправлено: '+niceError(err);
    if(!written){if(errorBox){errorBox.textContent=message;errorBox.hidden=false;}else toastMsg(message);}
    console.error('[ВАТРА] Помилка надсилання повідомлення',err);
-  }finally{submit.disabled=false;}
+  }finally{
+   // An async send may finish after the recipient, block state or E2EE session changes.
+   // Never expose an enabled send button until this specific chat is still secure.
+   const canSend=!!activeSecureSession&&activeSecureSession.chatId===key
+    &&activeSecureSession.peerUid===recipient&&page==='messages'
+    &&activeChat===recipient&&!activeChatBlocked&&!blockedUsers[recipient];
+   submit.disabled=!canSend;
+  }
  };
 }
 const VATRA_CHAT_BATCH_SIZE=60;
