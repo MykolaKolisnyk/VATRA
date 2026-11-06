@@ -128,7 +128,7 @@ for(const path of ['auth.html','register.html']){
  assert.ok(html.includes('id="email" type="email" autocomplete="email"'),path+': email autofill missing');
  assert.ok(html.includes('id="password" type="password" autocomplete="current-password"'),path+': login password intent missing');
  assert.ok(!/id="birthday"[^>]*max="2026-10-27"/.test(html),path+': fixed stale date cap');
- assert.ok(html.includes('&amp;ui=blue-return-1'),path+': new UI must bust the old CSS cache');
+ assert.ok(html.includes('&amp;ui=auth-404-inspired-v1'),path+': new UI must bust the old CSS cache');
 }
 const authSource=read('assets/scripts/auth/auth.js');
 assert.ok(authSource.includes("$('#password').autocomplete=m==='login'?'current-password':'new-password'"),
