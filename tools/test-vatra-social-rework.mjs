@@ -302,8 +302,14 @@ for(const action of ['photo','video','story']){
  assert.ok(feedMarkup.includes('data-vatra-feed-shortcut="'+action+'"'),action+' quick action is missing');
  assert.ok(feedMarkup.includes('data-vatra-create="'+action+'"'),action+' must preserve the original composer route');
 }
-assert.ok(js.includes("document.querySelector('#vatraCreateMenu [data-vatra-create=\"'+action+'\"]')?.click()")||
- js.includes("document.querySelector('#vatraCreateMenu [data-vatra-create=\"'+action+'\"]')?.click();"),
+assert.ok(js.includes("document.querySelector('#vatraCreateMenu [data-vatra-create=\"'+action+'\"]')?.click();"),
  'Feed shortcuts must dispatch to the existing real publishing handlers');
 assert.ok(feedMarkup.includes('id="vatraFeedFilters"')&&feedMarkup.includes('id="feed"'),
  'Redesign may not disconnect filtering or post rendering');
+
+const feedTheme=read('assets/styles/sources/social/post-composer.css');
+for(const selector of ['.vatra-news-hero','.vatra-news-compose-head','.vatra-news-compose-shortcuts','.vatra-news-stream-head','#feed>.post .post-actions','#feed>.post .comment-body']){
+ assert.ok(feedTheme.includes(selector),'Actual news redesign missing '+selector);
+}
+assert.ok(feedTheme.includes('grid-template-columns:repeat(4,minmax(0,1fr))'),'News reaction controls must have a stable responsive grid');
+assert.ok(feedTheme.includes('@media(max-width:440px)'),'Feed redesign must adapt to narrow phones');

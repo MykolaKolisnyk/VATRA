@@ -358,3 +358,285 @@ body[data-page="feed"] .vatra-create-entry :is(button,.pill){border-radius:9px!i
 body[data-page="feed"] .vatra-create-entry :is(button,.pill):focus-visible{outline:2px solid #4c87d4!important;outline-offset:2px!important}
 body[data-vatra-theme-effective="dark"][data-page="feed"] .quick-compose.vatra-create-entry:not([hidden]){background:var(--vatra-surface)!important;box-shadow:none!important}
 @media(max-width:760px){body[data-page="feed"] .quick-compose.vatra-create-entry:not([hidden]){padding:10px!important;margin-bottom:10px!important}}
+
+
+/* VATRA UI / News — full editorial feed composition, 2026-11-06.
+   This belongs to the EXISTING social composer source. No extra stylesheet.
+   Keep the approved 1000px application width and every existing data-* action. */
+html body:not([data-page="feed"]) :is(.vatra-news-hero,.vatra-news-stream-head){display:none!important}
+html body[data-page="feed"] .vatra-news-hero{
+ box-sizing:border-box;position:relative;isolation:isolate;display:grid!important;
+ grid-template-columns:minmax(0,1fr) 190px;align-items:center;gap:12px;
+ width:100%;min-width:0;min-height:222px;margin:0 0 16px;padding:27px 31px;
+ overflow:hidden;border:1px solid #d6e4fb;border-radius:21px;
+ background:linear-gradient(112deg,#fff 0%,#f5f9ff 47%,#e3efff 100%);
+ box-shadow:0 12px 35px rgba(18,60,120,.065),0 2px 5px rgba(18,60,120,.035);
+ font-family:var(--vatra-ui-font,"VATRA Onest",system-ui,sans-serif);
+}
+html body[data-page="feed"] .vatra-news-hero::before{
+ content:"";position:absolute;inset:0 auto 0 0;width:5px;
+ background:linear-gradient(180deg,#0757f5,#63b0ff);
+}
+html body[data-page="feed"] .vatra-news-hero-copy{position:relative;z-index:2;min-width:0}
+html body[data-page="feed"] .vatra-news-eyebrow{
+ display:inline-flex;align-items:center;gap:8px;margin:0 0 10px;
+ color:#2867b8;font:750 10px/1.4 var(--vatra-ui-font);letter-spacing:.105em;
+}
+html body[data-page="feed"] .vatra-news-pulse{
+ width:7px;height:7px;border-radius:50%;background:#0757f5;
+ box-shadow:0 0 0 4px rgba(7,87,245,.09);
+}
+html body[data-page="feed"] .vatra-news-hero h1{
+ margin:0 0 9px!important;padding:0!important;color:#193452!important;
+ font:800 clamp(31px,4.1vw,44px)/1.07 var(--vatra-ui-font)!important;
+ letter-spacing:-.065em!important;
+}
+html body[data-page="feed"] .vatra-news-title-dot{color:#0757f5}
+html body[data-page="feed"] .vatra-news-hero-copy>p{
+ max-width:395px;margin:0 0 17px;color:#5c7693;
+ font:460 13px/1.62 var(--vatra-ui-font);
+}
+html body[data-page="feed"] #vatraNewsNewPost{
+ display:inline-flex;align-items:center;justify-content:center;gap:9px;
+ min-height:40px;padding:10px 17px;white-space:nowrap;
+ border:1px solid #0757f5;border-radius:11px;background:#0757f5;
+ color:#fff;font:710 12.5px/1.2 var(--vatra-ui-font);
+ box-shadow:0 7px 17px rgba(7,87,245,.18);cursor:pointer;
+ transition:transform .15s,box-shadow .15s,background .15s;
+}
+html body[data-page="feed"] #vatraNewsNewPost:hover{
+ transform:translateY(-1px);background:#0049d5;box-shadow:0 9px 20px rgba(7,87,245,.21);
+}
+html body[data-page="feed"] #vatraNewsNewPost svg{
+ width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;
+ stroke-linecap:round;
+}
+html body[data-page="feed"] .vatra-news-hero-art{
+ position:relative;display:grid;place-items:center;height:170px;min-width:0;
+}
+html body[data-page="feed"] .vatra-news-orbit{
+ position:absolute;aspect-ratio:1;border:1px solid rgba(7,87,245,.16);border-radius:50%;
+}
+html body[data-page="feed"] .vatra-news-orbit.orbit-one{width:166px}
+html body[data-page="feed"] .vatra-news-orbit.orbit-two{
+ width:115px;box-shadow:0 0 0 25px rgba(7,87,245,.025);
+}
+html body[data-page="feed"] .vatra-news-art-mark{
+ display:grid;place-items:center;position:relative;width:92px;height:92px;
+ border-radius:28px;background:linear-gradient(145deg,#2378ff,#084ac8);
+ color:#fff;box-shadow:0 17px 29px rgba(7,77,184,.22);
+ transform:rotate(-8deg);
+}
+html body[data-page="feed"] .vatra-news-art-mark svg{width:69px;height:69px;transform:rotate(8deg)}
+/* Composer is now an actual editorial entry: identity, writing surface, media tray. */
+html body[data-page="feed"] .layout>.main>.quick-compose.vatra-create-entry:not([hidden]){
+ box-sizing:border-box;display:flex!important;flex-direction:column;gap:13px!important;
+ width:100%;min-width:0;margin:0 0 19px!important;padding:17px 19px 13px!important;
+ border:1px solid #e1e8f3!important;border-radius:17px!important;
+ background:#fff!important;box-shadow:0 5px 23px rgba(27,62,107,.045)!important;
+}
+html body[data-page="feed"] .vatra-news-compose-head{
+ display:flex;align-items:center;gap:13px;min-width:0;width:100%;
+}
+html body[data-page="feed"] .vatra-news-compose-head>#composeAvatar{
+ display:grid!important;place-items:center;flex:0 0 44px!important;
+ width:44px!important;height:44px!important;border-radius:15px!important;
+ background-color:#0757f5;color:#fff;
+ font:780 19px/1 var(--vatra-ui-font);overflow:hidden;
+ box-shadow:0 3px 9px rgba(7,87,245,.13);
+}
+html body[data-page="feed"] .vatra-news-compose-head>.vatra-create-wrap{
+ position:relative;display:block!important;flex:1 1 auto;min-width:0!important;width:auto!important;
+}
+html body[data-page="feed"] .vatra-news-compose-head #prompt{
+ box-sizing:border-box;display:block;width:100%;min-width:0;
+ height:auto;min-height:47px!important;margin:0!important;
+ padding:12px 17px!important;text-align:left!important;
+ border:1px solid #e1e9f4!important;border-radius:12px!important;
+ background:#f4f7fc!important;color:#5b7390!important;
+ font:520 13.5px/1.45 var(--vatra-ui-font)!important;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ box-shadow:none!important;cursor:pointer;
+}
+html body[data-page="feed"] .vatra-news-compose-head #prompt:hover,
+html body[data-page="feed"] .vatra-news-compose-head #prompt[aria-expanded="true"]{
+ border-color:#b5d0f8!important;background:#edf4ff!important;color:#225ba1!important;
+}
+html body[data-page="feed"] .vatra-news-compose-shortcuts{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+ padding-top:11px;border-top:1px solid #edf1f7;
+}
+html body[data-page="feed"] .vatra-news-compose-shortcuts button{
+ display:inline-flex;justify-content:center;align-items:center;gap:9px;
+ min-width:0;min-height:40px;padding:9px 10px;border:0;border-radius:10px;
+ background:transparent;color:#536e8a;cursor:pointer;
+ font:630 12px/1.25 var(--vatra-ui-font);
+ transition:color .15s,background .15s;
+}
+html body[data-page="feed"] .vatra-news-compose-shortcuts button:hover{
+ color:#0757f5;background:#edf4ff;
+}
+html body[data-page="feed"] .vatra-news-compose-shortcuts svg{
+ width:19px;height:19px;flex:none;fill:none;stroke:currentColor;
+ stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+html body[data-page="feed"] .vatra-news-stream-head{
+ display:flex!important;align-items:end;justify-content:space-between;
+ gap:15px;width:100%;min-width:0;margin:1px 0 14px;padding:0 2px;
+ font-family:var(--vatra-ui-font);
+}
+html body[data-page="feed"] .vatra-news-stream-kicker{
+ display:block;color:#2670c4;letter-spacing:.115em;font:750 9.5px/1.4 var(--vatra-ui-font);
+}
+html body[data-page="feed"] .vatra-news-stream-head h2{
+ margin:3px 0 0!important;color:#203950;
+ font:750 clamp(19px,2.7vw,23px)/1.25 var(--vatra-ui-font)!important;letter-spacing:-.04em;
+}
+html body[data-page="feed"] .vatra-news-stream-head>#vatraFeedFilters:not([hidden]){
+ position:relative;flex:none;align-self:end;margin:0!important;
+}
+html body[data-page="feed"] .vatra-news-stream-head .vatra-filter-toggle{
+ min-height:38px!important;padding:8px 11px!important;border:1px solid #dbe6f5!important;
+ border-radius:10px!important;background:#fff!important;
+ box-shadow:0 2px 8px rgba(30,53,80,.035)!important;
+}
+html body[data-page="feed"] #feed>.post{
+ position:relative;box-sizing:border-box;overflow:visible;
+ width:100%;min-width:0;margin-bottom:16px!important;
+ padding:20px 22px 16px!important;border:1px solid #dfe8f3!important;
+ border-radius:17px!important;background:#fff!important;
+ box-shadow:0 5px 23px rgba(23,52,86,.043)!important;
+ font-family:var(--vatra-ui-font);
+}
+html body[data-page="feed"] #feed>.post::before{
+ content:"";position:absolute;top:16px;bottom:16px;left:0;width:3px;
+ border-radius:0 5px 5px 0;background:#d6e5fb;opacity:.74;
+}
+html body[data-page="feed"] #feed>.post .post-head{
+ display:flex;align-items:center;gap:12px!important;margin-bottom:15px!important;
+}
+html body[data-page="feed"] #feed>.post .vatra-post-avatar-link .avatar,
+html body[data-page="feed"] #feed>.post .post-head>.avatar{
+ width:46px!important;height:46px!important;min-width:46px!important;
+ border-radius:15px!important;
+}
+html body[data-page="feed"] #feed>.post .post-head .author{min-width:0;flex:1}
+html body[data-page="feed"] #feed>.post .post-head .author-link{
+ font:750 14px/1.3 var(--vatra-ui-font)!important;color:#233b58!important;
+}
+html body[data-page="feed"] #feed>.post .post-head .author small{
+ display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+ margin-top:4px;font:470 11px/1.5 var(--vatra-ui-font)!important;color:#7a8da3!important;
+}
+html body[data-page="feed"] #feed>.post .vatra-post-audience{
+ border-radius:99px;padding:2px 7px;background:#eef5ff;color:#356aa6;
+}
+html body[data-page="feed"] #feed>.post .post-text{
+ margin:0 0 13px;color:#30455e!important;
+ font:470 15px/1.68 var(--vatra-ui-font)!important;
+ letter-spacing:-.008em;overflow-wrap:anywhere;
+}
+html body[data-page="feed"] #feed>.post .post-photo-grid{
+ margin:13px 0 5px!important;gap:4px!important;overflow:hidden;
+ border-radius:13px!important;background:#edf3fb;
+}
+html body[data-page="feed"] #feed>.post .post-photo-item{overflow:hidden;border-radius:0!important}
+html body[data-page="feed"] #feed>.post .post-photo-item img{
+ display:block;width:100%;height:100%;object-fit:cover;
+}
+html body[data-page="feed"] #feed>.post video.post-image{
+ display:block;width:100%;max-height:500px;object-fit:contain;background:#132135;
+ border-radius:13px;margin:12px 0;
+}
+html body[data-page="feed"] #feed>.post .post-actions{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));
+ align-items:stretch;gap:5px!important;padding:11px 0 0!important;margin:16px 0 0!important;
+ border-top:1px solid #edf1f7!important;
+}
+html body[data-page="feed"] #feed>.post .post-action-item{min-width:0}
+html body[data-page="feed"] #feed>.post .post-action-button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;width:100%;min-width:0;min-height:39px!important;
+ padding:7px 6px!important;background:#f6f9fd!important;
+ border:1px solid transparent!important;border-radius:10px!important;
+ font:600 11px/1.3 var(--vatra-ui-font)!important;color:#58718d!important;
+ transition:background .17s,color .17s,border-color .17s!important;
+}
+html body[data-page="feed"] #feed>.post .post-action-button svg{
+ flex:none;width:17px!important;height:17px!important;
+}
+html body[data-page="feed"] #feed>.post .post-action-button:hover{
+ background:#ebf3ff!important;color:#0757f5!important;border-color:#cfe1ff!important;
+}
+html body[data-page="feed"] #feed>.post .post-action-button.is-active{
+ color:#0757f5!important;background:#e8f1ff!important;border-color:#d5e6ff!important;
+}
+html body[data-page="feed"] #feed>.post .post-action-count{
+ font:730 10px/1 var(--vatra-ui-font)!important;color:inherit!important;
+}
+html body[data-page="feed"] #feed>.post .vatra-post-comments{
+ margin:15px 0 0;padding:13px 0 0;border-top:1px solid #edf1f7;
+}
+html body[data-page="feed"] #feed>.post .vatra-comments-heading{
+ display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;
+}
+html body[data-page="feed"] #feed>.post .comment.vatra-comment-item{
+ padding:10px 0!important;border-bottom:1px solid #f0f3f8!important;
+}
+html body[data-page="feed"] #feed>.post .comment-body{
+ min-width:0;background:#f6f9fd!important;border:1px solid #edf2f9!important;
+ border-radius:12px!important;padding:11px 13px!important;
+}
+html body[data-page="feed"] #feed>.post .vatra-comment-entry{
+ padding:12px!important;border:1px solid #e3ebf5;border-radius:12px;
+ background:#f8faff;
+}
+html body[data-page="feed"] #feed>.post .vatra-comment-entry textarea{
+ min-width:0;border-radius:9px!important;background:#fff!important;
+}
+html body[data-vatra-theme-effective="dark"][data-page="feed"] :is(.vatra-news-hero,.layout>.main>.quick-compose.vatra-create-entry:not([hidden]),#feed>.post){
+ background:#24374e!important;border-color:#415b7a!important;box-shadow:none!important;
+}
+html body[data-vatra-theme-effective="dark"][data-page="feed"] .vatra-news-hero h1,
+html body[data-vatra-theme-effective="dark"][data-page="feed"] .vatra-news-stream-head h2,
+html body[data-vatra-theme-effective="dark"][data-page="feed"] #feed>.post .post-head .author-link{color:#f1f6fd!important}
+html body[data-vatra-theme-effective="dark"][data-page="feed"] .vatra-news-hero-copy>p,
+html body[data-vatra-theme-effective="dark"][data-page="feed"] #feed>.post .post-text{color:#d6e4f5!important}
+html body[data-vatra-theme-effective="dark"][data-page="feed"] .vatra-news-compose-head #prompt,
+html body[data-vatra-theme-effective="dark"][data-page="feed"] #feed>.post .post-action-button,
+html body[data-vatra-theme-effective="dark"][data-page="feed"] #feed>.post .comment-body{
+ background:#2e435d!important;border-color:#405a76!important;color:#d9e7fa!important;
+}
+@media(max-width:760px){
+ html body[data-page="feed"] .vatra-news-hero{
+  grid-template-columns:minmax(0,1fr) 110px;min-height:190px;
+  padding:21px 18px!important;margin-bottom:12px!important;border-radius:16px;
+ }
+ html body[data-page="feed"] .vatra-news-hero-art{height:125px}
+ html body[data-page="feed"] .vatra-news-orbit.orbit-one{width:111px}
+ html body[data-page="feed"] .vatra-news-orbit.orbit-two{width:76px}
+ html body[data-page="feed"] .vatra-news-art-mark{width:66px;height:66px;border-radius:20px}
+ html body[data-page="feed"] .vatra-news-art-mark svg{width:50px;height:50px}
+ html body[data-page="feed"] .vatra-news-hero-copy>p{font-size:12px;line-height:1.5}
+ html body[data-page="feed"] .layout>.main>.quick-compose.vatra-create-entry:not([hidden]){padding:14px 13px 10px!important}
+ html body[data-page="feed"] #feed>.post{padding:16px 15px 13px!important;border-radius:14px!important}
+ html body[data-page="feed"] #feed>.post .post-text{font-size:14px!important}
+ html body[data-page="feed"] #feed>.post .post-actions{gap:4px!important}
+ html body[data-page="feed"] #feed>.post .post-action-button{font-size:10px!important;padding:8px 3px!important;gap:4px!important}
+ html body[data-page="feed"] #feed>.post .post-action-button svg{width:16px!important;height:16px!important}
+}
+@media(max-width:440px){
+ html body[data-page="feed"] .vatra-news-hero{grid-template-columns:minmax(0,1fr);min-height:0}
+ html body[data-page="feed"] .vatra-news-hero-art{display:none}
+ html body[data-page="feed"] .vatra-news-hero h1{font-size:34px!important}
+ html body[data-page="feed"] .vatra-news-stream-head{align-items:center;gap:9px}
+ html body[data-page="feed"] .vatra-news-stream-head h2{font-size:19px!important}
+ html body[data-page="feed"] .vatra-news-stream-head .vatra-filter-toggle{padding:7px 8px!important}
+ html body[data-page="feed"] #feed>.post .post-action-button span{display:none!important}
+ html body[data-page="feed"] #feed>.post .post-action-button .post-action-count{display:inline!important}
+ html body[data-page="feed"] #feed>.post .post-head .author small{font-size:10.5px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ html body[data-page="feed"] #vatraNewsNewPost,
+ html body[data-page="feed"] #feed>.post .post-action-button{transition:none!important}
+}
