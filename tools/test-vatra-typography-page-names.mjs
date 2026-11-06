@@ -98,6 +98,6 @@ assert.ok(read('assets/styles/sources/branding/brand.css').includes('-webkit-fon
 assert.ok(read('assets/styles/sources/foundation/local-fonts.css').includes('--vatra-ui-font:"VATRA Onest"'),'Local Onest must be bundled for all site routes');
 console.log('VATRA font: 404/app typography unified through local Onest.');
 
-assert.ok(icons.includes('background:transparent!important;color:#24354b!important;'), 'Active desktop nav must remain neutral in light mode');
-assert.ok(icons.includes('color:#ebf3fc!important;background:transparent!important;'), 'Active desktop nav must remain neutral in dark mode');
+assert.ok(icons.includes('background:transparent!important;color:#0757f5!important;'), 'Active desktop nav must use the blue highlight without a background in light mode');
+assert.ok(icons.includes('color:#8cafd9!important;background:transparent!important;'), 'Active desktop nav should have a readable blue accent in dark mode');
 assert.ok(icons.includes('font-size:14px!important;font-weight:500!important'), 'Sidebar labels must stay regular-weight Onest');

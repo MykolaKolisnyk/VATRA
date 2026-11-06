@@ -36,7 +36,7 @@ for(const [label,test] of [
  ['Gifts stylesheet',stylesheetLoaded('assets/styles/sources/gifts/catalog.css')],
  ['Gifts page handling',scriptText.includes("if(page==='gifts'){")],
  ['Visible delete comment',scriptText.includes('class="vatra-comment-delete"')],
- ['No blue bar',styling.includes('background:transparent!important;color:#24354b!important;')&&!styling.includes('box-shadow:inset 3px 0 0 var(--vatra-blue)!important')],
+ ['No blue bar',styling.includes('background:transparent!important;color:#0757f5!important;')&&!styling.includes('box-shadow:inset 3px 0 0 var(--vatra-blue)!important')],
  ['Server-only gift transfer',/vatra_gifts_send\(_item_id uuid,\s*_recipient uuid\)/.test(sql)],
  ['Server-only gift issue',/REVOKE ALL ON TABLE public\."vatra_gift_catalog"/.test(sql)],
  ['Holiday gift claims',sql.includes('vatra_gifts_claim_holiday')],
