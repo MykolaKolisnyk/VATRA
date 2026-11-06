@@ -274,3 +274,6 @@ assert.ok(auth.includes("empty.hidden=found>0"),'Country search should explain n
 assert.ok(auth.includes("options.querySelectorAll('[role=\"option\"]:not([hidden])')"),'Keyboard navigation must skip filtered countries');
 assert.ok(css.includes('.vatra-phone-country-option[hidden]'),'Filtered calling-code options must be genuinely hidden');
 console.log('VATRA telephone country selector: searchable codes, visible empty status, accessible keyboard traversal.');
+
+
+assert.ok(auth.includes("if(event.key!=='Enter')return;")&&auth.includes('event.preventDefault();\n  options.querySelector'), 'Country search Enter key must not submit the sign-in form');

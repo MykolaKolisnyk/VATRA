@@ -146,6 +146,12 @@ function enhanceCountryMenu(select,row){
   empty.hidden=found>0;
  }
  search.addEventListener('input',filterCountries);
+ // Enter selects the first matching country instead of submitting the login form.
+ search.addEventListener('keydown',event=>{
+  if(event.key!=='Enter')return;
+  event.preventDefault();
+  options.querySelector('[role="option"]:not([hidden])')?.click();
+ });
  row.insertBefore(button,inputPlaceholderForCountry(row));row.append(menu);
  function update(){
   const option=select.options[select.selectedIndex],iso=option?.dataset.iso||'UA';

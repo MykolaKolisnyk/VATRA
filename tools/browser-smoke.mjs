@@ -302,7 +302,7 @@ try{
  try{
   await countryPage.goto(base+'/auth.html',{waitUntil:'domcontentloaded'});
   await countryPage.locator('#vatraLoader').waitFor({state:'hidden',timeout:15000});
-  await countryPage.locator('input[name="authMethod"][value="phone"]').check();
+  await countryPage.locator('label:has(input[name="authMethod"][value="phone"])').click();
   const trigger=countryPage.locator('#countryCodeMenu').locator('xpath=..').locator('.vatra-phone-country-trigger');
   await trigger.click();
   const menu=countryPage.locator('#countryCodeMenu:not([hidden])');
@@ -314,8 +314,8 @@ try{
   assert.ok(await menu.locator('.vatra-phone-country-empty').isVisible(),'Unknown calling code needs an empty state');
   assert.equal(await menu.locator('[role="option"]:visible').count(),0,'Filtered country options should be hidden');
   await search.fill('48');
-  await menu.locator('[data-iso="PL"]').click();
-  assert.equal(await countryPage.locator('#countryCode').inputValue(),'+48','Country selector must update the actual phone prefix');
+  await search.press('Enter');
+  assert.equal(await countryPage.locator('#countryCode').inputValue(),'+48','Enter must select the matching country without submitting the auth form');
   await countryPage.locator('.vatra-auth-language-option[data-vatra-auth-language="en"]:visible').first().click();
   assert.equal(await countryPage.locator('#countryCode').inputValue(),'+48','Changing interface language must not rewrite a selected phone code');
   assert.equal(await countryPage.evaluate(()=>localStorage.getItem('vatra-language')),'en','Selected interface language must persist');
