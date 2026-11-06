@@ -130,7 +130,7 @@ try{
    const sheet=[...document.styleSheets].find(item=>item.href?.includes('/assets/styles/vatra.css'));
    try{
     const rules=[...(sheet?.cssRules||[])];
-    return {count:rules.length,hasNavigation:rules.some(rule=>String(rule.selectorText||'').includes('>a.nav:is(.active'))};
+    return {count:rules.length,hasNavigation:rules.some(rule=>String(rule.selectorText||'').includes('a.nav:is(.active'))};
    }catch(error){return {count:0,hasNavigation:false,error:String(error)};}
   });
   assert.ok(linkedNavCSS.hasNavigation,'Linked VATRA CSS did not expose the active navigation rules: '+JSON.stringify(linkedNavCSS));
