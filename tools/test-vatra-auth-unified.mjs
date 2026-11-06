@@ -90,5 +90,5 @@ for(const page of ['auth.html','register.html']){
  assert.ok(html.includes('class="vatra-auth-possibilities"'),page+': actual social functions not named');
  assert.equal((html.match(/data-developer-open/g)||[]).length>=2,true,page+': developer info must remain accessible');
 }
-assert.ok(css.includes('.vatra-auth-intro-mobile')===false,'Auth value proposition styles must live in the auth stylesheet source');
+assert.ok(css.includes('.vatra-auth-intro-mobile'),'Mobile brand copy must have styles in the existing auth module');
 assert.ok(read('assets/styles/sources/auth/auth-shared.css').includes('VATRA UI · social promise'),'VATRA marketing CSS missing');
