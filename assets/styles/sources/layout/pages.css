@@ -4634,3 +4634,19 @@ body .topbar-popover .vatra-sound-setting button{display:inline-flex!important;a
 body .topbar-popover .vatra-sound-setting button:hover{background:#eaf2ff!important}
 body .topbar-popover .vatra-sound-setting small{font:400 10.5px/1.4 var(--vatra-ui-font),Arial,sans-serif!important;color:#71849b!important}
 @media(prefers-reduced-motion:reduce){body .vatra-scroll-to-top,body .vatra-scroll-to-top svg{transition:none!important}}
+
+/* VATRA UI 2026: friends directory, requests and responsive actions. */
+body[data-page="friends"] #feed>.vatra-friends-layout{gap:13px!important;max-width:100%!important}
+body[data-page="friends"] .vatra-friends-main{min-width:0!important;padding:17px!important;border:1px solid var(--vatra-border)!important;border-radius:13px!important;background:var(--vatra-surface)!important;box-shadow:0 2px 9px rgba(30,53,80,.025)!important}
+body[data-page="friends"] .vatra-friends-top{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-bottom:13px!important}
+body[data-page="friends"] .vatra-friends-top h2{font:680 19px/1.25 var(--vatra-ui-font)!important;letter-spacing:-.025em!important}
+body[data-page="friends"] .vatra-friends-tabs{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:5px!important;margin:0 0 12px!important;padding:0 0 6px!important;scrollbar-width:thin!important}
+body[data-page="friends"] .vatra-friends-tabs button{flex:0 0 auto!important;min-height:37px!important;padding:8px 12px!important;border-radius:9px!important;font-weight:550!important;white-space:nowrap!important}
+body[data-page="friends"] .vatra-friends-search{min-height:40px!important;height:40px!important;margin:0 0 12px!important;background:var(--vatra-surface-muted)!important;border:1px solid var(--vatra-border)!important;border-radius:10px!important}
+body[data-page="friends"] .vatra-friends-row{padding:12px 8px!important;border-bottom:1px solid var(--vatra-border)!important;gap:12px!important}
+body[data-page="friends"] .vatra-friends-row:last-child{border-bottom:0!important}
+body[data-page="friends"] .vatra-friends-name{font-size:13.5px!important;font-weight:650!important}
+body[data-page="friends"] .vatra-friends-row-actions button{min-height:35px!important;padding:7px 10px!important;border-radius:9px!important;font-weight:550!important}
+body[data-page="friends"] .vatra-friends-panel{padding:14px!important}
+@media(max-width:900px){body[data-page="friends"] #feed>.vatra-friends-layout{grid-template-columns:minmax(0,1fr)!important}}
+@media(max-width:600px){body[data-page="friends"] .vatra-friends-main{padding:12px!important}body[data-page="friends"] .vatra-friends-row{padding:10px 0!important}}

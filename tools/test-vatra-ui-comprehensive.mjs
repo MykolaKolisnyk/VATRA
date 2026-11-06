@@ -55,3 +55,10 @@ console.log('VATRA: compact editor/settings, single-line group tabs, restrained 
 assert.ok(read('assets/styles/sources/foundation/shared-tokens.css').includes('VATRA UI 2026 / shell-and-feed'),'New VATRA UI shell absent');
 assert.ok(read('assets/styles/sources/profile/profile-layout.css').includes('VATRA UI 2026 / personal-page'),'Profile layout treatment absent');
 assert.ok(read('assets/styles/sources/social/post-composer.css').includes('VATRA UI 2026 / publish-entry'),'News publish component absent');
+
+for(const [path,needle] of [
+ ["assets/styles/sources/profile/settings-community.css","VATRA UI 2026: account settings"],
+ ["assets/styles/sources/profile/editor.css","VATRA UI 2026: profile editor"],
+ ["assets/styles/sources/social/communities.css","VATRA UI 2026: community identity"],
+ ["assets/styles/sources/layout/pages.css","VATRA UI 2026: friends directory"]
+])assert.ok(read(path).includes(needle),path+': missing redesigned component');
