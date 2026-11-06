@@ -23,3 +23,25 @@ assert.ok(/alter policy vatra_mod_restrict_content_update[\s\S]*?\busing\s*\([\s
 assert.ok(!/\b(drop|truncate|delete from|grant all|disable row level security)\b/i.test(s),
  'RLS optimization must not relax privileges or delete records');
 console.log('VATRA: 10 existing authenticated RLS policies only cache auth.uid(), no permissive grants.');
+
+
+// Private RLS helper RPC surface: protect authorization probes from forged viewer IDs.
+const helperMigration=readFileSync('database/vatra_rpc_internal_grants_20261106.sql','utf8');
+const protectedHelpers=[
+ ['vatra_data_can_read_post','text, uuid'],
+ ['vatra_data_is_friend','text, uuid'],
+ ['vatra_data_is_group_member','text, uuid'],
+ ['vatra_data_is_group_owner','text, uuid']
+];
+for(const [name,args] of protectedHelpers){
+ const expected='REVOKE EXECUTE ON FUNCTION public.'+name+'('+args+')';
+ assert.ok(helperMigration.includes(expected),name+': direct RPC access must be revoked');
+}
+assert.equal((helperMigration.match(/REVOKE EXECUTE ON FUNCTION/g)||[]).length,protectedHelpers.length,
+ 'Only the four verified internal helper RPC grants may change');
+assert.ok(!/REVOKE[^;]*(?:vatra_data_can_read\(|vatra_data_can_write\()/i.test(helperMigration),
+ 'Do not break the helper functions directly referenced from app_data RLS policies');
+assert.ok(!/\b(?:DROP|TRUNCATE|DELETE FROM|ALTER POLICY|DISABLE ROW LEVEL SECURITY)\b/i.test(
+ helperMigration.split('\n').filter(line=>!line.trimStart().startsWith('--')).join('\n')
+),'Helper grant fix must not modify data or policies');
+console.log('VATRA: internal friend/group/post authorization helpers are no longer exposed as direct RPCs.');
