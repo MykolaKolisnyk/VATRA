@@ -265,3 +265,12 @@ async function exerciseFirstMessage({peerReady}){
 await exerciseFirstMessage({peerReady:true});
 await exerciseFirstMessage({peerReady:false});
 console.log('VATRA messenger executable first-message success/failure checks passed.');
+
+/* Message drafts must survive view re-renders, but never cross accounts or leak to a server. */
+assert.ok(js.includes("const vatraMessageDrafts=new Map()"),'Messenger drafts need session-memory storage');
+assert.ok(js.includes("messageInput.value=vatraMessageDrafts.get(key)||''"),'Switching chats must restore the correct draft');
+assert.ok(js.includes("messageInput.addEventListener('input'"),'Typing must update the in-memory draft');
+assert.ok(js.includes("if(vatraMessageDraftOwner!==user.uid){vatraMessageDrafts.clear();vatraMessageDraftOwner=user.uid;}"),'Switching accounts must clear private drafts');
+assert.ok(js.includes("if(input.value.trim()===text){input.value='';vatraMessageDrafts.delete(key);}"),'Successful delivery must remove the sent draft');
+assert.ok(!js.includes("localStorage.setItem('vatra-message-draft"),'Never persist private message drafts to localStorage');
+console.log('VATRA messenger: in-memory drafts survive navigation and clear after delivery / account switch.');
