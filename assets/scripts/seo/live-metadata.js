@@ -39,7 +39,7 @@
    url=ORIGIN+'communities/'+encodeURIComponent(groupId)+'/';
    schema={'@context':'https://schema.org','@type':'CollectionPage',name:title,url,description,mainEntity:{'@type':'Organization',name}};
   }else{
-   const labels={profile:'Мій профіль',feed:'Новини',groups:'Спільноти',friends:'Друзі',messages:'Повідомлення',photos:'Фотографії',music:'Музика',settings:'Налаштування',saved:'Збережене',notifications:'Сповіщення'};
+   const labels={profile:'Моя сторінка',feed:'Новини',groups:'Спільноти',friends:'Друзі',messages:'Повідомлення',photos:'Фотографії',music:'Музика',settings:'Налаштування',saved:'Збережене',notifications:'Сповіщення'};
    const label=labels[page];
    if(label)title=label+' · ВАТРА';
   }

@@ -13,10 +13,12 @@ const ux=read('assets/styles/sources/foundation/typography-consistency.css');
 const cohesion=read('assets/styles/sources/foundation/shared-tokens.css');
 
 assert.ok(sidebar.includes('Моя сторінка'), 'Sidebar must say Моя сторінка');
+assert.ok(sidebar.includes('data-page="music"')&&sidebar.includes('>Музика</span>'), 'Required Music navigation item missing');
+assert.ok(read('assets/scripts/seo/live-metadata.js').includes("profile:'Моя сторінка'"),'Browser page title must use Моя сторінка');
 assert.ok(/data-page="profile"/.test(sidebar),'Retain stable profile route');
 assert.ok(script.includes("profile:['") || script.includes("profile:"), 'Keep original database/router page identifier');
 for(const file of ['index.html','assets/scripts/app/main.js','assets/scripts/gifts/gifts.js','assets/scripts/ui/shared-ux.js',
- 'assets/scripts/public/verification.js','assets/scripts/i18n/language.js','auth.html','register.html']){
+ 'assets/scripts/public/verification.js','assets/scripts/i18n/language.js','assets/scripts/seo/live-metadata.js','auth.html','register.html']){
  assert.ok(!/[Пп]рофіл/.test(read(file)), 'Outdated public-facing profile terminology in '+file);
 }
 // The brand can state VATRA is Ukrainian, without excluding international users.

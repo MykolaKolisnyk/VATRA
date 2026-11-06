@@ -6,7 +6,7 @@ const sprite=readFileSync('assets/scripts/ui/icons.js','utf8');
 const navigation=readFileSync('assets/scripts/navigation/state.js','utf8');
 const css=readFileSync('assets/styles/sources/foundation/icons.css','utf8');
 assert.ok(css.includes('font-size:14px!important;font-weight:500!important'),'Navigation labels must use regular-weight Onest');
-assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&!css.includes('box-shadow:inset 3px 0 0 var(--vatra-blue)!important'),'Active route must not show a blue selection bar');
+assert.ok(css.includes('background:transparent!important;color:#0757f5!important;')&&!css.includes('box-shadow:inset 3px 0 0 var(--vatra-blue)!important'),'Active route must use blue text without a blue background or selection bar');
 const defs=sprite.match(/const GLYPHS=(\{[\s\S]+?\});\s*const ALIASES=/);
 assert.ok(defs,'Central SVG definitions not found');
 const glyphs=JSON.parse(defs[1]);
@@ -17,7 +17,7 @@ const sidebar=html.match(/<aside class="sidebar"><nav[^>]*>([\s\S]*?)<\/nav>/)?.
 assert.ok(sidebar,'Sidebar not found');
 const expected={
  profile:'profile',friends:'friends',feed:'news',messages:'message',
- groups:'community',photos:'photos',myVideos:'video',
+ groups:'community',photos:'photos',myVideos:'video',music:'music',
  gifts:'gift',saved:'bookmark',settings:'settings'
 };
 for(const [page,icon] of Object.entries(expected)){
@@ -27,10 +27,10 @@ for(const [page,icon] of Object.entries(expected)){
  assert.ok(link.includes('href="#vatra-i-'+icon+'"'),'Unexpected glyph for '+page);
  assert.ok(names.has(icon),'Missing shared sprite glyph '+icon);
 }
-const expectedOrder=['profile','friends','feed','messages','groups','photos','myVideos','gifts','saved','settings'];
+const expectedOrder=['profile','friends','feed','messages','groups','photos','myVideos','music','gifts','saved','settings'];
 const positions=expectedOrder.map(p=>sidebar.indexOf('data-page="'+p+'"'));
 assert.ok(positions.every(p=>p>=0)&&positions.every((p,i)=>!i||p>positions[i-1]),'VATRA sidebar order mismatch');
-assert.ok(!sidebar.includes('data-page="music"'),'Music remains accessible from header, not duplicated in compact sidebar');
+assert.ok(sidebar.includes('data-page="music"')&&sidebar.includes('href="#/music"'),'Music must be reachable from the compact sidebar and existing music route');
 assert.ok(sidebar.includes('class="vatra-sidebar-divider"')&&sidebar.indexOf('data-page="gifts"')<sidebar.indexOf('class="vatra-sidebar-divider"')&&sidebar.indexOf('class="vatra-sidebar-divider"')<sidebar.indexOf('data-page="saved"'),'Utility group must have a separate line after Gifts');
 assert.ok(/data-menu-page="supportDesk"/.test(sidebar),'Support link is missing');
 assert.ok(sidebar.includes('href="#vatra-i-support"'),'Support needs an independent headset glyph');
