@@ -1893,7 +1893,7 @@ function renderFriends(){
  '<div class="vatra-friends-search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="vatraFriendsFilter" type="search" autocomplete="off" placeholder="Введіть ім’я або псевдонім" aria-label="Пошук серед друзів"></div>'+
  '<div class="vatra-friends-results" id="vatraFriendsResults" role="tabpanel" aria-labelledby="vatra-friends-tab-'+vatraFriendsTab+'">'+(selected.map(([uid])=>vatraFriendsRow(uid,vatraFriendsTab==='incoming'?'incoming':vatraFriendsTab==='outgoing'?'outgoing':'friend')).join('')||'<p class="vatra-friends-empty">У цьому розділі поки немає користувачів.</p>')+'</div><p id="vatraFriendsNoMatch" class="vatra-friends-empty" hidden>За запитом нікого не знайдено.</p></section>'+
  (recommendation?'<aside class="vatra-friends-side"><section class="vatra-friends-panel"><h3>Можливі знайомства</h3>'+recommendation+'<button type="button" class="vatra-friends-side-search" data-vatra-find-people>Показати всіх</button></section></aside>':'')+'</div>',false);
- $('#feed [data-vatra-friends-tab]').forEach(btn=>btn.addEventListener('click',()=>{vatraFriendsTab=btn.dataset.vatraFriendsTab;renderFriends();}));
+ $$('#feed [data-vatra-friends-tab]').forEach(btn=>btn.addEventListener('click',()=>{vatraFriendsTab=btn.dataset.vatraFriendsTab;renderFriends();}));
  const friendTabs=$('#feed .vatra-friends-tabs');
  const selectedTab=friendTabs?.querySelector('.is-active');
  if(friendTabs&&selectedTab&&friendTabs.scrollWidth>friendTabs.clientWidth){
