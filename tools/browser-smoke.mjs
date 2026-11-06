@@ -60,7 +60,7 @@ try{
      if(item.id==='login'||item.id==='register'){
       const headline=page.locator(viewport.id==='mobile'?'.vatra-auth-intro-mobile h1':'.brand-copy h1');
       assert.equal(await headline.isVisible(),true,'VATRA circle headline must be visible on '+viewport.id);
-      assert.ok((await headline.textContent()).includes('тут починається твоє коло'),'VATRA social promise is missing');
+      assert.ok((await headline.textContent()).includes('Спілкуйся'),'Clear VATRA entry headline is missing');
       if(viewport.id==='desktop'){
        // The 404-inspired auth hero is light; verify actual text/background contrast,
        // rather than expecting the previous white text on a blue background.

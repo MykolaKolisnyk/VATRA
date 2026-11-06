@@ -84,17 +84,17 @@ console.log('VATRA: fixed language order, no blank form scroll, inset recovery s
 /* VATRA Circle: real value on both entry screens, including phones. */
 for(const page of ['auth.html','register.html']){
  const html=read(page);
- assert.ok(html.includes('ВАТРА — <em>тут починається твоє коло</em>'),page+': brand promise missing');
- assert.ok(html.includes('Знаходь друзів, ділись моментами, слухай музику'),page+': capabilities description missing');
+ assert.ok(html.includes('Спілкуйся. <em>Ділись моментами.</em>'),page+': clear headline missing');
+ assert.ok(html.includes('Друзі, повідомлення, фото та дописи — в одному місці.'),page+': concise explanation missing');
  assert.ok(html.includes('class="vatra-auth-intro-mobile"'),page+': mobile value proposition missing');
- assert.ok(html.includes('class="vatra-auth-possibilities"'),page+': actual social functions not named');
+ assert.ok(!html.includes('class="vatra-auth-possibilities"'),page+': feature chip clutter must be removed');
  assert.equal((html.match(/data-developer-open/g)||[]).length>=2,true,page+': developer info must remain accessible');
 }
 assert.ok(css.includes('.vatra-auth-intro-mobile'),'Mobile brand copy must have styles in the existing auth module');
 assert.ok(read('assets/styles/sources/auth/auth-shared.css').includes('VATRA UI · social promise'),'VATRA marketing CSS missing');
 
 /* First-run social-circle wording must be translated, not left Ukrainian abroad. */
-assert.ok(lang.includes('const vatraCircleTranslations='),'VATRA Circle localization source missing');
+assert.ok(lang.includes('const vatraSimpleEntryTranslations='),'Concise entry translation source missing');
 for(const locale of ['en','pl','de','fr','es','pt','it']){
  assert.ok(lang.includes('"'+locale+'": {'),'Missing marketing translations for '+locale);
 }
@@ -103,7 +103,7 @@ for(const page of ['index.html','auth.html','register.html']){
 }
 
 for(const page of ['auth.html','register.html']){
- assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=auth-404-inspired-v1'),page+': updated 404-inspired auth stylesheet cache missing');
+ assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=auth-clean-v2'),page+': updated 404-inspired auth stylesheet cache missing');
 }
 assert.ok(read('index.html').includes('vatra.css?v=20261106-social-circle-1'),'Updated VATRA social-circle CSS cache missing');
 
@@ -128,7 +128,7 @@ for(const path of ['auth.html','register.html']){
  assert.ok(html.includes('id="email" type="email" autocomplete="email"'),path+': email autofill missing');
  assert.ok(html.includes('id="password" type="password" autocomplete="current-password"'),path+': login password intent missing');
  assert.ok(!/id="birthday"[^>]*max="2026-10-27"/.test(html),path+': fixed stale date cap');
- assert.ok(html.includes('&amp;ui=auth-404-inspired-v1'),path+': new UI must bust the old CSS cache');
+ assert.ok(html.includes('&amp;ui=auth-clean-v2'),path+': new UI must bust the old CSS cache');
 }
 const authSource=read('assets/scripts/auth/auth.js');
 assert.ok(authSource.includes("$('#password').autocomplete=m==='login'?'current-password':'new-password'"),

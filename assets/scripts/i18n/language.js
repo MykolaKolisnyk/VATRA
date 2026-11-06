@@ -136,6 +136,101 @@ const additionalEnglish={
 Object.assign(base,additionalEnglish);
 
 /* VATRA Circle: accurate first-impression copy in the eight supported full UI languages. */
+/* Simplified VATRA entry copy in every ready locale. */
+const vatraSimpleEntryTranslations={
+  "en": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "UKRAINIAN SOCIAL NETWORK",
+    "Спілкуйся.": "Connect.",
+    "Ділись моментами.": "Share moments.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Friends, messages, photos and posts — all in one place.",
+    "Спілкуйся у ВАТРІ": "Connect on VATRA",
+    "Українська соціальна мережа": "Ukrainian social network",
+    "Вхід до ВАТРИ": "Sign in to VATRA",
+    "Створити акаунт ВАТРИ": "Create a VATRA account",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Sign in using your email and password.",
+    "АВТОРИЗАЦІЯ": "SIGN IN",
+    "РЕЄСТРАЦІЯ": "REGISTRATION"
+  },
+  "pl": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "UKRAIŃSKA SIEĆ SPOŁECZNOŚCIOWA",
+    "Спілкуйся.": "Rozmawiaj.",
+    "Ділись моментами.": "Dziel się chwilami.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Znajomi, wiadomości, zdjęcia i posty — w jednym miejscu.",
+    "Спілкуйся у ВАТРІ": "Rozmawiaj w VATRA",
+    "Українська соціальна мережа": "Ukraińska sieć społecznościowa",
+    "Вхід до ВАТРИ": "Logowanie do VATRA",
+    "Створити акаунт ВАТРИ": "Utwórz konto VATRA",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Zaloguj się za pomocą e-maila i hasła.",
+    "АВТОРИЗАЦІЯ": "LOGOWANIE",
+    "РЕЄСТРАЦІЯ": "REJESTRACJA"
+  },
+  "de": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "UKRAINISCHES SOZIALES NETZWERK",
+    "Спілкуйся.": "Vernetze dich.",
+    "Ділись моментами.": "Teile Momente.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Freunde, Nachrichten, Fotos und Beiträge — an einem Ort.",
+    "Спілкуйся у ВАТРІ": "Vernetze dich auf VATRA",
+    "Українська соціальна мережа": "Ukrainisches soziales Netzwerk",
+    "Вхід до ВАТРИ": "Bei VATRA anmelden",
+    "Створити акаунт ВАТРИ": "VATRA-Konto erstellen",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Mit E-Mail-Adresse und Passwort anmelden.",
+    "АВТОРИЗАЦІЯ": "ANMELDUNG",
+    "РЕЄСТРАЦІЯ": "REGISTRIERUNG"
+  },
+  "fr": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "RÉSEAU SOCIAL UKRAINIEN",
+    "Спілкуйся.": "Communique.",
+    "Ділись моментами.": "Partage tes moments.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Amis, messages, photos et publications — au même endroit.",
+    "Спілкуйся у ВАТРІ": "Échange sur VATRA",
+    "Українська соціальна мережа": "Réseau social ukrainien",
+    "Вхід до ВАТРИ": "Connexion à VATRA",
+    "Створити акаунт ВАТРИ": "Créer un compte VATRA",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Connectez-vous avec votre e-mail et votre mot de passe.",
+    "АВТОРИЗАЦІЯ": "CONNEXION",
+    "РЕЄСТРАЦІЯ": "INSCRIPTION"
+  },
+  "es": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "RED SOCIAL UCRANIANA",
+    "Спілкуйся.": "Conecta.",
+    "Ділись моментами.": "Comparte momentos.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Amigos, mensajes, fotos y publicaciones en un solo lugar.",
+    "Спілкуйся у ВАТРІ": "Conecta en VATRA",
+    "Українська соціальна мережа": "Red social ucraniana",
+    "Вхід до ВАТРИ": "Iniciar sesión en VATRA",
+    "Створити акаунт ВАТРИ": "Crear una cuenta VATRA",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Inicia sesión con tu correo y contraseña.",
+    "АВТОРИЗАЦІЯ": "INICIAR SESIÓN",
+    "РЕЄСТРАЦІЯ": "REGISTRO"
+  },
+  "pt": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "REDE SOCIAL UCRANIANA",
+    "Спілкуйся.": "Conversa.",
+    "Ділись моментами.": "Partilha momentos.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Amigos, mensagens, fotos e publicações num só lugar.",
+    "Спілкуйся у ВАТРІ": "Conversa na VATRA",
+    "Українська соціальна мережа": "Rede social ucraniana",
+    "Вхід до ВАТРИ": "Entrar na VATRA",
+    "Створити акаунт ВАТРИ": "Criar uma conta VATRA",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Entra com o teu e-mail e a tua palavra-passe.",
+    "АВТОРИЗАЦІЯ": "ENTRAR",
+    "РЕЄСТРАЦІЯ": "REGISTO"
+  },
+  "it": {
+    "УКРАЇНСЬКА СОЦІАЛЬНА МЕРЕЖА": "SOCIAL NETWORK UCRAINO",
+    "Спілкуйся.": "Comunica.",
+    "Ділись моментами.": "Condividi momenti.",
+    "Друзі, повідомлення, фото та дописи — в одному місці.": "Amici, messaggi, foto e post — tutto in un posto.",
+    "Спілкуйся у ВАТРІ": "Comunica su VATRA",
+    "Українська соціальна мережа": "Social network ucraino",
+    "Вхід до ВАТРИ": "Accedi a VATRA",
+    "Створити акаунт ВАТРИ": "Crea un account VATRA",
+    "Увійдіть за допомогою електронної пошти та пароля.": "Accedi con email e password.",
+    "АВТОРИЗАЦІЯ": "ACCESSO",
+    "РЕЄСТРАЦІЯ": "REGISTRAZIONE"
+  }
+};
+Object.assign(base,vatraSimpleEntryTranslations.en);
 const vatraCircleTranslations={
   "en": {
     "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "SOCIAL NETWORK · CREATED IN UKRAINE",
@@ -351,6 +446,9 @@ for(const [locale,labels] of Object.entries(vatraAuthFlowTranslations)){
  if(locale!=='en')Object.assign(overrides[locale]||(overrides[locale]={}),labels);
 }
 
+for(const [locale,labels] of Object.entries(vatraSimpleEntryTranslations)){
+ if(locale!=='en')Object.assign(overrides[locale]||(overrides[locale]={}),labels);
+}
 for(const [locale,labels] of Object.entries(vatraCircleTranslations)){
  if(locale==='en')continue;
  Object.assign(overrides[locale]||(overrides[locale]={}),labels);
