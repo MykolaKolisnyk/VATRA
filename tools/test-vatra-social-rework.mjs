@@ -158,3 +158,30 @@ assert.ok(js.includes("photoTabs[next].focus();photoTabs[next].click()"),'Photo 
 assert.ok(js.includes("event.target?.closest?.('input,textarea,select,[contenteditable],[role=\"textbox\"]')"),'Photo viewer arrow keys must not interrupt comment typing');
 assert.ok(js.includes('preload="none" loading="lazy"')&&js.includes('aria-label="Відеозапис із допису"'),'My videos must defer downloading until playback');
 console.log('VATRA photos/video: scoped photo tabs, keyboard shortcuts and lazy video loading verified.');
+
+/* First-run experience must reuse working sections and never reveal hidden users. */
+assert.ok(js.includes("action:'communities',cta:'Відкрити спільноти'"),'Welcome path to communities missing');
+assert.ok(js.includes("action:'create',cta:'Створити допис'"),'Welcome path to publishing missing');
+assert.ok(js.includes("Date.now()-created>21*86400000"),'Onboarding must expire for returning users');
+assert.ok(js.includes("localStorage.getItem('vatra-guide-hidden-v1-'+uid)"),'Dismissed onboarding must stay dismissed');
+assert.ok(!js.includes("if(currentUser?.uid===user.uid)openVatraGuide()"),'Registration must not auto-launch a modal tour');
+assert.ok(js.includes("u.profileVisibility!=='private'&&!blockedUsers[uid]"),'Friend recommendations cannot reveal private accounts');
+assert.ok(js.includes("u?.profileVisibility==='private')return false"),'Discovery must exclude closed accounts');
+for(const action of ['data-vatra-empty-photo','data-vatra-browse-communities','data-vatra-find-people','data-onboard="communities"']){
+ assert.ok(js.includes(action),'Missing empty-state or welcome action: '+action);
+}
+const startupBegin=js.indexOf('function renderGettingStarted(){');
+const startupEnd=js.indexOf('function openVatraGuide(){',startupBegin);
+assert.ok(startupBegin>0&&startupEnd>startupBegin,'Welcome renderer missing');
+const welcomeContainer={hidden:true,innerHTML:'',classList:{add(){} }};
+const sideContainer={hidden:false,innerHTML:'existing'};
+const createWelcome=runInNewContext(js.slice(startupBegin,startupEnd)+'\nrenderGettingStarted;',{
+ $:selector=>selector==='#gettingStartedMobile'?welcomeContainer:selector==='#gettingStarted'?sideContainer:null,
+ currentUser:{uid:'test-user'},page:'feed',currentProfile:{createdAt:Date.now()},Date,
+ localStorage:{getItem:()=>null},posts:{},friends:{},groups:{},groupMembers:{}
+});
+createWelcome();
+assert.equal(welcomeContainer.hidden,false,'New account must see unobtrusive welcome suggestions');
+assert.equal((welcomeContainer.innerHTML.match(/class="vatra-welcome-action"/g)||[]).length,5,'Welcome must expose five existing actions');
+assert.ok(welcomeContainer.innerHTML.includes('data-onboard-dismiss'),'Welcome must be dismissible');
+console.log('VATRA social circle onboarding, privacy filters and useful empty actions verified.');

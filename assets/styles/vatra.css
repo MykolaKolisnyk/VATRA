@@ -18822,6 +18822,95 @@ body[data-vatra-theme-effective="dark"] :is(.vatra-ad-slot,.vatra-sidebar-ads .v
 }
 @media(prefers-reduced-motion:reduce){body .vatra-avatar-hover-menu,body .vatra-profile-more-trigger svg{transition:none!important}}
 
+/* VATRA UI · social-circle welcome and actionable empty states. */
+html body[data-page="feed"] .layout>.main>#gettingStartedMobile.vatra-welcome-steps:not([hidden]){
+ display:block!important;width:100%!important;margin:0 0 13px!important;
+ padding:17px 18px!important;border:1px solid var(--vatra-border)!important;
+ border-radius:14px!important;background:var(--vatra-surface)!important;
+ box-shadow:0 2px 10px rgba(28,53,82,.035)!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-head{
+ display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:12px!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-head>div{min-width:0!important}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-kicker{
+ margin:0 0 4px!important;color:var(--vatra-muted)!important;font:650 10px/1.4 var(--vatra-ui-font)!important;letter-spacing:.08em!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-head h2{
+ margin:0 0 5px!important;color:var(--vatra-ink)!important;
+ font:680 clamp(17px,2vw,20px)/1.3 var(--vatra-ui-font)!important;letter-spacing:-.027em!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-head p:last-child{
+ margin:0!important;color:var(--vatra-muted)!important;font:470 12px/1.5 var(--vatra-ui-font)!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-dismiss{
+ display:inline-flex!important;flex:0 0 auto!important;padding:7px 8px!important;
+ border:0!important;border-radius:8px!important;background:transparent!important;
+ color:var(--vatra-muted)!important;font:520 11px/1.4 var(--vatra-ui-font)!important;cursor:pointer!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-dismiss:hover{background:var(--vatra-surface-muted)!important}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-actions{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin-top:13px!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-action{
+ display:flex!important;align-items:center!important;gap:8px!important;min-width:0!important;
+ padding:10px!important;min-height:42px!important;border:1px solid var(--vatra-border)!important;
+ border-radius:10px!important;background:var(--vatra-surface-muted)!important;
+ color:var(--vatra-ink)!important;text-align:left!important;
+ font:560 12px/1.35 var(--vatra-ui-font)!important;cursor:pointer!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-action:hover{
+ border-color:#9bb9df!important;background:var(--vatra-surface)!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-step-number{
+ flex:0 0 auto!important;color:#527aa7!important;font:650 10px/1.25 var(--vatra-ui-font)!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-arrow{
+ margin-left:auto!important;color:#527aa7!important;flex:0 0 auto!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-tour{
+ margin:10px 0 0!important;padding:3px!important;border:0!important;
+ background:none!important;color:#456e9e!important;font:540 11px/1.4 var(--vatra-ui-font)!important;
+ cursor:pointer!important;
+}
+html body .layout>.main .vatra-action-empty{
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ gap:8px!important;width:100%!important;min-width:0!important;
+ padding:23px 18px!important;text-align:center!important;
+ background:var(--vatra-surface)!important;border:1px solid var(--vatra-border)!important;border-radius:12px!important;
+}
+html body .layout>.main .vatra-action-empty h3{margin:0!important;color:var(--vatra-ink)!important;font:660 16px/1.35 var(--vatra-ui-font)!important}
+html body .layout>.main .vatra-action-empty p{margin:0!important;max-width:45ch!important;font:470 12.5px/1.5 var(--vatra-ui-font)!important;color:var(--vatra-muted)!important}
+html body .layout>.main .vatra-action-empty-buttons{display:flex!important;justify-content:center!important;flex-wrap:wrap!important;gap:8px!important;margin-top:5px!important}
+html body .layout>.main .vatra-action-empty-buttons>button{
+ min-height:36px!important;padding:8px 12px!important;border-radius:9px!important;
+ font:580 12px/1.3 var(--vatra-ui-font)!important;cursor:pointer!important;
+}
+html body[data-page="feed"] .layout>.main>#empty .vatra-action-empty{
+ margin-top:2px!important;min-height:165px!important;border:1px solid var(--vatra-border)!important;
+}
+html body[data-page="friends"] .vatra-friends-results .vatra-action-empty{
+ padding:22px 12px!important;border:0!important;background:transparent!important;
+}
+html body[data-page="groups"] .vatra-community-list-card>#vatraCommunityEmpty{
+ margin:10px!important;padding:0!important;border:0!important;background:transparent!important;
+}
+html body[data-page="groups"] #vatraCommunityEmpty .vatra-action-empty{border-style:dashed!important}
+html body[data-page="photos"] .vatra-photo-grid>.vatra-action-empty{grid-column:1/-1!important;min-height:175px!important}
+html body .vatra-profile-empty-media.vatra-action-empty{border-style:dashed!important;padding:15px!important;min-height:95px!important}
+html body[data-vatra-theme-effective="dark"] #gettingStartedMobile.vatra-welcome-steps:not([hidden]),
+html body[data-vatra-theme-effective="dark"] .vatra-action-empty{background:var(--vatra-surface)!important;border-color:var(--vatra-border)!important}
+@media(max-width:760px){
+ html body[data-page="feed"] .layout>.main>#gettingStartedMobile.vatra-welcome-steps:not([hidden]){padding:13px!important;margin-bottom:10px!important}
+ html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-dismiss{font-size:10px!important}
+ html body .layout>.main .vatra-action-empty{padding:18px 12px!important}
+}
+@media(max-width:420px){
+ html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-actions{grid-template-columns:minmax(0,1fr)!important}
+ html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-action{min-height:38px!important}
+}
+
 
 /* ORIGINAL FILE: assets/styles/sources/layout/shared-layout.css. Keep order from index.html. */
 
