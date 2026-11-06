@@ -279,9 +279,14 @@ try{
    });
    assert.ok(dimensions.left>=-2&&dimensions.right<=dimensions.viewport+2,'Language dialog overflows viewport on '+vp.name);
    const search=dialog.locator('.vatra-language-search');
+   assert.equal(await dialog.locator('[data-vatra-language-code="uk"]').getAttribute('aria-pressed'),'true',
+    'Current interface language should expose its button selection to assistive technology');
    await search.fill('pl');
    assert.equal(await dialog.locator('[data-vatra-language-code]:visible').count(),1,'Search by ISO code should match exactly one option');
    assert.equal(await dialog.locator('[data-vatra-language-code]:visible').first().getAttribute('data-vatra-language-code'),'pl');
+   await search.press('ArrowDown');
+   assert.equal(await localePage.evaluate(()=>document.activeElement?.dataset?.vatraLanguageCode),'pl',
+    'Down arrow from language search must focus the visible language choice');
    await search.fill('vatra-never-language-999');
    assert.equal(await dialog.locator('[data-vatra-language-code]:visible').count(),0,'Unknown language should leave no visible choices');
    assert.equal(await dialog.locator('.vatra-language-picker-category:visible').count(),0,'Empty language categories must be hidden');

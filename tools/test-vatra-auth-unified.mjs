@@ -150,7 +150,7 @@ assert.ok(lang.includes('function vatraFilterLanguageDialog(dlg)'),'Language sea
 assert.ok(lang.includes('vatraFilterLanguageDialog(dlg);'),'Language search must also reset when reopening');
 assert.ok(lang.includes('class="vatra-language-empty" role="status" aria-live="polite" hidden'),'Accessible empty-results state missing');
 assert.ok(read('assets/styles/sources/profile/gallery-language.css').includes('.vatra-language-empty)[hidden]{display:none!important}'),'Filtered rows must remain visually hidden despite flex CSS');
-for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=search3'),page+': cache key must reflect the updated language dialog');
+for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=keyboard4'),page+': cache key must reflect the updated language dialog');
 console.log('VATRA i18n search: status, empty results, reset, grouped languages retained.');
 
 for(const page of ['auth.html','register.html']){
@@ -164,3 +164,11 @@ assert.ok(lang.includes('function translateElementAttributes(el)'),'Dynamic cont
 assert.ok(lang.includes('previousTranslation!==undefined&&current!==previousTranslation&&current!==previousOriginal'),'Changing an accessible control action must refresh its source text');
 assert.ok(lang.includes("'Приховати пароль':'Hide password'"),'Password visibility must have a localized accessible name');
 console.log('VATRA i18n: dynamic placeholders and accessible controls follow the chosen language.');
+
+
+// Language dialog uses toggle-button semantics and keyboard selection, not invalid
+// aria-selected on ordinary buttons. Keep the 100+ language entries and 8 ready.
+assert.ok(lang.includes('aria-pressed="'+String(code===language)'), 'Language dialog must expose selected option using aria-pressed');
+assert.ok(lang.includes("dlg.addEventListener('keydown',event=>{"), 'Language dialog must support keyboard navigation');
+assert.ok(lang.includes("choices[index].focus();"), 'Keyboard arrows must actually focus a visible language');
+assert.ok(!lang.includes("aria-selected="), 'Plain language buttons must not use aria-selected without a selection widget role');

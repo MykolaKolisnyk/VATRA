@@ -604,7 +604,7 @@ function vatraLanguageDialog(){
  if(dlg)return dlg;
  dlg=document.createElement('dialog');dlg.id='vatraLanguageDialog';dlg.className='vatra-language-dialog';
  dlg.setAttribute('aria-labelledby','vatraLanguageDialogTitle');
- const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-selected="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+
+ const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-pressed="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+
   (translatedLanguages.has(code)?'<small title="Перекладені основні елементи інтерфейсу">Доступна</small>'
    :partialLanguages.has(code)?'<small>Частково · у розробці</small>'
    :'<small>У розробці</small>')+'</button>';
@@ -617,6 +617,20 @@ function vatraLanguageDialog(){
  document.body.append(dlg);
  const search=dlg.querySelector('.vatra-language-search');
  search.addEventListener('input',()=>vatraFilterLanguageDialog(dlg));
+ // Buttons express selection with aria-pressed. Arrow keys navigate visible choices
+ // without forcing a language change or interfering with search text entry.
+ dlg.addEventListener('keydown',event=>{
+  if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;
+  if(event.altKey||event.ctrlKey||event.metaKey)return;
+  const choices=[...dlg.querySelectorAll('[data-vatra-language-code]')].filter(button=>!button.hidden);
+  if(!choices.length)return;
+  const focused=choices.indexOf(document.activeElement);
+  if(focused<0&&event.target!==search)return;
+  event.preventDefault();
+  const index=event.key==='Home'?0:event.key==='End'?choices.length-1:
+   event.key==='ArrowDown'?Math.min(focused+1,choices.length-1):Math.max(focused-1,0);
+  choices[index].focus();
+ });
  dlg.addEventListener('click',event=>{
   if(event.target===dlg||event.target.closest('[data-vatra-language-close]')){dlg.close();return;}
   const button=event.target.closest('[data-vatra-language-code]');
@@ -653,7 +667,7 @@ function vatraShowLanguageDialog(select=null){
  const dlg=vatraLanguageDialog();
  activeLanguageSelect=select;
  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>
-  button.setAttribute('aria-selected',String(button.dataset.vatraLanguageCode===language)));
+  button.setAttribute('aria-pressed',String(button.dataset.vatraLanguageCode===language)));
  const search=dlg.querySelector('.vatra-language-search');search.value='';
  vatraFilterLanguageDialog(dlg);
  dlg.showModal();search.focus();
