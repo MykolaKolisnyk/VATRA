@@ -150,9 +150,17 @@ assert.ok(lang.includes('function vatraFilterLanguageDialog(dlg)'),'Language sea
 assert.ok(lang.includes('vatraFilterLanguageDialog(dlg);'),'Language search must also reset when reopening');
 assert.ok(lang.includes('class="vatra-language-empty" role="status" aria-live="polite" hidden'),'Accessible empty-results state missing');
 assert.ok(read('assets/styles/sources/profile/gallery-language.css').includes('.vatra-language-empty)[hidden]{display:none!important}'),'Filtered rows must remain visually hidden despite flex CSS');
-for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=search2'),page+': cache key must reflect the updated language dialog');
+for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=search3'),page+': cache key must reflect the updated language dialog');
 console.log('VATRA i18n search: status, empty results, reset, grouped languages retained.');
 
 for(const page of ['auth.html','register.html']){
  assert.ok(read(page).includes('&amp;country=search1'),page+': country search bundle needs a refreshed cache key');
 }
+
+
+// Dynamic forms update placeholder and accessible labels without replacing nodes.
+assert.ok(lang.includes("attributeFilter:['placeholder','aria-label','title']"),'Language observer must watch changes to form labels');
+assert.ok(lang.includes('function translateElementAttributes(el)'),'Dynamic controls must be translated, including the attribute-owning element');
+assert.ok(lang.includes('previousTranslation!==undefined&&current!==previousTranslation&&current!==previousOriginal'),'Changing an accessible control action must refresh its source text');
+assert.ok(lang.includes("'Приховати пароль':'Hide password'"),'Password visibility must have a localized accessible name');
+console.log('VATRA i18n: dynamic placeholders and accessible controls follow the chosen language.');

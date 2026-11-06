@@ -327,7 +327,8 @@ const vatraAuthFlowTranslations={
 };
 Object.assign(base,vatraAuthFlowTranslations.en);
 // Country calling-code search labels for the eight available interface languages.
-Object.assign(base,{'Пошук країни або коду':'Search country or calling code','Країн не знайдено':'No countries found'});
+Object.assign(base,{'Пошук країни або коду':'Search country or calling code','Країн не знайдено':'No countries found',
+ 'Показати пароль':'Show password','Приховати пароль':'Hide password'});
 const vatraCountrySearchLabels={
  pl:{'Пошук країни або коду':'Szukaj kraju lub numeru kierunkowego','Країн не знайдено':'Nie znaleziono krajów'},
  de:{'Пошук країни або коду':'Land oder Vorwahl suchen','Країн не знайдено':'Keine Länder gefunden'},
@@ -337,6 +338,15 @@ const vatraCountrySearchLabels={
  it:{'Пошук країни або коду':'Cerca paese o prefisso','Країн не знайдено':'Nessun paese trovato'}
 };
 for(const [locale,labels] of Object.entries(vatraCountrySearchLabels))Object.assign(overrides[locale]||(overrides[locale]={}),labels);
+const vatraPasswordControlLabels={
+ pl:{'Показати пароль':'Pokaż hasło','Приховати пароль':'Ukryj hasło'},
+ de:{'Показати пароль':'Passwort anzeigen','Приховати пароль':'Passwort verbergen'},
+ fr:{'Показати пароль':'Afficher le mot de passe','Приховати пароль':'Masquer le mot de passe'},
+ es:{'Показати пароль':'Mostrar contraseña','Приховати пароль':'Ocultar contraseña'},
+ pt:{'Показати пароль':'Mostrar palavra-passe','Приховати пароль':'Ocultar palavra-passe'},
+ it:{'Показати пароль':'Mostra password','Приховати пароль':'Nascondi password'}
+};
+for(const [locale,labels] of Object.entries(vatraPasswordControlLabels))Object.assign(overrides[locale]||(overrides[locale]={}),labels);
 for(const [locale,labels] of Object.entries(vatraAuthFlowTranslations)){
  if(locale!=='en')Object.assign(overrides[locale]||(overrides[locale]={}),labels);
 }
@@ -474,6 +484,24 @@ function translateText(node){
  const translated=whitespaceLeft+value+whitespaceRight;
  if(text!==translated){node.nodeValue=translated;record.last=translated;}
 }
+// Translate the element itself too: attribute-only updates do not create child nodes.
+function translateElementAttributes(el){
+ for(const [attribute,originalKey,lastKey] of [
+  ['placeholder','vatraOriginalPlaceholder','vatraLastPlaceholder'],
+  ['aria-label','vatraOriginalAriaLabel','vatraLastAriaLabel'],
+  ['title','vatraOriginalTitle','vatraLastTitle']
+ ]){
+  if(!el.hasAttribute(attribute))continue;
+  if(attribute==='placeholder'&&el.matches('input[type="tel"]'))continue; // Country-specific national example.
+  const current=el.getAttribute(attribute);
+  const previousOriginal=el.dataset[originalKey],previousTranslation=el.dataset[lastKey];
+  if(!previousOriginal||(previousTranslation!==undefined&&current!==previousTranslation&&current!==previousOriginal))
+   el.dataset[originalKey]=current; // The application has supplied a genuinely new label.
+  const translated=interfaceLabel(el.dataset[originalKey]||current);
+  el.dataset[lastKey]=translated;
+  if(current!==translated)el.setAttribute(attribute,translated);
+ }
+}
 function translateRoot(root){
  if(root.nodeType===3){translateText(root);return;}
  if(root.nodeType!==1&&root.nodeType!==9)return;
@@ -484,24 +512,9 @@ function translateRoot(root){
  }
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
  while(walker.nextNode())translateText(walker.currentNode);
- root.querySelectorAll?.('input[placeholder],textarea[placeholder]').forEach(el=>{
-   if(el.matches('input[type="tel"]'))return; // Keep the live country-specific phone example.
-  const original=el.dataset.vatraOriginalPlaceholder||el.getAttribute('placeholder');
-  if(!el.dataset.vatraOriginalPlaceholder)el.dataset.vatraOriginalPlaceholder=original;
-  const text=interfaceLabel(original);
-  if(el.placeholder!==text)el.placeholder=text;
- });
- root.querySelectorAll?.('[aria-label],[title]').forEach(el=>{
-  for(const attribute of ['aria-label','title']){
-   if(!el.hasAttribute(attribute))continue;
-   const datasetKey=attribute==='title'?'vatraOriginalTitle':'vatraOriginalAriaLabel';
-   const current=el.getAttribute(attribute);
-   const original=el.dataset[datasetKey]||current;
-   if(!el.dataset[datasetKey])el.dataset[datasetKey]=original;
-   const translation=interfaceLabel(original);
-   if(translation!==current)el.setAttribute(attribute,translation);
-  }
- });
+ const attributeTargets='input[placeholder],textarea[placeholder],[aria-label],[title]';
+ if(root.nodeType===1&&root.matches(attributeTargets))translateElementAttributes(root);
+ root.querySelectorAll?.(attributeTargets).forEach(translateElementAttributes);
 }
 const seoTitles={
  uk:'ВАТРА — українська соціальна мережа',
@@ -763,7 +776,7 @@ const pendingTranslationRoots=new Set();
 new MutationObserver(records=>{
  if(running)return;
  for(const record of records){
-  if(record.type==='characterData'&&record.target?.isConnected)pendingTranslationRoots.add(record.target);
+  if((record.type==='characterData'||record.type==='attributes')&&record.target?.isConnected)pendingTranslationRoots.add(record.target);
   for(const node of record.addedNodes||[]){
    if(node.nodeType===1||node.nodeType===3)pendingTranslationRoots.add(node);
   }
@@ -777,7 +790,7 @@ new MutationObserver(records=>{
    for(const node of roots)if(node.isConnected)translateRoot(node);
   }finally{running=false;}
  });
-}).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+}).observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','aria-label','title']});
 function start(){running=true;try{install();setLanguage(language);}finally{running=false;}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 window.vatraLanguage={get language(){return language;},get isFullyLocalized(){return language==='uk';},set:setLanguage,available:languages.map(([code])=>code)};

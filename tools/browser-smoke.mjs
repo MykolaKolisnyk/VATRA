@@ -336,6 +336,17 @@ try{
   assert.equal(await enPage.locator('.brand-copy h1 em').isVisible(),true,'English VATRA social promise must be visible');
   await enPage.waitForFunction(()=>document.querySelector('#desc')?.textContent?.includes('Sign in with your email address'),null,{timeout:8000});
   assert.ok((await enPage.locator('#desc').textContent()).includes('Sign in with your email address'),'English sign-in form help must be translated');
+  await enPage.waitForFunction(()=>document.querySelector('#password')?.placeholder==='Enter your password',null,{timeout:8000});
+  assert.equal(await enPage.locator('#password').getAttribute('placeholder'),'Enter your password','Password placeholder must be localized after auth hydration');
+  await enPage.locator('#showPassword').click();
+  await enPage.waitForFunction(()=>document.querySelector('#showPassword')?.getAttribute('aria-label')==='Hide password',null,{timeout:8000});
+  await enPage.locator('#showPassword').click();
+  await enPage.waitForFunction(()=>document.querySelector('#showPassword')?.getAttribute('aria-label')==='Show password',null,{timeout:8000});
+  await enPage.locator('.vatra-auth-language-option[data-vatra-auth-language="pl"]:visible').first().click();
+  await enPage.waitForFunction(()=>document.querySelector('#password')?.placeholder==='Wpisz hasło',null,{timeout:8000});
+  assert.equal(await enPage.locator('#password').getAttribute('placeholder'),'Wpisz hasło','Changing language must restore native text before translation');
+  await enPage.locator('.vatra-auth-language-option[data-vatra-auth-language="en"]:visible').first().click();
+  await enPage.waitForFunction(()=>document.querySelector('#password')?.placeholder==='Enter your password',null,{timeout:8000});
   await enPage.screenshot({path:output+'/auth-social-circle-english-desktop.png',animations:'disabled'});
   results.push({case:'auth-social-circle-english',viewport:'desktop',translated:true});
  }catch(error){failed=true;console.error('FAIL VATRA English social promise',error?.stack||error);}
