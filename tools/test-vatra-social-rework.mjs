@@ -191,3 +191,18 @@ assert.ok(js.includes("new URL('register.html',location.href).href"),'Invitation
 assert.ok(js.includes("navigator.share({title:'ВАТРА'"),'Invitation should use native share when supported');
 assert.ok(js.includes("navigator.clipboard?.writeText"),'Desktop invitation copy fallback missing');
 assert.ok(js.includes('data-vatra-invite-friends'),'No visible invitation action');
+
+/* First-message regression: never write plaintext through a side route. */
+const firstStart=js.indexOf('async function startChatWith(uid){');
+const firstEnd=js.indexOf("$('#communityClose').onclick",firstStart);
+assert.ok(firstStart>0&&firstEnd>firstStart,'First-message handler not found');
+const firstCode=js.slice(firstStart,firstEnd);
+assert.ok(firstCode.includes('await prepareSession(currentUser.uid,uid,key,readE2EEKey,publishE2EEKey)'),'First message must prepare an authenticated encrypted session');
+assert.ok(firstCode.includes('await encryptMessage(secure,message,currentUser.uid,at)'),'First message must encrypt before writing');
+assert.ok(firstCode.includes('{senderUid:currentUser.uid,encrypted,createdAt:at}'),'First message must store ciphertext only');
+assert.ok(!firstCode.includes('text:message'),'First message must not persist readable content in messages or previews');
+assert.ok(firstCode.indexOf('await encryptMessage(')<firstCode.indexOf("await set(push("),'Encryption must succeed before a database write');
+assert.ok(js.includes('void activateSecureChat(key,activeChat);'),'Chat composer must wait for verified device keys');
+assert.ok(js.includes('id="chatSecurityStatus"')&&js.includes('id="chatSecurityRefresh"'),'Chat must show session readiness and retry');
+assert.ok(js.includes('data-page="friends">Знайти друзів</button>'),'Empty messenger must lead to a real friends route');
+console.log('VATRA messenger: initial messages use ciphertext, composer waits for verified session, retry and discovery available.');

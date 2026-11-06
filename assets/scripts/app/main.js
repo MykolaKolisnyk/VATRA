@@ -2944,7 +2944,7 @@ async function activateSecureChat(key,peerUid){
   activeSecureSession=secure;
   if(secureRetryTimer){clearTimeout(secureRetryTimer);secureRetryTimer=null;}
   secureAutoRetries=0;
-  updateChatSecurityStatus('🔒 Захищений чат',true);
+  updateChatSecurityStatus('🔒 Нові повідомлення шифруються на цьому пристрої',true);
  }catch(err){
   if(attempt!==secureChatAttempt||activeChat!==peerUid)return;
   console.warn('[ВАТРА] Захищене з’єднання недоступне:',err);
@@ -3008,25 +3008,25 @@ function renderMessages(){
  if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися повідомленнями</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
  const chats=Object.entries(chatIndex).filter(([,c])=>Boolean(c?.lastMessage?.text)&&!blockedUsers[c.otherUid]).sort((a,b)=>(b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
  if(!activeChat){
-  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v11H8l-4 3V6Z"/><path d="M8 10h8M8 13h5"/></svg></div><h2>Ваші повідомлення</h2><p>Виберіть діалог ліворуч або почніть нову розмову з другом.</p><small>Виберіть контакт, щоб почати листування.</small></section></div></section>');
+  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v11H8l-4 3V6Z"/><path d="M8 10h8M8 13h5"/></svg></div><h2>Почни розмову зі своїми друзями</h2><p>Вибери друга зі списку або знайди людей для нових знайомств.</p><button type="button" class="pill vatra-message-find-friends" data-page="friends">Знайти друзів</button></section></div></section>');
   vatraMessengerControls();
   window.dispatchEvent(new Event('vatra:messenger-rendered'));
   return;
  }
  const other=users[activeChat]||{},key=chatKey(currentUser.uid,activeChat),chatUnavailable=!!blockedUsers[activeChat]||activeChatBlocked;
- setFeed(`<section class="vatra-messenger"><div class="vatra-messenger-shell">${vatraMessengerSidebar(chats)}<article class="post chat-window"><header class="chat-top"><button type="button" class="vatra-chat-back" id="backChats" aria-label="До списку діалогів" title="До діалогів"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><button type="button" class="vatra-chat-person" data-view-profile="${esc(activeChat)}" title="Відкрити сторінку">${avatar(other.name||'Користувач',other.avatarUrl)}<span><b>${esc(other.name||'Користувач ВАТРИ')+verifiedBadge(activeChat)}</b><small>${other.handle?'@'+esc(other.handle):'Особистий чат'}</small></span></button><details class="vatra-chat-actions-menu"><summary aria-label="Дії з діалогом" title="Дії з діалогом"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></summary><div class="vatra-chat-header-actions">${blockedUsers[activeChat]?`<button type="button" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button type="button" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button type="button" data-report-user="${esc(activeChat)}">Поскаржитися</button></div></details></header><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання недоступне: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages" aria-busy="true"><div class="vatra-sk-chat-loading" role="status" aria-label="Завантаження повідомлень"><span class="vatra-sk-accessible">Завантаження повідомлень…</span><i class="vatra-sk-bubble"></i><i class="vatra-sk-bubble mine"></i></div></div><div class="vatra-chat-reply-preview" id="chatReplyPreview" hidden><span id="chatReplyPreviewText"></span><button type="button" id="chatReplyCancel" aria-label="Скасувати відповідь">×</button></div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Повідомлення" autocomplete="off" aria-label="Текст повідомлення" required><button class="primary vatra-chat-send-button" type="submit" aria-label="Надіслати повідомлення" title="Надіслати"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-8-2Z"/><path d="m12 14 8-10"/></svg></button></form><p id="chatSendError" class="vatra-chat-send-error" role="alert" hidden></p></article></div></section>`);
+ setFeed(`<section class="vatra-messenger"><div class="vatra-messenger-shell">${vatraMessengerSidebar(chats)}<article class="post chat-window"><header class="chat-top"><button type="button" class="vatra-chat-back" id="backChats" aria-label="До списку діалогів" title="До діалогів"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button><button type="button" class="vatra-chat-person" data-view-profile="${esc(activeChat)}" title="Відкрити сторінку">${avatar(other.name||'Користувач',other.avatarUrl)}<span><b>${esc(other.name||'Користувач ВАТРИ')+verifiedBadge(activeChat)}</b><small>${other.handle?'@'+esc(other.handle):'Особистий чат'}</small></span></button><details class="vatra-chat-actions-menu"><summary aria-label="Дії з діалогом" title="Дії з діалогом"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></summary><div class="vatra-chat-header-actions">${blockedUsers[activeChat]?`<button type="button" data-unblock-user="${esc(activeChat)}">Розблокувати</button>`:`<button type="button" data-block-user="${esc(activeChat)}">Заблокувати</button>`}<button type="button" data-report-user="${esc(activeChat)}">Поскаржитися</button></div></details></header><div class="vatra-chat-security-row"><p id="chatSecurityStatus" class="vatra-chat-security-status" role="status" aria-live="polite" data-ready="false">Перевіряємо ключі повідомлень…</p><button type="button" id="chatSecurityRefresh" class="vatra-chat-security-retry" hidden>Повторити перевірку</button></div><p id="chatBlockNotice" class="empty-inline" ${chatUnavailable?'':'hidden'}>Надсилання недоступне: один із учасників заблокував іншого.</p><div id="chatMessages" class="chat-messages" aria-busy="true"><div class="vatra-sk-chat-loading" role="status" aria-label="Завантаження повідомлень"><span class="vatra-sk-accessible">Завантаження повідомлень…</span><i class="vatra-sk-bubble"></i><i class="vatra-sk-bubble mine"></i></div></div><div class="vatra-chat-reply-preview" id="chatReplyPreview" hidden><span id="chatReplyPreviewText"></span><button type="button" id="chatReplyCancel" aria-label="Скасувати відповідь">×</button></div><form id="sendMessageForm" class="chat-send" ${chatUnavailable?'hidden':''}>${emojiControl()}<input name="message" data-emoji-input maxlength="2000" placeholder="Очікуємо захищене з’єднання…" autocomplete="off" aria-label="Текст повідомлення" disabled required><button class="primary vatra-chat-send-button" type="submit" disabled aria-label="Надіслати повідомлення" title="Надіслати"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12 16-8-4 16-4-6-8-2Z"/><path d="m12 14 8-10"/></svg></button></form><p id="chatSendError" class="vatra-chat-send-error" role="alert" hidden></p></article></div></section>`);
  vatraMessengerControls();
  window.dispatchEvent(new Event('vatra:messenger-rendered'));
  $('#backChats').onclick=()=>{activeChat=null;editingMessageId=null;replyingMessageId=null;stopChatListener();renderMessages();};
  startChatListener(key);markChatRead(key);
  $('#chatMessages')?.addEventListener('scroll',()=>markChatRead(key),{passive:true});
-  // Only for reading old ciphertext on a device with the original key.
-  // New ordinary messages do not depend on peer key initialization.
-  const legacyAttempt=++secureChatAttempt,legacyPeer=activeChat;
-  prepareSession(currentUser.uid,legacyPeer,key,readE2EEKey,publishE2EEKey).then(session=>{
-   if(legacyAttempt!==secureChatAttempt||activeChat!==legacyPeer||page!=='messages')return;
-   activeSecureSession=session;void renderChatBubbles(key);
-  }).catch(error=>console.debug('[ВАТРА] Попередні повідомлення не прочитати на цьому пристрої:',error?.code||'key'));
+ // Enable composing only after session setup has actually completed.
+ // The retry action remains available if a remote key has not been published yet.
+ void activateSecureChat(key,activeChat);
+ $('#chatSecurityRefresh')?.addEventListener('click',()=>{
+  if(!currentUser||!activeChat||chatKey(currentUser.uid,activeChat)!==key)return;
+  void activateSecureChat(key,activeChat);
+ });
  $('#chatMessages')?.addEventListener('click',event=>{
   const button=event.target.closest('[data-reply-chat-message]');
   if(button){
@@ -3061,10 +3061,11 @@ function renderMessages(){
   submit.disabled=true;let written=false;
   try{
    const createdAt=Date.now();
+   if(!activeSecureSession||activeSecureSession.chatId!==key||activeSecureSession.peerUid!==recipient)
+    throw new Error('Захищений чат ще не готовий. Перевірте стан ключів і повторіть спробу.');
+   const encrypted=await encryptMessage(activeSecureSession,text,currentUser.uid,createdAt);
    const root=ref(db,'chats/'+key),snapshot=await get(root);
    if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[recipient]:true},createdAt});
-   if(!activeSecureSession||activeSecureSession.chatId!==key)throw new Error('Захищений чат ще не готовий. Спробуйте пізніше.');
-   const encrypted=await encryptMessage(activeSecureSession,text,currentUser.uid,createdAt);
    const messageRef=push(ref(db,'chats/'+key+'/messages'));
    await set(messageRef,{senderUid:currentUser.uid,encrypted,createdAt,...(replyingMessageId?{replyTo:replyingMessageId}:{})});
    written=true;if(input.value.trim()===text)input.value='';replyingMessageId=null;const replyPreview=$('#chatReplyPreview');if(replyPreview)replyPreview.hidden=true;
@@ -4259,13 +4260,23 @@ async function startChatWith(uid){
   submit.disabled=true;
   const notice=dialog.querySelector('.vatra-compose-error');notice.hidden=true;
   try{
-   const at=Date.now(),root=ref(db,'chats/'+key),snapshot=await get(root);
+   // The first message must follow the same encrypted path as every later message.
+   // If either device key is unavailable, keep the draft and explain the failure.
+   const at=Date.now();
+   const secure=await prepareSession(currentUser.uid,uid,key,readE2EEKey,publishE2EEKey);
+   const encrypted=await encryptMessage(secure,message,currentUser.uid,at);
+   const root=ref(db,'chats/'+key),snapshot=await get(root);
    if(!snapshot.exists())await set(root,{members:{[currentUser.uid]:true,[uid]:true},createdAt:at});
-   await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,text:message,createdAt:at});
-   try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:at,lastMessage:{text:message.slice(0,120),senderUid:currentUser.uid,createdAt:at}});}catch(indexError){console.warn('[ВАТРА] Прев’ю діалогу оновиться пізніше:',indexError);}
+   await set(push(ref(db,'chats/'+key+'/messages')),{senderUid:currentUser.uid,encrypted,createdAt:at});
+   try{await update(ref(db,'userChats/'+currentUser.uid+'/'+key),{otherUid:uid,updatedAt:at,lastMessage:{text:SECURE_PREVIEW,senderUid:currentUser.uid,createdAt:at}});}catch(indexError){console.warn('[ВАТРА] Прев’ю діалогу оновиться пізніше:',indexError);}
    dialog.close();replyingMessageId=null;activeChat=uid;goPage('messages');activeChat=uid;renderMessages();
   }catch(error){
-   notice.textContent=niceError(error);notice.hidden=false;
+   notice.textContent=error?.code==='PEER_NOT_READY'
+    ?'Співрозмовнику потрібно відкрити ВАТРУ, щоб підготувати захищене спілкування. Текст залишиться у формі.'
+    :error?.code==='MISSING_DEVICE_KEY'||error?.code==='OWN_KEY_MISMATCH'||error?.code==='KEY_CHANGED'
+     ?'Ключі захищеної розмови не збігаються. Надсилання зупинено; текст не втрачено.'
+     :niceError(error);
+   notice.hidden=false;
    console.error('[ВАТРА] Перше повідомлення:',error);
   }finally{submit.disabled=false;}
  };

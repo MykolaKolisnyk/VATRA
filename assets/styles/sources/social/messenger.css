@@ -643,3 +643,36 @@ body[data-page="messages"] .vatra-messenger-shell .chat-send{margin:10px 13px 12
 body[data-page="messages"] .vatra-chat-load-older{border-radius:9px!important;min-height:35px!important}
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell .chat-messages{background:var(--vatra-canvas)!important}
 @media(max-width:760px){body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(0,1fr)!important;max-height:none!important}body[data-page="messages"] .vatra-messenger-shell .chat-messages{padding:12px!important}body[data-page="messages"] .chat-top{min-height:58px!important}}
+
+/* Message readiness and the real empty-state discovery action. */
+body[data-page="messages"] .vatra-messenger-empty>.vatra-message-find-friends{
+ min-height:38px!important;margin-top:14px!important;padding:8px 15px!important;
+ border:1px solid var(--vatra-border)!important;border-radius:10px!important;
+ background:var(--vatra-surface)!important;color:var(--vatra-ink)!important;
+ font:570 12.5px/1.4 var(--vatra-ui-font)!important;cursor:pointer!important;
+}
+body[data-page="messages"] .vatra-messenger-empty>.vatra-message-find-friends:hover{border-color:#8fafd4!important;background:var(--vatra-surface-muted)!important}
+body[data-page="messages"] .vatra-chat-security-row{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:9px!important;min-height:35px!important;margin:0!important;
+ padding:7px 14px!important;border-bottom:1px solid var(--vatra-border)!important;
+ background:var(--vatra-surface)!important;
+}
+body[data-page="messages"] .vatra-chat-security-status{
+ margin:0!important;min-width:0!important;color:var(--vatra-muted)!important;
+ font:500 11px/1.4 var(--vatra-ui-font)!important;overflow-wrap:anywhere!important;
+}
+body[data-page="messages"] .vatra-chat-security-status[data-ready="true"]{color:#28735c!important}
+body[data-page="messages"] .vatra-chat-security-retry{
+ flex:0 0 auto!important;padding:5px 9px!important;min-height:30px!important;
+ border:1px solid var(--vatra-border)!important;border-radius:8px!important;
+ background:var(--vatra-surface-muted)!important;color:var(--vatra-ink)!important;
+ font:550 11px/1.4 var(--vatra-ui-font)!important;cursor:pointer!important;
+}
+body[data-page="messages"] .vatra-chat-security-retry[hidden]{display:none!important}
+body[data-page="messages"] .vatra-chat-security-retry:hover{border-color:#a7c1e3!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-security-status[data-ready="true"]{color:#8edec0!important}
+@media(max-width:600px){
+ body[data-page="messages"] .vatra-chat-security-row{padding:7px 10px!important;align-items:flex-start!important}
+ body[data-page="messages"] .vatra-chat-security-status{font-size:10.5px!important}
+}
