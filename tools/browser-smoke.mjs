@@ -62,17 +62,27 @@ try{
       assert.equal(await headline.isVisible(),true,'VATRA circle headline must be visible on '+viewport.id);
       assert.ok((await headline.textContent()).includes('тут починається твоє коло'),'VATRA social promise is missing');
       if(viewport.id==='desktop'){
-       const contrast=await page.locator('.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline)').evaluate(el=>{
-        const rgb=getComputedStyle(el).color.match(/\d+/g)?.map(Number)||[];
-        return rgb.length>=3?Math.min(...rgb.slice(0,3)):0;
+       // The 404-inspired auth hero is light; verify actual text/background contrast,
+       // rather than expecting the previous white text on a blue background.
+       const ratios=await page.evaluate(()=>{
+        const readRGB=css=>Array.from(css.matchAll(/[\d.]+/g)).slice(0,3).map(m=>Number(m[0]));
+        const lum=rgb=>rgb.slice(0,3).map(x=>{
+         const value=x/255;return value<=0.04045?value/12.92:((value+0.055)/1.055)**2.4;
+        }).reduce((acc,x,i)=>acc+x*[0.2126,0.7152,0.0722][i],0);
+        const contrast=(a,b)=>{
+         const [x,y]=[lum(a),lum(b)].sort((u,v)=>v-u);return (x+0.05)/(y+0.05);
+        };
+        const description=document.querySelector('.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline)');
+        const language=document.querySelector('.brand-side .vatra-auth-language-option:not(.is-active)');
+        const bodyBackground=readRGB(getComputedStyle(document.body).backgroundColor);
+        return {
+         description:contrast(readRGB(getComputedStyle(description).color),bodyBackground),
+         language:language?contrast(readRGB(getComputedStyle(language).color),readRGB(getComputedStyle(language).backgroundColor)):null
+        };
        });
-       assert.ok(contrast>=175,'Blue hero description must stay legible as light text');
-       const chip=page.locator('.brand-side .vatra-auth-language-option:not(.is-active)').first();
-       if(await chip.count()){
-        const rgb=await chip.evaluate(el=>getComputedStyle(el).color.match(/[0-9]+/g)?.map(Number)||[]);
-        assert.ok(rgb.length>=3&&Math.min(...rgb.slice(0,3))>=175,
-         'Inactive language text must be readable on the blue VATRA hero');
-       }
+       assert.ok(ratios.description>=4.5,'VATRA auth hero description contrast must be at least 4.5:1');
+       if(ratios.language!==null)assert.ok(ratios.language>=4.5,
+        'Inactive language labels must have at least 4.5:1 contrast');
       }
       // These are real click-through checks: a styled but non-functional
       // form must fail CI, even when the initial screenshot looks fine.
