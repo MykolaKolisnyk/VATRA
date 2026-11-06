@@ -134,7 +134,7 @@ const authSource=read('assets/scripts/auth/auth.js');
 assert.ok(authSource.includes("$('#password').autocomplete=m==='login'?'current-password':'new-password'"),
  'Password autofill must switch as the auth mode changes');
 assert.ok(authSource.includes("$('#birthday').max=[today.getFullYear()"),
- 'The birthday date limit must be set from today's date at runtime');
+ 'The birthday date limit must use the current date at runtime');
 assert.ok(css.includes('linear-gradient(150deg,#fbfcff 0%,#f5f8fe 53%,#ecf3ff 100%)'),
  'The light VATRA entry hero must share the 404 visual palette');
 assert.ok(css.includes('background:#e8f0ff!important;color:#0757f5!important'),
