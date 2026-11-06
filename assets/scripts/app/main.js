@@ -1889,11 +1889,11 @@ function renderFriends(){
  const candidates=Object.entries(users||{}).filter(([uid,u])=>uid!==currentUser?.uid&&u?.name&&u.searchable!==false&&u.profileVisibility!=='private'&&!blockedUsers[uid]&&!friends[uid]&&!friendRequests[uid]).slice(0,5);
 
  const emptyFriends=vatraFriendsTab==='all'||(vatraFriendsTab==='online'&&!all.length)
-  ?'<div class="vatra-action-empty"><h3>Знайди своїх людей у ВАТРІ</h3><p>Скористайся пошуком, щоб знайти знайомих і надіслати запит у друзі.</p><div class="vatra-action-empty-buttons"><button type="button" class="primary" data-vatra-find-people>Знайти друзів</button></div></div>'
+  ?'<div class="vatra-action-empty"><h3>Знайди своїх людей у ВАТРІ</h3><p>Скористайся пошуком, щоб знайти знайомих і надіслати запит у друзі.</p><div class="vatra-action-empty-buttons"><button type="button" class="primary" data-vatra-find-people>Знайти друзів</button><button type="button" class="pill" data-vatra-invite-friends>Запросити друзів</button></div></div>'
   :'<p class="vatra-friends-empty">'+(vatraFriendsTab==='online'?'Наразі ніхто з друзів не онлайн.':vatraFriendsTab==='incoming'?'Нових запитів у друзі немає.':'Надісланих запитів поки немає.')+'</p>';
  const recommendation=candidates.map(([uid,u])=>'<div class="vatra-friends-suggestion"><button type="button" data-view-profile="'+esc(uid)+'">'+avatar(u.name,u.avatarUrl)+'<span><b>'+esc(u.name)+verifiedBadge(uid)+'</b><small>@'+esc(u.handle||'user')+'</small></span></button><button type="button" class="vatra-friends-add" data-friend-request="'+esc(uid)+'" aria-label="Додати в друзі '+esc(u.name)+'">＋</button></div>').join('');
  const nav=([id,label,n])=>'<button type="button" id="vatra-friends-tab-'+id+'" role="tab" aria-selected="'+String(vatraFriendsTab===id)+'" tabindex="'+(vatraFriendsTab===id?'0':'-1')+'" data-vatra-friends-tab="'+id+'" class="'+(vatraFriendsTab===id?'is-active':'')+'"><span>'+label+'</span><small>'+n+'</small></button>';
- setFeed('<div class="vatra-friends-layout'+(recommendation?'':' is-single-column')+'"><section class="vatra-friends-main"><div class="vatra-friends-top"><h2>'+headers[vatraFriendsTab]+'</h2><button type="button" class="vatra-friends-find" data-vatra-find-people>Знайти друзів</button></div>'+
+ setFeed('<div class="vatra-friends-layout'+(recommendation?'':' is-single-column')+'"><section class="vatra-friends-main"><div class="vatra-friends-top"><h2>'+headers[vatraFriendsTab]+'</h2><div class="vatra-friends-top-actions"><button type="button" class="vatra-friends-find" data-vatra-find-people>Знайти друзів</button><button type="button" class="vatra-friends-invite" data-vatra-invite-friends>Запросити друзів</button></div></div>'+
  '<div class="vatra-friends-tabs" role="tablist" aria-label="Розділи друзів">'+tabs.map(nav).join('')+'</div>'+
  '<div class="vatra-friends-search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="vatraFriendsFilter" type="search" autocomplete="off" placeholder="Введіть ім’я або псевдонім" aria-label="Пошук серед друзів"></div>'+
  '<div class="vatra-friends-results" id="vatraFriendsResults" role="tabpanel" aria-labelledby="vatra-friends-tab-'+vatraFriendsTab+'">'+(selected.map(([uid])=>vatraFriendsRow(uid,vatraFriendsTab==='incoming'?'incoming':vatraFriendsTab==='outgoing'?'outgoing':'friend')).join('')||emptyFriends)+'</div><p id="vatraFriendsNoMatch" class="vatra-friends-empty" hidden>За запитом нікого не знайдено.</p></section>'+
@@ -3500,7 +3500,7 @@ function renderGettingStarted(){
   '<div class="vatra-welcome-actions">'+pending.map((task,index)=>'<button type="button" class="vatra-welcome-action" data-onboard="'+task.action+'" aria-label="'+task.cta+'">'+
     '<span class="vatra-welcome-step-number">'+String(index+1).padStart(2,'0')+'</span>'+
     '<span>'+task.label+'</span><span aria-hidden="true" class="vatra-welcome-arrow">→</span></button>').join('')+'</div>'+
-  '<button type="button" class="vatra-welcome-tour" data-onboard="guide">Коротко про можливості ВАТРИ</button>';
+  '<div class="vatra-welcome-footer"><button type="button" class="vatra-welcome-tour" data-onboard="guide">Коротко про можливості ВАТРИ</button><button type="button" class="vatra-welcome-invite" data-vatra-invite-friends>Запросити друзів</button></div>';
 }
 function openVatraGuide(){
  if(!currentUser||document.querySelector('#vatraTourOverlay.is-visible'))return;
@@ -4491,6 +4491,23 @@ document.addEventListener('click',async e=>{
  const editComposerPhoto=e.target.closest('[data-edit-composer-photo]');if(editComposerPhoto){const index=Number(editComposerPhoto.dataset.editComposerPhoto);if(!Number.isInteger(index)||index<0||index>=imageFiles.length)return;try{const edited=await getImageEditor(imageFiles[index],'gallery');if(edited){imageFiles[index]=edited;renderComposerPhotoPreviews();}}catch(error){toastMsg(error.message||niceError(error));}return;}
  const removeComposerPhoto=e.target.closest('[data-remove-composer-photo]');if(removeComposerPhoto){const index=Number(removeComposerPhoto.dataset.removeComposerPhoto);if(Number.isInteger(index)&&index>=0&&index<imageFiles.length){imageFiles.splice(index,1);renderComposerPhotoPreviews();const note=$('#photoNote');if(note)note.textContent=imageFiles.length?'Додано фото: '+imageFiles.length+' із 10':'';}return;}
  const deletePhotoButton=e.target.closest('[data-delete-profile-photo]');if(deletePhotoButton){await deleteProfilePhoto(Number(deletePhotoButton.dataset.deleteProfilePhoto));return;}
+ const inviteButton=e.target.closest('[data-vatra-invite-friends]');
+ if(inviteButton){
+  const url=new URL('register.html',location.href).href;
+  try{
+   if(typeof navigator.share==='function'){
+    await navigator.share({title:'ВАТРА',text:'ВАТРА — тут починається твоє коло. Приєднуйся!',url});
+   }else if(navigator.clipboard?.writeText){
+    await navigator.clipboard.writeText(url);
+    toastMsg('Посилання на реєстрацію скопійовано.');
+   }else{
+    window.prompt('Скопіюйте посилання для друзів:',url);
+   }
+  }catch(error){
+   if(error?.name!=='AbortError')toastMsg('Не вдалося поділитися посиланням.');
+  }
+  return;
+ }
  const dismissGuideButton=e.target.closest('[data-onboard-dismiss]');if(dismissGuideButton){try{localStorage.setItem('vatra-guide-hidden-v1-'+currentUser.uid,'1');}catch{}renderGettingStarted();return;}
  const onboardingButton=e.target.closest('[data-onboard]');if(onboardingButton){const action=onboardingButton.dataset.onboard;if(action==='profile')goPage('profile');else if(action==='settings')void editProfile();else if(action==='create')openComposer();else if(action==='explore')goPage('explore');else if(action==='communities')goPage('groups');else openVatraGuide();return;}
  const blockButton=e.target.closest('[data-block-user]');if(blockButton){await blockUser(blockButton.dataset.blockUser);return;}const unblockButton=e.target.closest('[data-unblock-user]');if(unblockButton){await unblockUser(unblockButton.dataset.unblockUser);return;}const reportGroup=e.target.closest('[data-report-group]');if(reportGroup){submitReport('group',reportGroup.dataset.reportGroup);return;}const reportProfile=e.target.closest('[data-report-user]');if(reportProfile){await submitReport('profile',reportProfile.dataset.reportUser);return;}const reportPost=e.target.closest('[data-report-post]');if(reportPost){await submitReport('post',reportPost.dataset.reportPost);return;}const reportComment=e.target.closest('[data-report-comment]');if(reportComment){await submitReport('comment',reportComment.dataset.reportComment+'__'+reportComment.dataset.commentId);return;}const reportGroupPost=e.target.closest('[data-report-group-post]');if(reportGroupPost){await submitReport('groupPost',reportGroupPost.dataset.reportGroupPost+'__'+reportGroupPost.dataset.postId);return;}const reportVideo=e.target.closest('[data-report-video]');if(reportVideo){await submitReport('video',reportVideo.dataset.reportVideo);return;}

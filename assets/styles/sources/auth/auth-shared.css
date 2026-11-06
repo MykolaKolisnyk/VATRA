@@ -947,3 +947,10 @@ html body .auth-layout>.form-side>.vatra-auth-about-mobile{
  html body .auth-layout>.form-side .vatra-auth-intro-mobile{margin-bottom:12px!important;padding-bottom:11px!important}
  html body .auth-layout>.form-side .vatra-auth-intro-mobile h1{font-size:20px!important}
 }
+
+/* Ensure the social promise is legible on blue on both login and registration. */
+html body .auth-layout>.brand-side>.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline){
+ color:#e2eeff!important;
+ font:480 clamp(14px,1.2vw,16px)/1.6 var(--vatra-ui-font)!important;
+ opacity:1!important;text-shadow:none!important;max-width:530px!important;margin:0!important;
+}

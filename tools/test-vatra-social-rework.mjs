@@ -185,3 +185,9 @@ assert.equal(welcomeContainer.hidden,false,'New account must see unobtrusive wel
 assert.equal((welcomeContainer.innerHTML.match(/class="vatra-welcome-action"/g)||[]).length,5,'Welcome must expose five existing actions');
 assert.ok(welcomeContainer.innerHTML.includes('data-onboard-dismiss'),'Welcome must be dismissible');
 console.log('VATRA social circle onboarding, privacy filters and useful empty actions verified.');
+
+/* Share the existing registration page; no invitation database or private data. */
+assert.ok(js.includes("new URL('register.html',location.href).href"),'Invitation must use the real registration page');
+assert.ok(js.includes("navigator.share({title:'ВАТРА'"),'Invitation should use native share when supported');
+assert.ok(js.includes("navigator.clipboard?.writeText"),'Desktop invitation copy fallback missing');
+assert.ok(js.includes('data-vatra-invite-friends'),'No visible invitation action');

@@ -58,6 +58,16 @@ try{
      assert.ok(metric.scrollWidth-metric.viewport<=8,item.id+': horizontal overflow of '+(metric.scrollWidth-metric.viewport)+'px');
      assert.deepEqual(missing,[],item.id+': broken local asset paths');
      if(item.id==='login'||item.id==='register'){
+      const headline=page.locator(viewport.id==='mobile'?'.vatra-auth-intro-mobile h1':'.brand-copy h1');
+      assert.equal(await headline.isVisible(),true,'VATRA circle headline must be visible on '+viewport.id);
+      assert.ok((await headline.textContent()).includes('тут починається твоє коло'),'VATRA social promise is missing');
+      if(viewport.id==='desktop'){
+       const contrast=await page.locator('.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline)').evaluate(el=>{
+        const rgb=getComputedStyle(el).color.match(/\d+/g)?.map(Number)||[];
+        return rgb.length>=3?Math.min(...rgb.slice(0,3)):0;
+       });
+       assert.ok(contrast>=175,'Blue hero description has poor text contrast');
+      }
       // These are real click-through checks: a styled but non-functional
       // form must fail CI, even when the initial screenshot looks fine.
       await page.waitForFunction(()=>window.__vatraAuthReady===true,null,{timeout:18000});
@@ -177,6 +187,27 @@ try{
   }
  }catch(error){failed=true;console.error('FAIL profile gallery responsiveness',error?.stack||error);}
  finally{await gallery.close();}
+
+ // Verify the new welcome/empty-state components at desktop and phone widths.
+ const circle=await browser.newPage({viewport:{width:1280,height:820},deviceScaleFactor:1});
+ try{
+  await circle.goto(base+'/404.html',{waitUntil:'domcontentloaded'});
+  await circle.setContent('<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="feed"><div class="layout"><aside class="sidebar"><nav><a class="nav">Моя сторінка</a><a class="nav active">Новини</a></nav></aside><main class="main"><section class="getting-started getting-started-mobile vatra-welcome-steps" id="gettingStartedMobile"><div class="vatra-welcome-head"><div><p class="vatra-welcome-kicker">ПЕРШІ КРОКИ · 0 із 5</p><h2>ВАТРА — тут починається твоє коло</h2><p>Знайди людей, поділися моментом або відкрий спільноту.</p></div><button class="vatra-welcome-dismiss">Не показувати</button></div><div class="vatra-welcome-actions"><button class="vatra-welcome-action"><span class="vatra-welcome-step-number">01</span>Додати фотографію →</button><button class="vatra-welcome-action"><span class="vatra-welcome-step-number">02</span>Розповісти про себе →</button><button class="vatra-welcome-action"><span class="vatra-welcome-step-number">03</span>Знайти друзів →</button><button class="vatra-welcome-action"><span class="vatra-welcome-step-number">04</span>Переглянути спільноти →</button><button class="vatra-welcome-action"><span class="vatra-welcome-step-number">05</span>Написати перший допис →</button></div><div class="vatra-welcome-footer"><button class="vatra-welcome-tour">Можливості ВАТРИ</button><button class="vatra-welcome-invite">Запросити друзів</button></div></section><section id="empty"><div class="vatra-action-empty"><h3>Поділись своїм першим моментом</h3><p>Напиши допис або знайди друзів, щоб стрічка ожила.</p><div class="vatra-action-empty-buttons"><button class="primary">Створити допис</button><button class="pill">Знайти друзів</button></div></div></section></main></div></body></html>',{waitUntil:'load'});
+  for(const vp of [{name:'desktop',width:1280,height:820},{name:'mobile',width:390,height:844}]){
+   await circle.setViewportSize({width:vp.width,height:vp.height});
+   const metrics=await circle.evaluate(()=>{
+    const box=document.getElementById('gettingStartedMobile'),bounds=box.getBoundingClientRect();
+    return {visible:getComputedStyle(box).display!=='none',left:bounds.left,right:bounds.right,
+      vw:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth};
+   });
+   assert.ok(metrics.visible,'Optional welcome fixture hidden on '+vp.name);
+   assert.ok(metrics.left>=-3&&metrics.right<=metrics.vw+3,'Welcome card overflows on '+vp.name);
+   assert.ok(metrics.scroll-metrics.vw<=8,'Welcome/empty state causes horizontal overflow on '+vp.name);
+   await circle.screenshot({path:output+'/social-circle-'+vp.name+'.png',animations:'disabled'});
+   results.push({case:'social-circle-fixture',viewport:vp.name,...metrics});
+  }
+ }catch(error){failed=true;console.error('FAIL VATRA social circle fixture',error?.stack||error);}
+ finally{await circle.close();}
 }finally{await browser.close();}
 await writeFile(output+'/metrics.json',JSON.stringify(results,null,2)+'\n');
 if(failed)process.exitCode=1;

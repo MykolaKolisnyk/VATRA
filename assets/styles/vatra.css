@@ -18911,6 +18911,32 @@ html body[data-vatra-theme-effective="dark"] .vatra-action-empty{background:var(
  html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-action{min-height:38px!important}
 }
 
+/* VATRA UI social-circle: invite a friend using native sharing or a copied registration link. */
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-footer{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:8px!important;margin:10px 0 0!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-footer :is(.vatra-welcome-tour,.vatra-welcome-invite){
+ min-height:30px!important;margin:0!important;padding:6px!important;
+ border:0!important;background:transparent!important;border-radius:7px!important;
+ font:570 11px/1.35 var(--vatra-ui-font)!important;cursor:pointer!important;
+}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-footer .vatra-welcome-invite{color:var(--vatra-blue)!important}
+html body[data-page="feed"] #gettingStartedMobile.vatra-welcome-steps .vatra-welcome-footer button:hover{background:var(--vatra-surface-muted)!important}
+html body[data-page="friends"] .vatra-friends-top .vatra-friends-top-actions{
+ display:flex!important;justify-content:flex-end!important;flex-wrap:wrap!important;gap:7px!important;min-width:0!important;
+}
+html body[data-page="friends"] .vatra-friends-top .vatra-friends-invite{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:36px!important;padding:8px 11px!important;border-radius:9px!important;
+ background:var(--vatra-surface)!important;border:1px solid var(--vatra-border)!important;
+ color:var(--vatra-ink)!important;font:540 12px/1.35 var(--vatra-ui-font)!important;
+}
+html body[data-page="friends"] .vatra-friends-top .vatra-friends-invite:hover{border-color:#9bb9df!important;background:var(--vatra-surface-muted)!important}
+@media(max-width:600px){
+ html body[data-page="friends"] .vatra-friends-top{flex-wrap:wrap!important}
+ html body[data-page="friends"] .vatra-friends-top .vatra-friends-top-actions{width:100%!important;justify-content:flex-start!important}
+}
+
 
 /* ORIGINAL FILE: assets/styles/sources/layout/shared-layout.css. Keep order from index.html. */
 
