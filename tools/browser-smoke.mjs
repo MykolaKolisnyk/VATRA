@@ -67,6 +67,12 @@ try{
         return rgb.length>=3?Math.max(...rgb.slice(0,3)):255;
        });
        assert.ok(contrast<=170,'Light editorial hero needs dark, readable description text');
+       const chip=page.locator('.brand-side .vatra-auth-language-option:not(.is-active)').first();
+       if(await chip.count()){
+        const rgb=await chip.evaluate(el=>getComputedStyle(el).color.match(/[0-9]+/g)?.map(Number)||[]);
+        assert.ok(rgb.length>=3&&Math.max(...rgb.slice(0,3))<=150,
+         'Inactive language text must be readable on the light VATRA hero');
+       }
       }
       // These are real click-through checks: a styled but non-functional
       // form must fail CI, even when the initial screenshot looks fine.

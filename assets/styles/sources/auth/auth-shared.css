@@ -564,7 +564,7 @@ html body #recoveryDialog :is(.forgot,.vatra-recovery-resend):hover{
 /* VATRA language choices: fixed ordering follows the main language dialog;
    matching rounded chips, no inconsistent underline menu. */
 html body .auth-layout>.brand-side>.vatra-auth-language-quick{
- border-top:1px solid rgba(255,255,255,.22)!important;
+ border-top:1px solid #dce5f2!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-list{
  display:flex!important;align-items:center!important;justify-content:flex-start!important;
@@ -575,25 +575,25 @@ html body .auth-layout>.brand-side .vatra-auth-language-all{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
  flex:0 0 auto!important;min-height:39px!important;gap:7px!important;
  padding:7px 12px!important;margin:0!important;
- border-radius:11px!important;border:1px solid rgba(229,240,255,.24)!important;
- background:rgba(255,255,255,.075)!important;
- color:#eff6ff!important;font:750 12px/1.2 var(--vatra-ui-font),system-ui,sans-serif!important;
+ border-radius:11px!important;border:1px solid #d5e2f2!important;
+ background:#f7faff!important;
+ color:#345270!important;font:750 12px/1.2 var(--vatra-ui-font),system-ui,sans-serif!important;
  text-decoration:none!important;box-shadow:none!important;
  transition:background .16s ease,border-color .16s ease,color .16s ease!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-option.is-active{
- background:#fff!important;border-color:#fff!important;color:#0757f5!important;
- box-shadow:0 5px 16px rgba(0,31,99,.12)!important;
+ background:#e8f0ff!important;border-color:#c5d9ff!important;color:#0757f5!important;
+ box-shadow:0 5px 16px rgba(7,87,245,.07)!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-option.is-active .vatra-auth-language-flag svg{
  box-shadow:0 0 0 1px #d7e5f9!important;
 }
 html body .auth-layout>.brand-side :is(.vatra-auth-language-option,.vatra-auth-language-all):is(:hover,:focus-visible){
- border-color:#fff!important;background:rgba(255,255,255,.18)!important;
- color:#fff!important;outline:2px solid rgba(255,255,255,.6)!important;outline-offset:2px!important;
+ border-color:#b4cdf9!important;background:#edf4ff!important;
+ color:#0757f5!important;outline:2px solid rgba(7,87,245,.2)!important;outline-offset:2px!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-option.is-active:is(:hover,:focus-visible){
- background:#fff!important;color:#0757f5!important;
+ background:#e8f0ff!important;color:#0757f5!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-flag{
  display:inline-flex!important;flex:none!important;line-height:1!important;

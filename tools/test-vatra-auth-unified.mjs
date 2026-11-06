@@ -140,3 +140,6 @@ assert.ok(css.includes('linear-gradient(150deg,#fbfcff 0%,#f5f8fe 53%,#ecf3ff 10
 assert.ok(css.includes('background:#e8f0ff!important;color:#0757f5!important'),
  'Selected language must be legible on the light entry hero');
 console.log('VATRA: light entry UI, cache refresh, password-manager semantics and dynamic birthday bound.');
+
+assert.ok(css.includes('color:#345270!important;font:750 12px/1.2'),
+ 'Inactive language labels must have readable dark text on the light brand panel');
