@@ -99,7 +99,7 @@ for(const locale of ['en','pl','de','fr','es','pt','it']){
  assert.ok(lang.includes('"'+locale+'": {'),'Missing marketing translations for '+locale);
 }
 for(const page of ['index.html','auth.html','register.html']){
- assert.ok(read(page).includes('language.js?v=20261105-no-clips1&amp;circle=2'),page+': cache-bust localized words');
+ assert.ok(read(page).includes('language.js?v=20261105-no-clips1&amp;circle=3'),page+': cache-bust localized words');
 }
 
 for(const page of ['auth.html','register.html']){
@@ -109,5 +109,13 @@ assert.ok(read('index.html').includes('vatra.css?v=20261106-social-circle-1'),'U
 
 assert.ok(lang.includes('const vatraAuthFlowTranslations='),'International password form explanations missing');
 for(const page of ['index.html','auth.html','register.html']){
- assert.ok(read(page).includes('language.js?v=20261105-no-clips1&amp;circle=2'),page+': missing updated translated guidance asset');
+ assert.ok(read(page).includes('language.js?v=20261105-no-clips1&amp;circle=3'),page+': missing updated translated guidance asset');
 }
+
+/* International languages remain discoverable without falsely claiming full translations. */
+const catalogCodes=JSON.parse(lang.match(/const languageCodes=(\[[^\n]+\]);/)?.[1]||'[]');
+const readyCodes=(lang.match(/const translatedLanguages=new Set\((\[[^\]]+\])\)/)?.[1]||'[]').replaceAll("'",'"');
+assert.ok(catalogCodes.length>100,'Do not reduce the international language catalog');
+assert.equal(JSON.parse(readyCodes).length,8,'Only eight primary UI translations should be flagged as available');
+assert.ok(lang.includes('Доступна</small>')&&lang.includes('Частково · у розробці')&&lang.includes('У розробці</small>'),'Missing honest language readiness badges');
+assert.ok(lang.includes("get isFullyLocalized(){return language==='uk';}"),'Do not describe incomplete translations as fully localized');

@@ -579,7 +579,10 @@ function vatraLanguageDialog(){
  if(dlg)return dlg;
  dlg=document.createElement('dialog');dlg.id='vatraLanguageDialog';dlg.className='vatra-language-dialog';
  dlg.setAttribute('aria-labelledby','vatraLanguageDialogTitle');
- const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-selected="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+(translatedLanguages.has(code)?'':partialLanguages.has(code)?'<small>Частково</small>':'<small>Переклад готується</small>')+'</button>';
+ const render=(code,name)=>'<button type="button" class="vatra-language-picker-option" data-vatra-language-code="'+code+'" aria-selected="'+String(code===language)+'">'+vatraFlagSVG(code)+'<span>'+name+'</span>'+
+  (translatedLanguages.has(code)?'<small title="Перекладені основні елементи інтерфейсу">Доступна</small>'
+   :partialLanguages.has(code)?'<small>Частково · у розробці</small>'
+   :'<small>У розробці</small>')+'</button>';
  dlg.innerHTML='<header class="vatra-language-dialog-header"><div class="vatra-language-dialog-brand"><img src="favicon.svg?v=20261105-original-v1" class="vatra-language-dialog-logo" width="44" height="44" alt="" aria-hidden="true" decoding="async"><div><h2 id="vatraLanguageDialogTitle">Мова ВАТРИ</h2><p>Оберіть мову інтерфейсу. Активну позначено галочкою.</p></div></div><button type="button" class="vatra-language-close" data-vatra-language-close aria-label="Закрити вибір мови">×</button></header>'+
  '<input class="vatra-language-search" type="search" placeholder="Знайти мову…" aria-label="Пошук мови" autocomplete="off">'+
  '<div class="vatra-language-picker-list" role="group" aria-label="Вибір мови">'+
