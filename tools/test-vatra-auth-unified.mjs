@@ -103,7 +103,7 @@ for(const page of ['index.html','auth.html','register.html']){
 }
 
 for(const page of ['auth.html','register.html']){
- assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=light404'),page+': updated social promise CSS cache missing');
+ assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=blue-return-1'),page+': updated social promise CSS cache missing');
 }
 assert.ok(read('index.html').includes('vatra.css?v=20261106-social-circle-1'),'Updated VATRA social-circle CSS cache missing');
 
@@ -128,18 +128,18 @@ for(const path of ['auth.html','register.html']){
  assert.ok(html.includes('id="email" type="email" autocomplete="email"'),path+': email autofill missing');
  assert.ok(html.includes('id="password" type="password" autocomplete="current-password"'),path+': login password intent missing');
  assert.ok(!/id="birthday"[^>]*max="2026-10-27"/.test(html),path+': fixed stale date cap');
- assert.ok(html.includes('&amp;ui=light404'),path+': new UI must bust the old CSS cache');
+ assert.ok(html.includes('&amp;ui=blue-return-1'),path+': new UI must bust the old CSS cache');
 }
 const authSource=read('assets/scripts/auth/auth.js');
 assert.ok(authSource.includes("$('#password').autocomplete=m==='login'?'current-password':'new-password'"),
  'Password autofill must switch as the auth mode changes');
 assert.ok(authSource.includes("$('#birthday').max=[today.getFullYear()"),
  'The birthday date limit must use the current date at runtime');
-assert.ok(css.includes('linear-gradient(150deg,#fbfcff 0%,#f5f8fe 53%,#ecf3ff 100%)'),
- 'The light VATRA entry hero must share the 404 visual palette');
-assert.ok(css.includes('background:#e8f0ff!important;color:#0757f5!important'),
- 'Selected language must be legible on the light entry hero');
-console.log('VATRA: light entry UI, cache refresh, password-manager semantics and dynamic birthday bound.');
+assert.ok(css.includes('linear-gradient(152deg,#1067fa 0%,#0757ed 51%,#0345cb 100%)'),
+ 'The blue VATRA entry hero must match the preferred original palette');
+assert.ok(css.includes('background:#fff!important;border-color:#fff!important;color:#0757f5!important'),
+ 'Selected language must be legible on the blue entry hero');
+console.log('VATRA: restored blue entry UI, cache refresh, password manager and birthday bound.');
 
-assert.ok(css.includes('color:#345270!important;font:750 12px/1.2'),
- 'Inactive language labels must have readable dark text on the light brand panel');
+assert.ok(css.includes('color:#eff6ff!important;font:750 12px/1.2'),
+ 'Inactive language labels must have readable light text on the blue brand panel');

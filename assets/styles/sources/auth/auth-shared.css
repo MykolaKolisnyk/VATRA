@@ -233,7 +233,7 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
 /* VATRA logo markup and typography are centrally maintained in vatra-brand-text.css. */
 
 /* === vatra-auth-brand-refresh.css (compatibility layer) === */
-/* VATRA · 2026-11-05 · light 404-inspired editorial composition.
+/* VATRA · 2026-11-05 · blue panel composition.
    This stylesheet must load last on auth/register pages. */
 @media(min-width:851px){
  html body .auth-layout>.brand-side{
@@ -242,26 +242,26 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
   padding:clamp(28px,3vw,48px) clamp(29px,4vw,78px) clamp(23px,2.7vh,36px)!important;
   box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;
   background:
-    radial-gradient(ellipse 62% 50% at 92% 12%,rgba(7,87,245,.09),transparent 78%),
-    radial-gradient(ellipse 68% 56% at 6% 90%,rgba(152,190,255,.12),transparent 82%),
-    linear-gradient(150deg,#fbfcff 0%,#f5f8fe 53%,#ecf3ff 100%)!important;
-  color:#192b47!important;scrollbar-width:none!important;
+    radial-gradient(ellipse 58% 44% at 92% 13%,rgba(100,184,255,.18),transparent 78%),
+    radial-gradient(ellipse 62% 48% at 12% 90%,rgba(9,27,117,.22),transparent 82%),
+    linear-gradient(152deg,#1067fa 0%,#0757ed 51%,#0345cb 100%)!important;
+  color:#fff!important;scrollbar-width:none!important;
  }
  html body .auth-layout>.brand-side::-webkit-scrollbar{width:0!important;display:none!important}
  html body .auth-layout>.brand-side::before{
   content:""!important;display:block!important;position:absolute!important;pointer-events:none!important;
   top:12%!important;right:-27%!important;left:auto!important;bottom:auto!important;
   width:min(79%,680px)!important;height:auto!important;aspect-ratio:1!important;
-  border:1px solid rgba(7,87,245,.13)!important;border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.14)!important;border-radius:50%!important;
   background:transparent!important;opacity:.55!important;
-  box-shadow:0 0 0 72px rgba(7,87,245,.025),0 0 0 145px rgba(7,87,245,.012)!important;
+  box-shadow:0 0 0 72px rgba(255,255,255,.026),0 0 0 145px rgba(255,255,255,.016)!important;
   transform:none!important;z-index:0!important;
  }
  html body .auth-layout>.brand-side::after{
   content:""!important;display:block!important;position:absolute!important;pointer-events:none!important;
   width:240px!important;height:240px!important;right:7%!important;bottom:8%!important;
-  border-radius:50%!important;border:1px solid rgba(7,87,245,.085)!important;
-  background:radial-gradient(circle,rgba(7,87,245,.045),transparent 74%)!important;
+  border-radius:50%!important;border:1px solid rgba(255,255,255,.075)!important;
+  background:radial-gradient(circle,rgba(108,198,255,.09),transparent 74%)!important;
   z-index:0!important;
  }
  html body .auth-layout>.brand-side>:is(.logo,.brand-copy,.vatra-auth-language-quick,.brand-foot,.developer-card){
@@ -271,7 +271,7 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
   display:inline-flex!important;align-items:center!important;
   width:auto!important;max-width:100%!important;min-width:0!important;
   padding:0!important;margin:0!important;flex:0 0 auto!important;gap:0!important;
-  color:#192b47!important;text-decoration:none!important;
+  color:#fff!important;text-decoration:none!important;
  }
  html body .auth-layout>.brand-side>.logo .vatra-auth-wordmark{
   display:inline-flex!important;align-items:center!important;
@@ -287,7 +287,7 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
  }
  html body .auth-layout>.brand-side>.logo .vatra-auth-wordmark .vatra-wordmark-text{
   display:block!important;width:auto!important;height:auto!important;flex:0 0 auto!important;
-  padding:0!important;margin:0!important;background:transparent!important;color:#192b47!important;
+  padding:0!important;margin:0!important;background:transparent!important;color:#fff!important;
   font:850 28px/1.05 var(--vatra-ui-font),"Manrope","VATRA Onest",system-ui,sans-serif!important;
   letter-spacing:-.055em!important;white-space:nowrap!important;
  }
@@ -300,28 +300,28 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
  html body .auth-layout>.brand-side .brand-copy .eyebrow{
   display:flex!important;align-items:center!important;gap:10px!important;
   max-width:100%!important;margin:0 0 18px!important;
-  color:#0757f5!important;font:750 12px/1.4 var(--vatra-ui-font),system-ui,sans-serif!important;
+  color:#dceaff!important;font:800 12px/1.4 var(--vatra-ui-font),system-ui,sans-serif!important;
   letter-spacing:.15em!important;text-transform:uppercase!important;
  }
  html body .auth-layout>.brand-side .brand-copy .eyebrow::before{
   content:""!important;display:inline-block!important;flex:none!important;
   width:24px!important;height:3px!important;border-radius:9px!important;
-  background:#0757f5!important;
+  background:#9ddaff!important;
  }
  html body .auth-layout>.brand-side .brand-copy h1{
   display:block!important;max-width:100%!important;
   margin:0 0 19px!important;padding:0!important;
   font:860 clamp(57px,4.55vw,87px)/1.045 var(--vatra-ui-font),"VATRA Onest",system-ui,sans-serif!important;
   letter-spacing:-.058em!important;word-break:normal!important;
-  overflow-wrap:normal!important;color:#192b47!important;text-shadow:none!important;
+  overflow-wrap:normal!important;color:#fff!important;text-shadow:none!important;
  }
  html body .auth-layout>.brand-side .brand-copy h1 em{
   display:inline!important;font:inherit!important;font-style:normal!important;
-  color:#0757f5!important;
+  color:#b8dbff!important;
  }
  html body .auth-layout>.brand-side .brand-copy>p:last-child{
   max-width:535px!important;margin:0!important;padding:0!important;
-  color:#60758f!important;opacity:1!important;
+  color:#eaf3ff!important;opacity:1!important;
   font:500 clamp(15px,1.15vw,18px)/1.62 var(--vatra-ui-font),system-ui,sans-serif!important;
  }
  html body .auth-layout>.brand-side>.developer-card{
@@ -330,11 +330,11 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
  html body .auth-layout>.brand-side>.vatra-auth-language-quick{
   width:100%!important;max-width:770px!important;flex:0 0 auto!important;
   margin:clamp(24px,4.2vh,46px) 0 13px!important;
-  padding:17px 0 0!important;border-top:1px solid #dce5f2!important;
+  padding:17px 0 0!important;border-top:1px solid rgba(255,255,255,.25)!important;
   background:transparent!important;
  }
  html body .auth-layout>.brand-side .vatra-auth-language-heading{
-  margin:0 0 10px!important;color:#5a6f8b!important;
+  margin:0 0 10px!important;color:#d8e8ff!important;
   font:700 12px/1.4 var(--vatra-ui-font),system-ui,sans-serif!important;letter-spacing:.03em!important;
  }
  html body .auth-layout>.brand-side .vatra-auth-language-list{
@@ -345,44 +345,44 @@ html body #recoveryDialog #recoveryProtection .human-captcha-status.is-passed{
   display:inline-flex!important;align-items:center!important;justify-content:center!important;
   min-height:35px!important;gap:7px!important;margin:0!important;
   padding:6px 9px!important;border:1px solid transparent!important;
-  border-radius:9px!important;background:transparent!important;color:#345270!important;
+  border-radius:9px!important;background:transparent!important;color:#e4efff!important;
   box-shadow:none!important;font:700 12px/1.25 var(--vatra-ui-font),system-ui,sans-serif!important;
   transition:background-color .16s ease,border-color .16s ease!important;
   cursor:pointer!important;
  }
  html body .auth-layout>.brand-side .vatra-auth-language-option.is-active{
-  border:1px solid #c5d9ff!important;border-radius:9px!important;
-  background:#e8f0ff!important;color:#0757f5!important;font-weight:750!important;
+  border:1px solid rgba(255,255,255,.38)!important;border-radius:9px!important;
+  background:rgba(255,255,255,.15)!important;color:#fff!important;font-weight:800!important;
  }
  html body .auth-layout>.brand-side :is(.vatra-auth-language-option,.vatra-auth-language-all):is(:hover,:focus-visible){
-  background:#e8f0ff!important;border-color:#c5d9ff!important;
-  color:#0757f5!important;
+  background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.32)!important;
+  color:#fff!important;
  }
  html body .auth-layout>.brand-side .vatra-auth-language-all{
-  background:#fff!important;border-color:#d6e2f1!important;
+  background:rgba(4,39,129,.24)!important;border-color:rgba(255,255,255,.25)!important;
  }
  html body .auth-layout>.brand-side>.brand-foot{
   display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
   align-items:center!important;column-gap:15px!important;row-gap:5px!important;
   width:100%!important;max-width:770px!important;
   margin:0!important;padding:0!important;
-  color:#64758f!important;font:550 11.5px/1.5 var(--vatra-ui-font),system-ui,sans-serif!important;
+  color:#d6e7ff!important;font:550 11.5px/1.5 var(--vatra-ui-font),system-ui,sans-serif!important;
   text-align:left!important;
  }
  html body .auth-layout>.brand-side>.brand-foot .vatra-brand-values{
   grid-column:1!important;display:block!important;min-width:0!important;
-  margin:0!important;color:#64758f!important;
+  margin:0!important;color:#d6e7ff!important;
  }
  html body .auth-layout>.brand-side>.brand-foot .developer-compact{
   grid-column:2!important;margin:0!important;padding:3px 0!important;
   min-height:0!important;border:0!important;background:transparent!important;
-  color:#0757f5!important;text-decoration:underline!important;text-decoration-color:rgba(7,87,245,.32)!important;
+  color:#fff!important;text-decoration:underline!important;text-decoration-color:rgba(255,255,255,.55)!important;
   text-underline-offset:3px!important;font:700 11.5px/1.5 var(--vatra-ui-font),system-ui,sans-serif!important;
   white-space:nowrap!important;box-shadow:none!important;
  }
  html body .auth-layout>.brand-side>.brand-foot .vatra-auth-brand-copyright{
   grid-column:1/-1!important;margin:0!important;padding:0!important;
-  text-align:left!important;color:#8395ad!important;opacity:1!important;
+  text-align:left!important;color:#a9c8ff!important;opacity:1!important;
   font:500 10.5px/1.55 var(--vatra-ui-font),system-ui,sans-serif!important;
  }
 }
@@ -564,7 +564,7 @@ html body #recoveryDialog :is(.forgot,.vatra-recovery-resend):hover{
 /* VATRA language choices: fixed ordering follows the main language dialog;
    matching rounded chips, no inconsistent underline menu. */
 html body .auth-layout>.brand-side>.vatra-auth-language-quick{
- border-top:1px solid #dce5f2!important;
+ border-top:1px solid rgba(255,255,255,.22)!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-list{
  display:flex!important;align-items:center!important;justify-content:flex-start!important;
@@ -575,25 +575,25 @@ html body .auth-layout>.brand-side .vatra-auth-language-all{
  display:inline-flex!important;align-items:center!important;justify-content:center!important;
  flex:0 0 auto!important;min-height:39px!important;gap:7px!important;
  padding:7px 12px!important;margin:0!important;
- border-radius:11px!important;border:1px solid #d5e2f2!important;
- background:#f7faff!important;
- color:#345270!important;font:750 12px/1.2 var(--vatra-ui-font),system-ui,sans-serif!important;
+ border-radius:11px!important;border:1px solid rgba(229,240,255,.24)!important;
+ background:rgba(255,255,255,.075)!important;
+ color:#eff6ff!important;font:750 12px/1.2 var(--vatra-ui-font),system-ui,sans-serif!important;
  text-decoration:none!important;box-shadow:none!important;
  transition:background .16s ease,border-color .16s ease,color .16s ease!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-option.is-active{
- background:#e8f0ff!important;border-color:#c5d9ff!important;color:#0757f5!important;
- box-shadow:0 5px 16px rgba(7,87,245,.07)!important;
+ background:#fff!important;border-color:#fff!important;color:#0757f5!important;
+ box-shadow:0 5px 16px rgba(0,31,99,.12)!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-option.is-active .vatra-auth-language-flag svg{
  box-shadow:0 0 0 1px #d7e5f9!important;
 }
 html body .auth-layout>.brand-side :is(.vatra-auth-language-option,.vatra-auth-language-all):is(:hover,:focus-visible){
- border-color:#b4cdf9!important;background:#edf4ff!important;
- color:#0757f5!important;outline:2px solid rgba(7,87,245,.2)!important;outline-offset:2px!important;
+ border-color:#fff!important;background:rgba(255,255,255,.18)!important;
+ color:#fff!important;outline:2px solid rgba(255,255,255,.6)!important;outline-offset:2px!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-option.is-active:is(:hover,:focus-visible){
- background:#e8f0ff!important;color:#0757f5!important;
+ background:#fff!important;color:#0757f5!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-language-flag{
  display:inline-flex!important;flex:none!important;line-height:1!important;
@@ -887,12 +887,12 @@ html body .auth-layout>.brand-side .brand-copy h1{
 }
 html body .auth-layout>.brand-side .brand-copy h1 em{
  display:block!important;font-style:normal!important;font-weight:620!important;
- color:#0757f5!important;letter-spacing:-.045em!important;
+ color:#ecf5ff!important;letter-spacing:-.045em!important;
 }
 html body .auth-layout>.brand-side .brand-copy>p:last-of-type{
  max-width:530px!important;margin:0!important;
  font:480 clamp(13px,1.25vw,16px)/1.65 var(--vatra-ui-font)!important;
- color:#60758f!important;
+ color:rgba(245,250,255,.90)!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-possibilities{
  display:flex!important;flex-wrap:wrap!important;gap:8px!important;margin-top:22px!important;
@@ -900,12 +900,12 @@ html body .auth-layout>.brand-side .vatra-auth-possibilities{
 }
 html body .auth-layout>.brand-side .vatra-auth-possibilities span{
  display:inline-flex!important;align-items:center!important;min-height:31px!important;
- padding:6px 11px!important;border:1px solid #d5e3f7!important;
- border-radius:100px!important;background:#edf4ff!important;
- color:#365778!important;font:520 12px/1.45 var(--vatra-ui-font)!important;
+ padding:6px 11px!important;border:1px solid rgba(255,255,255,.25)!important;
+ border-radius:100px!important;background:rgba(255,255,255,.075)!important;
+ color:#f3f8ff!important;font:520 12px/1.45 var(--vatra-ui-font)!important;
 }
 html body .auth-layout>.brand-side .vatra-auth-promise-subline{
- margin:13px 0 0!important;color:#5075a3!important;
+ margin:13px 0 0!important;color:#d6eaff!important;
  font:520 13px/1.5 var(--vatra-ui-font)!important;
 }
 html body .auth-layout>.brand-side>.brand-foot{gap:8px!important}
@@ -948,9 +948,9 @@ html body .auth-layout>.form-side>.vatra-auth-about-mobile{
  html body .auth-layout>.form-side .vatra-auth-intro-mobile h1{font-size:20px!important}
 }
 
-/* Keep the description readable on the light editorial hero. */
+/* Ensure the social promise is legible on blue on both login and registration. */
 html body .auth-layout>.brand-side>.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline){
- color:#566f8d!important;
+ color:#e2eeff!important;
  font:480 clamp(14px,1.2vw,16px)/1.6 var(--vatra-ui-font)!important;
  opacity:1!important;text-shadow:none!important;max-width:530px!important;margin:0!important;
 }

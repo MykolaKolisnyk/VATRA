@@ -64,14 +64,14 @@ try{
       if(viewport.id==='desktop'){
        const contrast=await page.locator('.brand-copy>p:not(.eyebrow):not(.vatra-auth-promise-subline)').evaluate(el=>{
         const rgb=getComputedStyle(el).color.match(/\d+/g)?.map(Number)||[];
-        return rgb.length>=3?Math.max(...rgb.slice(0,3)):255;
+        return rgb.length>=3?Math.min(...rgb.slice(0,3)):0;
        });
-       assert.ok(contrast<=170,'Light editorial hero needs dark, readable description text');
+       assert.ok(contrast>=175,'Blue hero description must stay legible as light text');
        const chip=page.locator('.brand-side .vatra-auth-language-option:not(.is-active)').first();
        if(await chip.count()){
         const rgb=await chip.evaluate(el=>getComputedStyle(el).color.match(/[0-9]+/g)?.map(Number)||[]);
-        assert.ok(rgb.length>=3&&Math.max(...rgb.slice(0,3))<=150,
-         'Inactive language text must be readable on the light VATRA hero');
+        assert.ok(rgb.length>=3&&Math.min(...rgb.slice(0,3))>=175,
+         'Inactive language text must be readable on the blue VATRA hero');
        }
       }
       // These are real click-through checks: a styled but non-functional
