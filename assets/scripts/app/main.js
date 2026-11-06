@@ -1887,14 +1887,28 @@ function renderFriends(){
  const headers={all:'Мої друзі',online:'Друзі онлайн',incoming:'Вхідні запити',outgoing:'Вихідні запити'};
  const candidates=Object.entries(users||{}).filter(([uid,u])=>uid!==currentUser?.uid&&u?.name&&u.searchable!==false&&!blockedUsers[uid]&&!friends[uid]&&!friendRequests[uid]).slice(0,5);
  const recommendation=candidates.map(([uid,u])=>'<div class="vatra-friends-suggestion"><button type="button" data-view-profile="'+esc(uid)+'">'+avatar(u.name,u.avatarUrl)+'<span><b>'+esc(u.name)+verifiedBadge(uid)+'</b><small>@'+esc(u.handle||'user')+'</small></span></button><button type="button" class="vatra-friends-add" data-friend-request="'+esc(uid)+'" aria-label="Додати в друзі '+esc(u.name)+'">＋</button></div>').join('');
- const nav=([id,label,n])=>'<button type="button" data-vatra-friends-tab="'+id+'" class="'+(vatraFriendsTab===id?'is-active':'')+'"><span>'+label+'</span><small>'+n+'</small></button>';
- setFeed('<div class="vatra-friends-layout"><section class="vatra-friends-main"><div class="vatra-friends-top"><h2>'+headers[vatraFriendsTab]+'</h2><button type="button" class="vatra-friends-find" data-vatra-find-people>Знайти друзів</button></div>'+
- '<div class="vatra-friends-tabs">'+tabs.slice(0,2).map(nav).join('')+'</div>'+
+ const nav=([id,label,n])=>'<button type="button" id="vatra-friends-tab-'+id+'" role="tab" aria-selected="'+String(vatraFriendsTab===id)+'" tabindex="'+(vatraFriendsTab===id?'0':'-1')+'" data-vatra-friends-tab="'+id+'" class="'+(vatraFriendsTab===id?'is-active':'')+'"><span>'+label+'</span><small>'+n+'</small></button>';
+ setFeed('<div class="vatra-friends-layout'+(recommendation?'':' is-single-column')+'"><section class="vatra-friends-main"><div class="vatra-friends-top"><h2>'+headers[vatraFriendsTab]+'</h2><button type="button" class="vatra-friends-find" data-vatra-find-people>Знайти друзів</button></div>'+
+ '<div class="vatra-friends-tabs" role="tablist" aria-label="Розділи друзів">'+tabs.map(nav).join('')+'</div>'+
  '<div class="vatra-friends-search"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input id="vatraFriendsFilter" type="search" autocomplete="off" placeholder="Введіть ім’я або псевдонім" aria-label="Пошук серед друзів"></div>'+
- '<div class="vatra-friends-results">'+(selected.map(([uid])=>vatraFriendsRow(uid,vatraFriendsTab==='incoming'?'incoming':vatraFriendsTab==='outgoing'?'outgoing':'friend')).join('')||'<p class="vatra-friends-empty">У цьому розділі поки немає користувачів.</p>')+'</div><p id="vatraFriendsNoMatch" class="vatra-friends-empty" hidden>За запитом нікого не знайдено.</p></section>'+
- '<aside class="vatra-friends-side"><section class="vatra-friends-panel"><h3>Розділи</h3>'+tabs.map(t=>'<div class="vatra-friends-side-item">'+nav(t)+'</div>').join('')+'<button class="vatra-friends-side-search" type="button" data-vatra-find-people>Пошук людей</button></section>'+
- (recommendation?'<section class="vatra-friends-panel"><h3>Можливі знайомства</h3>'+recommendation+'<button type="button" class="vatra-friends-side-search" data-vatra-find-people>Показати всіх</button></section>':'')+'</aside></div>',false);
- $$('#feed [data-vatra-friends-tab]').forEach(btn=>btn.addEventListener('click',()=>{vatraFriendsTab=btn.dataset.vatraFriendsTab;renderFriends();}));
+ '<div class="vatra-friends-results" id="vatraFriendsResults" role="tabpanel" aria-labelledby="vatra-friends-tab-'+vatraFriendsTab+'">'+(selected.map(([uid])=>vatraFriendsRow(uid,vatraFriendsTab==='incoming'?'incoming':vatraFriendsTab==='outgoing'?'outgoing':'friend')).join('')||'<p class="vatra-friends-empty">У цьому розділі поки немає користувачів.</p>')+'</div><p id="vatraFriendsNoMatch" class="vatra-friends-empty" hidden>За запитом нікого не знайдено.</p></section>'+
+ (recommendation?'<aside class="vatra-friends-side"><section class="vatra-friends-panel"><h3>Можливі знайомства</h3>'+recommendation+'<button type="button" class="vatra-friends-side-search" data-vatra-find-people>Показати всіх</button></section></aside>':'')+'</div>',false);
+ $('#feed [data-vatra-friends-tab]').forEach(btn=>btn.addEventListener('click',()=>{vatraFriendsTab=btn.dataset.vatraFriendsTab;renderFriends();}));
+ const friendTabs=$('#feed .vatra-friends-tabs');
+ const selectedTab=friendTabs?.querySelector('.is-active');
+ if(friendTabs&&selectedTab&&friendTabs.scrollWidth>friendTabs.clientWidth){
+  friendTabs.scrollLeft=Math.max(0,selectedTab.offsetLeft-friendTabs.offsetLeft-(friendTabs.clientWidth-selectedTab.offsetWidth)/2);
+ }
+ friendTabs?.addEventListener('keydown',event=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+  const buttons=[...friendTabs.querySelectorAll('[data-vatra-friends-tab]')],at=buttons.indexOf(document.activeElement);
+  if(at<0)return;
+  event.preventDefault();
+  const next=event.key==='Home'?0:event.key==='End'?buttons.length-1:(at+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
+  vatraFriendsTab=buttons[next].dataset.vatraFriendsTab;
+  renderFriends();
+  $('#feed .vatra-friends-tabs .is-active')?.focus({preventScroll:true});
+ });
  $$('#feed [data-vatra-find-people]').forEach(btn=>btn.addEventListener('click',()=>goPage('explore')));
  $('#vatraFriendsFilter')?.addEventListener('input',event=>{
   const q=event.target.value.trim().toLocaleLowerCase('uk-UA');let visible=0;

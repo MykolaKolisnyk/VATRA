@@ -8,5 +8,5 @@ assert.ok(code.includes('vatraCommunityMoreObserver.observe(more)'),'Long commun
 assert.ok(code.includes("more.click();"),'Automatic scroll must use the same tested load-more handler');
 assert.ok(code.includes("more.hidden||page!=='groups'||groupId"),'Observer must ignore stale and hidden community buttons');
 assert.ok(code.includes("vatraCommunityMoreObserver?.disconnect();vatraCommunityMoreObserver=null;feed.removeAttribute('aria-busy')"),'Leaving a community list must disconnect the previous observer');
-assert.ok(page.includes('assets/scripts/app/main.js?v=20261106-progressive-videos1'),'Browser must use the refreshed renderer');
+assert.ok(page.includes('assets/scripts/app/main.js?v=20261106-friends-unified1'),'Browser must use the refreshed renderer');
 console.log('VATRA communities: twelve rows initially, automatic scroll plus manual load-more.');

@@ -2560,6 +2560,7 @@ body[data-page="friends"] #feed>.vatra-friends-layout{
  padding:0!important;
  background:transparent!important;
 }
+body[data-page="friends"] #feed>.vatra-friends-layout.is-single-column{grid-template-columns:minmax(0,1fr)!important;}
 body[data-page="friends"] .vatra-friends-main,
 body[data-page="friends"] .vatra-friends-panel{
  display:block!important;
@@ -2606,15 +2607,15 @@ body[data-page="friends"] .vatra-friends-find{
  cursor:pointer!important;
 }
 body[data-page="friends"] .vatra-friends-tabs{
- display:flex!important;
- align-items:center!important;
- flex-wrap:wrap!important;
- gap:6px!important;
- margin:0 0 12px!important;
+ display:flex!important;align-items:center!important;flex-wrap:nowrap!important;
+ gap:6px!important;margin:0 0 12px!important;padding:0 0 4px!important;
+ min-width:0!important;max-width:100%!important;
+ overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain!important;
+ scrollbar-width:thin!important;scroll-snap-type:x proximity;
 }
 body[data-page="friends"] .vatra-friends-tabs>button{
- display:inline-flex!important;
- align-items:center!important;
+ display:inline-flex!important;align-items:center!important;
+ flex:0 0 auto!important;white-space:nowrap!important;scroll-snap-align:start;
  gap:6px!important;
  min-height:30px!important;
  padding:6px 9px!important;
@@ -2964,7 +2965,7 @@ body[data-vatra-theme-effective="dark"][data-page="friends"] .vatra-friends-sear
 }
 @media(max-width:650px){
  body[data-page="friends"] #feed>.vatra-friends-layout{grid-template-columns:minmax(0,1fr)!important;}
- body[data-page="friends"] .vatra-friends-side{grid-row:1!important;}
+ body[data-page="friends"] .vatra-friends-side{grid-row:auto!important;}
  body[data-page="friends"] .vatra-friends-side .vatra-friends-panel:nth-child(2){display:none!important;}
  body[data-page="friends"] .vatra-friends-panel{padding:8px!important;}
  body[data-page="friends"] .vatra-friends-side-item{display:inline-block!important;}

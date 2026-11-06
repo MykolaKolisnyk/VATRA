@@ -27,6 +27,9 @@ assert.ok(responsive.includes('--vatra-page-width:1000px;--vatra-sidebar-width:1
 assert.ok(!shared.includes('max-width:1320px')&&!shared.includes('width:min(1320px'),'Wide screens must not expand VATRA beyond the compact layout cap');
 assert.ok(main.includes("matches?2:window.matchMedia('(max-width:960px)').matches?3:4"),'Profile gallery must match the 4/3/2 column CSS');
 assert.ok(profileGallery.includes('grid-template-columns:repeat(4,minmax(0,1fr))!important')&&profileGallery.includes('grid-template-columns:repeat(3,minmax(0,1fr))!important')&&profileGallery.includes('grid-template-columns:repeat(2,minmax(0,1fr))!important'),'Gallery needs a consistent responsive grid');
+assert.ok(main.includes('vatra-friends-tabs" role="tablist"')&&main.includes('tabs.map(nav).join('')&&main.includes('id="vatraFriendsResults" role="tabpanel"'),'Every friends category must be accessible from the same tab strip');
+assert.ok(main.includes("is-single-column")&&!main.includes('vatra-friends-side-item'),'Empty recommendations must not create a duplicate navigation rail');
+assert.ok(pageStyles.includes('vatra-friends-layout.is-single-column')&&pageStyles.includes('scroll-snap-type:x proximity'),'Friends tabs and empty layout must be compact');
 assert.ok(main.includes('const VATRA_MY_VIDEOS_BATCH_SIZE=12')&&main.includes('items.slice(0,VATRA_MY_VIDEOS_BATCH_SIZE)'),'Videos must render in progressive batches');
 assert.ok(main.includes("p.videoPosterUrl||p.videoThumbnailUrl")&&main.includes('id="vatraMyVideosMore"'),'Poster previews and more videos must be available');
 assert.ok(pageStyles.includes('body .vatra-my-video-more[hidden]{display:none!important}')&&pageStyles.includes('body .vatra-my-video-empty{'),'Video navigation and empty states must be styled');
