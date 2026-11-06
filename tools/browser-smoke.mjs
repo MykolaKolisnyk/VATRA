@@ -278,6 +278,17 @@ try{
     return {viewport:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,left:Math.round(rect.left),right:Math.round(rect.right)};
    });
    assert.ok(dimensions.left>=-2&&dimensions.right<=dimensions.viewport+2,'Language dialog overflows viewport on '+vp.name);
+   const search=dialog.locator('.vatra-language-search');
+   await search.fill('pl');
+   assert.equal(await dialog.locator('[data-vatra-language-code]:visible').count(),1,'Search by ISO code should match exactly one option');
+   assert.equal(await dialog.locator('[data-vatra-language-code]:visible').first().getAttribute('data-vatra-language-code'),'pl');
+   await search.fill('vatra-never-language-999');
+   assert.equal(await dialog.locator('[data-vatra-language-code]:visible').count(),0,'Unknown language should leave no visible choices');
+   assert.equal(await dialog.locator('.vatra-language-picker-category:visible').count(),0,'Empty language categories must be hidden');
+   assert.ok(await dialog.locator('.vatra-language-empty').isVisible(),'Language search needs an accessible empty state');
+   await search.fill('');
+   assert.equal(await dialog.locator('[data-vatra-language-code]:visible').count(),count,'Clearing the language query should restore the full catalog');
+   assert.ok(await dialog.locator('.vatra-language-empty').isHidden(),'Clearing query must remove the no-results notice');
    await localePage.screenshot({path:output+'/language-catalog-status-'+vp.name+'.png',animations:'disabled'});
    results.push({case:'language-catalog-status',viewport:vp.name,count,ready:available,...dimensions});
    await localePage.locator('[data-vatra-language-close]').click();

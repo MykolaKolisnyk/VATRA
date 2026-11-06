@@ -22,6 +22,7 @@ const base={
  'Спільноти':'Communities','Відео':'Videos','Збережене':'Saved','Налаштування':'Settings',
  'Сповіщення':'Notifications','Фото':'Photos','Фотографії':'Photos','Музика':'Music',
  'Пошук':'Search','Подарунки':'Gifts','Створити допис':'Create post',
+ 'Мову не знайдено. Спробуйте інший запит.':'No languages found. Try another search.',
  'Що нового у Вас?':'What is new?','Сторінка':'Page','Увійти':'Log in',
  'Створити акаунт':'Create account','Ім’я':'First name','Прізвище':'Last name',
  'Дата народження':'Date of birth','Стать':'Gender','Чоловік':'Male','Жінка':'Female',
@@ -587,13 +588,11 @@ function vatraLanguageDialog(){
  '<input class="vatra-language-search" type="search" placeholder="Знайти мову…" aria-label="Пошук мови" autocomplete="off">'+
  '<div class="vatra-language-picker-list" role="group" aria-label="Вибір мови">'+
  '<div class="vatra-language-picker-category">Мови з перекладом</div>'+languages.filter(([code])=>translatedLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+
- '<div class="vatra-language-picker-category">Частковий переклад інтерфейсу</div>'+languages.filter(([code])=>partialLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+ '<div class="vatra-language-picker-category">Інші мови · переклад готується</div>'+languages.filter(([code])=>!translatedLanguages.has(code)&&!partialLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+'</div>';
+ '<div class="vatra-language-picker-category">Частковий переклад інтерфейсу</div>'+languages.filter(([code])=>partialLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+ '<div class="vatra-language-picker-category">Інші мови · переклад готується</div>'+languages.filter(([code])=>!translatedLanguages.has(code)&&!partialLanguages.has(code)).map(([code,name])=>render(code,name)).join('')+
+ '<p class="vatra-language-empty" role="status" aria-live="polite" hidden>Мову не знайдено. Спробуйте інший запит.</p></div>';
  document.body.append(dlg);
  const search=dlg.querySelector('.vatra-language-search');
- search.addEventListener('input',()=>{
-  const query=search.value.toLocaleLowerCase('uk-UA').trim();
-  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>{button.hidden=!!query&&!button.textContent.toLocaleLowerCase('uk-UA').includes(query)&&!button.dataset.vatraLanguageCode.includes(query);});
- });
+ search.addEventListener('input',()=>vatraFilterLanguageDialog(dlg));
  dlg.addEventListener('click',event=>{
   if(event.target===dlg||event.target.closest('[data-vatra-language-close]')){dlg.close();return;}
   const button=event.target.closest('[data-vatra-language-code]');
@@ -607,13 +606,32 @@ function vatraLanguageDialog(){
  });
  return dlg;
 }
+// Keep grouped search useful when one or no languages match.
+function vatraFilterLanguageDialog(dlg){
+ const query=dlg.querySelector('.vatra-language-search').value.toLocaleLowerCase('uk-UA').trim();
+ let visible=0;
+ dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>{
+  const match=!query||button.textContent.toLocaleLowerCase('uk-UA').includes(query)||button.dataset.vatraLanguageCode.includes(query);
+  button.hidden=!match;
+  if(match)visible++;
+ });
+ dlg.querySelectorAll('.vatra-language-picker-category').forEach(category=>{
+  let item=category.nextElementSibling,hasMatches=false;
+  while(item&&!item.classList.contains('vatra-language-picker-category')){
+   if(item.matches('[data-vatra-language-code]')&&!item.hidden){hasMatches=true;break;}
+   item=item.nextElementSibling;
+  }
+  category.hidden=!hasMatches;
+ });
+ dlg.querySelector('.vatra-language-empty').hidden=visible>0;
+}
 function vatraShowLanguageDialog(select=null){
  const dlg=vatraLanguageDialog();
  activeLanguageSelect=select;
  dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>
   button.setAttribute('aria-selected',String(button.dataset.vatraLanguageCode===language)));
  const search=dlg.querySelector('.vatra-language-search');search.value='';
- dlg.querySelectorAll('[data-vatra-language-code]').forEach(button=>button.hidden=false);
+ vatraFilterLanguageDialog(dlg);
  dlg.showModal();search.focus();
 }
 const VATRA_AUTH_RECENT_LANGUAGES='vatra-language-recent-v1';

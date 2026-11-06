@@ -143,3 +143,12 @@ console.log('VATRA: restored blue entry UI, cache refresh, password manager and 
 
 assert.ok(css.includes('color:#eff6ff!important;font:750 12px/1.2'),
  'Inactive language labels must have readable light text on the blue brand panel');
+
+
+// Search over the 100+ language catalog must not leave ghost entries or empty categories.
+assert.ok(lang.includes('function vatraFilterLanguageDialog(dlg)'),'Language search must filter grouped results');
+assert.ok(lang.includes('vatraFilterLanguageDialog(dlg);'),'Language search must also reset when reopening');
+assert.ok(lang.includes('class="vatra-language-empty" role="status" aria-live="polite" hidden'),'Accessible empty-results state missing');
+assert.ok(read('assets/styles/sources/profile/gallery-language.css').includes('.vatra-language-empty)[hidden]{display:none!important}'),'Filtered rows must remain visually hidden despite flex CSS');
+for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=search1'),page+': cache key must reflect the updated language dialog');
+console.log('VATRA i18n search: status, empty results, reset, grouped languages retained.');
