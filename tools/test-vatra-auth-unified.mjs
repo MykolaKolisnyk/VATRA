@@ -103,7 +103,7 @@ for(const page of ['index.html','auth.html','register.html']){
 }
 
 for(const page of ['auth.html','register.html']){
- assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=circle2'),page+': updated social promise CSS cache missing');
+ assert.ok(read(page).includes('vatra-auth.css?v=20261105-onest-unified1&amp;ui=light404'),page+': updated social promise CSS cache missing');
 }
 assert.ok(read('index.html').includes('vatra.css?v=20261106-social-circle-1'),'Updated VATRA social-circle CSS cache missing');
 
