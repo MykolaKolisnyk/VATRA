@@ -151,7 +151,7 @@ try{
    await gallery.setViewportSize({width:viewport.width,height:viewport.height});
    const measured=await gallery.evaluate(()=>{
     const track=document.querySelector('.vatra-gallery-track'),layout=document.querySelector('.layout');
-    return {columns:getComputedStyle(track).gridTemplateColumns.trim().split(/\\s+/).length,
+    return {columns:getComputedStyle(track).gridTemplateColumns.trim().split(/\s+/).length,
       layoutWidth:Math.round(layout.getBoundingClientRect().width),
       tileWidth:Math.round(track.querySelector('.profile-photo-tile').getBoundingClientRect().width),
       viewport:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth};
