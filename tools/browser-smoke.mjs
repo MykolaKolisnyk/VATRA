@@ -141,6 +141,31 @@ try{
  }catch(error){
   failed=true;console.error('FAIL VATRA visual system',error?.stack||error);
  }finally{await visual.close();}
+ // Verify the authenticated profile layout and gallery visually without credentials.
+ const gallery=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+ try{
+  await gallery.goto(base+'/404.html',{waitUntil:'domcontentloaded'});
+  const tiles=Array.from({length:4},(_,i)=>'<div class="profile-photo-tile"><span class="profile-gallery-open">Фото '+(i+1)+'</span></div>').join('');
+  await gallery.setContent('<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="profile"><div class="layout"><aside class="sidebar"></aside><main class="main"><div class="vatra-profile-layout"><div class="vatra-profile-sidebar"></div><section class="vatra-profile-main"><div class="vatra-profile-photos"><div class="vatra-profile-photo-carousel vatra-profile-media-carousel"><div class="vatra-gallery-stage"><div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div></div></div></div></section></div></main></div></body></html>',{waitUntil:'load'});
+  for(const viewport of [{width:1440,height:900,columns:4},{width:840,height:840,columns:3},{width:390,height:844,columns:2}]){
+   await gallery.setViewportSize({width:viewport.width,height:viewport.height});
+   const measured=await gallery.evaluate(()=>{
+    const track=document.querySelector('.vatra-gallery-track'),layout=document.querySelector('.layout');
+    return {columns:getComputedStyle(track).gridTemplateColumns.trim().split(/\\s+/).length,
+      layoutWidth:Math.round(layout.getBoundingClientRect().width),
+      tileWidth:Math.round(track.querySelector('.profile-photo-tile').getBoundingClientRect().width),
+      viewport:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth};
+   });
+   assert.equal(measured.columns,viewport.columns,'Gallery columns mismatch at '+viewport.width+'px');
+   assert.ok(measured.tileWidth>=80,'Gallery thumbnail too small at '+viewport.width+'px: '+measured.tileWidth);
+   assert.ok(measured.scrollWidth-measured.viewport<=8,'Profile gallery overflows at '+viewport.width+'px');
+   if(viewport.width===1440)assert.ok(measured.layoutWidth<=1040,'Wide profile must remain compact, got '+measured.layoutWidth);
+   results.push({case:'profile-gallery-responsive',...measured});
+   await gallery.screenshot({path:output+'/profile-gallery-'+viewport.width+'.png',animations:'disabled'});
+   console.log('PASS profile gallery',JSON.stringify(measured));
+  }
+ }catch(error){failed=true;console.error('FAIL profile gallery responsiveness',error?.stack||error);}
+ finally{await gallery.close();}
 }finally{await browser.close();}
 await writeFile(output+'/metrics.json',JSON.stringify(results,null,2)+'\n');
 if(failed)process.exitCode=1;

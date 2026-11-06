@@ -4,13 +4,10 @@
  --vatra-ui-hover-ink:#145ca4;--vatra-ui-hover-bg:#f0f4fc;
  --vatra-ui-border-soft:var(--vatra-border);--vatra-ui-strong:var(--vatra-ink);
 }
-/* Moderately larger content, without edge-to-edge stretching. */
+/* Retain the compact layout caps defined by layout/pages.css on wide screens.
+   Only the header search and in-column rhythm need desktop adjustments. */
 @media(min-width:1200px){
- html body .layout{max-width:1320px!important;width:min(1320px,calc(100% - 40px))!important;
- grid-template-columns:190px minmax(0,1fr)!important;gap:21px!important;}
- html body .layout>.main{min-width:0!important;max-width:none!important;}
  html body .vatra-global-header .search{max-width:510px!important;}
- html body .vatra-profile-layout{grid-template-columns:252px minmax(0,1fr)!important;gap:19px!important;}
  html body .vatra-profile-main,html body .vatra-profile-sidebar{gap:16px!important;}
 }
 html body .layout>.main :is(.post,.vatra-profile-card,.quick-compose,.settings-card){

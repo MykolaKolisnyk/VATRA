@@ -9,6 +9,8 @@ const settings=read('assets/styles/sources/profile/settings-community.css');
 const ads=read('assets/styles/sources/layout/sidebar-ads.css');
 const messenger=read('assets/styles/sources/social/messenger.css');
 const main=read('assets/scripts/app/main.js');
+const shared=read('assets/styles/sources/foundation/shared-tokens.css');
+const profileGallery=read('assets/styles/sources/profile/gallery-language.css');
 assert.ok(fonts.includes('--vatra-radius-card:13px')&&fonts.includes('--vatra-control-height:38px'),'Shared design tokens must exist');
 assert.ok(fonts.includes('--vatra-ui-font:"VATRA Onest"'),'Onest must be primary');
 assert.ok(group.includes('flex-wrap:nowrap;white-space:nowrap'),'Community tabs must not wrap');
@@ -19,6 +21,9 @@ assert.ok(settings.includes('grid-template-columns:minmax(175px,198px) minmax(0,
 assert.ok(settings.includes('min-height:40px!important;padding:8px 10px!important'),'Settings rows must not be oversized');
 assert.ok(settings.includes('background:transparent!important;'),'Settings introduction must not be another large card');
 assert.ok(ads.includes('[data-page="messages"]')&&ads.includes('display:none!important'),'No ads around conversations');
+assert.ok(!shared.includes('max-width:1320px')&&!shared.includes('width:min(1320px'),'Wide screens must not expand VATRA beyond the compact layout cap');
+assert.ok(main.includes("matches?2:window.matchMedia('(max-width:960px)').matches?3:4"),'Profile gallery must match the 4/3/2 column CSS');
+assert.ok(profileGallery.includes('grid-template-columns:repeat(4,minmax(0,1fr))!important')&&profileGallery.includes('grid-template-columns:repeat(3,minmax(0,1fr))!important')&&profileGallery.includes('grid-template-columns:repeat(2,minmax(0,1fr))!important'),'Gallery needs a consistent responsive grid');
 assert.ok(main.includes('const VATRA_CHAT_BATCH_SIZE=60')&&main.includes('allMessages.slice(-vatraChatVisibleCount)'),'Long conversations must render a bounded message window');
 assert.ok(main.includes('vatraChatScrollRestore')&&main.includes('data-vatra-chat-load-older'),'Older messages must be accessible without losing scroll');
 assert.ok(messenger.includes('@media(hover:none),(pointer:coarse)')&&messenger.includes('vatra-chat-load-older'),'Message actions and history must work on touch');

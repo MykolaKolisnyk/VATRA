@@ -1619,8 +1619,8 @@ function vatraProfileGalleryCarousel(uid,photos,isMine=false,videos=[]){
  '<div class="vatra-media-tabs" role="tablist" aria-label="Медіа сторінки">'+tab('photos','Фотографії',found.length)+tab('videos','Відео',videoItems.length)+'</div>'+
  '<div class="vatra-gallery-stage">'+arrow(-1)+'<div class="vatra-gallery-viewport"><div class="profile-photo-gallery vatra-gallery-track">'+tiles+'</div></div>'+arrow(1)+'</div></div>';
 }
-// Exactly one horizontal row: six items on desktop, four on tablets, two on phones.
-const vatraGalleryVisible=()=>window.matchMedia('(max-width:620px)').matches?2:window.matchMedia('(max-width:960px)').matches?4:6;
+// One row of comfortably sized media: four desktop, three tablet, two mobile.
+const vatraGalleryVisible=()=>window.matchMedia('(max-width:620px)').matches?2:window.matchMedia('(max-width:960px)').matches?3:4;
 function vatraProfileMediaTiles(state){
  const from=state.offset,to=from+vatraGalleryVisible();
  if(state.kind==='videos')return state.videoItems.slice(from,to).map((v,i)=>
