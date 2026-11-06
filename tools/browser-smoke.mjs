@@ -126,6 +126,8 @@ try{
   // Reapply the actual navigation component source to the isolated fixture.
   // Injecting the full bundle again would duplicate font-face rules and block font loading.
   await visual.addStyleTag({content:await readFile('assets/styles/sources/foundation/icons.css','utf8')});
+  // Wait until the 160ms active-link color transition reaches its final value.
+  await visual.waitForTimeout(260);
   const visualStyle=await visual.evaluate(async()=>{
    const loaded=await document.fonts.load('500 16px "VATRA Onest"');
    const post=document.querySelector('.post-text');
