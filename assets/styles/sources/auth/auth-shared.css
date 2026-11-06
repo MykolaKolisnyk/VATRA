@@ -879,7 +879,7 @@ html body .auth-layout .vatra-auth-language-flag :is(svg,.vatra-language-flag){
 }
 
 
-/* VATRA UI — 404-inspired authentication composition (canonical source).
+/* VATRA UI · social promise — 404-inspired authentication composition (canonical source).
    One readable, light, editorial visual system; existing Supabase flows remain untouched. */
 html body{
  --vatra-auth-primary:#0757f5;
