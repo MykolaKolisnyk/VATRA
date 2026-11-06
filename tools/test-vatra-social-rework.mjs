@@ -290,3 +290,20 @@ assert.ok(chatSendCode.includes('submit.disabled=!canSend;'),
 assert.ok(!chatSendCode.includes('finally{submit.disabled=false;}'),
  'A failed encrypted session may never unlock the send action');
 console.log('VATRA messenger: send button remains locked when session, recipient or block status changes.');
+
+
+// Real feed redesign must preserve original composer, posts, filtering and media actions.
+const feedMarkup=read('index.html');
+assert.ok(feedMarkup.includes('id="vatraNewsHero"')&&feedMarkup.includes('id="vatraNewsHeroTitle"'),
+ 'News must have its own recognizable editorial heading, not the hidden generic page title');
+assert.ok(feedMarkup.includes('id="vatraNewsNewPost"')&&js.includes("$('#vatraNewsNewPost')?.addEventListener('click',openComposer)"),
+ 'Hero creation action must launch the existing real composer');
+for(const action of ['photo','video','story']){
+ assert.ok(feedMarkup.includes('data-vatra-feed-shortcut="'+action+'"'),action+' quick action is missing');
+ assert.ok(feedMarkup.includes('data-vatra-create="'+action+'"'),action+' must preserve the original composer route');
+}
+assert.ok(js.includes("document.querySelector('#vatraCreateMenu [data-vatra-create=\"'+action+'\"]')?.click()")||
+ js.includes("document.querySelector('#vatraCreateMenu [data-vatra-create=\"'+action+'\"]')?.click();"),
+ 'Feed shortcuts must dispatch to the existing real publishing handlers');
+assert.ok(feedMarkup.includes('id="vatraFeedFilters"')&&feedMarkup.includes('id="feed"'),
+ 'Redesign may not disconnect filtering or post rendering');

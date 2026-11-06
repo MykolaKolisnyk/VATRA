@@ -4335,7 +4335,16 @@ $('#communityForm').addEventListener('submit',async e=>{e.preventDefault();if(!a
 $('#passwordToggle').onclick=()=>{const input=$('#authPassword'),show=input.type==='password';input.type=show?'text':'password';$('#passwordToggle').textContent=show?'Сховати':'Показати';$('#passwordToggle').setAttribute('aria-label',show?'Сховати пароль':'Показати пароль');};
 $('#resetPassword').onclick=()=>openAuth('reset');
 $('#authSwitch').onclick=()=>openAuth(authMode==='register'?'login':'register');$('#authButton').onclick=()=>signOut(auth).then(()=>location.replace('auth.html')).catch(e=>toastMsg(niceError(e))); $('#authButton').textContent='Вийти';$('#authClose').onclick=()=>authDialog.close();
-$('#create')?.addEventListener('click',openComposer);// The news filter menu changes actual feed content and supports keyboard close.
+$('#create')?.addEventListener('click',openComposer);
+$('#vatraNewsNewPost')?.addEventListener('click',openComposer);
+// Reuse the existing composer menu handlers; these shortcuts never duplicate
+// upload or story logic and preserve all validation, drafts and publishing rules.
+document.querySelector('.vatra-news-compose-shortcuts')?.addEventListener('click',event=>{
+ const action=event.target.closest('[data-vatra-feed-shortcut]')?.dataset.vatraFeedShortcut;
+ if(!action)return;
+ document.querySelector('#vatraCreateMenu [data-vatra-create="'+action+'"]')?.click();
+});
+// The news filter menu changes actual feed content and supports keyboard close.
 const newsFilter=$('#vatraFeedFilters'),newsFilterToggle=$('#vatraFeedFilterToggle'),newsFilterOptions=$('#vatraFeedFilterOptions');
 const closeNewsFilters=()=>{if(newsFilterOptions)newsFilterOptions.hidden=true;if(newsFilterToggle)newsFilterToggle.setAttribute('aria-expanded','false');};
 newsFilterToggle?.addEventListener('click',()=>{if(!newsFilterOptions)return;newsFilterOptions.hidden=!newsFilterOptions.hidden;newsFilterToggle.setAttribute('aria-expanded',String(!newsFilterOptions.hidden));});
