@@ -250,7 +250,7 @@ try{
    await dialog.waitFor({state:'visible'});
    const opts=dialog.locator('[data-vatra-language-code]');
    const count=await opts.count();
-   const available=await opts.filter({has:dialog.locator('small:has-text("Доступна")')}).count();
+   const available=await opts.filter({hasText:'Доступна'}).count();
    assert.ok(count>=100,'Full 100+ language catalog should be present on '+vp.name);
    assert.equal(available,8,'Exactly eight entries are currently available on '+vp.name);
    assert.ok(await opts.filter({hasText:'У розробці'}).count()>90,'Incomplete translations must be labeled on '+vp.name);
