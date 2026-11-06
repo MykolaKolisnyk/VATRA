@@ -92,3 +92,12 @@ for(const page of ['auth.html','register.html']){
 }
 assert.ok(css.includes('.vatra-auth-intro-mobile'),'Mobile brand copy must have styles in the existing auth module');
 assert.ok(read('assets/styles/sources/auth/auth-shared.css').includes('VATRA UI · social promise'),'VATRA marketing CSS missing');
+
+/* First-run social-circle wording must be translated, not left Ukrainian abroad. */
+assert.ok(lang.includes('const vatraCircleTranslations='),'VATRA Circle localization source missing');
+for(const locale of ['en','pl','de','fr','es','pt','it']){
+ assert.ok(lang.includes('"'+locale+'": {'),'Missing marketing translations for '+locale);
+}
+for(const page of ['index.html','auth.html','register.html']){
+ assert.ok(read(page).includes('language.js?v=20261105-no-clips1&amp;circle=1'),page+': cache-bust localized words');
+}

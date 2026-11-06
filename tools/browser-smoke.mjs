@@ -208,6 +208,18 @@ try{
   }
  }catch(error){failed=true;console.error('FAIL VATRA social circle fixture',error?.stack||error);}
  finally{await circle.close();}
+
+ // The first impression must be understandable when international users select English.
+ const enPage=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+ try{
+  await enPage.addInitScript(()=>{localStorage.setItem('vatra-language','en')});
+  await enPage.goto(base+'/auth.html',{waitUntil:'domcontentloaded'});
+  await enPage.waitForFunction(()=>document.querySelector('.brand-copy h1 em')?.textContent?.includes('your circle starts here'),null,{timeout:16000});
+  assert.equal(await enPage.locator('.brand-copy h1 em').isVisible(),true,'English VATRA social promise must be visible');
+  await enPage.screenshot({path:output+'/auth-social-circle-english-desktop.png',animations:'disabled'});
+  results.push({case:'auth-social-circle-english',viewport:'desktop',translated:true});
+ }catch(error){failed=true;console.error('FAIL VATRA English social promise',error?.stack||error);}
+ finally{await enPage.close();}
 }finally{await browser.close();}
 await writeFile(output+'/metrics.json',JSON.stringify(results,null,2)+'\n');
 if(failed)process.exitCode=1;

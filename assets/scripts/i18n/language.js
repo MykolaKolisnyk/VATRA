@@ -134,6 +134,100 @@ const additionalEnglish={
 };
 Object.assign(base,additionalEnglish);
 
+/* VATRA Circle: accurate first-impression copy in the eight supported full UI languages. */
+const vatraCircleTranslations={
+  "en": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "SOCIAL NETWORK · CREATED IN UKRAINE",
+    "тут починається твоє коло": "your circle starts here",
+    "ВАТРА — тут починається твоє коло": "VATRA — your circle starts here",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Find friends, share moments, listen to music and discover communities that share your interests. Everything for connecting in one place.",
+    "Друзі й повідомлення": "Friends and messages",
+    "Дописи, фото та відео": "Posts, photos and videos",
+    "Музика й спільноти": "Music and communities",
+    "Твої люди. Твої моменти. Твій простір.": "Your people. Your moments. Your space.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "Your people. Your moments. Your space. Friends, photos, music and communities — all in one place.",
+    "Запросити друзів": "Invite friends"
+  },
+  "pl": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "SIEĆ SPOŁECZNOŚCIOWA · STWORZONA W UKRAINIE",
+    "тут починається твоє коло": "tu zaczyna się Twoje grono",
+    "ВАТРА — тут починається твоє коло": "VATRA — tu zaczyna się Twoje grono",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Znajduj znajomych, dziel się chwilami, słuchaj muzyki i odkrywaj społeczności swoich zainteresowań. Wszystko do kontaktu w jednym miejscu.",
+    "Друзі й повідомлення": "Znajomi i wiadomości",
+    "Дописи, фото та відео": "Posty, zdjęcia i filmy",
+    "Музика й спільноти": "Muzyka i społeczności",
+    "Твої люди. Твої моменти. Твій простір.": "Twoi ludzie. Twoje chwile. Twoja przestrzeń.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "Twoi ludzie. Twoje chwile. Twoja przestrzeń. Znajomi, zdjęcia, muzyka i społeczności — w jednym miejscu.",
+    "Запросити друзів": "Zaproś znajomych"
+  },
+  "de": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "SOZIALES NETZWERK · IN DER UKRAINE ENTWICKELT",
+    "тут починається твоє коло": "hier beginnt dein Kreis",
+    "ВАТРА — тут починається твоє коло": "VATRA — hier beginnt dein Kreis",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Finde Freunde, teile Momente, höre Musik und entdecke Communities rund um deine Interessen. Alles für den Austausch an einem Ort.",
+    "Друзі й повідомлення": "Freunde und Nachrichten",
+    "Дописи, фото та відео": "Beiträge, Fotos und Videos",
+    "Музика й спільноти": "Musik und Communities",
+    "Твої люди. Твої моменти. Твій простір.": "Deine Menschen. Deine Momente. Dein Raum.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "Deine Menschen. Deine Momente. Dein Raum. Freunde, Fotos, Musik und Communities — an einem Ort.",
+    "Запросити друзів": "Freunde einladen"
+  },
+  "fr": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "RÉSEAU SOCIAL · CRÉÉ EN UKRAINE",
+    "тут починається твоє коло": "ton cercle commence ici",
+    "ВАТРА — тут починається твоє коло": "VATRA — ton cercle commence ici",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Retrouve des amis, partage des moments, écoute de la musique et découvre des communautés qui te ressemblent. Tout pour échanger au même endroit.",
+    "Друзі й повідомлення": "Amis et messages",
+    "Дописи, фото та відео": "Publications, photos et vidéos",
+    "Музика й спільноти": "Musique et communautés",
+    "Твої люди. Твої моменти. Твій простір.": "Tes proches. Tes moments. Ton espace.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "Tes proches. Tes moments. Ton espace. Amis, photos, musique et communautés — au même endroit.",
+    "Запросити друзів": "Inviter des amis"
+  },
+  "es": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "RED SOCIAL · CREADA EN UCRANIA",
+    "тут починається твоє коло": "aquí comienza tu círculo",
+    "ВАТРА — тут починається твоє коло": "VATRA — aquí comienza tu círculo",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Encuentra amigos, comparte momentos, escucha música y descubre comunidades que comparten tus intereses. Todo para conectar en un solo lugar.",
+    "Друзі й повідомлення": "Amigos y mensajes",
+    "Дописи, фото та відео": "Publicaciones, fotos y vídeos",
+    "Музика й спільноти": "Música y comunidades",
+    "Твої люди. Твої моменти. Твій простір.": "Tu gente. Tus momentos. Tu espacio.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "Tu gente. Tus momentos. Tu espacio. Amigos, fotos, música y comunidades — en un solo lugar.",
+    "Запросити друзів": "Invitar a amigos"
+  },
+  "pt": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "REDE SOCIAL · CRIADA NA UCRÂNIA",
+    "тут починається твоє коло": "aqui começa o teu círculo",
+    "ВАТРА — тут починається твоє коло": "VATRA — aqui começa o teu círculo",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Encontra amigos, partilha momentos, ouve música e descobre comunidades dos teus interesses. Tudo para te ligares num só lugar.",
+    "Друзі й повідомлення": "Amigos e mensagens",
+    "Дописи, фото та відео": "Publicações, fotos e vídeos",
+    "Музика й спільноти": "Música e comunidades",
+    "Твої люди. Твої моменти. Твій простір.": "As tuas pessoas. Os teus momentos. O teu espaço.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "As tuas pessoas. Os teus momentos. O teu espaço. Amigos, fotos, música e comunidades — num só lugar.",
+    "Запросити друзів": "Convidar amigos"
+  },
+  "it": {
+    "СОЦІАЛЬНА МЕРЕЖА · СТВОРЕНА В УКРАЇНІ": "SOCIAL NETWORK · CREATO IN UCRAINA",
+    "тут починається твоє коло": "qui inizia la tua cerchia",
+    "ВАТРА — тут починається твоє коло": "VATRA — qui inizia la tua cerchia",
+    "Знаходь друзів, ділись моментами, слухай музику та відкривай спільноти за інтересами. Усе для спілкування — в одному місці.": "Trova amici, condividi momenti, ascolta musica e scopri comunità legate ai tuoi interessi. Tutto per restare in contatto in un unico posto.",
+    "Друзі й повідомлення": "Amici e messaggi",
+    "Дописи, фото та відео": "Post, foto e video",
+    "Музика й спільноти": "Musica e comunità",
+    "Твої люди. Твої моменти. Твій простір.": "Le tue persone. I tuoi momenti. Il tuo spazio.",
+    "Твої люди. Твої моменти. Твій простір. Друзі, фотографії, музика і спільноти — в одному місці.": "Le tue persone. I tuoi momenti. Il tuo spazio. Amici, foto, musica e comunità — tutto in un unico posto.",
+    "Запросити друзів": "Invita amici"
+  }
+};
+Object.assign(base,vatraCircleTranslations.en);
+for(const [locale,labels] of Object.entries(vatraCircleTranslations)){
+ if(locale==='en')continue;
+ Object.assign(overrides[locale]||(overrides[locale]={}),labels);
+}
+
+
 Object.assign(base,{
  'Вхід до ВАТРИ':'Sign in to VATRA',
  'УКРАЇНСЬКА МЕРЕЖА':'UKRAINIAN NETWORK',
