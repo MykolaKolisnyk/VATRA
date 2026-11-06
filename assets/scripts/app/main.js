@@ -2283,17 +2283,32 @@ function renderPhotos(){
  vatraAlbumManager();
 }
 
+const VATRA_MY_VIDEOS_BATCH_SIZE=12;
 function renderMyVideos(){
  if(!currentUser){setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><h2>Мої відео</h2><p>Увійдіть, щоб переглянути власні відео.</p><button type="button" class="primary" id="myVideosSignIn">Увійти</button></div></section>');$('#myVideosSignIn')?.addEventListener('click',()=>openAuth('login'));return}
  const uid=currentUser.uid,unique=new Set();
  const items=Object.entries(posts||{}).filter(([,p])=>p?.authorUid===uid&&p.videoUrl&&p.addMediaToGallery!==false)
-  .map(([id,p])=>({id,url:p.videoUrl,createdAt:p.createdAt||0,text:p.text||''}))
+  .map(([id,p])=>({id,url:p.videoUrl,createdAt:p.createdAt||0,text:p.text||'',poster:p.videoPosterUrl||p.videoThumbnailUrl||''}))
   .filter(v=>typeof v.url==='string'&&/^https:\/\//i.test(v.url)&&!unique.has(v.url)&&unique.add(v.url))
   .sort((a,b)=>b.createdAt-a.createdAt);
- const grid=items.map(v=>'<article class="vatra-my-video"><div class="vatra-my-video-info"><b>Відео з допису</b><small>'+timeAgo(v.createdAt)+'</small></div>'+
-  '<video controls playsinline preload="none" aria-label="Відеозапис із допису" src="'+esc(v.url)+'"></video>'+(v.text?'<p>'+safeText(v.text)+'</p>':'')+'</article>').join('');
+ const videoCard=v=>'<article class="vatra-my-video"><div class="vatra-my-video-info"><b>Відео з допису</b><small>'+timeAgo(v.createdAt)+'</small></div>'+
+  '<video controls playsinline preload="none" loading="lazy"'+(/^https:\/\//i.test(v.poster)?' poster="'+esc(v.poster)+'"':'')+' aria-label="Відеозапис із допису" src="'+esc(v.url)+'"></video>'+(v.text?'<p>'+safeText(v.text)+'</p>':'')+'</article>';
+ const grid=items.slice(0,VATRA_MY_VIDEOS_BATCH_SIZE).map(videoCard).join('');
  setFeed('<section class="vatra-my-videos"><div class="vatra-my-videos-header"><div><h2>Мої відео <span>'+items.length+'</span></h2><p>Відеозаписи з Ваших дописів на сторінці.</p></div></div>'+
-  '<div class="vatra-my-videos-grid">'+(grid||'<p class="vatra-my-video-empty">Відеозаписів поки немає.</p>')+'</div></section>',false);
+  '<div class="vatra-my-videos-grid" id="vatraMyVideosGrid">'+(grid||'<p class="vatra-my-video-empty">Відеозаписів поки немає.</p>')+'</div>'+
+  (items.length>VATRA_MY_VIDEOS_BATCH_SIZE?'<button type="button" class="vatra-my-video-more" id="vatraMyVideosMore">Показати ще відео ('+(items.length-VATRA_MY_VIDEOS_BATCH_SIZE)+')</button>':'')+'</section>',false);
+ const more=$('#vatraMyVideosMore');
+ if(more){
+  let visible=VATRA_MY_VIDEOS_BATCH_SIZE;
+  more.addEventListener('click',()=>{
+   if(page!=='myVideos'||!more.isConnected)return;
+   const next=items.slice(visible,visible+VATRA_MY_VIDEOS_BATCH_SIZE);
+   $('#vatraMyVideosGrid')?.insertAdjacentHTML('beforeend',next.map(videoCard).join(''));
+   visible+=next.length;
+   more.hidden=visible>=items.length;
+   if(!more.hidden)more.textContent='Показати ще відео ('+(items.length-visible)+')';
+  });
+ }
 }
 let vatraComposerGroupId=null;
 const vatraGroupCommentOpen=Object.create(null);
