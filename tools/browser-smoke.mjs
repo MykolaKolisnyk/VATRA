@@ -296,6 +296,36 @@ try{
  }catch(error){failed=true;console.error('FAIL VATRA language availability dialog',error?.stack||error);}
  finally{await localePage.close();}
 
+
+ // Auth/recovery country lists: search by calling code and keep it independent of interface language.
+ const countryPage=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+ try{
+  await countryPage.goto(base+'/auth.html',{waitUntil:'domcontentloaded'});
+  await countryPage.locator('#vatraLoader').waitFor({state:'hidden',timeout:15000});
+  await countryPage.locator('input[name="authMethod"][value="phone"]').check();
+  const trigger=countryPage.locator('#countryCodeMenu').locator('xpath=..').locator('.vatra-phone-country-trigger');
+  await trigger.click();
+  const menu=countryPage.locator('#countryCodeMenu:not([hidden])');
+  const search=menu.locator('.vatra-phone-country-search');
+  await search.fill('48');
+  assert.equal(await menu.locator('[role="option"]:visible').count(),1,'Calling-code search must narrow the country list');
+  assert.equal(await menu.locator('[role="option"]:visible').first().getAttribute('data-iso'),'PL');
+  await search.fill('vatra-invalid-country-000');
+  assert.ok(await menu.locator('.vatra-phone-country-empty').isVisible(),'Unknown calling code needs an empty state');
+  assert.equal(await menu.locator('[role="option"]:visible').count(),0,'Filtered country options should be hidden');
+  await search.fill('48');
+  await menu.locator('[data-iso="PL"]').click();
+  assert.equal(await countryPage.locator('#countryCode').inputValue(),'+48','Country selector must update the actual phone prefix');
+  await countryPage.locator('.vatra-auth-language-option[data-vatra-auth-language="en"]:visible').first().click();
+  assert.equal(await countryPage.locator('#countryCode').inputValue(),'+48','Changing interface language must not rewrite a selected phone code');
+  assert.equal(await countryPage.evaluate(()=>localStorage.getItem('vatra-language')),'en','Selected interface language must persist');
+  await countryPage.reload();
+  await countryPage.locator('#vatraLoader').waitFor({state:'hidden',timeout:15000});
+  assert.equal(await countryPage.evaluate(()=>window.vatraLanguage?.language),'en','Saved interface language must survive reload');
+  results.push({case:'phone-code-language-independence',viewport:'mobile',countrySearch:true,languagePersisted:true});
+ }catch(error){failed=true;console.error('FAIL VATRA country code and language independence',error?.stack||error);}
+ finally{await countryPage.close();}
+
  // The first impression must be understandable when international users select English.
  const enPage=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  try{

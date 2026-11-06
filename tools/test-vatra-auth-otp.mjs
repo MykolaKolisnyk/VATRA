@@ -264,3 +264,13 @@ for(const html of [read('auth.html'),read('register.html')]){
  assert.ok(html.includes('auth.js?v=20261105-singleton2&amp;locale=uk1'),'Registration locale fix must bypass cached module');
 }
 console.log('VATRA registration metadata: Ukrainian default, selected ready languages, unfinished fallback verified.');
+
+
+/* Telephone-country search must be discoverable in both login and recovery. */
+assert.ok(auth.includes("search.placeholder='Пошук країни або коду'"),'Telephone country picker needs search');
+assert.ok(auth.includes("item.dataset.dial.includes(query)"),'Calling-code search must match international prefixes');
+assert.ok(auth.includes("item.dataset.iso.toLowerCase().includes(query)"),'Country search must match ISO codes');
+assert.ok(auth.includes("empty.hidden=found>0"),'Country search should explain no matches');
+assert.ok(auth.includes("options.querySelectorAll('[role=\"option\"]:not([hidden])')"),'Keyboard navigation must skip filtered countries');
+assert.ok(css.includes('.vatra-phone-country-option[hidden]'),'Filtered calling-code options must be genuinely hidden');
+console.log('VATRA telephone country selector: searchable codes, visible empty status, accessible keyboard traversal.');

@@ -150,5 +150,9 @@ assert.ok(lang.includes('function vatraFilterLanguageDialog(dlg)'),'Language sea
 assert.ok(lang.includes('vatraFilterLanguageDialog(dlg);'),'Language search must also reset when reopening');
 assert.ok(lang.includes('class="vatra-language-empty" role="status" aria-live="polite" hidden'),'Accessible empty-results state missing');
 assert.ok(read('assets/styles/sources/profile/gallery-language.css').includes('.vatra-language-empty)[hidden]{display:none!important}'),'Filtered rows must remain visually hidden despite flex CSS');
-for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=search1'),page+': cache key must reflect the updated language dialog');
+for(const page of ['index.html','auth.html','register.html'])assert.ok(read(page).includes('&amp;catalog=search2'),page+': cache key must reflect the updated language dialog');
 console.log('VATRA i18n search: status, empty results, reset, grouped languages retained.');
+
+for(const page of ['auth.html','register.html']){
+ assert.ok(read(page).includes('&amp;country=search1'),page+': country search bundle needs a refreshed cache key');
+}

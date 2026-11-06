@@ -326,6 +326,17 @@ const vatraAuthFlowTranslations={
   }
 };
 Object.assign(base,vatraAuthFlowTranslations.en);
+// Country calling-code search labels for the eight available interface languages.
+Object.assign(base,{'Пошук країни або коду':'Search country or calling code','Країн не знайдено':'No countries found'});
+const vatraCountrySearchLabels={
+ pl:{'Пошук країни або коду':'Szukaj kraju lub numeru kierunkowego','Країн не знайдено':'Nie znaleziono krajów'},
+ de:{'Пошук країни або коду':'Land oder Vorwahl suchen','Країн не знайдено':'Keine Länder gefunden'},
+ fr:{'Пошук країни або коду':'Rechercher un pays ou indicatif','Країн не знайдено':'Aucun pays trouvé'},
+ es:{'Пошук країни або коду':'Buscar país o prefijo','Країн не знайдено':'No se encontraron países'},
+ pt:{'Пошук країни або коду':'Pesquisar país ou indicativo','Країн не знайдено':'Nenhum país encontrado'},
+ it:{'Пошук країни або коду':'Cerca paese o prefisso','Країн не знайдено':'Nessun paese trovato'}
+};
+for(const [locale,labels] of Object.entries(vatraCountrySearchLabels))Object.assign(overrides[locale]||(overrides[locale]={}),labels);
 for(const [locale,labels] of Object.entries(vatraAuthFlowTranslations)){
  if(locale!=='en')Object.assign(overrides[locale]||(overrides[locale]={}),labels);
 }

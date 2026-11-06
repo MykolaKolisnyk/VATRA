@@ -4161,6 +4161,23 @@ html body .phone-number-control .vatra-phone-country-option{
  border-radius:7px!important;font-size:12px!important;line-height:1.25!important;
 }
 html body .phone-number-control .vatra-phone-country-option>b{font-size:11px!important}
+/* Search remains visible while options scroll inside the existing calling-code popup. */
+html body .phone-number-control>.vatra-phone-country-menu:not([hidden]){display:flex!important;flex-direction:column!important;overflow:hidden!important}
+html body .phone-number-control .vatra-phone-country-search{
+ flex:none!important;box-sizing:border-box!important;width:100%!important;min-height:39px!important;
+ padding:8px 10px!important;margin:0 0 4px!important;border:1px solid #d5e3f4!important;
+ border-radius:9px!important;background:#f7faff!important;color:#203c60!important;
+ font:500 12px/1.4 "VATRA Onest",system-ui,sans-serif!important;
+}
+html body .phone-number-control .vatra-phone-country-search:focus-visible{outline:2px solid #7ba7ff!important;outline-offset:1px!important}
+html body .phone-number-control .vatra-phone-country-options{
+ min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;
+ scrollbar-width:thin!important;scrollbar-color:#97b2d8 #edf3fa!important;
+}
+html body .phone-number-control .vatra-phone-country-options::-webkit-scrollbar{width:7px!important}
+html body .phone-number-control .vatra-phone-country-options::-webkit-scrollbar-thumb{background:#97b2d8!important;border-radius:8px!important}
+html body .phone-number-control .vatra-phone-country-option[hidden],html body .phone-number-control .vatra-phone-country-empty[hidden]{display:none!important}
+html body .phone-number-control .vatra-phone-country-empty{margin:0!important;padding:13px 8px!important;color:#667e9c!important;text-align:center!important;font:500 12px/1.45 "VATRA Onest",system-ui,sans-serif!important}
 html body .phone-number-control--email>.vatra-phone-country-trigger{display:none!important}
 html body .phone-number-control--email>.vatra-phone-country-menu{display:none!important}
 html body .phone-number-control>input[type="tel"]{

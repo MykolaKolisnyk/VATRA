@@ -108,11 +108,18 @@ function vatraPhoneError(input,select){
 }
 function enhanceCountryMenu(select,row){
  const button=document.createElement('button');button.type='button';button.className='vatra-phone-country-trigger';
- button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');
+ button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-expanded','false');
  button.setAttribute('aria-label','Оберіть країну та телефонний код');
- const menu=document.createElement('div');menu.id=select.id+'Menu';menu.className='vatra-phone-country-menu';menu.setAttribute('role','listbox');
+ const menu=document.createElement('div');menu.id=select.id+'Menu';menu.className='vatra-phone-country-menu';menu.setAttribute('role','dialog');
  menu.setAttribute('aria-label','Країни та телефонні коди');menu.hidden=true;
  button.setAttribute('aria-controls',menu.id);
+ const search=document.createElement('input');search.type='search';search.className='vatra-phone-country-search';
+ search.placeholder='Пошук країни або коду';search.setAttribute('aria-label','Пошук країни або коду');search.autocomplete='off';
+ const options=document.createElement('div');options.className='vatra-phone-country-options';
+ options.setAttribute('role','listbox');options.setAttribute('aria-label','Країни та телефонні коди');
+ const empty=document.createElement('p');empty.className='vatra-phone-country-empty';
+ empty.setAttribute('role','status');empty.setAttribute('aria-live','polite');empty.textContent='Країн не знайдено';empty.hidden=true;
+ menu.append(search,options,empty);
  for(const c of PHONE_COUNTRIES){
   const item=document.createElement('button');item.type='button';item.className='vatra-phone-country-option';
   item.setAttribute('role','option');item.dataset.iso=c.iso;item.dataset.dial=c.dial;
@@ -125,8 +132,20 @@ function enhanceCountryMenu(select,row){
    select.dispatchEvent(new Event('change',{bubbles:true}));
    close();button.focus();
   });
-  menu.append(item);
+  options.append(item);
  }
+ function filterCountries(){
+  const query=search.value.trim().toLocaleLowerCase('uk-UA');
+  let found=0;
+  options.querySelectorAll('[role="option"]').forEach(item=>{
+   const name=item.querySelector('span')?.textContent?.toLocaleLowerCase('uk-UA')||'';
+   const match=!query||name.includes(query)||item.dataset.iso.toLowerCase().includes(query)||item.dataset.dial.includes(query);
+   item.hidden=!match;
+   if(match)found++;
+  });
+  empty.hidden=found>0;
+ }
+ search.addEventListener('input',filterCountries);
  row.insertBefore(button,inputPlaceholderForCountry(row));row.append(menu);
  function update(){
   const option=select.options[select.selectedIndex],iso=option?.dataset.iso||'UA';
@@ -135,20 +154,22 @@ function enhanceCountryMenu(select,row){
   button.title=c.name+' ('+c.dial+')';
   menu.querySelectorAll('[role="option"]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.iso===iso)));
  }
- function close(){menu.hidden=true;button.setAttribute('aria-expanded','false');}
+ function close(){menu.hidden=true;button.setAttribute('aria-expanded','false');search.value='';filterCountries();}
  button.addEventListener('click',()=>{
   const wasOpen=!menu.hidden;
   menu.hidden=wasOpen;button.setAttribute('aria-expanded',String(!wasOpen));
-  if(!wasOpen)menu.querySelector('[aria-selected="true"]')?.focus();
+  if(!wasOpen){filterCountries();search.focus();}
  });
  menu.addEventListener('keydown',event=>{
-  const items=[...menu.querySelectorAll('[role="option"]')];
+  const items=[...options.querySelectorAll('[role="option"]:not([hidden])')];
   const i=items.indexOf(document.activeElement);
   if(event.key==='Escape'){event.preventDefault();close();button.focus();}
-  else if(event.key==='ArrowDown'||event.key==='ArrowUp'){
-   event.preventDefault();items[(i+(event.key==='ArrowDown'?1:items.length-1))%items.length]?.focus();
-  }else if(event.key==='Home'||event.key==='End'){
-   event.preventDefault();items[event.key==='Home'?0:items.length-1]?.focus();
+  else if((event.key==='ArrowDown'||event.key==='ArrowUp')&&items.length){
+   event.preventDefault();
+   const index=i<0?(event.key==='ArrowDown'?0:items.length-1):(i+(event.key==='ArrowDown'?1:items.length-1))%items.length;
+   items[index].focus();
+  }else if((event.key==='Home'||event.key==='End')&&event.target!==search&&items.length){
+   event.preventDefault();items[event.key==='Home'?0:items.length-1].focus();
   }
  });
  document.addEventListener('pointerdown',event=>{if(!row.contains(event.target))close();});
