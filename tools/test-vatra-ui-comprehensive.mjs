@@ -62,3 +62,9 @@ for(const [path,needle] of [
  ["assets/styles/sources/social/communities.css","VATRA UI 2026: community identity"],
  ["assets/styles/sources/layout/pages.css","VATRA UI 2026: friends directory"]
 ])assert.ok(read(path).includes(needle),path+': missing redesigned component');
+
+for(const [path,marker] of [
+ ['assets/styles/sources/social/messenger.css','VATRA UI 2026: focused messenger'],
+ ['assets/styles/sources/profile/gallery-language.css','VATRA UI 2026: photo and video'],
+ ['assets/styles/sources/gifts/catalog.css','VATRA UI 2026: compact gifts']
+])assert.ok(read(path).includes(marker),path+': visual treatment missing');

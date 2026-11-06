@@ -12646,6 +12646,25 @@ body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header-actions button{color:#deebfc!important}
 body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-chat-header-actions button:hover{background:#385373!important}
 
+/* VATRA UI 2026: focused messenger, two-pane conversations and no surrounding ads. */
+body[data-page="messages"] .vatra-sidebar-ads{display:none!important}
+body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(244px,34%) minmax(0,1fr)!important;border:1px solid var(--vatra-border)!important;border-radius:13px!important;overflow:hidden!important;background:var(--vatra-surface)!important;box-shadow:0 2px 10px rgba(30,52,75,.035)!important}
+body[data-page="messages"] .vatra-messenger-sidebar{border-right:1px solid var(--vatra-border)!important;min-width:0!important;background:var(--vatra-surface)!important}
+body[data-page="messages"] .vatra-messenger-heading{padding:14px!important;gap:10px!important}
+body[data-page="messages"] .vatra-messenger-heading h2{font:670 18px/1.3 var(--vatra-ui-font)!important;letter-spacing:-.025em!important}
+body[data-page="messages"] .vatra-messenger-search{min-height:38px!important;margin:0 10px 10px!important;border:1px solid var(--vatra-border)!important;border-radius:10px!important;background:var(--vatra-surface-muted)!important}
+body[data-page="messages"] .vatra-messenger-contact{margin:3px 5px!important}
+body[data-page="messages"] .vatra-messenger-contact-main{min-height:63px!important;border-radius:10px!important;padding:10px!important;gap:10px!important}
+body[data-page="messages"] .vatra-messenger-contact-main.active{border-radius:10px!important;background:rgba(90,136,195,.12)!important}
+body[data-page="messages"] .vatra-messenger-contact-main b{font-size:12.5px!important;font-weight:635!important}
+body[data-page="messages"] .vatra-messenger-contact-main small{font-size:11.5px!important}
+body[data-page="messages"] .chat-top{min-height:67px!important;padding:12px 16px!important;border-bottom:1px solid var(--vatra-border)!important}
+body[data-page="messages"] .vatra-messenger-shell .chat-messages{padding:17px 19px!important;background:var(--vatra-surface-muted)!important}
+body[data-page="messages"] .vatra-messenger-shell .chat-send{margin:10px 13px 12px!important;border-radius:13px!important}
+body[data-page="messages"] .vatra-chat-load-older{border-radius:9px!important;min-height:35px!important}
+body[data-vatra-theme-effective="dark"][data-page="messages"] .vatra-messenger-shell .chat-messages{background:var(--vatra-canvas)!important}
+@media(max-width:760px){body[data-page="messages"] .vatra-messenger-shell{grid-template-columns:minmax(0,1fr)!important;max-height:none!important}body[data-page="messages"] .vatra-messenger-shell .chat-messages{padding:12px!important}body[data-page="messages"] .chat-top{min-height:58px!important}}
+
 
 /* ORIGINAL FILE: assets/styles/sources/layout/navigation-profile.css. Keep order from index.html. */
 /* Desktop navigation is owned by foundation/icons.css. */
@@ -17138,6 +17157,19 @@ body .vatra-profile-sidebar .vatra-gift-preview-card button.vatra-gift-preview-l
 @media(max-width:380px){body .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)!important}}
 @media(prefers-reduced-motion:reduce){body .vatra-gift-preview-item .vatra-gift-particle{animation:none!important}}
 
+/* VATRA UI 2026: compact gifts catalog — artwork remains primary. */
+body[data-page="gifts"] .vatra-gifts-page{padding:16px!important;border-radius:13px!important;border:1px solid var(--vatra-border)!important;background:var(--vatra-surface)!important;box-shadow:0 2px 9px rgba(30,52,75,.025)!important}
+body[data-page="gifts"] .vatra-gifts-header{gap:10px!important;padding-bottom:12px!important}
+body[data-page="gifts"] .vatra-gifts-header h1{font:680 21px/1.3 var(--vatra-ui-font)!important;letter-spacing:-.03em!important}
+body[data-page="gifts"] .vatra-gifts-tabs{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:9px!important;padding-bottom:6px!important}
+body[data-page="gifts"] .vatra-gifts-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important;margin:13px 0!important}
+body[data-page="gifts"] .vatra-gift-card{padding:11px!important;min-width:0!important;border:1px solid var(--vatra-border)!important;border-radius:12px!important;box-shadow:none!important;background:var(--vatra-surface)!important}
+body[data-page="gifts"] .vatra-gift-card .vatra-gift-image{border-radius:9px!important;overflow:hidden!important}
+body[data-page="gifts"] .vatra-gift-card h3{font-size:12.5px!important;font-weight:660!important;line-height:1.4!important}
+body[data-page="gifts"] .vatra-gift-card button{border-radius:9px!important;min-height:35px!important;font-weight:580!important}
+@media(max-width:760px){body[data-page="gifts"] .vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}body[data-page="gifts"] .vatra-gifts-page{padding:12px!important}}
+@media(max-width:380px){body[data-page="gifts"] .vatra-gifts-grid{grid-template-columns:minmax(0,1fr)!important}}
+
 
 /* ORIGINAL FILE: assets/styles/sources/layout/interaction-states.css. Keep order from index.html. */
 :root{--vatra-line:#dce5f0;--vatra-soft:#f4f7fb;--vatra-ink:#1d304b}
@@ -20245,6 +20277,22 @@ dialog.vatra-profile-video-dialog::backdrop{background:#061324ba;backdrop-filter
 .vatra-profile-video-shell>video{display:block;width:100%;max-height:min(70dvh,680px);background:#020714}
 .vatra-profile-video-date{padding:10px 16px;color:#c5d5f0;font:500 12px/1.4 Inter,system-ui,sans-serif}
 .vatra-profile-video-date .vatra-profile-photo-date{display:inline!important;color:inherit!important}
+
+/* VATRA UI 2026: photo and video galleries with deliberate responsive tile size. */
+body[data-page="photos"] .vatra-photos-page{overflow:hidden!important;border:1px solid var(--vatra-border)!important;border-radius:13px!important;background:var(--vatra-surface)!important}
+body[data-page="photos"] .vatra-photos-toolbar{padding:17px 18px!important;gap:12px!important}
+body[data-page="photos"] .vatra-photos-toolbar h2{font-size:19px!important;font-weight:670!important;letter-spacing:-.025em!important}
+body[data-page="photos"] .vatra-photos-tabs{padding-inline:18px!important;gap:7px!important;overflow-x:auto!important;white-space:nowrap!important}
+body[data-page="photos"] .vatra-photo-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:9px!important;padding:15px 18px!important;min-height:0!important}
+body[data-page="photos"] .vatra-photo-tile{aspect-ratio:1!important;border-radius:10px!important;overflow:hidden!important;background:var(--vatra-surface-muted)!important}
+body[data-page="photos"] .vatra-photo-tile img{width:100%!important;height:100%!important;object-fit:cover!important;transition:transform .2s ease!important}
+body[data-page="photos"] .vatra-photo-tile:hover img{transform:scale(1.035)!important}
+body[data-page="myVideos"] .vatra-my-videos-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+body[data-page="myVideos"] .vatra-my-video{border:1px solid var(--vatra-border)!important;border-radius:12px!important;padding:11px!important;overflow:hidden!important}
+body[data-page="myVideos"] .vatra-my-video video{width:100%!important;max-width:100%!important;border-radius:9px!important;aspect-ratio:16/9!important;background:#121d30!important}
+@media(max-width:900px){body[data-page="photos"] .vatra-photo-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:600px){body[data-page="photos"] .vatra-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;padding:10px!important}body[data-page="photos"] .vatra-photos-toolbar{padding:13px!important}body[data-page="photos"] .vatra-photos-tabs{padding-inline:10px!important}body[data-page="myVideos"] .vatra-my-videos-grid{grid-template-columns:minmax(0,1fr)!important}}
+@media(prefers-reduced-motion:reduce){body[data-page="photos"] .vatra-photo-tile img{transition:none!important}}
 
 
 /* ORIGINAL FILE: assets/styles/sources/media/media-access.css. Keep order from index.html. */
