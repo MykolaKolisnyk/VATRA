@@ -135,6 +135,8 @@ try{
     sidebarSize:getComputedStyle(side).fontSize,
     navActiveBackground:getComputedStyle(activeNav).backgroundColor,
     navIdleBackground:getComputedStyle(idleNav).backgroundColor,
+    navActiveColor:getComputedStyle(activeNav).color,
+    navActiveIconColor:getComputedStyle(activeNav.querySelector('.nav-icon')).color,
     navActiveWeight:getComputedStyle(activeNav.querySelector('span:not(.nav-icon)')).fontWeight,
     navIdleWeight:getComputedStyle(idleNav.querySelector('span:not(.nav-icon)')).fontWeight,
     cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('vatra.css'))};
@@ -145,8 +147,10 @@ try{
   assert.equal(visualStyle.postSize,'16px','Readable body text must be 16px on desktop');
   assert.ok(parseFloat(visualStyle.authorSize)>=15,'Post author must be legible');
   assert.ok(parseFloat(visualStyle.sidebarSize)>=14,'Navigation labels must be legible');
-  assert.equal(visualStyle.navActiveBackground,visualStyle.navIdleBackground,'The active route must remain visually neutral in light mode');
-  assert.equal(visualStyle.navActiveWeight,visualStyle.navIdleWeight,'Active route must not have a heavier font');
+  assert.equal(visualStyle.navActiveBackground,visualStyle.navIdleBackground,'Active sidebar must not use a filled selection background');
+  assert.equal(visualStyle.navActiveColor,'rgb(7, 87, 245)','Active route text must use the VATRA blue');
+  assert.equal(visualStyle.navActiveIconColor,'rgb(7, 87, 245)','Active route icon must use the VATRA blue');
+  assert.ok(Number(visualStyle.navActiveWeight)>Number(visualStyle.navIdleWeight),'Active route should use moderately stronger text');
   await visual.screenshot({path:output+'/vatra-visual-system-desktop.png',animations:'disabled'});
   await visual.evaluate(()=>{document.body.dataset.vatraThemeEffective='dark';});
   const darkNav=await visual.evaluate(()=>({

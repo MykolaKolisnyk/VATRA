@@ -22580,11 +22580,11 @@ html body .layout>aside.sidebar>nav[aria-label="Основна навігаці�
  text-shadow:none!important;
 }
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
- background:transparent!important;color:#24354b!important;
+ background:transparent!important;color:#0757f5!important;
  box-shadow:none!important;
 }
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){font-weight:500!important}
-html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:var(--vatra-muted,#667d95)!important}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"])>span:not(.nav-icon){font-weight:600!important}
+html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#0757f5!important}
 html body .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav.vatra-nav-section-start{
  margin-top:4px!important;
  padding-top:5px!important;
@@ -22651,10 +22651,10 @@ html body[data-vatra-theme-effective="dark"]{
 }
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav{color:#ebf3fc!important;background:transparent!important}
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]){
- color:#ebf3fc!important;background:transparent!important;
+ color:#8cafd9!important;background:transparent!important;
  box-shadow:none!important;
 }
-html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:var(--vatra-muted,#afc0d4)!important}
+html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:is(.active,[aria-current="page"]) .nav-icon{color:#8cafd9!important}
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav .nav-icon{color:var(--vatra-muted,#afc0d4)!important}
 html body[data-vatra-theme-effective="dark"] .layout>aside.sidebar>nav[aria-label="Основна навігація"]>a.nav:hover{background:rgba(155,175,196,.1)!important}
 @media(max-width:760px){

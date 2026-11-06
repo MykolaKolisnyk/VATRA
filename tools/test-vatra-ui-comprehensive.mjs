@@ -38,7 +38,7 @@ assert.ok(main.includes('vatraChatScrollRestore')&&main.includes('data-vatra-cha
 assert.ok(messenger.includes('@media(hover:none),(pointer:coarse)')&&messenger.includes('vatra-chat-load-older'),'Message actions and history must work on touch');
 assert.ok(main.includes("event.key==='Home'")&&main.includes('aria-controls="vatra-group-panel-'),'Group tabs must support keyboard navigation and ARIA');
 assert.ok(editor.includes('font:520 13px/1.4 var(--vatra-ui-font)!important'),'Profile editor should use balanced Onest weights');
-assert.ok(css.includes('background:transparent!important;color:#24354b!important;')&&css.includes('box-shadow:none!important;'),'Selected sidebar must remain visually neutral');
+assert.ok(css.includes('background:transparent!important;color:#0757f5!important;')&&css.includes('box-shadow:none!important;'),'Active sidebar must use VATRA blue text without a filled selection bar');
 assert.ok(!read('assets/styles/sources/layout/navigation-profile.css').includes('sidebar nav button.nav.active'),'Legacy button nav rules must be removed');
 assert.ok(!read('assets/styles/sources/layout/interface-corrections.css').includes('sidebar nav a.nav.active'),'Legacy active sidebar overrides must be removed');
 
