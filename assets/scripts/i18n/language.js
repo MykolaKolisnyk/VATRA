@@ -222,6 +222,113 @@ const vatraCircleTranslations={
   }
 };
 Object.assign(base,vatraCircleTranslations.en);
+
+/* VATRA Circle: translate existing email/password form guidance alongside the hero. */
+const vatraAuthFlowTranslations={
+  "en": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Sign in with your email address or phone number and password.",
+    "Вхід з паролем": "Password sign-in",
+    "Вхід за номером і паролем": "Sign in with phone and password",
+    "Введіть пароль": "Enter your password",
+    "Запам’ятати мене": "Remember me",
+    "Не виходити після закриття браузера": "Stay signed in after closing the browser",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Fill in your details and confirm your email with a VATRA code. Your page will then be created.",
+    "SMS-реєстрація поки недоступна": "SMS registration is not yet available",
+    "Код у SMS — скоро": "SMS code — coming soon",
+    "Підтвердження email-кодом": "Confirmation by email code",
+    "Створіть акаунт ВАТРИ": "Create your VATRA account",
+    "ВАТРА — тут починається твоє коло": "VATRA — your circle starts here"
+  },
+  "pl": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Zaloguj się przez e-mail lub numer telefonu i hasło.",
+    "Вхід з паролем": "Logowanie hasłem",
+    "Вхід за номером і паролем": "Logowanie numerem telefonu i hasłem",
+    "Введіть пароль": "Wpisz hasło",
+    "Запам’ятати мене": "Zapamiętaj mnie",
+    "Не виходити після закриття браузера": "Nie wylogowuj po zamknięciu przeglądarki",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Uzupełnij dane i potwierdź e-mail kodem VATRA. Po potwierdzeniu powstanie Twoja strona.",
+    "SMS-реєстрація поки недоступна": "Rejestracja przez SMS jest jeszcze niedostępna",
+    "Код у SMS — скоро": "Kod SMS — wkrótce",
+    "Підтвердження email-кодом": "Potwierdzenie kodem e-mail",
+    "Створіть акаунт ВАТРИ": "Utwórz konto VATRA",
+    "ВАТРА — тут починається твоє коло": "VATRA — tu zaczyna się Twoje grono"
+  },
+  "de": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Melde dich mit E-Mail-Adresse oder Telefonnummer und Passwort an.",
+    "Вхід з паролем": "Anmeldung mit Passwort",
+    "Вхід за номером і паролем": "Mit Telefonnummer und Passwort anmelden",
+    "Введіть пароль": "Passwort eingeben",
+    "Запам’ятати мене": "Angemeldet bleiben",
+    "Не виходити після закриття браузера": "Nach dem Schließen des Browsers angemeldet bleiben",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Gib deine Daten ein und bestätige deine E-Mail mit einem VATRA-Code. Danach wird deine Seite erstellt.",
+    "SMS-реєстрація поки недоступна": "SMS-Registrierung ist noch nicht verfügbar",
+    "Код у SMS — скоро": "SMS-Code — demnächst",
+    "Підтвердження email-кодом": "Bestätigung per E-Mail-Code",
+    "Створіть акаунт ВАТРИ": "VATRA-Konto erstellen",
+    "ВАТРА — тут починається твоє коло": "VATRA — hier beginnt dein Kreis"
+  },
+  "fr": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Connecte-toi avec ton adresse e-mail ou ton numéro de téléphone et ton mot de passe.",
+    "Вхід з паролем": "Connexion par mot de passe",
+    "Вхід за номером і паролем": "Connexion par téléphone et mot de passe",
+    "Введіть пароль": "Saisir le mot de passe",
+    "Запам’ятати мене": "Se souvenir de moi",
+    "Не виходити після закриття браузера": "Rester connecté après fermeture du navigateur",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Renseigne tes informations et confirme ton e-mail avec un code VATRA. Ta page sera ensuite créée.",
+    "SMS-реєстрація поки недоступна": "L’inscription par SMS n’est pas encore disponible",
+    "Код у SMS — скоро": "Code SMS — bientôt",
+    "Підтвердження email-кодом": "Confirmation par code e-mail",
+    "Створіть акаунт ВАТРИ": "Créer un compte VATRA",
+    "ВАТРА — тут починається твоє коло": "VATRA — ton cercle commence ici"
+  },
+  "es": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Inicia sesión con tu correo electrónico o número de teléfono y contraseña.",
+    "Вхід з паролем": "Inicio de sesión con contraseña",
+    "Вхід за номером і паролем": "Entrar con teléfono y contraseña",
+    "Введіть пароль": "Introduce tu contraseña",
+    "Запам’ятати мене": "Recordarme",
+    "Не виходити після закриття браузера": "Mantener la sesión al cerrar el navegador",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Rellena tus datos y confirma el correo con un código de VATRA. Tu página se creará después.",
+    "SMS-реєстрація поки недоступна": "El registro por SMS aún no está disponible",
+    "Код у SMS — скоро": "Código SMS — próximamente",
+    "Підтвердження email-кодом": "Confirmación mediante código por correo",
+    "Створіть акаунт ВАТРИ": "Crear una cuenta de VATRA",
+    "ВАТРА — тут починається твоє коло": "VATRA — aquí comienza tu círculo"
+  },
+  "pt": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Inicia sessão com o teu e-mail ou número de telefone e palavra-passe.",
+    "Вхід з паролем": "Iniciar sessão com palavra-passe",
+    "Вхід за номером і паролем": "Entrar com telefone e palavra-passe",
+    "Введіть пароль": "Introduz a palavra-passe",
+    "Запам’ятати мене": "Manter sessão",
+    "Не виходити після закриття браузера": "Manter sessão após fechar o navegador",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Preenche os teus dados e confirma o e-mail com um código VATRA. A tua página será criada em seguida.",
+    "SMS-реєстрація поки недоступна": "O registo por SMS ainda não está disponível",
+    "Код у SMS — скоро": "Código SMS — em breve",
+    "Підтвердження email-кодом": "Confirmação com código por e-mail",
+    "Створіть акаунт ВАТРИ": "Criar conta VATRA",
+    "ВАТРА — тут починається твоє коло": "VATRA — aqui começa o teu círculo"
+  },
+  "it": {
+    "Увійдіть до свого акаунта за допомогою email або номера телефону та пароля.": "Accedi con il tuo indirizzo e-mail o numero di telefono e la password.",
+    "Вхід з паролем": "Accesso con password",
+    "Вхід за номером і паролем": "Accedi con telefono e password",
+    "Введіть пароль": "Inserisci la password",
+    "Запам’ятати мене": "Ricordami",
+    "Не виходити після закриття браузера": "Resta connesso dopo aver chiuso il browser",
+    "Заповніть дані та підтвердьте електронну пошту кодом VATRA. Після підтвердження створиться Ваша сторінка.": "Inserisci i tuoi dati e conferma l'e-mail con un codice VATRA. La tua pagina verrà creata in seguito.",
+    "SMS-реєстрація поки недоступна": "La registrazione via SMS non è ancora disponibile",
+    "Код у SMS — скоро": "Codice SMS — prossimamente",
+    "Підтвердження email-кодом": "Conferma tramite codice e-mail",
+    "Створіть акаунт ВАТРИ": "Crea un account VATRA",
+    "ВАТРА — тут починається твоє коло": "VATRA — qui inizia la tua cerchia"
+  }
+};
+Object.assign(base,vatraAuthFlowTranslations.en);
+for(const [locale,labels] of Object.entries(vatraAuthFlowTranslations)){
+ if(locale!=='en')Object.assign(overrides[locale]||(overrides[locale]={}),labels);
+}
+
 for(const [locale,labels] of Object.entries(vatraCircleTranslations)){
  if(locale==='en')continue;
  Object.assign(overrides[locale]||(overrides[locale]={}),labels);
