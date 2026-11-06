@@ -3008,8 +3008,9 @@ function renderMessages(){
  if(!currentUser){setFeed('<article class="post"><h3>Увійдіть, щоб користуватися повідомленнями</h3><button class="primary" id="chatLogin">Увійти</button></article>');$('#chatLogin').onclick=()=>openAuth('login');return;}
  const chats=Object.entries(chatIndex).filter(([,c])=>Boolean(c?.lastMessage?.text)&&!blockedUsers[c.otherUid]).sort((a,b)=>(b[1]?.updatedAt||0)-(a[1]?.updatedAt||0));
  if(!activeChat){
-  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v11H8l-4 3V6Z"/><path d="M8 10h8M8 13h5"/></svg></div><h2>Почни розмову зі своїми друзями</h2><p>Вибери друга зі списку або знайди людей для нових знайомств.</p><button type="button" class="pill vatra-message-find-friends" data-page="friends">Знайти друзів</button></section></div></section>');
+  setFeed('<section class="vatra-messenger"><div class="vatra-messenger-shell">'+vatraMessengerSidebar(chats)+'<section class="vatra-messenger-empty" aria-label="Оберіть діалог"><div class="vatra-messenger-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v11H8l-4 3V6Z"/><path d="M8 10h8M8 13h5"/></svg></div><h2>Почни розмову зі своїми друзями</h2><p>Вибери друга зі списку або знайди людей для нових знайомств.</p><button type="button" class="pill vatra-message-find-friends" data-vatra-message-find-friends>Знайти друзів</button></section></div></section>');
   vatraMessengerControls();
+  $('#feed [data-vatra-message-find-friends]')?.addEventListener('click',()=>goPage('friends'));
   window.dispatchEvent(new Event('vatra:messenger-rendered'));
   return;
  }

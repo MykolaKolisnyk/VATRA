@@ -204,7 +204,8 @@ assert.ok(!firstCode.includes('text:message'),'First message must not persist re
 assert.ok(firstCode.indexOf('await encryptMessage(')<firstCode.indexOf("await set(push("),'Encryption must succeed before a database write');
 assert.ok(js.includes('void activateSecureChat(key,activeChat);'),'Chat composer must wait for verified device keys');
 assert.ok(js.includes('id="chatSecurityStatus"')&&js.includes('id="chatSecurityRefresh"'),'Chat must show session readiness and retry');
-assert.ok(js.includes('data-page="friends">Знайти друзів</button>'),'Empty messenger must lead to a real friends route');
+assert.ok(js.includes('data-vatra-message-find-friends>Знайти друзів</button>'),'Empty messenger needs a discoverable action');
+assert.ok(js.includes("$('#feed [data-vatra-message-find-friends]')?.addEventListener('click',()=>goPage('friends'))"),'Empty messenger button must actually open friends');
 console.log('VATRA messenger: initial messages use ciphertext, composer waits for verified session, retry and discovery available.');
 
 /* Executable first-message regression: success and unavailable-peer-key paths. */
