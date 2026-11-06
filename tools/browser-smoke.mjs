@@ -212,6 +212,29 @@ try{
  }catch(error){failed=true;console.error('FAIL VATRA social circle fixture',error?.stack||error);}
  finally{await circle.close();}
 
+
+ // Visual contract for secure-message readiness (fixture: no real account or database writes).
+ const chatUi=await browser.newPage({viewport:{width:1280,height:850},deviceScaleFactor:1});
+ try{
+  await chatUi.goto(base+'/404.html',{waitUntil:'domcontentloaded'});
+  await chatUi.setContent('<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/styles/vatra.css"></head><body data-page="messages"><div class="layout"><aside class="sidebar"></aside><main class="main"><section class="vatra-messenger"><div class="vatra-messenger-shell"><aside class="vatra-messenger-sidebar"><div class="vatra-messenger-heading"><h2>Повідомлення</h2></div><div class="vatra-messenger-contact"><button class="vatra-messenger-contact-main">Тестовий діалог</button></div></aside><article class="post chat-window"><header class="chat-top"><strong>Співрозмовник</strong></header><div class="vatra-chat-security-row"><p id="chatSecurityStatus" class="vatra-chat-security-status" role="status" aria-live="polite" data-ready="false">Повідомлення поки недоступні. Ключ ще не готовий.</p><button id="chatSecurityRefresh" class="vatra-chat-security-retry">Повторити перевірку</button></div><div class="chat-messages" id="chatMessages"></div><form id="sendMessageForm" class="chat-send"><input name="message" disabled placeholder="Очікуємо захищене з’єднання…"><button class="primary" type="submit" disabled>Надіслати</button></form></article></div></section></main></div></body></html>',{waitUntil:'load'});
+  for(const vp of [{name:'desktop',width:1280,height:850},{name:'mobile',width:390,height:844}]){
+   await chatUi.setViewportSize({width:vp.width,height:vp.height});
+   const status=chatUi.locator('#chatSecurityStatus');
+   assert.ok(await status.isVisible(),'Secure chat readiness must be visible on '+vp.name);
+   assert.ok(await chatUi.locator('#sendMessageForm input').isDisabled(),'Composer must not send before key setup');
+   const metrics=await chatUi.evaluate(()=>{
+    const row=document.querySelector('.vatra-chat-security-row').getBoundingClientRect();
+    return {clientWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
+      statusWidth:Math.round(row.width)};
+   });
+   assert.ok(metrics.scrollWidth-metrics.clientWidth<=8,'Chat UI horizontal overflow on '+vp.name);
+   await chatUi.screenshot({path:output+'/chat-key-readiness-'+vp.name+'.png',animations:'disabled'});
+   results.push({case:'chat-security-fixture',viewport:vp.name,...metrics});
+  }
+ }catch(error){failed=true;console.error('FAIL VATRA chat readiness fixture',error?.stack||error)}
+ finally{await chatUi.close();}
+
  // The first impression must be understandable when international users select English.
  const enPage=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  try{

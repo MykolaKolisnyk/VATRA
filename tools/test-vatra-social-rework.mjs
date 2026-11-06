@@ -206,3 +206,61 @@ assert.ok(js.includes('void activateSecureChat(key,activeChat);'),'Chat composer
 assert.ok(js.includes('id="chatSecurityStatus"')&&js.includes('id="chatSecurityRefresh"'),'Chat must show session readiness and retry');
 assert.ok(js.includes('data-page="friends">Знайти друзів</button>'),'Empty messenger must lead to a real friends route');
 console.log('VATRA messenger: initial messages use ciphertext, composer waits for verified session, retry and discovery available.');
+
+/* Executable first-message regression: success and unavailable-peer-key paths. */
+async function exerciseFirstMessage({peerReady}){
+ const writes=[],updates=[],calls=[],sender='11111111-1111-4111-8111-111111111111',recipient='22222222-2222-4222-8222-222222222222';
+ const message={value:'',focus(){calls.push('focus')}},submit={disabled:false},notice={hidden:true,textContent:''};
+ const recipientLabel={textContent:''};
+ const form={elements:{message},reset(){message.value='';},querySelector:selector=>selector==='[type=submit]'?submit:null};
+ const dialog={
+  querySelector:selector=>selector==='form'?form:selector==='.vatra-compose-error'?notice:selector==='#vatraFirstMessageRecipient'?recipientLabel:null,
+  showModal(){calls.push('open')},close(){calls.push('close')}
+ };
+ const session={chatId:'session-1',uid:sender,peerUid:recipient};
+ const ctx={
+  currentUser:{uid:sender},blockedUsers:{},users:{[recipient]:{name:'Тестова людина',allowMessages:true}},
+  authRequired:()=>true,chatKey:()=>session.chatId,
+  db:{},ref:(_,path)=>({path}),push:node=>({path:node.path+'/test-message'}),
+  get:async()=>({val:()=>({}),exists:()=>false}),
+  set:async(node,value)=>{writes.push({path:node.path,value})},
+  update:async(node,value)=>{updates.push({path:node.path,value})},
+  prepareSession:async(uid,peer,chatId)=>{
+   assert.equal(uid,sender);assert.equal(peer,recipient);assert.equal(chatId,session.chatId);
+   if(!peerReady)throw Object.assign(new Error('Ключ співрозмовника відсутній'),{code:'PEER_NOT_READY'});
+   return session;
+  },
+  encryptMessage:async(s,plain,uid,at)=>{
+   assert.equal(s,session);assert.equal(plain,'Перший приватний текст');assert.equal(uid,sender);
+   assert.ok(Number.isFinite(at));return {v:1,ciphertext:'TEST_CIPHERTEXT'};
+  },
+  readE2EEKey:async()=>null,publishE2EEKey:async()=>{},
+  SECURE_PREVIEW:'Повідомлення',
+  vatraGetFirstMessageDialog:()=>dialog,
+  goPage:()=>{},renderMessages:()=>{},niceError:e=>e.message,
+  toastMsg:()=>{},console,Date
+ };
+ const handler=runInNewContext(firstCode+'\nstartChatWith;',ctx);
+ await handler(recipient);
+ assert.ok(calls.includes('open'),'First-message dialog must open after empty history');
+ message.value='  Перший приватний текст  ';
+ await form.onsubmit({preventDefault(){}});
+ if(peerReady){
+  assert.ok(calls.includes('close'),'Success must close the first-message dialog');
+  const row=writes.find(row=>row.path.endsWith('/messages/test-message'));
+  assert.ok(row,'First message must be written after successful encryption');
+  assert.equal(row.value.text,undefined,'Plaintext must never be persisted');
+  assert.equal(row.value.encrypted.ciphertext,'TEST_CIPHERTEXT','Ciphertext missing');
+  const preview=updates.find(row=>row.path.startsWith('userChats/'))?.value?.lastMessage;
+  assert.equal(preview?.text,'Повідомлення','Chat list must not expose message plaintext');
+ }else{
+  assert.equal(writes.length,0,'Unavailable peer keys must not write messages or empty chat roots');
+  assert.equal(updates.length,0,'Unavailable peer keys must not write previews');
+  assert.equal(message.value,'  Перший приватний текст  ','Failed delivery must preserve unsent draft');
+  assert.equal(notice.hidden,false,'User must see an actionable error');
+  assert.ok(notice.textContent.includes('Співрозмовнику потрібно відкрити'),'Missing guidance when recipient key is unavailable');
+ }
+}
+await exerciseFirstMessage({peerReady:true});
+await exerciseFirstMessage({peerReady:false});
+console.log('VATRA messenger executable first-message success/failure checks passed.');
