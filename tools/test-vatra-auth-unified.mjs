@@ -168,7 +168,7 @@ console.log('VATRA i18n: dynamic placeholders and accessible controls follow the
 
 // Language dialog uses toggle-button semantics and keyboard selection, not invalid
 // aria-selected on ordinary buttons. Keep the 100+ language entries and 8 ready.
-assert.ok(lang.includes('aria-pressed="'+String(code===language)'), 'Language dialog must expose selected option using aria-pressed');
+assert.ok(lang.includes('aria-pressed=')&&lang.includes('String(code===language)'), 'Language dialog must expose selected option using aria-pressed');
 assert.ok(lang.includes("dlg.addEventListener('keydown',event=>{"), 'Language dialog must support keyboard navigation');
 assert.ok(lang.includes("choices[index].focus();"), 'Keyboard arrows must actually focus a visible language');
 assert.ok(!lang.includes("aria-selected="), 'Plain language buttons must not use aria-selected without a selection widget role');
