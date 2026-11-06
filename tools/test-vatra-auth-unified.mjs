@@ -80,3 +80,15 @@ for(const page of ['index.html','auth.html','register.html','404.html']){
  assert.equal(new Set(links).size,links.length,page+': exact duplicate CSS imports');
 }
 console.log('VATRA: fixed language order, no blank form scroll, inset recovery scrollbar, one auth stylesheet.');
+
+/* VATRA Circle: real value on both entry screens, including phones. */
+for(const page of ['auth.html','register.html']){
+ const html=read(page);
+ assert.ok(html.includes('ВАТРА — <em>тут починається твоє коло</em>'),page+': brand promise missing');
+ assert.ok(html.includes('Знаходь друзів, ділись моментами, слухай музику'),page+': capabilities description missing');
+ assert.ok(html.includes('class="vatra-auth-intro-mobile"'),page+': mobile value proposition missing');
+ assert.ok(html.includes('class="vatra-auth-possibilities"'),page+': actual social functions not named');
+ assert.equal((html.match(/data-developer-open/g)||[]).length>=2,true,page+': developer info must remain accessible');
+}
+assert.ok(css.includes('.vatra-auth-intro-mobile')===false,'Auth value proposition styles must live in the auth stylesheet source');
+assert.ok(read('assets/styles/sources/auth/auth-shared.css').includes('VATRA UI · social promise'),'VATRA marketing CSS missing');
