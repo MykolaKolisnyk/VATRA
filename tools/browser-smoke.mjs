@@ -235,6 +235,37 @@ try{
  }catch(error){failed=true;console.error('FAIL VATRA chat readiness fixture',error?.stack||error)}
  finally{await chatUi.close();}
 
+
+ // Browser-level language catalog: display all supported entries and honest translation status.
+ const localePage=await browser.newPage({viewport:{width:1280,height:800},deviceScaleFactor:1});
+ try{
+  await localePage.goto(base+'/auth.html',{waitUntil:'domcontentloaded'});
+  await localePage.locator('#vatraLoader').waitFor({state:'hidden',timeout:15000});
+  for(const vp of [{name:'desktop',width:1280,height:800},{name:'mobile',width:390,height:844}]){
+   await localePage.setViewportSize({width:vp.width,height:vp.height});
+   const open=localePage.locator('.vatra-auth-language-all:visible').first();
+   await open.waitFor({state:'visible'});
+   await open.click();
+   const dialog=localePage.locator('#vatraLanguageDialog[open]');
+   await dialog.waitFor({state:'visible'});
+   const opts=dialog.locator('[data-vatra-language-code]');
+   const count=await opts.count();
+   const available=await opts.filter({has:dialog.locator('small:has-text("Доступна")')}).count();
+   assert.ok(count>=100,'Full 100+ language catalog should be present on '+vp.name);
+   assert.equal(available,8,'Exactly eight entries are currently available on '+vp.name);
+   assert.ok(await opts.filter({hasText:'У розробці'}).count()>90,'Incomplete translations must be labeled on '+vp.name);
+   const dimensions=await localePage.evaluate(()=>{
+    const node=document.querySelector('#vatraLanguageDialog'),rect=node.getBoundingClientRect();
+    return {viewport:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,left:Math.round(rect.left),right:Math.round(rect.right)};
+   });
+   assert.ok(dimensions.left>=-2&&dimensions.right<=dimensions.viewport+2,'Language dialog overflows viewport on '+vp.name);
+   await localePage.screenshot({path:output+'/language-catalog-status-'+vp.name+'.png',animations:'disabled'});
+   results.push({case:'language-catalog-status',viewport:vp.name,count,ready:available,...dimensions});
+   await localePage.locator('[data-vatra-language-close]').click();
+  }
+ }catch(error){failed=true;console.error('FAIL VATRA language availability dialog',error?.stack||error);}
+ finally{await localePage.close();}
+
  // The first impression must be understandable when international users select English.
  const enPage=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
  try{

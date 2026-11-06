@@ -17,7 +17,9 @@ function vatraSignupLanguage(){
  if(!language){
   try{language=new URL(location.href).searchParams.get('lang')||localStorage.getItem('vatra-language')||'';}catch{}
  }
- return supported.includes(language)?language:'en';
+ // The UI renders Ukrainian when a language is missing or unfinished.
+ // Account metadata must not silently select English instead.
+ return supported.includes(language)?language:'uk';
 }
 
 

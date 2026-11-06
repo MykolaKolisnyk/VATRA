@@ -243,3 +243,24 @@ for(const file of ['auth.html','register.html']){
  assert.ok(html.includes('class="recovery-protection human-captcha"'),'Recovery must reuse the same human-check presentation');
 }
 console.log('VATRA auth: verified signup, occupied-email checks, password login, recovery and markup validated.');
+
+/* Default account language must match the actually rendered interface. */
+const signupStart=auth.indexOf('function vatraSignupLanguage(){');
+const signupEnd=auth.indexOf('const PHONE_COUNTRIES =',signupStart);
+assert.ok(signupStart>=0&&signupEnd>signupStart,'Registration-language selector missing');
+const langFn=runInNewContext(auth.slice(signupStart,signupEnd)+'\nvatraSignupLanguage;',{
+ window:{vatraLanguage:{language:''}},location:{href:'https://vatra.example/register.html'},
+ URL,localStorage:{getItem:()=>null}
+});
+assert.equal(langFn(),'uk','Unselected registration should default to Ukrainian');
+for(const [selected,expected] of [['en','en'],['pl','pl'],['de','de'],['ja','uk']]){
+ const chooser=runInNewContext(auth.slice(signupStart,signupEnd)+'\nvatraSignupLanguage;',{
+  window:{vatraLanguage:{language:selected}},location:{href:'https://vatra.example/register.html'},
+  URL,localStorage:{getItem:()=>null}
+ });
+ assert.equal(chooser(),expected,'Registration should respect only available translated interfaces');
+}
+for(const html of [read('auth.html'),read('register.html')]){
+ assert.ok(html.includes('auth.js?v=20261105-singleton2&amp;locale=uk1'),'Registration locale fix must bypass cached module');
+}
+console.log('VATRA registration metadata: Ukrainian default, selected ready languages, unfinished fallback verified.');
