@@ -36,7 +36,7 @@ function getMessage(error){
  const text=String(error?.message||"").toLowerCase();
  if(code==="invalid_credentials"||text.includes("invalid login credentials"))return "Неправильна електронна пошта або пароль.";
  if(code==="email_not_confirmed"||text.includes("email not confirmed"))return "Підтвердьте електронну пошту за посиланням із листа.";
- if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return "Пароль недостатньо надійний. Використайте довший пароль із літерами та цифрами.";
+ if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return "Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.";
  if(code==="over_email_send_rate_limit"||code==="over_request_rate_limit"||text.includes("rate limit"))return "Забагато спроб. Спробуйте трохи пізніше.";
  if(code==="email_exists"||code==="user_already_exists")return "Акаунт із такою поштою вже може існувати. Спробуйте увійти або відновити пароль.";
  if(code==="signup_disabled")return "Реєстрацію тимчасово вимкнено в налаштуваннях сервера.";
@@ -72,7 +72,7 @@ function showFieldError(control,message){
 }
 function validationText(control,form){
  if(control.disabled)return "";
- const value=String(control.value||"").trim();
+ const value=control.type==="password"?String(control.value||""):String(control.value||"").trim();
  if(control.type==="checkbox"){
   return control.required&&!control.checked?"Щоб продовжити, прийміть умови використання.":"";
  }
@@ -80,7 +80,7 @@ function validationText(control,form){
  if(!value)return "";
  if(control.type==="email"&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))return "Введіть правильну електронну пошту.";
  if((control.id==="first-name"||control.id==="last-name")&&(value.length<2||value.length>60))return "Використайте від 2 до 60 символів.";
- if(control.type==="password"&&form.id!=="login-form"&&!validPassword(value))return "Пароль має містити щонайменше 8 символів.";
+ if(control.type==="password"&&form.id!=="login-form"&&!validPassword(value))return "Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.";
  if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
  return "";
 }
@@ -164,7 +164,11 @@ function wirePasswordButtons(){
   });
  });
 }
-function validPassword(value){return value.length>=8&&value.length<=128;}
+function validPassword(value){
+ return typeof value==="string"&&value.length>=12&&value.length<=128
+  &&/[a-z]/.test(value)&&/[A-Z]/.test(value)&&/[0-9]/.test(value)
+  &&/[!@#$%^&*()_+\-=\[\]{};'\\:"|<>?,.\/\x60~]/.test(value);
+}
 function validDate(year,month,day){
  const y=Number(year),m=Number(month),d=Number(day);
  if(!Number.isInteger(y)||!Number.isInteger(m)||!Number.isInteger(d)||y<1900||m<1||m>12||d<1)return false;
@@ -370,7 +374,7 @@ function wireRegister(){
   if(!birthday){feedback("Вкажіть правильну дату народження.","error");return;}
   if(typeof birthday==="string"&&birthday.startsWith("ВАТРА")){feedback(birthday,"error");return;}
   if(!email.includes("@")){feedback("Вкажіть правильну електронну пошту.","error");return;}
-  if(!validPassword(password)){feedback("Пароль має містити від 8 до 128 символів.","error");return;}
+  if(!validPassword(password)){feedback("Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.","error");return;}
   if(password!==again){feedback("Паролі не збігаються.","error");return;}
   if(!q("#consent").checked){feedback("Для створення акаунта потрібно прийняти умови використання.","error");return;}
   busy(form,true);
@@ -542,7 +546,7 @@ function wireReset(){
  form.addEventListener("submit",async e=>{
   e.preventDefault();clearFeedback();
   const password=q("#password").value,again=q("#password-confirm").value;
-  if(!validPassword(password)){feedback("Пароль має містити від 8 до 128 символів.","error");return;}
+  if(!validPassword(password)){feedback("Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.","error");return;}
   if(password!==again){feedback("Паролі не збігаються.","error");return;}
   busy(form,true);
   try{
