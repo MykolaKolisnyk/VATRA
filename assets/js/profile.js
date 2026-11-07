@@ -2,15 +2,15 @@
 (() => {
   "use strict";
   const ROOT="/VATRA/";
-  const english=/^\/VATRA\/en\//.test(location.pathname);
-  const match=location.pathname.match(/^\/VATRA\/(?:en\/)?id([1-9]\d*)\/?$/);
+  const english=window.VATRA_LANGUAGE?.locale==="en"||/^\/VATRA\/en\//.test(location.pathname);
+  const match=location.pathname.match(/^\/VATRA\/(?:(?:ua|en)\/)?id([1-9]\d*)\/?$/);
   const t=(uk,en)=>english?en:uk;
   const heading=document.getElementById("profile-heading");
   const description=document.getElementById("profile-description");
   const number=document.getElementById("public-vatra-id");
   const home=document.getElementById("profile-home");
   const signIn=document.getElementById("profile-signin");
-  const endpoint=ROOT+(english?"en/":"");
+  const endpoint=ROOT+(english?"en/":"ua/");
   if(english){
     document.documentElement.lang="en";
     home.textContent="Home";
@@ -22,7 +22,7 @@
         if(link.textContent==="Конфіденційність")link.textContent="Privacy";
       });
       const copyright=footer.querySelector("span");
-      if(copyright)copyright.innerHTML="© 2026 <b>VATRA</b> · Social platform";
+      if(copyright)copyright.innerHTML="© 2026 <b>VATRA</b> · Your people. Your stories.";
       const trigger=footer.querySelector("[data-language-trigger]");
       if(trigger){trigger.setAttribute("aria-label","Choose language");trigger.textContent="English";}
     }
