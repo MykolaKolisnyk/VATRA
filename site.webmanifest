@@ -1,0 +1,25 @@
+{
+  "name": "VATRA — українська соціальна мережа",
+  "short_name": "VATRA",
+  "description": "Ваші люди. Ваші історії. Ваша VATRA.",
+  "start_url": "/VATRA/",
+  "scope": "/VATRA/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#075cf2",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "/VATRA/assets/logo/vatra-app-icon.png",
+      "sizes": "360x360",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/VATRA/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
