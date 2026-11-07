@@ -102,6 +102,19 @@ assert.ok(auth.includes("const COOLDOWN_MS=60000"),
 assert.ok(auth.includes("function wireForgot(){")&&auth.includes("wireReset();"),
  "Forgot password must also register inline code and new-password handlers");
 assert.doesNotThrow(()=>new Function(auth),"VATRA authentication script has a syntax error");
+// 404 is only a missing-page error, not a surrogate profile router.
+const missingPage=await read("404.html");
+assert.ok(missingPage.includes('data-page="not-found"'),"404 must be an error page");
+assert.ok(missingPage.includes('id="error-heading"')&&missingPage.includes("Сторінку не знайдено"),"404 heading is missing");
+assert.ok(missingPage.includes('data-en="Page not found"'),"404 must support English");
+assert.ok(!/profile\.js|data-page="public-profile"|supabase-js|vatra_directory|profile-heading/.test(missingPage),
+ "404 must not initialize a profile or Supabase");
+assert.ok(!/vatraProfileUrl|goToMyProfile|\/VATRA\/id\d+/.test(auth),
+ "Authentication must not send users to non-existent profile routes");
+for(const lang of ["ua","en"]){
+ const account=await read(lang+"/account.html");
+ assert.ok(account.includes('<span id="vatra-id"'),lang+": VATRA ID must not link to absent profile page");
+}
 const sw=await read("sw.js");
 assert.ok(sw.includes('const CACHE="vatra-offline-shell"'),"Stable, non-versioned cache key is required");
 console.log("VATRA: "+paths.length+" site/email pages, "+count+" visible text nodes with distinct class names, individually classed interface elements and responsive typography.");
