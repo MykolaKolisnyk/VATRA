@@ -8,11 +8,11 @@
 .intro-circle:before,.intro-circle:after{content:"";position:absolute;inset:8%;border:1px solid #dce4ff;border-radius:50%}
 .intro-circle:after{inset:-15%;border-style:dashed;opacity:.75}
 .intro-symbol{position:relative;z-index:1;width:clamp(140px,11.5vw,186px);height:auto;filter:drop-shadow(0 24px 24px rgba(77,65,191,.16));transform:rotate(-8deg)}
-.float-tile{position:absolute;z-index:2;width:clamp(180px,13.3vw,210px);height:66px;min-width:0;display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;justify-items:start;gap:9px;padding:10px 12px;border:1px solid #e2e7f5;background:rgba(255,255,255,.97);box-shadow:0 8px 24px rgba(26,44,92,.07);border-radius:15px}
-.float-tile svg{flex:none;width:21px;height:21px;stroke:var(--blue);stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.float-tile .tile-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;gap:3px;line-height:1.22;min-width:0;width:100%}
-.float-tile .tile-copy strong{font-size:12px;font-weight:750;color:#172137;line-height:1.2}
-.float-tile .tile-copy small{font-size:10px;font-weight:500;color:#718097;line-height:1.25;overflow-wrap:normal;word-break:normal}
+.float-tile{position:absolute;z-index:2;width:clamp(178px,13.4vw,205px);height:58px;min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;padding:8px 11px;border:1px solid #e2e7f5;background:rgba(255,255,255,.97);box-shadow:0 8px 24px rgba(26,44,92,.07);border-radius:16px}
+.float-tile svg{flex:none;width:34px;height:34px;padding:7px;border-radius:10px;background:#eef4ff;stroke:var(--blue);stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.float-tile .tile-copy{display:flex;align-items:center;justify-content:flex-start;min-width:0;width:100%;text-align:left;line-height:1.25}
+.float-tile .tile-copy strong{font-size:13.5px;font-weight:790;color:#172137;line-height:1.22;letter-spacing:-.015em}
+
 .float-tile.one{left:5%;top:3%}
 .float-tile.five{left:0;top:27%}
 .float-tile.three{left:0;top:51%}
@@ -94,10 +94,9 @@
   .intro-symbol{width:clamp(112px,11vw,138px)}
   .intro-copy h1{font-size:clamp(34px,3.6vw,43px)}
   .intro-copy p{font-size:13px;line-height:1.5}
-  .float-tile{width:clamp(152px,12vw,172px);height:62px;padding:9px 10px;gap:7px;border-radius:12px;grid-template-columns:19px minmax(0,1fr)}
-  .float-tile svg{width:18px;height:18px}
-   .float-tile .tile-copy strong{font-size:11px}
-  .float-tile .tile-copy small{font-size:9.5px;line-height:1.2}
+  .float-tile{width:clamp(167px,13.3vw,185px);height:56px;padding:7px 9px;gap:8px;border-radius:14px;grid-template-columns:31px minmax(0,1fr)}
+  .float-tile svg{width:31px;height:31px;padding:6px}
+  .float-tile .tile-copy strong{font-size:12.5px}
   .form-side{padding:24px clamp(23px,3vw,44px)}
 }
 @media (min-width:1200px) and (max-height:760px){
@@ -105,7 +104,7 @@
   .intro-art{min-height:330px;max-height:370px}
   .intro-copy h1{font-size:clamp(35px,3vw,46px)}
   .intro-copy p{font-size:13px;line-height:1.5}
-  .float-tile{height:58px}
+  .float-tile{height:54px}
   .form-side{padding-block:18px}
 }
 @media (min-width:1200px) and (max-height:610px){
@@ -127,9 +126,8 @@
   .intro-copy p{max-width:640px;font-size:14px}
   .intro-art{order:1;flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,650px);min-height:0;max-height:none;margin:0 auto;place-items:stretch}
   .intro-circle,.intro-symbol{display:none}
-  .intro-art .float-tile{position:static;inset:auto;transform:none;width:100%;height:64px;max-width:none;min-width:0;padding:9px 12px;gap:9px}
-  .float-tile .tile-copy strong{font-size:12px}
-  .float-tile .tile-copy small{font-size:10px}
+  .intro-art .float-tile{position:static;inset:auto;transform:none;width:100%;height:62px;max-width:none;min-width:0;padding:8px 11px;gap:9px}
+  .float-tile .tile-copy strong{font-size:13px}
   .footer{justify-content:center;gap:12px 22px;text-align:center}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
@@ -155,10 +153,9 @@
   .intro-copy h1{font-size:clamp(31px,9vw,39px)}
   .intro-copy p{font-size:13px;line-height:1.6}
   .intro-art{gap:8px}
-  .intro-art .float-tile{height:72px;padding:8px 9px;gap:6px;border-radius:12px}
-  .float-tile svg{width:19px;height:19px}
-  .float-tile .tile-copy strong{font-size:11px}
-  .float-tile .tile-copy small{font-size:9.5px;line-height:1.18}
+  .intro-art .float-tile{height:60px;padding:7px 9px;gap:7px;border-radius:12px;grid-template-columns:30px minmax(0,1fr)}
+  .float-tile svg{width:30px;height:30px;padding:6px}
+  .float-tile .tile-copy strong{font-size:12px}
   .reg-header{padding:13px 18px}
   .reg-header .header-logo{width:136px}
   .reg-header .back{font-size:12px}
@@ -177,10 +174,9 @@
   .footer nav{gap:3px 12px}
 }
 @media (max-width:360px){
-  .intro-art .float-tile{height:80px;padding:7px}
-  .float-tile svg{width:17px;height:17px}
-  .float-tile .tile-copy strong{font-size:10.5px}
-  .float-tile .tile-copy small{font-size:9px}
+  .intro-art .float-tile{height:58px;padding:7px}
+  .float-tile svg{width:28px;height:28px;padding:5px}
+  .float-tile .tile-copy strong{font-size:11px}
   .reg-header{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
