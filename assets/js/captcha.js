@@ -5,7 +5,7 @@
  */
 (() => {
 "use strict";
-const SITE_KEY = "";
+const SITE_KEY = "0x4AAAAAAF3zmwtnC60B4gUQ";
 const enabled = SITE_KEY.trim().length > 0;
 const widgets = new WeakMap();
 let loader = null;
