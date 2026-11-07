@@ -97,7 +97,9 @@ for(const locale of ["ua","en"]){
   locale+": inner orbit must contain exactly eight features");
  assert.equal((home.match(/class="orbit-node orbit-message /g)||[]).length,3,
   locale+": keep three original large outer badge labels");
- assert.ok(!/<strong\b|<p\b|<button\b/.test(inner),locale+": inner orbit must have SVG-only badges");
+ assert.ok(!/<p\b|<button\b/.test(inner),locale+": inner orbit icons must not become text buttons");
+ assert.equal((inner.match(/class="orbit-tooltip vt-/g)||[]).length,8,
+  locale+": eight inner features need unique descriptive hover tooltips");
  for(let i=0;i<vatraFeatures.length;i++){
   const [key,ua,en]=vatraFeatures[i];
   const angle=-90+i*45;
@@ -108,10 +110,24 @@ for(const locale of ["ua","en"]){
    locale+": missing bespoke SVG for "+key);
   assert.ok(inner.includes('aria-label="'+label+'"'),
    locale+": feature "+key+" must have accessible localized label");
+  assert.ok(inner.includes('id="'+locale+'-orbit-tip-'+key+'"'),
+   locale+": missing unique descriptive tooltip for "+key);
+  assert.ok(inner.includes('aria-describedby="'+locale+'-orbit-tip-'+key+'"'),
+   locale+": focusable feature must refer to its tooltip");
+  assert.ok(inner.includes('tabindex="0" aria-describedby="'+locale+'-orbit-tip-'+key+'"'),
+   locale+": hover details must also work by keyboard");
   assert.ok(inner.includes('--angle:'+angle+'deg;--counter-angle:'+(-angle)+'deg'),
    locale+": each feature needs evenly spaced 45 degree angle");
  }
 }
+assert.ok(css.includes("--outer-radius:min(35cqw,230px);--inner-radius:min(16cqw,105px)"),
+ "Outer badges and inner feature icons require separate non-overlapping orbit lanes");
+assert.ok(css.includes("--outer-radius:42cqw;--inner-radius:18cqw"),
+ "Mobile rings need greater radial separation");
+assert.ok(css.includes(".orbit-icon:hover .orbit-tooltip,.orbit-icon:focus-visible .orbit-tooltip"),
+ "Feature descriptions must appear on hover and keyboard focus");
+assert.ok(css.includes("animation-play-state:paused"),
+ "Hovered moving icons need to pause so their tooltip can be read");
 assert.ok(css.includes("vatraOrbitClockwise 32s")&&css.includes("vatraOrbitCounterclockwise 47s"),
  "Outer badges and inner features must rotate in opposite directions");
 assert.ok(css.includes("@media (prefers-reduced-motion:reduce)"),
