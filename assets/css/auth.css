@@ -64,7 +64,6 @@
 .captcha-dialog-open{overflow:hidden}
 .captcha-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:clamp(16px,4vw,32px);background:rgba(15,24,44,.58);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 .captcha-dialog{box-sizing:border-box;width:min(100%,430px);max-height:min(90dvh,620px);overflow-y:auto;padding:clamp(22px,4vw,34px);display:flex;flex-direction:column;align-items:center;gap:13px;border:1px solid #dce5f6;border-radius:24px;background:#fff;box-shadow:0 24px 85px rgba(17,30,58,.23);text-align:center}
-.captcha-symbol{display:grid;place-items:center;width:55px;height:55px;border-radius:18px;background:#edf3ff;color:#2865d8;font-size:29px;line-height:1}
 .captcha-title{margin:0;color:var(--ink);font-size:clamp(21px,3vw,25px);font-weight:740;line-height:1.25;letter-spacing:-.025em;text-wrap:balance}
 .captcha-description{margin:0;color:var(--soft);font-size:14px;line-height:1.65;max-width:330px}
 .vatra-captcha{display:flex;align-items:center;justify-content:center;width:100%;min-height:70px;margin:8px 0 0;padding:0;overflow:visible;border-radius:13px}
