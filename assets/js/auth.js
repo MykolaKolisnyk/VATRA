@@ -54,6 +54,88 @@ function getMessage(error){
  if(code==="network_error"||text.includes("failed to fetch")||text.includes("network"))return "Немає з'єднання із сервером. Перевірте інтернет і повторіть спробу.";
  return "Не вдалося виконати дію. Перевірте введені дані та спробуйте ще раз.";
 }
+/* Show field-level errors in the same language and keep labels visible. */
+function showFieldError(control,message){
+ if(!control)return;
+ const wrapper=control.closest(".field,.check-terms");
+ if(!wrapper)return;
+ let error=wrapper.querySelector(".field-error");
+ if(message){
+  if(!error){
+   error=document.createElement("small");
+   error.className="field-error";
+   error.id="vatra-error-"+control.id;
+   error.setAttribute("role","alert");
+   wrapper.append(error);
+  }
+  error.textContent=translate(message);
+  wrapper.classList.add("is-invalid");
+  control.setAttribute("aria-invalid","true");
+  control.setAttribute("aria-describedby",error.id);
+ }else{
+  wrapper.classList.remove("is-invalid");
+  control.removeAttribute("aria-invalid");
+  control.removeAttribute("aria-describedby");
+  error?.remove();
+ }
+}
+function validationText(control,form){
+ if(control.disabled)return "";
+ const value=String(control.value||"").trim();
+ if(control.type==="checkbox"){
+  return control.required&&!control.checked?"Щоб продовжити, прийміть умови використання.":"";
+ }
+ if(!value&&control.required)return "Заповніть це поле.";
+ if(!value)return "";
+ if(control.type==="email"&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))return "Введіть правильну електронну пошту.";
+ if((control.id==="first-name"||control.id==="last-name")&&(value.length<2||value.length>60))return "Використайте від 2 до 60 символів.";
+ if(control.type==="password"&&form.id!=="login-form"&&!validPassword(value))return "Пароль має містити щонайменше 8 символів.";
+ if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
+ return "";
+}
+function wireFieldValidation(){
+ const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
+ if(!form)return;
+ form.noValidate=true;
+ let attempted=false;
+ const controls=[...form.querySelectorAll("input,select")].filter(c=>c.id&&!["hidden"].includes(c.type));
+ const check=control=>{
+  if(control.id?.startsWith("birth-")){
+   const valid=["birth-day","birth-month","birth-year"].every(id=>Boolean(q("#"+id)?.value));
+   const start=q("#birth-day");
+   showFieldError(start,valid?"":"Оберіть дату народження.");
+   return valid;
+  }
+  const message=validationText(control,form);
+  showFieldError(control,message);
+  return !message;
+ };
+ for(const control of controls){
+  const change=()=>{
+   if(attempted||control.getAttribute("aria-invalid")==="true")check(control);
+  };
+  control.addEventListener("input",change);
+  control.addEventListener("change",change);
+  control.addEventListener("blur",()=>{
+   if(control.type!=="checkbox"&&control.value)check(control);
+  });
+ }
+ form.addEventListener("submit",event=>{
+  attempted=true;
+  let first=null;
+  for(const control of controls){
+   if(control.id.startsWith("birth-")&&control.id!=="birth-day")continue;
+   if(!check(control)&&!first)first=control;
+  }
+  if(first){
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   const focus=first.closest(".vatra-select")?.querySelector(".vatra-select-trigger")||first;
+   focus.focus({preventScroll:true});
+   focus.scrollIntoView({behavior:"smooth",block:"center"});
+  }
+ },true);
+}
 function wirePasswordButtons(){
  document.querySelectorAll("[data-password-toggle]").forEach(button=>{
   button.addEventListener("click",()=>{
@@ -216,6 +298,7 @@ async function initialize(){
  /* Build the interface independently of the authentication service status. */
  wirePasswordButtons();
  if(page==="register"){fillBirthdays();wireSelects();}
+ wireFieldValidation();
  if(!window.supabase?.createClient){
   feedback("Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.","error");
   return;
