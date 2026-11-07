@@ -44,7 +44,9 @@
       const browser = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
       locale = browser.startsWith("uk") || browser.endsWith("-ua") ? "uk" : "en";
     }
-    const english = locale === "en";
+    const routeLocale = location.pathname.startsWith("/VATRA/en/") ? "en" :
+      location.pathname.startsWith("/VATRA/ua/") ? "uk" : null;
+    const english = (routeLocale || locale) === "en";
     document.documentElement.lang = english ? "en" : "uk";
     document.title = english ? "404 · Page not found — VATRA" : "404 · Сторінку не знайдено — VATRA";
     for (const element of document.querySelectorAll("[data-uk][data-en]")) {
