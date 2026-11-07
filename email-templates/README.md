@@ -12,10 +12,12 @@
 | Change email address | `email-change.html` | `VATRA — Зміна пошти / Email change` |
 | Reset password | `recovery.html` | `VATRA — Код відновлення пароля / Password recovery` |
 | Reauthentication | `reauthentication.html` | `VATRA — Код підтвердження / Verification code` |
+| Password changed (Security) | `password-changed.html` | `VATRA — Пароль змінено / Password changed` |
+| Email address changed (Security) | `email-address-changed.html` | `VATRA — Пошту змінено / Email changed` |
 
 ## Мова листа
 
-Поточна форма реєстрації в `assets/js/auth.js` передає `preferred_locale` зі значенням `uk` або `en` у метаданих Supabase. **Саме `.Data.preferred_locale`**, а не `.Data.preferredLanguage`, використано в усіх шести шаблонах.
+Поточна форма реєстрації в `assets/js/auth.js` передає `preferred_locale` зі значенням `uk` або `en` у метаданих Supabase. **Саме `.Data.preferred_locale`**, а не `.Data.preferredLanguage`, використано в усіх восьми шаблонах.
 
 - Для `en` відображається англійський текст.
 - Для `uk` або відсутніх метаданих — український.
@@ -28,6 +30,8 @@
 - **Magic link:** `{{ .Token }}` та `{{ .ConfirmationURL }}`. Цей тип листа не додає авторизацію за телефоном.
 - **Відновлення пароля:** `{{ .Token }}` (звичайний цифровий код Supabase), `{{ .RedirectTo }}` (сторінка `reset.html` для введення коду) і `{{ .ConfirmationURL }}` (захищене посилання).
 - **Повторна автентифікація:** `{{ .Token }}`.
+- **Сповіщення про зміну пароля:** без OTP; посилання веде на офіційну сторінку відновлення VATRA.
+- **Сповіщення про зміну електронної адреси:** `{{ .OldEmail }}` та `{{ .Email }}` (доступні для Security notification «Email address changed»).
 
 Реєстрація підтверджується **посиланням**, оскільки поточна форма реєстрації не має окремого екрану введення коду. Відновлення пароля підтримує **код та посилання**.
 
@@ -38,3 +42,7 @@
 3. Після збереження шаблону надішліть тестове підтвердження та відновлення пароля, перевірте лист українською й англійською та завершення дії в браузері. Не вставляйте у репозиторій приватні ключі чи паролі.
 
 Інші типи шаблонів, як-от телефонні сповіщення чи зміна номера, **не потрібні** і не додаються.
+
+## Два сповіщення безпеки
+
+У Supabase → Authentication → Emails → Security треба окремо ввімкнути **Password changed** і **Email address changed** та натиснути **Save changes**. Далі відкрийте кожний шаблон, скопіюйте відповідний HTML з GitHub у **Body → Source**, введіть відповідний **Subject** з таблиці вище та збережіть. Зміни в GitHub самі по собі не змінюють листи в Supabase. Використовуйте **Preview**, а потім надішліть тестовий лист. Жодних телефонних сповіщень не вмикаємо.
