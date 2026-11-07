@@ -5,13 +5,17 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
 const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const page=document.body.dataset.page||"login";
+const translate=text=>window.VATRA_LANGUAGE?.translate(text)||text;
+const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
 let auth=null;
 function feedback(text,type="info"){
  const box=q("#response");
  if(!box)return;
- box.textContent=text;box.dataset.type=type;box.hidden=false;
+ box.textContent=translate(text);box.dataset.type=type;box.hidden=false;
+ const initial=text;
+ window.VATRA_LANGUAGE?.ready?.then(()=>{if(box.textContent===initial)box.textContent=translate(initial);});
  box.setAttribute("role",type==="error"?"alert":"status");
  box.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
@@ -19,7 +23,7 @@ function clearFeedback(){const box=q("#response");if(box){box.hidden=true;box.te
 function busy(form,isBusy){
  form.querySelectorAll("button[type=submit]").forEach(btn=>{
   btn.disabled=isBusy;
-  if(isBusy){btn.dataset.oldLabel=btn.textContent;btn.textContent="Зачекайте…";}
+  if(isBusy){btn.dataset.oldLabel=btn.textContent;btn.textContent=translate("Зачекайте…");}
   else if(btn.dataset.oldLabel){btn.textContent=btn.dataset.oldLabel;delete btn.dataset.oldLabel;}
  });
 }
@@ -43,8 +47,8 @@ function wirePasswordButtons(){
    if(!input)return;
    const reveal=input.type==="password";
    input.type=reveal?"text":"password";
-   button.textContent=reveal?"Приховати":"Показати";
-   button.setAttribute("aria-label",reveal?"Приховати пароль":"Показати пароль");
+   button.textContent=translate(reveal?"Приховати":"Показати");
+   button.setAttribute("aria-label",translate(reveal?"Приховати пароль":"Показати пароль"));
    button.setAttribute("aria-pressed",String(reveal));
   });
  });
@@ -139,7 +143,7 @@ function wireRegister(){
    const {data,error}=await auth.auth.signUp({
     email,password,
     options:{
-     emailRedirectTo:url("account.html"),
+     emailRedirectTo:new URL("account.html",new URL("/VATRA/",location.origin)).href,
      data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null}
     }
    });
@@ -159,7 +163,7 @@ function wireForgot(){
   if(!email){feedback("Вкажіть вашу електронну пошту.","error");return;}
   busy(form,true);
   try{
-   const {error}=await auth.auth.resetPasswordForEmail(email,{redirectTo:url("reset.html")});
+   const {error}=await auth.auth.resetPasswordForEmail(email,{redirectTo:new URL("/VATRA/reset.html",location.origin).href});
    if(error)throw error;
    feedback("Якщо акаунт із такою адресою існує, на пошту надійде посилання для відновлення пароля.","success");
    form.reset();
@@ -197,7 +201,7 @@ async function wireAccount(){
   const {data:{user},error}=await auth.auth.getUser();
   if(error||!user){window.location.replace(url("auth.html"));return;}
   const name=String(user.user_metadata?.first_name||"").trim();
-  title.textContent=name?"Вітаємо, "+name+"!":"Вітаємо у VATRA!";
+  title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
  }catch(_){window.location.replace(url("auth.html"));return;}
  const logout=q("#logout");
