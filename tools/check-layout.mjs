@@ -104,12 +104,33 @@ for(const locale of ["ua","en"]){
    locale+"/"+name+": recovery must use the 8-digit configured Supabase OTP");
  }
 }
-assert.ok(auth.includes('/^\\d{8}$/.test(token)'),"OTP validation must accept exactly six digits");
+assert.ok(auth.includes('/^\\d{8}$/.test(token)'),"OTP validation must accept exactly eight digits");
 assert.ok(auth.includes("const COOLDOWN_MS=60000"),
  "Resend control must use the 60-second cooldown");
 assert.ok(auth.includes("function wireForgot(){")&&auth.includes("wireReset();"),
  "Forgot password must also register inline code and new-password handlers");
 assert.doesNotThrow(()=>new Function(auth),"VATRA authentication script has a syntax error");
+// Production policy: minimum 12 characters and required lowercase/uppercase Latin, digits and symbols.
+// The HTML fields and client validation must match the selected Supabase Auth provider setting.
+for(const locale of ["ua","en"]){
+ for(const name of ["register.html","forgot.html","reset.html"]){
+  const html=await read(locale+"/"+name);
+  assert.equal((html.match(/minlength="12" maxlength="128"/g)||[]).length,2,
+   locale+"/"+name+": new passwords must be 12–128 characters");
+  assert.ok(!html.includes('minlength="8" maxlength="128"'),
+   locale+"/"+name+": obsolete password requirement must not return");
+ }
+ const register=await read(locale+"/register.html");
+ assert.ok(locale==="ua"?register.includes("Від 12 символів:"):register.includes("At least 12 characters:"),
+  locale+": password policy must be explained during signup");
+}
+const passwordFunction=auth.match(/function validPassword\(value\)\{[\s\S]*?\n\}/)?.[0];
+assert.ok(passwordFunction,"VATRA password validator is missing");
+const validate=new Function(passwordFunction+";return validPassword")();
+assert.equal(validate("CorrectPassword123!"),true,"Strong 12+ character passwords must be accepted");
+for(const weak of ["Password1!","onlylowercase1234!","ONLYUPPERCASE1234!","NoSymbols123456","MissingDigits!Abc",""]){
+ assert.equal(validate(weak),false,"Weak password must be rejected: "+weak);
+}
 // GitHub Pages requires a small root 404 entrypoint; the real pages are language-specific.
 const missingPage=await read("404.html");
 assert.ok(missingPage.includes('data-page="technical-404-fallback"'),
