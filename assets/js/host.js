@@ -14,10 +14,13 @@
   document.addEventListener("DOMContentLoaded", () => {
     const container = document.createElement("main");
     const heading = document.createElement("h1");
+    heading.className = "vt-host-blocked-heading";
     heading.textContent = "VATRA";
     const p = document.createElement("p");
+    p.className = "vt-host-blocked-explanation";
     p.textContent = "Будь ласка, відкрийте VATRA на офіційному сайті.";
     const a = document.createElement("a");
+    a.className = "vt-host-blocked-link";
     a.href = "https://mykolakolisnyk.github.io/VATRA/";
     a.textContent = "Перейти до VATRA";
     container.append(heading, p, a);
