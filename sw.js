@@ -1,8 +1,15 @@
-/* VATRA offline navigation fallback (same-origin only). */
+/* VATRA: single offline fallback for all pages and both JSON languages. */
 const CACHE="vatra-offline-shell";
-const OFFLINE_UA="/VATRA/ua/offline.html";
-const OFFLINE_EN="/VATRA/en/offline.html";
-const ASSETS=[OFFLINE_UA,OFFLINE_EN,"/VATRA/assets/logo/vatra-logo.svg","/VATRA/assets/fonts/Onest-Variable.ttf"];
+const ROOT="/VATRA/";
+const OFFLINE=ROOT+"offline.html";
+const ASSETS=[
+ OFFLINE,
+ ROOT+"assets/js/lang.js",
+ ROOT+"assets/i18n/uk.json",
+ ROOT+"assets/i18n/en.json",
+ ROOT+"assets/logo/vatra-logo.svg",
+ ROOT+"assets/fonts/Onest-Variable.ttf"
+];
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
@@ -14,16 +21,32 @@ self.addEventListener("activate",event=>{
  })());
 });
 self.addEventListener("fetch",event=>{
- if(event.request.mode!=="navigate"||new URL(event.request.url).origin!==self.location.origin)return;
- event.respondWith((async()=>{
-  try{return await fetch(event.request);}
-  catch(_){
-   const url=new URL(event.request.url);
-   const accepted=(event.request.headers.get("accept-language")||"").toLowerCase();
-   const lang=url.pathname.startsWith("/VATRA/en/")?"en":url.pathname.startsWith("/VATRA/ua/")?"uk":null;
-   const saved=lang||(accepted.startsWith("uk")||accepted.startsWith("ru-ua")?"uk":"en");
-   const fallback=await caches.match(saved==="en"?OFFLINE_EN:OFFLINE_UA);
-   return fallback||new Response("VATRA: Offline",{status:503,headers:{"Content-Type":"text/plain;charset=utf-8"}});
-  }
- })());
+ const request=event.request;
+ const url=new URL(request.url);
+ if(url.origin!==self.location.origin||!url.pathname.startsWith(ROOT))return;
+ if(request.mode==="navigate"){
+  event.respondWith((async()=>{
+   try{return await fetch(request);}
+   catch(_){
+    return await caches.match(OFFLINE)||new Response("VATRA: Offline",{
+     status:503,headers:{"Content-Type":"text/plain;charset=utf-8"}
+    });
+   }
+  })());
+  return;
+ }
+ if(ASSETS.includes(url.pathname)&&request.method==="GET"){
+  event.respondWith((async()=>{
+   try{
+    const fresh=await fetch(request);
+    if(fresh.ok){
+     const cache=await caches.open(CACHE);
+     await cache.put(url.pathname,fresh.clone());
+    }
+    return fresh;
+   }catch(_){
+    return await caches.match(url.pathname)||Response.error();
+   }
+  })());
+ }
 });
