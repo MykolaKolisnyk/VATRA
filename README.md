@@ -5,7 +5,7 @@ VATRA — соціальна платформа. Поточний репозит
 ## Структура
 
 - `index.html` — мовний маршрутизатор: відкриває /ua/ або /en/ за збереженим вибором чи мовою браузера; основна мова бренду — українська.
-- Кореневі `register.html`, `forgot.html`, `reset.html`, `account.html` та документи — короткі маршрутизатори для старих посилань із збереженням query/hash. Зайві `auth.html` видалено.
+- У корені залишені лише технічні файли: `index.html` (вибір мови), `404.html` (публічні `/idN`), `sitemap.xml`, `sw.js`, `favicon.svg` і `site.webmanifest`. Дубльовані кореневі HTML-перенаправлення видалені.
 - `ua/` — українські сторінки VATRA; єдина форма входу розташована в `ua/index.html` і доступна за `/VATRA/ua/`.
 - `en/` — англійські сторінки VATRA; єдина форма входу доступна за `/VATRA/en/`.
 - У кожній мовній папці лише одна форма входу — `index.html`; файли `ua/auth.html`, `en/auth.html` та кореневий `auth.html` видалено.
@@ -22,18 +22,36 @@ VATRA — соціальна платформа. Поточний репозит
 ## Налаштування Supabase
 
 У проєкті Supabase VATRA встановіть **Site URL** `https://mykolakolisnyk.github.io/VATRA/` і додайте дозволені Redirect URLs:
-- `https://mykolakolisnyk.github.io/VATRA/account.html`
-- `https://mykolakolisnyk.github.io/VATRA/reset.html`
+- `https://mykolakolisnyk.github.io/VATRA/ua/account.html`
+- `https://mykolakolisnyk.github.io/VATRA/en/account.html`
+- `https://mykolakolisnyk.github.io/VATRA/ua/reset.html`
+- `https://mykolakolisnyk.github.io/VATRA/en/reset.html`
 
 Підтвердження email та відновлення пароля вимагають налаштованого надсилання email. Для реального публічного запуску підключіть SMTP-провайдера; стандартний поштовий сервіс Supabase має обмеження. Не додавайте до репозиторію секретні ключі. У клієнті використовується лише публічний publishable key.
 
-Номер телефону поки не підтримується — потрібен окремий SMS-провайдер. Інші можливості VATRA впроваджуватимуться окремо.
+Телефонна авторизація вимкнена за рішенням власника VATRA; не додавати SMS/телефон у форми та email-шаблони.
 
 ## Шрифт Onest
 
 - `assets/fonts/Onest-Variable.ttf` — оригінальний змінний шрифт Onest (100–900), завантажується **тільки з цього репозиторію**.
 - `assets/fonts/OFL.txt` — текст відкритої ліцензії SIL Open Font License 1.1.
 - У файлі `assets/css/auth.css` шрифт підключений локальним `@font-face`. Зовнішній Google Fonts не використовується.
+
+## Email-підтвердження та відновлення пароля
+
+- `/ua/forgot.html` і `/en/forgot.html` надсилають запит на відновлення через Supabase Auth (`resetPasswordForEmail`) з локалізованим `redirectTo`.
+- `/ua/reset.html` та `/en/reset.html` приймають email + одноразовий код (6–8 цифр) через `verifyOtp({ email, token, type: "recovery" })`. Після перевірки відкривають форму нового пароля; відновлення за захищеним посиланням також підтримується.
+- Під час реєстрації зберігається `preferred_locale` — `uk` або `en`, аби шаблони листів могли вибирати потрібну мову.
+- Готові HTML-шаблони: `email-templates/recovery.html`, `confirmation.html`, `magic-link.html`, `reauthentication.html`.
+- **Hosted Supabase не підтягує HTML-файли з GitHub автоматично!** Для активування адміністратор має в **Authentication → Emails → Templates** вручну вставити вміст відповідного файлу, указати тему та зберегти. Наразі готовність файлів у репозиторії не означає, що листи вже надсилаються українською.
+- Підключити лише email; SMS/телефон не використовувати. У **Authentication → URL Configuration** дозволити обидва локалізовані адреси `account.html` і `reset.html`. Старі кореневі посилання вже не працюють.
+- Для існуючих користувачів без `preferred_locale` шаблон показує українську як основну мову. Після нових реєстрацій мову визначає поле метаданих; зміна мови інтерфейсу не обов'язково змінює цю метадані автоматично.
+
+## Іконки й мініатюри
+
+- `favicon.svg` — коренева іконка VATRA, скопійована з офіційного `assets/logo/vatra-app-icon.svg`.
+- `site.webmanifest` — ім'я VATRA та офіційна іконка PNG для підтримуваних браузерів і встановлення.
+- У сторінок є `rel=icon` (SVG/PNG), `apple-touch-icon`, Open Graph та інші метатеги. Opera Speed Dial може брати власний кешований знімок: метатеги **не гарантують** вигляду плитки швидкого доступу.
 
 ## Пошук та індексація
 
@@ -44,10 +62,10 @@ VATRA — соціальна платформа. Поточний репозит
 
 ## Правила та приватність
 
-- `legal.html` — огляд документів.
-- `terms.html` — власні умови використання VATRA.
-- `privacy.html` — власна політика конфіденційності VATRA.
-- `cookies.html` — пояснення cookies та localStorage.
+- `/ua/legal.html` і `/en/legal.html` — огляд документів.
+- `/ua/terms.html` і `/en/terms.html` — власні умови використання VATRA.
+- `/ua/privacy.html` і `/en/privacy.html` — політика конфіденційності VATRA.
+- `/ua/cookies.html` і `/en/cookies.html` — пояснення cookies та localStorage.
 - `assets/css/legal.css` — стилі документів, без повторів у головних стилях.
 
 **Володілець даних:** фізична особа Микола Колісник; контакт для звернень — vatra.support@gmail.com. Перед повноцінним запуском необхідно узгодити контактну адресу, процедуру видалення акаунтів, реальні строки зберігання, список постачальників даних і перевірити документи з юристом. Документи мають бути юридично перевірені перед публічним запуском. Функції маркетплейсу та платні сервіси ще не діють і потребуватимуть окремих умов.
