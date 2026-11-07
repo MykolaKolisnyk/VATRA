@@ -388,7 +388,7 @@ function wireRegister(){
     email,password,
     options:{
      emailRedirectTo:new URL("account.html",new URL("/VATRA/",location.origin)).href,
-     data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null}
+     data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null,preferred_locale:english?"en":"uk"}
     }
    });
    if(error)throw error;
@@ -407,21 +407,58 @@ function wireForgot(){
   if(!email){feedback("Вкажіть вашу електронну пошту.","error");return;}
   busy(form,true);
   try{
-   const {error}=await auth.auth.resetPasswordForEmail(email,{redirectTo:new URL("/VATRA/reset.html",location.origin).href});
+   const {error}=await auth.auth.resetPasswordForEmail(email,{redirectTo:new URL("reset.html",location.href).href});
    if(error)throw error;
-   feedback("Якщо акаунт із такою адресою існує, на пошту надійде посилання для відновлення пароля.","success");
+   try{sessionStorage.setItem("vatra-recovery-email",email);}catch(_){}
+   feedback("Якщо акаунт із такою адресою існує, ми надіслали лист. Введіть код із листа або відкрийте посилання для відновлення.","success");
    form.reset();
+   const jump=q("#recovery-link");
+   if(jump){jump.hidden=false;jump.href=url("reset.html");}
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
 }
 function wireReset(){
- const form=q("#reset-form");
- if(!form)return;
+ const form=q("#reset-form"),codeForm=q("#recovery-code-form");
+ if(!form||!codeForm)return;
  const params=new URLSearchParams(location.search);
  const hash=new URLSearchParams(location.hash.substring(1));
- const hasRecovery=params.has("code")||params.get("type")==="recovery"||hash.get("type")==="recovery";
- if(params.get("error")||hash.get("error"))feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
- if(!hasRecovery)feedback("Щоб змінити пароль, перейдіть за посиланням із листа. Якщо ви вже увійшли в акаунт, можете змінити пароль тут.");
+ const openedLink=params.has("code")||params.get("type")==="recovery"||hash.get("type")==="recovery"||hash.has("access_token");
+ const emailInput=q("#recovery-email");
+ const tokenInput=q("#recovery-token");
+ try{emailInput.value=sessionStorage.getItem("vatra-recovery-email")||"";}catch(_){}
+ const reveal=()=>{
+  codeForm.hidden=true;
+  form.hidden=false;
+  clearFeedback();
+  q("#password")?.focus({preventScroll:true});
+ };
+ if(params.get("error")||hash.get("error")){
+  feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
+ }
+ if(openedLink){
+  /* Supabase PKCE/hash callback may settle after client initialization. */
+  auth.auth.onAuthStateChange((event,session)=>{
+   if(event==="PASSWORD_RECOVERY"&&session)reveal();
+  });
+  auth.auth.getUser().then(({data,error})=>{
+   if(!error&&data?.user)reveal();
+  }).catch(()=>{});
+ }
+ codeForm.addEventListener("submit",async e=>{
+  e.preventDefault();clearFeedback();
+  const email=emailInput.value.trim().toLowerCase();
+  const token=tokenInput.value.replace(/\s+/g,"");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){feedback("Вкажіть правильну електронну пошту.","error");emailInput.focus();return;}
+  if(!/^\d{6,8}$/.test(token)){feedback("Введіть код підтвердження з листа (6–8 цифр).","error");tokenInput.focus();return;}
+  busy(codeForm,true);
+  try{
+   const {data,error}=await auth.auth.verifyOtp({email,token,type:"recovery"});
+   if(error||!data?.session)throw error||new Error("Verification failed");
+   tokenInput.value="";
+   reveal();
+  }catch(_){feedback("Неправильний або прострочений код. Перевірте лист або запросіть новий.","error");}
+  finally{busy(codeForm,false);}
+ });
  form.addEventListener("submit",async e=>{
   e.preventDefault();clearFeedback();
   const password=q("#password").value,again=q("#password-confirm").value;
@@ -430,12 +467,13 @@ function wireReset(){
   busy(form,true);
   try{
    const {data:{user},error:userErr}=await auth.auth.getUser();
-   if(userErr||!user){feedback("Посилання вже недійсне. Запросіть новий лист для відновлення.","error");return;}
+   if(userErr||!user){feedback("Підтвердження закінчилося. Запросіть новий код для відновлення.","error");form.hidden=true;codeForm.hidden=false;return;}
    const {error}=await auth.auth.updateUser({password});
    if(error)throw error;
    form.reset();
    feedback("Пароль оновлено. Тепер можете перейти до свого акаунта.","success");
    const link=q("#account-link");if(link)link.hidden=false;
+   try{sessionStorage.removeItem("vatra-recovery-email");}catch(_){}
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
 }
