@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="{{ if eq .Data.preferred_locale "en" }}en{{ else }}uk{{ end }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>VATRA — email-address-changed</title>
+</head>
+<body class="ui-email-email-address-changed-body" style="margin:0;padding:26px 12px;background:#f5f7fd;font-family:Arial,Helvetica,sans-serif;color:#2c3850">
+  <table role="presentation" class="ui-email-email-address-changed-outer" width="100%" cellpadding="0" cellspacing="0" style="width:100%;max-width:580px;margin:0 auto;background:#ffffff;border:1px solid #dfe7f3;border-radius:18px">
+    <tr class="ui-email-email-address-changed-top-row"><td class="ui-email-email-address-changed-top-cell" style="padding:28px 30px 20px;border-bottom:1px solid #e9edf5">
+      <img class="ui-email-email-address-changed-logo" src="https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-logo.png" width="154" alt="VATRA" style="display:block;width:154px;max-width:100%;height:auto;border:0">
+      <p class="ui-email-email-address-changed-brand" style="margin:14px 0 0;font-size:12px;color:#627187;line-height:1.6">{{ if eq .Data.preferred_locale "en" }}Ukrainian social network{{ else }}Українська соціальна мережа{{ end }}</p>
+    </td></tr>
+    <tr class="ui-email-email-address-changed-content-row"><td class="ui-email-email-address-changed-content-cell" style="padding:28px 30px">
+      {{ if eq .Data.preferred_locale "en" }}
+      <h1 class="ui-email-email-address-changed-en-heading" style="margin:0 0 16px;font-size:24px;line-height:1.32;letter-spacing:-.02em;font-weight:700;color:#2c3850">Your VATRA email address was changed</h1>
+    <p class="ui-email-email-address-changed-en-intro" style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#596b84">The email address associated with your VATRA account has been updated.</p>
+    
+    <table role="presentation" class="ui-email-email-address-changed-en-change-table" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e7f4;border-radius:12px;background:#f6f8fd">
+      <tr class="ui-email-email-address-changed-en-change-row-1"><td class="ui-email-email-address-changed-en-change-cell-1" style="padding:13px 15px 5px;font-size:12px;color:#627187">Previous address</td></tr>
+      <tr class="ui-email-email-address-changed-en-change-row-2"><td class="ui-email-email-address-changed-en-change-cell-2" style="padding:0 15px 14px;word-break:break-all;font-size:14px;color:#2c3850"><strong class="ui-email-email-address-changed-en-previous-address">{{ .OldEmail }}</strong></td></tr>
+      <tr class="ui-email-email-address-changed-en-change-row-3"><td class="ui-email-email-address-changed-en-change-cell-3" style="padding:0 15px 5px;font-size:12px;color:#627187">New address</td></tr>
+      <tr class="ui-email-email-address-changed-en-change-row-4"><td class="ui-email-email-address-changed-en-change-cell-4" style="padding:0 15px 15px;word-break:break-all;font-size:14px;color:#2c3850"><strong class="ui-email-email-address-changed-en-new-address">{{ .Email }}</strong></td></tr>
+    </table>
+    <p class="ui-email-email-address-changed-en-warning" style="margin:23px 0 22px;font-size:14px;line-height:1.65;color:#334660;font-weight:600">Didn't make this change? Contact VATRA support immediately and secure your account.</p>
+    <table role="presentation" class="ui-email-email-address-changed-en-button-table" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px;border-collapse:separate">
+      <tr class="ui-email-email-address-changed-en-button-row">
+        <td class="ui-email-email-address-changed-en-button-cell" align="center" bgcolor="#2865d8" style="background:#2865d8;border-radius:999px;text-align:center">
+          <a href="mailto:vatra.support@gmail.com" class="ui-email-email-address-changed-en-button" style="display:inline-block;padding:15px 27px;color:#ffffff;text-decoration:none;font-size:14px;line-height:1.4;font-weight:700;font-family:Arial,Helvetica,sans-serif;text-align:center">Contact support</a>
+        </td>
+      </tr>
+    </table>
+    <p class="ui-email-email-address-changed-en-footer-note" style="margin:0;font-size:12px;line-height:1.65;color:#627187">This is an automatic security notification. Never share your password.</p>
+      {{ else }}
+      <h1 class="ui-email-email-address-changed-uk-heading" style="margin:0 0 16px;font-size:24px;line-height:1.32;letter-spacing:-.02em;font-weight:700;color:#2c3850">Електронну пошту VATRA змінено</h1>
+    <p class="ui-email-email-address-changed-uk-intro" style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#596b84">Електронну адресу, прив’язану до Вашого акаунта VATRA, було змінено.</p>
+    
+    <table role="presentation" class="ui-email-email-address-changed-uk-change-table" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e0e7f4;border-radius:12px;background:#f6f8fd">
+      <tr class="ui-email-email-address-changed-uk-change-row-1"><td class="ui-email-email-address-changed-uk-change-cell-1" style="padding:13px 15px 5px;font-size:12px;color:#627187">Попередня адреса</td></tr>
+      <tr class="ui-email-email-address-changed-uk-change-row-2"><td class="ui-email-email-address-changed-uk-change-cell-2" style="padding:0 15px 14px;word-break:break-all;font-size:14px;color:#2c3850"><strong class="ui-email-email-address-changed-uk-previous-address">{{ .OldEmail }}</strong></td></tr>
+      <tr class="ui-email-email-address-changed-uk-change-row-3"><td class="ui-email-email-address-changed-uk-change-cell-3" style="padding:0 15px 5px;font-size:12px;color:#627187">Нова адреса</td></tr>
+      <tr class="ui-email-email-address-changed-uk-change-row-4"><td class="ui-email-email-address-changed-uk-change-cell-4" style="padding:0 15px 15px;word-break:break-all;font-size:14px;color:#2c3850"><strong class="ui-email-email-address-changed-uk-new-address">{{ .Email }}</strong></td></tr>
+    </table>
+    <p class="ui-email-email-address-changed-uk-warning" style="margin:23px 0 22px;font-size:14px;line-height:1.65;color:#334660;font-weight:600">Це зробили не Ви? Негайно зверніться до підтримки VATRA та захистіть свій акаунт.</p>
+    <table role="presentation" class="ui-email-email-address-changed-uk-button-table" align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 20px;border-collapse:separate">
+      <tr class="ui-email-email-address-changed-uk-button-row">
+        <td class="ui-email-email-address-changed-uk-button-cell" align="center" bgcolor="#2865d8" style="background:#2865d8;border-radius:999px;text-align:center">
+          <a href="mailto:vatra.support@gmail.com" class="ui-email-email-address-changed-uk-button" style="display:inline-block;padding:15px 27px;color:#ffffff;text-decoration:none;font-size:14px;line-height:1.4;font-weight:700;font-family:Arial,Helvetica,sans-serif;text-align:center">Звернутися до підтримки</a>
+        </td>
+      </tr>
+    </table>
+    <p class="ui-email-email-address-changed-uk-footer-note" style="margin:0;font-size:12px;line-height:1.65;color:#627187">Це автоматичне повідомлення безпеки. Нікому не повідомляйте свій пароль.</p>
+      {{ end }}
+    </td></tr>
+    <tr class="ui-email-email-address-changed-bottom-row"><td class="ui-email-email-address-changed-bottom-cell" style="padding:18px 30px;border-top:1px solid #e9edf5">
+      <p class="ui-email-email-address-changed-copyright" style="margin:0;font-size:12px;line-height:1.6;color:#627187">© VATRA · <a href="mailto:vatra.support@gmail.com" class="ui-email-email-address-changed-contact-link" style="color:#2865d8;text-decoration:underline">vatra.support@gmail.com</a></p>
+    </td></tr>
+  </table>
+</body>
+</html>
