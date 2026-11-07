@@ -11,6 +11,22 @@
   const home=document.getElementById("profile-home");
   const signIn=document.getElementById("profile-signin");
   const endpoint=ROOT+(english?"en/":"");
+  if(english){
+    document.documentElement.lang="en";
+    home.textContent="Home";
+    signIn.textContent="Sign in to VATRA";
+    const footer=document.querySelector(".footer");
+    if(footer){
+      footer.querySelector("nav")?.querySelectorAll("a").forEach(link=>{
+        if(link.textContent==="Умови використання")link.textContent="Terms of Service";
+        if(link.textContent==="Конфіденційність")link.textContent="Privacy";
+      });
+      const copyright=footer.querySelector("span");
+      if(copyright)copyright.innerHTML="© 2026 <b>VATRA</b> · Social platform";
+      const trigger=footer.querySelector("[data-language-trigger]");
+      if(trigger){trigger.setAttribute("aria-label","Choose language");trigger.textContent="English";}
+    }
+  }
   home.href=endpoint;
   signIn.href=endpoint+"auth.html";
   if(!match || !Number.isSafeInteger(Number(match[1]))){
