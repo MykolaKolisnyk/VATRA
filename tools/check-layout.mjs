@@ -142,11 +142,22 @@ for(const locale of ["ua","en"]){
   locale+": duplicate logos must be removed from login screen");
  assert.ok(!page.includes('class="subtitle vt-'+locale+'-home')&&!page.includes('class="form-note vt-'+locale+'-home'),
   locale+": redundant login paragraphs should not reappear");
+ const english=locale==="en";
+ assert.ok(page.includes('class="login-eyebrow vt-'+locale+'-home-paragraph-04"'),
+  locale+": intro eyebrow needs its own class");
+ assert.ok(page.includes('class="login-description vt-'+locale+'-home-paragraph-05"'),
+  locale+": descriptive copy needs its own class");
+ assert.ok(page.includes(english?"Ukrainian social network":"Українська соціальна мережа"),
+  locale+": intro must explain VATRA");
+ assert.ok(page.includes(english?"Connect with your people":"Знаходьте своїх людей"),
+  locale+": login description missing");
  assert.ok(page.includes('class="login-recovery-link ui-'+locale+'-home-div-012"'),
   locale+": forgot-password control must remain aligned to the right");
  assert.ok(page.includes('class="intro-art ui-'+locale+'-home-div-001" role="group"'),
   locale+": accessible hero image/feature group must remain available");
 }
+assert.ok(css.includes(".login-eyebrow{display:inline-flex")&&css.includes(".login-description{margin:0 0 27px"),
+ "VATRA login intro should use dedicated, softly styled typography");
 assert.ok(css.includes(".login-recovery-link{display:flex;justify-content:flex-end"),
  "Forgot-password link should align correctly after secure-login text removal");
 assert.ok(!css.includes(".mobile-logo")&&!css.includes(".controls-inline"),
