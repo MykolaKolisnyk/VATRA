@@ -22,7 +22,12 @@
         if(link.textContent==="Конфіденційність"){link.textContent="Privacy";link.href="/VATRA/en/privacy.html";}
       });
       const copyright=footer.querySelector("span");
-      if(copyright)copyright.innerHTML="© 2026 <b>VATRA</b> · Your people. Your stories.";
+      if(copyright){
+        const brand=document.createElement("b");
+        brand.className="ui-profile-footer-brand";
+        brand.textContent="VATRA";
+        copyright.replaceChildren(document.createTextNode("© 2026 "),brand,document.createTextNode(" · Your people. Your stories."));
+      }
       const trigger=footer.querySelector("[data-language-trigger]");
       if(trigger){trigger.setAttribute("aria-label","Choose language");trigger.textContent="English";}
     }
