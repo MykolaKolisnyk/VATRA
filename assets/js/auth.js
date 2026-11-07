@@ -137,6 +137,7 @@ function wireSelects(){
    }
   };
   select.addEventListener("change",update);
+  select.form?.addEventListener("reset",()=>requestAnimationFrame(update));
   update();
   function open(){
    if(opened?.trigger===trigger){close();return;}
@@ -198,6 +199,9 @@ function validateBirthday(){
  return [year,month,day].join("-");
 }
 async function initialize(){
+ /* Build the interface independently of the authentication service status. */
+ wirePasswordButtons();
+ if(page==="register"){fillBirthdays();wireSelects();}
  if(!window.supabase?.createClient){
   feedback("Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.","error");
   return;
@@ -209,8 +213,6 @@ async function initialize(){
  }catch(_){
   feedback("Не вдалося підключитися до сервісу авторизації.","error");return;
  }
- wirePasswordButtons();
- if(page==="register"){fillBirthdays();wireSelects();}
  if(page==="login"){
   wireLogin();
   /* Сесія вже зберігається в браузері. Не просимо входити повторно. */
