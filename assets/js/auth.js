@@ -58,7 +58,8 @@ function showFieldError(control,message){
    error.className="field-error vt-field-error-"+control.id;
    error.id="vatra-error-"+control.id;
    error.setAttribute("role","alert");
-   wrapper.append(error);
+   const consentText=wrapper.classList.contains("check-terms")?wrapper.querySelector("span"):null;
+   (consentText||wrapper).append(error);
   }
   error.textContent=translate(message);
   window.VATRA_LANGUAGE?.ready?.then(()=>{if(error.isConnected)error.textContent=translate(message);});
