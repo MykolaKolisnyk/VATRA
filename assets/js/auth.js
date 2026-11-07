@@ -10,19 +10,9 @@ const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
 let auth=null;
-function vatraProfileUrl(id){
- return new URL("/VATRA/id"+String(id),location.origin).href;
-}
-async function goToMyProfile(){
- try{
-  const {data:{user},error}=await auth.auth.getUser();
-  if(error||!user)throw error||new Error("Unauthenticated");
-  const {data,error:accountError}=await auth.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
-  if(accountError||!data||!Number.isSafeInteger(Number(data.vatra_id)))throw accountError||new Error("No VATRA ID");
-  window.location.replace(vatraProfileUrl(data.vatra_id));
- }catch(_){
-  window.location.replace(url("account.html"));
- }
+function goToMyAccount(){
+ // Until dedicated profile routes exist, show the real account page.
+ window.location.replace(url("account.html"));
 }
 function feedback(text,type="info"){
  const box=q("#response");
@@ -342,7 +332,7 @@ async function initialize(){
   /* Сесія вже зберігається в браузері. Не просимо входити повторно. */
   try{
    const {data,error}=await auth.auth.getUser();
-   if(!error&&data?.user){await goToMyProfile();return;}
+   if(!error&&data?.user){await goToMyAccount();return;}
   }catch(_){/* Якщо немає зв'язку, форма входу залишається доступною. */}
  }
  if(page==="register")wireRegister();
@@ -362,7 +352,7 @@ function wireLogin(){
   try{
    const {error}=await auth.auth.signInWithPassword({email,password});
    if(error)throw error;
-   await goToMyProfile();
+   await goToMyAccount();
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
 }
@@ -394,7 +384,7 @@ function wireRegister(){
    });
    if(error)throw error;
    form.reset();
-   if(data?.session){await goToMyProfile();return;}
+   if(data?.session){await goToMyAccount();return;}
    feedback("Перевірте електронну пошту. На неї надіслано лист для підтвердження реєстрації. Після підтвердження можна увійти.","success");
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
@@ -587,7 +577,6 @@ async function wireAccount(){
     .from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
    if(!profileError&&profile&&Number.isSafeInteger(Number(profile.vatra_id))){
     idBox.textContent="VATRA ID "+String(profile.vatra_id);
-    idBox.href=vatraProfileUrl(profile.vatra_id);
     idBox.hidden=false;
    }else{
     idBox.hidden=true;
