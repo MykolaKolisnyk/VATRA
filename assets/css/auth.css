@@ -22,7 +22,7 @@
 /* VATRA: три написи на зовнішній орбіті та вісім різних SVG-можливостей на внутрішній. */
 
 /* Зовнішня орбіта обертається проти годинникової, внутрішня — за годинниковою. */
-.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:1;width:100%;min-height:440px;max-height:640px;margin:0 auto;--outer-radius:min(39cqw,275px);--inner-radius:min(19cqw,135px)}
+.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:1;width:100%;min-height:clamp(430px,88cqw,620px);max-height:690px;margin:0 auto;--outer-radius:min(39cqw,275px);--inner-radius:min(19cqw,135px)}
 .intro-circle{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0}
 .intro-circle-outer{width:calc(var(--outer-radius) * 2);border:1.5px solid #b6cafa;background:radial-gradient(circle,rgba(239,243,255,.8),rgba(248,250,255,.16) 65%,transparent 75%);box-shadow:0 0 0 10px rgba(219,231,255,.13),0 0 60px rgba(99,118,230,.09)}
 .intro-circle-inner{width:calc(var(--inner-radius) * 2);border:1.5px solid #a8c5f9;background:radial-gradient(circle,rgba(236,241,255,.65),transparent 73%);box-shadow:0 0 0 6px rgba(206,223,255,.13),inset 0 0 28px rgba(81,116,220,.05)}
