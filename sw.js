@@ -19,8 +19,9 @@ self.addEventListener("fetch",event=>{
   try{return await fetch(event.request);}
   catch(_){
    const url=new URL(event.request.url);
+   const accepted=(event.request.headers.get("accept-language")||"").toLowerCase();
    const lang=url.pathname.startsWith("/VATRA/en/")?"en":url.pathname.startsWith("/VATRA/ua/")?"uk":null;
-   const saved=lang||"uk";
+   const saved=lang||(accepted.startsWith("uk")||accepted.startsWith("ru-ua")?"uk":"en");
    const fallback=await caches.match(saved==="en"?OFFLINE_EN:OFFLINE_UA);
    return fallback||new Response("VATRA: Offline",{status:503,headers:{"Content-Type":"text/plain;charset=utf-8"}});
   }
