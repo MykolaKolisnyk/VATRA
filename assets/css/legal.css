@@ -13,20 +13,20 @@
 .policy-tabs a{display:inline-flex;align-items:center;justify-content:center;min-height:50px;min-width:132px;text-align:center;padding:12px 22px;border:1px solid transparent;border-radius:14px;color:#505d74;font-weight:700;font-size:14px;line-height:1.35;white-space:nowrap;transition:background-color .15s,border-color .15s,color .15s}
 .policy-tabs a:hover{background:#f2f6ff;border-color:#dce7ff;color:#075cf2;text-decoration:none}
 .policy-tabs a[aria-current="page"]{background:#eaf1ff;border-color:#cedeff;color:#075cf2}
-.policy-main{width:min(1100px,100%);margin:0 auto;padding:34px 26px 74px;flex:1}
+.policy-main{min-width:0;width:min(1100px,100%);margin:0 auto;padding:34px 26px 74px;flex:1}
 .policy-header{max-width:910px;margin:0 0 30px}
 .policy-eyebrow{display:block;color:#075cf2;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;margin:0 0 10px}
 .policy-header h1{font-size:clamp(31px,3.5vw,46px);line-height:1.14;letter-spacing:-.055em;font-weight:800;margin:0 0 14px;color:#172032}
 .policy-header p{font-size:clamp(14px,1.3vw,16px);line-height:1.65;color:#637087;max-width:800px;margin:0}
 .policy-updated{margin-top:13px!important;font-size:12px!important;color:#8490a2!important}
-.policy-grid{display:grid;grid-template-columns:235px minmax(0,1fr);gap:26px;align-items:start}
+.policy-grid{min-width:0;display:grid;grid-template-columns:235px minmax(0,1fr);gap:26px;align-items:start}
 .policy-toc{position:sticky;top:24px;background:#fff;border:1px solid #e2e8f1;border-radius:18px;padding:20px 13px;box-shadow:0 4px 18px rgba(25,44,79,.025)}
 .policy-toc-title{font-size:13px;color:#24324a;font-weight:800;margin:0 10px 13px}
 .policy-toc-list{display:grid;gap:3px}
 .policy-toc-list a{display:flex;align-items:center;min-height:43px;padding:10px 11px;border-radius:10px;font-size:13px;line-height:1.45;font-weight:550;color:#59677c}
 .policy-toc-list a:hover,.policy-toc-list a:focus-visible{background:#eef4ff;color:#075cf2;text-decoration:none}
 .policy-mobile-toc{display:none}
-.policy-copy{min-width:0;background:#fff;border:1px solid #e2e8f1;border-radius:20px;padding:32px clamp(24px,3vw,40px) 23px}
+.policy-copy{min-width:0;overflow-wrap:anywhere;background:#fff;border:1px solid #e2e8f1;border-radius:20px;padding:32px clamp(24px,3vw,40px) 23px}
 .policy-section{margin:0 0 27px;padding-bottom:27px;border-bottom:1px solid #e9edf5;scroll-margin-top:30px}
 .policy-section:last-of-type{border-bottom:0;margin-bottom:4px;padding-bottom:12px}
 .policy-section h2{margin:0 0 13px;font-size:clamp(18px,1.7vw,22px);font-weight:750;color:#1d2940;letter-spacing:-.025em;line-height:1.3}
@@ -44,7 +44,7 @@
 .policy-end p{margin:0;font-size:12px;color:#768299}
 .policy-end .action{font-size:13px;border-radius:12px;min-height:44px}
 .policy-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.policy-card{display:flex;flex-direction:column;gap:12px;min-height:236px;padding:25px 23px;background:#fff;border:1px solid #e2e8f1;border-radius:19px;box-shadow:0 5px 24px rgba(25,44,79,.035);transition:border-color .15s,transform .15s}
+.policy-card{min-width:0;display:flex;flex-direction:column;gap:12px;min-height:236px;padding:25px 23px;background:#fff;border:1px solid #e2e8f1;border-radius:19px;box-shadow:0 5px 24px rgba(25,44,79,.035);transition:border-color .15s,transform .15s}
 .policy-card:hover{border-color:#a6c5fa;transform:translateY(-2px);text-decoration:none}
 .policy-card-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#edf3ff;color:#075cf2}
 .policy-card-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -61,39 +61,24 @@
 .policy-table td{padding:13px;font-size:12px;color:#5d6a80;line-height:1.6;border-bottom:1px solid #eef1f7}
 .policy-table tr:last-child td{border-bottom:0}
 .policy-page .footer{min-height:72px}
+/* Адаптивність юридичних сторінок: один набір правил для кожної ширини екрана. */
 @media(max-width:1024px){.policy-main{padding:28px 22px 60px}.policy-tabs{justify-content:center;padding:9px 20px;gap:7px}.policy-tabs a{padding:11px 14px;min-width:0;font-size:13px}.policy-grid{grid-template-columns:205px minmax(0,1fr);gap:18px}.policy-copy{padding:26px 26px 17px}.policy-cards{gap:12px}.policy-card{padding:22px 18px}}
-@media(max-width:767px){.policy-page .policy-top{min-height:67px;padding:12px 18px}.policy-page .policy-top .header-logo{width:142px}.policy-top-actions{gap:4px}.policy-top-actions>a{font-size:12px;padding:9px 12px}.policy-top-actions .action{min-height:42px}.policy-tabs-shell{overflow-x:auto;scrollbar-width:thin}.policy-tabs{width:max-content;min-width:100%;justify-content:flex-start;min-height:65px;padding:9px 14px;gap:7px}.policy-tabs a{min-height:46px;padding:11px 15px;font-size:13px}.policy-main{padding:25px 17px 48px}.policy-header{margin-bottom:22px}.policy-header h1{font-size:clamp(29px,6vw,38px)}.policy-grid{display:block}.policy-toc{display:none}.policy-mobile-toc{display:block;max-width:100%;border:1px solid #dce5f4;background:#fff;border-radius:14px;margin:0 0 14px}.policy-mobile-toc summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:12px 17px;font-size:14px;font-weight:750;color:#25344d;cursor:pointer}.policy-mobile-toc summary::-webkit-details-marker{display:none}.policy-mobile-toc summary:after{content:"⌄";font-size:24px;line-height:1;color:#075cf2}.policy-mobile-toc[open] summary:after{transform:rotate(180deg)}.policy-mobile-toc .policy-toc-list{padding:0 9px 12px;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 6px}.policy-mobile-toc .policy-toc-list a{font-size:12px;min-height:44px}.policy-copy{padding:24px 19px 17px;border-radius:16px}.policy-section{margin-bottom:23px;padding-bottom:23px}.policy-cards{grid-template-columns:1fr}.policy-card{min-height:0;padding:20px;gap:9px}.policy-card p{margin:0 0 4px}.policy-summary{align-items:flex-start;flex-wrap:wrap;padding:18px}.policy-summary>a{margin-left:0}.policy-copy p,.policy-copy li{font-size:13px}}
-@media(max-width:390px){.policy-top-actions>a:first-child{display:none}.policy-page .policy-top .header-logo{width:132px}.policy-mobile-toc .policy-toc-list{grid-template-columns:1fr}.policy-main{padding-inline:13px}.policy-copy{padding:21px 15px}.policy-tabs{padding-inline:11px}}
-@media(prefers-reduced-motion:reduce){.policy-card,.policy-tabs a{transition:none}}
-
-
-/* Узгоджена адаптація сторінок правил, конфіденційності та cookies. */
-.policy-main,.policy-copy,.policy-grid,.policy-card{min-width:0}
-.policy-copy{overflow-wrap:anywhere}
-.policy-top-actions>a{min-height:44px}
-.policy-mobile-toc summary{touch-action:manipulation}
-@media (min-width:768px) and (max-width:950px){
-  .policy-grid{display:block}
+@media(min-width:768px) and (max-width:950px){.policy-grid{display:block}
   .policy-toc{display:none}
   .policy-mobile-toc{display:block;margin:0 0 16px;border:1px solid #dce5f4;background:#fff;border-radius:14px}
-  .policy-mobile-toc summary{display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:12px 17px;font-size:14px;font-weight:750;cursor:pointer;list-style:none}
+  .policy-mobile-toc summary{touch-action:manipulation;display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:12px 17px;font-size:14px;font-weight:750;cursor:pointer;list-style:none}
   .policy-mobile-toc summary::-webkit-details-marker{display:none}
   .policy-mobile-toc summary:after{content:"⌄";font-size:23px;color:#075cf2}
   .policy-mobile-toc[open] summary:after{transform:rotate(180deg)}
   .policy-mobile-toc .policy-toc-list{padding:0 10px 13px;grid-template-columns:repeat(2,minmax(0,1fr))}
   .policy-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .policy-copy{padding:28px}
-}
-@media (max-width:767px){
-  .policy-tabs-shell{overscroll-behavior-x:contain;scroll-snap-type:x proximity}
-  .policy-tabs a{scroll-snap-align:start}
-  .policy-page .footer nav a{min-height:38px}
-  .policy-copy{overflow-wrap:anywhere}
-}
-@media (max-width:420px){
-  .policy-page .policy-top .header-logo{width:124px}
+  .policy-copy{padding:28px}}
+@media(max-width:767px){.policy-page .policy-top{min-height:67px;padding:12px 18px}.policy-page .policy-top .header-logo{width:142px}.policy-top-actions{gap:4px}.policy-top-actions>a{font-size:12px;padding:9px 12px}.policy-top-actions .action{min-height:42px}.policy-tabs-shell{overflow-x:auto;scrollbar-width:thin;overscroll-behavior-x:contain;scroll-snap-type:x proximity}.policy-tabs{width:max-content;min-width:100%;justify-content:flex-start;min-height:65px;padding:9px 14px;gap:7px}.policy-tabs a{min-height:46px;padding:11px 15px;font-size:13px;scroll-snap-align:start}.policy-main{padding:25px 17px 48px}.policy-header{margin-bottom:22px}.policy-header h1{font-size:clamp(29px,6vw,38px)}.policy-grid{display:block}.policy-toc{display:none}.policy-mobile-toc{display:block;max-width:100%;border:1px solid #dce5f4;background:#fff;border-radius:14px;margin:0 0 14px}.policy-mobile-toc summary{touch-action:manipulation;list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:12px 17px;font-size:14px;font-weight:750;color:#25344d;cursor:pointer}.policy-mobile-toc summary::-webkit-details-marker{display:none}.policy-mobile-toc summary:after{content:"⌄";font-size:24px;line-height:1;color:#075cf2}.policy-mobile-toc[open] summary:after{transform:rotate(180deg)}.policy-mobile-toc .policy-toc-list{padding:0 9px 12px;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 6px}.policy-mobile-toc .policy-toc-list a{font-size:12px;min-height:44px}.policy-copy{padding:24px 19px 17px;border-radius:16px}.policy-section{margin-bottom:23px;padding-bottom:23px}.policy-cards{grid-template-columns:1fr}.policy-card{min-height:0;padding:20px;gap:9px}.policy-card p{margin:0 0 4px}.policy-summary{align-items:flex-start;flex-wrap:wrap;padding:18px}.policy-summary>a{margin-left:0}.policy-copy p,.policy-copy li{font-size:13px}
+.policy-page .footer nav a{min-height:38px}}
+@media(max-width:420px){.policy-page .policy-top .header-logo{width:124px}
   .policy-top-actions>a{font-size:12px;padding:8px 9px}
   .policy-top-actions .action{font-size:12px;min-height:42px}
   .policy-copy{padding:20px 15px}
-  .policy-copy p,.policy-copy li{font-size:13px;line-height:1.7}
-}
+  .policy-copy p,.policy-copy li{font-size:13px;line-height:1.7}}
+@media(max-width:390px){.policy-top-actions>a:first-child{display:none}.policy-page .policy-top .header-logo{width:132px}.policy-mobile-toc .policy-toc-list{grid-template-columns:1fr}.policy-main{padding-inline:13px}.policy-copy{padding:21px 15px}.policy-tabs{padding-inline:11px}}
+@media(prefers-reduced-motion:reduce){.policy-card,.policy-tabs a{transition:none}}
