@@ -88,7 +88,14 @@ async function initialize(){
  }
  wirePasswordButtons();
  if(page==="register")fillBirthdays();
- if(page==="login")wireLogin();
+ if(page==="login"){
+  wireLogin();
+  /* Сесія вже зберігається в браузері. Не просимо входити повторно. */
+  try{
+   const {data,error}=await auth.auth.getUser();
+   if(!error&&data?.user){window.location.replace(url("account.html"));return;}
+  }catch(_){/* Якщо немає зв'язку, форма входу залишається доступною. */}
+ }
  if(page==="register")wireRegister();
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
