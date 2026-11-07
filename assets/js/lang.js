@@ -90,6 +90,8 @@
     changed = true;
   }
   if (changed) history.replaceState(history.state, "", address.pathname + address.search + address.hash);
+  /* Visiting an explicitly localized URL is also an intentional language choice. */
+  if (explicit) persist(current);
 
   function bindLocalizedLinks() {
     for (const link of document.querySelectorAll("a[href]")) {
@@ -245,6 +247,10 @@
     scrollTrack.addEventListener("pointermove", e => {
       if (dragging) moveThumb(e.clientY);
     });
+    scrollTrack.addEventListener("wheel", e => {
+      list.scrollTop += e.deltaY;
+      e.preventDefault();
+    }, {passive:false});
     function endDrag(e) {
       if (!dragging) return;
       dragging = false;
