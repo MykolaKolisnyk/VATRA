@@ -6,7 +6,7 @@
   const english=document.documentElement.lang==="en";
   const label=english?"No internet connection. Check your connection.":"Немає підключення до інтернету. Перевірте мережу.";
   const banner=document.createElement("div");
-  banner.className="network-status";
+  banner.className="network-status vt-network-status";
   banner.setAttribute("role","status");
   banner.setAttribute("aria-live","polite");
   banner.hidden=true;
