@@ -7,6 +7,9 @@
   const explicit = route.startsWith("ua/") ? "uk" : route.startsWith("en/") ? "en" : null;
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
   function preferred() {
+    const explicitLocale = new URLSearchParams(location.search).get("locale");
+    if (explicitLocale === "uk_UA") return "uk";
+    if (explicitLocale === "en_US") return "en";
     const choice = saved();
     if (choice === "uk" || choice === "en") return choice;
     return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
@@ -61,8 +64,10 @@
   }
   function pathFor(lang) {
     const route = location.pathname.slice(ROOT.length).replace(/^(?:ua|en)\//, "");
-    const filename = route === "index.html" ? "" : route;
-    return ROOT + (lang === "en" ? "en/" : "ua/") + filename + location.search + location.hash;
+    const filename = route === "index.html" || route === "auth.html" ? "" : route;
+    const query = new URLSearchParams(location.search);
+    query.set("locale", lang === "en" ? "en_US" : "uk_UA");
+    return ROOT + (lang === "en" ? "en/" : "ua/") + filename + "?" + query + location.hash;
   }
   /* Explicit /ua/ and /en/ URLs win; root and legacy paths route to the browser preference. */
   if (!explicit && !/^id[1-9]\d*\/?$/.test(route)) {
@@ -70,6 +75,32 @@
     return;
   }
 
+  /* Keep address bar and internal navigation consistent with the active locale. */
+  if (explicit) {
+    const expected = current === "en" ? "en_US" : "uk_UA";
+    const address = new URL(location.href);
+    if (address.searchParams.get("locale") !== expected) {
+      address.searchParams.set("locale", expected);
+      history.replaceState(history.state,"",address.pathname+address.search+address.hash);
+    }
+  }
+  function bindLocalizedLinks() {
+    const tag = current === "en" ? "en_US" : "uk_UA";
+    for(const link of document.querySelectorAll('a[href]')){
+      const raw=link.getAttribute("href");
+      if(!raw||raw.startsWith("#")||raw.startsWith("mailto:")||raw.startsWith("tel:"))continue;
+      try {
+        const address=new URL(raw,location.href);
+        if(address.origin!==location.origin||!address.pathname.startsWith(ROOT))continue;
+        if(address.pathname.startsWith(ROOT+"assets/"))continue;
+        if(address.pathname.endsWith("/auth.html")||address.pathname.endsWith("/index.html")) {
+          address.pathname=address.pathname.replace(/(?:auth|index)\.html$/,"");
+        }
+        address.searchParams.set("locale",tag);
+        link.href=address.href;
+      } catch(_) {}
+    }
+  }
   let errors = {};
   const ready = current === "en"
     ? fetch(ROOT + "assets/i18n/en.json").then(r => r.ok ? r.json() : {}).then(value => { errors = value; }).catch(() => {})
@@ -86,6 +117,7 @@
     : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
 
   document.addEventListener("DOMContentLoaded", () => {
+    bindLocalizedLinks();
     const triggers = [...document.querySelectorAll("[data-language-trigger]")];
     if (!triggers.length) return;
     const backdrop = document.createElement("div");
