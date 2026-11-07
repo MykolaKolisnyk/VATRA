@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
+import {runInNewContext} from "node:vm";
 
 const read=path=>readFile(path,"utf8");
 const css=await read("assets/css/auth.css");
@@ -200,8 +201,14 @@ assert.ok(/const SITE_KEY = "[A-Za-z0-9_-]*";/.test(captcha),"CAPTCHA site key m
 assert.ok(!/secret[_-]?key\s*=/.test(captcha),"Never expose a Turnstile secret in browser JavaScript");
 assert.ok(captcha.includes("challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"),
  "Cloudflare must load its official, non-proxied script");
-assert.ok(captcha.includes("turnstile.render")&&captcha.includes("turnstile.getResponse")
- &&captcha.includes("turnstile.reset"),"Widget lifecycle missing");
+assert.ok(captcha.includes("turnstile.render")&&captcha.includes("turnstile.execute")
+ &&captcha.includes("turnstile?.remove"),"On-demand widget lifecycle missing");
+assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"interaction-only"'),
+ "Verification must run after submit and show only when interaction is required");
+assert.ok(!auth.includes("window.VATRA_CAPTCHA.mount("),
+ "Do not mount CAPTCHA on initial page load or when revealing a recovery code field");
+assert.ok(css.includes(".vatra-captcha{display:flex")&&css.includes("min-height:0;margin:0"),
+ "Invisible CAPTCHA should not reserve a permanent gap in the form");
 for(const locale of ["ua","en"]){
  for(const filename of ["index.html","register.html","forgot.html"]){
   const content=await read(locale+"/"+filename);
@@ -214,6 +221,37 @@ assert.ok(auth.includes("auth.auth.signInWithPassword({email,password,options})"
 assert.ok(auth.includes("const captcha=await captchaOptions(form);"),"Signup must request CAPTCHA token");
 assert.ok(auth.includes("captchaScope=repeat?step:form"),"Repeat password recovery needs a fresh CAPTCHA token");
 assert.ok(auth.includes("resetCaptcha(repeat?step:form)"),"Password reset must clear used CAPTCHA tokens");
+// Simulate a browser Turnstile challenge without using production credentials.
+{
+ let rendered=0,executed=0,removed=0,inserted=0;
+ let settings;
+ const browserWindow={turnstile:{
+  render(_host,opts){rendered++;settings=opts;return "mock-widget";},
+  execute(_id){executed++;queueMicrotask(()=>settings.callback("mock-verified-token"));},
+  remove(_id){removed++;}
+ }};
+ const documentStub={
+  documentElement:{lang:"uk"},
+  createElement(_tag){return {isConnected:true,className:"",setAttribute(){},remove(){this.isConnected=false;}};},
+  head:{append(){}}
+ };
+ runInNewContext(captcha,{window:browserWindow,document:documentStub,WeakMap,Promise,
+  setTimeout,clearTimeout,Error});
+ const submit={before(){inserted++;}};
+ const form={id:"login-form",isConnected:true,hidden:false,querySelector(){return submit;}};
+ assert.equal(rendered,0,"CAPTCHA must not render before login is submitted");
+ assert.equal(inserted,0,"CAPTCHA must not occupy space before login is submitted");
+ const result=await browserWindow.VATRA_CAPTCHA.token(form);
+ assert.equal(result,"mock-verified-token");
+ assert.equal(executed,1,"Submission should execute exactly one CAPTCHA challenge");
+ assert.equal(rendered,1,"Submission should render a widget only on demand");
+ await browserWindow.VATRA_CAPTCHA.reset(form);
+ assert.equal(removed,1,"Completed widget should be removed to restore clean form layout");
+ await browserWindow.VATRA_CAPTCHA.token(form);
+ assert.equal(executed,2,"A new submission needs a fresh CAPTCHA challenge");
+ await browserWindow.VATRA_CAPTCHA.reset(form);
+ assert.equal(removed,2,"Retry must also clean up its widget");
+}
 const appManifest=JSON.parse(await read("site.webmanifest"));
 assert.equal(appManifest.theme_color,"#ffffff","Manifest theme must match the light VATRA layout");
 assert.equal(appManifest.scope,"/VATRA/","PWA scope must use the project subdirectory");
