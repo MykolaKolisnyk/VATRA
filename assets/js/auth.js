@@ -328,7 +328,7 @@ async function wireAccount(){
   const idBox=q("#vatra-id");
   if(idBox){
    const {data:profile,error:profileError}=await auth
-    .from("profiles").select("vatra_id").eq("user_id",user.id).maybeSingle();
+    .from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
    if(!profileError&&profile&&Number.isSafeInteger(Number(profile.vatra_id))){
     idBox.textContent="VATRA ID "+String(profile.vatra_id);
     idBox.hidden=false;
