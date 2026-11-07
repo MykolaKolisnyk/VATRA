@@ -18,7 +18,7 @@ assert.ok(auth.includes("VATRA_HOST_ALLOWED===false"),"Auth must not initialize 
 const languages=await read("assets/js/lang.js");
 assert.ok(languages.includes("vt-language-dialog-heading")&&languages.includes("vt-language-name-"),"Dynamic language texts need individual classes");
 const pages=["index.html","404.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
-const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"].map(name=>"email-templates/"+name+".html")];
+const paths=["index.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"].map(name=>"email-templates/"+name+".html")];
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 
 function inspectPage(path,html){
@@ -143,12 +143,10 @@ for(const locale of ["ua","en"]){
  assert.ok(!page.includes('class="subtitle vt-'+locale+'-home')&&!page.includes('class="form-note vt-'+locale+'-home'),
   locale+": redundant login paragraphs should not reappear");
  const english=locale==="en";
- assert.ok(page.includes('class="login-eyebrow vt-'+locale+'-home-paragraph-04"'),
-  locale+": intro eyebrow needs its own class");
+ assert.ok(!page.includes('class="login-eyebrow'),locale+": removed eyebrow should not return");
  assert.ok(page.includes('class="login-description vt-'+locale+'-home-paragraph-05"'),
   locale+": descriptive copy needs its own class");
- assert.ok(page.includes(english?"Ukrainian social network":"Українська соціальна мережа"),
-  locale+": intro must explain VATRA");
+
  assert.ok(page.includes(english?"Connect with your people":"Знаходьте своїх людей"),
   locale+": login description missing");
  assert.ok(page.includes('class="login-recovery-link ui-'+locale+'-home-div-012"'),
@@ -156,8 +154,12 @@ for(const locale of ["ua","en"]){
  assert.ok(page.includes('class="intro-art ui-'+locale+'-home-div-001" role="group"'),
   locale+": accessible hero image/feature group must remain available");
 }
-assert.ok(css.includes(".login-eyebrow{display:inline-flex")&&css.includes(".login-description{margin:0 0 27px"),
- "VATRA login intro should use dedicated, softly styled typography");
+assert.ok(!css.includes(".login-eyebrow{")&&css.includes(".login-description{margin:0 0 27px"),
+ "Obsolete eyebrow CSS must be removed, while descriptive copy remains styled");
+assert.ok(css.includes(".error-home-link{display:inline-flex")&&css.includes(".error-home-link:hover{background:"),
+ "VATRA error page should have an obvious top home button");
+assert.ok(css.includes("background:linear-gradient(115deg,#265fd6"),
+ "404 number must use the VATRA gradient");
 assert.ok(css.includes(".login-recovery-link{display:flex;justify-content:flex-end"),
  "Forgot-password link should align correctly after secure-login text removal");
 assert.ok(!css.includes(".mobile-logo")&&!css.includes(".controls-inline"),
@@ -230,14 +232,10 @@ assert.equal(validate("CorrectPassword123!"),true,"Strong 12+ character password
 for(const weak of ["Password1!","onlylowercase1234!","ONLYUPPERCASE1234!","NoSymbols123456","MissingDigits!Abc",""]){
  assert.equal(validate(weak),false,"Weak password must be rejected: "+weak);
 }
-// GitHub Pages requires a small root 404 entrypoint; the real pages are language-specific.
-const missingPage=await read("404.html");
-assert.ok(missingPage.includes('data-page="technical-404-fallback"'),
- "Root 404 must only handle GitHub Pages fallback");
-assert.ok(missingPage.includes('location.replace("/VATRA/"+lang+"/404.html")'),
- "Root 404 must route to the chosen language folder");
-assert.ok(!/profile\.js|data-page="public-profile"|supabase-js|vatra_directory|profile-heading/.test(missingPage),
- "Root 404 must not initialize a profile or Supabase");
+// The owner requests language-specific 404 files only. GitHub Pages itself shows
+// its default 404 for unknown addresses when no root-level 404.html exists.
+await assert.rejects(read("404.html"),{code:"ENOENT"},
+ "A duplicate root-level 404.html must not return");
 for(const lang of ["ua","en"]){
  const page=await read(lang+"/404.html");
  assert.ok(page.includes('data-page="not-found"')&&page.includes('id="error-heading"'),
@@ -246,6 +244,7 @@ for(const lang of ["ua","en"]){
   lang+": 404 must show VATRA logo");
  assert.ok(page.includes("data-language-trigger"),
   lang+": 404 must keep language selector");
+ assert.ok(page.includes('class="error-home-link vt-'+lang+'-404-link-002"'),lang+": prominent home link missing");
  assert.ok(page.includes('href="./"'),lang+": 404 must link home");
  assert.ok(!/profile\.js|supabase-js|vatra_directory/.test(page),
   lang+": 404 must not load profile or authentication");
