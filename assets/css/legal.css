@@ -17,8 +17,8 @@
 .policy-header{max-width:910px;margin:0 0 30px}
 .policy-eyebrow{display:block;color:#2865D8;font-size:12px;font-weight:740;letter-spacing:.07em;text-transform:uppercase;margin:0 0 10px}
 .policy-header h1{font-size:clamp(31px,3.5vw,46px);line-height:1.23;letter-spacing:-.025em;font-weight:720;text-wrap:balance;margin:0 0 14px;color:#2E3C55}
- .policy-header p{font-size:clamp(14px,1.3vw,16px);text-wrap:pretty;line-height:1.65;color:#637087;max-width:800px;margin:0}
-.policy-updated{margin-top:13px!important;font-size:12px!important;color:#8490a2!important}
+ .policy-header p{font-size:clamp(14px,1.3vw,16px);text-wrap:pretty;line-height:1.65;color:#627187;max-width:800px;margin:0}
+.policy-updated{margin-top:13px!important;font-size:12px!important;color:#627187!important}
 .policy-grid{min-width:0;display:grid;grid-template-columns:235px minmax(0,1fr);gap:26px;align-items:start}
 .policy-toc{position:sticky;top:24px;background:#fff;border:1px solid #e2e8f1;border-radius:18px;padding:20px 13px;box-shadow:0 4px 18px rgba(25,44,79,.025)}
 .policy-toc-title{font-size:13px;color:#3C4B64;font-weight:740;margin:0 10px 13px}
@@ -41,7 +41,7 @@
 .policy-note{border-radius:13px;border:1px solid #d6e4fc;background:#f5f8ff;padding:15px 17px;margin:16px 0;font-size:13px;line-height:1.6;color:#455a7d}
 .policy-note strong{color:#25477b}
 .policy-copy .policy-end{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:16px 0 4px}
-.policy-end p{margin:0;font-size:12px;color:#768299}
+.policy-end p{margin:0;font-size:12px;color:#627187}
 .policy-end .action{font-size:13px;border-radius:12px;min-height:44px}
 .policy-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .policy-card{min-width:0;display:flex;flex-direction:column;gap:12px;min-height:236px;padding:25px 23px;background:#fff;border:1px solid #e2e8f1;border-radius:19px;box-shadow:0 5px 24px rgba(25,44,79,.035);transition:border-color .15s,transform .15s}
@@ -49,16 +49,16 @@
 .policy-card-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:#edf3ff;color:#2865D8}
 .policy-card-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .policy-card h2{font-size:18px;color:#354660;margin:0;letter-spacing:-.025em}
-.policy-card p{font-size:13px;color:#627087;line-height:1.6;margin:0;flex:1}
+.policy-card p{font-size:13px;color:#627187;line-height:1.6;margin:0;flex:1}
 .policy-card-more{color:#2865D8;font-size:13px;font-weight:740}
 .policy-summary{display:flex;align-items:center;gap:18px;background:#fff;border:1px solid #e2e8f1;border-radius:17px;margin:22px 0 0;padding:20px 24px}
-.policy-summary p{font-size:13px;line-height:1.6;color:#637087;margin:0}
+.policy-summary p{font-size:13px;line-height:1.6;color:#627187;margin:0}
 .policy-summary strong{display:block;font-size:14px;color:#27334b;margin-bottom:5px}
 .policy-summary>a{margin-left:auto;white-space:nowrap;color:#2865D8;font-size:13px;font-weight:700}
 .policy-table-wrap{overflow-x:auto;border:1px solid #e5eaf3;border-radius:12px;margin:12px 0 18px}
 .policy-table{width:100%;border-collapse:collapse;min-width:540px}
 .policy-table th{padding:13px;background:#f3f6fc;color:#3F506A;font-size:12px;text-align:left;border-bottom:1px solid #e5eaf3}
-.policy-table td{padding:13px;font-size:12px;color:#5d6a80;line-height:1.6;border-bottom:1px solid #eef1f7}
+.policy-table td{padding:13px;font-size:12px;color:#627187;line-height:1.6;border-bottom:1px solid #eef1f7}
 .policy-table tr:last-child td{border-bottom:0}
 .policy-page .footer{min-height:72px}
 /* Адаптивність юридичних сторінок: один набір правил для кожної ширини екрана. */
