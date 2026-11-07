@@ -100,11 +100,11 @@ assert.ok(auth.includes('auth.auth.verifyOtp({email,token,type:"recovery"})'),
 for(const locale of ["ua","en"]){
  for(const name of ["forgot.html","reset.html"]){
   const html=await read(locale+"/"+name);
-  assert.ok(html.includes('pattern="[0-9]{6}" minlength="6" maxlength="6"'),
-   locale+"/"+name+": recovery must use the 6-digit standard Supabase OTP");
+  assert.ok(html.includes('pattern="[0-9]{8}" minlength="8" maxlength="8"'),
+   locale+"/"+name+": recovery must use the 8-digit configured Supabase OTP");
  }
 }
-assert.ok(auth.includes('/^\\d{6}$/.test(token)'),"OTP validation must accept exactly six digits");
+assert.ok(auth.includes('/^\\d{8}$/.test(token)'),"OTP validation must accept exactly six digits");
 assert.ok(auth.includes("const COOLDOWN_MS=60000"),
  "Resend control must use the 60-second cooldown");
 assert.ok(auth.includes("function wireForgot(){")&&auth.includes("wireReset();"),
