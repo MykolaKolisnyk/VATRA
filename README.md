@@ -131,3 +131,18 @@ VATRA — соціальна платформа. Поточний репозит
 - Захист від скомпрометованих паролів доступний лише на Supabase Pro і вище. За тарифу Free він залишається недоступним.
 - **Важливо:** GitHub не може зберегти налаштування Authentication у Supabase. Параметри треба виставити в Dashboard і натиснути **Save**. Зміна політики паролів без оновлення форм VATRA викликала б помилки реєстрації й відновлення; усі форми вже синхронізовано з політикою вище.
 
+
+## Cloudflare Turnstile — захист від ботів
+
+Статус після підготовки: **код підтримки готовий, але CAPTCHA ще не ввімкнена**, доки власник VATRA не створить ключі Cloudflare. Не вмикайте CAPTCHA в Supabase до вставлення site key у сайт — вхід, реєстрація й відновлення без токена будуть відхилені.
+
+1. Відкрийте [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) → **Add widget**.
+2. Назва: `VATRA Production`; Hostnames: `mykolakolisnyk.github.io` (без `https://`, `/VATRA` або `*`); Widget mode: **Managed**. Натисніть **Create**.
+3. Скопіюйте лише публічний **Site Key**. У `assets/js/captcha.js` замініть порожнє значення `const SITE_KEY = "";` на `const SITE_KEY = "ВАШ_ПУБЛІЧНИЙ_SITE_KEY";`. Секретний ключ **ніколи не зберігайте в GitHub**, HTML, JavaScript чи у файлах.
+4. Переконайтеся, що на сторінках `/ua/`, `/en/`, `/ua/register.html`, `/en/register.html`, `/ua/forgot.html`, `/en/forgot.html` відображається перевірка. Відповіді Cloudflare після виконання перевірки передаються в Supabase як `captchaToken`. Повторні запити використовують **нові** токени.
+5. Тільки після цього відкрийте [Supabase → Authentication → Attack Protection](https://supabase.com/dashboard/project/rjasunoawrxvetwadylh/auth/protection), знайдіть **Enable CAPTCHA protection**, оберіть **Cloudflare Turnstile**, вставте **Secret Key** **тільки** у поле Supabase та збережіть зміни.
+6. Перевірте тестовий вхід, реєстрацію та повторне надсилання коду відновлення з браузера. Якщо Cloudflare або Supabase некоректно налаштовані, вимкніть CAPTCHA в Supabase, щоб не заблокувати користувачам доступ, і виправте ключі/домен.
+
+Один модуль `assets/js/captcha.js`, основний `assets/js/auth.js`, звичайний `assets/css/auth.css`. Ніяких `v2` чи дубльованих стилів. Авторизація тільки через **електронну пошту**, без SMS.
+
+Turnstile перевіряється на серверній стороні **через Supabase Auth**, коли CAPTCHA увімкнена у Dashboard; одна лише видима CAPTCHA на сайті не захищає серверні запити. 
