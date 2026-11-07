@@ -192,6 +192,28 @@ for(const name of ["confirmation","invite","magic-link","email-change","recovery
  assert.equal((html.match(/button-wrap" style="margin:22px 0;text-align:center"/g)||[]).length,2,
   name+": both locale email buttons must be centered");
 }
+// Cloudflare Turnstile must remain a single optional module.
+// Do not enable Supabase CAPTCHA before configuring the public site key.
+const captcha=await read("assets/js/captcha.js");
+assert.doesNotThrow(()=>new Function(captcha),"CAPTCHA module must parse as plain browser JS");
+assert.ok(/const SITE_KEY = "[A-Za-z0-9_-]*";/.test(captcha),"CAPTCHA site key must be a public key or be left empty");
+assert.ok(!/secret[_-]?key\s*=/.test(captcha),"Never expose a Turnstile secret in browser JavaScript");
+assert.ok(captcha.includes("challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"),
+ "Cloudflare must load its official, non-proxied script");
+assert.ok(captcha.includes("turnstile.render")&&captcha.includes("turnstile.getResponse")
+ &&captcha.includes("turnstile.reset"),"Widget lifecycle missing");
+for(const locale of ["ua","en"]){
+ for(const filename of ["index.html","register.html","forgot.html"]){
+  const content=await read(locale+"/"+filename);
+  assert.ok(content.includes('src="../assets/js/captcha.js"'),locale+"/"+filename+": CAPTCHA script missing");
+  assert.ok(content.indexOf('src="../assets/js/captcha.js"')<content.indexOf('src="../assets/js/auth.js"'),
+   locale+"/"+filename+": CAPTCHA module must load before auth");
+ }
+}
+assert.ok(auth.includes("auth.auth.signInWithPassword({email,password,options})"),"Login must pass CAPTCHA options");
+assert.ok(auth.includes("const captcha=await captchaOptions(form);"),"Signup must request CAPTCHA token");
+assert.ok(auth.includes("captchaScope=repeat?step:form"),"Repeat password recovery needs a fresh CAPTCHA token");
+assert.ok(auth.includes("resetCaptcha(repeat?step:form)"),"Password reset must clear used CAPTCHA tokens");
 const appManifest=JSON.parse(await read("site.webmanifest"));
 assert.equal(appManifest.theme_color,"#ffffff","Manifest theme must match the light VATRA layout");
 assert.equal(appManifest.scope,"/VATRA/","PWA scope must use the project subdirectory");
