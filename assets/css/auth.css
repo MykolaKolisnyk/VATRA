@@ -3,25 +3,24 @@
 :root{--ink:#101827;--soft:#667185;--blue:#075cf2;--blue2:#004acb;--purple:#603cf3;--line:#e0e4ed;--bg:#f7f9fd;--shadow:0 16px 44px rgba(26,44,92,.08);font-family:Onest,Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:white;color-scheme:light}*,*::before,*::after{box-sizing:border-box}html{min-height:100%;scroll-behavior:smooth}body{margin:0;min-height:100vh}img{max-width:100%;height:auto;display:block}button,input,select,textarea,option,optgroup{font:inherit;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button{cursor:pointer}a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}[hidden]{display:none!important}button:disabled{opacity:.57;cursor:wait}::selection{background:#dce6ff;color:#11182a}
 .site{min-height:100dvh;display:flex;flex-direction:column}.split{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);min-height:calc(100svh - 70px);flex:1;min-width:0}.intro-side{display:flex;flex-direction:column;justify-content:space-between;position:relative;isolation:isolate;overflow:hidden;border-right:1px solid var(--line);padding:clamp(24px,2.4vw,38px) clamp(30px,3.3vw,60px) clamp(26px,3vw,44px);background:linear-gradient(135deg,#fff 12%,#f8f9ff 89%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
 /* Однакова композиція та розміри восьми карток навколо символу VATRA. */
-.intro-art{flex:1;min-height:380px;max-height:460px;display:grid;place-items:center;position:relative;isolation:isolate;width:100%;margin:0 auto}
+.intro-art{flex:1;min-height:380px;max-height:450px;display:grid;place-items:center;position:relative;isolation:isolate;width:100%;margin:0 auto}
 .intro-circle{position:absolute;width:min(70%,390px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#e8eaff 0%,#f0f2ff 46%,transparent 72%)}
 .intro-circle:before,.intro-circle:after{content:"";position:absolute;inset:8%;border:1px solid #dce4ff;border-radius:50%}
 .intro-circle:after{inset:-15%;border-style:dashed;opacity:.75}
 .intro-symbol{position:relative;z-index:1;width:clamp(140px,11.5vw,186px);height:auto;filter:drop-shadow(0 24px 24px rgba(77,65,191,.16));transform:rotate(-8deg)}
-.float-tile{position:absolute;z-index:2;width:clamp(178px,13.4vw,205px);height:58px;min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:10px;padding:8px 11px;border:1px solid #e2e7f5;background:rgba(255,255,255,.97);box-shadow:0 8px 24px rgba(26,44,92,.07);border-radius:16px}
-.float-tile svg{flex:none;width:34px;height:34px;padding:7px;border-radius:10px;background:#eef4ff;stroke:var(--blue);stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.float-tile .tile-copy{display:flex;align-items:center;justify-content:flex-start;min-width:0;width:100%;text-align:left;line-height:1.25}
-.float-tile .tile-copy strong{font-size:13.5px;font-weight:790;color:#172137;line-height:1.22;letter-spacing:-.015em}
-
-.float-tile.one{left:5%;top:3%}
-.float-tile.five{left:0;top:27%}
-.float-tile.three{left:0;top:51%}
-.float-tile.six{left:5%;top:75%}
-.float-tile.four{right:5%;top:3%}
-.float-tile.seven{right:0;top:27%}
-.float-tile.two{right:0;top:51%}
-.float-tile.eight{right:5%;top:75%}
-.intro-copy{position:relative;z-index:2;max-width:570px}.intro-copy h1{margin:0;font-size:clamp(35px,3.25vw,56px);line-height:1.08;letter-spacing:-.065em;font-weight:800}.intro-copy h1 em{font-style:normal;color:var(--blue)}.intro-copy p{max-width:475px;margin:14px 0 0;color:#5d6980;line-height:1.65;font-size:clamp(14px,1.03vw,16px)}.intro-copy p strong{font-weight:700;color:#182238}
+.orbit-message{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:8px;min-height:43px;padding:9px 12px;border:1px solid #dde6f9;border-radius:999px;background:rgba(255,255,255,.97);box-shadow:0 9px 27px rgba(40,55,120,.08);color:#19243b;font-size:clamp(12px,1vw,15px);line-height:1.2;white-space:nowrap}
+.orbit-message strong{font-weight:760;letter-spacing:-.02em}
+.orbit-message svg{width:21px;height:21px;flex:none;fill:none;stroke:#075cf2;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.orbit-message.people{left:3%;top:19%}
+.orbit-message.stories{right:1%;top:20%}
+.orbit-message.your-vatra{right:9%;bottom:13%}
+.orbit-feature{position:absolute;z-index:2;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#fff;border:1px solid #d5e2fa;box-shadow:0 8px 25px rgba(20,58,138,.1)}
+.orbit-feature svg{width:24px;height:24px;stroke:#0762f3;stroke-width:1.9;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.orbit-feature.feature-market{left:50%;top:1%;transform:translateX(-50%)}
+.orbit-feature.feature-community{left:11%;top:47%;transform:translateY(-50%)}
+.orbit-feature.feature-video{right:10%;top:49%;transform:translateY(-50%)}
+.orbit-feature.feature-music{left:48%;bottom:1%;transform:translateX(-50%)}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.intro-copy{position:relative;z-index:2;max-width:590px;margin:4px 0 0}.intro-copy p{max-width:540px;margin:0;color:#667185;line-height:1.65;font-size:clamp(14px,1.05vw,16px);font-weight:400}.intro-copy p strong{font-weight:750;color:#182238}
 .form-side{display:flex;align-items:center;justify-content:center;padding:clamp(22px,2.8vw,52px) clamp(26px,4vw,76px);min-width:0}.form-box{width:100%;max-width:490px}.mobile-logo{display:none}.form-box h2,.narrow-form h1{margin:0 0 10px;font-size:clamp(30px,2.75vw,40px);line-height:1.18;letter-spacing:-.027em;font-weight:750;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:14px;line-height:1.6}.field-stack{display:grid;gap:14px}.field{display:grid;gap:8px;min-width:0}
 .field:has(input.control){position:relative;gap:0}
 .field:has(input.control)>span:first-child{position:absolute;top:25px;left:16px;z-index:2;transform:translateY(-50%) scale(1);transform-origin:left top;color:#78869c;font-size:14px;font-weight:500;line-height:1.15;max-width:calc(100% - 116px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;user-select:none;-webkit-user-select:none;transition:top .22s cubic-bezier(.2,.8,.2,1),transform .22s cubic-bezier(.2,.8,.2,1),color .22s ease}
@@ -102,19 +101,13 @@
   .intro-side{padding:24px 23px 27px}
   .intro-art{min-height:340px}
   .intro-symbol{width:clamp(112px,11vw,138px)}
-  .intro-copy h1{font-size:clamp(34px,3.6vw,43px)}
   .intro-copy p{font-size:13px;line-height:1.5}
-  .float-tile{width:clamp(167px,13.3vw,185px);height:56px;padding:7px 9px;gap:8px;border-radius:14px;grid-template-columns:31px minmax(0,1fr)}
-  .float-tile svg{width:31px;height:31px;padding:6px}
-  .float-tile .tile-copy strong{font-size:12.5px}
   .form-side{padding:24px clamp(23px,3vw,44px)}
 }
 @media (min-width:1200px) and (max-height:760px){
   .intro-side{padding-top:18px;padding-bottom:24px}
   .intro-art{min-height:330px;max-height:370px}
-  .intro-copy h1{font-size:clamp(35px,3vw,46px)}
   .intro-copy p{font-size:13px;line-height:1.5}
-  .float-tile{height:54px}
   .form-side{padding-block:18px}
 }
 @media (min-width:1200px) and (max-height:610px){
@@ -132,12 +125,9 @@
   .intro-side:before{display:none}
   .intro-side>.header-logo{display:none}
   .intro-copy{order:0;width:min(100%,650px);max-width:none;margin:0 auto}
-  .intro-copy h1{font-size:clamp(32px,4.3vw,43px)}
   .intro-copy p{max-width:640px;font-size:14px}
-  .intro-art{order:1;flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:min(100%,650px);min-height:0;max-height:none;margin:0 auto;place-items:stretch}
-  .intro-circle,.intro-symbol{display:none}
-  .intro-art .float-tile{position:static;inset:auto;transform:none;width:100%;height:62px;max-width:none;min-width:0;padding:8px 11px;gap:9px}
-  .float-tile .tile-copy strong{font-size:13px}
+  .intro-art{order:1;flex:none;display:grid;place-items:center;width:min(100%,650px);height:390px;min-height:390px;max-height:none;margin:0 auto}
+  .intro-circle{display:block;width:min(68%,360px)}.intro-symbol{display:block;width:clamp(122px,25vw,162px)}
   .footer{justify-content:center;gap:12px 22px;text-align:center}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
@@ -160,12 +150,20 @@
   .form-box h2{font-size:clamp(28px,7.2vw,34px)}
   .subtitle{margin-bottom:22px}
   .intro-side{padding:26px 17px 33px;gap:20px}
-  .intro-copy h1{font-size:clamp(31px,9vw,39px)}
   .intro-copy p{font-size:13px;line-height:1.6}
-  .intro-art{gap:8px}
-  .intro-art .float-tile{height:60px;padding:7px 9px;gap:7px;border-radius:12px;grid-template-columns:30px minmax(0,1fr)}
-  .float-tile svg{width:30px;height:30px;padding:6px}
-  .float-tile .tile-copy strong{font-size:12px}
+  .intro-art{height:320px;min-height:320px}
+  .intro-circle{width:min(72%,280px)}
+  .intro-symbol{width:116px}
+  .orbit-message{font-size:11px;min-height:32px;padding:6px 8px;gap:5px}
+  .orbit-message svg{width:17px;height:17px}
+  .orbit-feature{width:36px;height:36px}
+  .orbit-feature svg{width:19px;height:19px}
+  .orbit-message.people{left:0;top:17%}
+  .orbit-message.stories{right:0;top:19%}
+  .orbit-message.your-vatra{right:0;bottom:12%}
+  .orbit-feature.feature-market{top:1%}
+  .orbit-feature.feature-community{left:2%;top:54%}
+  .orbit-feature.feature-video{right:3%;top:54%}
   .reg-header{padding:13px 18px}
   .reg-header .header-logo{width:136px}
   .reg-header .back{font-size:12px}
@@ -183,10 +181,17 @@
   .footer{padding:15px 17px;font-size:11px}
   .footer nav{gap:3px 12px}
 }
+@media (min-width:541px) and (max-width:1199px){
+  .orbit-message.people{left:7%}
+  .orbit-message.stories{right:5%}
+  .orbit-feature.feature-community{left:13%}
+  .orbit-feature.feature-video{right:13%}
+}
 @media (max-width:360px){
-  .intro-art .float-tile{height:58px;padding:7px}
-  .float-tile svg{width:28px;height:28px;padding:5px}
-  .float-tile .tile-copy strong{font-size:11px}
+  .intro-art{height:290px;min-height:290px}
+  .orbit-message{font-size:10px}
+  .orbit-message svg{width:15px;height:15px}
+
   .reg-header{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
