@@ -287,7 +287,7 @@
   "Введіть пароль Вашого акаунта VATRA.": "Enter your VATRA account password.",
   "Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче.": "If an account exists for this address, a code has been sent. Enter the code below.",
   "Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.": "If the account exists, a new code has been sent. Use the code from the latest email.",
-  "Введіть код підтвердження з листа (6–8 цифр).": "Enter the verification code from the email (6–8 digits).",
   "Неправильний або прострочений код. Перевірте лист або запросіть новий.": "Incorrect or expired code. Check your email or request another one.",
-  "Підтвердження закінчилося. Запросіть новий код для відновлення.": "Verification has expired. Request a new recovery code."
+  "Підтвердження закінчилося. Запросіть новий код для відновлення.": "Verification has expired. Request a new recovery code.",
+  "Введіть шестизначний код із листа.": "Enter the six-digit code from the email."
 }
