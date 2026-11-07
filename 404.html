@@ -16,7 +16,7 @@
     try { saved=localStorage.getItem("vatra-language"); } catch(_) {}
     const browser=(navigator.languages?.[0]||navigator.language||"").toLowerCase();
     const lang=path.startsWith("/VATRA/en/")?"en":path.startsWith("/VATRA/ua/")?"ua":
-      saved==="en"?"en":saved==="uk"?"ua":browser.startsWith("uk")?"ua":"en";
+      saved==="en"?"en":saved==="uk"?"ua":browser.startsWith("uk")||browser.endsWith("-ua")?"ua":"en";
     location.replace("/VATRA/"+lang+"/404.html");
   })();
   </script>
