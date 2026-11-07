@@ -141,20 +141,23 @@
     const texts = document.createElement("div");
     const heading = document.createElement("h2");
     heading.id = "vatra-language-heading";
+     heading.className = "vt-language-dialog-heading";
     heading.textContent = words.heading;
     const details = document.createElement("p");
-    details.textContent = words.details;
+    details.className = "vt-language-dialog-description";
+     details.textContent = words.details;
     texts.append(heading, details);
     const closeBtn = document.createElement("button");
-    closeBtn.className = "language-close";
+    closeBtn.className = "language-close vt-language-close-button";
     closeBtn.type = "button";
     closeBtn.setAttribute("aria-label", words.close);
     closeBtn.textContent = "×";
     headingRow.append(texts, closeBtn);
     const searchField = document.createElement("label");
-    searchField.className = "field language-search-field";
+    searchField.className = "field language-search-field vt-language-search-label";
     const searchCaption = document.createElement("span");
-    searchCaption.textContent = words.search;
+    searchCaption.className = "vt-language-search-caption";
+     searchCaption.textContent = words.search;
     const search = document.createElement("input");
     search.className = "control language-search";
     search.type = "search";
@@ -168,22 +171,24 @@
     list.setAttribute("role", "region");
     list.setAttribute("aria-label", words.heading);
     const notFound = document.createElement("p");
-    notFound.className = "language-empty";
+    notFound.className = "language-empty vt-language-no-results";
     notFound.textContent = words.empty;
     notFound.hidden = true;
     let restoreFocus = null;
     for (const [code,name,englishName,country,enabled] of languages) {
       const button = document.createElement("button");
-      button.className = "language-option" + (code === current ? " is-selected" : "");
+      button.className = "language-option vt-language-choice-" + code + (code === current ? " is-selected" : "");
       button.type = "button";
       button.dataset.search = (code + " " + name + " " + englishName).toLocaleLowerCase();
       button.append(flag(country));
       const copy = document.createElement("span");
-      copy.className = "language-option-copy";
+      copy.className = "language-option-copy vt-language-copy-" + code;
       const strong = document.createElement("strong");
-      strong.textContent = name;
+      strong.className = "vt-language-name-" + code;
+       strong.textContent = name;
       const subtitle = document.createElement("small");
-      subtitle.textContent = code === current ? words.current : (enabled ? englishName : words.future);
+      subtitle.className = "vt-language-caption-" + code;
+       subtitle.textContent = code === current ? words.current : (enabled ? englishName : words.future);
       copy.append(strong, subtitle);
       button.append(copy);
       if (code === current) button.setAttribute("aria-current", "true");
@@ -300,13 +305,16 @@
         else if (!e.shiftKey && document.activeElement === last) {e.preventDefault();first.focus();}
       }
     });
+    let triggerOrdinal = 0;
     for (const trigger of triggers) {
+      const textId = ++triggerOrdinal;
       trigger.replaceChildren();
       trigger.append(flag(english ? "gb" : "ua"));
       const label = document.createElement("span");
-      label.textContent = nativeLabels[current];
+      label.className = "vt-language-trigger-label-" + textId;
+       label.textContent = nativeLabels[current];
       const chevron = document.createElement("span");
-      chevron.className = "language-chevron";
+      chevron.className = "language-chevron vt-language-trigger-chevron-" + textId;
       chevron.textContent = "⌄";
       trigger.append(label, chevron);
       trigger.setAttribute("aria-label", words.name + ": " + nativeLabels[current]);
