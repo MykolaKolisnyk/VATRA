@@ -72,7 +72,7 @@ function buildDialog(scope,close) {
  const keydown=event=>{
   if(event.key==="Escape"){event.preventDefault();close();return;}
   if(event.key!=="Tab")return;
-  const focusable=[cancel,...dialog.querySelectorAll("input:not([disabled]),button:not([disabled])")].filter((x,i,a)=>a.indexOf(x)===i&&x.offsetParent!==null);
+  const focusable=[...dialog.querySelectorAll("iframe:not([tabindex='-1']),button:not(:disabled),input:not(:disabled)")].filter(x=>x.offsetParent!==null);
   if(focusable.length===0){event.preventDefault();dialog.focus();return;}
   const first=focusable[0],last=focusable[focusable.length-1];
   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
