@@ -15,7 +15,7 @@ const map=await get("sitemap.xml");assert.ok(map.includes("https://mykolakolisny
 console.log("VATRA: local Onest, index metadata, noindex auth and sitemap verified.");
 
 for(const path of ["legal.html","terms.html","privacy.html","cookies.html"]){const html=await get(path);
- for(const part of ['name="robots" content="index,follow','rel="canonical"','property="og:title"','property="og:image"','href="assets/css/legal.css?v=1"','assets/logo/vatra-logo.svg'])assert.ok(html.includes(part),path+": missing public policy requirement "+part);
+ for(const part of ['name="robots" content="index,follow','rel="canonical"','property="og:title"','property="og:image"','href="assets/css/legal.css?v=2"','assets/logo/vatra-logo.svg'])assert.ok(html.includes(part),path+": missing public policy requirement "+part);
  assert.ok(!html.includes('name="robots" content="noindex'),path+": policy is not indexable");
  assert.ok(map.includes("https://mykolakolisnyk.github.io/VATRA/"+path),path+": absent from sitemap");
 }
