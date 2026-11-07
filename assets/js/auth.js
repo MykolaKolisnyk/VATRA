@@ -1,6 +1,7 @@
 /* VATRA • shared authentication. Public publishable key only; never embed server secrets. */
 (()=>{
 "use strict";
+if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
 const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const page=document.body.dataset.page||"login";

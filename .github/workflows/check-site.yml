@@ -1,0 +1,18 @@
+name: Verify VATRA pages
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check SEO and site layout
+        run: |
+          node tools/check-seo.mjs
+          node tools/check-layout.mjs
