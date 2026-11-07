@@ -72,8 +72,8 @@ const features=["chat","business","communities","photos","video","music","market
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"Eight small features required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,3,"Three large outer labels required");
 for(const feature of features){
- assert.ok(landing.includes('feature-'+feature+' ui-home-inner-node-'),"Missing feature "+feature);
- assert.ok(landing.includes('class="ui-home-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
+ assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
+ assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
 assert.ok(css.includes('--inner-radius:min(19cqw,125px)')&&css.includes('--outer-radius:min(37cqw,245px)'),
