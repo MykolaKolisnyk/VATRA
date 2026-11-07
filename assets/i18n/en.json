@@ -289,5 +289,381 @@
   "Не вдалося завантажити перевірку безпеки. Перевірте з’єднання та дозволи для Turnstile.": "Could not load the security check. Check your connection and allow Cloudflare Turnstile.",
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Could not load the security check. Check your internet connection.",
   "Перевірку безпеки скасовано.": "Security verification was cancelled.",
-  "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Could not complete the security verification. Retry or check your connection."
+  "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Could not complete the security verification. Retry or check your connection.",
+  "__pages": {
+    "register": {
+      "meta": {
+        "title": "Sign up · VATRA",
+        "description": "Create your VATRA account — a Ukrainian social network for conversations, communities, and creativity.",
+        "og:locale": "en_US",
+        "og:title": "Sign up · VATRA",
+        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:image:alt": "Official VATRA app icon"
+      },
+      "nodes": {
+        "n2": {
+          "attrs": {
+            "aria-label": "VATRA home"
+          }
+        },
+        "n4": {
+          "text": {
+            "0": "Back to sign-in"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Start your story on VATRA"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "One VATRA account brings together conversations, connections, communities, and creativity. After signing up, you will automatically receive your unique VATRA ID — your permanent number on the network."
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "First name"
+          }
+        },
+        "n17": {
+          "attrs": {
+            "placeholder": "Your first name"
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Last name"
+          }
+        },
+        "n20": {
+          "attrs": {
+            "placeholder": "Your last name"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Date of birth"
+          }
+        },
+        "n24": {
+          "attrs": {
+            "aria-label": "Day"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Day"
+          }
+        },
+        "n26": {
+          "attrs": {
+            "aria-label": "Month"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Month"
+          }
+        },
+        "n28": {
+          "attrs": {
+            "aria-label": "Year"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Year"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Gender "
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "(optional)"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Prefer not to say"
+          }
+        },
+        "n35": {
+          "text": {
+            "0": "Female"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Male"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "Custom"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Email address"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Password"
+          }
+        },
+        "n44": {
+          "attrs": {
+            "placeholder": "Enter password"
+          }
+        },
+        "n45": {
+          "text": {
+            "0": "Show"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "Confirm password"
+          }
+        },
+        "n49": {
+          "attrs": {
+            "placeholder": "Enter password"
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Show"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "At least 12 characters: uppercase and lowercase Latin letters, a digit and a symbol. Do not reuse passwords."
+          }
+        },
+        "n54": {
+          "text": {
+            "0": "I agree to the ",
+            "1": " and acknowledge the ",
+            "2": " and "
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Privacy Policy"
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Cookie Policy"
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Sign up"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "I already have an account"
+          }
+        },
+        "n62": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n64": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n65": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n68": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    },
+    "forgot": {
+      "meta": {
+        "title": "Password recovery · VATRA",
+        "description": "Recover access to VATRA, the Ukrainian social network.",
+        "og:locale": "en_US",
+        "og:title": "Password recovery · VATRA",
+        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:image:alt": "Official VATRA app icon"
+      },
+      "nodes": {
+        "n2": {
+          "text": {
+            "0": "Back to sign-in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Forgot password?"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Enter your account email address. You will receive an email with password recovery instructions."
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Email address"
+          }
+        },
+        "n14": {
+          "text": {
+            "0": "Send email"
+          }
+        },
+        "n15": {
+          "text": {
+            "0": "Please also check your spam folder."
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Enter the email code"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "A one-time numeric code has been sent to "
+          }
+        },
+        "n23": {
+          "text": {
+            "0": "Verification code"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Verify code"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Check your spam folder too. If the email does not arrive, you can request another code."
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Send code again"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Change email"
+          }
+        },
+        "n33": {
+          "text": {
+            "0": "New password"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Show password"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Confirm new password"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Show password"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Save new password"
+          }
+        },
+        "n44": {
+          "text": {
+            "0": "Go to account"
+          }
+        },
+        "n46": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n48": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n49": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n52": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    }
+  }
 }
