@@ -94,6 +94,28 @@ function validationText(control,form){
  if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
  return "";
 }
+/* Keep the original field caption in sync with typing, autofill, and browser back/forward. */
+function wireFloatingLabels(){
+ const fields=[...document.querySelectorAll(".field:has(input.control)")];
+ for(const field of fields){
+  const input=field.querySelector("input.control");
+  if(!input)continue;
+  input.removeAttribute("placeholder");
+  const sync=()=>field.classList.toggle("has-value",Boolean(input.value));
+  input.addEventListener("input",sync);
+  input.addEventListener("change",sync);
+  input.addEventListener("blur",sync);
+  input.addEventListener("animationstart",sync);
+  input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
+  sync();
+ }
+ window.addEventListener("pageshow",()=>{
+  for(const field of fields){
+   const input=field.querySelector("input.control");
+   field.classList.toggle("has-value",Boolean(input?.value));
+  }
+ });
+}
 function wireFieldValidation(){
  const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
  if(!form)return;
@@ -300,6 +322,7 @@ function validateBirthday(){
 async function initialize(){
  /* Build the interface independently of the authentication service status. */
  wirePasswordButtons();
+ wireFloatingLabels();
  if(page==="register"){fillBirthdays();wireSelects();}
  wireFieldValidation();
  if(!window.supabase?.createClient){
