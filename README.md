@@ -134,12 +134,12 @@ VATRA — соціальна платформа. Поточний репозит
 
 ## Cloudflare Turnstile — захист від ботів
 
-Статус після підготовки: **код підтримки готовий, але CAPTCHA ще не ввімкнена**, доки власник VATRA не створить ключі Cloudflare. Не вмикайте CAPTCHA в Supabase до вставлення site key у сайт — вхід, реєстрація й відновлення без токена будуть відхилені.
+Статус: **публічний Site Key уже підключено до VATRA**. На фронтенді Turnstile запускається тільки під час натискання «Увійти», «Створити акаунт» або «Надіслати лист» (також при повторному надсиланні). Перевірка на сервері працює лише після ввімкнення Cloudflare Turnstile в Supabase Auth із правильним Secret Key. Не зберігайте Secret Key у GitHub.
 
 1. Відкрийте [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) → **Add widget**.
 2. Назва: `VATRA Production`; Hostnames: `mykolakolisnyk.github.io` (без `https://`, `/VATRA` або `*`); Widget mode: **Managed**. Натисніть **Create**.
-3. Скопіюйте лише публічний **Site Key**. У `assets/js/captcha.js` замініть порожнє значення `const SITE_KEY = "";` на `const SITE_KEY = "ВАШ_ПУБЛІЧНИЙ_SITE_KEY";`. Секретний ключ **ніколи не зберігайте в GitHub**, HTML, JavaScript чи у файлах.
-4. Переконайтеся, що на сторінках `/ua/`, `/en/`, `/ua/register.html`, `/en/register.html`, `/ua/forgot.html`, `/en/forgot.html` відображається перевірка. Відповіді Cloudflare після виконання перевірки передаються в Supabase як `captchaToken`. Повторні запити використовують **нові** токени.
+3. Публічний **Site Key** вже збережено в `assets/js/captcha.js`. При перевипуску ключів оновіть тільки цей публічний параметр. Секретний ключ **ніколи не зберігайте в GitHub**, HTML чи JavaScript.
+4. На сторінках `/ua/`, `/en/`, `/ua/register.html`, `/en/register.html`, `/ua/forgot.html`, `/en/forgot.html` **не повинно бути постійного блока CAPTCHA**. Після правильного заповнення форми й натискання кнопки Turnstile запускається в режимі `execution: "execute"` / `appearance: "interaction-only"`: більшість користувачів бачить лише процес входу, додаткова перевірка з'являється за потреби. Тільки після отримання `captchaToken` запит надсилається в Supabase Auth. Повторні запити потребують **нових** токенів.
 5. Тільки після цього відкрийте [Supabase → Authentication → Attack Protection](https://supabase.com/dashboard/project/rjasunoawrxvetwadylh/auth/protection), знайдіть **Enable CAPTCHA protection**, оберіть **Cloudflare Turnstile**, вставте **Secret Key** **тільки** у поле Supabase та збережіть зміни.
 6. Перевірте тестовий вхід, реєстрацію та повторне надсилання коду відновлення з браузера. Якщо Cloudflare або Supabase некоректно налаштовані, вимкніть CAPTCHA в Supabase, щоб не заблокувати користувачам доступ, і виправте ключі/домен.
 
