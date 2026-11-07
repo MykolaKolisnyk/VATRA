@@ -11,19 +11,47 @@
  <title>Профіль · VATRA</title>
  <link rel="icon" type="image/svg+xml" href="/VATRA/assets/logo/vatra-app-icon.svg?v=20261107">
  <link rel="preload" href="/VATRA/assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
- <link rel="stylesheet" href="/VATRA/assets/css/auth.css?v=23">
+ <link rel="stylesheet" href="/VATRA/assets/css/auth.css?v=24">
  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
- <script defer src="/VATRA/assets/js/profile.js?v=5"></script>
+ <script defer src="/VATRA/assets/js/profile.js?v=6"></script>
 <script defer src="/VATRA/assets/js/network.js?v=1"></script><meta name="application-name" content="VATRA"><meta name="apple-mobile-web-app-title" content="VATRA"><link rel="icon" type="image/svg+xml" sizes="any" href="/VATRA/favicon.svg?v=2"><link rel="icon" type="image/png" sizes="360x360" href="/VATRA/assets/logo/vatra-app-icon.png"><link rel="apple-touch-icon" href="/VATRA/assets/logo/vatra-app-icon.png"><link rel="manifest" href="/VATRA/site.webmanifest"><meta property="og:type" content="profile"><meta property="og:site_name" content="VATRA"><meta property="og:title" content="Профіль · VATRA"><meta property="og:description" content="VATRA — українська соціальна мережа. Ваші люди. Ваші історії."><meta property="og:image" content="https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-app-icon.png"><meta name="twitter:card" content="summary"><meta name="twitter:image" content="https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-app-icon.png"></head>
 <body class="account-page" data-page="public-profile">
  <header class="account-top"><a href="/VATRA/" class="header-logo" aria-label="VATRA"><img src="/VATRA/assets/logo/vatra-logo.svg?v=20261107" width="1342" height="380" alt="VATRA"></a><a id="profile-home" href="/VATRA/" class="action subtle">Головна</a></header>
- <main class="account-main"><section class="account-card" aria-labelledby="profile-heading">
- <img src="/VATRA/assets/logo/vatra-app-icon.svg?v=20261107" width="360" height="360" alt="">
- <h1 id="profile-heading">Профіль VATRA</h1>
- <p id="public-vatra-id" class="vatra-id" hidden></p>
- <p id="profile-description" role="status" aria-live="polite">Завантаження профілю…</p>
- <a id="profile-signin" href="/VATRA/ua/" class="action primary">Увійти у VATRA</a>
- </section></main>
+ <main class="account-main profile-layout">
+  <section class="account-card profile-header" aria-labelledby="profile-heading">
+    <img class="profile-avatar" src="/VATRA/assets/logo/vatra-app-icon.svg?v=20261107" width="96" height="96" alt="">
+    <div class="profile-identity">
+      <h1 id="profile-heading">Профіль VATRA</h1>
+      <p id="public-vatra-id" class="vatra-id" hidden></p>
+      <p id="profile-description" class="subtitle" role="status" aria-live="polite">Завантаження профілю…</p>
+    </div>
+    <a id="profile-signin" href="/VATRA/ua/" class="action primary">Увійти у VATRA</a>
+  </section>
+  <section class="profile-panel" id="profile-editor" hidden>
+    <h2 data-uk="Редагувати мою сторінку" data-en="Edit my page">Редагувати мою сторінку</h2>
+    <p class="subtitle" data-uk="Ваші ім’я та опис будуть видимі іншим користувачам." data-en="Your name and bio will be visible to other members.">Ваші ім’я та опис будуть видимі іншим користувачам.</p>
+    <form id="profile-edit-form" class="field-stack">
+      <label class="profile-field"><span data-uk="Ім’я на сторінці" data-en="Display name">Ім’я на сторінці</span><input id="profile-name-input" class="control" type="text" maxlength="80" autocomplete="nickname"></label>
+      <label class="profile-field"><span data-uk="Про себе" data-en="About me">Про себе</span><textarea id="profile-bio-input" class="control profile-textarea" rows="3" maxlength="500"></textarea></label>
+      <button type="submit" class="action primary" data-uk="Зберегти зміни" data-en="Save changes">Зберегти зміни</button>
+    </form>
+    <p id="profile-edit-feedback" class="profile-status" role="status" aria-live="polite" hidden></p>
+  </section>
+  <section class="profile-panel" id="profile-composer" hidden>
+    <h2 data-uk="Нова публікація" data-en="New post">Нова публікація</h2>
+    <form id="profile-post-form" class="field-stack">
+      <label class="profile-field"><span data-uk="Поділіться своїми думками" data-en="Share your thoughts">Поділіться своїми думками</span><textarea id="post-input" class="control profile-textarea" rows="4" maxlength="2000" required></textarea></label>
+      <button class="action primary" type="submit" data-uk="Опублікувати" data-en="Publish">Опублікувати</button>
+    </form>
+    <p id="profile-post-feedback" class="profile-status" role="status" aria-live="polite" hidden></p>
+  </section>
+  <section class="profile-panel" id="profile-posts-panel" hidden>
+    <h2 data-uk="Публікації" data-en="Posts">Публікації</h2>
+    <p id="posts-status" class="subtitle" role="status" aria-live="polite"></p>
+    <div id="posts-list" class="posts-list"></div>
+    <button id="posts-more" class="action subtle" type="button" hidden data-uk="Показати більше" data-en="Load more">Показати більше</button>
+  </section>
+</main>
  <footer class="footer"><span>© 2026 <b>VATRA</b> · Ваші люди. Ваші історії.</span><nav aria-label="Інформація">
  <a href="/VATRA/ua/terms.html">Умови використання</a><a href="/VATRA/ua/privacy.html">Конфіденційність</a><button type="button" class="language-trigger" data-language-trigger aria-haspopup="dialog" aria-label="Вибрати мову">Українська</button>
  </nav></footer>
