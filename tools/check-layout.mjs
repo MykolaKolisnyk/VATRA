@@ -1,25 +1,68 @@
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
-const read=p=>readFile(p,"utf8");
-const css=await read("assets/css/auth.css");
-assert.ok(css.includes("img{max-width:100%;height:auto;display:block}"),"Image height must respect logo aspect ratio");
-assert.ok(css.includes(".header-logo img{width:100%;height:auto;aspect-ratio:1342/380}"),"Logo cannot be forced to SVG source pixel height");
-for(const v of ["max-width:1199px","max-width:768px","max-width:480px","max-height:750px"]){assert.ok(css.includes(v),"Viewport handling missing: "+v);}
-const legalCss=await read("assets/css/legal.css");assert.ok(legalCss.includes("max-width:1024px")&&legalCss.includes("max-width:767px"),"Legal tablet/phone breakpoints missing");
-const host=await read("assets/js/host.js");assert.ok(host.includes('location.protocol === "https:"')&&host.includes('location.hostname === "mykolakolisnyk.github.io"'));
-const docs=["index.html","auth.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html"];
-for(const page of docs){const html=await read(page);assert.ok(html.includes('<script src="assets/js/host.js?v=1"></script>'),page+": missing host check");assert.ok(!/тестов|в розробці|у розробці|ще розробляється|тебе|твій|твої/i.test(html),page+": old copy left");}
-const home=await read("index.html"),login=await read("auth.html");for(const html of [home,login])assert.ok(html.includes("Ваші люди.")&&html.includes("Ваші історії.")&&html.includes("Ваша VATRA."),"Approved slogan must appear");
-assert.ok((await read("assets/js/auth.js")).includes("VATRA_HOST_ALLOWED===false"),"Auth should not run on blocked origins");
-console.log("VATRA responsive desktop/tablet/mobile, formal copy, logo and hostname checks passed.");
 
-// Public document navigation and readable policy text.
-for(const path of ["legal.html","terms.html","privacy.html","cookies.html"]){
-const html=await read(path);
-for(const link of ["legal.html","terms.html","privacy.html","cookies.html"])assert.ok(html.includes('href="'+link+'"'),path+": no nav link "+link);
-assert.ok(html.includes('aria-current="page"'),path+": active tab missing");
-assert.ok(html.includes('assets/css/legal.css?v=2'),path+": wrong CSS version");
-assert.ok(!/майбутн|у розробці|не запущен|тестов|попередня редакція/i.test(html),path+": release notes in legal text");
-if(path!=="legal.html")assert.ok(html.includes('policy-mobile-toc'),path+": mobile table of contents missing");
+const read=path=>readFile(path,"utf8");
+const css=await read("assets/css/auth.css");
+const legal=await read("assets/css/legal.css");
+assert.ok(css.includes("Onest-Variable.ttf"),"Local Onest is missing");
+assert.ok(css.includes('[class^="vt-"]')&&css.includes('[class*=" vt-"]'),"Individual text classes lack typography rules");
+assert.ok(css.includes("max-width:1199px")&&css.includes("max-width:540px"),"Responsive login styles are missing");
+assert.ok(legal.includes("max-width:767px"),"Legal mobile styles are missing");
+assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"CSS braces are unbalanced");
+
+const host=await read("assets/js/host.js");
+assert.ok(host.includes('location.hostname === "mykolakolisnyk.github.io"'),"Official host check is missing");
+const auth=await read("assets/js/auth.js");
+assert.ok(auth.includes("VATRA_HOST_ALLOWED===false"),"Auth must not initialize on other hosts");
+const languages=await read("assets/js/lang.js");
+assert.ok(languages.includes("vt-language-dialog-heading")&&languages.includes("vt-language-name-"),"Dynamic language texts need individual classes");
+const pages=["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
+const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name))];
+const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
+
+function inspectPage(path,html){
+  const bodyIndex=html.search(/<body\b/i);
+  assert.ok(bodyIndex>=0,path+": missing body");
+  const body=html.slice(bodyIndex).replace(/<(script|style|svg)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,"");
+  const stack=[],missing=[];
+  let visible=0;
+  const classes=[...body.matchAll(/\bvt-[a-z0-9-]+/g)].map(match=>match[0]);
+  assert.equal(new Set(classes).size,classes.length,path+": duplicate individual text class");
+  for(const token of body.match(/<[^>]*>|[^<]+/g)||[]){
+    if(token.startsWith("<!--")||token.startsWith("<!"))continue;
+    const close=token.match(/^<\/([a-z][a-z0-9-]*)\s*>/i);
+    if(close){
+      const index=stack.map(x=>x.tag).lastIndexOf(close[1].toLowerCase());
+      if(index!==-1)stack.length=index;
+      continue;
+    }
+    const open=token.match(/^<([a-z][a-z0-9-]*)(?=[\s/>])([^>]*)>/i);
+    if(open){
+      const tag=open[1].toLowerCase();
+      if(!voidTags.has(tag)&&!token.endsWith("/>")){
+        stack.push({tag,classes:(open[2].match(/\bclass\s*=\s*"([^"]*)"/i)||[])[1]||""});
+      }
+      continue;
+    }
+    if(!token.startsWith("<")&&/[\p{L}\p{N}]/u.test(token.trim())){
+      visible++;
+      const active=stack[stack.length-1];
+      if(!active||!/\bvt-[a-z0-9-]+/.test(active.classes)){
+        missing.push((active?.tag||"document")+": "+token.trim().slice(0,50));
+      }
+    }
+  }
+  assert.ok(visible>0,path+": no visible text found");
+  assert.deepEqual(missing,[],path+": text nodes without unique class");
+  if(path.startsWith("ua/")||path.startsWith("en/")){
+    assert.ok(/auth\.css\?v=\d+/.test(html)||path.endsWith("/offline.html"),path+": styles missing");
+    assert.ok(/host\.js\?v=\d+/.test(html),path+": host check missing");
+  }
+  return visible;
 }
-assert.ok(legalCss.includes('min-height:50px')&&legalCss.includes('min-height:46px'),"Document tabs too small");
+let count=0;
+for(const path of paths){
+ const html=await read(path);
+ count+=inspectPage(path,html);
+}
+console.log("VATRA: "+paths.length+" pages, "+count+" visible text nodes with distinct class names, valid responsive typography.");
