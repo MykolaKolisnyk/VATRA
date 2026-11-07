@@ -162,6 +162,9 @@
     searchField.append(searchCaption,search);
     const list = document.createElement("div");
     list.className = "language-grid";
+    list.tabIndex = 0;
+    list.setAttribute("role", "region");
+    list.setAttribute("aria-label", words.heading);
     const notFound = document.createElement("p");
     notFound.className = "language-empty";
     notFound.textContent = words.empty;
@@ -194,9 +197,65 @@
       }
       list.append(button);
     }
-    dialog.append(headingRow, searchField, list, notFound);
+    const scrollShell = document.createElement("div");
+    scrollShell.className = "language-scroll-shell";
+    const scrollTrack = document.createElement("div");
+    scrollTrack.className = "language-scroll-track";
+    scrollTrack.setAttribute("aria-hidden", "true");
+    const scrollThumb = document.createElement("span");
+    scrollThumb.className = "language-scroll-thumb";
+    scrollTrack.append(scrollThumb);
+    scrollShell.append(list, scrollTrack);
+    dialog.append(headingRow, searchField, scrollShell, notFound);
     backdrop.append(dialog);
     document.body.append(backdrop);
+
+    /* Custom VATRA scrollbar. Native scrolling stays active for wheel, touch and keys. */
+    function updateScrollbar() {
+      const viewport = list.clientHeight;
+      const content = list.scrollHeight;
+      const available = scrollTrack.clientHeight;
+      const overflow = content > viewport + 2 && viewport > 0 && available > 0;
+      scrollTrack.hidden = !overflow;
+      if (!overflow) return;
+      const thumbHeight = Math.max(38, Math.min(available, available * viewport / content));
+      const travel = Math.max(0, available - thumbHeight);
+      const progress = Math.max(0, Math.min(1, list.scrollTop / (content - viewport)));
+      scrollThumb.style.height = thumbHeight + "px";
+      scrollThumb.style.transform = "translateY(" + (progress * travel) + "px)";
+    }
+    let dragging = false;
+    let dragOffset = 0;
+    function moveThumb(clientY) {
+      const bounds = scrollTrack.getBoundingClientRect();
+      const travel = Math.max(0, bounds.height - scrollThumb.offsetHeight);
+      const target = Math.max(0, Math.min(travel, clientY - bounds.top - dragOffset));
+      list.scrollTop = travel > 0 ? (target / travel) * (list.scrollHeight - list.clientHeight) : 0;
+    }
+    scrollTrack.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || scrollTrack.hidden) return;
+      const bounds = scrollThumb.getBoundingClientRect();
+      dragOffset = e.target === scrollThumb ? e.clientY - bounds.top : bounds.height / 2;
+      dragging = true;
+      scrollTrack.classList.add("is-dragging");
+      scrollTrack.setPointerCapture(e.pointerId);
+      moveThumb(e.clientY);
+      e.preventDefault();
+    });
+    scrollTrack.addEventListener("pointermove", e => {
+      if (dragging) moveThumb(e.clientY);
+    });
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      scrollTrack.classList.remove("is-dragging");
+      if (scrollTrack.hasPointerCapture(e.pointerId)) scrollTrack.releasePointerCapture(e.pointerId);
+    }
+    scrollTrack.addEventListener("pointerup", endDrag);
+    scrollTrack.addEventListener("pointercancel", endDrag);
+    list.addEventListener("scroll", updateScrollbar, {passive:true});
+    window.addEventListener("resize", updateScrollbar);
+    if ("ResizeObserver" in window) new ResizeObserver(updateScrollbar).observe(list);
     function close() {
       backdrop.hidden = true;
       document.body.classList.remove("language-dialog-open");
@@ -210,6 +269,7 @@
       backdrop.hidden = false;
       document.body.classList.add("language-dialog-open");
       search.focus();
+      requestAnimationFrame(updateScrollbar);
     }
     search.addEventListener("input", () => {
       const q = search.value.trim().toLocaleLowerCase();
@@ -219,6 +279,8 @@
         if (!node.hidden) count++;
       }
       notFound.hidden = count > 0;
+      list.scrollTop = 0;
+      requestAnimationFrame(updateScrollbar);
     });
     closeBtn.addEventListener("click", close);
     backdrop.addEventListener("click", e => { if (e.target === backdrop) close(); });
