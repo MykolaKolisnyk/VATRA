@@ -13,7 +13,7 @@
 - `legal.html` — попередні умови тестового запуску
 - `assets/css/auth.css` — єдині стилі авторизації
 - `assets/js/auth.js` — логіка Supabase Auth
-- `assets/logo/` — офіційні SVG логотипа VATRA
+- `assets/logo/` — завантажені офіційні логотипи VATRA у SVG та PNG. Використовувати тільки їх, не перемальовувати.
 
 ## Налаштування Supabase
 
