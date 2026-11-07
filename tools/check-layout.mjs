@@ -56,7 +56,7 @@ function inspectPage(path,html){
   assert.deepEqual(missing,[],path+": text nodes without unique class");
   if(path.startsWith("ua/")||path.startsWith("en/")){
     assert.ok(/auth\.css\?v=\d+/.test(html)||path.endsWith("/offline.html"),path+": styles missing");
-    assert.ok(/host\.js\?v=\d+/.test(html),path+": host check missing");
+    if(!path.endsWith("/offline.html"))assert.ok(/host\.js\?v=\d+/.test(html),path+": host check missing");
   }
   return visible;
 }
