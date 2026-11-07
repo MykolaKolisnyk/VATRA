@@ -203,12 +203,22 @@ assert.ok(captcha.includes("challenges.cloudflare.com/turnstile/v0/api.js?render
  "Cloudflare must load its official, non-proxied script");
 assert.ok(captcha.includes("turnstile.render")&&captcha.includes("turnstile.execute")
  &&captcha.includes("turnstile?.remove"),"On-demand widget lifecycle missing");
-assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"interaction-only"'),
- "Verification must run after submit and show only when interaction is required");
+assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),
+ "The Cloudflare challenge must start on submission inside a visible security dialog");
+assert.ok(captcha.includes('aria-modal')&&captcha.includes('captcha-backdrop'),
+ "Security verification must appear in a keyboard-accessible modal");
+assert.ok(captcha.includes('turnstile?.remove')&&captcha.includes('state.dialog.hide()'),
+ "Completed and cancelled verification must clean up the dialog");
 assert.ok(!auth.includes("window.VATRA_CAPTCHA.mount("),
  "Do not mount CAPTCHA on initial page load or when revealing a recovery code field");
-assert.ok(css.includes(".vatra-captcha{display:flex")&&css.includes("min-height:0;margin:0"),
- "Invisible CAPTCHA should not reserve a permanent gap in the form");
+assert.ok(css.includes(".captcha-backdrop{position:fixed")&&css.includes("backdrop-filter:blur"),
+ "Security challenge must dim and blur the page");
+assert.ok(css.includes(".captcha-dialog{")&&css.includes(".captcha-dialog-open{overflow:hidden}"),
+ "Security challenge must use a centered, scroll-safe modal");
+assert.ok(css.includes(".check-terms>span .field-error")&&!css.includes(".check-terms.is-invalid{color:#b92c45;flex-wrap:wrap}"),
+ "Registration consent errors must stay under text instead of moving the checkbox");
+assert.ok(auth.includes('(consentText||wrapper).append(error);'),
+ "Consent validation must append error to consent text");
 for(const locale of ["ua","en"]){
  for(const filename of ["index.html","register.html","forgot.html"]){
   const content=await read(locale+"/"+filename);
@@ -221,36 +231,64 @@ assert.ok(auth.includes("auth.auth.signInWithPassword({email,password,options})"
 assert.ok(auth.includes("const captcha=await captchaOptions(form);"),"Signup must request CAPTCHA token");
 assert.ok(auth.includes("captchaScope=repeat?step:form"),"Repeat password recovery needs a fresh CAPTCHA token");
 assert.ok(auth.includes("resetCaptcha(repeat?step:form)"),"Password reset must clear used CAPTCHA tokens");
-// Simulate a browser Turnstile challenge without using production credentials.
+// Exercise modal, success, retry and cancellation without production Cloudflare credentials.
 {
- let rendered=0,executed=0,removed=0,inserted=0;
- let settings;
+ let rendered=0,executed=0,removed=0,settings;
+ const documentStub={documentElement:{lang:"uk"},activeElement:null,listeners:new Map()};
+ class TestElement {
+  constructor(tag){this.tag=tag;this.children=[];this.parent=null;this.listeners={};
+   this.isConnected=false;this.className="";this.offsetParent={};this.attrs={};
+   this.classList={add(){},remove(){}};}
+  setAttribute(name,value){this.attrs[name]=value;}
+  append(...nodes){for(const node of nodes){this.children.push(node);node.parent=this;node.isConnected=true;}}
+  remove(){if(this.parent)this.parent.children=this.parent.children.filter(x=>x!==this);this.isConnected=false;}
+  focus(){documentStub.activeElement=this;}
+  addEventListener(type,handler){this.listeners[type]=handler;}
+  removeEventListener(type){delete this.listeners[type];}
+  querySelectorAll(){return [];}
+ }
+ documentStub.createElement=tag=>new TestElement(tag);
+ documentStub.addEventListener=(type,fn)=>documentStub.listeners.set(type,fn);
+ documentStub.removeEventListener=type=>documentStub.listeners.delete(type);
+ documentStub.body=new TestElement("body");
+ documentStub.body.isConnected=true;
+ const originalFocus=new TestElement("button");
+ originalFocus.isConnected=true;
+ documentStub.activeElement=originalFocus;
  const browserWindow={turnstile:{
   render(_host,opts){rendered++;settings=opts;return "mock-widget";},
-  execute(_id){executed++;queueMicrotask(()=>settings.callback("mock-verified-token"));},
-  remove(_id){removed++;}
+  execute(){executed++;queueMicrotask(()=>settings.callback("mock-verified-token"));},
+  remove(){removed++;}
  }};
- const documentStub={
-  documentElement:{lang:"uk"},
-  createElement(_tag){return {isConnected:true,className:"",setAttribute(){},remove(){this.isConnected=false;}};},
-  head:{append(){}}
- };
- runInNewContext(captcha,{window:browserWindow,document:documentStub,WeakMap,Promise,
-  setTimeout,clearTimeout,Error});
- const submit={before(){inserted++;}};
- const form={id:"login-form",isConnected:true,hidden:false,querySelector(){return submit;}};
- assert.equal(rendered,0,"CAPTCHA must not render before login is submitted");
- assert.equal(inserted,0,"CAPTCHA must not occupy space before login is submitted");
- const result=await browserWindow.VATRA_CAPTCHA.token(form);
- assert.equal(result,"mock-verified-token");
- assert.equal(executed,1,"Submission should execute exactly one CAPTCHA challenge");
- assert.equal(rendered,1,"Submission should render a widget only on demand");
+ runInNewContext(captcha,{window:browserWindow,document:documentStub,WeakMap,Promise,setTimeout,clearTimeout,Error});
+ const form={id:"login-form",isConnected:true,hidden:false};
+ assert.equal(rendered,0,"CAPTCHA must not render before user action");
+ assert.equal(documentStub.body.children.length,0,"Modal must not be visible before submit");
+ const request=browserWindow.VATRA_CAPTCHA.token(form);
+ assert.equal(documentStub.body.children.length,1,"Submit must open a security overlay");
+ assert.ok(documentStub.body.children[0].className.includes("captcha-backdrop"),"Backdrop missing");
+ const token=await request;
+ assert.equal(token,"mock-verified-token");
+ assert.equal(documentStub.body.children.length,0,"Successful verification should close the modal automatically");
+ assert.equal(documentStub.activeElement,originalFocus,"Focus must return after verification");
+ assert.equal(executed,1);
+ assert.equal(settings.execution,"execute");
+ assert.equal(settings.appearance,"always");
  await browserWindow.VATRA_CAPTCHA.reset(form);
- assert.equal(removed,1,"Completed widget should be removed to restore clean form layout");
- await browserWindow.VATRA_CAPTCHA.token(form);
- assert.equal(executed,2,"A new submission needs a fresh CAPTCHA challenge");
+ assert.equal(removed,1,"Completed challenge must be removed");
+ const second=browserWindow.VATRA_CAPTCHA.token(form);
+ assert.equal(await second,"mock-verified-token","Retries need a fresh token");
  await browserWindow.VATRA_CAPTCHA.reset(form);
- assert.equal(removed,2,"Retry must also clean up its widget");
+ assert.equal(removed,2);
+ const cancelled=browserWindow.VATRA_CAPTCHA.token(form);
+ const backdrop=documentStub.body.children[0];
+ const dialog=backdrop.children[0];
+ const cancelButton=dialog.children.find(x=>x.tag==="button");
+ assert.ok(cancelButton,"Security dialog needs a cancel button");
+ cancelButton.listeners.click();
+ await assert.rejects(cancelled,/captcha_cancelled/,"Closing a modal must stop authorization");
+ assert.equal(documentStub.body.children.length,0,"Cancelled challenge must close the overlay");
+ await browserWindow.VATRA_CAPTCHA.reset(form);
 }
 const appManifest=JSON.parse(await read("site.webmanifest"));
 assert.equal(appManifest.theme_color,"#ffffff","Manifest theme must match the light VATRA layout");
