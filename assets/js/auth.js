@@ -69,6 +69,7 @@ function showFieldError(control,message){
    wrapper.append(error);
   }
   error.textContent=translate(message);
+  window.VATRA_LANGUAGE?.ready?.then(()=>{if(error.isConnected)error.textContent=translate(message);});
   wrapper.classList.add("is-invalid");
   control.setAttribute("aria-invalid","true");
   control.setAttribute("aria-describedby",error.id);
@@ -103,8 +104,9 @@ function wireFieldValidation(){
   if(control.id?.startsWith("birth-")){
    const valid=["birth-day","birth-month","birth-year"].every(id=>Boolean(q("#"+id)?.value));
    const start=q("#birth-day");
-   const correctDate=valid&&typeof validateBirthday()==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(validateBirthday());
-   showFieldError(start,!valid?"Оберіть дату народження.":correctDate?"":"Вкажіть правильну дату народження.");
+   const value=valid?validateBirthday():null;
+   const correctDate=typeof value==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(value);
+   showFieldError(start,!valid?"Оберіть дату народження.":correctDate?"":typeof value==="string"?value:"Вкажіть правильну дату народження.");
    return Boolean(correctDate);
   }
   const message=validationText(control,form);
