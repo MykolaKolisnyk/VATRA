@@ -58,21 +58,7 @@
 
 
 
-.intro-circle:before,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.intro-circle:focus-visible{outline:2px solid var(--blue)}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.intro-copy{position:relative;z-index:2;max-width:590px;margin:4px 0 0} .intro-copy p{max-width:540px;margin:0;text-wrap:pretty;color:#627187;line-height:1.65;font-size:clamp(14px,1.05vw,16px);font-weight:400}.intro-copy p strong{font-weight:700;color:#35465F}
 .form-side{display:flex;align-items:center;justify-content:center;padding:clamp(22px,2.8vw,52px) clamp(26px,4vw,76px);min-width:0}.form-box{width:100%;max-width:490px}.mobile-logo{display:none}.form-box h2,.narrow-form h1{margin:0 0 10px;font-size:clamp(30px,2.75vw,40px);line-height:1.2;letter-spacing:-.025em;font-weight:710;text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}.field{display:grid;gap:8px;min-width:0}
 .field:has(input.control){position:relative;gap:0}
@@ -245,17 +231,8 @@
   .footer{padding:15px 17px;font-size:11px}
   .footer nav{gap:3px 12px}
 }
-@media (min-width:541px) and (max-width:1199px){
-  
-  
-  
-  
-}
-@media (max-width:360px){
-  
-  
-  
 
+@media (max-width:360px){
   .reg-header{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
