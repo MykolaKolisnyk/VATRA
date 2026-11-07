@@ -63,7 +63,7 @@ function showFieldError(control,message){
  if(message){
   if(!error){
    error=document.createElement("small");
-   error.className="field-error";
+   error.className="field-error vt-field-error-"+control.id;
    error.id="vatra-error-"+control.id;
    error.setAttribute("role","alert");
    wrapper.append(error);
@@ -220,11 +220,12 @@ function wireSelects(){
   select.setAttribute("aria-hidden","true");
   const trigger=document.createElement("button");
   trigger.type="button";
-  trigger.className="control vatra-select-trigger";
+  trigger.className="control vatra-select-trigger vt-select-trigger-"+select.id;
   trigger.setAttribute("aria-haspopup","listbox");
   trigger.setAttribute("aria-expanded","false");
   trigger.setAttribute("aria-label",select.getAttribute("aria-label")||"");
   const display=document.createElement("span");
+  display.className="vt-select-display-"+select.id;
   trigger.append(display);
   const list=document.createElement("div");
   list.className="vatra-select-list";
@@ -232,10 +233,10 @@ function wireSelects(){
   list.setAttribute("role","listbox");
   list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
   const choices=[...select.options].filter(opt=>!opt.disabled&&(opt.value||!required));
-  for(const opt of choices){
+  for(const [optionIndex,opt] of choices.entries()){
    const item=document.createElement("button");
    item.type="button";
-   item.className="vatra-select-option";
+   item.className="vatra-select-option vt-select-"+select.id+"-item-"+(optionIndex+1);
    item.dataset.value=opt.value;
    item.setAttribute("role","option");
    item.setAttribute("aria-selected",String(select.value===opt.value));
