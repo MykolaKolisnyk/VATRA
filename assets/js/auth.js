@@ -319,6 +319,8 @@ function validateBirthday(){
  return [year,month,day].join("-");
 }
 async function initialize(){
+ /* Initial language translations must finish before wiring localized controls. */
+ await window.VATRA_LANGUAGE?.ready;
  /* Build the interface independently of the authentication service status. */
  wirePasswordButtons();
  wireFloatingLabels();
