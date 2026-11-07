@@ -67,16 +67,18 @@
     const filename = route === "index.html" || route === "auth.html" ? "" : route;
     const query = new URLSearchParams(location.search);
     query.set("locale", lang === "en" ? "en_US" : "uk_UA");
+    if (new RegExp("^id[1-9][0-9]*/?$").test(filename)) return ROOT + filename + "?" + query + location.hash;
     return ROOT + (lang === "en" ? "en/" : "ua/") + filename + "?" + query + location.hash;
   }
   /* Explicit /ua/ and /en/ URLs win; root and legacy paths route to the browser preference. */
-  if (!explicit && !/^id[1-9]\d*\/?$/.test(route)) {
+  const isProfile = new RegExp("^id[1-9][0-9]*/?$").test(route);
+  if (!explicit && !isProfile) {
     location.replace(pathFor(current));
     return;
   }
 
   /* Keep address bar and internal navigation consistent with the active locale. */
-  if (explicit) {
+  if (explicit || isProfile) {
     const expected = current === "en" ? "en_US" : "uk_UA";
     const address = new URL(location.href);
     if (address.searchParams.get("locale") !== expected) {
