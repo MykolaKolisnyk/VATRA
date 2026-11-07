@@ -3,7 +3,15 @@
   "use strict";
   if (window.VATRA_HOST_ALLOWED === false) return;
   const ROOT = "/VATRA/";
-  const current = location.pathname.startsWith(ROOT + "en/") ? "en" : "uk";
+  const route = location.pathname.slice(ROOT.length);
+  const explicit = route.startsWith("ua/") ? "uk" : route.startsWith("en/") ? "en" : null;
+  const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
+  function preferred() {
+    const choice = saved();
+    if (choice === "uk" || choice === "en") return choice;
+    return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
+  }
+  const current = explicit || preferred();
   const nativeLabels = {
     uk: "Українська", en: "English"
   };
@@ -52,14 +60,13 @@
     try { localStorage.setItem("vatra-language", lang); } catch (_) {}
   }
   function pathFor(lang) {
-    const path = location.pathname.replace(/^\/VATRA\/(?:en\/)?/, "");
-    const filename = path === "" || path === "index.html" ? "" : path;
-    return ROOT + (lang === "en" ? "en/" : "") + filename + location.search + location.hash;
+    const route = location.pathname.slice(ROOT.length).replace(/^(?:ua|en)\//, "");
+    const filename = route === "index.html" ? "" : route;
+    return ROOT + (lang === "en" ? "en/" : "ua/") + filename + location.search + location.hash;
   }
-  /* The URL query/hash is preserved for the auth library's PKCE callback on either language page. */
-  const preference = saved();
-  if ((preference === "uk" || preference === "en") && preference !== current) {
-    location.replace(pathFor(preference));
+  /* Explicit /ua/ and /en/ URLs win; root and legacy paths route to the browser preference. */
+  if (!explicit && !/^id[1-9]\d*\/?$/.test(route)) {
+    location.replace(pathFor(current));
     return;
   }
 
