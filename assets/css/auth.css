@@ -20,23 +20,59 @@
 :root{--ink:#2C3850;--soft:#627187;--blue:#2865D8;--blue2:#1F55BD;--purple:#6257C6;--line:#e0e4ed;--bg:#f7f9fd;--shadow:0 16px 44px rgba(26,44,92,.08);font-family:Onest,Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:white;color-scheme:light}*,*::before,*::after{box-sizing:border-box}html{min-height:100%;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Onest,Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}img{max-width:100%;height:auto;display:block}button,input,select,textarea,option,optgroup{font:inherit;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button{cursor:pointer}a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}[hidden]{display:none!important}button:disabled{opacity:.57;cursor:wait}::selection{background:#dce6ff;color:#2E3A53}
 .site{min-height:100dvh;display:flex;flex-direction:column}.split{display:grid;grid-template-columns:minmax(0,.96fr) minmax(0,1.04fr);min-height:calc(100svh - 70px);flex:1;min-width:0}.intro-side{display:flex;flex-direction:column;justify-content:space-between;position:relative;isolation:isolate;overflow:hidden;border-right:1px solid var(--line);padding:clamp(24px,2.4vw,38px) clamp(30px,3.3vw,60px) clamp(26px,3vw,44px);background:linear-gradient(135deg,#fff 12%,#f8f9ff 89%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
 /* Погоджена композиція VATRA: три акцентні написи і чотири іконки навколо V. */
-.intro-art{flex:1;min-height:380px;max-height:450px;display:grid;place-items:center;position:relative;isolation:isolate;width:100%;margin:0 auto}
-.intro-circle{position:absolute;width:min(70%,390px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#e8eaff 0%,#f0f2ff 46%,transparent 72%)}
-.intro-circle:before,.intro-circle:after{content:"";position:absolute;inset:8%;border:1px solid #dce4ff;border-radius:50%}
-.intro-circle:after{inset:-15%;border-style:dashed;opacity:.75}
-.intro-symbol{position:relative;z-index:1;width:clamp(140px,11.5vw,186px);height:auto;filter:drop-shadow(0 24px 24px rgba(77,65,191,.16));transform:rotate(-8deg)}
-.orbit-message{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:8px;min-height:43px;padding:9px 12px;border:1px solid #dde6f9;border-radius:999px;background:rgba(255,255,255,.97);box-shadow:0 9px 27px rgba(40,55,120,.08);color:#34445E;font-size:clamp(12px,1vw,15px);line-height:1.2;white-space:nowrap}
-.orbit-message strong{font-weight:710;letter-spacing:-.02em}
-.orbit-message svg{width:21px;height:21px;flex:none;fill:none;stroke:#2865D8;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.orbit-message.people{left:3%;top:19%}
-.orbit-message.stories{right:1%;top:20%}
-.orbit-message.your-vatra{right:9%;bottom:13%}
-.orbit-feature{position:absolute;z-index:2;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#fff;border:1px solid #d5e2fa;box-shadow:0 8px 25px rgba(20,58,138,.1)}
-.orbit-feature svg{width:24px;height:24px;stroke:#2865D8;stroke-width:1.9;fill:none;stroke-linejoin:round;stroke-linecap:round}
-.orbit-feature.feature-market{left:50%;top:1%;transform:translateX(-50%)}
-.orbit-feature.feature-community{left:11%;top:47%;transform:translateY(-50%)}
-.orbit-feature.feature-video{right:10%;top:49%;transform:translateY(-50%)}
-.orbit-feature.feature-music{left:48%;bottom:1%;transform:translateX(-50%)}
+
+/* Дві орбіти VATRA: 3 написи проти годинникової, 4 можливості за годинниковою. */
+.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:1;width:100%;min-height:430px;max-height:580px;margin:0 auto;--outer-radius:min(34cqw,228px);--inner-radius:min(22cqw,150px)}
+.intro-circle{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0}
+.intro-circle-outer{width:calc(var(--outer-radius) * 2);border:1.5px solid #b6cafa;background:radial-gradient(circle,rgba(239,243,255,.8),rgba(248,250,255,.16) 65%,transparent 75%);box-shadow:0 0 0 10px rgba(219,231,255,.13),0 0 60px rgba(99,118,230,.09)}
+.intro-circle-inner{width:calc(var(--inner-radius) * 2);border:1.5px solid #a8c5f9;background:radial-gradient(circle,rgba(236,241,255,.65),transparent 73%);box-shadow:0 0 0 6px rgba(206,223,255,.13),inset 0 0 28px rgba(81,116,220,.05)}
+.intro-circle-outer:after{content:"";position:absolute;inset:-8px;border-radius:50%;border:1px dashed rgba(105,145,222,.35)}
+.intro-symbol{position:relative;z-index:4;width:clamp(104px,28cqw,170px);height:auto;filter:drop-shadow(0 17px 25px rgba(77,65,191,.13));animation:vatraCoreBreath 6s ease-in-out infinite}
+.orbit-track{position:absolute;left:50%;top:50%;width:0;height:0;z-index:3;transform-origin:0 0;pointer-events:none}
+.orbit-track-outer{--orbit-radius:var(--outer-radius);animation:vatraOrbitCounterclockwise 47s linear infinite}
+.orbit-track-inner{--orbit-radius:var(--inner-radius);animation:vatraOrbitClockwise 32s linear infinite}
+.orbit-node{position:absolute;left:0;top:0;width:0;height:0;transform:rotate(var(--angle)) translateX(var(--orbit-radius)) rotate(var(--counter-angle));pointer-events:none}
+.orbit-face{position:absolute;left:0;top:0;display:inline-flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:auto;backface-visibility:hidden}
+.orbit-track-outer .orbit-face{animation:vatraBadgeUpright 47s linear infinite}
+.orbit-track-inner .orbit-face{animation:vatraIconUpright 32s linear infinite}
+.orbit-badge{gap:8px;min-height:42px;padding:9px 13px;border:1px solid #c9d9f7;border-radius:999px;background:rgba(255,255,255,.98);box-shadow:0 9px 22px rgba(58,88,150,.09);color:var(--ink);font-size:clamp(10px,2.5cqw,14px);line-height:1.2;font-weight:700;transition:background .24s,border-color .24s,box-shadow .24s}
+.orbit-badge strong{font-weight:700;letter-spacing:-.02em}
+.orbit-icon{width:clamp(34px,8cqw,48px);height:clamp(34px,8cqw,48px);border:1.5px solid #bcd2fb;border-radius:50%;background:#fff;box-shadow:0 7px 22px rgba(49,98,179,.12),inset 0 0 0 2px rgba(240,245,255,.75);color:var(--blue);transition:border-color .24s,background .24s,box-shadow .24s}
+.orbit-face svg{display:block;width:clamp(16px,4cqw,23px);height:clamp(16px,4cqw,23px);flex:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;shape-rendering:geometricPrecision;overflow:visible}
+.orbit-face svg path,.orbit-face svg circle,.orbit-face svg ellipse,.orbit-face svg rect{vector-effect:non-scaling-stroke}
+.orbit-face svg{animation:vatraGlyphFloat 4.4s ease-in-out infinite}
+.orbit-track-outer .orbit-node:nth-child(2) svg,.orbit-track-inner .orbit-node:nth-child(3) svg{animation-delay:-1.3s}
+.orbit-track-outer .orbit-node:nth-child(3) svg,.orbit-track-inner .orbit-node:nth-child(4) svg{animation-delay:-2.7s}
+.orbit-track-inner .orbit-node:nth-child(2) svg{animation-delay:-3.4s}
+.orbit-badge:hover{background:#f7faff;border-color:#92b3fb;box-shadow:0 12px 32px rgba(49,98,179,.17)}
+.orbit-icon:hover{background:#f1f6ff;border-color:#7eacfa;box-shadow:0 11px 31px rgba(49,98,179,.22),0 0 0 5px rgba(78,124,238,.08)}
+@keyframes vatraOrbitClockwise{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes vatraOrbitCounterclockwise{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes vatraBadgeUpright{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes vatraIconUpright{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+@keyframes vatraGlyphFloat{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-2px) scale(1.04);opacity:.84}}
+@keyframes vatraCoreBreath{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(-8deg) scale(1.025)}}
+@media (max-width:540px){.intro-art{min-height:340px;--outer-radius:34cqw;--inner-radius:22cqw}.orbit-badge{gap:5px;min-height:32px;padding:7px 9px}.orbit-icon{border-width:1.25px}}
+@media (max-width:360px){.intro-art{min-height:295px;--outer-radius:32cqw}.orbit-badge{font-size:10px;padding:6px 8px}.orbit-face svg{width:17px;height:17px}}
+@media (prefers-reduced-motion:reduce){.orbit-track,.orbit-face,.orbit-face svg,.intro-symbol{animation:none!important}.orbit-badge,.orbit-icon{transition:none}}
+
+
+
+.intro-circle:before,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.intro-copy{position:relative;z-index:2;max-width:590px;margin:4px 0 0} .intro-copy p{max-width:540px;margin:0;text-wrap:pretty;color:#627187;line-height:1.65;font-size:clamp(14px,1.05vw,16px);font-weight:400}.intro-copy p strong{font-weight:700;color:#35465F}
 .form-side{display:flex;align-items:center;justify-content:center;padding:clamp(22px,2.8vw,52px) clamp(26px,4vw,76px);min-width:0}.form-box{width:100%;max-width:490px}.mobile-logo{display:none}.form-box h2,.narrow-form h1{margin:0 0 10px;font-size:clamp(30px,2.75vw,40px);line-height:1.2;letter-spacing:-.025em;font-weight:710;text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}.field{display:grid;gap:8px;min-width:0}
 .field:has(input.control){position:relative;gap:0}
@@ -127,14 +163,14 @@
 }
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px 23px 27px}
-  .intro-art{min-height:340px}
-  .intro-symbol{width:clamp(112px,11vw,138px)}
+  
+  
   .intro-copy p{font-size:13px;line-height:1.5}
   .form-side{padding:24px clamp(23px,3vw,44px)}
 }
 @media (min-width:1200px) and (max-height:760px){
   .intro-side{padding-top:18px;padding-bottom:24px}
-  .intro-art{min-height:330px;max-height:370px}
+  
   .intro-copy p{font-size:13px;line-height:1.5}
   .form-side{padding-block:18px}
 }
@@ -154,8 +190,8 @@
   .intro-side>.header-logo{display:none}
   .intro-copy{order:0;width:min(100%,650px);max-width:none;margin:0 auto}
   .intro-copy p{max-width:640px;font-size:14px}
-  .intro-art{order:1;flex:none;display:grid;place-items:center;width:min(100%,650px);height:390px;min-height:390px;max-height:none;margin:0 auto}
-  .intro-circle{display:block;width:min(68%,360px)}.intro-symbol{display:block;width:clamp(122px,25vw,162px)}
+  
+  
   .footer{justify-content:center;gap:12px 22px;text-align:center}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
@@ -179,19 +215,19 @@
   .subtitle{margin-bottom:22px}
   .intro-side{padding:26px 17px 33px;gap:20px}
   .intro-copy p{font-size:13px;line-height:1.6}
-  .intro-art{height:320px;min-height:320px}
-  .intro-circle{width:min(72%,280px)}
-  .intro-symbol{width:116px}
-  .orbit-message{font-size:11px;min-height:32px;padding:6px 8px;gap:5px}
-  .orbit-message svg{width:17px;height:17px}
-  .orbit-feature{width:36px;height:36px}
-  .orbit-feature svg{width:19px;height:19px}
-  .orbit-message.people{left:0;top:17%}
-  .orbit-message.stories{right:0;top:19%}
-  .orbit-message.your-vatra{right:0;bottom:12%}
-  .orbit-feature.feature-market{top:1%}
-  .orbit-feature.feature-community{left:2%;top:54%}
-  .orbit-feature.feature-video{right:3%;top:54%}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   .reg-header{padding:13px 18px}
   .reg-header .header-logo{width:136px}
   .reg-header .back{font-size:12px}
@@ -210,15 +246,15 @@
   .footer nav{gap:3px 12px}
 }
 @media (min-width:541px) and (max-width:1199px){
-  .orbit-message.people{left:7%}
-  .orbit-message.stories{right:5%}
-  .orbit-feature.feature-community{left:13%}
-  .orbit-feature.feature-video{right:13%}
+  
+  
+  
+  
 }
 @media (max-width:360px){
-  .intro-art{height:290px;min-height:290px}
-  .orbit-message{font-size:10px}
-  .orbit-message svg{width:15px;height:15px}
+  
+  
+  
 
   .reg-header{gap:8px}
 }
