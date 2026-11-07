@@ -1029,6 +1029,1124 @@
           }
         }
       }
+    },
+    "terms": {
+      "meta": {
+        "title": "Terms of Service · VATRA",
+        "description": "VATRA Terms of Service — accounts, content and safety on the Ukrainian social network.",
+        "og:locale": "en_US",
+        "og:title": "Terms of Service — VATRA",
+        "og:description": "VATRA Terms of Service — accounts, content and safety on the Ukrainian social network."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Skip to content"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA — home"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Document sections"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "VATRA · Information"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Rules for using VATRA: accounts, safety, publishing, and respect for others."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Updated November 7, 2026"
+          }
+        },
+        "n21": {
+          "attrs": {
+            "aria-label": "Contents"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "On this page"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Using VATRA"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Your account"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Respect and safety"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Content and copyright"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Business, goods, and services"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Account security"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Restrictions and liability"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Policies and contact"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Contents"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Using VATRA"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "Your account"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Respect and safety"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Content and copyright"
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Business, goods, and services"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Account security"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Restrictions and liability"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Policies and contact"
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "Using VATRA"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "VATRA is a social platform for communication and interaction between people, creators, and businesses. These terms set out the general rules for using the website and your account."
+          }
+        },
+        "n48": {
+          "text": {
+            "0": "By using VATRA’s available features, you agree to follow these rules and applicable laws. If you do not agree, do not create an account or use features that require sign-in."
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Your account"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "To register, you must provide your first and last name, date of birth, email address, and create a password. Gender is optional. You must be ",
+            "1": " and meet any stricter age requirements that apply in your country."
+          }
+        },
+        "n52": {
+          "text": {
+            "0": "at least 13 years old"
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Provide accurate information, keep your password secure, and do not share access with others. Impersonating another person, using someone else’s account, or creating accounts to bypass restrictions is prohibited."
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Respect and safety"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Fraud, spam, harassment, threats, unlawful disclosure of private information, child exploitation, incitement to violence, and illegal content are prohibited on VATRA."
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Do not try to access other people’s data, bypass security measures, collect information automatically without permission, or overload the service. Respect other users’ rights and dignity."
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Content and copyright"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "You are responsible for content you post on VATRA and must have the right to publish it. You retain ownership of the photographs, text, videos, and other content you create."
+          }
+        },
+        "n61": {
+          "text": {
+            "0": "When you publish content using available service features, you grant VATRA only the permission needed to store, technically process, and display it to your chosen audience. This does not transfer ownership of your content to the platform."
+          }
+        },
+        "n63": {
+          "text": {
+            "0": "Business, goods, and services"
+          }
+        },
+        "n64": {
+          "text": {
+            "0": "If you use VATRA to promote a business, list products, or sell goods or services, describe your offerings accurately, do not mislead buyers, respect consumer rights, and comply with applicable trade laws."
+          }
+        },
+        "n65": {
+          "text": {
+            "0": "The terms of a particular purchase, refund, delivery, and the parties’ responsibilities depend on the service and the applicable agreement. ",
+            "1": " — do not enter payment details into registration fields."
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "The VATRA registration form does not accept payments"
+          }
+        },
+        "n68": {
+          "text": {
+            "0": "Account security"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "To protect accounts, VATRA may require email confirmation and apply technical safeguards against abuse. No online service can be guaranteed to be entirely error-free."
+          }
+        },
+        "n70": {
+          "text": {
+            "0": "If you lose your password, use ",
+            "1": ". If you suspect that your account has been compromised, never share verification codes or passwords with others."
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "password recovery"
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Restrictions and liability"
+          }
+        },
+        "n74": {
+          "text": {
+            "0": "Violations of these rules may result in restricted access in accordance with applicable laws and procedures. Your mandatory rights, including personal data and consumer protections, remain in effect."
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "VATRA may update its features and terms. Material changes to these terms will be posted here with an updated date; where required by law, users will be notified separately."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "Policies and contact"
+          }
+        },
+        "n78": {
+          "text": {
+            "0": "Details of VATRA data processing appear in the ",
+            "1": ", and information about browser storage appears in the "
+          }
+        },
+        "n79": {
+          "text": {
+            "0": "Privacy Policy"
+          }
+        },
+        "n80": {
+          "text": {
+            "0": "Cookie Policy"
+          }
+        },
+        "n81": {
+          "text": {
+            "0": "VATRA is independently developed and owned by ",
+            "1": ", an individual. For questions about the terms or privacy, email ",
+            "2": ". Do not send passwords, sign-in codes, or personal documents without a dedicated secure process."
+          }
+        },
+        "n82": {
+          "text": {
+            "0": "Mykola Kolisnyk"
+          }
+        },
+        "n85": {
+          "text": {
+            "0": "Other VATRA policies"
+          }
+        },
+        "n86": {
+          "text": {
+            "0": "View all documents"
+          }
+        },
+        "n88": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n90": {
+          "attrs": {
+            "aria-label": "Additional links"
+          }
+        },
+        "n91": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n92": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n94": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n95": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    },
+    "privacy": {
+      "meta": {
+        "title": "Privacy · VATRA",
+        "description": "VATRA Privacy Policy — how the Ukrainian social network processes personal data.",
+        "og:locale": "en_US",
+        "og:title": "Privacy — VATRA",
+        "og:description": "VATRA Privacy Policy — how the Ukrainian social network processes personal data."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Skip to content"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA — home"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Document sections"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "VATRA · Information"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "How VATRA handles your account data, why it is needed, and how you can manage it."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Updated November 7, 2026"
+          }
+        },
+        "n21": {
+          "attrs": {
+            "aria-label": "Contents"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "On this page"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "About your privacy"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Data processed by VATRA"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Why VATRA needs your data"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Who receives technical data"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Storage and deletion"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Your rights"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Data security"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Data controller and updates"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Contents"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "About your privacy"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "Data processed by VATRA"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Why VATRA needs your data"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Who receives technical data"
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Storage and deletion"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Your rights"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Data security"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Data controller and updates"
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "About your privacy"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "This policy explains which data VATRA processes when you visit the website, create an account, sign in, or reset your password. VATRA aims to process only the information needed to provide available service features."
+          }
+        },
+        "n48": {
+          "text": {
+            "0": "VATRA does not sell registration information to advertisers, and its pages do not include advertising pixels for profiling."
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Data processed by VATRA"
+          }
+        },
+        "n52": {
+          "text": {
+            "0": " first and last name, date of birth, and email address; gender is optional."
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Account:"
+          }
+        },
+        "n54": {
+          "text": {
+            "0": " user identifier, session information, and authentication logs."
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Authentication:"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": " IP address, browser details, and requests received by hosting and authentication servers."
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Technical information:"
+          }
+        },
+        "n58": {
+          "text": {
+            "0": " session information stored to keep you signed in."
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Browser data:"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "You do not need to provide a phone number or payment details through VATRA’s registration form."
+          }
+        },
+        "n62": {
+          "text": {
+            "0": "Why VATRA needs your data"
+          }
+        },
+        "n63": {
+          "text": {
+            "0": "This information is processed to create accounts, verify sign-ins, support password recovery, prevent unauthorized access, and operate VATRA."
+          }
+        },
+        "n64": {
+          "text": {
+            "0": "Depending on the data and circumstances, the legal basis for processing may be performance of the Terms of Service, compliance with law, necessary security measures, or your consent."
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Who receives technical data"
+          }
+        },
+        "n67": {
+          "text": {
+            "0": "VATRA uses service providers for authentication, website hosting, and delivery of technical resources. These providers may process technical request data, such as your IP address and browser details, when delivering their services. To ask about the providers and data processing arrangements, contact "
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Your password is transmitted to the authentication service over HTTPS and is not stored in the website’s public HTML or JavaScript. Data transfers and storage may depend on the infrastructure used by each provider."
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "Storage and deletion"
+          }
+        },
+        "n72": {
+          "text": {
+            "0": "Account data is retained for as long as necessary to maintain your account or comply with legal obligations. You can remove browser session data through your browser settings; signing out of VATRA ends the local session."
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Retention periods for technical logs depend on service and provider settings. The interface does not currently provide self-service account deletion, so deleting all account information with one click is not currently available."
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "Your rights"
+          }
+        },
+        "n76": {
+          "text": {
+            "0": "Depending on applicable law, you may request access to your data, request correction or deletion, object to certain processing, withdraw consent where it is the relevant legal basis, or contact the competent authorities."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "In Ukraine, your rights are governed, among other laws, by the ",
+            "1": ". The GDPR may also apply to users in the European Economic Area."
+          }
+        },
+        "n78": {
+          "text": {
+            "0": "Law on Personal Data Protection"
+          }
+        },
+        "n80": {
+          "text": {
+            "0": "Data security"
+          }
+        },
+        "n81": {
+          "text": {
+            "0": "Sign-in uses HTTPS and a secure authentication system. For security, use a unique password, keeping verification codes private, and signing out on shared devices."
+          }
+        },
+        "n82": {
+          "text": {
+            "0": "No technical system can guarantee zero risk. If you notice suspicious activity, change your password using the available recovery form."
+          }
+        },
+        "n84": {
+          "text": {
+            "0": "Data controller and updates"
+          }
+        },
+        "n85": {
+          "text": {
+            "0": " Mykola Kolisnyk, an individual. The controller determines the purposes and methods of processing personal data in connection with VATRA."
+          }
+        },
+        "n86": {
+          "text": {
+            "0": "VATRA data controller:"
+          }
+        },
+        "n87": {
+          "text": {
+            "1": ". You can use this address to request access, correction, or deletion of your data, or to ask about privacy. Account ownership may need to be verified before a request can be processed."
+          }
+        },
+        "n88": {
+          "text": {
+            "0": "Privacy contact:"
+          }
+        },
+        "n90": {
+          "text": {
+            "0": "Changes to personal data processing will be reflected in updated versions of this policy. Users will be notified of material changes when required by law."
+          }
+        },
+        "n92": {
+          "text": {
+            "0": "Other VATRA policies"
+          }
+        },
+        "n93": {
+          "text": {
+            "0": "View all documents"
+          }
+        },
+        "n95": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n97": {
+          "attrs": {
+            "aria-label": "Additional links"
+          }
+        },
+        "n98": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n99": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n101": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n102": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookies and browser storage · VATRA",
+        "description": "VATRA cookies and browser data — session storage and settings on the Ukrainian social network.",
+        "og:locale": "en_US",
+        "og:title": "Cookies and browser storage — VATRA",
+        "og:description": "VATRA cookies and browser data — session storage and settings on the Ukrainian social network."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Skip to content"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA — home"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Document sections"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "VATRA · Information"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Cookies and browser storage"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "What your browser stores while using VATRA and how to control it."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Updated November 7, 2026"
+          }
+        },
+        "n21": {
+          "attrs": {
+            "aria-label": "Contents"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "On this page"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "What are cookies?"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "What VATRA uses"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Why storage is needed"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "How to manage data"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Third-party services"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "More information"
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "Contents"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "What are cookies?"
+          }
+        },
+        "n35": {
+          "text": {
+            "0": "What VATRA uses"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Why storage is needed"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "How to manage data"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Third-party services"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "More information"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "What are cookies?"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Cookies are small pieces of data saved by your browser at a website’s request. ",
+            "1": " is separate browser storage where a website can keep information between visits. These are different technologies, although both may be used for sign-in and settings."
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "What VATRA uses"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "Technology"
+          }
+        },
+        "n52": {
+          "text": {
+            "0": "Purpose"
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Use"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Local browser storage (localStorage)"
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Preserving your session so you can stay signed in without repeatedly entering your password"
+          }
+        },
+        "n58": {
+          "text": {
+            "0": "Yes"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "Service request data"
+          }
+        },
+        "n61": {
+          "text": {
+            "0": "Page delivery, security, and infrastructure diagnostics"
+          }
+        },
+        "n62": {
+          "text": {
+            "0": "By service providers"
+          }
+        },
+        "n64": {
+          "text": {
+            "0": "VATRA advertising pixels"
+          }
+        },
+        "n65": {
+          "text": {
+            "0": "Tracking for personalized advertising"
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Not enabled in the code"
+          }
+        },
+        "n68": {
+          "text": {
+            "0": "VATRA marketing analytics"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Measuring advertising campaigns"
+          }
+        },
+        "n70": {
+          "text": {
+            "0": "Not enabled in the code"
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "The names of technical session keys may change when the authentication system is updated."
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Why storage is needed"
+          }
+        },
+        "n74": {
+          "text": {
+            "0": "Necessary storage helps determine whether you are signed in and keeps your session secure. Authentication may not work properly if browser storage is unavailable."
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "VATRA pages do not currently include advertising pixels or optional marketing cookies that would require an 'Accept all' choice. VATRA does not display a fictitious consent banner."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "How to manage data"
+          }
+        },
+        "n79": {
+          "text": {
+            "0": "Select ",
+            "1": " in your account to end your local session."
+          }
+        },
+        "n80": {
+          "text": {
+            "0": "'Sign out'"
+          }
+        },
+        "n81": {
+          "text": {
+            "0": "Use your browser’s website data settings to clear VATRA cookies and localStorage."
+          }
+        },
+        "n82": {
+          "text": {
+            "0": "After clearing the data, you may need to enter your email address and password again."
+          }
+        },
+        "n83": {
+          "text": {
+            "0": "You can also manage permissions for third-party sites and their cookies in your browser settings."
+          }
+        },
+        "n85": {
+          "text": {
+            "0": "Third-party services"
+          }
+        },
+        "n86": {
+          "text": {
+            "0": "VATRA uses third-party providers to host pages, handle authentication, and deliver technical resources. They may process necessary technical request information under their own policies. Details of personal data processing are explained in the VATRA "
+          }
+        },
+        "n87": {
+          "text": {
+            "0": "Privacy Policy"
+          }
+        },
+        "n88": {
+          "text": {
+            "0": "VATRA cannot directly remove cookies set on other domains. Use your browser settings to manage them."
+          }
+        },
+        "n90": {
+          "text": {
+            "0": "More information"
+          }
+        },
+        "n91": {
+          "text": {
+            "0": "For general information about how personal data is used, read the ",
+            "1": ". For questions about cookies and browser data, contact ",
+            "2": ". This page will be updated if the storage technologies change."
+          }
+        },
+        "n92": {
+          "text": {
+            "0": "VATRA Privacy Policy"
+          }
+        },
+        "n95": {
+          "text": {
+            "0": "Other VATRA policies"
+          }
+        },
+        "n96": {
+          "text": {
+            "0": "View all documents"
+          }
+        },
+        "n98": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n100": {
+          "attrs": {
+            "aria-label": "Additional links"
+          }
+        },
+        "n101": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n102": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n104": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n105": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
     }
   }
 }
