@@ -120,10 +120,39 @@ for(const locale of ["ua","en"]){
    locale+": each feature needs evenly spaced 45 degree angle");
  }
 }
-assert.ok(css.includes("--outer-radius:min(35cqw,230px);--inner-radius:min(16cqw,105px)"),
+assert.ok(css.includes("--outer-radius:min(39cqw,275px);--inner-radius:min(19cqw,135px)"),
  "Outer badges and inner feature icons require separate non-overlapping orbit lanes");
-assert.ok(css.includes("--outer-radius:42cqw;--inner-radius:18cqw"),
+assert.ok(css.includes("--outer-radius:43cqw;--inner-radius:18cqw"),
  "Mobile rings need greater radial separation");
+assert.ok(css.includes(".orbit-track-inner .orbit-node:has(.orbit-icon:is(:hover,:focus-visible)){z-index:30}"),
+ "Hovered tooltip must render above all other small icons");
+assert.ok(css.includes(".intro-art:has(.orbit-icon:is(:hover,:focus-visible)) .orbit-track-inner{z-index:12}"),
+ "Hovered tooltip must render above outer badges and central logo");
+assert.ok(css.includes("@container (max-width:680px)"),
+ "Narrow layouts need smaller outer badge widths while expanding orbital radii");
+const cleanLoginTranslations=JSON.parse(await read("assets/i18n/en.json"));
+for(const text of ["Раді бачити Вас знову.","Безпечний вхід","Один акаунт для всього простору VATRA."]){
+ assert.ok(!(text in cleanLoginTranslations),"Unused login translation should be removed: "+text);
+}
+for(const locale of ["ua","en"]){
+ const page=await read(locale+"/index.html");
+ assert.equal((page.match(/src="\.\.\/assets\/logo\/vatra-(?:logo|app-icon)\.svg"/g)||[]).length,1,
+  locale+": landing should have one visible central brand logo");
+ assert.ok(!page.includes('class="mobile-logo')&&!page.includes('class="header-logo'),
+  locale+": duplicate logos must be removed from login screen");
+ assert.ok(!page.includes('class="subtitle vt-'+locale+'-home')&&!page.includes('class="form-note vt-'+locale+'-home'),
+  locale+": redundant login paragraphs should not reappear");
+ assert.ok(page.includes('class="login-recovery-link ui-'+locale+'-home-div-012"'),
+  locale+": forgot-password control must remain aligned to the right");
+ assert.ok(page.includes('class="intro-art ui-'+locale+'-home-div-001" role="group"'),
+  locale+": accessible hero image/feature group must remain available");
+}
+assert.ok(css.includes(".login-recovery-link{display:flex;justify-content:flex-end"),
+ "Forgot-password link should align correctly after secure-login text removal");
+assert.ok(!css.includes(".mobile-logo")&&!css.includes(".controls-inline"),
+ "Obsolete login logo/label selectors should be removed");
+assert.ok(css.includes(".intro-symbol{position:relative;z-index:4;width:clamp(56px,14cqw,96px)"),
+ "Center logo must not obscure small orbit icons");
 assert.ok(css.includes(".orbit-icon:hover .orbit-tooltip,.orbit-icon:focus-visible .orbit-tooltip"),
  "Feature descriptions must appear on hover and keyboard focus");
 assert.ok(css.includes("animation-play-state:paused"),
