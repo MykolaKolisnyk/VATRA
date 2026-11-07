@@ -76,6 +76,32 @@ for(const path of paths){
  const html=await read(path);
  count+=inspectPage(path,html);
 }
+// Keep the complete email -> code -> password flow on the same page.
+for(const locale of ["ua","en"]){
+ const forgot=await read(locale+"/forgot.html");
+ const reset=await read(locale+"/reset.html");
+ for(const id of ["forgot-form","recovery-step","recovery-email","recovery-token",
+  "recovery-code-form","recovery-resend","recovery-countdown",
+  "recovery-change-email","reset-form","password","password-confirm","account-link"]){
+   assert.equal((forgot.match(new RegExp('id="'+id+'"',"g"))||[]).length,1,
+     locale+": inline recovery step missing/duplicated: "+id);
+ }
+ assert.ok(/<section id="recovery-step"[^>]*hidden>/.test(forgot),
+  locale+": code form should be initially hidden until the email is sent");
+ assert.ok(/<button id="recovery-resend"[^>]*disabled>/.test(forgot),
+  locale+": resend control must start disabled");
+ assert.ok(reset.includes('href="forgot.html"'),
+  locale+": direct reset page must let people request another code");
+}
+assert.ok(auth.includes("auth.auth.resetPasswordForEmail("),
+ "Forgot password must continue using the standard Supabase recovery sender");
+assert.ok(auth.includes('auth.auth.verifyOtp({email,token,type:"recovery"})'),
+ "Recovery must verify the standard Supabase code");
+assert.ok(auth.includes("const COOLDOWN_MS=60000"),
+ "Resend control must use the 60-second cooldown");
+assert.ok(auth.includes("function wireForgot(){")&&auth.includes("wireReset();"),
+ "Forgot password must also register inline code and new-password handlers");
+assert.doesNotThrow(()=>new Function(auth),"VATRA authentication script has a syntax error");
 const sw=await read("sw.js");
 assert.ok(sw.includes('const CACHE="vatra-offline-shell"'),"Stable, non-versioned cache key is required");
 console.log("VATRA: "+paths.length+" site/email pages, "+count+" visible text nodes with distinct class names, individually classed interface elements and responsive typography.");
