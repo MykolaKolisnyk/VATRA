@@ -401,22 +401,108 @@ function wireRegister(){
 }
 function wireForgot(){
  const form=q("#forgot-form");
- if(!form)return;
- form.addEventListener("submit",async e=>{
-  e.preventDefault();clearFeedback();
-  const email=q("#email").value.trim().toLowerCase();
-  if(!email){feedback("Вкажіть вашу електронну пошту.","error");return;}
-  busy(form,true);
+ const step=q("#recovery-step");
+ const emailField=q("#email");
+ const recoveryEmail=q("#recovery-email");
+ const address=q("#recovery-address");
+ const codeField=q("#recovery-token");
+ const resend=q("#recovery-resend");
+ const countdown=q("#recovery-countdown");
+ const changeEmail=q("#recovery-change-email");
+ if(!form||!step||!emailField||!recoveryEmail||!codeField||!resend||!changeEmail)return;
+ const COOLDOWN_MS=60000;
+ let lastSent=0,timer=null,sending=false;
+ const hideEmailNotes=hide=>{
+  for(const id of ["recovery-note","recovery-link-note"]){const el=q("#"+id);if(el)el.hidden=hide;}
+ };
+ const refreshCooldown=()=>{
+  const remaining=Math.max(0,Math.ceil((lastSent+COOLDOWN_MS-Date.now())/1000));
+  resend.disabled=sending||remaining>0;
+  countdown.textContent=remaining?(english?"Try again in ":"Повторити через ")+
+   Math.floor(remaining/60)+":"+String(remaining%60).padStart(2,"0"):"";
+  if(!remaining&&timer){clearInterval(timer);timer=null;}
+ };
+ const startCooldown=sentAt=>{
+  lastSent=sentAt;
+  if(timer){clearInterval(timer);timer=null;}
+  refreshCooldown();
+  if(lastSent+COOLDOWN_MS>Date.now())timer=setInterval(refreshCooldown,1000);
+ };
+ const enterCode=(email,sentAt)=>{
+  emailField.value=email;
+  recoveryEmail.value=email;
+  address.textContent=email;
+  form.hidden=true;
+  hideEmailNotes(true);
+  step.hidden=false;
+  q("#recovery-code-form").hidden=false;
+  q("#reset-form").hidden=true;
+  q("#recovery-tools").hidden=false;
+  q("#recovery-step .recovery-step-caption").hidden=false;
+  startCooldown(sentAt);
+  codeField.focus({preventScroll:true});
+  step.scrollIntoView({behavior:"smooth",block:"nearest"});
+ };
+ const editEmail=()=>{
+  form.hidden=false;step.hidden=true;hideEmailNotes(false);
+  clearFeedback();
+  try{sessionStorage.removeItem("vatra-recovery-pending");}catch(_){}
+  emailField.focus({preventScroll:true});
+  form.scrollIntoView({behavior:"smooth",block:"nearest"});
+ };
+ const requestCode=async(email,repeat=false)=>{
+  if(sending)return;
+  sending=true;
+  resend.disabled=true;
+  if(!repeat)busy(form,true);
+  clearFeedback();
   try{
-   const {error}=await auth.auth.resetPasswordForEmail(email,{redirectTo:new URL("reset.html",location.href).href});
+   const {error}=await auth.auth.resetPasswordForEmail(email,{
+    redirectTo:new URL("reset.html",location.href).href
+   });
    if(error)throw error;
-   try{sessionStorage.setItem("vatra-recovery-email",email);}catch(_){}
-   feedback("Якщо акаунт із такою адресою існує, на пошту надійде лист. Введіть код із листа або відкрийте посилання для відновлення.","success");
-   form.reset();
-   const jump=q("#recovery-link");
-   if(jump){jump.hidden=false;jump.href=url("reset.html");}
-  }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
+   const sentAt=Date.now();
+   try{
+    sessionStorage.setItem("vatra-recovery-email",email);
+    sessionStorage.setItem("vatra-recovery-pending",JSON.stringify({email,sentAt}));
+   }catch(_){}
+   feedback(repeat?
+    "Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.":
+    "Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче.","success");
+   if(repeat)codeField.value="";
+   enterCode(email,sentAt);
+  }catch(error){
+   feedback(getMessage(error),"error");
+  }finally{
+   sending=false;
+   if(!repeat)busy(form,false);
+   refreshCooldown();
+  }
+ };
+ form.addEventListener("submit",event=>{
+  event.preventDefault();
+  const email=emailField.value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+   feedback("Вкажіть правильну електронну пошту.","error");emailField.focus();return;
+  }
+  requestCode(email);
  });
+ resend.addEventListener("click",()=>{
+  if(sending||Date.now()<lastSent+COOLDOWN_MS)return;
+  const email=recoveryEmail.value.trim().toLowerCase();
+  if(email)requestCode(email,true);
+ });
+ changeEmail.addEventListener("click",editEmail);
+ window.addEventListener("pagehide",()=>{if(timer)clearInterval(timer);});
+ // A refreshed tab returns to the code field; never store the code itself.
+ try{
+  const saved=JSON.parse(sessionStorage.getItem("vatra-recovery-pending")||"null");
+  if(saved&&typeof saved.email==="string"&&Number.isFinite(saved.sentAt)
+   &&saved.sentAt<=Date.now()&&Date.now()-saved.sentAt<3600000){
+   enterCode(saved.email,saved.sentAt);
+  }
+ }catch(_){}
+ wireReset();
 }
 function wireReset(){
  const form=q("#reset-form"),codeForm=q("#recovery-code-form");
@@ -430,6 +516,9 @@ function wireReset(){
  const reveal=()=>{
   codeForm.hidden=true;
   form.hidden=false;
+  const tools=q("#recovery-tools");if(tools)tools.hidden=true;
+  const caption=q("#recovery-step .recovery-step-caption");if(caption)caption.hidden=true;
+  const heading=q("#recovery-step-heading");if(heading)heading.textContent=english?"Set a new password":"Встановіть новий пароль";
   clearFeedback();
   q("#password")?.focus({preventScroll:true});
  };
@@ -449,7 +538,7 @@ function wireReset(){
   e.preventDefault();clearFeedback();
   const email=emailInput.value.trim().toLowerCase();
   const token=tokenInput.value.replace(/\s+/g,"");
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){feedback("Вкажіть правильну електронну пошту.","error");emailInput.focus();return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){feedback("Вкажіть правильну електронну пошту.","error");(emailInput.type==="hidden"?q("#recovery-change-email"):emailInput)?.focus();return;}
   if(!/^\d{6,8}$/.test(token)){feedback("Введіть код підтвердження з листа (6–8 цифр).","error");tokenInput.focus();return;}
   busy(codeForm,true);
   try{
@@ -472,9 +561,14 @@ function wireReset(){
    const {error}=await auth.auth.updateUser({password});
    if(error)throw error;
    form.reset();
+   form.hidden=true;
    feedback("Пароль оновлено. Тепер можете перейти до свого акаунта.","success");
    const link=q("#account-link");if(link)link.hidden=false;
-   try{sessionStorage.removeItem("vatra-recovery-email");}catch(_){}
+   const parent=q("#recovery-success-link");if(parent)parent.hidden=false;
+   try{
+    sessionStorage.removeItem("vatra-recovery-email");
+    sessionStorage.removeItem("vatra-recovery-pending");
+   }catch(_){}
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
 }
