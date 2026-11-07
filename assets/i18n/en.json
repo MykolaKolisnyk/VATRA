@@ -271,5 +271,18 @@
   "Сервіс авторизації тимчасово недоступний. Повторіть спробу пізніше.": "The authentication service is temporarily unavailable. Please try again later.",
   "Головна": "Home",
   "Вибрати мову": "Choose language",
-  "Офіційний логотип VATRA": "Official VATRA logo"
+  "Офіційний логотип VATRA": "Official VATRA logo",
+  "Заповніть це поле.": "Please fill out this field.",
+  "Щоб продовжити, прийміть умови використання.": "Accept the Terms of Service to continue.",
+  "Введіть правильну електронну пошту.": "Enter a valid email address.",
+  "Використайте від 2 до 60 символів.": "Use between 2 and 60 characters.",
+  "Пароль має містити щонайменше 8 символів.": "Password must contain at least 8 characters.",
+  "Оберіть дату народження.": "Choose your date of birth.",
+  "Немає підключення до інтернету.": "No internet connection.",
+  "З'єднання відновлено.": "Connection restored.",
+  "Повторити": "Retry",
+  "Повернутися до VATRA": "Return to VATRA",
+  "Перевірте підключення до інтернету та спробуйте ще раз.": "Check your internet connection and try again.",
+  "З’єднання втрачено": "Connection lost",
+  "Введіть пароль Вашого акаунта VATRA.": "Enter your VATRA account password."
 }
