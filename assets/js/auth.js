@@ -41,6 +41,8 @@ function getMessage(error){
  if(code==="email_exists"||code==="user_already_exists")return "Акаунт із такою поштою вже може існувати. Спробуйте увійти або відновити пароль.";
  if(code==="signup_disabled")return "Реєстрацію тимчасово вимкнено в налаштуваннях сервера.";
  if(code==="otp_expired"||code==="otp_disabled")return "Посилання для підтвердження недійсне або застаріло. Запросіть нове.";
+ if(code==="captcha_required"||code==="captcha_failed"||text.includes("captcha verification"))return "Завершіть перевірку безпеки й повторіть спробу.";
+ if(code==="captcha_unavailable")return "Не вдалося завантажити перевірку безпеки. Перевірте з’єднання та дозволи для Turnstile.";
  if(code==="network_error"||text.includes("failed to fetch")||text.includes("network"))return "Немає з'єднання із сервером. Перевірте інтернет і повторіть спробу.";
  return "Не вдалося виконати дію. Перевірте введені дані та спробуйте ще раз.";
 }
@@ -343,8 +345,19 @@ async function initialize(){
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
  if(page==="account")await wireAccount();
+ if(window.VATRA_CAPTCHA?.enabled){
+  const initial=page==="login"?q("#login-form"):page==="register"?q("#signup-form"):page==="forgot"?q("#forgot-form"):null;
+  if(initial)window.VATRA_CAPTCHA.mount(initial).catch(()=>feedback("Не вдалося завантажити перевірку безпеки. Перевірте інтернет.","error"));
+ }
  document.body.dataset.authReady="true";
 }
+async function captchaOptions(scope){
+ if(!window.VATRA_CAPTCHA?.enabled)return {};
+ const token=await window.VATRA_CAPTCHA.token(scope);
+ if(!token){const error=new Error("captcha_required");error.code="captcha_required";throw error;}
+ return {captchaToken:token};
+}
+function resetCaptcha(scope){window.VATRA_CAPTCHA?.reset(scope);}
 function wireLogin(){
  const form=q("#login-form");
  if(!form)return;
@@ -354,10 +367,11 @@ function wireLogin(){
   if(!email||!password){feedback("Введіть пошту та пароль.","error");return;}
   busy(form,true);
   try{
-   const {error}=await auth.auth.signInWithPassword({email,password});
+   const options=await captchaOptions(form);
+   const {error}=await auth.auth.signInWithPassword({email,password,options});
    if(error)throw error;
    await goToMyAccount();
-  }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
+  }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
 }
 function wireRegister(){
@@ -379,9 +393,11 @@ function wireRegister(){
   if(!q("#consent").checked){feedback("Для створення акаунта потрібно прийняти умови використання.","error");return;}
   busy(form,true);
   try{
+   const captcha=await captchaOptions(form);
    const {data,error}=await auth.auth.signUp({
     email,password,
     options:{
+     ...captcha,
      emailRedirectTo:new URL("account.html",location.href).href,
      data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null,preferred_locale:english?"en":"uk"}
     }
@@ -390,7 +406,7 @@ function wireRegister(){
    form.reset();
    if(data?.session){await goToMyAccount();return;}
    feedback("Перевірте електронну пошту. На неї надіслано лист для підтвердження реєстрації. Після підтвердження можна увійти.","success");
-  }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
+  }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
 }
 function wireForgot(){
@@ -434,6 +450,7 @@ function wireForgot(){
   q("#recovery-tools").hidden=false;
   q("#recovery-step .recovery-step-caption").hidden=false;
   startCooldown(sentAt);
+  if(window.VATRA_CAPTCHA?.enabled)window.VATRA_CAPTCHA.mount(step).catch(()=>feedback("Не вдалося завантажити перевірку безпеки. Перевірте інтернет.","error"));
   codeField.focus({preventScroll:true});
   step.scrollIntoView({behavior:"smooth",block:"nearest"});
  };
@@ -451,8 +468,11 @@ function wireForgot(){
   if(!repeat)busy(form,true);
   clearFeedback();
   try{
+   const captchaScope=repeat?step:form;
+   const captcha=await captchaOptions(captchaScope);
    const {error}=await auth.auth.resetPasswordForEmail(email,{
-    redirectTo:new URL("reset.html",location.href).href
+    redirectTo:new URL("reset.html",location.href).href,
+    ...captcha
    });
    if(error)throw error;
    const sentAt=Date.now();
@@ -468,6 +488,7 @@ function wireForgot(){
   }catch(error){
    feedback(getMessage(error),"error");
   }finally{
+   resetCaptcha(repeat?step:form);
    sending=false;
    if(!repeat)busy(form,false);
    refreshCooldown();
