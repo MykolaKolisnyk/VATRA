@@ -289,5 +289,5 @@
   "Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.": "If the account exists, a new code has been sent. Use the code from the latest email.",
   "Неправильний або прострочений код. Перевірте лист або запросіть новий.": "Incorrect or expired code. Check your email or request another one.",
   "Підтвердження закінчилося. Запросіть новий код для відновлення.": "Verification has expired. Request a new recovery code.",
-  "Введіть шестизначний код із листа.": "Enter the six-digit code from the email."
+  "Введіть восьмизначний код із листа.": "Enter the eight-digit code from the email."
 }
