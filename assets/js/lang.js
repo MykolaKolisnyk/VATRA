@@ -72,12 +72,9 @@
     const query = new URLSearchParams(location.search);
     query.delete("locale");
     const suffix = query.toString() ? "?" + query : "";
-    /* VATRA ID is language-independent; save preference instead of duplicating its URL. */
-    if (/^id[1-9][0-9]*\/?$/.test(filename)) return ROOT + filename + suffix + location.hash;
     return ROOT + (lang === "en" ? "en/" : "ua/") + filename + suffix + location.hash;
   }
-  const isProfile = /^id[1-9][0-9]*\/?$/.test(route);
-  if (!explicit && !isProfile) {
+  if (!explicit) {
     location.replace(pathFor(current));
     return;
   }
