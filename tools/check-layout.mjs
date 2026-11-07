@@ -17,7 +17,7 @@ assert.ok(auth.includes("VATRA_HOST_ALLOWED===false"),"Auth must not initialize 
 const languages=await read("assets/js/lang.js");
 assert.ok(languages.includes("vt-language-dialog-heading")&&languages.includes("vt-language-name-"),"Dynamic language texts need individual classes");
 const pages=["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
-const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","recovery","magic-link","reauthentication"].map(name=>"email-templates/"+name+".html")];
+const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","invite","recovery","magic-link","email-change","reauthentication"].map(name=>"email-templates/"+name+".html")];
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 
 function inspectPage(path,html){
@@ -102,19 +102,48 @@ assert.ok(auth.includes("const COOLDOWN_MS=60000"),
 assert.ok(auth.includes("function wireForgot(){")&&auth.includes("wireReset();"),
  "Forgot password must also register inline code and new-password handlers");
 assert.doesNotThrow(()=>new Function(auth),"VATRA authentication script has a syntax error");
-// 404 is only a missing-page error, not a surrogate profile router.
+// GitHub Pages requires a small root 404 entrypoint; the real pages are language-specific.
 const missingPage=await read("404.html");
-assert.ok(missingPage.includes('data-page="not-found"'),"404 must be an error page");
-assert.ok(missingPage.includes('id="error-heading"')&&missingPage.includes("Сторінку не знайдено"),"404 heading is missing");
-assert.ok(missingPage.includes('data-en="Page not found"'),"404 must support English");
+assert.ok(missingPage.includes('data-page="technical-404-fallback"'),
+ "Root 404 must only handle GitHub Pages fallback");
+assert.ok(missingPage.includes('location.replace("/VATRA/"+lang+"/404.html")'),
+ "Root 404 must route to the chosen language folder");
 assert.ok(!/profile\.js|data-page="public-profile"|supabase-js|vatra_directory|profile-heading/.test(missingPage),
- "404 must not initialize a profile or Supabase");
+ "Root 404 must not initialize a profile or Supabase");
+for(const lang of ["ua","en"]){
+ const page=await read(lang+"/404.html");
+ assert.ok(page.includes('data-page="not-found"')&&page.includes('id="error-heading"'),
+  lang+": missing localized 404 page");
+ assert.ok(page.includes("../assets/logo/vatra-logo.svg"),
+  lang+": 404 must show VATRA logo");
+ assert.ok(page.includes("data-language-trigger"),
+  lang+": 404 must keep language selector");
+ assert.ok(page.includes('href="./"'),lang+": 404 must link home");
+ assert.ok(!/profile\.js|supabase-js|vatra_directory/.test(page),
+  lang+": 404 must not load profile or authentication");
+}
 assert.ok(!/vatraProfileUrl|goToMyProfile|\/VATRA\/id\d+/.test(auth),
  "Authentication must not send users to non-existent profile routes");
 for(const lang of ["ua","en"]){
  const account=await read(lang+"/account.html");
  assert.ok(account.includes('<span id="vatra-id"'),lang+": VATRA ID must not link to absent profile page");
 }
+const expectedEmails=new Map([
+ ["confirmation.html",["{{ .ConfirmationURL }}"]],
+ ["invite.html",["{{ .ConfirmationURL }}"]],
+ ["magic-link.html",["{{ .Token }}","{{ .ConfirmationURL }}"]],
+ ["email-change.html",["{{ .NewEmail }}","{{ .ConfirmationURL }}"]],
+ ["recovery.html",["{{ .Token }}","{{ .ConfirmationURL }}","{{ .RedirectTo }}"]],
+ ["reauthentication.html",["{{ .Token }}"]]
+]);
+for(const [name,markers] of expectedEmails){
+ const html=await read("email-templates/"+name);
+ assert.ok(html.includes('.Data.preferred_locale'),name+": preferred locale must match registration metadata");
+ for(const item of markers)assert.ok(html.includes(item),name+": missing Supabase variable "+item);
+ assert.ok(!/\.Data\.preferredLanguage/.test(html),name+": old metadata name is not recognized by VATRA");
+}
+assert.ok(auth.includes('preferred_locale:english?"en":"uk"'),
+ "Signup must store the preference used by Supabase templates");
 const sw=await read("sw.js");
 assert.ok(sw.includes('const CACHE="vatra-offline-shell"'),"Stable, non-versioned cache key is required");
 console.log("VATRA: "+paths.length+" site/email pages, "+count+" visible text nodes with distinct class names, individually classed interface elements and responsive typography.");
