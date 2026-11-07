@@ -18,8 +18,8 @@
     const footer=document.querySelector(".footer");
     if(footer){
       footer.querySelector("nav")?.querySelectorAll("a").forEach(link=>{
-        if(link.textContent==="Умови використання"){link.textContent="Terms of Service";link.href="/VATRA/en/terms.html?locale=en_US";}
-        if(link.textContent==="Конфіденційність"){link.textContent="Privacy";link.href="/VATRA/en/privacy.html?locale=en_US";}
+        if(link.textContent==="Умови використання"){link.textContent="Terms of Service";link.href="/VATRA/en/terms.html";}
+        if(link.textContent==="Конфіденційність"){link.textContent="Privacy";link.href="/VATRA/en/privacy.html";}
       });
       const copyright=footer.querySelector("span");
       if(copyright)copyright.innerHTML="© 2026 <b>VATRA</b> · Your people. Your stories.";
@@ -27,9 +27,8 @@
       if(trigger){trigger.setAttribute("aria-label","Choose language");trigger.textContent="English";}
     }
   }
-  const tag=english?"en_US":"uk_UA";
-  home.href=endpoint+"?locale="+tag;
-  signIn.href=endpoint+"?locale="+tag;
+  home.href=endpoint;
+  signIn.href=endpoint;
   if(!match || !Number.isSafeInteger(Number(match[1]))){
     heading.textContent=t("Сторінку не знайдено","Page not found");
     description.textContent=t("Перевірте адресу та поверніться до VATRA.","Check the address and return to VATRA.");
@@ -70,7 +69,7 @@
           const given=String(session.user.user_metadata?.first_name||"").trim();
           if(given)description.textContent=given;
           signIn.textContent=t("Налаштування акаунта","Account settings");
-          signIn.href=endpoint+"account.html?locale="+tag;
+          signIn.href=endpoint+"account.html";
         }
       }
     } catch(error){
