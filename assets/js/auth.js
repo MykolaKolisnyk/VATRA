@@ -403,7 +403,7 @@ function wireForgot(){
  const COOLDOWN_MS=60000;
  let lastSent=0,timer=null,sending=false;
  const hideEmailNotes=hide=>{
-  for(const id of ["recovery-note","recovery-link-note"]){const el=q("#"+id);if(el)el.hidden=hide;}
+  const note=q("#recovery-note");if(note)note.hidden=hide;
  };
  const refreshCooldown=()=>{
   const remaining=Math.max(0,Math.ceil((lastSent+COOLDOWN_MS-Date.now())/1000));
