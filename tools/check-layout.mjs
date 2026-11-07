@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {readFile} from "node:fs/promises";
+import {readFile,stat} from "node:fs/promises";
 
 const read=path=>readFile(path,"utf8");
 const css=await read("assets/css/auth.css");
@@ -16,7 +16,7 @@ const auth=await read("assets/js/auth.js");
 assert.ok(auth.includes("VATRA_HOST_ALLOWED===false"),"Auth must not initialize on other hosts");
 const languages=await read("assets/js/lang.js");
 assert.ok(languages.includes("vt-language-dialog-heading")&&languages.includes("vt-language-name-"),"Dynamic language texts need individual classes");
-const pages=["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
+const pages=["index.html","404.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
 const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","invite","recovery","magic-link","email-change","reauthentication"].map(name=>"email-templates/"+name+".html")];
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 
@@ -144,6 +144,32 @@ for(const [name,markers] of expectedEmails){
 }
 assert.ok(auth.includes('preferred_locale:english?"en":"uk"'),
  "Signup must store the preference used by Supabase templates");
+
+const appManifest=JSON.parse(await read("site.webmanifest"));
+assert.equal(appManifest.theme_color,"#ffffff","Manifest theme must match the light VATRA layout");
+assert.equal(appManifest.scope,"/VATRA/","PWA scope must use the project subdirectory");
+for(const icon of appManifest.icons){
+  const file=icon.src.replace(/^\/VATRA\//,"");
+  assert.ok((await stat(file)).isFile(),"PWA icon does not exist: "+file);
+}
+// Broken local asset links are easy to miss when pages are edited separately.
+// Check all 22 localized pages, root fallbacks, and six Supabase email templates.
+for(const path of paths){
+  const html=await read(path);
+  for(const match of html.matchAll(/\b(?:href|src)=(["'])(.*?)\1/g)){
+    const value=match[2];
+    if(!value||value.includes("{{")||/^(?:#|mailto:|tel:|data:|javascript:)/.test(value))continue;
+    let target;
+    try{target=new URL(value,"https://mykolakolisnyk.github.io/VATRA/"+path);}
+    catch{continue;}
+    if(target.origin!=="https://mykolakolisnyk.github.io"||!target.pathname.startsWith("/VATRA/"))continue;
+    let diskPath=decodeURIComponent(target.pathname.slice("/VATRA/".length));
+    if(diskPath.endsWith("/"))diskPath+="index.html";
+    assert.ok(!diskPath.includes("../"),path+": unsafe local asset path: "+value);
+    try{assert.ok((await stat(diskPath)).isFile());}
+    catch{assert.fail(path+": local asset or navigation target missing: "+value+" → "+diskPath);}
+  }
+}
 const sw=await read("sw.js");
 assert.ok(sw.includes('const CACHE="vatra-offline-shell"'),"Stable, non-versioned cache key is required");
 console.log("VATRA: "+paths.length+" site/email pages, "+count+" visible text nodes with distinct class names, individually classed interface elements and responsive typography.");
