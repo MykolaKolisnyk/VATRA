@@ -120,9 +120,9 @@ for(const locale of ["ua","en"]){
    locale+": each feature needs evenly spaced 45 degree angle");
  }
 }
-assert.ok(css.includes("--outer-radius:min(37cqw,245px);--inner-radius:min(16cqw,105px)"),
+assert.ok(css.includes("--outer-radius:min(37cqw,245px);--inner-radius:min(19cqw,125px)"),
  "Outer badges and inner feature icons require separate non-overlapping orbit lanes");
-assert.ok(css.includes("--outer-radius:44cqw;--inner-radius:18cqw"),
+assert.ok(css.includes("--outer-radius:44cqw;--inner-radius:20cqw"),
  "Mobile rings need greater radial separation");
 assert.ok(css.includes(".orbit-track-inner .orbit-node:has(.orbit-icon:is(:hover,:focus-visible)){z-index:30}"),
  "Hovered tooltip must render above all other small icons");
@@ -170,6 +170,14 @@ assert.ok(css.includes(".orbit-icon:hover .orbit-tooltip,.orbit-icon:focus-visib
  "Feature descriptions must appear on hover and keyboard focus");
 assert.ok(css.includes("animation-play-state:paused"),
  "Hovered moving icons need to pause so their tooltip can be read");
+// Footer brand line is identical across normal pages in each language.
+for(const locale of ["ua","en"]){
+ const ending=locale==="ua"?"Ваші люди. Ваші історії. Ваша VATRA.":"Your people. Your stories. Your VATRA.";
+ for(const page of ["index.html","404.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html"]){
+  const html=await read(locale+"/"+page);
+  assert.ok(html.includes(ending),locale+"/"+page+": missing complete VATRA footer signature");
+ }
+}
 assert.ok(css.includes("vatraOrbitClockwise 32s")&&css.includes("vatraOrbitCounterclockwise 47s"),
  "Outer badges and inner features must rotate in opposite directions");
 assert.ok(css.includes("@media (prefers-reduced-motion:reduce)"),
