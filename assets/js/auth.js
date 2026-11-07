@@ -65,9 +65,128 @@ function fillBirthdays(){
  const month=q("#birth-month"),day=q("#birth-day"),year=q("#birth-year");
  if(!month||!day||!year)return;
  const now=new Date();
- for(let i=1;i<=12;i++)month.add(new Option(String(i).padStart(2,"0"),String(i).padStart(2,"0")));
+ const names=new Intl.DateTimeFormat(english?"en-US":"uk-UA",{month:"long"});
+ for(let i=1;i<=12;i++){
+  const number=String(i).padStart(2,"0");
+  const name=names.format(new Date(2024,i-1,1));
+  month.add(new Option(name[0].toUpperCase()+name.slice(1),number));
+ }
  for(let i=1;i<=31;i++)day.add(new Option(String(i).padStart(2,"0"),String(i).padStart(2,"0")));
  for(let i=now.getFullYear();i>=1900;i--)year.add(new Option(String(i),String(i)));
+}
+/* Accessible VATRA dropdowns use native select values and validation; the
+   browser's native OS popup is replaced by a consistent Onest listbox. */
+function wireSelects(){
+ const selects=[...document.querySelectorAll("#birth-day,#birth-month,#birth-year,#gender")];
+ let opened=null;
+ function close(focus=false){
+  if(!opened)return;
+  const {trigger,list,root}=opened;
+  list.hidden=true;trigger.setAttribute("aria-expanded","false");
+  root.classList.remove("is-open","opens-up");
+  opened=null;
+  if(focus)trigger.focus();
+ }
+ for(const select of selects){
+  const root=document.createElement("div");
+  root.className="vatra-select";
+  select.parentNode.insertBefore(root,select);
+  root.append(select);
+  const required=select.required;
+  select.required=false; // validateBirthday() checks the original select values on submit
+  select.classList.add("vatra-select-native");
+  select.tabIndex=-1;
+  select.setAttribute("aria-hidden","true");
+  const trigger=document.createElement("button");
+  trigger.type="button";
+  trigger.className="control vatra-select-trigger";
+  trigger.setAttribute("aria-haspopup","listbox");
+  trigger.setAttribute("aria-expanded","false");
+  trigger.setAttribute("aria-label",select.getAttribute("aria-label")||"");
+  const display=document.createElement("span");
+  trigger.append(display);
+  const list=document.createElement("div");
+  list.className="vatra-select-list";
+  list.hidden=true;
+  list.setAttribute("role","listbox");
+  list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
+  const choices=[...select.options].filter(opt=>opt.value&&!opt.disabled);
+  for(const opt of choices){
+   const item=document.createElement("button");
+   item.type="button";
+   item.className="vatra-select-option";
+   item.dataset.value=opt.value;
+   item.setAttribute("role","option");
+   item.setAttribute("aria-selected",String(select.value===opt.value));
+   item.tabIndex=-1;
+   item.textContent=opt.textContent;
+   item.addEventListener("click",()=>{
+    select.value=opt.value;
+    select.dispatchEvent(new Event("change",{bubbles:true}));
+    close(true);
+   });
+   list.append(item);
+  }
+  root.append(trigger,list);
+  const update=()=>{
+   const current=select.selectedOptions[0];
+   display.textContent=current?.textContent||"";
+   trigger.classList.toggle("is-placeholder",!select.value);
+   for(const item of list.children){
+    item.setAttribute("aria-selected",String(item.dataset.value===select.value));
+   }
+  };
+  select.addEventListener("change",update);
+  update();
+  function open(){
+   if(opened?.trigger===trigger){close();return;}
+   close();
+   const rect=trigger.getBoundingClientRect();
+   const below=window.innerHeight-rect.bottom-12;
+   const above=rect.top-12;
+   const upwards=below<230&&above>below;
+   const room=upwards?above:below;
+   list.style.maxHeight=Math.max(100,Math.min(304,room-10))+"px";
+   root.classList.toggle("opens-up",upwards);
+   list.hidden=false;
+   trigger.setAttribute("aria-expanded","true");
+   root.classList.add("is-open");
+   opened={trigger,list,root,select,choices};
+   const active=list.querySelector('[aria-selected="true"]');
+   if(active)active.scrollIntoView({block:"nearest"});
+  }
+  trigger.addEventListener("click",open);
+  trigger.addEventListener("keydown",e=>{
+   if(e.key==="Escape"){if(opened?.trigger===trigger){e.preventDefault();close();}return;}
+   if(e.key===" "||e.key==="Enter"){e.preventDefault();open();return;}
+   const values=choices.map(o=>o.value);
+   let index=values.indexOf(select.value);
+   if(["ArrowDown","ArrowUp","Home","End"].includes(e.key)){
+    e.preventDefault();
+    if(!opened||opened.trigger!==trigger)open();
+    if(e.key==="ArrowDown")index=Math.min(values.length-1,index+1);
+    else if(e.key==="ArrowUp")index=Math.max(0,index<0?0:index-1);
+    else if(e.key==="Home")index=0;else index=values.length-1;
+    if(index>=0){
+     select.value=values[index];
+     select.dispatchEvent(new Event("change",{bubbles:true}));
+     list.children[index]?.scrollIntoView({block:"nearest"});
+    }
+   }else if(e.key.length===1&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
+    const search=e.key.toLocaleLowerCase();
+    const match=choices.find(o=>o.textContent.toLocaleLowerCase().startsWith(search));
+    if(match){select.value=match.value;select.dispatchEvent(new Event("change",{bubbles:true}));}
+   }
+  });
+  if(required)root.dataset.required="true";
+ }
+ document.addEventListener("pointerdown",e=>{
+  if(opened&&!opened.root.contains(e.target))close();
+ });
+ document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&opened)close(true);
+ });
+ window.addEventListener("resize",()=>close());
 }
 function validateBirthday(){
  const year=q("#birth-year")?.value,month=q("#birth-month")?.value,day=q("#birth-day")?.value;
@@ -91,7 +210,7 @@ async function initialize(){
   feedback("Не вдалося підключитися до сервісу авторизації.","error");return;
  }
  wirePasswordButtons();
- if(page==="register")fillBirthdays();
+ if(page==="register"){fillBirthdays();wireSelects();}
  if(page==="login"){
   wireLogin();
   /* Сесія вже зберігається в браузері. Не просимо входити повторно. */
