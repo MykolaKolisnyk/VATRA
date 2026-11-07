@@ -291,6 +291,62 @@
   "Перевірку безпеки скасовано.": "Security verification was cancelled.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Could not complete the security verification. Retry or check your connection.",
   "__pages": {
+    "404": {
+      "meta": {
+        "title": "404 · Page not found — VATRA",
+        "description": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
+      },
+      "nodes": {
+        "n4": {
+          "text": {
+            "0": "Back to home"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Page not found"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "Return to sign in"
+          }
+        },
+        "n14": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        },
+        "n15": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    },
     "register": {
       "meta": {
         "title": "Sign up · VATRA",
@@ -2144,6 +2200,38 @@
           },
           "attrs": {
             "aria-label": "Choose language"
+          }
+        }
+      }
+    },
+    "offline": {
+      "meta": {
+        "title": "No connection · VATRA"
+      },
+      "nodes": {
+        "n6": {
+          "text": {
+            "0": "You’re offline"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Your device appears to be offline. Check your connection and try again — VATRA will be here when you reconnect."
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Try again"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "VATRA home"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
           }
         }
       }
