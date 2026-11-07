@@ -3,8 +3,6 @@
   "use strict";
   if (window.VATRA_HOST_ALLOWED === false) return;
   const ROOT = "/VATRA/";
-  const route = location.pathname.slice(ROOT.length);
-  const explicit = route.startsWith("ua/") ? "uk" : route.startsWith("en/") ? "en" : null;
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
   function preferred() {
     const choice = saved();
@@ -15,7 +13,16 @@
     if (legacy === "en_US") return "en";
     return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
   }
-  const current = explicit || preferred();
+  const current = preferred();
+  document.documentElement.lang = current === "en" ? "en" : "uk";
+  document.documentElement.dataset.language = current;
+  if (current === "en") {
+    document.documentElement.classList.add("i18n-pending");
+    const block = document.createElement("style");
+    block.className = "ui-i18n-pending-style";
+    block.textContent = "html.i18n-pending body{visibility:hidden!important}";
+    document.head.append(block);
+  }
   const nativeLabels = {
     uk: "Українська", en: "English"
   };
@@ -66,33 +73,13 @@
   function persist(lang) {
     try { localStorage.setItem("vatra-language", lang); } catch (_) {}
   }
-  function pathFor(lang) {
-    const relative = location.pathname.slice(ROOT.length).replace(/^(?:ua|en)\//, "");
-    const filename = relative === "index.html" || relative === "auth.html" ? "" : relative;
-    const query = new URLSearchParams(location.search);
-    query.delete("locale");
-    const suffix = query.toString() ? "?" + query : "";
-    return ROOT + (lang === "en" ? "en/" : "ua/") + filename + suffix + location.hash;
-  }
-  if (!explicit) {
-    location.replace(pathFor(current));
-    return;
-  }
-  /* /ua/ and /en/ are already locale identifiers: remove redundant query parameters. */
-  const address = new URL(location.href);
-  let changed = false;
-  if (address.searchParams.has("locale")) {
+  /* A single URL per page. Language is a saved UI preference, not a path. */
+  function pathFor() {
+    const address = new URL(location.href);
     address.searchParams.delete("locale");
-    changed = true;
+    return address.pathname + address.search + address.hash;
   }
-  if (address.pathname.endsWith("/index.html")) {
-    address.pathname = address.pathname.slice(0, -"index.html".length);
-    changed = true;
-  }
-  if (changed) history.replaceState(history.state, "", address.pathname + address.search + address.hash);
-  /* Visiting an explicitly localized URL is also an intentional language choice. */
-  if (explicit) persist(current);
-
+  /* Legacy links may still be saved by users, but new pages never generate them. */
   function bindLocalizedLinks() {
     for (const link of document.querySelectorAll("a[href]")) {
       const raw = link.getAttribute("href");
@@ -101,6 +88,7 @@
         const target = new URL(raw, location.href);
         if (target.origin !== location.origin || !target.pathname.startsWith(ROOT)) continue;
         if (target.pathname.startsWith(ROOT + "assets/")) continue;
+        target.pathname = target.pathname.replace(/^\/VATRA\/(?:ua|en)\//,ROOT);
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
@@ -110,13 +98,54 @@
     }
   }
   let errors = {};
-  const ready = current === "en"
-    ? fetch(ROOT + "assets/i18n/en.json").then(r => r.ok ? r.json() : {}).then(value => { errors = value; }).catch(() => {})
-    : Promise.resolve();
+  const pageFromPath = () => {
+    if (document.body?.dataset.page === "not-found") return "404";
+    if (location.pathname === ROOT || location.pathname.endsWith("/index.html")) return "index";
+    return location.pathname.split("/").pop()?.replace(/\.html$/, "") || "index";
+  };
+  const domReady = new Promise(resolve => {
+    if (document.readyState === "loading")
+      document.addEventListener("DOMContentLoaded",resolve,{once:true});
+    else resolve();
+  });
+  const timeout = new AbortController();
+  const stop = setTimeout(() => timeout.abort(),7000);
+  const translations = fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"no-cache"})
+    .then(res => { if (!res.ok) throw new Error("translations unavailable"); return res.json(); })
+    .catch(() => ({}))
+    .finally(() => clearTimeout(stop));
+  function applyTranslation(table) {
+    const entry = table.__pages?.[pageFromPath()];
+    if (!entry) return;
+    for (const element of document.querySelectorAll("[data-i18n]")) {
+      const record=entry.nodes?.[element.getAttribute("data-i18n")];
+      if (!record) continue;
+      const nodes=[...element.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE);
+      for (const [ordinal,value] of Object.entries(record.text||{})) {
+        if (nodes[Number(ordinal)]) nodes[Number(ordinal)].nodeValue=value;
+      }
+      for (const [name,value] of Object.entries(record.attrs||{})) {
+        if (name==="value" && ("value" in element) && element.value!==element.defaultValue) continue;
+        element.setAttribute(name,value);
+      }
+    }
+    const meta=entry.meta||{};
+    if (meta.title) document.title=meta.title;
+    for (const [name,value] of Object.entries(meta)) {
+      if (name==="title") continue;
+      const selector=name.startsWith("og:")?'meta[property="'+name+'"]':'meta[name="'+name+'"]';
+      const node=document.querySelector(selector);
+      if (node) node.setAttribute("content",value);
+    }
+  }
+  const ready=Promise.all([domReady,translations]).then(([,json])=>{
+    errors=json&&typeof json==="object"?json:{};
+    applyTranslation(errors);
+  }).finally(()=>document.documentElement.classList.remove("i18n-pending"));
   window.VATRA_LANGUAGE = {
     locale: current,
     ready,
-    translate: text => current === "en" ? (errors[text] || text) : text
+    translate: raw => current==="en" ? (errors[raw] || raw) : raw
   };
 
   const english = current === "en";
@@ -200,7 +229,7 @@
         button.addEventListener("click", () => {
           if (code === current) { close(); return; }
           persist(code);
-          location.assign(pathFor(code));
+          location.assign(pathFor(code)); // same page, new saved language
         });
       }
       list.append(button);
