@@ -9,7 +9,16 @@ assert.ok(font.size>100000,"Local font data missing");
 const home=await get("index.html");
 for(const v of ['rel="canonical"','name="description"','name="robots" content="index,follow','property="og:title"','property="og:image"','name="twitter:card"','type="application/ld+json"','href="assets/fonts/Onest-Variable.ttf"'])assert.ok(home.includes(v),"Home meta missing: "+v);
 assert.ok(!home.includes('http-equiv="refresh"'),"Public home should be crawlable without meta redirect");
-for(const path of ["auth.html","register.html","forgot.html","reset.html","account.html","legal.html"]){const html=await get(path);assert.ok(html.includes('name="robots" content="noindex,follow"'),"Sensitive route must not index: "+path);assert.ok(html.includes('assets/css/auth.css?v=2'));
+for(const path of ["auth.html","register.html","forgot.html","reset.html","account.html"]){const html=await get(path);assert.ok(html.includes('name="robots" content="noindex,follow"'),"Sensitive route must not index: "+path);assert.ok(html.includes('assets/css/auth.css?v=2'));
 assert.ok(!html.includes("fonts.googleapis.com"));}
 const map=await get("sitemap.xml");assert.ok(map.includes("https://mykolakolisnyk.github.io/VATRA/"));
 console.log("VATRA: local Onest, index metadata, noindex auth and sitemap verified.");
+
+for(const path of ["legal.html","terms.html","privacy.html","cookies.html"]){const html=await get(path);
+ for(const part of ['name="robots" content="index,follow','rel="canonical"','property="og:title"','property="og:image"','href="assets/css/legal.css?v=1"','assets/logo/vatra-logo.svg'])assert.ok(html.includes(part),path+": missing public policy requirement "+part);
+ assert.ok(!html.includes('name="robots" content="noindex'),path+": policy is not indexable");
+ assert.ok(map.includes("https://mykolakolisnyk.github.io/VATRA/"+path),path+": absent from sitemap");
+}
+for(const path of ["index.html","auth.html","register.html","forgot.html","reset.html","account.html"]){const html=await get(path);for(const dest of ['terms.html','privacy.html','cookies.html'])assert.ok(html.includes('href="'+dest+'"'),path+": missing policy link "+dest);}
+assert.ok((await get("register.html")).includes('href="cookies.html"'),'Registration must link to cookie policy');
+console.log("VATRA: policy pages, public metadata, sitemap and registration references verified.");
