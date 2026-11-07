@@ -74,11 +74,6 @@
     try { localStorage.setItem("vatra-language", lang); } catch (_) {}
   }
   /* A single URL per page. Language is a saved UI preference, not a path. */
-  function pathFor() {
-    const address = new URL(location.href);
-    address.searchParams.delete("locale");
-    return address.pathname + address.search + address.hash;
-  }
   /* Legacy links may still be saved by users, but new pages never generate them. */
   function bindLocalizedLinks() {
     for (const link of document.querySelectorAll("a[href]")) {
@@ -229,7 +224,7 @@
         button.addEventListener("click", () => {
           if (code === current) { close(); return; }
           persist(code);
-          location.assign(pathFor(code)); // same page, new saved language
+          location.reload(); // Same HTML URL; reload only the chosen JSON translation.
         });
       }
       list.append(button);
