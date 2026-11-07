@@ -46,13 +46,16 @@
     "europe-c": new Set(["no","fi","ee","lt","lv","hr","rs","si","ge"]),
     "world": new Set(["jp","kr","cn","sa","il","in","id","vn","th"])
   };
+  let flagSerial=0;
   function flag(groupCode) {
     const group = Object.keys(flagGroups).find(key => flagGroups[key].has(groupCode)) || "europe-a";
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.classList.add("language-flag");
+    const instance=++flagSerial;
+    svg.classList.add("language-flag","ui-language-flag-"+instance);
     svg.setAttribute("viewBox", "0 0 640 480");
     svg.setAttribute("aria-hidden", "true");
     const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    use.classList.add("ui-language-flag-symbol-"+instance);
     use.setAttribute("href", ROOT + "assets/flags/" + group + ".svg#flag-" + groupCode);
     svg.append(use);
     return svg;
@@ -129,16 +132,17 @@
     const triggers = [...document.querySelectorAll("[data-language-trigger]")];
     if (!triggers.length) return;
     const backdrop = document.createElement("div");
-    backdrop.className = "language-backdrop";
+    backdrop.className = "language-backdrop ui-language-backdrop";
     backdrop.hidden = true;
     const dialog = document.createElement("section");
-    dialog.className = "language-dialog";
+    dialog.className = "language-dialog ui-language-dialog";
     dialog.setAttribute("role", "dialog");
     dialog.setAttribute("aria-modal", "true");
     dialog.setAttribute("aria-labelledby", "vatra-language-heading");
     const headingRow = document.createElement("div");
-    headingRow.className = "language-heading-row";
+    headingRow.className = "language-heading-row ui-language-heading-row";
     const texts = document.createElement("div");
+    texts.className = "ui-language-heading-copy";
     const heading = document.createElement("h2");
     heading.id = "vatra-language-heading";
      heading.className = "vt-language-dialog-heading";
@@ -159,14 +163,14 @@
     searchCaption.className = "vt-language-search-caption";
      searchCaption.textContent = words.search;
     const search = document.createElement("input");
-    search.className = "control language-search";
+    search.className = "control language-search ui-language-search-input";
     search.type = "search";
     search.autocomplete = "off";
     search.placeholder = words.search;
     search.setAttribute("aria-label", words.search);
     searchField.append(searchCaption,search);
     const list = document.createElement("div");
-    list.className = "language-grid";
+    list.className = "language-grid ui-language-options-grid";
     list.tabIndex = 0;
     list.setAttribute("role", "region");
     list.setAttribute("aria-label", words.heading);
@@ -205,12 +209,12 @@
       list.append(button);
     }
     const scrollShell = document.createElement("div");
-    scrollShell.className = "language-scroll-shell";
+    scrollShell.className = "language-scroll-shell ui-language-scroll-shell";
     const scrollTrack = document.createElement("div");
-    scrollTrack.className = "language-scroll-track";
+    scrollTrack.className = "language-scroll-track ui-language-scroll-track";
     scrollTrack.setAttribute("aria-hidden", "true");
     const scrollThumb = document.createElement("span");
-    scrollThumb.className = "language-scroll-thumb";
+    scrollThumb.className = "language-scroll-thumb ui-language-scroll-thumb";
     scrollTrack.append(scrollThumb);
     scrollShell.append(list, scrollTrack);
     dialog.append(headingRow, searchField, scrollShell, notFound);
