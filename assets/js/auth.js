@@ -210,7 +210,7 @@ function wireSelects(){
  }
  for(const select of selects){
   const root=document.createElement("div");
-  root.className="vatra-select";
+  root.className="vatra-select ui-select-wrapper-"+select.id;
   select.parentNode.insertBefore(root,select);
   root.append(select);
   const required=select.required;
@@ -228,7 +228,7 @@ function wireSelects(){
   display.className="vt-select-display-"+select.id;
   trigger.append(display);
   const list=document.createElement("div");
-  list.className="vatra-select-list";
+  list.className="vatra-select-list ui-select-options-"+select.id;
   list.hidden=true;
   list.setAttribute("role","listbox");
   list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
@@ -395,7 +395,7 @@ function wireRegister(){
    if(error)throw error;
    form.reset();
    if(data?.session){await goToMyProfile();return;}
-   feedback("Перевірте електронну пошту. Ми надіслали лист для підтвердження реєстрації. Після підтвердження ви зможете увійти.","success");
+   feedback("Перевірте електронну пошту. На неї надіслано лист для підтвердження реєстрації. Після підтвердження можна увійти.","success");
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
 }
@@ -411,7 +411,7 @@ function wireForgot(){
    const {error}=await auth.auth.resetPasswordForEmail(email,{redirectTo:new URL("reset.html",location.href).href});
    if(error)throw error;
    try{sessionStorage.setItem("vatra-recovery-email",email);}catch(_){}
-   feedback("Якщо акаунт із такою адресою існує, ми надіслали лист. Введіть код із листа або відкрийте посилання для відновлення.","success");
+   feedback("Якщо акаунт із такою адресою існує, на пошту надійде лист. Введіть код із листа або відкрийте посилання для відновлення.","success");
    form.reset();
    const jump=q("#recovery-link");
    if(jump){jump.hidden=false;jump.href=url("reset.html");}
