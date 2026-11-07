@@ -204,31 +204,3 @@
   .reg-header{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-
-
-/* VATRA public profile and posts — single component source. */
-.profile-layout{width:min(100% - 32px,860px);margin:24px auto 58px;display:grid;gap:20px;align-content:start}
-.profile-layout .account-card,.profile-panel{width:100%;min-width:0;background:white;border:1px solid #e1e8f3;border-radius:22px;padding:clamp(20px,3vw,30px);box-shadow:0 12px 36px rgba(26,44,92,.055)}
-.profile-header{display:flex;align-items:center;flex-wrap:wrap;gap:19px}
-.profile-header .profile-avatar{width:90px;height:90px;flex:none;border-radius:22px;background:#f4f6ff}
-.profile-identity{min-width:0;flex:1 1 220px}
-.profile-identity h1{font-size:clamp(25px,3vw,32px);margin:0 0 6px;overflow-wrap:anywhere}
-.profile-identity .subtitle{margin:7px 0 0;overflow-wrap:anywhere}
-.profile-header .action{margin:0;white-space:nowrap}
-.profile-panel h2{font-size:clamp(19px,2.4vw,23px);font-weight:750;margin:0 0 14px}
-.profile-panel .subtitle{font-size:14px;margin:0 0 14px}
-.profile-field{display:grid;gap:8px;font-size:13px;font-weight:650;color:#46516a}
-.profile-textarea.control{height:auto;min-height:112px;resize:vertical;line-height:1.6;padding:13px 15px}
-.profile-panel .action{width:fit-content;min-width:150px}
-.profile-status{margin:12px 0 0;font-size:13px;line-height:1.6;color:#176b50}
-.profile-status[data-error=true]{color:#b92c45}
-.posts-list{display:grid;gap:13px}
-.post-card{padding:17px 18px;border:1px solid #e4e9f4;border-radius:16px;background:#fff}
-.post-card-header{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:10px;margin-bottom:12px}
-.post-card-header strong{font-size:13px}
-.post-card-header time{font-size:12px;color:var(--soft)}
-.post-card p{font-size:14px;line-height:1.7;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
-.post-delete{border:0;background:transparent;color:#b92c45;font-size:12px;font-weight:700;padding:5px 0}
-.post-delete:hover{text-decoration:underline}
-#posts-more{margin-top:17px}
-@media(max-width:540px){.profile-layout{width:calc(100% - 22px);gap:13px;margin:12px auto 32px}.profile-header{gap:13px}.profile-header .profile-avatar{width:68px;height:68px;border-radius:17px}.profile-header .action{width:100%}.profile-panel .action{width:100%}}
