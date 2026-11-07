@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="{{ if eq .Data.preferred_locale "en" }}en{{ else }}uk{{ end }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>VATRA · email-change</title>
+</head>
+<body class="ui-email-email-change-body" style="margin:0;padding:30px 12px;background:#f5f7fd;font-family:Arial,Helvetica,sans-serif;color:#2c3850">
+  <table class="ui-email-email-change-table" role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;margin:0 auto;background:#ffffff;border:1px solid #dfe7f3;border-radius:18px">
+    <tr class="ui-email-email-change-tr-01"><td class="ui-email-email-change-td-01" style="padding:30px 32px 20px;border-bottom:1px solid #e9edf5">
+      <img class="ui-email-email-change-logo" src="https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-logo.png" alt="VATRA" width="154" style="display:block;width:154px;max-width:100%;height:auto">
+      <p class="ui-email-email-change-brand" style="margin:15px 0 0;font-size:12px;line-height:1.6;color:#627187">{{ if eq .Data.preferred_locale "en" }}Ukrainian social network{{ else }}Українська соціальна мережа{{ end }}</p>
+    </td></tr>
+    <tr class="ui-email-email-change-tr-02"><td class="ui-email-email-change-td-02" style="padding:30px 32px">
+{{ if eq .Data.preferred_locale "en" }}
+<h1 class="ui-email-email-change-en-h1" style="margin:0 0 17px;font-size:25px;line-height:1.3;letter-spacing:-0.02em;color:#2c3850">Confirm your new email address</h1>
+<p class="ui-email-email-change-en-intro" style="margin:0 0 23px;font-size:15px;line-height:1.7;color:#596b84">A request was made to change the email address for your VATRA account.</p><p class="ui-email-email-change-en-address" style="margin:0 0 19px;font-size:14px;line-height:1.6;color:#334660">New email: <strong class="ui-email-email-change-en-address-strong" style="word-break:break-word">{{ .NewEmail }}</strong></p><p class="ui-email-email-change-en-button-wrap" style="margin:24px 0"><a class="ui-email-email-change-en-button" href="{{ .ConfirmationURL }}" style="display:inline-block;border-radius:999px;background:#2865d8;color:#ffffff!important;padding:14px 25px;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700">Confirm new email</a></p><p class="ui-email-email-change-en-warning" style="margin:19px 0 0;font-size:13px;line-height:1.65;color:#596b84">If you did not request an email change, do not confirm it. Protect your account.</p>
+{{ else }}
+<h1 class="ui-email-email-change-uk-h1" style="margin:0 0 17px;font-size:25px;line-height:1.3;letter-spacing:-0.02em;color:#2c3850">Підтвердіть нову пошту</h1>
+<p class="ui-email-email-change-uk-intro" style="margin:0 0 23px;font-size:15px;line-height:1.7;color:#596b84">Надійшов запит на зміну електронної адреси Вашого акаунта VATRA.</p><p class="ui-email-email-change-uk-address" style="margin:0 0 19px;font-size:14px;line-height:1.6;color:#334660">Нова електронна пошта: <strong class="ui-email-email-change-uk-address-strong" style="word-break:break-word">{{ .NewEmail }}</strong></p><p class="ui-email-email-change-uk-button-wrap" style="margin:24px 0"><a class="ui-email-email-change-uk-button" href="{{ .ConfirmationURL }}" style="display:inline-block;border-radius:999px;background:#2865d8;color:#ffffff!important;padding:14px 25px;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700">Підтвердити нову адресу</a></p><p class="ui-email-email-change-uk-warning" style="margin:19px 0 0;font-size:13px;line-height:1.65;color:#596b84">Якщо Ви не змінювали пошту, не підтверджуйте цей запит. Захистіть свій акаунт.</p>
+{{ end }}
+    </td></tr>
+    <tr class="ui-email-email-change-tr-03"><td class="ui-email-email-change-td-03" style="padding:18px 32px;border-top:1px solid #e9edf5">
+      <p class="ui-email-email-change-footer" style="margin:0;font-size:12px;line-height:1.65;color:#627187">© VATRA · <a href="mailto:vatra.support@gmail.com" class="ui-email-email-change-footer-link" style="color:#2865d8">vatra.support@gmail.com</a></p>
+    </td></tr>
+  </table>
+</body>
+</html>
