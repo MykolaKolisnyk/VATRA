@@ -529,7 +529,7 @@ function wireReset(){
   const email=emailInput.value.trim().toLowerCase();
   const token=tokenInput.value.replace(/\s+/g,"");
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){feedback("Вкажіть правильну електронну пошту.","error");(emailInput.type==="hidden"?q("#recovery-change-email"):emailInput)?.focus();return;}
-  if(!/^\d{6,8}$/.test(token)){feedback("Введіть код підтвердження з листа (6–8 цифр).","error");tokenInput.focus();return;}
+  if(!/^\d{6}$/.test(token)){feedback("Введіть шестизначний код із листа.","error");tokenInput.focus();return;}
   busy(codeForm,true);
   try{
    const {data,error}=await auth.auth.verifyOtp({email,token,type:"recovery"});
