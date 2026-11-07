@@ -56,10 +56,9 @@
     const filename = path === "" || path === "index.html" ? "" : path;
     return ROOT + (lang === "en" ? "en/" : "") + filename + location.search + location.hash;
   }
-  /* Preserve the original recovery callback URL until the auth library consumes it. */
-  const isRecoveryCallback = new URLSearchParams(location.search).has("code") || /access_token|refresh_token|type=recovery/.test(location.hash);
+  /* The URL query/hash is preserved for the auth library's PKCE callback on either language page. */
   const preference = saved();
-  if (!isRecoveryCallback && (preference === "uk" || preference === "en") && preference !== current) {
+  if ((preference === "uk" || preference === "en") && preference !== current) {
     location.replace(pathFor(preference));
     return;
   }
