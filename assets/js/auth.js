@@ -110,7 +110,7 @@ function wireSelects(){
   list.hidden=true;
   list.setAttribute("role","listbox");
   list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
-  const choices=[...select.options].filter(opt=>opt.value&&!opt.disabled);
+  const choices=[...select.options].filter(opt=>!opt.disabled&&(opt.value||!required));
   for(const opt of choices){
    const item=document.createElement("button");
    item.type="button";
