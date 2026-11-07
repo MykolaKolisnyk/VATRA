@@ -664,6 +664,371 @@
           }
         }
       }
+    },
+    "reset": {
+      "meta": {
+        "title": "New password · VATRA",
+        "description": "Create a new password for VATRA, the Ukrainian social network.",
+        "og:locale": "en_US",
+        "og:title": "New password · VATRA",
+        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:image:alt": "Official VATRA app icon"
+      },
+      "nodes": {
+        "n2": {
+          "text": {
+            "0": "Back to sign-in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Create a new password"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "For your security, avoid reusing passwords from other services."
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Have a verification code? Enter the email address and the one-time code from your VATRA message."
+          }
+        },
+        "n13": {
+          "text": {
+            "0": "Email address"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "Verification code"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Verify code"
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Your code is single-use and expires. No email yet? "
+          }
+        },
+        "n20": {
+          "text": {
+            "0": "Request another code"
+          }
+        },
+        "n23": {
+          "text": {
+            "0": "New password"
+          }
+        },
+        "n25": {
+          "attrs": {
+            "placeholder": "Enter password"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Show"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Confirm password"
+          }
+        },
+        "n30": {
+          "attrs": {
+            "placeholder": "Enter password"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Show"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "Save password"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Go to account"
+          }
+        },
+        "n36": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n38": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    },
+    "account": {
+      "meta": {
+        "title": "Account · VATRA",
+        "description": "Your VATRA account on the Ukrainian social network.",
+        "og:locale": "en_US",
+        "og:title": "Account · VATRA",
+        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
+        "og:image:alt": "Official VATRA app icon"
+      },
+      "nodes": {
+        "n4": {
+          "text": {
+            "0": "Sign out"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Welcome to VATRA!"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Your account is active. Your personal sections will be available as they are introduced."
+          }
+        },
+        "n13": {
+          "text": {
+            "0": "Home"
+          }
+        },
+        "n15": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n17": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n21": {
+          "text": {
+            "0": "Home"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
+    },
+    "legal": {
+      "meta": {
+        "title": "Terms and privacy · VATRA",
+        "description": "VATRA terms and privacy — policies of the Ukrainian social network, including terms, data protection and cookies.",
+        "og:locale": "en_US",
+        "og:title": "Terms and privacy — VATRA",
+        "og:description": "VATRA terms and privacy — policies of the Ukrainian social network, including terms, data protection and cookies."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Skip to content"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA — home"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Document sections"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "All documents"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "VATRA · Information"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Terms & privacy"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Terms of use, personal data protection, and browser data. Choose the document you need."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Updated November 7, 2026"
+          }
+        },
+        "n20": {
+          "attrs": {
+            "aria-label": "VATRA documents"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Rules for accounts, posts, safety, and interactions between users."
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "View document →"
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n33": {
+          "text": {
+            "0": "What information is used for sign-in, who processes it, and what rights you have."
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "View document →"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Why sessions are stored and how to manage browser data."
+          }
+        },
+        "n44": {
+          "text": {
+            "0": "View document →"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "Your data and rights"
+          }
+        },
+        "n48": {
+          "text": {
+            "0": "All policies are organized into separate documents to help you find information quickly."
+          }
+        },
+        "n49": {
+          "text": {
+            "0": "Learn more →"
+          }
+        },
+        "n51": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n53": {
+          "attrs": {
+            "aria-label": "Additional links"
+          }
+        },
+        "n54": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n58": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
     }
   }
 }
