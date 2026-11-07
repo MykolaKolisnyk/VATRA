@@ -120,16 +120,16 @@ for(const locale of ["ua","en"]){
    locale+": each feature needs evenly spaced 45 degree angle");
  }
 }
-assert.ok(css.includes("--outer-radius:min(39cqw,275px);--inner-radius:min(19cqw,135px)"),
+assert.ok(css.includes("--outer-radius:min(37cqw,245px);--inner-radius:min(16cqw,105px)"),
  "Outer badges and inner feature icons require separate non-overlapping orbit lanes");
-assert.ok(css.includes("--outer-radius:43cqw;--inner-radius:18cqw"),
+assert.ok(css.includes("--outer-radius:44cqw;--inner-radius:18cqw"),
  "Mobile rings need greater radial separation");
 assert.ok(css.includes(".orbit-track-inner .orbit-node:has(.orbit-icon:is(:hover,:focus-visible)){z-index:30}"),
  "Hovered tooltip must render above all other small icons");
 assert.ok(css.includes(".intro-art:has(.orbit-icon:is(:hover,:focus-visible)) .orbit-track-inner{z-index:12}"),
  "Hovered tooltip must render above outer badges and central logo");
-assert.ok(css.includes("@container (max-width:680px)"),
- "Narrow layouts need smaller outer badge widths while expanding orbital radii");
+assert.ok(!css.includes("@container (max-width:680px)"),
+ "Restore original full-size label typography, without forced small badge overrides");
 const cleanLoginTranslations=JSON.parse(await read("assets/i18n/en.json"));
 for(const text of ["Раді бачити Вас знову.","Безпечний вхід","Один акаунт для всього простору VATRA."]){
  assert.ok(!(text in cleanLoginTranslations),"Unused login translation should be removed: "+text);
@@ -151,8 +151,8 @@ assert.ok(css.includes(".login-recovery-link{display:flex;justify-content:flex-e
  "Forgot-password link should align correctly after secure-login text removal");
 assert.ok(!css.includes(".mobile-logo")&&!css.includes(".controls-inline"),
  "Obsolete login logo/label selectors should be removed");
-assert.ok(css.includes(".intro-symbol{position:relative;z-index:4;width:clamp(56px,14cqw,96px)"),
- "Center logo must not obscure small orbit icons");
+assert.ok(css.includes(".intro-symbol{position:relative;z-index:4;width:clamp(88px,21cqw,133px)"),
+ "Restore the original central VATRA logo scale");
 assert.ok(css.includes(".orbit-icon:hover .orbit-tooltip,.orbit-icon:focus-visible .orbit-tooltip"),
  "Feature descriptions must appear on hover and keyboard focus");
 assert.ok(css.includes("animation-play-state:paused"),
