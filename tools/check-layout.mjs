@@ -77,6 +77,48 @@ for(const path of paths){
  const html=await read(path);
  count+=inspectPage(path,html);
 }
+// VATRA landing composition: 8 distinct unlabeled SVG features on the inner
+// clockwise orbit, with 3 intact label badges on the outer counterclockwise orbit.
+const vatraFeatures=[
+ ["chat","Спілкування","Communication"],
+ ["business","Для бізнесу","For business"],
+ ["communities","Спільноти","Communities"],
+ ["photos","Фотографії","Photos"],
+ ["video","Відео","Video"],
+ ["music","Музика","Music"],
+ ["marketplace","Маркетплейс","Marketplace"],
+ ["clips","Кліпи","Clips"]
+];
+for(const locale of ["ua","en"]){
+ const home=await read(locale+"/index.html");
+ const inner=home.match(new RegExp('<div class="orbit-track orbit-track-inner ui-'+locale+'-inner-track">([\\s\\S]*?)</div>\\s*<img class="intro-symbol'))?.[1];
+ assert.ok(inner,locale+": feature orbit is missing");
+ assert.equal((inner.match(/class="orbit-node orbit-feature /g)||[]).length,8,
+  locale+": inner orbit must contain exactly eight features");
+ assert.equal((home.match(/class="orbit-node orbit-message /g)||[]).length,3,
+  locale+": keep three original large outer badge labels");
+ assert.ok(!/<strong\b|<p\b|<button\b/.test(inner),locale+": inner orbit must have SVG-only badges");
+ for(let i=0;i<vatraFeatures.length;i++){
+  const [key,ua,en]=vatraFeatures[i];
+  const angle=-90+i*45;
+  const label=locale==="ua"?ua:en;
+  assert.ok(inner.includes('feature-'+key+' ui-'+locale+'-inner-node-'+(i+1)),
+   locale+": missing unique inner feature "+key);
+  assert.ok(inner.includes('class="ui-'+locale+'-orbit-'+key+'-svg"'),
+   locale+": missing bespoke SVG for "+key);
+  assert.ok(inner.includes('aria-label="'+label+'"'),
+   locale+": feature "+key+" must have accessible localized label");
+  assert.ok(inner.includes('--angle:'+angle+'deg;--counter-angle:'+(-angle)+'deg'),
+   locale+": each feature needs evenly spaced 45 degree angle");
+ }
+}
+assert.ok(css.includes("vatraOrbitClockwise 32s")&&css.includes("vatraOrbitCounterclockwise 47s"),
+ "Outer badges and inner features must rotate in opposite directions");
+assert.ok(css.includes("@media (prefers-reduced-motion:reduce)"),
+ "Reduced-motion users need a static orbit");
+assert.equal((css.match(/\.orbit-track-inner \.orbit-node:nth-child\(/g)||[]).length,8,
+ "Each small feature icon must have its own animation phase");
+
 // Keep the complete email -> code -> password flow on the same page.
 for(const locale of ["ua","en"]){
  const forgot=await read(locale+"/forgot.html");
