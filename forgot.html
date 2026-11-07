@@ -6,6 +6,6 @@
   var query=new URLSearchParams(location.search);
   var requested=query.get("locale");
   var lang=requested==="uk_UA"?"ua":requested==="en_US"?"en":pref==="uk"?"ua":pref==="en"?"en":browser.startsWith("uk")||browser.endsWith("-ua")?"ua":"en";
-  query.set("locale",lang==="ua"?"uk_UA":"en_US");
-  location.replace("/VATRA/"+lang+"/"+"forgot.html"+"?"+query+location.hash);
+  query.delete("locale");
+  location.replace("/VATRA/"+lang+"/"+"forgot.html"+(query.toString()?"?"+query:"")+location.hash);
  })();</script><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="VATRA — українська соціальна мережа. Ваші люди. Ваші історії. Ваша VATRA."><meta name="robots" content="noindex,follow"><title>VATRA</title><link rel="icon" type="image/svg+xml" href="/VATRA/assets/logo/vatra-app-icon.svg"><style>body{font:16px Onest,system-ui,sans-serif;padding:32px;color:#172238;background:#f7f9ff}a{color:#075cf2}main{width:min(100%,530px);margin:15vh auto;padding:26px;background:white;border:1px solid #dce4f3;border-radius:17px}p{line-height:1.6}</style></head><body><main><h1>VATRA</h1><p>Оберіть мову / Choose your language</p><p><a href="/VATRA/ua/forgot.html">Українська</a> · <a href="/VATRA/en/forgot.html">English</a></p></main></body></html>
