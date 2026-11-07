@@ -2235,6 +2235,266 @@
           }
         }
       }
+    },
+    "index": {
+      "meta": {
+        "title": "Sign in · VATRA",
+        "description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business.",
+        "og:locale": "en_US",
+        "og:title": "VATRA — Ukrainian social network",
+        "og:description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business. Your people. Your stories. Your VATRA.",
+        "og:image:alt": "Official VATRA logo",
+        "twitter:title": "VATRA — Ukrainian social network",
+        "twitter:description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business."
+      },
+      "nodes": {
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA social network features"
+          }
+        },
+        "n13": {
+          "text": {
+            "0": "Your people."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Your stories."
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Your VATRA."
+          }
+        },
+        "n27": {
+          "attrs": {
+            "aria-label": "Communication"
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "Communication"
+          }
+        },
+        "n33": {
+          "text": {
+            "0": "Messages and conversations with your people."
+          }
+        },
+        "n35": {
+          "attrs": {
+            "aria-label": "For business"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "For business"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Opportunities to grow your business."
+          }
+        },
+        "n44": {
+          "attrs": {
+            "aria-label": "Communities"
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Communities"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "People and groups sharing your interests."
+          }
+        },
+        "n53": {
+          "attrs": {
+            "aria-label": "Photos"
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Photos"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "Keep and share your photographs."
+          }
+        },
+        "n62": {
+          "attrs": {
+            "aria-label": "Video"
+          }
+        },
+        "n68": {
+          "text": {
+            "0": "Video"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Watch and share videos."
+          }
+        },
+        "n71": {
+          "attrs": {
+            "aria-label": "Music"
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "Music"
+          }
+        },
+        "n78": {
+          "text": {
+            "0": "Discover music you enjoy."
+          }
+        },
+        "n80": {
+          "attrs": {
+            "aria-label": "Marketplace"
+          }
+        },
+        "n85": {
+          "text": {
+            "0": "Marketplace"
+          }
+        },
+        "n86": {
+          "text": {
+            "0": "A place to buy and sell."
+          }
+        },
+        "n88": {
+          "attrs": {
+            "aria-label": "Clips"
+          }
+        },
+        "n94": {
+          "text": {
+            "0": "Clips"
+          }
+        },
+        "n95": {
+          "text": {
+            "0": "Short videos and memorable moments."
+          }
+        },
+        "n98": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        },
+        "n99": {
+          "text": {
+            "0": " Find your people, share stories, and discover new possibilities — from meaningful connections to your own business."
+          }
+        },
+        "n100": {
+          "text": {
+            "0": "VATRA — a Ukrainian social network."
+          }
+        },
+        "n101": {
+          "attrs": {
+            "aria-label": "Sign in"
+          }
+        },
+        "n103": {
+          "text": {
+            "0": "Sign in to VATRA"
+          }
+        },
+        "n104": {
+          "text": {
+            "0": "Connect with your people, share stories and explore new opportunities."
+          }
+        },
+        "n109": {
+          "text": {
+            "0": "Email address"
+          }
+        },
+        "n112": {
+          "text": {
+            "0": "Password"
+          }
+        },
+        "n114": {
+          "attrs": {
+            "placeholder": "Enter password"
+          }
+        },
+        "n115": {
+          "text": {
+            "0": "Show"
+          },
+          "attrs": {
+            "aria-label": "Show password"
+          }
+        },
+        "n117": {
+          "text": {
+            "0": "Forgot password?"
+          }
+        },
+        "n118": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n119": {
+          "text": {
+            "0": "or"
+          }
+        },
+        "n120": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n122": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n124": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n125": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n126": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n128": {
+          "text": {
+            "0": "Sign up"
+          }
+        },
+        "n129": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        }
+      }
     }
   }
 }
