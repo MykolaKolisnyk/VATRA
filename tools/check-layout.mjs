@@ -97,6 +97,14 @@ assert.ok(auth.includes("auth.auth.resetPasswordForEmail("),
  "Forgot password must continue using the standard Supabase recovery sender");
 assert.ok(auth.includes('auth.auth.verifyOtp({email,token,type:"recovery"})'),
  "Recovery must verify the standard Supabase code");
+for(const locale of ["ua","en"]){
+ for(const name of ["forgot.html","reset.html"]){
+  const html=await read(locale+"/"+name);
+  assert.ok(html.includes('pattern="[0-9]{6}" minlength="6" maxlength="6"'),
+   locale+"/"+name+": recovery must use the 6-digit standard Supabase OTP");
+ }
+}
+assert.ok(auth.includes('/^\\d{6}$/.test(token)'),"OTP validation must accept exactly six digits");
 assert.ok(auth.includes("const COOLDOWN_MS=60000"),
  "Resend control must use the 60-second cooldown");
 assert.ok(auth.includes("function wireForgot(){")&&auth.includes("wireReset();"),
