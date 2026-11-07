@@ -1,5 +1,5 @@
 /* VATRA offline navigation fallback (same-origin only). */
-const CACHE="vatra-offline-shell-v2";
+const CACHE="vatra-offline-shell";
 const OFFLINE_UA="/VATRA/ua/offline.html";
 const OFFLINE_EN="/VATRA/en/offline.html";
 const ASSETS=[OFFLINE_UA,OFFLINE_EN,"/VATRA/assets/logo/vatra-logo.svg","/VATRA/assets/fonts/Onest-Variable.ttf"];
@@ -9,7 +9,7 @@ self.addEventListener("install",event=>{
 self.addEventListener("activate",event=>{
  event.waitUntil((async()=>{
   const keys=await caches.keys();
-  await Promise.all(keys.filter(key=>key.startsWith("vatra-offline-shell-")&&key!==CACHE).map(key=>caches.delete(key)));
+  await Promise.all(keys.filter(key=>key.startsWith("vatra-offline-shell")&&key!==CACHE).map(key=>caches.delete(key)));
   await self.clients.claim();
  })());
 });
