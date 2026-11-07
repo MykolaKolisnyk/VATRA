@@ -443,7 +443,7 @@ async function wireAccount(){
  const title=q("#account-title"),mail=q("#account-email");
  try{
   const {data:{user},error}=await auth.auth.getUser();
-  if(error||!user){window.location.replace(url("auth.html"));return;}
+  if(error||!user){window.location.replace(new URL("./",location.href).href);return;}
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
@@ -460,13 +460,13 @@ async function wireAccount(){
     idBox.hidden=true;
    }
   }
- }catch(_){window.location.replace(url("auth.html"));return;}
+ }catch(_){window.location.replace(new URL("./",location.href).href);return;}
  const logout=q("#logout");
  if(logout)logout.addEventListener("click",async()=>{
   logout.disabled=true;
   const {error}=await auth.auth.signOut({scope:"local"});
   if(error){feedback(getMessage(error),"error");logout.disabled=false;return;}
-  window.location.replace(url("auth.html"));
+  window.location.replace(new URL("./",location.href).href);
  });
 }
 initialize().catch(()=>feedback("Сервіс авторизації тимчасово недоступний. Повторіть спробу пізніше.","error"));
