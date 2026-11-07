@@ -164,7 +164,7 @@ for(const path of paths){
     catch{continue;}
     if(target.origin!=="https://mykolakolisnyk.github.io"||!target.pathname.startsWith("/VATRA/"))continue;
     let diskPath=decodeURIComponent(target.pathname.slice("/VATRA/".length));
-    if(diskPath.endsWith("/"))diskPath+="index.html";
+    if(!diskPath||diskPath.endsWith("/"))diskPath+="index.html";
     assert.ok(!diskPath.includes("../"),path+": unsafe local asset path: "+value);
     try{assert.ok((await stat(diskPath)).isFile());}
     catch{assert.fail(path+": local asset or navigation target missing: "+value+" → "+diskPath);}
