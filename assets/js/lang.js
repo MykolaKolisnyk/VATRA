@@ -105,7 +105,7 @@
     closeBtn.textContent = "×";
     headingRow.append(texts, closeBtn);
     const search = document.createElement("input");
-    search.className = "language-search";
+    search.className = "control language-search";
     search.type = "search";
     search.autocomplete = "off";
     search.placeholder = words.search;
