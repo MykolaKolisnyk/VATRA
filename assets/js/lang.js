@@ -7,11 +7,12 @@
   const explicit = route.startsWith("ua/") ? "uk" : route.startsWith("en/") ? "en" : null;
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
   function preferred() {
-    const explicitLocale = new URLSearchParams(location.search).get("locale");
-    if (explicitLocale === "uk_UA") return "uk";
-    if (explicitLocale === "en_US") return "en";
     const choice = saved();
     if (choice === "uk" || choice === "en") return choice;
+    /* Honor an old locale query only for backwards compatibility. */
+    const legacy = new URLSearchParams(location.search).get("locale");
+    if (legacy === "uk_UA") return "uk";
+    if (legacy === "en_US") return "en";
     return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
   }
   const current = explicit || preferred();
@@ -63,46 +64,47 @@
     try { localStorage.setItem("vatra-language", lang); } catch (_) {}
   }
   function pathFor(lang) {
-    const route = location.pathname.slice(ROOT.length).replace(/^(?:ua|en)\//, "");
-    const filename = route === "index.html" || route === "auth.html" ? "" : route;
+    const relative = location.pathname.slice(ROOT.length).replace(/^(?:ua|en)\//, "");
+    const filename = relative === "index.html" || relative === "auth.html" ? "" : relative;
     const query = new URLSearchParams(location.search);
-    query.set("locale", lang === "en" ? "en_US" : "uk_UA");
-    if (new RegExp("^id[1-9][0-9]*/?$").test(filename)) return ROOT + filename + "?" + query + location.hash;
-    return ROOT + (lang === "en" ? "en/" : "ua/") + filename + "?" + query + location.hash;
+    query.delete("locale");
+    const suffix = query.toString() ? "?" + query : "";
+    /* VATRA ID is language-independent; save preference instead of duplicating its URL. */
+    if (/^id[1-9][0-9]*\/?$/.test(filename)) return ROOT + filename + suffix + location.hash;
+    return ROOT + (lang === "en" ? "en/" : "ua/") + filename + suffix + location.hash;
   }
-  /* Explicit /ua/ and /en/ URLs win; root and legacy paths route to the browser preference. */
-  const isProfile = new RegExp("^id[1-9][0-9]*/?$").test(route);
+  const isProfile = /^id[1-9][0-9]*\/?$/.test(route);
   if (!explicit && !isProfile) {
     location.replace(pathFor(current));
     return;
   }
-
-  /* Keep address bar and internal navigation consistent with the active locale. */
-  if (explicit || isProfile) {
-    const expected = current === "en" ? "en_US" : "uk_UA";
-    const address = new URL(location.href);
-    const canonical = address.pathname.endsWith("/index.html");
-    if (canonical) address.pathname=address.pathname.slice(0,-"index.html".length);
-    if (address.searchParams.get("locale") !== expected || canonical) {
-      address.searchParams.set("locale", expected);
-      history.replaceState(history.state,"",address.pathname+address.search+address.hash);
-    }
+  /* /ua/ and /en/ are already locale identifiers: remove redundant query parameters. */
+  const address = new URL(location.href);
+  let changed = false;
+  if (address.searchParams.has("locale")) {
+    address.searchParams.delete("locale");
+    changed = true;
   }
+  if (address.pathname.endsWith("/index.html")) {
+    address.pathname = address.pathname.slice(0, -"index.html".length);
+    changed = true;
+  }
+  if (changed) history.replaceState(history.state, "", address.pathname + address.search + address.hash);
+
   function bindLocalizedLinks() {
-    const tag = current === "en" ? "en_US" : "uk_UA";
-    for(const link of document.querySelectorAll('a[href]')){
-      const raw=link.getAttribute("href");
-      if(!raw||raw.startsWith("#")||raw.startsWith("mailto:")||raw.startsWith("tel:"))continue;
+    for (const link of document.querySelectorAll("a[href]")) {
+      const raw = link.getAttribute("href");
+      if (!raw || raw.startsWith("#") || raw.startsWith("mailto:") || raw.startsWith("tel:")) continue;
       try {
-        const address=new URL(raw,location.href);
-        if(address.origin!==location.origin||!address.pathname.startsWith(ROOT))continue;
-        if(address.pathname.startsWith(ROOT+"assets/"))continue;
-        if(address.pathname.endsWith("/auth.html")||address.pathname.endsWith("/index.html")) {
-          address.pathname=address.pathname.replace(/(?:auth|index)\.html$/,"");
+        const target = new URL(raw, location.href);
+        if (target.origin !== location.origin || !target.pathname.startsWith(ROOT)) continue;
+        if (target.pathname.startsWith(ROOT + "assets/")) continue;
+        if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
+          target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        address.searchParams.set("locale",tag);
-        link.href=address.href;
-      } catch(_) {}
+        target.searchParams.delete("locale");
+        link.href = target.href;
+      } catch (_) {}
     }
   }
   let errors = {};
