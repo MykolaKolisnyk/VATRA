@@ -153,6 +153,24 @@ for(const [name,markers] of expectedEmails){
 assert.ok(auth.includes('preferred_locale:english?"en":"uk"'),
  "Signup must store the preference used by Supabase templates");
 
+// Recovery is one sequential flow, with no redundant initial "already have a code" link.
+for(const locale of ["ua","en"]){
+ const forgot=await read(locale+"/forgot.html");
+ assert.ok(!forgot.includes('id="recovery-link"')&&!forgot.includes('id="recovery-link-note"'),
+  locale+": remove redundant code link from the initial recovery screen");
+ assert.ok(forgot.includes('id="recovery-code-form"'),
+  locale+": code entry must remain available after sending email");
+}
+assert.ok(!auth.includes('"recovery-link-note"'),"Remove obsolete recovery link handlers");
+assert.ok(css.includes(".center-main .response:not([hidden]){margin:0 0 10px}"),
+ "Recovery status and form should be adjacent");
+assert.ok(css.includes(".center-main .recovery-step{display:grid;gap:14px;margin-top:0;"),
+ "Recovery card should not have an extra top gap");
+for(const name of ["confirmation","invite","magic-link","email-change","recovery"]){
+ const html=await read("email-templates/"+name+".html");
+ assert.equal((html.match(/button-wrap" style="margin:22px 0;text-align:center"/g)||[]).length,2,
+  name+": both locale email buttons must be centered");
+}
 const appManifest=JSON.parse(await read("site.webmanifest"));
 assert.equal(appManifest.theme_color,"#ffffff","Manifest theme must match the light VATRA layout");
 assert.equal(appManifest.scope,"/VATRA/","PWA scope must use the project subdirectory");
