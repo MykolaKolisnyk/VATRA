@@ -81,7 +81,9 @@
   if (explicit || isProfile) {
     const expected = current === "en" ? "en_US" : "uk_UA";
     const address = new URL(location.href);
-    if (address.searchParams.get("locale") !== expected) {
+    const canonical = address.pathname.endsWith("/index.html");
+    if (canonical) address.pathname=address.pathname.slice(0,-"index.html".length);
+    if (address.searchParams.get("locale") !== expected || canonical) {
       address.searchParams.set("locale", expected);
       history.replaceState(history.state,"",address.pathname+address.search+address.hash);
     }
