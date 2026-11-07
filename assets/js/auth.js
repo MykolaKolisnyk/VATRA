@@ -387,7 +387,7 @@ function wireRegister(){
    const {data,error}=await auth.auth.signUp({
     email,password,
     options:{
-     emailRedirectTo:new URL("account.html",new URL("/VATRA/",location.origin)).href,
+     emailRedirectTo:new URL("account.html",location.href).href,
      data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null,preferred_locale:english?"en":"uk"}
     }
    });
