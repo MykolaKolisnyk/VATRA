@@ -103,8 +103,9 @@ function wireFieldValidation(){
   if(control.id?.startsWith("birth-")){
    const valid=["birth-day","birth-month","birth-year"].every(id=>Boolean(q("#"+id)?.value));
    const start=q("#birth-day");
-   showFieldError(start,valid?"":"Оберіть дату народження.");
-   return valid;
+   const correctDate=valid&&typeof validateBirthday()==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(validateBirthday());
+   showFieldError(start,!valid?"Оберіть дату народження.":correctDate?"":"Вкажіть правильну дату народження.");
+   return Boolean(correctDate);
   }
   const message=validationText(control,form);
   showFieldError(control,message);
@@ -117,7 +118,7 @@ function wireFieldValidation(){
   control.addEventListener("input",change);
   control.addEventListener("change",change);
   control.addEventListener("blur",()=>{
-   if(control.type!=="checkbox"&&control.value)check(control);
+   if(control.type!=="checkbox")check(control);
   });
  }
  form.addEventListener("submit",event=>{
