@@ -214,7 +214,7 @@
     function updateScrollbar() {
       const viewport = list.clientHeight;
       const content = list.scrollHeight;
-      const available = scrollTrack.clientHeight;
+      const available = scrollShell.clientHeight;
       const overflow = content > viewport + 2 && viewport > 0 && available > 0;
       scrollTrack.hidden = !overflow;
       if (!overflow) return;
