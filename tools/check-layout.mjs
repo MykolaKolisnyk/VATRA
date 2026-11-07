@@ -18,7 +18,7 @@ assert.ok(auth.includes("VATRA_HOST_ALLOWED===false"),"Auth must not initialize 
 const languages=await read("assets/js/lang.js");
 assert.ok(languages.includes("vt-language-dialog-heading")&&languages.includes("vt-language-name-"),"Dynamic language texts need individual classes");
 const pages=["index.html","404.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
-const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","invite","recovery","magic-link","email-change","reauthentication"].map(name=>"email-templates/"+name+".html")];
+const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"].map(name=>"email-templates/"+name+".html")];
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 
 function inspectPage(path,html){
@@ -159,6 +159,8 @@ for(const lang of ["ua","en"]){
  assert.ok(account.includes('<span id="vatra-id"'),lang+": VATRA ID must not link to absent profile page");
 }
 const expectedEmails=new Map([
+ ["password-changed.html",[]],
+ ["email-address-changed.html",["{{ .OldEmail }}","{{ .Email }}"]],
  ["confirmation.html",["{{ .ConfirmationURL }}"]],
  ["invite.html",["{{ .ConfirmationURL }}"]],
  ["magic-link.html",["{{ .Token }}","{{ .ConfirmationURL }}"]],
@@ -289,6 +291,14 @@ assert.ok(auth.includes("resetCaptcha(repeat?step:form)"),"Password reset must c
  await assert.rejects(cancelled,/captcha_cancelled/,"Closing a modal must stop authorization");
  assert.equal(documentStub.body.children.length,0,"Cancelled challenge must close the overlay");
  await browserWindow.VATRA_CAPTCHA.reset(form);
+}
+// Security email templates use the VATRA palette and Outlook-friendly centered buttons.
+for(const file of ["password-changed.html","email-address-changed.html"]){
+ const mail=await read("email-templates/"+file);
+ assert.ok(mail.includes('.Data.preferred_locale'),file+": UA/EN selection missing");
+ assert.equal((mail.match(/-button-table" align="center"/g)||[]).length,2,file+": buttons must be centered in both locales");
+ assert.equal((mail.match(/background:#2865d8/g)||[]).length,2,file+": wrong button color");
+ assert.ok(mail.includes("https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-logo.png"),file+": brand logo missing");
 }
 const appManifest=JSON.parse(await read("site.webmanifest"));
 assert.equal(appManifest.theme_color,"#ffffff","Manifest theme must match the light VATRA layout");
