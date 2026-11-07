@@ -11,7 +11,7 @@ const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
 let auth=null;
 function vatraProfileUrl(id){
- return new URL("/VATRA/id"+String(id),location.origin).href;
+ return new URL("/VATRA/id"+String(id)+"?locale="+(english?"en_US":"uk_UA"),location.origin).href;
 }
 async function goToMyProfile(){
  try{
