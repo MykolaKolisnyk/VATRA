@@ -104,12 +104,17 @@
     closeBtn.setAttribute("aria-label", words.close);
     closeBtn.textContent = "×";
     headingRow.append(texts, closeBtn);
+    const searchField = document.createElement("label");
+    searchField.className = "field language-search-field";
+    const searchCaption = document.createElement("span");
+    searchCaption.textContent = words.search;
     const search = document.createElement("input");
     search.className = "control language-search";
     search.type = "search";
     search.autocomplete = "off";
     search.placeholder = words.search;
     search.setAttribute("aria-label", words.search);
+    searchField.append(searchCaption,search);
     const list = document.createElement("div");
     list.className = "language-grid";
     const notFound = document.createElement("p");
@@ -144,7 +149,7 @@
       }
       list.append(button);
     }
-    dialog.append(headingRow, search, list, notFound);
+    dialog.append(headingRow, searchField, list, notFound);
     backdrop.append(dialog);
     document.body.append(backdrop);
     function close() {
