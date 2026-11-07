@@ -116,8 +116,11 @@ async function setup(){
    const reply=$("profile-edit-feedback");
    if(name.length>80||bio.length>500){setStatus(reply,t("Перевищено ліміт символів.","Text is too long."),true);return;}
    const form=event.currentTarget;setBusy(form,true);setStatus(reply,"");
-   const {error}=await client.from("member_profiles")
-     .upsert({vatra_id:id,display_name:name,bio:bio},{onConflict:"vatra_id"});
+   const payload={display_name:name,bio:bio};
+   const result=profile
+     ?await client.from("member_profiles").update(payload).eq("vatra_id",id)
+     :await client.from("member_profiles").insert({vatra_id:id,...payload});
+   const {error}=result;
    setBusy(form,false);
    if(error){setStatus(reply,t("Не вдалося зберегти зміни.","Unable to save changes."),true);return;}
    heading.textContent=name||t("Моя сторінка","My page");
