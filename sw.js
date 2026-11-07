@@ -1,5 +1,5 @@
 /* VATRA offline navigation fallback (same-origin only). */
-const CACHE="vatra-offline-shell-v1";
+const CACHE="vatra-offline-shell-v2";
 const OFFLINE_UA="/VATRA/ua/offline.html";
 const OFFLINE_EN="/VATRA/en/offline.html";
 const ASSETS=[OFFLINE_UA,OFFLINE_EN,"/VATRA/assets/logo/vatra-logo.svg","/VATRA/assets/fonts/Onest-Variable.ttf"];
