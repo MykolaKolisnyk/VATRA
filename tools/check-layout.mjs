@@ -17,13 +17,13 @@ assert.ok(auth.includes("VATRA_HOST_ALLOWED===false"),"Auth must not initialize 
 const languages=await read("assets/js/lang.js");
 assert.ok(languages.includes("vt-language-dialog-heading")&&languages.includes("vt-language-name-"),"Dynamic language texts need individual classes");
 const pages=["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
-const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name))];
+const paths=["index.html","404.html",...["ua","en"].flatMap(locale=>pages.map(name=>locale+"/"+name)),...["confirmation","recovery","magic-link","reauthentication"].map(name=>"email-templates/"+name+".html")];
 const voidTags=new Set("area base br col embed hr img input link meta param source track wbr".split(" "));
 
 function inspectPage(path,html){
   const bodyIndex=html.search(/<body\b/i);
   assert.ok(bodyIndex>=0,path+": missing body");
-  const body=html.slice(bodyIndex).replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,"");
+  const body=html.slice(bodyIndex).replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi,"").replace(/\{\{[^}]+\}\}/g,"");
   const stack=[],missing=[],withoutOwnClass=[],uniqueClasses=new Set();
   let visible=0;
   const classes=[...body.matchAll(/\bvt-[a-z0-9-]+/g)].map(match=>match[0]);
@@ -56,7 +56,7 @@ function inspectPage(path,html){
     if(!token.startsWith("<")&&/[\p{L}\p{N}]/u.test(token.trim())){
       visible++;
       const active=stack[stack.length-1];
-      if(!active||!/\bvt-[a-z0-9-]+/.test(active.classes)){
+      if(!active||!new RegExp(path.startsWith("email-templates/")?"\\b(?:vt|ui)-[a-z0-9-]+":"\\bvt-[a-z0-9-]+").test(active.classes)){
         missing.push((active?.tag||"document")+": "+token.trim().slice(0,50));
       }
     }
@@ -76,4 +76,6 @@ for(const path of paths){
  const html=await read(path);
  count+=inspectPage(path,html);
 }
-console.log("VATRA: "+paths.length+" pages, "+count+" visible text nodes with distinct class names, individually classed interface elements and responsive typography.");
+const sw=await read("sw.js");
+assert.ok(sw.includes('const CACHE="vatra-offline-shell"'),"Stable, non-versioned cache key is required");
+console.log("VATRA: "+paths.length+" site/email pages, "+count+" visible text nodes with distinct class names, individually classed interface elements and responsive typography.");
