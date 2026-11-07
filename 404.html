@@ -3,60 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
   <meta name="robots" content="noindex,follow">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="Сторінку VATRA не знайдено. Перевірте посилання або поверніться на головну.">
-  <title>404 · Сторінку не знайдено — VATRA</title>
-  <link rel="preload" href="/VATRA/assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="icon" type="image/svg+xml" sizes="any" href="/VATRA/favicon.svg">
-  <link rel="apple-touch-icon" href="/VATRA/assets/logo/vatra-app-icon.png">
-  <link rel="manifest" href="/VATRA/site.webmanifest">
+  <meta name="theme-color" content="#ffffff">
+  <title>404 · VATRA</title>
+  <link rel="icon" type="image/svg+xml" href="/VATRA/favicon.svg">
   <link rel="stylesheet" href="/VATRA/assets/css/auth.css">
-</head>
-<body class="account-page error-page ui-not-found-body-001" data-page="not-found">
-  <header class="account-top ui-not-found-header-001">
-    <a href="/VATRA/ua/" class="header-logo vt-not-found-link-01" data-localized-link="" aria-label="VATRA — головна">
-      <img src="/VATRA/assets/logo/vatra-logo.svg" width="1342" height="380" alt="VATRA" class="ui-not-found-img-001">
-    </a>
-    <a href="/VATRA/ua/" class="simple-link vt-not-found-link-02" data-localized-link="" data-uk="Головна" data-en="Home">Головна</a>
-  </header>
-  <main class="account-main error-main ui-not-found-main-001">
-    <section class="account-card error-card ui-not-found-section-001" aria-labelledby="error-heading">
-      <span class="error-code vt-not-found-inline-01" aria-label="Помилка 404">404</span>
-      <h1 id="error-heading" class="error-heading vt-not-found-h1-01" data-uk="Сторінку не знайдено" data-en="Page not found">Сторінку не знайдено</h1>
-      <p class="error-description vt-not-found-paragraph-01" data-uk="Схоже, посилання неправильне або ця сторінка більше недоступна. Перевірте адресу та поверніться до VATRA." data-en="This link may be incorrect or the page is no longer available. Check the address or return to VATRA.">Схоже, посилання неправильне або ця сторінка більше недоступна. Перевірте адресу та поверніться до VATRA.</p>
-      <a href="/VATRA/ua/" class="action primary error-action vt-not-found-link-03" data-localized-link="" data-uk="Повернутися на головну" data-en="Back to home">Повернутися на головну</a>
-    </section>
-  </main>
-  <footer class="footer ui-not-found-footer-001">
-    <span class="vt-not-found-inline-02">© 2026 <b class="vt-not-found-bold-01">VATRA</b> · <span class="vt-not-found-inline-03" data-uk="Ваші люди. Ваші історії." data-en="Your people. Your stories.">Ваші люди. Ваші історії.</span></span>
-    <nav aria-label="Інформація" class="ui-not-found-nav-001">
-      <a href="/VATRA/ua/terms.html" class="vt-not-found-link-04" data-localized-link="terms.html" data-uk="Умови використання" data-en="Terms of Service">Умови використання</a>
-      <a href="/VATRA/ua/privacy.html" class="vt-not-found-link-05" data-localized-link="privacy.html" data-uk="Конфіденційність" data-en="Privacy">Конфіденційність</a>
-    </nav>
-  </footer>
   <script>
   (() => {
-    let locale;
-    try { locale = localStorage.getItem("vatra-language"); } catch (_) {}
-    if (locale !== "uk" && locale !== "en") {
-      const browser = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
-      locale = browser.startsWith("uk") || browser.endsWith("-ua") ? "uk" : "en";
-    }
-    const routeLocale = location.pathname.startsWith("/VATRA/en/") ? "en" :
-      location.pathname.startsWith("/VATRA/ua/") ? "uk" : null;
-    const english = (routeLocale || locale) === "en";
-    document.documentElement.lang = english ? "en" : "uk";
-    document.title = english ? "404 · Page not found — VATRA" : "404 · Сторінку не знайдено — VATRA";
-    for (const element of document.querySelectorAll("[data-uk][data-en]")) {
-      element.textContent = english ? element.dataset.en : element.dataset.uk;
-    }
-    const root = "/VATRA/" + (english ? "en/" : "ua/");
-    for (const link of document.querySelectorAll("a[data-localized-link]")) {
-      link.href = root + link.dataset.localizedLink;
-    }
+    const path=location.pathname;
+    let saved=null;
+    try { saved=localStorage.getItem("vatra-language"); } catch(_) {}
+    const browser=(navigator.languages?.[0]||navigator.language||"").toLowerCase();
+    const lang=path.startsWith("/VATRA/en/")?"en":path.startsWith("/VATRA/ua/")?"ua":
+      saved==="en"?"en":saved==="uk"?"ua":browser.startsWith("uk")?"ua":"en";
+    location.replace("/VATRA/"+lang+"/404.html");
   })();
   </script>
+</head>
+<body class="account-page error-page ui-root-error-body-001" data-page="technical-404-fallback">
+  <main class="account-main error-main ui-root-error-main-001">
+    <section class="account-card error-card ui-root-error-section-001">
+      <a class="header-logo vt-root-error-link-001" href="/VATRA/ua/404.html" aria-label="VATRA">
+        <img class="ui-root-error-img-001" src="/VATRA/assets/logo/vatra-logo.svg" alt="VATRA" width="1342" height="380">
+      </a>
+      <h1 class="error-heading vt-root-error-h1-001">404 · VATRA</h1>
+      <p class="error-description vt-root-error-paragraph-001">Сторінку не знайдено / Page not found</p>
+      <p class="vt-root-error-paragraph-002"><a href="/VATRA/ua/404.html" class="simple-link vt-root-error-link-002">Українська</a> · <a href="/VATRA/en/404.html" class="simple-link vt-root-error-link-003">English</a></p>
+    </section>
+  </main>
 </body>
 </html>
