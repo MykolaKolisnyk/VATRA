@@ -4,72 +4,24 @@
   <meta charset="utf-8">
   <script src="assets/js/host.js?v=1"></script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="color-scheme" content="light">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="Увійдіть у свій акаунт VATRA або зареєструйтеся.">
   <meta name="robots" content="noindex,follow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#ffffff">
   <title>Вхід · VATRA</title>
   <link rel="icon" type="image/svg+xml" href="assets/logo/vatra-app-icon.svg?v=20261107">
-  <link rel="apple-touch-icon" href="assets/logo/vatra-app-icon.png?v=20261107">
-  <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="assets/css/auth.css?v=3">
-  <link rel="stylesheet" href="assets/css/home.css?v=1">
-  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
-  <script defer src="assets/js/auth.js?v=1"></script>
+  <script>
+    /* Єдина сторінка авторизації VATRA: головна. */
+    if (window.VATRA_HOST_ALLOWED !== false) {
+      window.location.replace(new URL("./", window.location.href).href);
+    }
+  </script>
+  <noscript><meta http-equiv="refresh" content="0;url=./"></noscript>
 </head>
-<body class="site entry-page" data-page="login">
-  <header class="reg-header entry-header">
-    <a class="header-logo" href="./" aria-label="VATRA — головна">
-      <img src="assets/logo/vatra-logo.svg?v=20261107" width="1342" height="380" alt="VATRA">
-    </a>
-    <a class="action secondary entry-header-action" href="register.html">Створити акаунт</a>
-  </header>
-
-  <main id="main" class="entry-main">
-    <div class="entry-layout">
-      <section class="entry-intro" aria-label="Про VATRA">
-        <h1>Ваші люди.<br><em>Ваші історії.</em><br>Ваша VATRA.</h1>
-        <p>Залишайтеся на зв’язку з важливими людьми, діліться своїми історіями та знаходьте однодумців.</p>
-      </section>
-
-      <section class="entry-panel" aria-labelledby="entry-title">
-        <h2 id="entry-title">Увійти у VATRA</h2>
-        <p class="subtitle">Раді бачити Вас знову.</p>
-        <p id="response" class="response" role="status" aria-live="polite" hidden></p>
-        <form id="login-form" autocomplete="on">
-          <div class="field-stack">
-            <label class="field">
-              <span>Електронна пошта</span>
-              <input class="control" id="email" type="email" name="email" placeholder="name@example.com" autocomplete="email" maxlength="254" required>
-            </label>
-            <label class="field">
-              <span>Пароль</span>
-              <span class="input-password">
-                <input class="control" id="password" type="password" name="password" placeholder="Введіть пароль" autocomplete="current-password" minlength="8" maxlength="128" required>
-                <button type="button" class="eye-btn" data-password-toggle="password" aria-label="Показати пароль" aria-pressed="false">Показати</button>
-              </span>
-            </label>
-          </div>
-          <div class="controls-inline entry-help">
-            <a class="simple-link" href="forgot.html">Забули пароль?</a>
-          </div>
-          <button class="action primary full" type="submit">Увійти</button>
-        </form>
-        <div class="or">або</div>
-        <a href="register.html" class="action secondary full">Створити акаунт</a>
-      </section>
-    </div>
+<body>
+  <main>
+    <h1>VATRA</h1>
+    <p>Єдина сторінка входу розташована на головній VATRA.</p>
+    <a href="./">Перейти до входу</a>
   </main>
-
-  <footer class="footer">
-    <span>© 2026 <b>VATRA</b> · Соціальна платформа</span>
-    <nav aria-label="Інформація">
-      <a href="terms.html">Умови використання</a>
-      <a href="privacy.html">Конфіденційність</a>
-      <a href="cookies.html">Cookies</a>
-      <span>Українська</span>
-    </nav>
-  </footer>
 </body>
 </html>
