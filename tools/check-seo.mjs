@@ -1,44 +1,44 @@
 import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
-
 const read=path=>readFile(path,"utf8");
 const BASE="https://mykolakolisnyk.github.io/VATRA/";
-const locales=["ua","en"];
-const documents=["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","offline.html"];
-const publicPages=new Set(["index.html","legal.html","terms.html","privacy.html","cookies.html"]);
-const sensitivePages=new Set(["register.html","forgot.html","reset.html","account.html"]);
+const pages=["index","404","register","forgot","reset","account","legal","terms","privacy","cookies","offline"];
+const publicPages=new Set(["index","legal","terms","privacy","cookies"]);
+const sensitive=new Set(["404","register","forgot","reset","account"]);
 const css=await read("assets/css/auth.css");
-assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"The Onest font must be hosted locally");
-assert.ok((await stat("assets/fonts/Onest-Variable.ttf")).size>100000,"Onest font file is missing");
-assert.ok(!css.includes("fonts.googleapis.com"),"External Google Fonts should not be loaded");
-
-const root=await read("index.html");
-for(const key of ['rel="canonical"','name="description"','property="og:title"','property="og:image"','name="twitter:card"']){
-  assert.ok(root.includes(key),"Language-routing homepage missing: "+key);
-}
+assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"Local Onest font missing");
+assert.ok((await stat("assets/fonts/Onest-Variable.ttf")).size>100000,"Missing local font");
+assert.ok(!css.includes("fonts.googleapis.com"),"No Google Fonts dependencies");
+const uk=JSON.parse(await read("assets/i18n/uk.json"));
+const en=JSON.parse(await read("assets/i18n/en.json"));
+assert.deepEqual(Object.keys(uk.__pages).sort(),pages.slice().sort(),"Ukrainian dictionary must cover every root page");
+assert.deepEqual(Object.keys(en.__pages).sort(),pages.slice().sort(),"English dictionary must cover every root page");
 const sitemap=await read("sitemap.xml");
-for(const locale of locales){
-  for(const file of documents){
-    const path=locale+"/"+file;
-    const html=await read(path);
-    assert.ok(html.includes('lang="'+(locale==="ua"?"uk":"en")+'"'),path+": incorrect HTML language");
-    assert.ok(html.includes("VATRA"),path+": brand missing");
-    if(publicPages.has(file)){
-      for(const key of ['rel="canonical"','name="description"','property="og:title"','property="og:image"']){
-        assert.ok(html.includes(key),path+": missing metadata "+key);
-      }
-      assert.ok(html.includes('name="robots" content="index,follow'),path+": should be indexable");
-    }
-    if(sensitivePages.has(file)){
-      assert.ok(html.includes('name="robots" content="noindex,follow"'),path+": sensitive page should not be indexed");
-    }
-    if(file==="index.html"){
-      assert.ok(html.includes('type="application/ld+json"'),path+": structured website metadata missing");
-    }
-    if(publicPages.has(file)){
-      const url=BASE+locale+"/"+(file==="index.html"?"":file);
-      assert.ok(sitemap.includes(url),path+": absent from sitemap");
-    }
+for(const page of pages){
+ const filename=page+".html";
+ const html=await read(filename);
+ assert.ok(html.includes('<html lang="uk"'),filename+": source markup must use accessible Ukrainian fallback");
+ assert.ok(html.includes("VATRA"),filename+": branding missing");
+ assert.ok(!/\/VATRA\/(?:ua|en)\//.test(html),filename+": language subfolder link remains");
+ assert.ok(html.includes('src="assets/js/lang.js"')||page==="404"&&html.includes('src="/VATRA/assets/js/lang.js"'),
+  filename+": shared JSON translation loader missing");
+ if(publicPages.has(page)){
+  for(const tag of ['rel="canonical"','name="description"','property="og:title"','property="og:image"']){
+   assert.ok(html.includes(tag),filename+": "+tag+" missing");
   }
+  assert.ok(html.includes('name="robots" content="index,follow'),filename+": must be indexable");
+  const url=BASE+(page==="index"?"":filename);
+  assert.ok(html.includes('href="'+url+'"'),filename+": canonical URL should be unique");
+  assert.ok(sitemap.includes('<loc>'+url+'</loc>'),filename+": missing sitemap URL");
+ }
+ if(sensitive.has(page))assert.ok(html.includes('name="robots" content="noindex,follow"'),filename+": sensitive page should not be indexed");
+ if(page==="index")assert.ok(html.includes('type="application/ld+json"'),"Missing website structured data");
+ const ukMeta=uk.__pages[page].meta,enMeta=en.__pages[page].meta;
+ assert.ok(ukMeta.title&&enMeta.title&&ukMeta.title!==enMeta.title,filename+": localized titles missing");
+ assert.ok(Object.keys(uk.__pages[page].nodes).length>=3,filename+": Ukrainian dictionary incomplete");
+ assert.deepEqual(Object.keys(uk.__pages[page].nodes).sort(),Object.keys(en.__pages[page].nodes).sort(),
+  filename+": dictionary node keys must correspond");
 }
-console.log("VATRA: actual /ua/ and /en/ routes, metadata, sitemap, and local Onest verified.");
+assert.equal((sitemap.match(/<loc>/g)||[]).length,5,"Exactly five canonical public VATRA URLs");
+assert.ok(!/\/VATRA\/(?:ua|en)\//.test(sitemap),"Old locale URLs must not be in sitemap");
+console.log("VATRA: one canonical HTML per page, bilingual JSON, metadata, and sitemap verified.");
