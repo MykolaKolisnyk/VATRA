@@ -42,7 +42,7 @@ function getMessage(error){
  if(code==="signup_disabled")return "Реєстрацію тимчасово вимкнено в налаштуваннях сервера.";
  if(code==="otp_expired"||code==="otp_disabled")return "Посилання для підтвердження недійсне або застаріло. Запросіть нове.";
  if(code==="captcha_required"||code==="captcha_failed"||text.includes("captcha verification"))return "Завершіть перевірку безпеки й повторіть спробу.";
- if(code==="captcha_unavailable")return "Не вдалося завантажити перевірку безпеки. Перевірте з’єднання та дозволи для Turnstile.";
+ if(["captcha_unavailable","captcha_timeout","captcha_expired","captcha_cancelled"].includes(code))return "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.";
  if(code==="network_error"||text.includes("failed to fetch")||text.includes("network"))return "Немає з'єднання із сервером. Перевірте інтернет і повторіть спробу.";
  return "Не вдалося виконати дію. Перевірте введені дані та спробуйте ще раз.";
 }
@@ -345,10 +345,6 @@ async function initialize(){
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
  if(page==="account")await wireAccount();
- if(window.VATRA_CAPTCHA?.enabled){
-  const initial=page==="login"?q("#login-form"):page==="register"?q("#signup-form"):page==="forgot"?q("#forgot-form"):null;
-  if(initial)window.VATRA_CAPTCHA.mount(initial).catch(()=>feedback("Не вдалося завантажити перевірку безпеки. Перевірте інтернет.","error"));
- }
  document.body.dataset.authReady="true";
 }
 async function captchaOptions(scope){
@@ -450,7 +446,6 @@ function wireForgot(){
   q("#recovery-tools").hidden=false;
   q("#recovery-step .recovery-step-caption").hidden=false;
   startCooldown(sentAt);
-  if(window.VATRA_CAPTCHA?.enabled)window.VATRA_CAPTCHA.mount(step).catch(()=>feedback("Не вдалося завантажити перевірку безпеки. Перевірте інтернет.","error"));
   codeField.focus({preventScroll:true});
   step.scrollIntoView({behavior:"smooth",block:"nearest"});
  };
