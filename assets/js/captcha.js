@@ -39,10 +39,6 @@ function buildDialog(scope,close) {
  dialog.setAttribute("aria-labelledby","captcha-title-"+scope.id);
  dialog.setAttribute("aria-describedby","captcha-description-"+scope.id);
  dialog.tabIndex=-1;
- const symbol=document.createElement("div");
- symbol.className="captcha-symbol ui-captcha-symbol-"+scope.id;
- symbol.setAttribute("aria-hidden","true");
- symbol.textContent="🛡";
  const title=document.createElement("h2");
  title.className="captcha-title vt-captcha-title-"+scope.id;
  title.id="captcha-title-"+scope.id;
@@ -66,7 +62,7 @@ function buildDialog(scope,close) {
  cancel.className="captcha-cancel vt-captcha-button-"+scope.id;
  cancel.textContent=english?"Cancel":"Скасувати";
  cancel.setAttribute("aria-label",english?"Cancel security verification":"Скасувати перевірку безпеки");
- dialog.append(symbol,title,description,widget,note,cancel);
+ dialog.append(title,description,widget,note,cancel);
  overlay.append(dialog);
  const previousFocus=document.activeElement;
  const keydown=event=>{
