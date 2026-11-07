@@ -94,7 +94,8 @@ assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
 for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","sw.js"]){
- assert.doesNotThrow(()=>new Function(await read(script)),script+": invalid JavaScript");
+ const scriptSource=await read(script);
+ assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
 const errorPage=await read("404.html");
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
