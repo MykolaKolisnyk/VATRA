@@ -203,6 +203,18 @@ async function wireAccount(){
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
+  /* VATRA ID — permanent sequential public number, assigned only by the database. */
+  const idBox=q("#vatra-id");
+  if(idBox){
+   const {data:profile,error:profileError}=await auth
+    .from("profiles").select("vatra_id").eq("user_id",user.id).maybeSingle();
+   if(!profileError&&profile&&Number.isSafeInteger(Number(profile.vatra_id))){
+    idBox.textContent="VATRA ID "+String(profile.vatra_id);
+    idBox.hidden=false;
+   }else{
+    idBox.hidden=true;
+   }
+  }
  }catch(_){window.location.replace(url("auth.html"));return;}
  const logout=q("#logout");
  if(logout)logout.addEventListener("click",async()=>{
