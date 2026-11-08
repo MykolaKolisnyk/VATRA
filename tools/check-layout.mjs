@@ -60,6 +60,9 @@ assert.ok(lang.includes('location.reload()'),"Language selection must reuse the 
 assert.ok(lang.includes('search.id = "vatra-language-search"')&&
  lang.includes('search.name = "vatra-language-search"'),
  "Language search input requires ID and name to support browser autofill");
+assert.ok(lang.includes('search.placeholder = "";')&&
+ lang.includes('searchCaption.textContent = words.search;'),
+ "Search fields must not show two stacked 'Search languages' captions");
 assert.ok(lang.includes('clearSearch.className="language-search-clear vt-language-clear-button"')&&
  lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
  css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
@@ -335,7 +338,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("clear7")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
+ assert.ok(html.includes("clear8")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
  assert.ok(html.includes("auth.css?v=20261108-input24"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),

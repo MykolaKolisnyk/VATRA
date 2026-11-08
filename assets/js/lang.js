@@ -282,7 +282,7 @@
     search.id = "vatra-language-search";
     search.name = "vatra-language-search";
     search.autocomplete = "off";
-    search.placeholder = words.search;
+    search.placeholder = ""; // The permanently visible caption already names this control.
     search.setAttribute("aria-label", words.search);
     const clearSearch=document.createElement("button");
     clearSearch.className="language-search-clear vt-language-clear-button";
