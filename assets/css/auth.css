@@ -298,7 +298,6 @@
 
 /* Узгоджена адаптація всіх наявних сторінок VATRA. */
 @media (min-width:1600px){
-   .form-box{max-width:510px}
   .reg-main{width:min(100%,680px)}
 }
 @media (min-width:1200px) and (max-width:1399px){
