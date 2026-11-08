@@ -314,7 +314,7 @@
         },
         "n10": {
           "text": {
-            "0": "Return to sign in"
+            "0": "Go to home"
           }
         },
         "n14": {
@@ -879,7 +879,7 @@
         },
         "n12": {
           "text": {
-            "0": "Your account is active. Your personal sections will be available as they are introduced."
+            "0": "Your account is active. Protect your password and never share verification codes."
           }
         },
         "n13": {
@@ -1003,7 +1003,7 @@
         },
         "n26": {
           "text": {
-            "0": "Rules for accounts, posts, safety, and interactions between users."
+            "0": "Rules for registration, sign-in, account security, and using the website."
           }
         },
         "n27": {
@@ -1089,10 +1089,10 @@
     "terms": {
       "meta": {
         "title": "Terms of Service · VATRA",
-        "description": "VATRA Terms of Service — accounts, content and safety on the Ukrainian social network.",
+        "description": "VATRA terms of use: registration, account access, and security.",
         "og:locale": "en_US",
         "og:title": "Terms of Service — VATRA",
-        "og:description": "VATRA Terms of Service — accounts, content and safety on the Ukrainian social network."
+        "og:description": "VATRA terms of use: registration, account access, and security."
       },
       "nodes": {
         "n1": {
@@ -1147,7 +1147,7 @@
         },
         "n18": {
           "text": {
-            "0": "Rules for using VATRA: accounts, safety, publishing, and respect for others."
+            "0": "VATRA website rules: registration, account access, security, and your rights."
           }
         },
         "n19": {
@@ -1182,12 +1182,12 @@
         },
         "n27": {
           "text": {
-            "0": "Content and copyright"
+            "0": "Website materials and copyright"
           }
         },
         "n28": {
           "text": {
-            "0": "Business, goods, and services"
+            "0": "Payments and external resources"
           }
         },
         "n29": {
@@ -1227,12 +1227,12 @@
         },
         "n39": {
           "text": {
-            "0": "Content and copyright"
+            "0": "Website materials and copyright"
           }
         },
         "n40": {
           "text": {
-            "0": "Business, goods, and services"
+            "0": "Payments and external resources"
           }
         },
         "n41": {
@@ -1257,7 +1257,7 @@
         },
         "n47": {
           "text": {
-            "0": "VATRA is a social platform for communication and interaction between people, creators, and businesses. These terms set out the general rules for using the website and your account."
+            "0": "VATRA is a Ukrainian web platform. You can create an account, sign in, and recover access. These terms govern use of the website and your account."
           }
         },
         "n48": {
@@ -1303,38 +1303,38 @@
         },
         "n59": {
           "text": {
-            "0": "Content and copyright"
+            "0": "Website materials and copyright"
           }
         },
         "n60": {
           "text": {
-            "0": "You are responsible for content you post on VATRA and must have the right to publish it. You retain ownership of the photographs, text, videos, and other content you create."
+            "0": "The VATRA name, logo, design, and informational website materials are protected by the rights of their respective lawful owners. Do not use them to mislead others about the site's identity."
           }
         },
         "n61": {
           "text": {
-            "0": "When you publish content using available service features, you grant VATRA only the permission needed to store, technically process, and display it to your chosen audience. This does not transfer ownership of your content to the platform."
+            "0": "Information you enter during registration is used to create and protect your account. Its processing is governed by the Privacy Policy, not by terms for publishing posts."
           }
         },
         "n63": {
           "text": {
-            "0": "Business, goods, and services"
+            "0": "Payments and external resources"
           }
         },
         "n64": {
           "text": {
-            "0": "If you use VATRA to promote a business, list products, or sell goods or services, describe your offerings accurately, do not mislead buyers, respect consumer rights, and comply with applicable trade laws."
+            "0": "Creating an account, signing in, and recovering a password on VATRA do not require payment. Never disclose passwords, verification codes, or payment card information to others."
           }
         },
         "n65": {
           "text": {
-            "0": "The terms of a particular purchase, refund, delivery, and the parties’ responsibilities depend on the service and the applicable agreement. ",
-            "1": " — do not enter payment details into registration fields."
+            "0": "Be cautious of third-party websites and messages impersonating VATRA. ",
+            "1": " — use only the official website address."
           }
         },
         "n66": {
           "text": {
-            "0": "The VATRA registration form does not accept payments"
+            "0": "VATRA does not request payment details during registration"
           }
         },
         "n68": {
@@ -1370,7 +1370,7 @@
         },
         "n75": {
           "text": {
-            "0": "VATRA may update its features and terms. Material changes to these terms will be posted here with an updated date; where required by law, users will be notified separately."
+            "0": "If these terms change, an updated version and its date will appear on this page. Users are notified of material changes when required by law."
           }
         },
         "n77": {
@@ -1722,7 +1722,7 @@
         },
         "n73": {
           "text": {
-            "0": "Retention periods for technical logs depend on service and provider settings. The interface does not currently provide self-service account deletion, so deleting all account information with one click is not currently available."
+            "0": "Retention periods for technical logs depend on service and provider settings. To request deletion of an account or personal data, contact vatra.support@gmail.com. Verification of account ownership may be required before fulfilling the request."
           }
         },
         "n75": {
@@ -2043,32 +2043,32 @@
         },
         "n64": {
           "text": {
-            "0": "VATRA advertising pixels"
+            "0": "Language preference (localStorage)"
           }
         },
         "n65": {
           "text": {
-            "0": "Tracking for personalized advertising"
+            "0": "Remembering the selected Ukrainian or English language"
           }
         },
         "n66": {
           "text": {
-            "0": "Not enabled in the code"
+            "0": "Yes"
           }
         },
         "n68": {
           "text": {
-            "0": "VATRA marketing analytics"
+            "0": "Cookie vatra-language"
           }
         },
         "n69": {
           "text": {
-            "0": "Measuring advertising campaigns"
+            "0": "Backing up the selected language for up to 365 days"
           }
         },
         "n70": {
           "text": {
-            "0": "Not enabled in the code"
+            "0": "Yes"
           }
         },
         "n71": {
@@ -2088,7 +2088,7 @@
         },
         "n75": {
           "text": {
-            "0": "VATRA pages do not currently include advertising pixels or optional marketing cookies that would require an 'Accept all' choice. VATRA does not display a fictitious consent banner."
+            "0": "VATRA uses technical storage for sign-in, security, and your selected language. The website does not use its own advertising pixels or marketing cookies."
           }
         },
         "n77": {
