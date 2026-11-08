@@ -482,11 +482,15 @@ for(const page of ["index","register","forgot","reset","account","404"]){
  assert.ok(!html.includes('footer-doc-icon'),
  "Document icons must not appear in footer: "+page);
 }
-for(const page of ["register","terms","privacy","cookies","forgot","reset","account","404"]){
+assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&&
+ uk.__pages.register.nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
+ !register.includes('href="./" class="vt-register-link-10"'),
+ "Confirmation screen must have one contextual sign-in link");
+for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
- uk.__pages[page].nodes[page==="register"?"n68":"n301"].text["0"]==="Увійти",
- "All guest sign-in CTAs must use the same Ukrainian verb on "+page);
+  uk.__pages[page].nodes.n301.text["0"]==="Увійти",
+  "All guest sign-in CTAs must use the same Ukrainian verb on "+page);
 }
 
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
