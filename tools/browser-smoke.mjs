@@ -620,7 +620,7 @@ try{
  await confirmationPage.locator("#first-name").fill("Тест");
  await confirmationPage.locator("#last-name").fill("Реєстрація");
  await confirmationPage.evaluate(()=>{
-  for(const [id,value] of [["birth-day","1"],["birth-month","1"],["birth-year","2000"]]){
+  for(const [id,value] of [["birth-day","01"],["birth-month","01"],["birth-year","2000"]]){
    const select=document.getElementById(id);
    select.value=value;
    select.dispatchEvent(new Event("change",{bubbles:true}));
