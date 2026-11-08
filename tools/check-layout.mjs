@@ -312,7 +312,7 @@ assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-pag
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
  "Gender and email help must open on hover and never overlap");
-assert.ok(css.includes("align-items:start")&&css.includes(".register-page .two>.field{align-content:start;align-self:start}"),
+assert.ok(css.includes("align-items:start")&&css.includes(".signup-form-panel .two>.field{align-content:start;align-self:start}"),
  "Two-column registration inputs must not move when a field shows validation errors");
 for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
