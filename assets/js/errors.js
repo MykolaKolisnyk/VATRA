@@ -6,16 +6,6 @@
  const pending=[],seen=new Map();
  let stack=null,shown=0,nextId=0;
  const MAX_VISIBLE=3,MAX_PENDING=12,DISPLAY_MS=5400;
- // A single branded welcome line in DevTools, not an error or warning.
- // Styling is intentionally self-contained: no CSS rules or extra assets.
- try{
-  console.log(
-   "%cVATRA%c  Ваші люди. Ваші історії. Ваша VATRA.",
-   "font:800 38px/1.4 Onest,system-ui,sans-serif;color:#6745dc;letter-spacing:2px;text-shadow:1px 1px 0 #eb4c99;",
-   "font:500 13px/1.4 Onest,system-ui,sans-serif;color:#63748f;"
-  );
- }catch(_){}
-
  const english=()=>document.documentElement.lang==="en";
 
  function redact(value){
