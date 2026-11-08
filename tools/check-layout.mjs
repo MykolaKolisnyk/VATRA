@@ -127,6 +127,15 @@ assert.ok(lang.includes('["uk","Українська","Ukrainian","ua",true]')&&
 const languageSection=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
 assert.equal((languageSection.match(/\["/g)||[]).length,36,"Language picker must show 36 choices");
 assert.equal((languageSection.match(/,true\]/g)||[]).length,2,"Only Ukrainian and English are active");
+const flagSymbols=new Set();
+for(const file of ["europe-a","europe-b","europe-c","world"]){
+ const sprite=await read("assets/flags/"+file+".svg");
+ for(const match of sprite.matchAll(/<symbol id="flag-([a-z]+)" viewBox="0 0 640 480"/g))
+  flagSymbols.add(match[1]);
+}
+assert.equal(flagSymbols.size,36,"All available VATRA language flags must be real vector symbols");
+for(const match of languageSection.matchAll(/\["[a-z]+","[^"]+","[^"]+","([a-z]+)"/g))
+ assert.ok(flagSymbols.has(match[1]),"Flag SVG missing for "+match[1]);
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
  "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
 assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)'),
