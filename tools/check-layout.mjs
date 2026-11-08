@@ -522,6 +522,12 @@ assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel:has(#recovery-step:not([hidden])) .forgot-intro{display:none}')&&
  !forgot.includes('assets/css/forgot.css'),
  "Password recovery must use the shared Onest styles and a single centered card");
+assert.ok(
+ forgot.includes('Якщо ця адреса належить акаунту VATRA, код відновлення надійде на')&&
+ uk.__pages.forgot.nodes.n18.text["0"].startsWith("Якщо ця адреса")&&
+ en.__pages.forgot.nodes.n18.text["0"].startsWith("If the address belongs")&&
+ !forgot.includes("Одноразовий цифровий код надіслано на адресу"),
+ "Recovery must not claim email delivery just because Supabase accepts a reset request");
 assert.ok(forgot.includes('id="recovery-step"')&&forgot.includes('id="recovery-code-form"'),"Recovery code step missing");
 assert.ok(forgot.includes('id="recovery-resend"'),"Repeat code request missing");
 assert.ok(reset.includes('id="reset-form"')&&reset.includes('id="recovery-code-form"'),"Direct reset code and password forms missing");

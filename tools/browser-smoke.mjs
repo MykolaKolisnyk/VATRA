@@ -692,6 +692,38 @@ try{
   await recoveryPage.close();
  }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
+
+ // Supabase intentionally returns success for unknown emails. Verify that
+ // the browser sends the request, remains non-enumerating, and does not claim delivery.
+ await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
+ const recoverySend=await context.newPage();
+ await recoverySend.addInitScript(()=>{
+  window.turnstile={
+   render(node,options){window.__recoveryCaptcha={node,options};return "mock-recovery-challenge";},
+   execute(){window.__recoveryCaptcha.options.callback("mock-recovery-token");},
+   remove(){window.__recoveryCaptcha=null;}
+  };
+ });
+ await recoverySend.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async (email,opts)=>{window.__recoveryRequest={email,opts};return {data:{},error:null};}}})};'
+ }));
+ await recoverySend.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
+ await waitReady(recoverySend);
+ await recoverySend.waitForFunction(()=>document.documentElement.lang==="uk");
+ await recoverySend.locator("#email").fill("notregistered@example.test");
+ await recoverySend.locator("#forgot-form button[type='submit']").click();
+ await recoverySend.locator("#recovery-step").waitFor({state:"visible",timeout:10000});
+ const sent=await recoverySend.evaluate(()=>window.__recoveryRequest);
+ assert.equal(sent.email,"notregistered@example.test");
+ assert.equal(sent.opts.captchaToken,"mock-recovery-token");
+ assert.ok(sent.opts.redirectTo.endsWith("/VATRA/reset.html"));
+ const caption=await recoverySend.locator(".recovery-step-caption").textContent();
+ assert.ok(caption.includes("Якщо ця адреса належить акаунту VATRA"),
+  "Success response must not claim that an email was delivered: "+caption);
+ await recoverySend.close();
+ await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
+ console.log("VATRA password recovery request with CAPTCHA and privacy-safe messaging: OK");
  console.log("VATRA password recovery typography and responsive OTP stage: OK");
  console.log("VATRA supporting page footers: OK");
 

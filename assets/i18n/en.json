@@ -784,7 +784,7 @@
         },
         "n8": {
           "text": {
-            "0": "Enter your account email address. You will receive an email with password recovery instructions."
+            "0": "Enter your account email. If the address is registered with VATRA, you will receive password recovery instructions."
           }
         },
         "n12": {
@@ -799,7 +799,7 @@
         },
         "n15": {
           "text": {
-            "0": "Please also check your spam folder."
+            "0": "Password recovery works for existing accounts. Please check your spam folder too."
           }
         },
         "n17": {
@@ -809,7 +809,7 @@
         },
         "n18": {
           "text": {
-            "0": "A one-time numeric code has been sent to "
+            "0": "If the address belongs to a VATRA account, a recovery code will be sent to "
           }
         },
         "n23": {
