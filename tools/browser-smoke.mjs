@@ -284,6 +284,60 @@ try{
  }
 
 
+
+ // Regression coverage for all four legal pages and supporting auth pages,
+ // checking actual browser geometry instead of just matching CSS strings.
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
+  for(const route of ["legal.html","terms.html","privacy.html","cookies.html"]){
+   const docs=await context.newPage();
+   await docs.setViewportSize({width,height});
+   await docs.goto(base+route,{waitUntil:"load"});
+   const sizes=await docs.evaluate(()=>{
+    const box=s=>document.querySelector(s)?.getBoundingClientRect();
+    const main=box(".policy-main"),footer=box(".auth-footer-content"),top=box(".policy-top-inner");
+    const logo=box(".policy-top .header-logo"),actions=box(".policy-top-actions");
+    const header=box(".policy-top"),pageFoot=box(".footer");
+    return {overflow:document.documentElement.scrollWidth-innerWidth,
+      exists:!!(main&&footer&&top&&logo&&actions&&header&&pageFoot),
+      mainLeft:main?.left,mainRight:main?.right,
+      footLeft:footer?.left,footRight:footer?.right,
+      topLeft:top?.left,topRight:top?.right,
+      logoRight:logo?.right,actionLeft:actions?.left,actionRight:actions?.right,
+      logoMid:logo?(logo.top+logo.bottom)/2:0,
+      actionMid:actions?(actions.top+actions.bottom)/2:0,
+      headerHeight:header?.height,footerWidth:pageFoot?.width,
+      tabCount:document.querySelectorAll(".policy-tabs a").length,
+      linksCount:document.querySelectorAll(".footer nav a").length};
+   });
+   assert.ok(sizes.exists,"Policy header or footer missing at "+width+" "+route);
+   assert.ok(sizes.overflow<=3,"Document horizontal overflow at "+width+" "+route+": "+JSON.stringify(sizes));
+   assert.ok(Math.abs(sizes.mainLeft-sizes.footLeft)<=2&&Math.abs(sizes.mainRight-sizes.footRight)<=2,
+    "Document footer is not aligned with content at "+width+" "+route+": "+JSON.stringify(sizes));
+   assert.ok(Math.abs(sizes.mainLeft-sizes.topLeft)<=2&&Math.abs(sizes.mainRight-sizes.topRight)<=2,
+    "Document header and content do not align at "+width+" "+route+": "+JSON.stringify(sizes));
+   assert.ok(sizes.logoRight<=sizes.actionLeft+2&&Math.abs(sizes.logoMid-sizes.actionMid)<=3,
+    "Document logo and login/signup controls must appear in one row at "+width+" "+route);
+   assert.ok(sizes.actionRight<=width+1&&sizes.headerHeight<=110,
+    "Document header wraps or extends beyond viewport at "+width+" "+route);
+   assert.equal(sizes.tabCount,4,"Legal navigation tabs missing at "+width+" "+route);
+   assert.ok(sizes.linksCount>=4,"Policy footer links missing at "+width+" "+route);
+   await docs.close();
+  }
+  console.log("VATRA document header/content/footer geometry "+width+"x"+height+": OK");
+ }
+ for(const route of ["forgot.html","reset.html","404.html"]){
+  const other=await context.newPage();
+  await other.setViewportSize({width:390,height:844});
+  await other.goto(base+route,{waitUntil:"load"});
+  const footer=await other.locator(".auth-footer-content").evaluate(node=>{
+   const rect=node.getBoundingClientRect();
+   return {left:rect.left,right:rect.right,scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
+  });
+  assert.ok(footer.left>=0&&footer.right<=footer.viewport+1&&footer.scrollWidth<=footer.viewport+3,
+   "Supporting page footer not constrained to viewport: "+route);
+  await other.close();
+ }
+ console.log("VATRA supporting page footers: OK");
  await reopened.close();
  await context.close();
 }finally{

@@ -319,10 +319,38 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes(page==="register"||page==="index"?"auth.css?v=20261108-shell19":"auth.css?v=20261108-layout12"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("auth.css?v=20261108-unified20"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
+// All public pages use the same footer structure; the full-width background
+// remains separate from the centered content. Documents have a working
+// single-row header independent of the former signup header styles.
+const footerNames=pages.filter(p=>p!=="offline");
+for(const page of footerNames){
+ const html=await read(page+".html");
+ const tag=page==="index"?"home":page;
+ assert.ok(html.includes('class="auth-footer-content ui-'+tag+'-footer-content-001"'),
+  page+": missing shared centered footer container");
+}
+for(const page of ["legal","terms","privacy","cookies"]){
+ const html=await read(page+".html");
+ assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
+  html.includes('class="reg-header policy-top ui-'+page+'-header-001"')&&
+  html.includes("legal.css?v=20261108-native2"),
+  page+": documents need a functioning unified header and fresh stylesheet");
+}
+for(const page of ["account","404"]){
+ const html=await read(page+".html");
+ assert.ok(html.includes('class="account-top-inner ui-'+page+'-header-inner-001"'),
+  page+": account-style header must align with the shared footer");
+}
+assert.ok(legalCss.includes(".policy-page .policy-top{display:flex;align-items:center;")&&
+ legalCss.includes(".policy-top-inner{display:flex;")&&
+ legalCss.includes(".policy-page .auth-footer-content{width:min(calc(100% - 52px),1100px)")&&
+ css.includes(".center-page .footer,.account-page .footer{padding-inline:0}")&&
+ css.includes(".account-top-inner{"),
+ "Page headers, document content and shared footer must use centered containers");
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
  css.includes(".register-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
