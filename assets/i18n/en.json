@@ -76,7 +76,6 @@
   "Ваш акаунт активний. Персональні розділи стануть доступними після їхнього відкриття.": "Your account is active. Your personal sections will be available as they are introduced.",
   "На головну": "Home",
   "Перейти до тексту": "Skip to content",
-  "Усі документи": "All documents",
   "VATRA · Інформація": "VATRA · Information",
   "Правила та приватність": "Terms & privacy",
   "Умови користування, захист персональних даних і дані браузера. Оберіть потрібний документ.": "Terms of use, personal data protection, and browser data. Choose the document you need.",
@@ -161,8 +160,6 @@
   "Микола Колісник": "Mykola Kolisnyk",
   ", фізична особа. Для звернень щодо правил користування та питань конфіденційності напишіть на": ", an individual. For questions about the terms or privacy, email",
   ". Не надсилайте паролі, коди входу чи документи з персональними даними без окремої захищеної процедури.": ". Do not send passwords, sign-in codes, or personal documents without a dedicated secure process.",
-  "Інші документи VATRA": "Other VATRA policies",
-  "До всіх документів": "View all documents",
   "Про Вашу приватність": "About your privacy",
   "Які дані обробляються": "Data processed by VATRA",
   "Навіщо потрібні Ваші дані": "Why VATRA needs your data",
@@ -640,17 +637,17 @@
         },
         "n205": {
           "text": {
-            "0": "Messaging"
+            "0": "#вашілюди"
           }
         },
         "n206": {
           "text": {
-            "0": "Communities"
+            "0": "#вашіісторії"
           }
         },
         "n207": {
           "text": {
-            "0": "Your personal VATRA ID"
+            "0": "#вашаvatra"
           }
         },
         "n208": {
@@ -1067,155 +1064,6 @@
         }
       }
     },
-    "legal": {
-      "meta": {
-        "title": "Terms and privacy · VATRA",
-        "description": "VATRA terms and privacy — policies of the Ukrainian social network, including terms, data protection and cookies.",
-        "og:locale": "en_US",
-        "og:title": "Terms and privacy — VATRA",
-        "og:description": "VATRA terms and privacy — policies of the Ukrainian social network, including terms, data protection and cookies."
-      },
-      "nodes": {
-        "n1": {
-          "text": {
-            "0": "Skip to content"
-          }
-        },
-        "n3": {
-          "attrs": {
-            "aria-label": "VATRA — home"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Create account"
-          }
-        },
-        "n9": {
-          "attrs": {
-            "aria-label": "Document sections"
-          }
-        },
-        "n11": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Terms & privacy"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Terms of use, personal data protection, and browser data. Choose the document you need."
-          }
-        },
-        "n19": {
-          "text": {
-            "0": "Updated November 8, 2026"
-          }
-        },
-        "n20": {
-          "attrs": {
-            "aria-label": "VATRA documents"
-          }
-        },
-        "n25": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n26": {
-          "text": {
-            "0": "Rules for accounts, posts, communities, messaging, copyright, marketplace sales, and safety."
-          }
-        },
-        "n27": {
-          "text": {
-            "0": "View document →"
-          }
-        },
-        "n32": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n33": {
-          "text": {
-            "0": "What information is used for sign-in, who processes it, and what rights you have."
-          }
-        },
-        "n34": {
-          "text": {
-            "0": "View document →"
-          }
-        },
-        "n43": {
-          "text": {
-            "0": "Why sessions are stored and how to manage browser data."
-          }
-        },
-        "n44": {
-          "text": {
-            "0": "View document →"
-          }
-        },
-        "n47": {
-          "text": {
-            "0": "Your data and rights"
-          }
-        },
-        "n48": {
-          "text": {
-            "0": "All policies are organized into separate documents to help you find information quickly."
-          }
-        },
-        "n49": {
-          "text": {
-            "0": "Learn more →"
-          }
-        },
-        "n51": {
-          "text": {
-            "1": " · Your people. Your stories. Your VATRA."
-          }
-        },
-        "n53": {
-          "attrs": {
-            "aria-label": "Additional links"
-          }
-        },
-        "n58": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
-          }
-        }
-      }
-    },
     "terms": {
       "meta": {
         "title": "Terms of Service · VATRA",
@@ -1524,16 +1372,6 @@
         "n82": {
           "text": {
             "0": "Mykola Kolisnyk"
-          }
-        },
-        "n85": {
-          "text": {
-            "0": "Other VATRA policies"
-          }
-        },
-        "n86": {
-          "text": {
-            "0": "View all documents"
           }
         },
         "n88": {
@@ -1896,16 +1734,6 @@
             "0": "Changes to personal data processing will be reflected in updated versions of this policy. Users will be notified of material changes when required by law."
           }
         },
-        "n92": {
-          "text": {
-            "0": "Other VATRA policies"
-          }
-        },
-        "n93": {
-          "text": {
-            "0": "View all documents"
-          }
-        },
         "n95": {
           "text": {
             "1": " · Your people. Your stories. Your VATRA."
@@ -2247,16 +2075,6 @@
         "n92": {
           "text": {
             "0": "VATRA Privacy Policy"
-          }
-        },
-        "n95": {
-          "text": {
-            "0": "Other VATRA policies"
-          }
-        },
-        "n96": {
-          "text": {
-            "0": "View all documents"
           }
         },
         "n98": {

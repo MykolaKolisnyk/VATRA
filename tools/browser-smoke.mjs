@@ -229,13 +229,17 @@ try{
     const d=document.querySelector(".language-dialog").getBoundingClientRect();
     const f=document.querySelector(".language-search-field").getBoundingClientRect();
     const s=document.querySelector("#vatra-language-search").getBoundingClientRect();
-    const label=document.querySelector(".language-search-field>span");
+    const label=document.querySelector(".language-search-shell .vatra-floating-hint");
+    const shell=document.querySelector(".language-search-shell");
     return {dialog:d.width,field:f.width,search:s.width,
       captionOffset:label.getBoundingClientRect().y-s.y,
-      captionSize:getComputedStyle(label).fontSize};
+      captionSize:getComputedStyle(label).fontSize,
+      uniqueHint:shell.querySelectorAll(".vatra-floating-hint").length,
+      placeholder:document.querySelector("#vatra-language-search").placeholder};
    });
-   assert.ok(picker.field>=picker.dialog-55&&picker.search>=picker.field-2,
-    "Language search must use the full dialog width "+width+" "+route+": "+JSON.stringify(picker));
+   assert.ok(picker.field>=picker.dialog-55&&picker.search>=picker.field-2&&
+    picker.uniqueHint===1&&picker.placeholder===" ",
+    "Search must have a single floating caption across dialog width "+width+" "+route+": "+JSON.stringify(picker));
    samples.push(picker);
    await probe.close();
   }
@@ -433,14 +437,26 @@ try{
  }
  console.log("VATRA floating hints, error spacing, and temporary validation: OK");
  // Each page uses the same language modal with a centered SVG X.
- for(const route of ["","register.html","legal.html"]){
+ for(const route of ["","register.html","terms.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
-  if(route!=="legal.html")await waitReady(probe);
+  if(route!=="terms.html")await waitReady(probe);
   await probe.locator("[data-language-trigger]").click();
   const search=probe.locator("#vatra-language-search");
+  assert.equal(await probe.locator(".language-search-shell .vatra-floating-hint").count(),1,
+   "Language search must not show duplicate captions");
   await search.fill("abcdef-not-a-language");
+  await probe.waitForTimeout(240);
+  const hintGeometry=await probe.evaluate(()=>{
+   const field=document.querySelector("#vatra-language-search");
+   const shell=document.querySelector(".language-search-shell");
+   const hint=shell.querySelector(".vatra-floating-hint");
+   const ir=field.getBoundingClientRect(),hr=hint.getBoundingClientRect();
+   return {raised:shell.classList.contains("is-floating"),hintBottom:hr.bottom,fieldTop:ir.top};
+  });
+  assert.ok(hintGeometry.raised&&hintGeometry.hintBottom<=hintGeometry.fieldTop+25,
+   "Search caption must float above typed text: "+JSON.stringify(hintGeometry));
   const clear=probe.locator(".language-search-clear");
   await clear.waitFor({state:"visible"});
   const pos=await probe.evaluate(()=>{
@@ -463,7 +479,7 @@ try{
  console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
- for(const route of ["legal.html","terms.html","privacy.html","cookies.html",
+ for(const route of ["terms.html","terms.html","privacy.html","cookies.html",
   "forgot.html","reset.html","404.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
@@ -476,7 +492,7 @@ try{
    "Create account CTA missing from "+route+": "+JSON.stringify(links));
   assert.equal(links.filter(x=>x.href==="/VATRA/").length,1,
    "Sign-in CTA missing from "+route+": "+JSON.stringify(links));
-  if(["legal.html","terms.html","privacy.html","cookies.html"].includes(route))
+  if(["terms.html","terms.html","privacy.html","cookies.html"].includes(route))
    assert.equal(links.length,2,"Legal page footer must not repeat its document tabs");
   await probe.close();
  }
@@ -527,7 +543,7 @@ try{
  // Regression coverage for all four legal pages and supporting auth pages,
  // checking actual browser geometry instead of just matching CSS strings.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
-  for(const route of ["legal.html","terms.html","privacy.html","cookies.html"]){
+  for(const route of ["terms.html","terms.html","privacy.html","cookies.html"]){
    const docs=await context.newPage();
    await docs.setViewportSize({width,height});
    await docs.goto(base+route,{waitUntil:"load"});

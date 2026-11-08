@@ -12,7 +12,6 @@ VATRA/
 ├── reset.html
 ├── account.html
 ├── 404.html
-├── legal.html
 ├── terms.html
 ├── privacy.html
 ├── cookies.html

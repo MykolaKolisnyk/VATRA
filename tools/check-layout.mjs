@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","register","forgot","reset","account","legal","terms","privacy","cookies","offline"];
+const pages=["index","404","register","forgot","reset","account","terms","privacy","cookies","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const css=await read("assets/css/auth.css");
 const legalCss=await read("assets/css/legal.css");
@@ -62,9 +62,11 @@ assert.ok(lang.includes('location.reload()'),"Language selection must reuse the 
 assert.ok(lang.includes('search.id = "vatra-language-search"')&&
  lang.includes('search.name = "vatra-language-search"'),
  "Language search input requires ID and name to support browser autofill");
-assert.ok(lang.includes('search.placeholder = "";')&&
- lang.includes('searchCaption.textContent = words.search;'),
- "Search fields must not show two stacked 'Search languages' captions");
+assert.ok(lang.includes('search.placeholder = " ";')&&
+ lang.includes('searchHint.textContent = words.search;')&&
+ lang.includes('searchShell.append(search,searchHint,clearSearch)')&&
+ css.includes('.language-search-shell .vatra-floating-hint{'),
+ "Language search must share one floating hint with auth inputs");
 assert.ok(lang.includes('clearSearch.className="language-search-clear vt-language-clear-button"')&&
  lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
  css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
@@ -343,8 +345,8 @@ for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("clear8")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes("auth.css?v=20261108-float25"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("floating9")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
+ assert.ok(html.includes("auth.css?v=20261108-hashtags26"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -358,11 +360,11 @@ for(const page of footerNames){
  assert.ok(html.includes('class="auth-footer-content ui-'+tag+'-footer-content-001"'),
   page+": missing shared centered footer container");
 }
-for(const page of ["legal","terms","privacy","cookies"]){
+for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
   html.includes('class="reg-header policy-top ui-'+page+'-header-001"')&&
-  html.includes("legal.css?v=20261108-cards4"),
+  html.includes("legal.css?v=20261108-docs5"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
 for(const page of ["account","404"]){
@@ -397,7 +399,7 @@ for(const page of ["legal","terms","privacy","cookies","forgot","reset","account
  en.__pages[page].nodes.n302.text["0"]==="Create account",
  page+": guest footer must provide sign-in and account creation in both languages");
 }
-for(const page of ["legal","terms","privacy","cookies"]){
+for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes("policy-eyebrow")&&!html.includes("VATRA · Інформація")&&
  !html.includes('href="terms.html" class="vt-'+page+'-footer-legal'),
@@ -412,28 +414,30 @@ assert.ok(css.includes(".login-form-kicker,.signup-form-kicker{display:inline-fl
  "Auth pages must share heading, eyebrow, paragraph and primary-button design tokens");
 assert.ok(css.includes(".intro-copy p strong{display:block;")&&
  css.includes(".signup-brand-copy{position:relative;z-index:1;text-align:center}")&&
- css.includes(".signup-brand-highlights{position:relative;z-index:1;display:flex;justify-content:center;"),
- "Promotional copy must be centered and have heading above description");
-for(const page of ["legal","terms","privacy","cookies"]){
+ css.includes(".signup-brand-highlights{position:relative;z-index:1;display:flex;justify-content:center;")&&
+ css.includes(".signup-brand-highlight{display:inline-flex;align-items:center;min-height:35px;"),
+ "Promotional copy and larger hashtag chips must be consistent");
+assert.ok(!register.includes("Особистий VATRA ID")&&
+ ["#вашілюди","#вашіісторії","#вашаvatra"].every(tag=>register.includes(">"+tag+"</span>"))&&
+ [205,206,207].every((id,i)=>uk.__pages.register.nodes["n"+id].text["0"]===["#вашілюди","#вашіісторії","#вашаvatra"][i]&&en.__pages.register.nodes["n"+id].text["0"]===["#вашілюди","#вашіісторії","#вашаvatra"][i]),
+ "All 3 branding hashtags should be localized consistently without personal ID");
+for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('policy-nav-icon')&&
  !html.includes('>Усі документи</a>')&&
  (html.match(/<nav class="policy-tabs[^"]*"[^>]*>/g)||[]).length===1,
  page+": only three text tabs should remain in legal navigation");
 }
-const legalHome=await read("legal.html");
-for(const [i,icon] of ["terms","privacy","cookies"].entries())
- assert.ok(legalHome.includes('class="ui-legal-svg-00'+(i+1)+' policy-card-svg"'),
-  "Improved SVG should remain on the three overview cards: "+icon);
-assert.ok(legalCss.includes('.policy-card-icon svg{')&&
- !legalCss.includes('.policy-nav-icon')&&!css.includes('.footer-doc-icon{'),
- "Only document cards should retain the enhanced icons");
+assert.ok(!legalCss.includes(".policy-cards")&&
+ !legalCss.includes(".policy-summary")&&!legalCss.includes(".policy-end")&&
+ !css.includes(".footer-doc-icon{"),
+ "Deleted document overview must leave no orphan card styles");
 for(const page of ["index","register","forgot","reset","account","404"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('footer-doc-icon'),
  "Document icons must not appear in footer: "+page);
 }
-for(const page of ["register","legal","terms","privacy","cookies","forgot","reset","account","404"]){
+for(const page of ["register","terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
  uk.__pages[page].nodes[page==="register"?"n68":"n301"].text["0"]==="Увійти",
@@ -465,7 +469,7 @@ assert.ok(errorPage.includes("Перейти на головну")&&!errorPage.i
 assert.ok(css.includes("color:#fff;text-decoration:none}")&&
  css.includes(".error-card a.error-action:hover"),
  "404 navigation link and arrow must not be underlined on hover");
-for(const name of ["legal","terms","privacy","cookies"]){
+for(const name of ["terms","privacy","cookies"]){
  const html=await read(name+".html");
  const dictionary=uk.__pages[name];
  assert.ok(html.includes("Оновлено 8 листопада 2026 року"),

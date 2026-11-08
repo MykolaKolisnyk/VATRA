@@ -271,18 +271,21 @@
     closeBtn.setAttribute("aria-label", words.close);
     closeBtn.textContent = "×";
     headingRow.append(texts, closeBtn);
-    const searchField = document.createElement("label");
+    const searchField = document.createElement("div");
     searchField.className = "field language-search-field vt-language-search-label";
-    const searchCaption = document.createElement("span");
-    searchCaption.className = "vt-language-search-caption";
-     searchCaption.textContent = words.search;
+    const searchShell = document.createElement("span");
+    searchShell.className = "vatra-input-shell language-search-shell";
+    const searchHint = document.createElement("span");
+    searchHint.className = "vatra-floating-hint vt-language-search-caption";
+    searchHint.setAttribute("aria-hidden","true");
+    searchHint.textContent = words.search;
     const search = document.createElement("input");
     search.className = "control language-search ui-language-search-input";
     search.type = "search";
     search.id = "vatra-language-search";
     search.name = "vatra-language-search";
     search.autocomplete = "off";
-    search.placeholder = ""; // The permanently visible caption already names this control.
+    search.placeholder = " "; // The floating hint replaces the native placeholder.
     search.setAttribute("aria-label", words.search);
     const clearSearch=document.createElement("button");
     clearSearch.className="language-search-clear vt-language-clear-button";
@@ -296,7 +299,12 @@
     cross.setAttribute("d","M18 6 6 18M6 6l12 12");
     clearIcon.append(cross);
     clearSearch.append(clearIcon);
-    searchField.append(searchCaption,search,clearSearch);
+    searchShell.append(search,searchHint,clearSearch);
+    searchField.append(searchShell);
+    const syncSearchHint=()=>searchShell.classList.toggle("is-floating",Boolean(search.value));
+    search.addEventListener("input",syncSearchHint);
+    search.addEventListener("change",syncSearchHint);
+    search.addEventListener("blur",syncSearchHint);
     const list = document.createElement("div");
     list.className = "language-grid ui-language-options-grid";
     list.tabIndex = 0;
@@ -410,6 +418,7 @@
       restoreFocus = e?.currentTarget || document.activeElement;
       for(const trigger of triggers)trigger.setAttribute("aria-expanded","true");
       search.value = "";
+      syncSearchHint();
       clearSearch.hidden = true;
       [...list.children].forEach(node => { node.hidden = false; });
       notFound.hidden = true;

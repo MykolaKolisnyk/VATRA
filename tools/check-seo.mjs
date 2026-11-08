@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const BASE="https://mykolakolisnyk.github.io/VATRA/";
-const pages=["index","404","register","forgot","reset","account","legal","terms","privacy","cookies","offline"];
-const publicPages=new Set(["index","legal","terms","privacy","cookies"]);
+const pages=["index","404","register","forgot","reset","account","terms","privacy","cookies","offline"];
+const publicPages=new Set(["index","terms","privacy","cookies"]);
 const sensitive=new Set(["404","register","forgot","reset","account"]);
 const css=await read("assets/css/auth.css");
 assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"Local Onest font missing");
@@ -39,6 +39,8 @@ for(const page of pages){
  assert.deepEqual(Object.keys(uk.__pages[page].nodes).sort(),Object.keys(en.__pages[page].nodes).sort(),
   filename+": dictionary node keys must correspond");
 }
-assert.equal((sitemap.match(/<loc>/g)||[]).length,5,"Exactly five canonical public VATRA URLs");
+assert.equal((sitemap.match(/<loc>/g)||[]).length,4,"Exactly four canonical public VATRA URLs");
+assert.ok(!sitemap.includes("legal.html"),"Deleted overview must not remain indexed");
+await assert.rejects(stat("legal.html"),{code:"ENOENT"},"Deleted document overview must not exist");
 assert.ok(!/\/VATRA\/(?:ua|en)\//.test(sitemap),"Old locale URLs must not be in sitemap");
 console.log("VATRA: one canonical HTML per page, bilingual JSON, metadata, and sitemap verified.");

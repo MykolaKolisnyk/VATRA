@@ -8,7 +8,7 @@
     const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
     if (!found) return;
     const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","404.html","offline.html"]);
+    const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html"","terms.html","privacy.html","cookies.html","404.html","offline.html"]);
     if (!allowed.has(file)) return;
     // Existing language preferences always win over old /ua/ or /en/ links.
     // Follow an old link's language only for visitors without a saved choice.
@@ -35,7 +35,7 @@
     location.replace(target+location.search+location.hash);
   })();
   </script><script src="/VATRA/assets/js/host.js"></script><script src="/VATRA/assets/js/errors.js?v=20261108-errors5"></script>
-  <script src="/VATRA/assets/js/lang.js?v=20261108-clear8"></script>
+  <script src="/VATRA/assets/js/lang.js?v=20261108-floating9"></script>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
   <meta name="color-scheme" content="light">
@@ -46,7 +46,7 @@
   <link rel="icon" type="image/svg+xml" href="/VATRA/assets/logo/vatra-app-icon.svg">
   <link rel="apple-touch-icon" href="/VATRA/assets/logo/vatra-app-icon.png">
   <link rel="preload" href="/VATRA/assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="stylesheet" href="/VATRA/assets/css/auth.css?v=20261108-float25">
+  <link rel="stylesheet" href="/VATRA/assets/css/auth.css?v=20261108-hashtags26">
   
   
   <link rel="manifest" href="/VATRA/site.webmanifest">
