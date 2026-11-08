@@ -399,7 +399,8 @@ try{
   "forgot.html","reset.html","account.html","404.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
-  await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+  await probe.goto(base+route,{waitUntil:"load"});
+  await probe.locator('.footer nav>a[href="register.html"]').waitFor({state:"attached",timeout:10000});
   const links=await probe.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(n=>({
    href:n.getAttribute("href"),text:n.textContent.trim()
   })));
