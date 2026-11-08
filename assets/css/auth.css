@@ -81,12 +81,12 @@
 .intro-copy p{margin:0;color:#627187;font-size:clamp(13px,1vw,15px);line-height:1.62;text-wrap:pretty}
 .intro-copy p strong{font-weight:750;color:#35465f}
 .orbit-notes{position:absolute;inset:0;z-index:4;pointer-events:none}
-.orbit-note{position:absolute;left:calc(50% + var(--note-x));top:calc(50% + var(--note-y));transform:translate(-50%,-50%);display:grid;place-items:center;min-height:26px;width:clamp(65px,11cqw,86px);padding:4px 6px;border:1px solid rgba(178,199,240,.55);border-radius:99px;background:rgba(255,255,255,.87);box-shadow:0 3px 13px rgba(57,93,164,.06);color:#5475b2;font-size:clamp(8px,1.28cqw,10px);line-height:1.15;letter-spacing:.01em;text-align:center;font-weight:750;text-transform:uppercase;white-space:normal;text-wrap:balance}
+.orbit-note{position:absolute;left:calc(50% + var(--note-x));top:calc(50% + var(--note-y));transform:translate(-50%,-50%);display:grid;place-items:center;min-height:26px;width:clamp(55px,9cqw,72px);padding:4px 5px;border:1px solid rgba(178,199,240,.55);border-radius:99px;background:rgba(255,255,255,.87);box-shadow:0 3px 13px rgba(57,93,164,.06);color:#5475b2;font-size:clamp(8px,1.28cqw,10px);line-height:1.15;letter-spacing:.01em;text-align:center;font-weight:750;text-transform:uppercase;white-space:normal;text-wrap:balance}
 .orbit-note-support{--note-x:0px;--note-y:calc(var(--inner-radius) * -.62)}
-.orbit-note-talk{--note-x:calc(var(--inner-radius) * .62);--note-y:calc(var(--inner-radius) * -.26)}
-.orbit-note-trends{--note-x:calc(var(--inner-radius) * .50);--note-y:calc(var(--inner-radius) * .50)}
-.orbit-note-choose{--note-x:calc(var(--inner-radius) * -.50);--note-y:calc(var(--inner-radius) * .50)}
-.orbit-note-love{--note-x:calc(var(--inner-radius) * -.62);--note-y:calc(var(--inner-radius) * -.26)}
+.orbit-note-talk{--note-x:calc(var(--inner-radius) * .59);--note-y:calc(var(--inner-radius) * -.24)}
+.orbit-note-trends{--note-x:calc(var(--inner-radius) * .44);--note-y:calc(var(--inner-radius) * .48)}
+.orbit-note-choose{--note-x:calc(var(--inner-radius) * -.44);--note-y:calc(var(--inner-radius) * .48)}
+.orbit-note-love{--note-x:calc(var(--inner-radius) * -.59);--note-y:calc(var(--inner-radius) * -.24)}
 @media(max-width:540px){
  .intro-copy{width:min(100%,440px);max-width:440px}
  .intro-copy p{font-size:13px;line-height:1.6}
