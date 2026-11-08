@@ -68,6 +68,8 @@
     const svg=document.createElementNS(ns,"svg");
     svg.classList.add("language-flag","ui-language-flag-"+(++flagSerial));
     svg.setAttribute("viewBox","0 0 640 480");
+    svg.setAttribute("preserveAspectRatio","xMidYMid meet");
+    svg.setAttribute("shape-rendering","geometricPrecision");
     svg.setAttribute("aria-hidden","true");
     const add=(tag,attributes)=>{
       const element=document.createElementNS(ns,tag);
@@ -79,11 +81,12 @@
       add("rect",{x:0,y:0,width:640,height:240,fill:"#0057b8"});
       add("rect",{x:0,y:240,width:640,height:240,fill:"#ffd700"});
     }else if(country==="gb"){
-      add("rect",{x:0,y:0,width:640,height:480,fill:"#012169"});
-      add("path",{d:"M0 0 640 480M640 0 0 480",stroke:"#fff","stroke-width":100});
-      add("path",{d:"M0 0 640 480M640 0 0 480",stroke:"#c8102e","stroke-width":40});
-      add("path",{d:"M320 0V480M0 240H640",stroke:"#fff","stroke-width":150});
-      add("path",{d:"M320 0V480M0 240H640",stroke:"#c8102e","stroke-width":82});
+      // Exact, sharp Union Jack paths from VATRA's existing flag SVG sprite.
+      add("path",{fill:"#012169",d:"M0 0h640v480H0z"});
+      add("path",{fill:"#fff",d:"m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"});
+      add("path",{fill:"#c8102e",d:"m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"});
+      add("path",{fill:"#fff",d:"M241 0v480h160V0zM0 160v160h640V160z"});
+      add("path",{fill:"#c8102e",d:"M0 193v96h640v-96zM273 0v480h96V0z"});
     }else{
       const group=Object.keys(flagGroups).find(key=>flagGroups[key].has(country))||"europe-a";
       const use=document.createElementNS(ns,"use");
@@ -229,9 +232,14 @@
       const label=document.createElement("span");
       label.className="vt-language-trigger-label-"+id;
       label.textContent=nativeLabels[current];
-      const chevron=document.createElement("span");
-      chevron.className="language-chevron vt-language-trigger-chevron-"+id;
-      chevron.textContent="⌄";
+      const chevron=document.createElementNS("http://www.w3.org/2000/svg","svg");
+      chevron.classList.add("language-chevron","ui-language-trigger-chevron-"+id);
+      chevron.setAttribute("viewBox","0 0 24 24");
+      chevron.setAttribute("aria-hidden","true");
+      const down=document.createElementNS("http://www.w3.org/2000/svg","path");
+      down.setAttribute("d","m6 9 6 6 6-6");
+      down.setAttribute("class","ui-language-chevron-path-"+id);
+      chevron.append(down);
       trigger.append(label,chevron);
       trigger.setAttribute("aria-label",words.name+": "+nativeLabels[current]);
       trigger.setAttribute("aria-expanded","false");
