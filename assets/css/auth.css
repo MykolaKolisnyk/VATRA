@@ -41,7 +41,7 @@
 /* VATRA: центральний логотип і вісім тематичних іконок на єдиній орбіті. */
 
 /* Іконки обертаються навколо центрального логотипа. */
-.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:0 0 auto;width:100%;height:clamp(360px,calc(var(--inner-radius) * 2 + 80px),540px);min-height:0;max-height:none;margin:0 auto;--inner-radius:min(34cqw,226px)}
+.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:0 0 auto;width:100%;height:clamp(340px,calc(var(--inner-radius) * 2 + 64px),498px);min-height:0;max-height:none;margin:0 auto;--inner-radius:min(34cqw,226px)}
 .intro-circle{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0}
 
 .intro-circle-inner{width:calc(var(--inner-radius) * 2);border:1.5px solid #a8c5f9;background:radial-gradient(circle,rgba(236,241,255,.65),transparent 73%);box-shadow:0 0 0 6px rgba(206,223,255,.13),inset 0 0 28px rgba(81,116,220,.05)}
