@@ -6,6 +6,7 @@ const emailNames=["confirmation","invite","recovery","magic-link","email-change"
 const css=await read("assets/css/auth.css");
 const legalCss=await read("assets/css/legal.css");
 const auth=await read("assets/js/auth.js");
+const errors=await read("assets/js/errors.js");
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
 const sw=await read("sw.js");
@@ -15,6 +16,12 @@ const offline=await read("offline.html");
 const uk=JSON.parse(await read("assets/i18n/uk.json"));
 const en=JSON.parse(await read("assets/i18n/en.json"));
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
+assert.ok(errors.includes('window.addEventListener("error"')&&
+ errors.includes('window.addEventListener("unhandledrejection"')&&
+ errors.includes("console.error=function")&&errors.includes("window.VATRA_ERRORS={show}"),
+ "VATRA must surface JavaScript, console, resource and promise errors");
+assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible"),
+ "Animated bottom-left diagnostics styling missing");
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"Unbalanced CSS");
 assert.ok(auth.includes("await window.VATRA_LANGUAGE?.ready"),"Auth must wait for translated fields");
 assert.ok(auth.includes('auth.auth.signInWithPassword(')&&auth.includes('auth.auth.signUp('),"Email sign in/up missing");
@@ -33,10 +40,11 @@ assert.ok(lang.includes('location.reload()'),"Language selection must reuse the 
 
 /* Verify language selection across independent page loads, cookie fallback,
    old Ukrainian bookmarks, and browsers which reject cookies. */
-const languageStart=lang.indexOf("  const LANGUAGE_KEY = ");
+const languageStart=lang.indexOf("  function cookieLanguage() {");
 const languageEnd=lang.indexOf("  /* A single URL per page.",languageStart);
 assert.ok(languageStart>=0&&languageEnd>languageStart,"Persistent language helper missing");
 const preferences=new Function("document","location","localStorage","ROOT","localFile",
+ 'const LANGUAGE_KEY="vatra-language";const validLanguage=value=>value==="uk"||value==="en";'+
  lang.slice(languageStart,languageEnd)+";return {saved,persist};");
 let cookieValue="",cookieAttributes="";
 const mockDocument={
@@ -109,6 +117,8 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
+assert.ok(offline.includes('errors.js?v=20261108-errors1')&&sw.includes('ROOT+"assets/js/errors.js"'),
+ "Offline diagnostics and cached resource must exist");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
 const ownRe=/\b(?:vt|ui)-[a-z0-9-]+/g;
@@ -157,8 +167,8 @@ assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
 assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-home-div-009"),
  "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
-assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,3,
- "Keep three understated caption words around the VATRA icon orbit");
+assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,5,
+ "Keep five short VATRA captions inside the logo orbit");
 assert.ok(landing.includes('data-i18n="n99"')&&landing.includes('data-i18n="n100"'),
  "Keep translated VATRA social-network description on the left");
 for(const feature of features){
@@ -166,8 +176,8 @@ for(const feature of features){
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(28cqw,178px)')&&
- css.includes('width:clamp(108px,27cqw,180px)')&&
+assert.ok(css.includes('--inner-radius:min(30cqw,205px)')&&
+ css.includes('width:clamp(95px,26cqw,194px)')&&
  css.includes('width:clamp(42px,9cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
@@ -176,7 +186,7 @@ const register=await read("register.html"),forgot=await read("forgot.html"),rese
 for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth.js"),"Shared auth module not loaded");
 for(const file of [landing,register,forgot]){
  assert.ok(file.includes('src="assets/js/captcha.js"'),"Cloudflare widget not loaded");
- assert.ok(file.indexOf('src="assets/js/captcha.js"')<file.indexOf('src="assets/js/auth.js"'),"Cloudflare must load before auth");
+ assert.ok(file.indexOf('src="assets/js/captcha.js')<file.indexOf('src="assets/js/auth.js'),"Cloudflare must load before auth");
 }
 assert.ok(register.includes('id="consent"')&&register.includes('id="signup-form"'),"Signup consent or form missing");
 for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
@@ -186,15 +196,21 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy.html" target="_blank"'),
  "Signup gender and email must explain why data is requested");
-assert.ok(auth.includes('if(page!=="register")input.removeAttribute("placeholder");'),
- "Registration placeholders must stay visible while login floating labels remain unchanged");
+assert.ok(auth.includes('if(page==="register")')&&auth.includes("reg-floating-label")&&
+ auth.includes('wrap.classList.toggle("is-raised",raised)'),
+ "Registration must animate interior hints while preserving external captions");
+assert.ok(css.includes(".register-page .reg-input-wrap.is-raised>.reg-floating-label"),
+ "Signup floating labels must rise visibly on focus and typed values");
+assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
+ auth.includes('help.addEventListener("pointerenter"'),
+ "Gender and email help must open on hover and never overlap");
 assert.ok(css.includes("align-items:start")&&css.includes(".register-page .two>.field{align-content:start;align-self:start}"),
  "Two-column registration inputs must not move when a field shows validation errors");
 for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('vt-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("picker3"),page+": language picker cache version missing");
+ assert.ok(html.includes("picker4")&&html.includes("errors.js?v=20261108-errors1"),page+": updated language picker and diagnostics missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -213,7 +229,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","sw.js"]){
+for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
