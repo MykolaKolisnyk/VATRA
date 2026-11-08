@@ -10,6 +10,7 @@ const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
 let auth=null;
+let validateRegistrationStep=()=>true;
 function goToMyAccount(){
  // Until dedicated profile routes exist, show the real account page.
  window.location.replace(url("account.html"));
@@ -284,21 +285,64 @@ function wireFieldValidation(){
    if(control.type!=="checkbox")check(control);
   });
  }
- form.addEventListener("submit",event=>{
+ const validateScope=scope=>{
   attempted=true;
   let first=null;
   for(const control of controls){
+   if(scope&&!scope.contains(control))continue;
+   if(control.closest("[data-register-step]")?.hidden)continue;
    if(control.id.startsWith("birth-")&&control.id!=="birth-day")continue;
    if(!check(control)&&!first)first=control;
   }
   if(first){
-   event.preventDefault();
-   event.stopImmediatePropagation();
    const focus=first.closest(".vatra-select")?.querySelector(".vatra-select-trigger")||first;
    focus.focus({preventScroll:true});
    focus.scrollIntoView({behavior:"smooth",block:"center"});
   }
+  return !first;
+ };
+ if(page==="register")validateRegistrationStep=validateScope;
+ form.addEventListener("submit",event=>{
+  if(page==="register"&&document.body.dataset.registrationStep==="1"){
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   q("#register-next")?.click();
+   return;
+  }
+  if(!validateScope(form)){
+   event.preventDefault();
+   event.stopImmediatePropagation();
+  }
  },true);
+}
+/* Two-step VATRA registration. Form values stay in memory while navigating;
+   no passwords or personal details are written to browser storage. */
+function wireRegistrationWizard(){
+ const form=q("#signup-form"),first=q('[data-register-step="1"]'),second=q('[data-register-step="2"]');
+ const next=q("#register-next"),back=q("#register-back"),progress=q(".signup-progress");
+ if(!form||!first||!second||!next||!back||!progress)return;
+ function show(step){
+  document.body.dataset.registrationStep=String(step);
+  first.hidden=step!==1;
+  second.hidden=step!==2;
+  for(const header of document.querySelectorAll("[data-step-heading]"))
+   header.hidden=Number(header.dataset.stepHeading)!==step;
+  for(const label of document.querySelectorAll("[data-step-label]"))
+   label.hidden=Number(label.dataset.stepLabel)!==step;
+  progress.setAttribute("aria-valuenow",String(step));
+  // Previous input values and any inline errors are retained when going back.
+ }
+ next.addEventListener("click",()=>{
+  if(!validateRegistrationStep(first))return;
+  show(2);
+  q("#email")?.focus({preventScroll:true});
+ });
+ back.addEventListener("click",()=>{
+  show(1);
+  q("#first-name")?.focus({preventScroll:true});
+ });
+ form.addEventListener("reset",()=>show(1));
+ show(1);
 }
 function wirePasswordButtons(){
  document.querySelectorAll("[data-password-toggle]").forEach(button=>{
@@ -481,6 +525,7 @@ async function initialize(){
  wireFloatingLabels();
  if(page==="register"){fillBirthdays();wireSelects();wireHoverHelp();}
  wireFieldValidation();
+ if(page==="register")wireRegistrationWizard();
  if(!window.supabase?.createClient){
   feedback("Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.","error");
   return;

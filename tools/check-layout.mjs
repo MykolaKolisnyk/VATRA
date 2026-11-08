@@ -260,6 +260,12 @@ for(const file of [landing,register,forgot]){
  assert.ok(file.indexOf('src="assets/js/captcha.js')<file.indexOf('src="assets/js/auth.js'),"Cloudflare must load before auth");
 }
 assert.ok(register.includes('id="consent"')&&register.includes('id="signup-form"'),"Signup consent or form missing");
+assert.ok(register.includes('data-register-step="1"')&&register.includes('data-register-step="2" hidden')&&
+ register.includes('id="register-next"')&&register.includes('id="register-back"')&&
+ register.includes('signup-brand ui-signup-brand-001')&&
+ css.includes('.signup-form-panel')&&css.includes('.signup-brand')&&
+ auth.includes('function wireRegistrationWizard()')&&auth.includes('validateRegistrationStep(first)'),
+ "Two-stage VATRA signup, branding and scoped validation must remain intact");
 for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
  assert.ok(register.includes('id="'+id+'"'),"Missing registration control: "+id);
 }
@@ -283,7 +289,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout12"),page+": scoped scrollbars stylesheet version missing");
+ if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-signup13"),page+": scoped scrollbars stylesheet version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");

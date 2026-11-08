@@ -369,12 +369,12 @@
         },
         "n9": {
           "text": {
-            "0": "Start your story on VATRA"
+            "0": "Tell us about yourself"
           }
         },
         "n10": {
           "text": {
-            "0": "One VATRA account brings together conversations, connections, communities, and creativity. After signing up, you will automatically receive your unique VATRA ID — your permanent number on the network."
+            "0": "Just a few details to make your VATRA profile truly yours."
           }
         },
         "n16": {
@@ -616,6 +616,86 @@
         "n78": {
           "attrs": {
             "aria-label": "Gender"
+          }
+        },
+        "n201": {
+          "attrs": {
+            "aria-label": "About VATRA"
+          }
+        },
+        "n202": {
+          "text": {
+            "0": "VATRA · UKRAINIAN SOCIAL NETWORK"
+          }
+        },
+        "n203": {
+          "text": {
+            "0": "Your space starts here."
+          }
+        },
+        "n204": {
+          "text": {
+            "0": "Find your people, share moments, and create your own story on VATRA."
+          }
+        },
+        "n205": {
+          "text": {
+            "0": "Messaging"
+          }
+        },
+        "n206": {
+          "text": {
+            "0": "Communities"
+          }
+        },
+        "n207": {
+          "text": {
+            "0": "Your personal VATRA ID"
+          }
+        },
+        "n208": {
+          "text": {
+            "0": "CREATE AN ACCOUNT"
+          }
+        },
+        "n209": {
+          "text": {
+            "0": "Step 1 of 2"
+          }
+        },
+        "n210": {
+          "text": {
+            "0": "Step 2 of 2"
+          }
+        },
+        "n211": {
+          "attrs": {
+            "aria-label": "Registration progress"
+          }
+        },
+        "n212": {
+          "text": {
+            "0": "Secure your account"
+          }
+        },
+        "n213": {
+          "text": {
+            "0": "Choose an email address and a strong password to sign in to VATRA."
+          }
+        },
+        "n214": {
+          "text": {
+            "0": "Continue"
+          }
+        },
+        "n215": {
+          "text": {
+            "0": "Back"
+          }
+        },
+        "n216": {
+          "attrs": {
+            "aria-label": "Create an account"
           }
         }
       }

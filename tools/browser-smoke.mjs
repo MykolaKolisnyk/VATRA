@@ -117,6 +117,40 @@ try{
  const inputStyle=await reopened.locator("#first-name").evaluate(node=>getComputedStyle(node).fontFamily);
  assert.ok(inputStyle.includes("Onest"),"Registration fields must use Onest");
  console.log("VATRA registration tooltips and floating input labels: OK");
+
+ // Signup wizard: block incomplete step one, retain values on Back, and check
+ // mobile display without contacting Supabase or creating real accounts.
+ const wizard=await context.newPage();
+ await wizard.setViewportSize({width:390,height:844});
+ await wizard.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await waitReady(wizard);
+ assert.equal(await wizard.locator('[data-register-step="2"]').isVisible(),false,"Second step must start hidden");
+ await wizard.locator("#register-next").click();
+ assert.equal(await wizard.locator('[data-register-step="1"]').isVisible(),true,"Empty identity step must not advance");
+ await wizard.locator("#first-name").fill("Тест");
+ await wizard.locator("#last-name").fill("Користувач");
+ await wizard.evaluate(()=>{
+  for(const [id,value] of [["birth-day","12"],["birth-month","05"],["birth-year","2000"]]){
+   const node=document.getElementById(id);
+   node.value=value;
+   node.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+ });
+ await wizard.locator("#register-next").click();
+ await wizard.locator('[data-register-step="2"]').waitFor({state:"visible"});
+ assert.equal(await wizard.locator(".signup-progress").getAttribute("aria-valuenow"),"2","Progress should announce step two");
+ assert.equal(await wizard.locator('[data-register-step="1"]').isVisible(),false,"Identity step should be hidden");
+ await wizard.locator("#email").fill("test@example.com");
+ await wizard.locator("#register-back").click();
+ assert.equal(await wizard.locator("#first-name").inputValue(),"Тест","First name must survive back navigation");
+ assert.equal(await wizard.locator("#last-name").inputValue(),"Користувач","Last name must survive back navigation");
+ assert.equal(await wizard.locator("#birth-year").inputValue(),"2000","Date of birth must survive back navigation");
+ await wizard.locator("#register-next").click();
+ assert.equal(await wizard.locator("#email").inputValue(),"test@example.com","Email must survive step navigation");
+ assert.ok((await wizard.evaluate(()=>document.documentElement.scrollWidth-innerWidth))<=3,"Mobile signup overflows horizontally");
+ await wizard.close();
+ console.log("VATRA two-step signup validation, progress, mobile layout and preserved inputs: OK");
+
  await reopened.close();
  await context.close();
 }finally{
