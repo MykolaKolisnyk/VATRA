@@ -239,7 +239,7 @@ assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
  "Language flag and chevron vectors must use precise geometry");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
 assert.ok(!css.includes(".orbit-note")&&
- css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 80px),540px)")&&
+ css.includes("height:clamp(340px,calc(var(--inner-radius) * 2 + 64px),498px)")&&
  css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0 auto;text-align:center}"),
  "VATRA welcome text must be centered below logo and no obsolete orbit slogans remain");
 assert.ok(auth.includes("function wireOrbitTooltips()")&&
