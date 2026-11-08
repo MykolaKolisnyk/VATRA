@@ -21,13 +21,16 @@ assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
  "Do not print a VATRA banner in DevTools; keep branded error alerts");
 assert.ok(errors.includes('window.addEventListener("error"')&&
  errors.includes('window.addEventListener("unhandledrejection"')&&
- errors.includes("console.error=function")&&
+ errors.includes('for(const kind of ["error","warn"])')&&
+ errors.includes('kind==="warn"?"warning":"error"')&&
  errors.includes('setTimeout(dismiss,DISPLAY_MS)')&&
  !errors.includes('window.VATRA_ERRORS={show}')&&
  !auth.includes("VATRA_ERRORS"),
- "Only console/runtime errors should appear as automatically dismissing toasts; form errors stay inline");
-assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible"),
- "Animated bottom-left console notices missing");
+ "Only console errors and warnings should show in automatically dismissing toasts; form errors stay inline");
+assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible")&&
+ css.includes(".vatra-error-toast--warning")&&css.includes("border-left-color:#d99a32")&&
+ errors.includes('VATRA · Попередження')&&errors.includes("VATRA · Warning"),
+ "Console errors and warnings need separate red and amber VATRA notification designs");
 assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-page .reg-input-wrap>.reg-floating-label')&&
  !css.includes('opacity:0;transform:translateY(10px)')&&
  !css.includes('.register-page .reg-input-wrap.is-raised>.control{padding-top:20px!important'),
@@ -203,6 +206,11 @@ assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
  "Five VATRA orbit slogans must be removed");
 assert.ok(landing.includes('data-i18n="n99"')&&landing.includes('data-i18n="n100"'),
  "Keep translated VATRA social-network description on the left");
+assert.ok(landing.includes('aria-label="Бізнес"')&&
+ landing.includes('data-i18n="n41">Бізнес</strong>')&&
+ uk.__pages.index.nodes.n41.text["0"]==="Бізнес"&&
+ en.__pages.index.nodes.n41.text["0"]==="Business",
+ "Business orbit icon must have concise Ukrainian and English labels");
 for(const feature of features){
  assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
@@ -212,9 +220,11 @@ assert.ok(css.includes('--inner-radius:min(33cqw,220px)')&&
  css.includes('width:clamp(130px,29cqw,224px)')&&
  css.includes('width:clamp(42px,8.2cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
-assert.ok(css.includes('grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)')&&
- css.includes('font-size:clamp(30px,2.3vw,36px)'),
- "Landing columns and right-side typography must be balanced");
+assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
+ css.includes('font-size:clamp(30px,2.3vw,36px)')&&
+ css.includes("max-width:69ch")&&
+ css.includes("font-size:clamp(14px,.9vw,15px)"),
+ "Landing columns must be equal and welcome text consistently readable on large and small screens");
 for(const name of features){
  assert.ok(css.includes(".feature-"+name+"{--icon-color:")&&
   landing.includes('class="ui-orbit-'+name+'-svg"'),
@@ -229,7 +239,7 @@ assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
 assert.ok(!css.includes(".orbit-note")&&
  css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 80px),540px)")&&
- css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:none;margin:0;text-align:left}"),
+ css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0;text-align:left}"),
  "VATRA welcome text must be left aligned with copyright and unused orbit slogans removed");
 assert.ok(auth.includes("function wireOrbitTooltips()")&&
  auth.includes('tip.classList.add("is-below")')&&
