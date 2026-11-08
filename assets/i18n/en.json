@@ -2521,7 +2521,7 @@
         },
         "n130": {
           "text": {
-            "0": "Find your people"
+            "0": "Support"
           }
         },
         "n131": {
@@ -2531,7 +2531,17 @@
         },
         "n132": {
           "text": {
-            "0": "Create"
+            "0": "Set trends"
+          }
+        },
+        "n133": {
+          "text": {
+            "0": "Choose the best"
+          }
+        },
+        "n134": {
+          "text": {
+            "0": "Fall in love"
           }
         }
       }
