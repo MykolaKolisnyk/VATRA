@@ -254,7 +254,8 @@ try{
     headerAbsent:!document.querySelector(".reg-header"),
     brandKickerAbsent:!document.querySelector(".signup-brand-eyebrow"),
     footerAligned:Math.abs(footerContent.left-brand.left)<=2&&Math.abs(footerContent.right-form.right)<=2,
-    authAnimation:getComputedStyle(document.querySelector('[data-register-step="1"]')).animationName,
+    authAnimation:getComputedStyle(document.querySelector(".signup-form-panel .narrow-form")).animationName,
+     stageAnimation:getComputedStyle(document.querySelector('[data-register-step="1"]')).animationName,
     backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
     backAligned:Math.abs(back.right-form.right)<=8,
     backAbove:nav.bottom<=main.top+2,
@@ -265,13 +266,14 @@ try{
   });
   assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.brandKickerAbsent&&layout.footerAligned,"Registration footer or brand label is misaligned at "+width+": "+JSON.stringify(layout));
-  assert.equal(layout.authAnimation,"vatraAuthReveal","Registration must use the same auth reveal animation");
+  assert.equal(layout.authAnimation,"vatraAuthReveal","Whole registration form must animate like sign-in");
+  assert.equal(layout.stageAnimation,"none","Only the full registration form should animate at entry");
   assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backAbove,
    "Signup header must be removed and Back link aligned to the card at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.backText.length>0,"Signup return link is missing at "+width);
   if(width>=1200&&layout.fits)
    assert.ok(layout.bottomGap>=27&&layout.bottomGap<=29,"Signup bottom gap must be 28px at "+width+": "+layout.bottomGap);
-  if(width>900){
+  if(width>=1200){
    assert.ok(layout.brand.x<layout.form.x&&Math.abs(layout.brand.y-layout.form.y)<=2,
     "Signup columns must align side-by-side at "+width);
   }else{
@@ -284,6 +286,82 @@ try{
  }
 
 
+
+
+ // Compare auth card widths, column sizes, and whole right-form animation across breakpoints.
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1199,900],[1200,800],[1280,800],[1440,900],[1600,900],[1920,1080]]){
+  const snapshots=[];
+  for(const route of ["","register.html"]){
+   const probe=await context.newPage();
+   await probe.setViewportSize({width,height});
+   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+   await waitReady(probe);
+   const layout=await probe.evaluate(()=>{
+    const box=s=>document.querySelector(s).getBoundingClientRect();
+    const card=box(".split,.reg-main"),brand=box(".intro-side,.signup-brand");
+    const panel=box(".form-side,.signup-form-panel"),footer=box(".auth-footer-content");
+    const form=document.querySelector(".form-box,.signup-form-panel .narrow-form");
+    return {width:card.width,height:card.height,x:card.x,
+     brandWidth:brand.width,brandHeight:brand.height,brandY:brand.y,
+     panelWidth:panel.width,panelHeight:panel.height,panelY:panel.y,
+     panelRight:panel.right,cardRight:card.right,footerWidth:footer.width,
+     animation:getComputedStyle(form).animationName,
+     duration:getComputedStyle(form).animationDuration,
+     stageAnimation:getComputedStyle(document.querySelector(".signup-step")||form).animationName,
+     overflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   assert.ok(layout.overflow<=3,"Auth horizontal overflow "+width+" "+route);
+   assert.equal(layout.animation,"vatraAuthReveal","Full form reveal missing "+width+" "+route);
+   assert.equal(layout.duration,"0.3s","Form reveal timing differs "+width+" "+route);
+   assert.ok(Math.abs(layout.panelRight-layout.cardRight)<=2,"Form panel misaligned "+width+" "+route);
+   snapshots.push(layout);
+   await probe.close();
+  }
+  const [login,signup]=snapshots;
+  assert.ok(Math.abs(login.width-signup.width)<=2&&Math.abs(login.x-signup.x)<=2,
+   "Sign-in and signup card widths/centering differ at "+width+": "+JSON.stringify(snapshots));
+  assert.ok(Math.abs(login.footerWidth-signup.footerWidth)<=2,
+   "Sign-in and signup footer widths differ at "+width);
+  assert.equal(signup.stageAnimation,"none","Signup fields must not animate separately from header");
+  if(width>=1200){
+   assert.ok(Math.abs(login.height-signup.height)<=2,
+    "Sign-in and signup card heights differ at "+width+": "+JSON.stringify(snapshots));
+   assert.ok(Math.abs(login.brandWidth-signup.brandWidth)<=2&&
+    Math.abs(login.panelWidth-signup.panelWidth)<=2,
+    "Auth columns differ at "+width+": "+JSON.stringify(snapshots));
+   assert.ok(Math.abs(signup.brandHeight-signup.panelHeight)<=2,
+    "Signup panel heights differ at "+width);
+  }else{
+   assert.ok(login.panelY<login.brandY,"Sign-in should stack form first "+width);
+   assert.ok(signup.brandY<signup.panelY,"Signup should stack branding first "+width);
+  }
+  console.log("VATRA auth card size & whole-form reveal "+width+"x"+height+": OK");
+ }
+ const stepTwo=await context.newPage();
+ await stepTwo.setViewportSize({width:1440,height:900});
+ await stepTwo.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await waitReady(stepTwo);
+ await stepTwo.locator("#first-name").fill("Тест");
+ await stepTwo.locator("#last-name").fill("Користувач");
+ await stepTwo.evaluate(()=>{
+  for(const [id,value] of [["birth-day","12"],["birth-month","05"],["birth-year","2000"]]){
+   const control=document.getElementById(id);control.value=value;
+   control.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+ });
+ await stepTwo.locator("#register-next").click();
+ await stepTwo.locator('[data-register-step="2"]').waitFor({state:"visible"});
+ const stepTwoGeometry=await stepTwo.evaluate(()=>{
+  const r=s=>document.querySelector(s).getBoundingClientRect();
+  const card=r(".reg-main"),panel=r(".signup-form-panel"),active=r('[data-register-step="2"]');
+  return {overflow:document.documentElement.scrollWidth-innerWidth,
+   activeWidth:active.width,panelWidth:panel.width,panelBottom:panel.bottom,cardBottom:card.bottom};
+ });
+ assert.ok(stepTwoGeometry.overflow<=3&&stepTwoGeometry.activeWidth<=stepTwoGeometry.panelWidth&&
+  stepTwoGeometry.panelBottom<=stepTwoGeometry.cardBottom+2,
+  "Desktop second registration step must fit inside the resized card: "+JSON.stringify(stepTwoGeometry));
+ await stepTwo.close();
+ console.log("VATRA resized signup step 2 desktop: OK");
 
  // Regression coverage for all four legal pages and supporting auth pages,
  // checking actual browser geometry instead of just matching CSS strings.

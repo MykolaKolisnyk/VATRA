@@ -142,7 +142,7 @@
 .site .footer,.register-page .footer{padding-inline:0}
 .auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
-.register-page .auth-footer-content{width:min(calc(100% - 64px),1200px)}
+.register-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .center-page .footer,.account-page .footer{padding-inline:0}
 .center-page .auth-footer-content,.account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
@@ -183,7 +183,7 @@
 
 .register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:flex-end;min-width:0;padding:18px 0 28px}
 .login-layout::before{content:"";display:block;flex:0 0 36px;margin-bottom:14px}
-.login-layout .split{margin:0 auto}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;min-height:36px;width:min(100% - 64px,1200px);margin:0 auto 14px;padding:0 3px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100% - 64px,1200px);flex:none;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch;margin:0 auto;padding:0}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+.login-layout .split{margin:0 auto}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;min-height:36px;width:min(calc(100% - 88px),1300px);margin:0 auto 14px;padding:0 3px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
 /* Registration captions are always visible; floating captions are reserved for sign-in. */
 /* Registration uses the same motion, controls, typography and focus states
    as sign-in; only the permanent captions above fields are additional. */
@@ -241,7 +241,7 @@
 
 
 /* VATRA registration experience: one brand column and two accessible form stages. */
-.signup-brand{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;min-width:0;min-height:620px;padding:clamp(32px,4.2vw,66px);border-radius:28px 0 0 28px;color:#fff;background:radial-gradient(circle at 85% 23%,rgba(140,86,241,.43),transparent 34%),radial-gradient(circle at 8% 75%,rgba(28,107,240,.24),transparent 38%),linear-gradient(155deg,#172753,#101a3c 85%);}
+.signup-brand{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;min-width:0;min-height:0;padding:clamp(32px,4.2vw,66px);border-radius:28px 0 0 28px;color:#fff;background:radial-gradient(circle at 85% 23%,rgba(140,86,241,.43),transparent 34%),radial-gradient(circle at 8% 75%,rgba(28,107,240,.24),transparent 38%),linear-gradient(155deg,#172753,#101a3c 85%);}
 .signup-brand::before,.signup-brand::after{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid rgba(218,228,255,.11);border-radius:50%;width:420px;aspect-ratio:1}
 .signup-brand::before{right:-245px;top:-150px}
 .signup-brand::after{left:-260px;bottom:-260px}
@@ -254,8 +254,8 @@
 .signup-brand-description{margin:0;max-width:38ch;color:#c6d4ed;font-size:15px;line-height:1.72}
 .signup-brand-highlights{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:27px}
 .signup-brand-highlight{display:inline-flex;align-items:center;min-height:32px;padding:7px 11px;border:1px solid rgba(218,228,255,.19);border-radius:999px;background:rgba(255,255,255,.065);color:#e9efff;font-size:11px;font-weight:620}
-.signup-form-panel{display:flex;align-items:center;min-width:0;padding:clamp(32px,4.1vw,64px);border:1px solid #e4e9f3;border-left:0;border-radius:0 28px 28px 0;background:#fff;box-shadow:12px 20px 54px rgba(32,44,79,.075)}
-.signup-form-panel .narrow-form{width:100%;max-width:560px;margin:0 auto;min-width:0}
+.signup-form-panel{display:flex;align-items:center;min-width:0;padding:clamp(30px,4vw,66px) clamp(28px,4.3vw,70px);border:1px solid #e4e9f5;border-left:0;border-radius:0 28px 28px 0;background:#fff;box-shadow:12px 20px 54px rgba(32,44,79,.075)}
+.signup-form-panel .narrow-form{width:100%;max-width:520px;margin:0 auto;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .signup-form-head{margin-bottom:25px}
 .signup-form-overline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
 .signup-form-kicker{font-size:10px;letter-spacing:.115em;font-weight:800;color:#5d70a0}
@@ -265,7 +265,7 @@
 .signup-progress-segment:first-child,.register-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
 .signup-step-heading :is(h1,h2){margin:0 0 11px;font-size:clamp(29px,2.6vw,39px);line-height:1.16;font-weight:760;letter-spacing:-.035em;color:#263650;text-wrap:balance}
 .signup-step-heading .subtitle{margin:0;color:#6a7792;font-size:14px;line-height:1.7;max-width:45ch}
-.signup-step{display:grid;gap:17px;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+.signup-step{display:grid;gap:17px;min-width:0}
 @keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
@@ -274,22 +274,12 @@
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-@media(max-width:900px){
- .register-page .reg-main{display:flex;flex-direction:column;width:min(100% - 40px,650px);gap:0}
- .register-page .auth-footer-content{width:min(100% - 40px,650px)}
- .reg-back-nav{width:min(100% - 40px,650px)}
- .signup-brand{min-height:0;gap:12px;padding:25px 28px;border-radius:22px 22px 0 0}
- .signup-brand-art,.signup-brand-highlights{display:none}
- .signup-brand-title{font-size:clamp(24px,4.3vw,31px);max-width:none;margin:0 0 7px}
- .signup-brand-description{font-size:13px;max-width:60ch;line-height:1.5}
- .signup-form-panel{border:1px solid #e4e9f3;border-top:0;border-radius:0 0 22px 22px;padding:30px clamp(20px,5vw,38px)}
-}
 @media(max-width:540px){
  .register-page .reg-main{width:100%;padding:0 12px}
  .reg-back-nav{width:calc(100% - 24px);margin-bottom:10px}
- .signup-brand{padding:22px 23px}
+ .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}
  .signup-brand-title{font-size:25px}
- .signup-form-panel{padding:27px 19px 30px}
+ .signup-form-panel{padding:33px 21px 35px;border-radius:0 0 21px 21px}
  .signup-form-head{margin-bottom:22px}
  .signup-progress{margin-bottom:22px}
  .signup-step-heading :is(h1,h2){font-size:clamp(27px,7vw,34px)}
@@ -297,7 +287,7 @@
  .signup-submit-row{grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:8px}
  .signup-submit-row .action{padding-inline:8px;font-size:12px}
 }
-@media(prefers-reduced-motion:reduce){.signup-brand-symbol,.signup-step,.site .form-box{animation:none!important}.signup-progress-segment{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.signup-brand-symbol,.signup-form-panel .narrow-form,.site .form-box{animation:none!important}.signup-progress-segment{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
@@ -376,26 +366,31 @@
 .legal-main{max-width:850px;margin:0 auto;padding:50px 25px 95px}.legal-main .header-logo{width:185px;margin-bottom:35px}.legal-main h1{font-size:36px;letter-spacing:-.045em}.legal-main h2{font-size:22px;margin-top:36px}.legal-main p{font-size:14px;line-height:1.8;color:#566277}
 
 /* Узгоджена адаптація всіх наявних сторінок VATRA. */
-@media (min-width:1600px){
-  .reg-main,.reg-back-nav,.register-page .auth-footer-content{width:min(100% - 112px,1280px)}
-}
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px clamp(24px,4vw,76px) 27px}
 
-  .form-side{padding:24px clamp(23px,3vw,44px)}
+  .form-side,.signup-form-panel{padding:24px clamp(23px,3vw,44px)}
 }
 @media (min-width:1200px) and (max-height:760px){
   .intro-side{padding-top:18px;padding-bottom:24px}
 
-  .form-side{padding-block:18px}
+  .form-side,.signup-form-panel{padding-block:18px}
 }
 @media (min-width:1200px) and (max-height:610px){
   /* Краще вертикальне прокручування, ніж приховані картки чи мікроскопічний текст. */
-  .split{min-height:670px}
+  .split,.reg-main{min-height:670px}
 }
 @media (max-width:1199px){
   /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
   .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
+  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0}
+  .register-page .auth-footer-content,.reg-back-nav{width:min(calc(100% - 40px),670px)}
+  .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
+  .signup-brand-art,.signup-brand-highlights{display:none}
+  .signup-brand-title{font-size:clamp(24px,4.3vw,31px);max-width:none;margin:0 0 7px}
+  .signup-brand-description{font-size:13px;max-width:60ch;line-height:1.5}
+  .signup-form-panel{border:1px solid #e4e9f5;border-top:0;border-radius:0 0 24px 24px;padding:42px clamp(24px,5vw,48px) 43px}
+  .signup-form-panel .narrow-form{max-width:510px}
   .site .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .form-side{order:0;min-height:0;padding:42px clamp(24px,5vw,48px) 43px;align-items:center;justify-content:center;border:1px solid #e4e9f5;border-bottom:0;border-radius:24px 24px 0 0}
   .form-box{width:min(100%,510px);margin:0 auto}
@@ -406,7 +401,6 @@
   .site .auth-footer-content,.register-page .auth-footer-content{justify-content:space-between;text-align:left}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
-  .reg-main{padding:0}
   .center-main{padding:40px 24px}
   .account-main{padding:28px 20px}
   .account-top{padding:17px 0}

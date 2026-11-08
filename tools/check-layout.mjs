@@ -296,6 +296,13 @@ assert.ok(register.includes('data-register-step="1"')&&register.includes('data-r
  css.includes('.signup-form-panel')&&css.includes('.signup-brand')&&
  auth.includes('function wireRegistrationWizard()')&&auth.includes('validateRegistrationStep(first)'),
  "Two-stage VATRA signup, branding and scoped validation must remain intact");
+assert.ok(css.includes('.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px)')&&
+ css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;margin:0 auto;min-width:0;animation:vatraAuthReveal .3s')&&
+ css.includes('.signup-step{display:grid;gap:17px;min-width:0}')&&
+ !css.includes('.signup-step{display:grid;gap:17px;min-width:0;animation:')&&
+ !css.includes('@media(max-width:900px)')&&
+ !css.includes('min(100% - 112px,1280px)'),
+ "Login and signup must share card dimensions, inner form sizing and full-form animation");
 for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
  assert.ok(register.includes('id="'+id+'"'),"Missing registration control: "+id);
 }
@@ -319,7 +326,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes("auth.css?v=20261108-unified20"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("auth.css?v=20261108-authsize21"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
