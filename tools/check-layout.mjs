@@ -16,6 +16,11 @@ const offline=await read("offline.html");
 const uk=JSON.parse(await read("assets/i18n/uk.json"));
 const en=JSON.parse(await read("assets/i18n/en.json"));
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
+assert.ok(errors.includes('"%cVATRA%c')&&
+ errors.includes('console.log(')&&
+ errors.includes('VATRA · Помилка')&&
+ errors.includes('VATRA · Error'),
+ "The console must display the VATRA name and all console-error alerts must carry the VATRA brand");
 assert.ok(errors.includes('window.addEventListener("error"')&&
  errors.includes('window.addEventListener("unhandledrejection"')&&
  errors.includes("console.error=function")&&
@@ -137,7 +142,7 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
-assert.ok(offline.includes('errors.js?v=20261108-errors2')&&sw.includes('ROOT+"assets/js/errors.js"'),
+assert.ok(offline.includes('errors.js?v=20261108-errors3')&&sw.includes('ROOT+"assets/js/errors.js"'),
  "Offline diagnostics and cached resource must exist");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
@@ -238,7 +243,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('vt-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("picker5")&&html.includes("errors.js?v=20261108-errors2"),page+": language picker and console diagnostics versions missing");
+ assert.ok(html.includes("picker5")&&html.includes("errors.js?v=20261108-errors3"),page+": language picker and console diagnostics versions missing");
  if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout7"),page+": scoped scrollbars stylesheet version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
