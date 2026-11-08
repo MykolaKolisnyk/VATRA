@@ -143,6 +143,8 @@
 .auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .register-page .auth-footer-content{width:min(calc(100% - 64px),1200px)}
+.center-page .footer,.account-page .footer{padding-inline:0}
+.center-page .auth-footer-content,.account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
 /* Єдиний вибір мови VATRA: одне джерело стилів для всіх сторінок. */
 .language-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:7px 9px;color:#64728b;background:transparent;border:1px solid transparent;border-radius:10px;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}
@@ -355,7 +357,8 @@
 .center-main .recovery-step .field-stack{gap:13px}
 .center-main .recovery-step .form-note{margin:0}
 @media(max-width:540px){.center-main .recovery-step{border-radius:16px;padding:19px 16px}.center-main .recovery-tools{gap:4px 12px}.center-main .recovery-step-title{font-size:21px}}
-.center-card{border:1px solid #e7ebf3;border-radius:22px;padding:35px;background:#fff;box-shadow:var(--shadow)}.center-card .header-logo{margin-bottom:27px}.account-page{min-height:100dvh;display:flex;flex-direction:column;background:#f7f9fd}.account-top{display:flex;justify-content:space-between;align-items:center;padding:24px max(25px,6vw);border-bottom:1px solid var(--line);background:white}.account-top .header-logo{width:165px}.account-main{flex:1;display:grid;place-items:center;padding:35px 20px}.account-card{width:min(100%,520px);padding:45px 35px;border-radius:24px;border:1px solid #e7ebf3;background:white;text-align:center;box-shadow:var(--shadow)}.account-card>img{width:95px;margin:0 auto 18px}.account-card h1{margin:0;font-size:30px;letter-spacing:-.045em}.account-card p{line-height:1.7;color:var(--soft);font-size:14px;overflow-wrap:anywhere}.account-card .action{margin-top:14px}.account-card .vatra-id{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:10px 0 6px;padding:9px 16px;border:1px solid #d9e5ff;border-radius:999px;background:#eff5ff;color:#2865D8;font-size:14px;font-weight:740;letter-spacing:.01em}/* VATRA 404: errors only, never a profile page. */
+.center-card{border:1px solid #e7ebf3;border-radius:22px;padding:35px;background:#fff;box-shadow:var(--shadow)}.center-card .header-logo{margin-bottom:27px}.account-page{min-height:100dvh;display:flex;flex-direction:column;background:#f7f9fd}.account-top{display:flex;align-items:center;padding:24px 0;border-bottom:1px solid var(--line);background:white}
+.account-top-inner{width:min(calc(100% - 88px),1300px);display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 auto;min-width:0}.account-top .header-logo{width:165px}.account-main{flex:1;display:grid;place-items:center;padding:35px 20px}.account-card{width:min(100%,520px);padding:45px 35px;border-radius:24px;border:1px solid #e7ebf3;background:white;text-align:center;box-shadow:var(--shadow)}.account-card>img{width:95px;margin:0 auto 18px}.account-card h1{margin:0;font-size:30px;letter-spacing:-.045em}.account-card p{line-height:1.7;color:var(--soft);font-size:14px;overflow-wrap:anywhere}.account-card .action{margin-top:14px}.account-card .vatra-id{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:10px 0 6px;padding:9px 16px;border:1px solid #d9e5ff;border-radius:999px;background:#eff5ff;color:#2865D8;font-size:14px;font-weight:740;letter-spacing:.01em}/* VATRA 404: errors only, never a profile page. */
 .error-page{background:radial-gradient(ellipse at 50% 38%,#eef2ff 0%,#f8faff 44%,#f7f9fd 80%);color:var(--ink)}
 .error-main{padding:clamp(30px,7vw,76px) 18px}
 .error-home-link{display:inline-flex;justify-content:center;align-items:center;gap:9px;min-height:43px;padding:10px 20px;border:1px solid #2865d8;border-radius:999px;background:#2865d8;box-shadow:0 8px 20px rgba(40,101,216,.18);color:#fff;font-size:13px;font-weight:700;line-height:1.35;text-decoration:none;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
@@ -406,7 +409,8 @@
   .reg-main{padding:0}
   .center-main{padding:40px 24px}
   .account-main{padding:28px 20px}
-  .account-top{padding:17px 24px}
+  .account-top{padding:17px 0}
+  .center-page .auth-footer-content,.account-page .auth-footer-content,.account-top-inner{width:min(calc(100% - 40px),670px)}
 }
 @media (max-width:540px){
   .language-backdrop{padding:12px}
@@ -433,7 +437,8 @@
   .center-main{padding:28px 18px}
   .center-card,.account-card{padding:27px 20px;border-radius:17px}
   .account-card h1{font-size:26px}
-  .account-top{padding:14px 18px}
+  .account-top{padding:14px 0}
+  .center-page .auth-footer-content,.account-page .auth-footer-content,.account-top-inner{width:calc(100% - 24px)}
   .account-top .header-logo{width:136px}
   .footer{padding:15px 17px;font-size:11px}
   .footer nav{gap:3px 12px}
