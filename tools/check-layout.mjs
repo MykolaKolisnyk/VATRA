@@ -24,6 +24,10 @@ assert.ok(auth.includes('auth.auth.updateUser({password})'),"Password update mis
 assert.ok(auth.includes('preferred_locale:english?"en":"uk"'),"Signup must store selected email language");
 assert.ok(!auth.includes("signInWithOtp({phone")&&!auth.includes("signUp({phone"),"Phone authentication prohibited");
 assert.ok(lang.includes('fetch(ROOT + "assets/i18n/" + current + ".json"'),"Both JSON dictionaries must be loaded");
+assert.ok(lang.indexOf('const validLanguage =')<lang.indexOf('const current = localFile ?'),
+ "Language validation must be initialized before calculating the current locale");
+assert.ok(lang.includes('function initLanguagePicker()')&&lang.includes('trigger.addEventListener("click",open)'),
+ "Language dropdown must initialize reliably even if script is loaded late");
 assert.ok(lang.includes('document.querySelectorAll("[data-i18n]")'),"DOM translation bindings missing");
 assert.ok(lang.includes('location.reload()'),"Language selection must reuse the same page URL");
 
