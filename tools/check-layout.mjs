@@ -308,12 +308,21 @@ for(const file of [landing,register,forgot]){
  assert.ok(file.indexOf('src="assets/js/captcha.js')<file.indexOf('src="assets/js/auth.js'),"Cloudflare must load before auth");
 }
 assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="polite" hidden')&&
- register.includes('id="signup-confirmation-address"')&&
+ !register.includes('signup-confirmation-emblem')&&
+ register.includes('id="signup-confirmation-resend"')&&
+ register.includes('id="signup-confirmation-expiry"')&&
  register.includes('id="signup-confirmation-restart"')&&
- css.includes('.signup-confirmation{display:grid;')&&
- auth.includes('markSignupPending(email);')&&
- auth.includes('restoreSignupConfirmation();'),
- "Successful registration must replace the wizard with a dedicated email-confirmation design");
+ !register.includes('id="signup-confirmation-restart" href=')&&
+ register.includes('content="Створити акаунт · VATRA"')&&
+ css.includes(".signup-confirmation-timing{")&&
+ auth.includes('auth.auth.resend({')&&
+ auth.includes('SIGNUP_RESEND_COOLDOWN_MS=60000')&&
+ auth.includes('SIGNUP_LINK_ESTIMATE_MS=900000'),
+ "The account-creation confirmation screen needs a distinct resend/cooldown state");
+assert.ok(uk.__pages.register.meta.title==="Створити акаунт · VATRA"&&
+ en.__pages.register.meta.title==="Create account · VATRA"&&
+ !register.includes('href="./" class="vt-register-link-10"'),
+ "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
  captcha.indexOf('dispose(scope,state);')<captcha.indexOf('waiting.resolve(token);')&&
  captcha.includes('try{window.turnstile?.remove?.(state.id);}catch(_){}')&&

@@ -265,19 +265,30 @@
 
 
 
-/* One self-contained post-signup state, not a second registration form. */
+/* Confirmation shares the registration typography and content width. */
 .signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal .3s both}
-.signup-confirmation-emblem{display:grid;place-items:center;width:86px;height:86px;margin:0 0 25px;border:1px solid #cce0fc;border-radius:26px;color:#2c67db;background:linear-gradient(145deg,#eef5ff,#e9edff);box-shadow:0 12px 28px rgba(40,101,216,.1)}
-.signup-confirmation-emblem svg{width:42px;height:42px}
-.signup-confirmation-kicker{color:#5174b5;font-size:11px;font-weight:800;letter-spacing:.1em;line-height:1.4}
-.signup-confirmation-title{margin:14px 0 12px;color:#2c3850;font-size:clamp(30px,3.2vw,41px);font-weight:770;letter-spacing:-.04em;line-height:1.18;text-wrap:balance}
-.signup-confirmation-description{margin:0;color:#657187;font-size:15px;line-height:1.65}
-.signup-confirmation-address-row{max-width:100%;margin:16px 0 0;padding:10px 17px;border:1px solid #d9e5fb;border-radius:11px;background:#f3f7ff;overflow-wrap:anywhere;color:#2450a2;font-size:14px;line-height:1.4}
+.signup-confirmation[hidden],.signup-form-panel .narrow-form[hidden]{display:none}
+.signup-confirmation-kicker{margin-bottom:16px}
+.signup-confirmation .signup-step-heading{width:100%}
+.signup-confirmation .signup-step-heading .subtitle{margin:0}
+.signup-confirmation-address-row{max-width:100%;margin:17px 0 0;padding:9px 16px;border:1px solid #d9e5fb;border-radius:11px;background:#f3f7ff;overflow-wrap:anywhere;color:#2450a2;font-size:14px;line-height:1.4}
 .signup-confirmation-address-row strong{font-weight:650}
-.signup-confirmation-tips{display:grid;gap:9px;width:100%;margin:26px 0 28px;padding:18px 20px;border:1px solid #deebf4;border-radius:17px;background:#f8fbfe;text-align:left}
-.signup-confirmation-tips p{margin:0;color:#566985;font-size:13px;line-height:1.6}
-.signup-confirmation-login{width:100%;max-width:380px}
-.signup-confirmation-change{display:inline-block;margin-top:19px;color:#2865d8;font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.signup-confirmation-tips{display:grid;gap:8px;width:100%;margin:23px 0 18px;padding:15px 18px;border:1px solid #deebf4;border-radius:15px;background:#f8fbfe;text-align:left}
+.signup-confirmation-tips p{margin:0;color:var(--soft);font-size:13px;line-height:1.6}
+.signup-confirmation-timing{width:100%;margin-bottom:19px;padding:14px 16px;border:1px solid #dfe7f4;border-radius:15px;background:#fff;text-align:left}
+.signup-confirmation-timer-row{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--ink);font-size:13px;font-weight:650}
+.signup-confirmation-timer-row strong{font-size:20px;line-height:1.3;font-variant-numeric:tabular-nums;font-weight:745;color:var(--blue)}
+.signup-confirmation-disclaimer{margin:8px 0 0;color:var(--soft);font-size:12px;line-height:1.5}
+.signup-confirmation-resend{width:100%}
+.signup-confirmation-resend:disabled{opacity:.68;cursor:not-allowed;box-shadow:none}
+.signup-confirmation-feedback{margin:10px 0 0;padding:10px 12px;border-radius:11px;width:100%;background:#eefaf3;color:#187556;font-size:13px;line-height:1.5}
+.signup-confirmation-feedback[data-type="error"]{background:#fff3f5;color:#a93f54}
+.signup-confirmation-delay{margin:12px 0 0;color:var(--soft);font-size:12px;line-height:1.5}
+.signup-confirmation-change{margin:17px 0 0;padding:6px;border:0;background:transparent;color:var(--blue);font:700 13px "Onest",sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.signup-confirmation-change-note{max-width:45ch;margin:6px 0 0;color:var(--soft);font-size:12px;line-height:1.5}
+.signup-confirmation-signin{margin-top:16px;color:var(--blue);font-size:12px;font-weight:650;text-decoration:none}
+.signup-confirmation-signin:hover{text-decoration:underline}
+.register-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}
 
 /* VATRA registration experience: one brand column and two accessible form stages. */
 .signup-brand{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:center;min-width:0;min-height:0;padding:clamp(32px,4.2vw,66px);border-radius:28px 0 0 28px;color:#fff;background:radial-gradient(circle at 85% 23%,rgba(140,86,241,.43),transparent 34%),radial-gradient(circle at 8% 75%,rgba(28,107,240,.24),transparent 38%),linear-gradient(155deg,#172753,#101a3c 85%);}

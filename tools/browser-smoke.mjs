@@ -601,8 +601,7 @@ try{
  }
  console.log("VATRA supporting page footers: OK");
 
- // Simulate successful email-only signup and real Turnstile teardown ordering.
- // No user is created and no request is sent to a live Supabase project.
+ // Exercise signup confirmation, one-click correction and CAPTCHA-protected resend (offline mocks only).
  const confirmationPage=await context.newPage();
  const lifecycleWarnings=[];
  confirmationPage.on("console",msg=>{if(msg.type()==="warning"&&msg.text().includes("Widget"))lifecycleWarnings.push(msg.text());});
@@ -620,17 +619,16 @@ try{
  });
  await confirmationPage.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
-  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null}),signUp:async params=>{window.__signupCaptcha=!!params.options?.captchaToken;return {data:{user:{id:"mock"},session:null},error:null};}}})};'
+  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null}),signUp:async params=>{window.__signupCaptcha=!!params.options?.captchaToken;return {data:{user:{id:"mock"},session:null},error:null};},resend:async params=>{window.__resendParams=params;return {data:{},error:null};}}})};'
  }));
  await confirmationPage.goto(base+"register.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
+ assert.equal(await confirmationPage.title(),"Створити акаунт · VATRA");
  await confirmationPage.locator("#first-name").fill("Тест");
- await confirmationPage.locator("#last-name").fill("Реєстрація");
+ await confirmationPage.locator("#last-name").fill("Користувач");
  await confirmationPage.evaluate(()=>{
   for(const [id,value] of [["birth-day","01"],["birth-month","01"],["birth-year","2000"]]){
-   const select=document.getElementById(id);
-   select.value=value;
-   select.dispatchEvent(new Event("change",{bubbles:true}));
+   const select=document.getElementById(id);select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));
   }
  });
  await confirmationPage.locator("#register-next").click();
@@ -640,20 +638,34 @@ try{
  await confirmationPage.locator("#consent").check();
  await confirmationPage.locator('#signup-form button[type="submit"]').click();
  await confirmationPage.locator("#signup-confirmation").waitFor({state:"visible"});
- assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false,"Signup wizard must disappear after a successful signup");
- assert.ok(await confirmationPage.locator("#signup-confirmation-address").textContent().then(x=>x.includes("@example.test")&&!x.includes("demo@")),"Confirmation must display only masked email");
- assert.equal(await confirmationPage.evaluate(()=>window.__signupCaptcha),true,"Signup must send captcha token to Supabase");
- assert.equal(await confirmationPage.evaluate(()=>window.__removedWithAttachedContainer),true,"Turnstile must be removed while the widget container is still present");
- assert.deepEqual(lifecycleWarnings,[],"Turnstile widget lifecycle must not trigger missing-widget warnings");
+ assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false);
+ assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
+ assert.equal(await confirmationPage.locator(".reg-back-nav a").isVisible(),false);
+ assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
+ assert.equal(await confirmationPage.locator("#signup-confirmation-expiry").textContent(),"15:00");
+ assert.equal(await confirmationPage.evaluate(()=>window.__signupCaptcha),true);
+ assert.equal(await confirmationPage.evaluate(()=>window.__removedWithAttachedContainer),true);
+ assert.deepEqual(lifecycleWarnings,[]);
+ await confirmationPage.locator("#signup-confirmation-restart").click();
+ assert.equal(new URL(confirmationPage.url()).pathname,"/VATRA/register.html");
+ assert.equal(await confirmationPage.locator('[data-register-step="2"]').isVisible(),true);
+ assert.equal(await confirmationPage.locator("#first-name").inputValue(),"Тест");
+ assert.equal(await confirmationPage.locator("#password").inputValue(),"");
  await confirmationPage.reload({waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
- assert.equal(await confirmationPage.locator("#signup-confirmation").isVisible(),true,"Waiting-for-email screen must survive a tab refresh");
- await confirmationPage.locator("#signup-confirmation-restart").click();
- await confirmationPage.waitForURL(/register\.html$/);
+ assert.equal(await confirmationPage.locator("#signup-confirmation").isVisible(),true);
+ await confirmationPage.evaluate(()=>{const key="vatra-signup-confirmation";const p=JSON.parse(sessionStorage.getItem(key));p.nextAllowedAt=Date.now()-1000;sessionStorage.setItem(key,JSON.stringify(p));});
+ await confirmationPage.reload({waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
- assert.equal(await confirmationPage.locator("#signup-confirmation").isVisible(),false,"Changing email must return to a clean registration form");
+ await confirmationPage.waitForFunction(()=>!document.querySelector("#signup-confirmation-resend").disabled);
+ await confirmationPage.locator("#signup-confirmation-resend").click();
+ await confirmationPage.waitForFunction(()=>!!window.__resendParams);
+ const data=await confirmationPage.evaluate(()=>window.__resendParams);
+ assert.equal(data.type,"signup");assert.equal(data.email,"demo@example.test");
+ assert.ok(data.options.captchaToken,"Resend must use CAPTCHA");
+ assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  await confirmationPage.close();
- console.log("VATRA confirmation screen and Turnstile lifecycle: OK");
+ console.log("VATRA signup confirmation/cooldown/inline correction: OK");
  await reopened.close();
  await context.close();
 }finally{

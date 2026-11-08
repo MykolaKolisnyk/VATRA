@@ -356,10 +356,10 @@
     },
     "register": {
       "meta": {
-        "title": "Sign up · VATRA",
+        "title": "Create account · VATRA",
         "description": "Create your VATRA account — a Ukrainian social network for conversations, communities, and creativity.",
         "og:locale": "en_US",
-        "og:title": "Sign up · VATRA",
+        "og:title": "Create account · VATRA",
         "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
         "og:image:alt": "Official VATRA app icon"
       },
@@ -667,7 +667,7 @@
         },
         "n211": {
           "attrs": {
-            "aria-label": "Registration progress"
+            "aria-label": "Account creation progress"
           }
         },
         "n212": {
@@ -707,12 +707,12 @@
         },
         "n219": {
           "text": {
-            "0": "Waiting for email confirmation"
+            "0": "Confirm your email address"
           }
         },
         "n220": {
           "text": {
-            "0": "We've sent a confirmation email. Open it and follow the button to activate your VATRA account."
+            "0": "Your account was created. We sent a confirmation link. Confirm your email to activate your VATRA account."
           }
         },
         "n221": {
@@ -722,12 +722,12 @@
         },
         "n222": {
           "text": {
-            "0": "No email yet? Check your Spam and Promotions folders."
+            "0": "No email yet? Check Spam and Promotions."
           }
         },
         "n223": {
           "text": {
-            "0": "Back to sign in"
+            "0": "Already confirmed? Sign in"
           }
         },
         "n224": {
@@ -758,6 +758,31 @@
         "n234": {
           "text": {
             "0": "#кліпи"
+          }
+        },
+        "n240": {
+          "text": {
+            "0": "Estimated link validity"
+          }
+        },
+        "n242": {
+          "text": {
+            "0": "Supabase controls the actual expiration. This countdown assumes VATRA's recommended 15-minute setting."
+          }
+        },
+        "n243": {
+          "text": {
+            "0": "Send confirmation email again"
+          }
+        },
+        "n244": {
+          "text": {
+            "0": "Changing an unconfirmed email requires creating another account. The original unconfirmed account will not be changed."
+          }
+        },
+        "n245": {
+          "text": {
+            "0": "Please wait at least 60 seconds before resending. The server may require a longer interval."
           }
         }
       }
@@ -2449,5 +2474,10 @@
         }
       }
     }
-  }
+  },
+  "Надсилаємо…": "Sending…",
+  "Повторити через": "Retry in",
+  "Лист надіслано повторно. Перевірте пошту.": "We sent another email. Check your inbox.",
+  "Щоб надіслати лист, поверніться до створення акаунта й укажіть email.": "To resend, return to account creation and enter your email.",
+  "Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.": "Changing an unconfirmed email requires creating another account. The original unconfirmed account will not be changed."
 }

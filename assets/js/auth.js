@@ -536,7 +536,10 @@ async function initialize(){
    if(!error&&data?.user){await goToMyAccount();return;}
   }catch(_){/* Якщо немає зв'язку, форма входу залишається доступною. */}
  }
- if(page==="register")wireRegister();
+ if(page==="register"){
+  try{const {data,error}=await auth.auth.getUser();if(!error&&data?.user?.email_confirmed_at){await goToMyAccount();return;}}catch(_){}
+  wireRegister();syncSignupCountdown();
+ }
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
  if(page==="account"){
@@ -569,40 +572,85 @@ function wireLogin(){
  });
 }
 const SIGNUP_PENDING_KEY="vatra-signup-confirmation";
-function maskSignupEmail(email){
- const parts=email.split("@");
- if(parts.length!==2)return "";
- const name=parts[0];
- return (name.length>2?name.slice(0,2):name.slice(0,1))+"•••@"+parts[1];
+const SIGNUP_RESEND_COOLDOWN_MS=60000;
+// The recommended 15-minute validity is an estimate, NOT a server-verified expiry.
+const SIGNUP_LINK_ESTIMATE_MS=900000;
+let signupPending=null,signupSending=false,signupTickTimer=null;
+function maskSignupEmail(email){const [name,domain]=email.split("@");return name&&domain?(name.length>2?name.slice(0,2):name.slice(0,1))+"•••@"+domain:"";}
+function signupClock(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
+function saveSignupPending(){try{sessionStorage.setItem(SIGNUP_PENDING_KEY,JSON.stringify(signupPending));}catch(_){}}
+function syncSignupCountdown(){
+ if(!signupPending)return;
+ const expiry=q("#signup-confirmation-expiry");
+ if(expiry)expiry.textContent=signupClock(signupPending.sentAt+SIGNUP_LINK_ESTIMATE_MS-Date.now());
+ const button=q("#signup-confirmation-resend");
+ if(!button)return;
+ const remaining=Math.max(0,(signupPending.nextAllowedAt||0)-Date.now());
+ button.disabled=signupSending||remaining>0||!signupPending.email||!auth;
+ button.textContent=signupSending?translate("Надсилаємо…"):remaining
+  ?translate("Повторити через")+" "+signupClock(remaining):translate("Надіслати лист ще раз");
 }
-function showSignupConfirmation(address){
- const screen=q("#signup-confirmation");
- const formPane=q(".signup-form-panel .narrow-form");
- if(!screen||!formPane)return;
- formPane.hidden=true;
- screen.hidden=false;
- const target=q("#signup-confirmation-address");
- const row=q(".signup-confirmation-address-row");
- if(target&&row){target.textContent=address||"";row.hidden=!address;}
+function showSignupMessage(message,error=false){
+ const box=q("#signup-confirmation-feedback");if(!box)return;
+ box.textContent=translate(message);box.dataset.type=error?"error":"success";box.hidden=false;
+}
+function showSignupConfirmation(pending){
+ const screen=q("#signup-confirmation"),form=q(".signup-form-panel .narrow-form");
+ if(!screen||!form)return;
+ signupPending=pending;form.hidden=true;screen.hidden=false;
+ const badge=q("#signup-confirmation-address"),row=q(".signup-confirmation-address-row");
+ if(badge&&row){badge.textContent=pending.address||"";row.hidden=!pending.address;}
  document.body.dataset.signupConfirmation="pending";
+ q("#signup-confirmation-feedback").hidden=true;
+ if(!signupTickTimer)signupTickTimer=setInterval(syncSignupCountdown,1000);
+ syncSignupCountdown();
  screen.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function restoreSignupConfirmation(){
  q("#signup-confirmation-restart")?.addEventListener("click",()=>{
-  try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
+  const form=q(".signup-form-panel .narrow-form"),screen=q("#signup-confirmation");
+  if(!form||!screen)return;
+  screen.hidden=true;form.hidden=false;document.body.dataset.signupConfirmation="editing";
+  if(signupPending?.email)q("#email").value=signupPending.email;
+  q("#password").value="";q("#password-confirm").value="";
+  const complete=q("#first-name").value.trim()&&q("#last-name").value.trim()&&
+   q("#birth-day").value&&q("#birth-month").value&&q("#birth-year").value;
+  if(complete)q("#register-next")?.click();
+  else{
+   q('[data-register-step="1"]').hidden=false;q('[data-register-step="2"]').hidden=true;
+   q('[data-step-heading="1"]').hidden=false;q('[data-step-heading="2"]').hidden=true;
+   q('[data-step-label="1"]').hidden=false;q('[data-step-label="2"]').hidden=true;
+   q(".signup-progress").setAttribute("aria-valuenow","1");
+   document.body.dataset.registrationStep="1";
+  }
+  feedback("Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.","info");
+  (complete?q("#email"):q("#first-name")).focus({preventScroll:true});
+ });
+ q("#signup-confirmation-resend")?.addEventListener("click",async()=>{
+  if(signupSending||!signupPending||Date.now()<(signupPending.nextAllowedAt||0))return;
+  if(!signupPending.email){showSignupMessage("Щоб надіслати лист, поверніться до створення акаунта й укажіть email.",true);return;}
+  signupSending=true;const screen=q("#signup-confirmation");syncSignupCountdown();
+  try{
+   const captcha=await captchaOptions(screen);
+   const {error}=await auth.auth.resend({type:"signup",email:signupPending.email,
+    options:{...captcha,emailRedirectTo:new URL("account.html",location.href).href}});
+   if(error)throw error;
+   const now=Date.now();signupPending.sentAt=now;signupPending.nextAllowedAt=now+SIGNUP_RESEND_COOLDOWN_MS;
+   saveSignupPending();showSignupMessage("Лист надіслано повторно. Перевірте пошту.");
+  }catch(error){showSignupMessage(getMessage(error),true);}
+  finally{resetCaptcha(screen);signupSending=false;syncSignupCountdown();}
  });
  try{
   const pending=JSON.parse(sessionStorage.getItem(SIGNUP_PENDING_KEY)||"null");
-  if(pending&&typeof pending.address==="string"&&Number.isFinite(pending.sentAt)
-   &&pending.sentAt<=Date.now()&&Date.now()-pending.sentAt<86400000){
-   showSignupConfirmation(pending.address);
-  }else sessionStorage.removeItem(SIGNUP_PENDING_KEY);
+  if(pending&&typeof pending.address==="string"&&Number.isFinite(pending.sentAt)&&
+   pending.sentAt<=Date.now()&&Date.now()-pending.sentAt<86400000)showSignupConfirmation(pending);
+  else sessionStorage.removeItem(SIGNUP_PENDING_KEY);
  }catch(_){}
+ window.addEventListener("pagehide",()=>{if(signupTickTimer)clearInterval(signupTickTimer);signupTickTimer=null;},{once:true});
 }
 function markSignupPending(email){
- const address=maskSignupEmail(email),sentAt=Date.now();
- try{sessionStorage.setItem(SIGNUP_PENDING_KEY,JSON.stringify({address,sentAt}));}catch(_){}
- showSignupConfirmation(address);
+ const now=Date.now();signupPending={email,address:maskSignupEmail(email),sentAt:now,nextAllowedAt:now+SIGNUP_RESEND_COOLDOWN_MS};
+ saveSignupPending();showSignupConfirmation(signupPending);
 }
 function wireRegister(){
  const form=q("#signup-form");
@@ -633,8 +681,8 @@ function wireRegister(){
     }
    });
    if(error)throw error;
-   form.reset();
-   if(data?.session){await goToMyAccount();return;}
+   if(data?.session){form.reset();await goToMyAccount();return;}
+   q("#password").value="";q("#password-confirm").value="";
    markSignupPending(email);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
