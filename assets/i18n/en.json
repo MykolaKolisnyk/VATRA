@@ -920,6 +920,16 @@
           "text": {
             "0": "Enter code"
           }
+        },
+        "n57": {
+          "text": {
+            "0": "Enter password"
+          }
+        },
+        "n58": {
+          "text": {
+            "0": "Confirm password"
+          }
         }
       }
     },
@@ -984,8 +994,8 @@
           }
         },
         "n25": {
-          "attrs": {
-            "placeholder": "Enter password"
+          "text": {
+            "0": "Enter password"
           }
         },
         "n26": {
@@ -1002,8 +1012,8 @@
           }
         },
         "n30": {
-          "attrs": {
-            "placeholder": "Enter password"
+          "text": {
+            "0": "Confirm password"
           }
         },
         "n31": {

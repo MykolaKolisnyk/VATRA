@@ -538,7 +538,7 @@ async function initialize(){
   /* Сесія вже зберігається в браузері. Не просимо входити повторно. */
   try{
    const {data,error}=await auth.auth.getUser();
-   if(!error&&data?.user){await goToMyAccount();return;}
+   if(!error&&data?.user?.email_confirmed_at){await goToMyAccount();return;}
   }catch(_){/* Якщо немає зв'язку, форма входу залишається доступною. */}
  }
  if(page==="register"){

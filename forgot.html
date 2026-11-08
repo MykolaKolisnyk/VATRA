@@ -17,15 +17,17 @@
   </div>
   <form id="reset-form" class="field-stack ui-forgot-form-003" hidden>
     <label class="field vt-forgot-label-03"><span class="vt-forgot-inline-05" data-i18n="n33">Новий пароль</span>
-      <span class="input-password vt-forgot-inline-06">
-        <input class="control ui-forgot-input-004" id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
-        <button type="button" class="eye-btn vt-forgot-button-05" data-password-toggle="password" aria-label="Показати пароль" aria-pressed="false" data-i18n="n36">Показати пароль</button>
+      <span class="input-password vatra-input-shell vt-forgot-inline-06">
+        <input class="control ui-forgot-input-004" id="password" name="password" type="password" autocomplete="new-password" placeholder=" " minlength="12" maxlength="128" required>
+        <button type="button" class="eye-btn vt-forgot-button-05" data-password-toggle="password" aria-label="Показати пароль" aria-pressed="false" data-i18n="n36" hidden>Показати пароль</button>
+        <span class="vatra-floating-hint vt-forgot-floating-hint-03" aria-hidden="true" data-i18n="n57">Введіть пароль</span>
       </span>
     </label>
     <label class="field vt-forgot-label-04"><span class="vt-forgot-inline-07" data-i18n="n38">Повторіть пароль</span>
-      <span class="input-password vt-forgot-inline-08">
-        <input class="control ui-forgot-input-005" id="password-confirm" name="password-confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
-        <button type="button" class="eye-btn vt-forgot-button-06" data-password-toggle="password-confirm" aria-label="Показати пароль" aria-pressed="false" data-i18n="n41">Показати пароль</button>
+      <span class="input-password vatra-input-shell vt-forgot-inline-08">
+        <input class="control ui-forgot-input-005" id="password-confirm" name="password-confirm" type="password" autocomplete="new-password" placeholder=" " minlength="12" maxlength="128" required>
+        <button type="button" class="eye-btn vt-forgot-button-06" data-password-toggle="password-confirm" aria-label="Показати пароль" aria-pressed="false" data-i18n="n41" hidden>Показати пароль</button>
+        <span class="vatra-floating-hint vt-forgot-floating-hint-04" aria-hidden="true" data-i18n="n58">Повторіть пароль</span>
       </span>
     </label>
     <button type="submit" class="action primary full vt-forgot-button-07" data-i18n="n42">Зберегти новий пароль</button>

@@ -907,6 +907,88 @@ try{
  await verifiedTab.close();
  await confirmationPage.close();
  console.log("VATRA signup confirmation and secure cross-tab verification: OK");
+ // Security and typography regression: password fields on both recovery pages.
+ for(const [route,width,language] of [["forgot.html",360,"uk"],["reset.html",1440,"en"]]){
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const view=await context.newPage();
+  await view.setViewportSize({width,height:900});
+  await view.goto(base+route,{waitUntil:"domcontentloaded"});
+  await waitReady(view);
+  await view.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  await view.evaluate(()=>{
+   document.querySelector("#recovery-code-form").hidden=true;
+   document.querySelector("#reset-form").hidden=false;
+   const stage=document.querySelector("#recovery-step");
+   if(stage)stage.hidden=false;
+   const initial=document.querySelector("#forgot-form");
+   if(initial)initial.hidden=true;
+  });
+  for(const [id,expected] of [["password",language==="uk"?"Введіть пароль":"Enter password"],
+    ["password-confirm",language==="uk"?"Повторіть пароль":"Confirm password"]]){
+   const field=view.locator("#"+id),shell=field.locator("..");
+   const hint=shell.locator(".vatra-floating-hint");
+   const toggle=view.locator("[data-password-toggle='"+id+"']");
+   assert.equal(await field.getAttribute("placeholder")," ");
+   assert.equal(await hint.textContent(),expected);
+   assert.equal(await toggle.isVisible(),false,"Password visibility button must start hidden");
+   await field.focus();
+   await view.waitForTimeout(230);
+   const scale=await field.evaluate(node=>{
+    const shell=node.closest(".vatra-input-shell");
+    const hint=shell.querySelector(".vatra-floating-hint");
+    return {floating:shell.classList.contains("is-floating"),
+     inputFont:getComputedStyle(node).fontFamily,hintFont:getComputedStyle(hint).fontFamily,
+     inputSize:parseFloat(getComputedStyle(node).fontSize),
+     hintSize:parseFloat(getComputedStyle(hint).fontSize)};
+   });
+   assert.ok(scale.floating&&scale.inputFont.includes("Onest")&&scale.hintFont.includes("Onest")&&
+    scale.inputSize===15&&scale.hintSize===11,
+    "Recovery password typography and animation must match other forms: "+JSON.stringify(scale));
+   await field.fill("StrongPassword@12345");
+   assert.equal(await toggle.isVisible(),true,"Show password should appear for nonempty input");
+   await field.fill("");
+   assert.equal(await toggle.isVisible(),false,"Show password should hide when field becomes empty");
+  }
+  const overflow=await view.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+  assert.ok(overflow<=3,"Recovery password stage must not overflow "+width+": "+overflow);
+  await view.close();
+ }
+ // If CAPTCHA could not initialize, sign-in must never call Supabase Auth.
+ const noCaptcha=await context.newPage();
+ await noCaptcha.route("**/assets/js/captcha.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:""
+ }));
+ await noCaptcha.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null}),signInWithPassword:async()=>{window.__unsafeLoginAttempt=true;return {error:null}}}})};'
+ }));
+ await noCaptcha.goto(base,{waitUntil:"domcontentloaded"});
+ await waitReady(noCaptcha);
+ await noCaptcha.locator("#email").fill("example@example.test");
+ await noCaptcha.locator("#password").fill("StrongPassword@12345");
+ await noCaptcha.locator('#login-form button[type="submit"]').click();
+ await noCaptcha.waitForFunction(()=>!document.querySelector("#response").hidden);
+ const declined=await noCaptcha.evaluate(()=>({
+  authCalled:window.__unsafeLoginAttempt===true,
+  message:document.querySelector("#response").textContent,
+  type:document.querySelector("#response").dataset.type
+ }));
+ assert.ok(!declined.authCalled&&declined.type==="error"&&declined.message.length>0,
+  "Failed CAPTCHA script must block login, not fail open: "+JSON.stringify(declined));
+ await noCaptcha.close();
+ // Unconfirmed sessions must never render protected account content or ping-pong between pages.
+ const unconfirmed=await context.newPage();
+ await unconfirmed.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:{id:"unconfirmed",email:"pending@example.test",email_confirmed_at:null}},error:null})}})};'
+ }));
+ await unconfirmed.goto(base+"account.html",{waitUntil:"domcontentloaded"});
+ await unconfirmed.waitForURL(url=>url.pathname==="/VATRA/"||url.pathname==="/VATRA/index.html",{timeout:10000});
+ await waitReady(unconfirmed);
+ assert.equal(await unconfirmed.locator("#login-form").isVisible(),true,
+  "Unconfirmed user must stay at login without redirect loops");
+ await unconfirmed.close();
+ console.log("VATRA security guards, recovery typography and responsive password fields: OK");
  await reopened.close();
  await context.close();
 }finally{

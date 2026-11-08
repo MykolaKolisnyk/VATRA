@@ -15,6 +15,45 @@ const network=await read("assets/js/network.js");
 const offline=await read("offline.html");
 const uk=JSON.parse(await read("assets/i18n/uk.json"));
 const en=JSON.parse(await read("assets/i18n/en.json"));
+assert.ok(
+ auth.includes('if(!window.VATRA_CAPTCHA?.enabled){const error=new Error("captcha_unavailable")')&&
+ auth.includes('if(error||!user||!user.email_confirmed_at)')&&
+ auth.includes('#reset-form .field:has(input.control)'),
+ "Auth requests must fail closed on missing CAPTCHA and profiles require confirmed email");
+for(const html of ["forgot.html","reset.html"]){
+ const src=await read(html);
+ for(const id of ["password","password-confirm"]){
+  const input=src.match(new RegExp('<input[^>]+id="'+id+'"[^>]+>'))?.[0]||"";
+  assert.ok(input.includes('placeholder=" "')&&!input.includes('data-i18n='),
+   html+": password input must have static floating hint and no native placeholder");
+ }
+ const hints=[...src.matchAll(/class="vatra-floating-hint[^"]*" aria-hidden="true" data-i18n="n(?:25|30|57|58)"/g)];
+ assert.equal(hints.length,2,html+": password fields must share two translated floating hints");
+}
+assert.ok(uk.__pages.forgot.nodes.n57.text["0"]==="Введіть пароль"&&
+ en.__pages.forgot.nodes.n58.text["0"]==="Confirm password"&&
+ uk.__pages.reset.nodes.n30.text["0"]==="Повторіть пароль"&&
+ en.__pages.reset.nodes.n25.text["0"]==="Enter password",
+ "Both recovery password screens must have matching Onest labels in both languages");
+// Reject same-context duplicate selector definitions; media-specific overrides are allowed.
+function repeatedCssSelectors(content){
+ const plain=content.replace(/\/\*[\s\S]*?\*\//g,"");
+ const scopes=[],seen=new Set(),duplicates=[];
+ let start=0;
+ for(let i=0;i<plain.length;i++){
+  if(plain[i]==="{"){
+   const selector=plain.slice(start,i).trim();
+   const scope=scopes.filter(v=>v.startsWith("@")).join("|");
+   if(selector&&!selector.startsWith("@")&&!scope.includes("@keyframes")){
+    const key=scope+"|"+selector;
+    if(seen.has(key))duplicates.push(key);else seen.add(key);
+   }
+   scopes.push(selector);start=i+1;
+  }else if(plain[i]==="}"){scopes.pop();start=i+1;}
+ }
+ return duplicates;
+}
+assert.deepEqual(repeatedCssSelectors(css),[],"Duplicate CSS selectors in the same responsive context");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
 assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
  errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),
