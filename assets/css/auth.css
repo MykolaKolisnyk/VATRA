@@ -76,6 +76,23 @@
 
 .intro-circle:focus-visible{outline:2px solid var(--blue)}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important} 
+/* VATRA welcome copy belongs under the orbit, not removed from the layout. */
+.intro-copy{position:relative;z-index:2;width:100%;max-width:570px;margin:15px auto 0}
+.intro-copy p{max-width:550px;margin:0;color:#627187;font-size:clamp(13px,1.05vw,16px);line-height:1.65;text-wrap:pretty}
+.intro-copy p strong{font-weight:750;color:#35465f}
+.orbit-notes{position:absolute;inset:0;z-index:2;pointer-events:none}
+.orbit-note{position:absolute;color:#8192bd;font-size:clamp(9px,1.75cqw,11px);font-weight:750;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.orbit-note-top{top:7%;left:50%;transform:translateX(-50%)}
+.orbit-note-left{left:14%;bottom:12%;transform:translateX(-50%)}
+.orbit-note-right{right:13%;bottom:12%;transform:translateX(50%)}
+@media(max-width:540px){
+ .intro-copy{max-width:440px;margin-top:12px}
+ .intro-copy p{font-size:13px;line-height:1.6}
+ .orbit-note{font-size:9px}
+ .orbit-note-top{top:4%}
+ .orbit-note-left,.orbit-note-right{bottom:9%}
+}
+@media(max-width:360px){.orbit-note-left,.orbit-note-right{bottom:6%}}
 .form-side{display:flex;align-items:center;justify-content:center;padding:clamp(22px,2.8vw,52px) clamp(26px,4vw,76px);min-width:0}.form-box{width:100%;max-width:490px}.form-box h2,.narrow-form h1{margin:0 0 10px;font-size:clamp(30px,2.75vw,40px);line-height:1.2;letter-spacing:-.025em;font-weight:710;text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}
 .captcha-dialog-open{overflow:hidden}
 .captcha-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:clamp(16px,4vw,32px);background:rgba(15,24,44,.58);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
@@ -144,9 +161,10 @@
 .language-option.is-selected .language-option-copy small{color:#2865D8;font-weight:700}
 .language-empty{color:var(--soft);font-size:13px;margin:14px 2px}
 
-.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px clamp(22px,4.5vw,68px);min-height:82px;border-bottom:1px solid #e9edf4;background:#ffffffa6}.reg-header .header-logo{width:165px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100%,640px);flex:1;margin:0 auto;padding:28px 22px 52px}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:15px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px clamp(22px,4.5vw,68px);min-height:82px;border-bottom:1px solid #e9edf4;background:#ffffffa6}.reg-header .header-logo{width:165px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100%,640px);flex:1;margin:0 auto;padding:28px 22px 52px}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:15px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
 /* Registration captions are always visible; floating captions are reserved for sign-in. */
 .register-page .field:has(input.control){position:relative;gap:8px}
+.register-page .field,.register-page .two>.field{align-content:start;align-self:start}
 .register-page .field:has(input.control)>span:first-child,
 .register-page .field:has(input.control).has-value>span:first-child,
 .register-page .field:has(input.control:focus)>span:first-child,
