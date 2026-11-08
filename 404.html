@@ -8,7 +8,7 @@
     const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
     if (!found) return;
     const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html"","terms.html","privacy.html","cookies.html","404.html","offline.html"]);
+    const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html","terms.html","privacy.html","cookies.html","404.html","offline.html"]);
     if (!allowed.has(file)) return;
     // Existing language preferences always win over old /ua/ or /en/ links.
     // Follow an old link's language only for visitors without a saved choice.
