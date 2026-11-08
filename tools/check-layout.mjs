@@ -248,7 +248,7 @@ assert.ok(auth.includes("function wireOrbitTooltips()")&&
 assert.ok(css.includes("@keyframes vatraCoreBreath")&&
  css.includes("animation:vatraCoreBreath 7s"),
  "Central VATRA logo must subtly float and breathe without modifying its artwork");
-assert.ok(css.includes('.register-page .reg-floating-label')&&
+assert.ok(css.includes('.register-page .reg-input-wrap>.reg-floating-label')&&
  css.includes(".register-page .reg-help-panel")&&
  css.includes(".vatra-error-stack"),
  "Animated input hints, hover help and diagnostic notices must share site styling");
