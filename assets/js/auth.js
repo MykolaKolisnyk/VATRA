@@ -248,6 +248,15 @@ function wireSelects(){
    list.append(item);
   }
   root.append(trigger,list);
+  // The visible registration caption also opens the custom gender selector.
+  const caption=document.querySelector('label[for="'+select.id+'"]');
+  if(caption){
+    caption.addEventListener("click",event=>{
+      event.preventDefault();
+      trigger.focus();
+      trigger.click();
+    });
+  }
   const update=()=>{
    const current=select.selectedOptions[0];
    display.textContent=current?.textContent||"";
