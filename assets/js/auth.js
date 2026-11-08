@@ -94,7 +94,9 @@ function wireFloatingLabels(){
  for(const field of fields){
   const input=field.querySelector("input.control");
   if(!input)continue;
-  input.removeAttribute("placeholder");
+  // Keep the descriptive text inside registration inputs. Only login/recovery
+  // use floating labels, where the outer label replaces the placeholder.
+  if(page!=="register")input.removeAttribute("placeholder");
   const sync=()=>field.classList.toggle("has-value",Boolean(input.value));
   input.addEventListener("input",sync);
   input.addEventListener("change",sync);
