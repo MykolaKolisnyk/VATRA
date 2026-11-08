@@ -197,6 +197,7 @@ for(const page of pages){
  assert.deepEqual(Object.keys(enMap).sort(),bindings.slice().sort(),filename+": English dictionary bindings mismatch");
 }
 const landing=await read("index.html");
+const registerHtmlHasBrandedSymbol=(await read("register.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/vatra-symbol.svg"');
 const features=["chat","business","communities","photos","video","music","marketplace","clips"];
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"Eight small features required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
@@ -217,13 +218,13 @@ for(const feature of features){
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
- css.includes('width:clamp(130px,29cqw,224px)')&&
- css.includes('width:clamp(42px,8.2cqw,58px)'),
+ css.includes('width:clamp(112px,15vw,180px)')&&
+ css.includes('width:clamp(44px,8.6cqw,61px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  css.includes('font-size:clamp(31px,2.55vw,40px)')&&
  css.includes("max-width:69ch")&&
- css.includes("font-size:clamp(14px,.9vw,15px)"),
+ css.includes(".intro-copy p{margin:0;color:var(--soft);font-size:15px"),
  "Landing columns must be equal and welcome text consistently readable on large and small screens");
 for(const name of features){
  assert.ok(css.includes(".feature-"+name+"{--icon-color:")&&
@@ -239,15 +240,18 @@ assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
 assert.ok(!css.includes(".orbit-note")&&
  css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 80px),540px)")&&
- css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0;text-align:left}"),
- "VATRA welcome text must be left aligned with copyright and unused orbit slogans removed");
+ css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0 auto;text-align:center}"),
+ "VATRA welcome text must be centered below logo and no obsolete orbit slogans remain");
 assert.ok(auth.includes("function wireOrbitTooltips()")&&
  auth.includes('tip.classList.add("is-below")')&&
  css.includes(".orbit-tooltip.is-below"),
  "Orbit tooltips must open below top icons instead of clipping behind browser chrome");
-assert.ok(css.includes("@keyframes vatraCoreBreath")&&
- css.includes("animation:vatraCoreBreath 7s"),
- "Central VATRA logo must subtly float and breathe without modifying its artwork");
+assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
+ css.includes(".intro-symbol,.signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite}")&&
+ !css.includes("vatraCoreBreath")&&
+ landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/vatra-symbol.svg"')&&
+ registerHtmlHasBrandedSymbol,
+ "Both auth logos must be identical symbols with the same animation and size");
 assert.ok(css.includes('.register-page .reg-input-wrap>.reg-floating-label')&&
  css.includes(".register-page .reg-help-panel")&&
  css.includes(".vatra-error-stack"),
@@ -258,7 +262,7 @@ assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"
  !landing.includes('class="login-header-logo')&&
  !landing.includes('class="login-brand-kicker vt-login-brand-kicker-01"')&&
  landing.includes('class="login-form-kicker vt-login-form-kicker-01"')&&
- css.includes(".login-form-overline{")&&
+ css.includes(".login-form-overline,.signup-form-overline{")&&
  css.includes("margin:auto;border-radius:28px")&&
  css.includes("border-radius:28px 0 0 28px")&&
  css.includes("border-radius:0 28px 28px 0"),
@@ -326,7 +330,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes("auth.css?v=20261108-polish22"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("auth.css?v=20261108-unity23"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -344,7 +348,7 @@ for(const page of ["legal","terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
   html.includes('class="reg-header policy-top ui-'+page+'-header-001"')&&
-  html.includes("legal.css?v=20261108-native2"),
+  html.includes("legal.css?v=20261108-icons3"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
 for(const page of ["account","404"]){
@@ -371,7 +375,7 @@ assert.ok(auth.includes('const raised=Boolean(input.value);'),
  "Empty registration fields must retain their centered hint on focus");
 for(const page of ["legal","terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
- assert.ok(html.includes('data-i18n="n301">Вхід</a>')&&
+ assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
  html.includes('data-i18n="n302">Створити акаунт</a>')&&
  uk.__pages[page].nodes.n302.text["0"]==="Створити акаунт"&&
  en.__pages[page].nodes.n302.text["0"]==="Create account",
@@ -382,6 +386,42 @@ for(const page of ["legal","terms","privacy","cookies"]){
  assert.ok(!html.includes("policy-eyebrow")&&!html.includes("VATRA · Інформація")&&
  !html.includes('href="terms.html" class="vt-'+page+'-footer-legal'),
  page+": redundant document eyebrow and footer navigation must be gone");
+}
+
+
+assert.ok(css.includes(".login-form-kicker,.signup-form-kicker{display:inline-flex;")&&
+ css.includes(".login-description,.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65")&&
+ css.includes(".form-box h2,.narrow-form h1,.signup-step-heading :is(h1,h2){margin:0 0 10px;")&&
+ css.includes(".site .form-box .action.primary,.signup-form-panel .action.primary{min-height:55px;"),
+ "Auth pages must share heading, eyebrow, paragraph and primary-button design tokens");
+assert.ok(css.includes(".intro-copy p strong{display:block;")&&
+ css.includes(".signup-brand-copy{position:relative;z-index:1;text-align:center}")&&
+ css.includes(".signup-brand-highlights{position:relative;z-index:1;display:flex;justify-content:center;"),
+ "Promotional copy must be centered and have heading above description");
+for(const page of ["legal","terms","privacy","cookies"]){
+ const html=await read(page+".html");
+ for(const section of ["legal","terms","privacy","cookies"])
+  assert.ok(html.includes('class="policy-nav-icon ui-policy-nav-'+section+'"'),
+   "Vector tab icons missing from "+page+": "+section);
+}
+const legalHome=await read("legal.html");
+for(const [i,icon] of ["terms","privacy","cookies"].entries())
+ assert.ok(legalHome.includes('class="ui-legal-svg-00'+(i+1)+' policy-card-svg"'),
+  "SVG icon missing on document card "+icon);
+assert.ok(legalCss.includes('.policy-nav-icon{display:block;width:18px;height:18px;')&&
+ css.includes('.footer-doc-icon{display:block;width:16px;height:16px;'),
+ "SVG icons must have canonical styles on tabs, cards and footer links");
+for(const page of ["index","register","forgot","reset","account","404"]){
+ const html=await read(page+".html");
+ for(const section of ["terms","privacy"])
+  assert.ok(html.includes('class="footer-doc-icon ui-footer-'+section+'"'),
+   "Footer document icon "+section+" missing on "+page);
+}
+for(const page of ["register","legal","terms","privacy","cookies","forgot","reset","account","404"]){
+ const html=await read(page+".html");
+ assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
+ uk.__pages[page].nodes[page==="register"?"n68":"n301"].text["0"]==="Увійти",
+ "All guest sign-in CTAs must use the same Ukrainian verb on "+page);
 }
 
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&

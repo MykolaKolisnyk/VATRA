@@ -416,6 +416,48 @@ try{
  }
  console.log("VATRA guest footer links and account creation labels: OK");
 
+
+ // Compare actual typography, button color and brand logo motion on auth pages.
+ for(const [width,height] of [[390,844],[1440,900],[1920,1080]]){
+  const settings=[];
+  for(const route of ["","register.html"]){
+   const probe=await context.newPage();
+   await probe.setViewportSize({width,height});
+   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+   await waitReady(probe);
+   const v=await probe.evaluate(()=>{
+    const login=!!document.querySelector(".site");
+    const style=sel=>{
+     const e=document.querySelector(sel),s=getComputedStyle(e),b=e.getBoundingClientRect();
+     return {fontSize:s.fontSize,color:s.color,fontWeight:s.fontWeight,lineHeight:s.lineHeight,
+       letterSpacing:s.letterSpacing,width:b.width,animation:s.animationName,duration:s.animationDuration};
+    };
+    return {kicker:style(login?".login-form-kicker":".signup-form-kicker"),
+      heading:style(login?".form-box h2":".signup-step-heading h1"),
+      desc:style(login?".login-description":".signup-step-heading .subtitle"),
+      logo:style(login?".intro-symbol":".signup-brand-symbol"),
+      copyAlign:getComputedStyle(document.querySelector(login?".intro-copy":".signup-brand-copy")).textAlign,
+      svg:document.querySelector(login?".intro-symbol":".signup-brand-symbol").getAttribute("src"),
+      primary:getComputedStyle(document.querySelector(login?".form-box .action.primary":".signup-form-panel .action.primary")).backgroundImage};
+   });
+   assert.equal(v.copyAlign,"center","Promo copy must be centered "+route+" "+width);
+   settings.push(v);
+   await probe.close();
+  }
+  const [login,signup]=settings;
+  for(const key of ["kicker","heading","desc"])
+   for(const prop of ["fontSize","color","fontWeight","lineHeight","letterSpacing"])
+    assert.equal(login[key][prop],signup[key][prop],
+     "Typography mismatch "+width+" "+key+"."+prop+": "+JSON.stringify(settings));
+  assert.equal(login.primary,signup.primary,"CTA gradients must match "+width);
+  assert.equal(login.svg,signup.svg,"Both logos must use same SVG asset "+width);
+  assert.equal(login.logo.animation,signup.logo.animation,"Logo animation differs "+width);
+  assert.equal(login.logo.duration,signup.logo.duration,"Logo motion duration differs "+width);
+  if(width>=1200)
+   assert.ok(Math.abs(login.logo.width-signup.logo.width)<=1,
+    "Brand symbol widths differ "+width+": "+JSON.stringify(settings));
+  console.log("VATRA matching typography & brand logo "+width+"x"+height+": OK");
+ }
  // Regression coverage for all four legal pages and supporting auth pages,
  // checking actual browser geometry instead of just matching CSS strings.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
