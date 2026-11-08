@@ -103,24 +103,9 @@ function wireFloatingHints(){
  const syncAll=[];
  for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control)")){
   const input=field.querySelector("input.control");
-  if(!input)continue;
-  const caption=field.querySelector(":scope > span:first-child");
-  const hintText=page==="register"?(input.getAttribute("placeholder")||"").trim():
-   (caption?.textContent||input.getAttribute("placeholder")||"").trim();
-  if(!hintText)continue;
-  let shell=input.parentElement;
-  if(!shell.classList.contains("input-password")){
-   shell=document.createElement("span");
-   shell.className="vatra-input-shell";
-   input.parentNode.insertBefore(shell,input);
-   shell.append(input);
-  }else shell.classList.add("vatra-input-shell");
-  const hint=document.createElement("span");
-  hint.className="vatra-floating-hint";
-  hint.setAttribute("aria-hidden","true");
-  hint.textContent=hintText;
-  shell.append(hint);
-  input.placeholder=" ";
+  const shell=input?.closest(".vatra-input-shell");
+  const hint=shell?.querySelector(":scope > .vatra-floating-hint");
+  if(!input||!shell||!hint)continue;
   const sync=()=>{
    const autofilled=input.matches(":-webkit-autofill");
    shell.classList.toggle("is-floating",
@@ -342,15 +327,31 @@ function wireRegistrationWizard(){
 }
 function wirePasswordButtons(){
  document.querySelectorAll("[data-password-toggle]").forEach(button=>{
+  const input=document.getElementById(button.dataset.passwordToggle);
+  if(!input)return;
+  const sync=()=>{
+   const hasText=input.value.length>0;
+   button.hidden=!hasText;
+   if(!hasText&&input.type!=="password"){
+    input.type="password";
+    button.textContent=translate("Показати");
+    button.setAttribute("aria-label",translate("Показати пароль"));
+    button.setAttribute("aria-pressed","false");
+   }
+  };
+  for(const event of ["input","change","animationstart"])input.addEventListener(event,sync);
+  input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
+  window.addEventListener("pageshow",sync);
   button.addEventListener("click",()=>{
-   const input=document.getElementById(button.dataset.passwordToggle);
-   if(!input)return;
+   if(!input.value)return;
    const reveal=input.type==="password";
    input.type=reveal?"text":"password";
    button.textContent=translate(reveal?"Приховати":"Показати");
    button.setAttribute("aria-label",translate(reveal?"Приховати пароль":"Показати пароль"));
    button.setAttribute("aria-pressed",String(reveal));
+   sync();
   });
+  sync();
  });
 }
 function validPassword(value){

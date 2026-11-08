@@ -164,7 +164,7 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
-assert.ok(offline.includes('errors.js?v=20261108-errors5')&&sw.includes('ROOT+"assets/js/errors.js"'),
+assert.ok(offline.includes('assets/js/errors.js')&&sw.includes('ROOT+"assets/js/errors.js"'),
  "Offline diagnostics and cached resource must exist");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
@@ -326,9 +326,28 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy.html#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
+for(const [path,ids] of [["index.html",["email","password"]],["register.html",["first-name","last-name","email","password","password-confirm"]]]){
+ const html=await read(path);
+ for(const id of ids){
+  const input=html.match(new RegExp('<input\\b[^>]*\\bid="'+id+'"[^>]*>'))?.[0]||"";
+  assert.ok(input.includes('placeholder=" "'),path+": floating control must not first render a native placeholder: "+id);
+ }
+ const hints=(html.match(/class="vatra-floating-hint"/g)||[]).length;
+ assert.equal(hints,ids.length,path+": one static floating caption per input");
+}
+for(const path of ["index.html","register.html"]){
+ const html=await read(path);
+ const toggles=[...html.matchAll(/<button[^>]*data-password-toggle="[^"]+"[^>]*>/g)];
+ assert.ok(toggles.length>0&&toggles.every(x=>/\\shidden(?:\\s|>)/.test(x[0])),path+": empty password controls must hide reveal buttons before JS runs");
+}
+assert.ok(css.includes('.signup-form-panel .field>span:first-child{font-size:13px;line-height:1.4;font-weight:700')&&
+ css.includes('.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px')&&
+ !css.includes('.three .control{font-size:12px'),"Registration captions and birthday selectors must share typography");
+assert.ok(auth.includes('button.hidden=!hasText;')&&auth.includes('if(!input.value)return;'),
+ "Password reveal controls must appear only after a value is entered");
 assert.ok(auth.includes('function wireFloatingHints()')&&
- auth.includes('hint.setAttribute("aria-hidden","true")')&&
- auth.includes('input.placeholder=" ";')&&
+ auth.includes('const hint=shell?.querySelector(":scope > .vatra-floating-hint");')&&
+ !auth.includes('document.createElement("span");\n  hint.className="vatra-floating-hint"')&&
  auth.includes('shell.classList.toggle("is-floating",')&&
  !auth.includes("wireStableInputHints"),
  "Both forms must restore floating hints without duplicates");
@@ -345,8 +364,8 @@ for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("floating9")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes("auth.css?v=20261108-hashtags26"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("assets/js/lang.js")&&html.includes("assets/js/errors.js"),page+": shared language picker and diagnostics missing");
+ assert.ok(html.includes("assets/css/auth.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -364,7 +383,7 @@ for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
   html.includes('class="reg-header policy-top ui-'+page+'-header-001"')&&
-  html.includes("legal.css?v=20261108-docs5"),
+  html.includes("assets/css/legal.css"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
 for(const page of ["account","404"]){
@@ -387,8 +406,8 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('.field-error::before{content:"!"'),
  "Orbit size and visual validation details must be updated");
-assert.ok(auth.includes('const hintText=page==="register"')&&
- auth.includes('(caption?.textContent||input.getAttribute("placeholder")||"").trim()')&&
+assert.ok(register.includes('class="vatra-input-shell"')&&
+ register.includes('class="vatra-floating-hint" aria-hidden="true"')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
 for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]){

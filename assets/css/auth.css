@@ -117,7 +117,7 @@
 @media(max-width:540px){.captcha-dialog{border-radius:19px;padding:25px 18px}.captcha-backdrop{padding:14px}}
 .field{display:grid;gap:8px;min-width:0}
 .field:has(input.control){position:relative;gap:8px}
-.field:has(input.control)>span:first-child,.field-caption{font-size:13px;font-weight:700;color:#48576d}
+.field:has(input.control)>span:first-child,.field-caption,.signup-form-panel .field>span:first-child{font-size:13px;line-height:1.4;font-weight:700;color:#48576d}
 /* The login label stays accessible; only the interior hint is visual. */
 .site .form-box .field:has(input.control)>span:first-child{
  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
@@ -132,7 +132,7 @@
  transform:translateY(-50%);transform-origin:left top;
  max-width:calc(100% - 110px);overflow:hidden;text-overflow:ellipsis;
  white-space:nowrap;pointer-events:none;user-select:none;color:var(--soft);
- font-size:14px;font-weight:500;line-height:1.2;
+ font-size:15px;font-weight:500;line-height:1.2;
  transition:top .18s ease,transform .18s ease,font-size .18s ease,color .18s ease
 }
 .vatra-input-shell.is-floating .vatra-floating-hint,
@@ -150,7 +150,7 @@
 .field.is-invalid .control,.field.is-invalid .vatra-select-trigger{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
 .field-error{display:flex;align-items:flex-start;gap:7px;width:100%;margin:8px 0 1px;color:#a83d54;font-size:12px;font-weight:650;line-height:1.5}.field-error::before{content:"!";display:grid;place-items:center;flex:none;width:15px;height:15px;margin-top:1px;border-radius:50%;background:#fff0f2;color:#b8435b;font-size:10px;font-weight:800}
 .check-terms.is-invalid{color:#a83d54}
-.check-terms>span{display:block;min-width:0;flex:1}.check-terms>span .field-error{display:flex;align-items:flex-start;gap:7px;margin:6px 0 0;flex-basis:auto}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vt-ua-home-inline-05,.vt-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}
+.check-terms>span{display:block;min-width:0;flex:1}.check-terms>span .field-error{display:flex;align-items:flex-start;gap:7px;margin:6px 0 0;flex-basis:auto}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px;font-weight:500;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vt-ua-home-inline-05,.vt-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}
 .vt-ua-register-inline-05,.vt-en-register-inline-05{font-weight:400;color:#627187}
 .login-recovery-link{display:flex;justify-content:flex-end;align-items:center;margin:22px 0 30px}.remember{display:flex;gap:8px;align-items:center;color:#647086;cursor:pointer;font-size:12px}.remember input,.check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}.simple-link{color:var(--blue);font-size:13px;font-weight:700}.simple-link:hover{text-decoration:underline}.action{border:1px solid transparent;display:inline-flex;justify-content:center;align-items:center;min-height:52px;border-radius:999px;padding:12px 22px;font-size:14px;font-weight:700;line-height:1.35;text-align:center;transition:background .17s,transform .17s}.action:active{transform:translateY(1px)}.action.primary{background:var(--blue);color:white}.action.primary:hover{background:var(--blue2)}.action.secondary{color:var(--blue);background:white;border:1.5px solid #4b81ff}.action.secondary:hover{background:#f2f6ff}.action.subtle{color:#39475D;background:#f0f2f6}.action.subtle:hover{background:#e7ebf2}.action.full{width:100%}.form-box h2{margin-bottom:10px}
 .login-description,.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}.login-description{margin:0 0 34px}
@@ -321,7 +321,7 @@
 .vatra-select-native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;clip-path:inset(50%);overflow:hidden}
 .vatra-select-trigger{display:flex;align-items:center;justify-content:flex-start;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .vatra-select-trigger span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.vatra-select-trigger.is-placeholder{color:#627187}
+.vatra-select-trigger.is-placeholder{color:var(--soft)}
 .vatra-select.is-open{z-index:50}
 .vatra-select.is-open .vatra-select-trigger{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
 .vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;max-height:304px;overflow-y:auto;overscroll-behavior:contain;padding:6px;background:#fff;border:1px solid #d7ddea;border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15);scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
@@ -329,7 +329,7 @@
 
 
 .vatra-select.opens-up .vatra-select-list{top:auto;bottom:calc(100% + 7px)}
-.vatra-select-option{display:block;width:100%;min-height:39px;padding:9px 12px;border:0;border-radius:8px;text-align:left;background:#fff;color:var(--ink);font-size:13px;line-height:1.4;font-weight:500}
+.vatra-select-option{display:block;width:100%;min-height:39px;padding:9px 12px;border:0;border-radius:8px;text-align:left;background:#fff;color:var(--ink);font-size:15px;line-height:1.4;font-weight:500}
 .vatra-select-option:hover,.vatra-select-option:focus-visible{background:#f1f5ff;color:var(--blue);outline:none}
 .vatra-select-option[aria-selected="true"]{background:#eaf1ff;color:#2865D8;font-weight:700}
 .terms{color:#627187;font-size:12px;line-height:1.7;margin:2px 0}.terms a{color:var(--blue);font-weight:700}.check-terms{display:flex;gap:11px;align-items:flex-start;cursor:pointer}.check-terms input{flex:none;margin-top:3px}.reg-actions{display:grid;gap:11px}.reg-actions .action{width:100%}.reg-bottom{text-align:center;font-size:13px;color:#627187;margin:20px 0 0}.reg-bottom a{color:var(--blue);font-weight:700}
@@ -449,7 +449,7 @@
   .form-rows{gap:14px}
   .two{grid-template-columns:1fr;gap:14px}
   .three{gap:8px}
-  .three .control{font-size:12px;padding-inline:9px 22px;background-position:right 5px center}
+  .three .control{padding-inline:9px 22px;background-position:right 5px center}
   .center-main{padding:28px 18px}
   .center-card,.account-card{padding:27px 20px;border-radius:17px}
   .account-card h1{font-size:26px}

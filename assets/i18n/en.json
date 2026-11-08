@@ -385,8 +385,8 @@
           }
         },
         "n17": {
-          "attrs": {
-            "placeholder": "Your first name"
+          "text": {
+            "0": "Your first name"
           }
         },
         "n19": {
@@ -395,8 +395,8 @@
           }
         },
         "n20": {
-          "attrs": {
-            "placeholder": "Your last name"
+          "text": {
+            "0": "Your last name"
           }
         },
         "n22": {
@@ -475,8 +475,8 @@
           }
         },
         "n44": {
-          "attrs": {
-            "placeholder": "Enter password"
+          "text": {
+            "0": "Enter password"
           }
         },
         "n45": {
@@ -493,8 +493,8 @@
           }
         },
         "n49": {
-          "attrs": {
-            "placeholder": "Enter password"
+          "text": {
+            "0": "Enter password"
           }
         },
         "n50": {
@@ -2302,8 +2302,8 @@
           }
         },
         "n114": {
-          "attrs": {
-            "placeholder": "Enter password"
+          "text": {
+            "0": "Enter password"
           }
         },
         "n115": {
