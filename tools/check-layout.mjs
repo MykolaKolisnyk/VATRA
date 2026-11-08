@@ -81,11 +81,15 @@ assert.ok(!lang.includes("location.replace(pathFor")&&!lang.includes("const expl
 assert.ok(host.includes('location.hostname==="mykolakolisnyk.github.io"')&&
  host.includes('location.protocol==="https:"')&&!host.includes('const localPreview='),
  "VATRA must show its public UI only on the official HTTPS origin");
-assert.ok(lang.includes('["uk","Українська","Ukrainian","ua"]')&&
- lang.includes('["en","English","English","gb"]')&&
- !lang.includes("In development")&&!lang.includes("У розробці")&&
- !lang.includes("assets/flags/"),
- "Language picker must show only working locales with inline SVG flags");
+assert.ok(lang.includes('["uk","Українська","Ukrainian","ua",true]')&&
+ lang.includes('["en","English","English","gb",true]')&&
+ lang.includes('["pl","Polski","Polish","pl"]')&&
+ lang.includes("In development")&&lang.includes("У розробці")&&
+ lang.includes("assets/flags/"),
+ "Language picker must keep all 36 locales, with only two selectable and their flags visible");
+const languageSection=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
+assert.equal((languageSection.match(/\["/g)||[]).length,36,"Language picker must show 36 choices");
+assert.equal((languageSection.match(/,true\]/g)||[]).length,2,"Only Ukrainian and English are active");
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
  "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
 assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)'),
@@ -146,14 +150,18 @@ for(const page of pages){
 const landing=await read("index.html");
 const features=["chat","business","communities","photos","video","music","marketplace","clips"];
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"Eight small features required");
-assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,3,"Three large outer labels required");
+assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
+assert.ok(!landing.includes("ui-outer-track")&&!landing.includes("intro-copy ui-home-div-009"),
+ "Retired outer orbit and slogan copy must not remain");
 for(const feature of features){
  assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(19cqw,125px)')&&css.includes('--outer-radius:min(37cqw,245px)'),
- "Orbit radius must keep small icons away from central V");
+assert.ok(css.includes('--inner-radius:min(28cqw,178px)')&&
+ css.includes('width:clamp(108px,27cqw,180px)')&&
+ css.includes('width:clamp(42px,9cqw,58px)'),
+ "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
@@ -163,6 +171,16 @@ for(const file of [landing,register,forgot]){
  assert.ok(file.indexOf('src="assets/js/captcha.js"')<file.indexOf('src="assets/js/auth.js"'),"Cloudflare must load before auth");
 }
 assert.ok(register.includes('id="consent"')&&register.includes('id="signup-form"'),"Signup consent or form missing");
+for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
+ assert.ok(register.includes('id="'+id+'"'),"Missing registration control: "+id);
+}
+assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
+ register.includes('class="reg-help-link vt-register-summary-02"')&&
+ register.includes('href="privacy.html" target="_blank"'),
+ "Signup gender and email must explain why data is requested");
+assert.ok(css.includes(".register-page .field:has(input.control)>span:first-child")&&
+ css.includes(".register-page .reg-help-panel"),
+ "Registration needs visible static captions and VATRA-style accessible help popovers");
 assert.ok(forgot.includes('id="recovery-step"')&&forgot.includes('id="recovery-code-form"'),"Recovery code step missing");
 assert.ok(forgot.includes('id="recovery-resend"'),"Repeat code request missing");
 assert.ok(reset.includes('id="reset-form"')&&reset.includes('id="recovery-code-form"'),"Direct reset code and password forms missing");
