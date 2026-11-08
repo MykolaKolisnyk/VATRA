@@ -152,6 +152,33 @@ try{
  await wizard.close();
  console.log("VATRA two-step signup validation, progress, mobile layout and preserved inputs: OK");
 
+ // A separate responsive sweep for the redesigned registration page.
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
+  const signup=await context.newPage();
+  await signup.setViewportSize({width,height});
+  await signup.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+  await waitReady(signup);
+  const layout=await signup.evaluate(()=>{
+   const brand=document.querySelector(".signup-brand").getBoundingClientRect();
+   const form=document.querySelector(".signup-form-panel").getBoundingClientRect();
+   return {overflow:document.documentElement.scrollWidth-innerWidth,
+    brand:{x:brand.x,y:brand.y,w:brand.width,h:brand.height,bottom:brand.bottom},
+    form:{x:form.x,y:form.y,w:form.width,h:form.height}};
+  });
+  assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
+  if(width>900){
+   assert.ok(layout.brand.x<layout.form.x&&Math.abs(layout.brand.y-layout.form.y)<=2,
+    "Signup columns must align side-by-side at "+width);
+  }else{
+   assert.ok(layout.brand.bottom<=layout.form.y+2,
+    "Signup brand panel must precede the form at "+width);
+  }
+  assert.equal(await signup.locator("#register-next").isVisible(),true,"Step one CTA not visible at "+width);
+  console.log("VATRA signup responsive "+width+"x"+height+": OK");
+  await signup.close();
+ }
+
+
  await reopened.close();
  await context.close();
 }finally{
