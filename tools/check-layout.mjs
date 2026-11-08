@@ -26,6 +26,57 @@ assert.ok(!auth.includes("signInWithOtp({phone")&&!auth.includes("signUp({phone"
 assert.ok(lang.includes('fetch(ROOT + "assets/i18n/" + current + ".json"'),"Both JSON dictionaries must be loaded");
 assert.ok(lang.includes('document.querySelectorAll("[data-i18n]")'),"DOM translation bindings missing");
 assert.ok(lang.includes('location.reload()'),"Language selection must reuse the same page URL");
+
+/* Verify language selection across independent page loads, cookie fallback,
+   old Ukrainian bookmarks, and browsers which reject cookies. */
+const languageStart=lang.indexOf("  const LANGUAGE_KEY = ");
+const languageEnd=lang.indexOf("  /* A single URL per page.",languageStart);
+assert.ok(languageStart>=0&&languageEnd>languageStart,"Persistent language helper missing");
+const preferences=new Function("document","location","localStorage","ROOT","localFile",
+ lang.slice(languageStart,languageEnd)+";return {saved,persist};");
+let cookieValue="",cookieAttributes="";
+const mockDocument={
+ get cookie(){return cookieValue;},
+ set cookie(value){cookieValue=value.split(";")[0];cookieAttributes=value;}
+};
+const memory=new Map();
+const mockStorage={
+ getItem:key=>memory.get(key)||null,
+ setItem:(key,value)=>memory.set(key,value)
+};
+const currentHost={protocol:"https:"};
+const firstVisit=preferences(mockDocument,currentHost,mockStorage,"/VATRA/",false);
+firstVisit.persist("en");
+assert.equal(firstVisit.saved(),"en","Selected English preference must be readable");
+assert.equal(memory.get("vatra-language"),"en","Language must persist in localStorage");
+assert.ok(cookieAttributes.includes("Max-Age=31536000")&&
+ cookieAttributes.includes("Path=/VATRA/")&&cookieAttributes.includes("SameSite=Lax")&&
+ cookieAttributes.includes("Secure"),
+ "Language cookie must be durable, site-scoped, and secure");
+memory.clear();
+const reopened=preferences(mockDocument,currentHost,mockStorage,"/VATRA/",false);
+assert.equal(reopened.saved(),"en","Reopened page must recover language from cookie");
+assert.equal(memory.get("vatra-language"),"en","Recovered language must repopulate localStorage");
+const legacyScript=(await read("404.html")).match(/<script>([\\s\\S]*?)<\\/script>/)?.[1];
+assert.ok(legacyScript,"Previous locale URLs must keep their redirect");
+const oldBookmark={pathname:"/VATRA/ua/index.html",search:"",hash:"",
+ replace(url){this.redirectedTo=url;}};
+new Function("document","location","localStorage",legacyScript)
+ (mockDocument,oldBookmark,mockStorage);
+assert.equal(memory.get("vatra-language"),"en",
+ "Old /ua/ bookmark must not overwrite a previously selected English locale");
+assert.equal(oldBookmark.redirectedTo,"/VATRA/","Legacy bookmark should redirect to root");
+const blockedCookies={get cookie(){throw Error("cookies blocked");},
+ set cookie(_){throw Error("cookies blocked");}};
+const blockedStorage=new Map();
+const fallbackStorage={
+ getItem:key=>blockedStorage.get(key)||null,
+ setItem:(key,value)=>blockedStorage.set(key,value)
+};
+const noCookies=preferences(blockedCookies,currentHost,fallbackStorage,"/VATRA/",false);
+noCookies.persist("en");
+assert.equal(noCookies.saved(),"en","Language must still work when cookies are blocked");
+
 assert.ok(!lang.includes("location.replace(pathFor")&&!lang.includes("const explicit ="),"Old language-folder router remains");
 assert.ok(host.includes('location.protocol==="file:"')&&host.includes('"localhost"')&&host.includes('"127.0.0.1"'),
  "Local HTML and localhost must show the real VATRA UI");
