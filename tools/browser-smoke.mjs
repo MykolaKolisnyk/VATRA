@@ -404,7 +404,8 @@ try{
  // Floating hints must animate on focus/value, stay clear of errors, and
  // validation messages still expire independently of the field contents.
  for(const [route,fieldId,action] of [["","#email","#login-form button[type='submit']"],
-  ["register.html","#first-name","#register-next"]]){
+  ["register.html","#first-name","#register-next"],
+  ["forgot.html","#email","#forgot-form button[type='submit']"]]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:1440,height:900});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -686,6 +687,29 @@ try{
   });
   assert.equal(await recoveryPage.locator(".forgot-intro").isVisible(),false,
    "Entering the OTP stage must replace the intro instead of stacking both headings");
+  const codeField=recoveryPage.locator("#recovery-token");
+  const codeHint=recoveryPage.locator(".vt-forgot-floating-hint-02");
+  assert.equal(await codeField.getAttribute("placeholder")," ");
+  assert.equal(await codeHint.textContent(),language==="uk"?"Введіть код":"Enter code");
+  await codeField.focus();
+  await recoveryPage.waitForTimeout(240);
+  const codeStyles=await codeField.evaluate(el=>{
+   const shell=el.closest(".vatra-input-shell");
+   const hint=shell.querySelector(".vatra-floating-hint");
+   const input=el.getBoundingClientRect(),tip=hint.getBoundingClientRect();
+   const style=getComputedStyle(el),hintStyle=getComputedStyle(hint);
+   return {floating:shell.classList.contains("is-floating"),font:style.fontFamily,
+    inputSize:parseFloat(style.fontSize),hintFont:hintStyle.fontFamily,
+    hintSize:parseFloat(hintStyle.fontSize),hintBottom:tip.bottom,inputTop:input.top};
+  });
+  assert.ok(codeStyles.floating&&codeStyles.font.includes("Onest")&&
+   codeStyles.hintFont.includes("Onest")&&codeStyles.inputSize===15&&
+   codeStyles.hintSize===11&&codeStyles.hintBottom<=codeStyles.inputTop+24,
+   "Forgot OTP field must use the same Onest animated hint: "+JSON.stringify(codeStyles));
+  await codeField.fill("123456");
+  await codeField.blur();
+  assert.equal(await codeField.evaluate(el=>el.closest(".vatra-input-shell").classList.contains("is-floating")),true,
+   "OTP hint must remain raised while the field contains a code");
   const codeStep=await recoveryPage.locator("#recovery-step").boundingBox();
   assert.ok(codeStep&&codeStep.x>=0&&codeStep.x+codeStep.width<=width+1,
    "OTP stage must remain within the same card at "+width);
@@ -722,6 +746,32 @@ try{
  assert.ok(caption.includes("Якщо ця адреса належить акаунту VATRA"),
   "Success response must not claim that an email was delivered: "+caption);
  await recoverySend.close();
+ await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
+ // Direct reset page must use the same code/email floating fields.
+ for(const language of ["uk","en"]){
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const resetPage=await context.newPage();
+  await resetPage.goto(base+"reset.html",{waitUntil:"domcontentloaded"});
+  await waitReady(resetPage);
+  await resetPage.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  const token=resetPage.locator("#recovery-token");
+  assert.equal(await resetPage.locator(".vt-reset-floating-hint-02").textContent(),
+   language==="uk"?"Введіть код":"Enter code");
+  await token.focus();
+  await resetPage.waitForTimeout(240);
+  const tokenStyle=await token.evaluate(el=>{
+   const shell=el.closest(".vatra-input-shell");
+   const font=getComputedStyle(el);
+   const hint=shell.querySelector(".vatra-floating-hint");
+   return {floating:shell.classList.contains("is-floating"),
+    font:font.fontFamily,hintFont:getComputedStyle(hint).fontFamily,
+    top:hint.getBoundingClientRect().bottom,bottom:el.getBoundingClientRect().top};
+  });
+  assert.ok(tokenStyle.floating&&tokenStyle.font.includes("Onest")&&
+   tokenStyle.hintFont.includes("Onest")&&tokenStyle.top<=tokenStyle.bottom+24,
+   "Reset OTP must use the same floating Onest field: "+JSON.stringify(tokenStyle));
+  await resetPage.close();
+ }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
  console.log("VATRA password recovery request with CAPTCHA and privacy-safe messaging: OK");
  console.log("VATRA password recovery typography and responsive OTP stage: OK");

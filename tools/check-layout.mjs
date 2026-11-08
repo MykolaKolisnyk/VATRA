@@ -528,6 +528,21 @@ assert.ok(
  en.__pages.forgot.nodes.n18.text["0"].startsWith("If the address belongs")&&
  !forgot.includes("Одноразовий цифровий код надіслано на адресу"),
  "Recovery must not claim email delivery just because Supabase accepts a reset request");
+assert.ok(
+ forgot.includes('class="vatra-input-shell ui-forgot-input-shell-001"')&&
+ forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-01" aria-hidden="true">name@example.com</span>')&&
+ forgot.includes('class="vatra-input-shell ui-forgot-input-shell-002"')&&
+ forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-02" aria-hidden="true" data-i18n="n56"')&&
+ reset.includes('class="vatra-input-shell ui-reset-input-shell-001"')&&
+ reset.includes('class="vatra-input-shell ui-reset-input-shell-002"')&&
+ reset.includes('class="vatra-floating-hint vt-reset-floating-hint-02" aria-hidden="true" data-i18n="n44"')&&
+ auth.includes('if(!["login","register","forgot","reset"].includes(page))return;')&&
+ auth.includes('#recovery-code-form .field:has(input.control)')&&
+ uk.__pages.forgot.nodes.n56.text["0"]==="Введіть код"&&
+ en.__pages.forgot.nodes.n56.text["0"]==="Enter code"&&
+ uk.__pages.reset.nodes.n44.text["0"]==="Введіть код"&&
+ en.__pages.reset.nodes.n44.text["0"]==="Enter code",
+ "Recovery email and OTP controls must reuse VATRA floating hints with Onest and translated text");
 assert.ok(forgot.includes('id="recovery-step"')&&forgot.includes('id="recovery-code-form"'),"Recovery code step missing");
 assert.ok(forgot.includes('id="recovery-resend"'),"Repeat code request missing");
 assert.ok(reset.includes('id="reset-form"')&&reset.includes('id="recovery-code-form"'),"Direct reset code and password forms missing");

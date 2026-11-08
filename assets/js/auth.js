@@ -100,9 +100,9 @@ function validationText(control,form){
    this control is initialized, so no second label can overlap the cursor.
    Validation messages remain outside the positioned input shell. */
 function wireFloatingHints(){
- if(page!=="login"&&page!=="register")return;
+ if(!["login","register","forgot","reset"].includes(page))return;
  const syncAll=[];
- for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control)")){
+ for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control),#forgot-form .field:has(input.control),#recovery-code-form .field:has(input.control)")){
   const input=field.querySelector("input.control");
   const shell=input?.closest(".vatra-input-shell");
   const hint=shell?.querySelector(":scope > .vatra-floating-hint");
@@ -881,6 +881,8 @@ function wireReset(){
  const emailInput=q("#recovery-email");
  const tokenInput=q("#recovery-token");
  try{emailInput.value=sessionStorage.getItem("vatra-recovery-email")||"";}catch(_){}
+ // Programmatic session-prefill must also update the shared floating-hint state.
+ emailInput.dispatchEvent(new Event("input",{bubbles:true}));
  const reveal=()=>{
   codeForm.hidden=true;
   form.hidden=false;
