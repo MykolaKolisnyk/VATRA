@@ -271,6 +271,8 @@
     const search = document.createElement("input");
     search.className = "control language-search ui-language-search-input";
     search.type = "search";
+    search.id = "vatra-language-search";
+    search.name = "vatra-language-search";
     search.autocomplete = "off";
     search.placeholder = words.search;
     search.setAttribute("aria-label", words.search);
