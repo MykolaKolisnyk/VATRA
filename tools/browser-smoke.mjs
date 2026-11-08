@@ -148,18 +148,22 @@ try{
  await reopened.waitForFunction(()=>document.querySelectorAll(".reg-help[open]").length===1);
  assert.equal(await helps.nth(1).isVisible(),false,"Email help must only show on the second registration step");
  await reopened.locator("#first-name").focus();
- const staticHint=await reopened.locator("#first-name").evaluate(el=>({
-  placeholder:el.placeholder,floating:el.closest(".field").querySelectorAll(".reg-floating-label").length,
-  label:getComputedStyle(el.closest(".field").querySelector("span:first-child")).position
+ const raised=await reopened.locator("#first-name").evaluate(el=>({
+  label:el.closest(".field").querySelector("span:first-child")?.textContent.trim(),
+  float:el.closest(".vatra-input-shell").classList.contains("is-floating"),
+  hint:el.closest(".vatra-input-shell").querySelectorAll(".vatra-floating-hint").length,
+  text:el.closest(".vatra-input-shell").querySelector(".vatra-floating-hint")?.textContent.trim(),
+  placeholder:el.placeholder
  }));
- assert.ok(staticHint.placeholder&&!staticHint.floating&&staticHint.label==="static",
-  "Registration must have one static hint and a fixed field caption: "+JSON.stringify(staticHint));
+ assert.ok(raised.label&&raised.float&&raised.hint===1&&raised.text&&raised.placeholder===" ",
+  "Registration must show one floated hint and a separate permanent caption: "+JSON.stringify(raised));
  await reopened.locator("#first-name").fill("VATRA");
- assert.ok(await reopened.locator("#first-name").evaluate(el=>el.placeholder.length>0),
-  "Hint must remain available independently of text entered");
+ await reopened.locator("#last-name").focus();
+ assert.equal(await reopened.locator("#first-name").evaluate(el=>el.closest(".vatra-input-shell").classList.contains("is-floating")),true,
+  "Filled hint must remain floated after leaving the field");
  const inputStyle=await reopened.locator("#first-name").evaluate(node=>getComputedStyle(node).fontFamily);
  assert.ok(inputStyle.includes("Onest"),"Registration fields must use Onest");
- console.log("VATRA registration help and stable native placeholders: OK");
+ console.log("VATRA registration help and restored floating hints: OK");
 
  // Signup wizard: block incomplete step one, retain values on Back, and check
  // mobile display without contacting Supabase or creating real accounts.
@@ -372,7 +376,9 @@ try{
 
 
 
- // Validation must not move the input's placeholder; errors are temporary.
+
+ // Floating hints must animate on focus/value, stay clear of errors, and
+ // validation messages still expire independently of the field contents.
  for(const [route,fieldId,action] of [["","#email","#login-form button[type='submit']"],
   ["register.html","#first-name","#register-next"]]){
   const probe=await context.newPage();
@@ -380,39 +386,50 @@ try{
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
   await waitReady(probe);
   const field=probe.locator(fieldId);
+  const metrics=()=>field.evaluate(el=>{
+   const shell=el.closest(".vatra-input-shell");
+   const hint=shell?.querySelector(".vatra-floating-hint");
+   const error=el.closest(".field").querySelector(".field-error");
+   const ir=el.getBoundingClientRect(),hr=hint?.getBoundingClientRect();
+   const er=error?.getBoundingClientRect();
+   return {placeholder:el.placeholder,floating:shell?.classList.contains("is-floating"),
+    hintCount:shell?.querySelectorAll(".vatra-floating-hint").length,
+    hintText:hint?.textContent.trim(),hintTop:hr?.top,hintBottom:hr?.bottom,
+    inputTop:ir.top,inputBottom:ir.bottom,inputMid:(ir.top+ir.bottom)/2,
+    errorTop:er?.top,errorText:error?.textContent.trim(),
+    invalid:el.getAttribute("aria-invalid")};
+  });
+  const empty=await metrics();
+  assert.ok(empty.hintText&&empty.hintCount===1&&!empty.floating&&empty.placeholder===" "&&
+    Math.abs((empty.hintTop+empty.hintBottom)/2-empty.inputMid)<=3,
+    "Unfocused empty hint must be centered: "+route+" "+JSON.stringify(empty));
   await field.focus();
-  const initial=await field.evaluate(el=>{
-   const r=el.getBoundingClientRect(),p=getComputedStyle(el,"::placeholder");
-   return {placeholder:el.placeholder,paddingTop:getComputedStyle(el).paddingTop,
-    height:r.height,placeholderColor:p.color,floating:el.closest(".field").querySelectorAll(".reg-floating-label").length};
-  });
-  assert.ok(initial.placeholder&&!initial.floating,
-   "Fields must use the browser's native placeholder without overlays: "+route);
+  const focused=await metrics();
+  assert.ok(focused.floating&&focused.hintBottom<=focused.inputTop+24,
+    "On focus the hint must rise above the text cursor: "+route+" "+JSON.stringify(focused));
   await probe.locator(action).click();
-  const error=await field.evaluate(el=>{
-   const wrapper=el.closest(".field"),node=wrapper.querySelector(".field-error");
-   return {text:node?.textContent?.trim(),invalid:el.getAttribute("aria-invalid"),
-    placeholder:el.placeholder,padding:getComputedStyle(el).paddingTop,
-    errorHeight:node?.getBoundingClientRect().height};
-  });
-  assert.ok(error.text&&error.invalid==="true"&&error.placeholder===initial.placeholder&&
-   error.padding===initial.paddingTop&&error.errorHeight>0,
-   "Validation may not move placeholder or input padding: "+route+" "+JSON.stringify(error));
-  // The same invalid data remains, but the error and red outline must clear.
+  const error=await metrics();
+  assert.ok(error.invalid==="true"&&error.errorText&&
+   error.hintCount===1&&error.placeholder===" "&&
+   error.hintBottom<=error.inputTop+24&&error.errorTop>=error.inputBottom+2,
+   "Validation must not overlap a floating hint or the error message: "+route+" "+JSON.stringify(error));
   await probe.waitForTimeout(5800);
   assert.equal(await field.getAttribute("aria-invalid"),null,
-   "Field error must self-dismiss without typing "+route);
-  assert.equal(await field.locator("..").locator(".field-error").count(),0,
-   "Expired field message must be removed "+route);
+   "Validation error must expire without typing: "+route);
+  assert.equal(await probe.locator(".field-error").count()>0,false,
+   "All errors in that empty form must expire: "+route);
   await probe.locator(action).click();
   assert.equal(await field.getAttribute("aria-invalid"),"true",
-   "Re-submission must still validate the uncorrected field "+route);
+   "An unchanged empty field must still fail on next submit: "+route);
   await field.fill("edited");
   assert.equal(await field.getAttribute("aria-invalid"),null,
-   "Editing must dismiss the old error immediately "+route);
+   "Editing must clear field errors immediately: "+route);
+  await field.blur();
+  assert.equal(await field.evaluate(el=>el.closest(".vatra-input-shell").classList.contains("is-floating")),true,
+   "The floating hint must remain up when a field has a value: "+route);
   await probe.close();
  }
- console.log("VATRA stable placeholders and temporary validation messages: OK");
+ console.log("VATRA floating hints, error spacing, and temporary validation: OK");
  // Each page uses the same language modal with a centered SVG X.
  for(const route of ["","register.html","legal.html"]){
   const probe=await context.newPage();
@@ -539,7 +556,7 @@ try{
     "Document logo and login/signup controls must appear in one row at "+width+" "+route);
    assert.ok(sizes.actionRight<=width+1&&sizes.headerHeight<=110,
     "Document header wraps or extends beyond viewport at "+width+" "+route);
-   assert.equal(sizes.tabCount,4,"Legal navigation tabs missing at "+width+" "+route);
+   assert.equal(sizes.tabCount,3,"Only the three actual legal documents belong in navigation at "+width+" "+route);
    assert.equal(sizes.linksCount,2,"Document footer must only show Sign in and Create account at "+width+" "+route);
    await docs.close();
   }

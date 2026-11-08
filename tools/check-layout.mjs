@@ -339,7 +339,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("clear8")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes("auth.css?v=20261108-input24"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("auth.css?v=20261108-float25"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -357,7 +357,7 @@ for(const page of ["legal","terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
   html.includes('class="reg-header policy-top ui-'+page+'-header-001"')&&
-  html.includes("legal.css?v=20261108-icons3"),
+  html.includes("legal.css?v=20261108-cards4"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
 for(const page of ["account","404"]){

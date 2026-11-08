@@ -95,18 +95,44 @@ function validationText(control,form){
  if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
  return "";
 }
-/* Native placeholders never overlap the typing cursor or jump on validation.
-   Registration retains its permanent captions above the fields. */
-function wireStableInputHints(){
+/* One floating hint per input. Native placeholder text is hidden only after
+   this control is initialized, so no second label can overlap the cursor.
+   Validation messages remain outside the positioned input shell. */
+function wireFloatingHints(){
+ if(page!=="login"&&page!=="register")return;
+ const syncAll=[];
  for(const field of document.querySelectorAll(".field:has(input.control)")){
-  if(page==="register")continue;
   const input=field.querySelector("input.control");
+  if(!input)continue;
   const caption=field.querySelector(":scope > span:first-child");
-  if(!input||!caption)continue;
-  const sync=()=>{input.placeholder=caption.textContent.trim();};
+  const hintText=page==="register"?(input.getAttribute("placeholder")||"").trim():
+   (caption?.textContent||input.getAttribute("placeholder")||"").trim();
+  if(!hintText)continue;
+  let shell=input.parentElement;
+  if(!shell.classList.contains("input-password")){
+   shell=document.createElement("span");
+   shell.className="vatra-input-shell";
+   input.parentNode.insertBefore(shell,input);
+   shell.append(input);
+  }else shell.classList.add("vatra-input-shell");
+  const hint=document.createElement("span");
+  hint.className="vatra-floating-hint";
+  hint.setAttribute("aria-hidden","true");
+  hint.textContent=hintText;
+  shell.append(hint);
+  input.placeholder=" ";
+  const sync=()=>{
+   const autofilled=input.matches(":-webkit-autofill");
+   shell.classList.toggle("is-floating",
+    document.activeElement===input||Boolean(input.value)||autofilled);
+  };
+  for(const event of ["focus","blur","input","change","animationstart"])
+   input.addEventListener(event,sync);
+  input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
+  syncAll.push(sync);
   sync();
-  window.VATRA_LANGUAGE?.ready?.then(sync);
  }
+ window.addEventListener("pageshow",()=>syncAll.forEach(sync=>sync()));
 }
 /* Keep rotating orbit icon tooltips fully inside the visible welcome panel.
    At the top of the orbit the tooltip opens below, not under browser chrome. */
@@ -492,7 +518,7 @@ async function initialize(){
  await window.VATRA_LANGUAGE?.ready;
  /* Build the interface independently of the authentication service status. */
  wirePasswordButtons();
- wireStableInputHints();
+ wireFloatingHints();
  if(page==="register"){fillBirthdays();wireSelects();wireHoverHelp();}
  wireFieldValidation();
  if(page==="register")wireRegistrationWizard();

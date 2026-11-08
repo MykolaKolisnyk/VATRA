@@ -1101,11 +1101,6 @@
             "aria-label": "Document sections"
           }
         },
-        "n10": {
-          "text": {
-            "0": "All documents"
-          }
-        },
         "n11": {
           "text": {
             "0": "Terms of Service"
@@ -1253,11 +1248,6 @@
         "n9": {
           "attrs": {
             "aria-label": "Document sections"
-          }
-        },
-        "n10": {
-          "text": {
-            "0": "All documents"
           }
         },
         "n11": {
@@ -1608,11 +1598,6 @@
         "n9": {
           "attrs": {
             "aria-label": "Document sections"
-          }
-        },
-        "n10": {
-          "text": {
-            "0": "All documents"
           }
         },
         "n11": {
@@ -1983,11 +1968,6 @@
         "n9": {
           "attrs": {
             "aria-label": "Document sections"
-          }
-        },
-        "n10": {
-          "text": {
-            "0": "All documents"
           }
         },
         "n11": {
