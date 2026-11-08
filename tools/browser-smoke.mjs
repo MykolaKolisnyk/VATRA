@@ -623,7 +623,7 @@ try{
  }));
  await confirmationPage.goto(base+"register.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
- assert.equal(await confirmationPage.title(),"Створити акаунт · VATRA");
+ assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account · VATRA":"Створити акаунт · VATRA"));
  await confirmationPage.locator("#first-name").fill("Тест");
  await confirmationPage.locator("#last-name").fill("Користувач");
  await confirmationPage.evaluate(()=>{

@@ -612,7 +612,7 @@ function restoreSignupConfirmation(){
   if(!form||!screen)return;
   screen.hidden=true;form.hidden=false;document.body.dataset.signupConfirmation="editing";
   if(signupPending?.email)q("#email").value=signupPending.email;
-  q("#password").value="";q("#password-confirm").value="";
+  for(const selector of ["#password","#password-confirm"]){const field=q(selector);if(field){field.value="";field.dispatchEvent(new Event("input",{bubbles:true}));}}
   const complete=q("#first-name").value.trim()&&q("#last-name").value.trim()&&
    q("#birth-day").value&&q("#birth-month").value&&q("#birth-year").value;
   if(complete)q("#register-next")?.click();
@@ -682,7 +682,7 @@ function wireRegister(){
    });
    if(error)throw error;
    if(data?.session){form.reset();await goToMyAccount();return;}
-   q("#password").value="";q("#password-confirm").value="";
+   for(const selector of ["#password","#password-confirm"]){const field=q(selector);if(field){field.value="";field.dispatchEvent(new Event("input",{bubbles:true}));}}
    markSignupPending(email);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
