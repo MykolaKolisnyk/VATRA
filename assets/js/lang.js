@@ -31,45 +31,35 @@
   const nativeLabels = {
     uk: "Українська", en: "English"
   };
+  // List only fully translated, working interface languages.
   const languages = [
-    ["uk","Українська","Ukrainian","ua",true],
-    ["en","English","English","gb",true],
-    ["pl","Polski","Polish","pl"],["de","Deutsch","German","de"],
-    ["fr","Français","French","fr"],["es","Español","Spanish","es"],
-    ["it","Italiano","Italian","it"],["pt","Português","Portuguese","pt"],
-    ["ro","Română","Romanian","ro"],["nl","Nederlands","Dutch","nl"],
-    ["cs","Čeština","Czech","cz"],["sk","Slovenčina","Slovak","sk"],
-    ["hu","Magyar","Hungarian","hu"],["bg","Български","Bulgarian","bg"],
-    ["el","Ελληνικά","Greek","gr"],["tr","Türkçe","Turkish","tr"],
-    ["sv","Svenska","Swedish","se"],["da","Dansk","Danish","dk"],
-    ["no","Norsk","Norwegian","no"],["fi","Suomi","Finnish","fi"],
-    ["et","Eesti","Estonian","ee"],["lt","Lietuvių","Lithuanian","lt"],
-    ["lv","Latviešu","Latvian","lv"],["hr","Hrvatski","Croatian","hr"],
-    ["sr","Српски","Serbian","rs"],["sl","Slovenščina","Slovenian","si"],
-    ["ka","ქართული","Georgian","ge"],["ja","日本語","Japanese","jp"],
-    ["ko","한국어","Korean","kr"],["zh","中文","Chinese","cn"],
-    ["ar","العربية","Arabic","sa"],["he","עברית","Hebrew","il"],
-    ["hi","हिन्दी","Hindi","in"],["id","Bahasa Indonesia","Indonesian","id"],
-    ["vi","Tiếng Việt","Vietnamese","vn"],["th","ไทย","Thai","th"]
+    ["uk","Українська","Ukrainian","ua"],
+    ["en","English","English","gb"]
   ];
-  const flagGroups = {
-    "europe-a": new Set(["ua","gb","pl","de","fr","es","it","pt","ro"]),
-    "europe-b": new Set(["nl","cz","sk","hu","bg","gr","tr","se","dk"]),
-    "europe-c": new Set(["no","fi","ee","lt","lv","hr","rs","si","ge"]),
-    "world": new Set(["jp","kr","cn","sa","il","in","id","vn","th"])
-  };
   let flagSerial=0;
-  function flag(groupCode) {
-    const group = Object.keys(flagGroups).find(key => flagGroups[key].has(groupCode)) || "europe-a";
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const instance=++flagSerial;
-    svg.classList.add("language-flag","ui-language-flag-"+instance);
-    svg.setAttribute("viewBox", "0 0 640 480");
-    svg.setAttribute("aria-hidden", "true");
-    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    use.classList.add("ui-language-flag-symbol-"+instance);
-    use.setAttribute("href", ROOT + "assets/flags/" + group + ".svg#flag-" + groupCode);
-    svg.append(use);
+  // Real inline SVG flags: no external <use> reference that can disappear
+  // from the language switcher due to SVG resource loading.
+  function flag(country) {
+    const ns="http://www.w3.org/2000/svg";
+    const svg=document.createElementNS(ns,"svg");
+    svg.classList.add("language-flag","ui-language-flag-"+(++flagSerial));
+    svg.setAttribute("viewBox","0 0 640 480");
+    svg.setAttribute("aria-hidden","true");
+    const add=(tag,attributes)=>{
+      const element=document.createElementNS(ns,tag);
+      for(const [name,value] of Object.entries(attributes))element.setAttribute(name,String(value));
+      svg.append(element);
+    };
+    if(country==="ua"){
+      add("rect",{x:0,y:0,width:640,height:240,fill:"#0057b8"});
+      add("rect",{x:0,y:240,width:640,height:240,fill:"#ffd700"});
+    }else{
+      add("rect",{x:0,y:0,width:640,height:480,fill:"#012169"});
+      add("path",{d:"M0 0 640 480M640 0 0 480",stroke:"#fff","stroke-width":100});
+      add("path",{d:"M0 0 640 480M640 0 0 480",stroke:"#c8102e","stroke-width":40});
+      add("path",{d:"M320 0V480M0 240H640",stroke:"#fff","stroke-width":150});
+      add("path",{d:"M320 0V480M0 240H640",stroke:"#c8102e","stroke-width":82});
+    }
     return svg;
   }
   // Remember an explicit choice across reloads and browser restarts. The
@@ -191,8 +181,8 @@
 
   const english = current === "en";
   const words = english
-    ? {name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages"}
-    : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
+    ? {name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",current:"Selected",close:"Close",empty:"No matching languages"}
+    : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
 
   document.addEventListener("DOMContentLoaded", () => {
     bindLocalizedLinks();
@@ -246,7 +236,7 @@
     notFound.textContent = words.empty;
     notFound.hidden = true;
     let restoreFocus = null;
-    for (const [code,name,englishName,country,enabled] of languages) {
+    for (const [code,name,englishName,country] of languages) {
       const button = document.createElement("button");
       button.className = "language-option vt-language-choice-" + code + (code === current ? " is-selected" : "");
       button.type = "button";
@@ -259,24 +249,15 @@
        strong.textContent = name;
       const subtitle = document.createElement("small");
       subtitle.className = "vt-language-caption-" + code;
-       const selectable=Boolean(enabled)&&!(localFile&&code==="en");
-       const unavailableReason=localFile&&enabled
-         ?"Запустіть локальний HTTP-сервер для перекладів" : words.future;
-       subtitle.textContent = code === current ? words.current : (selectable ? englishName : unavailableReason);
+       subtitle.textContent = code === current ? words.current : englishName;
       copy.append(strong, subtitle);
       button.append(copy);
       if (code === current) button.setAttribute("aria-current", "true");
-      if (!selectable) {
-        button.disabled = true;
-        button.setAttribute("aria-label", name + " — " + unavailableReason);
-        button.title = unavailableReason;
-      } else {
-        button.addEventListener("click", () => {
-          if (code === current) { close(); return; }
-          persist(code);
-          location.reload(); // Same HTML URL; reload only the chosen JSON translation.
-        });
-      }
+      button.addEventListener("click", () => {
+        if (code === current) { close(); return; }
+        persist(code);
+        location.reload(); // Keep the same URL and read saved locale on next load.
+      });
       list.append(button);
     }
     const scrollShell = document.createElement("div");
