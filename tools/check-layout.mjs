@@ -39,6 +39,8 @@ assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-
  "Offline Wi-Fi-off icon must use the crisp SVG geometry");
 assert.ok(offline.includes("controller?.scriptURL")&&offline.includes('href="./" data-i18n="n9"'),
  "Offline fallback must resolve assets and home link at nested routes and localhost");
+assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page === "offline"'),
+ "Offline screen must keep its own translations when used as a fallback for nested routes");
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
