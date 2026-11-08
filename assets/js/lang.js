@@ -212,10 +212,31 @@
     ? {name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages"}
     : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
 
-  document.addEventListener("DOMContentLoaded", () => {
+  let pickerInitialized=false;
+  function initLanguagePicker() {
+    if(pickerInitialized)return;
+    pickerInitialized=true;
     bindLocalizedLinks();
     const triggers = [...document.querySelectorAll("[data-language-trigger]")];
     if (!triggers.length) return;
+    // Draw the active-language flag, name and chevron immediately. Even if
+    // an optional list item fails to render, the footer trigger stays usable.
+    let triggerOrdinal=0;
+    for(const trigger of triggers){
+      const id=++triggerOrdinal;
+      trigger.replaceChildren();
+      trigger.append(flag(english ? "gb" : "ua"));
+      const label=document.createElement("span");
+      label.className="vt-language-trigger-label-"+id;
+      label.textContent=nativeLabels[current];
+      const chevron=document.createElement("span");
+      chevron.className="language-chevron vt-language-trigger-chevron-"+id;
+      chevron.textContent="⌄";
+      trigger.append(label,chevron);
+      trigger.setAttribute("aria-label",words.name+": "+nativeLabels[current]);
+      trigger.setAttribute("aria-expanded","false");
+      trigger.addEventListener("click",open);
+    }
     const backdrop = document.createElement("div");
     backdrop.className = "language-backdrop ui-language-backdrop";
     backdrop.hidden = true;
@@ -358,12 +379,14 @@
     window.addEventListener("resize", updateScrollbar);
     if ("ResizeObserver" in window) new ResizeObserver(updateScrollbar).observe(list);
     function close() {
+      for(const trigger of triggers)trigger.setAttribute("aria-expanded","false");
       backdrop.hidden = true;
       document.body.classList.remove("language-dialog-open");
       if (restoreFocus) restoreFocus.focus();
     }
     function open(e) {
       restoreFocus = e?.currentTarget || document.activeElement;
+      for(const trigger of triggers)trigger.setAttribute("aria-expanded","true");
       search.value = "";
       [...list.children].forEach(node => { node.hidden = false; });
       notFound.hidden = true;
@@ -395,20 +418,12 @@
         else if (!e.shiftKey && document.activeElement === last) {e.preventDefault();first.focus();}
       }
     });
-    let triggerOrdinal = 0;
-    for (const trigger of triggers) {
-      const textId = ++triggerOrdinal;
-      trigger.replaceChildren();
-      trigger.append(flag(english ? "gb" : "ua"));
-      const label = document.createElement("span");
-      label.className = "vt-language-trigger-label-" + textId;
-       label.textContent = nativeLabels[current];
-      const chevron = document.createElement("span");
-      chevron.className = "language-chevron vt-language-trigger-chevron-" + textId;
-      chevron.textContent = "⌄";
-      trigger.append(label, chevron);
-      trigger.setAttribute("aria-label", words.name + ": " + nativeLabels[current]);
-      trigger.addEventListener("click", open);
-    }
-  });
+    // The same handler opens the original full search-and-scroll language dialog.
+    // Keep expanded state synchronized for keyboard and screen-reader users.
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",initLanguagePicker,{once:true});
+  }else{
+    initLanguagePicker();
+  }
 })();
