@@ -25,6 +25,10 @@ assert.ok(errors.includes('window.addEventListener("error"')&&
  "Only console/runtime errors should appear as automatically dismissing toasts; form errors stay inline");
 assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible"),
  "Animated bottom-left console notices missing");
+assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-page .reg-input-wrap>.reg-floating-label')&&
+ !css.includes('opacity:0;transform:translateY(10px)')&&
+ !css.includes('.register-page .reg-input-wrap.is-raised>.control{padding-top:20px!important'),
+ "Login and registration must use the same animation, not layered overrides");
 assert.ok(css.includes("*::-webkit-scrollbar-thumb")&&
  css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)"),
  "Unified scrolling styles must apply to native page and selector scrollbars");
@@ -215,7 +219,7 @@ for(const id of ["first-name","last-name","gender","email","password","password-
 }
 assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
- register.includes('href="privacy.html" target="_blank"'),
+ register.includes('href="privacy.html#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
 assert.ok(auth.includes('if(page==="register")')&&auth.includes("reg-floating-label")&&
  auth.includes('wrap.classList.toggle("is-raised",raised)'),
