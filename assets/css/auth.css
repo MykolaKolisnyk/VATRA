@@ -22,7 +22,7 @@
 /* VATRA: центральний логотип і вісім тематичних іконок на єдиній орбіті. */
 
 /* Іконки обертаються навколо центрального логотипа. */
-.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:0 0 auto;width:100%;height:clamp(350px,calc(var(--inner-radius) * 2 + 92px),520px);min-height:0;max-height:none;margin:0 auto;--inner-radius:min(30cqw,205px)}
+.intro-art{position:relative;isolation:isolate;container-type:inline-size;display:grid;place-items:center;flex:0 0 auto;width:100%;height:clamp(360px,calc(var(--inner-radius) * 2 + 112px),600px);min-height:0;max-height:none;margin:0 auto;--inner-radius:min(33cqw,222px)}
 .intro-circle{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0}
 
 .intro-circle-inner{width:calc(var(--inner-radius) * 2);border:1.5px solid #a8c5f9;background:radial-gradient(circle,rgba(236,241,255,.65),transparent 73%);box-shadow:0 0 0 6px rgba(206,223,255,.13),inset 0 0 28px rgba(81,116,220,.05)}
@@ -36,13 +36,10 @@
 
 .orbit-track-inner .orbit-face{animation:vatraIconUpright 32s linear infinite}
 
-
-
 .orbit-icon{width:clamp(42px,9cqw,58px);height:clamp(42px,9cqw,58px);border:1.5px solid #bcd2fb;border-radius:50%;background:#fff;box-shadow:0 7px 22px rgba(49,98,179,.12),inset 0 0 0 2px rgba(240,245,255,.75);color:var(--blue);transition:border-color .24s,background .24s,box-shadow .24s}
 .orbit-face svg{display:block;width:clamp(21px,4.5cqw,27px);height:clamp(21px,4.5cqw,27px);flex:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;shape-rendering:geometricPrecision;overflow:visible}
 .orbit-face svg path,.orbit-face svg circle,.orbit-face svg ellipse,.orbit-face svg rect{vector-effect:non-scaling-stroke}
 .orbit-face svg{animation:vatraGlyphFloat 4.4s ease-in-out infinite}
-
 
 .orbit-track-inner .orbit-node:nth-child(1) svg{animation-delay:0s}
 .orbit-track-inner .orbit-node:nth-child(2) svg{animation-delay:-.55s}
@@ -64,15 +61,12 @@
 .orbit-track-inner .orbit-node:has(.orbit-icon:is(:hover,:focus-visible)){z-index:30}
 @keyframes vatraOrbitClockwise{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 
-
 @keyframes vatraIconUpright{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
 @keyframes vatraGlyphFloat{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-2px) scale(1.04);opacity:.84}}
 @keyframes vatraCoreBreath{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(-8deg) scale(1.025)}}
-@media (max-width:540px){.intro-art{height:clamp(300px,calc(var(--inner-radius) * 2 + 88px),410px);--inner-radius:30cqw}.orbit-track-outer .orbit-face svg{width:16px;height:16px}.orbit-icon{border-width:1.25px}.intro-symbol{width:clamp(84px,26cqw,114px)}.orbit-tooltip{max-width:min(185px,72vw)}}
-@media (max-width:360px){.intro-art{height:310px;--inner-radius:30cqw}.orbit-face svg{width:20px;height:20px}}
+@media (max-width:540px){.intro-art{height:clamp(300px,calc(var(--inner-radius) * 2 + 88px),410px);--inner-radius:33cqw}.orbit-track-outer .orbit-face svg{width:16px;height:16px}.orbit-icon{border-width:1.25px}.intro-symbol{width:clamp(84px,26cqw,114px)}.orbit-tooltip{max-width:min(185px,72vw)}}
+@media (max-width:360px){.intro-art{height:310px;--inner-radius:33cqw}.orbit-face svg{width:20px;height:20px}}
 @media (prefers-reduced-motion:reduce){.orbit-track,.orbit-face,.orbit-face svg,.intro-symbol{animation:none!important}.orbit-badge,.orbit-icon,.orbit-tooltip{transition:none!important}}
-
-
 
 .intro-circle:focus-visible{outline:2px solid var(--blue)}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important} 
@@ -82,11 +76,11 @@
 .intro-copy p strong{font-weight:750;color:#35465f}
 .orbit-notes{position:absolute;inset:0;z-index:4;pointer-events:none}
 .orbit-note{position:absolute;left:calc(50% + var(--note-x));top:calc(50% + var(--note-y));transform:translate(-50%,-50%);width:max-content;max-width:clamp(64px,14cqw,116px);color:#617fbe;font-size:clamp(8px,1.4cqw,11px);line-height:1.3;letter-spacing:.035em;text-align:center;font-weight:770;text-transform:uppercase;white-space:normal;text-wrap:balance;text-shadow:0 1px 3px #fff}
-.orbit-note-support{--note-x:0px;--note-y:calc(var(--inner-radius) * -.71)}
-.orbit-note-talk{--note-x:calc(var(--inner-radius) * .73);--note-y:calc(var(--inner-radius) * -.31)}
-.orbit-note-trends{--note-x:calc(var(--inner-radius) * .65);--note-y:calc(var(--inner-radius) * .57)}
-.orbit-note-choose{--note-x:calc(var(--inner-radius) * -.65);--note-y:calc(var(--inner-radius) * .57)}
-.orbit-note-love{--note-x:calc(var(--inner-radius) * -.73);--note-y:calc(var(--inner-radius) * -.31)}
+.orbit-note-support{--note-x:0px;--note-y:calc(var(--inner-radius) * -.78)}
+.orbit-note-talk{--note-x:calc(var(--inner-radius) * .77);--note-y:calc(var(--inner-radius) * -.28)}
+.orbit-note-trends{--note-x:calc(var(--inner-radius) * .65);--note-y:calc(var(--inner-radius) * .60)}
+.orbit-note-choose{--note-x:calc(var(--inner-radius) * -.65);--note-y:calc(var(--inner-radius) * .60)}
+.orbit-note-love{--note-x:calc(var(--inner-radius) * -.77);--note-y:calc(var(--inner-radius) * -.28)}
 @media(max-width:540px){
  .intro-copy{width:min(100%,440px);max-width:440px}
  .intro-copy p{font-size:13px;line-height:1.6}
@@ -160,7 +154,7 @@
 .language-option.is-selected .language-option-copy small{color:#2865D8;font-weight:700}
 .language-empty{color:var(--soft);font-size:13px;margin:14px 2px}
 
-.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px clamp(22px,4.5vw,68px);min-height:82px;border-bottom:1px solid #e9edf4;background:#ffffffa6}.reg-header .header-logo{width:165px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100%,640px);flex:1;margin:0 auto;padding:28px 22px 52px}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:15px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px clamp(22px,4.5vw,68px);min-height:82px;border-bottom:1px solid #e9edf4;background:#ffffffa6}.reg-header .header-logo{width:165px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100%,640px);flex:1;margin:0 auto;padding:28px 22px 52px}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
 /* Registration captions are always visible; floating captions are reserved for sign-in. */
 .register-page .field:has(input.control){position:relative;gap:8px}
 .register-page .field,.register-page .two>.field{align-content:start;align-self:start}
@@ -309,15 +303,12 @@
 }
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px 23px 27px}
-  
-  
-  
+
   .form-side{padding:24px clamp(23px,3vw,44px)}
 }
 @media (min-width:1200px) and (max-height:760px){
   .intro-side{padding-top:18px;padding-bottom:24px}
-  
-  
+
   .form-side{padding-block:18px}
 }
 @media (min-width:1200px) and (max-height:610px){
@@ -331,10 +322,7 @@
   .form-box{width:min(100%,510px);margin:0 auto}
   .intro-side{order:1;display:flex;flex-direction:column;border-right:0;border-top:1px solid var(--line);padding:30px 24px 40px;gap:16px;justify-content:center;overflow:visible;background:linear-gradient(135deg,#fff 5%,#f8f9ff 96%)}
   .intro-side:before{display:none}
-  
-  
-  
-  
+
   .footer{justify-content:center;gap:12px 22px;text-align:center}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
@@ -356,29 +344,16 @@
   .form-box h2{font-size:clamp(28px,7.2vw,34px)}
   .login-description{font-size:14px;line-height:1.6;margin-bottom:23px}
   .subtitle{margin-bottom:22px}
-  .intro-side{padding:26px 17px 33px;gap:20px}
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  .intro-side{padding:26px 17px 33px;gap:16px}
+
   .reg-header{padding:13px 18px}
   .reg-header .header-logo{width:136px}
   .reg-header .back{font-size:12px}
   .reg-main{padding:24px 18px 35px}
   .narrow-form h1{font-size:clamp(29px,7vw,34px)}
-  .form-rows{gap:13px}
-  .two{grid-template-columns:1fr;gap:13px}
-  .three{gap:6px}
+  .form-rows{gap:14px}
+  .two{grid-template-columns:1fr;gap:14px}
+  .three{gap:8px}
   .three .control{font-size:12px;padding-inline:9px 22px;background-position:right 5px center}
   .center-main{padding:28px 18px}
   .center-card,.account-card{padding:27px 20px;border-radius:17px}
