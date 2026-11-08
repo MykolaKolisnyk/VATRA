@@ -274,19 +274,6 @@
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-@media(max-width:540px){
- .register-page .reg-main{width:100%;padding:0 12px}
- .reg-back-nav{width:calc(100% - 24px);margin-bottom:10px}
- .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}
- .signup-brand-title{font-size:25px}
- .signup-form-panel{padding:33px 21px 35px;border-radius:0 0 21px 21px}
- .signup-form-head{margin-bottom:22px}
- .signup-progress{margin-bottom:22px}
- .signup-step-heading :is(h1,h2){font-size:clamp(27px,7vw,34px)}
- .signup-step{gap:15px}
- .signup-submit-row{grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:8px}
- .signup-submit-row .action{padding-inline:8px;font-size:12px}
-}
 @media(prefers-reduced-motion:reduce){.signup-brand-symbol,.signup-form-panel .narrow-form,.site .form-box{animation:none!important}.signup-progress-segment{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
@@ -407,6 +394,18 @@
   .center-page .auth-footer-content,.account-page .auth-footer-content,.account-top-inner{width:min(calc(100% - 40px),670px)}
 }
 @media (max-width:540px){
+  /* Canonical mobile signup rules live after the tablet breakpoint. */
+  .register-page .reg-main{width:100%;padding:0 12px}
+  .reg-back-nav{width:calc(100% - 24px);margin-bottom:10px}
+  .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}
+  .signup-brand-title{font-size:25px}
+  .signup-form-panel{padding:33px 21px 35px;border-radius:0 0 21px 21px}
+  .signup-form-head{margin-bottom:22px}
+  .signup-progress{margin-bottom:22px}
+  .signup-step-heading :is(h1,h2){font-size:clamp(27px,7vw,34px)}
+  .signup-step{gap:15px}
+  .signup-submit-row{grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:8px}
+  .signup-submit-row .action{padding-inline:8px;font-size:12px}
   .language-backdrop{padding:12px}
   .language-dialog{padding:18px;border-radius:17px;max-height:88dvh}
   .language-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
