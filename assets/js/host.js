@@ -1,17 +1,12 @@
-/* VATRA is published only on its official host.
-   This is a client-side deterrent, not DRM or protection against source copying. */
+/* VATRA official-host check. Client-side deterrent, not copy protection. */
 (() => {
   "use strict";
-  // The public site is restricted to the official origin. Developer previews are
-  // allowed from a local file or a loopback HTTP server, without a second UI.
-  const host=location.hostname.toLowerCase();
-  const official=location.protocol==="https:" &&
-    host==="mykolakolisnyk.github.io" &&
+  // Public VATRA runs on the official HTTPS origin only. This check prevents
+  // unmodified copies from running elsewhere, but cannot protect downloadable
+  // static source from someone who edits or removes JavaScript.
+  const allowed=location.protocol==="https:" &&
+    location.hostname==="mykolakolisnyk.github.io" &&
     /^\/VATRA(?:\/|$)/.test(location.pathname);
-  const loopback=["localhost","127.0.0.1","[::1]","::1"].includes(host);
-  const localPreview=location.protocol==="file:" ||
-    (loopback&&(location.protocol==="http:"||location.protocol==="https:"));
-  const allowed=official||localPreview;
   window.VATRA_HOST_ALLOWED = allowed;
   if (allowed) return;
   document.documentElement.setAttribute("data-vatra-denied", "");
