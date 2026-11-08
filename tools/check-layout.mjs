@@ -253,7 +253,8 @@ assert.ok(css.includes('.register-page .reg-input-wrap>.reg-floating-label')&&
  css.includes(".vatra-error-stack"),
  "Animated input hints, hover help and diagnostic notices must share site styling");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
-assert.ok(!landing.includes('class="login-header ui-login-header-001"')&&
+assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
+ !landing.includes('class="login-header ui-login-header-001"')&&
  !landing.includes('class="login-header-logo')&&
  !landing.includes('class="login-brand-kicker vt-login-brand-kicker-01"')&&
  landing.includes('class="login-form-kicker vt-login-form-kicker-01"')&&
@@ -269,13 +270,17 @@ assert.ok(!css.includes('.login-form-kicker::before')&&
  landing.includes('auth-footer-content ui-home-footer-content-001')&&
  css.includes('.auth-footer-content{'),
  "Consistent auth animation, clean login eyebrow and card-aligned footer must remain");
+assert.ok(!css.includes(".register-page .field:has(input.control)")&&
+ css.includes(".signup-form-panel .field:has(input.control)")&&
+ css.includes('.login-layout::before{content:"";display:block;flex:0 0 36px;margin-bottom:14px}'),
+ "Language modal must remain isolated from registration form and login must reserve nav space");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 assert.ok(!register.includes('class="reg-header')&&
  !register.includes('class="header-logo vt-register-link-01"')&&
- register.includes('class="signup-layout ui-signup-layout-001"')&&
+ register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
  register.includes('class="reg-back-nav ui-register-back-nav-001"')&&
  register.includes('href="./" class="back vt-register-link-02"')&&
- css.includes(".signup-layout{")&&css.includes(".reg-back-nav{")&&
+ css.includes(".auth-layout{")&&css.includes(".login-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-register-footer-content-001'),
  "Registration must have a centered card with only the return-to-login link above it");
@@ -314,11 +319,11 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes(page==="register"||page==="index"?"auth.css?v=20261108-auth16":"auth.css?v=20261108-layout12"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes(page==="register"||page==="index"?"auth.css?v=20261108-shell19":"auth.css?v=20261108-layout12"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
-assert.ok(css.includes(".register-page .field:has(input.control)>span:first-child")&&
+assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
  css.includes(".register-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
 assert.ok(forgot.includes('id="recovery-step"')&&forgot.includes('id="recovery-code-form"'),"Recovery code step missing");

@@ -64,7 +64,7 @@ try{
      formBackground:getComputedStyle(form).backgroundColor,
      mainLeft:rect.left,mainRight:rect.right,
      verticallyFits:rect.bottom<=footerTop+1&&footerTop<=innerHeight+1,
-     centerDelta:Math.abs((rect.top+rect.bottom)/2-footerTop/2)};
+     centerDelta:Math.abs((rect.top+rect.bottom)/2-footerTop/2),bottomGap:footerTop-rect.bottom};
   });
   assert.ok(design.headerAbsent&&design.brandKickerAbsent&&!design.hasKickerDot,
    "Login must not show redundant labels or dot at "+width);
@@ -72,7 +72,7 @@ try{
   assert.equal(design.authAnimation,"vatraAuthReveal","Login must match signup reveal animation");
   assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
-   assert.ok(design.centerDelta<=16,"Login card must be vertically centered at "+width+": "+design.centerDelta);
+   assert.ok(design.bottomGap>=27&&design.bottomGap<=29,"Login bottom gap must be 28px at "+width+": "+design.bottomGap);
   assert.equal(design.orbitCount,8,"All eight VATRA orbit icons must remain");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
@@ -189,6 +189,53 @@ try{
  await wizard.close();
  console.log("VATRA two-step signup validation, progress, mobile layout and preserved inputs: OK");
 
+ // Both auth pages must share language-modal geometry and footer spacing.
+ for(const [width,height] of [[390,844],[1024,900],[1440,900],[1920,1080]]){
+  const samples=[];
+  for(const route of ["","register.html"]){
+   const probe=await context.newPage();
+   await probe.setViewportSize({width,height});
+   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+   await waitReady(probe);
+   const shell=await probe.evaluate(()=>{
+    const card=document.querySelector(".split,.reg-main").getBoundingClientRect();
+    const footer=document.querySelector(".footer").getBoundingClientRect();
+    const container=document.querySelector(".auth-layout").getBoundingClientRect();
+    const login=document.querySelector(".login-layout");
+    return {gap:footer.top-card.bottom,top:card.top-container.top,
+      reserved:login?getComputedStyle(login,"::before").height:null,
+      back:!!document.querySelector(".reg-back-nav .back"),
+      overflow:document.documentElement.scrollWidth-innerWidth};
+   });
+   assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
+   assert.ok(shell.gap>=27&&shell.gap<=29,"Card/footer gap must be 28px: "+width+" "+route+" "+JSON.stringify(shell));
+   if(!route)assert.ok(!shell.back&&shell.reserved==="36px"&&shell.top>=68,
+    "Login must reserve a blank space equal to the Back button: "+JSON.stringify(shell));
+   else assert.ok(shell.back,"Signup must retain the Back link");
+   await probe.locator("[data-language-trigger]").click();
+   await probe.locator(".language-dialog").waitFor({state:"visible"});
+   const picker=await probe.evaluate(()=>{
+    const d=document.querySelector(".language-dialog").getBoundingClientRect();
+    const f=document.querySelector(".language-search-field").getBoundingClientRect();
+    const s=document.querySelector("#vatra-language-search").getBoundingClientRect();
+    const label=document.querySelector(".language-search-field>span");
+    return {dialog:d.width,field:f.width,search:s.width,
+      captionOffset:label.getBoundingClientRect().y-s.y,
+      captionSize:getComputedStyle(label).fontSize};
+   });
+   assert.ok(picker.field>=picker.dialog-55&&picker.search>=picker.field-2,
+    "Language search must use the full dialog width "+width+" "+route+": "+JSON.stringify(picker));
+   samples.push(picker);
+   await probe.close();
+  }
+  assert.ok(Math.abs(samples[0].search-samples[1].search)<=2&&
+   Math.abs(samples[0].captionOffset-samples[1].captionOffset)<=2&&
+   samples[0].captionSize===samples[1].captionSize,
+   "Language search style differs between auth pages at "+width+": "+JSON.stringify(samples));
+  console.log("VATRA auth shell and language picker match "+width+"x"+height+": OK");
+ }
+
+
  // A separate responsive sweep for the redesigned registration page.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
   const signup=await context.newPage();
@@ -212,7 +259,7 @@ try{
     backAligned:Math.abs(back.right-form.right)<=8,
     backAbove:nav.bottom<=main.top+2,
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
-    centerDelta:Math.abs((nav.top+main.bottom)/2-footerTop/2),
+    centerDelta:Math.abs((nav.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
     brand:{x:brand.x,y:brand.y,w:brand.width,h:brand.height,bottom:brand.bottom},
     form:{x:form.x,y:form.y,w:form.width,h:form.height}};
   });
@@ -223,7 +270,7 @@ try{
    "Signup header must be removed and Back link aligned to the card at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.backText.length>0,"Signup return link is missing at "+width);
   if(width>=1200&&layout.fits)
-   assert.ok(layout.centerDelta<=22,"Signup group must be vertically centered at "+width+": "+layout.centerDelta);
+   assert.ok(layout.bottomGap>=27&&layout.bottomGap<=29,"Signup bottom gap must be 28px at "+width+": "+layout.bottomGap);
   if(width>900){
    assert.ok(layout.brand.x<layout.form.x&&Math.abs(layout.brand.y-layout.form.y)<=2,
     "Signup columns must align side-by-side at "+width);
