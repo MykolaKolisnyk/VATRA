@@ -101,7 +101,7 @@ function validationText(control,form){
 function wireFloatingHints(){
  if(page!=="login"&&page!=="register")return;
  const syncAll=[];
- for(const field of document.querySelectorAll(".field:has(input.control)")){
+ for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control)")){
   const input=field.querySelector("input.control");
   if(!input)continue;
   const caption=field.querySelector(":scope > span:first-child");
