@@ -699,6 +699,41 @@
           "attrs": {
             "aria-label": "Back to sign in"
           }
+        },
+        "n218": {
+          "text": {
+            "0": "VATRA · ONE LAST STEP"
+          }
+        },
+        "n219": {
+          "text": {
+            "0": "Waiting for email confirmation"
+          }
+        },
+        "n220": {
+          "text": {
+            "0": "We've sent a confirmation email. Open it and follow the button to activate your VATRA account."
+          }
+        },
+        "n221": {
+          "text": {
+            "0": "After confirming, you'll be taken to your account page."
+          }
+        },
+        "n222": {
+          "text": {
+            "0": "No email yet? Check your Spam and Promotions folders."
+          }
+        },
+        "n223": {
+          "text": {
+            "0": "Back to sign in"
+          }
+        },
+        "n224": {
+          "text": {
+            "0": "Use another email address"
+          }
         }
       }
     },

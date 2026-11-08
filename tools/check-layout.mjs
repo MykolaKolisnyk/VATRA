@@ -305,6 +305,18 @@ for(const file of [landing,register,forgot]){
  assert.ok(file.includes('src="assets/js/captcha.js"'),"Cloudflare widget not loaded");
  assert.ok(file.indexOf('src="assets/js/captcha.js')<file.indexOf('src="assets/js/auth.js'),"Cloudflare must load before auth");
 }
+assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="polite" hidden')&&
+ register.includes('id="signup-confirmation-address"')&&
+ register.includes('id="signup-confirmation-restart"')&&
+ css.includes('.signup-confirmation{display:grid;')&&
+ auth.includes('markSignupPending(email);')&&
+ auth.includes('restoreSignupConfirmation();'),
+ "Successful registration must replace the wizard with a dedicated email-confirmation design");
+assert.ok(captcha.includes('dispose(scope,state);')&&
+ captcha.indexOf('dispose(scope,state);')<captcha.indexOf('waiting.resolve(token);')&&
+ captcha.includes('try{window.turnstile?.remove?.(state.id);}catch(_){}')&&
+ !captcha.includes('state.dialog.hide();\n    waiting.resolve(token);'),
+ "Turnstile must remove its widget before detaching the dialog, avoiding spurious warnings");
 assert.ok(register.includes('id="consent"')&&register.includes('id="signup-form"'),"Signup consent or form missing");
 assert.ok(register.includes('data-register-step="1"')&&register.includes('data-register-step="2" hidden')&&
  register.includes('id="register-next"')&&register.includes('id="register-back"')&&

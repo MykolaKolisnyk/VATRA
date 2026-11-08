@@ -522,7 +522,7 @@ async function initialize(){
  wireFloatingHints();
  if(page==="register"){fillBirthdays();wireSelects();wireHoverHelp();}
  wireFieldValidation();
- if(page==="register")wireRegistrationWizard();
+ if(page==="register"){wireRegistrationWizard();restoreSignupConfirmation();}
  if(!window.supabase?.createClient){
   feedback("Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.","error");
   return;
@@ -545,7 +545,10 @@ async function initialize(){
  if(page==="register")wireRegister();
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
- if(page==="account")await wireAccount();
+ if(page==="account"){
+  try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
+  await wireAccount();
+ }
  document.body.dataset.authReady="true";
 }
 async function captchaOptions(scope){
@@ -570,6 +573,42 @@ function wireLogin(){
    await goToMyAccount();
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
+}
+const SIGNUP_PENDING_KEY="vatra-signup-confirmation";
+function maskSignupEmail(email){
+ const parts=email.split("@");
+ if(parts.length!==2)return "";
+ const name=parts[0];
+ return (name.length>2?name.slice(0,2):name.slice(0,1))+"•••@"+parts[1];
+}
+function showSignupConfirmation(address){
+ const screen=q("#signup-confirmation");
+ const formPane=q(".signup-form-panel .narrow-form");
+ if(!screen||!formPane)return;
+ formPane.hidden=true;
+ screen.hidden=false;
+ const target=q("#signup-confirmation-address");
+ const row=q(".signup-confirmation-address-row");
+ if(target&&row){target.textContent=address||"";row.hidden=!address;}
+ document.body.dataset.signupConfirmation="pending";
+ screen.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function restoreSignupConfirmation(){
+ q("#signup-confirmation-restart")?.addEventListener("click",()=>{
+  try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
+ });
+ try{
+  const pending=JSON.parse(sessionStorage.getItem(SIGNUP_PENDING_KEY)||"null");
+  if(pending&&typeof pending.address==="string"&&Number.isFinite(pending.sentAt)
+   &&pending.sentAt<=Date.now()&&Date.now()-pending.sentAt<86400000){
+   showSignupConfirmation(pending.address);
+  }else sessionStorage.removeItem(SIGNUP_PENDING_KEY);
+ }catch(_){}
+}
+function markSignupPending(email){
+ const address=maskSignupEmail(email),sentAt=Date.now();
+ try{sessionStorage.setItem(SIGNUP_PENDING_KEY,JSON.stringify({address,sentAt}));}catch(_){}
+ showSignupConfirmation(address);
 }
 function wireRegister(){
  const form=q("#signup-form");
@@ -602,7 +641,7 @@ function wireRegister(){
    if(error)throw error;
    form.reset();
    if(data?.session){await goToMyAccount();return;}
-   feedback("Перевірте електронну пошту. На неї надіслано лист для підтвердження реєстрації. Після підтвердження можна увійти.","success");
+   markSignupPending(email);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
 }

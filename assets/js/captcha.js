@@ -113,7 +113,7 @@ function mount(scope) {
     if(state.closed||!waiting)return;
     state.pending=null;
     clearTimeout(waiting.timer);
-    state.dialog.hide();
+    dispose(scope,state);
     waiting.resolve(token);
    },
    "error-callback":()=>{abort(scope,state,"captcha_unavailable");return true;},
@@ -125,18 +125,27 @@ function mount(scope) {
  })();
  return state;
 }
-function abort(scope,state,code){
+/* Remove Turnstile while its container is still mounted; detaching the DOM first
+   makes Cloudflare report "Cannot find Widget" / "Nothing to remove found". */
+function dispose(scope,state){
  if(state.closed)return;
  state.closed=true;
  widgets.delete(scope);
+ if(state.id!==null){
+  try{window.turnstile?.remove?.(state.id);}catch(_){}
+  state.id=null;
+ }
+ state.dialog?.hide();
+}
+function abort(scope,state,code){
+ if(state.closed)return;
  if(state.pending){
   const waiting=state.pending;
   state.pending=null;
   clearTimeout(waiting.timer);
   waiting.reject(failure(code));
  }
- state.dialog?.hide();
- if(state.id!==null)window.turnstile?.remove?.(state.id);
+ dispose(scope,state);
 }
 async function token(scope) {
  if(!enabled)return null;
