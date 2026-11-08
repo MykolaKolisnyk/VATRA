@@ -109,8 +109,7 @@ try{
  assert.equal(await helps.count(),2,"Gender and email help bubbles missing");
  await helps.nth(0).locator("summary").hover();
  await reopened.waitForFunction(()=>document.querySelectorAll(".reg-help[open]").length===1);
- await helps.nth(1).locator("summary").hover();
- await reopened.waitForFunction(()=>document.querySelectorAll(".reg-help[open]").length===1&&document.querySelectorAll(".reg-help")[1].open);
+ assert.equal(await helps.nth(1).isVisible(),false,"Email help must only show on the second registration step");
  await reopened.locator("#first-name").focus();
  await reopened.waitForFunction(()=>document.querySelector("#first-name").closest(".reg-input-wrap")?.classList.contains("is-raised"));
  await reopened.locator("#first-name").fill("VATRA");
@@ -140,6 +139,8 @@ try{
  await wizard.locator('[data-register-step="2"]').waitFor({state:"visible"});
  assert.equal(await wizard.locator(".signup-progress").getAttribute("aria-valuenow"),"2","Progress should announce step two");
  assert.equal(await wizard.locator('[data-register-step="1"]').isVisible(),false,"Identity step should be hidden");
+ await wizard.locator(".reg-help-email summary").hover();
+ await wizard.waitForFunction(()=>document.querySelector(".reg-help-email")?.open===true);
  await wizard.locator("#email").fill("test@example.com");
  await wizard.locator("#register-back").click();
  assert.equal(await wizard.locator("#first-name").inputValue(),"Тест","First name must survive back navigation");
