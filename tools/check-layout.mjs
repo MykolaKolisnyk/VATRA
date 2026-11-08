@@ -151,8 +151,12 @@ const landing=await read("index.html");
 const features=["chat","business","communities","photos","video","music","marketplace","clips"];
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"Eight small features required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
-assert.ok(!landing.includes("ui-outer-track")&&!landing.includes("intro-copy ui-home-div-009"),
- "Retired outer orbit and slogan copy must not remain");
+assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-home-div-009"),
+ "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
+assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,3,
+ "Keep three understated caption words around the VATRA icon orbit");
+assert.ok(landing.includes('data-i18n="n99"')&&landing.includes('data-i18n="n100"'),
+ "Keep translated VATRA social-network description on the left");
 for(const feature of features){
  assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
@@ -178,6 +182,18 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy.html" target="_blank"'),
  "Signup gender and email must explain why data is requested");
+assert.ok(auth.includes('if(page!=="register")input.removeAttribute("placeholder");'),
+ "Registration placeholders must stay visible while login floating labels remain unchanged");
+assert.ok(css.includes("align-items:start")&&css.includes(".register-page .two>.field{align-content:start;align-self:start}"),
+ "Two-column registration inputs must not move when a field shows validation errors");
+for(const page of pages.filter(p=>p!=="offline")){
+ const html=await read(page+".html");
+ assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('vt-language-static-chevron-001'),
+  page+": language switch must show SVG flag and chevron even before JavaScript runs");
+ assert.ok(html.includes("picker3"),page+": language picker cache version missing");
+}
+assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
+ "Language toggle must initialize early and open the full modal");
 assert.ok(css.includes(".register-page .field:has(input.control)>span:first-child")&&
  css.includes(".register-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
