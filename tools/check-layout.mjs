@@ -176,11 +176,18 @@ for(const feature of features){
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(30cqw,205px)')&&
+assert.ok(css.includes('--inner-radius:min(33cqw,222px)')&&
  css.includes('width:clamp(95px,26cqw,194px)')&&
  css.includes('width:clamp(42px,9cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
+assert.ok(css.includes("orbit-note-support")&&css.includes("orbit-note-love")&&
+ css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 112px),600px)"),
+ "Five inner slogans and larger orbit must fit the welcome panel");
+assert.ok(css.includes('.register-page .reg-floating-label')&&
+ css.includes(".register-page .reg-help-panel")&&
+ css.includes(".vatra-error-stack"),
+ "Animated input hints, hover help and diagnostic notices must share site styling");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth.js"),"Shared auth module not loaded");
