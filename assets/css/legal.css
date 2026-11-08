@@ -16,7 +16,6 @@
 .policy-tabs a[aria-current="page"]{background:#eaf1ff;border-color:#cedeff;color:#2865D8}
 .policy-main{min-width:0;width:min(calc(100% - 52px),1100px);margin:0 auto;padding:34px 0 74px;flex:1}
 .policy-header{max-width:910px;margin:0 0 30px}
-.policy-eyebrow{display:block;color:#2865D8;font-size:12px;font-weight:740;letter-spacing:.07em;text-transform:uppercase;margin:0 0 10px}
 .policy-header h1{font-size:clamp(31px,3.5vw,46px);line-height:1.23;letter-spacing:-.025em;font-weight:720;text-wrap:balance;margin:0 0 14px;color:#2E3C55}
  .policy-header p{font-size:clamp(14px,1.3vw,16px);text-wrap:pretty;line-height:1.65;color:#627187;max-width:800px;margin:0}
 .policy-updated{margin-top:13px!important;font-size:12px!important;color:#627187!important}

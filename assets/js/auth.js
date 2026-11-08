@@ -115,7 +115,7 @@ function wireFloatingLabels(){
    floating.setAttribute("aria-hidden","true");
    wrap.append(floating);
    const sync=()=>{
-    const raised=document.activeElement===input||Boolean(input.value);
+    const raised=Boolean(input.value);
     wrap.classList.toggle("is-raised",raised);
     field.classList.toggle("has-value",Boolean(input.value));
     input.setAttribute("placeholder",raised?"":hint);

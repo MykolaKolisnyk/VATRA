@@ -344,6 +344,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -527,7 +537,7 @@
         },
         "n59": {
           "text": {
-            "0": "Sign up"
+            "0": "Create account"
           }
         },
         "n60": {
@@ -838,6 +848,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -974,6 +994,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -1039,6 +1069,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -1089,11 +1129,6 @@
         "n12": {
           "text": {
             "0": "Privacy"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "VATRA · Information"
           }
         },
         "n17": {
@@ -1203,6 +1238,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -1253,11 +1298,6 @@
         "n12": {
           "text": {
             "0": "Privacy"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "VATRA · Information"
           }
         },
         "n17": {
@@ -1568,6 +1608,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -1618,11 +1668,6 @@
         "n12": {
           "text": {
             "0": "Privacy"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "VATRA · Information"
           }
         },
         "n17": {
@@ -1953,6 +1998,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -2003,11 +2058,6 @@
         "n12": {
           "text": {
             "0": "Privacy"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "VATRA · Information"
           }
         },
         "n17": {
@@ -2321,6 +2371,16 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
         }
       }
     },
@@ -2573,7 +2633,7 @@
         },
         "n128": {
           "text": {
-            "0": "Sign up"
+            "0": "Create account"
           }
         },
         "n129": {
