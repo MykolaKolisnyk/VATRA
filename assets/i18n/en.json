@@ -1732,7 +1732,7 @@
         },
         "n63": {
           "text": {
-            "0": "This information is processed to create accounts, verify sign-ins, support password recovery, prevent unauthorized access, and operate VATRA."
+            "0": "Your email address is used to confirm registration, sign in and recover your password; it may also be used for important account-security messages. Providing a gender is optional: you may select an option or leave “Prefer not to say.” If specified, it is stored with your account information but is not publicly displayed on the registration page. Other details are used to create your account, verify sign-ins and protect against unauthorized access."
           }
         },
         "n64": {
