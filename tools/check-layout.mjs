@@ -221,7 +221,7 @@ assert.ok(css.includes('--inner-radius:min(33cqw,220px)')&&
  css.includes('width:clamp(42px,8.2cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
- css.includes('font-size:clamp(30px,2.3vw,36px)')&&
+ css.includes('font-size:clamp(31px,2.55vw,40px)')&&
  css.includes("max-width:69ch")&&
  css.includes("font-size:clamp(14px,.9vw,15px)"),
  "Landing columns must be equal and welcome text consistently readable on large and small screens");
