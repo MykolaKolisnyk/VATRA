@@ -16,11 +16,9 @@ const offline=await read("offline.html");
 const uk=JSON.parse(await read("assets/i18n/uk.json"));
 const en=JSON.parse(await read("assets/i18n/en.json"));
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
-assert.ok(errors.includes('"%cVATRA%c')&&
- errors.includes('console.log(')&&
- errors.includes('VATRA · Помилка')&&
- errors.includes('VATRA · Error'),
- "The console must display the VATRA name and all console-error alerts must carry the VATRA brand");
+assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
+ errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),
+ "Do not print a VATRA banner in DevTools; keep branded error alerts");
 assert.ok(errors.includes('window.addEventListener("error"')&&
  errors.includes('window.addEventListener("unhandledrejection"')&&
  errors.includes("console.error=function")&&
@@ -201,8 +199,8 @@ assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
 assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-home-div-009"),
  "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
-assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,5,
- "Keep five short VATRA captions inside the logo orbit");
+assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
+ "Five VATRA orbit slogans must be removed");
 assert.ok(landing.includes('data-i18n="n99"')&&landing.includes('data-i18n="n100"'),
  "Keep translated VATRA social-network description on the left");
 for(const feature of features){
@@ -210,9 +208,9 @@ for(const feature of features){
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(35cqw,240px)')&&
+assert.ok(css.includes('--inner-radius:min(33cqw,220px)')&&
  css.includes('width:clamp(130px,29cqw,224px)')&&
- css.includes('width:clamp(44px,8.6cqw,62px)'),
+ css.includes('width:clamp(42px,8.2cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes('grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)')&&
  css.includes('font-size:clamp(30px,2.3vw,36px)'),
@@ -229,9 +227,17 @@ assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
  lang.includes("chevron.setAttribute(\"viewBox\",\"0 0 24 24\")"),
  "Language flag and chevron vectors must use precise geometry");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
-assert.ok(css.includes("orbit-note-support")&&css.includes("orbit-note-love")&&
- css.includes("height:clamp(370px,calc(var(--inner-radius) * 2 + 78px),570px)"),
- "Five inner slogans and larger orbit must fit the welcome panel");
+assert.ok(!css.includes(".orbit-note")&&
+ css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 80px),540px)")&&
+ css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:none;margin:0;text-align:left}"),
+ "VATRA welcome text must be left aligned with copyright and unused orbit slogans removed");
+assert.ok(auth.includes("function wireOrbitTooltips()")&&
+ auth.includes('tip.classList.add("is-below")')&&
+ css.includes(".orbit-tooltip.is-below"),
+ "Orbit tooltips must open below top icons instead of clipping behind browser chrome");
+assert.ok(css.includes("@keyframes vatraCoreBreath")&&
+ css.includes("animation:vatraCoreBreath 7s"),
+ "Central VATRA logo must subtly float and breathe without modifying its artwork");
 assert.ok(css.includes('.register-page .reg-floating-label')&&
  css.includes(".register-page .reg-help-panel")&&
  css.includes(".vatra-error-stack"),
