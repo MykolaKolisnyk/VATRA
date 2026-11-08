@@ -323,6 +323,10 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  uk.__pages.register.nodes.n240.text["0"]==="Час до завершення дії посилання"&&
  en.__pages.register.nodes.n240.text["0"]==="Confirmation link expires in",
  "The account-creation confirmation screen needs a distinct resend/cooldown state");
+assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);font-size:14px;")&&
+ css.includes(".signup-confirmation-disclaimer{margin:8px 0 0;color:var(--soft);font-size:13px;")&&
+ css.includes(".signup-confirmation-signin{margin-top:12px;color:var(--blue);font-size:14px;"),
+ "Confirmation secondary typography must use consistent 13–14px rules");
 assert.ok(uk.__pages.register.meta.title==="Створити акаунт · VATRA"&&
  en.__pages.register.meta.title==="Create account · VATRA"&&
  !register.includes('href="./" class="vt-register-link-10"'),
@@ -380,7 +384,8 @@ assert.ok(auth.includes('function wireFloatingHints()')&&
  "Both forms must restore floating hints without duplicates");
 assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
  auth.includes("fieldErrorTimers.set(control,setTimeout")&&
- css.includes(".check-terms>.field-error{grid-column:2;grid-row:2;")&&
+ css.includes(".check-terms>.field-error{grid-column:1/-1;grid-row:2;")&&
+ css.includes(".check-terms>.field-error::before{width:16px;height:16px;")&&
  auth.includes('wrapper.append(error);'),
  "Field errors must expire automatically and align consent messages");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
