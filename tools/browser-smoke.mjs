@@ -395,8 +395,10 @@ try{
   await probe.close();
  }
  console.log("VATRA empty focused hints and form error design: OK");
+ // account.html redirects unauthenticated visitors to sign-in; its footer
+ // structure is covered by the static checks instead of the guest browser run.
  for(const route of ["legal.html","terms.html","privacy.html","cookies.html",
-  "forgot.html","reset.html","account.html","404.html"]){
+  "forgot.html","reset.html","404.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"load"});
