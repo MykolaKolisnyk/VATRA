@@ -134,6 +134,56 @@ function wireFloatingLabels(){
  }
  window.addEventListener("pageshow",()=>registry.forEach(sync=>sync()));
 }
+/* Keep rotating orbit icon tooltips fully inside the visible welcome panel.
+   At the top of the orbit the tooltip opens below, not under browser chrome. */
+function wireOrbitTooltips(){
+ if(page!=="login")return;
+ const panel=q(".intro-side");
+ if(!panel)return;
+ const icons=[...panel.querySelectorAll(".orbit-icon")];
+ for(const icon of icons){
+  const tip=icon.querySelector(".orbit-tooltip");
+  if(!tip)continue;
+  const place=()=>{
+   tip.classList.remove("is-below");
+   tip.style.removeProperty("--tip-shift");
+   tip.style.removeProperty("max-height");
+   tip.style.removeProperty("overflow-y");
+   const box=icon.getBoundingClientRect();
+   const bounds=panel.getBoundingClientRect();
+   const top=Math.max(12,bounds.top+12);
+   const bottom=Math.min(window.innerHeight-12,bounds.bottom-12);
+   const needed=tip.getBoundingClientRect().height;
+   const above=box.top-top-13;
+   const below=bottom-box.bottom-13;
+   const openBelow=above<needed&&below>above;
+   if(openBelow)tip.classList.add("is-below");
+   const available=openBelow?below:above;
+   if(available<needed){
+    tip.style.maxHeight=Math.max(44,Math.floor(available))+"px";
+    tip.style.overflowY="auto";
+   }
+   const tipWidth=tip.getBoundingClientRect().width;
+   const center=box.left+box.width/2;
+   const minLeft=Math.max(12,bounds.left+10);
+   const maxRight=Math.min(window.innerWidth-12,bounds.right-10);
+   const desired=center-tipWidth/2;
+   const left=Math.min(Math.max(desired,minLeft),Math.max(minLeft,maxRight-tipWidth));
+   tip.style.setProperty("--tip-shift",Math.round(left-desired)+"px");
+  };
+  icon.addEventListener("mouseenter",place);
+  icon.addEventListener("focus",place);
+  icon.addEventListener("mouseleave",()=>{
+   if(!icon.matches(":focus-visible"))tip.classList.remove("is-below");
+  });
+  window.addEventListener("resize",()=>{
+   if(icon.matches(":hover, :focus-visible"))place();
+  },{passive:true});
+  document.addEventListener("scroll",()=>{
+   if(icon.matches(":hover, :focus-visible"))place();
+  },{passive:true,capture:true});
+ }
+}
 /* Hover/focus help is mutually exclusive and not a click-to-toggle drawer. */
 function wireHoverHelp(){
  const helps=[...document.querySelectorAll(".reg-help")];
@@ -423,6 +473,7 @@ function validateBirthday(){
  return [year,month,day].join("-");
 }
 async function initialize(){
+ wireOrbitTooltips();
  /* Initial language translations must finish before wiring localized controls. */
  await window.VATRA_LANGUAGE?.ready;
  /* Build the interface independently of the authentication service status. */
