@@ -31,10 +31,12 @@ assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.i
  css.includes(".vatra-error-toast--warning")&&css.includes("border-left-color:#d99a32")&&
  errors.includes('VATRA · Попередження')&&errors.includes("VATRA · Warning"),
  "Console errors and warnings need separate red and amber VATRA notification designs");
-assert.ok(css.includes('.site .form-box .field:has(input.control)>span:first-child{')&&
- css.includes('.field:has(input.control) input.control::placeholder{color:var(--soft);opacity:1}')&&
- !css.includes('.reg-floating-label')&&!css.includes('.has-value>span:first-child'),
- "Inputs must use native placeholders without layered floating labels");
+assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transparent;opacity:0}')&&
+ css.includes('.vatra-floating-hint{')&&
+ css.includes('.vatra-input-shell:focus-within .vatra-floating-hint,')&&
+ css.includes('.vatra-input-shell.is-floating .control,')&&
+ !css.includes('.reg-floating-label'),
+ "Both auth forms must have one floating hint per field without duplicate native labels");
 assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
  css.includes(".vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb")&&
  css.includes(".language-scroll-track{")&&
@@ -260,10 +262,10 @@ assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/vatra-symbol.svg"')&&
  registerHtmlHasBrandedSymbol,
  "Both auth logos must be identical symbols with the same animation and size");
-assert.ok(auth.includes("function wireStableInputHints()")&&
+assert.ok(auth.includes("function wireFloatingHints()")&&
  css.includes(".signup-form-panel .field:has(input.control)>span:first-child{")&&
  css.includes(".register-page .reg-help-panel")&&css.includes(".vatra-error-stack"),
- "Native input hints, static captions, help and diagnostics must work together");
+ "Floating hints must preserve registration captions and help");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
 assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
  !landing.includes('class="login-header ui-login-header-001"')&&
@@ -322,9 +324,12 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy.html#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
-assert.ok(auth.includes('function wireStableInputHints()')&&
- !auth.includes("reg-floating-label")&&!auth.includes('wrap.classList.toggle("is-raised"'),
- "Registration must use real placeholders and permanent captions");
+assert.ok(auth.includes('function wireFloatingHints()')&&
+ auth.includes('hint.setAttribute("aria-hidden","true")')&&
+ auth.includes('input.placeholder=" ";')&&
+ auth.includes('shell.classList.toggle("is-floating",')&&
+ !auth.includes("wireStableInputHints"),
+ "Both forms must restore floating hints without duplicates");
 assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
  auth.includes("fieldErrorTimers.set(control,setTimeout")&&
  css.includes(".check-terms>span .field-error{display:flex;"),
@@ -380,9 +385,10 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('.field-error::before{content:"!"'),
  "Orbit size and visual validation details must be updated");
-assert.ok(auth.includes('const sync=()=>{input.placeholder=caption.textContent.trim();}')&&
- !auth.includes("wireFloatingLabels"),
- "Login placeholders must remain stable and use translated captions");
+assert.ok(auth.includes('const hintText=page==="register"')&&
+ auth.includes('(caption?.textContent||input.getAttribute("placeholder")||"").trim()')&&
+ !auth.includes("wireStableInputHints"),
+ "Login and signup floating hints must use original translated text");
 for(const page of ["legal","terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
@@ -410,22 +416,22 @@ assert.ok(css.includes(".intro-copy p strong{display:block;")&&
  "Promotional copy must be centered and have heading above description");
 for(const page of ["legal","terms","privacy","cookies"]){
  const html=await read(page+".html");
- for(const section of ["legal","terms","privacy","cookies"])
-  assert.ok(html.includes('class="policy-nav-icon ui-policy-nav-'+section+'"'),
-   "Vector tab icons missing from "+page+": "+section);
+ assert.ok(!html.includes('policy-nav-icon')&&
+ !html.includes('>Усі документи</a>')&&
+ (html.match(/<nav class="policy-tabs[^"]*"[^>]*>/g)||[]).length===1,
+ page+": only three text tabs should remain in legal navigation");
 }
 const legalHome=await read("legal.html");
 for(const [i,icon] of ["terms","privacy","cookies"].entries())
  assert.ok(legalHome.includes('class="ui-legal-svg-00'+(i+1)+' policy-card-svg"'),
-  "SVG icon missing on document card "+icon);
-assert.ok(legalCss.includes('.policy-nav-icon{display:block;width:18px;height:18px;')&&
- css.includes('.footer-doc-icon{display:block;width:16px;height:16px;'),
- "SVG icons must have canonical styles on tabs, cards and footer links");
+  "Improved SVG should remain on the three overview cards: "+icon);
+assert.ok(legalCss.includes('.policy-card-icon svg{')&&
+ !legalCss.includes('.policy-nav-icon')&&!css.includes('.footer-doc-icon{'),
+ "Only document cards should retain the enhanced icons");
 for(const page of ["index","register","forgot","reset","account","404"]){
  const html=await read(page+".html");
- for(const section of ["terms","privacy"])
-  assert.ok(html.includes('class="footer-doc-icon ui-footer-'+section+'"'),
-   "Footer document icon "+section+" missing on "+page);
+ assert.ok(!html.includes('footer-doc-icon'),
+ "Document icons must not appear in footer: "+page);
 }
 for(const page of ["register","legal","terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
