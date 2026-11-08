@@ -513,6 +513,15 @@ for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
  css.includes(".register-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
+assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
+ forgot.includes('class="forgot-kicker vt-forgot-overline-001" data-i18n="n55"')&&
+ forgot.includes('id="forgot-title"')&&
+ uk.__pages.forgot.nodes.n55.text["0"]==="ВІДНОВЛЕННЯ ДОСТУПУ"&&
+ en.__pages.forgot.nodes.n55.text["0"]==="ACCOUNT RECOVERY"&&
+ css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel:has(#recovery-step:not([hidden])) .forgot-intro{display:none}')&&
+ !forgot.includes('assets/css/forgot.css'),
+ "Password recovery must use the shared Onest styles and a single centered card");
 assert.ok(forgot.includes('id="recovery-step"')&&forgot.includes('id="recovery-code-form"'),"Recovery code step missing");
 assert.ok(forgot.includes('id="recovery-resend"'),"Repeat code request missing");
 assert.ok(reset.includes('id="reset-form"')&&reset.includes('id="recovery-code-form"'),"Direct reset code and password forms missing");

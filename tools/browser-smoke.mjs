@@ -653,6 +653,46 @@ try{
    "Supporting page footer not constrained to viewport: "+route);
   await other.close();
  }
+
+ // Recovery design and typography across language, viewport and OTP step.
+ for(const [width,height,language] of [[390,844,"uk"],[1440,900,"en"]]){
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const recoveryPage=await context.newPage();
+  await recoveryPage.setViewportSize({width,height});
+  await recoveryPage.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
+  await waitReady(recoveryPage);
+  await recoveryPage.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  const metrics=await recoveryPage.evaluate(()=>{
+   const panel=document.querySelector(".forgot-panel").getBoundingClientRect();
+   const headline=document.querySelector("#forgot-title").getBoundingClientRect();
+   const form=document.querySelector("#forgot-form").getBoundingClientRect();
+   const style=getComputedStyle(document.querySelector("#forgot-title"));
+   const font=getComputedStyle(document.querySelector("#email"));
+   return {panelX:panel.x,panelRight:panel.right,panelWidth:panel.width,
+    headlineX:headline.x,formX:form.x,overflow:document.documentElement.scrollWidth-innerWidth,
+    fontFamily:style.fontFamily,fontSize:parseFloat(style.fontSize),inputFont:font.fontFamily};
+  });
+  assert.ok(metrics.panelX>=0&&metrics.panelRight<=width+1&&metrics.overflow<=2&&
+   Math.abs(metrics.headlineX-metrics.formX)<2&&
+   metrics.fontFamily.includes("Onest")&&metrics.inputFont.includes("Onest")&&
+   metrics.fontSize>=29&&metrics.fontSize<=41,
+   "Recovery panel must be centered, readable and aligned at "+width+" "+language+": "+JSON.stringify(metrics));
+  assert.equal(await recoveryPage.locator(".forgot-kicker").textContent(),
+   language==="uk"?"ВІДНОВЛЕННЯ ДОСТУПУ":"ACCOUNT RECOVERY");
+  await recoveryPage.evaluate(()=>{
+   document.querySelector("#forgot-form").hidden=true;
+   document.querySelector("#recovery-note").hidden=true;
+   document.querySelector("#recovery-step").hidden=false;
+  });
+  assert.equal(await recoveryPage.locator(".forgot-intro").isVisible(),false,
+   "Entering the OTP stage must replace the intro instead of stacking both headings");
+  const codeStep=await recoveryPage.locator("#recovery-step").boundingBox();
+  assert.ok(codeStep&&codeStep.x>=0&&codeStep.x+codeStep.width<=width+1,
+   "OTP stage must remain within the same card at "+width);
+  await recoveryPage.close();
+ }
+ await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
+ console.log("VATRA password recovery typography and responsive OTP stage: OK");
  console.log("VATRA supporting page footers: OK");
 
  // Exercise signup confirmation, one-click correction and CAPTCHA-protected resend (offline mocks only).
