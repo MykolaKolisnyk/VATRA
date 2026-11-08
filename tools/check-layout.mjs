@@ -9,6 +9,9 @@ const auth=await read("assets/js/auth.js");
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
 const sw=await read("sw.js");
+const host=await read("assets/js/host.js");
+const network=await read("assets/js/network.js");
+const offline=await read("offline.html");
 const uk=JSON.parse(await read("assets/i18n/uk.json"));
 const en=JSON.parse(await read("assets/i18n/en.json"));
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
@@ -24,6 +27,20 @@ assert.ok(lang.includes('fetch(ROOT + "assets/i18n/" + current + ".json"'),"Both
 assert.ok(lang.includes('document.querySelectorAll("[data-i18n]")'),"DOM translation bindings missing");
 assert.ok(lang.includes('location.reload()'),"Language selection must reuse the same page URL");
 assert.ok(!lang.includes("location.replace(pathFor")&&!lang.includes("const explicit ="),"Old language-folder router remains");
+assert.ok(host.includes('location.protocol==="file:"')&&host.includes('"localhost"')&&host.includes('"127.0.0.1"'),
+ "Local HTML and localhost must show the real VATRA UI");
+assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
+ "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
+assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)'),
+ "Service worker must be registered relative to the current site");
+assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,'),
+ "Offline logo must be available as a self-contained vector");
+assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-dot-001"),
+ "Offline Wi-Fi-off icon must use the crisp SVG geometry");
+assert.ok(offline.includes("controller?.scriptURL")&&offline.includes('href="./" data-i18n="n9"'),
+ "Offline fallback must resolve assets and home link at nested routes and localhost");
+assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
+ "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
@@ -99,7 +116,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","sw.js"]){
+for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
