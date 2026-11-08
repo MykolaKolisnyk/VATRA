@@ -78,8 +78,14 @@ noCookies.persist("en");
 assert.equal(noCookies.saved(),"en","Language must still work when cookies are blocked");
 
 assert.ok(!lang.includes("location.replace(pathFor")&&!lang.includes("const explicit ="),"Old language-folder router remains");
-assert.ok(host.includes('location.protocol==="file:"')&&host.includes('"localhost"')&&host.includes('"127.0.0.1"'),
- "Local HTML and localhost must show the real VATRA UI");
+assert.ok(host.includes('location.hostname==="mykolakolisnyk.github.io"')&&
+ host.includes('location.protocol==="https:"')&&!host.includes('const localPreview='),
+ "VATRA must show its public UI only on the official HTTPS origin");
+assert.ok(lang.includes('["uk","Українська","Ukrainian","ua"]')&&
+ lang.includes('["en","English","English","gb"]')&&
+ !lang.includes("In development")&&!lang.includes("У розробці")&&
+ !lang.includes("assets/flags/"),
+ "Language picker must show only working locales with inline SVG flags");
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
  "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
 assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)'),
@@ -174,6 +180,28 @@ for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/captcha.
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
 const errorPage=await read("404.html");
+assert.ok(errorPage.includes("Перейти на головну")&&!errorPage.includes("Повернутися до входу"),
+ "404 primary action must not presume the user's previous location");
+assert.ok(css.includes("color:#fff;text-decoration:none}")&&
+ css.includes(".error-card a.error-action:hover"),
+ "404 navigation link and arrow must not be underlined on hover");
+for(const name of ["legal","terms","privacy","cookies"]){
+ const html=await read(name+".html");
+ const dictionary=uk.__pages[name];
+ assert.ok(html.includes("Оновлено 8 листопада 2026 року"),
+  name+": legal revision date is stale");
+ assert.ok(!/\bми\b|\bнаша\b|\bнаші\b/iu.test(html.replace(/<[^>]+>/g," ")),
+  name+": text must not describe the developer as a team");
+ for(const node of Object.values(dictionary.nodes)){
+  for(const original of Object.values(node.text||{})){
+   assert.ok(html.includes(original),name+": Ukrainian document diverges from its dictionary");
+  }
+ }
+}
+assert.ok(!(await read("privacy.html")).includes("Самостійне видалення акаунта зараз"),
+ "Privacy page must give the actual contact process instead of placeholder UI");
+assert.ok(!(await read("account.html")).includes("Персональні розділи стануть доступними"),
+ "Account page must not advertise future sections");
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
 assert.ok(errorPage.includes('href="/VATRA/"')&&errorPage.includes('src="/VATRA/assets/logo/vatra-logo.svg"'),
  "GitHub Pages 404 must work at nested missing URLs");
