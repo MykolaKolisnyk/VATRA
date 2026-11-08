@@ -20,7 +20,7 @@ for(const page of pages){
  assert.ok(html.includes('<html lang="uk"'),filename+": source markup must use accessible Ukrainian fallback");
  assert.ok(html.includes("VATRA"),filename+": branding missing");
  assert.ok(!/\/VATRA\/(?:ua|en)\//.test(html),filename+": language subfolder link remains");
- assert.ok(html.includes('src="assets/js/lang.js"')||page==="404"&&html.includes('src="/VATRA/assets/js/lang.js"'),
+ assert.ok(/\\bsrc=["'](?:\\/VATRA\\/)?assets\\/js\\/lang\\.js(?:\\?v=[^"']+)?["']/.test(html),
   filename+": shared JSON translation loader missing");
  if(publicPages.has(page)){
   for(const tag of ['rel="canonical"','name="description"','property="og:title"','property="og:image"']){
