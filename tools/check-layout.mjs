@@ -332,7 +332,7 @@ for(const [path,ids] of [["index.html",["email","password"]],["register.html",["
   const input=html.match(new RegExp('<input\\b[^>]*\\bid="'+id+'"[^>]*>'))?.[0]||"";
   assert.ok(input.includes('placeholder=" "'),path+": floating control must not first render a native placeholder: "+id);
  }
- const hints=(html.match(/class="vatra-floating-hint\\b/g)||[]).length;
+ const hints=(html.match(/class="vatra-floating-hint\b/g)||[]).length;
  assert.equal(hints,ids.length,path+": one static floating caption per input");
 }
 for(const path of ["index.html","register.html"]){
