@@ -16,3 +16,9 @@ jobs:
         run: |
           node tools/check-seo.mjs
           node tools/check-layout.mjs
+      - name: Install Playwright Chromium for UI checks
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install chromium --with-deps
+      - name: Check layout and forms in Chromium
+        run: node tools/browser-smoke.mjs
