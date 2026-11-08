@@ -29,9 +29,11 @@ assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-pag
  !css.includes('opacity:0;transform:translateY(10px)')&&
  !css.includes('.register-page .reg-input-wrap.is-raised>.control{padding-top:20px!important'),
  "Login and registration must use the same animation, not layered overrides");
-assert.ok(css.includes("*::-webkit-scrollbar-thumb")&&
+assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
+ css.includes(".vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb")&&
+ css.includes(".language-scroll-track{")&&
  css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)"),
- "Unified scrolling styles must apply to native page and selector scrollbars");
+ "The website must keep its native browser scrollbar; custom scrollbar styling belongs only inside VATRA forms");
 assert.ok(!css.includes(".orbit-badge")&&!css.includes("one-styleFix"),
  "Do not keep orphaned controls or cosmetic fix layers");
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"Unbalanced CSS");
@@ -237,6 +239,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('vt-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker5")&&html.includes("errors.js?v=20261108-errors2"),page+": language picker and console diagnostics versions missing");
+ if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout7"),page+": scoped scrollbars stylesheet version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
