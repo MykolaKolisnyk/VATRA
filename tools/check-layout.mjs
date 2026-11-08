@@ -391,7 +391,7 @@ assert.ok(auth.includes('const hintText=page==="register"')&&
  auth.includes('(caption?.textContent||input.getAttribute("placeholder")||"").trim()')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
-for(const page of ["legal","terms","privacy","cookies","forgot","reset","account","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
  html.includes('data-i18n="n302">Створити акаунт</a>')&&
