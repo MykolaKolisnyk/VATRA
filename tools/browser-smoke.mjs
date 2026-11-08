@@ -457,35 +457,45 @@ try{
  }
  // Consent error must appear in a separate grid row aligned with the label,
  // not as a fragment within the policy links.
- const consentProbe=await context.newPage();
- await consentProbe.setViewportSize({width:1280,height:900});
- await consentProbe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
- await waitReady(consentProbe);
- await consentProbe.locator("#first-name").fill("Тест");
- await consentProbe.locator("#last-name").fill("Користувач");
- await consentProbe.evaluate(()=>{
-  for(const [id,value] of [["birth-day","01"],["birth-month","01"],["birth-year","2000"]]){
-   const node=document.getElementById(id);
-   node.value=value;node.dispatchEvent(new Event("change",{bubbles:true}));
-  }
- });
- await consentProbe.locator("#register-next").click();
- await consentProbe.locator("#email").fill("demo@example.test");
- await consentProbe.locator("#password").fill("VeryStrong@12345");
- await consentProbe.locator("#password-confirm").fill("VeryStrong@12345");
- await consentProbe.locator('#signup-form button[type="submit"]').click();
- const consentGeometry=await consentProbe.locator(".check-terms").evaluate(label=>{
-  const span=label.querySelector(":scope > span");
-  const error=label.querySelector(":scope > .field-error");
-  if(!error)return null;
-  const sr=span.getBoundingClientRect(),er=error.getBoundingClientRect();
-  const style=getComputedStyle(label);
-  return {child:error.parentElement===label,columns:style.gridTemplateColumns,
-   xDiff:Math.abs(er.left-sr.left),verticalGap:er.top-sr.bottom};
- });
- assert.ok(consentGeometry?.child&&consentGeometry.xDiff<3&&consentGeometry.verticalGap>=0,
-  "Consent error must align below the complete policy label: "+JSON.stringify(consentGeometry));
- await consentProbe.close();
+ for(const [width,language] of [[1280,"en"],[390,"uk"]]){
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const consentProbe=await context.newPage();
+  await consentProbe.setViewportSize({width,height:900});
+  await consentProbe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+  await waitReady(consentProbe);
+  await consentProbe.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  await consentProbe.locator("#first-name").fill("Тест");
+  await consentProbe.locator("#last-name").fill("Користувач");
+  await consentProbe.evaluate(()=>{
+   for(const [id,value] of [["birth-day","01"],["birth-month","01"],["birth-year","2000"]]){
+    const node=document.getElementById(id);node.value=value;
+    node.dispatchEvent(new Event("change",{bubbles:true}));
+   }
+  });
+  await consentProbe.locator("#register-next").click();
+  await consentProbe.locator("#email").fill("demo@example.test");
+  await consentProbe.locator("#password").fill("VeryStrong@12345");
+  await consentProbe.locator("#password-confirm").fill("VeryStrong@12345");
+  await consentProbe.locator('#signup-form button[type="submit"]').click();
+  const geometry=await consentProbe.locator(".check-terms").evaluate(label=>{
+   const copy=label.querySelector(":scope > span");
+   const checkbox=label.querySelector(":scope > input");
+   const error=label.querySelector(":scope > .field-error");
+   if(!error)return null;
+   const cr=checkbox.getBoundingClientRect(),sr=copy.getBoundingClientRect(),er=error.getBoundingClientRect();
+   const gap=parseFloat(getComputedStyle(error).columnGap);
+   const iconWidth=parseFloat(getComputedStyle(error,"::before").width);
+   return {inside:error.parentElement===label,checkboxX:cr.left,iconX:er.left,
+    copyX:sr.left,messageX:er.left+gap+iconWidth,below:er.top-sr.bottom,
+    errorRight:er.right,viewport:innerWidth,message:error.textContent.trim()};
+  });
+  assert.ok(geometry?.inside&&Math.abs(geometry.checkboxX-geometry.iconX)<3&&
+   Math.abs(geometry.copyX-geometry.messageX)<3&&geometry.below>=0&&
+   geometry.errorRight<=geometry.viewport+1,
+   "Consent error icon and text must align at "+width+" "+language+": "+JSON.stringify(geometry));
+  await consentProbe.close();
+ }
+ await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
  console.log("VATRA floating hints, error spacing, and temporary validation: OK");
  // Each page uses the same language modal with a centered SVG X.
  for(const route of ["","register.html","terms.html"]){
@@ -686,6 +696,25 @@ try{
  assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
  assert.equal(await confirmationPage.locator(".reg-back-nav a").isVisible(),false);
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
+ const typeScale=await confirmationPage.evaluate(()=>{
+  const selectors={heading:".signup-confirmation .signup-step-heading h1",
+   description:".signup-confirmation-description",tips:".signup-confirmation-tips p",
+   countdown:".signup-confirmation-timer-row",disclaimer:".signup-confirmation-disclaimer",
+   delay:".signup-confirmation-delay",change:".signup-confirmation-change",
+   changeNote:".signup-confirmation-change-note",signIn:".signup-confirmation-signin"};
+  return Object.fromEntries(Object.entries(selectors).map(([k,v])=>{
+   const style=getComputedStyle(document.querySelector(v));
+   return [k,{size:parseFloat(style.fontSize),font:style.fontFamily}];
+  }));
+ });
+ assert.ok(typeScale.heading.size>=31&&typeScale.heading.size<=40,
+  "Confirmation heading must match the form scale: "+JSON.stringify(typeScale));
+ for(const [name,style] of Object.entries(typeScale)){
+  assert.ok(style.font.includes("Onest"),"Confirmation must use Onest: "+name);
+  if(name!=="heading")assert.ok(style.size>=13&&style.size<=14,
+   "Confirmation secondary text must be 13–14px: "+name+" "+JSON.stringify(style));
+ }
+
  assert.equal(await confirmationPage.locator("#signup-confirmation-expiry").textContent(),"15:00");
  assert.equal(await confirmationPage.evaluate(()=>window.__signupCaptcha),true);
  assert.equal(await confirmationPage.evaluate(()=>window.__removedWithAttachedContainer),true);
