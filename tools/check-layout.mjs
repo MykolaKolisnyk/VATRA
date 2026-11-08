@@ -90,6 +90,12 @@ assert.ok(register.includes('id="consent"')&&register.includes('id="signup-form"
 assert.ok(forgot.includes('id="recovery-step"')&&forgot.includes('id="recovery-code-form"'),"Recovery code step missing");
 assert.ok(forgot.includes('id="recovery-resend"'),"Repeat code request missing");
 assert.ok(reset.includes('id="reset-form"')&&reset.includes('id="recovery-code-form"'),"Direct reset code and password forms missing");
+for(const file of [forgot,reset]){
+ assert.ok(file.includes('pattern="[0-9]{6,10}" minlength="6" maxlength="10"'),
+  "Recovery form must accept the Supabase-configured 6–10 digit OTP");
+}
+assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
+ "Recovery JavaScript must accept the same 6–10 digit OTP range");
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
