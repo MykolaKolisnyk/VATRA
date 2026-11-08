@@ -395,7 +395,7 @@
 }
 @media (max-width:540px){
   /* Canonical mobile signup rules live after the tablet breakpoint. */
-  .register-page .reg-main{width:100%;padding:0 12px}
+  .register-page .reg-main{width:calc(100% - 24px);padding:0}
   .reg-back-nav{width:calc(100% - 24px);margin-bottom:10px}
   .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}
   .signup-brand-title{font-size:25px}
