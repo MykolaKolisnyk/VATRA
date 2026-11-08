@@ -10,7 +10,27 @@
     const file=found[2]||"index.html";
     const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html","legal.html","terms.html","privacy.html","cookies.html","404.html","offline.html"]);
     if (!allowed.has(file)) return;
-    try { localStorage.setItem("vatra-language",found[1]==="en"?"en":"uk"); } catch (_) {}
+    // Existing language preferences always win over old /ua/ or /en/ links.
+    // Follow an old link's language only for visitors without a saved choice.
+    const key="vatra-language";
+    let selected=null;
+    try {
+      const match=document.cookie.split(";").map(item=>item.trim())
+        .find(item=>item.startsWith(key+"="));
+      if(match){
+        const value=decodeURIComponent(match.slice(key.length+1));
+        if(value==="uk"||value==="en")selected=value;
+      }
+    }catch(_){}
+    if(!selected){
+      try {
+        const value=localStorage.getItem(key);
+        if(value==="uk"||value==="en")selected=value;
+      }catch(_){}
+    }
+    if(!selected){
+      try{localStorage.setItem(key,found[1]==="en"?"en":"uk");}catch(_){}
+    }
     const target="/VATRA/"+(file==="index.html"?"":file);
     location.replace(target+location.search+location.hash);
   })();
