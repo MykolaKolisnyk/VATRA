@@ -1,6 +1,6 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
 const CACHE="vatra-offline-shell";
-const ROOT="/VATRA/";
+const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
  OFFLINE,
@@ -11,7 +11,14 @@ const ASSETS=[
  ROOT+"assets/fonts/Onest-Variable.ttf"
 ];
 self.addEventListener("install",event=>{
- event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
+ event.waitUntil((async()=>{
+  const cache=await caches.open(CACHE);
+  // The fallback document is essential. Icons, fonts and translations are
+  // optional: a temporary missing asset must not abort worker installation.
+  await cache.add(OFFLINE);
+  await Promise.allSettled(ASSETS.filter(path=>path!==OFFLINE).map(path=>cache.add(path)));
+  await self.skipWaiting();
+ })());
 });
 self.addEventListener("activate",event=>{
  event.waitUntil((async()=>{
