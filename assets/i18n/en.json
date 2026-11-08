@@ -2477,7 +2477,8 @@
   },
   "Надсилаємо…": "Sending…",
   "Повторити через": "Retry in",
-  "Лист надіслано повторно. Перевірте пошту.": "We sent another email. Check your inbox.",
+  "Лист надіслано повторно. Перевірте пошту.": "Another confirmation email has been sent. Check your inbox.",
   "Щоб надіслати лист, поверніться до створення акаунта й укажіть email.": "To resend, return to account creation and enter your email.",
-  "Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.": "Changing an unconfirmed email requires creating another account. The original unconfirmed account will not be changed."
+  "Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.": "Changing an unconfirmed email requires creating another account. The original unconfirmed account will not be changed.",
+  "Надіслати лист ще раз": "Send confirmation email again"
 }
