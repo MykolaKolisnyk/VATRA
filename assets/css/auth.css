@@ -318,7 +318,7 @@
   .split{display:flex;flex-direction:column;min-height:0}
   .form-side{order:0;min-height:0;padding:34px 24px 39px;align-items:center;justify-content:center}
   .form-box{width:min(100%,510px);margin:0 auto}
-  .intro-side{order:1;display:flex;flex-direction:column;border-right:0;border-top:1px solid var(--line);padding:30px 24px 40px;gap:16px;justify-content:center;overflow:visible;background:linear-gradient(135deg,#fff 5%,#f8f9ff 96%)}
+  .intro-side{order:1;display:flex;flex-direction:column;border-right:0;border-top:1px solid var(--line);padding:30px 24px 40px;gap:16px;justify-content:center;overflow-x:clip;overflow-y:visible;background:linear-gradient(135deg,#fff 5%,#f8f9ff 96%)}
   .intro-side:before{display:none}
 
   .footer{justify-content:center;gap:12px 22px;text-align:center}
