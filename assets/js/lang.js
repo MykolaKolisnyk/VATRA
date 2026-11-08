@@ -6,6 +6,8 @@
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
+  const LANGUAGE_KEY = "vatra-language";
+  const validLanguage = value => value === "uk" || value === "en";
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
   function preferred() {
     const choice = saved();
@@ -93,8 +95,6 @@
   // Remember an explicit choice across reloads and browser restarts. The
   // cookie also recovers preferences if a browser removes only localStorage.
   // A browser which clears ALL site data cannot retain either store.
-  const LANGUAGE_KEY = "vatra-language";
-  const validLanguage = value => value === "uk" || value === "en";
   function cookieLanguage() {
     if (localFile) return null;
     try {
