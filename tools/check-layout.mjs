@@ -57,7 +57,7 @@ memory.clear();
 const reopened=preferences(mockDocument,currentHost,mockStorage,"/VATRA/",false);
 assert.equal(reopened.saved(),"en","Reopened page must recover language from cookie");
 assert.equal(memory.get("vatra-language"),"en","Recovered language must repopulate localStorage");
-const legacyScript=(await read("404.html")).match(/<script>([\\s\\S]*?)<\\/script>/)?.[1];
+const legacyScript=(await read("404.html")).match(/<script>([\s\S]*?)<\/script>/)?.[1];
 assert.ok(legacyScript,"Previous locale URLs must keep their redirect");
 const oldBookmark={pathname:"/VATRA/ua/index.html",search:"",hash:"",
  replace(url){this.redirectedTo=url;}};
