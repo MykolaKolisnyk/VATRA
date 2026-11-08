@@ -404,10 +404,12 @@ try{
     Math.abs((empty.hintTop+empty.hintBottom)/2-empty.inputMid)<=3,
     "Unfocused empty hint must be centered: "+route+" "+JSON.stringify(empty));
   await field.focus();
+  await probe.waitForTimeout(260); // Wait until the 180ms floating-hint transition finishes.
   const focused=await metrics();
   assert.ok(focused.floating&&focused.hintBottom<=focused.inputTop+24,
     "On focus the hint must rise above the text cursor: "+route+" "+JSON.stringify(focused));
   await probe.locator(action).click();
+  await probe.waitForTimeout(240);
   const error=await metrics();
   assert.ok(error.invalid==="true"&&error.errorText&&
    error.hintCount===1&&error.placeholder===" "&&
