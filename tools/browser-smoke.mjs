@@ -195,7 +195,7 @@ try{
    return {overflow:document.documentElement.scrollWidth-innerWidth,
     headerAbsent:!document.querySelector(".reg-header"),
     backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
-    backAligned:Math.abs(back.right-main.right)<=8,
+    backAligned:Math.abs(back.right-form.right)<=8,
     backAbove:nav.bottom<=main.top+2,
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
     centerDelta:Math.abs((nav.top+main.bottom)/2-footerTop/2),
