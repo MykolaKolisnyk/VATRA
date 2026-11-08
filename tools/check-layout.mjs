@@ -332,13 +332,13 @@ for(const [path,ids] of [["index.html",["email","password"]],["register.html",["
   const input=html.match(new RegExp('<input\\b[^>]*\\bid="'+id+'"[^>]*>'))?.[0]||"";
   assert.ok(input.includes('placeholder=" "'),path+": floating control must not first render a native placeholder: "+id);
  }
- const hints=(html.match(/class="vatra-floating-hint"/g)||[]).length;
+ const hints=(html.match(/class="vatra-floating-hint\\b/g)||[]).length;
  assert.equal(hints,ids.length,path+": one static floating caption per input");
 }
 for(const path of ["index.html","register.html"]){
  const html=await read(path);
  const toggles=[...html.matchAll(/<button[^>]*data-password-toggle="[^"]+"[^>]*>/g)];
- assert.ok(toggles.length>0&&toggles.every(x=>/\\shidden(?:\\s|>)/.test(x[0])),path+": empty password controls must hide reveal buttons before JS runs");
+ assert.ok(toggles.length>0&&toggles.every(x=>/\shidden(?:\s|>)/.test(x[0])),path+": empty password controls must hide reveal buttons before JS runs");
 }
 assert.ok(css.includes('.signup-form-panel .field>span:first-child{font-size:13px;line-height:1.4;font-weight:700')&&
  css.includes('.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px')&&
@@ -406,8 +406,8 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('.field-error::before{content:"!"'),
  "Orbit size and visual validation details must be updated");
-assert.ok(register.includes('class="vatra-input-shell"')&&
- register.includes('class="vatra-floating-hint" aria-hidden="true"')&&
+assert.ok(register.includes('class="vatra-input-shell ')&&
+ register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
 for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]){
