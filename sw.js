@@ -1,5 +1,5 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
-const CACHE="vatra-offline-shell-v20261108-signup-v15";
+const CACHE="vatra-offline-shell-v20261108-login-v16";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[

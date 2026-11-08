@@ -45,6 +45,25 @@ try{
    return {vw:innerWidth,overflow:document.documentElement.scrollWidth-innerWidth,intro:r(".intro-side"),form:r(".form-side"),copy:r(".intro-copy"),split:r(".split"),offenders};
   });
   assert.ok(sizes.intro&&sizes.form&&sizes.copy&&sizes.split,"Landing panels missing at "+width);
+  const design=await page.evaluate(()=>{
+   const header=document.querySelector(".login-header");
+   const brand=document.querySelector(".intro-side");
+   const form=document.querySelector(".form-side");
+   const main=document.querySelector(".split");
+   const rect=main.getBoundingClientRect();
+   return {headerVisible:!!header&&header.getBoundingClientRect().width>0,
+     orbitCount:document.querySelectorAll(".orbit-icon").length,
+     brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
+     formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
+     formBackground:getComputedStyle(form).backgroundColor,
+     mainLeft:rect.left,mainRight:rect.right};
+  });
+  assert.ok(design.headerVisible,"Login brand header must be visible at "+width);
+  assert.equal(design.orbitCount,8,"All eight VATRA orbit icons must remain");
+  assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
+  assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
+   "Login card must preserve rounded corners at "+width);
+  assert.equal(design.formBackground,"rgb(255, 255, 255)","Login form must use a clean white background");
   if(sizes.overflow>3)console.log("Overflow diagnostic "+width+": "+JSON.stringify(sizes.offenders));
   assert.ok(sizes.overflow<=3,"Horizontal overflow at "+width+": "+sizes.overflow+"px");
   assert.ok(sizes.copy.w>200,"Description clipped at "+width);
@@ -88,6 +107,10 @@ try{
  await reopened.goto(base,{waitUntil:"domcontentloaded"});
  await waitReady(reopened);
  assert.equal(await reopened.locator("html").getAttribute("lang"),"en","Language lost after closing tab");
+ assert.equal(await reopened.locator(".login-form-kicker").textContent(),"WELCOME BACK TO VATRA",
+   "English login overline must be translated");
+ assert.equal(await reopened.locator(".login-header-caption").textContent(),"Your people. Your stories.",
+   "English login header must be translated");
  console.log("VATRA language picker, search, cookies and tab reopen: OK");
  await reopened.evaluate(()=>{console.warn("VATRA-browser-smoke-warning");console.error("VATRA-browser-smoke-error");});
  const warning=reopened.locator(".vatra-error-toast--warning").filter({hasText:"VATRA-browser-smoke-warning"});

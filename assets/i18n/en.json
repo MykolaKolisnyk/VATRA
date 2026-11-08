@@ -2510,7 +2510,7 @@
         },
         "n104": {
           "text": {
-            "0": "Connect with your people, share stories and explore new opportunities."
+            "0": "Get back to your people, messages and favourite communities."
           }
         },
         "n109": {
@@ -2597,6 +2597,26 @@
         "n100": {
           "text": {
             "0": "VATRA — a Ukrainian social network."
+          }
+        },
+        "n140": {
+          "attrs": {
+            "aria-label": "VATRA home"
+          }
+        },
+        "n141": {
+          "text": {
+            "0": "Your people. Your stories."
+          }
+        },
+        "n142": {
+          "text": {
+            "0": "VATRA · UKRAINIAN SOCIAL NETWORK"
+          }
+        },
+        "n143": {
+          "text": {
+            "0": "WELCOME BACK TO VATRA"
           }
         }
       }
