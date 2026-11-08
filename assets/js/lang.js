@@ -284,7 +284,19 @@
     search.autocomplete = "off";
     search.placeholder = words.search;
     search.setAttribute("aria-label", words.search);
-    searchField.append(searchCaption,search);
+    const clearSearch=document.createElement("button");
+    clearSearch.className="language-search-clear vt-language-clear-button";
+    clearSearch.type="button";
+    clearSearch.hidden=true;
+    clearSearch.setAttribute("aria-label",english?"Clear search":"Очистити пошук");
+    const clearIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    clearIcon.setAttribute("viewBox","0 0 24 24");
+    clearIcon.setAttribute("aria-hidden","true");
+    const cross=document.createElementNS("http://www.w3.org/2000/svg","path");
+    cross.setAttribute("d","M18 6 6 18M6 6l12 12");
+    clearIcon.append(cross);
+    clearSearch.append(clearIcon);
+    searchField.append(searchCaption,search,clearSearch);
     const list = document.createElement("div");
     list.className = "language-grid ui-language-options-grid";
     list.tabIndex = 0;
@@ -398,6 +410,7 @@
       restoreFocus = e?.currentTarget || document.activeElement;
       for(const trigger of triggers)trigger.setAttribute("aria-expanded","true");
       search.value = "";
+      clearSearch.hidden = true;
       [...list.children].forEach(node => { node.hidden = false; });
       notFound.hidden = true;
       backdrop.hidden = false;
@@ -406,6 +419,7 @@
       requestAnimationFrame(updateScrollbar);
     }
     search.addEventListener("input", () => {
+      clearSearch.hidden = !search.value;
       const q = search.value.trim().toLocaleLowerCase();
       let count = 0;
       for (const node of list.children) {
@@ -415,6 +429,11 @@
       notFound.hidden = count > 0;
       list.scrollTop = 0;
       requestAnimationFrame(updateScrollbar);
+    });
+    clearSearch.addEventListener("click",()=>{
+      search.value="";
+      search.dispatchEvent(new Event("input",{bubbles:true}));
+      search.focus();
     });
     closeBtn.addEventListener("click", close);
     backdrop.addEventListener("click", e => { if (e.target === backdrop) close(); });

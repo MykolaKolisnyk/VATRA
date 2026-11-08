@@ -148,13 +148,18 @@ try{
  await reopened.waitForFunction(()=>document.querySelectorAll(".reg-help[open]").length===1);
  assert.equal(await helps.nth(1).isVisible(),false,"Email help must only show on the second registration step");
  await reopened.locator("#first-name").focus();
- assert.equal(await reopened.locator("#first-name").evaluate(el=>el.closest(".reg-input-wrap").classList.contains("is-raised")),false,
-  "An empty focused registration field must keep its hint centered");
+ const staticHint=await reopened.locator("#first-name").evaluate(el=>({
+  placeholder:el.placeholder,floating:el.closest(".field").querySelectorAll(".reg-floating-label").length,
+  label:getComputedStyle(el.closest(".field").querySelector("span:first-child")).position
+ }));
+ assert.ok(staticHint.placeholder&&!staticHint.floating&&staticHint.label==="static",
+  "Registration must have one static hint and a fixed field caption: "+JSON.stringify(staticHint));
  await reopened.locator("#first-name").fill("VATRA");
- await reopened.waitForFunction(()=>document.querySelector("#first-name").closest(".reg-input-wrap")?.classList.contains("is-raised"));
+ assert.ok(await reopened.locator("#first-name").evaluate(el=>el.placeholder.length>0),
+  "Hint must remain available independently of text entered");
  const inputStyle=await reopened.locator("#first-name").evaluate(node=>getComputedStyle(node).fontFamily);
  assert.ok(inputStyle.includes("Onest"),"Registration fields must use Onest");
- console.log("VATRA registration tooltips and floating input labels: OK");
+ console.log("VATRA registration help and stable native placeholders: OK");
 
  // Signup wizard: block incomplete step one, retain values on Back, and check
  // mobile display without contacting Supabase or creating real accounts.
@@ -366,7 +371,8 @@ try{
  console.log("VATRA resized signup step 2 desktop: OK");
 
 
- // An empty focused field must keep its hint centered after failed validation.
+
+ // Validation must not move the input's placeholder; errors are temporary.
  for(const [route,fieldId,action] of [["","#email","#login-form button[type='submit']"],
   ["register.html","#first-name","#register-next"]]){
   const probe=await context.newPage();
@@ -375,26 +381,67 @@ try{
   await waitReady(probe);
   const field=probe.locator(fieldId);
   await field.focus();
-  const empty=await field.evaluate(el=>{
-   const root=el.closest(".field"),label=el.closest(".reg-input-wrap")?.querySelector(".reg-floating-label")||root.querySelector("span:first-child");
-   const a=label.getBoundingClientRect(),b=el.getBoundingClientRect();
-   return {centerDistance:Math.abs(a.top+a.height/2-b.top-b.height/2),raised:el.closest(".reg-input-wrap")?.classList.contains("is-raised")||false};
+  const initial=await field.evaluate(el=>{
+   const r=el.getBoundingClientRect(),p=getComputedStyle(el,"::placeholder");
+   return {placeholder:el.placeholder,paddingTop:getComputedStyle(el).paddingTop,
+    height:r.height,placeholderColor:p.color,floating:el.closest(".field").querySelectorAll(".reg-floating-label").length};
   });
-  assert.ok(!empty.raised&&empty.centerDistance<=13,
-   "Empty field hint must remain centered: "+route+" "+JSON.stringify(empty));
+  assert.ok(initial.placeholder&&!initial.floating,
+   "Fields must use the browser's native placeholder without overlays: "+route);
   await probe.locator(action).click();
-  const validation=await field.evaluate(el=>{
-   const root=el.closest(".field"),msg=root.querySelector(".field-error");
-   const label=el.closest(".reg-input-wrap")?.querySelector(".reg-floating-label")||root.querySelector("span:first-child");
-   const a=label.getBoundingClientRect(),b=el.getBoundingClientRect();
-   return {message:msg?.textContent?.trim(),invalid:el.getAttribute("aria-invalid"),
-    centerDistance:Math.abs(a.top+a.height/2-b.top-b.height/2)};
+  const error=await field.evaluate(el=>{
+   const wrapper=el.closest(".field"),node=wrapper.querySelector(".field-error");
+   return {text:node?.textContent?.trim(),invalid:el.getAttribute("aria-invalid"),
+    placeholder:el.placeholder,padding:getComputedStyle(el).paddingTop,
+    errorHeight:node?.getBoundingClientRect().height};
   });
-  assert.ok(validation.message&&validation.invalid==="true"&&validation.centerDistance<=13,
-   "Validation must not hide the empty field hint: "+route+" "+JSON.stringify(validation));
+  assert.ok(error.text&&error.invalid==="true"&&error.placeholder===initial.placeholder&&
+   error.padding===initial.paddingTop&&error.errorHeight>0,
+   "Validation may not move placeholder or input padding: "+route+" "+JSON.stringify(error));
+  // The same invalid data remains, but the error and red outline must clear.
+  await probe.waitForTimeout(5800);
+  assert.equal(await field.getAttribute("aria-invalid"),null,
+   "Field error must self-dismiss without typing "+route);
+  assert.equal(await field.locator("..").locator(".field-error").count(),0,
+   "Expired field message must be removed "+route);
+  await probe.locator(action).click();
+  assert.equal(await field.getAttribute("aria-invalid"),"true",
+   "Re-submission must still validate the uncorrected field "+route);
+  await field.fill("edited");
+  assert.equal(await field.getAttribute("aria-invalid"),null,
+   "Editing must dismiss the old error immediately "+route);
   await probe.close();
  }
- console.log("VATRA empty focused hints and form error design: OK");
+ console.log("VATRA stable placeholders and temporary validation messages: OK");
+ // Each page uses the same language modal with a centered SVG X.
+ for(const route of ["","register.html","legal.html"]){
+  const probe=await context.newPage();
+  await probe.setViewportSize({width:390,height:844});
+  await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+  if(route!=="legal.html")await waitReady(probe);
+  await probe.locator("[data-language-trigger]").click();
+  const search=probe.locator("#vatra-language-search");
+  await search.fill("abcdef-not-a-language");
+  const clear=probe.locator(".language-search-clear");
+  await clear.waitFor({state:"visible"});
+  const pos=await probe.evaluate(()=>{
+   const input=document.querySelector("#vatra-language-search").getBoundingClientRect();
+   const button=document.querySelector(".language-search-clear").getBoundingClientRect();
+   const glyph=document.querySelector(".language-search-clear svg").getBoundingClientRect();
+   return {dy:Math.abs(button.top+button.height/2-input.top-input.height/2),
+    glyphDy:Math.abs(glyph.top+glyph.height/2-button.top-button.height/2),
+    rightGap:input.right-button.right,accessible:document.querySelector(".language-search-clear").getAttribute("aria-label")};
+  });
+  assert.ok(pos.dy<=1.5&&pos.glyphDy<=1.5&&pos.rightGap>=0&&pos.rightGap<=28&&pos.accessible,
+   "Search clear X must be centered and accessible: "+route+" "+JSON.stringify(pos));
+  await clear.click();
+  assert.equal(await search.inputValue(),"","Clearing search must remove input text "+route);
+  assert.equal(await probe.locator(".language-option:not([hidden])").count(),36,
+   "Clearing search must restore all languages "+route);
+  assert.equal(await clear.isVisible(),false,"Clear button hides when search empty "+route);
+  await probe.close();
+ }
+ console.log("VATRA cross alignment and clearing across auth/legal pages: OK");
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
  for(const route of ["legal.html","terms.html","privacy.html","cookies.html",

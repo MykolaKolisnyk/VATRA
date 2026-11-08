@@ -48,12 +48,17 @@ function getMessage(error){
  if(code==="network_error"||text.includes("failed to fetch")||text.includes("network"))return "Немає з'єднання із сервером. Перевірте інтернет і повторіть спробу.";
  return "Не вдалося виконати дію. Перевірте введені дані та спробуйте ще раз.";
 }
-/* Show field-level errors in the same language and keep labels visible. */
+/* Field errors automatically disappear after 5.5 seconds or on edit.
+   Submitting still checks all required values even after visual errors expire. */
+const FIELD_ERROR_DURATION_MS=5500;
+const fieldErrorTimers=new WeakMap();
 function showFieldError(control,message){
  if(!control)return;
  const wrapper=control.closest(".field,.check-terms");
  if(!wrapper)return;
  let error=wrapper.querySelector(".field-error");
+ clearTimeout(fieldErrorTimers.get(control));
+ fieldErrorTimers.delete(control);
  if(message){
   if(!error){
    error=document.createElement("small");
@@ -68,6 +73,7 @@ function showFieldError(control,message){
   wrapper.classList.add("is-invalid");
   control.setAttribute("aria-invalid","true");
   control.setAttribute("aria-describedby",error.id);
+  fieldErrorTimers.set(control,setTimeout(()=>showFieldError(control,""),FIELD_ERROR_DURATION_MS));
  }else{
   wrapper.classList.remove("is-invalid");
   control.removeAttribute("aria-invalid");
@@ -89,51 +95,18 @@ function validationText(control,form){
  if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
  return "";
 }
-/* Keep the original field caption in sync with typing, autofill, and browser back/forward. */
-function wireFloatingLabels(){
- const fields=[...document.querySelectorAll(".field:has(input.control)")];
- const registry=[];
- for(const field of fields){
+/* Native placeholders never overlap the typing cursor or jump on validation.
+   Registration retains its permanent captions above the fields. */
+function wireStableInputHints(){
+ for(const field of document.querySelectorAll(".field:has(input.control)")){
+  if(page==="register")continue;
   const input=field.querySelector("input.control");
-  if(!input)continue;
-  if(page==="register"){
-   // Registration keeps the permanent caption above each box AND a smoothly
-   // rising interior hint, matching the login animation without double text.
-   const hint=input.getAttribute("placeholder")||"";
-   let wrap=input.parentElement;
-   if(!wrap.classList.contains("input-password")){
-    wrap=document.createElement("span");
-    wrap.className="reg-input-wrap ui-reg-input-wrap-"+input.id;
-    input.parentNode.insertBefore(wrap,input);
-    wrap.append(input);
-   }else{
-    wrap.classList.add("reg-input-wrap");
-   }
-   const floating=document.createElement("span");
-   floating.className="reg-floating-label vt-reg-floating-"+input.id;
-   floating.textContent=hint;
-   floating.setAttribute("aria-hidden","true");
-   wrap.append(floating);
-   const sync=()=>{
-    const raised=Boolean(input.value);
-    wrap.classList.toggle("is-raised",raised);
-    field.classList.toggle("has-value",Boolean(input.value));
-    input.setAttribute("placeholder",raised?"":hint);
-   };
-   for(const event of ["focus","blur","input","change","animationstart"])input.addEventListener(event,sync);
-   input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
-   registry.push(sync);
-   sync();
-  }else{
-   input.removeAttribute("placeholder");
-   const sync=()=>field.classList.toggle("has-value",Boolean(input.value));
-   for(const event of ["input","change","blur","animationstart"])input.addEventListener(event,sync);
-   input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
-   registry.push(sync);
-   sync();
-  }
+  const caption=field.querySelector(":scope > span:first-child");
+  if(!input||!caption)continue;
+  const sync=()=>{input.placeholder=caption.textContent.trim();};
+  sync();
+  window.VATRA_LANGUAGE?.ready?.then(sync);
  }
- window.addEventListener("pageshow",()=>registry.forEach(sync=>sync()));
 }
 /* Keep rotating orbit icon tooltips fully inside the visible welcome panel.
    At the top of the orbit the tooltip opens below, not under browser chrome. */
@@ -260,7 +233,6 @@ function wireFieldValidation(){
  const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
  if(!form)return;
  form.noValidate=true;
- let attempted=false;
  const controls=[...form.querySelectorAll("input,select")].filter(c=>c.id&&!["hidden"].includes(c.type));
  const check=control=>{
   if(control.id?.startsWith("birth-")){
@@ -276,17 +248,15 @@ function wireFieldValidation(){
   return !message;
  };
  for(const control of controls){
-  const change=()=>{
-   if(attempted||control.getAttribute("aria-invalid")==="true")check(control);
+  // Editing immediately clears the old error instead of repainting it on blur.
+  const clear=()=>{
+   showFieldError(control,"");
+   if(control.id?.startsWith("birth-"))showFieldError(q("#birth-day"),"");
   };
-  control.addEventListener("input",change);
-  control.addEventListener("change",change);
-  control.addEventListener("blur",()=>{
-   if(control.type!=="checkbox")check(control);
-  });
+  control.addEventListener("input",clear);
+  control.addEventListener("change",clear);
  }
  const validateScope=scope=>{
-  attempted=true;
   let first=null;
   for(const control of controls){
    if(scope&&!scope.contains(control))continue;
@@ -522,7 +492,7 @@ async function initialize(){
  await window.VATRA_LANGUAGE?.ready;
  /* Build the interface independently of the authentication service status. */
  wirePasswordButtons();
- wireFloatingLabels();
+ wireStableInputHints();
  if(page==="register"){fillBirthdays();wireSelects();wireHoverHelp();}
  wireFieldValidation();
  if(page==="register")wireRegistrationWizard();
