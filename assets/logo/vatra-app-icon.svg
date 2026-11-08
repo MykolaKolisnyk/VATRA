@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 360 360" role="img" aria-label="VATRA — іконка застосунку">
+<defs>
+ <linearGradient id="vatra-background" gradientUnits="userSpaceOnUse" x1="0" y1="330" x2="360" y2="20">
+  <stop offset="0" stop-color="#3B54E1"/>
+  <stop offset=".33" stop-color="#683ADB"/>
+  <stop offset=".60" stop-color="#B037C2"/>
+  <stop offset=".82" stop-color="#EF508F"/>
+  <stop offset="1" stop-color="#FF9464"/>
+ </linearGradient>
+ <linearGradient id="vatra-white" gradientUnits="userSpaceOnUse" x1="180" y1="0" x2="245" y2="360">
+  <stop offset="0" stop-color="#FFFFFF"/>
+  <stop offset="1" stop-color="#FBF9FF"/>
+ </linearGradient>
+</defs>
+<rect width="360" height="360" rx="83" fill="url(#vatra-background)"/>
+<path d="M 68 8
+H 108
+C 142 8 159 20 178 53
+L 235 165
+Q 237 169 239 165
+L 298 53
+C 316 20 334 8 369 8
+H 414
+C 458 8 478 35 455 80
+L 351 285
+C 329 335 297 360 242 360
+C 196 360 164 338 140 294
+L 24 81
+C 0 39 18 8 68 8
+Z" transform="translate(47 81) scale(.554)" fill="url(#vatra-white)"/>
+</svg>
