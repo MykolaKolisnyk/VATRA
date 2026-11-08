@@ -134,6 +134,77 @@ function wireFloatingLabels(){
  }
  window.addEventListener("pageshow",()=>registry.forEach(sync=>sync()));
 }
+/* Hover/focus help is mutually exclusive and not a click-to-toggle drawer. */
+function wireHoverHelp(){
+ const helps=[...document.querySelectorAll(".reg-help")];
+ let active=null;
+ const timers=new Map();
+ const dismiss=help=>{
+  clearTimeout(timers.get(help));
+  timers.delete(help);
+  help.open=false;
+  help.removeAttribute("data-side");
+  const panel=help.querySelector(".reg-help-panel");
+  if(panel){panel.style.top="";panel.style.bottom="";}
+  if(active===help)active=null;
+ };
+ const reveal=help=>{
+  for(const other of helps)if(other!==help&&other.open)dismiss(other);
+  clearTimeout(timers.get(help));
+  timers.delete(help);
+  help.open=true;active=help;
+  const summary=help.querySelector("summary");
+  const panel=help.querySelector(".reg-help-panel");
+  if(!summary||!panel)return;
+  const rect=summary.getBoundingClientRect();
+  const availableRight=window.innerWidth-rect.right;
+  const availableLeft=rect.left;
+  const side=availableRight>=355?"right":availableLeft>=355?"left":"below";
+  help.dataset.side=side;
+  panel.style.top="";panel.style.bottom="";
+  // Keep the complete help bubble within the visible viewport.
+  requestAnimationFrame(()=>{
+   if(!help.open)return;
+   const bounds=panel.getBoundingClientRect();
+   if(bounds.bottom>window.innerHeight-12){
+    if(side==="below"&&rect.top>bounds.height+16){
+     panel.style.top="auto";
+     panel.style.bottom="calc(100% + 10px)";
+    }else{
+     const current=parseFloat(getComputedStyle(panel).top)||0;
+     panel.style.top=Math.max(12-help.getBoundingClientRect().top,
+       current-(bounds.bottom-window.innerHeight+12))+"px";
+    }
+   }
+  });
+ };
+ const schedule=help=>{
+  clearTimeout(timers.get(help));
+  timers.set(help,setTimeout(()=>dismiss(help),125));
+ };
+ for(const help of helps){
+  const summary=help.querySelector("summary");
+  help.addEventListener("pointerenter",()=>reveal(help));
+  help.addEventListener("pointerleave",()=>schedule(help));
+  help.addEventListener("focusin",()=>reveal(help));
+  help.addEventListener("focusout",event=>{
+   if(!help.contains(event.relatedTarget))schedule(help);
+  });
+  summary?.addEventListener("click",event=>{
+   event.preventDefault();
+   // Touch devices have no hover: retaining tap access keeps the hint usable.
+   if(matchMedia("(hover: none)").matches){
+    if(help.open)dismiss(help);else reveal(help);
+   }
+  });
+ }
+ document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&active)dismiss(active);
+ });
+ document.addEventListener("pointerdown",event=>{
+  if(active&&!active.contains(event.target))dismiss(active);
+ });
+}
 function wireFieldValidation(){
  const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
  if(!form)return;
@@ -357,7 +428,7 @@ async function initialize(){
  /* Build the interface independently of the authentication service status. */
  wirePasswordButtons();
  wireFloatingLabels();
- if(page==="register"){fillBirthdays();wireSelects();}
+ if(page==="register"){fillBirthdays();wireSelects();wireHoverHelp();}
  wireFieldValidation();
  if(!window.supabase?.createClient){
   feedback("Не вдалося завантажити модуль входу. Перевірте з'єднання та оновіть сторінку.","error");
