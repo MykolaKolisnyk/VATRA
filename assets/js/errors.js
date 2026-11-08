@@ -1,4 +1,4 @@
-/* VATRA console error notices: no form-validation or resource warnings. */
+/* VATRA console errors and warnings; form validation stays beside fields. */
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
@@ -31,7 +31,7 @@
   stack.className="vatra-error-stack ui-vatra-error-stack-001";
   stack.setAttribute("role","region");
   stack.setAttribute("aria-live","polite");
-  stack.setAttribute("aria-label",english()?"Console errors":"Помилки консолі");
+  stack.setAttribute("aria-label",english()?"Console errors and warnings":"Помилки й попередження консолі");
   document.body.append(stack);
  }
 
@@ -39,20 +39,35 @@
   ensureStack();
   if(!stack)return;
   while(pending.length&&shown<MAX_VISIBLE){
-   const message=pending.shift();
+   const {message,kind}=pending.shift();
    const id=++nextId;
    const toast=document.createElement("article");
-   toast.className="vatra-error-toast ui-vatra-error-toast-"+id;
+   toast.className="vatra-error-toast"+(kind==="warning"?" vatra-error-toast--warning":"")+" ui-vatra-error-toast-"+id;
    toast.setAttribute("role","status");
    const icon=document.createElement("span");
    icon.className="vatra-error-mark vt-vatra-error-mark-"+id;
-   icon.textContent="!";
+   if(kind==="warning"){
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.setAttribute("viewBox","0 0 24 24");
+    svg.setAttribute("aria-hidden","true");
+    svg.classList.add("vt-vatra-warning-icon-"+id);
+    const outline=document.createElementNS("http://www.w3.org/2000/svg","path");
+    outline.setAttribute("d","M10.27 4.16a2 2 0 0 1 3.46 0L22 18.5a2 2 0 0 1-1.73 3H3.73a2 2 0 0 1-1.73-3L10.27 4.16Z");
+    outline.setAttribute("class","vt-vatra-warning-shape-"+id);
+    const mark=document.createElementNS("http://www.w3.org/2000/svg","path");
+    mark.setAttribute("d","M12 9v5m0 3h.01");
+    mark.setAttribute("class","vt-vatra-warning-detail-"+id);
+    svg.append(outline,mark);
+    icon.append(svg);
+   }else icon.textContent="!";
    icon.setAttribute("aria-hidden","true");
    const info=document.createElement("div");
    info.className="vatra-error-copy ui-vatra-error-copy-"+id;
    const heading=document.createElement("strong");
    heading.className="vt-vatra-error-title-"+id;
-   heading.textContent=english()?"VATRA · Error":"VATRA · Помилка";
+   heading.textContent=kind==="warning"
+    ?(english()?"VATRA · Warning":"VATRA · Попередження")
+    :(english()?"VATRA · Error":"VATRA · Помилка");
    const detail=document.createElement("p");
    detail.className="vt-vatra-error-description-"+id;
    detail.textContent=message;
@@ -83,32 +98,37 @@
   }
  }
 
- function notify(value,origin=""){
+ function notify(value,origin="",kind="error"){
   let msg=redact(value);
   if(!msg)return;
   if(origin)msg=redact(origin)+": "+msg;
   const now=Date.now();
-  if(now-(seen.get(msg)||0)<10000)return;
-  seen.set(msg,now);
+  const key=kind+":"+msg;
+  if(now-(seen.get(key)||0)<10000)return;
+  seen.set(key,now);
   if(seen.size>100){
    for(const [key,time] of seen)if(now-time>60000)seen.delete(key);
   }
-  if(pending.length<MAX_PENDING)pending.push(msg);
+  if(pending.length<MAX_PENDING)pending.push({message:msg,kind});
   render();
  }
 
- const originalError=console.error;
- console.error=function(...args){
-  try{originalError.apply(this,args);}finally{
-   try{
-    const summary=args.slice(0,2).map(x=>x instanceof Error?x.message:
-      typeof x==="string"?x:String(x?.message||x?.code||"Error")).join(" · ");
-    notify(summary,"console");
-   }catch(_){}
-  }
- };
- // Uncaught JS exceptions and rejected promises also appear as red errors
- // in DevTools. Ignore resource errors, form messages and browser warnings.
+ function formatConsoleArgs(args){
+  return args.slice(0,2).map(x=>x instanceof Error?x.message:
+   typeof x==="string"?x:String(x?.message||x?.code||"Message")).join(" · ");
+ }
+ // Keep the original DevTools output, then mirror only console errors and warnings.
+ for(const kind of ["error","warn"]){
+  const original=console[kind];
+  console[kind]=function(...args){
+   try{original.apply(this,args);}finally{
+    try{notify(formatConsoleArgs(args),"console",kind==="warn"?"warning":"error");}
+    catch(_){}
+   }
+  };
+ }
+ // Uncaught JS exceptions and rejected promises appear as errors in DevTools.
+ // Browser-generated Issues and network warnings are not exposed to page scripts.
  window.addEventListener("error",event=>{
   if(event.target!==window)return;
   const file=event.filename?event.filename.split("/").pop().split("?")[0]:"JavaScript";
