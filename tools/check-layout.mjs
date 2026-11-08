@@ -216,7 +216,7 @@ for(const feature of features){
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(33cqw,220px)')&&
+assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('width:clamp(130px,29cqw,224px)')&&
  css.includes('width:clamp(42px,8.2cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
