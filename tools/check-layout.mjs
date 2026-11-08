@@ -31,10 +31,10 @@ assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.i
  css.includes(".vatra-error-toast--warning")&&css.includes("border-left-color:#d99a32")&&
  errors.includes('VATRA · Попередження')&&errors.includes("VATRA · Warning"),
  "Console errors and warnings need separate red and amber VATRA notification designs");
-assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-page .reg-input-wrap>.reg-floating-label')&&
- !css.includes('opacity:0;transform:translateY(10px)')&&
- !css.includes('.register-page .reg-input-wrap.is-raised>.control{padding-top:20px!important'),
- "Login and registration must use the same animation, not layered overrides");
+assert.ok(css.includes('.site .form-box .field:has(input.control)>span:first-child{')&&
+ css.includes('.field:has(input.control) input.control::placeholder{color:var(--soft);opacity:1}')&&
+ !css.includes('.reg-floating-label')&&!css.includes('.has-value>span:first-child'),
+ "Inputs must use native placeholders without layered floating labels");
 assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
  css.includes(".vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb")&&
  css.includes(".language-scroll-track{")&&
@@ -60,6 +60,11 @@ assert.ok(lang.includes('location.reload()'),"Language selection must reuse the 
 assert.ok(lang.includes('search.id = "vatra-language-search"')&&
  lang.includes('search.name = "vatra-language-search"'),
  "Language search input requires ID and name to support browser autofill");
+assert.ok(lang.includes('clearSearch.className="language-search-clear vt-language-clear-button"')&&
+ lang.includes('search.dispatchEvent(new Event("input",{bubbles:true}))')&&
+ css.includes(".language-search-clear{position:absolute;top:50%;right:11px;")&&
+ css.includes(".language-search::-webkit-search-cancel-button,"),
+ "Language search must use a centered SVG clear button, not the browser X");
 const excludedLocales=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
 assert.ok(!/\["(?:ru|be)"/.test(excludedLocales),
  "Russian and Belarusian language entries must not appear in VATRA");
@@ -252,10 +257,10 @@ assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/vatra-symbol.svg"')&&
  registerHtmlHasBrandedSymbol,
  "Both auth logos must be identical symbols with the same animation and size");
-assert.ok(css.includes('.register-page .reg-input-wrap>.reg-floating-label')&&
- css.includes(".register-page .reg-help-panel")&&
- css.includes(".vatra-error-stack"),
- "Animated input hints, hover help and diagnostic notices must share site styling");
+assert.ok(auth.includes("function wireStableInputHints()")&&
+ css.includes(".signup-form-panel .field:has(input.control)>span:first-child{")&&
+ css.includes(".register-page .reg-help-panel")&&css.includes(".vatra-error-stack"),
+ "Native input hints, static captions, help and diagnostics must work together");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
 assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
  !landing.includes('class="login-header ui-login-header-001"')&&
@@ -314,12 +319,13 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy.html#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
-assert.ok(auth.includes('if(page==="register")')&&auth.includes("reg-floating-label")&&
- auth.includes('wrap.classList.toggle("is-raised",raised)'),
- "Registration must animate interior hints while preserving external captions");
-assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-page .reg-input-wrap>.reg-floating-label')&&
- css.includes('.register-page .reg-input-wrap.is-raised>.reg-floating-label{top:7px'),
- "Signup and login must share the same floating-label animation rules");
+assert.ok(auth.includes('function wireStableInputHints()')&&
+ !auth.includes("reg-floating-label")&&!auth.includes('wrap.classList.toggle("is-raised"'),
+ "Registration must use real placeholders and permanent captions");
+assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
+ auth.includes("fieldErrorTimers.set(control,setTimeout")&&
+ css.includes(".check-terms>span .field-error{display:flex;"),
+ "Field errors must expire automatically and align consent messages");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
  "Gender and email help must open on hover and never overlap");
@@ -371,8 +377,9 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('.field-error::before{content:"!"'),
  "Orbit size and visual validation details must be updated");
-assert.ok(auth.includes('const raised=Boolean(input.value);'),
- "Empty registration fields must retain their centered hint on focus");
+assert.ok(auth.includes('const sync=()=>{input.placeholder=caption.textContent.trim();}')&&
+ !auth.includes("wireFloatingLabels"),
+ "Login placeholders must remain stable and use translated captions");
 for(const page of ["legal","terms","privacy","cookies","forgot","reset","account","404"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
