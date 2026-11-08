@@ -322,6 +322,11 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  auth.includes('auth.auth.resend({')&&
  auth.includes('SIGNUP_RESEND_COOLDOWN_MS=60000')&&
  auth.includes('SIGNUP_LINK_VALIDITY_MS=900000')&&
+ auth.includes('SIGNUP_AUTH_CHANNEL="vatra-auth-verified"')&&
+ auth.includes('auth.auth.getUser(); // Verified via Supabase Auth server.')&&
+ auth.includes('user.email.trim().toLowerCase()===signupPending.email.trim().toLowerCase()')&&
+ auth.includes('channel.postMessage({type:"check-confirmed-session"})')&&
+ auth.includes('watchSignupConfirmation();')&&
  uk.__pages.register.nodes.n240.text["0"]==="Час до завершення дії посилання"&&
  en.__pages.register.nodes.n240.text["0"]==="Confirmation link expires in",
  "The account-creation confirmation screen needs a distinct resend/cooldown state");

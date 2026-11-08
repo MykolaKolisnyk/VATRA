@@ -673,7 +673,7 @@ try{
  });
  await confirmationPage.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
-  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null}),signUp:async params=>{window.__signupCaptcha=!!params.options?.captchaToken;return {data:{user:{id:"mock"},session:null},error:null};},resend:async params=>{window.__resendParams=params;return {data:{},error:null};}}})};'
+  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:window.__verifiedMockUser||null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signUp:async params=>{window.__signupCaptcha=!!params.options?.captchaToken;return {data:{user:{id:"mock"},session:null},error:null};},resend:async params=>{window.__resendParams=params;return {data:{},error:null};}}})};'
  }));
  await confirmationPage.goto(base+"register.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
@@ -747,8 +747,44 @@ try{
  assert.equal(data.type,"signup");assert.equal(data.email,"demoexample@example.test");
  assert.ok(data.options.captchaToken,"Resend must use CAPTCHA");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
+ // Cross-tab messages must not authorize redirects. Always recheck the server
+ // and require the exact pending address and email_confirmed_at.
+ for(const mockUser of [
+  {id:"wrong",email:"another@example.test",email_confirmed_at:"2026-11-08T12:00:00Z"},
+  {id:"pending",email:"demoexample@example.test",email_confirmed_at:null}
+ ]){
+  await confirmationPage.evaluate(user=>{
+   window.__verifiedMockUser=user;
+   const channel=new BroadcastChannel("vatra-auth-verified");
+   channel.postMessage({type:"check-confirmed-session"});
+   channel.close();
+  },mockUser);
+  await confirmationPage.waitForTimeout(150);
+  assert.equal(await confirmationPage.locator("#signup-confirmation").isVisible(),true,
+   "Unverified or different-user cross-tab signals must not navigate");
+ }
+ // Simulate the Supabase-confirmed session becoming available in the waiting tab.
+ // An independently opened account page broadcasts only a wake-up hint.
+ await confirmationPage.evaluate(()=>{
+  window.__verifiedMockUser={id:"matched",email:"demoexample@example.test",
+   email_confirmed_at:"2026-11-08T12:00:00Z"};
+ });
+ await confirmationPage.route("**/account.html",route=>route.fulfill({
+  status:200,contentType:"text/html",body:"<!doctype html><title>Verified VATRA</title><main id='verified-account'>VATRA account</main>"
+ }));
+ const verifiedTab=await context.newPage();
+ await verifiedTab.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:{id:"matched",email:"demoexample@example.test",email_confirmed_at:"2026-11-08T12:00:00Z",user_metadata:{first_name:"Test"}}},error:null})},from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:1},error:null})})})})})};'
+ }));
+ await verifiedTab.goto(base+"account.html",{waitUntil:"domcontentloaded"});
+ await waitReady(verifiedTab);
+ await confirmationPage.waitForURL(/\/account\.html$/,{timeout:10000});
+ assert.equal(await confirmationPage.locator("#verified-account").count(),1,
+  "Matching server-verified user should automatically open the account from the waiting tab");
+ await verifiedTab.close();
  await confirmationPage.close();
- console.log("VATRA signup confirmation/cooldown/inline correction: OK");
+ console.log("VATRA signup confirmation and secure cross-tab verification: OK");
  await reopened.close();
  await context.close();
 }finally{

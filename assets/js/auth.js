@@ -542,8 +542,17 @@ async function initialize(){
   }catch(_){/* Якщо немає зв'язку, форма входу залишається доступною. */}
  }
  if(page==="register"){
-  try{const {data,error}=await auth.auth.getUser();if(!error&&data?.user?.email_confirmed_at){await goToMyAccount();return;}}catch(_){}
-  wireRegister();syncSignupCountdown();
+  try{
+   const {data,error}=await auth.auth.getUser();
+   if(!error&&data?.user?.email_confirmed_at&&
+    (!signupPending||isExpectedConfirmedSignup(data.user))){
+    try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
+    await goToMyAccount();return;
+   }
+  }catch(_){}
+  wireRegister();
+  watchSignupConfirmation();
+  syncSignupCountdown();
  }
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
@@ -577,6 +586,77 @@ function wireLogin(){
  });
 }
 const SIGNUP_PENDING_KEY="vatra-signup-confirmation";
+const SIGNUP_AUTH_CHANNEL="vatra-auth-verified";
+let signupAuthWatchStarted=false,signupVerificationBusy=false,signupAccountNavigating=false;
+
+// Never accept a cross-tab message as proof of identity. Only the Auth server
+// can confirm that this browser holds a session for the expected email.
+function isExpectedConfirmedSignup(user){
+ return !!(signupPending?.email&&user?.id&&user?.email_confirmed_at&&
+  typeof user.email==="string"&&
+  user.email.trim().toLowerCase()===signupPending.email.trim().toLowerCase());
+}
+async function verifyPendingSignupSession(){
+ if(page!=="register"||!auth||!signupPending||signupVerificationBusy||signupAccountNavigating||
+  q("#signup-confirmation")?.hidden!==false)return;
+ const expected=signupPending;
+ signupVerificationBusy=true;
+ try{
+  const {data,error}=await auth.auth.getUser(); // Verified via Supabase Auth server.
+  if(error||signupPending!==expected||!isExpectedConfirmedSignup(data?.user)||
+   q("#signup-confirmation")?.hidden!==false)return;
+  signupAccountNavigating=true;
+  try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
+  goToMyAccount();
+ }catch(_){
+  // Transient network errors keep the waiting screen available for retries.
+ }finally{signupVerificationBusy=false;}
+}
+function watchSignupConfirmation(){
+ if(page!=="register"||!auth||signupAuthWatchStarted)return;
+ signupAuthWatchStarted=true;
+ const check=()=>{void verifyPendingSignupSession();};
+ const onAuth=event=>{
+  if(["INITIAL_SESSION","SIGNED_IN","TOKEN_REFRESHED","USER_UPDATED"].includes(event))
+   setTimeout(check,0); // Avoid awaiting other Supabase calls inside the Auth callback.
+ };
+ const subscription=auth.auth.onAuthStateChange?.(onAuth)?.data?.subscription;
+ let channel=null;
+ if(typeof BroadcastChannel!=="undefined"){
+  try{
+   channel=new BroadcastChannel(SIGNUP_AUTH_CHANNEL);
+   channel.addEventListener("message",event=>{
+    if(event.data?.type==="check-confirmed-session")check();
+   });
+  }catch(_){}
+ }
+ const onVisibility=()=>{if(!document.hidden)check();};
+ const onStorage=event=>{
+  if(event.key?.startsWith("sb-")&&event.key.endsWith("-auth-token"))check();
+ };
+ window.addEventListener("focus",check);
+ window.addEventListener("pageshow",check);
+ window.addEventListener("storage",onStorage);
+ document.addEventListener("visibilitychange",onVisibility);
+ window.addEventListener("pagehide",()=>{
+  channel?.close();
+  subscription?.unsubscribe?.();
+  window.removeEventListener("focus",check);
+  window.removeEventListener("pageshow",check);
+  window.removeEventListener("storage",onStorage);
+  document.removeEventListener("visibilitychange",onVisibility);
+ },{once:true});
+ check();
+}
+function announceVerifiedAccount(){
+ if(typeof BroadcastChannel==="undefined")return;
+ try{
+  const channel=new BroadcastChannel(SIGNUP_AUTH_CHANNEL);
+  channel.postMessage({type:"check-confirmed-session"}); // No email, ID or token.
+  channel.close();
+ }catch(_){}
+}
+
 const SIGNUP_RESEND_COOLDOWN_MS=60000;
 // VATRA Supabase Email OTP Expiration: 900 seconds (confirmed in Auth settings).
 // The client counts from the successful server response; network latency can affect seconds shown.
@@ -868,6 +948,8 @@ async function wireAccount(){
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
+  // Notify other VATRA tabs only after getUser() verifies a confirmed user.
+  if(user.email_confirmed_at)announceVerifiedAccount();
   /* VATRA ID — permanent sequential public number, assigned only by the database. */
   const idBox=q("#vatra-id");
   if(idBox){
