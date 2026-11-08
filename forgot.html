@@ -5,7 +5,7 @@
   <form id="recovery-code-form" class="field-stack ui-forgot-form-002" autocomplete="on" novalidate>
     <input id="recovery-email" name="recoveryEmail" type="hidden" class="ui-forgot-input-002">
     <label class="field vt-forgot-label-02"><span class="vt-forgot-inline-03" data-i18n="n23">Код підтвердження</span>
-      <input class="control recovery-code-input ui-forgot-input-003" id="recovery-token" type="text" name="recoveryToken" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8" required>
+      <input class="control recovery-code-input ui-forgot-input-003" id="recovery-token" type="text" name="recoveryToken" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6,10}" minlength="6" maxlength="10" required>
     </label>
     <button type="submit" class="action primary full vt-forgot-code-confirm-button" data-i18n="n25">Підтвердити код</button>
   </form>
