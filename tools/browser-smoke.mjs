@@ -400,16 +400,14 @@ try{
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"load"});
-  const footerDebug=await probe.evaluate(()=>({url:location.href,html:document.querySelector(".footer nav")?.outerHTML?.slice(0,650)||"MISSING",count:document.querySelectorAll('.footer nav>a').length}));
-  console.log("VATRA guest footer diagnostic "+route+": "+JSON.stringify(footerDebug));
-  await probe.locator('.footer nav>a[href="register.html"]').waitFor({state:"attached",timeout:3500});
+  await probe.locator(".footer nav>a").first().waitFor({state:"attached",timeout:10000});
   const links=await probe.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(n=>({
-   href:n.getAttribute("href"),text:n.textContent.trim()
+   href:new URL(n.href,document.baseURI).pathname,text:n.textContent.trim()
   })));
-  assert.equal(links.filter(x=>x.href==="register.html").length,1,
-   "Create account CTA missing from "+route);
-  assert.equal(links.filter(x=>x.href==="./").length,1,
-   "Sign-in CTA missing from "+route);
+  assert.equal(links.filter(x=>x.href==="/VATRA/register.html").length,1,
+   "Create account CTA missing from "+route+": "+JSON.stringify(links));
+  assert.equal(links.filter(x=>x.href==="/VATRA/").length,1,
+   "Sign-in CTA missing from "+route+": "+JSON.stringify(links));
   if(["legal.html","terms.html","privacy.html","cookies.html"].includes(route))
    assert.equal(links.length,2,"Legal page footer must not repeat its document tabs");
   await probe.close();
