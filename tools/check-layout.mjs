@@ -267,7 +267,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors3"),page+": language picker and console diagnostics versions missing");
- if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout8"),page+": scoped scrollbars stylesheet version missing");
+ if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout9"),page+": scoped scrollbars stylesheet version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
