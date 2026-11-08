@@ -400,7 +400,9 @@ try{
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"load"});
-  await probe.locator('.footer nav>a[href="register.html"]').waitFor({state:"attached",timeout:10000});
+  const footerDebug=await probe.evaluate(()=>({url:location.href,html:document.querySelector(".footer nav")?.outerHTML?.slice(0,650)||"MISSING",count:document.querySelectorAll('.footer nav>a').length}));
+  console.log("VATRA guest footer diagnostic "+route+": "+JSON.stringify(footerDebug));
+  await probe.locator('.footer nav>a[href="register.html"]').waitFor({state:"attached",timeout:3500});
   const links=await probe.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(n=>({
    href:n.getAttribute("href"),text:n.textContent.trim()
   })));
