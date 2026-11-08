@@ -836,11 +836,6 @@
             "0": "Privacy"
           }
         },
-        "n52": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
         "n53": {
           "text": {
             "0": "English"
@@ -982,11 +977,6 @@
             "0": "Privacy"
           }
         },
-        "n42": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
         "n43": {
           "text": {
             "0": "English"
@@ -1055,11 +1045,6 @@
         "n19": {
           "text": {
             "0": "Privacy"
-          }
-        },
-        "n21": {
-          "text": {
-            "0": "Home"
           }
         },
         "n22": {
@@ -1214,21 +1199,6 @@
         "n53": {
           "attrs": {
             "aria-label": "Additional links"
-          }
-        },
-        "n54": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n55": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n57": {
-          "text": {
-            "0": "Sign in"
           }
         },
         "n58": {
@@ -1584,21 +1554,6 @@
         "n90": {
           "attrs": {
             "aria-label": "Additional links"
-          }
-        },
-        "n91": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n92": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n94": {
-          "text": {
-            "0": "Sign in"
           }
         },
         "n95": {
@@ -1976,21 +1931,6 @@
             "aria-label": "Additional links"
           }
         },
-        "n98": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n99": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n101": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
         "n102": {
           "text": {
             "0": "English"
@@ -2347,21 +2287,6 @@
         "n100": {
           "attrs": {
             "aria-label": "Additional links"
-          }
-        },
-        "n101": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n102": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n104": {
-          "text": {
-            "0": "Sign in"
           }
         },
         "n105": {

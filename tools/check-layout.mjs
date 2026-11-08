@@ -326,7 +326,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes("auth.css?v=20261108-authsize21"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes("auth.css?v=20261108-polish22"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -358,6 +358,32 @@ assert.ok(legalCss.includes(".policy-page .policy-top{display:flex;align-items:c
  css.includes(".center-page .footer,.account-page .footer{padding-inline:0}")&&
  css.includes(".account-top-inner{"),
  "Page headers, document content and shared footer must use centered containers");
+assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')&&
+ register.includes('data-i18n="n59">Створити акаунт</button>')&&
+ uk.__pages.index.nodes.n128.text["0"]==="Створити акаунт"&&
+ en.__pages.index.nodes.n128.text["0"]==="Create account"&&
+ uk.__pages.register.nodes.n59.text["0"]==="Створити акаунт",
+ "Create account must be the unified account creation action");
+assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
+ css.includes('.field-error::before{content:"!"'),
+ "Orbit size and visual validation details must be updated");
+assert.ok(auth.includes('const raised=Boolean(input.value);'),
+ "Empty registration fields must retain their centered hint on focus");
+for(const page of ["legal","terms","privacy","cookies","forgot","reset","account","404"]){
+ const html=await read(page+".html");
+ assert.ok(html.includes('data-i18n="n301">Вхід</a>')&&
+ html.includes('data-i18n="n302">Створити акаунт</a>')&&
+ uk.__pages[page].nodes.n302.text["0"]==="Створити акаунт"&&
+ en.__pages[page].nodes.n302.text["0"]==="Create account",
+ page+": guest footer must provide sign-in and account creation in both languages");
+}
+for(const page of ["legal","terms","privacy","cookies"]){
+ const html=await read(page+".html");
+ assert.ok(!html.includes("policy-eyebrow")&&!html.includes("VATRA · Інформація")&&
+ !html.includes('href="terms.html" class="vt-'+page+'-footer-legal'),
+ page+": redundant document eyebrow and footer navigation must be gone");
+}
+
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
  css.includes(".register-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");

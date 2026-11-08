@@ -148,8 +148,10 @@ try{
  await reopened.waitForFunction(()=>document.querySelectorAll(".reg-help[open]").length===1);
  assert.equal(await helps.nth(1).isVisible(),false,"Email help must only show on the second registration step");
  await reopened.locator("#first-name").focus();
- await reopened.waitForFunction(()=>document.querySelector("#first-name").closest(".reg-input-wrap")?.classList.contains("is-raised"));
+ assert.equal(await reopened.locator("#first-name").evaluate(el=>el.closest(".reg-input-wrap").classList.contains("is-raised")),false,
+  "An empty focused registration field must keep its hint centered");
  await reopened.locator("#first-name").fill("VATRA");
+ await reopened.waitForFunction(()=>document.querySelector("#first-name").closest(".reg-input-wrap")?.classList.contains("is-raised"));
  const inputStyle=await reopened.locator("#first-name").evaluate(node=>getComputedStyle(node).fontFamily);
  assert.ok(inputStyle.includes("Onest"),"Registration fields must use Onest");
  console.log("VATRA registration tooltips and floating input labels: OK");
@@ -363,6 +365,54 @@ try{
  await stepTwo.close();
  console.log("VATRA resized signup step 2 desktop: OK");
 
+
+ // An empty focused field must keep its hint centered after failed validation.
+ for(const [route,fieldId,action] of [["","#email","#login-form button[type='submit']"],
+  ["register.html","#first-name","#register-next"]]){
+  const probe=await context.newPage();
+  await probe.setViewportSize({width:1440,height:900});
+  await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+  await waitReady(probe);
+  const field=probe.locator(fieldId);
+  await field.focus();
+  const empty=await field.evaluate(el=>{
+   const root=el.closest(".field"),label=el.closest(".reg-input-wrap")?.querySelector(".reg-floating-label")||root.querySelector("span:first-child");
+   const a=label.getBoundingClientRect(),b=el.getBoundingClientRect();
+   return {centerDistance:Math.abs(a.top+a.height/2-b.top-b.height/2),raised:el.closest(".reg-input-wrap")?.classList.contains("is-raised")||false};
+  });
+  assert.ok(!empty.raised&&empty.centerDistance<=13,
+   "Empty field hint must remain centered: "+route+" "+JSON.stringify(empty));
+  await probe.locator(action).click();
+  const validation=await field.evaluate(el=>{
+   const root=el.closest(".field"),msg=root.querySelector(".field-error");
+   const label=el.closest(".reg-input-wrap")?.querySelector(".reg-floating-label")||root.querySelector("span:first-child");
+   const a=label.getBoundingClientRect(),b=el.getBoundingClientRect();
+   return {message:msg?.textContent?.trim(),invalid:el.getAttribute("aria-invalid"),
+    centerDistance:Math.abs(a.top+a.height/2-b.top-b.height/2)};
+  });
+  assert.ok(validation.message&&validation.invalid==="true"&&validation.centerDistance<=13,
+   "Validation must not hide the empty field hint: "+route+" "+JSON.stringify(validation));
+  await probe.close();
+ }
+ console.log("VATRA empty focused hints and form error design: OK");
+ for(const route of ["legal.html","terms.html","privacy.html","cookies.html",
+  "forgot.html","reset.html","account.html","404.html"]){
+  const probe=await context.newPage();
+  await probe.setViewportSize({width:390,height:844});
+  await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+  const links=await probe.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(n=>({
+   href:n.getAttribute("href"),text:n.textContent.trim()
+  })));
+  assert.equal(links.filter(x=>x.href==="register.html").length,1,
+   "Create account CTA missing from "+route);
+  assert.equal(links.filter(x=>x.href==="./").length,1,
+   "Sign-in CTA missing from "+route);
+  if(["legal.html","terms.html","privacy.html","cookies.html"].includes(route))
+   assert.equal(links.length,2,"Legal page footer must not repeat its document tabs");
+  await probe.close();
+ }
+ console.log("VATRA guest footer links and account creation labels: OK");
+
  // Regression coverage for all four legal pages and supporting auth pages,
  // checking actual browser geometry instead of just matching CSS strings.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
@@ -398,7 +448,7 @@ try{
    assert.ok(sizes.actionRight<=width+1&&sizes.headerHeight<=110,
     "Document header wraps or extends beyond viewport at "+width+" "+route);
    assert.equal(sizes.tabCount,4,"Legal navigation tabs missing at "+width+" "+route);
-   assert.ok(sizes.linksCount>=4,"Policy footer links missing at "+width+" "+route);
+   assert.equal(sizes.linksCount,2,"Document footer must only show Sign in and Create account at "+width+" "+route);
    await docs.close();
   }
   console.log("VATRA document header/content/footer geometry "+width+"x"+height+": OK");
