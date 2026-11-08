@@ -43,9 +43,9 @@
 .orbit-track-inner .orbit-face{animation:vatraIconUpright 32s linear infinite}
 
 .orbit-icon{width:clamp(42px,9cqw,58px);height:clamp(42px,9cqw,58px);border:1.5px solid #bcd2fb;border-radius:50%;background:#fff;box-shadow:0 7px 22px rgba(49,98,179,.12),inset 0 0 0 2px rgba(240,245,255,.75);color:var(--blue);transition:border-color .24s,background .24s,box-shadow .24s}
-.orbit-face svg{display:block;width:clamp(21px,4.5cqw,27px);height:clamp(21px,4.5cqw,27px);flex:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;shape-rendering:geometricPrecision;overflow:visible}
+.orbit-face svg{display:block;width:clamp(21px,4.5cqw,27px);height:clamp(21px,4.5cqw,27px);flex:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;shape-rendering:geometricPrecision;overflow:visible;animation:vatraGlyphFloat 4.4s ease-in-out infinite}
 .orbit-face svg path,.orbit-face svg circle,.orbit-face svg ellipse,.orbit-face svg rect{vector-effect:non-scaling-stroke}
-.orbit-face svg{animation:vatraGlyphFloat 4.4s ease-in-out infinite}
+
 
 .orbit-track-inner .orbit-node:nth-child(1) svg{animation-delay:0s}
 .orbit-track-inner .orbit-node:nth-child(2) svg{animation-delay:-.55s}
