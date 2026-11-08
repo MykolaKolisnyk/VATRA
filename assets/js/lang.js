@@ -72,11 +72,51 @@
     svg.append(use);
     return svg;
   }
+  // Remember an explicit choice across reloads and browser restarts. The
+  // cookie also recovers preferences if a browser removes only localStorage.
+  // A browser which clears ALL site data cannot retain either store.
+  const LANGUAGE_KEY = "vatra-language";
+  const validLanguage = value => value === "uk" || value === "en";
+  function cookieLanguage() {
+    if (localFile) return null;
+    try {
+      const part = document.cookie.split(";").map(item => item.trim())
+        .find(item => item.startsWith(LANGUAGE_KEY + "="));
+      const value = part ? decodeURIComponent(part.slice(LANGUAGE_KEY.length + 1)) : null;
+      return validLanguage(value) ? value : null;
+    } catch (_) { return null; }
+  }
+  function saveCookie(lang) {
+    if (localFile || !validLanguage(lang)) return;
+    try {
+      const secure = location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = LANGUAGE_KEY + "=" + encodeURIComponent(lang) +
+        "; Max-Age=31536000; Path=" + ROOT + "; SameSite=Lax" + secure;
+    } catch (_) {}
+  }
   function saved() {
-    try { return localStorage.getItem("vatra-language"); } catch (_) { return null; }
+    const cookie = cookieLanguage();
+    let stored = null;
+    try { stored = localStorage.getItem(LANGUAGE_KEY); } catch (_) {}
+    if (cookie) {
+      // The cookie is authoritative when an old redirect or a browser
+      // extension has overwritten only the localStorage key.
+      if (stored !== cookie) {
+        try { localStorage.setItem(LANGUAGE_KEY, cookie); } catch (_) {}
+      }
+      return cookie;
+    }
+    if (validLanguage(stored)) {
+      // Migrate selections made before cookies were introduced.
+      saveCookie(stored);
+      return stored;
+    }
+    return null;
   }
   function persist(lang) {
-    try { localStorage.setItem("vatra-language", lang); } catch (_) {}
+    if (!validLanguage(lang)) return;
+    try { localStorage.setItem(LANGUAGE_KEY, lang); } catch (_) {}
+    saveCookie(lang);
   }
   /* A single URL per page. Language is a saved UI preference, not a path. */
   /* Legacy links may still be saved by users, but new pages never generate them. */
