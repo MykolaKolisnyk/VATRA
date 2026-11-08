@@ -2,7 +2,10 @@
 (() => {
   "use strict";
   if (window.VATRA_HOST_ALLOWED === false) return;
-  const ROOT = "/VATRA/";
+  // Resolve assets from the current script to support arbitrary local server paths.
+  const localFile=location.protocol==="file:";
+  const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
+  const ROOT=new URL("../../",scriptUrl).pathname;
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
   function preferred() {
     const choice = saved();
@@ -13,7 +16,9 @@
     if (legacy === "en_US") return "en";
     return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
   }
-  const current = preferred();
+  // file:// blocks fetch() in mainstream browsers. Keep the Ukrainian fallback
+  // visible; use a local HTTP server for the fully translated experience.
+  const current = localFile ? "uk" : preferred();
   document.documentElement.lang = current === "en" ? "en" : "uk";
   document.documentElement.dataset.language = current;
   if (current === "en") {
@@ -105,7 +110,7 @@
   });
   const timeout = new AbortController();
   const stop = setTimeout(() => timeout.abort(),7000);
-  const translations = fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"no-cache"})
+  const translations = localFile ? Promise.resolve({}) : fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"no-cache"})
     .then(res => { if (!res.ok) throw new Error("translations unavailable"); return res.json(); })
     .catch(() => ({}))
     .finally(() => clearTimeout(stop));
@@ -213,13 +218,17 @@
        strong.textContent = name;
       const subtitle = document.createElement("small");
       subtitle.className = "vt-language-caption-" + code;
-       subtitle.textContent = code === current ? words.current : (enabled ? englishName : words.future);
+       const selectable=Boolean(enabled)&&!(localFile&&code==="en");
+       const unavailableReason=localFile&&enabled
+         ?"Запустіть локальний HTTP-сервер для перекладів" : words.future;
+       subtitle.textContent = code === current ? words.current : (selectable ? englishName : unavailableReason);
       copy.append(strong, subtitle);
       button.append(copy);
       if (code === current) button.setAttribute("aria-current", "true");
-      if (!enabled) {
+      if (!selectable) {
         button.disabled = true;
-        button.setAttribute("aria-label", name + " — " + words.future);
+        button.setAttribute("aria-label", name + " — " + unavailableReason);
+        button.title = unavailableReason;
       } else {
         button.addEventListener("click", () => {
           if (code === current) { close(); return; }
