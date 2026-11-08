@@ -91,26 +91,48 @@ function validationText(control,form){
 /* Keep the original field caption in sync with typing, autofill, and browser back/forward. */
 function wireFloatingLabels(){
  const fields=[...document.querySelectorAll(".field:has(input.control)")];
+ const registry=[];
  for(const field of fields){
   const input=field.querySelector("input.control");
   if(!input)continue;
-  // Keep the descriptive text inside registration inputs. Only login/recovery
-  // use floating labels, where the outer label replaces the placeholder.
-  if(page!=="register")input.removeAttribute("placeholder");
-  const sync=()=>field.classList.toggle("has-value",Boolean(input.value));
-  input.addEventListener("input",sync);
-  input.addEventListener("change",sync);
-  input.addEventListener("blur",sync);
-  input.addEventListener("animationstart",sync);
-  input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
-  sync();
- }
- window.addEventListener("pageshow",()=>{
-  for(const field of fields){
-   const input=field.querySelector("input.control");
-   field.classList.toggle("has-value",Boolean(input?.value));
+  if(page==="register"){
+   // Registration keeps the permanent caption above each box AND a smoothly
+   // rising interior hint, matching the login animation without double text.
+   const hint=input.getAttribute("placeholder")||"";
+   let wrap=input.parentElement;
+   if(!wrap.classList.contains("input-password")){
+    wrap=document.createElement("span");
+    wrap.className="reg-input-wrap ui-reg-input-wrap-"+input.id;
+    input.parentNode.insertBefore(wrap,input);
+    wrap.append(input);
+   }else{
+    wrap.classList.add("reg-input-wrap");
+   }
+   const floating=document.createElement("span");
+   floating.className="reg-floating-label vt-reg-floating-"+input.id;
+   floating.textContent=hint;
+   floating.setAttribute("aria-hidden","true");
+   wrap.append(floating);
+   const sync=()=>{
+    const raised=document.activeElement===input||Boolean(input.value);
+    wrap.classList.toggle("is-raised",raised);
+    field.classList.toggle("has-value",Boolean(input.value));
+    input.setAttribute("placeholder",raised?"":hint);
+   };
+   for(const event of ["focus","blur","input","change","animationstart"])input.addEventListener(event,sync);
+   input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
+   registry.push(sync);
+   sync();
+  }else{
+   input.removeAttribute("placeholder");
+   const sync=()=>field.classList.toggle("has-value",Boolean(input.value));
+   for(const event of ["input","change","blur","animationstart"])input.addEventListener(event,sync);
+   input.form?.addEventListener("reset",()=>requestAnimationFrame(sync));
+   registry.push(sync);
+   sync();
   }
- });
+ }
+ window.addEventListener("pageshow",()=>registry.forEach(sync=>sync()));
 }
 function wireFieldValidation(){
  const form=document.querySelector("#login-form,#signup-form,#forgot-form,#reset-form");
