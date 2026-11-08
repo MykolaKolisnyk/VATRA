@@ -26,19 +26,17 @@
 .vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8bb1f6,#8274d7);border:2px solid var(--scroll-track);border-radius:99px}
 .vatra-select-list::-webkit-scrollbar-thumb:hover,.captcha-dialog::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#5b8eeb,#6958d0)}
 
-.site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:clamp(620px,calc(100svh - 160px),750px);flex:none;min-width:0;width:min(calc(100% - 88px),1300px);margin:auto;border-radius:28px;box-shadow:0 24px 65px rgba(42,55,102,.11)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.7vw,20px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(28px,3.9vw,64px);background:radial-gradient(circle at 53% 43%,rgba(226,232,255,.77),transparent 56%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
+.site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;min-width:0;width:min(calc(100% - 88px),1300px);margin:auto;border-radius:28px;box-shadow:0 24px 65px rgba(42,55,102,.11)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.7vw,20px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(28px,3.9vw,64px);background:radial-gradient(circle at 53% 43%,rgba(226,232,255,.77),transparent 56%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
 
 /* Login experience — aligned with registration, keeping all eight VATRA orbit icons. */
-.login-brand-top{position:relative;z-index:2;display:flex;align-items:center;width:100%}
-.login-brand-kicker{color:#677bb1;font-size:10px;font-weight:780;line-height:1.5;letter-spacing:.105em}
 .login-form-overline{display:flex;align-items:center;margin-bottom:17px}
-.login-form-kicker{display:inline-flex;align-items:center;gap:9px;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
-.login-form-kicker::before{content:"";width:6px;height:6px;flex:none;border-radius:50%;background:linear-gradient(145deg,#2865d8,#9d49e7);box-shadow:0 0 0 4px #eef2ff}
+.login-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
+.site .form-box .field-stack{gap:19px}
 .site .form-box .action.primary{min-height:55px;background:linear-gradient(100deg,#2464d7,#326ce1);box-shadow:0 8px 20px rgba(39,98,212,.16)}
 .site .form-box .action.primary:hover{background:linear-gradient(100deg,#1e55bf,#2e5fce);box-shadow:0 10px 24px rgba(39,98,212,.23)}
 .site .form-box .action.secondary{min-height:54px;background:#fff;border-color:#a6bfff;color:#235fcd}
 .site .form-box .action.secondary:hover{background:#f4f7ff;border-color:#6894f3}
-.site .form-box .or{margin:26px 0}
+.site .form-box .or{margin:31px 0}
 
 /* VATRA: центральний логотип і вісім тематичних іконок на єдиній орбіті. */
 
@@ -109,7 +107,7 @@
 .intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0;text-align:left}
 .intro-copy p{margin:0;color:#5e6e8c;font-size:clamp(14px,.9vw,15px);line-height:1.6;text-wrap:pretty;overflow-wrap:break-word}
 .intro-copy p strong{font-weight:750;color:#35465f}
-.form-side{display:flex;align-items:center;justify-content:center;padding:clamp(30px,4vw,66px) clamp(28px,4.3vw,70px);min-width:0;border:1px solid #e4e9f5;border-left:0;border-radius:0 28px 28px 0;background:#fff}.form-box{width:100%;max-width:490px}.form-box h2,.narrow-form h1{margin:0 0 10px;font-size:clamp(31px,2.55vw,40px);line-height:1.2;letter-spacing:-.03em;font-weight:745;text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}
+.form-side{display:flex;align-items:center;justify-content:center;padding:clamp(30px,4vw,66px) clamp(28px,4.3vw,70px);min-width:0;border:1px solid #e4e9f5;border-left:0;border-radius:0 28px 28px 0;background:#fff}.form-box{width:100%;max-width:520px;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}.form-box h2,.narrow-form h1{margin:0 0 10px;font-size:clamp(31px,2.55vw,40px);line-height:1.2;letter-spacing:-.03em;font-weight:745;text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}
 .captcha-dialog-open{overflow:hidden}
 .captcha-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:clamp(16px,4vw,32px);background:rgba(15,24,44,.58);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
 .captcha-dialog{box-sizing:border-box;width:min(100%,430px);max-height:min(90dvh,620px);overflow-y:auto;padding:clamp(22px,4vw,34px);display:flex;flex-direction:column;align-items:center;gap:13px;border:1px solid #dce5f6;border-radius:24px;background:#fff;box-shadow:0 24px 85px rgba(17,30,58,.23);text-align:center}
@@ -136,11 +134,15 @@
 .check-terms.is-invalid{color:#b92c45}
 .check-terms>span{display:block;min-width:0;flex:1}.check-terms>span .field-error{display:block;margin:6px 0 0;flex-basis:auto}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vt-ua-home-inline-05,.vt-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}
 .vt-ua-register-inline-05,.vt-en-register-inline-05{font-weight:400;color:#627187}
-.login-recovery-link{display:flex;justify-content:flex-end;align-items:center;margin:18px 0 24px}.remember{display:flex;gap:8px;align-items:center;color:#647086;cursor:pointer;font-size:12px}.remember input,.check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}.simple-link{color:var(--blue);font-size:13px;font-weight:700}.simple-link:hover{text-decoration:underline}.action{border:1px solid transparent;display:inline-flex;justify-content:center;align-items:center;min-height:52px;border-radius:999px;padding:12px 22px;font-size:14px;font-weight:700;line-height:1.35;text-align:center;transition:background .17s,transform .17s}.action:active{transform:translateY(1px)}.action.primary{background:var(--blue);color:white}.action.primary:hover{background:var(--blue2)}.action.secondary{color:var(--blue);background:white;border:1.5px solid #4b81ff}.action.secondary:hover{background:#f2f6ff}.action.subtle{color:#39475D;background:#f0f2f6}.action.subtle:hover{background:#e7ebf2}.action.full{width:100%}.form-box h2{margin-bottom:10px}
-.login-description{margin:0 0 32px;color:#64738c;font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}
+.login-recovery-link{display:flex;justify-content:flex-end;align-items:center;margin:22px 0 30px}.remember{display:flex;gap:8px;align-items:center;color:#647086;cursor:pointer;font-size:12px}.remember input,.check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}.simple-link{color:var(--blue);font-size:13px;font-weight:700}.simple-link:hover{text-decoration:underline}.action{border:1px solid transparent;display:inline-flex;justify-content:center;align-items:center;min-height:52px;border-radius:999px;padding:12px 22px;font-size:14px;font-weight:700;line-height:1.35;text-align:center;transition:background .17s,transform .17s}.action:active{transform:translateY(1px)}.action.primary{background:var(--blue);color:white}.action.primary:hover{background:var(--blue2)}.action.secondary{color:var(--blue);background:white;border:1.5px solid #4b81ff}.action.secondary:hover{background:#f2f6ff}.action.subtle{color:#39475D;background:#f0f2f6}.action.subtle:hover{background:#e7ebf2}.action.full{width:100%}.form-box h2{margin-bottom:10px}
+.login-description{margin:0 0 34px;color:#64738c;font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}
 .or{display:flex;align-items:center;gap:16px;color:#627187;font-size:12px;margin:29px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:#e5eaf0}.form-note{font-size:12px;line-height:1.7;color:#627187;text-align:center;margin:23px 0 0}.response{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin:0 0 19px;border:1px solid #c9defe;background:#f2f7ff;color:#174b9b}.response[data-type=error]{border-color:#efccd2;background:#fff3f5;color:#a32a40}.response[data-type=success]{border-color:#c6e8dd;background:#f1fbf7;color:#176b50}
 .network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
 .footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:12px;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px}.footer nav>a{display:inline-flex;align-items:center;min-height:40px}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
+.site .footer,.register-page .footer{padding-inline:0}
+.auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}
+.site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
+.register-page .auth-footer-content{width:min(calc(100% - 64px),1200px)}
 
 /* Єдиний вибір мови VATRA: одне джерело стилів для всіх сторінок. */
 .language-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:7px 9px;color:#64728b;background:transparent;border:1px solid transparent;border-radius:10px;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}
@@ -239,8 +241,6 @@
 .signup-brand::before,.signup-brand::after{content:"";position:absolute;z-index:-1;pointer-events:none;border:1px solid rgba(218,228,255,.11);border-radius:50%;width:420px;aspect-ratio:1}
 .signup-brand::before{right:-245px;top:-150px}
 .signup-brand::after{left:-260px;bottom:-260px}
-.signup-brand-top{position:relative;z-index:1}
-.signup-brand-eyebrow{display:block;color:#b4c9f3;font-size:11px;font-weight:750;letter-spacing:.125em;line-height:1.5}
 .signup-brand-art{position:relative;display:grid;place-items:center;align-self:center;flex:1;width:min(100%,340px);min-height:210px}
 .signup-brand-art-halo{position:absolute;inset:50% auto auto 50%;width:min(75%,250px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(126,102,243,.2),rgba(99,82,221,.08) 58%,transparent 72%);box-shadow:0 0 0 1px rgba(234,240,255,.08),0 0 0 28px rgba(205,220,255,.025)}
 .signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;filter:drop-shadow(0 24px 36px rgba(9,6,36,.32));animation:vatraSignupSymbol 7s ease-in-out infinite}
@@ -261,8 +261,8 @@
 .signup-progress-segment:first-child,.register-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
 .signup-step-heading :is(h1,h2){margin:0 0 11px;font-size:clamp(29px,2.6vw,39px);line-height:1.16;font-weight:760;letter-spacing:-.035em;color:#263650;text-wrap:balance}
 .signup-step-heading .subtitle{margin:0;color:#6a7792;font-size:14px;line-height:1.7;max-width:45ch}
-.signup-step{display:grid;gap:17px;min-width:0;animation:vatraSignupReveal .28s cubic-bezier(.2,.75,.2,1) both}
-@keyframes vatraSignupReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.signup-step{display:grid;gap:17px;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+@keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
 .signup-submit-row{display:grid;grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:10px}
@@ -272,9 +272,9 @@
 .signup-form-panel .reg-actions>a{margin-top:2px}
 @media(max-width:900px){
  .register-page .reg-main{display:flex;flex-direction:column;width:min(100% - 40px,650px);gap:0}
+ .register-page .auth-footer-content{width:min(100% - 40px,650px)}
  .reg-back-nav{width:min(100% - 40px,650px)}
  .signup-brand{min-height:0;gap:12px;padding:25px 28px;border-radius:22px 22px 0 0}
- .signup-brand-eyebrow{font-size:10px}
  .signup-brand-art,.signup-brand-highlights{display:none}
  .signup-brand-title{font-size:clamp(24px,4.3vw,31px);max-width:none;margin:0 0 7px}
  .signup-brand-description{font-size:13px;max-width:60ch;line-height:1.5}
@@ -293,7 +293,7 @@
  .signup-submit-row{grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:8px}
  .signup-submit-row .action{padding-inline:8px;font-size:12px}
 }
-@media(prefers-reduced-motion:reduce){.signup-brand-symbol,.signup-step{animation:none!important}.signup-progress-segment{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.signup-brand-symbol,.signup-step,.site .form-box{animation:none!important}.signup-progress-segment{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
@@ -372,7 +372,7 @@
 
 /* Узгоджена адаптація всіх наявних сторінок VATRA. */
 @media (min-width:1600px){
-  .reg-main,.reg-back-nav{width:min(100% - 112px,1280px)}
+  .reg-main,.reg-back-nav,.register-page .auth-footer-content{width:min(100% - 112px,1280px)}
 }
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px clamp(24px,4vw,76px) 27px}
@@ -391,12 +391,14 @@
 @media (max-width:1199px){
   /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
   .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
+  .site .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .form-side{order:0;min-height:0;padding:42px clamp(24px,5vw,48px) 43px;align-items:center;justify-content:center;border:1px solid #e4e9f5;border-bottom:0;border-radius:24px 24px 0 0}
   .form-box{width:min(100%,510px);margin:0 auto}
   .intro-side{order:1;display:flex;flex-direction:column;border:1px solid #e4e9f5;border-radius:0 0 24px 24px;padding:30px 25px 38px;gap:16px;justify-content:center;overflow-x:clip;overflow-y:visible;background:radial-gradient(circle at 50% 39%,#e7edff 0%,transparent 62%),linear-gradient(145deg,#fcfaff,#f1f5ff)}
   .intro-side:before{display:none}
 
   .footer{justify-content:center;gap:12px 22px;text-align:center}
+  .site .auth-footer-content,.register-page .auth-footer-content{justify-content:space-between;text-align:left}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
   .reg-main{padding:0}
@@ -418,9 +420,9 @@
   .intro-side{padding:25px 18px 30px;gap:16px}
 
   .split{width:calc(100% - 24px);margin:16px auto 24px;border-radius:21px}
+  .site .auth-footer-content,.register-page .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}
   .form-side{border-radius:21px 21px 0 0}
   .intro-side{border-radius:0 0 21px 21px}
-  .login-brand-kicker{font-size:9px}
   .reg-back-nav .back{font-size:12px}
   .reg-main{padding:0}
   .narrow-form h1{font-size:clamp(29px,7vw,34px)}

@@ -51,7 +51,13 @@ try{
    const main=document.querySelector(".split");
    const rect=main.getBoundingClientRect();
    const footerTop=document.querySelector("footer").getBoundingClientRect().top;
+   const footerContent=document.querySelector(".auth-footer-content").getBoundingClientRect();
    return {headerAbsent:!document.querySelector(".login-header"),
+     brandKickerAbsent:!document.querySelector(".login-brand-kicker"),
+     hasKickerDot:getComputedStyle(document.querySelector(".login-form-kicker"),"::before").content!=="none",
+     footerAligned:Math.abs(footerContent.left-rect.left)<=2&&Math.abs(footerContent.right-rect.right)<=2,
+     authAnimation:getComputedStyle(document.querySelector(".form-box")).animationName,
+     fieldGap:getComputedStyle(document.querySelector(".form-box .field-stack")).gap,
      orbitCount:document.querySelectorAll(".orbit-icon").length,
      brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
      formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
@@ -60,7 +66,11 @@ try{
      verticallyFits:rect.bottom<=footerTop+1&&footerTop<=innerHeight+1,
      centerDelta:Math.abs((rect.top+rect.bottom)/2-footerTop/2)};
   });
-  assert.ok(design.headerAbsent,"Login must not display an upper logo/header at "+width);
+  assert.ok(design.headerAbsent&&design.brandKickerAbsent&&!design.hasKickerDot,
+   "Login must not show redundant labels or dot at "+width);
+  assert.ok(design.footerAligned,"Login footer must align with card edges at "+width);
+  assert.equal(design.authAnimation,"vatraAuthReveal","Login must match signup reveal animation");
+  assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
    assert.ok(design.centerDelta<=16,"Login card must be vertically centered at "+width+": "+design.centerDelta);
   assert.equal(design.orbitCount,8,"All eight VATRA orbit icons must remain");
@@ -113,8 +123,8 @@ try{
  assert.equal(await reopened.locator("html").getAttribute("lang"),"en","Language lost after closing tab");
  assert.equal(await reopened.locator(".login-form-kicker").textContent(),"WELCOME BACK TO VATRA",
    "English login overline must be translated");
- assert.equal(await reopened.locator(".login-brand-kicker").textContent(),"VATRA · UKRAINIAN SOCIAL NETWORK",
-   "English brand overline must be translated");
+ assert.equal(await reopened.locator(".login-form-kicker").textContent(),"WELCOME BACK TO VATRA",
+   "English login heading must remain translated");
  console.log("VATRA language picker, search, cookies and tab reopen: OK");
  await reopened.evaluate(()=>{console.warn("VATRA-browser-smoke-warning");console.error("VATRA-browser-smoke-error");});
  const warning=reopened.locator(".vatra-error-toast--warning").filter({hasText:"VATRA-browser-smoke-warning"});
@@ -192,8 +202,12 @@ try{
    const nav=document.querySelector(".reg-back-nav").getBoundingClientRect();
    const back=document.querySelector(".reg-back-nav .back").getBoundingClientRect();
    const footerTop=document.querySelector("footer").getBoundingClientRect().top;
+   const footerContent=document.querySelector(".auth-footer-content").getBoundingClientRect();
    return {overflow:document.documentElement.scrollWidth-innerWidth,
     headerAbsent:!document.querySelector(".reg-header"),
+    brandKickerAbsent:!document.querySelector(".signup-brand-eyebrow"),
+    footerAligned:Math.abs(footerContent.left-brand.left)<=2&&Math.abs(footerContent.right-form.right)<=2,
+    authAnimation:getComputedStyle(document.querySelector('[data-register-step="1"]')).animationName,
     backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
     backAligned:Math.abs(back.right-form.right)<=8,
     backAbove:nav.bottom<=main.top+2,
@@ -203,6 +217,8 @@ try{
     form:{x:form.x,y:form.y,w:form.width,h:form.height}};
   });
   assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
+  assert.ok(layout.brandKickerAbsent&&layout.footerAligned,"Registration footer or brand label is misaligned at "+width+": "+JSON.stringify(layout));
+  assert.equal(layout.authAnimation,"vatraAuthReveal","Registration must use the same auth reveal animation");
   assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backAbove,
    "Signup header must be removed and Back link aligned to the card at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.backText.length>0,"Signup return link is missing at "+width);
