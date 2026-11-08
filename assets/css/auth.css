@@ -51,7 +51,7 @@
 .feature-photos{--icon-color:#8958c9;--icon-bg:#f7f2ff;--icon-border:#dac5f6}
 .feature-video{--icon-color:#dc536a;--icon-bg:#fff3f5;--icon-border:#f5c5ce}
 .feature-music{--icon-color:#a350c4;--icon-bg:#fcf2ff;--icon-border:#e6c4f1}
-.feature-marketplace{--icon-color:#d39023;--icon-bg:#fffaef;--icon-border:#f2deae}
+.feature-marketplace{--icon-color:#b67818;--icon-bg:#fffaef;--icon-border:#f2deae}
 .feature-clips{--icon-color:#5766d2;--icon-bg:#f2f4ff;--icon-border:#cbd1fa}
 .orbit-face svg{display:block;width:clamp(23px,4.4cqw,30px);height:clamp(23px,4.4cqw,30px);flex:none;stroke:currentColor;stroke-width:1.95;stroke-linecap:round;stroke-linejoin:round;fill:none;shape-rendering:geometricPrecision;overflow:visible;animation:vatraGlyphFloat 4.4s ease-in-out infinite}
 .orbit-face svg path,.orbit-face svg circle,.orbit-face svg ellipse,.orbit-face svg rect{paint-order:stroke fill}
