@@ -152,7 +152,7 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
-assert.ok(offline.includes('errors.js?v=20261108-errors4')&&sw.includes('ROOT+"assets/js/errors.js"'),
+assert.ok(offline.includes('errors.js?v=20261108-errors5')&&sw.includes('ROOT+"assets/js/errors.js"'),
  "Offline diagnostics and cached resource must exist");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
@@ -282,8 +282,8 @@ for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors4"),page+": language picker and console diagnostics versions missing");
- if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout10"),page+": scoped scrollbars stylesheet version missing");
+ assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
+ if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout11"),page+": scoped scrollbars stylesheet version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
