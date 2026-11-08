@@ -201,13 +201,27 @@ for(const feature of features){
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(32cqw,212px)')&&
- css.includes('width:clamp(95px,24cqw,178px)')&&
- css.includes('width:clamp(42px,9cqw,58px)'),
+assert.ok(css.includes('--inner-radius:min(35cqw,240px)')&&
+ css.includes('width:clamp(130px,29cqw,224px)')&&
+ css.includes('width:clamp(44px,8.6cqw,62px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
+assert.ok(css.includes('grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)')&&
+ css.includes('font-size:clamp(30px,2.3vw,36px)'),
+ "Landing columns and right-side typography must be balanced");
+for(const name of features){
+ assert.ok(css.includes(".feature-"+name+"{--icon-color:")&&
+  landing.includes('class="ui-orbit-'+name+'-svg"'),
+  "Every VATRA vector icon must use a dedicated color and valid inline SVG");
+}
+assert.ok(css.includes("svg{shape-rendering:geometricPrecision}")&&
+ css.includes(".language-option .language-flag{width:36px;height:27px"),
+ "SVG icons and language flags must retain high-precision rendering");
+assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
+ lang.includes("chevron.setAttribute(\"viewBox\",\"0 0 24 24\")"),
+ "Language flag and chevron vectors must use precise geometry");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
 assert.ok(css.includes("orbit-note-support")&&css.includes("orbit-note-love")&&
- css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 84px),550px)"),
+ css.includes("height:clamp(370px,calc(var(--inner-radius) * 2 + 78px),570px)"),
  "Five inner slogans and larger orbit must fit the welcome panel");
 assert.ok(css.includes('.register-page .reg-floating-label')&&
  css.includes(".register-page .reg-help-panel")&&
@@ -241,10 +255,10 @@ assert.ok(css.includes("align-items:start")&&css.includes(".register-page .two>.
  "Two-column registration inputs must not move when a field shows validation errors");
 for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
- assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('vt-language-static-chevron-001'),
+ assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("picker5")&&html.includes("errors.js?v=20261108-errors3"),page+": language picker and console diagnostics versions missing");
- if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout7"),page+": scoped scrollbars stylesheet version missing");
+ assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors3"),page+": language picker and console diagnostics versions missing");
+ if(page!=="offline")assert.ok(html.includes("auth.css?v=20261108-layout8"),page+": scoped scrollbars stylesheet version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
