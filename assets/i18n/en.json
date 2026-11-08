@@ -572,6 +572,51 @@
           "attrs": {
             "aria-label": "Choose language"
           }
+        },
+        "n70": {
+          "attrs": {
+            "aria-label": "Why does VATRA ask about gender?"
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "About gender selection"
+          }
+        },
+        "n72": {
+          "text": {
+            "0": "Gender is optional. Choose an option that suits you, or leave it as “Prefer not to say.” This information belongs to your account details and is not published on the registration page."
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "How VATRA handles your data"
+          }
+        },
+        "n74": {
+          "text": {
+            "0": "Why is it needed?"
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "Why does VATRA need your email address?"
+          }
+        },
+        "n76": {
+          "text": {
+            "0": "Your email address is used to confirm registration, sign in, reset your password, and receive important account security notices. VATRA does not display it publicly on the registration page and does not require a phone number."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "View the Privacy Policy"
+          }
+        },
+        "n78": {
+          "attrs": {
+            "aria-label": "Gender"
+          }
         }
       }
     },
@@ -2250,22 +2295,7 @@
       "nodes": {
         "n3": {
           "attrs": {
-            "aria-label": "VATRA social network features"
-          }
-        },
-        "n13": {
-          "text": {
-            "0": "Your people."
-          }
-        },
-        "n19": {
-          "text": {
-            "0": "Your stories."
-          }
-        },
-        "n24": {
-          "text": {
-            "0": "Your VATRA."
+            "aria-label": "VATRA logo with eight themed icons"
           }
         },
         "n27": {
@@ -2386,21 +2416,6 @@
         "n95": {
           "text": {
             "0": "Short videos and memorable moments."
-          }
-        },
-        "n98": {
-          "text": {
-            "0": "Your people. Your stories. Your VATRA."
-          }
-        },
-        "n99": {
-          "text": {
-            "0": " Find your people, share stories, and discover new possibilities — from meaningful connections to your own business."
-          }
-        },
-        "n100": {
-          "text": {
-            "0": "VATRA — a Ukrainian social network."
           }
         },
         "n101": {
