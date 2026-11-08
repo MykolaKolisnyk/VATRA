@@ -65,8 +65,9 @@ function showFieldError(control,message){
    error.className="field-error vt-field-error-"+control.id;
    error.id="vatra-error-"+control.id;
    error.setAttribute("role","alert");
-   const consentText=wrapper.classList.contains("check-terms")?wrapper.querySelector("span"):null;
-   (consentText||wrapper).append(error);
+   // Consent validation occupies a dedicated row below the whole label,
+   // never sits inside the inline link text.
+   wrapper.append(error);
   }
   error.textContent=translate(message);
   window.VATRA_LANGUAGE?.ready?.then(()=>{if(error.isConnected)error.textContent=translate(message);});
@@ -157,8 +158,12 @@ function wireOrbitTooltips(){
   const reveal=()=>{place();tip.classList.add("is-visible");};
   icon.addEventListener("mouseenter",reveal);
   icon.addEventListener("focus",reveal);
-  icon.addEventListener("mouseleave",()=>{if(document.activeElement!==icon)hide();});
+  // Mouse exit always closes the tooltip, including after pointer focus.
+  // Keyboard focus still opens the tooltip and closes on blur.
+  icon.addEventListener("mouseleave",hide);
   icon.addEventListener("blur",hide);
+  icon.addEventListener("pointerdown",()=>{hide();icon.blur();});
+  icon.addEventListener("click",event=>{if(event.detail>0){hide();icon.blur();}});
   window.addEventListener("resize",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true});
   document.addEventListener("scroll",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true,capture:true});
  }
@@ -573,8 +578,9 @@ function wireLogin(){
 }
 const SIGNUP_PENDING_KEY="vatra-signup-confirmation";
 const SIGNUP_RESEND_COOLDOWN_MS=60000;
-// The recommended 15-minute validity is an estimate, NOT a server-verified expiry.
-const SIGNUP_LINK_ESTIMATE_MS=900000;
+// VATRA Supabase Email OTP Expiration: 900 seconds (confirmed in Auth settings).
+// The client counts from the successful server response; network latency can affect seconds shown.
+const SIGNUP_LINK_VALIDITY_MS=900000;
 let signupPending=null,signupSending=false,signupTickTimer=null;
 function maskSignupEmail(email){const [name,domain]=email.split("@");return name&&domain?(name.length>2?name.slice(0,2):name.slice(0,1))+"•••@"+domain:"";}
 function signupClock(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
@@ -582,7 +588,7 @@ function saveSignupPending(){try{sessionStorage.setItem(SIGNUP_PENDING_KEY,JSON.
 function syncSignupCountdown(){
  if(!signupPending)return;
  const expiry=q("#signup-confirmation-expiry");
- if(expiry)expiry.textContent=signupClock(signupPending.sentAt+SIGNUP_LINK_ESTIMATE_MS-Date.now());
+ if(expiry)expiry.textContent=signupClock(signupPending.sentAt+SIGNUP_LINK_VALIDITY_MS-Date.now());
  const button=q("#signup-confirmation-resend");
  if(!button)return;
  const remaining=Math.max(0,(signupPending.nextAllowedAt||0)-Date.now());

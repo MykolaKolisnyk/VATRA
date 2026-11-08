@@ -107,6 +107,12 @@ try{
    }));
    assert.ok(crisp.stationary&&crisp.transform==="none"&&crisp.instances===1,
     "Tooltip should not be rasterized in rotated layers: "+JSON.stringify(crisp));
+   // Pointer-click focus must not leave a stale tooltip after the mouse leaves.
+   await icon.click({force:true});
+   await page.mouse.move(width-3,height-3);
+   await tooltip.waitFor({state:"hidden"});
+   assert.equal(await tooltip.evaluate(el=>el.classList.contains("is-visible")),false,
+    "Orbit tooltip must close when pointer leaves even after a click");
   }
   console.log("VATRA layout "+width+"x"+height+": OK");
   await page.close();
@@ -123,6 +129,13 @@ try{
  await page.waitForFunction(()=>document.documentElement.lang==="en");
  assert.equal(await page.evaluate(()=>localStorage.getItem("vatra-language")),"en","Language storage");
  assert.ok((await context.cookies()).some(x=>x.name==="vatra-language"&&x.value==="en"),"Persistent language cookie missing");
+ const localizedSignup=await context.newPage();
+ await localizedSignup.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await waitReady(localizedSignup);
+ await localizedSignup.waitForFunction(()=>document.documentElement.lang==="en");
+ assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#business","#communities","#photos","#videos","#music","#marketplace","#clips"],
+  "The registration hashtags must be translated into English");
+ await localizedSignup.close();
  await page.close();
  const reopened=await context.newPage();
  await reopened.goto(base,{waitUntil:"domcontentloaded"});
@@ -442,6 +455,37 @@ try{
    "The floating hint must remain up when a field has a value: "+route);
   await probe.close();
  }
+ // Consent error must appear in a separate grid row aligned with the label,
+ // not as a fragment within the policy links.
+ const consentProbe=await context.newPage();
+ await consentProbe.setViewportSize({width:1280,height:900});
+ await consentProbe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await waitReady(consentProbe);
+ await consentProbe.locator("#first-name").fill("Тест");
+ await consentProbe.locator("#last-name").fill("Користувач");
+ await consentProbe.evaluate(()=>{
+  for(const [id,value] of [["birth-day","01"],["birth-month","01"],["birth-year","2000"]]){
+   const node=document.getElementById(id);
+   node.value=value;node.dispatchEvent(new Event("change",{bubbles:true}));
+  }
+ });
+ await consentProbe.locator("#register-next").click();
+ await consentProbe.locator("#email").fill("demo@example.test");
+ await consentProbe.locator("#password").fill("VeryStrong@12345");
+ await consentProbe.locator("#password-confirm").fill("VeryStrong@12345");
+ await consentProbe.locator('#signup-form button[type="submit"]').click();
+ const consentGeometry=await consentProbe.locator(".check-terms").evaluate(label=>{
+  const span=label.querySelector(":scope > span");
+  const error=label.querySelector(":scope > .field-error");
+  if(!error)return null;
+  const sr=span.getBoundingClientRect(),er=error.getBoundingClientRect();
+  const style=getComputedStyle(label);
+  return {child:error.parentElement===label,columns:style.gridTemplateColumns,
+   xDiff:Math.abs(er.left-sr.left),verticalGap:er.top-sr.bottom};
+ });
+ assert.ok(consentGeometry?.child&&consentGeometry.xDiff<3&&consentGeometry.verticalGap>=0,
+  "Consent error must align below the complete policy label: "+JSON.stringify(consentGeometry));
+ await consentProbe.close();
  console.log("VATRA floating hints, error spacing, and temporary validation: OK");
  // Each page uses the same language modal with a centered SVG X.
  for(const route of ["","register.html","terms.html"]){

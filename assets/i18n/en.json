@@ -627,17 +627,17 @@
         },
         "n205": {
           "text": {
-            "0": "#спілкування"
+            "0": "#communication"
           }
         },
         "n206": {
           "text": {
-            "0": "#бізнес"
+            "0": "#business"
           }
         },
         "n207": {
           "text": {
-            "0": "#спільноти"
+            "0": "#communities"
           }
         },
         "n208": {
@@ -727,37 +727,37 @@
         },
         "n230": {
           "text": {
-            "0": "#фотографії"
+            "0": "#photos"
           }
         },
         "n231": {
           "text": {
-            "0": "#відео"
+            "0": "#videos"
           }
         },
         "n232": {
           "text": {
-            "0": "#музика"
+            "0": "#music"
           }
         },
         "n233": {
           "text": {
-            "0": "#маркетплейс"
+            "0": "#marketplace"
           }
         },
         "n234": {
           "text": {
-            "0": "#кліпи"
+            "0": "#clips"
           }
         },
         "n240": {
           "text": {
-            "0": "Estimated link validity"
+            "0": "Confirmation link expires in"
           }
         },
         "n242": {
           "text": {
-            "0": "Supabase controls the actual expiration. This countdown assumes VATRA's recommended 15-minute setting."
+            "0": "The link is valid for 15 minutes (900 seconds) in Supabase. The countdown starts after the server responds to the email request."
           }
         },
         "n243": {

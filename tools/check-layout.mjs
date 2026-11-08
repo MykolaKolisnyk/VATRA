@@ -256,6 +256,8 @@ assert.ok(!css.includes(".orbit-note")&&
  "VATRA welcome text must be centered below logo and no obsolete orbit slogans remain");
 assert.ok(auth.includes("function wireOrbitTooltips()")&&
  auth.includes('panel.append(tip);')&&
+ auth.includes('icon.addEventListener("mouseleave",hide);')&&
+ auth.includes('icon.addEventListener("pointerdown",()=>{hide();icon.blur();});')&&
  auth.includes('tip.classList.add("is-visible")')&&
  css.includes(".orbit-tooltip.is-visible{visibility:visible;opacity:1}")&&
  !css.includes(".orbit-tooltip.is-below"),
@@ -317,7 +319,9 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  css.includes(".signup-confirmation-timing{")&&
  auth.includes('auth.auth.resend({')&&
  auth.includes('SIGNUP_RESEND_COOLDOWN_MS=60000')&&
- auth.includes('SIGNUP_LINK_ESTIMATE_MS=900000'),
+ auth.includes('SIGNUP_LINK_VALIDITY_MS=900000')&&
+ uk.__pages.register.nodes.n240.text["0"]==="Час до завершення дії посилання"&&
+ en.__pages.register.nodes.n240.text["0"]==="Confirmation link expires in",
  "The account-creation confirmation screen needs a distinct resend/cooldown state");
 assert.ok(uk.__pages.register.meta.title==="Створити акаунт · VATRA"&&
  en.__pages.register.meta.title==="Create account · VATRA"&&
@@ -376,7 +380,8 @@ assert.ok(auth.includes('function wireFloatingHints()')&&
  "Both forms must restore floating hints without duplicates");
 assert.ok(auth.includes("FIELD_ERROR_DURATION_MS=5500")&&
  auth.includes("fieldErrorTimers.set(control,setTimeout")&&
- css.includes(".check-terms>span .field-error{display:flex;"),
+ css.includes(".check-terms>.field-error{grid-column:2;grid-row:2;")&&
+ auth.includes('wrapper.append(error);'),
  "Field errors must expire automatically and align consent messages");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
@@ -460,12 +465,13 @@ assert.ok(css.includes(".intro-copy p strong{display:block;")&&
  css.includes(".signup-brand-highlight{display:inline-flex;align-items:center;min-height:35px;"),
  "Promotional copy and larger hashtag chips must be consistent");
 const signupTags=["#спілкування","#бізнес","#спільноти","#фотографії","#відео","#музика","#маркетплейс","#кліпи"];
+const englishSignupTags=["#communication","#business","#communities","#photos","#videos","#music","#marketplace","#clips"];
 const signupKeys=[205,206,207,230,231,232,233,234];
 assert.ok(!register.includes("Особистий VATRA ID")&&
  signupTags.every((tag,i)=>register.includes('data-i18n="n'+signupKeys[i]+'">'+tag+'</span>'))&&
  signupTags.every((tag,i)=>uk.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===tag&&
- en.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===tag),
- "Registration must show all eight requested hashtags in both dictionaries");
+ en.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===englishSignupTags[i]),
+ "All eight hashtags must display in Ukrainian and translate correctly into English");
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('policy-nav-icon')&&
