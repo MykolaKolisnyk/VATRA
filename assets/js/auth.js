@@ -582,7 +582,16 @@ const SIGNUP_RESEND_COOLDOWN_MS=60000;
 // The client counts from the successful server response; network latency can affect seconds shown.
 const SIGNUP_LINK_VALIDITY_MS=900000;
 let signupPending=null,signupSending=false,signupTickTimer=null;
-function maskSignupEmail(email){const [name,domain]=email.split("@");return name&&domain?(name.length>2?name.slice(0,2):name.slice(0,1))+"•••@"+domain:"";}
+function maskSignupEmail(email){
+ const at=email.lastIndexOf("@");
+ if(at<=0||at===email.length-1)return "";
+ const name=email.slice(0,at),domain=email.slice(at+1);
+ let visible;
+ if(name.length>=7)visible=name.slice(0,3)+"•••"+name.slice(-3);
+ else if(name.length>=4)visible=name.slice(0,3)+"•••";
+ else visible=name.slice(0,1)+"•••";
+ return visible+"@"+domain;
+}
 function signupClock(ms){const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");}
 function saveSignupPending(){try{sessionStorage.setItem(SIGNUP_PENDING_KEY,JSON.stringify(signupPending));}catch(_){}}
 function syncSignupCountdown(){
@@ -613,25 +622,6 @@ function showSignupConfirmation(pending){
  screen.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function restoreSignupConfirmation(){
- q("#signup-confirmation-restart")?.addEventListener("click",()=>{
-  const form=q(".signup-form-panel .narrow-form"),screen=q("#signup-confirmation");
-  if(!form||!screen)return;
-  screen.hidden=true;form.hidden=false;document.body.dataset.signupConfirmation="editing";
-  if(signupPending?.email)q("#email").value=signupPending.email;
-  for(const selector of ["#password","#password-confirm"]){const field=q(selector);if(field){field.value="";field.dispatchEvent(new Event("input",{bubbles:true}));}}
-  const complete=q("#first-name").value.trim()&&q("#last-name").value.trim()&&
-   q("#birth-day").value&&q("#birth-month").value&&q("#birth-year").value;
-  if(complete)q("#register-next")?.click();
-  else{
-   q('[data-register-step="1"]').hidden=false;q('[data-register-step="2"]').hidden=true;
-   q('[data-step-heading="1"]').hidden=false;q('[data-step-heading="2"]').hidden=true;
-   q('[data-step-label="1"]').hidden=false;q('[data-step-label="2"]').hidden=true;
-   q(".signup-progress").setAttribute("aria-valuenow","1");
-   document.body.dataset.registrationStep="1";
-  }
-  feedback("Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.","info");
-  (complete?q("#email"):q("#first-name")).focus({preventScroll:true});
- });
  q("#signup-confirmation-resend")?.addEventListener("click",async()=>{
   if(signupSending||!signupPending||Date.now()<(signupPending.nextAllowedAt||0))return;
   if(!signupPending.email){showSignupMessage("Щоб надіслати лист, поверніться до створення акаунта й укажіть email.",true);return;}

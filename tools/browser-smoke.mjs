@@ -686,7 +686,7 @@ try{
   }
  });
  await confirmationPage.locator("#register-next").click();
- await confirmationPage.locator("#email").fill("demo@example.test");
+ await confirmationPage.locator("#email").fill("demoexample@example.test");
  await confirmationPage.locator("#password").fill("VeryStrong@12345");
  await confirmationPage.locator("#password-confirm").fill("VeryStrong@12345");
  await confirmationPage.locator("#consent").check();
@@ -699,9 +699,8 @@ try{
  const typeScale=await confirmationPage.evaluate(()=>{
   const selectors={heading:".signup-confirmation .signup-step-heading h1",
    description:".signup-confirmation-description",tips:".signup-confirmation-tips p",
-   countdown:".signup-confirmation-timer-row",disclaimer:".signup-confirmation-disclaimer",
-   delay:".signup-confirmation-delay",change:".signup-confirmation-change",
-   changeNote:".signup-confirmation-change-note",signIn:".signup-confirmation-signin"};
+   countdown:".signup-confirmation-timer-row",delay:".signup-confirmation-delay",
+   signIn:".signup-confirmation-signin"};
   return Object.fromEntries(Object.entries(selectors).map(([k,v])=>{
    const style=getComputedStyle(document.querySelector(v));
    return [k,{size:parseFloat(style.fontSize),font:style.fontFamily}];
@@ -719,11 +718,22 @@ try{
  assert.equal(await confirmationPage.evaluate(()=>window.__signupCaptcha),true);
  assert.equal(await confirmationPage.evaluate(()=>window.__removedWithAttachedContainer),true);
  assert.deepEqual(lifecycleWarnings,[]);
- await confirmationPage.locator("#signup-confirmation-restart").click();
- assert.equal(new URL(confirmationPage.url()).pathname,"/VATRA/register.html");
- assert.equal(await confirmationPage.locator('[data-register-step="2"]').isVisible(),true);
- assert.equal(await confirmationPage.locator("#first-name").inputValue(),"Тест");
- assert.equal(await confirmationPage.locator("#password").inputValue(),"");
+ assert.equal(await confirmationPage.locator("#signup-confirmation-restart").count(),0,
+  "Email-change button must be entirely removed");
+ assert.equal(await confirmationPage.locator(".signup-confirmation-disclaimer,.signup-confirmation-change-note").count(),0,
+  "Confirmation must not show server internals or duplicate-account warning");
+ assert.equal(await confirmationPage.locator(".signup-confirmation-signin").count(),1,
+  "Confirmation must have one consistent sign-in link");
+ const emailMask=await confirmationPage.locator("#signup-confirmation-address").textContent();
+ assert.equal(emailMask,"dem•••ple@example.test",
+  "Show first three and last three email-local-part characters while masking the rest");
+ const linkStyle=await confirmationPage.locator(".signup-confirmation-signin").evaluate(el=>({
+  font:getComputedStyle(el).fontFamily,
+  transition:getComputedStyle(el).transitionProperty,
+  centered:getComputedStyle(el).justifyContent
+ }));
+ assert.ok(linkStyle.font.includes("Onest")&&linkStyle.transition.includes("background")&&linkStyle.centered==="center",
+  "Confirmation sign-in link should be centered, legible and use the VATRA hover transition");
  await confirmationPage.reload({waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
  assert.equal(await confirmationPage.locator("#signup-confirmation").isVisible(),true);
@@ -734,7 +744,7 @@ try{
  await confirmationPage.locator("#signup-confirmation-resend").click();
  await confirmationPage.waitForFunction(()=>!!window.__resendParams);
  const data=await confirmationPage.evaluate(()=>window.__resendParams);
- assert.equal(data.type,"signup");assert.equal(data.email,"demo@example.test");
+ assert.equal(data.type,"signup");assert.equal(data.email,"demoexample@example.test");
  assert.ok(data.options.captchaToken,"Resend must use CAPTCHA");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  await confirmationPage.close();

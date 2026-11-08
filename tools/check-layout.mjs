@@ -313,8 +313,10 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  !register.includes('signup-confirmation-emblem')&&
  register.includes('id="signup-confirmation-resend"')&&
  register.includes('id="signup-confirmation-expiry"')&&
- register.includes('id="signup-confirmation-restart"')&&
- !register.includes('id="signup-confirmation-restart" href=')&&
+ !register.includes('id="signup-confirmation-restart"')&&
+ !register.includes('signup-confirmation-disclaimer')&&
+ !register.includes('signup-confirmation-change-note')&&
+ auth.includes('name.slice(0,3)+"•••"+name.slice(-3)')&&
  register.includes('content="Створити акаунт · VATRA"')&&
  css.includes(".signup-confirmation-timing{")&&
  auth.includes('auth.auth.resend({')&&
@@ -324,8 +326,7 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  en.__pages.register.nodes.n240.text["0"]==="Confirmation link expires in",
  "The account-creation confirmation screen needs a distinct resend/cooldown state");
 assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);font-size:14px;")&&
- css.includes(".signup-confirmation-disclaimer{margin:8px 0 0;color:var(--soft);font-size:13px;")&&
- css.includes(".signup-confirmation-signin{margin-top:12px;color:var(--blue);font-size:14px;"),
+ css.includes(".signup-confirmation-signin{display:inline-flex;align-items:center;justify-content:center;margin-top:22px;"),
  "Confirmation secondary typography must use consistent 13–14px rules");
 assert.ok(uk.__pages.register.meta.title==="Створити акаунт · VATRA"&&
  en.__pages.register.meta.title==="Create account · VATRA"&&
