@@ -18,10 +18,18 @@ const en=JSON.parse(await read("assets/i18n/en.json"));
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
 assert.ok(errors.includes('window.addEventListener("error"')&&
  errors.includes('window.addEventListener("unhandledrejection"')&&
- errors.includes("console.error=function")&&errors.includes("window.VATRA_ERRORS={show}"),
- "VATRA must surface JavaScript, console, resource and promise errors");
+ errors.includes("console.error=function")&&
+ errors.includes('setTimeout(dismiss,DISPLAY_MS)')&&
+ !errors.includes('window.VATRA_ERRORS={show}')&&
+ !auth.includes("VATRA_ERRORS"),
+ "Only console/runtime errors should appear as automatically dismissing toasts; form errors stay inline");
 assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible"),
- "Animated bottom-left diagnostics styling missing");
+ "Animated bottom-left console notices missing");
+assert.ok(css.includes("*::-webkit-scrollbar-thumb")&&
+ css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)"),
+ "Unified scrolling styles must apply to native page and selector scrollbars");
+assert.ok(!css.includes(".orbit-badge")&&!css.includes("one-styleFix"),
+ "Do not keep orphaned controls or cosmetic fix layers");
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"Unbalanced CSS");
 assert.ok(auth.includes("await window.VATRA_LANGUAGE?.ready"),"Auth must wait for translated fields");
 assert.ok(auth.includes('auth.auth.signInWithPassword(')&&auth.includes('auth.auth.signUp('),"Email sign in/up missing");
@@ -37,6 +45,12 @@ assert.ok(lang.includes('function initLanguagePicker()')&&lang.includes('trigger
  "Language dropdown must initialize reliably even if script is loaded late");
 assert.ok(lang.includes('document.querySelectorAll("[data-i18n]")'),"DOM translation bindings missing");
 assert.ok(lang.includes('location.reload()'),"Language selection must reuse the same page URL");
+assert.ok(lang.includes('search.id = "vatra-language-search"')&&
+ lang.includes('search.name = "vatra-language-search"'),
+ "Language search input requires ID and name to support browser autofill");
+const excludedLocales=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
+assert.ok(!/\["(?:ru|be)"/.test(excludedLocales),
+ "Russian and Belarusian language entries must not appear in VATRA");
 
 /* Verify language selection across independent page loads, cookie fallback,
    old Ukrainian bookmarks, and browsers which reject cookies. */
@@ -117,7 +131,7 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
-assert.ok(offline.includes('errors.js?v=20261108-errors1')&&sw.includes('ROOT+"assets/js/errors.js"'),
+assert.ok(offline.includes('errors.js?v=20261108-errors2')&&sw.includes('ROOT+"assets/js/errors.js"'),
  "Offline diagnostics and cached resource must exist");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
@@ -176,13 +190,13 @@ for(const feature of features){
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
  assert.ok(landing.includes('id="ua-orbit-tip-'+feature+'"'),"Tooltip missing "+feature);
 }
-assert.ok(css.includes('--inner-radius:min(33cqw,222px)')&&
- css.includes('width:clamp(95px,26cqw,194px)')&&
+assert.ok(css.includes('--inner-radius:min(32cqw,212px)')&&
+ css.includes('width:clamp(95px,24cqw,178px)')&&
  css.includes('width:clamp(42px,9cqw,58px)'),
  "Expanded orbit, central V, and eight icons must be scaled consistently");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
 assert.ok(css.includes("orbit-note-support")&&css.includes("orbit-note-love")&&
- css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 112px),600px)"),
+ css.includes("height:clamp(360px,calc(var(--inner-radius) * 2 + 84px),550px)"),
  "Five inner slogans and larger orbit must fit the welcome panel");
 assert.ok(css.includes('.register-page .reg-floating-label')&&
  css.includes(".register-page .reg-help-panel")&&
@@ -206,8 +220,9 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
 assert.ok(auth.includes('if(page==="register")')&&auth.includes("reg-floating-label")&&
  auth.includes('wrap.classList.toggle("is-raised",raised)'),
  "Registration must animate interior hints while preserving external captions");
-assert.ok(css.includes(".register-page .reg-input-wrap.is-raised>.reg-floating-label"),
- "Signup floating labels must rise visibly on focus and typed values");
+assert.ok(css.includes('.field:has(input.control)>span:first-child,.register-page .reg-input-wrap>.reg-floating-label')&&
+ css.includes('.register-page .reg-input-wrap.is-raised>.reg-floating-label{top:7px'),
+ "Signup and login must share the same floating-label animation rules");
 assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help&&other.open")&&
  auth.includes('help.addEventListener("pointerenter"'),
  "Gender and email help must open on hover and never overlap");
@@ -217,7 +232,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('vt-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("picker4")&&html.includes("errors.js?v=20261108-errors1"),page+": updated language picker and diagnostics missing");
+ assert.ok(html.includes("picker5")&&html.includes("errors.js?v=20261108-errors2"),page+": language picker and console diagnostics versions missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -259,6 +274,9 @@ for(const name of ["legal","terms","privacy","cookies"]){
   }
  }
 }
+assert.ok((await read("privacy.html")).includes("Електронна пошта потрібна для підтвердження реєстрації")&&
+ (await read("privacy.html")).includes("Стать указувати необов’язково"),
+ "Privacy policy must actually explain registration email and gender");
 assert.ok(!(await read("privacy.html")).includes("Самостійне видалення акаунта зараз"),
  "Privacy page must give the actual contact process instead of placeholder UI");
 assert.ok(!(await read("account.html")).includes("Персональні розділи стануть доступними"),
