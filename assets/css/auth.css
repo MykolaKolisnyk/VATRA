@@ -413,16 +413,14 @@
   .language-option{padding:8px;gap:7px}
   .language-option .language-flag{width:29px;height:22px}
 
-  .form-side{padding:33px 21px 35px}
+  .form-side{padding:33px 21px 35px;border-radius:21px 21px 0 0}
   .form-box h2{font-size:clamp(28px,7.2vw,34px)}
   .login-description{font-size:14px;line-height:1.65;margin-bottom:24px}
   .subtitle{margin-bottom:22px}
-  .intro-side{padding:25px 18px 30px;gap:16px}
+  .intro-side{padding:25px 18px 30px;gap:16px;border-radius:0 0 21px 21px}
 
   .split{width:calc(100% - 24px);margin:16px auto 24px;border-radius:21px}
   .site .auth-footer-content,.register-page .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}
-  .form-side{border-radius:21px 21px 0 0}
-  .intro-side{border-radius:0 0 21px 21px}
   .reg-back-nav .back{font-size:12px}
   .reg-main{padding:0}
   .narrow-form h1{font-size:clamp(29px,7vw,34px)}
