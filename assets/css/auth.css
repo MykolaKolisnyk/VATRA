@@ -145,6 +145,55 @@
 .language-empty{color:var(--soft);font-size:13px;margin:14px 2px}
 
 .register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px clamp(22px,4.5vw,68px);min-height:82px;border-bottom:1px solid #e9edf4;background:#ffffffa6}.reg-header .header-logo{width:165px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100%,640px);flex:1;margin:0 auto;padding:28px 22px 52px}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:15px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+/* Registration captions are always visible; floating captions are reserved for sign-in. */
+.register-page .field:has(input.control){position:relative;gap:8px}
+.register-page .field:has(input.control)>span:first-child,
+.register-page .field:has(input.control).has-value>span:first-child,
+.register-page .field:has(input.control:focus)>span:first-child,
+.register-page .field:has(input.control:-webkit-autofill)>span:first-child{
+  position:static;top:auto;left:auto;z-index:auto;display:block;
+  transform:none;transform-origin:initial;font-size:13px;line-height:1.4;
+  color:#48576d;font-weight:700;max-width:none;white-space:normal;
+  overflow:visible;text-overflow:clip;pointer-events:auto;user-select:auto;
+  -webkit-user-select:auto;transition:none;
+}
+.register-page .field:has(input.control) input.control{padding:12px 15px}
+.register-page .field:has(input.control) input.control::placeholder{
+  color:#76839a!important;opacity:1!important
+}
+.register-page .field .input-password input.control{padding-right:92px}
+.register-page .reg-caption-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
+.register-page .reg-caption-row>label{color:#48576d;font-size:13px;font-weight:700;line-height:1.4}
+.register-page .reg-help{position:relative;flex:none;display:inline-flex;align-items:center}
+.register-page .reg-help summary{list-style:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+.register-page .reg-help summary::-webkit-details-marker{display:none}
+.register-page .reg-help-trigger{display:grid;place-items:center;width:23px;height:23px;
+  border:1px solid #9cbcf5;border-radius:50%;background:#f0f5ff;color:#2865d8;
+  font-size:13px;font-weight:800;line-height:1;transition:background .15s,border-color .15s}
+.register-page .reg-help-link{color:#2865d8;font-size:12px;font-weight:700;
+  text-decoration:underline;text-underline-offset:3px;text-align:right}
+.register-page .reg-help :is(summary:hover,summary:focus-visible){color:#174b9b}
+.register-page .reg-help summary:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}
+.register-page .reg-help[open] .reg-help-trigger{background:#dfeaff;border-color:#6995ed}
+.register-page .reg-help-panel{position:absolute;right:0;top:calc(100% + 12px);z-index:100;
+  width:min(330px,calc(100vw - 45px));padding:17px 18px;border:1px solid #d7e3f8;
+  border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(23,48,95,.18);
+  white-space:normal}
+.register-page .reg-help-panel::before{content:"";position:absolute;right:17px;top:-6px;
+  width:11px;height:11px;background:#fff;border-top:1px solid #d7e3f8;
+  border-left:1px solid #d7e3f8;transform:rotate(45deg)}
+.register-page .reg-help-panel strong{display:block;font-size:14px;font-weight:750;
+  line-height:1.35;color:#263956;margin:0 0 8px}
+.register-page .reg-help-panel p{font-size:12px;font-weight:450;line-height:1.65;
+  color:#586981;margin:0 0 12px}
+.register-page .reg-help-policy{display:inline-block;font-size:12px;font-weight:700;
+  color:#2865d8;text-decoration:none}
+.register-page .reg-help-policy:hover{text-decoration:underline}
+@media(max-width:480px){
+ .register-page .reg-help-panel{width:min(300px,calc(100vw - 40px))}
+ .register-page .reg-help-link{font-size:11px}
+}
+
 /* Фірмові списки дати народження та статі: однаковий Onest у полі та меню. */
 .vatra-select{position:relative;min-width:0;width:100%}
 .vatra-select-native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;border:0!important;opacity:0;pointer-events:none;clip-path:inset(50%);overflow:hidden}
