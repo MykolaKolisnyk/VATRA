@@ -21,6 +21,7 @@ function feedback(text,type="info"){
  const initial=text;
  window.VATRA_LANGUAGE?.ready?.then(()=>{if(box.textContent===initial)box.textContent=translate(initial);});
  box.setAttribute("role",type==="error"?"alert":"status");
+ if(type==="error")window.VATRA_ERRORS?.show(box.textContent);
  box.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function clearFeedback(){const box=q("#response");if(box){box.hidden=true;box.textContent="";}}
@@ -53,6 +54,8 @@ function showFieldError(control,message){
  const wrapper=control.closest(".field,.check-terms");
  if(!wrapper)return;
  let error=wrapper.querySelector(".field-error");
+ const hadError=wrapper.classList.contains("is-invalid");
+ const previousMessage=error?.textContent||"";
  if(message){
   if(!error){
    error=document.createElement("small");
@@ -67,6 +70,10 @@ function showFieldError(control,message){
   wrapper.classList.add("is-invalid");
   control.setAttribute("aria-invalid","true");
   control.setAttribute("aria-describedby",error.id);
+  if(!hadError||previousMessage!==translate(message)){
+   const caption=wrapper.querySelector("label[for],:scope > span:first-child")?.textContent?.trim().slice(0,45)||"";
+   window.VATRA_ERRORS?.show(translate(message),caption);
+  }
  }else{
   wrapper.classList.remove("is-invalid");
   control.removeAttribute("aria-invalid");
@@ -194,7 +201,7 @@ function wireHoverHelp(){
    event.preventDefault();
    // Touch devices have no hover: retaining tap access keeps the hint usable.
    if(matchMedia("(hover: none)").matches){
-    if(help.open)dismiss(help);else reveal(help);
+    if(!help.open)reveal(help);
    }
   });
  }
