@@ -2,9 +2,16 @@
    This is a client-side deterrent, not DRM or protection against source copying. */
 (() => {
   "use strict";
-  const allowed = location.protocol === "https:" &&
-    location.hostname === "mykolakolisnyk.github.io" &&
+  // The public site is restricted to the official origin. Developer previews are
+  // allowed from a local file or a loopback HTTP server, without a second UI.
+  const host=location.hostname.toLowerCase();
+  const official=location.protocol==="https:" &&
+    host==="mykolakolisnyk.github.io" &&
     /^\/VATRA(?:\/|$)/.test(location.pathname);
+  const loopback=["localhost","127.0.0.1","[::1]","::1"].includes(host);
+  const localPreview=location.protocol==="file:" ||
+    (loopback&&(location.protocol==="http:"||location.protocol==="https:"));
+  const allowed=official||localPreview;
   window.VATRA_HOST_ALLOWED = allowed;
   if (allowed) return;
   document.documentElement.setAttribute("data-vatra-denied", "");
