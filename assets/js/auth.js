@@ -102,7 +102,7 @@ function validationText(control,form){
 function wireFloatingHints(){
  if(!["login","register","forgot","reset"].includes(page))return;
  const syncAll=[];
- for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control),#forgot-form .field:has(input.control),#recovery-code-form .field:has(input.control)")){
+ for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control),#forgot-form .field:has(input.control),#recovery-code-form .field:has(input.control),#reset-form .field:has(input.control)")){
   const input=field.querySelector("input.control");
   const shell=input?.closest(".vatra-input-shell");
   const hint=shell?.querySelector(":scope > .vatra-floating-hint");
@@ -563,7 +563,7 @@ async function initialize(){
  document.body.dataset.authReady="true";
 }
 async function captchaOptions(scope){
- if(!window.VATRA_CAPTCHA?.enabled)return {};
+ if(!window.VATRA_CAPTCHA?.enabled){const error=new Error("captcha_unavailable");error.code="captcha_unavailable";throw error;}
  const token=await window.VATRA_CAPTCHA.token(scope);
  if(!token){const error=new Error("captcha_required");error.code="captcha_required";throw error;}
  return {captchaToken:token};
@@ -946,7 +946,7 @@ async function wireAccount(){
  const title=q("#account-title"),mail=q("#account-email");
  try{
   const {data:{user},error}=await auth.auth.getUser();
-  if(error||!user){window.location.replace(new URL("./",location.href).href);return;}
+  if(error||!user||!user.email_confirmed_at){window.location.replace(new URL("./",location.href).href);return;}
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
