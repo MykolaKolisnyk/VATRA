@@ -80,11 +80,11 @@
 
 .orbit-icon:hover,.orbit-icon:focus-visible{background:var(--icon-bg,#f1f6ff);border-color:var(--icon-color,#7eacfa);box-shadow:0 11px 31px rgba(49,98,179,.16),0 0 0 5px color-mix(in srgb,var(--icon-color,#2865d8) 9%,transparent)}
 .orbit-icon:focus-visible{outline:3px solid #92b5fa;outline-offset:4px}
-.orbit-tooltip{position:absolute;z-index:60;bottom:calc(100% + 13px);left:calc(50% + var(--tip-shift,0px));width:max-content;max-width:min(205px,72vw);display:flex;flex-direction:column;gap:4px;padding:11px 13px;border:1px solid #c8d8f7;border-radius:13px;background:#fff;box-shadow:0 15px 35px rgba(35,58,107,.16);color:var(--ink);font-size:12px;line-height:1.5;text-align:left;white-space:normal;visibility:hidden;opacity:0;pointer-events:none;transform:translate(-50%,6px);transition:opacity .18s ease,transform .18s ease,visibility .18s ease}
+/* Tooltip text is positioned on the stationary panel, not the rotating layer. */
+.orbit-tooltip{position:absolute;z-index:60;top:0;left:0;width:max-content;max-width:min(205px,72vw);display:flex;flex-direction:column;gap:4px;padding:11px 13px;border:1px solid #c8d8f7;border-radius:13px;background:#fff;box-shadow:0 15px 35px rgba(35,58,107,.16);color:var(--ink);font-size:12px;line-height:1.5;text-align:left;white-space:normal;visibility:hidden;opacity:0;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
 .orbit-tooltip strong{font-size:12px;line-height:1.35;font-weight:750;letter-spacing:-.01em}
 .orbit-tooltip>span{font-size:11px;color:var(--soft);line-height:1.5;font-weight:450}
-.orbit-tooltip.is-below{top:calc(100% + 13px);bottom:auto;transform:translate(-50%,-6px)}
-.orbit-icon:hover .orbit-tooltip,.orbit-icon:focus-visible .orbit-tooltip{visibility:visible;opacity:1;transform:translate(-50%,0)}
+.orbit-tooltip.is-visible{visibility:visible;opacity:1}
 .intro-art:has(.orbit-icon:is(:hover,:focus-visible)) .orbit-track,.intro-art:has(.orbit-icon:is(:hover,:focus-visible)) .orbit-face{animation-play-state:paused}
 .intro-art:has(.orbit-icon:is(:hover,:focus-visible)) .orbit-track-inner{z-index:12}
 .orbit-track-inner .orbit-node:has(.orbit-icon:is(:hover,:focus-visible)){z-index:30}

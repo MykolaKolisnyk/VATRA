@@ -95,11 +95,18 @@ try{
     nodes.map((n,i)=>[n.getBoundingClientRect().top,i]).sort((a,b)=>a[0]-b[0])[0][1]);
    const icon=page.locator(".orbit-icon").nth(topIndex);
    await icon.hover({force:true});
-   const tooltip=icon.locator(".orbit-tooltip");
+   const tooltip=page.locator("#"+await icon.getAttribute("aria-describedby"));
    await tooltip.waitFor({state:"visible"});
    const box=await tooltip.boundingBox();
    assert.ok(box&&box.x>=-1&&box.x+box.width<=width+1&&box.y>=-1&&box.y+box.height<=height+1,
     "Orbit tooltip outside viewport at "+width+": "+JSON.stringify(box));
+   const crisp=await tooltip.evaluate(el=>({
+    stationary:el.parentElement?.classList.contains("intro-side")===true,
+    transform:getComputedStyle(el).transform,
+    instances:document.querySelectorAll("#"+el.id).length
+   }));
+   assert.ok(crisp.stationary&&crisp.transform==="none"&&crisp.instances===1,
+    "Tooltip should not be rasterized in rotated layers: "+JSON.stringify(crisp));
   }
   console.log("VATRA layout "+width+"x"+height+": OK");
   await page.close();

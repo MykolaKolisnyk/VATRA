@@ -255,9 +255,11 @@ assert.ok(!css.includes(".orbit-note")&&
  css.includes(".intro-copy{position:relative;z-index:2;width:100%;max-width:69ch;margin:0 auto;text-align:center}"),
  "VATRA welcome text must be centered below logo and no obsolete orbit slogans remain");
 assert.ok(auth.includes("function wireOrbitTooltips()")&&
- auth.includes('tip.classList.add("is-below")')&&
- css.includes(".orbit-tooltip.is-below"),
- "Orbit tooltips must open below top icons instead of clipping behind browser chrome");
+ auth.includes('panel.append(tip);')&&
+ auth.includes('tip.classList.add("is-visible")')&&
+ css.includes(".orbit-tooltip.is-visible{visibility:visible;opacity:1}")&&
+ !css.includes(".orbit-tooltip.is-below"),
+ "Tooltip text must remain outside the rotating icon layers");
 assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  css.includes(".intro-symbol,.signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite}")&&
  !css.includes("vatraCoreBreath")&&
@@ -448,10 +450,13 @@ assert.ok(css.includes(".intro-copy p strong{display:block;")&&
  css.includes(".signup-brand-highlights{position:relative;z-index:1;display:flex;justify-content:center;")&&
  css.includes(".signup-brand-highlight{display:inline-flex;align-items:center;min-height:35px;"),
  "Promotional copy and larger hashtag chips must be consistent");
+const signupTags=["#спілкування","#бізнес","#спільноти","#фотографії","#відео","#музика","#маркетплейс","#кліпи"];
+const signupKeys=[205,206,207,230,231,232,233,234];
 assert.ok(!register.includes("Особистий VATRA ID")&&
- ["#вашілюди","#вашіісторії","#вашаvatra"].every(tag=>register.includes(">"+tag+"</span>"))&&
- [205,206,207].every((id,i)=>uk.__pages.register.nodes["n"+id].text["0"]===["#вашілюди","#вашіісторії","#вашаvatra"][i]&&en.__pages.register.nodes["n"+id].text["0"]===["#вашілюди","#вашіісторії","#вашаvatra"][i]),
- "All 3 branding hashtags should be localized consistently without personal ID");
+ signupTags.every((tag,i)=>register.includes('data-i18n="n'+signupKeys[i]+'">'+tag+'</span>'))&&
+ signupTags.every((tag,i)=>uk.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===tag&&
+ en.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===tag),
+ "Registration must show all eight requested hashtags in both dictionaries");
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('policy-nav-icon')&&

@@ -129,44 +129,38 @@ function wireOrbitTooltips(){
  for(const icon of icons){
   const tip=icon.querySelector(".orbit-tooltip");
   if(!tip)continue;
+  // Move the one existing tooltip outside the rotating orbit transforms.
+  panel.append(tip);
+  const hide=()=>tip.classList.remove("is-visible");
   const place=()=>{
-   tip.classList.remove("is-below");
-   tip.style.removeProperty("--tip-shift");
    tip.style.removeProperty("max-height");
    tip.style.removeProperty("overflow-y");
-   const box=icon.getBoundingClientRect();
-   const bounds=panel.getBoundingClientRect();
-   const top=Math.max(12,bounds.top+12);
-   const bottom=Math.min(window.innerHeight-12,bounds.bottom-12);
-   const needed=tip.getBoundingClientRect().height;
-   const above=box.top-top-13;
-   const below=bottom-box.bottom-13;
-   const openBelow=above<needed&&below>above;
-   if(openBelow)tip.classList.add("is-below");
-   const available=openBelow?below:above;
-   if(available<needed){
-    tip.style.maxHeight=Math.max(44,Math.floor(available))+"px";
+   const box=icon.getBoundingClientRect(),bounds=panel.getBoundingClientRect();
+   const minY=Math.max(12,bounds.top+12),maxY=Math.min(window.innerHeight-12,bounds.bottom-12);
+   const width=tip.getBoundingClientRect().width,height=tip.getBoundingClientRect().height;
+   const above=box.top-minY-13,below=maxY-box.bottom-13;
+   const placeBelow=above<height&&below>above;
+   const available=placeBelow?below:above;
+   if(available<height){
+    tip.style.maxHeight=Math.max(44,Math.floor(Math.max(0,available)))+"px";
     tip.style.overflowY="auto";
    }
-   const tipWidth=tip.getBoundingClientRect().width;
-   const center=box.left+box.width/2;
-   const minLeft=Math.max(12,bounds.left+10);
-   const maxRight=Math.min(window.innerWidth-12,bounds.right-10);
-   const desired=center-tipWidth/2;
-   const left=Math.min(Math.max(desired,minLeft),Math.max(minLeft,maxRight-tipWidth));
-   tip.style.setProperty("--tip-shift",Math.round(left-desired)+"px");
+   const h=tip.getBoundingClientRect().height;
+   const minX=Math.max(12,bounds.left+10);
+   const maxX=Math.min(window.innerWidth-12,bounds.right-10)-width;
+   const desiredX=box.left+box.width/2-width/2;
+   const x=Math.round(Math.min(Math.max(desiredX,minX),Math.max(minX,maxX)));
+   const y=Math.round(placeBelow?box.bottom+13:box.top-13-h);
+   tip.style.left=(x-bounds.left)+"px";
+   tip.style.top=(y-bounds.top)+"px";
   };
-  icon.addEventListener("mouseenter",place);
-  icon.addEventListener("focus",place);
-  icon.addEventListener("mouseleave",()=>{
-   if(!icon.matches(":focus-visible"))tip.classList.remove("is-below");
-  });
-  window.addEventListener("resize",()=>{
-   if(icon.matches(":hover, :focus-visible"))place();
-  },{passive:true});
-  document.addEventListener("scroll",()=>{
-   if(icon.matches(":hover, :focus-visible"))place();
-  },{passive:true,capture:true});
+  const reveal=()=>{place();tip.classList.add("is-visible");};
+  icon.addEventListener("mouseenter",reveal);
+  icon.addEventListener("focus",reveal);
+  icon.addEventListener("mouseleave",()=>{if(document.activeElement!==icon)hide();});
+  icon.addEventListener("blur",hide);
+  window.addEventListener("resize",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true});
+  document.addEventListener("scroll",()=>{if(tip.classList.contains("is-visible"))place();},{passive:true,capture:true});
  }
 }
 /* Hover/focus help is mutually exclusive and not a click-to-toggle drawer. */
