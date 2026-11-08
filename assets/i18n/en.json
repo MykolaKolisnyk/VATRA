@@ -284,7 +284,7 @@
   "Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.": "If the account exists, a new code has been sent. Use the code from the latest email.",
   "Неправильний або прострочений код. Перевірте лист або запросіть новий.": "Incorrect or expired code. Check your email or request another one.",
   "Підтвердження закінчилося. Запросіть новий код для відновлення.": "Verification has expired. Request a new recovery code.",
-  "Введіть восьмизначний код із листа.": "Enter the eight-digit code from the email.",
+  "Введіть код із листа (6–10 цифр).": "Enter the code from the email (6–10 digits).",
   "Завершіть перевірку безпеки й повторіть спробу.": "Complete the security check and try again.",
   "Не вдалося завантажити перевірку безпеки. Перевірте з’єднання та дозволи для Turnstile.": "Could not load the security check. Check your connection and allow Cloudflare Turnstile.",
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Could not load the security check. Check your internet connection.",
