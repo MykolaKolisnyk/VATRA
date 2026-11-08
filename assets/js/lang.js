@@ -99,6 +99,7 @@
   }
   let errors = {};
   const pageFromPath = () => {
+    if (document.body?.dataset.page === "offline") return "offline";
     if (document.body?.dataset.page === "not-found") return "404";
     if (location.pathname === ROOT || location.pathname.endsWith("/index.html")) return "index";
     return location.pathname.split("/").pop()?.replace(/\.html$/, "") || "index";
