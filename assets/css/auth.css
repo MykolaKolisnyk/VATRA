@@ -179,6 +179,20 @@
   color:#76839a!important;opacity:1!important
 }
 .register-page .field .input-password input.control{padding-right:92px}
+/* The signup input's floating hint lives inside the control; the external
+   field caption stays visible and the box never changes height on focus. */
+.register-page .reg-input-wrap{position:relative;display:block;min-width:0;width:100%}
+.register-page .reg-input-wrap>.control{display:block;width:100%;height:51px;transition:border-color .22s ease,box-shadow .22s ease,background .22s ease,padding .22s ease}
+.register-page .reg-input-wrap>.control::placeholder{transition:opacity .15s ease,color .15s ease}
+.register-page .reg-input-wrap .reg-floating-label{position:absolute;top:6px;left:16px;max-width:calc(100% - 115px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:2;pointer-events:none;font-size:11px;line-height:1.2;font-weight:550;color:#63789b;opacity:0;transform:translateY(10px) scale(.96);transform-origin:left top;transition:opacity .2s ease,transform .2s ease,color .2s ease}
+.register-page .reg-input-wrap.is-raised>.reg-floating-label{opacity:1;transform:translateY(0) scale(1)}
+.register-page .reg-input-wrap.is-raised>.control{padding-top:20px!important;padding-bottom:5px!important}
+.register-page .reg-input-wrap:focus-within>.reg-floating-label{color:var(--blue)}
+.register-page .reg-input-wrap .eye-btn{z-index:3}
+.register-page .field-error{font-size:12px;line-height:1.4;margin-top:4px;animation:vatraFieldErrorIn .18s ease-out}
+@keyframes vatraFieldErrorIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.register-page .reg-input-wrap>.control,.register-page .reg-floating-label,.register-page .field-error{transition:none!important;animation:none!important}}
+
 .register-page .reg-caption-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
 .register-page .reg-caption-row>label{color:#48576d;font-size:13px;font-weight:700;line-height:1.4}
 .register-page .reg-help{position:relative;flex:none;display:inline-flex;align-items:center}
@@ -192,10 +206,16 @@
 .register-page .reg-help :is(summary:hover,summary:focus-visible){color:#174b9b}
 .register-page .reg-help summary:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}
 .register-page .reg-help[open] .reg-help-trigger{background:#dfeaff;border-color:#6995ed}
-.register-page .reg-help-panel{position:absolute;right:0;top:calc(100% + 12px);z-index:100;
+.register-page .reg-help-panel{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
   width:min(330px,calc(100vw - 45px));padding:17px 18px;border:1px solid #d7e3f8;
   border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(23,48,95,.18);
-  white-space:normal}
+  white-space:normal;animation:vatraHintAppear .18s cubic-bezier(.2,.7,.2,1)}
+@keyframes vatraHintAppear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.register-page .reg-help[data-side="right"] .reg-help-panel{left:calc(100% + 14px);right:auto;top:-14px}
+.register-page .reg-help[data-side="left"] .reg-help-panel{right:calc(100% + 14px);left:auto;top:-14px}
+.register-page .reg-help[data-side="right"] .reg-help-panel::before{left:-6px;right:auto;top:22px;transform:rotate(-45deg)}
+.register-page .reg-help[data-side="left"] .reg-help-panel::before{right:-6px;left:auto;top:22px;transform:rotate(135deg)}
+@media(prefers-reduced-motion:reduce){.register-page .reg-help-panel{animation:none!important}}
 .register-page .reg-help-panel::before{content:"";position:absolute;right:17px;top:-6px;
   width:11px;height:11px;background:#fff;border-top:1px solid #d7e3f8;
   border-left:1px solid #d7e3f8;transform:rotate(45deg)}
