@@ -224,6 +224,11 @@
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
 .vatra-error-toast{display:flex;align-items:flex-start;gap:11px;min-height:64px;padding:12px;background:linear-gradient(#fff,#fcfdff);border:1px solid #e3e7f4;border-left:3px solid #d64b68;border-radius:14px;box-shadow:0 12px 38px rgba(26,44,92,.16);pointer-events:auto;opacity:0;transform:translate3d(-12px,12px,0) scale(.985);transition:opacity .22s ease,transform .22s cubic-bezier(.2,.8,.2,1);overflow-wrap:anywhere}
 .vatra-error-toast.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
+.vatra-error-toast--warning{background:linear-gradient(125deg,#fffaf0,#fff);border-color:#f1ddba;border-left-color:#d99a32;box-shadow:0 12px 38px rgba(105,77,25,.13)}
+.vatra-error-toast--warning .vatra-error-mark{background:#fff0cd;color:#ae7017}
+.vatra-error-toast--warning .vatra-error-mark svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision}
+.vatra-error-toast--warning .vatra-error-copy strong{color:#80531c}
+
 .vatra-error-mark{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:8px;background:#fff0f4;color:#bd3350;font-size:15px;font-weight:800}
 .vatra-error-copy{min-width:0;flex:1}
 .vatra-error-copy strong{display:block;margin-bottom:2px;color:#253653;font-size:12px;line-height:1.4;font-weight:750}
