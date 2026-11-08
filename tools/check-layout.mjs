@@ -253,15 +253,23 @@ assert.ok(css.includes('.register-page .reg-input-wrap>.reg-floating-label')&&
  css.includes(".vatra-error-stack"),
  "Animated input hints, hover help and diagnostic notices must share site styling");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
-assert.ok(landing.includes('class="login-header ui-login-header-001"')&&
- landing.includes('src="assets/logo/vatra-logo.svg"')&&
+assert.ok(!landing.includes('class="login-header ui-login-header-001"')&&
+ !landing.includes('class="login-header-logo')&&
  landing.includes('class="login-brand-kicker vt-login-brand-kicker-01"')&&
  landing.includes('class="login-form-kicker vt-login-form-kicker-01"')&&
- css.includes(".login-header{")&&css.includes(".login-form-overline{")&&
+ css.includes(".login-form-overline{")&&
+ css.includes("margin:auto;border-radius:28px")&&
  css.includes("border-radius:28px 0 0 28px")&&
  css.includes("border-radius:0 28px 28px 0"),
- "Login must share the VATRA registration visual system while preserving the orbit");
+ "Login must have a centered card without the redundant upper logo/header");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
+assert.ok(!register.includes('class="reg-header')&&
+ !register.includes('class="header-logo vt-register-link-01"')&&
+ register.includes('class="signup-layout ui-signup-layout-001"')&&
+ register.includes('class="reg-back-nav ui-register-back-nav-001"')&&
+ register.includes('href="./" class="back vt-register-link-02"')&&
+ css.includes(".signup-layout{")&&css.includes(".reg-back-nav{"),
+ "Registration must have a centered card with only the return-to-login link above it");
 for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth.js"),"Shared auth module not loaded");
 for(const file of [landing,register,forgot]){
  assert.ok(file.includes('src="assets/js/captcha.js"'),"Cloudflare widget not loaded");
@@ -297,7 +305,7 @@ for(const page of pages.filter(p=>p!=="offline")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("picker6")&&html.includes("errors.js?v=20261108-errors5"),page+": language picker and console diagnostics versions missing");
- assert.ok(html.includes(page==="register"?"auth.css?v=20261108-signup13":page==="index"?"auth.css?v=20261108-login14":"auth.css?v=20261108-layout12"),page+": correct stylesheet cache version missing");
+ assert.ok(html.includes(page==="register"||page==="index"?"auth.css?v=20261108-center15":"auth.css?v=20261108-layout12"),page+": correct stylesheet cache version missing");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");

@@ -46,19 +46,23 @@ try{
   });
   assert.ok(sizes.intro&&sizes.form&&sizes.copy&&sizes.split,"Landing panels missing at "+width);
   const design=await page.evaluate(()=>{
-   const header=document.querySelector(".login-header");
    const brand=document.querySelector(".intro-side");
    const form=document.querySelector(".form-side");
    const main=document.querySelector(".split");
    const rect=main.getBoundingClientRect();
-   return {headerVisible:!!header&&header.getBoundingClientRect().width>0,
+   const footerTop=document.querySelector("footer").getBoundingClientRect().top;
+   return {headerAbsent:!document.querySelector(".login-header"),
      orbitCount:document.querySelectorAll(".orbit-icon").length,
      brandStartRadius:getComputedStyle(brand)[innerWidth>=1200?"borderTopLeftRadius":"borderBottomLeftRadius"],
      formStartRadius:getComputedStyle(form)[innerWidth>=1200?"borderTopRightRadius":"borderTopLeftRadius"],
      formBackground:getComputedStyle(form).backgroundColor,
-     mainLeft:rect.left,mainRight:rect.right};
+     mainLeft:rect.left,mainRight:rect.right,
+     verticallyFits:rect.bottom<=footerTop+1&&footerTop<=innerHeight+1,
+     centerDelta:Math.abs((rect.top+rect.bottom)/2-footerTop/2)};
   });
-  assert.ok(design.headerVisible,"Login brand header must be visible at "+width);
+  assert.ok(design.headerAbsent,"Login must not display an upper logo/header at "+width);
+  if(width>=1200&&design.verticallyFits)
+   assert.ok(design.centerDelta<=16,"Login card must be vertically centered at "+width+": "+design.centerDelta);
   assert.equal(design.orbitCount,8,"All eight VATRA orbit icons must remain");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
@@ -109,8 +113,8 @@ try{
  assert.equal(await reopened.locator("html").getAttribute("lang"),"en","Language lost after closing tab");
  assert.equal(await reopened.locator(".login-form-kicker").textContent(),"WELCOME BACK TO VATRA",
    "English login overline must be translated");
- assert.equal(await reopened.locator(".login-header-caption").textContent(),"Your people. Your stories.",
-   "English login header must be translated");
+ assert.equal(await reopened.locator(".login-brand-kicker").textContent(),"VATRA · UKRAINIAN SOCIAL NETWORK",
+   "English brand overline must be translated");
  console.log("VATRA language picker, search, cookies and tab reopen: OK");
  await reopened.evaluate(()=>{console.warn("VATRA-browser-smoke-warning");console.error("VATRA-browser-smoke-error");});
  const warning=reopened.locator(".vatra-error-toast--warning").filter({hasText:"VATRA-browser-smoke-warning"});
@@ -184,11 +188,26 @@ try{
   const layout=await signup.evaluate(()=>{
    const brand=document.querySelector(".signup-brand").getBoundingClientRect();
    const form=document.querySelector(".signup-form-panel").getBoundingClientRect();
+   const main=document.querySelector(".reg-main").getBoundingClientRect();
+   const nav=document.querySelector(".reg-back-nav").getBoundingClientRect();
+   const back=document.querySelector(".reg-back-nav .back").getBoundingClientRect();
+   const footerTop=document.querySelector("footer").getBoundingClientRect().top;
    return {overflow:document.documentElement.scrollWidth-innerWidth,
+    headerAbsent:!document.querySelector(".reg-header"),
+    backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
+    backAligned:Math.abs(back.right-main.right)<=8,
+    backAbove:nav.bottom<=main.top+2,
+    fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
+    centerDelta:Math.abs((nav.top+main.bottom)/2-footerTop/2),
     brand:{x:brand.x,y:brand.y,w:brand.width,h:brand.height,bottom:brand.bottom},
     form:{x:form.x,y:form.y,w:form.width,h:form.height}};
   });
   assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
+  assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backAbove,
+   "Signup header must be removed and Back link aligned to the card at "+width+": "+JSON.stringify(layout));
+  assert.ok(layout.backText.length>0,"Signup return link is missing at "+width);
+  if(width>=1200&&layout.fits)
+   assert.ok(layout.centerDelta<=22,"Signup group must be vertically centered at "+width+": "+layout.centerDelta);
   if(width>900){
    assert.ok(layout.brand.x<layout.form.x&&Math.abs(layout.brand.y-layout.form.y)<=2,
     "Signup columns must align side-by-side at "+width);

@@ -357,11 +357,6 @@
         "og:image:alt": "Official VATRA app icon"
       },
       "nodes": {
-        "n2": {
-          "attrs": {
-            "aria-label": "VATRA home"
-          }
-        },
         "n4": {
           "text": {
             "0": "Back to sign-in"
@@ -696,6 +691,11 @@
         "n216": {
           "attrs": {
             "aria-label": "Create an account"
+          }
+        },
+        "n217": {
+          "attrs": {
+            "aria-label": "Back to sign in"
           }
         }
       }
@@ -2597,16 +2597,6 @@
         "n100": {
           "text": {
             "0": "VATRA — a Ukrainian social network."
-          }
-        },
-        "n140": {
-          "attrs": {
-            "aria-label": "VATRA home"
-          }
-        },
-        "n141": {
-          "text": {
-            "0": "Your people. Your stories."
           }
         },
         "n142": {

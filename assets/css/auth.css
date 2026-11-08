@@ -26,13 +26,9 @@
 .vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8bb1f6,#8274d7);border:2px solid var(--scroll-track);border-radius:99px}
 .vatra-select-list::-webkit-scrollbar-thumb:hover,.captcha-dialog::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#5b8eeb,#6958d0)}
 
-.site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:clamp(620px,calc(100svh - 205px),750px);flex:1;min-width:0;width:min(calc(100% - 88px),1300px);margin:18px auto 32px;border-radius:28px;box-shadow:0 24px 65px rgba(42,55,102,.11)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.7vw,20px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(28px,3.9vw,64px);background:radial-gradient(circle at 53% 43%,rgba(226,232,255,.77),transparent 56%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
+.site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:clamp(620px,calc(100svh - 160px),750px);flex:none;min-width:0;width:min(calc(100% - 88px),1300px);margin:auto;border-radius:28px;box-shadow:0 24px 65px rgba(42,55,102,.11)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.7vw,20px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(28px,3.9vw,64px);background:radial-gradient(circle at 53% 43%,rgba(226,232,255,.77),transparent 56%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
 
 /* Login experience — aligned with registration, keeping all eight VATRA orbit icons. */
-.login-header{width:min(calc(100% - 88px),1300px);min-height:84px;margin:0 auto;padding:18px 5px 10px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-.login-header-logo{display:inline-flex;align-items:center;flex:none;width:175px;border-radius:8px}
-.login-header-logo img{display:block;width:100%;height:auto}
-.login-header-caption{font-size:12px;font-weight:650;color:#6b7791;letter-spacing:.01em;text-align:right}
 .login-brand-top{position:relative;z-index:2;display:flex;align-items:center;width:100%}
 .login-brand-kicker{color:#677bb1;font-size:10px;font-weight:780;line-height:1.5;letter-spacing:.105em}
 .login-form-overline{display:flex;align-items:center;margin-bottom:17px}
@@ -181,7 +177,7 @@
 .language-option.is-selected .language-option-copy small{color:#2865D8;font-weight:700}
 .language-empty{color:var(--soft);font-size:13px;margin:14px 2px}
 
-.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px clamp(22px,4.5vw,68px);min-height:82px;border-bottom:1px solid #e9edf4;background:#ffffffa6}.reg-header .header-logo{width:165px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100% - 64px,1200px);flex:1;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch;margin:0 auto;padding:35px 0 54px}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.signup-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:18px 0 28px}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;min-height:36px;width:min(100% - 64px,1200px);margin:0 auto 14px;padding:0 3px}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(100% - 64px,1200px);flex:none;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch;margin:0 auto;padding:0}.narrow-form h1{font-size:clamp(31px,3.4vw,44px)}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
 /* Registration captions are always visible; floating captions are reserved for sign-in. */
 /* Registration uses the same motion, controls, typography and focus states
    as sign-in; only the permanent captions above fields are additional. */
@@ -276,6 +272,7 @@
 .signup-form-panel .reg-actions>a{margin-top:2px}
 @media(max-width:900px){
  .register-page .reg-main{display:flex;flex-direction:column;width:min(100% - 40px,650px);gap:0}
+ .reg-back-nav{width:min(100% - 40px,650px)}
  .signup-brand{min-height:0;gap:12px;padding:25px 28px;border-radius:22px 22px 0 0}
  .signup-brand-eyebrow{font-size:10px}
  .signup-brand-art,.signup-brand-highlights{display:none}
@@ -284,7 +281,8 @@
  .signup-form-panel{border:1px solid #e4e9f3;border-top:0;border-radius:0 0 22px 22px;padding:30px clamp(20px,5vw,38px)}
 }
 @media(max-width:540px){
- .register-page .reg-main{width:100%;padding:12px 12px 32px}
+ .register-page .reg-main{width:100%;padding:0 12px}
+ .reg-back-nav{width:calc(100% - 24px);margin-bottom:10px}
  .signup-brand{padding:22px 23px}
  .signup-brand-title{font-size:25px}
  .signup-form-panel{padding:27px 19px 30px}
@@ -374,7 +372,7 @@
 
 /* Узгоджена адаптація всіх наявних сторінок VATRA. */
 @media (min-width:1600px){
-  .reg-main{width:min(100% - 112px,1280px)}
+  .reg-main,.reg-back-nav{width:min(100% - 112px,1280px)}
 }
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px clamp(24px,4vw,76px) 27px}
@@ -401,9 +399,7 @@
   .footer{justify-content:center;gap:12px 22px;text-align:center}
   .footer nav{justify-content:center;gap:4px 17px}
   .footer nav a{display:inline-flex;align-items:center;min-height:38px}
-  .reg-header{min-height:70px;padding:14px 24px}
-  .reg-header .header-logo{width:150px}
-  .reg-main{padding:24px 0 42px}
+  .reg-main{padding:0}
   .center-main{padding:40px 24px}
   .account-main{padding:28px 20px}
   .account-top{padding:17px 24px}
@@ -421,17 +417,12 @@
   .subtitle{margin-bottom:22px}
   .intro-side{padding:25px 18px 30px;gap:16px}
 
-  .login-header{width:calc(100% - 28px);min-height:70px;padding:15px 0 9px}
-  .login-header-logo{width:148px}
-  .login-header-caption{font-size:10px;max-width:115px}
-  .split{width:calc(100% - 24px);margin:10px auto 24px;border-radius:21px}
+  .split{width:calc(100% - 24px);margin:16px auto 24px;border-radius:21px}
   .form-side{border-radius:21px 21px 0 0}
   .intro-side{border-radius:0 0 21px 21px}
   .login-brand-kicker{font-size:9px}
-  .reg-header{padding:13px 18px}
-  .reg-header .header-logo{width:136px}
-  .reg-header .back{font-size:12px}
-  .reg-main{padding:12px 12px 32px}
+  .reg-back-nav .back{font-size:12px}
+  .reg-main{padding:0}
   .narrow-form h1{font-size:clamp(29px,7vw,34px)}
   .form-rows{gap:14px}
   .two{grid-template-columns:1fr;gap:14px}
@@ -446,7 +437,4 @@
   .footer nav{gap:3px 12px}
 }
 
-@media (max-width:360px){
-  .reg-header{gap:8px}
-}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
