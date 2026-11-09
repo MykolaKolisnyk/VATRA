@@ -238,6 +238,7 @@
   "Зачекайте…": "Please wait…",
   "Введіть пошту та пароль.": "Enter your email address and password.",
   "Неправильна електронна пошта або пароль.": "Incorrect email address or password.",
+  "Не вдалося увійти. Перевірте пароль.": "Could not sign in. Check your password.",
   "Підтвердьте електронну пошту за посиланням із листа.": "Confirm your email address using the link in your confirmation message.",
   "Забагато спроб. Спробуйте трохи пізніше.": "Too many attempts. Please try again later.",
   "Акаунт із такою поштою вже може існувати. Спробуйте увійти або відновити пароль.": "An account with that email address may already exist. Try signing in or resetting your password.",

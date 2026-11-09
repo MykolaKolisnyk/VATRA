@@ -725,7 +725,8 @@ function wireRememberedAccount(){
  const remembered=readRememberedAccount();
  const panel=q("#saved-account-panel"),standard=q("#standard-login-panel"),back=q("#saved-switch-back");
  const overview=q("#saved-account-overview"),savedForm=q("#saved-login-form"),content=q("#saved-account-content");
- if(!panel||!standard||!back||!overview||!savedForm||!content)return;
+ const returnButton=q("#saved-account-return");
+ if(!panel||!standard||!back||!overview||!savedForm||!content||!returnButton)return;
  let signedOut=false;
  try{signedOut=sessionStorage.getItem(LOGGED_OUT_KEY)==="1";sessionStorage.removeItem(LOGGED_OUT_KEY);}catch(_){}
  if(signedOut)clearLoginFields();
@@ -753,7 +754,7 @@ function wireRememberedAccount(){
   content.classList.add("is-revealing");
  };
  const showSaved=()=>{
-  clearSaved();savedForm.hidden=true;overview.hidden=false;
+  clearSaved();savedForm.hidden=true;overview.hidden=false;returnButton.hidden=true;
   standard.hidden=true;back.hidden=true;panel.hidden=false;
   document.body.dataset.savedLogin="overview";
   revealSavedContents();
@@ -765,7 +766,7 @@ function wireRememberedAccount(){
   q("#email")?.focus({preventScroll:true});
  };
  q("#saved-account-continue")?.addEventListener("click",()=>{
-  overview.hidden=true;savedForm.hidden=false;
+  overview.hidden=true;savedForm.hidden=false;returnButton.hidden=false;
   document.body.dataset.savedLogin="password";
   revealSavedContents();
   password.focus({preventScroll:true});
@@ -791,7 +792,13 @@ function wireRememberedAccount(){
   }
   busy(savedForm,true);
   try{await authenticatePassword(remembered.email,password.value,savedForm);}
-  catch(error){message.textContent=translate(getMessage(error));message.dataset.type="error";message.hidden=false;}
+  catch(error){
+   const code=String(error?.code||"");
+   const detail=String(error?.message||"").toLowerCase();
+   const invalidPassword=code==="invalid_credentials"||detail.includes("invalid login credentials");
+   message.textContent=translate(invalidPassword?"Не вдалося увійти. Перевірте пароль.":getMessage(error));
+   message.dataset.type="error";message.hidden=false;
+  }
   finally{resetCaptcha(savedForm);busy(savedForm,false);}
  });
  showSaved();
