@@ -517,10 +517,10 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
   .signup-brand-art{height:clamp(215px,18vw,235px)}
   .form-side,.signup-form-panel{padding-block:18px}
 }
-/* Wide but short desktop windows: release unused illustration whitespace,
-   keeping actual logo dimensions, form spacing and page gutters intact. */
+/* On ultrawide but short screens use one shared card floor rather than
+   compressing text or shifting the signup illustration independently. */
 @media (min-width:1800px) and (max-height:850px){
-  .signup-brand-art{height:clamp(215px,22vw,268px)}
+  .split,.reg-main{min-height:700px}
 }
 @media (min-width:1200px) and (max-height:610px){
   /* Краще вертикальне прокручування, ніж приховані картки чи мікроскопічний текст. */
