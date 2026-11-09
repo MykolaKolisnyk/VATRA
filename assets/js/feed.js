@@ -172,6 +172,7 @@
    q("#feed-app").hidden=false;
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
+   document.body.dataset.authReady="true";
    composer.addEventListener("input",updateCounter);
    q("#feed-post-form").addEventListener("submit",createPost);
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
