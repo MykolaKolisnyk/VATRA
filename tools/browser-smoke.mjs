@@ -896,6 +896,9 @@ try{
  // The 404 title must be consistent in the HTML fallback and both languages,
  // including an unknown URL served as the root 404 document.
  const titleContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await titleContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
  for(const [language,expected] of [["uk","404 Сторінку не знайдено · VATRA"],
   ["en","404 Page not found · VATRA"]]){
   const tab=await titleContext.newPage();
