@@ -305,6 +305,72 @@
   "Не вдалося завантажити стрічку. Оновіть сторінку.": "Could not load the feed. Refresh the page.",
   "Не вдалося підключитися до VATRA.": "Could not connect to VATRA.",
   "__pages": {
+    "404": {
+      "meta": {
+        "title": "404 Page not found · VATRA",
+        "description": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
+      },
+      "nodes": {
+        "n4": {
+          "text": {
+            "0": "Back to home"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Page not found"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "Go to homepage"
+          }
+        },
+        "n14": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        },
+        "n15": {
+          "attrs": {
+            "aria-label": "Information"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
+        }
+      }
+    },
     "feed": {
       "meta": {
         "title": "Feed · VATRA",
@@ -500,71 +566,47 @@
           "attrs": {
             "aria-label": "VATRA documents"
           }
-        }
-      }
-    },
-    "404": {
-      "meta": {
-        "title": "404 Page not found · VATRA",
-        "description": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
-      },
-      "nodes": {
-        "n4": {
+        },
+        "n42": {
           "text": {
-            "0": "Back to home"
+            "0": "Search posts"
           }
         },
-        "n8": {
-          "text": {
-            "0": "Page not found"
-          }
-        },
-        "n9": {
-          "text": {
-            "0": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
-          }
-        },
-        "n10": {
-          "text": {
-            "0": "Go to homepage"
-          }
-        },
-        "n14": {
-          "text": {
-            "0": "Your people. Your stories. Your VATRA."
-          }
-        },
-        "n15": {
+        "n43": {
           "attrs": {
-            "aria-label": "Information"
+            "placeholder": "Search posts"
           }
         },
-        "n16": {
+        "n44": {
           "text": {
-            "0": "Terms of Service"
+            "0": "Search"
           }
         },
-        "n17": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "English"
-          },
+        "n45": {
           "attrs": {
-            "aria-label": "Choose language"
+            "aria-label": "Music — coming soon",
+            "title": "Music — coming soon"
           }
         },
-        "n301": {
-          "text": {
-            "0": "Sign in"
+        "n46": {
+          "attrs": {
+            "aria-label": "Notifications — coming soon",
+            "title": "Notifications — coming soon"
           }
         },
-        "n302": {
+        "n47": {
+          "attrs": {
+            "aria-label": "My profile"
+          }
+        },
+        "n48": {
           "text": {
-            "0": "Create account"
+            "0": "My page"
+          }
+        },
+        "n49": {
+          "text": {
+            "0": "Marketplace"
           }
         }
       }
@@ -2790,6 +2832,199 @@
         "n401": {
           "text": {
             "0": "Email address"
+          }
+        }
+      }
+    },
+    "profile": {
+      "meta": {
+        "title": "My page · VATRA",
+        "description": "Your page on VATRA."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Skip to feed"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Search posts"
+          }
+        },
+        "n43": {
+          "attrs": {
+            "placeholder": "Search posts"
+          }
+        },
+        "n44": {
+          "text": {
+            "0": "Search"
+          }
+        },
+        "n45": {
+          "attrs": {
+            "aria-label": "Music — coming soon",
+            "title": "Music — coming soon"
+          }
+        },
+        "n46": {
+          "attrs": {
+            "aria-label": "Notifications — coming soon",
+            "title": "Notifications — coming soon"
+          }
+        },
+        "n47": {
+          "attrs": {
+            "aria-label": "My profile"
+          }
+        },
+        "n48": {
+          "text": {
+            "0": "My page"
+          }
+        },
+        "n31": {
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Sign out"
+          }
+        },
+        "n32": {
+          "attrs": {
+            "aria-label": "VATRA navigation"
+          }
+        },
+        "n2": {
+          "text": {
+            "0": "Feed"
+          }
+        },
+        "n3": {
+          "text": {
+            "0": "My page"
+          }
+        },
+        "n4": {
+          "text": {
+            "0": "Friends"
+          }
+        },
+        "n5": {
+          "text": {
+            "0": "Messenger"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Communities"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Video"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Clips"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Saved"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "Settings"
+          }
+        },
+        "n49": {
+          "text": {
+            "0": "Marketplace"
+          }
+        },
+        "n33": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "My page"
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "My page"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "About me"
+          }
+        },
+        "n52": {
+          "text": {
+            "0": "Your personal page on VATRA. Photos, friends and posts are coming soon."
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Back to Feed"
+          }
+        },
+        "n21": {
+          "text": {
+            "0": "Your space"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Discover stories and stay close to your people."
+          }
+        },
+        "n23": {
+          "text": {
+            "0": "Coming to VATRA"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Friends, communities, clips and video are coming in future updates."
+          }
+        }
+      }
+    },
+    "verify": {
+      "meta": {
+        "title": "Verification · VATRA",
+        "description": "Verify your email address."
+      },
+      "nodes": {
+        "n4": {
+          "text": {
+            "0": "Sign out"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Email verification"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Your account is active. Protect your password and never share verification codes."
+          }
+        },
+        "n13": {
+          "text": {
+            "0": "Go to Feed"
           }
         }
       }
