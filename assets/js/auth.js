@@ -1112,7 +1112,7 @@ function wireForgot(){
    const captchaScope=repeat?step:form;
    const captcha=await captchaOptions(captchaScope);
    const {error}=await auth.auth.resetPasswordForEmail(email,{
-    redirectTo:new URL("reset.html",location.href).href,
+    redirectTo:new URL("reset",location.href).href,
     ...captcha
    });
    if(error)throw error;
