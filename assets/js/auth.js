@@ -73,7 +73,8 @@ function showAccountConfirmationFailure(){
  const note=q(".vt-account-paragraph-03");if(note)note.hidden=true;
  const id=q("#vatra-id");if(id)id.hidden=true;
  const logout=q("#logout");if(logout)logout.hidden=true;
- const link=q(".vt-account-link-03");if(link)link.textContent=english?"Go to sign in":"Перейти до входу";
+ const link=q(".vt-account-link-03");
+ if(link){link.textContent=english?"Go to sign in":"Перейти до входу";link.href=url("./");}
 }
 async function acceptEmailConfirmation(){
  const query=new URLSearchParams(location.search);
