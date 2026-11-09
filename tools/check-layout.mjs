@@ -430,8 +430,7 @@ assert.ok(register.includes('data-register-step="1"')&&register.includes('data-r
  "Two-stage VATRA signup, branding and scoped validation must remain intact");
 assert.ok(css.includes('.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px)')&&
  css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;margin:0 auto;min-width:0;animation:vatraAuthReveal .3s')&&
- css.includes('.signup-step{display:grid;gap:17px;min-width:0}')&&
- !css.includes('.signup-step{display:grid;gap:17px;min-width:0;animation:')&&
+ css.includes('.signup-step{display:grid;gap:17px;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}')&&
  !css.includes('@media(max-width:900px)')&&
  !css.includes('min(100% - 112px,1280px)'),
  "Login and signup must share card dimensions, inner form sizing and full-form animation");
