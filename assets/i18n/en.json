@@ -260,7 +260,7 @@
   "Посилання недійсне або застаріло. Запросіть нове.": "This link is invalid or expired. Request a new one.",
   "Щоб змінити пароль, перейдіть за посиланням із листа. Якщо ви вже увійшли в акаунт, можете змінити пароль тут.": "To change your password, follow the link in the email. If you are signed in, you can change it here.",
   "Посилання вже недійсне. Запросіть новий лист для відновлення.": "This link is no longer valid. Request a new password reset email.",
-  "Пароль оновлено. Тепер можете перейти до свого акаунта.": "Your password has been updated. You can now open your account.",
+  "Пароль оновлено. Увійдіть з новим паролем.": "Your password has been updated. Sign in with your new password.",
   "Сервіс авторизації тимчасово недоступний. Повторіть спробу пізніше.": "The authentication service is temporarily unavailable. Please try again later.",
   "Головна": "Home",
   "Вибрати мову": "Choose language",

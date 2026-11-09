@@ -1217,7 +1217,7 @@ function wireReset(){
    try{await auth.auth.signOut?.({scope:"local"});}catch(_){}
    form.reset();
    form.hidden=true;
-   feedback("Пароль оновлено. Тепер можете перейти до свого акаунта.","success");
+   feedback("Пароль оновлено. Увійдіть з новим паролем.","success");
    const link=q("#account-link");if(link)link.hidden=false;
    const parent=q("#recovery-success-link");if(parent)parent.hidden=false;
    replayAuthContent(q(".forgot-panel-content"));
