@@ -685,7 +685,7 @@ function wireRememberedAccount(){
  if(removeButton){
   const label=english?"Remove saved account":"Вилучити збережений акаунт";
   removeButton.setAttribute("aria-label",label);
-  removeButton.title=label;
+  removeButton.setAttribute("data-vatra-tooltip",label);
  }
  const parts=remembered.name.split(/\s+/).filter(Boolean);
  initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();

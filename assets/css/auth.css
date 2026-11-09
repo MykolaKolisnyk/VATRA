@@ -58,9 +58,22 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .site .saved-switch-back svg{width:17px;height:17px;flex:none}
 .site .saved-account-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;max-width:520px;margin-inline:auto;padding:clamp(22px,3.5vw,35px);border:1px solid #e0e7f4;border-radius:25px;background:white;box-shadow:0 18px 48px rgba(42,55,102,.075);text-align:center;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .site .saved-account-top{display:flex;align-items:center;justify-content:flex-end;width:100%;margin:0 0 14px}
-.site .saved-account-remove{display:grid;place-items:center;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
+.site .saved-account-remove{position:relative;z-index:2;display:grid;place-items:center;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
 .site .saved-account-remove:hover{background:#eef3ff;color:#285fd0}
 .site .saved-account-remove svg{width:21px;height:21px}
+/* The only native title tooltip in the auth UI is replaced by a VATRA hint.
+   The button keeps its real aria-label and the confirmation dialog remains authoritative. */
+.site .saved-account-remove[data-vatra-tooltip]::after{content:attr(data-vatra-tooltip);position:absolute;z-index:3;top:calc(100% + 12px);right:-8px;display:block;width:max-content;max-width:min(240px,calc(100vw - 44px));padding:10px 13px;border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766;box-shadow:0 12px 30px rgba(26,44,92,.14);font-family:"Onest",Inter,system-ui,sans-serif;font-size:12px;font-weight:650;line-height:1.4;letter-spacing:0;text-align:left;white-space:normal;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease,visibility .16s}
+.site .saved-account-remove[data-vatra-tooltip]::before{content:"";position:absolute;z-index:4;top:calc(100% + 7px);right:13px;width:10px;height:10px;border-top:1px solid #d7e2f5;border-left:1px solid #d7e2f5;background:#fff;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(-4px) rotate(45deg);transition:opacity .16s ease,transform .16s ease,visibility .16s}
+@media(hover:hover) and (pointer:fine){
+ .site .saved-account-remove[data-vatra-tooltip]:hover::after{opacity:1;visibility:visible;transform:translateY(0)}
+ .site .saved-account-remove[data-vatra-tooltip]:hover::before{opacity:1;visibility:visible;transform:translateY(0) rotate(45deg)}
+}
+.site .saved-account-remove[data-vatra-tooltip]:focus-visible::after{opacity:1;visibility:visible;transform:translateY(0)}
+.site .saved-account-remove[data-vatra-tooltip]:focus-visible::before{opacity:1;visibility:visible;transform:translateY(0) rotate(45deg)}
+@media(prefers-reduced-motion:reduce){
+ .site .saved-account-remove[data-vatra-tooltip]::before,.site .saved-account-remove[data-vatra-tooltip]::after{transition:none}
+}
 .site .saved-account-avatar{display:grid;place-items:center;width:98px;height:98px;margin:5px 0 18px;border:5px solid #fff;border-radius:50%;background:linear-gradient(130deg,#2d68e4,#7641dc 65%,#ec4fa5);box-shadow:0 0 0 2px #cfddff,0 12px 26px rgba(44,79,176,.16);color:#fff}
 .site .saved-account-avatar span{font-size:36px;font-weight:800;line-height:1;letter-spacing:-.045em}
 .site .saved-account-eyebrow{margin:0 0 9px;color:#5a76b1;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
@@ -421,7 +434,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .center-main .form-note{text-align:center;margin-top:19px}
 /* VATRA password recovery: a centered, single-surface experience for all steps. */
 .center-page[data-page="forgot"]{background:radial-gradient(ellipse 75% 60% at 50% 17%,#edf0ff 0%,#f7f8fe 58%,#fafbff 100%)}
-.ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0 50px;justify-content:center}
+.ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0;justify-content:center}
 .ui-forgot-main-001 .forgot-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;margin:0 0 25px}
 .ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075);animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 /* Match the 520px content column used in the VATRA login and registration forms. */
@@ -450,7 +463,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 /* Move the complete recovery card on first load; animate only new steps afterward. */
 .ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 @media(max-width:540px){
- .ui-forgot-main-001{width:calc(100% - 24px);padding:23px 0 32px}
+ .ui-forgot-main-001{width:calc(100% - 24px);padding:24px 0}
  .ui-forgot-main-001 .forgot-panel-header{margin-bottom:22px}
  .ui-forgot-main-001 .forgot-panel{padding:28px 22px 32px;border-radius:22px}
  .ui-forgot-main-001 .forgot-panel-brand{flex-basis:46px;width:46px;height:46px}
@@ -509,11 +522,11 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 }
 @media (max-width:1199px){
   /* Tall stacked auth cards scroll naturally without phantom header spacing. */
-  .auth-layout{justify-content:flex-start;padding:18px 0 0}
-  .login-layout .split{margin:0 auto 28px}
+  .auth-layout{justify-content:flex-start;padding:24px 0 0}
+  .login-layout .split{margin:0 auto 24px}
   /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
   .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
-  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:0 auto 28px}
+  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:0 auto 24px}
   .register-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
   .signup-brand-art,.signup-brand-highlights{display:none}
