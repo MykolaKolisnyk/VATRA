@@ -310,7 +310,8 @@ try{
  await reopened.locator("#first-name").focus();
  const raised=await reopened.locator("#first-name").evaluate(el=>({
   label:el.closest(".field").querySelector("span:first-child")?.textContent.trim(),
-  float:el.closest(".vatra-input-shell").classList.contains("is-floating"),
+  float:el.closest(".vatra-input-shell").classList.contains("is-floating")||
+   el.closest(".vatra-input-shell").matches(":focus-within"),
   hint:el.closest(".vatra-input-shell").querySelectorAll(".vatra-floating-hint").length,
   text:el.closest(".vatra-input-shell").querySelector(".vatra-floating-hint")?.textContent.trim(),
   placeholder:el.placeholder
@@ -728,7 +729,8 @@ try{
    const error=el.closest(".field").querySelector(".field-error");
    const ir=el.getBoundingClientRect(),hr=hint?.getBoundingClientRect();
    const er=error?.getBoundingClientRect();
-   return {placeholder:el.placeholder,floating:shell?.classList.contains("is-floating"),
+   return {placeholder:el.placeholder,
+    floating:shell?.classList.contains("is-floating")||shell?.matches(":focus-within"),
     hintCount:shell?.querySelectorAll(".vatra-floating-hint").length,
     hintText:hint?.textContent.trim(),hintTop:hr?.top,hintBottom:hr?.bottom,
     inputTop:ir.top,inputBottom:ir.bottom,inputMid:(ir.top+ir.bottom)/2,
@@ -749,7 +751,9 @@ try{
   const error=await metrics();
   assert.ok(error.invalid==="true"&&error.errorText&&
    error.hintCount===1&&error.placeholder===" "&&
-   error.hintBottom<=error.inputTop+24&&error.errorTop>=error.inputBottom+2,
+   (error.floating?error.hintBottom<=error.inputTop+24:
+    Math.abs((error.hintTop+error.hintBottom)/2-error.inputMid)<=3)&&
+   error.errorTop>=error.inputBottom+2,
    "Validation must not overlap a floating hint or the error message: "+route+" "+JSON.stringify(error));
   await probe.waitForTimeout(5800);
   assert.equal(await field.getAttribute("aria-invalid"),null,
@@ -765,6 +769,12 @@ try{
   await field.blur();
   assert.equal(await field.evaluate(el=>el.closest(".vatra-input-shell").classList.contains("is-floating")),true,
    "The floating hint must remain up when a field has a value: "+route);
+  await field.fill("");
+  await field.blur();
+  await probe.waitForTimeout(240);
+  const cleared=await metrics();
+  assert.ok(!cleared.floating&&Math.abs((cleared.hintTop+cleared.hintBottom)/2-cleared.inputMid)<=3,
+   "Cleared field must return its empty hint to the center after blur: "+route+" "+JSON.stringify(cleared));
   await probe.close();
  }
  // Consent error must appear in a separate grid row aligned with the label,
@@ -1167,7 +1177,7 @@ try{
    const hint=shell.querySelector(".vatra-floating-hint");
    const input=el.getBoundingClientRect(),tip=hint.getBoundingClientRect();
    const style=getComputedStyle(el),hintStyle=getComputedStyle(hint);
-   return {floating:shell.classList.contains("is-floating"),font:style.fontFamily,
+   return {floating:shell.classList.contains("is-floating")||shell.matches(":focus-within"),font:style.fontFamily,
     inputSize:parseFloat(style.fontSize),hintFont:hintStyle.fontFamily,
     hintSize:parseFloat(hintStyle.fontSize),hintBottom:tip.bottom,inputTop:input.top};
   });
@@ -1179,6 +1189,17 @@ try{
   await codeField.blur();
   assert.equal(await codeField.evaluate(el=>el.closest(".vatra-input-shell").classList.contains("is-floating")),true,
    "OTP hint must remain raised while the field contains a code");
+  await codeField.fill("");
+  await codeField.blur();
+  await recoveryPage.waitForTimeout(240);
+  const resetCode=await codeField.evaluate(el=>{
+   const shell=el.closest(".vatra-input-shell"),hint=shell.querySelector(".vatra-floating-hint");
+   const ir=el.getBoundingClientRect(),hr=hint.getBoundingClientRect();
+   return {floating:shell.classList.contains("is-floating")||shell.matches(":focus-within"),
+    offset:Math.abs((hr.top+hr.bottom)/2-(ir.top+ir.bottom)/2)};
+  });
+  assert.ok(!resetCode.floating&&resetCode.offset<=3,
+   "Cleared OTP must restore its hint in the center: "+JSON.stringify(resetCode));
   const codeStep=await recoveryPage.locator("#recovery-step").boundingBox();
   assert.ok(codeStep&&codeStep.x>=0&&codeStep.x+codeStep.width<=width+1,
    "OTP stage must remain within the same card at "+width);
@@ -1300,6 +1321,29 @@ try{
  assert.equal(await fullRecovery.locator("#recovery-code-form").isVisible(),false);
  assert.equal(await fullRecovery.locator("#recovery-tools").isVisible(),false);
  assert.equal(await fullRecovery.locator("#recovery-step-heading").textContent(),"Встановіть новий пароль");
+ assert.equal(await fullRecovery.evaluate(()=>document.activeElement?.id),"recovery-step-heading",
+  "Successful OTP must focus the step heading, not an empty password field");
+ for(const id of ["password","password-confirm"]){
+  const control=fullRecovery.locator("#"+id);
+  assert.equal(await control.evaluate(el=>el.closest(".vatra-input-shell").matches(":focus-within")||
+   el.closest(".vatra-input-shell").classList.contains("is-floating")),false,
+   "Password and confirmation hints must initially be centered after OTP: "+id);
+  await control.fill("NewPassword@12345");
+  await control.blur();
+  assert.equal(await control.evaluate(el=>el.closest(".vatra-input-shell").classList.contains("is-floating")),true,
+   "A nonempty password hint must stay raised after blur: "+id);
+  await control.fill("");
+  await control.blur();
+  await fullRecovery.waitForTimeout(240);
+  const hintReset=await control.evaluate(el=>{
+   const shell=el.closest(".vatra-input-shell"),h=shell.querySelector(".vatra-floating-hint");
+   const ir=el.getBoundingClientRect(),hr=h.getBoundingClientRect();
+   return {floating:shell.classList.contains("is-floating")||shell.matches(":focus-within"),
+    centered:Math.abs((hr.top+hr.bottom)/2-(ir.top+ir.bottom)/2)<=3};
+  });
+  assert.ok(!hintReset.floating&&hintReset.centered,
+   "Empty password hint must return to its original position: "+id+" "+JSON.stringify(hintReset));
+ }
  // Client-side policy errors must explain the missing rule, not reject an
  // otherwise matching pair with a generic "passwords do not match" message.
  const policyTip=fullRecovery.locator("#forgot-password-policy");
