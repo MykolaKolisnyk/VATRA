@@ -40,6 +40,25 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+  native-platforms:
+    name: Native OS UI smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium test dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.64.1
+          npx playwright install chromium
+      - name: Test bilingual VATRA pages on native operating system
+        run: node tools/platform-smoke.mjs
+
   scale:
     runs-on: ubuntu-latest
     services:
