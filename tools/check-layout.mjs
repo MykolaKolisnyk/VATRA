@@ -990,3 +990,14 @@ assert.ok(forgot.includes('id="account-link" href="account.html" class="action p
  css.includes('.ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}'),
  "Both recovery paths need identical accessible password fields and full-width success CTA");
+
+/* English dictionaries are asynchronous: no UI reveal may finish while the
+   translated page is hidden. This applies to 404, documents and all auth UIs.
+   The authentication splash itself keeps animating during loading. */
+assert.ok(lang.includes('html.i18n-pending body{visibility:hidden!important}')&&
+ lang.includes('html.i18n-pending body > :not(#vatra-auth-loading)')&&
+ lang.includes('{animation-play-state:paused!important}')&&
+ css.includes('body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading)')&&
+ css.includes('body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}')&&
+ css.includes('@keyframes vatraAuthReveal'),
+ "Entrance animations must pause until English translations and auth readiness, without freezing loading splash");
