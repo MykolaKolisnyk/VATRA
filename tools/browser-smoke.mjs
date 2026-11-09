@@ -1243,10 +1243,14 @@ try{
  });
  await fullRecovery.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
-  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session",user:{id:"verified-mock"}}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{if(data.password==="OldPassword@12345")return {data:{},error:{code:"same_password",message:"New password should be different from the old password"}};window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
+  body:'window.supabase={createClient:(u,k,opts)=>(window.__recoveryAuthOptions=opts.auth,{auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session",user:{id:"verified-mock"}}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{if(data.password==="OldPassword@12345")return {data:{},error:{code:"same_password",message:"New password should be different from the old password"}};window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
  }));
  await fullRecovery.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
  await waitReady(fullRecovery);
+ assert.ok(await fullRecovery.evaluate(()=>{
+  const cfg=window.__recoveryAuthOptions;
+  return cfg?.persistSession===false&&cfg.autoRefreshToken===false&&cfg.detectSessionInUrl===false;
+ }),"Forgot-password requests must not create a persistent VATRA login session");
  await fullRecovery.evaluate(()=>{
   window.__vatraRecoveryReveals=0;
   const content=document.querySelector(".forgot-panel-content");
@@ -1333,6 +1337,8 @@ try{
  await fullRecovery.locator("#account-link").waitFor({state:"visible",timeout:10000});
  await fullRecovery.waitForFunction(()=>window.__vatraRecoveryReveals>=3);
  assert.equal(await fullRecovery.locator("#reset-form").isVisible(),false);
+ assert.equal(await fullRecovery.locator("#account-link").getAttribute("href"),"./",
+  "After changing a password, sign in explicitly; never open account with recovery credentials");
  const successAppearance=await fullRecovery.locator("#account-link").evaluate(node=>{
   const btn=node.getBoundingClientRect(),row=node.closest("#recovery-success-link");
   const parent=node.closest(".forgot-panel-content"),style=getComputedStyle(node);
@@ -1353,10 +1359,14 @@ try{
  const recoveryLink=await context.newPage();
  await recoveryLink.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
-  body:'window.supabase={createClient:()=>({auth:{onAuthStateChange:fn=>{window.__resetRecoveryHandler=fn;return {data:{subscription:{unsubscribe(){}}}}},getUser:async()=>({data:{user:{id:window.__resetRecoveryUserId||"unrelated-user"}},error:null}),updateUser:async data=>{window.__resetPasswordChanged=data.password;return {data:{},error:null}}}})};'
+  body:'window.supabase={createClient:(u,k,opts)=>(window.__resetAuthOptions=opts.auth,{auth:{onAuthStateChange:fn=>{window.__resetRecoveryHandler=fn;return {data:{subscription:{unsubscribe(){}}}}},getUser:async()=>({data:{user:{id:window.__resetRecoveryUserId||"unrelated-user"}},error:null}),updateUser:async data=>{window.__resetPasswordChanged=data.password;return {data:{},error:null}}}})};'
  }));
  await recoveryLink.goto(base+"reset.html?type=recovery",{waitUntil:"domcontentloaded"});
  await waitReady(recoveryLink);
+ assert.ok(await recoveryLink.evaluate(()=>{
+  const cfg=window.__resetAuthOptions;
+  return cfg?.persistSession===false&&cfg.autoRefreshToken===false&&cfg.detectSessionInUrl===true;
+ }),"Reset callback must use an ephemeral recovery session, never a persistent login");
  assert.equal(await recoveryLink.locator("#reset-form").isVisible(),false);
  await recoveryLink.evaluate(()=>window.__resetRecoveryHandler("SIGNED_IN",{user:{id:"unrelated-user"}}));
  assert.equal(await recoveryLink.locator("#reset-form").isVisible(),false,
@@ -1373,6 +1383,7 @@ try{
  await recoveryLink.locator("#reset-form").waitFor({state:"visible"});
  await recoveryLink.locator("#reset-form button[type='submit']").click();
  await recoveryLink.locator("#account-link").waitFor({state:"visible"});
+ assert.equal(await recoveryLink.locator("#account-link").getAttribute("href"),"./");
  assert.equal(await recoveryLink.locator("#recovery-success-link").isVisible(),true,
   "Direct reset success action must not leave an empty hidden container");
  const directButton=await recoveryLink.locator("#account-link").evaluate(node=>{
@@ -1384,6 +1395,45 @@ try{
   "Direct reset must reuse the same prominent success CTA: "+JSON.stringify(directButton));
  assert.equal(await recoveryLink.evaluate(()=>window.__resetPasswordChanged),"NewPassword@12345");
  await recoveryLink.close();
+ // Critical regression: confirming recovery and abandoning the password form
+ // must never sign in on the same device or leave a persistent access token.
+ const abandonContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await abandonContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await abandonContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:`window.supabase={createClient:(url,key,opts)=>{window.__temporaryAuthOptions=opts.auth;
+    return {auth:{
+      getUser:async()=>({data:{user:localStorage.getItem("ci-recovery-session")
+       ?{id:"ci-user",email:"example@example.test",email_confirmed_at:"2026-01-01"}:null},error:null}),
+      verifyOtp:async()=>{if(opts.auth.persistSession)localStorage.setItem("ci-recovery-session","1");
+       return {data:{session:{user:{id:"ci-user"}}},error:null};},
+      onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
+    }};}};`
+ }));
+ try{
+  const abandon=await abandonContext.newPage();
+  await abandon.addInitScript(()=>localStorage.setItem("vatra-language","uk"));
+  await abandon.goto(base+"reset.html",{waitUntil:"domcontentloaded"});
+  await waitReady(abandon);
+  await abandon.locator("#recovery-email").fill("example@example.test");
+  await abandon.locator("#recovery-token").fill("123456");
+  await abandon.locator("#recovery-code-form button[type=submit]").click();
+  await abandon.locator("#reset-form").waitFor({state:"visible"});
+  assert.equal(await abandon.evaluate(()=>localStorage.getItem("ci-recovery-session")),null,
+   "Recovery OTP must not persist an app login session");
+  await abandon.locator(".forgot-panel-header .back").click();
+  await abandon.waitForURL(url=>url.pathname.endsWith("/VATRA/"),{timeout:12000});
+  await waitReady(abandon);
+  assert.equal(await abandon.locator("#login-form").isVisible(),true,
+   "Abandoning password reset must show login instead of opening the account");
+  assert.ok(await abandon.evaluate(()=>{
+   return localStorage.getItem("ci-recovery-session")===null&&
+     window.__temporaryAuthOptions?.persistSession===true;
+  }),"Normal sign-in remains persistent, but abandoned recovery must not grant access");
+  await abandon.close();
+ }finally{await abandonContext.close();}
  const expiredLink=await context.newPage();
  await expiredLink.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
