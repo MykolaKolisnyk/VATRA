@@ -286,8 +286,8 @@ try{
    assert.ok(shell.gap>=27,"Card must keep breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
    if(width>=1200)assert.ok(shell.centerDelta<=2,
     "Auth card must be centered in the available viewport: "+width+" "+route+" "+JSON.stringify(shell));
-   else assert.ok(shell.top>=22&&shell.top<=26&&Math.abs(shell.top-shell.gap)<=2,
-    "Stacked auth card needs equal top/bottom spacing: "+width+" "+route+" "+JSON.stringify(shell));
+   else assert.ok(shell.top>=23&&Math.abs(shell.top-shell.gap)<=2,
+    "Stacked auth card must have equal top/bottom clearance, also when it fits the viewport: "+width+" "+route+" "+JSON.stringify(shell));
    if(!route)assert.ok(!shell.back,"Login must not have a redundant Back link");
    else assert.ok(shell.back,"Signup must retain the Back link");
    await probe.locator("[data-language-trigger]").click();

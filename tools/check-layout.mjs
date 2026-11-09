@@ -597,9 +597,9 @@ assert.ok(landing.includes('id="saved-account-remove"')&&
  css.includes(".site .saved-account-remove[data-vatra-tooltip]:focus-visible::after{"),
  "Saved-account remove help must use the localized VATRA tooltip, not native title");
 assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;")&&
- css.includes(".auth-layout{justify-content:flex-start;padding:24px 0 0}")&&
- css.includes(".login-layout .split{margin:0 auto 24px}")&&
- css.includes(".register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:0 auto 24px}")&&
+ css.includes(".auth-layout{justify-content:flex-start;padding:24px 0}")&&
+ css.includes(".login-layout .split{margin:auto}")&&
+ css.includes(".register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
  css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0;justify-content:center}")&&
  css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:24px 0}"),
  "Auth and recovery layout must have matching top/bottom gutters and shared centering");

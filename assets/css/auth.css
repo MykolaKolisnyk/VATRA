@@ -522,11 +522,11 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 }
 @media (max-width:1199px){
   /* Tall stacked auth cards scroll naturally without phantom header spacing. */
-  .auth-layout{justify-content:flex-start;padding:24px 0 0}
-  .login-layout .split{margin:0 auto 24px}
+  .auth-layout{justify-content:flex-start;padding:24px 0}
+  .login-layout .split{margin:auto}
   /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
   .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
-  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:0 auto 24px}
+  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}
   .register-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
   .signup-brand-art,.signup-brand-highlights{display:none}
