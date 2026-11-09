@@ -113,8 +113,8 @@ for(const name of pages){
  }
 }
 assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
- css.includes('@keyframes vatraLanguageDialog')&&
- css.includes('.language-backdrop,.language-dialog{animation:none!important}')&&
+ css.includes('.language-dialog > :not([hidden]){animation:vatraAuthReveal')&&
+ css.includes('.language-backdrop,.language-dialog > :not([hidden]){animation:none!important}')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand{order:0;')&&
  css.includes('height:52px;border:0;border-radius:0;background:transparent')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
