@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","register","forgot","reset","account","feed","terms","privacy","cookies","offline"];
+const pages=["index","404","register","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const css=await read("assets/css/auth.css");
 const legalCss=await read("assets/css/legal.css");
@@ -507,11 +507,11 @@ assert.ok(auth.includes('const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account"
 // Mobile-friendly email links are verified by the intended action, not the PKCE
 // verifier left behind in the browser that originally requested the email.
 for(const [template,target,type] of [
- ["confirmation.html","account.html","email"],
- ["recovery.html","reset.html","recovery"],
- ["magic-link.html","account.html","magiclink"],
- ["invite.html","account.html","invite"],
- ["email-change.html","account.html","email_change"]
+ ["confirmation.html","verify","email"],
+ ["recovery.html","reset","recovery"],
+ ["magic-link.html","verify","magiclink"],
+ ["invite.html","verify","invite"],
+ ["email-change.html","verify","email_change"]
 ]){
  const source=await read("email-templates/"+template);
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
@@ -551,11 +551,11 @@ assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
  emailNames.map(n=>n+".html").sort(),
  "Email templates must have exactly one canonical HTML per purpose");
 for(const [filename,route,type] of [
- ["confirmation.html","account.html","email"],
- ["invite.html","account.html","invite"],
- ["magic-link.html","account.html","magiclink"],
- ["email-change.html","account.html","email_change"],
- ["recovery.html","reset.html","recovery"]
+ ["confirmation.html","verify","email"],
+ ["invite.html","verify","invite"],
+ ["magic-link.html","verify","magiclink"],
+ ["email-change.html","verify","email_change"],
+ ["recovery.html","reset","recovery"]
 ]){
  const source=await read("email-templates/"+filename);
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
@@ -589,7 +589,7 @@ assert.ok(formStart>=0&&innerStart>formStart&&
  !css.includes('.login-layout::before,.signup-layout::before{'),
  "Signup return link must be inside the right card with centered auth layout");
 // Native title tooltips use the browser theme and cannot match VATRA styling.
-for(const page of ["index","register","forgot","reset","account","404","offline","terms","privacy","cookies"]){
+for(const page of ["index","register","forgot","reset","verify","404","offline","terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!/<(?:button|a)\b[^>]*\btitle\s*=/i.test(html),
   page+": browser-native hover text must not be added to interactive elements");
@@ -630,7 +630,7 @@ assert.ok(css.includes('.back:hover,.back:focus-visible{transform:translateX(-2p
 assert.ok(forgot.includes('class="forgot-panel-content ui-forgot-panel-content-001"')&&
  reset.includes('class="forgot-panel-content ui-reset-panel-content-001"'),
  "Both recovery views must group animated content within a static card");
-const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
+const loadingPages=["index.html","register.html","forgot.html","reset.html","verify.html"];
 for(const file of loadingPages){
  const html=await read(file);
  assert.ok(html.includes('id="vatra-auth-loading"')&&
@@ -685,12 +685,10 @@ assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger
 // All public pages use the same footer structure; the full-width background
 // remains separate from the centered content. Documents have a working
 // single-row header independent of the former signup header styles.
-const footerNames=pages.filter(p=>p!=="offline"&&p!=="feed");
-// Feed has a dedicated authenticated-app footer while legal/auth pages share the existing shell.
-const feedFooter=await read("feed.html");
-assert.ok(feedFooter.includes('class="feed-footer-inner ui-feed-footer-inner-001"')&&
- feedFooter.includes('href="terms.html"')&&feedFooter.includes('href="privacy.html"')&&
- feedFooter.includes('href="cookies.html"'),"Feed footer must keep links to all legal documents");
+const footerNames=pages.filter(p=>!["offline","feed","profile","verify"].includes(p));
+const feedFooter=await read("feed.html"),profileMarkup=await read("profile.html");
+assert.ok(!feedFooter.includes("<footer")&&!profileMarkup.includes("<footer"),
+ "Signed-in VATRA must not show the guest-site footer");
 for(const page of footerNames){
  const html=await read(page+".html");
  const tag=page==="index"?"home":page;
@@ -704,9 +702,9 @@ for(const page of ["terms","privacy","cookies"]){
   html.includes("assets/css/legal.css"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
-for(const page of ["account","404"]){
- const html=await read(page+".html");
- assert.ok(html.includes('class="account-top-inner ui-'+page+'-header-inner-001"'),
+for(const page of ["verify","404"]){
+ const html=await read(page+".html"),prefix=page==="verify"?"account":page;
+ assert.ok(html.includes('class="account-top-inner ui-'+prefix+'-header-inner-001"'),
   page+": account-style header must align with the shared footer");
 }
 assert.ok(legalCss.includes(".policy-page .policy-top{display:flex;align-items:center;")&&
@@ -728,7 +726,7 @@ assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
-for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
  html.includes('data-i18n="n302">Створити акаунт</a>')&&
@@ -773,7 +771,7 @@ assert.ok(!legalCss.includes(".policy-cards")&&
  !legalCss.includes(".policy-summary")&&!legalCss.includes(".policy-end")&&
  !css.includes(".footer-doc-icon{"),
  "Deleted document overview must leave no orphan card styles");
-for(const page of ["index","register","forgot","reset","account","404"]){
+for(const page of ["index","register","forgot","reset","verify","404"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('footer-doc-icon'),
  "Document icons must not appear in footer: "+page);
@@ -782,7 +780,7 @@ assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&
  uk.__pages.register.nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
  !register.includes('href="./" class="vt-register-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
-for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
   uk.__pages[page].nodes.n301.text["0"]==="Увійти",
@@ -890,7 +888,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
  !feedScript.includes("innerHTML")&&
- auth.includes('window.location.replace(url("feed.html"))'),
+ auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must have a safe responsive text-composer, UK title and verified-home navigation");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
@@ -930,8 +928,8 @@ assert.ok((await read("privacy.html")).includes("Електронна пошта
  "Privacy policy must actually explain registration email and gender");
 assert.ok(!(await read("privacy.html")).includes("Самостійне видалення акаунта зараз"),
  "Privacy page must give the actual contact process instead of placeholder UI");
-assert.ok(!(await read("account.html")).includes("Персональні розділи стануть доступними"),
- "Account page must not advertise future sections");
+await assert.rejects(stat("account.html"),{code:"ENOENT"},
+ "Retired account.html must be deleted; profile and verify replace its responsibilities");
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
 assert.ok(errorPage.includes('href="/VATRA/"')&&errorPage.includes('src="/VATRA/assets/logo/vatra-logo.svg"'),
  "GitHub Pages 404 must work at nested missing URLs");
