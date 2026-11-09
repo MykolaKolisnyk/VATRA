@@ -791,10 +791,18 @@ try{
       logoMid:logo?(logo.top+logo.bottom)/2:0,
       actionMid:actions?(actions.top+actions.bottom)/2:0,
       headerHeight:header?.height,footerWidth:pageFoot?.width,
+      policyPaddingTop:parseFloat(getComputedStyle(document.querySelector(".policy-main")).paddingTop),
+      policyPaddingBottom:parseFloat(getComputedStyle(document.querySelector(".policy-main")).paddingBottom),
+      visibleDocumentGap:pageFoot?.top-document.querySelector(".policy-copy").getBoundingClientRect().bottom,
       tabCount:document.querySelectorAll(".policy-tabs a").length,
       linksCount:document.querySelectorAll(".footer nav a").length};
    });
    assert.ok(sizes.exists,"Policy header or footer missing at "+width+" "+route);
+   const expectedGap=width<=1024?24:28;
+   assert.ok(Math.abs(sizes.policyPaddingTop-expectedGap)<1&&
+    Math.abs(sizes.policyPaddingBottom-expectedGap)<1&&
+    sizes.visibleDocumentGap>=expectedGap-1,
+    "VATRA document spacing must match the shared auth gutters at "+width+" "+route+": "+JSON.stringify(sizes));
    assert.ok(sizes.overflow<=3,"Document horizontal overflow at "+width+" "+route+": "+JSON.stringify(sizes));
    assert.ok(Math.abs(sizes.mainLeft-sizes.footLeft)<=2&&Math.abs(sizes.mainRight-sizes.footRight)<=2,
     "Document footer is not aligned with content at "+width+" "+route+": "+JSON.stringify(sizes));

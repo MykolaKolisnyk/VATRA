@@ -99,7 +99,7 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
  css.includes('.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}')&&
  css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
- legalCss.includes('padding:34px 0 34px;flex:1')&&
+ legalCss.includes('padding:28px 0 28px;flex:1')&&
  (await read("404.html")).includes('href="/VATRA/cookies.html"'),
  "All VATRA page footers, document navigation and full-panel motion should match");
 // Every visible element has a class and its own page class in addition to reusable components.
@@ -924,3 +924,9 @@ assert.ok(landing.includes('id="saved-account-content" class="saved-account-cont
  css.includes('.signup-form-head{margin-bottom:25px}')&&
  css.includes('margin-bottom:26px}'),
  "Saved account must reveal its whole contents; signup must keep its intended spacing");
+
+// Policy pages use the same edge-to-footer spacing as VATRA auth views.
+assert.ok(legalCss.includes('.policy-main{padding:24px 0 24px}')&&
+ !legalCss.includes('.policy-main{padding:25px 0 48px}')&&
+ !legalCss.includes('padding:34px 0 34px;flex:1'),
+ "Policy documents must share desktop/mobile section spacing with auth pages");
