@@ -92,6 +92,15 @@ assert.ok(css.includes('.password-policy-note{margin:-2px 0 2px;color:var(--soft
  css.includes('.register-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}')&&
  css.includes('.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,'),
  "Shared password typography and reduced-motion-aware transitions");
+assert.ok((await read("forgot.html")).match(/<section(?:\\s|>)/g)?.length===
+ (await read("forgot.html")).match(/<\\/section>/g)?.length,
+ "Forgot password must have properly balanced section elements");
+assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}')&&
+ css.includes('.auth-footer-content>span{font-size:12px;line-height:1.55}')&&
+ css.includes('.language-trigger{display:inline-flex;')&&
+ legalCss.includes('flex:1;animation:vatraAuthReveal .3s')&&
+ (await read("404.html")).includes('href="/VATRA/cookies.html"'),
+ "All VATRA page footers, document navigation and full-panel motion should match");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
 assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
  errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),
@@ -622,8 +631,10 @@ assert.ok(
  reset.includes('src="assets/logo/vatra-symbol.svg"')&&
  !reset.includes('class="header-logo vt-reset-link-02"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
- css.includes('.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step):not([hidden]){animation:vatraAuthReveal .3s')&&
- css.includes('.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step){animation:none!important}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
+ css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075);animation:vatraAuthReveal .3s')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]){animation:vatraAuthReveal .3s')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}')&&
  auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
  "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&

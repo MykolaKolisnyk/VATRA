@@ -157,16 +157,16 @@
 .login-description,.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}.login-description{margin:0 0 34px}
 .or{display:flex;align-items:center;gap:16px;color:#627187;font-size:12px;margin:29px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:#e5eaf0}.form-note{font-size:12px;line-height:1.7;color:#627187;text-align:center;margin:23px 0 0}.response{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin:0 0 19px;border:1px solid #c9defe;background:#f2f7ff;color:#174b9b}.response[data-type=error]{border-color:#efccd2;background:#fff3f5;color:#a32a40}.response[data-type=success]{border-color:#c6e8dd;background:#f1fbf7;color:#176b50}
 .network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
-.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:12px;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px}.footer nav>a{display:inline-flex;align-items:center;min-height:40px}.footer nav>a[href="register.html"]{min-height:36px;padding:7px 13px;border:1px solid #c7d6fb;border-radius:12px;background:#f6f9ff;color:#245fd4;font-weight:750;white-space:nowrap}.footer nav>a[href="register.html"]:hover{background:#eaf1ff;border-color:#94b2f4;text-decoration:none}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
+.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer nav>a[href="register.html"]{min-height:36px;padding:7px 13px;border:1px solid #c7d6fb;border-radius:12px;background:#f6f9ff;color:#245fd4;font-weight:750;white-space:nowrap}.footer nav>a[href="register.html"]:hover{background:#eaf1ff;border-color:#94b2f4;text-decoration:none}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
 .site .footer,.register-page .footer{padding-inline:0}
-.auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}
+.auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:12px;line-height:1.55}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .register-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .center-page .footer,.account-page .footer{padding-inline:0}
 .center-page .auth-footer-content,.account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
 /* Єдиний вибір мови VATRA: одне джерело стилів для всіх сторінок. */
-.language-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:7px 9px;color:#64728b;background:transparent;border:1px solid transparent;border-radius:10px;font-size:12px;font-weight:650;cursor:pointer;white-space:nowrap}
+.language-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:7px 9px;color:#64728b;background:transparent;border:1px solid transparent;border-radius:10px;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}
 .language-trigger:hover,.language-trigger:focus-visible{color:var(--blue);border-color:#dce6fc;background:#f4f7fe}
 .language-trigger .language-flag{width:24px;height:18px;flex:none;box-shadow:0 0 0 1px rgba(44,57,86,.13);border-radius:4px;overflow:hidden;shape-rendering:geometricPrecision}
 .language-chevron{display:block;width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;color:#627187;margin-left:1px;shape-rendering:geometricPrecision}
@@ -322,7 +322,7 @@
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step){animation:none!important}.signup-progress-segment{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}.signup-progress-segment{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
@@ -372,13 +372,13 @@
 .center-page[data-page="forgot"]{background:radial-gradient(ellipse 75% 60% at 50% 17%,#edf0ff 0%,#f7f8fe 58%,#fafbff 100%)}
 .ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0 50px;justify-content:center}
 .ui-forgot-main-001 .forgot-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;margin:0 0 25px}
-.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075)}
+.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075);animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 /* Match the 520px content column used in the VATRA login and registration forms. */
 .ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
-.ui-forgot-main-001 .forgot-panel-header .back{order:0;align-self:center;min-height:32px;margin:0;transition:color .18s ease,transform .18s ease}
-.ui-forgot-main-001 .forgot-panel-header .back:hover{transform:translateX(-2px)}
-.ui-forgot-main-001 .forgot-panel-brand{display:flex;align-items:center;justify-content:center;flex:0 0 52px;width:52px;height:52px;border-radius:12px;transition:background .18s ease}
-.ui-forgot-main-001 .forgot-panel-brand:hover,.ui-forgot-main-001 .forgot-panel-brand:focus-visible{background:#eef3ff}
+.ui-forgot-main-001 .forgot-panel-header .back{order:0;align-self:center;min-height:40px;margin:0;padding:8px 12px;border:1px solid #dce5f4;border-radius:11px;background:#f7f9fe;color:#485b7c;font-size:13px;line-height:1.35;transition:color .18s ease,background-color .18s ease,border-color .18s ease,transform .18s ease}
+.ui-forgot-main-001 .forgot-panel-header .back:hover{transform:translateX(-2px);background:#edf3ff;border-color:#b9cdf4;color:var(--blue);text-decoration:none}
+.ui-forgot-main-001 .forgot-panel-brand{display:flex;align-items:center;justify-content:center;flex:0 0 52px;width:52px;height:52px;border:1px solid #dce5f4;border-radius:12px;background:#f7f9fe;transition:background .18s ease,border-color .18s ease}
+.ui-forgot-main-001 .forgot-panel-brand:hover,.ui-forgot-main-001 .forgot-panel-brand:focus-visible{background:#eef3ff;border-color:#b9cdf4}
 .ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;height:auto;max-height:44px}
 .ui-forgot-main-001 :is(.forgot-intro,.reset-intro){margin:0 0 26px}
 .ui-forgot-main-001 :is(.forgot-intro,.reset-intro) h1{margin:0 0 14px;color:var(--ink);font-size:clamp(33px,4vw,41px);font-weight:750;letter-spacing:-.045em;line-height:1.16}
@@ -396,8 +396,8 @@
 .ui-forgot-main-001 .forgot-panel .recovery-step-title{font-size:clamp(26px,3vw,31px);font-weight:745;letter-spacing:-.035em;line-height:1.2}
 .ui-forgot-main-001 .forgot-panel .recovery-step-caption{font-size:14px;line-height:1.6}
 .ui-forgot-main-001 .forgot-panel .recovery-help{font-size:13px;line-height:1.6}
-/* One entrance motion for the email, code and password stages, shared with the auth forms. */
-.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step):not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+/* Move the complete recovery card on first load; animate only new steps afterward. */
+.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 @media(max-width:540px){
  .ui-forgot-main-001{width:calc(100% - 24px);padding:23px 0 32px}
  .ui-forgot-main-001 .forgot-panel-header{margin-bottom:22px}
@@ -424,7 +424,7 @@
 .center-main .recovery-step .form-note{margin:0}
 @media(max-width:540px){.center-main .recovery-step{border-radius:16px;padding:19px 16px}.center-main .recovery-tools{gap:4px 12px}.center-main .recovery-step-title{font-size:21px}}
 .center-card{border:1px solid #e7ebf3;border-radius:22px;padding:35px;background:#fff;box-shadow:var(--shadow)}.center-card .header-logo{margin-bottom:27px}.account-page{min-height:100dvh;display:flex;flex-direction:column;background:#f7f9fd}.account-top{display:flex;align-items:center;padding:24px 0;border-bottom:1px solid var(--line);background:white}
-.account-top-inner{width:min(calc(100% - 88px),1300px);display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 auto;min-width:0}.account-top .header-logo{width:165px}.account-main{flex:1;display:grid;place-items:center;padding:35px 20px}.account-card{width:min(100%,520px);padding:45px 35px;border-radius:24px;border:1px solid #e7ebf3;background:white;text-align:center;box-shadow:var(--shadow)}.account-card>img{width:95px;margin:0 auto 18px}.account-card h1{margin:0;font-size:30px;letter-spacing:-.045em}.account-card p{line-height:1.7;color:var(--soft);font-size:14px;overflow-wrap:anywhere}.account-card .action{margin-top:14px}.account-card .vatra-id{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:10px 0 6px;padding:9px 16px;border:1px solid #d9e5ff;border-radius:999px;background:#eff5ff;color:#2865D8;font-size:14px;font-weight:740;letter-spacing:.01em}/* VATRA 404: errors only, never a profile page. */
+.account-top-inner{width:min(calc(100% - 88px),1300px);display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 auto;min-width:0}.account-top .header-logo{width:165px}.account-main{flex:1;display:grid;place-items:center;padding:35px 20px}.account-card{width:min(100%,520px);padding:45px 35px;border-radius:24px;border:1px solid #e7ebf3;background:white;text-align:center;box-shadow:var(--shadow);animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}.account-card>img{width:95px;margin:0 auto 18px}.account-card h1{margin:0;font-size:30px;letter-spacing:-.045em}.account-card p{line-height:1.7;color:var(--soft);font-size:14px;overflow-wrap:anywhere}.account-card .action{margin-top:14px}.account-card .vatra-id{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:10px 0 6px;padding:9px 16px;border:1px solid #d9e5ff;border-radius:999px;background:#eff5ff;color:#2865D8;font-size:14px;font-weight:740;letter-spacing:.01em}/* VATRA 404: errors only, never a profile page. */
 .error-page{background:radial-gradient(ellipse at 50% 38%,#eef2ff 0%,#f8faff 44%,#f7f9fd 80%);color:var(--ink)}
 .error-main{padding:clamp(30px,7vw,76px) 18px}
 .error-home-link{display:inline-flex;justify-content:center;align-items:center;gap:9px;min-height:43px;padding:10px 20px;border:1px solid #2865d8;border-radius:999px;background:#2865d8;box-shadow:0 8px 20px rgba(40,101,216,.18);color:#fff;font-size:13px;font-weight:700;line-height:1.35;text-decoration:none;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
@@ -432,7 +432,7 @@
 .error-home-link:hover{background:#1d51b9;box-shadow:0 11px 26px rgba(40,101,216,.26);color:#fff;text-decoration:none}
 .error-home-link:active{transform:translateY(1px)}
 .error-home-link:focus-visible{outline:3px solid rgba(40,101,216,.4);outline-offset:3px}
-.error-card{width:min(100%,590px);padding:clamp(28px,6vw,55px) clamp(22px,5vw,50px);border:1px solid #e1e9f6;border-radius:27px;box-shadow:0 24px 60px rgba(42,57,105,.075)}
+.error-card{width:min(100%,590px);padding:clamp(28px,6vw,55px) clamp(22px,5vw,50px);border:1px solid #e1e9f6;border-radius:27px;box-shadow:0 24px 60px rgba(42,57,105,.075);animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .error-code{display:block;font-size:clamp(74px,15vw,112px);font-weight:750;line-height:1;letter-spacing:-.075em;color:#36436e;background:linear-gradient(115deg,#265fd6 6%,#7431d8 56%,#ed439c 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 19px}
 .error-card .error-heading{margin:0;font-size:clamp(25px,4vw,35px);line-height:1.24;letter-spacing:-.025em;font-weight:710;text-wrap:balance}
 .error-card .error-description{font-size:clamp(14px,2.5vw,15px);line-height:1.75;color:var(--soft);margin:15px auto 24px;max-width:435px}

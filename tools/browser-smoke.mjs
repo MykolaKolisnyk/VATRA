@@ -558,6 +558,36 @@ try{
    assert.equal(links.length,2,"Legal page footer must not repeat its document tabs");
   await probe.close();
  }
+ // Page-to-page footer typography: legal links and language controls use
+ // one readable Onest scale, while copyright remains visually secondary.
+ for(const route of ["","register.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
+  const probe=await context.newPage();
+  await probe.setViewportSize({width:390,height:844});
+  await probe.goto(base+route,{waitUntil:"domcontentloaded"});
+  await waitReady(probe);
+  const footerTypography=await probe.evaluate(()=>{
+   const copyright=document.querySelector(".auth-footer-content>span");
+   const nav=document.querySelector(".footer nav");
+   const link=nav.querySelector("a");
+   const language=nav.querySelector(".language-trigger");
+   const info=e=>({font:getComputedStyle(e).fontFamily,size:parseFloat(getComputedStyle(e).fontSize)});
+   return {copy:info(copyright),nav:info(nav),link:info(link),language:info(language),
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  assert.ok(footerTypography.overflow<=3&&
+   Object.values(footerTypography).filter(x=>x&&x.font).every(x=>x.font.includes("Onest"))&&
+   footerTypography.copy.size===12&&footerTypography.nav.size===13&&
+   footerTypography.link.size===13&&footerTypography.language.size===13,
+   "Shared footer typography mismatch on "+route+": "+JSON.stringify(footerTypography));
+  if(route==="404.html")
+   assert.equal(await probe.locator('.footer nav a[href="/VATRA/cookies.html"]').count(),1,
+    "The 404 page must link to the same three public documents");
+  if(["terms.html","privacy.html","cookies.html"].includes(route)){
+   const legalMotion=await probe.locator(".policy-main").evaluate(e=>getComputedStyle(e).animationName);
+   assert.ok(legalMotion.includes("vatraAuthReveal"));
+  }
+  await probe.close();
+ }
  console.log("VATRA guest footer links and account creation labels: OK");
 
 
@@ -688,6 +718,25 @@ try{
    Math.abs(metrics.formWidth-metrics.introWidth)<=1.5&&
    (width<768||Math.abs(metrics.formWidth-520)<=1),
    "Recovery form must use the same centered 520px content column as login and registration: "+JSON.stringify(metrics));
+  // One reveal belongs to the full card, including the top back control,
+  // V mark, heading, fields and explanatory note — not to separate fragments.
+  const motion=await recoveryPage.evaluate(()=>{
+   const panel=document.querySelector(".forgot-panel"),intro=document.querySelector(".forgot-intro"),
+    header=document.querySelector(".forgot-panel-header"),form=document.querySelector("#forgot-form"),
+    note=document.querySelector("#recovery-note"),back=document.querySelector(".forgot-panel-header .back"),
+    brand=document.querySelector(".forgot-panel-brand");
+   const style=node=>getComputedStyle(node);
+   return {card:style(panel).animationName,intro:style(intro).animationName,
+    form:style(form).animationName,note:style(note).animationName,
+    header:style(header).animationName,
+    back:style(back).fontFamily,backSize:parseFloat(style(back).fontSize),
+    brandBorder:style(brand).borderStyle,
+    cardFont:style(panel).fontFamily};
+  });
+  assert.ok(motion.card.includes("vatraAuthReveal")&&
+   ["intro","form","note","header"].every(part=>motion[part]==="none")&&
+   motion.back.includes("Onest")&&motion.backSize===13&&motion.brandBorder==="solid",
+   "Recovery must animate the entire card once, including visible navigation: "+JSON.stringify(motion));
   const alignment=await recoveryPage.evaluate(()=>{
    const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
    const back=document.querySelector(".forgot-panel-header .back").getBoundingClientRect();
@@ -954,6 +1003,17 @@ try{
   await resetVisual.goto(base+"reset.html",{waitUntil:"domcontentloaded"});
   await waitReady(resetVisual);
   await resetVisual.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  const resetMotion=await resetVisual.evaluate(()=>({
+    card:getComputedStyle(document.querySelector(".reset-panel")).animationName,
+    intro:getComputedStyle(document.querySelector(".reset-intro")).animationName,
+    form:getComputedStyle(document.querySelector("#recovery-code-form")).animationName,
+    logo:getComputedStyle(document.querySelector(".reset-panel-brand")).borderStyle,
+    back:getComputedStyle(document.querySelector(".reset-panel-header .back")).fontFamily
+  }));
+  assert.ok(resetMotion.card.includes("vatraAuthReveal")&&
+   resetMotion.intro==="none"&&resetMotion.form==="none"&&
+   resetMotion.logo==="solid"&&resetMotion.back.includes("Onest"),
+   "Direct reset must animate its whole card, retain back button and brand");
   const panel=resetVisual.locator(".reset-panel");
   const panelBounds=await panel.boundingBox();
   const codeBounds=await resetVisual.locator("#recovery-code-form").boundingBox();
