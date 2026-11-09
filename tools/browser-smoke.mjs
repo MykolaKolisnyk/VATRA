@@ -1337,8 +1337,8 @@ try{
  await fullRecovery.locator("#account-link").waitFor({state:"visible",timeout:10000});
  await fullRecovery.waitForFunction(()=>window.__vatraRecoveryReveals>=3);
  assert.equal(await fullRecovery.locator("#reset-form").isVisible(),false);
- assert.equal(await fullRecovery.locator("#account-link").getAttribute("href"),"./",
-  "After changing a password, sign in explicitly; never open account with recovery credentials");
+ assert.equal(new URL(await fullRecovery.locator("#account-link").getAttribute("href"),base).pathname,
+  new URL(base).pathname,"After changing a password, sign in explicitly; never open account with recovery credentials");
  const successAppearance=await fullRecovery.locator("#account-link").evaluate(node=>{
   const btn=node.getBoundingClientRect(),row=node.closest("#recovery-success-link");
   const parent=node.closest(".forgot-panel-content"),style=getComputedStyle(node);
@@ -1383,7 +1383,7 @@ try{
  await recoveryLink.locator("#reset-form").waitFor({state:"visible"});
  await recoveryLink.locator("#reset-form button[type='submit']").click();
  await recoveryLink.locator("#account-link").waitFor({state:"visible"});
- assert.equal(await recoveryLink.locator("#account-link").getAttribute("href"),"./");
+ assert.equal(new URL(await recoveryLink.locator("#account-link").getAttribute("href"),base).pathname,new URL(base).pathname);
  assert.equal(await recoveryLink.locator("#recovery-success-link").isVisible(),true,
   "Direct reset success action must not leave an empty hidden container");
  const directButton=await recoveryLink.locator("#account-link").evaluate(node=>{
