@@ -989,7 +989,7 @@ function restoreSignupConfirmation(){
   try{
    const captcha=await captchaOptions(screen);
    const {error}=await auth.auth.resend({type:"signup",email:signupPending.email,
-    options:{...captcha,emailRedirectTo:new URL("account.html",location.href).href}});
+    options:{...captcha,emailRedirectTo:new URL("verify",location.href).href}});
    if(error)throw error;
    const now=Date.now();signupPending.sentAt=now;signupPending.nextAllowedAt=now+SIGNUP_RESEND_COOLDOWN_MS;
    saveSignupPending();showSignupMessage("Лист надіслано повторно. Перевірте пошту.");
@@ -1033,7 +1033,7 @@ function wireRegister(){
     email,password,
     options:{
      ...captcha,
-     emailRedirectTo:new URL("account.html",location.href).href,
+     emailRedirectTo:new URL("verify",location.href).href,
      data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null,preferred_locale:english?"en":"uk"}
     }
    });
