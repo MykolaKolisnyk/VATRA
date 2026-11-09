@@ -1317,6 +1317,127 @@ try{
  await warnPage.evaluate(()=>console.warn("VATRA audit: actionable warning"));
  await warnPage.locator(".vatra-error-toast").waitFor({state:"visible"});
  await warnPage.close();
+
+ // Saved-account state is an optional display-only local choice. It must
+ // never keep the password or bypass a fresh Supabase password + CAPTCHA check.
+ const savedContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await savedContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await savedContext.route("**/assets/js/captcha.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.VATRA_CAPTCHA={enabled:true,token:async()=>"fake-captcha",reset:async()=>{}};'
+ }));
+ await savedContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:`window.supabase={createClient:()=>({
+   auth:{
+    getUser:async()=>({data:{user:sessionStorage.getItem("mockLoggedIn")==="1"?{
+     id:"saved-user",email:"example@vatra.test",email_confirmed_at:"2026-11-09T00:00:00Z",
+     user_metadata:{first_name:"Тест",last_name:"Акаунт"}}:null},error:null}),
+    signInWithPassword:async({email,password})=>{
+     sessionStorage.setItem("mockAttemptEmail",email);
+     if(password!=="CorrectPass@123")return {data:{user:null},error:{code:"invalid_credentials"}};
+     sessionStorage.setItem("mockLoggedIn","1");
+     return {data:{user:{id:"saved-user",email,email_confirmed_at:"2026-11-09T00:00:00Z",
+      user_metadata:{first_name:"Тест",last_name:"Акаунт"}}},error:null};
+    },
+    signOut:async()=>{sessionStorage.removeItem("mockLoggedIn");return {error:null};}
+   },
+   from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:112233},error:null})})})})
+  })};`
+ }));
+ const savedPage=await savedContext.newPage();
+ await savedPage.goto(base,{waitUntil:"domcontentloaded"});
+ await waitReady(savedPage);
+ assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),false);
+ assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),false,
+  "Normal login must never show a return-to-saved-account button");
+ await savedPage.locator("#email").fill("example@vatra.test");
+ await savedPage.locator("#password").fill("CorrectPass@123");
+ await savedPage.locator('#login-form button[type="submit"]').click();
+ await savedPage.waitForURL("**/account.html");
+ await waitReady(savedPage);
+ const savedData=await savedPage.evaluate(()=>localStorage.getItem("vatra-remembered-account"));
+ assert.ok(savedData&&JSON.parse(savedData).email==="example@vatra.test"&&
+  !savedData.includes("CorrectPass@123")&&!savedData.includes("token"),
+  "Remembered account must store only name and email after real verified sign-in");
+ await savedPage.locator("#logout").click();
+ await savedPage.waitForURL(base);
+ await waitReady(savedPage);
+ assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
+ assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
+ assert.equal(await savedPage.locator("#password").inputValue(),"");
+ await savedPage.locator("#saved-account-other").click();
+ assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),true);
+ assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),true);
+ assert.equal(await savedPage.locator("#email").inputValue(),"");
+ assert.equal(await savedPage.locator("#password").inputValue(),"");
+ await savedPage.locator("#saved-switch-back").click();
+ assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
+ await savedPage.locator("#saved-account-continue").click();
+ await savedPage.locator("#saved-password").fill("WrongPass@123");
+ await savedPage.locator('#saved-login-form button[type="submit"]').click();
+ assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");
+ await savedPage.locator("#saved-account-response").waitFor({state:"visible"});
+ assert.ok((await savedPage.locator("#saved-account-response").textContent()).length>0);
+ await savedPage.locator("#saved-password").fill("CorrectPass@123");
+ await savedPage.locator('#saved-login-form button[type="submit"]').click();
+ await savedPage.waitForURL("**/account.html");
+ await waitReady(savedPage);
+ await savedPage.locator("#logout").click();
+ await savedPage.waitForURL(base);
+ await waitReady(savedPage);
+ await savedPage.locator("#saved-account-remove").click();
+ assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),true);
+ await savedPage.locator("#saved-remove-confirm").click();
+ assert.equal(await savedPage.evaluate(()=>localStorage.getItem("vatra-remembered-account")),null);
+ assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),true);
+ assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),false);
+ await savedPage.close();
+ await savedContext.close();
+ console.log("VATRA remembered account: return, alternate login, password check, removal and logout: OK");
+
+ // A cross-device confirmation must not depend on the PKCE state of the
+ // browser where registration started. It also must not leak the token in URL.
+ const phoneContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block",
+  viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ await phoneContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await phoneContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:`window.supabase={createClient:()=>({
+   auth:{
+    verifyOtp:async({token_hash,type})=>{
+     sessionStorage.setItem("verifiedTokenType",type);
+     if(token_hash!=="valid-other-device-token")return {data:{},error:{code:"otp_expired"}};
+     sessionStorage.setItem("emailVerified","1");
+     return {data:{user:{id:"mobile-user"}},error:null};
+    },
+    getUser:async()=>({data:{user:sessionStorage.getItem("emailVerified")==="1"?{
+     id:"mobile-user",email:"mobile@vatra.test",email_confirmed_at:"2026-11-09T00:00:00Z",
+     user_metadata:{first_name:"Мобільний"}}:null},error:null})
+   },
+   from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:778899},error:null})})})})
+  })};`
+ }));
+ const phonePage=await phoneContext.newPage();
+ await phonePage.goto(base+"account.html?token_hash=valid-other-device-token&type=email",
+  {waitUntil:"domcontentloaded"});
+ await waitReady(phonePage);
+ assert.equal(new URL(phonePage.url()).search,"");
+ assert.equal(await phonePage.evaluate(()=>sessionStorage.getItem("verifiedTokenType")),"email");
+ assert.ok((await phonePage.locator("#account-title").textContent()).includes("Мобільний"));
+ assert.equal(JSON.parse(await phonePage.evaluate(()=>localStorage.getItem("vatra-remembered-account"))).email,
+  "mobile@vatra.test");
+ await phonePage.goto(base+"account.html?token_hash=expired&type=email",{waitUntil:"domcontentloaded"});
+ await waitReady(phonePage);
+ assert.ok((await phonePage.locator("#account-title").textContent()).includes("не завершено"));
+ assert.equal(await phonePage.locator("#logout").isVisible(),false);
+ assert.equal(new URL(phonePage.url()).search,"");
+ await phoneContext.close();
+ console.log("VATRA cross-device email token: verified, scrubbed from URL, invalid link denied: OK");
  await mkdir("audit-screenshots",{recursive:true});
  const screenSpecs=[
   {width:320,height:700,id:"small"},
