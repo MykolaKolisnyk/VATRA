@@ -399,7 +399,7 @@ assert.ok(!css.includes('.login-form-kicker::before')&&
  "Consistent auth animation, clean login eyebrow and card-aligned footer must remain");
 assert.ok(!css.includes(".register-page .field:has(input.control)")&&
  css.includes(".signup-form-panel .field:has(input.control)")&&
- css.includes('.login-layout::before{content:"";display:block;flex:0 0 36px;margin-bottom:14px}'),
+ css.includes('.login-layout::before,.signup-layout::before{content:"";display:block;flex:0 0 36px;margin-bottom:14px}'),
  "Language modal must remain isolated from registration form and login must reserve nav space");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 assert.ok(!register.includes('class="reg-header')&&
@@ -410,7 +410,7 @@ assert.ok(!register.includes('class="reg-header')&&
  css.includes(".auth-layout{")&&css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-register-footer-content-001'),
- "Registration must have a centered card with only the return-to-login link above it");
+ "Registration must keep its return-to-login link inside the form panel");
 for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth.js"),"Shared auth module not loaded");
 for(const file of [landing,register,forgot]){
  assert.ok(file.includes('src="assets/js/captcha.js"'),"Cloudflare widget not loaded");
