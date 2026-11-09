@@ -2070,6 +2070,45 @@ try{
      await view.close();
     }
    }
+   // Public documents and 404 have their own responsive headers and TOCs.
+   // Check them at portrait, landscape and desktop widths in BOTH UI languages.
+   for(const language of ["uk","en"]){
+    for(const viewport of [{width:320,height:700},{width:390,height:844},
+     {width:844,height:390},{width:768,height:1024},{width:1440,height:900}]){
+     for(const route of ["404.html","terms.html","privacy.html","cookies.html"]){
+      const legal=await auditContext.newPage();
+      try{
+       const errors=[];
+       legal.on("pageerror",error=>errors.push(error.message));
+       await legal.setViewportSize(viewport);
+       await legal.addInitScript(lang=>{localStorage.setItem("vatra-language",lang);},language);
+       await legal.goto(base+route,{waitUntil:"domcontentloaded",timeout:20000});
+       await legal.waitForFunction(lang=>document.documentElement.lang===lang&&
+        !document.documentElement.classList.contains("i18n-pending"),language,{timeout:15000});
+       const layout=await legal.evaluate(()=>{
+        const selectors=[".footer",".auth-footer-content",
+         document.body.classList.contains("policy-page")?".policy-main":".error-main"];
+        const outside=selectors.filter(sel=>{
+         const r=document.querySelector(sel)?.getBoundingClientRect();
+         return r&&r.width>0&&(r.left< -3||r.right>innerWidth+3);
+        });
+        return {overflow:document.documentElement.scrollWidth-innerWidth,outside,
+         documentLang:document.documentElement.lang,
+         headerHeight:document.querySelector(".policy-top,.account-top")?.getBoundingClientRect().height,
+         footerHeight:document.querySelector(".footer")?.getBoundingClientRect().height,
+         errors:[...document.querySelectorAll("img")].filter(i=>!i.complete&&i.getClientRects().length>0).length};
+       });
+       assert.ok(layout.overflow<=3&&layout.outside.length===0&&
+        layout.headerHeight>30&&layout.footerHeight>40&&layout.documentLang===language,
+        engine+" "+language+" "+viewport.width+"x"+viewport.height+" "+route+
+        ": legal/404 responsive geometry invalid "+JSON.stringify(layout));
+       assert.deepEqual(errors,[],
+        engine+" "+language+" "+route+" uncaught JavaScript errors");
+      }finally{await legal.close();}
+     }
+    }
+   }
+   console.log("VATRA "+engine+" legal/404 bilingual viewport matrix: 2 languages x 5 sizes x 4 pages passed");
    await auditContext.close();
    if(engine!=="chromium"){
     // Verify actual translated entrance events in other rendering engines too.
