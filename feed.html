@@ -25,22 +25,44 @@
 </head>
 <body class="feed-page ui-feed-body-001" data-page="feed">
  <a class="feed-skip-link vt-feed-skip-link" href="#feed-main" data-i18n="n1">До стрічки</a>
- <div id="feed-loading" class="feed-loading ui-feed-loading-001" role="status" aria-live="polite">
-  <img class="feed-loading-logo ui-feed-loading-logo-001" src="assets/logo/vatra-symbol.svg" width="64" height="64" alt="">
-  <span class="feed-loading-text vt-feed-loading-text-001">VATRA</span>
+ <div id="feed-loading" class="vatra-auth-loading ui-feed-loading-001" role="status" aria-live="polite" aria-label="Завантаження VATRA">
+  <div class="vatra-auth-loading-content ui-feed-loading-content-001">
+   <img class="vatra-auth-loading-symbol ui-feed-loading-symbol-001" src="assets/logo/vatra-symbol.svg" width="68" height="68" alt="">
+   <span class="vatra-auth-loading-title vt-feed-loading-title-001">VATRA</span>
+   <p class="vatra-auth-loading-caption vt-feed-loading-caption-001">Завантаження VATRA</p>
+   <div class="vatra-auth-loading-track ui-feed-loading-track-001" aria-hidden="true"><span class="vatra-auth-loading-indicator ui-feed-loading-indicator-001"></span></div>
+  </div>
  </div>
  <div id="feed-app" class="feed-app ui-feed-app-001" hidden>
   <header class="feed-header ui-feed-header-001">
    <div class="feed-header-inner ui-feed-header-inner-001">
     <a href="feed" class="feed-header-brand vt-feed-header-brand-001" aria-label="VATRA"><img src="assets/logo/vatra-logo.svg" alt="VATRA" class="ui-feed-logo-001" width="1342" height="380"></a>
+    <form id="feed-search-form" class="feed-search-form ui-feed-search-form-001" role="search">
+     <label class="vatra-sr-only vt-feed-search-label-001" for="feed-search-input" data-i18n="n42">Пошук публікацій</label>
+     <svg class="ui-feed-search-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle class="ui-feed-search-circle-001" cx="10.8" cy="10.8" r="6.7"/><path class="ui-feed-search-line-001" d="m16 16 4.5 4.5"/></svg>
+     <input id="feed-search-input" class="feed-search-input ui-feed-search-input-001" type="search" name="q" maxlength="120" autocomplete="off" placeholder="Пошук у стрічці" data-i18n="n43">
+     <button id="feed-search-submit" class="feed-search-submit vt-feed-search-submit-001" type="submit" data-i18n="n44">Знайти</button>
+    </form>
     <div class="feed-header-controls ui-feed-header-controls-001">
-     <span id="feed-header-id" class="feed-header-id vt-feed-header-id-001" hidden></span>
-     <button type="button" class="language-trigger feed-language-trigger vt-feed-language-button-001" data-language-trigger aria-haspopup="dialog" aria-label="Вибрати мову" data-i18n="n31">
-      <svg class="language-flag ui-language-static-flag-001 ui-feed-static-flag-001" viewBox="0 0 640 480" aria-hidden="true"><rect class="ui-feed-flag-top-001" width="640" height="240" fill="#0057B8"/><rect class="ui-feed-flag-bottom-001" y="240" width="640" height="240" fill="#FFD700"/></svg>
-      <span class="vt-feed-language-label-001">Українська</span>
-      <svg class="language-chevron ui-language-static-chevron-001 ui-feed-chevron-001" viewBox="0 0 24 24" aria-hidden="true"><path class="ui-feed-chevron-path-001" d="m6 9 6 6 6-6"/></svg>
+     <button class="feed-header-icon-button ui-feed-music-button-001" type="button" disabled aria-label="Музика — незабаром" title="Музика — незабаром" data-i18n="n45">
+      <svg class="ui-feed-music-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-music-path-001" d="M9 18V5l11-2v13M9 8l11-2"/><ellipse class="ui-feed-music-oval-001" cx="6" cy="18" rx="3" ry="2"/><ellipse class="ui-feed-music-oval-002" cx="17" cy="16" rx="3" ry="2"/></svg>
      </button>
-     <button id="feed-logout" type="button" class="feed-logout vt-feed-logout-001" data-i18n="n26">Вийти</button>
+     <button class="feed-header-icon-button ui-feed-notifications-button-001" type="button" disabled aria-label="Сповіщення — незабаром" title="Сповіщення — незабаром" data-i18n="n46">
+      <svg class="ui-feed-bell-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-bell-path-001" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
+     </button>
+     <details class="feed-account-menu ui-feed-account-menu-001">
+      <summary class="feed-account-toggle vt-feed-account-toggle-001" aria-label="Мій профіль" data-i18n="n47"><span id="feed-header-avatar" class="feed-header-avatar vt-feed-header-avatar-001" aria-hidden="true">V</span></summary>
+      <div class="feed-account-dropdown ui-feed-account-dropdown-001">
+       <div class="feed-menu-summary ui-feed-menu-summary-001"><strong id="feed-menu-name" class="vt-feed-menu-name-001"></strong><small id="feed-header-id" class="feed-header-id vt-feed-header-id-001"></small></div>
+       <a href="profile" class="feed-account-profile vt-feed-account-profile-001" data-i18n="n48">Моя сторінка</a>
+       <button type="button" class="language-trigger feed-language-trigger vt-feed-language-button-001" data-language-trigger aria-haspopup="dialog" aria-label="Вибрати мову" data-i18n="n31">
+        <svg class="language-flag ui-language-static-flag-001 ui-feed-static-flag-001" viewBox="0 0 640 480" aria-hidden="true"><rect class="ui-feed-flag-top-001" width="640" height="240" fill="#0057B8"/><rect class="ui-feed-flag-bottom-001" y="240" width="640" height="240" fill="#FFD700"/></svg>
+        <span class="vt-feed-language-label-001">Українська</span>
+        <svg class="language-chevron ui-language-static-chevron-001 ui-feed-chevron-001" viewBox="0 0 24 24" aria-hidden="true"><path class="ui-feed-chevron-path-001" d="m6 9 6 6 6-6"/></svg>
+       </button>
+       <button id="feed-logout" type="button" class="feed-logout vt-feed-logout-001" data-i18n="n26">Вийти</button>
+      </div>
+     </details>
     </div>
    </div>
   </header>
@@ -48,7 +70,7 @@
    <aside class="feed-sidebar ui-feed-sidebar-001">
     <nav class="feed-navigation ui-feed-navigation-001" aria-label="Навігація VATRA" data-i18n="n32">
      <a href="feed" class="feed-nav-link ui-feed-nav-link-1 feed-nav-active" aria-current="page"><svg class="ui-feed-nav-icon-1" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-svg-part-001" x="4" y="4" width="16" height="16" rx="4"/><path class="ui-feed-svg-part-002" d="M8 9h8M8 13h8M8 17h5"/></svg><span class="vt-feed-nav-label-1" data-i18n="n2">Стрічка</span></a>
-<a href="verify" class="feed-nav-link ui-feed-nav-link-2" ><svg class="ui-feed-nav-icon-2" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-svg-part-003" cx="12" cy="8" r="3.4"/><path class="ui-feed-svg-part-004" d="M5.5 20c.5-4.2 3-6 6.5-6s6 1.8 6.5 6"/></svg><span class="vt-feed-nav-label-2" data-i18n="n3">Моя сторінка</span></a>
+<a href="profile" class="feed-nav-link ui-feed-nav-link-2" ><svg class="ui-feed-nav-icon-2" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-svg-part-003" cx="12" cy="8" r="3.4"/><path class="ui-feed-svg-part-004" d="M5.5 20c.5-4.2 3-6 6.5-6s6 1.8 6.5 6"/></svg><span class="vt-feed-nav-label-2" data-i18n="n3">Моя сторінка</span></a>
 <button class="feed-nav-link ui-feed-nav-link-3 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-3" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-005" d="M15 19c0-3-2.2-4.6-5-4.6S5 16 5 19"/><circle class="ui-feed-svg-part-006" cx="10" cy="8" r="3"/><path class="ui-feed-svg-part-007" d="M17.5 14.6c2.2.4 3.5 2 3.5 4.4M16.5 5.5a2.8 2.8 0 0 1 0 5.5"/></svg><span class="vt-feed-nav-label-3" data-i18n="n4">Друзі</span></button>
 <button class="feed-nav-link ui-feed-nav-link-4 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-4" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-008" d="M20 11.5a8.4 8.4 0 0 1-8.5 8.3 9 9 0 0 1-3.3-.6L4 20l.8-4.2a8.2 8.2 0 1 1 15.2-4.3Z"/><path class="ui-feed-svg-part-009" d="M8 10h8M8 13.5h5"/></svg><span class="vt-feed-nav-label-4" data-i18n="n5">Месенджер</span></button>
 <button class="feed-nav-link ui-feed-nav-link-5 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-5" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-svg-part-010" cx="8" cy="9" r="2.5"/><circle class="ui-feed-svg-part-011" cx="16" cy="9" r="2.5"/><path class="ui-feed-svg-part-012" d="M2.5 19c0-3 2-5 5.5-5s5.5 2 5.5 5M12 15.2c1-.8 2.3-1.2 4-1.2 3.4 0 5.5 2 5.5 5"/></svg><span class="vt-feed-nav-label-5" data-i18n="n6">Спільноти</span></button>
@@ -56,6 +78,7 @@
 <button class="feed-nav-link ui-feed-nav-link-7 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-7" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-svg-part-015" x="4" y="8" width="16" height="12" rx="2"/><path class="ui-feed-svg-part-016" d="M4 8 6 4h14l-2 4M9 4 7 8M15 4l-2 4"/><path class="ui-feed-svg-part-017" d="m10 11 5 3-5 3z"/></svg><span class="vt-feed-nav-label-7" data-i18n="n8">Кліпи</span></button>
 <button class="feed-nav-link ui-feed-nav-link-8 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-8" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-018" d="M6 4h12v16l-6-4-6 4z"/></svg><span class="vt-feed-nav-label-8" data-i18n="n9">Збережене</span></button>
 <button class="feed-nav-link ui-feed-nav-link-9 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-9" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-019" d="M9.5 3.8 10 2h4l.5 1.8 1.4.8 1.8-.5 2 3.5-1.3 1.3V11l1.3 1.3-2 3.5-1.8-.5-1.4.8L14 18h-4l-.5-1.9-1.4-.8-1.8.5-2-3.5L5.6 11V8.9L4.3 7.6l2-3.5 1.8.5z" transform="translate(0 2) scale(1 .9)"/><circle class="ui-feed-svg-part-020" cx="12" cy="11" r="2.5"/></svg><span class="vt-feed-nav-label-9" data-i18n="n10">Налаштування</span></button>
+     <button class="feed-nav-link ui-feed-nav-link-10 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-10" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-market-shape-001" d="M4 10v10h16V10M5 4h14l2 6H3l2-6Z"/><path class="ui-feed-market-shape-002" d="M9 20v-7h6v7M3 10c1 2 4 2 5 0 1 2 4 2 5 0 1 2 4 2 5 0 1 2 4 2 5 0"/></svg><span class="vt-feed-nav-label-10" data-i18n="n49">Маркетплейс</span></button>
     </nav>
     <div class="feed-sidebar-bottom ui-feed-sidebar-bottom-001">
      <span class="feed-sidebar-mark vt-feed-sidebar-mark-001">V</span>
@@ -96,7 +119,7 @@
     <button id="feed-delete-confirm" class="feed-delete-confirm vt-feed-delete-confirm-001" type="button" data-i18n="n41">Видалити</button>
    </div>
   </dialog>
-  <footer class="feed-footer ui-feed-footer-001"><div class="feed-footer-inner ui-feed-footer-inner-001"><span class="vt-feed-copyright-001" data-i18n="n27">© 2026 VATRA · Ваші люди. Ваші історії. Ваша VATRA.</span><nav class="feed-footer-nav ui-feed-footer-nav-001" aria-label="Документи VATRA" data-i18n="n37"><a class="vt-feed-terms-001" href="terms" data-i18n="n28">Умови використання</a><a class="vt-feed-privacy-001" href="privacy" data-i18n="n29">Конфіденційність</a><a class="vt-feed-cookies-001" href="cookies" data-i18n="n30">Cookies</a></nav></div></footer>
+
  </div>
 </body>
 </html>
