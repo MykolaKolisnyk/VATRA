@@ -901,6 +901,8 @@ try{
  }));
  for(const [language,expected] of [["uk","404 Сторінку не знайдено · VATRA"],
   ["en","404 Page not found · VATRA"]]){
+  // VATRA's language cookie is authoritative over localStorage.
+  await titleContext.addCookies([{name:"vatra-language",value:language,url:base}]);
   const tab=await titleContext.newPage();
   await tab.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
   await tab.goto(base+"404.html",{waitUntil:"load"});
