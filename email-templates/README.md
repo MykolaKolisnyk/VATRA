@@ -15,6 +15,10 @@
 | Password changed (Security) | `password-changed.html` | `VATRA — Пароль змінено / Password changed` |
 | Email address changed (Security) | `email-address-changed.html` | `VATRA — Пошту змінено / Email changed` |
 
+## Підтвердження пошти з іншого пристрою
+
+**Обов'язково** скопіюйте оновлений повний вміст `email-templates/confirmation.html` у **Supabase → Authentication → Email Templates → Confirm sign up → Body (Source)** і збережіть. Зміна у GitHub не оновлює активний шаблон Supabase. Посилання використовує канонічну адресу GitHub Pages та одноразовий `token_hash`, який сторінка `account.html` перевіряє через Supabase і відразу прибирає з адресного рядка. Недійсний токен не надає доступу. Не копіюйте реальні одноразові посилання з листів у листування або логи.
+
 ## Мова листа
 
 Поточна форма реєстрації в `assets/js/auth.js` передає `preferred_locale` зі значенням `uk` або `en` у метаданих Supabase. **Саме `.Data.preferred_locale`**, а не `.Data.preferredLanguage`, використано в усіх восьми шаблонах.
@@ -25,7 +29,8 @@
 
 ## Безпечні змінні Supabase
 
-- **Підтвердження, запрошення, зміна пошти:** `{{ .ConfirmationURL }}`.
+- **Підтвердження реєстрації:** `{{ .TokenHash }}` у посиланні `https://mykolakolisnyk.github.io/VATRA/account.html?token_hash={{ .TokenHash }}&type=email`. Це дозволяє підтвердити пошту з іншого пристрою через `supabase.auth.verifyOtp`.
+- **Запрошення та зміна пошти:** `{{ .ConfirmationURL }}`.
 - **Зміна адреси:** `{{ .NewEmail }}`.
 - **Magic link:** `{{ .Token }}` та `{{ .ConfirmationURL }}`. Цей тип листа не додає авторизацію за телефоном.
 - **Відновлення пароля:** `{{ .Token }}` (звичайний цифровий код Supabase), `{{ .RedirectTo }}` (сторінка `reset.html` для введення коду) і `{{ .ConfirmationURL }}` (захищене посилання).
