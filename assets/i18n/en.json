@@ -1371,76 +1371,6 @@
         }
       }
     },
-    "account": {
-      "meta": {
-        "title": "Account · VATRA",
-        "description": "Your VATRA account on the Ukrainian social network.",
-        "og:locale": "en_US",
-        "og:title": "Account · VATRA",
-        "og:description": "VATRA — a Ukrainian social network. Your people. Your stories. Your VATRA.",
-        "og:image:alt": "Official VATRA app icon"
-      },
-      "nodes": {
-        "n4": {
-          "text": {
-            "0": "Sign out"
-          }
-        },
-        "n8": {
-          "text": {
-            "0": "Welcome to VATRA!"
-          }
-        },
-        "n12": {
-          "text": {
-            "0": "Your account is active. Protect your password and never share verification codes."
-          }
-        },
-        "n13": {
-          "text": {
-            "0": "Go to Feed"
-          }
-        },
-        "n15": {
-          "text": {
-            "1": " · Your people. Your stories. Your VATRA."
-          }
-        },
-        "n17": {
-          "attrs": {
-            "aria-label": "Information"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n19": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n22": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
-          }
-        }
-      }
-    },
     "terms": {
       "meta": {
         "title": "Terms of Service · VATRA",
@@ -2844,7 +2774,7 @@
       "nodes": {
         "n1": {
           "text": {
-            "0": "Skip to feed"
+            "0": "Skip to content"
           }
         },
         "n42": {
