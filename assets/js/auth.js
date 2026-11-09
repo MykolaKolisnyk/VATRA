@@ -195,8 +195,9 @@ function wireFloatingHints(){
   if(!input||!shell||!hint)continue;
   const sync=()=>{
    const autofilled=input.matches(":-webkit-autofill");
-   shell.classList.toggle("is-floating",
-    document.activeElement===input||Boolean(input.value)||autofilled);
+   // Focus is animated by CSS :focus-within. Keep the JS class only for
+   // non-empty/autofilled fields: blur can fire while activeElement is stale.
+   shell.classList.toggle("is-floating",Boolean(input.value)||autofilled);
   };
   for(const event of ["focus","blur","input","change","animationstart"])
    input.addEventListener(event,sync);
@@ -1152,10 +1153,14 @@ function wireReset(){
   form.hidden=false;
   const tools=q("#recovery-tools");if(tools)tools.hidden=true;
   const caption=q("#recovery-step .recovery-step-caption");if(caption)caption.hidden=true;
-  const heading=q("#recovery-step-heading");if(heading)heading.textContent=english?"Set a new password":"Встановіть новий пароль";
+  const heading=q("#recovery-step-heading");
+  if(heading){
+   heading.textContent=english?"Set a new password":"Встановіть новий пароль";
+   heading.tabIndex=-1; // Announce the new step without focusing an empty input.
+  }
   clearFeedback();
   replayAuthContent(q(".forgot-panel-content"));
-  q("#password")?.focus({preventScroll:true});
+  heading?.focus({preventScroll:true});
  };
  if(linkFailed){
   feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
