@@ -1673,8 +1673,10 @@ try{
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");
  await savedPage.locator("#saved-account-response").waitFor({state:"visible"});
+ const expectedSavedError=await savedPage.evaluate(()=>
+  document.documentElement.lang==="en"?"Could not sign in. Check your password.":"Не вдалося увійти. Перевірте пароль.");
  assert.equal((await savedPage.locator("#saved-account-response").textContent()).trim(),
-  "Не вдалося увійти. Перевірте пароль.","Saved password failure needs contextual Ukrainian message");
+  expectedSavedError,"Saved password failure needs contextual, translated feedback");
  await savedPage.locator("#saved-password").fill("CorrectPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  await savedPage.waitForURL("**/account.html");
