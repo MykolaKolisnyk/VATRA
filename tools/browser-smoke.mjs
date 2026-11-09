@@ -1,9 +1,9 @@
 /* Browser regression checks for VATRA: run with playwright installed (CI only). */
 import assert from "node:assert/strict";
 import {createServer} from "node:http";
-import {readFile} from "node:fs/promises";
+import {readFile,mkdir} from "node:fs/promises";
 import {resolve,sep} from "node:path";
-import {chromium} from "playwright";
+import {chromium,firefox,webkit} from "playwright";
 
 const basePath="/VATRA/";
 const root=process.cwd();
@@ -989,6 +989,86 @@ try{
   "Unconfirmed user must stay at login without redirect loops");
  await unconfirmed.close();
  console.log("VATRA security guards, recovery typography and responsive password fields: OK");
+
+ // Multi-engine responsive audit. All network calls for Auth are mocked:
+ // screenshots and interactions must never create production users or emails.
+ await mkdir("audit-screenshots",{recursive:true});
+ const screenSpecs=[
+  {width:320,height:700,id:"small"},
+  {width:390,height:844,id:"phone"},
+  {width:768,height:1024,id:"tablet"},
+  {width:1280,height:800,id:"laptop"},
+  {width:1920,height:1080,id:"wide"}
+ ];
+ const routes=[
+  {path:"",id:"home"},
+  {path:"register.html",id:"signup"},
+  {path:"forgot.html",id:"recovery"},
+  {path:"reset.html",id:"reset"}
+ ];
+ for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",webkit]]){
+  const auditBrowser=await kind.launch({headless:true});
+  try{
+   const auditContext=await auditBrowser.newContext({
+    locale:"uk-UA",serviceWorkers:"block",deviceScaleFactor:2,
+    reducedMotion:"reduce"
+   });
+   await auditContext.route("**/assets/js/host.js",route=>route.fulfill({
+    status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+   }));
+   await auditContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+    status:200,contentType:"text/javascript",
+    body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};'
+   }));
+   for(const viewport of screenSpecs){
+    for(const target of routes){
+     const view=await auditContext.newPage();
+     const errors=[];
+     view.on("pageerror",error=>errors.push(error.message));
+     await view.setViewportSize({width:viewport.width,height:viewport.height});
+     await view.goto(base+target.path,{waitUntil:"domcontentloaded",timeout:20000});
+     await waitReady(view);
+     await view.evaluate(()=>document.fonts.ready);
+     const measurements=await view.evaluate(()=>{
+      const viewportWidth=innerWidth;
+      const controls=[...document.querySelectorAll("form input,form button,form select,form textarea")];
+      const badlyPositioned=controls.filter(element=>{
+       const style=getComputedStyle(element);
+       if(style.display==="none"||style.visibility==="hidden")return false;
+       const bounds=element.getBoundingClientRect();
+       return bounds.width>0&&(bounds.left< -3||bounds.right>viewportWidth+3);
+      }).slice(0,4).map(el=>({id:el.id,tag:el.tagName}));
+      const labelFonts=[...document.querySelectorAll("form input,form button,form select")]
+       .filter(el=>getComputedStyle(el).display!=="none")
+       .slice(0,16).map(el=>({id:el.id,font:getComputedStyle(el).fontFamily}));
+      return {
+       overflow:document.documentElement.scrollWidth-viewportWidth,
+       controlsOutside:badlyPositioned,
+       typefaces:labelFonts,
+       title:document.title,
+       ready:document.body.dataset.authReady,
+       lang:document.documentElement.lang
+      };
+     });
+     assert.equal(measurements.ready,"true");
+     assert.ok(measurements.title.length>0);
+     assert.ok(measurements.overflow<=3,
+      engine+" "+viewport.id+" "+target.id+" horizontal overflow: "+JSON.stringify(measurements));
+     assert.deepEqual(measurements.controlsOutside,[],
+      engine+" "+viewport.id+" "+target.id+" control outside viewport");
+     assert.ok(measurements.typefaces.every(x=>x.font.includes("Onest")),
+      engine+" "+viewport.id+" "+target.id+" inconsistent input typography: "+JSON.stringify(measurements.typefaces));
+     assert.deepEqual(errors,[],
+      engine+" "+viewport.id+" "+target.id+" uncaught JavaScript errors");
+     if(["phone","tablet","laptop"].includes(viewport.id))
+      await view.screenshot({path:"audit-screenshots/"+engine+"-"+viewport.id+"-"+target.id+".png",fullPage:true});
+     await view.close();
+    }
+   }
+   await auditContext.close();
+  }finally{await auditBrowser.close();}
+  console.log("VATRA "+engine+" responsive matrix: 5 widths x 4 auth pages, UI and fonts OK");
+ }
  await reopened.close();
  await context.close();
 }finally{
