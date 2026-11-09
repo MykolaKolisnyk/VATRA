@@ -693,7 +693,11 @@ function wireSavedAccountTooltip(button){
  tip.setAttribute("role","tooltip");
  tip.hidden=true;
  document.body.append(tip);
+ let suppressRestore=false;
  const hide=()=>{tip.classList.remove("is-visible");tip.hidden=true;};
+ // Closing a native dialog restores focus to its opener; do not treat that
+ // automatic restoration as a request to reveal the tooltip.
+ const suppress=()=>{suppressRestore=true;hide();};
  const position=()=>{
   if(tip.hidden)return;
   const buttonBox=button.getBoundingClientRect();
@@ -713,7 +717,8 @@ function wireSavedAccountTooltip(button){
   tip.style.top=Math.round(top)+"px";
  };
  const reveal=event=>{
-  if(event?.pointerType==="touch")return;
+  if(suppressRestore||event?.pointerType==="touch"||
+   document.querySelector("#saved-account-remove-dialog")?.open)return;
   tip.textContent=button.getAttribute("data-vatra-tooltip")||button.getAttribute("aria-label")||"";
   if(!tip.textContent)return;
   tip.hidden=false;
@@ -721,18 +726,31 @@ function wireSavedAccountTooltip(button){
   requestAnimationFrame(()=>{if(!tip.hidden)tip.classList.add("is-visible");});
  };
  button.addEventListener("pointerenter",reveal);
- button.addEventListener("pointerleave",()=>{
-  if(!button.matches(":focus-visible"))hide();
+ button.addEventListener("pointermove",event=>{
+  // Actual movement over the button is a new hover intention after cancelling.
+  if(suppressRestore&&event.isTrusted&&event.pointerType!=="touch"&&
+   (event.movementX||event.movementY)){
+   suppressRestore=false;
+   reveal(event);
+  }
  });
- button.addEventListener("focus",reveal);
- button.addEventListener("blur",hide);
- button.addEventListener("click",hide);
+ button.addEventListener("pointerleave",hide);
+ button.addEventListener("focus",event=>{
+  if(button.matches(":focus-visible"))reveal(event);
+ });
+ button.addEventListener("blur",()=>{
+  hide();
+  if(!document.querySelector("#saved-account-remove-dialog")?.open)
+   suppressRestore=false;
+ });
+ button.addEventListener("click",suppress);
  window.addEventListener("resize",position,{passive:true});
  window.addEventListener("scroll",position,{passive:true,capture:true});
  document.addEventListener("scroll",position,{passive:true,capture:true});
  window.visualViewport?.addEventListener("resize",position,{passive:true});
  window.visualViewport?.addEventListener("scroll",position,{passive:true});
  document.addEventListener("keydown",event=>{if(event.key==="Escape")hide();});
+ return {suppress,hide};
 }
 function wireRememberedAccount(){
  const remembered=readRememberedAccount();
@@ -747,11 +765,12 @@ function wireRememberedAccount(){
  const name=q("#saved-account-title"),email=q("#saved-account-email"),initials=q("#saved-account-initials");
  name.textContent=remembered.name;email.textContent=remembered.email;
  const removeButton=q("#saved-account-remove");
+ let removeTooltip=null;
  if(removeButton){
   const label=english?"Remove saved account":"Вилучити збережений акаунт";
   removeButton.setAttribute("aria-label",label);
   removeButton.setAttribute("data-vatra-tooltip",label);
-  wireSavedAccountTooltip(removeButton);
+  removeTooltip=wireSavedAccountTooltip(removeButton);
  }
  const parts=remembered.name.split(/\s+/).filter(Boolean);
  initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();
@@ -788,8 +807,16 @@ function wireRememberedAccount(){
  q("#saved-account-other")?.addEventListener("click",showOther);
  back.addEventListener("click",showSaved);
  const dialog=q("#saved-account-remove-dialog");
- q("#saved-account-remove")?.addEventListener("click",()=>dialog?.showModal?.());
- q("#saved-remove-cancel")?.addEventListener("click",()=>dialog?.close());
+ removeButton?.addEventListener("click",()=>{
+  removeTooltip?.suppress();
+  dialog?.showModal?.();
+ });
+ // Also covers Escape, native dialog close, and browser focus restoration.
+ dialog?.addEventListener("close",()=>removeTooltip?.suppress());
+ q("#saved-remove-cancel")?.addEventListener("click",()=>{
+  removeTooltip?.suppress();
+  dialog?.close();
+ });
  q("#saved-remove-confirm")?.addEventListener("click",()=>{
   try{localStorage.removeItem(REMEMBERED_ACCOUNT_KEY);}catch(_){}
   dialog?.close();clearSaved();clearLoginFields();
