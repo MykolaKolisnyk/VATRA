@@ -487,26 +487,6 @@
             "0": "Sign out"
           }
         },
-        "n27": {
-          "text": {
-            "0": "© 2026 VATRA · Your people. Your stories. Your VATRA."
-          }
-        },
-        "n28": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n29": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n30": {
-          "text": {
-            "0": "Cookies"
-          }
-        },
         "n33": {
           "text": {
             "0": "Your people. Your stories. Your VATRA."
@@ -560,11 +540,6 @@
         "n34": {
           "attrs": {
             "aria-label": "New post"
-          }
-        },
-        "n37": {
-          "attrs": {
-            "aria-label": "VATRA documents"
           }
         },
         "n42": {
