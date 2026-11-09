@@ -209,7 +209,7 @@
   "Для чого": "Purpose",
   "Використання": "Use",
   "Локальне сховище браузера (localStorage)": "Local browser storage (localStorage)",
-  "Збереження Вашої сесії та повторний вхід без постійного введення пароля": "Preserving your session so you can stay signed in without repeatedly entering your password",
+  "Збереження сеансу та імені й email останнього акаунта для швидкого вибору. Пароль у цьому списку не зберігається.": "Session details and the last account’s name and email for quick account selection. VATRA does not store the password in this list.",
   "Так": "Yes",
   "Службові дані запитів": "Service request data",
   "Доставка сторінок, захист та діагностика інфраструктури": "Page delivery, security, and infrastructure diagnostics",
@@ -1715,7 +1715,7 @@
         },
         "n58": {
           "text": {
-            "0": " session information stored to keep you signed in."
+            "0": " session details and, after sign-in, the name and email shown in the saved-account selector on this device; no password is stored for that selector."
           }
         },
         "n59": {
@@ -2041,7 +2041,7 @@
         },
         "n57": {
           "text": {
-            "0": "Preserving your session so you can stay signed in without repeatedly entering your password"
+            "0": "Session details and the last account’s name and email for quick account selection. VATRA does not store the password in this list."
           }
         },
         "n58": {
