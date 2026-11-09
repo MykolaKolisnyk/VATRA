@@ -6,7 +6,7 @@ const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
 const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const q=selector=>document.querySelector(selector);
 const english=document.documentElement.lang==="en";
-const t=(uk,en)=>english?window.VATRA_LANGUAGE?.translate(uk)||en:uk;
+const t=(uk,en)=>{if(!english)return uk;const value=window.VATRA_LANGUAGE?.translate(uk);return value&&value!==uk?value:en;};
 const home=new URL("./",location.href).href;
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
