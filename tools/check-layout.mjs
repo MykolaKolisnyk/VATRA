@@ -820,7 +820,7 @@ assert.ok(
  css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075)}')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-content{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;animation:vatraAuthReveal .3s')&&
  auth.includes('replayAuthContent(q(".forgot-panel-content"));')&&
- css.includes('.ui-forgot-main-001 .forgot-panel-content,:is(.account-card,.error-card) > :not([hidden]),.signup-confirmation{animation:none!important}')&&
+ css.includes('.signup-form-panel .narrow-form,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel-content,:is(.account-card,.error-card) > :not([hidden]){animation:none!important}')&&
  auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
  "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
