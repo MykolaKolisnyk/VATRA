@@ -194,10 +194,10 @@ function wireFloatingHints(){
   const hint=shell?.querySelector(":scope > .vatra-floating-hint");
   if(!input||!shell||!hint)continue;
   const sync=()=>{
-   const autofilled=input.matches(":-webkit-autofill");
-   // Focus is animated by CSS :focus-within. Keep the JS class only for
-   // non-empty/autofilled fields: blur can fire while activeElement is stale.
-   shell.classList.toggle("is-floating",Boolean(input.value)||autofilled);
+   // A real value lifts the hint. Focus is styled by CSS separately.
+   // Some password managers retain :-webkit-autofill on a cleared input;
+   // a blank field must never stay lifted after blur.
+   shell.classList.toggle("is-floating",Boolean(input.value));
   };
   for(const event of ["focus","blur","input","change","animationstart"])
    input.addEventListener(event,sync);
@@ -1143,6 +1143,22 @@ function wireReset(){
  let recoveryVerifiedUserId=null;
  const emailInput=q("#recovery-email");
  const tokenInput=q("#recovery-token");
+ // Password managers may focus the first new-password input on their own.
+ // Ignore that implicit focus while the newly revealed fields are empty,
+ // but float normally as soon as the user clicks, tabs or types.
+ const newPasswordFields=[...form.querySelectorAll('input.control[type="password"]')];
+ const activatePasswordHint=input=>input.closest(".vatra-input-shell")?.classList.remove("is-awaiting-user-input");
+ for(const input of newPasswordFields){
+  for(const event of ["pointerdown","keydown","input"])
+   input.addEventListener(event,()=>activatePasswordHint(input));
+ }
+ document.addEventListener("keydown",event=>{
+  if(event.key!=="Tab")return;
+  requestAnimationFrame(()=>{
+   const focused=document.activeElement;
+   if(newPasswordFields.includes(focused))activatePasswordHint(focused);
+  });
+ });
  try{emailInput.value=sessionStorage.getItem("vatra-recovery-email")||"";}catch(_){}
  // Programmatic session-prefill must also update the shared floating-hint state.
  emailInput.dispatchEvent(new Event("input",{bubbles:true}));
@@ -1151,6 +1167,11 @@ function wireReset(){
   recoveryVerifiedUserId=verifiedUser.id;
   codeForm.hidden=true;
   form.hidden=false;
+  // Preserve centered captions even if the browser auto-focuses a blank password field.
+  for(const input of newPasswordFields){
+   const shell=input.closest(".vatra-input-shell");
+   shell?.classList.toggle("is-awaiting-user-input",!input.value);
+  }
   const tools=q("#recovery-tools");if(tools)tools.hidden=true;
   const caption=q("#recovery-step .recovery-step-caption");if(caption)caption.hidden=true;
   const heading=q("#recovery-step-heading");
