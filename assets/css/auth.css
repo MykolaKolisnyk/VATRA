@@ -517,6 +517,11 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
   .signup-brand-art{height:clamp(215px,18vw,235px)}
   .form-side,.signup-form-panel{padding-block:18px}
 }
+/* Wide but short desktop windows: release unused illustration whitespace,
+   keeping actual logo dimensions, form spacing and page gutters intact. */
+@media (min-width:1800px) and (max-height:850px){
+  .signup-brand-art{height:clamp(215px,22vw,268px)}
+}
 @media (min-width:1200px) and (max-height:610px){
   /* Краще вертикальне прокручування, ніж приховані картки чи мікроскопічний текст. */
   .split,.reg-main{min-height:670px}
