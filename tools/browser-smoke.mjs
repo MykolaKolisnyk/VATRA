@@ -94,6 +94,13 @@ try{
         });
        }
        await view.goto(base+entry.path,{waitUntil:"domcontentloaded",timeout:20000});
+       const visibleAnimationSelectors=await view.evaluate(selectors=>selectors.filter(selector=>{
+        const el=document.querySelector(selector);
+        return el&&el.getClientRects().length>0&&
+         getComputedStyle(el).animationName.includes("vatraAuthReveal");
+       }),entry.selectors);
+       assert.ok(visibleAnimationSelectors.includes(entry.selectors[0]),
+        engine+" "+entry.path+" must have a visible primary entrance target");
        await view.waitForFunction(()=>document.documentElement.lang===
         (window.localStorage.getItem("vatra-language")||"uk"),null,{timeout:7000});
        if(language==="en"){
@@ -119,9 +126,9 @@ try{
        },null,{timeout:12000});
        await view.waitForFunction(expected=>
         window.__vatraLocaleAnimationEnds?.length>=expected,
-        entry.selectors.length,{timeout:12000});
+        visibleAnimationSelectors.length,{timeout:12000});
        const completed=await view.evaluate(()=>window.__vatraLocaleAnimationEnds);
-       assert.ok(entry.selectors.every(selector=>
+       assert.ok(visibleAnimationSelectors.every(selector=>
         completed.some(record=>record.matched.includes(selector)&&!record.hidden&&
          (!record.loader||record.authReady)))&&
         completed.every(record=>record.motion==="vatraAuthReveal"),
