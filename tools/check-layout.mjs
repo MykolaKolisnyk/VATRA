@@ -523,7 +523,7 @@ assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
  !css.includes('.register-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
  !css.includes('.reg-back-nav .back{min-height:40px;')&&
  !register.includes('class="signup-login-switch')&&
- register.includes('<a href="./" class="footer-auth-action vt-register-footer-signin" data-i18n="n247">Увійти</a>')&&
+ register.includes('<a href="./" class="vt-register-footer-signin" data-i18n="n247">Увійти</a>')&&
  !css.includes('.register-page .footer nav>.vt-register-footer-signin{')&&
  !css.includes('.footer nav>a[href="register.html"]{'),
  "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
