@@ -2130,6 +2130,69 @@ try{
  await savedContext.close();
  console.log("VATRA remembered account: return, alternate login, password check, removal and logout: OK");
 
+ // First Feed release: protected route, text composer, safe rendering, deletion,
+ // responsive layout and language switch. All data remains in a browser mock.
+ const feedContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await feedContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await feedContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:`
+  window.__feedTestPosts=[];window.__feedTestCounter=0;
+  window.supabase={createClient:()=>({
+   auth:{
+    getUser:async()=>({data:{user:{id:"feed-mock-user",
+     email_confirmed_at:"2026-11-09T00:00:00Z",
+     user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
+    signOut:async()=>({error:null})
+   },
+   from:table=>table==="accounts"?
+    {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
+    {select:()=>({order(){return this;},range:async(a,b)=>({data:window.__feedTestPosts.slice(a,b+1),error:null})}),
+     insert:async(data)=>{window.__feedTestPosts.unshift({...data,
+      id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
+     delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})}
+  })};
+  `
+ }));
+ for(const language of ["uk","en"]){
+  await feedContext.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const feedProbe=await feedContext.newPage();
+  await feedProbe.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
+  await feedProbe.setViewportSize({width:language==="en"?390:1366,height:844});
+  const feedErrors=[];
+  feedProbe.on("pageerror",err=>feedErrors.push(err.message));
+  await feedProbe.goto(base+"feed.html",{waitUntil:"domcontentloaded"});
+  await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
+  const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
+  assert.equal(await feedProbe.title(),expectedTitle);
+  assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
+  assert.equal(await feedProbe.locator(".feed-nav-link").count(),9);
+  assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),7);
+  assert.equal((await feedProbe.locator("#feed-my-id").textContent()).trim(),"VATRA ID 654321");
+  const injectionText="<img src=x onerror=alert(1)> VATRA";
+  await feedProbe.locator("#feed-post-text").fill(injectionText);
+  await feedProbe.locator("#feed-submit").click();
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
+  assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),injectionText,
+   "Feed must render user posts as text, not HTML");
+  assert.equal(await feedProbe.locator(".feed-post-body img").count(),0);
+  await feedProbe.locator(".feed-post-delete").click();
+  assert.equal(await feedProbe.locator("#feed-delete-dialog").evaluate(el=>el.open),true);
+  await feedProbe.locator("#feed-delete-cancel").click();
+  assert.equal(await feedProbe.locator(".feed-post-card").count(),1,"Cancelling must not delete a post");
+  await feedProbe.locator(".feed-post-delete").click();
+  await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
+  assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);
+  const overflow=await feedProbe.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
+  assert.ok(overflow<=3,"Feed must fit viewport: "+language+" "+overflow);
+  assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
+  await feedProbe.close();
+ }
+ await feedContext.close();
+ console.log("VATRA Feed: UK/EN text publishing, ownership, cancel/delete and responsive layout: OK");
+
  // A cross-device confirmation must not depend on the PKCE state of the
  // browser where registration started. It also must not leak the token in URL.
  const phoneContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block",
