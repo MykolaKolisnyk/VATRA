@@ -374,7 +374,7 @@ try{
     backInside:nav.top>=form.top&&nav.right<=form.right+1&&
      nav.bottom<=document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().top+2,
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
-    centerDelta:Math.abs((nav.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
+    centerDelta:Math.abs((main.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
     brand:{x:brand.x,y:brand.y,w:brand.width,h:brand.height,bottom:brand.bottom},
     form:{x:form.x,y:form.y,w:form.width,h:form.height}};
   });
