@@ -5,6 +5,15 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
 const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const page=document.body.dataset.page||"login";
+// Capture the original callback URL before the Supabase SDK consumes the query.
+// An older PKCE link opened on a new device must show an explanation, not a silent redirect.
+const initialAuthQuery=new URLSearchParams(location.search);
+const initialAuthHash=new URLSearchParams(location.hash.slice(1));
+const initialAccountCallback=page==="account"&&(initialAuthQuery.has("token_hash")||
+ initialAuthQuery.has("code")||initialAuthQuery.has("error")||
+ initialAuthHash.has("access_token")||initialAuthHash.has("error"));
+const initialAccountCallbackError=page==="account"&&
+ (initialAuthQuery.has("error")||initialAuthHash.has("error"));
 const translate=text=>window.VATRA_LANGUAGE?.translate(text)||text;
 const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
@@ -54,8 +63,8 @@ async function acceptEmailConfirmation(){
  const query=new URLSearchParams(location.search);
  const hash=new URLSearchParams(location.hash.slice(1));
  const token=query.get("token_hash");
- const cameFromLink=Boolean(token||query.has("code")||query.has("error")||hash.has("error")||hash.has("access_token"));
- if(!token)return {cameFromLink,failed:query.has("error")||hash.has("error")};
+ const cameFromLink=Boolean(initialAccountCallback||token||query.has("code")||query.has("error")||hash.has("error")||hash.has("access_token"));
+ if(!token)return {cameFromLink,failed:initialAccountCallbackError||query.has("error")||hash.has("error")};
  history.replaceState(history.state,"",location.pathname);
  if(query.get("type")!=="email"||token.length>2048)return {cameFromLink:true,failed:true};
  try{
@@ -656,6 +665,12 @@ function wireRememberedAccount(){
  if(!remembered)return;
  const name=q("#saved-account-title"),email=q("#saved-account-email"),initials=q("#saved-account-initials");
  name.textContent=remembered.name;email.textContent=remembered.email;
+ const removeButton=q("#saved-account-remove");
+ if(removeButton){
+  const label=english?"Remove saved account":"Вилучити збережений акаунт";
+  removeButton.setAttribute("aria-label",label);
+  removeButton.title=label;
+ }
  const parts=remembered.name.split(/\s+/).filter(Boolean);
  initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();
  const password=q("#saved-password"),message=q("#saved-account-response");
@@ -700,7 +715,7 @@ function wireRememberedAccount(){
   }
   busy(savedForm,true);
   try{await authenticatePassword(remembered.email,password.value,savedForm);}
-  catch(error){message.textContent=getMessage(error);message.dataset.type="error";message.hidden=false;}
+  catch(error){message.textContent=translate(getMessage(error));message.dataset.type="error";message.hidden=false;}
   finally{resetCaptcha(savedForm);busy(savedForm,false);}
  });
  showSaved();
@@ -708,6 +723,12 @@ function wireRememberedAccount(){
 function wireLogin(){
  const form=q("#login-form");
  if(!form)return;
+ // Clear secrets before any back/forward-cache snapshot or navigation.
+ window.addEventListener("pagehide",()=>{
+  for(const id of ["#password","#saved-password"]){
+   const input=q(id);if(input)input.value="";
+  }
+ },{once:true});
  form.addEventListener("submit",async e=>{
   e.preventDefault();clearFeedback();
   const email=q("#email").value.trim().toLowerCase(),password=q("#password").value;
