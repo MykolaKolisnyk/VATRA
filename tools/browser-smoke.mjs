@@ -227,6 +227,32 @@ try{
  await wizard.close();
  console.log("VATRA two-step signup validation, progress, mobile layout and preserved inputs: OK");
 
+ // The signup form must mirror the normal sign-in page's secondary action.
+ for(const [width,height] of [[390,844],[1440,900]]){
+  const probe=await context.newPage();
+  await probe.setViewportSize({width,height});
+  await probe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+  await waitReady(probe);
+  const entry=probe.locator(".signup-login-button");
+  assert.equal(await entry.isVisible(),true,"Signup must show its bottom Sign in action at "+width);
+  assert.equal(await entry.getAttribute("href"),"./");
+  const styles=await entry.evaluate(el=>({font:getComputedStyle(el).fontFamily,
+   radius:getComputedStyle(el).borderRadius,border:getComputedStyle(el).borderTopWidth}));
+  assert.ok(styles.font.includes("Onest")&&styles.border!=="0px",
+   "Signup secondary action must share the login form design");
+  const top=await probe.locator(".reg-back-nav .back").evaluate(el=>({
+   border:getComputedStyle(el).borderTopWidth,background:getComputedStyle(el).backgroundColor
+  }));
+  assert.equal(top.border,"0px","Upper return-to-login must keep its original plain-link look");
+  await probe.locator("#first-name").fill("Тест");
+  await probe.locator("#last-name").fill("Користувач");
+  await probe.locator("#birth-day").selectOption("1");
+  await probe.locator("#birth-month").selectOption("1");
+  await probe.locator("#birth-year").selectOption("2000");
+  await probe.locator("#register-next").click();
+  assert.equal(await entry.isVisible(),true,"Bottom sign-in button must remain on step 2");
+  await probe.close();
+ }
  // Both auth pages must share language-modal geometry and footer spacing.
  for(const [width,height] of [[390,844],[1024,900],[1440,900],[1920,1080]]){
   const samples=[];
