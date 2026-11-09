@@ -36,9 +36,16 @@ try{
      await page.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
      await page.setViewportSize(viewport);
      await page.goto(base+route,{waitUntil:"domcontentloaded",timeout:20000});
-     await page.waitForFunction(lang=>document.documentElement.lang===lang&&
-      !document.documentElement.classList.contains("i18n-pending")&&
-      (!document.querySelector("#vatra-auth-loading")||document.body.dataset.authReady==="true"),language,{timeout:15000});
+     try{
+      await page.waitForFunction(lang=>document.documentElement.lang===lang&&
+       !document.documentElement.classList.contains("i18n-pending")&&
+       (!document.querySelector("#vatra-auth-loading")||document.body.dataset.authReady==="true"),language,{timeout:15000});
+     }catch(error){
+      const state=await page.evaluate(()=>({lang:document.documentElement.lang,
+       ready:document.body?.dataset?.authReady,pending:document.documentElement.classList.contains("i18n-pending"),
+       url:location.href,loading:!!document.querySelector("#vatra-auth-loading")}));
+      throw new Error("Native UI readiness failed "+JSON.stringify({language,viewport,route,state})+": "+error.message);
+     }
      const layout=await page.evaluate(()=>{
       const main=document.querySelector("main,.auth-layout,.split,.signup-layout");
       const foot=document.querySelector("footer");
