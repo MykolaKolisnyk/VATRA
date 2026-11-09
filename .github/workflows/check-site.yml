@@ -30,3 +30,28 @@ jobs:
           path: audit-screenshots/
           if-no-files-found: ignore
           retention-days: 7
+
+  scale:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: vatra_test
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: vatra_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U vatra_test -d vatra_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install isolated PostgreSQL load-test client
+        run: npm install --no-save --no-package-lock pg@8.16.3
+      - name: Simulate 1000 concurrent account creations without production traffic
+        env:
+          DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
+        run: node tools/scale-audit.mjs
