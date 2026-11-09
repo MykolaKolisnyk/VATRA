@@ -57,8 +57,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .site .saved-switch-back:hover{color:var(--blue)}
 .site .saved-switch-back svg{width:17px;height:17px;flex:none}
 .site .saved-account-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;max-width:520px;margin-inline:auto;padding:clamp(22px,3.5vw,35px);border:1px solid #e0e7f4;border-radius:25px;background:white;box-shadow:0 18px 48px rgba(42,55,102,.075);text-align:center;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
-.site .saved-account-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin:0 0 14px}
-.site .saved-account-wordmark{font-size:15px;font-weight:800;letter-spacing:.08em;color:#3553a2}
+.site .saved-account-top{display:flex;align-items:center;justify-content:flex-end;width:100%;margin:0 0 14px}
 .site .saved-account-remove{display:grid;place-items:center;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
 .site .saved-account-remove:hover{background:#eef3ff;color:#285fd0}
 .site .saved-account-remove svg{width:21px;height:21px}
@@ -71,7 +70,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .site .saved-account-primary,.site .saved-account-secondary{width:100%;min-height:53px}
 .site .saved-account-secondary{background:#f5f7fc;border-color:transparent;color:#384d78}
 .site .saved-account-secondary:hover{background:#eaf0fc;border-color:#c8d6f3}
-.site .saved-account-field{display:grid;gap:9px;text-align:left;color:#435572;font-size:13px;font-weight:700}
+.site .saved-account-field{position:relative;display:grid;gap:9px;text-align:left;color:#435572;font-size:13px;font-weight:700}
 .site .saved-account-field .vatra-input-shell{width:100%}
 .site .saved-account-forgot,.site .saved-account-return{justify-self:center;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:700;line-height:1.5;cursor:pointer}
 .site .saved-account-forgot:hover,.site .saved-account-return:hover{text-decoration:underline}
@@ -165,6 +164,9 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .field{display:grid;gap:8px;min-width:0}
 .field:has(input.control){position:relative;gap:8px}
 .field:has(input.control)>span:first-child,.field-caption,.signup-form-panel .field>span:first-child{font-size:13px;line-height:1.4;font-weight:700;color:#48576d}
+/* Accessible captions stay in the DOM, but are never repeated above floating hints.
+   Registration intentionally keeps its visible field labels. */
+.vatra-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
 /* The login label stays accessible; only the interior hint is visual. */
 .site .form-box .field:has(input.control)>span:first-child{
  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
@@ -204,7 +206,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .login-description,.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}.login-description{margin:0 0 34px}
 .or{display:flex;align-items:center;gap:16px;color:#627187;font-size:12px;margin:29px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:#e5eaf0}.form-note{font-size:12px;line-height:1.7;color:#627187;text-align:center;margin:23px 0 0}.response{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin:0 0 19px;border:1px solid #c9defe;background:#f2f7ff;color:#174b9b}.response[data-type=error]{border-color:#efccd2;background:#fff3f5;color:#a32a40}.response[data-type=success]{border-color:#c6e8dd;background:#f1fbf7;color:#176b50}
 .network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
-.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer nav>a[href="register.html"],.register-page .footer nav>.vt-register-footer-signin{min-height:36px;padding:7px 13px;border:1px solid #c7d6fb;border-radius:12px;background:#f6f9ff;color:#245fd4;font-weight:750;white-space:nowrap}.footer nav>a[href="register.html"]:hover,.register-page .footer nav>.vt-register-footer-signin:hover{background:#eaf1ff;border-color:#94b2f4;text-decoration:none}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
+.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
 .site .footer,.register-page .footer{padding-inline:0}
 .auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}.auth-footer-content>span b{font-weight:770;color:var(--ink)}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}

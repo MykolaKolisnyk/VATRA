@@ -598,6 +598,20 @@ try{
    assert.equal(links.length,2,"Legal page footer must not repeat its document tabs");
   await probe.close();
  }
+ // Footers must render navigation links uniformly — no boxed sign-in button.
+ for(const route of ["","register.html","forgot.html","reset.html"]){
+  const page=await context.newPage();
+  await page.goto(base+route,{waitUntil:"domcontentloaded"});
+  await waitReady(page);
+  const looks=await page.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(node=>{
+   const css=getComputedStyle(node);
+   return {href:new URL(node.href).pathname,border:css.borderTopWidth,
+    background:css.backgroundColor,font:css.fontFamily,size:css.fontSize};
+  }));
+  assert.ok(looks.every(x=>x.font.includes("Onest")&&x.border==="0px"),
+   "Footer links need consistent unboxed typography: "+route+" "+JSON.stringify(looks));
+  await page.close();
+ }
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
  for(const route of ["","register.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
@@ -760,6 +774,16 @@ try{
    Math.abs(metrics.formWidth-metrics.introWidth)<=1.5&&
    (width<768||Math.abs(metrics.formWidth-520)<=1),
    "Recovery form must use the same centered 520px content column as login and registration: "+JSON.stringify(metrics));
+  const forgotCaption=await recoveryPage.locator('#forgot-form .vt-forgot-inline-01');
+  assert.equal(await forgotCaption.isVisible(),false,
+   "Recovery must display email only inside the input, without a second visible caption");
+  const hiddenCaption=await forgotCaption.evaluate(el=>({
+   style:getComputedStyle(el).clipPath,
+   label:el.textContent.trim(),
+   font:getComputedStyle(el).fontFamily
+  }));
+  assert.equal(hiddenCaption.style,"inset(50%)");
+  assert.ok(hiddenCaption.label.length>0,"Accessible email label must remain in the DOM");
   // One reveal belongs to the full card, including the top back control,
   // V mark, heading, fields and explanatory note — not to separate fragments.
   const motion=await recoveryPage.evaluate(()=>{
@@ -1405,6 +1429,8 @@ try{
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
+ assert.equal(await savedPage.locator(".saved-account-wordmark").count(),0,
+  "Saved account must not display a redundant VATRA wordmark");
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
  assert.equal(await savedPage.locator("#password").inputValue(),"");
  await savedPage.locator("#saved-account-other").click();
@@ -1422,6 +1448,8 @@ try{
  await savedPage.locator("#saved-switch-back").click();
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
  await savedPage.locator("#saved-account-continue").click();
+ assert.equal(await savedPage.locator(".vt-home-saved-field-title-001").isVisible(),false,
+  "Only signup should display a caption above the password input");
  await savedPage.locator("#saved-password").fill("WrongPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");

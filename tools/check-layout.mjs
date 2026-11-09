@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import {readFile,stat} from "node:fs/promises";
+import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const pages=["index","404","register","forgot","reset","account","terms","privacy","cookies","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
@@ -516,8 +516,52 @@ assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
  !css.includes('.reg-back-nav .back{min-height:40px;')&&
  !register.includes('class="signup-login-switch')&&
  register.includes('<a href="./" class="vt-register-footer-signin" data-i18n="n247">Увійти</a>')&&
- css.includes('.register-page .footer nav>.vt-register-footer-signin{min-height:36px;'),
+ !css.includes('.register-page .footer nav>.vt-register-footer-signin{')&&
+ !css.includes('.footer nav>a[href="register.html"]{'),
  "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
+// Field labels are retained for accessibility, but shown as floating hints on
+// login, recovery and saved account; only registration has visible top captions.
+for(const path of ["forgot.html","reset.html"]){
+ const markup=await read(path);
+ const labels=[...markup.matchAll(/<label\\b[^>]*class="field [^"]+"[^>]*>\\s*<span class="([^"]+)"/g)];
+ assert.equal(labels.length,4,path+" must keep four accessible captions");
+ assert.ok(labels.every(match=>match[1].split(/\\s+/).includes("vatra-sr-only")),
+  path+" must not repeat captions above the text fields");
+}
+const homeMarkup=await read("index.html");
+assert.ok(homeMarkup.includes('vt-home-saved-field-title-001 vatra-sr-only')&&
+ !homeMarkup.includes('saved-account-wordmark')&&
+ !css.includes('.site .saved-account-wordmark{')&&
+ css.includes('.site .saved-account-top{display:flex;align-items:center;justify-content:flex-end;')&&
+ css.includes('.vatra-sr-only{position:absolute!important;'),
+ "Remembered account must have no redundant wordmark or visible top password label");
+assert.ok(!css.includes('.footer nav>a[href="register.html"]{')&&
+ !css.includes('.register-page .footer nav>.vt-register-footer-signin{'),
+ "Footer sign-in and create-account links must use the same shared link typography");
+const allTemplates=await readdir("email-templates");
+assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
+ emailNames.map(n=>n+".html").sort(),
+ "Email templates must have exactly one canonical HTML per purpose");
+for(const [filename,route,type] of [
+ ["confirmation.html","account.html","email"],
+ ["invite.html","account.html","invite"],
+ ["magic-link.html","account.html","magiclink"],
+ ["email-change.html","account.html","email_change"],
+ ["recovery.html","reset.html","recovery"]
+]){
+ const source=await read("email-templates/"+filename);
+ assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
+  filename+": both locale branches must use the same direct confirmation URL");
+ assert.ok(source.includes(route+'?token_hash={{ .TokenHash }}&amp;type='+type),
+  filename+": wrong token type or callback");
+}
+for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
+ const source=await read("email-templates/"+file);
+ const classNames=[...source.matchAll(/\\sclass="([^"]+)"/g)].flatMap(m=>m[1].split(/\\s+/));
+ assert.equal(new Set(classNames).size,classNames.length,file+": classes must not collide");
+ assert.ok(!/https?:\\/\\/(?:[^" ]+)?\\/v2\\b/i.test(source)&&!source.includes('style-2'),
+  file+": no obsolete duplicate styles or URLs");
+}
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
 for(const file of loadingPages){
  const html=await read(file);
