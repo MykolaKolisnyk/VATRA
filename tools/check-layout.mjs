@@ -984,9 +984,9 @@ assert.ok(auth.includes('function replayAuthContent(node)')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]){animation:'),
  "Registration, confirmation and password recovery must reveal whole content blocks");
 const resetNew=await read("reset.html");
-assert.ok(forgot.includes('id="account-link" href="account.html" class="action primary full recovery-success-action vt-forgot-link-08"')&&
+assert.ok(forgot.includes('id="account-link" href="./" class="action primary full recovery-success-action vt-forgot-link-08"')&&
  resetNew.includes('id="recovery-success-link" class="form-note recovery-success-row vt-reset-paragraph-03" hidden')&&
- resetNew.includes('id="account-link" href="account.html" class="action primary full recovery-success-action vt-reset-link-03" hidden')&&
+ resetNew.includes('id="account-link" href="./" class="action primary full recovery-success-action vt-reset-link-03" hidden')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}'),
  "Both recovery paths need identical accessible password fields and full-width success CTA");
@@ -1001,3 +1001,26 @@ assert.ok(lang.includes('html.i18n-pending body{visibility:hidden!important}')&&
  css.includes('body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}')&&
  css.includes('@keyframes vatraAuthReveal'),
  "Entrance animations must pause until English translations and auth readiness, without freezing loading splash");
+
+// The OTP verification client must be temporary: it may authorize a password
+// update, but must not sign the visitor into VATRA if recovery is abandoned.
+assert.ok(auth.includes('persistSession:page!=="reset"&&page!=="forgot"')&&
+ auth.includes('autoRefreshToken:page!=="reset"&&page!=="forgot"')&&
+ auth.includes('detectSessionInUrl:page!=="forgot"')&&
+ auth.includes('recoveryVerifiedUserId=null;')&&
+ auth.includes('await auth.auth.signOut?.({scope:"local"})')&&
+ !forgot.includes('id="account-link" href="account.html"')&&
+ !resetNew.includes('id="account-link" href="account.html"')&&
+ en.__pages.forgot.nodes.n44.text["0"]==="Sign in with your new password"&&
+ uk.__pages.reset.nodes.n34.text["0"]==="Увійти з новим паролем",
+ "Recovery authentication must be session-isolated, explicitly released, and lead to password sign-in");
+for(const name of pages){
+ const enTitle=en.__pages[name]?.meta?.title;
+ if(!enTitle)continue;
+ assert.ok(lang.includes(JSON.stringify(name)+":"+JSON.stringify(enTitle)),
+  "An English browser tab title must be available synchronously for "+name);
+}
+assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
+ lang.includes('observer.disconnect()')&&
+ lang.includes('document.head.querySelector("title")'),
+ "English tab titles should never briefly show Ukrainian during async translation");
