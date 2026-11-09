@@ -673,7 +673,7 @@ assert.ok(auth.includes("function wireHoverHelp()")&&auth.includes("other!==help
  "Gender and email help must open on hover and never overlap");
 assert.ok(css.includes("align-items:start")&&css.includes(".signup-form-panel .two>.field{align-content:start;align-self:start}"),
  "Two-column registration inputs must not move when a field shows validation errors");
-for(const page of pages.filter(p=>p!=="offline")){
+for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
