@@ -1578,7 +1578,7 @@ try{
    const shell=el.closest(".vatra-input-shell");
    const hint=shell.querySelector(".vatra-floating-hint");
    const inputRect=el.getBoundingClientRect(),hintRect=hint.getBoundingClientRect();
-   return {raised:shell.classList.contains("is-floating"),
+   return {raised:shell.classList.contains("is-floating")||shell.matches(":focus-within"),
     inputHeight:inputRect.height,hintTop:hintRect.top-inputRect.top,
     hintLeft:hintRect.left-inputRect.left,hintBottom:hintRect.bottom-inputRect.top,
     paddingTop:getComputedStyle(el).paddingTop,paddingBottom:getComputedStyle(el).paddingBottom,
@@ -1609,7 +1609,7 @@ try{
    const shell=el.closest(".vatra-input-shell");
    const font=getComputedStyle(el);
    const hint=shell.querySelector(".vatra-floating-hint");
-   return {floating:shell.classList.contains("is-floating"),
+   return {floating:shell.classList.contains("is-floating")||shell.matches(":focus-within"),
     font:font.fontFamily,hintFont:getComputedStyle(hint).fontFamily,
     top:hint.getBoundingClientRect().bottom,bottom:el.getBoundingClientRect().top};
   });
@@ -1795,7 +1795,7 @@ try{
    const scale=await field.evaluate(node=>{
     const shell=node.closest(".vatra-input-shell");
     const hint=shell.querySelector(".vatra-floating-hint");
-    return {floating:shell.classList.contains("is-floating"),
+    return {floating:shell.classList.contains("is-floating")||shell.matches(":focus-within"),
      inputFont:getComputedStyle(node).fontFamily,hintFont:getComputedStyle(hint).fontFamily,
      inputSize:parseFloat(getComputedStyle(node).fontSize),
      hintSize:parseFloat(getComputedStyle(hint).fontSize)};
@@ -1807,6 +1807,16 @@ try{
    assert.equal(await toggle.isVisible(),true,"Show password should appear for nonempty input");
    await field.fill("");
    assert.equal(await toggle.isVisible(),false,"Show password should hide when field becomes empty");
+   await field.blur();
+   await view.waitForTimeout(240);
+   const clearedHint=await field.evaluate(node=>{
+    const shell=node.closest(".vatra-input-shell"),hint=shell.querySelector(".vatra-floating-hint");
+    const input=node.getBoundingClientRect(),label=hint.getBoundingClientRect();
+    return {floating:shell.classList.contains("is-floating")||shell.matches(":focus-within"),
+     offset:Math.abs((label.top+label.bottom)/2-(input.top+input.bottom)/2)};
+   });
+   assert.ok(!clearedHint.floating&&clearedHint.offset<=3,
+    "Clearing either password input must restore its hint: "+id+" "+JSON.stringify(clearedHint));
   }
   const overflow=await view.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
   assert.ok(overflow<=3,"Recovery password stage must not overflow "+width+": "+overflow);
