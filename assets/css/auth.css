@@ -522,6 +522,8 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 }
 @media (min-width:1200px) and (max-height:760px){
   .intro-side{padding-top:18px;padding-bottom:24px}
+  /* Preserve the V symbol and card gutters; only release unused artwork height. */
+  .signup-brand-art{height:clamp(215px,18vw,235px)}
   .form-side,.signup-form-panel{padding-block:18px}
 }
 @media (min-width:1200px) and (max-height:610px){
