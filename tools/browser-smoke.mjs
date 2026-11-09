@@ -671,11 +671,10 @@ try{
    const font=getComputedStyle(document.querySelector("#email"));
    const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
    const intro=document.querySelector(".forgot-intro").getBoundingClientRect();
-   const step=document.querySelector("#recovery-step").getBoundingClientRect();
    const panelCenter=panel.left+panel.width/2;
    return {panelX:panel.x,panelRight:panel.right,panelWidth:panel.width,
     headlineX:headline.x,formX:form.x,overflow:document.documentElement.scrollWidth-innerWidth,
-    formWidth:form.width,headerWidth:header.width,introWidth:intro.width,stepWidth:step.width,
+    formWidth:form.width,headerWidth:header.width,introWidth:intro.width,
     centered:Math.abs(form.left+form.width/2-panelCenter),
     fontFamily:style.fontFamily,fontSize:parseFloat(style.fontSize),inputFont:font.fontFamily};
   });
@@ -687,7 +686,6 @@ try{
   assert.ok(metrics.formWidth<=520.5&&Math.abs(metrics.centered)<=1.5&&
    Math.abs(metrics.formWidth-metrics.headerWidth)<=1.5&&
    Math.abs(metrics.formWidth-metrics.introWidth)<=1.5&&
-   Math.abs(metrics.formWidth-metrics.stepWidth)<=1.5&&
    (width<768||Math.abs(metrics.formWidth-520)<=1),
    "Recovery form must use the same centered 520px content column as login and registration: "+JSON.stringify(metrics));
   const alignment=await recoveryPage.evaluate(()=>{
@@ -741,6 +739,8 @@ try{
   const codeStep=await recoveryPage.locator("#recovery-step").boundingBox();
   assert.ok(codeStep&&codeStep.x>=0&&codeStep.x+codeStep.width<=width+1,
    "OTP stage must remain within the same card at "+width);
+  assert.ok(Math.abs(codeStep.width-metrics.formWidth)<=1.5,
+   "OTP stage must match the 520px form column at "+width+": "+JSON.stringify(codeStep));
   await recoveryPage.close();
  }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
