@@ -289,6 +289,204 @@
   "Перевірку безпеки скасовано.": "Security verification was cancelled.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Could not complete the security verification. Retry or check your connection.",
   "__pages": {
+    "feed": {
+      "meta": {
+        "title": "Feed · VATRA",
+        "description": "Posts and stories on VATRA."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Skip to feed"
+          }
+        },
+        "n2": {
+          "text": {
+            "0": "Feed"
+          }
+        },
+        "n3": {
+          "text": {
+            "0": "My page"
+          }
+        },
+        "n4": {
+          "text": {
+            "0": "Friends"
+          }
+        },
+        "n5": {
+          "text": {
+            "0": "Messenger"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Communities"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Video"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Clips"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Saved"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "Settings"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Feed"
+          }
+        },
+        "n13": {
+          "text": {
+            "0": "Your stories start here."
+          }
+        },
+        "n15": {
+          "text": {
+            "0": "Publish"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Posts"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "It's quiet here"
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Create the first post on VATRA."
+          }
+        },
+        "n20": {
+          "text": {
+            "0": "Show more"
+          }
+        },
+        "n21": {
+          "text": {
+            "0": "Your space"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Discover stories and stay close to your people."
+          }
+        },
+        "n23": {
+          "text": {
+            "0": "Coming to VATRA"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Friends, communities, clips and video are coming in future updates."
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Sign out"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "© 2026 VATRA · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Cookies"
+          }
+        },
+        "n33": {
+          "text": {
+            "0": "Your people. Your stories. Your VATRA."
+          }
+        },
+        "n35": {
+          "text": {
+            "0": "New post"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Newest"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Delete this post?"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "You will no longer see this post in the feed."
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Cancel"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Delete"
+          }
+        },
+        "n14": {
+          "attrs": {
+            "placeholder": "Share something with VATRA…"
+          }
+        },
+        "n31": {
+          "attrs": {
+            "aria-label": "Choose language"
+          }
+        },
+        "n32": {
+          "attrs": {
+            "aria-label": "VATRA navigation"
+          }
+        },
+        "n34": {
+          "attrs": {
+            "aria-label": "New post"
+          }
+        },
+        "n37": {
+          "attrs": {
+            "aria-label": "VATRA documents"
+          }
+        }
+      }
+    },
     "404": {
       "meta": {
         "title": "404 Page not found · VATRA",
