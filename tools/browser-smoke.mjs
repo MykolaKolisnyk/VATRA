@@ -1323,6 +1323,29 @@ try{
  assert.equal(await fullRecovery.locator("#recovery-step-heading").textContent(),"Встановіть новий пароль");
  assert.equal(await fullRecovery.evaluate(()=>document.activeElement?.id),"recovery-step-heading",
   "Successful OTP must focus the step heading, not an empty password field");
+ // Reproduce password-manager implicit focus (e.g. Opera GX): the empty
+ // password caption must remain centered until a genuine user interaction.
+ const autoFocusPassword=fullRecovery.locator("#password");
+ await autoFocusPassword.evaluate(el=>el.focus());
+ await fullRecovery.waitForTimeout(240);
+ const measurePasswordHint=()=>autoFocusPassword.evaluate(el=>{
+  const shell=el.closest(".vatra-input-shell"),hint=shell.querySelector(".vatra-floating-hint");
+  const ir=el.getBoundingClientRect(),hr=hint.getBoundingClientRect();
+  return {pristine:shell.classList.contains("is-awaiting-user-input"),
+   centered:Math.abs((hr.top+hr.bottom)/2-(ir.top+ir.bottom)/2)<=3,
+   raised:hr.bottom<=ir.top+24};
+ });
+ const autoFocused=await measurePasswordHint();
+ assert.ok(autoFocused.pristine&&autoFocused.centered,
+  "Empty password-manager autofocus must not strand its hint at the top: "+JSON.stringify(autoFocused));
+ await autoFocusPassword.click();
+ await fullRecovery.waitForTimeout(240);
+ const clickedPassword=await measurePasswordHint();
+ assert.ok(!clickedPassword.pristine&&clickedPassword.raised,
+  "A real click must lift the password caption: "+JSON.stringify(clickedPassword));
+ await autoFocusPassword.blur();
+ await fullRecovery.waitForTimeout(240);
+ assert.ok((await measurePasswordHint()).centered,"Empty password hint must return after blur");
  for(const id of ["password","password-confirm"]){
   const control=fullRecovery.locator("#"+id);
   assert.equal(await control.evaluate(el=>el.closest(".vatra-input-shell").matches(":focus-within")||
