@@ -917,7 +917,13 @@ try{
   assert.equal(await tip.evaluate(el=>getComputedStyle(el).fontSize),"13px");
   if(path==="register.html"){
    assert.equal(await policyPage.locator(".vt-register-paragraph-02").count(),0);
-   assert.ok((await policyPage.locator(".signup-step").first().evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"));
+   assert.equal(await policyPage.locator(".signup-step").first().evaluate(el=>getComputedStyle(el).animationName),"none");
+   await policyPage.evaluate(()=>{
+    document.body.dataset.registrationStep="2";
+    document.querySelector('[data-register-step="2"]').hidden=false;
+   });
+   assert.ok((await policyPage.locator('[data-register-step="2"]').evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"),
+    "The next step animates once when entered");
   }
   await policyPage.close();
  }

@@ -312,7 +312,8 @@
 .signup-progress-segment:first-child,.register-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
 
 .signup-step-heading .subtitle{margin:0;max-width:45ch}
-.signup-step{display:grid;gap:17px;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+.signup-step{display:grid;gap:17px;min-width:0}
+.register-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 @keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
