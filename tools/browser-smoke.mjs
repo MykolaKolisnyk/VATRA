@@ -808,7 +808,7 @@ try{
  });
  await fullRecovery.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
-  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session"}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{if(data.password==="OldPassword@12345")return {data:{},error:{code:"same_password",message:"New password should be different from the old password"}};window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
+  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session",user:{id:"verified-mock"}}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{if(data.password==="OldPassword@12345")return {data:{},error:{code:"same_password",message:"New password should be different from the old password"}};window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
  }));
  await fullRecovery.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
  await waitReady(fullRecovery);
@@ -831,6 +831,7 @@ try{
  const policyTip=fullRecovery.locator("#forgot-password-policy");
  assert.ok((await policyTip.textContent()).includes("12–128"));
  assert.ok((await policyTip.evaluate(el=>getComputedStyle(el).fontFamily)).includes("Onest"));
+ assert.equal(await policyTip.evaluate(el=>getComputedStyle(el).fontSize),"13px");
  await fullRecovery.locator("#password").fill("lowercaseonly123!");
  await fullRecovery.locator("#password-confirm").fill("lowercaseonly123!");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
@@ -864,6 +865,43 @@ try{
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),"StrongPassword@12345");
  assert.equal(await fullRecovery.evaluate(()=>sessionStorage.getItem("vatra-recovery-pending")),null);
  await fullRecovery.close();
+ // A saved sign-in session is not permission to reset a password.
+ await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
+ const recoveryLink=await context.newPage();
+ await recoveryLink.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{onAuthStateChange:fn=>{window.__resetRecoveryHandler=fn;return {data:{subscription:{unsubscribe(){}}}}},getUser:async()=>({data:{user:{id:window.__resetRecoveryUserId||"unrelated-user"}},error:null}),updateUser:async data=>{window.__resetPasswordChanged=data.password;return {data:{},error:null}}}})};'
+ }));
+ await recoveryLink.goto(base+"reset.html?type=recovery",{waitUntil:"domcontentloaded"});
+ await waitReady(recoveryLink);
+ assert.equal(await recoveryLink.locator("#reset-form").isVisible(),false);
+ await recoveryLink.evaluate(()=>window.__resetRecoveryHandler("SIGNED_IN",{user:{id:"unrelated-user"}}));
+ assert.equal(await recoveryLink.locator("#reset-form").isVisible(),false,
+  "A SIGNED_IN event is not proof of recovery");
+ await recoveryLink.evaluate(()=>window.__resetRecoveryHandler("PASSWORD_RECOVERY",{user:{id:"recovery-user"}}));
+ await recoveryLink.locator("#reset-form").waitFor({state:"visible"});
+ await recoveryLink.locator("#password").fill("NewPassword@12345");
+ await recoveryLink.locator("#password-confirm").fill("NewPassword@12345");
+ await recoveryLink.locator("#reset-form button[type='submit']").click();
+ assert.ok((await recoveryLink.locator("#response").textContent()).includes("Підтвердження закінчилося"),
+  "Changing accounts mid-recovery must be rejected");
+ assert.equal(await recoveryLink.evaluate(()=>window.__resetPasswordChanged),undefined);
+ await recoveryLink.evaluate(()=>{window.__resetRecoveryUserId="recovery-user";window.__resetRecoveryHandler("PASSWORD_RECOVERY",{user:{id:"recovery-user"}});});
+ await recoveryLink.locator("#reset-form").waitFor({state:"visible"});
+ await recoveryLink.locator("#reset-form button[type='submit']").click();
+ await recoveryLink.locator("#account-link").waitFor({state:"visible"});
+ assert.equal(await recoveryLink.evaluate(()=>window.__resetPasswordChanged),"NewPassword@12345");
+ await recoveryLink.close();
+ const expiredLink=await context.newPage();
+ await expiredLink.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{onAuthStateChange:fn=>{window.__expiredListener=fn;return {data:{subscription:{unsubscribe(){}}}}},getUser:async()=>({data:{user:{id:"unrelated-user"}},error:null})}})};'
+ }));
+ await expiredLink.goto(base+"reset.html?type=recovery&error=access_denied",{waitUntil:"domcontentloaded"});
+ await waitReady(expiredLink);
+ assert.equal(await expiredLink.locator("#reset-form").isVisible(),false);
+ assert.ok((await expiredLink.locator("#response").textContent()).includes("Посилання недійсне"));
+ await expiredLink.close();
  // The UI also displays identical rules and Onest at signup and direct reset.
  for(const [path,selector] of [
   ["register.html","#register-password-policy"],["reset.html","#reset-password-policy"]
@@ -876,6 +914,11 @@ try{
    path+" must explain the same minimum requirements");
   assert.ok((await tip.evaluate(el=>getComputedStyle(el).fontFamily)).includes("Onest"),
    path+" must share the typography");
+  assert.equal(await tip.evaluate(el=>getComputedStyle(el).fontSize),"13px");
+  if(path==="register.html"){
+   assert.equal(await policyPage.locator(".vt-register-paragraph-02").count(),0);
+   assert.ok((await policyPage.locator(".signup-step").first().evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"));
+  }
   await policyPage.close();
  }
  console.log("VATRA complete mock email → OTP → password update → success: OK");

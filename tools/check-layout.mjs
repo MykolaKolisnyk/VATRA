@@ -75,6 +75,22 @@ for(const [page,key,id] of [
   css.includes('.password-policy-note{margin:-2px 0 2px;'),
   "Password rules should be visible in identical Onest typography on "+page);
 }
+// No signed-in user can reset a password without a proven recovery event or OTP.
+assert.ok(auth.includes('let recoveryVerifiedUserId=null;')&&
+ auth.includes('if(event==="PASSWORD_RECOVERY"&&session?.user?.id)reveal(session.user);')&&
+ auth.includes('if(!recoveryVerifiedUserId){')&&
+ auth.includes('user.id!==recoveryVerifiedUserId')&&
+ !auth.includes('if(!error&&data?.user)reveal();'),
+ "Password recovery must be bound to verified identity");
+const registerHtml=await read("register.html");
+assert.ok(!registerHtml.includes('vt-register-paragraph-02')&&
+ !Object.hasOwn(uk.__pages.register.nodes,"n51")&&
+ !Object.hasOwn(en.__pages.register.nodes,"n51"),
+ "Do not duplicate the password requirements in signup or translations");
+assert.ok(css.includes('.password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:13px;')&&
+ css.includes('.signup-step{display:grid;gap:17px;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}')&&
+ css.includes('.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,'),
+ "Shared password typography and reduced-motion-aware transitions");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
 assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
  errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),

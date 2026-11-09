@@ -148,7 +148,7 @@
 .vatra-input-shell.input-password .control{padding-right:90px}
 .field.is-invalid .vatra-floating-hint{color:#aa4e60}
 .field.is-invalid .control,.field.is-invalid .vatra-select-trigger{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
-.password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:12px;font-weight:450;line-height:1.55;font-family:"Onest",Inter,system-ui,sans-serif}
+.password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:13px;font-weight:450;line-height:1.55;font-family:"Onest",Inter,system-ui,sans-serif}
 .field-error{display:flex;align-items:flex-start;gap:7px;width:100%;margin:8px 0 1px;color:#a83d54;font-size:12px;font-weight:650;line-height:1.5}.field-error::before{content:"!";display:grid;place-items:center;flex:none;width:15px;height:15px;margin-top:1px;border-radius:50%;background:#fff0f2;color:#b8435b;font-size:10px;font-weight:800}
 .check-terms.is-invalid{color:#a83d54}
 .check-terms>span{display:block;min-width:0;flex:1;grid-column:2;grid-row:1}.check-terms>.field-error{grid-column:1/-1;grid-row:2;margin:0;min-width:0;align-self:start;gap:11px}.check-terms>.field-error::before{width:16px;height:16px;margin-top:1px}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px;font-weight:500;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vt-ua-home-inline-05,.vt-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}
@@ -267,7 +267,7 @@
 
 
 /* Confirmation shares the registration typography and content width. */
-.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal .3s both}
+.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .signup-confirmation[hidden],.signup-form-panel .narrow-form[hidden]{display:none}
 .signup-confirmation-kicker{margin-bottom:16px}
 .signup-confirmation .signup-step-heading{width:100%}
@@ -312,7 +312,7 @@
 .signup-progress-segment:first-child,.register-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
 
 .signup-step-heading .subtitle{margin:0;max-width:45ch}
-.signup-step{display:grid;gap:17px;min-width:0}
+.signup-step{display:grid;gap:17px;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 @keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
@@ -321,7 +321,7 @@
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.signup-form-panel .narrow-form,.site .form-box,.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step){animation:none!important}.signup-progress-segment{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step){animation:none!important}.signup-progress-segment{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}

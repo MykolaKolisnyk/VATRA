@@ -505,11 +505,6 @@
             "aria-label": "Show password"
           }
         },
-        "n51": {
-          "text": {
-            "0": "At least 12 characters: uppercase and lowercase Latin letters, a digit and a symbol. Do not reuse passwords."
-          }
-        },
         "n54": {
           "text": {
             "0": "I agree to the ",

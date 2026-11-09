@@ -895,12 +895,17 @@ function wireReset(){
  const params=new URLSearchParams(location.search);
  const hash=new URLSearchParams(location.hash.substring(1));
  const openedLink=params.has("code")||params.get("type")==="recovery"||hash.get("type")==="recovery"||hash.has("access_token");
+ const linkFailed=Boolean(params.get("error")||hash.get("error"));
+ // A pre-existing login session is not evidence of a password recovery.
+ let recoveryVerifiedUserId=null;
  const emailInput=q("#recovery-email");
  const tokenInput=q("#recovery-token");
  try{emailInput.value=sessionStorage.getItem("vatra-recovery-email")||"";}catch(_){}
  // Programmatic session-prefill must also update the shared floating-hint state.
  emailInput.dispatchEvent(new Event("input",{bubbles:true}));
- const reveal=()=>{
+ const reveal=verifiedUser=>{
+  if(!verifiedUser?.id)return;
+  recoveryVerifiedUserId=verifiedUser.id;
   codeForm.hidden=true;
   form.hidden=false;
   const tools=q("#recovery-tools");if(tools)tools.hidden=true;
@@ -909,17 +914,14 @@ function wireReset(){
   clearFeedback();
   q("#password")?.focus({preventScroll:true});
  };
- if(params.get("error")||hash.get("error")){
+ if(linkFailed){
   feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
- }
- if(openedLink){
-  /* Supabase PKCE/hash callback may settle after client initialization. */
+ }else if(openedLink){
+  // Only Supabase's validated recovery callback can unlock the form.
+  // SIGNED_IN and INITIAL_SESSION are not recovery events.
   auth.auth.onAuthStateChange((event,session)=>{
-   if(event==="PASSWORD_RECOVERY"&&session)reveal();
+   if(event==="PASSWORD_RECOVERY"&&session?.user?.id)reveal(session.user);
   });
-  auth.auth.getUser().then(({data,error})=>{
-   if(!error&&data?.user)reveal();
-  }).catch(()=>{});
  }
  codeForm.addEventListener("submit",async e=>{
   e.preventDefault();clearFeedback();
@@ -930,15 +932,19 @@ function wireReset(){
   busy(codeForm,true);
   try{
    const {data,error}=await auth.auth.verifyOtp({email,token,type:"recovery"});
-   if(error||!data?.session)throw error||new Error("Verification failed");
+   if(error||!data?.session?.user?.id)throw error||new Error("Verification failed");
    tokenInput.value="";
    tokenInput.dispatchEvent(new Event("input",{bubbles:true}));
-   reveal();
+   reveal(data.session.user);
   }catch(_){feedback("Неправильний або прострочений код. Перевірте лист або запросіть новий.","error");}
   finally{busy(codeForm,false);}
  });
  form.addEventListener("submit",async e=>{
   e.preventDefault();clearFeedback();
+  if(!recoveryVerifiedUserId){
+   feedback("Спочатку підтвердьте відновлення через лист або одноразовий код.","error");
+   form.hidden=true;codeForm.hidden=false;return;
+  }
   const password=q("#password").value,again=q("#password-confirm").value;
   const passwordProblem=passwordIssue(password);
   if(passwordProblem){feedback(passwordProblem,"error");q("#password")?.focus({preventScroll:true});return;}
@@ -946,7 +952,7 @@ function wireReset(){
   busy(form,true);
   try{
    const {data:{user},error:userErr}=await auth.auth.getUser();
-   if(userErr||!user){feedback("Підтвердження закінчилося. Запросіть новий код для відновлення.","error");form.hidden=true;codeForm.hidden=false;return;}
+   if(userErr||!user||user.id!==recoveryVerifiedUserId){feedback("Підтвердження закінчилося. Запросіть новий код для відновлення.","error");form.hidden=true;codeForm.hidden=false;return;}
    const {error}=await auth.auth.updateUser({password});
    if(error)throw error;
    form.reset();
