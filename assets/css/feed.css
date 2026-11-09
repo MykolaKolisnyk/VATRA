@@ -85,6 +85,17 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
 .feed-info-mark{width:48px;height:48px;margin-bottom:19px;font-size:30px}
 .feed-info-title,.feed-next-title{margin:0 0 9px;font-size:16px;font-weight:750;color:#36435d}
 .feed-info-text,.feed-next-text{margin:0;color:#78869b;font-size:13px;line-height:1.7}
+.feed-gate-retry{min-height:40px;padding:9px 17px;border:1px solid #c3d3f6;border-radius:999px;background:#fff;color:#2b63c8;font-size:13px;font-weight:750}
+.feed-delete-dialog{width:min(100% - 32px,430px);max-height:calc(100dvh - 30px);padding:27px;border:1px solid #dde5f6;border-radius:23px;background:#fff;color:#2c3850;box-shadow:0 22px 75px rgba(35,51,93,.2);font-family:"Onest",Inter,system-ui,sans-serif}
+.feed-delete-dialog::backdrop{background:rgba(24,34,65,.51);backdrop-filter:blur(3px)}
+.feed-delete-title{margin:0 0 10px;font-size:22px;font-weight:780}
+.feed-delete-description{margin:0 0 23px;color:#71819c;font-size:14px;line-height:1.6}
+.feed-delete-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.feed-delete-cancel,.feed-delete-confirm{min-height:46px;padding:10px;border-radius:999px;font-size:14px;font-weight:750}
+.feed-delete-cancel{border:1px solid #bacaf1;background:#fff;color:#2962d4}
+.feed-delete-cancel:hover{background:#f0f5ff}
+.feed-delete-confirm{border:0;background:#2d67de;color:#fff}
+.feed-delete-confirm:hover{background:#205ac8}
 .feed-footer{margin-top:auto;border-top:1px solid #e2e9f5;background:#fff}
 .feed-footer-inner{width:min(100% - 48px,1450px);min-height:74px;margin:auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:13px 0;color:#8190a5;font-size:12px}
 .feed-footer-nav{display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px}
