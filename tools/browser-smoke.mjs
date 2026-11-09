@@ -1793,7 +1793,7 @@ try{
   window.__verifiedMockUser={id:"matched",email:"demoexample@example.test",
    email_confirmed_at:"2026-11-08T12:00:00Z"};
  });
- await confirmationPage.route("**/account.html",route=>route.fulfill({
+ await confirmationPage.route("**/feed.html",route=>route.fulfill({
   status:200,contentType:"text/html",body:"<!doctype html><title>Verified VATRA</title><main id='verified-account'>VATRA account</main>"
  }));
  const verifiedTab=await context.newPage();
@@ -1803,7 +1803,7 @@ try{
  }));
  await verifiedTab.goto(base+"account.html",{waitUntil:"domcontentloaded"});
  await waitReady(verifiedTab);
- await confirmationPage.waitForURL(/\/account\.html$/,{timeout:10000});
+ await confirmationPage.waitForURL(/\/feed\.html$/,{timeout:10000});
  assert.equal(await confirmationPage.locator("#verified-account").count(),1,
   "Matching server-verified user should automatically open the account from the waiting tab");
  await verifiedTab.close();
@@ -1946,7 +1946,9 @@ try{
     },
     signOut:async()=>{sessionStorage.removeItem("mockLoggedIn");return {error:null};}
    },
-   from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:112233},error:null})})})})
+   from:table=>table==="feed_posts"?
+    {select:()=>({order(){return this;},range:async()=>({data:[],error:null})})}:
+    {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:112233},error:null})})})}
   })};`
  }));
  const savedPage=await savedContext.newPage();
@@ -1958,13 +1960,13 @@ try{
  await savedPage.locator("#email").fill("example@vatra.test");
  await savedPage.locator("#password").fill("CorrectPass@123");
  await savedPage.locator('#login-form button[type="submit"]').click();
- await savedPage.waitForURL("**/account.html");
+ await savedPage.waitForURL("**/feed.html");
  await waitReady(savedPage);
  const savedData=await savedPage.evaluate(()=>localStorage.getItem("vatra-remembered-account"));
  assert.ok(savedData&&JSON.parse(savedData).email==="example@vatra.test"&&
   !savedData.includes("CorrectPass@123")&&!savedData.includes("token"),
   "Remembered account must store only name and email after real verified sign-in");
- await savedPage.locator("#logout").click();
+ await savedPage.locator("#feed-logout").click();
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
@@ -2102,9 +2104,9 @@ try{
   expectedSavedError,"Saved password failure needs contextual, translated feedback");
  await savedPage.locator("#saved-password").fill("CorrectPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
- await savedPage.waitForURL("**/account.html");
+ await savedPage.waitForURL("**/feed.html");
  await waitReady(savedPage);
- await savedPage.locator("#logout").click();
+ await savedPage.locator("#feed-logout").click();
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
  await savedPage.locator("#saved-account-remove").click();
