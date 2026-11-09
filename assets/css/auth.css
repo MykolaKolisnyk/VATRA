@@ -61,19 +61,11 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .site .saved-account-remove{position:relative;z-index:2;display:grid;place-items:center;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
 .site .saved-account-remove:hover{background:#eef3ff;color:#285fd0}
 .site .saved-account-remove svg{width:21px;height:21px}
-/* The only native title tooltip in the auth UI is replaced by a VATRA hint.
-   The button keeps its real aria-label and the confirmation dialog remains authoritative. */
-.site .saved-account-remove[data-vatra-tooltip]::after{content:attr(data-vatra-tooltip);position:absolute;z-index:3;top:calc(100% + 12px);right:-8px;display:block;width:max-content;max-width:min(240px,calc(100vw - 44px));padding:10px 13px;border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766;box-shadow:0 12px 30px rgba(26,44,92,.14);font-family:"Onest",Inter,system-ui,sans-serif;font-size:12px;font-weight:650;line-height:1.4;letter-spacing:0;text-align:left;white-space:normal;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease,visibility .16s}
-.site .saved-account-remove[data-vatra-tooltip]::before{content:"";position:absolute;z-index:4;top:calc(100% + 7px);right:13px;width:10px;height:10px;border-top:1px solid #d7e2f5;border-left:1px solid #d7e2f5;background:#fff;pointer-events:none;opacity:0;visibility:hidden;transform:translateY(-4px) rotate(45deg);transition:opacity .16s ease,transform .16s ease,visibility .16s}
-@media(hover:hover) and (pointer:fine){
- .site .saved-account-remove[data-vatra-tooltip]:hover::after{opacity:1;visibility:visible;transform:translateY(0)}
- .site .saved-account-remove[data-vatra-tooltip]:hover::before{opacity:1;visibility:visible;transform:translateY(0) rotate(45deg)}
-}
-.site .saved-account-remove[data-vatra-tooltip]:focus-visible::after{opacity:1;visibility:visible;transform:translateY(0)}
-.site .saved-account-remove[data-vatra-tooltip]:focus-visible::before{opacity:1;visibility:visible;transform:translateY(0) rotate(45deg)}
-@media(prefers-reduced-motion:reduce){
- .site .saved-account-remove[data-vatra-tooltip]::before,.site .saved-account-remove[data-vatra-tooltip]::after{transition:none}
-}
+/* Body-level, collision-aware hint: never cropped by the card, even on zoom. */
+.site .vatra-saved-tooltip{position:fixed;z-index:13000;display:block;width:max-content;max-width:min(248px,calc(100vw - 24px));padding:10px 13px;border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766;box-shadow:0 12px 30px rgba(26,44,92,.14);font-family:"Onest",Inter,system-ui,sans-serif;font-size:12px;font-weight:650;line-height:1.45;letter-spacing:0;text-align:left;white-space:normal;overflow-wrap:anywhere;pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease}
+.site .vatra-saved-tooltip.is-visible{opacity:1;transform:translateY(0)}
+.site .vatra-saved-tooltip[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){.site .vatra-saved-tooltip{transition:none!important;transform:none!important}}
 .site .saved-account-avatar{display:grid;place-items:center;width:98px;height:98px;margin:5px 0 18px;border:5px solid #fff;border-radius:50%;background:linear-gradient(130deg,#2d68e4,#7641dc 65%,#ec4fa5);box-shadow:0 0 0 2px #cfddff,0 12px 26px rgba(44,79,176,.16);color:#fff}
 .site .saved-account-avatar span{font-size:36px;font-weight:800;line-height:1;letter-spacing:-.045em}
 .site .saved-account-eyebrow{margin:0 0 9px;color:#5a76b1;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}

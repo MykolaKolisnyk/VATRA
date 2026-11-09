@@ -670,6 +670,57 @@ async function authenticatePassword(email,password,form){
  if(data?.user?.email_confirmed_at)rememberAccount(data.user);
  goToMyAccount();
 }
+/* The saved-account hint is portalled to the viewport, so transformed cards and
+   small screens cannot clip it. Other controls keep their own existing help. */
+function wireSavedAccountTooltip(button){
+ if(!button)return;
+ const tip=document.createElement("span");
+ tip.id="vatra-saved-account-tooltip";
+ tip.className="vatra-saved-tooltip vt-home-saved-tooltip-001";
+ tip.setAttribute("role","tooltip");
+ tip.hidden=true;
+ document.body.append(tip);
+ const hide=()=>{tip.classList.remove("is-visible");tip.hidden=true;};
+ const position=()=>{
+  if(tip.hidden)return;
+  const buttonBox=button.getBoundingClientRect();
+  const view=window.visualViewport;
+  const leftBound=(view?.offsetLeft||0)+12;
+  const topBound=(view?.offsetTop||0)+12;
+  const rightBound=(view?.offsetLeft||0)+(view?.width||innerWidth)-12;
+  const bottomBound=(view?.offsetTop||0)+(view?.height||innerHeight)-12;
+  if(buttonBox.bottom<topBound||buttonBox.top>bottomBound){hide();return;}
+  const width=tip.offsetWidth,height=tip.offsetHeight;
+  const left=Math.max(leftBound,Math.min(buttonBox.left+buttonBox.width/2-width/2,rightBound-width));
+  const below=buttonBox.bottom+10;
+  const above=buttonBox.top-height-10;
+  const top=below+height<=bottomBound?below:above>=topBound?above:
+   Math.max(topBound,Math.min(below,bottomBound-height));
+  tip.style.left=Math.round(left)+"px";
+  tip.style.top=Math.round(top)+"px";
+ };
+ const reveal=event=>{
+  if(event?.pointerType==="touch")return;
+  tip.textContent=button.getAttribute("data-vatra-tooltip")||button.getAttribute("aria-label")||"";
+  if(!tip.textContent)return;
+  tip.hidden=false;
+  position();
+  requestAnimationFrame(()=>{if(!tip.hidden)tip.classList.add("is-visible");});
+ };
+ button.addEventListener("pointerenter",reveal);
+ button.addEventListener("pointerleave",()=>{
+  if(!button.matches(":focus-visible"))hide();
+ });
+ button.addEventListener("focus",reveal);
+ button.addEventListener("blur",hide);
+ button.addEventListener("click",hide);
+ window.addEventListener("resize",position,{passive:true});
+ window.addEventListener("scroll",position,{passive:true,capture:true});
+ document.addEventListener("scroll",position,{passive:true,capture:true});
+ window.visualViewport?.addEventListener("resize",position,{passive:true});
+ window.visualViewport?.addEventListener("scroll",position,{passive:true});
+ document.addEventListener("keydown",event=>{if(event.key==="Escape")hide();});
+}
 function wireRememberedAccount(){
  const remembered=readRememberedAccount();
  const panel=q("#saved-account-panel"),standard=q("#standard-login-panel"),back=q("#saved-switch-back");
@@ -686,6 +737,7 @@ function wireRememberedAccount(){
   const label=english?"Remove saved account":"Вилучити збережений акаунт";
   removeButton.setAttribute("aria-label",label);
   removeButton.setAttribute("data-vatra-tooltip",label);
+  wireSavedAccountTooltip(removeButton);
  }
  const parts=remembered.name.split(/\s+/).filter(Boolean);
  initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();

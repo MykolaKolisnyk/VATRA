@@ -594,8 +594,11 @@ assert.ok(landing.includes('id="saved-account-remove"')&&
  !landing.includes('title="Вилучити збережений акаунт"')&&
  auth.includes('removeButton.setAttribute("data-vatra-tooltip",label)')&&
  !auth.includes("removeButton.title=label")&&
- css.includes(".site .saved-account-remove[data-vatra-tooltip]::after{")&&
- css.includes(".site .saved-account-remove[data-vatra-tooltip]:focus-visible::after{"),
+ auth.includes("function wireSavedAccountTooltip(button){")&&
+ auth.includes("wireSavedAccountTooltip(removeButton)")&&
+ css.includes(".site .vatra-saved-tooltip{position:fixed;z-index:13000;")&&
+ css.includes(".site .vatra-saved-tooltip[hidden]{display:none!important}")&&
+ !css.includes(".saved-account-remove[data-vatra-tooltip]::after{"),
  "Saved-account remove help must use the localized VATRA tooltip, not native title");
 assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;")&&
  css.includes(".auth-layout{justify-content:flex-start;padding:24px 0}")&&

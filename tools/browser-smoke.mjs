@@ -1521,24 +1521,40 @@ try{
  assert.equal(await removeHint.getAttribute("data-vatra-tooltip"),"Вилучити збережений акаунт");
  assert.equal(await removeHint.getAttribute("aria-label"),"Вилучити збережений акаунт");
  await removeHint.hover();
+ const hint=savedPage.locator("#vatra-saved-account-tooltip");
+ await hint.waitFor({state:"visible",timeout:2500});
  await savedPage.waitForFunction(()=>{
-  const node=document.querySelector("#saved-account-remove");
-  return getComputedStyle(node,"::after").opacity==="1";
+  const node=document.querySelector("#vatra-saved-account-tooltip");
+  return getComputedStyle(node).opacity==="1";
  },null,{timeout:2500});
- const brandedHint=await removeHint.evaluate(button=>{
-  const style=getComputedStyle(button,"::after");
-  return {visible:style.visibility==="visible",font:style.fontFamily,
-   background:style.backgroundColor,maxWidth:style.maxWidth};
+ const brandedHint=await hint.evaluate(node=>{
+  const style=getComputedStyle(node),rect=node.getBoundingClientRect();
+  return {visible:style.display!=="none",font:style.fontFamily,
+   background:style.backgroundColor,x:rect.x,y:rect.y,right:rect.right,bottom:rect.bottom,
+   viewportWidth:innerWidth,viewportHeight:innerHeight,content:node.textContent.trim()};
  });
  assert.ok(brandedHint.visible&&brandedHint.font.includes("Onest")&&
-  brandedHint.background==="rgb(255, 255, 255)",
-  "Remove-account description must use a white Onest VATRA tooltip: "+JSON.stringify(brandedHint));
+  brandedHint.background==="rgb(255, 255, 255)"&&
+  brandedHint.x>=-1&&brandedHint.y>=-1&&
+  brandedHint.right<=brandedHint.viewportWidth+1&&
+  brandedHint.bottom<=brandedHint.viewportHeight+1,
+  "Localized VATRA tooltip must stay fully in the viewport: "+JSON.stringify(brandedHint));
  await savedPage.evaluate(()=>localStorage.setItem("vatra-language","en"));
  await savedPage.reload({waitUntil:"domcontentloaded"});
  await waitReady(savedPage);
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("title"),null);
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("data-vatra-tooltip"),"Remove saved account");
  assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("aria-label"),"Remove saved account");
+ await savedPage.setViewportSize({width:360,height:700});
+ await savedPage.locator("#saved-account-remove").hover();
+ const smallHint=await savedPage.locator("#vatra-saved-account-tooltip").evaluate(node=>{
+  const b=node.getBoundingClientRect();return {left:b.left,top:b.top,right:b.right,bottom:b.bottom,width:innerWidth,height:innerHeight,text:node.textContent};
+ });
+ assert.ok(smallHint.left>=0&&smallHint.top>=0&&
+  smallHint.right<=smallHint.width&&smallHint.bottom<=smallHint.height&&
+  smallHint.text==="Remove saved account",
+  "Saved-account tooltip must flip/clamp inside a narrow viewport: "+JSON.stringify(smallHint));
+ await savedPage.setViewportSize({width:1280,height:900});
  await savedPage.locator("#saved-account-other").click();
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),true);
  assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),true);
