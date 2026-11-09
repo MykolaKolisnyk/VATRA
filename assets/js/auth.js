@@ -724,8 +724,8 @@ function wireSavedAccountTooltip(button){
 function wireRememberedAccount(){
  const remembered=readRememberedAccount();
  const panel=q("#saved-account-panel"),standard=q("#standard-login-panel"),back=q("#saved-switch-back");
- const overview=q("#saved-account-overview"),savedForm=q("#saved-login-form");
- if(!panel||!standard||!back||!overview||!savedForm)return;
+ const overview=q("#saved-account-overview"),savedForm=q("#saved-login-form"),content=q("#saved-account-content");
+ if(!panel||!standard||!back||!overview||!savedForm||!content)return;
  let signedOut=false;
  try{signedOut=sessionStorage.getItem(LOGGED_OUT_KEY)==="1";sessionStorage.removeItem(LOGGED_OUT_KEY);}catch(_){}
  if(signedOut)clearLoginFields();
@@ -746,10 +746,17 @@ function wireRememberedAccount(){
   savedForm.reset();password.value="";password.dispatchEvent(new Event("input",{bubbles:true}));
   message.hidden=true;message.textContent="";
  };
+ // One content-level reveal on every saved-account view; the card itself stays still.
+ const revealSavedContents=()=>{
+  content.classList.remove("is-revealing");
+  void content.offsetWidth;
+  content.classList.add("is-revealing");
+ };
  const showSaved=()=>{
   clearSaved();savedForm.hidden=true;overview.hidden=false;
   standard.hidden=true;back.hidden=true;panel.hidden=false;
   document.body.dataset.savedLogin="overview";
+  revealSavedContents();
  };
  const showOther=()=>{
   clearSaved();clearLoginFields();
@@ -760,6 +767,7 @@ function wireRememberedAccount(){
  q("#saved-account-continue")?.addEventListener("click",()=>{
   overview.hidden=true;savedForm.hidden=false;
   document.body.dataset.savedLogin="password";
+  revealSavedContents();
   password.focus({preventScroll:true});
  });
  q("#saved-account-return")?.addEventListener("click",showSaved);

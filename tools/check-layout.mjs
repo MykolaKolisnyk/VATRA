@@ -909,8 +909,18 @@ for(const file of obsolete)await assert.rejects(stat(file),{code:"ENOENT"},"Dupl
 console.log("VATRA: "+pages.length+" root pages, "+total+" unique UI classes, 2 JSON locales, auth, CAPTCHA and offline verified.");
 
 // The elevated card shells must stay still; only their contents reveal.
-assert.ok(css.includes('.site .saved-account-panel > :not([hidden]){animation:vatraAuthReveal')&&
+assert.ok(css.includes('.site .saved-account-content.is-revealing{animation:vatraAuthReveal')&&
  css.includes(':is(.account-card,.error-card) > :not([hidden]){animation:vatraAuthReveal')&&
  legalCss.includes('.policy-header,.policy-section > :not([hidden]),.policy-toc > :not([hidden]){animation:vatraAuthReveal')&&
  !legalCss.includes('padding:34px 0 74px;flex:1'),
  "Cards must stay still and legal footer spacing must remain balanced");
+
+// Regressions: a single inner block must animate on both saved-account phases.
+assert.ok(landing.includes('id="saved-account-content" class="saved-account-content ui-home-saved-content-001 is-revealing"')&&
+ auth.includes('const revealSavedContents=()=>{')&&
+ auth.includes('content.classList.remove("is-revealing")')&&
+ auth.includes('content.classList.add("is-revealing")')&&
+ css.includes('@media (min-width:1400px){\n  .signup-form-panel .reg-back-nav{')&&
+ css.includes('.signup-form-head{margin-bottom:25px}')&&
+ css.includes('margin-bottom:26px}'),
+ "Saved account must reveal its whole contents; signup must keep its intended spacing");

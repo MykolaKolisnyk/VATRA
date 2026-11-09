@@ -477,7 +477,7 @@ try{
    assert.ok([login,signup].every(v=>v.footerBottom<=v.viewportHeight+2||v.pageScrollHeight>v.viewportHeight+2),
     "Short desktop pages must scroll normally if their content does not fit the viewport: "+JSON.stringify(snapshots));
   }
-  if(width>=1200&&height>=850){
+  if(width>=1200){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
     "Login and signup cards should share the same vertical center at "+width);
    assert.ok(Math.abs(login.height-signup.height)<=2,
@@ -1522,10 +1522,12 @@ try{
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
   const savedMotion=await savedPage.locator("#saved-account-panel").evaluate(el=>({
    card:getComputedStyle(el).animationName,
+   content:getComputedStyle(el.querySelector("#saved-account-content")).animationName,
    child:getComputedStyle(el.querySelector(".saved-account-top")).animationName
   }));
   assert.equal(savedMotion.card,"none","Saved-account card may not translate");
-  assert.equal(savedMotion.child,"vatraAuthReveal","Saved-account contents should reveal");
+  assert.equal(savedMotion.content,"vatraAuthReveal","The whole saved-account content must reveal");
+  assert.equal(savedMotion.child,"none","Content children must not animate independently");
  assert.equal(await savedPage.locator(".saved-account-wordmark").count(),0,
   "Saved account must not display a redundant VATRA wordmark");
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
@@ -1585,7 +1587,24 @@ try{
  assert.equal(await savedPage.locator("#password").inputValue(),"");
  await savedPage.locator("#saved-switch-back").click();
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
+ await savedPage.evaluate(()=>{
+  window.__vatraSavedRevealCount=0;
+  document.querySelector("#saved-account-content").addEventListener("animationstart",()=>{
+   window.__vatraSavedRevealCount++;
+  });
+ });
  await savedPage.locator("#saved-account-continue").click();
+ await savedPage.waitForFunction(()=>window.__vatraSavedRevealCount>0);
+ const passwordMotion=await savedPage.locator("#saved-account-panel").evaluate(panel=>({
+  shell:getComputedStyle(panel).animationName,
+  content:getComputedStyle(panel.querySelector("#saved-account-content")).animationName,
+  top:getComputedStyle(panel.querySelector(".saved-account-top")).animationName,
+  form:getComputedStyle(panel.querySelector("#saved-login-form")).animationName,
+  hasCommonParent:panel.querySelector("#saved-account-content").contains(panel.querySelector("#saved-login-form"))
+ }));
+ assert.ok(passwordMotion.shell==="none"&&passwordMotion.content==="vatraAuthReveal"&&
+  passwordMotion.top==="none"&&passwordMotion.form==="none"&&passwordMotion.hasCommonParent,
+  "On the password step, avatar, name, fields and note must reveal as one inner content block: "+JSON.stringify(passwordMotion));
  assert.equal(await savedPage.locator(".vt-home-saved-field-title-001").evaluate(
   node=>getComputedStyle(node).clipPath),"inset(50%)",
   "Saved account captions must be screen-reader-only");
