@@ -364,6 +364,16 @@
         "og:image:alt": "Official VATRA app icon"
       },
       "nodes": {
+        "n251": {
+          "text": {
+            "0": "Back to sign-in"
+          }
+        },
+        "n252": {
+          "attrs": {
+            "aria-label": "Back to sign in"
+          }
+        },
         "n247": {
           "text": {
             "0": "Sign in"
