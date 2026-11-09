@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","register","forgot","reset","account","terms","privacy","cookies","offline"];
+const pages=["index","404","register","forgot","reset","account","feed","terms","privacy","cookies","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const css=await read("assets/css/auth.css");
 const legalCss=await read("assets/css/legal.css");
