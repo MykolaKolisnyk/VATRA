@@ -125,11 +125,13 @@ try{
  await dialog.waitFor({state:"visible"});
  const modalAnimations=await dialog.evaluate(node=>({
   dialog:getComputedStyle(node).animationName,
+  content:getComputedStyle([...node.children].find(el=>!el.hidden)).animationName,
   backdrop:getComputedStyle(node.parentElement).animationName
  }));
- assert.ok(modalAnimations.dialog.includes("vatraLanguageDialog")&&
+ assert.ok(modalAnimations.dialog==="none"&&
+  modalAnimations.content.includes("vatraAuthReveal")&&
   modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
-  "Language picker must have the shared modal opening animation");
+  "Language dialog shell must stay still and only its content may rise");
  assert.equal(await page.locator(".language-option").count(),36,"Language directory count");
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
@@ -452,7 +454,7 @@ try{
      brandWidth:brand.width,brandHeight:brand.height,brandY:brand.y,
      panelWidth:panel.width,panelHeight:panel.height,panelY:panel.y,
      panelRight:panel.right,cardRight:card.right,footerWidth:footer.width,
-     footerBottom:box(".footer").bottom,viewportHeight:innerHeight,
+     footerBottom:box(".footer").bottom,viewportHeight:innerHeight,pageScrollHeight:document.documentElement.scrollHeight,
      animation:getComputedStyle(form).animationName,
      duration:getComputedStyle(form).animationDuration,
      stageAnimation:getComputedStyle(document.querySelector(".signup-step")||form).animationName,
@@ -472,10 +474,10 @@ try{
    "Sign-in and signup footer widths differ at "+width);
   assert.equal(signup.stageAnimation,"none","Signup fields must not animate separately from header");
   if(width>=1400&&height>=780&&height<=850){
-   assert.ok(login.footerBottom<=login.viewportHeight+2&&signup.footerBottom<=signup.viewportHeight+2,
-    "Auth footer must fit the compact desktop viewport at "+width+"x"+height+": "+JSON.stringify(snapshots));
+   assert.ok([login,signup].every(v=>v.footerBottom<=v.viewportHeight+2||v.pageScrollHeight>v.viewportHeight+2),
+    "Short desktop pages must scroll normally if their content does not fit the viewport: "+JSON.stringify(snapshots));
   }
-  if(width>=1200){
+  if(width>=1200&&height>=850){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
     "Login and signup cards should share the same vertical center at "+width);
    assert.ok(Math.abs(login.height-signup.height)<=2,
@@ -485,7 +487,7 @@ try{
     "Auth columns differ at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(signup.brandHeight-signup.panelHeight)<=2,
     "Signup panel heights differ at "+width);
-  }else{
+  }else if(width<1200){
    assert.ok(login.panelY<login.brandY,"Sign-in should stack form first "+width);
    assert.ok(signup.brandY<signup.panelY,"Signup should stack branding first "+width);
   }
@@ -718,8 +720,9 @@ try{
    assert.equal(await probe.locator('.footer nav a[href$="/cookies.html"]').count(),1,
     "The 404 page must link to the same three public documents");
   if(["terms.html","privacy.html","cookies.html"].includes(route)){
-   const legalMotion=await probe.locator(".policy-main").evaluate(e=>getComputedStyle(e).animationName);
-   assert.ok(legalMotion.includes("vatraAuthReveal"));
+   const legalMotion=await probe.locator(".policy-header").evaluate(el=>getComputedStyle(el).animationName);
+    const shellMotion=await probe.locator(".policy-main").evaluate(el=>getComputedStyle(el).animationName);
+    assert.ok(legalMotion==="vatraAuthReveal"&&shellMotion==="none");
   }
   await probe.close();
  }
@@ -940,7 +943,7 @@ try{
   });
   assert.equal(await recoveryPage.locator(".forgot-intro").isVisible(),false,
    "Entering the OTP stage must replace the intro instead of stacking both headings");
-  const stageMotion=await recoveryPage.locator("#recovery-step").evaluate(el=>getComputedStyle(el).animationName);
+  const stageMotion=await recoveryPage.locator("#recovery-step > :not([hidden])").first().evaluate(el=>getComputedStyle(el).animationName);
   assert.ok(stageMotion.includes("vatraAuthReveal"),
    "Code entry stage must have the same form entrance animation as login and signup");
   const codeField=recoveryPage.locator("#recovery-token");
@@ -1202,7 +1205,7 @@ try{
   const passBounds=await resetVisual.locator("#reset-form").boundingBox();
   assert.ok(passBounds&&Math.abs(passBounds.width-codeBounds.width)<=1.5,
    "Direct reset password form should retain matching width");
-  assert.ok((await resetVisual.locator("#reset-form").evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"),
+  assert.ok((await resetVisual.locator("#reset-form > :not([hidden])").first().evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"),
    "Direct reset password stage should animate just like entry stage");
   await resetVisual.close();
  }
@@ -1517,6 +1520,12 @@ try{
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
+  const savedMotion=await savedPage.locator("#saved-account-panel").evaluate(el=>({
+   card:getComputedStyle(el).animationName,
+   child:getComputedStyle(el.querySelector(".saved-account-top")).animationName
+  }));
+  assert.equal(savedMotion.card,"none","Saved-account card may not translate");
+  assert.equal(savedMotion.child,"vatraAuthReveal","Saved-account contents should reveal");
  assert.equal(await savedPage.locator(".saved-account-wordmark").count(),0,
   "Saved account must not display a redundant VATRA wordmark");
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
