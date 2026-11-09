@@ -24,9 +24,9 @@
   // Titles must be correct BEFORE the asynchronous English JSON arrives. Watch
   // the original <title> as HTML is parsed; no duplicate title or extra script.
   const instantEnglishTitles={
-    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",
+    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
-    account:"Account · VATRA","404":"404 Page not found · VATRA",
+    "404":"404 Page not found · VATRA",
     terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
     cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
   };
@@ -48,6 +48,12 @@
       },{once:true});
     }
   }
+  // Keep old bookmarks functional without displaying .html in the address bar.
+  // Direct requests to /VATRA/register, /feed, etc. resolve on GitHub Pages.
+  if(location.protocol!=="file:"){
+    const path=location.pathname.replace(/\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
+  }
   document.documentElement.lang = current === "en" ? "en" : "uk";
   document.documentElement.dataset.language = current;
   if (current === "en") {
@@ -58,6 +64,7 @@
     // animations until the English dictionary is applied and content is visible.
     // visibility:hidden alone DOES NOT pause animations.
     block.textContent = "html.i18n-pending body{visibility:hidden!important}" +
+      "html.i18n-pending body>.vatra-auth-loading{visibility:visible!important}" +
       "html.i18n-pending body > :not(#vatra-auth-loading)," +
       "html.i18n-pending body > :not(#vatra-auth-loading) *," +
       "html.i18n-pending body > :not(#vatra-auth-loading) *::before," +
@@ -188,6 +195,8 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
+        target.pathname = target.pathname.replace(/\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;
       } catch (_) {}
