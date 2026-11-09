@@ -246,9 +246,13 @@ try{
   assert.equal(top.border,"0px","Upper return-to-login must keep its original plain-link look");
   await probe.locator("#first-name").fill("Тест");
   await probe.locator("#last-name").fill("Користувач");
-  await probe.locator("#birth-day").selectOption("1");
-  await probe.locator("#birth-month").selectOption("1");
-  await probe.locator("#birth-year").selectOption("2000");
+  await probe.evaluate(()=>{
+   for(const [id,value] of [["birth-day","12"],["birth-month","05"],["birth-year","2000"]]){
+    const field=document.getElementById(id);
+    field.value=value;
+    field.dispatchEvent(new Event("change",{bubbles:true}));
+   }
+  });
   await probe.locator("#register-next").click();
   assert.equal(await entry.isVisible(),true,"Bottom sign-in button must remain on step 2");
   await probe.close();
