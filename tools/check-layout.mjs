@@ -871,10 +871,29 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","sw.js"]){
+for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
+// The new Feed must be the authenticated home, not a duplicate account page.
+const feedMarkup=await read("feed.html");
+const feedScript=await read("assets/js/feed.js");
+const feedStyle=await read("assets/css/feed.css");
+assert.ok(feedMarkup.includes('data-page="feed"')&&
+ feedMarkup.includes('data-i18n="n12">Стрічка</h1>')&&
+ !feedMarkup.includes("Стрічка новин")&&
+ feedMarkup.includes('id="feed-post-form"')&&
+ feedMarkup.includes('id="feed-posts"')&&
+ feedMarkup.includes('id="feed-delete-dialog"')&&
+ feedStyle.includes(".feed-layout{display:grid;")&&
+ feedStyle.includes("@media(max-width:840px)")&&
+ feedScript.includes('client.from("feed_posts").insert({')&&
+ feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
+ !feedScript.includes("innerHTML")&&
+ auth.includes('window.location.replace(url("feed.html"))'),
+ "VATRA Feed must have a safe responsive text-composer, UK title and verified-home navigation");
+assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
+assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const errorPage=await read("404.html");
 assert.equal(uk.__pages["404"].meta.title,"404 Сторінку не знайдено · VATRA");
 assert.equal(en.__pages["404"].meta.title,"404 Page not found · VATRA");
