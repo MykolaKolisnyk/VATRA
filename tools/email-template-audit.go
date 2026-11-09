@@ -28,11 +28,13 @@ func main(){
   require(strings.Count(source,`{{ if eq .Data.preferred_locale "en" }}`)>=2,name+": missing bilingual branches")
   require(!strings.Contains(strings.ToLower(source),"<script"),name+": email must not execute JavaScript")
   require(strings.Contains(source,`width="100%"`)&&strings.Contains(source,"max-width:580px"),name+": missing fluid email table")
-  tmpl,err:=template.New(name).Option("missingkey=error").Parse(source)
+  tmpl,err:=template.New(name).Parse(source)
   if err!=nil {panic(fmt.Errorf("%s: %w",name,err))}
-  for _,locale:=range []string{"uk","en"} {
+  for _,locale:=range []string{"uk","en","missing"} {
+   preference:=map[string]string{}
+   if locale!="missing" {preference["preferred_locale"]=locale}
    data:=map[string]any{
-    "Data":map[string]string{"preferred_locale":locale},"Token":"12345678","TokenHash":"vatra_test_hash_2026",
+    "Data":preference,"Token":"12345678","TokenHash":"vatra_test_hash_2026",
     "RedirectTo":"https://mykolakolisnyk.github.io/VATRA/reset.html",
     "Email":"user@example.com","OldEmail":"old@example.com","NewEmail":"new@example.com",
    }
@@ -40,7 +42,9 @@ func main(){
    if err:=tmpl.Execute(&out,data);err!=nil {panic(fmt.Errorf("%s (%s): %w",name,locale,err))}
    rendered:=out.String()
    prefix:=name+" ("+locale+"): "
-   require(strings.Contains(rendered,`<html lang="`+locale+`">`),prefix+"wrong language")
+   expected:=locale
+   if locale=="missing"{expected="uk"}
+   require(strings.Contains(rendered,`<html lang="`+expected+`">`),prefix+"wrong language")
    require(!strings.Contains(rendered,"{{")&&!strings.Contains(rendered,"<no value>"),prefix+"unresolved variable")
    require(strings.Contains(rendered,`alt="VATRA"`),prefix+"missing logo alternative")
    for _,m:=range href.FindAllStringSubmatch(rendered,-1){
@@ -60,6 +64,6 @@ func main(){
     require(strings.Contains(rendered,"old@example.com")&&strings.Contains(rendered,"user@example.com"),prefix+"security notification missing addresses")
    }
   }
-  fmt.Println("VATRA "+name+": actual Go template rendering UK + EN, links and layout guards passed")
+  fmt.Println("VATRA "+name+": actual Go template rendering UK + EN + missing locale fallback, links and layout guards passed")
  }
 }
