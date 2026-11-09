@@ -871,6 +871,18 @@ for(const script of ["assets/js/auth.js","assets/js/lang.js","assets/js/errors.j
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
 const errorPage=await read("404.html");
+assert.equal(uk.__pages["404"].meta.title,"404 Сторінку не знайдено · VATRA");
+assert.equal(en.__pages["404"].meta.title,"404 Page not found · VATRA");
+assert.ok(errorPage.includes("<title>"+uk.__pages["404"].meta.title+"</title>"),
+ "404 HTML fallback must match the Ukrainian translation");
+assert.ok(lang.includes('"404":'+JSON.stringify(en.__pages["404"].meta.title)),
+ "404 immediate English tab title must match the translated value");
+assert.ok(lang.includes('instantEnglishTitles[segment]||instantEnglishTitles["404"]'),
+ "Unknown URL must immediately use the English 404 title");
+assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.suppress())')&&
+ auth.includes('removeTooltip?.suppress();')&&
+ auth.includes('if(suppressRestore||event?.pointerType==="touch"'),
+ "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
 assert.ok(errorPage.includes("Перейти на головну")&&!errorPage.includes("Повернутися до входу"),
  "404 primary action must not presume the user's previous location");
 assert.ok(css.includes("color:#fff;text-decoration:none}")&&
