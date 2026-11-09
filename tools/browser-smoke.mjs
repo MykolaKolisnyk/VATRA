@@ -242,7 +242,8 @@ try{
    "Do not insert a secondary button inside the registration form");
   const styles=await entry.evaluate(el=>({font:getComputedStyle(el).fontFamily,
    border:getComputedStyle(el).borderTopWidth,rounded:getComputedStyle(el).borderRadius}));
-  assert.ok(styles.font.includes("Onest")&&styles.border!=="0px");
+  assert.ok(styles.font.includes("Onest")&&styles.border==="0px",
+   "Footer sign-in must look like the other plain text footer links");
   const top=await probe.locator(".reg-back-nav .back").evaluate(el=>({
    border:getComputedStyle(el).borderTopWidth,background:getComputedStyle(el).backgroundColor
   }));
