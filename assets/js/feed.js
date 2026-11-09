@@ -88,10 +88,7 @@
   const start=reset?0:offset;
   try{
    let request=client.from("feed_posts").select("id,author_vatra_id,body,created_at");
-   if(searchTerm)request=request.ilike("body","%"+searchTerm.replace(/[\\%_]/g,"\\   const {data,error}=await client.from("feed_posts")
-    .select("id,author_vatra_id,body,created_at")
-    .order("created_at",{ascending:false}).order("id",{ascending:false})
-    .range(start,start+PAGE_SIZE-1);")+"%");
+   if(searchTerm)request=request.ilike("body","%"+searchTerm.replace(/[\\%_]/g,"\\$&")+"%");
    const {data,error}=await request.order("created_at",{ascending:false})
     .order("id",{ascending:false}).range(start,start+PAGE_SIZE-1);
    if(error)throw error;
