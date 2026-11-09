@@ -66,6 +66,9 @@ try{
        await view.setViewportSize(viewport);
        await view.addInitScript(({language,selectors})=>{
         localStorage.setItem("vatra-language",language);
+        // Account-page mock stores remembered credentials; keep subsequent login
+        // probes on their normal visible login form instead of hiding it.
+        localStorage.removeItem("vatra-remembered-account");
         window.__vatraLocaleAnimationEnds=[];
         document.addEventListener("animationend",event=>{
          if(event.animationName!=="vatraAuthReveal"||!(event.target instanceof Element))return;
