@@ -407,7 +407,7 @@ assert.ok(!register.includes('class="reg-header')&&
  register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
  register.includes('class="reg-back-nav ui-register-back-nav-001"')&&
  register.includes('href="./" class="back vt-register-link-02"')&&
- css.includes(".auth-layout{")&&css.includes(".login-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
+ css.includes(".auth-layout{")&&css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-register-footer-content-001'),
  "Registration must have a centered card with only the return-to-login link above it");
@@ -562,6 +562,17 @@ for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
  assert.ok(!/https?:\/\/(?:[^" ]+)?\/v2\b/i.test(source)&&!source.includes('style-2'),
   file+": no obsolete duplicate styles or URLs");
 }
+// The top return link belongs inside the form card, never above the split card.
+const registrationMarkup=await read("register.html");
+const formStart=registrationMarkup.indexOf('<section class="signup-form-panel ui-signup-form-panel-001"');
+const returnStart=registrationMarkup.indexOf('<nav class="reg-back-nav ui-register-back-nav-001"');
+const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-register-div-001">');
+assert.ok(formStart>=0&&returnStart>formStart&&innerStart>returnStart&&
+ registrationMarkup.indexOf('class="reg-back-nav ui-register-back-nav-001"',returnStart+1)<0&&
+ css.includes('.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
+ css.includes('.signup-form-panel{display:flex;flex-direction:column;')&&
+ css.includes('.login-layout::before,.signup-layout::before{'),
+ "Signup return link must be inside the right card without changing global page spacing");
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
 for(const file of loadingPages){
  const html=await read(file);

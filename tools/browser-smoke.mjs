@@ -259,6 +259,9 @@ try{
   });
   await probe.locator("#register-next").click();
   assert.equal(await entry.isVisible(),true,"Footer sign-in remains on step two");
+  assert.equal(await probe.locator(".signup-form-panel .reg-back-nav").count(),1,
+   "Signup back navigation must be a child of the form card, not a header above it");
+  assert.equal(await probe.locator(".signup-layout > .reg-back-nav").count(),0);
   await probe.close();
  }
  // Both auth pages must share language-modal geometry and footer spacing.
@@ -333,8 +336,9 @@ try{
     authAnimation:getComputedStyle(document.querySelector(".signup-form-panel .narrow-form")).animationName,
      stageAnimation:getComputedStyle(document.querySelector('[data-register-step="1"]')).animationName,
     backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
-    backAligned:Math.abs(back.right-form.right)<=8,
-    backAbove:nav.bottom<=main.top+2,
+    backAligned:Math.abs(back.right-document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().right)<=2,
+    backInside:nav.top>=form.top&&nav.right<=form.right+1&&
+     nav.bottom<=document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().top+2,
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
     centerDelta:Math.abs((nav.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
     brand:{x:brand.x,y:brand.y,w:brand.width,h:brand.height,bottom:brand.bottom},
@@ -344,8 +348,8 @@ try{
   assert.ok(layout.brandKickerAbsent&&layout.footerAligned,"Registration footer or brand label is misaligned at "+width+": "+JSON.stringify(layout));
   assert.equal(layout.authAnimation,"vatraAuthReveal","Whole registration form must animate like sign-in");
   assert.equal(layout.stageAnimation,"none","Only the full registration form should animate at entry");
-  assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backAbove,
-   "Signup header must be removed and Back link aligned to the card at "+width+": "+JSON.stringify(layout));
+  assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backInside,
+   "Signup return link must be inside the right registration card at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.backText.length>0,"Signup return link is missing at "+width);
   if(width>=1200&&layout.fits)
    assert.ok(layout.bottomGap>=27&&layout.bottomGap<=29,"Signup bottom gap must be 28px at "+width+": "+layout.bottomGap);
@@ -1189,7 +1193,7 @@ try{
  await confirmationPage.locator("#signup-confirmation").waitFor({state:"visible"});
  assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false);
  assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
- assert.equal(await confirmationPage.locator(".reg-back-nav a").isVisible(),true,
+ assert.equal(await confirmationPage.locator(".signup-form-panel > .reg-back-nav a").isVisible(),true,
   "The original top back link must remain visible during email confirmation");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  const typeScale=await confirmationPage.evaluate(()=>{
