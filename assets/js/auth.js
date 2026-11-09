@@ -18,6 +18,13 @@ const translate=text=>window.VATRA_LANGUAGE?.translate(text)||text;
 const english=document.documentElement.lang==="en";
 const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
+/* Run a single reveal on the changing content, not the surrounding card. */
+function replayAuthContent(node){
+ if(!node||window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
+ node.style.animation="none";
+ void node.offsetWidth;
+ node.style.removeProperty("animation");
+}
 let auth=null;
 let validateRegistrationStep=()=>true;
 let navigatingAuth=false;
@@ -380,7 +387,7 @@ function wireRegistrationWizard(){
  const form=q("#signup-form"),first=q('[data-register-step="1"]'),second=q('[data-register-step="2"]');
  const next=q("#register-next"),back=q("#register-back"),progress=q(".signup-progress");
  if(!form||!first||!second||!next||!back||!progress)return;
- function show(step){
+ function show(step,animate=false){
   document.body.dataset.registrationStep=String(step);
   first.hidden=step!==1;
   second.hidden=step!==2;
@@ -389,18 +396,19 @@ function wireRegistrationWizard(){
   for(const label of document.querySelectorAll("[data-step-label]"))
    label.hidden=Number(label.dataset.stepLabel)!==step;
   progress.setAttribute("aria-valuenow",String(step));
+  if(animate)replayAuthContent(q(".signup-form-panel .narrow-form"));
   // Previous input values and any inline errors are retained when going back.
  }
  next.addEventListener("click",()=>{
   if(!validateRegistrationStep(first))return;
-  show(2);
+  show(2,true);
   q("#email")?.focus({preventScroll:true});
  });
  back.addEventListener("click",()=>{
-  show(1);
+  show(1,true);
   q("#first-name")?.focus({preventScroll:true});
  });
- form.addEventListener("reset",()=>show(1));
+ form.addEventListener("reset",()=>show(1,true));
  show(1);
 }
 function wirePasswordButtons(){
@@ -930,6 +938,7 @@ function showSignupConfirmation(pending){
  const screen=q("#signup-confirmation"),form=q(".signup-form-panel .narrow-form");
  if(!screen||!form)return;
  signupPending=pending;form.hidden=true;screen.hidden=false;
+ replayAuthContent(screen);
  const badge=q("#signup-confirmation-address"),row=q(".signup-confirmation-address-row");
  if(badge&&row){badge.textContent=pending.address||"";row.hidden=!pending.address;}
  document.body.dataset.signupConfirmation="pending";
@@ -1045,6 +1054,7 @@ function wireForgot(){
   q("#recovery-tools").hidden=false;
   q("#recovery-step .recovery-step-caption").hidden=false;
   startCooldown(sentAt);
+  replayAuthContent(q(".forgot-panel-content"));
   codeField.focus({preventScroll:true});
   step.scrollIntoView({behavior:"smooth",block:"nearest"});
  };
@@ -1053,6 +1063,7 @@ function wireForgot(){
   const status=q("#response");
   if(status&&step.contains(status))form.before(status);
   clearFeedback();
+  replayAuthContent(q(".forgot-panel-content"));
   try{sessionStorage.removeItem("vatra-recovery-pending");}catch(_){}
   emailField.focus({preventScroll:true});
   form.scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -1139,6 +1150,7 @@ function wireReset(){
   const caption=q("#recovery-step .recovery-step-caption");if(caption)caption.hidden=true;
   const heading=q("#recovery-step-heading");if(heading)heading.textContent=english?"Set a new password":"Встановіть новий пароль";
   clearFeedback();
+  replayAuthContent(q(".forgot-panel-content"));
   q("#password")?.focus({preventScroll:true});
  };
  if(linkFailed){
@@ -1201,6 +1213,7 @@ function wireReset(){
    feedback("Пароль оновлено. Тепер можете перейти до свого акаунта.","success");
    const link=q("#account-link");if(link)link.hidden=false;
    const parent=q("#recovery-success-link");if(parent)parent.hidden=false;
+   replayAuthContent(q(".forgot-panel-content"));
    try{
     sessionStorage.removeItem("vatra-recovery-email");
     sessionStorage.removeItem("vatra-recovery-pending");

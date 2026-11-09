@@ -333,8 +333,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 
 
 /* Confirmation shares the registration typography and content width. */
-.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center}
-.signup-confirmation > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .signup-confirmation[hidden],.signup-form-panel .narrow-form[hidden]{display:none}
 .signup-confirmation-kicker{margin-bottom:16px}
 .signup-confirmation-overline{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;width:100%;margin-bottom:16px}
@@ -385,7 +384,6 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 
 .signup-step-heading .subtitle{margin:0;max-width:45ch}
 .signup-step{display:grid;gap:17px;min-width:0}
-.register-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 @keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
@@ -394,7 +392,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.reg-back-nav,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel-content,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form) > :not([hidden]),:is(.account-card,.error-card) > :not([hidden]),.signup-confirmation > :not([hidden]){animation:none!important}.signup-progress-segment{transition:none!important}.back{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.reg-back-nav,.signup-form-panel .narrow-form,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel-content,:is(.account-card,.error-card) > :not([hidden]){animation:none!important}.signup-progress-segment{transition:none!important}.back{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
@@ -459,17 +457,23 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .ui-forgot-main-001 .forgot-panel .field>span:first-child{font-size:13px;line-height:1.4;font-weight:700;color:#48576d}
 .ui-forgot-main-001 .forgot-panel .control{height:56px;border-color:#d6e0f1;border-radius:14px;padding-inline:17px;font-size:15px;font-weight:500}
 .ui-forgot-main-001 .forgot-panel .control:focus{border-color:#8aaafa}
+/* Shared caret and floating-caption geometry in recovery code and password fields. */
+.ui-forgot-main-001 .forgot-panel .vatra-input-shell .vatra-floating-hint{left:17px}
+.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}
+.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .vatra-floating-hint{top:8px}
 .ui-forgot-main-001 .forgot-panel .action.primary{min-height:56px;border-radius:999px;background:linear-gradient(100deg,#2464d7,#326ce1);box-shadow:0 10px 23px rgba(39,98,212,.16);font-size:14px;font-weight:750;transition:background .18s ease,box-shadow .18s ease,transform .18s ease}
 .ui-forgot-main-001 .forgot-panel .action.primary:hover{background:linear-gradient(100deg,#1e55bf,#2e5fce);box-shadow:0 13px 28px rgba(39,98,212,.23)}
 .ui-forgot-main-001 .forgot-panel .form-note{margin-top:19px;color:var(--soft);font-size:13px;line-height:1.65}
+.ui-forgot-main-001 .forgot-panel #recovery-success-link{width:100%;max-width:520px;margin:16px 0 0}
+.ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;text-decoration:none;color:#fff}
+.ui-forgot-main-001 .forgot-panel .recovery-success-action:hover,.ui-forgot-main-001 .forgot-panel .recovery-success-action:focus-visible{text-decoration:none;color:#fff}
 .ui-forgot-main-001 .forgot-panel-content>.response:not([hidden]){margin:0 0 20px}
 .ui-forgot-main-001 .forgot-panel:has(#recovery-step:not([hidden])) .forgot-intro{display:none}
 .ui-forgot-main-001 .forgot-panel .recovery-step{margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
 .ui-forgot-main-001 .forgot-panel .recovery-step-title{font-size:clamp(26px,3vw,31px);font-weight:745;letter-spacing:-.035em;line-height:1.2}
 .ui-forgot-main-001 .forgot-panel .recovery-step-caption{font-size:14px;line-height:1.6}
 .ui-forgot-main-001 .forgot-panel .recovery-help{font-size:13px;line-height:1.6}
-/* Move the complete recovery card on first load; animate only new steps afterward. */
-.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]) > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+/* All recovery steps replay the same full-content animation; white shells stay fixed. */
 @media(max-width:540px){
  .ui-forgot-main-001{width:calc(100% - 24px);padding:32px 0}
  .ui-forgot-main-001 .forgot-panel-header{margin-bottom:22px}
