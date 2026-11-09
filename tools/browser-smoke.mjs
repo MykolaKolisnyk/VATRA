@@ -669,8 +669,14 @@ try{
    const form=document.querySelector("#forgot-form").getBoundingClientRect();
    const style=getComputedStyle(document.querySelector("#forgot-title"));
    const font=getComputedStyle(document.querySelector("#email"));
+   const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
+   const intro=document.querySelector(".forgot-intro").getBoundingClientRect();
+   const step=document.querySelector("#recovery-step").getBoundingClientRect();
+   const panelCenter=panel.left+panel.width/2;
    return {panelX:panel.x,panelRight:panel.right,panelWidth:panel.width,
     headlineX:headline.x,formX:form.x,overflow:document.documentElement.scrollWidth-innerWidth,
+    formWidth:form.width,headerWidth:header.width,introWidth:intro.width,stepWidth:step.width,
+    centered:Math.abs(form.left+form.width/2-panelCenter),
     fontFamily:style.fontFamily,fontSize:parseFloat(style.fontSize),inputFont:font.fontFamily};
   });
   assert.ok(metrics.panelX>=0&&metrics.panelRight<=width+1&&metrics.overflow<=2&&
@@ -678,6 +684,12 @@ try{
    metrics.fontFamily.includes("Onest")&&metrics.inputFont.includes("Onest")&&
    metrics.fontSize>=29&&metrics.fontSize<=41,
    "Recovery panel must be centered, readable and aligned at "+width+" "+language+": "+JSON.stringify(metrics));
+  assert.ok(metrics.formWidth<=520.5&&Math.abs(metrics.centered)<=1.5&&
+   Math.abs(metrics.formWidth-metrics.headerWidth)<=1.5&&
+   Math.abs(metrics.formWidth-metrics.introWidth)<=1.5&&
+   Math.abs(metrics.formWidth-metrics.stepWidth)<=1.5&&
+   (width<768||Math.abs(metrics.formWidth-520)<=1),
+   "Recovery form must use the same centered 520px content column as login and registration: "+JSON.stringify(metrics));
   const alignment=await recoveryPage.evaluate(()=>{
    const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
    const back=document.querySelector(".forgot-panel-header .back").getBoundingClientRect();

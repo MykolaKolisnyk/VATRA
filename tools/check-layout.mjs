@@ -570,6 +570,12 @@ assert.ok(
   Object.values(en.__pages[page].nodes).some(entry=>entry.text?.["0"]==="Email address")
  ),
  "Recovery card must show only the V mark, and all email fields must use translated floating hints");
+assert.ok(
+ css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
+ css.includes('.form-box{width:100%;max-width:520px;')&&
+ css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;'),
+ "Password recovery, sign-in and sign-up must share the same 520px form column");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
  forgot.includes('class="forgot-kicker vt-forgot-overline-001" data-i18n="n55"')&&
  forgot.includes('id="forgot-title"')&&

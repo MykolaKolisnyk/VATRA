@@ -370,7 +370,9 @@
 .center-page[data-page="forgot"]{background:radial-gradient(ellipse 75% 60% at 50% 17%,#edf0ff 0%,#f7f8fe 58%,#fafbff 100%)}
 .ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0 50px;justify-content:center}
 .ui-forgot-main-001 .forgot-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;margin:0 0 25px}
-.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:stretch;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075)}
+.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075)}
+/* Match the 520px content column used in the VATRA login and registration forms. */
+.ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
 .ui-forgot-main-001 .forgot-panel-header .back{order:0;align-self:center;min-height:32px;margin:0;transition:color .18s ease,transform .18s ease}
 .ui-forgot-main-001 .forgot-panel-header .back:hover{transform:translateX(-2px)}
 .ui-forgot-main-001 .forgot-panel-brand{display:flex;align-items:center;justify-content:center;flex:0 0 43px;width:43px;height:40px;border-radius:10px;transition:background .18s ease}
