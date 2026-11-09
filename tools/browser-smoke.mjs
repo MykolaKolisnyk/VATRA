@@ -123,6 +123,13 @@ try{
  await page.locator("[data-language-trigger]").click();
  const dialog=page.locator(".language-dialog");
  await dialog.waitFor({state:"visible"});
+ const modalAnimations=await dialog.evaluate(node=>({
+  dialog:getComputedStyle(node).animationName,
+  backdrop:getComputedStyle(node.parentElement).animationName
+ }));
+ assert.ok(modalAnimations.dialog.includes("vatraLanguageDialog")&&
+  modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
+  "Language picker must have the shared modal opening animation");
  assert.equal(await page.locator(".language-option").count(),36,"Language directory count");
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
@@ -578,7 +585,7 @@ try{
   });
   assert.ok(footerTypography.overflow<=3&&
    Object.values(footerTypography).filter(x=>x&&x.font).every(x=>x.font.includes("Onest"))&&
-   footerTypography.copy.size===12&&footerTypography.nav.size===13&&
+   footerTypography.copy.size===13&&footerTypography.nav.size===13&&
    footerTypography.link.size===13&&footerTypography.language.size===13,
    "Shared footer typography mismatch on "+route+": "+JSON.stringify(footerTypography));
   if(route==="404.html")
@@ -737,8 +744,27 @@ try{
   });
   assert.ok(motion.card.includes("vatraAuthReveal")&&
    ["intro","form","note","header"].every(part=>motion[part]==="none")&&
-   motion.back.includes("Onest")&&motion.backSize===13&&motion.brandBorder==="solid",
+   motion.back.includes("Onest")&&motion.backSize===13&&motion.brandBorder==="none",
    "Recovery must animate the entire card once, including visible navigation: "+JSON.stringify(motion));
+  const registrationBack=await (async()=>{
+   const probe=await context.newPage();
+   await probe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+   await waitReady(probe);
+   const result=await probe.locator(".reg-back-nav .back").evaluate(node=>{
+    const s=getComputedStyle(node);
+    return {font:s.fontFamily,size:s.fontSize,weight:s.fontWeight,
+     background:s.backgroundColor,border:s.borderTopWidth,color:s.color};
+   });
+   await probe.close();
+   return result;
+  })();
+  const recoveryBack=await recoveryPage.locator(".forgot-panel-header .back").evaluate(node=>{
+   const s=getComputedStyle(node);
+   return {font:s.fontFamily,size:s.fontSize,weight:s.fontWeight,
+    background:s.backgroundColor,border:s.borderTopWidth,color:s.color};
+  });
+  assert.deepEqual(recoveryBack,registrationBack,
+   "Return-to-login must look identical in registration and password recovery");
   const alignment=await recoveryPage.evaluate(()=>{
    const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
    const back=document.querySelector(".forgot-panel-header .back").getBoundingClientRect();
@@ -750,7 +776,7 @@ try{
     symbol:visibleLogos[0]?.getAttribute("src")};
   });
   assert.ok(alignment.logos===1&&alignment.symbol==="assets/logo/vatra-symbol.svg"&&
-   alignment.backRight<alignment.brandLeft&&alignment.brandRight<=width+1&&
+   alignment.brandRight<alignment.backRight&&alignment.brandRight<=width+1&&
    Math.abs(alignment.backMid-alignment.brandMid)<=2,
    "Small V logo must be inside the recovery card, opposite the back link: "+JSON.stringify(alignment));
   assert.equal(await recoveryPage.locator(".vt-forgot-floating-hint-01").textContent(),
@@ -1014,7 +1040,7 @@ try{
   }));
   assert.ok(resetMotion.card.includes("vatraAuthReveal")&&
    resetMotion.intro==="none"&&resetMotion.form==="none"&&
-   resetMotion.logo==="solid"&&resetMotion.back.includes("Onest"),
+   resetMotion.logo==="none"&&resetMotion.back.includes("Onest"),
    "Direct reset must animate its whole card, retain back button and brand");
   const panel=resetVisual.locator(".reset-panel");
   const panelBounds=await panel.boundingBox();

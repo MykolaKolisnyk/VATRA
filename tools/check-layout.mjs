@@ -96,11 +96,29 @@ const forgotMarkup=await read("forgot.html");
 assert.equal(forgotMarkup.split("<section ").length,forgotMarkup.split("</section>").length,
  "Forgot password must have properly balanced section elements");
 assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}')&&
- css.includes('.auth-footer-content>span{font-size:12px;line-height:1.55}')&&
+ css.includes('.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}')&&
+ css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
  legalCss.includes('flex:1;animation:vatraAuthReveal .3s')&&
  (await read("404.html")).includes('href="/VATRA/cookies.html"'),
  "All VATRA page footers, document navigation and full-panel motion should match");
+// Every visible element has a class and its own page class in addition to reusable components.
+for(const name of pages){
+ const markup=await read(name+".html");
+ for(const match of markup.matchAll(/<(h[1-6]|p|a|button|input|select|textarea|span|label|li|nav|main|section|div|header|footer|svg|img)(?=[\\s>])([^>]*)>/g)){
+  const attrs=match[2];
+  const classes=attrs.match(/\\sclass="([^"]+)"/)?.[1]?.split(/\\s+/)||[];
+  assert.ok(classes.length>0&&classes.some(c=>c.startsWith("vt-")||c.startsWith("ui-")),
+   name+".html: a visible element must have a page-specific style hook: "+match[0].slice(0,120));
+ }
+}
+assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
+ css.includes('@keyframes vatraLanguageDialog')&&
+ css.includes('.language-backdrop,.language-dialog{animation:none!important}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-brand{order:0;')&&
+ css.includes('height:52px;border:0;border-radius:0;background:transparent')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
+ "Recovery navigation and language modal should share VATRA branding and motion");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
 assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
  errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),

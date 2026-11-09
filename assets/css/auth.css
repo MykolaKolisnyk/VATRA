@@ -159,7 +159,7 @@
 .network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
 .footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer nav>a[href="register.html"]{min-height:36px;padding:7px 13px;border:1px solid #c7d6fb;border-radius:12px;background:#f6f9ff;color:#245fd4;font-weight:750;white-space:nowrap}.footer nav>a[href="register.html"]:hover{background:#eaf1ff;border-color:#94b2f4;text-decoration:none}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
 .site .footer,.register-page .footer{padding-inline:0}
-.auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:12px;line-height:1.55}
+.auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}.auth-footer-content>span b{font-weight:770;color:var(--ink)}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .register-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .center-page .footer,.account-page .footer{padding-inline:0}
@@ -171,9 +171,12 @@
 .language-trigger .language-flag{width:24px;height:18px;flex:none;box-shadow:0 0 0 1px rgba(44,57,86,.13);border-radius:4px;overflow:hidden;shape-rendering:geometricPrecision}
 .language-chevron{display:block;width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;color:#627187;margin-left:1px;shape-rendering:geometricPrecision}
 .language-dialog-open{overflow:hidden}
-.language-backdrop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:rgba(15,24,44,.48);backdrop-filter:blur(3px)}
+.language-backdrop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:rgba(15,24,44,.48);backdrop-filter:blur(3px);animation:vatraLanguageBackdrop .24s ease-out both}
 .language-backdrop[hidden],.language-option[hidden],.language-empty[hidden]{display:none!important}
-.language-dialog{width:min(100%,690px);max-height:min(84dvh,730px);min-height:0;display:flex;flex-direction:column;padding:25px;background:#fff;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;border:1px solid #e4e9f4;border-radius:22px;box-shadow:0 25px 80px rgba(15,25,55,.23);color:var(--ink)}
+.language-dialog{width:min(100%,690px);max-height:min(84dvh,730px);min-height:0;display:flex;flex-direction:column;padding:25px;background:#fff;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;border:1px solid #e4e9f4;border-radius:22px;box-shadow:0 25px 80px rgba(15,25,55,.23);color:var(--ink);animation:vatraLanguageDialog .28s cubic-bezier(.2,.75,.2,1) both}
+@keyframes vatraLanguageBackdrop{from{opacity:0}to{opacity:1}}
+@keyframes vatraLanguageDialog{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.language-backdrop,.language-dialog{animation:none!important}}
 .language-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .language-heading-row h2{font-size:24px;letter-spacing:-.04em;margin:0 0 4px;line-height:1.25}
 .language-heading-row p{margin:0 0 20px;color:var(--soft);font-size:13px}
@@ -375,10 +378,10 @@
 .ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075);animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 /* Match the 520px content column used in the VATRA login and registration forms. */
 .ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
-.ui-forgot-main-001 .forgot-panel-header .back{order:0;align-self:center;min-height:40px;margin:0;padding:8px 12px;border:1px solid #dce5f4;border-radius:11px;background:#f7f9fe;color:#485b7c;font-size:13px;line-height:1.35;transition:color .18s ease,background-color .18s ease,border-color .18s ease,transform .18s ease}
-.ui-forgot-main-001 .forgot-panel-header .back:hover{transform:translateX(-2px);background:#edf3ff;border-color:#b9cdf4;color:var(--blue);text-decoration:none}
-.ui-forgot-main-001 .forgot-panel-brand{display:flex;align-items:center;justify-content:center;flex:0 0 52px;width:52px;height:52px;border:1px solid #dce5f4;border-radius:12px;background:#f7f9fe;transition:background .18s ease,border-color .18s ease}
-.ui-forgot-main-001 .forgot-panel-brand:hover,.ui-forgot-main-001 .forgot-panel-brand:focus-visible{background:#eef3ff;border-color:#b9cdf4}
+.ui-forgot-main-001 .forgot-panel-header .back{order:1;align-self:center;min-height:36px;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#677386;font-size:13px;font-weight:700;line-height:1.4;transition:color .18s ease,transform .18s ease}
+.ui-forgot-main-001 .forgot-panel-header .back:hover{transform:translateX(-2px);color:var(--blue);text-decoration:none}
+.ui-forgot-main-001 .forgot-panel-brand{order:0;display:flex;align-items:center;justify-content:center;flex:0 0 52px;width:52px;height:52px;border:0;border-radius:0;background:transparent;transition:transform .18s ease}
+.ui-forgot-main-001 .forgot-panel-brand:hover{transform:translateY(-1px)}
 .ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;height:auto;max-height:44px}
 .ui-forgot-main-001 :is(.forgot-intro,.reset-intro){margin:0 0 26px}
 .ui-forgot-main-001 :is(.forgot-intro,.reset-intro) h1{margin:0 0 14px;color:var(--ink);font-size:clamp(33px,4vw,41px);font-weight:750;letter-spacing:-.045em;line-height:1.16}
