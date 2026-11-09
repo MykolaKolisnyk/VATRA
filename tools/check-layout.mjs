@@ -568,7 +568,7 @@ const formStart=registrationMarkup.indexOf('<section class="signup-form-panel ui
 const returnStart=registrationMarkup.indexOf('<nav class="reg-back-nav ui-register-back-nav-001"');
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-register-div-001">');
 assert.ok(formStart>=0&&returnStart>formStart&&innerStart>returnStart&&
- registrationMarkup.indexOf('class="reg-back-nav ui-register-back-nav-001"',returnStart+1)<0&&
+ (registrationMarkup.match(/class="reg-back-nav ui-register-back-nav-001"/g)||[]).length===1&&
  css.includes('.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
  css.includes('.signup-form-panel{display:flex;flex-direction:column;')&&
  css.includes('.login-layout::before,.signup-layout::before{'),
