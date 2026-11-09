@@ -54,6 +54,27 @@ function repeatedCssSelectors(content){
  return duplicates;
 }
 assert.deepEqual(repeatedCssSelectors(css),[],"Duplicate CSS selectors in the same responsive context");
+// A single password policy and floating-hint system serve all auth forms.
+assert.ok(auth.includes('function passwordIssue(value){')&&
+ auth.includes('function validPassword(value){return passwordIssue(value)==="";}')&&
+ auth.includes('if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);')&&
+ (auth.match(/const passwordProblem=passwordIssue\(password\);/g)||[]).length===2&&
+ auth.includes('code==="same_password"')&&
+ auth.includes('if(status&&heading)heading.after(status);')&&
+ auth.includes('if(status&&step.contains(status))form.before(status);'),
+ "Signup and both reset flows must share a specific password validator and aligned error placement");
+for(const [page,key,id] of [
+ ["register","n260","register-password-policy"],["forgot","n60","forgot-password-policy"],
+ ["reset","n46","reset-password-policy"]
+]){
+ const html=await read(page+".html");
+ assert.ok(html.includes('id="'+id+'" class="password-policy-note')&&
+  html.includes('data-i18n="'+key+'"')&&
+  uk.__pages[page].nodes[key].text["0"].includes("12–128")&&
+  en.__pages[page].nodes[key].text["0"].includes("12–128")&&
+  css.includes('.password-policy-note{margin:-2px 0 2px;'),
+  "Password rules should be visible in identical Onest typography on "+page);
+}
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
 assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
  errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),

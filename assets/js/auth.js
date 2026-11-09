@@ -811,6 +811,9 @@ function wireForgot(){
   form.hidden=true;
   hideEmailNotes(true);
   step.hidden=false;
+  // Keep validation and server errors directly below the active step title.
+  const status=q("#response"),heading=q("#recovery-step-heading");
+  if(status&&heading)heading.after(status);
   q("#recovery-code-form").hidden=false;
   q("#reset-form").hidden=true;
   q("#recovery-tools").hidden=false;
@@ -821,6 +824,8 @@ function wireForgot(){
  };
  const editEmail=()=>{
   form.hidden=false;step.hidden=true;hideEmailNotes(false);
+  const status=q("#response");
+  if(status&&step.contains(status))form.before(status);
   clearFeedback();
   try{sessionStorage.removeItem("vatra-recovery-pending");}catch(_){}
   emailField.focus({preventScroll:true});

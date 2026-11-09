@@ -808,7 +808,7 @@ try{
  });
  await fullRecovery.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",
-  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session"}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
+  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session"}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{if(data.password==="OldPassword@12345")return {data:{},error:{code:"same_password",message:"New password should be different from the old password"}};window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
  }));
  await fullRecovery.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
  await waitReady(fullRecovery);
@@ -826,6 +826,36 @@ try{
  assert.equal(await fullRecovery.locator("#recovery-code-form").isVisible(),false);
  assert.equal(await fullRecovery.locator("#recovery-tools").isVisible(),false);
  assert.equal(await fullRecovery.locator("#recovery-step-heading").textContent(),"Встановіть новий пароль");
+ // Client-side policy errors must explain the missing rule, not reject an
+ // otherwise matching pair with a generic "passwords do not match" message.
+ const policyTip=fullRecovery.locator("#forgot-password-policy");
+ assert.ok((await policyTip.textContent()).includes("12–128"));
+ assert.ok((await policyTip.evaluate(el=>getComputedStyle(el).fontFamily)).includes("Onest"));
+ await fullRecovery.locator("#password").fill("lowercaseonly123!");
+ await fullRecovery.locator("#password-confirm").fill("lowercaseonly123!");
+ await fullRecovery.locator("#reset-form button[type='submit']").click();
+ await fullRecovery.locator("#response").waitFor({state:"visible"});
+ assert.ok((await fullRecovery.locator("#response").textContent()).includes("велику латинську літеру"),
+  "Recovery must identify missing uppercase Latin letters");
+ assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),undefined);
+ assert.ok(await fullRecovery.locator("#response").evaluate(el=>
+  document.querySelector("#recovery-step-heading").nextElementSibling===el),
+  "Password errors must appear immediately below the stage heading");
+
+ await fullRecovery.locator("#password").fill("StrongPassword@12345");
+ await fullRecovery.locator("#password-confirm").fill("StrongPassword@12346");
+ await fullRecovery.locator("#reset-form button[type='submit']").click();
+ assert.ok((await fullRecovery.locator("#response").textContent()).includes("Паролі не збігаються"),
+  "Mismatch must be separate from password complexity validation");
+
+ await fullRecovery.locator("#password").fill("OldPassword@12345");
+ await fullRecovery.locator("#password-confirm").fill("OldPassword@12345");
+ await fullRecovery.locator("#reset-form button[type='submit']").click();
+ await fullRecovery.waitForFunction(()=>
+  document.querySelector("#response")?.textContent.includes("відрізняється від попереднього"));
+ assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),undefined,
+  "Server rejection of the previous password must not update the account");
+
  await fullRecovery.locator("#password").fill("StrongPassword@12345");
  await fullRecovery.locator("#password-confirm").fill("StrongPassword@12345");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
@@ -834,6 +864,20 @@ try{
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),"StrongPassword@12345");
  assert.equal(await fullRecovery.evaluate(()=>sessionStorage.getItem("vatra-recovery-pending")),null);
  await fullRecovery.close();
+ // The UI also displays identical rules and Onest at signup and direct reset.
+ for(const [path,selector] of [
+  ["register.html","#register-password-policy"],["reset.html","#reset-password-policy"]
+ ]){
+  const policyPage=await context.newPage();
+  await policyPage.goto(base+path,{waitUntil:"domcontentloaded"});
+  await waitReady(policyPage);
+  const tip=policyPage.locator(selector);
+  assert.ok((await tip.textContent()).includes("12–128"),
+   path+" must explain the same minimum requirements");
+  assert.ok((await tip.evaluate(el=>getComputedStyle(el).fontFamily)).includes("Onest"),
+   path+" must share the typography");
+  await policyPage.close();
+ }
  console.log("VATRA complete mock email → OTP → password update → success: OK");
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
  // Consistent translated email hint across signup and reset forms.
