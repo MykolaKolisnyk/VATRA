@@ -260,14 +260,21 @@ assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
  "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
 assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)'),
  "Service worker must be registered relative to the current site");
-assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,'),
- "Offline logo must be available as a self-contained vector");
+assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
+ offline.includes('class="offline-brand ui-offline-brand-001"')&&
+ offline.includes('class="offline-actions ui-offline-actions-001"')&&
+ offline.includes('class="ui-offline-img-001"')&&
+ !offline.includes("vatra-logo.svg"),
+ "Offline page must show only the self-contained V mark at the card top-left");
 assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-dot-001"),
  "Offline Wi-Fi-off icon must use the crisp SVG geometry");
 assert.ok(offline.includes("controller?.scriptURL")&&offline.includes('href="./" data-i18n="n9"'),
  "Offline fallback must resolve assets and home link at nested routes and localhost");
 assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page === "offline"'),
  "Offline screen must keep its own translations when used as a fallback for nested routes");
+assert.ok(sw.includes('const CACHE="vatra-offline-shell-v44"')&&
+ sw.includes('ROOT+"assets/logo/vatra-symbol.svg"'),
+ "Offline cache must refresh and include the standalone V mark");
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
@@ -399,15 +406,16 @@ assert.ok(!css.includes('.login-form-kicker::before')&&
  "Consistent auth animation, clean login eyebrow and card-aligned footer must remain");
 assert.ok(!css.includes(".register-page .field:has(input.control)")&&
  css.includes(".signup-form-panel .field:has(input.control)")&&
- css.includes('.login-layout::before,.signup-layout::before{content:"";display:block;flex:0 0 36px;margin-bottom:14px}'),
- "Language modal must remain isolated from registration form and login must reserve nav space");
+ css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}')&&
+ !css.includes(".login-layout::before")&&!css.includes(".signup-layout::before"),
+ "Auth cards must center without reserved space from the former top navigation");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 assert.ok(!register.includes('class="reg-header')&&
  !register.includes('class="header-logo vt-register-link-01"')&&
  register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
  register.includes('class="reg-back-nav ui-register-back-nav-001"')&&
  register.includes('href="./" class="back vt-register-link-02"')&&
- css.includes(".auth-layout{")&&css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
+ css.includes(".auth-layout{")&&!css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-register-footer-content-001'),
  "Registration must keep its return-to-login link inside the form panel");
@@ -571,8 +579,9 @@ assert.ok(formStart>=0&&returnStart>formStart&&innerStart>returnStart&&
  (registrationMarkup.match(/class="reg-back-nav ui-register-back-nav-001"/g)||[]).length===1&&
  css.includes('.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
  css.includes('.signup-form-panel{display:flex;flex-direction:column;')&&
- css.includes('.login-layout::before,.signup-layout::before{'),
- "Signup return link must be inside the right card without changing global page spacing");
+ css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}')&&
+ !css.includes('.login-layout::before,.signup-layout::before{'),
+ "Signup return link must be inside the right card with centered auth layout");
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
 for(const file of loadingPages){
  const html=await read(file);

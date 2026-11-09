@@ -268,8 +268,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .language-option.is-selected .language-option-copy small{color:#2865D8;font-weight:700}
 .language-empty{color:var(--soft);font-size:13px;margin:14px 2px}
 
-.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:flex-end;min-width:0;padding:18px 0 28px}
-.login-layout::before,.signup-layout::before{content:"";display:block;flex:0 0 36px;margin-bottom:14px}
+.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}
 .login-layout .split{margin:0 auto}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:100%;max-width:520px;margin:0 auto 18px;padding:0}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
 /* Registration retains its captions above the same floating-hint controls. */
 .signup-form-panel .field:has(input.control){position:relative;gap:8px}
@@ -509,9 +508,12 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
   .split,.reg-main{min-height:670px}
 }
 @media (max-width:1199px){
+  /* Tall stacked auth cards scroll naturally without phantom header spacing. */
+  .auth-layout{justify-content:flex-start;padding:18px 0 0}
+  .login-layout .split{margin:0 auto 28px}
   /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
   .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
-  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0}
+  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:0 auto 28px}
   .register-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
   .signup-brand-art,.signup-brand-highlights{display:none}
