@@ -100,7 +100,7 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
  css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
  legalCss.includes('padding:40px 0 40px;flex:1')&&
- (await read("404.html")).includes('href="/VATRA/cookies.html"'),
+ (await read("404.html")).includes('href="/VATRA/cookies"'),
  "All VATRA page footers, document navigation and full-panel motion should match");
 // Every visible element has a class and its own page class in addition to reusable components.
 for(const name of pages){
