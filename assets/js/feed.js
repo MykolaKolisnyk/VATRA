@@ -13,7 +13,7 @@
   return translated&&translated!==uk?translated:en;
  };
  const PAGE_SIZE=15,POST_LIMIT=2000;
- let client=null,user=null,vatraId=null,displayName="",loading=false,offset=0;
+ let client=null,user=null,vatraId=null,displayName="",loading=false,offset=0,searchTerm="";
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const composer=q("#feed-post-text"),counter=q("#feed-post-counter"),submit=q("#feed-submit");
  const deleteDialog=q("#feed-delete-dialog"),deleteConfirm=q("#feed-delete-confirm");
@@ -31,7 +31,7 @@
  }
  function clearMessage(){status.hidden=true;status.textContent="";status.removeAttribute("data-kind");}
  function showErrorAtGate(text){
-  const label=q(".feed-loading-text");
+  const label=q(".vatra-auth-loading-caption");
   if(label)label.textContent=text;
   const retry=node("button","feed-gate-retry vt-feed-gate-retry-001",t("Повторити","Retry"));
   retry.type="button";
@@ -87,10 +87,13 @@
   more.disabled=true;
   const start=reset?0:offset;
   try{
-   const {data,error}=await client.from("feed_posts")
+   let request=client.from("feed_posts").select("id,author_vatra_id,body,created_at");
+   if(searchTerm)request=request.ilike("body","%"+searchTerm.replace(/[\\%_]/g,"\\   const {data,error}=await client.from("feed_posts")
     .select("id,author_vatra_id,body,created_at")
     .order("created_at",{ascending:false}).order("id",{ascending:false})
-    .range(start,start+PAGE_SIZE-1);
+    .range(start,start+PAGE_SIZE-1);")+"%");
+   const {data,error}=await request.order("created_at",{ascending:false})
+    .order("id",{ascending:false}).range(start,start+PAGE_SIZE-1);
    if(error)throw error;
    if(reset){posts.replaceChildren();offset=0;}
    for(const post of data||[])posts.append(card(post));
@@ -119,6 +122,8 @@
    });
    if(error)throw error;
    composer.value="";updateCounter();
+   // A new post should become visible even if a prior feed filter was active.
+   if(searchTerm){searchTerm="";q("#feed-search-input").value="";}
    message(t("Публікацію додано до стрічки.","Your post was added to the feed."),"success");
    await loadPosts(true);
   }catch(_){
@@ -169,6 +174,8 @@
    if(!profile.error&&profile.data?.vatra_id!=null)vatraId=String(profile.data.vatra_id);
    q("#feed-my-name").textContent=displayName;
    q("#feed-my-avatar").textContent=initials(displayName);
+   q("#feed-header-avatar").textContent=initials(displayName);
+   q("#feed-menu-name").textContent=displayName;
    const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
    q("#feed-my-id").textContent=displayedId;
    q("#feed-header-id").textContent=displayedId;
@@ -178,6 +185,23 @@
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
    composer.addEventListener("input",updateCounter);
+   const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");
+   searchForm?.addEventListener("submit",event=>{
+    event.preventDefault();
+    searchTerm=searchInput.value.trim().slice(0,120);
+    clearMessage();
+    void loadPosts(true);
+   });
+   searchInput?.addEventListener("search",()=>{
+    if(!searchInput.value&&searchTerm){searchTerm="";clearMessage();void loadPosts(true);}
+   });
+   const accountMenu=q(".feed-account-menu");
+   document.addEventListener("click",event=>{
+    if(accountMenu?.open&&!accountMenu.contains(event.target))accountMenu.open=false;
+   });
+   document.addEventListener("keydown",event=>{
+    if(event.key==="Escape"&&accountMenu?.open)accountMenu.open=false;
+   });
    q("#feed-post-form").addEventListener("submit",createPost);
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
    deleteDialog?.addEventListener("close",()=>{pendingDelete=null;});
