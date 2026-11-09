@@ -12,11 +12,11 @@ import (
 
 var names = []string{"confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"}
 var callbacks = map[string]string{
- "confirmation":"account.html?token_hash=vatra_test_hash_2026&type=email",
- "invite":"account.html?token_hash=vatra_test_hash_2026&type=invite",
- "recovery":"reset.html?token_hash=vatra_test_hash_2026&type=recovery",
- "magic-link":"account.html?token_hash=vatra_test_hash_2026&type=magiclink",
- "email-change":"account.html?token_hash=vatra_test_hash_2026&type=email_change",
+ "confirmation":"account.html?token_hash=ci_example_hash_only&type=email",
+ "invite":"account.html?token_hash=ci_example_hash_only&type=invite",
+ "recovery":"reset.html?token_hash=ci_example_hash_only&type=recovery",
+ "magic-link":"account.html?token_hash=ci_example_hash_only&type=magiclink",
+ "email-change":"account.html?token_hash=ci_example_hash_only&type=email_change",
 }
 var href = regexp.MustCompile(`(?i)href="([^"]*)"`)
 func require(ok bool, message string){if !ok {panic(message)}}
@@ -34,7 +34,7 @@ func main(){
    preference:=map[string]string{}
    if locale!="missing" {preference["preferred_locale"]=locale}
    data:=map[string]any{
-    "Data":preference,"Token":"12345678","TokenHash":"vatra_test_hash_2026",
+    "Data":preference,"Token":"12345678","TokenHash":"ci_example_hash_only",
     "RedirectTo":"https://mykolakolisnyk.github.io/VATRA/reset.html",
     "Email":"user@example.com","OldEmail":"old@example.com","NewEmail":"new@example.com",
    }
