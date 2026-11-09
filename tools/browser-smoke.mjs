@@ -2073,6 +2073,9 @@ try{
    // Public documents and 404 have their own responsive headers and TOCs.
    // Check them at portrait, landscape and desktop widths in BOTH UI languages.
    for(const language of ["uk","en"]){
+    // A saved language cookie takes precedence over localStorage on VATRA.
+    // Match both sources before each native/engine locale matrix.
+    await auditContext.addCookies([{name:"vatra-language",value:language,url:base}]);
     for(const viewport of [{width:320,height:700},{width:390,height:844},
      {width:844,height:390},{width:768,height:1024},{width:1440,height:900}]){
      for(const route of ["404.html","terms.html","privacy.html","cookies.html"]){
