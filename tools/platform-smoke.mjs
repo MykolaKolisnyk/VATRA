@@ -26,6 +26,8 @@ try{
  await context.route("**/assets/js/host.js",r=>r.fulfill({status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"}));
  await context.route("**/cdn.jsdelivr.net/**",r=>r.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  for(const language of ["uk","en"]){
+  // VATRA cookie overrides localStorage; set both to the requested locale.
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
   for(const viewport of [{width:375,height:812},{width:844,height:390},{width:1366,height:768}]){
    for(const route of ["","register.html","forgot.html","reset.html","404.html","terms.html","privacy.html","cookies.html"]){
     const page=await context.newPage();
