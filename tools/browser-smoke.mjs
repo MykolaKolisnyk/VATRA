@@ -795,6 +795,46 @@ try{
  assert.ok(caption.includes("Якщо ця адреса належить акаунту VATRA"),
   "Success response must not claim that an email was delivered: "+caption);
  await recoverySend.close();
+
+ // Full mock lifecycle of an *existing* account: email -> OTP -> password -> success.
+ // No Supabase project, SMTP server or live account is contacted.
+ const fullRecovery=await context.newPage();
+ await fullRecovery.addInitScript(()=>{
+  window.turnstile={
+   render(element,options){window.__fullCaptcha={element,options};return "mock-widget";},
+   execute(){window.__fullCaptcha.options.callback("mock-secure-token");},
+   remove(){window.__fullCaptcha=null;}
+  };
+ });
+ await fullRecovery.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:'window.supabase={createClient:()=>({auth:{resetPasswordForEmail:async()=>({data:{},error:null}),verifyOtp:async params=>{window.__verifiedRecovery=params;return {data:{session:{access_token:"fake-session"}},error:null}},getUser:async()=>({data:{user:{id:"verified-mock",email:"registered@example.test",email_confirmed_at:"2026-11-01T00:00:00Z"}},error:null}),updateUser:async data=>{window.__updatedPassword=data.password;return {data:{},error:null}}}})};'
+ }));
+ await fullRecovery.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
+ await waitReady(fullRecovery);
+ await fullRecovery.locator("#email").fill("registered@example.test");
+ await fullRecovery.locator("#forgot-form button[type='submit']").click();
+ await fullRecovery.locator("#recovery-code-form").waitFor({state:"visible",timeout:10000});
+ assert.equal(await fullRecovery.locator(".forgot-intro").isVisible(),false);
+ await fullRecovery.locator("#recovery-token").fill("123456");
+ await fullRecovery.locator("#recovery-code-form button[type='submit']").click();
+ await fullRecovery.locator("#reset-form").waitFor({state:"visible",timeout:10000});
+ const verifiedMock=await fullRecovery.evaluate(()=>window.__verifiedRecovery);
+ assert.equal(verifiedMock.email,"registered@example.test");
+ assert.equal(verifiedMock.token,"123456");
+ assert.equal(verifiedMock.type,"recovery");
+ assert.equal(await fullRecovery.locator("#recovery-code-form").isVisible(),false);
+ assert.equal(await fullRecovery.locator("#recovery-tools").isVisible(),false);
+ assert.equal(await fullRecovery.locator("#recovery-step-heading").textContent(),"Встановіть новий пароль");
+ await fullRecovery.locator("#password").fill("StrongPassword@12345");
+ await fullRecovery.locator("#password-confirm").fill("StrongPassword@12345");
+ await fullRecovery.locator("#reset-form button[type='submit']").click();
+ await fullRecovery.locator("#account-link").waitFor({state:"visible",timeout:10000});
+ assert.equal(await fullRecovery.locator("#reset-form").isVisible(),false);
+ assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),"StrongPassword@12345");
+ assert.equal(await fullRecovery.evaluate(()=>sessionStorage.getItem("vatra-recovery-pending")),null);
+ await fullRecovery.close();
+ console.log("VATRA complete mock email → OTP → password update → success: OK");
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
  // Consistent translated email hint across signup and reset forms.
  for(const language of ["uk","en"]){
