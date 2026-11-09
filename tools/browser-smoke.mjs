@@ -1346,6 +1346,12 @@ try{
  await autoFocusPassword.blur();
  await fullRecovery.waitForTimeout(240);
  assert.ok((await measurePasswordHint()).centered,"Empty password hint must return after blur");
+ // A stale class must also be harmless if the browser shows an empty, blurred field.
+ await autoFocusPassword.evaluate(el=>el.closest(".vatra-input-shell").classList.add("is-floating"));
+ await fullRecovery.waitForTimeout(240);
+ assert.ok((await measurePasswordHint()).centered,
+  "Stale floating class must not keep an empty recovery caption raised");
+ await autoFocusPassword.evaluate(el=>el.closest(".vatra-input-shell").classList.remove("is-floating"));
  for(const id of ["password","password-confirm"]){
   const control=fullRecovery.locator("#"+id);
   assert.equal(await control.evaluate(el=>el.closest(".vatra-input-shell").matches(":focus-within")||
