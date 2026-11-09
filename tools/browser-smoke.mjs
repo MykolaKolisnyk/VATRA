@@ -72,7 +72,7 @@ try{
   assert.equal(design.authAnimation,"vatraAuthReveal","Login must match signup reveal animation");
   assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
-   assert.ok(design.bottomGap>=27&&design.bottomGap<=29,"Login bottom gap must be 28px at "+width+": "+design.bottomGap);
+   assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
   assert.equal(design.orbitCount,8,"All eight VATRA orbit icons must remain");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
@@ -278,14 +278,17 @@ try{
     const container=document.querySelector(".auth-layout").getBoundingClientRect();
     const login=document.querySelector(".login-layout");
     return {gap:footer.top-card.bottom,top:card.top-container.top,
-      reserved:login?getComputedStyle(login,"::before").height:null,
+      centerDelta:Math.abs((card.top+card.bottom)/2-(container.top+container.bottom)/2),
       back:!!document.querySelector(".reg-back-nav .back"),
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
    assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
-   assert.ok(shell.gap>=27&&shell.gap<=29,"Card/footer gap must be 28px: "+width+" "+route+" "+JSON.stringify(shell));
-   if(!route)assert.ok(!shell.back&&shell.reserved==="36px"&&shell.top>=68,
-    "Login must reserve a blank space equal to the Back button: "+JSON.stringify(shell));
+   assert.ok(shell.gap>=27,"Card must keep breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
+   if(width>=1200)assert.ok(shell.centerDelta<=2,
+    "Auth card must be centered in the available viewport: "+width+" "+route+" "+JSON.stringify(shell));
+   else assert.ok(shell.top>=16&&shell.top<=20,
+    "Stacked auth card must start naturally without a phantom top offset: "+width+" "+route+" "+JSON.stringify(shell));
+   if(!route)assert.ok(!shell.back,"Login must not have a redundant Back link");
    else assert.ok(shell.back,"Signup must retain the Back link");
    await probe.locator("[data-language-trigger]").click();
    await probe.locator(".language-dialog").waitFor({state:"visible"});
@@ -314,6 +317,37 @@ try{
   console.log("VATRA auth shell and language picker match "+width+"x"+height+": OK");
  }
 
+
+ // Offline fallback: original V symbol, top-left placement and readable responsive type.
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1440,900],[1920,1080]]){
+  const page=await context.newPage();
+  await page.setViewportSize({width,height});
+  await page.goto(base+"offline.html",{waitUntil:"domcontentloaded"});
+  await page.evaluate(()=>document.fonts.ready);
+  const metrics=await page.evaluate(()=>{
+   const rect=sel=>document.querySelector(sel).getBoundingClientRect();
+   const card=rect("main"),logo=rect(".offline-brand img"),icon=rect(".offline-icon");
+   const actions=[...document.querySelectorAll(".offline-actions>*")].map(x=>x.getBoundingClientRect().height);
+   return {overflow:document.documentElement.scrollWidth-innerWidth,
+    cardCenter:Math.abs((card.left+card.right)/2-innerWidth/2),
+    logoLeft:logo.left-card.left,logoTop:logo.top-card.top,
+    logoRight:logo.right-card.left,iconTop:icon.top-card.top,
+    titleSize:parseFloat(getComputedStyle(document.querySelector("h1")).fontSize),
+    font:getComputedStyle(document.querySelector("h1")).fontFamily,
+    isStandaloneV:document.querySelector(".offline-brand img").getAttribute("src").startsWith("data:image/svg+xml"),
+    actionHeights:actions,buttonCount:actions.length};
+  });
+  assert.ok(metrics.overflow<=3&&metrics.cardCenter<=2,
+   "Offline fallback must fit and center horizontally at "+width+": "+JSON.stringify(metrics));
+  assert.ok(metrics.isStandaloneV&&metrics.logoLeft>=15&&metrics.logoRight<260&&
+   metrics.logoTop<metrics.iconTop,
+   "Standalone V must sit at the top-left of the offline card at "+width+": "+JSON.stringify(metrics));
+  assert.ok(metrics.font.includes("Onest")&&metrics.titleSize>=27&&
+   metrics.buttonCount===2&&metrics.actionHeights.every(h=>h>=48),
+   "Offline typography and touch targets must remain legible at "+width+": "+JSON.stringify(metrics));
+  await page.close();
+ }
+ console.log("VATRA offline page responsive V mark and typography: OK");
 
  // A separate responsive sweep for the redesigned registration page.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
@@ -352,7 +386,8 @@ try{
    "Signup return link must be inside the right registration card at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.backText.length>0,"Signup return link is missing at "+width);
   if(width>=1200&&layout.fits)
-   assert.ok(layout.bottomGap>=27&&layout.bottomGap<=29,"Signup bottom gap must be 28px at "+width+": "+layout.bottomGap);
+   assert.ok(Math.abs((layout.brand.y+layout.brand.h/2)-(layout.form.y+layout.form.h/2))<=2&&layout.centerDelta<=2,
+    "Signup split card must be vertically centered at "+width+": "+JSON.stringify(layout));
   if(width>=1200){
    assert.ok(layout.brand.x<layout.form.x&&Math.abs(layout.brand.y-layout.form.y)<=2,
     "Signup columns must align side-by-side at "+width);
@@ -381,7 +416,7 @@ try{
     const card=box(".split,.reg-main"),brand=box(".intro-side,.signup-brand");
     const panel=box(".form-side,.signup-form-panel"),footer=box(".auth-footer-content");
     const form=document.querySelector(".form-box,.signup-form-panel .narrow-form");
-    return {width:card.width,height:card.height,x:card.x,
+    return {width:card.width,height:card.height,x:card.x,cardY:card.y,
      brandWidth:brand.width,brandHeight:brand.height,brandY:brand.y,
      panelWidth:panel.width,panelHeight:panel.height,panelY:panel.y,
      panelRight:panel.right,cardRight:card.right,footerWidth:footer.width,
@@ -404,6 +439,8 @@ try{
    "Sign-in and signup footer widths differ at "+width);
   assert.equal(signup.stageAnimation,"none","Signup fields must not animate separately from header");
   if(width>=1200){
+   assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
+    "Login and signup cards should share the same vertical center at "+width);
    assert.ok(Math.abs(login.height-signup.height)<=2,
     "Sign-in and signup card heights differ at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(login.brandWidth-signup.brandWidth)<=2&&
