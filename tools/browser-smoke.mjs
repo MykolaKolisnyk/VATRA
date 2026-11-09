@@ -2068,6 +2068,10 @@ try{
     }
    }
    await auditContext.close();
+   if(engine!=="chromium"){
+    // Verify actual translated entrance events in other rendering engines too.
+    await runLocaleAnimationAudit(engine,auditBrowser,localeAnimationPages,[{width:390,height:844}]);
+   }
   }finally{await auditBrowser.close();}
   console.log("VATRA "+engine+" responsive matrix: 5 widths x 4 auth pages, UI and fonts OK");
  }
