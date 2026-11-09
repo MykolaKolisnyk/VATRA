@@ -564,7 +564,9 @@ try{
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
-  await waitReady(probe);
+  if(["","register.html","forgot.html","reset.html"].includes(route))
+   await waitReady(probe);
+  else await probe.evaluate(()=>document.fonts.ready);
   const footerTypography=await probe.evaluate(()=>{
    const copyright=document.querySelector(".auth-footer-content>span");
    const nav=document.querySelector(".footer nav");
