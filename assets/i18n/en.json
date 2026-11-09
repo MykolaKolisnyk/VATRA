@@ -2256,6 +2256,76 @@
         "twitter:description": "VATRA is a Ukrainian social network for communication, connections, creativity, communities, shopping, and business."
       },
       "nodes": {
+        "n500": {
+          "text": {
+            "0": "Back to saved account"
+          }
+        },
+        "n501": {
+          "text": {
+            "0": "Saved account"
+          }
+        },
+        "n502": {
+          "text": {
+            "0": "Continue"
+          }
+        },
+        "n503": {
+          "text": {
+            "0": "Use another account"
+          }
+        },
+        "n504": {
+          "text": {
+            "0": "Password"
+          }
+        },
+        "n505": {
+          "text": {
+            "0": "Enter your password"
+          }
+        },
+        "n506": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n507": {
+          "text": {
+            "0": "Forgot password?"
+          }
+        },
+        "n508": {
+          "text": {
+            "0": "Back to saved account"
+          }
+        },
+        "n509": {
+          "text": {
+            "0": "Only the name and email are remembered on this device. Your password is required to sign in."
+          }
+        },
+        "n510": {
+          "text": {
+            "0": "Remove saved account?"
+          }
+        },
+        "n511": {
+          "text": {
+            "0": "The name and email will be removed from this browser. Your VATRA account will not be deleted."
+          }
+        },
+        "n512": {
+          "text": {
+            "0": "Cancel"
+          }
+        },
+        "n513": {
+          "text": {
+            "0": "Remove"
+          }
+        },
         "n3": {
           "attrs": {
             "aria-label": "VATRA logo with eight themed icons"
