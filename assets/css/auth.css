@@ -207,13 +207,21 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 }
 .vatra-input-shell.is-floating .vatra-floating-hint,
 .vatra-input-shell:focus-within .vatra-floating-hint,
-.vatra-input-shell:has(input:-webkit-autofill) .vatra-floating-hint{
+.vatra-input-shell:has(input:-webkit-autofill:not(:placeholder-shown)) .vatra-floating-hint{
  top:7px;transform:translateY(0);font-size:11px;color:var(--blue)
 }
 .vatra-input-shell.is-floating .control,
 .vatra-input-shell:focus-within .control,
-.vatra-input-shell:has(input:-webkit-autofill) .control{
+.vatra-input-shell:has(input:-webkit-autofill:not(:placeholder-shown)) .control{
  padding-top:20px;padding-bottom:5px
+}
+/* Clear inputs are never floating merely because an obsolete JS class persisted.
+   Focused controls still float normally; recovery has its own initial-focus guard. */
+.vatra-input-shell.is-floating:not(:focus-within):has(input:placeholder-shown) .vatra-floating-hint{
+ top:50%;transform:translateY(-50%);font-size:15px;color:var(--soft)
+}
+.vatra-input-shell.is-floating:not(:focus-within):has(input:placeholder-shown) .control{
+ padding-top:12px;padding-bottom:12px
 }
 .vatra-input-shell.input-password .control{padding-right:90px}
 .field.is-invalid .vatra-floating-hint{color:#aa4e60}
@@ -468,6 +476,14 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 .ui-forgot-main-001 .forgot-panel .vatra-input-shell .vatra-floating-hint{left:17px}
 .ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}
 .ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .vatra-floating-hint{top:8px}
+/* On first showing the reset stage, password-manager auto-focus must not
+   raise empty hints; an explicit click, Tab or typing releases this guard. */
+.ui-forgot-main-001 .forgot-panel #reset-form .vatra-input-shell.is-awaiting-user-input:has(input:placeholder-shown) .vatra-floating-hint{
+ top:50%;transform:translateY(-50%);font-size:15px;color:var(--soft)
+}
+.ui-forgot-main-001 .forgot-panel #reset-form .vatra-input-shell.is-awaiting-user-input:has(input:placeholder-shown) .control{
+ padding-top:12px;padding-bottom:12px
+}
 .ui-forgot-main-001 .forgot-panel .action.primary{min-height:56px;border-radius:999px;background:linear-gradient(100deg,#2464d7,#326ce1);box-shadow:0 10px 23px rgba(39,98,212,.16);font-size:14px;font-weight:750;transition:background .18s ease,box-shadow .18s ease,transform .18s ease}
 .ui-forgot-main-001 .forgot-panel .action.primary:hover{background:linear-gradient(100deg,#1e55bf,#2e5fce);box-shadow:0 13px 28px rgba(39,98,212,.23)}
 .ui-forgot-main-001 .forgot-panel .form-note{margin-top:19px;color:var(--soft);font-size:13px;line-height:1.65}
