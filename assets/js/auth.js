@@ -94,9 +94,10 @@ async function acceptEmailConfirmation(){
 }
 
 function goToMyAccount(){
- // Until dedicated profile routes exist, show the real account page.
+ // After a verified sign-in or sign-up, Feed is the VATRA home screen.
+ // Email token callbacks still arrive at account.html for verification.
  navigatingAuth=true;
- window.location.replace(url("account.html"));
+ window.location.replace(url("feed.html"));
 }
 function feedback(text,type="info"){
  const box=q("#response");
