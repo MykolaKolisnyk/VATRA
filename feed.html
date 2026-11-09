@@ -14,6 +14,7 @@
  <link rel="icon" type="image/svg+xml" href="assets/logo/vatra-app-icon.svg">
  <link rel="apple-touch-icon" href="assets/logo/vatra-app-icon.png">
  <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
+ <link rel="stylesheet" href="assets/css/auth.css">
  <link rel="stylesheet" href="assets/css/feed.css">
  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
  <script defer src="assets/js/feed.js"></script>
@@ -87,6 +88,14 @@
     <section class="feed-next-card ui-feed-next-card-001"><h2 class="feed-next-title vt-feed-next-title-001" data-i18n="n23">Далі у VATRA</h2><p class="feed-next-text vt-feed-next-text-001" data-i18n="n24">Друзі, спільноти, кліпи та відео — у наступних оновленнях.</p></section>
    </aside>
   </div>
+  <dialog id="feed-delete-dialog" class="feed-delete-dialog ui-feed-delete-dialog-001" aria-labelledby="feed-delete-title" aria-describedby="feed-delete-description">
+   <h2 id="feed-delete-title" class="feed-delete-title vt-feed-delete-title-001" data-i18n="n38">Видалити публікацію?</h2>
+   <p id="feed-delete-description" class="feed-delete-description vt-feed-delete-description-001" data-i18n="n39">Ви більше не побачите цю публікацію в стрічці.</p>
+   <div class="feed-delete-actions ui-feed-delete-actions-001">
+    <button id="feed-delete-cancel" class="feed-delete-cancel vt-feed-delete-cancel-001" type="button" data-i18n="n40">Скасувати</button>
+    <button id="feed-delete-confirm" class="feed-delete-confirm vt-feed-delete-confirm-001" type="button" data-i18n="n41">Видалити</button>
+   </div>
+  </dialog>
   <footer class="feed-footer ui-feed-footer-001"><div class="feed-footer-inner ui-feed-footer-inner-001"><span class="vt-feed-copyright-001" data-i18n="n27">© 2026 VATRA · Ваші люди. Ваші історії. Ваша VATRA.</span><nav class="feed-footer-nav ui-feed-footer-nav-001" aria-label="Документи VATRA" data-i18n="n37"><a class="vt-feed-terms-001" href="terms.html" data-i18n="n28">Умови використання</a><a class="vt-feed-privacy-001" href="privacy.html" data-i18n="n29">Конфіденційність</a><a class="vt-feed-cookies-001" href="cookies.html" data-i18n="n30">Cookies</a></nav></div></footer>
  </div>
 </body>
