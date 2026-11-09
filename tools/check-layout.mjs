@@ -99,7 +99,7 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
  css.includes('.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}')&&
  css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
- legalCss.includes('flex:1;animation:vatraAuthReveal .3s')&&
+ legalCss.includes('padding:34px 0 34px;flex:1')&&
  (await read("404.html")).includes('href="/VATRA/cookies.html"'),
  "All VATRA page footers, document navigation and full-panel motion should match");
 // Every visible element has a class and its own page class in addition to reusable components.
@@ -814,8 +814,8 @@ assert.ok(
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
  css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075)}')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-content{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;animation:vatraAuthReveal .3s')&&
- css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]){animation:vatraAuthReveal .3s')&&
- css.includes('.ui-forgot-main-001 .forgot-panel-content,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]) > :not([hidden]){animation:vatraAuthReveal .3s')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form) > :not([hidden]),:is(.account-card,.error-card) > :not([hidden]),.signup-confirmation > :not([hidden]){animation:none!important}')&&
  auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
  "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
@@ -907,3 +907,10 @@ assert.ok(!/\/VATRA\/(?:ua|en)\//.test(await read("sitemap.xml")),"Old locale si
 const obsolete=pages.flatMap(page=>["ua/"+page+".html","en/"+page+".html"]);
 for(const file of obsolete)await assert.rejects(stat(file),{code:"ENOENT"},"Duplicate localized page must be removed: "+file);
 console.log("VATRA: "+pages.length+" root pages, "+total+" unique UI classes, 2 JSON locales, auth, CAPTCHA and offline verified.");
+
+// The elevated card shells must stay still; only their contents reveal.
+assert.ok(css.includes('.site .saved-account-panel > :not([hidden]){animation:vatraAuthReveal')&&
+ css.includes(':is(.account-card,.error-card) > :not([hidden]){animation:vatraAuthReveal')&&
+ legalCss.includes('.policy-header,.policy-section > :not([hidden]),.policy-toc > :not([hidden]){animation:vatraAuthReveal')&&
+ !legalCss.includes('padding:34px 0 74px;flex:1'),
+ "Cards must stay still and legal footer spacing must remain balanced");
