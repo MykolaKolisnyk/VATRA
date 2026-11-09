@@ -32,7 +32,9 @@
   };
   if(current==="en"){
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
-    const title=instantEnglishTitles[segment];
+    // Unknown paths are rendered by the root 404.html on GitHub Pages.
+    // Set its English tab title immediately, before en.json finishes loading.
+    const title=instantEnglishTitles[segment]||instantEnglishTitles["404"];
     if(title){
       const applyTitle=()=>{
         const node=document.head.querySelector("title");
