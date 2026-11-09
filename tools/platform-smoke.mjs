@@ -11,6 +11,7 @@ const server=createServer(async(req,res)=>{
   const u=new URL(req.url,"http://localhost");
   if(!u.pathname.startsWith("/VATRA/")){res.writeHead(404).end();return;}
   let file=decodeURIComponent(u.pathname.slice("/VATRA/".length))||"index.html";
+  if(!file.split("/").at(-1).includes("."))file+=".html";
   const path=resolve(root,file);
   if(path!==root&&!path.startsWith(root+sep)){res.writeHead(403).end();return;}
   const body=await readFile(path),ext=file.slice(file.lastIndexOf("."));
