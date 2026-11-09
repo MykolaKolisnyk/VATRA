@@ -624,7 +624,11 @@ async function initialize(){
  }
  try{
   auth=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
-   auth:{autoRefreshToken:true,persistSession:true,detectSessionInUrl:true,flowType:"pkce"}
+   // Recovery OTP verifies the user's identity only to change their password.
+   // It must NEVER persist a normal VATRA login session in localStorage.
+   auth:{autoRefreshToken:page!=="reset"&&page!=="forgot",
+    persistSession:page!=="reset"&&page!=="forgot",
+    detectSessionInUrl:page!=="forgot",flowType:"pkce"}
   });
  }catch(_){
   feedback("Не вдалося підключитися до сервісу авторизації.","error");return;
@@ -1208,6 +1212,9 @@ function wireReset(){
    if(userErr||!user||user.id!==recoveryVerifiedUserId){feedback("Підтвердження закінчилося. Запросіть новий код для відновлення.","error");form.hidden=true;codeForm.hidden=false;return;}
    const {error}=await auth.auth.updateUser({password});
    if(error)throw error;
+   // This one-time recovery session must not become a normal signed-in account.
+   recoveryVerifiedUserId=null;
+   try{await auth.auth.signOut?.({scope:"local"});}catch(_){}
    form.reset();
    form.hidden=true;
    feedback("Пароль оновлено. Тепер можете перейти до свого акаунта.","success");

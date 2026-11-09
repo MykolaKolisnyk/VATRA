@@ -15,9 +15,9 @@
 | Password changed (Security) | `password-changed.html` | `VATRA — Пароль змінено / Password changed` |
 | Email address changed (Security) | `email-address-changed.html` | `VATRA — Пошту змінено / Email changed` |
 
-## Важливо: обмеження Supabase з 3 червня 2026 року
+## Запуск VATRA на Supabase Pro
 
-Для нових проєктів **Free** з типовим поштовим сервісом Supabase редагування HTML-шаблонів недоступне. VATRA створено в жовтні 2026 року, тому перед вставленням шаблонів перевірте тариф і відправника. Якщо використовується Free, для користувацьких листів потрібен **власний SMTP** (або перехід на тариф, де налаштування доступні). Це обмеження Supabase, а не помилка HTML. Офіційна інформація: https://supabase.com/changelog/46599-changes-to-email-template-customisation-on-free-tier
+Фінальний реліз VATRA планується на **Supabase Pro**. Усі шаблони в цьому каталозі готуються для продакшн-використання з цим тарифом: Confirm sign up, Invite, Magic link, Change email, Reset password, Reauthentication та два Security Notifications. Під час запуску налаштуйте власний надійний SMTP-відправник, SPF, DKIM і DMARC та дозволені URL для переходів. **Не перемикайте тариф і не змінюйте активні шаблони без окремої команди.**
 
 Перед застосуванням у продакшні виконайте `go run tools/email-template-audit.go`: тест відтворює всі вісім HTML/Go-шаблонів українською й англійською, підставляє тестові OTP і адреси та перевіряє HTTPS-посилання. Він не відправляє листів і не змінює налаштування Supabase. Після вставлення потрібні окремі тестові листи до реального поштового клієнта (мобільний Gmail, Apple Mail та Outlook) і перевірка SMTP/URL allow list. Перш ніж замінювати робочі шаблони, збережіть їхні попередні версії.
 

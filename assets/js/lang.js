@@ -21,6 +21,31 @@
   // file:// blocks fetch() in mainstream browsers. Keep the Ukrainian fallback
   // visible; use a local HTTP server for the fully translated experience.
   const current = localFile ? "uk" : preferred();
+  // Titles must be correct BEFORE the asynchronous English JSON arrives. Watch
+  // the original <title> as HTML is parsed; no duplicate title or extra script.
+  const instantEnglishTitles={
+    index:"Sign in · VATRA",register:"Create account · VATRA",
+    forgot:"Password recovery · VATRA",reset:"New password · VATRA",
+    account:"Account · VATRA","404":"404 · Page not found — VATRA",
+    terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
+    cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
+  };
+  if(current==="en"){
+    const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
+    const title=instantEnglishTitles[segment];
+    if(title){
+      const applyTitle=()=>{
+        const node=document.head.querySelector("title");
+        if(node&&node.textContent!==title)node.textContent=title;
+      };
+      const observer=new MutationObserver(applyTitle);
+      observer.observe(document.head,{childList:true,subtree:true,characterData:true});
+      applyTitle();
+      document.addEventListener("DOMContentLoaded",()=>{
+        applyTitle();observer.disconnect();
+      },{once:true});
+    }
+  }
   document.documentElement.lang = current === "en" ? "en" : "uk";
   document.documentElement.dataset.language = current;
   if (current === "en") {
