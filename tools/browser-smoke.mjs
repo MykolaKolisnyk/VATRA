@@ -1268,6 +1268,11 @@ try{
   assert.ok(overflow<=3,"Recovery password stage must not overflow "+width+": "+overflow);
   await view.close();
  }
+ // Ensure the legacy direct-login security checks do not inherit a remembered
+ // account from earlier signup tests in this same browser context.
+ await context.addInitScript(()=>{
+  try{localStorage.removeItem("vatra-remembered-account");}catch(_){}
+ });
  // If CAPTCHA could not initialize, sign-in must never call Supabase Auth.
  const noCaptcha=await context.newPage();
  await noCaptcha.route("**/assets/js/captcha.js",route=>route.fulfill({
