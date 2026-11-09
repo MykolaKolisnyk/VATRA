@@ -278,17 +278,30 @@ try{
     const card=document.querySelector(".split,.reg-main").getBoundingClientRect();
     const footer=document.querySelector(".footer").getBoundingClientRect();
     const container=document.querySelector(".auth-layout").getBoundingClientRect();
-    const login=document.querySelector(".login-layout");
-    return {gap:footer.top-card.bottom,top:card.top-container.top,
+    const footerStyle=getComputedStyle(document.querySelector(".footer"));
+    const footerNav=document.querySelector(".footer nav").getBoundingClientRect();
+    const footerAction=document.querySelector(".footer-auth-action").getBoundingClientRect();
+    return {footerBorder:footerStyle.borderTopColor,footerBorderWidth:footerStyle.borderTopWidth,
+      footerBackground:footerStyle.backgroundColor,footerHeight:footer.height,
+      footerNavWidth:footerNav.width,footerActionWidth:footerAction.width,
+      gap:footer.top-card.bottom,top:card.top-container.top,
       sideLeft:card.left,sideRight:innerWidth-card.right,
       centerDelta:Math.abs((card.top+card.bottom)/2-(container.top+container.bottom)/2),
       back:!!document.querySelector(".reg-back-nav .back"),
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
    assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
+   if(samples.length){
+    const previous=samples[0];
+    assert.ok(shell.footerBorder===previous.footerBorder&&shell.footerBorderWidth===previous.footerBorderWidth&&
+     shell.footerBackground===previous.footerBackground&&Math.abs(shell.footerHeight-previous.footerHeight)<=1&&
+     Math.abs(shell.footerNavWidth-previous.footerNavWidth)<=2&&
+     Math.abs(shell.footerActionWidth-previous.footerActionWidth)<=1,
+     "Sign-in and signup footer geometry must be identical at "+width+": "+JSON.stringify([previous,shell]));
+   }
    assert.ok(Math.abs(shell.sideLeft-shell.sideRight)<=2&&Math.abs(shell.top-shell.gap)<=2,
     "Auth card must have symmetric side and vertical gutters at "+width+" "+route+": "+JSON.stringify(shell));
-   assert.ok(shell.gap>=23,"Card must keep breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
+   assert.ok(shell.gap>=(width<1200?31:39),"Card must keep balanced breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
    if(width>=1200)assert.ok(shell.centerDelta<=2,
     "Auth card must be centered in the available viewport: "+width+" "+route+" "+JSON.stringify(shell));
    else assert.ok(shell.top>=23&&Math.abs(shell.top-shell.gap)<=2,
@@ -373,7 +386,10 @@ try{
   const matrix=await link.evaluate(el=>getComputedStyle(el).transform);
   assert.ok(matrix.startsWith("matrix(")&&parseFloat(matrix.split(",")[4])<=-1.8,
    "Return link must move 2px to the left on hover: "+route+" "+matrix);
-  if(route==="register.html")assert.equal(await page.locator(".reg-back-nav").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
+  if(route==="register.html"){
+    assert.equal(await page.locator(".reg-back-nav").evaluate(el=>getComputedStyle(el).animationName),"none");
+    assert.equal(await page.locator(".signup-form-panel .narrow-form").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
+   }
   else{
    assert.equal(await page.locator(".forgot-panel").evaluate(el=>getComputedStyle(el).animationName),"none");
    assert.equal(await page.locator(".forgot-panel-content").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
@@ -405,8 +421,13 @@ try{
      stageAnimation:getComputedStyle(document.querySelector('[data-register-step="1"]')).animationName,
     backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
     backAligned:Math.abs(back.right-document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().right)<=2,
-    backInside:nav.top>=form.top&&nav.right<=form.right+1&&
-     nav.bottom<=document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().top+2,
+    backInside:(()=>{
+     const row=document.querySelector(".signup-form-overline").getBoundingClientRect();
+     const labels=document.querySelector(".signup-overline-labels").getBoundingClientRect();
+     const step=document.querySelector('[data-step-label="1"]').getBoundingClientRect();
+     return nav.top>=row.top-2&&nav.bottom<=row.bottom+2&&nav.right<=form.right+1&&
+      labels.left<step.right&&labels.right<=nav.left+2&&nav.top>=form.top;
+    })(),
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
     centerDelta:Math.abs((main.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
     brand:{x:brand.x,y:brand.y,w:brand.width,h:brand.height,bottom:brand.bottom},
@@ -798,7 +819,7 @@ try{
       linksCount:document.querySelectorAll(".footer nav a").length};
    });
    assert.ok(sizes.exists,"Policy header or footer missing at "+width+" "+route);
-   const expectedGap=width<=1024?24:28;
+   const expectedGap=width<1200?32:40;
    assert.ok(Math.abs(sizes.policyPaddingTop-expectedGap)<1&&
     Math.abs(sizes.policyPaddingBottom-expectedGap)<1&&
     sizes.visibleDocumentGap>=expectedGap-1,
@@ -1287,7 +1308,7 @@ try{
  await confirmationPage.locator("#signup-confirmation").waitFor({state:"visible"});
  assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false);
  assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
- assert.equal(await confirmationPage.locator(".signup-form-panel > .reg-back-nav a").isVisible(),true,
+ assert.equal(await confirmationPage.locator(".signup-form-overline .reg-back-nav a").isVisible(),true,
   "The original top back link must remain visible during email confirmation");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  const typeScale=await confirmationPage.evaluate(()=>{

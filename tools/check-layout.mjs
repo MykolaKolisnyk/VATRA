@@ -99,7 +99,7 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
  css.includes('.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}')&&
  css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
- legalCss.includes('padding:28px 0 28px;flex:1')&&
+ legalCss.includes('padding:40px 0 40px;flex:1')&&
  (await read("404.html")).includes('href="/VATRA/cookies.html"'),
  "All VATRA page footers, document navigation and full-panel motion should match");
 // Every visible element has a class and its own page class in addition to reusable components.
@@ -406,7 +406,7 @@ assert.ok(!css.includes('.login-form-kicker::before')&&
  "Consistent auth animation, clean login eyebrow and card-aligned footer must remain");
 assert.ok(!css.includes(".register-page .field:has(input.control)")&&
  css.includes(".signup-form-panel .field:has(input.control)")&&
- css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}')&&
+ css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:40px 0}')&&
  !css.includes(".login-layout::before")&&!css.includes(".signup-layout::before"),
  "Auth cards must center without reserved space from the former top navigation");
 const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
@@ -575,12 +575,17 @@ const registrationMarkup=await read("register.html");
 const formStart=registrationMarkup.indexOf('<section class="signup-form-panel ui-signup-form-panel-001"');
 const returnStart=registrationMarkup.indexOf('<nav class="reg-back-nav ui-register-back-nav-001"');
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-register-div-001">');
-assert.ok(formStart>=0&&returnStart>formStart&&innerStart>returnStart&&
+const overlineStart=registrationMarkup.indexOf('<div class="signup-form-overline ui-signup-form-overline-001">');
+const labelsStart=registrationMarkup.indexOf('<div class="signup-overline-labels ui-signup-overline-labels-001">');
+const firstStep=registrationMarkup.indexOf('class="signup-step-number vt-signup-step-number-01"');
+assert.ok(formStart>=0&&innerStart>formStart&&
+ overlineStart>innerStart&&labelsStart>overlineStart&&firstStep>labelsStart&&returnStart>firstStep&&
  (registrationMarkup.match(/class="reg-back-nav ui-register-back-nav-001"/g)||[]).length===1&&
  css.includes('.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
- css.includes('padding:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}')&&
+ css.includes('max-width:none;margin:0;padding:0}')&&
+ css.includes('.signup-form-overline .reg-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}')&&
  css.includes('.signup-form-panel{display:flex;flex-direction:column;')&&
- css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}')&&
+ css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:40px 0}')&&
  !css.includes('.login-layout::before,.signup-layout::before{'),
  "Signup return link must be inside the right card with centered auth layout");
 // Native title tooltips use the browser theme and cannot match VATRA styling.
@@ -601,11 +606,11 @@ assert.ok(landing.includes('id="saved-account-remove"')&&
  !css.includes(".saved-account-remove[data-vatra-tooltip]::after{"),
  "Saved-account remove help must use the localized VATRA tooltip, not native title");
 assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;")&&
- css.includes(".auth-layout{justify-content:flex-start;padding:24px 0}")&&
+ css.includes(".auth-layout{justify-content:flex-start;padding:32px 0}")&&
  css.includes(".login-layout .split{margin:auto}")&&
  css.includes(".register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
  css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0;justify-content:center}")&&
- css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:24px 0}"),
+ css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:32px 0}"),
  "Auth and recovery layout must have matching top/bottom gutters and shared centering");
 // Every return-to-login link uses the same localized text and shared
 // hover movement; recovery cards animate only their inner content.
@@ -920,13 +925,22 @@ assert.ok(landing.includes('id="saved-account-content" class="saved-account-cont
  auth.includes('const revealSavedContents=()=>{')&&
  auth.includes('content.classList.remove("is-revealing")')&&
  auth.includes('content.classList.add("is-revealing")')&&
- css.includes('@media (min-width:1400px){\n  .signup-form-panel .reg-back-nav{')&&
+ css.includes('.signup-overline-labels{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;min-width:0}')&&
  css.includes('.signup-form-head{margin-bottom:25px}')&&
  css.includes('margin-bottom:26px}'),
  "Saved account must reveal its whole contents; signup must keep its intended spacing");
 
 // Policy pages use the same edge-to-footer spacing as VATRA auth views.
-assert.ok(legalCss.includes('.policy-main{padding:24px 0 24px}')&&
+assert.ok(legalCss.includes('.policy-main{padding:32px 0 32px}')&&
  !legalCss.includes('.policy-main{padding:25px 0 48px}')&&
  !legalCss.includes('padding:34px 0 34px;flex:1'),
  "Policy documents must share desktop/mobile section spacing with auth pages");
+
+// One VATRA footer line and compact signup eyebrow on both form routes.
+assert.ok(landing.includes('class="footer-auth-action vt-home-link-08"')&&
+ register.includes('class="footer-auth-action vt-register-footer-signin"')&&
+ css.includes('.site .footer-auth-action,.register-page .footer-auth-action{min-width:148px;justify-content:center}')&&
+ register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="reg-back-nav')&&
+ !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
+ legalCss.includes('.policy-page .footer{min-height:70px;padding-inline:0}'),
+ "Auth footer CTA slots and legal footer height must match; signup nav belongs beside step labels");
