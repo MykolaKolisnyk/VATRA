@@ -288,6 +288,22 @@
   "Не вдалося завантажити перевірку безпеки. Перевірте інтернет.": "Could not load the security check. Check your internet connection.",
   "Перевірку безпеки скасовано.": "Security verification was cancelled.",
   "Не вдалося завершити перевірку безпеки. Повторіть спробу або перевірте з’єднання.": "Could not complete the security verification. Retry or check your connection.",
+  "Учасник VATRA": "VATRA member",
+  "Видалити": "Delete",
+  "Видалити мою публікацію": "Delete my post",
+  "Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.": "Could not load posts. Check your connection and try again.",
+  "Публікація має містити від 1 до 2000 символів.": "A post must contain 1–2000 characters.",
+  "Публікацію додано до стрічки.": "Your post was added to the feed.",
+  "Не вдалося опублікувати допис. Повторіть спробу.": "Could not publish your post. Please try again.",
+  "Публікацію видалено.": "Post deleted.",
+  "Не вдалося видалити публікацію. Повторіть спробу.": "Could not delete the post. Please try again.",
+  "Не вдалося завантажити VATRA.": "Could not load VATRA.",
+  "Мій акаунт": "My account",
+  "VATRA ID наразі недоступний": "VATRA ID unavailable",
+  "Не вдалося вийти. Повторіть спробу.": "Could not sign out. Please retry.",
+  "VATRA ID для цього акаунта поки недоступний. Створення публікацій тимчасово вимкнене.": "VATRA ID is unavailable for this account. Posting is temporarily disabled.",
+  "Не вдалося завантажити стрічку. Оновіть сторінку.": "Could not load the feed. Refresh the page.",
+  "Не вдалося підключитися до VATRA.": "Could not connect to VATRA.",
   "__pages": {
     "feed": {
       "meta": {
