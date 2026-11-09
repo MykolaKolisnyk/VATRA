@@ -436,7 +436,7 @@ try{
 
 
  // Compare auth card widths, column sizes, and whole right-form animation across breakpoints.
- for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1199,900],[1200,800],[1280,800],[1440,900],[1600,900],[1920,1080]]){
+ for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1199,900],[1200,800],[1280,800],[1440,900],[1600,796],[1600,900],[1743,723],[1920,796],[1920,1080]]){
   const snapshots=[];
   for(const route of ["","register.html"]){
    const probe=await context.newPage();
@@ -452,6 +452,7 @@ try{
      brandWidth:brand.width,brandHeight:brand.height,brandY:brand.y,
      panelWidth:panel.width,panelHeight:panel.height,panelY:panel.y,
      panelRight:panel.right,cardRight:card.right,footerWidth:footer.width,
+     footerBottom:box(".footer").bottom,viewportHeight:innerHeight,
      animation:getComputedStyle(form).animationName,
      duration:getComputedStyle(form).animationDuration,
      stageAnimation:getComputedStyle(document.querySelector(".signup-step")||form).animationName,
@@ -470,6 +471,10 @@ try{
   assert.ok(Math.abs(login.footerWidth-signup.footerWidth)<=2,
    "Sign-in and signup footer widths differ at "+width);
   assert.equal(signup.stageAnimation,"none","Signup fields must not animate separately from header");
+  if(width>=1400&&height>=780&&height<=850){
+   assert.ok(login.footerBottom<=login.viewportHeight+2&&signup.footerBottom<=signup.viewportHeight+2,
+    "Auth footer must fit the compact desktop viewport at "+width+"x"+height+": "+JSON.stringify(snapshots));
+  }
   if(width>=1200){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
     "Login and signup cards should share the same vertical center at "+width);

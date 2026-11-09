@@ -498,6 +498,12 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .legal-main{max-width:850px;margin:0 auto;padding:50px 25px 95px}.legal-main .header-logo{width:185px;margin-bottom:35px}.legal-main h1{font-size:36px;letter-spacing:-.045em}.legal-main h2{font-size:22px;margin-top:36px}.legal-main p{font-size:14px;line-height:1.8;color:#566277}
 
 /* Узгоджена адаптація всіх наявних сторінок VATRA. */
+/* On compact desktop viewports, keep the auth footer in view without clipping
+   form content or shrinking the VATRA branding. Taller screens keep the normal gutters. */
+@media (min-width:1400px) and (max-height:850px){
+  .login-layout,.signup-layout{padding-block:10px}
+  .signup-form-panel{padding-block:30px}
+}
 @media (min-width:1200px) and (max-width:1399px){
   .intro-side{padding:24px clamp(24px,4vw,76px) 27px}
 
