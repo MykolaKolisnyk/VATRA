@@ -282,7 +282,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .language-empty{color:var(--soft);font-size:13px;margin:14px 2px}
 
 .register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}
-.login-layout .split{margin:0 auto}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:100%;max-width:520px;margin:0 auto 18px;padding:0}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700}.back svg{width:18px;height:18px}.back:hover{color:var(--blue)}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+.login-layout .split{margin:0 auto}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:100%;max-width:520px;margin:0 auto 18px;padding:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700;line-height:1.4;text-decoration:none;transition:color .18s ease,transform .18s ease}.back svg{width:18px;height:18px;flex:none}.back:hover,.back:focus-visible{transform:translateX(-2px);color:var(--blue);text-decoration:none}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
 /* Registration retains its captions above the same floating-hint controls. */
 .signup-form-panel .field:has(input.control){position:relative;gap:8px}
 .signup-form-panel .field,.signup-form-panel .two>.field{align-content:start;align-self:start}
@@ -386,7 +386,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}.signup-progress-segment{transition:none!important}}
+@media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.reg-back-nav,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel-content,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}.signup-progress-segment{transition:none!important}.back{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
 .vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
@@ -436,11 +436,11 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .center-page[data-page="forgot"]{background:radial-gradient(ellipse 75% 60% at 50% 17%,#edf0ff 0%,#f7f8fe 58%,#fafbff 100%)}
 .ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0;justify-content:center}
 .ui-forgot-main-001 .forgot-panel-header{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;margin:0 0 25px}
-.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075);animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075)}
+.ui-forgot-main-001 .forgot-panel-content{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 /* Match the 520px content column used in the VATRA login and registration forms. */
-.ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
-.ui-forgot-main-001 .forgot-panel-header .back{order:1;align-self:center;min-height:36px;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:#677386;font-size:13px;font-weight:700;line-height:1.4;transition:color .18s ease,transform .18s ease}
-.ui-forgot-main-001 .forgot-panel-header .back:hover{transform:translateX(-2px);color:var(--blue);text-decoration:none}
+.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}
+.ui-forgot-main-001 .forgot-panel-header .back{order:1;align-self:center;min-height:36px;margin:0;padding:0;border:0;border-radius:0;background:transparent}
 .ui-forgot-main-001 .forgot-panel-brand{order:0;display:flex;align-items:center;justify-content:center;flex:0 0 52px;width:52px;height:52px;border:0;border-radius:0;background:transparent;transition:transform .18s ease}
 .ui-forgot-main-001 .forgot-panel-brand:hover{transform:translateY(-1px)}
 .ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;height:auto;max-height:44px}
@@ -454,7 +454,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .ui-forgot-main-001 .forgot-panel .action.primary{min-height:56px;border-radius:999px;background:linear-gradient(100deg,#2464d7,#326ce1);box-shadow:0 10px 23px rgba(39,98,212,.16);font-size:14px;font-weight:750;transition:background .18s ease,box-shadow .18s ease,transform .18s ease}
 .ui-forgot-main-001 .forgot-panel .action.primary:hover{background:linear-gradient(100deg,#1e55bf,#2e5fce);box-shadow:0 13px 28px rgba(39,98,212,.23)}
 .ui-forgot-main-001 .forgot-panel .form-note{margin-top:19px;color:var(--soft);font-size:13px;line-height:1.65}
-.ui-forgot-main-001 .forgot-panel>.response:not([hidden]){margin:0 0 20px}
+.ui-forgot-main-001 .forgot-panel-content>.response:not([hidden]){margin:0 0 20px}
 .ui-forgot-main-001 .forgot-panel:has(#recovery-step:not([hidden])) .forgot-intro{display:none}
 .ui-forgot-main-001 .forgot-panel .recovery-step{margin:0;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent}
 .ui-forgot-main-001 .forgot-panel .recovery-step-title{font-size:clamp(26px,3vw,31px);font-weight:745;letter-spacing:-.035em;line-height:1.2}

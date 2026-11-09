@@ -352,6 +352,33 @@ try{
  }
  console.log("VATRA offline page responsive V mark and typography: OK");
 
+ // Both back links use the same copy and the same leftward hover animation.
+ for(const [route,lang] of [["register.html","uk"],["forgot.html","uk"],["reset.html","uk"],["register.html","en"],["forgot.html","en"],["reset.html","en"]]){
+  const page=await context.newPage();
+  await page.addInitScript(value=>localStorage.setItem("vatra-language",value),lang);
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto(base+route,{waitUntil:"domcontentloaded"});
+  await waitReady(page);
+  await page.waitForFunction(value=>document.documentElement.lang===value,lang);
+  const link=page.locator(".back").first();
+  const expected=lang==="uk"?"Повернутися до входу":"Back to sign-in";
+  assert.equal((await link.textContent()).trim(),expected,route+" return label in "+lang);
+  const appearance=await link.evaluate(el=>{const css=getComputedStyle(el);return {transition:css.transitionProperty,animation:css.animationName}});
+  assert.ok(appearance.transition.includes("transform"),"Return links need the same hover motion: "+route);
+  await link.hover();
+  await page.waitForTimeout(220);
+  const matrix=await link.evaluate(el=>getComputedStyle(el).transform);
+  assert.ok(matrix.startsWith("matrix(")&&parseFloat(matrix.split(",")[4])<=-1.8,
+   "Return link must move 2px to the left on hover: "+route+" "+matrix);
+  if(route==="register.html")assert.equal(await page.locator(".reg-back-nav").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
+  else{
+   assert.equal(await page.locator(".forgot-panel").evaluate(el=>getComputedStyle(el).animationName),"none");
+   assert.equal(await page.locator(".forgot-panel-content").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
+  }
+  await page.close();
+ }
+ console.log("VATRA shared return label and inner-content reveal: OK");
+
  // A separate responsive sweep for the redesigned registration page.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
   const signup=await context.newPage();
@@ -845,14 +872,14 @@ try{
     note=document.querySelector("#recovery-note"),back=document.querySelector(".forgot-panel-header .back"),
     brand=document.querySelector(".forgot-panel-brand");
    const style=node=>getComputedStyle(node);
-   return {card:style(panel).animationName,intro:style(intro).animationName,
+   return {card:style(panel).animationName,content:style(document.querySelector(".forgot-panel-content")).animationName,intro:style(intro).animationName,
     form:style(form).animationName,note:style(note).animationName,
     header:style(header).animationName,
     back:style(back).fontFamily,backSize:parseFloat(style(back).fontSize),
     brandBorder:style(brand).borderStyle,
     cardFont:style(panel).fontFamily};
   });
-  assert.ok(motion.card.includes("vatraAuthReveal")&&
+  assert.ok(motion.card==="none"&&motion.content.includes("vatraAuthReveal")&&
    ["intro","form","note","header"].every(part=>motion[part]==="none")&&
    motion.back.includes("Onest")&&motion.backSize===13&&motion.brandBorder==="none",
    "Recovery must animate the entire card once, including visible navigation: "+JSON.stringify(motion));
@@ -1143,12 +1170,13 @@ try{
   await resetVisual.waitForFunction(lang=>document.documentElement.lang===lang,language);
   const resetMotion=await resetVisual.evaluate(()=>({
     card:getComputedStyle(document.querySelector(".reset-panel")).animationName,
+    content:getComputedStyle(document.querySelector(".reset-panel .forgot-panel-content")).animationName,
     intro:getComputedStyle(document.querySelector(".reset-intro")).animationName,
     form:getComputedStyle(document.querySelector("#recovery-code-form")).animationName,
     logo:getComputedStyle(document.querySelector(".reset-panel-brand")).borderStyle,
     back:getComputedStyle(document.querySelector(".reset-panel-header .back")).fontFamily
   }));
-  assert.ok(resetMotion.card.includes("vatraAuthReveal")&&
+  assert.ok(resetMotion.card==="none"&&resetMotion.content.includes("vatraAuthReveal")&&
    resetMotion.intro==="none"&&resetMotion.form==="none"&&
    resetMotion.logo==="none"&&resetMotion.back.includes("Onest"),
    "Direct reset must animate its whole card, retain back button and brand");

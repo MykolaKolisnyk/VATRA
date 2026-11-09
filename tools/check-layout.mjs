@@ -578,6 +578,7 @@ const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-register
 assert.ok(formStart>=0&&returnStart>formStart&&innerStart>returnStart&&
  (registrationMarkup.match(/class="reg-back-nav ui-register-back-nav-001"/g)||[]).length===1&&
  css.includes('.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
+ css.includes('padding:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}')&&
  css.includes('.signup-form-panel{display:flex;flex-direction:column;')&&
  css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:28px 0}')&&
  !css.includes('.login-layout::before,.signup-layout::before{'),
@@ -603,6 +604,24 @@ assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;j
  css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0;justify-content:center}")&&
  css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:24px 0}"),
  "Auth and recovery layout must have matching top/bottom gutters and shared centering");
+// Every return-to-login link uses the same localized text and shared
+// hover movement; recovery cards animate only their inner content.
+for(const [page,code] of [["register","n4"],["forgot","n2"],["reset","n2"]]){
+ const markup=await read(page+".html");
+ const record=uk.__pages[page].nodes[code];
+ assert.equal(record.text["0"],"Повернутися до входу");
+ assert.ok(markup.includes('</svg>Повернутися до входу</a>'),
+  page+": visible return-to-login label differs from the shared copy");
+}
+assert.ok(css.includes('.back:hover,.back:focus-visible{transform:translateX(-2px);')&&
+ !css.includes('.ui-forgot-main-001 .forgot-panel-header .back:hover{')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content{display:flex;')&&
+ css.includes('.reg-back-nav{display:flex;')&&
+ !css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075);animation:'),
+ "Shared return-link hover and inner-only reveal must match across pages");
+assert.ok(forgot.includes('class="forgot-panel-content ui-forgot-panel-content-001"')&&
+ reset.includes('class="forgot-panel-content ui-reset-panel-content-001"'),
+ "Both recovery views must group animated content within a static card");
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
 for(const file of loadingPages){
  const html=await read(file);
@@ -777,7 +796,7 @@ assert.ok(
  "Recovery card must show only the V mark, and all email fields must use translated floating hints");
 assert.ok(
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;')&&
- css.includes('.ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
  css.includes('.form-box{width:100%;max-width:520px;')&&
  css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;'),
  "Password recovery, sign-in and sign-up must share the same 520px form column");
@@ -790,9 +809,10 @@ assert.ok(
  !reset.includes('class="header-logo vt-reset-link-02"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
- css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075);animation:vatraAuthReveal .3s')&&
+ css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075)}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;animation:vatraAuthReveal .3s')&&
  css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]),.ui-forgot-main-001 .forgot-panel #reset-form:not([hidden]){animation:vatraAuthReveal .3s')&&
- css.includes('.ui-forgot-main-001 .forgot-panel,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}')&&
  auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
  "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
