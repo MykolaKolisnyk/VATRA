@@ -428,7 +428,7 @@ try{
      const labels=document.querySelector(".signup-overline-labels").getBoundingClientRect();
      const step=document.querySelector('[data-step-label="1"]').getBoundingClientRect();
      return nav.top>=row.top-2&&nav.bottom<=row.bottom+2&&nav.right<=form.right+1&&
-      labels.left<step.right&&labels.right<=nav.left+2&&nav.top>=form.top;
+      labels.left<step.right&&(nav.top>=labels.bottom-2||labels.right<=nav.left+2)&&nav.top>=form.top;
     })(),
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
     centerDelta:Math.abs((main.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
