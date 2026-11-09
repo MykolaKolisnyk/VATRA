@@ -9,10 +9,10 @@ const page=document.body.dataset.page||"login";
 // An older PKCE link opened on a new device must show an explanation, not a silent redirect.
 const initialAuthQuery=new URLSearchParams(location.search);
 const initialAuthHash=new URLSearchParams(location.hash.slice(1));
-const initialAccountCallback=page==="account"&&(initialAuthQuery.has("token_hash")||
+const initialAccountCallback=page==="verify"&&(initialAuthQuery.has("token_hash")||
  initialAuthQuery.has("code")||initialAuthQuery.has("error")||
  initialAuthHash.has("access_token")||initialAuthHash.has("error"));
-const initialAccountCallbackError=page==="account"&&
+const initialAccountCallbackError=page==="verify"&&
  (initialAuthQuery.has("error")||initialAuthHash.has("error"));
 const translate=text=>window.VATRA_LANGUAGE?.translate(text)||text;
 const english=document.documentElement.lang==="en";
@@ -96,9 +96,9 @@ async function acceptEmailConfirmation(){
 
 function goToFeed(){
  // After a verified sign-in or sign-up, Feed is the VATRA home screen.
- // Email token callbacks still arrive at account.html for verification.
+ // The dedicated /verify endpoint redeems email links and returns to Feed.
  navigatingAuth=true;
- window.location.replace(url("feed.html"));
+ window.location.replace(url("feed"));
 }
 function feedback(text,type="info"){
  const box=q("#response");
@@ -659,7 +659,7 @@ async function initialize(){
  }
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
- if(page==="account"){
+ if(page==="verify"){
   const confirmation=await acceptEmailConfirmation();
   if(confirmation.failed)showAccountConfirmationFailure();
   else{
@@ -1295,8 +1295,9 @@ async function wireAccount(cameFromLink=false){
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
-  // Notify other VATRA tabs only after getUser() verifies a confirmed user.
+  // Notify other tabs after Supabase verifies the user, then enter the network.
   if(user.email_confirmed_at)announceVerifiedAccount();
+  if(page==="verify"){goToFeed();return;}
   /* VATRA ID — permanent sequential public number, assigned only by the database. */
   const idBox=q("#vatra-id");
   if(idBox){
