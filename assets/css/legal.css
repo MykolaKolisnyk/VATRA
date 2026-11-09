@@ -14,7 +14,8 @@
 .policy-tabs a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;min-width:132px;text-align:center;padding:12px 22px;border:1px solid transparent;border-radius:14px;color:var(--soft);font-weight:700;font-size:14px;line-height:1.35;white-space:nowrap;transition:background-color .15s,border-color .15s,color .15s}
 .policy-tabs a:hover{background:#f2f6ff;border-color:#dce7ff;color:#2865D8;text-decoration:none}
 .policy-tabs a[aria-current="page"]{background:#eaf1ff;border-color:#cedeff;color:#2865D8}
-.policy-main{min-width:0;width:min(calc(100% - 52px),1100px);margin:0 auto;padding:34px 0 74px;flex:1;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+.policy-main{min-width:0;width:min(calc(100% - 52px),1100px);margin:0 auto;padding:34px 0 34px;flex:1}
+.policy-header,.policy-section > :not([hidden]),.policy-toc > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .policy-header{max-width:910px;margin:0 0 30px}
 .policy-header h1{font-size:clamp(31px,3.5vw,46px);line-height:1.23;letter-spacing:-.025em;font-weight:720;text-wrap:balance;margin:0 0 14px;color:var(--ink)}
  .policy-header p{font-size:clamp(14px,1.3vw,16px);text-wrap:pretty;line-height:1.65;color:#627187;max-width:800px;margin:0}
@@ -64,7 +65,7 @@
 .policy-page .footer{min-height:72px;padding-inline:0}
 .policy-page .auth-footer-content{width:min(calc(100% - 52px),1100px)}
 /* Адаптивність юридичних сторінок: один набір правил для кожної ширини екрана. */
-@media(max-width:1024px){.policy-main{padding:28px 0 60px}.policy-main,.policy-top-inner,.policy-tabs,.policy-page .auth-footer-content{width:min(calc(100% - 44px),1100px)}.policy-tabs{justify-content:center;padding:9px 0;gap:7px}.policy-tabs a{padding:11px 14px;min-width:0;font-size:13px}.policy-grid{grid-template-columns:205px minmax(0,1fr);gap:18px}.policy-copy{padding:26px 26px 17px}}
+@media(max-width:1024px){.policy-main{padding:28px 0 32px}.policy-main,.policy-top-inner,.policy-tabs,.policy-page .auth-footer-content{width:min(calc(100% - 44px),1100px)}.policy-tabs{justify-content:center;padding:9px 0;gap:7px}.policy-tabs a{padding:11px 14px;min-width:0;font-size:13px}.policy-grid{grid-template-columns:205px minmax(0,1fr);gap:18px}.policy-copy{padding:26px 26px 17px}}
 @media(min-width:768px) and (max-width:950px){.policy-grid{display:block}
   .policy-toc{display:none}
   .policy-mobile-toc{display:block;margin:0 0 16px;border:1px solid #dce5f4;background:#fff;border-radius:14px}
@@ -84,3 +85,5 @@
   .policy-copy p,.policy-copy li{font-size:13px;line-height:1.7}}
 @media(max-width:390px){.policy-top-actions>a:first-child{display:none}.policy-page .policy-top .header-logo{width:132px}.policy-mobile-toc .policy-toc-list{grid-template-columns:1fr}.policy-top-inner,.policy-main,.policy-page .auth-footer-content{width:calc(100% - 26px)}.policy-copy{padding:21px 15px}.policy-tabs{padding-inline:11px}}
 @media(prefers-reduced-motion:reduce){}
+
+@media(prefers-reduced-motion:reduce){.policy-header,.policy-section > :not([hidden]),.policy-toc > :not([hidden]){animation:none!important}}
