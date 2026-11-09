@@ -8,11 +8,16 @@ import {chromium,firefox,webkit} from "playwright";
 const templates=["confirmation","invite","recovery","magic-link","email-change",
  "reauthentication","password-changed","email-address-changed"];
 await mkdir("audit-screenshots",{recursive:true});
+const brandLogo=await readFile("assets/logo/vatra-logo.png");
 for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",webkit]]){
  const browser=await kind.launch({headless:true});
  try{
   const context=await browser.newContext({serviceWorkers:"block",reducedMotion:"reduce"});
-  await context.route("**/*",route=>route.abort()); // External logo network is not required for box geometry.
+  await context.route("**/*",route=>{
+   if(route.request().url().endsWith("/VATRA/assets/logo/vatra-logo.png"))
+    return route.fulfill({status:200,contentType:"image/png",body:brandLogo});
+   return route.abort();
+  }); // Real local VATRA logo, no external network dependencies.
   try{
    for(const locale of ["uk","en"]){
     for(const name of templates){
@@ -21,7 +26,7 @@ for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",
       const page=await context.newPage();
       try{
        await page.setViewportSize({width,height:780});
-       await page.setContent(html,{waitUntil:"domcontentloaded"});
+       await page.setContent(html,{waitUntil:"load"});
        const metrics=await page.evaluate(()=>{
         const bounds=node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}};
         const table=document.querySelector('table[role="presentation"]');
@@ -34,11 +39,12 @@ for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",
          table:table?bounds(table):null,offenders:content,
          links:[...document.querySelectorAll("a[href]")].length,
          headings:document.querySelectorAll("h1").length,
+         logoLoaded:[...document.images].some(img=>img.alt==="VATRA"&&img.complete&&img.naturalWidth>0),
          lang:document.documentElement.lang};
        });
        assert.ok(metrics.table&&metrics.table.left>=-2&&metrics.table.right<=width+2&&
         metrics.overflow<=2&&metrics.offenders.length===0&&
-        metrics.links>=1&&metrics.headings===1&&metrics.lang===locale,
+        metrics.links>=1&&metrics.headings===1&&metrics.logoLoaded&&metrics.lang===locale,
         engine+" "+locale+" "+name+" "+width+
         ": rendered email layout or semantics invalid: "+JSON.stringify(metrics));
        if(["confirmation","recovery","password-changed"].includes(name)&&width===320){
