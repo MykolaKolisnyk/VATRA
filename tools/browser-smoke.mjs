@@ -269,6 +269,7 @@ try{
  // Both auth pages must share language-modal geometry and footer spacing.
  for(const [width,height] of [[390,844],[1024,900],[1440,900],[1920,1080]]){
   const samples=[];
+  const footerSamples=[];
   for(const route of ["","register.html"]){
    const probe=await context.newPage();
    await probe.setViewportSize({width,height});
@@ -291,8 +292,8 @@ try{
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
    assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
-   if(samples.length){
-    const previous=samples[0];
+   if(footerSamples.length){
+    const previous=footerSamples[0];
     assert.ok(shell.footerBorder===previous.footerBorder&&shell.footerBorderWidth===previous.footerBorderWidth&&
      shell.footerBackground===previous.footerBackground&&Math.abs(shell.footerHeight-previous.footerHeight)<=1&&
      Math.abs(shell.footerNavWidth-previous.footerNavWidth)<=2&&
@@ -302,6 +303,7 @@ try{
    assert.ok(Math.abs(shell.sideLeft-shell.sideRight)<=2&&Math.abs(shell.top-shell.gap)<=2,
     "Auth card must have symmetric side and vertical gutters at "+width+" "+route+": "+JSON.stringify(shell));
    assert.ok(shell.gap>=(width<1200?31:39),"Card must keep balanced breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
+   footerSamples.push(shell);
    if(width>=1200)assert.ok(shell.centerDelta<=2,
     "Auth card must be centered in the available viewport: "+width+" "+route+" "+JSON.stringify(shell));
    else assert.ok(shell.top>=23&&Math.abs(shell.top-shell.gap)<=2,
