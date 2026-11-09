@@ -14,6 +14,8 @@ const server=createServer(async(req,res)=>{
   if(!url.pathname.startsWith(basePath)){res.writeHead(404).end();return;}
   let name=decodeURIComponent(url.pathname.slice(basePath.length))||"index.html";
   if(name.endsWith("/"))name+="index.html";
+  // Match GitHub Pages' extensionless HTML paths in local browser tests.
+  if(!name.split("/").at(-1).includes("."))name+=".html";
   const file=resolve(root,name);
   if(file!==root&&!file.startsWith(root+sep)){res.writeHead(403).end();return;}
   const body=await readFile(file);
@@ -49,7 +51,6 @@ try{
   {path:"terms.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
   {path:"privacy.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
   {path:"cookies.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
-  {path:"account.html",selectors:[".account-card > img",".account-card h1"],signedIn:true}
  ];
  const runLocaleAnimationAudit=async(engine,engineBrowser,entries,viewports)=>{
   for(const language of ["uk","en"]){
@@ -871,7 +872,7 @@ try{
   const links=await probe.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(n=>({
    href:new URL(n.href,document.baseURI).pathname,text:n.textContent.trim()
   })));
-  assert.equal(links.filter(x=>x.href==="/VATRA/register.html").length,1,
+  assert.equal(links.filter(x=>x.href==="/VATRA/register").length,1,
    "Create account CTA missing from "+route+": "+JSON.stringify(links));
   assert.equal(links.filter(x=>x.href==="/VATRA/").length,1,
    "Sign-in CTA missing from "+route+": "+JSON.stringify(links));
@@ -947,7 +948,7 @@ try{
   else assert.deepEqual(footerTypography.style,baselineFooterAppearance,
    "Footer border, background, spacing, navigation and link height must match across page types: "+route);
   if(route==="404.html")
-   assert.equal(await probe.locator('.footer nav a[href$="/cookies.html"]').count(),1,
+   assert.equal(await probe.locator('.footer nav a[href$="/cookies"]').count(),1,
     "The 404 page must link to the same three public documents");
   if(["terms.html","privacy.html","cookies.html"].includes(route)){
    const legalMotion=await probe.locator(".policy-header").evaluate(el=>getComputedStyle(el).animationName);
@@ -1798,7 +1799,7 @@ try{
   window.__verifiedMockUser={id:"matched",email:"demoexample@example.test",
    email_confirmed_at:"2026-11-08T12:00:00Z"};
  });
- await confirmationPage.route("**/feed.html",route=>route.fulfill({
+ await confirmationPage.route("**/feed",route=>route.fulfill({
   status:200,contentType:"text/html",body:"<!doctype html><title>Verified VATRA</title><main id='verified-account'>VATRA account</main>"
  }));
  const verifiedTab=await context.newPage();
@@ -1806,9 +1807,9 @@ try{
   status:200,contentType:"text/javascript",
   body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:{id:"matched",email:"demoexample@example.test",email_confirmed_at:"2026-11-08T12:00:00Z",user_metadata:{first_name:"Test"}}},error:null})},from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:1},error:null})})})})})};'
  }));
- await verifiedTab.goto(base+"account.html",{waitUntil:"domcontentloaded"});
+ await verifiedTab.goto(base+"verify",{waitUntil:"domcontentloaded"});
  await waitReady(verifiedTab);
- await confirmationPage.waitForURL(/\/feed\.html$/,{timeout:10000});
+ await confirmationPage.waitForURL(/\/feed$/,{timeout:10000});
  assert.equal(await confirmationPage.locator("#verified-account").count(),1,
   "Matching server-verified user should automatically open the account from the waiting tab");
  await verifiedTab.close();
@@ -1904,7 +1905,7 @@ try{
   status:200,contentType:"text/javascript",
   body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:{id:"unconfirmed",email:"pending@example.test",email_confirmed_at:null}},error:null})}})};'
  }));
- await unconfirmed.goto(base+"account.html",{waitUntil:"domcontentloaded"});
+ await unconfirmed.goto(base+"verify",{waitUntil:"domcontentloaded"});
  await unconfirmed.waitForURL(url=>url.pathname==="/VATRA/"||url.pathname==="/VATRA/index.html",{timeout:10000});
  await waitReady(unconfirmed);
  assert.equal(await unconfirmed.locator("#login-form").isVisible(),true,
@@ -1965,12 +1966,13 @@ try{
  await savedPage.locator("#email").fill("example@vatra.test");
  await savedPage.locator("#password").fill("CorrectPass@123");
  await savedPage.locator('#login-form button[type="submit"]').click();
- await savedPage.waitForURL("**/feed.html");
+ await savedPage.waitForURL("**/feed");
  await waitReady(savedPage);
  const savedData=await savedPage.evaluate(()=>localStorage.getItem("vatra-remembered-account"));
  assert.ok(savedData&&JSON.parse(savedData).email==="example@vatra.test"&&
   !savedData.includes("CorrectPass@123")&&!savedData.includes("token"),
   "Remembered account must store only name and email after real verified sign-in");
+ await savedPage.locator(".feed-account-toggle").click();
  await savedPage.locator("#feed-logout").click();
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
@@ -2109,8 +2111,9 @@ try{
   expectedSavedError,"Saved password failure needs contextual, translated feedback");
  await savedPage.locator("#saved-password").fill("CorrectPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
- await savedPage.waitForURL("**/feed.html");
+ await savedPage.waitForURL("**/feed");
  await waitReady(savedPage);
+ await savedPage.locator(".feed-account-toggle").click();
  await savedPage.locator("#feed-logout").click();
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
@@ -2172,8 +2175,8 @@ try{
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
-  assert.equal(await feedProbe.locator(".feed-nav-link").count(),9);
-  assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),7);
+  assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
+  assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),8);
   assert.equal((await feedProbe.locator("#feed-my-id").textContent()).trim(),"VATRA ID 654321");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
   await feedProbe.locator("#feed-post-text").fill(injectionText);
@@ -2223,15 +2226,16 @@ try{
   })};`
  }));
  const phonePage=await phoneContext.newPage();
- await phonePage.goto(base+"account.html?token_hash=valid-other-device-token&type=email",
+ await phonePage.goto(base+"verify?token_hash=valid-other-device-token&type=email",
   {waitUntil:"domcontentloaded"});
+ await phonePage.waitForURL(/\/feed$/,{timeout:12000});
  await waitReady(phonePage);
  assert.equal(new URL(phonePage.url()).search,"");
  assert.equal(await phonePage.evaluate(()=>sessionStorage.getItem("verifiedTokenType")),"email");
- assert.ok((await phonePage.locator("#account-title").textContent()).includes("Мобільний"));
+ assert.equal((await phonePage.locator("#feed-my-name").textContent()).trim(),"Мобільний");
  assert.equal(JSON.parse(await phonePage.evaluate(()=>localStorage.getItem("vatra-remembered-account"))).email,
   "mobile@vatra.test");
- await phonePage.goto(base+"account.html?token_hash=expired&type=email",{waitUntil:"domcontentloaded"});
+ await phonePage.goto(base+"verify?token_hash=expired&type=email",{waitUntil:"domcontentloaded"});
  await waitReady(phonePage);
  assert.ok((await phonePage.locator("#account-title").textContent()).includes("не завершено"));
  assert.equal(await phonePage.locator("#logout").isVisible(),false);
