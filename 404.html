@@ -5,10 +5,22 @@
   <script>
   (() => {
     /* Existing bookmarks and Supabase email links may use former locale folders. */
+    // Old email links and saved .html URLs remain valid, but visitors see
+    // the clean canonical route after the first navigation.
+    const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
+    if(oldAccount){
+      location.replace("/VATRA/verify"+location.search+location.hash);
+      return;
+    }
+    const legacy=location.pathname.match(/^\/VATRA\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/);
+    if(legacy){
+      location.replace("/VATRA/"+legacy[1]+location.search+location.hash);
+      return;
+    }
     const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
     if (!found) return;
     const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html","terms.html","privacy.html","cookies.html","404.html","offline.html"]);
+    const allowed=new Set(["index.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","terms.html","privacy.html","cookies.html","404.html","offline.html","register","forgot","reset","feed","profile","verify","terms","privacy","cookies"]);
     if (!allowed.has(file)) return;
     // Existing language preferences always win over old /ua/ or /en/ links.
     // Follow an old link's language only for visitors without a saved choice.
@@ -31,7 +43,8 @@
     if(!selected){
       try{localStorage.setItem(key,found[1]==="en"?"en":"uk");}catch(_){}
     }
-    const target="/VATRA/"+(file==="index.html"?"":file);
+    const cleanFile=file.replace(/\.html$/,"").replace(/^account$/,"verify");
+    const target="/VATRA/"+(cleanFile==="index"?"":cleanFile);
     location.replace(target+location.search+location.hash);
   })();
   </script><script src="/VATRA/assets/js/host.js"></script><script src="/VATRA/assets/js/errors.js"></script>
