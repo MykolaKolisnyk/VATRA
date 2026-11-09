@@ -227,34 +227,37 @@ try{
  await wizard.close();
  console.log("VATRA two-step signup validation, progress, mobile layout and preserved inputs: OK");
 
- // The signup form must mirror the normal sign-in page's secondary action.
+ // The footer Sign in CTA mirrors the login page footer Create account link.
+ // The registration form and original top text link must stay unchanged.
  for(const [width,height] of [[390,844],[1440,900]]){
   const probe=await context.newPage();
   await probe.setViewportSize({width,height});
   await probe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
   await waitReady(probe);
-  const entry=probe.locator(".signup-login-button");
-  assert.equal(await entry.isVisible(),true,"Signup must show its bottom Sign in action at "+width);
+  const entry=probe.locator(".ui-register-footer-001 .vt-register-footer-signin");
+  assert.equal(await entry.count(),1);
+  assert.equal(await entry.isVisible(),true,"Footer sign-in link must be visible at "+width);
   assert.equal(new URL(await entry.getAttribute("href"),base).href,base);
+  assert.equal(await probe.locator(".signup-login-switch").count(),0,
+   "Do not insert a secondary button inside the registration form");
   const styles=await entry.evaluate(el=>({font:getComputedStyle(el).fontFamily,
-   radius:getComputedStyle(el).borderRadius,border:getComputedStyle(el).borderTopWidth}));
-  assert.ok(styles.font.includes("Onest")&&styles.border!=="0px",
-   "Signup secondary action must share the login form design");
+   border:getComputedStyle(el).borderTopWidth,rounded:getComputedStyle(el).borderRadius}));
+  assert.ok(styles.font.includes("Onest")&&styles.border!=="0px");
   const top=await probe.locator(".reg-back-nav .back").evaluate(el=>({
    border:getComputedStyle(el).borderTopWidth,background:getComputedStyle(el).backgroundColor
   }));
-  assert.equal(top.border,"0px","Upper return-to-login must keep its original plain-link look");
+  assert.equal(top.border,"0px","Keep the original plain upper Back link");
   await probe.locator("#first-name").fill("Тест");
   await probe.locator("#last-name").fill("Користувач");
   await probe.evaluate(()=>{
    for(const [id,value] of [["birth-day","12"],["birth-month","05"],["birth-year","2000"]]){
-    const field=document.getElementById(id);
-    field.value=value;
-    field.dispatchEvent(new Event("change",{bubbles:true}));
+    const node=document.getElementById(id);
+    node.value=value;
+    node.dispatchEvent(new Event("change",{bubbles:true}));
    }
   });
   await probe.locator("#register-next").click();
-  assert.equal(await entry.isVisible(),true,"Bottom sign-in button must remain on step 2");
+  assert.equal(await entry.isVisible(),true,"Footer sign-in remains on step two");
   await probe.close();
  }
  // Both auth pages must share language-modal geometry and footer spacing.
@@ -1407,6 +1410,13 @@ try{
  await savedPage.locator("#saved-account-other").click();
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),true);
  assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),true);
+ const backAlignment=await savedPage.locator("#saved-switch-back").evaluate(button=>{
+  const buttonRect=button.getBoundingClientRect(),parentRect=button.parentElement.getBoundingClientRect();
+  return {rightGap:Math.abs(buttonRect.right-parentRect.right),alignment:getComputedStyle(button).justifyContent,
+   font:getComputedStyle(button).fontFamily};
+ });
+ assert.ok(backAlignment.rightGap<=2&&backAlignment.alignment==="flex-end"&&backAlignment.font.includes("Onest"),
+  "Return to saved account must align with the right edge of the login form");
  assert.equal(await savedPage.locator("#email").inputValue(),"");
  assert.equal(await savedPage.locator("#password").inputValue(),"");
  await savedPage.locator("#saved-switch-back").click();

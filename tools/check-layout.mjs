@@ -514,10 +514,10 @@ for(const [template,target,type] of [
 assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
  !css.includes('.register-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
  !css.includes('.reg-back-nav .back{min-height:40px;')&&
- register.includes('class="or signup-login-divider vt-signup-login-divider-001" data-i18n="n246"')&&
- register.includes('class="action secondary full signup-login-button vt-signup-login-button-001" data-i18n="n247"')&&
- css.includes('.signup-form-panel .signup-login-button{display:inline-flex;'),
- "Signup must keep the sign-in button visible on all steps and confirmation screen");
+ !register.includes('class="signup-login-switch')&&
+ register.includes('<a href="./" class="vt-register-footer-signin" data-i18n="n247">Увійти</a>')&&
+ css.includes('.register-page .footer nav>.vt-register-footer-signin{min-height:36px;'),
+ "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
 for(const file of loadingPages){
  const html=await read(file);
@@ -526,8 +526,12 @@ for(const file of loadingPages){
   "Authenticated page needs real loading state: "+file);
 }
 assert.ok(css.includes('body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}')&&
+ css.includes('.vatra-auth-loading-content{position:relative;')&&
+ css.includes('border:0;border-radius:0;background:transparent;box-shadow:none;text-align:center')&&
+ css.includes('.site .saved-switch-back{display:flex;align-items:center;justify-content:flex-end;')&&
+ css.includes('.site .saved-switch-back[hidden]{display:none!important}')&&
  auth.includes('markAuthReady();')&&auth.includes('sessionCheckWithTimeout()'),
- "Loading must end on auth result without arbitrary duration");
+ "Loading is a frameless, real auth state; saved account back link is aligned");
 for(const locale of [uk,en])for(let n=500;n<=513;n++)
  assert.ok(locale.__pages.index.nodes["n"+n]?.text?.["0"],"Saved account translation missing: n"+n);
 for(const path of ["index.html","register.html"]){

@@ -38,23 +38,24 @@
 .site .form-box .action.secondary:hover{background:#f4f7ff;border-color:#6894f3}
 .site .form-box .or{margin:31px 0}
 
-/* VATRA auth boot: show one branded loading state while locale and session resolve. */
-.vatra-auth-loading{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;min-height:100dvh;padding:24px;background:radial-gradient(ellipse at 22% 16%,#ebeafd 0%,transparent 45%),linear-gradient(145deg,#fbfcff 0%,#f3f6fd 100%);font-family:"Onest",system-ui,sans-serif}
-.vatra-auth-loading-content{display:flex;flex-direction:column;align-items:center;gap:13px;width:min(100%,340px);padding:35px 25px 29px;border:1px solid #e2e8f7;border-radius:24px;background:#fff;box-shadow:0 22px 55px rgba(32,54,109,.08);text-align:center}
-.vatra-auth-loading-symbol{width:68px;height:68px;object-fit:contain;animation:vatraLoadingPulse 1.7s ease-in-out infinite}
-.vatra-auth-loading-title{color:#2c3850;font-size:23px;font-weight:800;letter-spacing:.045em;line-height:1.2}
-.vatra-auth-loading-caption{margin:0;color:#64738d;font-size:13px;font-weight:500;line-height:1.6}
-.vatra-auth-loading-track{width:100%;max-width:220px;height:5px;overflow:hidden;margin-top:6px;border-radius:99px;background:#e9eef9}
-.vatra-auth-loading-indicator{display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2a69e8,#8b5ce5,#ed4ba4);animation:vatraLoadingSlide 1.3s cubic-bezier(.42,0,.58,1) infinite alternate}
-@keyframes vatraLoadingSlide{from{transform:translateX(-25%)}to{transform:translateX(190%)}}
-@keyframes vatraLoadingPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.85;transform:scale(.96)}}
+/* VATRA boot splash: shown only while locale/auth actually resolve; no artificial delay. */
+.vatra-auth-loading{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;min-height:100dvh;padding:0;background:#f3f5fa;font-family:"Onest",system-ui,sans-serif}
+.vatra-auth-loading-content{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;height:100%;min-height:100dvh;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;text-align:center}
+.vatra-auth-loading-symbol{display:block;width:clamp(68px,11vw,88px);height:clamp(68px,11vw,88px);object-fit:contain;animation:vatraLoadingPulse 1.65s ease-in-out infinite}
+.vatra-auth-loading-title{position:absolute;bottom:clamp(34px,6vh,70px);left:0;right:0;margin:0;color:#67758e;font-size:17px;font-weight:770;letter-spacing:.13em;line-height:1.3}
+.vatra-auth-loading-caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.vatra-auth-loading-track{width:80px;height:3px;overflow:hidden;margin-top:24px;border-radius:99px;background:#dce4f4}
+.vatra-auth-loading-indicator{display:block;width:40%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2c6de9,#8054dc,#e557a1);animation:vatraLoadingSlide 1.4s ease-in-out infinite alternate}
+@keyframes vatraLoadingSlide{from{transform:translateX(-20%)}to{transform:translateX(165%)}}
+@keyframes vatraLoadingPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.88;transform:scale(.975)}}
 body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 @media(prefers-reduced-motion:reduce){.vatra-auth-loading-symbol,.vatra-auth-loading-indicator{animation:none!important}.vatra-auth-loading-indicator{width:65%}}
 
 /* VATRA saved-account selector: isolated component styles, never credentials. */
-.site .saved-switch-back{display:inline-flex;align-items:center;gap:7px;padding:0;margin:0 0 20px;border:0;background:none;color:#677386;font:700 13px/1.45 "Onest",system-ui,sans-serif;cursor:pointer}
+.site .saved-switch-back{display:flex;align-items:center;justify-content:flex-end;gap:8px;width:100%;min-height:40px;padding:0;margin:0 0 16px;border:0;background:none;color:#677386;font:700 13px/1.45 "Onest",system-ui,sans-serif;text-align:right;cursor:pointer}
+.site .saved-switch-back[hidden]{display:none!important}
 .site .saved-switch-back:hover{color:var(--blue)}
-.site .saved-switch-back svg{width:18px;height:18px;flex:none}
+.site .saved-switch-back svg{width:17px;height:17px;flex:none}
 .site .saved-account-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;max-width:520px;margin-inline:auto;padding:clamp(22px,3.5vw,35px);border:1px solid #e0e7f4;border-radius:25px;background:white;box-shadow:0 18px 48px rgba(42,55,102,.075);text-align:center;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .site .saved-account-top{display:flex;align-items:center;justify-content:space-between;width:100%;margin:0 0 14px}
 .site .saved-account-wordmark{font-size:15px;font-weight:800;letter-spacing:.08em;color:#3553a2}
@@ -203,7 +204,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .login-description,.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}.login-description{margin:0 0 34px}
 .or{display:flex;align-items:center;gap:16px;color:#627187;font-size:12px;margin:29px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:#e5eaf0}.form-note{font-size:12px;line-height:1.7;color:#627187;text-align:center;margin:23px 0 0}.response{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin:0 0 19px;border:1px solid #c9defe;background:#f2f7ff;color:#174b9b}.response[data-type=error]{border-color:#efccd2;background:#fff3f5;color:#a32a40}.response[data-type=success]{border-color:#c6e8dd;background:#f1fbf7;color:#176b50}
 .network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
-.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer nav>a[href="register.html"]{min-height:36px;padding:7px 13px;border:1px solid #c7d6fb;border-radius:12px;background:#f6f9ff;color:#245fd4;font-weight:750;white-space:nowrap}.footer nav>a[href="register.html"]:hover{background:#eaf1ff;border-color:#94b2f4;text-decoration:none}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
+.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer nav>a[href="register.html"],.register-page .footer nav>.vt-register-footer-signin{min-height:36px;padding:7px 13px;border:1px solid #c7d6fb;border-radius:12px;background:#f6f9ff;color:#245fd4;font-weight:750;white-space:nowrap}.footer nav>a[href="register.html"]:hover,.register-page .footer nav>.vt-register-footer-signin:hover{background:#eaf1ff;border-color:#94b2f4;text-decoration:none}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
 .site .footer,.register-page .footer{padding-inline:0}
 .auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}.auth-footer-content>span b{font-weight:770;color:var(--ink)}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
@@ -371,11 +372,6 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
 .signup-form-panel .reg-actions{margin-top:7px}
 .signup-form-panel .reg-actions>a{margin-top:2px}
-/* Mirrored sign-in destination at the foot of both signup steps. */
-.signup-login-switch{width:100%;margin-top:20px}
-.signup-login-divider{margin:0 0 16px;font-size:12px;line-height:1.5;color:#627187}
-.signup-form-panel .signup-login-button{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:54px;border:1px solid #a6bfff;border-radius:999px;background:#fff;color:#235fcd;font-size:15px;font-weight:750;line-height:1.45;text-decoration:none;transition:background-color .18s ease,border-color .18s ease,color .18s ease}
-.signup-form-panel .signup-login-button:hover{background:#f4f7ff;border-color:#6894f3;color:#174fb6;text-decoration:none}
 @media(prefers-reduced-motion:reduce){.intro-symbol,.signup-brand-symbol,.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel,.ui-forgot-main-001 .forgot-panel :is(#recovery-step,#reset-form),.account-card,.error-card,.policy-main{animation:none!important}.signup-progress-segment{transition:none!important}}
 
 /* Console-only notices: compact, Onest, automatic dismissal. */
