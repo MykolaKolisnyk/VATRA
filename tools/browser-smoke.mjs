@@ -1161,7 +1161,8 @@ try{
  await confirmationPage.locator("#signup-confirmation").waitFor({state:"visible"});
  assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false);
  assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
- assert.equal(await confirmationPage.locator(".reg-back-nav a").isVisible(),false);
+ assert.equal(await confirmationPage.locator(".reg-back-nav a").isVisible(),true,
+  "The original top back link must remain visible during email confirmation");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  const typeScale=await confirmationPage.evaluate(()=>{
   const selectors={heading:".signup-confirmation .signup-step-heading h1",
