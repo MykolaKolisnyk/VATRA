@@ -105,9 +105,9 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
 // Every visible element has a class and its own page class in addition to reusable components.
 for(const name of pages){
  const markup=await read(name+".html");
- for(const match of markup.matchAll(/<(h[1-6]|p|a|button|input|select|textarea|span|label|li|nav|main|section|div|header|footer|svg|img)(?=[\\s>])([^>]*)>/g)){
+ for(const match of markup.matchAll(/<(h[1-6]|p|a|button|input|select|textarea|span|label|li|nav|main|section|div|header|footer|svg|img)(?=[\s>])([^>]*)>/g)){
   const attrs=match[2];
-  const classes=attrs.match(/\\sclass="([^"]+)"/)?.[1]?.split(/\\s+/)||[];
+  const classes=attrs.match(/\sclass="([^"]+)"/)?.[1]?.split(/\s+/)||[];
   assert.ok(classes.length>0&&classes.some(c=>c.startsWith("vt-")||c.startsWith("ui-")),
    name+".html: a visible element must have a page-specific style hook: "+match[0].slice(0,120));
  }
