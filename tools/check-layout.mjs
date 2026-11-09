@@ -489,11 +489,42 @@ for(const id of ["standard-login-panel","saved-account-panel","saved-login-form"
 assert.ok(auth.includes('const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account"')&&
  auth.includes('JSON.stringify({v:1,email,name})')&&
  !auth.includes('JSON.stringify({v:1,email,name,password')&&
- auth.includes('auth.auth.verifyOtp({token_hash:token,type:"email"})')&&
+ auth.includes('auth.auth.verifyOtp({token_hash:token,type})')&&
+ auth.includes('const allowed=new Set(["email","magiclink","invite","email_change"])')&&
+ auth.includes('auth.auth.verifyOtp({token_hash:tokenHash,type:"recovery"})')&&
  auth.includes('history.replaceState(history.state,"",location.pathname)')&&
  signupTemplate.split('token_hash={{ .TokenHash }}').length===3&&
  !signupTemplate.includes('href="{{ .ConfirmationURL }}"'),
  "Cross-device confirmation must verify a one-time token; remembered account stores no password");
+// Mobile-friendly email links are verified by the intended action, not the PKCE
+// verifier left behind in the browser that originally requested the email.
+for(const [template,target,type] of [
+ ["confirmation.html","account.html","email"],
+ ["recovery.html","reset.html","recovery"],
+ ["magic-link.html","account.html","magiclink"],
+ ["invite.html","account.html","invite"],
+ ["email-change.html","account.html","email_change"]
+]){
+ const source=await read("email-templates/"+template);
+ assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
+  "Every language variant needs a cross-device link: "+template);
+ assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
+  "Wrong token type or destination: "+template);
+}
+assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
+ !css.includes('.register-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
+ css.includes('.reg-back-nav .back{min-height:40px;'),
+ "Signup must keep the sign-in button visible on all steps and confirmation screen");
+const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
+for(const file of loadingPages){
+ const html=await read(file);
+ assert.ok(html.includes('id="vatra-auth-loading"')&&
+ html.includes('vatra-auth-loading-indicator'),
+  "Authenticated page needs real loading state: "+file);
+}
+assert.ok(css.includes('body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}')&&
+ auth.includes('markAuthReady();')&&auth.includes('sessionCheckWithTimeout()'),
+ "Loading must end on auth result without arbitrary duration");
 for(const locale of [uk,en])for(let n=500;n<=513;n++)
  assert.ok(locale.__pages.index.nodes["n"+n]?.text?.["0"],"Saved account translation missing: n"+n);
 for(const path of ["index.html","register.html"]){
