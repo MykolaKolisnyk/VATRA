@@ -109,7 +109,7 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
  .feed-sidebar{position:static;width:100%;gap:0}
  .feed-navigation{flex-direction:row;overflow-x:auto;scrollbar-width:thin;padding:9px;border-radius:17px}
  .feed-nav-link{width:auto;min-height:44px;flex:none;padding:9px 13px}
- .feed-nav-pending{display:none}
+ /* Keep future sections visible in the horizontally scrollable mobile navigation. */
  .feed-sidebar-bottom{display:none}
  .feed-main{width:100%}
  .feed-header-inner,.feed-footer-inner{width:min(100% - 30px,720px)}
