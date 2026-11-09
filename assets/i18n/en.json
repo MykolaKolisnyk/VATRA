@@ -759,6 +759,11 @@
           "text": {
             "0": "Please wait at least 60 seconds before resending. The server may require a longer interval."
           }
+        },
+        "n401": {
+          "text": {
+            "0": "Email address"
+          }
         }
       }
     },
@@ -930,6 +935,11 @@
           "text": {
             "0": "Confirm password"
           }
+        },
+        "n59": {
+          "text": {
+            "0": "Email address"
+          }
         }
       }
     },
@@ -1075,6 +1085,11 @@
         "n44": {
           "text": {
             "0": "Enter code"
+          }
+        },
+        "n45": {
+          "text": {
+            "0": "Email address"
           }
         }
       }

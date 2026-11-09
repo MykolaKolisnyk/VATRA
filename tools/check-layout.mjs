@@ -555,6 +555,21 @@ for(const page of ["terms","privacy","cookies","forgot","reset","account","404"]
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
  css.includes(".register-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
+assert.ok(
+ !forgot.includes('class="header-logo vt-forgot-link-02"')&&
+ forgot.includes('class="forgot-panel-header ui-forgot-panel-header-001"')&&
+ forgot.includes('class="forgot-panel-brand vt-forgot-link-02"')&&
+ forgot.includes('src="assets/logo/vatra-symbol.svg"')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-header{display:flex;')&&
+ !css.includes('.ui-forgot-main-001>.header-logo{')&&
+ !forgot.includes('name@example.com')&&
+ !reset.includes('name@example.com')&&
+ !register.includes('name@example.com')&&
+ ['forgot','reset','register'].every(page=>
+  Object.values(uk.__pages[page].nodes).some(entry=>entry.text?.["0"]==="Електронна пошта")&&
+  Object.values(en.__pages[page].nodes).some(entry=>entry.text?.["0"]==="Email address")
+ ),
+ "Recovery card must show only the V mark, and all email fields must use translated floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
  forgot.includes('class="forgot-kicker vt-forgot-overline-001" data-i18n="n55"')&&
  forgot.includes('id="forgot-title"')&&
@@ -572,7 +587,7 @@ assert.ok(
  "Recovery must not claim email delivery just because Supabase accepts a reset request");
 assert.ok(
  forgot.includes('class="vatra-input-shell ui-forgot-input-shell-001"')&&
- forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-01" aria-hidden="true">name@example.com</span>')&&
+ forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-01" aria-hidden="true" data-i18n="n59">Електронна пошта</span>')&&
  forgot.includes('class="vatra-input-shell ui-forgot-input-shell-002"')&&
  forgot.includes('class="vatra-floating-hint vt-forgot-floating-hint-02" aria-hidden="true" data-i18n="n56"')&&
  reset.includes('class="vatra-input-shell ui-reset-input-shell-001"')&&

@@ -678,6 +678,22 @@ try{
    metrics.fontFamily.includes("Onest")&&metrics.inputFont.includes("Onest")&&
    metrics.fontSize>=29&&metrics.fontSize<=41,
    "Recovery panel must be centered, readable and aligned at "+width+" "+language+": "+JSON.stringify(metrics));
+  const alignment=await recoveryPage.evaluate(()=>{
+   const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
+   const back=document.querySelector(".forgot-panel-header .back").getBoundingClientRect();
+   const mark=document.querySelector(".forgot-panel-brand").getBoundingClientRect();
+   const visibleLogos=[...document.querySelectorAll(".ui-forgot-main-001 img")];
+   return {backRight:back.right,brandLeft:mark.left,brandRight:mark.right,
+    rowMid:(header.top+header.bottom)/2,backMid:(back.top+back.bottom)/2,
+    brandMid:(mark.top+mark.bottom)/2,logos:visibleLogos.length,
+    symbol:visibleLogos[0]?.getAttribute("src")};
+  });
+  assert.ok(alignment.logos===1&&alignment.symbol==="assets/logo/vatra-symbol.svg"&&
+   alignment.backRight<alignment.brandLeft&&alignment.brandRight<=width+1&&
+   Math.abs(alignment.backMid-alignment.brandMid)<=2,
+   "Small V logo must be inside the recovery card, opposite the back link: "+JSON.stringify(alignment));
+  assert.equal(await recoveryPage.locator(".vt-forgot-floating-hint-01").textContent(),
+   language==="uk"?"Електронна пошта":"Email address");
   assert.equal(await recoveryPage.locator(".forgot-kicker").textContent(),
    language==="uk"?"ВІДНОВЛЕННЯ ДОСТУПУ":"ACCOUNT RECOVERY");
   await recoveryPage.evaluate(()=>{
@@ -747,6 +763,23 @@ try{
   "Success response must not claim that an email was delivered: "+caption);
  await recoverySend.close();
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
+ // Consistent translated email hint across signup and reset forms.
+ for(const language of ["uk","en"]){
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
+  for(const [route,selector] of [
+   ["register.html",".vt-register-floating-hint-03"],
+   ["reset.html",".vt-reset-floating-hint-01"]
+  ]){
+   const emailPage=await context.newPage();
+   await emailPage.goto(base+route,{waitUntil:"domcontentloaded"});
+   await waitReady(emailPage);
+   await emailPage.waitForFunction(lang=>document.documentElement.lang===lang,language);
+   assert.equal(await emailPage.locator(selector).textContent(),
+    language==="uk"?"Електронна пошта":"Email address");
+   await emailPage.close();
+  }
+ }
+ await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
  // Direct reset page must use the same code/email floating fields.
  for(const language of ["uk","en"]){
   await context.addCookies([{name:"vatra-language",value:language,url:base}]);
