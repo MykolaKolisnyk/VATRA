@@ -32,6 +32,10 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
+ const localeTitles={
+  uk:JSON.parse(await readFile("assets/i18n/uk.json","utf8")).__pages,
+  en:JSON.parse(await readFile("assets/i18n/en.json","utf8")).__pages
+ };
 
  // Locale entrance-animation audit: delayed English translations used to
  // consume the entire 300ms reveal while the body was invisible. Measure real
@@ -97,6 +101,15 @@ try{
         });
        }
        await view.goto(base+entry.path,{waitUntil:"domcontentloaded",timeout:20000});
+       const pageName=entry.path===""?"index":entry.path.slice(0,-5);
+       const expectedTitle=localeTitles[language][pageName].meta.title;
+       assert.equal(await view.title(),expectedTitle,
+        engine+" "+entry.path+" "+language+" tab title must match locale synchronously, before the language fetch completes");
+       if(language==="en"){
+        await view.waitForTimeout(210);
+        assert.equal(await view.title(),expectedTitle,
+         "English tab title must not flash Ukrainian while en.json is pending: "+entry.path);
+       }
        const visibleAnimationSelectors=await view.evaluate(selectors=>selectors.filter(selector=>{
         const el=document.querySelector(selector);
         return el&&el.getClientRects().length>0&&
@@ -130,6 +143,8 @@ try{
        await view.waitForFunction(expected=>
         window.__vatraLocaleAnimationEnds?.length>=expected,
         visibleAnimationSelectors.length,{timeout:12000});
+       assert.equal(await view.title(),expectedTitle,
+        "Tab title must remain stable after asynchronous translation: "+entry.path+" "+language);
        const completed=await view.evaluate(()=>window.__vatraLocaleAnimationEnds);
        assert.ok(visibleAnimationSelectors.every(selector=>
         completed.some(record=>record.matched.includes(selector)&&!record.hidden&&
