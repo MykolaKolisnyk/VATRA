@@ -60,7 +60,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .site .saved-account-content{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%}
 .site .saved-account-content.is-revealing{animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .site .saved-account-top{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin:0 0 14px}
-.site .saved-account-remove{position:relative;z-index:2;display:grid;place-items:center;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
+.site .saved-account-remove{position:relative;z-index:2;display:grid;place-items:center;margin-left:auto;width:38px;height:38px;padding:8px;border:1px solid #e2e9f4;border-radius:11px;background:#f6f8fd;color:#65738b;cursor:pointer;transition:background .18s,color .18s}
 .site .saved-account-remove:hover{background:#eef3ff;color:#285fd0}
 .site .saved-account-remove svg{width:21px;height:21px}
 /* Body-level, collision-aware hint: never cropped by the card, even on zoom. */
