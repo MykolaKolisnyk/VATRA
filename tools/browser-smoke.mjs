@@ -1310,8 +1310,10 @@ try{
  await confirmationPage.locator("#signup-confirmation").waitFor({state:"visible"});
  assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false);
  assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
- assert.equal(await confirmationPage.locator(".signup-form-overline .reg-back-nav a").isVisible(),true,
-  "The original top back link must remain visible during email confirmation");
+ assert.equal(await confirmationPage.locator(".signup-confirmation-overline .signup-confirmation-back-nav a").isVisible(),true,
+  "A back-to-login link must remain visible beside the last-step kicker during email confirmation");
+ assert.equal(await confirmationPage.locator(".signup-form-overline .reg-back-nav a").isVisible(),false,
+  "The inactive registration form navigation must be hidden during confirmation");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  const typeScale=await confirmationPage.evaluate(()=>{
   const selectors={heading:".signup-confirmation .signup-step-heading h1",

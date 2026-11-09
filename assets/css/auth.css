@@ -331,6 +331,9 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
 .signup-confirmation > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .signup-confirmation[hidden],.signup-form-panel .narrow-form[hidden]{display:none}
 .signup-confirmation-kicker{margin-bottom:16px}
+.signup-confirmation-overline{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;width:100%;margin-bottom:16px}
+.signup-confirmation-overline .signup-confirmation-kicker{margin:0}
+.signup-confirmation-back-nav{display:flex;align-items:center;justify-content:flex-end;min-height:36px;margin-left:auto}
 .signup-confirmation .signup-step-heading{width:100%}
 .signup-confirmation .signup-step-heading .subtitle{margin:0}
 .signup-confirmation-address-row{max-width:100%;margin:17px 0 0;padding:9px 16px;border:1px solid #d9e5fb;border-radius:11px;background:#f3f7ff;overflow-wrap:anywhere;color:#2450a2;font-size:14px;line-height:1.5}
