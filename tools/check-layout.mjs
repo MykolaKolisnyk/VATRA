@@ -609,7 +609,7 @@ assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;j
  css.includes(".auth-layout{justify-content:flex-start;padding:32px 0}")&&
  css.includes(".login-layout .split{margin:auto}")&&
  css.includes(".register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
- css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:clamp(28px,5vh,56px) 0;justify-content:center}")&&
+ css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:40px 0;justify-content:center}")&&
  css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:32px 0}"),
  "Auth and recovery layout must have matching top/bottom gutters and shared centering");
 // Every return-to-login link uses the same localized text and shared
