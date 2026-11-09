@@ -508,7 +508,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
   .signup-form-panel .reg-back-nav{
     position:absolute;
     top:clamp(16px,1.6vw,25px);
-    right:clamp(28px,4.3vw,70px);
+    right:max(clamp(28px,4.3vw,70px),calc((100% - 520px)/2));
     width:max-content;
     min-height:28px;
     margin:0;
