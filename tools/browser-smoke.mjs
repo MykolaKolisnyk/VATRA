@@ -1116,13 +1116,48 @@ try{
  }));
  await fullRecovery.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
  await waitReady(fullRecovery);
+ await fullRecovery.evaluate(()=>{
+  window.__vatraRecoveryReveals=0;
+  const content=document.querySelector(".forgot-panel-content");
+  content.addEventListener("animationstart",event=>{
+   if(event.target===content&&event.animationName==="vatraAuthReveal")window.__vatraRecoveryReveals++;
+  });
+ });
  await fullRecovery.locator("#email").fill("registered@example.test");
  await fullRecovery.locator("#forgot-form button[type='submit']").click();
  await fullRecovery.locator("#recovery-code-form").waitFor({state:"visible",timeout:10000});
+ await fullRecovery.waitForFunction(()=>window.__vatraRecoveryReveals>=1);
+ const otpWholeContent=await fullRecovery.evaluate(()=>{
+  const wrapper=document.querySelector(".forgot-panel-content");
+  return {card:getComputedStyle(document.querySelector(".forgot-panel")).animationName,
+   wrapper:getComputedStyle(wrapper).animationName,
+   header:getComputedStyle(document.querySelector(".forgot-panel-header")).animationName,
+   stage:getComputedStyle(document.querySelector("#recovery-step")).animationName,
+   logoInside:wrapper.contains(document.querySelector(".forgot-panel-brand img")),
+   codeInside:wrapper.contains(document.querySelector("#recovery-code-form"))};
+ });
+ assert.ok(otpWholeContent.card==="none"&&otpWholeContent.wrapper==="vatraAuthReveal"&&
+  otpWholeContent.header==="none"&&otpWholeContent.stage==="none"&&
+  otpWholeContent.logoInside&&otpWholeContent.codeInside,
+  "OTP entry must raise the brand and all content together while shell stays static: "+JSON.stringify(otpWholeContent));
  assert.equal(await fullRecovery.locator(".forgot-intro").isVisible(),false);
  await fullRecovery.locator("#recovery-token").fill("123456");
  await fullRecovery.locator("#recovery-code-form button[type='submit']").click();
  await fullRecovery.locator("#reset-form").waitFor({state:"visible",timeout:10000});
+ await fullRecovery.waitForFunction(()=>window.__vatraRecoveryReveals>=2);
+ const passwordWholeContent=await fullRecovery.evaluate(()=>{
+  const container=document.querySelector(".forgot-panel-content");
+  return {content:getComputedStyle(container).animationName,
+   brandInside:container.contains(document.querySelector(".forgot-panel-brand")),
+   titleInside:container.contains(document.querySelector("#recovery-step-heading")),
+   formInside:container.contains(document.querySelector("#reset-form")),
+   headingMotion:getComputedStyle(document.querySelector("#recovery-step-heading")).animationName,
+   formMotion:getComputedStyle(document.querySelector("#reset-form")).animationName};
+ });
+ assert.ok(passwordWholeContent.content==="vatraAuthReveal"&&
+  passwordWholeContent.brandInside&&passwordWholeContent.titleInside&&passwordWholeContent.formInside&&
+  passwordWholeContent.headingMotion==="none"&&passwordWholeContent.formMotion==="none",
+  "Password entry must animate the entire recovery content in one synchronized motion: "+JSON.stringify(passwordWholeContent));
  const verifiedMock=await fullRecovery.evaluate(()=>window.__verifiedRecovery);
  assert.equal(verifiedMock.email,"registered@example.test");
  assert.equal(verifiedMock.token,"123456");
@@ -1165,7 +1200,20 @@ try{
  await fullRecovery.locator("#password-confirm").fill("StrongPassword@12345");
  await fullRecovery.locator("#reset-form button[type='submit']").click();
  await fullRecovery.locator("#account-link").waitFor({state:"visible",timeout:10000});
+ await fullRecovery.waitForFunction(()=>window.__vatraRecoveryReveals>=3);
  assert.equal(await fullRecovery.locator("#reset-form").isVisible(),false);
+ const successAppearance=await fullRecovery.locator("#account-link").evaluate(node=>{
+  const btn=node.getBoundingClientRect(),parent=node.closest(".forgot-panel-content");
+  const style=getComputedStyle(node);
+  return {height:btn.height,width:btn.width,contentWidth:parent.getBoundingClientRect().width,
+   bg:style.backgroundImage,color:style.color,radius:style.borderRadius,
+   contained:parent.contains(document.querySelector("#response")),
+   text:node.textContent.trim()};
+ });
+ assert.ok(successAppearance.height>=55&&successAppearance.width>=successAppearance.contentWidth-2&&
+  successAppearance.bg.includes("linear-gradient")&&successAppearance.color==="rgb(255, 255, 255)"&&
+  parseFloat(successAppearance.radius)>=25&&successAppearance.contained&&successAppearance.text.length>0,
+  "Successful password reset should reveal a prominent full-width VATRA action with status message: "+JSON.stringify(successAppearance));
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),"StrongPassword@12345");
  assert.equal(await fullRecovery.evaluate(()=>sessionStorage.getItem("vatra-recovery-pending")),null);
  await fullRecovery.close();
@@ -1194,6 +1242,15 @@ try{
  await recoveryLink.locator("#reset-form").waitFor({state:"visible"});
  await recoveryLink.locator("#reset-form button[type='submit']").click();
  await recoveryLink.locator("#account-link").waitFor({state:"visible"});
+ assert.equal(await recoveryLink.locator("#recovery-success-link").isVisible(),true,
+  "Direct reset success action must not leave an empty hidden container");
+ const directButton=await recoveryLink.locator("#account-link").evaluate(node=>{
+  const rect=node.getBoundingClientRect(),css=getComputedStyle(node);
+  return {height:rect.height,width:rect.width,color:css.color,bg:css.backgroundImage};
+ });
+ assert.ok(directButton.height>=55&&directButton.width>200&&
+  directButton.bg.includes("linear-gradient")&&directButton.color==="rgb(255, 255, 255)",
+  "Direct reset must reuse the same prominent success CTA: "+JSON.stringify(directButton));
  assert.equal(await recoveryLink.evaluate(()=>window.__resetPasswordChanged),"NewPassword@12345");
  await recoveryLink.close();
  const expiredLink=await context.newPage();
