@@ -133,3 +133,72 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
  .feed-footer-inner{padding:18px 0}
 }
 @media(prefers-reduced-motion:reduce){.feed-post-card,.feed-loading-logo{animation:none!important}}
+
+
+/* Compact social-network shell (VK/Facebook inspired layout, VATRA visual identity). */
+body.feed-page{background:#f4f6fa}
+.feed-header{border-bottom:1px solid #e3e8f2;background:rgba(255,255,255,.97)}
+.feed-header-inner{min-height:58px;width:min(100% - 32px,1250px);gap:18px}
+.feed-header-brand{width:104px}
+.feed-search-form{display:flex;align-items:center;gap:9px;flex:1;max-width:470px;height:39px;padding:0 5px 0 13px;border:1px solid #e2e7f1;border-radius:999px;background:#f2f4f9;color:#8896ac;transition:background .15s,border-color .15s,box-shadow .15s}
+.feed-search-form:focus-within{border-color:#a7bbef;box-shadow:0 0 0 3px #dce6ff;background:#fff}
+.feed-search-input{min-width:0;flex:1;border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;font:500 13px/1.5 "Onest",sans-serif;color:#2c3850;outline:0}
+.feed-search-input::placeholder{color:#8a96ac}
+.feed-search-submit{min-height:30px;border:0;border-radius:999px;background:#e2eaff;color:#3565be;font-size:11px;font-weight:750;padding:5px 12px;cursor:pointer}
+.feed-search-submit:hover{background:#d6e4ff}
+.feed-header-controls{gap:9px;flex:none}
+.feed-header-icon-button{width:39px;height:39px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:#5e708e}
+.feed-header-icon-button:disabled{opacity:.65;cursor:not-allowed}
+.feed-account-menu{position:relative}
+.feed-account-toggle{width:39px;height:39px;display:grid;place-items:center;border:2px solid transparent;border-radius:50%;cursor:pointer;list-style:none;transition:box-shadow .18s}
+.feed-account-toggle::-webkit-details-marker{display:none}
+.feed-account-toggle:hover,.feed-account-toggle:focus-visible{outline:0;box-shadow:0 0 0 3px #dce6ff}
+.feed-header-avatar{display:grid;place-items:center;width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#3c76e8,#7951d9);color:#fff;font-size:13px;font-weight:800}
+.feed-account-dropdown{position:absolute;right:0;top:calc(100% + 12px);z-index:70;min-width:235px;display:flex;flex-direction:column;gap:4px;padding:10px;background:#fff;border:1px solid #e0e7f3;border-radius:15px;box-shadow:0 15px 50px rgba(43,58,97,.18)}
+.feed-account-menu:not([open]) .feed-account-dropdown{display:none}
+.feed-menu-summary{display:flex;flex-direction:column;gap:3px;border-bottom:1px solid #ebeff6;padding:9px 12px 12px;margin-bottom:4px}
+.feed-menu-summary strong{font-size:14px;color:#293950;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-menu-summary small{font-size:11px;color:#7d8da6}
+.feed-account-profile{display:flex;align-items:center;min-height:40px;padding:9px 12px;color:#4d6180;font-size:13px;font-weight:680;text-decoration:none;border-radius:9px}
+.feed-account-profile:hover{background:#f3f6fb;color:#2a61c9;text-decoration:none}
+.feed-account-dropdown .feed-language-trigger,.feed-account-dropdown .feed-logout{width:100%;min-height:41px!important;margin:0!important;border:0!important;border-radius:9px!important;justify-content:flex-start!important;text-align:left;background:transparent!important;color:#4d6180!important;padding:9px 12px!important;box-shadow:none!important}
+.feed-account-dropdown .feed-language-trigger:hover,.feed-account-dropdown .feed-logout:hover{background:#f3f6fb!important}
+.feed-account-dropdown .feed-logout{font-size:13px!important}
+.feed-layout{grid-template-columns:215px minmax(0,630px) minmax(190px,265px);gap:18px;width:min(100% - 32px,1250px);margin:19px auto 50px}
+.feed-sidebar,.feed-aside{top:75px}
+.feed-navigation{border-radius:14px;padding:7px;border-color:#e4eaf4}
+.feed-nav-link{min-height:42px;border-radius:9px;padding:9px 11px;font-size:13px;font-weight:650}
+.feed-nav-link.feed-nav-active{background:#e8efff;color:#245cc9;box-shadow:none}
+.feed-nav-link.feed-nav-pending{opacity:.68}
+.feed-composer,.feed-post-card,.feed-empty,.feed-info-card,.feed-next-card{border-radius:15px;border-color:#e5eaf4;box-shadow:0 3px 17px rgba(47,66,115,.035)}
+.feed-composer{padding:19px}
+.feed-title-row{padding:3px 4px 1px}
+.feed-title{font-size:26px;letter-spacing:-.03em}
+.feed-title-decoration{display:none}
+@media(max-width:1110px){
+ .feed-layout{grid-template-columns:205px minmax(0,680px)}
+ .feed-aside{display:none}
+}
+@media(max-width:840px){
+ .feed-header-inner{width:calc(100% - 28px)}
+ .feed-layout{width:min(100% - 24px,720px);margin-top:14px}
+ .feed-sidebar{position:static}
+ .feed-navigation{flex-direction:row;overflow-x:auto;scrollbar-width:thin}
+ .feed-nav-link{min-width:max-content}
+ .feed-search-form{max-width:none}
+}
+@media(max-width:520px){
+ .feed-header-inner{width:calc(100% - 18px);min-height:54px;gap:8px}
+ .feed-header-brand{width:76px}
+ .feed-header-controls{gap:3px}
+ .feed-header-icon-button{width:32px;height:36px}
+ .feed-header-icon-button svg{width:19px;height:19px}
+ .feed-account-toggle{width:36px;height:36px}
+ .feed-header-avatar{width:33px;height:33px}
+ .feed-search-form{height:35px;gap:5px;padding-left:9px}
+ .feed-search-form svg{width:15px;height:15px;flex:none}
+ .feed-search-submit{display:none}
+ .feed-search-input{font-size:12px}
+ .feed-layout{width:calc(100% - 18px)}
+ .feed-account-dropdown{right:-3px}
+}
