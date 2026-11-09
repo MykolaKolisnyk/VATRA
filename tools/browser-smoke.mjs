@@ -893,6 +893,20 @@ try{
    "Footer links need consistent unboxed typography: "+route+" "+JSON.stringify(looks));
   await page.close();
  }
+ // The 404 title must be consistent in the HTML fallback and both languages,
+ // including an unknown URL served as the root 404 document.
+ const titleContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ for(const [language,expected] of [["uk","404 Сторінку не знайдено · VATRA"],
+  ["en","404 Page not found · VATRA"]]){
+  const tab=await titleContext.newPage();
+  await tab.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
+  await tab.goto(base+"404.html",{waitUntil:"load"});
+  await tab.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  assert.equal(await tab.title(),expected,
+   "404 tab title must use the same middle dot and omit punctuation after 404: "+language);
+  await tab.close();
+ }
+ await titleContext.close();
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
  let baselineFooterAppearance=null;
@@ -2093,6 +2107,17 @@ try{
  await savedPage.locator("#logout").click();
  await savedPage.waitForURL(base);
  await waitReady(savedPage);
+ await savedPage.locator("#saved-account-remove").click();
+ assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),true);
+ await savedPage.locator("#saved-remove-cancel").click();
+ assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),false);
+ await savedPage.waitForTimeout(250);
+ assert.equal(await savedPage.locator("#vatra-saved-account-tooltip").isVisible(),false,
+  "Cancel must not reveal tooltip from native dialog focus restoration");
+ assert.notEqual(await savedPage.evaluate(()=>localStorage.getItem("vatra-remembered-account")),null,
+  "Cancel must not remove remembered user information");
+ await savedPage.locator("#saved-account-remove").hover();
+ await savedPage.locator("#vatra-saved-account-tooltip").waitFor({state:"visible",timeout:2500});
  await savedPage.locator("#saved-account-remove").click();
  assert.equal(await savedPage.locator("#saved-account-remove-dialog").isVisible(),true);
  await savedPage.locator("#saved-remove-confirm").click();
