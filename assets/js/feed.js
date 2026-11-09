@@ -100,6 +100,10 @@
    offset=start+(data?.length||0);
    more.hidden=(data?.length||0)<PAGE_SIZE;
    q("#feed-empty").hidden=offset!==0;
+   const emptyTitle=q(".feed-empty-title"),emptyText=q(".feed-empty-subtitle");
+   if(emptyTitle)emptyTitle.textContent=searchTerm?t("Нічого не знайдено","No matches"):t("Тут поки тихо","It's quiet here");
+   if(emptyText)emptyText.textContent=searchTerm?t("Спробуйте інший пошуковий запит.","Try another search.") :
+    t("Створіть першу публікацію у VATRA.","Create the first post on VATRA.");
   }catch(_){
    message(t("Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.",
     "Could not load posts. Check your connection and try again."));
@@ -186,6 +190,8 @@
    document.body.dataset.authReady="true";
    composer.addEventListener("input",updateCounter);
    const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");
+   searchTerm=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
+   if(searchInput)searchInput.value=searchTerm;
    searchForm?.addEventListener("submit",event=>{
     event.preventDefault();
     searchTerm=searchInput.value.trim().slice(0,120);
