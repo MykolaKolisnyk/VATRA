@@ -1203,9 +1203,9 @@ try{
  await fullRecovery.waitForFunction(()=>window.__vatraRecoveryReveals>=3);
  assert.equal(await fullRecovery.locator("#reset-form").isVisible(),false);
  const successAppearance=await fullRecovery.locator("#account-link").evaluate(node=>{
-  const btn=node.getBoundingClientRect(),parent=node.closest(".forgot-panel-content");
-  const style=getComputedStyle(node);
-  return {height:btn.height,width:btn.width,contentWidth:parent.getBoundingClientRect().width,
+  const btn=node.getBoundingClientRect(),row=node.closest("#recovery-success-link");
+  const parent=node.closest(".forgot-panel-content"),style=getComputedStyle(node);
+  return {height:btn.height,width:btn.width,contentWidth:row.getBoundingClientRect().width,
    bg:style.backgroundImage,color:style.color,radius:style.borderRadius,
    contained:parent.contains(document.querySelector("#response")),
    text:node.textContent.trim()};
