@@ -523,9 +523,9 @@ assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
 // login, recovery and saved account; only registration has visible top captions.
 for(const path of ["forgot.html","reset.html"]){
  const markup=await read(path);
- const labels=[...markup.matchAll(/<label\\b[^>]*class="field [^"]+"[^>]*>\\s*<span class="([^"]+)"/g)];
+ const labels=[...markup.matchAll(/<label\b[^>]*class="field [^"]+"[^>]*>\s*<span class="([^"]+)"/g)];
  assert.equal(labels.length,4,path+" must keep four accessible captions");
- assert.ok(labels.every(match=>match[1].split(/\\s+/).includes("vatra-sr-only")),
+ assert.ok(labels.every(match=>match[1].split(/\s+/).includes("vatra-sr-only")),
   path+" must not repeat captions above the text fields");
 }
 const homeMarkup=await read("index.html");
@@ -557,9 +557,9 @@ for(const [filename,route,type] of [
 }
 for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
  const source=await read("email-templates/"+file);
- const classNames=[...source.matchAll(/\\sclass="([^"]+)"/g)].flatMap(m=>m[1].split(/\\s+/));
+ const classNames=[...source.matchAll(/\sclass="([^"]+)"/g)].flatMap(m=>m[1].split(/\s+/));
  assert.equal(new Set(classNames).size,classNames.length,file+": classes must not collide");
- assert.ok(!/https?:\\/\\/(?:[^" ]+)?\\/v2\\b/i.test(source)&&!source.includes('style-2'),
+ assert.ok(!/https?:\/\/(?:[^" ]+)?\/v2\b/i.test(source)&&!source.includes('style-2'),
   file+": no obsolete duplicate styles or URLs");
 }
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
