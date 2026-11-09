@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const BASE="https://mykolakolisnyk.github.io/VATRA/";
-const pages=["index","404","register","forgot","reset","account","feed","terms","privacy","cookies","offline"];
+const pages=["index","404","register","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
 const publicPages=new Set(["index","terms","privacy","cookies"]);
-const sensitive=new Set(["404","register","forgot","reset","account","feed"]);
+const sensitive=new Set(["404","register","forgot","reset","verify","feed","profile"]);
 const css=await read("assets/css/auth.css");
 assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"Local Onest font missing");
 assert.ok((await stat("assets/fonts/Onest-Variable.ttf")).size>100000,"Missing local font");
@@ -27,7 +27,7 @@ for(const page of pages){
    assert.ok(html.includes(tag),filename+": "+tag+" missing");
   }
   assert.ok(html.includes('name="robots" content="index,follow'),filename+": must be indexable");
-  const url=BASE+(page==="index"?"":filename);
+  const url=BASE+(page==="index"?"":page);
   assert.ok(html.includes('href="'+url+'"'),filename+": canonical URL should be unique");
   assert.ok(sitemap.includes('<loc>'+url+'</loc>'),filename+": missing sitemap URL");
  }
