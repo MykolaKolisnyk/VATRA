@@ -7,7 +7,11 @@
  const q=selector=>document.querySelector(selector);
  const english=document.documentElement.lang==="en";
  const locale=english?"en-US":"uk-UA";
- const t=(uk,en)=>english?en:uk;
+ const t=(uk,en)=>{
+  if(!english)return uk;
+  const translated=window.VATRA_LANGUAGE?.translate(uk);
+  return translated&&translated!==uk?translated:en;
+ };
  const PAGE_SIZE=15,POST_LIMIT=2000;
  let client=null,user=null,vatraId=null,displayName="",loading=false,offset=0;
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
