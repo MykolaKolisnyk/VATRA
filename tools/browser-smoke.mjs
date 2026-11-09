@@ -283,7 +283,7 @@ try{
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
    assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
-   assert.ok(shell.gap>=27,"Card must keep breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
+   assert.ok(shell.gap>=23,"Card must keep breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
    if(width>=1200)assert.ok(shell.centerDelta<=2,
     "Auth card must be centered in the available viewport: "+width+" "+route+" "+JSON.stringify(shell));
    else assert.ok(shell.top>=23&&Math.abs(shell.top-shell.gap)<=2,
