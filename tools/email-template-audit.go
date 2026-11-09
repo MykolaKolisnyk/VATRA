@@ -41,6 +41,10 @@ func main(){
    var out bytes.Buffer
    if err:=tmpl.Execute(&out,data);err!=nil {panic(fmt.Errorf("%s (%s): %w",name,locale,err))}
    rendered:=out.String()
+   if os.Getenv("VATRA_AUDIT_EMAIL_OUTPUT")=="1"&&locale!="missing"{
+    if err:=os.MkdirAll("audit-email",0755);err!=nil{panic(err)}
+    if err:=os.WriteFile("audit-email/"+name+"-"+locale+".html",[]byte(rendered),0644);err!=nil{panic(err)}
+   }
    prefix:=name+" ("+locale+"): "
    expected:=locale
    if locale=="missing"{expected="uk"}
