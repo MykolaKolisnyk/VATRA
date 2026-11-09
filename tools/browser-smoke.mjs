@@ -354,6 +354,7 @@ try{
 
  // Both back links use the same copy and the same leftward hover animation.
  for(const [route,lang] of [["register.html","uk"],["forgot.html","uk"],["reset.html","uk"],["register.html","en"],["forgot.html","en"],["reset.html","en"]]){
+  await context.addCookies([{name:"vatra-language",value:lang,url:base}]);
   const page=await context.newPage();
   await page.addInitScript(value=>localStorage.setItem("vatra-language",value),lang);
   await page.setViewportSize({width:1440,height:900});
@@ -377,6 +378,7 @@ try{
   }
   await page.close();
  }
+ await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
  console.log("VATRA shared return label and inner-content reveal: OK");
 
  // A separate responsive sweep for the redesigned registration page.
