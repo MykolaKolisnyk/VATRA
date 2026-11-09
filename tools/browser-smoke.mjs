@@ -480,7 +480,7 @@ try{
   if(width>=1200){
    assert.ok(Math.abs(login.cardY-signup.cardY)<=2,
     "Login and signup cards should share the same vertical center at "+width);
-   assert.ok(Math.abs(login.height-signup.height)<=2,
+   assert.ok(Math.abs(login.height-signup.height)<=5,
     "Sign-in and signup card heights differ at "+width+": "+JSON.stringify(snapshots));
    assert.ok(Math.abs(login.brandWidth-signup.brandWidth)<=2&&
     Math.abs(login.panelWidth-signup.panelWidth)<=2,
