@@ -37,7 +37,10 @@ function getMessage(error){
  const text=String(error?.message||"").toLowerCase();
  if(code==="invalid_credentials"||text.includes("invalid login credentials"))return "Неправильна електронна пошта або пароль.";
  if(code==="email_not_confirmed"||text.includes("email not confirmed"))return "Підтвердьте електронну пошту за посиланням із листа.";
- if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return "Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.";
+ if(code==="same_password"||code==="same_password_as_old"||
+  text.includes("same as the old password")||text.includes("different from the old password"))
+  return english?"Choose a new password that differs from the previous one.":"Виберіть новий пароль, який відрізняється від попереднього.";
+ if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return english?"The password does not meet the server's security requirements. Check the rules below the password field.":"Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.";
  if(code==="over_email_send_rate_limit"||code==="over_request_rate_limit"||text.includes("rate limit"))return "Забагато спроб. Спробуйте трохи пізніше.";
  if(code==="email_exists"||code==="user_already_exists")return "Акаунт із такою поштою вже може існувати. Спробуйте увійти або відновити пароль.";
  if(code==="signup_disabled")return "Реєстрацію тимчасово вимкнено в налаштуваннях сервера.";
@@ -92,8 +95,8 @@ function validationText(control,form){
  if(!value)return "";
  if(control.type==="email"&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))return "Введіть правильну електронну пошту.";
  if((control.id==="first-name"||control.id==="last-name")&&(value.length<2||value.length>60))return "Використайте від 2 до 60 символів.";
- if(control.type==="password"&&form.id!=="login-form"&&!validPassword(value))return "Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.";
- if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
+ if(control.id==="password-confirm"&&value!==q("#password")?.value)return english?"Passwords do not match.":"Паролі не збігаються.";
+ if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);
  return "";
 }
 /* One floating hint per input. Native placeholder text is hidden only after
@@ -353,11 +356,19 @@ function wirePasswordButtons(){
   sync();
  });
 }
-function validPassword(value){
- return typeof value==="string"&&value.length>=12&&value.length<=128
-  &&/[a-z]/.test(value)&&/[A-Z]/.test(value)&&/[0-9]/.test(value)
-  &&/[!@#$%^&*()_+\-=\[\]{};'\\:"|<>?,.\/\x60~]/.test(value);
+/* The same password policy governs signup and both reset paths.
+   Login deliberately accepts existing passwords, including older policies. */
+function passwordIssue(value){
+ if(typeof value!=="string"||value.length<12)return english?"Use at least 12 characters.":"Використайте щонайменше 12 символів.";
+ if(value.length>128)return english?"Use no more than 128 characters.":"Використайте не більше 128 символів.";
+ if(!/[a-z]/.test(value))return english?"Add a lowercase Latin letter (a–z).":"Додайте малу латинську літеру (a–z).";
+ if(!/[A-Z]/.test(value))return english?"Add an uppercase Latin letter (A–Z).":"Додайте велику латинську літеру (A–Z).";
+ if(!/[0-9]/.test(value))return english?"Add a digit (0–9).":"Додайте цифру (0–9).";
+ if(!/[!@#$%^&*()_+\-=\[\]{};'\\:"|<>?,.\/\x60~]/.test(value))
+  return english?"Add a special character (for example, ! or @).":"Додайте спеціальний символ (наприклад, ! або @).";
+ return "";
 }
+function validPassword(value){return passwordIssue(value)==="";}
 function validDate(year,month,day){
  const y=Number(year),m=Number(month),d=Number(day);
  if(!Number.isInteger(y)||!Number.isInteger(m)||!Number.isInteger(d)||y<1900||m<1||m>12||d<1)return false;
@@ -742,7 +753,8 @@ function wireRegister(){
   if(!birthday){feedback("Вкажіть правильну дату народження.","error");return;}
   if(typeof birthday==="string"&&birthday.startsWith("ВАТРА")){feedback(birthday,"error");return;}
   if(!email.includes("@")){feedback("Вкажіть правильну електронну пошту.","error");return;}
-  if(!validPassword(password)){feedback("Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.","error");return;}
+  const passwordProblem=passwordIssue(password);
+  if(passwordProblem){feedback(passwordProblem,"error");q("#password")?.focus({preventScroll:true});return;}
   if(password!==again){feedback("Паролі не збігаються.","error");return;}
   if(!q("#consent").checked){feedback("Для створення акаунта потрібно прийняти умови використання.","error");return;}
   busy(form,true);
@@ -923,7 +935,8 @@ function wireReset(){
  form.addEventListener("submit",async e=>{
   e.preventDefault();clearFeedback();
   const password=q("#password").value,again=q("#password-confirm").value;
-  if(!validPassword(password)){feedback("Пароль: 12–128 символів, мала й велика латинські літери, цифра та спеціальний символ.","error");return;}
+  const passwordProblem=passwordIssue(password);
+  if(passwordProblem){feedback(passwordProblem,"error");q("#password")?.focus({preventScroll:true});return;}
   if(password!==again){feedback("Паролі не збігаються.","error");return;}
   busy(form,true);
   try{

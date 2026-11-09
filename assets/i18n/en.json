@@ -764,6 +764,11 @@
           "text": {
             "0": "Email address"
           }
+        },
+        "n260": {
+          "text": {
+            "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
+          }
         }
       }
     },
@@ -935,6 +940,11 @@
           "text": {
             "0": "Email address"
           }
+        },
+        "n60": {
+          "text": {
+            "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
+          }
         }
       }
     },
@@ -1085,6 +1095,11 @@
         "n45": {
           "text": {
             "0": "Email address"
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
           }
         }
       }
