@@ -794,6 +794,10 @@ try{
   await recoveryPage.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
   await waitReady(recoveryPage);
   await recoveryPage.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  // Compare final positions, not the brief translated Y coordinates of the
+  // entry animation. Keep the reveal itself tested separately below.
+  await recoveryPage.locator(".forgot-panel").evaluate(panel=>
+   Promise.all(panel.getAnimations().map(animation=>animation.finished.catch(()=>null))));
   const metrics=await recoveryPage.evaluate(()=>{
    const panel=document.querySelector(".forgot-panel").getBoundingClientRect();
    const headline=document.querySelector("#forgot-title").getBoundingClientRect();
