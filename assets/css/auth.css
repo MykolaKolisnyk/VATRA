@@ -502,6 +502,7 @@ body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
    form content or shrinking the VATRA branding. Taller screens keep the normal gutters. */
 @media (min-width:1400px) and (max-height:850px){
   .login-layout,.signup-layout{padding-block:10px}
+  .signup-brand{padding-block:55px}
   .signup-form-panel{padding-block:19px}
 }
 @media (min-width:1200px) and (max-width:1399px){
