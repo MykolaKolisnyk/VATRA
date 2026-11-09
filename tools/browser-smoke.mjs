@@ -1283,8 +1283,9 @@ try{
     document.body.dataset.registrationStep="2";
     document.querySelector('[data-register-step="2"]').hidden=false;
    });
-   assert.ok((await policyPage.locator('[data-register-step="2"]').evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"),
-    "The next step animates once when entered");
+   assert.equal(await policyPage.locator('[data-register-step="2"]').evaluate(el=>getComputedStyle(el).animationName),"none",
+    "Only the shared signup content must animate, not the second-step fields");
+   assert.equal(await policyPage.locator(".signup-form-panel .narrow-form").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
   }
   await policyPage.close();
  }
@@ -1436,6 +1437,16 @@ try{
  await confirmationPage.locator("#signup-confirmation").waitFor({state:"visible"});
  assert.equal(await confirmationPage.locator(".signup-form-panel .narrow-form").isVisible(),false);
  assert.equal(await confirmationPage.locator(".signup-confirmation-emblem").count(),0);
+ const confirmedMotion=await confirmationPage.evaluate(()=>{
+  const content=document.querySelector("#signup-confirmation");
+  return {content:getComputedStyle(content).animationName,
+   heading:getComputedStyle(content.querySelector(".signup-step-heading")).animationName,
+   resend:getComputedStyle(content.querySelector(".signup-confirmation-resend")).animationName,
+   card:getComputedStyle(document.querySelector(".signup-form-panel")).animationName};
+ });
+ assert.ok(confirmedMotion.content==="vatraAuthReveal"&&
+  ["heading","resend","card"].every(key=>confirmedMotion[key]==="none"),
+  "Signup confirmation should animate all content as one layer with a still card: "+JSON.stringify(confirmedMotion));
  assert.equal(await confirmationPage.locator(".signup-confirmation-overline .signup-confirmation-back-nav a").isVisible(),true,
   "A back-to-login link must remain visible beside the last-step kicker during email confirmation");
  assert.equal(await confirmationPage.locator(".signup-form-overline .reg-back-nav a").isVisible(),false,
