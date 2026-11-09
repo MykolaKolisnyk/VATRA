@@ -92,8 +92,8 @@ assert.ok(css.includes('.password-policy-note{margin:-2px 0 2px;color:var(--soft
  css.includes('.register-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}')&&
  css.includes('.signup-form-panel .narrow-form,.signup-step,.signup-confirmation,.site .form-box,'),
  "Shared password typography and reduced-motion-aware transitions");
-assert.ok((await read("forgot.html")).match(/<section(?:\\s|>)/g)?.length===
- (await read("forgot.html")).match(/<\\/section>/g)?.length,
+const forgotMarkup=await read("forgot.html");
+assert.equal(forgotMarkup.split("<section ").length,forgotMarkup.split("</section>").length,
  "Forgot password must have properly balanced section elements");
 assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}')&&
  css.includes('.auth-footer-content>span{font-size:12px;line-height:1.55}')&&
