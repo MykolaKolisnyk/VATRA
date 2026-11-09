@@ -101,6 +101,9 @@
  function notify(value,origin="",kind="error"){
   let msg=redact(value);
   if(!msg)return;
+  // Automated browsers may intentionally block service workers. This is a
+  // non-actionable browser diagnostic, not an error in the VATRA interface.
+  if(origin==="console"&&/^Service Worker registration blocked by Playwright(?:\b|$)/i.test(msg))return;
   if(origin)msg=redact(origin)+": "+msg;
   const now=Date.now();
   const key=kind+":"+msg;

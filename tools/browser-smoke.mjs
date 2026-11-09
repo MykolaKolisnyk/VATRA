@@ -992,6 +992,16 @@ try{
 
  // Multi-engine responsive audit. All network calls for Auth are mocked:
  // screenshots and interactions must never create production users or emails.
+ // Keep real warning reports: only the benign Playwright SW diagnostic is filtered.
+ const warnPage=await context.newPage();
+ await warnPage.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
+ await waitReady(warnPage);
+ await warnPage.evaluate(()=>console.warn("Service Worker registration blocked by Playwright"));
+ assert.equal(await warnPage.locator(".vatra-error-toast").count(),0,
+  "Playwright-specific service-worker warning must not obscure VATRA forms");
+ await warnPage.evaluate(()=>console.warn("VATRA audit: actionable warning"));
+ await warnPage.locator(".vatra-error-toast").waitFor({state:"visible"});
+ await warnPage.close();
  await mkdir("audit-screenshots",{recursive:true});
  const screenSpecs=[
   {width:320,height:700,id:"small"},
@@ -1060,6 +1070,8 @@ try{
       engine+" "+viewport.id+" "+target.id+" inconsistent input typography: "+JSON.stringify(measurements.typefaces));
      assert.deepEqual(errors,[],
       engine+" "+viewport.id+" "+target.id+" uncaught JavaScript errors");
+     assert.equal(await view.locator(".vatra-error-toast").count(),0,
+      engine+" "+viewport.id+" "+target.id+" must not show test-harness warnings over the form");
      if(["phone","tablet","laptop"].includes(viewport.id))
       await view.screenshot({path:"audit-screenshots/"+engine+"-"+viewport.id+"-"+target.id+".png",fullPage:true});
      await view.close();

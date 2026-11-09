@@ -66,6 +66,9 @@ assert.ok(errors.includes('window.addEventListener("error"')&&
  !errors.includes('window.VATRA_ERRORS={show}')&&
  !auth.includes("VATRA_ERRORS"),
  "Only console errors and warnings should show in automatically dismissing toasts; form errors stay inline");
+assert.ok(errors.includes('Service Worker registration blocked by Playwright')&&
+ errors.includes('if(origin==="console"&&/^Service Worker registration blocked by Playwright'),
+ "Only benign test-harness service-worker warnings are hidden from visible error toasts");
 assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible")&&
  css.includes(".vatra-error-toast--warning")&&css.includes("border-left-color:#d99a32")&&
  errors.includes('VATRA · Попередження')&&errors.includes("VATRA · Warning"),
