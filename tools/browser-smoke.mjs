@@ -2170,12 +2170,20 @@ try{
   await feedProbe.setViewportSize({width:language==="en"?390:1366,height:844});
   const feedErrors=[];
   feedProbe.on("pageerror",err=>feedErrors.push(err.message));
-  await feedProbe.goto(base+"feed.html",{waitUntil:"domcontentloaded"});
+  await feedProbe.goto(base+"feed",{waitUntil:"domcontentloaded"});
   await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
+  assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
+  assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
+  assert.equal(await feedProbe.locator(".ui-feed-notifications-button-001").count(),1);
+  assert.equal(await feedProbe.locator(".feed-account-toggle").count(),1);
+  assert.equal(await feedProbe.locator("footer").count(),0,
+   "Signed-in VATRA Feed must not show a footer");
+  assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
+   "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),8);
   assert.equal((await feedProbe.locator("#feed-my-id").textContent()).trim(),"VATRA ID 654321");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
@@ -2197,9 +2205,19 @@ try{
   assert.ok(overflow<=3,"Feed must fit viewport: "+language+" "+overflow);
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
   await feedProbe.close();
+  const profilePage=await feedContext.newPage();
+  await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
+  await profilePage.goto(base+"profile",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
+  assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 654321");
+  assert.equal(await profilePage.locator("footer").count(),0,
+   "The personal profile must not show guest legal footer");
+  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/profile"));
+  await profilePage.close();
  }
  await feedContext.close();
- console.log("VATRA Feed: UK/EN text publishing, ownership, cancel/delete and responsive layout: OK");
+ console.log("VATRA Feed and Profile: UK/EN publishing, secured profile and mobile layout: OK");
 
  // A cross-device confirmation must not depend on the PKCE state of the
  // browser where registration started. It also must not leak the token in URL.
