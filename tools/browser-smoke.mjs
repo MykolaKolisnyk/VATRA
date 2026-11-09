@@ -775,8 +775,8 @@ try{
    (width<768||Math.abs(metrics.formWidth-520)<=1),
    "Recovery form must use the same centered 520px content column as login and registration: "+JSON.stringify(metrics));
   const forgotCaption=await recoveryPage.locator('#forgot-form .vt-forgot-inline-01');
-  assert.equal(await forgotCaption.isVisible(),false,
-   "Recovery must display email only inside the input, without a second visible caption");
+  // CSS-clipped captions remain accessible; Playwright's visibility heuristic
+  // may still count their tiny layout rectangle as visible.
   const hiddenCaption=await forgotCaption.evaluate(el=>({
    style:getComputedStyle(el).clipPath,
    label:el.textContent.trim(),
@@ -1448,8 +1448,9 @@ try{
  await savedPage.locator("#saved-switch-back").click();
  assert.equal(await savedPage.locator("#saved-account-panel").isVisible(),true);
  await savedPage.locator("#saved-account-continue").click();
- assert.equal(await savedPage.locator(".vt-home-saved-field-title-001").isVisible(),false,
-  "Only signup should display a caption above the password input");
+ assert.equal(await savedPage.locator(".vt-home-saved-field-title-001").evaluate(
+  node=>getComputedStyle(node).clipPath),"inset(50%)",
+  "Saved account captions must be screen-reader-only");
  await savedPage.locator("#saved-password").fill("WrongPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");
