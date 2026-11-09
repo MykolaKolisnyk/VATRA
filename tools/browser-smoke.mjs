@@ -726,6 +726,7 @@ try{
  }
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
+ let baselineFooterAppearance=null;
  for(const route of ["","register.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
@@ -739,7 +740,12 @@ try{
    const link=nav.querySelector("a");
    const language=nav.querySelector(".language-trigger");
    const info=e=>({font:getComputedStyle(e).fontFamily,size:parseFloat(getComputedStyle(e).fontSize)});
+   const footer=document.querySelector(".footer");
+   const fs=getComputedStyle(footer),ns=getComputedStyle(nav),ls=getComputedStyle(link);
    return {copy:info(copyright),nav:info(nav),link:info(link),language:info(language),
+    style:{minHeight:fs.minHeight,paddingTop:fs.paddingTop,paddingBottom:fs.paddingBottom,
+     borderTop:fs.borderTop,background:fs.backgroundColor,color:fs.color,
+     navGap:ns.gap,linkMinHeight:ls.minHeight},
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
   assert.ok(footerTypography.overflow<=3&&
@@ -747,6 +753,11 @@ try{
    footerTypography.copy.size===13&&footerTypography.nav.size===13&&
    footerTypography.link.size===13&&footerTypography.language.size===13,
    "Shared footer typography mismatch on "+route+": "+JSON.stringify(footerTypography));
+  assert.equal(footerTypography.style.linkMinHeight,"40px",
+   "Footer navigation touch area should be uniform across pages: "+route);
+  if(!baselineFooterAppearance)baselineFooterAppearance=footerTypography.style;
+  else assert.deepEqual(footerTypography.style,baselineFooterAppearance,
+   "Footer border, background, spacing, navigation and link height must match across page types: "+route);
   if(route==="404.html")
    assert.equal(await probe.locator('.footer nav a[href$="/cookies.html"]').count(),1,
     "The 404 page must link to the same three public documents");
@@ -1635,6 +1646,11 @@ try{
   });
  });
  const savedOverviewHeight=await savedPage.locator("#saved-account-panel").evaluate(node=>node.getBoundingClientRect().height);
+ const overviewNote=await savedPage.locator(".saved-account-note").evaluate(node=>({
+  visibility:getComputedStyle(node).visibility,height:node.getBoundingClientRect().height
+ }));
+ assert.ok(overviewNote.visibility==="visible"&&overviewNote.height>0,
+  "The remembered-account reminder must be readable on the first screen");
  assert.equal(await savedPage.locator("#saved-account-return").isVisible(),false);
  await savedPage.locator("#saved-account-continue").click();
  await savedPage.waitForFunction(()=>window.__vatraSavedRevealCount>0);
@@ -1645,6 +1661,11 @@ try{
   return {cardHeight:node.getBoundingClientRect().height,aligned:Math.abs((back.top+back.bottom)/2-(remove.top+remove.bottom)/2)<=2,
    backInside:back.left>=top.left-1&&back.right<=remove.left,removeAligned:Math.abs(remove.right-top.right)<=1};
  });
+ const passwordNote=await savedPage.locator(".saved-account-note").evaluate(node=>({
+  visibility:getComputedStyle(node).visibility,height:node.getBoundingClientRect().height
+ }));
+ assert.ok(passwordNote.visibility==="hidden"&&Math.abs(passwordNote.height-overviewNote.height)<1,
+  "Password entry must hide the reminder but preserve its layout slot: "+JSON.stringify({overviewNote,passwordNote}));
  assert.ok(Math.abs(savedPasswordGeometry.cardHeight-savedOverviewHeight)<=2&&
   savedPasswordGeometry.aligned&&savedPasswordGeometry.backInside&&savedPasswordGeometry.removeAligned,
   "Saved account overview and password phases must have equal card height with left/right top controls: "+JSON.stringify({savedOverviewHeight,...savedPasswordGeometry}));
@@ -1656,6 +1677,12 @@ try{
  assert.ok(savedReturnMotion.transform.startsWith("matrix(")&&
   parseFloat(savedReturnMotion.transform.split(",")[4])<=-1.8,
   "Saved account return button should slide left like registration back link");
+ await savedPage.locator("#saved-account-return").click();
+ assert.equal(await savedPage.locator(".saved-account-note").isVisible(),true,
+  "Reminder must reappear when returning to the saved-account overview");
+ await savedPage.locator("#saved-account-continue").click();
+ assert.equal(await savedPage.locator(".saved-account-note").isVisible(),false,
+  "Reminder must disappear every time password entry opens");
  const passwordMotion=await savedPage.locator("#saved-account-panel").evaluate(panel=>({
   shell:getComputedStyle(panel).animationName,
   content:getComputedStyle(panel.querySelector("#saved-account-content")).animationName,

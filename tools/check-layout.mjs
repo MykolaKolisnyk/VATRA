@@ -962,3 +962,12 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
 assert.ok(css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text')&&
  !css.includes('min-width:148px')&&!css.includes('min-width:132px'),
  "Signup step color should match the progress gradient, and footer links must have natural widths");
+
+// The remembered account note is exclusive to the overview, without changing
+// the card height; all footer link touch targets use the shared stylesheet.
+assert.ok(css.includes('.site[data-saved-login="password"] .saved-account-note{visibility:hidden}')&&
+ css.includes('.footer nav a{display:inline-flex;align-items:center;min-height:40px}')&&
+ !legalCss.includes('.policy-page .footer nav a{min-height:40px}')&&
+ auth.includes('document.body.dataset.savedLogin="overview"')&&
+ auth.includes('document.body.dataset.savedLogin="password"'),
+ "Saved-account explanation must be visible only on overview, with uniform footer link spacing");
