@@ -957,7 +957,7 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  css.includes('min-height:151px;width:100%')&&
  auth.includes('returnButton.hidden=true')&&auth.includes('returnButton.hidden=false')&&
  auth.includes('Не вдалося увійти. Перевірте пароль.')&&
- en.__global["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
+ en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
 assert.ok(css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text')&&
  !css.includes('min-width:148px')&&!css.includes('min-width:132px'),
