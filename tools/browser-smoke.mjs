@@ -704,8 +704,14 @@ try{
    "Small V logo must be inside the recovery card, opposite the back link: "+JSON.stringify(alignment));
   assert.equal(await recoveryPage.locator(".vt-forgot-floating-hint-01").textContent(),
    language==="uk"?"Електронна пошта":"Email address");
-  assert.equal(await recoveryPage.locator(".forgot-kicker").textContent(),
-   language==="uk"?"ВІДНОВЛЕННЯ ДОСТУПУ":"ACCOUNT RECOVERY");
+  assert.equal(await recoveryPage.locator(".forgot-kicker").count(),0,
+   "The extra recovery eyebrow must be absent in both languages");
+  const branding=await recoveryPage.locator(".forgot-panel-brand img").evaluate(el=>{
+   const img=el.getBoundingClientRect();
+   return {width:img.width,height:img.height,font:getComputedStyle(document.querySelector("#forgot-title")).fontFamily};
+  });
+  assert.ok(branding.width>=38&&branding.font.includes("Onest"),
+   "Brand V should be more prominent while the heading keeps Onest: "+JSON.stringify(branding));
   await recoveryPage.evaluate(()=>{
    document.querySelector("#forgot-form").hidden=true;
    document.querySelector("#recovery-note").hidden=true;
@@ -713,6 +719,9 @@ try{
   });
   assert.equal(await recoveryPage.locator(".forgot-intro").isVisible(),false,
    "Entering the OTP stage must replace the intro instead of stacking both headings");
+  const stageMotion=await recoveryPage.locator("#recovery-step").evaluate(el=>getComputedStyle(el).animationName);
+  assert.ok(stageMotion.includes("vatraAuthReveal"),
+   "Code entry stage must have the same form entrance animation as login and signup");
   const codeField=recoveryPage.locator("#recovery-token");
   const codeHint=recoveryPage.locator(".vt-forgot-floating-hint-02");
   assert.equal(await codeField.getAttribute("placeholder")," ");
@@ -741,6 +750,18 @@ try{
    "OTP stage must remain within the same card at "+width);
   assert.ok(Math.abs(codeStep.width-metrics.formWidth)<=1.5,
    "OTP stage must match the 520px form column at "+width+": "+JSON.stringify(codeStep));
+  // The final password stage is part of the very same card.
+  await recoveryPage.evaluate(()=>{
+   document.querySelector("#recovery-code-form").hidden=true;
+   document.querySelector("#recovery-tools").hidden=true;
+   document.querySelector("#reset-form").hidden=false;
+  });
+  const passwordStep=await recoveryPage.locator("#reset-form").boundingBox();
+  assert.ok(passwordStep&&Math.abs(passwordStep.width-metrics.formWidth)<=1.5,
+   "The password stage must retain the same centered 520px column at "+width);
+  const passwordMotion=await recoveryPage.locator("#reset-form").evaluate(el=>getComputedStyle(el).animationName);
+  assert.ok(passwordMotion.includes("vatraAuthReveal"),
+   "The final password step must use the shared auth reveal motion");
   await recoveryPage.close();
  }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
@@ -790,6 +811,34 @@ try{
     language==="uk"?"Електронна пошта":"Email address");
    await emailPage.close();
   }
+ }
+ await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
+ // Email links open reset.html; its entire flow must match the recovery card.
+ for(const [width,language] of [[390,"uk"],[1440,"en"]]){
+  await context.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const resetVisual=await context.newPage();
+  await resetVisual.setViewportSize({width,height:844});
+  await resetVisual.goto(base+"reset.html",{waitUntil:"domcontentloaded"});
+  await waitReady(resetVisual);
+  await resetVisual.waitForFunction(lang=>document.documentElement.lang===lang,language);
+  const panel=resetVisual.locator(".reset-panel");
+  const panelBounds=await panel.boundingBox();
+  const codeBounds=await resetVisual.locator("#recovery-code-form").boundingBox();
+  const topRow=await resetVisual.locator(".reset-panel-header").boundingBox();
+  const logo=await resetVisual.locator(".reset-panel-brand img").boundingBox();
+  assert.ok(panelBounds&&codeBounds&&topRow&&logo&&
+   codeBounds.width<=520.5&&Math.abs(codeBounds.x+codeBounds.width/2-(panelBounds.x+panelBounds.width/2))<=1.5&&
+   logo.width>=38,"Direct reset page should match the centered 520px VATRA card");
+  await resetVisual.evaluate(()=>{
+   document.querySelector("#recovery-code-form").hidden=true;
+   document.querySelector("#reset-form").hidden=false;
+  });
+  const passBounds=await resetVisual.locator("#reset-form").boundingBox();
+  assert.ok(passBounds&&Math.abs(passBounds.width-codeBounds.width)<=1.5,
+   "Direct reset password form should retain matching width");
+  assert.ok((await resetVisual.locator("#reset-form").evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"),
+   "Direct reset password stage should animate just like entry stage");
+  await resetVisual.close();
  }
  await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
  // Direct reset page must use the same code/email floating fields.

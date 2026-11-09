@@ -572,15 +572,28 @@ assert.ok(
  "Recovery card must show only the V mark, and all email fields must use translated floating hints");
 assert.ok(
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;')&&
- css.includes('.ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel > :is(.forgot-panel-header,.forgot-intro,.reset-intro,.response,.field-stack,.form-note,.recovery-step){width:100%;max-width:520px}')&&
  css.includes('.form-box{width:100%;max-width:520px;')&&
  css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;'),
  "Password recovery, sign-in and sign-up must share the same 520px form column");
+assert.ok(
+ reset.includes('class="forgot-panel reset-panel ui-reset-panel-001"')&&
+ reset.includes('class="forgot-panel-header reset-panel-header ui-reset-panel-header-001"')&&
+ reset.includes('class="reset-intro ui-reset-intro-001"')&&
+ reset.includes('id="reset-title"')&&
+ reset.includes('src="assets/logo/vatra-symbol.svg"')&&
+ !reset.includes('class="header-logo vt-reset-link-02"')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step):not([hidden]){animation:vatraAuthReveal .3s')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel :is(.forgot-intro,.reset-intro,.field-stack,.recovery-step){animation:none!important}')&&
+ auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
+ "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
- forgot.includes('class="forgot-kicker vt-forgot-overline-001" data-i18n="n55"')&&
+ !forgot.includes('forgot-kicker')&&
+ !css.includes('.ui-forgot-main-001 .forgot-kicker{')&&
+ !uk.__pages.forgot.nodes.n55&&
+ !en.__pages.forgot.nodes.n55&&
  forgot.includes('id="forgot-title"')&&
- uk.__pages.forgot.nodes.n55.text["0"]==="ВІДНОВЛЕННЯ ДОСТУПУ"&&
- en.__pages.forgot.nodes.n55.text["0"]==="ACCOUNT RECOVERY"&&
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;')&&
  css.includes('.ui-forgot-main-001 .forgot-panel:has(#recovery-step:not([hidden])) .forgot-intro{display:none}')&&
  !forgot.includes('assets/css/forgot.css'),

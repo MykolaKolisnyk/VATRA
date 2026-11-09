@@ -836,7 +836,7 @@ function wireForgot(){
    feedback(repeat?
     "Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.":
     "Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче.","success");
-   if(repeat)codeField.value="";
+   if(repeat){codeField.value="";codeField.dispatchEvent(new Event("input",{bubbles:true}));}
    enterCode(email,sentAt);
   }catch(error){
    feedback(getMessage(error),"error");
@@ -915,6 +915,7 @@ function wireReset(){
    const {data,error}=await auth.auth.verifyOtp({email,token,type:"recovery"});
    if(error||!data?.session)throw error||new Error("Verification failed");
    tokenInput.value="";
+   tokenInput.dispatchEvent(new Event("input",{bubbles:true}));
    reveal();
   }catch(_){feedback("Неправильний або прострочений код. Перевірте лист або запросіть новий.","error");}
   finally{busy(codeForm,false);}
