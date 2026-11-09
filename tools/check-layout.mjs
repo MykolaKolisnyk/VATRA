@@ -540,7 +540,7 @@ const homeMarkup=await read("index.html");
 assert.ok(homeMarkup.includes('vt-home-saved-field-title-001 vatra-sr-only')&&
  !homeMarkup.includes('saved-account-wordmark')&&
  !css.includes('.site .saved-account-wordmark{')&&
- css.includes('.site .saved-account-top{display:flex;align-items:center;justify-content:flex-end;')&&
+ css.includes('.site .saved-account-top{display:flex;align-items:center;justify-content:space-between;gap:10px;')&&
  css.includes('.vatra-sr-only{position:absolute!important;'),
  "Remembered account must have no redundant wordmark or visible top password label");
 assert.ok(!css.includes('.footer nav>a[href="register.html"]{')&&
@@ -937,10 +937,28 @@ assert.ok(legalCss.includes('.policy-main{padding:32px 0 32px}')&&
  "Policy documents must share desktop/mobile section spacing with auth pages");
 
 // One VATRA footer line and compact signup eyebrow on both form routes.
-assert.ok(landing.includes('class="footer-auth-action vt-home-link-08"')&&
- register.includes('class="footer-auth-action vt-register-footer-signin"')&&
- css.includes('.site .footer-auth-action,.register-page .footer-auth-action{min-width:148px;justify-content:center}')&&
+assert.ok(landing.includes('class="vt-home-link-08"')&&
+ register.includes('class="vt-register-footer-signin"')&&
+ !css.includes('footer-auth-action')&&
  register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="reg-back-nav')&&
  !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
  legalCss.includes('.policy-page .footer{min-height:70px;padding-inline:0}'),
  "Auth footer CTA slots and legal footer height must match; signup nav belongs beside step labels");
+
+// Persistent regression: no duplicate stylesheet variants, and saved-login
+// navigation occupies the top action row rather than a trailing form row.
+const cssFiles=await readdir("assets/css");
+assert.deepEqual(cssFiles.sort(),["auth.css","legal.css"],"VATRA must have exactly two canonical CSS files");
+assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
+ landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
+ landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
+ !landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508">')&&
+ css.includes('.site .saved-account-return:hover,.site .saved-account-return:focus-visible{color:var(--blue);transform:translateX(-2px)')&&
+ css.includes('min-height:151px;width:100%')&&
+ auth.includes('returnButton.hidden=true')&&auth.includes('returnButton.hidden=false')&&
+ auth.includes('Не вдалося увійти. Перевірте пароль.')&&
+ en.__global["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
+ "Saved account must have a top-left return control, equal state heights and localized password guidance");
+assert.ok(css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text')&&
+ !css.includes('min-width:148px')&&!css.includes('min-width:132px'),
+ "Signup step color should match the progress gradient, and footer links must have natural widths");

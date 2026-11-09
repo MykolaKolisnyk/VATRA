@@ -280,24 +280,27 @@ try{
     const footer=document.querySelector(".footer").getBoundingClientRect();
     const container=document.querySelector(".auth-layout").getBoundingClientRect();
     const footerStyle=getComputedStyle(document.querySelector(".footer"));
-    const footerNav=document.querySelector(".footer nav").getBoundingClientRect();
-    const footerAction=document.querySelector(".footer-auth-action").getBoundingClientRect();
+    const footerNav=document.querySelector(".footer nav");
+    const action=footerNav.querySelector("a:last-of-type");
+    const range=document.createRange();range.selectNodeContents(action);
+    const naturalActionWidth=range.getBoundingClientRect().width;
+    const actionWidth=action.getBoundingClientRect().width;
     return {footerBorder:footerStyle.borderTopColor,footerBorderWidth:footerStyle.borderTopWidth,
       footerBackground:footerStyle.backgroundColor,footerHeight:footer.height,
-      footerNavWidth:footerNav.width,footerActionWidth:footerAction.width,
+      footerNavGap:getComputedStyle(footerNav).columnGap,footerActionExtra:actionWidth-naturalActionWidth,
       gap:footer.top-card.bottom,top:card.top-container.top,
       sideLeft:card.left,sideRight:innerWidth-card.right,
       centerDelta:Math.abs((card.top+card.bottom)/2-(container.top+container.bottom)/2),
       back:!!document.querySelector(".reg-back-nav .back"),
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
-   assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
+   assert.ok(shell.overflow<=3&&shell.footerActionExtra<=3,
+    "Footer auth link must have natural width and no horizontal overflow at "+width+" "+route+": "+JSON.stringify(shell));
    if(footerSamples.length){
     const previous=footerSamples[0];
     assert.ok(shell.footerBorder===previous.footerBorder&&shell.footerBorderWidth===previous.footerBorderWidth&&
      shell.footerBackground===previous.footerBackground&&Math.abs(shell.footerHeight-previous.footerHeight)<=1&&
-     Math.abs(shell.footerNavWidth-previous.footerNavWidth)<=2&&
-     Math.abs(shell.footerActionWidth-previous.footerActionWidth)<=1,
+     shell.footerNavGap===previous.footerNavGap&&shell.footerActionExtra<=3&&previous.footerActionExtra<=3,
      "Sign-in and signup footer geometry must be identical at "+width+": "+JSON.stringify([previous,shell]));
    }
    assert.ok(Math.abs(shell.sideLeft-shell.sideRight)<=2&&Math.abs(shell.top-shell.gap)<=2,
@@ -438,6 +441,11 @@ try{
   assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.brandKickerAbsent&&layout.footerAligned,"Registration footer or brand label is misaligned at "+width+": "+JSON.stringify(layout));
   assert.equal(layout.authAnimation,"vatraAuthReveal","Whole registration form must animate like sign-in");
+  const stepAppearance=await signup.locator('[data-step-label="1"]').evaluate(el=>({
+   background:getComputedStyle(el).backgroundImage,fontSize:getComputedStyle(el).fontSize
+  }));
+  assert.ok(stepAppearance.background.includes("linear-gradient")&&stepAppearance.fontSize==="12px",
+   "Signup step label should share the progress bar gradient and original size at "+width);
   assert.equal(layout.stageAnimation,"none","Only the full registration form should animate at entry");
   assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backInside,
    "Signup return link must be inside the right registration card at "+width+": "+JSON.stringify(layout));
@@ -1626,8 +1634,28 @@ try{
    window.__vatraSavedRevealCount++;
   });
  });
+ const savedOverviewHeight=await savedPage.locator("#saved-account-panel").evaluate(node=>node.getBoundingClientRect().height);
+ assert.equal(await savedPage.locator("#saved-account-return").isVisible(),false);
  await savedPage.locator("#saved-account-continue").click();
  await savedPage.waitForFunction(()=>window.__vatraSavedRevealCount>0);
+ const savedPasswordGeometry=await savedPage.locator("#saved-account-panel").evaluate(node=>{
+  const top=node.querySelector(".saved-account-top").getBoundingClientRect();
+  const back=node.querySelector("#saved-account-return").getBoundingClientRect();
+  const remove=node.querySelector("#saved-account-remove").getBoundingClientRect();
+  return {cardHeight:node.getBoundingClientRect().height,aligned:Math.abs((back.top+back.bottom)/2-(remove.top+remove.bottom)/2)<=2,
+   backInside:back.left>=top.left-1&&back.right<=remove.left,removeAligned:Math.abs(remove.right-top.right)<=1};
+ });
+ assert.ok(Math.abs(savedPasswordGeometry.cardHeight-savedOverviewHeight)<=2&&
+  savedPasswordGeometry.aligned&&savedPasswordGeometry.backInside&&savedPasswordGeometry.removeAligned,
+  "Saved account overview and password phases must have equal card height with left/right top controls: "+JSON.stringify({savedOverviewHeight,...savedPasswordGeometry}));
+ await savedPage.locator("#saved-account-return").hover();
+ await savedPage.waitForTimeout(220);
+ const savedReturnMotion=await savedPage.locator("#saved-account-return").evaluate(el=>({
+  color:getComputedStyle(el).color,transform:getComputedStyle(el).transform
+ }));
+ assert.ok(savedReturnMotion.transform.startsWith("matrix(")&&
+  parseFloat(savedReturnMotion.transform.split(",")[4])<=-1.8,
+  "Saved account return button should slide left like registration back link");
  const passwordMotion=await savedPage.locator("#saved-account-panel").evaluate(panel=>({
   shell:getComputedStyle(panel).animationName,
   content:getComputedStyle(panel.querySelector("#saved-account-content")).animationName,
@@ -1645,7 +1673,8 @@ try{
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  assert.equal(await savedPage.evaluate(()=>sessionStorage.getItem("mockAttemptEmail")),"example@vatra.test");
  await savedPage.locator("#saved-account-response").waitFor({state:"visible"});
- assert.ok((await savedPage.locator("#saved-account-response").textContent()).length>0);
+ assert.equal((await savedPage.locator("#saved-account-response").textContent()).trim(),
+  "Не вдалося увійти. Перевірте пароль.","Saved password failure needs contextual Ukrainian message");
  await savedPage.locator("#saved-password").fill("CorrectPass@123");
  await savedPage.locator('#saved-login-form button[type="submit"]').click();
  await savedPage.waitForURL("**/account.html");
