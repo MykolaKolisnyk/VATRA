@@ -93,7 +93,7 @@ async function acceptEmailConfirmation(){
  }catch(_){return {cameFromLink:true,failed:true};}
 }
 
-function goToMyAccount(){
+function goToFeed(){
  // After a verified sign-in or sign-up, Feed is the VATRA home screen.
  // Email token callbacks still arrive at account.html for verification.
  navigatingAuth=true;
@@ -639,7 +639,7 @@ async function initialize(){
   wireLogin();
   try{
    const {data,error}=await sessionCheckWithTimeout();
-   if(!error&&data?.user?.email_confirmed_at){await goToMyAccount();return;}
+   if(!error&&data?.user?.email_confirmed_at){await goToFeed();return;}
   }catch(_){/* Leave login available if the network is unreachable. */}
   wireRememberedAccount();
  }
@@ -649,7 +649,7 @@ async function initialize(){
    if(!error&&data?.user?.email_confirmed_at&&
     (!signupPending||isExpectedConfirmedSignup(data.user))){
     try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
-    await goToMyAccount();return;
+    await goToFeed();return;
    }
   }catch(_){}
   wireRegister();
@@ -682,7 +682,7 @@ async function authenticatePassword(email,password,form){
  const {data,error}=await auth.auth.signInWithPassword({email,password,options});
  if(error)throw error;
  if(data?.user?.email_confirmed_at)rememberAccount(data.user);
- goToMyAccount();
+ goToFeed();
 }
 /* The saved-account hint is portalled to the viewport, so transformed cards and
    small screens cannot clip it. Other controls keep their own existing help. */
@@ -885,7 +885,7 @@ async function verifyPendingSignupSession(){
    q("#signup-confirmation")?.hidden!==false)return;
   signupAccountNavigating=true;
   try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
-  goToMyAccount();
+  goToFeed();
  }catch(_){
   // Transient network errors keep the waiting screen available for retries.
  }finally{signupVerificationBusy=false;}
@@ -1037,7 +1037,7 @@ function wireRegister(){
     }
    });
    if(error)throw error;
-   if(data?.session){if(data?.user?.email_confirmed_at)rememberAccount(data.user);form.reset();await goToMyAccount();return;}
+   if(data?.session){if(data?.user?.email_confirmed_at)rememberAccount(data.user);form.reset();await goToFeed();return;}
    for(const selector of ["#password","#password-confirm"]){const field=q(selector);if(field){field.value="";field.dispatchEvent(new Event("input",{bubbles:true}));}}
    markSignupPending(email);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
