@@ -23,7 +23,7 @@
 
 ## Підтвердження пошти з іншого пристрою
 
-**Обов'язково** скопіюйте оновлений повний вміст `email-templates/confirmation.html` у **Supabase → Authentication → Email Templates → Confirm sign up → Body (Source)** і збережіть. Зміна у GitHub не оновлює активний шаблон Supabase. Посилання використовує канонічну адресу GitHub Pages та одноразовий `token_hash`, який сторінка `account.html` перевіряє через Supabase і відразу прибирає з адресного рядка. Недійсний токен не надає доступу. Не копіюйте реальні одноразові посилання з листів у листування або логи.
+**Обов'язково** скопіюйте оновлений повний вміст `email-templates/confirmation.html` у **Supabase → Authentication → Email Templates → Confirm sign up → Body (Source)** і збережіть. Зміна у GitHub не оновлює активний шаблон Supabase. Посилання використовує канонічну адресу GitHub Pages та одноразовий `token_hash`, який сторінка `/VATRA/verify` перевіряє через Supabase і відразу прибирає з адресного рядка. Недійсний токен не надає доступу. Не копіюйте реальні одноразові посилання з листів у листування або логи.
 
 ## Мова листа
 
@@ -39,11 +39,11 @@
 
 | Шаблон | Сторінка призначення | Тип `verifyOtp` |
 |---|---|---|
-| `confirmation.html` | `account.html` | `email` |
-| `invite.html` | `account.html` | `invite` |
-| `magic-link.html` | `account.html` | `magiclink` |
-| `email-change.html` | `account.html` | `email_change` |
-| `recovery.html` | `reset.html` | `recovery` |
+| `confirmation.html` | `/VATRA/verify` | `email` |
+| `invite.html` | `/VATRA/verify` | `invite` |
+| `magic-link.html` | `/VATRA/verify` | `magiclink` |
+| `email-change.html` | `/VATRA/verify` | `email_change` |
+| `recovery.html` | `/VATRA/reset` | `recovery` |
 
 **Важливо:** код `{{ .Token }}` у `magic-link.html` та `recovery.html` — альтернативний одноразовий спосіб підтвердження. `{{ .RedirectTo }}` у шаблоні відновлення веде до форми введення коду; пряме посилання перевіряється за `TokenHash`. Для підтвердження нової пошти використовується також `{{ .NewEmail }}`.
 
@@ -57,7 +57,7 @@
 
 ## Перед запуском
 
-1. Переконайтеся, що **Site URL** і **Redirect URLs** у Supabase відповідають `https://mykolakolisnyk.github.io/VATRA/` та кореневим `account.html` та `reset.html`.
+1. Переконайтеся, що **Site URL** і **Redirect URLs** у Supabase відповідають `https://mykolakolisnyk.github.io/VATRA/` та кореневим `/VATRA/verify` та `/VATRA/reset`.
 2. У **SMTP Settings** налаштовується відправник листів VATRA. Вміст HTML-шаблонів не змінює ім’я чи адресу SMTP-відправника.
 3. Після збереження шаблону надішліть тестове підтвердження та відновлення пароля, перевірте лист українською й англійською та завершення дії в браузері. Не вставляйте у репозиторій приватні ключі чи паролі.
 
