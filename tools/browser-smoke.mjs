@@ -32,6 +32,112 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
+
+ // Locale entrance-animation audit: delayed English translations used to
+ // consume the entire 300ms reveal while the body was invisible. Measure real
+ // animation-end events in BOTH languages, not just CSS animation-name.
+ const localeAnimationPages=[
+  {path:"",selectors:[".form-box"]},
+  {path:"register.html",selectors:[".signup-form-panel .narrow-form"]},
+  {path:"forgot.html",selectors:[".forgot-panel-content"]},
+  {path:"reset.html",selectors:[".forgot-panel-content"]},
+  {path:"404.html",selectors:[".error-code",".error-heading",".error-description",".error-action"]},
+  {path:"terms.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
+  {path:"privacy.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
+  {path:"cookies.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
+  {path:"account.html",selectors:[".account-card > img",".account-card h1"],signedIn:true}
+ ];
+ const runLocaleAnimationAudit=async(engine,engineBrowser,entries,viewports)=>{
+  for(const language of ["uk","en"]){
+   const audit=await engineBrowser.newContext({locale:language==="en"?"en-US":"uk-UA",
+    reducedMotion:"no-preference",serviceWorkers:"block"});
+   await audit.route("**/assets/js/host.js",route=>route.fulfill({
+    status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+   }));
+   await audit.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+    status:200,contentType:"text/javascript",
+    body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};'
+   }));
+   try{
+    for(const viewport of viewports){
+     for(const entry of entries){
+      const view=await audit.newPage();
+      try{
+       await view.setViewportSize(viewport);
+       await view.addInitScript(({language,selectors})=>{
+        localStorage.setItem("vatra-language",language);
+        window.__vatraLocaleAnimationEnds=[];
+        document.addEventListener("animationend",event=>{
+         if(event.animationName!=="vatraAuthReveal"||!(event.target instanceof Element))return;
+         const matches=selectors.filter(selector=>event.target.matches(selector));
+         if(!matches.length)return;
+         window.__vatraLocaleAnimationEnds.push({
+          matched:matches,hidden:document.documentElement.classList.contains("i18n-pending")||
+           getComputedStyle(document.body).visibility==="hidden",
+          authReady:document.body.dataset.authReady==="true",
+          loader:!!document.querySelector("#vatra-auth-loading"),
+          motion:getComputedStyle(event.target).animationName
+         });
+        },true);
+       },{language,selectors:entry.selectors});
+       if(entry.signedIn){
+        await view.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+         status:200,contentType:"text/javascript",
+         body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:{id:"locale-audit-user",email:"audit@example.test",email_confirmed_at:"2026-11-01T00:00:00Z",user_metadata:{first_name:"Audit"}}},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:25},error:null})})})})})};'
+        }));
+       }
+       if(language==="en"){
+        // Make the translation fetch deliberately slower than the reveal.
+        await view.route("**/assets/i18n/en.json",async route=>{
+         await new Promise(resolve=>setTimeout(resolve,1050));
+         await route.continue();
+        });
+       }
+       await view.goto(base+entry.path,{waitUntil:"domcontentloaded",timeout:20000});
+       await view.waitForFunction(()=>document.documentElement.lang===
+        (window.localStorage.getItem("vatra-language")||"uk"),null,{timeout:7000});
+       if(language==="en"){
+        // Assert the 300ms animation is STILL paused after 1+ seconds.
+        await view.waitForFunction(()=>document.documentElement.classList.contains("i18n-pending"));
+        const pending=await view.locator(entry.selectors[0]).evaluate(node=>({
+         playState:getComputedStyle(node).animationPlayState,
+         animation:getComputedStyle(node).animationName,
+         pageHidden:getComputedStyle(document.body).visibility,
+         ended:(window.__vatraLocaleAnimationEnds||[]).length,
+         splashPlayState:document.querySelector("#vatra-auth-loading .vatra-auth-loading-symbol")
+          ?getComputedStyle(document.querySelector("#vatra-auth-loading .vatra-auth-loading-symbol")).animationPlayState:null
+        }));
+        assert.ok(pending.animation==="vatraAuthReveal"&&pending.playState==="paused"&&
+         pending.pageHidden==="hidden"&&pending.ended===0&&
+         (pending.splashPlayState===null||pending.splashPlayState==="running"),
+         engine+" "+entry.path+" English must not finish an entrance behind translations: "+JSON.stringify(pending));
+       }
+       await view.waitForFunction(()=>{
+        const loading=document.querySelector("#vatra-auth-loading");
+        return !document.documentElement.classList.contains("i18n-pending")&&
+         (!loading||document.body.dataset.authReady==="true");
+       },null,{timeout:12000});
+       await view.waitForFunction(expected=>
+        window.__vatraLocaleAnimationEnds?.length>=expected,
+        entry.selectors.length,{timeout:12000});
+       const completed=await view.evaluate(()=>window.__vatraLocaleAnimationEnds);
+       assert.ok(entry.selectors.every(selector=>
+        completed.some(record=>record.matched.includes(selector)&&!record.hidden&&
+         (!record.loader||record.authReady)))&&
+        completed.every(record=>record.motion==="vatraAuthReveal"),
+        engine+" "+language+" "+viewport.width+" "+entry.path+
+        " entrance must complete visibly after translated/auth-ready content: "+JSON.stringify(completed));
+      }finally{await view.close();}
+     }
+    }
+   }finally{await audit.close();}
+   console.log("VATRA "+engine+" "+language+" entrance motion: "+
+    entries.length+" pages x "+viewports.length+" viewport(s), translation delay checked");
+  }
+ };
+ await runLocaleAnimationAudit("chromium",browser,localeAnimationPages,
+  [{width:390,height:844},{width:1440,height:900}]);
+
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1280,800],[1440,900],[1920,1080]]){
   const page=await context.newPage();
   await page.setViewportSize({width,height});
