@@ -685,7 +685,12 @@ assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger
 // All public pages use the same footer structure; the full-width background
 // remains separate from the centered content. Documents have a working
 // single-row header independent of the former signup header styles.
-const footerNames=pages.filter(p=>p!=="offline");
+const footerNames=pages.filter(p=>p!=="offline"&&p!=="feed");
+// Feed has a dedicated authenticated-app footer while legal/auth pages share the existing shell.
+const feedFooter=await read("feed.html");
+assert.ok(feedFooter.includes('class="feed-footer-inner ui-feed-footer-inner-001"')&&
+ feedFooter.includes('href="terms.html"')&&feedFooter.includes('href="privacy.html"')&&
+ feedFooter.includes('href="cookies.html"'),"Feed footer must keep links to all legal documents");
 for(const page of footerNames){
  const html=await read(page+".html");
  const tag=page==="index"?"home":page;
