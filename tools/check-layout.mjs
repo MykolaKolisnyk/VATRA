@@ -513,7 +513,10 @@ for(const [template,target,type] of [
 }
 assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
  !css.includes('.register-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
- css.includes('.reg-back-nav .back{min-height:40px;'),
+ !css.includes('.reg-back-nav .back{min-height:40px;')&&
+ register.includes('class="or signup-login-divider vt-signup-login-divider-001" data-i18n="n246"')&&
+ register.includes('class="action secondary full signup-login-button vt-signup-login-button-001" data-i18n="n247"')&&
+ css.includes('.signup-form-panel .signup-login-button{display:inline-flex;'),
  "Signup must keep the sign-in button visible on all steps and confirmation screen");
 const loadingPages=["index.html","register.html","forgot.html","reset.html","account.html"];
 for(const file of loadingPages){
