@@ -49,6 +49,13 @@
 @keyframes vatraLoadingSlide{from{transform:translateX(-20%)}to{transform:translateX(165%)}}
 @keyframes vatraLoadingPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.88;transform:scale(.975)}}
 body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
+/* Do not use up the entrance animation behind the authentication splash.
+   This applies equally to uk and en; it excludes the animated loading splash. */
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading),
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *,
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::before,
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::after{animation-play-state:paused!important}
+
 @media(prefers-reduced-motion:reduce){.vatra-auth-loading-symbol,.vatra-auth-loading-indicator{animation:none!important}.vatra-auth-loading-indicator{width:65%}}
 
 /* VATRA saved-account selector: isolated component styles, never credentials. */
