@@ -536,8 +536,36 @@ try{
    control.dispatchEvent(new Event("change",{bubbles:true}));
   }
  });
+ await stepTwo.evaluate(()=>{
+  window.__vatraSignupRevealCount=0;
+  const content=document.querySelector(".signup-form-panel .narrow-form");
+  content.addEventListener("animationstart",e=>{
+   if(e.target===content&&e.animationName==="vatraAuthReveal")window.__vatraSignupRevealCount++;
+  });
+ });
  await stepTwo.locator("#register-next").click();
  await stepTwo.locator('[data-register-step="2"]').waitFor({state:"visible"});
+ await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=1);
+ const secondStageMotion=await stepTwo.evaluate(()=>{
+  const content=document.querySelector(".signup-form-panel .narrow-form");
+  return {content:getComputedStyle(content).animationName,
+   shell:getComputedStyle(document.querySelector(".signup-form-panel")).animationName,
+   heading:getComputedStyle(document.querySelector('[data-step-heading="2"]')).animationName,
+   fields:getComputedStyle(document.querySelector('[data-register-step="2"]')).animationName,
+   logoPanel:getComputedStyle(document.querySelector(".signup-brand")).animationName,
+   includesTitle:content.contains(document.querySelector('[data-step-heading="2"]')),
+   includesProgress:content.contains(document.querySelector(".signup-progress")),
+   includesFields:content.contains(document.querySelector('[data-register-step="2"]'))};
+ });
+ assert.ok(secondStageMotion.content==="vatraAuthReveal"&&
+  ["shell","heading","fields","logoPanel"].every(key=>secondStageMotion[key]==="none")&&
+  secondStageMotion.includesTitle&&secondStageMotion.includesProgress&&secondStageMotion.includesFields,
+  "On signup step two, headline, step indicator, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
+ await stepTwo.locator("#register-back").click();
+ await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=2);
+ assert.equal(await stepTwo.locator('[data-register-step="1"]').isVisible(),true);
+ await stepTwo.locator("#register-next").click();
+ await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=3);
  const stepTwoGeometry=await stepTwo.evaluate(()=>{
   const r=s=>document.querySelector(s).getBoundingClientRect();
   const card=r(".reg-main"),panel=r(".signup-form-panel"),active=r('[data-register-step="2"]');
@@ -993,9 +1021,10 @@ try{
   });
   assert.equal(await recoveryPage.locator(".forgot-intro").isVisible(),false,
    "Entering the OTP stage must replace the intro instead of stacking both headings");
-  const stageMotion=await recoveryPage.locator("#recovery-step > :not([hidden])").first().evaluate(el=>getComputedStyle(el).animationName);
-  assert.ok(stageMotion.includes("vatraAuthReveal"),
-   "Code entry stage must have the same form entrance animation as login and signup");
+  const stageMotion=await recoveryPage.locator(".forgot-panel-content").evaluate(el=>getComputedStyle(el).animationName);
+  const otpFragment=await recoveryPage.locator("#recovery-step > :not([hidden])").first().evaluate(el=>getComputedStyle(el).animationName);
+  assert.equal(stageMotion,"vatraAuthReveal","Entire OTP content, including logo, must share the reveal animation");
+  assert.equal(otpFragment,"none","OTP heading and fields must not animate independently");
   const codeField=recoveryPage.locator("#recovery-token");
   const codeHint=recoveryPage.locator(".vt-forgot-floating-hint-02");
   assert.equal(await codeField.getAttribute("placeholder")," ");
@@ -1033,9 +1062,10 @@ try{
   const passwordStep=await recoveryPage.locator("#reset-form").boundingBox();
   assert.ok(passwordStep&&Math.abs(passwordStep.width-metrics.formWidth)<=1.5,
    "The password stage must retain the same centered 520px column at "+width);
-  const passwordMotion=await recoveryPage.locator("#reset-form").evaluate(el=>getComputedStyle(el).animationName);
-  assert.ok(passwordMotion.includes("vatraAuthReveal"),
-   "The final password step must use the shared auth reveal motion");
+  const passwordMotion=await recoveryPage.locator(".forgot-panel-content").evaluate(el=>getComputedStyle(el).animationName);
+  const passwordFragment=await recoveryPage.locator("#reset-form").evaluate(el=>getComputedStyle(el).animationName);
+  assert.equal(passwordMotion,"vatraAuthReveal","Full recovery screen, including logo, must reveal on password stage");
+  assert.equal(passwordFragment,"none","Password form must not animate separately from recovery branding");
   await recoveryPage.close();
  }
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
@@ -1255,8 +1285,28 @@ try{
   const passBounds=await resetVisual.locator("#reset-form").boundingBox();
   assert.ok(passBounds&&Math.abs(passBounds.width-codeBounds.width)<=1.5,
    "Direct reset password form should retain matching width");
-  assert.ok((await resetVisual.locator("#reset-form > :not([hidden])").first().evaluate(el=>getComputedStyle(el).animationName)).includes("vatraAuthReveal"),
-   "Direct reset password stage should animate just like entry stage");
+  assert.equal(await resetVisual.locator(".forgot-panel-content").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal",
+   "Direct reset password stage must share one full-content entrance with logo");
+  assert.equal(await resetVisual.locator("#reset-form > :not([hidden])").first().evaluate(el=>getComputedStyle(el).animationName),"none",
+   "Direct reset fields must not rise separately");
+  await resetVisual.locator("#password").focus();
+  await resetVisual.waitForTimeout(230);
+  const floatedPassword=await resetVisual.locator("#password").evaluate(el=>{
+   const shell=el.closest(".vatra-input-shell");
+   const hint=shell.querySelector(".vatra-floating-hint");
+   const inputRect=el.getBoundingClientRect(),hintRect=hint.getBoundingClientRect();
+   return {raised:shell.classList.contains("is-floating"),
+    inputHeight:inputRect.height,hintTop:hintRect.top-inputRect.top,
+    hintLeft:hintRect.left-inputRect.left,hintBottom:hintRect.bottom-inputRect.top,
+    paddingTop:getComputedStyle(el).paddingTop,paddingBottom:getComputedStyle(el).paddingBottom,
+    labelCount:shell.querySelectorAll(".vatra-floating-hint").length};
+  });
+  assert.ok(floatedPassword.raised&&floatedPassword.inputHeight>=54&&
+   floatedPassword.hintTop>=5&&floatedPassword.hintTop<=10&&
+   floatedPassword.hintBottom<=27&&Math.abs(floatedPassword.hintLeft-17)<1&&
+   floatedPassword.paddingTop==="21px"&&floatedPassword.paddingBottom==="7px"&&
+   floatedPassword.labelCount===1,
+   "Password field must have a single correctly positioned floating hint and text caret: "+JSON.stringify(floatedPassword));
   await resetVisual.close();
  }
  await context.addCookies([{name:"vatra-language",value:"uk",url:base}]);
