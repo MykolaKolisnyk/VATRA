@@ -20,6 +20,15 @@ const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
 let auth=null;
 let validateRegistrationStep=()=>true;
+let navigatingAuth=false;
+const markAuthReady=()=>{if(!navigatingAuth)document.body.dataset.authReady="true";};
+function sessionCheckWithTimeout(){
+ // No artificial loading delay: fall back to sign-in if a stale network request stalls.
+ return Promise.race([
+  auth.auth.getUser(),
+  new Promise(resolve=>setTimeout(()=>resolve({data:{user:null},error:new Error("Session check timed out")}),8000))
+ ]);
+}
 const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account";
 const LOGGED_OUT_KEY="vatra-just-signed-out";
 function readRememberedAccount(){
@@ -66,9 +75,12 @@ async function acceptEmailConfirmation(){
  const cameFromLink=Boolean(initialAccountCallback||token||query.has("code")||query.has("error")||hash.has("error")||hash.has("access_token"));
  if(!token)return {cameFromLink,failed:initialAccountCallbackError||query.has("error")||hash.has("error")};
  history.replaceState(history.state,"",location.pathname);
- if(query.get("type")!=="email"||token.length>2048)return {cameFromLink:true,failed:true};
+ const type=query.get("type");
+ // Reject arbitrary query types: only Supabase Auth's documented email actions.
+ const allowed=new Set(["email","magiclink","invite","email_change"]);
+ if(!allowed.has(type)||token.length>2048)return {cameFromLink:true,failed:true};
  try{
-  const {data,error}=await auth.auth.verifyOtp({token_hash:token,type:"email"});
+  const {data,error}=await auth.auth.verifyOtp({token_hash:token,type});
   if(error||!data?.user?.id)return {cameFromLink:true,failed:true};
   return {cameFromLink:true,failed:false};
  }catch(_){return {cameFromLink:true,failed:true};}
@@ -76,6 +88,7 @@ async function acceptEmailConfirmation(){
 
 function goToMyAccount(){
  // Until dedicated profile routes exist, show the real account page.
+ navigatingAuth=true;
  window.location.replace(url("account.html"));
 }
 function feedback(text,type="info"){
@@ -587,6 +600,7 @@ function validateBirthday(){
  return [year,month,day].join("-");
 }
 async function initialize(){
+ try{
  wireOrbitTooltips();
  /* Initial language translations must finish before wiring localized controls. */
  await window.VATRA_LANGUAGE?.ready;
@@ -610,14 +624,14 @@ async function initialize(){
  if(page==="login"){
   wireLogin();
   try{
-   const {data,error}=await auth.auth.getUser();
+   const {data,error}=await sessionCheckWithTimeout();
    if(!error&&data?.user?.email_confirmed_at){await goToMyAccount();return;}
   }catch(_){/* Leave login available if the network is unreachable. */}
   wireRememberedAccount();
  }
  if(page==="register"){
   try{
-   const {data,error}=await auth.auth.getUser();
+   const {data,error}=await sessionCheckWithTimeout();
    if(!error&&data?.user?.email_confirmed_at&&
     (!signupPending||isExpectedConfirmedSignup(data.user))){
     try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
@@ -638,7 +652,9 @@ async function initialize(){
    await wireAccount(confirmation.cameFromLink);
   }
  }
- document.body.dataset.authReady="true";
+ }finally{
+  markAuthReady();
+ }
 }
 async function captchaOptions(scope){
  if(!window.VATRA_CAPTCHA?.enabled){const error=new Error("captcha_unavailable");error.code="captcha_unavailable";throw error;}
@@ -1037,6 +1053,7 @@ function wireReset(){
  if(!form||!codeForm)return;
  const params=new URLSearchParams(location.search);
  const hash=new URLSearchParams(location.hash.substring(1));
+ const tokenHash=params.get("token_hash");
  const openedLink=params.has("code")||params.get("type")==="recovery"||hash.get("type")==="recovery"||hash.has("access_token");
  const linkFailed=Boolean(params.get("error")||hash.get("error"));
  // A pre-existing login session is not evidence of a password recovery.
@@ -1059,9 +1076,23 @@ function wireReset(){
  };
  if(linkFailed){
   feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
+ }else if(tokenHash){
+  // Token hashes can be redeemed in a different browser without the PKCE
+  // verifier from the device where reset was requested.
+  history.replaceState(history.state,"",location.pathname);
+  if(params.get("type")!=="recovery"||tokenHash.length>2048){
+   feedback("Посилання недійсне або застаріло. Запросіть нове.","error");
+  }else{
+   void (async()=>{
+    try{
+     const {data,error}=await auth.auth.verifyOtp({token_hash:tokenHash,type:"recovery"});
+     if(error||!data?.session?.user?.id)throw error||new Error("Recovery verification failed");
+     reveal(data.session.user);
+    }catch(_){feedback("Посилання недійсне або застаріло. Запросіть нове.","error");}
+   })();
+  }
  }else if(openedLink){
-  // Only Supabase's validated recovery callback can unlock the form.
-  // SIGNED_IN and INITIAL_SESSION are not recovery events.
+  // Legacy callbacks are allowed only after PASSWORD_RECOVERY, never SIGNED_IN.
   auth.auth.onAuthStateChange((event,session)=>{
    if(event==="PASSWORD_RECOVERY"&&session?.user?.id)reveal(session.user);
   });
@@ -1150,5 +1181,8 @@ async function wireAccount(cameFromLink=false){
   window.location.replace(new URL("./",location.href).href);
  });
 }
-initialize().catch(()=>feedback("Сервіс авторизації тимчасово недоступний. Повторіть спробу пізніше.","error"));
+initialize().catch(()=>{
+ feedback("Сервіс авторизації тимчасово недоступний. Повторіть спробу пізніше.","error");
+ markAuthReady();
+});
 })();
