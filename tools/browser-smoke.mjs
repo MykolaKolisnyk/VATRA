@@ -582,7 +582,7 @@ try{
    footerTypography.link.size===13&&footerTypography.language.size===13,
    "Shared footer typography mismatch on "+route+": "+JSON.stringify(footerTypography));
   if(route==="404.html")
-   assert.equal(await probe.locator('.footer nav a[href="/VATRA/cookies.html"]').count(),1,
+   assert.equal(await probe.locator('.footer nav a[href$="/cookies.html"]').count(),1,
     "The 404 page must link to the same three public documents");
   if(["terms.html","privacy.html","cookies.html"].includes(route)){
    const legalMotion=await probe.locator(".policy-main").evaluate(e=>getComputedStyle(e).animationName);
