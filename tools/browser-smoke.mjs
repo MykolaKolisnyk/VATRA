@@ -235,7 +235,7 @@ try{
   await waitReady(probe);
   const entry=probe.locator(".signup-login-button");
   assert.equal(await entry.isVisible(),true,"Signup must show its bottom Sign in action at "+width);
-  assert.equal(await entry.getAttribute("href"),"./");
+  assert.equal(new URL(await entry.getAttribute("href"),base).href,base);
   const styles=await entry.evaluate(el=>({font:getComputedStyle(el).fontFamily,
    radius:getComputedStyle(el).borderRadius,border:getComputedStyle(el).borderTopWidth}));
   assert.ok(styles.font.includes("Onest")&&styles.border!=="0px",
