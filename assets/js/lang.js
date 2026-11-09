@@ -26,7 +26,7 @@
   const instantEnglishTitles={
     index:"Sign in · VATRA",register:"Create account · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
-    account:"Account · VATRA","404":"404 · Page not found — VATRA",
+    account:"Account · VATRA","404":"404 Page not found · VATRA",
     terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
     cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
   };
