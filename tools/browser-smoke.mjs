@@ -278,11 +278,14 @@ try{
     const container=document.querySelector(".auth-layout").getBoundingClientRect();
     const login=document.querySelector(".login-layout");
     return {gap:footer.top-card.bottom,top:card.top-container.top,
+      sideLeft:card.left,sideRight:innerWidth-card.right,
       centerDelta:Math.abs((card.top+card.bottom)/2-(container.top+container.bottom)/2),
       back:!!document.querySelector(".reg-back-nav .back"),
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
    assert.ok(shell.overflow<=3,"Horizontal overflow at "+width+" "+route);
+   assert.ok(Math.abs(shell.sideLeft-shell.sideRight)<=2&&Math.abs(shell.top-shell.gap)<=2,
+    "Auth card must have symmetric side and vertical gutters at "+width+" "+route+": "+JSON.stringify(shell));
    assert.ok(shell.gap>=23,"Card must keep breathing room above the footer: "+width+" "+route+" "+JSON.stringify(shell));
    if(width>=1200)assert.ok(shell.centerDelta<=2,
     "Auth card must be centered in the available viewport: "+width+" "+route+" "+JSON.stringify(shell));
@@ -800,13 +803,17 @@ try{
    const header=document.querySelector(".forgot-panel-header").getBoundingClientRect();
    const intro=document.querySelector(".forgot-intro").getBoundingClientRect();
    const panelCenter=panel.left+panel.width/2;
+   const main=document.querySelector(".center-main").getBoundingClientRect();
    return {panelX:panel.x,panelRight:panel.right,panelWidth:panel.width,
+    topGap:panel.top-main.top,bottomGap:main.bottom-panel.bottom,
+    sideLeft:panel.left,sideRight:innerWidth-panel.right,
     headlineX:headline.x,formX:form.x,overflow:document.documentElement.scrollWidth-innerWidth,
     formWidth:form.width,headerWidth:header.width,introWidth:intro.width,
     centered:Math.abs(form.left+form.width/2-panelCenter),
     fontFamily:style.fontFamily,fontSize:parseFloat(style.fontSize),inputFont:font.fontFamily};
   });
   assert.ok(metrics.panelX>=0&&metrics.panelRight<=width+1&&metrics.overflow<=2&&
+   Math.abs(metrics.sideLeft-metrics.sideRight)<=2&&Math.abs(metrics.topGap-metrics.bottomGap)<=6&&
    Math.abs(metrics.headlineX-metrics.formX)<2&&
    metrics.fontFamily.includes("Onest")&&metrics.inputFont.includes("Onest")&&
    metrics.fontSize>=29&&metrics.fontSize<=41,
@@ -1475,6 +1482,31 @@ try{
   "Saved account must not display a redundant VATRA wordmark");
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),false);
  assert.equal(await savedPage.locator("#password").inputValue(),"");
+ // The remove action needs one branded, localized hint; native title would
+ // display the browser's dark tooltip and ignore the VATRA design system.
+ const removeHint=savedPage.locator("#saved-account-remove");
+ assert.equal(await removeHint.getAttribute("title"),null);
+ assert.equal(await removeHint.getAttribute("data-vatra-tooltip"),"Вилучити збережений акаунт");
+ assert.equal(await removeHint.getAttribute("aria-label"),"Вилучити збережений акаунт");
+ await removeHint.hover();
+ await savedPage.waitForFunction(()=>{
+  const node=document.querySelector("#saved-account-remove");
+  return getComputedStyle(node,"::after").opacity==="1";
+ },null,{timeout:2500});
+ const brandedHint=await removeHint.evaluate(button=>{
+  const style=getComputedStyle(button,"::after");
+  return {visible:style.visibility==="visible",font:style.fontFamily,
+   background:style.backgroundColor,maxWidth:style.maxWidth};
+ });
+ assert.ok(brandedHint.visible&&brandedHint.font.includes("Onest")&&
+  brandedHint.background==="rgb(255, 255, 255)",
+  "Remove-account description must use a white Onest VATRA tooltip: "+JSON.stringify(brandedHint));
+ await savedPage.evaluate(()=>localStorage.setItem("vatra-language","en"));
+ await savedPage.reload({waitUntil:"domcontentloaded"});
+ await waitReady(savedPage);
+ assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("title"),null);
+ assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("data-vatra-tooltip"),"Remove saved account");
+ assert.equal(await savedPage.locator("#saved-account-remove").getAttribute("aria-label"),"Remove saved account");
  await savedPage.locator("#saved-account-other").click();
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),true);
  assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),true);
