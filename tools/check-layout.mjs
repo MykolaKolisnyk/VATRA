@@ -470,7 +470,7 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy.html#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
-for(const [path,ids] of [["index.html",["email","password"]],["register.html",["first-name","last-name","email","password","password-confirm"]]]){
+for(const [path,ids] of [["index.html",["email","password","saved-password"]],["register.html",["first-name","last-name","email","password","password-confirm"]]]){
  const html=await read(path);
  for(const id of ids){
   const input=html.match(new RegExp('<input\\b[^>]*\\bid="'+id+'"[^>]*>'))?.[0]||"";
@@ -479,6 +479,23 @@ for(const [path,ids] of [["index.html",["email","password"]],["register.html",["
  const hints=(html.match(/class="vatra-floating-hint\b/g)||[]).length;
  assert.equal(hints,ids.length,path+": one static floating caption per input");
 }
+// The saved account is a display-only local choice, not a password or session cache.
+const savedUI=await read("index.html");
+const signupTemplate=await read("email-templates/confirmation.html");
+for(const id of ["standard-login-panel","saved-account-panel","saved-login-form","saved-account-other",
+ "saved-switch-back","saved-account-return","saved-account-remove-dialog","saved-remove-confirm"]){
+ assert.ok(savedUI.includes('id="'+id+'"'),"Saved account control missing: "+id);
+}
+assert.ok(auth.includes('const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account"')&&
+ auth.includes('JSON.stringify({v:1,email,name})')&&
+ !auth.includes('JSON.stringify({v:1,email,name,password')&&
+ auth.includes('auth.auth.verifyOtp({token_hash:token,type:"email"})')&&
+ auth.includes('history.replaceState(history.state,"",location.pathname)')&&
+ signupTemplate.split('token_hash={{ .TokenHash }}').length===3&&
+ !signupTemplate.includes('href="{{ .ConfirmationURL }}"'),
+ "Cross-device confirmation must verify a one-time token; remembered account stores no password");
+for(const locale of [uk,en])for(let n=500;n<=513;n++)
+ assert.ok(locale.__pages.index.nodes["n"+n]?.text?.["0"],"Saved account translation missing: n"+n);
 for(const path of ["index.html","register.html"]){
  const html=await read(path);
  const toggles=[...html.matchAll(/<button[^>]*data-password-toggle="[^"]+"[^>]*>/g)];
