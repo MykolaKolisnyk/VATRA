@@ -476,7 +476,7 @@ for(const id of ["first-name","last-name","gender","email","password","password-
 }
 assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
- register.includes('href="privacy.html#purpose" target="_blank"'),
+ register.includes('href="privacy#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
 for(const [path,ids] of [["index.html",["email","password","saved-password"]],["register.html",["first-name","last-name","email","password","password-confirm"]]]){
  const html=await read(path);
