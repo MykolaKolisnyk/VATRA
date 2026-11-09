@@ -11,6 +11,60 @@ const q=(selector)=>document.querySelector(selector);
 const url=(filename)=>new URL(filename,document.baseURI).href;
 let auth=null;
 let validateRegistrationStep=()=>true;
+const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account";
+const LOGGED_OUT_KEY="vatra-just-signed-out";
+function readRememberedAccount(){
+ try{
+  const item=JSON.parse(localStorage.getItem(REMEMBERED_ACCOUNT_KEY)||"null");
+  if(item?.v!==1||typeof item.email!=="string"||
+   !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(item.email)||item.email.length>254||
+   typeof item.name!=="string"||item.name.length>120)return null;
+  return item;
+ }catch(_){return null;}
+}
+function rememberAccount(user){
+ if(!user?.id||!user.email_confirmed_at||typeof user.email!=="string")return;
+ const email=user.email.trim().toLowerCase();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return;
+ const metadata=user.user_metadata||{};
+ const name=[metadata.first_name,metadata.last_name].filter(x=>typeof x==="string"&&x.trim()).join(" ").trim().slice(0,120)||email.split("@")[0];
+ // Only display name/email; never store passwords, OTPs or sessions ourselves.
+ try{localStorage.setItem(REMEMBERED_ACCOUNT_KEY,JSON.stringify({v:1,email,name}));}catch(_){}
+}
+function clearLoginFields(){
+ const form=q("#login-form");if(!form)return;
+ form.reset();
+ for(const input of form.querySelectorAll("input")){
+  input.value="";
+  input.dispatchEvent(new Event("input",{bubbles:true}));
+ }
+}
+function showAccountConfirmationFailure(){
+ const title=q("#account-title"),mail=q("#account-email");
+ if(title)title.textContent=english?"Email confirmation needs attention":"Підтвердження пошти не завершено";
+ if(mail)mail.textContent=english
+  ?"If the address is confirmed, sign in with your email and password. Otherwise request a new confirmation email on the device where you registered."
+  :"Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.";
+ const note=q(".vt-account-paragraph-03");if(note)note.hidden=true;
+ const id=q("#vatra-id");if(id)id.hidden=true;
+ const logout=q("#logout");if(logout)logout.hidden=true;
+ const link=q(".vt-account-link-03");if(link)link.textContent=english?"Go to sign in":"Перейти до входу";
+}
+async function acceptEmailConfirmation(){
+ const query=new URLSearchParams(location.search);
+ const hash=new URLSearchParams(location.hash.slice(1));
+ const token=query.get("token_hash");
+ const cameFromLink=Boolean(token||query.has("code")||query.has("error")||hash.has("error")||hash.has("access_token"));
+ if(!token)return {cameFromLink,failed:query.has("error")||hash.has("error")};
+ history.replaceState(history.state,"",location.pathname);
+ if(query.get("type")!=="email"||token.length>2048)return {cameFromLink:true,failed:true};
+ try{
+  const {data,error}=await auth.auth.verifyOtp({token_hash:token,type:"email"});
+  if(error||!data?.user?.id)return {cameFromLink:true,failed:true};
+  return {cameFromLink:true,failed:false};
+ }catch(_){return {cameFromLink:true,failed:true};}
+}
+
 function goToMyAccount(){
  // Until dedicated profile routes exist, show the real account page.
  window.location.replace(url("account.html"));
@@ -105,7 +159,7 @@ function validationText(control,form){
 function wireFloatingHints(){
  if(!["login","register","forgot","reset"].includes(page))return;
  const syncAll=[];
- for(const field of document.querySelectorAll("#login-form .field:has(input.control),#signup-form .field:has(input.control),#forgot-form .field:has(input.control),#recovery-code-form .field:has(input.control),#reset-form .field:has(input.control)")){
+ for(const field of document.querySelectorAll("#login-form .field:has(input.control),#saved-login-form .saved-account-field:has(input.control),#signup-form .field:has(input.control),#forgot-form .field:has(input.control),#recovery-code-form .field:has(input.control),#reset-form .field:has(input.control)")){
   const input=field.querySelector("input.control");
   const shell=input?.closest(".vatra-input-shell");
   const hint=shell?.querySelector(":scope > .vatra-floating-hint");
@@ -546,11 +600,11 @@ async function initialize(){
  }
  if(page==="login"){
   wireLogin();
-  /* Сесія вже зберігається в браузері. Не просимо входити повторно. */
   try{
    const {data,error}=await auth.auth.getUser();
    if(!error&&data?.user?.email_confirmed_at){await goToMyAccount();return;}
-  }catch(_){/* Якщо немає зв'язку, форма входу залишається доступною. */}
+  }catch(_){/* Leave login available if the network is unreachable. */}
+  wireRememberedAccount();
  }
  if(page==="register"){
   try{
@@ -568,8 +622,12 @@ async function initialize(){
  if(page==="forgot")wireForgot();
  if(page==="reset")wireReset();
  if(page==="account"){
-  try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
-  await wireAccount();
+  const confirmation=await acceptEmailConfirmation();
+  if(confirmation.failed)showAccountConfirmationFailure();
+  else{
+   try{sessionStorage.removeItem(SIGNUP_PENDING_KEY);}catch(_){}
+   await wireAccount(confirmation.cameFromLink);
+  }
  }
  document.body.dataset.authReady="true";
 }
@@ -580,6 +638,73 @@ async function captchaOptions(scope){
  return {captchaToken:token};
 }
 function resetCaptcha(scope){window.VATRA_CAPTCHA?.reset(scope);}
+async function authenticatePassword(email,password,form){
+ const options=await captchaOptions(form);
+ const {data,error}=await auth.auth.signInWithPassword({email,password,options});
+ if(error)throw error;
+ if(data?.user?.email_confirmed_at)rememberAccount(data.user);
+ goToMyAccount();
+}
+function wireRememberedAccount(){
+ const remembered=readRememberedAccount();
+ const panel=q("#saved-account-panel"),standard=q("#standard-login-panel"),back=q("#saved-switch-back");
+ const overview=q("#saved-account-overview"),savedForm=q("#saved-login-form");
+ if(!panel||!standard||!back||!overview||!savedForm)return;
+ let signedOut=false;
+ try{signedOut=sessionStorage.getItem(LOGGED_OUT_KEY)==="1";sessionStorage.removeItem(LOGGED_OUT_KEY);}catch(_){}
+ if(signedOut)clearLoginFields();
+ if(!remembered)return;
+ const name=q("#saved-account-title"),email=q("#saved-account-email"),initials=q("#saved-account-initials");
+ name.textContent=remembered.name;email.textContent=remembered.email;
+ const parts=remembered.name.split(/\s+/).filter(Boolean);
+ initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();
+ const password=q("#saved-password"),message=q("#saved-account-response");
+ const clearSaved=()=>{
+  savedForm.reset();password.value="";password.dispatchEvent(new Event("input",{bubbles:true}));
+  message.hidden=true;message.textContent="";
+ };
+ const showSaved=()=>{
+  clearSaved();savedForm.hidden=true;overview.hidden=false;
+  standard.hidden=true;back.hidden=true;panel.hidden=false;
+  document.body.dataset.savedLogin="overview";
+ };
+ const showOther=()=>{
+  clearSaved();clearLoginFields();
+  standard.hidden=false;panel.hidden=true;back.hidden=false;
+  document.body.dataset.savedLogin="other";
+  q("#email")?.focus({preventScroll:true});
+ };
+ q("#saved-account-continue")?.addEventListener("click",()=>{
+  overview.hidden=true;savedForm.hidden=false;
+  document.body.dataset.savedLogin="password";
+  password.focus({preventScroll:true});
+ });
+ q("#saved-account-return")?.addEventListener("click",showSaved);
+ q("#saved-account-other")?.addEventListener("click",showOther);
+ back.addEventListener("click",showSaved);
+ const dialog=q("#saved-account-remove-dialog");
+ q("#saved-account-remove")?.addEventListener("click",()=>dialog?.showModal?.());
+ q("#saved-remove-cancel")?.addEventListener("click",()=>dialog?.close());
+ q("#saved-remove-confirm")?.addEventListener("click",()=>{
+  try{localStorage.removeItem(REMEMBERED_ACCOUNT_KEY);}catch(_){}
+  dialog?.close();clearSaved();clearLoginFields();
+  back.hidden=true;panel.hidden=true;standard.hidden=false;
+  delete document.body.dataset.savedLogin;
+  q("#email")?.focus({preventScroll:true});
+ });
+ savedForm.addEventListener("submit",async event=>{
+  event.preventDefault();message.hidden=true;message.textContent="";
+  if(!password.value){
+   message.textContent=english?"Enter your password.":"Введіть пароль.";
+   message.dataset.type="error";message.hidden=false;return;
+  }
+  busy(savedForm,true);
+  try{await authenticatePassword(remembered.email,password.value,savedForm);}
+  catch(error){message.textContent=getMessage(error);message.dataset.type="error";message.hidden=false;}
+  finally{resetCaptcha(savedForm);busy(savedForm,false);}
+ });
+ showSaved();
+}
 function wireLogin(){
  const form=q("#login-form");
  if(!form)return;
@@ -589,10 +714,7 @@ function wireLogin(){
   if(!email||!password){feedback("Введіть пошту та пароль.","error");return;}
   busy(form,true);
   try{
-   const options=await captchaOptions(form);
-   const {error}=await auth.auth.signInWithPassword({email,password,options});
-   if(error)throw error;
-   await goToMyAccount();
+   await authenticatePassword(email,password,form);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
  });
 }
@@ -769,7 +891,7 @@ function wireRegister(){
     }
    });
    if(error)throw error;
-   if(data?.session){form.reset();await goToMyAccount();return;}
+   if(data?.session){if(data?.user?.email_confirmed_at)rememberAccount(data.user);form.reset();await goToMyAccount();return;}
    for(const selector of ["#password","#password-confirm"]){const field=q(selector);if(field){field.value="";field.dispatchEvent(new Event("input",{bubbles:true}));}}
    markSignupPending(email);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
@@ -967,11 +1089,15 @@ function wireReset(){
   }catch(error){feedback(getMessage(error),"error");}finally{busy(form,false);}
  });
 }
-async function wireAccount(){
+async function wireAccount(cameFromLink=false){
  const title=q("#account-title"),mail=q("#account-email");
  try{
   const {data:{user},error}=await auth.auth.getUser();
-  if(error||!user||!user.email_confirmed_at){window.location.replace(new URL("./",location.href).href);return;}
+  if(error||!user||!user.email_confirmed_at){
+   if(cameFromLink){showAccountConfirmationFailure();return;}
+   window.location.replace(new URL("./",location.href).href);return;
+  }
+  rememberAccount(user);
   const name=String(user.user_metadata?.first_name||"").trim();
   title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
@@ -989,12 +1115,17 @@ async function wireAccount(){
     idBox.hidden=true;
    }
   }
- }catch(_){window.location.replace(new URL("./",location.href).href);return;}
+ }catch(_){
+  if(cameFromLink)showAccountConfirmationFailure();
+  else window.location.replace(new URL("./",location.href).href);
+  return;
+ }
  const logout=q("#logout");
  if(logout)logout.addEventListener("click",async()=>{
   logout.disabled=true;
   const {error}=await auth.auth.signOut({scope:"local"});
   if(error){feedback(getMessage(error),"error");logout.disabled=false;return;}
+  try{sessionStorage.setItem(LOGGED_OUT_KEY,"1");}catch(_){}
   window.location.replace(new URL("./",location.href).href);
  });
 }
