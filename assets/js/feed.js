@@ -269,6 +269,12 @@
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
+   if(location.hash==="#feed-post-text"){
+    requestAnimationFrame(()=>{
+     composer.focus({preventScroll:true});
+     composer.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+    });
+   }
   }catch(_){
    if(!q("#feed-app").hidden){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
