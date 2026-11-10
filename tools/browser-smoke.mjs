@@ -97,6 +97,32 @@ try{
  await quickContext.close();
  console.log("VATRA loading: fast requests, genuine wait, uniform indicator, no static-page splash OK");
 
+ // A static legal page has no auth work; it may display the same loader only
+ // if a real English translation request is still pending after the grace period.
+ const localeBootContext=await browser.newContext({locale:"en-US",serviceWorkers:"block"});
+ await localeBootContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await localeBootContext.route("**/assets/i18n/en.json",async route=>{
+  await new Promise(resolve=>setTimeout(resolve,850));
+  await route.continue();
+ });
+ const localeBoot=await localeBootContext.newPage();
+ await localeBoot.addInitScript(()=>localStorage.setItem("vatra-language","en"));
+ await localeBoot.goto(base+"terms",{waitUntil:"domcontentloaded"});
+ await localeBoot.waitForFunction(()=>document.querySelector("#vatra-auth-loading")&&
+  getComputedStyle(document.querySelector("#vatra-auth-loading")).opacity==="1",null,{timeout:2500});
+ assert.equal(await localeBoot.evaluate(()=>document.documentElement.classList.contains("i18n-pending")),true,
+  "Legal page loader must correspond to a genuinely unfinished language request");
+ await localeBoot.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending"),
+  null,{timeout:7000});
+ assert.equal(await localeBoot.locator("#vatra-auth-loading").count(),0,
+  "The language loader must disappear as soon as translation is ready");
+ assert.equal(await localeBoot.locator("h1").count()>0,true);
+ await localeBootContext.close();
+ console.log("VATRA conditional English locale loading on legal pages: OK");
+
+
  const localeTitles={
   uk:JSON.parse(await readFile("assets/i18n/uk.json","utf8")).__pages,
   en:JSON.parse(await readFile("assets/i18n/en.json","utf8")).__pages
