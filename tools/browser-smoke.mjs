@@ -2282,22 +2282,30 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
-  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),false,
-   "Reference-based desktop layout must not duplicate the left navigation above the feed");
-  assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),true,
-   "VATRA primary navigation belongs in the left sidebar");
-  assert.equal(await feedProbe.locator(".feed-nav-link:visible").count(),3,
-   "Show only the three functional destinations in the sidebar");
+  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),true,
+   "Four primary destinations must be centered in the header");
+  assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),false,
+   "Sidebar navigation must not duplicate the header");
+  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),4,
+   "The header must show Feed, Friends, Messenger and Communities");
+  assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),2,
+   "Friends and Messenger remain visible but disabled until implemented");
+  assert.equal((await feedProbe.locator(".vt-shell-nav-label-feed-001").textContent()).trim(),
+   language==="en"?"Feed":"Стрічка");
+  assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("vatra-symbol.svg"),
+   "The VATRA V symbol, not the full wordmark, belongs at the left edge");
   assert.equal(await feedProbe.locator(".feed-aside").isVisible(),language==="uk",
-   "The contextual right rail should be present only when the desktop has room");
+   "The contextual rail must only occupy a wide desktop");
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
     const rect=selector=>document.querySelector(selector).getBoundingClientRect();
-    return {left:rect(".feed-sidebar").right,feedStart:rect(".feed-main").left,
-     feedEnd:rect(".feed-main").right,rightStart:rect(".feed-aside").left};
+    return {feedEnd:rect(".feed-main").right,rightStart:rect(".feed-aside").left,
+     navCenter:(rect(".social-top-nav").left+rect(".social-top-nav").right)/2,
+     viewportCenter:innerWidth/2};
    });
-   assert.ok(geometry.left<geometry.feedStart&&geometry.feedEnd<geometry.rightStart,
-    "Desktop VATRA must be laid out as left navigation, middle Feed, and right context: "+
+   assert.ok(geometry.feedEnd<geometry.rightStart &&
+    Math.abs(geometry.navCenter-geometry.viewportCenter)<55,
+    "Header nav must be centered with Feed and context rails kept apart: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
@@ -2316,6 +2324,37 @@ try{
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-notifications-button-001").count(),1);
   assert.equal(await feedProbe.locator(".feed-account-toggle").count(),1);
+  assert.equal((await feedProbe.locator("#feed-menu-name").textContent()).trim(),"Тест VATRA",
+   "The logged-in member name must be beside the avatar");
+  const headerOrder=await feedProbe.evaluate(()=>{
+   const controls=document.querySelector(".feed-header-controls");
+   const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")));
+   return direct;
+  });
+  assert.deepEqual(headerOrder,["ui-feed-account-menu-001",
+    "ui-feed-notifications-button-001","ui-feed-music-button-001"],
+   "Avatar and name, notifications, then music should appear in that order");
+  await feedProbe.locator(".feed-account-toggle").click();
+  assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
+   "Avatar must reveal the account menu");
+  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
+  assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
+   "mailto:vatra.support@gmail.com");
+  assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
+  assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),1);
+  await feedProbe.locator(".feed-menu-settings-toggle").click();
+  assert.equal(await feedProbe.locator(".feed-language-trigger").isVisible(),true,
+   "Settings must provide real language controls");
+  const menuRect=await feedProbe.evaluate(()=>{
+   const r=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
+   return {left:r.left,right:r.right,width:innerWidth,top:r.top,bottom:r.bottom,height:innerHeight};
+  });
+  assert.ok(menuRect.left>=0&&menuRect.right<=menuRect.width+1&&
+   menuRect.top>=0&&menuRect.bottom<=menuRect.height+1,
+   "Avatar menu must remain inside the visible viewport: "+JSON.stringify(menuRect));
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),false,
+   "Escape must close the account dropdown");
   assert.equal(await feedProbe.locator("footer").count(),0,
    "Signed-in VATRA Feed must not show a footer");
   assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
@@ -2364,9 +2403,9 @@ try{
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
-  assert.equal(await profilePage.locator(".feed-sidebar").isVisible(),true,
-   "The Profile must preserve the same left navigation as the Feed");
-  assert.equal(await profilePage.locator(".social-top-nav").isVisible(),false);
+  assert.equal(await profilePage.locator(".feed-sidebar").isVisible(),false,
+   "The Profile must not duplicate the header navigation");
+  assert.equal(await profilePage.locator(".social-top-nav").isVisible(),true);
   assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
    "Do not show tabs for features which have no underlying profile data");
   assert.equal(await profilePage.locator(".social-profile-columns .profile-info").isVisible(),false,
@@ -2459,9 +2498,9 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
-  assert.equal(await page.locator(".feed-sidebar").isVisible(),true,
-   "Communities must use the same visible left navigation as the Feed");
-  assert.equal(await page.locator(".social-top-nav").isVisible(),false);
+  assert.equal(await page.locator(".feed-sidebar").isVisible(),false,
+   "Communities must not duplicate the header navigation");
+  assert.equal(await page.locator(".social-top-nav").isVisible(),true);
   assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
   assert.equal(await page.locator("footer").count(),0);
   await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
