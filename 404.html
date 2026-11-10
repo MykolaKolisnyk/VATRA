@@ -12,7 +12,7 @@
       location.replace("/VATRA/verify"+location.search+location.hash);
       return;
     }
-    const legacy=location.pathname.match(/^\/VATRA\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/);
+    const legacy=location.pathname.match(/^\/VATRA\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline)\.html$/);
     if(legacy){
       location.replace("/VATRA/"+legacy[1]+location.search+location.hash);
       return;
