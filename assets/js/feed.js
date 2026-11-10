@@ -31,12 +31,17 @@
  }
  function clearMessage(){status.hidden=true;status.textContent="";status.removeAttribute("data-kind");}
  function showErrorAtGate(text){
-  const label=q(".vatra-auth-loading-caption");
+  const loader=q("#feed-loading");
+  if(!loader)return;
+  loader.dataset.loadingError="true";
+  loader.setAttribute("role","alert");
+  const label=loader.querySelector(".vatra-auth-loading-caption");
   if(label)label.textContent=text;
-  const retry=node("button","feed-gate-retry vt-feed-gate-retry-001",t("Повторити","Retry"));
+  if(loader.querySelector(".vatra-auth-loading-retry"))return;
+  const retry=node("button","vatra-auth-loading-retry vt-feed-gate-retry-001",t("Повторити","Retry"));
   retry.type="button";
   retry.addEventListener("click",()=>location.reload());
-  q("#feed-loading")?.append(retry);
+  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
  }
  function initials(name){
   const words=name.split(/\s+/).filter(Boolean);
