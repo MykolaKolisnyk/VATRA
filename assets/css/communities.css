@@ -1,10 +1,17 @@
 /* VATRA social community starter: Onest, responsive and accessible. */
 .community-create,.ui-community-list-section-001{padding:23px;border:1px solid #e5eaf4;border-radius:16px;background:#fff;box-shadow:0 3px 17px rgba(47,66,115,.04)}
-.vt-community-create-heading-001,.vt-community-list-heading-001{margin:0 0 9px;color:#34425c;font-size:19px;font-weight:760}
-.vt-community-create-subtitle-001{margin:0 0 18px;color:#73809a;font-size:13px;line-height:1.6}
+.vt-community-create-heading-001,.vt-community-list-heading-001{
+ margin:0 0 14px;color:#2C3850;font-size:clamp(21px,2.2vw,25px);
+ font-weight:755;line-height:1.27;letter-spacing:-.035em;text-rendering:optimizeLegibility
+}
+.vt-community-create-subtitle-001{margin:0 0 18px;color:#627187;font-size:14px;line-height:1.65}
 .ui-community-create-form-001{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
-.vt-community-name-label-001,.vt-community-description-label-001{font-size:13px;font-weight:700;color:#455573}
-.ui-community-name-input-001,.ui-community-description-input-001{width:100%;min-height:42px;border:1px solid #dae3f1;background:#fff;border-radius:10px;color:#2e3b53;padding:11px 14px;font:500 14px/1.5 Onest,sans-serif;outline:none}
+.vt-community-name-label-001,.vt-community-description-label-001{font-size:13px;font-weight:710;line-height:1.45;color:#40516d}
+.ui-community-name-input-001,.ui-community-description-input-001{
+ width:100%;min-height:50px;border:1px solid #dae3f1;background:#fff;
+ border-radius:12px;color:#2C3850;padding:12px 15px;
+ font:500 15px/1.5 "Onest",system-ui,sans-serif;outline:none
+}
 .ui-community-description-input-001{min-height:100px;resize:vertical}
 .ui-community-name-input-001:focus,.ui-community-description-input-001:focus{border-color:#7fa4f5;box-shadow:0 0 0 3px #e3edff}
 .vt-community-create-submit-001{margin-top:8px;min-width:150px}
@@ -13,13 +20,15 @@
 .vt-community-create-status-001[data-kind="error"],.vt-community-list-status-001[data-kind="error"],.vt-club-status-001[data-kind="error"]{color:#af3e50}
 .vt-community-create-status-001[hidden],.vt-club-status-001[hidden]{display:none}
 .ui-community-list-001{display:grid;gap:12px;margin-top:17px}
-.ui-community-card-001{display:flex;flex-direction:column;gap:11px;text-decoration:none;padding:17px 19px;border:1px solid #e4ebf5;border-radius:12px;background:#fcfdff;transition:border-color .2s,background .2s}
-.ui-community-card-001:hover{border-color:#bfd0f5;background:#f7faff;text-decoration:none}
+.ui-community-card-001{display:flex;flex-direction:column;gap:12px;text-decoration:none;
+ padding:21px 23px;border:1px solid #e4ebf5;border-radius:15px;
+ background:#fcfdff;transition:border-color .2s,background .2s,transform .2s}
+.ui-community-card-001:hover{border-color:#bfd0f5;background:#f7faff;text-decoration:none;transform:translateY(-2px)}
 .ui-community-card-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:2px}
 .ui-community-card-head-001{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.vt-community-card-name-001{color:#34435e;font-size:15px;overflow-wrap:anywhere}
+.vt-community-card-name-001{color:#2C3850;font-size:16px;font-weight:750;letter-spacing:-.015em;overflow-wrap:anywhere}
 .vt-community-card-id-001{font-size:12px;color:#71839c;white-space:nowrap}
-.vt-community-card-description-001{margin:0;color:#71809a;font-size:13px;overflow-wrap:anywhere;line-height:1.6}
+.vt-community-card-description-001{margin:0;color:#627187;font-size:14px;font-weight:450;overflow-wrap:anywhere;line-height:1.65}
 .ui-club-main-001{min-width:0}
 #club-description{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:520px){.community-create,.ui-community-list-section-001{padding:17px}}

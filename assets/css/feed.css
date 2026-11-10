@@ -56,7 +56,7 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
 .feed-post-date{color:#8d98ab;font-size:12px}
 .feed-post-delete{border:1px solid #e2e8f2;border-radius:999px;padding:7px 12px;background:#fff;color:#66768f;font-size:12px;font-weight:680;transition:background .18s,color .18s}
 .feed-post-delete:hover{background:#fff1f4;color:#aa3f51}
-.feed-post-body{margin:16px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.7;color:#3e4b64}
+.feed-post-body{margin:16px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:15.5px;font-weight:445;line-height:1.68;color:#394864}
 .feed-empty{padding:37px 22px;text-align:center}
 .feed-empty-icon{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 13px;border-radius:20px;background:#f0f1ff;color:#6c61d9;font-size:37px}
 .feed-empty-title{margin:0 0 6px;font-size:18px;font-weight:750;color:#34425c}
@@ -141,11 +141,13 @@ body.feed-page{background:#f4f6fa}
 .profile-summary{display:flex;align-items:flex-end;gap:18px;padding:0 24px 25px;border-bottom:1px solid #e9edf5}
 .profile-avatar{display:grid;place-items:center;width:108px;height:108px;flex:none;margin-top:-47px;border:5px solid #fff;border-radius:50%;background:linear-gradient(140deg,#3b74ef,#8051dd);box-shadow:0 0 0 1px #dce5f4;color:#fff;font-size:42px;font-weight:800}
 .profile-identity{min-width:0;padding-bottom:6px}
-.profile-name{margin:0 0 5px;overflow-wrap:anywhere;color:#293852;font-size:25px;line-height:1.3;font-weight:790}
-.profile-public-id{color:#7b8ba4;font-size:13px}
+.profile-name{margin:0 0 7px;overflow-wrap:anywhere;color:#2C3850;
+ font-size:clamp(29px,2.65vw,36px);line-height:1.18;font-weight:755;
+ letter-spacing:-.037em;text-rendering:optimizeLegibility}
+.profile-public-id{color:#7587a4;font-size:12.5px;font-weight:600;line-height:1.45}
 .profile-info{padding:23px 26px 28px}
-.vt-profile-about-heading-001{margin:0 0 10px;color:#35425b;font-size:16px;font-weight:760}
-.vt-profile-about-text-001{margin:0;color:#71809a;line-height:1.75;font-size:14px}
+.vt-profile-about-heading-001{margin:0 0 12px;color:#2C3850;font-size:19px;font-weight:755;line-height:1.3;letter-spacing:-.025em}
+.vt-profile-about-text-001{margin:0;color:#627187;line-height:1.65;font-size:15px;font-weight:440}
 .profile-back-link{align-self:flex-start;display:inline-flex;align-items:center;padding:10px 16px;border:1px solid #dae4f5;border-radius:999px;background:#fff;color:#386bd0;font-size:13px;font-weight:700;text-decoration:none}
 .profile-back-link:hover{background:#eef4ff;text-decoration:none}
 @media(max-width:520px){.profile-cover{height:145px}.profile-summary{padding:0 16px 20px;gap:10px}.profile-avatar{width:84px;height:84px;margin-top:-35px;font-size:34px}.profile-name{font-size:21px}.profile-info{padding:20px}}
@@ -160,7 +162,7 @@ body.feed-page{background:#f4f6fa}
 .feed-post-profile-link:focus-visible{outline:2px solid #88a9ff;outline-offset:3px;border-radius:3px}
 .profile-posts-section{min-width:0;display:flex;flex-direction:column;gap:13px}
 .profile-posts-section[hidden]{display:none}
-.profile-posts-title{margin:4px 5px 0;color:#34425c;font-size:20px;font-weight:750;letter-spacing:-.025em}
+.profile-posts-title{margin:4px 5px 0;color:#2C3850;font-size:clamp(20px,2.1vw,24px);font-weight:755;line-height:1.3;letter-spacing:-.035em}
 .profile-posts-empty{margin:0;padding:25px;border:1px solid #e1e8f5;border-radius:15px;background:#fff;color:#8190a5;text-align:center;font-size:14px}
 
 
