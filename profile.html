@@ -107,13 +107,14 @@
   <div class="feed-layout ui-feed-layout-001">
    
    <main id="feed-main" class="feed-main ui-profile-main-001 social-profile-main">
+    <span class="vt-profile-title-001 vatra-sr-only" data-i18n="n12">Моя сторінка</span>
     <section class="profile-hero ui-profile-hero-001" aria-labelledby="profile-heading">
      <div class="profile-cover ui-profile-cover-001" aria-hidden="true"><span class="profile-cover-motif ui-profile-cover-motif-001"></span><span class="profile-cover-signature vt-profile-cover-signature-001">VATRA</span></div>
      <div class="profile-summary ui-profile-summary-001">
       <span id="profile-avatar" class="profile-avatar vt-profile-avatar-001" aria-hidden="true">V</span>
-      <div class="profile-identity ui-profile-identity-001"><h1 id="profile-heading" class="profile-name vt-profile-name-001">Моя сторінка</h1><span id="profile-vatra-id" class="profile-public-id vt-profile-public-id-001"></span></div>
+      <div class="profile-identity ui-profile-identity-001"><h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">Моя сторінка</h1><span id="profile-vatra-id" class="profile-public-id vt-profile-public-id-001"></span></div>
       <div class="profile-actions ui-profile-actions-001">
-       <button type="button" id="profile-write-post" class="social-profile-create vt-social-profile-create-001"><svg class="ui-social-profile-create-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="vt-social-profile-create-label-001" data-social-uk="Створити допис" data-social-en="Create post">Створити допис</span></button>
+       <button type="button" id="profile-write-post" class="social-profile-create vt-social-profile-create-001"><svg class="ui-social-profile-create-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-social-shape-008" d="M12 5v14M5 12h14"/></svg><span class="vt-social-profile-create-label-001" data-social-uk="Створити допис" data-social-en="Create post">Створити допис</span></button>
        <button type="button" id="profile-friend-button" class="profile-friend-button vt-profile-friend-button-001" hidden></button>
        <button type="button" id="profile-message-button" class="profile-message-button vt-profile-message-button-001" data-social-uk="Написати" data-social-en="Message" hidden>Написати</button>
       </div>
@@ -133,14 +134,14 @@
       <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false"></div><p id="profile-posts-empty" class="profile-posts-empty vt-profile-posts-empty-001" hidden></p>
      </section>
      <section id="profile-about-card" class="profile-info ui-profile-info-001" data-profile-panel="about" role="tabpanel" aria-labelledby="profile-tab-about" hidden>
-      <h2 id="profile-about-heading" class="vt-profile-about-heading-001" data-social-uk="Про мене" data-social-en="About">Про мене</h2><p id="profile-about-text" class="vt-profile-about-text-001">Інформацію про себе поки не додано.</p>
+      <h2 id="profile-about-heading" class="vt-profile-about-heading-001" data-i18n="n51" data-social-uk="Про мене" data-social-en="About">Про мене</h2><p id="profile-about-text" class="vt-profile-about-text-001" data-i18n="n52">Інформацію про себе поки не додано.</p><a href="feed" class="profile-back-link vt-profile-back-link-001" data-i18n="n53">Повернутися до стрічки</a>
      </section>
      <section id="profile-friends-section" class="profile-content-panel ui-profile-friends-section-001" data-profile-panel="friends" role="tabpanel" aria-labelledby="profile-tab-friends" hidden>
       <h2 class="vt-profile-friends-title-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</h2><div id="profile-friends-list" class="profile-people-list ui-profile-friends-list-001" aria-live="polite"></div><p id="profile-friends-empty" class="vt-profile-friends-empty-001" hidden></p>
      </section>
      <section id="profile-photos-section" class="profile-content-panel ui-profile-photos-section-001" data-profile-panel="photos" role="tabpanel" aria-labelledby="profile-tab-photos" hidden>
       <h2 class="vt-profile-photos-title-001" data-social-uk="Фотографії" data-social-en="Photos">Фотографії</h2>
-      <div class="profile-photos-empty ui-profile-photos-empty-001"><svg class="ui-profile-photos-placeholder-001" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8" cy="9" r="1.5"/><path d="m5 17 5-5 3 3 3-4 3 5"/></svg><p class="vt-profile-photos-empty-text-001" data-social-uk="Фотографій ще немає. Завантаження фото з’явиться пізніше." data-social-en="No photos yet. Photo uploads will be available later.">Фотографій ще немає. Завантаження фото з’явиться пізніше.</p></div>
+      <div class="profile-photos-empty ui-profile-photos-empty-001"><svg class="ui-profile-photos-placeholder-001" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect class="ui-profile-photos-rect-001" x="3" y="4" width="18" height="16" rx="3"/><circle class="ui-profile-photos-circle-001" cx="8" cy="9" r="1.5"/><path class="ui-profile-photos-path-001" d="m5 17 5-5 3 3 3-4 3 5"/></svg><p class="vt-profile-photos-empty-text-001" data-social-uk="Фотографій ще немає. Завантаження фото з’явиться пізніше." data-social-en="No photos yet. Photo uploads will be available later.">Фотографій ще немає. Завантаження фото з’явиться пізніше.</p></div>
      </section>
      <section id="profile-messages-section" class="profile-content-panel ui-profile-messages-section-001" data-profile-panel="messages" role="tabpanel" aria-labelledby="profile-tab-messages" hidden>
       <h2 class="vt-profile-messages-title-001" data-social-uk="Повідомлення" data-social-en="Messages">Повідомлення</h2><div id="profile-inbox-list" class="profile-people-list ui-profile-inbox-list-001" aria-live="polite"></div><p id="profile-inbox-empty" class="vt-profile-inbox-empty-001" hidden></p>
