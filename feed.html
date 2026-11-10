@@ -43,6 +43,17 @@
      <input id="feed-search-input" class="feed-search-input ui-feed-search-input-001" type="search" name="q" maxlength="120" autocomplete="off" placeholder="Пошук у стрічці" data-i18n="n43">
      <button id="feed-search-submit" class="feed-search-submit vt-feed-search-submit-001" type="submit" data-i18n="n44">Знайти</button>
     </form>
+    <nav class="social-top-nav ui-social-top-nav-001" aria-label="Основні розділи VATRA">
+     <a href="feed" class="social-top-link ui-social-top-home-001 social-top-active" aria-current="page" aria-label="Стрічка" title="Стрічка">
+      <svg class="ui-social-top-icon-home-001" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3.5 11 8.5-7 8.5 7V20H3.5z"/><path d="M9 20v-6h6v6"/></svg><span class="vt-social-top-home-001" data-social-uk="Головна" data-social-en="Home">Головна</span>
+     </a>
+     <a href="communities" class="social-top-link ui-social-top-communities-001" aria-label="Спільноти" title="Спільноти">
+      <svg class="ui-social-top-icon-communities-001" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="9" r="2.8"/><circle cx="16.8" cy="10" r="2.4"/><path d="M2.6 19c0-3 2.1-4.8 5.4-4.8s5.4 1.8 5.4 4.8M14.4 15.3c3.7-.7 7 1.2 7 4"/></svg><span class="vt-social-top-communities-001" data-social-uk="Спільноти" data-social-en="Communities">Спільноти</span>
+     </a>
+     <a href="profile" class="social-top-link ui-social-top-profile-001" aria-label="Моя сторінка" title="Моя сторінка">
+      <svg class="ui-social-top-icon-profile-001" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="7.5" r="3.6"/><path d="M4.5 20c.3-4.4 2.8-6.4 7.5-6.4s7.2 2 7.5 6.4"/></svg><span class="vt-social-top-profile-001" data-social-uk="Моя сторінка" data-social-en="My page">Моя сторінка</span>
+     </a>
+    </nav>
     <div class="feed-header-controls ui-feed-header-controls-001">
      <button class="feed-header-icon-button ui-feed-music-button-001" type="button" disabled aria-label="Музика — незабаром" title="Музика — незабаром" data-i18n="n45">
       <svg class="ui-feed-music-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-music-path-001" d="M9 18V5l11-2v13M9 8l11-2"/><ellipse class="ui-feed-music-oval-001" cx="6" cy="18" rx="3" ry="2"/><ellipse class="ui-feed-music-oval-002" cx="17" cy="16" rx="3" ry="2"/></svg>
@@ -68,6 +79,14 @@
   </header>
   <div class="feed-layout ui-feed-layout-001">
    <aside class="feed-sidebar ui-feed-sidebar-001">
+    <a href="profile" id="feed-sidebar-person-link" class="social-sidebar-person ui-social-sidebar-person-001">
+     <span id="feed-sidebar-person-avatar" class="social-sidebar-person-avatar vt-social-sidebar-person-avatar-001" aria-hidden="true">V</span>
+     <span class="social-sidebar-person-meta ui-social-sidebar-person-meta-001">
+      <strong id="feed-sidebar-person-name" class="vt-social-sidebar-person-name-001" data-social-uk="Моя сторінка" data-social-en="My page">Моя сторінка</strong>
+      <small class="vt-social-sidebar-person-label-001" data-social-uk="Мій простір у VATRA" data-social-en="My space in VATRA">Мій простір у VATRA</small>
+     </span>
+    </a>
+    <p class="social-sidebar-section-title vt-social-sidebar-section-title-001" data-social-uk="НАВІГАЦІЯ" data-social-en="NAVIGATION">НАВІГАЦІЯ</p>
     <nav class="feed-navigation ui-feed-navigation-001" aria-label="Навігація VATRA" data-i18n="n32">
      <a href="feed" class="feed-nav-link ui-feed-nav-link-1 feed-nav-active" aria-current="page"><svg class="ui-feed-nav-icon-1" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-svg-part-001" x="4" y="4" width="16" height="16" rx="4"/><path class="ui-feed-svg-part-002" d="M8 9h8M8 13h8M8 17h5"/></svg><span class="vt-feed-nav-label-1" data-i18n="n2">Стрічка</span></a>
 <a href="profile" class="feed-nav-link ui-feed-nav-link-2" ><svg class="ui-feed-nav-icon-2" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-svg-part-003" cx="12" cy="8" r="3.4"/><path class="ui-feed-svg-part-004" d="M5.5 20c.5-4.2 3-6 6.5-6s6 1.8 6.5 6"/></svg><span class="vt-feed-nav-label-2" data-i18n="n3">Моя сторінка</span></a>
@@ -87,7 +106,7 @@
    </aside>
    <main id="feed-main" class="feed-main ui-feed-main-001">
     <div class="feed-title-row ui-feed-title-row-001">
-     <div class="feed-title-block ui-feed-title-block-001"><h1 class="feed-title vt-feed-title-001" data-i18n="n12">Стрічка</h1><p class="feed-subtitle vt-feed-subtitle-001" data-i18n="n13">Ваші історії починаються тут.</p></div>
+     <div class="feed-title-block ui-feed-title-block-001"><p class="social-feed-eyebrow vt-social-feed-eyebrow-001" data-social-uk="ВАША VATRA" data-social-en="YOUR VATRA">ВАША VATRA</p><h1 class="feed-title vt-feed-title-001" data-i18n="n12">Стрічка</h1><p class="feed-subtitle vt-feed-subtitle-001" data-i18n="n13">Ваші історії починаються тут.</p></div>
      <span class="feed-title-decoration vt-feed-decoration-001" aria-hidden="true">✦</span>
     </div>
     <section class="feed-composer ui-feed-composer-001" aria-label="Нова публікація" data-i18n="n34">
@@ -95,7 +114,10 @@
      <form id="feed-post-form" class="feed-post-form ui-feed-post-form-001">
       <label class="feed-compose-label vt-feed-compose-label-001" for="feed-post-text" data-i18n="n35">Нова публікація</label>
       <textarea id="feed-post-text" class="feed-post-text ui-feed-post-text-001" name="post" rows="4" minlength="1" maxlength="2000" placeholder="Поділіться думками з VATRA…" data-i18n="n14" required></textarea>
-      <div class="feed-compose-footer ui-feed-compose-footer-001"><span id="feed-post-counter" class="feed-counter vt-feed-counter-001" aria-live="polite">0 / 2000</span><button id="feed-submit" class="feed-submit vt-feed-submit-001" type="submit" data-i18n="n15">Опублікувати</button></div>
+      <div class="social-composer-bottom ui-social-composer-bottom-001">
+       <div class="social-composer-mode ui-social-composer-mode-001"><svg class="ui-social-composer-mode-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M5 5h14M5 10h14M5 15h10M5 20h7"/></svg><span class="vt-social-composer-mode-label-001" data-social-uk="Текстовий допис" data-social-en="Text post">Текстовий допис</span></div>
+       <div class="feed-compose-footer ui-feed-compose-footer-001"><span id="feed-post-counter" class="feed-counter vt-feed-counter-001" aria-live="polite">0 / 2000</span><button id="feed-submit" class="feed-submit vt-feed-submit-001" type="submit" data-i18n="n15">Опублікувати</button></div>
+      </div>
      </form>
     </section>
     <p id="feed-status" class="feed-status vt-feed-status-001" role="status" aria-live="polite" hidden></p>
@@ -106,9 +128,16 @@
      <button id="feed-more" type="button" class="feed-more vt-feed-more-001" data-i18n="n20" hidden>Показати ще</button>
     </section>
    </main>
-   <aside class="feed-aside ui-feed-aside-001">
-    <section class="feed-info-card ui-feed-info-card-001"><div class="feed-info-mark vt-feed-info-mark-001" aria-hidden="true">V</div><h2 class="feed-info-title vt-feed-info-title-001" data-i18n="n21">Ваш простір</h2><p class="feed-info-text vt-feed-info-text-001" data-i18n="n22">Зустрічайте нові історії та залишайтеся поруч зі своїми людьми.</p></section>
-    <section class="feed-next-card ui-feed-next-card-001"><h2 class="feed-next-title vt-feed-next-title-001" data-i18n="n23">Далі у VATRA</h2><p class="feed-next-text vt-feed-next-text-001" data-i18n="n24">Друзі, спільноти, кліпи та відео — у наступних оновленнях.</p></section>
+   <aside class="feed-aside ui-feed-aside-001" aria-label="Додаткові розділи">
+    <section class="social-right-panel ui-social-right-communities-001" aria-labelledby="social-right-communities-title">
+     <div class="social-right-panel-header ui-social-right-panel-header-001"><h2 id="social-right-communities-title" class="vt-social-right-communities-title-001" data-social-uk="Спільноти" data-social-en="Communities">Спільноти</h2><span class="social-right-spark vt-social-right-spark-001" aria-hidden="true">✦</span></div>
+     <p class="vt-social-right-description-001" data-social-uk="Знайдіть людей зі спільними інтересами й створіть власний простір." data-social-en="Find people with shared interests and build your own space.">Знайдіть людей зі спільними інтересами й створіть власний простір.</p>
+     <a href="communities" class="social-right-action vt-social-right-action-001"><svg class="ui-social-right-action-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg><span class="vt-social-right-action-label-001" data-social-uk="Перейти до спільнот" data-social-en="Explore communities">Перейти до спільнот</span></a>
+    </section>
+    <section class="social-right-panel ui-social-right-about-001" aria-labelledby="social-right-about-title">
+     <h2 id="social-right-about-title" class="vt-social-right-about-title-001" data-social-uk="Ваш простір" data-social-en="Your space">Ваш простір</h2>
+     <p class="vt-social-right-about-description-001" data-social-uk="Люди, історії та спільноти. Тут починається ваша VATRA." data-social-en="People, stories and communities. Your VATRA starts here.">Люди, історії та спільноти. Тут починається ваша VATRA.</p>
+    </section>
    </aside>
   </div>
   <dialog id="feed-delete-dialog" class="feed-delete-dialog ui-feed-delete-dialog-001" aria-labelledby="feed-delete-title" aria-describedby="feed-delete-description">
