@@ -2277,6 +2277,11 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
+  assert.equal(await feedProbe.locator(".social-top-nav").count(),1,
+   "Desktop Feed should have a compact top navigation separate from the 10 sidebar sections");
+  assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
+  assert.equal((await feedProbe.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA");
+  assert.equal(await feedProbe.locator(".social-right-panel").count(),2);
   assert.ok((await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
@@ -2330,6 +2335,11 @@ try{
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
+  assert.equal(await profilePage.locator(".social-profile-tabs").count(),1);
+  assert.equal(await profilePage.locator(".social-profile-columns .profile-info").count(),1);
+  assert.equal(await profilePage.locator(".social-profile-columns #profile-posts-section").count(),1);
+  assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
+   "The link to create a post should be available on the signed-in member's own page");
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 654321");
   assert.equal(await profilePage.locator("footer").count(),0,
    "The personal profile must not show guest legal footer");
@@ -2348,6 +2358,10 @@ try{
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 789012");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
    language==="en"?"VATRA member":"Учасник VATRA");
+  assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
+   "The personal post action must not appear on other members' profiles");
+  assert.equal((await profilePage.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA",
+   "The sidebar must keep the signed-in member's identity when visiting another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест VATRA",
    "Own identity in avatar menu must not be replaced by the visited member's identity");
   await profilePage.goto(base+"id999999",{waitUntil:"domcontentloaded"});
