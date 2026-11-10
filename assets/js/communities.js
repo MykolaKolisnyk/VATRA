@@ -96,7 +96,7 @@ async function start(){
     .map(x=>x.trim()).join(" ")||String(meta.full_name||"").trim()||
     t("Учасник VATRA","VATRA member");
   const cleanName=Array.from(ownName).slice(0,100).join("");
-  $("#feed-menu-name").textContent=cleanName;
+  $("#feed-menu-name").textContent=Array.from((typeof meta.first_name==="string"&&meta.first_name.trim()?meta.first_name.trim():cleanName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   const nameParts=cleanName.split(/\s+/).filter(Boolean);
   const first=(Array.from(nameParts[0]||"V")[0]||"V");
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
