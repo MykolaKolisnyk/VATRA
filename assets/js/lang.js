@@ -221,6 +221,44 @@
       document.addEventListener("DOMContentLoaded",resolve,{once:true});
     else resolve();
   });
+  // Static legal/error pages need no auth splash. Only an actual, still-pending
+  // English dictionary request may create the SAME loader after DOM is ready.
+  // Fast translations never get an artificial loading screen.
+  let staticLocaleLoader=null;
+  if(current==="en")domReady.then(()=>{
+    if(!document.documentElement.classList.contains("i18n-pending"))return;
+    const body=document.body;
+    if(!body?.matches(".policy-page,.error-page")||
+      body.querySelector(".vatra-auth-loading"))return;
+    const overlay=document.createElement("div");
+    overlay.id="vatra-auth-loading";
+    overlay.className="vatra-auth-loading ui-static-locale-loading-001";
+    overlay.setAttribute("role","status");
+    overlay.setAttribute("aria-live","polite");
+    const content=document.createElement("div");
+    content.className="vatra-auth-loading-content ui-static-locale-content-001";
+    const symbol=document.createElement("img");
+    symbol.className="vatra-auth-loading-symbol ui-static-locale-symbol-001";
+    symbol.src=ROOT+"assets/logo/vatra-symbol.svg";
+    symbol.alt="";
+    symbol.width=68;symbol.height=68;
+    const title=document.createElement("span");
+    title.className="vatra-auth-loading-title vt-static-locale-title-001";
+    title.textContent="VATRA";
+    const caption=document.createElement("p");
+    caption.className="vatra-auth-loading-caption vt-static-locale-caption-001";
+    caption.textContent="Loading VATRA";
+    const track=document.createElement("div");
+    track.className="vatra-auth-loading-track ui-static-locale-track-001";
+    track.setAttribute("aria-hidden","true");
+    const bar=document.createElement("span");
+    bar.className="vatra-auth-loading-indicator ui-static-locale-indicator-001";
+    track.append(bar);
+    content.append(symbol,title,caption,track);
+    overlay.append(content);
+    body.prepend(overlay);
+    staticLocaleLoader=overlay;
+  });
   const timeout = new AbortController();
   const stop = setTimeout(() => timeout.abort(),7000);
   const translations = localFile ? Promise.resolve({}) : fetch(ROOT + "assets/i18n/" + current + ".json",{signal:timeout.signal,cache:"no-cache"})
@@ -259,7 +297,13 @@
   const ready=Promise.all([domReady,translations]).then(([,json])=>{
     errors=json&&typeof json==="object"?json:{};
     applyTranslation(errors);
-  }).finally(()=>document.documentElement.classList.remove("i18n-pending"));
+  }).finally(()=>{
+    document.documentElement.classList.remove("i18n-pending");
+    if(staticLocaleLoader){
+      document.body.dataset.authReady="true";
+      staticLocaleLoader.remove();
+    }
+  });
   window.VATRA_LANGUAGE = {
     locale: current,
     ready,
