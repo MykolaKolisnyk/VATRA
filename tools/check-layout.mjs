@@ -873,6 +873,36 @@ for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js"
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
+// All authenticated social pages use exactly the same header shell. Only the
+// active route may differ; this guards against CSS/HTML drift between pages.
+const sharedShellPages=["feed","profile","communities","club"];
+const normalizedSocialHeader=html=>{
+ const header=html.match(/<header class="feed-header[\\s\\S]*?<\\/header>/)?.[0];
+ assert.ok(header,"Signed-in VATRA page must have the shared header");
+ return header.replace(/ social-top-active/g,"").replace(/ aria-current="page"/g,"");
+};
+const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
+for(const page of sharedShellPages){
+ const html=await read(page+".html");
+ assert.equal(normalizedSocialHeader(html),canonicalSocialHeader,
+  page+": social header markup differs from canonical Feed header");
+ const header=html.match(/<header class="feed-header[\\s\\S]*?<\\/header>/)[0];
+ for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
+  "ui-social-top-communities-001","ui-social-top-clips-001",
+  "ui-social-top-marketplace-001","ui-shell-header-messenger-001",
+  "ui-feed-notifications-button-001","ui-shell-header-friends-001",
+  "ui-feed-music-button-001","ui-feed-account-menu-001"]){
+  assert.ok(header.includes(cls),page+": shared header missing "+cls);
+ }
+ assert.equal((header.match(/id="feed-search-form"/g)||[]).length,1,
+  page+": VATRA search must be in the top header exactly once");
+}
+const storyPreviewMarkup=await read("feed.html");
+assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"')&&
+ storyPreviewMarkup.includes('class="feed-story-create ui-feed-story-create-001"')&&
+ storyPreviewMarkup.includes('aria-disabled="true"')&&
+ storyPreviewMarkup.includes('class="feed-story-placeholder ui-feed-story-preview-003"'),
+ "Feed Stories preview must be visible yet clearly nonfunctional");
 // The new Feed must be the authenticated home, not a duplicate account page.
 const feedMarkup=await read("feed.html");
 const feedScript=await read("assets/js/feed.js");
