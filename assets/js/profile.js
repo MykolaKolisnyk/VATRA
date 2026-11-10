@@ -222,9 +222,6 @@ async function start(){
   const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
   q("#feed-header-avatar").textContent=ownAvatar;
   q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
-  const sideName=q("#feed-sidebar-person-name"),sideAvatar=q("#feed-sidebar-person-avatar");
-  if(sideName)sideName.textContent=cleanOwnName;
-  if(sideAvatar)sideAvatar.textContent=ownAvatar;
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   setMenuLink(ownId);
   const form=q("#feed-search-form");
@@ -261,13 +258,6 @@ async function start(){
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
   if(isMine)bindPostComposer(client,user,ownId);
-  if(!isMine){
-   const ownPage=q(".ui-feed-nav-link-2"),profileTop=q(".ui-social-top-profile-001");
-   for(const link of [ownPage,profileTop]){
-    link?.classList.remove("feed-nav-active","social-top-active");
-    link?.removeAttribute("aria-current");
-   }
-  }
   const name=isMine?cleanOwnName:t("Учасник VATRA","VATRA member");
   q("#profile-heading").textContent=name;
   q("#profile-avatar").textContent=isMine?ownAvatar:"V";

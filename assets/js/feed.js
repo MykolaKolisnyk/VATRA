@@ -193,9 +193,6 @@
 
    q("#feed-header-avatar").textContent=initials(displayName);
    q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
-   const sideName=q("#feed-sidebar-person-name"),sideAvatar=q("#feed-sidebar-person-avatar");
-   if(sideName)sideName.textContent=displayName;
-   if(sideAvatar)sideAvatar.textContent=initials(displayName);
    const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
 
    q("#feed-header-id").textContent=displayedId;

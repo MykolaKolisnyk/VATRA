@@ -2281,11 +2281,11 @@ try{
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
-  assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
+  assert.equal(await feedProbe.locator(".feed-nav-link").count(),0);
   assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),true,
    "Four primary destinations must be centered in the header");
-  assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),false,
-   "Sidebar navigation must not duplicate the header");
+  assert.equal(await feedProbe.locator(".feed-sidebar").count(),0,
+   "The old sidebar must be removed, not hidden");
   assert.equal(await feedProbe.locator(".social-top-link:visible").count(),5,
    "The centered navigation must show five icon destinations");
   assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
@@ -2321,15 +2321,13 @@ try{
     "VATRA header symmetry and Feed posts aligned with Stories: "+
     JSON.stringify(geometry));
   }
-  assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
-   "Incomplete destinations must not be offered as dead menu controls");
-  assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
-  assert.equal((await feedProbe.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA");
+  assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0,
+   "Obsolete sidebar controls must not remain in the DOM");
   assert.equal(await feedProbe.locator(".social-right-panel").count(),0);
   assert.equal(await feedProbe.locator("#feed-community-list").count(),0);
   assert.equal(await feedProbe.locator(".feed-composer").count(),0,
    "The Feed must have no publishing form; posts are created on one's own profile");
-  assert.ok((await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href")).endsWith("/VATRA/communities"));
+  assert.ok((await feedProbe.locator(".ui-social-top-communities-001").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-notifications-button-001").count(),1);
@@ -2406,10 +2404,8 @@ try{
    "Signed-in VATRA Feed must not show a footer");
   assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
    "Feed must use an extensionless public URL");
-  assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),7);
+  assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0);
   assert.equal(await feedProbe.locator("#feed-my-id").count(),0);
-  assert.ok((await feedProbe.locator(".ui-feed-nav-link-2").getAttribute("href")).endsWith("/VATRA/id654321"),
-   "My Page navigation must target the signed-in member's numeric ID");
   assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
@@ -2453,8 +2449,8 @@ try{
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
-  assert.equal(await profilePage.locator(".feed-sidebar").isVisible(),false,
-   "The Profile must not duplicate the header navigation");
+  assert.equal(await profilePage.locator(".feed-sidebar").count(),0,
+   "Profile has only the actual header navigation");
   assert.equal(await profilePage.locator(".social-top-nav").isVisible(),true);
   assert.equal(await profilePage.locator(".feed-header .feed-search-form").isVisible(),true,
    "Profiles must use the same header search as the Feed");
@@ -2559,12 +2555,12 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
-  assert.equal(await page.locator(".feed-sidebar").isVisible(),false,
-   "Communities must not duplicate the header navigation");
+  assert.equal(await page.locator(".feed-sidebar").count(),0,
+   "Communities has only the actual header navigation");
   assert.equal(await page.locator(".social-top-nav").isVisible(),true);
   assert.equal(await page.locator(".feed-header .feed-search-form").isVisible(),true,
    "Communities must share the same header search");
-  assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
+  assert.equal(await page.locator(".feed-nav-pending").count(),0);
   assert.equal(await page.locator("footer").count(),0);
   await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
   assert.equal(await page.locator("#community-create-panel").isVisible(),false,

@@ -100,9 +100,6 @@ async function start(){
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
   const avatar=(first+last).toLocaleUpperCase(english?"en-US":"uk-UA");
   $("#feed-header-avatar").textContent=avatar;
-  const sidebarName=$("#feed-sidebar-person-name"),sidebarAvatar=$("#feed-sidebar-person-avatar");
-  if(sidebarName)sidebarName.textContent=cleanName;
-  if(sidebarAvatar)sidebarAvatar.textContent=avatar;
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
   $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
