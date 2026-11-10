@@ -882,6 +882,20 @@ const normalizedSocialHeader=html=>{
  return header.replace(/ social-top-active/g,"").replace(/ aria-current="page"/g,"");
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
+const profileMarkup=await read("profile.html");
+assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
+ (profileMarkup.match(/data-profile-panel="/g)||[]).length===5&&
+ profileMarkup.includes('id="profile-friend-button"')&&
+ profileMarkup.includes('id="profile-message-button"')&&
+ profileMarkup.includes('id="profile-message-dialog"')&&
+ profileMarkup.includes('id="profile-inbox-list"')&&
+ profileMarkup.includes('class="profile-cover ui-profile-cover-001"'),
+ "Member profile requires a real cover, tabs, friendship and private message UI");
+const profileBehavior=await read("assets/js/profile.js");
+assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
+ profileBehavior.includes('client.from("vatra_direct_messages")')&&
+ profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
+ "Profile friendship and messaging must use persisted, RLS-secured data");
 const sharedCss=await read("assets/css/feed.css");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
@@ -890,7 +904,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
  sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
- sharedCss.includes("max-width:208px;height:36px")&&
+ sharedCss.includes("max-width:292px;height:36px")&&
  sharedCss.includes("flex:0 0 168px")&&
  sharedCss.includes("margin:0 auto!important;gap:21px")&&
  sharedCss.includes(".vatra-search-history{")&&
