@@ -2291,8 +2291,10 @@ try{
   assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
    language==="en"?["Feed","Friends","Communities","Clips","Marketplace"]:
    ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс"]);
-  assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),3,
-   "Friends, Clips and Marketplace remain disabled until implemented");
+  assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),0,
+   "All VATRA header icons must be interactive, including coming-soon previews");
+  assert.equal(await feedProbe.locator(".feed-header-icon-button:disabled").count(),0,
+   "Right header controls must not be inert");
   assert.equal((await feedProbe.locator(".vt-shell-nav-label-feed-001").textContent()).trim(),
    language==="en"?"Feed":"Стрічка");
   assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("vatra-symbol.svg"),
@@ -2301,23 +2303,22 @@ try{
    "The Feed must not contain the New Communities rail");
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
-    const rect=selector=>document.querySelector(selector).getBoundingClientRect();
-    const nav=rect(".social-top-nav"),feed=rect(".feed-main");
-    const logo=rect(".ui-feed-logo-001");
-    const firstName=rect("#feed-menu-name");
-    const search=rect(".feed-header .feed-search-form");
-    const brand=rect(".feed-header-brand");
-    return {feedCenter:(feed.left+feed.right)/2,
+    const r=selector=>document.querySelector(selector).getBoundingClientRect();
+    const story=r(".feed-stories"),posts=r(".feed-posts-section"),
+     nav=r(".social-top-nav"),logo=r(".ui-feed-logo-001"),
+     account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
+     brand=r(".feed-header-brand");
+    return {storyLeft:story.left,postLeft:posts.left,
      navCenter:(nav.left+nav.right)/2,viewportCenter:innerWidth/2,
-     logoMargin:logo.left,rightMargin:innerWidth-firstName.right,
+     logoMargin:logo.left,rightMargin:innerWidth-account.right,
      logoToSearch:search.left-brand.right,
-     headerHeight:rect(".feed-header").height};
+     headerHeight:r(".feed-header").height};
    });
-   assert.ok(Math.abs(geometry.feedCenter-geometry.viewportCenter)<5&&
+   assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<9&&
-    geometry.logoToSearch<=9&&geometry.headerHeight<=66,
-    "Feed centered, equal header outer margins, compact search/header: "+
+    geometry.logoToSearch<=9&&geometry.headerHeight<=65,
+    "VATRA header symmetry and Feed posts aligned with Stories: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
@@ -2335,8 +2336,9 @@ try{
   assert.equal(await feedProbe.locator(".feed-account-toggle").count(),1);
   assert.equal((await feedProbe.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Only the member's given name appears immediately after the avatar");
-  assert.equal(await feedProbe.locator(".feed-account-dropdown #feed-menu-name").count(),0,
-   "Avatar dropdown contains only the four requested account actions");
+  assert.equal(await feedProbe.locator(".feed-account-toggle #feed-menu-name").count(),1,
+   "The account name must be inside the rounded avatar pill");
+  assert.equal(await feedProbe.locator(".feed-account-dropdown #feed-menu-name").count(),0);
   const headerOrder=await feedProbe.evaluate(()=>{
    const controls=document.querySelector(".feed-header-controls");
    const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")||c.startsWith("vt-")));
@@ -2344,21 +2346,41 @@ try{
   });
   assert.deepEqual(headerOrder,["ui-shell-header-messenger-001",
     "ui-feed-notifications-button-001","ui-feed-music-button-001",
-    "ui-feed-account-menu-001","vt-feed-account-name-001"],
-   "Right controls must be Messenger, notifications, music, avatar and first name");
+    "ui-feed-account-menu-001"],
+   "Right controls must be Messenger, notifications, music and the avatar-name pill");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
-  assert.equal(await feedProbe.locator(".feed-story-placeholder").count(),3,
-   "Stories previews are placeholders, not fake users");
-  assert.equal(await feedProbe.locator(".feed-story-create:disabled").count(),1,
-   "The Stories mock cannot pretend to publish real stories");
+  assert.equal(await feedProbe.locator(".feed-story-preview").count(),4,
+   "Four distinct illustrated Stories must be visible");
+  assert.equal(await feedProbe.locator(".feed-story-create:disabled").count(),0,
+   "Create Story should explain its status when clicked, not be a dead control");
+  assert.equal(await feedProbe.locator(".vt-feed-stories-tag").count(),0,
+   "Never label the Stories interface as a mock");
+  await feedProbe.locator(".feed-story-preview").first().click();
+  assert.equal(await feedProbe.locator(".vatra-story-dialog").evaluate(el=>el.open),true);
+  await feedProbe.locator(".vatra-story-close").click();
+  assert.equal(await feedProbe.locator(".vatra-story-dialog").evaluate(el=>el.open),false);
   const storiesBeforePosts=await feedProbe.evaluate(()=>{
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
    return stories.top<posts.top&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
   });
   assert.ok(storiesBeforePosts,"Stories must be the first visible Feed block under the header");
+  await feedProbe.locator(".ui-social-top-friends-001").hover();
+  assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"true",
+   "Each header icon needs a VATRA tooltip on hover");
+  const tip=await feedProbe.evaluate(()=>{
+   const r=document.querySelector(".vatra-shell-tooltip").getBoundingClientRect();
+   return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,w:innerWidth,h:innerHeight};
+  });
+  assert.ok(tip.left>=0&&tip.right<=tip.w+1&&tip.top>=0&&tip.bottom<=tip.h+1,
+   "Header tooltip must be kept inside viewport: "+JSON.stringify(tip));
+  await feedProbe.locator(".ui-social-top-friends-001").click();
+  assert.equal(await feedProbe.locator(".vatra-shell-dialog").evaluate(el=>el.open),true,
+   "The Friends icon must offer a real interactive status instead of being disabled");
+  await feedProbe.locator(".vatra-shell-dialog-close").click();
+  assert.equal(await feedProbe.locator(".vatra-shell-dialog").evaluate(el=>el.open),false);
   await feedProbe.locator(".feed-account-toggle").click();
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
    "Avatar must reveal the account menu");
