@@ -53,7 +53,7 @@ async function start(){
    for(const control of document.querySelectorAll("[data-shell-aria-uk]")){
     const title=english?control.dataset.shellAriaEn:control.dataset.shellAriaUk;
     control.setAttribute("aria-label",title);
-    control.title=title;
+    control.removeAttribute("title");
    }
    for(const pair of [
     [".ui-shell-header-notifications-001","Сповіщення — незабаром","Notifications — coming soon"],
@@ -62,16 +62,14 @@ async function start(){
     if(control){
      const title=english?pair[2]:pair[1];
      control.setAttribute("aria-label",title);
-     control.title=title;
+     control.removeAttribute("title");
     }
    }
    for(const link of document.querySelectorAll(".social-top-link")){
   const label=link.querySelector("[data-social-uk]");
   if(label){
-   const pending=link.matches("button:disabled");
-   const detail=pending?(english?" — coming soon":" — у розробці"):"";
-   link.setAttribute("aria-label",label.textContent+detail);
-   link.title=pending?(english?"Coming soon":"У розробці"):label.textContent;
+   link.setAttribute("aria-label",label.textContent);
+   link.removeAttribute("title");
   }
  }
  if(english){
