@@ -2303,7 +2303,6 @@ try{
   const page=await clubContext.newPage();
   await page.addInitScript(lang=>{
    localStorage.setItem("vatra-language",lang);
-   localStorage.removeItem("vatra-test-clubs");
   },language);
   const pageErrors=[];
   page.on("pageerror",err=>pageErrors.push(err.message));
@@ -2313,6 +2312,7 @@ try{
    language==="en"?"Communities":"Спільноти");
   assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
   assert.equal(await page.locator("footer").count(),0);
+  await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
   await page.locator("#community-create-submit").click();
