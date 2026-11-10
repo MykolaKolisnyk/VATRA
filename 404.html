@@ -15,6 +15,11 @@
       location.replace("/VATRA/profile.html?vatra_id="+memberPath[1]);
       return;
     }
+    const clubPath=location.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
+    if(clubPath){
+      location.replace("/VATRA/club.html?club_id="+clubPath[1]);
+      return;
+    }
     const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
     if(oldAccount){
       location.replace("/VATRA/verify"+location.search+location.hash);
