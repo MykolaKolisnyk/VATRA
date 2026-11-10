@@ -2208,6 +2208,8 @@ try{
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
   assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
+  assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/id654321"),
+   "Feed author avatars must link to numeric member profile URLs");
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),injectionText,
    "Feed must render user posts as text, not HTML");
   assert.equal(await feedProbe.locator(".feed-post-body img").count(),0);
