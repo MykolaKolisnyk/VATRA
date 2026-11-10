@@ -15,6 +15,14 @@ const t=(uk,en)=>{
 const home=new URL("../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
 const memberUrl=id=>home+"id"+id;
+const localizeSocial=()=>{
+ for(const element of document.querySelectorAll("[data-social-uk]"))
+  element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
+ for(const link of document.querySelectorAll(".social-top-link")){
+  const label=link.querySelector("[data-social-uk]");
+  if(label){link.setAttribute("aria-label",label.textContent);link.title=label.textContent;}
+ }
+};
 const node=(tag,cls,value)=>{
  const element=document.createElement(tag);
  if(cls)element.className=cls;
@@ -62,6 +70,8 @@ function missingProfile(){
   "Такого VATRA ID немає. Перевірте адресу профілю.",
   "This VATRA ID does not exist. Check the profile address.");
  q("#profile-posts-section").hidden=true;
+ const createLink=q("#profile-write-post");
+ if(createLink)createLink.hidden=true;
  document.title=t("Профіль не знайдено · VATRA","Profile not found · VATRA");
  finish();
 }
@@ -100,6 +110,7 @@ async function loadPosts(client,targetId){
 }
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
+ localizeSocial();
  if(!window.supabase?.createClient){
   gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
  }
@@ -121,6 +132,9 @@ async function start(){
   const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
   q("#feed-header-avatar").textContent=ownAvatar;
   q("#feed-menu-name").textContent=cleanOwnName;
+  const sideName=q("#feed-sidebar-person-name"),sideAvatar=q("#feed-sidebar-person-avatar");
+  if(sideName)sideName.textContent=cleanOwnName;
+  if(sideAvatar)sideAvatar.textContent=ownAvatar;
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   setMenuLink(ownId);
   const form=q("#feed-search-form");
@@ -154,6 +168,15 @@ async function start(){
   if(directoryError)throw directoryError;
   if(!member){missingProfile();return;}
   const isMine=targetId===ownId;
+  const createLink=q("#profile-write-post");
+  if(createLink)createLink.hidden=!isMine;
+  if(!isMine){
+   const ownPage=q(".ui-feed-nav-link-2"),profileTop=q(".ui-social-top-profile-001");
+   for(const link of [ownPage,profileTop]){
+    link?.classList.remove("feed-nav-active","social-top-active");
+    link?.removeAttribute("aria-current");
+   }
+  }
   const name=isMine?cleanOwnName:t("Учасник VATRA","VATRA member");
   q("#profile-heading").textContent=name;
   q("#profile-avatar").textContent=isMine?ownAvatar:"V";
