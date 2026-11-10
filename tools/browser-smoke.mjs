@@ -2262,6 +2262,80 @@ try{
  await feedContext.close();
  console.log("VATRA Feed and Profile: UK/EN publishing, secured profile and mobile layout: OK");
 
+ // Communities use a separate immutable sequence and canonical /clubN URLs.
+ // Mock Supabase only: never create real communities during CI.
+ const clubContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await clubContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await clubContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:`
+  window.supabase={createClient:()=>({
+   auth:{
+    getUser:async()=>({data:{user:{id:"club-mock-user",
+     email_confirmed_at:"2026-11-09T00:00:00Z",
+     user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
+    signOut:async()=>({error:null})
+   },
+   from:table=>table==="accounts"?
+    {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
+    {
+     select:()=>({
+      eq:(_field,id)=>({maybeSingle:async()=>({
+       data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,
+       error:null
+      })}),
+      order(){return this;},
+      limit:async()=>({data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]"),error:null})
+     }),
+     insert:data=>({select:()=>({single:async()=>{
+      const all=JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]");
+      const club={club_id:all.length+1,...data,created_at:new Date().toISOString()};
+      all.push(club);localStorage.setItem("vatra-test-clubs",JSON.stringify(all));
+      return {data:{club_id:club.club_id},error:null};
+     }})})
+    }
+  })};
+  `
+ }));
+ for(const language of ["uk","en"]){
+  await clubContext.addCookies([{name:"vatra-language",value:language,url:base}]);
+  const page=await clubContext.newPage();
+  await page.addInitScript(lang=>{
+   localStorage.setItem("vatra-language",lang);
+   localStorage.removeItem("vatra-test-clubs");
+  },language);
+  const pageErrors=[];
+  page.on("pageerror",err=>pageErrors.push(err.message));
+  await page.goto(base+"communities",{waitUntil:"domcontentloaded"});
+  await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
+   language==="en"?"Communities":"Спільноти");
+  assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
+  assert.equal(await page.locator("footer").count(),0);
+  await page.locator("#community-name").fill("Спільнота тесту");
+  await page.locator("#community-description").fill("Опис перевірки");
+  await page.locator("#community-create-submit").click();
+  await page.waitForURL("**/club1",{timeout:16000});
+  await page.locator("#club-heading").waitFor({state:"visible",timeout:16000});
+  assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
+  assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
+  assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
+  await page.goto(base+"club999",{waitUntil:"domcontentloaded"});
+  await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  assert.equal((await page.locator("#club-heading").textContent()).trim(),
+   language==="en"?"Community not found":"Спільноту не знайдено");
+  await page.goto(base+"communities",{waitUntil:"domcontentloaded"});
+  await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.locator(".ui-community-card-001").count(),1);
+  assert.ok((await page.locator(".ui-community-card-001").getAttribute("href")).endsWith("/VATRA/club1"));
+  assert.deepEqual(pageErrors,[],"Community JavaScript errors: "+language);
+  await page.close();
+ }
+ await clubContext.close();
+ console.log("VATRA Communities: UK/EN creation, immutable URLs and missing clubs: OK");
+
+
  // A cross-device confirmation must not depend on the PKCE state of the
  // browser where registration started. It also must not leak the token in URL.
  const phoneContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block",
