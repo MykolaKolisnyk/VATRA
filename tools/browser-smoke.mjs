@@ -2188,7 +2188,7 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
-  assert.equal(await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href"),"communities");
+  assert.ok((await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-notifications-button-001").count(),1);
