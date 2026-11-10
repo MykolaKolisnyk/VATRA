@@ -888,14 +888,27 @@ for(const page of sharedShellPages){
   page+": social header markup differs from canonical Feed header");
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)[0];
  for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
-  "ui-social-top-communities-001","ui-social-top-clips-001",
-  "ui-social-top-marketplace-001","ui-shell-header-messenger-001",
-  "ui-feed-notifications-button-001","ui-shell-header-friends-001",
+  "ui-social-top-friends-001","ui-social-top-communities-001",
+  "ui-social-top-clips-001","ui-social-top-marketplace-001",
+  "ui-shell-header-messenger-001","ui-feed-notifications-button-001",
   "ui-feed-music-button-001","ui-feed-account-menu-001"]){
   assert.ok(header.includes(cls),page+": shared header missing "+cls);
  }
  assert.equal((header.match(/id="feed-search-form"/g)||[]).length,1,
   page+": VATRA search must be in the top header exactly once");
+ const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
+ const controls=header.match(/<div class="feed-header-controls[\s\S]*?<\/header>/)?.[0]||"";
+ assert.ok(nav.indexOf("ui-social-top-feed-001")<nav.indexOf("ui-social-top-friends-001")&&
+  nav.indexOf("ui-social-top-friends-001")<nav.indexOf("ui-social-top-communities-001")&&
+  nav.indexOf("ui-social-top-communities-001")<nav.indexOf("ui-social-top-clips-001")&&
+  nav.indexOf("ui-social-top-clips-001")<nav.indexOf("ui-social-top-marketplace-001"),
+  page+": five icon destinations must be in the agreed order");
+ assert.ok(!controls.includes("ui-shell-header-friends-001")&&
+  controls.indexOf("ui-shell-header-messenger-001")<controls.indexOf("ui-feed-notifications-button-001")&&
+  controls.indexOf("ui-feed-notifications-button-001")<controls.indexOf("ui-feed-music-button-001")&&
+  controls.indexOf("ui-feed-music-button-001")<controls.indexOf("ui-feed-account-menu-001")&&
+  controls.indexOf("ui-feed-account-menu-001")<controls.indexOf('id="feed-menu-name"'),
+  page+": right controls must end with Avatar and first name");
 }
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"')&&
@@ -905,21 +918,29 @@ assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"'
  "Feed Stories preview must be visible yet clearly nonfunctional");
 // The new Feed must be the authenticated home, not a duplicate account page.
 const feedMarkup=await read("feed.html");
+const profileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
+const profileScript=await read("assets/js/profile.js");
 const feedStyle=await read("assets/css/feed.css");
 assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.includes('data-i18n="n12">Стрічка</h1>')&&
  !feedMarkup.includes("Стрічка новин")&&
- feedMarkup.includes('id="feed-post-form"')&&
+ !feedMarkup.includes('id="feed-post-form"')&&
+ !feedMarkup.includes('id="feed-community-list"')&&
+ !feedMarkup.includes('class="feed-aside ui-feed-aside-001"')&&
  feedMarkup.includes('id="feed-posts"')&&
  feedMarkup.includes('id="feed-delete-dialog"')&&
- feedStyle.includes(".feed-layout{display:grid;")&&
- feedStyle.includes("@media(max-width:840px)")&&
- feedScript.includes('client.from("feed_posts").insert({')&&
+ feedMarkup.indexOf('class="feed-stories ui-feed-stories-001"')<
+ feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
+ profileMarkup.includes('id="profile-compose-dialog"')&&
+ profileMarkup.includes('id="profile-compose-form"')&&
+ profileScript.includes('client.from("feed_posts").insert({')&&
+ !feedScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
  !feedScript.includes("innerHTML")&&
+ feedStyle.includes('grid-template-columns:none!important')&&
  auth.includes('window.location.replace(url("feed"))'),
- "VATRA Feed must have a safe responsive text-composer, UK title and verified-home navigation");
+ "VATRA Feed must display Stories before centered read-only posts; own Profile must retain real posting");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const errorPage=await read("404.html");
