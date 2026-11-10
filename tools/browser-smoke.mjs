@@ -2277,8 +2277,10 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
-  assert.equal(await feedProbe.locator(".social-top-nav").count(),1,
-   "Desktop Feed should have a compact top navigation separate from the 10 sidebar sections");
+  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),false,
+   "Navigation must not be duplicated above the sidebar");
+  assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
+   "Incomplete destinations must not be offered as dead menu controls");
   assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
   assert.equal((await feedProbe.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA");
   assert.equal(await feedProbe.locator(".social-right-panel").count(),1,
@@ -2336,8 +2338,10 @@ try{
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
-  assert.equal(await profilePage.locator(".social-profile-tabs").count(),1);
-  assert.equal(await profilePage.locator(".social-profile-columns .profile-info").count(),1);
+  assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
+   "Do not show tabs for features which have no underlying profile data");
+  assert.equal(await profilePage.locator(".social-profile-columns .profile-info").isVisible(),false,
+   "Do not imply that an editable bio exists without persisted profile data");
   assert.equal(await profilePage.locator(".social-profile-columns #profile-posts-section").count(),1);
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "The link to create a post should be available on the signed-in member's own page");
@@ -2429,6 +2433,11 @@ try{
   assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
   assert.equal(await page.locator("footer").count(),0);
   await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
+  assert.equal(await page.locator("#community-create-panel").isVisible(),false,
+   "Community creation must be collapsed until explicitly requested");
+  await page.locator("#community-create-toggle").click();
+  assert.equal(await page.locator("#community-create-toggle").getAttribute("aria-expanded"),"true");
+  assert.equal(await page.locator("#community-create-panel").isVisible(),true);
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
   const clubNavigations=[];
