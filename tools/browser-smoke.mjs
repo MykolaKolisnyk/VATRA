@@ -2531,11 +2531,21 @@ try{
   assert.equal(await profilePage.locator(".social-top-nav").isVisible(),true);
   assert.equal(await profilePage.locator(".feed-header .feed-search-form").isVisible(),true,
    "Profiles must use the same header search as the Feed");
-  assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
-   "Do not show tabs for features which have no underlying profile data");
-  assert.equal(await profilePage.locator(".social-profile-columns .profile-info").isVisible(),false,
-   "Do not imply that an editable bio exists without persisted profile data");
-  assert.equal(await profilePage.locator(".social-profile-columns #profile-posts-section").count(),1);
+  assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),true,
+   "Profile must have a visible navigation bar beneath the cover");
+  assert.equal(await profilePage.locator("[data-profile-tab]").count(),5,
+   "Profile must have Posts, About, Friends, Photos and Messages tabs");
+  assert.equal(await profilePage.locator("#profile-tab-messages").isVisible(),true,
+   "Only the owner can see the private Messages tab");
+  assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-about-card").isVisible(),false);
+  await profilePage.locator("#profile-tab-photos").click();
+  assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
+   "Photo tab must be functional without showing fictional photos");
+  await profilePage.locator("#profile-tab-about").click();
+  assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
+   "About tab must reveal the account information section");
+  await profilePage.locator("#profile-tab-posts").click();
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
   await profilePage.locator("#profile-write-post").click();
@@ -2567,6 +2577,17 @@ try{
    language==="en"?"VATRA member":"Учасник VATRA");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
+  assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),true,
+   "Other member profile must offer Add Friend");
+  assert.equal(await profilePage.locator("#profile-message-button").isVisible(),true,
+   "Other member profile must offer private Message");
+  assert.equal(await profilePage.locator("#profile-tab-messages").isVisible(),false,
+   "A visitor must not access a different member's inbox");
+  await profilePage.locator("#profile-message-button").click();
+  assert.equal(await profilePage.locator("#profile-message-dialog").evaluate(el=>el.open),true,
+   "Message button must open the private conversation dialog");
+  await profilePage.locator("#profile-message-close").click();
+  assert.equal(await profilePage.locator("#profile-message-dialog").evaluate(el=>el.open),false);
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
