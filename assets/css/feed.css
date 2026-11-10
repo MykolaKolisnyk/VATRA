@@ -219,3 +219,12 @@ body.feed-page{background:#f4f6fa}
 .profile-back-link{align-self:flex-start;display:inline-flex;align-items:center;padding:10px 16px;border:1px solid #dae4f5;border-radius:999px;background:#fff;color:#386bd0;font-size:13px;font-weight:700;text-decoration:none}
 .profile-back-link:hover{background:#eef4ff;text-decoration:none}
 @media(max-width:520px){.profile-cover{height:145px}.profile-summary{padding:0 16px 20px;gap:10px}.profile-avatar{width:84px;height:84px;margin-top:-35px;font-size:34px}.profile-name{font-size:21px}.profile-info{padding:20px}}
+
+
+/* Permanent /id<number> member profiles and linked Feed authors. */
+.feed-post-profile-link{text-decoration:none;color:inherit}
+.feed-post-profile-link:hover{text-decoration:underline;color:#235cc3}
+.feed-post-profile-link:focus-visible{outline:2px solid #88a9ff;outline-offset:3px;border-radius:3px}
+.profile-posts-section{min-width:0;display:flex;flex-direction:column;gap:13px}
+.profile-posts-title{margin:4px 5px 0;color:#34425c;font-size:20px;font-weight:750;letter-spacing:-.025em}
+.profile-posts-empty{margin:0;padding:25px;border:1px solid #e1e8f5;border-radius:15px;background:#fff;color:#8190a5;text-align:center;font-size:14px}
