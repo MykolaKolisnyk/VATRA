@@ -2580,13 +2580,16 @@ try{
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
      select:()=>({
+      term:"",
       eq:(_field,id)=>({maybeSingle:async()=>{
        await new Promise(resolve=>setTimeout(resolve,270));
        return {data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,error:null};
       }}),
+      ilike(_field,pattern){this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
       order(){return this;},
-      limit:async()=>{await new Promise(resolve=>setTimeout(resolve,270));return {
-       data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]"),error:null
+      limit:async function(){await new Promise(resolve=>setTimeout(resolve,270));return {
+       data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
+        .filter(club=>!this.term||club.name.toLocaleLowerCase().includes(this.term)),error:null
       };}
      }),
      insert:data=>({select:()=>({single:async()=>{
@@ -2648,6 +2651,15 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-001").getAttribute("href")).endsWith("/VATRA/club1"));
+  await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
+  await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.locator(".ui-community-card-001").count(),1,
+   "Searching VATRA communities must filter the directory by name");
+  assert.equal(await page.locator("#feed-search-input").inputValue(),"Спільнота");
+  await page.goto(base+"communities?q="+encodeURIComponent("Неіснуючий"),{waitUntil:"domcontentloaded"});
+  await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.locator(".ui-community-card-001").count(),0,
+   "Unknown search term must not show unrelated communities");
   assert.deepEqual(pageErrors,[],"Community JavaScript errors: "+language);
   await page.close();
  }
