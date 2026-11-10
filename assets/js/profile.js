@@ -162,8 +162,9 @@ async function start(){
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
    history.replaceState(history.state,"",canonical);
   }
+  // Keep the real member loading state until the first posts request completes.
+  await loadPosts(client,targetId);
   finish();
-  void loadPosts(client,targetId);
  }catch(_){
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
    "Could not load this profile. Please refresh."));
