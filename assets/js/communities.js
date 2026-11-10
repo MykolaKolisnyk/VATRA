@@ -177,11 +177,7 @@ async function openDirectory(client){
  if(search&&term)search.value=term;
  try{
   let request=client.from("communities").select("club_id,name,description,created_at");
-  if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\ const list=$("#community-list");
- try{
-  const {data,error}=await client.from("communities")
-   .select("club_id,name,description,created_at")
-   .order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);")+"%");
+  if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
   const {data,error}=await request.order("created_at",{ascending:false})
    .order("club_id",{ascending:false}).limit(100);
   if(error)throw error;
