@@ -235,7 +235,7 @@ body.feed-page{background:#f4f6fa}
 
 
 /* VATRA social pages, desktop redesign (November 2026).
-   Adapt the useful Facebook information architecture, not its visual branding.
+   VATRA has its own information architecture and visual identity.
    Scoped to Feed and member profiles: community, auth and legal pages stay intact. */
 body.feed-page:not(.community-page){--social-ink:#29374e;--social-soft:#75839c;--social-line:#e6eaf3;--social-blue:#386ce4;background:#f4f6fa;color:var(--social-ink)}
 .feed-page:not(.community-page) .feed-header{position:sticky;top:0;z-index:55;border-bottom:1px solid #e4e9f1;background:rgba(255,255,255,.98);box-shadow:0 2px 15px rgba(35,50,90,.035);backdrop-filter:blur(16px)}
@@ -816,157 +816,6 @@ body.community-page .ui-club-hero-001{overflow:visible}
  body.feed-page .feed-account-dropdown,body.feed-page .feed-post-card{animation:none!important}
 }
 
-/* VATRA 2026: compact identical header, centered icon navigation, first name outside avatar.
-   The same CSS applies to Feed, Profile, Communities and /clubN. */
-body.feed-page .feed-header{
- position:sticky;top:0;z-index:90;min-height:0;
- background:rgba(255,255,255,.97);border-bottom:1px solid #e7ecf4;
- box-shadow:0 2px 13px rgba(32,54,101,.03);backdrop-filter:blur(14px)
-}
-body.feed-page:not(.community-page) .feed-header-inner,
-body.feed-page.community-page .feed-header-inner{
- display:grid;grid-template-columns:minmax(285px,1fr) auto minmax(255px,1fr);
- grid-template-rows:62px;align-items:center;gap:0 12px;
- width:calc(100% - 40px);max-width:none;min-height:62px;
- margin:0 auto;padding:0
-}
-body.feed-page .feed-brand-search{
- display:flex;grid-column:1;grid-row:1;align-items:center;justify-self:start;
- gap:6px;min-width:0;width:min(100%,355px);max-width:355px
-}
-body.feed-page:not(.community-page) .feed-header-brand,
-body.feed-page.community-page .feed-header-brand{
- display:grid;place-items:center;grid-column:auto;grid-row:auto;
- flex:none;width:45px;height:45px;margin:0;border-radius:50%;
- transition:background .18s,transform .18s
-}
-body.feed-page .feed-header-brand .ui-feed-logo-001{display:block;width:43px;height:43px;object-fit:contain}
-body.feed-page .feed-header-brand:hover{background:#f2f5fd;transform:translateY(-1px)}
-body.feed-page .feed-header .feed-search-form{
- display:flex!important;align-items:center;flex:1;gap:9px;
- width:100%;min-width:0;max-width:300px;height:40px;
- margin:0;padding:0 12px;border:1px solid #edf0f5;
- border-radius:99px;background:#f0f2f6;box-shadow:none;
- transition:background .2s,border-color .2s,box-shadow .2s
-}
-body.feed-page .feed-header .feed-search-form:focus-within{
- background:#fff;border-color:#a3bdf2;box-shadow:0 0 0 3px rgba(54,105,221,.075)
-}
-body.feed-page .feed-header .ui-feed-search-icon-001{width:19px;height:19px;flex:none;color:#8291a8}
-body.feed-page .feed-header .feed-search-input{
- display:block;width:100%;min-width:0;flex:1;height:36px;
- border:0;background:transparent;box-shadow:none;outline:0;
- color:#34435d;font:520 13px/1.35 "Onest",system-ui,sans-serif
-}
-body.feed-page .feed-header .feed-search-input::placeholder{color:#8491a7;opacity:1}
-body.feed-page .feed-header .feed-search-submit{display:none!important}
-body.feed-page .social-top-nav{
- display:flex!important;grid-column:2;grid-row:1;align-self:stretch;
- justify-self:center;align-items:stretch;justify-content:center;
- gap:8px;min-width:0;width:auto;padding:5px 0
-}
-body.feed-page .social-top-link{
- position:relative;display:flex;align-items:center;justify-content:center;
- flex:none;min-width:59px!important;width:64px;min-height:50px;
- padding:7px 10px!important;margin:0;border:0;border-radius:10px;
- background:transparent;color:#79879d;
- text-decoration:none;box-shadow:none;
- transition:background .19s,color .19s,transform .19s
-}
-body.feed-page .ui-social-top-marketplace-001{min-width:59px!important}
-body.feed-page .social-top-link svg{
- display:block;flex:none;width:26px;height:26px;stroke-width:1.85;
- transition:transform .19s,color .19s
-}
-body.feed-page .social-top-link span{
- position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;
- margin:-1px!important;padding:0!important;overflow:hidden!important;
- white-space:nowrap!important;clip:rect(0,0,0,0)!important;
- clip-path:inset(50%)!important;border:0!important
-}
-body.feed-page .social-top-link:not(:disabled):hover{
- background:#f2f5fb;color:#3069da;transform:translateY(-1px)
-}
-body.feed-page .social-top-link:not(:disabled):hover svg{transform:translateY(-1px)}
-body.feed-page .social-top-link.social-top-active{
- background:transparent!important;border:0;color:#326ce5;box-shadow:none;font-weight:780
-}
-body.feed-page .social-top-link.social-top-active::after{
- content:"";position:absolute;left:12px;right:12px;bottom:-5px;height:3px;
- border-radius:3px 3px 0 0;background:#3974ed
-}
-body.feed-page .social-top-pending:disabled{color:#a0abbd;opacity:1;cursor:not-allowed}
-body.feed-page .social-top-link:focus-visible{outline:3px solid #a6bff5;outline-offset:2px}
-body.feed-page .feed-header-controls{
- display:flex;grid-column:3;grid-row:1;align-items:center;justify-content:flex-end;
- gap:7px;width:auto;min-width:0;max-width:none;justify-self:end
-}
-body.feed-page .feed-header-icon-button,
-body.feed-page .feed-header-icon-button:disabled{
- display:grid!important;place-items:center;flex:none;
- width:38px;height:38px;padding:6px;margin:0;
- border:1px solid #e8edf5;border-radius:50%;
- background:#f2f4f8;color:#8291a9;
- opacity:.79;cursor:not-allowed
-}
-body.feed-page .feed-header-icon-button svg{width:22px;height:22px;stroke-width:1.85}
-body.feed-page .feed-account-menu{position:relative;z-index:1;flex:none;min-width:0}
-body.feed-page .feed-account-toggle{
- display:grid;place-items:center;gap:0;flex:none;width:42px;height:42px;
- min-width:42px;min-height:42px;padding:2px;
- border:1px solid #dfe8f8;border-radius:50%;background:#fff;
- transition:background .2s,border-color .2s,box-shadow .2s
-}
-body.feed-page .feed-header-avatar{
- display:grid;place-items:center;flex:none;width:36px;height:36px;
- border-radius:50%;font:760 12px/1 "Onest",sans-serif
-}
-body.feed-page .feed-header-controls > .feed-account-name{
- display:block;flex:none;max-width:115px;margin:0;
- color:#34415a;font:730 13px/1.3 "Onest",sans-serif;
- letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
- text-align:left
-}
-body.feed-page .feed-account-dropdown{
- position:absolute;top:calc(100% + 10px);right:0;left:auto;
- display:flex;flex-direction:column;gap:3px;
- width:min(286px,calc(100vw - 24px));max-height:calc(100dvh - 90px);
- overflow-y:auto;padding:9px;border:1px solid #e1e8f1;
- border-radius:15px;background:#fff;box-shadow:0 19px 47px rgba(32,53,94,.16);
- animation:vatra-menu-in .17s ease-out both
-}
-body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:none!important}
-body.feed-page .feed-header .feed-sidebar{display:none!important}
-body.feed-page .feed-sidebar{display:none!important}
-/* Feed starts with Stories directly under the shared header; no publishing form or side rail. */
-body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
- display:block!important;width:min(calc(100% - 30px),770px)!important;
- max-width:770px!important;min-width:0;margin:13px auto 70px!important;
- grid-template-columns:none!important
-}
-body.feed-page:not(.community-page):not(.profile-page) .feed-main{
- width:100%;max-width:100%;min-width:0;gap:16px
-}
-body.feed-page:not(.community-page):not(.profile-page) .feed-aside,
-body.feed-page:not(.community-page):not(.profile-page) .feed-composer{display:none!important}
-body.feed-page .ui-feed-main-001 > .vt-feed-title-001{
- position:absolute!important;width:1px!important;height:1px!important;
- margin:-1px!important;padding:0!important;border:0!important;
- overflow:hidden!important;clip-path:inset(50%)!important;
- white-space:nowrap!important
-}
-body.feed-page .feed-stories{margin:0 0 7px;gap:12px;animation:vatra-card-in .24s ease-out both}
-body.feed-page .feed-stories-heading{padding:0 2px}
-body.feed-page .vt-feed-stories-heading{
- font:740 16px/1.3 "Onest",sans-serif;letter-spacing:-.02em;color:#34425c
-}
-body.feed-page .feed-stories-track{gap:12px;padding:1px 1px 8px}
-body.feed-page .feed-story-create,body.feed-page .feed-story-placeholder{
- width:138px;height:180px;border-radius:15px;scroll-snap-align:start
-}
-body.feed-page .vt-feed-stories-tag{font-size:11px;color:#97a2b6}
-body.feed-page .feed-posts-section{margin-top:1px}
-body.feed-page .feed-posts-heading{margin-bottom:11px}
 /* Post creation is available from the member's own profile in a real modal. */
 body.profile-page .profile-compose-dialog{
  width:min(520px,calc(100vw - 30px));max-width:520px;
@@ -1011,80 +860,8 @@ body.profile-page .vt-profile-compose-submit-001{
 body.profile-page .vt-profile-compose-submit-001:disabled{opacity:.5;cursor:not-allowed}
 body.profile-page .vt-profile-compose-cancel-001:focus-visible,
 body.profile-page .vt-profile-compose-submit-001:focus-visible{outline:3px solid #a8c3f8;outline-offset:2px}
-@media(max-width:1140px){
- body.feed-page:not(.community-page) .feed-header-inner,
- body.feed-page.community-page .feed-header-inner{
-  grid-template-columns:minmax(210px,1fr) auto minmax(200px,1fr);
-  width:calc(100% - 28px);gap:0 6px
- }
- body.feed-page .feed-brand-search{gap:5px;max-width:300px}
- body.feed-page .feed-header .feed-search-form{max-width:245px}
- body.feed-page .social-top-nav{gap:2px}
- body.feed-page .social-top-link{min-width:46px!important;width:55px;padding:7px!important}
- body.feed-page .feed-header-controls{gap:4px}
- body.feed-page .feed-header-icon-button,body.feed-page .feed-header-icon-button:disabled{width:35px;height:35px}
- body.feed-page .feed-header-controls > .feed-account-name{max-width:85px}
-}
-@media(max-width:940px){
- body.feed-page:not(.community-page) .feed-header-inner,
- body.feed-page.community-page .feed-header-inner{
-  grid-template-columns:minmax(0,1fr) auto;grid-template-rows:54px 50px;
-  min-height:0;gap:0 10px;width:calc(100% - 22px);padding-bottom:0
- }
- body.feed-page .feed-brand-search{grid-column:1;grid-row:1;justify-self:start;max-width:340px}
- body.feed-page .feed-header-controls{grid-column:2;grid-row:1}
- body.feed-page .social-top-nav{
-  grid-column:1/-1;grid-row:2;width:100%;min-height:48px;
-  align-items:stretch;justify-content:center;gap:8px;padding:0
- }
- body.feed-page .social-top-link{width:63px;min-height:45px}
- body.feed-page .social-top-link.social-top-active::after{bottom:0;height:2px}
- body.feed-page .feed-stories{margin-top:0}
-}
-@media(max-width:610px){
- body.feed-page:not(.community-page) .feed-header-inner,
- body.feed-page.community-page .feed-header-inner{width:calc(100% - 16px);gap:0 4px;grid-template-rows:50px 48px}
- body.feed-page:not(.community-page) .feed-header-brand,
-body.feed-page.community-page .feed-header-brand{width:38px;height:40px}
- body.feed-page .feed-header-brand .ui-feed-logo-001{width:37px;height:37px}
- body.feed-page .feed-brand-search{width:100%;gap:3px;min-width:0}
- body.feed-page .feed-header .feed-search-form{height:36px;max-width:190px;padding:0 8px;gap:6px}
- body.feed-page .feed-header .feed-search-input{height:34px;font-size:11.5px}
- body.feed-page .feed-header .ui-feed-search-icon-001{width:16px;height:16px}
- body.feed-page .feed-header-controls{gap:2px}
- body.feed-page .feed-header-icon-button,body.feed-page .feed-header-icon-button:disabled{width:30px;height:30px;padding:4px}
- body.feed-page .feed-header-icon-button svg{width:17px;height:17px}
- body.feed-page .feed-account-toggle{width:34px;height:34px;min-width:34px;min-height:34px;padding:2px}
- body.feed-page .feed-header-avatar{width:28px;height:28px;font-size:10px}
- body.feed-page .feed-header-controls > .feed-account-name{display:none!important}
- body.feed-page .social-top-nav{gap:0;min-height:47px}
- body.feed-page .social-top-link{flex:1;width:auto;min-width:0!important;padding:5px 2px!important}
- body.feed-page .social-top-link svg{width:23px;height:23px}
- body.feed-page .social-top-link.social-top-active::after{left:22%;right:22%;bottom:0}
- body.feed-page .feed-account-dropdown{
-  position:fixed;top:51px;right:8px;left:auto;
-  width:min(286px,calc(100vw - 16px));max-height:calc(100dvh - 65px)
- }
- body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
-  width:calc(100% - 16px)!important;margin:12px auto 40px!important
- }
- body.feed-page .feed-stories-track{gap:9px}
- body.feed-page .feed-story-create,body.feed-page .feed-story-placeholder{width:119px;height:160px}
- body.profile-page .profile-compose-dialog{padding:17px}
- body.profile-page .ui-profile-compose-actions{flex-wrap:wrap}
-}
-@media(max-width:380px){
- body.feed-page .feed-header .feed-search-form{max-width:105px}
- body.feed-page .feed-header-icon-button,body.feed-page .feed-header-icon-button:disabled{width:28px;height:28px}
- body.feed-page .social-top-link svg{width:21px;height:21px}
-}
-@media(prefers-reduced-motion:reduce){
- body.feed-page .feed-header-brand,body.feed-page .social-top-link,body.feed-page .social-top-link svg,
- body.profile-page .ui-profile-compose-text-001{transition:none!important;transform:none!important}
-}
-
 /* VATRA shared social shell • Onest, calm white surfaces, indigo / violet accents.
-   Loaded AFTER feed.css and communities.css on every authenticated social page. */
+   Canonical shared VATRA social styles, maintained here in feed.css. */
 body.feed-page .feed-header{
  position:sticky;top:0;z-index:90;min-height:0;background:rgba(255,255,255,.985);
  border-bottom:1px solid #e9edf7;
@@ -1130,18 +907,18 @@ body.feed-page .feed-header .feed-search-submit{display:none!important}
 body.feed-page .social-top-nav{
  display:flex!important;grid-column:2;grid-row:1;align-self:stretch;
  align-items:center;justify-self:center;justify-content:center;
- gap:9px;width:auto;min-width:0;padding:2px 0
+ gap:12px;width:auto;min-width:0;padding:2px 0
 }
 body.feed-page .social-top-link,
 body.feed-page .social-top-pending{
  position:relative;display:grid;place-items:center;flex:none;
- width:60px;min-width:60px!important;min-height:48px;margin:0;
+ width:62px;min-width:62px!important;min-height:48px;margin:0;
  padding:8px!important;border:0;border-radius:12px;background:transparent;
  color:#7183a2;opacity:1;box-shadow:none;cursor:pointer;
  transition:background .19s,color .19s,transform .19s
 }
 body.feed-page .social-top-link svg{
- display:block;width:27px;height:27px;stroke-width:1.95;
+ display:block;width:26px;height:26px;stroke-width:1.8;shape-rendering:geometricPrecision;
  transition:transform .19s ease,stroke .19s
 }
 body.feed-page .social-top-link span{
@@ -1151,11 +928,11 @@ body.feed-page .social-top-link span{
 }
 body.feed-page .social-top-link:hover,
 body.feed-page .social-top-link:focus-visible{
- color:#3769d9;background:#f0f4fe;transform:translateY(-1px)
+ color:#3769d9;background:#f5f7fc;transform:translateY(-1px)
 }
 body.feed-page .social-top-link:hover svg{transform:scale(1.055)}
 body.feed-page .social-top-link.social-top-active{
- background:#ecf2ff!important;color:#3166de!important
+ background:transparent!important;color:#7183a2!important
 }
 body.feed-page .social-top-link.social-top-active::after{
  content:"";position:absolute;bottom:-5px;left:13px;right:13px;
@@ -1177,11 +954,11 @@ body.feed-page .feed-header-icon-button:hover,
 body.feed-page .feed-header-icon-button:focus-visible{
  color:#356ae0;background:#edf3ff;border-color:#d7e4ff;transform:translateY(-1px)
 }
-body.feed-page .feed-header-icon-button svg{width:21px;height:21px;stroke-width:1.95}
+body.feed-page .feed-header-icon-button svg{width:22px;height:22px;stroke-width:1.8;shape-rendering:geometricPrecision}
 body.feed-page .feed-account-menu{position:relative;z-index:2;flex:none}
 body.feed-page .feed-account-toggle{
  display:flex;align-items:center;gap:9px;min-width:0;
- width:auto;height:43px;min-height:43px;padding:4px 11px 4px 4px;
+ width:auto;height:46px;min-height:46px;padding:4px 12px 4px 4px;
  border:1px solid #e2e9f8;border-radius:999px;background:#f4f6fc;
  cursor:pointer;list-style:none;
  transition:background .18s,border-color .18s,box-shadow .18s
@@ -1193,16 +970,16 @@ body.feed-page .feed-account-menu[open] .feed-account-toggle{
 }
 body.feed-page .feed-account-toggle:focus-visible{outline:3px solid #a8c0f3;outline-offset:2px}
 body.feed-page .feed-header-avatar{
- display:grid;place-items:center;flex:none;width:34px;height:34px;
+ display:grid;place-items:center;flex:none;width:38px;height:38px;
  border-radius:50%;background:linear-gradient(135deg,#3978e8,#7453dd);
- color:white;font:750 12px/1 "Onest",system-ui,sans-serif
+ color:white;font:770 13px/1 "Onest",system-ui,sans-serif
 }
 body.feed-page .feed-account-toggle .feed-account-name{
  display:block;min-width:0;max-width:128px;overflow:hidden;
  white-space:nowrap;text-overflow:ellipsis;color:#303e5a;
- font:700 12.5px/1.3 "Onest",system-ui,sans-serif
+ font:720 14px/1.3 "Onest",system-ui,sans-serif
 }
-body.feed-page .ui-vatra-nav-down-001{flex:none;width:15px;height:15px;color:#7b8ba8;transition:transform .2s}
+body.feed-page .ui-vatra-nav-down-001{flex:none;width:16px;height:16px;color:#6c82aa;transition:transform .2s}
 body.feed-page .feed-account-menu[open] .ui-vatra-nav-down-001{transform:rotate(180deg)}
 body.feed-page .feed-header-controls > .feed-account-name{display:none!important}
 body.feed-page .feed-account-dropdown{
@@ -1217,14 +994,16 @@ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:non
 /* The portal is fixed to the visual viewport, never clipped by a sticky header.
    A single portal replaces native browser title tooltips, with proper keyboard support. */
 .vatra-shell-tooltip{
- position:fixed;z-index:2147483000;top:0;left:0;max-width:min(270px,calc(100vw - 16px));
- padding:9px 13px;border:1px solid rgba(211,221,244,.92);border-radius:11px;
- color:#eaf0ff;background:#233453;box-shadow:0 10px 28px rgba(25,39,72,.23);
- font:650 12px/1.4 "Onest",system-ui,sans-serif;
- text-align:center;pointer-events:none;white-space:normal;
- opacity:0;visibility:hidden;transition:opacity .14s ease
+ position:fixed;z-index:13000;top:0;left:0;display:block;width:max-content;
+ max-width:min(248px,calc(100vw - 24px));padding:10px 13px;
+ border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766;
+ box-shadow:0 12px 30px rgba(26,44,92,.14);
+ font-family:"Onest",Inter,system-ui,sans-serif;font-size:12px;font-weight:650;
+ line-height:1.45;letter-spacing:0;text-align:left;white-space:normal;
+ overflow-wrap:anywhere;pointer-events:none;opacity:0;visibility:hidden;
+ transform:translateY(-4px);transition:opacity .16s ease,transform .16s ease
 }
-.vatra-shell-tooltip[data-open="true"]{opacity:1;visibility:visible}
+.vatra-shell-tooltip[data-open="true"]{opacity:1;visibility:visible;transform:translateY(0)}
 .vatra-shell-dialog,
 .vatra-story-dialog{
  position:fixed;inset:0;width:min(430px,calc(100vw - 28px));height:max-content;
@@ -1247,25 +1026,46 @@ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:non
 }
 /* Left-offset reading lane: Stories and Feed posts are aligned to the SAME grid column. */
 body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
- display:block!important;width:min(calc(100% - 36px),1120px)!important;
+ display:block!important;width:min(calc(100% - 36px),1200px)!important;
  max-width:1120px!important;margin:15px auto 68px!important
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
- display:flex;flex-direction:column;width:min(100%,780px);max-width:780px;min-width:0;
- margin:0!important;gap:15px
+ display:flex;flex-direction:column;width:min(100%,850px);max-width:850px;min-width:0;
+ margin:0!important;gap:21px
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-aside{display:none!important}
-body.feed-page .feed-stories{margin:0 0 5px;gap:12px}
-body.feed-page .vt-feed-stories-heading{font:750 17px/1.25 "Onest",system-ui,sans-serif;color:#324361}
+body.feed-page .feed-stories{margin:0 0 2px;gap:16px}
+body.feed-page:not(.community-page):not(.profile-page) .feed-posts-title{
+ font:760 clamp(20px,2vw,24px)/1.3 "Onest",system-ui,sans-serif;
+ letter-spacing:-.035em;color:#2C3850;text-rendering:optimizeLegibility
+}
+body.feed-page:not(.community-page):not(.profile-page) .feed-posts-label{
+ font:600 12px/1.45 "Onest",system-ui,sans-serif;color:#72819b
+}
+body.feed-page:not(.community-page):not(.profile-page) .feed-post-card{
+ padding:24px 27px;border:1px solid #e4eaf5;border-radius:18px;
+ box-shadow:0 8px 24px rgba(42,60,99,.045)
+}
+body.feed-page:not(.community-page):not(.profile-page) .feed-post-name{
+ color:#34445f;font:760 15px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.012em
+}
+body.feed-page:not(.community-page):not(.profile-page) .feed-post-body{
+ color:#394964;font:480 15.5px/1.7 "Onest",system-ui,sans-serif;letter-spacing:.001em
+}
+body.feed-page .ui-feed-story-logo-001{
+ position:absolute;top:19px;left:50%;transform:translateX(-50%);
+ width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(52,91,193,.1))
+}
+body.feed-page .vt-feed-stories-heading{font:760 clamp(21px,2.1vw,25px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.037em;color:#2C3850;text-rendering:optimizeLegibility}
 body.feed-page .feed-stories-heading{padding:0 2px}
 body.feed-page .feed-stories-track{
- display:flex;gap:12px;padding:2px 2px 9px;overflow-x:auto;
+ display:flex;gap:12px;padding:2px 1px 11px;overflow-x:auto;
  scroll-snap-type:x proximity;scrollbar-width:thin;overscroll-behavior-x:contain
 }
 body.feed-page .feed-story-create,
 body.feed-page .feed-story-preview{
  position:relative;display:flex;flex:none;flex-direction:column;justify-content:flex-end;
- overflow:hidden;width:140px;height:186px;border:1px solid #e0e6f2;
+ overflow:hidden;flex:1 0 0;min-width:130px;width:auto;height:200px;border:1px solid #e0e6f2;
  border-radius:17px;scroll-snap-align:start;
  background:#fff;box-shadow:0 2px 12px rgba(39,64,110,.065);
  text-align:left;cursor:pointer;
@@ -1289,8 +1089,8 @@ body.feed-page .feed-story-preview:focus-visible{
 body.feed-page .feed-story-preview:focus-visible,body.feed-page .feed-story-create:focus-visible{
  outline:3px solid #a8c1f5;outline-offset:2px
 }
-body.feed-page .feed-story-create{align-items:center;text-align:center}
-body.feed-page .vt-feed-story-create-label{margin-top:auto}
+body.feed-page .feed-story-create{align-items:center;text-align:center;background:linear-gradient(180deg,#edf2ff 0%,#eeeafb 69%,#fff 69%,#fff 100%)}
+body.feed-page .vt-feed-story-create-label{margin-top:auto;color:#405475;font:730 13px/1.3 "Onest",sans-serif}
 .vatra-story-dialog{padding:15px;width:min(395px,calc(100vw - 28px));overflow:hidden}
 .vatra-story-stage{position:relative;overflow:hidden;width:100%;height:min(65dvh,540px);
  border-radius:14px;background:#263b73}
@@ -1328,7 +1128,7 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto}
  body.feed-page .social-top-link,body.feed-page .social-top-pending{width:59px;min-width:59px!important}
  body.feed-page .social-top-link.social-top-active::after{bottom:0;height:2px}
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
-  width:min(calc(100% - 24px),780px)!important
+  width:min(calc(100% - 24px),850px)!important
  }
  body.feed-page:not(.community-page):not(.profile-page) .feed-main{width:100%;max-width:100%}
 }
@@ -1359,7 +1159,7 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto}
  body.feed-page .feed-account-dropdown{
   position:fixed;top:51px;right:8px;left:auto;max-height:calc(100dvh - 63px)
  }
- body.feed-page .feed-story-create,body.feed-page .feed-story-preview{width:118px;height:160px}
+ body.feed-page .feed-story-create,body.feed-page .feed-story-preview{flex:none;width:126px;min-width:126px;height:172px}
 }
 @media(max-width:370px){
  body.feed-page .feed-header .feed-search-form{max-width:96px}
