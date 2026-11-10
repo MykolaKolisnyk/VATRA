@@ -7,6 +7,14 @@
     /* Existing bookmarks and Supabase email links may use former locale folders. */
     // Old email links and saved .html URLs remain valid, but visitors see
     // the clean canonical route after the first navigation.
+    // GitHub Pages sends unknown dynamic paths to 404.html.
+    // Use the static profile document as the entrypoint, then restore the
+    // exact /VATRA/id<number> URL after its authenticated data has loaded.
+    const memberPath=location.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
+    if(memberPath){
+      location.replace("/VATRA/profile.html?vatra_id="+memberPath[1]);
+      return;
+    }
     const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
     if(oldAccount){
       location.replace("/VATRA/verify"+location.search+location.hash);
