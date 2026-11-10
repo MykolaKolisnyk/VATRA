@@ -2249,6 +2249,11 @@ try{
     {select:()=>({eq:(_field,id)=>({maybeSingle:async()=>({
      data:["654321","789012"].includes(String(id))?{vatra_id:id}:null,error:null
     })})})}:
+    table==="communities"?
+    {select:()=>({order(){return this;},limit:async()=>({
+      data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
+       created_at:"2026-11-10T00:00:00Z"}],error:null
+    })})}:
     {select:()=>({filterId:null,eq(_field,id){this.filterId=String(id);return this;},
       order(){return this;},range:async function(a,b){
        await new Promise(resolve=>setTimeout(resolve,320));
@@ -2277,14 +2282,23 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
-  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),false,
-   "Navigation must not be duplicated above the sidebar");
+  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),true,
+   "The single primary navigation must be available on desktop and mobile");
+  assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),false,
+   "Do not duplicate the top navigation in a second sidebar");
+  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),3,
+   "Only three working primary destinations should be visible");
   assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
    "Incomplete destinations must not be offered as dead menu controls");
   assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
   assert.equal((await feedProbe.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA");
   assert.equal(await feedProbe.locator(".social-right-panel").count(),1,
    "Feed should only show one useful Communities panel, not an inactive marketing panel");
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await feedProbe.locator(".social-community-item").count(),1,
+   "Show actual community records in the discovery panel");
+  assert.ok((await feedProbe.locator(".social-community-item").getAttribute("href")).endsWith("/VATRA/club42"),
+   "Community discovery must open the immutable public club URL");
   assert.ok((await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
