@@ -32,9 +32,13 @@
   };
   if(current==="en"){
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
-    // Unknown paths are rendered by the root 404.html on GitHub Pages.
-    // Set its English tab title immediately, before en.json finishes loading.
-    const title=instantEnglishTitles[segment]||instantEnglishTitles["404"];
+    const dynamicMember=/^id[1-9][0-9]{0,18}$/.test(segment);
+    const dynamicClub=/^club[1-9][0-9]{0,18}$/.test(segment);
+    // Deep-linked profiles and clubs are rendered in place by 404.html;
+    // never flash "404" in the English tab before their data loads.
+    const title=dynamicMember?instantEnglishTitles.profile:
+      dynamicClub?instantEnglishTitles.club:
+      instantEnglishTitles[segment]||instantEnglishTitles["404"];
     if(title){
       const applyTitle=()=>{
         const node=document.head.querySelector("title");
@@ -207,7 +211,10 @@
     if (document.body?.dataset.page === "offline") return "offline";
     if (document.body?.dataset.page === "not-found") return "404";
     if (location.pathname === ROOT || location.pathname.endsWith("/index.html")) return "index";
-    return location.pathname.split("/").pop()?.replace(/\.html$/, "") || "index";
+    const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
+    if(/^id[1-9][0-9]{0,18}$/.test(segment))return "profile";
+    if(/^club[1-9][0-9]{0,18}$/.test(segment))return "club";
+    return segment;
   };
   const domReady = new Promise(resolve => {
     if (document.readyState === "loading")
