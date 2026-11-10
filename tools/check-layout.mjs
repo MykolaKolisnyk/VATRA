@@ -882,7 +882,7 @@ const normalizedSocialHeader=html=>{
  return header.replace(/ social-top-active/g,"").replace(/ aria-current="page"/g,"");
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
-const sharedCss=await read("assets/css/social-shell.css");
+const sharedCss=await read("assets/css/feed.css");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
