@@ -2201,8 +2201,16 @@ try{
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
   assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);
-  const overflow=await feedProbe.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
-  assert.ok(overflow<=3,"Feed must fit viewport: "+language+" "+overflow);
+  const mobileGeometry=await feedProbe.evaluate(()=>({
+   overflow:document.documentElement.scrollWidth-innerWidth,
+   culprits:[...document.querySelectorAll("body *")].map(el=>{
+    const rect=el.getBoundingClientRect();
+    return {tag:el.tagName.toLowerCase(),cls:String(el.className?.baseVal||el.className||"").slice(0,105),
+     left:Math.round(rect.left),right:Math.round(rect.right),width:Math.round(rect.width)};
+   }).filter(rect=>rect.right>innerWidth+3||rect.left< -3).slice(0,20)
+  }));
+  assert.ok(mobileGeometry.overflow<=3,
+   "Feed must fit viewport: "+language+" "+JSON.stringify(mobileGeometry));
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
