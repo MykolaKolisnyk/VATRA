@@ -23,6 +23,19 @@ const status=(selector,text,kind)=>{
  el.hidden=false;
  if(kind)el.dataset.kind=kind;
 };
+const gateError=message=>{
+ const loader=$("#community-loading");
+ if(!loader)return;
+ loader.dataset.loadingError="true";
+ loader.setAttribute("role","alert");
+ const caption=loader.querySelector(".vatra-auth-loading-caption");
+ if(caption)caption.textContent=message;
+ if(loader.querySelector(".vatra-auth-loading-retry"))return;
+ const retry=node("button","vatra-auth-loading-retry vt-community-retry-001",t("Повторити","Retry"));
+ retry.type="button";
+ retry.addEventListener("click",()=>location.reload());
+ loader.querySelector(".vatra-auth-loading-content")?.append(retry);
+};
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  const mode=document.body.dataset.page;
@@ -35,7 +48,7 @@ async function start(){
   if(description)description.placeholder="What is your community about?";
  }
  if(!window.supabase?.createClient){
-  $(".vatra-auth-loading-caption").textContent=t("Не вдалося відкрити VATRA","Could not open VATRA");
+  gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));
   return;
  }
  try{
@@ -83,8 +96,7 @@ async function start(){
   document.body.dataset.authReady="true";
   document.body.dataset.feedReady="true";
  }catch(_){
-  const label=$(".vatra-auth-loading-caption");
-  if(label)label.textContent=t("Не вдалося відкрити сторінку. Оновіть її.","Could not open this page. Please refresh.");
+  gateError(t("Не вдалося відкрити сторінку. Оновіть її.","Could not open this page. Please refresh."));
  }
 }
 async function openDirectory(client){
