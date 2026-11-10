@@ -40,8 +40,17 @@ const finish=()=>{
  document.body.dataset.feedReady="true";
 };
 const gateError=message=>{
- const label=q(".vatra-auth-loading-caption");
+ const loader=q("#profile-loading");
+ if(!loader)return;
+ loader.dataset.loadingError="true";
+ loader.setAttribute("role","alert");
+ const label=loader.querySelector(".vatra-auth-loading-caption");
  if(label)label.textContent=message;
+ if(loader.querySelector(".vatra-auth-loading-retry"))return;
+ const retry=node("button","vatra-auth-loading-retry vt-profile-retry-001",t("Повторити","Retry"));
+ retry.type="button";
+ retry.addEventListener("click",()=>location.reload());
+ loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
 function missingProfile(){
  q(".vt-profile-title-001").textContent=t("Профіль не знайдено","Profile not found");
