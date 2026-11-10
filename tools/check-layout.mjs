@@ -877,7 +877,7 @@ for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js"
 // active route may differ; this guards against CSS/HTML drift between pages.
 const sharedShellPages=["feed","profile","communities","club"];
 const normalizedSocialHeader=html=>{
- const header=html.match(/<header class="feed-header[\\s\\S]*?<\\/header>/)?.[0];
+ const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");
  return header.replace(/ social-top-active/g,"").replace(/ aria-current="page"/g,"");
 };
@@ -886,7 +886,7 @@ for(const page of sharedShellPages){
  const html=await read(page+".html");
  assert.equal(normalizedSocialHeader(html),canonicalSocialHeader,
   page+": social header markup differs from canonical Feed header");
- const header=html.match(/<header class="feed-header[\\s\\S]*?<\\/header>/)[0];
+ const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)[0];
  for(const cls of ["ui-feed-brand-search-001","ui-social-top-feed-001",
   "ui-social-top-communities-001","ui-social-top-clips-001",
   "ui-social-top-marketplace-001","ui-shell-header-messenger-001",
