@@ -18,7 +18,25 @@
    element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
   const brand=document.querySelector(".feed-header-brand");
   if(brand)brand.setAttribute("aria-label",english?"VATRA — Feed":"VATRA — Стрічка");
-  for(const link of document.querySelectorAll(".social-top-link")){
+  for(const input of document.querySelectorAll("[data-shell-placeholder-uk]")){
+    input.placeholder=english?input.dataset.shellPlaceholderEn:input.dataset.shellPlaceholderUk;
+   }
+   for(const control of document.querySelectorAll("[data-shell-aria-uk]")){
+    const title=english?control.dataset.shellAriaEn:control.dataset.shellAriaUk;
+    control.setAttribute("aria-label",title);
+    control.title=title;
+   }
+   for(const pair of [
+    [".ui-shell-header-notifications-001","Сповіщення — незабаром","Notifications — coming soon"],
+    [".ui-shell-header-music-001","Музика — незабаром","Music — coming soon"]]){
+    const control=document.querySelector(pair[0]);
+    if(control){
+     const title=english?pair[2]:pair[1];
+     control.setAttribute("aria-label",title);
+     control.title=title;
+    }
+   }
+   for(const link of document.querySelectorAll(".social-top-link")){
    const label=link.querySelector("[data-social-uk]");
    if(label){
    const pending=link.matches("button:disabled");
