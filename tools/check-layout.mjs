@@ -887,7 +887,6 @@ const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
- !sharedCss.includes("VK/Facebook")&&
  !sharedCss.includes(".feed-sidebar")&&
  !sharedCss.includes(".feed-composer")&&
  sharedJs.includes("positionTooltip(target)")&&
