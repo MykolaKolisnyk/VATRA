@@ -834,7 +834,8 @@ body.feed-page .feed-brand-search{
  display:flex;grid-column:1;grid-row:1;align-items:center;justify-self:start;
  gap:6px;min-width:0;width:min(100%,355px);max-width:355px
 }
-body.feed-page .feed-header-brand{
+body.feed-page:not(.community-page) .feed-header-brand,
+body.feed-page.community-page .feed-header-brand{
  display:grid;place-items:center;grid-column:auto;grid-row:auto;
  flex:none;width:45px;height:45px;margin:0;border-radius:50%;
  transition:background .18s,transform .18s
@@ -1043,7 +1044,8 @@ body.profile-page .vt-profile-compose-submit-001:focus-visible{outline:3px solid
 @media(max-width:610px){
  body.feed-page:not(.community-page) .feed-header-inner,
  body.feed-page.community-page .feed-header-inner{width:calc(100% - 16px);gap:0 4px;grid-template-rows:50px 48px}
- body.feed-page .feed-header-brand{width:38px;height:40px}
+ body.feed-page:not(.community-page) .feed-header-brand,
+body.feed-page.community-page .feed-header-brand{width:38px;height:40px}
  body.feed-page .feed-header-brand .ui-feed-logo-001{width:37px;height:37px}
  body.feed-page .feed-brand-search{width:100%;gap:3px;min-width:0}
  body.feed-page .feed-header .feed-search-form{height:36px;max-width:190px;padding:0 8px;gap:6px}
