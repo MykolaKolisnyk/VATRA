@@ -196,10 +196,8 @@
      link.href=new URL("id"+vatraId,new URL("./",location.href)).href;
     }
    }
-   q("#feed-app").hidden=false;
-   q("#feed-loading").hidden=true;
-   document.body.dataset.feedReady="true";
-   document.body.dataset.authReady="true";
+   // The loading overlay stays visible until the initial Feed query settles.
+   // The sliding bar is indeterminate, not a fabricated percentage.
    composer.addEventListener("input",updateCounter);
    const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");
    searchTerm=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
@@ -238,6 +236,10 @@
      "VATRA ID is unavailable for this account. Posting is temporarily disabled."));
    }
    await loadPosts(true);
+   q("#feed-app").hidden=false;
+   q("#feed-loading").hidden=true;
+   document.body.dataset.feedReady="true";
+   document.body.dataset.authReady="true";
   }catch(_){
    if(!q("#feed-app").hidden){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
