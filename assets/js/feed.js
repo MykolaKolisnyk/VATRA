@@ -97,7 +97,13 @@
   item.append(head,body);
   return item;
  }
+ function sizeComposer(){
+  // Grow to the actual text, not a fixed tiny textarea with a native scrollbar.
+  composer.style.height="auto";
+  composer.style.height=Math.min(240,Math.max(70,composer.scrollHeight))+"px";
+ }
  function updateCounter(){
+  sizeComposer();
   const length=Array.from(composer.value).length;
   counter.textContent=length+" / "+POST_LIMIT;
   counter.classList.toggle("is-at-limit",length>=POST_LIMIT);
@@ -216,6 +222,12 @@
    // The loading overlay stays visible until the initial Feed query settles.
    // The sliding bar is indeterminate, not a fabricated percentage.
    composer.addEventListener("input",updateCounter);
+   composer.addEventListener("keydown",event=>{
+    if((event.ctrlKey||event.metaKey)&&event.key==="Enter"&&!submit.disabled){
+     event.preventDefault();
+     q("#feed-post-form")?.requestSubmit();
+    }
+   });
    const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");
    searchTerm=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
    if(searchInput)searchInput.value=searchTerm;
