@@ -189,13 +189,21 @@
    const ox=vp?.offsetLeft||0,oy=vp?.offsetTop||0;
    const field=form.getBoundingClientRect();
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
-   const width=Math.min(390,vw-16);
+   const width=Math.max(0,Math.min(390,vw-16));
    const left=Math.max(ox+8,Math.min(field.left,ox+vw-width-8));
-   const top=Math.max(oy+8,field.bottom+7,(header?.bottom||0)+6);
+   const bottomSpace=Math.max(0,oy+vh-field.bottom-16);
+   const topSpace=Math.max(0,field.top-(oy+8));
+   // On phones, the virtual keyboard can hide the area below the search box.
+   // Flip the menu above the field when that is the larger visible area.
+   const above=bottomSpace<220&&topSpace>bottomSpace;
+   const available=Math.max(0,above?topSpace-7:bottomSpace-7);
+   const height=Math.min(available,Math.max(0,panel.scrollHeight));
+   const top=above?Math.max(oy+8,field.top-7-height):
+    Math.max(oy+8,field.bottom+7,(header?.bottom||0)+6);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(top)+"px";
    panel.style.width=Math.round(width)+"px";
-   panel.style.maxHeight=Math.max(85,Math.round(oy+vh-top-9))+"px";
+   panel.style.maxHeight=Math.max(0,Math.round(oy+vh-top-8))+"px";
   };
   const close=()=>{
    visible=false;
