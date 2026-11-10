@@ -1,4 +1,4 @@
-/* VATRA member profile by public numeric ID; never expose Supabase Auth UUIDs. */
+/* VATRA member profiles: canonical /VATRA/id123456789, read-only and RLS-protected. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -7,57 +7,92 @@ const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const q=selector=>document.querySelector(selector);
 const english=document.documentElement.lang==="en";
 const locale=english?"en-US":"uk-UA";
-const t=(uk,en)=>{if(!english)return uk;const value=window.VATRA_LANGUAGE?.translate(uk);return value&&value!==uk?value:en;};
-const home=new URL("./",location.href).href;
+const t=(uk,en)=>{
+ if(!english)return uk;
+ const translated=window.VATRA_LANGUAGE?.translate(uk);
+ return translated&&translated!==uk?translated:en;
+};
+const home=new URL("../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
-const profileURL=id=>new URL("id"+id,home).href;
-function setAllOwnProfileLinks(id){
- for(const link of document.querySelectorAll('a[href="profile"],a[href="profile.html"]')){
-  link.href=profileURL(id);
- }
-}
-function node(tag,className,value){
+const memberUrl=id=>home+"id"+id;
+const node=(tag,cls,value)=>{
  const element=document.createElement(tag);
- if(className)element.className=className;
+ if(cls)element.className=cls;
  if(value!==undefined)element.textContent=value;
  return element;
-}
-function dateLabel(value){
+};
+const dateText=value=>{
  const date=new Date(value);
  return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat(locale,{
   day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
  }).format(date);
-}
-async function renderPosts(client,id,name,initial){
- const posts=q("#profile-posts");
- const empty=q("#profile-posts-empty");
- q("#profile-posts-title").textContent=t("Публікації","Posts");
- const {data,error}=await client.from("feed_posts")
-  .select("id,author_vatra_id,body,created_at").eq("author_vatra_id",id)
-  .order("created_at",{ascending:false}).limit(30);
- if(error)throw error;
- posts.replaceChildren();
- for(const post of data||[]){
-  const card=node("article","feed-post-card ui-profile-post-card-001");
-  const head=node("div","feed-post-header ui-profile-post-header-001");
-  const avatar=node("span","feed-avatar feed-post-avatar vt-profile-post-avatar-001",initial);
-  avatar.setAttribute("aria-hidden","true");
-  const info=node("div","feed-post-author ui-profile-post-author-001");
-  const author=node("strong","feed-post-name vt-profile-post-name-001",name);
-  const stamp=node("time","feed-post-date vt-profile-post-date-001","VATRA ID "+id+" · "+dateLabel(post.created_at));
-  stamp.dateTime=post.created_at;
-  info.append(author,stamp);
-  head.append(avatar,info);
-  card.append(head,node("p","feed-post-body vt-profile-post-body-001",post.body));
-  posts.append(card);
+};
+const setMenuLink=id=>{
+ if(!validId(id))return;
+ for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
+  link.href=memberUrl(id);
  }
- empty.hidden=posts.childElementCount>0;
- if(!empty.hidden)empty.textContent=t("Цей користувач ще не має публікацій.","This member has no posts yet.");
+};
+const finish=()=>{
+ q("#profile-app").hidden=false;
+ q("#profile-loading").hidden=true;
+ document.body.dataset.authReady="true";
+ document.body.dataset.feedReady="true";
+};
+const gateError=message=>{
+ const label=q(".vatra-auth-loading-caption");
+ if(label)label.textContent=message;
+};
+function missingProfile(){
+ q(".vt-profile-title-001").textContent=t("Профіль не знайдено","Profile not found");
+ q("#profile-heading").textContent=t("Профіль не знайдено","Profile not found");
+ q("#profile-vatra-id").textContent="";
+ q("#profile-avatar").textContent="?";
+ q(".vt-profile-about-heading-001").textContent=t("Недоступний профіль","Unavailable profile");
+ q("#profile-about-text").textContent=t(
+  "Такого VATRA ID немає. Перевірте адресу профілю.",
+  "This VATRA ID does not exist. Check the profile address.");
+ q("#profile-posts-section").hidden=true;
+ document.title=t("Профіль не знайдено · VATRA","Profile not found · VATRA");
+ finish();
+}
+async function loadPosts(client,targetId){
+ const list=q("#profile-posts"),empty=q("#profile-posts-empty");
+ q("#profile-posts-title").textContent=t("Публікації","Posts");
+ list.setAttribute("aria-busy","true");
+ try{
+  const {data,error}=await client.from("feed_posts")
+   .select("id,author_vatra_id,body,created_at")
+   .eq("author_vatra_id",targetId)
+   .order("created_at",{ascending:false})
+   .order("id",{ascending:false}).range(0,14);
+  if(error)throw error;
+  list.replaceChildren();
+  for(const post of data||[]){
+   const article=node("article","feed-post-card ui-profile-post-card-001");
+   const header=node("div","feed-post-header ui-profile-post-header-001");
+   const identity=node("div","feed-post-author ui-profile-post-author-001");
+   identity.append(
+    node("strong","feed-post-name vt-profile-post-name-001",q("#profile-heading").textContent),
+    node("time","feed-post-date vt-profile-post-date-001",dateText(post.created_at))
+   );
+   identity.querySelector("time").dateTime=post.created_at;
+   header.append(identity);
+   article.append(header,node("p","feed-post-body vt-profile-post-body-001",post.body));
+   list.append(article);
+  }
+  empty.hidden=(data||[]).length>0;
+  if(!empty.hidden)empty.textContent=t("Публікацій поки немає.","No posts yet.");
+ }catch(_){
+  empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
+   "Could not load posts. Try refreshing this page.");
+  empty.hidden=false;
+ }finally{list.setAttribute("aria-busy","false");}
 }
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  if(!window.supabase?.createClient){
-  q(".vatra-auth-loading-caption").textContent=t("Не вдалося відкрити VATRA","Could not open VATRA");return;
+  gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));return;
  }
  try{
   const client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
@@ -66,62 +101,48 @@ async function start(){
   const {data,error}=await client.auth.getUser();
   if(error||!data?.user?.id||!data.user.email_confirmed_at){location.replace(home);return;}
   const user=data.user,metadata=user.user_metadata||{};
-  const name=[metadata.first_name,metadata.last_name].filter(x=>typeof x==="string"&&x.trim()).map(x=>x.trim()).join(" ")
+  const ownName=[metadata.first_name,metadata.last_name]
+   .filter(value=>typeof value==="string"&&value.trim())
+   .map(value=>value.trim()).join(" ")
    ||String(metadata.full_name||"").trim()||t("Учасник VATRA","VATRA member");
-  const cleanName=Array.from(name).slice(0,100).join("");
-  const ownInitial=(Array.from(cleanName)[0]||"V").toLocaleUpperCase(locale);
-  const {data:ownProfile,error:ownError}=await client.from("accounts")
+  const cleanOwnName=Array.from(ownName).slice(0,100).join("");
+  const ownAvatar=(Array.from(cleanOwnName)[0]||"V").toLocaleUpperCase(locale);
+  const {data:account,error:accountError}=await client.from("accounts")
    .select("vatra_id").eq("user_id",user.id).maybeSingle();
-  if(ownError||ownProfile?.vatra_id==null)throw ownError||new Error("No owner VATRA ID");
-  const ownId=String(ownProfile.vatra_id);
-  if(!validId(ownId))throw new Error("Invalid own VATRA ID");
-
-  const pathId=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||null;
-  const queryId=new URLSearchParams(location.search).get("vatra_id");
-  const requestedId=pathId||queryId||ownId;
-  const validRequested=validId(requestedId);
-  // The shared top bar and "My page" always link to the signed-in user's ID.
-  setAllOwnProfileLinks(ownId);
-  q("#feed-header-avatar").textContent=ownInitial;
-  q("#feed-menu-name").textContent=cleanName;
-  q("#feed-header-id").textContent="VATRA ID "+ownId;
-
-  const isOwner=requestedId===ownId;
-  let memberExists=isOwner;
-  if(validRequested&&!isOwner){
-   const lookup=await client.from("vatra_directory")
-    .select("vatra_id").eq("vatra_id",requestedId).maybeSingle();
-   if(lookup.error)throw lookup.error;
-   memberExists=String(lookup.data?.vatra_id)===requestedId;
+  const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
+  q("#feed-header-avatar").textContent=ownAvatar;
+  q("#feed-menu-name").textContent=cleanOwnName;
+  q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
+  setMenuLink(ownId);
+  const query=new URLSearchParams(location.search);
+  const requested=query.get("vatra_id")||
+   location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||null;
+  const targetId=requested||ownId;
+  if(!validId(targetId)){missingProfile();return;}
+  const {data:member,error:directoryError}=await client.from("vatra_directory")
+   .select("vatra_id").eq("vatra_id",targetId).maybeSingle();
+  if(directoryError)throw directoryError;
+  if(!member){missingProfile();return;}
+  const isMine=targetId===ownId;
+  const name=isMine?cleanOwnName:t("Учасник VATRA","VATRA member");
+  q("#profile-heading").textContent=name;
+  q("#profile-avatar").textContent=isMine?ownAvatar:"V";
+  q("#profile-vatra-id").textContent="VATRA ID "+targetId;
+  q(".vt-profile-title-001").textContent=isMine?t("Моя сторінка","My page"):t("Профіль","Profile");
+  if(!isMine){
+   q(".vt-profile-about-heading-001").textContent=t("Профіль користувача","Member profile");
+   q("#profile-about-text").textContent=t(
+    "Публічна сторінка учасника VATRA. Тут відображаються його публікації.",
+    "This VATRA member's public page displays their posts.");
   }
-  if(validRequested){
-   const canonical=profileURL(requestedId);
-   if(location.pathname!==new URL(canonical).pathname||location.search){
-    history.replaceState(history.state,"",canonical);
-   }
+  document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
+  // Never expose the internal Supabase auth UUID or the intermediate /profile URL.
+  const canonical=memberUrl(targetId);
+  if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
+   history.replaceState(history.state,"",canonical);
   }
-  const title=q(".vt-profile-title-001"),heading=q("#profile-heading"),
-   detail=q("#profile-about-text"),avatar=q("#profile-avatar");
-  const memberName=isOwner?cleanName:t("Учасник VATRA","VATRA member");
-  if(!validRequested||!memberExists){
-   title.textContent=t("Профіль не знайдено","Profile not found");
-   heading.textContent=t("Профіль не знайдено","Profile not found");
-   q("#profile-vatra-id").textContent=validRequested?"VATRA ID "+requestedId:"";
-   detail.textContent=t("Користувача з таким VATRA ID не знайдено.","There is no member with that VATRA ID.");
-   q("#profile-posts-section").hidden=true;
-   document.title=t("Профіль не знайдено · VATRA","Profile not found · VATRA");
-  }else{
-   title.textContent=isOwner?t("Моя сторінка","My page"):t("Профіль","Profile");
-   heading.textContent=memberName;
-   q("#profile-vatra-id").textContent="VATRA ID "+requestedId;
-   avatar.textContent=isOwner?ownInitial:"V";
-   if(!isOwner)detail.textContent=t(
-    "Публічна сторінка користувача VATRA. Тут відображаються його публікації.",
-    "This member's public VATRA page. Their posts appear below.");
-   document.title=memberName+" · VATRA";
-  }
-  q("#profile-app").hidden=false;q("#profile-loading").hidden=true;
-  document.body.dataset.authReady="true";document.body.dataset.feedReady="true";
+  finish();
+  void loadPosts(client,targetId);
   const form=q("#feed-search-form");
   form?.addEventListener("submit",event=>{
    event.preventDefault();
@@ -137,18 +158,14 @@ async function start(){
   });
   q("#feed-logout").addEventListener("click",async()=>{
    const button=q("#feed-logout");button.disabled=true;
-   const {error}=await client.auth.signOut({scope:"local"});
-   if(error){button.disabled=false;return;}
+   const {error:signOutError}=await client.auth.signOut({scope:"local"});
+   if(signOutError){button.disabled=false;return;}
    try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
    location.replace(home);
   });
-  if(memberExists&&validRequested){
-   try{await renderPosts(client,requestedId,memberName,isOwner?ownInitial:"V");}
-   catch(_){q("#profile-posts-empty").hidden=false;
-    q("#profile-posts-empty").textContent=t("Не вдалося завантажити публікації.","Could not load posts.");}
-  }
  }catch(_){
-  q(".vatra-auth-loading-caption").textContent=t("Не вдалося завантажити сторінку. Оновіть її.","Could not load this page. Please refresh.");
+  gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
+   "Could not load this profile. Please refresh."));
  }
 }
 void start();
