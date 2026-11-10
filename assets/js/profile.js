@@ -182,6 +182,11 @@ async function start(){
   q("#profile-avatar").textContent=isMine?ownAvatar:"V";
   q("#profile-vatra-id").textContent="VATRA ID "+targetId;
   q(".vt-profile-title-001").textContent=isMine?t("Моя сторінка","My page"):t("Профіль","Profile");
+  if(isMine){
+   q("#profile-about-text").textContent=t(
+    "Тут зібрані ваші публікації та історії. Друзі, фотографії й нові можливості з’являться згодом.",
+    "Your posts and stories live here. Friends, photos and more features are coming later.");
+  }
   if(!isMine){
    q(".vt-profile-about-heading-001").textContent=t("Профіль користувача","Member profile");
    q("#profile-about-text").textContent=t(
@@ -189,6 +194,21 @@ async function start(){
     "This VATRA member's public page displays their posts.");
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
+  // Profile tabs are real in-page navigation, without changing the public /idN URL.
+  for(const tab of document.querySelectorAll(".social-profile-tabs a[href^='#']")){
+   tab.addEventListener("click",event=>{
+    const destination=document.querySelector(tab.getAttribute("href"));
+    if(!destination)return;
+    event.preventDefault();
+    for(const sibling of document.querySelectorAll(".social-profile-tabs a")){
+     sibling.classList.remove("social-profile-tab-active");
+     sibling.removeAttribute("aria-current");
+    }
+    tab.classList.add("social-profile-tab-active");
+    tab.setAttribute("aria-current","location");
+    destination.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion:reduce)").matches?"instant":"smooth",block:"start"});
+   });
+  }
   // Never expose the internal Supabase auth UUID or the intermediate /profile URL.
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
