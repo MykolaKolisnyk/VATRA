@@ -69,10 +69,10 @@
     // visibility:hidden alone DOES NOT pause animations.
     block.textContent = "html.i18n-pending body{visibility:hidden!important}" +
       "html.i18n-pending body>.vatra-auth-loading{visibility:visible!important}" +
-      "html.i18n-pending body > :not(#vatra-auth-loading)," +
-      "html.i18n-pending body > :not(#vatra-auth-loading) *," +
-      "html.i18n-pending body > :not(#vatra-auth-loading) *::before," +
-      "html.i18n-pending body > :not(#vatra-auth-loading) *::after" +
+      "html.i18n-pending body > :not(.vatra-auth-loading)," +
+      "html.i18n-pending body > :not(.vatra-auth-loading) *," +
+      "html.i18n-pending body > :not(.vatra-auth-loading) *::before," +
+      "html.i18n-pending body > :not(.vatra-auth-loading) *::after" +
       "{animation-play-state:paused!important}";
     document.head.append(block);
   }
