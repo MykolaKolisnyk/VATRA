@@ -2309,6 +2309,7 @@ try{
      account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
      brand=r(".feed-header-brand");
     return {storyLeft:story.left,postLeft:posts.left,storyWidth:story.width,postWidth:posts.width,
+     storyCenter:(story.left+story.right)/2,
      navCenter:(nav.left+nav.right)/2,viewportCenter:innerWidth/2,
      logoMargin:logo.left,rightMargin:innerWidth-account.right,
      logoToSearch:search.left-brand.right,
@@ -2316,6 +2317,7 @@ try{
    });
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
+    Math.abs(geometry.storyCenter-geometry.viewportCenter)<3&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<9&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
@@ -2373,7 +2375,7 @@ try{
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),true,
    "Search history must open on input focus");
   assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),12,
-   "All history entries remain available beyond ten visible rows");
+   "All history entries remain available beyond five visible rows");
   assert.equal((await feedProbe.locator(".vatra-search-history-term").first().innerText()).trim(),
    "VATRA запит 12","Search history must display newest first");
   const menuGeometry=await feedProbe.evaluate(()=>{
@@ -2385,8 +2387,9 @@ try{
   });
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
-   menuGeometry.scrollHeight>menuGeometry.clientHeight,
-   "VATRA search menu must fit viewport and scroll after ten items: "+JSON.stringify(menuGeometry));
+   menuGeometry.scrollHeight>menuGeometry.clientHeight&&
+   menuGeometry.clientHeight<=229,
+   "VATRA search menu must fit viewport and scroll beyond five items: "+JSON.stringify(menuGeometry));
   await feedProbe.locator(".vatra-search-history-remove").first().click();
   assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),11);
   assert.equal(await feedProbe.evaluate(()=>JSON.parse(localStorage.getItem("vatra.search.history.v1")).length),11,
@@ -2396,8 +2399,8 @@ try{
    "Escape closes the VATRA search menu");
 
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
-  assert.equal(await feedProbe.locator(".feed-story-preview").count(),4,
-   "Four distinct illustrated Stories must be visible");
+  assert.equal(await feedProbe.locator(".feed-story-preview").count(),3,
+   "At most four Stories including Your Story: three illustrated previews");
   assert.equal(await feedProbe.locator(".feed-story-create:disabled").count(),0,
    "Create Story should explain its status when clicked, not be a dead control");
   assert.equal(await feedProbe.locator(".vt-feed-stories-tag").count(),0,
