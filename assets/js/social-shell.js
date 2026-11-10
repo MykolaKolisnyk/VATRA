@@ -203,7 +203,7 @@
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(top)+"px";
    panel.style.width=Math.round(width)+"px";
-   panel.style.maxHeight=Math.max(0,Math.round(oy+vh-top-8))+"px";
+   panel.style.maxHeight=Math.max(0,Math.round(Math.min(available,oy+vh-top-8)))+"px";
   };
   const close=()=>{
    visible=false;
@@ -322,6 +322,7 @@
   window.addEventListener("resize",position,{passive:true});
   window.addEventListener("scroll",position,{passive:true});
   window.visualViewport?.addEventListener("resize",position,{passive:true});
+  window.visualViewport?.addEventListener("scroll",position,{passive:true});
   window.addEventListener("storage",event=>{
    if(event.key===storageKey){entries=storageRead();render();}
   });
