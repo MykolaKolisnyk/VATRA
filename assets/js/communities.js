@@ -172,10 +172,18 @@ async function openDirectory(client){
   }
  });
  const list=$("#community-list");
+ const term=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
+ const search=$("#feed-search-input");
+ if(search&&term)search.value=term;
+ try{
+  let request=client.from("communities").select("club_id,name,description,created_at");
+  if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\ const list=$("#community-list");
  try{
   const {data,error}=await client.from("communities")
    .select("club_id,name,description,created_at")
-   .order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);
+   .order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);")+"%");
+  const {data,error}=await request.order("created_at",{ascending:false})
+   .order("club_id",{ascending:false}).limit(100);
   if(error)throw error;
   list.replaceChildren();
   for(const club of data||[]){
@@ -191,7 +199,8 @@ async function openDirectory(client){
    list.append(card);
   }
   status("#community-list-status",(data||[]).length===0?
-   t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!"):"");
+   (term?t("За цим запитом спільнот не знайдено.","No communities match this search."):
+    t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!")):"");
  }catch(_){
   status("#community-list-status",t("Не вдалося завантажити список спільнот.",
    "Could not load communities."),"error");
