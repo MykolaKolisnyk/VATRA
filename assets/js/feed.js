@@ -186,7 +186,7 @@
    q("#feed-header-id").textContent=displayedId;
    q("#feed-header-id").hidden=!vatraId;
    if(vatraId){
-    for(const link of document.querySelectorAll('a[href="profile"]')){
+    for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
      link.href=new URL("id"+vatraId,new URL("./",location.href)).href;
     }
    }
