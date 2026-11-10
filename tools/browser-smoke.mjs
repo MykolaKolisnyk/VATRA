@@ -2266,13 +2266,13 @@ try{
   `
  }));
  let desktopHeaderCenters=null;
- const navCenters=page=>page.locator(".social-top-link").evaluateAll(links=>links.map(link=>{
+ const navCenters=page=>page.locator(".feed-header-brand,.feed-search-form,.social-top-link,.feed-header-icon-button,.feed-account-toggle").evaluateAll(links=>links.map(link=>{
   const rect=link.getBoundingClientRect();return rect.left+rect.width/2;
  }));
  const assertStableHeader=(actual,section)=>{
-  assert.equal(actual.length,desktopHeaderCenters.length,section+": nav item count must match Feed");
+  assert.equal(actual.length,desktopHeaderCenters.length,section+": header control count must match Feed");
   assert.ok(actual.every((x,i)=>Math.abs(x-desktopHeaderCenters[i])<=1),
-   section+": navigation icons must not move when changing section: "+JSON.stringify({feed:desktopHeaderCenters,current:actual}));
+   section+": header controls must not move when changing section: "+JSON.stringify({feed:desktopHeaderCenters,current:actual}));
  };
  for(const language of ["uk","en"]){
   await feedContext.addCookies([{name:"vatra-language",value:language,url:base}]);
