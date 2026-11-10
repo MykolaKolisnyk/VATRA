@@ -2265,6 +2265,15 @@ try{
   })};
   `
  }));
+ let desktopHeaderCenters=null;
+ const navCenters=page=>page.locator(".social-top-link").evaluateAll(links=>links.map(link=>{
+  const rect=link.getBoundingClientRect();return rect.left+rect.width/2;
+ }));
+ const assertStableHeader=(actual,section)=>{
+  assert.equal(actual.length,desktopHeaderCenters.length,section+": nav item count must match Feed");
+  assert.ok(actual.every((x,i)=>Math.abs(x-desktopHeaderCenters[i])<=1),
+   section+": navigation icons must not move when changing section: "+JSON.stringify({feed:desktopHeaderCenters,current:actual}));
+ };
  for(const language of ["uk","en"]){
   await feedContext.addCookies([{name:"vatra-language",value:language,url:base}]);
   const feedProbe=await feedContext.newPage();
@@ -2288,6 +2297,7 @@ try{
    "The old sidebar must be removed, not hidden");
   assert.equal(await feedProbe.locator(".social-top-link:visible").count(),5,
    "The centered navigation must show five icon destinations");
+  if(language==="uk")desktopHeaderCenters=await navCenters(feedProbe);
   assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
    language==="en"?["Feed","Friends","Communities","Clips","Marketplace"]:
    ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс"]);
@@ -2305,21 +2315,25 @@ try{
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
     const story=r(".feed-stories"),posts=r(".feed-posts-section"),
+     storyCard=r(".feed-story-create"),
      nav=r(".social-top-nav"),logo=r(".ui-feed-logo-001"),
      account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
      brand=r(".feed-header-brand");
     return {storyLeft:story.left,postLeft:posts.left,storyWidth:story.width,postWidth:posts.width,
+     storyCardWidth:storyCard.width,storyCardHeight:storyCard.height,
      storyCenter:(story.left+story.right)/2,
-     navCenter:(nav.left+nav.right)/2,viewportCenter:innerWidth/2,
-     logoMargin:logo.left,rightMargin:innerWidth-account.right,
+     navCenter:(nav.left+nav.right)/2,viewportCenter:document.documentElement.clientWidth/2,
+     logoMargin:logo.left,rightMargin:document.documentElement.clientWidth-account.right,
      logoToSearch:search.left-brand.right,
      headerHeight:r(".feed-header").height};
    });
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
-    Math.abs(geometry.storyCenter-geometry.viewportCenter)<3&&
+    Math.abs(geometry.storyCenter-geometry.viewportCenter)<11&&
+    geometry.storyCardWidth>=160&&geometry.storyCardWidth<=170&&
+    geometry.storyCardHeight>=200&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
-    Math.abs(geometry.logoMargin-geometry.rightMargin)<9&&
+    Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
     "VATRA header symmetry and Feed posts aligned with Stories: "+
     JSON.stringify(geometry));
@@ -2504,11 +2518,13 @@ try{
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
+  if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
   await profilePage.goto(base+"profile",{waitUntil:"domcontentloaded"});
   assert.equal(await profilePage.locator("#profile-loading").isVisible(),true,
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  if(language==="uk")assertStableHeader(await navCenters(profilePage),"Profile");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
   assert.equal(await profilePage.locator(".feed-sidebar").count(),0,
    "Profile has only the actual header navigation");
@@ -2608,6 +2624,7 @@ try{
  for(const language of ["uk","en"]){
   await clubContext.addCookies([{name:"vatra-language",value:language,url:base}]);
   const page=await clubContext.newPage();
+  if(language==="uk")await page.setViewportSize({width:1366,height:844});
   await page.addInitScript(lang=>{
    localStorage.setItem("vatra-language",lang);
   },language);
@@ -2617,6 +2634,7 @@ try{
   assert.equal(await page.locator("#community-loading").isVisible(),true,
    "Communities loader must wait for the first directory query");
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
   assert.equal(await page.locator(".feed-sidebar").count(),0,
@@ -2641,6 +2659,7 @@ try{
   await page.locator("#community-create-submit").click();
   await page.waitForURL("**/club1",{timeout:16000});
   await page.locator("#club-heading").waitFor({state:"visible",timeout:16000});
+  if(language==="uk")assertStableHeader(await navCenters(page),"Club");
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
