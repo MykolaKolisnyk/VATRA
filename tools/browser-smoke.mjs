@@ -2166,9 +2166,10 @@ try{
      data:["654321","789012"].includes(String(id))?{vatra_id:id}:null,error:null
     })})})}:
     {select:()=>({filterId:null,eq(_field,id){this.filterId=String(id);return this;},
-      order(){return this;},range:async function(a,b){return {
-       data:window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(a,b+1),error:null
-      };}}),
+      order(){return this;},range:async function(a,b){
+       await new Promise(resolve=>setTimeout(resolve,320));
+       return {data:window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(a,b+1),error:null};
+      }}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
      delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})}
@@ -2183,6 +2184,10 @@ try{
   const feedErrors=[];
   feedProbe.on("pageerror",err=>feedErrors.push(err.message));
   await feedProbe.goto(base+"feed",{waitUntil:"domcontentloaded"});
+  assert.equal(await feedProbe.locator("#feed-loading").isVisible(),true,
+   "Feed loading screen must remain while its first post request is pending");
+  assert.equal(await feedProbe.locator("#feed-app").isVisible(),false,
+   "Feed content must not be revealed before initial data arrives");
   await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
@@ -2237,6 +2242,8 @@ try{
   const profilePage=await feedContext.newPage();
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
   await profilePage.goto(base+"profile",{waitUntil:"domcontentloaded"});
+  assert.equal(await profilePage.locator("#profile-loading").isVisible(),true,
+   "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 654321");
@@ -2244,10 +2251,16 @@ try{
    "The personal profile must not show guest legal footer");
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
    "Own profile must canonicalize to /VATRA/id654321");
+  const profileNavigations=[];
+  profilePage.on("framenavigated",frame=>{
+   if(frame===profilePage.mainFrame())profileNavigations.push(new URL(frame.url()).pathname);
+  });
   await profilePage.goto(base+"id789012",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id789012"),
    "A direct link to another member must retain their numeric ID");
+  assert.ok(profileNavigations.every(path=>!path.includes("/profile")),
+   "Opening /idN must never navigate through an intermediate /profile URL: "+JSON.stringify(profileNavigations));
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 789012");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
    language==="en"?"VATRA member":"Учасник VATRA");
@@ -2281,12 +2294,14 @@ try{
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
      select:()=>({
-      eq:(_field,id)=>({maybeSingle:async()=>({
-       data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,
-       error:null
-      })}),
+      eq:(_field,id)=>({maybeSingle:async()=>{
+       await new Promise(resolve=>setTimeout(resolve,270));
+       return {data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,error:null};
+      }}),
       order(){return this;},
-      limit:async()=>({data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]"),error:null})
+      limit:async()=>{await new Promise(resolve=>setTimeout(resolve,270));return {
+       data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]"),error:null
+      };}
      }),
      insert:data=>({select:()=>({single:async()=>{
       const all=JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]");
@@ -2307,6 +2322,8 @@ try{
   const pageErrors=[];
   page.on("pageerror",err=>pageErrors.push(err.message));
   await page.goto(base+"communities",{waitUntil:"domcontentloaded"});
+  assert.equal(await page.locator("#community-loading").isVisible(),true,
+   "Communities loader must wait for the first directory query");
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
@@ -2315,12 +2332,18 @@ try{
   await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
+  const clubNavigations=[];
+  page.on("framenavigated",frame=>{
+   if(frame===page.mainFrame())clubNavigations.push(new URL(frame.url()).pathname);
+  });
   await page.locator("#community-create-submit").click();
   await page.waitForURL("**/club1",{timeout:16000});
   await page.locator("#club-heading").waitFor({state:"visible",timeout:16000});
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
+  assert.ok(clubNavigations.every(path=>!path.includes("/club.html")),
+   "Opening /clubN must not display the intermediate static club.html URL");
   await page.goto(base+"club999",{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   assert.equal((await page.locator("#club-heading").textContent()).trim(),
