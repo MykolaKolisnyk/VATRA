@@ -887,6 +887,10 @@ const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
+ sharedCss.includes("body.feed-page .feed-header-inner{")&&
+ sharedCss.includes("margin:0 auto!important;gap:21px")&&
+ sharedCss.includes(".vatra-search-history{")&&
+ sharedCss.includes("max-height:min(228px,50dvh)")&&
  !sharedCss.includes(".feed-sidebar")&&
  !sharedCss.includes(".feed-composer")&&
  sharedJs.includes("positionTooltip(target)")&&
@@ -932,10 +936,11 @@ for(const page of sharedShellPages){
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"')&&
  storyPreviewMarkup.includes('class="feed-story-create ui-feed-story-create-001"')&&
- (storyPreviewMarkup.match(/class="feed-story-preview ui-feed-story-preview-00[1-4]"/g)||[]).length===4&&
+ (storyPreviewMarkup.match(/class="feed-story-preview ui-feed-story-preview-00[1-3]"/g)||[]).length===3&&
+ !storyPreviewMarkup.includes("ui-feed-story-preview-004")&&
  !storyPreviewMarkup.includes('class="vt-feed-stories-tag-001"')&&
  storyPreviewMarkup.includes('data-story-title-uk="Карпатські ранки"'),
- "Feed must show four distinct original illustrated Stories without fake user data");
+ "Feed must have four Stories total: one own card and three original previews");
 // The new Feed must be the authenticated home, not a duplicate account page.
 const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
@@ -1102,7 +1107,7 @@ assert.ok(forgot.includes('id="account-link" href="./" class="action primary ful
    translated page is hidden. This applies to 404, documents and all auth UIs.
    The authentication splash itself keeps animating during loading. */
 assert.ok(lang.includes('html.i18n-pending body{visibility:hidden!important}')&&
- lang.includes('html.i18n-pending body > :not(#vatra-auth-loading)')&&
+ lang.includes('html.i18n-pending body > :not(.vatra-auth-loading)')&&
  lang.includes('{animation-play-state:paused!important}')&&
  css.includes('body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading)')&&
  css.includes('body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}')&&
