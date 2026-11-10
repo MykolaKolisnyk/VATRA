@@ -23,7 +23,7 @@ const server=createServer(async(req,res)=>{
   res.writeHead(200,{"Content-Type":mime[extension]||"application/octet-stream"});
   res.end(body);
  }catch(error){
-  if(error?.code==="ENOENT"&&/^\/VATRA\/id[1-9][0-9]{0,18}$/.test(new URL(req.url,"http://localhost").pathname)){
+  if(error?.code==="ENOENT"&&/^\/VATRA\/(?:id|club)[1-9][0-9]{0,18}$/.test(new URL(req.url,"http://localhost").pathname)){
    res.writeHead(404,{"Content-Type":mime[".html"]});
    res.end(await readFile(resolve(root,"404.html")));
   }else res.writeHead(404).end("Not found");
@@ -2188,6 +2188,7 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
+  assert.equal(await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href"),"communities");
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-notifications-button-001").count(),1);
@@ -2196,7 +2197,7 @@ try{
    "Signed-in VATRA Feed must not show a footer");
   assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
    "Feed must use an extensionless public URL");
-  assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),8);
+  assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),7);
   assert.equal((await feedProbe.locator("#feed-my-id").textContent()).trim(),"VATRA ID 654321");
   assert.ok((await feedProbe.locator(".ui-feed-nav-link-2").getAttribute("href")).endsWith("/VATRA/id654321"),
    "My Page navigation must target the signed-in member's numeric ID");
