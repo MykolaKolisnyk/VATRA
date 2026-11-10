@@ -2286,58 +2286,66 @@ try{
    "Four primary destinations must be centered in the header");
   assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),false,
    "Sidebar navigation must not duplicate the header");
-  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),4,
-   "The centered navigation must show Feed, Communities, Clips and Marketplace");
+  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),5,
+   "The centered navigation must show five icon destinations");
   assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
-   language==="en"?["Feed","Communities","Clips","Marketplace"]:
-   ["Стрічка","Спільноти","Кліпи","Маркетплейс"]);
-  assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),2,
-   "Clips and Marketplace remain disabled until their actual features exist");
+   language==="en"?["Feed","Friends","Communities","Clips","Marketplace"]:
+   ["Стрічка","Друзі","Спільноти","Кліпи","Маркетплейс"]);
+  assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),3,
+   "Friends, Clips and Marketplace remain disabled until implemented");
   assert.equal((await feedProbe.locator(".vt-shell-nav-label-feed-001").textContent()).trim(),
    language==="en"?"Feed":"Стрічка");
   assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("vatra-symbol.svg"),
    "The VATRA V symbol, not the full wordmark, belongs at the left edge");
-  assert.equal(await feedProbe.locator(".feed-aside").isVisible(),language==="uk",
-   "The contextual rail must only occupy a wide desktop");
+  assert.equal(await feedProbe.locator(".feed-aside").count(),0,
+   "The Feed must not contain the New Communities rail");
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
     const rect=selector=>document.querySelector(selector).getBoundingClientRect();
-    return {feedEnd:rect(".feed-main").right,rightStart:rect(".feed-aside").left,
-     navCenter:(rect(".social-top-nav").left+rect(".social-top-nav").right)/2,
-     viewportCenter:innerWidth/2};
+    const nav=rect(".social-top-nav"),feed=rect(".feed-main");
+    const logo=rect(".ui-feed-logo-001");
+    const firstName=rect("#feed-menu-name");
+    const search=rect(".feed-header .feed-search-form");
+    const brand=rect(".feed-header-brand");
+    return {feedCenter:(feed.left+feed.right)/2,
+     navCenter:(nav.left+nav.right)/2,viewportCenter:innerWidth/2,
+     logoMargin:logo.left,rightMargin:innerWidth-firstName.right,
+     logoToSearch:search.left-brand.right,
+     headerHeight:rect(".feed-header").height};
    });
-   assert.ok(geometry.feedEnd<geometry.rightStart &&
-    Math.abs(geometry.navCenter-geometry.viewportCenter)<55,
-    "Header nav must be centered with Feed and context rails kept apart: "+
+   assert.ok(Math.abs(geometry.feedCenter-geometry.viewportCenter)<5&&
+    Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
+    Math.abs(geometry.logoMargin-geometry.rightMargin)<9&&
+    geometry.logoToSearch<=9&&geometry.headerHeight<=66,
+    "Feed centered, equal header outer margins, compact search/header: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
    "Incomplete destinations must not be offered as dead menu controls");
   assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
   assert.equal((await feedProbe.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA");
-  assert.equal(await feedProbe.locator(".social-right-panel").count(),1,
-   "Feed should only show one useful Communities panel, not an inactive marketing panel");
-  await feedProbe.waitForFunction(()=>document.querySelector("#feed-community-list")?.getAttribute("aria-busy")==="false");
-  assert.equal(await feedProbe.locator(".social-community-item").count(),1,
-   "Show actual community records in the discovery panel");
-  assert.ok((await feedProbe.locator(".social-community-item").getAttribute("href")).endsWith("/VATRA/club42"),
-   "Community discovery must open the immutable public club URL");
+  assert.equal(await feedProbe.locator(".social-right-panel").count(),0);
+  assert.equal(await feedProbe.locator("#feed-community-list").count(),0);
+  assert.equal(await feedProbe.locator(".feed-composer").count(),0,
+   "The Feed must have no publishing form; posts are created on one's own profile");
   assert.ok((await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-notifications-button-001").count(),1);
   assert.equal(await feedProbe.locator(".feed-account-toggle").count(),1);
-  assert.equal((await feedProbe.locator("#feed-menu-name").textContent()).trim(),"Тест VATRA",
-   "The logged-in member name must be beside the avatar");
+  assert.equal((await feedProbe.locator("#feed-menu-name").textContent()).trim(),"Тест",
+   "Only the member's given name appears immediately after the avatar");
+  assert.equal(await feedProbe.locator(".feed-account-dropdown #feed-menu-name").count(),0,
+   "Avatar dropdown contains only the four requested account actions");
   const headerOrder=await feedProbe.evaluate(()=>{
    const controls=document.querySelector(".feed-header-controls");
-   const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")));
+   const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")||c.startsWith("vt-")));
    return direct;
   });
   assert.deepEqual(headerOrder,["ui-shell-header-messenger-001",
-    "ui-feed-notifications-button-001","ui-shell-header-friends-001",
-    "ui-feed-music-button-001","ui-feed-account-menu-001"],
-   "Right controls must be Messenger, notifications, Friends, music, then avatar");
+    "ui-feed-notifications-button-001","ui-feed-music-button-001",
+    "ui-feed-account-menu-001","vt-feed-account-name-001"],
+   "Right controls must be Messenger, notifications, music, avatar and first name");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
@@ -2345,6 +2353,12 @@ try{
    "Stories previews are placeholders, not fake users");
   assert.equal(await feedProbe.locator(".feed-story-create:disabled").count(),1,
    "The Stories mock cannot pretend to publish real stories");
+  const storiesBeforePosts=await feedProbe.evaluate(()=>{
+   const stories=document.querySelector(".feed-stories").getBoundingClientRect();
+   const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
+   return stories.top<posts.top&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
+  });
+  assert.ok(storiesBeforePosts,"Stories must be the first visible Feed block under the header");
   await feedProbe.locator(".feed-account-toggle").click();
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
    "Avatar must reveal the account menu");
@@ -2371,14 +2385,17 @@ try{
   assert.ok(new URL(feedProbe.url()).pathname.endsWith("/VATRA/feed"),
    "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),7);
-  assert.equal((await feedProbe.locator("#feed-my-id").textContent()).trim(),"VATRA ID 654321");
+  assert.equal(await feedProbe.locator("#feed-my-id").count(),0);
   assert.ok((await feedProbe.locator(".ui-feed-nav-link-2").getAttribute("href")).endsWith("/VATRA/id654321"),
    "My Page navigation must target the signed-in member's numeric ID");
   assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
-  await feedProbe.locator("#feed-post-text").fill(injectionText);
-  await feedProbe.locator("#feed-submit").click();
+  await feedProbe.evaluate(text=>{
+   window.__feedTestPosts.unshift({id:"feed-manual-post-1",author_id:"feed-mock-user",
+    author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
+  },injectionText);
+  await feedProbe.locator("#feed-search-input").press("Enter");
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
   assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
@@ -2425,7 +2442,16 @@ try{
    "Do not imply that an editable bio exists without persisted profile data");
   assert.equal(await profilePage.locator(".social-profile-columns #profile-posts-section").count(),1);
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
-   "The link to create a post should be available on the signed-in member's own page");
+   "Only the signed-in member may open the real post creator on their profile");
+  await profilePage.locator("#profile-write-post").click();
+  assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),true);
+  await profilePage.locator("#profile-compose-text").fill(injectionText);
+  await profilePage.locator("#profile-compose-submit").click();
+  await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-posts .feed-post-card").length===1);
+  assert.equal((await profilePage.locator("#profile-posts .feed-post-body").textContent()).trim(),injectionText);
+  assert.equal(await profilePage.locator("#profile-posts img").count(),0,
+   "Profile posts render user input as text, not executable HTML");
+  assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 654321");
   assert.equal(await profilePage.locator("footer").count(),0,
    "The personal profile must not show guest legal footer");
@@ -2446,10 +2472,10 @@ try{
    language==="en"?"VATRA member":"Учасник VATRA");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
-  assert.equal((await profilePage.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA",
-   "The sidebar must keep the signed-in member's identity when visiting another profile");
-  assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест VATRA",
-   "Own identity in avatar menu must not be replaced by the visited member's identity");
+  assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
+   "The header must retain the signed-in first name when viewing another profile");
+  assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
+   "Own given name beside avatar must not be replaced by the visited member's identity");
   await profilePage.goto(base+"id999999",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
