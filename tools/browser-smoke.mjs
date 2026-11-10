@@ -2281,7 +2281,8 @@ try{
    "Desktop Feed should have a compact top navigation separate from the 10 sidebar sections");
   assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
   assert.equal((await feedProbe.locator("#feed-sidebar-person-name").textContent()).trim(),"Тест VATRA");
-  assert.equal(await feedProbe.locator(".social-right-panel").count(),2);
+  assert.equal(await feedProbe.locator(".social-right-panel").count(),1,
+   "Feed should only show one useful Communities panel, not an inactive marketing panel");
   assert.ok((await feedProbe.locator(".ui-feed-nav-link-5").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);

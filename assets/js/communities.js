@@ -42,6 +42,13 @@ async function start(){
  for(const element of document.querySelectorAll("[data-community-uk]")){
   element.textContent=english?element.dataset.communityEn:element.dataset.communityUk;
  }
+ for(const element of document.querySelectorAll("[data-social-uk]")){
+  element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
+ }
+ for(const link of document.querySelectorAll(".social-top-link")){
+  const label=link.querySelector("[data-social-uk]");
+  if(label){link.setAttribute("aria-label",label.textContent);link.title=label.textContent;}
+ }
  if(english){
   const name=$("#community-name"),description=$("#community-description");
   if(name)name.placeholder="For example, Ukrainian music";
@@ -65,7 +72,14 @@ async function start(){
     t("Учасник VATRA","VATRA member");
   const cleanName=Array.from(ownName).slice(0,100).join("");
   $("#feed-menu-name").textContent=cleanName;
-  $("#feed-header-avatar").textContent=(Array.from(cleanName)[0]||"V").toLocaleUpperCase(english?"en-US":"uk-UA");
+  const nameParts=cleanName.split(/\s+/).filter(Boolean);
+  const first=(Array.from(nameParts[0]||"V")[0]||"V");
+  const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
+  const avatar=(first+last).toLocaleUpperCase(english?"en-US":"uk-UA");
+  $("#feed-header-avatar").textContent=avatar;
+  const sidebarName=$("#feed-sidebar-person-name"),sidebarAvatar=$("#feed-sidebar-person-avatar");
+  if(sidebarName)sidebarName.textContent=cleanName;
+  if(sidebarAvatar)sidebarAvatar.textContent=avatar;
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
   $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";

@@ -186,14 +186,14 @@ async function start(){
   q(".vt-profile-title-001").textContent=isMine?t("Моя сторінка","My page"):t("Профіль","Profile");
   if(isMine){
    q("#profile-about-text").textContent=t(
-    "Тут зібрані ваші публікації та історії. Друзі, фотографії й нові можливості з’являться згодом.",
-    "Your posts and stories live here. Friends, photos and more features are coming later.");
+    "Інформацію про себе поки не додано.",
+    "You have not added profile details yet.");
   }
   if(!isMine){
    q(".vt-profile-about-heading-001").textContent=t("Профіль користувача","Member profile");
    q("#profile-about-text").textContent=t(
-    "Публічна сторінка учасника VATRA. Тут відображаються його публікації.",
-    "This VATRA member's public page displays their posts.");
+    "Користувач ще не додав інформацію про себе.",
+    "This member has not added profile details yet.");
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   // Profile tabs are real in-page navigation, without changing the public /idN URL.
