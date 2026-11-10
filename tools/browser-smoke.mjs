@@ -2282,12 +2282,24 @@ try{
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
   assert.equal(await feedProbe.locator(".feed-nav-link").count(),10);
-  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),true,
-   "The single primary navigation must be available on desktop and mobile");
-  assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),false,
-   "Do not duplicate the top navigation in a second sidebar");
-  assert.equal(await feedProbe.locator(".social-top-link:visible").count(),3,
-   "Only three working primary destinations should be visible");
+  assert.equal(await feedProbe.locator(".social-top-nav").isVisible(),false,
+   "Reference-based desktop layout must not duplicate the left navigation above the feed");
+  assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),true,
+   "VATRA primary navigation belongs in the left sidebar");
+  assert.equal(await feedProbe.locator(".feed-nav-link:visible").count(),3,
+   "Show only the three functional destinations in the sidebar");
+  assert.equal(await feedProbe.locator(".feed-aside").isVisible(),language==="uk",
+   "The contextual right rail should be present only when the desktop has room");
+  if(language==="uk"){
+   const geometry=await feedProbe.evaluate(()=>{
+    const rect=selector=>document.querySelector(selector).getBoundingClientRect();
+    return {left:rect(".feed-sidebar").right,feedStart:rect(".feed-main").left,
+     feedEnd:rect(".feed-main").right,rightStart:rect(".feed-aside").left};
+   });
+   assert.ok(geometry.left<geometry.feedStart&&geometry.feedEnd<geometry.rightStart,
+    "Desktop VATRA must be laid out as left navigation, middle Feed, and right context: "+
+    JSON.stringify(geometry));
+  }
   assert.equal(await feedProbe.locator(".feed-nav-pending:visible").count(),0,
    "Incomplete destinations must not be offered as dead menu controls");
   assert.equal(await feedProbe.locator(".social-sidebar-person").count(),1);
@@ -2352,6 +2364,9 @@ try{
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
+  assert.equal(await profilePage.locator(".feed-sidebar").isVisible(),true,
+   "The Profile must preserve the same left navigation as the Feed");
+  assert.equal(await profilePage.locator(".social-top-nav").isVisible(),false);
   assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
    "Do not show tabs for features which have no underlying profile data");
   assert.equal(await profilePage.locator(".social-profile-columns .profile-info").isVisible(),false,
@@ -2444,6 +2459,9 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
+  assert.equal(await page.locator(".feed-sidebar").isVisible(),true,
+   "Communities must use the same visible left navigation as the Feed");
+  assert.equal(await page.locator(".social-top-nav").isVisible(),false);
   assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
   assert.equal(await page.locator("footer").count(),0);
   await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
