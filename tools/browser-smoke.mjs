@@ -2308,13 +2308,14 @@ try{
      nav=r(".social-top-nav"),logo=r(".ui-feed-logo-001"),
      account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
      brand=r(".feed-header-brand");
-    return {storyLeft:story.left,postLeft:posts.left,
+    return {storyLeft:story.left,postLeft:posts.left,storyWidth:story.width,postWidth:posts.width,
      navCenter:(nav.left+nav.right)/2,viewportCenter:innerWidth/2,
      logoMargin:logo.left,rightMargin:innerWidth-account.right,
      logoToSearch:search.left-brand.right,
      headerHeight:r(".feed-header").height};
    });
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
+    Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<9&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
@@ -2355,6 +2356,8 @@ try{
    "Create Story should explain its status when clicked, not be a dead control");
   assert.equal(await feedProbe.locator(".vt-feed-stories-tag").count(),0,
    "Never label the Stories interface as a mock");
+  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),true,
+   "Create Story must show the VATRA symbol, not a blank card");
   await feedProbe.locator(".feed-story-preview").first().click();
   assert.equal(await feedProbe.locator(".vatra-story-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator(".vatra-story-close").click();
@@ -2370,8 +2373,11 @@ try{
    "Each header icon needs a VATRA tooltip on hover");
   const tip=await feedProbe.evaluate(()=>{
    const r=document.querySelector(".vatra-shell-tooltip").getBoundingClientRect();
-   return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,w:innerWidth,h:innerHeight};
+   const style=getComputedStyle(document.querySelector(".vatra-shell-tooltip"));
+   return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,w:innerWidth,h:innerHeight,
+    background:style.backgroundColor,color:style.color};
   });
+  assert.equal(tip.background,"rgb(255, 255, 255)","VATRA icon tips must match the white auth tooltip");
   assert.ok(tip.left>=0&&tip.right<=tip.w+1&&tip.top>=0&&tip.bottom<=tip.h+1,
    "Header tooltip must be kept inside viewport: "+JSON.stringify(tip));
   await feedProbe.locator(".ui-social-top-friends-001").click();

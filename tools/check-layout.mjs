@@ -885,10 +885,14 @@ const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 const sharedCss=await read("assets/css/feed.css");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
+ sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
+ !sharedCss.includes("VK/Facebook")&&
+ !sharedCss.includes(".feed-sidebar")&&
+ !sharedCss.includes(".feed-composer")&&
  sharedJs.includes("positionTooltip(target)")&&
  sharedJs.includes("setUpStories()"),
- "VATRA header needs one viewport-safe tooltip system and interactive Stories");
+ "VATRA must use auth-style tooltips, one active header and no obsolete social CSS");
 for(const page of sharedShellPages){
  const html=await read(page+".html");
  assert.equal(normalizedSocialHeader(html),canonicalSocialHeader,
