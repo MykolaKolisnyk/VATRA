@@ -75,12 +75,13 @@ async function start(){
    try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
    location.replace(root);
   });
+  // Show the ready page only after its first list or community data request.
+  if(mode==="club")await openClub(client);
+  else await openDirectory(client);
   $("#community-app").hidden=false;
   $("#community-loading").hidden=true;
   document.body.dataset.authReady="true";
   document.body.dataset.feedReady="true";
-  if(mode==="club")await openClub(client);
-  else await openDirectory(client);
  }catch(_){
   const label=$(".vatra-auth-loading-caption");
   if(label)label.textContent=t("Не вдалося відкрити сторінку. Оновіть її.","Could not open this page. Please refresh.");
