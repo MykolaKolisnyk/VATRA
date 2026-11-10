@@ -98,7 +98,9 @@ async function loadPosts(client,targetId){
     node("time","feed-post-date vt-profile-post-date-001",dateText(post.created_at))
    );
    identity.querySelector("time").dateTime=post.created_at;
-   header.append(identity);
+   const avatar=node("span","feed-avatar feed-post-avatar vt-profile-post-avatar-001",q("#profile-avatar").textContent||"V");
+   avatar.setAttribute("aria-hidden","true");
+   header.append(avatar,identity);
    article.append(header,node("p","feed-post-body vt-profile-post-body-001",post.body));
    list.append(article);
   }
@@ -128,7 +130,10 @@ async function start(){
    .map(value=>value.trim()).join(" ")
    ||String(metadata.full_name||"").trim()||t("Учасник VATRA","VATRA member");
   const cleanOwnName=Array.from(ownName).slice(0,100).join("");
-  const ownAvatar=(Array.from(cleanOwnName)[0]||"V").toLocaleUpperCase(locale);
+  const nameParts=cleanOwnName.split(/\s+/).filter(Boolean);
+  const first=Array.from(nameParts[0]||"V")[0]||"V";
+  const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
+  const ownAvatar=(first+last).toLocaleUpperCase(locale);
   const {data:account,error:accountError}=await client.from("accounts")
    .select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
