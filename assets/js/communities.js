@@ -116,6 +116,15 @@ async function start(){
 async function openDirectory(client){
  document.title=t("Спільноти · VATRA","Communities · VATRA");
  const form=$("#community-create-form"),button=$("#community-create-submit");
+ const panel=$("#community-create-panel"),toggle=$("#community-create-toggle");
+ toggle?.addEventListener("click",()=>{
+  if(!panel)return;
+  const opening=panel.hidden;
+  panel.hidden=!opening;
+  toggle.setAttribute("aria-expanded",String(opening));
+  if(opening)$("#community-name")?.focus();
+  else toggle.focus();
+ });
  form.addEventListener("submit",async event=>{
   event.preventDefault();
   if(button.disabled)return;
