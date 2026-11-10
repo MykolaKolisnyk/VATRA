@@ -382,51 +382,6 @@
             "0": "Skip to feed"
           }
         },
-        "n2": {
-          "text": {
-            "0": "Feed"
-          }
-        },
-        "n3": {
-          "text": {
-            "0": "My page"
-          }
-        },
-        "n4": {
-          "text": {
-            "0": "Friends"
-          }
-        },
-        "n5": {
-          "text": {
-            "0": "Messenger"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Communities"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Video"
-          }
-        },
-        "n8": {
-          "text": {
-            "0": "Clips"
-          }
-        },
-        "n9": {
-          "text": {
-            "0": "Saved"
-          }
-        },
-        "n10": {
-          "text": {
-            "0": "Settings"
-          }
-        },
         "n12": {
           "text": {
             "0": "Feed"
@@ -457,11 +412,6 @@
             "0": "Sign out"
           }
         },
-        "n33": {
-          "text": {
-            "0": "Your people. Your stories. Your VATRA."
-          }
-        },
         "n36": {
           "text": {
             "0": "Newest"
@@ -490,11 +440,6 @@
         "n31": {
           "attrs": {
             "aria-label": "Choose language"
-          }
-        },
-        "n32": {
-          "attrs": {
-            "aria-label": "VATRA navigation"
           }
         },
         "n42": {
@@ -532,11 +477,6 @@
         "n48": {
           "text": {
             "0": "My page"
-          }
-        },
-        "n49": {
-          "text": {
-            "0": "Marketplace"
           }
         }
       }
@@ -2752,66 +2692,6 @@
         "n26": {
           "text": {
             "0": "Sign out"
-          }
-        },
-        "n32": {
-          "attrs": {
-            "aria-label": "VATRA navigation"
-          }
-        },
-        "n2": {
-          "text": {
-            "0": "Feed"
-          }
-        },
-        "n3": {
-          "text": {
-            "0": "My page"
-          }
-        },
-        "n4": {
-          "text": {
-            "0": "Friends"
-          }
-        },
-        "n5": {
-          "text": {
-            "0": "Messenger"
-          }
-        },
-        "n6": {
-          "text": {
-            "0": "Communities"
-          }
-        },
-        "n7": {
-          "text": {
-            "0": "Video"
-          }
-        },
-        "n8": {
-          "text": {
-            "0": "Clips"
-          }
-        },
-        "n9": {
-          "text": {
-            "0": "Saved"
-          }
-        },
-        "n10": {
-          "text": {
-            "0": "Settings"
-          }
-        },
-        "n49": {
-          "text": {
-            "0": "Marketplace"
-          }
-        },
-        "n33": {
-          "text": {
-            "0": "Your people. Your stories. Your VATRA."
           }
         },
         "n12": {
