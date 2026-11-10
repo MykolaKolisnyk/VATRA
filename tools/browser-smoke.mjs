@@ -22,7 +22,12 @@ const server=createServer(async(req,res)=>{
   const extension=name.slice(name.lastIndexOf("."));
   res.writeHead(200,{"Content-Type":mime[extension]||"application/octet-stream"});
   res.end(body);
- }catch(error){res.writeHead(404).end("Not found");}
+ }catch(error){
+  if(error?.code==="ENOENT"&&/^\/VATRA\/id[1-9][0-9]{0,18}$/.test(new URL(req.url,"http://localhost").pathname)){
+   res.writeHead(404,{"Content-Type":mime[".html"]});
+   res.end(await readFile(resolve(root,"404.html")));
+  }else res.writeHead(404).end("Not found");
+ }
 });
 await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
 const base="http://127.0.0.1:"+server.address().port+basePath;
@@ -2156,7 +2161,14 @@ try{
    },
    from:table=>table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
-    {select:()=>({order(){return this;},range:async(a,b)=>({data:window.__feedTestPosts.slice(a,b+1),error:null})}),
+    table==="vatra_directory"?
+    {select:()=>({eq:(_field,id)=>({maybeSingle:async()=>({
+     data:["654321","789012"].includes(String(id))?{vatra_id:id}:null,error:null
+    })})})}:
+    {select:()=>({filterId:null,eq(_field,id){this.filterId=String(id);return this;},
+      order(){return this;},range:async function(a,b){return {
+       data:window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(a,b+1),error:null
+      };}}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
      delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})}
@@ -2186,10 +2198,16 @@ try{
    "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending:disabled").count(),8);
   assert.equal((await feedProbe.locator("#feed-my-id").textContent()).trim(),"VATRA ID 654321");
+  assert.ok((await feedProbe.locator(".ui-feed-nav-link-2").getAttribute("href")).endsWith("/VATRA/id654321"),
+   "My Page navigation must target the signed-in member's numeric ID");
+  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"),
+   "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
   await feedProbe.locator("#feed-post-text").fill(injectionText);
   await feedProbe.locator("#feed-submit").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
+  assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
+   "Feed author names must link to numeric member profile URLs");
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),injectionText,
    "Feed must render user posts as text, not HTML");
   assert.equal(await feedProbe.locator(".feed-post-body img").count(),0);
@@ -2221,7 +2239,21 @@ try{
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 654321");
   assert.equal(await profilePage.locator("footer").count(),0,
    "The personal profile must not show guest legal footer");
-  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/profile"));
+  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
+   "Own profile must canonicalize to /VATRA/id654321");
+  await profilePage.goto(base+"id789012",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id789012"),
+   "A direct link to another member must retain their numeric ID");
+  assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 789012");
+  assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
+   language==="en"?"VATRA member":"Учасник VATRA");
+  assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест VATRA",
+   "Own identity in avatar menu must not be replaced by the visited member's identity");
+  await profilePage.goto(base+"id999999",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
+   language==="en"?"Profile not found":"Профіль не знайдено");
   await profilePage.close();
  }
  await feedContext.close();
