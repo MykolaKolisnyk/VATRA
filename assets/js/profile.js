@@ -86,11 +86,13 @@ const gateError=message=>{
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
 function missingProfile(){
- q(".vt-profile-title-001").textContent=t("Профіль не знайдено","Profile not found");
+ q("#profile-tab-posts").hidden=true;
+ q("#profile-about-card").hidden=false;
+ q(".profile-actions").hidden=true;
  q("#profile-heading").textContent=t("Профіль не знайдено","Profile not found");
  q("#profile-vatra-id").textContent="";
  q("#profile-avatar").textContent="?";
- q(".vt-profile-about-heading-001").textContent=t("Недоступний профіль","Unavailable profile");
+ q("#profile-about-heading").textContent=t("Недоступний профіль","Unavailable profile");
  q("#profile-about-text").textContent=t(
   "Такого VATRA ID немає. Перевірте адресу профілю.",
   "This VATRA ID does not exist. Check the profile address.");
@@ -195,6 +197,210 @@ function bindPostComposer(client,user,ownId){
  });
  update();
 }
+
+function setupProfileInteractions(client,ownId,targetId,isMine){
+ const friendButton=q("#profile-friend-button"),messageButton=q("#profile-message-button");
+ const actionStatus=q("#profile-action-status");
+ const friends=q("#profile-friends-list"),friendsEmpty=q("#profile-friends-empty");
+ const inbox=q("#profile-inbox-list"),inboxEmpty=q("#profile-inbox-empty");
+ const dialog=q("#profile-message-dialog"),conversation=q("#profile-message-history");
+ const messageText=q("#profile-message-text"),messageStatus=q("#profile-message-status");
+ const send=q("#profile-message-send");
+ const validPeer=id=>validId(String(id))&&String(id)!==String(ownId);
+ const show=(el,txt)=>{el.textContent=txt;el.hidden=!txt;};
+ const makePerson=(id,description)=>{
+  const row=node("div","profile-person ui-profile-person-"+id);
+  const avatar=node("span","profile-person-avatar vt-profile-person-avatar-"+id,"V");
+  avatar.setAttribute("aria-hidden","true");
+  const info=node("div","profile-person-details ui-profile-person-details-"+id);
+  const link=node("a","vt-profile-person-link-"+id,"VATRA ID "+id);
+  link.href=memberUrl(id);
+  info.append(link,node("small","vt-profile-person-description-"+id,description));
+  row.append(avatar,info);
+  return row;
+ };
+ let loadFriends=async()=>{},loadInbox=async()=>{};
+ const tabs=[...document.querySelectorAll("[data-profile-tab]")];
+ function choose(name){
+  if(name==="messages"&&!isMine)return;
+  for(const tab of tabs){
+   const active=tab.dataset.profileTab===name;
+   tab.classList.toggle("social-profile-tab-active",active);
+   tab.setAttribute("aria-selected",String(active));
+   tab.tabIndex=active?0:-1;
+  }
+  for(const panel of document.querySelectorAll("[data-profile-panel]")){
+   panel.hidden=panel.dataset.profilePanel!==name;
+  }
+  if(name==="friends")void loadFriends();
+  if(name==="messages")void loadInbox();
+ }
+ for(const tab of tabs){
+  tab.addEventListener("click",()=>choose(tab.dataset.profileTab));
+  tab.addEventListener("keydown",e=>{
+   if(e.key!=="ArrowLeft"&&e.key!=="ArrowRight")return;
+   const visible=tabs.filter(x=>!x.hidden);
+   const next=visible[(visible.indexOf(tab)+(e.key==="ArrowRight"?1:-1)+visible.length)%visible.length];
+   e.preventDefault();next.focus();choose(next.dataset.profileTab);
+  });
+ }
+ q("#profile-tab-messages").hidden=!isMine;
+ if(isMine&&location.hash==="#profile-messages-section")choose("messages");
+ if(!validId(ownId))return;
+ let activePeer=null,sending=false;
+ const messagesQuery=peer=>"and(sender_id.eq."+ownId+",recipient_id.eq."+peer+
+  "),and(sender_id.eq."+peer+",recipient_id.eq."+ownId+")";
+ const loadConversation=async()=>{
+  if(!validPeer(activePeer))return;
+  conversation.replaceChildren(node("p","vt-profile-message-loading-001",t("Завантаження…","Loading…")));
+  try{
+   const {data,error}=await client.from("vatra_direct_messages")
+    .select("sender_id,recipient_id,body,created_at")
+    .or(messagesQuery(activePeer)).order("created_at",{ascending:false}).limit(50);
+   if(error)throw error;
+   conversation.replaceChildren();
+   if(!data?.length)conversation.append(node("p","vt-profile-message-empty-001",
+    t("Повідомлень ще немає.","No messages yet.")));
+   for(const m of (data||[]).slice().reverse()){
+    const bubble=node("div","profile-message-bubble ui-profile-message-bubble-001",m.body);
+    bubble.dataset.own=String(m.sender_id)===String(ownId)?"true":"false";
+    const time=node("time","vt-profile-message-time-001",dateText(m.created_at));
+    time.dateTime=m.created_at;
+    bubble.append(time);conversation.append(bubble);
+   }
+   conversation.scrollTop=conversation.scrollHeight;
+  }catch(_){
+   conversation.replaceChildren(node("p","vt-profile-message-error-001",
+    t("Не вдалося завантажити розмову.","Could not load conversation.")));
+  }
+ };
+ const openConversation=async peer=>{
+  if(!validPeer(peer))return;
+  activePeer=String(peer);
+  q("#profile-message-title").textContent=t("Повідомлення · VATRA ID ","Messages · VATRA ID ")+activePeer;
+  messageText.value="";show(messageStatus,"");
+  if(!dialog.open)dialog.showModal();
+  await loadConversation();
+  messageText.focus();
+ };
+ q("#profile-message-close").addEventListener("click",()=>{if(!sending)dialog.close();});
+ q("#profile-message-refresh").addEventListener("click",()=>void loadConversation());
+ q("#profile-message-form").addEventListener("submit",async event=>{
+  event.preventDefault();
+  if(sending||!validPeer(activePeer))return;
+  const body=messageText.value.trim();
+  if(!body||Array.from(body).length>2000){
+   show(messageStatus,t("Потрібно 1–2000 символів.","Please enter 1–2000 characters."));return;
+  }
+  sending=true;send.disabled=true;show(messageStatus,"");
+  try{
+   const {error}=await client.from("vatra_direct_messages").insert({
+    sender_id:ownId,recipient_id:activePeer,body
+   });
+   if(error)throw error;
+   messageText.value="";
+   await loadConversation();
+   show(messageStatus,t("Повідомлення надіслано.","Message sent."));
+  }catch(_){show(messageStatus,t("Не вдалося надіслати.","Failed to send message."));}
+  finally{sending=false;send.disabled=false;}
+ });
+ if(!isMine){
+  messageButton.hidden=false;
+  messageButton.addEventListener("click",()=>void openConversation(targetId));
+  friendButton.hidden=false;
+  let relation=null,busy=false;
+  const pair="and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+
+   "),and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")";
+  const refreshFriend=async()=>{
+   const {data,error}=await client.from("vatra_friendships")
+    .select("id,requester_id,recipient_id,status").or(pair).maybeSingle();
+   if(error)throw error;
+   relation=data;
+   const outgoing=String(relation?.requester_id)===String(ownId);
+   friendButton.textContent=relation?.status==="accepted"?t("У друзях · Видалити","Friends · Remove"):
+    relation?.status==="pending"?(outgoing?t("Заявку надіслано · Скасувати","Request sent · Cancel"):
+     t("Прийняти заявку","Accept request")):t("Додати в друзі","Add friend");
+  };
+  friendButton.textContent=t("Додати в друзі","Add friend");
+  void refreshFriend().catch(()=>show(actionStatus,t("Статус дружби недоступний.","Friendship status unavailable.")));
+  friendButton.addEventListener("click",async()=>{
+   if(busy)return;
+   busy=true;friendButton.disabled=true;show(actionStatus,"");
+   try{
+    const result=!relation?
+     await client.from("vatra_friendships").insert({requester_id:ownId,recipient_id:targetId}):
+     relation.status==="pending"&&String(relation.recipient_id)===String(ownId)?
+      await client.from("vatra_friendships").update({status:"accepted"}).eq("id",relation.id):
+      await client.from("vatra_friendships").delete().eq("id",relation.id);
+    if(result.error)throw result.error;
+    await refreshFriend();
+    show(actionStatus,t("Статус дружби оновлено.","Friendship updated."));
+   }catch(_){show(actionStatus,t("Не вдалося виконати дію.","Could not complete the action."));}
+   finally{busy=false;friendButton.disabled=false;}
+  });
+ }
+ loadFriends=async()=>{
+  friends.replaceChildren();friendsEmpty.hidden=true;
+  if(!isMine){
+   show(friendsEmpty,t("Списки друзів інших користувачів приватні.","Other members' friend lists are private."));
+   return;
+  }
+  try{
+   const {data,error}=await client.from("vatra_friendships")
+    .select("id,requester_id,recipient_id,status,created_at")
+    .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
+    .order("created_at",{ascending:false}).limit(100);
+   if(error)throw error;
+   for(const item of data||[]){
+    const incoming=String(item.recipient_id)===String(ownId);
+    const other=String(incoming?item.requester_id:item.recipient_id);
+    const status=item.status==="accepted"?t("У друзях","Friends"):
+     incoming?t("Вхідна заявка","Incoming request"):t("Вихідна заявка","Outgoing request");
+    const row=makePerson(other,status);
+    const action=node("button","profile-person-action vt-profile-friend-action-"+other,
+     item.status==="pending"&&incoming?t("Прийняти","Accept"):
+     item.status==="accepted"?t("Видалити","Remove"):t("Скасувати","Cancel"));
+    action.type="button";
+    action.addEventListener("click",async()=>{
+     action.disabled=true;
+     try{
+      const {error:changeError}=await (item.status==="pending"&&incoming?
+       client.from("vatra_friendships").update({status:"accepted"}).eq("id",item.id):
+       client.from("vatra_friendships").delete().eq("id",item.id));
+      if(changeError)throw changeError;
+      await loadFriends();
+     }catch(_){action.disabled=false;show(friendsEmpty,t("Не вдалося оновити друзів.","Could not update friends."));}
+    });
+    row.append(action);friends.append(row);
+   }
+   if(!data?.length)show(friendsEmpty,t("Друзів і заявок поки немає.","No friends or requests yet."));
+  }catch(_){show(friendsEmpty,t("Не вдалося завантажити друзів.","Could not load friends."));}
+ };
+ loadInbox=async()=>{
+  inbox.replaceChildren();inboxEmpty.hidden=true;
+  if(!isMine)return;
+  try{
+   const {data,error}=await client.from("vatra_direct_messages")
+    .select("sender_id,recipient_id,created_at")
+    .or("sender_id.eq."+ownId+",recipient_id.eq."+ownId)
+    .order("created_at",{ascending:false}).limit(200);
+   if(error)throw error;
+   const seen=new Set();
+   for(const item of data||[]){
+    const other=String(item.sender_id)===String(ownId)?String(item.recipient_id):String(item.sender_id);
+    if(seen.has(other))continue;
+    seen.add(other);
+    const row=makePerson(other,t("Останній діалог: ","Latest conversation: ")+dateText(item.created_at));
+    const action=node("button","profile-person-action vt-profile-message-open-"+other,t("Написати","Message"));
+    action.type="button";
+    action.addEventListener("click",()=>void openConversation(other));
+    row.append(action);inbox.append(row);
+   }
+   if(!seen.size)show(inboxEmpty,t("Діалогів поки немає.","No conversations yet."));
+  }catch(_){show(inboxEmpty,t("Не вдалося завантажити повідомлення.","Could not load messages."));}
+ };
+}
+
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  localizeSocial();
@@ -262,34 +468,20 @@ async function start(){
   q("#profile-heading").textContent=name;
   q("#profile-avatar").textContent=isMine?ownAvatar:"V";
   q("#profile-vatra-id").textContent="VATRA ID "+targetId;
-  q(".vt-profile-title-001").textContent=isMine?t("Моя сторінка","My page"):t("Профіль","Profile");
+ 
   if(isMine){
    q("#profile-about-text").textContent=t(
     "Інформацію про себе поки не додано.",
     "You have not added profile details yet.");
   }
   if(!isMine){
-   q(".vt-profile-about-heading-001").textContent=t("Профіль користувача","Member profile");
+   q("#profile-about-heading").textContent=t("Профіль користувача","Member profile");
    q("#profile-about-text").textContent=t(
     "Користувач ще не додав інформацію про себе.",
     "This member has not added profile details yet.");
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
-  // Profile tabs are real in-page navigation, without changing the public /idN URL.
-  for(const tab of document.querySelectorAll(".social-profile-tabs a[href^='#']")){
-   tab.addEventListener("click",event=>{
-    const destination=document.querySelector(tab.getAttribute("href"));
-    if(!destination)return;
-    event.preventDefault();
-    for(const sibling of document.querySelectorAll(".social-profile-tabs a")){
-     sibling.classList.remove("social-profile-tab-active");
-     sibling.removeAttribute("aria-current");
-    }
-    tab.classList.add("social-profile-tab-active");
-    tab.setAttribute("aria-current","location");
-    destination.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
-   });
-  }
+  setupProfileInteractions(client,ownId,targetId,isMine);
   // Never expose the internal Supabase auth UUID or the intermediate /profile URL.
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
