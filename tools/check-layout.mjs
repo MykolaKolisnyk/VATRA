@@ -869,7 +869,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","sw.js"]){
+for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -882,6 +882,13 @@ const normalizedSocialHeader=html=>{
  return header.replace(/ social-top-active/g,"").replace(/ aria-current="page"/g,"");
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
+const sharedCss=await read("assets/css/social-shell.css");
+const sharedJs=await read("assets/js/social-shell.js");
+assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
+ sharedCss.includes("body.feed-page .feed-account-toggle")&&
+ sharedJs.includes("positionTooltip(target)")&&
+ sharedJs.includes("setUpStories()"),
+ "VATRA header needs one viewport-safe tooltip system and interactive Stories");
 for(const page of sharedShellPages){
  const html=await read(page+".html");
  assert.equal(normalizedSocialHeader(html),canonicalSocialHeader,
@@ -913,9 +920,10 @@ for(const page of sharedShellPages){
 const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"')&&
  storyPreviewMarkup.includes('class="feed-story-create ui-feed-story-create-001"')&&
- storyPreviewMarkup.includes('aria-disabled="true"')&&
- storyPreviewMarkup.includes('class="feed-story-placeholder ui-feed-story-preview-003"'),
- "Feed Stories preview must be visible yet clearly nonfunctional");
+ (storyPreviewMarkup.match(/class="feed-story-preview ui-feed-story-preview-00[1-4]"/g)||[]).length===4&&
+ !storyPreviewMarkup.includes('data-social-uk="Макет"')&&
+ storyPreviewMarkup.includes('data-story-title-uk="Карпатські ранки"'),
+ "Feed must show four distinct original illustrated Stories without fake user data");
 // The new Feed must be the authenticated home, not a duplicate account page.
 const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
