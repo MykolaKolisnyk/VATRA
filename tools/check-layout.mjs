@@ -982,7 +982,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["auth.css","feed.css","legal.css"],"VATRA must keep one canonical stylesheet per current page family, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","feed.css","legal.css"],"VATRA must keep one canonical stylesheet per current page family, never style2/fix copies");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
