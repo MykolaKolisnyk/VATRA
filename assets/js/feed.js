@@ -50,11 +50,17 @@
   const mine=vatraId!==null&&String(post.author_vatra_id)===vatraId;
   const item=node("article","feed-post-card ui-feed-post-card-001");
   const head=node("div","feed-post-header ui-feed-post-header-001");
-  const avatar=node("span","feed-avatar feed-post-avatar vt-feed-post-avatar-001",mine?initials(displayName):"V");
-  avatar.setAttribute("aria-hidden","true");
-  const identity=node("div","feed-post-author ui-feed-post-author-001");
   const postAuthorId=String(post.author_vatra_id);
-  const name=node(/^[1-9][0-9]{0,18}$/.test(postAuthorId)?"a":"strong",
+  const linkable=/^[1-9][0-9]{0,18}$/.test(postAuthorId);
+  const avatar=node(linkable?"a":"span",
+   "feed-avatar feed-post-avatar vt-feed-post-avatar-001 feed-post-profile-avatar",
+   mine?initials(displayName):"V");
+  if(linkable){
+   avatar.href=new URL("id"+postAuthorId,new URL("./",location.href)).href;
+   avatar.setAttribute("aria-label",t("Відкрити профіль VATRA ID ","Open profile VATRA ID ")+postAuthorId);
+  }else avatar.setAttribute("aria-hidden","true");
+  const identity=node("div","feed-post-author ui-feed-post-author-001");
+  const name=node(linkable?"a":"strong",
    "feed-post-name vt-feed-post-name-001 feed-post-profile-link",
    mine?displayName:t("Учасник VATRA","VATRA member"));
   if(name.tagName==="A")name.href=new URL("id"+postAuthorId,new URL("./",location.href)).href;
