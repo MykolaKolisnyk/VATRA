@@ -189,7 +189,7 @@
    const ox=vp?.offsetLeft||0,oy=vp?.offsetTop||0;
    const field=form.getBoundingClientRect();
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
-   const width=Math.max(0,Math.min(390,vw-16));
+   const width=Math.max(0,Math.min(340,vw-16));
    const left=Math.max(ox+8,Math.min(field.left,ox+vw-width-8));
    const bottomSpace=Math.max(0,oy+vh-field.bottom-16);
    const topSpace=Math.max(0,field.top-(oy+8));
@@ -298,7 +298,7 @@
   }
   input.addEventListener("focus",open);
   input.addEventListener("click",open);
-  input.addEventListener("input",()=>{if(!visible)open();else render();});
+  input.addEventListener("input",()=>{if(!visible)open();else{render();position();}});
   input.addEventListener("keydown",event=>{
    if(event.key==="Escape"&&visible){event.preventDefault();close();}
    if(event.key==="ArrowDown"&&visible){
