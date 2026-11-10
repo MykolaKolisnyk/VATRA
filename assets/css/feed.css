@@ -222,6 +222,9 @@ body.feed-page{background:#f4f6fa}
 
 
 /* Permanent /id<number> member profiles and linked Feed authors. */
+.feed-post-profile-avatar{text-decoration:none;flex:none}
+.feed-post-profile-avatar:hover{text-decoration:none;filter:brightness(1.06)}
+.feed-post-profile-avatar:focus-visible{outline:2px solid #88a9ff;outline-offset:3px}
 .feed-post-profile-link{text-decoration:none;color:inherit}
 .feed-post-profile-link:hover{text-decoration:underline;color:#235cc3}
 .feed-post-profile-link:focus-visible{outline:2px solid #88a9ff;outline-offset:3px;border-radius:3px}
