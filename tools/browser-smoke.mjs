@@ -2287,9 +2287,12 @@ try{
   assert.equal(await feedProbe.locator(".feed-sidebar").isVisible(),false,
    "Sidebar navigation must not duplicate the header");
   assert.equal(await feedProbe.locator(".social-top-link:visible").count(),4,
-   "The header must show Feed, Friends, Messenger and Communities");
+   "The centered navigation must show Feed, Communities, Clips and Marketplace");
+  assert.deepEqual(await feedProbe.locator(".social-top-link span").allTextContents(),
+   language==="en"?["Feed","Communities","Clips","Marketplace"]:
+   ["Стрічка","Спільноти","Кліпи","Маркетплейс"]);
   assert.equal(await feedProbe.locator(".social-top-link:disabled").count(),2,
-   "Friends and Messenger remain visible but disabled until implemented");
+   "Clips and Marketplace remain disabled until their actual features exist");
   assert.equal((await feedProbe.locator(".vt-shell-nav-label-feed-001").textContent()).trim(),
    language==="en"?"Feed":"Стрічка");
   assert.ok((await feedProbe.locator(".feed-header-brand img").getAttribute("src")).endsWith("vatra-symbol.svg"),
@@ -2331,9 +2334,17 @@ try{
    const direct=[...controls.children].map(el=>el.className.split(" ").find(c=>c.startsWith("ui-")));
    return direct;
   });
-  assert.deepEqual(headerOrder,["ui-feed-account-menu-001",
-    "ui-feed-notifications-button-001","ui-feed-music-button-001"],
-   "Avatar and name, notifications, then music should appear in that order");
+  assert.deepEqual(headerOrder,["ui-shell-header-messenger-001",
+    "ui-feed-notifications-button-001","ui-shell-header-friends-001",
+    "ui-feed-music-button-001","ui-feed-account-menu-001"],
+   "Right controls must be Messenger, notifications, Friends, music, then avatar");
+  assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
+   "Search VATRA must be next to the V logo on every page");
+  assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
+  assert.equal(await feedProbe.locator(".feed-story-placeholder").count(),3,
+   "Stories previews are placeholders, not fake users");
+  assert.equal(await feedProbe.locator(".feed-story-create:disabled").count(),1,
+   "The Stories mock cannot pretend to publish real stories");
   await feedProbe.locator(".feed-account-toggle").click();
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
    "Avatar must reveal the account menu");
@@ -2406,6 +2417,8 @@ try{
   assert.equal(await profilePage.locator(".feed-sidebar").isVisible(),false,
    "The Profile must not duplicate the header navigation");
   assert.equal(await profilePage.locator(".social-top-nav").isVisible(),true);
+  assert.equal(await profilePage.locator(".feed-header .feed-search-form").isVisible(),true,
+   "Profiles must use the same header search as the Feed");
   assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
    "Do not show tabs for features which have no underlying profile data");
   assert.equal(await profilePage.locator(".social-profile-columns .profile-info").isVisible(),false,
@@ -2501,6 +2514,8 @@ try{
   assert.equal(await page.locator(".feed-sidebar").isVisible(),false,
    "Communities must not duplicate the header navigation");
   assert.equal(await page.locator(".social-top-nav").isVisible(),true);
+  assert.equal(await page.locator(".feed-header .feed-search-form").isVisible(),true,
+   "Communities must share the same header search");
   assert.equal(await page.locator(".feed-nav-pending:disabled").count(),7);
   assert.equal(await page.locator("footer").count(),0);
   await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
