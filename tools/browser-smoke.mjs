@@ -2349,6 +2349,52 @@ try{
    "Right controls must be Messenger, notifications, music and the avatar-name pill");
   assert.equal(await feedProbe.locator(".feed-header .feed-search-form").isVisible(),true,
    "Search VATRA must be next to the V logo on every page");
+  const searchStyles=await feedProbe.evaluate(()=>{
+   const input=document.querySelector("#feed-search-input");
+   const field=document.querySelector(".feed-header .feed-search-form");
+   const nav=[...document.querySelectorAll(".social-top-link")];
+   return {font:getComputedStyle(input).fontFamily,size:parseFloat(getComputedStyle(input).fontSize),
+    border:getComputedStyle(field).borderColor,
+    colors:nav.map(el=>getComputedStyle(el).color),
+    activeBackground:getComputedStyle(document.querySelector(".social-top-active")).backgroundColor};
+  });
+  assert.ok(searchStyles.font.includes("Onest")&&searchStyles.size>=14,
+   "The search box must use the same VATRA Onest typography as authentication forms");
+  assert.equal(new Set(searchStyles.colors).size,1,
+   "Every top navigation icon must have the same neutral color");
+  assert.equal(searchStyles.activeBackground,"rgba(0, 0, 0, 0)",
+   "Selected navigation is underline-only, never a filled background");
+  await feedProbe.evaluate(()=>{
+   localStorage.setItem("vatra.search.history.v1",JSON.stringify(
+    Array.from({length:12},(_,i)=>"VATRA запит "+(12-i))));
+   dispatchEvent(new StorageEvent("storage",{key:"vatra.search.history.v1"}));
+  });
+  await feedProbe.locator("#feed-search-input").click();
+  assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),true,
+   "Search history must open on input focus");
+  assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),12,
+   "All history entries remain available beyond ten visible rows");
+  assert.equal((await feedProbe.locator(".vatra-search-history-term").first().innerText()).trim(),
+   "VATRA запит 12","Search history must display newest first");
+  const menuGeometry=await feedProbe.evaluate(()=>{
+   const p=document.querySelector("#vatra-search-panel").getBoundingClientRect();
+   const l=document.querySelector("#vatra-search-history");
+   return {left:p.left,right:p.right,top:p.top,bottom:p.bottom,
+    viewportWidth:innerWidth,viewportHeight:innerHeight,
+    scrollHeight:l.scrollHeight,clientHeight:l.clientHeight};
+  });
+  assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
+   menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
+   menuGeometry.scrollHeight>menuGeometry.clientHeight,
+   "VATRA search menu must fit viewport and scroll after ten items: "+JSON.stringify(menuGeometry));
+  await feedProbe.locator(".vatra-search-history-remove").first().click();
+  assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),11);
+  assert.equal(await feedProbe.evaluate(()=>JSON.parse(localStorage.getItem("vatra.search.history.v1")).length),11,
+   "Deleting one history item must persist immediately in localStorage");
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
+   "Escape closes the VATRA search menu");
+
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),4,
    "Four distinct illustrated Stories must be visible");
@@ -2436,6 +2482,12 @@ try{
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
   assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);
+  await feedProbe.locator("#feed-search-input").fill("Новий пошук VATRA");
+  await feedProbe.locator("#feed-search-input").press("Enter");
+  await feedProbe.waitForFunction(()=>
+   JSON.parse(localStorage.getItem("vatra.search.history.v1")||"[]")[0]==="Новий пошук VATRA");
+  assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
+   "Submit persists the latest query and closes the search menu");
   const mobileGeometry=await feedProbe.evaluate(()=>({
    overflow:document.documentElement.scrollWidth-innerWidth,
    culprits:[...document.querySelectorAll("body *")].map(el=>{
