@@ -53,7 +53,11 @@
   const avatar=node("span","feed-avatar feed-post-avatar vt-feed-post-avatar-001",mine?initials(displayName):"V");
   avatar.setAttribute("aria-hidden","true");
   const identity=node("div","feed-post-author ui-feed-post-author-001");
-  const name=node("strong","feed-post-name vt-feed-post-name-001",mine?displayName:t("Учасник VATRA","VATRA member"));
+  const postAuthorId=String(post.author_vatra_id);
+  const name=node(/^[1-9][0-9]{0,18}$/.test(postAuthorId)?"a":"strong",
+   "feed-post-name vt-feed-post-name-001 feed-post-profile-link",
+   mine?displayName:t("Учасник VATRA","VATRA member"));
+  if(name.tagName==="A")name.href=new URL("id"+postAuthorId,new URL("./",location.href)).href;
   const stamp=node("time","feed-post-date vt-feed-post-date-001",
    "VATRA ID "+String(post.author_vatra_id)+" · "+postedTime(post.created_at));
   stamp.dateTime=post.created_at;
@@ -181,6 +185,11 @@
    q("#feed-my-id").textContent=displayedId;
    q("#feed-header-id").textContent=displayedId;
    q("#feed-header-id").hidden=!vatraId;
+   if(vatraId){
+    for(const link of document.querySelectorAll('a[href="profile"]')){
+     link.href=new URL("id"+vatraId,new URL("./",location.href)).href;
+    }
+   }
    q("#feed-app").hidden=false;
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
