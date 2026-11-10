@@ -221,7 +221,10 @@
     .catch(() => ({}))
     .finally(() => clearTimeout(stop));
   function applyTranslation(table) {
-    const entry = table.__pages?.[pageFromPath()];
+    const page=pageFromPath();
+    // Community pages reuse the Feed's shared header/sidebar translations.
+    const communityShell=page==="communities"||page==="club";
+    const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
       const record=entry.nodes?.[element.getAttribute("data-i18n")];
@@ -235,6 +238,8 @@
         element.setAttribute(name,value);
       }
     }
+    // Feed metadata belongs to /feed, not to the new /communities or /club pages.
+    if(communityShell)return;
     const meta=entry.meta||{};
     if (meta.title) document.title=meta.title;
     for (const [name,value] of Object.entries(meta)) {
