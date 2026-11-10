@@ -432,11 +432,6 @@
             "0": "Feed"
           }
         },
-        "n15": {
-          "text": {
-            "0": "Publish"
-          }
-        },
         "n17": {
           "text": {
             "0": "Posts"
@@ -449,7 +444,7 @@
         },
         "n19": {
           "text": {
-            "0": "Create the first post on VATRA."
+            "0": "No posts yet."
           }
         },
         "n20": {
@@ -465,11 +460,6 @@
         "n33": {
           "text": {
             "0": "Your people. Your stories. Your VATRA."
-          }
-        },
-        "n35": {
-          "text": {
-            "0": "New post"
           }
         },
         "n36": {
@@ -497,11 +487,6 @@
             "0": "Delete"
           }
         },
-        "n14": {
-          "attrs": {
-            "placeholder": "Share something with VATRA…"
-          }
-        },
         "n31": {
           "attrs": {
             "aria-label": "Choose language"
@@ -510,11 +495,6 @@
         "n32": {
           "attrs": {
             "aria-label": "VATRA navigation"
-          }
-        },
-        "n34": {
-          "attrs": {
-            "aria-label": "New post"
           }
         },
         "n42": {
