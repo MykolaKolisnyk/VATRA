@@ -921,7 +921,7 @@ const storyPreviewMarkup=await read("feed.html");
 assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"')&&
  storyPreviewMarkup.includes('class="feed-story-create ui-feed-story-create-001"')&&
  (storyPreviewMarkup.match(/class="feed-story-preview ui-feed-story-preview-00[1-4]"/g)||[]).length===4&&
- !storyPreviewMarkup.includes('data-social-uk="Макет"')&&
+ !storyPreviewMarkup.includes('class="vt-feed-stories-tag-001"')&&
  storyPreviewMarkup.includes('data-story-title-uk="Карпатські ранки"'),
  "Feed must show four distinct original illustrated Stories without fake user data");
 // The new Feed must be the authenticated home, not a duplicate account page.
