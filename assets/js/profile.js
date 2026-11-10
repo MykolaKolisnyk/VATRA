@@ -18,11 +18,18 @@ const memberUrl=id=>home+"id"+id;
 const localizeSocial=()=>{
  for(const element of document.querySelectorAll("[data-social-uk]"))
   element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
+ const brand=document.querySelector(".feed-header-brand");
+ if(brand)brand.setAttribute("aria-label",english?"VATRA — Feed":"VATRA — Стрічка");
  for(const control of document.querySelectorAll(".social-profile-tabs button:disabled"))
   control.title=t("У розробці","Coming soon");
  for(const link of document.querySelectorAll(".social-top-link")){
   const label=link.querySelector("[data-social-uk]");
-  if(label){link.setAttribute("aria-label",label.textContent);link.title=label.textContent;}
+  if(label){
+   const pending=link.matches("button:disabled");
+   const detail=pending?(english?" — coming soon":" — у розробці"):"";
+   link.setAttribute("aria-label",label.textContent+detail);
+   link.title=pending?(english?"Coming soon":"У розробці"):label.textContent;
+  }
  }
 };
 const node=(tag,cls,value)=>{
