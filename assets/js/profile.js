@@ -137,6 +137,66 @@ async function loadPosts(client,targetId){
   empty.hidden=false;
  }finally{list.setAttribute("aria-busy","false");}
 }
+function bindPostComposer(client,user,ownId){
+ const trigger=q("#profile-write-post");
+ const dialog=q("#profile-compose-dialog");
+ const form=q("#profile-compose-form");
+ const input=q("#profile-compose-text");
+ const submit=q("#profile-compose-submit");
+ const cancel=q("#profile-compose-cancel");
+ const counter=q("#profile-compose-counter");
+ const status=q("#profile-compose-status");
+ if(!trigger||!dialog||!form||!input||!submit||!validId(ownId))return;
+ let publishing=false;
+ const update=()=>{
+  const length=Array.from(input.value).length;
+  counter.textContent=length+" / 2000";
+  submit.disabled=publishing||length===0||length>2000;
+ };
+ const clearStatus=()=>{status.textContent="";status.hidden=true;};
+ trigger.addEventListener("click",()=>{
+  clearStatus();
+  dialog.showModal();
+  update();
+  input.focus();
+ });
+ cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});
+ dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
+ dialog.addEventListener("close",()=>{clearStatus();trigger.focus({preventScroll:true});});
+ input.addEventListener("input",update);
+ input.addEventListener("keydown",event=>{
+  if((event.ctrlKey||event.metaKey)&&event.key==="Enter"&&!submit.disabled){
+   event.preventDefault();
+   form.requestSubmit();
+  }
+ });
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();
+  if(publishing)return;
+  const body=input.value.trim();
+  if(!body||Array.from(body).length>2000){
+   status.textContent=t("Допис має містити від 1 до 2000 символів.","A post must contain 1–2000 characters.");
+   status.hidden=false;return;
+  }
+  publishing=true;
+  update();
+  clearStatus();
+  try{
+   const {error}=await client.from("feed_posts").insert({
+    author_id:user.id,author_vatra_id:ownId,body
+   });
+   if(error)throw error;
+   input.value="";
+   dialog.close();
+   await loadPosts(client,ownId);
+  }catch(_){
+   status.textContent=t("Не вдалося опублікувати допис. Повторіть спробу.",
+    "Could not publish the post. Please try again.");
+   status.hidden=false;
+  }finally{publishing=false;update();}
+ });
+ update();
+}
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  localizeSocial();
@@ -163,7 +223,7 @@ async function start(){
    .select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
   q("#feed-header-avatar").textContent=ownAvatar;
-  q("#feed-menu-name").textContent=cleanOwnName;
+  q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   const sideName=q("#feed-sidebar-person-name"),sideAvatar=q("#feed-sidebar-person-avatar");
   if(sideName)sideName.textContent=cleanOwnName;
   if(sideAvatar)sideAvatar.textContent=ownAvatar;
@@ -202,6 +262,7 @@ async function start(){
   const isMine=targetId===ownId;
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
+  if(isMine)bindPostComposer(client,user,ownId);
   if(!isMine){
    const ownPage=q(".ui-feed-nav-link-2"),profileTop=q(".ui-social-top-profile-001");
    for(const link of [ownPage,profileTop]){
