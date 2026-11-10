@@ -2610,7 +2610,7 @@ try{
  await waitReady(phonePage);
  assert.equal(new URL(phonePage.url()).search,"");
  assert.equal(await phonePage.evaluate(()=>sessionStorage.getItem("verifiedTokenType")),"email");
- assert.equal((await phonePage.locator("#feed-my-name").textContent()).trim(),"Мобільний");
+ assert.equal((await phonePage.locator("#feed-menu-name").textContent()).trim(),"Мобільний");
  assert.equal(JSON.parse(await phonePage.evaluate(()=>localStorage.getItem("vatra-remembered-account"))).email,
   "mobile@vatra.test");
  await phonePage.goto(base+"verify?token_hash=expired&type=email",{waitUntil:"domcontentloaded"});
