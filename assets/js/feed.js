@@ -48,7 +48,6 @@
  };
  let client=null,user=null,vatraId=null,displayName="",loading=false,offset=0,searchTerm="";
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
- const composer=q("#feed-post-text"),counter=q("#feed-post-counter"),submit=q("#feed-submit");
  const deleteDialog=q("#feed-delete-dialog"),deleteConfirm=q("#feed-delete-confirm");
  let pendingDelete=null;
  function node(tag,cls,value){
@@ -122,54 +121,6 @@
   item.append(head,body);
   return item;
  }
- function sizeComposer(){
-  // Grow to the actual text, not a fixed tiny textarea with a native scrollbar.
-  composer.style.height="auto";
-  composer.style.height=Math.min(240,Math.max(70,composer.scrollHeight))+"px";
- }
- function updateCounter(){
-  sizeComposer();
-  const length=Array.from(composer.value).length;
-  counter.textContent=length+" / "+POST_LIMIT;
-  counter.classList.toggle("is-at-limit",length>=POST_LIMIT);
-  submit.disabled=length===0||length>POST_LIMIT||!vatraId;
- }
- async function loadCommunityPreview(){
-  const list=q("#feed-community-list");
-  if(!list)return;
-  try{
-   const {data,error}=await client.from("communities")
-    .select("club_id,name,description,created_at")
-    .order("created_at",{ascending:false}).limit(4);
-   if(error)throw error;
-   list.replaceChildren();
-   const valid=(data||[]).filter(club=>/^[1-9][0-9]{0,18}$/.test(String(club.club_id)));
-   if(!valid.length){
-    list.append(node("p","social-community-empty vt-social-community-empty-001",
-     t("Спільнот поки немає.","No communities yet.")));
-   }
-   for(const club of valid){
-    const link=node("a","social-community-item ui-social-community-item-001");
-    link.href=new URL("club"+String(club.club_id),new URL("./",location.href)).href;
-    const mark=node("span","social-community-mark vt-social-community-mark-001",
-     (Array.from(String(club.name||"V"))[0]||"V").toLocaleUpperCase(locale));
-    mark.setAttribute("aria-hidden","true");
-    const info=node("span","social-community-info ui-social-community-info-001");
-    const name=node("strong","social-community-name vt-social-community-name-001",club.name);
-    info.append(name);
-    if(club.description){
-     info.append(node("small","social-community-desc vt-social-community-desc-001",club.description));
-    }
-    link.append(mark,info);
-    list.append(link);
-   }
-  }catch(_){
-   list.replaceChildren(node("p","social-community-empty vt-social-community-empty-001",
-    t("Спільноти тимчасово недоступні.","Communities are temporarily unavailable.")));
-  }finally{
-   list.setAttribute("aria-busy","false");
-  }
- }
  async function loadPosts(reset=false){
   if(loading)return;
   loading=true;
@@ -190,7 +141,7 @@
    const emptyTitle=q(".feed-empty-title"),emptyText=q(".feed-empty-subtitle");
    if(emptyTitle)emptyTitle.textContent=searchTerm?t("Нічого не знайдено","No matches"):t("Тут поки тихо","It's quiet here");
    if(emptyText)emptyText.textContent=searchTerm?t("Спробуйте інший пошуковий запит.","Try another search.") :
-    t("Створіть першу публікацію у VATRA.","Create the first post on VATRA.");
+    t("Публікацій поки немає.","No posts yet.");
   }catch(_){
    message(t("Не вдалося завантажити публікації. Перевірте підключення й спробуйте ще раз.",
     "Could not load posts. Check your connection and try again."));
@@ -198,29 +149,6 @@
   }finally{
    loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;
   }
- }
- async function createPost(event){
-  event.preventDefault();
-  if(!user||!vatraId)return;
-  const body=composer.value.trim();
-  if(!body||Array.from(body).length>POST_LIMIT){
-   message(t("Публікація має містити від 1 до 2000 символів.","A post must contain 1–2000 characters."));return;
-  }
-  submit.disabled=true;clearMessage();
-  try{
-   const {error}=await client.from("feed_posts").insert({
-    author_id:user.id,author_vatra_id:vatraId,body
-   });
-   if(error)throw error;
-   composer.value="";updateCounter();
-   // A new post should become visible even if a prior feed filter was active.
-   if(searchTerm){searchTerm="";q("#feed-search-input").value="";}
-   message(t("Публікацію додано до стрічки.","Your post was added to the feed."),"success");
-   await loadPosts(true);
-  }catch(_){
-   message(t("Не вдалося опублікувати допис. Повторіть спробу.",
-    "Could not publish your post. Please try again."));
-  }finally{updateCounter();}
  }
  async function deletePost(event){
   event.preventDefault();
@@ -264,15 +192,14 @@
    displayName=Array.from(displayName).slice(0,80).join("");
    const profile=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
    if(!profile.error&&profile.data?.vatra_id!=null)vatraId=String(profile.data.vatra_id);
-   q("#feed-my-name").textContent=displayName;
-   q("#feed-my-avatar").textContent=initials(displayName);
+
    q("#feed-header-avatar").textContent=initials(displayName);
-   q("#feed-menu-name").textContent=displayName;
+   q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    const sideName=q("#feed-sidebar-person-name"),sideAvatar=q("#feed-sidebar-person-avatar");
    if(sideName)sideName.textContent=displayName;
    if(sideAvatar)sideAvatar.textContent=initials(displayName);
    const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
-   q("#feed-my-id").textContent=displayedId;
+
    q("#feed-header-id").textContent=displayedId;
    q("#feed-header-id").hidden=!vatraId;
    if(vatraId){
@@ -282,13 +209,6 @@
    }
    // The loading overlay stays visible until the initial Feed query settles.
    // The sliding bar is indeterminate, not a fabricated percentage.
-   composer.addEventListener("input",updateCounter);
-   composer.addEventListener("keydown",event=>{
-    if((event.ctrlKey||event.metaKey)&&event.key==="Enter"&&!submit.disabled){
-     event.preventDefault();
-     q("#feed-post-form")?.requestSubmit();
-    }
-   });
    const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");
    searchTerm=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
    if(searchInput)searchInput.value=searchTerm;
@@ -308,7 +228,6 @@
    document.addEventListener("keydown",event=>{
     if(event.key==="Escape"&&accountMenu?.open)accountMenu.open=false;
    });
-   q("#feed-post-form").addEventListener("submit",createPost);
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
    deleteDialog?.addEventListener("close",()=>{pendingDelete=null;});
    q("#feed-delete-cancel")?.addEventListener("click",()=>deleteDialog.close());
@@ -320,24 +239,11 @@
     try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
     location.replace(new URL("./",location.href).href);
    });
-   updateCounter();
-   if(!vatraId){
-    message(t("VATRA ID для цього акаунта поки недоступний. Створення публікацій тимчасово вимкнене.",
-     "VATRA ID is unavailable for this account. Posting is temporarily disabled."));
-   }
    await loadPosts(true);
-   // This secondary, real directory query must not delay or block the Feed.
-   void loadCommunityPreview();
    q("#feed-app").hidden=false;
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
-   if(location.hash==="#feed-post-text"){
-    requestAnimationFrame(()=>{
-     composer.focus({preventScroll:true});
-     composer.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
-    });
-   }
   }catch(_){
    if(!q("#feed-app").hidden){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
