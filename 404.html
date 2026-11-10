@@ -7,17 +7,31 @@
     /* Existing bookmarks and Supabase email links may use former locale folders. */
     // Old email links and saved .html URLs remain valid, but visitors see
     // the clean canonical route after the first navigation.
-    // GitHub Pages sends unknown dynamic paths to 404.html.
-    // Use the static profile document as the entrypoint, then restore the
-    // exact /VATRA/id<number> URL after its authenticated data has loaded.
-    const memberPath=location.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
-    if(memberPath){
-      location.replace("/VATRA/profile.html?vatra_id="+memberPath[1]);
-      return;
-    }
-    const clubPath=location.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
-    if(clubPath){
-      location.replace("/VATRA/club.html?club_id="+clubPath[1]);
+    // GitHub Pages serves this fallback for /idN and /clubN. Render the
+    // corresponding static document in-place, so the browser never visits
+    // /profile.html or /club.html on its way to a permanent public URL.
+    const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
+    if(dynamic){
+      document.documentElement.style.visibility="hidden";
+      const file=dynamic[1]==="id"?"profile.html":"club.html";
+      const mount=async()=>{
+        try{
+          const response=await fetch("/VATRA/"+file,{credentials:"same-origin"});
+          if(!response.ok)throw new Error("route document unavailable");
+          const markup=await response.text();
+          if(!/^\s*<!doctype html>/i.test(markup))throw new Error("invalid route document");
+          // document.open()/write() replaces only this DOM, never the URL.
+          document.open();
+          document.write(markup);
+          document.close();
+        }catch(_){
+          // On a failed document request, reveal the normal 404 and its links.
+          document.documentElement.style.visibility="";
+        }
+      };
+      if(document.readyState==="loading")
+        document.addEventListener("DOMContentLoaded",mount,{once:true});
+      else void mount();
       return;
     }
     const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
