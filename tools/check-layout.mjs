@@ -918,7 +918,7 @@ assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"'
  "Feed Stories preview must be visible yet clearly nonfunctional");
 // The new Feed must be the authenticated home, not a duplicate account page.
 const feedMarkup=await read("feed.html");
-const profileMarkup=await read("profile.html");
+const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
 const feedStyle=await read("assets/css/feed.css");
@@ -932,8 +932,8 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.includes('id="feed-delete-dialog"')&&
  feedMarkup.indexOf('class="feed-stories ui-feed-stories-001"')<
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
- profileMarkup.includes('id="profile-compose-dialog"')&&
- profileMarkup.includes('id="profile-compose-form"')&&
+ memberProfileMarkup.includes('id="profile-compose-dialog"')&&
+ memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  !feedScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
