@@ -24,7 +24,7 @@
   // Titles must be correct BEFORE the asynchronous English JSON arrives. Watch
   // the original <title> as HTML is parsed; no duplicate title or extra script.
   const instantEnglishTitles={
-    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",
+    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
     "404":"404 Page not found · VATRA",
     terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
