@@ -5,14 +5,13 @@
  if(window.VATRA_HOST_ALLOWED===false)return;
  const lang=()=>document.documentElement.lang==="en"?"en":"uk";
  const tr=(uk,en)=>lang()==="en"?en:uk;
- const $=selector=>document.querySelector(selector);
- const make=(tag,cls,txt)=>{
+  const make=(tag,cls,txt)=>{
   const el=document.createElement(tag);
   if(cls)el.className=cls;
   if(txt!==undefined)el.textContent=txt;
   return el;
  };
- let tooltip=null,hovered=null,infoDialog=null,infoTitle=null,infoText=null,infoClose=null;
+ let tooltip=null,hovered=null,tooltipSuppressed=null,infoDialog=null,infoTitle=null,infoText=null,infoClose=null;
  function hideTooltip(){
   if(!tooltip)return;
   tooltip.dataset.open="false";hovered=null;
@@ -33,8 +32,8 @@
   tooltip.style.left=Math.round(left)+"px";
   tooltip.style.top=Math.round(top)+"px";
  }
- function showTooltip(target){
-  if(!tooltip||!target||infoDialog?.open)return;
+ function showTooltip(target,event){
+  if(!tooltip||!target||infoDialog?.open||tooltipSuppressed===target||event?.pointerType==="touch")return;
   const label=target.dataset["vatraTooltip"+(lang()==="en"?"En":"Uk")];
   if(!label)return;
   hovered=target;tooltip.textContent=label;tooltip.dataset.open="true";
@@ -48,11 +47,33 @@
   document.body.append(tooltip);
   for(const target of document.querySelectorAll("[data-vatra-tooltip-uk]")){
    target.removeAttribute("title");
-   target.addEventListener("pointerenter",()=>showTooltip(target));
-   target.addEventListener("pointerleave",hideTooltip);
-   target.addEventListener("focus",()=>showTooltip(target));
+   target.setAttribute("aria-describedby","vatra-shell-tooltip");
+   target.addEventListener("pointerenter",event=>showTooltip(target,event));
+   target.addEventListener("pointermove",event=>{
+    if(tooltipSuppressed===target&&event.isTrusted&&event.pointerType!=="touch"&&
+     (event.movementX||event.movementY)){
+     tooltipSuppressed=null;
+     showTooltip(target,event);
+    }
+   });
+   target.addEventListener("pointerleave",()=>{
+    hideTooltip();
+    if(tooltipSuppressed===target)tooltipSuppressed=null;
+   });
+   target.addEventListener("focus",event=>{
+    if(target.matches(":focus-visible"))showTooltip(target,event);
+   });
    target.addEventListener("blur",hideTooltip);
+   target.addEventListener("click",()=>{
+    // Native dialogs restore focus: never re-open a tip without fresh user intent.
+    tooltipSuppressed=target;
+    hideTooltip();
+   });
   }
+  document.addEventListener("keydown",event=>{
+   if(event.key==="Escape")hideTooltip();
+   if(event.key==="Tab")tooltipSuppressed=null;
+  });
   for(const name of ["scroll","resize"]){
    window.addEventListener(name,()=>{
     if(name==="scroll")hideTooltip();
