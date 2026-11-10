@@ -888,6 +888,10 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
+ sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
+ sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
+ sharedCss.includes("max-width:208px;height:36px")&&
+ sharedCss.includes("flex:0 0 168px")&&
  sharedCss.includes("margin:0 auto!important;gap:21px")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(228px,50dvh)")&&
