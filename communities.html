@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="uk">
+<head>
+ <script src="assets/js/host.js"></script>
+ <script src="assets/js/errors.js"></script>
+ <script src="assets/js/lang.js"></script>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="theme-color" content="#f7f9fe">
+ <meta name="robots" content="noindex,follow">
+ <meta name="referrer" content="strict-origin-when-cross-origin">
+ <meta name="description" content="Стрічка VATRA — публікації ваших людей.">
+ <title>Спільноти · VATRA</title>
+ <link rel="icon" type="image/svg+xml" href="assets/logo/vatra-app-icon.svg">
+ <link rel="apple-touch-icon" href="assets/logo/vatra-app-icon.png">
+ <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
+ <link rel="stylesheet" href="assets/css/auth.css">
+ <link rel="stylesheet" href="assets/css/feed.css">
+ <link rel="stylesheet" href="assets/css/communities.css">
+ <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+ <script defer src="assets/js/communities.js"></script>
+ <script defer src="assets/js/network.js"></script>
+ <meta name="application-name" content="VATRA">
+ <meta name="apple-mobile-web-app-title" content="VATRA">
+ <link rel="manifest" href="site.webmanifest">
+</head>
+<body class="feed-page community-page ui-community-body-001" data-page="communities">
+ <a class="feed-skip-link vt-feed-skip-link" href="#feed-main" data-i18n="n1">До стрічки</a>
+ <div id="community-loading" class="vatra-auth-loading ui-feed-loading-001" role="status" aria-live="polite" aria-label="Завантаження VATRA">
+  <div class="vatra-auth-loading-content ui-feed-loading-content-001">
+   <img class="vatra-auth-loading-symbol ui-feed-loading-symbol-001" src="assets/logo/vatra-symbol.svg" width="68" height="68" alt="">
+   <span class="vatra-auth-loading-title vt-feed-loading-title-001">VATRA</span>
+   <p class="vatra-auth-loading-caption vt-feed-loading-caption-001">Завантаження VATRA</p>
+   <div class="vatra-auth-loading-track ui-feed-loading-track-001" aria-hidden="true"><span class="vatra-auth-loading-indicator ui-feed-loading-indicator-001"></span></div>
+  </div>
+ </div>
+ <div id="community-app" class="feed-app ui-feed-app-001" hidden>
+  <header class="feed-header ui-feed-header-001">
+   <div class="feed-header-inner ui-feed-header-inner-001">
+    <a href="feed" class="feed-header-brand vt-feed-header-brand-001" aria-label="VATRA"><img src="assets/logo/vatra-logo.svg" alt="VATRA" class="ui-feed-logo-001" width="1342" height="380"></a>
+    <form id="feed-search-form" class="feed-search-form ui-feed-search-form-001" role="search">
+     <label class="vatra-sr-only vt-feed-search-label-001" for="feed-search-input" data-i18n="n42">Пошук публікацій</label>
+     <svg class="ui-feed-search-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle class="ui-feed-search-circle-001" cx="10.8" cy="10.8" r="6.7"/><path class="ui-feed-search-line-001" d="m16 16 4.5 4.5"/></svg>
+     <input id="feed-search-input" class="feed-search-input ui-feed-search-input-001" type="search" name="q" maxlength="120" autocomplete="off" placeholder="Пошук у стрічці" data-i18n="n43">
+     <button id="feed-search-submit" class="feed-search-submit vt-feed-search-submit-001" type="submit" data-i18n="n44">Знайти</button>
+    </form>
+    <div class="feed-header-controls ui-feed-header-controls-001">
+     <button class="feed-header-icon-button ui-feed-music-button-001" type="button" disabled aria-label="Музика — незабаром" title="Музика — незабаром" data-i18n="n45">
+      <svg class="ui-feed-music-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-music-path-001" d="M9 18V5l11-2v13M9 8l11-2"/><ellipse class="ui-feed-music-oval-001" cx="6" cy="18" rx="3" ry="2"/><ellipse class="ui-feed-music-oval-002" cx="17" cy="16" rx="3" ry="2"/></svg>
+     </button>
+     <button class="feed-header-icon-button ui-feed-notifications-button-001" type="button" disabled aria-label="Сповіщення — незабаром" title="Сповіщення — незабаром" data-i18n="n46">
+      <svg class="ui-feed-bell-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-bell-path-001" d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>
+     </button>
+     <details class="feed-account-menu ui-feed-account-menu-001">
+      <summary class="feed-account-toggle vt-feed-account-toggle-001" aria-label="Мій профіль" data-i18n="n47"><span id="feed-header-avatar" class="feed-header-avatar vt-feed-header-avatar-001" aria-hidden="true">V</span></summary>
+      <div class="feed-account-dropdown ui-feed-account-dropdown-001">
+       <div class="feed-menu-summary ui-feed-menu-summary-001"><strong id="feed-menu-name" class="vt-feed-menu-name-001"></strong><small id="feed-header-id" class="feed-header-id vt-feed-header-id-001"></small></div>
+       <a href="profile" class="feed-account-profile vt-feed-account-profile-001" data-i18n="n48">Моя сторінка</a>
+       <button type="button" class="language-trigger feed-language-trigger vt-feed-language-button-001" data-language-trigger aria-haspopup="dialog" aria-label="Вибрати мову" data-i18n="n31">
+        <svg class="language-flag ui-language-static-flag-001 ui-feed-static-flag-001" viewBox="0 0 640 480" aria-hidden="true"><rect class="ui-feed-flag-top-001" width="640" height="240" fill="#0057B8"/><rect class="ui-feed-flag-bottom-001" y="240" width="640" height="240" fill="#FFD700"/></svg>
+        <span class="vt-feed-language-label-001">Українська</span>
+        <svg class="language-chevron ui-language-static-chevron-001 ui-feed-chevron-001" viewBox="0 0 24 24" aria-hidden="true"><path class="ui-feed-chevron-path-001" d="m6 9 6 6 6-6"/></svg>
+       </button>
+       <button id="feed-logout" type="button" class="feed-logout vt-feed-logout-001" data-i18n="n26">Вийти</button>
+      </div>
+     </details>
+    </div>
+   </div>
+  </header>
+  <div class="feed-layout ui-feed-layout-001">
+   <aside class="feed-sidebar ui-feed-sidebar-001">
+    <nav class="feed-navigation ui-feed-navigation-001" aria-label="Навігація VATRA" data-i18n="n32">
+     <a href="feed" class="feed-nav-link ui-feed-nav-link-1 feed-nav-active" aria-current="page"><svg class="ui-feed-nav-icon-1" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-svg-part-001" x="4" y="4" width="16" height="16" rx="4"/><path class="ui-feed-svg-part-002" d="M8 9h8M8 13h8M8 17h5"/></svg><span class="vt-feed-nav-label-1" data-i18n="n2">Стрічка</span></a>
+<a href="profile" class="feed-nav-link ui-feed-nav-link-2" ><svg class="ui-feed-nav-icon-2" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-svg-part-003" cx="12" cy="8" r="3.4"/><path class="ui-feed-svg-part-004" d="M5.5 20c.5-4.2 3-6 6.5-6s6 1.8 6.5 6"/></svg><span class="vt-feed-nav-label-2" data-i18n="n3">Моя сторінка</span></a>
+<button class="feed-nav-link ui-feed-nav-link-3 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-3" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-005" d="M15 19c0-3-2.2-4.6-5-4.6S5 16 5 19"/><circle class="ui-feed-svg-part-006" cx="10" cy="8" r="3"/><path class="ui-feed-svg-part-007" d="M17.5 14.6c2.2.4 3.5 2 3.5 4.4M16.5 5.5a2.8 2.8 0 0 1 0 5.5"/></svg><span class="vt-feed-nav-label-3" data-i18n="n4">Друзі</span></button>
+<button class="feed-nav-link ui-feed-nav-link-4 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-4" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-008" d="M20 11.5a8.4 8.4 0 0 1-8.5 8.3 9 9 0 0 1-3.3-.6L4 20l.8-4.2a8.2 8.2 0 1 1 15.2-4.3Z"/><path class="ui-feed-svg-part-009" d="M8 10h8M8 13.5h5"/></svg><span class="vt-feed-nav-label-4" data-i18n="n5">Месенджер</span></button>
+<a href="communities" class="feed-nav-link ui-feed-nav-link-5 feed-nav-active" aria-current="page"><svg class="ui-feed-nav-icon-5" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-feed-svg-part-010" cx="8" cy="9" r="2.5"/><circle class="ui-feed-svg-part-011" cx="16" cy="9" r="2.5"/><path class="ui-feed-svg-part-012" d="M2.5 19c0-3 2-5 5.5-5s5.5 2 5.5 5M12 15.2c1-.8 2.3-1.2 4-1.2 3.4 0 5.5 2 5.5 5"/></svg><span class="vt-feed-nav-label-5" data-i18n="n6">Спільноти</span></a>
+<button class="feed-nav-link ui-feed-nav-link-6 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-6" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-svg-part-013" x="3" y="6" width="14" height="12" rx="3"/><path class="ui-feed-svg-part-014" d="m17 10 4-2v8l-4-2z"/></svg><span class="vt-feed-nav-label-6" data-i18n="n7">Відео</span></button>
+<button class="feed-nav-link ui-feed-nav-link-7 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-7" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-feed-svg-part-015" x="4" y="8" width="16" height="12" rx="2"/><path class="ui-feed-svg-part-016" d="M4 8 6 4h14l-2 4M9 4 7 8M15 4l-2 4"/><path class="ui-feed-svg-part-017" d="m10 11 5 3-5 3z"/></svg><span class="vt-feed-nav-label-7" data-i18n="n8">Кліпи</span></button>
+<button class="feed-nav-link ui-feed-nav-link-8 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-8" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-018" d="M6 4h12v16l-6-4-6 4z"/></svg><span class="vt-feed-nav-label-8" data-i18n="n9">Збережене</span></button>
+<button class="feed-nav-link ui-feed-nav-link-9 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-9" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-svg-part-019" d="M9.5 3.8 10 2h4l.5 1.8 1.4.8 1.8-.5 2 3.5-1.3 1.3V11l1.3 1.3-2 3.5-1.8-.5-1.4.8L14 18h-4l-.5-1.9-1.4-.8-1.8.5-2-3.5L5.6 11V8.9L4.3 7.6l2-3.5 1.8.5z" transform="translate(0 2) scale(1 .9)"/><circle class="ui-feed-svg-part-020" cx="12" cy="11" r="2.5"/></svg><span class="vt-feed-nav-label-9" data-i18n="n10">Налаштування</span></button>
+     <button class="feed-nav-link ui-feed-nav-link-10 feed-nav-pending" type="button" disabled aria-disabled="true"><svg class="ui-feed-nav-icon-10" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-market-shape-001" d="M4 10v10h16V10M5 4h14l2 6H3l2-6Z"/><path class="ui-feed-market-shape-002" d="M9 20v-7h6v7M3 10c1 2 4 2 5 0 1 2 4 2 5 0 1 2 4 2 5 0 1 2 4 2 5 0"/></svg><span class="vt-feed-nav-label-10" data-i18n="n49">Маркетплейс</span></button>
+    </nav>
+    <div class="feed-sidebar-bottom ui-feed-sidebar-bottom-001">
+     <span class="feed-sidebar-mark vt-feed-sidebar-mark-001">V</span>
+     <span class="feed-sidebar-caption vt-feed-sidebar-caption-001" data-i18n="n33">Ваші люди. Ваші історії. Ваша VATRA.</span>
+    </div>
+   </aside>
+   <main id="feed-main" class="feed-main ui-communities-main-001">
+    <div class="feed-title-row ui-communities-title-row-001"><h1 class="feed-title vt-communities-title-001" data-community-uk="Спільноти" data-community-en="Communities">Спільноти</h1></div>
+    <section class="community-create ui-community-create-001" aria-labelledby="community-create-heading">
+     <h2 id="community-create-heading" class="vt-community-create-heading-001" data-community-uk="Створити спільноту" data-community-en="Create a community">Створити спільноту</h2>
+     <p class="vt-community-create-subtitle-001" data-community-uk="Кожна спільнота отримує власний постійний номер." data-community-en="Every community gets its own permanent number.">Кожна спільнота отримує власний постійний номер.</p>
+     <form id="community-create-form" class="ui-community-create-form-001">
+      <label class="vt-community-name-label-001" for="community-name" data-community-uk="Назва спільноти" data-community-en="Community name">Назва спільноти</label>
+      <input id="community-name" class="ui-community-name-input-001" name="name" type="text" minlength="3" maxlength="80" required autocomplete="off" placeholder="Наприклад, Українська музика">
+      <label class="vt-community-description-label-001" for="community-description" data-community-uk="Опис (необов’язково)" data-community-en="Description (optional)">Опис (необов’язково)</label>
+      <textarea id="community-description" class="ui-community-description-input-001" name="description" rows="3" maxlength="1200" placeholder="Про що ваша спільнота?"></textarea>
+      <button id="community-create-submit" class="feed-submit vt-community-create-submit-001" type="submit" data-community-uk="Створити" data-community-en="Create">Створити</button>
+     </form>
+     <p id="community-create-status" class="vt-community-create-status-001" role="status" aria-live="polite" hidden></p>
+    </section>
+    <section class="ui-community-list-section-001" aria-labelledby="community-list-heading">
+     <h2 id="community-list-heading" class="vt-community-list-heading-001" data-community-uk="Усі спільноти" data-community-en="All communities">Усі спільноти</h2>
+     <div id="community-list" class="ui-community-list-001" aria-live="polite" aria-busy="true"></div>
+     <p id="community-list-status" class="vt-community-list-status-001" role="status"></p>
+    </section>
+   </main>
+   <aside class="feed-aside ui-feed-aside-001">
+    <section class="feed-info-card ui-feed-info-card-001"><div class="feed-info-mark vt-feed-info-mark-001" aria-hidden="true">V</div><h2 class="feed-info-title vt-feed-info-title-001" data-i18n="n21">Ваш простір</h2><p class="feed-info-text vt-feed-info-text-001" data-i18n="n22">Зустрічайте нові історії та залишайтеся поруч зі своїми людьми.</p></section>
+    <section class="feed-next-card ui-feed-next-card-001"><h2 class="feed-next-title vt-feed-next-title-001" data-i18n="n23">Далі у VATRA</h2><p class="feed-next-text vt-feed-next-text-001" data-i18n="n24">Друзі, спільноти, кліпи та відео — у наступних оновленнях.</p></section>
+   </aside>
+  </div>
+
+
+ </div>
+</body>
+</html>
