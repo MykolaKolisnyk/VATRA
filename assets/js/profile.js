@@ -114,6 +114,27 @@ async function start(){
   q("#feed-menu-name").textContent=cleanOwnName;
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   setMenuLink(ownId);
+  const form=q("#feed-search-form");
+  form?.addEventListener("submit",event=>{
+   event.preventDefault();
+   const search=q("#feed-search-input").value.trim().slice(0,120);
+   location.href=new URL("feed"+(search?"?q="+encodeURIComponent(search):""),home).href;
+  });
+  const menu=q(".feed-account-menu");
+  document.addEventListener("click",event=>{
+   if(menu?.open&&!menu.contains(event.target))menu.open=false;
+  });
+  document.addEventListener("keydown",event=>{
+   if(event.key==="Escape"&&menu?.open)menu.open=false;
+  });
+  q("#feed-logout").addEventListener("click",async()=>{
+   const button=q("#feed-logout");button.disabled=true;
+   const {error:signOutError}=await client.auth.signOut({scope:"local"});
+   if(signOutError){button.disabled=false;return;}
+   try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
+   location.replace(home);
+  });
+
   const query=new URLSearchParams(location.search);
   const requested=query.get("vatra_id")||
    location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||null;
@@ -143,26 +164,6 @@ async function start(){
   }
   finish();
   void loadPosts(client,targetId);
-  const form=q("#feed-search-form");
-  form?.addEventListener("submit",event=>{
-   event.preventDefault();
-   const search=q("#feed-search-input").value.trim().slice(0,120);
-   location.href=new URL("feed"+(search?"?q="+encodeURIComponent(search):""),home).href;
-  });
-  const menu=q(".feed-account-menu");
-  document.addEventListener("click",event=>{
-   if(menu?.open&&!menu.contains(event.target))menu.open=false;
-  });
-  document.addEventListener("keydown",event=>{
-   if(event.key==="Escape"&&menu?.open)menu.open=false;
-  });
-  q("#feed-logout").addEventListener("click",async()=>{
-   const button=q("#feed-logout");button.disabled=true;
-   const {error:signOutError}=await client.auth.signOut({scope:"local"});
-   if(signOutError){button.disabled=false;return;}
-   try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
-   location.replace(home);
-  });
  }catch(_){
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
    "Could not load this profile. Please refresh."));
