@@ -1266,7 +1266,7 @@ try{
  const sent=await recoverySend.evaluate(()=>window.__recoveryRequest);
  assert.equal(sent.email,"notregistered@example.test");
  assert.equal(sent.opts.captchaToken,"mock-recovery-token");
- assert.ok(sent.opts.redirectTo.endsWith("/VATRA/reset.html"));
+ assert.ok(sent.opts.redirectTo.endsWith("/VATRA/reset"));
  const caption=await recoverySend.locator(".recovery-step-caption").textContent();
  assert.ok(caption.includes("Якщо ця адреса належить акаунту VATRA"),
   "Success response must not claim that an email was delivered: "+caption);
