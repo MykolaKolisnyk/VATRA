@@ -13,6 +13,14 @@
   return translated&&translated!==uk?translated:en;
  };
  const PAGE_SIZE=15,POST_LIMIT=2000;
+ const localizeSocial=()=>{
+  for(const element of document.querySelectorAll("[data-social-uk]"))
+   element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
+  for(const link of document.querySelectorAll(".social-top-link")){
+   const label=link.querySelector("[data-social-uk]");
+   if(label){link.setAttribute("aria-label",label.textContent);link.title=label.textContent;}
+  }
+ };
  let client=null,user=null,vatraId=null,displayName="",loading=false,offset=0,searchTerm="";
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const composer=q("#feed-post-text"),counter=q("#feed-post-counter"),submit=q("#feed-submit");
@@ -167,6 +175,7 @@
  }
  async function init(){
   await window.VATRA_LANGUAGE?.ready;
+  localizeSocial();
   if(!window.supabase?.createClient){
    showErrorAtGate(t("Не вдалося завантажити VATRA.","Could not load VATRA."));return;
   }
@@ -192,6 +201,9 @@
    q("#feed-my-avatar").textContent=initials(displayName);
    q("#feed-header-avatar").textContent=initials(displayName);
    q("#feed-menu-name").textContent=displayName;
+   const sideName=q("#feed-sidebar-person-name"),sideAvatar=q("#feed-sidebar-person-avatar");
+   if(sideName)sideName.textContent=displayName;
+   if(sideAvatar)sideAvatar.textContent=initials(displayName);
    const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
    q("#feed-my-id").textContent=displayedId;
    q("#feed-header-id").textContent=displayedId;
