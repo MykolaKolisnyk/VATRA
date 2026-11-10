@@ -39,6 +39,64 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
+
+ // The shared loader reflects real work, with 160ms grace but no forced hold.
+ const bootContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await bootContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await bootContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:`window.__bootQueryFinished=false;
+   window.supabase={createClient:()=>({auth:{getUser:async()=>{
+    await new Promise(resolve=>setTimeout(resolve,850));
+    window.__bootQueryFinished=true;
+    return {data:{user:null},error:null};
+   }}})};`
+ }));
+ const slowBoot=await bootContext.newPage();
+ await slowBoot.addInitScript(()=>localStorage.setItem("vatra-language","uk"));
+ await slowBoot.goto(base,{waitUntil:"domcontentloaded"});
+ await slowBoot.waitForFunction(()=>getComputedStyle(
+  document.querySelector("#vatra-auth-loading")).opacity==="1",null,{timeout:2000});
+ const pendingState=await slowBoot.evaluate(()=>({
+  complete:window.__bootQueryFinished,ready:document.body.dataset.authReady==="true",
+  loader:document.querySelector("#vatra-auth-loading").getBoundingClientRect().width>0,
+  track:getComputedStyle(document.querySelector(".vatra-auth-loading-track")).width
+ }));
+ assert.equal(pendingState.ready,false,"The loader must not dismiss during a real pending auth request");
+ assert.equal(pendingState.complete,false,"Auth is still pending when the delayed loader is visible");
+ assert.equal(pendingState.loader,true);
+ assert.equal(pendingState.track,"80px","All dynamic pages use the same 80px progress indicator");
+ await slowBoot.waitForFunction(()=>window.__bootQueryFinished&&document.body.dataset.authReady==="true",
+  null,{timeout:7000});
+ assert.equal(await slowBoot.locator("#vatra-auth-loading").isVisible(),false,
+  "The loader must disappear as soon as auth finishes, without a minimum display duration");
+ await slowBoot.close();
+ await bootContext.close();
+
+ const quickContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ await quickContext.route("**/assets/js/host.js",route=>route.fulfill({
+  status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
+ }));
+ await quickContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
+  status:200,contentType:"text/javascript",
+  body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"
+ }));
+ const quickBoot=await quickContext.newPage();
+ await quickBoot.addInitScript(()=>localStorage.setItem("vatra-language","uk"));
+ await quickBoot.goto(base,{waitUntil:"domcontentloaded"});
+ await quickBoot.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:7000});
+ assert.equal(await quickBoot.locator("#vatra-auth-loading").isVisible(),false,
+  "Fast completed initialization should expose content immediately");
+ for(const staticPage of ["terms","privacy","cookies","404"]){
+  await quickBoot.goto(base+staticPage,{waitUntil:"domcontentloaded"});
+  assert.equal(await quickBoot.locator(".vatra-auth-loading").count(),0,
+   "Static pages should never show a fake loader: "+staticPage);
+ }
+ await quickContext.close();
+ console.log("VATRA loading: fast requests, genuine wait, uniform indicator, no static-page splash OK");
+
  const localeTitles={
   uk:JSON.parse(await readFile("assets/i18n/uk.json","utf8")).__pages,
   en:JSON.parse(await readFile("assets/i18n/en.json","utf8")).__pages
