@@ -16,7 +16,7 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
 .feed-main{min-width:0;display:flex;flex-direction:column;gap:20px}
 .feed-title-row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:4px 5px 6px}
 .feed-title{margin:0;color:var(--ink);font-size:clamp(29px,3.2vw,38px);line-height:1.2;font-weight:780;letter-spacing:-.045em}.feed-post-card,.feed-empty{border:1px solid #e0e7f5;border-radius:23px;background:#fff;box-shadow:0 16px 40px rgba(35,58,113,.045)}
-.feed-avatar{display:grid;place-items:center;flex:none;border-radius:50%;color:#fff;background:linear-gradient(135deg,#346ef0,#6d48da 65%,#df47a3);font-weight:800}
+.feed-avatar{display:grid;place-items:center;flex:none;border-radius:50%;color:#fff;background:var(--vatra-avatar-gradient);font-weight:800}
 .feed-submit{min-width:154px;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:linear-gradient(110deg,#2865d8,#436ce8);box-shadow:0 8px 22px rgba(43,96,212,.16);color:#fff;font-weight:750;font-size:14px;transition:transform .17s,box-shadow .17s}
 .feed-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 25px rgba(43,96,212,.25)}
 .feed-submit:disabled,.feed-more:disabled{opacity:.6;cursor:wait}
@@ -99,7 +99,7 @@ body.feed-page{background:#f4f6fa}
 .profile-cover{height:185px;display:flex;justify-content:flex-end;align-items:center;padding-right:10%;background:linear-gradient(112deg,#dbe9fd,#e8e1ff 65%,#f4e3f3);color:rgba(89,105,179,.18)}
 .profile-cover .vt-profile-cover-symbol-001{font-size:150px;font-weight:850;line-height:1}
 .profile-summary{display:flex;align-items:flex-end;gap:18px;padding:0 24px 25px;border-bottom:1px solid #e9edf5}
-.profile-avatar{display:grid;place-items:center;width:108px;height:108px;flex:none;margin-top:-47px;border:5px solid #fff;border-radius:50%;background:linear-gradient(140deg,#3b74ef,#8051dd);box-shadow:0 0 0 1px #dce5f4;color:#fff;font-size:42px;font-weight:800}
+.profile-avatar{display:grid;place-items:center;width:108px;height:108px;flex:none;margin-top:-47px;border:5px solid #fff;border-radius:50%;background:var(--vatra-avatar-gradient);box-shadow:0 0 0 1px #dce5f4;color:#fff;font-size:42px;font-weight:800}
 .profile-identity{min-width:0;padding-bottom:6px}
 .profile-name{margin:0 0 7px;overflow-wrap:anywhere;color:#2C3850;
  font-size:clamp(29px,2.65vw,36px);line-height:1.18;font-weight:755;
@@ -318,7 +318,7 @@ body.profile-page.feed-page:not(.community-page) .profile-summary{
 body.profile-page.feed-page:not(.community-page) .profile-avatar{
  position:relative;z-index:2;align-self:flex-start;flex:none;
  width:100px;height:100px;margin:-49px 0 0;border:5px solid #fff;
- border-radius:50%;font-size:33px;box-shadow:0 5px 15px rgba(35,59,100,.12)
+ border-radius:50%;font-size:33px;box-shadow:0 0 0 2px #cfddff,0 12px 26px rgba(44,79,176,.16)
 }
 body.profile-page.feed-page:not(.community-page) .profile-identity{flex:1;min-width:150px;padding:12px 0 0}
 body.profile-page.feed-page:not(.community-page) .profile-name{
@@ -457,18 +457,16 @@ body.feed-page .feed-header{
  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
  overflow:visible
 }
-body.feed-page:not(.community-page) .feed-header-inner,
-body.feed-page.community-page .feed-header-inner{
+body.feed-page .feed-header-inner{
  display:grid;grid-template-columns:minmax(288px,1fr) auto minmax(245px,1fr);
  grid-template-rows:60px;align-items:center;gap:0 10px;
  width:calc(100% - 40px);max-width:none;min-height:60px;margin:0 auto;padding:0
 }
 body.feed-page .feed-brand-search{
  display:flex;grid-column:1;grid-row:1;align-items:center;gap:5px;justify-self:start;
- min-width:0;width:min(100%,350px);max-width:350px
+ min-width:0;width:min(100%,310px);max-width:310px
 }
-body.feed-page:not(.community-page) .feed-header-brand,
-body.feed-page.community-page .feed-header-brand{
+body.feed-page .feed-header-brand{
  display:grid;place-items:center;flex:none;width:45px;height:45px;
  min-width:45px;max-width:45px;min-height:45px;margin:0;
  border-radius:50%;transition:background .18s ease,transform .18s ease
@@ -479,7 +477,7 @@ body.feed-page .feed-header-brand .ui-feed-logo-001{
 body.feed-page .feed-header-brand:hover{background:#f0f3ff;transform:translateY(-1px)}
 body.feed-page .feed-header .feed-search-form{
  display:flex!important;flex:1;align-items:center;gap:9px;min-width:0;
- width:100%;max-width:300px;height:44px;margin:0;padding:0 14px;
+ width:100%;max-width:240px;height:38px;margin:0;padding:0 12px;
  border:1px solid #d7ddea;border-radius:999px;background:#f1f3f8;
  box-shadow:none;transition:background .22s,border-color .22s,box-shadow .22s
 }
@@ -488,8 +486,8 @@ body.feed-page .feed-header .feed-search-form:focus-within{
  background:#fff;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)
 }
 body.feed-page .feed-header .feed-search-input{
- display:block;flex:1;min-width:0;width:100%;height:40px;border:0;outline:0;
- background:transparent;color:var(--ink);font:500 15px/1.4 "Onest",Inter,system-ui,sans-serif
+ display:block;flex:1;min-width:0;width:100%;height:36px;border:0;outline:0;
+ background:transparent;color:var(--ink);font:500 14px/1.4 "Onest",Inter,system-ui,sans-serif
 }
 body.feed-page .feed-header .ui-feed-search-icon-001{flex:none;width:19px;height:19px;color:#8292ad}
 body.feed-page .feed-header .feed-search-input::placeholder{color:#627187;opacity:1}
@@ -520,7 +518,7 @@ body.feed-page .feed-header .feed-search-submit{display:none!important}
 }
 .vatra-search-history{
  display:flex;flex-direction:column;flex:0 1 auto;min-height:0;
- max-height:min(440px,50dvh);overflow-y:auto;overscroll-behavior:contain;
+ max-height:min(228px,50dvh);overflow-y:auto;overscroll-behavior:contain;
  padding:2px 7px 5px 10px;
  scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)
 }
@@ -578,7 +576,7 @@ body.feed-page .feed-header .feed-search-submit{display:none!important}
 .vatra-search-scope button svg{flex:none;width:18px;height:18px}
 .vatra-search-scope button:hover{background:#edf3ff;border-color:#b6caf2;color:#285cce}
 @media(max-width:610px){
- .vatra-search-history{max-height:min(440px,39dvh)}
+ .vatra-search-history{max-height:min(228px,39dvh)}
  .vatra-search-scope button{min-height:38px;padding:8px 6px;font-size:12px}
  .vatra-search-panel-header{min-height:43px}
 }
@@ -586,13 +584,13 @@ body.feed-page .feed-header .feed-search-submit{display:none!important}
 
 body.feed-page .social-top-nav{
  display:flex!important;grid-column:2;grid-row:1;align-self:stretch;
- align-items:center;justify-self:center;justify-content:center;
- gap:12px;width:auto;min-width:0;padding:2px 0
+ align-items:stretch;justify-self:center;justify-content:center;
+ gap:12px;width:auto;min-width:0;padding:0
 }
 body.feed-page .social-top-link,
 body.feed-page .social-top-pending{
  position:relative;display:grid;place-items:center;flex:none;
- width:62px;min-width:62px!important;min-height:48px;margin:0;
+ width:62px;min-width:62px!important;height:100%;min-height:0;margin:0;
  padding:8px!important;border:0;border-radius:12px;background:transparent;
  color:#7183a2;opacity:1;box-shadow:none;cursor:pointer;
  transition:background .19s,color .19s,transform .19s
@@ -619,7 +617,7 @@ body.feed-page .social-top-link,
 body.feed-page .social-top-link.social-top-active,
 body.feed-page .feed-header-icon-button{color:#7183a2}
 body.feed-page .social-top-link.social-top-active::after{
- content:"";position:absolute;bottom:-5px;left:13px;right:13px;
+ content:"";position:absolute;bottom:0;left:13px;right:13px;
  height:3px;border-radius:4px;background:#4d71e5
 }
 body.feed-page .social-top-link:focus-visible{outline:3px solid #a9c2f7;outline-offset:1px}
@@ -655,8 +653,8 @@ body.feed-page .feed-account-menu[open] .feed-account-toggle{
 body.feed-page .feed-account-toggle:focus-visible{outline:3px solid #a8c0f3;outline-offset:2px}
 body.feed-page .feed-header-avatar{
  display:grid;place-items:center;flex:none;width:38px;height:38px;
- border-radius:50%;background:linear-gradient(135deg,#3978e8,#7453dd);
- color:white;font:770 13px/1 "Onest",system-ui,sans-serif
+ border:2px solid #fff;border-radius:50%;background:var(--vatra-avatar-gradient);
+ box-shadow:0 0 0 1px #cfddff;color:white;font:770 13px/1 "Onest",system-ui,sans-serif
 }
 body.feed-page .feed-account-toggle .feed-account-name{
  display:block;min-width:0;max-width:128px;overflow:hidden;
@@ -715,7 +713,7 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
  display:flex;flex-direction:column;width:min(100%,850px);max-width:850px;min-width:0;
- margin:0!important;gap:21px
+ margin:0 auto!important;gap:21px
 }
 body.feed-page .feed-stories{margin:0 0 2px;gap:16px}
 body.feed-page:not(.community-page):not(.profile-page) .feed-posts-title{
@@ -784,21 +782,19 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto;color:#405475;font:73
 }
 .vatra-story-dialog .vatra-story-close{margin-top:14px}
 @media(max-width:1170px){
- body.feed-page:not(.community-page) .feed-header-inner,
- body.feed-page.community-page .feed-header-inner{
+ body.feed-page .feed-header-inner{
   grid-template-columns:minmax(205px,1fr) auto minmax(205px,1fr);
   width:calc(100% - 28px);gap:0 6px
  }
  body.feed-page .feed-brand-search{gap:3px;max-width:300px}
- body.feed-page .feed-header .feed-search-form{max-width:250px}
+ body.feed-page .feed-header .feed-search-form{max-width:215px}
  body.feed-page .social-top-nav{gap:3px}
  body.feed-page .social-top-link,body.feed-page .social-top-pending{width:52px;min-width:52px!important}
  body.feed-page .feed-header-controls{gap:4px}
  body.feed-page .feed-account-toggle .feed-account-name{max-width:92px}
 }
 @media(max-width:950px){
- body.feed-page:not(.community-page) .feed-header-inner,
- body.feed-page.community-page .feed-header-inner{
+ body.feed-page .feed-header-inner{
   grid-template-columns:minmax(0,1fr) auto;grid-template-rows:54px 49px;
   gap:0 8px;min-height:0;width:calc(100% - 24px)
  }
@@ -816,15 +812,13 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto;color:#405475;font:73
  body.feed-page:not(.community-page):not(.profile-page) .feed-main{width:100%;max-width:100%}
 }
 @media(max-width:610px){
- body.feed-page:not(.community-page) .feed-header-inner,
- body.feed-page.community-page .feed-header-inner{
+ body.feed-page .feed-header-inner{
   grid-template-rows:50px 48px;width:calc(100% - 16px);gap:0 4px
  }
- body.feed-page:not(.community-page) .feed-header-brand,
- body.feed-page.community-page .feed-header-brand{width:39px;min-width:39px;height:39px;min-height:39px}
+ body.feed-page .feed-header-brand{width:39px;min-width:39px;height:39px;min-height:39px}
  body.feed-page .feed-header-brand .ui-feed-logo-001{width:37px;height:37px}
  body.feed-page .feed-brand-search{min-width:0;gap:4px}
- body.feed-page .feed-header .feed-search-form{height:36px;max-width:174px;padding:0 8px;gap:6px}
+ body.feed-page .feed-header .feed-search-form{height:36px;max-width:154px;padding:0 8px;gap:6px}
  body.feed-page .feed-header .feed-search-input{height:34px;font-size:14px}
  body.feed-page .feed-header .ui-feed-search-icon-001{width:16px;height:16px}
  body.feed-page .feed-header-controls{gap:2px}
