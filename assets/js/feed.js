@@ -109,6 +109,42 @@
   counter.classList.toggle("is-at-limit",length>=POST_LIMIT);
   submit.disabled=length===0||length>POST_LIMIT||!vatraId;
  }
+ async function loadCommunityPreview(){
+  const list=q("#feed-community-list");
+  if(!list)return;
+  try{
+   const {data,error}=await client.from("communities")
+    .select("club_id,name,description,created_at")
+    .order("created_at",{ascending:false}).limit(4);
+   if(error)throw error;
+   list.replaceChildren();
+   const valid=(data||[]).filter(club=>/^[1-9][0-9]{0,18}$/.test(String(club.club_id)));
+   if(!valid.length){
+    list.append(node("p","social-community-empty vt-social-community-empty-001",
+     t("Спільнот поки немає.","No communities yet.")));
+   }
+   for(const club of valid){
+    const link=node("a","social-community-item ui-social-community-item-001");
+    link.href=new URL("club"+String(club.club_id),new URL("./",location.href)).href;
+    const mark=node("span","social-community-mark vt-social-community-mark-001",
+     (Array.from(String(club.name||"V"))[0]||"V").toLocaleUpperCase(locale));
+    mark.setAttribute("aria-hidden","true");
+    const info=node("span","social-community-info ui-social-community-info-001");
+    const name=node("strong","social-community-name vt-social-community-name-001",club.name);
+    info.append(name);
+    if(club.description){
+     info.append(node("small","social-community-desc vt-social-community-desc-001",club.description));
+    }
+    link.append(mark,info);
+    list.append(link);
+   }
+  }catch(_){
+   list.replaceChildren(node("p","social-community-empty vt-social-community-empty-001",
+    t("Спільноти тимчасово недоступні.","Communities are temporarily unavailable.")));
+  }finally{
+   list.setAttribute("aria-busy","false");
+  }
+ }
  async function loadPosts(reset=false){
   if(loading)return;
   loading=true;
@@ -265,6 +301,8 @@
      "VATRA ID is unavailable for this account. Posting is temporarily disabled."));
    }
    await loadPosts(true);
+   // This secondary, real directory query must not delay or block the Feed.
+   void loadCommunityPreview();
    q("#feed-app").hidden=false;
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
