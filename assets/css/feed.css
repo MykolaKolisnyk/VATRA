@@ -591,8 +591,16 @@ body.feed-page .social-top-link:focus-visible{
 }
 body.feed-page .social-top-link:hover svg{transform:scale(1.055)}
 body.feed-page .social-top-link.social-top-active{
- background:transparent!important;color:#7183a2!important
+ background:transparent!important
 }
+/* VATRA orbit palette: only the underline marks the selected destination. */
+body.feed-page .ui-social-top-feed-001{color:#376fdf}
+body.feed-page .ui-social-top-friends-001{color:#2d9c91}
+body.feed-page .ui-social-top-communities-001{color:#536bc4}
+body.feed-page .ui-social-top-clips-001{color:#bf6cb2}
+body.feed-page .ui-social-top-marketplace-001{color:#b98332}
+body.feed-page .ui-shell-header-messenger-001{color:#557fcb}
+body.feed-page .ui-shell-header-music-001{color:#8d6ac2}
 body.feed-page .social-top-link.social-top-active::after{
  content:"";position:absolute;bottom:-5px;left:13px;right:13px;
  height:3px;border-radius:4px;background:linear-gradient(90deg,#386fec,#815bdc)
