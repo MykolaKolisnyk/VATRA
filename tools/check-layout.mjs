@@ -890,7 +890,11 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  !sharedCss.includes(".feed-sidebar")&&
  !sharedCss.includes(".feed-composer")&&
  sharedJs.includes("positionTooltip(target)")&&
- sharedJs.includes("setUpStories()"),
+ sharedJs.includes("setUpStories()")&&
+ sharedJs.includes("localStorage.setItem(storageKey")&&
+ sharedJs.includes("setUpSiteSearch()")&&
+ sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
+ !sharedCss.includes("body.feed-page .ui-social-top-feed-001{color:#376fdf"),
  "VATRA must use auth-style tooltips, one active header and no obsolete social CSS");
 for(const page of sharedShellPages){
  const html=await read(page+".html");
@@ -906,6 +910,11 @@ for(const page of sharedShellPages){
  }
  assert.equal((header.match(/id="feed-search-form"/g)||[]).length,1,
   page+": VATRA search must be in the top header exactly once");
+ assert.ok(header.includes('id="vatra-search-panel"')&&
+  header.includes('id="vatra-search-history"')&&
+  header.includes('data-vatra-search-scope="posts"')&&
+  header.includes('data-vatra-search-scope="communities"'),
+  page+": common VATRA search needs history and both supported destinations");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
  const controls=header.match(/<div class="feed-header-controls[\s\S]*?<\/header>/)?.[0]||"";
  assert.ok(nav.indexOf("ui-social-top-feed-001")<nav.indexOf("ui-social-top-friends-001")&&
