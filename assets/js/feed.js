@@ -156,8 +156,7 @@
     if(!error)for(const group of data||[])followedClubs.set(String(group.club_id),group.name);
    }catch(_){}
   }
-  await loadPublicNames([...friends]);
-  await loadAvatars([...friends]);
+  await Promise.all([loadPublicNames([...friends]),loadAvatars([...friends])]);
  }
  function card(post){
   const authorId=String(post.author_vatra_id);
@@ -229,8 +228,10 @@
     .filter(post=>friends.has(String(post.author_vatra_id))).map(post=>({...post,kind:"person"}));
    const communities=groups.status==="fulfilled"&&!groups.value.error?
     (groups.value.data||[]).map(post=>({...post,kind:"group"})):[];
-   await loadPublicNames([...personal,...communities].map(x=>x.author_vatra_id));
-   await loadAvatars([...personal,...communities].map(x=>x.author_vatra_id));
+   await Promise.all([
+    loadPublicNames([...personal,...communities].map(x=>x.author_vatra_id)),
+    loadAvatars([...personal,...communities].map(x=>x.author_vatra_id))
+   ]);
    visibleFeed=[...personal,...communities].filter(post=>!searchTerm||
     post.body.toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
     .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)||
