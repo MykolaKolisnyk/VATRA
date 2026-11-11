@@ -104,7 +104,7 @@ async function loadPosts(client,targetId){
  list.setAttribute("aria-busy","true");
  try{
   const {data,error}=await client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at")
+   .select("id,author_vatra_id,body,created_at,media_kind,media_path")
    .eq("author_vatra_id",targetId)
    .order("created_at",{ascending:false})
    .order("id",{ascending:false}).range(0,14);
@@ -131,7 +131,9 @@ async function loadPosts(client,targetId){
     avatar.classList.add("has-photo");avatar.textContent="";
    }
    header.append(avatar,identity);
-   article.append(header,node("p","feed-post-body vt-profile-post-body-001",post.body));
+   article.append(header);
+   if(post.body)article.append(node("p","feed-post-body vt-profile-post-body-001",post.body));
+   if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
    list.append(article);
   }
   empty.hidden=(data||[]).length>0;
@@ -153,13 +155,18 @@ function bindPostComposer(client,user,ownId){
  const counter=q("#profile-compose-counter");
  const status=q("#profile-compose-status");
  if(!trigger||!dialog||!form||!input||!submit||!validId(ownId))return;
- let publishing=false;
+ let publishing=false,picker=null;
  const update=()=>{
   const length=Array.from(input.value).length;
   counter.textContent=length+" / 2000";
-  submit.disabled=publishing||length===0||length>2000;
+  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFile())||length>2000;
  };
  const clearStatus=()=>{status.textContent="";status.hidden=true;};
+ picker=window.VATRA_POST_MEDIA?.bindPicker({
+  input:"#profile-compose-media",choose:"#profile-compose-media-choose",
+  clear:"#profile-compose-media-remove",preview:"#profile-compose-media-preview",
+  onError:text=>{status.textContent=text;status.hidden=!text;},onChange:update
+ });
  trigger.addEventListener("click",()=>{
   clearStatus();
   dialog.showModal();
@@ -179,24 +186,27 @@ function bindPostComposer(client,user,ownId){
  form.addEventListener("submit",async event=>{
   event.preventDefault();
   if(publishing)return;
-  const body=input.value.trim();
-  if(!body||Array.from(body).length>2000){
-   status.textContent=t("Допис має містити від 1 до 2000 символів.","A post must contain 1–2000 characters.");
+  const body=input.value.trim(),file=picker?.getFile();
+  if((!body&&!file)||Array.from(body).length>2000){
+   status.textContent=t("Додайте текст, фото або відео (до 2000 символів).","Add text, a photo or video (up to 2000 characters).");
    status.hidden=false;return;
   }
   publishing=true;
   update();
   clearStatus();
+  let uploaded=null;
   try{
+   if(file)uploaded=await window.VATRA_POST_MEDIA.upload(client,ownId,file);
    const {error}=await client.from("feed_posts").insert({
-    author_id:user.id,author_vatra_id:ownId,body
+    author_id:user.id,author_vatra_id:ownId,body,...(uploaded||{})
    });
    if(error)throw error;
-   input.value="";
+   input.value="";picker?.reset();
    dialog.close();
    await loadPosts(client,ownId);
-  }catch(_){
-   status.textContent=t("Не вдалося опублікувати допис. Повторіть спробу.",
+  }catch(error){
+   if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
+   status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
     "Could not publish the post. Please try again.");
    status.hidden=false;
   }finally{publishing=false;update();}
