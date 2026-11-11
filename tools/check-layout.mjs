@@ -1075,7 +1075,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('.select("id,author_vatra_id,body,created_at,media_kind,media_path")')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
@@ -1085,7 +1085,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories()])')&&
- feedScript.includes('posts.append(card)')&&
+ feedScript.includes('posts.append(card(item))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email)')&&
  profileScript.includes('void loadPosts(client,targetId)')&&
  profileScript.includes('setImage(postAvatar,photoURLs.avatar)')&&
