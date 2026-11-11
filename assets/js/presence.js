@@ -56,7 +56,7 @@ function format(record,english=false){
  if(!date||!Number.isFinite(date.getTime()))return {online:false,text:"",date:null};
  const now=new Date(),elapsed=now.getTime()-date.getTime();
  const online=elapsed>=-30000&&elapsed<=activeWindow;
- if(online)return {online:true,text:english?"Online now":"Зараз у мережі",date};
+ if(online)return {online:true,text:"",date};
  const locale=english?"en-GB":"uk-UA";
  const time=new Intl.DateTimeFormat(locale,{hour:"2-digit",minute:"2-digit"}).format(date);
  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime();
