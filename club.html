@@ -120,6 +120,27 @@
      </div>
      <div class="profile-info ui-club-info-001"><h3 class="vt-club-about-title-001" data-community-uk="Про спільноту" data-community-en="About the community">Про спільноту</h3><p id="club-description" class="vt-profile-about-text-001"></p></div>
     </section>
+    <section class="club-social-actions ui-club-social-actions-001">
+     <button type="button" id="club-follow" class="club-follow vt-club-follow-001" data-community-uk="Підписатися" data-community-en="Follow" hidden>Підписатися</button>
+     <button type="button" id="club-compose-open" class="club-compose-open vt-club-compose-open-001" data-community-uk="Допис у спільноту" data-community-en="Post to community" hidden>Допис у спільноту</button>
+    </section>
+    <section class="club-posts-section ui-club-posts-section-001" aria-labelledby="club-posts-title">
+     <h2 id="club-posts-title" class="vt-club-posts-title-001" data-community-uk="Публікації спільноти" data-community-en="Community posts">Публікації спільноти</h2>
+     <div id="club-posts" class="club-posts ui-club-posts-001" aria-live="polite"></div>
+     <p id="club-posts-empty" class="vt-club-posts-empty-001" hidden></p>
+    </section>
+    <dialog id="club-compose-dialog" class="club-compose-dialog ui-club-compose-dialog-001" aria-labelledby="club-compose-title">
+     <form id="club-compose-form" class="ui-club-compose-form-001">
+      <h2 id="club-compose-title" class="vt-club-compose-title-001" data-community-uk="Допис у спільноті" data-community-en="Community post">Допис у спільноті</h2>
+      <label for="club-compose-text" class="vt-club-compose-label-001" data-community-uk="Ваш допис" data-community-en="Your post">Ваш допис</label>
+      <textarea id="club-compose-text" class="ui-club-compose-text-001" rows="5" maxlength="2000" required data-shell-placeholder-uk="Поділіться новиною зі спільнотою…" data-shell-placeholder-en="Share an update with your community…" placeholder="Поділіться новиною зі спільнотою…"></textarea>
+      <p id="club-compose-error" class="vt-club-compose-error-001" hidden role="status"></p>
+      <div class="club-compose-actions ui-club-compose-actions-001">
+       <button type="button" id="club-compose-cancel" class="vt-club-compose-cancel-001" data-community-uk="Скасувати" data-community-en="Cancel">Скасувати</button>
+       <button type="submit" id="club-compose-save" class="vt-club-compose-save-001" data-community-uk="Опублікувати" data-community-en="Publish">Опублікувати</button>
+      </div>
+     </form>
+    </dialog>
     <p id="club-status" class="vt-club-status-001" role="status" aria-live="polite" hidden></p>
     <a href="communities" class="profile-back-link vt-club-back-link-001" data-community-uk="Усі спільноти" data-community-en="All communities">Усі спільноти</a>
    </main>
