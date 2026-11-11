@@ -2316,11 +2316,13 @@ try{
   const feedErrors=[];
   feedProbe.on("pageerror",err=>feedErrors.push(err.message));
   await feedProbe.goto(base+"feed",{waitUntil:"domcontentloaded"});
-  assert.equal(await feedProbe.locator("#feed-loading").isVisible(),true,
-   "Feed loading screen must remain while its first post request is pending");
-  assert.equal(await feedProbe.locator("#feed-app").isVisible(),false,
-   "Feed content must not be revealed before initial data arrives");
   await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await feedProbe.locator("#feed-loading").isVisible(),false,
+   "Authenticated Feed must not block its header while posts load");
+  assert.equal(await feedProbe.locator(".feed-header").isVisible(),true,
+   "The persistent header must render before slow Feed posts");
+  assert.equal(await feedProbe.locator(".vatra-route-skeleton:visible").count(),0,
+   "A full-route skeleton must disappear once the shell is ready");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockCreateClientCalls),1,
    "Feed and first-run onboarding must share exactly one Supabase auth client");
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
