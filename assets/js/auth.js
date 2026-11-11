@@ -51,6 +51,7 @@ function rememberAccount(user){
  if(!user?.id||!user.email_confirmed_at||typeof user.email!=="string")return;
  const email=user.email.trim().toLowerCase();
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return;
+ window.VATRA_AVATAR?.clearHeader(email);
  const metadata=user.user_metadata||{};
  const name=[metadata.first_name,metadata.last_name].filter(x=>typeof x==="string"&&x.trim()).join(" ").trim().slice(0,120)||email.split("@")[0];
  // Save identity labels and an optional PUBLIC avatar link only, not passwords,
