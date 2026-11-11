@@ -845,7 +845,7 @@ body.feed-page .vatra-search-back:focus-visible{outline:2px solid #4875df;outlin
  animation:vatra-search-reveal .17s ease-out both
 }
 .vatra-search-panel[hidden]{display:none!important}
-@keyframes vatra-search-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes vatra-search-reveal{from{opacity:0}to{opacity:1}}
 .vatra-search-panel-header{
  display:flex;flex:none;align-items:center;justify-content:space-between;
  min-height:57px;padding:16px 20px 11px;gap:10px
