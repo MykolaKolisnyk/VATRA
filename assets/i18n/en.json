@@ -906,6 +906,11 @@
           "text": {
             "0": "12–128 characters, uppercase and lowercase Latin letters, a digit and a special character."
           }
+        },
+        "n501": {
+          "text": {
+            "0": "Your first and last name will appear on your VATRA profile. Your email and date of birth remain private."
+          }
         }
       }
     },
@@ -1637,7 +1642,7 @@
         },
         "n19": {
           "text": {
-            "0": "Updated November 8, 2026"
+            "0": "Updated November 11, 2026"
           }
         },
         "n21": {
@@ -1807,7 +1812,7 @@
         },
         "n63": {
           "text": {
-            "0": "Your email address is used to confirm registration, sign in and recover your password; it may also be used for important account-security messages. Providing a gender is optional: you may select an option or leave “Prefer not to say.” If specified, it is stored with your account information but is not publicly displayed on the registration page. Other details are used to create your account, verify sign-ins and protect against unauthorized access."
+            "0": "Your email address is used for account confirmation, sign-in and password recovery, and may be used for account-security messages. The first and last name entered at registration appear to other VATRA members on your profile and next to your posts. Date of birth, email and gender are not displayed publicly. Gender is optional; you may choose a value or leave it unspecified. Other details are used to create your account, verify sign-ins and protect against unauthorized access."
           }
         },
         "n64": {
