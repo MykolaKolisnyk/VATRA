@@ -272,8 +272,7 @@
    await loadPublicNames(items.map(x=>x.author_vatra_id));
    await loadAvatars(items.map(x=>x.author_vatra_id));
    holder.replaceChildren();
-   if(!items.length)holder.append(node("p","feed-story-empty-note vt-feed-story-empty-note-001",
-    t("Історії друзів з’являться тут.","Friends’ stories will appear here.")));
+   q(".feed-stories")?.classList.toggle("is-empty",items.length===0);
    for(const story of items){
     const id=String(story.author_vatra_id);
     const button=node("button","feed-story-preview ui-feed-story-live-preview-001");
@@ -292,8 +291,7 @@
     });
     holder.append(button);
    }
-  }catch(_){holder.replaceChildren(node("p","feed-story-empty-note vt-feed-story-unavailable-001",
-   t("Історії зараз недоступні.","Stories are temporarily unavailable.")));}
+  }catch(_){holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
   finally{requestAnimationFrame(updateStoryArrow);}
  }
  function bindComposer(){
@@ -390,13 +388,12 @@
 
    q("#feed-header-id").textContent=displayedId;
    q("#feed-header-id").hidden=!vatraId;
+    if(vatraId)void loadAvatars([vatraId]);
    if(vatraId){
     for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
      link.href=new URL("id"+vatraId,new URL("./",location.href)).href;
     }
    }
-   // The loading overlay stays visible until the initial Feed query settles.
-   // The sliding bar is indeterminate, not a fabricated percentage.
    const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");
    searchTerm=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
    if(searchInput)searchInput.value=searchTerm;
@@ -444,12 +441,13 @@
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
+   document.body.classList.remove("vatra-shell-pending");
    // Start the optional tutorial without holding the whole screen hostage.
    void Promise.resolve(window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})).catch(()=>{});
    document.dispatchEvent(new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}}));
    void Promise.allSettled([loadPosts(true),loadStories()]);
   }catch(_){
-   if(!q("#feed-app").hidden){
+   if(document.body.dataset.authReady==="true"){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
      "Could not load the feed. Refresh the page."));
    }else showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));
