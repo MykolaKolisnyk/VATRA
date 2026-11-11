@@ -409,16 +409,16 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const message=q("#profile-media-status");
- const bucket="vatra-profile-media";
+ const bucketFor=kind=>kind==="avatar"?"vatra-avatars":"vatra-covers";
  let saved=null;
  const status=(text,error=false)=>{
   message.textContent=text;message.hidden=!text;
   message.dataset.status=error?"error":"ok";
  };
- const getPublicPath=path=>{
+ const getPublicPath=(path,kind)=>{
   if(typeof path!=="string"||!path.startsWith(targetId+"/"))return null;
   try{
-   const result=client.storage.from(bucket).getPublicUrl(path);
+   const result=client.storage.from(bucketFor(kind)).getPublicUrl(path);
    const url=result?.data?.publicUrl;
    if(!url)return null;
    const parsed=new URL(url);
@@ -432,11 +432,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
  };
  const display=record=>{
   if(record?.cover_path){
-   const url=getPublicPath(record.cover_path);
+   const url=getPublicPath(record.cover_path,"cover");
    if(url)setImage(cover,url);
   }
   if(record?.avatar_path){
-   const url=getPublicPath(record.avatar_path);
+   const url=getPublicPath(record.avatar_path,"avatar");
    if(url){
     setImage(avatar,url);avatar.textContent="";
     if(isMine){
@@ -468,7 +468,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
     value=>value.toString(16).padStart(2,"0")).join("");
   const path=ownId+"/"+kind+"/"+filename+"."+ext;
   try{
-   const {error:uploadError}=await client.storage.from(bucket).upload(path,file,{
+   const {error:uploadError}=await client.storage.from(bucketFor(kind)).upload(path,file,{
     contentType:file.type,cacheControl:"3600",upsert:false
    });
    if(uploadError)throw uploadError;
@@ -479,7 +479,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
     client.from("vatra_profile_media").insert({vatra_id:ownId,...values});
    const {error:dbError}=await operation;
    if(dbError){
-    try{await client.storage.from(bucket).remove([path]);}catch(_){}
+    try{await client.storage.from(bucketFor(kind)).remove([path]);}catch(_){}
     throw dbError;
    }
    const previous=saved?.[column];
@@ -487,7 +487,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
    display(saved);
    status(t("Зображення збережено.","Image saved."));
    if(previous&&previous!==path){
-    try{await client.storage.from(bucket).remove([previous]);}catch(_){}
+    try{await client.storage.from(bucketFor(kind)).remove([previous]);}catch(_){}
    }
   }catch(_){status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
    "Could not upload the image. Please retry."),true);}
