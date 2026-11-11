@@ -2667,6 +2667,8 @@ try{
   assert.equal(await profilePage.locator(".vatra-route-skeleton").count(),1,
    "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
+  await profilePage.waitForFunction(()=>!document.querySelector("#profile-cover-image").classList.contains("is-loading-media"));
   // A saved cover should open the original image in a genuine full-viewport
   // modal, not remain trapped as a tiny background behind the profile header.
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
