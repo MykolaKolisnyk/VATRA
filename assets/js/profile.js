@@ -98,19 +98,22 @@ function missingProfile(){
  document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
  finish();
 }
-async function loadPosts(client,targetId,ownId,userId){
- const list=q("#profile-posts"),empty=q("#profile-posts-empty");
- q("#profile-posts-title").textContent=t("Публікації","Posts");
- list.setAttribute("aria-busy","true");
+async function loadPosts(client,targetId,ownId,userId,append=false){
+ const list=q("#profile-posts"),empty=q("#profile-posts-empty"),more=q("#profile-posts-more");
+ if(!list||list.dataset.loading==="true")return;
+ const offset=append?Number(list.dataset.offset||0):0;
+ list.dataset.loading="true";list.setAttribute("aria-busy","true");
+ if(more)more.disabled=true;
  try{
   const {data,error}=await client.from("feed_posts")
    .select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId)
    .order("created_at",{ascending:false})
-   .order("id",{ascending:false}).range(0,14);
+   .order("id",{ascending:false}).range(offset,offset+11);
   if(error)throw error;
-  list.replaceChildren();
-  for(const post of data||[]){
+  const rows=data||[];
+  if(!append)list.replaceChildren();
+  for(const post of rows){
    const article=node("article","feed-post-card ui-profile-post-card-001");
    article.dataset.postId=post.id;
    const header=node("div","feed-post-header ui-profile-post-header-001");
@@ -120,8 +123,7 @@ async function loadPosts(client,targetId,ownId,userId){
    name.href=memberUrl(targetId);
    const stamp=node("time","feed-post-date vt-profile-post-date-001",
     "VATRA ID "+targetId+" · "+dateText(post.created_at));
-   stamp.dateTime=post.created_at;
-   identity.append(name,stamp);
+   stamp.dateTime=post.created_at;identity.append(name,stamp);
    const avatar=node("a","feed-avatar feed-post-avatar vt-profile-post-avatar-001 feed-post-profile-avatar",
     q("#profile-avatar").textContent||"V");
    avatar.href=memberUrl(targetId);
@@ -134,25 +136,80 @@ async function loadPosts(client,targetId,ownId,userId){
    header.append(avatar,identity);
    article.append(header);
    if(post.body){
-     const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
-     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
-     article.append(body);
-    }
+    const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
+    window.VATRA_POST_MEDIA?.linkifyHashtags(body);
+    article.append(body);
+   }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
-    ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))void loadPosts(client,targetId,ownId,userId);}
+    ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))
+     void loadPosts(client,targetId,ownId,userId);}
    });
    list.append(article);
   }
-  empty.hidden=(data||[]).length>0;
+  list.dataset.offset=String(offset+rows.length);
+  empty.hidden=list.querySelector(".feed-post-card")!==null;
   if(!empty.hidden)empty.textContent=t("Публікацій поки немає.","No posts yet.");
+  if(more){
+   more.hidden=rows.length<12;
+   if(!more.dataset.bound){
+    more.dataset.bound="true";
+    more.addEventListener("click",()=>void loadPosts(client,targetId,ownId,userId,true));
+   }
+  }
  }catch(_){
-  list.replaceChildren();
+  if(!append)list.replaceChildren();
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
   empty.hidden=false;
- }finally{list.setAttribute("aria-busy","false");}
+ }finally{
+  list.dataset.loading="false";list.setAttribute("aria-busy","false");
+  if(more)more.disabled=false;
+ }
+}
+function setupProfileGallery(client,targetId){
+ for(const settings of [
+  {kind:"image",tab:"#profile-tab-photos",list:"#profile-photo-gallery",empty:"#profile-photos-empty",more:"#profile-photos-more"},
+  {kind:"video",tab:"#profile-tab-videos",list:"#profile-video-gallery",empty:"#profile-videos-empty",more:"#profile-videos-more"}
+ ]){
+  const tab=q(settings.tab),list=q(settings.list),empty=q(settings.empty),more=q(settings.more);
+  if(!tab||!list||!empty||!more)continue;
+  let loaded=false,busy=false,offset=0;
+  const load=async(append=false)=>{
+   if(busy)return;
+   busy=true;list.setAttribute("aria-busy","true");more.disabled=true;
+   if(!append){offset=0;list.replaceChildren();}
+   empty.hidden=true;
+   try{
+    const {data,error}=await client.from("feed_posts")
+     .select("id,author_vatra_id,media_kind,media_path")
+     .eq("author_vatra_id",targetId).eq("media_kind",settings.kind)
+     .order("created_at",{ascending:false}).order("id",{ascending:false})
+     .range(offset,offset+11);
+    if(error)throw error;
+    const rows=(data||[]).filter(item=>!!item.media_path);
+    for(const post of rows){
+     const tile=node("article","profile-media-tile ui-profile-media-tile-001");
+     tile.setAttribute("aria-label",settings.kind==="image"?t("Фото","Photo"):t("Відео","Video"));
+     list.append(tile);
+     void window.VATRA_POST_MEDIA?.mount(client,post,tile);
+    }
+    offset+=(data||[]).length;
+    loaded=true;more.hidden=(data||[]).length<12;
+    if(!list.children.length){
+     empty.textContent=settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
+      t("Відео поки немає.","No videos yet.");
+     empty.hidden=false;
+    }
+   }catch(_){
+    empty.textContent=t("Не вдалося завантажити медіа.","Could not load media.");
+    empty.hidden=false;
+   }finally{busy=false;list.setAttribute("aria-busy","false");more.disabled=false;}
+  };
+  tab.addEventListener("click",()=>{if(!loaded)void load();});
+  more.addEventListener("click",()=>void load(true));
+ }
 }
 function bindPostComposer(client,user,ownId){
  const trigger=q("#profile-write-post");
