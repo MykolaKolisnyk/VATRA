@@ -325,8 +325,12 @@
      const base=new URL("./",location.href);
      const member=id=>validMember(id)?new URL("id"+id,base).href:null;
      const club=id=>validMember(id)?new URL("club"+id,base).href:null;
-     const post=(entry)=>entry?.kind==="group"?club(entry.club_id):
-      validPost(entry?.id)?new URL("feed?post="+encodeURIComponent(entry.id),base).href:null;
+     const post=entry=>{
+      if(entry?.kind==="group"&&validMember(entry.club_id))
+       return new URL("club"+entry.club_id+
+        (validPost(entry.id)?"?post="+encodeURIComponent(entry.id):""),base).href;
+      return validPost(entry?.id)?new URL("feed?post="+encodeURIComponent(entry.id),base).href:null;
+     };
      if(result){
       group(tr("Люди","People"),result.people,"people",x=>member(x.vatra_id),x=>[x.display_name,x.status_text]);
       group(tr("Спільноти","Communities"),result.communities,"communities",x=>club(x.club_id),x=>[x.name,x.description]);
