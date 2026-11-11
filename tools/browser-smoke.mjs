@@ -2382,6 +2382,20 @@ try{
   assert.equal(await feedProbe.locator("#feed-community-list").count(),0);
   assert.equal(await feedProbe.locator("#feed-stories-next").count(),1,
    "Friend Story cards use a working overflow control, not a decorative arrow");
+  const hashtagProbe=await feedProbe.evaluate(()=>{
+   const p=document.createElement("p");
+   p.textContent="Тест #Вакансії #НГУ #26полк #служба_в_нгу <script>alert(1)</script>";
+   window.VATRA_POST_MEDIA.linkifyHashtags(p);
+   return {
+    tags:[...p.querySelectorAll("a")].map(a=>a.textContent),
+    searches:[...p.querySelectorAll("a")].map(a=>new URL(a.href).searchParams.get("q")),
+    unsafeElements:p.querySelectorAll("script,img").length
+   };
+  });
+  assert.deepEqual(hashtagProbe.tags,["#Вакансії","#НГУ","#26полк","#служба_в_нгу"]);
+  assert.deepEqual(hashtagProbe.searches,hashtagProbe.tags,
+   "Hashtag links must open a real Feed query");
+  assert.equal(hashtagProbe.unsafeElements,0,"Post text must not execute arbitrary HTML");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
