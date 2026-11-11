@@ -991,6 +991,16 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const errorPage=await read("404.html");
+// The GitHub Pages /idN and /clubN fallback must show the real VATRA splash
+// while fetching the route document in BOTH Ukrainian and English.
+assert.ok(errorPage.includes('classList.add("vatra-dynamic-route-pending")')&&
+ errorPage.includes('id="vatra-dynamic-route-loading"')&&
+ errorPage.includes('vatra-auth-loading-symbol ui-404-route-loading-symbol-001')&&
+ !errorPage.includes('document.documentElement.style.visibility="hidden"')&&
+ css.includes("html.vatra-dynamic-route-pending body > .vatra-route-loading{visibility:visible!important}")&&
+ lang.includes('classList.contains("vatra-dynamic-route-pending")'),
+ "A canonical profile or club route must never show a blank screen while loading");
+
 assert.equal(uk.__pages["404"].meta.title,"404 Сторінку не знайдено · VATRA");
 assert.equal(en.__pages["404"].meta.title,"404 Page not found · VATRA");
 assert.ok(errorPage.includes("<title>"+uk.__pages["404"].meta.title+"</title>"),
