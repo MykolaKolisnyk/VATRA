@@ -252,8 +252,11 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
     const article=makeRow(list,heading,post.body||t("Медіапублікація","Media post"));
     displaySavedMedia(article,post);
     displayShared(article,post);
-    const a=node("a","vt-profile-saved-link-001",t("Відкрити","Open"));
-    a.href=new URL("feed?post="+encodeURIComponent(post.id),home).href;
+    const groupSaved=save.post_kind==="group"&&validId(post.club_id);
+    const a=node("a","vt-profile-saved-link-001",groupSaved?
+     t("Відкрити спільноту","Open community"):t("Відкрити допис","Open post"));
+    a.href=groupSaved?new URL("club"+post.club_id,home).href:
+     new URL("feed?post="+encodeURIComponent(post.id),home).href;
     const remove=node("button","vt-profile-saved-remove-001",t("Прибрати зі збереженого","Remove from saved"));
     remove.type="button";
     remove.addEventListener("click",async()=>{

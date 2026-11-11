@@ -43,7 +43,11 @@
   const path=location.pathname;
   return path.startsWith("/VATRA/")?new URL("/VATRA/",location.origin):new URL("/",location.origin);
  };
- const permalink=post=>new URL("feed?post="+encodeURIComponent(post.id),relativeRoot()).href;
+ const permalink=post=>{
+  if(post?.kind==="group"&&validId(post.club_id))
+   return new URL("club"+post.club_id,relativeRoot()).href;
+  return new URL("feed?post="+encodeURIComponent(post.id),relativeRoot()).href;
+ };
  const dateValue=input=>{
   const date=new Date(input);return Number.isNaN(date.valueOf())?"":new Intl.DateTimeFormat(
    document.documentElement.lang==="en"?"en-US":"uk-UA",
@@ -403,7 +407,7 @@
   const shareTitle=make("h2","vt-vatra-post-share-heading-001",tr("Поділитися","Share"));
   const shareClose=make("button","vt-vatra-post-share-close-001");
   shareClose.type="button";shareClose.setAttribute("aria-label",tr("Закрити","Close"));
-  shareClose.append(glyph("comments"));shareClose.textContent="×";
+  shareClose.textContent="×";
   shareClose.addEventListener("click",()=>shareMenu.close());
   shareHead.append(shareTitle,shareClose);
   const shareContent=make("div","vatra-post-share-body ui-vatra-post-share-body-001");
@@ -479,7 +483,7 @@
    repost.disabled=true;showShareError("");
    try{
     const caption=shareCaption.value.trim();
-    const body=caption||tr("Поділився публікацією","Shared a post");
+    const body=caption||tr("Поширена публікація","Shared a post");
     const result=await client.from("feed_posts").insert({
      author_id:userId,author_vatra_id:ownId,
      body,shared_post_kind:kind,shared_post_id:post.id
