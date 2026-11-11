@@ -1087,7 +1087,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories()])')&&
  feedScript.includes('posts.append(card(item))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email)')&&
- profileScript.includes('void loadPosts(client,targetId)')&&
+ profileScript.includes('void loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('setImage(postAvatar,photoURLs.avatar)')&&
  memberProfileMarkup.includes('id="profile-avatar-engagement"'),
  "Authenticated pages must use nonblocking inline skeletons and retain real avatar engagement");
