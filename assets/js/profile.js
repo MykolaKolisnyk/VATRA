@@ -204,6 +204,27 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    node("p","vt-profile-extra-copy-001",description));
   list.append(article);return article;
  };
+ const displaySavedMedia=(article,item)=>{
+  if(!item?.media_path||!["image","video"].includes(item.media_kind))return;
+  // Reuse the same secure, signed-URL media viewer as the live Feed.
+  void window.VATRA_POST_MEDIA?.mount(client,item,article);
+ };
+ const displayShared=(article,item)=>{
+  if(item?.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,item,article);
+ };
+ const namedAuthors=async rows=>{
+  const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)).filter(validId))];
+  if(!ids.length)return new Map();
+  const {data,error}=await client.from("vatra_public_profiles")
+   .select("vatra_id,display_name").in("vatra_id",ids);
+  return new Map(!error?(data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
+ };
+ const namedCommunities=async rows=>{
+  const ids=[...new Set(rows.map(p=>String(p.club_id)).filter(validId))];
+  if(!ids.length)return new Map();
+  const {data,error}=await client.from("communities").select("club_id,name").in("club_id",ids);
+  return new Map(!error?(data||[]).map(x=>[String(x.club_id),String(x.name||"").trim()]):[]);
+ };
  const saved=async()=>{
   if(!isMine)return;
   const list=q("#profile-saved-list"),note=q("#profile-saved-empty");
@@ -217,14 +238,20 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    const persons=rows.filter(row=>row.post_kind==="person").map(row=>row.post_id);
    const groups=rows.filter(row=>row.post_kind==="group").map(row=>row.post_id);
    const fetched=await Promise.all([
-    persons.length?client.from("feed_posts").select("id,body,author_vatra_id").in("id",persons):Promise.resolve({data:[]}),
-    groups.length?client.from("vatra_community_posts").select("id,body,author_vatra_id").in("id",groups):Promise.resolve({data:[]})
+    persons.length?client.from("feed_posts").select("id,body,author_vatra_id,media_kind,media_path,shared_post_kind,shared_post_id,created_at").in("id",persons):Promise.resolve({data:[]}),
+    groups.length?client.from("vatra_community_posts").select("id,body,author_vatra_id,club_id,media_kind,media_path,created_at").in("id",groups):Promise.resolve({data:[]})
    ]);
    const map=new Map(fetched.flatMap((x,i)=>(x.data||[]).map(p=>[(i?"group":"person")+":"+p.id,p])));
+   const all=[...map.values()];
+   const [people,communities]=await Promise.all([namedAuthors(all),namedCommunities(all.filter(x=>x.club_id))]);
    for(const save of rows){
     const post=map.get(save.post_kind+":"+save.post_id);if(!post)continue;
-    const article=makeRow(list,t("Публікація VATRA ID ","Post by VATRA ID ")+post.author_vatra_id,
-     Array.from(post.body||"").slice(0,220).join("")||t("Медіапублікація","Media post"));
+    const author=people.get(String(post.author_vatra_id))||t("Учасник VATRA","VATRA member");
+    const community=save.post_kind==="group"?communities.get(String(post.club_id)):null;
+    const heading=community?community+" · "+author:author;
+    const article=makeRow(list,heading,post.body||t("Медіапублікація","Media post"));
+    displaySavedMedia(article,post);
+    displayShared(article,post);
     const a=node("a","vt-profile-saved-link-001",t("Відкрити","Open"));
     a.href=new URL("feed?post="+encodeURIComponent(post.id),home).href;
     const remove=node("button","vt-profile-saved-remove-001",t("Прибрати зі збереженого","Remove from saved"));
@@ -261,13 +288,18 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   list.replaceChildren();note.hidden=true;
   try{
    const {data,error}=await client.from("feed_posts")
-    .select("id,body,media_kind,media_path,created_at,archived_at")
+    .select("id,author_vatra_id,body,media_kind,media_path,shared_post_kind,shared_post_id,created_at,archived_at")
     .eq("author_vatra_id",ownId).not("archived_at","is",null)
     .order("archived_at",{ascending:false}).limit(40);
    if(error)throw error;
+   const people=await namedAuthors(data||[]);
    for(const item of data||[]){
-    const article=makeRow(list,dateText(item.created_at),
-     Array.from(item.body||"").slice(0,360).join("")||t("Медіапублікація","Media post"));
+    const article=makeRow(list,people.get(String(item.author_vatra_id))||t("Моя публікація","My post"),
+     item.body||t("Медіапублікація","Media post"));
+    const stamp=node("time","vt-profile-extra-stamp-001",dateText(item.created_at));
+    stamp.dateTime=item.created_at;article.append(stamp);
+    displaySavedMedia(article,item);
+    displayShared(article,item);
     const restore=node("button","vt-profile-restore-post-001",t("Повернути в публікації","Restore post"));
     restore.type="button";
     restore.addEventListener("click",async()=>{
