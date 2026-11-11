@@ -896,6 +896,13 @@ assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
  !(await read("register.html")).includes('data-i18n="n501"')&&
  (await read("privacy.html")).includes("Ім’я та прізвище, вказані під час реєстрації"),
  "Registered first and last name must appear automatically without a second name setup");
+assert.ok(profileMarkup.includes('id="profile-not-found"')&&
+ profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
+ !profileMarkup.includes('id="profile-not-found" class="profile-not-found vt-profile-not-found-001" hidden>Профіль не знайдено')&&
+ (await read("assets/js/profile.js")).includes('q(".profile-hero").hidden=true')&&
+ (await read("assets/js/profile.js")).includes('q(".profile-panels").hidden=true')&&
+ (await read("assets/js/profile.js")).includes('await loadOwnHeaderAvatar(client,ownId);'),
+ "Unknown VATRA ID displays only User not found, while retaining the owner's header photo");
 const profileBehavior=await read("assets/js/profile.js");
 assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
  profileBehavior.includes('client.from("vatra_direct_messages")')&&
@@ -922,6 +929,10 @@ assert.ok(sharedCss.includes("body.profile-page .profile-media-viewer{")&&
  sharedCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
  sharedCss.includes("body.profile-page .profile-avatar-wrap:hover .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
+assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
+ sharedCss.includes("body.feed-page .feed-account-dropdown > a > svg") &&
+ sharedCss.includes("body.feed-page .feed-account-dropdown > button > svg"),
+ "Account dropdown SVGs must remain visible after language switching");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
@@ -945,7 +956,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
- sharedCss.includes("flex:0 0 122px")&&
+ sharedCss.includes("flex:0 0 108px")&&
+ sharedCss.includes("flex:0 0 86px")&&
  sharedCss.includes("margin:0 auto!important;gap:13px")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(290px,54dvh)")&&
@@ -991,6 +1003,11 @@ for(const page of sharedShellPages){
   header.includes('data-vatra-search-scope="posts"')&&
   header.includes('data-vatra-search-scope="communities"'),
   page+": common VATRA search needs history and both supported destinations");
+ assert.ok(["ui-vatra-account-profile-icon-001","ui-vatra-account-settings-icon-001",
+  "ui-vatra-account-support-icon-001","ui-vatra-account-logout-icon-001"].every(cls=>header.includes(cls))&&
+  header.includes('class="vt-vatra-account-settings-label-001" data-social-uk=')&&
+  header.includes('class="vt-vatra-account-profile-label-001" data-i18n="n48"'),
+  page+": account avatar menu must preserve SVG icons and live translations");
  const nav=header.match(/<nav class="social-top-nav[\s\S]*?<\/nav>/)?.[0]||"";
  const controls=header.match(/<div class="feed-header-controls[\s\S]*?<\/header>/)?.[0]||"";
  assert.ok(nav.indexOf("ui-social-top-feed-001")<nav.indexOf("ui-social-top-friends-001")&&
