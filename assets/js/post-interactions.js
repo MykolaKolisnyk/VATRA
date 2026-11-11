@@ -1,0 +1,378 @@
+/* VATRA post interactions. RLS is the source of truth; no unsafe HTML from members. */
+(()=>{
+ "use strict";
+ if(window.VATRA_HOST_ALLOWED===false)return;
+ const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
+ const validId=value=>/^[1-9]\d{0,18}$/.test(String(value||""));
+ const validUUID=value=>/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(String(value||""));
+ const make=(tag,className,text)=>{
+  const node=document.createElement(tag);
+  if(className)node.className=className;
+  if(text!==undefined)node.textContent=text;
+  return node;
+ };
+ const glyph=type=>{
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","20");
+  svg.setAttribute("height","20");svg.setAttribute("fill","none");
+  svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.85");
+  svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+  svg.setAttribute("aria-hidden","true");svg.classList.add("ui-vatra-post-action-symbol-001");
+  const path=(d)=>{
+   const el=document.createElementNS("http://www.w3.org/2000/svg","path");
+   el.setAttribute("d",d);svg.append(el);
+  };
+  if(type==="heart")path("M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
+  if(type==="comments")path("M20.5 11.6a8.5 8.5 0 0 1-8.6 8.1 9 9 0 0 1-3.8-.9L3 20l1.4-4.5A8.3 8.3 0 0 1 3.5 12a8.5 8.5 0 0 1 17 0Z M8 10h8M8 13.5h5");
+  if(type==="share"){
+   path("M8.6 11.2 16 6.7M8.6 13 16 17.3");
+   for(const [cx,cy] of [[5.3,12.2],[18,5.5],[18,18.5]]){
+    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r","2.5");svg.append(c);
+   }
+  }
+  return svg;
+ };
+ const action=(className,type,label)=>{
+  const button=make("button",className);button.type="button";
+  button.append(glyph(type),make("span","vt-vatra-post-action-label-001",label));
+  return button;
+ };
+ const relativeRoot=()=>{
+  const path=location.pathname;
+  return path.startsWith("/VATRA/")?new URL("/VATRA/",location.origin):new URL("/",location.origin);
+ };
+ const permalink=post=>new URL("feed?post="+encodeURIComponent(post.id),relativeRoot()).href;
+ const dateValue=input=>{
+  const date=new Date(input);return Number.isNaN(date.valueOf())?"":new Intl.DateTimeFormat(
+   document.documentElement.lang==="en"?"en-US":"uk-UA",
+   {day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}
+  ).format(date);
+ };
+ async function authorMap(client,rows){
+  const ids=[...new Set(rows.map(x=>String(x.author_vatra_id)).filter(validId))];
+  const names=new Map(),images=new Map();
+  if(!ids.length)return {names,images};
+  const [profile,media]=await Promise.all([
+   client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
+   client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
+  ]);
+  if(!profile.error)for(const x of profile.data||[])names.set(String(x.vatra_id),x.display_name);
+  if(!media.error)for(const x of media.data||[]){
+   const id=String(x.vatra_id),path=x.avatar_path;
+   if(typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
+   const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
+   if(url)try{
+    const validated=new URL(url);
+    if(validated.protocol==="https:"&&validated.hostname==="rjasunoawrxvetwadylh.supabase.co")
+     images.set(id,validated.href);
+   }catch(_){}
+  }
+  return {names,images};
+ }
+ function mount(client,post,container,settings={}){
+  const kind=post?.kind==="group"?"group":"person";
+  if(!validUUID(post?.id)||!client||!container)return;
+  const ownId=String(settings.ownId||""),userId=settings.userId;
+  const shell=make("section","vatra-post-interactions ui-vatra-post-interactions-001");
+  shell.setAttribute("aria-label",tr("Взаємодія з публікацією","Post interactions"));
+  const row=make("div","vatra-post-action-row ui-vatra-post-action-row-001");
+  const like=action("vt-vatra-post-like-001","heart",tr("Подобається","Like"));
+  like.setAttribute("aria-pressed","false");
+  const count=make("span","vt-vatra-post-like-count-001","");
+  like.append(count);
+  const commentsButton=action("vt-vatra-post-comments-toggle-001","comments",tr("Коментарі","Comments"));
+  commentsButton.setAttribute("aria-expanded","false");
+  const share=action("vt-vatra-post-share-toggle-001","share",tr("Поділитися","Share"));
+  share.setAttribute("aria-expanded","false");
+  row.append(like,commentsButton,share);shell.append(row);
+
+  const status=make("p","vt-vatra-post-interactions-status-001");
+  status.setAttribute("role","status");status.hidden=true;
+  const feedback=(message,bad=false)=>{
+   status.hidden=!message;status.textContent=message;status.dataset.state=bad?"error":"ok";
+  };
+  let likeReady=false,likePending=null,liked=false,likeCount=0;
+  const likeFilter=query=>query.eq("post_kind",kind).eq("post_id",post.id);
+  const hydrateLike=()=>{
+   if(likePending)return likePending;
+   likePending=(async()=>{
+    const [total,mine]=await Promise.all([
+     likeFilter(client.from("vatra_post_likes").select("liker_id",{count:"exact",head:true})),
+     likeFilter(client.from("vatra_post_likes").select("liker_id")).eq("liker_id",userId).limit(1)
+    ]);
+    if(total.error||mine.error)throw total.error||mine.error;
+    likeCount=total.count||0;liked=!!mine.data?.length;likeReady=true;
+    count.textContent=likeCount?String(likeCount):"";
+    like.setAttribute("aria-pressed",String(liked));
+    like.classList.toggle("is-liked",liked);
+   })().catch(()=>feedback(tr("Вподобання тимчасово недоступні.","Likes temporarily unavailable."),true))
+    .finally(()=>{likePending=null;});
+   return likePending;
+  };
+  if(typeof IntersectionObserver!=="undefined"){
+   const observer=new IntersectionObserver(entries=>{
+    if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateLike();}
+   },{rootMargin:"160px"});
+   observer.observe(shell);
+  }else{void hydrateLike();}
+  like.addEventListener("click",async()=>{
+   if(like.disabled)return;
+   like.disabled=true;feedback("");
+   try{
+    if(!likeReady)await hydrateLike();
+    if(!likeReady)throw Error("Likes unavailable");
+    const result=liked?
+     await likeFilter(client.from("vatra_post_likes").delete()).eq("liker_id",userId):
+     await client.from("vatra_post_likes").insert({post_kind:kind,post_id:post.id,liker_id:userId});
+    if(result.error)throw result.error;
+    liked=!liked;likeCount+=liked?1:-1;
+    like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
+    count.textContent=likeCount?String(likeCount):"";
+   }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update your like."),true);}
+   finally{like.disabled=false;}
+  });
+
+  const panel=make("div","vatra-post-comments-panel ui-vatra-post-comments-panel-001");panel.hidden=true;
+  const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
+  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Показувати:","Show:"));
+  const sort=make("select","ui-vatra-post-comments-sort-001");
+  for(const [id,uk,en] of [
+   ["relevant","Найактуальніші","Most relevant"],
+   ["newest","Найновіші","Newest"],
+   ["all","Усі коментарі","All comments"]
+  ]){
+   const option=make("option","ui-vatra-post-comment-option-"+id, tr(uk,en));
+   option.value=id;sort.append(option);
+  }
+  sortLabel.append(sort);filterRow.append(sortLabel);
+  const note=make("small","vt-vatra-post-comments-sort-note-001");
+  const updateNote=()=>{
+   note.textContent=sort.value==="relevant"?
+    tr("Спочатку друзі й коментарі з найбільшою кількістю вподобань.",
+       "Friends and most-liked comments appear first."):
+    sort.value==="newest"?
+    tr("Від нових до старих, без позначеного спаму.",
+       "Newest first, excluding marked spam."):
+    tr("Усі доступні коментарі, включно з можливим спамом.",
+       "All available comments, including potential spam.");
+  };
+  updateNote();panel.append(filterRow,note);
+  const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001");
+  entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
+  const more=make("button","vt-vatra-post-comments-more-001",tr("Показати ще","Show more"));
+  more.type="button";more.hidden=true;
+  const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001");
+  const input=make("textarea","ui-vatra-post-comment-input-001");
+  input.maxLength=1000;input.rows=2;input.required=true;
+  input.placeholder=tr("Написати коментар…","Write a comment…");
+  input.setAttribute("aria-label",tr("Ваш коментар","Your comment"));
+  const send=make("button","vt-vatra-post-comment-send-001",tr("Надіслати","Send"));send.type="submit";
+  form.append(input,send);panel.append(entries,more,form);shell.append(panel);
+
+  let commentOffset=0,busy=false,commentsOpened=false,ticket=0;
+  async function loadComments(reset=false){
+   if(busy)return;
+   busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
+   const token=++ticket;
+   if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;}
+   try{
+    const {data,error}=await client.rpc("vatra_comment_page",{
+     p_kind:kind,p_post_id:post.id,p_sort:sort.value,p_offset:commentOffset,p_limit:12
+    });
+    if(error)throw error;
+    if(token!==ticket)return;
+    const rows=data||[],{names,images}=await authorMap(client,rows);
+    const ids=rows.map(x=>x.id);
+    let ownLikes=new Set();
+    if(ids.length){
+     const result=await client.from("vatra_post_comment_likes")
+      .select("comment_id").in("comment_id",ids).eq("liker_id",userId);
+     if(!result.error)ownLikes=new Set((result.data||[]).map(x=>x.comment_id));
+    }
+    if(token!==ticket)return;
+    if(reset&&!rows.length)entries.append(make("p","vt-vatra-post-comments-empty-001",
+     tr("Коментарів поки немає.","No comments yet.")));
+    for(const item of rows){
+     const card=make("article","vatra-post-comment ui-vatra-post-comment-001");
+     const head=make("div","vatra-post-comment-head ui-vatra-post-comment-head-001");
+     const id=String(item.author_vatra_id),name=names.get(id)||tr("Користувач VATRA","VATRA member");
+     const avatar=make("a","vatra-comment-avatar ui-vatra-comment-avatar-001",
+      name.split(/\s+/).slice(0,2).map(x=>Array.from(x)[0]||"").join("").toUpperCase());
+     avatar.href=new URL("id"+id,relativeRoot()).href;
+     avatar.setAttribute("aria-label",name);
+     const url=images.get(id);
+     if(url){avatar.style.backgroundImage="url("+JSON.stringify(url)+")";avatar.classList.add("has-photo");avatar.textContent="";}
+     const info=make("div","vatra-post-comment-meta ui-vatra-post-comment-meta-001");
+     const author=make("a","vt-vatra-post-comment-author-001",name);
+     author.href=avatar.href;
+     const stamp=make("time","vt-vatra-post-comment-date-001",dateValue(item.created_at));
+     stamp.dateTime=item.created_at;info.append(author,stamp);head.append(avatar,info);
+     const body=make("p","vt-vatra-post-comment-body-001",item.body);
+     card.append(head,body);
+     if(item.moderation_status==="possible_spam")
+      card.append(make("small","vt-vatra-post-comment-spam-001",
+       tr("Можливий спам","Potential spam")));
+     const likeComment=make("button","vt-vatra-post-comment-like-001");
+     likeComment.type="button";
+     let countValue=Number(item.likes)||0,ownLiked=ownLikes.has(item.id);
+     const renderCommentLike=()=>{
+      likeComment.textContent=(ownLiked?"♥ ":"♡ ")+
+       tr("Подобається","Like")+(countValue?" · "+countValue:"");
+      likeComment.setAttribute("aria-pressed",String(ownLiked));
+     };
+     renderCommentLike();
+     likeComment.addEventListener("click",async()=>{
+      if(likeComment.disabled)return;
+      likeComment.disabled=true;
+      try{
+       const result=ownLiked?
+        await client.from("vatra_post_comment_likes").delete()
+         .eq("comment_id",item.id).eq("liker_id",userId):
+        await client.from("vatra_post_comment_likes").insert({comment_id:item.id,liker_id:userId});
+       if(result.error)throw result.error;
+       ownLiked=!ownLiked;countValue+=ownLiked?1:-1;renderCommentLike();
+      }catch(_){feedback(tr("Не вдалося змінити вподобання коментаря.","Could not like the comment."),true);}
+      finally{likeComment.disabled=false;}
+     });
+     card.append(likeComment);entries.append(card);
+    }
+    commentOffset+=rows.length;
+    more.hidden=rows.length<12;
+    feedback("");
+   }catch(_){feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);}
+   finally{busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");}
+  }
+  commentsButton.addEventListener("click",()=>{
+   commentsOpened=!commentsOpened;panel.hidden=!commentsOpened;
+   commentsButton.setAttribute("aria-expanded",String(commentsOpened));
+   if(commentsOpened&&commentOffset===0)void loadComments(true);
+  });
+  sort.addEventListener("change",()=>{updateNote();if(commentsOpened)void loadComments(true);});
+  more.addEventListener("click",()=>void loadComments(false));
+  form.addEventListener("submit",async event=>{
+   event.preventDefault();const body=input.value.trim();
+   if(!body||body.length>1000||send.disabled||!validId(ownId))return;
+   send.disabled=true;
+   try{
+    const result=await client.from("vatra_post_comments").insert({
+     post_kind:kind,post_id:post.id,author_id:userId,author_vatra_id:ownId,body
+    });
+    if(result.error)throw result.error;
+    input.value="";feedback(tr("Коментар додано.","Comment published."));
+    if(commentsOpened)await loadComments(true);
+   }catch(_){feedback(tr("Не вдалося опублікувати коментар.","Could not publish comment."),true);}
+   finally{send.disabled=false;}
+  });
+
+  const shareMenu=make("div","vatra-post-share-panel ui-vatra-post-share-panel-001");
+  shareMenu.hidden=true;
+  const repost=make("button","vt-vatra-post-share-profile-001",
+   tr("На мою сторінку","Share to my profile"));repost.type="button";
+  const dm=make("button","vt-vatra-post-share-message-001",
+   tr("Другу в повідомлення","Send to a friend"));dm.type="button";
+  const sendRow=make("div","vatra-post-share-friend-row ui-vatra-post-share-friend-row-001");
+  sendRow.hidden=true;
+  const friendSelect=make("select","ui-vatra-post-share-friend-select-001");
+  friendSelect.setAttribute("aria-label",tr("Оберіть друга","Choose a friend"));
+  const sendDM=make("button","vt-vatra-post-send-message-001",tr("Надіслати","Send"));
+  sendDM.type="button";sendRow.append(friendSelect,sendDM);
+  shareMenu.append(repost,dm,sendRow);shell.append(shareMenu,status);
+  share.addEventListener("click",()=>{
+   shareMenu.hidden=!shareMenu.hidden;
+   share.setAttribute("aria-expanded",String(!shareMenu.hidden));
+   if(!shareMenu.hidden)shareMenu.querySelector("button")?.focus();
+  });
+  repost.addEventListener("click",async()=>{
+   if(repost.disabled||!validId(ownId))return;
+   repost.disabled=true;feedback("");
+   try{
+    const result=await client.from("feed_posts").insert({
+     author_id:userId,author_vatra_id:ownId,
+     body:tr("Поширив(ла) публікацію","Shared a post"),
+     shared_post_kind:kind,shared_post_id:post.id
+    });
+    if(result.error)throw result.error;
+    shareMenu.hidden=true;share.setAttribute("aria-expanded","false");
+    feedback(tr("Публікацію додано на вашу сторінку.","Shared to your profile."));
+    if(typeof settings.onShared==="function")settings.onShared();
+   }catch(_){feedback(tr("Не вдалося поширити публікацію.","Could not share the post."),true);}
+   finally{repost.disabled=false;}
+  });
+  let friendsLoaded=false;
+  dm.addEventListener("click",async()=>{
+   sendRow.hidden=false;dm.disabled=true;friendSelect.replaceChildren();
+   const placeholder=make("option","ui-vatra-post-share-friend-placeholder-001",
+    tr("Завантаження друзів…","Loading friends…"));
+   placeholder.value="";friendSelect.append(placeholder);
+   try{
+    if(!validId(ownId))throw Error("Missing VATRA ID");
+    const result=await client.from("vatra_friendships").select("requester_id,recipient_id,status")
+     .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
+     .eq("status","accepted").limit(200);
+    if(result.error)throw result.error;
+    const ids=[...new Set((result.data||[]).map(x=>
+     String(x.requester_id)===ownId?String(x.recipient_id):String(x.requester_id)
+    ).filter(validId))];
+    const people=await authorMap(client,ids.map(author_vatra_id=>({author_vatra_id})));
+    friendSelect.replaceChildren();
+    if(!ids.length){friendSelect.append(make("option","ui-vatra-post-share-no-friends-001",
+      tr("Немає друзів для надсилання","No friends available")));sendDM.disabled=true;}
+    else{
+     for(const id of ids){
+      const option=make("option","ui-vatra-post-share-friend-option-001",
+       people.names.get(id)||"VATRA ID "+id);option.value=id;friendSelect.append(option);
+     }
+     sendDM.disabled=false;
+    }
+    friendsLoaded=true;
+   }catch(_){friendSelect.replaceChildren(make("option","ui-vatra-post-share-error-001",
+    tr("Не вдалося завантажити друзів","Could not load friends")));sendDM.disabled=true;}
+   finally{dm.disabled=false;}
+  });
+  sendDM.addEventListener("click",async()=>{
+   const recipient=friendSelect.value;
+   if(!friendsLoaded||!validId(recipient)||recipient===ownId||sendDM.disabled)return;
+   sendDM.disabled=true;
+   try{
+    const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
+    const result=await client.from("vatra_direct_messages").insert({
+     sender_id:ownId,recipient_id:recipient,body
+    });
+    if(result.error)throw result.error;
+    shareMenu.hidden=true;share.setAttribute("aria-expanded","false");
+    feedback(tr("Посилання надіслано другу.","Sent to your friend."));
+   }catch(_){feedback(tr("Не вдалося надіслати повідомлення.","Could not send message."),true);}
+   finally{sendDM.disabled=false;}
+  });
+  container.append(shell);
+ }
+ async function renderSharedPreview(client,post,container){
+  const kind=post?.shared_post_kind,id=post?.shared_post_id;
+  if(!["person","group"].includes(kind)||!validUUID(id)||!container)return;
+  const preview=make("aside","vatra-post-share-preview ui-vatra-post-share-preview-001");
+  preview.append(make("strong","vt-vatra-post-share-preview-heading-001",
+   tr("Оригінальна публікація","Original post")));
+  container.append(preview);
+  try{
+   const table=kind==="person"?"feed_posts":"vatra_community_posts";
+   const {data,error}=await client.from(table)
+    .select("id,author_vatra_id,body,media_kind,media_path,created_at")
+    .eq("id",id).maybeSingle();
+   if(error||!data)throw Error("Original post unavailable");
+   if(!preview.isConnected)return;
+   const link=make("a","vt-vatra-post-original-link-001","VATRA ID "+data.author_vatra_id);
+   link.href=new URL("id"+data.author_vatra_id,relativeRoot()).href;
+   preview.append(link);
+   if(data.body){
+    const body=make("p","vt-vatra-post-share-preview-body-001",data.body);
+    window.VATRA_POST_MEDIA?.linkifyHashtags(body);preview.append(body);
+   }
+   if(data.media_kind&&data.media_path)void window.VATRA_POST_MEDIA?.mount(client,data,preview);
+  }catch(_){
+   if(preview.isConnected)preview.append(make("p","vt-vatra-post-original-unavailable-001",
+    tr("Ця публікація недоступна.","This post is unavailable.")));
+  }
+ }
+ window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap};
+})();
