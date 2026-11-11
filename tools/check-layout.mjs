@@ -893,7 +893,7 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
  "Member profile requires a real cover, tabs, friendship and private message UI");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
  !profileMarkup.includes('id="profile-name-dialog"')&&
- (await read("register.html")).includes('data-i18n="n501"')&&
+ !(await read("register.html")).includes('data-i18n="n501"')&&
  (await read("privacy.html")).includes("Ім’я та прізвище, вказані під час реєстрації"),
  "Registered first and last name must appear automatically without a second name setup");
 const profileBehavior=await read("assets/js/profile.js");
@@ -1019,9 +1019,12 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("vatra_profile_media")')&&
- profileScript.includes('storage.from(bucket).upload(path,file')&&
+ profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
  profileScript.includes('uploadImage(fileAvatar.files[0],"avatar")')&&
- profileScript.includes('uploadImage(fileCover.files[0],"cover")'),
+ profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
+ profileScript.includes('"vatra-avatars"')&&
+ profileScript.includes('"vatra-covers"')&&
+ feedScript.includes('storage.from("vatra-avatars")'),
  "Profile setup must save real avatar and cover photos, not fake checklist completion");
 const errorPage=await read("404.html");
 // The GitHub Pages /idN and /clubN fallback must show the real VATRA splash
