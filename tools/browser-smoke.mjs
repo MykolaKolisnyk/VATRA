@@ -2648,6 +2648,41 @@ try{
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),injectionText,
    "Feed must render user posts as text, not HTML");
   assert.equal(await feedProbe.locator(".feed-post-body img").count(),0);
+  assert.equal(await feedProbe.locator("[data-feed-filter]").count(),3,
+   "Feed must provide three distinct source filters");
+  if(language==="uk"){
+   const filterGeometry=await feedProbe.evaluate(()=>{
+    const wrap=document.querySelector(".feed-top-controls").getBoundingClientRect();
+    const filters=document.querySelector(".feed-filter-row").getBoundingClientRect();
+    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
+    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
+    return {right:filters.right,edge:wrap.right,composerTop:composer.top,storyTop:stories.top,
+     filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,composeRight:composer.right};
+   });
+   assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3&&
+    filterGeometry.filterLeft>=filterGeometry.composeRight-3&&
+    filterGeometry.filterTop>=filterGeometry.composerTop-2&&
+    filterGeometry.filterTop<=filterGeometry.storyBottom,
+    "Desktop Feed filters must align to the right of post and story actions: "+
+     JSON.stringify(filterGeometry));
+  }
+  await feedProbe.locator('[data-feed-filter="friends"]').click();
+  await feedProbe.waitForFunction(()=>
+   document.querySelector('#feed-posts')?.getAttribute('aria-busy')==='false'&&
+   document.querySelectorAll('#feed-posts .feed-post-card').length===0&&
+   !document.querySelector('#feed-empty').hidden);
+  assert.equal(await feedProbe.locator('[data-feed-filter="friends"]').getAttribute("aria-pressed"),"true");
+  assert.equal(await feedProbe.locator('[data-feed-filter="all"]').getAttribute("aria-pressed"),"false");
+  await feedProbe.locator('[data-feed-filter="communities"]').click();
+  await feedProbe.waitForFunction(()=>
+   document.querySelector('#feed-posts')?.getAttribute('aria-busy')==='false'&&
+   document.querySelector('#feed-empty .feed-empty-subtitle')?.textContent.includes(
+     document.documentElement.lang==='en'?'No posts from your communities yet.':'У ваших спільнотах поки немає дописів.'));
+  assert.equal(await feedProbe.locator('[data-feed-filter="communities"]').getAttribute("aria-pressed"),"true");
+  await feedProbe.locator('[data-feed-filter="all"]').click();
+  await feedProbe.waitForFunction(()=>document.querySelectorAll("#feed-posts .feed-post-card").length===1);
+  assert.equal(await feedProbe.locator('[data-feed-filter="all"]').getAttribute("aria-pressed"),"true",
+   "All Feed restores the previously visible own post after Friends/Communities filters");
   await feedProbe.locator(".feed-post-delete").click();
   assert.equal(await feedProbe.locator("#feed-delete-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-delete-cancel").click();
