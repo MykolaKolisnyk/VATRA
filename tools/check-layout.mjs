@@ -891,6 +891,11 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
  profileMarkup.includes('id="profile-inbox-list"')&&
  profileMarkup.includes('class="profile-cover ui-profile-cover-001"'),
  "Member profile requires a real cover, tabs, friendship and private message UI");
+assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
+ !profileMarkup.includes('id="profile-name-dialog"')&&
+ (await read("register.html")).includes('data-i18n="n501"')&&
+ (await read("privacy.html")).includes("Ім’я та прізвище, вказані під час реєстрації"),
+ "Registered first and last name must appear automatically without a second name setup");
 const profileBehavior=await read("assets/js/profile.js");
 assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
  profileBehavior.includes('client.from("vatra_direct_messages")')&&
@@ -907,8 +912,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
- sharedCss.includes("flex:0 0 168px")&&
- sharedCss.includes("margin:0 auto!important;gap:21px")&&
+ sharedCss.includes("flex:0 0 122px")&&
+ sharedCss.includes("margin:0 auto!important;gap:13px")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(228px,50dvh)")&&
  !sharedCss.includes(".feed-sidebar")&&
