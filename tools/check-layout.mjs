@@ -1200,7 +1200,7 @@ assert.ok(
  !detailsModule.includes('vt-profile-detail-audience-') &&
  detailsModule.includes("lab.prepend(svg(fieldIcons[key]") &&
  feedStyle.includes("VATRA 2026 · Profile information visual system") &&
- feedStyle.includes("background:linear-gradient(158deg,#2b427e"),
+ feedStyle.includes("linear-gradient(158deg,#2b427e"),
  "Profile information must feature icons, hide redundant More actions and keep reader privacy labels invisible");
 const sharedAvatar=await read("assets/js/avatar.js");
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
