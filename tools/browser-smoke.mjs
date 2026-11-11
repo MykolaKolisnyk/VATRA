@@ -2451,6 +2451,13 @@ try{
    "All history entries remain available beyond five visible rows");
   assert.equal((await feedProbe.locator(".vatra-search-history-term").first().innerText()).trim(),
    "VATRA запит 12","Search history must display newest first");
+  // Read final geometry after the native 5px entrance transition.
+  await feedProbe.waitForFunction(()=>{
+   const panel=document.querySelector("#vatra-search-panel")?.getBoundingClientRect();
+   const header=document.querySelector(".feed-header")?.getBoundingClientRect();
+   const first=document.querySelector(".vatra-search-panel-header")?.getBoundingClientRect();
+   return panel&&header&&first&&Math.abs(panel.top-header.top)<=2&&first.top>=header.bottom-2;
+  },null,{timeout:3500});
   const menuGeometry=await feedProbe.evaluate(()=>{
    const panel=document.querySelector("#vatra-search-panel");
    const p=panel.getBoundingClientRect();
