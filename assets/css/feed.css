@@ -3214,3 +3214,26 @@ body.feed-page .vatra-search-history[hidden],
 body.feed-page .vt-search-empty-001[hidden]{display:none!important}
 body.feed-page .vatra-search-live-icon svg{display:block;width:18px;height:18px;color:#5c7cad}
 body.feed-page .vatra-search-panel.has-live-results{overflow:hidden}
+
+/* Spacious VK-like edge affordance, drawn with VATRA's blue-grey palette.
+   It stays outside content, grows from the bottom and keeps the return action at the top. */
+@media(min-width:1341px){
+ body.feed-page .vatra-scroll-rail{
+  top:var(--vatra-header-height,78px);left:0;bottom:0;
+  width:clamp(46px,calc((100vw - 1250px)/2 - 24px),148px);
+  background:#e7ebf3;border-right:1px solid #dae2ef;
+  color:#68809e;transition:background .22s ease
+ }
+ body.feed-page .vatra-scroll-rail:hover{background:#e0e8f5}
+ body.feed-page .vatra-scroll-rail-label{
+  order:-1;flex-direction:row;justify-content:flex-start;align-self:stretch;gap:9px;
+  padding:15px 15px 13px 24px;font:750 12px/1.35 "Onest",system-ui,sans-serif;
+  color:#72839b;text-align:left
+ }
+ body.feed-page .vatra-scroll-rail-icon-001{width:18px;height:18px;flex:none}
+ body.feed-page .vatra-scroll-rail-track{flex:1;opacity:1;border:0}
+ body.feed-page .vatra-scroll-rail-progress{
+  background:linear-gradient(0deg,rgba(91,133,216,.14),rgba(91,133,216,.04));
+  border-top:1px solid rgba(82,125,204,.2)
+ }
+}
