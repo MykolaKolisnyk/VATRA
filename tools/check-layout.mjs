@@ -885,7 +885,7 @@ const scrollRailScript=await read("assets/js/scroll-rail.js");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  interactionsScript.includes('vatra-post-social-summary')&&
  interactionsScript.includes('vatra-post-compact-comments')&&
- interactionsScript.includes('vatra_post_recent_likers')&&
+ interactionsScript.includes('vatra_post_like_members')&&
  interactionsScript.includes('navigator.clipboard.writeText(permalink(post))')&&
  profileExtraScript.includes('displaySavedMedia(article,post)')&&
  profileExtraScript.includes('displaySavedMedia(article,item)')&&

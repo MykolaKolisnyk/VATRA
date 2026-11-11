@@ -330,14 +330,16 @@
       .order("created_at",{ascending:false}).limit(2),
      client.from("feed_posts").select("id",{count:"exact",head:true})
       .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null),
-     client.rpc("vatra_post_recent_likers",{p_kind:kind,p_post_id:post.id})
+     client.from("vatra_post_like_members").select("liker_vatra_id")
+      .eq("post_kind",kind).eq("post_id",post.id)
+      .order("liked_at",{ascending:false}).limit(3)
     ]);
     if(!shell.isConnected||ticket!==socialTicket)return;
     const likes=likeResult.error?likeCount:Number(likeResult.count||0);
     const comments=commentsResult.error?0:Number(commentsResult.count||0);
     const shares=sharesResult.error?0:Number(sharesResult.count||0);
     const rows=commentsResult.error?[]:commentsResult.data||[];
-    const likesIds=recent.error?[]:(recent.data||[]).map(x=>String(x.vatra_id)).filter(validId).slice(0,3);
+    const likesIds=recent.error?[]:(recent.data||[]).map(x=>String(x.liker_vatra_id)).filter(validId).slice(0,3);
     const {names,images}=await authorMap(client,[
      ...rows,...likesIds.map(author_vatra_id=>({author_vatra_id}))
     ]);
