@@ -2346,7 +2346,15 @@ try{
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
-  await feedProbe.locator("#feed-compose-cancel").click();
+  await feedProbe.locator("#feed-compose-text").fill("VATRA Feed publishing smoke test");
+  await feedProbe.locator("#feed-compose-save").click();
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
+  assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),
+   "VATRA Feed publishing smoke test",
+   "Feed composer must save to the real feed_posts repository");
+  await feedProbe.locator(".feed-post-delete").click();
+  await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
   assert.ok((await feedProbe.locator(".ui-social-top-communities-001").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
