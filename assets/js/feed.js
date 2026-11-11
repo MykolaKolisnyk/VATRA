@@ -604,9 +604,9 @@
    const profile=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
    if(!profile.error&&profile.data?.vatra_id!=null)vatraId=String(profile.data.vatra_id);
 
-   q("#feed-header-avatar").textContent=initials(displayName);
+   const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
+   window.VATRA_AVATAR?.setHeader({email:user.email,name:headerName,initials:initials(displayName),id:vatraId});
    window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
-   q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
 
    q("#feed-header-id").textContent=displayedId;
@@ -663,6 +663,7 @@
     const {error}=await client.auth.signOut({scope:"local"});
     if(error){button.disabled=false;message(t("Не вдалося вийти. Повторіть спробу.","Could not sign out. Please retry."));return;}
     try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
+    window.VATRA_AVATAR?.clearHeader();
     location.replace(new URL("./",location.href).href);
    });
    // The verified shell is ready: render it immediately instead of waiting
