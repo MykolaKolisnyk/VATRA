@@ -12,7 +12,7 @@
   const translated=window.VATRA_LANGUAGE?.translate(uk);
   return translated&&translated!==uk?translated:en;
  };
- const PAGE_SIZE=15,POST_LIMIT=2000;
+ const PAGE_SIZE=12,POST_LIMIT=2000;
  const localizeSocial=()=>{
   for(const element of document.querySelectorAll("[data-social-uk]"))
    element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
