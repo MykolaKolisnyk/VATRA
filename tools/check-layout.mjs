@@ -902,6 +902,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
+ sharedCss.includes("border-top:0;border-radius:0 0 19px 19px;background:#fff;")&&
+ sharedCss.includes("height:290px;overflow:hidden;border-radius:0;")&&
  sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
