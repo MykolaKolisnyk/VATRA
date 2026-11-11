@@ -2525,6 +2525,27 @@ try{
   assert.ok(mobileGeometry.overflow<=3,
    "Feed must fit viewport: "+language+" "+JSON.stringify(mobileGeometry));
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
+  // Tour uses the native top layer and the same darkened/blurred presentation
+  // as VATRA's language selector. These controls must be bilingual and skippable.
+  assert.equal(await feedProbe.locator("#vatra-welcome-tasks").count(),1);
+  assert.equal(await feedProbe.locator("#vatra-tasks-list > li").count(),5,
+   "New members must receive exactly five onboarding tasks");
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),1);
+  await feedProbe.evaluate(()=>document.querySelector("#vatra-tour-dialog").showModal());
+  const firstRunTour=await feedProbe.evaluate(()=>{
+   const tour=document.querySelector("#vatra-tour-dialog");
+   const backdrop=getComputedStyle(tour,"::backdrop");
+   return {open:tour.open,blur:backdrop.backdropFilter||backdrop.webkitBackdropFilter,
+    page:document.querySelector("#vatra-tour-step").textContent,
+    hasSkip:!!document.querySelector("#vatra-tour-skip")};
+  });
+  assert.ok(firstRunTour.open&&firstRunTour.hasSkip&&firstRunTour.page.includes("/"),
+   "The walkthrough must open as a proper modal with step counter and Skip");
+  assert.ok(firstRunTour.blur.includes("blur("),
+   "The first-run walkthrough must blur the Feed behind the dialog");
+  await feedProbe.locator("#vatra-tour-skip").click();
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").evaluate(el=>el.open),false,
+   "Skipping the walkthrough must close the modal");
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
   if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
