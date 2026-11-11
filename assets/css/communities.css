@@ -32,3 +32,9 @@
 .ui-club-main-001{min-width:0}
 #club-description{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:520px){.community-create,.ui-community-list-section-001{padding:17px}}
+
+/* Keep a searched/shared community publication identifiable after navigation. */
+body.community-page .ui-club-post-card-001.is-linked-post{
+ border-color:#a9c4f7;box-shadow:0 0 0 3px rgba(84,132,221,.11),0 5px 20px rgba(51,80,130,.07);
+ scroll-margin-top:104px
+}
