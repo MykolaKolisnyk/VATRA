@@ -100,6 +100,39 @@
   const bucket=bucketFor(attachment.media_kind);
   return client.storage.from(bucket).remove([attachment.media_path]);
  }
+
+ /* One accessible fullscreen dialog is reused by every post and upload. */
+ let mediaDialog=null,mediaDialogContent=null;
+ function openFullMedia(url,kind){
+  if(!mediaDialog){
+   mediaDialog=document.createElement("dialog");
+   mediaDialog.id="vatra-post-media-viewer";
+   mediaDialog.className="vatra-post-media-viewer ui-vatra-post-media-viewer-001";
+   mediaDialog.setAttribute("aria-label",tr("Перегляд медіа","Media viewer"));
+   const frame=document.createElement("div");
+   frame.className="vatra-post-media-viewer-frame ui-vatra-post-media-viewer-frame-001";
+   const close=document.createElement("button");
+   close.className="vt-vatra-post-media-close-001";close.type="button";
+   close.textContent="×";close.setAttribute("aria-label",tr("Закрити","Close"));
+   close.addEventListener("click",()=>mediaDialog.close());
+   mediaDialogContent=document.createElement("div");
+   mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";
+   frame.append(close,mediaDialogContent);mediaDialog.append(frame);
+   mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
+   mediaDialog.addEventListener("close",()=>{
+    const video=mediaDialogContent.querySelector("video");
+    if(video){video.pause();video.removeAttribute("src");video.load();}
+    mediaDialogContent.replaceChildren();
+   });
+   document.body.append(mediaDialog);
+  }
+  const element=document.createElement(kind==="video"?"video":"img");
+  element.className=kind==="video"?"ui-vatra-post-expanded-video-001":"ui-vatra-post-expanded-image-001";
+  if(kind==="video"){element.controls=true;element.autoplay=true;element.playsInline=true;}
+  else element.alt=tr("Фото публікації","Post photo");
+  element.src=url;mediaDialogContent.replaceChildren(element);
+  mediaDialog.showModal();
+ }
  async function mount(client,post,container){
   const kind=post?.media_kind,path=post?.media_path,id=post?.author_vatra_id;
   if(!["image","video"].includes(kind)||!name(path,kind,id)||!container)return;
@@ -115,9 +148,22 @@
    const el=document.createElement(kind==="image"?"img":"video");
    el.className=kind==="image"?"feed-post-media-image ui-feed-post-media-image-001":
     "feed-post-media-video ui-feed-post-media-video-001";
-   if(kind==="image"){el.alt=tr("Фото до публікації","Post photo");el.loading="lazy";}
-   else{el.controls=true;el.preload="metadata";el.playsInline=true;}
-   el.src=url.href;slot.replaceChildren(el);
+   if(kind==="image"){
+    el.alt=tr("Фото до публікації","Post photo");
+    el.loading="lazy";el.decoding="async";
+    const open=document.createElement("button");
+    open.className="vt-feed-post-media-open-001";open.type="button";
+    open.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
+    open.addEventListener("click",()=>openFullMedia(url.href,"image"));
+    open.append(el);el.src=url.href;slot.replaceChildren(open);
+   }else{
+    el.controls=true;el.preload="metadata";el.playsInline=true;el.src=url.href;
+    const expand=document.createElement("button");expand.type="button";
+    expand.className="vt-feed-post-video-expand-001";
+    expand.textContent=tr("На весь екран","Fullscreen");
+    expand.addEventListener("click",()=>openFullMedia(url.href,"video"));
+    slot.replaceChildren(el,expand);
+   }
   }catch(_){
    if(slot.isConnected){
     const notice=document.createElement("p");notice.className="vt-feed-post-media-error-001";
