@@ -2608,6 +2608,11 @@ try{
    "Opening account menu must not move header icons");
   const savedViewport=feedProbe.viewportSize();
   await feedProbe.setViewportSize({width:600,height:800});
+  await feedProbe.waitForFunction(()=>{
+   const menu=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   return Math.abs(menu.top-header.bottom)<=2&&Math.abs(menu.right-header.right)<=2;
+  },null,{timeout:3500});
   const mobileMenu=await checkAccountGeometry();
   assert.ok(Math.abs(mobileMenu.top-mobileMenu.headerBottom)<=2&&
    Math.abs(mobileMenu.right-mobileMenu.headerRight)<=2&&
