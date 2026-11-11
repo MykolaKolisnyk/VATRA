@@ -189,7 +189,11 @@
    head.append(remove);
   }
   item.append(head);
-   if(post.body)item.append(node("p","feed-post-body vt-feed-post-body-001",post.body));
+   if(post.body){
+     const body=node("p","feed-post-body vt-feed-post-body-001",post.body);
+     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
+     item.append(body);
+    }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,item);
   return item;
  }
