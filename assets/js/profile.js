@@ -464,8 +464,8 @@ async function start(){
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
   if(isMine)bindPostComposer(client,user,ownId);
-  // Public names are explicit opt-in. Private registration metadata is never
-  // published to other members without the owner's affirmative save.
+  // The account creation trigger publishes only registered first/last names
+  // to vatra_public_profiles. Birthdate, gender, email and auth UUID remain private.
   let publicName="";
   try{
    const {data:publicProfile,error:publicError}=await client.from("vatra_public_profiles")
@@ -479,38 +479,6 @@ async function start(){
   q("#profile-avatar").textContent=isMine?ownAvatar:(publicName?(
     publicName.trim().split(/\s+/).filter(Boolean).map(x=>Array.from(x)[0]).slice(0,2).join("").toLocaleUpperCase(locale)
    ):"V");
-  const editName=q("#profile-edit-name");
-  if(editName){
-   editName.hidden=!isMine;
-   if(isMine){
-    const dialog=q("#profile-name-dialog"),form=q("#profile-name-form");
-    const input=q("#profile-name-input"),feedback=q("#profile-name-status");
-    editName.addEventListener("click",()=>{
-     input.value=publicName||cleanOwnName;feedback.hidden=true;feedback.textContent="";
-     dialog.showModal();input.focus();
-    });
-    q("#profile-name-cancel").addEventListener("click",()=>dialog.close());
-    form.addEventListener("submit",async event=>{
-     event.preventDefault();
-     const value=Array.from(input.value.trim()).slice(0,80).join("");
-     if(Array.from(value).length<2){feedback.textContent=t("Мінімум два символи.","At least two characters.");feedback.hidden=false;return;}
-     const save=q("#profile-name-save");save.disabled=true;feedback.hidden=true;
-     try{
-      // Updating the nickname never modifies the immutable public VATRA ID.
-      const edit=publicName?
-       client.from("vatra_public_profiles").update({
-        display_name:value,updated_at:new Date().toISOString()
-       }).eq("vatra_id",ownId):
-       client.from("vatra_public_profiles").insert({vatra_id:ownId,display_name:value});
-      const {error}=await edit;
-      if(error)throw error;
-      publicName=value;q("#profile-heading").textContent=value;
-      dialog.close();
-     }catch(_){feedback.textContent=t("Не вдалося зберегти ім’я.","Could not save public name.");feedback.hidden=false;}
-     finally{save.disabled=false;}
-    });
-   }
-  }
   q("#profile-vatra-id").textContent="VATRA ID "+targetId;
  
   if(isMine){
