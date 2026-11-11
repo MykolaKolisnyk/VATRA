@@ -20,6 +20,7 @@
  <script defer src="assets/js/avatar.js"></script>
  <script defer src="assets/js/post-media.js"></script>
   <script defer src="assets/js/post-interactions.js"></script>
+ <script defer src="assets/js/presence.js"></script>
  <script defer src="assets/js/profile.js"></script>
  <script defer src="assets/js/network.js"></script>
  <script defer src="assets/js/social-shell.js"></script>
@@ -130,59 +131,99 @@
       <img id="profile-cover-photo" class="ui-profile-cover-photo-001" alt="" aria-hidden="true" decoding="async" hidden>
       <span class="profile-cover-motif ui-profile-cover-motif-001" aria-hidden="true"></span><span class="profile-cover-signature vt-profile-cover-signature-001" aria-hidden="true">VATRA</span>
       <button id="profile-cover-view" type="button" class="profile-cover-view vt-profile-cover-view-001" data-shell-aria-uk="Переглянути обкладинку" data-shell-aria-en="View cover photo" aria-label="Переглянути обкладинку" hidden></button>
-      <button id="profile-cover-upload-button" class="profile-cover-upload-button vt-profile-cover-upload-button-001" type="button" data-social-uk="Змінити обкладинку" data-social-en="Edit cover" hidden>Змінити обкладинку</button>
+      
      </div>
      <div class="profile-summary ui-profile-summary-001">
       <div id="profile-avatar-wrap" class="profile-avatar-wrap ui-profile-avatar-wrap-001">
        <button id="profile-avatar-trigger" class="profile-avatar-trigger vt-profile-avatar-trigger-001" type="button" aria-label="Фото профілю" disabled>
         <span id="profile-avatar" class="profile-avatar vt-profile-avatar-001" aria-hidden="true">V</span>
        </button>
+       <span id="profile-online-dot" class="profile-online-dot ui-profile-online-dot-001" aria-label="Зараз у мережі" hidden></span>
        <div id="profile-avatar-menu" class="profile-avatar-menu ui-profile-avatar-menu-001" role="menu" hidden>
         <button id="profile-avatar-story" class="profile-avatar-menu-story vt-profile-avatar-menu-story-001" type="button" role="menuitem" data-social-uk="Переглянути історію" data-social-en="View story" hidden>Переглянути історію</button>
         <button id="profile-avatar-photo" class="profile-avatar-menu-photo vt-profile-avatar-menu-photo-001" type="button" role="menuitem" data-social-uk="Переглянути фото" data-social-en="View photo" hidden>Переглянути фото</button>
          <button id="profile-avatar-story-delete" class="profile-avatar-menu-delete vt-profile-avatar-menu-delete-001" type="button" role="menuitem" data-social-uk="Видалити історію" data-social-en="Delete story" hidden>Видалити історію</button>
        </div>
       </div>
-      <div class="profile-identity ui-profile-identity-001"><h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">Моя сторінка</h1><span id="profile-vatra-id" class="profile-public-id vt-profile-public-id-001"></span></div>
+      <div class="profile-identity ui-profile-identity-001">
+       <h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">Моя сторінка</h1>
+       <p id="profile-status" class="profile-status vt-profile-status-001" hidden></p>
+       <p id="profile-last-seen" class="profile-last-seen vt-profile-last-seen-001" hidden></p>
+      </div>
       <div class="profile-actions ui-profile-actions-001">
-       <button type="button" id="profile-avatar-upload-button" class="profile-avatar-upload-button vt-profile-avatar-upload-button-001" data-social-uk="Змінити фото" data-social-en="Edit photo" hidden>Змінити фото</button>
+       <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile" hidden>Редагувати сторінку</button>
+       
        <input id="profile-avatar-file" class="ui-profile-avatar-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити фото профілю" hidden>
        <input id="profile-cover-file" class="ui-profile-cover-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити обкладинку" hidden>
-       <button type="button" id="profile-write-post" class="social-profile-create vt-social-profile-create-001"><svg class="ui-social-profile-create-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-social-shape-008" d="M12 5v14M5 12h14"/></svg><span class="vt-social-profile-create-label-001" data-social-uk="Створити допис" data-social-en="Create post">Створити допис</span></button>
+       
        <button type="button" id="profile-friend-button" class="profile-friend-button vt-profile-friend-button-001" hidden></button>
-       <button type="button" id="profile-message-button" class="profile-message-button vt-profile-message-button-001" data-social-uk="Написати" data-social-en="Message" hidden>Написати</button>
+       <button type="button" id="profile-message-button" class="profile-message-button vt-profile-message-button-001" data-social-uk="Повідомлення" data-social-en="Message" hidden>Повідомлення</button>
       </div>
      </div>
      <p id="profile-media-status" class="profile-media-status vt-profile-media-status-001" role="status" aria-live="polite" hidden></p>
      <p id="profile-action-status" class="profile-action-status vt-profile-action-status-001" role="status" aria-live="polite" hidden></p>
      <nav class="social-profile-tabs ui-social-profile-tabs-001" role="tablist" aria-label="Розділи профілю">
       <button type="button" id="profile-tab-posts" class="social-profile-tab ui-social-profile-posts-tab-001 social-profile-tab-active" data-profile-tab="posts" role="tab" aria-controls="profile-posts-section" aria-selected="true"><span class="vt-social-profile-posts-tab-label-001" data-social-uk="Публікації" data-social-en="Posts">Публікації</span></button>
-      <button type="button" id="profile-tab-about" class="social-profile-tab ui-social-profile-about-tab-001" data-profile-tab="about" role="tab" aria-controls="profile-about-card" aria-selected="false"><span class="vt-social-profile-about-tab-label-001" data-social-uk="Про мене" data-social-en="About">Про мене</span></button>
       <button type="button" id="profile-tab-friends" class="social-profile-tab ui-social-profile-friends-tab-001" data-profile-tab="friends" role="tab" aria-controls="profile-friends-section" aria-selected="false"><span class="vt-social-profile-friends-tab-label-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</span></button>
-      <button type="button" id="profile-tab-photos" class="social-profile-tab ui-social-profile-photos-tab-001" data-profile-tab="photos" role="tab" aria-controls="profile-photos-section" aria-selected="false"><span class="vt-social-profile-photos-tab-label-001" data-social-uk="Фото" data-social-en="Photos">Фото</span></button>
-      <button type="button" id="profile-tab-messages" class="social-profile-tab ui-social-profile-messages-tab-001" data-profile-tab="messages" role="tab" aria-controls="profile-messages-section" aria-selected="false" hidden><span class="vt-social-profile-messages-tab-label-001" data-social-uk="Повідомлення" data-social-en="Messages">Повідомлення</span></button>
+      <button type="button" id="profile-tab-photos" class="social-profile-tab ui-social-profile-photos-tab-001" data-profile-tab="photos" role="tab" aria-controls="profile-photos-section" aria-selected="false"><span class="vt-social-profile-photos-tab-label-001" data-social-uk="Фотографії" data-social-en="Photos">Фотографії</span></button>
+      <button type="button" id="profile-tab-videos" class="social-profile-tab ui-social-profile-videos-tab-001" data-profile-tab="videos" role="tab" aria-controls="profile-videos-section" aria-selected="false"><span class="vt-social-profile-videos-tab-label-001" data-social-uk="Відео" data-social-en="Videos">Відео</span></button>
      </nav>
     </section>
     <div class="profile-panels ui-profile-panels-001">
      <section id="profile-posts-section" class="profile-posts-section ui-profile-posts-section-001" data-profile-panel="posts" role="tabpanel" aria-labelledby="profile-tab-posts">
-      <div class="social-profile-post-heading ui-social-profile-post-heading-001"><h2 id="profile-posts-title" class="profile-posts-title vt-profile-posts-title-001"></h2><span class="social-profile-post-caption vt-social-profile-post-caption-001" data-social-uk="Найновіші" data-social-en="Latest">Найновіші</span></div>
-      <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false"></div><p id="profile-posts-empty" class="profile-posts-empty vt-profile-posts-empty-001" hidden></p>
-     </section>
-     <section id="profile-about-card" class="profile-info ui-profile-info-001" data-profile-panel="about" role="tabpanel" aria-labelledby="profile-tab-about" hidden>
-      <h2 id="profile-about-heading" class="vt-profile-about-heading-001" data-i18n="n51" data-social-uk="Про мене" data-social-en="About">Про мене</h2><p id="profile-about-text" class="vt-profile-about-text-001" data-i18n="n52">Інформацію про себе поки не додано.</p><a href="feed" class="profile-back-link vt-profile-back-link-001" data-i18n="n53">Повернутися до стрічки</a>
+      <aside id="profile-about-card" class="profile-info ui-profile-info-001" aria-labelledby="profile-about-heading">
+       <h2 id="profile-about-heading" class="vt-profile-about-heading-001" data-social-uk="Інформація" data-social-en="Information">Інформація</h2>
+       <p id="profile-about-text" class="vt-profile-about-text-001">Інформацію про себе поки не додано.</p>
+      </aside>
+      <div class="profile-posts-main ui-profile-posts-main-001">
+       <button type="button" id="profile-write-post" class="social-profile-create vt-social-profile-create-001"><svg class="ui-social-profile-create-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-social-shape-008" d="M12 5v14M5 12h14"/></svg><span class="vt-social-profile-create-label-001" data-social-uk="Створити допис" data-social-en="Create post">Створити допис</span></button>
+       <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false"></div>
+       <p id="profile-posts-empty" class="profile-posts-empty vt-profile-posts-empty-001" hidden></p>
+       <button id="profile-posts-more" class="vt-profile-posts-more-001" type="button" hidden data-social-uk="Показати ще" data-social-en="Show more">Показати ще</button>
+      </div>
      </section>
      <section id="profile-friends-section" class="profile-content-panel ui-profile-friends-section-001" data-profile-panel="friends" role="tabpanel" aria-labelledby="profile-tab-friends" hidden>
       <h2 class="vt-profile-friends-title-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</h2><div id="profile-friends-list" class="profile-people-list ui-profile-friends-list-001" aria-live="polite"></div><p id="profile-friends-empty" class="vt-profile-friends-empty-001" hidden></p>
      </section>
      <section id="profile-photos-section" class="profile-content-panel ui-profile-photos-section-001" data-profile-panel="photos" role="tabpanel" aria-labelledby="profile-tab-photos" hidden>
       <h2 class="vt-profile-photos-title-001" data-social-uk="Фотографії" data-social-en="Photos">Фотографії</h2>
-      <div class="profile-photos-empty ui-profile-photos-empty-001"><svg class="ui-profile-photos-placeholder-001" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect class="ui-profile-photos-rect-001" x="3" y="4" width="18" height="16" rx="3"/><circle class="ui-profile-photos-circle-001" cx="8" cy="9" r="1.5"/><path class="ui-profile-photos-path-001" d="m5 17 5-5 3 3 3-4 3 5"/></svg><p class="vt-profile-photos-empty-text-001" data-social-uk="Фотографій ще немає. Завантаження фото з’явиться пізніше." data-social-en="No photos yet. Photo uploads will be available later.">Фотографій ще немає. Завантаження фото з’явиться пізніше.</p></div>
+      <div id="profile-photo-gallery" class="profile-media-gallery ui-profile-photo-gallery-001" aria-live="polite"></div>
+      <p id="profile-photos-empty" class="vt-profile-photos-empty-text-001" hidden></p>
+      <button id="profile-photos-more" class="vt-profile-photos-more-001" type="button" hidden>Показати ще</button>
+     </section>
+     <section id="profile-videos-section" class="profile-content-panel ui-profile-videos-section-001" data-profile-panel="videos" role="tabpanel" aria-labelledby="profile-tab-videos" hidden>
+      <div id="profile-video-gallery" class="profile-media-gallery ui-profile-video-gallery-001" aria-live="polite"></div>
+      <p id="profile-videos-empty" class="vt-profile-videos-empty-001" hidden></p>
+      <button id="profile-videos-more" class="vt-profile-videos-more-001" type="button" hidden data-social-uk="Показати ще" data-social-en="Show more">Показати ще</button>
      </section>
      <section id="profile-messages-section" class="profile-content-panel ui-profile-messages-section-001" data-profile-panel="messages" role="tabpanel" aria-labelledby="profile-tab-messages" hidden>
       <h2 class="vt-profile-messages-title-001" data-social-uk="Повідомлення" data-social-en="Messages">Повідомлення</h2><div id="profile-inbox-list" class="profile-people-list ui-profile-inbox-list-001" aria-live="polite"></div><p id="profile-inbox-empty" class="vt-profile-inbox-empty-001" hidden></p>
      </section>
     </div>
    </main>
+   <dialog id="profile-edit-dialog" class="profile-edit-dialog ui-profile-edit-dialog-001" aria-labelledby="profile-edit-heading">
+    <form id="profile-edit-form" class="profile-edit-form ui-profile-edit-form-001">
+     <h2 id="profile-edit-heading" class="vt-profile-edit-heading-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</h2>
+     <label class="vt-profile-edit-status-label-001" for="profile-edit-status" data-social-uk="Статус" data-social-en="Status">Статус</label>
+     <textarea id="profile-edit-status" class="ui-profile-edit-status-001" rows="3" maxlength="140" placeholder="Напишіть кілька слів про себе"></textarea>
+     <div id="profile-edit-counter" class="vt-profile-edit-counter-001">0 / 140</div>
+     <label class="vt-profile-edit-form-label-001" for="profile-edit-presence-form" data-social-uk="Відображення останнього відвідування" data-social-en="Ukrainian last seen wording">Відображення останнього відвідування</label>
+     <select id="profile-edit-presence-form" class="ui-profile-edit-presence-form-001">
+      <option value="masculine" class="vt-profile-form-masculine-001">Заходив</option>
+      <option value="feminine" class="vt-profile-form-feminine-001">Заходила</option>
+      <option value="neutral" class="vt-profile-form-neutral-001">Були в мережі</option>
+     </select>
+     <div class="profile-edit-media-actions ui-profile-edit-media-actions-001">
+      <button type="button" id="profile-avatar-upload-button" class="profile-avatar-upload-button vt-profile-avatar-upload-button-001" data-social-uk="Змінити фото" data-social-en="Edit photo" hidden>Змінити фото</button>
+      <button id="profile-cover-upload-button" class="profile-cover-upload-button vt-profile-cover-upload-button-001" type="button" data-social-uk="Змінити обкладинку" data-social-en="Edit cover" hidden>Змінити обкладинку</button>
+     </div>
+     <p id="profile-edit-message" class="vt-profile-edit-message-001" role="status" aria-live="polite" hidden></p>
+     <div class="profile-edit-buttons ui-profile-edit-buttons-001">
+      <button id="profile-edit-cancel" class="vt-profile-edit-cancel-001" type="button" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
+      <button id="profile-edit-save" class="vt-profile-edit-save-001" type="submit" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button>
+     </div>
+    </form>
+   </dialog>
    <dialog id="profile-media-viewer" class="profile-media-viewer ui-profile-media-viewer-001" aria-labelledby="profile-media-viewer-heading">
     <div class="profile-media-viewer-stage ui-profile-media-viewer-stage-001">
      <button id="profile-media-viewer-close" class="profile-media-viewer-close vt-profile-media-viewer-close-001" type="button" data-shell-aria-uk="Закрити перегляд фото" data-shell-aria-en="Close photo viewer" aria-label="Закрити перегляд фото">×</button>

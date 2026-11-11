@@ -4,6 +4,12 @@ on:
     branches: [main]
   pull_request:
 
+# Cancel superseded Pull Request checks instead of installing three browsers
+# again for every small follow-up commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

@@ -2655,6 +2655,7 @@ try{
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
+  await feedProbe.locator("#feed-empty").waitFor({state:"visible",timeout:4500});
   assert.equal(await feedProbe.locator("#feed-empty").isVisible(),true);
   await feedProbe.locator("#feed-search-input").fill("Новий пошук VATRA");
   await feedProbe.locator("#feed-search-input").press("Enter");
@@ -2774,18 +2775,24 @@ try{
    "Profiles must use the same header search as the Feed");
   assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),true,
    "Profile must have a visible navigation bar beneath the cover");
-  assert.equal(await profilePage.locator("[data-profile-tab]").count(),5,
-   "Profile must have Posts, About, Friends, Photos and Messages tabs");
-  assert.equal(await profilePage.locator("#profile-tab-messages").isVisible(),true,
-   "Only the owner can see the private Messages tab");
+  assert.equal(await profilePage.locator("[data-profile-tab]").count(),4,
+   "Profile has Posts, Friends, Photos and Videos; private owner hides Friends");
+  assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
+   "Only visitors see the Friends tab");
+  assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),true,
+   "Owner edits status and profile photos in one dialog");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
-  assert.equal(await profilePage.locator("#profile-about-card").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
+   "Information must be beside compact posts instead of its own tab");
+  await profilePage.locator("#profile-edit-open").click();
+  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true);
+  await profilePage.locator("#profile-edit-cancel").click();
   await profilePage.locator("#profile-tab-photos").click();
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
-   "Photo tab must be functional without showing fictional photos");
-  await profilePage.locator("#profile-tab-about").click();
-  assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
-   "About tab must reveal the account information section");
+   "Photo tab must open a real on-demand gallery");
+  await profilePage.locator("#profile-tab-videos").click();
+  assert.equal(await profilePage.locator("#profile-videos-section").isVisible(),true,
+   "Video tab must open a real on-demand gallery");
   await profilePage.locator("#profile-tab-posts").click();
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true,
    "Only the signed-in member may open the real post creator on their profile");
@@ -2798,7 +2805,8 @@ try{
   assert.equal(await profilePage.locator("#profile-posts img").count(),0,
    "Profile posts render user input as text, not executable HTML");
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
-  assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 654321");
+  assert.equal((await profilePage.locator("#profile-status").textContent()).trim(),
+   language==="en"?"Add a status":"Додайте статус");
   assert.equal(await profilePage.locator("footer").count(),0,
    "The personal profile must not show guest legal footer");
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
@@ -2827,7 +2835,8 @@ try{
    "A direct link to another member must retain their numeric ID");
   assert.ok(profileNavigations.every(path=>!path.includes("/profile")),
    "Opening /idN must never navigate through an intermediate /profile URL: "+JSON.stringify(profileNavigations));
-  assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 789012");
+  assert.equal(await profilePage.locator("#profile-status").isVisible(),false,
+   "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
@@ -2836,8 +2845,10 @@ try{
    "Other member profile must offer Add Friend");
   assert.equal(await profilePage.locator("#profile-message-button").isVisible(),true,
    "Other member profile must offer private Message");
-  assert.equal(await profilePage.locator("#profile-tab-messages").isVisible(),false,
-   "A visitor must not access a different member's inbox");
+  assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),true,
+   "Visitors have a Friends tab but cannot access private friend lists");
+  assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
+   "Visitors cannot edit another member's page");
   await profilePage.locator("#profile-message-button").click();
   assert.equal(await profilePage.locator("#profile-message-dialog").evaluate(el=>el.open),true,
    "Message button must open the private conversation dialog");

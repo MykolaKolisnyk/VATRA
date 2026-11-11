@@ -886,7 +886,7 @@ const normalizedSocialHeader=html=>{
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 /* profileMarkup already loaded during the footer audit. */
-assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
+assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===4&&
  (profileMarkup.match(/data-profile-panel="/g)||[]).length===5&&
  profileMarkup.includes('id="profile-friend-button"')&&
  profileMarkup.includes('id="profile-message-button"')&&
@@ -894,6 +894,20 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
  profileMarkup.includes('id="profile-inbox-list"')&&
  profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001"'),
  "Member profile requires a real cover, tabs, friendship and private message UI");
+assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
+ profileMarkup.includes('id="profile-status"')&&
+ profileMarkup.includes('id="profile-last-seen"')&&
+ profileMarkup.includes('id="profile-online-dot"')&&
+ profileMarkup.includes('id="profile-edit-dialog"')&&
+ profileMarkup.includes('id="profile-tab-videos"')&&
+ !profileMarkup.includes('id="profile-tab-about"')&&
+ !profileMarkup.includes('id="profile-vatra-id"')&&
+ (await read("assets/js/profile.js")).includes('setupProfilePresence(')&&
+ (await read("assets/js/profile.js")).includes('setupProfileGallery(')&&
+ (await read("assets/js/presence.js")).includes('last_seen_at')&&
+ (await read("feed.html")).includes('data-feed-filter="communities"')&&
+ (await read("assets/js/feed.js")).includes('feedFilter==="friends"'),
+ "Profile status, privacy-preserving activity, media tabs and Feed filters must exist");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
  !profileMarkup.includes('id="profile-name-dialog"')&&
  !(await read("register.html")).includes('data-i18n="n501"')&&

@@ -45,7 +45,7 @@
   }
  };
 
- let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="";
+ let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="",feedFilter="all";
  let visibleFeed=[],friends=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const deleteDialog=q("#feed-delete-dialog"),deleteConfirm=q("#feed-delete-confirm");
@@ -209,6 +209,10 @@
  // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
  // Only the next 12 posts are materialized; no eager 200+200 post download.
  let sourceState=null,renderedIds=new Set();
+ const makeSourceState=()=>({
+  person:{kind:"person",offset:0,done:feedFilter==="communities",queue:[]},
+  group:{kind:"group",offset:0,done:feedFilter==="friends",queue:[]}
+ });
  const personFields="id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path";
  const comparePosts=(a,b)=>
@@ -217,7 +221,9 @@
   q("#feed-empty").hidden=visibleFeed.length>0;
   const title=q(".feed-empty-title"),detail=q(".feed-empty-subtitle");
   if(title)title.textContent=searchTerm?t("Нічого не знайдено","No matches"):t("Тут поки тихо","It's quiet here");
-  if(detail)detail.textContent=searchTerm?t("Спробуйте інший пошуковий запит.","Try another search.") :
+  if(detail)detail.textContent=searchTerm?t("Спробуйте інший пошуковий запит.","Try another search."):
+   feedFilter==="friends"?t("Друзі ще не опублікували дописів.","Your friends have not posted yet."):
+   feedFilter==="communities"?t("У ваших спільнотах поки немає дописів.","No posts from your communities yet."):
    t("Додайте друзів або підпишіться на спільноту. Тут будуть ваші публікації та їхні дописи.",
     "Add friends or follow a community to see their posts alongside yours.");
  };
@@ -228,7 +234,7 @@
    if(!isPerson&&!followedClubs.size){source.done=true;return;}
    let query=client.from(isPerson?"feed_posts":"vatra_community_posts")
     .select(isPerson?personFields:clubFields);
-   if(isPerson&&!(searchTerm.startsWith("#"))&&typeof query.in==="function"){
+   if(isPerson&&(!searchTerm.startsWith("#")||feedFilter==="friends")&&typeof query.in==="function"){
     query=query.in("author_vatra_id",[...friends]);
    }
    if(!isPerson&&typeof query.in==="function")
@@ -270,14 +276,12 @@
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
   if(reset){
    posts.replaceChildren();visibleFeed=[];renderedIds=new Set();
-   sourceState={person:{kind:"person",offset:0,done:false,queue:[]},
-    group:{kind:"group",offset:0,done:false,queue:[]}};
+   sourceState=makeSourceState();
    more.hidden=true;
   }
   try{
    if(reset||!sourceState)await loadSubscriptions();
-   if(!sourceState)sourceState={person:{kind:"person",offset:0,done:false,queue:[]},
-    group:{kind:"group",offset:0,done:false,queue:[]}};
+   if(!sourceState)sourceState=makeSourceState();
    const page=await takePage();
    // Open a shared permalink without downloading hundreds of unrelated posts.
    const requested=reset?new URLSearchParams(location.search).get("post"):null;
@@ -479,7 +483,10 @@
 
    q("#feed-header-id").textContent=displayedId;
    q("#feed-header-id").hidden=!vatraId;
-    if(vatraId)void loadAvatars([vatraId]);
+    if(vatraId){
+    void loadAvatars([vatraId]);
+    void window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender);
+   }
    if(vatraId){
     for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
      link.href=new URL("id"+vatraId,new URL("./",location.href)).href;
@@ -505,6 +512,16 @@
     if(event.key==="Escape"&&accountMenu?.open)accountMenu.open=false;
    });
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
+   for(const button of document.querySelectorAll("[data-feed-filter]")){
+    button.addEventListener("click",()=>{
+     const next=button.dataset.feedFilter;
+     if(!["all","friends","communities"].includes(next)||next===feedFilter)return;
+     feedFilter=next;
+     for(const item of document.querySelectorAll("[data-feed-filter]"))
+      item.setAttribute("aria-pressed",String(item.dataset.feedFilter===feedFilter));
+     clearMessage();void loadPosts(true);
+    });
+   }
    bindComposer();
    deleteDialog?.addEventListener("close",()=>{pendingDelete=null;});
    q("#feed-delete-cancel")?.addEventListener("click",()=>deleteDialog.close());

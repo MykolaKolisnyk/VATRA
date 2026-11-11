@@ -91,26 +91,31 @@ function missingProfile(){
  const name=q("#profile-heading");
  if(name){name.removeAttribute("data-i18n");
   name.textContent=t("Користувача не знайдено","User not found");}
- q("#profile-vatra-id")?.remove();
+ q("#profile-status")?.remove();
+ q("#profile-last-seen")?.remove();
+ q("#profile-online-dot")?.remove();
  q(".profile-actions")?.remove();
  q(".social-profile-tabs")?.remove();
  q(".profile-panels")?.remove();
  document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
  finish();
 }
-async function loadPosts(client,targetId,ownId,userId){
- const list=q("#profile-posts"),empty=q("#profile-posts-empty");
- q("#profile-posts-title").textContent=t("Публікації","Posts");
- list.setAttribute("aria-busy","true");
+async function loadPosts(client,targetId,ownId,userId,append=false){
+ const list=q("#profile-posts"),empty=q("#profile-posts-empty"),more=q("#profile-posts-more");
+ if(!list||list.dataset.loading==="true")return;
+ const offset=append?Number(list.dataset.offset||0):0;
+ list.dataset.loading="true";list.setAttribute("aria-busy","true");
+ if(more)more.disabled=true;
  try{
   const {data,error}=await client.from("feed_posts")
    .select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId)
    .order("created_at",{ascending:false})
-   .order("id",{ascending:false}).range(0,14);
+   .order("id",{ascending:false}).range(offset,offset+11);
   if(error)throw error;
-  list.replaceChildren();
-  for(const post of data||[]){
+  const rows=data||[];
+  if(!append)list.replaceChildren();
+  for(const post of rows){
    const article=node("article","feed-post-card ui-profile-post-card-001");
    article.dataset.postId=post.id;
    const header=node("div","feed-post-header ui-profile-post-header-001");
@@ -120,8 +125,7 @@ async function loadPosts(client,targetId,ownId,userId){
    name.href=memberUrl(targetId);
    const stamp=node("time","feed-post-date vt-profile-post-date-001",
     "VATRA ID "+targetId+" · "+dateText(post.created_at));
-   stamp.dateTime=post.created_at;
-   identity.append(name,stamp);
+   stamp.dateTime=post.created_at;identity.append(name,stamp);
    const avatar=node("a","feed-avatar feed-post-avatar vt-profile-post-avatar-001 feed-post-profile-avatar",
     q("#profile-avatar").textContent||"V");
    avatar.href=memberUrl(targetId);
@@ -134,25 +138,80 @@ async function loadPosts(client,targetId,ownId,userId){
    header.append(avatar,identity);
    article.append(header);
    if(post.body){
-     const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
-     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
-     article.append(body);
-    }
+    const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
+    window.VATRA_POST_MEDIA?.linkifyHashtags(body);
+    article.append(body);
+   }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
-    ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))void loadPosts(client,targetId,ownId,userId);}
+    ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))
+     void loadPosts(client,targetId,ownId,userId);}
    });
    list.append(article);
   }
-  empty.hidden=(data||[]).length>0;
+  list.dataset.offset=String(offset+rows.length);
+  empty.hidden=list.querySelector(".feed-post-card")!==null;
   if(!empty.hidden)empty.textContent=t("Публікацій поки немає.","No posts yet.");
+  if(more){
+   more.hidden=rows.length<12;
+   if(!more.dataset.bound){
+    more.dataset.bound="true";
+    more.addEventListener("click",()=>void loadPosts(client,targetId,ownId,userId,true));
+   }
+  }
  }catch(_){
-  list.replaceChildren();
+  if(!append)list.replaceChildren();
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
   empty.hidden=false;
- }finally{list.setAttribute("aria-busy","false");}
+ }finally{
+  list.dataset.loading="false";list.setAttribute("aria-busy","false");
+  if(more)more.disabled=false;
+ }
+}
+function setupProfileGallery(client,targetId){
+ for(const settings of [
+  {kind:"image",tab:"#profile-tab-photos",list:"#profile-photo-gallery",empty:"#profile-photos-empty",more:"#profile-photos-more"},
+  {kind:"video",tab:"#profile-tab-videos",list:"#profile-video-gallery",empty:"#profile-videos-empty",more:"#profile-videos-more"}
+ ]){
+  const tab=q(settings.tab),list=q(settings.list),empty=q(settings.empty),more=q(settings.more);
+  if(!tab||!list||!empty||!more)continue;
+  let loaded=false,busy=false,offset=0;
+  const load=async(append=false)=>{
+   if(busy)return;
+   busy=true;list.setAttribute("aria-busy","true");more.disabled=true;
+   if(!append){offset=0;list.replaceChildren();}
+   empty.hidden=true;
+   try{
+    const {data,error}=await client.from("feed_posts")
+     .select("id,author_vatra_id,media_kind,media_path")
+     .eq("author_vatra_id",targetId).eq("media_kind",settings.kind)
+     .order("created_at",{ascending:false}).order("id",{ascending:false})
+     .range(offset,offset+11);
+    if(error)throw error;
+    const rows=(data||[]).filter(item=>!!item.media_path);
+    for(const post of rows){
+     const tile=node("article","profile-media-tile ui-profile-media-tile-001");
+     tile.setAttribute("aria-label",settings.kind==="image"?t("Фото","Photo"):t("Відео","Video"));
+     list.append(tile);
+     void window.VATRA_POST_MEDIA?.mount(client,post,tile);
+    }
+    offset+=(data||[]).length;
+    loaded=true;more.hidden=(data||[]).length<12;
+    if(!list.children.length){
+     empty.textContent=settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
+      t("Відео поки немає.","No videos yet.");
+     empty.hidden=false;
+    }
+   }catch(_){
+    empty.textContent=t("Не вдалося завантажити медіа.","Could not load media.");
+    empty.hidden=false;
+   }finally{busy=false;list.setAttribute("aria-busy","false");more.disabled=false;}
+  };
+  tab.addEventListener("click",()=>{if(!loaded)void load();});
+  more.addEventListener("click",()=>void load(true));
+ }
 }
 function bindPostComposer(client,user,ownId){
  const trigger=q("#profile-write-post");
@@ -269,7 +328,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    e.preventDefault();next.focus();choose(next.dataset.profileTab);
   });
  }
- q("#profile-tab-messages").hidden=!isMine;
+ // Inbox remains reachable via its private conversation flow, not as a profile tab.
  if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
  let activePeer=null,sending=false;
@@ -439,6 +498,94 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  };
 }
 
+
+function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
+ const displayed=q("#profile-status"),open=q("#profile-edit-open");
+ let saved=String(initialStatus||"").slice(0,140);
+ const display=()=>{
+  if(!displayed)return;
+  displayed.textContent=saved||(isMine?t("Додайте статус","Add a status"):"");
+  displayed.hidden=!saved&&!isMine;
+ };
+ display();
+ if(!isMine||!open)return;
+ const dialog=q("#profile-edit-dialog"),form=q("#profile-edit-form");
+ const input=q("#profile-edit-status"),wording=q("#profile-edit-presence-form");
+ const counter=q("#profile-edit-counter"),notice=q("#profile-edit-message");
+ const save=q("#profile-edit-save");
+ input.placeholder=t("Напишіть кілька слів про себе","Write a short profile status");
+ open.hidden=false;
+ const currentGrammar=window.VATRA_PRESENCE?.grammar(signupGender)||"neutral";
+ wording.value=currentGrammar;
+ for(const [selector,uk,en] of [
+  [".vt-profile-form-masculine-001","Заходив","Masculine (Ukrainian)"],
+  [".vt-profile-form-feminine-001","Заходила","Feminine (Ukrainian)"],
+  [".vt-profile-form-neutral-001","Були в мережі","Neutral (Ukrainian)"]
+ ]){
+  const option=q(selector);
+  if(option)option.textContent=english?en:uk;
+ }
+ void window.VATRA_PRESENCE?.load(client,targetId).then(record=>{
+  if(record?.form&&["masculine","feminine","neutral"].includes(record.form))
+   wording.value=record.form;
+ }).catch(()=>{});
+ const show=(text,error=false)=>{
+  notice.textContent=text;notice.hidden=!text;notice.dataset.error=String(error);
+ };
+ const updateCounter=()=>{
+  counter.textContent=Array.from(input.value).length+" / 140";
+ };
+ input.addEventListener("input",updateCounter);
+ open.addEventListener("click",()=>{
+  input.value=saved;updateCounter();show("");
+  dialog.showModal();input.focus();
+ });
+ q("#profile-edit-cancel").addEventListener("click",()=>dialog.close());
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();
+  if(save.disabled)return;
+  const next=input.value.trim();
+  if(Array.from(next).length>140){show(t("Статус надто довгий.","Status is too long."),true);return;}
+  save.disabled=true;show("");
+  try{
+   const result=await client.from("vatra_public_profiles")
+    .update({status_text:next||null}).eq("vatra_id",targetId)
+    .select("status_text").maybeSingle();
+   if(result.error||!result.data)throw result.error||new Error("Status not persisted");
+   saved=String(result.data.status_text||"");display();
+   const choice=wording.value;
+   if(["masculine","feminine","neutral"].includes(choice)){
+    const formResult=await client.from("profile_presence").update({form:choice})
+     .eq("vatra_id",targetId).select("form").maybeSingle();
+    if(formResult.error||!formResult.data)throw formResult.error||new Error("Presence form not saved");
+   }
+   dialog.close();
+   show("");
+  }catch(_){
+   show(t("Не все вдалося зберегти. Спробуйте ще раз.",
+    "Some changes could not be saved. Please retry."),true);
+  }finally{save.disabled=false;}
+ });
+}
+function setupProfilePresence(client,targetId,ownId,signupGender){
+ const dot=q("#profile-online-dot"),caption=q("#profile-last-seen");
+ if(!dot||!caption||!window.VATRA_PRESENCE)return;
+ const refresh=async()=>{
+  if(String(targetId)===String(ownId))
+   await window.VATRA_PRESENCE.start(client,ownId,signupGender);
+  const record=await window.VATRA_PRESENCE.load(client,targetId);
+  const state=window.VATRA_PRESENCE.format(record,english);
+  dot.hidden=!state.online;
+  caption.textContent=state.text;
+  caption.hidden=!state.text;
+  if(state.date)caption.dateTime=state.date.toISOString();
+  dot.setAttribute("aria-label",english?"Online now":"Зараз у мережі");
+ };
+ void refresh();
+ // One small profile-specific read per two minutes; avoid polling the whole Feed.
+ const timer=setInterval(()=>{if(!document.hidden)void refresh();},120000);
+ window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
+}
 
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
@@ -893,6 +1040,7 @@ async function start(){
   const {data:account,error:accountError}=await client.from("accounts")
    .select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
+  if(ownId)void window.VATRA_PRESENCE?.start(client,ownId,metadata.gender);
   q("#feed-header-avatar").textContent=ownAvatar;
   q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
@@ -933,15 +1081,18 @@ async function start(){
   const isMine=targetId===ownId;
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
+  q("#profile-tab-friends").hidden=isMine;
   if(isMine)bindPostComposer(client,user,ownId);
   // The account creation trigger publishes only registered first/last names
   // to vatra_public_profiles. Birthdate, gender, email and auth UUID remain private.
-  let publicName="";
+  let publicName="",publicStatus="";
   try{
    const {data:publicProfile,error:publicError}=await client.from("vatra_public_profiles")
-    .select("display_name").eq("vatra_id",targetId).maybeSingle();
-   if(!publicError&&typeof publicProfile?.display_name==="string")
+    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle();
+   if(!publicError&&typeof publicProfile?.display_name==="string"){
     publicName=publicProfile.display_name.trim();
+    publicStatus=String(publicProfile.status_text||"").slice(0,140);
+   }
   }catch(_){}
   const fallback=t("Учасник VATRA","VATRA member")+" · ID "+targetId;
   const name=publicName||(isMine?cleanOwnName:fallback);
@@ -949,7 +1100,7 @@ async function start(){
   q("#profile-avatar").textContent=isMine?ownAvatar:(publicName?(
     publicName.trim().split(/\s+/).filter(Boolean).map(x=>Array.from(x)[0]).slice(0,2).join("").toLocaleUpperCase(locale)
    ):"V");
-  q("#profile-vatra-id").textContent="VATRA ID "+targetId;
+  setupProfileEdit(client,targetId,isMine,publicStatus,metadata.gender);
  
   if(isMine){
    q("#profile-about-text").textContent=t(
@@ -957,13 +1108,14 @@ async function start(){
     "You have not added profile details yet.");
   }
   if(!isMine){
-   q("#profile-about-heading").textContent=t("Профіль користувача","Member profile");
+   q("#profile-about-heading").textContent=t("Інформація","Information");
    q("#profile-about-text").textContent=t(
     "Користувач ще не додав інформацію про себе.",
     "This member has not added profile details yet.");
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   setupProfileInteractions(client,ownId,targetId,isMine);
+  setupProfileGallery(client,targetId);
   /* Keep the real profile cover and avatar fallback visible while media arrives. */
   // Media and Stories can arrive after the identity is verified; do not hold
   // the entire profile behind a splash while these secondary requests run.
@@ -984,6 +1136,7 @@ async function start(){
    }
   }
   finish();
+  setupProfilePresence(client,targetId,ownId,metadata.gender);
   void loadPosts(client,targetId,ownId,user.id);
   void mediaPromise.then(()=>{
    if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();

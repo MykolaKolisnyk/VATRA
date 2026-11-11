@@ -20,6 +20,7 @@
  <script defer src="assets/js/avatar.js"></script>
  <script defer src="assets/js/post-media.js"></script>
   <script defer src="assets/js/post-interactions.js"></script>
+ <script defer src="assets/js/presence.js"></script>
  <script defer src="assets/js/feed.js"></script>
  <script defer src="assets/js/network.js"></script>
  <script defer src="assets/js/social-shell.js"></script>
@@ -145,6 +146,11 @@
     </section>
     <p id="feed-status" class="feed-status vt-feed-status-001" role="status" aria-live="polite" hidden></p>
     <section class="feed-posts-section ui-feed-posts-section-001" aria-label="Публікації" data-shell-aria-uk="Публікації" data-shell-aria-en="Posts">
+     <div class="feed-filter-row ui-feed-filter-row-001" role="group" aria-label="Фільтри стрічки" data-shell-aria-uk="Фільтри стрічки" data-shell-aria-en="Feed filters">
+      <button type="button" class="feed-filter-button vt-feed-filter-all-001" data-feed-filter="all" aria-pressed="true" data-social-uk="Уся стрічка" data-social-en="All posts">Уся стрічка</button>
+      <button type="button" class="feed-filter-button vt-feed-filter-friends-001" data-feed-filter="friends" aria-pressed="false" data-social-uk="Друзі" data-social-en="Friends">Друзі</button>
+      <button type="button" class="feed-filter-button vt-feed-filter-communities-001" data-feed-filter="communities" aria-pressed="false" data-social-uk="Спільноти" data-social-en="Communities">Спільноти</button>
+     </div>
      <div id="feed-posts" class="feed-posts ui-feed-posts-001" aria-live="polite" aria-busy="false"></div>
      <div id="feed-empty" class="feed-empty ui-feed-empty-001" hidden><div class="feed-empty-icon vt-feed-empty-icon-001" aria-hidden="true">✧</div><h3 class="feed-empty-title vt-feed-empty-title-001" data-i18n="n18">Тут поки тихо</h3><p class="feed-empty-subtitle vt-feed-empty-subtitle-001" data-i18n="n19">Публікацій поки немає.</p></div>
      <button id="feed-more" type="button" class="feed-more vt-feed-more-001" data-i18n="n20" hidden>Показати ще</button>
