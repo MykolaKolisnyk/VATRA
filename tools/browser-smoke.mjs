@@ -2408,6 +2408,14 @@ try{
   await feedProbe.locator("#feed-search-input").click();
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),true,
    "Search history must open on input focus");
+  assert.equal(await feedProbe.locator("#vatra-search-back").isVisible(),true,
+   "Search focus replaces the logo with a back arrow without shifting the header");
+  assert.equal((await feedProbe.locator(".vt-search-panel-heading-001").innerText()).trim(),
+   language==="en"?"Recent":"Нещодавні");
+  assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
+   language==="en"?"Edit":"Редагувати");
+  assert.equal(await feedProbe.locator(".vatra-search-scope").isVisible(),false,
+   "Recent searches use a clean, Facebook-like history panel until a query is typed");
   assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),12,
    "All history entries remain available beyond five visible rows");
   assert.equal((await feedProbe.locator(".vatra-search-history-term").first().innerText()).trim(),
@@ -2422,8 +2430,15 @@ try{
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
-   menuGeometry.clientHeight<=229,
+   menuGeometry.clientHeight<=291,
    "VATRA search menu must fit viewport and scroll beyond five items: "+JSON.stringify(menuGeometry));
+  await feedProbe.locator("#vatra-search-edit").click();
+  assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
+   language==="en"?"Done":"Готово");
+  assert.equal(await feedProbe.locator("#vatra-search-clear").isVisible(),true,
+   "Edit mode exposes a clear-all history action");
+  await feedProbe.locator("#vatra-search-edit").click();
+  assert.equal(await feedProbe.locator("#vatra-search-clear").isVisible(),false);
   await feedProbe.locator(".vatra-search-history-remove").first().click();
   assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),11);
   assert.equal(await feedProbe.evaluate(()=>JSON.parse(localStorage.getItem("vatra.search.history.v1")).length),11,
@@ -2431,6 +2446,11 @@ try{
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
    "Escape closes the VATRA search menu");
+  await feedProbe.locator("#feed-search-input").click();
+  await feedProbe.locator("#vatra-search-back").click();
+  assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
+   "Back closes Recent searches and restores the VATRA logo");
+  assert.equal(await feedProbe.locator(".feed-header-brand").isVisible(),true);
 
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
