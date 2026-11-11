@@ -294,42 +294,65 @@
   const back=make("button","vt-profile-editor-back-001");
   back.type="button";back.append(svg("arrow"),make("span","vt-profile-editor-back-label-001",tr("Моя сторінка","My profile")));
   const titles=make("div","ui-profile-editor-titles-001");
-  titles.append(make("h1","vt-profile-editor-title-001",tr("Редагування сторінки","Edit profile")),
+  titles.append(
+   make("span","vt-profile-editor-eyebrow-001",tr("ОСОБИСТИЙ ПРОСТІР  /  VATRA","YOUR SPACE  /  VATRA")),
+   make("h1","vt-profile-editor-title-001",tr("Редагувати сторінку","Edit your profile")),
    make("p","vt-profile-editor-subtitle-001",tr(
-    "Заповнюйте лише те, чим хочете поділитися. Для кожного поля виберіть, хто його побачить.",
-    "Share only what you choose. Set visibility separately for every field.")));
-  heading.append(back,titles);
+    "Ваша історія — ваші правила. Заповнюйте профіль у власному ритмі й керуйте видимістю кожного поля.",
+    "Your story, your rules. Share what matters and control the audience of each detail.")));
+  const privacyPill=make("span","vt-profile-editor-privacy-pill-001");
+  privacyPill.append(svg("lock"),make("span","vt-profile-editor-privacy-pill-label-001",
+   tr("Приватність під контролем","Privacy in your hands")));
+  heading.append(back,titles,privacyPill);
   const layout=make("div","profile-editor-layout ui-profile-editor-layout-001");
   const primary=make("section","profile-editor-main ui-profile-editor-main-001");
   const form=make("form","profile-editor-form ui-profile-editor-form-001");
   form.id="profile-editor-form";
   const titleRow=make("div","profile-editor-section-head ui-profile-editor-section-head-001");
+  const groupTitleWrap=make("div","ui-profile-editor-section-title-wrap-001");
+  const chapter=make("span","vt-profile-editor-chapter-001");
   const groupTitle=make("h2","vt-profile-editor-section-title-001");
+  groupTitleWrap.append(chapter,groupTitle);
   const media=make("button","vt-profile-editor-media-button-001");
   media.type="button";media.append(svg("photo"),make("span","vt-profile-editor-media-button-text-001",tr("Фото й обкладинка","Photos and cover")));
-  titleRow.append(groupTitle,media);
+  titleRow.append(groupTitleWrap,media);
   const summary=make("p","vt-profile-editor-section-description-001");
+  const separator=make("div","profile-editor-label-row ui-profile-editor-label-row-001");
+  separator.append(
+   make("span","vt-profile-editor-label-row-title-001",tr("Ваші відомості","Your details")),
+   make("span","vt-profile-editor-label-row-caption-001",tr("Кожне поле має свою аудиторію","Every field has its own audience")));
   const fields=make("div","profile-editor-fields ui-profile-editor-fields-001");
   const saveRow=make("div","profile-editor-footer ui-profile-editor-footer-001");
   const feedback=make("p","vt-profile-editor-feedback-001");feedback.setAttribute("role","status");feedback.hidden=true;
   const save=make("button","vt-profile-editor-save-001",tr("Зберегти зміни","Save changes"));
   save.type="submit";saveRow.append(feedback,save);
-  form.append(titleRow,summary,fields,saveRow);primary.append(form);
+  form.append(titleRow,summary,separator,fields,saveRow);primary.append(form);
   const sidebar=make("nav","profile-editor-sidebar ui-profile-editor-sidebar-001");
   sidebar.setAttribute("aria-label",tr("Розділи редагування","Edit sections"));
   const navHeading=make("div","ui-profile-editor-nav-heading-001");
-  navHeading.append(make("strong","vt-profile-editor-nav-title-001",tr("Інформація","Information")),
-   make("span","vt-profile-editor-nav-subtitle-001",tr("Моя сторінка","My profile")));
+  navHeading.append(
+   make("span","vt-profile-editor-nav-eyebrow-001",tr("РОЗДІЛИ","SECTIONS")),
+   make("strong","vt-profile-editor-nav-title-001",tr("Ваш профіль","Your profile")),
+   make("span","vt-profile-editor-nav-subtitle-001",tr("7 розділів · усе під контролем","7 sections · in your control")));
   sidebar.append(navHeading);
   const menu=make("div","ui-profile-editor-nav-menu-001");
   const navButtons=new Map();
-  for(const group of groups){
-   const btn=make("button","profile-editor-nav-link vt-profile-editor-nav-"+group.id,lang(group.label));
+  for(const [index,group] of groups.entries()){
+   const btn=make("button","profile-editor-nav-link vt-profile-editor-nav-"+group.id);
    btn.type="button";btn.dataset.group=group.id;
+   btn.append(
+    make("span","vt-profile-editor-nav-index-"+group.id,String(index+1).padStart(2,"0")),
+    make("span","vt-profile-editor-nav-label-"+group.id,lang(group.label)));
+   const marker=make("span","vt-profile-editor-nav-dot-"+group.id);
+   marker.setAttribute("aria-hidden","true");btn.append(marker);
    btn.addEventListener("click",()=>showGroup(group.id));
    navButtons.set(group.id,btn);menu.append(btn);
   }
-  sidebar.append(menu);layout.append(primary,sidebar);
+  const navFoot=make("div","ui-profile-editor-nav-footer-001");
+  navFoot.append(svg("lock"),make("span","vt-profile-editor-nav-footer-label-001",
+   tr("Видимість ваших даних налаштовується окремо.",
+    "Each piece of information has its own visibility.")));
+  sidebar.append(menu,navFoot);layout.append(sidebar,primary);
   workspace.append(heading,layout);main.append(workspace);
   let selected="profile",visibility=accountVisibility;
   const hasChanges=()=>[...draft.keys()].some(key=>
@@ -356,6 +379,7 @@
    if(!group)return;
    selected=id;
    groupTitle.textContent=lang(group.label);
+   chapter.textContent=String(groups.indexOf(group)+1).padStart(2,"0")+"  /  "+String(groups.length).padStart(2,"0");
    summary.textContent=id==="profile"?
     tr("Основне про вас і налаштування доступу до всієї сторінки.",
      "Basic details and visibility for your profile."):
@@ -369,6 +393,8 @@
    fields.replaceChildren();feedback.hidden=true;
    if(id==="profile"){
     const privacy=make("div","profile-editor-privacy ui-profile-editor-privacy-001");
+    const privacySymbol=make("div","ui-profile-editor-privacy-symbol-001");
+    privacySymbol.append(svg("lock"));
     const copy=make("div","ui-profile-editor-privacy-copy-001");
     copy.append(make("strong","vt-profile-editor-privacy-heading-001",
      tr("Хто може бачити мою сторінку","Who can view my profile")),
@@ -381,10 +407,11 @@
     change.append(opt("public",tr("Відкрита сторінка","Public profile")),
      opt("friends",tr("Закрита · лише друзі","Private · friends only")));
     change.value=visibility;change.addEventListener("change",()=>{visibility=change.value;});
-    privacy.append(copy,change);fields.append(privacy);
+    privacy.append(privacySymbol,copy,change);fields.append(privacy);
    }
    for(const [key,uk,en,kind] of group.fields){
     const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
+    row.dataset.long=kind==="long"?"true":"false";
     const lab=make("label","vt-profile-editor-label-"+key,tr(uk,en));
     const input=make(kind==="long"?"textarea":"input",
      "ui-profile-editor-input-"+key);
@@ -392,7 +419,9 @@
     lab.htmlFor=input.id;
     if(kind==="long"){input.rows=3;}else{input.type="text";}
     input.maxLength=1000;input.spellcheck=true;
-    input.placeholder=tr("Додайте інформацію","Add information");
+    input.placeholder=kind==="long"?
+     tr("Поділіться тим, що має значення для вас…","Share what matters to you…"):
+     tr("Вкажіть інформацію","Add details");
     const current=draft.get(key)||{value:"",visibility:"friends"};
     input.value=current.value;
     const disclosure=make("label","ui-profile-editor-disclosure-"+key);
