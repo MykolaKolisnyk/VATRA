@@ -36,12 +36,14 @@ const gateError=message=>{
  retry.addEventListener("click",()=>location.reload());
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
-async function loadHeaderPhoto(client,id){
+async function loadHeaderPhoto(client,id,email){
  if(!idPattern.test(String(id||"")))return;
  try{
   const {data,error}=await client.from("vatra_profile_media")
    .select("avatar_path").eq("vatra_id",id).maybeSingle();
-  if(error||typeof data?.avatar_path!=="string"||!data.avatar_path.startsWith(id+"/avatar/"))return;
+  if(error)return;
+  window.VATRA_AVATAR?.fromPath(client,email,id,data?.avatar_path||null);
+  if(typeof data?.avatar_path!=="string"||!data.avatar_path.startsWith(id+"/avatar/"))return;
   const image=client.storage.from("vatra-avatars").getPublicUrl(data.avatar_path)?.data?.publicUrl;
   if(!image)return;
   const url=new URL(image);
@@ -115,9 +117,10 @@ async function start(){
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
   const avatar=(first+last).toLocaleUpperCase(english?"en-US":"uk-UA");
   $("#feed-header-avatar").textContent=avatar;
+  window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
-   if(ownId)void loadHeaderPhoto(client,ownId);
+   if(ownId)void loadHeaderPhoto(client,ownId,user.email);
   $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
    if(ownId&&idPattern.test(ownId))link.href=root+"id"+ownId;
