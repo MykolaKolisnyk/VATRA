@@ -114,13 +114,22 @@ async function loadPosts(client,targetId){
    const article=node("article","feed-post-card ui-profile-post-card-001");
    const header=node("div","feed-post-header ui-profile-post-header-001");
    const identity=node("div","feed-post-author ui-profile-post-author-001");
-   identity.append(
-    node("strong","feed-post-name vt-profile-post-name-001",q("#profile-heading").textContent),
-    node("time","feed-post-date vt-profile-post-date-001",dateText(post.created_at))
-   );
-   identity.querySelector("time").dateTime=post.created_at;
-   const avatar=node("span","feed-avatar feed-post-avatar vt-profile-post-avatar-001",q("#profile-avatar").textContent||"V");
-   avatar.setAttribute("aria-hidden","true");
+   const name=node("a","feed-post-name vt-profile-post-name-001 feed-post-profile-link",
+    q("#profile-heading").textContent);
+   name.href=memberUrl(targetId);
+   const stamp=node("time","feed-post-date vt-profile-post-date-001",
+    "VATRA ID "+targetId+" · "+dateText(post.created_at));
+   stamp.dateTime=post.created_at;
+   identity.append(name,stamp);
+   const avatar=node("a","feed-avatar feed-post-avatar vt-profile-post-avatar-001 feed-post-profile-avatar",
+    q("#profile-avatar").textContent||"V");
+   avatar.href=memberUrl(targetId);
+   avatar.setAttribute("aria-label",t("Переглянути профіль","View profile"));
+   const profileAvatar=q("#profile-avatar");
+   if(profileAvatar.classList.contains("has-photo")){
+    avatar.style.backgroundImage=profileAvatar.style.backgroundImage;
+    avatar.classList.add("has-photo");avatar.textContent="";
+   }
    header.append(avatar,identity);
    article.append(header,node("p","feed-post-body vt-profile-post-body-001",post.body));
    list.append(article);
