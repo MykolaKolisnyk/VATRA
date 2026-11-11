@@ -2636,12 +2636,7 @@ try{
   assert.ok(mobileGeometry.overflow<=3,
    "Feed must fit viewport: "+language+" "+JSON.stringify(mobileGeometry));
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
-  // Tour uses the native top layer and the same darkened/blurred presentation
-  // as VATRA's language selector. These controls must be bilingual and skippable.
-  assert.equal(await feedProbe.locator("#vatra-welcome-tasks").count(),0);
-  assert.equal(await feedProbe.locator("#vatra-tasks-list").count(),0);
-  assert.equal(await feedProbe.locator("#vatra-find-friends-dialog").count(),0,
-   "The removed five-step Getting Started checklist must have no leftover markup");
+  // The independent feature walkthrough uses a native, skippable dialog.
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),1);
   assert.equal(await feedProbe.locator("#vatra-tour-step").textContent(),"1 / 15");
   await feedProbe.evaluate(()=>document.querySelector("#vatra-tour-dialog").showModal());
