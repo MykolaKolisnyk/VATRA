@@ -2895,11 +2895,15 @@ try{
    "Clicking status opens a dedicated status editor");
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),false);
   await profilePage.locator("#profile-status-cancel").click();
+  assert.equal(await profilePage.locator("#profile-about-more").isVisible(),false,
+   "Do not show a More details action if no additional information exists");
   await profilePage.locator("#profile-edit-open").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),true,
    "Profile editing must open the VATRA information workspace");
   assert.equal(await profilePage.locator(".profile-editor-nav-link").count(),7,
    "The editor keeps seven profile sections");
+  assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
+   "Each editor section needs a recognizable VATRA icon");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
   await profilePage.locator("#profile-editor-visibility-short_bio").selectOption("only_me");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
@@ -2927,6 +2931,8 @@ try{
    language==="en"?"About me":"Про мене");
   assert.equal(await profilePage.locator("#profile-about-card .profile-information-item").count(),3,
    "Compact About me card should show at most three prioritized facts");
+  assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-summary-icon").count(),3,
+   "The About me preview shows meaningful icons beside each field");
   assert.equal((await profilePage.locator(".vt-profile-information-value-city").textContent()).trim(),"Київ",
    "Current city has priority over hometown");
   assert.equal(await profilePage.locator(".vt-profile-information-value-hometown").count(),0,
@@ -2939,6 +2945,10 @@ try{
   assert.equal((await profilePage.locator(".vt-profile-detail-value-hometown").textContent()).trim(),"Львів",
    "Both location fields belong in the full dialog");
   assert.equal((await profilePage.locator(".vt-profile-detail-value-short_bio").textContent()).trim(),"Тестова інформація");
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog [class^='vt-profile-detail-audience-']").count(),0,
+   "Privacy visibility belongs only in the editor, never the read-only information dialog");
+  assert.ok(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-detail-icon").count()>=4,
+   "Detailed information should include icons and clear visual hierarchy");
   await profilePage.locator(".vt-vatra-profile-details-close-001").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
   await profilePage.locator("#profile-tab-photos").click();
