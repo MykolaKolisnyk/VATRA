@@ -713,13 +713,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
     try{await client.storage.from(bucketFor(kind)).remove([path]);}catch(_){}
     throw dbError;
    }
-   const previous=saved?.[column];
+   // Never delete the former avatar or cover on replacement. The user may
+   // restore it later; a separate version-history workflow controls retention.
    saved={...saved,...values};
    display(saved);
    status(t("Зображення збережено.","Image saved."));
-   if(previous&&previous!==path){
-    try{await client.storage.from(bucketFor(kind)).remove([previous]);}catch(_){}
-   }
   }catch(_){status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
    "Could not upload the image. Please retry."),true);}
   finally{
