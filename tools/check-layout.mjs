@@ -934,12 +934,14 @@ assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
  sharedCss.includes("body.feed-page .feed-account-dropdown > button > svg"),
  "Account dropdown SVGs must remain visible after language switching");
 const sharedJs=await read("assets/js/social-shell.js");
+const coverScript=await read("assets/js/profile.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo::after{")&&
  sharedCss.includes("content:none;display:none")&&
- profileScript.includes('if(photoURLs.cover)setImage(cover,photoURLs.cover);')&&
- !profileScript.includes('--vatra-cover-image')&&
+ coverScript.includes('if(photoURLs.cover)coverPhoto.src=photoURLs.cover;')&&
+ !coverScript.includes('setProperty("--vatra-cover-image"')&&
+ sharedCss.includes("body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001{")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-motif,")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-signature{")&&
  sharedCss.includes("background-repeat:no-repeat")&&
