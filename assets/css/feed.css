@@ -2996,3 +2996,30 @@ body.feed-page .feed-brand-search{align-items:center}
 body.feed-page .feed-search-form{min-width:0}
 body.feed-page .vatra-shell-tooltip{pointer-events:none!important}
 body.feed-page:has(.vatra-notification-panel:not([hidden])) .vatra-shell-tooltip{opacity:0!important;visibility:hidden!important}
+
+
+/* Audience picker mirrors the VATRA auth/form visual language. */
+body.feed-page .vatra-compose-visibility{
+ display:flex;align-items:center;gap:10px;max-width:100%;padding:10px 13px;
+ border:1px solid #e0e8f6;border-radius:11px;background:#f8faff;color:#536987;
+ font:670 12.5px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-compose-visibility .ui-vatra-visibility-picker-icon-001{flex:none;color:#637fac}
+body.feed-page .vatra-compose-visibility .vt-vatra-visibility-label-001{margin-right:auto}
+body.feed-page .vatra-compose-visibility .ui-vatra-visibility-select-001{
+ flex:none;max-width:50%;min-height:35px;padding:6px 26px 6px 10px;border:1px solid #d4e0f4;
+ border-radius:9px;background:#fff;color:#375d9b;cursor:pointer;
+ font:720 12px/1.35 "Onest",system-ui,sans-serif
+}
+body.feed-page .feed-post-meta-row{display:flex;align-items:center;gap:7px;min-height:18px}
+body.feed-page .feed-post-audience{display:inline-flex;align-items:center;justify-content:center;color:#8295b1;cursor:help}
+body.feed-page .ui-feed-post-audience-icon-001{display:block;width:15px!important;height:15px!important;stroke-width:1.7}
+body.feed-page .vatra-post-share-visibility{
+ display:flex;justify-content:space-between;align-items:center;gap:12px;
+ padding:9px 11px;border:1px solid #e1e9f5;border-radius:10px;background:#f7faff
+}
+body.feed-page .vt-vatra-post-share-visibility-text-001{color:#526a8b;font:650 12px "Onest",system-ui,sans-serif}
+body.feed-page .ui-vatra-post-share-visibility-select-001{
+ min-height:35px;padding:6px 12px;border:1px solid #dbe5f5;border-radius:8px;
+ background:#fff;color:#3f63a2;font:690 12px "Onest",system-ui,sans-serif;cursor:pointer
+}

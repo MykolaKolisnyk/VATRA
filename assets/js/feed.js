@@ -175,9 +175,11 @@
   const identity=node("div","feed-post-author ui-feed-post-author-001");
   const name=node("a","feed-post-name vt-feed-post-name-001 feed-post-profile-link",memberName(authorId));
   name.href=new URL("id"+authorId,home).href;
-  const stamp=node("time","feed-post-date vt-feed-post-date-001",
-   "VATRA ID "+authorId+" · "+postedTime(post.created_at));
-  stamp.dateTime=post.created_at;identity.append(name,stamp);
+  const stamp=node("time","feed-post-date vt-feed-post-date-001",postedTime(post.created_at));
+  stamp.dateTime=post.created_at;
+  const meta=node("div","feed-post-meta-row ui-feed-post-meta-row-001");
+  meta.append(stamp);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,post.kind==="group");
+  identity.append(name,meta);
   if(post.kind==="group"){
    const group=node("a","feed-post-community vt-feed-post-community-001",
     t("Спільнота: ","Community: ")+(followedClubs.get(String(post.club_id))||"Club ID "+post.club_id));
@@ -227,7 +229,7 @@
   person:{kind:"person",offset:0,done:feedFilter==="communities",queue:[]},
   group:{kind:"group",offset:0,done:feedFilter==="friends",queue:[]}
  });
- const personFields="id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id";
+ const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path";
  const comparePosts=(a,b)=>
   Date.parse(b.created_at)-Date.parse(a.created_at)||String(b.id).localeCompare(String(a.id));
@@ -396,6 +398,7 @@
  function bindComposer(){
   const dialog=q("#feed-compose-dialog"),form=q("#feed-compose-form");
   const text=q("#feed-compose-text"),error=q("#feed-compose-error");
+  const visibility=q("#feed-compose-visibility");
   const submit=q("#feed-compose-save"),counter=q("#feed-compose-counter");
   const showError=value=>{error.textContent=value;error.hidden=!value;};
   const picker=window.VATRA_POST_MEDIA?.bindPicker({
@@ -423,7 +426,9 @@
    try{
     if(file)uploaded=await window.VATRA_POST_MEDIA.upload(client,vatraId,file);
     const {error:insertError}=await client.from("feed_posts").insert({
-     author_id:user.id,author_vatra_id:vatraId,body,...(uploaded||{})
+     author_id:user.id,author_vatra_id:vatraId,body,
+     visibility:["public","friends","only_me"].includes(visibility?.value)?visibility.value:"public",
+     ...(uploaded||{})
     });
     if(insertError)throw insertError;
     dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();

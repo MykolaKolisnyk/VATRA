@@ -108,7 +108,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  if(more)more.disabled=true;
  try{
   let query=client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id")
+   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId);
   if(typeof query.is==="function")query=query.is("archived_at",null);
   const {data,error}=await query.order("created_at",{ascending:false})
@@ -124,9 +124,11 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    const name=node("a","feed-post-name vt-profile-post-name-001 feed-post-profile-link",
     q("#profile-heading").textContent);
    name.href=memberUrl(targetId);
-   const stamp=node("time","feed-post-date vt-profile-post-date-001",
-    "VATRA ID "+targetId+" · "+dateText(post.created_at));
-   stamp.dateTime=post.created_at;identity.append(name,stamp);
+   const stamp=node("time","feed-post-date vt-profile-post-date-001",dateText(post.created_at));
+   stamp.dateTime=post.created_at;
+   const meta=node("div","feed-post-meta-row ui-profile-post-meta-row-001");
+   meta.append(stamp);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,post.visibility,false);
+   identity.append(name,meta);
    const avatar=node("a","feed-avatar feed-post-avatar vt-profile-post-avatar-001 feed-post-profile-avatar",
     q("#profile-avatar").textContent||"V");
    avatar.href=memberUrl(targetId);
@@ -415,6 +417,7 @@ function bindPostComposer(client,user,ownId){
  const submit=q("#profile-compose-submit");
  const cancel=q("#profile-compose-cancel");
  const counter=q("#profile-compose-counter");
+ const visibility=q("#profile-compose-visibility");
  const status=q("#profile-compose-status");
  if(!trigger||!dialog||!form||!input||!submit||!validId(ownId))return;
  let publishing=false,picker=null;
@@ -460,7 +463,9 @@ function bindPostComposer(client,user,ownId){
   try{
    if(file)uploaded=await window.VATRA_POST_MEDIA.upload(client,ownId,file);
    const {error}=await client.from("feed_posts").insert({
-    author_id:user.id,author_vatra_id:ownId,body,...(uploaded||{})
+    author_id:user.id,author_vatra_id:ownId,body,
+    visibility:["public","friends","only_me"].includes(visibility?.value)?visibility.value:"public",
+    ...(uploaded||{})
    });
    if(error)throw error;
    input.value="";picker?.reset();

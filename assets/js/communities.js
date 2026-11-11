@@ -276,7 +276,9 @@ async function setupClubSocial(client,clubId,ownId,userId){
      day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
     }).format(new Date(post.created_at)));
     time.dateTime=post.created_at;
-    head.append(profile,time);
+    const meta=node("div","feed-post-meta-row ui-club-post-meta-row-001");
+    meta.append(time);window.VATRA_POST_INTERACTIONS?.appendAudience(meta,null,true);
+    head.append(profile,meta);
     article.append(head);
    if(post.body){
      const body=node("p","feed-post-body vt-club-post-body-001",post.body);

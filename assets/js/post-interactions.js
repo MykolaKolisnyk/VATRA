@@ -75,6 +75,26 @@
   }
   return {names,images};
  }
+function appendAudience(container,level,isGroup=false){
+  if(!container)return;
+  const visibility=isGroup?"group":["public","friends","only_me"].includes(level)?level:"public";
+  const label=visibility==="friends"?tr("Для друзів","Friends only"):
+   visibility==="only_me"?tr("Лише я","Only me"):
+   visibility==="group"?tr("Учасники спільноти","Community members"):
+   tr("Публічно","Public");
+  const marker=make("span","feed-post-audience ui-feed-post-audience-001");
+  marker.title=label;marker.setAttribute("aria-label",label);
+  const symbol=glyph(visibility==="only_me"?"bookmark":visibility==="public"?"share":"comments");
+  symbol.setAttribute("class","ui-feed-post-audience-icon-001");
+  symbol.replaceChildren();
+  const ns="http://www.w3.org/2000/svg";
+  const path=document.createElementNS(ns,"path");
+  if(visibility==="only_me")path.setAttribute("d","M7 10V7a5 5 0 0 1 10 0v3M5.5 10.5h13v10h-13z");
+  else if(visibility==="public")path.setAttribute("d","M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18");
+  else path.setAttribute("d","M15.5 10a3 3 0 1 0-6 0 3 3 0 0 0 6 0ZM4 21v-1a8 8 0 0 1 16 0v1M5.5 9a2.5 2.5 0 0 0 0 5M18.5 9a2.5 2.5 0 0 1 0 5");
+  symbol.append(path);marker.append(symbol);
+  container.append(marker);
+ }
  function mount(client,post,container,settings={}){
   const kind=post?.kind==="group"?"group":"person";
   if(!validUUID(post?.id)||!client||!container)return;
@@ -418,6 +438,14 @@
    tr("Ваша сторінка VATRA","Your VATRA page"));
   const audience=make("small","vt-vatra-post-share-audience-001",tr("Опублікувати у своїй стрічці","Post to your feed"));
   ownLabel.append(shareName,audience);account.append(ownAvatar,ownLabel);
+const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post-share-visibility-001");
+  const shareAudienceText=make("span","vt-vatra-post-share-visibility-text-001",tr("Хто може бачити","Who can see this"));
+  const shareAudience=make("select","ui-vatra-post-share-visibility-select-001");
+  for(const [value,uk,en] of [["public","Публічно","Public"],["friends","Друзі","Friends"],["only_me","Лише я","Only me"]]){
+   const option=make("option","vt-vatra-post-share-option-"+value,tr(uk,en));option.value=value;
+   shareAudience.append(option);
+  }
+  shareAudienceLabel.append(shareAudienceText,shareAudience);
   const shareCaption=make("textarea","ui-vatra-post-share-caption-001");
   shareCaption.rows=3;shareCaption.maxLength=1800;
   shareCaption.placeholder=tr("Розкажіть щось про цю публікацію…","Say something about this post…");
@@ -451,7 +479,7 @@
   copy.type="button";
   linkRow.append(linkTitle,copy);
   lower.append(lowerTitle,dm,sendRow,linkRow);
-  shareContent.append(account,shareCaption,original,shareError,repost,lower);
+  shareContent.append(account,shareAudienceLabel,shareCaption,original,shareError,repost,lower);
   shareMenu.append(shareHead,shareContent);
   document.body.append(shareMenu);
   shareMenu.addEventListener("click",event=>{if(event.target===shareMenu)shareMenu.close();});
@@ -486,7 +514,7 @@
     const body=caption||tr("Поширена публікація","Shared a post");
     const result=await client.from("feed_posts").insert({
      author_id:userId,author_vatra_id:ownId,
-     body,shared_post_kind:kind,shared_post_id:post.id
+     body,visibility:shareAudience.value,shared_post_kind:kind,shared_post_id:post.id
     });
     if(result.error)throw result.error;
     shareMenu.close();shareCaption.value="";
@@ -578,5 +606,5 @@
     tr("Ця публікація недоступна.","This post is unavailable.")));
   }
  }
- window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap};
+ window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,appendAudience};
 })();
