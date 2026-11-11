@@ -98,13 +98,13 @@ function missingProfile(){
  document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
  finish();
 }
-async function loadPosts(client,targetId){
+async function loadPosts(client,targetId,ownId,userId){
  const list=q("#profile-posts"),empty=q("#profile-posts-empty");
  q("#profile-posts-title").textContent=t("Публікації","Posts");
  list.setAttribute("aria-busy","true");
  try{
   const {data,error}=await client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at,media_kind,media_path")
+   .select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId)
    .order("created_at",{ascending:false})
    .order("id",{ascending:false}).range(0,14);
@@ -112,6 +112,7 @@ async function loadPosts(client,targetId){
   list.replaceChildren();
   for(const post of data||[]){
    const article=node("article","feed-post-card ui-profile-post-card-001");
+   article.dataset.postId=post.id;
    const header=node("div","feed-post-header ui-profile-post-header-001");
    const identity=node("div","feed-post-author ui-profile-post-author-001");
    const name=node("a","feed-post-name vt-profile-post-name-001 feed-post-profile-link",
@@ -138,6 +139,10 @@ async function loadPosts(client,targetId){
      article.append(body);
     }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
+   if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
+   window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
+    ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))void loadPosts(client,targetId,ownId,userId);}
+   });
    list.append(article);
   }
   empty.hidden=(data||[]).length>0;
@@ -207,7 +212,7 @@ function bindPostComposer(client,user,ownId){
    if(error)throw error;
    input.value="";picker?.reset();
    dialog.close();
-   await loadPosts(client,ownId);
+   await loadPosts(client,ownId,ownId,user.id);
   }catch(error){
    if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
    status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
@@ -897,7 +902,7 @@ async function start(){
    }
   }
   finish();
-  void loadPosts(client,targetId);
+  void loadPosts(client,targetId,ownId,user.id);
   void mediaPromise.then(()=>{
    if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
   }).catch(()=>{
