@@ -346,11 +346,23 @@ body.profile-page.feed-page:not(.community-page) .profile-name{
  margin:0 0 7px;color:var(--ink);font:780 clamp(24px,2.3vw,31px)/1.23 "Onest",system-ui,sans-serif;letter-spacing:-.035em
 }
 body.profile-page .profile-status{
- margin:0;color:#526685;font:530 14px/1.45 "Onest",system-ui,sans-serif;
+ display:inline-flex;align-items:center;gap:7px;max-width:100%;margin:0;padding:0;
+ border:0;background:transparent;color:#526685;text-align:left;
+ font:530 14px/1.45 "Onest",system-ui,sans-serif;
  overflow-wrap:anywhere;white-space:pre-wrap
 }
+body.profile-page .profile-status[hidden]{display:none!important}
+body.profile-page .profile-status.is-editable{cursor:pointer}
+body.profile-page .profile-status.is-editable:hover .vt-profile-status-text-001{
+ color:#3265bd;text-decoration:underline;text-underline-offset:3px
+}
+body.profile-page .profile-status .ui-profile-status-pencil-icon-001{display:none}
+body.profile-page .profile-status.is-editable .ui-profile-status-pencil-icon-001{
+ display:block;flex:none;width:15px;height:15px;color:#7389a7
+}
 body.profile-page .profile-last-seen{
- margin:4px 0 0;color:#8290a6;font:500 12px/1.45 "Onest",system-ui,sans-serif
+ flex:0 0 100%;margin:0;color:#8290a6;text-align:right;
+ font:500 12px/1.45 "Onest",system-ui,sans-serif
 }
 body.profile-page .profile-online-dot{
  position:absolute;right:4px;bottom:7px;z-index:9;width:22px;height:22px;
@@ -424,7 +436,15 @@ body.feed-page .feed-composer-avatar.has-photo,body.feed-page .feed-post-avatar.
 }
 
 body.profile-page .profile-actions{
- display:flex;align-items:center;justify-content:flex-end;gap:9px;margin:0;min-width:0
+ display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;
+ gap:9px;margin:0;min-width:0
+}
+body.profile-page .profile-actions > button > svg{
+ display:block;flex:none;width:18px;height:18px;stroke:currentColor
+}
+body.profile-page .profile-actions > button:focus-visible,
+body.profile-page .profile-status:focus-visible{
+ outline:3px solid #8faef0;outline-offset:3px
 }
 body.profile-page .social-profile-create,
 body.profile-page .profile-friend-button,
@@ -664,13 +684,16 @@ body.feed-page .vt-feed-post-video-expand-001{
 /* Shared fullscreen attachment viewer: isolated from profile overlays. */
 .vatra-post-media-viewer{
  position:fixed;inset:0;max-width:none;max-height:none;width:100vw;height:100dvh;
- margin:0;padding:0;border:0;background:#07080d;color:#fff
+ margin:0;padding:0;border:0;overflow:hidden;overscroll-behavior:contain;
+ background:#07080d;color:#fff
 }
 .vatra-post-media-viewer::backdrop{background:rgba(3,7,19,.93)}
-.vatra-post-media-viewer[open]{display:grid;place-items:center}
+.vatra-post-media-viewer[open]{display:flex;align-items:center;justify-content:center}
 .vatra-post-media-viewer-frame{
- display:grid;place-items:center;position:relative;width:100%;height:100%;
- padding:56px 24px 24px;box-sizing:border-box
+ display:flex;align-items:center;justify-content:center;
+ position:relative;width:100%;height:100%;min-width:0;min-height:0;
+ max-width:100vw;max-height:100dvh;
+ padding:62px 20px 20px;box-sizing:border-box;overflow:hidden
 }
 .vt-vatra-post-media-close-001{
  position:absolute;z-index:2;top:12px;left:15px;display:grid;place-items:center;
@@ -678,12 +701,17 @@ body.feed-page .vt-feed-post-video-expand-001{
  background:#182132;color:#fff;font:500 28px/1 "Onest",system-ui;cursor:pointer
 }
 .ui-vatra-post-media-viewer-content-001{
- display:grid;place-items:center;min-width:0;min-height:0;width:100%;height:100%
+ display:flex;align-items:center;justify-content:center;
+ min-width:0;min-height:0;width:100%;height:100%;max-height:100%;
+ overflow:hidden
 }
 .ui-vatra-post-expanded-image-001,.ui-vatra-post-expanded-video-001{
- display:block;max-width:100%;max-height:100%;object-fit:contain;border:0
+ display:block;flex:0 1 auto;width:auto;height:auto;min-width:0;min-height:0;
+ max-width:calc(100vw - 40px);max-height:calc(100dvh - 90px);
+ object-fit:contain;border:0;border-radius:4px
 }
 .ui-vatra-post-expanded-video-001{width:min(100%,1120px);height:auto}
+body:has(.vatra-post-media-viewer[open]){overflow:hidden!important}
 @media(max-width:600px){
  .vatra-post-media-viewer-frame{padding:62px 8px 10px}
 }
@@ -1939,12 +1967,6 @@ body.profile-page.feed-page:not(.community-page) .profile-posts-section{
  width:100%;max-width:none;margin:0;gap:18px;align-items:start
 }
 body.profile-page .profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:11px}
-body.profile-page .profile-posts-main .social-profile-create{
- align-self:flex-end;display:inline-flex;align-items:center;justify-content:center;gap:8px;
- margin:0 0 2px;padding:9px 17px;min-height:42px;
- border:0;border-radius:10px;color:#fff;background:linear-gradient(110deg,#316be0,#6859d6);
- font:740 13px/1.3 "Onest",system-ui,sans-serif;cursor:pointer
-}
 body.profile-page .profile-info{min-height:120px;padding:20px 22px}
 body.profile-page .profile-info .vt-profile-about-text-001{
  margin:0;color:#71829b;font:500 13px/1.55 "Onest",system-ui,sans-serif
@@ -2091,15 +2113,48 @@ body.profile-page .profile-avatar-wrap .profile-online-dot{pointer-events:none}
 @media(max-width:600px){
  body.profile-page .profile-avatar-wrap .profile-online-dot{width:18px;height:18px;right:1px;bottom:5px;border-width:3px}
 }
+body.feed-page:not(.community-page):not(.profile-page) .feed-top-controls{
+ display:grid;grid-template-columns:minmax(0,1fr) max-content;
+ grid-template-areas:"composer filters" "stories filters";
+ align-items:center;column-gap:14px;row-gap:11px;min-width:0;width:100%
+}
+body.feed-page:not(.community-page):not(.profile-page) .feed-top-controls > .feed-quick-compose{
+ grid-area:composer;min-width:0;margin:0
+}
+body.feed-page:not(.community-page):not(.profile-page) .feed-top-controls > .feed-stories{
+ grid-area:stories;min-width:0
+}
 body.feed-page:not(.community-page):not(.profile-page) .feed-filter-row{
- display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:1px 0 14px
+ grid-area:filters;display:flex;align-items:center;flex-wrap:nowrap;gap:3px;
+ align-self:center;justify-self:end;width:max-content;max-width:100%;
+ margin:0;padding:4px;border:1px solid #e2e8f3;border-radius:13px;
+ background:#fff;box-shadow:0 3px 12px rgba(31,54,99,.04)
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-filter-button{
- min-height:39px;padding:8px 16px;border:1px solid #dfe7f4;
- border-radius:999px;background:#fff;color:#62738e;font:690 13px "Onest",sans-serif;
+ min-height:40px;padding:9px 11px;border:1px solid transparent;
+ border-radius:10px;background:transparent;color:#62738e;
+ font:690 12.5px/1.3 "Onest",sans-serif;white-space:nowrap;
  cursor:pointer;transition:background .16s,color .16s,border-color .16s
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-filter-button[aria-pressed="true"]{
- color:#245dc6;border-color:#b9caf2;background:#eef3ff
+ color:#265ecc;border-color:#d9e4ff;background:#edf3ff
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-filter-button:hover{background:#f3f6fd}
+body.feed-page:not(.community-page):not(.profile-page) .feed-filter-button:focus-visible{
+ outline:2px solid #6d8fec;outline-offset:1px
+}
+@media(max-width:780px){
+ body.feed-page:not(.community-page):not(.profile-page) .feed-top-controls{
+  grid-template-columns:minmax(0,1fr);
+  grid-template-areas:"composer" "stories" "filters";row-gap:10px
+ }
+ body.feed-page:not(.community-page):not(.profile-page) .feed-filter-row{justify-self:end}
+}
+@media(max-width:410px){
+ body.feed-page:not(.community-page):not(.profile-page) .feed-filter-row{
+  justify-self:stretch;width:100%;justify-content:space-between
+ }
+ body.feed-page:not(.community-page):not(.profile-page) .feed-filter-button{
+  flex:1;padding:9px 5px;font-size:12px
+ }
+}

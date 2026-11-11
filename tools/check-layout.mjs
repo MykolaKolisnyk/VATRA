@@ -899,6 +899,10 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-last-seen"')&&
  profileMarkup.includes('id="profile-online-dot"')&&
  profileMarkup.includes('id="profile-edit-dialog"')&&
+ profileMarkup.includes('id="profile-status-text"')&&
+ profileMarkup.includes('ui-profile-add-friend-icon-001')&&
+ profileMarkup.includes('ui-profile-message-icon-001')&&
+ profileMarkup.includes('class="feed-posts ui-profile-posts-001"')&&
  profileMarkup.includes('id="profile-tab-videos"')&&
  !profileMarkup.includes('id="profile-tab-about"')&&
  !profileMarkup.includes('id="profile-vatra-id"')&&
@@ -906,6 +910,9 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  (await read("assets/js/profile.js")).includes('setupProfileGallery(')&&
  (await read("assets/js/presence.js")).includes('last_seen_at')&&
  (await read("feed.html")).includes('data-feed-filter="communities"')&&
+ (await read("feed.html")).includes('class="feed-top-controls ui-feed-top-controls-001"')&&
+ (await read("assets/js/profile.js")).includes('displayed.addEventListener("click",showEditor)')&&
+ (await read("assets/css/feed.css")).includes('max-height:calc(100dvh - 90px)')&&
  (await read("assets/js/feed.js")).includes('feedFilter==="friends"'),
  "Profile status, privacy-preserving activity, media tabs and Feed filters must exist");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&

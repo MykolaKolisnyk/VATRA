@@ -2781,9 +2781,20 @@ try{
    "Only visitors see the Friends tab");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),true,
    "Owner edits status and profile photos in one dialog");
+  assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
+  assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
+   language==="en"?"Add publication":"Додати публікацію");
+  assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
+   "Owner's edit action must preserve its VATRA icon after localization");
+  assert.equal(await profilePage.locator("#profile-write-post svg").count(),1,
+   "Owner's publication action must have a VATRA icon");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
    "Information must be beside compact posts instead of its own tab");
+  await profilePage.locator("#profile-status").click();
+  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
+   "Clicking Add status itself must open the real editor");
+  await profilePage.locator("#profile-edit-cancel").click();
   await profilePage.locator("#profile-edit-open").click();
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true);
   await profilePage.locator("#profile-edit-cancel").click();
@@ -2845,6 +2856,10 @@ try{
    "Other member profile must offer Add Friend");
   assert.equal(await profilePage.locator("#profile-message-button").isVisible(),true,
    "Other member profile must offer private Message");
+  assert.equal(await profilePage.locator("#profile-friend-button svg").count(),1,
+   "Visitor's add-friend button needs a persistent line icon");
+  assert.equal(await profilePage.locator("#profile-message-button svg").count(),1,
+   "Visitor's message button needs a persistent line icon");
   assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),true,
    "Visitors have a Friends tab but cannot access private friend lists");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,

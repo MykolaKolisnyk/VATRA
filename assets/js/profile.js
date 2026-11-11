@@ -414,11 +414,11 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    if(error)throw error;
    relation=data;
    const outgoing=String(relation?.requester_id)===String(ownId);
-   friendButton.textContent=relation?.status==="accepted"?t("У друзях · Видалити","Friends · Remove"):
+   q("#profile-friend-label").textContent=relation?.status==="accepted"?t("У друзях · Видалити","Friends · Remove"):
     relation?.status==="pending"?(outgoing?t("Заявку надіслано · Скасувати","Request sent · Cancel"):
      t("Прийняти заявку","Accept request")):t("Додати в друзі","Add friend");
   };
-  friendButton.textContent=t("Додати в друзі","Add friend");
+  q("#profile-friend-label").textContent=t("Додати в друзі","Add friend");
   void refreshFriend().catch(()=>show(actionStatus,t("Статус дружби недоступний.","Friendship status unavailable.")));
   friendButton.addEventListener("click",async()=>{
    if(busy)return;
@@ -500,12 +500,15 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
 
 function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
- const displayed=q("#profile-status"),open=q("#profile-edit-open");
+ const displayed=q("#profile-status"),statusText=q("#profile-status-text"),open=q("#profile-edit-open");
  let saved=String(initialStatus||"").slice(0,140);
  const display=()=>{
   if(!displayed)return;
-  displayed.textContent=saved||(isMine?t("Додайте статус","Add a status"):"");
+  statusText.textContent=saved||(isMine?t("Додайте статус","Add a status"):"");
   displayed.hidden=!saved&&!isMine;
+  displayed.disabled=!isMine;
+  displayed.classList.toggle("is-editable",isMine);
+  if(isMine)displayed.setAttribute("aria-label",t("Редагувати статус","Edit status"));
  };
  display();
  if(!isMine||!open)return;
@@ -536,10 +539,13 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
   counter.textContent=Array.from(input.value).length+" / 140";
  };
  input.addEventListener("input",updateCounter);
- open.addEventListener("click",()=>{
+ const showEditor=()=>{
   input.value=saved;updateCounter();show("");
-  dialog.showModal();input.focus();
- });
+  if(!dialog.open)dialog.showModal();
+  input.focus();
+ };
+ open.addEventListener("click",showEditor);
+ displayed.addEventListener("click",showEditor);
  q("#profile-edit-cancel").addEventListener("click",()=>dialog.close());
  form.addEventListener("submit",async event=>{
   event.preventDefault();
@@ -557,7 +563,12 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
    if(["masculine","feminine","neutral"].includes(choice)){
     const formResult=await client.from("profile_presence").update({form:choice})
      .eq("vatra_id",targetId).select("form").maybeSingle();
-    if(formResult.error||!formResult.data)throw formResult.error||new Error("Presence form not saved");
+    if(formResult.error||!formResult.data){
+     dialog.close();
+     const note=q("#profile-action-status");
+     if(note){note.textContent=t("Статус збережено, але форму останнього відвідування не оновлено.","Status saved; last-seen wording could not be updated.");note.hidden=false;}
+     return;
+    }
    }
    dialog.close();
    show("");
@@ -577,7 +588,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
   const state=window.VATRA_PRESENCE.format(record,english);
   dot.hidden=!state.online;
   caption.textContent=state.text;
-  caption.hidden=!state.text;
+  caption.hidden=state.online||!state.text;
   if(state.date)caption.dateTime=state.date.toISOString();
   dot.setAttribute("aria-label",english?"Online now":"Зараз у мережі");
  };

@@ -231,11 +231,13 @@
   let attempts=0;
   while(!source.done&&!source.queue.length&&attempts++<12){
    const isPerson=source.kind==="person";
+   const personIds=isPerson?[...friends].filter(id=>feedFilter!=="friends"||id!==vatraId):[];
+   if(isPerson&&!personIds.length){source.done=true;return;}
    if(!isPerson&&!followedClubs.size){source.done=true;return;}
    let query=client.from(isPerson?"feed_posts":"vatra_community_posts")
     .select(isPerson?personFields:clubFields);
-   if(isPerson&&(!searchTerm.startsWith("#")||feedFilter==="friends")&&typeof query.in==="function"){
-    query=query.in("author_vatra_id",[...friends]);
+   if(isPerson&&typeof query.in==="function"){
+    query=query.in("author_vatra_id",personIds);
    }
    if(!isPerson&&typeof query.in==="function")
     query=query.in("club_id",[...followedClubs.keys()]);
@@ -248,7 +250,7 @@
    source.offset+=raw.length;
    if(raw.length<PAGE_SIZE)source.done=true;
    const rows=raw.filter(post=>isPerson?
-    (searchTerm.startsWith("#")||friends.has(String(post.author_vatra_id))):
+    personIds.includes(String(post.author_vatra_id)):
     followedClubs.has(String(post.club_id))
    ).filter(post=>!searchTerm||
     String(post.body||"").toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
@@ -285,7 +287,7 @@
    const page=await takePage();
    // Open a shared permalink without downloading hundreds of unrelated posts.
    const requested=reset?new URLSearchParams(location.search).get("post"):null;
-   if(requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
+   if(feedFilter==="all"&&requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
     !page.some(p=>p.id===requested)){
     const found=await Promise.allSettled([
      client.from("feed_posts").select(personFields).eq("id",requested).maybeSingle(),
@@ -512,6 +514,7 @@
     if(event.key==="Escape"&&accountMenu?.open)accountMenu.open=false;
    });
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
+   // A filter is a new source query, not a cosmetic visibility toggle.
    for(const button of document.querySelectorAll("[data-feed-filter]")){
     button.addEventListener("click",()=>{
      const next=button.dataset.feedFilter;
