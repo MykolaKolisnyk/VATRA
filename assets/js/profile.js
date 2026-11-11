@@ -555,7 +555,7 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
    saved=String(result.data.status_text||"");display();
    const choice=wording.value;
    if(["masculine","feminine","neutral"].includes(choice)){
-    const formResult=await client.from("vatra_member_presence").update({form:choice})
+    const formResult=await client.from("profile_presence").update({form:choice})
      .eq("vatra_id",targetId).select("form").maybeSingle();
     if(formResult.error||!formResult.data)throw formResult.error||new Error("Presence form not saved");
    }
