@@ -2499,10 +2499,11 @@ try{
     headerZ:parseInt(getComputedStyle(document.querySelector(".feed-header")).zIndex),
     navigation};
   });
-  assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerTop)<=2&&
-   menuGeometry.firstRowTop>=menuGeometry.headerBottom-2&&
+  assert.ok(menuGeometry.top>=menuGeometry.headerBottom+5&&
+   menuGeometry.firstRowTop>=menuGeometry.headerBottom+5&&
+   Math.abs((menuGeometry.left+menuGeometry.right)/2-menuGeometry.viewportWidth/2)<=4&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search must appear as one continuous overlay behind the stable header: "+JSON.stringify(menuGeometry));
+   "Search must be centered below the stable header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -2617,7 +2618,7 @@ try{
   assert.ok(menuRect.left>=0&&menuRect.right<=menuRect.width+1&&
    menuRect.top>=0&&menuRect.bottom<=menuRect.height+1&&
    Math.abs(menuRect.top-menuRect.headerBottom)<=2&&
-   Math.abs(menuRect.right-menuRect.headerRight)<=2,
+   Math.abs((menuRect.left+menuRect.right)/2-menuRect.width/2)<=4,
    "Avatar menu must join the right edge of the header: "+JSON.stringify(menuRect));
   assert.deepEqual(await navCenters(feedProbe),navBeforeMenu,
    "Opening account menu must not move header icons");
@@ -2826,12 +2827,14 @@ try{
    "Profiles must use the same header search as the Feed");
   assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),true,
    "Profile must have a visible navigation bar beneath the cover");
-  assert.equal(await profilePage.locator("[data-profile-tab]").count(),4,
-   "Profile has Posts, Friends, Photos and Videos; private owner hides Friends");
+  assert.equal(await profilePage.locator("[data-profile-tab]").count(),6,
+   "Profile has Posts, Friends, Photos, Videos, Gifts and Saved tabs");
+  assert.equal(await profilePage.locator("#profile-tab-saved").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-archive-toggle").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
    "Only visitors see the Friends tab");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),true,
-   "Owner edits status and profile photos in one dialog");
+   "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
    language==="en"?"Add publication":"Додати публікацію");
@@ -2847,9 +2850,10 @@ try{
   assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false,
    "Textual online label must never appear while profile is online");
   await profilePage.locator("#profile-status").click();
-  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
-   "Clicking Add status itself must open the real editor");
-  await profilePage.locator("#profile-edit-cancel").click();
+  assert.equal(await profilePage.locator("#profile-status-dialog").evaluate(el=>el.open),true,
+   "Clicking status opens a dedicated status editor");
+  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),false);
+  await profilePage.locator("#profile-status-cancel").click();
   await profilePage.locator("#profile-edit-open").click();
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true);
   await profilePage.locator("#profile-edit-cancel").click();

@@ -886,8 +886,8 @@ const normalizedSocialHeader=html=>{
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 /* profileMarkup already loaded during the footer audit. */
-assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===4&&
- (profileMarkup.match(/data-profile-panel="/g)||[]).length===5&&
+assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===6&&
+ (profileMarkup.match(/data-profile-panel="/g)||[]).length===9&&
  profileMarkup.includes('id="profile-friend-button"')&&
  profileMarkup.includes('id="profile-message-button"')&&
  profileMarkup.includes('id="profile-message-dialog"')&&
@@ -911,7 +911,13 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  (await read("assets/js/presence.js")).includes('last_seen_at')&&
  (await read("feed.html")).includes('data-feed-filter="communities"')&&
  (await read("feed.html")).includes('class="feed-top-controls ui-feed-top-controls-001"')&&
- (await read("assets/js/profile.js")).includes('displayed.addEventListener("click",showEditor)')&&
+ (await read("assets/js/profile.js")).includes('displayed.addEventListener("click",openStatus)')&&
+ profileMarkup.includes('id="profile-status-dialog"')&&
+ profileMarkup.includes('id="profile-tab-gifts"')&&
+ profileMarkup.includes('id="profile-tab-saved"')&&
+ profileMarkup.includes('id="profile-archive-menu"')&&
+ (await read("assets/js/feed.js")).includes('archived_at')&&
+ (await read("assets/js/post-interactions.js")).includes('post_saves')&&
  (await read("assets/css/feed.css")).includes('max-height:calc(100dvh - 90px)')&&
  (await read("assets/js/feed.js")).includes('feedFilter==="friends"'),
  "Profile status, privacy-preserving activity, media tabs and Feed filters must exist");
@@ -994,7 +1000,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes(".vatra-search-back{")&&
  sharedCss.includes(".vatra-search-panel.has-query .vatra-search-scope{display:grid}")&&
  sharedJs.includes("document.body.append(panel)")&&
- sharedJs.includes("panel.style.paddingTop=Math.round(headerBottom-headerTop)")&&
+ sharedJs.includes('panel.style.paddingTop="0px"')&&
  sharedJs.includes('const headerTop=Math.max(oy,header?.top??oy)')&&
  sharedCss.includes("position:fixed;z-index:89;display:flex;flex-direction:column;gap:0;")&&
  sharedCss.includes("border:1px solid #e0e5ed;border-top:0;border-radius:0 0 16px 16px;")&&
