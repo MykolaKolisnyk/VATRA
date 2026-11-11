@@ -215,8 +215,10 @@ function positionPanel(){
  const width=Math.min(390,innerWidth-24);
  panel.style.width=width+"px";
  panel.style.left=Math.round(Math.max(12,Math.min(innerWidth-width-12,r.right-width)))+"px";
- panel.style.top=Math.round(Math.min(innerHeight-120,r.bottom+11))+"px";
- panel.style.maxHeight=Math.max(240,innerHeight-r.bottom-23)+"px";
+ const headerBottom=document.querySelector(".feed-header")?.getBoundingClientRect().bottom??r.bottom;
+ const top=Math.max(0,Math.round(headerBottom));
+ panel.style.top=top+"px";
+ panel.style.maxHeight=Math.max(180,innerHeight-top-12)+"px";
 }
 function closePanel(){
  if(!open)return;open=false;panel.hidden=true;
