@@ -1140,6 +1140,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
+ !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),

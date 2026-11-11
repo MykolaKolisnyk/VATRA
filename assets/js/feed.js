@@ -244,7 +244,7 @@
   if(!phrase){globalResults.hidden=true;searchGroups.replaceChildren();return;}
   globalResults.hidden=false;searchGroups.replaceChildren();
   searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
-  const escaped=phrase.replace(/[\\%_]/g,"\\ // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.");
+  const escaped=phrase.replace(/[\\%_]/g,character=>String.fromCharCode(92)+character);
   // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
   const [membersByName,membersByStatus,clubsByName,clubsByDescription]=await Promise.allSettled([
    client.from("vatra_public_profiles").select("vatra_id,display_name,status_text")

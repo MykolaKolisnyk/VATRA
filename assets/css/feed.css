@@ -3144,3 +3144,16 @@ body.feed-page .feed-post-media .feed-post-media-video{
 body.feed-page .vatra-global-search-community-avatar{color:#5977b4;background:#e8efff}
 body.feed-page .vatra-global-search-community-avatar svg{display:block;width:22px;height:22px}
 body.feed-page .vt-vatra-post-original-community-001{font:690 12px/1.4 "Onest",system-ui,sans-serif;color:#5576b6}
+
+/* Search-control transition: keep both SVG opacity and flex width in sync.
+   The back arrow is activated only with the universal search panel open. */
+body.feed-page .feed-header .feed-brand-search.vatra-search-active .ui-feed-search-icon-001{
+ width:0!important;max-width:0!important;min-width:0!important;
+ flex:0 0 0!important;opacity:0!important;overflow:hidden
+}
+body.feed-page .feed-header .feed-brand-search.vatra-search-active .vatra-search-back{
+ opacity:1;pointer-events:auto;transform:translateY(-50%) scale(1)
+}
+body.feed-page .feed-header .feed-brand-search:not(.vatra-search-active) .vatra-search-back{
+ opacity:0;pointer-events:none
+}

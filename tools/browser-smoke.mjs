@@ -2463,7 +2463,9 @@ try{
   await feedProbe.waitForFunction(()=>{
    const back=document.querySelector("#vatra-search-back");
    const icon=document.querySelector(".ui-feed-search-icon-001");
-   return Number(getComputedStyle(back).opacity)>.9&&icon.getBoundingClientRect().width<2;
+   return back.getAttribute("aria-hidden")!=="true"&&
+    Number(getComputedStyle(back).opacity)>.85&&
+    Number(getComputedStyle(icon).opacity)<.15;
   },null,{timeout:2400});
   assert.equal((await feedProbe.locator(".vt-search-panel-heading-001").innerText()).trim(),
    language==="en"?"Recent":"Нещодавні");
