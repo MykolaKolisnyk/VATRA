@@ -2043,8 +2043,6 @@ try{
    },
    from:table=>table==="feed_posts"?
     {select:()=>({order(){return this;},range:async()=>({data:[],error:null})})}:
-    table==="vatra_onboarding"?
-    {select:()=>({eq:()=>({maybeSingle:async()=>({data:{tutorial_done:true},error:null})})})}:
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:112233},error:null})})})}
   })};`
  }));
@@ -2296,7 +2294,7 @@ try{
     data:{publicUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
    })})}
   })};
-  // Count all client constructors in this browser tab, including onboarding.
+  // Count all client constructors in this browser tab, on the Feed.
   window.__feedMockCreateClientCalls=0;
   const originalCreateClient=window.supabase.createClient;
   window.supabase.createClient=(...args)=>{
@@ -2330,7 +2328,7 @@ try{
   assert.equal(await feedProbe.locator(".vatra-route-skeleton:visible").count(),0,
    "A full-route skeleton must disappear once the shell is ready");
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockCreateClientCalls),1,
-   "Feed and first-run onboarding must share exactly one Supabase auth client");
+   "Feed uses exactly one Supabase auth client");
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
@@ -2675,24 +2673,8 @@ try{
   assert.ok(mobileGeometry.overflow<=3,
    "Feed must fit viewport: "+language+" "+JSON.stringify(mobileGeometry));
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
-  // The independent feature walkthrough uses a native, skippable dialog.
-  assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),1);
-  assert.equal(await feedProbe.locator("#vatra-tour-step").textContent(),"1 / 15");
-  await feedProbe.evaluate(()=>document.querySelector("#vatra-tour-dialog").showModal());
-  const firstRunTour=await feedProbe.evaluate(()=>{
-   const tour=document.querySelector("#vatra-tour-dialog");
-   const backdrop=getComputedStyle(tour,"::backdrop");
-   return {open:tour.open,blur:backdrop.backdropFilter||backdrop.webkitBackdropFilter,
-    page:document.querySelector("#vatra-tour-step").textContent,
-    hasSkip:!!document.querySelector("#vatra-tour-skip")};
-  });
-  assert.ok(firstRunTour.open&&firstRunTour.hasSkip&&firstRunTour.page.includes("/"),
-   "The walkthrough must open as a proper modal with step counter and Skip");
-  assert.ok(firstRunTour.blur.includes("blur("),
-   "The first-run walkthrough must blur the Feed behind the dialog");
-  await feedProbe.locator("#vatra-tour-skip").click();
-  assert.equal(await feedProbe.locator("#vatra-tour-dialog").evaluate(el=>el.open),false,
-   "Skipping the walkthrough must close the modal");
+   assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),0,
+    "The removed VATRA tour must not appear in the DOM");
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
   // The public cover is a real image now; serve a deterministic pixel in mocks.
