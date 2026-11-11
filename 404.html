@@ -12,7 +12,7 @@
     // /profile.html or /club.html on its way to a permanent public URL.
     const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
     if(dynamic){
-      document.documentElement.style.visibility="hidden";
+      document.documentElement.classList.add("vatra-dynamic-route-pending");
       const file=dynamic[1]==="id"?"profile.html":"club.html";
       const mount=async()=>{
         try{
@@ -20,13 +20,19 @@
           if(!response.ok)throw new Error("route document unavailable");
           const markup=await response.text();
           if(!/^\s*<!doctype html>/i.test(markup))throw new Error("invalid route document");
-          // document.open()/write() replaces only this DOM, never the URL.
+          // Replace the router document with the real profile/club document.
+          // Its own language handler and loading screen now start exactly once.
+          document.documentElement.classList.remove("vatra-dynamic-route-pending");
           document.open();
           document.write(markup);
           document.close();
         }catch(_){
-          // On a failed document request, reveal the normal 404 and its links.
-          document.documentElement.style.visibility="";
+          // On failure reveal the actual 404 page and initialize its locale.
+          document.documentElement.classList.remove("vatra-dynamic-route-pending");
+          const locale=document.createElement("script");
+          locale.className="ui-404-route-locale-recovery-001";
+          locale.src="/VATRA/assets/js/lang.js";
+          document.head.append(locale);
         }
       };
       if(document.readyState==="loading")
@@ -93,6 +99,17 @@
   <script defer src="/VATRA/assets/js/network.js"></script>
 </head>
 <body data-page="not-found" class="account-page error-page ui-404-body-001">
+  <!-- This is a genuine cross-route loading state on GitHub Pages' /idN and /clubN fallback. -->
+  <div id="vatra-dynamic-route-loading" class="vatra-auth-loading vatra-route-loading ui-404-route-loading-001" role="status" aria-live="polite" aria-label="VATRA">
+    <div class="vatra-auth-loading-content ui-404-route-loading-content-001">
+      <img class="vatra-auth-loading-symbol ui-404-route-loading-symbol-001" src="/VATRA/assets/logo/vatra-symbol.svg" width="68" height="68" alt="">
+      <span class="vatra-auth-loading-title vt-404-route-loading-title-001">VATRA</span>
+      <p class="vatra-auth-loading-caption vt-404-route-loading-caption-001">VATRA</p>
+      <div class="vatra-auth-loading-track ui-404-route-loading-track-001" aria-hidden="true">
+        <span class="vatra-auth-loading-indicator ui-404-route-loading-indicator-001"></span>
+      </div>
+    </div>
+  </div>
   <header class="account-top ui-404-header-001"><div class="account-top-inner ui-404-header-inner-001">
     <a href="/VATRA/" class="header-logo vt-404-link-001" aria-label="VATRA">
       <img src="/VATRA/assets/logo/vatra-logo.svg" width="1342" height="380" alt="VATRA" class="ui-404-img-001">
