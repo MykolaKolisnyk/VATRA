@@ -142,7 +142,7 @@ async function start(){
    location.replace(root);
   });
   // Show the ready page only after its first list or community data request.
-  if(mode==="club")await openClub(client,ownId);
+  if(mode==="club")await openClub(client,ownId,user.id);
   else await openDirectory(client);
   $("#community-app").hidden=false;
   $("#community-loading").hidden=true;
@@ -335,7 +335,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  await loadClubPosts();
 }
 
-async function openClub(client,ownId){
+async function openClub(client,ownId,userId){
  const query=new URLSearchParams(location.search);
  const number=query.get("club_id")||location.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||"";
  const displayError=()=>{
@@ -358,7 +358,7 @@ async function openClub(client,ownId){
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
  document.title=data.name+" · VATRA";
- await setupClubSocial(client,String(data.club_id),ownId,window.__vatraOwnAuthId||null);
+ await setupClubSocial(client,String(data.club_id),ownId,userId);
  const canonical=clubURL(String(data.club_id));
  if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
   history.replaceState(history.state,"",canonical);
