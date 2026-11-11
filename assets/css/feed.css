@@ -1444,7 +1444,7 @@ body.profile-page .profile-cover.has-photo{
 body.profile-page .profile-cover.has-photo::after{
  content:"";display:block;position:absolute;inset:0;z-index:0;
  background-image:var(--vatra-cover-image);background-position:center;
- background-size:cover;background-repeat:no-repeat;
+ background-size:cover;background-repeat:no-repeat;filter:none;
  transition:transform .24s ease,filter .24s ease;
  transform-origin:center;pointer-events:none
 }
