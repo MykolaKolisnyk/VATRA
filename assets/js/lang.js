@@ -2,6 +2,9 @@
 (() => {
   "use strict";
   if (window.VATRA_HOST_ALLOWED === false) return;
+  // The initial GitHub Pages router is replaced by the actual /idN or /clubN
+  // document. Do not start a second, competing English translation request.
+  if (document.documentElement.classList.contains("vatra-dynamic-route-pending")) return;
   // Resolve assets from the current script to support arbitrary local server paths.
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
