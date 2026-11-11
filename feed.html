@@ -30,12 +30,6 @@
  <a class="feed-skip-link vt-feed-skip-link" href="#feed-main" data-i18n="n1">До стрічки</a>
  <div id="feed-loading" class="vatra-auth-loading ui-feed-loading-001" role="status" aria-live="polite" aria-label="Завантаження VATRA">
   <div class="vatra-route-skeleton ui-vatra-route-skeleton-001" aria-hidden="true">
-   <div class="vatra-route-skeleton-header ui-vatra-route-skeleton-header-001">
-    <span class="vatra-skeleton-block ui-vatra-skeleton-logo-001"></span>
-    <span class="vatra-skeleton-block ui-vatra-skeleton-search-001"></span>
-    <span class="vatra-skeleton-block ui-vatra-skeleton-nav-001"></span>
-    <span class="vatra-skeleton-block ui-vatra-skeleton-account-001"></span>
-   </div>
    <div class="vatra-route-skeleton-content ui-vatra-route-skeleton-content-001">
     <div class="vatra-skeleton-stories ui-vatra-skeleton-stories-001"><span class="vatra-skeleton-block ui-vatra-skeleton-story-a-001"></span><span class="vatra-skeleton-block ui-vatra-skeleton-story-b-001"></span><span class="vatra-skeleton-block ui-vatra-skeleton-story-c-001"></span><span class="vatra-skeleton-block ui-vatra-skeleton-story-d-001"></span></div>
     <div class="vatra-skeleton-block ui-vatra-skeleton-composer-001"></div>
@@ -130,10 +124,11 @@
    <main id="feed-main" class="feed-main ui-feed-main-001">
     <h1 class="feed-title vt-feed-title-001 vatra-sr-only" data-i18n="n12">Стрічка</h1>
     
-    <section class="feed-stories ui-feed-stories-001" aria-labelledby="feed-stories-heading">
-     <div class="feed-stories-heading ui-feed-stories-heading-001">
-      <h2 id="feed-stories-heading" class="vt-feed-stories-heading-001" data-social-uk="Історії" data-social-en="Stories">Історії</h2>
-     </div>
+    <section class="feed-quick-compose ui-feed-quick-compose-001" aria-label="Новий допис">
+     <span id="feed-composer-avatar" class="feed-avatar feed-composer-avatar vt-feed-composer-avatar-001" aria-hidden="true">V</span>
+     <button type="button" id="feed-compose-open" class="feed-compose-open vt-feed-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
+    </section>
+    <section class="feed-stories is-empty ui-feed-stories-001" aria-label="Історії" data-shell-aria-uk="Історії" data-shell-aria-en="Stories">
      <div class="feed-stories-track ui-feed-stories-track-001">
       <button type="button" id="feed-create-story" class="feed-story-create ui-feed-story-create-001" data-story-title-uk="Ваша історія" data-story-title-en="Your story" aria-label="Створити історію">
        <img src="assets/logo/vatra-symbol.svg" class="ui-feed-story-logo-001" width="80" height="80" alt="" aria-hidden="true">
@@ -146,13 +141,8 @@
       <svg class="ui-feed-stories-next-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-feed-stories-next-path-001" d="m9 5 7 7-7 7"/></svg>
      </button>
     </section>
-    <section class="feed-quick-compose ui-feed-quick-compose-001" aria-label="Новий допис">
-     <span id="feed-composer-avatar" class="feed-avatar feed-composer-avatar vt-feed-composer-avatar-001" aria-hidden="true">V</span>
-     <button type="button" id="feed-compose-open" class="feed-compose-open vt-feed-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
-    </section>
     <p id="feed-status" class="feed-status vt-feed-status-001" role="status" aria-live="polite" hidden></p>
-    <section class="feed-posts-section ui-feed-posts-section-001" aria-labelledby="feed-posts-title">
-     <div class="feed-posts-heading ui-feed-posts-heading-001"><h2 id="feed-posts-title" class="feed-posts-title vt-feed-posts-title-001" data-i18n="n17">Публікації</h2><span class="feed-posts-label vt-feed-posts-label-001" data-i18n="n36">Найновіші</span></div>
+    <section class="feed-posts-section ui-feed-posts-section-001" aria-label="Публікації" data-shell-aria-uk="Публікації" data-shell-aria-en="Posts">
      <div id="feed-posts" class="feed-posts ui-feed-posts-001" aria-live="polite" aria-busy="false"></div>
      <div id="feed-empty" class="feed-empty ui-feed-empty-001" hidden><div class="feed-empty-icon vt-feed-empty-icon-001" aria-hidden="true">✧</div><h3 class="feed-empty-title vt-feed-empty-title-001" data-i18n="n18">Тут поки тихо</h3><p class="feed-empty-subtitle vt-feed-empty-subtitle-001" data-i18n="n19">Публікацій поки немає.</p></div>
      <button id="feed-more" type="button" class="feed-more vt-feed-more-001" data-i18n="n20" hidden>Показати ще</button>
