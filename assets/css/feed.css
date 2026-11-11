@@ -364,8 +364,17 @@ body.profile-page .profile-media-status{margin:0;padding:0 26px 12px;font:580 12
 body.profile-page .profile-media-status[data-status="error"]{color:#aa455a}
 /* An uploaded cover replaces the decorative VATRA artwork completely.
    The edit-cover button remains available to the profile owner. */
+/* The uploaded cover is one full-bleed rectangular image, not a CSS mask/ellipse. */
+body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001{
+ position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;
+ max-width:none;max-height:none;object-fit:cover;object-position:center;
+ border:0;border-radius:0;transform:none;filter:none
+}
+body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001[hidden]{
+ display:none!important
+}
 body.profile-page.feed-page:not(.community-page) .profile-cover.has-photo{
- background-size:cover;background-position:center;background-repeat:no-repeat
+ background-image:none;background-color:#111827
 }
 body.profile-page .profile-cover.has-photo::before,
 body.profile-page .profile-cover.has-photo::after{
