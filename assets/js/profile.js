@@ -1329,7 +1329,7 @@ async function start(){
     "You have not added profile details yet.");
   }
   if(!isMine){
-   q("#profile-about-heading").textContent=t("Інформація","Information");
+   q("#profile-about-heading").textContent=t("Про мене","About me");
    q("#profile-about-text").textContent=t(
     "Користувач ще не додав інформацію про себе.",
     "This member has not added profile details yet.");
