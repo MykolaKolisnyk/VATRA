@@ -3703,10 +3703,16 @@ body.profile-page .profile-media-placeholder{
 
 
 /* VATRA section changes follow the gentle 200–280 ms crossfade in the supplied
-   navigation reference. Native cross-document transitions keep the site header
-   visually steady; unsupported browsers retain an instant, accessible route. */
-@view-transition{navigation:auto}
+   navigation reference. Cross-page fades use the shared shell: dynamic /clubN
+   and /idN URLs go through GitHub Pages' 404 router, where automatic
+   cross-document View Transitions can abort with an invalid-state error.
+   Keep native View Transitions only for same-document editor chapter swaps. */
 body.feed-page .feed-header{view-transition-name:vatra-social-header}
+body.feed-page.vatra-route-exiting .feed-app > .feed-layout{
+ opacity:0;transform:translate3d(0,-4px,0);pointer-events:none;
+ transition:opacity 145ms ease-in,transform 145ms ease-in
+}
+body.feed-page.vatra-route-exiting .feed-header{pointer-events:none}
 ::view-transition-old(root){
  animation:140ms cubic-bezier(.4,0,1,1) both vatraRouteCrossfadeOut
 }
@@ -3769,5 +3775,8 @@ html.vatra-editor-switching::view-transition-new(root){
  ::view-transition-group(vatra-editor-chapter){animation-duration:0s!important}
  body.feed-page[data-auth-ready="true"]:not(.vatra-shell-pending) .feed-app > .feed-layout{
   animation:none!important
+ }
+ body.feed-page.vatra-route-exiting .feed-app > .feed-layout{
+  transition:none!important;opacity:1;transform:none
  }
 }
