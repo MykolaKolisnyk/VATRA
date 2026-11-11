@@ -297,7 +297,7 @@
    }
    for(const key of selected.slice(0,3))sections.append(itemFor(key,false));
    const additional=[...fieldsByKey.keys()].filter(key=>visibleField(key)&&!selected.includes(key));
-   const hasLongPreview=selected.some(key=>visibleField(key).length>75);
+   const hasLongPreview=selected.some(key=>visibleField(key).length>32);
    more.hidden=locked||!!result.error||(!additional.length&&!hasLongPreview);
    paragraph.hidden=selected.length>0;
    if(!selected.length)paragraph.textContent=isMine?
