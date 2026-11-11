@@ -401,6 +401,117 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  };
 }
 
+
+/* Only the signed-in owner can change profile images; Storage policies and
+   vatra_profile_media RLS enforce this independently of the UI. */
+async function setupProfileMedia(client,ownId,targetId,isMine){
+ const cover=q("#profile-cover-image"),avatar=q("#profile-avatar");
+ const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
+ const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
+ const message=q("#profile-media-status");
+ const bucket="vatra-profile-media";
+ let saved=null;
+ const status=(text,error=false)=>{
+  message.textContent=text;message.hidden=!text;
+  message.dataset.status=error?"error":"ok";
+ };
+ const getPublicPath=path=>{
+  if(typeof path!=="string"||!path.startsWith(targetId+"/"))return null;
+  try{
+   const result=client.storage.from(bucket).getPublicUrl(path);
+   const url=result?.data?.publicUrl;
+   if(!url)return null;
+   const parsed=new URL(url);
+   if(parsed.protocol!=="https:"||parsed.hostname!=="rjasunoawrxvetwadylh.supabase.co")return null;
+   return url;
+  }catch(_){return null;}
+ };
+ const setImage=(el,url)=>{
+  el.style.backgroundImage="url("+JSON.stringify(url)+")";
+  el.classList.add("has-photo");
+ };
+ const display=record=>{
+  if(record?.cover_path){
+   const url=getPublicPath(record.cover_path);
+   if(url)setImage(cover,url);
+  }
+  if(record?.avatar_path){
+   const url=getPublicPath(record.avatar_path);
+   if(url){
+    setImage(avatar,url);avatar.textContent="";
+    if(isMine){
+     const menuAvatar=q("#feed-header-avatar");
+     if(menuAvatar){setImage(menuAvatar,url);menuAvatar.textContent="";}
+    }
+   }
+  }
+ };
+ try{
+  const {data,error}=await client.from("vatra_profile_media")
+   .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
+  if(!error&&data){saved=data;display(data);}
+ }catch(_){/* Profile itself still loads when images are unavailable. */}
+ if(!isMine||!validId(ownId))return;
+ buttonAvatar.hidden=false;buttonCover.hidden=false;
+ const fileTypes={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
+ let uploading=false;
+ async function uploadImage(file,kind){
+  if(uploading)return;
+  const ext=fileTypes[file?.type];
+  if(!ext||!file?.size||file.size>6291456){
+   status(t("Оберіть JPEG, PNG або WebP до 6 МБ.","Choose a JPEG, PNG or WebP under 6 MB."),true);return;
+  }
+  uploading=true;buttonAvatar.disabled=true;buttonCover.disabled=true;
+  status(t("Завантажуємо зображення…","Uploading image…"));
+  const filename=typeof crypto!=="undefined"&&typeof crypto.randomUUID==="function"?
+   crypto.randomUUID():Array.from(crypto.getRandomValues(new Uint8Array(16)),
+    value=>value.toString(16).padStart(2,"0")).join("");
+  const path=ownId+"/"+kind+"/"+filename+"."+ext;
+  try{
+   const {error:uploadError}=await client.storage.from(bucket).upload(path,file,{
+    contentType:file.type,cacheControl:"3600",upsert:false
+   });
+   if(uploadError)throw uploadError;
+   const column=kind==="avatar"?"avatar_path":"cover_path";
+   const values={[column]:path,updated_at:new Date().toISOString()};
+   const operation=saved?
+    client.from("vatra_profile_media").update(values).eq("vatra_id",ownId):
+    client.from("vatra_profile_media").insert({vatra_id:ownId,...values});
+   const {error:dbError}=await operation;
+   if(dbError){
+    try{await client.storage.from(bucket).remove([path]);}catch(_){}
+    throw dbError;
+   }
+   const previous=saved?.[column];
+   saved={...saved,...values};
+   display(saved);
+   status(t("Зображення збережено.","Image saved."));
+   if(previous&&previous!==path){
+    try{await client.storage.from(bucket).remove([previous]);}catch(_){}
+   }
+  }catch(_){status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
+   "Could not upload the image. Please retry."),true);}
+  finally{
+   uploading=false;buttonAvatar.disabled=false;buttonCover.disabled=false;
+   fileAvatar.value="";fileCover.value="";
+  }
+ }
+ buttonAvatar.addEventListener("click",()=>fileAvatar.click());
+ buttonCover.addEventListener("click",()=>fileCover.click());
+ fileAvatar.addEventListener("change",()=>{if(fileAvatar.files?.[0])void uploadImage(fileAvatar.files[0],"avatar");});
+ fileCover.addEventListener("change",()=>{if(fileCover.files?.[0])void uploadImage(fileCover.files[0],"cover");});
+ try{
+  const setupTarget=sessionStorage.getItem("vatra.setup.media.v1");
+  if(setupTarget==="avatar"||setupTarget==="cover"){
+   sessionStorage.removeItem("vatra.setup.media.v1");
+   const button=setupTarget==="avatar"?buttonAvatar:buttonCover;
+   status(setupTarget==="avatar"?
+    t("Натисніть «Змінити фото» та оберіть зображення.","Select Edit photo to upload an image."):
+    t("Натисніть «Змінити обкладинку» та оберіть зображення.","Select Edit cover to upload an image."));
+   requestAnimationFrame(()=>button.focus({preventScroll:true}));
+  }
+ }catch(_){}
+}
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  localizeSocial();
@@ -494,6 +605,7 @@ async function start(){
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   setupProfileInteractions(client,ownId,targetId,isMine);
+  await setupProfileMedia(client,ownId,targetId,isMine);
   // Never expose the internal Supabase auth UUID or the intermediate /profile URL.
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
