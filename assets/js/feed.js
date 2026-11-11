@@ -110,6 +110,10 @@
     .select("vatra_id,avatar_path").in("vatra_id",lookup);
    if(error)throw error;
    for(const row of data||[])if(row.avatar_path)mediaAvatars.set(String(row.vatra_id),row.avatar_path);
+   if(vatraId&&lookup.includes(vatraId)){
+    const mine=(data||[]).find(row=>String(row.vatra_id)===vatraId);
+    window.VATRA_AVATAR?.fromPath(client,user?.email,vatraId,mine?.avatar_path||null);
+   }
    applyAvatar(q("#feed-header-avatar"),vatraId);
    applyAvatar(q("#feed-composer-avatar"),vatraId);
   }catch(_){/* Use initials if media lookup is unavailable. */}
@@ -413,6 +417,7 @@
    if(!profile.error&&profile.data?.vatra_id!=null)vatraId=String(profile.data.vatra_id);
 
    q("#feed-header-avatar").textContent=initials(displayName);
+   window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
    q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():displayName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
    const displayedId=vatraId?"VATRA ID "+vatraId:t("VATRA ID наразі недоступний","VATRA ID unavailable");
 
