@@ -398,7 +398,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
-async function setupProfileMedia(client,ownId,targetId,isMine){
+async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  const cover=q("#profile-cover-image"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
@@ -438,26 +438,130 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
-  avatarMenu.hidden=!hasPhoto&&!hasStory;
+  avatarMenu.hidden=!hasStory;
   storyButton.hidden=!hasStory;
   photoButton.hidden=!hasPhoto;
   avatarTrigger.disabled=!hasPhoto&&!hasStory;
-  avatarTrigger.setAttribute("aria-haspopup",hasPhoto||hasStory?"menu":"false");
+  avatarTrigger.setAttribute("aria-haspopup",hasStory?"menu":"false");
   avatarTrigger.setAttribute("aria-label",hasStory?
-   t("Переглянути історію або фото профілю","View story or profile photo"):
-   t("Переглянути фото профілю","View profile photo"));
+   t("Переглянути історію або фото","View story or photo"):
+   t("Переглянути фото","View photo"));
   if(!hasPhoto&&!hasStory)closeAvatarMenu();
  };
+
+ const interaction=q("#profile-avatar-engagement"),likesButton=q("#profile-photo-like");
+ const likesCount=q("#profile-photo-like-count"),commentList=q("#profile-photo-comments");
+ const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
+ const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
+ const shareButton=q("#profile-photo-share");
+ let likeBusy=false,commentBusy=false,activityTicket=0;
+ const photoPath=()=>saved?.avatar_path||null;
+ const feedback=(value,bad=false)=>{
+  commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
+ };
+ async function reloadPhotoActivity(){
+  const path=photoPath(),ticket=++activityTicket;
+  if(!path)return;
+  commentList.setAttribute("aria-busy","true");feedback(t("Завантаження коментарів…","Loading comments…"));
+  try{
+   const [likes,comments]=await Promise.all([
+    client.from("vatra_avatar_likes").select("liker_id")
+     .eq("owner_vatra_id",targetId).eq("avatar_path",path).limit(2000),
+    client.from("vatra_avatar_comments").select("id,author_vatra_id,body,created_at")
+     .eq("owner_vatra_id",targetId).eq("avatar_path",path)
+     .order("created_at",{ascending:false}).limit(100)
+   ]);
+   if(likes.error||comments.error)throw likes.error||comments.error;
+   if(ticket!==activityTicket||path!==photoPath())return;
+   const liked=(likes.data||[]).some(row=>row.liker_id===userId);
+   likesCount.textContent=likes.data?.length===2000?"2000+":String(likes.data?.length||0);
+   likesButton.setAttribute("aria-pressed",String(liked));
+   likesButton.classList.toggle("is-liked",liked);
+   const authors=[...new Set((comments.data||[]).map(row=>String(row.author_vatra_id)).filter(validId))];
+   const names=new Map();
+   if(authors.length){
+    const {data}=await client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",authors);
+    for(const row of data||[])names.set(String(row.vatra_id),row.display_name);
+   }
+   if(ticket!==activityTicket||path!==photoPath())return;
+   commentList.replaceChildren();
+   if(!comments.data?.length){
+    commentList.append(node("p","vt-profile-photo-no-comments-001",
+     t("Коментарів поки немає.","No comments yet.")));
+   }
+   for(const item of comments.data||[]){
+    const card=node("article","profile-photo-comment ui-profile-photo-comment-001");
+    const name=node("strong","vt-profile-photo-comment-name-001",
+     names.get(String(item.author_vatra_id))||t("Учасник VATRA","VATRA member"));
+    const stamp=node("time","vt-profile-photo-comment-time-001",dateText(item.created_at));
+    stamp.dateTime=item.created_at;
+    card.append(name,stamp,node("p","vt-profile-photo-comment-body-001",item.body));
+    commentList.append(card);
+   }
+   feedback("");
+  }catch(_){
+   if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
+  }finally{if(ticket===activityTicket)commentList.setAttribute("aria-busy","false");}
+ }
+ likesButton.addEventListener("click",async()=>{
+  const path=photoPath();if(likeBusy||!path||!validId(ownId))return;
+  likeBusy=true;likesButton.disabled=true;feedback("");
+  try{
+   const query=likesButton.getAttribute("aria-pressed")==="true"?
+    client.from("vatra_avatar_likes").delete().eq("avatar_path",path).eq("liker_id",userId):
+    client.from("vatra_avatar_likes").insert({owner_vatra_id:targetId,avatar_path:path,liker_id:userId});
+   const {error}=await query;if(error)throw error;
+   await reloadPhotoActivity();
+  }catch(_){feedback(t("Не вдалося змінити вподобання.","Could not update like."),true);}
+  finally{likeBusy=false;likesButton.disabled=false;}
+ });
+ commentForm.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const path=photoPath(),body=commentInput.value.trim();
+  if(commentBusy||!path||!body||Array.from(body).length>1000||!validId(ownId))return;
+  commentBusy=true;commentSend.disabled=true;feedback("");
+  try{
+   const {error}=await client.from("vatra_avatar_comments").insert({
+    owner_vatra_id:targetId,avatar_path:path,author_id:userId,author_vatra_id:ownId,body
+   });
+   if(error)throw error;
+   commentInput.value="";await reloadPhotoActivity();
+  }catch(_){feedback(t("Не вдалося додати коментар.","Could not add comment."),true);}
+  finally{commentBusy=false;commentSend.disabled=false;}
+ });
+ shareButton.addEventListener("click",async()=>{
+  const link=new URL("id"+targetId,home);link.searchParams.set("photo","avatar");
+  try{
+   if(navigator.share)await navigator.share({url:link.href});
+   else if(navigator.clipboard?.writeText){
+    await navigator.clipboard.writeText(link.href);
+    feedback(t("Посилання скопійовано.","Link copied."));
+   }else feedback(link.href);
+  }catch(error){if(error?.name!=="AbortError")feedback(t("Не вдалося поділитися.","Could not share."),true);}
+ });
+ q("#profile-photo-like-label").textContent=t("Подобається","Like");
+ q("#profile-photo-share-label").textContent=t("Поділитися","Share");
+ q("#profile-photo-comments-heading").textContent=t("Коментарі","Comments");
+ q("#profile-photo-comment-text").placeholder=t("Написати коментар…","Write a comment…");
+ q("#profile-photo-comment-send").textContent=t("Надіслати","Send");
+ q(".vt-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
+ q("#profile-photo-kind").textContent=t("Фото","Photo");
  const openMedia=kind=>{
   const url=photoURLs[kind];
   if(!url)return;
-  mediaHeading.textContent=kind==="avatar"?
-   t("Фото профілю","Profile photo"):t("Обкладинка профілю","Cover photo");
+  mediaHeading.textContent=kind==="avatar"?t("Фото","Photo"):t("Обкладинка","Cover photo");
+  mediaDialog.dataset.kind=kind;
+  interaction.hidden=kind!=="avatar";
+  if(kind==="avatar"){
+   q("#profile-photo-owner").textContent=q("#profile-heading").textContent;
+   void reloadPhotoActivity();
+  }else activityTicket++;
   mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;
   mediaImage.src=url;
   closeAvatarMenu();
   mediaDialog.showModal();
  };
+ window.VATRA_OPEN_PROFILE_AVATAR=()=>openMedia("avatar");
  const openStory=()=>{
   if(!activeStory)return;
   if(Date.parse(activeStory.expires_at)<=Date.now()){
@@ -498,6 +602,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
   coverView.hidden=!photoURLs.cover;
+  if(photoURLs.cover)cover.style.setProperty("--vatra-cover-image","url("+JSON.stringify(photoURLs.cover)+")");
   if(photoURLs.cover)setImage(cover,photoURLs.cover);
   if(photoURLs.avatar){
    setImage(avatar,photoURLs.avatar);avatar.textContent="";
@@ -700,15 +805,18 @@ async function start(){
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   setupProfileInteractions(client,ownId,targetId,isMine);
-  await setupProfileMedia(client,ownId,targetId,isMine);
+  await setupProfileMedia(client,ownId,targetId,isMine,user.id);
+  // Share links to an avatar open the same photo viewer after the authenticated profile loads.
+  const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
   // Never expose the internal Supabase auth UUID or the intermediate /profile URL.
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
    history.replaceState(history.state,"",canonical);
   }
   // Keep the real member loading state until the first posts request completes.
-  await loadPosts(client,targetId);
   finish();
+  if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
+  void loadPosts(client,targetId);
  }catch(_){
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
    "Could not load this profile. Please refresh."));
