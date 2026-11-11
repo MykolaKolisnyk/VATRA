@@ -418,6 +418,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 
 .signup-step-heading .subtitle{margin:0;max-width:45ch}
 .signup-step{display:grid;gap:17px;min-width:0}
+.register-page .signup-public-name-note{margin:-6px 0 0;padding:9px 12px;border-left:3px solid #abc1f0;border-radius:5px;background:#f7f9fd;color:#637590;font:500 12px/1.6 "Onest",system-ui,sans-serif}
 @keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
