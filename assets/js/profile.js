@@ -730,12 +730,16 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
    const column=kind==="avatar"?"avatar_path":"cover_path";
    const values={[column]:path,updated_at:new Date().toISOString()};
    const operation=saved?
-    client.from("vatra_profile_media").update(values).eq("vatra_id",ownId):
-    client.from("vatra_profile_media").insert({vatra_id:ownId,...values});
-   const {error:dbError}=await operation;
-   if(dbError){
-    try{await client.storage.from(bucketFor(kind)).remove([path]);}catch(_){}
-    throw dbError;
+    client.from("vatra_profile_media").update(values).eq("vatra_id",ownId)
+     .select("vatra_id,"+column).maybeSingle():
+    client.from("vatra_profile_media").insert({vatra_id:ownId,...values})
+     .select("vatra_id,"+column).maybeSingle();
+   const {data:stored,error:dbError}=await operation;
+   if(dbError||String(stored?.[column]||"")!==path){
+    // Do not remove the uploaded binary: the database may have committed while
+    // its response was lost. Retain it for recovery rather than leave a broken
+    // cover/avatar pointer to a physically deleted object.
+    throw dbError||new Error("Profile media update did not persist");
    }
    // Never delete the former avatar or cover on replacement. The user may
    // restore it later; a separate version-history workflow controls retention.
