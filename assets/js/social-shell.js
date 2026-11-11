@@ -43,6 +43,34 @@
   hovered=target;tooltip.textContent=label;tooltip.dataset.open="true";
   positionTooltip(target);
  }
+ function setUpAccountPanel(){
+  const menu=document.querySelector(".feed-account-menu");
+  const dropdown=menu?.querySelector(".feed-account-dropdown");
+  const header=document.querySelector(".feed-header");
+  if(!menu||!dropdown||!header)return;
+  // Keep native <details> (keyboard, focus and Escape handling), but anchor its
+  // content to the outer right/bottom edges of the header, even on mobile
+  // where the navigation occupies a second row.
+  const position=()=>{
+   if(!menu.open)return;
+   const menuBox=menu.getBoundingClientRect();
+   const headerBox=header.getBoundingClientRect();
+   const vp=window.visualViewport;
+   const viewTop=vp?.offsetTop||0;
+   const viewHeight=vp?.height||innerHeight;
+   const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
+   const gapRight=menuBox.right-headerBox.right;
+   const height=Math.max(0,viewTop+viewHeight-headerBox.bottom-8);
+   dropdown.style.setProperty("--vatra-account-dropdown-top",Math.round(gapTop)+"px");
+   dropdown.style.setProperty("--vatra-account-dropdown-right",Math.round(gapRight)+"px");
+   dropdown.style.setProperty("--vatra-account-dropdown-height",Math.round(height)+"px");
+  };
+  menu.addEventListener("toggle",position);
+  window.addEventListener("resize",position,{passive:true});
+  window.addEventListener("scroll",position,{passive:true});
+  window.visualViewport?.addEventListener("resize",position,{passive:true});
+  window.visualViewport?.addEventListener("scroll",position,{passive:true});
+ }
  function setUpTooltip(){
   const accountMenu=document.querySelector(".feed-account-menu");
   accountMenu?.addEventListener("toggle",()=>{
@@ -376,6 +404,7 @@
  }
 
  const boot=()=>{
+  setUpAccountPanel();
   setUpTooltip();
   setUpComingSoon();
   setUpStories();
