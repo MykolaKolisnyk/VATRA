@@ -214,22 +214,21 @@
    const vp=window.visualViewport;
    const vw=vp?.width||innerWidth,vh=vp?.height||innerHeight;
    const ox=vp?.offsetLeft||0,oy=vp?.offsetTop||0;
-   const field=form.getBoundingClientRect();
-   const anchor=brand.getBoundingClientRect();
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
-   const width=Math.max(0,Math.min(400,vw-16));
-   const left=Math.max(ox+8,Math.min(anchor.left,ox+vw-width-8));
-   const belowTop=Math.max(oy+8,field.bottom+7,(header?.bottom||0)+5);
-   const belowSpace=Math.max(0,oy+vh-belowTop-8);
-   const aboveSpace=Math.max(0,field.top-oy-16);
-   const flip=belowSpace<150&&aboveSpace>belowSpace;
-   const available=flip?aboveSpace:belowSpace;
-   const height=Math.min(available,Math.max(0,panel.scrollHeight));
-   const top=flip?Math.max(oy+8,field.top-7-height):belowTop;
+   const anchor=brand.getBoundingClientRect();
+   // Reference interaction: the search surface starts behind the header,
+   // directly below its back arrow and search field, as one continuous panel.
+   // It overlays the page sidebar without affecting navigation coordinates.
+   const headerTop=Math.max(oy,header?.top??oy);
+   const headerBottom=Math.max(headerTop,header?.bottom??anchor.bottom);
+   const width=Math.max(0,Math.min(400,vw));
+   const left=Math.max(ox,Math.min(anchor.left-20,ox+vw-width));
+   const available=Math.max(0,oy+vh-headerTop-8);
    panel.style.left=Math.round(left)+"px";
-   panel.style.top=Math.round(top)+"px";
+   panel.style.top=Math.round(headerTop)+"px";
    panel.style.width=Math.round(width)+"px";
-   panel.style.maxHeight=Math.max(0,Math.round(available))+"px";
+   panel.style.paddingTop=Math.round(headerBottom-headerTop)+"px";
+   panel.style.maxHeight=Math.round(available)+"px";
   };
   const close=()=>{
    visible=false;panel.hidden=true;
