@@ -573,6 +573,45 @@ body.community-page .ui-club-compose-form-001 textarea{
  padding:12px;border:1px solid #d8e1ef;border-radius:11px;background:#fbfcff;
  color:#36475f;font:500 14px/1.6 "Onest",sans-serif
 }
+/* One media composer treatment for Feed, profile and community posts. */
+body.feed-page .vatra-compose-media-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+body.feed-page .vatra-compose-media-controls button{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:40px;padding:8px 13px;border:1px solid #dde6f4;border-radius:10px;
+ background:#f6f8fd;color:#45658d;cursor:pointer;
+ font:690 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-compose-media-controls button:hover{background:#eaf1fe;border-color:#c8d8f6;color:#3362c6}
+body.feed-page .vatra-compose-media-controls button[hidden],
+body.feed-page .vatra-compose-media-preview[hidden]{display:none!important}
+body.feed-page .vatra-compose-media-preview{
+ display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+ min-width:0;padding:9px;border:1px solid #e3eaf5;border-radius:11px;background:#f8faff
+}
+body.feed-page .vatra-compose-media-preview img,
+body.feed-page .vatra-compose-media-preview video{
+ display:block;width:auto;max-width:100%;max-height:245px;object-fit:contain;border-radius:9px
+}
+body.feed-page .vatra-compose-preview-caption{
+ max-width:100%;color:#687b97;font:540 12px/1.4 "Onest",system-ui,sans-serif;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+body.feed-page .feed-quick-media{
+ flex:none;display:grid;place-items:center;width:41px;height:41px;
+ padding:0;border:0;border-radius:10px;background:#f2f6fd;
+ color:#5175aa;cursor:pointer
+}
+body.feed-page .feed-quick-media:hover{background:#e7effe;color:#2b65d4}
+body.feed-page .feed-post-media{margin-top:13px;overflow:hidden;border-radius:12px;background:#f5f7fc}
+body.feed-page .feed-post-media-image,
+body.feed-page .feed-post-media-video{
+ display:block;width:100%;max-height:640px;object-fit:contain;
+ border-radius:12px;background:#0d1018
+}
+body.feed-page .feed-post-media-video{max-height:520px}
+body.feed-page .vt-feed-post-media-error-001{
+ margin:0;padding:18px;color:#74839b;font:520 13px/1.5 "Onest",system-ui,sans-serif
+}
 body.feed-page .ui-feed-compose-form-001 [role="status"],
 body.feed-page .ui-feed-story-form-001 [role="status"],
 body.community-page .ui-club-compose-form-001 [role="status"]{margin:0;color:#ac4358;font-size:13px}
