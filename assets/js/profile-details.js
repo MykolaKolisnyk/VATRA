@@ -77,6 +77,8 @@
    edit:"M13.5 5.5 18.5 10.5M4 20l4-1 10-10a2.5 2.5 0 0 0-3.5-3.5l-10 10L4 20Z",
    photo:"M4 5h16v14H4zM8.5 9a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6ZM4 16l5-5 4 4 3-3 4 4",
    check:"M5 12l4 4L19 6",
+   "user-round":"M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21v-2a8 8 0 0 1 16 0v2",
+   "at-sign":"M16 8v5c0 2.3 4 2.2 4-2a8 8 0 1 0-3 6M16 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z",
    "map-pin":"M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0ZM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6",
    heart:"M20.8 5.7a5.4 5.4 0 0 0-7.6 0L12 7l-1.2-1.3a5.4 5.4 0 0 0-7.6 7.6L12 22l8.8-8.7a5.4 5.4 0 0 0 0-7.6",
    globe:"M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM2 12h20M12 2c-3 3-4.5 6.3-4.5 10S9 19 12 22M12 2c3 3 4.5 6.3 4.5 10S15 19 12 22",
@@ -379,7 +381,9 @@
   for(const [index,group] of groups.entries()){
    const btn=make("button","profile-editor-nav-link vt-profile-editor-nav-"+group.id);
    btn.type="button";btn.dataset.group=group.id;
-   btn.append(
+   const navIcon=make("span","ui-vatra-profile-editor-nav-symbol-"+group.id);
+   navIcon.append(svg(group.icon));
+   btn.append(navIcon,
     make("span","vt-profile-editor-nav-index-"+group.id,String(index+1).padStart(2,"0")),
     make("span","vt-profile-editor-nav-label-"+group.id,lang(group.label)));
    const marker=make("span","vt-profile-editor-nav-dot-"+group.id);
@@ -452,6 +456,7 @@
     const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
     row.dataset.long=kind==="long"?"true":"false";
     const lab=make("label","vt-profile-editor-label-"+key,tr(uk,en));
+    lab.prepend(svg(fieldIcons[key]||"file-text"));
     const input=make(kind==="long"?"textarea":"input",
      "ui-profile-editor-input-"+key);
     input.id="profile-editor-"+key;
