@@ -2425,3 +2425,152 @@ body.feed-page .vatra-search-scope{text-align:left}
 @media(prefers-reduced-motion:reduce){
  body.feed-page .vatra-search-panel{animation:none}
 }
+
+
+/* VATRA notifications — private bell popover and standalone inbox. */
+body.feed-page .ui-feed-notifications-button-001{position:relative;isolation:isolate}
+body.feed-page .vatra-notification-count{
+ position:absolute;top:-5px;right:-6px;z-index:3;display:flex;align-items:center;justify-content:center;
+ min-width:19px;height:19px;padding:0 5px;border:2px solid #fff;border-radius:999px;
+ background:#d04d72;color:#fff;font:750 10px/1 "Onest",system-ui,sans-serif;box-shadow:0 2px 9px rgba(172,42,86,.23)
+}
+body.feed-page .vatra-notification-count[hidden]{display:none!important}
+.vatra-notification-panel{
+ position:fixed;z-index:132;display:flex;flex-direction:column;gap:0;
+ width:min(390px,calc(100vw - 24px));min-height:185px;max-height:min(76dvh,575px);
+ overflow:auto;overscroll-behavior:contain;padding:0;
+ border:1px solid #dfe7f5;border-radius:16px;background:#fff;color:#30415b;
+ box-shadow:0 22px 54px rgba(31,49,94,.18);font-family:"Onest",system-ui,sans-serif;
+ animation:vatraNotifyReveal .22s cubic-bezier(.2,.78,.24,1) both
+}
+.vatra-notification-panel[hidden]{display:none!important}
+@keyframes vatraNotifyReveal{from{opacity:0;transform:translateY(-7px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+.vatra-notification-panel-heading{
+ position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;
+ gap:12px;padding:15px 17px 12px;border-bottom:1px solid #edf1f7;background:#fff
+}
+.vatra-notification-panel .vt-vatra-notification-title-001{
+ margin:0;color:#2e3f5c;font:770 18px/1.35 "Onest",system-ui,sans-serif;letter-spacing:-.03em
+}
+.vatra-notification-panel .vt-vatra-notification-close-001{
+ display:grid;place-items:center;width:31px;height:31px;border:0;border-radius:9px;
+ color:#687d9e;background:#f0f4fc;cursor:pointer;transition:background .2s,color .2s
+}
+.vatra-notification-panel .vt-vatra-notification-close-001:hover{background:#e7eefc;color:#386bd1}
+.vatra-notification-list{display:flex;flex-direction:column;gap:0;min-height:30px}
+.vatra-notification-row{
+ display:flex;align-items:flex-start;gap:10px;padding:13px 14px;
+ border-bottom:1px solid #eef2f8;background:#fff;transition:background .2s ease
+}
+.vatra-notification-row:hover{background:#f8faff}
+.vatra-notification-row.is-unread{background:#f1f5ff}
+.vatra-notification-unread{
+ flex:none;align-self:flex-start;width:7px;height:7px;margin:14px 0 0;
+ border-radius:50%;background:#4676e7;opacity:0
+}
+.vatra-notification-row.is-unread .vatra-notification-unread{opacity:1}
+.vatra-notification-kind{
+ display:grid;place-items:center;flex:none;width:35px;height:35px;
+ border-radius:11px;background:#ecf1ff;color:#5772cc
+}
+.vatra-notification-kind svg{display:block;width:18px;height:18px}
+.vatra-notification-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.vatra-notification-link{
+ display:block;color:#344764;text-decoration:none;overflow-wrap:anywhere;
+ font:650 12.5px/1.53 "Onest",system-ui,sans-serif
+}
+.vatra-notification-link:hover{color:#3166d5;text-decoration:underline}
+.vatra-notification-time{color:#8291ab;font:520 11px/1.4 "Onest",system-ui,sans-serif}
+.vatra-notification-actions{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.vatra-notification-mark{
+ min-height:27px;padding:5px 8px;border:0;border-radius:7px;
+ background:#e8efff;color:#416fc7;font:680 10px "Onest",system-ui,sans-serif;cursor:pointer
+}
+.vatra-notification-delete{
+ display:grid;place-items:center;min-width:28px;min-height:28px;padding:4px;
+ border:0;border-radius:7px;background:transparent;color:#96a3b7;
+ cursor:pointer;transition:background .2s,color .2s
+}
+.vatra-notification-delete:hover{color:#b9475e;background:#fff0f3}
+.vatra-notification-delete svg{width:16px;height:16px}
+.vatra-notification-pager{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:10px 14px;background:#f9fbff;border-top:1px solid #ebf0f8
+}
+.vatra-notification-pager button{
+ min-width:65px;min-height:34px;padding:7px 12px;border:1px solid #dbe5f5;
+ border-radius:9px;background:#fff;color:#3c65aa;cursor:pointer;
+ font:670 12px/1.35 "Onest",system-ui,sans-serif
+}
+.vatra-notification-pager button:disabled{opacity:.38;cursor:default}
+.vatra-notification-pager span{color:#8491a5;font:550 11px "Onest",system-ui,sans-serif}
+.vatra-notification-panel .vt-vatra-notification-panel-empty-001{
+ padding:24px 18px;margin:0;text-align:center;color:#7889a4;font:500 13px/1.6 "Onest",system-ui,sans-serif
+}
+.vatra-notification-panel .vt-vatra-notification-all-001{
+ display:block;padding:14px 16px;border-top:1px solid #e9eef7;background:#fff;
+ color:#3568cf;text-align:center;text-decoration:none;font:730 12.5px/1.45 "Onest",system-ui,sans-serif
+}
+.vatra-notification-panel .vt-vatra-notification-all-001:hover{background:#f3f7ff}
+body.notifications-page .notifications-main{
+ width:min(calc(100% - 32px),900px);margin:30px auto 80px;
+ color:#30415a;font-family:"Onest",system-ui,sans-serif
+}
+body.notifications-page .notifications-top{
+ display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:23px
+}
+body.notifications-page .vt-notifications-back-001{
+ display:inline-block;margin-bottom:12px;color:#6d83ae;text-decoration:none;
+ font:650 12px "Onest",system-ui,sans-serif
+}
+body.notifications-page .vt-notifications-back-001:hover{color:#3468d1}
+body.notifications-page .vt-notifications-heading-001{
+ margin:0;color:#2c3e5b;letter-spacing:-.04em;
+ font:790 clamp(24px,3vw,32px)/1.22 "Onest",system-ui,sans-serif
+}
+body.notifications-page .vt-notifications-subtitle-001{
+ max-width:560px;margin:9px 0 0;color:#7788a2;
+ font:510 13px/1.6 "Onest",system-ui,sans-serif
+}
+body.notifications-page .vt-notifications-mark-all-001{
+ min-height:42px;padding:9px 15px;border:1px solid #d9e3f5;border-radius:10px;
+ background:#fff;color:#3d66ac;font:690 12px "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.notifications-page .vt-notifications-mark-all-001:hover{background:#f0f5ff}
+body.notifications-page .notifications-toolbar{
+ display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+ margin-bottom:16px;padding:12px 14px;border:1px solid #e3eaf6;border-radius:15px;background:#fff
+}
+body.notifications-page .notifications-filters{display:flex;align-items:center;gap:5px;margin-right:auto}
+body.notifications-page .notifications-filters button{
+ min-height:38px;padding:9px 13px;border:0;border-radius:9px;background:transparent;
+ color:#687c9d;font:680 12.5px "Onest",system-ui,sans-serif;cursor:pointer;
+ transition:background .18s,color .18s
+}
+body.notifications-page .notifications-filters button[aria-pressed="true"]{background:#eaf1ff;color:#2f64ca}
+body.notifications-page .vt-notifications-sort-label-001{color:#7285a2;font:620 12px "Onest",system-ui,sans-serif}
+body.notifications-page .ui-notifications-sort-001{
+ min-height:38px;padding:8px 11px;border:1px solid #dde6f4;border-radius:9px;
+ background:#fff;color:#425777;font:610 12.5px "Onest",system-ui,sans-serif
+}
+body.notifications-page .notifications-content{
+ overflow:hidden;border:1px solid #e3eaf5;border-radius:17px;background:#fff;
+ box-shadow:0 7px 23px rgba(39,60,100,.045)
+}
+body.notifications-page .notifications-content .vatra-notification-row{padding:18px 20px}
+body.notifications-page .notifications-content .vatra-notification-link{font-size:14px}
+body.notifications-page .vt-notifications-empty-001{
+ padding:55px 22px;margin:0;text-align:center;color:#7385a1;
+ font:530 14px/1.6 "Onest",system-ui,sans-serif
+}
+@media(max-width:600px){
+ .vatra-notification-panel{max-height:78dvh}
+ .vatra-notification-row{gap:7px;padding:11px 10px}
+ .vatra-notification-kind{width:30px;height:30px}
+ .vatra-notification-mark{font-size:10px}
+ body.notifications-page .notifications-main{margin:20px auto 60px}
+ body.notifications-page .notifications-top{align-items:start}
+ body.notifications-page .notifications-toolbar{padding:9px}
+ body.notifications-page .notifications-filters button{padding:9px 8px}
+ body.notifications-page .notifications-content .vatra-notification-row{padding:13px 10px}
+}
