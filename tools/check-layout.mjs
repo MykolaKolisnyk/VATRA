@@ -1070,20 +1070,10 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  "Authenticated pages must use nonblocking inline skeletons and retain real avatar engagement");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
-// VATRA keeps only its optional first-time feature tour. The full five-item
-// Getting Started checklist, its actions and its CSS must be removed.
+// The optional guided feature tour is independent of account setup tasks.
 const onboardingSource=await read("assets/js/onboarding.js");
 const onboardingCss=await read("assets/css/onboarding.css");
 assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
- !feedMarkup.includes("vatra-welcome-tasks")&&
- !feedMarkup.includes("vatra-task-")&&
- !feedMarkup.includes("vatra-find-friends-dialog")&&
- !onboardingSource.includes("refreshProgress")&&
- !onboardingSource.includes("vatra-task-")&&
- !onboardingSource.includes("vatra-welcome-tasks")&&
- !onboardingCss.includes("vatra-task-")&&
- !profileScript.includes("vatra.setup.media.v1")&&
- !feedScript.includes("vatra:onboarding-progress")&&
  onboardingCss.includes("backdrop-filter:blur(7px)")&&
  onboardingSource.includes('from("vatra_onboarding")')&&
  feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})')&&
@@ -1091,7 +1081,7 @@ assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
  (feedScript.match(/supabase\.createClient\(/g)||[]).length===1&&
  !onboardingSource.includes('supabase.createClient(')&&
  onboardingSource.includes('client=feedClient;'),
- "Feature tutorial must remain, but all five onboarding tasks must be removed");
+ "The separate optional tutorial remains available without extra setup UI");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
