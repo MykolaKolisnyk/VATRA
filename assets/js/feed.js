@@ -166,6 +166,7 @@
   const authorId=String(post.author_vatra_id);
   const mine=authorId===vatraId;
   const item=node("article","feed-post-card ui-feed-post-card-001");
+  item.dataset.postId=post.id;
   const head=node("div","feed-post-header ui-feed-post-header-001");
   const avatar=node("a","feed-avatar feed-post-avatar vt-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
   avatar.href=new URL("id"+authorId,home).href;
@@ -199,6 +200,10 @@
      item.append(body);
     }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,item);
+   if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item);
+   window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
+    ownId:vatraId,userId:user?.id,onShared:()=>void loadPosts(true)
+   });
   return item;
  }
  function renderPage(reset=false){
@@ -223,7 +228,7 @@
    // Legacy test clients without an .in() method still work with the local filter.
    // Hashtag searches include all posts visible under RLS, not only friends.
    const hashtagSearch=/^#[\p{L}\p{N}_]{1,64}$/u.test(searchTerm);
-   let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at,media_kind,media_path");
+   let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id");
    if(hashtagSearch&&typeof personalQuery.ilike==="function"){
     personalQuery=personalQuery.ilike("body","%"+searchTerm+"%");
    }else if(!hashtagSearch&&typeof personalQuery.in==="function"){
@@ -249,7 +254,29 @@
     String(post.body||"").toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
     .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)||
      String(b.id).localeCompare(String(a.id)));
+   // Permalink targets can be older than the first page or outside the friend Feed.
+   const requested=new URLSearchParams(location.search).get("post");
+   if(requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
+     !visibleFeed.some(item=>item.id===requested)){
+    const selectPerson="id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id";
+    const selectClub="id,club_id,author_vatra_id,body,created_at,media_kind,media_path";
+    const found=await Promise.allSettled([
+     client.from("feed_posts").select(selectPerson).eq("id",requested).maybeSingle(),
+     client.from("vatra_community_posts").select(selectClub).eq("id",requested).maybeSingle()
+    ]);
+    const person=found[0].status==="fulfilled"&&!found[0].value.error?found[0].value.data:null;
+    const club=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
+    const direct=person?{...person,kind:"person"}:club?{...club,kind:"group"}:null;
+    if(direct){
+     visibleFeed.unshift(direct);
+     await Promise.all([loadPublicNames([direct.author_vatra_id]),loadAvatars([direct.author_vatra_id])]);
+    }
+   }
    renderPage(true);
+   if(requested){
+    const target=[...posts.querySelectorAll("[data-post-id]")].find(el=>el.dataset.postId===requested);
+    if(target){target.classList.add("is-linked-post");target.scrollIntoView({block:"center",behavior:"auto"});}
+   }
   }catch(_){
    // Do not leave skeleton cards hanging if the Feed request fails.
    posts.replaceChildren();
