@@ -96,8 +96,7 @@ body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth
 @media(prefers-reduced-motion:reduce){.site .vatra-saved-tooltip{transition:none!important;transform:none!important}}
 .site .saved-account-avatar{display:grid;place-items:center;width:98px;height:98px;margin:5px 0 18px;border:5px solid #fff;border-radius:50%;background:#edf2f8 var(--vatra-default-avatar) center/72% no-repeat;box-shadow:0 0 0 2px #cfddff,0 12px 26px rgba(44,79,176,.12);color:transparent}
 .site .saved-account-avatar.has-photo{background-size:cover;background-position:center;background-repeat:no-repeat}
-.site .saved-account-avatar span{visibility:hidden}
-.site .saved-account-avatar span{font-size:36px;font-weight:800;line-height:1;letter-spacing:-.045em}
+.site .saved-account-avatar span{visibility:hidden;font-size:36px;font-weight:800;line-height:1;letter-spacing:-.045em}
 .site .saved-account-eyebrow{margin:0 0 9px;color:#5a76b1;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 .site .saved-account-title{max-width:100%;margin:0 0 5px;font-size:clamp(25px,3vw,33px);font-weight:745;line-height:1.2;letter-spacing:-.035em;color:var(--ink);overflow-wrap:anywhere}
 .site .saved-account-email{max-width:100%;margin:0 0 26px;color:#65748e;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
