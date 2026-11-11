@@ -2573,8 +2573,22 @@ try{
   profilePage.on("framenavigated",frame=>{
    if(frame===profilePage.mainFrame())profileNavigations.push(new URL(frame.url()).pathname);
   });
+  // Slow the intermediate /profile.html fetch: the 404 route must display
+  // the SAME splash instead of leaving a white page, in both UK and EN.
+  await profilePage.route("**/VATRA/profile.html",async route=>{
+   await new Promise(resolve=>setTimeout(resolve,850));
+   await route.continue();
+  });
   await profilePage.goto(base+"id789012",{waitUntil:"domcontentloaded"});
+  await profilePage.waitForFunction(()=>{
+   const loader=document.querySelector("#vatra-dynamic-route-loading");
+   return loader&&document.documentElement.classList.contains("vatra-dynamic-route-pending")&&
+    getComputedStyle(loader).visibility==="visible"&&
+    getComputedStyle(loader).opacity==="1"&&loader.getBoundingClientRect().width>0;
+  },null,{timeout:2500});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator("#vatra-dynamic-route-loading").count(),0,
+   "Temporary GitHub Pages route splash must be replaced by the real profile");
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id789012"),
    "A direct link to another member must retain their numeric ID");
   assert.ok(profileNavigations.every(path=>!path.includes("/profile")),
