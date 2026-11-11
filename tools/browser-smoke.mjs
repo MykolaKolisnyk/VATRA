@@ -2892,7 +2892,16 @@ try{
    "The editor keeps seven profile sections");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
   await profilePage.locator("#profile-editor-visibility-short_bio").selectOption("only_me");
+  await profilePage.locator("#profile-editor-hometown").fill("Львів");
+  await profilePage.locator("#profile-editor-relationship").fill("У стосунках");
   await profilePage.locator("#profile-editor-page-visibility").selectOption("friends");
+  await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
+  await profilePage.locator("#profile-editor-city").fill("Київ");
+  await profilePage.locator("#profile-editor-website").fill("https://example.org");
+  await profilePage.locator("#profile-editor-visibility-website").selectOption("public");
+  await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
+  assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація",
+   "Changing editor sections must preserve unsaved personal details");
   await profilePage.locator(".vt-profile-editor-save-001").click();
   await profilePage.waitForFunction(()=>document.querySelector(".vt-profile-editor-feedback-001")?.dataset.kind==="success");
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
@@ -2904,8 +2913,24 @@ try{
   await profilePage.locator(".vt-profile-editor-back-001").click();
   assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
-  assert.equal(await profilePage.locator(".vt-profile-information-value-short_bio").textContent(),"Тестова інформація",
-   "Saved profile fields should appear immediately in Information");
+  assert.equal((await profilePage.locator("#profile-about-heading").textContent()).trim(),
+   language==="en"?"About me":"Про мене");
+  assert.equal(await profilePage.locator("#profile-about-card .profile-information-item").count(),3,
+   "Compact About me card should show at most three prioritized facts");
+  assert.equal((await profilePage.locator(".vt-profile-information-value-city").textContent()).trim(),"Київ",
+   "Current city has priority over hometown");
+  assert.equal(await profilePage.locator(".vt-profile-information-value-hometown").count(),0,
+   "Current city and hometown should not compete in the compact summary");
+  assert.equal((await profilePage.locator(".vt-profile-information-value-relationship").textContent()).trim(),"У стосунках");
+  assert.equal((await profilePage.locator(".vt-profile-about-website-001").textContent()).trim(),"https://example.org");
+  await profilePage.locator("#profile-about-more").click();
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),true,
+   "More details opens the full personal-information dialog");
+  assert.equal((await profilePage.locator(".vt-profile-detail-value-hometown").textContent()).trim(),"Львів",
+   "Both location fields belong in the full dialog");
+  assert.equal((await profilePage.locator(".vt-profile-detail-value-short_bio").textContent()).trim(),"Тестова інформація");
+  await profilePage.locator(".vt-vatra-profile-details-close-001").click();
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
   await profilePage.locator("#profile-tab-photos").click();
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
    "Photo tab must open a real on-demand gallery");
