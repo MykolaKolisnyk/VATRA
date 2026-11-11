@@ -935,8 +935,11 @@ assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
  "Account dropdown SVGs must remain visible after language switching");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
- sharedCss.includes("body.profile-page .profile-cover.has-photo::before{")&&
+ sharedCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo::after{")&&
+ sharedCss.includes("content:none;display:none")&&
+ profileScript.includes('if(photoURLs.cover)setImage(cover,photoURLs.cover);')&&
+ !profileScript.includes('--vatra-cover-image')&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-motif,")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-signature{")&&
  sharedCss.includes("background-repeat:no-repeat")&&
