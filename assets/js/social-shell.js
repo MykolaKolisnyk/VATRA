@@ -573,8 +573,10 @@
   const to=destination=>{
    let next;
    try{next=new URL(destination,location.href);}catch(_){return false;}
-   if(navigating||next.origin!==location.origin||!eligible(next))return false;
-   if(next.pathname===location.pathname&&next.search===location.search&&next.hash===location.hash)return false;
+   if(navigating)return true;
+   if(next.origin!==location.origin||!eligible(next))return false;
+   // Clicking the already selected section should never reload its content.
+   if(next.pathname===location.pathname&&next.search===location.search&&next.hash===location.hash)return true;
    navigating=true;
    const navigate=()=>location.assign(next.href);
    if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
