@@ -17,6 +17,7 @@
  <link rel="stylesheet" href="assets/css/auth.css">
  <link rel="stylesheet" href="assets/css/feed.css">
  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+ <script defer src="assets/js/post-media.js"></script>
  <script defer src="assets/js/profile.js"></script>
  <script defer src="assets/js/network.js"></script>
  <script defer src="assets/js/social-shell.js"></script>
@@ -223,7 +224,13 @@
     <form id="profile-compose-form" class="ui-profile-compose-form-001">
      <h2 id="profile-compose-title" class="vt-profile-compose-title-001" data-social-uk="Новий допис" data-social-en="New post">Новий допис</h2>
      <label for="profile-compose-text" class="vatra-sr-only vt-profile-compose-label-001" data-social-uk="Текст публікації" data-social-en="Post text">Текст публікації</label>
-     <textarea id="profile-compose-text" class="ui-profile-compose-text-001" rows="6" maxlength="2000" required placeholder="Поділіться думками з VATRA…" data-shell-placeholder-uk="Поділіться думками з VATRA…" data-shell-placeholder-en="Share your thoughts with VATRA…"></textarea>
+     <textarea id="profile-compose-text" class="ui-profile-compose-text-001" rows="6" maxlength="2000" placeholder="Поділіться думками з VATRA…" data-shell-placeholder-uk="Поділіться думками з VATRA…" data-shell-placeholder-en="Share your thoughts with VATRA…"></textarea>
+     <div class="vatra-compose-media-controls ui-profile-compose-media-controls-001">
+      <button id="profile-compose-media-choose" class="vt-profile-compose-media-choose-001" type="button"><svg class="ui-profile-compose-media-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.2" cy="9" r="1.5"/><path d="m5 17 5-5 3.3 3 3.2-4L20 15"/></svg><span class="vt-profile-compose-media-label-001" data-social-uk="Фото / відео" data-social-en="Photo / video" data-community-uk="Фото / відео" data-community-en="Photo / video">Фото / відео</span></button>
+      <button id="profile-compose-media-remove" class="vt-profile-compose-media-remove-001" type="button" hidden data-social-uk="Прибрати файл" data-social-en="Remove file" data-community-uk="Прибрати файл" data-community-en="Remove file">Прибрати файл</button>
+      <input id="profile-compose-media" class="ui-profile-compose-media-file-001" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" aria-label="Фото або відео до допису" hidden>
+     </div>
+     <div id="profile-compose-media-preview" class="vatra-compose-media-preview ui-profile-compose-media-preview-001" hidden></div>
      <p id="profile-compose-status" class="vt-profile-compose-status-001" role="status" aria-live="polite" hidden></p>
      <div class="profile-compose-actions ui-profile-compose-actions-001">
       <span id="profile-compose-counter" class="vt-profile-compose-counter-001" aria-live="polite">0 / 2000</span>
