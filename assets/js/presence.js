@@ -11,7 +11,7 @@ function start(client,ownId,gender){
  if(!client||!validId(ownId))return Promise.resolve(false);
  if(started)return started;
  let available=true;
- const table="vatra_member_presence";
+ const table="profile_presence";
  const update=async()=>{
   if(!available||document.visibilityState==="hidden")return false;
   try{
@@ -46,7 +46,7 @@ function start(client,ownId,gender){
 async function load(client,targetId){
  if(!client||!validId(targetId))return null;
  try{
-  const {data,error}=await client.from("vatra_member_presence")
+  const {data,error}=await client.from("profile_presence")
    .select("last_seen_at,form").eq("vatra_id",targetId).maybeSingle();
   return error?null:data||null;
  }catch(_){return null;}
