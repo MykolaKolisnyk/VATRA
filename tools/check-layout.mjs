@@ -927,6 +927,10 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes(".vatra-search-back{")&&
  sharedCss.includes(".vatra-search-panel.has-query .vatra-search-scope{display:grid}")&&
  sharedJs.includes("document.body.append(panel)")&&
+ sharedJs.includes("panel.style.paddingTop=Math.round(headerBottom-headerTop)")&&
+ sharedJs.includes('const headerTop=Math.max(oy,header?.top??oy)')&&
+ sharedCss.includes("position:fixed;z-index:89;display:flex;flex-direction:column;gap:0;")&&
+ sharedCss.includes("border:1px solid #e0e5ed;border-top:0;border-radius:0 0 16px 16px;")&&
  sharedJs.includes('back.addEventListener("click"')&&
  sharedJs.includes('edit.addEventListener("click"')&&
  sharedJs.includes('clearAll.addEventListener("click"')&&
