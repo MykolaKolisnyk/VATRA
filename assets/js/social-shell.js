@@ -418,7 +418,21 @@
   localize();
  }
 
+ /* The navigation is static; only the route content needs a network skeleton. */
+ function showPendingShell(){
+  const app=document.querySelector("#feed-app, #profile-app, #community-app");
+  const loader=document.querySelector("#feed-loading, #profile-loading, #community-loading");
+  const header=app?.querySelector(".feed-header");
+  if(!app||!loader||!header||document.body.dataset.authReady==="true")return;
+  app.hidden=false;document.body.classList.add("vatra-shell-pending");
+  const align=()=>document.body.style.setProperty("--vatra-shell-bottom",
+   Math.max(0,Math.ceil(header.getBoundingClientRect().bottom))+"px");
+  align();requestAnimationFrame(align);
+  window.addEventListener("resize",align,{passive:true});
+  window.visualViewport?.addEventListener("resize",align,{passive:true});
+ }
  const boot=()=>{
+  showPendingShell();
   setUpAccountPanel();
   setUpTooltip();
   setUpComingSoon();
