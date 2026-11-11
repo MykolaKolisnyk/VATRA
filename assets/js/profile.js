@@ -287,7 +287,20 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    if(!data?.length)conversation.append(node("p","vt-profile-message-empty-001",
     t("Повідомлень ще немає.","No messages yet.")));
    for(const m of (data||[]).slice().reverse()){
-    const bubble=node("div","profile-message-bubble ui-profile-message-bubble-001",m.body);
+    const bubble=node("div","profile-message-bubble ui-profile-message-bubble-001");
+    // Member message text stays escaped; only known VATRA post URLs become links.
+    const source=String(m.body||"");
+    const postLink=new RegExp("https://mykolakolisnyk[.]github[.]io/VATRA/feed[?]post=[a-f0-9-]{36}","ig");
+    let cursor=0,match;
+    while((match=postLink.exec(source))!==null){
+     bubble.append(document.createTextNode(source.slice(cursor,match.index)));
+     const url=new URL(match[0]),link=node("a","vt-profile-message-post-link-001",
+      t("Переглянути допис","View post"));
+     if(url.origin==="https://mykolakolisnyk.github.io"&&url.pathname==="/VATRA/feed")
+      link.href=url.href;
+     bubble.append(link);cursor=match.index+match[0].length;
+    }
+    bubble.append(document.createTextNode(source.slice(cursor)));
     bubble.dataset.own=String(m.sender_id)===String(ownId)?"true":"false";
     const time=node("time","vt-profile-message-time-001",dateText(m.created_at));
     time.dateTime=m.created_at;
