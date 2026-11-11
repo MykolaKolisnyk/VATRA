@@ -1724,6 +1724,47 @@ body.profile-page .vt-profile-photo-comments-heading-001{
  flex:none;margin:0;padding:15px 20px 10px;color:#2d405e;
  font:750 14px/1.35 "Onest",system-ui,sans-serif
 }
+body.profile-page .profile-photo-comment-filters{
+ flex:none;display:grid;grid-template-columns:auto minmax(0,1fr);
+ align-items:center;gap:6px 9px;padding:0 20px 11px;border-bottom:1px solid #eef1f7
+}
+body.profile-page .vt-profile-photo-sort-label-001{color:#617697;font:650 12px/1.4 "Onest",system-ui,sans-serif}
+body.profile-page .ui-profile-photo-comment-sort-001{
+ min-height:34px;padding:6px 9px;border:1px solid #dbe5f4;border-radius:9px;
+ background:#f7f9fd;color:#3e5577;font:650 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-photo-comment-sort-note-001{
+ grid-column:1/-1;color:#8090a8;font:500 11px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-photo-comment-head{display:flex;align-items:center;gap:10px;min-width:0}
+body.profile-page .profile-photo-comment-avatar{
+ display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;
+ border:2px solid #fff;border-radius:50%;background:linear-gradient(135deg,#396fe8,#9156d8);
+ background-size:cover;background-repeat:no-repeat;background-position:center;
+ box-shadow:0 0 0 1px #d8e3f7;color:#fff;letter-spacing:-.03em;
+ text-decoration:none;font:760 12px/1 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-photo-comment-avatar.has-photo{color:transparent}
+body.profile-page .profile-photo-comment-meta{min-width:0}
+body.profile-page a.vt-profile-photo-comment-name-001{text-decoration:none}
+body.profile-page a.vt-profile-photo-comment-name-001:hover{text-decoration:underline}
+body.profile-page .vt-profile-photo-comment-like-001{
+ margin:4px 0 0 47px;padding:5px 8px;border:0;border-radius:8px;
+ color:#677c9a;background:transparent;cursor:pointer;
+ font:650 11px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-photo-comment-like-001:hover{background:#eef3fd}
+body.profile-page .vt-profile-photo-comment-like-001[aria-pressed="true"]{color:#c84b86}
+body.profile-page .vt-profile-photo-comment-spam-001{
+ display:inline-block;margin:6px 0 0 51px;padding:3px 8px;
+ border-radius:8px;color:#91652f;background:#fff4e4;font-size:11px
+}
+body.profile-page .vt-profile-photo-comments-more-001{
+ flex:none;align-self:center;min-height:34px;margin:6px 0;padding:7px 16px;
+ border:0;border-radius:9px;background:#eef3fe;color:#3868c7;cursor:pointer;
+ font:700 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-photo-comments-more-001[hidden]{display:none!important}
 body.profile-page .profile-photo-comments{
  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
  padding:0 17px 10px;scrollbar-width:thin;
@@ -1740,7 +1781,7 @@ body.profile-page .profile-photo-comment{
 body.profile-page .vt-profile-photo-comment-name-001{display:block;font-size:13px;color:#2b3c59;font-weight:760}
 body.profile-page .vt-profile-photo-comment-time-001{display:block;margin-top:3px;font-size:11px;color:#94a0b2}
 body.profile-page .vt-profile-photo-comment-body-001{
- margin:7px 0 0;font-size:13px;line-height:1.55;
+ margin:7px 0 0 51px;font-size:13px;line-height:1.55;
  overflow-wrap:anywhere;white-space:pre-wrap
 }
 body.profile-page .vt-profile-photo-no-comments-001{font-size:13px;color:#8292aa;line-height:1.5}
