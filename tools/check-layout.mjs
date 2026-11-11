@@ -1193,12 +1193,37 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile-details.js') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
  feedStyle.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
+assert.ok(
+ detailsModule.includes("vatra-profile-summary-icon") &&
+ detailsModule.includes("vatra-profile-detail-icon") &&
+ detailsModule.includes("more.hidden=locked||!!result.error||(!additional.length&&!hasLongPreview)") &&
+ !detailsModule.includes('vt-profile-detail-audience-') &&
+ detailsModule.includes("lab.prepend(svg(fieldIcons[key]") &&
+ feedStyle.includes("VATRA 2026 · Profile information visual system") &&
+ feedStyle.includes("background:linear-gradient(158deg,#2b427e"),
+ "Profile information must feature icons, hide redundant More actions and keep reader privacy labels invisible");
+const sharedAvatar=await read("assets/js/avatar.js");
+assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
+assert.ok(
+ sharedAvatar.includes('face.style.backgroundImage="url("+JSON.stringify(safe)+")"') &&
+ sharedAvatar.includes('preload.rel="preload";preload.as="image"') &&
+ sharedAvatar.includes("if(verified&&!entry.avatarUrl)entry.avatarUrl=verified"),
+ "VATRA header portrait must be primed synchronously without stale remembered-account overrides");
+const postInteractionFields=await read("assets/js/post-interactions.js");
+assert.ok(
+ postInteractionFields.includes('sort.name="vatra_post_comments_sort"') &&
+ postInteractionFields.includes('input.name="vatra_post_comment"') &&
+ postInteractionFields.includes('shareAudience.name="vatra_share_visibility"') &&
+ postInteractionFields.includes('shareCaption.name="vatra_share_caption"') &&
+ postInteractionFields.includes('friendSelect.name="vatra_share_friend"'),
+ "Comments and sharing forms must name their controls for accessibility and autofill audits");
 const socialMotion=await read("assets/js/social-shell.js");
 assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
 assert.ok(
  !feedStyle.includes("@view-transition{navigation:auto}") &&
  feedStyle.includes("body.feed-page.vatra-route-exiting .feed-app > .feed-layout") &&
  socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
+ socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
  feedStyle.includes("view-transition-name:vatra-social-header") &&
  feedStyle.includes("vatraRouteCrossfadeOut") &&
  feedStyle.includes("vatraRouteCrossfadeIn") &&
