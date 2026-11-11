@@ -292,38 +292,101 @@
    finally{send.disabled=false;}
   });
 
-  const shareMenu=make("div","vatra-post-share-panel ui-vatra-post-share-panel-001");
-  shareMenu.hidden=true;
+  // A true modal composer, matching VATRA typography: caption, original, friends and link.
+  // The original post is referenced by UUID; the share creates a real feed_posts row.
+  const shareMenu=make("dialog","vatra-post-share-dialog ui-vatra-post-share-dialog-001");
+  shareMenu.setAttribute("aria-label",tr("Поділитися публікацією","Share post"));
+  const shareHead=make("div","vatra-post-share-header ui-vatra-post-share-header-001");
+  const shareTitle=make("h2","vt-vatra-post-share-heading-001",tr("Поділитися","Share"));
+  const shareClose=make("button","vt-vatra-post-share-close-001");
+  shareClose.type="button";shareClose.setAttribute("aria-label",tr("Закрити","Close"));
+  shareClose.append(glyph("comments"));shareClose.textContent="×";
+  shareClose.addEventListener("click",()=>shareMenu.close());
+  shareHead.append(shareTitle,shareClose);
+  const shareContent=make("div","vatra-post-share-body ui-vatra-post-share-body-001");
+  const account=make("div","vatra-post-share-account ui-vatra-post-share-account-001");
+  const ownAvatar=make("span","vt-vatra-post-share-account-avatar-001");
+  const ownLabel=make("div","vt-vatra-post-share-account-info-001");
+  const shareName=make("strong","vt-vatra-post-share-account-name-001",
+   tr("Ваша сторінка VATRA","Your VATRA page"));
+  const audience=make("small","vt-vatra-post-share-audience-001",tr("Опублікувати у своїй стрічці","Post to your feed"));
+  ownLabel.append(shareName,audience);account.append(ownAvatar,ownLabel);
+  const shareCaption=make("textarea","ui-vatra-post-share-caption-001");
+  shareCaption.rows=3;shareCaption.maxLength=1800;
+  shareCaption.placeholder=tr("Розкажіть щось про цю публікацію…","Say something about this post…");
+  shareCaption.setAttribute("aria-label",tr("Ваш коментар до поширення","Your share caption"));
+  const original=make("div","vatra-post-share-original ui-vatra-post-share-original-001");
+  const originalHeading=make("strong","vt-vatra-post-share-original-heading-001",
+   tr("Публікація VATRA","VATRA post"));
+  const originalText=make("p","vt-vatra-post-share-original-text-001",
+   Array.from(String(post.body||"")).slice(0,280).join("")||
+   (post.media_kind==="video"?tr("Відеопублікація","Video post"):tr("Публікація з медіа","Media post")));
+  original.append(originalHeading,originalText);
+  const shareError=make("p","vt-vatra-post-share-dialog-error-001");
+  shareError.setAttribute("role","status");shareError.hidden=true;
+  const showShareError=(msg)=>{shareError.textContent=msg;shareError.hidden=!msg;};
   const repost=make("button","vt-vatra-post-share-profile-001",
-   tr("На мою сторінку","Share to my profile"));repost.type="button";
+   tr("Поділитися зараз","Share now"));repost.type="button";
+  const lower=make("div","vatra-post-share-lower ui-vatra-post-share-lower-001");
+  const lowerTitle=make("h3","vt-vatra-post-share-lower-heading-001",
+   tr("Надіслати у повідомленні","Send in a message"));
   const dm=make("button","vt-vatra-post-share-message-001",
-   tr("Другу в повідомлення","Send to a friend"));dm.type="button";
+   tr("Оберіть друга","Choose a friend"));dm.type="button";
   const sendRow=make("div","vatra-post-share-friend-row ui-vatra-post-share-friend-row-001");
   sendRow.hidden=true;
   const friendSelect=make("select","ui-vatra-post-share-friend-select-001");
   friendSelect.setAttribute("aria-label",tr("Оберіть друга","Choose a friend"));
   const sendDM=make("button","vt-vatra-post-send-message-001",tr("Надіслати","Send"));
   sendDM.type="button";sendRow.append(friendSelect,sendDM);
-  shareMenu.append(repost,dm,sendRow);shell.append(shareMenu,status);
+  const linkRow=make("div","vatra-post-share-link-row ui-vatra-post-share-link-row-001");
+  const linkTitle=make("h3","vt-vatra-post-share-link-heading-001",tr("Поширити посилання","Share link"));
+  const copy=make("button","vt-vatra-post-share-copy-001",tr("Копіювати посилання","Copy link"));
+  copy.type="button";
+  linkRow.append(linkTitle,copy);
+  lower.append(lowerTitle,dm,sendRow,linkRow);
+  shareContent.append(account,shareCaption,original,shareError,repost,lower);
+  shareMenu.append(shareHead,shareContent);
+  document.body.append(shareMenu);
+  shareMenu.addEventListener("click",event=>{if(event.target===shareMenu)shareMenu.close();});
+  shareMenu.addEventListener("close",()=>{share.setAttribute("aria-expanded","false");});
   share.addEventListener("click",()=>{
-   shareMenu.hidden=!shareMenu.hidden;
-   share.setAttribute("aria-expanded",String(!shareMenu.hidden));
-   if(!shareMenu.hidden)shareMenu.querySelector("button")?.focus();
+   if(shareMenu.open){shareMenu.close();return;}
+   showShareError("");shareMenu.showModal();share.setAttribute("aria-expanded","true");
+   void (async()=>{
+    try{
+     const result=await client.auth.getUser();
+     const meta=result.data?.user?.user_metadata||{};
+     const name=[meta.first_name,meta.last_name].filter(Boolean).join(" ").trim()||
+      String(meta.full_name||"").trim();
+     if(name)shareName.textContent=name.slice(0,100);
+     const image=window.VATRA_AVATAR?.getRemembered(result.data?.user?.email);
+     if(image){
+      const tmp=new Image();
+      tmp.onload=()=>{if(shareMenu.isConnected){
+       ownAvatar.classList.add("has-photo");
+       ownAvatar.style.backgroundImage="url("+JSON.stringify(image)+")";
+      }};
+      tmp.src=image;
+     }
+    }catch(_){}
+   })();
   });
   repost.addEventListener("click",async()=>{
    if(repost.disabled||!validId(ownId))return;
-   repost.disabled=true;feedback("");
+   repost.disabled=true;showShareError("");
    try{
+    const caption=shareCaption.value.trim();
+    const body=caption||tr("Поділився публікацією","Shared a post");
     const result=await client.from("feed_posts").insert({
      author_id:userId,author_vatra_id:ownId,
-     body:tr("Поширив(ла) публікацію","Shared a post"),
-     shared_post_kind:kind,shared_post_id:post.id
+     body,shared_post_kind:kind,shared_post_id:post.id
     });
     if(result.error)throw result.error;
-    shareMenu.hidden=true;share.setAttribute("aria-expanded","false");
+    shareMenu.close();shareCaption.value="";
     feedback(tr("Публікацію додано на вашу сторінку.","Shared to your profile."));
     if(typeof settings.onShared==="function")settings.onShared();
-   }catch(_){feedback(tr("Не вдалося поширити публікацію.","Could not share the post."),true);}
+    void refreshSocial();
+   }catch(_){showShareError(tr("Не вдалося поділитися публікацією.","Could not share the post."));}
    finally{repost.disabled=false;}
   });
   let friendsLoaded=false;
@@ -360,17 +423,24 @@
   sendDM.addEventListener("click",async()=>{
    const recipient=friendSelect.value;
    if(!friendsLoaded||!validId(recipient)||recipient===ownId||sendDM.disabled)return;
-   sendDM.disabled=true;
+   sendDM.disabled=true;showShareError("");
    try{
     const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
     const result=await client.from("vatra_direct_messages").insert({
      sender_id:ownId,recipient_id:recipient,body
     });
     if(result.error)throw result.error;
-    shareMenu.hidden=true;share.setAttribute("aria-expanded","false");
+    shareMenu.close();
     feedback(tr("Посилання надіслано другу.","Sent to your friend."));
-   }catch(_){feedback(tr("Не вдалося надіслати повідомлення.","Could not send message."),true);}
+   }catch(_){showShareError(tr("Не вдалося надіслати повідомлення.","Could not send message."));}
    finally{sendDM.disabled=false;}
+  });
+  copy.addEventListener("click",async()=>{
+   try{
+    await navigator.clipboard.writeText(permalink(post));
+    copy.textContent=tr("Скопійовано","Copied");
+    showShareError("");
+   }catch(_){showShareError(tr("Не вдалося скопіювати. Скопіюйте посилання з адресного рядка.","Could not copy the link."));}
   });
   container.append(shell);
  }
