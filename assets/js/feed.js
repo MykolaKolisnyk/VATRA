@@ -84,6 +84,36 @@
    day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
   }).format(date);
  }
+ const mediaAvatars=new Map();
+ const avatarURL=id=>{
+  const path=mediaAvatars.get(String(id));
+  if(typeof path!=="string"||!path.startsWith(String(id)+"/avatar/"))return null;
+  try{
+   const value=client.storage.from("vatra-profile-media").getPublicUrl(path)?.data?.publicUrl;
+   if(!value)return null;
+   const url=new URL(value);
+   return url.protocol==="https:"&&url.hostname==="rjasunoawrxvetwadylh.supabase.co"?value:null;
+  }catch(_){return null;}
+ };
+ const applyAvatar=(element,id)=>{
+  const url=avatarURL(id);
+  if(!url||!element)return;
+  element.style.backgroundImage="url("+JSON.stringify(url)+")";
+  element.classList.add("has-photo");
+  element.textContent="";
+ };
+ async function loadAvatars(ids){
+  const lookup=[...new Set(ids.map(String).filter(validId))].slice(0,100);
+  if(!lookup.length)return;
+  try{
+   const {data,error}=await client.from("vatra_profile_media")
+    .select("vatra_id,avatar_path").in("vatra_id",lookup);
+   if(error)throw error;
+   for(const row of data||[])if(row.avatar_path)mediaAvatars.set(String(row.vatra_id),row.avatar_path);
+   applyAvatar(q("#feed-header-avatar"),vatraId);
+   applyAvatar(q("#feed-composer-avatar"),vatraId);
+  }catch(_){/* Use initials if media lookup is unavailable. */}
+ }
  const memberName=id=>publicNames.get(String(id))||
   (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member")+" · ID "+String(id));
  async function loadPublicNames(ids){
@@ -127,6 +157,7 @@
    }catch(_){}
   }
   await loadPublicNames([...friends]);
+  await loadAvatars([...friends]);
  }
  function card(post){
   const authorId=String(post.author_vatra_id);
@@ -135,6 +166,7 @@
   const head=node("div","feed-post-header ui-feed-post-header-001");
   const avatar=node("a","feed-avatar feed-post-avatar vt-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
   avatar.href=new URL("id"+authorId,home).href;
+  applyAvatar(avatar,authorId);
   avatar.setAttribute("aria-label",t("Відкрити профіль VATRA ID ","Open profile VATRA ID ")+authorId);
   const identity=node("div","feed-post-author ui-feed-post-author-001");
   const name=node("a","feed-post-name vt-feed-post-name-001 feed-post-profile-link",memberName(authorId));
@@ -196,6 +228,7 @@
    const communities=groups.status==="fulfilled"&&!groups.value.error?
     (groups.value.data||[]).map(post=>({...post,kind:"group"})):[];
    await loadPublicNames([...personal,...communities].map(x=>x.author_vatra_id));
+   await loadAvatars([...personal,...communities].map(x=>x.author_vatra_id));
    visibleFeed=[...personal,...communities].filter(post=>!searchTerm||
     post.body.toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
     .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)||
