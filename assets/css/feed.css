@@ -1071,8 +1071,8 @@ body.feed-page .feed-stories-track{
 }
 body.feed-page .feed-story-create,
 body.feed-page .feed-story-preview{
- position:relative;display:flex;flex:0 0 122px;flex-direction:column;justify-content:flex-end;
- overflow:hidden;min-width:122px;max-width:122px;width:122px;height:166px;border:1px solid #e0e6f2;
+ position:relative;display:flex;flex:0 0 108px;flex-direction:column;justify-content:flex-end;
+ overflow:hidden;min-width:108px;max-width:108px;width:108px;height:158px;border:1px solid #e0e6f2;
  border-radius:13px;scroll-snap-align:start;
  background:#fff;box-shadow:0 2px 12px rgba(39,64,110,.065);
  text-align:left;cursor:pointer;
@@ -1160,7 +1160,7 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto;padding:0 5px 10px;co
  }
  body.feed-page .social-top-link svg{width:23px;height:23px}
  /* The same anchored panel also works with the two-row mobile header. */
- body.feed-page .feed-story-create,body.feed-page .feed-story-preview{flex:0 0 104px;min-width:104px;max-width:104px;width:104px;height:150px}
+ body.feed-page .feed-story-create,body.feed-page .feed-story-preview{flex:0 0 86px;min-width:86px;max-width:86px;width:86px;height:138px}
 }
 @media(max-width:370px){
  body.feed-page .feed-header .feed-search-form{max-width:96px}
@@ -1323,3 +1323,49 @@ body.feed-page .feed-menu-settings-toggle > span{min-width:0;flex:1}
 body.feed-page .feed-logout > svg{color:#b15166!important}
 body.feed-page .feed-account-dropdown > a:hover > svg,
 body.feed-page .feed-menu-settings-toggle:hover > svg{color:#3f6fe0}
+
+/* Compact social Feed: the actual stories, post composer and real published
+   posts share the same reading column, as in the user-provided reference. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-main{gap:11px}
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{
+ padding:14px 16px;border-radius:13px;box-shadow:0 3px 12px rgba(35,55,95,.045)
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-card:hover{
+ transform:none;box-shadow:0 5px 15px rgba(35,55,95,.055)
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-body{
+ margin:10px 0 1px;line-height:1.55;font-size:14px
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-avatar{
+ width:39px;height:39px
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-quick-compose{
+ padding:10px 13px;min-height:61px;border-radius:13px
+}
+body.feed-page .feed-stories{position:relative;min-width:0}
+body.feed-page .feed-story-preview .feed-story-author-avatar{
+ position:absolute;z-index:3;left:8px;top:9px;flex:none;
+ display:grid;place-items:center;width:32px;height:32px;padding:0;
+ border:2px solid #fff;border-radius:50%;
+ background:linear-gradient(135deg,#406fe5,#9154d7);
+ background-size:cover;background-position:center;background-repeat:no-repeat;
+ color:#fff;font:790 10px/1 "Onest",system-ui,sans-serif;text-shadow:none;
+ box-shadow:0 0 0 2px #5275e8
+}
+body.feed-page .feed-stories-next{
+ position:absolute;z-index:4;right:-7px;top:calc(50% + 12px);
+ transform:translateY(-50%);display:grid;place-items:center;
+ width:40px;height:40px;padding:0;border:1px solid #e2e7f2;border-radius:50%;
+ background:#fff;color:#526781;box-shadow:0 4px 16px rgba(35,55,95,.16);
+ cursor:pointer
+}
+body.feed-page .feed-stories-next:hover{color:#3167dc;background:#f4f7fe}
+body.feed-page .feed-stories-next[hidden]{display:none!important}
+body.feed-page .feed-stories-next:focus-visible{outline:2px solid #507ae8;outline-offset:3px}
+@media(max-width:600px){
+ body.feed-page .feed-story-preview .feed-story-author-avatar{
+  width:28px;height:28px;top:7px;left:6px
+ }
+ body.feed-page .feed-stories-next{right:-5px;width:34px;height:34px}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{padding:12px}
+}
