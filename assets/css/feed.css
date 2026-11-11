@@ -350,7 +350,6 @@ body.profile-page .profile-actions{
  display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:9px;margin-top:10px
 }
 body.profile-page .social-profile-create,
-body.profile-page .profile-edit-name,
 body.profile-page .profile-friend-button,
 body.profile-page .profile-message-button{
  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;
@@ -359,7 +358,6 @@ body.profile-page .profile-message-button{
  font:740 13px/1.3 "Onest",system-ui,sans-serif;
  cursor:pointer;transition:transform .17s,background .17s,box-shadow .17s
 }
-body.profile-page .profile-edit-name,
 body.profile-page .profile-message-button{
  color:#405878;background:#f3f6fb;border-color:#dfe6f3
 }
@@ -472,6 +470,7 @@ body.profile-page .ui-profile-post-header-001 .vt-profile-post-avatar-001{
 
 /* Actual social activity: friend Stories and the inline Feed composer. */
 body.feed-page .feed-friend-stories{display:contents}
+body.feed-page .feed-story-empty-note{align-self:center;max-width:240px;padding:8px 13px;color:#7c8ba3;font:550 12px/1.55 "Onest",sans-serif}
 body.feed-page .feed-story-preview[data-theme="0"]{background:linear-gradient(135deg,#2858bb,#8a68d7)}
 body.feed-page .feed-story-preview[data-theme="1"]{background:linear-gradient(145deg,#3d9796,#29587b)}
 body.feed-page .feed-story-preview[data-theme="2"]{background:linear-gradient(135deg,#dd7698,#704ba8)}
@@ -488,13 +487,13 @@ body.feed-page .feed-story-preview .vt-feed-story-live-name-001{
  font:760 12px/1.35 "Onest",sans-serif;text-shadow:0 1px 5px rgba(18,32,64,.26)
 }
 body.feed-page .feed-quick-compose{
- display:flex;align-items:center;gap:14px;min-height:78px;padding:14px 20px;
+ display:flex;align-items:center;gap:11px;min-height:63px;padding:10px 14px;
  border:1px solid #e1e7f0;border-radius:16px;background:#fff;
  box-shadow:0 4px 15px rgba(32,52,94,.04)
 }
-body.feed-page .feed-composer-avatar{width:45px;height:45px;font-size:14px}
+body.feed-page .feed-composer-avatar{width:39px;height:39px;font-size:13px}
 body.feed-page .feed-compose-open{
- flex:1;min-height:43px;padding:10px 17px;border:0;border-radius:12px;
+ flex:1;min-height:40px;padding:9px 14px;border:0;border-radius:11px;
  background:#f1f3f7;color:#63748e;text-align:left;cursor:pointer;
  font:620 14px/1.45 "Onest",system-ui,sans-serif;transition:background .2s
 }
@@ -503,7 +502,6 @@ body.feed-page .feed-post-community{display:inline-block;max-width:100%;margin-t
 body.feed-page .feed-post-community:hover{text-decoration:underline}
 body.feed-page .feed-compose-dialog,
 body.feed-page .feed-story-dialog,
-body.profile-page .profile-name-dialog,
 body.community-page .club-compose-dialog{
  width:min(95vw,520px);max-height:88dvh;overflow-y:auto;
  padding:25px;border:1px solid #dfe7f4;border-radius:17px;
@@ -513,57 +511,46 @@ body.community-page .club-compose-dialog{
 body.feed-page .feed-compose-dialog:not([open]),
 body.feed-page .feed-story-dialog:not([open]),
 body.feed-page .feed-story-view:not([open]),
-body.profile-page .profile-name-dialog:not([open]),
 body.community-page .club-compose-dialog:not([open]){display:none!important}
 body.feed-page .feed-compose-dialog::backdrop,
 body.feed-page .feed-story-dialog::backdrop,
 body.feed-page .feed-story-view::backdrop,
-body.profile-page .profile-name-dialog::backdrop,
 body.community-page .club-compose-dialog::backdrop{background:rgba(21,38,72,.48);backdrop-filter:blur(3px)}
 body.feed-page .ui-feed-compose-form-001,
 body.feed-page .ui-feed-story-form-001,
-body.profile-page .ui-profile-name-form-001,
 body.community-page .ui-club-compose-form-001{display:flex;flex-direction:column;gap:12px}
 body.feed-page .ui-feed-compose-form-001 h2,
 body.feed-page .ui-feed-story-form-001 h2,
-body.profile-page .ui-profile-name-form-001 h2,
 body.community-page .ui-club-compose-form-001 h2{
  margin:0 0 3px;font:790 23px/1.28 "Onest",sans-serif;color:#30415d
 }
 body.feed-page .ui-feed-compose-form-001 label,
 body.feed-page .ui-feed-story-form-001 label,
-body.profile-page .ui-profile-name-form-001 label,
 body.community-page .ui-club-compose-form-001 label{
  font:700 13px/1.4 "Onest",sans-serif;color:#5f708b
 }
 body.feed-page .ui-feed-compose-form-001 textarea,
 body.feed-page .ui-feed-story-form-001 textarea,
-body.profile-page .ui-profile-name-input-001,
 body.community-page .ui-club-compose-form-001 textarea{
  width:100%;min-height:110px;max-width:100%;resize:vertical;
  padding:12px;border:1px solid #d8e1ef;border-radius:11px;background:#fbfcff;
  color:#36475f;font:500 14px/1.6 "Onest",sans-serif
 }
-body.profile-page .ui-profile-name-input-001{min-height:44px;height:44px}
 body.feed-page .ui-feed-compose-form-001 [role="status"],
 body.feed-page .ui-feed-story-form-001 [role="status"],
-body.profile-page .ui-profile-name-form-001 [role="status"],
 body.community-page .ui-club-compose-form-001 [role="status"]{margin:0;color:#ac4358;font-size:13px}
 body.feed-page .feed-compose-actions,
 body.feed-page .feed-story-actions,
-body.profile-page .profile-name-actions,
 body.community-page .club-compose-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px}
 body.feed-page .vt-feed-compose-counter-001{flex:1;color:#8a9ab0;font-size:12px}
 body.feed-page .feed-compose-actions button,
 body.feed-page .feed-story-actions button,
-body.profile-page .profile-name-actions button,
 body.community-page .club-compose-actions button{
  min-height:41px;padding:9px 15px;border:1px solid #d9e3f2;border-radius:9px;
  background:#f6f8fc;color:#46617f;cursor:pointer;font:720 12px "Onest",sans-serif
 }
 body.feed-page .vt-feed-compose-save-001,
 body.feed-page .vt-feed-story-save-001,
-body.profile-page .vt-profile-name-save-001,
 body.community-page .vt-club-compose-save-001{border-color:transparent!important;background:#376de0!important;color:#fff!important}
 body.feed-page .feed-story-view{
  width:min(94vw,390px);min-height:475px;max-height:85dvh;overflow:auto;
@@ -577,7 +564,6 @@ body.feed-page .feed-story-view[data-theme="4"]{background:linear-gradient(145de
 body.feed-page .vt-feed-story-view-heading-001{margin:0;font-size:15px}
 body.feed-page .vt-feed-story-view-body-001{display:grid;place-items:center;min-height:365px;margin:0;padding:15px;color:#fff;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;font:780 23px/1.5 "Onest",sans-serif}
 body.feed-page .vt-feed-story-view-close-001{width:100%;min-height:40px;border:1px solid rgba(255,255,255,.6);border-radius:9px;background:rgba(255,255,255,.16);color:#fff;cursor:pointer}
-body.profile-page .vt-profile-name-explainer-001,
 body.feed-page .vt-feed-story-tip-001{margin:0;color:#7688a0;font:500 13px/1.6 "Onest",sans-serif}
 body.community-page .club-social-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
 body.community-page .club-social-actions button{
@@ -975,24 +961,24 @@ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:non
 }
 /* Centered reading lane: Stories and Feed posts share the same column. */
 body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
- display:block!important;width:min(calc(100% - 36px),1200px)!important;
- max-width:1120px!important;margin:15px auto 68px!important
+ display:block!important;width:min(calc(100% - 32px),760px)!important;
+ max-width:760px!important;margin:18px auto 54px!important
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
- display:flex;flex-direction:column;width:min(100%,850px);max-width:850px;min-width:0;
- margin:0 auto!important;gap:21px
+ display:flex;flex-direction:column;width:min(100%,700px);max-width:700px;min-width:0;
+ margin:0 auto!important;gap:13px
 }
-body.feed-page .feed-stories{margin:0 0 2px;gap:16px}
+body.feed-page .feed-stories{margin:0;gap:8px}
 body.feed-page:not(.community-page):not(.profile-page) .feed-posts-title{
- font:760 clamp(20px,2vw,24px)/1.3 "Onest",system-ui,sans-serif;
+ font:760 clamp(18px,1.8vw,21px)/1.3 "Onest",system-ui,sans-serif;
  letter-spacing:-.035em;color:#2C3850;text-rendering:optimizeLegibility
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-posts-label{
  font:600 12px/1.45 "Onest",system-ui,sans-serif;color:#72819b
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-post-card{
- padding:24px 27px;border:1px solid #e4eaf5;border-radius:18px;
- box-shadow:0 8px 24px rgba(42,60,99,.045)
+ padding:17px 19px;border:1px solid #e4eaf5;border-radius:15px;
+ box-shadow:0 5px 19px rgba(42,60,99,.04)
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-post-name{
  color:#34445f;font:760 15px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.012em
@@ -1001,20 +987,20 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-post-body{
  color:#394964;font:480 15.5px/1.7 "Onest",system-ui,sans-serif;letter-spacing:.001em
 }
 body.feed-page .ui-feed-story-logo-001{
- position:absolute;top:19px;left:50%;transform:translateX(-50%);
- width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(52,91,193,.1))
+ position:absolute;top:17px;left:50%;transform:translateX(-50%);
+ width:61px;height:61px;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(52,91,193,.1))
 }
-body.feed-page .vt-feed-stories-heading{font:760 clamp(21px,2.1vw,25px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.037em;color:#2C3850;text-rendering:optimizeLegibility}
+body.feed-page .vt-feed-stories-heading{font:760 clamp(18px,1.8vw,21px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.032em;color:#2C3850;text-rendering:optimizeLegibility}
 body.feed-page .feed-stories-heading{padding:0 2px}
 body.feed-page .feed-stories-track{
- display:flex;gap:12px;padding:2px 1px 11px;overflow-x:auto;
+ display:flex;gap:9px;padding:1px 1px 5px;overflow-x:auto;
  scroll-snap-type:x proximity;scrollbar-width:thin;overscroll-behavior-x:contain
 }
 body.feed-page .feed-story-create,
 body.feed-page .feed-story-preview{
- position:relative;display:flex;flex:0 0 168px;flex-direction:column;justify-content:flex-end;
- overflow:hidden;min-width:168px;max-width:168px;width:168px;height:206px;border:1px solid #e0e6f2;
- border-radius:17px;scroll-snap-align:start;
+ position:relative;display:flex;flex:0 0 122px;flex-direction:column;justify-content:flex-end;
+ overflow:hidden;min-width:122px;max-width:122px;width:122px;height:166px;border:1px solid #e0e6f2;
+ border-radius:13px;scroll-snap-align:start;
  background:#fff;box-shadow:0 2px 12px rgba(39,64,110,.065);
  text-align:left;cursor:pointer;
  transition:transform .22s,box-shadow .22s,border-color .22s
@@ -1038,7 +1024,7 @@ body.feed-page .feed-story-preview:focus-visible,body.feed-page .feed-story-crea
  outline:3px solid #a8c1f5;outline-offset:2px
 }
 body.feed-page .feed-story-create{align-items:center;text-align:center;background:linear-gradient(180deg,#edf2ff 0%,#eeeafb 69%,#fff 69%,#fff 100%)}
-body.feed-page .vt-feed-story-create-label{margin-top:auto;color:#405475;font:730 13px/1.3 "Onest",sans-serif}
+body.feed-page .vt-feed-story-create-label{margin-top:auto;padding:0 5px 10px;color:#405475;font:730 12px/1.3 "Onest",sans-serif}
 .vatra-story-dialog{padding:15px;width:min(395px,calc(100vw - 28px));overflow:hidden}
 .vatra-story-stage{position:relative;overflow:hidden;width:100%;height:min(65dvh,540px);
  border-radius:14px;background:#263b73}
@@ -1103,7 +1089,7 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto;color:#405475;font:73
  body.feed-page .feed-account-dropdown{
   position:fixed;top:51px;right:8px;left:auto;max-height:calc(100dvh - 63px)
  }
- body.feed-page .feed-story-create,body.feed-page .feed-story-preview{flex:none;width:126px;min-width:126px;height:172px}
+ body.feed-page .feed-story-create,body.feed-page .feed-story-preview{flex:0 0 104px;min-width:104px;max-width:104px;width:104px;height:150px}
 }
 @media(max-width:370px){
  body.feed-page .feed-header .feed-search-form{max-width:96px}
