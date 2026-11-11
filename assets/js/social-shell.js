@@ -75,6 +75,11 @@
   const afterLayout=()=>requestAnimationFrame(position);
   menu.addEventListener("toggle",position);
   menu.addEventListener("toggle",afterLayout);
+  if(typeof ResizeObserver!=="undefined"){
+   const observer=new ResizeObserver(afterLayout);
+   observer.observe(header);
+   observer.observe(menu);
+  }
   window.addEventListener("resize",afterLayout,{passive:true});
   window.addEventListener("scroll",afterLayout,{passive:true});
   window.visualViewport?.addEventListener("resize",afterLayout,{passive:true});
