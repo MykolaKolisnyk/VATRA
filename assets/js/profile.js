@@ -107,10 +107,11 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  list.dataset.loading="true";list.setAttribute("aria-busy","true");
  if(more)more.disabled=true;
  try{
-  const {data,error}=await client.from("feed_posts")
+  let query=client.from("feed_posts")
    .select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id")
-   .eq("author_vatra_id",targetId)
-   .order("created_at",{ascending:false})
+   .eq("author_vatra_id",targetId);
+  if(typeof query.is==="function")query=query.is("archived_at",null);
+  const {data,error}=await query.order("created_at",{ascending:false})
    .order("id",{ascending:false}).range(offset,offset+11);
   if(error)throw error;
   const rows=data||[];
@@ -136,6 +137,27 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     avatar.classList.add("has-photo");avatar.textContent="";
    }
    header.append(avatar,identity);
+   if(String(ownId)===String(targetId)){
+    const archive=node("button","vt-profile-post-archive-001",t("В архів","Archive"));
+    archive.type="button";archive.addEventListener("click",async()=>{
+     archive.disabled=true;
+     const {data,error}=await client.from("feed_posts").update({archived_at:new Date().toISOString()})
+      .eq("id",post.id).eq("author_vatra_id",ownId).select("id").maybeSingle();
+     if(error||!data){archive.disabled=false;return;}
+     void loadPosts(client,targetId,ownId,userId);
+    });
+    const remove=node("button","vt-profile-post-remove-001",t("Видалити","Delete"));
+    remove.type="button";remove.addEventListener("click",async()=>{
+     if(!confirm(t("Видалити цю публікацію?","Delete this post?")))return;
+     remove.disabled=true;
+     const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
+      .eq("author_vatra_id",ownId).select("id");
+     if(error||!data?.length){remove.disabled=false;return;}
+     if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
+     void loadPosts(client,targetId,ownId,userId);
+    });
+    header.append(archive,remove);
+   }
    article.append(header);
    if(post.body){
     const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
@@ -171,6 +193,126 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   if(more)more.disabled=false;
  }
 }
+function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
+ const savedTab=q("#profile-tab-saved"),archiveWrap=q("#profile-archive-wrap"),
+  toggle=q("#profile-archive-toggle"),menu=q("#profile-archive-menu");
+ savedTab.hidden=!isMine;archiveWrap.hidden=!isMine;
+ const empty=(selector,content)=>{const element=q(selector);element.textContent=content;element.hidden=false;};
+ const makeRow=(list,heading,description)=>{
+  const article=node("article","profile-extra-row ui-profile-extra-row-001");
+  article.append(node("strong","vt-profile-extra-title-001",heading),
+   node("p","vt-profile-extra-copy-001",description));
+  list.append(article);return article;
+ };
+ const saved=async()=>{
+  if(!isMine)return;
+  const list=q("#profile-saved-list"),note=q("#profile-saved-empty");
+  list.replaceChildren();note.hidden=true;
+  try{
+   const {data,error}=await client.from("post_saves")
+    .select("post_id,post_kind,saved_at").eq("owner_vatra_id",ownId)
+    .order("saved_at",{ascending:false}).limit(30);
+   if(error)throw error;
+   const rows=data||[];
+   const persons=rows.filter(row=>row.post_kind==="person").map(row=>row.post_id);
+   const groups=rows.filter(row=>row.post_kind==="group").map(row=>row.post_id);
+   const fetched=await Promise.all([
+    persons.length?client.from("feed_posts").select("id,body,author_vatra_id").in("id",persons):Promise.resolve({data:[]}),
+    groups.length?client.from("vatra_community_posts").select("id,body,author_vatra_id").in("id",groups):Promise.resolve({data:[]})
+   ]);
+   const map=new Map(fetched.flatMap((x,i)=>(x.data||[]).map(p=>[(i?"group":"person")+":"+p.id,p])));
+   for(const save of rows){
+    const post=map.get(save.post_kind+":"+save.post_id);if(!post)continue;
+    const article=makeRow(list,t("Публікація VATRA ID ","Post by VATRA ID ")+post.author_vatra_id,
+     Array.from(post.body||"").slice(0,220).join("")||t("Медіапублікація","Media post"));
+    const a=node("a","vt-profile-saved-link-001",t("Відкрити","Open"));
+    a.href=new URL("feed?post="+encodeURIComponent(post.id),home).href;
+    const remove=node("button","vt-profile-saved-remove-001",t("Прибрати зі збереженого","Remove from saved"));
+    remove.type="button";
+    remove.addEventListener("click",async()=>{
+     remove.disabled=true;
+     const result=await client.from("post_saves").delete().eq("owner_vatra_id",ownId)
+      .eq("post_kind",save.post_kind).eq("post_id",save.post_id);
+     if(result.error){remove.disabled=false;return;}
+     article.remove();
+     if(!list.children.length)empty("#profile-saved-empty",t("Збережених публікацій поки немає.","No saved posts yet."));
+    });
+    article.append(a,remove);
+   }
+   if(!list.children.length)empty("#profile-saved-empty",t("Збережених публікацій поки немає.","No saved posts yet."));
+  }catch(_){empty("#profile-saved-empty",t("Не вдалося завантажити збережене.","Could not load saved posts."));}
+ };
+ const stories=async()=>{
+  if(!isMine)return;
+  const list=q("#profile-archive-stories-list"),note=q("#profile-archive-stories-empty");
+  list.replaceChildren();note.hidden=true;
+  try{
+   const {data,error}=await client.from("vatra_stories").select("id,body,theme,created_at,expires_at")
+    .eq("author_vatra_id",ownId).lte("expires_at",new Date().toISOString())
+    .order("created_at",{ascending:false}).limit(50);
+   if(error)throw error;
+   for(const item of data||[])makeRow(list,dateText(item.created_at),item.body);
+   if(!list.children.length)empty("#profile-archive-stories-empty",t("Історій в архіві ще немає.","No archived stories yet."));
+  }catch(_){empty("#profile-archive-stories-empty",t("Не вдалося завантажити архів історій.","Could not load story archive."));}
+ };
+ const archivedPosts=async()=>{
+  if(!isMine)return;
+  const list=q("#profile-archive-posts-list"),note=q("#profile-archive-posts-empty");
+  list.replaceChildren();note.hidden=true;
+  try{
+   const {data,error}=await client.from("feed_posts")
+    .select("id,body,media_kind,media_path,created_at,archived_at")
+    .eq("author_vatra_id",ownId).not("archived_at","is",null)
+    .order("archived_at",{ascending:false}).limit(40);
+   if(error)throw error;
+   for(const item of data||[]){
+    const article=makeRow(list,dateText(item.created_at),
+     Array.from(item.body||"").slice(0,360).join("")||t("Медіапублікація","Media post"));
+    const restore=node("button","vt-profile-restore-post-001",t("Повернути в публікації","Restore post"));
+    restore.type="button";
+    restore.addEventListener("click",async()=>{
+     restore.disabled=true;
+     const {data:updated,error:err}=await client.from("feed_posts").update({archived_at:null})
+      .eq("id",item.id).eq("author_vatra_id",ownId).select("id").maybeSingle();
+     if(err||!updated){restore.disabled=false;return;}
+     article.remove();
+     if(!list.children.length)empty("#profile-archive-posts-empty",t("В архіві немає публікацій.","No archived posts."));
+    });
+    const permanent=node("button","vt-profile-permanent-delete-001",t("Видалити назавжди","Delete permanently"));
+    permanent.type="button";permanent.addEventListener("click",async()=>{
+     if(!confirm(t("Видалити публікацію назавжди?","Delete post permanently?")))return;
+     permanent.disabled=true;
+     const {data:deleted,error:err}=await client.from("feed_posts").delete()
+      .eq("id",item.id).eq("author_vatra_id",ownId).select("id");
+     if(err||!deleted?.length){permanent.disabled=false;return;}
+     if(item.media_path)void window.VATRA_POST_MEDIA?.remove(client,item);
+     article.remove();
+     if(!list.children.length)empty("#profile-archive-posts-empty",t("В архіві немає публікацій.","No archived posts."));
+    });
+    article.append(restore,permanent);
+   }
+   if(!list.children.length)empty("#profile-archive-posts-empty",t("В архіві немає публікацій.","No archived posts."));
+  }catch(_){empty("#profile-archive-posts-empty",t("Не вдалося завантажити архів.","Could not load archive."));}
+ };
+ const dispatch=name=>{
+  if(name==="saved")void saved();
+  if(name==="archive-stories")void stories();
+  if(name==="archive-posts")void archivedPosts();
+ };
+ window.VATRA_PROFILE_EXTRA_TAB=dispatch;
+ if(!isMine)return;
+ const close=()=>{menu.hidden=true;toggle.setAttribute("aria-expanded","false");};
+ toggle.addEventListener("click",()=>{
+  menu.hidden=!menu.hidden;toggle.setAttribute("aria-expanded",String(!menu.hidden));
+ });
+ for(const button of menu.querySelectorAll("[data-profile-archive]")){
+  button.addEventListener("click",()=>{
+   window.VATRA_PROFILE_CHOOSE_TAB?.(button.dataset.profileArchive);
+   dispatch(button.dataset.profileArchive);close();
+  });
+ }
+ document.addEventListener("pointerdown",event=>{if(!archiveWrap.contains(event.target))close();});
+}
 function setupProfileGallery(client,targetId){
  for(const settings of [
   {kind:"image",tab:"#profile-tab-photos",list:"#profile-photo-gallery",empty:"#profile-photos-empty",more:"#profile-photos-more"},
@@ -185,10 +327,11 @@ function setupProfileGallery(client,targetId){
    if(!append){offset=0;list.replaceChildren();}
    empty.hidden=true;
    try{
-    const {data,error}=await client.from("feed_posts")
+    let query=client.from("feed_posts")
      .select("id,author_vatra_id,media_kind,media_path")
-     .eq("author_vatra_id",targetId).eq("media_kind",settings.kind)
-     .order("created_at",{ascending:false}).order("id",{ascending:false})
+     .eq("author_vatra_id",targetId).eq("media_kind",settings.kind);
+    if(typeof query.is==="function")query=query.is("archived_at",null);
+    const {data,error}=await query.order("created_at",{ascending:false}).order("id",{ascending:false})
      .range(offset,offset+11);
     if(error)throw error;
     const rows=(data||[]).filter(item=>!!item.media_path);
@@ -307,6 +450,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  let loadFriends=async()=>{},loadInbox=async()=>{};
  const tabs=[...document.querySelectorAll("[data-profile-tab]")];
  function choose(name){
+  if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
   if(name==="messages"&&!isMine)return;
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
@@ -319,7 +463,9 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   }
   if(name==="friends")void loadFriends();
   if(name==="messages")void loadInbox();
+  window.VATRA_PROFILE_EXTRA_TAB?.(name);
  }
+ window.VATRA_PROFILE_CHOOSE_TAB=choose;
  for(const tab of tabs){
   tab.addEventListener("click",()=>choose(tab.dataset.profileTab));
   tab.addEventListener("keydown",e=>{
@@ -1111,6 +1257,7 @@ async function start(){
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   setupProfileInteractions(client,ownId,targetId,isMine);
+  setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
   setupProfileGallery(client,targetId);
   /* Keep the real profile cover and avatar fallback visible while media arrives. */
   // Media and Stories can arrive after the identity is verified; do not hold

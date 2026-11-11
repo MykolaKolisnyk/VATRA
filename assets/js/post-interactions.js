@@ -24,6 +24,7 @@
   };
   if(type==="heart")path("M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
   if(type==="comments")path("M20.5 11.6a8.5 8.5 0 0 1-8.6 8.1 9 9 0 0 1-3.8-.9L3 20l1.4-4.5A8.3 8.3 0 0 1 3.5 12a8.5 8.5 0 0 1 17 0Z M8 10h8M8 13.5h5");
+  if(type==="bookmark")path("M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z");
   if(type==="share"){
    path("M8.6 11.2 16 6.7M8.6 13 16 17.3");
    for(const [cx,cy] of [[5.3,12.2],[18,5.5],[18,18.5]]){
@@ -85,7 +86,33 @@
   commentsButton.setAttribute("aria-expanded","false");
   const share=action("vt-vatra-post-share-toggle-001","share",tr("Поділитися","Share"));
   share.setAttribute("aria-expanded","false");
-  row.append(like,commentsButton,share);shell.append(row);
+  const saved=action("vt-vatra-post-save-001","bookmark",tr("Зберегти","Save"));
+  saved.setAttribute("aria-pressed","false");
+  if(!validId(ownId))saved.hidden=true;
+  row.append(like,commentsButton,share,saved);shell.append(row);
+  if(validId(ownId)){
+   let stored=false;
+   const refresh=()=>{saved.setAttribute("aria-pressed",String(stored));
+    saved.querySelector("span").textContent=stored?tr("Збережено","Saved"):tr("Зберегти","Save");};
+   void (async()=>{
+    try{
+     const {data,error}=await client.from("post_saves").select("post_id")
+      .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id).maybeSingle();
+     if(!error){stored=!!data;refresh();}
+    }catch(_){}
+   })();
+   saved.addEventListener("click",async()=>{
+    if(saved.disabled)return;saved.disabled=true;
+    try{
+     const result=stored?await client.from("post_saves").delete()
+      .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id):
+      await client.from("post_saves").insert({owner_vatra_id:ownId,post_kind:kind,post_id:post.id});
+     if(result.error)throw result.error;
+     stored=!stored;refresh();
+    }catch(_){saved.title=tr("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Retry.");}
+    finally{saved.disabled=false;}
+   });
+  }
 
   const status=make("p","vt-vatra-post-interactions-status-001");
   status.setAttribute("role","status");status.hidden=true;

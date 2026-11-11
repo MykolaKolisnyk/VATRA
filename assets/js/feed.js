@@ -192,6 +192,19 @@
     deleteDialog?.showModal();q("#feed-delete-cancel")?.focus();
    });
    head.append(remove);
+   if(post.kind==="person"){
+    const archive=node("button","vt-feed-post-archive-001",t("В архів","Archive"));
+    archive.type="button";
+    archive.addEventListener("click",async()=>{
+     archive.disabled=true;
+     const {data,error}=await client.from("feed_posts")
+      .update({archived_at:new Date().toISOString()}).eq("id",post.id)
+      .eq("author_vatra_id",vatraId).select("id").maybeSingle();
+     if(error||!data){archive.disabled=false;message(t("Не вдалося архівувати публікацію.","Could not archive post."));return;}
+     void loadPosts(true);
+    });
+    head.append(archive);
+   }
   }
   item.append(head);
    if(post.body){
@@ -240,6 +253,7 @@
    if(isPerson&&typeof query.in==="function"){
     query=query.in("author_vatra_id",personIds);
    }
+   if(isPerson&&typeof query.is==="function")query=query.is("archived_at",null);
    if(!isPerson&&typeof query.in==="function")
     query=query.in("club_id",[...followedClubs.keys()]);
    if(searchTerm&&typeof query.ilike==="function")

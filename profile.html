@@ -169,6 +169,15 @@
       <button type="button" id="profile-tab-friends" class="social-profile-tab ui-social-profile-friends-tab-001" data-profile-tab="friends" role="tab" aria-controls="profile-friends-section" aria-selected="false"><span class="vt-social-profile-friends-tab-label-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</span></button>
       <button type="button" id="profile-tab-photos" class="social-profile-tab ui-social-profile-photos-tab-001" data-profile-tab="photos" role="tab" aria-controls="profile-photos-section" aria-selected="false"><span class="vt-social-profile-photos-tab-label-001" data-social-uk="Фотографії" data-social-en="Photos">Фотографії</span></button>
       <button type="button" id="profile-tab-videos" class="social-profile-tab ui-social-profile-videos-tab-001" data-profile-tab="videos" role="tab" aria-controls="profile-videos-section" aria-selected="false"><span class="vt-social-profile-videos-tab-label-001" data-social-uk="Відео" data-social-en="Videos">Відео</span></button>
+      <button type="button" id="profile-tab-gifts" class="social-profile-tab ui-social-profile-gifts-tab-001" data-profile-tab="gifts" role="tab" aria-controls="profile-gifts-section" aria-selected="false"><span class="vt-profile-gifts-tab-label-001" data-social-uk="Подарунки" data-social-en="Gifts">Подарунки</span></button>
+      <button type="button" id="profile-tab-saved" class="social-profile-tab ui-social-profile-saved-tab-001" data-profile-tab="saved" role="tab" aria-controls="profile-saved-section" aria-selected="false" hidden><span class="vt-profile-saved-tab-label-001" data-social-uk="Збережене" data-social-en="Saved">Збережене</span></button>
+      <div id="profile-archive-wrap" class="profile-archive-wrap ui-profile-archive-wrap-001" hidden>
+       <button type="button" id="profile-archive-toggle" class="social-profile-tab vt-profile-archive-toggle-001" aria-haspopup="true" aria-expanded="false"><span class="vt-profile-archive-label-001" data-social-uk="Архів" data-social-en="Archive">Архів</span><svg class="ui-profile-archive-arrow-001" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path class="ui-profile-archive-arrow-path-001" d="m6 9 6 6 6-6"/></svg></button>
+       <div id="profile-archive-menu" class="profile-archive-menu ui-profile-archive-menu-001" role="menu" hidden>
+        <button type="button" class="vt-profile-archive-stories-001" data-profile-archive="archive-stories" role="menuitem" data-social-uk="Історії" data-social-en="Stories">Історії</button>
+        <button type="button" class="vt-profile-archive-posts-001" data-profile-archive="archive-posts" role="menuitem" data-social-uk="Публікації" data-social-en="Posts">Публікації</button>
+       </div>
+      </div>
      </nav>
     </section>
     <div class="profile-panels ui-profile-panels-001">
@@ -197,6 +206,25 @@
       <div id="profile-video-gallery" class="profile-media-gallery ui-profile-video-gallery-001" aria-live="polite"></div>
       <p id="profile-videos-empty" class="vt-profile-videos-empty-001" hidden></p>
       <button id="profile-videos-more" class="vt-profile-videos-more-001" type="button" hidden data-social-uk="Показати ще" data-social-en="Show more">Показати ще</button>
+     </section>
+     <section id="profile-gifts-section" class="profile-content-panel ui-profile-gifts-section-001" data-profile-panel="gifts" role="tabpanel" aria-labelledby="profile-tab-gifts" hidden>
+      <h2 class="vt-profile-gifts-heading-001" data-social-uk="Подарунки" data-social-en="Gifts">Подарунки</h2>
+      <p class="vt-profile-gifts-empty-001" data-social-uk="Подарунків поки немає." data-social-en="No gifts yet.">Подарунків поки немає.</p>
+     </section>
+     <section id="profile-saved-section" class="profile-content-panel ui-profile-saved-section-001" data-profile-panel="saved" role="tabpanel" aria-labelledby="profile-tab-saved" hidden>
+      <h2 class="vt-profile-saved-heading-001" data-social-uk="Збережені публікації" data-social-en="Saved posts">Збережені публікації</h2>
+      <div id="profile-saved-list" class="profile-extra-list ui-profile-saved-list-001" aria-live="polite"></div>
+      <p id="profile-saved-empty" class="vt-profile-saved-empty-001" hidden></p>
+     </section>
+     <section id="profile-archive-stories-section" class="profile-content-panel ui-profile-archive-stories-section-001" data-profile-panel="archive-stories" role="tabpanel" aria-label="Архів історій" hidden>
+      <h2 class="vt-profile-archive-stories-heading-001" data-social-uk="Архів історій" data-social-en="Story archive">Архів історій</h2>
+      <div id="profile-archive-stories-list" class="profile-extra-list ui-profile-archive-stories-list-001" aria-live="polite"></div>
+      <p id="profile-archive-stories-empty" class="vt-profile-archive-stories-empty-001" hidden></p>
+     </section>
+     <section id="profile-archive-posts-section" class="profile-content-panel ui-profile-archive-posts-section-001" data-profile-panel="archive-posts" role="tabpanel" aria-label="Архів публікацій" hidden>
+      <h2 class="vt-profile-archive-posts-heading-001" data-social-uk="Архів публікацій" data-social-en="Post archive">Архів публікацій</h2>
+      <div id="profile-archive-posts-list" class="profile-extra-list ui-profile-archive-posts-list-001" aria-live="polite"></div>
+      <p id="profile-archive-posts-empty" class="vt-profile-archive-posts-empty-001" hidden></p>
      </section>
      <section id="profile-messages-section" class="profile-content-panel ui-profile-messages-section-001" data-profile-panel="messages" role="tabpanel" aria-labelledby="profile-tab-messages" hidden>
       <h2 class="vt-profile-messages-title-001" data-social-uk="Повідомлення" data-social-en="Messages">Повідомлення</h2><div id="profile-inbox-list" class="profile-people-list ui-profile-inbox-list-001" aria-live="polite"></div><p id="profile-inbox-empty" class="vt-profile-inbox-empty-001" hidden></p>
