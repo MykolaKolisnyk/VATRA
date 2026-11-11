@@ -61,13 +61,20 @@ function fromPath(client,email,id,path){
  if(!safe)return false;
  const photo=new Image();
  photo.onload=()=>{
+  cache(email,safe);
   const entry=headerRead();
   if(entry&&emailKey(entry.email)===emailKey(email)){
    entry.avatarUrl=safe;saveHeader(entry);paintHeader(entry);
   }
  };
+ photo.onerror=()=>{
+  const entry=headerRead();
+  if(entry&&emailKey(entry.email)===emailKey(email)&&entry.avatarUrl===safe){
+   entry.avatarUrl=null;saveHeader(entry);
+  }
+ };
  photo.src=safe;
- return cache(email,safe);
+ return true;
 }
 function headerRead(){
  try{
@@ -134,7 +141,11 @@ function setHeader({email,name,initials,id}){
  if(verified)entry.avatarUrl=verified;
  saveHeader(entry);paintHeader(entry);
 }
-function clearHeader(){
+function clearHeader(activeEmail){
+ // Preserve the same user's cached header through reauthentication but never
+ // show the previous account's identity after switching accounts in one tab.
+ const saved=headerRead();
+ if(activeEmail&&saved&&emailKey(saved.email)===emailKey(activeEmail))return;
  try{sessionStorage.removeItem(HEADER_KEY);}catch(_){}
 }
 function applyRemembered(element,email){
