@@ -915,7 +915,14 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("flex:0 0 122px")&&
  sharedCss.includes("margin:0 auto!important;gap:13px")&&
  sharedCss.includes(".vatra-search-history{")&&
- sharedCss.includes("max-height:min(228px,50dvh)")&&
+ sharedCss.includes("max-height:min(290px,54dvh)")&&
+ sharedCss.includes(".vatra-search-edit{")&&
+ sharedCss.includes(".vatra-search-back{")&&
+ sharedCss.includes(".vatra-search-panel.has-query .vatra-search-scope{display:grid}")&&
+ sharedJs.includes("document.body.append(panel)")&&
+ sharedJs.includes('back.addEventListener("click"')&&
+ sharedJs.includes('edit.addEventListener("click"')&&
+ sharedJs.includes('clearAll.addEventListener("click"')&&
  !sharedCss.includes(".feed-sidebar")&&
  sharedCss.includes(".feed-composer-avatar")&&
  sharedJs.includes("positionTooltip(target)")&&
@@ -941,6 +948,9 @@ for(const page of sharedShellPages){
   page+": VATRA search must be in the top header exactly once");
  assert.ok(header.includes('id="vatra-search-panel"')&&
   header.includes('id="vatra-search-history"')&&
+  header.includes('id="vatra-search-back"')&&
+  header.includes('id="vatra-search-edit"')&&
+  header.includes('id="vatra-search-clear"')&&
   header.includes('data-vatra-search-scope="posts"')&&
   header.includes('data-vatra-search-scope="communities"'),
   page+": common VATRA search needs history and both supported destinations");
