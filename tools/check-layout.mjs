@@ -1193,6 +1193,20 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile-details.js') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
  feedStyle.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
+const socialMotion=await read("assets/js/social-shell.js");
+assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
+assert.ok(
+ feedStyle.includes("@view-transition{navigation:auto}") &&
+ feedStyle.includes("view-transition-name:vatra-social-header") &&
+ feedStyle.includes("vatraRouteCrossfadeOut") &&
+ feedStyle.includes("vatraRouteCrossfadeIn") &&
+ feedStyle.includes("body.feed-page[data-auth-ready=\"true\"]:not(.vatra-shell-pending) .feed-app > .feed-layout") &&
+ feedStyle.includes("html.vatra-editor-switching::view-transition-old(root)") &&
+ feedStyle.includes("@media(prefers-reduced-motion:reduce)") &&
+ socialMotion.includes("window.VATRA_MOTION={reveal:revealSection}") &&
+ profileScript.includes("window.VATRA_MOTION?.reveal(activePanel)") &&
+ detailsModule.includes("document.startViewTransition(()=>showGroup(id))"),
+ "VATRA routes and profile switches must fade smoothly while respecting reduced-motion settings");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
  assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
