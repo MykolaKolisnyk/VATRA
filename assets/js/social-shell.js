@@ -12,7 +12,9 @@
   return el;
  };
  let tooltip=null,hovered=null,tooltipSuppressed=null,infoDialog=null,infoTitle=null,infoText=null,infoClose=null;
+ let tooltipDismissTimer=null;
  function hideTooltip(){
+  if(tooltipDismissTimer!==null){clearTimeout(tooltipDismissTimer);tooltipDismissTimer=null;}
   if(!tooltip)return;
   tooltip.dataset.open="false";hovered=null;
  }
@@ -36,12 +38,16 @@
   // An expanded account dropdown takes priority over all header tooltips.
   // In particular, pointer movement over the account avatar must not revive
   // its tooltip after opening the menu.
-  if(!tooltip||!target||infoDialog?.open||document.querySelector(".feed-account-menu")?.open||
+  if(!tooltip||!target||infoDialog?.open||document.querySelector("dialog[open]")||
+   document.querySelector(".feed-account-menu")?.open||
    tooltipSuppressed===target||event?.pointerType==="touch")return;
   const label=target.dataset["vatraTooltip"+(lang()==="en"?"En":"Uk")];
   if(!label)return;
+  hideTooltip();
   hovered=target;tooltip.textContent=label;tooltip.dataset.open="true";
   positionTooltip(target);
+  // A hint is transient, not an overlay that persists after a route transition.
+  tooltipDismissTimer=setTimeout(hideTooltip,1800);
  }
  function setUpAccountPanel(){
   const menu=document.querySelector(".feed-account-menu");
@@ -110,6 +116,22 @@
     hideTooltip();
    });
   }
+  // Clicking anywhere, moving outside the actual icon hitbox, or losing
+  // window focus immediately dismisses a tooltip (including after navigation).
+  document.addEventListener("pointerdown",hideTooltip,true);
+  document.addEventListener("pointermove",event=>{
+   if(!hovered||event.pointerType==="touch")return;
+   const r=hovered.getBoundingClientRect();
+   if(event.clientX<r.left||event.clientX>r.right||
+      event.clientY<r.top||event.clientY>r.bottom)hideTooltip();
+  },{passive:true,capture:true});
+  document.addEventListener("focusin",event=>{
+   if(hovered&&event.target!==hovered&&!hovered.contains(event.target))hideTooltip();
+  },true);
+  window.addEventListener("blur",hideTooltip);
+  document.addEventListener("visibilitychange",()=>{
+   if(document.hidden)hideTooltip();
+  });
   document.addEventListener("keydown",event=>{
    if(event.key==="Escape")hideTooltip();
    if(event.key==="Tab")tooltipSuppressed=null;
