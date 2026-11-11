@@ -576,7 +576,11 @@
    if(navigating)return true;
    if(next.origin!==location.origin||!eligible(next))return false;
    // Clicking the already selected section should never reload its content.
-   if(next.pathname===location.pathname&&next.search===location.search&&next.hash===location.hash)return true;
+   if(next.pathname===location.pathname&&next.search===location.search){
+    // Same-page fragment links must keep normal native scrolling.
+    if(next.hash&&next.hash!==location.hash)return false;
+    return true;
+   }
    // Profile permalink routes are rewritten by GitHub Pages' 404 fallback.
    // For internal navigation fetch the real profile document (HTTP 200) first,
    // then let profile.js set /idN as the permanent visible URL with replaceState.
@@ -602,8 +606,7 @@
   document.addEventListener("click",event=>{
    if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||
     event.shiftKey||event.altKey)return;
-   const anchor=event.target.closest?.(
-    "a.social-top-link,a.feed-header-brand,a.feed-account-profile,a.profile-back-link,a.ui-community-card-001");
+   const anchor=event.target.closest?.("a[href]");
    if(!anchor||anchor.download||anchor.target&&anchor.target!=="_self")return;
    if(document.querySelector("dialog[open]"))return;
    if(to(anchor.href))event.preventDefault();
