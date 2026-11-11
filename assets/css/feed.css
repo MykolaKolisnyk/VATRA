@@ -1607,3 +1607,31 @@ body.feed-page .feed-menu-settings-toggle:hover > svg{
 body.feed-page #feed-logout > svg{
  background:#fff3f6;color:#b75b70!important;border-color:#f9e5eb
 }
+
+/* Posts published on a profile use the same reading width and card treatment
+   as those same posts in Feed, including the uploaded author photo. */
+body.profile-page.feed-page:not(.community-page) .profile-posts-section{
+ width:min(100%,700px);max-width:700px;margin:0 auto;gap:11px
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card{
+ padding:14px 16px;border:1px solid #e4eaf5;border-radius:13px;
+ background:#fff;box-shadow:0 3px 12px rgba(35,55,95,.045)
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card:hover{
+ transform:none;box-shadow:0 5px 15px rgba(35,55,95,.055)
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-avatar{
+ width:39px;height:39px;background-size:cover;background-position:center
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-name{
+ color:#34445f;font:760 15px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-date{
+ color:#8d98ab;font-size:11px
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-body{
+ margin:10px 0 1px;color:#394964;font:480 15px/1.55 "Onest",system-ui,sans-serif
+}
+@media(max-width:600px){
+ body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card{padding:12px}
+}
