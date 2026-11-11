@@ -1058,6 +1058,16 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must show real Stories and post composer before personalized posts");
+assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
+ feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .feed-post-placeholder{')&&
+ feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
+ feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories()])')&&
+ feedScript.includes('posts.append(card)')&&
+ profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id)')&&
+ profileScript.includes('void loadPosts(client,targetId)')&&
+ profileScript.includes('setImage(postAvatar,photoURLs.avatar)')&&
+ memberProfileMarkup.includes('id="profile-avatar-engagement"'),
+ "Authenticated pages must use nonblocking inline skeletons and retain real avatar engagement");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 // VATRA keeps only its optional first-time feature tour. The full five-item
