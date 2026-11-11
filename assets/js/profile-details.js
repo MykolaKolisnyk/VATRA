@@ -100,14 +100,11 @@
   let isFriend=false;
   if(!isMine&&ownId){
    const friendship=await client.from("vatra_friendships")
-    .select("id").or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
-    .eq("status","accepted").limit(300);
-   if(!friendship.error)isFriend=(friendship.data||[]).some(Boolean)&&
-    (await client.from("vatra_friendships")
-     .select("id").or(
-      "and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+"),"+
-      "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
-     ).eq("status","accepted").limit(1)).data?.length>0;
+    .select("id").or(
+     "and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+"),"+
+     "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
+    ).eq("status","accepted").limit(1);
+   isFriend=!friendship.error&&!!friendship.data?.length;
   }
   const locked=!isMine&&accountVisibility==="friends"&&!isFriend;
   const result=locked?{data:[],error:null}:await client.from("vatra_profile_details")
