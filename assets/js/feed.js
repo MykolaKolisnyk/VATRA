@@ -317,7 +317,6 @@
     if(insertError)throw insertError;
     dialog.close();text.value="";counter.textContent="0 / 2000";
     await loadPosts(true);
-    document.dispatchEvent(new Event("vatra:onboarding-progress"));
     message(t("Публікацію додано.","Post published."),"success");
    }catch(_){error.textContent=t("Не вдалося опублікувати допис.","Could not publish post.");error.hidden=false;}
    finally{submit.disabled=false;}
