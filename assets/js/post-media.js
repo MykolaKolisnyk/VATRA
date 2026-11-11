@@ -25,6 +25,35 @@
    new RegExp("^"+id+"/posts/[a-f0-9-]{36}\\."+ext+"$").test(path);
  };
  const bucketFor=kind=>kind==="image"?"vatra-post-images":"vatra-videos";
+
+ /* Render hashtag anchors as DOM nodes; never parse user-submitted HTML. */
+ function linkifyHashtags(paragraph){
+  if(!paragraph||typeof paragraph.textContent!=="string")return;
+  const original=paragraph.textContent;
+  if(!original.includes("#"))return;
+  const expression=/(^|[^\p{L}\p{N}_])#([\p{L}\p{N}_]{1,64})/gu;
+  const result=document.createDocumentFragment();
+  const siteRoot=location.pathname.startsWith("/VATRA/")?"/VATRA/":"/";
+  let offset=0,found=false,match;
+  while((match=expression.exec(original))!==null){
+   const start=match.index+match[1].length;
+   result.append(document.createTextNode(original.slice(offset,start)));
+   const tag="#"+match[2];
+   const link=document.createElement("a");
+   link.className="vt-feed-post-hashtag-001";
+   link.href=siteRoot+"feed?q="+encodeURIComponent(tag);
+   link.textContent=tag;
+   link.setAttribute("aria-label",tr("Пошук дописів за хештегом ","Search posts with hashtag ")+tag);
+   result.append(link);
+   offset=start+tag.length;
+   found=true;
+  }
+  if(found){
+   result.append(document.createTextNode(original.slice(offset)));
+   paragraph.replaceChildren(result);
+  }
+ }
+
  function bindPicker(ids){
   const input=document.querySelector(ids.input),choose=document.querySelector(ids.choose);
   const clear=document.querySelector(ids.clear),preview=document.querySelector(ids.preview);
@@ -97,5 +126,5 @@
    }
   }
  }
- window.VATRA_POST_MEDIA={bindPicker,upload,remove,mount};
+ window.VATRA_POST_MEDIA={bindPicker,upload,remove,mount,linkifyHashtags};
 })();
