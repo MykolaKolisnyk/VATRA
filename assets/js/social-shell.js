@@ -64,11 +64,14 @@
    const vp=window.visualViewport;
    const viewTop=vp?.offsetTop||0;
    const viewHeight=vp?.height||innerHeight;
-   const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
-   const gapRight=menuBox.right-headerBox.right;
-   const width=Math.min(370,innerWidth-20);
-   const gapLeft=(innerWidth-width)/2-menuBox.left;
-   const height=Math.max(0,viewTop+viewHeight-headerBox.bottom-8);
+   // Anchor the panel to the ACCOUNT BUTTON, not the centre of the header.
+   const gapTop=menuBox.height+8;
+   const gapRight=0;
+   const width=Math.min(344,innerWidth-24);
+   const minLeft=12-menuBox.left;
+   const maxLeft=innerWidth-12-width-menuBox.left;
+   const gapLeft=Math.max(minLeft,Math.min(menuBox.width-width,maxLeft));
+   const height=Math.max(0,viewTop+viewHeight-menuBox.bottom-15);
    dropdown.style.setProperty("--vatra-account-dropdown-top",Math.round(gapTop)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-right",Math.round(gapRight)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-left",Math.round(gapLeft)+"px");
@@ -166,6 +169,9 @@
   });
   document.body.append(infoDialog);
   for(const item of document.querySelectorAll("[data-vatra-coming-soon]")){
+   if(item.dataset.vatraComingSoon==="notifications"){
+    item.removeAttribute("data-vatra-coming-soon");continue;
+   }
    item.disabled=false;
    item.removeAttribute("aria-disabled");
    item.removeAttribute("title");
@@ -275,8 +281,10 @@
    // It overlays the page sidebar without affecting navigation coordinates.
    const headerTop=Math.max(oy,header?.top??oy);
    const headerBottom=Math.max(headerTop,header?.bottom??anchor.bottom);
-   const width=Math.max(0,Math.min(480,vw-20));
-   const left=ox+Math.max(10,(vw-width)/2);
+   // Align the popup beneath the left search field; its TEXT stays left-aligned.
+   const inputBox=form.getBoundingClientRect();
+   const width=Math.min(440,Math.max(inputBox.width+55,310),vw-20);
+   const left=Math.max(ox+10,Math.min(inputBox.left,ox+vw-width-10));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom+8)+"px";

@@ -27,7 +27,7 @@
   // Titles must be correct BEFORE the asynchronous English JSON arrives. Watch
   // the original <title> as HTML is parsed; no duplicate title or extra script.
   const instantEnglishTitles={
-    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",
+    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
     "404":"404 Page not found · VATRA",
     terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
@@ -271,7 +271,7 @@
   function applyTranslation(table) {
     const page=pageFromPath();
     // Community pages reuse the Feed's shared header/sidebar translations.
-    const communityShell=page==="communities"||page==="club";
+    const communityShell=page==="communities"||page==="club"||page==="notifications";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {

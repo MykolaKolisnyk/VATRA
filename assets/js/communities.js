@@ -120,7 +120,10 @@ async function start(){
   window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
-  if(ownId)void window.VATRA_PRESENCE?.start(client,ownId,meta.gender);
+  if(ownId){
+   void window.VATRA_PRESENCE?.start(client,ownId,meta.gender);
+   window.VATRA_NOTIFICATIONS?.start(client,ownId);
+  }
    if(ownId)void loadHeaderPhoto(client,ownId,user.email);
   $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){

@@ -503,6 +503,7 @@
     if(vatraId){
     void loadAvatars([vatraId]);
     void window.VATRA_PRESENCE?.start(client,vatraId,metadata.gender);
+    window.VATRA_NOTIFICATIONS?.start(client,vatraId);
    }
    if(vatraId){
     for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){

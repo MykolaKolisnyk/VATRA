@@ -1197,7 +1197,10 @@ async function start(){
   const {data:account,error:accountError}=await client.from("accounts")
    .select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=!accountError&&account?.vatra_id!=null?String(account.vatra_id):null;
-  if(ownId)void window.VATRA_PRESENCE?.start(client,ownId,metadata.gender);
+  if(ownId){
+   void window.VATRA_PRESENCE?.start(client,ownId,metadata.gender);
+   window.VATRA_NOTIFICATIONS?.start(client,ownId);
+  }
   q("#feed-header-avatar").textContent=ownAvatar;
   q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
