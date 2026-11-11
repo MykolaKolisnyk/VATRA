@@ -612,6 +612,14 @@ body.feed-page .feed-quick-media{
  color:#5175aa;cursor:pointer
 }
 body.feed-page .feed-quick-media:hover{background:#e7effe;color:#2b65d4}
+/* Unicode hashtags are links, while surrounding post text remains untouched. */
+body.feed-page .feed-post-body .vt-feed-post-hashtag-001{
+ color:#3469db;font-weight:720;text-decoration:none;overflow-wrap:anywhere
+}
+body.feed-page .feed-post-body .vt-feed-post-hashtag-001:hover,
+body.feed-page .feed-post-body .vt-feed-post-hashtag-001:focus-visible{
+ color:#654fd3;text-decoration:underline;text-underline-offset:3px
+}
 body.feed-page .feed-post-media{margin-top:13px;overflow:hidden;border-radius:12px;background:#f5f7fc}
 body.feed-page .feed-post-media-image,
 body.feed-page .feed-post-media-video{
