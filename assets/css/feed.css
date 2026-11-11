@@ -3157,3 +3157,43 @@ body.feed-page .feed-header .feed-brand-search.vatra-search-active .vatra-search
 body.feed-page .feed-header .feed-brand-search:not(.vatra-search-active) .vatra-search-back{
  opacity:0;pointer-events:none
 }
+
+/* Authenticated global search: results beneath the search field, without scope buttons. */
+body.feed-page .vatra-search-live-results{
+ display:flex;flex-direction:column;gap:12px;min-height:44px;overflow-y:auto;
+ padding:12px 14px 14px;scrollbar-width:thin;overscroll-behavior:contain
+}
+body.feed-page .vatra-search-live-results[hidden]{display:none!important}
+body.feed-page .vatra-search-live-section{display:flex;flex-direction:column;gap:4px}
+body.feed-page .vatra-search-live-section h3{
+ margin:0 0 3px;padding:3px 6px;color:#6e81a0;font:730 11.5px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-search-live-result{
+ display:flex;align-items:center;gap:10px;min-height:46px;padding:6px 7px;
+ border-radius:10px;color:#354c6e;text-decoration:none;transition:background .18s,color .18s
+}
+body.feed-page .vatra-search-live-result:hover,
+body.feed-page .vatra-search-live-result:focus-visible{background:#f0f5ff;color:#2c65cf}
+body.feed-page .vatra-search-live-icon{
+ display:grid;place-items:center;width:33px;height:33px;flex:none;
+ border:1px solid #dfe8f6;border-radius:10px;background:#eef3fe;color:#577ab8;
+ font:690 18px/1 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-search-live-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+body.feed-page .vatra-search-live-text strong{
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#334967;
+ font:730 12.5px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-search-live-text small{
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8595af;
+ font:510 11px/1.35 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-search-live-loading-001,
+body.feed-page .vt-vatra-search-live-empty-001{
+ margin:0;padding:14px 7px;color:#8293ae;font:520 12.5px/1.55 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-search-live-all-001{
+ display:block;padding:10px;text-align:center;border-top:1px solid #e8edf7;
+ color:#3a6bd0;text-decoration:none;font:720 12px/1.35 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-search-live-all-001:hover{background:#f5f8ff}
