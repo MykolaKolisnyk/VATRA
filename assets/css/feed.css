@@ -3700,3 +3700,74 @@ body.profile-page .profile-media-placeholder{
   animation:none;background-image:none;background:#e8edf6
  }
 }
+
+
+/* VATRA section changes follow the gentle 200–280 ms crossfade in the supplied
+   navigation reference. Native cross-document transitions keep the site header
+   visually steady; unsupported browsers retain an instant, accessible route. */
+@view-transition{navigation:auto}
+body.feed-page .feed-header{view-transition-name:vatra-social-header}
+::view-transition-old(root){
+ animation:140ms cubic-bezier(.4,0,1,1) both vatraRouteCrossfadeOut
+}
+::view-transition-new(root){
+ animation:270ms cubic-bezier(.18,.75,.18,1) both vatraRouteCrossfadeIn
+}
+::view-transition-group(vatra-social-header){animation-duration:160ms}
+::view-transition-old(vatra-social-header),
+::view-transition-new(vatra-social-header){
+ animation-duration:160ms;animation-timing-function:ease-in-out
+}
+@keyframes vatraRouteCrossfadeOut{
+ from{opacity:1;transform:translate3d(0,0,0)}
+ to{opacity:.05;transform:translate3d(0,-3px,0)}
+}
+@keyframes vatraRouteCrossfadeIn{
+ from{opacity:0;transform:translate3d(0,8px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+/* If a route must authenticate, reveal the real content softly after its
+   skeleton is retired, instead of letting the entire layout pop into place. */
+body.feed-page[data-auth-ready="true"]:not(.vatra-shell-pending) .feed-app > .feed-layout{
+ animation:vatraRouteReadyReveal 240ms cubic-bezier(.2,.75,.2,1) both
+}
+@keyframes vatraRouteReadyReveal{
+ from{opacity:.74;transform:translate3d(0,7px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+/* Switching editor chapters only animates the changing information, never the
+   entire page/header. This also keeps the sticky save action fully steady. */
+body.profile-page #profile-edit-workspace:not([hidden]) .profile-editor-fields{
+ view-transition-name:vatra-editor-fields
+}
+body.profile-page #profile-edit-workspace:not([hidden]) .vt-profile-editor-section-title-001{
+ view-transition-name:vatra-editor-chapter
+}
+html.vatra-editor-switching::view-transition-old(root),
+html.vatra-editor-switching::view-transition-new(root){
+ animation:none
+}
+::view-transition-old(vatra-editor-fields),
+::view-transition-old(vatra-editor-chapter){
+ animation:120ms ease-in both vatraRouteCrossfadeOut
+}
+::view-transition-new(vatra-editor-fields),
+::view-transition-new(vatra-editor-chapter){
+ animation:230ms cubic-bezier(.2,.75,.2,1) both vatraRouteCrossfadeIn
+}
+::view-transition-group(vatra-editor-fields),
+::view-transition-group(vatra-editor-chapter){animation-duration:220ms}
+@media(prefers-reduced-motion:reduce){
+ ::view-transition-old(root),::view-transition-new(root),
+ ::view-transition-old(vatra-social-header),::view-transition-new(vatra-social-header),
+ ::view-transition-old(vatra-editor-fields),::view-transition-new(vatra-editor-fields),
+ ::view-transition-old(vatra-editor-chapter),::view-transition-new(vatra-editor-chapter){
+  animation:none!important
+ }
+ ::view-transition-group(vatra-social-header),
+ ::view-transition-group(vatra-editor-fields),
+ ::view-transition-group(vatra-editor-chapter){animation-duration:0s!important}
+ body.feed-page[data-auth-ready="true"]:not(.vatra-shell-pending) .feed-app > .feed-layout{
+  animation:none!important
+ }
+}
