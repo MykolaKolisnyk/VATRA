@@ -413,10 +413,12 @@
    await loadPosts(true);
    await loadStories();
    q("#feed-app").hidden=false;
+   // Resolve the first-run state before lifting the splash, so the member sees
+   // a blurred Feed with its tutorial, not a brief unobscured jump.
+   try{await window.VATRA_ONBOARDING?.start({detail:{id:vatraId}});}catch(_){}
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
-   // The onboarding controller waits for a verified member and visible Feed.
    document.dispatchEvent(new CustomEvent("vatra:feed-ready",{detail:{id:vatraId}}));
   }catch(_){
    if(!q("#feed-app").hidden){
