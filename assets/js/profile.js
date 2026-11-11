@@ -376,7 +376,14 @@ function setupProfileGallery(client,targetId){
   const load=async(append=false)=>{
    if(busy)return;
    busy=true;list.setAttribute("aria-busy","true");more.disabled=true;
-   if(!append){offset=0;list.replaceChildren();}
+   if(!append){
+    offset=0;
+    const placeholders=Array.from({length:3},(_,i)=>{
+     const tile=node("div","profile-media-placeholder ui-profile-media-placeholder-"+settings.kind+"-"+i);
+     tile.setAttribute("aria-hidden","true");return tile;
+    });
+    list.replaceChildren(...placeholders);
+   }
    empty.hidden=true;
    try{
     let query=client.from("feed_posts")
@@ -387,6 +394,7 @@ function setupProfileGallery(client,targetId){
      .range(offset,offset+11);
     if(error)throw error;
     const rows=(data||[]).filter(item=>!!item.media_path);
+    if(!append)list.replaceChildren();
     for(const post of rows){
      const tile=node("article","profile-media-tile ui-profile-media-tile-001");
      tile.setAttribute("aria-label",settings.kind==="image"?t("Фото","Photo"):t("Відео","Video"));
@@ -401,6 +409,7 @@ function setupProfileGallery(client,targetId){
      empty.hidden=false;
     }
    }catch(_){
+    if(!append)list.replaceChildren();
     empty.textContent=t("Не вдалося завантажити медіа.","Could not load media.");
     empty.hidden=false;
    }finally{busy=false;list.setAttribute("aria-busy","false");more.disabled=false;}
