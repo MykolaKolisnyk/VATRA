@@ -96,7 +96,7 @@
   const preference=await client.from("vatra_profile_preferences")
    .select("profile_visibility").eq("vatra_id",targetId).maybeSingle();
   // A preferences query failure must not be treated as an open account.
-  const accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
+  let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   let isFriend=false;
   if(!isMine&&ownId){
    const friendship=await client.from("vatra_friendships")
@@ -229,6 +229,9 @@
    visibility!==accountVisibility;
   const close=()=>{
    if(hasChanges()&&!confirm(tr("Незбережені зміни буде втрачено. Вийти?","Discard unsaved changes?")))return;
+   draft.clear();
+   for(const [key,value] of saved)draft.set(key,{...value});
+   visibility=accountVisibility;
    workspace.hidden=true;hero.hidden=false;panels.hidden=false;
    scrollTo({top:0,behavior:"instant"});
   };
