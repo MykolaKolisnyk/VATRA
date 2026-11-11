@@ -2351,12 +2351,14 @@ try{
    "Authenticated Feed must not block its header while posts load");
   assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_MOTION?.reveal),"function",
    "The shared VATRA shell must expose accessible in-page crossfade motion");
+  assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_NAVIGATE?.to),"function",
+   "Internal links must use the router-safe soft navigation transition");
   const routeMotion=await feedProbe.evaluate(()=>({
    header:getComputedStyle(document.querySelector(".feed-header")).viewTransitionName,
    supported:CSS.supports("view-transition-name","vatra-social-header")
   }));
   if(routeMotion.supported)assert.equal(routeMotion.header,"vatra-social-header",
-   "Native cross-document transitions must preserve the top navigation as one element");
+   "Same-document transitions must preserve the social header as one element");
   assert.equal(await feedProbe.locator(".feed-header").isVisible(),true,
    "The persistent header must render before slow Feed posts");
   assert.equal(await feedProbe.locator(".vatra-route-skeleton:visible").count(),0,
