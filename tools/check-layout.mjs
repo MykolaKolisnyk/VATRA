@@ -495,7 +495,10 @@ for(const id of ["standard-login-panel","saved-account-panel","saved-login-form"
  assert.ok(savedUI.includes('id="'+id+'"'),"Saved account control missing: "+id);
 }
 assert.ok(auth.includes('const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account"')&&
- auth.includes('JSON.stringify({v:1,email,name})')&&
+ auth.includes('const entry={v:1,email,name};')&&
+ auth.includes('window.VATRA_AVATAR?.getRemembered(email)')&&
+ !auth.includes('entry.password=')&&
+ !auth.includes('entry.access_token=')&&
  !auth.includes('JSON.stringify({v:1,email,name,password')&&
  auth.includes('auth.auth.verifyOtp({token_hash:token,type})')&&
  auth.includes('const allowed=new Set(["email","magiclink","invite","email_change"])')&&
