@@ -1177,12 +1177,22 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
  feedScript.includes('posts.append(card(item))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email)')&&
- profileScript.includes('const postsPromise=loadPosts(client,targetId,ownId,user.id)')&&
+ profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
+ profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine})')&&
  profileScript.includes('try{await mediaPromise;}')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
  memberProfileMarkup.includes('id="profile-avatar-engagement"'),
  "Authenticated pages must use nonblocking inline skeletons and retain real avatar engagement");
+const detailsModule=await read("assets/js/profile-details.js");
+assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
+assert.ok(memberProfileMarkup.includes('assets/js/profile-details.js') &&
+ detailsModule.includes('profile-editor-page-visibility') &&
+ detailsModule.includes('from("vatra_profile_details")') &&
+ detailsModule.includes('from("vatra_profile_preferences")') &&
+ detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
+ feedStyle.includes("body.profile-page .profile-editor-layout"),
+ "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
  assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
