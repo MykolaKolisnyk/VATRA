@@ -33,13 +33,24 @@
   tooltip.style.top=Math.round(top)+"px";
  }
  function showTooltip(target,event){
-  if(!tooltip||!target||infoDialog?.open||tooltipSuppressed===target||event?.pointerType==="touch")return;
+  // An expanded account dropdown takes priority over all header tooltips.
+  // In particular, pointer movement over the account avatar must not revive
+  // its tooltip after opening the menu.
+  if(!tooltip||!target||infoDialog?.open||document.querySelector(".feed-account-menu")?.open||
+   tooltipSuppressed===target||event?.pointerType==="touch")return;
   const label=target.dataset["vatraTooltip"+(lang()==="en"?"En":"Uk")];
   if(!label)return;
   hovered=target;tooltip.textContent=label;tooltip.dataset.open="true";
   positionTooltip(target);
  }
  function setUpTooltip(){
+  const accountMenu=document.querySelector(".feed-account-menu");
+  accountMenu?.addEventListener("toggle",()=>{
+   if(accountMenu.open){
+    tooltipSuppressed=accountMenu.querySelector(".feed-account-toggle");
+    hideTooltip();
+   }
+  });
   tooltip=make("div","vatra-shell-tooltip");
   tooltip.id="vatra-shell-tooltip";
   tooltip.setAttribute("role","tooltip");
@@ -65,7 +76,8 @@
    });
    target.addEventListener("blur",hideTooltip);
    target.addEventListener("click",()=>{
-    // Native dialogs restore focus: never re-open a tip without fresh user intent.
+    // Native dialogs and <details> restore focus. Require a fresh hover
+    // after they close; never leave a tooltip above an open account menu.
     tooltipSuppressed=target;
     hideTooltip();
    });
