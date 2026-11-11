@@ -682,17 +682,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  buttonCover.addEventListener("click",()=>fileCover.click());
  fileAvatar.addEventListener("change",()=>{if(fileAvatar.files?.[0])void uploadImage(fileAvatar.files[0],"avatar");});
  fileCover.addEventListener("change",()=>{if(fileCover.files?.[0])void uploadImage(fileCover.files[0],"cover");});
- try{
-  const setupTarget=sessionStorage.getItem("vatra.setup.media.v1");
-  if(setupTarget==="avatar"||setupTarget==="cover"){
-   sessionStorage.removeItem("vatra.setup.media.v1");
-   const button=setupTarget==="avatar"?buttonAvatar:buttonCover;
-   status(setupTarget==="avatar"?
-    t("Натисніть «Змінити фото» та оберіть зображення.","Select Edit photo to upload an image."):
-    t("Натисніть «Змінити обкладинку» та оберіть зображення.","Select Edit cover to upload an image."));
-   requestAnimationFrame(()=>button.focus({preventScroll:true}));
-  }
- }catch(_){}
+
 }
 async function loadOwnHeaderAvatar(client,ownId){
  if(!validId(ownId))return;
