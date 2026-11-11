@@ -1638,3 +1638,29 @@ body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-po
 @media(max-width:600px){
  body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card{padding:12px}
 }
+
+
+/* Post-loading placeholders belong to the Feed, never to a blocking overlay. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-post-placeholder{
+ display:flex;flex-direction:column;gap:13px;
+ min-height:122px;padding:17px 18px;border:1px solid #e4eaf4;
+ border-radius:13px;background:#fff
+}
+body.feed-page .feed-post-placeholder > span{
+ display:block;border-radius:9px;background:#edf1f7;
+ background-image:linear-gradient(105deg,#edf1f7 25%,#f7f9fd 47%,#edf1f7 70%);
+ background-size:230% 100%;animation:vatraSkeletonShift 1.7s linear infinite
+}
+body.feed-page .feed-post-placeholder-head{width:42%;height:30px}
+body.feed-page .feed-post-placeholder-line{width:95%;height:13px}
+body.feed-page .feed-post-placeholder-line.short{width:62%}
+@media(prefers-reduced-motion:reduce){
+ body.feed-page .feed-post-placeholder > span{animation:none}
+}
+/* The same feed_posts entry must look the same on a profile and in Feed. */
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-name{
+ color:#34445f;font:760 14px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-body{
+ margin:10px 0 1px;color:#394964;font:480 14px/1.55 "Onest",system-ui,sans-serif
+}
