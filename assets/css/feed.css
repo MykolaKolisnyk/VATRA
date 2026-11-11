@@ -1465,7 +1465,9 @@ body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-me
 }
 /* A photo dialog is a browser top-layer modal; hide the page scrollbar
    without blocking the independently scrollable comment column. */
-html:has(#profile-media-viewer[open]),
+html:has(#profile-media-viewer[open]){
+ overflow:hidden!important;scrollbar-gutter:auto!important
+}
 body:has(#profile-media-viewer[open]){overflow:hidden!important}
 body.profile-page .profile-media-viewer[open]{
  display:grid;grid-template-columns:minmax(0,1fr) clamp(310px,27vw,420px);
