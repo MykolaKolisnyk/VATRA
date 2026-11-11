@@ -1129,6 +1129,13 @@ feedMarkup.includes('id="feed-compose-media"') &&
  communityScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
  postMediaScript.includes('createSignedUrl(path,3600)'),
  "VATRA photos and videos must be attached, published and displayed across all post surfaces");
+assert.ok(
+ communityScript.includes("postPattern.test(linkedId") &&
+ communityScript.includes('.eq("club_id",clubId).eq("id",linkedId)') &&
+ communityScript.includes('target.scrollIntoView({block:"center",behavior:"smooth"})') &&
+ (await read("assets/js/post-interactions.js")).includes('validUUID(post.id)?"?post="') &&
+ (await read("assets/js/social-shell.js")).includes('validPost(entry.id)?"?post="'),
+ "Community publications from live search and sharing must open their exact post");
 const feedStyle=await read("assets/css/feed.css");
 assert.doesNotThrow(()=>new Function(feedScript),"Feed script must remain valid JavaScript");
 assert.ok(
