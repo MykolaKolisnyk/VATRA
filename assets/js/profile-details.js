@@ -76,7 +76,24 @@
    arrow:"M19 12H5m7 7-7-7 7-7",
    edit:"M13.5 5.5 18.5 10.5M4 20l4-1 10-10a2.5 2.5 0 0 0-3.5-3.5l-10 10L4 20Z",
    photo:"M4 5h16v14H4zM8.5 9a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6ZM4 16l5-5 4 4 3-3 4 4",
-   check:"M5 12l4 4L19 6"
+   check:"M5 12l4 4L19 6",
+   "map-pin":"M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0ZM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6",
+   heart:"M20.8 5.7a5.4 5.4 0 0 0-7.6 0L12 7l-1.2-1.3a5.4 5.4 0 0 0-7.6 7.6L12 22l8.8-8.7a5.4 5.4 0 0 0 0-7.6",
+   globe:"M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM2 12h20M12 2c-3 3-4.5 6.3-4.5 10S9 19 12 22M12 2c3 3 4.5 6.3 4.5 10S15 19 12 22",
+   link:"M10.5 13.5l3-3M8.5 16.5H7a5 5 0 0 1 0-10h4M15.5 7.5H17a5 5 0 0 1 0 10h-4",
+   "book-open":"M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1m0-14c3-2 6-2 9-1v14c-3-1-6-1-9 1M12 6v14",
+   "graduation-cap":"m2 8 10-5 10 5-10 5L2 8Zm4 4v5c3 2.5 9 2.5 12 0v-5M22 8v7",
+   "briefcase-business":"M4 7h16a2 2 0 0 1 2 2v10H2V9a2 2 0 0 1 2-2Zm4 0V4h8v3M2 13c6 4 14 4 20 0",
+   users:"M9 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM2 21v-2a7 7 0 0 1 14 0v2M16 4a4 4 0 0 1 0 8M18 15a6 6 0 0 1 4 6",
+   compass:"M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4 6-2.5 5.5L8 16l2.5-5.5L16 8Z",
+   music:"M9 17V5l12-2v12M9 8l12-2M9 17a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm12-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0",
+   phone:"M6 2h4l1 5-3 2a17 17 0 0 0 7 7l2-3 5 1v4a3 3 0 0 1-3 3C10 21 3 14 3 5a3 3 0 0 1 3-3",
+   sparkles:"m12 3 1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8L12 3Z",
+   film:"M4 4h16v16H4zM8 4v16M16 4v16M4 9h4m8 0h4M4 15h4m8 0h4",
+   "gamepad-2":"M8 8h8c3 0 5 2 6 7l-2 4c-1 2-3 2-5 0l-2-2h-2l-2 2c-2 2-4 2-5 0l-2-4c1-5 3-7 6-7Zm1 4v5m-2.5-2.5h5M17 13h.01M19 15h.01",
+   "quote":"M4 6h6v6l-3 5H4l3-5H4V6Zm10 0h6v6l-3 5h-3l3-5h-3V6",
+   "file-text":"M6 2h8l5 5v15H6zM14 2v5h5M9 12h7M9 16h7",
+   arrow:"M5 12h14m-7-7 7 7-7 7"
   };
   const ns="http://www.w3.org/2000/svg",element=document.createElementNS(ns,"svg");
   element.setAttribute("class","ui-vatra-profile-information-icon-"+kind);
@@ -122,6 +139,19 @@
   }
   const fieldsByKey=new Map(groups.flatMap(group=>group.fields).map(field=>[field[0],field]));
   const featured=["city","hometown","relationship","website"];
+  const fieldIcons={
+   city:"map-pin",hometown:"map-pin",relationship:"heart",website:"link",
+   short_bio:"file-text",about_me:"file-text",family:"users",languages:"globe",
+   address:"map-pin",mobile_phone:"phone",additional_phone:"phone",
+   school:"graduation-cap",university:"graduation-cap",education_extra:"book-open",
+   workplace:"briefcase-business",job_title:"briefcase-business",career_extra:"briefcase-business",
+   activities:"sparkles",hobbies:"heart",favorite_music:"music",
+   favorite_movies:"film",favorite_tv:"film",favorite_books:"book-open",
+   favorite_games:"gamepad-2",favorite_quotes:"quote",military_service:"shield",
+   political_views:"compass",worldview:"compass",life_priorities:"compass",
+   important_in_people:"users",attitude_to_smoking:"compass",attitude_to_alcohol:"compass",
+   inspiration:"sparkles"
+  };
   const fallback=[
    "short_bio","activities","hobbies","languages","school","university",
    "workplace","job_title","family","about_me","favorite_music","favorite_movies",
@@ -156,10 +186,6 @@
    if(event.target===modal)modal.close();
   });
   const visibleField=key=>String(saved.get(key)?.value||"").trim();
-  const audienceLabel=visibility=>{
-   const audience=audiences.find(item=>item[0]===visibility);
-   return audience?tr(audience[1],audience[2]):"";
-  };
   const safeWebsite=value=>{
    try{
     const candidate=/^https?:\/\//i.test(value)?value:"https://"+value;
@@ -174,6 +200,11 @@
    const item=make("div",detailed?
     "vatra-profile-details-row ui-profile-detail-row-"+key:
     "profile-information-item ui-profile-information-item-"+key);
+   const badge=make("span",detailed?
+    "vatra-profile-detail-icon ui-vatra-profile-detail-icon-"+key:
+    "vatra-profile-summary-icon ui-vatra-profile-summary-icon-"+key);
+   badge.append(svg(fieldIcons[key]||"file-text"));
+   badge.setAttribute("aria-hidden","true");
    const label=make("span",detailed?
     "vt-profile-detail-label-"+key:"vt-profile-information-label-"+key,tr(field[1],field[2]));
    const content=make("span",detailed?
@@ -186,12 +217,7 @@
      content.append(link);
     }else content.textContent=data.value;
    }else content.textContent=data.value;
-   item.append(label,content);
-   if(isMine&&detailed){
-    const hint=make("span","vt-profile-detail-audience-"+key,audienceLabel(data.visibility));
-    hint.setAttribute("aria-label",tr("Видимість поля","Field visibility")+": "+audienceLabel(data.visibility));
-    item.append(hint);
-   }
+   item.append(badge,label,content);
    return item;
   };
   const renderDetails=()=>{
@@ -212,9 +238,19 @@
     if(!keys.length)continue;
     const section=make("section","vatra-profile-details-section ui-vatra-profile-details-section-"+group.id);
     const head=make("h3","vt-vatra-profile-details-section-title-"+group.id,lang(group.label));
-    section.append(head);
+    const headingRow=make("div","vatra-profile-details-section-head ui-vatra-profile-details-section-head-"+group.id);
+    const sectionIcon=make("span","vatra-profile-details-section-icon ui-vatra-profile-details-section-icon-"+group.id);
+    sectionIcon.append(svg(group.id==="overview"?"user":groups.find(x=>x.id===group.id)?.icon||"file-text"));
+    headingRow.append(sectionIcon,head);section.append(headingRow);
     for(const key of keys){section.append(itemFor(key,true));count++;}
     modalContent.append(section);
+   }
+   if(count&&isMine){
+    const footer=make("div","vatra-profile-details-footer ui-vatra-profile-details-footer-001");
+    const edit=make("button","vt-vatra-profile-details-edit-001",tr("Редагувати інформацію","Edit information"));
+    edit.type="button";edit.append(svg("edit"));
+    edit.addEventListener("click",()=>{modal.close();openEditor();});
+    footer.append(edit);modalContent.append(footer);
    }
    if(!count){
     const empty=make("div","vatra-profile-details-empty ui-vatra-profile-details-empty-001");
@@ -239,7 +275,7 @@
   const renderInfo=()=>{
    sections.replaceChildren();
    if(!card||!paragraph)return;
-   more.hidden=locked||Boolean(result.error);
+   more.hidden=true;
    if(result.error){
     paragraph.hidden=false;
     paragraph.textContent=tr("Не вдалося завантажити інформацію.","Could not load profile information.");
@@ -259,6 +295,9 @@
     if(visibleField(key)&&!selected.includes(key))selected.push(key);
    }
    for(const key of selected.slice(0,3))sections.append(itemFor(key,false));
+   const additional=[...fieldsByKey.keys()].filter(key=>visibleField(key)&&!selected.includes(key));
+   const hasLongPreview=selected.some(key=>visibleField(key).length>75);
+   more.hidden=locked||!!result.error||(!additional.length&&!hasLongPreview);
    paragraph.hidden=selected.length>0;
    if(!selected.length)paragraph.textContent=isMine?
     tr("Розкажіть трохи про себе. Ви самі визначаєте, хто це побачить.",
