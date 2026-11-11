@@ -624,8 +624,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
   coverView.hidden=!photoURLs.cover;
-  if(photoURLs.cover)cover.style.setProperty("--vatra-cover-image","url("+JSON.stringify(photoURLs.cover)+")");
-  if(photoURLs.cover)cover.classList.add("has-photo");
+  // Render the real cover as one rectangular background layer, never a decorative pseudo-element.
+  if(photoURLs.cover)setImage(cover,photoURLs.cover);
+  else{cover.style.removeProperty("background-image");cover.classList.remove("has-photo");}
   if(photoURLs.avatar){
    setImage(avatar,photoURLs.avatar);avatar.textContent="";
    // Posts may load before profile media; update their avatars after the
