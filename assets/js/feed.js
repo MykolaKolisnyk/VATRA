@@ -184,12 +184,14 @@
    const remove=node("button","feed-post-delete vt-feed-post-delete-001",t("Видалити","Delete"));
    remove.type="button";
    remove.addEventListener("click",()=>{
-    pendingDelete={id:post.id,kind:post.kind};
+    pendingDelete={id:post.id,kind:post.kind,media_kind:post.media_kind,media_path:post.media_path};
     deleteDialog?.showModal();q("#feed-delete-cancel")?.focus();
    });
    head.append(remove);
   }
-  item.append(head,node("p","feed-post-body vt-feed-post-body-001",post.body));
+  item.append(head);
+   if(post.body)item.append(node("p","feed-post-body vt-feed-post-body-001",post.body));
+   if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,item);
   return item;
  }
  function renderPage(reset=false){
@@ -212,13 +214,13 @@
    await loadSubscriptions();
    // Filter member posts on the server, not after downloading every user's Feed.
    // Legacy test clients without an .in() method still work with the local filter.
-   let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at");
+   let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at,media_kind,media_path");
    if(typeof personalQuery.in==="function")
     personalQuery=personalQuery.in("author_vatra_id",[...friends]);
    const [people,groups]=await Promise.allSettled([
     personalQuery.order("created_at",{ascending:false}).range(0,199),
     followedClubs.size?client.from("vatra_community_posts")
-     .select("id,club_id,author_vatra_id,body,created_at")
+     .select("id,club_id,author_vatra_id,body,created_at,media_kind,media_path")
      .in("club_id",[...followedClubs.keys()])
      .order("created_at",{ascending:false}).range(0,199):Promise.resolve({data:[],error:null})
    ]);
@@ -298,28 +300,42 @@
   const dialog=q("#feed-compose-dialog"),form=q("#feed-compose-form");
   const text=q("#feed-compose-text"),error=q("#feed-compose-error");
   const submit=q("#feed-compose-save"),counter=q("#feed-compose-counter");
+  const showError=value=>{error.textContent=value;error.hidden=!value;};
+  const picker=window.VATRA_POST_MEDIA?.bindPicker({
+   input:"#feed-compose-media",choose:"#feed-compose-media-choose",
+   clear:"#feed-compose-media-remove",preview:"#feed-compose-media-preview",
+   onError:showError
+  });
   q("#feed-composer-avatar").textContent=initials(displayName);
-  q("#feed-compose-open").addEventListener("click",()=>{
-   error.hidden=true;dialog.showModal();text.focus();
+  const open=()=>{showError("");dialog.showModal();text.focus();};
+  q("#feed-compose-open").addEventListener("click",open);
+  q("#feed-quick-media")?.addEventListener("click",()=>{
+   open();q("#feed-compose-media-choose")?.click();
   });
   q("#feed-compose-cancel").addEventListener("click",()=>dialog.close());
   text.addEventListener("input",()=>{counter.textContent=Array.from(text.value).length+" / 2000";});
   form.addEventListener("submit",async event=>{
    event.preventDefault();
    if(submit.disabled||!validId(vatraId))return;
-   const body=text.value.trim();
-   if(!body||Array.from(body).length>POST_LIMIT)return;
-   submit.disabled=true;error.hidden=true;
+   const body=text.value.trim(),file=picker?.getFile();
+   if((!body&&!file)||Array.from(body).length>POST_LIMIT){
+    showError(t("Додайте текст, фото або відео.","Add text, a photo or a video."));return;
+   }
+   submit.disabled=true;showError("");
+   let uploaded=null;
    try{
+    if(file)uploaded=await window.VATRA_POST_MEDIA.upload(client,vatraId,file);
     const {error:insertError}=await client.from("feed_posts").insert({
-     author_id:user.id,author_vatra_id:vatraId,body
+     author_id:user.id,author_vatra_id:vatraId,body,...(uploaded||{})
     });
     if(insertError)throw insertError;
-    dialog.close();text.value="";counter.textContent="0 / 2000";
+    dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();
     await loadPosts(true);
     message(t("Публікацію додано.","Post published."),"success");
-   }catch(_){error.textContent=t("Не вдалося опублікувати допис.","Could not publish post.");error.hidden=false;}
-   finally{submit.disabled=false;}
+   }catch(ex){
+    if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
+    showError(ex?.message||t("Не вдалося опублікувати допис.","Could not publish post."));
+   }finally{submit.disabled=false;}
   });
   const storyDialog=q("#feed-story-dialog"),storyForm=q("#feed-story-form");
   const storyText=q("#feed-story-text"),storyError=q("#feed-story-error");
@@ -352,6 +368,7 @@
    const table=toDelete.kind==="group"?"vatra_community_posts":"feed_posts";
    const {error}=await client.from(table).delete().eq("id",toDelete.id);
    if(error)throw error;
+   if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
    deleteDialog.close();pendingDelete=null;
    await loadPosts(true);message(t("Публікацію видалено.","Post deleted."),"success");
   }catch(_){deleteDialog.close();pendingDelete=null;message(t("Не вдалося видалити.","Could not delete post."));}
