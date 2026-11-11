@@ -190,6 +190,7 @@ function appendAudience(container,level,isGroup=false){
   const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
   const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Показувати:","Show:"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
+  sort.name="vatra_post_comments_sort";
   for(const [id,uk,en] of [
    ["relevant","Найактуальніші","Most relevant"],
    ["newest","Найновіші","Newest"],
@@ -217,6 +218,7 @@ function appendAudience(container,level,isGroup=false){
   more.type="button";more.hidden=true;
   const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001");
   const input=make("textarea","ui-vatra-post-comment-input-001");
+  input.name="vatra_post_comment";
   input.maxLength=1000;input.rows=2;input.required=true;
   input.placeholder=tr("Написати коментар…","Write a comment…");
   input.setAttribute("aria-label",tr("Ваш коментар","Your comment"));
@@ -442,12 +444,14 @@ function appendAudience(container,level,isGroup=false){
 const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post-share-visibility-001");
   const shareAudienceText=make("span","vt-vatra-post-share-visibility-text-001",tr("Хто може бачити","Who can see this"));
   const shareAudience=make("select","ui-vatra-post-share-visibility-select-001");
+  shareAudience.name="vatra_share_visibility";
   for(const [value,uk,en] of [["public","Публічно","Public"],["friends","Друзі","Friends"],["only_me","Лише я","Only me"]]){
    const option=make("option","vt-vatra-post-share-option-"+value,tr(uk,en));option.value=value;
    shareAudience.append(option);
   }
   shareAudienceLabel.append(shareAudienceText,shareAudience);
   const shareCaption=make("textarea","ui-vatra-post-share-caption-001");
+  shareCaption.name="vatra_share_caption";
   shareCaption.rows=3;shareCaption.maxLength=1800;
   shareCaption.placeholder=tr("Розкажіть щось про цю публікацію…","Say something about this post…");
   shareCaption.setAttribute("aria-label",tr("Ваш коментар до поширення","Your share caption"));
@@ -471,6 +475,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   const sendRow=make("div","vatra-post-share-friend-row ui-vatra-post-share-friend-row-001");
   sendRow.hidden=true;
   const friendSelect=make("select","ui-vatra-post-share-friend-select-001");
+  friendSelect.name="vatra_share_friend";
   friendSelect.setAttribute("aria-label",tr("Оберіть друга","Choose a friend"));
   const sendDM=make("button","vt-vatra-post-send-message-001",tr("Надіслати","Send"));
   sendDM.type="button";sendRow.append(friendSelect,sendDM);
