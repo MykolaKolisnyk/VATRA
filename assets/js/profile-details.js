@@ -114,10 +114,132 @@
    value:String(x.field_value||""),visibility:x.visibility||"friends"
   }]));
   const draft=new Map([...saved.entries()].map(([key,value])=>[key,{...value}]));
+  const title=select("#profile-about-heading");
+  if(title){
+   title.textContent=tr("Про мене","About me");
+   title.dataset.socialUk="Про мене";
+   title.dataset.socialEn="About me";
+  }
+  const fieldsByKey=new Map(groups.flatMap(group=>group.fields).map(field=>[field[0],field]));
+  const featured=["city","hometown","relationship","website"];
+  const fallback=[
+   "short_bio","activities","hobbies","languages","school","university",
+   "workplace","job_title","family","about_me","favorite_music","favorite_movies",
+   "favorite_books","favorite_games","inspiration","worldview","life_priorities",
+   "important_in_people","education_extra","career_extra","favorite_tv",
+   "favorite_quotes","military_service","political_views","attitude_to_smoking",
+   "attitude_to_alcohol","address","mobile_phone","additional_phone"
+  ];
   const sections=make("div","profile-information-groups ui-profile-information-groups-001");
+  const more=make("button","vt-profile-about-more-001",tr("Докладніше","More details"));
+  more.type="button";more.id="profile-about-more";
+  more.append(svg("arrow"));
+  more.setAttribute("aria-haspopup","dialog");
+  const modal=make("dialog","vatra-profile-details-dialog ui-vatra-profile-details-dialog-001");
+  modal.id="vatra-profile-details-dialog";
+  modal.setAttribute("aria-labelledby","vatra-profile-details-heading");
+  const modalHeader=make("div","vatra-profile-details-header ui-vatra-profile-details-header-001");
+  const modalTitles=make("div","ui-vatra-profile-details-titles-001");
+  const modalEyebrow=make("span","vt-vatra-profile-details-eyebrow-001",tr("ПРО МЕНЕ · VATRA","ABOUT ME · VATRA"));
+  const modalTitle=make("h2","vt-vatra-profile-details-title-001",tr("Докладна інформація","Detailed information"));
+  modalTitle.id="vatra-profile-details-heading";
+  modalTitles.append(modalEyebrow,modalTitle);
+  const closeModal=make("button","vt-vatra-profile-details-close-001","×");
+  closeModal.type="button";
+  closeModal.setAttribute("aria-label",tr("Закрити докладну інформацію","Close detailed information"));
+  modalHeader.append(modalTitles,closeModal);
+  const modalContent=make("div","vatra-profile-details-content ui-vatra-profile-details-content-001");
+  modal.append(modalHeader,modalContent);
+  document.body.append(modal);
+  closeModal.addEventListener("click",()=>modal.close());
+  modal.addEventListener("click",event=>{
+   if(event.target===modal)modal.close();
+  });
+  const visibleField=key=>String(saved.get(key)?.value||"").trim();
+  const audienceLabel=visibility=>{
+   const audience=audiences.find(item=>item[0]===visibility);
+   return audience?tr(audience[1],audience[2]):"";
+  };
+  const safeWebsite=value=>{
+   try{
+    const candidate=/^https?:\/\//i.test(value)?value:"https://"+value;
+    const parsed=new URL(candidate);
+    if(!["http:","https:"].includes(parsed.protocol)||!parsed.hostname.includes("."))return null;
+    return parsed.href;
+   }catch(_){return null;}
+  };
+  const itemFor=(key,detailed)=>{
+   const field=fieldsByKey.get(key),data=saved.get(key);
+   if(!field||!visibleField(key))return null;
+   const item=make("div",detailed?
+    "vatra-profile-details-row ui-profile-detail-row-"+key:
+    "profile-information-item ui-profile-information-item-"+key);
+   const label=make("span",detailed?
+    "vt-profile-detail-label-"+key:"vt-profile-information-label-"+key,tr(field[1],field[2]));
+   const content=make("span",detailed?
+    "vt-profile-detail-value-"+key:"vt-profile-information-value-"+key);
+   if(key==="website"){
+    const href=safeWebsite(data.value.trim());
+    if(href){
+     const link=make("a",detailed?"vt-profile-detail-website-001":"vt-profile-about-website-001",data.value.trim());
+     link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
+     content.append(link);
+    }else content.textContent=data.value;
+   }else content.textContent=data.value;
+   item.append(label,content);
+   if(isMine&&detailed){
+    const hint=make("span","vt-profile-detail-audience-"+key,audienceLabel(data.visibility));
+    hint.setAttribute("aria-label",tr("Видимість поля","Field visibility")+": "+audienceLabel(data.visibility));
+    item.append(hint);
+   }
+   return item;
+  };
+  const renderDetails=()=>{
+   modalContent.replaceChildren();
+   modalEyebrow.textContent=tr("ПРО МЕНЕ · VATRA","ABOUT ME · VATRA");
+   modalTitle.textContent=tr("Докладна інформація","Detailed information");
+   closeModal.setAttribute("aria-label",tr("Закрити докладну інформацію","Close detailed information"));
+   const detailGroups=[
+    {id:"overview",label:["Основне","Overview"],keys:featured},
+    ...groups.map(group=>({
+     id:group.id,label:group.label,
+     keys:group.fields.map(field=>field[0]).filter(key=>!featured.includes(key))
+    }))
+   ];
+   let count=0;
+   for(const group of detailGroups){
+    const keys=group.keys.filter(key=>visibleField(key));
+    if(!keys.length)continue;
+    const section=make("section","vatra-profile-details-section ui-vatra-profile-details-section-"+group.id);
+    const head=make("h3","vt-vatra-profile-details-section-title-"+group.id,lang(group.label));
+    section.append(head);
+    for(const key of keys){section.append(itemFor(key,true));count++;}
+    modalContent.append(section);
+   }
+   if(!count){
+    const empty=make("div","vatra-profile-details-empty ui-vatra-profile-details-empty-001");
+    empty.append(svg("user"),make("p","vt-vatra-profile-details-empty-label-001",
+     isMine?tr("Відомостей поки немає. Додайте те, чим бажаєте поділитися.",
+      "No details yet. Add what you would like to share."):
+      tr("Користувач ще не додав доступної вам інформації.",
+       "This member has not shared any information with you.")));
+    if(isMine){
+     const edit=make("button","vt-vatra-profile-details-edit-001",tr("Редагувати сторінку","Edit profile"));
+     edit.type="button";
+     edit.addEventListener("click",()=>{modal.close();openEditor();});
+     empty.append(edit);
+    }
+    modalContent.append(empty);
+   }
+  };
+  more.addEventListener("click",()=>{
+   if(locked)return;
+   renderDetails();modal.showModal();closeModal.focus({preventScroll:true});
+  });
   const renderInfo=()=>{
    sections.replaceChildren();
    if(!card||!paragraph)return;
+   more.hidden=locked||Boolean(result.error);
    if(result.error){
     paragraph.hidden=false;
     paragraph.textContent=tr("Не вдалося завантажити інформацію.","Could not load profile information.");
@@ -128,33 +250,23 @@
     paragraph.textContent=tr("Інформація доступна лише друзям.","Information is available to friends only.");
     return;
    }
-   let visible=0;
-   for(const group of groups){
-    const present=group.fields.filter(field=>saved.get(field[0])?.value);
-    if(!present.length)continue;
-    const box=make("section","profile-information-group ui-profile-information-group-"+group.id);
-    box.append(make("h3","vt-profile-information-heading-"+group.id,lang(group.label)));
-    for(const field of present){
-     const data=saved.get(field[0]);
-     const item=make("div","profile-information-item ui-profile-information-item-"+field[0]);
-     const name=make("span","vt-profile-information-label-"+field[0],tr(field[1],field[2]));
-     const val=make("span","vt-profile-information-value-"+field[0],data.value);
-     item.append(name,val);
-     if(isMine){
-      const privateHint=make("span","vt-profile-information-audience-"+field[0],
-       audiences.find(x=>x[0]===data.visibility)?.[document.documentElement.lang==="en"?2:1]||"");
-      privateHint.title=tr("Видимість поля","Field visibility");item.append(privateHint);
-     }
-     box.append(item);visible++;
-    }
-    sections.append(box);
+   // Only one location can appear in the preview: current city takes priority.
+   const locationKey=visibleField("city")?"city":visibleField("hometown")?"hometown":null;
+   const selected=[locationKey,"relationship","website"].filter(key=>key&&visibleField(key));
+   // Missing priority fields are replaced with other available, RLS-filtered values.
+   for(const key of fallback){
+    if(selected.length>=3)break;
+    if(visibleField(key)&&!selected.includes(key))selected.push(key);
    }
-   paragraph.hidden=visible>0;
-   if(!visible)paragraph.textContent=isMine?
-    tr("Додайте інформацію про себе, яку бажаєте показувати.","Add information you want to share."):
-    tr("Користувач ще не додав доступної вам інформації.","No information is available to you.");
+   for(const key of selected.slice(0,3))sections.append(itemFor(key,false));
+   paragraph.hidden=selected.length>0;
+   if(!selected.length)paragraph.textContent=isMine?
+    tr("Розкажіть трохи про себе. Ви самі визначаєте, хто це побачить.",
+     "Tell others a little about yourself. You control who sees it."):
+    tr("Користувач ще не додав доступної вам інформації.",
+     "This member has not shared any information with you.");
   };
-  if(card){card.append(sections);renderInfo();}
+  if(card){card.append(sections,more);renderInfo();}
   if(locked){
    select(".social-profile-tabs")?.setAttribute("hidden","");
    select(".profile-panels")?.setAttribute("hidden","");
