@@ -86,20 +86,14 @@ const gateError=message=>{
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
 function missingProfile(){
- q("#profile-tab-posts").hidden=true;
- q("#profile-about-card").hidden=false;
- q(".profile-actions").hidden=true;
- q("#profile-heading").textContent=t("Профіль не знайдено","Profile not found");
- q("#profile-vatra-id").textContent="";
- q("#profile-avatar").textContent="?";
- q("#profile-about-heading").textContent=t("Недоступний профіль","Unavailable profile");
- q("#profile-about-text").textContent=t(
-  "Такого VATRA ID немає. Перевірте адресу профілю.",
-  "This VATRA ID does not exist. Check the profile address.");
- q("#profile-posts-section").hidden=true;
- const createLink=q("#profile-write-post");
- if(createLink)createLink.hidden=true;
- document.title=t("Профіль не знайдено · VATRA","Profile not found · VATRA");
+ // Missing IDs are not profiles: don't render a default cover, avatar,
+ // profile tabs or an extra explanatory card below the heading.
+ q(".profile-hero").hidden=true;
+ q(".profile-panels").hidden=true;
+ const heading=q("#profile-not-found");
+ heading.textContent=t("Користувача не знайдено","User not found");
+ heading.hidden=false;
+ document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
  finish();
 }
 async function loadPosts(client,targetId){
@@ -593,6 +587,24 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
   }
  }catch(_){}
 }
+async function loadOwnHeaderAvatar(client,ownId){
+ if(!validId(ownId))return;
+ try{
+  const {data,error}=await client.from("vatra_profile_media")
+   .select("avatar_path").eq("vatra_id",ownId).maybeSingle();
+  const path=data?.avatar_path;
+  if(error||typeof path!=="string"||!path.startsWith(ownId+"/avatar/"))return;
+  const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
+  if(!url)return;
+  const parsed=new URL(url);
+  if(parsed.protocol!=="https:"||parsed.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
+  const el=q("#feed-header-avatar");
+  if(!el)return;
+  el.style.backgroundImage="url("+JSON.stringify(url)+")";
+  el.classList.add("has-photo");
+  el.textContent="";
+ }catch(_){/* Use the normal initials avatar when the image is unavailable. */}
+}
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  localizeSocial();
@@ -622,6 +634,8 @@ async function start(){
   q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   setMenuLink(ownId);
+  // Keep the signed-in user's avatar even when a visited VATRA ID does not exist.
+  await loadOwnHeaderAvatar(client,ownId);
   const form=q("#feed-search-form");
   form?.addEventListener("submit",event=>{
    event.preventDefault();
