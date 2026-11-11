@@ -114,7 +114,17 @@ function primeHeader(){
  if(entry&&document.body?.classList.contains("feed-page"))paintHeader(entry,false);
 }
 function setHeader({email,name,initials,id}){
- if(!email)return;
+ if(!email){
+  // Older account fixtures may not expose an email. Render confirmed identity
+  // without persisting a header against an unverifiable account.
+  const label=document.querySelector("#feed-menu-name");
+  const face=document.querySelector("#feed-header-avatar");
+  const number=document.querySelector("#feed-header-id");
+  if(label)label.textContent=String(name||"VATRA").slice(0,32);
+  if(face&&!face.classList.contains("has-photo"))face.textContent=String(initials||"V").slice(0,3);
+  if(number)number.textContent=id?"VATRA ID "+id:"";
+  return;
+ }
  const current=headerRead();
  const matching=current&&emailKey(current.email)===emailKey(email);
  const entry={v:1,at:Date.now(),email:emailKey(email),
