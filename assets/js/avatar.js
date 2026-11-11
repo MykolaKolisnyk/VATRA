@@ -46,9 +46,28 @@ function fromPath(client,email,id,path){
  if(!/^[1-9][0-9]{0,18}$/.test(String(id||"")))return false;
  if(path!==null&&path!==undefined&&
   (typeof path!=="string"||!path.startsWith(String(id)+"/avatar/")))return false;
- if(!path)return cache(email,null);
+ if(!path){
+  const entry=headerRead();
+  if(entry&&emailKey(entry.email)===emailKey(email)){
+   entry.avatarUrl=null;saveHeader(entry);
+   const el=document.querySelector("#feed-header-avatar");
+   if(el){el.dataset.vatraHeaderUrl="";el.classList.remove("has-photo");
+    el.style.removeProperty("background-image");el.textContent=entry.initials||"V";}
+  }
+  return cache(email,null);
+ }
  const url=client?.storage?.from("vatra-avatars")?.getPublicUrl(path)?.data?.publicUrl;
- return cache(email,url||null);
+ const safe=safeUrl(url);
+ if(!safe)return false;
+ const photo=new Image();
+ photo.onload=()=>{
+  const entry=headerRead();
+  if(entry&&emailKey(entry.email)===emailKey(email)){
+   entry.avatarUrl=safe;saveHeader(entry);paintHeader(entry);
+  }
+ };
+ photo.src=safe;
+ return cache(email,safe);
 }
 function headerRead(){
  try{
