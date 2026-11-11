@@ -9,6 +9,7 @@ const english=document.documentElement.lang==="en";
 const t=(uk,en)=>english?en:uk;
 const $=selector=>document.querySelector(selector);
 const idPattern=/^[1-9][0-9]{0,18}$/;
+const postPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const clubURL=id=>root+"club"+id;
 const node=(tag,cls,text)=>{
  const el=document.createElement(tag);
@@ -232,7 +233,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const empty=$("#club-posts-empty"),dialog=$("#club-compose-dialog");
  const form=$("#club-compose-form"),input=$("#club-compose-text"),status=$("#club-compose-error");
  if(!follow||!compose||!list||!ownId||!idPattern.test(ownId))return;
- let isFollowing=false,busy=false;
+ let isFollowing=false,busy=false,focusRequestedPost=true;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
  const picker=window.VATRA_POST_MEDIA?.bindPicker({
   input:"#club-compose-media",choose:"#club-compose-media-choose",
@@ -254,7 +255,15 @@ async function setupClubSocial(client,clubId,ownId,userId){
     .select("id,author_vatra_id,body,created_at,media_kind,media_path")
     .eq("club_id",clubId).order("created_at",{ascending:false}).limit(50);
    if(error)throw error;
-   const rows=data||[];
+   const rows=[...(data||[])];
+   // Search and share links must work even for posts older than the first 50.
+   const linkedId=new URLSearchParams(location.search).get("post");
+   if(postPattern.test(linkedId||"")&&!rows.some(post=>post.id===linkedId)){
+    const direct=await client.from("vatra_community_posts")
+     .select("id,author_vatra_id,body,created_at,media_kind,media_path")
+     .eq("club_id",clubId).eq("id",linkedId).maybeSingle();
+    if(!direct.error&&direct.data)rows.unshift(direct.data);
+   }
    const names=new Map();
    const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)))];
    if(ids.length){
@@ -270,7 +279,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     article.dataset.postId=post.id;
     const head=node("div","feed-post-header ui-club-post-head-001");
     const profile=node("a","feed-post-name vt-club-post-author-001",
-     names.get(id)||t("Учасник VATRA","VATRA member")+" · ID "+id);
+     names.get(id)||t("Учасник VATRA","VATRA member"));
     profile.href=root+"id"+id;
     const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(english?"en-US":"uk-UA",{
      day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
@@ -290,6 +299,15 @@ async function setupClubSocial(client,clubId,ownId,userId){
      ownId,userId,onShared:()=>void loadClubPosts()
     });
     list.append(article);
+   }
+   if(focusRequestedPost){
+    focusRequestedPost=false;
+    const target=postPattern.test(linkedId||"")?
+     [...list.querySelectorAll("[data-post-id]")].find(el=>el.dataset.postId===linkedId):null;
+    if(target){
+     target.classList.add("is-linked-post");
+     requestAnimationFrame(()=>target.scrollIntoView({block:"center",behavior:"smooth"}));
+    }
    }
    if(!rows.length)show(empty,isFollowing?
     t("У спільноті ще немає дописів. Створіть перший!","No community posts yet. Start the conversation!"):
@@ -365,8 +383,10 @@ async function openClub(client,ownId,userId){
   t("Опису поки немає.","No description yet.");
  document.title=data.name+" · VATRA";
  await setupClubSocial(client,String(data.club_id),ownId,userId);
- const canonical=clubURL(String(data.club_id));
- if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
+ const linkedId=query.get("post");
+ const suffix=postPattern.test(linkedId||"")?"?post="+encodeURIComponent(linkedId):"";
+ const canonical=clubURL(String(data.club_id))+suffix;
+ if(location.pathname!==new URL(canonical).pathname||location.search!==suffix||location.hash){
   history.replaceState(history.state,"",canonical);
  }
 }
