@@ -913,6 +913,12 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedJs.includes('accountMenu?.addEventListener("toggle"')&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
+ sharedCss.includes("position:absolute;top:var(--vatra-account-dropdown-top,100%);right:var(--vatra-account-dropdown-right,0px);")&&
+ sharedCss.includes("border-top:0;border-radius:0 0 17px 17px;")&&
+ sharedJs.includes("function setUpAccountPanel()")&&
+ sharedJs.includes('dropdown.style.setProperty("--vatra-account-dropdown-top"')&&
+ sharedJs.includes('dropdown.style.setProperty("--vatra-account-dropdown-right"')&&
+ sharedJs.includes('menu.addEventListener("toggle",position)')&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
  sharedCss.includes("border-top:0;border-radius:0 0 19px 19px;background:#fff;")&&
  sharedCss.includes("height:290px;overflow:hidden;border-radius:0;")&&
