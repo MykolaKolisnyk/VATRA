@@ -1216,28 +1216,12 @@ async function loadOwnHeaderAvatar(client,ownId,email){
  try{
   const {data,error}=await client.from("vatra_profile_media")
    .select("avatar_path").eq("vatra_id",ownId).maybeSingle();
-  const path=data?.avatar_path;
   if(error)return;
-  window.VATRA_AVATAR?.fromPath(client,email,ownId,path||null);
-  if(typeof path!=="string"||!path.startsWith(ownId+"/avatar/"))return;
-  const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
-  if(!url)return;
-  const parsed=new URL(url);
-  if(parsed.protocol!=="https:"||parsed.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
-  const el=q("#feed-header-avatar");
-  if(!el)return;
-  const check=new Image();
-  check.onload=()=>{
-   if(!el.isConnected)return;
-   el.style.backgroundImage="url("+JSON.stringify(url)+")";
-   el.classList.add("has-photo");el.textContent="";
-  };
-  check.onerror=()=>{
-   el.classList.remove("has-photo");el.style.removeProperty("background-image");
-   window.VATRA_AVATAR?.cache(email,null);
-  };
-  check.src=url;
- }catch(_){/* Use the normal initials avatar when the image is unavailable. */}
+  // The shared cache validates the URL and warms the image once. Avoid a
+  // second onerror handler that could clear a perfectly valid cached header
+  // while a new profile route is still completing its media requests.
+  window.VATRA_AVATAR?.fromPath(client,email,ownId,data?.avatar_path||null);
+ }catch(_){/* Keep the known header portrait until it can be refreshed. */}
 }
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
