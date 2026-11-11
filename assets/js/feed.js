@@ -160,7 +160,7 @@
     if(!error)for(const group of data||[])followedClubs.set(String(group.club_id),group.name);
    }catch(_){}
   }
-  await Promise.all([loadPublicNames([...friends]),loadAvatars([...friends])]);
+  // Names and avatars are fetched only for the 12 visible posts or stories.
  }
  function card(post){
   const authorId=String(post.author_vatra_id);
