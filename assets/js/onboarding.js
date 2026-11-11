@@ -27,7 +27,7 @@ const copy={
   ["П’ять завдань","Five getting-started tasks","Завершіть свій профіль: фото, обкладинка, пошук друзів і перша публікація. Реєстрацію вже виконано!","Finish setting up your profile with a photo, cover, friends and your first post. Registration is already complete!","✓","Завдання залишаться у Стрічці навіть після пропуску навчання.","These tasks remain available in your Feed even if you skip the tour."]
  ]
 };
-let client=null,ownId=null,step=0,wasLoaded=false,onboardingRow=null;
+let client=null,ownId=null,step=0,wasLoaded=false,onboardingRow=null,tourSaving=false;
 const dialog=q("#vatra-tour-dialog"),tasks=q("#vatra-welcome-tasks");
 const cleanId=x=>/^[1-9][0-9]{0,18}$/.test(String(x||""));
 function renderStep(){
@@ -37,7 +37,6 @@ function renderStep(){
  q("#vatra-tour-icon").textContent=slide[4];
  q("#vatra-tour-hint").textContent=tr(slide[5],slide[6]);
  q("#vatra-tour-step").textContent=(step+1)+" / "+copy.intro.length;
- q("#vatra-tour-kicker-not-used");
  q(".vt-vatra-tour-kicker-001").textContent=tr("Знайомство з VATRA","Discover VATRA");
  q("#vatra-tour-back").hidden=step===0;
  q("#vatra-tour-back").textContent=tr("Назад","Back");
@@ -46,8 +45,10 @@ function renderStep(){
  q("#vatra-tour-close").setAttribute("aria-label",tr("Пропустити навчання","Skip tutorial"));
 }
 async function finishTour(){
+ if(tourSaving)return;
+ tourSaving=true;
  if(dialog?.open)dialog.close();
- if(!client||!cleanId(ownId)||onboardingRow?.tutorial_done)return;
+ if(!client||!cleanId(ownId)||onboardingRow?.tutorial_done){tourSaving=false;return;}
  try{
   const {error}=await client.from("vatra_onboarding")
    .update({tutorial_done:true}).eq("vatra_id",ownId);
@@ -55,7 +56,7 @@ async function finishTour(){
   onboardingRow={tutorial_done:true};
  }catch(_){
   // Do not claim server persistence when offline: tour is retried on another visit.
- }
+ }finally{tourSaving=false;}
 }
 function openTour(){
  step=0;renderStep();
@@ -149,7 +150,7 @@ q("#vatra-tour-next")?.addEventListener("click",()=>{
 q("#vatra-tour-back")?.addEventListener("click",()=>{if(step>0){step--;renderStep();}});
 q("#vatra-tour-skip")?.addEventListener("click",()=>void finishTour());
 q("#vatra-tour-close")?.addEventListener("click",()=>void finishTour());
-dialog?.addEventListener("close",()=>{if(!onboardingRow?.tutorial_done)void finishTour();});
+dialog?.addEventListener("close",()=>{if(!onboardingRow?.tutorial_done&&!tourSaving)void finishTour();});
 q("#vatra-tasks-tour")?.addEventListener("click",openTour);
 q("#vatra-tasks-toggle")?.addEventListener("click",()=>{
  const list=q("#vatra-tasks-list");
