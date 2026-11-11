@@ -872,13 +872,29 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","sw.js"]){
+for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
 // All authenticated social pages use exactly the same header shell. Only the
 // active route may differ; this guards against CSS/HTML drift between pages.
-const sharedShellPages=["feed","profile","communities","club"];
+const sharedShellPages=["feed","profile","communities","club","notifications"];
+const notificationMarkup=await read("notifications.html");
+const notificationScript=await read("assets/js/notifications.js");
+assert.ok(notificationMarkup.includes('data-page="notifications"')&&
+ notificationMarkup.includes('id="notifications-list"')&&
+ notificationMarkup.includes('id="notifications-mark-all"')&&
+ notificationMarkup.includes('data-notification-filter="unread"')&&
+ notificationMarkup.includes('data-notification-filter="read"')&&
+ notificationMarkup.includes('id="notifications-sort"')&&
+ notificationScript.includes('member_notifications')&&
+ notificationScript.includes('vatra-notification-count')&&
+ notificationScript.includes('panelPage=0')&&
+ notificationScript.includes('pageLoad()')&&
+ notificationScript.includes('client.channel(')&&
+ (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
+ (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
+ "VATRA notifications must include the private inbox and five-item header preview");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");

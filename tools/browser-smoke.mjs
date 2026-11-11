@@ -2480,7 +2480,7 @@ try{
    const panel=document.querySelector("#vatra-search-panel")?.getBoundingClientRect();
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
    const first=document.querySelector(".vatra-search-panel-header")?.getBoundingClientRect();
-   return panel&&header&&first&&Math.abs(panel.top-header.top)<=2&&first.top>=header.bottom-2;
+   return panel&&header&&first&&panel.top>=header.bottom+4&&first.top>=header.bottom+4;
   },null,{timeout:3500});
   const menuGeometry=await feedProbe.evaluate(()=>{
    const panel=document.querySelector("#vatra-search-panel");
@@ -2495,15 +2495,16 @@ try{
     viewportWidth:innerWidth,viewportHeight:innerHeight,
     scrollHeight:l.scrollHeight,clientHeight:l.clientHeight,
     headerTop:header.top,headerBottom:header.bottom,firstRowTop:first.top,
+    searchLeft:document.querySelector("#feed-search-form").getBoundingClientRect().left,
     panelZ:parseInt(getComputedStyle(panel).zIndex),
     headerZ:parseInt(getComputedStyle(document.querySelector(".feed-header")).zIndex),
     navigation};
   });
   assert.ok(menuGeometry.top>=menuGeometry.headerBottom+5&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom+5&&
-   Math.abs((menuGeometry.left+menuGeometry.right)/2-menuGeometry.viewportWidth/2)<=4&&
+   Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=5&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search must be centered below the stable header: "+JSON.stringify(menuGeometry));
+   "Search must open under its input, not centred on the header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -2610,6 +2611,8 @@ try{
    const dropdown=document.querySelector(".feed-account-dropdown");
    return {left:r.left,right:r.right,width:innerWidth,top:r.top,bottom:r.bottom,
     height:innerHeight,headerBottom:header.bottom,headerRight:header.right,
+    toggleRight:document.querySelector(".feed-account-toggle").getBoundingClientRect().right,
+    toggleBottom:document.querySelector(".feed-account-toggle").getBoundingClientRect().bottom,
     positioned:!!dropdown.style.getPropertyValue("--vatra-account-dropdown-top")};
   });
   await feedProbe.waitForFunction(()=>
@@ -2617,17 +2620,17 @@ try{
   const menuRect=await checkAccountGeometry();
   assert.ok(menuRect.left>=0&&menuRect.right<=menuRect.width+1&&
    menuRect.top>=0&&menuRect.bottom<=menuRect.height+1&&
-   Math.abs(menuRect.top-menuRect.headerBottom)<=2&&
-   Math.abs((menuRect.left+menuRect.right)/2-menuRect.width/2)<=4,
-   "Avatar menu must join the right edge of the header: "+JSON.stringify(menuRect));
+   menuRect.top>=menuRect.toggleBottom+2&&
+   Math.abs(menuRect.right-menuRect.toggleRight)<=4,
+   "Account menu must appear under the avatar button: "+JSON.stringify(menuRect));
   assert.deepEqual(await navCenters(feedProbe),navBeforeMenu,
    "Opening account menu must not move header icons");
   const savedViewport=feedProbe.viewportSize();
   await feedProbe.setViewportSize({width:600,height:800});
   await feedProbe.waitForFunction(()=>{
    const menu=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
-   const header=document.querySelector(".feed-header").getBoundingClientRect();
-   return Math.abs(menu.top-header.bottom)<=2&&Math.abs(menu.right-header.right)<=2;
+   const toggle=document.querySelector(".feed-account-toggle").getBoundingClientRect();
+   return menu.top>=toggle.bottom+2&&Math.abs(menu.right-toggle.right)<=4;
   },null,{timeout:3500});
   const mobileMenu=await checkAccountGeometry();
   assert.ok(Math.abs(mobileMenu.top-mobileMenu.headerBottom)<=2&&
