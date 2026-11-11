@@ -1078,7 +1078,7 @@ assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
  onboardingSource.includes('from("vatra_onboarding")')&&
  feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})')&&
  feedScript.includes('new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}})')&&
- (feedScript.match(/supabase\\.createClient\\(/g)||[]).length===1&&
+ (feedScript.match(/supabase\.createClient\(/g)||[]).length===1&&
  !onboardingSource.includes('supabase.createClient(')&&
  onboardingSource.includes('client=feedClient;'),
  "Feature tutorial must remain, but all five onboarding tasks must be removed");
