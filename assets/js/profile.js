@@ -424,7 +424,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
-async function setupProfileMedia(client,ownId,targetId,isMine,userId){
+async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
@@ -662,6 +662,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  const display=record=>{
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
+  if(isMine)window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,record?.avatar_path||null);
   cover.style.removeProperty("background-image");
   cover.style.removeProperty("--vatra-cover-image");
   cover.classList.remove("has-photo");
@@ -745,6 +746,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
    // restore it later; a separate version-history workflow controls retention.
    saved={...saved,...values};
    display(saved);
+   if(kind==="avatar")window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,path);
    status(t("Зображення збережено.","Image saved."));
   }catch(_){status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
    "Could not upload the image. Please retry."),true);}
@@ -759,13 +761,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  fileCover.addEventListener("change",()=>{if(fileCover.files?.[0])void uploadImage(fileCover.files[0],"cover");});
 
 }
-async function loadOwnHeaderAvatar(client,ownId){
+async function loadOwnHeaderAvatar(client,ownId,email){
  if(!validId(ownId))return;
  try{
   const {data,error}=await client.from("vatra_profile_media")
    .select("avatar_path").eq("vatra_id",ownId).maybeSingle();
   const path=data?.avatar_path;
-  if(error||typeof path!=="string"||!path.startsWith(ownId+"/avatar/"))return;
+  if(error)return;
+  window.VATRA_AVATAR?.fromPath(client,email,ownId,path||null);
+  if(typeof path!=="string"||!path.startsWith(ownId+"/avatar/"))return;
   const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
   if(!url)return;
   const parsed=new URL(url);
@@ -807,7 +811,8 @@ async function start(){
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   setMenuLink(ownId);
   // Keep the signed-in user's avatar even when a visited VATRA ID does not exist.
-  void loadOwnHeaderAvatar(client,ownId);
+  window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
+  void loadOwnHeaderAvatar(client,ownId,user.email);
   const form=q("#feed-search-form");
   form?.addEventListener("submit",event=>{
    event.preventDefault();
@@ -875,7 +880,7 @@ async function start(){
   /* Keep the real profile cover and avatar fallback visible while media arrives. */
   // Media and Stories can arrive after the identity is verified; do not hold
   // the entire profile behind a splash while these secondary requests run.
-  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id);
+  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
