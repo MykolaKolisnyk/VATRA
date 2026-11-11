@@ -722,7 +722,7 @@ body.feed-page .vatra-post-interactions{
  font-family:"Onest",system-ui,sans-serif;color:#33445e
 }
 body.feed-page .vatra-post-action-row{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px
 }
 body.feed-page .vatra-post-action-row>button{
  display:flex;justify-content:center;align-items:center;gap:8px;
@@ -2372,4 +2372,25 @@ body.profile-page .profile-avatar-menu button svg{display:block;width:19px;heigh
  body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
   position:static;display:block;width:100%;max-width:700px;margin:0 auto 14px
  }
+}
+
+/* Separate VATRA status editor uses the same balanced typography as account settings. */
+body.profile-page .vt-profile-status-dialog-heading-001{
+ margin:0 0 8px;color:#324661;font:780 22px/1.3 "Onest",system-ui,sans-serif;
+ letter-spacing:-.035em
+}
+body.profile-page .vt-profile-status-label-001{font:710 13px/1.5 "Onest",system-ui,sans-serif;color:#526888}
+body.profile-page .ui-profile-status-dialog-001 .vt-profile-status-save-001{
+ background:linear-gradient(110deg,#346ce1,#665fe0);color:#fff;border-color:transparent
+}
+body.profile-page .vt-profile-status-error-001{color:#b74458;font-size:12px;margin:0}
+body.feed-page .vt-vatra-post-save-001[aria-pressed="true"]{
+ background:#ecf3ff;color:#2e62cf
+}
+body.profile-page .vt-profile-post-archive-001,
+body.profile-page .vt-profile-post-remove-001{flex:none}
+@media(max-width:540px){
+ body.feed-page .vatra-post-action-row>button{gap:3px;padding:8px 2px;font-size:11px}
+ body.feed-page .vatra-post-action-row>button svg{width:17px;height:17px}
+ body.profile-page .feed-post-header{flex-wrap:wrap}
 }
