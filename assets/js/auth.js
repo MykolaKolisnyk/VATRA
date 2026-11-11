@@ -53,8 +53,12 @@ function rememberAccount(user){
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return;
  const metadata=user.user_metadata||{};
  const name=[metadata.first_name,metadata.last_name].filter(x=>typeof x==="string"&&x.trim()).join(" ").trim().slice(0,120)||email.split("@")[0];
- // Only display name/email; never store passwords, OTPs or sessions ourselves.
- try{localStorage.setItem(REMEMBERED_ACCOUNT_KEY,JSON.stringify({v:1,email,name}));}catch(_){}
+ // Save identity labels and an optional PUBLIC avatar link only, not passwords,
+ // auth UUIDs, OTPs or session tokens. Preserve an earlier photo for this email.
+ const avatarUrl=window.VATRA_AVATAR?.getRemembered(email);
+ const entry={v:1,email,name};
+ if(avatarUrl)entry.avatarUrl=avatarUrl;
+ try{localStorage.setItem(REMEMBERED_ACCOUNT_KEY,JSON.stringify(entry));}catch(_){}
 }
 function clearLoginFields(){
  const form=q("#login-form");if(!form)return;
@@ -776,6 +780,7 @@ function wireRememberedAccount(){
  }
  const parts=remembered.name.split(/\s+/).filter(Boolean);
  initials.textContent=parts.length>1?(parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():remembered.name.slice(0,1).toLocaleUpperCase();
+ window.VATRA_AVATAR?.applyRemembered(q(".saved-account-avatar"),remembered.email);
  const password=q("#saved-password"),message=q("#saved-account-response");
  const clearSaved=()=>{
   savedForm.reset();password.value="";password.dispatchEvent(new Event("input",{bubbles:true}));
