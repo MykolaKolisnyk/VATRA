@@ -2330,8 +2330,8 @@ try{
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
     Math.abs(geometry.storyCenter-geometry.viewportCenter)<11&&
-    geometry.storyCardWidth>=160&&geometry.storyCardWidth<=170&&
-    geometry.storyCardHeight>=200&&
+    geometry.storyCardWidth>=120&&geometry.storyCardWidth<=124&&
+    geometry.storyCardHeight>=164&&geometry.storyCardHeight<=168&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
@@ -2427,6 +2427,8 @@ try{
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
    "No friends means no fabricated Story previews");
   assert.equal(await feedProbe.locator("#feed-friend-stories").count(),1);
+  assert.equal(await feedProbe.locator(".feed-story-empty-note").count(),1,
+   "Members without friends see an honest empty state instead of a fake preview");
   assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),true);
   await feedProbe.locator("#feed-create-story").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true);
