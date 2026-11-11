@@ -234,7 +234,10 @@
  const displayEmpty=()=>{
   q("#feed-empty").hidden=visibleFeed.length>0;
   const title=q(".feed-empty-title"),detail=q(".feed-empty-subtitle");
-  if(title)title.textContent=searchTerm?t("Нічого не знайдено","No matches"):t("Тут поки тихо","It's quiet here");
+  if(title)title.textContent=searchTerm?t("Нічого не знайдено","No matches"):
+   feedFilter==="friends"?t("Друзі поки не публікували дописів","No posts from friends yet"):
+   feedFilter==="communities"?t("У спільнотах поки немає дописів","No community posts yet"):
+   t("Поки немає публікацій","No posts yet");
   if(detail)detail.textContent=searchTerm?t("Спробуйте інший пошуковий запит.","Try another search."):
    feedFilter==="friends"?t("Друзі ще не опублікували дописів.","Your friends have not posted yet."):
    feedFilter==="communities"?t("У ваших спільнотах поки немає дописів.","No posts from your communities yet."):
