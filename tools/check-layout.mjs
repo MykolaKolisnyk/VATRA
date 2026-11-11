@@ -991,11 +991,38 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
  !feedScript.includes("innerHTML")&&
- feedStyle.includes('width:min(100%,850px);max-width:850px;min-width:0;')&&
+ feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must show real Stories and post composer before personalized posts");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
+// First-time members get the same-language blurred tutorial and five genuine
+// server-verified tasks; profile uploads must use Supabase Storage and RLS.
+const onboardingSource=await read("assets/js/onboarding.js");
+const onboardingCss=await read("assets/css/onboarding.css");
+assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
+ feedMarkup.includes('id="vatra-welcome-tasks"')&&
+ feedMarkup.includes('id="vatra-find-friends-dialog"')&&
+ (feedMarkup.match(/id="vatra-task-(?:registration|avatar|cover|friends|first-post)"/g)||[]).length===5&&
+ feedMarkup.includes('assets/js/onboarding.js')&&
+ feedMarkup.includes('assets/css/onboarding.css')&&
+ onboardingCss.includes("backdrop-filter:blur(7px)")&&
+ onboardingSource.includes('from("vatra_onboarding")')&&
+ onboardingSource.includes('from("vatra_profile_media")')&&
+ onboardingSource.includes('from("vatra_friendships")')&&
+ onboardingSource.includes('from("feed_posts")')&&
+ feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId}})')&&
+ feedScript.includes('new Event("vatra:onboarding-progress")'),
+ "Feed must launch a persistent blurred tour with five real account-setup tasks");
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
+ memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
+ memberProfileMarkup.includes('id="profile-avatar-file"')&&
+ memberProfileMarkup.includes('id="profile-cover-file"')&&
+ profileScript.includes('from("vatra_profile_media")')&&
+ profileScript.includes('storage.from(bucket).upload(path,file')&&
+ profileScript.includes('uploadImage(fileAvatar.files[0],"avatar")')&&
+ profileScript.includes('uploadImage(fileCover.files[0],"cover")'),
+ "Profile setup must save real avatar and cover photos, not fake checklist completion");
 const errorPage=await read("404.html");
 // The GitHub Pages /idN and /clubN fallback must show the real VATRA splash
 // while fetching the route document in BOTH Ukrainian and English.
