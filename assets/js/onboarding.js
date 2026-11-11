@@ -2,8 +2,6 @@
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
-const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
-const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const q=selector=>document.querySelector(selector);
 const en=()=>document.documentElement.lang==="en";
 const tr=(uk,english)=>en()?english:uk;
@@ -128,11 +126,12 @@ async function refreshProgress(){
 async function start(event){
  if(wasLoaded)return;
  const id=String(event?.detail?.id||"");
- if(!cleanId(id)||!window.supabase?.createClient)return;
+ // The Feed owns the only browser auth client. Reusing its exact instance
+ // avoids competing GoTrue sessions for the same localStorage key.
+ const feedClient=event?.detail?.client;
+ if(!cleanId(id)||!feedClient||typeof feedClient.from!=="function")return;
  wasLoaded=true;ownId=id;
- client=window.supabase.createClient(PROJECT_URL,PUBLIC_KEY,{
-  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
- });
+ client=feedClient;
  try{
   const {data,error}=await client.from("vatra_onboarding")
    .select("tutorial_done").eq("vatra_id",ownId).maybeSingle();
