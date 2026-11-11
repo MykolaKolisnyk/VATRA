@@ -901,7 +901,27 @@ assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
  profileBehavior.includes('client.from("vatra_direct_messages")')&&
  profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
  "Profile friendship and messaging must use persisted, RLS-secured data");
+assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
+ profileMarkup.includes('id="profile-avatar-wrap"')&&
+ profileMarkup.includes('id="profile-avatar-trigger"')&&
+ profileMarkup.includes('id="profile-avatar-menu"')&&
+ profileMarkup.includes('id="profile-avatar-story"')&&
+ profileMarkup.includes('id="profile-avatar-photo"')&&
+ profileMarkup.includes('id="profile-media-viewer"')&&
+ profileMarkup.includes('id="profile-media-viewer-image"')&&
+ profileMarkup.includes('id="profile-story-viewer"')&&
+ profileBehavior.includes('client.from("vatra_stories")')&&
+ profileBehavior.includes('avatarWrap.classList.toggle("has-active-story",hasStory)')&&
+ profileBehavior.includes('coverView.addEventListener("click",()=>openMedia("cover"))')&&
+ profileBehavior.includes('mediaDialog.showModal()'),
+ "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
 const sharedCss=await read("assets/css/feed.css");
+assert.ok(sharedCss.includes("body.profile-page .profile-media-viewer{")&&
+ sharedCss.includes("width:100vw;height:100dvh;")&&
+ sharedCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before{")&&
+ sharedCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
+ sharedCss.includes("body.profile-page .profile-avatar-wrap:hover .profile-avatar-menu:not([hidden])"),
+ "Member photo viewer must fill the screen and story avatar menu must not be clipped");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
