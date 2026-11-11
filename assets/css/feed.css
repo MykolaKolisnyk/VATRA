@@ -1472,7 +1472,7 @@ body.profile-page .profile-cover-view:focus-visible{
 body.profile-page .profile-cover-view[hidden]{display:none!important}
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
  position:relative;z-index:8;align-self:flex-start;flex:none;
- width:120px;height:120px;margin:-59px 0 0
+ width:120px;height:120px;margin:-27px 0 0
 }
 body.profile-page .profile-avatar-trigger{
  display:block;position:relative;width:100%;height:100%;padding:0;
@@ -1579,7 +1579,7 @@ body.profile-page .profile-story-viewer-close{
 }
 @media(max-width:600px){
  body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
-  width:88px;height:88px;margin:-42px 0 0
+  width:88px;height:88px;margin:-19px 0 0
  }
  body.profile-page .profile-avatar-menu{min-width:208px}
  body.profile-page .profile-media-viewer-stage{padding:4px}
