@@ -363,7 +363,8 @@ body.profile-page .profile-avatar-upload-button:hover{background:#e8f0fc;color:#
 body.profile-page .profile-media-status{margin:0;padding:0 26px 12px;font:580 12px/1.5 "Onest",system-ui,sans-serif;color:#547397}
 body.profile-page .profile-media-status[data-status="error"]{color:#aa455a}
 body.profile-page .profile-cover.has-photo{background-size:cover;background-position:center}
-body.profile-page .profile-avatar.has-photo,body.feed-page .feed-header-avatar.has-photo{
+body.profile-page .profile-avatar.has-photo,body.feed-page .feed-header-avatar.has-photo,
+body.feed-page .feed-composer-avatar.has-photo,body.feed-page .feed-post-avatar.has-photo{
  background-size:cover;background-position:center;background-repeat:no-repeat
 }
 @media(max-width:610px){
