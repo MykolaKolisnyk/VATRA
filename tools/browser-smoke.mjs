@@ -2263,6 +2263,13 @@ try{
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
      delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})}
   })};
+  // Count all client constructors in this browser tab, including onboarding.
+  window.__feedMockCreateClientCalls=0;
+  const originalCreateClient=window.supabase.createClient;
+  window.supabase.createClient=(...args)=>{
+   window.__feedMockCreateClientCalls++;
+   return originalCreateClient(...args);
+  };
   `
  }));
  let desktopHeaderCenters=null;
@@ -2287,6 +2294,8 @@ try{
   assert.equal(await feedProbe.locator("#feed-app").isVisible(),false,
    "Feed content must not be revealed before initial data arrives");
   await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockCreateClientCalls),1,
+   "Feed and first-run onboarding must share exactly one Supabase auth client");
   const expectedTitle=language==="en"?"Feed · VATRA":"Стрічка · VATRA";
   assert.equal(await feedProbe.title(),expectedTitle);
   assert.equal((await feedProbe.locator(".feed-title").textContent()).trim(),language==="en"?"Feed":"Стрічка");
