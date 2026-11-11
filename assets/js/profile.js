@@ -486,55 +486,124 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
  const commentForm=q("#profile-photo-comment-form"),commentInput=q("#profile-photo-comment-text");
  const commentSend=q("#profile-photo-comment-send"),commentStatus=q("#profile-photo-status");
  const shareButton=q("#profile-photo-share");
- let likeBusy=false,commentBusy=false,activityTicket=0;
+ const commentSort=q("#profile-photo-comment-sort"),photoCommentsMore=q("#profile-photo-comments-more");
+ const commentSortNote=q("#profile-photo-comment-sort-note");
+ let likeBusy=false,commentBusy=false,activityTicket=0,photoCommentOffset=0,photoCommentLoading=false;
  const photoPath=()=>saved?.avatar_path||null;
  const feedback=(value,bad=false)=>{
   commentStatus.hidden=!value;commentStatus.textContent=value;commentStatus.dataset.kind=bad?"error":"ok";
  };
- async function reloadPhotoActivity(){
+ const updatePhotoSortCopy=()=>{
+  q(".vt-profile-photo-sort-label-001").textContent=t("Показувати:","Show:");
+  const options=commentSort.options;
+  options[0].textContent=t("Найактуальніші","Most relevant");
+  options[1].textContent=t("Найновіші","Newest");
+  options[2].textContent=t("Усі коментарі","All comments");
+  commentSortNote.textContent=commentSort.value==="relevant"?
+   t("Спочатку друзі та коментарі з найбільшою кількістю вподобань.",
+     "Friends and most-liked comments first."):
+   commentSort.value==="newest"?
+   t("Від нових до старих, без позначеного спаму.",
+     "Newest first, excluding marked spam."):
+   t("Усі доступні коментарі, включно з можливим спамом.",
+     "All available comments, including potential spam.");
+  photoCommentsMore.textContent=t("Показати ще","Show more");
+ };
+ updatePhotoSortCopy();
+ async function reloadPhotoActivity(append=false,refreshLikes=true){
   const path=photoPath(),ticket=++activityTicket;
   if(!path)return;
-  commentList.setAttribute("aria-busy","true");feedback(t("Завантаження коментарів…","Loading comments…"));
+  if(!append){photoCommentOffset=0;commentList.replaceChildren();photoCommentsMore.hidden=true;}
+  commentList.setAttribute("aria-busy","true");photoCommentsMore.disabled=true;
+  if(!append)feedback(t("Завантаження коментарів…","Loading comments…"));
   try{
-   const [likes,comments]=await Promise.all([
+   const commentsPromise=client.rpc("vatra_avatar_comment_page",{
+    p_owner:Number(targetId),p_avatar_path:path,p_sort:commentSort.value,
+    p_offset:photoCommentOffset,p_limit:12
+   });
+   const likesPromise=refreshLikes?Promise.all([
+    client.from("vatra_avatar_likes").select("liker_id",{count:"exact",head:true})
+     .eq("owner_vatra_id",targetId).eq("avatar_path",path),
     client.from("vatra_avatar_likes").select("liker_id")
-     .eq("owner_vatra_id",targetId).eq("avatar_path",path).limit(2000),
-    client.from("vatra_avatar_comments").select("id,author_vatra_id,body,created_at")
-     .eq("owner_vatra_id",targetId).eq("avatar_path",path)
-     .order("created_at",{ascending:false}).limit(100)
-   ]);
-   if(likes.error||comments.error)throw likes.error||comments.error;
-   if(ticket!==activityTicket||path!==photoPath())return;
-   const liked=(likes.data||[]).some(row=>row.liker_id===userId);
-   likesCount.textContent=likes.data?.length===2000?"2000+":String(likes.data?.length||0);
-   likesButton.setAttribute("aria-pressed",String(liked));
-   likesButton.classList.toggle("is-liked",liked);
-   const authors=[...new Set((comments.data||[]).map(row=>String(row.author_vatra_id)).filter(validId))];
-   const names=new Map();
-   if(authors.length){
-    const {data}=await client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",authors);
-    for(const row of data||[])names.set(String(row.vatra_id),row.display_name);
+     .eq("owner_vatra_id",targetId).eq("avatar_path",path).eq("liker_id",userId).limit(1)
+   ]):Promise.resolve(null);
+   const [comments,likeResults]=await Promise.all([commentsPromise,likesPromise]);
+   if(comments.error)throw comments.error;
+   if(likeResults){
+    if(likeResults[0].error||likeResults[1].error)throw likeResults[0].error||likeResults[1].error;
+    const liked=!!likeResults[1].data?.length;
+    likesCount.textContent=String(likeResults[0].count||0);
+    likesButton.setAttribute("aria-pressed",String(liked));
+    likesButton.classList.toggle("is-liked",liked);
    }
    if(ticket!==activityTicket||path!==photoPath())return;
-   commentList.replaceChildren();
-   if(!comments.data?.length){
-    commentList.append(node("p","vt-profile-photo-no-comments-001",
-     t("Коментарів поки немає.","No comments yet.")));
+   const rows=comments.data||[];
+   const {names,images}=await window.VATRA_POST_INTERACTIONS?.authorMap(client,rows)
+    ||{names:new Map(),images:new Map()};
+   const ids=rows.map(x=>x.id);
+   let ownCommentLikes=new Set();
+   if(ids.length){
+    const reaction=await client.from("vatra_avatar_comment_likes").select("comment_id")
+     .in("comment_id",ids).eq("liker_id",userId);
+    if(!reaction.error)ownCommentLikes=new Set((reaction.data||[]).map(x=>x.comment_id));
    }
-   for(const item of comments.data||[]){
+   if(ticket!==activityTicket||path!==photoPath())return;
+   if(!append&&!rows.length)commentList.append(node("p","vt-profile-photo-no-comments-001",
+    t("Коментарів поки немає.","No comments yet.")));
+   for(const item of rows){
+    const id=String(item.author_vatra_id);
+    const member=names.get(id)||t("Учасник VATRA","VATRA member");
     const card=node("article","profile-photo-comment ui-profile-photo-comment-001");
-    const name=node("strong","vt-profile-photo-comment-name-001",
-     names.get(String(item.author_vatra_id))||t("Учасник VATRA","VATRA member"));
+    const head=node("div","profile-photo-comment-head ui-profile-photo-comment-head-001");
+    const avatar=node("a","profile-photo-comment-avatar ui-profile-photo-comment-avatar-001",
+     member.split(/\s+/).slice(0,2).map(x=>Array.from(x)[0]||"").join("").toLocaleUpperCase(locale));
+    avatar.href=memberUrl(id);avatar.setAttribute("aria-label",member);
+    if(images.has(id)){
+     avatar.style.backgroundImage="url("+JSON.stringify(images.get(id))+")";
+     avatar.classList.add("has-photo");avatar.textContent="";
+    }
+    const meta=node("div","profile-photo-comment-meta ui-profile-photo-comment-meta-001");
+    const author=node("a","vt-profile-photo-comment-name-001",member);
+    author.href=memberUrl(id);
     const stamp=node("time","vt-profile-photo-comment-time-001",dateText(item.created_at));
-    stamp.dateTime=item.created_at;
-    card.append(name,stamp,node("p","vt-profile-photo-comment-body-001",item.body));
-    commentList.append(card);
+    stamp.dateTime=item.created_at;meta.append(author,stamp);head.append(avatar,meta);
+    card.append(head,node("p","vt-profile-photo-comment-body-001",item.body));
+    if(item.moderation_status==="possible_spam")
+     card.append(node("small","vt-profile-photo-comment-spam-001",t("Можливий спам","Potential spam")));
+    const reaction=node("button","vt-profile-photo-comment-like-001");
+    reaction.type="button";
+    let countValue=Number(item.likes)||0,reacted=ownCommentLikes.has(item.id);
+    const paint=()=>{
+     reaction.textContent=(reacted?"♥ ":"♡ ")+t("Подобається","Like")+
+      (countValue?" · "+countValue:"");
+     reaction.setAttribute("aria-pressed",String(reacted));
+    };
+    paint();
+    reaction.addEventListener("click",async()=>{
+     if(reaction.disabled)return;
+     reaction.disabled=true;
+     try{
+      const result=reacted?
+       await client.from("vatra_avatar_comment_likes").delete()
+        .eq("comment_id",item.id).eq("liker_id",userId):
+       await client.from("vatra_avatar_comment_likes").insert({comment_id:item.id,liker_id:userId});
+      if(result.error)throw result.error;
+      reacted=!reacted;countValue+=reacted?1:-1;paint();
+     }catch(_){feedback(t("Не вдалося вподобати коментар.","Could not like the comment."),true);}
+     finally{reaction.disabled=false;}
+    });
+    card.append(reaction);commentList.append(card);
    }
-   feedback("");
+   photoCommentOffset+=rows.length;
+   photoCommentsMore.hidden=rows.length<12;feedback("");
   }catch(_){
    if(ticket===activityTicket)feedback(t("Коментарі поки недоступні.","Comments are temporarily unavailable."),true);
-  }finally{if(ticket===activityTicket)commentList.setAttribute("aria-busy","false");}
+  }finally{
+   if(ticket===activityTicket){commentList.setAttribute("aria-busy","false");photoCommentsMore.disabled=false;}
+  }
  }
+ commentSort.addEventListener("change",()=>{updatePhotoSortCopy();void reloadPhotoActivity(false,false);});
+ photoCommentsMore.addEventListener("click",()=>void reloadPhotoActivity(true,false));
  likesButton.addEventListener("click",async()=>{
   const path=photoPath();if(likeBusy||!path||!validId(ownId))return;
   likeBusy=true;likesButton.disabled=true;feedback("");
