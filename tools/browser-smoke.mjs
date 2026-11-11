@@ -2242,6 +2242,8 @@ try{
  await feedContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:`
   window.__feedTestPosts=[];window.__feedTestCounter=0;
+  window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
+   theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.supabase={createClient:()=>({
    auth:{
     getUser:async()=>({data:{user:{id:"feed-mock-user",
@@ -2269,9 +2271,13 @@ try{
       eq(){this.singleAuthor=true;return this;},
       gt(){return this;},order(){return this;},
       limit:async function(){
-       return {data:this.singleAuthor?[{body:"Моя тестова історія",
-        theme:2,expires_at:"2099-12-31T23:59:59Z"}]:[],error:null};
+       return {data:this.singleAuthor&&window.__feedMockStory?[window.__feedMockStory]:[],error:null};
       }
+    }),
+    delete:()=>({
+     eq(){return this;},
+     select:async()=>{const former=window.__feedMockStory;window.__feedMockStory=null;
+      return {data:former?[{id:former.id}]:[],error:null};}
     })}:
     table==="communities"?
     {select:()=>({order(){return this;},limit:async()=>({
@@ -2742,6 +2748,14 @@ try{
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");
+  await profilePage.locator("#profile-avatar-trigger").hover();
+  assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
+   "The profile owner must be able to delete the active story");
+  profilePage.once("dialog",dialog=>dialog.accept());
+  await profilePage.locator("#profile-avatar-story-delete").click();
+  await profilePage.waitForFunction(()=>!document.querySelector("#profile-avatar-wrap").classList.contains("has-active-story"));
+  assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),false,
+   "Deleting a story must immediately remove its menu action and ring");
   const profileCoverGap=await profilePage.evaluate(()=>{
    const header=document.querySelector(".feed-header").getBoundingClientRect();
    const cover=document.querySelector(".profile-cover").getBoundingClientRect();
