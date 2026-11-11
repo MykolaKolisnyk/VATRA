@@ -3197,3 +3197,8 @@ body.feed-page .vt-vatra-search-live-all-001{
  color:#3a6bd0;text-decoration:none;font:720 12px/1.35 "Onest",system-ui,sans-serif
 }
 body.feed-page .vt-vatra-search-live-all-001:hover{background:#f5f8ff}
+
+body.feed-page .vatra-search-history[hidden],
+body.feed-page .vt-search-empty-001[hidden]{display:none!important}
+body.feed-page .vatra-search-live-icon svg{display:block;width:18px;height:18px;color:#5c7cad}
+body.feed-page .vatra-search-panel.has-live-results{overflow:hidden}

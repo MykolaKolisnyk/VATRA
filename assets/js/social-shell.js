@@ -271,6 +271,20 @@
    liveTicket++;suggestions.replaceChildren();
    suggestions.hidden=true;panel.classList.remove("has-live-results");
   };
+  const iconVector=(kind,path)=>{
+   const ns="http://www.w3.org/2000/svg";
+   const svg=document.createElementNS(ns,"svg");
+   svg.setAttribute("class","ui-vatra-search-live-glyph-"+kind);
+   svg.setAttribute("viewBox","0 0 24 24");
+   svg.setAttribute("fill","none");
+   svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");
+   svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");
+   svg.setAttribute("aria-hidden","true");
+   const shape=document.createElementNS(ns,"path");
+   shape.setAttribute("class","ui-vatra-search-live-path-"+kind);
+   shape.setAttribute("d",path);
+   svg.append(shape);return svg;
+  };
   const group=(title,items,kind,hrefFor,summaryFor)=>{
    if(!items?.length)return;
    const section=make("section","vatra-search-live-section ui-vatra-search-live-section-"+kind);
@@ -282,7 +296,12 @@
     row.href=href;
     const icon=make("span","vatra-search-live-icon ui-vatra-search-live-icon-"+kind+"-"+String(index+1).padStart(3,"0"));
     icon.setAttribute("aria-hidden","true");
-    icon.textContent=kind==="people"?"◯":kind==="communities"?"▦":"≡";
+    const vector=kind==="people"?
+     "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 21v-2a7.5 7.5 0 0 1 15 0v2":
+     kind==="communities"?
+     "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3 20v-1a6 6 0 0 1 12 0v1M17 6a3 3 0 0 1 0 5M18 14a5 5 0 0 1 3 5v1":
+     "M5 3.5h14v17H5zM8 9h8M8 13h8M8 17h5";
+    icon.append(iconVector(kind+"-"+String(index+1).padStart(3,"0"),vector));
     const content=make("span","vatra-search-live-text ui-vatra-search-live-text-"+kind+"-"+String(index+1).padStart(3,"0"));
     const detail=summaryFor(item);
     content.append(make("strong","vt-vatra-search-live-primary-"+kind+"-"+String(index+1).padStart(3,"0"),detail[0]));
@@ -457,6 +476,9 @@
    empty.hidden=live||visibleTerms.length>0;
    edit.hidden=live||!entries.length;
    clearAll.hidden=live||clearAll.hidden;
+   const heading=panel.querySelector(".vt-search-panel-heading-001");
+   if(heading)heading.textContent=live?tr("Результати пошуку","Search results"):
+    tr("Нещодавні","Recent");
    if(visible)scheduleLive(term);else if(!live)clearLive();
   }
   function route(scope){

@@ -902,6 +902,7 @@ assert.ok((await read("assets/js/feed.js")).includes('vatra-global-search-result
 const liveSiteShell=await read("assets/js/social-shell.js");
 const liveNotificationProvider=await read("assets/js/notifications.js");
 assert.ok(liveSiteShell.includes('vatra-search-live-results')&&
+ liveSiteShell.includes('ui-vatra-search-live-glyph-')&&
  liveSiteShell.includes('scheduleLive(term)')&&
  liveNotificationProvider.includes('window.VATRA_SITE_SEARCH={search:findSite}')&&
  liveNotificationProvider.includes('client.from("vatra_public_profiles")')&&
