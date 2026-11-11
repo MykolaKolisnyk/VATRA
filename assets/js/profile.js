@@ -464,9 +464,48 @@ async function start(){
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
   if(isMine)bindPostComposer(client,user,ownId);
-  const name=isMine?cleanOwnName:t("Учасник VATRA","VATRA member");
+  // Public names are explicit opt-in. Private registration metadata is never
+  // published to other members without the owner's affirmative save.
+  let publicName="";
+  try{
+   const {data:publicProfile,error:publicError}=await client.from("vatra_public_profiles")
+    .select("display_name").eq("vatra_id",targetId).maybeSingle();
+   if(!publicError&&typeof publicProfile?.display_name==="string")
+    publicName=publicProfile.display_name.trim();
+  }catch(_){}
+  const fallback=t("Учасник VATRA","VATRA member")+" · ID "+targetId;
+  const name=publicName||(isMine?cleanOwnName:fallback);
   q("#profile-heading").textContent=name;
-  q("#profile-avatar").textContent=isMine?ownAvatar:"V";
+  q("#profile-avatar").textContent=isMine?ownAvatar:(publicName?(
+    publicName.trim().split(/\s+/).filter(Boolean).map(x=>Array.from(x)[0]).slice(0,2).join("").toLocaleUpperCase(locale)
+   ):"V");
+  const editName=q("#profile-edit-name");
+  if(editName){
+   editName.hidden=!isMine;
+   if(isMine){
+    const dialog=q("#profile-name-dialog"),form=q("#profile-name-form");
+    const input=q("#profile-name-input"),feedback=q("#profile-name-status");
+    editName.addEventListener("click",()=>{
+     input.value=publicName||cleanOwnName;feedback.hidden=true;feedback.textContent="";
+     dialog.showModal();input.focus();
+    });
+    q("#profile-name-cancel").addEventListener("click",()=>dialog.close());
+    form.addEventListener("submit",async event=>{
+     event.preventDefault();
+     const value=Array.from(input.value.trim()).slice(0,80).join("");
+     if(Array.from(value).length<2){feedback.textContent=t("Мінімум два символи.","At least two characters.");feedback.hidden=false;return;}
+     const save=q("#profile-name-save");save.disabled=true;feedback.hidden=true;
+     try{
+      const {error}=await client.from("vatra_public_profiles")
+       .upsert({vatra_id:ownId,display_name:value,updated_at:new Date().toISOString()},{onConflict:"vatra_id"});
+      if(error)throw error;
+      publicName=value;q("#profile-heading").textContent=value;
+      dialog.close();
+     }catch(_){feedback.textContent=t("Не вдалося зберегти ім’я.","Could not save public name.");feedback.hidden=false;}
+     finally{save.disabled=false;}
+    });
+   }
+  }
   q("#profile-vatra-id").textContent="VATRA ID "+targetId;
  
   if(isMine){
