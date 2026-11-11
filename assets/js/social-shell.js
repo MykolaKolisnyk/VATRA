@@ -71,11 +71,14 @@
    dropdown.style.setProperty("--vatra-account-dropdown-right",Math.round(gapRight)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-height",Math.round(height)+"px");
   };
+  // Resize can create a two-row header: position again after layout settles.
+  const afterLayout=()=>requestAnimationFrame(position);
   menu.addEventListener("toggle",position);
-  window.addEventListener("resize",position,{passive:true});
-  window.addEventListener("scroll",position,{passive:true});
-  window.visualViewport?.addEventListener("resize",position,{passive:true});
-  window.visualViewport?.addEventListener("scroll",position,{passive:true});
+  menu.addEventListener("toggle",afterLayout);
+  window.addEventListener("resize",afterLayout,{passive:true});
+  window.addEventListener("scroll",afterLayout,{passive:true});
+  window.visualViewport?.addEventListener("resize",afterLayout,{passive:true});
+  window.visualViewport?.addEventListener("scroll",afterLayout,{passive:true});
  }
  function setUpTooltip(){
   const accountMenu=document.querySelector(".feed-account-menu");
