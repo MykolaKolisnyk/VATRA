@@ -12,6 +12,8 @@
  <meta name="description" content="Стрічка VATRA — публікації ваших людей.">
  <title>Стрічка · VATRA</title>
  <link rel="preconnect" href="https://rjasunoawrxvetwadylh.supabase.co" crossorigin>
+ <meta name="vatra-adsense-client" content="">
+ <meta name="vatra-adsense-slot" content="">
  <link rel="icon" type="image/svg+xml" href="assets/logo/vatra-app-icon.svg">
  <link rel="apple-touch-icon" href="assets/logo/vatra-app-icon.png">
  <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
@@ -22,6 +24,7 @@
  <script defer src="assets/js/post-media.js"></script>
   <script defer src="assets/js/post-interactions.js"></script>
  <script defer src="assets/js/presence.js"></script>
+ <script defer src="assets/js/ads.js"></script>
  <script defer src="assets/js/feed.js"></script>
  <script defer src="assets/js/network.js"></script>
  <script defer src="assets/js/social-shell.js"></script>
@@ -123,6 +126,12 @@
    </div>
   </header>
   <div class="feed-layout ui-feed-layout-001">
+   <aside id="feed-ad-sidebar" class="feed-ad-sidebar ui-feed-ad-sidebar-001" aria-label="Реклама">
+    <h2 class="vt-feed-ad-heading-001" data-social-uk="Реклама" data-social-en="Advertisement">Реклама</h2>
+    <div id="feed-google-ad-slot" class="feed-google-ad-slot ui-feed-google-ad-slot-001">
+     <p id="feed-ad-placeholder" class="vt-feed-ad-placeholder-001" data-social-uk="Місце для оголошень Google AdSense" data-social-en="Google AdSense placement">Місце для оголошень Google AdSense</p>
+    </div>
+   </aside>
    
    <main id="feed-main" class="feed-main ui-feed-main-001">
     <h1 class="feed-title vt-feed-title-001 vatra-sr-only" data-i18n="n12">Стрічка</h1>

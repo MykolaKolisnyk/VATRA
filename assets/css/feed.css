@@ -2349,3 +2349,27 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
   width:min(100%,270px);align-self:flex-end
  }
 }
+
+/* AdSense has a dedicated left reading-lane sidebar, never masquerades as a post. */
+body.feed-page:not(.community-page):not(.profile-page) .feed-layout{position:relative}
+body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
+ position:absolute;right:calc(100% + 16px);top:4px;width:225px;
+ padding:16px;border:1px solid #e4eaf5;border-radius:16px;background:#fff;
+ box-shadow:0 5px 21px rgba(37,59,94,.04)
+}
+body.feed-page .vt-feed-ad-heading-001{
+ margin:0 0 13px;font:770 14px/1.35 "Onest",system-ui,sans-serif;
+ color:#445470;letter-spacing:-.025em
+}
+body.feed-page .feed-google-ad-slot{width:100%;min-height:192px;display:block}
+body.feed-page .vt-feed-ad-placeholder-001{
+ margin:0;padding:32px 16px;border:1px dashed #d7e1f1;border-radius:12px;
+ background:#f8faff;color:#8a98ac;text-align:center;
+ font:540 12px/1.6 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-avatar-menu button svg{display:block;width:19px;height:19px;flex:none;color:#7086aa}
+@media(max-width:1200px){
+ body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
+  position:static;display:block;width:100%;max-width:700px;margin:0 auto 14px
+ }
+}
