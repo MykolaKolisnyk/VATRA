@@ -899,8 +899,8 @@ assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
 assert.ok(profileMarkup.includes('id="profile-not-found"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
  !profileMarkup.includes('id="profile-not-found" class="profile-not-found vt-profile-not-found-001" hidden>Профіль не знайдено')&&
- (await read("assets/js/profile.js")).includes('q(".profile-hero").hidden=true')&&
- (await read("assets/js/profile.js")).includes('q(".profile-panels").hidden=true')&&
+ (await read("assets/js/profile.js")).includes('q(".profile-hero")?.remove()')&&
+ (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
  (await read("assets/js/profile.js")).includes('await loadOwnHeaderAvatar(client,ownId);'),
  "Unknown VATRA ID displays only User not found, while retaining the owner's header photo");
 const profileBehavior=await read("assets/js/profile.js");
@@ -1060,28 +1060,28 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  "VATRA Feed must show real Stories and post composer before personalized posts");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
-// First-time members get the same-language blurred tutorial and five genuine
-// server-verified tasks; profile uploads must use Supabase Storage and RLS.
+// VATRA keeps only its optional first-time feature tour. The full five-item
+// Getting Started checklist, its actions and its CSS must be removed.
 const onboardingSource=await read("assets/js/onboarding.js");
 const onboardingCss=await read("assets/css/onboarding.css");
 assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
- feedMarkup.includes('id="vatra-welcome-tasks"')&&
- feedMarkup.includes('id="vatra-find-friends-dialog"')&&
- (feedMarkup.match(/id="vatra-task-(?:registration|avatar|cover|friends|first-post)"/g)||[]).length===5&&
- feedMarkup.includes('assets/js/onboarding.js')&&
- feedMarkup.includes('assets/css/onboarding.css')&&
+ !feedMarkup.includes("vatra-welcome-tasks")&&
+ !feedMarkup.includes("vatra-task-")&&
+ !feedMarkup.includes("vatra-find-friends-dialog")&&
+ !onboardingSource.includes("refreshProgress")&&
+ !onboardingSource.includes("vatra-task-")&&
+ !onboardingSource.includes("vatra-welcome-tasks")&&
+ !onboardingCss.includes("vatra-task-")&&
+ !profileScript.includes("vatra.setup.media.v1")&&
+ !feedScript.includes("vatra:onboarding-progress")&&
  onboardingCss.includes("backdrop-filter:blur(7px)")&&
  onboardingSource.includes('from("vatra_onboarding")')&&
- onboardingSource.includes('from("vatra_profile_media")')&&
- onboardingSource.includes('from("vatra_friendships")')&&
- onboardingSource.includes('from("feed_posts")')&&
  feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})')&&
  feedScript.includes('new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}})')&&
- (feedScript.match(/supabase\.createClient\(/g)||[]).length===1&&
+ (feedScript.match(/supabase\\.createClient\\(/g)||[]).length===1&&
  !onboardingSource.includes('supabase.createClient(')&&
- onboardingSource.includes('client=feedClient;')&&
- feedScript.includes('new Event("vatra:onboarding-progress")'),
- "Feed must launch a persistent blurred tour with five real account-setup tasks");
+ onboardingSource.includes('client=feedClient;'),
+ "Feature tutorial must remain, but all five onboarding tasks must be removed");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
@@ -1093,7 +1093,26 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('"vatra-avatars"')&&
  profileScript.includes('"vatra-covers"')&&
  feedScript.includes('storage.from("vatra-avatars")'),
- "Profile setup must save real avatar and cover photos, not fake checklist completion");
+ "Profile photos and cover images must be uploaded to their dedicated storage buckets");
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
+ memberProfileMarkup.includes('id="profile-photo-like"')&&
+ memberProfileMarkup.includes('id="profile-photo-comments"')&&
+ memberProfileMarkup.includes('id="profile-photo-share"')&&
+ profileScript.includes('from("vatra_avatar_likes")')&&
+ profileScript.includes('from("vatra_avatar_comments")')&&
+ profileScript.includes('interaction.hidden=kind!=="avatar"')&&
+ feedStyle.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
+ feedStyle.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&
+ feedStyle.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
+ "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");
+assert.ok(["feed.html","profile.html","communities.html","club.html"].every(Boolean)&&
+ ["feed.html","profile.html","communities.html","club.html"].length===4,
+ "Signed-in skeleton route list must remain stable");
+for(const page of ["feed.html","profile.html","communities.html","club.html"]){
+ const html=await read(page);
+ assert.ok(html.includes('class="vatra-route-skeleton ui-vatra-route-skeleton-001"'),
+  page+": use page-shaped skeleton instead of a recurring fullscreen logo");
+}
 const errorPage=await read("404.html");
 // The GitHub Pages /idN and /clubN fallback must show the real VATRA splash
 // while fetching the route document in BOTH Ukrainian and English.
