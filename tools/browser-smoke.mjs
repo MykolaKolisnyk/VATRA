@@ -2376,6 +2376,8 @@ try{
    "Obsolete sidebar controls must not remain in the DOM");
   assert.equal(await feedProbe.locator(".social-right-panel").count(),0);
   assert.equal(await feedProbe.locator("#feed-community-list").count(),0);
+  assert.equal(await feedProbe.locator("#feed-stories-next").count(),1,
+   "Friend Story cards use a working overflow control, not a decorative arrow");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
@@ -2520,6 +2522,9 @@ try{
   assert.equal(tip.background,"rgb(255, 255, 255)","VATRA icon tips must match the white auth tooltip");
   assert.ok(tip.left>=0&&tip.right<=tip.w+1&&tip.top>=0&&tip.bottom<=tip.h+1,
    "Header tooltip must be kept inside viewport: "+JSON.stringify(tip));
+  await feedProbe.mouse.move(16,420);
+  assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"false",
+   "Tooltip must dismiss immediately when the pointer leaves the header icon");
   await feedProbe.locator(".ui-social-top-friends-001").click();
   assert.equal(await feedProbe.locator(".vatra-shell-dialog").evaluate(el=>el.open),true,
    "The Friends icon must offer a real interactive status instead of being disabled");
