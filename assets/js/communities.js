@@ -36,6 +36,21 @@ const gateError=message=>{
  retry.addEventListener("click",()=>location.reload());
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
+async function loadHeaderPhoto(client,id){
+ if(!idPattern.test(String(id||"")))return;
+ try{
+  const {data,error}=await client.from("vatra_profile_media")
+   .select("avatar_path").eq("vatra_id",id).maybeSingle();
+  if(error||typeof data?.avatar_path!=="string"||!data.avatar_path.startsWith(id+"/avatar/"))return;
+  const image=client.storage.from("vatra-avatars").getPublicUrl(data.avatar_path)?.data?.publicUrl;
+  if(!image)return;
+  const url=new URL(image);
+  if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
+  const target=$("#feed-header-avatar");
+  if(target){target.style.backgroundImage="url("+JSON.stringify(image)+")";
+   target.classList.add("has-photo");target.textContent="";}
+ }catch(_){/* Initials remain visible if media is unavailable. */}
+}
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
  const mode=document.body.dataset.page;
@@ -102,6 +117,7 @@ async function start(){
   $("#feed-header-avatar").textContent=avatar;
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
+   if(ownId)void loadHeaderPhoto(client,ownId);
   $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
    if(ownId&&idPattern.test(ownId))link.href=root+"id"+ownId;
@@ -129,6 +145,7 @@ async function start(){
   $("#community-loading").hidden=true;
   document.body.dataset.authReady="true";
   document.body.dataset.feedReady="true";
+   document.body.classList.remove("vatra-shell-pending");
  }catch(_){
   gateError(t("Не вдалося відкрити сторінку. Оновіть її.","Could not open this page. Please refresh."));
  }
