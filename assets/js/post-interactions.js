@@ -45,7 +45,8 @@
  };
  const permalink=post=>{
   if(post?.kind==="group"&&validId(post.club_id))
-   return new URL("club"+post.club_id,relativeRoot()).href;
+   return new URL("club"+post.club_id+
+    (validUUID(post.id)?"?post="+encodeURIComponent(post.id):""),relativeRoot()).href;
   return new URL("feed?post="+encodeURIComponent(post.id),relativeRoot()).href;
  };
  const dateValue=input=>{
