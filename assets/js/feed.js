@@ -239,6 +239,18 @@
     "Could not load your Feed. Please retry."));
   }finally{loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;}
  }
+ const storyTrack=q(".feed-stories-track"),storiesNext=q("#feed-stories-next");
+ function updateStoryArrow(){
+  if(!storyTrack||!storiesNext)return;
+  storiesNext.hidden=storyTrack.scrollWidth-storyTrack.clientWidth-storyTrack.scrollLeft<8;
+ }
+ if(storyTrack&&storiesNext){
+  storiesNext.addEventListener("click",()=>storyTrack.scrollBy({
+   left:Math.max(120,storyTrack.clientWidth*.72),behavior:"smooth"
+  }));
+  storyTrack.addEventListener("scroll",updateStoryArrow,{passive:true});
+  window.addEventListener("resize",updateStoryArrow,{passive:true});
+ }
  async function loadStories(){
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
@@ -256,6 +268,7 @@
     if(items.length>=3)break;
    }
    await loadPublicNames(items.map(x=>x.author_vatra_id));
+   await loadAvatars(items.map(x=>x.author_vatra_id));
    holder.replaceChildren();
    if(!items.length)holder.append(node("p","feed-story-empty-note vt-feed-story-empty-note-001",
     t("Історії друзів з’являться тут.","Friends’ stories will appear here.")));
@@ -264,7 +277,10 @@
     const button=node("button","feed-story-preview ui-feed-story-live-preview-001");
     button.type="button";button.dataset.theme=String(story.theme||0);
     button.setAttribute("aria-label",memberName(id));
-    button.append(node("span","vt-feed-story-live-body-001",story.body),
+    const storyAvatar=node("span","feed-story-author-avatar vt-feed-story-author-avatar-001",initials(memberName(id)));
+    storyAvatar.setAttribute("aria-hidden","true");
+    applyAvatar(storyAvatar,id);
+    button.append(storyAvatar,node("span","vt-feed-story-live-body-001",story.body),
      node("span","vt-feed-story-live-name-001",memberName(id)));
     button.addEventListener("click",()=>{
      q("#feed-story-view-heading").textContent=memberName(id);
@@ -276,6 +292,7 @@
    }
   }catch(_){holder.replaceChildren(node("p","feed-story-empty-note vt-feed-story-unavailable-001",
    t("Історії зараз недоступні.","Stories are temporarily unavailable.")));}
+  finally{requestAnimationFrame(updateStoryArrow);}
  }
  function bindComposer(){
   const dialog=q("#feed-compose-dialog"),form=q("#feed-compose-form");
