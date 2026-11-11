@@ -365,9 +365,10 @@ body.profile-page .profile-media-status[data-status="error"]{color:#aa455a}
 /* An uploaded cover replaces the decorative VATRA artwork completely.
    The edit-cover button remains available to the profile owner. */
 body.profile-page.feed-page:not(.community-page) .profile-cover.has-photo{
- background-image:none;background-color:#111827
+ background-size:cover;background-position:center;background-repeat:no-repeat
 }
-body.profile-page .profile-cover.has-photo::before{
+body.profile-page .profile-cover.has-photo::before,
+body.profile-page .profile-cover.has-photo::after{
  content:none;display:none
 }
 body.profile-page .profile-cover.has-photo .profile-cover-motif,
@@ -1441,17 +1442,6 @@ body.profile-page .profile-cover-view{cursor:pointer}
 body.profile-page .profile-cover.has-photo{
  isolation:isolate;overflow:hidden
 }
-body.profile-page .profile-cover.has-photo::after{
- content:"";display:block;position:absolute;inset:0;z-index:0;
- background-image:var(--vatra-cover-image);background-position:center;
- background-size:cover;background-repeat:no-repeat;filter:none;
- transition:transform .24s ease,filter .24s ease;
- transform-origin:center;pointer-events:none
-}
-body.profile-page .profile-cover.has-photo:hover::after,
-body.profile-page .profile-cover.has-photo:focus-within::after{
- transform:scale(1.045);filter:brightness(.86)
-}
 body.profile-page .profile-cover.has-photo .profile-cover-upload-button{
  position:absolute;z-index:4
 }
@@ -1573,7 +1563,6 @@ body.profile-page .vt-profile-photo-comment-send-001:disabled{
  body.profile-page .profile-photo-comment-form{padding:8px 12px}
 }
 @media(prefers-reduced-motion:reduce){
- body.profile-page .profile-cover.has-photo::after,
  body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{transition:none}
 }
 
