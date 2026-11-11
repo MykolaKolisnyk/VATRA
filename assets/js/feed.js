@@ -222,12 +222,70 @@
    });
   return item;
  }
+ // Unified VATRA search: names, member status, communities and all accessible posts.
+ const globalResults=node("section","vatra-global-search-results ui-vatra-global-search-results-001");
+ globalResults.id="vatra-global-search-results";globalResults.hidden=true;
+ globalResults.setAttribute("aria-label",t("Результати пошуку VATRA","VATRA search results"));
+ const searchHeading=node("h2","vt-vatra-global-search-heading-001",t("Знайдено у VATRA","Found on VATRA"));
+ const searchGroups=node("div","vatra-global-search-groups ui-vatra-global-search-groups-001");
+ globalResults.append(searchHeading,searchGroups);
+ posts.parentElement?.insertBefore(globalResults,posts);
+ let globalSearchTicket=0;
+ const drawGlobalGroup=(title,records,makeCard)=>{
+  if(!records.length)return;
+  const section=node("section","vatra-global-search-group ui-vatra-global-search-group-001");
+  section.append(node("h3","vt-vatra-global-search-section-title-001",title));
+  const list=node("div","vatra-global-search-list ui-vatra-global-search-list-001");
+  for(const record of records)list.append(makeCard(record));
+  section.append(list);searchGroups.append(section);
+ };
+ async function loadGlobalResults(){
+  const phrase=searchTerm.trim(),ticket=++globalSearchTicket;
+  if(!phrase){globalResults.hidden=true;searchGroups.replaceChildren();return;}
+  globalResults.hidden=false;searchGroups.replaceChildren();
+  searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
+  const escaped=phrase.replace(/[\\%_]/g,"\\ // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.");
+  const [members,communities]=await Promise.allSettled([
+   client.from("vatra_public_profiles").select("vatra_id,display_name,status_text")
+    .ilike("display_name","%"+escaped+"%").order("display_name",{ascending:true}).limit(8),
+   client.from("communities").select("club_id,name,description")
+    .or("name.ilike.%"+escaped+"%,description.ilike.%"+escaped+"%")
+    .order("name",{ascending:true}).limit(8)
+  ]);
+  if(ticket!==globalSearchTicket||!globalResults.isConnected)return;
+  const people=members.status==="fulfilled"&&!members.value.error?members.value.data||[]:[];
+  const clubs=communities.status==="fulfilled"&&!communities.value.error?communities.value.data||[]:[];
+  await loadAvatars(people.map(p=>p.vatra_id));
+  if(ticket!==globalSearchTicket||!globalResults.isConnected)return;
+  searchGroups.replaceChildren();
+  drawGlobalGroup(t("Люди","People"),people,person=>{
+   const link=node("a","vatra-global-search-card ui-vatra-global-search-person-001");
+   const id=String(person.vatra_id);link.href=new URL("id"+id,home).href;
+   const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
+   applyAvatar(avatar,id);
+   const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
+   info.append(node("strong","vt-vatra-global-search-name-001",person.display_name||t("Учасник VATRA","VATRA member")));
+   if(person.status_text)info.append(node("small","vt-vatra-global-search-description-001",person.status_text.slice(0,100)));
+   link.append(avatar,info);return link;
+  });
+  drawGlobalGroup(t("Спільноти","Communities"),clubs,club=>{
+   const link=node("a","vatra-global-search-card ui-vatra-global-search-club-001");
+   link.href=new URL("club"+club.club_id,home).href;
+   const icon=node("span","vatra-global-search-community-avatar ui-vatra-global-search-community-icon-001");
+   icon.setAttribute("aria-hidden","true");icon.textContent="✦";
+   const info=node("span","vatra-global-search-info ui-vatra-global-search-club-info-001");
+   info.append(node("strong","vt-vatra-global-search-club-name-001",club.name));
+   if(club.description)info.append(node("small","vt-vatra-global-search-club-description-001",club.description.slice(0,100)));
+   link.append(icon,info);return link;
+  });
+  if(!people.length&&!clubs.length)globalResults.hidden=true;
+ }
  // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
  // Only the next 12 posts are materialized; no eager 200+200 post download.
  let sourceState=null,renderedIds=new Set();
  const makeSourceState=()=>({
-  person:{kind:"person",offset:0,done:feedFilter==="communities",queue:[]},
-  group:{kind:"group",offset:0,done:feedFilter==="friends",queue:[]}
+  person:{kind:"person",offset:0,done:!searchTerm&&feedFilter==="communities",queue:[]},
+  group:{kind:"group",offset:0,done:!searchTerm&&feedFilter==="friends",queue:[]}
  });
  const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path";
@@ -251,15 +309,15 @@
   while(!source.done&&!source.queue.length&&attempts++<12){
    const isPerson=source.kind==="person";
    const personIds=isPerson?[...friends].filter(id=>feedFilter!=="friends"||id!==vatraId):[];
-   if(isPerson&&!personIds.length){source.done=true;return;}
-   if(!isPerson&&!followedClubs.size){source.done=true;return;}
+   if(isPerson&&!personIds.length&&!searchTerm){source.done=true;return;}
+   if(!isPerson&&!followedClubs.size&&!searchTerm){source.done=true;return;}
    let query=client.from(isPerson?"feed_posts":"vatra_community_posts")
     .select(isPerson?personFields:clubFields);
-   if(isPerson&&typeof query.in==="function"){
+   if(isPerson&&!searchTerm&&typeof query.in==="function"){
     query=query.in("author_vatra_id",personIds);
    }
    if(isPerson&&typeof query.is==="function")query=query.is("archived_at",null);
-   if(!isPerson&&typeof query.in==="function")
+   if(!isPerson&&!searchTerm&&typeof query.in==="function")
     query=query.in("club_id",[...followedClubs.keys()]);
    if(searchTerm&&typeof query.ilike==="function")
     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
@@ -269,7 +327,7 @@
    const raw=data||[];
    source.offset+=raw.length;
    if(raw.length<PAGE_SIZE)source.done=true;
-   const rows=raw.filter(post=>isPerson?
+   const rows=raw.filter(post=>searchTerm?true:isPerson?
     personIds.includes(String(post.author_vatra_id)):
     followedClubs.has(String(post.club_id))
    ).filter(post=>!searchTerm||
@@ -525,10 +583,12 @@
     event.preventDefault();
     searchTerm=searchInput.value.trim().slice(0,120);
     clearMessage();
-    void loadPosts(true);
+    void Promise.allSettled([loadGlobalResults(),loadPosts(true)]);
    });
    searchInput?.addEventListener("search",()=>{
-    if(!searchInput.value&&searchTerm){searchTerm="";clearMessage();void loadPosts(true);}
+    if(!searchInput.value&&searchTerm){
+     searchTerm="";clearMessage();void Promise.allSettled([loadGlobalResults(),loadPosts(true)]);
+    }
    });
    const accountMenu=q(".feed-account-menu");
    document.addEventListener("click",event=>{
@@ -577,7 +637,7 @@
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
    document.body.classList.remove("vatra-shell-pending");
-   void Promise.allSettled([loadPosts(true),loadStories()]);
+   void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
   }catch(_){
    if(document.body.dataset.authReady==="true"){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",

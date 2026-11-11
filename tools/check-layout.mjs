@@ -895,6 +895,10 @@ assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  (await read("assets/css/feed.css")).includes('vatra-post-share-dialog')&&
  (await read("assets/js/notifications.js")).includes('vatra-notification-avatar'),
  "Social interactions, full post cards, branded filters and scroll rail must remain functional");
+assert.ok((await read("assets/js/feed.js")).includes('vatra-global-search-results')&&
+ (await read("assets/js/feed.js")).includes('vatra_public_profiles')&&
+ (await read("assets/js/feed.js")).includes('client.from("communities")'),
+ "Global VATRA search must search names and communities as well as accessible posts");
 const notificationMarkup=await read("notifications.html");
 const notificationScript=await read("assets/js/notifications.js");
 assert.ok(notificationMarkup.includes('data-page="notifications"')&&
