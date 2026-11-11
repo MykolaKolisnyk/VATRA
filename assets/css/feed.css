@@ -1369,3 +1369,155 @@ body.feed-page .feed-stories-next:focus-visible{outline:2px solid #507ae8;outlin
  body.feed-page .feed-stories-next{right:-5px;width:34px;height:34px}
  body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{padding:12px}
 }
+
+/* Account header: the V symbol has no circular hover plate. */
+body.feed-page .feed-header-brand:hover{
+ background:transparent!important;box-shadow:none!important;transform:none!important
+}
+/* Original photos are interactive, with a subtle darken-and-zoom hover.
+   Do not use a magnifying-glass cursor. */
+body.profile-page .profile-avatar-trigger{cursor:pointer}
+body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{
+ transition:transform .22s ease,filter .22s ease;will-change:transform
+}
+body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo,
+body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-photo{
+ transform:scale(1.045);filter:brightness(.86)
+}
+body.profile-page .profile-cover-view{cursor:pointer}
+body.profile-page .profile-cover.has-photo{
+ isolation:isolate;overflow:hidden
+}
+body.profile-page .profile-cover.has-photo::after{
+ content:"";display:block;position:absolute;inset:0;z-index:0;
+ background-image:var(--vatra-cover-image);background-position:center;
+ background-size:cover;background-repeat:no-repeat;
+ transition:transform .24s ease,filter .24s ease;
+ transform-origin:center;pointer-events:none
+}
+body.profile-page .profile-cover.has-photo:hover::after,
+body.profile-page .profile-cover.has-photo:focus-within::after{
+ transform:scale(1.045);filter:brightness(.86)
+}
+body.profile-page .profile-cover.has-photo .profile-cover-upload-button{
+ position:absolute;z-index:4
+}
+body.profile-page .profile-cover-view{z-index:3}
+body.profile-page .profile-avatar-menu{
+ top:calc(100% + 4px);left:0;min-width:250px;padding:8px;
+ border-radius:0 14px 14px 14px
+}
+body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-menu{
+ display:none!important
+}
+/* A photo dialog is a browser top-layer modal; hide the page scrollbar
+   without blocking the independently scrollable comment column. */
+html:has(#profile-media-viewer[open]),
+body:has(#profile-media-viewer[open]){overflow:hidden!important}
+body.profile-page .profile-media-viewer[open]{
+ display:grid;grid-template-columns:minmax(0,1fr) clamp(310px,27vw,420px);
+ width:100vw;height:100dvh;max-width:none;max-height:none
+}
+body.profile-page .profile-media-viewer[data-kind="cover"][open]{
+ grid-template-columns:minmax(0,1fr)
+}
+body.profile-page .profile-media-viewer-stage{
+ min-width:0;min-height:0;width:100%;height:100dvh
+}
+body.profile-page .profile-media-viewer-image{
+ object-fit:contain;min-width:0;min-height:0
+}
+body.profile-page .profile-avatar-engagement{
+ display:flex;flex-direction:column;gap:0;min-width:0;height:100dvh;
+ background:#fff;color:#31425d;border-left:1px solid #e2e9f3;
+ font-family:"Onest",system-ui,sans-serif
+}
+body.profile-page .profile-avatar-engagement[hidden]{display:none!important}
+body.profile-page .profile-photo-info{
+ flex:none;display:flex;flex-direction:column;gap:4px;
+ padding:24px 20px 17px;border-bottom:1px solid #e7edf6
+}
+body.profile-page .vt-profile-photo-owner-001{
+ color:#2a3b58;font:780 16px/1.3 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-photo-kind-001{color:#788ba6;font:540 12px/1.3 "Onest",system-ui,sans-serif}
+body.profile-page .profile-photo-actions{
+ display:flex;flex:none;gap:12px;padding:12px 18px;
+ border-bottom:1px solid #e7edf6
+}
+body.profile-page .profile-photo-actions button{
+ display:flex;align-items:center;justify-content:center;gap:7px;
+ min-height:40px;padding:7px 12px;border:1px solid #dfe7f5;border-radius:10px;
+ background:#f6f8fd;color:#4d6180;cursor:pointer;
+ font:700 12px/1.3 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-photo-actions button:hover{
+ border-color:#b9cafa;background:#edf3ff;color:#3568d7
+}
+body.profile-page .profile-photo-actions button.is-liked,
+body.profile-page .profile-photo-actions button[aria-pressed="true"]{
+ border-color:#b9cafc;background:#eef3ff;color:#3465d6
+}
+body.profile-page .profile-photo-actions svg{width:19px;height:19px;flex:none}
+body.profile-page .vt-profile-photo-like-count-001{
+ min-width:19px;padding:2px 5px;border-radius:20px;background:#e4ebfa;
+ text-align:center;font-size:11px
+}
+body.profile-page .vt-profile-photo-comments-heading-001{
+ flex:none;margin:0;padding:15px 20px 10px;color:#2d405e;
+ font:750 14px/1.35 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-photo-comments{
+ flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+ padding:0 17px 10px;scrollbar-width:thin;
+ scrollbar-color:#6577e6 #edf1fb
+}
+body.profile-page .profile-photo-comments::-webkit-scrollbar{width:7px}
+body.profile-page .profile-photo-comments::-webkit-scrollbar-track{background:#edf1fb;border-radius:10px}
+body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb{
+ background:linear-gradient(#4278e9,#9567d7);border-radius:10px
+}
+body.profile-page .profile-photo-comment{
+ padding:11px 5px 12px;border-bottom:1px solid #eef1f7
+}
+body.profile-page .vt-profile-photo-comment-name-001{display:block;font-size:13px;color:#2b3c59;font-weight:760}
+body.profile-page .vt-profile-photo-comment-time-001{display:block;margin-top:3px;font-size:11px;color:#94a0b2}
+body.profile-page .vt-profile-photo-comment-body-001{
+ margin:7px 0 0;font-size:13px;line-height:1.55;
+ overflow-wrap:anywhere;white-space:pre-wrap
+}
+body.profile-page .vt-profile-photo-no-comments-001{font-size:13px;color:#8292aa;line-height:1.5}
+body.profile-page .vt-profile-photo-status-001{padding:6px 18px;margin:0;color:#61799c;font-size:12px}
+body.profile-page .vt-profile-photo-status-001[data-kind="error"]{color:#bd4962}
+body.profile-page .profile-photo-comment-form{
+ display:flex;flex:none;gap:9px;align-items:flex-end;
+ padding:12px 16px 19px;border-top:1px solid #e8edf5;background:#fff
+}
+body.profile-page .ui-profile-photo-comment-text-001{
+ flex:1;min-width:0;max-height:112px;resize:vertical;
+ padding:9px 10px;border:1px solid #dbe5f5;border-radius:10px;
+ background:#f6f8fc;color:#334863;font:550 13px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-photo-comment-send-001{
+ flex:none;min-height:38px;padding:8px 12px;border:0;border-radius:10px;
+ background:linear-gradient(115deg,#3b73e5,#735cd6);color:#fff;cursor:pointer;
+ font:730 12px/1.2 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-photo-comment-send-001:disabled{
+ opacity:.55;cursor:wait
+}
+@media(max-width:780px){
+ body.profile-page .profile-media-viewer[data-kind="avatar"][open]{
+  grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,53dvh) minmax(0,47dvh)
+ }
+ body.profile-page .profile-media-viewer[data-kind="avatar"] .profile-media-viewer-stage{height:53dvh}
+ body.profile-page .profile-avatar-engagement{height:47dvh;border-left:0;border-top:1px solid #e2e9f3}
+ body.profile-page .profile-photo-info{padding:10px 14px}
+ body.profile-page .profile-photo-actions{padding:8px 14px}
+ body.profile-page .vt-profile-photo-comments-heading-001{padding:8px 14px}
+ body.profile-page .profile-photo-comment-form{padding:8px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-cover.has-photo::after,
+ body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{transition:none}
+}
