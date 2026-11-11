@@ -1664,3 +1664,26 @@ body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-po
 body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-body{
  margin:10px 0 1px;color:#394964;font:480 14px/1.55 "Onest",system-ui,sans-serif
 }
+
+
+/* Avatar dropdown: VATRA's lightweight monochrome iconography.
+   No outlined square plates competing with the labels or brand mark. */
+body.feed-page .feed-account-dropdown > a,
+body.feed-page .feed-account-dropdown > button,
+body.feed-page .feed-menu-settings-toggle{
+ gap:14px;min-height:47px;padding:10px 14px
+}
+body.feed-page .feed-account-dropdown > a > svg,
+body.feed-page .feed-account-dropdown > button > svg,
+body.feed-page .feed-menu-settings-toggle > svg{
+ flex:0 0 21px;width:21px;height:21px;padding:0;
+ border:0;border-radius:0;background:transparent;
+ color:#687f9f;stroke-width:1.85;transition:color .16s ease
+}
+body.feed-page .feed-account-dropdown > a:hover > svg,
+body.feed-page .feed-menu-settings-toggle:hover > svg{
+ border:0;background:transparent;color:#466cea
+}
+body.feed-page #feed-logout > svg{
+ border:0;background:transparent;color:#b3576a!important
+}
