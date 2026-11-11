@@ -445,7 +445,7 @@
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
    // Start the optional tutorial without holding the whole screen hostage.
-   void window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}}).catch(()=>{});
+   void Promise.resolve(window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})).catch(()=>{});
    document.dispatchEvent(new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}}));
    void Promise.allSettled([loadPosts(true),loadStories()]);
   }catch(_){
