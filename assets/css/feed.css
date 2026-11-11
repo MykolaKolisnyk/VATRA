@@ -2659,6 +2659,14 @@ body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
 body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001{
  transform:scale(1.014);filter:brightness(.97)
 }
+/* Your Story is gentle in both the empty and populated Stories lanes. */
+body.feed-page .feed-story-create{
+ transform:none;transition:border-color .35s ease,background .35s ease,box-shadow .35s ease
+}
+body.feed-page .feed-story-create:hover,
+body.feed-page .feed-story-create:focus-visible{
+ transform:none;border-color:#c8d8f7;box-shadow:0 5px 16px rgba(43,65,110,.075)
+}
 /* Your Story is a gentle surface, not a jumping card. */
 body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create{
  transform:none;transition:border-color .34s ease,box-shadow .34s ease,background .34s ease
