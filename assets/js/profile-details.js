@@ -304,11 +304,15 @@
   form.addEventListener("submit",async event=>{
    event.preventDefault();if(save.disabled)return;
    save.disabled=true;feedback.hidden=true;feedback.dataset.kind="";
-   const group=groups.find(x=>x.id===selected);
-   const records=group.fields.map(field=>{
+   // One save persists edits across every section, not only the visible tab.
+   const records=groups.flatMap(group=>group.fields).map(field=>{
     const key=field[0],item=draft.get(key)||{value:"",visibility:"friends"};
     return {vatra_id:ownId,field_key:key,field_value:item.value.trim(),
      visibility:item.visibility,updated_at:new Date().toISOString()};
+   }).filter(record=>{
+    const previous=saved.get(record.field_key)||{value:"",visibility:"friends"};
+    return record.field_value!==previous.value||
+     (record.field_value&&record.visibility!==previous.visibility);
    });
    try{
     const additions=records.filter(x=>x.field_value);
@@ -324,7 +328,7 @@
       .delete().eq("vatra_id",ownId).in("field_key",deletions);
      if(result.error)throw result.error;
     }
-    if(selected==="profile"&&visibility!==accountVisibility){
+    if(visibility!==accountVisibility){
      const result=await client.from("vatra_profile_preferences")
       .upsert({vatra_id:ownId,profile_visibility:visibility,
        updated_at:new Date().toISOString()},{onConflict:"vatra_id"})
@@ -340,7 +344,7 @@
       value:record.field_value,visibility:record.visibility});
     }
     // Keep local state in sync for the next editor visit.
-    if(selected==="profile")accountVisibility=visibility;
+    accountVisibility=visibility;
     renderInfo();
     feedback.hidden=false;feedback.dataset.kind="success";
     feedback.textContent=tr("Зміни збережено.","Changes saved.");
