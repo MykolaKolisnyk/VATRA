@@ -235,6 +235,8 @@
      String(b.id).localeCompare(String(a.id)));
    renderPage(true);
   }catch(_){
+   // Do not leave skeleton cards hanging if the Feed request fails.
+   posts.replaceChildren();
    message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
     "Could not load your Feed. Please retry."));
   }finally{loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;}
@@ -426,16 +428,26 @@
     try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
     location.replace(new URL("./",location.href).href);
    });
-   await loadPosts(true);
-   await loadStories();
+   // The verified shell is ready: render it immediately instead of waiting
+   // for several independent social queries. The post area has lightweight
+   // skeleton cards until the first response settles.
+   posts.replaceChildren();
+   for(let i=0;i<2;i++){
+    const card=node("div","feed-post-placeholder ui-feed-post-placeholder-00"+(i+1));
+    card.setAttribute("aria-hidden","true");
+    card.append(node("span","feed-post-placeholder-head ui-feed-post-placeholder-head-00"+(i+1)),
+     node("span","feed-post-placeholder-line ui-feed-post-placeholder-line-00"+(i+1)),
+     node("span","feed-post-placeholder-line short ui-feed-post-placeholder-short-00"+(i+1)));
+    posts.append(card);
+   }
    q("#feed-app").hidden=false;
-   // Resolve the first-run state before lifting the splash, so the member sees
-   // a blurred Feed with its tutorial, not a brief unobscured jump.
-   try{await window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}});}catch(_){}
    q("#feed-loading").hidden=true;
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
+   // Start the optional tutorial without holding the whole screen hostage.
+   void window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}}).catch(()=>{});
    document.dispatchEvent(new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}}));
+   void Promise.allSettled([loadPosts(true),loadStories()]);
   }catch(_){
    if(!q("#feed-app").hidden){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
