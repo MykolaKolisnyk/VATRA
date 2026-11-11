@@ -271,8 +271,11 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
 body.profile-page.feed-page:not(.community-page) .feed-layout,
 body.feed-page.community-page .feed-layout{
  display:grid;grid-template-columns:minmax(0,1fr);justify-content:center;align-items:start;
- width:min(calc(100% - 40px),1000px);max-width:1000px;gap:0;margin:28px auto 70px;flex:1
+ width:min(calc(100% - 40px),1000px);max-width:1000px;gap:0;flex:1
 }
+/* The member cover begins exactly at the shared header edge. */
+body.profile-page.feed-page:not(.community-page) .feed-layout{margin:0 auto 70px}
+body.feed-page.community-page .feed-layout{margin:28px auto 70px}
 body.feed-page .feed-main{min-width:0;gap:16px}
 body.feed-page .feed-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:35px;margin:0;padding:0}
 body.feed-page .feed-title{font:760 26px/1.28 "Onest",sans-serif;letter-spacing:-.032em;color:var(--ink)}
@@ -515,8 +518,8 @@ body.community-page .ui-club-hero-001{overflow:visible}
 }
 @media(max-width:600px){
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout,
- body.profile-page.feed-page:not(.community-page) .feed-layout,
  body.feed-page.community-page .feed-layout{width:calc(100% - 16px);margin:17px auto 45px}
+ body.profile-page.feed-page:not(.community-page) .feed-layout{width:calc(100% - 16px);margin:0 auto 45px}
  body.feed-page .feed-title{font-size:23px}
  body.profile-page.feed-page:not(.community-page) .profile-cover{height:185px}
  body.profile-page.feed-page:not(.community-page) .profile-summary{gap:10px;padding:0 15px 17px}
