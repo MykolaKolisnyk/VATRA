@@ -45,7 +45,7 @@
   }
  };
 
- let client=null,user=null,vatraId=null,displayName="",loading=false,offset=0,searchTerm="";
+ let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="";
  let visibleFeed=[],friends=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const deleteDialog=q("#feed-delete-dialog"),deleteConfirm=q("#feed-delete-confirm");
@@ -206,7 +206,7 @@
     "Add friends or follow a community to see their posts alongside yours.");
  }
  async function loadPosts(reset=false){
-  if(loading)return;
+  if(loading){if(reset)refreshQueued=true;return;}
   if(!reset){renderPage();return;}
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
   try{
@@ -242,7 +242,10 @@
    posts.replaceChildren();
    message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
     "Could not load your Feed. Please retry."));
-  }finally{loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;}
+  }finally{
+   loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;
+   if(refreshQueued){refreshQueued=false;void loadPosts(true);}
+  }
  }
  const storyTrack=q(".feed-stories-track"),storiesNext=q("#feed-stories-next");
  function updateStoryArrow(){
