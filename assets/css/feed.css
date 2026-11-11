@@ -1687,3 +1687,27 @@ body.feed-page .feed-menu-settings-toggle:hover > svg{
 body.feed-page #feed-logout > svg{
  border:0;background:transparent;color:#b3576a!important
 }
+
+
+/* Profile media fetches animate in-place instead of blocking the entire route. */
+body.profile-page .profile-cover.is-loading-media{
+ background:#e9eff8!important;
+ background-image:linear-gradient(105deg,#e9eff8 24%,#f6f8fc 46%,#e9eff8 71%)!important;
+ background-size:230% 100%;animation:vatraSkeletonShift 1.7s linear infinite
+}
+body.profile-page .profile-cover.is-loading-media::before,
+body.profile-page .profile-cover.is-loading-media::after,
+body.profile-page .profile-cover.is-loading-media .profile-cover-motif,
+body.profile-page .profile-cover.is-loading-media .profile-cover-signature{
+ display:none!important
+}
+body.profile-page .profile-avatar-wrap.is-loading-media .profile-avatar{
+ color:transparent!important;background:#ecf0f8!important
+}
+body.profile-page .profile-posts-section .feed-post-placeholder{
+ display:flex;flex-direction:column;gap:13px;min-height:122px;padding:17px 18px;
+ border:1px solid #e4eaf4;border-radius:13px;background:#fff
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-cover.is-loading-media{animation:none}
+}
