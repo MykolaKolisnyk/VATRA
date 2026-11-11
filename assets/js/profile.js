@@ -1250,9 +1250,8 @@ async function start(){
    void window.VATRA_PRESENCE?.start(client,ownId,metadata.gender);
    window.VATRA_NOTIFICATIONS?.start(client,ownId);
   }
-  q("#feed-header-avatar").textContent=ownAvatar;
-  q("#feed-menu-name").textContent=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
-  q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
+  const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
+  window.VATRA_AVATAR?.setHeader({email:user.email,name:headerName,initials:ownAvatar,id:ownId});
   setMenuLink(ownId);
   // Keep the signed-in user's avatar even when a visited VATRA ID does not exist.
   window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
@@ -1275,6 +1274,7 @@ async function start(){
    const {error:signOutError}=await client.auth.signOut({scope:"local"});
    if(signOutError){button.disabled=false;return;}
    try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
+   window.VATRA_AVATAR?.clearHeader();
    location.replace(home);
   });
 
