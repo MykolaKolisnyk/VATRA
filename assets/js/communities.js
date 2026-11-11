@@ -270,7 +270,11 @@ async function setupClubSocial(client,clubId,ownId){
     time.dateTime=post.created_at;
     head.append(profile,time);
     article.append(head);
-   if(post.body)article.append(node("p","feed-post-body vt-club-post-body-001",post.body));
+   if(post.body){
+     const body=node("p","feed-post-body vt-club-post-body-001",post.body);
+     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
+     article.append(body);
+    }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
     list.append(article);
    }
