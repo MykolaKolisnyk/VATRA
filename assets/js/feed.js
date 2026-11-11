@@ -178,9 +178,13 @@
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
   try{
    await loadSubscriptions();
+   // Filter member posts on the server, not after downloading every user's Feed.
+   // Legacy test clients without an .in() method still work with the local filter.
+   let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at");
+   if(typeof personalQuery.in==="function")
+    personalQuery=personalQuery.in("author_vatra_id",[...friends]);
    const [people,groups]=await Promise.allSettled([
-    client.from("feed_posts").select("id,author_vatra_id,body,created_at")
-     .order("created_at",{ascending:false}).range(0,199),
+    personalQuery.order("created_at",{ascending:false}).range(0,199),
     followedClubs.size?client.from("vatra_community_posts")
      .select("id,club_id,author_vatra_id,body,created_at")
      .in("club_id",[...followedClubs.keys()])
