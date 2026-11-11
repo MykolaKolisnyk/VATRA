@@ -94,13 +94,6 @@
    target.removeAttribute("title");
    target.setAttribute("aria-describedby","vatra-shell-tooltip");
    target.addEventListener("pointerenter",event=>showTooltip(target,event));
-   target.addEventListener("pointermove",event=>{
-    if(tooltipSuppressed===target&&event.isTrusted&&event.pointerType!=="touch"&&
-     (event.movementX||event.movementY)){
-     tooltipSuppressed=null;
-     showTooltip(target,event);
-    }
-   });
    target.addEventListener("pointerleave",()=>{
     hideTooltip();
     if(tooltipSuppressed===target)tooltipSuppressed=null;
