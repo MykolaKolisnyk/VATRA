@@ -151,7 +151,15 @@
   const list=document.querySelector("#vatra-search-history");
   const empty=document.querySelector("#vatra-search-empty");
   const count=document.querySelector("#vatra-search-count");
-  if(!form||!input||!panel||!list||!empty||!count)return;
+  const back=document.querySelector("#vatra-search-back");
+  const edit=document.querySelector("#vatra-search-edit");
+  const clearAll=document.querySelector("#vatra-search-clear");
+  const brand=form.closest(".feed-brand-search");
+  const logo=brand?.querySelector(".feed-header-brand");
+  if(!form||!input||!panel||!list||!empty||!count||!back||!edit||!clearAll||!brand)return;
+  // Backdrop-filter on the sticky header creates a fixed-position containing block.
+  // Moving the popup to the document layer keeps viewport positioning accurate.
+  document.body.append(panel);
 
   const storageKey="vatra.search.history.v1";
   const limit=120;
@@ -173,49 +181,59 @@
    }
   };
   const t=(uk,en)=>lang()==="en"?en:uk;
+  let visible=false,editing=false;
+  function syncEditing(){
+   edit.hidden=entries.length===0;
+   edit.textContent=editing?t("Готово","Done"):t("Редагувати","Edit");
+   clearAll.hidden=!editing||entries.length===0;
+   panel.classList.toggle("is-editing",editing);
+  }
   const localize=()=>{
    for(const el of panel.querySelectorAll("[data-search-uk]"))
     el.textContent=t(el.dataset.searchUk,el.dataset.searchEn);
    panel.setAttribute("aria-label",t("Пошук у VATRA","Search VATRA"));
    list.setAttribute("aria-label",t("Історія запитів","Search queries"));
    panel.querySelector(".vatra-search-scope").setAttribute("aria-label",t("Розділи для пошуку","Search sections"));
+   back.setAttribute("aria-label",t("Назад до VATRA","Back to VATRA"));
    render();
   };
-  let visible=false;
   const position=()=>{
    if(!visible)return;
    const vp=window.visualViewport;
    const vw=vp?.width||innerWidth,vh=vp?.height||innerHeight;
    const ox=vp?.offsetLeft||0,oy=vp?.offsetTop||0;
    const field=form.getBoundingClientRect();
+   const anchor=brand.getBoundingClientRect();
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
-   const width=Math.max(0,Math.min(340,vw-16));
-   const left=Math.max(ox+8,Math.min(field.left,ox+vw-width-8));
-   const bottomSpace=Math.max(0,oy+vh-field.bottom-16);
-   const topSpace=Math.max(0,field.top-(oy+8));
-   // On phones, the virtual keyboard can hide the area below the search box.
-   // Flip the menu above the field when that is the larger visible area.
-   const above=bottomSpace<220&&topSpace>bottomSpace;
-   const available=Math.max(0,above?topSpace-7:bottomSpace-7);
+   const width=Math.max(0,Math.min(400,vw-16));
+   const left=Math.max(ox+8,Math.min(anchor.left,ox+vw-width-8));
+   const belowTop=Math.max(oy+8,field.bottom+7,(header?.bottom||0)+5);
+   const belowSpace=Math.max(0,oy+vh-belowTop-8);
+   const aboveSpace=Math.max(0,field.top-oy-16);
+   const flip=belowSpace<150&&aboveSpace>belowSpace;
+   const available=flip?aboveSpace:belowSpace;
    const height=Math.min(available,Math.max(0,panel.scrollHeight));
-   const top=above?Math.max(oy+8,field.top-7-height):
-    Math.max(oy+8,field.bottom+7,(header?.bottom||0)+6);
+   const top=flip?Math.max(oy+8,field.top-7-height):belowTop;
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(top)+"px";
    panel.style.width=Math.round(width)+"px";
-   panel.style.maxHeight=Math.max(0,Math.round(Math.min(available,oy+vh-top-8)))+"px";
+   panel.style.maxHeight=Math.max(0,Math.round(available))+"px";
   };
   const close=()=>{
-   visible=false;
-   panel.hidden=true;
+   visible=false;panel.hidden=true;
    input.setAttribute("aria-expanded","false");
+   brand.classList.remove("vatra-search-active");
+   back.setAttribute("aria-hidden","true");back.tabIndex=-1;
+   logo?.removeAttribute("aria-hidden");
+   editing=false;syncEditing();
   };
   const open=()=>{
-   visible=true;
-   panel.hidden=false;
+   visible=true;panel.hidden=false;
    input.setAttribute("aria-expanded","true");
-   render();
-   position();
+   brand.classList.add("vatra-search-active");
+   back.removeAttribute("aria-hidden");back.tabIndex=0;
+   logo?.setAttribute("aria-hidden","true");
+   render();position();
   };
   function remember(value){
    const query=clean(value);
@@ -277,11 +295,13 @@
     fragment.append(row);
    });
    list.replaceChildren(fragment);
+   panel.classList.toggle("has-query",!!typed);
    empty.hidden=visibleTerms.length>0;
    empty.textContent=typed?t("Немає збігів в історії","No matches in history"):
     t("Історія пошуку порожня","No search history");
    count.textContent=visibleTerms.length?
     t(visibleTerms.length+" запитів",visibleTerms.length+" searches"):"";
+   syncEditing();
   }
   function route(scope){
    const term=clean(input.value);
@@ -296,11 +316,20 @@
    const destination=scope==="communities"?"communities":"feed";
    location.assign(new URL(destination+"?q="+encodeURIComponent(term),root).href);
   }
+  back.addEventListener("click",()=>{
+   close();input.blur();logo?.focus({preventScroll:true});
+  });
+  edit.addEventListener("click",()=>{
+   editing=!editing;syncEditing();position();
+  });
+  clearAll.addEventListener("click",()=>{
+   entries=[];store();editing=false;render();position();input.focus({preventScroll:true});
+  });
   input.addEventListener("focus",open);
   input.addEventListener("click",open);
   input.addEventListener("input",()=>{if(!visible)open();else{render();position();}});
   input.addEventListener("keydown",event=>{
-   if(event.key==="Escape"&&visible){event.preventDefault();close();}
+   if(event.key==="Escape"&&visible){event.preventDefault();close();input.blur();}
    if(event.key==="ArrowDown"&&visible){
     const first=list.querySelector(".vatra-search-history-term");
     if(first){event.preventDefault();first.focus();}
@@ -314,7 +343,7 @@
    button.addEventListener("click",()=>route(button.dataset.vatraSearchScope));
   });
   document.addEventListener("pointerdown",event=>{
-   if(visible&&!form.contains(event.target))close();
+   if(visible&&!form.contains(event.target)&&!panel.contains(event.target)&&!back.contains(event.target))close();
   });
   document.addEventListener("keydown",event=>{
    if(event.key==="Escape"&&visible)close();
