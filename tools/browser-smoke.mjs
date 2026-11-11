@@ -2675,7 +2675,7 @@ try{
    assert.ok(Math.abs(filterGeometry.composerWidth-filterGeometry.storiesWidth)<=3&&
     Math.abs(filterGeometry.composeRight-filterGeometry.edge)<=3,
     "Feed filters cannot narrow full-width composer and Stories: "+JSON.stringify(filterGeometry));
-   assert.ok(filterGeometry.screenWidth>=1390?
+   assert.ok(filterGeometry.screenWidth>1320?
     (filterGeometry.filterLeft>=filterGeometry.composeRight+5&&
      filterGeometry.filterTop>=filterGeometry.composerTop-2):
     (filterGeometry.filterTop>=filterGeometry.storyBottom-3&&
