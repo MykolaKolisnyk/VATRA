@@ -42,6 +42,9 @@
      <a href="feed" class="feed-header-brand vt-feed-header-brand-001" aria-label="VATRA — Стрічка">
      <img class="ui-feed-logo-001" src="assets/logo/vatra-symbol.svg" width="72" height="72" alt="VATRA">
     </a>
+     <button type="button" id="vatra-search-back" class="vatra-search-back ui-vatra-search-back-001" aria-label="Назад до VATRA" aria-hidden="true" tabindex="-1">
+      <svg class="ui-vatra-search-back-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-vatra-search-back-path-001" d="M19 12H5m7-7-7 7 7 7"/></svg>
+     </button>
      <form id="feed-search-form" class="feed-search-form ui-feed-search-form-001" role="search">
      <label class="vatra-sr-only vt-feed-search-label-001" for="feed-search-input" data-i18n="n42" data-social-uk="Пошук у VATRA" data-social-en="Search VATRA">Пошук у VATRA</label>
      <svg class="ui-feed-search-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle class="ui-shell-vector-part-001" cx="10.8" cy="10.8" r="6.7"/><path class="ui-shell-vector-part-002" d="m16 16 4.5 4.5"/></svg>
@@ -49,11 +52,13 @@
      <button id="feed-search-submit" class="feed-search-submit vt-feed-search-submit-001" type="submit" data-i18n="n44">Знайти</button>
     <div id="vatra-search-panel" class="vatra-search-panel ui-vatra-search-panel-001" role="region" aria-label="Пошук у VATRA" hidden>
       <div class="vatra-search-panel-header ui-vatra-search-panel-header-001">
-       <span class="vt-search-panel-heading-001" data-search-uk="Історія пошуку" data-search-en="Search history">Історія пошуку</span>
-       <span id="vatra-search-count" class="vt-search-count-001" aria-live="polite"></span>
+       <span class="vt-search-panel-heading-001" data-search-uk="Нещодавні" data-search-en="Recent">Нещодавні</span>
+       <span id="vatra-search-count" class="vt-search-count-001 vatra-sr-only" aria-live="polite"></span>
+       <button type="button" id="vatra-search-edit" class="vatra-search-edit vt-vatra-search-edit-001" data-search-uk="Редагувати" data-search-en="Edit">Редагувати</button>
       </div>
       <div id="vatra-search-history" class="vatra-search-history ui-vatra-search-history-001" role="list" aria-label="Історія запитів"></div>
       <p id="vatra-search-empty" class="vt-search-empty-001" data-search-uk="Історія пошуку порожня" data-search-en="No search history">Історія пошуку порожня</p>
+      <button type="button" id="vatra-search-clear" class="vatra-search-clear vt-vatra-search-clear-001" data-search-uk="Очистити всю історію" data-search-en="Clear all searches" hidden>Очистити всю історію</button>
       <div class="vatra-search-scope ui-vatra-search-scope-001" role="group" aria-label="Розділи для пошуку">
        <button type="button" class="vatra-search-scope-posts ui-vatra-search-scope-posts-001" data-vatra-search-scope="posts">
         <svg class="ui-search-posts-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-search-posts-box-001" x="4" y="4" width="16" height="16" rx="4"/><path class="ui-search-posts-lines-001" d="M8 9h8M8 12.5h8M8 16h5"/></svg>
