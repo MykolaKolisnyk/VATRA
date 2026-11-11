@@ -618,6 +618,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
   if(photoURLs.cover)setImage(cover,photoURLs.cover);
   if(photoURLs.avatar){
    setImage(avatar,photoURLs.avatar);avatar.textContent="";
+   // Posts may load before profile media; update their avatars after the
+   // photo arrives so the same post looks identical on the Feed and profile.
+   for(const postAvatar of document.querySelectorAll("#profile-posts .feed-post-avatar")){
+    setImage(postAvatar,photoURLs.avatar);
+    postAvatar.textContent="";
+   }
    if(isMine){
     const menuAvatar=q("#feed-header-avatar");
     if(menuAvatar){setImage(menuAvatar,photoURLs.avatar);menuAvatar.textContent="";}
