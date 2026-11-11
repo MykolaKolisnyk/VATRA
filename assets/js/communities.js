@@ -144,6 +144,7 @@ async function start(){
    const {error:signOutError}=await client.auth.signOut({scope:"local"});
    if(signOutError){button.disabled=false;return;}
    try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
+   window.VATRA_AVATAR?.clearHeader();
    location.replace(root);
   });
   // Show the ready page only after its first list or community data request.
