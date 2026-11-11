@@ -1529,6 +1529,9 @@ body.feed-page > .vatra-auth-loading{
  display:block;min-height:100dvh;overflow:hidden;padding:0;
  opacity:1!important;animation:none!important;background:#f5f7fc
 }
+body.feed-page > .vatra-auth-loading[hidden]{display:none!important}
+body.feed-page .vatra-route-skeleton[hidden]{display:none!important}
+
 body.feed-page > .vatra-auth-loading:not([data-loading-error="true"]) .vatra-auth-loading-content{
  display:none!important
 }
