@@ -2524,6 +2524,13 @@ try{
   assert.equal(await profilePage.locator("#profile-loading").isVisible(),true,
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  const profileCoverGap=await profilePage.evaluate(()=>{
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   const cover=document.querySelector(".profile-cover").getBoundingClientRect();
+   return cover.top-header.bottom;
+  });
+  assert.ok(Math.abs(profileCoverGap)<=2,
+   "Member cover must begin directly below the header without a top gap: "+profileCoverGap);
   if(language==="uk")assertStableHeader(await navCenters(profilePage),"Profile");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
   assert.equal(await profilePage.locator(".feed-sidebar").count(),0,
