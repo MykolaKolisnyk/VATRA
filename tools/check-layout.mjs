@@ -1067,9 +1067,10 @@ for(const page of sharedShellPages){
   header.includes('id="vatra-search-back"')&&
   header.includes('id="vatra-search-edit"')&&
   header.includes('id="vatra-search-clear"')&&
-  header.includes('data-vatra-search-scope="posts"')&&
-  header.includes('data-vatra-search-scope="communities"'),
-  page+": common VATRA search needs history and both supported destinations");
+  header.includes('id="feed-search-clear-input"')&&
+  !header.includes('data-vatra-search-scope="posts"')&&
+  !header.includes('data-vatra-search-scope="communities"'),
+  page+": VATRA universal search must retain history and its own clear control");
  assert.ok(["ui-vatra-account-profile-icon-001","ui-vatra-account-settings-icon-001",
   "ui-vatra-account-support-icon-001","ui-vatra-account-logout-icon-001"].every(cls=>header.includes(cls))&&
   header.includes('class="vt-vatra-account-settings-label-001" data-social-uk=')&&

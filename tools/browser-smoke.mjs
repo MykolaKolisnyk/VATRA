@@ -2469,8 +2469,8 @@ try{
    language==="en"?"Recent":"Нещодавні");
   assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
    language==="en"?"Edit":"Редагувати");
-  assert.equal(await feedProbe.locator(".vatra-search-scope").isVisible(),false,
-   "Recent searches use a clean, Facebook-like history panel until a query is typed");
+  assert.equal(await feedProbe.locator("#feed-search-clear-input").isVisible(),false,
+   "Empty search has no clear button");
   assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),12,
    "All history entries remain available beyond five visible rows");
   assert.equal((await feedProbe.locator(".vatra-search-history-term").first().innerText()).trim(),

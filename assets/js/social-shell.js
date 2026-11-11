@@ -40,6 +40,7 @@
   // its tooltip after opening the menu.
   if(!tooltip||!target||infoDialog?.open||document.querySelector("dialog[open]")||
    document.querySelector(".feed-account-menu")?.open||
+   !!document.querySelector(".vatra-notification-panel:not([hidden]),#vatra-search-panel:not([hidden])")||
    tooltipSuppressed===target||event?.pointerType==="touch")return;
   const label=target.dataset["vatraTooltip"+(lang()==="en"?"En":"Uk")];
   if(!label)return;
@@ -49,6 +50,7 @@
   // A hint is transient, not an overlay that persists after a route transition.
   tooltipDismissTimer=setTimeout(hideTooltip,1800);
  }
+ window.VATRA_HIDE_SHELL_TOOLTIP=hideTooltip;
  function setUpAccountPanel(){
   const menu=document.querySelector(".feed-account-menu");
   const dropdown=menu?.querySelector(".feed-account-dropdown");
@@ -226,6 +228,7 @@
   const back=document.querySelector("#vatra-search-back");
   const edit=document.querySelector("#vatra-search-edit");
   const clearAll=document.querySelector("#vatra-search-clear");
+  const clearInput=document.querySelector("#feed-search-clear-input");
   const brand=form.closest(".feed-brand-search");
   const logo=brand?.querySelector(".feed-header-brand");
   if(!form||!input||!panel||!list||!empty||!count||!back||!edit||!clearAll||!brand)return;
@@ -234,6 +237,7 @@
   document.body.append(panel);
 
   const storageKey="vatra.search.history.v1";
+  clearInput?.setAttribute("aria-label",tr("Очистити пошук","Clear search"));
   const limit=120;
   const clean=value=>Array.from(String(value??"").trim().replace(/\s+/g," ")).slice(0,limit).join("");
   const storageRead=()=>{
@@ -265,7 +269,6 @@
     el.textContent=t(el.dataset.searchUk,el.dataset.searchEn);
    panel.setAttribute("aria-label",t("Пошук у VATRA","Search VATRA"));
    list.setAttribute("aria-label",t("Історія запитів","Search queries"));
-   panel.querySelector(".vatra-search-scope").setAttribute("aria-label",t("Розділи для пошуку","Search sections"));
    back.setAttribute("aria-label",t("Назад до VATRA","Back to VATRA"));
    render();
   };
@@ -374,7 +377,7 @@
     t("Історія пошуку порожня","No search history");
    count.textContent=visibleTerms.length?
     t(visibleTerms.length+" запитів",visibleTerms.length+" searches"):"";
-   syncEditing();
+   syncEditing();if(clearInput)clearInput.hidden=!input.value;
   }
   function route(scope){
    const term=clean(input.value);
@@ -412,8 +415,9 @@
    remember(input.value);
    close();
   },true);
-  panel.querySelectorAll("[data-vatra-search-scope]").forEach(button=>{
-   button.addEventListener("click",()=>route(button.dataset.vatraSearchScope));
+  clearInput?.addEventListener("click",()=>{
+   input.value="";render();input.dispatchEvent(new Event("search",{bubbles:true}));
+   input.focus({preventScroll:true});
   });
   document.addEventListener("pointerdown",event=>{
    if(visible&&!form.contains(event.target)&&!panel.contains(event.target)&&!back.contains(event.target))close();

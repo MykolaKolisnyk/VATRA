@@ -226,7 +226,8 @@ function closePanel(){
 }
 function openPanel(){
  const menu=pick(".feed-account-menu");if(menu?.open)menu.open=false;
- open=true;panelPage=0;panel.hidden=false;positionPanel();
+ open=true;panelPage=0;window.VATRA_HIDE_SHELL_TOOLTIP?.();
+ panel.hidden=false;positionPanel();
  bell.setAttribute("aria-expanded","true");
  void panelLoad();
 }
