@@ -518,9 +518,9 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const currentGrammar=window.VATRA_PRESENCE?.grammar(signupGender)||"neutral";
  wording.value=currentGrammar;
  for(const [selector,uk,en] of [
-  [".vt-profile-form-masculine-001","Заходив","He last visited"],
-  [".vt-profile-form-feminine-001","Заходила","She last visited"],
-  [".vt-profile-form-neutral-001","Були в мережі","Last seen"]
+  [".vt-profile-form-masculine-001","Заходив","Masculine (Ukrainian)"],
+  [".vt-profile-form-feminine-001","Заходила","Feminine (Ukrainian)"],
+  [".vt-profile-form-neutral-001","Були в мережі","Neutral (Ukrainian)"]
  ]){
   const option=q(selector);
   if(option)option.textContent=english?en:uk;
