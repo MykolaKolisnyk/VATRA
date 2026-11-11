@@ -409,8 +409,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const message=q("#profile-media-status");
+ const avatarWrap=q("#profile-avatar-wrap"),avatarTrigger=q("#profile-avatar-trigger");
+ const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story");
+ const photoButton=q("#profile-avatar-photo"),coverView=q("#profile-cover-view");
+ const mediaDialog=q("#profile-media-viewer"),mediaImage=q("#profile-media-viewer-image");
+ const mediaHeading=q("#profile-media-viewer-heading"),storyDialog=q("#profile-story-viewer");
+ const storyHeading=q("#profile-story-viewer-heading"),storyBody=q("#profile-story-viewer-text");
  const bucketFor=kind=>kind==="avatar"?"vatra-avatars":"vatra-covers";
- let saved=null;
+ let saved=null,activeStory=null;
+ const photoURLs={avatar:null,cover:null};
  const status=(text,error=false)=>{
   message.textContent=text;message.hidden=!text;
   message.dataset.status=error?"error":"ok";
@@ -430,27 +437,101 @@ async function setupProfileMedia(client,ownId,targetId,isMine){
   el.style.backgroundImage="url("+JSON.stringify(url)+")";
   el.classList.add("has-photo");
  };
- const display=record=>{
-  if(record?.cover_path){
-   const url=getPublicPath(record.cover_path,"cover");
-   if(url)setImage(cover,url);
+ const closeAvatarMenu=()=>{
+  avatarWrap.classList.remove("is-menu-open");
+  avatarTrigger.setAttribute("aria-expanded","false");
+ };
+ const syncAvatarMenu=()=>{
+  const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
+  avatarWrap.classList.toggle("has-active-story",hasStory);
+  avatarMenu.hidden=!hasPhoto&&!hasStory;
+  storyButton.hidden=!hasStory;
+  photoButton.hidden=!hasPhoto;
+  avatarTrigger.disabled=!hasPhoto&&!hasStory;
+  avatarTrigger.setAttribute("aria-haspopup",hasPhoto||hasStory?"menu":"false");
+  avatarTrigger.setAttribute("aria-label",hasStory?
+   t("Переглянути історію або фото профілю","View story or profile photo"):
+   t("Переглянути фото профілю","View profile photo"));
+  if(!hasPhoto&&!hasStory)closeAvatarMenu();
+ };
+ const openMedia=kind=>{
+  const url=photoURLs[kind];
+  if(!url)return;
+  mediaHeading.textContent=kind==="avatar"?
+   t("Фото профілю","Profile photo"):t("Обкладинка профілю","Cover photo");
+  mediaImage.alt=mediaHeading.textContent+" — "+q("#profile-heading").textContent;
+  mediaImage.src=url;
+  closeAvatarMenu();
+  mediaDialog.showModal();
+ };
+ const openStory=()=>{
+  if(!activeStory)return;
+  if(Date.parse(activeStory.expires_at)<=Date.now()){
+   activeStory=null;syncAvatarMenu();return;
   }
-  if(record?.avatar_path){
-   const url=getPublicPath(record.avatar_path,"avatar");
-   if(url){
-    setImage(avatar,url);avatar.textContent="";
-    if(isMine){
-     const menuAvatar=q("#feed-header-avatar");
-     if(menuAvatar){setImage(menuAvatar,url);menuAvatar.textContent="";}
-    }
+  storyHeading.textContent=q("#profile-heading").textContent;
+  storyBody.textContent=activeStory.body;
+  storyDialog.dataset.theme=String(activeStory.theme||0);
+  closeAvatarMenu();
+  storyDialog.showModal();
+ };
+ coverView.addEventListener("click",()=>openMedia("cover"));
+ photoButton.addEventListener("click",()=>openMedia("avatar"));
+ storyButton.addEventListener("click",openStory);
+ q("#profile-media-viewer-close").addEventListener("click",()=>mediaDialog.close());
+ q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
+ mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
+ storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
+ avatarTrigger.addEventListener("click",()=>{
+  if(activeStory){
+   avatarWrap.classList.toggle("is-menu-open");
+   avatarTrigger.setAttribute("aria-expanded",String(avatarWrap.classList.contains("is-menu-open")));
+  }else if(photoURLs.avatar)openMedia("avatar");
+ });
+ avatarWrap.addEventListener("pointerleave",closeAvatarMenu);
+ avatarWrap.addEventListener("keydown",event=>{
+  if(event.key==="Escape"){
+   closeAvatarMenu();avatarTrigger.focus();
+  }else if(event.key==="ArrowDown"&&!avatarMenu.hidden){
+   const item=[storyButton,photoButton].find(button=>!button.hidden);
+   if(item){event.preventDefault();item.focus();}
+  }
+ });
+ document.addEventListener("pointerdown",event=>{
+  if(!avatarWrap.contains(event.target))closeAvatarMenu();
+ });
+ const display=record=>{
+  photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
+  photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
+  coverView.hidden=!photoURLs.cover;
+  if(photoURLs.cover)setImage(cover,photoURLs.cover);
+  if(photoURLs.avatar){
+   setImage(avatar,photoURLs.avatar);avatar.textContent="";
+   if(isMine){
+    const menuAvatar=q("#feed-header-avatar");
+    if(menuAvatar){setImage(menuAvatar,photoURLs.avatar);menuAvatar.textContent="";}
    }
   }
+  syncAvatarMenu();
  };
  try{
   const {data,error}=await client.from("vatra_profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
   if(!error&&data){saved=data;display(data);}
  }catch(_){/* Profile itself still loads when images are unavailable. */}
+ // Story visibility is enforced by existing Supabase RLS: own or accepted
+ // friends only. Never show a ring for expired or inaccessible stories.
+ try{
+  const {data,error}=await client.from("vatra_stories")
+   .select("body,theme,expires_at")
+   .eq("author_vatra_id",targetId)
+   .gt("expires_at",new Date().toISOString())
+   .order("created_at",{ascending:false})
+   .limit(1);
+  if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string")
+   activeStory=data[0];
+ }catch(_){/* An inaccessible story must not prevent loading the profile. */}
+ syncAvatarMenu();
  if(!isMine||!validId(ownId))return;
  buttonAvatar.hidden=false;buttonCover.hidden=false;
  const fileTypes={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
