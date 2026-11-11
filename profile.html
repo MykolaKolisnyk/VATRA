@@ -116,10 +116,19 @@
     <section class="profile-hero ui-profile-hero-001" aria-labelledby="profile-heading">
      <div id="profile-cover-image" class="profile-cover ui-profile-cover-001">
       <span class="profile-cover-motif ui-profile-cover-motif-001" aria-hidden="true"></span><span class="profile-cover-signature vt-profile-cover-signature-001" aria-hidden="true">VATRA</span>
+      <button id="profile-cover-view" type="button" class="profile-cover-view vt-profile-cover-view-001" data-shell-aria-uk="Переглянути обкладинку" data-shell-aria-en="View cover photo" aria-label="Переглянути обкладинку" hidden></button>
       <button id="profile-cover-upload-button" class="profile-cover-upload-button vt-profile-cover-upload-button-001" type="button" data-social-uk="Змінити обкладинку" data-social-en="Edit cover" hidden>Змінити обкладинку</button>
      </div>
      <div class="profile-summary ui-profile-summary-001">
-      <span id="profile-avatar" class="profile-avatar vt-profile-avatar-001" aria-hidden="true">V</span>
+      <div id="profile-avatar-wrap" class="profile-avatar-wrap ui-profile-avatar-wrap-001">
+       <button id="profile-avatar-trigger" class="profile-avatar-trigger vt-profile-avatar-trigger-001" type="button" aria-label="Фото профілю" disabled>
+        <span id="profile-avatar" class="profile-avatar vt-profile-avatar-001" aria-hidden="true">V</span>
+       </button>
+       <div id="profile-avatar-menu" class="profile-avatar-menu ui-profile-avatar-menu-001" role="menu" hidden>
+        <button id="profile-avatar-story" class="profile-avatar-menu-story vt-profile-avatar-menu-story-001" type="button" role="menuitem" data-social-uk="Переглянути історію" data-social-en="View story" hidden>Переглянути історію</button>
+        <button id="profile-avatar-photo" class="profile-avatar-menu-photo vt-profile-avatar-menu-photo-001" type="button" role="menuitem" data-social-uk="Переглянути фото профілю" data-social-en="View profile photo" hidden>Переглянути фото профілю</button>
+       </div>
+      </div>
       <div class="profile-identity ui-profile-identity-001"><h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">Моя сторінка</h1><span id="profile-vatra-id" class="profile-public-id vt-profile-public-id-001"></span></div>
       <div class="profile-actions ui-profile-actions-001">
        <button type="button" id="profile-avatar-upload-button" class="profile-avatar-upload-button vt-profile-avatar-upload-button-001" data-social-uk="Змінити фото" data-social-en="Edit photo" hidden>Змінити фото</button>
@@ -160,6 +169,20 @@
      </section>
     </div>
    </main>
+   <dialog id="profile-media-viewer" class="profile-media-viewer ui-profile-media-viewer-001" aria-labelledby="profile-media-viewer-heading">
+    <div class="profile-media-viewer-stage ui-profile-media-viewer-stage-001">
+     <button id="profile-media-viewer-close" class="profile-media-viewer-close vt-profile-media-viewer-close-001" type="button" data-shell-aria-uk="Закрити перегляд фото" data-shell-aria-en="Close photo viewer" aria-label="Закрити перегляд фото">×</button>
+     <h2 id="profile-media-viewer-heading" class="profile-media-viewer-heading vt-profile-media-viewer-heading-001">Фото профілю</h2>
+     <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
+    </div>
+   </dialog>
+   <dialog id="profile-story-viewer" class="profile-story-viewer ui-profile-story-viewer-001" aria-labelledby="profile-story-viewer-heading">
+    <div class="profile-story-viewer-content ui-profile-story-viewer-content-001">
+     <h2 id="profile-story-viewer-heading" class="profile-story-viewer-heading vt-profile-story-viewer-heading-001"></h2>
+     <p id="profile-story-viewer-text" class="profile-story-viewer-text vt-profile-story-viewer-text-001"></p>
+     <button id="profile-story-viewer-close" class="profile-story-viewer-close vt-profile-story-viewer-close-001" type="button" data-social-uk="Закрити" data-social-en="Close">Закрити</button>
+    </div>
+   </dialog>
    <dialog id="profile-message-dialog" class="profile-message-dialog ui-profile-message-dialog-001" aria-labelledby="profile-message-title">
     <div class="profile-message-dialog-header ui-profile-message-dialog-header-001"><h2 id="profile-message-title" class="vt-profile-message-title-001" data-social-uk="Повідомлення" data-social-en="Messages">Повідомлення</h2><button id="profile-message-close" class="vt-profile-message-close-001" type="button" aria-label="Закрити">×</button></div>
     <div id="profile-message-history" class="profile-message-history ui-profile-message-history-001" aria-live="polite"></div>
