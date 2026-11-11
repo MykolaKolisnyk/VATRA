@@ -1295,3 +1295,31 @@ body.profile-page .profile-story-viewer-close{
  body.profile-page .profile-media-viewer-stage{padding:4px}
  body.profile-page .profile-media-viewer-heading{font-size:13px}
 }
+
+/* Profile-not-found is a plain message, not a simulated member profile. */
+body.profile-page #profile-not-found[hidden],
+body.profile-page .profile-hero[hidden],
+body.profile-page .profile-panels[hidden]{display:none!important}
+body.profile-page .profile-not-found{
+ width:100%;padding:clamp(42px,8vh,92px) 14px;margin:0;
+ text-align:center;color:#2e3e59;
+ font:780 clamp(23px,3vw,34px)/1.3 "Onest",system-ui,sans-serif;
+ letter-spacing:-.035em
+}
+/* Icon/text pairs are translated independently, so language updates cannot
+   replace the SVG nodes with plain text. */
+body.feed-page .feed-account-dropdown > a,
+body.feed-page .feed-account-dropdown > button,
+body.feed-page .feed-menu-settings-toggle{gap:11px}
+body.feed-page .feed-account-dropdown > a > svg,
+body.feed-page .feed-account-dropdown > button > svg,
+body.feed-page .feed-menu-settings-toggle > svg{
+ display:block;flex:none;width:19px;height:19px;color:#7085a9;
+ stroke-width:1.8;shape-rendering:geometricPrecision
+}
+body.feed-page .feed-account-dropdown > a > span,
+body.feed-page .feed-account-dropdown > button > span,
+body.feed-page .feed-menu-settings-toggle > span{min-width:0;flex:1}
+body.feed-page .feed-logout > svg{color:#b15166!important}
+body.feed-page .feed-account-dropdown > a:hover > svg,
+body.feed-page .feed-menu-settings-toggle:hover > svg{color:#3f6fe0}
