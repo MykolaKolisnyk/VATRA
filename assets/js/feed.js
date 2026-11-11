@@ -84,7 +84,7 @@
    day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
   }).format(date);
  }
- const mediaAvatars=new Map();
+ const mediaAvatars=new Map(),avatarChecks=new Map();
  const avatarURL=id=>{
   const path=mediaAvatars.get(String(id));
   if(typeof path!=="string"||!path.startsWith(String(id)+"/avatar/"))return null;
@@ -96,11 +96,41 @@
   }catch(_){return null;}
  };
  const applyAvatar=(element,id)=>{
-  const url=avatarURL(id);
-  if(!url||!element)return;
-  element.style.backgroundImage="url("+JSON.stringify(url)+")";
-  element.classList.add("has-photo");
-  element.textContent="";
+  if(!element)return;
+  const key=String(id),url=avatarURL(id);
+  // Never replace a usable avatar with an unverified (or deleted) image.
+  element.dataset.vatraAvatarUrl=url||"";
+  if(!url){
+   element.style.removeProperty("background-image");
+   element.classList.remove("has-photo");
+   element.textContent=initials(memberName(key));
+   return;
+  }
+  let check=avatarChecks.get(url);
+  if(!check){
+   check=new Promise(resolve=>{
+    const image=new Image();
+    image.onload=()=>resolve(image.naturalWidth>0);
+    image.onerror=()=>resolve(false);
+    image.src=url;
+   });
+   avatarChecks.set(url,check);
+  }
+  void check.then(valid=>{
+   if(!element.isConnected||element.dataset.vatraAvatarUrl!==url)return;
+   if(!valid){
+    // Storage may have been cleaned outside VATRA. Do not leave a blank circle.
+    if(avatarURL(key)===url)mediaAvatars.delete(key);
+    element.style.removeProperty("background-image");
+    element.classList.remove("has-photo");
+    element.textContent=initials(memberName(key));
+    if(key===vatraId)window.VATRA_AVATAR?.cache(user?.email,null);
+    return;
+   }
+   element.style.backgroundImage="url("+JSON.stringify(url)+")";
+   element.classList.add("has-photo");
+   element.textContent="";
+  });
  };
  async function loadAvatars(ids){
   const lookup=[...new Set(ids.map(String).filter(validId))].slice(0,100);
@@ -109,6 +139,8 @@
    const {data,error}=await client.from("vatra_profile_media")
     .select("vatra_id,avatar_path").in("vatra_id",lookup);
    if(error)throw error;
+   // A removed avatar path must invalidate the previously cached path as well.
+   for(const id of lookup)mediaAvatars.delete(id);
    for(const row of data||[])if(row.avatar_path)mediaAvatars.set(String(row.vatra_id),row.avatar_path);
    if(vatraId&&lookup.includes(vatraId)){
     const mine=(data||[]).find(row=>String(row.vatra_id)===vatraId);
@@ -119,7 +151,7 @@
   }catch(_){/* Use initials if media lookup is unavailable. */}
  }
  const memberName=id=>publicNames.get(String(id))||
-  (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member")+" · ID "+String(id));
+  (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member"));
  async function loadPublicNames(ids){
   const needed=[...new Set(ids.map(String).filter(validId))].filter(id=>!publicNames.has(id));
   if(!needed.length)return;
@@ -182,7 +214,7 @@
   identity.append(name,meta);
   if(post.kind==="group"){
    const group=node("a","feed-post-community vt-feed-post-community-001",
-    t("Спільнота: ","Community: ")+(followedClubs.get(String(post.club_id))||"Club ID "+post.club_id));
+    t("Спільнота: ","Community: ")+(followedClubs.get(String(post.club_id))||t("Спільнота VATRA","VATRA community")));
    group.href=new URL("club"+post.club_id,home).href;identity.append(group);
   }
   head.append(avatar,identity);
