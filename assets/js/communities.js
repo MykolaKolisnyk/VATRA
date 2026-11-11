@@ -123,7 +123,7 @@ async function start(){
    location.replace(root);
   });
   // Show the ready page only after its first list or community data request.
-  if(mode==="club")await openClub(client);
+  if(mode==="club")await openClub(client,ownId);
   else await openDirectory(client);
   $("#community-app").hidden=false;
   $("#community-loading").hidden=true;
@@ -202,7 +202,97 @@ async function openDirectory(client){
    "Could not load communities."),"error");
  }finally{list.setAttribute("aria-busy","false");}
 }
-async function openClub(client){
+
+async function setupClubSocial(client,clubId,ownId){
+ const follow=$("#club-follow"),compose=$("#club-compose-open"),list=$("#club-posts");
+ const empty=$("#club-posts-empty"),dialog=$("#club-compose-dialog");
+ const form=$("#club-compose-form"),input=$("#club-compose-text"),status=$("#club-compose-error");
+ if(!follow||!compose||!list||!ownId||!idPattern.test(ownId))return;
+ let isFollowing=false,busy=false;
+ const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
+ const refreshFollowing=async()=>{
+  const {data,error}=await client.from("vatra_community_follows")
+   .select("club_id").eq("club_id",clubId).eq("member_vatra_id",ownId).maybeSingle();
+  if(error)throw error;
+  isFollowing=!!data;
+  follow.textContent=isFollowing?t("Відписатися","Unfollow"):t("Підписатися","Follow");
+  compose.hidden=!isFollowing;
+ };
+ const loadClubPosts=async()=>{
+  list.replaceChildren();empty.hidden=true;
+  try{
+   const {data,error}=await client.from("vatra_community_posts")
+    .select("id,author_vatra_id,body,created_at")
+    .eq("club_id",clubId).order("created_at",{ascending:false}).limit(50);
+   if(error)throw error;
+   const rows=data||[];
+   const names=new Map();
+   const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)))];
+   if(ids.length){
+    try{
+     const {data:people}=await client.from("vatra_public_profiles")
+      .select("vatra_id,display_name").in("vatra_id",ids);
+     for(const member of people||[])names.set(String(member.vatra_id),member.display_name);
+    }catch(_){}
+   }
+   for(const post of rows){
+    const id=String(post.author_vatra_id);
+    const article=node("article","feed-post-card ui-club-post-card-001");
+    const head=node("div","feed-post-header ui-club-post-head-001");
+    const profile=node("a","feed-post-name vt-club-post-author-001",
+     names.get(id)||t("Учасник VATRA","VATRA member")+" · ID "+id);
+    profile.href=root+"id"+id;
+    const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(english?"en-US":"uk-UA",{
+     day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
+    }).format(new Date(post.created_at)));
+    time.dateTime=post.created_at;
+    head.append(profile,time);
+    article.append(head,node("p","feed-post-body vt-club-post-body-001",post.body));
+    list.append(article);
+   }
+   if(!rows.length)show(empty,isFollowing?
+    t("У спільноті ще немає дописів. Створіть перший!","No community posts yet. Start the conversation!"):
+    t("Підпишіться на спільноту, щоб читати її дописи.","Follow to read community posts."));
+  }catch(_){show(empty,t("Не вдалося завантажити публікації.","Could not load community posts."));}
+ };
+ follow.hidden=false;
+ try{await refreshFollowing();}catch(_){show(empty,t("Не вдалося перевірити підписку.","Could not check your subscription."));follow.disabled=true;}
+ follow.addEventListener("click",async()=>{
+  if(busy)return;
+  busy=true;follow.disabled=true;
+  try{
+   const {error}=isFollowing?
+    await client.from("vatra_community_follows").delete().eq("club_id",clubId).eq("member_vatra_id",ownId):
+    await client.from("vatra_community_follows").insert({club_id:clubId,member_vatra_id:ownId});
+   if(error)throw error;
+   await refreshFollowing();
+   await loadClubPosts();
+  }catch(_){show(empty,t("Не вдалося змінити підписку.","Could not update subscription."));}
+  finally{follow.disabled=false;busy=false;}
+ });
+ compose.addEventListener("click",()=>{
+  status.hidden=true;dialog.showModal();input.focus();
+ });
+ $("#club-compose-cancel").addEventListener("click",()=>dialog.close());
+ form.addEventListener("submit",async event=>{
+  event.preventDefault();
+  const body=input.value.trim(),save=$("#club-compose-save");
+  if(!isFollowing||!body||Array.from(body).length>2000||save.disabled)return;
+  save.disabled=true;status.hidden=true;
+  try{
+   const {error}=await client.from("vatra_community_posts").insert({
+    club_id:clubId,author_vatra_id:ownId,body
+   });
+   if(error)throw error;
+   input.value="";dialog.close();
+   await loadClubPosts();
+  }catch(_){show(status,t("Не вдалося опублікувати допис.","Could not publish community post."));}
+  finally{save.disabled=false;}
+ });
+ await loadClubPosts();
+}
+
+async function openClub(client,ownId){
  const query=new URLSearchParams(location.search);
  const number=query.get("club_id")||location.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||"";
  const displayError=()=>{
@@ -225,6 +315,7 @@ async function openClub(client){
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
  document.title=data.name+" · VATRA";
+ await setupClubSocial(client,String(data.club_id),ownId);
  const canonical=clubURL(String(data.club_id));
  if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
   history.replaceState(history.state,"",canonical);
