@@ -223,7 +223,7 @@ async function openDirectory(client){
  }finally{list.setAttribute("aria-busy","false");}
 }
 
-async function setupClubSocial(client,clubId,ownId){
+async function setupClubSocial(client,clubId,ownId,userId){
  const follow=$("#club-follow"),compose=$("#club-compose-open"),list=$("#club-posts");
  const empty=$("#club-posts-empty"),dialog=$("#club-compose-dialog");
  const form=$("#club-compose-form"),input=$("#club-compose-text"),status=$("#club-compose-error");
@@ -263,6 +263,7 @@ async function setupClubSocial(client,clubId,ownId){
    for(const post of rows){
     const id=String(post.author_vatra_id);
     const article=node("article","feed-post-card ui-club-post-card-001");
+    article.dataset.postId=post.id;
     const head=node("div","feed-post-header ui-club-post-head-001");
     const profile=node("a","feed-post-name vt-club-post-author-001",
      names.get(id)||t("Учасник VATRA","VATRA member")+" · ID "+id);
@@ -279,6 +280,9 @@ async function setupClubSocial(client,clubId,ownId){
      article.append(body);
     }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
+    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"group",club_id:clubId},article,{
+     ownId,userId,onShared:()=>void loadClubPosts()
+    });
     list.append(article);
    }
    if(!rows.length)show(empty,isFollowing?
@@ -354,7 +358,7 @@ async function openClub(client,ownId){
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
  document.title=data.name+" · VATRA";
- await setupClubSocial(client,String(data.club_id),ownId);
+ await setupClubSocial(client,String(data.club_id),ownId,window.__vatraOwnAuthId||null);
  const canonical=clubURL(String(data.club_id));
  if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
   history.replaceState(history.state,"",canonical);
