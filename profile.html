@@ -109,16 +109,23 @@
    <main id="feed-main" class="feed-main ui-profile-main-001 social-profile-main">
     <span class="vt-profile-title-001 vatra-sr-only" data-i18n="n12">Моя сторінка</span>
     <section class="profile-hero ui-profile-hero-001" aria-labelledby="profile-heading">
-     <div class="profile-cover ui-profile-cover-001" aria-hidden="true"><span class="profile-cover-motif ui-profile-cover-motif-001"></span><span class="profile-cover-signature vt-profile-cover-signature-001">VATRA</span></div>
+     <div id="profile-cover-image" class="profile-cover ui-profile-cover-001">
+      <span class="profile-cover-motif ui-profile-cover-motif-001" aria-hidden="true"></span><span class="profile-cover-signature vt-profile-cover-signature-001" aria-hidden="true">VATRA</span>
+      <button id="profile-cover-upload-button" class="profile-cover-upload-button vt-profile-cover-upload-button-001" type="button" data-social-uk="Змінити обкладинку" data-social-en="Edit cover" hidden>Змінити обкладинку</button>
+     </div>
      <div class="profile-summary ui-profile-summary-001">
       <span id="profile-avatar" class="profile-avatar vt-profile-avatar-001" aria-hidden="true">V</span>
       <div class="profile-identity ui-profile-identity-001"><h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">Моя сторінка</h1><span id="profile-vatra-id" class="profile-public-id vt-profile-public-id-001"></span></div>
       <div class="profile-actions ui-profile-actions-001">
+       <button type="button" id="profile-avatar-upload-button" class="profile-avatar-upload-button vt-profile-avatar-upload-button-001" data-social-uk="Змінити фото" data-social-en="Edit photo" hidden>Змінити фото</button>
+       <input id="profile-avatar-file" class="ui-profile-avatar-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити фото профілю" hidden>
+       <input id="profile-cover-file" class="ui-profile-cover-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити обкладинку" hidden>
        <button type="button" id="profile-write-post" class="social-profile-create vt-social-profile-create-001"><svg class="ui-social-profile-create-icon-001" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-social-shape-008" d="M12 5v14M5 12h14"/></svg><span class="vt-social-profile-create-label-001" data-social-uk="Створити допис" data-social-en="Create post">Створити допис</span></button>
        <button type="button" id="profile-friend-button" class="profile-friend-button vt-profile-friend-button-001" hidden></button>
        <button type="button" id="profile-message-button" class="profile-message-button vt-profile-message-button-001" data-social-uk="Написати" data-social-en="Message" hidden>Написати</button>
       </div>
      </div>
+     <p id="profile-media-status" class="profile-media-status vt-profile-media-status-001" role="status" aria-live="polite" hidden></p>
      <p id="profile-action-status" class="profile-action-status vt-profile-action-status-001" role="status" aria-live="polite" hidden></p>
      <nav class="social-profile-tabs ui-social-profile-tabs-001" role="tablist" aria-label="Розділи профілю">
       <button type="button" id="profile-tab-posts" class="social-profile-tab ui-social-profile-posts-tab-001 social-profile-tab-active" data-profile-tab="posts" role="tab" aria-controls="profile-posts-section" aria-selected="true"><span class="vt-social-profile-posts-tab-label-001" data-social-uk="Публікації" data-social-en="Posts">Публікації</span></button>
