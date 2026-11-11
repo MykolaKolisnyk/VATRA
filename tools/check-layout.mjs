@@ -912,7 +912,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(228px,50dvh)")&&
  !sharedCss.includes(".feed-sidebar")&&
- !sharedCss.includes(".feed-composer")&&
+ sharedCss.includes(".feed-composer-avatar")&&
  sharedJs.includes("positionTooltip(target)")&&
  sharedJs.includes("setUpStories()")&&
  sharedJs.includes("localStorage.setItem(storageKey")&&
@@ -954,13 +954,14 @@ for(const page of sharedShellPages){
   page+": right controls must end with Avatar and first name");
 }
 const storyPreviewMarkup=await read("feed.html");
-assert.ok(storyPreviewMarkup.includes('class="feed-stories ui-feed-stories-001"')&&
- storyPreviewMarkup.includes('class="feed-story-create ui-feed-story-create-001"')&&
- (storyPreviewMarkup.match(/class="feed-story-preview ui-feed-story-preview-00[1-3]"/g)||[]).length===3&&
- !storyPreviewMarkup.includes("ui-feed-story-preview-004")&&
- !storyPreviewMarkup.includes('class="vt-feed-stories-tag-001"')&&
- storyPreviewMarkup.includes('data-story-title-uk="Карпатські ранки"'),
- "Feed must have four Stories total: one own card and three original previews");
+assert.ok(storyPreviewMarkup.includes('id="feed-create-story"')&&
+ storyPreviewMarkup.includes('id="feed-friend-stories"')&&
+ storyPreviewMarkup.includes('id="feed-compose-open"')&&
+ storyPreviewMarkup.includes('id="feed-compose-form"')&&
+ storyPreviewMarkup.includes('id="feed-story-form"')&&
+ !storyPreviewMarkup.includes("ui-feed-story-preview-001")&&
+ !storyPreviewMarkup.includes('data-vatra-coming-soon="stories"'),
+ "Feed must show real friend Stories without fabricated previews, then the post composer");
 // The new Feed must be the authenticated home, not a duplicate account page.
 const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
@@ -970,7 +971,7 @@ const feedStyle=await read("assets/css/feed.css");
 assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.includes('data-i18n="n12">Стрічка</h1>')&&
  !feedMarkup.includes("Стрічка новин")&&
- !feedMarkup.includes('id="feed-post-form"')&&
+ feedMarkup.includes('id="feed-compose-form"')&&
  !feedMarkup.includes('id="feed-community-list"')&&
  !feedMarkup.includes('class="feed-aside ui-feed-aside-001"')&&
  !feedMarkup.includes('class="feed-sidebar ui-feed-sidebar-001"')&&
@@ -982,12 +983,12 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-dialog"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
- !feedScript.includes('client.from("feed_posts").insert({')&&
+ feedScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('width:min(100%,850px);max-width:850px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
- "VATRA Feed must display Stories before centered read-only posts; own Profile must retain real posting");
+ "VATRA Feed must show real Stories and post composer before personalized posts");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const errorPage=await read("404.html");
