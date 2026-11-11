@@ -2892,3 +2892,56 @@ body.profile-page .profile-extra-row .vatra-post-share-preview{width:100%;min-wi
 body.feed-page .vt-vatra-post-share-account-avatar-001:not(.has-photo){
  background-image:var(--vatra-generic-avatar)!important;background-color:#edf2f9
 }
+
+
+/* Real social proof: never print zeros; open the detailed list only when requested. */
+body.feed-page .vatra-post-social-summary{
+ display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 0 11px;
+ border-top:1px solid #edf1f7;color:#667a96;
+ font:620 12px/1.45 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-social-summary[hidden]{display:none!important}
+body.feed-page .vatra-post-social-summary > span:not(:first-child),
+body.feed-page .vatra-post-social-summary > button{margin-left:2px}
+body.feed-page .vatra-post-social-avatars{display:flex;align-items:center;gap:0;margin-right:2px;padding-left:2px}
+body.feed-page .vatra-post-social-avatars[hidden]{display:none!important}
+body.feed-page .vatra-post-social-avatar{
+ display:block;flex:none;width:26px;height:26px;margin-left:-4px;border:2px solid #fff;
+ border-radius:50%;background-color:#edf2f8;background-position:center;background-size:cover;
+ box-shadow:0 1px 5px rgba(39,66,106,.13)
+}
+body.feed-page .vatra-post-social-avatar:hover{z-index:2;transform:translateY(-1px)}
+body.feed-page .vt-vatra-post-social-comments-001{
+ border:0;background:transparent;color:#667a96;font:inherit;cursor:pointer
+}
+body.feed-page .vt-vatra-post-social-comments-001:hover{text-decoration:underline;color:#3367cf}
+body.feed-page .vatra-post-compact-comments{
+ display:flex;flex-direction:column;gap:9px;padding:13px 0 2px;
+ border-top:1px solid #e9eef7
+}
+body.feed-page .vatra-post-compact-comments[hidden]{display:none!important}
+body.feed-page .vatra-post-compact-comment{
+ display:grid;grid-template-columns:31px auto minmax(0,1fr);align-items:start;column-gap:8px;row-gap:3px;
+ color:#50637f;font:520 12.5px/1.45 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-compact-comment > a:first-child{
+ grid-row:1/3;display:block;width:31px;height:31px;border-radius:50%;
+ background-color:#edf2f9;background-size:cover;background-position:center
+}
+body.feed-page .vatra-post-compact-comment > a:nth-child(2){
+ color:#354d70;text-decoration:none;font-weight:750;white-space:nowrap
+}
+body.feed-page .vatra-post-compact-comment > a:nth-child(2):hover{text-decoration:underline}
+body.feed-page .vatra-post-compact-comment > span{min-width:0;overflow-wrap:anywhere}
+body.feed-page .vt-vatra-post-compact-all-001{
+ align-self:flex-start;margin:2px 0 0 39px;padding:3px 0;border:0;
+ color:#4272ce;background:transparent;font:700 12px "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.feed-page .vt-vatra-post-compact-all-001:hover{text-decoration:underline}
+body.feed-page .vatra-post-social-avatar:not(.has-photo),
+body.feed-page .vatra-post-compact-avatar:not(.has-photo){background-image:var(--vatra-generic-avatar);background-color:#e6eef7}
+@media(max-width:580px){
+ body.feed-page .vatra-post-compact-comment{grid-template-columns:30px minmax(0,1fr)}
+ body.feed-page .vatra-post-compact-comment > a:nth-child(2){grid-column:2}
+ body.feed-page .vatra-post-compact-comment > span{grid-column:2}
+}
