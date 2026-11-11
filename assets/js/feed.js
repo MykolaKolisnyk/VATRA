@@ -245,16 +245,21 @@
   globalResults.hidden=false;searchGroups.replaceChildren();
   searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
   const escaped=phrase.replace(/[\\%_]/g,"\\ // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.");
-  const [members,communities]=await Promise.allSettled([
+  // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
+  const [membersByName,membersByStatus,clubsByName,clubsByDescription]=await Promise.allSettled([
    client.from("vatra_public_profiles").select("vatra_id,display_name,status_text")
-    .ilike("display_name","%"+escaped+"%").order("display_name",{ascending:true}).limit(8),
-   client.from("communities").select("club_id,name,description")
-    .or("name.ilike.%"+escaped+"%,description.ilike.%"+escaped+"%")
-    .order("name",{ascending:true}).limit(8)
+    .ilike("display_name","%"+escaped+"%").limit(8),
+   client.from("vatra_public_profiles").select("vatra_id,display_name,status_text")
+    .ilike("status_text","%"+escaped+"%").limit(8),
+   client.from("communities").select("club_id,name,description").ilike("name","%"+escaped+"%").limit(8),
+   client.from("communities").select("club_id,name,description").ilike("description","%"+escaped+"%").limit(8)
   ]);
   if(ticket!==globalSearchTicket||!globalResults.isConnected)return;
-  const people=members.status==="fulfilled"&&!members.value.error?members.value.data||[]:[];
-  const clubs=communities.status==="fulfilled"&&!communities.value.error?communities.value.data||[]:[];
+  const successful=r=>r.status==="fulfilled"&&!r.value.error?r.value.data||[]:[];
+  const people=[...new Map([...successful(membersByName),...successful(membersByStatus)]
+   .map(p=>[String(p.vatra_id),p])).values()].slice(0,8);
+  const clubs=[...new Map([...successful(clubsByName),...successful(clubsByDescription)]
+   .map(p=>[String(p.club_id),p])).values()].slice(0,8);
   await loadAvatars(people.map(p=>p.vatra_id));
   if(ticket!==globalSearchTicket||!globalResults.isConnected)return;
   searchGroups.replaceChildren();
@@ -272,7 +277,15 @@
    const link=node("a","vatra-global-search-card ui-vatra-global-search-club-001");
    link.href=new URL("club"+club.club_id,home).href;
    const icon=node("span","vatra-global-search-community-avatar ui-vatra-global-search-community-icon-001");
-   icon.setAttribute("aria-hidden","true");icon.textContent="✦";
+   icon.setAttribute("aria-hidden","true");
+   const symbol=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   symbol.setAttribute("viewBox","0 0 24 24");symbol.setAttribute("width","22");
+   symbol.setAttribute("height","22");symbol.setAttribute("fill","none");
+   symbol.setAttribute("stroke","currentColor");symbol.setAttribute("stroke-width","1.85");
+   symbol.setAttribute("stroke-linecap","round");symbol.setAttribute("stroke-linejoin","round");
+   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+   path.setAttribute("d","M15.5 7.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0ZM4 20v-1a8 8 0 0 1 16 0v1M5.5 7a2.5 2.5 0 0 0 0 5m13-5a2.5 2.5 0 0 1 0 5");
+   symbol.append(path);icon.append(symbol);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-club-info-001");
    info.append(node("strong","vt-vatra-global-search-club-name-001",club.name));
    if(club.description)info.append(node("small","vt-vatra-global-search-club-description-001",club.description.slice(0,100)));

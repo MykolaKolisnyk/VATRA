@@ -589,13 +589,26 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
   try{
    const table=kind==="person"?"feed_posts":"vatra_community_posts";
    const {data,error}=await client.from(table)
-    .select("id,author_vatra_id,body,media_kind,media_path,created_at")
+    .select(kind==="group"?
+     "id,club_id,author_vatra_id,body,media_kind,media_path,created_at":
+     "id,author_vatra_id,body,media_kind,media_path,created_at")
     .eq("id",id).maybeSingle();
    if(error||!data)throw Error("Original post unavailable");
    if(!preview.isConnected)return;
-   const link=make("a","vt-vatra-post-original-link-001","VATRA ID "+data.author_vatra_id);
+   const member=await client.from("vatra_public_profiles").select("display_name")
+    .eq("vatra_id",data.author_vatra_id).maybeSingle();
+   const name=!member.error&&member.data?.display_name?
+    member.data.display_name:tr("Користувач VATRA","VATRA member");
+   const link=make("a","vt-vatra-post-original-link-001",name);
    link.href=new URL("id"+data.author_vatra_id,relativeRoot()).href;
    preview.append(link);
+   if(kind==="group"&&data.club_id){
+    const group=await client.from("communities").select("name").eq("club_id",data.club_id).maybeSingle();
+    const groupLink=make("a","vt-vatra-post-original-community-001",
+     group.data?.name||tr("Спільнота VATRA","VATRA community"));
+    groupLink.href=new URL("club"+data.club_id,relativeRoot()).href;
+    preview.append(groupLink);
+   }
    if(data.body){
     const body=make("p","vt-vatra-post-share-preview-body-001",data.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);preview.append(body);

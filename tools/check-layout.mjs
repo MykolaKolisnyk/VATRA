@@ -1148,10 +1148,12 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .feed-post-placeholder{')&&
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
- feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories()])')&&
+ feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
  feedScript.includes('posts.append(card(item))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email)')&&
- profileScript.includes('void loadPosts(client,targetId,ownId,user.id)')&&
+ profileScript.includes('const postsPromise=loadPosts(client,targetId,ownId,user.id)')&&
+ profileScript.includes('try{await mediaPromise;}')&&
+ memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
  memberProfileMarkup.includes('id="profile-avatar-engagement"'),
  "Authenticated pages must use nonblocking inline skeletons and retain real avatar engagement");
