@@ -377,12 +377,14 @@ async function pageBoot(){
    el.textContent=t(el.dataset.socialUk,el.dataset.socialEn);
   const displayName=String(user.user_metadata?.first_name||user.user_metadata?.full_name||"VATRA").trim();
   const avatar=pick("#feed-header-avatar");
-  if(avatar){avatar.textContent=displayName.slice(0,1).toLocaleUpperCase();window.VATRA_AVATAR?.applyRemembered(avatar,user.email);}
-  const name=pick("#feed-menu-name");if(name)name.textContent=displayName.split(/\s+/)[0].slice(0,28);
+  window.VATRA_AVATAR?.setHeader({email:user.email,name:displayName.split(/\s+/)[0].slice(0,28),
+   initials:displayName.slice(0,1).toLocaleUpperCase(),id});
+  if(avatar)window.VATRA_AVATAR?.applyRemembered(avatar,user.email);
   const headerId=pick("#feed-header-id");if(headerId)headerId.textContent="VATRA ID "+id;
   for(const link of document.querySelectorAll('a[href="profile"]'))link.href=new URL("id"+id,root).href;
   pick("#feed-logout")?.addEventListener("click",async()=>{
-   await clientRef.auth.signOut({scope:"local"});location.replace(root.href);
+   await clientRef.auth.signOut({scope:"local"});
+   window.VATRA_AVATAR?.clearHeader();location.replace(root.href);
   });
   const form=pick("#feed-search-form");
   form?.addEventListener("submit",event=>{
