@@ -295,15 +295,26 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   }catch(_){empty("#profile-archive-posts-empty",t("Не вдалося завантажити архів.","Could not load archive."));}
  };
  const dispatch=name=>{
+  toggle?.classList.toggle("social-profile-tab-active",name==="archive-stories"||name==="archive-posts");
   if(name==="saved")void saved();
   if(name==="archive-stories")void stories();
   if(name==="archive-posts")void archivedPosts();
  };
  window.VATRA_PROFILE_EXTRA_TAB=dispatch;
  if(!isMine)return;
+ // The tab strip scrolls horizontally; portal this menu so it is never clipped.
+ document.body.append(menu);
  const close=()=>{menu.hidden=true;toggle.setAttribute("aria-expanded","false");};
+ const position=()=>{
+  if(menu.hidden)return;
+  const anchor=toggle.getBoundingClientRect();
+  const width=menu.getBoundingClientRect().width||175;
+  menu.style.left=Math.round(Math.max(10,Math.min(anchor.left,innerWidth-width-10)))+"px";
+  menu.style.top=Math.round(Math.min(anchor.bottom+6,innerHeight-menu.offsetHeight-10))+"px";
+ };
  toggle.addEventListener("click",()=>{
   menu.hidden=!menu.hidden;toggle.setAttribute("aria-expanded",String(!menu.hidden));
+  if(!menu.hidden)position();
  });
  for(const button of menu.querySelectorAll("[data-profile-archive]")){
   button.addEventListener("click",()=>{
@@ -311,7 +322,11 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    dispatch(button.dataset.profileArchive);close();
   });
  }
- document.addEventListener("pointerdown",event=>{if(!archiveWrap.contains(event.target))close();});
+ document.addEventListener("pointerdown",event=>{if(!archiveWrap.contains(event.target)&&!menu.contains(event.target))close();});
+ window.addEventListener("resize",position,{passive:true});
+ window.addEventListener("scroll",close,{passive:true});
+ menu.addEventListener("keydown",event=>{if(event.key==="Escape"){close();toggle.focus();}});
+
 }
 function setupProfileGallery(client,targetId){
  for(const settings of [

@@ -1700,7 +1700,7 @@ body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{
 }
 body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo,
 body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-photo{
- transform:scale(1.018);filter:none
+ transform:none;filter:brightness(.9)
 }
 body.profile-page .profile-cover-view{cursor:pointer}
 body.profile-page .profile-cover.has-photo{
@@ -2393,4 +2393,8 @@ body.profile-page .vt-profile-post-remove-001{flex:none}
  body.feed-page .vatra-post-action-row>button{gap:3px;padding:8px 2px;font-size:11px}
  body.feed-page .vatra-post-action-row>button svg{width:17px;height:17px}
  body.profile-page .feed-post-header{flex-wrap:wrap}
+}
+
+body.profile-page .profile-archive-menu.ui-profile-archive-menu-001{
+ position:fixed;z-index:120;width:max-content;max-width:calc(100vw - 20px)
 }
