@@ -89,7 +89,7 @@
   const path=mediaAvatars.get(String(id));
   if(typeof path!=="string"||!path.startsWith(String(id)+"/avatar/"))return null;
   try{
-   const value=client.storage.from("vatra-profile-media").getPublicUrl(path)?.data?.publicUrl;
+   const value=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
    if(!value)return null;
    const url=new URL(value);
    return url.protocol==="https:"&&url.hostname==="rjasunoawrxvetwadylh.supabase.co"?value:null;
