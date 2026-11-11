@@ -1521,3 +1521,69 @@ body.profile-page .vt-profile-photo-comment-send-001:disabled{
  body.profile-page .profile-cover.has-photo::after,
  body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{transition:none}
 }
+
+
+/* Signed-in routes show useful structural placeholders while initial data
+   loads. The branded full-screen state is reserved for an actual failure. */
+body.feed-page > .vatra-auth-loading{
+ display:block;min-height:100dvh;overflow:hidden;padding:0;
+ opacity:1!important;animation:none!important;background:#f5f7fc
+}
+body.feed-page > .vatra-auth-loading:not([data-loading-error="true"]) .vatra-auth-loading-content{
+ display:none!important
+}
+body.feed-page > .vatra-auth-loading[data-loading-error="true"]{
+ display:grid;place-items:center;background:#f5f7fc;z-index:11000
+}
+body.feed-page > .vatra-auth-loading[data-loading-error="true"] .vatra-route-skeleton{display:none}
+body.feed-page > .vatra-auth-loading[data-loading-error="true"] .vatra-auth-loading-content{
+ display:flex!important;align-items:center;justify-content:center
+}
+body.feed-page .vatra-route-skeleton{display:block;min-height:100dvh;overflow:hidden}
+body.feed-page .vatra-route-skeleton-header{
+ display:flex;align-items:center;gap:14px;height:65px;
+ padding:0 clamp(15px,2vw,32px);background:#fff;border-bottom:1px solid #e6ebf4
+}
+body.feed-page .vatra-skeleton-block{
+ display:block;flex:none;border-radius:12px;
+ background:linear-gradient(105deg,#e8edf5 18%,#f6f8fc 44%,#e8edf5 70%);
+ background-size:210% 100%;animation:vatraSkeletonShift 1.7s linear infinite
+}
+@keyframes vatraSkeletonShift{to{background-position-x:-210%}}
+body.feed-page .ui-vatra-skeleton-logo-001{width:42px;height:42px;border-radius:15px}
+body.feed-page .ui-vatra-skeleton-search-001{width:min(24vw,300px);height:38px;border-radius:999px}
+body.feed-page .ui-vatra-skeleton-nav-001{width:min(30vw,360px);height:25px;margin:auto}
+body.feed-page .ui-vatra-skeleton-account-001{width:150px;height:39px;border-radius:999px}
+body.feed-page .vatra-route-skeleton-content{
+ display:flex;flex-direction:column;gap:18px;
+ width:min(calc(100% - 36px),700px);margin:24px auto 40px
+}
+body.feed-page .ui-vatra-skeleton-cover-001{width:100%;height:290px;border-radius:0}
+body.feed-page .ui-vatra-skeleton-profile-001{display:flex;align-items:center;gap:25px;margin-top:-54px;padding:0 22px}
+body.feed-page .ui-vatra-skeleton-avatar-001{
+ width:116px;height:116px;border:5px solid #fff;border-radius:50%
+}
+body.feed-page .ui-vatra-skeleton-profile-name-001{width:min(38vw,250px);height:32px}
+body.feed-page .ui-vatra-skeleton-tabs-001{width:100%;height:40px}
+body.feed-page .ui-vatra-skeleton-section-title-001{width:170px;height:30px}
+body.feed-page .vatra-skeleton-stories{display:flex;gap:9px;overflow:hidden}
+body.feed-page .vatra-skeleton-stories .vatra-skeleton-block{
+ width:108px;height:158px;flex:0 0 108px;border-radius:13px
+}
+body.feed-page .ui-vatra-skeleton-composer-001{width:100%;height:60px}
+body.feed-page .ui-vatra-skeleton-post-001{width:100%;height:142px;border-radius:16px}
+body.profile-page .vatra-route-skeleton-content{width:min(calc(100% - 32px),1000px);gap:14px;margin-top:0}
+body.profile-page .ui-vatra-skeleton-post-001{max-width:700px;margin:0 auto}
+@media(max-width:670px){
+ body.feed-page .vatra-route-skeleton-header{gap:9px;padding:0 13px}
+ body.feed-page .ui-vatra-skeleton-search-001{width:110px}
+ body.feed-page .ui-vatra-skeleton-nav-001{width:90px}
+ body.feed-page .ui-vatra-skeleton-account-001{width:46px}
+ body.feed-page .vatra-route-skeleton-content{gap:12px}
+ body.feed-page .ui-vatra-skeleton-cover-001{height:180px}
+ body.feed-page .ui-vatra-skeleton-avatar-001{width:82px;height:82px}
+ body.feed-page .ui-vatra-skeleton-profile-001{margin-top:-38px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.feed-page .vatra-skeleton-block{animation:none;background:#e8edf5}
+}
