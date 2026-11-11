@@ -2954,6 +2954,18 @@ body.feed-page .vatra-post-compact-avatar:not(.has-photo){
  background-image:var(--vatra-generic-avatar)!important;background-size:cover;
  background-position:center;background-repeat:no-repeat;background-color:#edf2f8
 }
+/* Use the same neutral silhouette throughout the Feed until a real image has loaded.
+   An absent Storage object should never render as a transparent avatar. */
+body.feed-page .feed-avatar:not(.has-photo),
+body.feed-page .feed-story-author-avatar:not(.has-photo),
+body.feed-page .vatra-global-search-avatar:not(.has-photo){
+ background-image:var(--vatra-generic-avatar)!important;
+ background-color:#edf2f8;
+ background-position:center;
+ background-repeat:no-repeat;
+ background-size:cover;
+ color:transparent
+}
 /* Both profile photos have the SAME gentle hover strength, only the image zooms.
    Do not let focus restored from the fullscreen dialog leave the photo permanently zoomed. */
 body.profile-page .profile-avatar.has-photo::after{
