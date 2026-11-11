@@ -2364,8 +2364,8 @@ try{
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
     Math.abs(geometry.storyCenter-geometry.viewportCenter)<11&&
-    geometry.storyCardWidth>=120&&geometry.storyCardWidth<=124&&
-    geometry.storyCardHeight>=164&&geometry.storyCardHeight<=168&&
+    geometry.storyCardWidth>=106&&geometry.storyCardWidth<=110&&
+    geometry.storyCardHeight>=156&&geometry.storyCardHeight<=160&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
@@ -2541,6 +2541,14 @@ try{
    "mailto:vatra.support@gmail.com");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
   assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),1);
+  assert.equal(await feedProbe.locator(".feed-account-dropdown > svg").count(),0);
+  assert.equal(await feedProbe.locator(".feed-account-profile > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-settings-toggle > svg").count(),1);
+  assert.equal(await feedProbe.locator(".feed-menu-support > svg").count(),1);
+  assert.equal(await feedProbe.locator("#feed-logout > svg").count(),1,
+   "All account actions must have persistent SVG icons in UK and EN");
+  assert.equal((await feedProbe.locator(".vt-vatra-account-settings-label-001").textContent()).trim(),
+   language==="en"?"Settings":"Налаштування");
   await feedProbe.locator(".feed-menu-settings-toggle").click();
   assert.equal(await feedProbe.locator(".feed-language-trigger").isVisible(),true,
    "Settings must provide real language controls");
@@ -2801,8 +2809,15 @@ try{
    "Own given name beside avatar must not be replaced by the visited member's identity");
   await profilePage.goto(base+"id999999",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
-  assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
-   language==="en"?"Profile not found":"Профіль не знайдено");
+  assert.equal((await profilePage.locator("#profile-not-found").textContent()).trim(),
+   language==="en"?"User not found":"Користувача не знайдено");
+  assert.equal(await profilePage.locator("#profile-not-found").isVisible(),true);
+  assert.equal(await profilePage.locator(".profile-hero").isVisible(),false);
+  assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
+  assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
+   "A missing member must not show fake cover, profile tabs or details");
+  assert.equal(await profilePage.locator("#feed-header-avatar").evaluate(el=>el.classList.contains("has-photo")),true,
+   "Own header photo must persist on a missing VATRA ID");
   await profilePage.close();
  }
  await feedContext.close();
