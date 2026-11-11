@@ -889,7 +889,7 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
  profileMarkup.includes('id="profile-message-button"')&&
  profileMarkup.includes('id="profile-message-dialog"')&&
  profileMarkup.includes('id="profile-inbox-list"')&&
- profileMarkup.includes('class="profile-cover ui-profile-cover-001"'),
+ profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001"'),
  "Member profile requires a real cover, tabs, friendship and private message UI");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
  !profileMarkup.includes('id="profile-name-dialog"')&&
