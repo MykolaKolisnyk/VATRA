@@ -1114,6 +1114,12 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('"vatra-covers"')&&
  feedScript.includes('storage.from("vatra-avatars")'),
  "Profile photos and cover images must be uploaded to their dedicated storage buckets");
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
+ profileScript.includes('client.from("vatra_stories").delete()')&&
+ profileScript.includes('deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;')&&
+ !profileScript.includes('remove([previous])')&&
+ !sharedCss.includes('border-radius:0 14px 14px 14px'),
+ "Only the owner deletes a story; previous profile photos are preserved");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  memberProfileMarkup.includes('id="profile-photo-like"')&&
  memberProfileMarkup.includes('id="profile-photo-comments"')&&
