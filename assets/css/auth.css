@@ -41,6 +41,11 @@
 /* A real, shared pending-state overlay. Fast requests never flash a loader:
    show only if work is still pending after 160 ms; ready content is NEVER delayed. */
 .vatra-auth-loading{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;min-height:100dvh;padding:0;background:#f3f5fa;font-family:"Onest",system-ui,sans-serif;opacity:0;animation:vatraLoaderReveal .001s linear 160ms both}
+/* GitHub Pages initially returns 404.html for canonical /idN and /clubN.
+   Show the SAME VATRA splash while their actual documents load, in both locales. */
+html:not(.vatra-dynamic-route-pending) .vatra-route-loading{display:none!important}
+html.vatra-dynamic-route-pending body > :not(.vatra-route-loading){visibility:hidden!important}
+html.vatra-dynamic-route-pending body > .vatra-route-loading{visibility:visible!important}
 @keyframes vatraLoaderReveal{from{opacity:0}to{opacity:1}}
 .vatra-auth-loading-content{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;height:100%;min-height:100dvh;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;text-align:center}
 .vatra-auth-loading-symbol{display:block;width:clamp(68px,11vw,88px);height:clamp(68px,11vw,88px);object-fit:contain;animation:vatraLoadingPulse 1.65s ease-in-out infinite}
