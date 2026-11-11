@@ -496,8 +496,13 @@ async function start(){
      if(Array.from(value).length<2){feedback.textContent=t("Мінімум два символи.","At least two characters.");feedback.hidden=false;return;}
      const save=q("#profile-name-save");save.disabled=true;feedback.hidden=true;
      try{
-      const {error}=await client.from("vatra_public_profiles")
-       .upsert({vatra_id:ownId,display_name:value,updated_at:new Date().toISOString()},{onConflict:"vatra_id"});
+      // Updating the nickname never modifies the immutable public VATRA ID.
+      const edit=publicName?
+       client.from("vatra_public_profiles").update({
+        display_name:value,updated_at:new Date().toISOString()
+       }).eq("vatra_id",ownId):
+       client.from("vatra_public_profiles").insert({vatra_id:ownId,display_name:value});
+      const {error}=await edit;
       if(error)throw error;
       publicName=value;q("#profile-heading").textContent=value;
       dialog.close();
