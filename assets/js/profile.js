@@ -88,8 +88,10 @@ const gateError=message=>{
 function missingProfile(){
  // Missing IDs are not profiles: don't render a default cover, avatar,
  // profile tabs or an extra explanatory card below the heading.
- q(".profile-hero").hidden=true;
- q(".profile-panels").hidden=true;
+ // Remove nonexistent-profile artwork and tabs from the DOM entirely,
+ // rather than relying on [hidden] against page-specific display selectors.
+ q(".profile-hero")?.remove();
+ q(".profile-panels")?.remove();
  const heading=q("#profile-not-found");
  heading.textContent=t("Користувача не знайдено","User not found");
  heading.hidden=false;
