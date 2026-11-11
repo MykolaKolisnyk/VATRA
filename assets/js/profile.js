@@ -1088,6 +1088,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   coverPhoto.hidden=true;
   if(photoURLs.cover)coverPhoto.src=photoURLs.cover;
   else coverPhoto.removeAttribute("src");
+  const coverReady=photoURLs.cover&&typeof coverPhoto.decode==="function"?
+   coverPhoto.decode().then(()=>{
+    if(!photoURLs.cover)return;
+    coverPhoto.hidden=false;cover.classList.add("has-photo");coverView.hidden=false;
+   }).catch(()=>{}):Promise.resolve();
   resetImage(avatar);
   const fallback=(q("#profile-heading")?.textContent||"V").trim().split(/\s+/)
    .map(word=>Array.from(word)[0]||"").slice(0,2).join("").toLocaleUpperCase()||"V";
@@ -1096,7 +1101,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
    resetImage(postAvatar);postAvatar.textContent=fallback;
   }
   const candidate=photoURLs.avatar;
-  if(candidate)void validPhoto(candidate).then(valid=>{
+  let avatarReady=Promise.resolve();
+  if(candidate)avatarReady=validPhoto(candidate).then(valid=>{
    if(photoURLs.avatar!==candidate)return;
    if(!valid){photoURLs.avatar=null;syncAvatarMenu();return;}
    setImage(avatar,candidate);avatar.textContent="";
@@ -1109,11 +1115,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
    }
   });
   syncAvatarMenu();
+  return Promise.allSettled([avatarReady,coverReady]);
  };
  try{
   const {data,error}=await client.from("vatra_profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
-  if(!error&&data){saved=data;display(data);}
+  if(!error&&data){saved=data;await display(data);}
  }catch(_){/* Profile itself still loads when images are unavailable. */}
  finally{
   cover.classList.remove("is-loading-media");
@@ -1319,9 +1326,8 @@ async function start(){
   setupProfileInteractions(client,ownId,targetId,isMine);
   setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
   setupProfileGallery(client,targetId);
-  /* Keep the real profile cover and avatar fallback visible while media arrives. */
-  // Media and Stories can arrive after the identity is verified; do not hold
-  // the entire profile behind a splash while these secondary requests run.
+  // Keep the skeleton until both real photos have loaded, rather than flashing
+  // default avatar/cover followed by the user's real artwork.
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
   const canonical=memberUrl(targetId);
@@ -1338,15 +1344,15 @@ async function start(){
     list.append(card);
    }
   }
-  finish();
   setupProfilePresence(client,targetId,ownId,metadata.gender);
-  void loadPosts(client,targetId,ownId,user.id);
-  void mediaPromise.then(()=>{
-   if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
-  }).catch(()=>{
+  const postsPromise=loadPosts(client,targetId,ownId,user.id);
+  try{await mediaPromise;}catch(_){
    q("#profile-cover-image")?.classList.remove("is-loading-media");
    q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
-  });
+  }
+  finish();
+  if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
+  void postsPromise;
  }catch(_){
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
    "Could not load this profile. Please refresh."));

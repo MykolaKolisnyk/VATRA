@@ -3059,3 +3059,54 @@ body.feed-page .vatra-global-search-info small{
  display:block;color:#8798b2;font:520 11px/1.4 "Onest",system-ui,sans-serif;
  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
 }
+
+/* The profile skeleton has the same 1160px geometry as the finished page.
+   Keep the profile unseen until real avatar and cover are decoded. */
+body.profile-page > .vatra-auth-loading:not([data-loading-error="true"]){width:100%!important;max-width:none!important}
+body.profile-page .vatra-route-skeleton-content.ui-vatra-profile-realistic-skeleton-001{
+ width:min(calc(100vw - 32px),1160px)!important;max-width:1160px!important;
+ margin:0 auto 38px!important;gap:0;padding:0
+}
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-cover-001{
+ width:100%;height:310px;max-width:none;border-radius:0 0 10px 10px
+}
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-profile-001{
+ display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:20px;align-items:center;
+ margin:-42px 0 0;padding:0 28px 20px;min-height:126px;
+ background:#fff;border:1px solid #e9eef5;border-top:0
+}
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-avatar-001{
+ width:120px;height:120px;box-sizing:border-box;border:5px solid #fff;z-index:1
+}
+body.profile-page .ui-vatra-skeleton-identity-001{display:flex;flex-direction:column;gap:11px;padding-top:35px}
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-profile-name-001{width:min(280px,65%);height:30px}
+body.profile-page .ui-vatra-skeleton-status-001{width:min(164px,40%);height:12px}
+body.profile-page .ui-vatra-skeleton-actions-001{display:flex;gap:10px;padding-top:35px}
+body.profile-page .ui-vatra-skeleton-action-primary-001{width:178px;height:43px}
+body.profile-page .ui-vatra-skeleton-action-secondary-001{width:195px;height:43px}
+body.profile-page .ui-vatra-skeleton-tabs-wrap-001{
+ display:block;padding:13px 27px;background:#fff;border:1px solid #e9eef5;
+ border-top:0;border-radius:0 0 18px 18px
+}
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-tabs-001{
+ display:block;width:min(560px,80%);height:20px;border-radius:5px
+}
+body.profile-page .ui-vatra-skeleton-body-001{
+ display:grid;grid-template-columns:minmax(240px,32%) minmax(0,1fr);
+ gap:20px;padding:24px 0 0
+}
+body.profile-page .ui-vatra-skeleton-info-001{width:100%;height:172px}
+body.profile-page .ui-vatra-skeleton-post-column-001{display:flex;flex-direction:column;gap:13px}
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-post-a-001,
+body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-post-b-001{
+ display:block;width:100%;height:180px;max-width:none;margin:0
+}
+@media(max-width:890px){
+ body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-profile-001{
+  grid-template-columns:90px minmax(0,1fr);gap:10px;padding:0 16px 15px
+ }
+ body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-avatar-001{width:90px;height:90px}
+ body.profile-page .ui-vatra-skeleton-identity-001{padding-top:30px}
+ body.profile-page .ui-vatra-skeleton-actions-001{grid-column:1/-1;padding:0}
+ body.profile-page .ui-vatra-skeleton-body-001{grid-template-columns:1fr;padding:16px 0}
+}
