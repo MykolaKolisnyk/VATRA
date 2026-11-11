@@ -29,12 +29,13 @@
   const input=document.querySelector(ids.input),choose=document.querySelector(ids.choose);
   const clear=document.querySelector(ids.clear),preview=document.querySelector(ids.preview);
   const showError=typeof ids.onError==="function"?ids.onError:()=>{};
+  const changed=typeof ids.onChange==="function"?ids.onChange:()=>{};
   if(!input||!choose||!clear||!preview)throw Error("VATRA media picker markup is incomplete");
   let selected=null,blob=null;
   const reset=()=>{
    selected=null;input.value="";
    if(blob){URL.revokeObjectURL(blob);blob=null;}
-   preview.replaceChildren();preview.hidden=true;clear.hidden=true;
+   preview.replaceChildren();preview.hidden=true;clear.hidden=true;changed();
   };
   const render=file=>{
    reset();if(!file)return;
@@ -48,7 +49,7 @@
    else media.alt=tr("Попередній перегляд фото","Photo preview");
    const caption=document.createElement("span");caption.className="vatra-compose-preview-caption";
    caption.textContent=file.name;
-   preview.append(media,caption);preview.hidden=false;clear.hidden=false;
+   preview.append(media,caption);preview.hidden=false;clear.hidden=false;changed();
   };
   choose.addEventListener("click",()=>input.click());
   input.addEventListener("change",()=>render(input.files?.[0]));
