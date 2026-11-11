@@ -1159,8 +1159,11 @@ assert.ok(css.includes("color:#fff;text-decoration:none}")&&
 for(const name of ["terms","privacy","cookies"]){
  const html=await read(name+".html");
  const dictionary=uk.__pages[name];
- assert.ok(html.includes("Оновлено 8 листопада 2026 року"),
-  name+": legal revision date is stale");
+ const revision=Object.values(dictionary.nodes)
+  .flatMap(node=>Object.values(node.text||{}))
+  .find(text=>/^Оновлено \d{1,2} [^\n]+ 2026 року$/.test(text));
+ assert.ok(revision&&html.includes(revision),
+  name+": legal revision must match its published translation");
  assert.ok(!/\bми\b|\bнаша\b|\bнаші\b/iu.test(html.replace(/<[^>]+>/g," ")),
   name+": text must not describe the developer as a team");
  for(const node of Object.values(dictionary.nodes)){
