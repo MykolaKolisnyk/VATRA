@@ -179,6 +179,7 @@ for(const button of document.querySelectorAll("[data-vatra-task]")){
   }
  });
 }
+window.VATRA_ONBOARDING={start,refresh:refreshProgress};
 document.addEventListener("vatra:feed-ready",start);
 document.addEventListener("vatra:onboarding-progress",()=>void refreshProgress());
 window.addEventListener("pageshow",()=>{if(wasLoaded)void refreshProgress();});
