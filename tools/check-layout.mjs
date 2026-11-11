@@ -1036,6 +1036,18 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
+const communityScript=await read("assets/js/communities.js");
+const postMediaScript=await read("assets/js/post-media.js");
+assert.doesNotThrow(()=>new Function(postMediaScript),"Shared post media module has invalid JavaScript");
+assert.ok(
+feedMarkup.includes('id="feed-compose-media"') &&
+ memberProfileMarkup.includes('id="profile-compose-media"') &&
+ (await read("club.html")).includes('id="club-compose-media"') &&
+ feedScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
+ profileScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
+ communityScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
+ postMediaScript.includes('createSignedUrl(path,3600)'),
+ "VATRA photos and videos must be attached, published and displayed across all post surfaces");
 const feedStyle=await read("assets/css/feed.css");
 assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.includes('data-i18n="n12">Стрічка</h1>')&&
@@ -1055,7 +1067,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('.select("id,author_vatra_id,body,created_at")')&&
+ feedScript.includes('.select("id,author_vatra_id,body,created_at,media_kind,media_path")')&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
