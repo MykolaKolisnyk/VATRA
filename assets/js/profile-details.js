@@ -94,8 +94,7 @@
    film:"M4 4h16v16H4zM8 4v16M16 4v16M4 9h4m8 0h4M4 15h4m8 0h4",
    "gamepad-2":"M8 8h8c3 0 5 2 6 7l-2 4c-1 2-3 2-5 0l-2-2h-2l-2 2c-2 2-4 2-5 0l-2-4c1-5 3-7 6-7Zm1 4v5m-2.5-2.5h5M17 13h.01M19 15h.01",
    "quote":"M4 6h6v6l-3 5H4l3-5H4V6Zm10 0h6v6l-3 5h-3l3-5h-3V6",
-   "file-text":"M6 2h8l5 5v15H6zM14 2v5h5M9 12h7M9 16h7",
-   arrow:"M5 12h14m-7-7 7 7-7 7"
+   "file-text":"M6 2h8l5 5v15H6zM14 2v5h5M9 12h7M9 16h7"
   };
   const ns="http://www.w3.org/2000/svg",element=document.createElementNS(ns,"svg");
   element.setAttribute("class","ui-vatra-profile-information-icon-"+kind);
