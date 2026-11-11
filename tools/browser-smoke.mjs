@@ -2459,6 +2459,12 @@ try{
    "Search history must open on input focus");
   assert.equal(await feedProbe.locator("#vatra-search-back").isVisible(),true,
    "Search focus replaces the logo with a back arrow without shifting the header");
+  assert.equal(await feedProbe.locator(".feed-brand-search").evaluate(el=>el.classList.contains("vatra-search-active")),true);
+  await feedProbe.waitForFunction(()=>{
+   const back=document.querySelector("#vatra-search-back");
+   const icon=document.querySelector(".ui-feed-search-icon-001");
+   return Number(getComputedStyle(back).opacity)>.9&&icon.getBoundingClientRect().width<2;
+  },null,{timeout:2400});
   assert.equal((await feedProbe.locator(".vt-search-panel-heading-001").innerText()).trim(),
    language==="en"?"Recent":"Нещодавні");
   assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
@@ -2521,6 +2527,11 @@ try{
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
    "Back closes Recent searches and restores the VATRA logo");
   assert.equal(await feedProbe.locator(".feed-header-brand").isVisible(),true);
+  await feedProbe.waitForFunction(()=>{
+   const brand=document.querySelector(".feed-brand-search");
+   const icon=document.querySelector(".ui-feed-search-icon-001");
+   return !brand.classList.contains("vatra-search-active")&&icon.getBoundingClientRect().width>=14;
+  },null,{timeout:2400});
 
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
@@ -2657,14 +2668,19 @@ try{
     const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
     const stories=document.querySelector(".feed-stories").getBoundingClientRect();
     return {right:filters.right,edge:wrap.right,composerTop:composer.top,storyTop:stories.top,
-     filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,composeRight:composer.right};
+     filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
+     composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
+     screenWidth:innerWidth};
    });
-   assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3&&
-    filterGeometry.filterLeft>=filterGeometry.composeRight-3&&
-    filterGeometry.filterTop>=filterGeometry.composerTop-2&&
-    filterGeometry.filterTop<=filterGeometry.storyBottom,
-    "Desktop Feed filters must align to the right of post and story actions: "+
-     JSON.stringify(filterGeometry));
+   assert.ok(Math.abs(filterGeometry.composerWidth-filterGeometry.storiesWidth)<=3&&
+    Math.abs(filterGeometry.composeRight-filterGeometry.edge)<=3,
+    "Feed filters cannot narrow full-width composer and Stories: "+JSON.stringify(filterGeometry));
+   assert.ok(filterGeometry.screenWidth>=1390?
+    (filterGeometry.filterLeft>=filterGeometry.composeRight+5&&
+     filterGeometry.filterTop>=filterGeometry.composerTop-2):
+    (filterGeometry.filterTop>=filterGeometry.storyBottom-3&&
+     filterGeometry.right<=filterGeometry.edge+3),
+    "Filters belong in the right gutter or right-aligned row: "+JSON.stringify(filterGeometry));
   }
   await feedProbe.locator('[data-feed-filter="friends"]').click();
   await feedProbe.waitForFunction(()=>
@@ -2826,6 +2842,10 @@ try{
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
    "Information must be beside compact posts instead of its own tab");
+  assert.equal(await profilePage.locator("#profile-about-card").evaluate(el=>getComputedStyle(el).position),"static",
+   "Information must not follow a reader scrolling long profile posts");
+  assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false,
+   "Textual online label must never appear while profile is online");
   await profilePage.locator("#profile-status").click();
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
    "Clicking Add status itself must open the real editor");
