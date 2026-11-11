@@ -738,7 +738,10 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  });
  const edit=q("#profile-edit-open"),mediaDialog=q("#profile-edit-dialog");
  edit.hidden=false;
- edit.addEventListener("click",()=>mediaDialog.showModal());
+ edit.addEventListener("click",()=>{
+  if(window.VATRA_PROFILE_DETAILS?.open)window.VATRA_PROFILE_DETAILS.open();
+  else mediaDialog.showModal();
+ });
  q("#profile-edit-cancel").addEventListener("click",()=>mediaDialog.close());
  q("#profile-edit-form").addEventListener("submit",event=>{event.preventDefault();mediaDialog.close();});
 }
@@ -1323,9 +1326,13 @@ async function start(){
     "This member has not added profile details yet.");
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
+  const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
+  const locked=access?.locked===true;
   setupProfileInteractions(client,ownId,targetId,isMine);
-  setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
-  setupProfileGallery(client,targetId);
+  if(!locked){
+   setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
+   setupProfileGallery(client,targetId);
+  }
   // Keep the skeleton until both real photos have loaded, rather than flashing
   // default avatar/cover followed by the user's real artwork.
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email);
@@ -1344,8 +1351,8 @@ async function start(){
     list.append(card);
    }
   }
-  setupProfilePresence(client,targetId,ownId,metadata.gender);
-  const postsPromise=loadPosts(client,targetId,ownId,user.id);
+  if(!locked)setupProfilePresence(client,targetId,ownId,metadata.gender);
+  const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
   try{await mediaPromise;}catch(_){
    q("#profile-cover-image")?.classList.remove("is-loading-media");
    q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
