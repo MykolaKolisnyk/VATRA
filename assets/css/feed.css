@@ -2574,3 +2574,109 @@ body.notifications-page .vt-notifications-empty-001{
  body.notifications-page .notifications-filters button{padding:9px 8px}
  body.notifications-page .notifications-content .vatra-notification-row{padding:13px 10px}
 }
+
+
+/* Feed filters: one vertical panel, with VATRA outline icons and legible hierarchy. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row{
+ display:flex;flex-direction:column;align-items:stretch;gap:3px;
+ width:225px;padding:15px 12px 12px;border:1px solid #e0e8f5;
+ border-radius:16px;background:#fff;box-shadow:0 7px 24px rgba(41,63,112,.06)
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
+ display:block;margin:0 0 7px;padding:0 9px 13px;border-bottom:1px solid #ebf0f8;
+ color:#344761;font:760 15px/1.35 "Onest",system-ui,sans-serif;letter-spacing:-.025em
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
+ display:flex;align-items:center;justify-content:flex-start;gap:11px;
+ min-height:44px;width:100%;padding:10px 11px;border:1px solid transparent;
+ border-radius:10px;background:transparent;text-align:left;color:#667b9a;
+ font:690 13px/1.4 "Onest",system-ui,sans-serif;
+ transition:color .22s ease,background .22s ease,border-color .22s ease,box-shadow .22s ease
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button svg{
+ display:block;flex:none;width:19px;height:19px;color:#8395b5;
+ transition:color .22s ease
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button span{min-width:0}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
+ background:#edf3ff;border-color:#d6e3fc;color:#2c61c7;
+ box-shadow:inset 3px 0 0 #527be3
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"] svg{color:#456ed4}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:hover{background:#f5f8fe;color:#315cae}
+@media(max-width:1320px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row{
+  width:min(100%,270px);align-self:flex-end
+ }
+}
+/* An editorial empty state with a consistent document icon; no sparkle emoji. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ min-height:205px;padding:33px 28px;text-align:center;
+ background:linear-gradient(145deg,#fff 54%,#fbfcff 100%);
+ border:1px solid #e1e8f4;border-radius:16px;
+ box-shadow:0 5px 18px rgba(36,55,99,.045)
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty[hidden]{display:none!important}
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty-icon{
+ display:grid;place-items:center;width:60px;height:60px;margin:0 0 15px;
+ border:1px solid #dce6fb;border-radius:18px;background:#eef3ff;
+ color:#5777cc;box-shadow:0 6px 16px rgba(54,90,157,.055);font-size:0
+}
+body.feed-page .ui-feed-empty-document-icon-001{width:28px;height:28px}
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty-title{
+ margin:0 0 7px;color:#32445f;font:760 18px/1.32 "Onest",system-ui,sans-serif;
+ letter-spacing:-.027em
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty-subtitle{
+ max-width:470px;margin:0;color:#7789a5;font:510 13px/1.6 "Onest",system-ui,sans-serif
+}
+/* Avatar/story rings stay fixed; only the photo darkens and zooms subtly. */
+body.profile-page .profile-avatar.has-photo{
+ position:relative;isolation:isolate;overflow:hidden;
+ background-position:center;background-size:cover;filter:none;transform:none;
+ transition:none
+}
+body.profile-page .profile-avatar.has-photo::after{
+ content:"";position:absolute;inset:0;display:block;
+ border-radius:inherit;background-image:inherit;background-position:center;background-size:cover;
+ transform:scale(1);filter:brightness(1);
+ transition:transform .56s cubic-bezier(.2,.75,.25,1),filter .56s ease
+}
+body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo,
+body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-photo{
+ transform:none;background-size:cover;filter:none
+}
+body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo::after,
+body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-photo::after{
+ transform:scale(1.035);filter:brightness(.965)
+}
+body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{
+ transform:scale(1);filter:brightness(1);
+ transition:transform .6s cubic-bezier(.2,.75,.25,1),filter .6s ease
+}
+body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
+body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001{
+ transform:scale(1.014);filter:brightness(.97)
+}
+/* Your Story is a gentle surface, not a jumping card. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create{
+ transform:none;transition:border-color .34s ease,box-shadow .34s ease,background .34s ease
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create:hover,
+body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create:focus-visible{
+ transform:none;border-color:#c8d8f7;background:#fbfcff;
+ box-shadow:0 5px 16px rgba(43,65,110,.075)
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .vt-feed-story-create-plus-001{
+ transition:background .35s ease,color .35s ease
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create:hover .vt-feed-story-create-plus-001{
+ background:#dfebff;color:#2a62d1
+}
+@media(prefers-reduced-motion:reduce){
+ .vatra-notification-panel{animation:none}
+ body.profile-page .profile-avatar.has-photo::after,
+ body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001,
+ body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create{transition:none!important}
+}
