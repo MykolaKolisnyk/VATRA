@@ -1090,18 +1090,12 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  "Authenticated pages must use nonblocking inline skeletons and retain real avatar engagement");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
-// The optional guided feature tour is independent of account setup tasks.
-const onboardingSource=await read("assets/js/onboarding.js");
-const onboardingCss=await read("assets/css/onboarding.css");
-assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
- onboardingCss.includes("backdrop-filter:blur(7px)")&&
- onboardingSource.includes('from("vatra_onboarding")')&&
- feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})')&&
- feedScript.includes('new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}})')&&
- (feedScript.match(/supabase\.createClient\(/g)||[]).length===1&&
- !onboardingSource.includes('supabase.createClient(')&&
- onboardingSource.includes('client=feedClient;'),
- "The separate optional tutorial remains available without extra setup UI");
+ assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
+  !feedMarkup.includes("assets/js/onboarding.js")&&
+  !feedMarkup.includes("assets/css/onboarding.css")&&
+  !feedScript.includes("VATRA_ONBOARDING")&&
+  !feedScript.includes("vatra:feed-ready"),
+  "Removed VATRA walkthrough must not be loaded or displayed");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
@@ -1242,7 +1236,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","feed.css","legal.css","onboarding.css"],"VATRA must keep only canonical family and onboarding styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","feed.css","legal.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
