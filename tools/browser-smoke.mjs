@@ -2652,6 +2652,46 @@ try{
   assert.equal(await profilePage.locator("#profile-loading").isVisible(),true,
    "Profile overlay must remain visible while post data loads");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  // A saved cover should open the original image in a genuine full-viewport
+  // modal, not remain trapped as a tiny background behind the profile header.
+  assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
+  await profilePage.locator("#profile-cover-view").click({position:{x:80,y:80}});
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
+  const coverViewer=await profilePage.evaluate(()=>{
+   const dialog=document.querySelector("#profile-media-viewer");
+   const image=document.querySelector("#profile-media-viewer-image");
+   return {width:dialog.getBoundingClientRect().width,height:dialog.getBoundingClientRect().height,
+    viewportWidth:innerWidth,viewportHeight:innerHeight,source:image.src};
+  });
+  assert.ok(Math.abs(coverViewer.width-coverViewer.viewportWidth)<=2&&
+   Math.abs(coverViewer.height-coverViewer.viewportHeight)<=2&&
+   coverViewer.source.includes("/vatra-covers/654321/cover/test-cover.webp"),
+   "Cover photo should fill the viewer viewport without cropping the original: "+JSON.stringify(coverViewer));
+  await profilePage.locator("#profile-media-viewer-close").click();
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
+  const storyAvatar=profilePage.locator("#profile-avatar-wrap");
+  assert.equal(await storyAvatar.evaluate(el=>el.classList.contains("has-active-story")),true,
+   "Only a visible active story should create a colored avatar ring");
+  await profilePage.locator("#profile-avatar-trigger").hover();
+  assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),true);
+  const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
+  assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
+   "Avatar hover actions must not be clipped by the profile card");
+  await profilePage.locator("#profile-avatar-story").click();
+  assert.equal(await profilePage.locator("#profile-story-viewer").evaluate(el=>el.open),true);
+  assert.equal((await profilePage.locator("#profile-story-viewer-text").textContent()).trim(),
+   "Моя тестова історія");
+  await profilePage.locator("#profile-story-viewer-close").click();
+  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-avatar-photo").click();
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
+  assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src"))
+   .includes("/vatra-avatars/654321/avatar/test-profile.webp"));
+  await profilePage.keyboard.press("Escape");
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
+   "Escape should close the fullscreen avatar viewer");
   const profileCoverGap=await profilePage.evaluate(()=>{
    const header=document.querySelector(".feed-header").getBoundingClientRect();
    const cover=document.querySelector(".profile-cover").getBoundingClientRect();
