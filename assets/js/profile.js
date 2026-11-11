@@ -431,7 +431,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  const message=q("#profile-media-status");
  const avatarWrap=q("#profile-avatar-wrap"),avatarTrigger=q("#profile-avatar-trigger");
  const avatarMenu=q("#profile-avatar-menu"),storyButton=q("#profile-avatar-story");
- const photoButton=q("#profile-avatar-photo"),coverView=q("#profile-cover-view");
+ const photoButton=q("#profile-avatar-photo"),deleteStoryButton=q("#profile-avatar-story-delete"),coverView=q("#profile-cover-view");
  const mediaDialog=q("#profile-media-viewer"),mediaImage=q("#profile-media-viewer-image");
  const mediaHeading=q("#profile-media-viewer-heading"),storyDialog=q("#profile-story-viewer");
  const storyHeading=q("#profile-story-viewer-heading"),storyBody=q("#profile-story-viewer-text");
@@ -467,6 +467,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
   avatarMenu.hidden=!hasStory;
   storyButton.hidden=!hasStory;
   photoButton.hidden=!hasPhoto;
+  deleteStoryButton.hidden=!hasStory||!isMine;
   avatarTrigger.disabled=!hasPhoto&&!hasStory;
   avatarTrigger.setAttribute("aria-haspopup",hasStory?"menu":"false");
   avatarTrigger.setAttribute("aria-label",hasStory?
@@ -602,6 +603,29 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  coverView.addEventListener("click",()=>openMedia("cover"));
  photoButton.addEventListener("click",()=>openMedia("avatar"));
  storyButton.addEventListener("click",openStory);
+ deleteStoryButton.addEventListener("click",async()=>{
+  if(!isMine||!activeStory?.id||deleteStoryButton.disabled)return;
+  if(!window.confirm(t("Видалити цю історію?","Delete this story?")))return;
+  const removingId=activeStory.id;
+  deleteStoryButton.disabled=true;
+  try{
+   const result=await client.from("vatra_stories").delete()
+    .eq("id",removingId).eq("author_vatra_id",ownId).select("id");
+   if(result.error||!result.data?.some(row=>row.id===removingId))
+    throw result.error||new Error("Story not deleted");
+   activeStory=null;
+   const next=await client.from("vatra_stories").select("id,body,theme,expires_at")
+    .eq("author_vatra_id",ownId).gt("expires_at",new Date().toISOString())
+    .order("created_at",{ascending:false}).limit(1);
+   if(!next.error&&next.data?.[0])activeStory=next.data[0];
+   if(storyDialog.open)storyDialog.close();
+   closeAvatarMenu();syncAvatarMenu();
+   status(t("Історію видалено.","Story deleted."));
+  }catch(_){
+   status(t("Не вдалося видалити історію. Спробуйте ще раз.",
+    "Could not delete the story. Please retry."),true);
+  }finally{deleteStoryButton.disabled=false;}
+ });
  q("#profile-media-viewer-close").addEventListener("click",()=>mediaDialog.close());
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
  mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
@@ -617,7 +641,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
   if(event.key==="Escape"){
    closeAvatarMenu();avatarTrigger.focus();
   }else if(event.key==="ArrowDown"&&!avatarMenu.hidden){
-   const item=[storyButton,photoButton].find(button=>!button.hidden);
+   const item=[storyButton,photoButton,deleteStoryButton].find(button=>!button.hidden);
    if(item){event.preventDefault();item.focus();}
   }
  });
@@ -673,7 +697,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  // friends only. Never show a ring for expired or inaccessible stories.
  try{
   const {data,error}=await client.from("vatra_stories")
-   .select("body,theme,expires_at")
+   .select("id,body,theme,expires_at")
    .eq("author_vatra_id",targetId)
    .gt("expires_at",new Date().toISOString())
    .order("created_at",{ascending:false})
