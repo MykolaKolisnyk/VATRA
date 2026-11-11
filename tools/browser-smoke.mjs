@@ -2421,12 +2421,26 @@ try{
   assert.equal((await feedProbe.locator(".vatra-search-history-term").first().innerText()).trim(),
    "VATRA запит 12","Search history must display newest first");
   const menuGeometry=await feedProbe.evaluate(()=>{
-   const p=document.querySelector("#vatra-search-panel").getBoundingClientRect();
+   const panel=document.querySelector("#vatra-search-panel");
+   const p=panel.getBoundingClientRect();
    const l=document.querySelector("#vatra-search-history");
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   const first=document.querySelector(".vatra-search-panel-header").getBoundingClientRect();
+   const navigation=[...document.querySelectorAll(".social-top-link")].map(el=>{
+    const rect=el.getBoundingClientRect();return rect.left+rect.width/2;
+   });
    return {left:p.left,right:p.right,top:p.top,bottom:p.bottom,
     viewportWidth:innerWidth,viewportHeight:innerHeight,
-    scrollHeight:l.scrollHeight,clientHeight:l.clientHeight};
+    scrollHeight:l.scrollHeight,clientHeight:l.clientHeight,
+    headerTop:header.top,headerBottom:header.bottom,firstRowTop:first.top,
+    panelZ:parseInt(getComputedStyle(panel).zIndex),
+    headerZ:parseInt(getComputedStyle(document.querySelector(".feed-header")).zIndex),
+    navigation};
   });
+  assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerTop)<=2&&
+   menuGeometry.firstRowTop>=menuGeometry.headerBottom-2&&
+   menuGeometry.panelZ<menuGeometry.headerZ,
+   "Search must appear as one continuous overlay behind the stable header: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
