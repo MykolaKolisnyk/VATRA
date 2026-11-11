@@ -2924,6 +2924,7 @@ try{
   assert.equal(await page.locator("#community-loading").isVisible(),true,
    "Communities loader must wait for the first directory query");
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
@@ -2957,19 +2958,23 @@ try{
    "Opening /clubN must not display the intermediate static club.html URL");
   await page.goto(base+"club999",{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal((await page.locator("#club-heading").textContent()).trim(),
    language==="en"?"Community not found":"Спільноту не знайдено");
   await page.goto(base+"communities",{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-001").getAttribute("href")).endsWith("/VATRA/club1"));
   await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),1,
    "Searching VATRA communities must filter the directory by name");
   assert.equal(await page.locator("#feed-search-input").inputValue(),"Спільнота");
   await page.goto(base+"communities?q="+encodeURIComponent("Неіснуючий"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),0,
    "Unknown search term must not show unrelated communities");
   assert.deepEqual(pageErrors,[],"Community JavaScript errors: "+language);
