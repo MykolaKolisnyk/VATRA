@@ -2638,10 +2638,12 @@ try{
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
   // Tour uses the native top layer and the same darkened/blurred presentation
   // as VATRA's language selector. These controls must be bilingual and skippable.
-  assert.equal(await feedProbe.locator("#vatra-welcome-tasks").count(),1);
-  assert.equal(await feedProbe.locator("#vatra-tasks-list > li").count(),5,
-   "New members must receive exactly five onboarding tasks");
+  assert.equal(await feedProbe.locator("#vatra-welcome-tasks").count(),0);
+  assert.equal(await feedProbe.locator("#vatra-tasks-list").count(),0);
+  assert.equal(await feedProbe.locator("#vatra-find-friends-dialog").count(),0,
+   "The removed five-step Getting Started checklist must have no leftover markup");
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),1);
+  assert.equal(await feedProbe.locator("#vatra-tour-step").textContent(),"1 / 15");
   await feedProbe.evaluate(()=>document.querySelector("#vatra-tour-dialog").showModal());
   const firstRunTour=await feedProbe.evaluate(()=>{
    const tour=document.querySelector("#vatra-tour-dialog");
@@ -2662,8 +2664,8 @@ try{
   if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
   await profilePage.goto(base+"profile",{waitUntil:"domcontentloaded"});
-  assert.equal(await profilePage.locator("#profile-loading").isVisible(),true,
-   "Profile overlay must remain visible while post data loads");
+  assert.equal(await profilePage.locator(".vatra-route-skeleton").count(),1,
+   "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   // A saved cover should open the original image in a genuine full-viewport
   // modal, not remain trapped as a tiny background behind the profile header.
