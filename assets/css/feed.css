@@ -3732,8 +3732,8 @@ body.feed-page[data-auth-ready="true"]:not(.vatra-shell-pending) .feed-app > .fe
  animation:vatraRouteReadyReveal 240ms cubic-bezier(.2,.75,.2,1) both
 }
 @keyframes vatraRouteReadyReveal{
- from{opacity:.74;transform:translate3d(0,7px,0)}
- to{opacity:1;transform:translate3d(0,0,0)}
+ from{opacity:.72}
+ to{opacity:1}
 }
 /* Switching editor chapters only animates the changing information, never the
    entire page/header. This also keeps the sticky save action fully steady. */
