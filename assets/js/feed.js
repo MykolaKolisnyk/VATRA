@@ -100,11 +100,19 @@
   friends=new Set(vatraId?[vatraId]:[]);
   followedClubs=new Map();
   if(!validId(vatraId))return;
-  const [connections,subscriptions]=await Promise.allSettled([
-   client.from("vatra_friendships").select("requester_id,recipient_id,status")
-    .or("requester_id.eq."+vatraId+",recipient_id.eq."+vatraId).eq("status","accepted").limit(500),
-   client.from("vatra_community_follows").select("club_id").eq("member_vatra_id",vatraId).limit(500)
-  ]);
+  // Missing optional APIs in offline/browser mocks must never blank the Feed.
+  let connectionQuery=Promise.resolve({data:[],error:null});
+  let followedQuery=Promise.resolve({data:[],error:null});
+  try{
+   const query=client.from("vatra_friendships").select("requester_id,recipient_id,status");
+   connectionQuery=query.or("requester_id.eq."+vatraId+",recipient_id.eq."+vatraId)
+    .eq("status","accepted").limit(500);
+  }catch(_){}
+  try{
+   const query=client.from("vatra_community_follows").select("club_id");
+   followedQuery=query.eq("member_vatra_id",vatraId).limit(500);
+  }catch(_){}
+  const [connections,subscriptions]=await Promise.allSettled([connectionQuery,followedQuery]);
   if(connections.status==="fulfilled"&&!connections.value.error)
    for(const item of connections.value.data||[]){
     const other=String(item.requester_id)===vatraId?String(item.recipient_id):String(item.requester_id);
