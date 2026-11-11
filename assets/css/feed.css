@@ -669,6 +669,146 @@ body.feed-page .vt-feed-post-video-expand-001{
 @media(max-width:600px){
  .vatra-post-media-viewer-frame{padding:62px 8px 10px}
 }
+
+/* Unified VATRA post actions, expanded comments and sharing. No per-page overrides. */
+body.feed-page .vatra-post-interactions{
+ margin-top:13px;border-top:1px solid #e8edf6;padding-top:9px;
+ font-family:"Onest",system-ui,sans-serif;color:#33445e
+}
+body.feed-page .vatra-post-action-row{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px
+}
+body.feed-page .vatra-post-action-row>button{
+ display:flex;justify-content:center;align-items:center;gap:8px;
+ min-width:0;min-height:41px;padding:8px;border:0;border-radius:10px;
+ color:#637796;background:transparent;cursor:pointer;
+ font:650 13px/1.3 "Onest",system-ui,sans-serif;transition:background .18s,color .18s
+}
+body.feed-page .vatra-post-action-row>button:hover,
+body.feed-page .vatra-post-action-row>button:focus-visible{
+ background:#eef3fd;color:#3466d3
+}
+body.feed-page .vatra-post-action-row .vt-vatra-post-like-001.is-liked{
+ color:#d45083;background:#fff0f6
+}
+body.feed-page .vt-vatra-post-like-count-001:not(:empty){
+ padding:2px 7px;background:#eaf0fd;border-radius:999px;font-size:11px
+}
+body.feed-page .vatra-post-comments-panel{
+ display:grid;gap:11px;margin-top:10px;padding:15px;
+ border:1px solid #e1e8f4;border-radius:14px;background:#fafcff
+}
+body.feed-page .vatra-post-comments-panel[hidden],
+body.feed-page .vatra-post-share-panel[hidden],
+body.feed-page .vatra-post-share-friend-row[hidden]{display:none!important}
+body.feed-page .vatra-post-comments-filter-row{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap
+}
+body.feed-page .vt-vatra-post-comments-filter-label-001{
+ display:flex;align-items:center;gap:10px;color:#576d8c;
+ font:680 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .ui-vatra-post-comments-sort-001,
+body.feed-page .ui-vatra-post-share-friend-select-001{
+ max-width:100%;min-height:39px;padding:7px 13px;border:1px solid #d6e1f2;
+ border-radius:10px;background:#fff;color:#2c4262;
+ font:650 13px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comments-sort-note-001{
+ color:#7b8da8;font:500 11.5px/1.5 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-comment-list{display:grid;gap:0;min-width:0}
+body.feed-page .vatra-post-comment{
+ padding:13px 0;border-top:1px solid #ebf0f7;
+ font:510 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-comment-head{display:flex;align-items:center;gap:10px;min-width:0}
+body.feed-page .vatra-comment-avatar{
+ display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
+ border:2px solid #fff;border-radius:50%;background:#5371ce;
+ background-image:linear-gradient(135deg,#326eea,#8754d8 70%,#d852aa);
+ background-position:center;background-size:cover;background-repeat:no-repeat;
+ box-shadow:0 0 0 1px #d7e3f6;color:#fff;font:760 12px/1 "Onest",system-ui,sans-serif;
+ text-decoration:none
+}
+body.feed-page .vatra-comment-avatar.has-photo{color:transparent}
+body.feed-page .vatra-post-comment-meta{display:grid;gap:1px;min-width:0}
+body.feed-page .vt-vatra-post-comment-author{
+ color:#263d60;text-decoration:none;font:750 13px/1.35 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comment-author:hover{text-decoration:underline}
+body.feed-page .vt-vatra-post-comment-date{
+ color:#8493ab;font:500 11px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comment-body{
+ margin:7px 0 4px 48px;color:#415571;white-space:pre-wrap;overflow-wrap:anywhere
+}
+body.feed-page .vt-vatra-post-comment-spam-001{
+ margin:0 0 0 48px;padding:3px 8px;border-radius:6px;
+ color:#91642e;background:#fff4e4;font-size:11px
+}
+body.feed-page .vt-vatra-post-comment-like-001{
+ margin:2px 0 0 45px;padding:5px 8px;border:0;border-radius:8px;
+ color:#647898;background:transparent;cursor:pointer;
+ font:650 11px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comment-like-001[aria-pressed="true"]{color:#bd4880}
+body.feed-page .vt-vatra-post-comment-like-001:hover{background:#eef2fb}
+body.feed-page .vatra-post-comment-form{display:flex;align-items:end;gap:9px}
+body.feed-page .ui-vatra-post-comment-input{
+ flex:1;min-width:0;min-height:42px;max-height:125px;resize:vertical;padding:11px 13px;
+ border:1px solid #d8e2f1;border-radius:12px;background:#fff;
+ color:#304765;font:520 13px/1.45 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comment-send-001,
+body.feed-page .vt-vatra-post-comments-more-001,
+body.feed-page .vt-vatra-post-send-message-001{
+ min-height:39px;padding:9px 14px;border:0;border-radius:10px;
+ background:#466ee1;color:#fff;cursor:pointer;font:740 12px/1.35 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comments-more-001{
+ justify-self:center;background:#eef3fc;color:#3969c7
+}
+body.feed-page .vt-vatra-post-comments-more-001[hidden]{display:none}
+body.feed-page .vatra-post-share-panel{
+ display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+ margin-top:10px;padding:12px;border:1px solid #e1e9f6;
+ border-radius:13px;background:#f8faff
+}
+body.feed-page .vatra-post-share-panel>button{
+ min-height:38px;padding:8px 13px;border:1px solid #dbe5f4;
+ border-radius:10px;background:#fff;color:#405c84;cursor:pointer;
+ font:650 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-share-panel>button:hover{background:#ebf2ff}
+body.feed-page .vatra-post-share-friend-row{
+ display:flex;align-items:center;gap:8px;width:100%;flex-wrap:wrap
+}
+body.feed-page .vt-vatra-post-interactions-status-001:not([hidden]){
+ margin:9px 0 0;color:#3a63ae;font:550 12px/1.45 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-interactions-status-001[data-state="error"]{color:#b54362}
+body.feed-page .vatra-post-share-preview{
+ display:grid;gap:8px;padding:14px;margin:12px 0 0;border:1px solid #dbe4f3;
+ border-radius:12px;background:#f8faff
+}
+body.feed-page .vt-vatra-post-share-preview-heading-001{
+ color:#6a7f9e;font:740 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-original-link-001{
+ color:#366acb;font:720 13px/1.4 "Onest",system-ui,sans-serif;text-decoration:none
+}
+body.feed-page .vt-vatra-post-share-preview-body-001,
+body.feed-page .vt-vatra-post-original-unavailable-001{
+ margin:0;color:#435874;white-space:pre-wrap;overflow-wrap:anywhere;
+ font:530 13px/1.55 "Onest",system-ui,sans-serif
+}
+@media(max-width:540px){
+ body.feed-page .vatra-post-action-row>button{gap:5px;font-size:11px;padding:7px 3px}
+ body.feed-page .vatra-post-comments-panel{padding:10px}
+ body.feed-page .vatra-post-comment-form{flex-wrap:wrap}
+ body.feed-page .vt-vatra-post-comment-send-001{margin-left:auto}
+}
 body.feed-page .feed-post-media{margin-top:13px;overflow:hidden;border-radius:12px;background:#f5f7fc}
 body.feed-page .feed-post-media-image,
 body.feed-page .feed-post-media-video{
