@@ -467,7 +467,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
   avatarMenu.hidden=!hasStory;
   storyButton.hidden=!hasStory;
   photoButton.hidden=!hasPhoto;
-  deleteStoryButton.hidden=!hasStory||!isMine;
+  deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;
   avatarTrigger.disabled=!hasPhoto&&!hasStory;
   avatarTrigger.setAttribute("aria-haspopup",hasStory?"menu":"false");
   avatarTrigger.setAttribute("aria-label",hasStory?
