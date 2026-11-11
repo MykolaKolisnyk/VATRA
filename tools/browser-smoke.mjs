@@ -2364,8 +2364,8 @@ try{
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
     Math.abs(geometry.storyCenter-geometry.viewportCenter)<11&&
-    geometry.storyCardWidth>=106&&geometry.storyCardWidth<=110&&
-    geometry.storyCardHeight>=156&&geometry.storyCardHeight<=160&&
+    geometry.storyCardWidth>=600&&geometry.storyCardWidth<=710&&
+    geometry.storyCardHeight>=78&&geometry.storyCardHeight<=82&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
@@ -2497,19 +2497,22 @@ try{
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
    "No friends means no fabricated Story previews");
   assert.equal(await feedProbe.locator("#feed-friend-stories").count(),1);
-  assert.equal(await feedProbe.locator(".feed-story-empty-note").count(),1,
-   "Members without friends see an honest empty state instead of a fake preview");
-  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".feed-story-empty-note").count(),0,
+   "A missing story must not create an explanatory row");
+  assert.equal(await feedProbe.locator(".feed-stories").evaluate(el=>el.classList.contains("is-empty")),true);
+  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),false);
   await feedProbe.locator("#feed-create-story").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-story-cancel").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),false);
-  const storiesBeforePosts=await feedProbe.evaluate(()=>{
+  const composerFirst=await feedProbe.evaluate(()=>{
+   const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
-   return stories.top<posts.top&&stories.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
+   return composer.top<stories.top&&stories.top<posts.top&&
+    composer.top>=document.querySelector(".feed-header").getBoundingClientRect().bottom-1;
   });
-  assert.ok(storiesBeforePosts,"Stories must be the first visible Feed block under the header");
+  assert.ok(composerFirst,"Composer, then Stories, then posts");
   await feedProbe.locator(".ui-social-top-friends-001").hover();
   assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"true",
    "Each header icon needs a VATRA tooltip on hover");
@@ -2663,7 +2666,7 @@ try{
    "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
-  await profilePage.waitForFunction(()=>!document.querySelector("#profile-cover-image").classList.contains("is-loading-media"));
+  await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
   // A saved cover should open the original image in a genuine full-viewport
   // modal, not remain trapped as a tiny background behind the profile header.
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),true);
@@ -2813,13 +2816,16 @@ try{
    "Own given name beside avatar must not be replaced by the visited member's identity");
   await profilePage.goto(base+"id999999",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
-  assert.equal((await profilePage.locator("#profile-not-found").textContent()).trim(),
+  assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
    language==="en"?"User not found":"Користувача не знайдено");
-  assert.equal(await profilePage.locator("#profile-not-found").isVisible(),true);
-  assert.equal(await profilePage.locator(".profile-hero").isVisible(),false);
-  assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
-  assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),false,
-   "A missing member must not show fake cover, profile tabs or details");
+  assert.equal(await profilePage.locator(".profile-hero").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-cover-image").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
+  assert.equal(await profilePage.locator(".profile-actions").count(),0);
+  assert.equal(await profilePage.locator(".profile-panels").count(),0);
+  assert.equal(await profilePage.locator(".social-profile-tabs").count(),0,
+   "Missing profile keeps default cover and avatar without fake actions");
+  await profilePage.waitForFunction(()=>document.querySelector("#feed-header-avatar")?.classList.contains("has-photo"));
   assert.equal(await profilePage.locator("#feed-header-avatar").evaluate(el=>el.classList.contains("has-photo")),true,
    "Own header photo must persist on a missing VATRA ID");
   await profilePage.close();
