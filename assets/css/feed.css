@@ -1587,3 +1587,23 @@ body.profile-page .ui-vatra-skeleton-post-001{max-width:700px;margin:0 auto}
 @media(prefers-reduced-motion:reduce){
  body.feed-page .vatra-skeleton-block{animation:none;background:#e8edf5}
 }
+
+/* VATRA account actions: clean, lightweight line symbols in soft neutral tiles. */
+body.feed-page .feed-account-dropdown > a,
+body.feed-page .feed-account-dropdown > button,
+body.feed-page .feed-menu-settings-toggle{gap:12px;min-height:49px;padding:8px 11px}
+body.feed-page .feed-account-dropdown > a > svg,
+body.feed-page .feed-account-dropdown > button > svg,
+body.feed-page .feed-menu-settings-toggle > svg{
+ width:33px;height:33px;flex:0 0 33px;
+ padding:7px;border-radius:10px;border:1px solid #e5ebf7;
+ background:#f2f5fc;color:#6980a5;
+ stroke-width:1.85;transition:background .18s,color .18s
+}
+body.feed-page .feed-account-dropdown > a:hover > svg,
+body.feed-page .feed-menu-settings-toggle:hover > svg{
+ background:#e7efff;color:#416fe1;border-color:#d4e2ff
+}
+body.feed-page #feed-logout > svg{
+ background:#fff3f6;color:#b75b70!important;border-color:#f9e5eb
+}
