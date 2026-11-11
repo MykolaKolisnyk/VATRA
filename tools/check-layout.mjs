@@ -1196,7 +1196,9 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile-details.js') &&
 const socialMotion=await read("assets/js/social-shell.js");
 assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
 assert.ok(
- feedStyle.includes("@view-transition{navigation:auto}") &&
+ !feedStyle.includes("@view-transition{navigation:auto}") &&
+ feedStyle.includes("body.feed-page.vatra-route-exiting .feed-app > .feed-layout") &&
+ socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
  feedStyle.includes("view-transition-name:vatra-social-header") &&
  feedStyle.includes("vatraRouteCrossfadeOut") &&
  feedStyle.includes("vatraRouteCrossfadeIn") &&
@@ -1206,7 +1208,7 @@ assert.ok(
  socialMotion.includes("window.VATRA_MOTION={reveal:revealSection}") &&
  profileScript.includes("window.VATRA_MOTION?.reveal(activePanel)") &&
  detailsModule.includes("document.startViewTransition(()=>showGroup(id))"),
- "VATRA routes and profile switches must fade smoothly while respecting reduced-motion settings");
+ "VATRA routes and profile switches must fade smoothly without GitHub Pages view-transition aborts");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
  assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
