@@ -879,6 +879,22 @@ for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js"
 // All authenticated social pages use exactly the same header shell. Only the
 // active route may differ; this guards against CSS/HTML drift between pages.
 const sharedShellPages=["feed","profile","communities","club","notifications"];
+const interactionsScript=await read("assets/js/post-interactions.js");
+const profileExtraScript=await read("assets/js/profile.js");
+const scrollRailScript=await read("assets/js/scroll-rail.js");
+assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
+ interactionsScript.includes('vatra-post-social-summary')&&
+ interactionsScript.includes('vatra-post-compact-comments')&&
+ interactionsScript.includes('vatra_post_recent_likers')&&
+ interactionsScript.includes('navigator.clipboard.writeText(permalink(post))')&&
+ profileExtraScript.includes('displaySavedMedia(article,post)')&&
+ profileExtraScript.includes('displaySavedMedia(article,item)')&&
+ profileExtraScript.includes('friendButton.dataset.friendState=')&&
+ scrollRailScript.includes('scrollTo({top:0')&&
+ (await read("feed.html")).includes('ui-feed-filter-heading-icon-001')&&
+ (await read("assets/css/feed.css")).includes('vatra-post-share-dialog')&&
+ (await read("assets/js/notifications.js")).includes('vatra-notification-avatar'),
+ "Social interactions, full post cards, branded filters and scroll rail must remain functional");
 const notificationMarkup=await read("notifications.html");
 const notificationScript=await read("assets/js/notifications.js");
 assert.ok(notificationMarkup.includes('data-page="notifications"')&&

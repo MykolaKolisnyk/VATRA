@@ -2480,7 +2480,7 @@ try{
    const panel=document.querySelector("#vatra-search-panel")?.getBoundingClientRect();
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
    const first=document.querySelector(".vatra-search-panel-header")?.getBoundingClientRect();
-   return panel&&header&&first&&panel.top>=header.bottom+4&&first.top>=header.bottom+4;
+   return panel&&header&&first&&Math.abs(panel.top-header.bottom)<=2&&first.top>=header.bottom;
   },null,{timeout:3500});
   const menuGeometry=await feedProbe.evaluate(()=>{
    const panel=document.querySelector("#vatra-search-panel");
@@ -2500,8 +2500,8 @@ try{
     headerZ:parseInt(getComputedStyle(document.querySelector(".feed-header")).zIndex),
     navigation};
   });
-  assert.ok(menuGeometry.top>=menuGeometry.headerBottom+5&&
-   menuGeometry.firstRowTop>=menuGeometry.headerBottom+5&&
+  assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
+   menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
    Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=5&&
    menuGeometry.panelZ<menuGeometry.headerZ,
    "Search must open under its input, not centred on the header: "+JSON.stringify(menuGeometry));
@@ -2634,7 +2634,7 @@ try{
   },null,{timeout:3500});
   const mobileMenu=await checkAccountGeometry();
   assert.ok(Math.abs(mobileMenu.top-mobileMenu.headerBottom)<=2&&
-   Math.abs(mobileMenu.right-mobileMenu.headerRight)<=2&&
+   Math.abs(mobileMenu.right-mobileMenu.toggleRight)<=4&&
    mobileMenu.left>=-1&&mobileMenu.bottom<=mobileMenu.height+1,
    "Account menu must join the two-row mobile header too: "+JSON.stringify(mobileMenu));
   await feedProbe.setViewportSize(savedViewport);
