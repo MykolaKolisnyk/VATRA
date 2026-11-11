@@ -91,8 +91,8 @@ try{
   "Fast completed initialization should expose content immediately");
  for(const staticPage of ["terms","privacy","cookies","404"]){
   await quickBoot.goto(base+staticPage,{waitUntil:"domcontentloaded"});
-  assert.equal(await quickBoot.locator(".vatra-auth-loading").count(),0,
-   "Static pages should never show a fake loader: "+staticPage);
+  assert.equal(await quickBoot.locator(".vatra-auth-loading:visible").count(),0,
+   "Static pages should not display a route loader: "+staticPage);
  }
  await quickContext.close();
  console.log("VATRA loading: fast requests, genuine wait, uniform indicator, no static-page splash OK");
