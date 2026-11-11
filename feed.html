@@ -16,8 +16,10 @@
  <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
  <link rel="stylesheet" href="assets/css/auth.css">
  <link rel="stylesheet" href="assets/css/feed.css">
+ <link rel="stylesheet" href="assets/css/onboarding.css">
  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
  <script defer src="assets/js/feed.js"></script>
+ <script defer src="assets/js/onboarding.js"></script>
  <script defer src="assets/js/network.js"></script>
  <script defer src="assets/js/social-shell.js"></script>
  <meta name="application-name" content="VATRA">
@@ -126,6 +128,24 @@
      <span id="feed-composer-avatar" class="feed-avatar feed-composer-avatar vt-feed-composer-avatar-001" aria-hidden="true">V</span>
      <button type="button" id="feed-compose-open" class="feed-compose-open vt-feed-compose-open-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
     </section>
+    <section id="vatra-welcome-tasks" class="vatra-welcome-tasks ui-vatra-welcome-tasks-001" aria-labelledby="vatra-tasks-heading" hidden>
+     <div class="vatra-tasks-top ui-vatra-tasks-top-001">
+      <div class="vatra-tasks-intro ui-vatra-tasks-intro-001">
+       <h2 id="vatra-tasks-heading" class="vt-vatra-tasks-heading-001">Перші кроки у VATRA</h2>
+       <p id="vatra-tasks-count" class="vt-vatra-tasks-count-001" aria-live="polite">1 із 5 виконано</p>
+      </div>
+      <button id="vatra-tasks-tour" class="vt-vatra-tasks-tour-001" type="button">Як працює VATRA?</button>
+      <button id="vatra-tasks-toggle" class="vt-vatra-tasks-toggle-001" type="button" aria-controls="vatra-tasks-list" aria-expanded="true" aria-label="Згорнути завдання">−</button>
+     </div>
+     <div id="vatra-tasks-progress" class="vatra-tasks-progress ui-vatra-tasks-progress-001" role="progressbar" aria-label="Завдання для нового акаунта" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1"><span id="vatra-tasks-progress-fill" class="ui-vatra-tasks-progress-fill-001"></span></div>
+     <ol id="vatra-tasks-list" class="vatra-tasks-list ui-vatra-tasks-list-001">
+      <li id="vatra-task-registration" class="vatra-task-row ui-vatra-task-registration-001"><span class="vatra-task-status vt-vatra-task-registration-status-001" aria-hidden="true">✓</span><span class="vatra-task-name vt-vatra-task-registration-name-001">Реєстрація пройдено!</span></li>
+      <li id="vatra-task-avatar" class="vatra-task-row ui-vatra-task-avatar-001"><span class="vatra-task-status vt-vatra-task-avatar-status-001" aria-hidden="true">2</span><span class="vatra-task-name vt-vatra-task-avatar-name-001">Поставити фото профілю</span><button class="vatra-task-action vt-vatra-task-avatar-action-001" type="button" data-vatra-task="avatar">Додати</button></li>
+      <li id="vatra-task-cover" class="vatra-task-row ui-vatra-task-cover-001"><span class="vatra-task-status vt-vatra-task-cover-status-001" aria-hidden="true">3</span><span class="vatra-task-name vt-vatra-task-cover-name-001">Поставити обкладинку</span><button class="vatra-task-action vt-vatra-task-cover-action-001" type="button" data-vatra-task="cover">Додати</button></li>
+      <li id="vatra-task-friends" class="vatra-task-row ui-vatra-task-friends-001"><span class="vatra-task-status vt-vatra-task-friends-status-001" aria-hidden="true">4</span><span class="vatra-task-name vt-vatra-task-friends-name-001">Знайти друзів</span><button class="vatra-task-action vt-vatra-task-friends-action-001" type="button" data-vatra-task="friends">Знайти</button></li>
+      <li id="vatra-task-first-post" class="vatra-task-row ui-vatra-task-first-post-001"><span class="vatra-task-status vt-vatra-task-first-post-status-001" aria-hidden="true">5</span><span class="vatra-task-name vt-vatra-task-first-post-name-001">Додати першу публікацію</span><button class="vatra-task-action vt-vatra-task-first-post-action-001" type="button" data-vatra-task="post">Написати</button></li>
+     </ol>
+    </section>
     <p id="feed-status" class="feed-status vt-feed-status-001" role="status" aria-live="polite" hidden></p>
     <section class="feed-posts-section ui-feed-posts-section-001" aria-labelledby="feed-posts-title">
      <div class="feed-posts-heading ui-feed-posts-heading-001"><h2 id="feed-posts-title" class="feed-posts-title vt-feed-posts-title-001" data-i18n="n17">Публікації</h2><span class="feed-posts-label vt-feed-posts-label-001" data-i18n="n36">Найновіші</span></div>
@@ -136,6 +156,35 @@
    </main>
    
   </div>
+  <dialog id="vatra-tour-dialog" class="vatra-tour-dialog ui-vatra-tour-dialog-001" aria-labelledby="vatra-tour-heading" aria-describedby="vatra-tour-description">
+   <div class="vatra-tour-top ui-vatra-tour-top-001">
+    <div class="vatra-tour-heading-wrap ui-vatra-tour-heading-wrap-001"><span class="vatra-tour-kicker vt-vatra-tour-kicker-001">Знайомство з VATRA</span><h2 id="vatra-tour-heading" class="vt-vatra-tour-heading-001">Ласкаво просимо!</h2></div>
+    <button id="vatra-tour-close" class="vt-vatra-tour-close-001" type="button" aria-label="Пропустити навчання">×</button>
+   </div>
+   <p id="vatra-tour-description" class="vt-vatra-tour-description-001">Розберімося, як працює ваша нова соціальна мережа.</p>
+   <div id="vatra-tour-icon" class="vatra-tour-icon ui-vatra-tour-icon-001" aria-hidden="true">✦</div>
+   <p id="vatra-tour-hint" class="vt-vatra-tour-hint-001"></p>
+   <div class="vatra-tour-footer ui-vatra-tour-footer-001">
+    <span id="vatra-tour-step" class="vt-vatra-tour-step-001">1 / 13</span>
+    <div class="vatra-tour-actions ui-vatra-tour-actions-001">
+     <button id="vatra-tour-skip" class="vt-vatra-tour-skip-001" type="button">Пропустити</button>
+     <button id="vatra-tour-back" class="vt-vatra-tour-back-001" type="button" hidden>Назад</button>
+     <button id="vatra-tour-next" class="vt-vatra-tour-next-001" type="button">Далі</button>
+    </div>
+   </div>
+  </dialog>
+  <dialog id="vatra-find-friends-dialog" class="vatra-find-friends-dialog ui-vatra-find-friends-dialog-001" aria-labelledby="vatra-find-friends-heading">
+   <form id="vatra-find-friends-form" class="ui-vatra-find-friends-form-001">
+    <h2 id="vatra-find-friends-heading" class="vt-vatra-find-friends-heading-001">Знайти друга</h2>
+    <p class="vt-vatra-find-friends-description-001">Введіть VATRA ID друга, щоб відкрити його профіль і надіслати заявку.</p>
+    <label for="vatra-find-friends-id" class="vt-vatra-find-friends-label-001">VATRA ID</label>
+    <input id="vatra-find-friends-id" class="ui-vatra-find-friends-id-001" inputmode="numeric" pattern="[1-9][0-9]{0,18}" autocomplete="off" required placeholder="Наприклад: 2">
+    <div class="vatra-find-friends-actions ui-vatra-find-friends-actions-001">
+     <button id="vatra-find-friends-cancel" class="vt-vatra-find-friends-cancel-001" type="button">Скасувати</button>
+     <button id="vatra-find-friends-go" class="vt-vatra-find-friends-go-001" type="submit">Відкрити профіль</button>
+    </div>
+   </form>
+  </dialog>
   <dialog id="feed-compose-dialog" class="feed-compose-dialog ui-feed-compose-dialog-001" aria-labelledby="feed-compose-title">
    <form id="feed-compose-form" class="ui-feed-compose-form-001">
     <h2 id="feed-compose-title" class="vt-feed-compose-title-001" data-social-uk="Нова публікація" data-social-en="New post">Нова публікація</h2>
