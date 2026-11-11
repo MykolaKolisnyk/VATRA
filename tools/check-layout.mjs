@@ -904,7 +904,7 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
  (await read("assets/js/profile.js")).includes('q(".social-profile-tabs")?.remove()')&&
  (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
- (await read("assets/js/profile.js")).includes('void loadOwnHeaderAvatar(client,ownId);'),
+ (await read("assets/js/profile.js")).includes('void loadOwnHeaderAvatar(client,ownId,user.email);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
 assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
@@ -1086,7 +1086,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories()])')&&
  feedScript.includes('posts.append(card)')&&
- profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id)')&&
+ profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email)')&&
  profileScript.includes('void loadPosts(client,targetId)')&&
  profileScript.includes('setImage(postAvatar,photoURLs.avatar)')&&
  memberProfileMarkup.includes('id="profile-avatar-engagement"'),
