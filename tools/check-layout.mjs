@@ -882,7 +882,7 @@ const normalizedSocialHeader=html=>{
  return header.replace(/ social-top-active/g,"").replace(/ aria-current="page"/g,"");
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
-const profileMarkup=await read("profile.html");
+/* profileMarkup already loaded during the footer audit. */
 assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===5&&
  (profileMarkup.match(/data-profile-panel="/g)||[]).length===5&&
  profileMarkup.includes('id="profile-friend-button"')&&
@@ -896,13 +896,13 @@ assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
  !(await read("register.html")).includes('data-i18n="n501"')&&
  (await read("privacy.html")).includes("Ім’я та прізвище, вказані під час реєстрації"),
  "Registered first and last name must appear automatically without a second name setup");
-assert.ok(profileMarkup.includes('id="profile-not-found"')&&
+assert.ok(profileMarkup.includes('id="profile-heading"')&&
+ !profileMarkup.includes('id="profile-not-found"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
- !profileMarkup.includes('id="profile-not-found" class="profile-not-found vt-profile-not-found-001" hidden>Профіль не знайдено')&&
- (await read("assets/js/profile.js")).includes('q(".profile-hero")?.remove()')&&
+ (await read("assets/js/profile.js")).includes('q(".social-profile-tabs")?.remove()')&&
  (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
- (await read("assets/js/profile.js")).includes('await loadOwnHeaderAvatar(client,ownId);'),
- "Unknown VATRA ID displays only User not found, while retaining the owner's header photo");
+ (await read("assets/js/profile.js")).includes('void loadOwnHeaderAvatar(client,ownId);'),
+ "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
 assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
  profileBehavior.includes('client.from("vatra_direct_messages")')&&
@@ -1047,7 +1047,9 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  !memberProfileMarkup.includes('class="feed-sidebar ui-feed-sidebar-001"')&&
  feedMarkup.includes('id="feed-posts"')&&
  feedMarkup.includes('id="feed-delete-dialog"')&&
- feedMarkup.indexOf('class="feed-stories ui-feed-stories-001"')<
+ feedMarkup.indexOf('class="feed-quick-compose ui-feed-quick-compose-001"')<
+ feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')&&
+ feedMarkup.indexOf('class="feed-stories is-empty ui-feed-stories-001"')<
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')&&
  memberProfileMarkup.includes('id="profile-compose-dialog"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
@@ -1057,10 +1059,11 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
- "VATRA Feed must show real Stories and post composer before personalized posts");
+ "VATRA Feed must render the composer before real Stories and personalized posts");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
  feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .feed-post-placeholder{')&&
- feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
+ !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
+ feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories()])')&&
  feedScript.includes('posts.append(card)')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id)')&&
