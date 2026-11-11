@@ -2670,6 +2670,11 @@ try{
    "Skipping the walkthrough must close the modal");
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
+  // The public cover is a real image now; serve a deterministic pixel in mocks.
+  await profilePage.route("**/storage/v1/object/public/vatra-covers/**",route=>route.fulfill({
+   status:200,contentType:"image/gif",
+   body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
+  }));
   if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
   await profilePage.goto(base+"profile",{waitUntil:"domcontentloaded"});
@@ -2725,24 +2730,26 @@ try{
   });
   assert.ok(Math.abs(profileCoverGap)<=2,
    "Member cover must begin directly below the header without a top gap: "+profileCoverGap);
+  await profilePage.waitForFunction(()=>document.querySelector("#profile-cover-image")?.classList.contains("has-photo"));
   const coverArtwork=await profilePage.evaluate(()=>{
    const cover=document.querySelector("#profile-cover-image");
+   const photo=document.querySelector("#profile-cover-photo");
    const motif=cover.querySelector(".profile-cover-motif");
    const label=cover.querySelector(".profile-cover-signature");
-   cover.classList.add("has-photo");
-   const state={
+   return {
     before:getComputedStyle(cover,"::before").display,
     after:getComputedStyle(cover,"::after").display,
     motif:getComputedStyle(motif).display,
     signature:getComputedStyle(label).display,
-    repeat:getComputedStyle(cover).backgroundRepeat
+    photoFit:getComputedStyle(photo).objectFit,
+    photoFilter:getComputedStyle(photo).filter,
+    imageLoaded:photo.complete&&photo.naturalWidth>0&&!photo.hidden
    };
-   cover.classList.remove("has-photo");
-   return state;
   });
   assert.deepEqual(coverArtwork,{
-   before:"none",after:"none",motif:"none",signature:"none",repeat:"no-repeat"
-  },"Uploaded member cover must replace all default VATRA artwork, without image tiling");
+   before:"none",after:"none",motif:"none",signature:"none",
+   photoFit:"cover",photoFilter:"none",imageLoaded:true
+  },"Uploaded member cover must be a crisp rectangular image without decorative layers");
   if(language==="uk")assertStableHeader(await navCenters(profilePage),"Profile");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
   assert.equal(await profilePage.locator(".feed-sidebar").count(),0,
