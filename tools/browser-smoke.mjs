@@ -2342,8 +2342,11 @@ try{
    "Obsolete sidebar controls must not remain in the DOM");
   assert.equal(await feedProbe.locator(".social-right-panel").count(),0);
   assert.equal(await feedProbe.locator("#feed-community-list").count(),0);
-  assert.equal(await feedProbe.locator(".feed-composer").count(),0,
-   "The Feed must have no publishing form; posts are created on one's own profile");
+  assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
+   "Members can create a post from their Feed");
+  await feedProbe.locator("#feed-compose-open").click();
+  assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
+  await feedProbe.locator("#feed-compose-cancel").click();
   assert.ok((await feedProbe.locator(".ui-social-top-communities-001").getAttribute("href")).endsWith("/VATRA/communities"));
   assert.equal(await feedProbe.locator("#feed-search-input").count(),1);
   assert.equal(await feedProbe.locator(".ui-feed-music-button-001").count(),1);
@@ -2413,18 +2416,14 @@ try{
    "Escape closes the VATRA search menu");
 
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
-  assert.equal(await feedProbe.locator(".feed-story-preview").count(),3,
-   "At most four Stories including Your Story: three illustrated previews");
-  assert.equal(await feedProbe.locator(".feed-story-create:disabled").count(),0,
-   "Create Story should explain its status when clicked, not be a dead control");
-  assert.equal(await feedProbe.locator(".vt-feed-stories-tag").count(),0,
-   "Never label the Stories interface as a mock");
-  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),true,
-   "Create Story must show the VATRA symbol, not a blank card");
-  await feedProbe.locator(".feed-story-preview").first().click();
-  assert.equal(await feedProbe.locator(".vatra-story-dialog").evaluate(el=>el.open),true);
-  await feedProbe.locator(".vatra-story-close").click();
-  assert.equal(await feedProbe.locator(".vatra-story-dialog").evaluate(el=>el.open),false);
+  assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
+   "No friends means no fabricated Story previews");
+  assert.equal(await feedProbe.locator("#feed-friend-stories").count(),1);
+  assert.equal(await feedProbe.locator(".ui-feed-story-logo-001").isVisible(),true);
+  await feedProbe.locator("#feed-create-story").click();
+  assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true);
+  await feedProbe.locator("#feed-story-cancel").click();
+  assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),false);
   const storiesBeforePosts=await feedProbe.evaluate(()=>{
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
@@ -2595,7 +2594,7 @@ try{
    "Opening /idN must never navigate through an intermediate /profile URL: "+JSON.stringify(profileNavigations));
   assert.equal((await profilePage.locator("#profile-vatra-id").textContent()).trim(),"VATRA ID 789012");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
-   language==="en"?"VATRA member":"Учасник VATRA");
+   language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),true,
