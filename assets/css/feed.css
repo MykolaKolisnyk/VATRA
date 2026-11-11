@@ -1178,6 +1178,9 @@ body.feed-page .vt-feed-story-create-label{margin-top:auto;padding:0 5px 10px;co
 
 
 
+/* Let the avatar's hover menu extend beneath the profile hero without clipping.
+   The cover itself retains overflow:hidden, so its rounded area stays intact. */
+body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}
 /* Profile media viewer and story-aware avatar. No changes to other sections. */
 body.profile-page .profile-cover-view{
  position:absolute;inset:0;z-index:2;display:block;width:100%;height:100%;
