@@ -2259,6 +2259,11 @@ try{
       window.__profileVisibility=row.profile_visibility;
       return {data:{profile_visibility:window.__profileVisibility},error:null};
      }})})}:
+    table==="vatra_friendships"?
+    {select:()=>({or(){return this;},eq(){return this;},
+     limit:async()=>({data:[],error:null})}),
+     insert:async()=>({error:null}),
+     delete:()=>({eq:async()=>({error:null})})}:
     table==="vatra_profile_details"?
     {select:()=>({eq:async()=>({data:window.__profileDetailRows,error:null})}),
      upsert:rows=>({select:async()=>{
