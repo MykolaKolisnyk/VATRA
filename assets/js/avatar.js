@@ -97,10 +97,13 @@ function paintHeader(entry,validate=true){
  if(!face.classList.contains("has-photo"))face.textContent=entry.initials||"V";
  const safe=safeUrl(entry.avatarUrl);
  if(!safe)return;
- // Keep the already cached photo in place while verifying it in the background.
  if(face.dataset.vatraHeaderUrl===safe&&face.classList.contains("has-photo"))return;
- const previous=face.dataset.vatraHeaderUrl;
  face.dataset.vatraHeaderUrl=safe;
+ // The URL is safe and was confirmed during the previous page. Applying it
+ // synchronously is essential: a new page must not paint the silhouette while
+ // waiting for another image.onload event. Browser cache handles the pixels.
+ face.style.backgroundImage="url("+JSON.stringify(safe)+")";
+ face.classList.add("has-photo");face.textContent="";
  const photo=new Image();
  photo.onload=()=>{
   if(!face.isConnected||face.dataset.vatraHeaderUrl!==safe)return;
@@ -118,7 +121,17 @@ function paintHeader(entry,validate=true){
 }
 function primeHeader(){
  const entry=headerRead();
- if(entry&&document.body?.classList.contains("feed-page"))paintHeader(entry,false);
+ if(entry&&document.body?.classList.contains("feed-page"))paintHeader(entry,true);
+}
+// Preload the last verified portrait while HTML is being parsed, ahead of the
+// route's authentication and media queries. This does not reveal auth data.
+const previousHeader=headerRead();
+const cachedPhoto=safeUrl(previousHeader?.avatarUrl);
+if(cachedPhoto&&document.head){
+ const preload=document.createElement("link");
+ preload.rel="preload";preload.as="image";preload.href=cachedPhoto;
+ preload.className="ui-vatra-header-photo-preload-001";
+ document.head.append(preload);
 }
 function setHeader({email,name,initials,id}){
  if(!email){
