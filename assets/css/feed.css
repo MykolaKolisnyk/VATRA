@@ -3264,6 +3264,8 @@ body.profile-page [class^="vt-profile-information-label-"]{
  overflow-wrap:anywhere
 }
 body.profile-page [class^="vt-profile-information-value-"]{
+ display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ overflow:hidden;min-width:0;
  color:#364764;font:680 12.5px/1.5 "Onest",system-ui,sans-serif;
  white-space:pre-line;overflow-wrap:anywhere
 }
@@ -3510,7 +3512,7 @@ body.profile-page .profile-editor-field:focus-within{
  border-color:#bfd0f4;box-shadow:0 4px 15px rgba(53,100,195,.055)
 }
 body.profile-page .profile-editor-field[data-long="true"]{grid-column:1/-1}
-body.profile-page [class^="vt-profile-editor-label-"]{
+body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"]{
  display:block;margin:0;padding:0;color:#40516f;
  font:755 13.5px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.015em
 }
