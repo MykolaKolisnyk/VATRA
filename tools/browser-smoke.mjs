@@ -2043,6 +2043,8 @@ try{
    },
    from:table=>table==="feed_posts"?
     {select:()=>({order(){return this;},range:async()=>({data:[],error:null})})}:
+    table==="vatra_onboarding"?
+    {select:()=>({eq:()=>({maybeSingle:async()=>({data:{tutorial_done:true},error:null})})})}:
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:112233},error:null})})})}
   })};`
  }));
