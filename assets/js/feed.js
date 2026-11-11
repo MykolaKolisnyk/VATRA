@@ -477,9 +477,6 @@
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
    document.body.classList.remove("vatra-shell-pending");
-   // Start the optional tutorial without holding the whole screen hostage.
-   void Promise.resolve(window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})).catch(()=>{});
-   document.dispatchEvent(new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}}));
    void Promise.allSettled([loadPosts(true),loadStories()]);
   }catch(_){
    if(document.body.dataset.authReady==="true"){
