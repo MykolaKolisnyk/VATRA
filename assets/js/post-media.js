@@ -172,44 +172,78 @@
  async function mount(client,post,container){
   const kind=post?.media_kind,path=post?.media_path,id=post?.author_vatra_id;
   if(!["image","video"].includes(kind)||!name(path,kind,id)||!container)return;
-  const slot=document.createElement("div");slot.className="feed-post-media ui-feed-post-media-001";
-  container.append(slot);
-  try{
-   const src=await signed(client,kind,path);
+  const slot=document.createElement("div");
+  slot.className="feed-post-media ui-feed-post-media-001 is-loading-media";
+  const placeholder=document.createElement("span");
+  placeholder.className="vatra-post-media-placeholder ui-vatra-post-media-placeholder-001";
+  placeholder.setAttribute("aria-hidden","true");
+  slot.append(placeholder);container.append(slot);
+  const priority=++firstImages;
+  let begun=false;
+  async function load(){
+   if(begun)return;begun=true;
+   try{
+    const src=await signed(client,kind,path);
+    if(!slot.isConnected)return;
+    if(kind==="image"){
+     // Decode outside the DOM: never show half-loaded pixels or a black slab.
+     const image=new Image();
+     image.className="feed-post-media-image ui-feed-post-media-image-001";
+     image.alt=tr("Фото до публікації","Post photo");
+     image.decoding="async";image.loading="eager";
+     if(priority<=2)image.fetchPriority="high";
+     image.src=src;
+     if(typeof image.decode==="function"){
+      try{await image.decode();}catch(_){
+       if(!image.complete||!image.naturalWidth)throw Error("Image unavailable");
+      }
+     }else await new Promise((resolve,reject)=>{
+      if(image.complete)return image.naturalWidth?resolve():reject(Error("Invalid image"));
+      image.addEventListener("load",resolve,{once:true});
+      image.addEventListener("error",()=>reject(Error("Image unavailable")),{once:true});
+     });
+     if(!slot.isConnected)return;
+     const frame=document.createElement("button");
+     frame.className="vt-feed-post-media-open-001";frame.type="button";
+     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
+     frame.addEventListener("click",()=>openFullMedia(src,"image"));
+     frame.append(image);
+     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
+     slot.classList.add("is-ready-media");
+    }else{
+     const video=document.createElement("video");
+     video.className="feed-post-media-video ui-feed-post-media-video-001";
+     video.controls=true;video.preload="metadata";video.playsInline=true;
+     video.src=src;
+     const expand=document.createElement("button");expand.type="button";
+     expand.className="vt-feed-post-video-expand-001";
+     expand.textContent=tr("На весь екран","Fullscreen");
+     expand.addEventListener("click",()=>openFullMedia(src,"video"));
+     const reveal=()=>{
+      if(!slot.isConnected)return;
+      slot.replaceChildren(video,expand);
+      slot.classList.remove("is-loading-media");slot.classList.add("is-ready-media");
+     };
+     if(video.readyState>=1)reveal();
+     else video.addEventListener("loadedmetadata",reveal,{once:true});
+     video.addEventListener("error",()=>failure(tr("Відео недоступне.","Video unavailable.")),{once:true});
+    }
+   }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
+  }
+  function failure(message){
    if(!slot.isConnected)return;
-   const el=document.createElement(kind==="image"?"img":"video");
-   el.className=kind==="image"?"feed-post-media-image ui-feed-post-media-image-001":
-    "feed-post-media-video ui-feed-post-media-video-001";
-   if(kind==="image"){
-    el.alt=tr("Фото до публікації","Post photo");
-    el.loading=firstImages++<2?"eager":"lazy";el.decoding="async";
-    if(firstImages<=2)el.fetchPriority="high";
-    el.addEventListener("error",()=>{
-     if(slot.isConnected){
-      const note=document.createElement("p");note.className="vt-feed-post-media-error-001";
-      note.textContent=tr("Фото недоступне.","Photo unavailable.");
-      slot.replaceChildren(note);
-     }
-    },{once:true});
-    const open=document.createElement("button");
-    open.className="vt-feed-post-media-open-001";open.type="button";
-    open.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    open.addEventListener("click",()=>openFullMedia(src,"image"));
-    open.append(el);el.src=src;slot.replaceChildren(open);
-   }else{
-    el.controls=true;el.preload="metadata";el.playsInline=true;el.src=src;
-    const expand=document.createElement("button");expand.type="button";
-    expand.className="vt-feed-post-video-expand-001";
-    expand.textContent=tr("На весь екран","Fullscreen");
-    expand.addEventListener("click",()=>openFullMedia(src,"video"));
-    slot.replaceChildren(el,expand);
-   }
-  }catch(_){
-   if(slot.isConnected){
-    const notice=document.createElement("p");notice.className="vt-feed-post-media-error-001";
-    notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
-    slot.replaceChildren(notice);
-   }
+   slot.classList.remove("is-loading-media");
+   const notice=document.createElement("p");
+   notice.className="vt-feed-post-media-error-001";notice.textContent=message;
+   slot.replaceChildren(notice);
+  }
+  // Off-screen media should not compete for bandwidth with the visible Feed.
+  if(priority<=2||typeof IntersectionObserver==="undefined")void load();
+  else{
+   const observer=new IntersectionObserver(entries=>{
+    if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();void load();}
+   },{rootMargin:"440px 0px",threshold:0});
+   observer.observe(slot);
   }
  }
  window.VATRA_POST_MEDIA={bindPicker,upload,remove,mount,linkifyHashtags,collapsibleBody};

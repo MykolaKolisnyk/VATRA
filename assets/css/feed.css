@@ -3110,3 +3110,32 @@ body.profile-page .ui-vatra-profile-realistic-skeleton-001 .ui-vatra-skeleton-po
  body.profile-page .ui-vatra-skeleton-actions-001{grid-column:1/-1;padding:0}
  body.profile-page .ui-vatra-skeleton-body-001{grid-template-columns:1fr;padding:16px 0}
 }
+
+/* Seamless, bandwidth-aware post media; never flash a half-downloaded photo. */
+body.feed-page .feed-post-media.is-loading-media{
+ display:flex;align-items:stretch;justify-content:center;
+ width:100%;min-height:clamp(160px,27vw,350px);background:#eef2f9;
+ border-radius:13px;overflow:hidden;isolation:isolate
+}
+body.feed-page .vatra-post-media-placeholder{
+ display:block;width:100%;min-height:inherit;
+ background:linear-gradient(105deg,#e9eef7 16%,#f9fbff 48%,#e9eef7 80%);
+ background-size:230% 100%;animation:vatraSkeletonShift 1.9s ease-in-out infinite
+}
+body.feed-page .feed-post-media.is-ready-media{background:#f8faff;border:1px solid #ecf0f8}
+body.feed-page .feed-post-media .vt-feed-post-media-open-001{
+ display:block;width:100%;max-width:100%;padding:0;border:0;
+ border-radius:12px;background:#f8faff;cursor:zoom-in;overflow:hidden
+}
+body.feed-page .feed-post-media .feed-post-media-image{
+ display:block;width:100%;height:auto;max-height:650px;object-fit:contain;
+ border-radius:12px;background:#f8faff;filter:none;
+ animation:vatraMediaReveal .28s ease both
+}
+body.feed-page .feed-post-media .feed-post-media-video{
+ display:block;width:100%;max-height:650px;object-fit:contain;border-radius:12px
+}
+@keyframes vatraMediaReveal{from{opacity:.4}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+ body.feed-page .vatra-post-media-placeholder,body.feed-page .feed-post-media .feed-post-media-image{animation:none!important}
+}
