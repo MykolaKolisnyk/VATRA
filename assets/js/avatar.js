@@ -115,6 +115,10 @@ function paintHeader(entry,validate=true){
   face.classList.remove("has-photo");face.style.removeProperty("background-image");
   face.textContent=entry.initials||"V";
   face.dataset.vatraHeaderUrl="";
+  const latest=headerRead();
+  if(latest&&latest.avatarUrl===safe){
+   latest.avatarUrl=null;saveHeader(latest);
+  }
   if(validate)cache(entry.email,null);
  };
  photo.src=safe;
@@ -151,7 +155,7 @@ function setHeader({email,name,initials,id}){
   name:String(name||"VATRA").slice(0,32),initials:String(initials||"V").slice(0,3),
   id:id?String(id):"",avatarUrl:matching?current.avatarUrl:null};
  const verified=getRemembered(email);
- if(verified)entry.avatarUrl=verified;
+ if(verified&&!entry.avatarUrl)entry.avatarUrl=verified;
  saveHeader(entry);paintHeader(entry);
 }
 function clearHeader(activeEmail){
@@ -165,6 +169,12 @@ function applyRemembered(element,email){
  if(!element)return;
  const url=getRemembered(email);
  if(!url)return;
+ const active=headerRead();
+ // A remembered-account picture may be older than the photo verified during
+ // this tab's previous page. Never let its delayed onload overwrite the newer one.
+ if(element.id==="feed-header-avatar"&&active&&
+  emailKey(active.email)===emailKey(email)&&safeUrl(active.avatarUrl)&&
+  safeUrl(active.avatarUrl)!==url)return;
  if(element.dataset.vatraHeaderUrl===url&&element.classList.contains("has-photo"))return;
  const picture=new Image();
  picture.onload=()=>{
