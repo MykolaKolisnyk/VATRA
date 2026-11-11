@@ -132,7 +132,11 @@ async function loadPosts(client,targetId){
    }
    header.append(avatar,identity);
    article.append(header);
-   if(post.body)article.append(node("p","feed-post-body vt-profile-post-body-001",post.body));
+   if(post.body){
+     const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
+     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
+     article.append(body);
+    }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
    list.append(article);
   }
