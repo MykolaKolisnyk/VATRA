@@ -141,6 +141,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     const body=node("p","feed-post-body vt-profile-post-body-001",post.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);
     article.append(body);
+    window.VATRA_POST_MEDIA?.collapsibleBody(body);
    }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
@@ -500,83 +501,43 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 
 
 function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
- const displayed=q("#profile-status"),statusText=q("#profile-status-text"),open=q("#profile-edit-open");
+ const displayed=q("#profile-status"),statusText=q("#profile-status-text");
  let saved=String(initialStatus||"").slice(0,140);
- const display=()=>{
-  if(!displayed)return;
+ const render=()=>{
   statusText.textContent=saved||(isMine?t("Додайте статус","Add a status"):"");
   displayed.hidden=!saved&&!isMine;
   displayed.disabled=!isMine;
   displayed.classList.toggle("is-editable",isMine);
-  if(isMine)displayed.setAttribute("aria-label",t("Редагувати статус","Edit status"));
+  if(isMine)displayed.setAttribute("aria-label",t("Змінити статус","Edit status"));
  };
- display();
- if(!isMine||!open)return;
- const dialog=q("#profile-edit-dialog"),form=q("#profile-edit-form");
- const input=q("#profile-edit-status"),wording=q("#profile-edit-presence-form");
- const counter=q("#profile-edit-counter"),notice=q("#profile-edit-message");
- const save=q("#profile-edit-save");
- input.placeholder=t("Напишіть кілька слів про себе","Write a short profile status");
- open.hidden=false;
- const currentGrammar=window.VATRA_PRESENCE?.grammar(signupGender)||"neutral";
- wording.value=currentGrammar;
- for(const [selector,uk,en] of [
-  [".vt-profile-form-masculine-001","Заходив","Masculine (Ukrainian)"],
-  [".vt-profile-form-feminine-001","Заходила","Feminine (Ukrainian)"],
-  [".vt-profile-form-neutral-001","Були в мережі","Neutral (Ukrainian)"]
- ]){
-  const option=q(selector);
-  if(option)option.textContent=english?en:uk;
- }
- void window.VATRA_PRESENCE?.load(client,targetId).then(record=>{
-  if(record?.form&&["masculine","feminine","neutral"].includes(record.form))
-   wording.value=record.form;
- }).catch(()=>{});
- const show=(text,error=false)=>{
-  notice.textContent=text;notice.hidden=!text;notice.dataset.error=String(error);
- };
- const updateCounter=()=>{
-  counter.textContent=Array.from(input.value).length+" / 140";
- };
- input.addEventListener("input",updateCounter);
- const showEditor=()=>{
-  input.value=saved;updateCounter();show("");
-  if(!dialog.open)dialog.showModal();
-  input.focus();
- };
- open.addEventListener("click",showEditor);
- displayed.addEventListener("click",showEditor);
- q("#profile-edit-cancel").addEventListener("click",()=>dialog.close());
- form.addEventListener("submit",async event=>{
-  event.preventDefault();
-  if(save.disabled)return;
+ render();
+ if(!isMine)return;
+ const dialog=q("#profile-status-dialog"),input=q("#profile-status-input"),
+  count=q("#profile-status-counter"),save=q("#profile-status-save"),note=q("#profile-status-error");
+ input.placeholder=t("Напишіть статус","Write a status");
+ const counter=()=>{count.textContent=Array.from(input.value).length+" / 140";};
+ const openStatus=()=>{input.value=saved;counter();note.hidden=true;dialog.showModal();input.focus();};
+ displayed.addEventListener("click",openStatus);
+ input.addEventListener("input",counter);
+ q("#profile-status-cancel").addEventListener("click",()=>dialog.close());
+ q("#profile-status-form").addEventListener("submit",async event=>{
+  event.preventDefault();if(save.disabled)return;
   const next=input.value.trim();
-  if(Array.from(next).length>140){show(t("Статус надто довгий.","Status is too long."),true);return;}
-  save.disabled=true;show("");
+  if(Array.from(next).length>140){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
+  save.disabled=true;note.hidden=true;
   try{
-   const result=await client.from("vatra_public_profiles")
-    .update({status_text:next||null}).eq("vatra_id",targetId)
-    .select("status_text").maybeSingle();
-   if(result.error||!result.data)throw result.error||new Error("Status not persisted");
-   saved=String(result.data.status_text||"");display();
-   const choice=wording.value;
-   if(["masculine","feminine","neutral"].includes(choice)){
-    const formResult=await client.from("profile_presence").update({form:choice})
-     .eq("vatra_id",targetId).select("form").maybeSingle();
-    if(formResult.error||!formResult.data){
-     dialog.close();
-     const note=q("#profile-action-status");
-     if(note){note.textContent=t("Статус збережено, але форму останнього відвідування не оновлено.","Status saved; last-seen wording could not be updated.");note.hidden=false;}
-     return;
-    }
-   }
-   dialog.close();
-   show("");
-  }catch(_){
-   show(t("Не все вдалося зберегти. Спробуйте ще раз.",
-    "Some changes could not be saved. Please retry."),true);
-  }finally{save.disabled=false;}
+   const {data,error}=await client.from("vatra_public_profiles")
+    .update({status_text:next||null}).eq("vatra_id",targetId).select("status_text").maybeSingle();
+   if(error||!data)throw error||new Error("Not persisted");
+   saved=String(data.status_text||"");render();dialog.close();
+  }catch(_){note.textContent=t("Статус не збережено. Спробуйте ще раз.","Could not save status. Retry.");note.hidden=false;}
+  finally{save.disabled=false;}
  });
+ const edit=q("#profile-edit-open"),mediaDialog=q("#profile-edit-dialog");
+ edit.hidden=false;
+ edit.addEventListener("click",()=>mediaDialog.showModal());
+ q("#profile-edit-cancel").addEventListener("click",()=>mediaDialog.close());
+ q("#profile-edit-form").addEventListener("submit",event=>{event.preventDefault();mediaDialog.close();});
 }
 function setupProfilePresence(client,targetId,ownId,signupGender){
  const dot=q("#profile-online-dot"),caption=q("#profile-last-seen");
@@ -633,6 +594,15 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   el.style.backgroundImage="url("+JSON.stringify(url)+")";
   el.classList.add("has-photo");
  };
+ const resetImage=el=>{
+  el.classList.remove("has-photo");el.style.removeProperty("background-image");
+ };
+ const validPhoto=url=>new Promise(resolve=>{
+  const image=new Image();
+  image.onload=()=>resolve(true);
+  image.onerror=()=>resolve(false);
+  image.src=url;
+ });
  const closeAvatarMenu=()=>{
   avatarWrap.classList.remove("is-menu-open");
   avatarTrigger.setAttribute("aria-expanded","false");
@@ -915,19 +885,26 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   coverPhoto.hidden=true;
   if(photoURLs.cover)coverPhoto.src=photoURLs.cover;
   else coverPhoto.removeAttribute("src");
-  if(photoURLs.avatar){
-   setImage(avatar,photoURLs.avatar);avatar.textContent="";
-   // Posts may load before profile media; update their avatars after the
-   // photo arrives so the same post looks identical on the Feed and profile.
+  resetImage(avatar);
+  const fallback=(q("#profile-heading")?.textContent||"V").trim().split(/\s+/)
+   .map(word=>Array.from(word)[0]||"").slice(0,2).join("").toLocaleUpperCase()||"V";
+  avatar.textContent=fallback;
+  for(const postAvatar of document.querySelectorAll("#profile-posts .feed-post-avatar")){
+   resetImage(postAvatar);postAvatar.textContent=fallback;
+  }
+  const candidate=photoURLs.avatar;
+  if(candidate)void validPhoto(candidate).then(valid=>{
+   if(photoURLs.avatar!==candidate)return;
+   if(!valid){photoURLs.avatar=null;syncAvatarMenu();return;}
+   setImage(avatar,candidate);avatar.textContent="";
    for(const postAvatar of document.querySelectorAll("#profile-posts .feed-post-avatar")){
-    setImage(postAvatar,photoURLs.avatar);
-    postAvatar.textContent="";
+    setImage(postAvatar,candidate);postAvatar.textContent="";
    }
    if(isMine){
     const menuAvatar=q("#feed-header-avatar");
-    if(menuAvatar){setImage(menuAvatar,photoURLs.avatar);menuAvatar.textContent="";}
+    if(menuAvatar){setImage(menuAvatar,candidate);menuAvatar.textContent="";}
    }
-  }
+  });
   syncAvatarMenu();
  };
  try{
@@ -1021,9 +998,17 @@ async function loadOwnHeaderAvatar(client,ownId,email){
   if(parsed.protocol!=="https:"||parsed.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
   const el=q("#feed-header-avatar");
   if(!el)return;
-  el.style.backgroundImage="url("+JSON.stringify(url)+")";
-  el.classList.add("has-photo");
-  el.textContent="";
+  const check=new Image();
+  check.onload=()=>{
+   if(!el.isConnected)return;
+   el.style.backgroundImage="url("+JSON.stringify(url)+")";
+   el.classList.add("has-photo");el.textContent="";
+  };
+  check.onerror=()=>{
+   el.classList.remove("has-photo");el.style.removeProperty("background-image");
+   window.VATRA_AVATAR?.cache(email,null);
+  };
+  check.src=url;
  }catch(_){/* Use the normal initials avatar when the image is unavailable. */}
 }
 async function start(){

@@ -2239,3 +2239,52 @@ body.feed-page .feed-brand-search.vatra-search-active .feed-search-input{transfo
  body.feed-page .feed-header .feed-search-input,
  body.feed-page .feed-header-brand{transition:none!important}
 }
+
+/* Final profile/media and navigation refinements */
+body.feed-page .feed-header .feed-account-dropdown{
+ left:var(--vatra-account-dropdown-left,0px);right:auto;width:min(370px,calc(100vw - 20px));
+ border-radius:0 0 18px 18px;box-shadow:0 19px 48px rgba(28,44,80,.17)
+}
+body.feed-page .vatra-search-panel{
+ border-radius:15px;border:1px solid #e0e6f2;
+ box-shadow:0 17px 44px rgba(29,48,87,.2)
+}
+body.feed-page .feed-post-body + .vt-feed-post-read-more-001{
+ margin:7px 0 0;padding:4px 0;border:0;background:transparent;
+ color:#3268d8;font:690 13px/1.4 "Onest",system-ui,sans-serif;
+ cursor:pointer;transition:color .18s ease
+}
+body.feed-page .vt-feed-post-read-more-001:hover{text-decoration:underline;color:#2455b7}
+body.feed-page .feed-header-avatar:not(.has-photo),
+body.feed-page .feed-composer-avatar:not(.has-photo),
+body.feed-page .feed-post-avatar:not(.has-photo),
+body.feed-page .profile-avatar:not(.has-photo){
+ background-image:none;color:#46668c;font-size:inherit;
+ background-color:#edf2fa
+}
+body.profile-page .profile-avatar.has-photo{
+ background-size:cover;transition:background-size .3s ease,filter .3s ease
+}
+body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo,
+body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-photo{
+ background-size:112%;filter:brightness(.9)
+}
+body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{
+ transition:transform .38s cubic-bezier(.2,.8,.2,1),filter .38s ease
+}
+body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
+body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001{
+ transform:scale(1.035);filter:brightness(.9)
+}
+body.profile-page .profile-avatar-menu button{
+ display:flex;align-items:center;gap:10px;transition:background .2s,color .2s
+}
+body.profile-page .profile-avatar-menu button .ui-profile-avatar-menu-icon{
+ display:block;flex:none;width:19px;height:19px;color:#7185ab
+}
+body.profile-page .vt-profile-edit-media-help-001{
+ margin:0 0 8px;color:#75839b;font:510 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-status-counter-001{
+ align-self:flex-end;color:#8b98aa;font-size:11px
+}

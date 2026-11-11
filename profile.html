@@ -11,6 +11,7 @@
  <meta name="referrer" content="strict-origin-when-cross-origin">
  <meta name="description" content="Моя сторінка у VATRA.">
  <title>Моя сторінка · VATRA</title>
+ <link rel="preconnect" href="https://rjasunoawrxvetwadylh.supabase.co" crossorigin>
  <link rel="icon" type="image/svg+xml" href="assets/logo/vatra-app-icon.svg">
  <link rel="apple-touch-icon" href="assets/logo/vatra-app-icon.png">
  <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
@@ -202,18 +203,23 @@
      </section>
     </div>
    </main>
+   <dialog id="profile-status-dialog" class="profile-edit-dialog ui-profile-status-dialog-001" aria-labelledby="profile-status-dialog-heading">
+    <form id="profile-status-form" class="profile-edit-form ui-profile-status-form-001">
+     <h2 id="profile-status-dialog-heading" class="vt-profile-status-dialog-heading-001" data-social-uk="Статус" data-social-en="Status">Статус</h2>
+     <label for="profile-status-input" class="vt-profile-status-label-001" data-social-uk="Що у вас нового?" data-social-en="What's on your mind?">Що у вас нового?</label>
+     <textarea id="profile-status-input" class="ui-profile-edit-status-001" rows="3" maxlength="140" placeholder="Напишіть статус"></textarea>
+     <span id="profile-status-counter" class="vt-profile-status-counter-001">0 / 140</span>
+     <p id="profile-status-error" class="vt-profile-status-error-001" role="status" hidden></p>
+     <div class="profile-edit-buttons ui-profile-status-buttons-001">
+      <button id="profile-status-cancel" class="vt-profile-status-cancel-001" type="button" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
+      <button id="profile-status-save" class="vt-profile-status-save-001" type="submit" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button>
+     </div>
+    </form>
+   </dialog>
    <dialog id="profile-edit-dialog" class="profile-edit-dialog ui-profile-edit-dialog-001" aria-labelledby="profile-edit-heading">
     <form id="profile-edit-form" class="profile-edit-form ui-profile-edit-form-001">
      <h2 id="profile-edit-heading" class="vt-profile-edit-heading-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</h2>
-     <label class="vt-profile-edit-status-label-001" for="profile-edit-status" data-social-uk="Статус" data-social-en="Status">Статус</label>
-     <textarea id="profile-edit-status" class="ui-profile-edit-status-001" rows="3" maxlength="140" placeholder="Напишіть кілька слів про себе"></textarea>
-     <div id="profile-edit-counter" class="vt-profile-edit-counter-001">0 / 140</div>
-     <label class="vt-profile-edit-form-label-001" for="profile-edit-presence-form" data-social-uk="Відображення останнього відвідування" data-social-en="Ukrainian last seen wording">Відображення останнього відвідування</label>
-     <select id="profile-edit-presence-form" class="ui-profile-edit-presence-form-001">
-      <option value="masculine" class="vt-profile-form-masculine-001">Заходив</option>
-      <option value="feminine" class="vt-profile-form-feminine-001">Заходила</option>
-      <option value="neutral" class="vt-profile-form-neutral-001">Були в мережі</option>
-     </select>
+     <p class="vt-profile-edit-media-help-001" data-social-uk="Керуйте фотографією профілю та обкладинкою." data-social-en="Manage your profile photo and cover.">Керуйте фотографією профілю та обкладинкою.</p>
      <div class="profile-edit-media-actions ui-profile-edit-media-actions-001">
       <button type="button" id="profile-avatar-upload-button" class="profile-avatar-upload-button vt-profile-avatar-upload-button-001" data-social-uk="Змінити фото" data-social-en="Edit photo" hidden>Змінити фото</button>
       <button id="profile-cover-upload-button" class="profile-cover-upload-button vt-profile-cover-upload-button-001" type="button" data-social-uk="Змінити обкладинку" data-social-en="Edit cover" hidden>Змінити обкладинку</button>

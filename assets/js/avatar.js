@@ -58,7 +58,10 @@ function applyRemembered(element,email){
   element.classList.add("has-photo");
  };
  picture.onerror=()=>{
-  if(element.isConnected)element.classList.remove("has-photo");
+  if(!element.isConnected)return;
+  element.classList.remove("has-photo");
+  element.style.removeProperty("background-image");
+  cache(email,null);
  };
  picture.src=url;
 }

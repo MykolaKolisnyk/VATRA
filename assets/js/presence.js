@@ -27,7 +27,7 @@ function start(client,ownId,gender){
     .eq("vatra_id",ownId).maybeSingle();
    if(error)throw error;
    if(!data){
-    const result=await client.from(table).insert({vatra_id:ownId,form:grammar(gender)});
+    const result=await client.from(table).insert({vatra_id:ownId});
     if(result.error)throw result.error;
    }else await update();
    // No more than one write per two minutes while visible.

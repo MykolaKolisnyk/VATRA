@@ -66,9 +66,12 @@
    const viewHeight=vp?.height||innerHeight;
    const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
    const gapRight=menuBox.right-headerBox.right;
+   const width=Math.min(370,innerWidth-20);
+   const gapLeft=(innerWidth-width)/2-menuBox.left;
    const height=Math.max(0,viewTop+viewHeight-headerBox.bottom-8);
    dropdown.style.setProperty("--vatra-account-dropdown-top",Math.round(gapTop)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-right",Math.round(gapRight)+"px");
+   dropdown.style.setProperty("--vatra-account-dropdown-left",Math.round(gapLeft)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-height",Math.round(height)+"px");
   };
   // Resize can create a two-row header: position again after layout settles.
@@ -272,13 +275,13 @@
    // It overlays the page sidebar without affecting navigation coordinates.
    const headerTop=Math.max(oy,header?.top??oy);
    const headerBottom=Math.max(headerTop,header?.bottom??anchor.bottom);
-   const width=Math.max(0,Math.min(400,vw));
-   const left=Math.max(ox,Math.min(anchor.left-20,ox+vw-width));
-   const available=Math.max(0,oy+vh-headerTop-8);
+   const width=Math.max(0,Math.min(480,vw-20));
+   const left=ox+Math.max(10,(vw-width)/2);
+   const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
-   panel.style.top=Math.round(headerTop)+"px";
+   panel.style.top=Math.round(headerBottom+8)+"px";
    panel.style.width=Math.round(width)+"px";
-   panel.style.paddingTop=Math.round(headerBottom-headerTop)+"px";
+   panel.style.paddingTop="0px";
    panel.style.maxHeight=Math.round(available)+"px";
   };
   const close=()=>{

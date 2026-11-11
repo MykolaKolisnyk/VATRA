@@ -101,6 +101,42 @@
   return client.storage.from(bucket).remove([attachment.media_path]);
  }
 
+ const signedURLs=new Map();
+ let firstImages=0;
+ async function signed(client,kind,path){
+  const key=kind+":"+path,entry=signedURLs.get(key);
+  if(entry&&entry.expiry>Date.now())return entry.promise;
+  const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,3600).then(({data,error})=>{
+   if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
+   const url=new URL(data.signedUrl);
+   if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")
+    throw Error("Unexpected signed asset URL");
+   return url.href;
+  }).catch(error=>{signedURLs.delete(key);throw error;});
+  signedURLs.set(key,{expiry:Date.now()+54*60*1000,promise});
+  return promise;
+ }
+ function collapsibleBody(paragraph){
+  if(!paragraph||paragraph.dataset.vatraCollapsed)return;
+  const full=paragraph.textContent||"";
+  if(Array.from(full).length<=440)return;
+  const compact=Array.from(full).slice(0,350).join("").trimEnd()+"…";
+  const button=document.createElement("button");
+  button.type="button";button.className="vt-feed-post-read-more-001";
+  button.setAttribute("aria-expanded","false");
+  button.textContent=tr("Показати більше","Show more");
+  paragraph.dataset.vatraCollapsed="true";
+  let expanded=false;
+  const update=()=>{
+   paragraph.textContent=expanded?full:compact;
+   linkifyHashtags(paragraph);
+   button.textContent=expanded?tr("Показати менше","Show less"):tr("Показати більше","Show more");
+   button.setAttribute("aria-expanded",String(expanded));
+  };
+  button.addEventListener("click",()=>{expanded=!expanded;update();});
+  paragraph.insertAdjacentElement("afterend",button);
+  update();
+ }
  /* One accessible fullscreen dialog is reused by every post and upload. */
  let mediaDialog=null,mediaDialogContent=null;
  function openFullMedia(url,kind){
@@ -139,29 +175,33 @@
   const slot=document.createElement("div");slot.className="feed-post-media ui-feed-post-media-001";
   container.append(slot);
   try{
-   const {data,error}=await client.storage.from(bucketFor(kind)).createSignedUrl(path,3600);
-   if(error||!data?.signedUrl)throw Error("Storage signing failed");
-   const url=new URL(data.signedUrl);
-   if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")
-    throw Error("Unexpected signed asset URL");
+   const src=await signed(client,kind,path);
    if(!slot.isConnected)return;
    const el=document.createElement(kind==="image"?"img":"video");
    el.className=kind==="image"?"feed-post-media-image ui-feed-post-media-image-001":
     "feed-post-media-video ui-feed-post-media-video-001";
    if(kind==="image"){
     el.alt=tr("Фото до публікації","Post photo");
-    el.loading="lazy";el.decoding="async";
+    el.loading=firstImages++<2?"eager":"lazy";el.decoding="async";
+    if(firstImages<=2)el.fetchPriority="high";
+    el.addEventListener("error",()=>{
+     if(slot.isConnected){
+      const note=document.createElement("p");note.className="vt-feed-post-media-error-001";
+      note.textContent=tr("Фото недоступне.","Photo unavailable.");
+      slot.replaceChildren(note);
+     }
+    },{once:true});
     const open=document.createElement("button");
     open.className="vt-feed-post-media-open-001";open.type="button";
     open.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-    open.addEventListener("click",()=>openFullMedia(url.href,"image"));
-    open.append(el);el.src=url.href;slot.replaceChildren(open);
+    open.addEventListener("click",()=>openFullMedia(src,"image"));
+    open.append(el);el.src=src;slot.replaceChildren(open);
    }else{
-    el.controls=true;el.preload="metadata";el.playsInline=true;el.src=url.href;
+    el.controls=true;el.preload="metadata";el.playsInline=true;el.src=src;
     const expand=document.createElement("button");expand.type="button";
     expand.className="vt-feed-post-video-expand-001";
     expand.textContent=tr("На весь екран","Fullscreen");
-    expand.addEventListener("click",()=>openFullMedia(url.href,"video"));
+    expand.addEventListener("click",()=>openFullMedia(src,"video"));
     slot.replaceChildren(el,expand);
    }
   }catch(_){
@@ -172,5 +212,5 @@
    }
   }
  }
- window.VATRA_POST_MEDIA={bindPicker,upload,remove,mount,linkifyHashtags};
+ window.VATRA_POST_MEDIA={bindPicker,upload,remove,mount,linkifyHashtags,collapsibleBody};
 })();

@@ -198,6 +198,7 @@
      const body=node("p","feed-post-body vt-feed-post-body-001",post.body);
      window.VATRA_POST_MEDIA?.linkifyHashtags(body);
      item.append(body);
+     window.VATRA_POST_MEDIA?.collapsibleBody(body);
     }
    if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,item);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item);
