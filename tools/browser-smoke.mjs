@@ -2489,6 +2489,14 @@ try{
   await feedProbe.locator(".feed-account-toggle").click();
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
    "Avatar must reveal the account menu");
+  // Open details can leave the cursor over the avatar. Repeated pointer motion
+  // must not revive the menu tooltip above the dropdown.
+  await feedProbe.locator(".feed-account-toggle").hover();
+  assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"false",
+   "Account tooltip must not cover an expanded account dropdown");
+  const menuTipStyle=await feedProbe.locator(".vatra-shell-tooltip").evaluate(el=>getComputedStyle(el).visibility);
+  assert.equal(menuTipStyle,"hidden",
+   "Expanded account dropdown must fully suppress VATRA tooltip rendering");
   assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
@@ -2590,6 +2598,24 @@ try{
   });
   assert.ok(Math.abs(profileCoverGap)<=2,
    "Member cover must begin directly below the header without a top gap: "+profileCoverGap);
+  const coverArtwork=await profilePage.evaluate(()=>{
+   const cover=document.querySelector("#profile-cover-image");
+   const motif=cover.querySelector(".profile-cover-motif");
+   const label=cover.querySelector(".profile-cover-signature");
+   cover.classList.add("has-photo");
+   const state={
+    before:getComputedStyle(cover,"::before").display,
+    after:getComputedStyle(cover,"::after").display,
+    motif:getComputedStyle(motif).display,
+    signature:getComputedStyle(label).display,
+    repeat:getComputedStyle(cover).backgroundRepeat
+   };
+   cover.classList.remove("has-photo");
+   return state;
+  });
+  assert.deepEqual(coverArtwork,{
+   before:"none",after:"none",motif:"none",signature:"none",repeat:"no-repeat"
+  },"Uploaded member cover must replace all default VATRA artwork, without image tiling");
   if(language==="uk")assertStableHeader(await navCenters(profilePage),"Profile");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),"Тест VATRA");
   assert.equal(await profilePage.locator(".feed-sidebar").count(),0,
