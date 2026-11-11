@@ -2519,13 +2519,35 @@ try{
   await feedProbe.locator(".feed-menu-settings-toggle").click();
   assert.equal(await feedProbe.locator(".feed-language-trigger").isVisible(),true,
    "Settings must provide real language controls");
-  const menuRect=await feedProbe.evaluate(()=>{
+  // The right account panel must be flush to the common header edge,
+  // not a floating card with a 10px gap or a displaced navigation row.
+  const navBeforeMenu=await navCenters(feedProbe);
+  const checkAccountGeometry=()=>feedProbe.evaluate(()=>{
    const r=document.querySelector(".feed-account-dropdown").getBoundingClientRect();
-   return {left:r.left,right:r.right,width:innerWidth,top:r.top,bottom:r.bottom,height:innerHeight};
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   const dropdown=document.querySelector(".feed-account-dropdown");
+   return {left:r.left,right:r.right,width:innerWidth,top:r.top,bottom:r.bottom,
+    height:innerHeight,headerBottom:header.bottom,headerRight:header.right,
+    positioned:!!dropdown.style.getPropertyValue("--vatra-account-dropdown-top")};
   });
+  await feedProbe.waitForFunction(()=>
+   !!document.querySelector(".feed-account-dropdown").style.getPropertyValue("--vatra-account-dropdown-top"));
+  const menuRect=await checkAccountGeometry();
   assert.ok(menuRect.left>=0&&menuRect.right<=menuRect.width+1&&
-   menuRect.top>=0&&menuRect.bottom<=menuRect.height+1,
-   "Avatar menu must remain inside the visible viewport: "+JSON.stringify(menuRect));
+   menuRect.top>=0&&menuRect.bottom<=menuRect.height+1&&
+   Math.abs(menuRect.top-menuRect.headerBottom)<=2&&
+   Math.abs(menuRect.right-menuRect.headerRight)<=2,
+   "Avatar menu must join the right edge of the header: "+JSON.stringify(menuRect));
+  assert.deepEqual(await navCenters(feedProbe),navBeforeMenu,
+   "Opening account menu must not move header icons");
+  const savedViewport=feedProbe.viewportSize();
+  await feedProbe.setViewportSize({width:600,height:800});
+  const mobileMenu=await checkAccountGeometry();
+  assert.ok(Math.abs(mobileMenu.top-mobileMenu.headerBottom)<=2&&
+   Math.abs(mobileMenu.right-mobileMenu.headerRight)<=2&&
+   mobileMenu.left>=-1&&mobileMenu.bottom<=mobileMenu.height+1,
+   "Account menu must join the two-row mobile header too: "+JSON.stringify(mobileMenu));
+  await feedProbe.setViewportSize(savedViewport);
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),false,
    "Escape must close the account dropdown");
