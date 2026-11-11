@@ -1282,10 +1282,15 @@ body.profile-page .profile-avatar-wrap.has-active-story::before{
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)
 }
 body.profile-page .profile-avatar-menu{
- position:absolute;z-index:35;top:100%;left:0;
- display:none;flex-direction:column;min-width:228px;max-width:calc(100vw - 28px);
- gap:3px;padding:8px;border:1px solid #e2e8f3;border-radius:13px;
- background:#fff;box-shadow:0 18px 36px rgba(25,42,81,.2)
+ position:absolute;z-index:35;top:calc(100% + 9px);left:0;
+ display:none;flex-direction:column;min-width:240px;max-width:calc(100vw - 28px);
+ gap:4px;padding:9px;border:1px solid #e2e8f3;border-radius:18px;
+ background:#fff;box-shadow:0 18px 42px rgba(25,42,81,.16)
+}
+body.profile-page .profile-avatar-menu::before{
+ content:"";position:absolute;top:-7px;left:42px;width:12px;height:12px;
+ background:#fff;border-top:1px solid #e2e8f3;border-left:1px solid #e2e8f3;
+ transform:rotate(45deg);pointer-events:none
 }
 body.profile-page .profile-avatar-wrap:hover .profile-avatar-menu:not([hidden]),
 body.profile-page .profile-avatar-wrap:focus-within .profile-avatar-menu:not([hidden]),
@@ -1294,8 +1299,13 @@ body.profile-page .profile-avatar-menu[hidden],
 body.profile-page .profile-avatar-menu button[hidden]{display:none!important}
 body.profile-page .profile-avatar-menu button{
  display:block;width:100%;min-height:39px;padding:9px 12px;
- border:0;border-radius:9px;background:transparent;color:#354865;
- font:680 12px/1.4 "Onest",system-ui,sans-serif;text-align:left;cursor:pointer
+ border:0;border-radius:11px;background:transparent;color:#354865;
+ font:650 13px/1.4 "Onest",system-ui,sans-serif;text-align:left;cursor:pointer
+}
+body.profile-page .profile-avatar-menu .profile-avatar-menu-delete{color:#a9445a}
+body.profile-page .profile-avatar-menu .profile-avatar-menu-delete:hover,
+body.profile-page .profile-avatar-menu .profile-avatar-menu-delete:focus-visible{
+ background:#fff0f2;color:#982f48
 }
 body.profile-page .profile-avatar-menu button:hover,
 body.profile-page .profile-avatar-menu button:focus-visible{
@@ -1449,11 +1459,11 @@ body.feed-page .feed-header-brand:hover{
    Do not use a magnifying-glass cursor. */
 body.profile-page .profile-avatar-trigger{cursor:pointer}
 body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{
- transition:transform .22s ease,filter .22s ease;will-change:transform
+ opacity:1;filter:none;transition:transform .22s ease
 }
 body.profile-page .profile-avatar-trigger:hover .profile-avatar.has-photo,
 body.profile-page .profile-avatar-trigger:focus-visible .profile-avatar.has-photo{
- transform:scale(1.045);filter:brightness(.86)
+ transform:scale(1.018);filter:none
 }
 body.profile-page .profile-cover-view{cursor:pointer}
 body.profile-page .profile-cover.has-photo{
@@ -1463,10 +1473,6 @@ body.profile-page .profile-cover.has-photo .profile-cover-upload-button{
  position:absolute;z-index:4
 }
 body.profile-page .profile-cover-view{z-index:3}
-body.profile-page .profile-avatar-menu{
- top:calc(100% + 4px);left:0;min-width:250px;padding:8px;
- border-radius:0 14px 14px 14px
-}
 body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-menu{
  display:none!important
 }
