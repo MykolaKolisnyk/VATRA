@@ -127,7 +127,7 @@
        </button>
        <div id="profile-avatar-menu" class="profile-avatar-menu ui-profile-avatar-menu-001" role="menu" hidden>
         <button id="profile-avatar-story" class="profile-avatar-menu-story vt-profile-avatar-menu-story-001" type="button" role="menuitem" data-social-uk="Переглянути історію" data-social-en="View story" hidden>Переглянути історію</button>
-        <button id="profile-avatar-photo" class="profile-avatar-menu-photo vt-profile-avatar-menu-photo-001" type="button" role="menuitem" data-social-uk="Переглянути фото профілю" data-social-en="View profile photo" hidden>Переглянути фото профілю</button>
+        <button id="profile-avatar-photo" class="profile-avatar-menu-photo vt-profile-avatar-menu-photo-001" type="button" role="menuitem" data-social-uk="Переглянути фото" data-social-en="View photo" hidden>Переглянути фото</button>
        </div>
       </div>
       <div class="profile-identity ui-profile-identity-001"><h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">Моя сторінка</h1><span id="profile-vatra-id" class="profile-public-id vt-profile-public-id-001"></span></div>
@@ -176,6 +176,24 @@
      <h2 id="profile-media-viewer-heading" class="profile-media-viewer-heading vt-profile-media-viewer-heading-001">Фото профілю</h2>
      <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
     </div>
+    <aside id="profile-avatar-engagement" class="profile-avatar-engagement ui-profile-avatar-engagement-001" aria-label="Взаємодії з фото" hidden>
+     <header class="profile-photo-info ui-profile-photo-info-001">
+      <strong id="profile-photo-owner" class="vt-profile-photo-owner-001"></strong>
+      <span id="profile-photo-kind" class="vt-profile-photo-kind-001" data-social-uk="Фото" data-social-en="Photo">Фото</span>
+     </header>
+     <div class="profile-photo-actions ui-profile-photo-actions-001">
+      <button id="profile-photo-like" class="vt-profile-photo-like-001" type="button" aria-pressed="false"><svg class="ui-profile-photo-like-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-photo-like-path-001" d="M7 10.5 11 3c1.1-1.8 3.4-.6 3.1 1.3L13 9h6.2c1.4 0 2.4 1.2 2.1 2.7l-1.8 7.5A2.2 2.2 0 0 1 17.3 21H6V10.5h1ZM3 10.5h3V21H3z"/></svg><span id="profile-photo-like-label" class="vt-profile-photo-like-label-001">Подобається</span><span id="profile-photo-like-count" class="vt-profile-photo-like-count-001">0</span></button>
+      <button id="profile-photo-share" class="vt-profile-photo-share-001" type="button"><svg class="ui-profile-photo-share-svg-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-photo-share-path-001" d="M14 5 21 12l-7 7v-4c-5.2 0-8.4 1.4-11 4 0-6.6 3.8-10 11-10V5Z"/></svg><span id="profile-photo-share-label" class="vt-profile-photo-share-label-001">Поділитися</span></button>
+     </div>
+     <h3 id="profile-photo-comments-heading" class="vt-profile-photo-comments-heading-001">Коментарі</h3>
+     <div id="profile-photo-comments" class="profile-photo-comments ui-profile-photo-comments-001" role="feed" aria-busy="false"></div>
+     <p id="profile-photo-status" class="vt-profile-photo-status-001" role="status" aria-live="polite" hidden></p>
+     <form id="profile-photo-comment-form" class="profile-photo-comment-form ui-profile-photo-comment-form-001">
+      <label for="profile-photo-comment-text" class="vatra-sr-only vt-profile-photo-comment-label-001">Ваш коментар</label>
+      <textarea id="profile-photo-comment-text" class="ui-profile-photo-comment-text-001" rows="2" maxlength="1000" placeholder="Написати коментар…" required></textarea>
+      <button id="profile-photo-comment-send" class="vt-profile-photo-comment-send-001" type="submit">Надіслати</button>
+     </form>
+    </aside>
    </dialog>
    <dialog id="profile-story-viewer" class="profile-story-viewer ui-profile-story-viewer-001" aria-labelledby="profile-story-viewer-heading">
     <div class="profile-story-viewer-content ui-profile-story-viewer-content-001">
