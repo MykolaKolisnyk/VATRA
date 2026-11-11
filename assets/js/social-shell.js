@@ -577,6 +577,18 @@
    if(next.origin!==location.origin||!eligible(next))return false;
    // Clicking the already selected section should never reload its content.
    if(next.pathname===location.pathname&&next.search===location.search&&next.hash===location.hash)return true;
+   // Profile permalink routes are rewritten by GitHub Pages' 404 fallback.
+   // For internal navigation fetch the real profile document (HTTP 200) first,
+   // then let profile.js set /idN as the permanent visible URL with replaceState.
+   // This avoids the extra 404 document and header reset on "My page".
+   const member=next.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
+   if(member){
+    const direct=new URL("profile",new URL("./",next.href));
+    direct.search=next.search;
+    direct.searchParams.set("vatra_id",member[1]);
+    direct.hash=next.hash;
+    next=direct;
+   }
    navigating=true;
    const navigate=()=>location.assign(next.href);
    if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
