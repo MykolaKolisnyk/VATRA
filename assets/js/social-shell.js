@@ -65,7 +65,7 @@
    const viewTop=vp?.offsetTop||0;
    const viewHeight=vp?.height||innerHeight;
    // Anchor the panel to the ACCOUNT BUTTON, not the centre of the header.
-   const gapTop=menuBox.height+8;
+   const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
    const gapRight=0;
    const width=Math.min(344,innerWidth-24);
    const minLeft=12-menuBox.left;
@@ -287,7 +287,7 @@
    const left=Math.max(ox+10,Math.min(inputBox.left,ox+vw-width-10));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
-   panel.style.top=Math.round(headerBottom+8)+"px";
+   panel.style.top=Math.round(headerBottom)+"px";
    panel.style.width=Math.round(width)+"px";
    panel.style.paddingTop="0px";
    panel.style.maxHeight=Math.round(available)+"px";

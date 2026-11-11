@@ -2688,3 +2688,100 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .f
  body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001,
  body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create{transition:none!important}
 }
+
+
+/* The one VATRA neutral silhouette is used where no real avatar is available.
+   Initials are still present in the DOM for assistive tools but never flash visually. */
+body.feed-page .feed-header-avatar:not(.has-photo),
+body.feed-page .feed-composer-avatar:not(.has-photo),
+body.feed-page .feed-post-avatar:not(.has-photo),
+body.feed-page .profile-avatar:not(.has-photo),
+body.feed-page .profile-person-avatar:not(.has-photo),
+body.feed-page .vatra-comment-avatar:not(.has-photo),
+body.feed-page .profile-photo-comment-avatar:not(.has-photo),
+body.feed-page .feed-story-author-avatar:not(.has-photo),
+.vatra-notification-avatar:not(.has-photo){
+ background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2232%22%20fill%3D%22%23e8eef8%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2223%22%20r%3D%2211%22%20fill%3D%22%2394a8c5%22%2F%3E%3Cpath%20d%3D%22M12%2056c1-15%208-22%2020-22s19%207%2020%2022%22%20fill%3D%22%2394a8c5%22%2F%3E%3C%2Fsvg%3E")!important;background-color:#edf2f9!important;
+ background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;
+ color:transparent!important;font-size:0!important;line-height:0!important;text-shadow:none!important
+}
+body.profile-page.feed-page:not(.community-page) .profile-summary{
+ grid-template-columns:120px minmax(0,1fr) auto;align-items:center;column-gap:18px
+}
+body.profile-page.feed-page:not(.community-page) .profile-identity{
+ align-self:center;padding:0;min-width:0
+}
+body.profile-page.feed-page:not(.community-page) .profile-actions{
+ grid-column:3;display:flex;align-items:center;align-self:center;justify-content:flex-end;gap:10px;
+ flex-wrap:nowrap;min-width:0;padding:0;margin:0
+}
+body.profile-page .profile-actions > button:not([hidden]){height:45px;min-height:45px;margin:0;transform:none}
+body.profile-page .profile-actions > button > svg{flex:none}
+body.profile-page .profile-friend-button[data-friend-state="outgoing"],
+body.profile-page .profile-friend-button[data-friend-state="friends"]{
+ background:#f0f3f9!important;border:1px solid #dce4f0!important;color:#62758e!important;
+ box-shadow:none!important
+}
+body.profile-page .profile-friend-button[data-friend-state="outgoing"]:hover,
+body.profile-page .profile-friend-button[data-friend-state="friends"]:hover{
+ background:#e8edf7!important;color:#485e7b!important
+}
+@media(max-width:970px){
+ body.profile-page.feed-page:not(.community-page) .profile-summary{grid-template-columns:88px minmax(0,1fr);gap:12px}
+ body.profile-page.feed-page:not(.community-page) .profile-actions{
+  grid-column:1/-1;flex-wrap:wrap;justify-content:flex-end;width:100%
+ }
+}
+body.feed-page .feed-header .feed-account-dropdown{
+ border-radius:0 0 16px 16px!important;border-top:0!important;box-shadow:0 18px 34px rgba(33,52,97,.16)
+}
+body.feed-page .vatra-search-panel{
+ border-radius:0 0 16px 16px!important;border-top:0!important
+}
+.vatra-notification-panel{
+ border-radius:0 0 16px 16px!important;border-top:0!important;
+ box-shadow:0 20px 42px rgba(33,52,97,.17)
+}
+.vatra-notification-row{position:relative;align-items:center}
+.vatra-notification-avatar{
+ flex:none;display:block;width:41px;height:41px;border:1px solid #d5e0f2;border-radius:50%;
+ background-color:#edf2f9;background-position:center;background-size:cover;
+ box-shadow:0 2px 7px rgba(24,51,101,.04);overflow:hidden
+}
+.vatra-notification-avatar:focus-visible{outline:2px solid #678bed;outline-offset:2px}
+.vatra-notification-kind{position:absolute;width:23px;height:23px;margin-left:40px;margin-top:28px;
+ border:2px solid #fff;border-radius:50%;background:#e8efff;pointer-events:none}
+.vatra-notification-kind svg{width:13px;height:13px}
+body.notifications-page .notifications-main{margin:20px auto 70px}
+body.notifications-page .notifications-top{margin-bottom:18px;align-items:center}
+body.notifications-page .vt-notifications-heading-001{font-size:clamp(23px,2.6vw,31px)}
+/* Quiet left-hand progress pattern that only appears after the reader scrolls. */
+.vatra-scroll-rail{
+ position:fixed;z-index:58;left:0;top:var(--vatra-header-height,78px);bottom:0;width:42px;
+ padding:0;border:0;background:transparent;color:#5275ab;cursor:pointer;
+ display:flex;flex-direction:column;align-items:center;
+ animation:vatraRailAppear .24s ease both
+}
+.vatra-scroll-rail[hidden]{display:none!important}
+.vatra-scroll-rail-track{
+ display:block;position:relative;flex:1;width:100%;opacity:.95;
+ background:repeating-linear-gradient(145deg,rgba(82,119,176,.048) 0px,rgba(82,119,176,.048) 8px,
+ transparent 8px,transparent 18px);
+ border-right:1px solid rgba(95,129,188,.12)
+}
+.vatra-scroll-rail-progress{
+ position:absolute;bottom:0;left:0;right:0;height:var(--vatra-scroll-progress,0%);
+ background:repeating-linear-gradient(145deg,rgba(89,127,217,.12) 0px,rgba(89,127,217,.12) 8px,
+ transparent 8px,transparent 18px);
+ transition:height .11s linear
+}
+.vatra-scroll-rail-label{
+ display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 3px;
+ color:#59749f;font:700 10px/1.2 "Onest",system-ui,sans-serif
+}
+.vatra-scroll-rail-icon-001{width:19px;height:19px}
+.vatra-scroll-rail:hover .vatra-scroll-rail-label{color:#3165cf}
+@keyframes vatraRailAppear{from{opacity:0}to{opacity:1}}
+@media(max-width:1330px){.vatra-scroll-rail{width:28px}}
+@media(max-width:1100px){.vatra-scroll-rail{display:none!important}}
+@media(prefers-reduced-motion:reduce){.vatra-scroll-rail{animation:none}.vatra-scroll-rail-progress{transition:none}}

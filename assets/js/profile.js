@@ -576,6 +576,8 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    if(error)throw error;
    relation=data;
    const outgoing=String(relation?.requester_id)===String(ownId);
+   friendButton.dataset.friendState=relation?.status==="accepted"?"friends":
+    relation?.status==="pending"?(outgoing?"outgoing":"incoming"):"none";
    q("#profile-friend-label").textContent=relation?.status==="accepted"?t("У друзях · Видалити","Friends · Remove"):
     relation?.status==="pending"?(outgoing?t("Заявку надіслано · Скасувати","Request sent · Cancel"):
      t("Прийняти заявку","Accept request")):t("Додати в друзі","Add friend");

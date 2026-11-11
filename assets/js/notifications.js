@@ -58,14 +58,26 @@ const messageFor=(kind,name)=>{
 };
 async function authorNames(rows){
  const ids=[...new Set(rows.map(x=>String(x.actor_vatra_id)).filter(validId))];
- const names=new Map();
+ const names=new Map(),avatars=new Map();
  if(ids.length)try{
-  const {data,error}=await client.from("vatra_public_profiles")
-   .select("vatra_id,display_name").in("vatra_id",ids);
-  if(!error)for(const item of data||[])names.set(String(item.vatra_id),
-   String(item.display_name||"").trim().slice(0,100));
+  const [profiles,media]=await Promise.all([
+   client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
+   client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
+  ]);
+  if(!profiles.error)for(const item of profiles.data||[])
+   names.set(String(item.vatra_id),String(item.display_name||"").trim().slice(0,100));
+  if(!media.error)for(const item of media.data||[]){
+   const id=String(item.vatra_id),path=item.avatar_path;
+   if(typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
+   const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
+   if(!url)continue;
+   try{
+    const parsed=new URL(url);
+    if(parsed.protocol==="https:"&&parsed.hostname==="rjasunoawrxvetwadylh.supabase.co")avatars.set(id,parsed.href);
+   }catch(_){}
+  }
  }catch(_){}
- return names;
+ return {names,avatars};
 }
 async function unreadCount(){
  if(!client||!ownId||refreshBusy)return;
@@ -108,7 +120,7 @@ async function remove(id){
  if(error)throw error;
  void unreadCount();
 }
-function createRow(record,name,index,onChange){
+function createRow(record,name,index,onChange,photoUrl){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
  if(!record.read_at)article.classList.add("is-unread");
  const mark=make("span","vatra-notification-unread ui-vatra-notification-unread-"+index);
@@ -120,6 +132,17 @@ function createRow(record,name,index,onChange){
   "M4 5h16v13H9l-5 3V5ZM8 10h8M8 14h5":
   "M20.8 5.9c-1.4-1.7-4.1-1.7-5.6 0L12 9.1 8.8 5.9c-1.5-1.7-4.2-1.7-5.6 0-1.5 1.8-1.1 4.6.6 6.3L12 20l8.2-7.8c1.7-1.7 2.1-4.5.6-6.3Z";
  badgeIcon.append(icon("event-"+index,path));
+ const avatar=make("a","vatra-notification-avatar ui-vatra-notification-avatar-"+index);
+ avatar.href=new URL("id"+record.actor_vatra_id,root).href;
+ avatar.setAttribute("aria-label",name);
+ if(photoUrl){
+  const picture=new Image();
+  picture.onload=()=>{
+   if(!avatar.isConnected)return;
+   avatar.style.backgroundImage="url("+JSON.stringify(photoUrl)+")";avatar.classList.add("has-photo");
+  };
+  picture.src=photoUrl;
+ }
  const body=make("div","vatra-notification-content ui-vatra-notification-content-"+index);
  const link=make("a","vatra-notification-link vt-vatra-notification-link-"+index,messageFor(record.kind,name));
  link.href=hrefFor(record);
@@ -154,7 +177,7 @@ function createRow(record,name,index,onChange){
   catch(_){deleteButton.disabled=false;}
  });
  actions.append(deleteButton);
- article.append(mark,badgeIcon,body,actions);
+ article.append(mark,avatar,badgeIcon,body,actions);
  return article;
 }
 async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
@@ -162,10 +185,10 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
  status.hidden=true;list.setAttribute("aria-busy","true");
  try{
   const {rows,hasNext}=await fetchRows(opts);
-  const names=await authorNames(rows);
+  const {names,avatars}=await authorNames(rows);
   const nodes=rows.map((record,i)=>createRow(record,
    names.get(String(record.actor_vatra_id))||t("Учасник VATRA ID ","VATRA member ID ")+record.actor_vatra_id,
-   String(opts.page*opts.size+i+1),onChange));
+   String(opts.page*opts.size+i+1),onChange,avatars.get(String(record.actor_vatra_id))));
   list.replaceChildren(...nodes);
   if(!rows.length){
    status.textContent=t("Сповіщень поки немає.","No notifications yet.");
