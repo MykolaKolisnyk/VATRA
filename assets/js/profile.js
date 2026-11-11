@@ -137,6 +137,7 @@ async function loadPosts(client,targetId){
   empty.hidden=(data||[]).length>0;
   if(!empty.hidden)empty.textContent=t("Публікацій поки немає.","No posts yet.");
  }catch(_){
+  list.replaceChildren();
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
   empty.hidden=false;
@@ -629,6 +630,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
   if(!error&&data){saved=data;display(data);}
  }catch(_){/* Profile itself still loads when images are unavailable. */}
+ finally{
+  cover.classList.remove("is-loading-media");
+  avatarWrap.classList.remove("is-loading-media");
+ }
  // Story visibility is enforced by existing Supabase RLS: own or accepted
  // friends only. Never show a ring for expired or inaccessible stories.
  try{
@@ -806,18 +811,34 @@ async function start(){
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   setupProfileInteractions(client,ownId,targetId,isMine);
-  await setupProfileMedia(client,ownId,targetId,isMine,user.id);
-  // Share links to an avatar open the same photo viewer after the authenticated profile loads.
+  q("#profile-cover-image").classList.add("is-loading-media");
+  q("#profile-avatar-wrap").classList.add("is-loading-media");
+  // Media and Stories can arrive after the identity is verified; do not hold
+  // the entire profile behind a splash while these secondary requests run.
+  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
-  // Never expose the internal Supabase auth UUID or the intermediate /profile URL.
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
    history.replaceState(history.state,"",canonical);
   }
-  // Keep the real member loading state until the first posts request completes.
+  const list=q("#profile-posts");
+  if(list){
+   for(let i=0;i<2;i++){
+    const card=node("div","feed-post-placeholder ui-profile-post-placeholder-00"+(i+1));
+    card.setAttribute("aria-hidden","true");
+    card.append(node("span","feed-post-placeholder-head ui-profile-post-placeholder-head-00"+(i+1)),
+     node("span","feed-post-placeholder-line ui-profile-post-placeholder-line-00"+(i+1)));
+    list.append(card);
+   }
+  }
   finish();
-  if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
   void loadPosts(client,targetId);
+  void mediaPromise.then(()=>{
+   if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
+  }).catch(()=>{
+   q("#profile-cover-image")?.classList.remove("is-loading-media");
+   q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
+  });
  }catch(_){
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
    "Could not load this profile. Please refresh."));
