@@ -2233,6 +2233,10 @@ try{
  await feedContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
+ const onePixelPng=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+C+y0AAAAASUVORK5CYII=","base64");
+ await feedContext.route("**/storage/v1/object/public/vatra-*/**",route=>route.fulfill({
+  status:200,contentType:"image/png",body:onePixelPng
+ }));
  await feedContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:`
   window.__feedTestPosts=[];window.__feedTestCounter=0;
@@ -2249,6 +2253,24 @@ try{
     {select:()=>({eq:(_field,id)=>({maybeSingle:async()=>({
      data:["654321","789012"].includes(String(id))?{vatra_id:id}:null,error:null
     })})})}:
+    table==="vatra_profile_media"?
+    {select:()=>({
+      eq:(_field,id)=>({maybeSingle:async()=>({
+       data:location.pathname.includes("/feed")?null:{
+        avatar_path:id+"/avatar/test-profile.webp",
+        cover_path:id+"/cover/test-cover.webp"
+       },error:null
+      })})
+    })}:
+    table==="vatra_stories"?
+    {select:()=>({
+      eq(){this.singleAuthor=true;return this;},
+      gt(){return this;},order(){return this;},
+      limit:async function(){
+       return {data:this.singleAuthor?[{body:"Моя тестова історія",
+        theme:2,expires_at:"2099-12-31T23:59:59Z"}]:[],error:null};
+      }
+    })}:
     table==="communities"?
     {select:()=>({order(){return this;},limit:async()=>({
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
@@ -2262,6 +2284,9 @@ try{
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
      delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})}
+   storage:{from:bucket=>({getPublicUrl:path=>({
+    data:{publicUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
+   })})}
   })};
   // Count all client constructors in this browser tab, including onboarding.
   window.__feedMockCreateClientCalls=0;
