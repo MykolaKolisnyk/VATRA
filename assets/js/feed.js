@@ -217,9 +217,14 @@
    await loadSubscriptions();
    // Filter member posts on the server, not after downloading every user's Feed.
    // Legacy test clients without an .in() method still work with the local filter.
+   // Hashtag searches include all posts visible under RLS, not only friends.
+   const hashtagSearch=/^#[\p{L}\p{N}_]{1,64}$/u.test(searchTerm);
    let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at,media_kind,media_path");
-   if(typeof personalQuery.in==="function")
+   if(hashtagSearch&&typeof personalQuery.ilike==="function"){
+    personalQuery=personalQuery.ilike("body","%"+searchTerm+"%");
+   }else if(!hashtagSearch&&typeof personalQuery.in==="function"){
     personalQuery=personalQuery.in("author_vatra_id",[...friends]);
+   }
    const [people,groups]=await Promise.allSettled([
     personalQuery.order("created_at",{ascending:false}).range(0,199),
     followedClubs.size?client.from("vatra_community_posts")
@@ -229,7 +234,7 @@
    ]);
    if(people.status==="rejected"||people.value.error)throw new Error("feed");
    const personal=(people.value.data||[])
-    .filter(post=>friends.has(String(post.author_vatra_id))).map(post=>({...post,kind:"person"}));
+    .filter(post=>hashtagSearch||friends.has(String(post.author_vatra_id))).map(post=>({...post,kind:"person"}));
    const communities=groups.status==="fulfilled"&&!groups.value.error?
     (groups.value.data||[]).map(post=>({...post,kind:"group"})):[];
    await Promise.all([
@@ -237,7 +242,7 @@
     loadAvatars([...personal,...communities].map(x=>x.author_vatra_id))
    ]);
    visibleFeed=[...personal,...communities].filter(post=>!searchTerm||
-    post.body.toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
+    String(post.body||"").toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
     .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)||
      String(b.id).localeCompare(String(a.id)));
    renderPage(true);
