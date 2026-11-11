@@ -904,6 +904,13 @@ assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
 const sharedCss=await read("assets/css/feed.css");
 const sharedJs=await read("assets/js/social-shell.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
+ sharedCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
+ sharedCss.includes("body.profile-page .profile-cover.has-photo::after{")&&
+ sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-motif,")&&
+ sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-signature{")&&
+ sharedCss.includes("background-repeat:no-repeat")&&
+ sharedJs.includes('document.querySelector(".feed-account-menu")?.open')&&
+ sharedJs.includes('accountMenu?.addEventListener("toggle"')&&
  sharedCss.includes("border:1px solid #d7e2f5;border-radius:11px;background:#fff;color:#344766")&&
  sharedCss.includes("body.feed-page .feed-account-toggle")&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
