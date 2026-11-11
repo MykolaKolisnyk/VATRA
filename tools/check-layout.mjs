@@ -1011,7 +1011,11 @@ assert.ok(feedMarkup.includes('id="vatra-tour-dialog"')&&
  onboardingSource.includes('from("vatra_profile_media")')&&
  onboardingSource.includes('from("vatra_friendships")')&&
  onboardingSource.includes('from("feed_posts")')&&
- feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId}})')&&
+ feedScript.includes('window.VATRA_ONBOARDING?.start({detail:{id:vatraId,client}})')&&
+ feedScript.includes('new CustomEvent("vatra:feed-ready",{detail:{id:vatraId,client}})')&&
+ (feedScript.match(/supabase\.createClient\(/g)||[]).length===1&&
+ !onboardingSource.includes('supabase.createClient(')&&
+ onboardingSource.includes('client=feedClient;')&&
  feedScript.includes('new Event("vatra:onboarding-progress")'),
  "Feed must launch a persistent blurred tour with five real account-setup tasks");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
