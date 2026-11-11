@@ -206,80 +206,109 @@
    });
   return item;
  }
- function renderPage(reset=false){
-  if(reset){posts.replaceChildren();offset=0;}
-  for(const post of visibleFeed.slice(offset,offset+PAGE_SIZE))posts.append(card(post));
-  offset=Math.min(visibleFeed.length,offset+PAGE_SIZE);
-  more.hidden=offset>=visibleFeed.length;
+ // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
+ // Only the next 12 posts are materialized; no eager 200+200 post download.
+ let sourceState=null,renderedIds=new Set();
+ const personFields="id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id";
+ const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path";
+ const comparePosts=(a,b)=>
+  Date.parse(b.created_at)-Date.parse(a.created_at)||String(b.id).localeCompare(String(a.id));
+ const displayEmpty=()=>{
   q("#feed-empty").hidden=visibleFeed.length>0;
   const title=q(".feed-empty-title"),detail=q(".feed-empty-subtitle");
   if(title)title.textContent=searchTerm?t("Нічого не знайдено","No matches"):t("Тут поки тихо","It's quiet here");
   if(detail)detail.textContent=searchTerm?t("Спробуйте інший пошуковий запит.","Try another search.") :
    t("Додайте друзів або підпишіться на спільноту. Тут будуть ваші публікації та їхні дописи.",
     "Add friends or follow a community to see their posts alongside yours.");
+ };
+ async function fillSource(source){
+  let attempts=0;
+  while(!source.done&&!source.queue.length&&attempts++<12){
+   const isPerson=source.kind==="person";
+   if(!isPerson&&!followedClubs.size){source.done=true;return;}
+   let query=client.from(isPerson?"feed_posts":"vatra_community_posts")
+    .select(isPerson?personFields:clubFields);
+   if(isPerson&&!(searchTerm.startsWith("#"))&&typeof query.in==="function"){
+    query=query.in("author_vatra_id",[...friends]);
+   }
+   if(!isPerson&&typeof query.in==="function")
+    query=query.in("club_id",[...followedClubs.keys()]);
+   if(searchTerm&&typeof query.ilike==="function")
+    query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
+   const {data,error}=await query.order("created_at",{ascending:false})
+    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1);
+   if(error){if(isPerson)throw error;source.done=true;return;}
+   const raw=data||[];
+   source.offset+=raw.length;
+   if(raw.length<PAGE_SIZE)source.done=true;
+   const rows=raw.filter(post=>isPerson?
+    (searchTerm.startsWith("#")||friends.has(String(post.author_vatra_id))):
+    followedClubs.has(String(post.club_id))
+   ).filter(post=>!searchTerm||
+    String(post.body||"").toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
+    .map(post=>({...post,kind:source.kind}));
+   source.queue.push(...rows);
+  }
+ }
+ async function takePage(){
+  const result=[];
+  for(let index=0;index<PAGE_SIZE;index++){
+   await Promise.all([fillSource(sourceState.person),fillSource(sourceState.group)]);
+   const p=sourceState.person.queue[0],g=sourceState.group.queue[0];
+   if(!p&&!g)break;
+   const chosen=!p?sourceState.group:!g?sourceState.person:
+    comparePosts(p,g)<=0?sourceState.person:sourceState.group;
+   const next=chosen.queue.shift();
+   const key=next.kind+":"+next.id;
+   if(renderedIds.has(key)){index--;continue;}
+   renderedIds.add(key);result.push(next);
+  }
+  return result;
  }
  async function loadPosts(reset=false){
   if(loading){if(reset)refreshQueued=true;return;}
-  if(!reset){renderPage();return;}
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
+  if(reset){
+   posts.replaceChildren();visibleFeed=[];renderedIds=new Set();
+   sourceState={person:{kind:"person",offset:0,done:false,queue:[]},
+    group:{kind:"group",offset:0,done:false,queue:[]}};
+   more.hidden=true;
+  }
   try{
-   await loadSubscriptions();
-   // Filter member posts on the server, not after downloading every user's Feed.
-   // Legacy test clients without an .in() method still work with the local filter.
-   // Hashtag searches include all posts visible under RLS, not only friends.
-   const hashtagSearch=/^#[\p{L}\p{N}_]{1,64}$/u.test(searchTerm);
-   let personalQuery=client.from("feed_posts").select("id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id");
-   if(hashtagSearch&&typeof personalQuery.ilike==="function"){
-    personalQuery=personalQuery.ilike("body","%"+searchTerm+"%");
-   }else if(!hashtagSearch&&typeof personalQuery.in==="function"){
-    personalQuery=personalQuery.in("author_vatra_id",[...friends]);
-   }
-   const [people,groups]=await Promise.allSettled([
-    personalQuery.order("created_at",{ascending:false}).range(0,199),
-    followedClubs.size?client.from("vatra_community_posts")
-     .select("id,club_id,author_vatra_id,body,created_at,media_kind,media_path")
-     .in("club_id",[...followedClubs.keys()])
-     .order("created_at",{ascending:false}).range(0,199):Promise.resolve({data:[],error:null})
-   ]);
-   if(people.status==="rejected"||people.value.error)throw new Error("feed");
-   const personal=(people.value.data||[])
-    .filter(post=>hashtagSearch||friends.has(String(post.author_vatra_id))).map(post=>({...post,kind:"person"}));
-   const communities=groups.status==="fulfilled"&&!groups.value.error?
-    (groups.value.data||[]).map(post=>({...post,kind:"group"})):[];
-   await Promise.all([
-    loadPublicNames([...personal,...communities].map(x=>x.author_vatra_id)),
-    loadAvatars([...personal,...communities].map(x=>x.author_vatra_id))
-   ]);
-   visibleFeed=[...personal,...communities].filter(post=>!searchTerm||
-    String(post.body||"").toLocaleLowerCase(locale).includes(searchTerm.toLocaleLowerCase(locale)))
-    .sort((a,b)=>Date.parse(b.created_at)-Date.parse(a.created_at)||
-     String(b.id).localeCompare(String(a.id)));
-   // Permalink targets can be older than the first page or outside the friend Feed.
-   const requested=new URLSearchParams(location.search).get("post");
+   if(reset||!sourceState)await loadSubscriptions();
+   if(!sourceState)sourceState={person:{kind:"person",offset:0,done:false,queue:[]},
+    group:{kind:"group",offset:0,done:false,queue:[]}};
+   const page=await takePage();
+   // Open a shared permalink without downloading hundreds of unrelated posts.
+   const requested=reset?new URLSearchParams(location.search).get("post"):null;
    if(requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
-     !visibleFeed.some(item=>item.id===requested)){
-    const selectPerson="id,author_vatra_id,body,created_at,media_kind,media_path,shared_post_kind,shared_post_id";
-    const selectClub="id,club_id,author_vatra_id,body,created_at,media_kind,media_path";
+    !page.some(p=>p.id===requested)){
     const found=await Promise.allSettled([
-     client.from("feed_posts").select(selectPerson).eq("id",requested).maybeSingle(),
-     client.from("vatra_community_posts").select(selectClub).eq("id",requested).maybeSingle()
+     client.from("feed_posts").select(personFields).eq("id",requested).maybeSingle(),
+     client.from("vatra_community_posts").select(clubFields).eq("id",requested).maybeSingle()
     ]);
     const person=found[0].status==="fulfilled"&&!found[0].value.error?found[0].value.data:null;
-    const club=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
-    const direct=person?{...person,kind:"person"}:club?{...club,kind:"group"}:null;
+    const group=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
+    const direct=person?{...person,kind:"person"}:group?{...group,kind:"group"}:null;
     if(direct){
-     visibleFeed.unshift(direct);
-     await Promise.all([loadPublicNames([direct.author_vatra_id]),loadAvatars([direct.author_vatra_id])]);
+     page.unshift(direct);
+     renderedIds.add(direct.kind+":"+direct.id);
     }
    }
-   renderPage(true);
+   await Promise.all([
+    loadPublicNames(page.map(p=>p.author_vatra_id)),
+    loadAvatars(page.map(p=>p.author_vatra_id))
+   ]);
+   for(const item of page){visibleFeed.push(item);posts.append(card(item));}
+   const outstanding=[sourceState.person,sourceState.group].some(x=>x.queue.length||!x.done);
+   more.hidden=!outstanding;
+   displayEmpty();
    if(requested){
     const target=[...posts.querySelectorAll("[data-post-id]")].find(el=>el.dataset.postId===requested);
     if(target){target.classList.add("is-linked-post");target.scrollIntoView({block:"center",behavior:"auto"});}
    }
   }catch(_){
-   // Do not leave skeleton cards hanging if the Feed request fails.
-   posts.replaceChildren();
+   if(reset)posts.replaceChildren();
    message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
     "Could not load your Feed. Please retry."));
   }finally{
