@@ -181,7 +181,17 @@ function createRow(record,name,index,onChange,photoUrl){
  return article;
 }
 async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
- list.replaceChildren();
+ // Keep real row geometry visible until data is ready; no blank flash after route auth.
+ const placeholders=Array.from({length:Math.min(3,opts.size)},(_,i)=>{
+  const row=make("div","vatra-notification-skeleton ui-notification-skeleton-"+i);
+  row.setAttribute("aria-hidden","true");
+  const avatar=make("span","vatra-notification-skeleton-avatar ui-notification-skeleton-avatar-"+i);
+  const body=make("span","vatra-notification-skeleton-lines ui-notification-skeleton-lines-"+i);
+  body.append(make("span","vatra-notification-skeleton-line ui-notification-skeleton-line-a-"+i),
+   make("span","vatra-notification-skeleton-line short ui-notification-skeleton-line-b-"+i));
+  row.append(avatar,body);return row;
+ });
+ list.replaceChildren(...placeholders);
  status.hidden=true;list.setAttribute("aria-busy","true");
  try{
   const {rows,hasNext}=await fetchRows(opts);
