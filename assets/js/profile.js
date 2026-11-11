@@ -421,7 +421,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
 async function setupProfileMedia(client,ownId,targetId,isMine,userId){
- const cover=q("#profile-cover-image"),avatar=q("#profile-avatar");
+ const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const message=q("#profile-media-status");
@@ -620,13 +620,27 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
  document.addEventListener("pointerdown",event=>{
   if(!avatarWrap.contains(event.target))closeAvatarMenu();
  });
+ // A real <img> is independent of the decorative CSS fallback, masks and pseudoelements.
+ coverPhoto.addEventListener("load",()=>{
+  if(!photoURLs.cover)return;
+  coverPhoto.hidden=false;
+  cover.classList.add("has-photo");
+  coverView.hidden=false;
+ });
+ coverPhoto.addEventListener("error",()=>{
+  coverPhoto.hidden=true;coverView.hidden=true;
+  cover.classList.remove("has-photo");
+ });
  const display=record=>{
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
-  coverView.hidden=!photoURLs.cover;
-  // Render the real cover as one rectangular background layer, never a decorative pseudo-element.
-  if(photoURLs.cover)setImage(cover,photoURLs.cover);
-  else{cover.style.removeProperty("background-image");cover.classList.remove("has-photo");}
+  cover.style.removeProperty("background-image");
+  cover.style.removeProperty("--vatra-cover-image");
+  cover.classList.remove("has-photo");
+  coverView.hidden=true;
+  coverPhoto.hidden=true;
+  if(photoURLs.cover)coverPhoto.src=photoURLs.cover;
+  else coverPhoto.removeAttribute("src");
   if(photoURLs.avatar){
    setImage(avatar,photoURLs.avatar);avatar.textContent="";
    // Posts may load before profile media; update their avatars after the
