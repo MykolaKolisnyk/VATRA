@@ -224,6 +224,8 @@
    }
    await loadPublicNames(items.map(x=>x.author_vatra_id));
    holder.replaceChildren();
+   if(!items.length)holder.append(node("p","feed-story-empty-note vt-feed-story-empty-note-001",
+    t("Історії друзів з’являться тут.","Friends’ stories will appear here.")));
    for(const story of items){
     const id=String(story.author_vatra_id);
     const button=node("button","feed-story-preview ui-feed-story-live-preview-001");
@@ -239,7 +241,8 @@
     });
     holder.append(button);
    }
-  }catch(_){holder.replaceChildren();}
+  }catch(_){holder.replaceChildren(node("p","feed-story-empty-note vt-feed-story-unavailable-001",
+   t("Історії зараз недоступні.","Stories are temporarily unavailable.")));}
  }
  function bindComposer(){
   const dialog=q("#feed-compose-dialog"),form=q("#feed-compose-form");
