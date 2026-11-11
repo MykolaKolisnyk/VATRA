@@ -112,12 +112,12 @@ async function start(){
     .map(x=>x.trim()).join(" ")||String(meta.full_name||"").trim()||
     t("Учасник VATRA","VATRA member");
   const cleanName=Array.from(ownName).slice(0,100).join("");
-  $("#feed-menu-name").textContent=Array.from((typeof meta.first_name==="string"&&meta.first_name.trim()?meta.first_name.trim():cleanName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
+  const headerName=Array.from((typeof meta.first_name==="string"&&meta.first_name.trim()?meta.first_name.trim():cleanName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   const nameParts=cleanName.split(/\s+/).filter(Boolean);
   const first=(Array.from(nameParts[0]||"V")[0]||"V");
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
   const avatar=(first+last).toLocaleUpperCase(english?"en-US":"uk-UA");
-  $("#feed-header-avatar").textContent=avatar;
+  window.VATRA_AVATAR?.setHeader({email:user.email,name:headerName,initials:avatar});
   window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
   const ownId=account?.vatra_id==null?null:String(account.vatra_id);
