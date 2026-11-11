@@ -1130,6 +1130,15 @@ feedMarkup.includes('id="feed-compose-media"') &&
  postMediaScript.includes('createSignedUrl(path,3600)'),
  "VATRA photos and videos must be attached, published and displayed across all post surfaces");
 const feedStyle=await read("assets/css/feed.css");
+assert.doesNotThrow(()=>new Function(feedScript),"Feed script must remain valid JavaScript");
+assert.ok(
+ feedScript.includes("avatarChecks=new Map()") &&
+ feedScript.includes("image.onerror=()=>resolve(false)") &&
+ feedScript.includes("for(const id of lookup)mediaAvatars.delete(id)") &&
+ !feedScript.includes('+" · ID "+String(id)') &&
+ feedStyle.includes("body.feed-page .feed-avatar:not(.has-photo)") &&
+ feedStyle.includes("body.feed-page .feed-story-author-avatar:not(.has-photo)"),
+ "Feed avatars must validate uploaded photos and show silhouettes when Storage objects disappear");
 assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedMarkup.includes('data-i18n="n12">Стрічка</h1>')&&
  !feedMarkup.includes("Стрічка новин")&&
