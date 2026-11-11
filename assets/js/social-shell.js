@@ -564,6 +564,37 @@
  }
  window.VATRA_MOTION={reveal:revealSection};
 
+ /* The real site has extensionless routes served through a GitHub Pages
+    fallback. Fade the outgoing content without enabling cross-document View
+    Transitions that can be aborted by the intermediate route document. */
+ function setupRouteMotion(){
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  let navigating=false;
+  const to=destination=>{
+   let next;
+   try{next=new URL(destination,location.href);}catch(_){return false;}
+   if(navigating||next.origin!==location.origin||!eligible(next))return false;
+   if(next.pathname===location.pathname&&next.search===location.search&&next.hash===location.hash)return false;
+   navigating=true;
+   const navigate=()=>location.assign(next.href);
+   if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
+    navigate();return true;
+   }
+   document.body.classList.add("vatra-route-exiting");
+   window.setTimeout(navigate,145);
+   return true;
+  };
+  window.VATRA_NAVIGATE={to};
+  document.addEventListener("click",event=>{
+   if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||
+    event.shiftKey||event.altKey)return;
+   const anchor=event.target.closest?.(
+    "a.social-top-link,a.feed-header-brand,a.feed-account-profile,a.profile-back-link,a.ui-community-card-001");
+   if(!anchor||anchor.download||anchor.target&&anchor.target!=="_self")return;
+   if(document.querySelector("dialog[open]"))return;
+   if(to(anchor.href))event.preventDefault();
+  });
+ }
  /* The navigation is static; only the route content needs a network skeleton. */
  function showPendingShell(){
   const app=document.querySelector("#feed-app, #profile-app, #community-app");
@@ -580,6 +611,7 @@
  const boot=()=>{
   showPendingShell();
   setUpAccountPanel();
+  setupRouteMotion();
   setUpTooltip();
   setUpComingSoon();
   setUpStories();
