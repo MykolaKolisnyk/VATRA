@@ -345,7 +345,7 @@
     make("span","vt-profile-editor-nav-label-"+group.id,lang(group.label)));
    const marker=make("span","vt-profile-editor-nav-dot-"+group.id);
    marker.setAttribute("aria-hidden","true");btn.append(marker);
-   btn.addEventListener("click",()=>showGroup(group.id));
+   btn.addEventListener("click",()=>switchGroup(group.id));
    navButtons.set(group.id,btn);menu.append(btn);
   }
   const navFoot=make("div","ui-profile-editor-nav-footer-001");
@@ -441,6 +441,33 @@
     input.addEventListener("input",update);selectBox.addEventListener("change",update);
    }
    // Deliberately preserve unsaved draft values while switching sections.
+  };
+  // Let the outgoing section dissolve while the next one softly appears.
+  // Native view transitions do not delay Supabase saves or form navigation.
+  let activeChapterTransition=null;
+  const switchGroup=id=>{
+   if(id===selected)return;
+   if(workspace.hidden){showGroup(id);return;}
+   const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+   if(!reduced&&typeof document.startViewTransition==="function"){
+    document.documentElement.classList.add("vatra-editor-switching");
+    try{
+     const change=document.startViewTransition(()=>showGroup(id));
+     activeChapterTransition=change;
+     void change.finished.catch(()=>{}).finally(()=>{
+      if(activeChapterTransition===change){
+       activeChapterTransition=null;
+       document.documentElement.classList.remove("vatra-editor-switching");
+      }
+     });
+    }catch(_){
+     document.documentElement.classList.remove("vatra-editor-switching");
+     showGroup(id);
+    }
+   }else{
+    showGroup(id);
+    if(!reduced)window.VATRA_MOTION?.reveal(fields);
+   }
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();if(save.disabled)return;
