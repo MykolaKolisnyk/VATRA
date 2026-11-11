@@ -513,6 +513,7 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
  const input=q("#profile-edit-status"),wording=q("#profile-edit-presence-form");
  const counter=q("#profile-edit-counter"),notice=q("#profile-edit-message");
  const save=q("#profile-edit-save");
+ input.placeholder=t("Напишіть кілька слів про себе","Write a short profile status");
  open.hidden=false;
  const currentGrammar=window.VATRA_PRESENCE?.grammar(signupGender)||"neutral";
  wording.value=currentGrammar;
