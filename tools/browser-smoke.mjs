@@ -2242,6 +2242,8 @@ try{
   window.__feedTestPosts=[];window.__feedTestCounter=0;
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
+  window.__profileDetailRows=[];
+  window.__profileVisibility="public";
   window.supabase={createClient:()=>({
    auth:{
     getUser:async()=>({data:{user:{id:"feed-mock-user",
@@ -2249,7 +2251,26 @@ try{
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
    },
-   from:table=>table==="accounts"?
+   from:table=>table==="vatra_profile_preferences"?
+    {select:()=>({eq:()=>({maybeSingle:async()=>({
+     data:window.__profileVisibility==="public"?null:{profile_visibility:window.__profileVisibility},error:null
+    })})}),
+     upsert:row=>({select:()=>({maybeSingle:async()=>{
+      window.__profileVisibility=row.profile_visibility;
+      return {data:{profile_visibility:window.__profileVisibility},error:null};
+     }})})}:
+    table==="vatra_profile_details"?
+    {select:()=>({eq:async()=>({data:window.__profileDetailRows,error:null})}),
+     upsert:rows=>({select:async()=>{
+      for(const row of rows)window.__profileDetailRows=
+       window.__profileDetailRows.filter(x=>x.field_key!==row.field_key).concat(row);
+      return {data:rows.map(x=>({field_key:x.field_key})),error:null};
+     }}),
+     delete:()=>({eq:()=>({in:async(_key,keys)=>{
+      window.__profileDetailRows=window.__profileDetailRows.filter(x=>!keys.includes(x.field_key));
+      return {error:null};
+     }})})}:
+    table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     table==="vatra_directory"?
     {select:()=>({eq:(_field,id)=>({maybeSingle:async()=>({
@@ -2860,8 +2881,26 @@ try{
   assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),false);
   await profilePage.locator("#profile-status-cancel").click();
   await profilePage.locator("#profile-edit-open").click();
-  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true);
+  assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),true,
+   "Profile editing must open the VATRA information workspace");
+  assert.equal(await profilePage.locator(".profile-editor-nav-link").count(),7,
+   "The editor keeps seven profile sections");
+  await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
+  await profilePage.locator("#profile-editor-visibility-short_bio").selectOption("only_me");
+  await profilePage.locator("#profile-editor-page-visibility").selectOption("friends");
+  await profilePage.locator(".vt-profile-editor-save-001").click();
+  await profilePage.waitForFunction(()=>document.querySelector(".vt-profile-editor-feedback-001")?.dataset.kind==="success");
+  assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація");
+  assert.equal(await profilePage.locator(".vt-profile-editor-feedback-001").isVisible(),true);
+  await profilePage.locator(".vt-profile-editor-media-button-001").click();
+  assert.equal(await profilePage.locator("#profile-edit-dialog").evaluate(el=>el.open),true,
+   "The media editor remains available from the new information editor");
   await profilePage.locator("#profile-edit-cancel").click();
+  await profilePage.locator(".vt-profile-editor-back-001").click();
+  assert.equal(await profilePage.locator("#profile-edit-workspace").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true);
+  assert.equal(await profilePage.locator(".vt-profile-information-value-short_bio").textContent(),"Тестова інформація",
+   "Saved profile fields should appear immediately in Information");
   await profilePage.locator("#profile-tab-photos").click();
   assert.equal(await profilePage.locator("#profile-photos-section").isVisible(),true,
    "Photo tab must open a real on-demand gallery");
