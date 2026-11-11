@@ -384,6 +384,18 @@ body.profile-page .profile-cover.has-photo .profile-cover-motif,
 body.profile-page .profile-cover.has-photo .profile-cover-signature{
  display:none
 }
+/* Shared missing-photo state: one neutral user silhouette, not gradient initials.
+   The real photo takes precedence once .has-photo is added. */
+body.feed-page .feed-header-avatar:not(.has-photo),
+body.feed-page .feed-composer-avatar:not(.has-photo),
+body.feed-page .feed-post-avatar:not(.has-photo),
+body.feed-page .profile-avatar:not(.has-photo),
+body.feed-page .feed-story-avatar:not(.has-photo){
+ background-color:#edf2f8;
+ background-image:var(--vatra-default-avatar);
+ background-size:72%;background-repeat:no-repeat;background-position:center;
+ color:transparent;font-size:0
+}
 body.profile-page .profile-avatar.has-photo,body.feed-page .feed-header-avatar.has-photo,
 body.feed-page .feed-composer-avatar.has-photo,body.feed-page .feed-post-avatar.has-photo{
  background-size:cover;background-position:center;background-repeat:no-repeat
