@@ -71,6 +71,7 @@ const finish=()=>{
  q("#profile-loading").hidden=true;
  document.body.dataset.authReady="true";
  document.body.dataset.feedReady="true";
+  document.body.classList.remove("vatra-shell-pending");
 };
 const gateError=message=>{
  const loader=q("#profile-loading");
@@ -86,15 +87,14 @@ const gateError=message=>{
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
 function missingProfile(){
- // Missing IDs are not profiles: don't render a default cover, avatar,
- // profile tabs or an extra explanatory card below the heading.
- // Remove nonexistent-profile artwork and tabs from the DOM entirely,
- // rather than relying on [hidden] against page-specific display selectors.
- q(".profile-hero")?.remove();
+ // Preserve the cover/avatar but never invent profile actions or member details.
+ const name=q("#profile-heading");
+ if(name){name.removeAttribute("data-i18n");
+  name.textContent=t("Користувача не знайдено","User not found");}
+ q("#profile-vatra-id")?.remove();
+ q(".profile-actions")?.remove();
+ q(".social-profile-tabs")?.remove();
  q(".profile-panels")?.remove();
- const heading=q("#profile-not-found");
- heading.textContent=t("Користувача не знайдено","User not found");
- heading.hidden=false;
  document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
  finish();
 }
@@ -615,7 +615,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId){
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
   coverView.hidden=!photoURLs.cover;
   if(photoURLs.cover)cover.style.setProperty("--vatra-cover-image","url("+JSON.stringify(photoURLs.cover)+")");
-  if(photoURLs.cover)setImage(cover,photoURLs.cover);
+  if(photoURLs.cover)cover.classList.add("has-photo");
   if(photoURLs.avatar){
    setImage(avatar,photoURLs.avatar);avatar.textContent="";
    // Posts may load before profile media; update their avatars after the
@@ -752,7 +752,7 @@ async function start(){
   q("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   setMenuLink(ownId);
   // Keep the signed-in user's avatar even when a visited VATRA ID does not exist.
-  await loadOwnHeaderAvatar(client,ownId);
+  void loadOwnHeaderAvatar(client,ownId);
   const form=q("#feed-search-form");
   form?.addEventListener("submit",event=>{
    event.preventDefault();
@@ -817,8 +817,7 @@ async function start(){
   }
   document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
   setupProfileInteractions(client,ownId,targetId,isMine);
-  q("#profile-cover-image").classList.add("is-loading-media");
-  q("#profile-avatar-wrap").classList.add("is-loading-media");
+  /* Keep the real profile cover and avatar fallback visible while media arrives. */
   // Media and Stories can arrive after the identity is verified; do not hold
   // the entire profile behind a splash while these secondary requests run.
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id);
