@@ -1367,12 +1367,15 @@ assert.ok(
  !socialMotion.includes('window.setTimeout(navigate,145)') &&
  !socialMotion.includes('classList.add("vatra-route-exiting")') &&
  feedStyle.includes("body.feed-page.vatra-shell-pending .feed-app > .feed-layout") &&
- feedStyle.includes("html.vatra-editor-switching::view-transition-old(root)") &&
+ !feedStyle.includes("vatra-editor-switching") &&
+ !memberCss.includes("view-transition-name:vatra-editor") &&
  feedStyle.includes("@media(prefers-reduced-motion:reduce)") &&
- socialMotion.includes("window.VATRA_MOTION={reveal:revealSection}") &&
- profileScript.includes("window.VATRA_MOTION?.reveal(activePanel)") &&
- detailsModule.includes("document.startViewTransition(()=>showGroup(id))"),
- "VATRA section links must navigate immediately while preserving data skeletons and in-page editing");
+ !socialMotion.includes("VATRA_MOTION") &&
+ !profileScript.includes("VATRA_MOTION") &&
+ !profileScript.includes("document.startViewTransition(") &&
+ profileScript.includes("if(id!==selected)showGroup(id)") &&
+ profileScript.includes("panel.hidden=panel.dataset.profilePanel!==name"),
+ "VATRA routes, tabs and editor chapters must switch immediately while preserving data skeletons");
 assert.ok(
  signInCss.includes("background:#fff;border:1.5px solid #a7bff3;color:#285ec6") &&
  memberProfileMarkup.includes('class="profile-posts-overview ui-profile-posts-overview-001"') &&
