@@ -126,7 +126,7 @@ function bind({prefix,ownerId,getFile}){
   next.disabled=!textarea.value.trim()&&!(typeof getFile==="function"&&getFile());
  }
  function setStage(name){
-  if(name==="settings"&&!textarea.value.trim()&&!picker?.files?.length)return false;
+  if(name==="settings"&&!textarea.value.trim()&&!(typeof getFile==="function"&&getFile()))return false;
   view="compose";stage=name;
   edit.hidden=name!=="edit";settings.hidden=name!=="settings";draftsPanel.hidden=true;
   back.hidden=name==="edit";drafts.hidden=name!=="edit";
@@ -185,7 +185,7 @@ function bind({prefix,ownerId,getFile}){
  return {
   open(){setStage("edit");edit.scrollTop=0;upload.focus({preventScroll:true});},
   reset(){if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}setStage("edit");},
-  step(){return stage;},setStage
+  step(){return stage;},setStage,sync
  };
 }
 window.VATRA_COMPOSER_UI={bind};
