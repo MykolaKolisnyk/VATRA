@@ -1276,7 +1276,7 @@ const postMediaScript=await read("assets/js/post-media.js");
 assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
  storyPreviewMarkup.includes('id="feed-story-media-preview"')&&
  storyPreviewMarkup.includes('id="feed-story-view-media"')&&
- !/id="feed-story-text"[^>]*\\srequired/.test(storyPreviewMarkup)&&
+ !/id="feed-story-text"[^>]*\srequired/.test(storyPreviewMarkup)&&
  memberProfileMarkup.includes('id="profile-story-viewer-media"')&&
  feedScript.includes('VATRA_POST_MEDIA.uploadStory(client,vatraId,file)')&&
  profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
