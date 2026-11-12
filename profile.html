@@ -209,14 +209,31 @@
                 <h2 id="profile-about-heading" class="vt-profile-about-heading-001" data-social-uk="Про мене" data-social-en="About me">
                   Про мене
                 </h2>
-                <p id="profile-about-text" class="vt-profile-about-text-001">
-                  Інформацію про себе поки не додано.
-                </p>
+                <p id="profile-about-text" class="vt-profile-about-text-001" hidden></p>
               </aside>
               <div class="profile-posts-main ui-profile-posts-main-001">
                 <header class="profile-posts-overview ui-profile-posts-overview-001">
                   <h2 class="vt-profile-posts-overview-title-001" data-social-uk="Публікації" data-social-en="Posts">Публікації</h2>
+                  <div class="profile-post-filter-wrap ui-profile-post-filter-wrap-001">
+                    <button id="profile-post-filter-button" class="vt-profile-post-filter-button-001" type="button" aria-expanded="false" aria-controls="profile-post-filter-panel">
+                      <svg class="ui-profile-post-filter-icon-001" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path class="ui-profile-post-filter-icon-path-001" d="M4 7h16M4 17h16M9 4v6M16 14v6"/>
+                      </svg>
+                      <span class="vt-profile-post-filter-label-001" data-social-uk="Фільтри" data-social-en="Filters">Фільтри</span>
+                    </button>
+                    <div id="profile-post-filter-panel" class="profile-post-filter-panel ui-profile-post-filter-panel-001" hidden>
+                      <p class="vt-profile-post-filter-heading-001" data-social-uk="Дата публікації" data-social-en="Publication date">Дата публікації</p>
+                      <div class="profile-post-filter-fields ui-profile-post-filter-fields-001">
+                        <label class="vt-profile-post-filter-year-label-001" for="profile-post-filter-year" data-social-uk="Рік" data-social-en="Year">Рік</label>
+                        <select id="profile-post-filter-year" class="ui-profile-post-filter-year-001"></select>
+                        <label class="vt-profile-post-filter-month-label-001" for="profile-post-filter-month" data-social-uk="Місяць" data-social-en="Month">Місяць</label>
+                        <select id="profile-post-filter-month" class="ui-profile-post-filter-month-001" disabled></select>
+                      </div>
+                      <button id="profile-post-filter-reset" class="vt-profile-post-filter-reset-001" type="button" data-social-uk="Скинути фільтр" data-social-en="Clear filter">Скинути фільтр</button>
+                    </div>
+                  </div>
                 </header>
+                <p id="profile-post-filter-status" class="vt-profile-post-filter-status-001" aria-live="polite" hidden></p>
                 <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false">
                 </div>
                 <p id="profile-posts-empty" class="profile-posts-empty vt-profile-posts-empty-001" hidden>
