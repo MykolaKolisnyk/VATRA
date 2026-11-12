@@ -51,6 +51,7 @@ if(guard.split(oldPath).length!==2)
 guard=guard.replace(oldPath,
  '(/^\\/VATRA(?:\\/|$)/.test(location.pathname)||'+
  '/^\\/(?:id|club)[1-9][0-9]{0,18}$/.test(location.pathname)||'+
+ '/^\\/(?:feed|profile|club|communities|notifications|create-account|forgot|reset|verify|terms|privacy|cookies|offline)$/.test(location.pathname)||'+
  'location.pathname==="/")');
 guard+="\n// Server-rendered permalinks on the VPS are genuine HTTP 200 responses.\n";
 guard+="window.VATRA_HTTP200_ROUTES=window.VATRA_HOST_ALLOWED===true;\n";
