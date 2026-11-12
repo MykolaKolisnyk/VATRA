@@ -661,19 +661,39 @@ function missingProfile(){
  document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
  finish();
 }
+let profilePostsRequest=0;
 async function loadPosts(client,targetId,ownId,userId,append=false){
  const list=q("#profile-posts"),empty=q("#profile-posts-empty"),more=q("#profile-posts-more");
- if(!list||list.dataset.loading==="true")return;
+ if(!list||(append&&list.dataset.loading==="true"))return;
+ const ticket=++profilePostsRequest;
  const offset=append?Number(list.dataset.offset||0):0;
+ const year=Number(q("#profile-post-filter-year")?.value||0);
+ const month=Number(q("#profile-post-filter-month")?.value||0);
  list.dataset.loading="true";list.setAttribute("aria-busy","true");
+ if(!append){
+  list.replaceChildren();
+  empty.textContent=t("Завантаження публікацій…","Loading posts…");
+  empty.hidden=false;
+  list.dataset.offset="0";
+  if(more)more.hidden=true;
+ }
  if(more)more.disabled=true;
  try{
   let query=client.from("feed_posts")
    .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId);
   if(typeof query.is==="function")query=query.is("archived_at",null);
+  // Filter on the database before pagination: a page never contains posts
+  // outside the selected local year/month, and RLS remains authoritative.
+  if(year>=2026&&year<=9999){
+   const start=new Date(year,month?month-1:0,1);
+   const end=month?new Date(year,month,1):new Date(year+1,0,1);
+   query=query.gte("created_at",start.toISOString())
+    .lt("created_at",end.toISOString());
+  }
   const {data,error}=await query.order("created_at",{ascending:false})
    .order("id",{ascending:false}).range(offset,offset+11);
+  if(ticket!==profilePostsRequest)return;
   if(error)throw error;
   const rows=data||[];
   if(!append)list.replaceChildren();
@@ -738,7 +758,9 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   }
   list.dataset.offset=String(offset+rows.length);
   empty.hidden=list.querySelector(".feed-post-card")!==null;
-  if(!empty.hidden)empty.textContent=t("Публікацій поки немає.","No posts yet.");
+  if(!empty.hidden)empty.textContent=year?
+   t("За вибраний період публікацій немає.","No posts in the selected period."):
+   t("Публікацій поки немає.","No posts yet.");
   if(more){
    more.hidden=rows.length<12;
    if(!more.dataset.bound){
@@ -747,14 +769,71 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    }
   }
  }catch(_){
+  if(ticket!==profilePostsRequest)return;
   if(!append)list.replaceChildren();
   empty.textContent=t("Не вдалося завантажити публікації. Спробуйте оновити сторінку.",
    "Could not load posts. Try refreshing this page.");
   empty.hidden=false;
  }finally{
-  list.dataset.loading="false";list.setAttribute("aria-busy","false");
-  if(more)more.disabled=false;
+  if(ticket===profilePostsRequest){
+   list.dataset.loading="false";list.setAttribute("aria-busy","false");
+   if(more)more.disabled=false;
+  }
  }
+}
+function setupProfilePostFilters(client,targetId,ownId,userId){
+ const wrap=q(".profile-post-filter-wrap"),toggle=q("#profile-post-filter-button");
+ const panel=q("#profile-post-filter-panel"),year=q("#profile-post-filter-year");
+ const month=q("#profile-post-filter-month"),reset=q("#profile-post-filter-reset");
+ const status=q("#profile-post-filter-status");
+ if(!wrap||!toggle||!panel||!year||!month||!reset||!status)return;
+ const option=(value,label)=>{
+  const item=document.createElement("option");
+  item.value=String(value);item.textContent=label;return item;
+ };
+ year.replaceChildren(option("",t("Усі роки","All years")));
+ const current=new Date().getFullYear();
+ for(let value=Math.max(2026,current);value>=2026;value--)
+  year.append(option(value,String(value)));
+ month.replaceChildren(option("",t("Усі місяці","All months")));
+ for(let index=0;index<12;index++){
+  const label=new Intl.DateTimeFormat(locale,{month:"long"}).format(new Date(2026,index,1));
+  month.append(option(index+1,label.charAt(0).toLocaleUpperCase(locale)+label.slice(1)));
+ }
+ month.disabled=true;
+ const close=()=>{
+  panel.hidden=true;toggle.setAttribute("aria-expanded","false");
+ };
+ const refresh=()=>{
+  if(!year.value){month.value="";month.disabled=true;}
+  else month.disabled=false;
+  const active=!!year.value;
+  toggle.dataset.active=String(active);
+  status.hidden=!active;
+  if(active){
+   const selected=month.value?
+    new Intl.DateTimeFormat(locale,{month:"long",year:"numeric"})
+     .format(new Date(Number(year.value),Number(month.value)-1,1)):
+    year.value;
+   status.textContent=t("Публікації за ","Posts for ")+selected;
+  }else status.textContent="";
+  void loadPosts(client,targetId,ownId,userId);
+ };
+ toggle.addEventListener("click",()=>{
+  panel.hidden=!panel.hidden;
+  toggle.setAttribute("aria-expanded",String(!panel.hidden));
+ });
+ year.addEventListener("change",refresh);
+ month.addEventListener("change",refresh);
+ reset.addEventListener("click",()=>{
+  year.value="";month.value="";refresh();close();
+ });
+ document.addEventListener("click",event=>{
+  if(!panel.hidden&&!wrap.contains(event.target))close();
+ });
+ document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"&&!panel.hidden){close();toggle.focus();}
+ });
 }
 function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  const savedTab=q("#profile-tab-saved"),archiveWrap=q("#profile-archive-wrap"),
@@ -1891,6 +1970,7 @@ async function start(){
   if(!locked){
    setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
    setupProfileGallery(client,targetId);
+   setupProfilePostFilters(client,targetId,ownId,user.id);
   }
   // Keep the skeleton until both real photos have loaded, rather than flashing
   // default avatar/cover followed by the user's real artwork.
