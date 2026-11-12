@@ -2483,6 +2483,17 @@ try{
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
+  assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,
+   "Feed uses the shared VATRA post editor");
+  await feedProbe.locator("#feed-compose-media").setInputFiles({
+   name:"vatra-test.png",mimeType:"image/png",
+   buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")
+  });
+  assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
+   "Selecting media without text must unlock Next in Feed");
+  await feedProbe.locator("#feed-compose-media-remove").click();
+  assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isDisabled(),true,
+   "Removing the only attachment must lock Next in Feed");
   await feedProbe.locator("#feed-compose-text").fill("VATRA Feed publishing smoke test");
   await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
   await feedProbe.locator("#feed-compose-save").click();
@@ -2490,6 +2501,11 @@ try{
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),
    "VATRA Feed publishing smoke test",
    "Feed composer must save to the real feed_posts repository");
+  assert.equal(await feedProbe.locator(".vatra-post-comments-panel").isVisible(),true,
+   "A post must always display its inline comments panel");
+  assert.equal(await feedProbe.locator(".vt-vatra-post-action-label-001").first().evaluate(
+   el=>getComputedStyle(el).position),"absolute",
+   "Post actions must be icon-only but remain accessible");
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
@@ -3056,6 +3072,16 @@ try{
    "Only the signed-in member may open the real post creator on their profile");
   await profilePage.locator("#profile-write-post").click();
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),true);
+  assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(
+   el=>el.classList.contains("vatra-post-composer-dialog")),true,
+   "Profile and Feed must use the same post editor");
+  await profilePage.locator("#profile-compose-media").setInputFiles({
+   name:"vatra-test.png",mimeType:"image/png",
+   buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")
+  });
+  assert.equal(await profilePage.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
+   "Selecting photo without text unlocks the Profile editor");
+  await profilePage.locator("#profile-compose-media-remove").click();
   await profilePage.locator("#profile-compose-text").fill(injectionText);
   await profilePage.locator(".vt-vatra-post-composer-next-001").click();
   await profilePage.locator("#profile-compose-submit").click();
