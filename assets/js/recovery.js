@@ -1,4 +1,4 @@
-/* VATRA Password recovery: page-specific behavior; shared utilities are in auth.js. */
+/* VATRA Password recovery: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
