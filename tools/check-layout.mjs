@@ -1427,7 +1427,8 @@ assert.ok(
  !feedStyle.includes("vatra-route-exiting") &&
  !feedStyle.includes("vatraRouteReadyReveal") &&
  socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
- socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
+ !socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
+ socialMotion.includes('const member=id=>validMember(id)?new URL("id"+id,base).href:null;') &&
  socialMotion.includes('location.assign(next.href)') &&
  !socialMotion.includes('window.setTimeout(navigate,145)') &&
  !socialMotion.includes('classList.add("vatra-route-exiting")') &&
