@@ -2443,3 +2443,31 @@ body.profile-page.feed-page .profile-avatar:not(.has-photo)::before,body.profile
 body.profile-page .profile-friend-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-size:cover!important;background-position:center!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
+
+/* System portraits and private profiles are noninteractive, never translucent.
+   The global disabled-button opacity must not fade a portrait inside the button. */
+body.profile-page .profile-avatar-trigger:disabled{
+ opacity:1!important;filter:none!important
+}
+/* The accent rim belongs to every profile, not just active stories.
+   Match the real-image and WebP avatar edge to the dominant portrait color. */
+body.profile-page .profile-avatar-wrap::before{
+ content:"";position:absolute;inset:-6px;z-index:0;border-radius:50%;
+ background:var(--vatra-avatar-accent,#7990b6);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 65%,white);
+ pointer-events:none
+}
+body.profile-page .profile-avatar-wrap .profile-avatar{
+ border-color:var(--vatra-avatar-accent,#7990b6)!important;
+ opacity:1!important
+}
+body.profile-page .profile-cover:not(.has-photo)::before{
+ border-color:color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 68%,white);
+ box-shadow:0 0 0 44px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 13%,transparent),
+            0 0 0 110px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 9%,transparent)
+}
+body.profile-page .profile-cover:not(.has-photo) .profile-cover-motif{
+ border:2px solid color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 83%,white);
+ box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 22%,transparent),
+            0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 12%,transparent)
+}
