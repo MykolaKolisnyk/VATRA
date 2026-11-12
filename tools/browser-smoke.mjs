@@ -2747,6 +2747,8 @@ try{
    document.querySelectorAll('#feed-posts .feed-post-card').length===0&&
    !document.querySelector('#feed-empty').hidden);
   assert.equal(await feedProbe.locator('[data-feed-filter="friends"]').getAttribute("aria-pressed"),"true");
+  assert.equal((await feedProbe.locator("#feed-filter-summary").textContent()).trim(),
+   language==="en"?"Posts from your friends":"Дописи ваших друзів");
   assert.equal(await feedProbe.locator('[data-feed-filter="all"]').getAttribute("aria-pressed"),"false");
   await feedProbe.locator('[data-feed-filter="communities"]').click();
   await feedProbe.waitForFunction(()=>
@@ -2754,6 +2756,8 @@ try{
    document.querySelector('#feed-empty .feed-empty-subtitle')?.textContent.includes(
      document.documentElement.lang==='en'?'No posts from your communities yet.':'У ваших спільнотах поки немає дописів.'));
   assert.equal(await feedProbe.locator('[data-feed-filter="communities"]').getAttribute("aria-pressed"),"true");
+  assert.equal((await feedProbe.locator("#feed-filter-summary").textContent()).trim(),
+   language==="en"?"Posts from your communities":"Дописи ваших спільнот");
   await feedProbe.locator('[data-feed-filter="all"]').click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll("#feed-posts .feed-post-card").length===1);
   assert.equal(await feedProbe.locator('[data-feed-filter="all"]').getAttribute("aria-pressed"),"true",
@@ -2901,6 +2905,8 @@ try{
   assert.equal(await profilePage.locator("#profile-write-post svg").count(),1,
    "Owner's publication action must have a VATRA icon");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
+  assert.equal((await profilePage.locator(".vt-social-profile-posts-tab-label-001").textContent()).trim(),
+   language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
    "Information must be beside compact posts instead of its own tab");
   assert.equal((await profilePage.locator(".vt-profile-posts-overview-title-001").textContent()).trim(),
@@ -3069,6 +3075,17 @@ try{
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
+  // Private profiles still show their portrait and cover, but all fullscreen
+  // viewer, story and avatar action entry points are blocked in the UI.
+  await profilePage.locator("#profile-cover-photo").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator("#profile-cover-image").evaluate(el=>el.classList.contains("has-photo")),true);
+  assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),false,
+   "Private cover remains visible without a clickable full-screen target");
+  assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true,
+   "Private portrait must not open a viewer or active-story menu");
+  assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),false);
+  await profilePage.evaluate(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
   const visitorColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
    const about=section.querySelector("#profile-about-card")?.getBoundingClientRect();
    const posts=section.querySelector(".profile-posts-main")?.getBoundingClientRect();
@@ -3113,6 +3130,15 @@ try{
   assert.equal(await profilePage.locator(".profile-hero").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-cover-image").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
+  const fallbackStyle=await profilePage.locator("#profile-avatar").evaluate(el=>{
+   const style=getComputedStyle(el),head=getComputedStyle(el,"::before");
+   const width=el.getBoundingClientRect().width;
+   return {image:style.backgroundImage,head:head.content,
+    headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
+  });
+  assert.equal(fallbackStyle.image,"none","Missing avatar has no translucent background image");
+  assert.ok(fallbackStyle.head!=="none"&&Math.abs(fallbackStyle.headCenter-.5)<.045,
+   "Missing profile avatar silhouette is centered inside its ring: "+JSON.stringify(fallbackStyle));
   assert.equal(await profilePage.locator(".profile-actions").count(),0);
   assert.equal(await profilePage.locator(".profile-panels").count(),0);
   assert.equal(await profilePage.locator(".social-profile-tabs").count(),0,
