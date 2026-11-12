@@ -16,7 +16,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "/VATRA/favicon.svg",
+      "src": "/VATRA/assets/logo/vatra-app-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
