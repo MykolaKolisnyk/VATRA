@@ -2567,3 +2567,37 @@ body.feed-page .vt-vatra-post-comments-filter-label-001{font-size:0!important}
 @media(max-width:1100px){
  body.feed-page .vatra-scroll-rail{display:none!important}
 }
+
+/* Real friend-story attachments: safe signed media, readable captions and no extra controls. */
+body.feed-page .feed-story-preview .feed-story-cover{
+ position:absolute;inset:0;z-index:0;display:block;width:100%;height:100%;
+ overflow:hidden;pointer-events:none
+}
+body.feed-page .feed-story-preview .feed-story-cover[hidden]{display:none!important}
+body.feed-page .feed-story-preview .feed-story-cover img,
+body.feed-page .feed-story-preview .feed-story-cover video{
+ display:block;width:100%;height:100%;object-fit:cover
+}
+body.feed-page .feed-story-preview .feed-story-author-avatar,
+body.feed-page .feed-story-preview .vt-feed-story-live-body-001,
+body.feed-page .feed-story-preview .vt-feed-story-live-name-001{position:relative;z-index:2}
+body.feed-page .feed-story-preview::after{z-index:1;pointer-events:none}
+body.feed-page .ui-feed-story-media-preview-001 img,
+body.feed-page .ui-feed-story-media-preview-001 video{
+ max-height:190px;max-width:100%;object-fit:contain
+}
+body.feed-page .feed-story-view-media{
+ display:grid;place-items:center;min-height:230px;max-height:58dvh;
+ width:100%;margin:12px 0;overflow:hidden;border-radius:12px;
+ background:rgba(12,23,51,.2);font:550 13px/1.5 "Onest",sans-serif;text-align:center
+}
+body.feed-page .feed-story-view-media[hidden],
+body.feed-page .vt-feed-story-view-body-001[hidden]{display:none!important}
+body.feed-page .feed-story-view-media img,
+body.feed-page .feed-story-view-media video{
+ display:block;width:100%;max-height:58dvh;object-fit:contain;border-radius:12px
+}
+body.feed-page .feed-story-view:has(.feed-story-view-media:not([hidden])) .vt-feed-story-view-body-001{
+ min-height:0;padding:12px;font:680 15px/1.55 "Onest",sans-serif
+}
+body.feed-page .feed-story-view:has(.feed-story-view-media:not([hidden])){min-height:0}
