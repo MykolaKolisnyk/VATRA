@@ -8,6 +8,12 @@
     // GitHub Pages serves this fallback for /idN and /clubN. Render the
     // corresponding static document in-place, so the browser never visits
     // /profile.html or /club.html on its way to a permanent public URL.
+    const legacyProfile=location.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
+    if(legacyProfile){
+      // Existing bookmarks now open actual HTTP-200 profile HTML.
+      location.replace("/VATRA/profile.html?vatra_id="+legacyProfile[1]);
+      return;
+    }
     const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
     if(dynamic){
       document.documentElement.classList.add("vatra-dynamic-route-pending");
