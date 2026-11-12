@@ -279,10 +279,14 @@ function appendAudience(container,level,isGroup=false){
      const likeComment=make("button","vt-vatra-post-comment-like-001");
      likeComment.type="button";
      let countValue=Number(item.likes)||0,ownLiked=ownLikes.has(item.id);
+     const commentHeart=glyph("heart");
+     const heartCount=make("span","vt-vatra-post-comment-like-count-001");
+     likeComment.append(commentHeart,heartCount);
+     likeComment.setAttribute("aria-label",tr("Подобається","Like"));
      const renderCommentLike=()=>{
-      likeComment.textContent=(ownLiked?"♥ ":"♡ ")+
-       tr("Подобається","Like")+(countValue?" · "+countValue:"");
+      heartCount.textContent=countValue?String(countValue):"";
       likeComment.setAttribute("aria-pressed",String(ownLiked));
+      likeComment.setAttribute("aria-label",ownLiked?tr("Прибрати вподобання","Unlike"):tr("Подобається","Like"));
      };
      renderCommentLike();
      likeComment.addEventListener("click",async()=>{
