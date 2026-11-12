@@ -139,7 +139,7 @@ body.feed-page:not(.community-page){--social-ink:#29374e;--social-soft:#75839c;-
 }
 
 
-/* VATRA authenticated shell — shares the quiet Onest typography and palette of auth.css.
+/* VATRA authenticated shell — shares the quiet Onest typography and palette of base.css.
    ONE header navigation; no double navigation, fake links or unimplemented settings pages. */
 body.feed-page{background:#f6f8fc;color:var(--ink);font-family:"Onest",Inter,system-ui,sans-serif}
 body.feed-page .feed-app[hidden],
