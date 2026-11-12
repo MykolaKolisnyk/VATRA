@@ -599,13 +599,10 @@
     direct.hash=next.hash;
     next=direct;
    }
+   // Navigate immediately. Waiting for a cosmetic fade adds latency to every
+   // section change; the destination already has its own data-loading state.
    navigating=true;
-   const navigate=()=>location.assign(next.href);
-   if(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
-    navigate();return true;
-   }
-   document.body.classList.add("vatra-route-exiting");
-   window.setTimeout(navigate,145);
+   location.assign(next.href);
    return true;
   };
   window.VATRA_NAVIGATE={to};
@@ -618,7 +615,7 @@
    if(to(anchor.href))event.preventDefault();
   });
  }
- /* The navigation is static; only the route content needs a network skeleton. */
+ /* Keep the server/data loading skeleton only; no artificial route fade. */
  function showPendingShell(){
   const app=document.querySelector("#feed-app, #profile-app, #community-app");
   const loader=document.querySelector("#feed-loading, #profile-loading, #community-loading");
