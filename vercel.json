@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node tools/build-vercel.mjs",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/VATRA/index.html"
+    },
+    {
+      "source": "/VATRA",
+      "destination": "/VATRA/index.html"
+    },
+    {
+      "source": "/VATRA/:member(id[1-9][0-9]{0,18})",
+      "destination": "/VATRA/profile.html"
+    },
+    {
+      "source": "/VATRA/:community(club[1-9][0-9]{0,18})",
+      "destination": "/VATRA/club.html"
+    },
+    {
+      "source": "/:member(id[1-9][0-9]{0,18})",
+      "destination": "/VATRA/profile.html"
+    },
+    {
+      "source": "/:community(club[1-9][0-9]{0,18})",
+      "destination": "/VATRA/club.html"
+    },
+    {
+      "source": "/VATRA/:page(feed|profile|communities|notifications|club|create-account|forgot|reset|verify|terms|privacy|cookies|offline)",
+      "destination": "/VATRA/:page.html"
+    }
+  ]
+}
