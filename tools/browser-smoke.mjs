@@ -2797,6 +2797,10 @@ try{
     "The removed VATRA tour must not appear in the DOM");
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
+  profilePage.on("console",message=>{
+   if(message.type()==="error")console.log("VATRA browser console:",message.text());
+  });
+  profilePage.on("pageerror",error=>console.log("VATRA browser pageerror:",error.message));
   // The public cover is a real image now; serve a deterministic pixel in mocks.
   await profilePage.route("**/storage/v1/object/public/vatra-covers/**",route=>route.fulfill({
    status:200,contentType:"image/gif",
