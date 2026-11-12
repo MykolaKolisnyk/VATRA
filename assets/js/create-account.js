@@ -433,7 +433,7 @@ function wireCreateAccount(){
     }
    });
    if(error)throw error;
-   if(data?.session){if(data?.user?.email_confirmed_at)rememberAccount(data.user);form.reset();await goToFeed();return;}
+   if(data?.session&&data?.user?.email_confirmed_at){rememberAccount(data.user);form.reset();goToFeed();return;}
    for(const selector of ["#password","#password-confirm"]){const field=q(selector);if(field){field.value="";field.dispatchEvent(new Event("input",{bubbles:true}));}}
    markSignupPending(email);
   }catch(error){feedback(getMessage(error),"error");}finally{resetCaptcha(form);busy(form,false);}
