@@ -140,3 +140,9 @@ body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{
  content:"";position:absolute;left:18%;bottom:10%;width:64%;height:39%;
  border-radius:55% 55% 24% 24% / 70% 70% 14% 14%;background:#b1c1d9
 }
+
+/* Real system WebP portraits replace the old pseudo-element silhouette. */
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-color:#eaf0f9!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
+body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::before,body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{display:none!important;content:none!important}
