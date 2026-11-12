@@ -2266,3 +2266,40 @@ body.profile-page #profile-inbox-empty::before{background-image:url('data:image/
 @media(prefers-reduced-motion:reduce){
  body.profile-page .profile-mini-more [class$="-arrow-001"]{transition:none}
 }
+
+
+/* Private page: centered explanation, no interactive report action. */
+body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ gap:12px;text-align:center;padding:35px 22px;margin-top:20px;
+}
+body.profile-page.feed-page:not(.community-page) .profile-locked-notice > svg{
+ width:38px;height:38px;flex:none
+}
+body.profile-page .profile-locked-notice .ui-profile-locked-notice-content-001{
+ display:flex;flex-direction:column;align-items:center;gap:6px;max-width:490px
+}
+body.profile-page .vt-profile-locked-heading-001{margin:0}
+body.profile-page .vt-profile-locked-description-001{margin:0}
+body.profile-page .profile-friends-preview-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,72px));
+ justify-content:center;justify-items:center;column-gap:6px;row-gap:10px
+}
+body.profile-page .profile-friends-preview-grid .profile-friend-portrait{
+ width:55px;height:55px
+}
+body.profile-page .profile-friend-tile{width:72px;max-width:100%;gap:4px}
+body.profile-page .profile-gift-tile,
+body.profile-page .profile-gift-full{
+ border:0;font:inherit;cursor:pointer;color:inherit
+}
+body.profile-page .profile-gift-tile:focus-visible,
+body.profile-page .profile-gift-full:focus-visible{
+ outline:3px solid #8aaaf1;outline-offset:3px
+}
+@media(max-width:450px){
+ body.profile-page .profile-friends-preview-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));column-gap:4px
+ }
+ body.profile-page .profile-friend-tile{width:100%}
+}
