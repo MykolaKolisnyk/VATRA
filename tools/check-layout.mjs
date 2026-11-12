@@ -183,7 +183,8 @@ assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transpare
  !css.includes('.create-account-floating-label'),
  "Both auth forms must have one floating hint per field without duplicate native labels");
 assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
- css.includes(".vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb")&&
+ css.includes(".vatra-select-list::-webkit-scrollbar-thumb")&&
+ css.includes(".captcha-dialog::-webkit-scrollbar-thumb")&&
  css.includes(".language-scroll-track{")&&
  css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)"),
  "The website must keep its native browser scrollbar; custom scrollbar styling belongs only inside VATRA forms");
@@ -415,7 +416,8 @@ assert.ok(auth.includes("function wireOrbitTooltips()")&&
  !css.includes(".orbit-tooltip.is-below"),
  "Tooltip text must remain outside the rotating icon layers");
 assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
- css.includes(".intro-symbol,.signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite}")&&
+ signInCss.includes(".intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
+ createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  !css.includes("vatraCoreBreath")&&
  landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/vatra-symbol.svg"')&&
  registerHtmlHasBrandedSymbol,
@@ -430,7 +432,7 @@ assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"
  !landing.includes('class="login-header-logo')&&
  !landing.includes('class="login-brand-kicker vt-login-brand-kicker-01"')&&
  landing.includes('class="login-form-kicker vt-login-form-kicker-01"')&&
- css.includes(".login-form-overline,.signup-form-overline{")&&
+ signInCss.includes(".login-form-overline{")&&createAccountCss.includes(".signup-form-overline{")&&
  css.includes("margin:auto;border-radius:28px")&&
  css.includes("border-radius:28px 0 0 28px")&&
  css.includes("border-radius:0 28px 28px 0"),
@@ -479,7 +481,7 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  auth.includes('auth.auth.getUser(); // Verified via Supabase Auth server.')&&
  auth.includes('user.email.trim().toLowerCase()===signupPending.email.trim().toLowerCase()')&&
  auth.includes('channel.postMessage({type:"check-confirmed-session"})')&&
- auth.includes('watchSignupConfirmation();')&&
+ auth.includes('pageHooks.watchSignupConfirmation?.();')&&
  uk.__pages["create-account"].nodes.n240.text["0"]==="Час до завершення дії посилання"&&
  en.__pages["create-account"].nodes.n240.text["0"]==="Confirmation link expires in",
  "The account-creation confirmation screen needs a distinct resend/cooldown state");
@@ -751,7 +753,7 @@ for(const page of ["verify","404"]){
 assert.ok(legalCss.includes(".policy-page .policy-top{display:flex;align-items:center;")&&
  legalCss.includes(".policy-top-inner{display:flex;")&&
  legalCss.includes(".policy-page .auth-footer-content{width:min(calc(100% - 52px),1100px)")&&
- css.includes(".center-page .footer,.account-page .footer{padding-inline:0}")&&
+ css.includes(".center-page .footer{padding-inline:0}")&&css.includes(".account-page .footer{padding-inline:0}")&&
  css.includes(".account-top-inner{"),
  "Page headers, document content and shared footer must use centered containers");
 assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')&&
@@ -783,10 +785,12 @@ for(const page of ["terms","privacy","cookies"]){
 }
 
 
-assert.ok(css.includes(".login-form-kicker,.signup-form-kicker{display:inline-flex;")&&
- css.includes(".login-description,.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65")&&
- css.includes(".form-box h2,.narrow-form h1,.signup-step-heading :is(h1,h2){margin:0 0 10px;")&&
- css.includes(".site .form-box .action.primary,.signup-form-panel .action.primary{min-height:55px;"),
+assert.ok(signInCss.includes(".login-form-kicker{display:inline-flex;")&&createAccountCss.includes(".signup-form-kicker{display:inline-flex;")&&
+ signInCss.includes(".login-description{color:var(--soft);font-size:14px;line-height:1.65")&&
+ createAccountCss.includes(".signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65")&&
+ css.includes(".narrow-form h1{margin:0 0 10px;")&&css.includes(".signup-step-heading :is(h1,h2){margin:0 0 10px;")&&
+ signInCss.includes(".site .form-box .action.primary{min-height:55px;")&&
+ createAccountCss.includes(".signup-form-panel .action.primary{min-height:55px;"),
  "Auth pages must share heading, eyebrow, paragraph and primary-button design tokens");
 assert.ok(css.includes(".intro-copy p strong{display:block;")&&
  css.includes(".signup-brand-copy{position:relative;z-index:1;text-align:center}")&&
@@ -864,7 +868,9 @@ assert.ok(
  css.includes('box-shadow:0 26px 64px rgba(31,50,96,.075)}')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-content{display:flex;flex-direction:column;align-items:center;width:100%;min-width:0;animation:vatraAuthReveal .3s')&&
  auth.includes('replayAuthContent(q(".forgot-panel-content"));')&&
- css.includes('.signup-form-panel .narrow-form,.signup-confirmation,.site .form-box,.ui-forgot-main-001 .forgot-panel-content,:is(.account-card,.error-card) > :not([hidden]){animation:none!important}')&&
+ css.includes(':is(.account-card,.error-card) > :not([hidden]){animation:none!important}')&&
+ css.includes('.ui-forgot-main-001 .forgot-panel-content{animation:none!important}')&&
+ css.includes('.signup-form-panel .narrow-form{animation:none!important}')&&
  auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
  "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
