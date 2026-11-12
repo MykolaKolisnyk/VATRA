@@ -2358,16 +2358,16 @@ try{
   await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await feedProbe.locator("#feed-loading").isVisible(),false,
    "Authenticated Feed must not block its header while posts load");
-  assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_MOTION?.reveal),"function",
-   "The shared VATRA shell must expose accessible in-page crossfade motion");
+  assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_MOTION),"undefined",
+   "Section and profile tab crossfades must not delay content");
   assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_NAVIGATE?.to),"function",
-   "Internal links must use the router-safe soft navigation transition");
+   "Internal links must retain router-safe navigation without a fade");
   const routeMotion=await feedProbe.evaluate(()=>({
    header:getComputedStyle(document.querySelector(".feed-header")).viewTransitionName,
-   supported:CSS.supports("view-transition-name","vatra-social-header")
+   supported:CSS.supports("view-transition-name","none")
   }));
-  if(routeMotion.supported)assert.equal(routeMotion.header,"vatra-social-header",
-   "Same-document transitions must preserve the social header as one element");
+  if(routeMotion.supported)assert.equal(routeMotion.header,"none",
+   "The header must not participate in cross-document transitions");
   assert.equal(await feedProbe.locator(".feed-header").isVisible(),true,
    "The persistent header must render before slow Feed posts");
   assert.equal(await feedProbe.locator(".vatra-route-skeleton:visible").count(),0,
