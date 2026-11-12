@@ -2283,7 +2283,8 @@ async function start(){
   });
   if(sharedPhoto&&!locked)void mediaPromise.then(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
   void postsPromise;
- }catch(_){
+ }catch(error){
+  console.error("[VATRA] Profile initialization failed:",error);
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
    "Could not load this profile. Please refresh."));
  }
