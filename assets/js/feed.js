@@ -163,8 +163,13 @@
    applyAvatar(q("#feed-composer-avatar"),vatraId);
   }catch(_){/* Use initials if media lookup is unavailable. */}
  }
- const memberName=id=>publicNames.get(String(id))||
-  (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member"));
+ const memberName=id=>{
+  const state=avatarStates.get(String(id));
+  if(state==="deleted")return t("Акаунт видалено","Account deleted");
+  if(state==="blocked")return t("Акаунт заблоковано","Account blocked");
+  return publicNames.get(String(id))||
+   (String(id)===vatraId?displayName:t("Учасник VATRA","VATRA member"));
+ };
  async function loadPublicNames(ids){
   const needed=[...new Set(ids.map(String).filter(validId))].filter(id=>!publicNames.has(id));
   if(!needed.length)return;
@@ -314,7 +319,7 @@
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
-   info.append(node("strong","vt-vatra-global-search-name-001",person.display_name||t("Учасник VATRA","VATRA member")));
+   info.append(node("strong","vt-vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member")));
    if(person.status_text)info.append(node("small","vt-vatra-global-search-description-001",person.status_text.slice(0,100)));
    link.append(avatar,info);return link;
   });
