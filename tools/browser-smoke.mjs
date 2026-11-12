@@ -2247,7 +2247,7 @@ try{
   window.__profileVisibility="public";
   window.supabase={createClient:()=>({
    auth:{
-    getUser:async()=>({data:{user:{id:"feed-mock-user",
+    getUser:async()=>({data:{user:{id:"feed-mock-user",email:"feed-mock@vatra.test",
      email_confirmed_at:"2026-11-09T00:00:00Z",
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
