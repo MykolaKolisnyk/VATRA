@@ -37,6 +37,7 @@
  const action=(className,type,label)=>{
   const button=make("button",className);button.type="button";
   button.append(glyph(type),make("span","vt-vatra-post-action-label-001",label));
+  button.setAttribute("aria-label",label);button.title=label;
   return button;
  };
  const relativeRoot=()=>{
@@ -186,14 +187,16 @@ function appendAudience(container,level,isGroup=false){
    finally{like.disabled=false;}
   });
 
-  const panel=make("div","vatra-post-comments-panel ui-vatra-post-comments-panel-001");panel.hidden=true;
+  // Real inline thread belongs to every post; never hide comments behind a separate view.
+  const panel=make("div","vatra-post-comments-panel ui-vatra-post-comments-panel-001");
+  commentsButton.setAttribute("aria-expanded","true");
   const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
-  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Показувати:","Show:"));
+  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Сортувати:","Sort:"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
   sort.name="vatra_post_comments_sort";
   for(const [id,uk,en] of [
-   ["relevant","Найактуальніші","Most relevant"],
-   ["newest","Найновіші","Newest"],
+   ["relevant","Спочатку цікаві","Most relevant first"],
+   ["newest","Спочатку нові","Newest first"],
    ["all","Усі коментарі","All comments"]
   ]){
    const option=make("option","ui-vatra-post-comment-option-"+id, tr(uk,en));
@@ -214,7 +217,8 @@ function appendAudience(container,level,isGroup=false){
   updateNote();panel.append(filterRow,note);
   const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001");
   entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
-  const more=make("button","vt-vatra-post-comments-more-001",tr("Показати ще","Show more"));
+  const more=make("button","vt-vatra-post-comments-more-001",
+   tr("Показати наступні коментарі","Show more comments"));
   more.type="button";more.hidden=true;
   const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001");
   const input=make("textarea","ui-vatra-post-comment-input-001");
@@ -225,7 +229,8 @@ function appendAudience(container,level,isGroup=false){
   const send=make("button","vt-vatra-post-comment-send-001",tr("Надіслати","Send"));send.type="submit";
   form.append(input,send);panel.append(entries,more,form);shell.append(panel);
 
-  let commentOffset=0,busy=false,commentsOpened=false,ticket=0;
+  const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
+  let commentOffset=0,busy=false,commentsOpened=true,ticket=0;
   async function loadComments(reset=false){
    if(busy)return;
    busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
@@ -233,7 +238,7 @@ function appendAudience(container,level,isGroup=false){
    if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;}
    try{
     const {data,error}=await client.rpc("vatra_comment_page",{
-     p_kind:kind,p_post_id:post.id,p_sort:sort.value,p_offset:commentOffset,p_limit:12
+     p_kind:kind,p_post_id:post.id,p_sort:sort.value,p_offset:commentOffset,p_limit:pageSize
     });
     if(error)throw error;
     if(token!==ticket)return;
@@ -293,17 +298,17 @@ function appendAudience(container,level,isGroup=false){
      card.append(likeComment);entries.append(card);
     }
     commentOffset+=rows.length;
-    more.hidden=rows.length<12;
+    more.hidden=rows.length<pageSize;
     feedback("");
    }catch(_){feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);}
    finally{busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");}
   }
   commentsButton.addEventListener("click",()=>{
-   commentsOpened=!commentsOpened;panel.hidden=!commentsOpened;
-   commentsButton.setAttribute("aria-expanded",String(commentsOpened));
-   if(commentsOpened&&commentOffset===0)void loadComments(true);
+   // Comments are already beneath the post: guide the reader to them.
+   if(commentOffset===0)void loadComments(true);
+   panel.scrollIntoView({block:"nearest",behavior:"smooth"});
   });
-  sort.addEventListener("change",()=>{updateNote();if(commentsOpened)void loadComments(true);});
+  sort.addEventListener("change",()=>{updateNote();void loadComments(true);});
   more.addEventListener("click",()=>void loadComments(false));
   form.addEventListener("submit",async event=>{
    event.preventDefault();const body=input.value.trim();
@@ -315,7 +320,7 @@ function appendAudience(container,level,isGroup=false){
     });
     if(result.error)throw result.error;
     input.value="";feedback(tr("Коментар додано.","Comment published."));
-    if(commentsOpened)await loadComments(true);
+    await loadComments(true);
     void refreshSocial();
    }catch(_){feedback(tr("Не вдалося опублікувати коментар.","Could not publish comment."),true);}
    finally{send.disabled=false;}
@@ -340,7 +345,6 @@ function appendAudience(container,level,isGroup=false){
   const viewAll=make("button","vt-vatra-post-compact-all-001",tr("Переглянути всі коментарі","View all comments"));
   viewAll.type="button";
   const expandComments=()=>{
-   if(!commentsOpened){commentsOpened=true;panel.hidden=false;commentsButton.setAttribute("aria-expanded","true");}
    if(commentOffset===0)void loadComments(true);
    panel.scrollIntoView({block:"nearest",behavior:"smooth"});
   };
@@ -415,15 +419,17 @@ function appendAudience(container,level,isGroup=false){
      card.append(avatar,a,text);compact.append(card);
     }
     if(comments>rows.length)compact.append(viewAll);
-    compact.hidden=!rows.length;
+    compact.hidden=true; // No second, duplicate comment preview. The thread below is canonical.
    }catch(_){/* Feed and interaction buttons stay usable when social summaries fail. */}
   }
   if(typeof IntersectionObserver!=="undefined"){
    const summaryObserver=new IntersectionObserver(entries=>{
-    if(entries.some(x=>x.isIntersecting)){summaryObserver.disconnect();void refreshSocial();}
-   },{rootMargin:"180px"});
+    if(entries.some(x=>x.isIntersecting)){
+     summaryObserver.disconnect();void refreshSocial();void loadComments(true);
+    }
+   },{rootMargin:"220px"});
    summaryObserver.observe(shell);
-  }else void refreshSocial();
+  }else{void refreshSocial();void loadComments(true);}
   const shareMenu=make("dialog","vatra-post-share-dialog ui-vatra-post-share-dialog-001");
   shareMenu.setAttribute("aria-label",tr("Поділитися публікацією","Share post"));
   const shareHead=make("div","vatra-post-share-header ui-vatra-post-share-header-001");
