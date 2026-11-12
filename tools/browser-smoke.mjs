@@ -2269,10 +2269,13 @@ try{
       return {data:{profile_visibility:window.__profileVisibility},error:null};
      }})})}:
     table==="vatra_friendships"?
-    {select:()=>({or(){return this;},eq(){return this;},
+    {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
      limit:async()=>({data:[],error:null})}),
      insert:async()=>({error:null}),
      delete:()=>({eq:async()=>({error:null})})}:
+    table==="vatra_profile_gifts"?
+    {select:()=>({eq(){return this;},order(){return this;},
+     limit:async()=>({data:[{gift_code:"first_flame",created_at:"2026-11-10T00:00:00Z"}],error:null})})}:
     table==="vatra_profile_details"?
     {select:()=>({eq:async()=>({data:window.__profileDetailRows,error:null})}),
      upsert:rows=>({select:async()=>{
@@ -2346,6 +2349,29 @@ try{
   };
   `
  }));
+ // The signed-in pages for friends and gifts are first-class VATRA routes.
+ const friendsProbe=await feedContext.newPage();
+ await friendsProbe.goto(base+"friends.html",{waitUntil:"domcontentloaded"});
+ await friendsProbe.locator("#friends-heading").waitFor({state:"visible",timeout:14000});
+ assert.equal(await friendsProbe.locator("#friends-search").isVisible(),true);
+ await friendsProbe.locator('[data-friends-tab="incoming"]').click();
+ assert.equal(await friendsProbe.locator('[data-friends-tab="incoming"]').getAttribute("aria-pressed"),"true");
+ await friendsProbe.close();
+ const giftsProbe=await feedContext.newPage();
+ await giftsProbe.goto(base+"gifts.html",{waitUntil:"domcontentloaded"});
+ await giftsProbe.locator(".vatra-gifts-card").first().waitFor({state:"visible",timeout:14000});
+ await giftsProbe.locator(".vatra-gifts-card").first().click();
+ assert.equal(await giftsProbe.locator(".vatra-gift-viewer").evaluate(el=>el.open),true,
+  "Welcome gift must open with the original SVG illustration and description");
+ await giftsProbe.locator(".vt-vatra-gift-viewer-close-001").click();
+ await giftsProbe.locator('[data-gifts-tab="free"]').click();
+ assert.ok(await giftsProbe.locator(".vatra-gifts-card").count()>=4,
+  "Free gifts include original VATRA holiday artwork");
+ await giftsProbe.locator('[data-gifts-tab="paid"]').click();
+ assert.equal(await giftsProbe.locator(".vatra-gifts-card").count(),0,
+  "Paid gifts are not sold before checkout is implemented");
+ await giftsProbe.close();
+ console.log("VATRA friends and gifts: authenticated list, free catalogue and gift viewer OK");
  let desktopHeaderCenters=null;
  const navCenters=page=>page.locator(".feed-header-brand,.feed-search-form,.social-top-link,.feed-header-icon-button,.feed-account-toggle").evaluateAll(links=>links.map(link=>{
   const rect=link.getBoundingClientRect();return rect.left+rect.width/2;
