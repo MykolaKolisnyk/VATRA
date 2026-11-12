@@ -144,7 +144,7 @@
   "Якщо Ви публікуєте контент за допомогою доступних функцій сервісу, Ви надаєте VATRA лише дозвіл, необхідний для його зберігання, технічної обробки та показу обраній аудиторії. Умови такого використання не передають права власності на контент платформі.": "When you publish content using available service features, you grant VATRA only the permission needed to store, technically process, and display it to your chosen audience. This does not transfer ownership of your content to the platform.",
   "Якщо Ви використовуєте VATRA для представлення бізнесу, оголошень чи продажу, повідомляйте правдиві характеристики товарів і послуг, не вводьте покупців в оману, поважайте права споживачів і дотримуйтеся застосовних вимог до торгівлі.": "If you use VATRA to promote a business, list products, or sell goods or services, describe your offerings accurately, do not mislead buyers, respect consumer rights, and comply with applicable trade laws.",
   "Умови конкретної покупки, повернення коштів, доставки та відповідальності сторін залежать від доступної послуги та відповідного договору.": "The terms of a particular purchase, refund, delivery, and the parties’ responsibilities depend on the service and the applicable agreement.",
-  "Форма створення акаунта VATRA не приймає платежі": "The VATRA registration form does not accept payments",
+  "Форма створення акаунта VATRA не приймає платежі": "The VATRA account creation form does not accept payments",
   "— не вводьте платіжні дані в поля реєстрації.": "— do not enter payment details into registration fields.",
   "Для захисту облікових записів VATRA може вимагати підтвердження електронної пошти та застосовувати технічні обмеження проти зловживань. Жоден інтернет-сервіс, зокрема VATRA, не може гарантувати абсолютної безпомилковості.": "To protect accounts, VATRA may require email confirmation and apply technical safeguards against abuse. No online service can be guaranteed to be entirely error-free.",
   "Якщо Ви втратили пароль, скористайтеся": "If you lose your password, use",
@@ -694,7 +694,7 @@
         },
         "n72": {
           "text": {
-            "0": "Gender is optional. Choose an option that suits you, or leave it as “Prefer not to say.” This information belongs to your account details and is not published on the registration page."
+            "0": "Gender is optional. Choose an option that suits you, or leave it as “Prefer not to say.” This information belongs to your account details and is not published on the account creation page."
           }
         },
         "n73": {
@@ -714,7 +714,7 @@
         },
         "n76": {
           "text": {
-            "0": "Your email address is used to confirm registration, sign in, reset your password, and receive important account security notices. VATRA does not display it publicly on the registration page and does not require a phone number."
+            "0": "Your email address is used to confirm your account, sign in, reset your password, and receive important account security notices. VATRA does not display it publicly on the account creation page and does not require a phone number."
           }
         },
         "n77": {
