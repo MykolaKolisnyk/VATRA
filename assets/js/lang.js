@@ -27,7 +27,7 @@
   // Titles must be correct BEFORE the asynchronous English JSON arrives. Watch
   // the original <title> as HTML is parsed; no duplicate title or extra script.
   const instantEnglishTitles={
-    index:"Sign in · VATRA",register:"Create account · VATRA",feed:"Feed · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",
+    index:"Sign in · VATRA","create-account":"Create account · VATRA",feed:"Feed · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
     "404":"404 Page not found · VATRA",
     terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
@@ -56,9 +56,9 @@
     }
   }
   // Keep old bookmarks functional without displaying .html in the address bar.
-  // Direct requests to /VATRA/register, /feed, etc. resolve on GitHub Pages.
+  // Direct requests to /VATRA/create-account, /feed, etc. resolve on GitHub Pages.
   if(location.protocol!=="file:"){
-    const path=location.pathname.replace(/\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
   document.documentElement.lang = current === "en" ? "en" : "uk";
@@ -202,7 +202,7 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        target.pathname = target.pathname.replace(/\/(register|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
         target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;
