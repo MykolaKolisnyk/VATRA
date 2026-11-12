@@ -1904,3 +1904,36 @@ body.profile-page .vt-profile-post-filter-status-001[hidden]{display:none!import
 @media(prefers-reduced-motion:reduce){
  body.profile-page .vt-profile-post-filter-button-001{transition:none}
 }
+
+/* Consistent portraits: fallback silhouette sits exactly in the circle.
+   Do not stretch a tiny translucent SVG behind its border. */
+body.profile-page.feed-page .profile-avatar:not(.has-photo){
+ position:relative;display:grid;place-items:center;overflow:hidden;
+ isolation:isolate;background:#e9f0fa;background-image:none;
+ color:transparent;font-size:0;line-height:0;
+}
+body.profile-page.feed-page .profile-avatar:not(.has-photo)::before{
+ content:"";position:absolute;z-index:0;left:34%;top:19%;
+ width:32%;height:32%;border-radius:50%;
+ background:#b9c7dc;pointer-events:none
+}
+body.profile-page.feed-page .profile-avatar:not(.has-photo)::after{
+ content:"";position:absolute;z-index:0;left:17%;bottom:10%;
+ width:66%;height:40%;border-radius:55% 55% 24% 24% / 70% 70% 13% 13%;
+ background:#b9c7dc;pointer-events:none
+}
+body.profile-page .profile-avatar-trigger:disabled{cursor:default}
+body.profile-page .profile-cover-view[hidden],
+body.profile-page .profile-avatar-menu[hidden],
+body.profile-page .profile-avatar-menu button[hidden]{display:none!important}
+body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-trigger:disabled{
+ cursor:default
+}
+/* Each profile has one visual grid, regardless of the viewer's account. */
+body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
+ width:100%;box-sizing:border-box;margin-top:18px
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-avatar:not(.has-photo)::before,
+ body.profile-page .profile-avatar:not(.has-photo)::after{transition:none}
+}
