@@ -649,18 +649,30 @@ const gateError=message=>{
  retry.addEventListener("click",()=>location.reload());
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
-function missingProfile(){
- // Preserve the cover/avatar but never invent profile actions or member details.
+function missingProfile(state="not-found"){
+ // Missing, deleted and blocked members expose no private details or photo actions.
+ const titles={
+  "not-found":t("Користувача не знайдено","User not found"),
+  deleted:t("Акаунт видалено","Account deleted"),
+  blocked:t("Акаунт заблоковано","Account blocked")
+ };
+ const title=titles[state]||titles["not-found"];
  const name=q("#profile-heading");
- if(name){name.removeAttribute("data-i18n");
-  name.textContent=t("Користувача не знайдено","User not found");}
+ if(name){name.removeAttribute("data-i18n");name.textContent=title;}
+ const portrait=q("#profile-avatar"),wrap=q("#profile-avatar-wrap");
+ window.VATRA_AVATAR?.fallback(portrait,state);
+ if(wrap){wrap.dataset.vatraSystemAvatar="true";
+  window.VATRA_AVATAR?.accent(wrap,window.VATRA_AVATAR.asset(state,2048));}
+ const button=q("#profile-avatar-trigger");
+ if(button){button.disabled=true;button.setAttribute("aria-label",title);}
+ q("#profile-cover-image")?.style.setProperty("--vatra-avatar-accent","#7990b6");
  q("#profile-status")?.remove();
  q("#profile-last-seen")?.remove();
  q("#profile-online-dot")?.remove();
  q(".profile-actions")?.remove();
  q(".social-profile-tabs")?.remove();
  q(".profile-panels")?.remove();
- document.title=t("Користувача не знайдено · VATRA","User not found · VATRA");
+ document.title=title+" · VATRA";
  finish();
 }
 let profilePostsRequest=0;
@@ -1738,6 +1750,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   }catch(_){return null;}
  };
  const setImage=(el,url)=>{
+  window.VATRA_AVATAR?.clearFallback(el);
   el.style.backgroundImage="url("+JSON.stringify(url)+")";
   el.classList.add("has-photo");
  };
@@ -2051,6 +2064,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     coverPhoto.hidden=false;cover.classList.add("has-photo");coverView.hidden=!canViewPhoto;
    }).catch(()=>{}):Promise.resolve();
   resetImage(avatar);
+  window.VATRA_AVATAR?.fallback(avatar,"default");
+  avatarWrap.dataset.vatraSystemAvatar="true";
+  window.VATRA_AVATAR?.accent(avatarWrap,window.VATRA_AVATAR.asset("default",2048));
+  window.VATRA_AVATAR?.accent(cover,window.VATRA_AVATAR.asset("default",2048));
   const fallback=(q("#profile-heading")?.textContent||"V").trim().split(/\s+/)
    .map(word=>Array.from(word)[0]||"").slice(0,2).join("").toLocaleUpperCase()||"V";
   avatar.textContent=fallback;
@@ -2063,6 +2080,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(photoURLs.avatar!==candidate)return;
    if(!valid){photoURLs.avatar=null;syncAvatarMenu();return;}
    setImage(avatar,candidate);avatar.textContent="";
+   avatarWrap.dataset.vatraSystemAvatar="false";
+   window.VATRA_AVATAR?.accent(avatarWrap,candidate);
+   window.VATRA_AVATAR?.accent(cover,candidate);
    for(const postAvatar of document.querySelectorAll("#profile-posts .feed-post-avatar")){
     setImage(postAvatar,candidate);postAvatar.textContent="";
    }
@@ -2250,16 +2270,19 @@ async function start(){
   // Do not render the result before the directory confirms this ID exists.
   // Public display names are optional: a failed public lookup must not turn
   // an otherwise valid profile into a blank error page.
-  const [directoryOutcome,publicOutcome]=await Promise.allSettled([
+  const [directoryOutcome,publicOutcome,stateOutcome]=await Promise.allSettled([
    client.from("vatra_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
    Promise.resolve().then(()=>client.from("vatra_public_profiles")
-    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle())
+    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()),
+   window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map())
   ]);
+  const publicState=stateOutcome.status==="fulfilled"?stateOutcome.value.get(targetId):null;
+  if(publicState==="deleted"||publicState==="blocked"){missingProfile(publicState);return;}
   if(directoryOutcome.status==="rejected")throw directoryOutcome.reason;
   const {data:member,error:directoryError}=directoryOutcome.value;
   if(directoryError)throw directoryError;
-  if(!member){missingProfile();return;}
+  if(!member){missingProfile("not-found");return;}
   const isMine=targetId===ownId;
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
