@@ -34,8 +34,16 @@
 .site .saved-account-email{max-width:100%;margin:0 0 26px;color:#65748e;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
 .site .saved-account-overview,.site .saved-account-login{display:grid;gap:12px;align-content:center;min-height:151px;width:100%}
 .site .saved-account-primary,.site .saved-account-secondary{width:100%;min-height:53px}
-.site .saved-account-secondary{background:#f5f7fc;border-color:transparent;color:#384d78}
-.site .saved-account-secondary:hover{background:#eaf0fc;border-color:#c8d6f3}
+/* A secondary account choice remains clearly actionable, not a muted pill. */
+.site .saved-account-secondary{
+ background:#fff;border:1.5px solid #a7bff3;color:#285ec6;
+ box-shadow:0 2px 8px rgba(40,95,205,.04)
+}
+.site .saved-account-secondary:hover,
+.site .saved-account-secondary:focus-visible{
+ background:#f2f7ff;border-color:#678fe9;color:#1f54bb;
+ box-shadow:0 5px 17px rgba(40,95,205,.11)
+}
 .site .saved-account-field{position:relative;display:grid;gap:9px;text-align:left;color:#435572;font-size:13px;font-weight:700}
 .site .saved-account-field .vatra-input-shell{width:100%}
 .site .saved-account-forgot{justify-self:center;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:700;line-height:1.5;cursor:pointer}
