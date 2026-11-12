@@ -207,7 +207,7 @@ body.profile-page .profile-cover.has-photo .profile-cover-signature{
 body.feed-page .profile-avatar:not(.has-photo){
  background-color:#edf2f8;
  background-image:var(--vatra-default-avatar);
- background-size:72%;background-repeat:no-repeat;background-position:center;
+ background-size:cover;background-repeat:no-repeat;background-position:center;
  color:transparent;font-size:0
 }
 body.profile-page .profile-avatar.has-photo{
@@ -2428,3 +2428,9 @@ body.profile-page .vt-profile-archived-story-open-001{
 body.profile-page .vt-profile-archived-story-open-001:hover{
  background:#e3edff;border-color:#bed0ef
 }
+
+/* Tie the story orbit and decorative cover circles to the current portrait. */
+body.profile-page .profile-avatar-wrap.has-active-story::before{background:conic-gradient(from 40deg,var(--vatra-avatar-accent,#7990b6),color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 38%),var(--vatra-avatar-accent,#7990b6),color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 26%),var(--vatra-avatar-accent,#7990b6))}
+body.profile-page .profile-cover:not(.has-photo) .profile-cover-motif{border-color:color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 55%);box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 9%,transparent),0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 5%,transparent)}
+body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger{cursor:default}
+body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger .profile-avatar{transition:none!important;filter:none!important;transform:none!important}
