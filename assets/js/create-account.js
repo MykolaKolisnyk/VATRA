@@ -3,9 +3,9 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_AUTH_ENTRY=ctx=>{
- const {q,url,translate,english,auth,page,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,passwordIssue,validateRegistrationStep}=ctx;
+ const {q,url,translate,english,auth,page,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,passwordIssue,validateCreateAccountStep}=ctx;
 function wireHoverHelp(){
- const helps=[...document.querySelectorAll(".reg-help")];
+ const helps=[...document.querySelectorAll(".create-account-help")];
  let active=null;
  const timers=new Map();
  const dismiss=help=>{
@@ -13,7 +13,7 @@ function wireHoverHelp(){
   timers.delete(help);
   help.open=false;
   help.removeAttribute("data-side");
-  const panel=help.querySelector(".reg-help-panel");
+  const panel=help.querySelector(".create-account-help-panel");
   if(panel){panel.style.top="";panel.style.bottom="";}
   if(active===help)active=null;
  };
@@ -23,7 +23,7 @@ function wireHoverHelp(){
   timers.delete(help);
   help.open=true;active=help;
   const summary=help.querySelector("summary");
-  const panel=help.querySelector(".reg-help-panel");
+  const panel=help.querySelector(".create-account-help-panel");
   if(!summary||!panel)return;
   const rect=summary.getBoundingClientRect();
   const availableRight=window.innerWidth-rect.right;
@@ -75,12 +75,12 @@ function wireHoverHelp(){
  });
 }
 
-function wireRegistrationWizard(){
- const form=q("#signup-form"),first=q('[data-register-step="1"]'),second=q('[data-register-step="2"]');
- const next=q("#register-next"),back=q("#register-back"),progress=q(".signup-progress");
+function wireCreateAccountWizard(){
+ const form=q("#signup-form"),first=q('[data-create-account-step="1"]'),second=q('[data-create-account-step="2"]');
+ const next=q("#create-account-next"),back=q("#create-account-back"),progress=q(".signup-progress");
  if(!form||!first||!second||!next||!back||!progress)return;
  function show(step,animate=false){
-  document.body.dataset.registrationStep=String(step);
+  document.body.dataset.createAccountStep=String(step);
   first.hidden=step!==1;
   second.hidden=step!==2;
   for(const header of document.querySelectorAll("[data-step-heading]"))
@@ -92,7 +92,7 @@ function wireRegistrationWizard(){
   // Previous input values and any inline errors are retained when going back.
  }
  next.addEventListener("click",()=>{
-  if(!validateRegistrationStep(first))return;
+  if(!validateCreateAccountStep(first))return;
   show(2,true);
   q("#email")?.focus({preventScroll:true});
  });
@@ -440,6 +440,6 @@ function wireCreateAccount(){
  });
 }
 
- return {prepareUI:()=>{fillBirthdays();wireSelects();wireHoverHelp();},setupFlow:()=>{wireRegistrationWizard();restoreSignupConfirmation();},validateBirthday,isExpectedConfirmedSignup,hasSignupPending:()=>!!signupPending,wireCreateAccount,watchSignupConfirmation,syncSignupCountdown};
+ return {prepareUI:()=>{fillBirthdays();wireSelects();wireHoverHelp();},setupFlow:()=>{wireCreateAccountWizard();restoreSignupConfirmation();},validateBirthday,isExpectedConfirmedSignup,hasSignupPending:()=>!!signupPending,wireCreateAccount,watchSignupConfirmation,syncSignupCountdown};
 };
 })();
