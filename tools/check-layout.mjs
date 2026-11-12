@@ -1002,7 +1002,7 @@ const memberBaseCss=await read("assets/css/profile.css");
 const memberInfoCss=await read("assets/css/profile-info.css");
 const memberEditorCss=await read("assets/css/profile-editor.css");
 const memberCss=memberBaseCss+"\n"+memberInfoCss+"\n"+memberEditorCss;
-const profileStyles=memberProfileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
+const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
 assert.deepEqual(profileStyles,[
  'href="assets/css/auth.css"','href="assets/css/feed.css"',
  'href="assets/css/profile.css"','href="assets/css/profile-info.css"',
