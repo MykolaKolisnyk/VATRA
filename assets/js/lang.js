@@ -2,7 +2,7 @@
 (() => {
   "use strict";
   if (window.VATRA_HOST_ALLOWED === false) return;
-  // The initial GitHub Pages router is replaced by the actual /idN or /clubN
+  // The initial GitHub Pages router is replaced by the actual /id=N or /clubN
   // document. Do not start a second, competing English translation request.
   if (document.documentElement.classList.contains("vatra-dynamic-route-pending")) return;
   // Resolve assets from the current script to support arbitrary local server paths.
@@ -41,7 +41,7 @@
   };
   if(current==="en"){
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
-    const dynamicMember=/^id[1-9][0-9]{0,18}$/.test(segment);
+    const dynamicMember=/^id=[1-9][0-9]{0,18}$/.test(segment);
     const dynamicClub=/^club[1-9][0-9]{0,18}$/.test(segment);
     // Deep-linked profiles and clubs are rendered in place by 404.html;
     // never flash "404" in the English tab before their data loads.
@@ -222,7 +222,7 @@
     if (document.body?.dataset.page === "not-found") return "404";
     if (location.pathname === ROOT || location.pathname.endsWith("/index.html")) return "index";
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
-    if(/^id[1-9][0-9]{0,18}$/.test(segment))return "profile";
+    if(/^id=[1-9][0-9]{0,18}$/.test(segment))return "profile";
     if(/^club[1-9][0-9]{0,18}$/.test(segment))return "club";
     return segment;
   };
