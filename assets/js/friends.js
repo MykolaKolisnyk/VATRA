@@ -11,7 +11,7 @@ const make=(tag,cls,label)=>{
  const node=document.createElement(tag);node.className=cls;
  if(label!==undefined)node.textContent=label;return node;
 };
-let client=null,ownId=null,targetId=null,rows=[],names=new Map(),photos=new Map();
+let client=null,ownId=null,targetId=null,rows=[],names=new Map(),photos=new Map(),accountStates=new Map();
 let current="accepted",search="",busy=false,me=true;
 function stateFor(item){
  if(item.status==="accepted")return "accepted";
@@ -32,8 +32,10 @@ async function data(){
  const ids=[...new Set(rows.map(counterpart).filter(validId))];
  const resultSet=await Promise.allSettled([
   ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
-  ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]})
+  ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
+  window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
  ]);
+ accountStates=resultSet[2].status==="fulfilled"?resultSet[2].value:new Map();
  names=new Map();photos=new Map();
  if(resultSet[0].status==="fulfilled"&&!resultSet[0].value.error)
   for(const profile of resultSet[0].value.data||[]){
@@ -42,7 +44,7 @@ async function data(){
  if(resultSet[1].status==="fulfilled"&&!resultSet[1].value.error)
   for(const media of resultSet[1].value.data||[]){
    const id=String(media.vatra_id),path=String(media.avatar_path||"");
-   if(!path.startsWith(id+"/avatar/"))continue;
+   if(accountStates.has(id)||!path.startsWith(id+"/avatar/"))continue;
    try{
     const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
     const parsed=new URL(url);
@@ -76,15 +78,20 @@ async function accept(item){
  if(error||!data?.length)throw error||Error("Request is no longer available");
 }
 function person(item,index){
- const id=counterpart(item),name=names.get(id)||t("Учасник VATRA","VATRA member");
+ const id=counterpart(item),state=accountStates.get(id);
+ const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
+  state==="blocked"?t("Акаунт заблоковано","Account blocked"):
+  names.get(id)||t("Учасник VATRA","VATRA member");
  const article=make("article","vatra-friends-person ui-vatra-friends-person-"+index);
  const avatar=make("a","vatra-friends-portrait vt-vatra-friends-portrait-"+index);
  avatar.href=new URL("id"+id,root).href;avatar.setAttribute("aria-label",name);
- const photo=photos.get(id);
+ window.VATRA_AVATAR?.fallback(avatar,state||"default");
+ const photo=state?null:photos.get(id);
  if(photo){
   const image=new Image();
   image.onload=()=>{
    if(!avatar.isConnected)return;
+   window.VATRA_AVATAR?.clearFallback(avatar);
    avatar.style.backgroundImage="url("+JSON.stringify(photo)+")";avatar.classList.add("has-photo");
   };image.src=photo;
  }
