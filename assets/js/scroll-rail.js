@@ -8,10 +8,7 @@
   side.type="button";side.className="vatra-scroll-rail ui-vatra-scroll-rail-001";
   side.setAttribute("aria-label",document.documentElement.lang==="en"?"Scroll to top":"Повернутися вгору");
   side.title=document.documentElement.lang==="en"?"To top":"Вгору";
-  const track=document.createElement("span");track.className="vatra-scroll-rail-track ui-vatra-scroll-rail-track-001";
-  track.setAttribute("aria-hidden","true");
-  const progress=document.createElement("span");progress.className="vatra-scroll-rail-progress ui-vatra-scroll-rail-progress-001";
-  progress.setAttribute("aria-hidden","true");
+
   const name=document.createElement("span");name.className="vatra-scroll-rail-label vt-vatra-scroll-rail-label-001";
   name.textContent=document.documentElement.lang==="en"?"Top":"Вгору";
   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
@@ -20,14 +17,12 @@
   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
   path.setAttribute("class","ui-vatra-scroll-rail-icon-path-001");
   path.setAttribute("d","m6 14 6-6 6 6");icon.append(path);name.prepend(icon);
-  track.append(progress);side.append(track,name);
+  side.append(name);
   document.body.append(side);
   let pending=false;
   const update=()=>{
    pending=false;
    const total=Math.max(1,document.documentElement.scrollHeight-innerHeight);
-   const fraction=Math.max(0,Math.min(1,scrollY/total));
-   side.style.setProperty("--vatra-scroll-progress",(fraction*100).toFixed(2)+"%");
    side.hidden=scrollY<350||total<500;
   };
   const scheduled=()=>{if(pending)return;pending=true;requestAnimationFrame(update);};
