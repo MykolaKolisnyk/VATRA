@@ -2505,11 +2505,28 @@ try{
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),
    "VATRA Feed publishing smoke test",
    "Feed composer must save to the real feed_posts repository");
-  assert.equal(await feedProbe.locator(".vatra-post-comments-panel").isVisible(),true,
-   "A post must always display its inline comments panel");
-  assert.equal(await feedProbe.locator(".vt-vatra-post-action-label-001").first().evaluate(
+  // The feed storage mock uses non-UUID IDs for deletion tests, so mount a
+  // realistic UUID post separately to cover inline comments and icon actions.
+  await feedProbe.evaluate(()=>{
+   const query=new Proxy({},{
+    get(_target,key){
+     if(key==="then")return resolve=>Promise.resolve({data:[],error:null,count:0}).then(resolve);
+     return ()=>query;
+    }
+   });
+   const host=document.createElement("div");host.id="vatra-smoke-inline-interactions";
+   document.body.append(host);
+   window.VATRA_POST_INTERACTIONS.mount({
+    from:()=>query,rpc:async()=>({data:[],error:null})
+   },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
+   host,{ownId:"",userId:null});
+  });
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),true,
+   "Every valid UUID post must expose its comments directly beneath the actions");
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-action-label-001").first().evaluate(
    el=>getComputedStyle(el).position),"absolute",
-   "Post actions must be icon-only but remain accessible");
+   "Post actions must show only icons while retaining accessible names");
+  await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
