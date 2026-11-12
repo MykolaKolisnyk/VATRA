@@ -1,4 +1,4 @@
-/* VATRA create-account page — page-specific appearance (after shared auth.css). */
+/* VATRA create-account page — page-specific appearance (after shared base.css). */
 
 .vatra-select-list::-webkit-scrollbar{width:9px;height:9px}
 .vatra-select-list::-webkit-scrollbar-track{background:var(--scroll-track);border-radius:99px}
