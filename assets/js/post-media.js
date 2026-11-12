@@ -131,14 +131,14 @@
   signedURLs.set(key,{expiry:Date.now()+Math.max(30,ttl-30)*1000,promise});
   return promise;
  }
- async function renderStory(client,story,slot,preview=false){
+ async function renderStory(client,story,slot,preview=false,allowExpired=false){
   if(!slot)return;
   const request=String(Number(slot.dataset.storyRequest||"0")+1);
   slot.dataset.storyRequest=request;
   slot.replaceChildren();slot.hidden=true;
   const {media_kind:kind,media_path:path,author_vatra_id:id}=story||{};
   if(!storyPathValid(path,kind,id))return;
-  if(story.expires_at&&Date.parse(story.expires_at)<=Date.now())return;
+  if(!allowExpired&&story.expires_at&&Date.parse(story.expires_at)<=Date.now())return;
   slot.hidden=false;
   if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
   try{
