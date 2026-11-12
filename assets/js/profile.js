@@ -492,32 +492,9 @@
    }
    // Deliberately preserve unsaved draft values while switching sections.
   };
-  // Let the outgoing section dissolve while the next one softly appears.
-  // Native view transitions do not delay Supabase saves or form navigation.
-  let activeChapterTransition=null;
+  // Switch editor chapters immediately. showGroup preserves unsaved draft data.
   const switchGroup=id=>{
-   if(id===selected)return;
-   if(workspace.hidden){showGroup(id);return;}
-   const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-   if(!reduced&&typeof document.startViewTransition==="function"){
-    document.documentElement.classList.add("vatra-editor-switching");
-    try{
-     const change=document.startViewTransition(()=>showGroup(id));
-     activeChapterTransition=change;
-     void change.finished.catch(()=>{}).finally(()=>{
-      if(activeChapterTransition===change){
-       activeChapterTransition=null;
-       document.documentElement.classList.remove("vatra-editor-switching");
-      }
-     });
-    }catch(_){
-     document.documentElement.classList.remove("vatra-editor-switching");
-     showGroup(id);
-    }
-   }else{
-    showGroup(id);
-    if(!reduced)window.VATRA_MOTION?.reveal(fields);
-   }
+   if(id!==selected)showGroup(id);
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();if(save.disabled)return;
@@ -1102,21 +1079,16 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  function choose(name){
   if(!isMine&&["saved","archive-stories","archive-posts"].includes(name))return;
   if(name==="messages"&&!isMine)return;
-  const wasActive=tabs.some(tab=>tab.dataset.profileTab===name&&
-   tab.classList.contains("social-profile-tab-active"));
+
   for(const tab of tabs){
    const active=tab.dataset.profileTab===name;
    tab.classList.toggle("social-profile-tab-active",active);
    tab.setAttribute("aria-selected",String(active));
    tab.tabIndex=active?0:-1;
   }
-  let activePanel=null;
   for(const panel of document.querySelectorAll("[data-profile-panel]")){
-   const active=panel.dataset.profilePanel===name;
-   panel.hidden=!active;
-   if(active)activePanel=panel;
+   panel.hidden=panel.dataset.profilePanel!==name;
   }
-  if(!wasActive)window.VATRA_MOTION?.reveal(activePanel);
   if(name==="friends")void loadFriends();
   if(name==="messages")void loadInbox();
   window.VATRA_PROFILE_EXTRA_TAB?.(name);
