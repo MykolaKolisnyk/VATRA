@@ -48,6 +48,15 @@
       else void mount();
       return;
     }
+    // GitHub Pages may also route extensionless document URLs through 404.
+    // Send the browser to the existing static HTML file immediately; lang.js
+    // restores the clean extensionless URL with history.replaceState.
+    const pageRoute=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|club|create-account|forgot|reset|verify|terms|privacy|cookies|offline)$/);
+    if(pageRoute){
+      location.replace("/VATRA/"+pageRoute[1]+".html"+location.search+location.hash);
+      return;
+    }
+
     const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
     if(oldAccount){
       location.replace("/VATRA/verify"+location.search+location.hash);
