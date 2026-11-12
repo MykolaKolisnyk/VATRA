@@ -741,7 +741,7 @@ for(const page of footerNames){
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
-  html.includes('class="policy-header policy-top ui-'+page+'-header-001"')&&
+  html.includes('class="policy-navigation-header policy-top ui-'+page+'-header-001"')&&
   html.includes("assets/css/legal.css"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
