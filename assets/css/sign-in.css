@@ -64,8 +64,8 @@
 .intro-circle{position:absolute;left:50%;top:50%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:0}
 
 .intro-circle-inner{width:calc(var(--inner-radius) * 2);border:1.5px solid #a8c5f9;background:radial-gradient(circle,rgba(236,241,255,.65),transparent 73%);box-shadow:0 0 0 6px rgba(206,223,255,.13),inset 0 0 28px rgba(81,116,220,.05)}
-.intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite}
-.intro-symbol{z-index:4;filter:drop-shadow(0 24px 36px rgba(77,65,191,.16))}
+.intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite;z-index:4;filter:drop-shadow(0 24px 36px rgba(77,65,191,.16))}
+
 .orbit-track{position:absolute;left:50%;top:50%;width:0;height:0;z-index:3;transform-origin:0 0;pointer-events:none}
 
 .orbit-track-inner{z-index:3;--orbit-radius:var(--inner-radius);animation:vatraOrbitClockwise 32s linear infinite}
@@ -122,7 +122,7 @@
  clip-path:inset(50%);white-space:nowrap;pointer-events:none
 }
 .login-recovery-link{display:flex;justify-content:flex-end;align-items:center;margin:22px 0 30px}
-.login-description{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}.login-description{margin:0 0 34px}
+.login-description{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty;margin:0 0 34px}
 .site .footer{padding-inline:0}
 .site .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 .login-layout .split{margin:0 auto}
@@ -140,11 +140,11 @@
 .form-side{padding-block:18px}}
 @media (max-width:1199px){
   .login-layout .split{margin:auto}
-  .site .auth-footer-content{width:min(calc(100% - 40px),670px)}
+  .site .auth-footer-content{width:min(calc(100% - 40px),670px);justify-content:space-between;text-align:left}
   .form-side{order:0;min-height:0;padding:42px clamp(24px,5vw,48px) 43px;align-items:center;justify-content:center;border:1px solid #e4e9f5;border-bottom:0;border-radius:24px 24px 0 0}
   .intro-side{order:1;display:flex;flex-direction:column;border:1px solid #e4e9f5;border-radius:0 0 24px 24px;padding:30px 25px 38px;gap:16px;justify-content:center;overflow-x:clip;overflow-y:visible;background:radial-gradient(circle at 50% 39%,#e7edff 0%,transparent 62%),linear-gradient(145deg,#fcfaff,#f1f5ff)}
   .intro-side:before{display:none}
-.site .auth-footer-content{justify-content:space-between;text-align:left}}
+}
 @media (max-width:540px){
 
   .form-side{padding:33px 21px 35px;border-radius:21px 21px 0 0}
