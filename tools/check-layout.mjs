@@ -1332,14 +1332,26 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
- detailsModule.includes("vatra-profile-summary-icon") &&
- detailsModule.includes("vatra-profile-detail-icon") &&
- detailsModule.includes("more.hidden=locked||!!result.error||(!additional.length&&!hasLongPreview)") &&
+ !detailsModule.includes('item.append(badge,label,content)') &&
+ detailsModule.includes('paragraph.textContent=bio') &&
+ detailsModule.includes('paragraph.hidden=!bio') &&
+ detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vt-profile-detail-audience-') &&
- detailsModule.includes("lab.prepend(svg(fieldIcons[key]") &&
- memberCss.includes("VATRA 2026 · Profile information visual system") &&
- memberCss.includes("linear-gradient(158deg,#2b427e"),
- "Profile information must feature icons, hide redundant More actions and keep reader privacy labels invisible");
+ detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
+ memberCss.includes('/* PROFILE READING ·') &&
+ memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
+ "Profile About preview has a centered optional bio, compact facts, and no read-only icon tiles");
+assert.ok(
+ memberProfileMarkup.includes('id="profile-post-filter-button"') &&
+ memberProfileMarkup.includes('id="profile-post-filter-year"') &&
+ memberProfileMarkup.includes('id="profile-post-filter-month"') &&
+ memberProfileMarkup.includes('id="profile-post-filter-reset"') &&
+ profileScript.includes('function setupProfilePostFilters(client,targetId,ownId,userId)') &&
+ profileScript.includes('query=query.gte("created_at",start.toISOString())') &&
+ profileScript.includes('.lt("created_at",end.toISOString())') &&
+ profileScript.includes('if(ticket!==profilePostsRequest)return') &&
+ memberCss.includes('body.profile-page .profile-post-filter-panel{'),
+ "Profile posts must filter by year/month server-side before pagination, with a safe reset");
 const sharedAvatar=await read("assets/js/avatar.js");
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
 assert.ok(
