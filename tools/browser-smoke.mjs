@@ -2755,7 +2755,7 @@ try{
   const menuTipStyle=await feedProbe.locator(".vatra-shell-tooltip").evaluate(el=>getComputedStyle(el).visibility);
   assert.equal(menuTipStyle,"hidden",
    "Expanded account dropdown must fully suppress VATRA tooltip rendering");
-  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"));
+  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
@@ -2816,7 +2816,7 @@ try{
    "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0);
   assert.equal(await feedProbe.locator("#feed-my-id").count(),0);
-  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"),
+  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
   await feedProbe.evaluate(text=>{
@@ -2825,9 +2825,9 @@ try{
   },injectionText);
   await feedProbe.locator("#feed-search-input").press("Enter");
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
-  assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"),
+  assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
-  assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"),
+  assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author avatars must link to numeric member profile URLs");
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),injectionText,
    "Feed must render user posts as text, not HTML");
@@ -3195,23 +3195,26 @@ try{
    language==="en"?"Add a status":"Додайте статус");
   assert.equal(await profilePage.locator("footer").count(),0,
    "The personal profile must not show guest legal footer");
-  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/profile.html"),
-   "Own profile must keep the real HTML path for View Source");
-  // Direct navigation and Ctrl+U must retrieve the real HTML document (HTTP 200).
-  const profileSource=await profilePage.request.get(base+"profile.html?vatra_id=789012");
-  assert.equal(profileSource.status(),200,"Profile URLs must return HTTP 200");
-  const profileHTML=await profileSource.text();
-  assert.ok(profileHTML.includes('data-page="profile"')&&
-   profileHTML.includes('id="profile-app"')&&
-   !profileHTML.includes('class="error-code vt-404-inline-001"'),
-   "View Source must contain profile HTML, never the 404 template");
-  const profileResponse=await profilePage.goto(base+"profile.html?vatra_id=789012",
-   {waitUntil:"domcontentloaded"});
-  assert.equal(profileResponse?.status(),200,"Direct member route must return HTTP 200");
+  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
+   "The signed-in member profile must use /idN");
+  // A direct /idN bookmark is handled by the GitHub Pages 404 fallback.
+  // The browser must still render the real profile without showing the error.
+  const rawProfile=await profilePage.request.get(base+"id789012");
+  assert.equal(rawProfile.status(),404,"GitHub Pages cannot serve dynamic member URLs with HTTP 200");
+  const routerHTML=await rawProfile.text();
+  assert.ok(routerHTML.includes('src="/VATRA/assets/js/not-found.js"'),
+   "Deep member URLs must use the custom 404 router");
+  const templateResponse=await profilePage.request.get(base+"profile.html");
+  assert.equal(templateResponse.status(),200,"Internal profile template must remain fetchable");
+  assert.ok((await templateResponse.text()).includes('id="profile-app"'),
+   "Router must load the genuine profile document");
+  const profileResponse=await profilePage.goto(base+"id789012",{waitUntil:"domcontentloaded"});
+  assert.equal(profileResponse?.status(),404,"Direct /idN navigation uses GitHub Pages fallback");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
-  assert.equal(new URL(profilePage.url()).pathname,"/VATRA/profile.html");
-  assert.equal(new URL(profilePage.url()).searchParams.get("vatra_id"),"789012",
-   "A member URL must preserve the ID without replacing its HTML path");
+  assert.equal(new URL(profilePage.url()).pathname,"/VATRA/id789012",
+   "The visitor must retain only the clean /idN URL");
+  assert.equal(await profilePage.locator(".error-card").count(),0,
+   "The 404 error screen must be replaced by the real profile");
   assert.equal(await profilePage.locator("#profile-status").isVisible(),false,
    "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
@@ -3258,7 +3261,7 @@ try{
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Own given name beside avatar must not be replaced by the visited member's identity");
   // Test a genuinely private route after the public visitor geometry checks.
-  await profilePage.goto(base+"profile.html?vatra_id=789012&locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
+  await profilePage.goto(base+"id789012?locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await profilePage.locator(".profile-locked-notice").isVisible(),true,
    "The locked mock profile must show its privacy notice");
