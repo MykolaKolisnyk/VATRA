@@ -118,19 +118,21 @@
  async function init({client,ownId,targetId,isMine}){
   const card=select("#profile-about-card");
   const paragraph=select("#profile-about-text");
-  const preference=await client.from("vatra_profile_preferences")
+  // Visibility and accepted friendship are independent RLS-checked reads.
+  // Start both together so closed profiles do not pay an extra network round trip.
+  const preferenceQuery=client.from("vatra_profile_preferences")
    .select("profile_visibility").eq("vatra_id",targetId).maybeSingle();
-  // A preferences query failure must not be treated as an open account.
-  let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
-  let isFriend=false;
-  if(!isMine&&ownId){
-   const friendship=await client.from("vatra_friendships")
+  const friendshipQuery=!isMine&&ownId?
+   client.from("vatra_friendships")
     .select("id").or(
      "and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+"),"+
      "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
-    ).eq("status","accepted").limit(1);
-   isFriend=!friendship.error&&!!friendship.data?.length;
-  }
+    ).eq("status","accepted").limit(1):
+   Promise.resolve({data:[],error:null});
+  const [preference,friendship]=await Promise.all([preferenceQuery,friendshipQuery]);
+  // An error in either access check must not grant access to private details.
+  const accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
+  const isFriend=!friendship.error&&!!friendship.data?.length;
   const locked=!isMine&&accountVisibility==="friends"&&!isFriend;
   const result=locked?{data:[],error:null}:await client.from("vatra_profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
@@ -1922,8 +1924,15 @@ async function start(){
    location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||null;
   const targetId=requested||ownId;
   if(!validId(targetId)){missingProfile();return;}
-  const {data:member,error:directoryError}=await client.from("vatra_directory")
-   .select("vatra_id").eq("vatra_id",targetId).maybeSingle();
+  // Fetch the directory record and the RLS-safe public display name together.
+  // Do not render the result before the directory confirms this ID exists.
+  const [directoryResult,publicResult]=await Promise.all([
+   client.from("vatra_directory")
+    .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
+   client.from("vatra_public_profiles")
+    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()
+  ]);
+  const {data:member,error:directoryError}=directoryResult;
   if(directoryError)throw directoryError;
   if(!member){missingProfile();return;}
   const isMine=targetId===ownId;
@@ -1934,14 +1943,11 @@ async function start(){
   // The account creation trigger publishes only registered first/last names
   // to vatra_public_profiles. Birthdate, gender, email and auth UUID remain private.
   let publicName="",publicStatus="";
-  try{
-   const {data:publicProfile,error:publicError}=await client.from("vatra_public_profiles")
-    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle();
-   if(!publicError&&typeof publicProfile?.display_name==="string"){
-    publicName=publicProfile.display_name.trim();
-    publicStatus=String(publicProfile.status_text||"").slice(0,140);
-   }
-  }catch(_){}
+  const {data:publicProfile,error:publicError}=publicResult;
+  if(!publicError&&typeof publicProfile?.display_name==="string"){
+   publicName=publicProfile.display_name.trim();
+   publicStatus=String(publicProfile.status_text||"").slice(0,140);
+  }
   const fallback=t("Учасник VATRA","VATRA member")+" · ID "+targetId;
   const name=publicName||(isMine?cleanOwnName:fallback);
   q("#profile-heading").textContent=name;
