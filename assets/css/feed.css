@@ -2199,3 +2199,43 @@ body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-0
 @media(prefers-reduced-motion:reduce){
  body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{transition:none}
 }
+
+
+/* Collapsible Feed filter: only heading stays visible until requested. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row{
+ width:225px;max-width:100%;gap:0
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
+ margin:0;padding:0;border:0
+}
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{
+ display:flex;align-items:center;justify-content:flex-start;gap:11px;
+ width:100%;min-height:42px;padding:7px 9px;border:0;border-radius:9px;
+ background:transparent;color:inherit;text-align:left;
+ font:inherit;cursor:pointer
+}
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001:hover{
+ background:#f5f8fe;color:#2c61b5
+}
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001:focus-visible{
+ outline:2px solid #87a9e8;outline-offset:2px
+}
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001{
+ display:flex;flex-direction:column;gap:3px;padding-top:10px;margin-top:9px;
+ border-top:1px solid #eaf0f8
+}
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001[hidden]{
+ display:none!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
+ border-color:transparent!important;box-shadow:none!important;
+ background:#eaf1ff!important;color:#295ec0!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:focus-visible{
+ outline:2px solid #96b0e8;outline-offset:2px
+}
+@media(max-width:1320px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row{
+  width:min(100%,270px)
+ }
+}
