@@ -1127,12 +1127,6 @@ assert.ok(
  !profileBehavior.includes('try{await mediaPromise;}') &&
  profileMarkup.includes('data-social-uk="Головна" data-social-en="Home"'),
  "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
-assert.ok(
- feedMarkup.includes('id="feed-filter-summary"') &&
- feedScript.includes('const describeFilter=()=>{') &&
- feedScript.includes('subscriptionsLoadedAt>60000') &&
- feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
- "Feed category filters must explain their scope and reuse recent subscriptions");
 const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
@@ -1290,6 +1284,13 @@ assert.ok(
  (await read("assets/js/social-shell.js")).includes('validPost(entry.id)?"?post="'),
  "Community publications from live search and sharing must open their exact post");
 const feedStyle=await read("assets/css/feed.css");
+assert.ok(
+ feedMarkup.includes('id="feed-filter-summary"') &&
+ feedScript.includes('const describeFilter=()=>{') &&
+ feedScript.includes('subscriptionsLoadedAt>60000') &&
+ feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
+ "Feed category filters must explain their scope and reuse recent subscriptions");
+
 assert.doesNotThrow(()=>new Function(feedScript),"Feed script must remain valid JavaScript");
 assert.ok(
  feedScript.includes("avatarChecks=new Map()") &&
