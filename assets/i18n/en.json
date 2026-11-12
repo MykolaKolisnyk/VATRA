@@ -461,7 +461,7 @@
         }
       }
     },
-    "register": {
+    "create-account": {
       "meta": {
         "title": "Create account · VATRA",
         "description": "Create your VATRA account — a Ukrainian social network for conversations, communities, and creativity.",
