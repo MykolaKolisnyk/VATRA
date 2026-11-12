@@ -2680,8 +2680,21 @@ try{
   await feedProbe.locator("#feed-story-media").setInputFiles({
    name:"story-test.png",mimeType:"image/png",buffer:onePixelPng
   });
+  const storyMediaState=await feedProbe.evaluate(()=>{
+   const input=document.querySelector("#feed-story-media");
+   const preview=document.querySelector("#feed-story-media-preview");
+   const image=preview?.querySelector("img");
+   return {dialogOpen:document.querySelector("#feed-story-dialog")?.open,
+    inputCount:input?.files?.length,inputMime:input?.files?.[0]?.type,
+    previewHidden:preview?.hidden,previewHTML:preview?.innerHTML?.slice(0,350),
+    previewDisplay:preview?getComputedStyle(preview).display:null,
+    imageRect:image?{width:image.getBoundingClientRect().width,height:image.getBoundingClientRect().height}:null,
+    error:document.querySelector("#feed-story-error")?.textContent,
+    mediaApi:typeof window.VATRA_POST_MEDIA?.bindPicker};
+  });
+  console.log("VATRA story media preview probe: "+JSON.stringify(storyMediaState));
   assert.equal(await feedProbe.locator("#feed-story-media-preview img").isVisible(),true,
-   "A selected story photo must appear in the preview");
+   "A selected story photo must appear in the preview: "+JSON.stringify(storyMediaState));
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
