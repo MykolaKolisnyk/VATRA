@@ -730,11 +730,22 @@ body.profile-page .ui-vatra-skeleton-post-a-001,body.profile-page .ui-vatra-skel
 
 /* Posts published on a profile use the same reading width and card treatment
    as those same posts in Feed, including the uploaded author photo. */
+/* Two balanced reading columns: personal information has room for full
+   labels/values, while publications remain the primary reading surface. */
 body.profile-page.feed-page:not(.community-page) .profile-posts-section{
- display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);
+ display:grid;grid-template-columns:minmax(0,37.5%) minmax(0,1fr);
  width:100%;max-width:none;margin:0;gap:18px;align-items:start
 }
-body.profile-page .profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:11px}
+body.profile-page .profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:12px}
+body.profile-page .profile-posts-overview{
+ display:flex;align-items:center;justify-content:space-between;min-height:64px;
+ padding:16px 22px;border:1px solid #e3eaf4;border-radius:16px;
+ background:#fff;box-shadow:0 4px 18px rgba(32,52,97,.035)
+}
+body.profile-page .vt-profile-posts-overview-title-001{
+ margin:0;color:#2c4167;font:760 20px/1.35 "Onest",system-ui,sans-serif;
+ letter-spacing:-.025em
+}
 body.profile-page .profile-info{min-height:120px;padding:20px 22px}
 body.profile-page .profile-info .vt-profile-about-text-001{
  margin:0;color:#71829b;font:500 13px/1.55 "Onest",system-ui,sans-serif
