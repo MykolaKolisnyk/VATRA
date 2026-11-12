@@ -75,7 +75,7 @@ const missingPage=await read("404.html");
 assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
  missingPage.includes('href="/VATRA/assets/css/not-found.css"')&&
  !missingPage.includes('const dynamic=location.pathname.match(')&&
- notFoundCss.includes('html.vatra-dynamic-route-pending body > :not(.vatra-route-loading)'),
+ notFoundCss.includes('html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading)'),
  "404 fallback must keep routing in its own module and hide the error page for valid permalinks");
 
 const errors=await read("assets/js/errors.js");
