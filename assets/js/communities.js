@@ -190,7 +190,7 @@ async function openDirectory(client){
    if(error||!data?.club_id)throw error||new Error("missing club ID");
    const number=String(data.club_id);
    if(!idPattern.test(number))throw new Error("unexpected club ID");
-   location.assign(clubURL(number));
+   if(!window.VATRA_NAVIGATE?.to(clubURL(number)))location.assign(clubURL(number));
   }catch(_){
    status("#community-create-status",t("Не вдалося створити спільноту. Повторіть спробу.",
     "Could not create the community. Please retry."),"error");
