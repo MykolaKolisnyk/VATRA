@@ -520,7 +520,7 @@
   const picker=window.VATRA_POST_MEDIA?.bindPicker({
    input:"#feed-compose-media",choose:"#feed-compose-media-choose",
    clear:"#feed-compose-media-remove",preview:"#feed-compose-media-preview",
-   onError:showError
+   onError:showError,onChange:()=>composerUI?.sync()
   });
   const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
   q("#feed-composer-avatar").textContent=initials(displayName);
