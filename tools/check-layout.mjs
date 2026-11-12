@@ -126,7 +126,9 @@ assert.ok(!registerHtml.includes('vt-create-account-paragraph-02')&&
 assert.ok(css.includes('.password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:13px;')&&
  css.includes('.signup-step{display:grid;gap:17px;min-width:0}')&&
  auth.includes('if(animate)replayAuthContent(q(".signup-form-panel .narrow-form"));')&&
- css.includes('.signup-form-panel .narrow-form,.signup-confirmation,.site .form-box,'),
+ createAccountCss.includes('.signup-form-panel .narrow-form')&&
+ createAccountCss.includes('.signup-confirmation')&&
+ signInCss.includes('.site .form-box'),
  "Shared password typography and reduced-motion-aware transitions");
 const forgotMarkup=await read("forgot.html");
 assert.equal(forgotMarkup.split("<section ").length,forgotMarkup.split("</section>").length,
