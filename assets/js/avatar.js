@@ -5,6 +5,82 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const KEY="vatra-remembered-account";
 const HEADER_KEY="vatra-authenticated-header-v1";
 const ORIGIN="https://rjasunoawrxvetwadylh.supabase.co";
+const SYSTEM_AVATARS=Object.freeze({
+ default:{1024:"/VATRA/assets/avatars/1024px/avatar-default-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-default.webp"},
+ deleted:{1024:"/VATRA/assets/avatars/1024px/avatar-deleted-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-deleted.webp"},
+ "not-found":{1024:"/VATRA/assets/avatars/1024px/avatar-not-found-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-not-found.webp"},
+ blocked:{1024:"/VATRA/assets/avatars/1024px/avatar-blocked-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-blocked.webp"}
+});
+const asset=(state="default",size=1024)=>
+ (SYSTEM_AVATARS[state]||SYSTEM_AVATARS.default)[size>=2048?2048:1024];
+function fallback(element,state="default"){
+ if(!element)return;
+ const kind=Object.hasOwn(SYSTEM_AVATARS,state)?state:"default";
+ element.dataset.vatraAvatarState=kind;
+ element.classList.remove("has-photo");
+ element.style.removeProperty("background-image");
+ element.textContent="";
+}
+function clearFallback(element){
+ if(element)element.removeAttribute("data-vatra-avatar-state");
+}
+async function states(client,ids){
+ const valid=[...new Set((ids||[]).map(String).filter(id=>/^[1-9][0-9]{0,18}$/.test(id)))].slice(0,100);
+ const result=new Map();
+ if(!valid.length||!client)return result;
+ try{
+  const {data,error}=await client.from("vatra_account_states")
+   .select("vatra_id,state,blocked_until").in("vatra_id",valid);
+  if(error)return result;
+  for(const row of data||[]){
+   const id=String(row.vatra_id);
+   if(row.state==="deleted")result.set(id,"deleted");
+   else if(row.state==="blocked"&&row.blocked_until&&Date.parse(row.blocked_until)>Date.now())
+    result.set(id,"blocked");
+  }
+ }catch(_){}
+ return result;
+}
+const accentCache=new Map();
+function accent(element,url){
+ if(!element)return;
+ const source=url||asset();
+ element.dataset.vatraAccentSource=source;
+ const put=color=>{
+  if(element.dataset.vatraAccentSource===source)
+   element.style.setProperty("--vatra-avatar-accent",color);
+ };
+ if(accentCache.has(source)){put(accentCache.get(source));return;}
+ const image=new Image();
+ image.crossOrigin="anonymous";
+ image.onload=()=>{
+  let color="#7990b6";
+  try{
+   const canvas=document.createElement("canvas");
+   canvas.width=24;canvas.height=24;
+   const context=canvas.getContext("2d",{willReadFrequently:true});
+   context.drawImage(image,0,0,24,24);
+   const pixels=context.getImageData(0,0,24,24).data;
+   let r=0,g=0,b=0,weight=0;
+   for(let i=0;i<pixels.length;i+=4){
+    if(pixels[i+3]<210)continue;
+    const rr=pixels[i],gg=pixels[i+1],bb=pixels[i+2];
+    const max=Math.max(rr,gg,bb),min=Math.min(rr,gg,bb);
+    if(max>242&&min>232)continue;
+    const w=Math.max(.25,(max-min)/120);
+    r+=rr*w;g+=gg*w;b+=bb*w;weight+=w;
+   }
+   if(weight>0){
+    const channel=value=>Math.round(Math.max(34,Math.min(218,value/weight)));
+    color="rgb("+channel(r)+" "+channel(g)+" "+channel(b)+")";
+   }
+  }catch(_){/* Storage may not permit canvas sampling; keep a neutral accent. */}
+  accentCache.set(source,color);put(color);
+ };
+ image.onerror=()=>put("#7990b6");
+ image.src=source;
+}
+
 function safeUrl(input){
  if(typeof input!=="string")return null;
  try{
@@ -201,5 +277,5 @@ function applyRemembered(element,email){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",primeHeader,{once:true});
 else primeHeader();
-window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader};
+window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,fallback,clearFallback,states,accent};
 })();

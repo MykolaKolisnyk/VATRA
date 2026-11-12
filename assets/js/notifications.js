@@ -58,19 +58,21 @@ const messageFor=(kind,name)=>{
 };
 async function authorNames(rows){
  const ids=[...new Set(rows.map(x=>String(x.actor_vatra_id)).filter(validId))];
- const names=new Map(),avatars=new Map();
+ const names=new Map(),avatars=new Map(),states=new Map();
  if(ids.length)try{
   const results=await Promise.allSettled([
    client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
-   client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
+   client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids),
+   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);
+  if(results[2].status==="fulfilled")for(const [id,state] of results[2].value)states.set(id,state);
   const profiles=results[0].status==="fulfilled"?results[0].value:{error:true};
   const media=results[1].status==="fulfilled"?results[1].value:{error:true};
   if(!profiles.error)for(const item of profiles.data||[])
    names.set(String(item.vatra_id),String(item.display_name||"").trim().slice(0,100));
   if(!media.error)for(const item of media.data||[]){
    const id=String(item.vatra_id),path=item.avatar_path;
-   if(typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
+   if(states.has(id)||typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
    const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
    if(!url)continue;
    try{
@@ -79,7 +81,7 @@ async function authorNames(rows){
    }catch(_){}
   }
  }catch(_){}
- return {names,avatars};
+ return {names,avatars,states};
 }
 async function unreadCount(){
  if(!client||!ownId||refreshBusy)return;
@@ -122,7 +124,7 @@ async function remove(id){
  if(error)throw error;
  void unreadCount();
 }
-function createRow(record,name,index,onChange,photoUrl){
+function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
  if(!record.read_at)article.classList.add("is-unread");
  const mark=make("span","vatra-notification-unread ui-vatra-notification-unread-"+index);
@@ -137,10 +139,12 @@ function createRow(record,name,index,onChange,photoUrl){
  const avatar=make("a","vatra-notification-avatar ui-vatra-notification-avatar-"+index);
  avatar.href=new URL("id"+record.actor_vatra_id,root).href;
  avatar.setAttribute("aria-label",name);
- if(photoUrl){
+ window.VATRA_AVATAR?.fallback(avatar,accountState||"default");
+ if(photoUrl&&!accountState){
   const picture=new Image();
   picture.onload=()=>{
    if(!avatar.isConnected)return;
+   window.VATRA_AVATAR?.clearFallback(avatar);
    avatar.style.backgroundImage="url("+JSON.stringify(photoUrl)+")";
    avatar.classList.add("has-photo");
   };
@@ -192,10 +196,15 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
  status.hidden=true;list.setAttribute("aria-busy","true");
  try{
   const {rows,hasNext}=await fetchRows(opts);
-  const {names,avatars}=await authorNames(rows);
-  const nodes=rows.map((record,i)=>createRow(record,
-   names.get(String(record.actor_vatra_id))||t("Учасник VATRA ID ","VATRA member ID ")+record.actor_vatra_id,
-   String(opts.page*opts.size+i+1),onChange,avatars.get(String(record.actor_vatra_id))));
+  const {names,avatars,states}=await authorNames(rows);
+  const nodes=rows.map((record,i)=>{
+   const id=String(record.actor_vatra_id),state=states.get(id);
+   const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
+    state==="blocked"?t("Акаунт заблоковано","Account blocked"):
+    names.get(id)||t("Учасник VATRA ID ","VATRA member ID ")+id;
+   return createRow(record,name,String(opts.page*opts.size+i+1),
+    onChange,avatars.get(id),state);
+  });
   list.replaceChildren(...nodes);
   if(!rows.length){
    status.textContent=t("Сповіщень поки немає.","No notifications yet.");
@@ -347,9 +356,11 @@ async function pageLoad(append=false){
   const authors=await authorNames(result.rows);
   for(const row of result.rows){
    const index=list.children.length+1,id=String(row.actor_vatra_id);
-   list.append(createRow(row,
-    authors.names.get(id)||t("Учасник VATRA ID ","VATRA member ID ")+id,
-    String(index),()=>pageLoad(false),authors.avatars.get(id)));
+   const state=authors.states.get(id);
+   const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
+    state==="blocked"?t("Акаунт заблоковано","Account blocked"):
+    authors.names.get(id)||t("Учасник VATRA ID ","VATRA member ID ")+id;
+   list.append(createRow(row,name,String(index),()=>pageLoad(false),authors.avatars.get(id),state));
   }
   sectionPage=page;
   more.hidden=!result.hasNext;

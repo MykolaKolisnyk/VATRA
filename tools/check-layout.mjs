@@ -1406,6 +1406,23 @@ assert.ok(
  memberCss.includes('body.profile-page .profile-post-filter-panel{'),
  "Profile posts must filter by year/month server-side before pagination, with a safe reset");
 const sharedAvatar=await read("assets/js/avatar.js");
+const systemAvatarCss=await read("assets/css/base.css");
+const systemProfileCss=await read("assets/css/profile.css");
+const systemFeedCss=await read("assets/css/feed.css");
+for(const kind of ["default","deleted","blocked","not-found"]){
+ assert.ok(sharedAvatar.includes("/VATRA/assets/avatars/1024px/avatar-"+kind+"-1024.webp")&&
+  sharedAvatar.includes("/VATRA/assets/avatars/2048px/avatar-"+kind+".webp"),
+  "Both supplied WebP sizes must be available for "+kind);
+}
+assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/avatars/1024px/avatar-default-1024.webp\")")&&
+ systemProfileCss.includes("avatar-not-found.webp")&&
+ systemProfileCss.includes("avatar-blocked.webp")&&
+ systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
+ profileBehavior.includes("missingProfile(publicState)")&&
+ profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
+ sharedAvatar.includes('client.from("vatra_account_states")'),
+ "Four system states must be distinct, RLS-backed, and non-clickable as photos");
+
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
 assert.ok(
  sharedAvatar.includes('face.style.backgroundImage="url("+JSON.stringify(safe)+")"') &&
