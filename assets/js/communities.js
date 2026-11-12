@@ -10,7 +10,7 @@ const t=(uk,en)=>english?en:uk;
 const $=selector=>document.querySelector(selector);
 const idPattern=/^[1-9][0-9]{0,18}$/;
 const postPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const clubURL=id=>window.VATRA_HTTP200_ROUTES===true?location.origin+"/club"+id:root+"club"+id;
+const clubURL=id=>root+"club"+id;
 const node=(tag,cls,text)=>{
  const el=document.createElement(tag);
  if(cls)el.className=cls;
