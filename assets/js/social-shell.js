@@ -171,6 +171,14 @@
   });
   document.body.append(infoDialog);
   for(const item of document.querySelectorAll("[data-vatra-coming-soon]")){
+   if(item.classList.contains("ui-social-top-friends-001")){
+    item.removeAttribute("data-vatra-coming-soon");
+    item.removeAttribute("title");
+    item.addEventListener("click",()=>{
+     location.assign(new URL("friends.html",new URL("./",location.href)).href);
+    });
+    continue;
+   }
    if(item.dataset.vatraComingSoon==="notifications"){
     item.removeAttribute("data-vatra-coming-soon");continue;
    }
