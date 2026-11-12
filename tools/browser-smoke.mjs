@@ -2120,6 +2120,14 @@ try{
   smallHint.text==="Remove saved account",
   "Saved-account tooltip must flip/clamp inside a narrow viewport: "+JSON.stringify(smallHint));
  await savedPage.setViewportSize({width:1280,height:900});
+ const alternateStyle=await savedPage.locator("#saved-account-other").evaluate(button=>{
+  const style=getComputedStyle(button);
+  return {background:style.backgroundColor,color:style.color,
+   borderStyle:style.borderTopStyle,borderWidth:parseFloat(style.borderTopWidth)};
+ });
+ assert.ok(alternateStyle.background==="rgb(255, 255, 255)"&&
+  alternateStyle.borderStyle==="solid"&&alternateStyle.borderWidth>=1,
+  "Alternate account action must be a visible white, blue-outlined button: "+JSON.stringify(alternateStyle));
  await savedPage.locator("#saved-account-other").click();
  assert.equal(await savedPage.locator("#standard-login-panel").isVisible(),true);
  assert.equal(await savedPage.locator("#saved-switch-back").isVisible(),true);
