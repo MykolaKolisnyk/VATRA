@@ -2313,3 +2313,92 @@ body.profile-page .profile-gift-tile{
  box-shadow:none;color:inherit;text-align:center
 }
 body.profile-page .profile-gift-full{appearance:none}
+
+
+/* Profile identity: the name stays aligned, with a clearly legible status below. */
+body.profile-page.feed-page:not(.community-page) .profile-identity{
+ display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
+ align-self:center;min-width:0;min-height:91px;gap:7px;
+ margin:0;padding:8px 0;box-sizing:border-box
+}
+body.profile-page.feed-page:not(.community-page) .profile-identity .profile-name{
+ display:block;flex:none;margin:0;
+ color:#273e60;font:800 clamp(23px,2.3vw,31px)/1.25 "Onest",system-ui,sans-serif;
+ letter-spacing:-.04em;overflow-wrap:anywhere
+}
+body.profile-page .profile-identity .profile-status:not([hidden]){
+ display:flex;align-items:center;align-self:flex-start;justify-content:flex-start;
+ margin:0;min-width:0;max-width:100%;
+ color:#536e95;font:570 14px/1.55 "Onest",system-ui,sans-serif;
+ opacity:1;filter:none;white-space:normal;overflow-wrap:anywhere
+}
+body.profile-page .profile-status .vt-profile-status-text-001{
+ display:inline-block;color:#536e95;opacity:1;
+ white-space:pre-wrap;overflow-wrap:anywhere
+}
+body.profile-page .profile-identity .profile-last-seen:not([hidden]){
+ display:block;align-self:flex-start;margin:1px 0 0;
+ text-align:left;color:#8296b2;font:530 12px/1.45 "Onest",system-ui,sans-serif
+}
+/* Private profile media are visible portraits, never interactive/animated. */
+body.profile-page[data-profile-locked="true"] .profile-avatar-wrap,
+body.profile-page[data-profile-locked="true"] .profile-avatar-trigger,
+body.profile-page[data-profile-locked="true"] .profile-cover,
+body.profile-page[data-profile-locked="true"] .profile-cover-view{
+ cursor:default!important;animation:none!important;transition:none!important
+}
+body.profile-page[data-profile-locked="true"] .profile-avatar-trigger,
+body.profile-page[data-profile-locked="true"] .profile-cover-view{
+ pointer-events:none!important
+}
+body.profile-page[data-profile-locked="true"] .profile-avatar-wrap .profile-avatar.has-photo{
+ opacity:1!important;background-size:cover!important;background-position:center!important;
+ filter:none!important;transform:none!important;
+ animation:none!important;transition:none!important
+}
+body.profile-page[data-profile-locked="true"] .profile-avatar.has-photo::after{
+ content:none!important;display:none!important
+}
+body.profile-page[data-profile-locked="true"] .profile-avatar-trigger:hover .profile-avatar.has-photo,
+body.profile-page[data-profile-locked="true"] .profile-avatar-trigger:focus .profile-avatar.has-photo,
+body.profile-page[data-profile-locked="true"] .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
+body.profile-page[data-profile-locked="true"] .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001,
+body.profile-page[data-profile-locked="true"] .profile-cover.has-photo .ui-profile-cover-photo-001{
+ opacity:1!important;filter:none!important;transform:none!important;
+ animation:none!important;transition:none!important
+}
+body.profile-page[data-profile-locked="true"] .profile-avatar-wrap.has-active-story::before{
+ display:none!important;content:none!important
+}
+body.profile-page[data-profile-locked="true"] .profile-avatar-wrap .profile-avatar.has-photo{
+ box-shadow:0 0 0 1px #cfddff,0 9px 24px rgba(44,79,176,.12)
+}
+/* Every missing friend picture shows a complete, crisp silhouette. */
+body.profile-page .profile-friend-portrait,
+body.vatra-friends-page .vatra-friends-portrait{
+ position:relative;display:block;overflow:hidden;
+ background-color:#e9eff8;border-radius:50%
+}
+body.profile-page .profile-friend-portrait:not(.has-photo),
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){
+ background-image:none!important;color:transparent
+}
+body.profile-page .profile-friend-portrait:not(.has-photo)::before,
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::before{
+ content:"";position:absolute;left:35%;top:19%;width:30%;height:30%;
+ border-radius:50%;background:#adbed8
+}
+body.profile-page .profile-friend-portrait:not(.has-photo)::after,
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{
+ content:"";position:absolute;left:17%;bottom:10%;width:66%;height:39%;
+ border-radius:56% 56% 24% 24% / 65% 65% 15% 15%;
+ background:#adbed8
+}
+body.profile-page .profile-friend-portrait.has-photo{
+ background-position:center;background-size:cover;background-repeat:no-repeat
+}
+@media(max-width:600px){
+ body.profile-page.feed-page:not(.community-page) .profile-identity{min-height:80px;padding:4px 0;gap:5px}
+ body.profile-page.feed-page:not(.community-page) .profile-identity .profile-name{font-size:23px}
+ body.profile-page .profile-identity .profile-status:not([hidden]){font-size:12.5px}
+}
