@@ -1716,7 +1716,7 @@ body.feed-page .feed-post-avatar:not(.has-photo),
 body.feed-page .vatra-comment-avatar:not(.has-photo),
 body.feed-page .feed-story-author-avatar:not(.has-photo),
 .vatra-notification-avatar:not(.has-photo){
- background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2232%22%20fill%3D%22%23e8eef8%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2223%22%20r%3D%2211%22%20fill%3D%22%2394a8c5%22%2F%3E%3Cpath%20d%3D%22M12%2056c1-15%208-22%2020-22s19%207%2020%2022%22%20fill%3D%22%2394a8c5%22%2F%3E%3C%2Fsvg%3E")!important;background-color:#edf2f9!important;
+ background-image:var(--vatra-default-avatar)!important;background-color:#edf2f9!important;
  background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;
  color:transparent!important;font-size:0!important;line-height:0!important;text-shadow:none!important
 }
@@ -1924,7 +1924,7 @@ body.feed-page .vatra-post-compact-avatar:not(.has-photo){background-image:var(-
 }
 
 /* Shared empty-avatar artwork; real uploaded images always take priority. */
-:root{--vatra-generic-avatar:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2232%22%20fill%3D%22%23e8eef8%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2223%22%20r%3D%2211%22%20fill%3D%22%2394a8c5%22%2F%3E%3Cpath%20d%3D%22M12%2056c1-15%208-22%2020-22s19%207%2020%2022%22%20fill%3D%22%2394a8c5%22%2F%3E%3C%2Fsvg%3E")}
+:root{--vatra-generic-avatar:var(--vatra-default-avatar)}
 body.feed-page .vt-vatra-post-share-account-avatar-001:not(.has-photo),
 body.feed-page .vatra-post-social-avatar:not(.has-photo),
 body.feed-page .vatra-post-compact-avatar:not(.has-photo){
