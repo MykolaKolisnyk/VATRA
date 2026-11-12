@@ -2373,3 +2373,169 @@ body.feed-page .vatra-notification-row .vatra-notification-avatar{
  body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001,
  body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{min-height:39px}
 }
+
+
+/* VATRA release polish — narrow filter RIGHT of the full-width composer.
+   Restore the original wide posting lane; do not make equal-half cards. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) clamp(194px,24%,246px)!important;
+ gap:12px!important;align-items:start!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
+ grid-column:1!important;grid-row:1!important;
+ min-width:0;width:100%;min-height:72px
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+ grid-column:2!important;grid-row:1!important;
+ width:100%!important;max-width:100%!important;
+ min-height:72px!important;padding:10px 12px!important;
+ margin:0!important;align-self:start!important;
+ border-radius:16px
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+ grid-column:1/-1;grid-row:2;min-width:0
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001,
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{
+ min-height:50px!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){
+ display:flex;flex-direction:column;gap:4px
+}
+/* Comments are a natural continuation of every post, not a second card/modal. */
+body.feed-page .vatra-post-compact-comments{display:none!important}
+body.feed-page .vatra-post-interactions .vatra-post-comments-panel{
+ display:flex;flex-direction:column;gap:7px;
+ margin:4px 0 0;padding:9px 0 0;
+ border:0;border-radius:0;background:transparent;
+ box-shadow:none;min-width:0
+}
+body.feed-page .vatra-post-interactions .vatra-post-comments-panel[hidden]{display:flex!important}
+body.feed-page .vatra-post-action-row{
+ display:flex;align-items:center;justify-content:flex-start;gap:6px;
+ padding:7px 0;margin-top:4px;border-top:1px solid #e8edf6
+}
+body.feed-page .vatra-post-action-row>button{
+ flex:none;display:inline-flex;align-items:center;justify-content:center;
+ gap:5px;width:auto;min-width:42px;min-height:39px;
+ padding:7px 11px;font-size:0;border-radius:10px;color:#778aa7
+}
+body.feed-page .vatra-post-action-row>button svg{display:block;width:22px;height:22px}
+body.feed-page .vatra-post-action-row .vt-vatra-post-action-label-001{
+ position:absolute!important;width:1px!important;height:1px!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+ padding:0!important;margin:-1px!important;border:0!important
+}
+body.feed-page .vatra-post-action-row .vt-vatra-post-like-count-001:not(:empty){
+ font:700 11px/1.2 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-comments-filter-row{
+ display:flex;align-items:center;justify-content:flex-start;
+ border-top:1px solid #e8eef6;padding-top:11px;margin-bottom:2px
+}
+body.feed-page .vt-vatra-post-comments-filter-label-001{
+ display:flex;align-items:center;gap:0;
+ color:#476da9;font:730 12.5px/1.3 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comments-filter-label-001::first-letter{font-size:0}
+body.feed-page .ui-vatra-post-comments-sort-001{
+ display:inline-block;border:0;min-height:33px;padding:5px 26px 5px 5px;
+ background:transparent;color:#4775b8;cursor:pointer;
+ font:730 12px/1.35 "Onest",system-ui,sans-serif
+}
+body.feed-page .ui-vatra-post-comments-sort-001:hover{background:#f0f5ff}
+body.feed-page .vt-vatra-post-comments-sort-note-001{display:none!important}
+body.feed-page .vatra-post-comment-list{display:flex;flex-direction:column;gap:2px}
+body.feed-page .vatra-post-comment{
+ position:relative;border:0;padding:10px 0 8px;min-width:0;
+ border-bottom:1px solid #f1f4fa;background:transparent
+}
+body.feed-page .vatra-post-comment-head{align-items:flex-start;gap:10px}
+body.feed-page .vatra-comment-avatar{
+ flex:0 0 35px;width:35px;height:35px;box-shadow:none;
+ border:1px solid #e2e8f3
+}
+body.feed-page .vt-vatra-post-comment-author-001{
+ font:780 12.8px/1.35 "Onest",system-ui,sans-serif;color:#30425f
+}
+body.feed-page .vt-vatra-post-comment-date-001{font-size:11px}
+body.feed-page .vt-vatra-post-comment-body-001{
+ margin:3px 35px 3px 45px;
+ color:#334865;font:525 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comment-like-001{
+ position:absolute;right:0;bottom:8px;
+ display:inline-flex;align-items:center;gap:5px;
+ min-height:28px;margin:0;padding:4px 6px;border-radius:8px;
+ color:#8da1bc;font-size:11px
+}
+body.feed-page .vt-vatra-post-comment-like-001 svg{width:16px;height:16px;stroke-width:1.8}
+body.feed-page .vt-vatra-post-comment-like-001[aria-pressed="true"]{color:#d45d87}
+body.feed-page .vt-vatra-post-comments-more-001{
+ align-self:flex-start;justify-self:start;
+ min-height:36px;margin:5px 0;padding:6px 0;
+ border:0;background:transparent;color:#5d82b5;
+ font:730 12.5px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-post-comments-more-001:hover{
+ color:#315fc8;text-decoration:underline;text-underline-offset:3px
+}
+body.feed-page .vatra-post-comment-form{
+ display:flex;align-items:center;flex-wrap:nowrap;gap:8px;
+ padding-top:11px;border-top:1px solid #eef2f8
+}
+body.feed-page .ui-vatra-post-comment-input{
+ border-radius:11px;min-height:41px;max-height:112px;
+ background:#fff;color:#304361
+}
+/* Audience is an identifiable, focusable icon with a native VATRA tooltip. */
+body.feed-page .feed-post-audience{
+ position:relative;display:inline-flex;align-items:center;justify-content:center;
+ width:28px;height:28px;border-radius:8px;
+ background:#f0f4ff;color:#5276b3;cursor:help;outline-offset:2px
+}
+body.feed-page .feed-post-audience:hover,
+body.feed-page .feed-post-audience:focus-visible{
+ background:#e7eeff;color:#315fd1
+}
+body.feed-page .feed-post-audience .ui-feed-post-audience-icon-001{
+ width:17px!important;height:17px!important;stroke-width:1.8!important
+}
+body.feed-page .vt-vatra-post-audience-hint-001{
+ position:absolute;z-index:40;bottom:calc(100% + 8px);left:50%;
+ transform:translate(-50%,4px);opacity:0;visibility:hidden;
+ pointer-events:none;white-space:nowrap;
+ padding:7px 10px;border-radius:8px;
+ background:#2e415f;color:#fff;box-shadow:0 7px 19px rgba(19,35,73,.2);
+ font:650 11px/1.3 "Onest",system-ui,sans-serif;
+ transition:opacity .13s ease,transform .13s ease
+}
+body.feed-page .feed-post-audience:hover .vt-vatra-post-audience-hint-001,
+body.feed-page .feed-post-audience:focus-visible .vt-vatra-post-audience-hint-001{
+ visibility:visible;opacity:1;transform:translate(-50%,0)
+}
+/* Header account avatar has no second ring; the large profile portrait remains untouched. */
+body.feed-page .feed-account-toggle .feed-header-avatar{
+ border:0!important;box-shadow:none!important;outline:0;
+ width:38px;height:38px;overflow:hidden;background-clip:padding-box
+}
+@media(max-width:760px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
+  grid-template-columns:minmax(0,1fr)!important;gap:10px!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose,
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row,
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+  grid-column:1!important;width:100%!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+  grid-row:2!important;min-height:52px!important;padding:5px 12px!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{grid-row:3!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001,
+ body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{min-height:40px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ body.feed-page .vt-vatra-post-audience-hint-001{transition:none}
+}
