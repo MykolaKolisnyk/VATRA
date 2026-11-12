@@ -1291,7 +1291,9 @@ feedMarkup.includes('id="feed-compose-media"') &&
  feedScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
  profileScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
  communityScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
- postMediaScript.includes('createSignedUrl(path,3600)'),
+ postMediaScript.includes('createSignedUrl(path,ttl)') &&
+ postMediaScript.includes('ttl=3600') &&
+ postMediaScript.includes('signed(client,kind,path,300)'),
  "VATRA photos and videos must be attached, published and displayed across all post surfaces");
 assert.ok(
  communityScript.includes("postPattern.test(linkedId") &&
