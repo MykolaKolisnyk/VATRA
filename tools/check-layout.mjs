@@ -423,8 +423,16 @@ assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-h
  "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
 assert.equal((landing.match(/class="orbit-note orbit-note-/g)||[]).length,0,
  "Five VATRA orbit slogans must be removed");
-assert.ok(landing.includes('data-i18n="n99"')&&landing.includes('data-i18n="n100"'),
- "Keep translated VATRA social-network description on the left");
+assert.ok(
+ landing.includes('class="vt-home-paragraph-01">')&&
+ landing.includes('class="vt-home-emphasis-04" data-i18n="n100"')&&
+ landing.includes('class="vt-home-description-001" data-i18n="n99"')&&
+ !landing.includes('class="vt-home-paragraph-01" data-i18n="n99"')&&
+ (landing.match(/data-i18n="n99"/g)||[]).length===1&&
+ (landing.match(/data-i18n="n100"/g)||[]).length===1&&
+ uk.__pages.index.nodes.n99.text["0"].includes("Знаходьте своїх людей")&&
+ en.__pages.index.nodes.n99.text["0"].includes("Find your people"),
+ "Landing description must have its own translatable text node to prevent duplicated copy");
 assert.ok(landing.includes('aria-label="Бізнес"')&&
  landing.includes('data-i18n="n41">Бізнес</strong>')&&
  uk.__pages.index.nodes.n41.text["0"]==="Бізнес"&&
