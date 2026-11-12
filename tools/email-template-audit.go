@@ -11,6 +11,16 @@ import (
 )
 
 var names = []string{"confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"}
+var localizedSubjects = map[string][2]string{
+ "confirmation":{"Підтвердження пошти","Confirm email"},
+ "invite":{"Запрошення","Invitation"},
+ "magic-link":{"Код входу","Sign-in code"},
+ "email-change":{"Підтвердження нової пошти","Confirm new email"},
+ "recovery":{"Відновлення пароля","Password recovery"},
+ "reauthentication":{"Код підтвердження","Verification code"},
+ "password-changed":{"Пароль змінено","Password changed"},
+ "email-address-changed":{"Пошту змінено","Email changed"},
+}
 var callbacks = map[string]string{
  "confirmation":"verify?token_hash=ci_example_hash_only&type=email",
  "invite":"verify?token_hash=ci_example_hash_only&type=invite",
@@ -22,6 +32,8 @@ var href = regexp.MustCompile(`(?i)href="([^"]*)"`)
 func require(ok bool, message string){if !ok {panic(message)}}
 
 func main(){
+ readme,err:=os.ReadFile("email-templates/README.md")
+ if err!=nil {panic(err)}
  for _,name := range names {
   raw,err:=os.ReadFile("email-templates/"+name+".html"); if err!=nil {panic(err)}
   source:=string(raw)
@@ -33,11 +45,20 @@ func main(){
   for _,locale:=range []string{"uk","en","missing"} {
    preference:=map[string]string{}
    if locale!="missing" {preference["preferred_locale"]=locale}
+   subjectText:=`{{ if eq .Data.preferred_locale "en" }}VATRA · `+localizedSubjects[name][1]+`{{ else }}VATRA · `+localizedSubjects[name][0]+`{{ end }}`
+   require(strings.Contains(string(readme),"`"+subjectText+"`"),name+": README subject does not match the locale audit")
+   subjectTemplate,err:=template.New(name+"-subject").Parse(subjectText)
+   if err!=nil {panic(fmt.Errorf("%s: invalid Subject template: %w",name,err))}
    data:=map[string]any{
-    "Data":preference,"Token":"12345678","TokenHash":"ci_example_hash_only",
+    "Data":preference,"Token":"123456","TokenHash":"ci_example_hash_only",
     "RedirectTo":"https://mykolakolisnyk.github.io/VATRA/reset",
     "Email":"user@example.com","OldEmail":"old@example.com","NewEmail":"new@example.com",
    }
+   var subjectOut bytes.Buffer
+   if err:=subjectTemplate.Execute(&subjectOut,data);err!=nil {panic(fmt.Errorf("%s (%s): Subject render failed: %w",name,locale,err))}
+   expectedSubject:="VATRA · "+localizedSubjects[name][0]
+   if locale=="en"{expectedSubject="VATRA · "+localizedSubjects[name][1]}
+   require(subjectOut.String()==expectedSubject,name+" ("+locale+"): Subject must contain only its own language")
    var out bytes.Buffer
    if err:=tmpl.Execute(&out,data);err!=nil {panic(fmt.Errorf("%s (%s): %w",name,locale,err))}
    rendered:=out.String()
@@ -66,7 +87,7 @@ func main(){
     require(strings.Contains(html.UnescapeString(rendered),route),prefix+"incorrect one-time cross-device URL")
    }
    if name=="recovery"||name=="magic-link"||name=="reauthentication"{
-    require(strings.Contains(rendered,"12345678"),prefix+"OTP code missing")
+    require(strings.Contains(rendered,"123456"),prefix+"OTP code missing")
    }
    if name=="email-change"{
     require(strings.Contains(rendered,"new@example.com"),prefix+"new address missing")
@@ -75,6 +96,6 @@ func main(){
     require(strings.Contains(rendered,"old@example.com")&&strings.Contains(rendered,"user@example.com"),prefix+"security notification missing addresses")
    }
   }
-  fmt.Println("VATRA "+name+": actual Go template rendering UK + EN + missing locale fallback, links and layout guards passed")
+  fmt.Println("VATRA "+name+": Go Body + Subject rendered for UK, EN, missing locale; links and layout guards passed")
  }
 }
