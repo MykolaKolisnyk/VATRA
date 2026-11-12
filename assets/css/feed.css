@@ -2539,3 +2539,31 @@ body.feed-page .feed-account-toggle .feed-header-avatar{
 @media(prefers-reduced-motion:reduce){
  body.feed-page .vt-vatra-post-audience-hint-001{transition:none}
 }
+
+
+/* Quiet VATRA left gutter: a single top-return control, no progress meter. */
+body.feed-page .vatra-scroll-rail{
+ display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;
+ border:0;border-right:1px solid #e0e7f2;
+ background:#e8ecf3!important;color:#7187a5;
+ box-shadow:none;animation:none;transition:background .16s ease
+}
+body.feed-page .vatra-scroll-rail:hover{background:#dee7f4!important;color:#416cb0}
+body.feed-page .vatra-scroll-rail-label{
+ display:flex;flex-direction:row;justify-content:flex-start;align-items:center;
+ gap:9px;padding:16px 12px 15px 22px;
+ color:#697f9d;font:740 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-scroll-rail-icon-001{width:18px;height:18px}
+body.feed-page .vatra-scroll-rail-track,
+body.feed-page .vatra-scroll-rail-progress{display:none!important}
+body.feed-page .vt-vatra-post-comments-filter-label-001{font-size:0!important}
+@media(min-width:1341px){
+ body.feed-page .vatra-scroll-rail{
+  top:var(--vatra-header-height,78px);bottom:0;
+  width:clamp(46px,calc((100vw - 1250px)/2 - 24px),148px)
+ }
+}
+@media(max-width:1100px){
+ body.feed-page .vatra-scroll-rail{display:none!important}
+}
