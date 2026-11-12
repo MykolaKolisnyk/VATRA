@@ -586,10 +586,16 @@
    // then let profile.js set /idN as the permanent visible URL with replaceState.
    // This avoids the extra 404 document and header reset on "My page".
    const member=next.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
-   if(member){
-    const direct=new URL("profile",new URL("./",next.href));
+   const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
+   const ownProfile=next.pathname==="/VATRA/profile";
+   if(member||club||ownProfile){
+    // Use an existing HTTP-200 HTML document for internal transitions.
+    // Only after verified data loads does that page replace the address
+    // with the shareable /idN or /clubN permalink.
+    const direct=new URL(member||ownProfile?"profile.html":"club.html",new URL("./",next.href));
     direct.search=next.search;
-    direct.searchParams.set("vatra_id",member[1]);
+    if(member)direct.searchParams.set("vatra_id",member[1]);
+    if(club)direct.searchParams.set("club_id",club[1]);
     direct.hash=next.hash;
     next=direct;
    }
