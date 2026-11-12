@@ -1272,6 +1272,17 @@ const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
 const communityScript=await read("assets/js/communities.js");
 const postMediaScript=await read("assets/js/post-media.js");
+// Stories accept photo or video without requiring a caption, but keep private media paths.
+assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
+ storyPreviewMarkup.includes('id="feed-story-media-preview"')&&
+ storyPreviewMarkup.includes('id="feed-story-view-media"')&&
+ !/id="feed-story-text"[^>]*\\srequired/.test(storyPreviewMarkup)&&
+ memberProfileMarkup.includes('id="profile-story-viewer-media"')&&
+ feedScript.includes('VATRA_POST_MEDIA.uploadStory(client,vatraId,file)')&&
+ profileScript.includes('VATRA_POST_MEDIA?.renderStory(client,')&&
+ postMediaScript.includes('"/stories/"')&&
+ postMediaScript.includes('createSignedUrl(path,ttl)'),
+ "Photo/video Stories must use private signed URLs in Feed and profile, without fake media placeholders.");
 assert.doesNotThrow(()=>new Function(postMediaScript),"Shared post media module has invalid JavaScript");
 assert.ok(
 feedMarkup.includes('id="feed-compose-media"') &&
