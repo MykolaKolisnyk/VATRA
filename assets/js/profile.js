@@ -620,7 +620,7 @@ const node=(tag,cls,value)=>{
 const dateText=value=>{
  const date=new Date(value);
  return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat(locale,{
-  day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
+  day:"numeric",month:"short",year:"numeric"
  }).format(date);
 };
 const setMenuLink=id=>{
@@ -2274,6 +2274,8 @@ async function start(){
    .catch(()=>({data:null,error:true}));
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
   const locked=access?.locked===true;
+  // Keep visitors' locked-header art visually inert; the owner layout is unchanged.
+  document.body.dataset.profileLocked=String(locked);
   setupProfileInteractions(client,ownId,targetId,isMine);
   setupProfileReports(client,ownId,targetId,isMine,locked);
   if(!locked)void setupProfileSocialCards(client,ownId,targetId,isMine).catch(()=>{
