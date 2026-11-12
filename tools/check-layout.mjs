@@ -314,6 +314,11 @@ new Function("document","location","localStorage",legacyScript)
  (mockDocument,profileBookmark,mockStorage);
 assert.equal(profileBookmark.redirectedTo,"/VATRA/profile.html",
  "Extensionless profile fallback must resolve the real HTML file without showing 404");
+const idBookmark={pathname:"/VATRA/id789012",search:"?photo=avatar",hash:"#photo",
+ replace(url){this.redirectedTo=url;}};
+new Function("document","location","localStorage",legacyScript)(mockDocument,idBookmark,mockStorage);
+assert.equal(idBookmark.redirectedTo,"/VATRA/profile.html?photo=avatar&vatra_id=789012#photo",
+ "Legacy numeric profile links must keep photo deep-links while switching to a real HTML URL");
 
 const blockedCookies={get cookie(){throw Error("cookies blocked");},
  set cookie(_){throw Error("cookies blocked");}};
@@ -1270,6 +1275,13 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
+// Every member link must resolve directly to profile.html so refresh/Ctrl+U
+// fetch actual HTML (200), never the GitHub Pages /idN 404 fallback.
+assert.ok(profileScript.includes('new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href')&&
+ !profileScript.includes('history.replaceState(history.state,"",canonical)')&&
+ lang.includes("(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)")&&
+ legacyScript.includes('location.replace("/VATRA/profile.html?"+incoming.toString()+location.hash)'),
+ "Member profile links must retain a real HTTP-200 HTML source, including old /idN bookmarks");
 const communityScript=await read("assets/js/communities.js");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
