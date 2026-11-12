@@ -562,8 +562,6 @@
     if(next.hash&&next.hash!==location.hash)return false;
     return true;
    }
-   // On GitHub Pages, real /idN /clubN URLs still need the legacy static
-   // HTML bypass. A Caddy VPS returns HTTP 200 directly, so keep the real URL.
    // Profile permalink routes are rewritten by GitHub Pages' 404 fallback.
    // For internal navigation fetch the real profile document (HTTP 200) first,
    // then let profile.js set /idN as the permanent visible URL with replaceState.
@@ -571,7 +569,7 @@
    const member=next.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
    const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
    const ownProfile=next.pathname==="/VATRA/profile";
-   if((member||club||ownProfile)&&window.VATRA_HTTP200_ROUTES!==true){
+   if(member||club||ownProfile){
     // Use an existing HTTP-200 HTML document for internal transitions.
     // Only after verified data loads does that page replace the address
     // with the shareable /idN or /clubN permalink.
