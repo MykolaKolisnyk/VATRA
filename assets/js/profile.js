@@ -2059,7 +2059,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      limit:10,sortBy:{column:"created_at",order:"desc"}
     });
     if(error)return null;
-    const file=(items||[]).find(item=>/^[A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp)$/i.test(item.name||""));
+    const file=(items||[]).find(item=>/^[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$/i.test(item.name||""));
     return file?folder+"/"+file.name:null;
    };
    const results=await Promise.allSettled([findPublic("avatar"),findPublic("cover")]);
