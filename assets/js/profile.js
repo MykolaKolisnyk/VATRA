@@ -1184,8 +1184,11 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  };
  window.VATRA_PROFILE_SHOW_GIFTS=showGifts;
  function giftCard(gift,compact){
-  const item=node("article",compact?"profile-gift-tile ui-profile-gift-preview-item-001":
+  const item=node("button",compact?"profile-gift-tile ui-profile-gift-preview-item-001":
    "profile-gift-full ui-profile-gift-full-item-001");
+  item.type="button";
+  item.setAttribute("aria-label",t("Переглянути подарунок: Перший вогник","View gift: First flame"));
+  item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open("first_flame"));
   const img=node("img","profile-gift-art ui-profile-gift-art-001");
   img.src=asset;img.alt=t("Перший вогник VATRA","First VATRA flame");
   img.width=compact?82:116;img.height=compact?82:116;img.loading="lazy";
@@ -1193,8 +1196,12 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const sub=node("small","vt-profile-gift-caption-001",t("За приєднання до VATRA","For joining VATRA"));
   item.append(img,title,sub);return item;
  }
- q("#profile-friends-all")?.addEventListener("click",()=>window.VATRA_PROFILE_CHOOSE_TAB?.("friends"));
- q("#profile-gifts-all")?.addEventListener("click",()=>window.VATRA_PROFILE_CHOOSE_TAB?.("gifts"));
+ q("#profile-friends-all")?.addEventListener("click",()=>{
+  location.assign(new URL("friends.html"+(isMine?"":"?member="+targetId),home).href);
+ });
+ q("#profile-gifts-all")?.addEventListener("click",()=>{
+  location.assign(new URL("gifts.html"+(isMine?"":"?member="+targetId),home).href);
+ });
  window.VATRA_PROFILE_SHOW_COMMUNITIES=async()=>{
   if(communitiesLoaded)return;
   communitiesLoaded=true;
@@ -1365,13 +1372,7 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
   render();dialog.showModal();close.focus({preventScroll:true});
  };
  open.addEventListener("click",launch);
- if(locked){
-  const notice=q(".profile-locked-notice");
-  if(notice){
-   const button=node("button","vt-profile-report-locked-001",t("Поскаржитися","Report"));
-   button.type="button";button.addEventListener("click",launch);notice.append(button);
-  }
- }
+ // A locked-profile notice is informational, not an action bar.
  close.addEventListener("click",()=>dialog.close());
  back.addEventListener("click",()=>{step=step==="review"?"reason":step==="reason"?"category":"kind";render();});
  submit.addEventListener("click",async()=>{
