@@ -1037,7 +1037,7 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
  notificationScript.includes('opts={page:0,size:6}')&&
- notificationScript.includes('pageLoad()')&&
+ notificationScript.includes('pageLoad(false)')&&
  notificationScript.includes('client.channel(')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
