@@ -570,20 +570,13 @@
     if(next.hash&&next.hash!==location.hash)return false;
     return true;
    }
-   // Profile permalink routes are rewritten by GitHub Pages' 404 fallback.
-   // For internal navigation fetch the real profile document (HTTP 200) first,
-   // then let profile.js set /idN as the permanent visible URL with replaceState.
-   // This avoids the extra 404 document and header reset on "My page".
-   const member=next.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
+   // Member links navigate directly to /idN and use the GitHub Pages fallback;
+   // there is no intermediary old profile.html?vatra_id=... URL.
    const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
    const ownProfile=next.pathname==="/VATRA/profile";
-   if(member||club||ownProfile){
-    // Use an existing HTTP-200 HTML document for internal transitions.
-    // Only after verified data loads does that page replace the address
-    // with the shareable /idN or /clubN permalink.
-    const direct=new URL(member||ownProfile?"profile.html":"club.html",new URL("./",next.href));
+   if(club||ownProfile){
+    const direct=new URL(ownProfile?"profile.html":"club.html",new URL("./",next.href));
     direct.search=next.search;
-    if(member)direct.searchParams.set("vatra_id",member[1]);
     if(club)direct.searchParams.set("club_id",club[1]);
     direct.hash=next.hash;
     next=direct;
