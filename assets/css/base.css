@@ -1,0 +1,321 @@
+/* Onest • локальний шрифт, SIL Open Font License 1.1 */
+@font-face{font-family:"Onest";src:url("../fonts/Onest-Variable.ttf") format("truetype");font-weight:100 900;font-style:normal;font-display:swap;}
+/* Індивідуальні класи текстів VATRA. Базова типографіка без дублювання стилів сторінок. */
+:where([class^="vt-"],[class*=" vt-"]){
+  font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  text-rendering:optimizeLegibility;
+}
+:where(p[class^="vt-"],p[class*=" vt-"],li[class^="vt-"],li[class*=" vt-"],blockquote[class^="vt-"],blockquote[class*=" vt-"]){
+  font-size:15px;
+  font-weight:400;
+  line-height:1.65;
+  color:var(--soft);
+}
+:where(h1[class^="vt-"],h1[class*=" vt-"],h2[class^="vt-"],h2[class*=" vt-"],h3[class^="vt-"],h3[class*=" vt-"],h4[class^="vt-"],h4[class*=" vt-"]){
+  line-height:1.25;
+  letter-spacing:-.025em;
+  font-weight:700;
+}
+
+:root{--vatra-avatar-gradient:linear-gradient(130deg,#2d68e4,#7641dc 65%,#ec4fa5);--vatra-default-avatar:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Ccircle cx='48' cy='33' r='17' fill='%238898ac'/%3E%3Cpath d='M14 83c2-22 15-31 34-31s32 9 34 31' fill='%238898ac'/%3E%3C/svg%3E");--scroll-track:#f0f3fb;--scroll-thumb:#788bcd;--ink:#2C3850;--soft:#627187;--blue:#2865D8;--blue2:#1F55BD;--purple:#6257C6;--line:#e0e4ed;--bg:#f7f9fd;--shadow:0 16px 44px rgba(26,44,92,.08);font-family:Onest,Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:white;color-scheme:light}*,*::before,*::after{box-sizing:border-box}html{min-height:100%;scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Onest,Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}img{max-width:100%;height:auto;display:block}svg{shape-rendering:geometricPrecision}button,input,select,textarea,option,optgroup{font:inherit;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button{cursor:pointer}a{color:inherit;text-decoration:none}a:hover{text-decoration:underline}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}[hidden]{display:none!important}button:disabled{opacity:.57;cursor:wait}::selection{background:#dce6ff;color:#2E3A53}
+
+.captcha-dialog::-webkit-scrollbar{width:9px;height:9px}
+.captcha-dialog::-webkit-scrollbar-track{background:var(--scroll-track);border-radius:99px}
+.captcha-dialog::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8bb1f6,#8274d7);border:2px solid var(--scroll-track);border-radius:99px}
+.captcha-dialog::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#5b8eeb,#6958d0)}.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;min-width:0;width:min(calc(100% - 88px),1300px);margin:auto;border-radius:28px;box-shadow:0 24px 65px rgba(42,55,102,.11)}.header-logo{width:170px;display:inline-block}.header-logo img{width:100%;height:auto;aspect-ratio:1342/380}
+
+/* A real, shared pending-state overlay. Fast requests never flash a loader:
+   show only if work is still pending after 160 ms; ready content is NEVER delayed. */
+.vatra-auth-loading{position:fixed;inset:0;z-index:11000;display:grid;place-items:center;min-height:100dvh;padding:0;background:#f3f5fa;font-family:"Onest",system-ui,sans-serif;opacity:0;animation:vatraLoaderReveal .001s linear 160ms both}
+/* GitHub Pages initially returns 404.html for canonical /idN and /clubN.
+   Show the SAME VATRA splash while their actual documents load, in both locales. */
+html:not(.vatra-dynamic-route-pending) .vatra-route-loading{display:none!important}
+html.vatra-dynamic-route-pending body > :not(.vatra-route-loading){visibility:hidden!important}
+html.vatra-dynamic-route-pending body > .vatra-route-loading{visibility:visible!important}
+@keyframes vatraLoaderReveal{from{opacity:0}to{opacity:1}}
+.vatra-auth-loading-content{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;width:100%;height:100%;min-height:100dvh;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;text-align:center}
+.vatra-auth-loading-symbol{display:block;width:clamp(68px,11vw,88px);height:clamp(68px,11vw,88px);object-fit:contain;animation:vatraLoadingPulse 1.65s ease-in-out infinite}
+.vatra-auth-loading-title{position:absolute;bottom:clamp(34px,6vh,70px);left:0;right:0;margin:0;color:#67758e;font-size:17px;font-weight:770;letter-spacing:.13em;line-height:1.3}
+.vatra-auth-loading-caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.vatra-auth-loading-track{width:80px;height:3px;overflow:hidden;margin-top:24px;border-radius:99px;background:#dce4f4}
+.vatra-auth-loading-indicator{display:block;width:40%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2c6de9,#8054dc,#e557a1);animation:vatraLoadingSlide 1.4s ease-in-out infinite alternate}
+@keyframes vatraLoadingSlide{from{transform:translateX(-20%)}to{transform:translateX(165%)}}
+@keyframes vatraLoadingPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.88;transform:scale(.975)}}
+body[data-auth-ready="true"]>.vatra-auth-loading{display:none!important}
+/* The same splash handles real network failures: stop the busy animation and
+   offer a retry instead of showing an endlessly sliding progress indicator. */
+.vatra-auth-loading[data-loading-error="true"]{animation:none;opacity:1}
+.vatra-auth-loading[data-loading-error="true"] .vatra-auth-loading-symbol{animation:none}
+.vatra-auth-loading[data-loading-error="true"] .vatra-auth-loading-track{display:none}
+.vatra-auth-loading[data-loading-error="true"] .vatra-auth-loading-caption{position:static;clip-path:none;width:min(100% - 32px,510px);height:auto;overflow:visible;margin:26px 0 14px;white-space:normal;color:#50617d;font-size:14px;line-height:1.65}
+.vatra-auth-loading-retry{min-height:42px;padding:10px 23px;border:1px solid #aec6f5;border-radius:999px;background:#fff;color:#2a62c9;font:700 13px/1.3 "Onest",system-ui,sans-serif;cursor:pointer}
+.vatra-auth-loading-retry:hover{background:#eef4ff}
+.vatra-auth-loading-retry:focus-visible{outline:3px solid #a8c7ff;outline-offset:3px}
+/* No flash of interactive login/register/recovery fields during initial session
+   validation. Content appears immediately when auth/locale are ready. */
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading){visibility:hidden}
+/* Do not use up the entrance animation behind the authentication splash.
+   This applies equally to uk and en; it excludes the animated loading splash. */
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading),
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *,
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::before,
+body:has(> #vatra-auth-loading):not([data-auth-ready="true"]) > :not(#vatra-auth-loading) *::after{animation-play-state:paused!important}
+
+@media(prefers-reduced-motion:reduce){.vatra-auth-loading-symbol,.vatra-auth-loading-indicator{animation:none!important}.vatra-auth-loading-indicator{width:65%}}
+@keyframes vatraOrbitClockwise{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+@keyframes vatraIconUpright{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+@keyframes vatraGlyphFloat{0%,100%{transform:translateY(0);opacity:1}50%{transform:translateY(-2px) scale(1.04);opacity:.84}}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}.form-box{width:100%;max-width:520px;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+.form-box h2,
+.narrow-form h1{margin:0 0 10px;font-size:clamp(31px,2.55vw,40px);line-height:1.2;letter-spacing:-.03em;font-weight:745;color:var(--ink);text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}.subtitle{margin:0 0 30px;color:var(--soft);font-size:15px;line-height:1.65;font-weight:400}.field-stack{display:grid;gap:14px}
+.captcha-dialog-open{overflow:hidden}
+.captcha-backdrop{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:clamp(16px,4vw,32px);background:rgba(15,24,44,.58);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.captcha-dialog{box-sizing:border-box;width:min(100%,430px);max-height:min(90dvh,620px);overflow-y:auto;padding:clamp(22px,4vw,34px);display:flex;flex-direction:column;align-items:center;gap:13px;border:1px solid #dce5f6;border-radius:24px;background:#fff;box-shadow:0 24px 85px rgba(17,30,58,.23);text-align:center;scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
+.captcha-title{margin:0;color:var(--ink);font-size:clamp(21px,3vw,25px);font-weight:740;line-height:1.25;letter-spacing:-.025em;text-wrap:balance}
+.captcha-description{margin:0;color:var(--soft);font-size:14px;line-height:1.65;max-width:330px}
+.vatra-captcha{display:flex;align-items:center;justify-content:center;width:100%;min-height:70px;margin:8px 0 0;padding:0;overflow:visible;border-radius:13px}
+.vatra-captcha iframe{max-width:100%}
+.captcha-note{margin:0;color:var(--soft);font-size:12px;line-height:1.5}
+.captcha-cancel{min-height:40px;padding:8px 18px;border:1px solid #d5e1f5;border-radius:999px;background:#f8faff;color:#50627d;font:700 13px "Onest",Inter,system-ui,sans-serif;cursor:pointer;transition:background .15s ease,border-color .15s ease}
+.captcha-cancel:hover{border-color:#a5bdf1;background:#eef3fd}
+.captcha-cancel:focus-visible{outline:3px solid rgba(40,101,216,.35);outline-offset:2px}
+@media(max-width:540px){.captcha-dialog{border-radius:19px;padding:25px 18px}.captcha-backdrop{padding:14px}}
+.field{display:grid;gap:8px;min-width:0}
+.field:has(input.control){position:relative;gap:8px}
+.field:has(input.control)>span:first-child,
+.field-caption{font-size:13px;line-height:1.4;font-weight:700;color:#48576d}
+/* Accessible captions stay in the DOM, but are never repeated above floating hints.
+   Registration intentionally keeps its visible field labels. */
+.vatra-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+/* Reusable animated hint: tied to the input box, never to the error message. */
+.vatra-input-shell{position:relative;display:block;width:100%;min-width:0}
+.vatra-input-shell .control{display:block;width:100%}
+.vatra-input-shell .control::placeholder{color:transparent;opacity:0}
+.vatra-floating-hint{
+ position:absolute;left:16px;top:50%;z-index:1;
+ transform:translateY(-50%);transform-origin:left top;
+ max-width:calc(100% - 110px);overflow:hidden;text-overflow:ellipsis;
+ white-space:nowrap;pointer-events:none;user-select:none;color:var(--soft);
+ font-size:15px;font-weight:500;line-height:1.2;
+ transition:top .18s ease,transform .18s ease,font-size .18s ease,color .18s ease
+}
+.vatra-input-shell.is-floating .vatra-floating-hint,
+.vatra-input-shell:focus-within .vatra-floating-hint,
+.vatra-input-shell:has(input:-webkit-autofill:not(:placeholder-shown)) .vatra-floating-hint{
+ top:7px;transform:translateY(0);font-size:11px;color:var(--blue)
+}
+.vatra-input-shell.is-floating .control,
+.vatra-input-shell:focus-within .control,
+.vatra-input-shell:has(input:-webkit-autofill:not(:placeholder-shown)) .control{
+ padding-top:20px;padding-bottom:5px
+}
+/* Clear inputs are never floating merely because an obsolete JS class persisted.
+   Focused controls still float normally; recovery has its own initial-focus guard. */
+.vatra-input-shell.is-floating:not(:focus-within):has(input:placeholder-shown) .vatra-floating-hint{
+ top:50%;transform:translateY(-50%);font-size:15px;color:var(--soft)
+}
+.vatra-input-shell.is-floating:not(:focus-within):has(input:placeholder-shown) .control{
+ padding-top:12px;padding-bottom:12px
+}
+.vatra-input-shell.input-password .control{padding-right:90px}
+.field.is-invalid .vatra-floating-hint{color:#aa4e60}
+.field.is-invalid .control{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
+.password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:13px;font-weight:450;line-height:1.55;font-family:"Onest",Inter,system-ui,sans-serif}
+.field-error{display:flex;align-items:flex-start;gap:7px;width:100%;margin:8px 0 1px;color:#a83d54;font-size:12px;font-weight:650;line-height:1.5}.field-error::before{content:"!";display:grid;place-items:center;flex:none;width:15px;height:15px;margin-top:1px;border-radius:50%;background:#fff0f2;color:#b8435b;font-size:10px;font-weight:800}.control{border:1px solid #d7ddea;background:white;border-radius:13px;padding:12px 15px;width:100%;min-width:0;height:51px;font-size:15px;font-weight:500;color:var(--ink);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.2;transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease}.control::placeholder{color:#627187;opacity:1}.control:hover{border-color:#a8b5cb}.control:focus,.control:focus-visible{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}.input-password{display:block;position:relative;min-width:0}.input-password .control{display:block}.input-password input{padding-right:85px}.eye-btn{border:0;background:transparent;color:var(--blue);position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:9px 7px;border-radius:8px;font-size:12px;font-weight:700}.eye-btn:hover{background:#f2f5fe}.vt-ua-home-inline-05,.vt-en-home-inline-05{font-size:12px;color:#627187;font-weight:500}.remember{display:flex;gap:8px;align-items:center;color:#647086;cursor:pointer;font-size:12px}
+.remember input{width:16px;height:16px;accent-color:var(--blue);margin:0}.simple-link{color:var(--blue);font-size:13px;font-weight:700}.simple-link:hover{text-decoration:underline}.action{border:1px solid transparent;display:inline-flex;justify-content:center;align-items:center;min-height:52px;border-radius:999px;padding:12px 22px;font-size:14px;font-weight:700;line-height:1.35;text-align:center;transition:background .17s,transform .17s}.action:active{transform:translateY(1px)}.action.primary{background:var(--blue);color:white}.action.primary:hover{background:var(--blue2)}.action.secondary{color:var(--blue);background:white;border:1.5px solid #4b81ff}.action.secondary:hover{background:#f2f6ff}.action.subtle{color:#39475D;background:#f0f2f6}.action.subtle:hover{background:#e7ebf2}.action.full{width:100%}.form-box h2{margin-bottom:10px}
+.or{display:flex;align-items:center;gap:16px;color:#627187;font-size:12px;margin:29px 0}.or:before,.or:after{content:"";height:1px;flex:1;background:#e5eaf0}.form-note{font-size:12px;line-height:1.7;color:#627187;text-align:center;margin:23px 0 0}.response{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;margin:0 0 19px;border:1px solid #c9defe;background:#f2f7ff;color:#174b9b}.response[data-type=error]{border-color:#efccd2;background:#fff3f5;color:#a32a40}.response[data-type=success]{border-color:#c6e8dd;background:#f1fbf7;color:#176b50}
+.network-status{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(95%,500px);padding:12px 17px;text-align:center;border-radius:13px;border:1px solid #ffd2d2;background:#fff3f4;color:#B44053;box-shadow:0 15px 40px rgba(18,32,70,.16);font-size:13px;font-weight:700}
+.footer{min-height:70px;padding:16px clamp(24px,4vw,76px);display:flex;flex-wrap:wrap;gap:12px 25px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);color:#627187;font-size:13px;line-height:1.5;background:white}.footer nav{display:flex;flex-wrap:wrap;align-items:center;gap:9px 20px;font-size:13px;font-weight:600}.footer nav>a{display:inline-flex;align-items:center;min-height:40px;line-height:1.4;transition:color .18s ease}.footer a:hover{color:var(--blue)}.footer b{color:#5B6981}
+.auth-footer-content{width:100%;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 22px;text-align:left}.auth-footer-content>span{font-size:13px;line-height:1.6;font-weight:450;letter-spacing:.005em;color:#617087}.auth-footer-content>span b{font-weight:770;color:var(--ink)}
+
+/* Єдиний вибір мови VATRA: одне джерело стилів для всіх сторінок. */
+.language-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:7px 9px;color:#64728b;background:transparent;border:1px solid transparent;border-radius:10px;font-size:13px;font-weight:650;cursor:pointer;white-space:nowrap}
+.language-trigger:hover,.language-trigger:focus-visible{color:var(--blue);border-color:#dce6fc;background:#f4f7fe}
+.language-trigger .language-flag{width:24px;height:18px;flex:none;box-shadow:0 0 0 1px rgba(44,57,86,.13);border-radius:4px;overflow:hidden;shape-rendering:geometricPrecision}
+.language-chevron{display:block;width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;color:#627187;margin-left:1px;shape-rendering:geometricPrecision}
+.language-dialog-open{overflow:hidden}
+.language-backdrop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:24px;background:rgba(15,24,44,.48);backdrop-filter:blur(3px);animation:vatraLanguageBackdrop .24s ease-out both}
+.language-backdrop[hidden],.language-option[hidden],.language-empty[hidden]{display:none!important}
+.language-dialog{width:min(100%,690px);max-height:min(84dvh,730px);min-height:0;display:flex;flex-direction:column;padding:25px;background:#fff;font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;border:1px solid #e4e9f4;border-radius:22px;box-shadow:0 25px 80px rgba(15,25,55,.23);color:var(--ink)}
+.language-dialog > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
+@keyframes vatraLanguageBackdrop{from{opacity:0}to{opacity:1}}
+@keyframes vatraLanguageDialog{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.language-backdrop,.language-dialog > :not([hidden]){animation:none!important}}
+.language-heading-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.language-heading-row h2{font-size:24px;letter-spacing:-.04em;margin:0 0 4px;line-height:1.25}
+.language-heading-row p{margin:0 0 20px;color:var(--soft);font-size:13px}
+.language-close{width:38px;height:38px;display:grid;place-items:center;flex:none;background:#f2f5fb;color:#586880;border:0;border-radius:11px;font-size:25px;line-height:1}
+.language-close:hover{background:#e6eefc}
+.language-search-field{position:relative;gap:0;margin-bottom:14px}
+.language-search-shell{width:100%;height:51px}
+.language-search-shell .vatra-floating-hint{max-width:calc(100% - 58px)}
+.language-search{height:51px;min-height:51px;padding:12px 52px 12px 16px!important;
+ margin-bottom:0;font-size:14px;appearance:none;-webkit-appearance:none}
+.language-search-shell.is-floating .language-search,
+.language-search-shell:focus-within .language-search{padding-top:20px!important;padding-bottom:5px!important}
+.language-search::-webkit-search-cancel-button,.language-search::-webkit-search-decoration{
+ display:none;-webkit-appearance:none;appearance:none
+}
+.language-search-clear{position:absolute;top:50%;right:11px;transform:translateY(-50%);
+ display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:9px;
+ background:transparent;color:#627187;cursor:pointer}
+.language-search-clear:hover{background:#edf3ff;color:var(--blue)}
+.language-search-clear:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.language-search-clear svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;
+ stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.language-scroll-shell{position:relative;min-height:0;min-width:0;flex:1 1 auto;height:min(54dvh,515px);max-height:min(54dvh,515px)}
+.language-grid{height:100%;min-height:0;max-height:100%;overflow:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;align-content:start;padding:1px 19px 3px 1px;scrollbar-width:none;-ms-overflow-style:none}
+.language-grid::-webkit-scrollbar{display:none;width:0;height:0}
+.language-scroll-track{position:absolute;top:0;bottom:0;right:2px;width:8px;border-radius:99px;background:var(--scroll-track);cursor:pointer;touch-action:none}
+.language-scroll-track[hidden]{display:none}
+.language-scroll-thumb{position:absolute;top:0;left:1px;right:1px;min-height:38px;border-radius:99px;background:linear-gradient(180deg,#82a5ed,#8574d8);box-shadow:0 1px 5px rgba(58,105,225,.16);transition:background .16s ease,box-shadow .16s ease;will-change:transform}
+.language-scroll-track:hover .language-scroll-thumb,.language-scroll-track.is-dragging .language-scroll-thumb{background:linear-gradient(180deg,#2865D8,#6936d7);box-shadow:0 2px 9px rgba(58,105,225,.3)}
+
+.language-option{width:100%;min-width:0;display:flex;align-items:center;gap:10px;min-height:66px;padding:9px 11px;background:white;border:1px solid #e2e7f1;border-radius:13px;text-align:left;color:#36475E}
+.language-option .language-flag{width:36px;height:27px;flex:none;border-radius:5px;box-shadow:0 0 0 1px rgba(39,51,84,.14);overflow:hidden;shape-rendering:geometricPrecision}
+.language-option-copy{min-width:0;display:flex;flex-direction:column;gap:3px;line-height:1.25}
+.language-option-copy strong{font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.language-option-copy small{font-size:10px;color:#627187}
+.language-option:not(:disabled):hover{border-color:#8eb3fd;background:#f5f8ff}
+.language-option:disabled{opacity:1;cursor:not-allowed;background:#f9fafc}
+.language-option:disabled .language-option-copy small{color:#627187}
+.language-option.is-selected{border-color:#81aaff;background:#ecf3ff}
+.language-option.is-selected .language-option-copy small{color:#2865D8;font-weight:700}
+.language-empty{color:var(--soft);font-size:13px;margin:14px 2px}.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:40px 0}.back{display:inline-flex;align-items:center;gap:7px;color:#677386;font-size:13px;font-weight:700;line-height:1.4;text-decoration:none;transition:color .18s ease,transform .18s ease}.back svg{width:18px;height:18px;flex:none}.back:hover,.back:focus-visible{transform:translateX(-2px);color:var(--blue);text-decoration:none}.narrow-form .subtitle{margin-bottom:20px}.form-rows{display:grid;gap:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.three{display:grid;grid-template-columns:.95fr 1.2fr 1fr;gap:12px}.hint{font-size:12px;line-height:1.5;color:#627187}.control.select{appearance:none;padding-right:40px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%235c6a85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}
+@keyframes vatraHintAppear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes vatraSignupSymbol{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+@keyframes vatraAuthReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){
+:is(.account-card,.error-card) > :not([hidden]){animation:none!important}.back{transition:none!important}}
+
+/* Console-only notices: compact, Onest, automatic dismissal. */
+.vatra-error-stack{position:fixed;left:clamp(12px,2vw,26px);bottom:clamp(12px,2vw,24px);z-index:12000;width:min(360px,calc(100vw - 24px));display:flex;flex-direction:column-reverse;gap:9px;pointer-events:none;font-family:"Onest",Inter,system-ui,sans-serif}
+.vatra-error-toast{display:flex;align-items:flex-start;gap:11px;min-height:64px;padding:12px;background:linear-gradient(#fff,#fcfdff);border:1px solid #e3e7f4;border-left:3px solid #d64b68;border-radius:14px;box-shadow:0 12px 38px rgba(26,44,92,.16);pointer-events:auto;opacity:0;transform:translate3d(-12px,12px,0) scale(.985);transition:opacity .22s ease,transform .22s cubic-bezier(.2,.8,.2,1);overflow-wrap:anywhere}
+.vatra-error-toast.is-visible{opacity:1;transform:translate3d(0,0,0) scale(1)}
+.vatra-error-toast--warning{background:linear-gradient(125deg,#fffaf0,#fff);border-color:#f1ddba;border-left-color:#d99a32;box-shadow:0 12px 38px rgba(105,77,25,.13)}
+.vatra-error-toast--warning .vatra-error-mark{background:#fff0cd;color:#ae7017}
+.vatra-error-toast--warning .vatra-error-mark svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;shape-rendering:geometricPrecision}
+.vatra-error-toast--warning .vatra-error-copy strong{color:#80531c}
+
+.vatra-error-mark{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:8px;background:#fff0f4;color:#bd3350;font-size:15px;font-weight:800}
+.vatra-error-copy{min-width:0;flex:1}
+.vatra-error-copy strong{display:block;margin-bottom:2px;color:#253653;font-size:12px;line-height:1.4;font-weight:750}
+.vatra-error-copy p{margin:0;color:#5a6881;font-size:11px;line-height:1.55;font-weight:450}
+.vatra-error-dismiss{display:grid;place-items:center;flex:none;width:25px;height:25px;padding:0;border:0;border-radius:8px;background:transparent;color:#758198;font-size:18px;font-weight:400}
+.vatra-error-dismiss:hover,.vatra-error-dismiss:focus-visible{background:#f0f4fe;color:#2865d8}
+@media(max-width:540px){.vatra-error-stack{left:12px;bottom:12px;width:calc(100vw - 24px)}}
+@media(prefers-reduced-motion:reduce){.vatra-error-toast{transition:none;transform:none}}
+.terms{color:#627187;font-size:12px;line-height:1.7;margin:2px 0}.terms a{color:var(--blue);font-weight:700}.account-main{flex:1;display:grid;place-items:center;padding:40px 20px}.account-card{width:min(100%,520px);padding:45px 35px;border-radius:24px;border:1px solid #e7ebf3;background:white;text-align:center;box-shadow:var(--shadow)}.account-card>img{width:95px;margin:0 auto 18px}:is(.account-card,.error-card) > :not([hidden]){animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}.account-card h1{margin:0;font-size:30px;letter-spacing:-.045em}.account-card p{line-height:1.7;color:var(--soft);font-size:14px;overflow-wrap:anywhere}.account-card .action{margin-top:14px}.account-card .vatra-id{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin:10px 0 6px;padding:9px 16px;border:1px solid #d9e5ff;border-radius:999px;background:#eff5ff;color:#2865D8;font-size:14px;font-weight:740;letter-spacing:.01em}/* VATRA 404: errors only, never a profile page. */
+.error-page{background:radial-gradient(ellipse at 50% 38%,#eef2ff 0%,#f8faff 44%,#f7f9fd 80%);color:var(--ink)}
+.error-main{padding:clamp(30px,7vw,76px) 18px}
+.error-home-link{display:inline-flex;justify-content:center;align-items:center;gap:9px;min-height:43px;padding:10px 20px;border:1px solid #2865d8;border-radius:999px;background:#2865d8;box-shadow:0 8px 20px rgba(40,101,216,.18);color:#fff;font-size:13px;font-weight:700;line-height:1.35;text-decoration:none;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+.error-home-link::before{content:"←";font-size:19px;line-height:1;font-weight:500}
+.error-home-link:hover{background:#1d51b9;box-shadow:0 11px 26px rgba(40,101,216,.26);color:#fff;text-decoration:none}
+.error-home-link:active{transform:translateY(1px)}
+.error-home-link:focus-visible{outline:3px solid rgba(40,101,216,.4);outline-offset:3px}
+.error-card{width:min(100%,590px);padding:clamp(28px,6vw,55px) clamp(22px,5vw,50px);border:1px solid #e1e9f6;border-radius:27px;box-shadow:0 24px 60px rgba(42,57,105,.075)}
+.error-code{display:block;font-size:clamp(74px,15vw,112px);font-weight:750;line-height:1;letter-spacing:-.075em;color:#36436e;background:linear-gradient(115deg,#265fd6 6%,#7431d8 56%,#ed439c 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:0 0 19px}
+.error-card .error-heading{margin:0;font-size:clamp(25px,4vw,35px);line-height:1.24;letter-spacing:-.025em;font-weight:710;text-wrap:balance}
+.error-card .error-description{font-size:clamp(14px,2.5vw,15px);line-height:1.75;color:var(--soft);margin:15px auto 24px;max-width:435px}
+.error-card .error-action{margin:0;min-width:min(100%,240px);color:#fff}
+.error-card a.error-action:hover,.error-card a.error-action:focus-visible{text-decoration:none}
+@media(max-width:540px){.error-card{border-radius:20px}.error-card .error-action{width:100%}.error-code{margin-bottom:14px}.error-home-link{min-height:40px;padding:9px 13px;font-size:12px}}
+.legal-main{max-width:850px;margin:0 auto;padding:50px 25px 95px}.legal-main .header-logo{width:185px;margin-bottom:35px}.legal-main h1{font-size:36px;letter-spacing:-.045em}.legal-main h2{font-size:22px;margin-top:36px}.legal-main p{font-size:14px;line-height:1.8;color:#566277}
+/* On ultrawide but short screens use one shared card floor rather than
+   compressing text or shifting the signup illustration independently. */
+@media (min-width:1800px) and (max-height:850px){
+.split{min-height:700px}
+}
+@media (min-width:1200px) and (max-height:610px){
+.split{min-height:670px}
+}
+@media (max-width:1199px){
+  /* Tall stacked auth cards scroll naturally without phantom header spacing. */
+  .auth-layout{justify-content:flex-start;padding:32px 0}
+  /* На планшетах і телефонах вхід першочерговий, композиція бренду — нижче. */
+  .split{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);margin:16px auto 28px;border-radius:24px}
+  .form-box{width:min(100%,510px);margin:0 auto}
+
+  .footer{justify-content:center;gap:12px 22px;text-align:center}
+  .footer nav{justify-content:center;gap:4px 17px}
+  .footer nav a{display:inline-flex;align-items:center;min-height:40px}
+  .account-main{padding:32px 20px}
+}
+@media (max-width:540px){
+.form-box h2{font-size:clamp(28px,7.2vw,34px)}
+  .language-backdrop{padding:12px}
+  .language-dialog{padding:18px;border-radius:17px;max-height:88dvh}
+  .language-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .language-option{padding:8px;gap:7px}
+  .language-option .language-flag{width:29px;height:22px}
+  .subtitle{margin-bottom:22px}
+
+  .split{width:calc(100% - 24px);margin:16px auto 24px;border-radius:21px}
+
+  .form-rows{gap:14px}
+  .two{grid-template-columns:1fr;gap:14px}
+  .three{gap:8px}
+  .three .control{padding-inline:9px 22px;background-position:right 5px center}
+.account-card{padding:27px 20px;border-radius:17px}
+  .account-card h1{font-size:26px}
+  .footer{padding:15px 17px;font-size:11px}
+  .footer nav{gap:3px 12px}
+}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* Deep links to /idN and /clubN use page-shaped placeholders while GitHub
+   Pages resolves their document. No changes to login/register form loading. */
+html.vatra-dynamic-route-pending .vatra-route-loading{
+ display:block;opacity:1!important;animation:none!important;
+ overflow:hidden;background:#f5f7fc
+}
+html.vatra-dynamic-route-pending .vatra-route-loading .vatra-auth-loading-content{
+ display:none!important
+}
+html.vatra-dynamic-route-pending .vatra-dynamic-skeleton{
+ display:block;min-height:100dvh;font-family:"Onest",system-ui,sans-serif
+}
+html.vatra-dynamic-route-pending .vatra-dynamic-skeleton-header{
+ height:65px;display:flex;align-items:center;gap:14px;
+ padding:0 clamp(15px,2vw,30px);background:#fff;border-bottom:1px solid #e6ebf4
+}
+html.vatra-dynamic-route-pending .vatra-dynamic-block{
+ display:block;flex:none;border-radius:12px;
+ background:linear-gradient(105deg,#e8edf5 18%,#f6f8fc 44%,#e8edf5 70%);
+ background-size:210% 100%;animation:vatraSkeletonShiftRoute 1.7s linear infinite
+}
+@keyframes vatraSkeletonShiftRoute{to{background-position-x:-210%}}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-logo-001{width:42px;height:42px}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-search-001{width:min(22vw,300px);height:38px;border-radius:999px}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-nav-001{width:min(33vw,360px);height:24px;margin:auto}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-account-001{width:150px;height:40px;border-radius:999px}
+html.vatra-dynamic-route-pending .vatra-dynamic-skeleton-main{
+ display:flex;flex-direction:column;width:min(calc(100% - 32px),1000px);
+ gap:14px;margin:0 auto;padding:0
+}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-cover-001{width:100%;height:290px;border-radius:0}
+html.vatra-dynamic-route-pending .vatra-dynamic-skeleton-summary{
+ display:flex;align-items:center;gap:22px;margin-top:-50px;padding:0 22px
+}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-avatar-001{
+ width:110px;height:110px;border:5px solid #fff;border-radius:50%
+}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-name-001{width:210px;height:33px}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-tabs-001{width:100%;height:40px}
+html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
+ width:min(100%,700px);height:145px;margin:0 auto
+}
+@media(max-width:650px){
+ html.vatra-dynamic-route-pending .vatra-dynamic-skeleton-header{gap:8px;padding:0 12px}
+ html.vatra-dynamic-route-pending .ui-vatra-dynamic-search-001{width:110px}
+ html.vatra-dynamic-route-pending .ui-vatra-dynamic-nav-001{width:80px}
+ html.vatra-dynamic-route-pending .ui-vatra-dynamic-account-001{width:45px}
+ html.vatra-dynamic-route-pending .ui-vatra-dynamic-cover-001{height:185px}
+ html.vatra-dynamic-route-pending .ui-vatra-dynamic-avatar-001{width:82px;height:82px}
+ html.vatra-dynamic-route-pending .vatra-dynamic-skeleton-summary{margin-top:-34px}
+}
+@media(prefers-reduced-motion:reduce){
+ html.vatra-dynamic-route-pending .vatra-dynamic-block{animation:none;background:#e8edf5}
+}
