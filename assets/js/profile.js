@@ -561,7 +561,7 @@
 })();
 
 /* ==================== MEMBER PROFILE + MEDIA + POSTS ==================== */
-/* VATRA member profiles: canonical /VATRA/id=N, RLS-protected. */
+/* VATRA member profiles: canonical /VATRA/idN, RLS-protected. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -577,7 +577,7 @@ const t=(uk,en)=>{
 };
 const home=new URL("../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
-const memberUrl=id=>home+"id="+encodeURIComponent(id);
+const memberUrl=id=>home+"id"+encodeURIComponent(id);
 const localizeSocial=()=>{
  for(const element of document.querySelectorAll("[data-social-uk]"))
   element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
@@ -1919,7 +1919,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   finally{commentBusy=false;commentSend.disabled=false;}
  });
  shareButton.addEventListener("click",async()=>{
-  const link=new URL("id="+targetId,home);link.searchParams.set("photo","avatar");
+  const link=new URL("id"+targetId,home);link.searchParams.set("photo","avatar");
   try{
    if(navigator.share)await navigator.share({url:link.href});
    else if(navigator.clipboard?.writeText){
@@ -2244,7 +2244,7 @@ async function start(){
   });
 
   const query=new URLSearchParams(location.search);
-  const requested=location.pathname.match(/\/id=([1-9][0-9]{0,18})$/)?.[1]||
+  const requested=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||
    query.get("vatra_id")||null;
   const targetId=requested||ownId;
   if(!validId(targetId)){missingProfile();return;}
@@ -2326,7 +2326,7 @@ async function start(){
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
   // Keep the requested clean member URL in the address bar. On GitHub Pages,
-  // direct /id=N navigation uses the JavaScript 404 fallback; Ctrl+U on that
+  // direct /idN navigation uses the JavaScript 404 fallback; Ctrl+U on that
   // URL therefore exposes the router HTML, not the client-rendered profile.
   const canonical=new URL(memberUrl(targetId));
   const remaining=new URLSearchParams(location.search);
