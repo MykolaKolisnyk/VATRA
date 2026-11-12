@@ -2887,6 +2887,20 @@ try{
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
    "Information must be beside compact posts instead of its own tab");
+  assert.equal((await profilePage.locator(".vt-profile-posts-overview-title-001").textContent()).trim(),
+   language==="en"?"Posts":"Публікації",
+   "The publications column must have a clear localized section heading");
+  const profileColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
+   const about=section.querySelector("#profile-about-card")?.getBoundingClientRect();
+   const posts=section.querySelector(".profile-posts-main")?.getBoundingClientRect();
+   return {width:section.getBoundingClientRect().width,
+    aboutWidth:about?.width,postsWidth:posts?.width,aligned:Math.abs((about?.top||0)-(posts?.top||0))<3};
+  });
+  assert.ok(profileColumns.aligned&&
+   profileColumns.aboutWidth/profileColumns.width>=.34&&
+   profileColumns.aboutWidth/profileColumns.width<=.42&&
+   profileColumns.postsWidth>profileColumns.aboutWidth,
+   "About and publications should be two balanced columns on desktop: "+JSON.stringify(profileColumns));
   assert.equal(await profilePage.locator("#profile-about-card").evaluate(el=>getComputedStyle(el).position),"static",
    "Information must not follow a reader scrolling long profile posts");
   assert.equal(await profilePage.locator("#profile-last-seen").isVisible(),false,
