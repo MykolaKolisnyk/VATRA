@@ -93,7 +93,7 @@
    day:"numeric",month:"short",year:"numeric"
   }).format(date);
  }
- const mediaAvatars=new Map(),avatarChecks=new Map();
+ const mediaAvatars=new Map(),avatarChecks=new Map(),avatarStates=new Map();
  const avatarURL=id=>{
   const path=mediaAvatars.get(String(id));
   if(typeof path!=="string"||!path.startsWith(String(id)+"/avatar/"))return null;
@@ -106,15 +106,14 @@
  };
  const applyAvatar=(element,id)=>{
   if(!element)return;
-  const key=String(id),url=avatarURL(id);
-  // Never replace a usable avatar with an unverified (or deleted) image.
+  const key=String(id),state=avatarStates.get(key),url=state?null:avatarURL(id);
+  // Inactive account states always override previously cached uploaded photos.
   element.dataset.vatraAvatarUrl=url||"";
   if(!url){
-   element.style.removeProperty("background-image");
-   element.classList.remove("has-photo");
-   element.textContent=initials(memberName(key));
+   window.VATRA_AVATAR?.fallback(element,state||"default");
    return;
   }
+  window.VATRA_AVATAR?.clearFallback(element);
   let check=avatarChecks.get(url);
   if(!check){
    check=new Promise(resolve=>{
@@ -130,12 +129,11 @@
    if(!valid){
     // Storage may have been cleaned outside VATRA. Do not leave a blank circle.
     if(avatarURL(key)===url)mediaAvatars.delete(key);
-    element.style.removeProperty("background-image");
-    element.classList.remove("has-photo");
-    element.textContent=initials(memberName(key));
+    window.VATRA_AVATAR?.fallback(element,"default");
     if(key===vatraId)window.VATRA_AVATAR?.cache(user?.email,null);
     return;
    }
+   window.VATRA_AVATAR?.clearFallback(element);
    element.style.backgroundImage="url("+JSON.stringify(url)+")";
    element.classList.add("has-photo");
    element.textContent="";
@@ -145,12 +143,18 @@
   const lookup=[...new Set(ids.map(String).filter(validId))].slice(0,100);
   if(!lookup.length)return;
   try{
+   const states=await window.VATRA_AVATAR?.states(client,lookup)||new Map();
+   for(const id of lookup){
+    avatarStates.delete(id);
+    if(states.has(id))avatarStates.set(id,states.get(id));
+   }
    const {data,error}=await client.from("vatra_profile_media")
     .select("vatra_id,avatar_path").in("vatra_id",lookup);
    if(error)throw error;
    // A removed avatar path must invalidate the previously cached path as well.
    for(const id of lookup)mediaAvatars.delete(id);
-   for(const row of data||[])if(row.avatar_path)mediaAvatars.set(String(row.vatra_id),row.avatar_path);
+   for(const row of data||[])if(row.avatar_path&&!avatarStates.has(String(row.vatra_id)))
+    mediaAvatars.set(String(row.vatra_id),row.avatar_path);
    if(vatraId&&lookup.includes(vatraId)){
     const mine=(data||[]).find(row=>String(row.vatra_id)===vatraId);
     window.VATRA_AVATAR?.fromPath(client,user?.email,vatraId,mine?.avatar_path||null);
