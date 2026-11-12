@@ -2177,40 +2177,5 @@ body.feed-page .vatra-notification-skeleton-line{
 }
 
 
-/* Section changes are immediate. Leave authentication/data skeletons intact,
-   and preserve the optional in-page profile editor chapter animation below. */
-@keyframes vatraRouteCrossfadeOut{
- from{opacity:1;transform:translate3d(0,0,0)}
- to{opacity:.05;transform:translate3d(0,-3px,0)}
-}
-@keyframes vatraRouteCrossfadeIn{
- from{opacity:0;transform:translate3d(0,8px,0)}
- to{opacity:1;transform:translate3d(0,0,0)}
-}
-html.vatra-editor-switching::view-transition-old(root),
-html.vatra-editor-switching::view-transition-new(root){
- animation:none
-}
-::view-transition-old(vatra-editor-fields),
-::view-transition-old(vatra-editor-chapter){
- animation:120ms ease-in both vatraRouteCrossfadeOut
-}
-::view-transition-new(vatra-editor-fields),
-::view-transition-new(vatra-editor-chapter){
- animation:230ms cubic-bezier(.2,.75,.2,1) both vatraRouteCrossfadeIn
-}
-::view-transition-group(vatra-editor-fields),
-::view-transition-group(vatra-editor-chapter){animation-duration:220ms}
-@media(prefers-reduced-motion:reduce){
- ::view-transition-old(vatra-editor-fields),::view-transition-new(vatra-editor-fields),
- ::view-transition-old(vatra-editor-chapter),::view-transition-new(vatra-editor-chapter){
-  animation:none!important
- }
- ::view-transition-group(vatra-editor-fields),
- ::view-transition-group(vatra-editor-chapter){animation-duration:0s!important}
-}
-
-
-
 
 
