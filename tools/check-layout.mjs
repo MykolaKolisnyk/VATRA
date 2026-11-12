@@ -998,11 +998,31 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
 const sharedCss=await read("assets/css/feed.css");
-assert.ok(sharedCss.includes("body.profile-page .profile-media-viewer{")&&
- sharedCss.includes("width:100vw;height:100dvh;")&&
- sharedCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before{")&&
- sharedCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
- sharedCss.includes("body.profile-page .profile-avatar-wrap:hover .profile-avatar-menu:not([hidden])"),
+const memberBaseCss=await read("assets/css/profile.css");
+const memberInfoCss=await read("assets/css/profile-info.css");
+const memberEditorCss=await read("assets/css/profile-editor.css");
+const memberCss=memberBaseCss+"\n"+memberInfoCss+"\n"+memberEditorCss;
+const profileStyles=memberProfileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
+assert.deepEqual(profileStyles,[
+ 'href="assets/css/auth.css"','href="assets/css/feed.css"',
+ 'href="assets/css/profile.css"','href="assets/css/profile-info.css"',
+ 'href="assets/css/profile-editor.css"'
+],"Profile styles load after the shared feed stylesheet and only on profile.html");
+assert.ok(
+ (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
+ .every(markup=>!["assets/css/profile.css","assets/css/profile-info.css",
+  "assets/css/profile-editor.css"].some(path=>markup.includes(path))) &&
+ !sharedCss.includes("VATRA personal-information presentation:") &&
+ !sharedCss.includes("body.profile-page .profile-editor-layout") &&
+ memberBaseCss.includes(".profile-hero{") &&
+ memberInfoCss.includes(".vatra-profile-details-dialog{") &&
+ memberEditorCss.includes("body.profile-page .profile-editor-layout{"),
+ "Page-specific CSS belongs in canonical profile stylesheets, not feed.css");
+assert.ok(memberCss.includes("body.profile-page .profile-media-viewer{")&&
+ memberCss.includes("width:100vw;height:100dvh;")&&
+ memberCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before{")&&
+ memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
+ memberCss.includes("body.profile-page .profile-avatar-wrap:hover .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
 assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
  sharedCss.includes("body.feed-page .feed-account-dropdown > a > svg") &&
@@ -1011,14 +1031,14 @@ assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
 const sharedJs=await read("assets/js/social-shell.js");
 const coverScript=await read("assets/js/profile.js");
 assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
- sharedCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
- sharedCss.includes("body.profile-page .profile-cover.has-photo::after{")&&
- sharedCss.includes("content:none;display:none")&&
+ memberCss.includes("body.profile-page .profile-cover.has-photo::before,")&&
+ memberCss.includes("body.profile-page .profile-cover.has-photo::after{")&&
+ memberCss.includes("content:none;display:none")&&
  coverScript.includes('if(photoURLs.cover)coverPhoto.src=photoURLs.cover;')&&
  !coverScript.includes('setProperty("--vatra-cover-image"')&&
- sharedCss.includes("body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001{")&&
- sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-motif,")&&
- sharedCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-signature{")&&
+ memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001{")&&
+ memberCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-motif,")&&
+ memberCss.includes("body.profile-page .profile-cover.has-photo .profile-cover-signature{")&&
  sharedCss.includes("background-repeat:no-repeat")&&
  sharedJs.includes('document.querySelector(".feed-account-menu")?.open')&&
  sharedJs.includes('accountMenu?.addEventListener("toggle"')&&
@@ -1032,7 +1052,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedJs.includes('menu.addEventListener("toggle",position)')&&
  sharedCss.includes("body.feed-page .feed-header-inner{")&&
  sharedCss.includes("border-top:0;border-radius:0 0 19px 19px;background:#fff;")&&
- sharedCss.includes("height:290px;overflow:hidden;border-radius:0;")&&
+ memberCss.includes("height:290px;overflow:hidden;border-radius:0;")&&
  sharedCss.includes("html:has(body.feed-page){scrollbar-gutter:stable}")&&
  sharedCss.includes("grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);")&&
  sharedCss.includes("max-width:292px;height:36px")&&
@@ -1191,7 +1211,7 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile-details.js') &&
  detailsModule.includes('from("vatra_profile_details")') &&
  detailsModule.includes('from("vatra_profile_preferences")') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
- feedStyle.includes("body.profile-page .profile-editor-layout"),
+ memberEditorCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
  detailsModule.includes("vatra-profile-summary-icon") &&
@@ -1199,8 +1219,8 @@ assert.ok(
  detailsModule.includes("more.hidden=locked||!!result.error||(!additional.length&&!hasLongPreview)") &&
  !detailsModule.includes('vt-profile-detail-audience-') &&
  detailsModule.includes("lab.prepend(svg(fieldIcons[key]") &&
- feedStyle.includes("VATRA 2026 · Profile information visual system") &&
- feedStyle.includes("linear-gradient(158deg,#2b427e"),
+ memberInfoCss.includes("VATRA 2026 · Profile information visual system") &&
+ memberEditorCss.includes("linear-gradient(158deg,#2b427e"),
  "Profile information must feature icons, hide redundant More actions and keep reader privacy labels invisible");
 const sharedAvatar=await read("assets/js/avatar.js");
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
@@ -1267,9 +1287,9 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  profileScript.includes('from("vatra_avatar_likes")')&&
  profileScript.includes('from("vatra_avatar_comments")')&&
  profileScript.includes('interaction.hidden=kind!=="avatar"')&&
- feedStyle.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
- feedStyle.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&
- feedStyle.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
+ memberBaseCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
+ memberBaseCss.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&
+ memberBaseCss.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
  "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");
 assert.ok(["feed.html","profile.html","communities.html","club.html"].every(Boolean)&&
  ["feed.html","profile.html","communities.html","club.html"].length===4,
@@ -1382,7 +1402,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","feed.css","legal.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","feed.css","legal.css","profile-editor.css","profile-info.css","profile.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
