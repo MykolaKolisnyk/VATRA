@@ -182,8 +182,11 @@ function bind({prefix,ownerId,getFile}){
  form.prepend(header,edit,settings,draftsPanel);
  form.append(error,notice,footer);
  setStage("edit");
- return {reset(){if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}setStage("edit");},
-  step(){return stage;},setStage};
+ return {
+  open(){setStage("edit");edit.scrollTop=0;upload.focus({preventScroll:true});},
+  reset(){if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}setStage("edit");},
+  step(){return stage;},setStage
+ };
 }
 window.VATRA_COMPOSER_UI={bind};
 })();
