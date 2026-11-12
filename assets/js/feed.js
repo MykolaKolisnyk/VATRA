@@ -524,7 +524,7 @@
   });
   const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
   q("#feed-composer-avatar").textContent=initials(displayName);
-  const open=()=>{showError("");dialog.showModal();text.focus();};
+  const open=()=>{showError("");dialog.showModal();composerUI?.open();};
   q("#feed-compose-open").addEventListener("click",open);
   q("#feed-quick-media")?.addEventListener("click",()=>{
    open();q("#feed-compose-media-choose")?.click();
