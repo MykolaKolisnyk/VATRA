@@ -870,7 +870,7 @@ assert.ok(
  auth.includes('replayAuthContent(q(".forgot-panel-content"));')&&
  css.includes(':is(.account-card,.error-card) > :not([hidden]){animation:none!important}')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-content{animation:none!important}')&&
- css.includes('.signup-form-panel .narrow-form{animation:none!important}')&&
+ createAccountCss.includes('.signup-form-panel .narrow-form,')&&createAccountCss.includes('.signup-confirmation{animation:none!important}')&&
  auth.includes('tokenInput.dispatchEvent(new Event("input",{bubbles:true}))'),
  "Both password recovery paths must share the 520px card, V brand, staged reveal and floating hints");
 assert.ok(forgot.includes('class="forgot-panel ui-forgot-panel-001"')&&
