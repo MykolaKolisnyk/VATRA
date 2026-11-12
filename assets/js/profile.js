@@ -1083,7 +1083,7 @@ function bindPostComposer(client,user,ownId){
   clear:"#profile-compose-media-remove",preview:"#profile-compose-media-preview",
   onError:text=>{status.textContent=text;status.hidden=!text;},onChange:update
  });
- const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId});
+ const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId,getFile:()=>picker?.getFile()});
  trigger.addEventListener("click",()=>{
   clearStatus();
   dialog.showModal();
