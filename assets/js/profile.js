@@ -921,11 +921,31 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   const list=q("#profile-archive-stories-list"),note=q("#profile-archive-stories-empty");
   list.replaceChildren();note.hidden=true;
   try{
-   const {data,error}=await client.from("vatra_stories").select("id,body,theme,created_at,expires_at")
+   const {data,error}=await client.from("vatra_stories").select("id,body,theme,created_at,expires_at,media_kind,media_path")
     .eq("author_vatra_id",ownId).lte("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(50);
    if(error)throw error;
-   for(const item of data||[])makeRow(list,dateText(item.created_at),item.body);
+   for(const item of data||[]){
+    const article=makeRow(list,dateText(item.created_at),item.body||
+     (item.media_kind==="video"?t("Відеоісторія","Video story"):
+      item.media_kind==="image"?t("Фотоісторія","Photo story"):
+       t("Історія","Story")));
+    const view=node("button","vt-profile-archived-story-open-001",
+     t("Переглянути історію","View story"));
+    view.type="button";
+    view.addEventListener("click",()=>{
+     const dialog=q("#profile-story-viewer");
+     const text=q("#profile-story-viewer-text");
+     q("#profile-story-viewer-heading").textContent=dateText(item.created_at);
+     text.textContent=item.body||"";text.hidden=!item.body;
+     dialog.dataset.theme=String(item.theme||0);
+     dialog.showModal();
+     // Only the owner can select an expired story and sign its private asset.
+     void window.VATRA_POST_MEDIA?.renderStory(client,
+      {...item,author_vatra_id:ownId},q("#profile-story-viewer-media"),false,true);
+    });
+    article.append(view);
+   }
    if(!list.children.length)empty("#profile-archive-stories-empty",t("Історій в архіві ще немає.","No archived stories yet."));
   }catch(_){empty("#profile-archive-stories-empty",t("Не вдалося завантажити архів історій.","Could not load story archive."));}
  };
@@ -1697,6 +1717,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const mediaDialog=q("#profile-media-viewer"),mediaImage=q("#profile-media-viewer-image");
  const mediaHeading=q("#profile-media-viewer-heading"),storyDialog=q("#profile-story-viewer");
  const storyHeading=q("#profile-story-viewer-heading"),storyBody=q("#profile-story-viewer-text");
+ const storyMedia=q("#profile-story-viewer-media");
  const bucketFor=kind=>kind==="avatar"?"vatra-avatars":"vatra-covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
@@ -1937,10 +1958,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    activeStory=null;syncAvatarMenu();return;
   }
   storyHeading.textContent=q("#profile-heading").textContent;
-  storyBody.textContent=activeStory.body;
+  storyBody.textContent=activeStory.body||"";
+  storyBody.hidden=!String(activeStory.body||"").trim();
   storyDialog.dataset.theme=String(activeStory.theme||0);
   closeAvatarMenu();
   storyDialog.showModal();
+  void window.VATRA_POST_MEDIA?.renderStory(client,
+   {...activeStory,author_vatra_id:targetId},storyMedia);
  };
  coverView.addEventListener("click",()=>openMedia("cover"));
  photoButton.addEventListener("click",()=>openMedia("avatar"));
@@ -1948,15 +1972,19 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  deleteStoryButton.addEventListener("click",async()=>{
   if(!isMine||!activeStory?.id||deleteStoryButton.disabled)return;
   if(!window.confirm(t("Видалити цю історію?","Delete this story?")))return;
-  const removingId=activeStory.id;
+  const removingId=activeStory.id,removingStory={...activeStory};
   deleteStoryButton.disabled=true;
   try{
    const result=await client.from("vatra_stories").delete()
     .eq("id",removingId).eq("author_vatra_id",ownId).select("id");
    if(result.error||!result.data?.some(row=>row.id===removingId))
     throw result.error||new Error("Story not deleted");
+   // Deleted stories must not leave their uploaded file behind.
+   if(removingStory.media_path)try{
+    await window.VATRA_POST_MEDIA?.remove(client,removingStory);
+   }catch(_){/* The story row is already deleted and no longer accessible to friends. */}
    activeStory=null;
-   const next=await client.from("vatra_stories").select("id,body,theme,expires_at")
+   const next=await client.from("vatra_stories").select("id,body,theme,expires_at,media_kind,media_path")
     .eq("author_vatra_id",ownId).gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(1);
    if(!next.error&&next.data?.[0])activeStory=next.data[0];
@@ -1970,6 +1998,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  q("#profile-media-viewer-close").addEventListener("click",()=>mediaDialog.close());
  q("#profile-story-viewer-close").addEventListener("click",()=>storyDialog.close());
+ storyDialog.addEventListener("close",()=>{
+  const video=storyMedia?.querySelector("video");
+  if(video)video.pause();
+ });
  mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
  storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
  avatarTrigger.addEventListener("click",()=>{
@@ -2079,7 +2111,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  // No story request or interaction on a locked profile.
  if(!locked)try{
   const {data,error}=await client.from("vatra_stories")
-   .select("id,body,theme,expires_at")
+   .select("id,body,theme,expires_at,media_kind,media_path")
    .eq("author_vatra_id",targetId)
    .gt("expires_at",new Date().toISOString())
    .order("created_at",{ascending:false})

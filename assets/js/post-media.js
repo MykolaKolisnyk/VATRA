@@ -25,6 +25,11 @@
    new RegExp("^"+id+"/posts/[a-f0-9-]{36}\\."+ext+"$").test(path);
  };
  const bucketFor=kind=>kind==="image"?"vatra-post-images":"vatra-videos";
+ const storyPathValid=(path,kind,id)=>{
+  if(!validId(id)||typeof path!=="string"||!["image","video"].includes(kind))return false;
+  const extension=kind==="image"?"(?:jpg|png|webp)":"(?:mp4|webm)";
+  return new RegExp("^"+id+"/stories/[0-9a-f-]{36}\\."+extension+"$").test(path);
+ };
 
  /* Render hashtag anchors as DOM nodes; never parse user-submitted HTML. */
  function linkifyHashtags(paragraph){
@@ -95,6 +100,16 @@
   if(error)throw Error(tr("Не вдалося завантажити файл. Спробуйте знову.","Could not upload media. Try again."));
   return {media_kind:format.kind,media_path:path};
  }
+ async function uploadStory(client,id,file){
+  const format=formatFor(file);
+  if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
+  const path=id+"/stories/"+crypto.randomUUID()+"."+format.ext;
+  const {error}=await client.storage.from(format.bucket).upload(path,file,{
+   contentType:file.type,cacheControl:"300",upsert:false
+  });
+  if(error)throw Error(tr("Не вдалося завантажити медіа історії.","Could not upload story media."));
+  return {media_kind:format.kind,media_path:path};
+ }
  async function remove(client,attachment){
   if(!attachment?.media_kind||!attachment?.media_path)return;
   const bucket=bucketFor(attachment.media_kind);
@@ -103,18 +118,51 @@
 
  const signedURLs=new Map();
  let firstImages=0;
- async function signed(client,kind,path){
-  const key=kind+":"+path,entry=signedURLs.get(key);
+ async function signed(client,kind,path,ttl=3600){
+  const key=ttl+":"+kind+":"+path,entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
-  const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,3600).then(({data,error})=>{
+  const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
    const url=new URL(data.signedUrl);
    if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")
     throw Error("Unexpected signed asset URL");
    return url.href;
   }).catch(error=>{signedURLs.delete(key);throw error;});
-  signedURLs.set(key,{expiry:Date.now()+54*60*1000,promise});
+  signedURLs.set(key,{expiry:Date.now()+Math.max(30,ttl-30)*1000,promise});
   return promise;
+ }
+ async function renderStory(client,story,slot,preview=false,allowExpired=false){
+  if(!slot)return;
+  const request=String(Number(slot.dataset.storyRequest||"0")+1);
+  slot.dataset.storyRequest=request;
+  slot.replaceChildren();slot.hidden=true;
+  const {media_kind:kind,media_path:path,author_vatra_id:id}=story||{};
+  if(!storyPathValid(path,kind,id))return;
+  if(!allowExpired&&story.expires_at&&Date.parse(story.expires_at)<=Date.now())return;
+  slot.hidden=false;
+  if(!preview)slot.textContent=tr("Завантаження медіа…","Loading media…");
+  try{
+   // Story tokens are short-lived even if the user closes the viewer.
+   const src=await signed(client,kind,path,300);
+   if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
+   const element=document.createElement(kind==="image"?"img":"video");
+   element.className=preview?"vt-story-media-preview-001":"vt-story-media-expanded-001";
+   element.src=src;
+   if(kind==="image"){
+    element.alt=tr("Медіа історії","Story photo");
+    element.decoding="async";
+   }else{
+    element.playsInline=true;element.preload="metadata";
+    element.controls=!preview;
+    element.muted=preview;
+    if(preview)element.setAttribute("aria-hidden","true");
+   }
+   slot.replaceChildren(element);
+  }catch(_){
+   if(!slot.isConnected||slot.dataset.storyRequest!==request)return;
+   if(preview){slot.hidden=true;slot.replaceChildren();}
+   else slot.textContent=tr("Медіафайл історії недоступний.","Story media is unavailable.");
+  }
  }
  function collapsibleBody(paragraph){
   if(!paragraph||paragraph.dataset.vatraCollapsed)return;
@@ -246,5 +294,5 @@
    observer.observe(slot);
   }
  }
- window.VATRA_POST_MEDIA={bindPicker,upload,remove,mount,linkifyHashtags,collapsibleBody};
+ window.VATRA_POST_MEDIA={bindPicker,upload,uploadStory,remove,mount,renderStory,linkifyHashtags,collapsibleBody};
 })();

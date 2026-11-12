@@ -2402,3 +2402,29 @@ body.profile-page .profile-friend-portrait.has-photo{
  body.profile-page.feed-page:not(.community-page) .profile-identity .profile-name{font-size:23px}
  body.profile-page .profile-identity .profile-status:not([hidden]){font-size:12.5px}
 }
+
+/* Media stories share the same full-size portrait viewer; plain-text stories stay unchanged. */
+body.profile-page .profile-story-viewer-media{
+ display:grid;place-items:center;flex:1;min-height:230px;max-height:60dvh;
+ width:100%;overflow:hidden;border-radius:12px;background:rgba(13,24,48,.22);
+ text-align:center;font:550 13px/1.5 "Onest",sans-serif
+}
+body.profile-page .profile-story-viewer-media[hidden],
+body.profile-page .profile-story-viewer-text[hidden]{display:none!important}
+body.profile-page .profile-story-viewer-media img,
+body.profile-page .profile-story-viewer-media video{
+ display:block;width:100%;max-height:60dvh;object-fit:contain;border-radius:12px
+}
+body.profile-page .profile-story-viewer-content:has(.profile-story-viewer-media:not([hidden])) .profile-story-viewer-text{
+ min-height:0;flex:none;font:680 15px/1.5 "Onest",sans-serif
+}
+
+body.profile-page .vt-profile-archived-story-open-001{
+ display:inline-flex;align-items:center;justify-content:center;min-height:38px;
+ margin-top:9px;padding:8px 13px;border:1px solid #d8e2f3;border-radius:9px;
+ background:#eef3fd;color:#3561ba;cursor:pointer;
+ font:690 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-archived-story-open-001:hover{
+ background:#e3edff;border-color:#bed0ef
+}
