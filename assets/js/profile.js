@@ -1926,13 +1926,16 @@ async function start(){
   if(!validId(targetId)){missingProfile();return;}
   // Fetch the directory record and the RLS-safe public display name together.
   // Do not render the result before the directory confirms this ID exists.
-  const [directoryResult,publicResult]=await Promise.all([
+  // Public display names are optional: a failed public lookup must not turn
+  // an otherwise valid profile into a blank error page.
+  const [directoryOutcome,publicOutcome]=await Promise.allSettled([
    client.from("vatra_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
    client.from("vatra_public_profiles")
     .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()
   ]);
-  const {data:member,error:directoryError}=directoryResult;
+  if(directoryOutcome.status==="rejected")throw directoryOutcome.reason;
+  const {data:member,error:directoryError}=directoryOutcome.value;
   if(directoryError)throw directoryError;
   if(!member){missingProfile();return;}
   const isMine=targetId===ownId;
@@ -1943,7 +1946,8 @@ async function start(){
   // The account creation trigger publishes only registered first/last names
   // to vatra_public_profiles. Birthdate, gender, email and auth UUID remain private.
   let publicName="",publicStatus="";
-  const {data:publicProfile,error:publicError}=publicResult;
+  const {data:publicProfile,error:publicError}=publicOutcome.status==="fulfilled"?
+   publicOutcome.value:{data:null,error:true};
   if(!publicError&&typeof publicProfile?.display_name==="string"){
    publicName=publicProfile.display_name.trim();
    publicStatus=String(publicProfile.status_text||"").slice(0,140);
