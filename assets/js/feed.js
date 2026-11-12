@@ -522,7 +522,7 @@
    clear:"#feed-compose-media-remove",preview:"#feed-compose-media-preview",
    onError:showError
   });
-  const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"feed",ownerId:vatraId});
+  const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"feed",ownerId:vatraId,getFile:()=>picker?.getFile()});
   q("#feed-composer-avatar").textContent=initials(displayName);
   const open=()=>{showError("");dialog.showModal();text.focus();};
   q("#feed-compose-open").addEventListener("click",open);
