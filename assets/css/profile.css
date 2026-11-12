@@ -2434,3 +2434,13 @@ body.profile-page .profile-avatar-wrap.has-active-story::before{background:conic
 body.profile-page .profile-cover:not(.has-photo) .profile-cover-motif{border-color:color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 55%);box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 9%,transparent),0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 5%,transparent)}
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger{cursor:default}
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger .profile-avatar{transition:none!important;filter:none!important;transform:none!important}
+
+/* Override legacy CSS-drawn silhouettes with the supplied high-resolution WebP. */
+body.profile-page.feed-page .profile-avatar:not(.has-photo){background-color:#e9f0fa;background-image:url("/VATRA/assets/avatars/2048px/avatar-default.webp")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/2048px/avatar-deleted.webp")!important}
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/2048px/avatar-blocked.webp")!important}
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="not-found"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/2048px/avatar-not-found.webp")!important}
+body.profile-page.feed-page .profile-avatar:not(.has-photo)::before,body.profile-page.feed-page .profile-avatar:not(.has-photo)::after,body.profile-page .profile-friend-portrait:not(.has-photo)::before,body.profile-page .profile-friend-portrait:not(.has-photo)::after{content:none!important;display:none!important}
+body.profile-page .profile-friend-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-size:cover!important;background-position:center!important}
+body.profile-page .profile-friend-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
+body.profile-page .profile-friend-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
