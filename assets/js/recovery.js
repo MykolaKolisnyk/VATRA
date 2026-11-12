@@ -81,9 +81,9 @@ function wireForgot(){
     sessionStorage.setItem("vatra-recovery-email",email);
     sessionStorage.setItem("vatra-recovery-pending",JSON.stringify({email,sentAt}));
    }catch(_){}
-   feedback(repeat?
-    "Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.":
-    "Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче.","success");
+   // The code step already explains what happens next. Avoid a duplicate green
+   // success banner after the first request; retain feedback for an explicit resend.
+   if(repeat)feedback("Якщо акаунт існує, новий код надіслано. Використайте код з останнього листа.","success");
    if(repeat){codeField.value="";codeField.dispatchEvent(new Event("input",{bubbles:true}));}
    enterCode(email,sentAt);
   }catch(error){
