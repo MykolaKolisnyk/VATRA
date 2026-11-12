@@ -2626,11 +2626,15 @@ try{
   await feedProbe.mouse.move(16,420);
   assert.equal(await feedProbe.locator(".vatra-shell-tooltip").getAttribute("data-open"),"false",
    "Tooltip must dismiss immediately when the pointer leaves the header icon");
-  await feedProbe.locator(".ui-social-top-friends-001").click();
-  assert.equal(await feedProbe.locator(".vatra-shell-dialog").evaluate(el=>el.open),true,
-   "The Friends icon must offer a real interactive status instead of being disabled");
-  await feedProbe.locator(".vatra-shell-dialog-close").click();
-  assert.equal(await feedProbe.locator(".vatra-shell-dialog").evaluate(el=>el.open),false);
+  // Friends is a real destination now, not the old coming-soon dialog.
+  // Use a separate tab so the ongoing feed state stays intact.
+  const friendsNav=await feedContext.newPage();
+  await friendsNav.goto(base+"feed",{waitUntil:"domcontentloaded"});
+  await friendsNav.locator(".ui-social-top-friends-001").click();
+  await friendsNav.waitForURL(/\/VATRA\/friends\.html(?:\?.*)?$/,{timeout:14000});
+  assert.ok(await friendsNav.locator("#friends-heading").count()===1,
+   "Header Friends must navigate to VATRA's dedicated friends directory");
+  await friendsNav.close();
   await feedProbe.locator(".feed-account-toggle").click();
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),true,
    "Avatar must reveal the account menu");
