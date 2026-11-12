@@ -2458,6 +2458,7 @@ try{
   await feedProbe.locator("#feed-compose-open").click();
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-compose-text").fill("VATRA Feed publishing smoke test");
+  await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
   await feedProbe.locator("#feed-compose-save").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),
@@ -3022,6 +3023,7 @@ try{
   await profilePage.locator("#profile-write-post").click();
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),true);
   await profilePage.locator("#profile-compose-text").fill(injectionText);
+  await profilePage.locator(".vt-vatra-post-composer-next-001").click();
   await profilePage.locator("#profile-compose-submit").click();
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-posts .feed-post-card").length===1);
   assert.equal((await profilePage.locator("#profile-posts .feed-post-body").textContent()).trim(),injectionText);
