@@ -28,7 +28,7 @@ const icon=(key,path)=>{
  svg.append(line);return svg;
 };
 let client=null,ownId=null,bell=null,badge=null,panel=null,panelItems=null;
-let open=false,panelPage=0,sessionStarted=false,liveChannel=null,refreshBusy=false;
+let open=false,sessionStarted=false,liveChannel=null,refreshBusy=false;
 let sectionPage=0,sectionFilter="all",sectionSort="new";
 const pageURL=()=>new URL("notifications.html",root).href;
 const timeValue=date=>{
@@ -60,10 +60,12 @@ async function authorNames(rows){
  const ids=[...new Set(rows.map(x=>String(x.actor_vatra_id)).filter(validId))];
  const names=new Map(),avatars=new Map();
  if(ids.length)try{
-  const [profiles,media]=await Promise.all([
+  const results=await Promise.allSettled([
    client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
    client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
   ]);
+  const profiles=results[0].status==="fulfilled"?results[0].value:{error:true};
+  const media=results[1].status==="fulfilled"?results[1].value:{error:true};
   if(!profiles.error)for(const item of profiles.data||[])
    names.set(String(item.vatra_id),String(item.display_name||"").trim().slice(0,100));
   if(!media.error)for(const item of media.data||[]){
@@ -139,8 +141,10 @@ function createRow(record,name,index,onChange,photoUrl){
   const picture=new Image();
   picture.onload=()=>{
    if(!avatar.isConnected)return;
-   avatar.style.backgroundImage="url("+JSON.stringify(photoUrl)+")";avatar.classList.add("has-photo");
+   avatar.style.backgroundImage="url("+JSON.stringify(photoUrl)+")";
+   avatar.classList.add("has-photo");
   };
+  picture.onerror=()=>avatar.classList.remove("has-photo");
   picture.src=photoUrl;
  }
  const body=make("div","vatra-notification-content ui-vatra-notification-content-"+index);
@@ -159,18 +163,9 @@ function createRow(record,name,index,onChange,photoUrl){
  timestamp.dateTime=record.created_at;
  body.append(link,timestamp);
  const actions=make("div","vatra-notification-actions ui-vatra-notification-actions-"+index);
- if(!record.read_at){
-  const seen=make("button","vatra-notification-mark vt-vatra-notification-mark-"+index,
-   t("Прочитано","Mark read"));
-  seen.type="button";
-  seen.addEventListener("click",async()=>{
-   seen.disabled=true;await markRead(record.id);await onChange();
-  });
-  actions.append(seen);
- }
  const deleteButton=make("button","vatra-notification-delete vt-vatra-notification-delete-"+index);
  deleteButton.type="button";
- deleteButton.append(icon("delete-"+index,"M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v6m4-6v6"));
+ deleteButton.append(icon("delete-"+index,"M7 7h10m-9 0 .7 12h6.6L16 7M10 7V5h4v2M10.5 10.5v5m3-5v5"));
  deleteButton.setAttribute("aria-label",t("Видалити сповіщення","Delete notification"));
  deleteButton.title=t("Видалити","Delete");
  deleteButton.addEventListener("click",async()=>{
@@ -206,20 +201,34 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
    status.textContent=t("Сповіщень поки немає.","No notifications yet.");
    status.hidden=false;
   }
-  prev.disabled=opts.page===0;next.disabled=!hasNext;
-  pageLabel.textContent=t("Сторінка ","Page ")+(opts.page+1);
+  if(prev)prev.disabled=opts.page===0;
+  if(next)next.disabled=!hasNext;
+  if(pageLabel)pageLabel.textContent=t("Сторінка ","Page ")+(opts.page+1);
  }catch(_){
   status.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
    "Could not load notifications. Please retry.");
-  status.hidden=false;prev.disabled=true;next.disabled=true;
+  status.hidden=false;if(prev)prev.disabled=true;if(next)next.disabled=true;
+  return rows;
  }finally{list.setAttribute("aria-busy","false");}
 }
 async function panelLoad(){
  if(!panel||!open)return;
  const list=panelItems;
- const opts={page:panelPage,size:5};
- await renderRows(list,pick("#vatra-notification-panel-empty"),opts,panelLoad,
-  pick("#vatra-notification-prev"),pick("#vatra-notification-next"),pick("#vatra-notification-page"));
+ const opts={page:0,size:6};
+ const rows=await renderRows(list,pick("#vatra-notification-panel-empty"),opts,panelLoad,null,null,null);
+ // Opening the notification drawer means the reader has seen its latest items.
+ // Mark only the six displayed rows, never silently acknowledge older items.
+ const unread=(rows||[]).filter(row=>!row.read_at).map(row=>row.id);
+ if(unread.length){
+  try{
+   const {error}=await client.from("member_notifications")
+    .update({read_at:new Date().toISOString()})
+    .eq("recipient_vatra_id",ownId).in("id",unread).is("read_at",null);
+   if(error)throw error;
+   for(const node of list.querySelectorAll(".is-unread"))node.classList.remove("is-unread");
+   void unreadCount();
+  }catch(_){/* Keep the unread state if the update was rejected. */}
+ }
 }
 function positionPanel(){
  if(!open||!panel||!bell)return;
@@ -238,7 +247,7 @@ function closePanel(){
 }
 function openPanel(){
  const menu=pick(".feed-account-menu");if(menu?.open)menu.open=false;
- open=true;panelPage=0;window.VATRA_HIDE_SHELL_TOOLTIP?.();
+ open=true;window.VATRA_HIDE_SHELL_TOOLTIP?.();
  panel.hidden=false;positionPanel();
  bell.setAttribute("aria-expanded","true");
  void panelLoad();
@@ -266,19 +275,9 @@ function headerUI(){
  panelItems=make("div","vatra-notification-list ui-vatra-notification-panel-list-001");
  const empty=make("p","vt-vatra-notification-panel-empty-001");
  empty.id="vatra-notification-panel-empty";empty.hidden=true;
- const controls=make("div","vatra-notification-pager ui-vatra-notification-pager-001");
- const prev=make("button","vt-vatra-notification-prev-001",t("Назад","Previous"));
- prev.id="vatra-notification-prev";prev.type="button";
- const page=make("span","vt-vatra-notification-page-001");
- page.id="vatra-notification-page";
- const next=make("button","vt-vatra-notification-next-001",t("Далі","Next"));
- next.id="vatra-notification-next";next.type="button";
- prev.addEventListener("click",()=>{panelPage=Math.max(0,panelPage-1);void panelLoad();});
- next.addEventListener("click",()=>{panelPage++;void panelLoad();});
- controls.append(prev,page,next);
  const footer=make("a","vt-vatra-notification-all-001",t("Відкрити всі сповіщення","View all notifications"));
  footer.href=pageURL();
- panel.append(heading,panelItems,empty,controls,footer);
+ panel.append(heading,panelItems,empty,footer);
  document.body.append(panel);
  bell.setAttribute("aria-controls",panel.id);
  bell.addEventListener("click",()=>{if(open)closePanel();else openPanel();});
