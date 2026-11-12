@@ -26,6 +26,9 @@ const newOrigin="https://"+domain+"/VATRA";
 for(const name of documents){
  let content=await readFile(join(repository,name),"utf8");
  content=content.replaceAll(oldOrigin,newOrigin);
+ // Profile and community HTML may be served at /id123 or /club123.
+ // Keep their CSS, JS and relative URLs anchored at /VATRA/.
+ content=content.replace(/<head(\s[^>]*)?>/i,match=>match+'\n  <base href="/VATRA/">');
  await writeFile(join(website,name),content);
 }
 await cp(join(repository,"assets"),join(website,"assets"),{recursive:true});
@@ -42,6 +45,13 @@ if(guard.split(expected).length!==2)
  throw new Error("Official-host policy changed; inspect host.js before VPS deployment");
 guard=guard.replace(expected,'location.hostname==='+JSON.stringify(domain))
  .replaceAll(oldOrigin,newOrigin);
+const oldPath='/^\\/VATRA(?:\\/|$)/.test(location.pathname)';
+if(guard.split(oldPath).length!==2)
+ throw new Error("Official path policy changed; review host.js before VPS deployment");
+guard=guard.replace(oldPath,
+ '(/^\\/VATRA(?:\\/|$)/.test(location.pathname)||'+
+ '/^\\/(?:id|club)[1-9][0-9]{0,18}$/.test(location.pathname)||'+
+ 'location.pathname==="/")');
 guard+="\n// Server-rendered permalinks on the VPS are genuine HTTP 200 responses.\n";
 guard+="window.VATRA_HTTP200_ROUTES=window.VATRA_HOST_ALLOWED===true;\n";
 await writeFile(hostPath,guard);
