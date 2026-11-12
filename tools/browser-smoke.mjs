@@ -3120,8 +3120,13 @@ try{
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
   const clubNavigations=[];
+  const clubNavigationErrors=[];
   page.on("framenavigated",frame=>{
    if(frame===page.mainFrame())clubNavigations.push(new URL(frame.url()).pathname);
+  });
+  page.on("response",response=>{
+   if(response.request().isNavigationRequest()&&response.status()===404)
+    clubNavigationErrors.push(new URL(response.url()).pathname);
   });
   await page.locator("#community-create-submit").click();
   await page.waitForURL("**/club1",{timeout:16000});
@@ -3130,8 +3135,11 @@ try{
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
-  assert.ok(clubNavigations.every(path=>!path.includes("/club.html")),
-   "Opening /clubN must not display the intermediate static club.html URL");
+  assert.ok(clubNavigationErrors.length===0&&
+   clubNavigations.every(path=>path.startsWith("/VATRA/"))&&
+   new URL(page.url()).pathname==="/VATRA/club1",
+   "Creating a community must avoid HTTP 404 and finish at /clubN: "+
+   JSON.stringify({clubNavigations,clubNavigationErrors}));
   await page.goto(base+"club999",{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
