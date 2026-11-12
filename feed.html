@@ -242,7 +242,13 @@
             Історія зникне через 24 години. Її бачать лише друзі.
           </p>
           <label for="feed-story-text" class="vt-feed-story-label-001" data-social-uk="Текст історії" data-social-en="Story text">Текст історії</label>
-    <textarea id="feed-story-text" class="ui-feed-story-text-001" rows="5" maxlength="260" required data-shell-placeholder-uk="Поділіться моментом…" data-shell-placeholder-en="Share a moment…" placeholder="Поділіться моментом…"></textarea>
+    <textarea id="feed-story-text" class="ui-feed-story-text-001" rows="5" maxlength="260" data-shell-placeholder-uk="Поділіться моментом…" data-shell-placeholder-en="Share a moment…" placeholder="Поділіться моментом…"></textarea>
+          <div class="vatra-compose-media-controls ui-feed-story-media-controls-001">
+            <input id="feed-story-media" class="ui-feed-story-media-input-001" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden>
+            <button id="feed-story-media-choose" type="button" class="vt-feed-story-media-choose-001" data-social-uk="Додати фото або відео" data-social-en="Add photo or video">Додати фото або відео</button>
+            <button id="feed-story-media-remove" type="button" class="vt-feed-story-media-remove-001" data-social-uk="Прибрати файл" data-social-en="Remove file" hidden>Прибрати файл</button>
+          </div>
+          <div id="feed-story-media-preview" class="vatra-compose-media-preview ui-feed-story-media-preview-001" hidden></div>
           <p id="feed-story-error" class="vt-feed-story-error-001" role="status" hidden>
           </p>
           <div class="feed-story-actions ui-feed-story-actions-001">
@@ -254,6 +260,7 @@
       <dialog id="feed-story-view" class="feed-story-view ui-feed-story-view-001" aria-labelledby="feed-story-view-heading">
         <h2 id="feed-story-view-heading" class="vt-feed-story-view-heading-001">
         </h2>
+        <div id="feed-story-view-media" class="feed-story-view-media ui-feed-story-view-media-001" hidden></div>
         <p id="feed-story-view-body" class="vt-feed-story-view-body-001">
         </p>
         <button id="feed-story-view-close" type="button" class="vt-feed-story-view-close-001" data-social-uk="Закрити" data-social-en="Close">Закрити</button>
