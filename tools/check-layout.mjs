@@ -368,6 +368,18 @@ assert.ok(
  /const CACHE="vatra-offline-shell-v[1-9][0-9]*"/.test(sw)&&
  sw.includes('ROOT+"assets/logo/vatra-symbol.svg"'),
  "Offline cache must use a versioned name and include the standalone V mark");
+const manifest=JSON.parse(await read("site.webmanifest"));
+const appIcon="assets/logo/vatra-app-icon.svg";
+assert.ok((await stat(appIcon)).size>1000,"Canonical VATRA SVG app icon must exist");
+assert.ok(manifest.icons.some(icon=>icon.src==="/VATRA/"+appIcon)&&
+ !JSON.stringify(manifest).includes("/VATRA/favicon.svg")&&
+ !sw.includes('ROOT+"favicon.svg"'),
+ "Site manifest and offline cache must reference existing VATRA icons");
+for(const filename of [...pages,"communities","club","notifications"]){
+ const content=await read(filename+".html");
+ assert.ok(!content.includes("/VATRA/favicon.svg")&&!content.includes('href="favicon.svg"'),
+  filename+": must not reference a missing root favicon");
+}
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
