@@ -48,6 +48,15 @@
  let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="",feedFilter="all";
  let visibleFeed=[],friends=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
+ const filterSummary=q("#feed-filter-summary");
+ let subscriptionsLoadedAt=0;
+ const describeFilter=()=>{
+  if(!filterSummary)return;
+  filterSummary.textContent=feedFilter==="friends"?
+   t("Дописи ваших друзів","Posts from your friends"):
+   feedFilter==="communities"?t("Дописи ваших спільнот","Posts from your communities"):
+   t("Усі доступні публікації","All accessible posts");
+ };
  const deleteDialog=q("#feed-delete-dialog"),deleteConfirm=q("#feed-delete-confirm");
  let pendingDelete=null;
  const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x));
@@ -405,7 +414,11 @@
    more.hidden=true;
   }
   try{
-   if(reset||!sourceState)await loadSubscriptions();
+   // Category switches reuse the same verified social connections briefly.
+   // Avoid extra friendship/community queries on every rapid filter click.
+   if(!subscriptionsLoadedAt||Date.now()-subscriptionsLoadedAt>60000){
+    await loadSubscriptions();subscriptionsLoadedAt=Date.now();
+   }
    if(!sourceState)sourceState=makeSourceState();
    const page=await takePage();
    // Open a shared permalink without downloading hundreds of unrelated posts.
@@ -644,11 +657,13 @@
    });
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
    // A filter is a new source query, not a cosmetic visibility toggle.
+   describeFilter();
    for(const button of document.querySelectorAll("[data-feed-filter]")){
     button.addEventListener("click",()=>{
      const next=button.dataset.feedFilter;
      if(!["all","friends","communities"].includes(next)||next===feedFilter)return;
      feedFilter=next;
+     describeFilter();
      for(const item of document.querySelectorAll("[data-feed-filter]"))
       item.setAttribute("aria-pressed",String(item.dataset.feedFilter===feedFilter));
      clearMessage();void loadPosts(true);
