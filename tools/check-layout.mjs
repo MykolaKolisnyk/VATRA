@@ -1,11 +1,47 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","register","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
-const css=await read("assets/css/auth.css");
+const authBaseCss=await read("assets/css/auth.css");
+const signInCss=await read("assets/css/sign-in.css");
+const createAccountCss=await read("assets/css/create-account.css");
+const recoveryCss=await read("assets/css/recovery.css");
+const verifyCss=await read("assets/css/verify.css");
+const css=[authBaseCss,signInCss,createAccountCss,recoveryCss,verifyCss].join("\n");
 const legalCss=await read("assets/css/legal.css");
-const auth=await read("assets/js/auth.js");
+const authShared=await read("assets/js/auth.js");
+const authSignIn=await read("assets/js/sign-in.js");
+const authCreateAccount=await read("assets/js/create-account.js");
+const authRecovery=await read("assets/js/recovery.js");
+const authVerify=await read("assets/js/verify.js");
+const auth=[authShared,authSignIn,authCreateAccount,authRecovery,authVerify].join("\n");
+
+assert.ok(
+ !authShared.includes('function wireLogin(')&&
+ !authShared.includes('function wireCreateAccount(')&&
+ !authShared.includes('function wireForgot(')&&
+ authSignIn.includes("function wireLogin(")&&
+ authCreateAccount.includes("function wireCreateAccount(")&&
+ authRecovery.includes("function wireForgot(")&&
+ authVerify.includes("async function wireAccount("),
+ "Authentication actions must reside in the correct page-owned JavaScript");
+assert.ok(
+ signInCss.includes(".site")&&createAccountCss.includes(".signup-")&&
+ recoveryCss.includes(".forgot-")&&
+ !authBaseCss.includes(".register-page"),
+ "Sign in, Create account and recovery styles must be separately maintained");
+const accountPage=await read("create-account.html");
+assert.ok(
+ accountPage.includes('data-page="create-account"')&&
+ accountPage.includes("assets/css/create-account.css")&&
+ accountPage.includes("assets/js/create-account.js")&&
+ (await read("index.html")).includes("assets/css/sign-in.css")&&
+ (await read("index.html")).includes("assets/js/sign-in.js")&&
+ (await read("forgot.html")).includes("assets/css/recovery.css")&&
+ (await read("verify.html")).includes("assets/js/verify.js"),
+ "Each authentication page must load its own CSS and JavaScript after shared resources");
+
 const errors=await read("assets/js/errors.js");
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
@@ -64,7 +100,7 @@ assert.ok(auth.includes('function passwordIssue(value){')&&
  auth.includes('if(status&&step.contains(status))form.before(status);'),
  "Signup and both reset flows must share a specific password validator and aligned error placement");
 for(const [page,key,id] of [
- ["register","n260","register-password-policy"],["forgot","n60","forgot-password-policy"],
+ ["create-account","n260","register-password-policy"],["forgot","n60","forgot-password-policy"],
  ["reset","n46","reset-password-policy"]
 ]){
  const html=await read(page+".html");
@@ -82,10 +118,10 @@ assert.ok(auth.includes('let recoveryVerifiedUserId=null;')&&
  auth.includes('user.id!==recoveryVerifiedUserId')&&
  !auth.includes('if(!error&&data?.user)reveal();'),
  "Password recovery must be bound to verified identity");
-const registerHtml=await read("register.html");
+const registerHtml=await read("create-account.html");
 assert.ok(!registerHtml.includes('vt-register-paragraph-02')&&
- !Object.hasOwn(uk.__pages.register.nodes,"n51")&&
- !Object.hasOwn(en.__pages.register.nodes,"n51"),
+ !Object.hasOwn(uk.__pages["create-account"].nodes,"n51")&&
+ !Object.hasOwn(en.__pages["create-account"].nodes,"n51"),
  "Do not duplicate the password requirements in signup or translations");
 assert.ok(css.includes('.password-policy-note{margin:-2px 0 2px;color:var(--soft);font-size:13px;')&&
  css.includes('.signup-step{display:grid;gap:17px;min-width:0}')&&
@@ -323,7 +359,7 @@ for(const page of pages){
  assert.deepEqual(Object.keys(enMap).sort(),bindings.slice().sort(),filename+": English dictionary bindings mismatch");
 }
 const landing=await read("index.html");
-const registerHtmlHasBrandedSymbol=(await read("register.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/vatra-symbol.svg"');
+const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/vatra-symbol.svg"');
 const features=["chat","business","communities","photos","video","music","marketplace","clips"];
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"Eight small features required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
@@ -384,7 +420,7 @@ assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  "Both auth logos must be identical symbols with the same animation and size");
 assert.ok(auth.includes("function wireFloatingHints()")&&
  css.includes(".signup-form-panel .field:has(input.control)>span:first-child{")&&
- css.includes(".register-page .reg-help-panel")&&css.includes(".vatra-error-stack"),
+ css.includes(".create-account-page .reg-help-panel")&&css.includes(".vatra-error-stack"),
  "Floating hints must preserve registration captions and help");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
 assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
@@ -404,12 +440,12 @@ assert.ok(!css.includes('.login-form-kicker::before')&&
  landing.includes('auth-footer-content ui-home-footer-content-001')&&
  css.includes('.auth-footer-content{'),
  "Consistent auth animation, clean login eyebrow and card-aligned footer must remain");
-assert.ok(!css.includes(".register-page .field:has(input.control)")&&
+assert.ok(!css.includes(".create-account-page .field:has(input.control)")&&
  css.includes(".signup-form-panel .field:has(input.control)")&&
  css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:40px 0}')&&
  !css.includes(".login-layout::before")&&!css.includes(".signup-layout::before"),
  "Auth cards must center without reserved space from the former top navigation");
-const register=await read("register.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
+const register=await read("create-account.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
 assert.ok(!register.includes('class="reg-header')&&
  !register.includes('class="header-logo vt-register-link-01"')&&
  register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
@@ -442,14 +478,14 @@ assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="p
  auth.includes('user.email.trim().toLowerCase()===signupPending.email.trim().toLowerCase()')&&
  auth.includes('channel.postMessage({type:"check-confirmed-session"})')&&
  auth.includes('watchSignupConfirmation();')&&
- uk.__pages.register.nodes.n240.text["0"]==="Час до завершення дії посилання"&&
- en.__pages.register.nodes.n240.text["0"]==="Confirmation link expires in",
+ uk.__pages["create-account"].nodes.n240.text["0"]==="Час до завершення дії посилання"&&
+ en.__pages["create-account"].nodes.n240.text["0"]==="Confirmation link expires in",
  "The account-creation confirmation screen needs a distinct resend/cooldown state");
 assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);font-size:14px;")&&
  css.includes(".signup-confirmation-signin{display:inline-flex;align-items:center;justify-content:center;margin-top:22px;"),
  "Confirmation secondary typography must use consistent 13–14px rules");
-assert.ok(uk.__pages.register.meta.title==="Створити акаунт · VATRA"&&
- en.__pages.register.meta.title==="Create account · VATRA"&&
+assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт · VATRA"&&
+ en.__pages["create-account"].meta.title==="Create account · VATRA"&&
  !register.includes('href="./" class="vt-register-link-10"'),
  "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
@@ -478,7 +514,7 @@ assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
  register.includes('class="reg-help-link vt-register-summary-02"')&&
  register.includes('href="privacy#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
-for(const [path,ids] of [["index.html",["email","password","saved-password"]],["register.html",["first-name","last-name","email","password","password-confirm"]]]){
+for(const [path,ids] of [["index.html",["email","password","saved-password"]],["create-account.html",["first-name","last-name","email","password","password-confirm"]]]){
  const html=await read(path);
  for(const id of ids){
   const input=html.match(new RegExp('<input\\b[^>]*\\bid="'+id+'"[^>]*>'))?.[0]||"";
@@ -523,12 +559,12 @@ for(const [template,target,type] of [
   "Wrong token type or destination: "+template);
 }
 assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
- !css.includes('.register-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
+ !css.includes('.create-account-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
  !css.includes('.reg-back-nav .back{min-height:40px;')&&
  !register.includes('class="signup-login-switch')&&
  register.includes('<a href="./" class="vt-register-footer-signin" data-i18n="n247">Увійти</a>')&&
- !css.includes('.register-page .footer nav>.vt-register-footer-signin{')&&
- !css.includes('.footer nav>a[href="register.html"]{'),
+ !css.includes('.create-account-page .footer nav>.vt-register-footer-signin{')&&
+ !css.includes('.footer nav>a[href="create-account.html"]{'),
  "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
 // Field labels are retained for accessibility, but shown as floating hints on
 // login, recovery and saved account; only registration has visible top captions.
@@ -546,8 +582,8 @@ assert.ok(homeMarkup.includes('vt-home-saved-field-title-001 vatra-sr-only')&&
  css.includes('.site .saved-account-top{display:flex;align-items:center;justify-content:space-between;gap:10px;')&&
  css.includes('.vatra-sr-only{position:absolute!important;'),
  "Remembered account must have no redundant wordmark or visible top password label");
-assert.ok(!css.includes('.footer nav>a[href="register.html"]{')&&
- !css.includes('.register-page .footer nav>.vt-register-footer-signin{'),
+assert.ok(!css.includes('.footer nav>a[href="create-account.html"]{')&&
+ !css.includes('.create-account-page .footer nav>.vt-register-footer-signin{'),
  "Footer sign-in and create-account links must use the same shared link typography");
 const allTemplates=await readdir("email-templates");
 assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
@@ -574,7 +610,7 @@ for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
   file+": no obsolete duplicate styles or URLs");
 }
 // The top return link belongs inside the form card, never above the split card.
-const registrationMarkup=await read("register.html");
+const registrationMarkup=await read("create-account.html");
 const formStart=registrationMarkup.indexOf('<section class="signup-form-panel ui-signup-form-panel-001"');
 const returnStart=registrationMarkup.indexOf('<nav class="reg-back-nav ui-register-back-nav-001"');
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-register-div-001">');
@@ -592,7 +628,7 @@ assert.ok(formStart>=0&&innerStart>formStart&&
  !css.includes('.login-layout::before,.signup-layout::before{'),
  "Signup return link must be inside the right card with centered auth layout");
 // Native title tooltips use the browser theme and cannot match VATRA styling.
-for(const page of ["index","register","forgot","reset","verify","404","offline","terms","privacy","cookies"]){
+for(const page of ["index","create-account","forgot","reset","verify","404","offline","terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!/<(?:button|a)\b[^>]*\btitle\s*=/i.test(html),
   page+": browser-native hover text must not be added to interactive elements");
@@ -611,13 +647,13 @@ assert.ok(landing.includes('id="saved-account-remove"')&&
 assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;")&&
  css.includes(".auth-layout{justify-content:flex-start;padding:32px 0}")&&
  css.includes(".login-layout .split{margin:auto}")&&
- css.includes(".register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
+ css.includes(".create-account-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
  css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:40px 0;justify-content:center}")&&
  css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:32px 0}"),
  "Auth and recovery layout must have matching top/bottom gutters and shared centering");
 // Every return-to-login link uses the same localized text and shared
 // hover movement; recovery cards animate only their inner content.
-for(const [page,code] of [["register","n4"],["forgot","n2"],["reset","n2"]]){
+for(const [page,code] of [["create-account","n4"],["forgot","n2"],["reset","n2"]]){
  const markup=await read(page+".html");
  const record=uk.__pages[page].nodes[code];
  assert.equal(record.text["0"],"Повернутися до входу");
@@ -633,7 +669,7 @@ assert.ok(css.includes('.back:hover,.back:focus-visible{transform:translateX(-2p
 assert.ok(forgot.includes('class="forgot-panel-content ui-forgot-panel-content-001"')&&
  reset.includes('class="forgot-panel-content ui-reset-panel-content-001"'),
  "Both recovery views must group animated content within a static card");
-const loadingPages=["index.html","register.html","forgot.html","reset.html","verify.html"];
+const loadingPages=["index.html","create-account.html","forgot.html","reset.html","verify.html"];
 for(const file of loadingPages){
  const html=await read(file);
  assert.ok(html.includes('id="vatra-auth-loading"')&&
@@ -649,7 +685,7 @@ assert.ok(css.includes('body[data-auth-ready="true"]>.vatra-auth-loading{display
  "Loading is a frameless, real auth state; saved account back link is aligned");
 for(const locale of [uk,en])for(let n=500;n<=513;n++)
  assert.ok(locale.__pages.index.nodes["n"+n]?.text?.["0"],"Saved account translation missing: n"+n);
-for(const path of ["index.html","register.html"]){
+for(const path of ["index.html","create-account.html"]){
  const html=await read(path);
  const toggles=[...html.matchAll(/<button[^>]*data-password-toggle="[^"]+"[^>]*>/g)];
  assert.ok(toggles.length>0&&toggles.every(x=>/\shidden(?:\s|>)/.test(x[0])),path+": empty password controls must hide reveal buttons before JS runs");
@@ -720,7 +756,7 @@ assert.ok(landing.includes('data-i18n="n128">Створити акаунт</a>')
  register.includes('data-i18n="n59">Створити акаунт</button>')&&
  uk.__pages.index.nodes.n128.text["0"]==="Створити акаунт"&&
  en.__pages.index.nodes.n128.text["0"]==="Create account"&&
- uk.__pages.register.nodes.n59.text["0"]==="Створити акаунт",
+ uk.__pages["create-account"].nodes.n59.text["0"]==="Створити акаунт",
  "Create account must be the unified account creation action");
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('.field-error::before{content:"!"'),
@@ -760,8 +796,8 @@ const englishSignupTags=["#communication","#business","#communities","#photos","
 const signupKeys=[205,206,207,230,231,232,233,234];
 assert.ok(!register.includes("Особистий VATRA ID")&&
  signupTags.every((tag,i)=>register.includes('data-i18n="n'+signupKeys[i]+'">'+tag+'</span>'))&&
- signupTags.every((tag,i)=>uk.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===tag&&
- en.__pages.register.nodes["n"+signupKeys[i]]?.text["0"]===englishSignupTags[i]),
+ signupTags.every((tag,i)=>uk.__pages["create-account"].nodes["n"+signupKeys[i]]?.text["0"]===tag&&
+ en.__pages["create-account"].nodes["n"+signupKeys[i]]?.text["0"]===englishSignupTags[i]),
  "All eight hashtags must display in Ukrainian and translate correctly into English");
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
@@ -774,13 +810,13 @@ assert.ok(!legalCss.includes(".policy-cards")&&
  !legalCss.includes(".policy-summary")&&!legalCss.includes(".policy-end")&&
  !css.includes(".footer-doc-icon{"),
  "Deleted document overview must leave no orphan card styles");
-for(const page of ["index","register","forgot","reset","verify","404"]){
+for(const page of ["index","create-account","forgot","reset","verify","404"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('footer-doc-icon'),
  "Document icons must not appear in footer: "+page);
 }
 assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&&
- uk.__pages.register.nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
+ uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
  !register.includes('href="./" class="vt-register-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
 for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
@@ -791,7 +827,7 @@ for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
 }
 
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
- css.includes(".register-page .reg-help-panel"),
+ css.includes(".create-account-page .reg-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
 assert.ok(
  !forgot.includes('class="header-logo vt-forgot-link-02"')&&
@@ -803,7 +839,7 @@ assert.ok(
  !forgot.includes('name@example.com')&&
  !reset.includes('name@example.com')&&
  !register.includes('name@example.com')&&
- ['forgot','reset','register'].every(page=>
+ ['forgot','reset','create-account'].every(page=>
   Object.values(uk.__pages[page].nodes).some(entry=>entry.text?.["0"]==="Електронна пошта")&&
   Object.values(en.__pages[page].nodes).some(entry=>entry.text?.["0"]==="Email address")
  ),
@@ -853,7 +889,7 @@ assert.ok(
  reset.includes('class="vatra-input-shell ui-reset-input-shell-001"')&&
  reset.includes('class="vatra-input-shell ui-reset-input-shell-002"')&&
  reset.includes('class="vatra-floating-hint vt-reset-floating-hint-02" aria-hidden="true" data-i18n="n44"')&&
- auth.includes('if(!["login","register","forgot","reset"].includes(page))return;')&&
+ auth.includes('if(!["login","create-account","forgot","reset"].includes(page))return;')&&
  auth.includes('#recovery-code-form .field:has(input.control)')&&
  uk.__pages.forgot.nodes.n56.text["0"]==="Введіть код"&&
  en.__pages.forgot.nodes.n56.text["0"]==="Enter code"&&
@@ -968,7 +1004,7 @@ assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  "Profile status, privacy-preserving activity, media tabs and Feed filters must exist");
 assert.ok(!profileMarkup.includes('id="profile-edit-name"')&&
  !profileMarkup.includes('id="profile-name-dialog"')&&
- !(await read("register.html")).includes('data-i18n="n501"')&&
+ !(await read("create-account.html")).includes('data-i18n="n501"')&&
  (await read("privacy.html")).includes("Ім’я та прізвище, вказані під час реєстрації"),
  "Registered first and last name must appear automatically without a second name setup");
 assert.ok(profileMarkup.includes('id="profile-heading"')&&
@@ -1402,7 +1438,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","feed.css","legal.css","profile.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","create-account.css","feed.css","legal.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
@@ -1434,7 +1470,7 @@ assert.ok(auth.includes('function replayAuthContent(node)')&&
  auth.includes('replayAuthContent(q(".forgot-panel-content"));')&&
  css.includes('.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal')&&
  !css.includes('.signup-confirmation > :not([hidden]){animation:vatraAuthReveal')&&
- !css.includes('.register-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:')&&
+ !css.includes('.create-account-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]){animation:'),
  "Registration, confirmation and password recovery must reveal whole content blocks");
 const resetNew=await read("reset.html");
