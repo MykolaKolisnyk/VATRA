@@ -88,7 +88,7 @@ function getMessage(error){
  if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return english?"The password does not meet the server's security requirements. Check the rules below the password field.":"Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.";
  if(code==="over_email_send_rate_limit"||code==="over_request_rate_limit"||text.includes("rate limit"))return "Забагато спроб. Спробуйте трохи пізніше.";
  if(code==="email_exists"||code==="user_already_exists")return "Акаунт із такою поштою вже може існувати. Спробуйте увійти або відновити пароль.";
- if(code==="signup_disabled")return "Реєстрацію тимчасово вимкнено в налаштуваннях сервера.";
+ if(code==="signup_disabled")return english?"Account creation is temporarily unavailable.":"Створення акаунтів тимчасово недоступне.";
  if(code==="otp_expired"||code==="otp_disabled")return "Посилання для підтвердження недійсне або застаріло. Запросіть нове.";
  if(code==="captcha_required"||code==="captcha_failed"||text.includes("captcha verification"))return "Завершіть перевірку безпеки й повторіть спробу.";
  if(code==="captcha_cancelled")return "Перевірку безпеки скасовано.";
