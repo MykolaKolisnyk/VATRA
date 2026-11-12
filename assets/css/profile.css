@@ -1134,16 +1134,6 @@ body.profile-page .profile-media-placeholder{
 body.profile-page .profile-media-placeholder{
   animation:none;background-image:none;background:#e8edf6
  }}
-/* Switching editor chapters only animates the changing information, never the
-   entire page/header. This also keeps the sticky save action fully steady. */
-body.profile-page #profile-edit-workspace:not([hidden]) .profile-editor-fields{
- view-transition-name:vatra-editor-fields
-}
-body.profile-page #profile-edit-workspace:not([hidden]) .vt-profile-editor-section-title-001{
- view-transition-name:vatra-editor-chapter
-}
-
-
 /* ================================================================
    ABOUT ME — summary, details dialog, field icons and responsive UI
    ================================================================ */
