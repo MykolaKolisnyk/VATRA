@@ -2,90 +2,7 @@
 <html lang="uk">
   <head>
     <meta charset="utf-8">
-    <script>
-  (() => {
-    /* Existing bookmarks and Supabase email links may use former locale folders. */
-    // Old email links and saved .html URLs remain valid, but visitors see
-    // the clean canonical route after the first navigation.
-    // GitHub Pages serves this fallback for /idN and /clubN. Render the
-    // corresponding static document in-place, so the browser never visits
-    // /profile.html or /club.html on its way to a permanent public URL.
-    const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
-    if(dynamic){
-      document.documentElement.classList.add("vatra-dynamic-route-pending");
-      const file=dynamic[1]==="id"?"profile.html":"club.html";
-      const mount=async()=>{
-        try{
-          const response=await fetch("/VATRA/"+file,{credentials:"same-origin"});
-          if(!response.ok)throw new Error("route document unavailable");
-          const markup=await response.text();
-          if(!/^\s*<!doctype html>/i.test(markup))throw new Error("invalid route document");
-          // Replace the router document with the real profile/club document.
-          // Its own language handler and loading screen now start exactly once.
-          document.documentElement.classList.remove("vatra-dynamic-route-pending");
-          document.open();
-          document.write(markup);
-          document.close();
-        }catch(_){
-          // On failure reveal the actual 404 page and initialize its locale.
-          document.documentElement.classList.remove("vatra-dynamic-route-pending");
-          const locale=document.createElement("script");
-          locale.className="ui-404-route-locale-recovery-001";
-          locale.src="/VATRA/assets/js/lang.js";
-          document.head.append(locale);
-        }
-      };
-      if(document.readyState==="loading")
-        document.addEventListener("DOMContentLoaded",mount,{once:true});
-      else void mount();
-      return;
-    }
-    const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
-    if(oldAccount){
-      location.replace("/VATRA/verify"+location.search+location.hash);
-      return;
-    }
-    // Preserve old bookmarks but never show the obsolete account-creation route.
-    if(/^\/VATRA\/register(?:\.html)?$/.test(location.pathname)){
-      location.replace("/VATRA/create-account"+location.search+location.hash);
-      return;
-    }
-    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline)\.html$/);
-    if(legacy){
-      location.replace("/VATRA/"+legacy[1]+location.search+location.hash);
-      return;
-    }
-    const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
-    if (!found) return;
-    const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","terms.html","privacy.html","cookies.html","404.html","offline.html","create-account","register","forgot","reset","feed","profile","verify","terms","privacy","cookies"]);
-    if (!allowed.has(file)) return;
-    // Existing language preferences always win over old /ua/ or /en/ links.
-    // Follow an old link's language only for visitors without a saved choice.
-    const key="vatra-language";
-    let selected=null;
-    try {
-      const match=document.cookie.split(";").map(item=>item.trim())
-        .find(item=>item.startsWith(key+"="));
-      if(match){
-        const value=decodeURIComponent(match.slice(key.length+1));
-        if(value==="uk"||value==="en")selected=value;
-      }
-    }catch(_){}
-    if(!selected){
-      try {
-        const value=localStorage.getItem(key);
-        if(value==="uk"||value==="en")selected=value;
-      }catch(_){}
-    }
-    if(!selected){
-      try{localStorage.setItem(key,found[1]==="en"?"en":"uk");}catch(_){}
-    }
-    const cleanFile=file.replace(/\.html$/,"").replace(/^account$/,"verify").replace(/^register$/,"create-account");
-    const target="/VATRA/"+(cleanFile==="index"?"":cleanFile);
-    location.replace(target+location.search+location.hash);
-  })();
-  </script>
+    <script src="/VATRA/assets/js/not-found.js"></script>
     <script src="/VATRA/assets/js/host.js"></script>
     <script src="/VATRA/assets/js/errors.js"></script>
     <script src="/VATRA/assets/js/lang.js"></script>
@@ -100,6 +17,7 @@
     <link rel="apple-touch-icon" href="/VATRA/assets/logo/vatra-app-icon.png">
     <link rel="preload" href="/VATRA/assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="/VATRA/assets/css/base.css">
+    <link rel="stylesheet" href="/VATRA/assets/css/not-found.css">
     <link rel="manifest" href="/VATRA/site.webmanifest">
     <script defer src="/VATRA/assets/js/network.js"></script>
   </head>
