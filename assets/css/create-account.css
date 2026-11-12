@@ -17,10 +17,10 @@
 .vt-ua-register-inline-05,.vt-en-register-inline-05{font-weight:400;color:#627187}
 .check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}
 .signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}
-.register-page .footer{padding-inline:0}
-.register-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
+.create-account-page .footer{padding-inline:0}
+.create-account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
-.register-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:auto;max-width:none;margin:0;padding:0}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}
+.create-account-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:auto;max-width:none;margin:0;padding:0}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}
 /* Registration retains its captions above the same floating-hint controls. */
 .signup-form-panel .field:has(input.control){position:relative;gap:8px}
 .signup-form-panel .field,.signup-form-panel .two>.field{align-content:start;align-self:start}
@@ -28,41 +28,41 @@
  position:static;font-size:13px;line-height:1.4;color:#48576d;
  font-weight:700;white-space:normal;pointer-events:auto
 }
-.register-page .reg-caption-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
-.register-page .reg-caption-row>label{color:#48576d;font-size:13px;font-weight:700;line-height:1.4}
-.register-page .reg-help{position:relative;flex:none;display:inline-flex;align-items:center}
-.register-page .reg-help summary{list-style:none;cursor:pointer;user-select:none;-webkit-user-select:none}
-.register-page .reg-help summary::-webkit-details-marker{display:none}
-.register-page .reg-help-trigger{display:grid;place-items:center;width:23px;height:23px;
+.create-account-page .reg-caption-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
+.create-account-page .reg-caption-row>label{color:#48576d;font-size:13px;font-weight:700;line-height:1.4}
+.create-account-page .reg-help{position:relative;flex:none;display:inline-flex;align-items:center}
+.create-account-page .reg-help summary{list-style:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+.create-account-page .reg-help summary::-webkit-details-marker{display:none}
+.create-account-page .reg-help-trigger{display:grid;place-items:center;width:23px;height:23px;
   border:1px solid #9cbcf5;border-radius:50%;background:#f0f5ff;color:#2865d8;
   font-size:13px;font-weight:800;line-height:1;transition:background .15s,border-color .15s}
-.register-page .reg-help-link{color:#2865d8;font-size:12px;font-weight:700;
+.create-account-page .reg-help-link{color:#2865d8;font-size:12px;font-weight:700;
   text-decoration:underline;text-underline-offset:3px;text-align:right}
-.register-page .reg-help :is(summary:hover,summary:focus-visible){color:#174b9b}
-.register-page .reg-help summary:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}
-.register-page .reg-help[open] .reg-help-trigger{background:#dfeaff;border-color:#6995ed}
-.register-page .reg-help-panel{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
+.create-account-page .reg-help :is(summary:hover,summary:focus-visible){color:#174b9b}
+.create-account-page .reg-help summary:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}
+.create-account-page .reg-help[open] .reg-help-trigger{background:#dfeaff;border-color:#6995ed}
+.create-account-page .reg-help-panel{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
   width:min(330px,calc(100vw - 45px));padding:17px 18px;border:1px solid #d7e3f8;
   border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(23,48,95,.18);
   white-space:normal;animation:vatraHintAppear .18s cubic-bezier(.2,.7,.2,1)}
-.register-page .reg-help[data-side="right"] .reg-help-panel{left:calc(100% + 14px);right:auto;top:-14px}
-.register-page .reg-help[data-side="left"] .reg-help-panel{right:calc(100% + 14px);left:auto;top:-14px}
-.register-page .reg-help[data-side="right"] .reg-help-panel::before{left:-6px;right:auto;top:22px;transform:rotate(-45deg)}
-.register-page .reg-help[data-side="left"] .reg-help-panel::before{right:-6px;left:auto;top:22px;transform:rotate(135deg)}
-@media(prefers-reduced-motion:reduce){.register-page .reg-help-panel{animation:none!important}}
-.register-page .reg-help-panel::before{content:"";position:absolute;right:17px;top:-6px;
+.create-account-page .reg-help[data-side="right"] .reg-help-panel{left:calc(100% + 14px);right:auto;top:-14px}
+.create-account-page .reg-help[data-side="left"] .reg-help-panel{right:calc(100% + 14px);left:auto;top:-14px}
+.create-account-page .reg-help[data-side="right"] .reg-help-panel::before{left:-6px;right:auto;top:22px;transform:rotate(-45deg)}
+.create-account-page .reg-help[data-side="left"] .reg-help-panel::before{right:-6px;left:auto;top:22px;transform:rotate(135deg)}
+@media(prefers-reduced-motion:reduce){.create-account-page .reg-help-panel{animation:none!important}}
+.create-account-page .reg-help-panel::before{content:"";position:absolute;right:17px;top:-6px;
   width:11px;height:11px;background:#fff;border-top:1px solid #d7e3f8;
   border-left:1px solid #d7e3f8;transform:rotate(45deg)}
-.register-page .reg-help-panel strong{display:block;font-size:14px;font-weight:750;
+.create-account-page .reg-help-panel strong{display:block;font-size:14px;font-weight:750;
   line-height:1.35;color:#263956;margin:0 0 8px}
-.register-page .reg-help-panel p{font-size:12px;font-weight:450;line-height:1.65;
+.create-account-page .reg-help-panel p{font-size:12px;font-weight:450;line-height:1.65;
   color:#586981;margin:0 0 12px}
-.register-page .reg-help-policy{display:inline-block;font-size:12px;font-weight:700;
+.create-account-page .reg-help-policy{display:inline-block;font-size:12px;font-weight:700;
   color:#2865d8;text-decoration:none}
-.register-page .reg-help-policy:hover{text-decoration:underline}
+.create-account-page .reg-help-policy:hover{text-decoration:underline}
 @media(max-width:480px){
- .register-page .reg-help-panel{width:min(300px,calc(100vw - 40px))}
- .register-page .reg-help-link{font-size:11px}}
+ .create-account-page .reg-help-panel{width:min(300px,calc(100vw - 40px))}
+ .create-account-page .reg-help-link{font-size:11px}}
 
 
 
@@ -113,7 +113,7 @@
 .signup-step-number{font-size:12px;color:#356ee0;font-weight:750;white-space:nowrap;background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .signup-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:26px}
 .signup-progress-segment{display:block;height:5px;border-radius:999px;background:#e6ebf6;transition:background-color .28s ease}
-.signup-progress-segment:first-child,.register-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
+.signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
 
 .signup-step-heading .subtitle{margin:0;max-width:45ch}
 .signup-step{display:grid;gap:17px;min-width:0}
@@ -161,18 +161,18 @@
 @media (min-width:1200px) and (max-height:610px){
 .reg-main{min-height:670px}}
 @media (max-width:1199px){
-  .register-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}
-  .register-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
+  .create-account-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}
+  .create-account-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
   .signup-brand-art,.signup-brand-highlights{display:none}
   .signup-brand-title{font-size:clamp(24px,4.3vw,31px);max-width:none;margin:0 0 7px}
   .signup-brand-description{font-size:13px;max-width:60ch;line-height:1.5}
   .signup-form-panel{border:1px solid #e4e9f5;border-top:0;border-radius:0 0 24px 24px;padding:42px clamp(24px,5vw,48px) 43px}
   .signup-form-panel .narrow-form,.signup-form-panel .reg-back-nav{max-width:510px}
-.register-page .auth-footer-content{justify-content:space-between;text-align:left}}
+.create-account-page .auth-footer-content{justify-content:space-between;text-align:left}}
 @media (max-width:540px){
   /* Canonical mobile signup rules live after the tablet breakpoint. */
-  .register-page .reg-main{width:calc(100% - 24px);padding:0}
+  .create-account-page .reg-main{width:calc(100% - 24px);padding:0}
   .signup-form-overline .reg-back-nav{width:auto;margin:0 0 0 auto;justify-content:flex-end}
   .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}
   .signup-brand-title{font-size:25px}
@@ -183,6 +183,6 @@
   .signup-step{gap:15px}
   .signup-submit-row{grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:8px}
   .signup-submit-row .action{padding-inline:8px;font-size:12px}
-.register-page .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}
+.create-account-page .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}
   .reg-back-nav .back{font-size:13px}
   .reg-main{padding:0}}
