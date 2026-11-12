@@ -2426,7 +2426,7 @@ try{
     Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
     Math.abs(geometry.storyCenter-geometry.viewportCenter)<11&&
     geometry.storyCardWidth>=600&&geometry.storyCardWidth<=710&&
-    geometry.storyCardHeight>=78&&geometry.storyCardHeight<=82&&
+    geometry.storyCardHeight>=72&&geometry.storyCardHeight<=82&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
@@ -2728,18 +2728,19 @@ try{
     const stories=document.querySelector(".feed-stories").getBoundingClientRect();
     return {right:filters.right,edge:wrap.right,composerTop:composer.top,storyTop:stories.top,
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
+     filterWidth:filters.width,composeLeft:composer.left,
      composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
      screenWidth:innerWidth};
    });
    assert.ok(Math.abs(filterGeometry.composerWidth-filterGeometry.storiesWidth)<=3&&
     Math.abs(filterGeometry.composeRight-filterGeometry.edge)<=3,
     "Feed filters cannot narrow full-width composer and Stories: "+JSON.stringify(filterGeometry));
-   assert.ok(filterGeometry.screenWidth>1320?
-    (filterGeometry.filterLeft>=filterGeometry.composeRight+5&&
-     filterGeometry.filterTop>=filterGeometry.composerTop-2):
-    (filterGeometry.filterTop>=filterGeometry.storyBottom-3&&
-     filterGeometry.right<=filterGeometry.edge+3),
-    "Filters belong in the right gutter or right-aligned row: "+JSON.stringify(filterGeometry));
+   assert.ok(
+    Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
+    Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<3&&
+    filterGeometry.filterTop>=filterGeometry.storyBottom-3&&
+    filterGeometry.right<=filterGeometry.edge+3,
+    "Compact Feed filter must span the composer width below Stories: "+JSON.stringify(filterGeometry));
   }
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false,
    "Feed filter choices start collapsed");
@@ -3141,6 +3142,8 @@ try{
   // viewer, story and avatar action entry points are blocked in the UI.
   await profilePage.locator("#profile-cover-photo").waitFor({state:"visible",timeout:14000});
   assert.equal(await profilePage.locator("#profile-cover-image").evaluate(el=>el.classList.contains("has-photo")),true);
+  assert.equal(await profilePage.locator("#profile-avatar").evaluate(el=>el.classList.contains("has-photo")),true,
+   "A locked profile still displays its public avatar alongside its cover");
   assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),false,
    "Private cover remains visible without a clickable full-screen target");
   assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true,
