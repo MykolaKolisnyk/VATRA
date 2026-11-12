@@ -2176,6 +2176,26 @@ body.feed-page .vatra-notification-skeleton-line{
  }
 }
 
-
-
-
+/* Feed · readable, keyboard-accessible filter choices with clear active state. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row{
+ gap:5px;padding:16px 13px;border:1px solid #dce6f5;
+ box-shadow:0 5px 19px rgba(30,55,108,.055)
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
+ min-height:43px;gap:10px;padding:10px 12px;
+ border-radius:10px;transition:background .14s ease,color .14s ease
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
+ position:relative;background:#eaf1ff!important;color:#295ec0!important;
+ box-shadow:inset 3px 0 0 #4978e9!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:focus-visible{
+ outline:2px solid #4476e6;outline-offset:2px
+}
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{
+ margin:9px 5px 1px;padding-top:11px;border-top:1px solid #edf1f8;
+ color:#70819e;font:560 12px/1.5 "Onest",system-ui,sans-serif
+}
+@media(prefers-reduced-motion:reduce){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{transition:none}
+}
