@@ -577,7 +577,7 @@ const t=(uk,en)=>{
 };
 const home=new URL("../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
-const memberUrl=id=>window.VATRA_HTTP200_ROUTES===true?location.origin+"/id"+id:home+"id"+id;
+const memberUrl=id=>home+"id"+id;
 const localizeSocial=()=>{
  for(const element of document.querySelectorAll("[data-social-uk]"))
   element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
