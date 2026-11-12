@@ -161,7 +161,7 @@
    inspiration:"sparkles"
   };
   const fallback=[
-   "short_bio","activities","hobbies","languages","school","university",
+   "activities","hobbies","languages","school","university",
    "workplace","job_title","family","about_me","favorite_music","favorite_movies",
    "favorite_books","favorite_games","inspiration","worldview","life_priorities",
    "important_in_people","education_extra","career_extra","favorite_tv",
@@ -208,11 +208,11 @@
    const item=make("div",detailed?
     "vatra-profile-details-row ui-profile-detail-row-"+key:
     "profile-information-item ui-profile-information-item-"+key);
-   const badge=make("span",detailed?
-    "vatra-profile-detail-icon ui-vatra-profile-detail-icon-"+key:
-    "vatra-profile-summary-icon ui-vatra-profile-summary-icon-"+key);
-   badge.append(svg(fieldIcons[key]||"file-text"));
-   badge.setAttribute("aria-hidden","true");
+   // Keep the reading view typography-first. Icons stay in the editor,
+   // where they help navigation, not beside every public profile fact.
+   if(key==="short_bio"){
+    return detailed?make("p","vt-profile-detail-bio-001",data.value):null;
+   }
    const label=make("span",detailed?
     "vt-profile-detail-label-"+key:"vt-profile-information-label-"+key,tr(field[1],field[2]));
    const content=make("span",detailed?
@@ -225,7 +225,7 @@
      content.append(link);
     }else content.textContent=data.value;
    }else content.textContent=data.value;
-   item.append(badge,label,content);
+   item.append(label,content);
    return item;
   };
   const renderDetails=()=>{
@@ -247,9 +247,7 @@
     const section=make("section","vatra-profile-details-section ui-vatra-profile-details-section-"+group.id);
     const head=make("h3","vt-vatra-profile-details-section-title-"+group.id,lang(group.label));
     const headingRow=make("div","vatra-profile-details-section-head ui-vatra-profile-details-section-head-"+group.id);
-    const sectionIcon=make("span","vatra-profile-details-section-icon ui-vatra-profile-details-section-icon-"+group.id);
-    sectionIcon.append(svg(group.id==="overview"?"user":groups.find(x=>x.id===group.id)?.icon||"file-text"));
-    headingRow.append(sectionIcon,head);section.append(headingRow);
+    headingRow.append(head);section.append(headingRow);
     for(const key of keys){section.append(itemFor(key,true));count++;}
     modalContent.append(section);
    }
@@ -294,6 +292,11 @@
     paragraph.textContent=tr("Інформація доступна лише друзям.","Information is available to friends only.");
     return;
    }
+   // Short biography is centered on its own, with no "Short bio" label.
+   // An empty bio must occupy no space in either the owner's or visitor's page.
+   const bio=visibleField("short_bio");
+   paragraph.textContent=bio;
+   paragraph.hidden=!bio;
    // Only one location can appear in the preview: current city takes priority.
    const locationKey=visibleField("city")?"city":visibleField("hometown")?"hometown":null;
    const selected=[locationKey,"relationship","website"].filter(key=>key&&visibleField(key));
@@ -303,15 +306,10 @@
     if(visibleField(key)&&!selected.includes(key))selected.push(key);
    }
    for(const key of selected.slice(0,3))sections.append(itemFor(key,false));
-   const additional=[...fieldsByKey.keys()].filter(key=>visibleField(key)&&!selected.includes(key));
+   const additional=[...fieldsByKey.keys()].filter(key=>
+    key!=="short_bio"&&visibleField(key)&&!selected.includes(key));
    const hasLongPreview=selected.some(key=>visibleField(key).length>32);
-   more.hidden=locked||!!result.error||(!additional.length&&!hasLongPreview);
-   paragraph.hidden=selected.length>0;
-   if(!selected.length)paragraph.textContent=isMine?
-    tr("Розкажіть трохи про себе. Ви самі визначаєте, хто це побачить.",
-     "Tell others a little about yourself. You control who sees it."):
-    tr("Користувач ще не додав доступної вам інформації.",
-     "This member has not shared any information with you.");
+   more.hidden=!additional.length&&!hasLongPreview;
   };
   if(card){card.append(sections,more);renderInfo();}
   if(locked){
