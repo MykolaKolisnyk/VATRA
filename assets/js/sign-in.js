@@ -1,4 +1,4 @@
-/* VATRA Sign in: page-specific behavior; shared utilities are in auth.js. */
+/* VATRA Sign in: page-specific behavior; shared utilities are in auth-core.js. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
