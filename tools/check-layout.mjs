@@ -308,6 +308,13 @@ new Function("document","location","localStorage",legacyScript)
 assert.equal(memory.get("vatra-language"),"en",
  "Old /ua/ bookmark must not overwrite a previously selected English locale");
 assert.equal(oldBookmark.redirectedTo,"/VATRA/","Legacy bookmark should redirect to root");
+const profileBookmark={pathname:"/VATRA/profile",search:"",hash:"",
+ replace(url){this.redirectedTo=url;}};
+new Function("document","location","localStorage",legacyScript)
+ (mockDocument,profileBookmark,mockStorage);
+assert.equal(profileBookmark.redirectedTo,"/VATRA/profile.html",
+ "Extensionless profile fallback must resolve the real HTML file without showing 404");
+
 const blockedCookies={get cookie(){throw Error("cookies blocked");},
  set cookie(_){throw Error("cookies blocked");}};
 const blockedStorage=new Map();
