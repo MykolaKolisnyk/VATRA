@@ -2036,8 +2036,9 @@ try{
      sessionStorage.setItem("mockAttemptEmail",email);
      if(password!=="CorrectPass@123")return {data:{user:null},error:{code:"invalid_credentials"}};
      sessionStorage.setItem("mockLoggedIn","1");
-     return {data:{user:{id:"saved-user",email,email_confirmed_at:"2026-11-09T00:00:00Z",
-      user_metadata:{first_name:"Тест",last_name:"Акаунт"}}},error:null};
+     const user={id:"saved-user",email,email_confirmed_at:"2026-11-09T00:00:00Z",
+      user_metadata:{first_name:"Тест",last_name:"Акаунт"}};
+     return {data:{user,session:{access_token:"ci-mock-access-token",user}},error:null};
     },
     signOut:async()=>{sessionStorage.removeItem("mockLoggedIn");return {error:null};}
    },
