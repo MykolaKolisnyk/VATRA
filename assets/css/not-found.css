@@ -17,5 +17,5 @@
 
 /* Hide the error document completely while a valid member/club permalink is
    resolving. The loader belongs to the 404 fallback but is not an error UI. */
-html.vatra-dynamic-route-pending body > :not(.vatra-route-loading){display:none!important}
+html.vatra-dynamic-route-pending body.error-page > :not(.vatra-route-loading){display:none!important}
 html.vatra-dynamic-route-pending body > #vatra-dynamic-route-loading{display:grid!important;opacity:1!important;animation:none!important}
