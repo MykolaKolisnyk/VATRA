@@ -225,7 +225,7 @@ body.feed-page .feed-post-avatar:not(.has-photo),
 body.feed-page .feed-story-avatar:not(.has-photo){
  background-color:#edf2f8;
  background-image:var(--vatra-default-avatar);
- background-size:72%;background-repeat:no-repeat;background-position:center;
+ background-size:cover;background-repeat:no-repeat;background-position:center;
  color:transparent;font-size:0
 }
 body.feed-page .feed-header-avatar.has-photo,
@@ -2601,3 +2601,6 @@ body.feed-page .feed-story-view:has(.feed-story-view-media:not([hidden])) .vt-fe
  min-height:0;padding:12px;font:680 15px/1.55 "Onest",sans-serif
 }
 body.feed-page .feed-story-view:has(.feed-story-view-media:not([hidden])){min-height:0}
+
+/* The WebP fallback is shared by every signed-in account portrait. */
+body.feed-page :is(.profile-friend-portrait,.profile-person-avatar,.profile-photo-comment-avatar,.vatra-friends-portrait,.vatra-global-search-avatar,.vatra-notification-avatar,.vatra-notification-panel-avatar,.vatra-gift-member-avatar):not(.has-photo){background-image:var(--vatra-default-avatar);background-color:#edf2f8;background-position:center;background-size:cover;background-repeat:no-repeat;color:transparent;font-size:0}
