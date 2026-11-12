@@ -1115,6 +1115,23 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileBehavior.includes('coverView.addEventListener("click",()=>openMedia("cover"))')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
+assert.ok(
+ profileBehavior.includes('const canViewPhoto=!locked') &&
+ profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto') &&
+ profileBehavior.includes('coverView.hidden=!canViewPhoto') &&
+ profileBehavior.includes('if(!canViewPhoto)return;') &&
+ profileBehavior.includes('if(sharedPhoto&&!locked)') &&
+ memberCss.includes('body.profile-page.feed-page .profile-avatar:not(.has-photo)::before') &&
+ memberCss.includes('body.profile-page .profile-cover-view[hidden]') &&
+ !profileBehavior.includes('try{await mediaPromise;}') &&
+ profileMarkup.includes('data-social-uk="Головна" data-social-en="Home"'),
+ "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
+assert.ok(
+ feedMarkup.includes('id="feed-filter-summary"') &&
+ feedScript.includes('const describeFilter=()=>{') &&
+ feedScript.includes('subscriptionsLoadedAt>60000') &&
+ feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
+ "Feed category filters must explain their scope and reuse recent subscriptions");
 const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
@@ -1311,10 +1328,10 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
  feedScript.includes('posts.append(card(item))')&&
- profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email)')&&
+ profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine})')&&
- profileScript.includes('try{await mediaPromise;}')&&
+ profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
  memberProfileMarkup.includes('id="profile-avatar-engagement"'),
@@ -1391,6 +1408,7 @@ assert.ok(
 assert.ok(
  signInCss.includes("background:#fff;border:1.5px solid #a7bff3;color:#285ec6") &&
  memberProfileMarkup.includes('class="profile-posts-overview ui-profile-posts-overview-001"') &&
+ memberProfileMarkup.includes('data-social-uk="Головна" data-social-en="Home"') &&
  memberProfileMarkup.includes('data-social-uk="Публікації" data-social-en="Posts"') &&
  memberCss.includes("grid-template-columns:minmax(0,37.5%) minmax(0,1fr)") &&
  memberCss.includes("body.profile-page .profile-posts-overview{"),
