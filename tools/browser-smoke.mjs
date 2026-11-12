@@ -2491,6 +2491,10 @@ try{
   });
   assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
    "Selecting media without text must unlock Next in Feed");
+  await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-composer-settings").isVisible(),true,
+   "Media-only Feed post must reach visibility settings");
+  await feedProbe.locator(".vt-vatra-post-composer-back-001").click();
   await feedProbe.locator("#feed-compose-media-remove").click();
   assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isDisabled(),true,
    "Removing the only attachment must lock Next in Feed");
@@ -3081,6 +3085,10 @@ try{
   });
   assert.equal(await profilePage.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
    "Selecting photo without text unlocks the Profile editor");
+  await profilePage.locator(".vt-vatra-post-composer-next-001").click();
+  assert.equal(await profilePage.locator(".vatra-post-composer-settings").isVisible(),true,
+   "Media-only Profile post must reach visibility settings");
+  await profilePage.locator(".vt-vatra-post-composer-back-001").click();
   await profilePage.locator("#profile-compose-media-remove").click();
   await profilePage.locator("#profile-compose-text").fill(injectionText);
   await profilePage.locator(".vt-vatra-post-composer-next-001").click();
