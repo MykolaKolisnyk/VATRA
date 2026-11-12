@@ -2693,8 +2693,15 @@ try{
     mediaApi:typeof window.VATRA_POST_MEDIA?.bindPicker};
   });
   console.log("VATRA story media preview probe: "+JSON.stringify(storyMediaState));
+  // setInputFiles/change creates the image before the browser has decoded its
+  // blob. Wait for intrinsic size rather than one-shot isVisible on a 0x0 node.
+  await feedProbe.waitForFunction(()=>{
+   const img=document.querySelector("#feed-story-media-preview img");
+   return img?.complete===true&&img.naturalWidth>0&&
+    !document.querySelector("#feed-story-media-preview").hidden;
+  },null,{timeout:5000});
   assert.equal(await feedProbe.locator("#feed-story-media-preview img").isVisible(),true,
-   "A selected story photo must appear in the preview: "+JSON.stringify(storyMediaState));
+   "A selected story photo must appear after decoding: "+JSON.stringify(storyMediaState));
   await feedProbe.locator("#feed-story-save").click();
   await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
   assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
