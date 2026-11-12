@@ -1417,7 +1417,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
 
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
-async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail){
+async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
@@ -1431,6 +1431,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
  const bucketFor=kind=>kind==="avatar"?"vatra-avatars":"vatra-covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
+ const canViewPhoto=!locked;
  const status=(text,error=false)=>{
   message.textContent=text;message.hidden=!text;
   message.dataset.status=error?"error":"ok";
@@ -1466,11 +1467,11 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
  const syncAvatarMenu=()=>{
   const hasPhoto=!!photoURLs.avatar,hasStory=!!activeStory;
   avatarWrap.classList.toggle("has-active-story",hasStory);
-  avatarMenu.hidden=!hasStory;
-  storyButton.hidden=!hasStory;
-  photoButton.hidden=!hasPhoto;
+  avatarMenu.hidden=!canViewPhoto||!hasStory;
+  storyButton.hidden=!canViewPhoto||!hasStory;
+  photoButton.hidden=!canViewPhoto||!hasPhoto;
   deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;
-  avatarTrigger.disabled=!hasPhoto&&!hasStory;
+  avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory);
   avatarTrigger.setAttribute("aria-haspopup",hasStory?"menu":"false");
   avatarTrigger.setAttribute("aria-label",hasStory?
    t("Переглянути історію або фото","View story or photo"):
@@ -1645,6 +1646,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
  q(".vt-profile-photo-comment-label-001").textContent=t("Ваш коментар","Your comment");
  q("#profile-photo-kind").textContent=t("Фото","Photo");
  const openMedia=kind=>{
+  if(!canViewPhoto)return;
   const url=photoURLs[kind];
   if(!url)return;
   mediaHeading.textContent=kind==="avatar"?t("Фото","Photo"):t("Обкладинка","Cover photo");
@@ -1659,9 +1661,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   closeAvatarMenu();
   mediaDialog.showModal();
  };
- window.VATRA_OPEN_PROFILE_AVATAR=()=>openMedia("avatar");
+ window.VATRA_OPEN_PROFILE_AVATAR=()=>{if(canViewPhoto)openMedia("avatar");};
  const openStory=()=>{
-  if(!activeStory)return;
+  if(!canViewPhoto||!activeStory)return;
   if(Date.parse(activeStory.expires_at)<=Date.now()){
    activeStory=null;syncAvatarMenu();return;
   }
@@ -1702,6 +1704,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
  mediaDialog.addEventListener("click",event=>{if(event.target===mediaDialog)mediaDialog.close();});
  storyDialog.addEventListener("click",event=>{if(event.target===storyDialog)storyDialog.close();});
  avatarTrigger.addEventListener("click",()=>{
+  if(!canViewPhoto)return;
   if(activeStory){
    avatarWrap.classList.toggle("is-menu-open");
    avatarTrigger.setAttribute("aria-expanded",String(avatarWrap.classList.contains("is-menu-open")));
@@ -1724,7 +1727,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   if(!photoURLs.cover)return;
   coverPhoto.hidden=false;
   cover.classList.add("has-photo");
-  coverView.hidden=false;
+  coverView.hidden=!canViewPhoto;
  });
  coverPhoto.addEventListener("error",()=>{
   coverPhoto.hidden=true;coverView.hidden=true;
@@ -1744,7 +1747,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   const coverReady=photoURLs.cover&&typeof coverPhoto.decode==="function"?
    coverPhoto.decode().then(()=>{
     if(!photoURLs.cover)return;
-    coverPhoto.hidden=false;cover.classList.add("has-photo");coverView.hidden=false;
+    coverPhoto.hidden=false;cover.classList.add("has-photo");coverView.hidden=!canViewPhoto;
    }).catch(()=>{}):Promise.resolve();
   resetImage(avatar);
   const fallback=(q("#profile-heading")?.textContent||"V").trim().split(/\s+/)
@@ -1779,9 +1782,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail)
   cover.classList.remove("is-loading-media");
   avatarWrap.classList.remove("is-loading-media");
  }
- // Story visibility is enforced by existing Supabase RLS: own or accepted
- // friends only. Never show a ring for expired or inaccessible stories.
- try{
+ // No story request or interaction on a locked profile.
+ if(!locked)try{
   const {data,error}=await client.from("vatra_stories")
    .select("id,body,theme,expires_at")
    .eq("author_vatra_id",targetId)
@@ -1974,7 +1976,7 @@ async function start(){
   }
   // Keep the skeleton until both real photos have loaded, rather than flashing
   // default avatar/cover followed by the user's real artwork.
-  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email);
+  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
@@ -1992,12 +1994,13 @@ async function start(){
   }
   if(!locked)setupProfilePresence(client,targetId,ownId,metadata.gender);
   const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
-  try{await mediaPromise;}catch(_){
+  // Only authorization gates the profile; avatar and cover load progressively.
+  finish();
+  void mediaPromise.catch(()=>{
    q("#profile-cover-image")?.classList.remove("is-loading-media");
    q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
-  }
-  finish();
-  if(sharedPhoto)window.VATRA_OPEN_PROFILE_AVATAR?.();
+  });
+  if(sharedPhoto&&!locked)void mediaPromise.then(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
   void postsPromise;
  }catch(_){
   gateError(t("Не вдалося завантажити профіль. Оновіть сторінку.",
