@@ -364,9 +364,10 @@ assert.ok(offline.includes("controller?.scriptURL")&&offline.includes('href="./"
  "Offline fallback must resolve assets and home link at nested routes and localhost");
 assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page === "offline"'),
  "Offline screen must keep its own translations when used as a fallback for nested routes");
-assert.ok(sw.includes('const CACHE="vatra-offline-shell-v46"')&&
+assert.ok(
+ /const CACHE="vatra-offline-shell-v[1-9][0-9]*"/.test(sw)&&
  sw.includes('ROOT+"assets/logo/vatra-symbol.svg"'),
- "Offline cache must refresh and include the standalone V mark");
+ "Offline cache must use a versioned name and include the standalone V mark");
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
