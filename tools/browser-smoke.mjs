@@ -2728,20 +2728,23 @@ try{
     const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
     const stories=document.querySelector(".feed-stories").getBoundingClientRect();
     return {right:filters.right,edge:wrap.right,composerTop:composer.top,storyTop:stories.top,
+     composerBottom:composer.bottom,filterBottom:filters.bottom,
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
      filterWidth:filters.width,composeLeft:composer.left,
      composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
      screenWidth:innerWidth};
    });
-   assert.ok(Math.abs(filterGeometry.composerWidth-filterGeometry.storiesWidth)<=3&&
-    Math.abs(filterGeometry.composeRight-filterGeometry.edge)<=3,
-    "Feed filters cannot narrow full-width composer and Stories: "+JSON.stringify(filterGeometry));
-   assert.ok(
-    Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
-    Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<3&&
-    filterGeometry.filterTop>=filterGeometry.storyBottom-3&&
-    filterGeometry.right<=filterGeometry.edge+3,
-    "Compact Feed filter must span the composer width below Stories: "+JSON.stringify(filterGeometry));
+   assert.ok(Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<=3&&
+    Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
+    "Feed composer and filter must have equal width: "+JSON.stringify(filterGeometry));
+   assert.ok(filterGeometry.screenWidth>620?
+    (filterGeometry.filterLeft>=filterGeometry.composeRight+6&&
+     Math.abs(filterGeometry.composerTop-filterGeometry.filterTop)<3&&
+     filterGeometry.storyTop>=filterGeometry.filterBottom-3):
+    (Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
+     filterGeometry.filterTop>=filterGeometry.composerBottom-3&&
+     filterGeometry.storyTop>=filterGeometry.filterBottom-3),
+    "Feed filter must align beside the composer and stack before Stories on mobile: "+JSON.stringify(filterGeometry));
   }
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false,
    "Feed filter choices start collapsed");
