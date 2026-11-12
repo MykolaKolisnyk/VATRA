@@ -1649,9 +1649,11 @@ assert.ok(
  profileScript.includes('document.title=titleName+" · VATRA";')&&
  socialMotion.includes('const club=next.pathname.match(')&&
  socialMotion.includes('const ownProfile=next.pathname==="/VATRA/profile";')&&
- socialMotion.includes('new URL(member||ownProfile?"profile.html":"club.html"')&&
+ socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
+ !socialMotion.includes('searchParams.set("vatra_id"')&&
+ !profileScript.includes('query.get("vatra_id")')&&
  (await read("assets/js/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
- "Member titles must name the visited profile, and internal routes must bypass the 404 HTML document");
+ "Member titles and direct /idN routing must never generate query-style profile URLs");
 
 /* English dictionaries are asynchronous: no UI reveal may finish while the
    translated page is hidden. This applies to 404, documents and all auth UIs.
