@@ -2293,11 +2293,18 @@ try{
     {select:()=>({eq:(_field,id)=>({maybeSingle:async()=>({
      data:["654321","789012"].includes(String(id))?{vatra_id:id}:null,error:null
     })})})}:
+    table==="vatra_account_states"?
+    {select:()=>({in:async(_field,ids)=>{
+     const state=new URLSearchParams(location.search).get("state-test");
+     return {data:state&&ids.includes("999999")?[{
+      vatra_id:999999,state,blocked_until:state==="blocked"?"2099-01-01T00:00:00Z":null
+     }]:[],error:null};
+    }})}:
     table==="vatra_profile_media"?
     {select:()=>({
       eq:(_field,id)=>({maybeSingle:async()=>({
        data:location.pathname.includes("/feed")?null:{
-        avatar_path:id+"/avatar/test-profile.webp",
+        avatar_path:new URLSearchParams(location.search).has("no-avatar-test")?null:id+"/avatar/test-profile.webp",
         cover_path:id+"/cover/test-cover.webp"
        },error:null
       })})
@@ -3295,9 +3302,10 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.equal(fallbackStyle.image,"none","Missing avatar has no translucent background image");
-  assert.ok(fallbackStyle.head!=="none"&&Math.abs(fallbackStyle.headCenter-.5)<.045,
-   "Missing profile avatar silhouette is centered inside its ring: "+JSON.stringify(fallbackStyle));
+  assert.ok(fallbackStyle.image.includes("/assets/avatars/2048px/avatar-not-found.webp"),
+   "A non-existent member must use the uploaded 2048px not-found WebP");
+  assert.equal(fallbackStyle.head,"none",
+   "The old CSS silhouette must not cover the supplied WebP image");
   assert.equal(await profilePage.locator(".profile-actions").count(),0);
   assert.equal(await profilePage.locator(".profile-panels").count(),0);
   assert.equal(await profilePage.locator(".social-profile-tabs").count(),0,
@@ -3305,6 +3313,27 @@ try{
   await profilePage.waitForFunction(()=>document.querySelector("#feed-header-avatar")?.classList.contains("has-photo"));
   assert.equal(await profilePage.locator("#feed-header-avatar").evaluate(el=>el.classList.contains("has-photo")),true,
    "Own header photo must persist on a missing VATRA ID");
+  for(const [state,title] of [
+   ["deleted",language==="en"?"Account deleted":"Акаунт видалено"],
+   ["blocked",language==="en"?"Account blocked":"Акаунт заблоковано"]
+  ]){
+   await profilePage.goto(base+"id999999?state-test="+state,{waitUntil:"domcontentloaded"});
+   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),title);
+   assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),state);
+   assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
+   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
+   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
+    .includes("/assets/avatars/2048px/avatar-"+state+".webp"),
+    "System state avatar must use the corresponding high-resolution WebP");
+  }
+  await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),"default");
+  assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
+   "Without an uploaded photo the system portrait must never open in a viewer");
+  assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
+   .includes("/assets/avatars/2048px/avatar-default.webp"));
   await profilePage.close();
  }
  await feedContext.close();
