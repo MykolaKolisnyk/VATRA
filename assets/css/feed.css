@@ -2604,3 +2604,8 @@ body.feed-page .feed-story-view:has(.feed-story-view-media:not([hidden])){min-he
 
 /* The WebP fallback is shared by every signed-in account portrait. */
 body.feed-page :is(.profile-friend-portrait,.profile-person-avatar,.profile-photo-comment-avatar,.vatra-friends-portrait,.vatra-global-search-avatar,.vatra-notification-avatar,.vatra-notification-panel-avatar,.vatra-gift-member-avatar):not(.has-photo){background-image:var(--vatra-default-avatar);background-color:#edf2f8;background-position:center;background-size:cover;background-repeat:no-repeat;color:transparent;font-size:0}
+
+/* Account-state WebP images take priority over all old generic fallback selectors. */
+body.feed-page [data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important;background-size:cover!important;background-position:center!important}
+body.feed-page [data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important;background-size:cover!important;background-position:center!important}
+body.feed-page [data-vatra-avatar-state="not-found"]:not(.has-photo){background-image:var(--vatra-not-found-avatar)!important;background-size:cover!important;background-position:center!important}
