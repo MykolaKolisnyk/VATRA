@@ -1,4 +1,4 @@
-/* VATRA sign-in page — page-specific appearance (after shared auth.css). */
+/* VATRA sign-in page — page-specific appearance (after shared base.css). */
 .site{min-height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 12% 28%,#f2effb 0%,transparent 38%),linear-gradient(125deg,#fdfcff,#f7f9fe 75%)}.intro-side{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,1.7vw,20px);position:relative;isolation:isolate;overflow:hidden;border:1px solid #e4e9f5;border-right:0;border-radius:28px 0 0 28px;padding:clamp(26px,3vw,46px) clamp(28px,3.9vw,64px);background:radial-gradient(circle at 53% 43%,rgba(226,232,255,.77),transparent 56%),linear-gradient(145deg,#fcfaff 8%,#f1f5ff 100%)}.intro-side:before{content:"";position:absolute;inset:-10% -30% 15% 10%;z-index:-2;background:radial-gradient(ellipse,#edf0ff 0%,transparent 68%)}
 .login-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .login-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
