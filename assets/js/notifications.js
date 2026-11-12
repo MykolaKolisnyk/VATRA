@@ -38,9 +38,9 @@ const timeValue=date=>{
 };
 const hrefFor=record=>{
  const path=record.kind==="friend_request"||record.kind==="friend_accepted"?
-  "id="+record.actor_vatra_id:
+  "id"+record.actor_vatra_id:
   record.target_kind==="avatar"||record.target_kind==="avatar_comment"?
-   "id="+(record.avatar_owner_vatra_id||ownId):
+   "id"+(record.avatar_owner_vatra_id||ownId):
    record.target_kind==="group"?"communities":
     "feed"+(record.context_id||record.target_id?"?post="+encodeURIComponent(record.context_id||record.target_id):"");
  return new URL(path,root).href;
@@ -135,7 +135,7 @@ function createRow(record,name,index,onChange,photoUrl){
   "M20.8 5.9c-1.4-1.7-4.1-1.7-5.6 0L12 9.1 8.8 5.9c-1.5-1.7-4.2-1.7-5.6 0-1.5 1.8-1.1 4.6.6 6.3L12 20l8.2-7.8c1.7-1.7 2.1-4.5.6-6.3Z";
  badgeIcon.append(icon("event-"+index,path));
  const avatar=make("a","vatra-notification-avatar ui-vatra-notification-avatar-"+index);
- avatar.href=new URL("id="+record.actor_vatra_id,root).href;
+ avatar.href=new URL("id"+record.actor_vatra_id,root).href;
  avatar.setAttribute("aria-label",name);
  if(photoUrl){
   const picture=new Image();
@@ -404,7 +404,7 @@ async function pageBoot(){
    initials:displayName.slice(0,1).toLocaleUpperCase(),id});
   if(avatar)window.VATRA_AVATAR?.applyRemembered(avatar,user.email);
   const headerId=pick("#feed-header-id");if(headerId)headerId.textContent="VATRA ID "+id;
-  for(const link of document.querySelectorAll('a[href="profile"]'))link.href=new URL("id="+id,root).href;
+  for(const link of document.querySelectorAll('a[href="profile"]'))link.href=new URL("id"+id,root).href;
   pick("#feed-logout")?.addEventListener("click",async()=>{
    await clientRef.auth.signOut({scope:"local"});
    window.VATRA_AVATAR?.clearHeader();location.replace(root.href);
