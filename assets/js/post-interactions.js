@@ -241,11 +241,11 @@ function appendAudience(container,level,isGroup=false){
    if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;}
    try{
     const {data,error}=await client.rpc("vatra_comment_page",{
-     p_kind:kind,p_post_id:post.id,p_sort:sort.value,p_offset:commentOffset,p_limit:pageSize
+     p_kind:kind,p_post_id:post.id,p_sort:sort.value,p_offset:commentOffset,p_limit:pageSize+1
     });
     if(error)throw error;
     if(token!==ticket)return;
-    const rows=data||[],{names,images}=await authorMap(client,rows);
+    const rows=(data||[]).slice(0,pageSize),{names,images}=await authorMap(client,rows);
     const ids=rows.map(x=>x.id);
     let ownLikes=new Set();
     if(ids.length){
@@ -305,7 +305,7 @@ function appendAudience(container,level,isGroup=false){
      card.append(likeComment);entries.append(card);
     }
     commentOffset+=rows.length;
-    more.hidden=rows.length<pageSize;
+    more.hidden=(data||[]).length<=pageSize;
     feedback("");
    }catch(_){feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);}
    finally{busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");}
