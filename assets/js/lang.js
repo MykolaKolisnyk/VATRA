@@ -55,10 +55,11 @@
       },{once:true});
     }
   }
-  // Keep old bookmarks functional without displaying .html in the address bar.
+  // Preserve profile.html so Ctrl+U re-requests real HTML (HTTP 200).
+  // Other legacy extensionless routes retain their existing behavior.
   // Direct requests to /VATRA/create-account, /feed, etc. resolve on GitHub Pages.
   if(location.protocol!=="file:"){
-    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
   document.documentElement.lang = current === "en" ? "en" : "uk";
@@ -202,7 +203,7 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
         target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;
