@@ -2047,6 +2047,28 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
   let response=await (preloadedMedia||request());
   if(response?.error||!response?.data)response=await request();
+  // Public Storage can still resolve header artwork if the metadata request
+  // transiently fails. Listing is best effort and never grants access to
+  // private posts, stories, or personal details.
+  if(response?.error||!response?.data){
+   const findPublic=async(kind)=>{
+    const folder=targetId+"/"+(kind==="avatar"?"avatar":"cover");
+    const bucket=client.storage.from(bucketFor(kind));
+    if(typeof bucket.list!=="function")return null;
+    const {data:items,error}=await bucket.list(folder,{
+     limit:10,sortBy:{column:"created_at",order:"desc"}
+    });
+    if(error)return null;
+    const file=(items||[]).find(item=>/^[A-Za-z0-9_-]+\\.(?:jpg|jpeg|png|webp)$/i.test(item.name||""));
+    return file?folder+"/"+file.name:null;
+   };
+   const results=await Promise.allSettled([findPublic("avatar"),findPublic("cover")]);
+   const media={
+    avatar_path:results[0].status==="fulfilled"?results[0].value:null,
+    cover_path:results[1].status==="fulfilled"?results[1].value:null
+   };
+   if(media.avatar_path||media.cover_path)response={data:media,error:null};
+  }
   if(!response?.error&&response?.data){saved=response.data;await display(response.data);}
  }catch(_){/* Keep the profile usable when its public photos are unavailable. */}
  finally{
