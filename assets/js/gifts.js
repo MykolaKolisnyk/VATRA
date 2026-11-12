@@ -69,8 +69,8 @@ async function boot(){
   for(const el of document.querySelectorAll("[data-social-uk]"))
    el.textContent=t(el.dataset.socialUk,el.dataset.socialEn);
   for(const a of document.querySelectorAll('a[href="profile"]'))
-   a.href=new URL("profile.html?vatra_id="+id,root).href;
-  q("#gifts-back").href=new URL("profile.html?vatra_id="+targetId,root).href;
+   a.href=new URL("id"+id,root).href;
+  q("#gifts-back").href=new URL("id"+targetId,root).href;
   q("#feed-logout")?.addEventListener("click",async()=>{
    await client.auth.signOut({scope:"local"});
    window.VATRA_AVATAR?.clearHeader();location.replace(root.href);

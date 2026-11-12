@@ -128,7 +128,7 @@ async function start(){
    if(ownId)void loadHeaderPhoto(client,ownId,user.email);
   $("#feed-header-id").textContent=ownId?"VATRA ID "+ownId:"";
   for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
-   if(ownId&&idPattern.test(ownId))link.href=root+"profile.html?vatra_id="+ownId;
+   if(ownId&&idPattern.test(ownId))link.href=root+"id"+ownId;
   }
   const form=$("#feed-search-form");
   form?.addEventListener("submit",event=>{
@@ -281,7 +281,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     const head=node("div","feed-post-header ui-club-post-head-001");
     const profile=node("a","feed-post-name vt-club-post-author-001",
      names.get(id)||t("Учасник VATRA","VATRA member"));
-    profile.href=root+"profile.html?vatra_id="+id;
+    profile.href=root+"id"+id;
     const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(english?"en-US":"uk-UA",{
      day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
     }).format(new Date(post.created_at)));

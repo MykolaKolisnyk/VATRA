@@ -210,12 +210,12 @@
   item.dataset.postId=post.id;
   const head=node("div","feed-post-header ui-feed-post-header-001");
   const avatar=node("a","feed-avatar feed-post-avatar vt-feed-post-avatar-001 feed-post-profile-avatar",initials(memberName(authorId)));
-  avatar.href=new URL("profile.html?vatra_id="+authorId,home).href;
+  avatar.href=new URL("id"+authorId,home).href;
   applyAvatar(avatar,authorId);
   avatar.setAttribute("aria-label",t("Відкрити профіль VATRA ID ","Open profile VATRA ID ")+authorId);
   const identity=node("div","feed-post-author ui-feed-post-author-001");
   const name=node("a","feed-post-name vt-feed-post-name-001 feed-post-profile-link",memberName(authorId));
-  name.href=new URL("profile.html?vatra_id="+authorId,home).href;
+  name.href=new URL("id"+authorId,home).href;
   const stamp=node("time","feed-post-date vt-feed-post-date-001",postedTime(post.created_at));
   stamp.dateTime=post.created_at;
   const meta=node("div","feed-post-meta-row ui-feed-post-meta-row-001");
@@ -306,7 +306,7 @@
   searchGroups.replaceChildren();
   drawGlobalGroup(t("Люди","People"),people,person=>{
    const link=node("a","vatra-global-search-card ui-vatra-global-search-person-001");
-   const id=String(person.vatra_id);link.href=new URL("profile.html?vatra_id="+id,home).href;
+   const id=String(person.vatra_id);link.href=new URL("id"+id,home).href;
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
@@ -674,7 +674,7 @@
    }
    if(vatraId){
     for(const link of document.querySelectorAll('a[href="profile"],a[href$="/profile"]')){
-     link.href=new URL("profile.html?vatra_id="+vatraId,new URL("./",location.href)).href;
+     link.href=new URL("id"+vatraId,new URL("./",location.href)).href;
     }
    }
    const searchForm=q("#feed-search-form"),searchInput=q("#feed-search-input");

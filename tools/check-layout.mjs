@@ -314,11 +314,11 @@ new Function("document","location","localStorage",legacyScript)
  (mockDocument,profileBookmark,mockStorage);
 assert.equal(profileBookmark.redirectedTo,"/VATRA/profile.html",
  "Extensionless profile fallback must resolve the real HTML file without showing 404");
-const idBookmark={pathname:"/VATRA/id789012",search:"?photo=avatar",hash:"#photo",
+const outdatedId={pathname:"/VATRA/id=789012",search:"",hash:"",
  replace(url){this.redirectedTo=url;}};
-new Function("document","location","localStorage",legacyScript)(mockDocument,idBookmark,mockStorage);
-assert.equal(idBookmark.redirectedTo,"/VATRA/profile.html?photo=avatar&vatra_id=789012#photo",
- "Legacy numeric profile links must keep photo deep-links while switching to a real HTML URL");
+new Function("document","location","localStorage",legacyScript)(mockDocument,outdatedId,mockStorage);
+assert.equal(outdatedId.redirectedTo,undefined,
+ "Unsupported id= URLs must not be redirected to member profiles");
 
 const blockedCookies={get cookie(){throw Error("cookies blocked");},
  set cookie(_){throw Error("cookies blocked");}};
@@ -1275,13 +1275,16 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
-// Every member link must resolve directly to profile.html so refresh/Ctrl+U
-// fetch actual HTML (200), never the GitHub Pages /idN 404 fallback.
-assert.ok(profileScript.includes('new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href')&&
- !profileScript.includes('history.replaceState(history.state,"",canonical)')&&
- lang.includes("(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)")&&
- legacyScript.includes('location.replace("/VATRA/profile.html?"+incoming.toString()+location.hash)'),
- "Member profile links must retain a real HTTP-200 HTML source, including old /idN bookmarks");
+// Only numeric /idN profile permalinks are generated. GitHub Pages serves its
+// 404.html fallback at these addresses, then mounts the real profile markup.
+assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURIComponent(id);')&&
+ profileScript.includes('history.replaceState(history.state,"",canonical.href)')&&
+ legacyScript.includes('const dynamic=location.pathname.match(/^\\/VATRA\\/(id|club)')&&
+ !legacyScript.includes("legacyProfile")&&
+ !profileScript.includes('new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href')&&
+ !profileScript.includes('home+"id="+')&&
+ lang.includes('const dynamicMember=/^id[1-9]'),
+ "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityScript=await read("assets/js/communities.js");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
@@ -1424,7 +1427,8 @@ assert.ok(
  !feedStyle.includes("vatra-route-exiting") &&
  !feedStyle.includes("vatraRouteReadyReveal") &&
  socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
- socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
+ !socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
+ socialMotion.includes('const member=id=>validMember(id)?new URL("id"+id,base).href:null;') &&
  socialMotion.includes('location.assign(next.href)') &&
  !socialMotion.includes('window.setTimeout(navigate,145)') &&
  !socialMotion.includes('classList.add("vatra-route-exiting")') &&
@@ -1646,9 +1650,11 @@ assert.ok(
  profileScript.includes('document.title=titleName+" · VATRA";')&&
  socialMotion.includes('const club=next.pathname.match(')&&
  socialMotion.includes('const ownProfile=next.pathname==="/VATRA/profile";')&&
- socialMotion.includes('new URL(member||ownProfile?"profile.html":"club.html"')&&
+ socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
+ !socialMotion.includes('searchParams.set("vatra_id"')&&
+ !profileScript.includes('query.get("vatra_id")')&&
  (await read("assets/js/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
- "Member titles must name the visited profile, and internal routes must bypass the 404 HTML document");
+ "Member titles and direct /idN routing must never generate query-style profile URLs");
 
 /* English dictionaries are asynchronous: no UI reveal may finish while the
    translated page is hidden. This applies to 404, documents and all auth UIs.
