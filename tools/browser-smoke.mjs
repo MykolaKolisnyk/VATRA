@@ -2314,7 +2314,12 @@ try{
      eq(){return this;},
      select:async()=>{const former=window.__feedMockStory;window.__feedMockStory=null;
       return {data:former?[{id:former.id}]:[],error:null};}
-    })}:
+    }),
+    insert:async item=>{
+     window.__feedMockStory={...item,id:"00000000-0000-4000-8000-000000000002",
+      expires_at:"2099-12-31T23:59:59Z"};
+     return {error:null};
+    }}:
     table==="communities"?
     {select:()=>({order(){return this;},limit:async()=>({
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
@@ -2338,7 +2343,11 @@ try{
      delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})},
    storage:{from:bucket=>({getPublicUrl:path=>({
     data:{publicUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
-   })})}
+   }),
+   upload:async()=>({error:null}),
+   remove:async()=>({data:[],error:null}),
+   createSignedUrl:async path=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/"+bucket+"/"+path+"?token=mock"},error:null})
+   })}
   })};
   // Count all client constructors in this browser tab, on the Feed.
   window.__feedMockCreateClientCalls=0;
@@ -2666,6 +2675,23 @@ try{
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-story-cancel").click();
   assert.equal(await feedProbe.locator("#feed-story-dialog").evaluate(el=>el.open),false);
+  // Image-only stories can be published without the old mandatory text field.
+  await feedProbe.locator("#feed-create-story").click();
+  await feedProbe.locator("#feed-story-media").setInputFiles({
+   name:"story-test.png",mimeType:"image/png",buffer:onePixelPng
+  });
+  assert.equal(await feedProbe.locator("#feed-story-media-preview img").isVisible(),true,
+   "A selected story photo must appear in the preview");
+  await feedProbe.locator("#feed-story-save").click();
+  await feedProbe.waitForFunction(()=>!document.querySelector("#feed-story-dialog").open);
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.media_kind),"image",
+   "Image-only story must persist media metadata");
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockStory?.body),"",
+   "Story captions are optional when media exists");
+  await feedProbe.locator("#feed-create-story").click();
+  assert.equal(await feedProbe.locator("#feed-story-media-preview").isVisible(),false,
+   "Reopening the story editor must not retain the previous upload");
+  await feedProbe.locator("#feed-story-cancel").click();
   const composerFirst=await feedProbe.evaluate(()=>{
    const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
    const stories=document.querySelector(".feed-stories").getBoundingClientRect();
