@@ -331,7 +331,7 @@
      if(!visible||ticket!==liveTicket)return;
      suggestions.replaceChildren();
      const base=new URL("./",location.href);
-     const member=id=>validMember(id)?new URL("profile.html?vatra_id="+id,base).href:null;
+     const member=id=>validMember(id)?new URL("id"+id,base).href:null;
      const club=id=>validMember(id)?new URL("club"+id,base).href:null;
      const post=entry=>{
       if(entry?.kind==="group"&&validMember(entry.club_id))
