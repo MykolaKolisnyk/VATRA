@@ -2418,3 +2418,13 @@ body.profile-page .profile-story-viewer-media video{
 body.profile-page .profile-story-viewer-content:has(.profile-story-viewer-media:not([hidden])) .profile-story-viewer-text{
  min-height:0;flex:none;font:680 15px/1.5 "Onest",sans-serif
 }
+
+body.profile-page .vt-profile-archived-story-open-001{
+ display:inline-flex;align-items:center;justify-content:center;min-height:38px;
+ margin-top:9px;padding:8px 13px;border:1px solid #d8e2f3;border-radius:9px;
+ background:#eef3fd;color:#3561ba;cursor:pointer;
+ font:690 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-archived-story-open-001:hover{
+ background:#e3edff;border-color:#bed0ef
+}
