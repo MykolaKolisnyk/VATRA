@@ -1,14 +1,14 @@
 /* VATRA create-account page — page-specific appearance (after shared auth.css). */
-.vatra-select-list{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
+
 .vatra-select-list::-webkit-scrollbar{width:9px;height:9px}
 .vatra-select-list::-webkit-scrollbar-track{background:var(--scroll-track);border-radius:99px}
 .vatra-select-list::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8bb1f6,#8274d7);border:2px solid var(--scroll-track);border-radius:99px}
 .vatra-select-list::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#5b8eeb,#6958d0)}
-.signup-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.signup-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px;justify-content:space-between;flex-wrap:wrap;row-gap:8px}
 .signup-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
 .signup-form-panel .action.primary{min-height:55px;background:linear-gradient(100deg,#2464d7,#326ce1);box-shadow:0 8px 20px rgba(39,98,212,.16)}
 .signup-form-panel .action.primary:hover{background:linear-gradient(100deg,#1e55bf,#2e5fce);box-shadow:0 10px 24px rgba(39,98,212,.23)}
-.signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite}
+.signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite;filter:drop-shadow(0 24px 36px rgba(9,6,36,.32))}
 .signup-step-heading :is(h1,h2){margin:0 0 10px;font-size:clamp(31px,2.55vw,40px);line-height:1.2;letter-spacing:-.03em;font-weight:745;color:var(--ink);text-wrap:balance;overflow-wrap:normal;text-rendering:optimizeLegibility}
 .signup-form-panel .field>span:first-child{font-size:13px;line-height:1.4;font-weight:700;color:#48576d}
 .field.is-invalid .vatra-select-trigger{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
@@ -16,7 +16,7 @@
 .check-terms>span{display:block;min-width:0;flex:1;grid-column:2;grid-row:1}.check-terms>.field-error{grid-column:1/-1;grid-row:2;margin:0;min-width:0;align-self:start;gap:11px}.check-terms>.field-error::before{width:16px;height:16px;margin-top:1px}
 .vt-ua-create-account-inline-05,.vt-en-create-account-inline-05{font-weight:400;color:#627187}
 .check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}
-.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}
+.signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty;margin:0;max-width:45ch}
 .create-account-page .footer{padding-inline:0}
 .create-account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
@@ -74,7 +74,7 @@
 .signup-confirmation-overline .signup-confirmation-kicker{margin:0}
 .signup-confirmation-back-nav{display:flex;align-items:center;justify-content:flex-end;min-height:36px;margin-left:auto}
 .signup-confirmation .signup-step-heading{width:100%}
-.signup-confirmation .signup-step-heading .subtitle{margin:0}
+.signup-confirmation 
 .signup-confirmation-address-row{max-width:100%;margin:17px 0 0;padding:9px 16px;border:1px solid #d9e5fb;border-radius:11px;background:#f3f7ff;overflow-wrap:anywhere;color:#2450a2;font-size:14px;line-height:1.5}
 .signup-confirmation-address-row strong{font-weight:650}
 .signup-confirmation-tips{display:grid;gap:8px;width:100%;margin:20px 0 16px;padding:15px 18px;border:1px solid #deebf4;border-radius:15px;background:#f8fbfe;text-align:left}
@@ -98,7 +98,7 @@
 .signup-brand::after{left:-260px;bottom:-260px}
 .signup-brand-art{position:relative;display:grid;place-items:center;align-self:center;flex:0 0 auto;width:min(100%,340px);height:clamp(215px,22vw,275px);min-height:210px}
 .signup-brand-art-halo{position:absolute;inset:50% auto auto 50%;width:min(75%,250px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(126,102,243,.2),rgba(99,82,221,.08) 58%,transparent 72%);box-shadow:0 0 0 1px rgba(234,240,255,.08),0 0 0 28px rgba(205,220,255,.025)}
-.signup-brand-symbol{filter:drop-shadow(0 24px 36px rgba(9,6,36,.32))}
+
 .signup-brand-copy{position:relative;z-index:1;text-align:center}
 .signup-brand-title{margin:0 auto 15px;max-width:12ch;color:#fff;font-size:clamp(33px,3.25vw,51px);font-weight:780;line-height:1.13;letter-spacing:-.045em;text-wrap:balance}
 .signup-brand-description{margin:0 auto;max-width:38ch;color:#c6d4ed;font-size:15px;line-height:1.65}
@@ -107,7 +107,7 @@
 .signup-form-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-width:0;padding:clamp(30px,4vw,66px) clamp(28px,4.3vw,70px);border:1px solid #e4e9f5;border-left:0;border-radius:0 28px 28px 0;background:#fff;box-shadow:12px 20px 54px rgba(32,44,79,.075)}
 .signup-form-panel .narrow-form{width:100%;max-width:520px;margin:0 auto;min-width:0;animation:vatraAuthReveal .3s cubic-bezier(.2,.75,.2,1) both}
 .signup-form-head{margin-bottom:25px}
-.signup-form-overline{justify-content:space-between;flex-wrap:wrap;row-gap:8px}
+
 .signup-overline-labels{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;min-width:0}
 .signup-form-overline .create-account-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}
 .signup-step-number{font-size:12px;color:#356ee0;font-weight:750;white-space:nowrap;background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -115,7 +115,7 @@
 .signup-progress-segment{display:block;height:5px;border-radius:999px;background:#e6ebf6;transition:background-color .28s ease}
 .signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
 
-.signup-step-heading .subtitle{margin:0;max-width:45ch}
+
 .signup-step{display:grid;gap:17px;min-width:0}
 .signup-next-actions{margin-top:10px}
 .signup-next-button{width:100%;min-height:54px}
@@ -162,14 +162,14 @@
 .create-account-main{min-height:670px}}
 @media (max-width:1199px){
   .create-account-page .create-account-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}
-  .create-account-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
+  .create-account-page .auth-footer-content{width:min(calc(100% - 40px),670px);justify-content:space-between;text-align:left}
   .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
   .signup-brand-art,.signup-brand-highlights{display:none}
   .signup-brand-title{font-size:clamp(24px,4.3vw,31px);max-width:none;margin:0 0 7px}
   .signup-brand-description{font-size:13px;max-width:60ch;line-height:1.5}
   .signup-form-panel{border:1px solid #e4e9f5;border-top:0;border-radius:0 0 24px 24px;padding:42px clamp(24px,5vw,48px) 43px}
   .signup-form-panel .narrow-form,.signup-form-panel .create-account-back-nav{max-width:510px}
-.create-account-page .auth-footer-content{justify-content:space-between;text-align:left}}
+}
 @media (max-width:540px){
   /* Canonical mobile signup rules live after the tablet breakpoint. */
   .create-account-page .create-account-main{width:calc(100% - 24px);padding:0}
