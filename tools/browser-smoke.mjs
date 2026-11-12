@@ -422,9 +422,9 @@ try{
  await wizard.setViewportSize({width:390,height:844});
  await wizard.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(wizard);
- assert.equal(await wizard.locator('[data-create-account-step="2"]').isVisible(),false,"Second step must start hidden");
+ assert.equal(await wizard.locator('.signup-step[data-create-account-step="2"]').isVisible(),false,"Second step must start hidden");
  await wizard.locator("#create-account-next").click();
- assert.equal(await wizard.locator('[data-create-account-step="1"]').isVisible(),true,"Empty identity step must not advance");
+ assert.equal(await wizard.locator('.signup-step[data-create-account-step="1"]').isVisible(),true,"Empty identity step must not advance");
  await wizard.locator("#first-name").fill("Тест");
  await wizard.locator("#last-name").fill("Користувач");
  await wizard.evaluate(()=>{
@@ -435,9 +435,9 @@ try{
   }
  });
  await wizard.locator("#create-account-next").click();
- await wizard.locator('[data-create-account-step="2"]').waitFor({state:"visible"});
+ await wizard.locator('.signup-step[data-create-account-step="2"]').waitFor({state:"visible"});
  assert.equal(await wizard.locator(".signup-progress").getAttribute("aria-valuenow"),"2","Progress should announce step two");
- assert.equal(await wizard.locator('[data-create-account-step="1"]').isVisible(),false,"Identity step should be hidden");
+ assert.equal(await wizard.locator('.signup-step[data-create-account-step="1"]').isVisible(),false,"Identity step should be hidden");
  await wizard.locator(".create-account-help-email summary").hover();
  await wizard.waitForFunction(()=>document.querySelector(".create-account-help-email")?.open===true);
  await wizard.locator("#email").fill("test@example.com");
@@ -645,7 +645,7 @@ try{
     brandKickerAbsent:!document.querySelector(".signup-brand-eyebrow"),
     footerAligned:Math.abs(footerContent.left-brand.left)<=2&&Math.abs(footerContent.right-form.right)<=2,
     authAnimation:getComputedStyle(document.querySelector(".signup-form-panel .narrow-form")).animationName,
-     stageAnimation:getComputedStyle(document.querySelector('[data-create-account-step="1"]')).animationName,
+     stageAnimation:getComputedStyle(document.querySelector('.signup-step[data-create-account-step="1"]')).animationName,
     backText:document.querySelector(".create-account-back-nav .back").textContent.trim(),
     backAligned:Math.abs(back.right-document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().right)<=2,
     backInside:(()=>{
@@ -766,18 +766,18 @@ try{
   });
  });
  await stepTwo.locator("#create-account-next").click();
- await stepTwo.locator('[data-create-account-step="2"]').waitFor({state:"visible"});
+ await stepTwo.locator('.signup-step[data-create-account-step="2"]').waitFor({state:"visible"});
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=1);
  const secondStageMotion=await stepTwo.evaluate(()=>{
   const content=document.querySelector(".signup-form-panel .narrow-form");
   return {content:getComputedStyle(content).animationName,
    shell:getComputedStyle(document.querySelector(".signup-form-panel")).animationName,
    heading:getComputedStyle(document.querySelector('[data-step-heading="2"]')).animationName,
-   fields:getComputedStyle(document.querySelector('[data-create-account-step="2"]')).animationName,
+   fields:getComputedStyle(document.querySelector('.signup-step[data-create-account-step="2"]')).animationName,
    logoPanel:getComputedStyle(document.querySelector(".signup-brand")).animationName,
    includesTitle:content.contains(document.querySelector('[data-step-heading="2"]')),
    includesProgress:content.contains(document.querySelector(".signup-progress")),
-   includesFields:content.contains(document.querySelector('[data-create-account-step="2"]'))};
+   includesFields:content.contains(document.querySelector('.signup-step[data-create-account-step="2"]'))};
  });
  assert.ok(secondStageMotion.content==="vatraAuthReveal"&&
   ["shell","heading","fields","logoPanel"].every(key=>secondStageMotion[key]==="none")&&
@@ -785,12 +785,12 @@ try{
   "On signup step two, headline, step indicator, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
  await stepTwo.locator("#create-account-back").click();
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=2);
- assert.equal(await stepTwo.locator('[data-create-account-step="1"]').isVisible(),true);
+ assert.equal(await stepTwo.locator('.signup-step[data-create-account-step="1"]').isVisible(),true);
  await stepTwo.locator("#create-account-next").click();
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=3);
  const stepTwoGeometry=await stepTwo.evaluate(()=>{
   const r=s=>document.querySelector(s).getBoundingClientRect();
-  const card=r(".create-account-main"),panel=r(".signup-form-panel"),active=r('[data-create-account-step="2"]');
+  const card=r(".create-account-main"),panel=r(".signup-form-panel"),active=r('.signup-step[data-create-account-step="2"]');
   return {overflow:document.documentElement.scrollWidth-innerWidth,
    activeWidth:active.width,panelWidth:panel.width,panelBottom:panel.bottom,cardBottom:card.bottom};
  });
@@ -1644,9 +1644,9 @@ try{
    assert.equal(await policyPage.locator(".signup-step").first().evaluate(el=>getComputedStyle(el).animationName),"none");
    await policyPage.evaluate(()=>{
     document.body.dataset.createAccountStep="2";
-    document.querySelector('[data-create-account-step="2"]').hidden=false;
+    document.querySelector('.signup-step[data-create-account-step="2"]').hidden=false;
    });
-   assert.equal(await policyPage.locator('[data-create-account-step="2"]').evaluate(el=>getComputedStyle(el).animationName),"none",
+   assert.equal(await policyPage.locator('.signup-step[data-create-account-step="2"]').evaluate(el=>getComputedStyle(el).animationName),"none",
     "Only the shared signup content must animate, not the second-step fields");
    assert.equal(await policyPage.locator(".signup-form-panel .narrow-form").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
   }
