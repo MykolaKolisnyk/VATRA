@@ -2242,7 +2242,7 @@ try{
  await feedContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
- const onePixelPng=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+C+y0AAAAASUVORK5CYII=","base64");
+ const onePixelPng=Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=","base64");
  await feedContext.route("**/storage/v1/object/public/vatra-*/**",route=>route.fulfill({
   status:200,contentType:"image/png",body:onePixelPng
  }));
