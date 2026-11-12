@@ -271,7 +271,7 @@
   function applyTranslation(table) {
     const page=pageFromPath();
     // Community pages reuse the Feed's shared header/sidebar translations.
-    const communityShell=page==="communities"||page==="club"||page==="notifications";
+    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
