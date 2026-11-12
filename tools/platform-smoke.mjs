@@ -30,7 +30,7 @@ try{
   // VATRA cookie overrides localStorage; set both to the requested locale.
   await context.addCookies([{name:"vatra-language",value:language,url:base}]);
   for(const viewport of [{width:375,height:812},{width:844,height:390},{width:1366,height:768}]){
-   for(const route of ["","register.html","forgot.html","reset.html","404.html","terms.html","privacy.html","cookies.html"]){
+   for(const route of ["","create-account.html","forgot.html","reset.html","404.html","terms.html","privacy.html","cookies.html"]){
     const page=await context.newPage();
     try{
      const pageErrors=[];page.on("pageerror",e=>pageErrors.push(e.message));
