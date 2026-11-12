@@ -42,6 +42,33 @@ assert.ok(
  (await read("verify.html")).includes("assets/js/verify.js"),
  "Each authentication page must load its own CSS and JavaScript after shared resources");
 
+
+const authPageModules=[
+ ["index","login","sign-in","sign-in"],
+ ["create-account","create-account","create-account","create-account"],
+ ["forgot","forgot","recovery","recovery"],
+ ["reset","reset","recovery","recovery"],
+ ["verify","verify","verify","verify"]
+];
+const authControllerNames=["sign-in","create-account","recovery","verify"];
+for(const [name,pageId,controller,stylesheet] of authPageModules){
+ const html=await read(name+".html");
+ const js='src="assets/js/'+controller+'.js"';
+ const shared='src="assets/js/auth.js"';
+ assert.ok(html.includes('data-page="'+pageId+'"')&&
+  html.split(js).length===2&&html.split(shared).length===2&&
+  html.indexOf(js)<html.indexOf(shared)&&
+  html.includes('href="assets/css/'+stylesheet+'.css"')&&
+  authControllerNames.filter(other=>other!==controller).every(other=>
+   !html.includes('src="assets/js/'+other+'.js"')),
+  name+": must load one matching auth controller before the shared initializer");
+}
+assert.ok(
+ authSignIn.includes('if(!data?.session||!data?.user?.email_confirmed_at){')&&
+ authSignIn.includes('confirmationError.code="email_not_confirmed";')&&
+ authCreateAccount.includes('if(data?.session&&data?.user?.email_confirmed_at){'),
+ "Only confirmed Supabase sessions may navigate to Feed");
+
 const errors=await read("assets/js/errors.js");
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
