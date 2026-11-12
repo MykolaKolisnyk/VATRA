@@ -2808,6 +2808,15 @@ try{
   assert.equal(await profilePage.locator(".vatra-route-skeleton").count(),1,
    "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  await profilePage.waitForTimeout(900);
+  console.log("VATRA profile boot diagnostic",JSON.stringify(await profilePage.evaluate(()=>({
+   ready:document.body.dataset.authReady,loader:document.querySelector("#profile-loading")?.dataset,
+   loadingCopy:document.querySelector("#profile-loading .vatra-auth-loading-caption")?.textContent,
+   coverHidden:document.querySelector("#profile-cover-view")?.hidden,
+   coverSrc:document.querySelector("#profile-cover-photo")?.src,
+   coverLoaded:document.querySelector("#profile-cover-photo")?.complete,
+   currentUrl:location.href,heading:document.querySelector("#profile-heading")?.textContent
+  }))));
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
   await profilePage.locator("#profile-cover-view").waitFor({state:"visible",timeout:14000});
   // A saved cover should open the original image in a genuine full-viewport
