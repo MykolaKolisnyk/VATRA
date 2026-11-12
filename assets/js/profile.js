@@ -561,7 +561,7 @@
 })();
 
 /* ==================== MEMBER PROFILE + MEDIA + POSTS ==================== */
-/* VATRA member profiles: canonical /VATRA/id123456789, read-only and RLS-protected. */
+/* VATRA member profiles: source-stable /VATRA/profile.html?vatra_id=N, RLS-protected. */
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -577,7 +577,7 @@ const t=(uk,en)=>{
 };
 const home=new URL("../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
-const memberUrl=id=>home+"id"+id;
+const memberUrl=id=>new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href;
 const localizeSocial=()=>{
  for(const element of document.querySelectorAll("[data-social-uk]"))
   element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
@@ -2325,10 +2325,8 @@ async function start(){
   // default avatar/cover followed by the user's real artwork.
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
-  const canonical=memberUrl(targetId);
-  if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
-   history.replaceState(history.state,"",canonical);
-  }
+  // Do not replace /profile.html with an unserved /idN alias. GitHub Pages
+  // must return the actual profile document (200) on refresh and Ctrl+U.
   const list=q("#profile-posts");
   if(list){
    for(let i=0;i<2;i++){
