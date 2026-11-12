@@ -8,7 +8,8 @@ const signInCss=await read("assets/css/sign-in.css");
 const createAccountCss=await read("assets/css/create-account.css");
 const recoveryCss=await read("assets/css/recovery.css");
 const verifyCss=await read("assets/css/verify.css");
-const css=[authBaseCss,signInCss,createAccountCss,recoveryCss,verifyCss].join("\n");
+const notFoundCss=await read("assets/css/not-found.css");
+const css=[authBaseCss,signInCss,createAccountCss,recoveryCss,verifyCss,notFoundCss].join("\n");
 const legalCss=await read("assets/css/legal.css");
 const authShared=await read("assets/js/auth-core.js");
 const authSignIn=await read("assets/js/sign-in.js");
@@ -68,6 +69,14 @@ assert.ok(
  authSignIn.includes('confirmationError.code="email_not_confirmed";')&&
  authCreateAccount.includes('if(data?.session&&data?.user?.email_confirmed_at){'),
  "Only confirmed Supabase sessions may navigate to Feed");
+
+
+const missingPage=await read("404.html");
+assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
+ missingPage.includes('href="/VATRA/assets/css/not-found.css"')&&
+ !missingPage.includes('const dynamic=location.pathname.match(')&&
+ notFoundCss.includes('html.vatra-dynamic-route-pending body > :not(.vatra-route-loading)'),
+ "404 fallback must keep routing in its own module and hide the error page for valid permalinks");
 
 const errors=await read("assets/js/errors.js");
 const captcha=await read("assets/js/captcha.js");
@@ -290,7 +299,7 @@ memory.clear();
 const reopened=preferences(mockDocument,currentHost,mockStorage,"/VATRA/",false);
 assert.equal(reopened.saved(),"en","Reopened page must recover language from cookie");
 assert.equal(memory.get("vatra-language"),"en","Recovered language must repopulate localStorage");
-const legacyScript=(await read("404.html")).match(/<script>([\s\S]*?)<\/script>/)?.[1];
+const legacyScript=await read("assets/js/not-found.js");
 assert.ok(legacyScript,"Previous locale URLs must keep their redirect");
 const oldBookmark={pathname:"/VATRA/ua/index.html",search:"",hash:"",
  replace(url){this.redirectedTo=url;}};
@@ -1483,7 +1492,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","legal.css","offline.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","legal.css","not-found.css","offline.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
