@@ -2195,8 +2195,8 @@ async function start(){
   const [directoryOutcome,publicOutcome]=await Promise.allSettled([
    client.from("vatra_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
-   client.from("vatra_public_profiles")
-    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()
+   Promise.resolve().then(()=>client.from("vatra_public_profiles")
+    .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle())
   ]);
   if(directoryOutcome.status==="rejected")throw directoryOutcome.reason;
   const {data:member,error:directoryError}=directoryOutcome.value;
