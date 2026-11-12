@@ -2243,9 +2243,7 @@ async function start(){
    location.replace(home);
   });
 
-  const query=new URLSearchParams(location.search);
-  const requested=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||
-   query.get("vatra_id")||null;
+  const requested=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||null;
   const targetId=requested||ownId;
   if(!validId(targetId)){missingProfile();return;}
   // Fetch the directory record and the RLS-safe public display name together.
