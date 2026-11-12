@@ -1007,11 +1007,10 @@ body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-
 @media(prefers-reduced-motion:reduce){
 body.profile-page .profile-avatar.has-photo::after,
 body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{transition:none!important}}
-/* List avatars retain the existing tiny SVG; the large profile portrait
-   uses the centered CSS silhouette at the bottom of this stylesheet. */
+/* Compact and full-size portraits share the supplied WebP system artwork. */
 body.feed-page .profile-person-avatar:not(.has-photo),
 body.feed-page .profile-photo-comment-avatar:not(.has-photo){
- background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2264%22%20height%3D%2264%22%20viewBox%3D%220%200%2064%2064%22%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%2232%22%20fill%3D%22%23e8eef8%22%2F%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2223%22%20r%3D%2211%22%20fill%3D%22%2394a8c5%22%2F%3E%3Cpath%20d%3D%22M12%2056c1-15%208-22%2020-22s19%207%2020%2022%22%20fill%3D%22%2394a8c5%22%2F%3E%3C%2Fsvg%3E")!important;background-color:#edf2f9!important;
+ background-image:var(--vatra-default-avatar)!important;background-color:#edf2f9!important;
  background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;
  color:transparent!important;font-size:0!important;line-height:0!important;text-shadow:none!important
 }
@@ -1968,7 +1967,7 @@ body.profile-page .profile-friend-full:hover{color:#3569c8;text-decoration:none}
 body.profile-page .profile-friend-portrait{
  display:block;flex:none;width:66px;height:66px;max-width:100%;aspect-ratio:1;
  border-radius:50%;background:#e8eef8;
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23e8eef8'/%3E%3Ccircle cx='32' cy='24' r='11' fill='%2394a8c5'/%3E%3Cpath d='M12 56c1-15 8-22 20-22s19 7 20 22' fill='%2394a8c5'/%3E%3C/svg%3E");
+ background-image:var(--vatra-default-avatar);
  background-size:cover;background-position:center;background-repeat:no-repeat;
  box-shadow:0 0 0 1px #dfe7f4;
  transition:transform .16s ease,box-shadow .16s ease
