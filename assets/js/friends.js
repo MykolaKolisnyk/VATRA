@@ -79,7 +79,7 @@ function person(item,index){
  const id=counterpart(item),name=names.get(id)||t("Учасник VATRA","VATRA member");
  const article=make("article","vatra-friends-person ui-vatra-friends-person-"+index);
  const avatar=make("a","vatra-friends-portrait vt-vatra-friends-portrait-"+index);
- avatar.href=new URL("profile.html?vatra_id="+id,root).href;avatar.setAttribute("aria-label",name);
+ avatar.href=new URL("id="+id,root).href;avatar.setAttribute("aria-label",name);
  const photo=photos.get(id);
  if(photo){
   const image=new Image();
@@ -90,7 +90,7 @@ function person(item,index){
  }
  const details=make("div","vatra-friends-details ui-vatra-friends-details-"+index);
  const profile=make("a","vt-vatra-friends-name-"+index,name);
- profile.href=new URL("profile.html?vatra_id="+id,root).href;
+ profile.href=new URL("id="+id,root).href;
  const secondary=make("span","vt-vatra-friends-subtitle-"+index,
   stateFor(item)==="accepted"?t("Ваш друг у VATRA","Your VATRA friend"):
   stateFor(item)==="incoming"?t("Хоче додатися до друзів","Wants to add you"):
@@ -98,7 +98,7 @@ function person(item,index){
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
  const message=make("a","vt-vatra-friends-message-"+index,t("Профіль і повідомлення","Profile and messages"));
- message.href=new URL("profile.html?vatra_id="+id,root).href;actions.append(message);
+ message.href=new URL("id="+id,root).href;actions.append(message);
  if(me&&stateFor(item)==="incoming"){
   actions.append(actionButton(t("Прийняти","Accept"),
    "vt-vatra-friends-accept-"+index,()=>accept(item)));
@@ -166,7 +166,7 @@ async function boot(){
   for(const el of document.querySelectorAll("[data-social-uk]"))
    el.textContent=t(el.dataset.socialUk,el.dataset.socialEn);
   for(const a of document.querySelectorAll('a[href="profile"]'))
-   a.href=new URL("profile.html?vatra_id="+ownId,root).href;
+   a.href=new URL("id="+ownId,root).href;
   q("#feed-logout")?.addEventListener("click",async()=>{
    await client.auth.signOut({scope:"local"});
    window.VATRA_AVATAR?.clearHeader();location.replace(root.href);
