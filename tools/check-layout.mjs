@@ -1282,7 +1282,7 @@ assert.ok(
  feedStyle.includes("body.feed-page .feed-story-author-avatar:not(.has-photo)"),
  "Feed avatars must validate uploaded photos and show silhouettes when Storage objects disappear");
 assert.ok(feedMarkup.includes('data-page="feed"')&&
- feedMarkup.includes('data-i18n="n12">Стрічка</h1>')&&
+ /data-i18n="n12">\s*Стрічка\s*<\/h1>/.test(feedMarkup)&&
  !feedMarkup.includes("Стрічка новин")&&
  feedMarkup.includes('id="feed-compose-form"')&&
  !feedMarkup.includes('id="feed-community-list"')&&
