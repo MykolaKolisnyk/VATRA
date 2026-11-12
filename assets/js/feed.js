@@ -522,6 +522,7 @@
    clear:"#feed-compose-media-remove",preview:"#feed-compose-media-preview",
    onError:showError
   });
+  const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"feed",ownerId:vatraId});
   q("#feed-composer-avatar").textContent=initials(displayName);
   const open=()=>{showError("");dialog.showModal();text.focus();};
   q("#feed-compose-open").addEventListener("click",open);
@@ -547,7 +548,7 @@
      ...(uploaded||{})
     });
     if(insertError)throw insertError;
-    dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();
+    dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
     await loadPosts(true);
     message(t("Публікацію додано.","Post published."),"success");
    }catch(ex){
