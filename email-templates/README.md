@@ -4,16 +4,16 @@
 
 Ці файли містять **оригінальні тіла листів для Supabase** (не копії CSS і не додаткові версії). Кожен файл потрібно один раз вставити у відповідне поле **Body → Source** у [Supabase Dashboard](https://supabase.com/dashboard/project/rjasunoawrxvetwadylh/auth/templates) та натиснути **Save changes**. Коміт у GitHub **не змінює автоматично** активні шаблони Supabase.
 
-| Розділ у Supabase | Файл в репозиторії | Subject (можна скопіювати) |
+| Розділ у Supabase | HTML-файл | Subject для поля Supabase |
 |---|---|---|
-| Confirm sign up | `confirmation.html` | `VATRA — Підтвердження пошти / Confirm email` |
-| Invite user | `invite.html` | `VATRA — Запрошення / Invitation` |
-| Magic link or OTP | `magic-link.html` | `VATRA — Код входу / Sign-in code` |
-| Change email address | `email-change.html` | `VATRA — Зміна пошти / Email change` |
-| Reset password | `recovery.html` | `VATRA — Код відновлення пароля / Password recovery` |
-| Reauthentication | `reauthentication.html` | `VATRA — Код підтвердження / Verification code` |
-| Password changed (Security) | `password-changed.html` | `VATRA — Пароль змінено / Password changed` |
-| Email address changed (Security) | `email-address-changed.html` | `VATRA — Пошту змінено / Email changed` |
+| Confirm sign up | `confirmation.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Confirm email{{ else }}VATRA · Підтвердження пошти{{ end }}` |
+| Invite user | `invite.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Invitation{{ else }}VATRA · Запрошення{{ end }}` |
+| Magic link or OTP | `magic-link.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Sign-in code{{ else }}VATRA · Код входу{{ end }}` |
+| Change email address | `email-change.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Confirm new email{{ else }}VATRA · Підтвердження нової пошти{{ end }}` |
+| Reset password | `recovery.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Password recovery{{ else }}VATRA · Відновлення пароля{{ end }}` |
+| Reauthentication | `reauthentication.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Verification code{{ else }}VATRA · Код підтвердження{{ end }}` |
+| Password changed (Security) | `password-changed.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Password changed{{ else }}VATRA · Пароль змінено{{ end }}` |
+| Email address changed (Security) | `email-address-changed.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Email changed{{ else }}VATRA · Пошту змінено{{ end }}` |
 
 ## Запуск VATRA на Supabase Pro
 
@@ -31,7 +31,9 @@
 
 - Для `en` відображається англійський текст.
 - Для `uk` або відсутніх метаданих — український.
-- Після реєстрації мова листів визначається збереженими метаданими акаунта; лише зміна мови сторінки без зміни цих метаданих не перемикає мову автоматичного листа. У Dashboard тема листа одна на обидві мови, тому в прикладах тема двомовна.
+- Після реєстрації мова листів визначається збереженими метаданими акаунта; лише зміна мови сторінки без зміни цих метаданих не перемикає мову автоматичного листа.
+- Теми **Subject** тепер записані як умовні Go-шаблони: `VATRA · ...` для `en` або `uk` (якщо значення `preferred_locale` відсутнє — українська). Вставляйте у **Subject** весь рядок `{{ if ... }}...{{ else }}...{{ end }}` із таблиці вище, не лише відображувану назву.
+- Теми потрібно зберегти окремо в **Supabase → Authentication → Emails**. Коміт у GitHub **не оновлює** активне поле Subject. Після збереження перевірте реальні листи при `uk` та `en`, особливо для Security Notifications: наявність метаданих мови в конкретній події визначає фактичний результат. Не вважайте рендеринг у локальному тесті підтвердженням доставки.
 
 ## Безпечні змінні Supabase та маршрути VATRA
 
