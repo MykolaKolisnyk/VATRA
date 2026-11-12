@@ -2166,3 +2166,103 @@ body.profile-page .vt-profile-report-open-001:hover{color:#a4483d}
 @media(prefers-reduced-motion:reduce){
  body.profile-page .profile-friend-portrait{transition:none}
 }
+
+
+/* VATRA profile refinements: six friends fit in two calm rows, gifts retain more space. */
+body.profile-page .profile-mini-card{gap:12px;padding:18px 19px 14px}
+body.profile-page .profile-mini-card > h2{font-size:17px;margin:0;padding-bottom:12px}
+body.profile-page .profile-friends-preview-grid{
+ grid-template-columns:repeat(3,minmax(0,1fr));gap:13px 7px;
+ align-items:start
+}
+body.profile-page .profile-friend-tile{
+ gap:5px;font:700 11.5px/1.3 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-friends-preview-grid .profile-friend-portrait{
+ width:56px;height:56px;max-width:100%
+}
+body.profile-page .profile-gifts-preview-grid{gap:6px}
+body.profile-page .profile-gift-tile{gap:5px}
+body.profile-page .profile-gifts-preview-grid .profile-gift-art{
+ width:min(100%,78px);height:auto
+}
+body.profile-page .profile-gift-tile .vt-profile-gift-name-001{
+ font:755 11.5px/1.3 "Onest",system-ui,sans-serif
+}
+/* Bottom actions share an aligned, centered label and nearby arrow. */
+body.profile-page .profile-mini-more,
+body.profile-page .vt-profile-about-more-001{
+ display:flex;align-items:center;justify-content:center;gap:8px;
+ width:100%;min-height:40px;margin-top:auto;padding:10px 6px 3px;
+ border:0!important;border-top:1px solid #eaf0f8!important;
+ border-radius:0!important;background:transparent!important;
+ text-align:center;color:#3569cb;
+ font:750 12.5px/1.4 "Onest",system-ui,sans-serif;
+ box-shadow:none!important
+}
+body.profile-page .vt-profile-about-more-001{margin-top:16px;min-height:44px}
+body.profile-page .profile-mini-more [class$="-arrow-001"]{
+ display:inline-flex;align-items:center;justify-content:center;
+ font-size:16px;line-height:1;transition:transform .16s ease
+}
+body.profile-page .profile-mini-more:hover [class$="-arrow-001"]{transform:translateX(3px)}
+body.profile-page .vt-profile-about-more-001 svg{
+ width:16px;height:16px;transform:rotate(180deg)!important
+}
+/* Report is the last visible tab, aligned with the opposite edge of Home. */
+body.profile-page .social-profile-tabs{padding-left:26px;padding-right:26px}
+body.profile-page .vt-profile-report-open-001{
+ margin-left:auto;margin-right:0;flex-shrink:0;
+ color:#94645b
+}
+body.profile-page .vt-profile-report-open-001:hover{color:#ab5045}
+@media(max-width:650px){
+ body.profile-page .social-profile-tabs{padding-left:9px;padding-right:9px}
+ body.profile-page .profile-friends-preview-grid .profile-friend-portrait{
+  width:52px;height:52px
+ }
+ body.profile-page .profile-gifts-preview-grid .profile-gift-art{width:min(100%,73px)}
+}
+/* Empty state artwork is only visible when the original translated note is visible.
+   Keeping each original <p> means profile data and loading handlers remain untouched. */
+body.profile-page .profile-content-panel :is(
+ #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
+ #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
+ #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty,
+ #profile-inbox-empty):not([hidden]),
+body.profile-page #profile-posts-empty:not([hidden]){
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:12px;min-height:175px;width:100%;margin:0;padding:25px 14px;
+ box-sizing:border-box;text-align:center;color:#8293ae;
+ font:530 13.5px/1.55 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-content-panel :is(
+ #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
+ #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
+ #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty,
+ #profile-inbox-empty):not([hidden])::before,
+body.profile-page #profile-posts-empty:not([hidden])::before{
+ content:"";display:block;flex:none;width:57px;height:57px;
+ border:1px solid #e0e8fa;border-radius:18px;background-color:#f0f4ff;
+ background-position:center;background-repeat:no-repeat;background-size:32px 32px;
+ box-shadow:0 5px 15px rgba(59,91,154,.04)
+}
+body.profile-page #profile-photos-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%223%22%20y%3D%224.5%22%20width%3D%2226%22%20height%3D%2223%22%20rx%3D%225%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%2212%22%20r%3D%222.3%22%2F%3E%3Cpath%20d%3D%22m5%2024%208-8%206%206%204-5%206%206%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-videos-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%223%22%20y%3D%225.5%22%20width%3D%2226%22%20height%3D%2221%22%20rx%3D%225%22%2F%3E%3Cpath%20d%3D%22m14%2011%207%205-7%205Z%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page .vt-profile-clips-empty-001::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%224%22%20y%3D%2212%22%20width%3D%2224%22%20height%3D%2216%22%20rx%3D%224%22%2F%3E%3Cpath%20d%3D%22M4%2012%208%204h20l-4%208M11%204l-4%208m13-8-4%208m-2%202%206%204-6%204Z%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-communities-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2211%22%20r%3D%224%22%2F%3E%3Cpath%20d%3D%22M4%2026v-2c0-5%203-8%208-8s8%203%208%208v2M22%208a3%203%200%200%201%200%206m1%204c3%201%205%203%205%207%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-friends-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2211%22%20r%3D%224%22%2F%3E%3Ccircle%20cx%3D%2223%22%20cy%3D%2212%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M4%2027v-3c0-5%203-8%208-8s8%203%208%208v3m1-9c4%200%207%203%207%208%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-gifts-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%225%22%20y%3D%2213%22%20width%3D%2222%22%20height%3D%2215%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M3%2013h26v-5H3Zm13%200v15m0-15c-5%200-9-2-9-5%200-4%206-3%209%205Zm0%200c5%200%209-2%209-5%200-4-6-3-9%205Z%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-saved-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M8%204h16v24l-8-5-8%205Z%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-archive-stories-empty::before,body.profile-page #profile-archive-posts-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%224%22%20y%3D%227%22%20width%3D%2224%22%20height%3D%227%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M7%2014v14h18V14m-12%206h6%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-posts-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%2220%22%20height%3D%2224%22%20rx%3D%224%22%2F%3E%3Cpath%20d%3D%22M11%2011h10m-10%206h10m-10%206h7%22%2F%3E%3C%2Fsvg%3E')}
+body.profile-page #profile-inbox-empty::before{background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%205h20a3%203%200%200%201%203%203v13a3%203%200%200%201-3%203H13l-8%205v-5H6a3%203%200%200%201-3-3V8a3%203%200%200%201%203-3Zm4%207h13m-13%206h9%22%2F%3E%3C%2Fsvg%3E')}
+@media(max-width:440px){
+ body.profile-page .profile-mini-card{padding:16px}
+ body.profile-page .profile-content-panel :is(#profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001):not([hidden]){
+  min-height:150px
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-mini-more [class$="-arrow-001"]{transition:none}
+}
