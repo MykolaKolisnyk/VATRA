@@ -1,22 +1,20 @@
 /* VATRA — GitHub Pages permalink fallback and legacy URL redirects.
    Loaded synchronously before localization to avoid displaying the 404 page
-   while resolving /idN or /clubN. */
+   while resolving /id=N or /clubN. */
 (() => {
     /* Existing bookmarks and Supabase email links may use former locale folders. */
     // Old email links and saved .html URLs remain valid, but visitors see
     // the clean canonical route after the first navigation.
-    // GitHub Pages serves this fallback for /idN and /clubN. Render the
+    // GitHub Pages serves this fallback for /id=N and /clubN. Render the
     // corresponding static document in-place, so the browser never visits
     // /profile.html or /club.html on its way to a permanent public URL.
     const legacyProfile=location.pathname.match(/^\/VATRA\/id([1-9][0-9]{0,18})$/);
     if(legacyProfile){
-      // Existing bookmarks now open actual HTTP-200 profile HTML.
-      const incoming=new URLSearchParams(location.search);
-      incoming.set("vatra_id",legacyProfile[1]);
-      location.replace("/VATRA/profile.html?"+incoming.toString()+location.hash);
+      // Older /id123 links move to the current /id=123 permalink.
+      location.replace("/VATRA/id="+legacyProfile[1]+location.search+location.hash);
       return;
     }
-    const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
+    const dynamic=location.pathname.match(/^\/VATRA\/(id=|club)([1-9][0-9]{0,18})$/);
     if(dynamic){
       document.documentElement.classList.add("vatra-dynamic-route-pending");
       // The fallback HTTP response is a 404 on GitHub Pages, but the browser
@@ -26,7 +24,7 @@
         if(node&&/^404\b/.test(node.textContent))node.textContent="VATRA";
       });
       titleGuard.observe(document.head,{childList:true,subtree:true,characterData:true});
-      const file=dynamic[1]==="id"?"profile.html":"club.html";
+      const file=dynamic[1]==="id="?"profile.html":"club.html";
       const mount=async()=>{
         try{
           const response=await fetch("/VATRA/"+file,{credentials:"same-origin"});
