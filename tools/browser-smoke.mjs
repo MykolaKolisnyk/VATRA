@@ -133,7 +133,7 @@ try{
  // animation-end events in BOTH languages, not just CSS animation-name.
  const localeAnimationPages=[
   {path:"",selectors:[".form-box"]},
-  {path:"register.html",selectors:[".signup-form-panel .narrow-form"]},
+  {path:"create-account.html",selectors:[".signup-form-panel .narrow-form"]},
   {path:"forgot.html",selectors:[".forgot-panel-content"]},
   {path:"reset.html",selectors:[".forgot-panel-content"]},
   {path:"404.html",selectors:[".error-code",".error-heading",".error-description",".error-action"]},
@@ -360,7 +360,7 @@ try{
  assert.equal(await page.evaluate(()=>localStorage.getItem("vatra-language")),"en","Language storage");
  assert.ok((await context.cookies()).some(x=>x.name==="vatra-language"&&x.value==="en"),"Persistent language cookie missing");
  const localizedSignup=await context.newPage();
- await localizedSignup.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await localizedSignup.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(localizedSignup);
  await localizedSignup.waitForFunction(()=>document.documentElement.lang==="en");
  assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#business","#communities","#photos","#videos","#music","#marketplace","#clips"],
@@ -390,12 +390,12 @@ try{
  await warning.waitFor({state:"detached",timeout:9000});
  await error.waitFor({state:"detached",timeout:9000});
  console.log("VATRA warning/error styling and auto-dismiss: OK");
- await reopened.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await reopened.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(reopened);
- const helps=reopened.locator(".reg-help");
+ const helps=reopened.locator(".create-account-help");
  assert.equal(await helps.count(),2,"Gender and email help bubbles missing");
  await helps.nth(0).locator("summary").hover();
- await reopened.waitForFunction(()=>document.querySelectorAll(".reg-help[open]").length===1);
+ await reopened.waitForFunction(()=>document.querySelectorAll(".create-account-help[open]").length===1);
  assert.equal(await helps.nth(1).isVisible(),false,"Email help must only show on the second registration step");
  await reopened.locator("#first-name").focus();
  const raised=await reopened.locator("#first-name").evaluate(el=>({
@@ -420,11 +420,11 @@ try{
  // mobile display without contacting Supabase or creating real accounts.
  const wizard=await context.newPage();
  await wizard.setViewportSize({width:390,height:844});
- await wizard.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await wizard.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(wizard);
- assert.equal(await wizard.locator('[data-register-step="2"]').isVisible(),false,"Second step must start hidden");
- await wizard.locator("#register-next").click();
- assert.equal(await wizard.locator('[data-register-step="1"]').isVisible(),true,"Empty identity step must not advance");
+ assert.equal(await wizard.locator('[data-create-account-step="2"]').isVisible(),false,"Second step must start hidden");
+ await wizard.locator("#create-account-next").click();
+ assert.equal(await wizard.locator('[data-create-account-step="1"]').isVisible(),true,"Empty identity step must not advance");
  await wizard.locator("#first-name").fill("Тест");
  await wizard.locator("#last-name").fill("Користувач");
  await wizard.evaluate(()=>{
@@ -434,18 +434,18 @@ try{
    node.dispatchEvent(new Event("change",{bubbles:true}));
   }
  });
- await wizard.locator("#register-next").click();
- await wizard.locator('[data-register-step="2"]').waitFor({state:"visible"});
+ await wizard.locator("#create-account-next").click();
+ await wizard.locator('[data-create-account-step="2"]').waitFor({state:"visible"});
  assert.equal(await wizard.locator(".signup-progress").getAttribute("aria-valuenow"),"2","Progress should announce step two");
- assert.equal(await wizard.locator('[data-register-step="1"]').isVisible(),false,"Identity step should be hidden");
- await wizard.locator(".reg-help-email summary").hover();
- await wizard.waitForFunction(()=>document.querySelector(".reg-help-email")?.open===true);
+ assert.equal(await wizard.locator('[data-create-account-step="1"]').isVisible(),false,"Identity step should be hidden");
+ await wizard.locator(".create-account-help-email summary").hover();
+ await wizard.waitForFunction(()=>document.querySelector(".create-account-help-email")?.open===true);
  await wizard.locator("#email").fill("test@example.com");
- await wizard.locator("#register-back").click();
+ await wizard.locator("#create-account-back").click();
  assert.equal(await wizard.locator("#first-name").inputValue(),"Тест","First name must survive back navigation");
  assert.equal(await wizard.locator("#last-name").inputValue(),"Користувач","Last name must survive back navigation");
  assert.equal(await wizard.locator("#birth-year").inputValue(),"2000","Date of birth must survive back navigation");
- await wizard.locator("#register-next").click();
+ await wizard.locator("#create-account-next").click();
  assert.equal(await wizard.locator("#email").inputValue(),"test@example.com","Email must survive step navigation");
  assert.ok((await wizard.evaluate(()=>document.documentElement.scrollWidth-innerWidth))<=3,"Mobile signup overflows horizontally");
  await wizard.close();
@@ -456,9 +456,9 @@ try{
  for(const [width,height] of [[390,844],[1440,900]]){
   const probe=await context.newPage();
   await probe.setViewportSize({width,height});
-  await probe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+  await probe.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
   await waitReady(probe);
-  const entry=probe.locator(".ui-register-footer-001 .vt-register-footer-signin");
+  const entry=probe.locator(".ui-create-account-footer-001 .vt-create-account-footer-signin");
   assert.equal(await entry.count(),1);
   assert.equal(await entry.isVisible(),true,"Footer sign-in link must be visible at "+width);
   assert.equal(new URL(await entry.getAttribute("href"),base).href,base);
@@ -468,7 +468,7 @@ try{
    border:getComputedStyle(el).borderTopWidth,rounded:getComputedStyle(el).borderRadius}));
   assert.ok(styles.font.includes("Onest")&&styles.border==="0px",
    "Footer sign-in must look like the other plain text footer links");
-  const top=await probe.locator(".reg-back-nav .back").evaluate(el=>({
+  const top=await probe.locator(".create-account-back-nav .back").evaluate(el=>({
    border:getComputedStyle(el).borderTopWidth,background:getComputedStyle(el).backgroundColor
   }));
   assert.equal(top.border,"0px","Keep the original plain upper Back link");
@@ -481,24 +481,24 @@ try{
     node.dispatchEvent(new Event("change",{bubbles:true}));
    }
   });
-  await probe.locator("#register-next").click();
+  await probe.locator("#create-account-next").click();
   assert.equal(await entry.isVisible(),true,"Footer sign-in remains on step two");
-  assert.equal(await probe.locator(".signup-form-panel .reg-back-nav").count(),1,
+  assert.equal(await probe.locator(".signup-form-panel .create-account-back-nav").count(),1,
    "Signup back navigation must be a child of the form card, not a header above it");
-  assert.equal(await probe.locator(".signup-layout > .reg-back-nav").count(),0);
+  assert.equal(await probe.locator(".signup-layout > .create-account-back-nav").count(),0);
   await probe.close();
  }
  // Both auth pages must share language-modal geometry and footer spacing.
  for(const [width,height] of [[390,844],[1024,900],[1440,900],[1920,1080]]){
   const samples=[];
   const footerSamples=[];
-  for(const route of ["","register.html"]){
+  for(const route of ["","create-account.html"]){
    const probe=await context.newPage();
    await probe.setViewportSize({width,height});
    await probe.goto(base+route,{waitUntil:"domcontentloaded"});
    await waitReady(probe);
    const shell=await probe.evaluate(()=>{
-    const card=document.querySelector(".split,.reg-main").getBoundingClientRect();
+    const card=document.querySelector(".split,.create-account-main").getBoundingClientRect();
     const footer=document.querySelector(".footer").getBoundingClientRect();
     const container=document.querySelector(".auth-layout").getBoundingClientRect();
     const footerStyle=getComputedStyle(document.querySelector(".footer"));
@@ -513,7 +513,7 @@ try{
       gap:footer.top-card.bottom,top:card.top-container.top,
       sideLeft:card.left,sideRight:innerWidth-card.right,
       centerDelta:Math.abs((card.top+card.bottom)/2-(container.top+container.bottom)/2),
-      back:!!document.querySelector(".reg-back-nav .back"),
+      back:!!document.querySelector(".create-account-back-nav .back"),
       overflow:document.documentElement.scrollWidth-innerWidth};
    });
    assert.ok(shell.overflow<=3&&shell.footerActionExtra<=3,
@@ -595,7 +595,7 @@ try{
  console.log("VATRA offline page responsive V mark and typography: OK");
 
  // Both back links use the same copy and the same leftward hover animation.
- for(const [route,lang] of [["register.html","uk"],["forgot.html","uk"],["reset.html","uk"],["register.html","en"],["forgot.html","en"],["reset.html","en"]]){
+ for(const [route,lang] of [["create-account.html","uk"],["forgot.html","uk"],["reset.html","uk"],["create-account.html","en"],["forgot.html","en"],["reset.html","en"]]){
   await context.addCookies([{name:"vatra-language",value:lang,url:base}]);
   const page=await context.newPage();
   await page.addInitScript(value=>localStorage.setItem("vatra-language",value),lang);
@@ -613,8 +613,8 @@ try{
   const matrix=await link.evaluate(el=>getComputedStyle(el).transform);
   assert.ok(matrix.startsWith("matrix(")&&parseFloat(matrix.split(",")[4])<=-1.8,
    "Return link must move 2px to the left on hover: "+route+" "+matrix);
-  if(route==="register.html"){
-    assert.equal(await page.locator(".reg-back-nav").evaluate(el=>getComputedStyle(el).animationName),"none");
+  if(route==="create-account.html"){
+    assert.equal(await page.locator(".create-account-back-nav").evaluate(el=>getComputedStyle(el).animationName),"none");
     assert.equal(await page.locator(".signup-form-panel .narrow-form").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
    }
   else{
@@ -630,23 +630,23 @@ try{
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1440,900],[1920,1080]]){
   const signup=await context.newPage();
   await signup.setViewportSize({width,height});
-  await signup.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+  await signup.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
   await waitReady(signup);
   const layout=await signup.evaluate(()=>{
    const brand=document.querySelector(".signup-brand").getBoundingClientRect();
    const form=document.querySelector(".signup-form-panel").getBoundingClientRect();
-   const main=document.querySelector(".reg-main").getBoundingClientRect();
-   const nav=document.querySelector(".reg-back-nav").getBoundingClientRect();
-   const back=document.querySelector(".reg-back-nav .back").getBoundingClientRect();
+   const main=document.querySelector(".create-account-main").getBoundingClientRect();
+   const nav=document.querySelector(".create-account-back-nav").getBoundingClientRect();
+   const back=document.querySelector(".create-account-back-nav .back").getBoundingClientRect();
    const footerTop=document.querySelector("footer").getBoundingClientRect().top;
    const footerContent=document.querySelector(".auth-footer-content").getBoundingClientRect();
    return {overflow:document.documentElement.scrollWidth-innerWidth,
-    headerAbsent:!document.querySelector(".reg-header"),
+    headerAbsent:!document.querySelector(".create-account-header"),
     brandKickerAbsent:!document.querySelector(".signup-brand-eyebrow"),
     footerAligned:Math.abs(footerContent.left-brand.left)<=2&&Math.abs(footerContent.right-form.right)<=2,
     authAnimation:getComputedStyle(document.querySelector(".signup-form-panel .narrow-form")).animationName,
-     stageAnimation:getComputedStyle(document.querySelector('[data-register-step="1"]')).animationName,
-    backText:document.querySelector(".reg-back-nav .back").textContent.trim(),
+     stageAnimation:getComputedStyle(document.querySelector('[data-create-account-step="1"]')).animationName,
+    backText:document.querySelector(".create-account-back-nav .back").textContent.trim(),
     backAligned:Math.abs(back.right-document.querySelector(".signup-form-panel .narrow-form").getBoundingClientRect().right)<=2,
     backInside:(()=>{
      const row=document.querySelector(".signup-form-overline").getBoundingClientRect();
@@ -682,7 +682,7 @@ try{
    assert.ok(layout.brand.bottom<=layout.form.y+2,
     "Signup brand panel must precede the form at "+width);
   }
-  assert.equal(await signup.locator("#register-next").isVisible(),true,"Step one CTA not visible at "+width);
+  assert.equal(await signup.locator("#create-account-next").isVisible(),true,"Step one CTA not visible at "+width);
   console.log("VATRA signup responsive "+width+"x"+height+": OK");
   await signup.close();
  }
@@ -693,14 +693,14 @@ try{
  // Compare auth card widths, column sizes, and whole right-form animation across breakpoints.
  for(const [width,height] of [[360,780],[390,844],[768,1024],[1024,768],[1199,900],[1200,800],[1280,800],[1440,900],[1600,796],[1600,900],[1743,723],[1920,796],[1920,1080]]){
   const snapshots=[];
-  for(const route of ["","register.html"]){
+  for(const route of ["","create-account.html"]){
    const probe=await context.newPage();
    await probe.setViewportSize({width,height});
    await probe.goto(base+route,{waitUntil:"domcontentloaded"});
    await waitReady(probe);
    const layout=await probe.evaluate(()=>{
     const box=s=>document.querySelector(s).getBoundingClientRect();
-    const card=box(".split,.reg-main"),brand=box(".intro-side,.signup-brand");
+    const card=box(".split,.create-account-main"),brand=box(".intro-side,.signup-brand");
     const panel=box(".form-side,.signup-form-panel"),footer=box(".auth-footer-content");
     const form=document.querySelector(".form-box,.signup-form-panel .narrow-form");
     return {width:card.width,height:card.height,x:card.x,cardY:card.y,
@@ -748,7 +748,7 @@ try{
  }
  const stepTwo=await context.newPage();
  await stepTwo.setViewportSize({width:1440,height:900});
- await stepTwo.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await stepTwo.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(stepTwo);
  await stepTwo.locator("#first-name").fill("Тест");
  await stepTwo.locator("#last-name").fill("Користувач");
@@ -765,32 +765,32 @@ try{
    if(e.target===content&&e.animationName==="vatraAuthReveal")window.__vatraSignupRevealCount++;
   });
  });
- await stepTwo.locator("#register-next").click();
- await stepTwo.locator('[data-register-step="2"]').waitFor({state:"visible"});
+ await stepTwo.locator("#create-account-next").click();
+ await stepTwo.locator('[data-create-account-step="2"]').waitFor({state:"visible"});
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=1);
  const secondStageMotion=await stepTwo.evaluate(()=>{
   const content=document.querySelector(".signup-form-panel .narrow-form");
   return {content:getComputedStyle(content).animationName,
    shell:getComputedStyle(document.querySelector(".signup-form-panel")).animationName,
    heading:getComputedStyle(document.querySelector('[data-step-heading="2"]')).animationName,
-   fields:getComputedStyle(document.querySelector('[data-register-step="2"]')).animationName,
+   fields:getComputedStyle(document.querySelector('[data-create-account-step="2"]')).animationName,
    logoPanel:getComputedStyle(document.querySelector(".signup-brand")).animationName,
    includesTitle:content.contains(document.querySelector('[data-step-heading="2"]')),
    includesProgress:content.contains(document.querySelector(".signup-progress")),
-   includesFields:content.contains(document.querySelector('[data-register-step="2"]'))};
+   includesFields:content.contains(document.querySelector('[data-create-account-step="2"]'))};
  });
  assert.ok(secondStageMotion.content==="vatraAuthReveal"&&
   ["shell","heading","fields","logoPanel"].every(key=>secondStageMotion[key]==="none")&&
   secondStageMotion.includesTitle&&secondStageMotion.includesProgress&&secondStageMotion.includesFields,
   "On signup step two, headline, step indicator, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
- await stepTwo.locator("#register-back").click();
+ await stepTwo.locator("#create-account-back").click();
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=2);
- assert.equal(await stepTwo.locator('[data-register-step="1"]').isVisible(),true);
- await stepTwo.locator("#register-next").click();
+ assert.equal(await stepTwo.locator('[data-create-account-step="1"]').isVisible(),true);
+ await stepTwo.locator("#create-account-next").click();
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=3);
  const stepTwoGeometry=await stepTwo.evaluate(()=>{
   const r=s=>document.querySelector(s).getBoundingClientRect();
-  const card=r(".reg-main"),panel=r(".signup-form-panel"),active=r('[data-register-step="2"]');
+  const card=r(".create-account-main"),panel=r(".signup-form-panel"),active=r('[data-create-account-step="2"]');
   return {overflow:document.documentElement.scrollWidth-innerWidth,
    activeWidth:active.width,panelWidth:panel.width,panelBottom:panel.bottom,cardBottom:card.bottom};
  });
@@ -806,7 +806,7 @@ try{
  // Floating hints must animate on focus/value, stay clear of errors, and
  // validation messages still expire independently of the field contents.
  for(const [route,fieldId,action] of [["","#email","#login-form button[type='submit']"],
-  ["register.html","#first-name","#register-next"],
+  ["create-account.html","#first-name","#create-account-next"],
   ["forgot.html","#email","#forgot-form button[type='submit']"]]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:1440,height:900});
@@ -873,7 +873,7 @@ try{
   await context.addCookies([{name:"vatra-language",value:language,url:base}]);
   const consentProbe=await context.newPage();
   await consentProbe.setViewportSize({width,height:900});
-  await consentProbe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+  await consentProbe.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
   await waitReady(consentProbe);
   await consentProbe.waitForFunction(lang=>document.documentElement.lang===lang,language);
   await consentProbe.locator("#first-name").fill("Тест");
@@ -884,7 +884,7 @@ try{
     node.dispatchEvent(new Event("change",{bubbles:true}));
    }
   });
-  await consentProbe.locator("#register-next").click();
+  await consentProbe.locator("#create-account-next").click();
   await consentProbe.locator("#email").fill("demo@example.test");
   await consentProbe.locator("#password").fill("VeryStrong@12345");
   await consentProbe.locator("#password-confirm").fill("VeryStrong@12345");
@@ -910,7 +910,7 @@ try{
  await context.addCookies([{name:"vatra-language",value:"en",url:base}]);
  console.log("VATRA floating hints, error spacing, and temporary validation: OK");
  // Each page uses the same language modal with a centered SVG X.
- for(const route of ["","register.html","terms.html"]){
+ for(const route of ["","create-account.html","terms.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -961,7 +961,7 @@ try{
   const links=await probe.locator(".footer nav>a").evaluateAll(nodes=>nodes.map(n=>({
    href:new URL(n.href,document.baseURI).pathname,text:n.textContent.trim()
   })));
-  assert.equal(links.filter(x=>x.href==="/VATRA/register").length,1,
+  assert.equal(links.filter(x=>x.href==="/VATRA/create-account").length,1,
    "Create account CTA missing from "+route+": "+JSON.stringify(links));
   assert.equal(links.filter(x=>x.href==="/VATRA/").length,1,
    "Sign-in CTA missing from "+route+": "+JSON.stringify(links));
@@ -970,7 +970,7 @@ try{
   await probe.close();
  }
  // Footers must render navigation links uniformly — no boxed sign-in button.
- for(const route of ["","register.html","forgot.html","reset.html"]){
+ for(const route of ["","create-account.html","forgot.html","reset.html"]){
   const page=await context.newPage();
   await page.goto(base+route,{waitUntil:"domcontentloaded"});
   await waitReady(page);
@@ -1005,11 +1005,11 @@ try{
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
  let baselineFooterAppearance=null;
- for(const route of ["","register.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
+ for(const route of ["","create-account.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
-  if(["","register.html","forgot.html","reset.html"].includes(route))
+  if(["","create-account.html","forgot.html","reset.html"].includes(route))
    await waitReady(probe);
   else await probe.evaluate(()=>document.fonts.ready);
   const footerTypography=await probe.evaluate(()=>{
@@ -1052,7 +1052,7 @@ try{
  // Compare actual typography, button color and brand logo motion on auth pages.
  for(const [width,height] of [[390,844],[1440,900],[1920,1080]]){
   const settings=[];
-  for(const route of ["","register.html"]){
+  for(const route of ["","create-account.html"]){
    const probe=await context.newPage();
    await probe.setViewportSize({width,height});
    await probe.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -1223,9 +1223,9 @@ try{
    "Recovery must animate the entire card once, including visible navigation: "+JSON.stringify(motion));
   const registrationBack=await (async()=>{
    const probe=await context.newPage();
-   await probe.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+   await probe.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
    await waitReady(probe);
-   const result=await probe.locator(".reg-back-nav .back").evaluate(node=>{
+   const result=await probe.locator(".create-account-back-nav .back").evaluate(node=>{
     const s=getComputedStyle(node);
     return {font:s.fontFamily,size:s.fontSize,weight:s.fontWeight,
      background:s.backgroundColor,border:s.borderTopWidth,color:s.color};
@@ -1628,7 +1628,7 @@ try{
  await expiredLink.close();
  // The UI also displays identical rules and Onest at signup and direct reset.
  for(const [path,selector] of [
-  ["register.html","#register-password-policy"],["reset.html","#reset-password-policy"]
+  ["create-account.html","#create-account-password-policy"],["reset.html","#reset-password-policy"]
  ]){
   const policyPage=await context.newPage();
   await policyPage.goto(base+path,{waitUntil:"domcontentloaded"});
@@ -1639,14 +1639,14 @@ try{
   assert.ok((await tip.evaluate(el=>getComputedStyle(el).fontFamily)).includes("Onest"),
    path+" must share the typography");
   assert.equal(await tip.evaluate(el=>getComputedStyle(el).fontSize),"13px");
-  if(path==="register.html"){
-   assert.equal(await policyPage.locator(".vt-register-paragraph-02").count(),0);
+  if(path==="create-account.html"){
+   assert.equal(await policyPage.locator(".vt-create-account-paragraph-02").count(),0);
    assert.equal(await policyPage.locator(".signup-step").first().evaluate(el=>getComputedStyle(el).animationName),"none");
    await policyPage.evaluate(()=>{
-    document.body.dataset.registrationStep="2";
-    document.querySelector('[data-register-step="2"]').hidden=false;
+    document.body.dataset.createAccountStep="2";
+    document.querySelector('[data-create-account-step="2"]').hidden=false;
    });
-   assert.equal(await policyPage.locator('[data-register-step="2"]').evaluate(el=>getComputedStyle(el).animationName),"none",
+   assert.equal(await policyPage.locator('[data-create-account-step="2"]').evaluate(el=>getComputedStyle(el).animationName),"none",
     "Only the shared signup content must animate, not the second-step fields");
    assert.equal(await policyPage.locator(".signup-form-panel .narrow-form").evaluate(el=>getComputedStyle(el).animationName),"vatraAuthReveal");
   }
@@ -1658,7 +1658,7 @@ try{
  for(const language of ["uk","en"]){
   await context.addCookies([{name:"vatra-language",value:language,url:base}]);
   for(const [route,selector] of [
-   ["register.html",".vt-register-floating-hint-03"],
+   ["create-account.html",".vt-create-account-floating-hint-03"],
    ["reset.html",".vt-reset-floating-hint-01"]
   ]){
    const emailPage=await context.newPage();
@@ -1781,7 +1781,7 @@ try{
   status:200,contentType:"text/javascript",
   body:'window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:window.__verifiedMockUser||null},error:null}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),signUp:async params=>{window.__signupCaptcha=!!params.options?.captchaToken;return {data:{user:{id:"mock"},session:null},error:null};},resend:async params=>{window.__resendParams=params;return {data:{},error:null};}}})};'
  }));
- await confirmationPage.goto(base+"register.html",{waitUntil:"domcontentloaded"});
+ await confirmationPage.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(confirmationPage);
  assert.equal(await confirmationPage.title(),await confirmationPage.evaluate(()=>document.documentElement.lang==="en"?"Create account · VATRA":"Створити акаунт · VATRA"));
  await confirmationPage.locator("#first-name").fill("Тест");
@@ -1791,7 +1791,7 @@ try{
    const select=document.getElementById(id);select.value=value;select.dispatchEvent(new Event("change",{bubbles:true}));
   }
  });
- await confirmationPage.locator("#register-next").click();
+ await confirmationPage.locator("#create-account-next").click();
  await confirmationPage.locator("#email").fill("demoexample@example.test");
  await confirmationPage.locator("#password").fill("VeryStrong@12345");
  await confirmationPage.locator("#password-confirm").fill("VeryStrong@12345");
@@ -1812,7 +1812,7 @@ try{
   "Signup confirmation should animate all content as one layer with a still card: "+JSON.stringify(confirmedMotion));
  assert.equal(await confirmationPage.locator(".signup-confirmation-overline .signup-confirmation-back-nav a").isVisible(),true,
   "A back-to-login link must remain visible beside the last-step kicker during email confirmation");
- assert.equal(await confirmationPage.locator(".signup-form-overline .reg-back-nav a").isVisible(),false,
+ assert.equal(await confirmationPage.locator(".signup-form-overline .create-account-back-nav a").isVisible(),false,
   "The inactive registration form navigation must be hidden during confirmation");
  assert.equal(await confirmationPage.locator("#signup-confirmation-resend").isDisabled(),true);
  const typeScale=await confirmationPage.evaluate(()=>{
@@ -3210,7 +3210,7 @@ try{
  ];
  const routes=[
   {path:"",id:"home"},
-  {path:"register.html",id:"signup"},
+  {path:"create-account.html",id:"signup"},
   {path:"forgot.html",id:"recovery"},
   {path:"reset.html",id:"reset"}
  ];
