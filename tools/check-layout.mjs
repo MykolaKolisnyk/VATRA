@@ -1471,7 +1471,7 @@ await assert.rejects(stat("account.html"),{code:"ENOENT"},
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
 assert.ok(errorPage.includes('href="/VATRA/"')&&errorPage.includes('src="/VATRA/assets/logo/vatra-logo.svg"'),
  "GitHub Pages 404 must work at nested missing URLs");
-assert.ok(errorPage.includes("location.replace(target+location.search+location.hash)"),
+assert.ok(legacyScript.includes("location.replace(target+location.search+location.hash)"),
  "Old localized links should redirect to unified URLs");
 assert.ok(!/profile\.js|data-page="public-profile"|supabase-js/.test(errorPage),"404 must not load private account logic");
 for(const name of emailNames){
