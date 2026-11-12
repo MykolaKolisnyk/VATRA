@@ -547,26 +547,7 @@
   localize();
  }
 
- /* Subtle in-page panel motion mirrors the cross-document navigation crossfade.
-    Only animate the changed content, never the persistent header or controls. */
- function revealSection(element,{duration=220,distance=7}={}){
-  if(!element||!element.isConnected||element.hidden||
-   typeof element.animate!=="function"||
-   window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches)return;
-  for(const animation of element.getAnimations?.()||[]){
-   if(animation.id==="vatra-content-swap")animation.cancel();
-  }
-  const effect=element.animate([
-   {opacity:.72,transform:"translate3d(0,"+distance+"px,0)"},
-   {opacity:1,transform:"translate3d(0,0,0)"}
-  ],{duration,easing:"cubic-bezier(.2,.78,.2,1)",fill:"none"});
-  effect.id="vatra-content-swap";
- }
- window.VATRA_MOTION={reveal:revealSection};
-
- /* The real site has extensionless routes served through a GitHub Pages
-    fallback. Fade the outgoing content without enabling cross-document View
-    Transitions that can be aborted by the intermediate route document. */
+ /* Section content switches immediately; hover and icon animations remain CSS-owned. */
  function setupRouteMotion(){
   const eligible=target=>/^\/VATRA\/(?:feed|profile|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
