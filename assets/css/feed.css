@@ -2312,3 +2312,64 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
   padding:5px 10px
  }
 }
+
+
+/* VATRA reading lane: composer and feed filter are matched, side by side. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ align-items:start;column-gap:12px;row-gap:12px
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
+ grid-column:1;grid-row:1;min-width:0;width:100%;min-height:74px;align-self:start
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+ grid-column:2;grid-row:1;min-width:0;min-height:74px;width:100%;max-width:none;
+ margin:0;padding:10px 12px;border-radius:16px;
+ align-self:start;box-sizing:border-box;position:relative
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
+ display:flex;align-items:center;min-height:52px;margin:0
+}
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{
+ min-height:52px;font:760 14px/1.4 "Onest",system-ui,sans-serif;
+ color:#344968;white-space:nowrap
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+ grid-column:1/-1;grid-row:2;width:100%;min-width:0
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row[data-open="true"]{
+ z-index:10;box-shadow:0 8px 24px rgba(29,47,92,.11)
+}
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){
+ display:flex;flex-direction:column;align-items:stretch;gap:3px
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
+ width:100%;min-height:38px;overflow:hidden;text-overflow:ellipsis;
+ padding:8px 9px
+}
+body.feed-page .vatra-notification-avatar.has-photo{
+ background-position:center!important;background-repeat:no-repeat!important;
+ background-size:cover!important;color:transparent
+}
+body.feed-page .vatra-notification-delete{
+ width:32px;height:32px;border-radius:10px;color:#8195b6
+}
+body.feed-page .vatra-notification-delete svg{width:18px;height:18px;stroke-width:1.8}
+body.feed-page .vatra-notification-row .vatra-notification-avatar{
+ background-image:var(--vatra-default-avatar);background-position:center;
+ background-size:75%;background-repeat:no-repeat
+}
+@media(max-width:620px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
+  grid-template-columns:minmax(0,1fr);gap:10px
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose,
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row,
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+  grid-column:1
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{grid-row:2;min-height:54px}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{grid-row:3}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001,
+ body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{min-height:39px}
+}
