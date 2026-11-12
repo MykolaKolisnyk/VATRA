@@ -75,7 +75,12 @@ async function authenticatePassword(email,password,form){
  const options=await captchaOptions(form);
  const {data,error}=await auth.auth.signInWithPassword({email,password,options});
  if(error)throw error;
- if(data?.user?.email_confirmed_at)rememberAccount(data.user);
+ if(!data?.session||!data?.user?.email_confirmed_at){
+  const confirmationError=new Error("Email not confirmed");
+  confirmationError.code="email_not_confirmed";
+  throw confirmationError;
+ }
+ rememberAccount(data.user);
  goToFeed();
 }
 /* The saved-account hint is portalled to the viewport, so transformed cards and
