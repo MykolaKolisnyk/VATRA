@@ -578,9 +578,16 @@
   q("#feed-create-story").addEventListener("click",()=>{
    storyError.hidden=true;storyDialog.showModal();storyText.focus();
   });
-  q("#feed-story-cancel").addEventListener("click",()=>storyDialog.close());
-  storyDialog.addEventListener("close",()=>{
+  const resetStoryDraft=()=>{
    storyText.value="";storyPicker?.reset();storyError.hidden=true;
+  };
+  q("#feed-story-cancel").addEventListener("click",()=>{
+   resetStoryDraft();storyDialog.close();
+  });
+  storyDialog.addEventListener("close",()=>{
+   // The close event is queued asynchronously: never erase media added
+   // after a user quickly opens the editor again.
+   if(!storyDialog.open)resetStoryDraft();
   });
   const storyViewer=q("#feed-story-view");
   q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
@@ -604,7 +611,7 @@
     const {error:insertError}=await client.from("vatra_stories")
      .insert({author_vatra_id:vatraId,body,theme:Math.floor(Math.random()*5),...(uploaded||{})});
     if(insertError)throw insertError;
-    storyDialog.close();
+    resetStoryDraft();storyDialog.close();
     message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");
     await loadStories();
    }catch(error){
