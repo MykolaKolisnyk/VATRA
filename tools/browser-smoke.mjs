@@ -2252,7 +2252,7 @@ try{
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
-  window.__profileVisibility="public";
+  window.__profileVisibility=new URLSearchParams(location.search).has("locked-test")?"friends":"public";
   window.supabase={createClient:()=>({
    auth:{
     getUser:async()=>({data:{user:{id:"feed-mock-user",email:"feed-mock@vatra.test",
@@ -3075,17 +3075,6 @@ try{
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
-  // Private profiles still show their portrait and cover, but all fullscreen
-  // viewer, story and avatar action entry points are blocked in the UI.
-  await profilePage.locator("#profile-cover-photo").waitFor({state:"visible",timeout:14000});
-  assert.equal(await profilePage.locator("#profile-cover-image").evaluate(el=>el.classList.contains("has-photo")),true);
-  assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),false,
-   "Private cover remains visible without a clickable full-screen target");
-  assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true,
-   "Private portrait must not open a viewer or active-story menu");
-  assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),false);
-  await profilePage.evaluate(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
-  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
   const visitorColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
    const about=section.querySelector("#profile-about-card")?.getBoundingClientRect();
    const posts=section.querySelector(".profile-posts-main")?.getBoundingClientRect();
@@ -3123,6 +3112,26 @@ try{
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Own given name beside avatar must not be replaced by the visited member's identity");
+  // Test a genuinely private route after the public visitor geometry checks.
+  await profilePage.goto(base+"id789012?locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator(".profile-locked-notice").isVisible(),true,
+   "The locked mock profile must show its privacy notice");
+  // Private profiles still show their portrait and cover, but all fullscreen
+  // viewer, story and avatar action entry points are blocked in the UI.
+  await profilePage.locator("#profile-cover-photo").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator("#profile-cover-image").evaluate(el=>el.classList.contains("has-photo")),true);
+  assert.equal(await profilePage.locator("#profile-cover-view").isVisible(),false,
+   "Private cover remains visible without a clickable full-screen target");
+  assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true,
+   "Private portrait must not open a viewer or active-story menu");
+  assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),false);
+  await profilePage.evaluate(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
+  assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
+  assert.equal(await profilePage.locator("#profile-story-viewer").evaluate(el=>el.open),false,
+   "Locked portrait cannot open a story");
+  assert.equal(await profilePage.locator(".profile-panels").isVisible(),false,
+   "Locked members' posts and personal information remain private");
   await profilePage.goto(base+"id999999",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
