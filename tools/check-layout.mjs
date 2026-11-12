@@ -1049,8 +1049,14 @@ const normalizedSocialHeader=html=>{
 };
 const canonicalSocialHeader=normalizedSocialHeader(await read("feed.html"));
 /* profileMarkup already loaded during the footer audit. */
-assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===6&&
- (profileMarkup.match(/data-profile-panel="/g)||[]).length===9&&
+assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
+ (profileMarkup.match(/data-profile-panel="/g)||[]).length===11&&
+ profileMarkup.includes('id="profile-friends-preview"')&&
+ profileMarkup.includes('id="profile-gifts-preview"')&&
+ profileMarkup.includes('id="profile-tab-clips"')&&
+ profileMarkup.includes('id="profile-tab-communities"')&&
+ profileMarkup.includes('id="profile-report-dialog"')&&
+ profileMarkup.includes('id="profile-report-open"')&&
  profileMarkup.includes('id="profile-friend-button"')&&
  profileMarkup.includes('id="profile-message-button"')&&
  profileMarkup.includes('id="profile-message-dialog"')&&
