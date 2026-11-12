@@ -103,7 +103,7 @@ function bind({prefix,ownerId}){
    "Drafts are saved in this browser only. Photos and videos are not stored.")));
  draftsPanel.append(draftList);
 
- const footer=make("footer","vatra-post-composer-footer ui-vatra-post-composer-footer-001");
+ const footer=make("div","vatra-post-composer-footer ui-vatra-post-composer-footer-001");
  const left=make("div","vatra-post-composer-footer-left ui-vatra-post-composer-footer-left-001");
  const tips=make("button","vt-vatra-post-composer-tips-001",t("ⓘ  Поради щодо публікації","ⓘ  Posting tips"));
  tips.type="button";
