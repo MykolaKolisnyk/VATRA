@@ -1910,7 +1910,11 @@ async function start(){
     "Користувач ще не додав інформацію про себе.",
     "This member has not added profile details yet.");
   }
-  document.title=(isMine?t("Моя сторінка","My page"):t("Профіль","Profile"))+" · VATRA";
+  // The browser tab identifies the member actually being viewed, not the generic
+  // profile page. Never use the signed-in visitor's name for another member.
+  const titleName=String(publicName||(isMine?cleanOwnName:t("Учасник VATRA","VATRA member")))
+   .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
+  document.title=titleName+" · VATRA";
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
   const locked=access?.locked===true;
   setupProfileInteractions(client,ownId,targetId,isMine);
