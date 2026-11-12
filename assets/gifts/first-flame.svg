@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="gift-title gift-description">
+<title id="gift-title">Перший вогник VATRA</title>
+<desc id="gift-description">Подарунок за реєстрацію: світлий вогник у медальйоні</desc>
+<defs>
+ <linearGradient id="bg" x1=".1" y1=".1" x2=".9" y2="1"><stop stop-color="#eff5ff"/><stop offset=".55" stop-color="#eae8ff"/><stop offset="1" stop-color="#fff5e8"/></linearGradient>
+ <linearGradient id="flame" x1=".2" y1=".9" x2=".7" y2=".1"><stop stop-color="#f35b45"/><stop offset=".45" stop-color="#f99c3d"/><stop offset="1" stop-color="#ffd76a"/></linearGradient>
+ <linearGradient id="inner" x1=".15" y1="1" x2=".8" y2="0"><stop stop-color="#fff4b0"/><stop offset="1" stop-color="#fffef8"/></linearGradient>
+ <filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="13"/></filter>
+</defs>
+<circle cx="120" cy="120" r="113" fill="url(#bg)" stroke="#dbe5fc" stroke-width="2"/>
+<circle cx="120" cy="120" r="94" fill="none" stroke="#fff" stroke-opacity=".92" stroke-width="3"/>
+<path d="M120 48v-9M64 65l-7-7M176 65l7-7M49 120h-9M191 120h9" fill="none" stroke="#9daee0" stroke-width="4" stroke-linecap="round"/>
+<ellipse cx="120" cy="157" rx="48" ry="19" fill="#f6a456" opacity=".28" filter="url(#glow)"/>
+<path d="M120 40c-3 26-34 41-34 78 0 27 15 49 35 49s36-21 36-49c0-23-16-37-18-55-6 13-12 17-19 20 3-18 2-30 0-43Z" fill="url(#flame)" stroke="#db714a" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M120 93c-3 14-18 27-18 42 0 15 8 24 18 24s19-10 19-24c0-13-9-19-12-27-2 10-5 12-7 15 1-11 1-21 0-30Z" fill="url(#inner)"/>
+<path d="M84 181q36 19 72 0" fill="none" stroke="#b9c7ed" stroke-width="3" stroke-linecap="round"/>
+<path d="m62 105 4-8 4 8 8 4-8 4-4 8-4-8-8-4Zm111 21 3-6 3 6 6 3-6 3-3 6-3-6-6-3Z" fill="#b7c7ed"/>
+</svg>
