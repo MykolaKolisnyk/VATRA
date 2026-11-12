@@ -1515,7 +1515,7 @@ assert.ok(auth.includes('persistSession:page!=="reset"&&page!=="forgot"')&&
 for(const name of pages){
  const enTitle=en.__pages[name]?.meta?.title;
  if(!enTitle)continue;
- assert.ok(lang.includes((/^[A-Za-z_$][\\w$]*$/.test(name)?name:JSON.stringify(name))+":"+JSON.stringify(enTitle)),
+ assert.ok(lang.includes((/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name)?name:JSON.stringify(name))+":"+JSON.stringify(enTitle)),
   "An English browser tab title must be available synchronously for "+name);
 }
 assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
