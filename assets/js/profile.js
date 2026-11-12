@@ -925,10 +925,27 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
     .eq("author_vatra_id",ownId).lte("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(50);
    if(error)throw error;
-   for(const item of data||[])makeRow(list,dateText(item.created_at),item.body||
+   for(const item of data||[]){
+    const article=makeRow(list,dateText(item.created_at),item.body||
      (item.media_kind==="video"?t("Відеоісторія","Video story"):
       item.media_kind==="image"?t("Фотоісторія","Photo story"):
        t("Історія","Story")));
+    const view=node("button","vt-profile-archived-story-open-001",
+     t("Переглянути історію","View story"));
+    view.type="button";
+    view.addEventListener("click",()=>{
+     const dialog=q("#profile-story-viewer");
+     const text=q("#profile-story-viewer-text");
+     q("#profile-story-viewer-heading").textContent=dateText(item.created_at);
+     text.textContent=item.body||"";text.hidden=!item.body;
+     dialog.dataset.theme=String(item.theme||0);
+     dialog.showModal();
+     // Only the owner can select an expired story and sign its private asset.
+     void window.VATRA_POST_MEDIA?.renderStory(client,
+      {...item,author_vatra_id:ownId},q("#profile-story-viewer-media"),false,true);
+    });
+    article.append(view);
+   }
    if(!list.children.length)empty("#profile-archive-stories-empty",t("Історій в архіві ще немає.","No archived stories yet."));
   }catch(_){empty("#profile-archive-stories-empty",t("Не вдалося завантажити архів історій.","Could not load story archive."));}
  };
