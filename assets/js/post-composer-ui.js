@@ -28,7 +28,7 @@ const iconUpload=()=>{
  }
  return svg;
 };
-function bind({prefix,ownerId}){
+function bind({prefix,ownerId,getFile}){
  const q=s=>document.querySelector(s);
  const dialog=q("#"+prefix+"-compose-dialog"),form=q("#"+prefix+"-compose-form");
  const title=q("#"+prefix+"-compose-title"),textarea=q("#"+prefix+"-compose-text");
@@ -123,7 +123,7 @@ function bind({prefix,ownerId}){
  const notice=make("p","vt-vatra-post-composer-notice-001");notice.hidden=true;
  const showNotice=value=>{notice.textContent=value;notice.hidden=!value;};
  function sync(){
-  next.disabled=!textarea.value.trim()&&!picker?.files?.length;
+  next.disabled=!textarea.value.trim()&&!(typeof getFile==="function"&&getFile());
  }
  function setStage(name){
   if(name==="settings"&&!textarea.value.trim()&&!picker?.files?.length)return false;
@@ -163,7 +163,7 @@ function bind({prefix,ownerId}){
  back.addEventListener("click",()=>setStage("edit"));
  next.addEventListener("click",()=>{if(setStage("settings"))select?.focus({preventScroll:true});});
  textarea.addEventListener("input",sync);
- picker?.addEventListener("change",sync);
+ picker?.addEventListener("change",()=>queueMicrotask(sync));
  q("#"+prefix+"-compose-media-remove")?.addEventListener("click",()=>queueMicrotask(sync));
  draftSave.addEventListener("click",()=>{
   const body=textarea.value.trim();
