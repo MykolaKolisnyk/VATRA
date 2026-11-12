@@ -663,6 +663,7 @@ function missingProfile(state="not-found"){
  window.VATRA_AVATAR?.fallback(portrait,state);
  if(wrap){wrap.dataset.vatraSystemAvatar="true";
   window.VATRA_AVATAR?.accent(wrap,window.VATRA_AVATAR.asset(state,2048));}
+ window.VATRA_AVATAR?.accent(q("#profile-cover-image"),window.VATRA_AVATAR.asset(state,2048));
  const button=q("#profile-avatar-trigger");
  if(button){button.disabled=true;button.setAttribute("aria-label",title);}
  q("#profile-cover-image")?.style.setProperty("--vatra-avatar-accent","#7990b6");
@@ -1194,7 +1195,9 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   link.href=memberUrl(id);link.setAttribute("aria-label",member.name);
   const photo=node("span","profile-friend-portrait vt-profile-friend-portrait-"+id);
   photo.setAttribute("aria-hidden","true");
-  if(member.avatar){
+  window.VATRA_AVATAR?.fallback(photo,member.state||"default");
+  if(member.avatar&&!member.state){
+   window.VATRA_AVATAR?.clearFallback(photo);
    photo.style.backgroundImage="url("+JSON.stringify(member.avatar)+")";
    photo.classList.add("has-photo");
   }
@@ -1278,22 +1281,27 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const friendships=jobs[0].value.data||[];
   const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
    String(f.recipient_id):String(f.requester_id)).filter(validId))];
-  const [names,photos]=await Promise.allSettled([
+  const [names,photos,statesResult]=await Promise.allSettled([
    ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
-   ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]})
+   ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
+   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);
+  const friendStates=statesResult.status==="fulfilled"?statesResult.value:new Map();
   const namesMap=new Map(names.status==="fulfilled"&&!names.value.error?
    (names.value.data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
   const mediaMap=new Map(photos.status==="fulfilled"&&!photos.value.error?
    (photos.value.data||[]).map(x=>[String(x.vatra_id),String(x.avatar_path||"")]):[]);
   cachedFriends=ids.map(id=>{
-   const path=mediaMap.get(id);
+   const state=friendStates.get(id)||null,path=mediaMap.get(id);
    let avatar=null;
-   if(path&&path.startsWith(id+"/avatar/")){
+   if(!state&&path&&path.startsWith(id+"/avatar/")){
     const {data}=client.storage.from("vatra-avatars").getPublicUrl(path);
     avatar=data?.publicUrl||null;
    }
-   return {id,name:namesMap.get(id)||t("Учасник VATRA","VATRA member"),avatar};
+   const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
+    state==="blocked"?t("Акаунт заблоковано","Account blocked"):
+    namesMap.get(id)||t("Учасник VATRA","VATRA member");
+   return {id,name,avatar,state};
   });
   friendsPreview.replaceChildren();
   for(const friend of cachedFriends.slice(0,6))friendsPreview.append(personCard(friend,true));
@@ -1733,6 +1741,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const bucketFor=kind=>kind==="avatar"?"vatra-avatars":"vatra-covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
+ window.VATRA_AVATAR?.fallback(avatar,"default");
+ avatarWrap.dataset.vatraSystemAvatar="true";
+ window.VATRA_AVATAR?.accent(avatarWrap,window.VATRA_AVATAR.asset("default",2048));
+ window.VATRA_AVATAR?.accent(cover,window.VATRA_AVATAR.asset("default",2048));
  const canViewPhoto=!locked;
  const status=(text,error=false)=>{
   message.textContent=text;message.hidden=!text;
