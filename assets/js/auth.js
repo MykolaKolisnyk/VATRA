@@ -273,7 +273,6 @@ function passwordIssue(value){
 function validPassword(value){return passwordIssue(value)==="";}
 async function initialize(){
  try{
- wireOrbitTooltips();
  /* Initial language translations must finish before wiring localized controls. */
  await window.VATRA_LANGUAGE?.ready;
  /* Shared controls initialize before authentication, so typing never depends
