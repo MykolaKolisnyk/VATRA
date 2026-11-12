@@ -1088,7 +1088,7 @@ function bindPostComposer(client,user,ownId){
   clearStatus();
   dialog.showModal();
   update();
-  input.focus();
+  composerUI?.open();
  });
  cancel.addEventListener("click",()=>{if(!publishing)dialog.close();});
  dialog.addEventListener("cancel",event=>{if(publishing)event.preventDefault();});
