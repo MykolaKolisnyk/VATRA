@@ -3000,6 +3000,36 @@ try{
   await profilePage.locator("#profile-compose-submit").click();
   await profilePage.waitForFunction(()=>document.querySelectorAll("#profile-posts .feed-post-card").length===1);
   assert.equal((await profilePage.locator("#profile-posts .feed-post-body").textContent()).trim(),injectionText);
+  // Year/month filters must restrict database results, not just hide the
+  // first loaded page on the client. The mock records actual date predicates.
+  assert.equal(await profilePage.locator("#profile-post-filter-button").isVisible(),true);
+  await profilePage.locator("#profile-post-filter-button").click();
+  assert.equal(await profilePage.locator("#profile-post-filter-panel").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-post-filter-month").isDisabled(),true);
+  const filterYear=await profilePage.evaluate(()=>String(new Date().getFullYear()));
+  await profilePage.evaluate(year=>{
+   const item=(name,month)=>({
+    id:"period-"+name,author_vatra_id:654321,visibility:"public",
+    body:"Period "+name,
+    created_at:new Date(Number(year),month-1,12,12).toISOString()
+   });
+   window.__feedTestPosts.push(item("october",10),item("november",11));
+  },filterYear);
+  await profilePage.locator("#profile-post-filter-year").selectOption(filterYear);
+  assert.equal(await profilePage.locator("#profile-post-filter-month").isEnabled(),true);
+  await profilePage.locator("#profile-post-filter-month").selectOption("10");
+  await profilePage.waitForFunction(()=>document.querySelector("#profile-posts")?.dataset.loading==="false"&&
+   document.querySelectorAll("#profile-posts .feed-post-card").length===1&&
+   document.querySelector("#profile-posts .feed-post-body")?.textContent==="Period october");
+  assert.equal(await profilePage.locator("#profile-post-filter-button").getAttribute("data-active"),"true");
+  await profilePage.locator("#profile-post-filter-month").selectOption("11");
+  await profilePage.waitForFunction(()=>document.querySelector("#profile-posts")?.dataset.loading==="false"&&
+   [...document.querySelectorAll("#profile-posts .feed-post-body")].some(el=>el.textContent==="Period november"));
+  await profilePage.locator("#profile-post-filter-reset").click();
+  await profilePage.waitForFunction(()=>document.querySelector("#profile-posts")?.dataset.loading==="false"&&
+   document.querySelectorAll("#profile-posts .feed-post-card").length===3);
+  assert.equal(await profilePage.locator("#profile-post-filter-status").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-post-filter-panel").isVisible(),false);
   assert.equal(await profilePage.locator("#profile-posts img").count(),0,
    "Profile posts render user input as text, not executable HTML");
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
@@ -3039,6 +3069,22 @@ try{
    language==="en"?"VATRA member · ID 789012":"Учасник VATRA · ID 789012");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),false,
    "The personal post action must not appear on other members' profiles");
+  const visitorColumns=await profilePage.locator("#profile-posts-section").evaluate(section=>{
+   const about=section.querySelector("#profile-about-card")?.getBoundingClientRect();
+   const posts=section.querySelector(".profile-posts-main")?.getBoundingClientRect();
+   return {width:section.getBoundingClientRect().width,
+    aboutWidth:about?.width,postsWidth:posts?.width,
+    aligned:Math.abs((about?.top||0)-(posts?.top||0))<3};
+  });
+  assert.ok(visitorColumns.aligned&&
+   Math.abs(visitorColumns.aboutWidth-profileColumns.aboutWidth)<2&&
+   Math.abs(visitorColumns.postsWidth-profileColumns.postsWidth)<2,
+   "Owner and visitor profiles must have matching About/Posts columns: "+
+   JSON.stringify({profileColumns,visitorColumns}));
+  assert.equal(await profilePage.locator("#profile-post-filter-button").isVisible(),true,
+   "Visitors can filter the publications they are allowed to see");
+  assert.equal(await profilePage.locator("#profile-about-text").isVisible(),false,
+   "An absent short biography must not show placeholder text");
   assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),true,
    "Other member profile must offer Add Friend");
   assert.equal(await profilePage.locator("#profile-message-button").isVisible(),true,
