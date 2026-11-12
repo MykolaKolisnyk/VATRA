@@ -2741,6 +2741,11 @@ try{
      filterGeometry.right<=filterGeometry.edge+3),
     "Filters belong in the right gutter or right-aligned row: "+JSON.stringify(filterGeometry));
   }
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false,
+   "Feed filter choices start collapsed");
+  await feedProbe.locator("#feed-filter-toggle").click();
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true,
+   "Feed filter choices open with the toggle");
   await feedProbe.locator('[data-feed-filter="friends"]').click();
   await feedProbe.waitForFunction(()=>
    document.querySelector('#feed-posts')?.getAttribute('aria-busy')==='false'&&
@@ -2889,8 +2894,8 @@ try{
    "Profiles must use the same header search as the Feed");
   assert.equal(await profilePage.locator(".social-profile-tabs").isVisible(),true,
    "Profile must have a visible navigation bar beneath the cover");
-  assert.equal(await profilePage.locator("[data-profile-tab]").count(),6,
-   "Profile has Posts, Friends, Photos, Videos, Gifts and Saved tabs");
+  assert.equal(await profilePage.locator("[data-profile-tab]").count(),8,
+   "Profile has Home, Photos, Videos, Clips, Communities, Saved, and hidden Friends/Gifts detail tabs");
   assert.equal(await profilePage.locator("#profile-tab-saved").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-archive-toggle").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
@@ -3099,8 +3104,10 @@ try{
    "Visitor's add-friend button needs a persistent line icon");
   assert.equal(await profilePage.locator("#profile-message-button svg").count(),1,
    "Visitor's message button needs a persistent line icon");
-  assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),true,
-   "Visitors have a Friends tab but cannot access private friend lists");
+  assert.equal(await profilePage.locator("#profile-tab-friends").isVisible(),false,
+   "Friends are accessible from the About-side Friends card, not the main tabs");
+  assert.equal(await profilePage.locator("#profile-report-open").isVisible(),true,
+   "Visitors can open a report dialog for another member");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
   await profilePage.locator("#profile-message-button").click();
