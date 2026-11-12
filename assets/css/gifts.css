@@ -1,0 +1,118 @@
+/* VATRA gift collection: Onest, restrained surfaces and original SVG artwork. */
+body.vatra-gifts-page .vatra-gifts-main{
+ width:min(1050px,calc(100% - 36px));margin:28px auto 78px;
+ padding:27px 32px 38px;border:1px solid #e1e9f5;border-radius:21px;
+ background:#fff;box-shadow:0 12px 40px rgba(36,53,92,.04);
+ color:#30435f;font-family:"Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page .vatra-gifts-header{display:flex;flex-direction:column;gap:7px;margin-bottom:24px}
+body.vatra-gifts-page .vt-vatra-gifts-back-001{
+ align-self:start;margin-bottom:7px;color:#3868bd;text-decoration:none;
+ font:750 12px/1.5 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page .vt-vatra-gifts-eyebrow-001{
+ color:#8499bc;letter-spacing:.12em;font:700 11px/1.4 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page .vt-vatra-gifts-title-001{
+ margin:0;color:#2e4163;font:820 clamp(25px,3vw,33px)/1.2 "Onest",system-ui,sans-serif;letter-spacing:-.042em
+}
+body.vatra-gifts-page .vt-vatra-gifts-intro-001{margin:0;color:#7187a8;font:500 13px/1.6 "Onest",system-ui,sans-serif}
+body.vatra-gifts-page .vatra-gifts-tabs{
+ display:flex;gap:4px;align-items:center;flex-wrap:wrap;
+ width:max-content;max-width:100%;margin-bottom:23px;padding:5px;
+ border:1px solid #e1e9f6;border-radius:13px;background:#f5f8fe
+}
+body.vatra-gifts-page .vatra-gifts-tabs button{
+ min-height:38px;padding:9px 16px;border:0;border-radius:9px;
+ color:#4d658a;background:transparent;cursor:pointer;
+ font:740 12.5px/1.3 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page .vatra-gifts-tabs button.is-active{background:#e7efff;color:#245fd4}
+body.vatra-gifts-page .vatra-gifts-grid{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px
+}
+body.vatra-gifts-page .vatra-gifts-card{
+ display:flex;flex-direction:column;align-items:center;gap:10px;
+ width:100%;padding:13px 13px 19px;
+ border:1px solid #e3ebf7;border-radius:17px;background:#fff;
+ color:#314969;cursor:pointer;text-align:center;
+ font-family:"Onest",system-ui,sans-serif;
+ transition:box-shadow .16s ease,border-color .16s ease,transform .16s ease
+}
+body.vatra-gifts-page .vatra-gifts-card:hover{
+ transform:translateY(-3px);border-color:#bfcdf0;
+ box-shadow:0 9px 24px rgba(57,83,137,.11)
+}
+body.vatra-gifts-page .vatra-gifts-card-image{
+ display:grid;place-items:center;width:100%;aspect-ratio:1;
+ border-radius:13px;background:#f4f7fe;overflow:hidden
+}
+body.vatra-gifts-page .vatra-gifts-card img{
+ display:block;width:min(100%,195px);height:auto;max-height:100%;object-fit:contain
+}
+body.vatra-gifts-page [class^="vt-vatra-gifts-card-title-"]{
+ color:#304462;font:780 15px/1.3 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page [class^="vt-vatra-gifts-card-copy-"]{
+ color:#7789a5;font:510 12px/1.5 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page [class^="vt-vatra-gifts-card-state-"]{
+ margin-top:auto;padding:5px 10px;border-radius:22px;background:#edf3ff;
+ color:#5478bb;font:690 10.5px/1.3 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page .vt-vatra-gifts-empty-001{
+ margin:0;padding:44px 14px;text-align:center;color:#8190a9;
+ font:540 14px/1.7 "Onest",system-ui,sans-serif
+}
+body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
+.vatra-gift-viewer{
+ width:min(94vw,740px);max-width:740px;max-height:min(92dvh,880px);
+ padding:0;overflow:auto;margin:auto;border:1px solid #dfebfc;border-radius:22px;
+ background:#fff;color:#324563;box-shadow:0 24px 80px rgba(20,38,82,.27);
+ font-family:"Onest",system-ui,sans-serif
+}
+.vatra-gift-viewer:not([open]){display:none!important}
+.vatra-gift-viewer::backdrop{background:rgba(18,30,61,.74);backdrop-filter:blur(8px)}
+.vatra-gift-viewer-head{
+ display:flex;justify-content:space-between;align-items:center;gap:15px;
+ padding:20px 23px;border-bottom:1px solid #e9eff9
+}
+.vatra-gift-viewer-head h2{
+ margin:0;color:#2d4265;font:800 clamp(19px,2.7vw,25px)/1.25 "Onest",system-ui,sans-serif
+}
+.vatra-gift-viewer-head button{
+ width:38px;height:38px;border:0;border-radius:50%;background:#f0f4fc;
+ color:#647b9f;font:400 29px/1 "Onest",system-ui,sans-serif;cursor:pointer
+}
+.vatra-gift-viewer-stage{
+ display:grid;place-items:center;min-height:min(48dvh,390px);
+ padding:22px;background:radial-gradient(circle at 50% 46%,#fff 15%,#eef3ff 100%)
+}
+.vatra-gift-viewer-stage img{
+ width:min(70vw,340px);height:min(70vw,340px);max-height:38dvh;object-fit:contain
+}
+.vatra-gift-viewer-footer{display:flex;flex-direction:column;gap:8px;padding:20px 28px 29px;text-align:center}
+.vatra-gift-viewer-footer p{margin:0}
+.vt-vatra-gift-viewer-event-001{
+ color:#4b6eae;font:740 12px/1.45 "Onest",system-ui,sans-serif
+}
+.vt-vatra-gift-viewer-description-001{
+ margin:auto!important;max-width:510px;color:#617795;
+ font:520 14px/1.75 "Onest",system-ui,sans-serif
+}
+@media(max-width:850px){
+ body.vatra-gifts-page .vatra-gifts-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:610px){
+ body.vatra-gifts-page .vatra-gifts-main{width:calc(100% - 18px);padding:20px 15px 28px;margin:12px auto 45px}
+ body.vatra-gifts-page .vatra-gifts-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ body.vatra-gifts-page .vatra-gifts-card{padding:9px 8px 14px;gap:7px}
+ body.vatra-gifts-page .vt-vatra-gifts-title-001{font-size:25px}
+ .vatra-gift-viewer-stage{min-height:270px}
+}
+@media(max-width:365px){
+ body.vatra-gifts-page .vatra-gifts-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ body.vatra-gifts-page .vatra-gifts-card{transition:none}
+}
