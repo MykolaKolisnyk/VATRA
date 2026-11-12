@@ -1132,6 +1132,267 @@ function bindPostComposer(client,user,ownId){
  update();
 }
 
+
+/* Profile sidebar: the same six named friends and three real gifts for every
+   accessible profile. Pending friend requests never appear in public previews. */
+async function setupProfileSocialCards(client,ownId,targetId,isMine){
+ const friendsPreview=q("#profile-friends-preview-list");
+ const friendsAll=q("#profile-friends-list");
+ const giftsPreview=q("#profile-gifts-preview-list");
+ const giftsAll=q("#profile-gifts-list");
+ const communityList=q("#profile-communities-list");
+ if(!friendsPreview||!giftsPreview)return;
+ const previewEmpty=(selector,message)=>{
+  const el=q(selector);if(el){el.textContent=message;el.hidden=false;}
+ };
+ const firstName=value=>String(value||"").trim().split(/\s+/)[0]||t("Учасник","Member");
+ const asset=new URL("assets/gifts/first-flame.svg",home).href;
+ const loading=(el,value)=>{
+  el.replaceChildren(node("p","vt-profile-mini-loading-001",value));
+ };
+ loading(friendsPreview,t("Завантаження друзів…","Loading friends…"));
+ loading(giftsPreview,t("Завантаження подарунків…","Loading gifts…"));
+ let cachedFriends=[],cachedGifts=[],communitiesLoaded=false;
+ function personCard(member,compact){
+  const id=String(member.id);
+  const link=node("a",compact?"profile-friend-tile vt-profile-friend-tile-"+id:
+   "profile-friend-full vt-profile-friend-full-"+id);
+  link.href=memberUrl(id);link.setAttribute("aria-label",member.name);
+  const photo=node("span","profile-friend-portrait vt-profile-friend-portrait-"+id);
+  photo.setAttribute("aria-hidden","true");
+  if(member.avatar){
+   photo.style.backgroundImage="url("+JSON.stringify(member.avatar)+")";
+   photo.classList.add("has-photo");
+  }
+  const label=node("span","vt-profile-friend-name-"+id,compact?firstName(member.name):member.name);
+  link.append(photo,label);return link;
+ }
+ const showFriends=()=>{
+  friendsAll.replaceChildren();
+  if(cachedFriends.length){
+   for(const friend of cachedFriends)friendsAll.append(personCard(friend,false));
+   q("#profile-friends-empty").hidden=true;
+  }else previewEmpty("#profile-friends-empty",t("Друзів поки немає.","No friends yet."));
+ };
+ window.VATRA_PROFILE_SHOW_FRIENDS=showFriends;
+ const showGifts=()=>{
+  giftsAll.replaceChildren();
+  if(cachedGifts.length){
+   for(const gift of cachedGifts)giftsAll.append(giftCard(gift,false));
+   q("#profile-gifts-empty").hidden=true;
+  }else previewEmpty("#profile-gifts-empty",t("Подарунків поки немає.","No gifts yet."));
+ };
+ window.VATRA_PROFILE_SHOW_GIFTS=showGifts;
+ function giftCard(gift,compact){
+  const item=node("article",compact?"profile-gift-tile ui-profile-gift-preview-item-001":
+   "profile-gift-full ui-profile-gift-full-item-001");
+  const img=node("img","profile-gift-art ui-profile-gift-art-001");
+  img.src=asset;img.alt=t("Перший вогник VATRA","First VATRA flame");
+  img.width=compact?82:116;img.height=compact?82:116;img.loading="lazy";
+  const title=node("strong","vt-profile-gift-name-001",t("Перший вогник","First flame"));
+  const sub=node("small","vt-profile-gift-caption-001",t("За приєднання до VATRA","For joining VATRA"));
+  item.append(img,title,sub);return item;
+ }
+ q("#profile-friends-all")?.addEventListener("click",()=>window.VATRA_PROFILE_CHOOSE_TAB?.("friends"));
+ q("#profile-gifts-all")?.addEventListener("click",()=>window.VATRA_PROFILE_CHOOSE_TAB?.("gifts"));
+ window.VATRA_PROFILE_SHOW_COMMUNITIES=async()=>{
+  if(communitiesLoaded)return;
+  communitiesLoaded=true;
+  communityList.replaceChildren();
+  try{
+   const {data:follows,error}=await client.from("vatra_community_follows")
+    .select("club_id,created_at").eq("member_vatra_id",targetId)
+    .order("created_at",{ascending:false}).limit(150);
+   if(error)throw error;
+   const ids=[...new Set((follows||[]).map(x=>String(x.club_id)).filter(validId))];
+   if(ids.length){
+    const {data:groups,error:groupError}=await client.from("communities")
+     .select("club_id,name,description").in("club_id",ids);
+    if(groupError)throw groupError;
+    const indexed=new Map((groups||[]).map(x=>[String(x.club_id),x]));
+    for(const id of ids){
+     const info=indexed.get(id);if(!info)continue;
+     const a=node("a","profile-community-link vt-profile-community-link-"+id);
+     a.href=new URL("club"+id,home).href;
+     a.append(node("span","profile-community-symbol vt-profile-community-symbol-"+id,"V"),
+      node("span","vt-profile-community-name-"+id,String(info.name||"").trim()||t("Спільнота","Community")));
+     communityList.append(a);
+    }
+   }
+   if(!communityList.children.length)previewEmpty("#profile-communities-empty",t("Підписок поки немає.","No community subscriptions yet."));
+  }catch(_){
+   communitiesLoaded=false;
+   previewEmpty("#profile-communities-empty",t("Не вдалося завантажити спільноти.","Could not load communities."));
+  }
+ };
+ const jobs=await Promise.allSettled([
+  client.from("vatra_friendships").select("requester_id,recipient_id,created_at")
+   .eq("status","accepted")
+   .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
+   .order("created_at",{ascending:false}).limit(300),
+  client.from("vatra_profile_gifts").select("id,gift_code,created_at")
+   .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(100)
+ ]);
+ if(jobs[0].status==="fulfilled"&&!jobs[0].value.error){
+  const friendships=jobs[0].value.data||[];
+  const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
+   String(f.recipient_id):String(f.requester_id)).filter(validId))];
+  const [names,photos]=await Promise.allSettled([
+   ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
+   ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]})
+  ]);
+  const namesMap=new Map(names.status==="fulfilled"&&!names.value.error?
+   (names.value.data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
+  const mediaMap=new Map(photos.status==="fulfilled"&&!photos.value.error?
+   (photos.value.data||[]).map(x=>[String(x.vatra_id),String(x.avatar_path||"")]):[]);
+  cachedFriends=ids.map(id=>{
+   const path=mediaMap.get(id);
+   let avatar=null;
+   if(path&&path.startsWith(id+"/avatar/")){
+    const {data}=client.storage.from("vatra-avatars").getPublicUrl(path);
+    avatar=data?.publicUrl||null;
+   }
+   return {id,name:namesMap.get(id)||t("Учасник VATRA","VATRA member"),avatar};
+  });
+  friendsPreview.replaceChildren();
+  for(const friend of cachedFriends.slice(0,6))friendsPreview.append(personCard(friend,true));
+  if(!cachedFriends.length)previewEmpty("#profile-friends-preview-empty",t("Друзів поки немає.","No friends yet."));
+ }else{
+  friendsPreview.replaceChildren();
+  previewEmpty("#profile-friends-preview-empty",t("Друзі тимчасово недоступні.","Friends are temporarily unavailable."));
+ }
+ if(jobs[1].status==="fulfilled"&&!jobs[1].value.error){
+  cachedGifts=(jobs[1].value.data||[]).filter(x=>x.gift_code==="first_flame");
+  giftsPreview.replaceChildren();
+  for(const gift of cachedGifts.slice(0,3))giftsPreview.append(giftCard(gift,true));
+  if(!cachedGifts.length)previewEmpty("#profile-gifts-preview-empty",t("Подарунків поки немає.","No gifts yet."));
+ }else{
+  giftsPreview.replaceChildren();
+  previewEmpty("#profile-gifts-preview-empty",t("Не вдалося завантажити подарунки.","Could not load gifts."));
+ }
+}
+
+/* Multi-step profile reporting, with server-owned reporter identity and
+   insert-only RLS. Reports are private moderation data, not public posts. */
+function setupProfileReports(client,ownId,targetId,isMine,locked){
+ if(isMine)return;
+ const dialog=q("#profile-report-dialog"),open=q("#profile-report-open");
+ const back=q("#profile-report-back"),close=q("#profile-report-close");
+ const content=q("#profile-report-content"),error=q("#profile-report-error");
+ const footer=q("#profile-report-footer"),submit=q("#profile-report-submit");
+ if(!dialog||!open)return;
+ let step="kind",kind="profile",category="",reason="",sending=false;
+ const base=[
+  ["underage","Проблема стосується людини, молодшої за 18 років","A person under 18 is involved"],
+  ["harassment","Цькування, переслідування чи жорстоке поводження","Bullying or harassment"],
+  ["self_harm","Самогубство чи самоушкодження","Suicide or self-harm"],
+  ["hateful","Жорстокий, ненависницький або тривожний контент","Violent, hateful or disturbing content"],
+  ["regulated","Продаж або просування товарів з обмеженим доступом","Restricted goods"],
+  ["adult","Контент для дорослих","Adult content"],
+  ["fraud","Шахрайство або неправдива інформація","Fraud or false information"],
+  ["fake","Фальшивий профіль","Fake profile"],
+  ["intellectual_property","Інтелектуальна власність","Intellectual property"],
+  ["other","Інше","Something else"]
+ ];
+ const specific={
+  underage:[
+   ["Погроза поширити мої оголені зображення","Threat to share my intimate images"],
+   ["Схоже на сексуальну експлуатацію","Possible sexual exploitation"],
+   ["Поширення оголених зображень іншої людини","Sharing someone's intimate images"],
+   ["Цькування чи переслідування","Bullying or harassment"],
+   ["Фізичне насильство","Physical violence"]],
+  harassment:[["Цькування чи переслідування","Bullying or stalking"],["Погрози","Threats"],["Образи або приниження","Abuse or humiliation"]],
+  fake:[["Видає себе за мене","Impersonates me"],["Видає себе за іншу людину","Impersonates someone else"],["Підроблена особа або організація","Fake identity or organization"]],
+  fraud:[["Шахрайська схема","Scam"],["Оманлива інформація","Misleading information"],["Підозріле посилання","Suspicious link"]]
+ };
+ const option=(label,action)=>{
+  const button=node("button","profile-report-option ui-profile-report-option-001");
+  button.type="button";
+  button.append(node("span","vt-profile-report-option-label-001",label),
+   node("span","vt-profile-report-option-arrow-001","›"));
+  button.addEventListener("click",action);content.append(button);
+ };
+ const paragraph=(value,cl="vt-profile-report-copy-001")=>content.append(node("p",cl,value));
+ const heading=value=>content.append(node("h3","vt-profile-report-prompt-001",value));
+ const message=value=>{error.textContent=value;error.hidden=!value;};
+ const render=()=>{
+  content.replaceChildren();message("");
+  back.hidden=step==="kind"||step==="success";
+  footer.hidden=step!=="review";
+  if(step==="kind"){
+   heading(t("На що ви хочете поскаржитися?","What would you like to report?"));
+   paragraph(t("Якщо є безпосередня небезпека, зверніться по екстрену допомогу.","If someone is in immediate danger, contact emergency services."));
+   option(t("Певна інформація про цей профіль","Something about this profile"),()=>{kind="profile";step="category";render();});
+   option(t("Конкретний допис","A specific post"),()=>{kind="post";step="category";render();});
+  }else if(step==="category"){
+   heading(t("Чому ви скаржитеся на цей профіль?","Why are you reporting this profile?"));
+   for(const [code,uk,en] of base)option(t(uk,en),()=>{category=kind==="post"?"specific_post":code;reason=t(uk,en);step="reason";render();});
+  }else if(step==="reason"){
+   heading(t("Який із варіантів найліпше описує проблему?","Which option best describes the issue?"));
+   const choices=specific[category]||[
+    ["Порушення правил спільноти VATRA","Violates VATRA community rules"],
+    ["Небезпечний або неприйнятний контент","Unsafe or inappropriate content"],
+    ["Інша проблема","Another problem"]
+   ];
+   for(const [uk,en] of choices)option(t(uk,en),()=>{reason=t(uk,en);step="review";render();});
+  }else if(step==="review"){
+   heading(t("Ви збираєтеся надіслати скаргу","You're about to submit a report"));
+   paragraph(t("Скарга надходить на перевірку. Надсилання не означає автоматичного видалення контенту.","Your report is reviewed. Submitting does not automatically remove content."));
+   const group=node("div","profile-report-review ui-profile-report-review-001");
+   const chosen=base.find(x=>x[0]===category);
+   group.append(node("small","vt-profile-report-category-label-001",t("Причина скарги","Report category")),
+    node("strong","vt-profile-report-category-value-001",category==="specific_post"?t("Конкретний допис","Specific post"):chosen?t(chosen[1],chosen[2]):reason));
+   group.append(node("small","vt-profile-report-reason-label-001",t("Уточнення","Details")),
+    node("strong","vt-profile-report-reason-value-001",reason));
+   content.append(group);
+   const label=node("label","vt-profile-report-details-label-001",t("Додаткова інформація (необов’язково)","Additional details (optional)"));
+   label.setAttribute("for","profile-report-details");
+   const input=node("textarea","ui-profile-report-details-001");
+   input.id="profile-report-details";input.maxLength=1500;input.rows=4;
+   input.placeholder=t("Опишіть, що сталося…","Describe what happened…");
+   input.value=dialog.dataset.reportDraft||"";
+   input.addEventListener("input",()=>{dialog.dataset.reportDraft=input.value;});
+   content.append(label,input);
+  }else if(step==="success"){
+   heading(t("Дякуємо за скаргу","Thank you for your report"));
+   paragraph(t("Скаргу надіслано для перевірки. Дякуємо, що допомагаєте підтримувати безпеку VATRA.","Your report was submitted for review. Thank you for helping keep VATRA safe."));
+   const done=node("button","vt-profile-report-done-001",t("Готово","Done"));
+   done.type="button";done.addEventListener("click",()=>dialog.close());content.append(done);
+  }
+ };
+ const launch=()=>{
+  step="kind";kind="profile";category="";reason="";sending=false;dialog.dataset.reportDraft="";
+  render();dialog.showModal();close.focus({preventScroll:true});
+ };
+ open.addEventListener("click",launch);
+ if(locked){
+  const notice=q(".profile-locked-notice");
+  if(notice){
+   const button=node("button","vt-profile-report-locked-001",t("Поскаржитися","Report"));
+   button.type="button";button.addEventListener("click",launch);notice.append(button);
+  }
+ }
+ close.addEventListener("click",()=>dialog.close());
+ back.addEventListener("click",()=>{step=step==="review"?"reason":step==="reason"?"category":"kind";render();});
+ submit.addEventListener("click",async()=>{
+  if(sending||step!=="review")return;
+  sending=true;submit.disabled=true;message("");
+  try{
+   const {error:insertError}=await client.from("vatra_profile_reports").insert({
+    target_vatra_id:Number(targetId),category,reason,
+    details:String(dialog.dataset.reportDraft||"").trim().slice(0,1500)
+   });
+   if(insertError){
+    if(insertError.code==="23505"){message(t("Ви вже надсилали таку скаргу.","You've already sent this report."));return;}
+    throw insertError;
+   }
+   step="success";render();
+  }catch(_){message(t("Не вдалося надіслати скаргу. Спробуйте ще раз.","Could not submit the report. Please retry."));}
+  finally{sending=false;submit.disabled=false;}
+ });
+ dialog.addEventListener("close",()=>{dialog.dataset.reportDraft="";message("");});
+}
+
 function setupProfileInteractions(client,ownId,targetId,isMine){
  const friendButton=q("#profile-friend-button"),messageButton=q("#profile-message-button");
  const actionStatus=q("#profile-action-status");
@@ -1168,7 +1429,10 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   for(const panel of document.querySelectorAll("[data-profile-panel]")){
    panel.hidden=panel.dataset.profilePanel!==name;
   }
-  if(name==="friends")void loadFriends();
+  if(name==="friends"&&window.VATRA_PROFILE_SHOW_FRIENDS)void window.VATRA_PROFILE_SHOW_FRIENDS();
+  else if(name==="friends")void loadFriends();
+  if(name==="gifts")void window.VATRA_PROFILE_SHOW_GIFTS?.();
+  if(name==="communities")void window.VATRA_PROFILE_SHOW_COMMUNITIES?.();
   if(name==="messages")void loadInbox();
   window.VATRA_PROFILE_EXTRA_TAB?.(name);
  }
@@ -1941,7 +2205,8 @@ async function start(){
   const isMine=targetId===ownId;
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
-  q("#profile-tab-friends").hidden=isMine;
+  q("#profile-tab-friends").hidden=true;
+  q("#profile-report-open").hidden=isMine;
   if(isMine)bindPostComposer(client,user,ownId);
   // The account creation trigger publishes only registered first/last names
   // to vatra_public_profiles. Birthdate, gender, email and auth UUID remain private.
@@ -1979,6 +2244,8 @@ async function start(){
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
   const locked=access?.locked===true;
   setupProfileInteractions(client,ownId,targetId,isMine);
+  setupProfileReports(client,ownId,targetId,isMine,locked);
+  if(!locked)void setupProfileSocialCards(client,ownId,targetId,isMine);
   if(!locked){
    setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
    setupProfileGallery(client,targetId);
