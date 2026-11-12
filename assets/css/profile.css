@@ -1938,3 +1938,231 @@ body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
  body.profile-page .profile-avatar:not(.has-photo)::before,
  body.profile-page .profile-avatar:not(.has-photo)::after{transition:none}
 }
+
+
+/* Profile 2026: shared About → Friends → Gifts stack, with equal cards for all members. */
+body.profile-page .profile-left-stack{
+ display:flex;flex-direction:column;gap:15px;min-width:0
+}
+body.profile-page .profile-left-stack > .profile-info{width:100%;min-width:0}
+body.profile-page .profile-mini-card{
+ display:flex;flex-direction:column;gap:15px;min-width:0;padding:20px 23px 17px;
+ background:#fff;border:1px solid #e2e9f5;border-radius:17px;
+ box-shadow:0 8px 26px rgba(36,54,99,.045)
+}
+body.profile-page .profile-mini-card > h2{
+ margin:0;padding:0 0 13px;border-bottom:1px solid #eaf0f8;
+ color:#2c4167;font:800 18px/1.35 "Onest",system-ui,sans-serif;letter-spacing:-.025em
+}
+body.profile-page .profile-friends-preview-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 8px
+}
+body.profile-page .profile-friend-tile,
+body.profile-page .profile-friend-full{
+ display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0;
+ text-align:center;color:#405779;text-decoration:none;
+ font:700 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-friend-tile:hover,
+body.profile-page .profile-friend-full:hover{color:#3569c8;text-decoration:none}
+body.profile-page .profile-friend-portrait{
+ display:block;flex:none;width:66px;height:66px;max-width:100%;aspect-ratio:1;
+ border-radius:50%;background:#e8eef8;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23e8eef8'/%3E%3Ccircle cx='32' cy='24' r='11' fill='%2394a8c5'/%3E%3Cpath d='M12 56c1-15 8-22 20-22s19 7 20 22' fill='%2394a8c5'/%3E%3C/svg%3E");
+ background-size:cover;background-position:center;background-repeat:no-repeat;
+ box-shadow:0 0 0 1px #dfe7f4;
+ transition:transform .16s ease,box-shadow .16s ease
+}
+body.profile-page .profile-friend-tile:hover .profile-friend-portrait{
+ transform:translateY(-2px);box-shadow:0 3px 12px rgba(40,65,117,.14)
+}
+body.profile-page [class^="vt-profile-friend-name-"]{
+ display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+body.profile-page .profile-gifts-preview-grid{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px
+}
+body.profile-page .profile-gift-tile,
+body.profile-page .profile-gift-full{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:4px;min-width:0;text-align:center
+}
+body.profile-page .profile-gift-art{
+ display:block;width:min(100%,92px);height:auto;aspect-ratio:1;object-fit:contain;
+ filter:drop-shadow(0 5px 9px rgba(111,106,180,.1))
+}
+body.profile-page .profile-gift-tile .vt-profile-gift-name-001{
+ color:#495e81;font:770 12px/1.25 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-gift-tile .vt-profile-gift-caption-001{display:none}
+body.profile-page .profile-mini-more{
+ display:flex;justify-content:space-between;align-items:center;gap:14px;
+ width:100%;min-height:42px;margin-top:auto;padding:10px 2px 4px;
+ border:0;border-top:1px solid #edf1f8;border-radius:0;
+ background:transparent;color:#3c6cc5;
+ font:770 13px/1.4 "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .profile-mini-more:hover{color:#2452a6}
+body.profile-page [class^="vt-profile-friends-preview-empty-"],
+body.profile-page [class^="vt-profile-gifts-preview-empty-"]{
+ margin:0;color:#8290a9;font:550 13px/1.55 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-about-more-001{
+ display:inline-flex;align-items:center;justify-content:space-between;
+ width:100%;min-height:44px;margin-top:16px;padding:10px 2px;
+ border:0!important;border-top:1px solid #e9eef7!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;
+ color:#3969c4;font:750 13px/1.4 "Onest",system-ui,sans-serif;
+ transition:color .16s ease!important
+}
+body.profile-page .vt-profile-about-more-001:hover{
+ background:transparent!important;color:#2451a5;border-color:#e9eef7!important;
+ transform:none!important
+}
+body.profile-page .vt-profile-about-more-001 svg{
+ transform:rotate(180deg)!important;width:17px;height:17px;
+ transition:transform .16s ease!important
+}
+body.profile-page .vt-profile-about-more-001:hover svg{
+ transform:rotate(180deg) translateX(-3px)!important
+}
+body.profile-page .profile-friends-all-grid,
+body.profile-page #profile-friends-list{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:20px 13px
+}
+body.profile-page #profile-friends-list .profile-friend-portrait{width:86px;height:86px}
+body.profile-page .profile-gifts-all-grid{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px
+}
+body.profile-page .profile-gift-full{
+ padding:18px 12px;border:1px solid #e7edf8;border-radius:16px;
+ background:linear-gradient(160deg,#fbfcff,#f7f9ff)
+}
+body.profile-page .profile-gift-full .profile-gift-art{width:110px}
+body.profile-page .profile-gift-full .vt-profile-gift-name-001{
+ color:#31476b;font:800 15px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-gift-full .vt-profile-gift-caption-001{
+ color:#7d8ea9;font:550 11px/1.45 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-community-grid{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px
+}
+body.profile-page .profile-community-link{
+ display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #e5ebf5;
+ border-radius:13px;text-decoration:none;color:#344f77;
+ font:740 13px/1.4 "Onest",system-ui,sans-serif;background:#fafcff
+}
+body.profile-page .profile-community-link:hover{background:#f0f5ff;text-decoration:none}
+body.profile-page [class^="vt-profile-community-symbol-"]{
+ display:grid;place-items:center;flex:none;width:42px;height:42px;
+ border-radius:12px;background:#e7efff;color:#4b6eb7;font-weight:860
+}
+body.profile-page .vt-profile-communities-description-001,
+body.profile-page .vt-profile-clips-empty-001{color:#7183a2;font-size:13px}
+
+/* Reporting: native modal for focus trapping, accessible keyboard and dim+blur backdrop. */
+body.profile-page .profile-report-dialog{
+ width:min(680px,calc(100vw - 22px));max-width:680px;
+ max-height:min(820px,calc(100dvh - 28px));padding:0;margin:auto;
+ border:1px solid #dfe5ee;border-radius:19px;
+ background:#fff;color:#263952;
+ box-shadow:0 30px 90px rgba(14,27,55,.26);
+ font-family:"Onest",system-ui,sans-serif
+}
+body.profile-page .profile-report-dialog:not([open]){display:none!important}
+body.profile-page .profile-report-dialog[open]{display:flex;flex-direction:column}
+body.profile-page .profile-report-dialog::backdrop{
+ background:rgba(16,26,46,.5);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)
+}
+body.profile-page .profile-report-head{
+ display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;
+ flex:none;min-height:76px;padding:12px 18px;border-bottom:1px solid #e7ebf1
+}
+body.profile-page .vt-profile-report-heading-001{
+ margin:0;text-align:center;color:#20324d;
+ font:830 22px/1.25 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-report-back-001,
+body.profile-page .vt-profile-report-close-001{
+ display:grid;place-items:center;width:42px;height:42px;padding:0;
+ border:0;border-radius:50%;background:#eef1f6;color:#687687;
+ font:400 31px/1 "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vt-profile-report-back-001[hidden]{visibility:hidden;display:grid!important}
+body.profile-page .vt-profile-report-back-001:hover,
+body.profile-page .vt-profile-report-close-001:hover{background:#e2e7f1;color:#34445e}
+body.profile-page .profile-report-content{
+ min-height:165px;padding:20px;overflow:auto;overscroll-behavior:contain
+}
+body.profile-page .vt-profile-report-prompt-001{
+ margin:0 0 11px;color:#202f47;font:780 17px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-report-copy-001{
+ margin:0 0 16px;color:#718097;font:530 13px/1.55 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-report-option{
+ display:flex;align-items:center;justify-content:space-between;gap:13px;
+ width:100%;min-height:56px;padding:13px 1px;border:0;
+ border-bottom:1px solid #f0f3f7;background:transparent;text-align:left;
+ color:#253955;font:660 14px/1.5 "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .profile-report-option:hover{color:#245bc4;background:#f9fbff}
+body.profile-page .vt-profile-report-option-arrow-001{
+ flex:none;color:#7c8ba0;font-size:29px;font-weight:380
+}
+body.profile-page .profile-report-review{
+ display:flex;flex-direction:column;gap:4px;margin:15px 0;padding:16px;
+ border-radius:13px;background:#f1f4f9
+}
+body.profile-page .profile-report-review small{
+ color:#75829a;font:540 11px/1.5 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-report-review strong{
+ margin-bottom:7px;color:#2e415f;font:730 14px/1.45 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-report-details-label-001{
+ display:block;margin:15px 0 8px;color:#3b4d67;font:650 13px/1.35 "Onest",system-ui,sans-serif
+}
+body.profile-page .ui-profile-report-details-001{
+ display:block;width:100%;min-height:105px;padding:12px;
+ border:1px solid #dbe3f0;border-radius:12px;resize:vertical;
+ background:#fcfdff;color:#283d60;font:510 13px/1.55 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-report-footer{
+ flex:none;padding:15px;border-top:1px solid #ebeff6
+}
+body.profile-page .profile-report-footer[hidden]{display:none!important}
+body.profile-page .vt-profile-report-submit-001,
+body.profile-page .vt-profile-report-done-001{
+ display:block;width:100%;min-height:46px;padding:11px 17px;border:0;
+ border-radius:10px;background:#376fe3;color:#fff;
+ font:760 14px/1.35 "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vt-profile-report-submit-001:hover,
+body.profile-page .vt-profile-report-done-001:hover{background:#295dcb}
+body.profile-page .vt-profile-report-submit-001:disabled{opacity:.6;cursor:wait}
+body.profile-page .vt-profile-report-error-001{
+ margin:0;padding:12px 20px;color:#b04442;font:600 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-report-error-001[hidden]{display:none!important}
+body.profile-page .vt-profile-report-locked-001{
+ min-height:38px;margin:14px 0 0;padding:9px 16px;
+ border:1px solid #cbd9ef;border-radius:11px;background:#fff;color:#335c9f;
+ font:700 12px/1.3 "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vt-profile-report-open-001{color:#986050}
+body.profile-page .vt-profile-report-open-001:hover{color:#a4483d}
+@media(max-width:770px){
+ body.profile-page .profile-left-stack{gap:12px}
+ body.profile-page .profile-mini-card{padding:17px}
+}
+@media(max-width:420px){
+ body.profile-page .profile-friend-portrait{width:58px;height:58px}
+ body.profile-page .profile-report-content{padding:15px}
+ body.profile-page .profile-report-head{padding:10px}
+ body.profile-page .vt-profile-report-prompt-001{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-friend-portrait{transition:none}
+}
