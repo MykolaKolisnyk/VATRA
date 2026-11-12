@@ -79,7 +79,7 @@ function bind({prefix,ownerId}){
  textarea.placeholder=t("Напишіть що-небудь…","Write something…");
  textarea.rows=4;
  textWrap.append(textarea,counter);
- edit.append(zone,textWrap,error);
+ edit.append(zone,textWrap);
 
  const settings=make("section","vatra-post-composer-settings ui-vatra-post-composer-settings-001");
  settings.hidden=true;
@@ -180,7 +180,7 @@ function bind({prefix,ownerId}){
  dialog.addEventListener("close",()=>{setStage("edit");showNotice("");});
  dialog.addEventListener("cancel",()=>{if(!submit.disabled)setStage("edit");});
  form.prepend(header,edit,settings,draftsPanel);
- form.append(notice,footer);
+ form.append(error,notice,footer);
  setStage("edit");
  return {reset(){if(selectedId){persist(read().filter(x=>x.id!==selectedId));selectedId=null;}setStage("edit");},
   step(){return stage;},setStage};
