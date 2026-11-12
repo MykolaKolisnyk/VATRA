@@ -475,7 +475,7 @@
   if(!holder||!vatraId)return;
   try{
    const {data,error}=await client.from("vatra_stories")
-    .select("author_vatra_id,body,theme,created_at,expires_at")
+    .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(60);
    if(error)throw error;
@@ -498,15 +498,26 @@
     const storyAvatar=node("span","feed-story-author-avatar vt-feed-story-author-avatar-001",initials(memberName(id)));
     storyAvatar.setAttribute("aria-hidden","true");
     applyAvatar(storyAvatar,id);
-    button.append(storyAvatar,node("span","vt-feed-story-live-body-001",story.body),
+    button.append(storyAvatar);
+    if(story.media_kind&&story.media_path){
+     const cover=node("span","feed-story-cover ui-feed-story-cover-001");
+     button.append(cover);
+     // Always use a private short-lived signed URL, never a public bucket URL.
+     holder.append(button);
+     void window.VATRA_POST_MEDIA?.renderStory(client,story,cover,true);
+    }else holder.append(button);
+    const body=String(story.body||"").trim();
+    button.append(node("span","vt-feed-story-live-body-001",body||
+     (story.media_kind==="video"?t("Відео","Video"):t("Фото","Photo"))),
      node("span","vt-feed-story-live-name-001",memberName(id)));
     button.addEventListener("click",()=>{
      q("#feed-story-view-heading").textContent=memberName(id);
-     q("#feed-story-view-body").textContent=story.body;
+     const text=q("#feed-story-view-body");
+     text.textContent=body;text.hidden=!body;
      q("#feed-story-view").dataset.theme=String(story.theme||0);
      q("#feed-story-view").showModal();
+     void window.VATRA_POST_MEDIA?.renderStory(client,story,q("#feed-story-view-media"));
     });
-    holder.append(button);
    }
   }catch(_){holder.replaceChildren();q(".feed-stories")?.classList.add("is-empty");}
   finally{requestAnimationFrame(updateStoryArrow);}
@@ -559,24 +570,48 @@
   const storyDialog=q("#feed-story-dialog"),storyForm=q("#feed-story-form");
   const storyText=q("#feed-story-text"),storyError=q("#feed-story-error");
   const storySave=q("#feed-story-save");
-  q("#feed-create-story").addEventListener("click",()=>{storyError.hidden=true;storyDialog.showModal();storyText.focus();});
+  const storyPicker=window.VATRA_POST_MEDIA?.bindPicker({
+   input:"#feed-story-media",choose:"#feed-story-media-choose",
+   clear:"#feed-story-media-remove",preview:"#feed-story-media-preview",
+   onError:value=>{storyError.textContent=value;storyError.hidden=!value;}
+  });
+  q("#feed-create-story").addEventListener("click",()=>{
+   storyError.hidden=true;storyDialog.showModal();storyText.focus();
+  });
   q("#feed-story-cancel").addEventListener("click",()=>storyDialog.close());
-  q("#feed-story-view-close").addEventListener("click",()=>q("#feed-story-view").close());
+  storyDialog.addEventListener("close",()=>{
+   storyText.value="";storyPicker?.reset();storyError.hidden=true;
+  });
+  const storyViewer=q("#feed-story-view");
+  q("#feed-story-view-close").addEventListener("click",()=>storyViewer.close());
+  storyViewer.addEventListener("close",()=>{
+   const video=q("#feed-story-view-media video");
+   if(video)video.pause();
+  });
   storyForm.addEventListener("submit",async event=>{
    event.preventDefault();
    if(storySave.disabled||!validId(vatraId))return;
-   const body=storyText.value.trim();
-   if(!body||Array.from(body).length>260)return;
+   const body=storyText.value.trim(),file=storyPicker?.getFile();
+   if((!body&&!file)||Array.from(body).length>260){
+    storyError.textContent=t("Додайте текст, фото або відео (до 260 символів).",
+     "Add text, a photo or a video (up to 260 characters).");
+    storyError.hidden=false;return;
+   }
    storySave.disabled=true;storyError.hidden=true;
+   let uploaded=null;
    try{
+    if(file)uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,vatraId,file);
     const {error:insertError}=await client.from("vatra_stories")
-     .insert({author_vatra_id:vatraId,body,theme:Math.floor(Math.random()*5)});
+     .insert({author_vatra_id:vatraId,body,theme:Math.floor(Math.random()*5),...(uploaded||{})});
     if(insertError)throw insertError;
-    storyDialog.close();storyText.value="";
+    storyDialog.close();
     message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");
     await loadStories();
-   }catch(_){storyError.textContent=t("Не вдалося додати історію.","Could not publish story.");storyError.hidden=false;}
-   finally{storySave.disabled=false;}
+   }catch(error){
+    if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
+    storyError.textContent=error?.message||t("Не вдалося додати історію.","Could not publish story.");
+    storyError.hidden=false;
+   }finally{storySave.disabled=false;}
   });
  }
  async function deletePost(event){
