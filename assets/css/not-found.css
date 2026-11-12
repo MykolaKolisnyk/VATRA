@@ -14,3 +14,8 @@
 .error-card .error-action{margin:0;min-width:min(100%,240px);color:#fff}
 .error-card a.error-action:hover,.error-card a.error-action:focus-visible{text-decoration:none}
 @media(max-width:540px){.error-card{border-radius:20px}.error-card .error-action{width:100%}.error-code{margin-bottom:14px}.error-home-link{min-height:40px;padding:9px 13px;font-size:12px}}
+
+/* Hide the error document completely while a valid member/club permalink is
+   resolving. The loader belongs to the 404 fallback but is not an error UI. */
+html.vatra-dynamic-route-pending body > :not(.vatra-route-loading){display:none!important}
+html.vatra-dynamic-route-pending body > .vatra-route-loading{display:grid!important;opacity:1!important;animation:none!important}
