@@ -1115,14 +1115,15 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileBehavior.includes('coverView.addEventListener("click",()=>openMedia("cover"))')&&
  profileBehavior.includes('mediaDialog.showModal()'),
  "Avatar story ring and original photo/cover viewer must be backed by real profile media and stories");
+const preflightMemberCss=await read("assets/css/profile.css");
 assert.ok(
  profileBehavior.includes('const canViewPhoto=!locked') &&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto') &&
  profileBehavior.includes('coverView.hidden=!canViewPhoto') &&
  profileBehavior.includes('if(!canViewPhoto)return;') &&
  profileBehavior.includes('if(sharedPhoto&&!locked)') &&
- memberCss.includes('body.profile-page.feed-page .profile-avatar:not(.has-photo)::before') &&
- memberCss.includes('body.profile-page .profile-cover-view[hidden]') &&
+ preflightMemberCss.includes('body.profile-page.feed-page .profile-avatar:not(.has-photo)::before') &&
+ preflightMemberCss.includes('body.profile-page .profile-cover-view[hidden]') &&
  !profileBehavior.includes('try{await mediaPromise;}') &&
  profileMarkup.includes('data-social-uk="Головна" data-social-en="Home"'),
  "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
