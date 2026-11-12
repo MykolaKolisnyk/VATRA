@@ -2748,7 +2748,7 @@ try{
   const menuTipStyle=await feedProbe.locator(".vatra-shell-tooltip").evaluate(el=>getComputedStyle(el).visibility);
   assert.equal(menuTipStyle,"hidden",
    "Expanded account dropdown must fully suppress VATRA tooltip rendering");
-  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"));
+  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"));
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
@@ -2809,7 +2809,7 @@ try{
    "Feed must use an extensionless public URL");
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0);
   assert.equal(await feedProbe.locator("#feed-my-id").count(),0);
-  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/id654321"),
+  assert.ok((await feedProbe.locator(".feed-account-profile").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"),
    "Avatar menu must target the signed-in member's numeric ID");
   const injectionText="<img src=x onerror=alert(1)> VATRA";
   await feedProbe.evaluate(text=>{
@@ -2818,9 +2818,9 @@ try{
   },injectionText);
   await feedProbe.locator("#feed-search-input").press("Enter");
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
-  assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
+  assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"),
    "Feed author names must link to numeric member profile URLs");
-  assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/id654321"),
+  assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/profile.html?vatra_id=654321"),
    "Feed author avatars must link to numeric member profile URLs");
   assert.equal((await feedProbe.locator(".feed-post-body").textContent()).trim(),injectionText,
    "Feed must render user posts as text, not HTML");
@@ -3188,32 +3188,23 @@ try{
    language==="en"?"Add a status":"Додайте статус");
   assert.equal(await profilePage.locator("footer").count(),0,
    "The personal profile must not show guest legal footer");
-  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
-   "Own profile must canonicalize to /VATRA/id654321");
-  const profileNavigations=[];
-  profilePage.on("framenavigated",frame=>{
-   if(frame===profilePage.mainFrame())profileNavigations.push(new URL(frame.url()).pathname);
-  });
-  // Slow the intermediate /profile.html fetch: the 404 route must display
-  // the SAME splash instead of leaving a white page, in both UK and EN.
-  await profilePage.route("**/VATRA/profile.html",async route=>{
-   await new Promise(resolve=>setTimeout(resolve,850));
-   await route.continue();
-  });
-  await profilePage.goto(base+"id789012",{waitUntil:"domcontentloaded"});
-  await profilePage.waitForFunction(()=>{
-   const loader=document.querySelector("#vatra-dynamic-route-loading");
-   return loader&&document.documentElement.classList.contains("vatra-dynamic-route-pending")&&
-    getComputedStyle(loader).visibility==="visible"&&
-    getComputedStyle(loader).opacity==="1"&&loader.getBoundingClientRect().width>0;
-  },null,{timeout:2500});
+  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/profile.html"),
+   "Own profile must keep the real HTML path for View Source");
+  // Direct navigation and Ctrl+U must retrieve the real HTML document (HTTP 200).
+  const profileSource=await profilePage.request.get(base+"profile.html?vatra_id=789012");
+  assert.equal(profileSource.status(),200,"Profile URLs must return HTTP 200");
+  const profileHTML=await profileSource.text();
+  assert.ok(profileHTML.includes('data-page="profile"')&&
+   profileHTML.includes('id="profile-app"')&&
+   !profileHTML.includes('class="error-code vt-404-inline-001"'),
+   "View Source must contain profile HTML, never the 404 template");
+  const profileResponse=await profilePage.goto(base+"profile.html?vatra_id=789012",
+   {waitUntil:"domcontentloaded"});
+  assert.equal(profileResponse?.status(),200,"Direct member route must return HTTP 200");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
-  assert.equal(await profilePage.locator("#vatra-dynamic-route-loading").count(),0,
-   "Temporary GitHub Pages route splash must be replaced by the real profile");
-  assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id789012"),
-   "A direct link to another member must retain their numeric ID");
-  assert.ok(profileNavigations.every(path=>!path.includes("/profile")),
-   "Opening /idN must never navigate through an intermediate /profile URL: "+JSON.stringify(profileNavigations));
+  assert.equal(new URL(profilePage.url()).pathname,"/VATRA/profile.html");
+  assert.equal(new URL(profilePage.url()).searchParams.get("vatra_id"),"789012",
+   "A member URL must preserve the ID without replacing its HTML path");
   assert.equal(await profilePage.locator("#profile-status").isVisible(),false,
    "A visitor sees no placeholder when another member has not set a status");
   assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),
@@ -3260,7 +3251,7 @@ try{
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Own given name beside avatar must not be replaced by the visited member's identity");
   // Test a genuinely private route after the public visitor geometry checks.
-  await profilePage.goto(base+"id789012?locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
+  await profilePage.goto(base+"profile.html?vatra_id=789012&locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await profilePage.locator(".profile-locked-notice").isVisible(),true,
    "The locked mock profile must show its privacy notice");
