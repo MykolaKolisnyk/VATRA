@@ -675,7 +675,9 @@
       t("Відкрити фільтр стрічки","Open feed filter"));
      q(".feed-filter-row")?.setAttribute("data-open",String(next));
     });
-    document.addEventListener("pointerdown",event=>{
+    // Close after the target's click handler. Closing on pointerdown moves
+    // the Feed post cards before pointerup and can swallow a delete/comment click.
+    document.addEventListener("click",event=>{
      if(!filterOptions.hidden&&!q(".feed-filter-row")?.contains(event.target))closeFilter();
     });
     document.addEventListener("keydown",event=>{
