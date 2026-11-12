@@ -1787,3 +1787,120 @@ body.profile-page .vt-profile-editor-save-001{
  }
  body.profile-page .vatra-profile-detail-icon{grid-row:1/3;align-self:start;margin-top:3px}
  body.profile-page [class^="vt-profile-detail-value-"]{grid-column:2}}
+
+/* PROFILE READING · the same composition for the owner and every visitor.
+   Biography is a centered note, facts are compact and typographic, and
+   publication filters use a quiet accessible popover. */
+body.profile-page.feed-page:not(.community-page) .profile-posts-section{
+ grid-template-columns:minmax(0,37.5%) minmax(0,1fr);
+ gap:18px;align-items:start
+}
+body.profile-page.feed-page:not(.community-page) .profile-info{
+ padding:20px 24px 19px;
+ background:#fff;border:1px solid #e2e8f4;
+ box-shadow:0 8px 26px rgba(36,54,99,.045);
+ border-radius:17px
+}
+body.profile-page .vt-profile-about-heading-001{
+ font-size:19px;letter-spacing:-.03em
+}
+body.profile-page .profile-info .vt-profile-about-text-001{
+ display:block;margin:0;padding:17px 4px 14px;
+ text-align:center;white-space:pre-line;overflow-wrap:anywhere;
+ color:#485e82;font:570 14px/1.65 "Onest",system-ui,sans-serif;
+ border-bottom:1px solid #edf1f8
+}
+body.profile-page .profile-info .vt-profile-about-text-001[hidden]{display:none!important}
+body.profile-page .profile-information-groups{margin-top:5px}
+body.profile-page .profile-information-item{
+ display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);
+ align-items:baseline;gap:11px;min-height:0;padding:9px 0
+}
+body.profile-page .profile-information-item + .profile-information-item{border-top:1px solid #f0f3f8}
+body.profile-page .profile-information-item > [class^="vt-profile-information-label-"]{
+ color:#7184a1;font:600 12px/1.5 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-information-item > [class^="vt-profile-information-value-"]{
+ color:#2e4164;font:660 13px/1.5 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-about-more-001{margin-top:10px;min-height:41px}
+body.profile-page .vatra-profile-details-section-head{
+ gap:0;padding-bottom:12px;border-bottom:1px solid #e8edf7
+}
+body.profile-page .vatra-profile-details-section-head::before{
+ content:"";display:block;width:3px;height:18px;margin-right:11px;
+ border-radius:3px;background:#3a72e3
+}
+body.profile-page .vatra-profile-details-row{
+ grid-template-columns:minmax(120px,36%) minmax(0,1fr);
+ gap:14px;padding:10px 0;min-height:0;align-items:baseline
+}
+body.profile-page .vt-profile-detail-bio-001{
+ margin:0;padding:14px 8px;white-space:pre-line;overflow-wrap:anywhere;
+ text-align:center;color:#435b7d;font:570 14px/1.7 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-posts-overview{position:relative;z-index:2;overflow:visible;gap:15px}
+body.profile-page .profile-post-filter-wrap{position:relative;flex:none;margin-left:auto}
+body.profile-page .vt-profile-post-filter-button-001{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;
+ min-height:39px;padding:8px 14px;border:1px solid #dbe4f3;border-radius:10px;
+ background:#f4f7fc;color:#39547e;font:680 13px/1.35 "Onest",system-ui,sans-serif;
+ cursor:pointer;transition:background .15s ease,border-color .15s ease
+}
+body.profile-page .vt-profile-post-filter-button-001:hover,
+body.profile-page .vt-profile-post-filter-button-001:focus-visible{
+ background:#eaf2ff;border-color:#9ab9f4
+}
+body.profile-page .vt-profile-post-filter-button-001[data-active="true"]{
+ background:#eaf2ff;color:#275fc4;border-color:#9ab8f2
+}
+body.profile-page .ui-profile-post-filter-icon-001{width:18px;height:18px;flex:none}
+body.profile-page .profile-post-filter-panel{
+ position:absolute;top:calc(100% + 10px);right:0;z-index:15;
+ width:min(315px,calc(100vw - 44px));padding:18px;
+ border:1px solid #dfe6f4;border-radius:15px;
+ background:#fff;box-shadow:0 16px 42px rgba(31,54,106,.17)
+}
+body.profile-page .profile-post-filter-panel[hidden]{display:none!important}
+body.profile-page .vt-profile-post-filter-heading-001{
+ margin:0 0 13px;color:#2f4264;font:750 15px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-post-filter-fields{
+ display:grid;grid-template-columns:75px minmax(0,1fr);align-items:center;
+ gap:12px 10px
+}
+body.profile-page .profile-post-filter-fields label{
+ color:#647794;font:610 12px/1.4 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-post-filter-fields select{
+ box-sizing:border-box;width:100%;min-height:39px;padding:7px 11px;
+ border:1px solid #dce5f3;border-radius:10px;background:#f9fbff;
+ color:#304765;font:620 13px/1.35 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-post-filter-fields select:disabled{opacity:.55;cursor:not-allowed}
+body.profile-page .vt-profile-post-filter-reset-001{
+ display:block;width:100%;margin-top:16px;min-height:37px;
+ border:1px solid #e0e8f5;border-radius:9px;background:#f4f7fc;
+ color:#3568bd;font:680 12.5px/1.4 "Onest",system-ui,sans-serif;cursor:pointer
+}
+body.profile-page .vt-profile-post-filter-reset-001:hover{background:#eaf2ff}
+body.profile-page .vt-profile-post-filter-status-001{
+ margin:-1px 3px 0;color:#637995;font:590 12.5px/1.45 "Onest",system-ui,sans-serif
+}
+body.profile-page .vt-profile-post-filter-status-001[hidden]{display:none!important}
+@media(max-width:770px){
+ body.profile-page.feed-page:not(.community-page) .profile-posts-section{
+  grid-template-columns:minmax(0,1fr);gap:13px
+ }
+ body.profile-page .profile-posts-overview{padding:14px 17px}
+ body.profile-page .vt-profile-posts-overview-title-001{font-size:18px}
+}
+@media(max-width:560px){
+ body.profile-page.feed-page:not(.community-page) .profile-info{padding:17px 17px 16px}
+ body.profile-page .profile-information-item{grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:9px;padding:8px 0}
+ body.profile-page .vatra-profile-details-row{grid-template-columns:minmax(0,1fr);gap:3px;padding:9px 0}
+ body.profile-page .vt-profile-post-filter-button-001{padding:8px 10px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .vt-profile-post-filter-button-001{transition:none}
+}
