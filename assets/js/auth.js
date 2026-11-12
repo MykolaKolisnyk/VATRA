@@ -26,7 +26,7 @@ function replayAuthContent(node){
  node.style.removeProperty("animation");
 }
 let auth=null;
-let validateRegistrationStep=()=>true;
+let validateCreateAccountStep=()=>true;
 let pageHooks={};
 function validateBirthday(){return pageHooks.validateBirthday?.()??null;}
 let navigatingAuth=false;
@@ -202,7 +202,7 @@ function wireFieldValidation(){
   let first=null;
   for(const control of controls){
    if(scope&&!scope.contains(control))continue;
-   if(control.closest("[data-register-step]")?.hidden)continue;
+   if(control.closest("[data-create-account-step]")?.hidden)continue;
    if(control.id.startsWith("birth-")&&control.id!=="birth-day")continue;
    if(!check(control)&&!first)first=control;
   }
@@ -213,12 +213,12 @@ function wireFieldValidation(){
   }
   return !first;
  };
- if(page==="create-account")validateRegistrationStep=validateScope;
+ if(page==="create-account")validateCreateAccountStep=validateScope;
  form.addEventListener("submit",event=>{
-  if(page==="create-account"&&document.body.dataset.registrationStep==="1"){
+  if(page==="create-account"&&document.body.dataset.createAccountStep==="1"){
    event.preventDefault();
    event.stopImmediatePropagation();
-   q("#register-next")?.click();
+   q("#create-account-next")?.click();
    return;
   }
   if(!validateScope(form)){
@@ -299,7 +299,7 @@ async function initialize(){
  if(typeof entry!=="function")throw new Error("Missing page-specific authentication controller");
  pageHooks=entry({q,url,translate,english,page,auth,replayAuthContent,busy,getMessage,
   captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,
-  passwordIssue,validateRegistrationStep:scope=>validateRegistrationStep(scope),
+  passwordIssue,validateCreateAccountStep:scope=>validateCreateAccountStep(scope),
   REMEMBERED_ACCOUNT_KEY,LOGGED_OUT_KEY,initialAccountCallback,initialAccountCallbackError,
   announceVerifiedAccount})||{};
  pageHooks.prepareUI?.();
