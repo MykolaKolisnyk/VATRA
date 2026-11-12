@@ -1,0 +1,2 @@
+# Generated build outputs must not be published by GitHub Pages.
+/dist/
