@@ -150,7 +150,9 @@ function createRow(record,name,index,onChange,photoUrl){
   if(event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
   event.preventDefault();
   if(!record.read_at)await markRead(record.id);
-  location.assign(link.href);
+  // Notifications navigate programmatically after marking an item as read,
+  // so the delegated anchor interceptor cannot see the original click.
+  if(!window.VATRA_NAVIGATE?.to(link.href))location.assign(link.href);
  });
  const timestamp=make("time","vatra-notification-time vt-vatra-notification-time-"+index,
   timeValue(record.created_at));
