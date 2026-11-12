@@ -1270,6 +1270,13 @@ const feedMarkup=await read("feed.html");
 const memberProfileMarkup=await read("profile.html");
 const feedScript=await read("assets/js/feed.js");
 const profileScript=await read("assets/js/profile.js");
+// Every member link must resolve directly to profile.html so refresh/Ctrl+U
+// fetch actual HTML (200), never the GitHub Pages /idN 404 fallback.
+assert.ok(profileScript.includes('new URL("profile.html?vatra_id="+encodeURIComponent(id),home).href')&&
+ !profileScript.includes('history.replaceState(history.state,"",canonical)')&&
+ lang.includes("(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)")&&
+ legacyScript.includes('location.replace("/VATRA/profile.html?vatra_id="+legacyProfile[1])'),
+ "Member profile links must retain a real HTTP-200 HTML source, including old /idN bookmarks");
 const communityScript=await read("assets/js/communities.js");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
