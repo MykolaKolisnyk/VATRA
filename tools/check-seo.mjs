@@ -5,7 +5,7 @@ const BASE="https://mykolakolisnyk.github.io/VATRA/";
 const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
 const publicPages=new Set(["index","terms","privacy","cookies"]);
 const sensitive=new Set(["404","create-account","forgot","reset","verify","feed","profile"]);
-const css=await read("assets/css/auth.css");
+const css=await read("assets/css/base.css");
 assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"Local Onest font missing");
 assert.ok((await stat("assets/fonts/Onest-Variable.ttf")).size>100000,"Missing local font");
 assert.ok(!css.includes("fonts.googleapis.com"),"No Google Fonts dependencies");
