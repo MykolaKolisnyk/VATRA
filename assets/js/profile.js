@@ -1683,7 +1683,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
 
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
-async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false){
+async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
@@ -2040,10 +2040,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   return Promise.allSettled([avatarReady,coverReady]);
  };
  try{
-  const {data,error}=await client.from("vatra_profile_media")
+  // Public profile photos are not part of friends-only posts or About fields.
+  const request=()=>client.from("vatra_profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
-  if(!error&&data){saved=data;await display(data);}
- }catch(_){/* Profile itself still loads when images are unavailable. */}
+  let response=await (preloadedMedia||request());
+  if(response?.error||!response?.data)response=await request();
+  if(!response?.error&&response?.data){saved=response.data;await display(response.data);}
+ }catch(_){/* Keep the profile usable when its public photos are unavailable. */}
  finally{
   cover.classList.remove("is-loading-media");
   avatarWrap.classList.remove("is-loading-media");
@@ -2241,6 +2244,9 @@ async function start(){
   const titleName=String(publicName||(isMine?cleanOwnName:t("Учасник VATRA","VATRA member")))
    .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
   document.title=titleName+" · VATRA";
+  // Start public avatar/cover loading before private detail and friendship checks.
+  const preloadedMedia=Promise.resolve().then(()=>client.from("vatra_profile_media")
+   .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle());
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
   const locked=access?.locked===true;
   setupProfileInteractions(client,ownId,targetId,isMine);
@@ -2257,7 +2263,7 @@ async function start(){
   }
   // Keep the skeleton until both real photos have loaded, rather than flashing
   // default avatar/cover followed by the user's real artwork.
-  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked);
+  const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia);
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
   const canonical=memberUrl(targetId);
   if(location.pathname!==new URL(canonical).pathname||location.search||location.hash){
@@ -2275,7 +2281,9 @@ async function start(){
   }
   if(!locked)setupProfilePresence(client,targetId,ownId,metadata.gender);
   const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
-  // Only authorization gates the profile; avatar and cover load progressively.
+  // Closed profiles show their public header media before the loading view clears.
+  // Posts, stories and private details continue to respect the locked gate.
+  if(locked)await mediaPromise;
   finish();
   void mediaPromise.catch(()=>{
    q("#profile-cover-image")?.classList.remove("is-loading-media");
