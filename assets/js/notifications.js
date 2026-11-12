@@ -29,7 +29,7 @@ const icon=(key,path)=>{
 };
 let client=null,ownId=null,bell=null,badge=null,panel=null,panelItems=null;
 let open=false,sessionStarted=false,liveChannel=null,refreshBusy=false;
-let sectionPage=0,sectionFilter="all",sectionSort="new";
+let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
 const pageURL=()=>new URL("notifications.html",root).href;
 const timeValue=date=>{
  const parsed=new Date(date);if(!Number.isFinite(parsed.getTime()))return "";
@@ -335,12 +335,33 @@ function start(c,id){
      filter:"recipient_vatra_id=eq."+ownId},refresh).subscribe();
  }catch(_){}
 }
-async function pageLoad(){
+async function pageLoad(append=false){
  const list=pick("#notifications-list"),empty=pick("#notifications-empty");
- const prev=pick("#notifications-prev"),next=pick("#notifications-next");
- const label=pick("#notifications-page");
- if(!list)return;
- await renderRows(list,empty,{page:sectionPage,size:20,filter:sectionFilter,sort:sectionSort},pageLoad,prev,next,label);
+ const more=pick("#notifications-more");
+ if(!list||sectionLoading)return;
+ sectionLoading=true;more.disabled=true;list.setAttribute("aria-busy","true");
+ const page=append?sectionPage+1:0,size=30;
+ if(!append){list.replaceChildren();empty.hidden=true;}
+ try{
+  const result=await fetchRows({page,size,filter:sectionFilter,sort:sectionSort});
+  const authors=await authorNames(result.rows);
+  for(const row of result.rows){
+   const index=list.children.length+1,id=String(row.actor_vatra_id);
+   list.append(createRow(row,
+    authors.names.get(id)||t("Учасник VATRA ID ","VATRA member ID ")+id,
+    String(index),()=>pageLoad(false),authors.avatars.get(id)));
+  }
+  sectionPage=page;
+  more.hidden=!result.hasNext;
+  if(!list.children.length){
+   empty.hidden=false;empty.textContent=t("Сповіщень поки немає.","No notifications yet.");
+  }
+ }catch(_){
+  if(!append)list.replaceChildren();
+  empty.hidden=false;
+  empty.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
+   "Could not load notifications. Please retry.");
+ }finally{sectionLoading=false;more.disabled=false;list.setAttribute("aria-busy","false");}
 }
 function pageUI(){
  for(const btn of document.querySelectorAll("[data-notification-filter]")){
@@ -348,24 +369,15 @@ function pageUI(){
    sectionFilter=btn.dataset.notificationFilter;sectionPage=0;
    for(const other of document.querySelectorAll("[data-notification-filter]"))
     other.setAttribute("aria-pressed",String(other===btn));
-   void pageLoad();
+   void pageLoad(false);
   });
  }
  pick("#notifications-sort")?.addEventListener("change",event=>{
-  sectionSort=event.target.value==="old"?"old":"new";sectionPage=0;void pageLoad();
+  sectionSort=event.target.value==="old"?"old":"new";
+  sectionPage=0;void pageLoad(false);
  });
- pick("#notifications-prev")?.addEventListener("click",()=>{sectionPage=Math.max(0,sectionPage-1);void pageLoad();});
- pick("#notifications-next")?.addEventListener("click",()=>{sectionPage++;void pageLoad();});
- pick("#notifications-mark-all")?.addEventListener("click",async event=>{
-  event.currentTarget.disabled=true;
-  try{
-   const {error}=await client.from("member_notifications")
-    .update({read_at:new Date().toISOString()}).eq("recipient_vatra_id",ownId).is("read_at",null);
-   if(error)throw error;await pageLoad();void unreadCount();
-  }catch(_){}
-  finally{event.currentTarget.disabled=false;}
- });
- void pageLoad();
+ pick("#notifications-more")?.addEventListener("click",()=>void pageLoad(true));
+ void pageLoad(false);
 }
 async function pageBoot(){
  if(document.body?.dataset.page!=="notifications")return;
