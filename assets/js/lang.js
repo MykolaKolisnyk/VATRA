@@ -9,6 +9,12 @@
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
+  // Extensionless /profile may come from an old bookmark. Canonicalize to
+  // the existing static file before boot so Ctrl+U always fetches HTTP 200 HTML.
+  if(!localFile&&location.pathname===ROOT+"profile"){
+    location.replace(ROOT+"profile.html"+location.search+location.hash);
+    return;
+  }
   const LANGUAGE_KEY = "vatra-language";
   const validLanguage = value => value === "uk" || value === "en";
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
