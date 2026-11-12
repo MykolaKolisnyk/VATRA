@@ -2246,7 +2246,8 @@ async function start(){
   document.title=titleName+" · VATRA";
   // Start public avatar/cover loading before private detail and friendship checks.
   const preloadedMedia=Promise.resolve().then(()=>client.from("vatra_profile_media")
-   .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle());
+   .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
+   .catch(()=>({data:null,error:true}));
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
   const locked=access?.locked===true;
   setupProfileInteractions(client,ownId,targetId,isMine);
