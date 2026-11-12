@@ -3282,6 +3282,8 @@ try{
    "Private cover remains visible without a clickable full-screen target");
   assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true,
    "Private portrait must not open a viewer or active-story menu");
+  assert.equal(await profilePage.locator("#profile-avatar-trigger").evaluate(el=>getComputedStyle(el).opacity),"1",
+   "A private profile's disabled avatar button must never fade the uploaded portrait");
   assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),false);
   await profilePage.evaluate(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
@@ -3306,6 +3308,32 @@ try{
    "A non-existent member must use the uploaded 2048px not-found WebP");
   assert.equal(fallbackStyle.head,"none",
    "The old CSS silhouette must not cover the supplied WebP image");
+  await profilePage.waitForFunction(()=>
+   !!document.querySelector("#profile-avatar-wrap")?.style.getPropertyValue("--vatra-avatar-accent"),
+   {timeout:10000});
+  const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
+   const avatar=wrap.querySelector("#profile-avatar");
+   const cover=document.querySelector("#profile-cover-image");
+   const motif=cover?.querySelector(".profile-cover-motif");
+   return {
+    disabledOpacity:getComputedStyle(wrap.querySelector("#profile-avatar-trigger")).opacity,
+    avatarOpacity:getComputedStyle(avatar).opacity,
+    rimBackground:getComputedStyle(wrap,"::before").backgroundColor,
+    avatarBorder:getComputedStyle(avatar).borderTopColor,
+    coverAccent:cover?.style.getPropertyValue("--vatra-avatar-accent"),
+    coverRingColor:motif?getComputedStyle(motif).borderTopColor:"",
+    hasStory:wrap.classList.contains("has-active-story")
+   };
+  });
+  assert.equal(avatarRim.disabledOpacity,"1",
+   "Noninteractive system portraits must remain fully opaque");
+  assert.equal(avatarRim.avatarOpacity,"1");
+  assert.equal(avatarRim.rimBackground,avatarRim.avatarBorder,
+   "The no-story profile ring must be filled with the avatar's sampled color: "+
+   JSON.stringify(avatarRim));
+  assert.notEqual(avatarRim.rimBackground,"rgba(0, 0, 0, 0)");
+  assert.ok(!avatarRim.hasStory&&avatarRim.coverAccent,
+   "The colorful ring and cover circles must work even without an active story");
   assert.equal(await profilePage.locator(".profile-actions").count(),0);
   assert.equal(await profilePage.locator(".profile-panels").count(),0);
   assert.equal(await profilePage.locator(".social-profile-tabs").count(),0,

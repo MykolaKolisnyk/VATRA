@@ -666,7 +666,7 @@ function missingProfile(state="not-found"){
  window.VATRA_AVATAR?.accent(q("#profile-cover-image"),window.VATRA_AVATAR.asset(state,2048));
  const button=q("#profile-avatar-trigger");
  if(button){button.disabled=true;button.setAttribute("aria-label",title);}
- q("#profile-cover-image")?.style.setProperty("--vatra-avatar-accent","#7990b6");
+ // Keep the sampled account-state accent on both the cover and avatar orbit.
  q("#profile-status")?.remove();
  q("#profile-last-seen")?.remove();
  q("#profile-online-dot")?.remove();
