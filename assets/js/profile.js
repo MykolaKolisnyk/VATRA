@@ -1081,7 +1081,8 @@ function bindPostComposer(client,user,ownId){
  picker=window.VATRA_POST_MEDIA?.bindPicker({
   input:"#profile-compose-media",choose:"#profile-compose-media-choose",
   clear:"#profile-compose-media-remove",preview:"#profile-compose-media-preview",
-  onError:text=>{status.textContent=text;status.hidden=!text;},onChange:update
+  onError:text=>{status.textContent=text;status.hidden=!text;},
+  onChange:()=>{update();composerUI?.sync();}
  });
  const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId,getFile:()=>picker?.getFile()});
  trigger.addEventListener("click",()=>{
