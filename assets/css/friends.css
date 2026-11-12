@@ -125,3 +125,18 @@ body.vatra-friends-page .vt-vatra-friends-side-search-link-001{
  body.vatra-friends-page .vatra-friends-top{align-items:flex-start}
 }
 @media(prefers-reduced-motion:reduce){body.vatra-friends-page .vatra-friends-person{transition:none}}
+
+
+/* Fallback avatars must show a clear user silhouette, not an empty disc. */
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){
+ position:relative;overflow:hidden;
+ background:#eaf0f9!important;isolation:isolate
+}
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::before{
+ content:"";position:absolute;left:35%;top:20%;width:30%;height:30%;
+ border-radius:50%;background:#b1c1d9
+}
+body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{
+ content:"";position:absolute;left:18%;bottom:10%;width:64%;height:39%;
+ border-radius:55% 55% 24% 24% / 70% 70% 14% 14%;background:#b1c1d9
+}
