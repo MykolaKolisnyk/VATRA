@@ -90,7 +90,7 @@
  function postedTime(value){
   const date=new Date(value);
   return Number.isNaN(date.getTime())?"":new Intl.DateTimeFormat(locale,{
-   day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
+   day:"numeric",month:"short",year:"numeric"
   }).format(date);
  }
  const mediaAvatars=new Map(),avatarChecks=new Map();
