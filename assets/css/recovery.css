@@ -1,4 +1,4 @@
-/* VATRA recovery page — page-specific appearance (after shared auth.css). */
+/* VATRA recovery page — page-specific appearance (after shared base.css). */
 .center-page .footer{padding-inline:0}
 .center-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 @media(prefers-reduced-motion:reduce){
