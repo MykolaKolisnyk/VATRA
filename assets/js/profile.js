@@ -1083,6 +1083,7 @@ function bindPostComposer(client,user,ownId){
   clear:"#profile-compose-media-remove",preview:"#profile-compose-media-preview",
   onError:text=>{status.textContent=text;status.hidden=!text;},onChange:update
  });
+ const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId});
  trigger.addEventListener("click",()=>{
   clearStatus();
   dialog.showModal();
@@ -1119,7 +1120,7 @@ function bindPostComposer(client,user,ownId){
     ...(uploaded||{})
    });
    if(error)throw error;
-   input.value="";picker?.reset();
+   input.value="";picker?.reset();composerUI?.reset();
    dialog.close();
    await loadPosts(client,ownId,ownId,user.id);
   }catch(error){
