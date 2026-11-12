@@ -1,0 +1,13 @@
+/* VATRA verify page — page-specific appearance (after shared auth.css). */
+.account-page .footer{padding-inline:0}
+.account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}.account-page{min-height:100dvh;display:flex;flex-direction:column;background:#f7f9fd}.account-top{display:flex;align-items:center;padding:24px 0;border-bottom:1px solid var(--line);background:white}
+.account-top-inner{width:min(calc(100% - 88px),1300px);display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 auto;min-width:0}.account-top .header-logo{width:165px}
+@media (max-width:1199px){
+  .account-top{padding:17px 0}
+.account-page .auth-footer-content,
+.account-top-inner{width:min(calc(100% - 40px),670px)}}
+@media (max-width:540px){
+  .account-top{padding:14px 0}
+.account-page .auth-footer-content,
+.account-top-inner{width:calc(100% - 24px)}
+  .account-top .header-logo{width:136px}}
