@@ -3,7 +3,7 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_AUTH_ENTRY=ctx=>{
- const {q,url,translate,english,auth,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,REMEMBERED_ACCOUNT_KEY,LOGGED_OUT_KEY}=ctx;
+ const {q,url,translate,english,page,auth,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,REMEMBERED_ACCOUNT_KEY,LOGGED_OUT_KEY}=ctx;
 function readRememberedAccount(){
  try{
   const item=JSON.parse(localStorage.getItem(REMEMBERED_ACCOUNT_KEY)||"null");
