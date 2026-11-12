@@ -14,13 +14,13 @@
 .field.is-invalid .vatra-select-trigger{border-color:#e49aa7;background:#fffdfd;box-shadow:0 0 0 3px rgba(220,79,104,.055)}
 .check-terms.is-invalid{color:#a83d54}
 .check-terms>span{display:block;min-width:0;flex:1;grid-column:2;grid-row:1}.check-terms>.field-error{grid-column:1/-1;grid-row:2;margin:0;min-width:0;align-self:start;gap:11px}.check-terms>.field-error::before{width:16px;height:16px;margin-top:1px}
-.vt-ua-register-inline-05,.vt-en-register-inline-05{font-weight:400;color:#627187}
+.vt-ua-create-account-inline-05,.vt-en-create-account-inline-05{font-weight:400;color:#627187}
 .check-terms input{width:16px;height:16px;accent-color:var(--blue);margin:0}
 .signup-step-heading .subtitle{color:var(--soft);font-size:14px;line-height:1.65;font-weight:400;text-wrap:pretty}
 .create-account-page .footer{padding-inline:0}
 .create-account-page .auth-footer-content{width:min(calc(100% - 88px),1300px)}
 
-.create-account-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:auto;max-width:none;margin:0;padding:0}.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}
+.create-account-page{display:flex;flex-direction:column;min-height:100dvh;background:radial-gradient(ellipse at 13% 9%,#f4effd 0%,transparent 32%),linear-gradient(120deg,#fff,#f9fbff)}.create-account-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;min-height:36px;width:auto;max-width:none;margin:0;padding:0}.create-account-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px);flex:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;margin:0 auto;padding:0}
 /* Registration retains its captions above the same floating-hint controls. */
 .signup-form-panel .field:has(input.control){position:relative;gap:8px}
 .signup-form-panel .field,.signup-form-panel .two>.field{align-content:start;align-self:start}
@@ -28,41 +28,41 @@
  position:static;font-size:13px;line-height:1.4;color:#48576d;
  font-weight:700;white-space:normal;pointer-events:auto
 }
-.create-account-page .reg-caption-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
-.create-account-page .reg-caption-row>label{color:#48576d;font-size:13px;font-weight:700;line-height:1.4}
-.create-account-page .reg-help{position:relative;flex:none;display:inline-flex;align-items:center}
-.create-account-page .reg-help summary{list-style:none;cursor:pointer;user-select:none;-webkit-user-select:none}
-.create-account-page .reg-help summary::-webkit-details-marker{display:none}
-.create-account-page .reg-help-trigger{display:grid;place-items:center;width:23px;height:23px;
+.create-account-page .create-account-caption-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px}
+.create-account-page .create-account-caption-row>label{color:#48576d;font-size:13px;font-weight:700;line-height:1.4}
+.create-account-page .create-account-help{position:relative;flex:none;display:inline-flex;align-items:center}
+.create-account-page .create-account-help summary{list-style:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+.create-account-page .create-account-help summary::-webkit-details-marker{display:none}
+.create-account-page .create-account-help-trigger{display:grid;place-items:center;width:23px;height:23px;
   border:1px solid #9cbcf5;border-radius:50%;background:#f0f5ff;color:#2865d8;
   font-size:13px;font-weight:800;line-height:1;transition:background .15s,border-color .15s}
-.create-account-page .reg-help-link{color:#2865d8;font-size:12px;font-weight:700;
+.create-account-page .create-account-help-link{color:#2865d8;font-size:12px;font-weight:700;
   text-decoration:underline;text-underline-offset:3px;text-align:right}
-.create-account-page .reg-help :is(summary:hover,summary:focus-visible){color:#174b9b}
-.create-account-page .reg-help summary:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}
-.create-account-page .reg-help[open] .reg-help-trigger{background:#dfeaff;border-color:#6995ed}
-.create-account-page .reg-help-panel{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
+.create-account-page .create-account-help :is(summary:hover,summary:focus-visible){color:#174b9b}
+.create-account-page .create-account-help summary:focus-visible{outline:3px solid #88a9ff;outline-offset:3px}
+.create-account-page .create-account-help[open] .create-account-help-trigger{background:#dfeaff;border-color:#6995ed}
+.create-account-page .create-account-help-panel{position:absolute;right:0;top:calc(100% + 10px);z-index:100;
   width:min(330px,calc(100vw - 45px));padding:17px 18px;border:1px solid #d7e3f8;
   border-radius:16px;background:#fff;box-shadow:0 18px 55px rgba(23,48,95,.18);
   white-space:normal;animation:vatraHintAppear .18s cubic-bezier(.2,.7,.2,1)}
-.create-account-page .reg-help[data-side="right"] .reg-help-panel{left:calc(100% + 14px);right:auto;top:-14px}
-.create-account-page .reg-help[data-side="left"] .reg-help-panel{right:calc(100% + 14px);left:auto;top:-14px}
-.create-account-page .reg-help[data-side="right"] .reg-help-panel::before{left:-6px;right:auto;top:22px;transform:rotate(-45deg)}
-.create-account-page .reg-help[data-side="left"] .reg-help-panel::before{right:-6px;left:auto;top:22px;transform:rotate(135deg)}
-@media(prefers-reduced-motion:reduce){.create-account-page .reg-help-panel{animation:none!important}}
-.create-account-page .reg-help-panel::before{content:"";position:absolute;right:17px;top:-6px;
+.create-account-page .create-account-help[data-side="right"] .create-account-help-panel{left:calc(100% + 14px);right:auto;top:-14px}
+.create-account-page .create-account-help[data-side="left"] .create-account-help-panel{right:calc(100% + 14px);left:auto;top:-14px}
+.create-account-page .create-account-help[data-side="right"] .create-account-help-panel::before{left:-6px;right:auto;top:22px;transform:rotate(-45deg)}
+.create-account-page .create-account-help[data-side="left"] .create-account-help-panel::before{right:-6px;left:auto;top:22px;transform:rotate(135deg)}
+@media(prefers-reduced-motion:reduce){.create-account-page .create-account-help-panel{animation:none!important}}
+.create-account-page .create-account-help-panel::before{content:"";position:absolute;right:17px;top:-6px;
   width:11px;height:11px;background:#fff;border-top:1px solid #d7e3f8;
   border-left:1px solid #d7e3f8;transform:rotate(45deg)}
-.create-account-page .reg-help-panel strong{display:block;font-size:14px;font-weight:750;
+.create-account-page .create-account-help-panel strong{display:block;font-size:14px;font-weight:750;
   line-height:1.35;color:#263956;margin:0 0 8px}
-.create-account-page .reg-help-panel p{font-size:12px;font-weight:450;line-height:1.65;
+.create-account-page .create-account-help-panel p{font-size:12px;font-weight:450;line-height:1.65;
   color:#586981;margin:0 0 12px}
-.create-account-page .reg-help-policy{display:inline-block;font-size:12px;font-weight:700;
+.create-account-page .create-account-help-policy{display:inline-block;font-size:12px;font-weight:700;
   color:#2865d8;text-decoration:none}
-.create-account-page .reg-help-policy:hover{text-decoration:underline}
+.create-account-page .create-account-help-policy:hover{text-decoration:underline}
 @media(max-width:480px){
- .create-account-page .reg-help-panel{width:min(300px,calc(100vw - 40px))}
- .create-account-page .reg-help-link{font-size:11px}}
+ .create-account-page .create-account-help-panel{width:min(300px,calc(100vw - 40px))}
+ .create-account-page .create-account-help-link{font-size:11px}}
 
 
 
@@ -109,7 +109,7 @@
 .signup-form-head{margin-bottom:25px}
 .signup-form-overline{justify-content:space-between;flex-wrap:wrap;row-gap:8px}
 .signup-overline-labels{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;min-width:0}
-.signup-form-overline .reg-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}
+.signup-form-overline .create-account-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}
 .signup-step-number{font-size:12px;color:#356ee0;font-weight:750;white-space:nowrap;background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .signup-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:26px}
 .signup-progress-segment{display:block;height:5px;border-radius:999px;background:#e6ebf6;transition:background-color .28s ease}
@@ -122,11 +122,11 @@
 .signup-submit-row{display:grid;grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:10px}
 .signup-back-button{border:1px solid #d7e1f5;background:#f3f6fc;color:#314a7e;font-weight:740}
 .signup-back-button:hover,.signup-back-button:focus-visible{background:#e8eefc;border-color:#acc4f1}
-.signup-form-panel .reg-actions{margin-top:7px}
-.signup-form-panel .reg-actions>a{margin-top:2px}
+.signup-form-panel .create-account-actions{margin-top:7px}
+.signup-form-panel .create-account-actions>a{margin-top:2px}
 @media(prefers-reduced-motion:reduce){
 .signup-brand-symbol,
-.reg-back-nav,
+.create-account-back-nav,
 .signup-form-panel .narrow-form,
 .signup-confirmation{animation:none!important}.signup-progress-segment{transition:none!important}}
 /* Фірмові списки дати народження та статі: однаковий Onest у полі та меню. */
@@ -144,7 +144,7 @@
 .vatra-select.opens-up .vatra-select-list{top:auto;bottom:calc(100% + 7px)}
 .vatra-select-option{display:block;width:100%;min-height:39px;padding:9px 12px;border:0;border-radius:8px;text-align:left;background:#fff;color:var(--ink);font-size:15px;line-height:1.4;font-weight:500}
 .vatra-select-option:hover,.vatra-select-option:focus-visible{background:#f1f5ff;color:var(--blue);outline:none}
-.vatra-select-option[aria-selected="true"]{background:#eaf1ff;color:#2865D8;font-weight:700}.check-terms{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:11px;row-gap:6px;align-items:start;cursor:pointer}.check-terms>input{grid-column:1;grid-row:1;align-self:start;flex:none;margin-top:3px}.reg-actions{display:grid;gap:11px}.reg-actions .action{width:100%}.reg-bottom{text-align:center;font-size:13px;color:#627187;margin:20px 0 0}.reg-bottom a{color:var(--blue);font-weight:700}
+.vatra-select-option[aria-selected="true"]{background:#eaf1ff;color:#2865D8;font-weight:700}.check-terms{display:grid;grid-template-columns:16px minmax(0,1fr);column-gap:11px;row-gap:6px;align-items:start;cursor:pointer}.check-terms>input{grid-column:1;grid-row:1;align-self:start;flex:none;margin-top:3px}.create-account-actions{display:grid;gap:11px}.create-account-actions .action{width:100%}.create-account-bottom{text-align:center;font-size:13px;color:#627187;margin:20px 0 0}.create-account-bottom a{color:var(--blue);font-weight:700}
 
 /* Узгоджена адаптація всіх наявних сторінок VATRA. */
 /* Signup navigation shares the eyebrow row instead of floating above the form. */
@@ -157,23 +157,23 @@
 /* On ultrawide but short screens use one shared card floor rather than
    compressing text or shifting the signup illustration independently. */
 @media (min-width:1800px) and (max-height:850px){
-.reg-main{min-height:700px}}
+.create-account-main{min-height:700px}}
 @media (min-width:1200px) and (max-height:610px){
-.reg-main{min-height:670px}}
+.create-account-main{min-height:670px}}
 @media (max-width:1199px){
-  .create-account-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}
+  .create-account-page .create-account-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}
   .create-account-page .auth-footer-content{width:min(calc(100% - 40px),670px)}
   .signup-brand{gap:12px;padding:25px 28px;border-radius:24px 24px 0 0}
   .signup-brand-art,.signup-brand-highlights{display:none}
   .signup-brand-title{font-size:clamp(24px,4.3vw,31px);max-width:none;margin:0 0 7px}
   .signup-brand-description{font-size:13px;max-width:60ch;line-height:1.5}
   .signup-form-panel{border:1px solid #e4e9f5;border-top:0;border-radius:0 0 24px 24px;padding:42px clamp(24px,5vw,48px) 43px}
-  .signup-form-panel .narrow-form,.signup-form-panel .reg-back-nav{max-width:510px}
+  .signup-form-panel .narrow-form,.signup-form-panel .create-account-back-nav{max-width:510px}
 .create-account-page .auth-footer-content{justify-content:space-between;text-align:left}}
 @media (max-width:540px){
   /* Canonical mobile signup rules live after the tablet breakpoint. */
-  .create-account-page .reg-main{width:calc(100% - 24px);padding:0}
-  .signup-form-overline .reg-back-nav{width:auto;margin:0 0 0 auto;justify-content:flex-end}
+  .create-account-page .create-account-main{width:calc(100% - 24px);padding:0}
+  .signup-form-overline .create-account-back-nav{width:auto;margin:0 0 0 auto;justify-content:flex-end}
   .signup-brand{padding:22px 23px;border-radius:21px 21px 0 0}
   .signup-brand-title{font-size:25px}
   .signup-form-panel{padding:33px 21px 35px;border-radius:0 0 21px 21px}
@@ -184,5 +184,5 @@
   .signup-submit-row{grid-template-columns:minmax(0,.38fr) minmax(0,.62fr);gap:8px}
   .signup-submit-row .action{padding-inline:8px;font-size:12px}
 .create-account-page .auth-footer-content{width:calc(100% - 24px);justify-content:center;text-align:center}
-  .reg-back-nav .back{font-size:13px}
-  .reg-main{padding:0}}
+  .create-account-back-nav .back{font-size:13px}
+  .create-account-main{padding:0}}
