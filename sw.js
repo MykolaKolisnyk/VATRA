@@ -1,5 +1,5 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
-const CACHE="vatra-offline-shell-v48";
+const CACHE="vatra-offline-shell-v49";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -22,7 +22,6 @@ const ASSETS=[
  ROOT+"assets/logo/vatra-logo.svg",
  ROOT+"assets/logo/vatra-symbol.svg",
  ROOT+"assets/logo/vatra-app-icon.svg",
- ROOT+"favicon.svg",
  ROOT+"assets/fonts/Onest-Variable.ttf"
 ];
 self.addEventListener("install",event=>{
