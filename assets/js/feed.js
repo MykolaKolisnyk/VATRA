@@ -658,6 +658,31 @@
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
    // A filter is a new source query, not a cosmetic visibility toggle.
    describeFilter();
+   const filterToggle=q("#feed-filter-toggle"),filterOptions=q("#feed-filter-options");
+   const closeFilter=()=>{
+    if(!filterToggle||!filterOptions)return;
+    filterOptions.hidden=true;filterToggle.setAttribute("aria-expanded","false");
+    filterToggle.setAttribute("aria-label",t("Відкрити фільтр стрічки","Open feed filter"));
+    q(".feed-filter-row")?.setAttribute("data-open","false");
+   };
+   if(filterToggle&&filterOptions){
+    filterToggle.addEventListener("click",()=>{
+     const next=filterOptions.hidden;
+     filterOptions.hidden=!next;
+     filterToggle.setAttribute("aria-expanded",String(next));
+     filterToggle.setAttribute("aria-label",next?
+      t("Закрити фільтр стрічки","Close feed filter"):
+      t("Відкрити фільтр стрічки","Open feed filter"));
+     q(".feed-filter-row")?.setAttribute("data-open",String(next));
+    });
+    document.addEventListener("pointerdown",event=>{
+     if(!filterOptions.hidden&&!q(".feed-filter-row")?.contains(event.target))closeFilter();
+    });
+    document.addEventListener("keydown",event=>{
+     if(event.key==="Escape"&&!filterOptions.hidden){closeFilter();filterToggle.focus();}
+    });
+    closeFilter();
+   }
    for(const button of document.querySelectorAll("[data-feed-filter]")){
     button.addEventListener("click",()=>{
      const next=button.dataset.feedFilter;
