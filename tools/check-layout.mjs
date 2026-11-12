@@ -3,14 +3,14 @@ import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
-const authBaseCss=await read("assets/css/auth.css");
+const authBaseCss=await read("assets/css/base.css");
 const signInCss=await read("assets/css/sign-in.css");
 const createAccountCss=await read("assets/css/create-account.css");
 const recoveryCss=await read("assets/css/recovery.css");
 const verifyCss=await read("assets/css/verify.css");
 const css=[authBaseCss,signInCss,createAccountCss,recoveryCss,verifyCss].join("\n");
 const legalCss=await read("assets/css/legal.css");
-const authShared=await read("assets/js/auth.js");
+const authShared=await read("assets/js/auth-core.js");
 const authSignIn=await read("assets/js/sign-in.js");
 const authCreateAccount=await read("assets/js/create-account.js");
 const authRecovery=await read("assets/js/recovery.js");
@@ -54,7 +54,7 @@ const authControllerNames=["sign-in","create-account","recovery","verify"];
 for(const [name,pageId,controller,stylesheet] of authPageModules){
  const html=await read(name+".html");
  const js='src="assets/js/'+controller+'.js"';
- const shared='src="assets/js/auth.js"';
+ const shared='src="assets/js/auth-core.js"';
  assert.ok(html.includes('data-page="'+pageId+'"')&&
   html.split(js).length===2&&html.split(shared).length===2&&
   html.indexOf(js)<html.indexOf(shared)&&
@@ -76,6 +76,16 @@ const sw=await read("sw.js");
 const host=await read("assets/js/host.js");
 const network=await read("assets/js/network.js");
 const offline=await read("offline.html");
+const offlineStyles=await read("assets/css/offline.css");
+const offlineActions=await read("assets/js/offline.js");
+assert.ok(offline.includes('href="assets/css/offline.css"')&&
+ offline.includes('src="assets/js/offline.js"')&&
+ offlineStyles.includes('.offline-content')&&
+ offlineActions.includes('addEventListener("online"')&&
+ sw.includes('ROOT+"assets/css/offline.css"')&&
+ sw.includes('ROOT+"assets/js/offline.js"'),
+ "Offline page must use its own CSS/JS and cache both for unavailable networks");
+
 const uk=JSON.parse(await read("assets/i18n/uk.json"));
 const en=JSON.parse(await read("assets/i18n/en.json"));
 assert.ok(
@@ -379,7 +389,7 @@ for(const page of pages){
  assert.ok(!/\/VATRA\/(?:ua|en)\//.test(html),filename+": stale locale-folder route");
  assert.ok(html.includes("data-i18n="),filename+": localized data nodes missing");
  assert.ok(html.includes("assets/js/lang.js"),filename+": shared language module missing");
- if(page!=="offline")assert.ok(html.includes("assets/css/auth.css"),filename+": central stylesheet missing");
+ if(page!=="offline")assert.ok(html.includes("assets/css/base.css"),filename+": central stylesheet missing");
  total+=inspect(filename,html);
  const bindings=[...html.matchAll(/\bdata-i18n="([^"]+)"/g)].map(x=>x[1]);
  assert.equal(new Set(bindings).size,bindings.length,filename+": duplicate translation keys");
@@ -486,10 +496,10 @@ assert.ok(!register.includes('class="create-account-header')&&
  !register.includes('class="signup-brand-top')&&
  register.includes('auth-footer-content ui-create-account-footer-content-001'),
  "Registration must keep its return-to-login link inside the form panel");
-for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth.js"),"Shared auth module not loaded");
+for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth-core.js"),"Shared auth module not loaded");
 for(const file of [landing,register,forgot]){
  assert.ok(file.includes('src="assets/js/captcha.js"'),"Cloudflare widget not loaded");
- assert.ok(file.indexOf('src="assets/js/captcha.js')<file.indexOf('src="assets/js/auth.js'),"Cloudflare must load before auth");
+ assert.ok(file.indexOf('src="assets/js/captcha.js')<file.indexOf('src="assets/js/auth-core.js'),"Cloudflare must load before auth");
 }
 assert.ok(register.includes('id="signup-confirmation" role="status" aria-live="polite" hidden')&&
  !register.includes('signup-confirmation-emblem')&&
@@ -748,7 +758,7 @@ for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("assets/js/lang.js")&&html.includes("assets/js/errors.js"),page+": shared language picker and diagnostics missing");
- assert.ok(html.includes("assets/css/auth.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
+ assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
  "Language toggle must initialize early and open the full modal");
@@ -943,7 +953,7 @@ assert.ok(auth.includes("if(!/^\\d{6,10}$/.test(token))"),
 assert.ok(captcha.includes('execution:"execute"')&&captcha.includes('appearance:"always"'),"Cloudflare must run in modal on action");
 assert.ok(captcha.includes("captcha-backdrop"),"Security modal missing");
 assert.ok(auth.includes("captchaToken:token"),"Supabase requests must include CAPTCHA token");
-for(const script of ["assets/js/auth.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
+for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lang.js","assets/js/errors.js","assets/js/captcha.js","assets/js/host.js","assets/js/network.js","assets/js/social-shell.js","assets/js/notifications.js","sw.js"]){
  const scriptSource=await read(script);
  assert.doesNotThrow(()=>new Function(scriptSource),script+": invalid JavaScript");
 }
@@ -1072,7 +1082,7 @@ const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
 const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
 assert.deepEqual(profileStyles,[
- 'href="assets/css/auth.css"','href="assets/css/feed.css"',
+ 'href="assets/css/base.css"','href="assets/css/feed.css"',
  'href="assets/css/profile.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
@@ -1473,7 +1483,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["auth.css","communities.css","create-account.css","feed.css","legal.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","legal.css","offline.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
@@ -1515,6 +1525,19 @@ assert.ok(forgot.includes('id="account-link" href="./" class="action primary ful
  css.includes('.ui-forgot-main-001 .forgot-panel .recovery-success-action{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px')&&
  css.includes('.ui-forgot-main-001 .forgot-panel .vatra-input-shell:is(.is-floating,:focus-within) .control{padding-top:21px;padding-bottom:7px}'),
  "Both recovery paths need identical accessible password fields and full-width success CTA");
+
+
+assert.ok(
+ authRecovery.includes('if(repeat)feedback("Якщо акаунт існує')&&
+ !authRecovery.includes('"Якщо акаунт із такою адресою існує, лист із кодом надіслано. Введіть код нижче."'),
+ "Initial recovery email must reveal the code step without a redundant green notice");
+assert.ok(
+ profileScript.includes('document.title=titleName+" · VATRA";')&&
+ socialMotion.includes('const club=next.pathname.match(')&&
+ socialMotion.includes('const ownProfile=next.pathname==="/VATRA/profile";')&&
+ socialMotion.includes('new URL(member||ownProfile?"profile.html":"club.html"')&&
+ (await read("assets/js/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
+ "Member titles must name the visited profile, and internal routes must bypass the 404 HTML document");
 
 /* English dictionaries are asynchronous: no UI reveal may finish while the
    translated page is hidden. This applies to 404, documents and all auth UIs.
