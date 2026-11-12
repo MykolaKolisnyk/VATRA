@@ -2246,9 +2246,9 @@ async function start(){
   setupProfileInteractions(client,ownId,targetId,isMine);
   setupProfileReports(client,ownId,targetId,isMine,locked);
   if(!locked)void setupProfileSocialCards(client,ownId,targetId,isMine).catch(()=>{
-   const f=q(\"#profile-friends-preview-empty\"),g=q(\"#profile-gifts-preview-empty\");
-   if(f){f.textContent=t(\"Не вдалося завантажити друзів.\",\"Could not load friends.\");f.hidden=false;}
-   if(g){g.textContent=t(\"Не вдалося завантажити подарунки.\",\"Could not load gifts.\");g.hidden=false;}
+   const f=q("#profile-friends-preview-empty"),g=q("#profile-gifts-preview-empty");
+   if(f){f.textContent=t("Не вдалося завантажити друзів.","Could not load friends.");f.hidden=false;}
+   if(g){g.textContent=t("Не вдалося завантажити подарунки.","Could not load gifts.");g.hidden=false;}
   });
   if(!locked){
    setupProfileExtraSections(client,ownId,targetId,user.id,isMine);
