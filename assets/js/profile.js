@@ -131,7 +131,7 @@
    Promise.resolve({data:[],error:null});
   const [preference,friendship]=await Promise.all([preferenceQuery,friendshipQuery]);
   // Failed checks never imply a public profile or an accepted friendship.
-  const accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
+  let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const locked=!isMine&&accountVisibility==="friends"&&!isFriend;
   const result=locked?{data:[],error:null}:await client.from("vatra_profile_details")
