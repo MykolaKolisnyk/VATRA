@@ -85,7 +85,10 @@ function appendAudience(container,level,isGroup=false){
    visibility==="group"?tr("Учасники спільноти","Community members"):
    tr("Публічно","Public");
   const marker=make("span","feed-post-audience ui-feed-post-audience-001");
-  marker.title=label;marker.setAttribute("aria-label",label);
+  marker.setAttribute("aria-label",label);
+  marker.tabIndex=0;
+  const hint=make("span","vt-vatra-post-audience-hint-001",label);
+  hint.setAttribute("aria-hidden","true");
   const symbol=glyph(visibility==="only_me"?"bookmark":visibility==="public"?"share":"comments");
   symbol.setAttribute("class","ui-feed-post-audience-icon-001");
   symbol.replaceChildren();
@@ -94,7 +97,7 @@ function appendAudience(container,level,isGroup=false){
   if(visibility==="only_me")path.setAttribute("d","M7 10V7a5 5 0 0 1 10 0v3M5.5 10.5h13v10h-13z");
   else if(visibility==="public")path.setAttribute("d","M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18");
   else path.setAttribute("d","M15.5 10a3 3 0 1 0-6 0 3 3 0 0 0 6 0ZM4 21v-1a8 8 0 0 1 16 0v1M5.5 9a2.5 2.5 0 0 0 0 5M18.5 9a2.5 2.5 0 0 1 0 5");
-  symbol.append(path);marker.append(symbol);
+  symbol.append(path);marker.append(symbol,hint);
   container.append(marker);
  }
  function mount(client,post,container,settings={}){
