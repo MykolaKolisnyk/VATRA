@@ -1418,9 +1418,9 @@ for(const page of ["feed.html","profile.html","communities.html","club.html"]){
   page+": use page-shaped skeleton instead of a recurring fullscreen logo");
 }
 const errorPage=await read("404.html");
-// The GitHub Pages /idN and /clubN fallback must show the real VATRA splash
+// The GitHub Pages /idN and /clubN fallback uses the external router and real VATRA splash
 // while fetching the route document in BOTH Ukrainian and English.
-assert.ok(errorPage.includes('classList.add("vatra-dynamic-route-pending")')&&
+assert.ok(legacyScript.includes('classList.add("vatra-dynamic-route-pending")')&&
  errorPage.includes('id="vatra-dynamic-route-loading"')&&
  errorPage.includes('vatra-auth-loading-symbol ui-404-route-loading-symbol-001')&&
  !errorPage.includes('document.documentElement.style.visibility="hidden"')&&
