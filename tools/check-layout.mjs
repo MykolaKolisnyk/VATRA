@@ -1359,19 +1359,27 @@ const socialMotion=await read("assets/js/social-shell.js");
 assert.doesNotThrow(()=>new Function(socialMotion),"Shared VATRA transition logic must be valid JavaScript");
 assert.ok(
  !feedStyle.includes("@view-transition{navigation:auto}") &&
- feedStyle.includes("body.feed-page.vatra-route-exiting .feed-app > .feed-layout") &&
+ !feedStyle.includes("vatra-route-exiting") &&
+ !feedStyle.includes("vatraRouteReadyReveal") &&
  socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
  socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
- feedStyle.includes("view-transition-name:vatra-social-header") &&
- feedStyle.includes("vatraRouteCrossfadeOut") &&
- feedStyle.includes("vatraRouteCrossfadeIn") &&
- feedStyle.includes("body.feed-page[data-auth-ready=\"true\"]:not(.vatra-shell-pending) .feed-app > .feed-layout") &&
+ socialMotion.includes('location.assign(next.href)') &&
+ !socialMotion.includes('window.setTimeout(navigate,145)') &&
+ !socialMotion.includes('classList.add("vatra-route-exiting")') &&
+ feedStyle.includes("body.feed-page.vatra-shell-pending .feed-app > .feed-layout") &&
  feedStyle.includes("html.vatra-editor-switching::view-transition-old(root)") &&
  feedStyle.includes("@media(prefers-reduced-motion:reduce)") &&
  socialMotion.includes("window.VATRA_MOTION={reveal:revealSection}") &&
  profileScript.includes("window.VATRA_MOTION?.reveal(activePanel)") &&
  detailsModule.includes("document.startViewTransition(()=>showGroup(id))"),
- "VATRA routes and profile switches must fade smoothly without GitHub Pages view-transition aborts");
+ "VATRA section links must navigate immediately while preserving data skeletons and in-page editing");
+assert.ok(
+ signInCss.includes("background:#fff;border:1.5px solid #a7bff3;color:#285ec6") &&
+ memberProfileMarkup.includes('class="profile-posts-overview ui-profile-posts-overview-001"') &&
+ memberProfileMarkup.includes('data-social-uk="Публікації" data-social-en="Posts"') &&
+ memberCss.includes("grid-template-columns:minmax(0,37.5%) minmax(0,1fr)") &&
+ memberCss.includes("body.profile-page .profile-posts-overview{"),
+ "VATRA sign-in secondary action and balanced About / Posts profile columns must stay visible");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
  assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
