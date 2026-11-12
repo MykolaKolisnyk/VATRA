@@ -996,7 +996,7 @@ for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lan
 }
 // All authenticated social pages use exactly the same header shell. Only the
 // active route may differ; this guards against CSS/HTML drift between pages.
-const sharedShellPages=["feed","profile","communities","club","notifications"];
+const sharedShellPages=["feed","profile","communities","club","notifications","friends","gifts"];
 const interactionsScript=await read("assets/js/post-interactions.js");
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
@@ -1036,12 +1036,12 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-sort"')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
- notificationScript.includes('panelPage=0')&&
+ notificationScript.includes('opts={page:0,size:6}')&&
  notificationScript.includes('pageLoad()')&&
  notificationScript.includes('client.channel(')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
- "VATRA notifications must include the private inbox and five-item header preview");
+ "VATRA notifications must include the private inbox and six-item header preview");
 const normalizedSocialHeader=html=>{
  const header=html.match(/<header class="feed-header[\s\S]*?<\/header>/)?.[0];
  assert.ok(header,"Signed-in VATRA page must have the shared header");
@@ -1138,7 +1138,7 @@ const memberCss=await read("assets/css/profile.css");
 const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
 assert.deepEqual(profileStyles,[
  'href="assets/css/base.css"','href="assets/css/feed.css"',
- 'href="assets/css/profile.css"'
+ 'href="assets/css/profile.css"','href="assets/css/post-composer.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
  (await Promise.all(["feed.html","communities.html","club.html","notifications.html"].map(p=>read(p))))
