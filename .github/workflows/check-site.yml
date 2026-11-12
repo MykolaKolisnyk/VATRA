@@ -22,6 +22,7 @@ jobs:
         run: |
           node tools/check-seo.mjs
           node tools/check-layout.mjs
+          node tools/check-vps.mjs
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.x'
