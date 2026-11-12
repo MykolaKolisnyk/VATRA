@@ -29,7 +29,7 @@ assert.ok(
 assert.ok(
  signInCss.includes(".site")&&createAccountCss.includes(".signup-")&&
  recoveryCss.includes(".forgot-")&&
- !authBaseCss.includes(".register-page"),
+ !authBaseCss.includes(".create-account-page"),
  "Sign in, Create account and recovery styles must be separately maintained");
 const accountPage=await read("create-account.html");
 assert.ok(
@@ -100,7 +100,7 @@ assert.ok(auth.includes('function passwordIssue(value){')&&
  auth.includes('if(status&&step.contains(status))form.before(status);'),
  "Signup and both reset flows must share a specific password validator and aligned error placement");
 for(const [page,key,id] of [
- ["create-account","n260","register-password-policy"],["forgot","n60","forgot-password-policy"],
+ ["create-account","n260","create-account-password-policy"],["forgot","n60","forgot-password-policy"],
  ["reset","n46","reset-password-policy"]
 ]){
  const html=await read(page+".html");
@@ -119,7 +119,7 @@ assert.ok(auth.includes('let recoveryVerifiedUserId=null;')&&
  !auth.includes('if(!error&&data?.user)reveal();'),
  "Password recovery must be bound to verified identity");
 const registerHtml=await read("create-account.html");
-assert.ok(!registerHtml.includes('vt-register-paragraph-02')&&
+assert.ok(!registerHtml.includes('vt-create-account-paragraph-02')&&
  !Object.hasOwn(uk.__pages["create-account"].nodes,"n51")&&
  !Object.hasOwn(en.__pages["create-account"].nodes,"n51"),
  "Do not duplicate the password requirements in signup or translations");
@@ -178,7 +178,7 @@ assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transpare
  css.includes('.vatra-floating-hint{')&&
  css.includes('.vatra-input-shell:focus-within .vatra-floating-hint,')&&
  css.includes('.vatra-input-shell.is-floating .control,')&&
- !css.includes('.reg-floating-label'),
+ !css.includes('.create-account-floating-label'),
  "Both auth forms must have one floating hint per field without duplicate native labels");
 assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
  css.includes(".vatra-select-list::-webkit-scrollbar-thumb,.captcha-dialog::-webkit-scrollbar-thumb")&&
@@ -420,7 +420,7 @@ assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  "Both auth logos must be identical symbols with the same animation and size");
 assert.ok(auth.includes("function wireFloatingHints()")&&
  css.includes(".signup-form-panel .field:has(input.control)>span:first-child{")&&
- css.includes(".create-account-page .reg-help-panel")&&css.includes(".vatra-error-stack"),
+ css.includes(".create-account-page .create-account-help-panel")&&css.includes(".vatra-error-stack"),
  "Floating hints must preserve registration captions and help");
 assert.ok(landing.includes("Ваші люди. Ваші історії. Ваша VATRA."),"Complete brand footer missing");
 assert.ok(landing.includes('class="auth-layout login-layout ui-login-layout-001"')&&
@@ -446,14 +446,14 @@ assert.ok(!css.includes(".create-account-page .field:has(input.control)")&&
  !css.includes(".login-layout::before")&&!css.includes(".signup-layout::before"),
  "Auth cards must center without reserved space from the former top navigation");
 const register=await read("create-account.html"),forgot=await read("forgot.html"),reset=await read("reset.html");
-assert.ok(!register.includes('class="reg-header')&&
- !register.includes('class="header-logo vt-register-link-01"')&&
+assert.ok(!register.includes('class="create-account-header')&&
+ !register.includes('class="header-logo vt-create-account-link-01"')&&
  register.includes('class="signup-layout auth-layout ui-signup-layout-001"')&&
- register.includes('class="reg-back-nav ui-register-back-nav-001"')&&
- register.includes('href="./" class="back vt-register-link-02"')&&
- css.includes(".auth-layout{")&&!css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".reg-back-nav{")&&
+ register.includes('class="create-account-back-nav ui-create-account-back-nav-001"')&&
+ register.includes('href="./" class="back vt-create-account-link-02"')&&
+ css.includes(".auth-layout{")&&!css.includes(".login-layout::before,.signup-layout::before{")&&css.includes(".login-layout .split{")&&css.includes(".create-account-back-nav{")&&
  !register.includes('class="signup-brand-top')&&
- register.includes('auth-footer-content ui-register-footer-content-001'),
+ register.includes('auth-footer-content ui-create-account-footer-content-001'),
  "Registration must keep its return-to-login link inside the form panel");
 for(const file of [register,forgot,reset])assert.ok(file.includes("assets/js/auth.js"),"Shared auth module not loaded");
 for(const file of [landing,register,forgot]){
@@ -486,7 +486,7 @@ assert.ok(css.includes(".signup-confirmation-tips p{margin:0;color:var(--soft);f
  "Confirmation secondary typography must use consistent 13–14px rules");
 assert.ok(uk.__pages["create-account"].meta.title==="Створити акаунт · VATRA"&&
  en.__pages["create-account"].meta.title==="Create account · VATRA"&&
- !register.includes('href="./" class="vt-register-link-10"'),
+ !register.includes('href="./" class="vt-create-account-link-10"'),
  "Registration tab and account-creation links must use consistent naming");
 assert.ok(captcha.includes('dispose(scope,state);')&&
  captcha.indexOf('dispose(scope,state);')<captcha.indexOf('waiting.resolve(token);')&&
@@ -494,13 +494,13 @@ assert.ok(captcha.includes('dispose(scope,state);')&&
  !captcha.includes('state.dialog.hide();\n    waiting.resolve(token);'),
  "Turnstile must remove its widget before detaching the dialog, avoiding spurious warnings");
 assert.ok(register.includes('id="consent"')&&register.includes('id="signup-form"'),"Signup consent or form missing");
-assert.ok(register.includes('data-register-step="1"')&&register.includes('data-register-step="2" hidden')&&
- register.includes('id="register-next"')&&register.includes('id="register-back"')&&
+assert.ok(register.includes('data-create-account-step="1"')&&register.includes('data-create-account-step="2" hidden')&&
+ register.includes('id="create-account-next"')&&register.includes('id="create-account-back"')&&
  register.includes('signup-brand ui-signup-brand-001')&&
  css.includes('.signup-form-panel')&&css.includes('.signup-brand')&&
- auth.includes('function wireRegistrationWizard()')&&auth.includes('validateRegistrationStep(first)'),
+ auth.includes('function wireCreateAccountWizard()')&&auth.includes('validateCreateAccountStep(first)'),
  "Two-stage VATRA signup, branding and scoped validation must remain intact");
-assert.ok(css.includes('.reg-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px)')&&
+assert.ok(css.includes('.create-account-main{width:min(calc(100% - 88px),1300px);min-height:clamp(650px,calc(100svh - 128px),770px)')&&
  css.includes('.signup-form-panel .narrow-form{width:100%;max-width:520px;margin:0 auto;min-width:0;animation:vatraAuthReveal .3s')&&
  css.includes('.signup-step{display:grid;gap:17px;min-width:0}')&&
  auth.includes('if(animate)replayAuthContent(q(".signup-form-panel .narrow-form"));')&&
@@ -510,8 +510,8 @@ assert.ok(css.includes('.reg-main{width:min(calc(100% - 88px),1300px);min-height
 for(const id of ["first-name","last-name","gender","email","password","password-confirm"]){
  assert.ok(register.includes('id="'+id+'"'),"Missing registration control: "+id);
 }
-assert.ok(register.includes('class="reg-help-trigger vt-register-summary-01"')&&
- register.includes('class="reg-help-link vt-register-summary-02"')&&
+assert.ok(register.includes('class="create-account-help-trigger vt-create-account-summary-01"')&&
+ register.includes('class="create-account-help-link vt-create-account-summary-02"')&&
  register.includes('href="privacy#purpose" target="_blank"'),
  "Signup gender and email must explain why data is requested");
 for(const [path,ids] of [["index.html",["email","password","saved-password"]],["create-account.html",["first-name","last-name","email","password","password-confirm"]]]){
@@ -558,12 +558,12 @@ for(const [template,target,type] of [
  assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
   "Wrong token type or destination: "+template);
 }
-assert.ok(register.includes('href="./" class="back vt-register-link-02"')&&
- !css.includes('.create-account-page[data-signup-confirmation="pending"] .reg-back-nav{visibility:hidden;pointer-events:none}')&&
- !css.includes('.reg-back-nav .back{min-height:40px;')&&
+assert.ok(register.includes('href="./" class="back vt-create-account-link-02"')&&
+ !css.includes('.create-account-page[data-signup-confirmation="pending"] .create-account-back-nav{visibility:hidden;pointer-events:none}')&&
+ !css.includes('.create-account-back-nav .back{min-height:40px;')&&
  !register.includes('class="signup-login-switch')&&
- register.includes('<a href="./" class="vt-register-footer-signin" data-i18n="n247">Увійти</a>')&&
- !css.includes('.create-account-page .footer nav>.vt-register-footer-signin{')&&
+ register.includes('<a href="./" class="vt-create-account-footer-signin" data-i18n="n247">Увійти</a>')&&
+ !css.includes('.create-account-page .footer nav>.vt-create-account-footer-signin{')&&
  !css.includes('.footer nav>a[href="create-account.html"]{'),
  "Signup should show the mirrored Sign in link ONLY in the footer without altering form layout");
 // Field labels are retained for accessibility, but shown as floating hints on
@@ -583,7 +583,7 @@ assert.ok(homeMarkup.includes('vt-home-saved-field-title-001 vatra-sr-only')&&
  css.includes('.vatra-sr-only{position:absolute!important;'),
  "Remembered account must have no redundant wordmark or visible top password label");
 assert.ok(!css.includes('.footer nav>a[href="create-account.html"]{')&&
- !css.includes('.create-account-page .footer nav>.vt-register-footer-signin{'),
+ !css.includes('.create-account-page .footer nav>.vt-create-account-footer-signin{'),
  "Footer sign-in and create-account links must use the same shared link typography");
 const allTemplates=await readdir("email-templates");
 assert.deepEqual(allTemplates.filter(f=>f.endsWith(".html")).sort(),
@@ -612,17 +612,17 @@ for(const file of allTemplates.filter(f=>f.endsWith(".html"))){
 // The top return link belongs inside the form card, never above the split card.
 const registrationMarkup=await read("create-account.html");
 const formStart=registrationMarkup.indexOf('<section class="signup-form-panel ui-signup-form-panel-001"');
-const returnStart=registrationMarkup.indexOf('<nav class="reg-back-nav ui-register-back-nav-001"');
-const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-register-div-001">');
+const returnStart=registrationMarkup.indexOf('<nav class="create-account-back-nav ui-create-account-back-nav-001"');
+const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-create-account-div-001">');
 const overlineStart=registrationMarkup.indexOf('<div class="signup-form-overline ui-signup-form-overline-001">');
 const labelsStart=registrationMarkup.indexOf('<div class="signup-overline-labels ui-signup-overline-labels-001">');
 const firstStep=registrationMarkup.indexOf('class="signup-step-number vt-signup-step-number-01"');
 assert.ok(formStart>=0&&innerStart>formStart&&
  overlineStart>innerStart&&labelsStart>overlineStart&&firstStep>labelsStart&&returnStart>firstStep&&
- (registrationMarkup.match(/class="reg-back-nav ui-register-back-nav-001"/g)||[]).length===1&&
- css.includes('.reg-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
+ (registrationMarkup.match(/class="create-account-back-nav ui-create-account-back-nav-001"/g)||[]).length===1&&
+ css.includes('.create-account-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
  css.includes('max-width:none;margin:0;padding:0}')&&
- css.includes('.signup-form-overline .reg-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}')&&
+ css.includes('.signup-form-overline .create-account-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}')&&
  css.includes('.signup-form-panel{display:flex;flex-direction:column;')&&
  css.includes('.auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:40px 0}')&&
  !css.includes('.login-layout::before,.signup-layout::before{'),
@@ -647,7 +647,7 @@ assert.ok(landing.includes('id="saved-account-remove"')&&
 assert.ok(css.includes(".auth-layout{flex:1;display:flex;flex-direction:column;justify-content:center;")&&
  css.includes(".auth-layout{justify-content:flex-start;padding:32px 0}")&&
  css.includes(".login-layout .split{margin:auto}")&&
- css.includes(".create-account-page .reg-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
+ css.includes(".create-account-page .create-account-main{display:flex;flex-direction:column;min-height:0;width:min(calc(100% - 40px),670px);gap:0;margin:auto}")&&
  css.includes(".ui-forgot-main-001{width:min(calc(100% - 48px),680px);padding:40px 0;justify-content:center}")&&
  css.includes(".ui-forgot-main-001{width:calc(100% - 24px);padding:32px 0}"),
  "Auth and recovery layout must have matching top/bottom gutters and shared centering");
@@ -663,7 +663,7 @@ for(const [page,code] of [["create-account","n4"],["forgot","n2"],["reset","n2"]
 assert.ok(css.includes('.back:hover,.back:focus-visible{transform:translateX(-2px);')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel-header .back:hover{')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-content{display:flex;')&&
- css.includes('.reg-back-nav{display:flex;')&&
+ css.includes('.create-account-back-nav{display:flex;')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px) clamp(24px,5.2vw,52px);border:1px solid #e0e7f5;border-radius:27px;background:#fff;box-shadow:0 26px 64px rgba(31,50,96,.075);animation:'),
  "Shared return-link hover and inner-only reveal must match across pages");
 assert.ok(forgot.includes('class="forgot-panel-content ui-forgot-panel-content-001"')&&
@@ -737,7 +737,7 @@ for(const page of footerNames){
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(html.includes('class="policy-top-inner ui-'+page+'-top-inner-001"')&&
-  html.includes('class="reg-header policy-top ui-'+page+'-header-001"')&&
+  html.includes('class="create-account-header policy-top ui-'+page+'-header-001"')&&
   html.includes("assets/css/legal.css"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
@@ -817,7 +817,7 @@ for(const page of ["index","create-account","forgot","reset","verify","404"]){
 }
 assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&&
  uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
- !register.includes('href="./" class="vt-register-link-10"'),
+ !register.includes('href="./" class="vt-create-account-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
 for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
  const html=await read(page+".html");
@@ -827,7 +827,7 @@ for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
 }
 
 assert.ok(css.includes(".signup-form-panel .field:has(input.control)>span:first-child")&&
- css.includes(".create-account-page .reg-help-panel"),
+ css.includes(".create-account-page .create-account-help-panel"),
  "Registration needs visible static captions and VATRA-style accessible help popovers");
 assert.ok(
  !forgot.includes('class="header-logo vt-forgot-link-02"')&&
@@ -1428,9 +1428,9 @@ assert.ok(legalCss.includes('.policy-main{padding:32px 0 32px}')&&
 
 // One VATRA footer line and compact signup eyebrow on both form routes.
 assert.ok(landing.includes('class="vt-home-link-08"')&&
- register.includes('class="vt-register-footer-signin"')&&
+ register.includes('class="vt-create-account-footer-signin"')&&
  !css.includes('footer-auth-action')&&
- register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="reg-back-nav')&&
+ register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="create-account-back-nav')&&
  !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
  legalCss.includes('.policy-page .footer{min-height:70px;padding-inline:0}'),
  "Auth footer CTA slots and legal footer height must match; signup nav belongs beside step labels");
@@ -1470,7 +1470,7 @@ assert.ok(auth.includes('function replayAuthContent(node)')&&
  auth.includes('replayAuthContent(q(".forgot-panel-content"));')&&
  css.includes('.signup-confirmation{display:grid;justify-items:center;align-content:center;gap:0;width:100%;max-width:520px;margin:0 auto;text-align:center;animation:vatraAuthReveal')&&
  !css.includes('.signup-confirmation > :not([hidden]){animation:vatraAuthReveal')&&
- !css.includes('.create-account-page[data-registration-step="2"] .signup-step[data-register-step="2"]:not([hidden]){animation:')&&
+ !css.includes('.create-account-page[data-registration-step="2"] .signup-step[data-create-account-step="2"]:not([hidden]){animation:')&&
  !css.includes('.ui-forgot-main-001 .forgot-panel #recovery-step:not([hidden]) > :not([hidden]){animation:'),
  "Registration, confirmation and password recovery must reveal whole content blocks");
 const resetNew=await read("reset.html");
