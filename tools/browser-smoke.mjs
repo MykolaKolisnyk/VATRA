@@ -2317,10 +2317,18 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,eq(_field,id){this.filterId=String(id);return this;},
+    {select:()=>({filterId:null,after:null,before:null,
+      eq(_field,id){this.filterId=String(id);return this;},
+      is(){return this;},
+      gte(column,date){if(column==="created_at")this.after=date;return this;},
+      lt(column,date){if(column==="created_at")this.before=date;return this;},
       order(){return this;},range:async function(a,b){
        await new Promise(resolve=>setTimeout(resolve,320));
-       return {data:window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(a,b+1),error:null};
+       return {data:window.__feedTestPosts.filter(p=>
+        (this.filterId===null||String(p.author_vatra_id)===this.filterId)&&
+        (!this.after||new Date(p.created_at)>=new Date(this.after))&&
+        (!this.before||new Date(p.created_at)<new Date(this.before))
+       ).slice(a,b+1),error:null};
       }}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
@@ -2954,8 +2962,11 @@ try{
    language==="en"?"About me":"Про мене");
   assert.equal(await profilePage.locator("#profile-about-card .profile-information-item").count(),3,
    "Compact About me card should show at most three prioritized facts");
-  assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-summary-icon").count(),3,
-   "The About me preview shows meaningful icons beside each field");
+  assert.equal(await profilePage.locator("#profile-about-card .vatra-profile-summary-icon").count(),0,
+   "Read-only About facts should not use decorative icon tiles");
+  assert.equal((await profilePage.locator("#profile-about-text").textContent()).trim(),"Тестова інформація");
+  assert.equal(await profilePage.locator("#profile-about-text").evaluate(el=>getComputedStyle(el).textAlign),"center");
+  assert.equal(await profilePage.locator("#profile-about-card .vt-profile-information-label-short_bio").count(),0);
   assert.equal((await profilePage.locator(".vt-profile-information-value-city").textContent()).trim(),"Київ",
    "Current city has priority over hometown");
   assert.equal(await profilePage.locator(".vt-profile-information-value-hometown").count(),0,
@@ -2967,11 +2978,11 @@ try{
    "More details opens the full personal-information dialog");
   assert.equal((await profilePage.locator(".vt-profile-detail-value-hometown").textContent()).trim(),"Львів",
    "Both location fields belong in the full dialog");
-  assert.equal((await profilePage.locator(".vt-profile-detail-value-short_bio").textContent()).trim(),"Тестова інформація");
+  assert.equal((await profilePage.locator(".vt-profile-detail-bio-001").textContent()).trim(),"Тестова інформація");
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog [class^='vt-profile-detail-audience-']").count(),0,
    "Privacy visibility belongs only in the editor, never the read-only information dialog");
-  assert.ok(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-detail-icon").count()>=4,
-   "Detailed information should include icons and clear visual hierarchy");
+  assert.equal(await profilePage.locator("#vatra-profile-details-dialog .vatra-profile-detail-icon").count(),0,
+   "Detail sections use typography and labels rather than repetitive icons");
   await profilePage.locator(".vt-vatra-profile-details-close-001").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),false);
   await profilePage.locator("#profile-tab-photos").click();
