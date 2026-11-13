@@ -375,6 +375,13 @@
      element.className="ui-vatra-post-gallery-media-"+index;
      if(item.media_kind==="image"){element.alt=tr("Фото публікації","Post photo");element.decoding="async";}
      else{element.muted=true;element.playsInline=true;element.preload="metadata";}
+     const orientation=()=>{
+      if(index!==0||!slot.isConnected)return;
+      const width=item.media_kind==="image"?element.naturalWidth:element.videoWidth;
+      const height=item.media_kind==="image"?element.naturalHeight:element.videoHeight;
+      if(width&&height)slot.dataset.orientation=width>height*1.25?"wide":"portrait";
+     };
+     element.addEventListener(item.media_kind==="image"?"load":"loadedmetadata",orientation,{once:true});
      element.src=src;
      tile.prepend(element);
      tile.classList.add("is-gallery-ready");
