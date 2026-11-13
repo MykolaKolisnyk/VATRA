@@ -661,12 +661,13 @@ function missingProfile(state="not-found"){
  if(name){name.removeAttribute("data-i18n");name.textContent=title;}
  const portrait=q("#profile-avatar"),wrap=q("#profile-avatar-wrap");
  window.VATRA_AVATAR?.fallback(portrait,state);
- if(wrap){wrap.dataset.vatraSystemAvatar="true";
-  window.VATRA_AVATAR?.accent(wrap,window.VATRA_AVATAR.asset(state,2048));}
- window.VATRA_AVATAR?.accent(q("#profile-cover-image"),window.VATRA_AVATAR.asset(state,2048));
+ if(wrap){
+  wrap.dataset.vatraSystemAvatar="true";
+  wrap.dataset.vatraRingKind=state;
+ }
  const button=q("#profile-avatar-trigger");
  if(button){button.disabled=true;button.setAttribute("aria-label",title);}
- // Keep the sampled account-state accent on both the cover and avatar orbit.
+ // System avatar rings use fixed state colors, not photo sampling.
  q("#profile-status")?.remove();
  q("#profile-last-seen")?.remove();
  q("#profile-online-dot")?.remove();
@@ -1743,8 +1744,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const photoURLs={avatar:null,cover:null};
  window.VATRA_AVATAR?.fallback(avatar,"default");
  avatarWrap.dataset.vatraSystemAvatar="true";
- window.VATRA_AVATAR?.accent(avatarWrap,window.VATRA_AVATAR.asset("default",2048));
- window.VATRA_AVATAR?.accent(cover,window.VATRA_AVATAR.asset("default",2048));
+ avatarWrap.dataset.vatraRingKind="default";
  const canViewPhoto=!locked;
  const status=(text,error=false)=>{
   message.textContent=text;message.hidden=!text;
@@ -2078,8 +2078,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   resetImage(avatar);
   window.VATRA_AVATAR?.fallback(avatar,"default");
   avatarWrap.dataset.vatraSystemAvatar="true";
-  window.VATRA_AVATAR?.accent(avatarWrap,window.VATRA_AVATAR.asset("default",2048));
-  window.VATRA_AVATAR?.accent(cover,window.VATRA_AVATAR.asset("default",2048));
+  avatarWrap.dataset.vatraRingKind="default";
   const fallback=(q("#profile-heading")?.textContent||"V").trim().split(/\s+/)
    .map(word=>Array.from(word)[0]||"").slice(0,2).join("").toLocaleUpperCase()||"V";
   avatar.textContent=fallback;
@@ -2093,8 +2092,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(!valid){photoURLs.avatar=null;syncAvatarMenu();return;}
    setImage(avatar,candidate);avatar.textContent="";
    avatarWrap.dataset.vatraSystemAvatar="false";
-   window.VATRA_AVATAR?.accent(avatarWrap,candidate);
-   window.VATRA_AVATAR?.accent(cover,candidate);
+   avatarWrap.removeAttribute("data-vatra-ring-kind");
    for(const postAvatar of document.querySelectorAll("#profile-posts .feed-post-avatar")){
     setImage(postAvatar,candidate);postAvatar.textContent="";
    }
