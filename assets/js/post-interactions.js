@@ -275,6 +275,7 @@ function appendAudience(container,level,isGroup=false){
   sortLabel.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
   sort.name="vatra_post_comments_sort";
+  sort.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   for(const [id,uk,en] of [
    ["relevant","Найактуальніші","Most relevant"],
    ["newest","Найновіші","Newest"],
