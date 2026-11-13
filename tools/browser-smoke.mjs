@@ -2282,7 +2282,7 @@ try{
      limit:async n=>{window.__vatraFriendLimitCalls.push(n);return {data:[],error:null};}}),
      insert:async()=>({error:null}),
      delete:()=>({eq:async()=>({error:null})})}:
-    table==="vatra_profile_gifts"?
+    table==="profile_gifts"?
     {select:()=>({eq(){return this;},order(){return this;},
      limit:async n=>{window.__vatraGiftLimitCalls.push(n);return {data:[
       {gift_code:"first_flame",created_at:"2026-11-10T00:00:00Z"}],error:null};}})}:
@@ -2299,11 +2299,11 @@ try{
      }})})}:
     table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
-    table==="vatra_directory"?
+    table==="member_directory"?
     {select:()=>({eq:(_field,id)=>({maybeSingle:async()=>({
      data:["654321","789012"].includes(String(id))?{vatra_id:id}:null,error:null
     })})})}:
-    table==="vatra_account_states"?
+    table==="account_states"?
     {select:()=>({in:async(_field,ids)=>{
      const state=new URLSearchParams(location.search).get("state-test");
      return {data:state&&ids.includes("999999")?[{
