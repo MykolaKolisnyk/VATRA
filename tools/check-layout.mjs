@@ -1408,6 +1408,24 @@ assert.ok(
 const sharedAvatar=await read("assets/js/avatar.js");
 const systemAvatarCss=await read("assets/css/base.css");
 const systemProfileCss=await read("assets/css/profile.css");
+const ownerMenus=await read("assets/js/post-interactions.js");
+const feedLogic=await read("assets/js/feed.js");
+const searchLogic=await read("assets/js/social-shell.js");
+// Native three-dot owner menu in Feed and profiles, never an inline archive/delete toolbar.
+assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
+ ownerMenus.includes('tr("Зберегти в архів","Move to archive")')&&
+ ownerMenus.includes('tr("Видалити","Delete")')&&
+ feedLogic.includes('VATRA_POST_INTERACTIONS?.addOwnerMenu(head,')&&
+ profileBehavior.includes('VATRA_POST_INTERACTIONS?.addOwnerMenu(header,')&&
+ !feedLogic.includes('head.append(remove)')&&
+ !profileBehavior.includes('header.append(archive,remove)'),
+ "Only owners have one accessible three-dot menu with archive and delete");
+assert.ok(searchLogic.includes("back.getBoundingClientRect()")&&
+ searchLogic.includes("inputBox.right-left")&&
+ systemFeedCss.includes("grid-column:1!important;grid-row:2!important")&&
+ systemProfileCss.includes("width:106px;height:106px;margin:-34px"),
+ "Search popup must span Back-to-input, Stories align under composer and profile ring is compact");
+
 const systemFeedCss=await read("assets/css/feed.css");
 // Each static account cover is an actual PNG image (never CSS sampled or painted).
 for(const kind of ["default","deleted","blocked","not-found"]){
