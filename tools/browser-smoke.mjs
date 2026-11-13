@@ -3075,8 +3075,10 @@ try{
   await profilePage.locator("#profile-avatar-trigger").hover();
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),true,
    "The profile owner must be able to delete the active story");
-  profilePage.once("dialog",dialog=>dialog.accept());
   await profilePage.locator("#profile-avatar-story-delete").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true,
+   "Story deletion must use VATRA's styled confirmation instead of a browser alert");
+  await profilePage.locator("#profile-confirm-accept").click();
   await profilePage.waitForFunction(()=>!document.querySelector("#profile-avatar-wrap").classList.contains("has-active-story"));
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),false,
    "Deleting a story must immediately remove its menu action and ring");
@@ -3357,6 +3359,22 @@ try{
   assert.equal(await profilePage.locator("#profile-block-toggle svg").count(),1);
   assert.equal(await profilePage.locator("#profile-block-toggle").getAttribute("aria-label"),
    language==="en"?"Block member":"Заблокувати користувача");
+  assert.equal(await profilePage.locator(".ui-profile-block-member-icon-001").count(),1,
+   "VATRA block icon should depict a member with a prohibition marker");
+  assert.equal(await profilePage.locator(".ui-profile-report-warning-icon-001").count(),1,
+   "VATRA report icon should depict a warning in a message bubble");
+  await profilePage.locator("#profile-block-toggle").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),true,
+   "Blocking opens a custom styled dialog instead of window.confirm");
+  assert.ok((await profilePage.locator("#profile-confirm-heading").textContent()).includes(
+   language==="en"?"Block":"Заблокувати"));
+  await profilePage.locator("#profile-confirm-cancel").click();
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false,
+   "Cancel closes the dialog without persisting a block");
+  await profilePage.locator("#profile-block-toggle").click();
+  await profilePage.keyboard.press("Escape");
+  assert.equal(await profilePage.locator("#profile-confirm-dialog").isVisible(),false,
+   "Escape dismisses the modal and preserves the user's current state");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
   await profilePage.locator("#profile-message-button").click();

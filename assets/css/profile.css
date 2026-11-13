@@ -2150,8 +2150,6 @@ body.profile-page .vt-profile-report-locked-001{
  border:1px solid #cbd9ef;border-radius:11px;background:#fff;color:#335c9f;
  font:700 12px/1.3 "Onest",system-ui,sans-serif;cursor:pointer
 }
-body.profile-page .vt-profile-report-open-001{color:#986050}
-body.profile-page .vt-profile-report-open-001:hover{color:#a4483d}
 @media(max-width:770px){
  body.profile-page .profile-left-stack{gap:12px}
  body.profile-page .profile-mini-card{padding:17px}
@@ -2208,13 +2206,8 @@ body.profile-page .profile-mini-more:hover [class$="-arrow-001"]{transform:trans
 body.profile-page .vt-profile-about-more-001 svg{
  width:16px;height:16px;transform:rotate(180deg)!important
 }
-/* Report is the last visible tab, aligned with the opposite edge of Home. */
+/* Profile actions occupy the far side of the navigation without changing tab spacing. */
 body.profile-page .social-profile-tabs{padding-left:26px;padding-right:26px}
-body.profile-page .vt-profile-report-open-001{
- margin-left:auto;margin-right:0;flex-shrink:0;
- color:#94645b
-}
-body.profile-page .vt-profile-report-open-001:hover{color:#ab5045}
 @media(max-width:650px){
  body.profile-page .social-profile-tabs{padding-left:9px;padding-right:9px}
  body.profile-page .profile-friends-preview-grid .profile-friend-portrait{
@@ -2572,19 +2565,25 @@ body.profile-page .profile-avatar-wrap .profile-online-dot{
 }
 /* Two icon-only safety controls, visually separate from content tabs. */
 body.profile-page .profile-safety-action{
- width:44px;min-width:44px;padding:10px!important;color:#6c7e99;
- border-radius:9px;flex-shrink:0
+ flex:none;display:grid;place-items:center;width:46px;min-width:46px;
+ height:52px;min-height:52px;padding:0!important;margin-right:0;
+ border-radius:10px;background:transparent;color:#6b81a6;
+ transition:background .2s ease,color .2s ease
 }
 body.profile-page .profile-safety-action svg{
- display:block;width:21px;height:21px;stroke:currentColor;stroke-width:1.85
+ display:block;width:22px;height:22px;stroke:currentColor;stroke-width:1.85;
+ stroke-linejoin:round;stroke-linecap:round
+}
+body.profile-page .profile-safety-action:hover{
+ background:#eff4fc;color:#3666ba
 }
 body.profile-page .profile-safety-action:focus-visible{
- outline:3px solid #98ade0;outline-offset:-3px
+ outline:2px solid #809ce4;outline-offset:-4px
 }
 body.profile-page .vt-profile-block-toggle-001{margin-left:auto}
 body.profile-page .vt-profile-report-open-001{margin-left:0}
 body.profile-page .vt-profile-block-toggle-001[data-blocked="true"]{
- color:#aa5261;background:#fff2f4
+ color:#b15d70;background:#fff3f5
 }
 body.profile-page[data-member-blocked="true"] .social-profile-tabs [data-profile-tab],
 body.profile-page[data-member-blocked="true"] .profile-archive-wrap{
@@ -2599,4 +2598,83 @@ body.profile-page .profile-locked-notice[data-lock-reason="block"] > svg{
 }
 body.profile-page .profile-locked-notice[data-lock-reason="block"] .ui-profile-locked-notice-content-001{
  max-width:520px
+}
+
+/* Single VATRA decision dialog, used for blocking and destructive profile
+   actions. Native <dialog> gives focus containment, Escape and screen-reader
+   semantics without browser confirmation popups. */
+body.profile-page .profile-confirm-dialog{
+ box-sizing:border-box;width:min(450px,calc(100vw - 30px));max-width:450px;
+ max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px 25px 22px;
+ border:1px solid #e0e7f2;border-radius:21px;background:#fff;color:#30435f;
+ font-family:"Onest",system-ui,sans-serif;
+ box-shadow:0 24px 80px rgba(22,39,78,.2)
+}
+body.profile-page .profile-confirm-dialog:not([open]){display:none!important}
+body.profile-page .profile-confirm-dialog::backdrop{
+ background:rgba(25,37,62,.43);
+ backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)
+}
+body.profile-page .profile-confirm-header{
+ display:flex;align-items:center;justify-content:space-between;margin-bottom:19px
+}
+body.profile-page .profile-confirm-symbol{
+ display:grid;place-items:center;width:46px;height:46px;flex:none;
+ border-radius:15px;background:#eef3fd;color:#4d72b9
+}
+body.profile-page .profile-confirm-dialog[data-tone="danger"] .profile-confirm-symbol{
+ background:#fff0f3;color:#bd6176
+}
+body.profile-page .vt-profile-confirm-close-001{
+ display:grid;place-items:center;width:38px;height:38px;padding:0;
+ border:0;border-radius:11px;background:#f3f6fb;color:#7385a1;
+ cursor:pointer
+}
+body.profile-page .vt-profile-confirm-close-001:hover{
+ background:#eaf0fa;color:#365b9e
+}
+body.profile-page .vt-profile-confirm-heading-001{
+ margin:0 0 10px;color:#253b5d;
+ font:790 clamp(19px,2vw,23px)/1.3 "Onest",system-ui,sans-serif;
+ letter-spacing:-.025em
+}
+body.profile-page .vt-profile-confirm-description-001{
+ margin:0;color:#687d9b;
+ font:500 14px/1.7 "Onest",system-ui,sans-serif
+}
+body.profile-page .profile-confirm-actions{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:25px
+}
+body.profile-page .profile-confirm-actions > button{
+ display:grid;place-items:center;min-width:0;min-height:45px;padding:10px 12px;
+ border-radius:11px;white-space:normal;text-align:center;
+ font:730 13px/1.4 "Onest",system-ui,sans-serif;cursor:pointer;
+ transition:background .18s ease,box-shadow .18s ease
+}
+body.profile-page .vt-profile-confirm-cancel-001{
+ border:1px solid #dfe6f1;background:#f3f6fb;color:#526b8d
+}
+body.profile-page .vt-profile-confirm-cancel-001:hover{
+ background:#eaf0f9;color:#385b8b
+}
+body.profile-page .vt-profile-confirm-accept-001{
+ border:1px solid transparent;background:#bb5269;color:#fff
+}
+body.profile-page .vt-profile-confirm-accept-001:hover{background:#9e3f54}
+body.profile-page .profile-confirm-dialog[data-tone="primary"] .vt-profile-confirm-accept-001{
+ background:linear-gradient(110deg,#356fe0,#645fd8);color:#fff
+}
+body.profile-page .profile-confirm-dialog[data-tone="primary"] .vt-profile-confirm-accept-001:hover{
+ box-shadow:0 5px 18px rgba(61,99,207,.23)
+}
+body.profile-page .profile-confirm-dialog :is(button):focus-visible{
+ outline:3px solid #9bb8ec;outline-offset:2px
+}
+@media(max-width:450px){
+ body.profile-page .profile-confirm-dialog{padding:20px 18px 18px}
+ body.profile-page .profile-confirm-actions{gap:8px}
+}
+@media(prefers-reduced-motion:reduce){
+ body.profile-page .profile-confirm-actions > button,
+ body.profile-page .profile-safety-action{transition:none}
 }
