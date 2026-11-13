@@ -1746,9 +1746,9 @@ assert.ok(
  "Initial recovery email must reveal the code step without a redundant green notice");
 assert.ok(
  profileScript.includes('document.title=titleName+" · VATRA";')&&
- socialMotion.includes('const club=next.pathname.match(')&&
- socialMotion.includes('const ownProfile=next.pathname==="/VATRA/profile";')&&
- socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
+ socialMotion.includes('const eligible=target=>')&&
+ socialMotion.includes('feed|profile|friends|gifts|communities|notifications|')&&
+ !socialMotion.includes('new URL(ownProfile?"profile.html":"club.html"')&&
  !socialMotion.includes('searchParams.set("vatra_id"')&&
  !profileScript.includes('query.get("vatra_id")')&&
  (await read("assets/js/notifications.js")).includes('if(!window.VATRA_NAVIGATE?.to(link.href))'),
