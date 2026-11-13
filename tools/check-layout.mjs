@@ -1408,6 +1408,22 @@ assert.ok(
 const sharedAvatar=await read("assets/js/avatar.js");
 const systemAvatarCss=await read("assets/css/base.css");
 const systemProfileCss=await read("assets/css/profile.css");
+// System covers are fixed assets per account state, independent of user photos.
+for(const kind of ["default","deleted","blocked","not-found"]){
+ assert.ok(systemAvatarCss.includes('--vatra-'+kind+'-cover:url("/VATRA/assets/covers/cover-'+kind+'.png")'),
+  "The shared stylesheet must provide the actual uploaded "+kind+" cover");
+}
+assert.ok(
+ memberProfileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001" data-vatra-cover-state="default"')&&
+ profileBehavior.includes("cover.dataset.vatraCoverState=state")&&
+ profileBehavior.includes('cover.dataset.vatraCoverState="default"')&&
+ profileBehavior.includes('cover.removeAttribute("data-vatra-cover-state")')&&
+ profileBehavior.includes("if(coverView)coverView.hidden=true;")&&
+ systemProfileCss.includes('.profile-cover[data-vatra-cover-state="deleted"]:not(.has-photo)')&&
+ systemProfileCss.includes('.profile-cover[data-vatra-cover-state="blocked"]:not(.has-photo)')&&
+ systemProfileCss.includes('.profile-cover[data-vatra-cover-state="not-found"]:not(.has-photo)')&&
+ systemProfileCss.includes('.profile-cover[data-vatra-cover-state]:not(.has-photo) .profile-cover-motif'),
+ "System profile covers must follow state and remain noninteractive; uploaded covers override fallback artwork");
 const systemFeedCss=await read("assets/css/feed.css");
 for(const kind of ["default","deleted","blocked","not-found"]){
  assert.ok(sharedAvatar.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
