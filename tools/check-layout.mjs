@@ -1575,6 +1575,8 @@ const postInteractionFields=await read("assets/js/post-interactions.js");
 const commentsStyle=await read("assets/css/feed.css");
 assert.ok(
  postInteractionFields.includes('client.rpc("vatra_comment_thread_page"') &&
+ postInteractionFields.includes('client.rpc("comment_reply_counts"') &&
+ !postInteractionFields.includes('.eq("parent_comment_id",item.id)') &&
  postInteractionFields.includes('p_parent:item.id') &&
  postInteractionFields.includes('payload.parent_comment_id=target.id') &&
  postInteractionFields.includes('client.from("vatra_post_comments").insert(payload)') &&
