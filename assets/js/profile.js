@@ -11,6 +11,40 @@
  if(window.VATRA_HOST_ALLOWED===false)return;
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const select=selector=>document.querySelector(selector);
+ // A single VATRA-styled confirmation surface for all profile actions.
+ // Never delegate user decisions to browser confirm()/alert() windows.
+ window.VATRA_PROFILE_CONFIRM=({title,description,action,tone="danger"})=>{
+  const dialog=select("#profile-confirm-dialog");
+  const heading=select("#profile-confirm-heading");
+  const detail=select("#profile-confirm-description");
+  const accept=select("#profile-confirm-accept");
+  const cancel=select("#profile-confirm-cancel");
+  const close=select("#profile-confirm-close");
+  if(!dialog||!heading||!detail||!accept||!cancel||!close||dialog.open)
+   return Promise.resolve(false);
+  heading.textContent=String(title||"");
+  detail.textContent=String(description||"");
+  accept.textContent=String(action||tr("Підтвердити","Confirm"));
+  cancel.textContent=tr("Скасувати","Cancel");
+  dialog.dataset.tone=tone==="primary"?"primary":"danger";
+  return new Promise(resolve=>{
+   const events=new AbortController();
+   const finish=approved=>{
+    events.abort();
+    if(dialog.open)dialog.close();
+    resolve(approved);
+   };
+   accept.addEventListener("click",()=>finish(true),{signal:events.signal});
+   cancel.addEventListener("click",()=>finish(false),{signal:events.signal});
+   close.addEventListener("click",()=>finish(false),{signal:events.signal});
+   dialog.addEventListener("close",()=>finish(false),{signal:events.signal});
+   dialog.addEventListener("click",event=>{
+    if(event.target===dialog)finish(false);
+   },{signal:events.signal});
+   dialog.showModal();
+   cancel.focus({preventScroll:true});
+  });
+ };
  const groups=[
   {id:"profile",label:["Профіль","Profile"],icon:"user-round",fields:[
    ["short_bio","Коротка інформація","Short bio","long"],
@@ -421,8 +455,13 @@
    (draft.get(key)?.value||"")!==(saved.get(key)?.value||"")||
    (draft.get(key)?.visibility||"friends")!==(saved.get(key)?.visibility||"friends"))||
    visibility!==accountVisibility;
-  const close=()=>{
-   if(hasChanges()&&!confirm(tr("Незбережені зміни буде втрачено. Вийти?","Discard unsaved changes?")))return;
+  const close=async()=>{
+   if(hasChanges()&&!await window.VATRA_PROFILE_CONFIRM({
+    title:tr("Вийти без збереження?","Leave without saving?"),
+    description:tr("Незбережені зміни у вашому профілі буде втрачено.",
+     "Your unsaved profile changes will be lost."),
+    action:tr("Вийти","Leave")
+   }))return;
    draft.clear();
    for(const [key,value] of saved)draft.set(key,{...value});
    visibility=accountVisibility;
@@ -770,7 +809,12 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
       void loadPosts(client,targetId,ownId,userId);
      },
      onDelete:async()=>{
-      if(!confirm(t("Видалити цю публікацію?","Delete this post?")))return;
+      if(!await window.VATRA_PROFILE_CONFIRM({
+       title:t("Видалити публікацію?","Delete this post?"),
+       description:t("Публікацію буде видалено з вашої сторінки без можливості відновлення.",
+        "This post will be removed from your profile permanently."),
+       action:t("Видалити","Delete")
+      }))return;
       const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
        .eq("author_vatra_id",ownId).select("id");
       if(error||!data?.length)return;
@@ -1015,7 +1059,12 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
     });
     const permanent=node("button","vt-profile-permanent-delete-001",t("Видалити назавжди","Delete permanently"));
     permanent.type="button";permanent.addEventListener("click",async()=>{
-     if(!confirm(t("Видалити публікацію назавжди?","Delete post permanently?")))return;
+     if(!await window.VATRA_PROFILE_CONFIRM({
+      title:t("Видалити назавжди?","Delete permanently?"),
+      description:t("Цю публікацію буде остаточно видалено з архіву.",
+       "This post will be permanently deleted from your archive."),
+      action:t("Видалити","Delete")
+     }))return;
      permanent.disabled=true;
      const {data:deleted,error:err}=await client.from("feed_posts").delete()
       .eq("id",item.id).eq("author_vatra_id",ownId).select("id");
@@ -1361,11 +1410,18 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
  paint();
  button.addEventListener("click",async()=>{
   if(busy)return;
-  const prompt=blocked?
-   t("Розблокувати цього користувача?","Unblock this member?"):
-   t("Заблокувати користувача? Він бачитиме лише вашу обкладинку, фото та ім’я.",
-     "Block this member? They will see only your cover, avatar and name.");
-  if(!window.confirm(prompt))return;
+  const approved=await window.VATRA_PROFILE_CONFIRM(blocked?{
+   title:t("Розблокувати користувача?","Unblock this member?"),
+   description:t("Користувач знову зможе переглядати доступний йому вміст вашої сторінки та звертатися до вас.",
+    "This member will be able to view your accessible profile content and contact you again."),
+   action:t("Розблокувати","Unblock"),tone:"primary"
+  }:{
+   title:t("Заблокувати користувача?","Block this member?"),
+   description:t("Він бачитиме лише вашу обкладинку, аватар та ім’я. Публікації, історії, інформація профілю й особисті повідомлення будуть недоступні.",
+    "They will see only your cover, avatar and name. Posts, stories, profile details and direct messages will be unavailable."),
+   action:t("Заблокувати","Block"),tone:"danger"
+  });
+  if(!approved)return;
   busy=true;button.disabled=true;
   const status=q("#profile-action-status");
   try{
@@ -2062,7 +2118,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  storyButton.addEventListener("click",openStory);
  deleteStoryButton.addEventListener("click",async()=>{
   if(!isMine||!activeStory?.id||deleteStoryButton.disabled)return;
-  if(!window.confirm(t("Видалити цю історію?","Delete this story?")))return;
+  if(!await window.VATRA_PROFILE_CONFIRM({
+   title:t("Видалити історію?","Delete this story?"),
+   description:t("Історію буде видалено для всіх без можливості відновлення.",
+    "This story will be removed for everyone and cannot be restored."),
+   action:t("Видалити","Delete")
+  }))return;
   const removingId=activeStory.id,removingStory={...activeStory};
   deleteStoryButton.disabled=true;
   try{
