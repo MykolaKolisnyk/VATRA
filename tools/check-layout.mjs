@@ -1442,7 +1442,6 @@ assert.ok(
 
 // Gallery uploads stay bounded and use the existing RLS-protected post rows.
 // Comment threads are not requested or shown until the real post enters its dialog.
-const postMediaScript=await read("assets/js/post-media.js");
 const postComposerScript=await read("assets/js/post-composer-ui.js");
 const clubPostScript=await read("assets/js/communities.js");
 assert.ok(
