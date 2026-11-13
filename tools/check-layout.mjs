@@ -2077,3 +2077,15 @@ for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
   "Public-name lookups must use the shared cache in "+path);
 }
 await import("./public-cache-smoke.mjs");
+
+/* Viewer-specific engagement is cached only for 3 seconds in this browser,
+   never shared with Redis; all four local mutations invalidate it. */
+const engagementCacheController=await read("assets/js/post-interactions.js");
+assert.ok(
+ engagementCacheController.includes("const engagementQueryCache=new WeakMap()")&&
+ engagementCacheController.includes("ENGAGEMENT_TTL_MS=3_000")&&
+ engagementCacheController.includes("ENGAGEMENT_MAX_PAGES=16")&&
+ engagementCacheController.includes('p_posts:requested.slice(i,i+24)')&&
+ (engagementCacheController.match(/invalidateEngagement\(client\);/g)||[]).length>=4,
+ "Viewer engagement cache must remain bounded, batched and invalidated after writes");
+await import("./engagement-cache-smoke.mjs");
