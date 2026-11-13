@@ -1005,9 +1005,6 @@ body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
 body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001{
  transform:scale(1.014);filter:brightness(.97)
 }
-@media(prefers-reduced-motion:reduce){
-body.profile-page .profile-avatar.has-photo::after,
-body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{transition:none!important}}
 /* Compact and full-size portraits share the supplied WebP system artwork. */
 body.feed-page .profile-person-avatar:not(.has-photo),
 body.feed-page .profile-photo-comment-avatar:not(.has-photo){
