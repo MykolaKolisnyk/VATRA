@@ -231,10 +231,11 @@ async function openDirectory(client){
 
 async function setupClubSocial(client,clubId,ownId,userId){
  const follow=$("#club-follow"),compose=$("#club-compose-open"),list=$("#club-posts");
- const empty=$("#club-posts-empty"),dialog=$("#club-compose-dialog");
+ const empty=$("#club-posts-empty"),more=$("#club-posts-more"),dialog=$("#club-compose-dialog");
  const form=$("#club-compose-form"),input=$("#club-compose-text"),status=$("#club-compose-error");
  if(!follow||!compose||!list||!ownId||!idPattern.test(ownId))return;
- let isFollowing=false,busy=false,focusRequestedPost=true;
+ let isFollowing=false,busy=false,focusRequestedPost=true,postsLoading=false,postsOffset=0;
+ const CLUB_PAGE_SIZE=12;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
  const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
   input:"#club-compose-media",choose:"#club-compose-media-choose",
@@ -249,17 +250,23 @@ async function setupClubSocial(client,clubId,ownId,userId){
   follow.textContent=isFollowing?t("Відписатися","Unfollow"):t("Підписатися","Follow");
   compose.hidden=!isFollowing;
  };
- const loadClubPosts=async()=>{
-  list.replaceChildren();empty.hidden=true;
+ const loadClubPosts=async(append=false)=>{
+  if(postsLoading)return;
+  postsLoading=true;
+  if(!append){postsOffset=0;list.replaceChildren();empty.hidden=true;}
+  if(more){more.disabled=true;if(!append)more.hidden=true;}
   try{
    const {data,error}=await client.from("vatra_community_posts")
     .select("id,author_vatra_id,body,created_at,media_kind,media_path,media_items")
-    .eq("club_id",clubId).order("created_at",{ascending:false}).limit(50);
+    .eq("club_id",clubId).order("created_at",{ascending:false})
+    .order("id",{ascending:false}).range(postsOffset,postsOffset+CLUB_PAGE_SIZE-1);
    if(error)throw error;
-   const rows=[...(data||[])];
-   // Search and share links must work even for posts older than the first 50.
+   const fetched=data||[],rows=[...fetched];
+   postsOffset+=fetched.length;
+   if(more)more.hidden=fetched.length<CLUB_PAGE_SIZE;
+   // Linked posts older than the current page are fetched individually.
    const linkedId=new URLSearchParams(location.search).get("post");
-   if(postPattern.test(linkedId||"")&&!rows.some(post=>post.id===linkedId)){
+   if(!append&&focusRequestedPost&&postPattern.test(linkedId||"")&&!rows.some(post=>post.id===linkedId)){
     const direct=await client.from("vatra_community_posts")
      .select("id,author_vatra_id,body,created_at,media_kind,media_path,media_items")
      .eq("club_id",clubId).eq("id",linkedId).maybeSingle();
@@ -310,11 +317,22 @@ async function setupClubSocial(client,clubId,ownId,userId){
      requestAnimationFrame(()=>target.scrollIntoView({block:"center",behavior:"smooth"}));
     }
    }
-   if(!rows.length)show(empty,isFollowing?
+   if(!list.querySelector(".feed-post-card"))show(empty,isFollowing?
     t("У спільноті ще немає дописів. Створіть перший!","No community posts yet. Start the conversation!"):
     t("Підпишіться на спільноту, щоб читати її дописи.","Follow to read community posts."));
   }catch(_){show(empty,t("Не вдалося завантажити публікації.","Could not load community posts."));}
+  finally{postsLoading=false;if(more)more.disabled=false;}
  };
+ if(more){
+  more.addEventListener("click",()=>void loadClubPosts(true));
+  if(typeof IntersectionObserver==="function"){
+   const pager=new IntersectionObserver(entries=>{
+    if(entries.some(entry=>entry.isIntersecting)&&!more.hidden&&!postsLoading)
+     void loadClubPosts(true);
+   },{rootMargin:"400px 0px"});
+   pager.observe(more);
+  }
+ }
  follow.hidden=false;
  try{await refreshFollowing();}catch(_){show(empty,t("Не вдалося перевірити підписку.","Could not check your subscription."));follow.disabled=true;}
  follow.addEventListener("click",async()=>{
