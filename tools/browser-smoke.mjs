@@ -2587,24 +2587,38 @@ try{
   // The feed storage mock uses non-UUID IDs for deletion tests, so mount a
   // realistic UUID post separately to cover inline comments and icon actions.
   await feedProbe.evaluate(()=>{
+   window.__vatraSmokeParentCountQueries=0;
    const query=new Proxy({},{
     get(_target,key){
      if(key==="then")return resolve=>Promise.resolve({data:[],error:null,count:0}).then(resolve);
-     return ()=>query;
+     return (...args)=>{
+      if(key==="eq"&&args[0]==="parent_comment_id")window.__vatraSmokeParentCountQueries++;
+      return query;
+     };
     }
    });
    const host=document.createElement("div");host.id="vatra-smoke-inline-interactions";
    document.body.append(host);
    window.__vatraSmokeCommentCalls=[];
+   window.__vatraSmokeReplyBatches=[];
    window.__vatraSmokeReleaseFirstComment=null;
+   const rootA="00000000-0000-4000-8000-000000000101";
+   const rootB="00000000-0000-4000-8000-000000000102";
    window.VATRA_POST_INTERACTIONS.mount({
     from:()=>query,
-    rpc:async(_name,args)=>{
+    rpc:async(name,args)=>{
+     if(name==="comment_reply_counts"){
+      window.__vatraSmokeReplyBatches.push(args.p_parents);
+      return {data:[{parent_id:rootA,reply_count:2},{parent_id:rootB,reply_count:1}],error:null};
+     }
      window.__vatraSmokeCommentCalls.push(args.p_sort);
      if(window.__vatraSmokeCommentCalls.length===1){
       await new Promise(resolve=>{window.__vatraSmokeReleaseFirstComment=resolve;});
      }
-     return {data:[],error:null};
+     return {data:[rootA,rootB].map((id,i)=>({
+      id,author_vatra_id:"12",body:"Root comment "+(i+1),
+      created_at:"2026-11-13T11:00:00Z",moderation_status:"visible",likes:0
+     })),error:null};
     }
    },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
    host,{ownId:"",userId:null});
@@ -2631,6 +2645,14 @@ try{
    document.querySelector(".ui-vatra-post-comment-list-001")?.getAttribute("aria-busy")==="false");
   assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
    "After the in-flight request finishes, the latest selected sort must be fetched");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeReplyBatches),[
+   ["00000000-0000-4000-8000-000000000101","00000000-0000-4000-8000-000000000102"]
+  ],"Both roots must have a single batched reply count query");
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraSmokeParentCountQueries),0,
+   "No per-comment reply count queries may run for root comments");
+  assert.deepEqual(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-comment-expand-replies-001").allTextContents(),
+   ["2 відповідей","1 відповідь"],
+   "Batched totals must preserve each reply count label");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
