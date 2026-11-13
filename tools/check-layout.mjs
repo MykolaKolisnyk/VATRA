@@ -1676,6 +1676,28 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
 assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","post-composer.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+const javascriptFiles=await readdir("assets/js");
+assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
+ "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
+const consolidatedFeed=await read("assets/css/feed.css");
+assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the measured sticky header.')&&
+ !consolidatedFeed.includes('/* Spacious VK-like edge affordance')&&
+ !consolidatedFeed.includes('/* Quiet VATRA left gutter:')&&
+ consolidatedFeed.includes('bottom:-1px;left:13px;right:13px;z-index:2;')&&
+ consolidatedFeed.includes('background:#8396b6')&&
+ consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
+ !consolidatedFeed.includes('.feed-account-toggle .feed-header-avatar{')&&
+ scrollRailScript.includes('header.getBoundingClientRect().bottom'),
+ "One compact social header, no overlapping rail styles and no boxed AdSense placeholder");
+const routerScript=await read("assets/js/not-found.js");
+const languageScript=await read("assets/js/lang.js");
+assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
+ routerScript.includes('|notifications|friends|gifts|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|club|verify')&&
+ (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
+ !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
+ !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
+ "All VATRA member areas and outbound navigation use canonical extensionless routes");
 assert.ok(landing.includes('id="saved-account-return" class="saved-account-return vt-home-saved-return-001" data-i18n="n508" hidden')&&
  landing.indexOf('id="saved-account-return"')>landing.indexOf('class="saved-account-top')&&
  landing.indexOf('id="saved-account-return"')<landing.indexOf('id="saved-account-remove"')&&
