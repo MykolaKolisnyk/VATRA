@@ -30,11 +30,13 @@ body.profile-page .vatra-post-composer-dialog form{
  color:#637997;font:700 12.5px/1.3 "Onest",system-ui,sans-serif
 }
 .vatra-post-composer-head .vt-vatra-post-composer-back-001{
- grid-column:1;padding:9px 8px;border-radius:8px
+ grid-column:1;padding:9px 8px;border-radius:8px;
+ display:inline-flex;align-items:center;gap:6px
 }
 .vatra-post-composer-head .vt-vatra-post-composer-back-001[hidden]{display:none!important}
 .vatra-post-composer-head .vt-vatra-post-composer-drafts-001{
- grid-column:3;border-radius:10px;padding:9px 12px;background:#f0f4fb;color:#395a91
+ grid-column:3;border-radius:10px;padding:9px 12px;background:#f0f4fb;color:#395a91;
+ display:inline-flex;align-items:center;gap:7px
 }
 .vatra-post-composer-head .vt-vatra-post-composer-drafts-001[hidden]{display:none!important}
 .vatra-post-composer-head [id$="-compose-cancel"]{
@@ -158,7 +160,7 @@ body.profile-page .vatra-post-composer-dialog textarea{
  color:#425e8e;font:680 12.5px/1.4 "Onest",system-ui,sans-serif
 }
 .vatra-post-composer-draft .vt-vatra-post-composer-draft-remove-001{
- font-size:23px;color:#a75f72
+ display:inline-grid;place-items:center;color:#a75f72
 }
 .vt-vatra-post-composer-notice-001:not([hidden]){
  margin:0 20px 5px;color:#657da2;font:570 12px/1.4 "Onest",system-ui,sans-serif
