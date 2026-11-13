@@ -1019,7 +1019,7 @@ assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
  (await read("assets/js/notifications.js")).includes('vatra-notification-avatar'),
  "Social interactions, full post cards, branded filters and scroll rail must remain functional");
 assert.ok((await read("assets/js/feed.js")).includes('vatra-global-search-results')&&
- (await read("assets/js/feed.js")).includes('vatra_public_profiles')&&
+ (await read("assets/js/feed.js")).includes('public_profiles')&&
  (await read("assets/js/feed.js")).includes('client.from("communities")'),
  "Global VATRA search must search names and communities as well as accessible posts");
 const liveSiteShell=await read("assets/js/social-shell.js");
@@ -1028,7 +1028,7 @@ assert.ok(liveSiteShell.includes('vatra-search-live-results')&&
  liveSiteShell.includes('ui-vatra-search-live-glyph-')&&
  liveSiteShell.includes('scheduleLive(term)')&&
  liveNotificationProvider.includes('window.VATRA_SITE_SEARCH={search:findSite}')&&
- liveNotificationProvider.includes('client.from("vatra_public_profiles")')&&
+ liveNotificationProvider.includes('client.from("public_profiles")')&&
  liveNotificationProvider.includes('client.from("feed_posts")'),
  "Site-wide search must query RLS-visible people, communities and posts directly");
 const notificationMarkup=await read("notifications.html");
@@ -1108,8 +1108,8 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  (await read("assets/js/profile.js")).includes('void loadOwnHeaderAvatar(client,ownId,user.email);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
-assert.ok(profileBehavior.includes('client.from("vatra_friendships")')&&
- profileBehavior.includes('client.from("vatra_direct_messages")')&&
+assert.ok(profileBehavior.includes('client.from("friendships")')&&
+ profileBehavior.includes('client.from("direct_messages")')&&
  profileBehavior.includes("setupProfileInteractions(client,ownId,targetId,isMine)"),
  "Profile friendship and messaging must use persisted, RLS-secured data");
 assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
@@ -1121,7 +1121,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-media-viewer"')&&
  profileMarkup.includes('id="profile-media-viewer-image"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
- profileBehavior.includes('client.from("vatra_stories")')&&
+ profileBehavior.includes('client.from("stories")')&&
  profileBehavior.includes('avatarWrap.classList.toggle("has-active-story",hasStory)')&&
  profileBehavior.includes('coverView.addEventListener("click",()=>openMedia("cover"))')&&
  profileBehavior.includes('mediaDialog.showModal()'),
@@ -1390,8 +1390,8 @@ assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module 
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  !memberProfileMarkup.includes('assets/js/profile-details.js') &&
  detailsModule.includes('profile-editor-page-visibility') &&
- detailsModule.includes('from("vatra_profile_details")') &&
- detailsModule.includes('from("vatra_profile_preferences")') &&
+ detailsModule.includes('from("profile_details")') &&
+ detailsModule.includes('from("profile_preferences")') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
@@ -1566,6 +1566,39 @@ assert.ok(
  !profileScript.includes('client.from("vatra_profile_reports")'),
  "Profile reports and public like membership tables must retain RLS and legacy client write support");
 
+const socialDomainMigration=await read("supabase/migrations/20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql");
+const socialDomainPairs=[
+ ["vatra_avatar_comment_likes","avatar_comment_likes"],
+ ["vatra_avatar_comments","avatar_comments"],["vatra_avatar_likes","avatar_likes"],
+ ["vatra_blocks","member_blocks"],["vatra_community_follows","community_follows"],
+ ["vatra_community_posts","community_posts"],["vatra_direct_messages","direct_messages"],
+ ["vatra_friendships","friendships"],["vatra_post_comment_likes","post_comment_likes"],
+ ["vatra_post_comments","post_comments"],["vatra_post_likes","post_likes"],
+ ["vatra_profile_media","profile_media"],["vatra_public_profiles","public_profiles"],
+ ["vatra_stories","stories"]
+];
+assert.ok(
+ socialDomainPairs.every(([legacy,physical])=>
+  socialDomainMigration.includes(`ALTER TABLE public.${legacy} RENAME TO ${physical};`)&&
+  socialDomainMigration.includes(`CREATE VIEW public.${legacy} WITH (security_invoker = true)`))&&
+ socialDomainMigration.includes("CREATE OR REPLACE FUNCTION private.emit_member_notification()")&&
+ socialDomainMigration.includes("CREATE OR REPLACE FUNCTION public.vatra_comment_thread_page(")&&
+ socialDomainMigration.includes("GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vatra_friendships TO authenticated;")&&
+ !socialDomainMigration.includes("DROP CASCADE"),
+ "All 14 physical renames must retain legacy caller-scoped views, notification triggers and RLS");
+
+const lastProfileRename=await read("supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
+assert.ok(
+ lastProfileRename.includes("ALTER TABLE public.vatra_profile_details RENAME TO profile_details;")&&
+ lastProfileRename.includes("ALTER TABLE public.vatra_profile_preferences RENAME TO profile_preferences;")&&
+ lastProfileRename.includes("CREATE VIEW public.vatra_profile_details WITH (security_invoker = true)")&&
+ lastProfileRename.includes("CREATE VIEW public.vatra_profile_preferences WITH (security_invoker = true)")&&
+ profileScript.includes('client.from("profile_details")')&&
+ profileScript.includes('client.from("profile_preferences")')&&
+ !profileScript.includes('client.from("vatra_profile_details")')&&
+ !profileScript.includes('client.from("vatra_profile_preferences")'),
+ "The last two profile upserts must use physical tables with legacy RLS views");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
@@ -1605,7 +1638,7 @@ assert.ok(
  memberProfileMarkup.includes('ui-profile-block-member-icon-001')&&
  memberProfileMarkup.includes('ui-profile-report-warning-icon-001')&&
  profileBehavior.includes('function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess)')&&
- profileBehavior.includes('client.from("vatra_blocks")')&&
+ profileBehavior.includes('client.from("member_blocks")')&&
  profileBehavior.includes('blockAccess.blockedByThem')&&
  profileBehavior.includes('data-lock-reason')===false&&
  profileBehavior.includes('notice.dataset.lockReason="block"')&&
@@ -1701,7 +1734,7 @@ assert.ok(
  !postInteractionFields.includes('.eq("parent_comment_id",item.id)') &&
  postInteractionFields.includes('p_parent:item.id') &&
  postInteractionFields.includes('payload.parent_comment_id=target.id') &&
- postInteractionFields.includes('client.from("vatra_post_comments").insert(payload)') &&
+ postInteractionFields.includes('client.from("post_comments").insert(payload)') &&
  postInteractionFields.includes('form.append(ownPortrait,composer)') &&
  postInteractionFields.includes('make("div","vatra-post-comment-emoji-panel') &&
  postInteractionFields.includes('make("div","vatra-post-comment-attach-menu') &&
@@ -1760,7 +1793,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
- profileScript.includes('from("vatra_profile_media")')&&
+ profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
  profileScript.includes('uploadImage(fileAvatar.files[0],"avatar")')&&
  profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
@@ -1769,7 +1802,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  feedScript.includes('storage.from("vatra-avatars")'),
  "Profile photos and cover images must be uploaded to their dedicated storage buckets");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
- profileScript.includes('client.from("vatra_stories").delete()')&&
+ profileScript.includes('client.from("stories").delete()')&&
  profileScript.includes('deleteStoryButton.hidden=!hasStory||!isMine||!activeStory?.id;')&&
  !profileScript.includes('remove([previous])')&&
  !sharedCss.includes('border-radius:0 14px 14px 14px'),
@@ -1778,8 +1811,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  memberProfileMarkup.includes('id="profile-photo-like"')&&
  memberProfileMarkup.includes('id="profile-photo-comments"')&&
  memberProfileMarkup.includes('id="profile-photo-share"')&&
- profileScript.includes('from("vatra_avatar_likes")')&&
- profileScript.includes('from("vatra_avatar_comments")')&&
+ profileScript.includes('from("avatar_likes")')&&
+ profileScript.includes('from("avatar_comments")')&&
  profileScript.includes('interaction.hidden=kind!=="avatar"')&&
  memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
  memberCss.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&

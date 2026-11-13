@@ -61,8 +61,8 @@ async function authorNames(rows){
  const names=new Map(),avatars=new Map(),states=new Map();
  if(ids.length)try{
   const results=await Promise.allSettled([
-   client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
-   client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids),
+   client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
+   client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);
   if(results[2].status==="fulfilled")for(const [id,state] of results[2].value)states.set(id,state);
@@ -308,12 +308,12 @@ async function findSite(term){
  const escaped=phrase.replace(/[\\%_]/g,ch=>String.fromCharCode(92)+ch);
  const pattern="%"+escaped+"%";
  const requests=[
-  client.from("vatra_public_profiles").select("vatra_id,display_name,status_text").ilike("display_name",pattern).limit(4),
-  client.from("vatra_public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
+  client.from("public_profiles").select("vatra_id,display_name,status_text").ilike("display_name",pattern).limit(4),
+  client.from("public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
   client.from("communities").select("club_id,name,description").ilike("name",pattern).limit(4),
   client.from("communities").select("club_id,name,description").ilike("description",pattern).limit(4),
   client.from("feed_posts").select("id,body,created_at").ilike("body",pattern).is("archived_at",null).limit(4),
-  client.from("vatra_community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
+  client.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
  ];
  const all=await Promise.allSettled(requests);
  const rows=i=>all[i].status==="fulfilled"&&!all[i].value.error?(all[i].value.data||[]):[];
