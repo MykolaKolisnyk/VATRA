@@ -660,6 +660,11 @@ function missingProfile(state="not-found"){
  const name=q("#profile-heading");
  if(name){name.removeAttribute("data-i18n");name.textContent=title;}
  const portrait=q("#profile-avatar"),wrap=q("#profile-avatar-wrap");
+ const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo");
+ const coverView=q("#profile-cover-view");
+ if(cover){cover.dataset.vatraCoverState=state;cover.classList.remove("has-photo");}
+ if(coverPhoto){coverPhoto.hidden=true;coverPhoto.removeAttribute("src");}
+ if(coverView)coverView.hidden=true;
  window.VATRA_AVATAR?.fallback(portrait,state);
  if(wrap){
   wrap.dataset.vatraSystemAvatar="true";
@@ -2060,6 +2065,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   cover.classList.remove("has-photo");
  });
  const display=record=>{
+  cover.dataset.vatraCoverState="default";
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
   if(isMine)window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,record?.avatar_path||null);
@@ -2073,7 +2079,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const coverReady=photoURLs.cover&&typeof coverPhoto.decode==="function"?
    coverPhoto.decode().then(()=>{
     if(!photoURLs.cover)return;
-    coverPhoto.hidden=false;cover.classList.add("has-photo");coverView.hidden=!canViewPhoto;
+    coverPhoto.hidden=false;cover.classList.add("has-photo");
+    cover.removeAttribute("data-vatra-cover-state");coverView.hidden=!canViewPhoto;
    }).catch(()=>{}):Promise.resolve();
   resetImage(avatar);
   window.VATRA_AVATAR?.fallback(avatar,"default");
