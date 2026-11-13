@@ -2837,3 +2837,10 @@ body.feed-page .vt-vatra-post-comment-emoji-option-001:hover{
  body.feed-page .vt-vatra-post-comment-emoji-option-001{font-size:23px}
  body.feed-page .vt-vatra-post-comment-emoji-option-001.is-sticker{font-size:35px}
 }
+
+/* Popovers float above subsequent post cards, whose entrance transforms create
+   independent stacking contexts; keep the active card on top. */
+body.feed-page .feed-post-card:has(.vatra-post-comment-emoji-panel:not([hidden])),
+body.feed-page .feed-post-card:has(.vatra-post-comment-attach-menu:not([hidden])){
+ position:relative;z-index:35
+}
