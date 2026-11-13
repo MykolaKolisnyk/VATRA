@@ -1408,6 +1408,7 @@ assert.ok(
 const sharedAvatar=await read("assets/js/avatar.js");
 const systemAvatarCss=await read("assets/css/base.css");
 const systemProfileCss=await read("assets/css/profile.css");
+const systemFeedCss=await read("assets/css/feed.css");
 const ownerMenus=await read("assets/js/post-interactions.js");
 const feedLogic=await read("assets/js/feed.js");
 const searchLogic=await read("assets/js/social-shell.js");
@@ -1426,7 +1427,6 @@ assert.ok(searchLogic.includes("back.getBoundingClientRect()")&&
  systemProfileCss.includes("width:106px;height:106px;margin:-34px"),
  "Search popup must span Back-to-input, Stories align under composer and profile ring is compact");
 
-const systemFeedCss=await read("assets/css/feed.css");
 // Each static account cover is an actual PNG image (never CSS sampled or painted).
 for(const kind of ["default","deleted","blocked","not-found"]){
  assert.ok(sharedAvatar.includes('"/VATRA/assets/covers/cover-'+kind+'.png"'),
