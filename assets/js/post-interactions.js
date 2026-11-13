@@ -385,7 +385,7 @@ function appendAudience(container,level,isGroup=false){
    if(!type||file.size>type[2]||file.size<1){
     feedback(tr("Фото: до 6 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.",
      "Photo: up to 6 MB. Video: up to 50 MB. JPEG, PNG, WebP, MP4 or WebM."),true);
-    fileInput.value="";return;
+    fileInput.value="";chosenFile=null;attachmentPreview.hidden=true;updateSend();return;
    }
    chosenFile={file,kind:type[0],ext:type[1]};
    fileLabel.textContent=file.name.slice(0,110);
@@ -530,8 +530,9 @@ function appendAudience(container,level,isGroup=false){
     };
     const setOpen=async(value,reload=false)=>{
      open=value;label();repliesList.hidden=!open;
-     moreReplies.hidden=!open||moreReplies.hidden;
      if(open&&(reload||replyOffset===0))await loadReplies(true);
+     else if(!open)moreReplies.hidden=true;
+     else moreReplies.hidden=replyOffset>=replyCount;
     };
     expand.addEventListener("click",()=>void setOpen(!open));
     moreReplies.addEventListener("click",()=>void loadReplies());
@@ -576,8 +577,8 @@ function appendAudience(container,level,isGroup=false){
     for(const item of rows)entries.append(renderComment(item,people,mine,item.id));
     commentOffset+=rows.length;more.hidden=(data||[]).length<=pageSize;
     const deepComment=new URLSearchParams(location.search).get("comment");
-    if(deepComment){
-     const target=entries.querySelector('[data-comment-id="'+deepComment+'"]');
+    if(validUUID(deepComment)){
+     const target=document.getElementById("vatra-comment-"+deepComment);
      if(target)target.scrollIntoView({block:"center"});
     }
     feedback("");
