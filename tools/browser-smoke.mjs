@@ -2269,7 +2269,7 @@ try{
       window.__profileVisibility=row.profile_visibility;
       return {data:{profile_visibility:window.__profileVisibility},error:null};
      }})})}:
-    table==="vatra_blocks"?
+    table==="member_blocks"?
     {select:()=>({or(){return this;},limit:async()=>{
       const mode=new URLSearchParams(location.search).get("block-test");
       return {data:mode==="them"?[{blocker_vatra_id:789012,blocked_vatra_id:654321}]:
@@ -2277,7 +2277,7 @@ try{
      }}),
      insert:async()=>({error:null}),
      delete:()=>({eq(){return this;},then:resolve=>Promise.resolve(resolve({error:null}))})}:
-    table==="vatra_friendships"?
+    table==="friendships"?
     {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
      limit:async n=>{window.__vatraFriendLimitCalls.push(n);return {data:[],error:null};}}),
      insert:async()=>({error:null}),
@@ -2310,7 +2310,7 @@ try{
       vatra_id:999999,state,blocked_until:state==="blocked"?"2099-01-01T00:00:00Z":null
      }]:[],error:null};
     }})}:
-    table==="vatra_profile_media"?
+    table==="profile_media"?
     {select:()=>({
       eq:(_field,id)=>({maybeSingle:async()=>({
        data:location.pathname.includes("/feed")?null:{
@@ -2319,7 +2319,7 @@ try{
        },error:null
       })})
     })}:
-    table==="vatra_stories"?
+    table==="stories"?
     {select:()=>({
       eq(){this.singleAuthor=true;return this;},
       gt(){return this;},order(){return this;},
@@ -3774,7 +3774,7 @@ try{
      return {data:null,error:{message:"mock Edge unavailable"}};
     }
    },
-   from:table=>table==="vatra_community_posts"?
+   from:table=>table==="community_posts"?
     {select:()=>({
      eq(){return this;},order(){return this;},
      range:async(first,last)=>{
@@ -3782,9 +3782,9 @@ try{
       return {data:JSON.parse(localStorage.getItem("vatra-test-club-posts")||"[]").slice(first,last+1),error:null};
      }
     })}:
-    table==="vatra_community_follows"?
+    table==="community_follows"?
     {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null})})}:
-    table==="vatra_public_profiles"?
+    table==="public_profiles"?
     {select:()=>({in:async()=>({data:[],error:null})})}:
     table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
