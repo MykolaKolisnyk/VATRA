@@ -35,9 +35,12 @@ runtime, not from the browser.
 4. Deploy `supabase/functions/public-community-directory` with
    JWT verification enabled (default). Test misses, hits, 15-second expiry,
    unavailable Redis, and any Cache-Control headers.
-5. Only after the backend has been tested, switch the site public directory
-   to the function and benchmark **p50/p95 latency** versus the current direct
-   Supabase request. Keep the direct path as fallback.
+5. Only after the backend has been tested, set
+   `PUBLIC_DIRECTORY_CACHE_ENABLED=true` in `assets/js/communities.js` and
+   benchmark **p50/p95 latency** versus the current direct Supabase request.
+   Keep the direct PostgREST path as an automatic fallback; searches never use Redis.
+   The shipped default is `false`, so the current site never adds an unnecessary
+   Edge hop when Redis has not been configured.
 
 ## Upgrade to paid Redis Cloud
 
