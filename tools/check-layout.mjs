@@ -1462,6 +1462,15 @@ assert.ok(
  (await read("club.html")).includes('type="file" multiple'),
  "Gallery posting, secure preview and on-demand comments must remain intact");
 
+assert.ok(
+ clubPostScript.includes("const CLUB_PAGE_SIZE=12")&&
+ clubPostScript.includes(".range(postsOffset,postsOffset+CLUB_PAGE_SIZE-1)")&&
+ clubPostScript.includes("renderedPostIds.has(post.id)")&&
+ clubPostScript.includes("if(!append)refreshQueued=true")&&
+ !clubPostScript.includes(".limit(50)")&&
+ (await read("club.html")).includes('id="club-posts-more"'),
+ "Community posts must paginate in small bounded pages without duplicate deep links");
+
 const notificationPerfScript=await read("assets/js/notifications.js");
 const workerPerfScript=await read("sw.js");
 assert.ok(
