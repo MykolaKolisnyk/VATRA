@@ -643,7 +643,8 @@ const localizeSocial=()=>{
    for(const control of document.querySelectorAll("[data-shell-aria-uk]")){
     const title=english?control.dataset.shellAriaEn:control.dataset.shellAriaUk;
     control.setAttribute("aria-label",title);
-    control.removeAttribute("title");
+    if(control.classList.contains("profile-safety-action"))control.title=title;
+    else control.removeAttribute("title");
    }
    for(const pair of [
     [".ui-shell-header-notifications-001","Сповіщення — незабаром","Notifications — coming soon"],
