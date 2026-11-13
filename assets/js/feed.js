@@ -702,6 +702,17 @@
     if(event.key==="Escape"&&accountMenu?.open)accountMenu.open=false;
    });
    more.addEventListener("click",()=>{clearMessage();void loadPosts(false);});
+   // The visible button remains a keyboard-accessible fallback. Load one
+   // additional server page when it approaches the viewport, never all posts.
+   if(typeof IntersectionObserver==="function"){
+    const postPager=new IntersectionObserver(entries=>{
+     if(entries.some(entry=>entry.isIntersecting)&&
+      !more.hidden&&!more.disabled&&!loading&&document.visibilityState!=="hidden"){
+      void loadPosts(false);
+     }
+    },{rootMargin:"0px 0px 260px 0px"});
+    postPager.observe(more);
+   }
    // A filter is a new source query, not a cosmetic visibility toggle.
    describeFilter();
    const filterToggle=q("#feed-filter-toggle"),filterOptions=q("#feed-filter-options");
