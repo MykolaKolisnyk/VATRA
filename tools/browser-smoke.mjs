@@ -3758,6 +3758,17 @@ try{
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
    },
+   functions:{
+    invoke:async(name,options)=>{
+     window.__clubCacheInvocations=(window.__clubCacheInvocations||[]).concat([{
+      name,method:options?.method
+     }]);
+     if(localStorage.getItem("vatra-test-cache-mode")==="hit")
+      return {data:{data:[{club_id:77,name:"Кешована спільнота",
+       description:"Кеш Redis",created_at:"2026-11-13T00:00:00Z"}]},error:null};
+     return {data:null,error:{message:"mock Edge unavailable"}};
+    }
+   },
    from:table=>table==="vatra_community_posts"?
     {select:()=>({
      eq(){return this;},order(){return this;},
@@ -3773,19 +3784,23 @@ try{
     table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
-     select:()=>({
-      term:"",
-      eq:(_field,id)=>({maybeSingle:async()=>{
-       await new Promise(resolve=>setTimeout(resolve,270));
-       return {data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,error:null};
-      }}),
-      ilike(_field,pattern){this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
-      order(){return this;},
-      limit:async function(){await new Promise(resolve=>setTimeout(resolve,270));return {
-       data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
-        .filter(club=>!this.term||club.name.toLocaleLowerCase().includes(this.term)),error:null
-      };}
-     }),
+     select:()=>{
+      if(table==="communities")
+       window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;
+      return {
+       term:"",
+       eq:(_field,id)=>({maybeSingle:async()=>{
+        await new Promise(resolve=>setTimeout(resolve,270));
+        return {data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,error:null};
+       }}),
+       ilike(_field,pattern){this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
+       order(){return this;},
+       limit:async function(){await new Promise(resolve=>setTimeout(resolve,270));return {
+        data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
+         .filter(club=>!this.term||club.name.toLocaleLowerCase().includes(this.term)),error:null
+       };}
+      };
+     },
      insert:data=>({select:()=>({single:async()=>{
       const all=JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]");
       const club={club_id:all.length+1,...data,created_at:new Date().toISOString()};
@@ -3903,8 +3918,36 @@ try{
   assert.deepEqual(pageErrors,[],"Community JavaScript errors: "+language);
   await page.close();
  }
+ // Verify the optional Redis-backed Edge path separately. Never use a real
+ // Supabase or Redis database in CI, and never change existing club tests.
+ const cachePage=await clubContext.newPage();
+ await cachePage.addInitScript(()=>{
+  localStorage.setItem("vatra-test-cache-mode","hit");
+  localStorage.setItem("vatra-test-clubs",JSON.stringify([{
+   club_id:88,name:"Пошукова спільнота",description:"Прямий SQL",
+   created_at:"2026-11-13T00:00:00Z"
+  }]));
+ });
+ await cachePage.goto(base+"communities",{waitUntil:"domcontentloaded"});
+ await cachePage.locator("#community-app").waitFor({state:"visible",timeout:15000});
+ assert.equal((await cachePage.locator(".ui-community-card-001").textContent()).includes("Кешована спільнота"),true,
+  "Public community listing must render Edge-cached results");
+ assert.deepEqual(await cachePage.evaluate(()=>window.__clubCacheInvocations),[
+  {name:"public-community-directory",method:"GET"}
+ ],"Public directory must call exactly one authenticated Edge GET");
+ assert.equal(await cachePage.evaluate(()=>window.__clubDirectQueries||0),0,
+  "Successful Edge cache lookup must avoid a duplicate PostgREST listing query");
+ await cachePage.goto(base+"communities?q="+encodeURIComponent("Пошукова"),{waitUntil:"domcontentloaded"});
+ await cachePage.locator("#community-app").waitFor({state:"visible",timeout:15000});
+ assert.equal((await cachePage.locator(".ui-community-card-001").textContent()).includes("Пошукова спільнота"),true,
+  "Search still reads the uncached source of truth");
+ assert.equal(await cachePage.evaluate(()=>(window.__clubCacheInvocations||[]).length),0,
+  "Search must always bypass the shared Redis cache");
+ assert.equal(await cachePage.evaluate(()=>window.__clubDirectQueries||0),1,
+  "Search must issue one direct PostgREST query");
+ await cachePage.close();
  await clubContext.close();
- console.log("VATRA Communities: UK/EN creation, immutable URLs and missing clubs: OK");
+ console.log("VATRA Communities: UK/EN creation, cached public directory, direct search and fallback: OK");
 
 
  // A cross-device confirmation must not depend on the PKCE state of the
