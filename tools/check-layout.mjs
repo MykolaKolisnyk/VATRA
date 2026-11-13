@@ -1420,11 +1420,32 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !feedLogic.includes('head.append(remove)')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
-assert.ok(searchLogic.includes("anchor.left")&&
+assert.ok(searchLogic.includes("const left=ox;")&&
  searchLogic.includes("inputBox.right-left")&&
  systemFeedCss.includes("grid-column:1!important;grid-row:2!important")&&
- systemProfileCss.includes("width:106px;height:106px;margin:-34px"),
- "Search popup must span Back-to-input, Stories align under composer and profile ring is compact");
+ systemFeedCss.includes(".feed-top-controls > .feed-posts-section,")&&
+ systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
+ "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
+
+// Blocking is a real member-scoped Supabase relation. Restricted viewers
+// retain public header artwork while content and interactions are gated.
+assert.ok(
+ memberProfileMarkup.includes('id="profile-block-toggle"')&&
+ memberProfileMarkup.includes('ui-profile-block-icon-001')&&
+ memberProfileMarkup.includes('ui-profile-report-flag-icon-001')&&
+ profileBehavior.includes('function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess)')&&
+ profileBehavior.includes('client.from("vatra_blocks")')&&
+ profileBehavior.includes('blockAccess.blockedByThem')&&
+ profileBehavior.includes('data-lock-reason')===false&&
+ profileBehavior.includes('notice.dataset.lockReason="block"')&&
+ profileBehavior.includes('if(!memberBlocked)setupProfileInteractions(')&&
+ systemProfileCss.includes('.profile-locked-notice[data-lock-reason="block"]'),
+ "Blocking must show a restricted member notice, hide interactions and keep SVG safety controls");
+assert.ok(
+ feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
+ feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
+ systemFeedCss.includes('grid-column:1!important;grid-row:auto!important'),
+ "Feed posts must sit inside the same two-column grid as composer and story");
 
 // Each static account cover is an actual PNG image (never CSS sampled or painted).
 for(const kind of ["default","deleted","blocked","not-found"]){
