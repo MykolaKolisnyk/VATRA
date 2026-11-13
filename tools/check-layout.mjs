@@ -1363,7 +1363,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('posts.append(card(item))')&&
+ feedScript.includes('posts.append(card(item,engagement))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
