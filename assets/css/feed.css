@@ -2844,3 +2844,106 @@ body.feed-page .feed-post-card:has(.vatra-post-comment-emoji-panel:not([hidden])
 body.feed-page .feed-post-card:has(.vatra-post-comment-attach-menu:not([hidden])){
  position:relative;z-index:35
 }
+
+
+/* November 2026: composer and story card share the same left reading lane;
+   the compact filter occupies the upper-right cell only. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
+ display:grid!important;grid-template-columns:minmax(0,1fr) clamp(174px,25%,242px)!important;
+ column-gap:14px!important;row-gap:12px!important;align-items:start!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
+ grid-column:1!important;grid-row:1!important;min-width:0;width:100%!important;margin:0!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+ grid-column:1!important;grid-row:2!important;min-width:0;width:100%!important;margin:0!important;
+ align-self:stretch!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+ grid-column:2!important;grid-row:1!important;width:100%!important;min-width:0;
+ margin:0!important;align-self:start!important
+}
+@media(max-width:760px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
+  grid-template-columns:minmax(0,1fr)!important;gap:10px!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
+  grid-column:1!important;grid-row:1!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+  grid-column:1!important;grid-row:2!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+  grid-column:1!important;grid-row:3!important;min-height:52px!important
+ }
+}
+/* The search sheet spans the whole Back-arrow + input area, without adopting
+   any styling from the supplied Facebook layout reference. */
+body.feed-page .vatra-search-panel{
+ border-radius:0 0 17px 17px!important;
+ box-shadow:0 17px 38px rgba(30,46,80,.14)
+}
+/* One top-right action menu per OWN post, native keyboard semantics. */
+body.feed-page .feed-post-header{position:relative;overflow:visible;flex-wrap:nowrap;min-width:0}
+body.feed-page .vatra-post-owner-menu{
+ position:relative;flex:none;margin-left:auto;align-self:flex-start;
+ width:38px;height:38px;z-index:12
+}
+body.feed-page .vatra-post-owner-toggle{
+ display:grid;place-items:center;list-style:none;width:38px;height:38px;padding:0;
+ border:1px solid transparent;border-radius:11px;background:transparent;
+ color:#7588a6;cursor:pointer;user-select:none
+}
+body.feed-page .vatra-post-owner-toggle::-webkit-details-marker{display:none}
+body.feed-page .vatra-post-owner-toggle::marker{content:""}
+body.feed-page .vatra-post-owner-toggle:hover,
+body.feed-page .vatra-post-owner-menu[open] .vatra-post-owner-toggle{
+ background:#f0f4fb;border-color:#e3eaf5;color:#355e9e
+}
+body.feed-page .vatra-post-owner-toggle:focus-visible{
+ outline:3px solid #95b3f5;outline-offset:2px
+}
+body.feed-page .ui-vatra-post-owner-dots-001{display:block;width:21px;height:21px}
+body.feed-page .vatra-post-owner-panel{
+ position:absolute;right:0;top:calc(100% + 7px);z-index:30;
+ display:flex;flex-direction:column;gap:4px;width:210px;max-width:calc(100vw - 24px);
+ padding:7px;border:1px solid #dce5f4;border-radius:13px;
+ background:#fff;box-shadow:0 14px 38px rgba(30,49,89,.15)
+}
+body.feed-page .vatra-post-owner-menu:not([open]) .vatra-post-owner-panel{display:none!important}
+body.feed-page .vatra-post-owner-panel .vatra-post-owner-action{
+ display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:42px;
+ margin:0!important;padding:10px 12px!important;border:0!important;
+ border-radius:8px!important;background:transparent!important;
+ color:#435875!important;text-align:left;white-space:normal;
+ font:670 13px/1.35 "Onest",system-ui,sans-serif!important;cursor:pointer
+}
+body.feed-page .vatra-post-owner-panel .vatra-post-owner-action:hover{
+ background:#f0f5ff!important;color:#255ac0!important
+}
+body.feed-page .vatra-post-owner-panel .vt-vatra-post-owner-delete-001{
+ color:#a4495b!important
+}
+body.feed-page .vatra-post-owner-panel .vt-vatra-post-owner-delete-001:hover{
+ background:#fff0f3!important;color:#962c43!important
+}
+/* Content and reactions belong to one coherent post, with restrained rules. */
+body.feed-page:not(.community-page) .feed-post-card{overflow:visible}
+body.feed-page .feed-post-card > .feed-post-header{min-height:43px}
+body.feed-page .feed-post-card > .feed-post-body{margin-top:13px}
+body.feed-page .feed-post-card .vatra-post-action-row{margin-top:8px}
+body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-top:5px}
+
+/* On narrow screens Search temporarily takes the first header row, as on the
+   supplied interaction reference. The navigation row remains untouched. */
+@media(max-width:610px){
+ body.feed-page .feed-header .feed-brand-search.vatra-search-active{
+  width:calc(100vw - 16px);max-width:none;justify-self:start;z-index:3
+ }
+ body.feed-page .feed-header .feed-brand-search.vatra-search-active .feed-search-form{
+  width:100%;max-width:none!important;flex:1
+ }
+ body.feed-page .feed-header:has(.feed-brand-search.vatra-search-active) .feed-header-controls{
+  opacity:0;pointer-events:none
+ }
+}

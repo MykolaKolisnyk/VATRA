@@ -108,6 +108,70 @@ function appendAudience(container,level,isGroup=false){
   symbol.append(path);marker.append(symbol,hint);
   container.append(marker);
  }
+ // A single accessible owner menu replaces the two large buttons in each post.
+ // Database ownership and RLS checks remain in the original action callbacks.
+ let ownerMenuListenersBound=false;
+ function addOwnerMenu(header,{source="feed",onArchive=null,onDelete}={}){
+  if(!header||typeof onDelete!=="function")return null;
+  const details=make("details","vatra-post-owner-menu ui-vatra-post-owner-menu-001");
+  details.dataset.vatraPostOwnerMenu="";
+  const summary=make("summary","vatra-post-owner-toggle vt-vatra-post-owner-toggle-001");
+  summary.setAttribute("aria-label",tr("Дії з публікацією","Post options"));
+  summary.title=tr("Дії з публікацією","Post options");
+  const dots=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  dots.setAttribute("viewBox","0 0 24 24");
+  dots.setAttribute("width","21");dots.setAttribute("height","21");
+  dots.setAttribute("fill","currentColor");dots.setAttribute("aria-hidden","true");
+  dots.classList.add("ui-vatra-post-owner-dots-001");
+  for(const x of [5,12,19]){
+   const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+   c.setAttribute("cx",String(x));c.setAttribute("cy","12");c.setAttribute("r","1.65");
+   dots.append(c);
+  }
+  summary.append(dots);
+  const panel=make("div","vatra-post-owner-panel ui-vatra-post-owner-panel-001");
+  panel.setAttribute("role","group");
+  panel.setAttribute("aria-label",tr("Керування публікацією","Manage post"));
+  const option=(kind,text,handler)=>{
+   const extra=source==="profile"?
+    (kind==="archive"?"vt-profile-post-archive-001":"vt-profile-post-remove-001"):
+    (kind==="archive"?"vt-feed-post-archive-001":"feed-post-delete vt-feed-post-delete-001");
+   const button=make("button","vatra-post-owner-action vt-vatra-post-owner-"+kind+"-001 "+extra,text);
+   button.type="button";
+   button.addEventListener("click",()=>{
+    details.open=false;
+    if(button.disabled)return;
+    void handler();
+   });
+   panel.append(button);
+  };
+  if(typeof onArchive==="function")
+   option("archive",tr("Зберегти в архів","Move to archive"),onArchive);
+  option("delete",tr("Видалити","Delete"),onDelete);
+  details.append(summary,panel);
+  details.addEventListener("toggle",()=>{
+   if(!details.open)return;
+   document.querySelectorAll("details[data-vatra-post-owner-menu]").forEach(item=>{
+    if(item!==details)item.open=false;
+   });
+  });
+  if(!ownerMenuListenersBound){
+   ownerMenuListenersBound=true;
+   document.addEventListener("pointerdown",event=>{
+    document.querySelectorAll("details[data-vatra-post-owner-menu][open]").forEach(item=>{
+     if(!item.contains(event.target))item.open=false;
+    });
+   });
+   document.addEventListener("keydown",event=>{
+    if(event.key!=="Escape")return;
+    const open=document.querySelector("details[data-vatra-post-owner-menu][open]");
+    if(!open)return;
+    event.preventDefault();open.open=false;open.querySelector("summary")?.focus();
+   });
+  }
+  header.append(details);
+  return details;
+ }
  function mount(client,post,container,settings={}){
   const kind=post?.kind==="group"?"group":"person";
   if(!validUUID(post?.id)||!client||!container)return;
@@ -945,5 +1009,5 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     tr("Ця публікація недоступна.","This post is unavailable.")));
   }
  }
- window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,appendAudience};
+ window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,appendAudience,addOwnerMenu};
 })();

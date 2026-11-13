@@ -747,25 +747,24 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    }
    header.append(avatar,identity);
    if(String(ownId)===String(targetId)){
-    const archive=node("button","vt-profile-post-archive-001",t("В архів","Archive"));
-    archive.type="button";archive.addEventListener("click",async()=>{
-     archive.disabled=true;
-     const {data,error}=await client.from("feed_posts").update({archived_at:new Date().toISOString()})
-      .eq("id",post.id).eq("author_vatra_id",ownId).select("id").maybeSingle();
-     if(error||!data){archive.disabled=false;return;}
-     void loadPosts(client,targetId,ownId,userId);
+    window.VATRA_POST_INTERACTIONS?.addOwnerMenu(header,{
+     source:"profile",
+     onArchive:async()=>{
+      const {data,error}=await client.from("feed_posts")
+       .update({archived_at:new Date().toISOString()})
+       .eq("id",post.id).eq("author_vatra_id",ownId).select("id").maybeSingle();
+      if(error||!data)return;
+      void loadPosts(client,targetId,ownId,userId);
+     },
+     onDelete:async()=>{
+      if(!confirm(t("Видалити цю публікацію?","Delete this post?")))return;
+      const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
+       .eq("author_vatra_id",ownId).select("id");
+      if(error||!data?.length)return;
+      if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
+      void loadPosts(client,targetId,ownId,userId);
+     }
     });
-    const remove=node("button","vt-profile-post-remove-001",t("Видалити","Delete"));
-    remove.type="button";remove.addEventListener("click",async()=>{
-     if(!confirm(t("Видалити цю публікацію?","Delete this post?")))return;
-     remove.disabled=true;
-     const {data,error}=await client.from("feed_posts").delete().eq("id",post.id)
-      .eq("author_vatra_id",ownId).select("id");
-     if(error||!data?.length){remove.disabled=false;return;}
-     if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
-     void loadPosts(client,targetId,ownId,userId);
-    });
-    header.append(archive,remove);
    }
    article.append(header);
    if(post.body){

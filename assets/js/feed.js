@@ -237,26 +237,20 @@
   }
   head.append(avatar,identity);
   if(mine){
-   const remove=node("button","feed-post-delete vt-feed-post-delete-001",t("Видалити","Delete"));
-   remove.type="button";
-   remove.addEventListener("click",()=>{
-    pendingDelete={id:post.id,kind:post.kind,media_kind:post.media_kind,media_path:post.media_path};
-    deleteDialog?.showModal();q("#feed-delete-cancel")?.focus();
-   });
-   head.append(remove);
-   if(post.kind==="person"){
-    const archive=node("button","vt-feed-post-archive-001",t("В архів","Archive"));
-    archive.type="button";
-    archive.addEventListener("click",async()=>{
-     archive.disabled=true;
+   window.VATRA_POST_INTERACTIONS?.addOwnerMenu(head,{
+    source:"feed",
+    onDelete:()=>{
+     pendingDelete={id:post.id,kind:post.kind,media_kind:post.media_kind,media_path:post.media_path};
+     deleteDialog?.showModal();q("#feed-delete-cancel")?.focus();
+    },
+    onArchive:post.kind==="person"?async()=>{
      const {data,error}=await client.from("feed_posts")
       .update({archived_at:new Date().toISOString()}).eq("id",post.id)
       .eq("author_vatra_id",vatraId).select("id").maybeSingle();
-     if(error||!data){archive.disabled=false;message(t("Не вдалося архівувати публікацію.","Could not archive post."));return;}
+     if(error||!data){message(t("Не вдалося архівувати публікацію.","Could not archive post."));return;}
      void loadPosts(true);
-    });
-    head.append(archive);
-   }
+    }:null
+   });
   }
   item.append(head);
    if(post.body){

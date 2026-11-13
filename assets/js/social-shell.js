@@ -388,10 +388,13 @@
    // It overlays the page sidebar without affecting navigation coordinates.
    const headerTop=Math.max(oy,header?.top??oy);
    const headerBottom=Math.max(headerTop,header?.bottom??anchor.bottom);
-   // Align the popup beneath the left search field; its TEXT stays left-aligned.
+   // Match the complete active search surface: from the Back arrow at the
+   // left through the right edge of the search input, as one connected menu.
    const inputBox=form.getBoundingClientRect();
-   const width=Math.min(440,Math.max(inputBox.width+55,310),vw-20);
-   const left=Math.max(ox+10,Math.min(inputBox.left,ox+vw-width-10));
+   // The Back button slides into view, so its animated rectangle is unstable
+   // during the first frame. The parent search surface never moves.
+   const left=Math.max(ox+8,Math.min(anchor.left,inputBox.left,ox+vw-208));
+   const width=Math.max(1,Math.min(ox+vw-left-8,Math.max(210,inputBox.right-left)));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
