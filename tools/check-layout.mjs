@@ -1410,18 +1410,20 @@ const systemAvatarCss=await read("assets/css/base.css");
 const systemProfileCss=await read("assets/css/profile.css");
 const systemFeedCss=await read("assets/css/feed.css");
 for(const kind of ["default","deleted","blocked","not-found"]){
- assert.ok(sharedAvatar.includes("/VATRA/assets/avatars/1024px/avatar-"+kind+"-1024.webp")&&
-  sharedAvatar.includes("/VATRA/assets/avatars/2048px/avatar-"+kind+".webp"),
-  "Both supplied WebP sizes must be available for "+kind);
+ assert.ok(sharedAvatar.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
+  systemAvatarCss.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
+  systemProfileCss.includes("/VATRA/assets/avatars/avatar-"+kind+".png"),
+  "All profile and global placeholders must reference the uploaded PNG for "+kind);
 }
-assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/avatars/1024px/avatar-default-1024.webp\")")&&
- systemProfileCss.includes("avatar-not-found.webp")&&
- systemProfileCss.includes("avatar-blocked.webp")&&
+assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/avatars/avatar-default.png\")")&&
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
- sharedAvatar.includes('client.from("vatra_account_states")'),
- "Four system states must be distinct, RLS-backed, and non-clickable as photos");
+ sharedAvatar.includes('client.from("vatra_account_states")')&&
+ sharedAvatar.includes("const DEFAULT_ACCENT=\"#497bd4\"")&&
+ sharedAvatar.includes("function portraitColor(image)")&&
+ systemProfileCss.includes("body.profile-page .profile-avatar-wrap .profile-avatar"),
+ "PNG placeholders and colorful profile rings must be protected and non-clickable as photos");
 
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
 assert.ok(

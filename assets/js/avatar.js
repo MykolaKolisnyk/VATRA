@@ -6,10 +6,10 @@ const KEY="vatra-remembered-account";
 const HEADER_KEY="vatra-authenticated-header-v1";
 const ORIGIN="https://rjasunoawrxvetwadylh.supabase.co";
 const SYSTEM_AVATARS=Object.freeze({
- default:{1024:"/VATRA/assets/avatars/1024px/avatar-default-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-default.webp"},
- deleted:{1024:"/VATRA/assets/avatars/1024px/avatar-deleted-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-deleted.webp"},
- "not-found":{1024:"/VATRA/assets/avatars/1024px/avatar-not-found-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-not-found.webp"},
- blocked:{1024:"/VATRA/assets/avatars/1024px/avatar-blocked-1024.webp",2048:"/VATRA/assets/avatars/2048px/avatar-blocked.webp"}
+ default:{1024:"/VATRA/assets/avatars/avatar-default.png",2048:"/VATRA/assets/avatars/avatar-default.png"},
+ deleted:{1024:"/VATRA/assets/avatars/avatar-deleted.png",2048:"/VATRA/assets/avatars/avatar-deleted.png"},
+ "not-found":{1024:"/VATRA/assets/avatars/avatar-not-found.png",2048:"/VATRA/assets/avatars/avatar-not-found.png"},
+ blocked:{1024:"/VATRA/assets/avatars/avatar-blocked.png",2048:"/VATRA/assets/avatars/avatar-blocked.png"}
 });
 const asset=(state="default",size=1024)=>
  (SYSTEM_AVATARS[state]||SYSTEM_AVATARS.default)[size>=2048?2048:1024];
@@ -42,42 +42,72 @@ async function states(client,ids){
  return result;
 }
 const accentCache=new Map();
+const DEFAULT_ACCENT="#497bd4";
+function portraitColor(image){
+ const canvas=document.createElement("canvas");
+ canvas.width=48;canvas.height=48;
+ const context=canvas.getContext("2d",{willReadFrequently:true});
+ if(!context)return DEFAULT_ACCENT;
+ context.drawImage(image,0,0,48,48);
+ const pixels=context.getImageData(0,0,48,48).data;
+ const bins=Array.from({length:24},()=>({weight:0,sin:0,cos:0,saturation:0,lightness:0}));
+ for(let i=0;i<pixels.length;i+=4){
+  const alpha=pixels[i+3]/255;
+  if(alpha<.72)continue;
+  const r=pixels[i]/255,g=pixels[i+1]/255,b=pixels[i+2]/255;
+  const high=Math.max(r,g,b),low=Math.min(r,g,b),delta=high-low;
+  const lightness=(high+low)/2;
+  if(delta<.035||lightness<.08||lightness>.92)continue;
+  const saturation=delta/(1-Math.abs(2*lightness-1));
+  if(!Number.isFinite(saturation)||saturation<.13)continue;
+  let hue=0;
+  if(high===r)hue=((g-b)/delta)%6;
+  else if(high===g)hue=(b-r)/delta+2;
+  else hue=(r-g)/delta+4;
+  hue=(hue*60+360)%360;
+  const index=Math.min(23,Math.floor(hue/15));
+  const weight=alpha*Math.pow(saturation,1.55)*
+   (.5+Math.min(lightness,1-lightness))*
+   (1+(.18*(1-Math.abs((Math.floor(i/4)%48)-23.5)/23.5)));
+  const bin=bins[index],radians=hue*Math.PI/180;
+  bin.weight+=weight;bin.sin+=Math.sin(radians)*weight;
+  bin.cos+=Math.cos(radians)*weight;
+  bin.saturation+=saturation*weight;bin.lightness+=lightness*weight;
+ }
+ let best=0;
+ for(let i=1;i<bins.length;i++){
+  if(bins[i].weight>bins[best].weight)best=i;
+ }
+ if(bins[best].weight<.08)return DEFAULT_ACCENT;
+ // Keep one coherent hue family instead of averaging different colors into grey.
+ let weight=0,sin=0,cos=0,saturation=0,lightness=0;
+ for(const i of [(best+23)%24,best,(best+1)%24]){
+  const b=bins[i];weight+=b.weight;sin+=b.sin;cos+=b.cos;
+  saturation+=b.saturation;lightness+=b.lightness;
+ }
+ const hue=(Math.atan2(sin,cos)*180/Math.PI+360)%360;
+ const finalSat=Math.max(.56,Math.min(.82,saturation/weight*1.13));
+ const finalLight=Math.max(.39,Math.min(.57,lightness/weight));
+ return "hsl("+Math.round(hue)+" "+Math.round(finalSat*100)+"% "+Math.round(finalLight*100)+"%)";
+}
 function accent(element,url){
  if(!element)return;
- const source=url||asset();
- element.dataset.vatraAccentSource=source;
- const put=color=>{
+ const source=url||asset(),put=color=>{
   if(element.dataset.vatraAccentSource===source)
    element.style.setProperty("--vatra-avatar-accent",color);
  };
+ element.dataset.vatraAccentSource=source;
+ // Never show a grey ring, even while the photo is decoding.
  if(accentCache.has(source)){put(accentCache.get(source));return;}
+ put(DEFAULT_ACCENT);
  const image=new Image();
  image.crossOrigin="anonymous";
  image.onload=()=>{
-  let color="#7990b6";
-  try{
-   const canvas=document.createElement("canvas");
-   canvas.width=24;canvas.height=24;
-   const context=canvas.getContext("2d",{willReadFrequently:true});
-   context.drawImage(image,0,0,24,24);
-   const pixels=context.getImageData(0,0,24,24).data;
-   let r=0,g=0,b=0,weight=0;
-   for(let i=0;i<pixels.length;i+=4){
-    if(pixels[i+3]<210)continue;
-    const rr=pixels[i],gg=pixels[i+1],bb=pixels[i+2];
-    const max=Math.max(rr,gg,bb),min=Math.min(rr,gg,bb);
-    if(max>242&&min>232)continue;
-    const w=Math.max(.25,(max-min)/120);
-    r+=rr*w;g+=gg*w;b+=bb*w;weight+=w;
-   }
-   if(weight>0){
-    const channel=value=>Math.round(Math.max(34,Math.min(218,value/weight)));
-    color="rgb("+channel(r)+" "+channel(g)+" "+channel(b)+")";
-   }
-  }catch(_){/* Storage may not permit canvas sampling; keep a neutral accent. */}
+  let color=DEFAULT_ACCENT;
+  try{color=portraitColor(image);}catch(_){/* CORS or decode failure: keep brand blue. */}
   accentCache.set(source,color);put(color);
  };
- image.onerror=()=>put("#7990b6");
+ image.onerror=()=>{accentCache.set(source,DEFAULT_ACCENT);put(DEFAULT_ACCENT);};
  image.src=source;
 }
 
