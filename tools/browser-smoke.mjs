@@ -2252,6 +2252,7 @@ try{
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
+  window.__vatraFriendLimitCalls=[];window.__vatraGiftLimitCalls=[];
   window.__profileVisibility=new URLSearchParams(location.search).has("locked-test")?"friends":"public";
   window.supabase={createClient:()=>({
    auth:{
@@ -2278,12 +2279,13 @@ try{
      delete:()=>({eq(){return this;},then:resolve=>Promise.resolve(resolve({error:null}))})}:
     table==="vatra_friendships"?
     {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
-     limit:async()=>({data:[],error:null})}),
+     limit:async n=>{window.__vatraFriendLimitCalls.push(n);return {data:[],error:null};}}),
      insert:async()=>({error:null}),
      delete:()=>({eq:async()=>({error:null})})}:
     table==="vatra_profile_gifts"?
     {select:()=>({eq(){return this;},order(){return this;},
-     limit:async()=>({data:[{gift_code:"first_flame",created_at:"2026-11-10T00:00:00Z"}],error:null})})}:
+     limit:async n=>{window.__vatraGiftLimitCalls.push(n);return {data:[
+      {gift_code:"first_flame",created_at:"2026-11-10T00:00:00Z"}],error:null};}})}:
     table==="vatra_profile_details"?
     {select:()=>({eq:async()=>({data:window.__profileDetailRows,error:null})}),
      upsert:rows=>({select:async()=>{
@@ -3149,6 +3151,21 @@ try{
    "The profile must have a structural skeleton instead of the VATRA loading logo");
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   await profilePage.waitForTimeout(900);
+  await profilePage.waitForFunction(()=>window.__vatraFriendLimitCalls?.includes(6)&&
+   window.__vatraGiftLimitCalls?.includes(3),null,{timeout:12000});
+  assert.equal(await profilePage.evaluate(()=>window.__vatraFriendLimitCalls.includes(300)),false,
+   "Opening a profile must not fetch 300 friendships without opening the Friends tab");
+  assert.equal(await profilePage.evaluate(()=>window.__vatraGiftLimitCalls.includes(100)),false,
+   "Opening a profile must not fetch 100 gifts without opening the Gifts tab");
+  await profilePage.evaluate(()=>window.VATRA_PROFILE_SHOW_FRIENDS?.());
+  await profilePage.waitForFunction(()=>window.__vatraFriendLimitCalls.includes(300));
+  await profilePage.evaluate(()=>window.VATRA_PROFILE_SHOW_GIFTS?.());
+  await profilePage.waitForFunction(()=>window.__vatraGiftLimitCalls.includes(100));
+  await profilePage.evaluate(()=>{window.VATRA_PROFILE_SHOW_FRIENDS?.();window.VATRA_PROFILE_SHOW_GIFTS?.();});
+  assert.deepEqual(await profilePage.evaluate(()=>({
+   friends:window.__vatraFriendLimitCalls.filter(n=>n===300).length,
+   gifts:window.__vatraGiftLimitCalls.filter(n=>n===100).length
+  })),{friends:1,gifts:1},"Each full profile list should be fetched once and reused");
   console.log("VATRA profile boot diagnostic",JSON.stringify(await profilePage.evaluate(()=>({
    ready:document.body.dataset.authReady,loader:document.querySelector("#profile-loading")?.dataset,
    loadingCopy:document.querySelector("#profile-loading .vatra-auth-loading-caption")?.textContent,
