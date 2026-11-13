@@ -202,9 +202,9 @@ async function openDirectory(client){
  const search=$("#feed-search-input");
  if(search&&term)search.value=term;
  try{
-  // OFF until Supabase Edge Secrets contain a working Redis connection.
-  // Search remains a direct, indexed, RLS-protected database query.
-  const PUBLIC_DIRECTORY_CACHE_ENABLED=false;
+  // Redis Cloud is connected: only the public, unfiltered directory uses the
+  // 15-second Edge cache. Search and any Edge outage use direct RLS queries.
+  const PUBLIC_DIRECTORY_CACHE_ENABLED=true;
   let data=null;
   if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED&&client.functions?.invoke){
    try{
