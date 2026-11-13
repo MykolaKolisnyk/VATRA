@@ -2560,6 +2560,7 @@ try{
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
@@ -2648,15 +2649,18 @@ try{
     scrollHeight:l.scrollHeight,clientHeight:l.clientHeight,
     headerTop:header.top,headerBottom:header.bottom,firstRowTop:first.top,
     searchLeft:document.querySelector("#feed-search-form").getBoundingClientRect().left,
+    backLeft:document.querySelector("#vatra-search-back").getBoundingClientRect().left,
+    searchRight:document.querySelector("#feed-search-form").getBoundingClientRect().right,
     panelZ:parseInt(getComputedStyle(panel).zIndex),
     headerZ:parseInt(getComputedStyle(document.querySelector(".feed-header")).zIndex),
     navigation};
   });
   assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
-   Math.abs(menuGeometry.left-menuGeometry.searchLeft)<=5&&
+   Math.abs(menuGeometry.left-menuGeometry.backLeft)<=5&&
+   Math.abs(menuGeometry.right-menuGeometry.searchRight)<=6&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search must open under its input, not centred on the header: "+JSON.stringify(menuGeometry));
+   "Search sheet must cover Back arrow through the right edge of the input: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -2869,10 +2873,13 @@ try{
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
      filterWidth:filters.width,composeLeft:composer.left,
      composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
-     screenWidth:innerWidth};
+     storiesLeft:stories.left,screenWidth:innerWidth};
    });
    assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
     "Feed filter must stay at the far right edge: "+JSON.stringify(filterGeometry));
+   assert.ok(Math.abs(filterGeometry.storiesWidth-filterGeometry.composerWidth)<3&&
+    Math.abs(filterGeometry.storiesLeft-filterGeometry.composeLeft)<3,
+    "Create post and Your story must use exactly the same left-column width");
    assert.ok(filterGeometry.screenWidth>760?
     (filterGeometry.composerWidth>filterGeometry.filterWidth*1.7&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+6&&
@@ -2880,9 +2887,9 @@ try{
      filterGeometry.storyTop>=filterGeometry.filterBottom-3):
     (Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<3&&
      Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
-     filterGeometry.filterTop>=filterGeometry.composerBottom-3&&
-     filterGeometry.storyTop>=filterGeometry.filterBottom-3),
-    "Feed composer must remain wide, filter compact on its right, then Stories: "+JSON.stringify(filterGeometry));
+     filterGeometry.storyTop>=filterGeometry.composerBottom-3&&
+     filterGeometry.filterTop>=filterGeometry.storyBottom-3),
+    "Feed composer and Story share left lane, filter right (stacked below on mobile): "+JSON.stringify(filterGeometry));
   }
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false,
    "Feed filter choices start collapsed");
@@ -2910,10 +2917,20 @@ try{
   await feedProbe.waitForFunction(()=>document.querySelectorAll("#feed-posts .feed-post-card").length===1);
   assert.equal(await feedProbe.locator('[data-feed-filter="all"]').getAttribute("aria-pressed"),"true",
    "All Feed restores the previously visible own post after Friends/Communities filters");
+  assert.equal(await feedProbe.locator(".vatra-post-owner-toggle").count(),1);
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),false);
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-archive-001").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-delete-001").isVisible(),true);
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
+  assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),false);
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   assert.equal(await feedProbe.locator("#feed-delete-dialog").evaluate(el=>el.open),true);
   await feedProbe.locator("#feed-delete-cancel").click();
   assert.equal(await feedProbe.locator(".feed-post-card").count(),1,"Cancelling must not delete a post");
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===0);
