@@ -79,6 +79,34 @@
   }
   return {names,images};
  }
+ // One bounded, caller-scoped RPC for all badges in a rendered page.
+ // No persistent/shared cache: saved and liked flags depend on current RLS identity.
+ async function prefetchEngagement(client,posts){
+  const unique=new Map();
+  for(const post of posts||[]){
+   const kind=post?.kind==="group"?"group":"person";
+   if(validUUID(post?.id))unique.set(kind+":"+post.id,{kind,id:post.id});
+  }
+  const requested=[...unique.values()],result=new Map();
+  if(!requested.length||typeof client?.rpc!=="function")return result;
+  try{
+   for(let i=0;i<requested.length;i+=24){
+    const {data,error}=await client.rpc("post_engagement_page",{
+     p_posts:requested.slice(i,i+24)
+    });
+    if(error)throw error;
+    for(const item of data||[]){
+     if(validUUID(item?.post_id)&&["group","person"].includes(item.post_kind))
+      result.set(item.post_kind+":"+item.post_id,item);
+    }
+   }
+   return result;
+  }catch(_){
+   // An uninstalled or unavailable RPC is a soft failure: individual
+   // RLS-protected counts remain as a backwards-compatible fallback.
+   return new Map();
+  }
+ }
 function appendAudience(container,level,isGroup=false){
   if(!container)return;
   const visibility=isGroup?"group":["public","friends","only_me"].includes(level)?level:"public";
@@ -170,6 +198,8 @@ function appendAudience(container,level,isGroup=false){
   const kind=post?.kind==="group"?"group":"person";
   if(!validUUID(post?.id)||!client||!container)return;
   const ownId=String(settings.ownId||""),userId=settings.userId;
+  const snapshot=settings.engagement?.post_id===post.id&&settings.engagement?.post_kind===kind?
+   settings.engagement:null;
   const shell=make("section","vatra-post-interactions ui-vatra-post-interactions-001");
   shell.setAttribute("aria-label",tr("Взаємодія з публікацією","Post interactions"));
   const row=make("div","vatra-post-action-row ui-vatra-post-action-row-001");
@@ -190,7 +220,7 @@ function appendAudience(container,level,isGroup=false){
   if(!validId(ownId))saved.hidden=true;
   row.append(like,commentsButton,share,saved);shell.append(row);
   if(validId(ownId)){
-   let stored=false,saveReady=false,savePending=null;
+   let stored=!!snapshot?.viewer_saved,saveReady=!!snapshot,savePending=null;
    const refresh=()=>{saved.setAttribute("aria-pressed",String(stored));
     saved.querySelector("span").textContent=stored?tr("Збережено","Saved"):tr("Зберегти","Save");};
    const hydrateSaved=()=>{
@@ -204,13 +234,14 @@ function appendAudience(container,level,isGroup=false){
     })().catch(()=>false).finally(()=>{savePending=null;});
     return savePending;
    };
+   if(snapshot)refresh();
    // Posts far below the viewport should not each hit post_saves on initial render.
-   if(typeof IntersectionObserver==="function"){
+   if(!snapshot&&typeof IntersectionObserver==="function"){
     const observer=new IntersectionObserver(entries=>{
      if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateSaved();}
     },{rootMargin:"160px"});
     observer.observe(shell);
-   }else void hydrateSaved();
+   }else if(!snapshot)void hydrateSaved();
    saved.addEventListener("click",async()=>{
     if(saved.disabled)return;saved.disabled=true;
     try{
@@ -230,9 +261,16 @@ function appendAudience(container,level,isGroup=false){
   const feedback=(message,bad=false)=>{
    status.hidden=!message;status.textContent=message;status.dataset.state=bad?"error":"ok";
   };
-  let likeReady=false,likePending=null,liked=false,likeCount=0;
+  let likeReady=!!snapshot,likePending=null,liked=!!snapshot?.viewer_liked,
+   likeCount=Math.max(0,Number(snapshot?.like_count)||0);
+  if(snapshot){
+   count.textContent=String(likeCount);
+   like.setAttribute("aria-pressed",String(liked));
+   like.classList.toggle("is-liked",liked);
+  }
   const likeFilter=query=>query.eq("post_kind",kind).eq("post_id",post.id);
   const hydrateLike=()=>{
+   if(likeReady)return Promise.resolve();
    if(likePending)return likePending;
    likePending=(async()=>{
     const [total,mine]=await Promise.all([
@@ -248,12 +286,12 @@ function appendAudience(container,level,isGroup=false){
     .finally(()=>{likePending=null;});
    return likePending;
   };
-  if(typeof IntersectionObserver!=="undefined"){
+  if(!snapshot&&typeof IntersectionObserver!=="undefined"){
    const observer=new IntersectionObserver(entries=>{
     if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateLike();}
    },{rootMargin:"160px"});
    observer.observe(shell);
-  }else{void hydrateLike();}
+  }else if(!snapshot){void hydrateLike();}
   like.addEventListener("click",async()=>{
    if(like.disabled)return;
    like.disabled=true;feedback("");
@@ -267,7 +305,7 @@ function appendAudience(container,level,isGroup=false){
     liked=!liked;likeCount+=liked?1:-1;
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
     count.textContent=String(Math.max(0,likeCount));
-    void refreshSocial();
+    // Comment and share totals did not change; no extra COUNTs after a like.
    }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update your like."),true);}
    finally{like.disabled=false;}
   });
@@ -788,14 +826,18 @@ function appendAudience(container,level,isGroup=false){
     if(!sharesResult.error)sharesCount.textContent=String(Number(sharesResult.count||0));
    }catch(_){/* Counters remain usable while RLS or network totals are unavailable. */}
   }
-  if(typeof IntersectionObserver!=="undefined"){
+  if(snapshot){
+   commentsCount.textContent=String(Math.max(0,Number(snapshot.comment_count)||0));
+   sharesCount.textContent=String(Math.max(0,Number(snapshot.share_count)||0));
+  }
+  if(!snapshot&&typeof IntersectionObserver!=="undefined"){
    const summaryObserver=new IntersectionObserver(entries=>{
     if(entries.some(x=>x.isIntersecting)){
      summaryObserver.disconnect();void refreshSocial();
     }
    },{rootMargin:"220px"});
    summaryObserver.observe(shell);
-  }else{void refreshSocial();}
+  }else if(!snapshot){void refreshSocial();}
   const shareMenu=make("dialog","vatra-post-share-dialog ui-vatra-post-share-dialog-001");
   shareMenu.setAttribute("aria-label",tr("Поділитися публікацією","Share post"));
   const shareHead=make("div","vatra-post-share-header ui-vatra-post-share-header-001");
@@ -997,5 +1039,5 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     tr("Ця публікація недоступна.","This post is unavailable.")));
   }
  }
- window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,appendAudience,addOwnerMenu};
+ window.VATRA_POST_INTERACTIONS={mount,renderSharedPreview,authorMap,prefetchEngagement,appendAudience,addOwnerMenu};
 })();

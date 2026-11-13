@@ -212,7 +212,7 @@
   }
   // Names and avatars are fetched only for the 12 visible posts or stories.
  }
- function card(post){
+ function card(post,engagement){
   const authorId=String(post.author_vatra_id);
   const mine=authorId===vatraId;
   const item=node("article","feed-post-card ui-feed-post-card-001");
@@ -262,7 +262,9 @@
    if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,item);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,item);
    window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
-    ownId:vatraId,userId:user?.id,onShared:()=>void loadPosts(true)
+    ownId:vatraId,userId:user?.id,
+    engagement:engagement?.get(post.kind+":"+post.id),
+    onShared:()=>void loadPosts(true)
    });
   return item;
  }
@@ -440,11 +442,13 @@
      renderedIds.add(direct.kind+":"+direct.id);
     }
    }
-   await Promise.all([
+   const [,,engagement]=await Promise.all([
     loadPublicNames(page.map(p=>p.author_vatra_id)),
-    loadAvatars(page.map(p=>p.author_vatra_id))
+    loadAvatars(page.map(p=>p.author_vatra_id)),
+    window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||
+     Promise.resolve(new Map())
    ]);
-   for(const item of page){visibleFeed.push(item);posts.append(card(item));}
+   for(const item of page){visibleFeed.push(item);posts.append(card(item,engagement));}
    const outstanding=[sourceState.person,sourceState.group].some(x=>x.queue.length||!x.done);
    more.hidden=!outstanding;
    displayEmpty();

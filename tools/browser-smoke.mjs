@@ -2709,6 +2709,52 @@ try{
    "Reopening the comment viewer refreshes its content using the selected sort");
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
+
+  const batchedPostStats=await feedProbe.evaluate(async()=>{
+   const idA="00000000-0000-4000-8000-000000000201";
+   const idB="00000000-0000-4000-8000-000000000202";
+   const calls=[];let rowQueries=0;
+   const query=new Proxy({},{
+    get(_target,key){
+     if(key==="then")return done=>Promise.resolve({data:[],error:null,count:0}).then(done);
+     return ()=>query;
+    }
+   });
+   const client={
+    from:()=>{rowQueries++;return query;},
+    rpc:async(name,args)=>{
+     calls.push({name,posts:args.p_posts});
+     return {data:args.p_posts.map((post,i)=>({
+      post_kind:post.kind,post_id:post.id,like_count:i+9,
+      comment_count:i+3,share_count:i+2,viewer_liked:true,viewer_saved:true
+     })),error:null};
+    }
+   };
+   const posts=[{kind:"person",id:idA},{kind:"group",id:idB}];
+   const batch=await window.VATRA_POST_INTERACTIONS.prefetchEngagement(client,posts);
+   const el=document.createElement("div");
+   el.id="vatra-smoke-batch-engagement";document.body.append(el);
+   window.VATRA_POST_INTERACTIONS.mount(client,posts[0],el,{
+    ownId:"654321",userId:"00000000-0000-4000-8000-000000000099",
+    engagement:batch.get("person:"+idA)
+   });
+   await new Promise(done=>setTimeout(done,200));
+   const value=selector=>el.querySelector(selector)?.textContent?.trim();
+   const result={
+    rpcCalls:calls.length,rpcName:calls[0]?.name,postCount:calls[0]?.posts?.length,
+    records:batch.size,rowQueries,
+    likes:value(".vt-vatra-post-like-count-001"),
+    comments:value(".vt-vatra-post-comments-count-001"),
+    shares:value(".vt-vatra-post-shares-count-001"),
+    liked:el.querySelector(".vt-vatra-post-like-001")?.getAttribute("aria-pressed"),
+    saved:el.querySelector(".vt-vatra-post-save-001")?.getAttribute("aria-pressed")
+   };
+   el.remove();return result;
+  });
+  assert.deepEqual(batchedPostStats,{
+   rpcCalls:1,rpcName:"post_engagement_page",postCount:2,records:2,rowQueries:0,
+   likes:"9",comments:"3",shares:"2",liked:"true",saved:"true"
+  },"Two posts must hydrate from one RPC without per-post network queries");
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
