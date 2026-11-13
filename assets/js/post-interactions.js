@@ -748,7 +748,7 @@ function appendAudience(container,level,isGroup=false){
   const shareTitle=make("h2","vt-vatra-post-share-heading-001",tr("Поділитися","Share"));
   const shareClose=make("button","vt-vatra-post-share-close-001");
   shareClose.type="button";shareClose.setAttribute("aria-label",tr("Закрити","Close"));
-  shareClose.textContent="×";
+  shareClose.append(glyph("x"));
   shareClose.addEventListener("click",()=>shareMenu.close());
   shareHead.append(shareTitle,shareClose);
   const shareContent=make("div","vatra-post-share-body ui-vatra-post-share-body-001");
