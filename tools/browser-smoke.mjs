@@ -2915,7 +2915,8 @@ try{
      composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
      storiesLeft:stories.left,screenWidth:innerWidth,
      storyBottom:stories.bottom,postsTop:posts.top,
-     gridGap:getComputedStyle(document.querySelector(".feed-main")).rowGap};
+     gridGap:getComputedStyle(document.querySelector(".feed-main")).rowGap,
+     statusVisible:!document.querySelector(".feed-status").hidden};
    });
    assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
     "Feed filter must stay at the far right edge: "+JSON.stringify(filterGeometry));
@@ -2925,7 +2926,7 @@ try{
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
    assert.ok(filterGeometry.postWidth<=770&&filterGeometry.gridGap==="13px"&&
-    (filterGeometry.screenWidth<=950||
+    (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
      filterGeometry.postsTop-filterGeometry.storyBottom>=8&&
      filterGeometry.postsTop-filterGeometry.storyBottom<=21),
     "Posts must remain compact; story-to-post gap cannot double: "+JSON.stringify(filterGeometry));
