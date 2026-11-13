@@ -1554,6 +1554,18 @@ assert.ok(
  !socialDomainMigration.includes("DROP CASCADE"),
  "All 14 physical renames must retain legacy caller-scoped views, notification triggers and RLS");
 
+const lastProfileRename=await read("supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
+assert.ok(
+ lastProfileRename.includes("ALTER TABLE public.vatra_profile_details RENAME TO profile_details;")&&
+ lastProfileRename.includes("ALTER TABLE public.vatra_profile_preferences RENAME TO profile_preferences;")&&
+ lastProfileRename.includes("CREATE VIEW public.vatra_profile_details WITH (security_invoker = true)")&&
+ lastProfileRename.includes("CREATE VIEW public.vatra_profile_preferences WITH (security_invoker = true)")&&
+ profileScript.includes('client.from("profile_details")')&&
+ profileScript.includes('client.from("profile_preferences")')&&
+ !profileScript.includes('client.from("vatra_profile_details")')&&
+ !profileScript.includes('client.from("vatra_profile_preferences")'),
+ "The last two profile upserts must use physical tables with legacy RLS views");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
