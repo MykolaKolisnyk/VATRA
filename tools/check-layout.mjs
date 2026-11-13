@@ -1483,7 +1483,10 @@ assert.ok(
  !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
  !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
  publicRedisEdge.includes('Cache-Control": "no-store"')&&
- (await read("docs/redis-cache-policy.md")).includes("15 seconds"),
+ (await read("docs/redis-cache-policy.md")).includes("15 seconds")&&
+ communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=false")&&
+ communityScript.includes('client.functions.invoke("public-community-directory",{method:"GET"})')&&
+ communityScript.includes("if(!data){"),
  "Optional Redis must cache public catalog only, fail open, and keep secrets server-side");
 
 const notificationPerfScript=await read("assets/js/notifications.js");
