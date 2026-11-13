@@ -75,7 +75,17 @@
    const close=document.createElement("button");
    close.type="button";
    close.className="vatra-error-dismiss vt-vatra-error-dismiss-"+id;
-   close.textContent="×";
+   const closeIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   closeIcon.setAttribute("class","ui-vatra-error-dismiss-icon-"+id);
+   closeIcon.setAttribute("viewBox","0 0 24 24");
+   closeIcon.setAttribute("width","18");closeIcon.setAttribute("height","18");
+   closeIcon.setAttribute("fill","none");closeIcon.setAttribute("stroke","currentColor");
+   closeIcon.setAttribute("stroke-width","1.8");closeIcon.setAttribute("stroke-linecap","round");
+   closeIcon.setAttribute("aria-hidden","true");
+   const cross=document.createElementNS("http://www.w3.org/2000/svg","path");
+   cross.setAttribute("class","ui-vatra-error-dismiss-path-"+id);
+   cross.setAttribute("d","M6 6l12 12M18 6 6 18");closeIcon.append(cross);
+   close.append(closeIcon);
    close.setAttribute("aria-label",english()?"Dismiss":"Закрити");
    toast.append(icon,info,close);
    stack.append(toast);
