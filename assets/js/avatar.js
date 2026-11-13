@@ -41,76 +41,6 @@ async function states(client,ids){
  }catch(_){}
  return result;
 }
-const accentCache=new Map();
-const DEFAULT_ACCENT="#497bd4";
-function portraitColor(image){
- const canvas=document.createElement("canvas");
- canvas.width=48;canvas.height=48;
- const context=canvas.getContext("2d",{willReadFrequently:true});
- if(!context)return DEFAULT_ACCENT;
- context.drawImage(image,0,0,48,48);
- const pixels=context.getImageData(0,0,48,48).data;
- const bins=Array.from({length:24},()=>({weight:0,sin:0,cos:0,saturation:0,lightness:0}));
- for(let i=0;i<pixels.length;i+=4){
-  const alpha=pixels[i+3]/255;
-  if(alpha<.72)continue;
-  const r=pixels[i]/255,g=pixels[i+1]/255,b=pixels[i+2]/255;
-  const high=Math.max(r,g,b),low=Math.min(r,g,b),delta=high-low;
-  const lightness=(high+low)/2;
-  if(delta<.035||lightness<.08||lightness>.92)continue;
-  const saturation=delta/(1-Math.abs(2*lightness-1));
-  if(!Number.isFinite(saturation)||saturation<.13)continue;
-  let hue=0;
-  if(high===r)hue=((g-b)/delta)%6;
-  else if(high===g)hue=(b-r)/delta+2;
-  else hue=(r-g)/delta+4;
-  hue=(hue*60+360)%360;
-  const index=Math.min(23,Math.floor(hue/15));
-  const weight=alpha*Math.pow(saturation,1.55)*
-   (.5+Math.min(lightness,1-lightness))*
-   (1+(.18*(1-Math.abs((Math.floor(i/4)%48)-23.5)/23.5)));
-  const bin=bins[index],radians=hue*Math.PI/180;
-  bin.weight+=weight;bin.sin+=Math.sin(radians)*weight;
-  bin.cos+=Math.cos(radians)*weight;
-  bin.saturation+=saturation*weight;bin.lightness+=lightness*weight;
- }
- let best=0;
- for(let i=1;i<bins.length;i++){
-  if(bins[i].weight>bins[best].weight)best=i;
- }
- if(bins[best].weight<.08)return DEFAULT_ACCENT;
- // Keep one coherent hue family instead of averaging different colors into grey.
- let weight=0,sin=0,cos=0,saturation=0,lightness=0;
- for(const i of [(best+23)%24,best,(best+1)%24]){
-  const b=bins[i];weight+=b.weight;sin+=b.sin;cos+=b.cos;
-  saturation+=b.saturation;lightness+=b.lightness;
- }
- const hue=(Math.atan2(sin,cos)*180/Math.PI+360)%360;
- const finalSat=Math.max(.56,Math.min(.82,saturation/weight*1.13));
- const finalLight=Math.max(.39,Math.min(.57,lightness/weight));
- return "hsl("+Math.round(hue)+" "+Math.round(finalSat*100)+"% "+Math.round(finalLight*100)+"%)";
-}
-function accent(element,url){
- if(!element)return;
- const source=url||asset(),put=color=>{
-  if(element.dataset.vatraAccentSource===source)
-   element.style.setProperty("--vatra-avatar-accent",color);
- };
- element.dataset.vatraAccentSource=source;
- // Never show a grey ring, even while the photo is decoding.
- if(accentCache.has(source)){put(accentCache.get(source));return;}
- put(DEFAULT_ACCENT);
- const image=new Image();
- image.crossOrigin="anonymous";
- image.onload=()=>{
-  let color=DEFAULT_ACCENT;
-  try{color=portraitColor(image);}catch(_){/* CORS or decode failure: keep brand blue. */}
-  accentCache.set(source,color);put(color);
- };
- image.onerror=()=>{accentCache.set(source,DEFAULT_ACCENT);put(DEFAULT_ACCENT);};
- image.src=source;
-}
-
 function safeUrl(input){
  if(typeof input!=="string")return null;
  try{
@@ -307,5 +237,5 @@ function applyRemembered(element,email){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",primeHeader,{once:true});
 else primeHeader();
-window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,fallback,clearFallback,states,accent};
+window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,fallback,clearFallback,states};
 })();
