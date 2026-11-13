@@ -80,17 +80,34 @@
   }
   return {names,images};
  }
- // One bounded, caller-scoped RPC for all badges in a rendered page.
- // No persistent/shared cache: saved and liked flags depend on current RLS identity.
+ // A short-lived, per-client cache for already-RLS-scoped engagement pages.
+ // Never send viewer_liked or viewer_saved to shared Redis.
+ const engagementQueryCache=new WeakMap();
+ const ENGAGEMENT_TTL_MS=3_000,ENGAGEMENT_MAX_PAGES=16;
+ function invalidateEngagement(client){
+  if(client)engagementQueryCache.delete(client);
+ }
  async function prefetchEngagement(client,posts){
   const unique=new Map();
   for(const post of posts||[]){
    const kind=post?.kind==="group"?"group":"person";
    if(validUUID(post?.id))unique.set(kind+":"+post.id,{kind,id:post.id});
   }
-  const requested=[...unique.values()],result=new Map();
-  if(!requested.length||typeof client?.rpc!=="function")return result;
-  try{
+  const requested=[...unique.values()],empty=new Map();
+  if(!requested.length||typeof client?.rpc!=="function")return empty;
+  const key=requested.map(post=>post.kind+":"+post.id).sort().join("|");
+  let cache=engagementQueryCache.get(client);
+  if(!cache){cache=new Map();engagementQueryCache.set(client,cache);}
+  const previous=cache.get(key);
+  if(previous){
+   if(previous.pending){
+    try{return new Map(await previous.pending);}catch(_){return new Map();}
+   }
+   if(previous.expires>Date.now())return new Map(previous.data);
+   cache.delete(key);
+  }
+  const pending=(async()=>{
+   const result=new Map();
    for(let i=0;i<requested.length;i+=24){
     const {data,error}=await client.rpc("post_engagement_page",{
      p_posts:requested.slice(i,i+24)
@@ -102,9 +119,20 @@
     }
    }
    return result;
+  })();
+  cache.set(key,{pending,expires:0});
+  try{
+   const result=await pending;
+   // A like/save/comment written during the request invalidates its old snapshot.
+   if(engagementQueryCache.get(client)===cache){
+    cache.delete(key);
+    cache.set(key,{data:new Map(result),expires:Date.now()+ENGAGEMENT_TTL_MS});
+    while(cache.size>ENGAGEMENT_MAX_PAGES)cache.delete(cache.keys().next().value);
+   }
+   return result;
   }catch(_){
-   // An uninstalled or unavailable RPC is a soft failure: individual
-   // RLS-protected counts remain as a backwards-compatible fallback.
+   if(engagementQueryCache.get(client)===cache)cache.delete(key);
+   // The RLS-protected per-card fallback remains available if the RPC fails.
    return new Map();
   }
  }
@@ -251,7 +279,7 @@ function appendAudience(container,level,isGroup=false){
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id):
       await client.from("post_saves").insert({owner_vatra_id:ownId,post_kind:kind,post_id:post.id});
      if(result.error)throw result.error;
-     stored=!stored;refresh();
+     stored=!stored;refresh();invalidateEngagement(client);
     }catch(_){saved.title=tr("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Retry.");}
     finally{saved.disabled=false;}
    });
@@ -306,6 +334,7 @@ function appendAudience(container,level,isGroup=false){
     liked=!liked;likeCount+=liked?1:-1;
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
     count.textContent=String(Math.max(0,likeCount));
+    invalidateEngagement(client);
     // Comment and share totals did not change; no extra COUNTs after a like.
    }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update your like."),true);}
    finally{like.disabled=false;}
@@ -792,6 +821,7 @@ function appendAudience(container,level,isGroup=false){
     }
     const result=await client.from("post_comments").insert(payload);
     if(result.error)throw result.error;
+    invalidateEngagement(client);
     input.value="";chosenFile=null;fileInput.value="";
     attachmentPreview.hidden=true;stopReply();updateSend();
     if(target&&rootReplies.has(target.id))await rootReplies.get(target.id).expand(true);
@@ -938,6 +968,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
      body,visibility:shareAudience.value,shared_post_kind:kind,shared_post_id:post.id
     });
     if(result.error)throw result.error;
+    invalidateEngagement(client);
     shareMenu.close();shareCaption.value="";
     feedback(tr("Публікацію додано на вашу сторінку.","Shared to your profile."));
     if(typeof settings.onShared==="function")settings.onShared();
