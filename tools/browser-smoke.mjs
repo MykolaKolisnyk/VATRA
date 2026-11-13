@@ -2650,9 +2650,12 @@ try{
   ],"Both roots must have a single batched reply count query");
   assert.equal(await feedProbe.evaluate(()=>window.__vatraSmokeParentCountQueries),0,
    "No per-comment reply count queries may run for root comments");
-  assert.deepEqual(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-comment-expand-replies-001").allTextContents(),
-   ["2 відповідей","1 відповідь"],
-   "Batched totals must preserve each reply count label");
+  const replyLabels=await feedProbe.locator(
+   "#vatra-smoke-inline-interactions .vt-vatra-comment-expand-replies-001").allTextContents();
+  const replyLocale=await feedProbe.evaluate(()=>document.documentElement.lang);
+  assert.deepEqual(replyLabels,replyLocale==="en"?
+   ["2 replies","1 reply"]:["2 відповідей","1 відповідь"],
+   "Batched totals must preserve each localized reply count label");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
