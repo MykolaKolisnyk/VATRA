@@ -2435,10 +2435,10 @@ body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger .profile-avatar{transition:none!important;filter:none!important;transform:none!important}
 
 /* Override legacy CSS-drawn silhouettes with the supplied high-resolution WebP. */
-body.profile-page.feed-page .profile-avatar:not(.has-photo){background-color:#e9f0fa;background-image:url("/VATRA/assets/avatars/2048px/avatar-default.webp")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
-body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/2048px/avatar-deleted.webp")!important}
-body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/2048px/avatar-blocked.webp")!important}
-body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="not-found"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/2048px/avatar-not-found.webp")!important}
+body.profile-page.feed-page .profile-avatar:not(.has-photo){background-color:#e9f0fa;background-image:url("/VATRA/assets/avatars/avatar-default.png")!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/avatar-deleted.png")!important}
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/avatar-blocked.png")!important}
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="not-found"]:not(.has-photo){background-image:url("/VATRA/assets/avatars/avatar-not-found.png")!important}
 body.profile-page.feed-page .profile-avatar:not(.has-photo)::before,body.profile-page.feed-page .profile-avatar:not(.has-photo)::after,body.profile-page .profile-friend-portrait:not(.has-photo)::before,body.profile-page .profile-friend-portrait:not(.has-photo)::after{content:none!important;display:none!important}
 body.profile-page .profile-friend-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-size:cover!important;background-position:center!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
@@ -2453,21 +2453,30 @@ body.profile-page .profile-avatar-trigger:disabled{
    Match the real-image and WebP avatar edge to the dominant portrait color. */
 body.profile-page .profile-avatar-wrap::before{
  content:"";position:absolute;inset:-6px;z-index:0;border-radius:50%;
- background:var(--vatra-avatar-accent,#7990b6);
- box-shadow:0 0 0 1px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 65%,white);
+ background:var(--vatra-avatar-accent,#497bd4);
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 65%,white);
  pointer-events:none
 }
 body.profile-page .profile-avatar-wrap .profile-avatar{
- border-color:var(--vatra-avatar-accent,#7990b6)!important;
+ border-color:var(--vatra-avatar-accent,#497bd4)!important;
  opacity:1!important
 }
 body.profile-page .profile-cover:not(.has-photo)::before{
- border-color:color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 68%,white);
- box-shadow:0 0 0 44px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 13%,transparent),
-            0 0 0 110px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 9%,transparent)
+ border-color:color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 68%,white);
+ box-shadow:0 0 0 44px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 13%,transparent),
+            0 0 0 110px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 9%,transparent)
 }
 body.profile-page .profile-cover:not(.has-photo) .profile-cover-motif{
- border:2px solid color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 83%,white);
- box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 22%,transparent),
-            0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 12%,transparent)
+ border:2px solid color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 83%,white);
+ box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 22%,transparent),
+            0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 12%,transparent)
+}
+
+/* The accent ring follows the current photo, including ordinary member portraits. */
+body.profile-page .profile-avatar-wrap .profile-avatar{
+ box-shadow:0 0 0 1px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 65%,white),
+            0 11px 26px rgba(44,79,176,.14)!important
+}
+body.profile-page .profile-avatar-wrap::before{
+ box-shadow:0 0 0 2px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 76%,white)!important
 }
