@@ -12,6 +12,17 @@ These are `security_invoker=true` **views**, not renamed physical tables. Existi
 `vatra_*` tables, triggers and older cached browser versions continue to work.
 No data was copied or deleted. Views have no INSERT/UPDATE/DELETE grants.
 
+## Completed: two more physical table renames
+
+Migration `20261113174858` renamed `vatra_post_like_members` to
+`post_like_members`, and `vatra_profile_reports` to `profile_reports`.
+The private public-like trigger now writes to `post_like_members`. Old
+`vatra_post_like_members` remains a read-only RLS-invoker view; the previous
+report-submission API name `vatra_profile_reports` remains an automatically
+updatable RLS-invoker view with **INSERT only** for authenticated members.
+The current browser code uses the new real `profile_reports` table. Anon
+has no report write permission. No user data was deleted.
+
 ## Remaining legacy names / proposed names
 
 | Legacy table | Proposed domain table |
@@ -26,12 +37,10 @@ No data was copied or deleted. Views have no INSERT/UPDATE/DELETE grants.
 | `vatra_friendships` | `friendships` |
 | `vatra_post_comment_likes` | `post_comment_likes` |
 | `vatra_post_comments` | `post_comments` |
-| `vatra_post_like_members` | `post_like_members` |
 | `vatra_post_likes` | `post_likes` |
 | `vatra_profile_details` | `profile_details` |
 | `vatra_profile_media` | `profile_media` |
 | `vatra_profile_preferences` | `profile_preferences` |
-| `vatra_profile_reports` | `profile_reports` |
 | `vatra_public_profiles` | `public_profiles` |
 | `vatra_stories` | `stories` |
 
