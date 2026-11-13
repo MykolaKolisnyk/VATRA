@@ -25,6 +25,16 @@ read only the directory (both old and new paths); gifts and account states can
 be selected only by authenticated roles. Sign-up and account deletion must
 still be tested end-to-end with real members before release.
 
+## Completed: two additional physical table renames
+
+Migration `20261113174858` renamed `vatra_post_like_members` to
+`post_like_members` and `vatra_profile_reports` to `profile_reports`.
+The private sync trigger now writes to the new physical like-member table.
+The old like-member name is an RLS-invoker SELECT-only view, and the old
+report name remains an automatically updatable RLS-invoker INSERT view for
+authenticated clients. The new browser reports directly to `profile_reports`.
+No user data was deleted.
+
 ## Remaining legacy names / proposed names
 
 | Legacy table | Proposed domain table |
@@ -39,12 +49,10 @@ still be tested end-to-end with real members before release.
 | `vatra_friendships` | `friendships` |
 | `vatra_post_comment_likes` | `post_comment_likes` |
 | `vatra_post_comments` | `post_comments` |
-| `vatra_post_like_members` | `post_like_members` |
 | `vatra_post_likes` | `post_likes` |
 | `vatra_profile_details` | `profile_details` |
 | `vatra_profile_media` | `profile_media` |
 | `vatra_profile_preferences` | `profile_preferences` |
-| `vatra_profile_reports` | `profile_reports` |
 | `vatra_public_profiles` | `public_profiles` |
 | `vatra_stories` | `stories` |
 

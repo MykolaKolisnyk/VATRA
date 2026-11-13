@@ -1555,6 +1555,17 @@ assert.ok(
  !welcomeGiftRenameSql.includes("insert into public.vatra_profile_gifts("),
  "Signup welcome-gift trigger must use physical table after renaming it");
 
+const renamedLikerAndReports=await read("supabase/migrations/20261113174858_rename_post_like_members_and_profile_reports_preserving_rls_compatibility.sql");
+assert.ok(
+ renamedLikerAndReports.includes("ALTER TABLE public.vatra_post_like_members RENAME TO post_like_members;")&&
+ renamedLikerAndReports.includes("ALTER TABLE public.vatra_profile_reports RENAME TO profile_reports;")&&
+ renamedLikerAndReports.includes("insert into public.post_like_members(")&&
+ renamedLikerAndReports.includes("CREATE VIEW public.vatra_profile_reports WITH (security_invoker = true)")&&
+ renamedLikerAndReports.includes("GRANT INSERT ON TABLE public.vatra_profile_reports TO authenticated;")&&
+ profileScript.includes('client.from("profile_reports").insert(')&&
+ !profileScript.includes('client.from("vatra_profile_reports")'),
+ "Profile reports and public like membership tables must retain RLS and legacy client write support");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
