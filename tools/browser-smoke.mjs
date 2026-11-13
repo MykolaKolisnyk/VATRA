@@ -2530,6 +2530,27 @@ try{
   assert.deepEqual(hashtagProbe.searches,hashtagProbe.tags,
    "Hashtag links must open a real Feed query");
   assert.equal(hashtagProbe.unsafeElements,0,"Post text must not execute arbitrary HTML");
+  const gallerySafety=await feedProbe.evaluate(()=>{
+   const image=new File([new Uint8Array([1])],"one.png",{type:"image/png"});
+   const video=new File([new Uint8Array([1])],"one.mp4",{type:"video/mp4"});
+   let tooMany=false,tooManyVideos=false;
+   try{window.VATRA_POST_MEDIA.validateGallery(Array(13).fill(image));}catch(_){tooMany=true;}
+   try{window.VATRA_POST_MEDIA.validateGallery(Array(5).fill(video));}catch(_){tooManyVideos=true;}
+   const host=document.createElement("div");host.id="vatra-smoke-gallery";document.body.append(host);
+   const media_items=Array.from({length:7},(_,i)=>({
+    media_kind:"image",media_path:"12/posts/"+String(i).padStart(8,"0")+"-1234-4567-abcd-0123456789ab.jpg"
+   }));
+   void window.VATRA_POST_MEDIA.mount({storage:{from:()=>({
+    createSignedUrl:async()=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/example"}})
+   })}},{author_vatra_id:"12",media_items},host);
+   return {tooMany,tooManyVideos};
+  });
+  assert.equal(gallerySafety.tooMany,true,"A post must reject more than twelve attachments");
+  assert.equal(gallerySafety.tooManyVideos,true,"A post must reject more than four videos");
+  assert.equal(await feedProbe.locator("#vatra-smoke-gallery .vatra-post-gallery-tile").count(),5,
+   "A seven-photo post must render a five-tile mosaic, not seven giant images");
+  assert.equal((await feedProbe.locator("#vatra-smoke-gallery .vt-vatra-post-gallery-extra-001").textContent()).trim(),"+2");
+  await feedProbe.locator("#vatra-smoke-gallery").evaluate(el=>el.remove());
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
