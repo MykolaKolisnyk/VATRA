@@ -2089,3 +2089,18 @@ assert.ok(
  (engagementCacheController.match(/invalidateEngagement\(client\);/g)||[]).length>=4,
  "Viewer engagement cache must remain bounded, batched and invalidated after writes");
 await import("./engagement-cache-smoke.mjs");
+
+/* Re-ranked paged comments: SQL query must count each comment's likes once
+   and precompute current-viewer friend IDs, without bypassing RLS. */
+const commentThreadSqlOptimization=await read(
+ "supabase/migrations/20261113185828_optimize_comment_thread_friend_and_like_counts.sql");
+assert.ok(
+ commentThreadSqlOptimization.includes("WITH friend_ids AS MATERIALIZED")&&
+ commentThreadSqlOptimization.includes("LEFT JOIN LATERAL (")&&
+ commentThreadSqlOptimization.includes("WHERE cl.comment_id = c.id")&&
+ commentThreadSqlOptimization.includes("FROM public.friendships f")&&
+ commentThreadSqlOptimization.includes("FROM public.post_comments c")&&
+ commentThreadSqlOptimization.includes("LANGUAGE sql")&&
+ !commentThreadSqlOptimization.includes("SECURITY DEFINER")&&
+ (commentThreadSqlOptimization.match(/count\(\*\)::bigint/g)||[]).length===1,
+ "RLS-secured comment pages must precompute friends and count likes once");
