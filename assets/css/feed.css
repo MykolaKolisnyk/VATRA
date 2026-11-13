@@ -519,13 +519,13 @@ body.feed-page .vt-vatra-post-original-unavailable-001{
  body.feed-page .vatra-post-comment-form{flex-wrap:wrap}
  body.feed-page .vt-vatra-post-comment-send-001{margin-left:auto}
 }
-body.feed-page .feed-post-media{margin-top:13px;overflow:hidden;border-radius:12px;background:#f5f7fc}
+body.feed-page .feed-post-media{margin-top:12px;overflow:hidden;border-radius:12px;background:#f5f7fc}
 body.feed-page .feed-post-media-image,
 body.feed-page .feed-post-media-video{
- display:block;width:100%;max-height:640px;object-fit:contain;
+ display:block;width:100%;max-height:440px;object-fit:contain;
  border-radius:12px;background:#0d1018
 }
-body.feed-page .feed-post-media-video{max-height:520px}
+body.feed-page .feed-post-media-video{max-height:440px}
 body.feed-page .vt-feed-post-media-error-001{
  margin:0;padding:18px;color:#74839b;font:520 13px/1.5 "Onest",system-ui,sans-serif
 }
@@ -932,10 +932,10 @@ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:non
    all posts share a column without the filter stealing content width. */
 body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
  display:grid!important;
- grid-template-columns:minmax(170px,220px) minmax(0,1fr)!important;
- gap:24px!important;align-items:start!important;justify-content:center!important;
- width:min(calc(100% - 36px),1332px)!important;max-width:1332px!important;
- margin:22px auto 54px!important;flex:1;position:relative
+ grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important;
+ gap:20px!important;align-items:start!important;justify-content:center!important;
+ width:min(calc(100% - 36px),1190px)!important;max-width:1190px!important;
+ margin:20px auto 50px!important;flex:1;position:relative
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
  grid-column:1;grid-row:1;position:static!important;width:100%;max-width:none;
@@ -943,8 +943,8 @@ body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
  grid-column:2;grid-row:1;
- display:grid!important;grid-template-columns:minmax(0,1fr) 230px!important;
- column-gap:22px!important;row-gap:14px!important;align-items:start!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important;
+ column-gap:20px!important;row-gap:13px!important;align-items:start!important;
  width:100%;max-width:none;min-width:0;margin:0!important
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{display:contents!important}
@@ -956,7 +956,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .fee
  grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;align-self:start
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
- grid-column:2;grid-row:1 / span 4;
+ grid-column:2;grid-row:1;
  position:sticky!important;top:calc(var(--vatra-header-height,64px) + 16px);
  align-self:start;justify-self:stretch;width:100%;max-width:none;min-width:0;
  min-height:72px;padding:10px 12px;margin:0;
@@ -969,12 +969,16 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .fee
  grid-column:1;grid-row:3;width:100%;min-width:0;margin:0
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{
- grid-column:1;grid-row:4;width:100%;min-width:0;margin:0
+ grid-column:1;grid-row:3;width:100%;min-width:0;margin:0
+}
+/* A hidden status must not reserve an empty grid track before posts. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{
+ grid-row:4
 }
 @media(max-width:1200px){
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
   grid-template-columns:minmax(0,1fr)!important;
-  width:min(calc(100% - 32px),1050px)!important;gap:20px!important
+  width:min(calc(100% - 32px),960px)!important;gap:18px!important
  }
  body.feed-page:not(.community-page):not(.profile-page) .feed-main{grid-column:1;grid-row:1}
  body.feed-page:not(.community-page):not(.profile-page) .feed-ad-sidebar{
@@ -984,18 +988,19 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .fee
 }
 @media(max-width:950px){
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
-  width:min(calc(100% - 24px),800px)!important
+  width:min(calc(100% - 24px),720px)!important
  }
  body.feed-page:not(.community-page):not(.profile-page) .feed-main{
   grid-template-columns:minmax(0,1fr)!important;
-  column-gap:0!important;row-gap:11px!important
+  column-gap:0!important;row-gap:13px!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
   position:static!important;grid-column:1;grid-row:3;
   min-height:52px;padding:6px 12px
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{grid-column:1;grid-row:4}
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-column:1;grid-row:5}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-column:1;grid-row:4}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:5}
 }
 @media(max-width:600px){
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
@@ -1027,7 +1032,7 @@ body.feed-page .ui-feed-story-logo-001{
 body.feed-page .vt-feed-stories-heading{font:760 clamp(18px,1.8vw,21px)/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.032em;color:#2C3850;text-rendering:optimizeLegibility}
 body.feed-page .feed-stories-heading{padding:0 2px}
 body.feed-page .feed-stories-track{
- display:flex;gap:9px;padding:1px 1px 5px;overflow-x:auto;
+ display:flex;gap:9px;padding:1px 1px 2px;overflow-x:auto;
  scroll-snap-type:x proximity;scrollbar-width:thin;overscroll-behavior-x:contain
 }
 body.feed-page .feed-story-create,
@@ -1166,7 +1171,7 @@ body.feed-page .feed-menu-settings-toggle:hover > svg{color:#3f6fe0}
 
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{
- padding:14px 16px;border-radius:13px;box-shadow:0 3px 12px rgba(35,55,95,.045)
+ padding:15px 17px;border-radius:16px;box-shadow:0 3px 12px rgba(35,55,95,.045)
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-card:hover{
  transform:none;box-shadow:0 5px 15px rgba(35,55,95,.055)
@@ -1178,7 +1183,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-post-avatar{
  width:39px;height:39px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-quick-compose{
- padding:10px 13px;min-height:61px;border-radius:13px
+ padding:10px 14px;min-height:61px;border-radius:16px
 }
 body.feed-page .feed-stories{position:relative;min-width:0}
 body.feed-page .feed-story-preview .feed-story-author-avatar{
@@ -2030,7 +2035,7 @@ body.feed-page .vatra-global-search-info small{
 /* Seamless, bandwidth-aware post media; never flash a half-downloaded photo. */
 body.feed-page .feed-post-media.is-loading-media{
  display:flex;align-items:stretch;justify-content:center;
- width:100%;min-height:clamp(160px,27vw,350px);background:#eef2f9;
+ width:100%;min-height:clamp(155px,24vw,280px);background:#eef2f9;
  border-radius:13px;overflow:hidden;isolation:isolate
 }
 body.feed-page .vatra-post-media-placeholder{
@@ -2044,12 +2049,12 @@ body.feed-page .feed-post-media .vt-feed-post-media-open-001{
  border-radius:12px;background:#f8faff;cursor:zoom-in;overflow:hidden
 }
 body.feed-page .feed-post-media .feed-post-media-image{
- display:block;width:100%;height:auto;max-height:650px;object-fit:contain;
+ display:block;width:100%;height:auto;max-height:440px;object-fit:contain;
  border-radius:12px;background:#f8faff;filter:none;
  animation:vatraMediaReveal .28s ease both
 }
 body.feed-page .feed-post-media .feed-post-media-video{
- display:block;width:100%;max-height:650px;object-fit:contain;border-radius:12px
+ display:block;width:100%;max-height:440px;object-fit:contain;border-radius:12px
 }
 @keyframes vatraMediaReveal{from{opacity:.4}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){
