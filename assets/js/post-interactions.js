@@ -368,7 +368,7 @@ function appendAudience(container,level,isGroup=false){
   panel.append(entries,more,form,status);shell.append(panel);
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
-  let commentOffset=0,busy=false,ticket=0,replyTarget=null,chosenFile=null,emojiMode="emoji";
+  let commentOffset=0,busy=false,ticket=0,pendingReset=false,replyTarget=null,chosenFile=null,emojiMode="emoji";
   const rootReplies=new Map();
   const stopReply=()=>{
    replyTarget=null;replying.hidden=true;replyingText.textContent="";
@@ -631,7 +631,11 @@ function appendAudience(container,level,isGroup=false){
    return card;
   }
   async function loadComments(reset=false){
-   if(busy)return;
+   if(busy){
+    // A sort change or reopened viewer must not be lost while a page is loading.
+    if(reset){pendingReset=true;ticket++;}
+    return;
+   }
    busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
    const token=++ticket;
    if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;rootReplies.clear();}
@@ -661,8 +665,12 @@ function appendAudience(container,level,isGroup=false){
      if(target)target.scrollIntoView({block:"center"});
     }
     feedback("");
-   }catch(_){feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);}
-   finally{busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");}
+   }catch(_){
+    if(token===ticket)feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);
+   }finally{
+    busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");
+    if(pendingReset){pendingReset=false;void loadComments(true);}
+   }
   }
   // Move the real post (not a duplicate) into a native dialog. This keeps
   // the same buttons, media and existing handlers working without double renders.
@@ -697,7 +705,8 @@ function appendAudience(container,level,isGroup=false){
    close.addEventListener("click",dismiss);
    dialog.addEventListener("click",event=>{if(event.target===dialog)dismiss();});
    dialog.showModal();close.focus({preventScroll:true});
-   if(commentOffset===0)void loadComments(true);
+   // Refresh on every open: counts and comment order may have changed meanwhile.
+   void loadComments(true);
   };
   commentsButton.addEventListener("click",openComments);
   if(new URLSearchParams(location.search).get("comment")&&
