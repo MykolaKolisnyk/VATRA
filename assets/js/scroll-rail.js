@@ -19,6 +19,16 @@
   path.setAttribute("d","m6 14 6-6 6 6");icon.append(path);name.prepend(icon);
   side.append(name);
   document.body.append(side);
+  // The sticky header is 61px on desktop and two rows on phones. Measure it
+  // instead of relying on an obsolete fixed 78px guess or a separate CSS fix.
+  const header=document.querySelector(".feed-header");
+  const position=()=>{
+   if(!header)return;
+   side.style.setProperty("--vatra-rail-top",Math.max(0,Math.ceil(header.getBoundingClientRect().bottom))+"px");
+  };
+  position();
+  if(header&&typeof ResizeObserver==="function")new ResizeObserver(position).observe(header);
+  window.addEventListener("resize",position,{passive:true});
   let pending=false;
   const update=()=>{
    pending=false;
