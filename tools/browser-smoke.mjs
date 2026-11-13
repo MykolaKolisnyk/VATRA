@@ -2574,6 +2574,18 @@ try{
   });
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),true,
    "Every valid UUID post must expose its comments directly beneath the actions");
+  const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
+   const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
+   return {
+    interactions:width(".vatra-post-interactions"),
+    actions:width(".vatra-post-action-row"),
+    comments:width(".vatra-post-comments-filter-row"),
+    composer:width(".vatra-post-comment-form")
+   };
+  });
+  assert.deepEqual(postDividers,{
+   interactions:"0px",actions:"0px",comments:"1px",composer:"0px"
+  },"One subtle divider before comments, no stacked lines beneath the photo");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-action-label-001").first().evaluate(
    el=>getComputedStyle(el).position),"absolute",
    "Post actions must show only icons while retaining accessible names");

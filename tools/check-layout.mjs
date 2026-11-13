@@ -1429,6 +1429,16 @@ assert.ok(searchLogic.includes("const left=ox;")&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
  "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
 
+// Post interactions have just one separator: before the comments section.
+// The shared feed.css handles Feed, personal and community posts equally.
+assert.ok(
+ systemFeedCss.includes('body.feed-page .vatra-post-interactions{\n margin-top:10px;padding-top:0;')&&
+ systemFeedCss.includes('padding:5px 0;margin-top:0')&&
+ systemFeedCss.includes('border-top:1px solid #e8eef6;padding-top:11px;margin-bottom:2px')&&
+ systemFeedCss.includes('margin-top:9px;padding:9px 0 2px!important')&&
+ systemFeedCss.includes('body.feed-page .feed-post-card .vatra-post-action-row{margin-top:0}'),
+ "Post footer has no stacked borders and keeps one comments divider");
+
 // Blocking is a real member-scoped Supabase relation. Restricted viewers
 // retain public header artwork while content and interactions are gated.
 assert.ok(
