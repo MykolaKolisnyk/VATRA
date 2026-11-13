@@ -1303,9 +1303,9 @@ assert.ok(
 feedMarkup.includes('id="feed-compose-media"') &&
  memberProfileMarkup.includes('id="profile-compose-media"') &&
  (await read("club.html")).includes('id="club-compose-media"') &&
- feedScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
- profileScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
- communityScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
+ feedScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
+ profileScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
+ communityScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  postMediaScript.includes('createSignedUrl(path,ttl)') &&
  postMediaScript.includes('ttl=3600') &&
  postMediaScript.includes('signed(client,kind,path,300)'),
