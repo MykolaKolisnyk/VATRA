@@ -2489,6 +2489,9 @@ body.profile-page .profile-avatar-wrap[data-vatra-ring-kind] .profile-avatar{
 
 /* Cover artwork is a real PNG image for each account state, not a painted
    gradient. All four system files use the same centered full-bleed geometry. */
+body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover:not(.has-photo){
+ background:#e9eef7!important
+}
 body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-system-001{
  position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;
  max-width:none;max-height:none;object-fit:cover;object-position:center center;
