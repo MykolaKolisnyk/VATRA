@@ -759,18 +759,15 @@ function appendAudience(container,level,isGroup=false){
   async function refreshSocial(){
    const ticket=++socialTicket;
    try{
-    const [likesResult,commentsResult,sharesResult]=await Promise.all([
-     likeFilter(client.from("vatra_post_likes").select("liker_id",{count:"exact",head:true})),
+    // Likes are already counted by hydrateLike(); avoid a second identical
+   // COUNT request for every visible post.
+   const [commentsResult,sharesResult]=await Promise.all([
      client.from("vatra_post_comments").select("id",{count:"exact",head:true})
       .eq("post_kind",kind).eq("post_id",post.id),
      client.from("feed_posts").select("id",{count:"exact",head:true})
       .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null)
     ]);
     if(!shell.isConnected||ticket!==socialTicket)return;
-    if(!likesResult.error){
-     likeCount=Number(likesResult.count||0);
-     count.textContent=String(Math.max(0,likeCount));
-    }
     if(!commentsResult.error)commentsCount.textContent=String(Number(commentsResult.count||0));
     if(!sharesResult.error)sharesCount.textContent=String(Number(sharesResult.count||0));
    }catch(_){/* Counters remain usable while RLS or network totals are unavailable. */}
