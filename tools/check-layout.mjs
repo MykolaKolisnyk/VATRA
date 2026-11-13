@@ -1500,7 +1500,7 @@ assert.ok(
  systemFeedCss.includes('grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('row-gap:13px!important')&&
  systemFeedCss.includes('.feed-main:has(.feed-status:not([hidden]))')&&
- systemFeedCss.includes('max-height:440px;object-fit:contain')&&
+ systemFeedCss.includes('max-height:640px;object-fit:contain')&&
  systemFeedCss.includes('width:min(calc(100% - 24px),720px)!important')&&
  systemProfileCss.includes('.profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:14px}')&&
  systemProfileCss.includes('.profile-left-stack{')&&
