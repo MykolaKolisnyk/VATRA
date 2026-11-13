@@ -25,6 +25,14 @@
   if(type==="heart")path("M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
   if(type==="comments")path("M20.5 11.6a8.5 8.5 0 0 1-8.6 8.1 9 9 0 0 1-3.8-.9L3 20l1.4-4.5A8.3 8.3 0 0 1 3.5 12a8.5 8.5 0 0 1 17 0Z M8 10h8M8 13.5h5");
   if(type==="bookmark")path("M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z");
+  if(type==="paperclip")path("m9 13 6-6a3.2 3.2 0 0 1 4.5 4.5l-8 8a5.2 5.2 0 0 1-7.4-7.4l8-8");
+  if(type==="camera")path("M4 7h3l2-3h6l2 3h3v13H4V7ZM12 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z");
+  if(type==="smile")path("M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 14c2.2 3 5.8 3 8 0M9 10h.01M15 10h.01");
+  if(type==="arrow")path("M4 12h15m-6-6 6 6-6 6");
+  if(type==="video")path("M4 5h13v14H4zM17 9l4-3v12l-4-3");
+  if(type==="file")path("M6 3h9l4 4v14H6V3ZM15 3v5h4");
+  if(type==="x")path("M5 5 19 19M19 5 5 19");
+
   if(type==="share"){
    path("M8.6 11.2 16 6.7M8.6 13 16 17.3");
    for(const [cx,cy] of [[5.3,12.2],[18,5.5],[18,18.5]]){
