@@ -155,7 +155,7 @@
   const paragraph=select("#profile-about-text");
   // Visibility and accepted friendship are independent RLS-checked reads.
   // Start both together so closed profiles do not pay an extra network round trip.
-  const preferenceQuery=client.from("vatra_profile_preferences")
+  const preferenceQuery=client.from("profile_preferences")
    .select("profile_visibility").eq("vatra_id",targetId).maybeSingle();
   const friendshipQuery=!isMine&&ownId?
    client.from("friendships")
@@ -170,7 +170,7 @@
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
   const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
-  const result=locked?{data:[],error:null}:await client.from("vatra_profile_details")
+  const result=locked?{data:[],error:null}:await client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
   const rows=result.error?[]:result.data||[];
   const saved=new Map(rows.map(x=>[x.field_key,{
@@ -567,18 +567,18 @@
     const additions=records.filter(x=>x.field_value);
     const deletions=records.filter(x=>!x.field_value).map(x=>x.field_key);
     if(additions.length){
-     const result=await client.from("vatra_profile_details")
+     const result=await client.from("profile_details")
       .upsert(additions,{onConflict:"vatra_id,field_key"}).select("field_key");
      if(result.error||result.data?.length!==additions.length)
       throw result.error||new Error("Profile fields not saved");
     }
     if(deletions.length){
-     const result=await client.from("vatra_profile_details")
+     const result=await client.from("profile_details")
       .delete().eq("vatra_id",ownId).in("field_key",deletions);
      if(result.error)throw result.error;
     }
     if(visibility!==accountVisibility){
-     const result=await client.from("vatra_profile_preferences")
+     const result=await client.from("profile_preferences")
       .upsert({vatra_id:ownId,profile_visibility:visibility,
        updated_at:new Date().toISOString()},{onConflict:"vatra_id"})
       .select("profile_visibility").maybeSingle();
