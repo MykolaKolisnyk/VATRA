@@ -781,6 +781,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map()));
   if(ticket!==profilePostsRequest)return;
   if(!append)list.replaceChildren();
+  const batch=document.createDocumentFragment();
   for(const post of rows){
    const article=node("article","feed-post-card ui-profile-post-card-001");
    article.dataset.postId=post.id;
@@ -844,8 +845,9 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     onShared:()=>{if(String(ownId)===String(targetId))
      void loadPosts(client,targetId,ownId,userId);}
    });
-   list.append(article);
+   batch.append(article);
   }
+  list.append(batch);
   list.dataset.offset=String(offset+rows.length);
   empty.hidden=list.querySelector(".feed-post-card")!==null;
   if(!empty.hidden)empty.textContent=year?

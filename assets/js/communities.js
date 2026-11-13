@@ -298,6 +298,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     }catch(_){}
    }
    const engagement=await engagementPromise;
+   const batch=document.createDocumentFragment();
    for(const post of rows){
     if(renderedPostIds.has(post.id))continue;
     renderedPostIds.add(post.id);
@@ -326,8 +327,9 @@ async function setupClubSocial(client,clubId,ownId,userId){
      ownId,userId,engagement:engagement.get("group:"+post.id),
      onShared:()=>void loadClubPosts()
     });
-    list.append(article);
+    batch.append(article);
    }
+   list.append(batch);
    if(focusRequestedPost){
     focusRequestedPost=false;
     const target=postPattern.test(linkedId||"")?

@@ -448,7 +448,9 @@
     window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||
      Promise.resolve(new Map())
    ]);
-   for(const item of page){visibleFeed.push(item);posts.append(card(item,engagement));}
+   const batch=document.createDocumentFragment();
+   for(const item of page){visibleFeed.push(item);batch.append(card(item,engagement));}
+   posts.append(batch);
    const outstanding=[sourceState.person,sourceState.group].some(x=>x.queue.length||!x.done);
    more.hidden=!outstanding;
    displayEmpty();

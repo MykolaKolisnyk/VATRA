@@ -1364,7 +1364,8 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('posts.append(card(item,engagement))')&&
+ feedScript.includes('batch.append(card(item,engagement))')&&
+ feedScript.includes('posts.append(batch)')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
@@ -2119,3 +2120,17 @@ assert.ok(
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("./community-detail-cache-smoke.mjs");
+
+/* Off-screen batch DOM rendering avoids repeated list-level mutations. */
+const batchedFeedPosts=await read("assets/js/feed.js");
+const batchedProfilePosts=await read("assets/js/profile.js");
+const batchedClubPosts=await read("assets/js/communities.js");
+assert.ok(
+ batchedFeedPosts.includes("batch.append(card(item,engagement))")&&
+ batchedFeedPosts.includes("posts.append(batch)")&&
+ batchedProfilePosts.includes("batch.append(article);")&&
+ batchedProfilePosts.includes("list.append(batch);")&&
+ batchedClubPosts.includes("const batch=document.createDocumentFragment();")&&
+ batchedClubPosts.includes("batch.append(article);")&&
+ batchedClubPosts.includes("list.append(batch);"),
+ "Feed, profile and club post pages must attach all cards in a single batch");
