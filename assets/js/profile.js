@@ -664,7 +664,7 @@ function missingProfile(state="not-found"){
  const coverPhoto=q("#profile-cover-photo"),coverView=q("#profile-cover-view");
  if(cover)cover.classList.remove("has-photo");
  if(systemCover){
-  systemCover.src=window.VATRA_AVATAR?.coverAsset(state)||"/VATRA/assets/covers/cover-not-found.png";
+  systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)||"/VATRA/assets/covers/cover-not-found.png";
   systemCover.dataset.vatraCoverState=state;
   systemCover.hidden=false;
  }
@@ -2062,19 +2062,21 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  coverPhoto.addEventListener("load",()=>{
   if(!photoURLs.cover||coverPhoto.src!==photoURLs.cover)return;
   coverPhoto.hidden=false;
-  systemCover.hidden=true;
+  if(systemCover)systemCover.hidden=true;
   cover.classList.add("has-photo");
   coverView.hidden=!canViewPhoto;
  });
  coverPhoto.addEventListener("error",()=>{
   coverPhoto.hidden=true;coverView.hidden=true;
-  systemCover.hidden=false;
+  if(systemCover)systemCover.hidden=false;
   cover.classList.remove("has-photo");
  });
  const display=record=>{
-  systemCover.src=window.VATRA_AVATAR?.coverAsset("default")||"/VATRA/assets/covers/cover-default.png";
-  systemCover.dataset.vatraCoverState="default";
-  systemCover.hidden=false;
+  if(systemCover){
+   systemCover.src=window.VATRA_AVATAR?.coverAsset?.("default")||"/VATRA/assets/covers/cover-default.png";
+   systemCover.dataset.vatraCoverState="default";
+   systemCover.hidden=false;
+  }
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
   if(isMine)window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,record?.avatar_path||null);
@@ -2088,7 +2090,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const coverReady=photoURLs.cover&&typeof coverPhoto.decode==="function"?
    coverPhoto.decode().then(()=>{
     if(!photoURLs.cover)return;
-    coverPhoto.hidden=false;systemCover.hidden=true;
+    coverPhoto.hidden=false;if(systemCover)systemCover.hidden=true;
     cover.classList.add("has-photo");coverView.hidden=!canViewPhoto;
    }).catch(()=>{}):Promise.resolve();
   resetImage(avatar);
