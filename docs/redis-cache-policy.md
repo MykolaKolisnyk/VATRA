@@ -14,8 +14,9 @@ The first opt-in Redis cache is the public community directory:
   private messages are **never** put into a shared Redis cache
 - Cache only rows readable under the `anon` RLS policy. Never use service-role
   credentials for cached queries.
-- Keep existing direct Supabase page requests until the Edge Function
-  connection is configured, benchmarked and explicitly enabled.
+- Redis cache was enabled for the public, unfiltered community directory
+  after the authenticated Edge test returned `X-VATRA-Cache: hit` on 2026-11-13.
+  Search requests and cache failures always use direct Supabase PostgREST.
 
 ## Opt in on Redis Cloud Free (development only)
 
@@ -35,12 +36,11 @@ runtime, not from the browser.
 4. Deploy `supabase/functions/public-community-directory` with
    JWT verification enabled (default). Test misses, hits, 15-second expiry,
    unavailable Redis, and any Cache-Control headers.
-5. Only after the backend has been tested, set
-   `PUBLIC_DIRECTORY_CACHE_ENABLED=true` in `assets/js/communities.js` and
-   benchmark **p50/p95 latency** versus the current direct Supabase request.
-   Keep the direct PostgREST path as an automatic fallback; searches never use Redis.
-   The shipped default is `false`, so the current site never adds an unnecessary
-   Edge hop when Redis has not been configured.
+5. `PUBLIC_DIRECTORY_CACHE_ENABLED=true` is now enabled for the public
+   community listing after a confirmed Redis hit. Search always bypasses the
+   cache, and the existing direct PostgREST path is the fallback. Monitor
+   **p50/p95 latency**, cache hit rate, and errors; revert to `false` if the
+   extra Edge hop outweighs caching benefits.
 
 ## Upgrade to paid Redis Cloud
 
