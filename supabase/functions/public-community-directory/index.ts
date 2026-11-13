@@ -36,6 +36,7 @@ async function redis() {
     redisConnection = (async () => {
       const client = createRedisClient({
         url: Deno.env.get("REDIS_URL")!,
+        disableOfflineQueue: true,
         socket: { connectTimeout: 700, reconnectStrategy: false },
       });
       client.on("error", () => {
@@ -50,7 +51,12 @@ async function redis() {
     });
   }
   const connection = await redisConnection;
-  return connection?.isOpen ? connection : null;
+  if (connection?.isOpen) return connection;
+  // A previously connected free-tier instance can close idle sockets.
+  // Avoid hanging on an offline queue and reconnect after a short cooldown.
+  redisConnection = null;
+  redisRetryAt = Date.now() + 60_000;
+  return null;
 }
 
 function validateCached(value: unknown): Community[] | null {
