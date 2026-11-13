@@ -175,7 +175,7 @@
     item.removeAttribute("data-vatra-coming-soon");
     item.removeAttribute("title");
     item.addEventListener("click",()=>{
-     location.assign(new URL("friends.html",new URL("./",location.href)).href);
+     location.assign(new URL("friends",new URL("./",location.href)).href);
     });
     continue;
    }
