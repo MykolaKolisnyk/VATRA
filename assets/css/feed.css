@@ -415,6 +415,7 @@ body.feed-page .vatra-post-gallery-tile{
  border:0;border-radius:0;background:#e8edf5;cursor:zoom-in
 }
 body.feed-page .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile{max-height:640px}
+body.feed-page .vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind="video"]{aspect-ratio:16/9}
 body.feed-page .vatra-post-gallery-tile>img,
 body.feed-page .vatra-post-gallery-tile>video{
  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
