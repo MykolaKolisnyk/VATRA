@@ -1547,6 +1547,14 @@ assert.ok(
  physicalRenameSql.includes("COMMIT;"),
  "Physical renames must preserve signup/state trigger writes and old-client RLS-only SELECT aliases");
 
+const welcomeGiftRenameSql=await read("supabase/migrations/20261113175142_fix_welcome_gift_after_physical_profile_gifts_rename.sql");
+assert.ok(
+ welcomeGiftRenameSql.includes("CREATE OR REPLACE FUNCTION vatra_internal.award_welcome_gift()")&&
+ welcomeGiftRenameSql.includes("insert into public.profile_gifts(")&&
+ welcomeGiftRenameSql.includes("on conflict (recipient_vatra_id,gift_code) do nothing;")&&
+ !welcomeGiftRenameSql.includes("insert into public.vatra_profile_gifts("),
+ "Signup welcome-gift trigger must use physical table after renaming it");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
