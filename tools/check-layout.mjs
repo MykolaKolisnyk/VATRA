@@ -1492,6 +1492,13 @@ assert.ok(
  (await read("club.html")).includes('id="club-posts-more"'),
  "Community posts must paginate in small bounded pages without duplicate deep links");
 
+const feedPostGrantMigration=await read("supabase/migrations/20261113165546_restore_authenticated_feed_posts_data_api_permissions.sql");
+assert.ok(
+ feedPostGrantMigration.includes("GRANT SELECT, INSERT, UPDATE ON TABLE public.feed_posts TO authenticated;")&&
+ !feedPostGrantMigration.includes("TO anon;")&&
+ !feedPostGrantMigration.includes("DISABLE ROW LEVEL SECURITY"),
+ "Authenticated members must be able to publish feed posts without exposing them to anon");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
