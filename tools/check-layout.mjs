@@ -1195,7 +1195,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("max-width:292px;height:36px")&&
  sharedCss.includes("flex:0 0 108px")&&
  sharedCss.includes("flex:0 0 86px")&&
- sharedCss.includes("margin:0 auto!important;gap:13px")&&
+ sharedCss.includes("grid-template-columns:minmax(0,1fr) 230px!important;")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(290px,54dvh)")&&
  sharedCss.includes(".vatra-search-edit{")&&
@@ -1354,7 +1354,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
- feedStyle.includes('width:min(100%,870px);max-width:870px;min-width:0;')&&
+ feedStyle.includes('grid-template-columns:minmax(170px,220px) minmax(0,1fr)!important')&&
  auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must render the composer before real Stories and personalized posts");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
@@ -1422,8 +1422,10 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  "Only owners have one accessible three-dot menu with archive and delete");
 assert.ok(searchLogic.includes("const left=ox;")&&
  searchLogic.includes("inputBox.right-left")&&
- systemFeedCss.includes("grid-column:1!important;grid-row:2!important")&&
- systemFeedCss.includes(".feed-top-controls > .feed-posts-section,")&&
+ systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 230px!important')&&
+ systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
+ systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
+ systemFeedCss.includes('grid-column:1;grid-row:4;width:100%;min-width:0;margin:0')&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
  "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
 
@@ -1455,7 +1457,7 @@ assert.ok(
 assert.ok(
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
  feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
- systemFeedCss.includes('grid-column:1!important;grid-row:auto!important'),
+ systemFeedCss.includes('grid-column:1;grid-row:4;width:100%;min-width:0;margin:0'),
  "Feed posts must sit inside the same two-column grid as composer and story");
 
 // Each static account cover is an actual PNG image (never CSS sampled or painted).
