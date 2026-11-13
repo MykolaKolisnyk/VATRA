@@ -308,12 +308,11 @@ new Function("document","location","localStorage",legacyScript)
 assert.equal(memory.get("vatra-language"),"en",
  "Old /ua/ bookmark must not overwrite a previously selected English locale");
 assert.equal(oldBookmark.redirectedTo,"/VATRA/","Legacy bookmark should redirect to root");
-const profileBookmark={pathname:"/VATRA/profile",search:"",hash:"",
- replace(url){this.redirectedTo=url;}};
-new Function("document","location","localStorage",legacyScript)
- (mockDocument,profileBookmark,mockStorage);
-assert.equal(profileBookmark.redirectedTo,"/VATRA/profile.html",
- "Extensionless profile fallback must resolve the real HTML file without showing 404");
+assert.ok(legacyScript.includes('const staticPage=location.pathname.match(')&&
+ legacyScript.includes('if(dynamic||staticPage)')&&
+ legacyScript.includes('staticPage[1]+".html"')&&
+ !legacyScript.includes('location.replace("/VATRA/"+pageRoute[1]+".html"'),
+ "Clean profile and Friends URLs must mount their HTML in place, not navigate to a visible .html URL");
 const outdatedId={pathname:"/VATRA/id=789012",search:"",hash:"",
  replace(url){this.redirectedTo=url;}};
 new Function("document","location","localStorage",legacyScript)(mockDocument,outdatedId,mockStorage);
