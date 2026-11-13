@@ -13,10 +13,12 @@
   name.textContent=document.documentElement.lang==="en"?"Top":"Вгору";
   const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
   icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("class","ui-vatra-scroll-rail-icon-001");
-  icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","2");
+  icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");
+  icon.setAttribute("stroke-width","1.7");icon.setAttribute("stroke-linecap","round");
+  icon.setAttribute("stroke-linejoin","round");
   const path=document.createElementNS("http://www.w3.org/2000/svg","path");
   path.setAttribute("class","ui-vatra-scroll-rail-icon-path-001");
-  path.setAttribute("d","m6 14 6-6 6 6");icon.append(path);name.prepend(icon);
+  path.setAttribute("d","m6.5 14 5.5-5.5 5.5 5.5");icon.append(path);name.prepend(icon);
   side.append(name);
   document.body.append(side);
   // The sticky header is 61px on desktop and two rows on phones. Measure it
