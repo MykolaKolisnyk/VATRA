@@ -2452,11 +2452,12 @@ try{
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
     const story=r(".feed-stories"),posts=r(".feed-posts-section"),
-     storyCard=r(".feed-story-create"),
+     composer=r(".feed-quick-compose"),storyCard=r(".feed-story-create"),
      nav=r(".social-top-nav"),logo=r(".ui-feed-logo-001"),
      account=r(".feed-account-toggle"),search=r(".feed-header .feed-search-form"),
      brand=r(".feed-header-brand");
     return {storyLeft:story.left,postLeft:posts.left,storyWidth:story.width,postWidth:posts.width,
+     composerWidth:composer.width,composerLeft:composer.left,
      storyCardWidth:storyCard.width,storyCardHeight:storyCard.height,
      storyCenter:(story.left+story.right)/2,
      navCenter:(nav.left+nav.right)/2,viewportCenter:document.documentElement.clientWidth/2,
@@ -2465,14 +2466,15 @@ try{
      headerHeight:r(".feed-header").height};
    });
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
-    Math.abs(geometry.storyWidth-geometry.postWidth)<3&&
-    Math.abs(geometry.storyCenter-geometry.viewportCenter)<11&&
-    geometry.storyCardWidth>=600&&geometry.storyCardWidth<=710&&
+    Math.abs(geometry.storyLeft-geometry.composerLeft)<3&&
+    Math.abs(geometry.storyWidth-geometry.composerWidth)<3&&
+    geometry.postWidth>=geometry.storyWidth&&
+    geometry.storyCardWidth>=300&&geometry.storyCardWidth<=geometry.storyWidth+2&&
     geometry.storyCardHeight>=72&&geometry.storyCardHeight<=82&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
     Math.abs(geometry.logoMargin-geometry.rightMargin)<17&&
     geometry.logoToSearch<=9&&geometry.headerHeight<=65,
-    "VATRA header symmetry and Feed posts aligned with Stories: "+
+    "VATRA header symmetry and composer aligned with its Story card: "+
     JSON.stringify(geometry));
   }
   assert.equal(await feedProbe.locator(".feed-nav-pending").count(),0,
