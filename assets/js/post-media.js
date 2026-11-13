@@ -59,6 +59,104 @@
   }
  }
 
+
+ // A balanced gallery: twelve attachments total, with at most four videos.
+ // The storage buckets still enforce their own 6 MB photo / 50 MB video caps.
+ const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024;
+ function validateGallery(files){
+  if(files.length>GALLERY_LIMIT)throw Error(tr("До 12 фото та відео в одному дописі.","Up to 12 media files per post."));
+  if(files.filter(file=>formatFor(file).kind==="video").length>VIDEO_LIMIT)
+   throw Error(tr("В одному дописі можна додати не більше 4 відео.","Up to 4 videos per post."));
+  if(files.reduce((sum,file)=>sum+file.size,0)>TOTAL_LIMIT)
+   throw Error(tr("Загальний розмір медіа має бути до 160 МБ.","Media total must be under 160 MB."));
+  files.forEach(formatFor);
+  return files;
+ }
+ function bindGalleryPicker(ids){
+  const input=document.querySelector(ids.input),choose=document.querySelector(ids.choose);
+  const clear=document.querySelector(ids.clear),preview=document.querySelector(ids.preview);
+  const showError=typeof ids.onError==="function"?ids.onError:()=>{};
+  const changed=typeof ids.onChange==="function"?ids.onChange:()=>{};
+  if(!input||!choose||!clear||!preview)throw Error("Gallery picker markup is incomplete");
+  input.multiple=true;
+  let selected=[],urls=[];
+  const release=()=>{urls.forEach(url=>URL.revokeObjectURL(url));urls=[];};
+  function display(){
+   release();preview.replaceChildren();
+   clear.hidden=!selected.length;preview.hidden=!selected.length;
+   if(selected.length){
+    const count=document.createElement("p");count.className="vt-vatra-gallery-selection-count-001";
+    count.textContent=selected.length+" / "+GALLERY_LIMIT+" · "+
+     selected.filter(file=>formats[file.type]?.kind==="video").length+" "+tr("відео","videos");
+    preview.append(count);
+   }
+   const grid=document.createElement("div");grid.className="vatra-gallery-picker-grid ui-vatra-gallery-picker-grid-001";
+   selected.forEach((file,index)=>{
+    const tile=document.createElement("div");tile.className="vatra-gallery-picker-tile ui-vatra-gallery-picker-tile-"+index;
+    const url=URL.createObjectURL(file);urls.push(url);
+    const media=document.createElement(formats[file.type].kind==="video"?"video":"img");
+    media.className="ui-vatra-gallery-picker-media-"+index;media.src=url;
+    if(media.tagName==="VIDEO"){media.preload="metadata";media.muted=true;media.playsInline=true;}
+    else media.alt=tr("Фото для публікації","Selected post photo");
+    const remove=document.createElement("button");remove.type="button";
+    remove.className="vt-vatra-gallery-picker-remove-"+index;
+    remove.setAttribute("aria-label",tr("Прибрати файл ","Remove file ")+file.name);
+    const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    icon.setAttribute("class","ui-vatra-gallery-picker-remove-icon-"+index);
+    icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","16");icon.setAttribute("height","16");
+    icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");
+    icon.setAttribute("stroke-width","1.8");icon.setAttribute("aria-hidden","true");
+    const iconPath=document.createElementNS("http://www.w3.org/2000/svg","path");
+    iconPath.setAttribute("class","ui-vatra-gallery-picker-remove-path-"+index);
+    iconPath.setAttribute("d","M6 6l12 12M18 6 6 18");
+    icon.append(iconPath);remove.append(icon);
+    remove.addEventListener("click",()=>{
+     selected.splice(index,1);display();changed();
+    });
+    const label=document.createElement("small");label.className="vt-vatra-gallery-picker-name-"+index;
+    label.textContent=file.name;
+    tile.append(media,remove,label);grid.append(tile);
+   });
+   preview.append(grid);
+  }
+  const reset=()=>{selected=[];input.value="";display();changed();};
+  choose.addEventListener("click",()=>input.click());
+  input.addEventListener("change",()=>{
+   try{
+    const incoming=Array.from(input.files||[]);
+    validateGallery([...selected,...incoming]);
+    selected=[...selected,...incoming];showError("");display();changed();
+   }catch(error){showError(error.message);}
+   input.value="";
+  });
+  clear.addEventListener("click",reset);
+  return {getFiles:()=>[...selected],getFile:()=>selected[0]||null,reset};
+ }
+ async function removeGallery(client,items){
+  const imagePaths=[],videoPaths=[];
+  for(const item of items||[]){
+   if(!item||!["image","video"].includes(item.media_kind)||!item.media_path)continue;
+   (item.media_kind==="image"?imagePaths:videoPaths).push(item.media_path);
+  }
+  await Promise.allSettled([
+   imagePaths.length?client.storage.from("vatra-post-images").remove(imagePaths):Promise.resolve(),
+   videoPaths.length?client.storage.from("vatra-videos").remove(videoPaths):Promise.resolve()
+  ]);
+ }
+ async function uploadGallery(client,id,files){
+  validateGallery(files);
+  const uploaded=[];
+  try{
+   for(const file of files){
+    const item=await upload(client,id,file);
+    uploaded.push(item);
+   }
+   return uploaded;
+  }catch(error){
+   await removeGallery(client,uploaded);
+   throw error;
+  }
+ }
  function bindPicker(ids){
   const input=document.querySelector(ids.input),choose=document.querySelector(ids.choose);
   const clear=document.querySelector(ids.clear),preview=document.querySelector(ids.preview);
@@ -304,5 +402,5 @@
    observer.observe(slot);
   }
  }
- window.VATRA_POST_MEDIA={bindPicker,upload,uploadStory,remove,mount,renderStory,linkifyHashtags,collapsibleBody};
+ window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,renderStory,linkifyHashtags,collapsibleBody};
 })();
