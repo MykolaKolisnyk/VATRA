@@ -236,7 +236,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  if(!follow||!compose||!list||!ownId||!idPattern.test(ownId))return;
  let isFollowing=false,busy=false,focusRequestedPost=true;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
- const picker=window.VATRA_POST_MEDIA?.bindPicker({
+ const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
   input:"#club-compose-media",choose:"#club-compose-media-choose",
   clear:"#club-compose-media-remove",preview:"#club-compose-media-preview",
   onError:text=>show(status,text)
@@ -253,7 +253,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
   list.replaceChildren();empty.hidden=true;
   try{
    const {data,error}=await client.from("vatra_community_posts")
-    .select("id,author_vatra_id,body,created_at,media_kind,media_path")
+    .select("id,author_vatra_id,body,created_at,media_kind,media_path,media_items")
     .eq("club_id",clubId).order("created_at",{ascending:false}).limit(50);
    if(error)throw error;
    const rows=[...(data||[])];
@@ -261,7 +261,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
    const linkedId=new URLSearchParams(location.search).get("post");
    if(postPattern.test(linkedId||"")&&!rows.some(post=>post.id===linkedId)){
     const direct=await client.from("vatra_community_posts")
-     .select("id,author_vatra_id,body,created_at,media_kind,media_path")
+     .select("id,author_vatra_id,body,created_at,media_kind,media_path,media_items")
      .eq("club_id",clubId).eq("id",linkedId).maybeSingle();
     if(!direct.error&&direct.data)rows.unshift(direct.data);
    }
@@ -295,7 +295,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
      window.VATRA_POST_MEDIA?.linkifyHashtags(body);
      article.append(body);
     }
-   if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
+   if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
     window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"group",club_id:clubId},article,{
      ownId,userId,onShared:()=>void loadClubPosts()
     });
@@ -336,24 +336,24 @@ async function setupClubSocial(client,clubId,ownId,userId){
  $("#club-compose-cancel").addEventListener("click",()=>dialog.close());
  form.addEventListener("submit",async event=>{
   event.preventDefault();
-  const body=input.value.trim(),file=picker?.getFile(),save=$("#club-compose-save");
+  const body=input.value.trim(),files=picker?.getFiles()||[],save=$("#club-compose-save");
   if(!isFollowing||save.disabled)return;
-  if((!body&&!file)||Array.from(body).length>2000){
+  if((!body&&!files.length)||Array.from(body).length>2000){
    show(status,t("Додайте текст, фото або відео (до 2000 символів).",
     "Add text, a photo or a video (up to 2000 characters)."));return;
   }
   save.disabled=true;status.hidden=true;
   let uploaded=null;
   try{
-   if(file)uploaded=await window.VATRA_POST_MEDIA.upload(client,ownId,file);
+   if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
    const {error}=await client.from("vatra_community_posts").insert({
-    club_id:clubId,author_vatra_id:ownId,body,...(uploaded||{})
+    club_id:clubId,author_vatra_id:ownId,body,media_items:uploaded||[]
    });
    if(error)throw error;
    input.value="";picker?.reset();dialog.close();
    await loadClubPosts();
   }catch(error){
-   if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
+   if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
    show(status,error?.message||t("Не вдалося опублікувати допис.","Could not publish community post."));
   }finally{save.disabled=false;}
  });

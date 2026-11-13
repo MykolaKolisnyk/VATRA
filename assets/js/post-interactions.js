@@ -22,9 +22,9 @@
    const el=document.createElementNS("http://www.w3.org/2000/svg","path");
    el.setAttribute("d",d);svg.append(el);
   };
-  if(type==="heart")path("M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
-  if(type==="comments")path("M20.5 11.6a8.5 8.5 0 0 1-8.6 8.1 9 9 0 0 1-3.8-.9L3 20l1.4-4.5A8.3 8.3 0 0 1 3.5 12a8.5 8.5 0 0 1 17 0Z M8 10h8M8 13.5h5");
-  if(type==="bookmark")path("M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z");
+  if(type==="thumb")path("M8 10.5 12.3 3c.6-1 2.1-.6 2.1.8v4.7h4.3a2.8 2.8 0 0 1 2.7 3.4l-1.6 6.7a2.8 2.8 0 0 1-2.7 2.1H8V10.5ZM3 10.5h5v10H3z");
+  if(type==="comments")path("M20.5 11.3c0 4.8-3.9 8.6-8.6 8.6-1.4 0-2.9-.3-4.2-1L3 20l1.6-4.5a8.5 8.5 0 1 1 15.9-4.2Z");
+  if(type==="bookmark")path("M6.5 3.5h11a1 1 0 0 1 1 1V21L12 16.8 5.5 21V4.5a1 1 0 0 1 1-1Z");
   if(type==="paperclip")path("m9 13 6-6a3.2 3.2 0 0 1 4.5 4.5l-8 8a5.2 5.2 0 0 1-7.4-7.4l8-8");
   if(type==="camera")path("M4 7h3l2-3h6l2 3h3v13H4V7ZM12 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z");
   if(type==="smile")path("M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 14c2.2 3 5.8 3 8 0M9 10h.01M15 10h.01");
@@ -33,13 +33,7 @@
   if(type==="file")path("M6 3h9l4 4v14H6V3ZM15 3v5h4");
   if(type==="x")path("M5 5 19 19M19 5 5 19");
 
-  if(type==="share"){
-   path("M8.6 11.2 16 6.7M8.6 13 16 17.3");
-   for(const [cx,cy] of [[5.3,12.2],[18,5.5],[18,18.5]]){
-    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
-    c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r","2.5");svg.append(c);
-   }
-  }
+  if(type==="share")path("M13 5l7 7-7 7v-4.3c-5 0-8.4 1.7-10 4.3.3-7 3.4-10.8 10-10.8V5Z");
   return svg;
  };
  const action=(className,type,label)=>{
@@ -179,7 +173,7 @@ function appendAudience(container,level,isGroup=false){
   const shell=make("section","vatra-post-interactions ui-vatra-post-interactions-001");
   shell.setAttribute("aria-label",tr("Взаємодія з публікацією","Post interactions"));
   const row=make("div","vatra-post-action-row ui-vatra-post-action-row-001");
-  const like=action("vt-vatra-post-like-001","heart",tr("Подобається","Like"));
+  const like=action("vt-vatra-post-like-001","thumb",tr("Подобається","Like"));
   like.setAttribute("aria-pressed","false");
   const count=make("span","vt-vatra-post-like-count-001","0");
   like.append(count);
@@ -266,9 +260,10 @@ function appendAudience(container,level,isGroup=false){
    finally{like.disabled=false;}
   });
 
-  // Real inline thread belongs to every post; never hide comments behind a separate view.
+  // Comments are fetched only when the member opens the centered post viewer.
   const panel=make("div","vatra-post-comments-panel ui-vatra-post-comments-panel-001");
-  commentsButton.setAttribute("aria-expanded","true");
+  panel.hidden=true;
+  commentsButton.setAttribute("aria-expanded","false");
 
   const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
   const sortLabel=make("label","vt-vatra-post-comments-filter-label-001");
@@ -669,10 +664,45 @@ function appendAudience(container,level,isGroup=false){
    }catch(_){feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);}
    finally{busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");}
   }
-  commentsButton.addEventListener("click",()=>{
+  // Move the real post (not a duplicate) into a native dialog. This keeps
+  // the same buttons, media and existing handlers working without double renders.
+  let commentDialog=null;
+  const openComments=()=>{
+   if(commentDialog?.open)return;
+   const card=container.closest(".feed-post-card")||container;
+   if(!card.parentNode)return;
+   const marker=document.createComment("vatra-comment-dialog-origin");
+   card.parentNode.insertBefore(marker,card);
+   const dialog=make("dialog","vatra-post-comment-dialog ui-vatra-post-comment-dialog-001");
+   dialog.setAttribute("aria-label",tr("Публікація та коментарі","Post and comments"));
+   const close=make("button","vt-vatra-post-comment-dialog-close-001");
+   close.type="button";close.setAttribute("aria-label",tr("Закрити коментарі","Close comments"));
+   close.append(glyph("x"));
+   const content=make("div","vatra-post-comment-dialog-content ui-vatra-post-comment-dialog-content-001");
+   content.append(card);dialog.append(close,content);document.body.append(dialog);
+   commentDialog=dialog;panel.hidden=false;
+   commentsButton.setAttribute("aria-expanded","true");
+   const previousFocus=document.activeElement;
+   let restored=false;
+   const restore=()=>{
+    if(restored)return;restored=true;
+    panel.hidden=true;commentsButton.setAttribute("aria-expanded","false");
+    if(marker.parentNode)marker.parentNode.replaceChild(card,marker);
+    else if(card.isConnected)card.remove();
+    dialog.remove();commentDialog=null;
+    if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});
+   };
+   const dismiss=()=>{if(dialog.open)dialog.close();restore();};
+   dialog.addEventListener("close",restore,{once:true});
+   close.addEventListener("click",dismiss);
+   dialog.addEventListener("click",event=>{if(event.target===dialog)dismiss();});
+   dialog.showModal();close.focus({preventScroll:true});
    if(commentOffset===0)void loadComments(true);
-   panel.scrollIntoView({block:"nearest",behavior:"smooth"});
-  });
+  };
+  commentsButton.addEventListener("click",openComments);
+  if(new URLSearchParams(location.search).get("comment")&&
+   new URLSearchParams(location.search).get("post")===post.id)
+   queueMicrotask(openComments);
   sort.addEventListener("change",()=>{updateNote();void loadComments(true);});
   more.addEventListener("click",()=>void loadComments(false));
   form.addEventListener("submit",async event=>{
@@ -739,11 +769,11 @@ function appendAudience(container,level,isGroup=false){
   if(typeof IntersectionObserver!=="undefined"){
    const summaryObserver=new IntersectionObserver(entries=>{
     if(entries.some(x=>x.isIntersecting)){
-     summaryObserver.disconnect();void refreshSocial();void loadComments(true);
+     summaryObserver.disconnect();void refreshSocial();
     }
    },{rootMargin:"220px"});
    summaryObserver.observe(shell);
-  }else{void refreshSocial();void loadComments(true);}
+  }else{void refreshSocial();}
   const shareMenu=make("dialog","vatra-post-share-dialog ui-vatra-post-share-dialog-001");
   shareMenu.setAttribute("aria-label",tr("Поділитися публікацією","Share post"));
   const shareHead=make("div","vatra-post-share-header ui-vatra-post-share-header-001");
@@ -916,8 +946,8 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    const table=kind==="person"?"feed_posts":"vatra_community_posts";
    const {data,error}=await client.from(table)
     .select(kind==="group"?
-     "id,club_id,author_vatra_id,body,media_kind,media_path,created_at":
-     "id,author_vatra_id,body,media_kind,media_path,created_at")
+     "id,club_id,author_vatra_id,body,media_kind,media_path,media_items,created_at":
+     "id,author_vatra_id,body,media_kind,media_path,media_items,created_at")
     .eq("id",id).maybeSingle();
    if(error||!data)throw Error("Original post unavailable");
    if(!preview.isConnected)return;
@@ -939,7 +969,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     const body=make("p","vt-vatra-post-share-preview-body-001",data.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);preview.append(body);
    }
-   if(data.media_kind&&data.media_path)void window.VATRA_POST_MEDIA?.mount(client,data,preview);
+   if(data.media_items?.length||(data.media_kind&&data.media_path))void window.VATRA_POST_MEDIA?.mount(client,data,preview);
   }catch(_){
    if(preview.isConnected)preview.append(make("p","vt-vatra-post-original-unavailable-001",
     tr("Ця публікація недоступна.","This post is unavailable.")));

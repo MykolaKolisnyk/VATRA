@@ -1303,9 +1303,9 @@ assert.ok(
 feedMarkup.includes('id="feed-compose-media"') &&
  memberProfileMarkup.includes('id="profile-compose-media"') &&
  (await read("club.html")).includes('id="club-compose-media"') &&
- feedScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
- profileScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
- communityScript.includes("VATRA_POST_MEDIA?.bindPicker") &&
+ feedScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
+ profileScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
+ communityScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  postMediaScript.includes('createSignedUrl(path,ttl)') &&
  postMediaScript.includes('ttl=3600') &&
  postMediaScript.includes('signed(client,kind,path,300)'),
@@ -1352,7 +1352,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
@@ -1440,6 +1440,28 @@ assert.ok(
  systemFeedCss.includes('body.feed-page .feed-post-card .vatra-post-action-row{margin-top:0}'),
  "Post footer must have exactly one divider directly above action icons");
 
+// Gallery uploads stay bounded and use the existing RLS-protected post rows.
+// Comment threads are not requested or shown until the real post enters its dialog.
+const postComposerScript=await read("assets/js/post-composer-ui.js");
+const clubPostScript=await read("assets/js/communities.js");
+assert.ok(
+ postMediaScript.includes("const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024")&&
+ postMediaScript.includes("function bindGalleryPicker(ids)")&&
+ postMediaScript.includes("async function uploadGallery(client,id,files)")&&
+ postMediaScript.includes("async function mountGallery(client,post,container)")&&
+ interactionsScript.includes("panel.hidden=true;")&&
+ interactionsScript.includes('const openComments=()=>{')&&
+ interactionsScript.includes('dialog.showModal();close.focus(')&&
+ !interactionsScript.includes('summaryObserver.disconnect();void refreshSocial();void loadComments(true);')&&
+ (await read("assets/js/feed.js")).includes("media_items:uploaded||[]")&&
+ profileExtraScript.includes("media_items:uploaded||[]")&&
+ clubPostScript.includes("media_items:uploaded||[]")&&
+ postComposerScript.includes('vatra-post-composer-dialog')&&
+ (await read("feed.html")).includes('type="file" multiple')&&
+ (await read("profile.html")).includes('type="file" multiple')&&
+ (await read("club.html")).includes('type="file" multiple'),
+ "Gallery posting, secure preview and on-demand comments must remain intact");
+
 // Blocking is a real member-scoped Supabase relation. Restricted viewers
 // retain public header artwork while content and interactions are gated.
 assert.ok(
@@ -1478,7 +1500,7 @@ assert.ok(
  systemFeedCss.includes('grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('row-gap:13px!important')&&
  systemFeedCss.includes('.feed-main:has(.feed-status:not([hidden]))')&&
- systemFeedCss.includes('max-height:440px;object-fit:contain')&&
+ systemFeedCss.includes('max-height:640px;object-fit:contain')&&
  systemFeedCss.includes('width:min(calc(100% - 24px),720px)!important')&&
  systemProfileCss.includes('.profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:14px}')&&
  systemProfileCss.includes('.profile-left-stack{')&&

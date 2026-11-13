@@ -2530,16 +2530,44 @@ try{
   assert.deepEqual(hashtagProbe.searches,hashtagProbe.tags,
    "Hashtag links must open a real Feed query");
   assert.equal(hashtagProbe.unsafeElements,0,"Post text must not execute arbitrary HTML");
+  const gallerySafety=await feedProbe.evaluate(()=>{
+   const image=new File([new Uint8Array([1])],"one.png",{type:"image/png"});
+   const video=new File([new Uint8Array([1])],"one.mp4",{type:"video/mp4"});
+   let tooMany=false,tooManyVideos=false;
+   try{window.VATRA_POST_MEDIA.validateGallery(Array(13).fill(image));}catch(_){tooMany=true;}
+   try{window.VATRA_POST_MEDIA.validateGallery(Array(5).fill(video));}catch(_){tooManyVideos=true;}
+   const host=document.createElement("div");host.id="vatra-smoke-gallery";document.body.append(host);
+   const media_items=Array.from({length:7},(_,i)=>({
+    media_kind:"image",media_path:"12/posts/"+String(i).padStart(8,"0")+"-1234-4567-abcd-0123456789ab.jpg"
+   }));
+   void window.VATRA_POST_MEDIA.mount({storage:{from:()=>({
+    createSignedUrl:async()=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/example"}})
+   })}},{author_vatra_id:"12",media_items},host);
+   return {tooMany,tooManyVideos};
+  });
+  assert.equal(gallerySafety.tooMany,true,"A post must reject more than twelve attachments");
+  assert.equal(gallerySafety.tooManyVideos,true,"A post must reject more than four videos");
+  assert.equal(await feedProbe.locator("#vatra-smoke-gallery .vatra-post-gallery-tile").count(),5,
+   "A seven-photo post must render a five-tile mosaic, not seven giant images");
+  assert.equal((await feedProbe.locator("#vatra-smoke-gallery .vt-vatra-post-gallery-extra-001").textContent()).trim(),"+2");
+  await feedProbe.locator("#vatra-smoke-gallery").evaluate(el=>el.remove());
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,
    "Feed uses the shared VATRA post editor");
-  await feedProbe.locator("#feed-compose-media").setInputFiles({
-   name:"vatra-test.png",mimeType:"image/png",
-   buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")
-  });
+  await feedProbe.locator("#feed-compose-media").setInputFiles([
+   {name:"vatra-test-a.png",mimeType:"image/png",
+    buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")},
+   {name:"vatra-test-b.png",mimeType:"image/png",
+    buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")}
+  ]);
+  assert.equal(await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile").count(),2,
+   "Two media attachments must render as independent removable previews");
+  await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile>button").first().click();
+  assert.equal(await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile").count(),1,
+   "Removing one attachment must preserve the other");
   assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
    "Selecting media without text must unlock Next in Feed");
   await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
@@ -2572,8 +2600,18 @@ try{
    },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
    host,{ownId:"",userId:null});
   });
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),false,
+   "Comment threads must stay hidden until the member opens the post viewer");
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
+   "The viewer is created only when requested");
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>el.open),true,
+   "Clicking the SVG comment action opens a native centered dialog");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),true,
-   "Every valid UUID post must expose its comments directly beneath the actions");
+   "The comment thread becomes visible inside the dialog");
+  assert.notEqual(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>
+   getComputedStyle(el,"::backdrop").backdropFilter),"none",
+   "The underlying Feed should blur while comments are open");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
@@ -2616,6 +2654,9 @@ try{
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
+  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
+   "Closing the viewer must restore the original post without a duplicate");
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
