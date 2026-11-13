@@ -205,6 +205,7 @@
    closeIcon.setAttribute("stroke","currentColor");closeIcon.setAttribute("stroke-width","1.8");
    closeIcon.setAttribute("stroke-linecap","round");
    const cross=document.createElementNS("http://www.w3.org/2000/svg","path");
+   cross.setAttribute("class","ui-vatra-post-media-close-path-001");
    cross.setAttribute("d","M6 6l12 12M18 6 6 18");
    closeIcon.append(cross);close.append(closeIcon);
    close.addEventListener("click",()=>mediaDialog.close());
