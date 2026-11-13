@@ -777,6 +777,9 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
   if(ticket!==profilePostsRequest)return;
   if(error)throw error;
   const rows=data||[];
+  const engagement=await (window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
+   client,rows.map(post=>({...post,kind:"person"})))||Promise.resolve(new Map()));
+  if(ticket!==profilePostsRequest)return;
   if(!append)list.replaceChildren();
   for(const post of rows){
    const article=node("article","feed-post-card ui-profile-post-card-001");
@@ -837,7 +840,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
-    ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))
+    ownId,userId,engagement:engagement.get("person:"+post.id),
+    onShared:()=>{if(String(ownId)===String(targetId))
      void loadPosts(client,targetId,ownId,userId);}
    });
    list.append(article);
