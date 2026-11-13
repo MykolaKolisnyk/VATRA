@@ -524,11 +524,11 @@ body.feed-page .vt-vatra-post-original-unavailable-001{
  body.feed-page .vatra-post-comment-form{flex-wrap:wrap}
  body.feed-page .vt-vatra-post-comment-send-001{margin-left:auto}
 }
-body.feed-page .feed-post-media{margin-top:12px;overflow:hidden;border-radius:12px;background:#f5f7fc}
+body.feed-page .feed-post-media{margin-top:8px;overflow:hidden;border:0;border-radius:0;background:transparent}
 body.feed-page .feed-post-media-image,
 body.feed-page .feed-post-media-video{
- display:block;width:100%;max-height:440px;object-fit:contain;
- border-radius:12px;background:#0d1018
+ display:block;width:100%;max-height:640px;object-fit:contain;
+ border-radius:0;background:transparent
 }
 body.feed-page .feed-post-media-video{max-height:440px}
 body.feed-page .vt-feed-post-media-error-001{
@@ -1994,18 +1994,18 @@ body.feed-page .vatra-post-media-placeholder{
  background:linear-gradient(105deg,#e9eef7 16%,#f9fbff 48%,#e9eef7 80%);
  background-size:230% 100%;animation:vatraSkeletonShift 1.9s ease-in-out infinite
 }
-body.feed-page .feed-post-media.is-ready-media{background:#f8faff;border:0}
+body.feed-page .feed-post-media.is-ready-media{background:transparent;border:0}
 body.feed-page .feed-post-media .vt-feed-post-media-open-001{
  display:block;width:100%;max-width:100%;padding:0;border:0;
- border-radius:12px;background:#f8faff;cursor:zoom-in;overflow:hidden
+ border-radius:0;background:transparent;cursor:zoom-in;overflow:hidden
 }
 body.feed-page .feed-post-media .feed-post-media-image{
- display:block;width:100%;height:auto;max-height:440px;object-fit:contain;
- border-radius:12px;background:#f8faff;filter:none;
+ display:block;width:100%;height:auto;max-height:640px;object-fit:contain;
+ border-radius:0;background:transparent;filter:none;
  animation:vatraMediaReveal .28s ease both
 }
 body.feed-page .feed-post-media .feed-post-media-video{
- display:block;width:100%;max-height:440px;object-fit:contain;border-radius:12px
+ display:block;width:100%;max-height:640px;object-fit:contain;border-radius:0
 }
 @keyframes vatraMediaReveal{from{opacity:.4}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){
@@ -2272,7 +2272,7 @@ body.feed-page .vatra-post-interactions .vatra-post-comments-panel{
  border:0;border-radius:0;background:transparent;
  box-shadow:none;min-width:0
 }
-body.feed-page .vatra-post-interactions .vatra-post-comments-panel[hidden]{display:flex!important}
+body.feed-page .vatra-post-interactions .vatra-post-comments-panel[hidden]{display:none!important}
 body.feed-page .vatra-post-action-row{
  display:flex;align-items:center;justify-content:flex-start;gap:6px;
  padding:5px 0;margin-top:0
