@@ -380,6 +380,24 @@ body.feed-page .vt-vatra-post-comment-dialog-close-001{
 }
 body.feed-page .vt-vatra-post-comment-dialog-close-001 svg{width:19px;height:19px}
 body.feed-page .vt-vatra-post-comment-dialog-close-001:hover{background:#e2e9f7;color:#2f5db8}
+/* Keep emoji/sticker and attachment panels inside the modal scrollport.
+   Absolute upward popovers otherwise escape native dialog hit-testing. */
+body.feed-page .vatra-post-comment-dialog .vatra-post-comment-popovers{
+ display:block;position:relative;width:100%;min-width:0
+}
+body.feed-page .vatra-post-comment-dialog :is(
+ .vatra-post-comment-emoji-panel:not([hidden]),
+ .vatra-post-comment-attach-menu:not([hidden])
+){
+ position:relative!important;
+ top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;
+ transform:none!important;
+ width:100%;max-width:100%;
+ margin-top:8px;z-index:1
+}
+body.feed-page .vatra-post-comment-dialog .vatra-post-comment-emoji-panel:not([hidden]){
+ max-height:min(310px,42dvh)
+}
 body.feed-page .vatra-post-comment-dialog .feed-post-header{padding-right:36px}
 body.feed-page .vatra-post-comment-dialog .vatra-post-comments-panel{
  display:flex;flex-direction:column;gap:8px;margin-top:8px;padding-top:12px
