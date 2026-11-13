@@ -1,16 +1,29 @@
 # VATRA domain naming migration — safe rollout
 
-## Current phase: three read-only, RLS-invoker aliases
+## Completed: three physical table renames
 
-| Existing physical table | New API view | Access | Browser consumers migrated |
-|---|---|---|---|
-| `vatra_directory` | `member_directory` | `SELECT` for anon/authenticated (same underlying RLS) | Profile existence lookup |
-| `vatra_account_states` | `account_states` | `SELECT` for authenticated (same underlying RLS) | Account state/avatar checks |
-| `vatra_profile_gifts` | `profile_gifts` | `SELECT` for authenticated (same underlying RLS) | Profile sidebar, gifts page |
+Migration `20261113174336` changed these **physical** PostgreSQL table names
+without dropping any rows or disabling row-level security:
 
-These are `security_invoker=true` **views**, not renamed physical tables. Existing
-`vatra_*` tables, triggers and older cached browser versions continue to work.
-No data was copied or deleted. Views have no INSERT/UPDATE/DELETE grants.
+| Former table | Physical table now | Old-client compatibility |
+|---|---|---|
+| `vatra_directory` | `member_directory` | legacy RLS-invoker SELECT view |
+| `vatra_account_states` | `account_states` | legacy RLS-invoker SELECT view |
+| `vatra_profile_gifts` | `profile_gifts` | legacy RLS-invoker SELECT view |
+
+The temporary new-name read-only views introduced by migration `20261113171916`
+were dropped and replaced atomically with the renamed physical tables. Three
+`private` signup / deleted-account / ban-state trigger function bodies now write
+to the physical tables. Existing RLS policies, table ACLs, triggers and object
+identities followed the rename. Old names are read-only views, with explicit
+`security_invoker=true` and least-privilege SELECT grants. Do not attempt
+`INSERT ... ON CONFLICT` into the old-name views; internal functions already
+write to the new physical tables.
+
+Production role checks confirmed: underlying tables have RLS enabled; anon can
+read only the directory (both old and new paths); gifts and account states can
+be selected only by authenticated roles. Sign-up and account deletion must
+still be tested end-to-end with real members before release.
 
 ## Remaining legacy names / proposed names
 
@@ -35,9 +48,9 @@ No data was copied or deleted. Views have no INSERT/UPDATE/DELETE grants.
 | `vatra_public_profiles` | `public_profiles` |
 | `vatra_stories` | `stories` |
 
-These need individual dependency audits and **write-compatible** migration paths:
+The remaining legacy names need individual dependency audits and **write-compatible** migration paths:
 RLS, foreign keys, SQL functions, triggers, Realtime, and static clients may all
-depend on the physical table names. Read-only aliases are not a substitute for
+depend on the physical table names. In particular, read-only aliases are not a substitute for
 migrating inserts/updates and conflict-handling behavior. Never batch DROP
 CASCADE, never turn off RLS to make a rename work, and don't rename all 27
 tables in a single deployment.
@@ -53,7 +66,7 @@ Migration requires: new bucket creation, copy+verify **every** object and
 metadata, parallel read support, atomic switch of upload paths and RLS,
 and a rollback window. Leave original buckets intact until verified.
 
-## Checklist before changing actual physical names
+## Checklist for remaining physical names
 
 1. Back up physical tables and Storage objects and record row/object counts.
 2. Inventory every JavaScript string, PostgREST function, SQL function,
