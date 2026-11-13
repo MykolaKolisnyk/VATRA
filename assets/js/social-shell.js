@@ -573,9 +573,18 @@
     if(next.hash&&next.hash!==location.hash)return false;
     return true;
    }
-   // Navigate directly to the clean URL: /profile, /friends, /gifts and
-   // /clubN are resolved by the GitHub Pages fallback without a .html detour.
-   // Navigate immediately. Waiting for a cosmetic fade adds latency to every
+   // A newly created community first loads the real club document (HTTP 200).
+   // Its controller restores the canonical /clubN URL. Going straight to
+   // /clubN would make GitHub Pages return HTTP 404 for this navigation.
+   const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
+   if(club){
+    const documentUrl=new URL("club.html",new URL("./",next.href));
+    documentUrl.search=next.search;
+    documentUrl.searchParams.set("club_id",club[1]);
+    documentUrl.hash=next.hash;
+    next=documentUrl;
+   }
+   // Other member links retain clean paths. Navigate immediately. Waiting for a cosmetic fade adds latency to every
    // section change; the destination already has its own data-loading state.
    navigating=true;
    location.assign(next.href);
