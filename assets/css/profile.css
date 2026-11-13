@@ -27,7 +27,7 @@
 
 /* The profile uses the same navigation, but the cover/content fill a much wider canvas. */
 .profile-page.feed-page:not(.community-page) .feed-layout{grid-template-columns:232px minmax(0,1fr);max-width:1430px;gap:28px}
-.profile-page.feed-page:not(.community-page) .feed-main{max-width:none;gap:17px}
+.profile-page.feed-page:not(.community-page) .feed-main{max-width:none;gap:16px}
 .profile-page.feed-page:not(.community-page) .ui-profile-title-row-001{padding:0 4px}
 .profile-page.feed-page:not(.community-page) .vt-profile-title-001{font-size:12px;font-weight:700;color:#8391a8}
 .profile-page.feed-page:not(.community-page) .profile-hero{overflow:hidden;border:1px solid #e5eaf3;border-radius:17px;box-shadow:0 8px 30px rgba(35,54,95,.045);background:#fff}
@@ -734,12 +734,12 @@ body.profile-page .ui-vatra-skeleton-post-a-001,body.profile-page .ui-vatra-skel
    labels/values, while publications remain the primary reading surface. */
 body.profile-page.feed-page:not(.community-page) .profile-posts-section{
  display:grid;grid-template-columns:minmax(0,37.5%) minmax(0,1fr);
- width:100%;max-width:none;margin:0;gap:18px;align-items:start
+ width:100%;max-width:none;margin:0;gap:16px;align-items:start
 }
-body.profile-page .profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:12px}
+body.profile-page .profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:14px}
 body.profile-page .profile-posts-overview{
- display:flex;align-items:center;justify-content:space-between;min-height:64px;
- padding:16px 22px;border:1px solid #e3eaf4;border-radius:16px;
+ display:flex;align-items:center;justify-content:space-between;min-height:62px;
+ padding:13px 20px;border:1px solid #e3eaf4;border-radius:16px;
  background:#fff;box-shadow:0 4px 18px rgba(32,52,97,.035)
 }
 body.profile-page .vt-profile-posts-overview-title-001{
@@ -807,7 +807,7 @@ body.profile-page .profile-edit-buttons .vt-profile-edit-save-001{
  body.profile-page .profile-media-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
  body.profile-page .profile-edit-media-actions{grid-template-columns:1fr}}
 body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card{
- padding:14px 16px;border:1px solid #e4eaf5;border-radius:13px;
+ padding:15px 17px;border:1px solid #e4eaf5;border-radius:16px;
  background:#fff;box-shadow:0 3px 12px rgba(35,55,95,.045)
 }
 body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card:hover{
@@ -1793,13 +1793,13 @@ body.profile-page .vt-profile-editor-save-001{
    publication filters use a quiet accessible popover. */
 body.profile-page.feed-page:not(.community-page) .profile-posts-section{
  grid-template-columns:minmax(0,37.5%) minmax(0,1fr);
- gap:18px;align-items:start
+ gap:16px;align-items:start
 }
 body.profile-page.feed-page:not(.community-page) .profile-info{
- padding:20px 24px 19px;
+ padding:18px 20px;
  background:#fff;border:1px solid #e2e8f4;
  box-shadow:0 8px 26px rgba(36,54,99,.045);
- border-radius:17px
+ border-radius:16px
 }
 body.profile-page .vt-profile-about-heading-001{
  font-size:19px;letter-spacing:-.03em
@@ -1931,7 +1931,7 @@ body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-tr
 }
 /* Each profile has one visual grid, regardless of the viewer's account. */
 body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
- width:100%;box-sizing:border-box;margin-top:18px
+ width:100%;box-sizing:border-box;margin-top:0
 }
 @media(prefers-reduced-motion:reduce){
  body.profile-page .profile-avatar:not(.has-photo)::before,
@@ -1941,12 +1941,12 @@ body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
 
 /* Profile 2026: shared About → Friends → Gifts stack, with equal cards for all members. */
 body.profile-page .profile-left-stack{
- display:flex;flex-direction:column;gap:15px;min-width:0
+ display:flex;flex-direction:column;gap:14px;min-width:0
 }
 body.profile-page .profile-left-stack > .profile-info{width:100%;min-width:0}
 body.profile-page .profile-mini-card{
- display:flex;flex-direction:column;gap:15px;min-width:0;padding:20px 23px 17px;
- background:#fff;border:1px solid #e2e9f5;border-radius:17px;
+ display:flex;flex-direction:column;gap:13px;min-width:0;padding:18px 20px;
+ background:#fff;border:1px solid #e2e9f5;border-radius:16px;
  box-shadow:0 8px 26px rgba(36,54,99,.045)
 }
 body.profile-page .profile-mini-card > h2{
@@ -2263,7 +2263,7 @@ body.profile-page #profile-inbox-empty::before{background-image:url('data:image/
 /* Private page: centered explanation, no interactive report action. */
 body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
  display:flex;flex-direction:column;justify-content:center;align-items:center;
- gap:12px;text-align:center;padding:35px 22px;margin-top:20px;
+ gap:10px;text-align:center;padding:28px 20px;margin-top:0;
 }
 body.profile-page.feed-page:not(.community-page) .profile-locked-notice > svg{
  width:38px;height:38px;flex:none
@@ -2591,7 +2591,7 @@ body.profile-page[data-member-blocked="true"] .profile-archive-wrap{
 }
 body.profile-page .profile-locked-notice[data-lock-reason="block"]{
  flex-direction:column;align-items:center;justify-content:center;
- text-align:center;gap:13px;min-height:196px;padding:31px 22px
+ text-align:center;gap:11px;min-height:182px;padding:27px 20px
 }
 body.profile-page .profile-locked-notice[data-lock-reason="block"] > svg{
  width:40px;height:40px;color:#7893bd
