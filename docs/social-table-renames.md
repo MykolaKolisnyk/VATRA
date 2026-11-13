@@ -39,13 +39,20 @@ notifications, comments, likes, messaging and story code. Existing sessions
 with old scripts may use the legacy view paths until refreshed; realtime
 subscriptions on previous physical table names may need a page refresh.
 
-## Still pending
+## Completed final two physical profile table renames
 
-The **only two physical public tables retaining a `vatra_` prefix** are
-`vatra_profile_details` and `vatra_profile_preferences`. These use client
-PostgREST `upsert(...,{onConflict:...})` calls, which cannot simply be routed
-through an updatable view with the same conflict target. Switch the deployed
-browser code to new physical tables before renaming these last two.
+Migration `20261113180825_rename_last_two_profile_upsert_tables.sql` physically
+renamed `vatra_profile_details` to `profile_details` and
+`vatra_profile_preferences` to `profile_preferences`. Both preserve their
+unique keys, ownership RLS, grants and data. Old names are RLS-invoker legacy
+views with original permissions, but clients using PostgREST `upsert` must
+now use the new physical names. The profile editor and browser mocks were
+updated. SQL transaction smoke tests verified authenticated `INSERT ...
+ON CONFLICT DO UPDATE` on both new tables and were rolled back.
+
+**All 27 physical public tables are now named without `vatra_`.** A direct
+PostgreSQL catalog check returned 0 remaining physical `vatra_*` tables,
+27/27 protected by RLS and 21 read-compatible legacy views.
 
 Storage bucket names are unchanged pending storage migration, and historical
 SQL migration filenames and legacy RPC/function names may still use VATRA
