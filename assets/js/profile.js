@@ -660,9 +660,14 @@ function missingProfile(state="not-found"){
  const name=q("#profile-heading");
  if(name){name.removeAttribute("data-i18n");name.textContent=title;}
  const portrait=q("#profile-avatar"),wrap=q("#profile-avatar-wrap");
- const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo");
- const coverView=q("#profile-cover-view");
- if(cover){cover.dataset.vatraCoverState=state;cover.classList.remove("has-photo");}
+ const cover=q("#profile-cover-image"),systemCover=q("#profile-cover-system");
+ const coverPhoto=q("#profile-cover-photo"),coverView=q("#profile-cover-view");
+ if(cover)cover.classList.remove("has-photo");
+ if(systemCover){
+  systemCover.src=window.VATRA_AVATAR?.coverAsset(state)||"/VATRA/assets/covers/cover-not-found.png";
+  systemCover.dataset.vatraCoverState=state;
+  systemCover.hidden=false;
+ }
  if(coverPhoto){coverPhoto.hidden=true;coverPhoto.removeAttribute("src");}
  if(coverView)coverView.hidden=true;
  window.VATRA_AVATAR?.fallback(portrait,state);
@@ -1733,7 +1738,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
 /* Only the signed-in owner can change profile images; Storage policies and
    vatra_profile_media RLS enforce this independently of the UI. */
 async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
- const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),avatar=q("#profile-avatar");
+ const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
  const fileAvatar=q("#profile-avatar-file"),fileCover=q("#profile-cover-file");
  const message=q("#profile-media-status");
@@ -2055,17 +2060,21 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  // A real <img> is independent of the decorative CSS fallback, masks and pseudoelements.
  coverPhoto.addEventListener("load",()=>{
-  if(!photoURLs.cover)return;
+  if(!photoURLs.cover||coverPhoto.src!==photoURLs.cover)return;
   coverPhoto.hidden=false;
+  systemCover.hidden=true;
   cover.classList.add("has-photo");
   coverView.hidden=!canViewPhoto;
  });
  coverPhoto.addEventListener("error",()=>{
   coverPhoto.hidden=true;coverView.hidden=true;
+  systemCover.hidden=false;
   cover.classList.remove("has-photo");
  });
  const display=record=>{
-  cover.dataset.vatraCoverState="default";
+  systemCover.src=window.VATRA_AVATAR?.coverAsset("default")||"/VATRA/assets/covers/cover-default.png";
+  systemCover.dataset.vatraCoverState="default";
+  systemCover.hidden=false;
   photoURLs.cover=record?.cover_path?getPublicPath(record.cover_path,"cover"):null;
   photoURLs.avatar=record?.avatar_path?getPublicPath(record.avatar_path,"avatar"):null;
   if(isMine)window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,record?.avatar_path||null);
@@ -2079,8 +2088,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const coverReady=photoURLs.cover&&typeof coverPhoto.decode==="function"?
    coverPhoto.decode().then(()=>{
     if(!photoURLs.cover)return;
-    coverPhoto.hidden=false;cover.classList.add("has-photo");
-    cover.removeAttribute("data-vatra-cover-state");coverView.hidden=!canViewPhoto;
+    coverPhoto.hidden=false;systemCover.hidden=true;
+    cover.classList.add("has-photo");coverView.hidden=!canViewPhoto;
    }).catch(()=>{}):Promise.resolve();
   resetImage(avatar);
   window.VATRA_AVATAR?.fallback(avatar,"default");
