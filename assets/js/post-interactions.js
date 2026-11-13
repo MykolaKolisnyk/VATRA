@@ -519,7 +519,7 @@ function appendAudience(container,level,isGroup=false){
     }catch(_){}
    })();
   };
-  function renderComment(item,people,ownLikes,rootId,isReply=false){
+  function renderComment(item,people,ownLikes,rootId,isReply=false,initialReplyCount=0){
    const id=String(item.author_vatra_id);
    const name=people.names.get(id)||tr("Користувач VATRA","VATRA member");
    const card=make("article","vatra-post-comment ui-vatra-post-comment-001");
@@ -591,7 +591,7 @@ function appendAudience(container,level,isGroup=false){
      tr("Показати ще відповіді","Show more replies"));
     moreReplies.type="button";moreReplies.hidden=true;
     replyArea.append(expand,repliesList,moreReplies);content.append(replyArea);
-    let replyOffset=0,replyCount=0,open=false,working=false;
+    let replyOffset=0,replyCount=Math.max(0,Number(initialReplyCount)||0),open=false,working=false;
     const label=()=>expand.textContent=open?tr("Згорнути відповіді","Hide replies"):
      (replyCount===1?tr("1 відповідь","1 reply"):
       String(replyCount)+" "+tr("відповідей","replies"));
@@ -627,18 +627,11 @@ function appendAudience(container,level,isGroup=false){
     };
     expand.addEventListener("click",()=>void setOpen(!open));
     moreReplies.addEventListener("click",()=>void loadReplies());
-    rootReplies.set(item.id,{expand:async reload=>{expand.hidden=false;
-     replyCount=Math.max(replyCount,1);await setOpen(true,reload);}});
-    void (async()=>{
-     try{
-      const {count,error}=await client.from("vatra_post_comments")
-       .select("id",{count:"exact",head:true})
-       .eq("post_kind",kind).eq("post_id",post.id).eq("parent_comment_id",item.id);
-      if(!card.isConnected||error)return;
-      replyCount=Number(count)||0;
-      expand.hidden=replyCount===0;label();
-     }catch(_){}
-    })();
+    rootReplies.set(item.id,{expand:async reload=>{
+     replyCount=Math.max(replyCount+1,1);expand.hidden=false;await setOpen(true,reload);
+    }});
+    // The parent page supplied this count in one batched RLS-aware RPC.
+    expand.hidden=replyCount===0;label();
    }
    return card;
   }
@@ -658,8 +651,19 @@ function appendAudience(container,level,isGroup=false){
     });
     if(error)throw error;
     if(token!==ticket)return;
-    const rows=(data||[]).slice(0,pageSize),people=await authorMap(client,rows);
-    const ids=rows.map(x=>x.id);
+    const rows=(data||[]).slice(0,pageSize),ids=rows.map(x=>x.id);
+    // One batch of reply totals replaces one SELECT COUNT per root comment.
+    // Run it concurrently with profile lookups, not sequentially per card.
+    const [people,replyResult]=await Promise.all([
+     authorMap(client,rows),
+     ids.length?client.rpc("comment_reply_counts",{
+      p_kind:kind,p_post_id:post.id,p_parents:ids
+     }):Promise.resolve({data:[],error:null})
+    ]);
+    const replyCounts=new Map(
+     (replyResult?.error?[]:replyResult?.data||[])
+      .map(item=>[item.parent_id,Math.max(0,Number(item.reply_count)||0)])
+    );
     let mine=new Set();
     if(ids.length){
      const result=await client.from("vatra_post_comment_likes")
@@ -669,7 +673,7 @@ function appendAudience(container,level,isGroup=false){
     if(token!==ticket)return;
     if(reset&&!rows.length)entries.append(make("p","vt-vatra-post-comments-empty-001",
      tr("Коментарів поки немає.","No comments yet.")));
-    for(const item of rows)entries.append(renderComment(item,people,mine,item.id));
+    for(const item of rows)entries.append(renderComment(item,people,mine,item.id,false,replyCounts.get(item.id)||0));
     commentOffset+=rows.length;more.hidden=(data||[]).length<=pageSize;
     const deepComment=new URLSearchParams(location.search).get("comment");
     if(validUUID(deepComment)){
