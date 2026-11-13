@@ -2119,3 +2119,17 @@ assert.ok(
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("./community-detail-cache-smoke.mjs");
+
+/* Off-screen batch DOM rendering avoids repeated list-level mutations. */
+const batchedFeedPosts=await read("assets/js/feed.js");
+const batchedProfilePosts=await read("assets/js/profile.js");
+const batchedClubPosts=await read("assets/js/communities.js");
+assert.ok(
+ batchedFeedPosts.includes("batch.append(card(item,engagement))")&&
+ batchedFeedPosts.includes("posts.append(batch)")&&
+ batchedProfilePosts.includes("batch.append(article);")&&
+ batchedProfilePosts.includes("list.append(batch);")&&
+ batchedClubPosts.includes("const batch=document.createDocumentFragment();")&&
+ batchedClubPosts.includes("batch.append(article);")&&
+ batchedClubPosts.includes("list.append(batch);"),
+ "Feed, profile and club post pages must attach all cards in a single batch");
