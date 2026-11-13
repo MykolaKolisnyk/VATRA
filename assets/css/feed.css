@@ -1994,7 +1994,7 @@ body.feed-page .vatra-post-media-placeholder{
  background:linear-gradient(105deg,#e9eef7 16%,#f9fbff 48%,#e9eef7 80%);
  background-size:230% 100%;animation:vatraSkeletonShift 1.9s ease-in-out infinite
 }
-body.feed-page .feed-post-media.is-ready-media{background:#f8faff;border:1px solid #ecf0f8}
+body.feed-page .feed-post-media.is-ready-media{background:#f8faff;border:0}
 body.feed-page .feed-post-media .vt-feed-post-media-open-001{
  display:block;width:100%;max-width:100%;padding:0;border:0;
  border-radius:12px;background:#f8faff;cursor:zoom-in;overflow:hidden
