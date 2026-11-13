@@ -3190,6 +3190,12 @@ try{
    status:200,contentType:"image/gif",
    body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
   }));
+  // New canonical Storage buckets start empty. Supply the sample uploaded
+  // avatar locally instead of depending on legacy objects in Supabase.
+  await profilePage.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({
+   status:200,contentType:"image/gif",
+   body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
+  }));
   if(language==="uk")await profilePage.setViewportSize({width:1366,height:844});
   await profilePage.addInitScript(lang=>localStorage.setItem("vatra-language",lang),language);
   await profilePage.goto(base+"profile",{waitUntil:"domcontentloaded"});
