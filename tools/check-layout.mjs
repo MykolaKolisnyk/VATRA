@@ -1420,10 +1420,18 @@ assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/a
  profileBehavior.includes("missingProfile(publicState)")&&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
  sharedAvatar.includes('client.from("vatra_account_states")')&&
- sharedAvatar.includes("const DEFAULT_ACCENT=\"#497bd4\"")&&
- sharedAvatar.includes("function portraitColor(image)")&&
- systemProfileCss.includes("body.profile-page .profile-avatar-wrap .profile-avatar"),
- "PNG placeholders and colorful profile rings must be protected and non-clickable as photos");
+ !sharedAvatar.includes("function portraitColor(image)")&&
+ !sharedAvatar.includes("function accent(element,url)")&&
+ profileBehavior.includes('avatarWrap.dataset.vatraRingKind="default"')&&
+ profileBehavior.includes('wrap.dataset.vatraRingKind=state')&&
+ profileBehavior.includes('avatarWrap.removeAttribute("data-vatra-ring-kind")')&&
+ systemProfileCss.includes('body.profile-page .profile-avatar-wrap.has-active-story:not([data-vatra-ring-kind])::before')&&
+ systemProfileCss.includes('body.profile-page .profile-avatar-wrap[data-vatra-ring-kind]::before')&&
+ systemProfileCss.includes('--vatra-system-ring:#347fd9')&&
+ systemProfileCss.includes('--vatra-system-ring:#8391a6')&&
+ systemProfileCss.includes('--vatra-system-ring:#3b9ed8')&&
+ systemProfileCss.includes('--vatra-system-ring:#d65f6b'),
+ "System PNGs must have four individually fixed rings; real photos stay white without a story, gradient with one");
 
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
 assert.ok(

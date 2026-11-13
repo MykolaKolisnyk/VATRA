@@ -2986,6 +2986,16 @@ try{
   const storyAvatar=profilePage.locator("#profile-avatar-wrap");
   assert.equal(await storyAvatar.evaluate(el=>el.classList.contains("has-active-story")),true,
    "Only a visible active story should create a colored avatar ring");
+  const activeRing=await storyAvatar.evaluate(el=>({
+   kind:el.getAttribute("data-vatra-ring-kind"),
+   gradient:getComputedStyle(el,"::before").backgroundImage,
+   border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
+  }));
+  assert.equal(activeRing.kind,null,
+   "A member with an uploaded photo must never be treated as a system portrait");
+  assert.ok(activeRing.gradient.includes("conic-gradient")&&
+   activeRing.border==="rgb(255, 255, 255)",
+   "Only real avatars with a story get the colored story gradient");
   await profilePage.locator("#profile-avatar-trigger").hover();
   assert.equal(await profilePage.locator("#profile-avatar-menu").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar-story").isVisible(),true);
@@ -3014,6 +3024,17 @@ try{
   await profilePage.waitForFunction(()=>!document.querySelector("#profile-avatar-wrap").classList.contains("has-active-story"));
   assert.equal(await profilePage.locator("#profile-avatar-story-delete").isVisible(),false,
    "Deleting a story must immediately remove its menu action and ring");
+  const ownRingAfterStory=await storyAvatar.evaluate(el=>({
+   kind:el.getAttribute("data-vatra-ring-kind"),
+   background:getComputedStyle(el,"::before").backgroundColor,
+   image:getComputedStyle(el,"::before").backgroundImage,
+   border:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor
+  }));
+  assert.ok(ownRingAfterStory.kind===null&&
+   ownRingAfterStory.background==="rgb(255, 255, 255)"&&
+   ownRingAfterStory.image==="none"&&
+   ownRingAfterStory.border==="rgb(255, 255, 255)",
+   "Member's uploaded photo without a story must have a white ring");
   const profileCoverGap=await profilePage.evaluate(()=>{
    const header=document.querySelector(".feed-header").getBoundingClientRect();
    const cover=document.querySelector(".profile-cover").getBoundingClientRect();
@@ -3325,55 +3346,32 @@ try{
    "A non-existent member must use the uploaded not-found PNG");
   assert.equal(fallbackStyle.head,"none",
    "The old CSS silhouette must not cover the supplied PNG image");
-  await profilePage.waitForFunction(()=>
-   !!document.querySelector("#profile-avatar-wrap")?.style.getPropertyValue("--vatra-avatar-accent"),
-   {timeout:10000});
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
    const avatar=wrap.querySelector("#profile-avatar");
-   const cover=document.querySelector("#profile-cover-image");
-   const motif=cover?.querySelector(".profile-cover-motif");
+   const color=()=>getComputedStyle(wrap,"::before").backgroundColor;
+   const before=color();
+   wrap.classList.add("has-active-story");
+   const duringStory=color();
+   wrap.classList.remove("has-active-story");
    return {
+    state:wrap.dataset.vatraRingKind,
     disabledOpacity:getComputedStyle(wrap.querySelector("#profile-avatar-trigger")).opacity,
     avatarOpacity:getComputedStyle(avatar).opacity,
-    rimBackground:getComputedStyle(wrap,"::before").backgroundColor,
-    avatarBorder:getComputedStyle(avatar).borderTopColor,
-    coverAccent:cover?.style.getPropertyValue("--vatra-avatar-accent"),
-    coverRingColor:motif?getComputedStyle(motif).borderTopColor:"",
-    hasStory:wrap.classList.contains("has-active-story")
+    rimBackground:before,
+    storyBackground:duringStory,
+    avatarBorder:getComputedStyle(avatar).borderTopColor
    };
   });
   assert.equal(avatarRim.disabledOpacity,"1",
    "Noninteractive system portraits must remain fully opaque");
   assert.equal(avatarRim.avatarOpacity,"1");
-  assert.equal(avatarRim.rimBackground,avatarRim.avatarBorder,
-   "The no-story profile ring must be filled with the avatar's sampled color: "+
-   JSON.stringify(avatarRim));
-  assert.notEqual(avatarRim.rimBackground,"rgba(0, 0, 0, 0)");
-  assert.ok(!avatarRim.hasStory&&avatarRim.coverAccent,
-   "The colorful ring and cover circles must work even without an active story");
-
-  const sampledColors=await profilePage.evaluate(async()=>{
-   const evaluateColor=async fill=>{
-    const canvas=document.createElement("canvas");
-    canvas.width=24;canvas.height=24;
-    const context=canvas.getContext("2d");
-    context.fillStyle=fill;context.fillRect(0,0,24,24);
-    const node=document.createElement("span");document.body.append(node);
-    window.VATRA_AVATAR.accent(node,canvas.toDataURL("image/png"));
-    let value="";
-    for(let i=0;i<80;i++){
-     value=node.style.getPropertyValue("--vatra-avatar-accent");
-     if(value.startsWith("hsl("))break;
-     await new Promise(resolve=>setTimeout(resolve,20));
-    }
-    node.remove();return value;
-   };
-   return {green:await evaluateColor("#458c36"),red:await evaluateColor("#b94739")};
-  });
-  assert.ok(sampledColors.green.startsWith("hsl(")&&
-   sampledColors.red.startsWith("hsl(")&&sampledColors.green!==sampledColors.red,
-   "Avatar ring sampler must preserve distinct vivid hues instead of averaging them into grey: "+
-   JSON.stringify(sampledColors));
+  assert.equal(avatarRim.state,"not-found");
+  assert.equal(avatarRim.rimBackground,"rgb(59, 158, 216)",
+   "The missing-profile PNG must have its own fixed blue ring");
+  assert.equal(avatarRim.storyBackground,avatarRim.rimBackground,
+   "A system portrait retains the same ring with or without a story");
+  assert.equal(avatarRim.avatarBorder,"rgb(255, 255, 255)",
+   "The image is separated from its colored ring by a white border");
 
   assert.equal(await profilePage.locator(".profile-actions").count(),0);
   assert.equal(await profilePage.locator(".profile-panels").count(),0);
@@ -3390,6 +3388,16 @@ try{
    await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
    assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),title);
    assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),state);
+   assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),state);
+   const expected=state==="deleted"?"rgb(131, 145, 166)":"rgb(214, 95, 107)";
+   const ring=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
+    const sample=()=>getComputedStyle(el,"::before").backgroundColor;
+    const before=sample();el.classList.add("has-active-story");
+    const withStory=sample();el.classList.remove("has-active-story");
+    return {before,withStory};
+   });
+   assert.equal(ring.before,expected,"The "+state+" avatar has its own assigned ring");
+   assert.equal(ring.withStory,expected,"Story must not recolor a system "+state+" ring");
    assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
    assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
    assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
@@ -3399,6 +3407,16 @@ try{
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),"default");
+  assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),"default");
+  const defaultRing=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
+   const sample=()=>getComputedStyle(el,"::before").backgroundColor;
+   const before=sample();el.classList.add("has-active-story");
+   const withStory=sample();el.classList.remove("has-active-story");
+   return {before,withStory};
+  });
+  assert.equal(defaultRing.before,"rgb(52, 127, 217)");
+  assert.equal(defaultRing.withStory,defaultRing.before,
+   "A default PNG keeps its individual solid blue ring even with a story");
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
