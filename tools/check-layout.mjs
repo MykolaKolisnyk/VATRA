@@ -1422,10 +1422,10 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  "Only owners have one accessible three-dot menu with archive and delete");
 assert.ok(searchLogic.includes("const left=ox;")&&
  searchLogic.includes("inputBox.right-left")&&
- systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 230px!important')&&
+ systemFeedCss.includes('display:grid!important;grid-template-columns:minmax(0,1fr) 220px!important')&&
  systemFeedCss.includes('.feed-top-controls{display:contents!important}')&&
  systemFeedCss.includes('.feed-top-controls > .feed-posts-section{')&&
- systemFeedCss.includes('grid-column:1;grid-row:4;width:100%;min-width:0;margin:0')&&
+ systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0')&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
  "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
 
@@ -1457,8 +1457,25 @@ assert.ok(
 assert.ok(
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
  feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
- systemFeedCss.includes('grid-column:1;grid-row:4;width:100%;min-width:0;margin:0'),
+ systemFeedCss.includes('grid-column:1;grid-row:3;width:100%;min-width:0;margin:0'),
  "Feed posts must sit inside the same two-column grid as composer and story");
+
+// The layout shares one compact rhythm between Feed and profiles. A hidden
+// notification does not leave a phantom row; media remains uncropped.
+assert.ok(
+ systemFeedCss.includes('width:min(calc(100% - 36px),1190px)!important')&&
+ systemFeedCss.includes('grid-template-columns:minmax(0,1fr) 220px!important')&&
+ systemFeedCss.includes('row-gap:13px!important')&&
+ systemFeedCss.includes('.feed-main:has(.feed-status:not([hidden]))')&&
+ systemFeedCss.includes('max-height:440px;object-fit:contain')&&
+ systemFeedCss.includes('width:min(calc(100% - 24px),720px)!important')&&
+ systemProfileCss.includes('.profile-posts-main{min-width:0;display:flex;flex-direction:column;gap:14px}')&&
+ systemProfileCss.includes('.profile-left-stack{')&&
+ systemProfileCss.includes('gap:14px;min-width:0')&&
+ systemProfileCss.includes('gap:16px;align-items:start')&&
+ systemProfileCss.includes('box-sizing:border-box;margin-top:0')&&
+ systemProfileCss.includes('gap:10px;text-align:center;padding:28px 20px;margin-top:0;'),
+ "Feed cards, profile stacks and restricted states share compact spacing");
 
 // Each static account cover is an actual PNG image (never CSS sampled or painted).
 for(const kind of ["default","deleted","blocked","not-found"]){
