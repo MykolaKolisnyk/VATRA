@@ -31,21 +31,57 @@ function fallback(element,state="default"){
 function clearFallback(element){
  if(element)element.removeAttribute("data-vatra-avatar-state");
 }
+const STATE_TTL_MS=10_000,STATE_CACHE_MAX=256;
+// Scope short state snapshots and in-flight queries to one Supabase client.
+const stateLookupCaches=new WeakMap();
 async function states(client,ids){
- const valid=[...new Set((ids||[]).map(String).filter(id=>/^[1-9][0-9]{0,18}$/.test(id)))].slice(0,100);
+ const valid=[...new Set((ids||[]).map(String)
+  .filter(id=>/^[1-9][0-9]{0,18}$/.test(id)))].slice(0,100);
  const result=new Map();
  if(!valid.length||!client)return result;
- try{
-  const {data,error}=await client.from("account_states")
-   .select("vatra_id,state,blocked_until").in("vatra_id",valid);
-  if(error)return result;
-  for(const row of data||[]){
-   const id=String(row.vatra_id);
-   if(row.state==="deleted")result.set(id,"deleted");
-   else if(row.state==="blocked"&&row.blocked_until&&Date.parse(row.blocked_until)>Date.now())
-    result.set(id,"blocked");
-  }
- }catch(_){}
+ let bucket=stateLookupCaches.get(client);
+ if(!bucket){
+  bucket={rows:new Map(),pending:new Map()};
+  stateLookupCaches.set(client,bucket);
+ }
+ const now=Date.now();
+ const missing=valid.filter(id=>{
+  const entry=bucket.rows.get(id);
+  if(entry&&entry.expires>now)return false;
+  if(entry)bucket.rows.delete(id);
+  return !bucket.pending.has(id);
+ });
+ if(missing.length){
+  const task=(async()=>{
+   const {data,error}=await client.from("account_states")
+    .select("vatra_id,state,blocked_until").in("vatra_id",missing);
+   if(error)throw error;
+   const found=new Map((data||[]).map(row=>[String(row.vatra_id),row]));
+   const expires=Date.now()+STATE_TTL_MS;
+   for(const id of missing){
+    bucket.rows.delete(id);
+    bucket.rows.set(id,{record:found.get(id)||null,expires});
+   }
+   while(bucket.rows.size>STATE_CACHE_MAX)
+    bucket.rows.delete(bucket.rows.keys().next().value);
+  })();
+  for(const id of missing)bucket.pending.set(id,task);
+  void task.finally(()=>{
+   for(const id of missing)
+    if(bucket.pending.get(id)===task)bucket.pending.delete(id);
+  }).catch(()=>{});
+ }
+ // Reuse overlapping in-flight batches instead of issuing duplicate queries.
+ const waiting=[...new Set(valid.map(id=>bucket.pending.get(id)).filter(Boolean))];
+ if(waiting.length)await Promise.allSettled(waiting);
+ for(const id of valid){
+  const entry=bucket.rows.get(id);
+  if(!entry||entry.expires<=Date.now())continue;
+  const row=entry.record;
+  if(row?.state==="deleted")result.set(id,"deleted");
+  else if(row?.state==="blocked"&&row.blocked_until&&
+   Date.parse(row.blocked_until)>Date.now())result.set(id,"blocked");
+ }
  return result;
 }
 function safeUrl(input){
