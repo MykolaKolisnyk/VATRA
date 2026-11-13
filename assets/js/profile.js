@@ -1344,6 +1344,50 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  }
 }
 
+/* Member blocking is persisted in vatra_blocks with per-member RLS.
+   Blocking is distinct from platform suspension and from friends-only profiles. */
+function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
+ const button=q("#profile-block-toggle");
+ if(!button||isMine||!validId(ownId)||!validId(targetId))return;
+ button.hidden=false;
+ let blocked=!!blockAccess?.blockedByMe,busy=false;
+ const paint=()=>{
+  const label=blocked?t("Розблокувати користувача","Unblock member"):
+   t("Заблокувати користувача","Block member");
+  button.dataset.blocked=String(blocked);
+  button.setAttribute("aria-label",label);
+  button.title=label;
+ };
+ paint();
+ button.addEventListener("click",async()=>{
+  if(busy)return;
+  const prompt=blocked?
+   t("Розблокувати цього користувача?","Unblock this member?"):
+   t("Заблокувати користувача? Він бачитиме лише вашу обкладинку, фото та ім’я.",
+     "Block this member? They will see only your cover, avatar and name.");
+  if(!window.confirm(prompt))return;
+  busy=true;button.disabled=true;
+  const status=q("#profile-action-status");
+  try{
+   const operation=blocked?
+    client.from("vatra_blocks").delete()
+     .eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",targetId):
+    client.from("vatra_blocks").insert({
+     blocker_vatra_id:Number(ownId),blocked_vatra_id:Number(targetId)
+    });
+   const {error}=await operation;
+   if(error)throw error;
+   location.reload();
+  }catch(_){
+   if(status){
+    status.textContent=t("Не вдалося змінити блокування. Спробуйте ще раз.",
+     "Could not update blocking. Please retry.");
+    status.hidden=false;
+   }
+  }finally{busy=false;button.disabled=false;}
+ });
+}
+
 /* Multi-step profile reporting, with server-owned reporter identity and
    insert-only RLS. Reports are private moderation data, not public posts. */
 function setupProfileReports(client,ownId,targetId,isMine,locked){
@@ -2324,6 +2368,20 @@ async function start(){
   if(directoryError)throw directoryError;
   if(!member){missingProfile("not-found");return;}
   const isMine=targetId===ownId;
+  const blockAccess={blockedByMe:false,blockedByThem:false};
+  if(!isMine&&validId(ownId)){
+   try{
+    const {data:blocks,error:blockError}=await client.from("vatra_blocks")
+     .select("blocker_vatra_id,blocked_vatra_id")
+     .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
+         "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
+     .limit(2);
+    if(!blockError)for(const item of blocks||[]){
+     if(String(item.blocker_vatra_id)===ownId)blockAccess.blockedByMe=true;
+     if(String(item.blocker_vatra_id)===targetId)blockAccess.blockedByThem=true;
+    }
+   }catch(_){/* The database RLS gates still protect content on lookup failure. */}
+  }
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
   q("#profile-tab-friends").hidden=true;
@@ -2366,12 +2424,20 @@ async function start(){
   const preloadedMedia=Promise.resolve().then(()=>client.from("vatra_profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
    .catch(()=>({data:null,error:true}));
-  const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine});
+  const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess});
   const locked=access?.locked===true;
-  // Keep visitors' locked-header art visually inert; the owner layout is unchanged.
+  const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
+  // Header artwork remains visible even when database RLS restricts all posts.
   document.body.dataset.profileLocked=String(locked);
-  setupProfileInteractions(client,ownId,targetId,isMine);
+  if(memberBlocked){
+   const nav=q(".social-profile-tabs");
+   if(nav)nav.hidden=false;
+   for(const tab of nav?.querySelectorAll("[data-profile-tab],#profile-archive-wrap")||[])
+    tab.hidden=true;
+  }
+  if(!memberBlocked)setupProfileInteractions(client,ownId,targetId,isMine);
   setupProfileReports(client,ownId,targetId,isMine,locked);
+  setupProfileBlocks(client,ownId,targetId,isMine,blockAccess);
   if(!locked)void setupProfileSocialCards(client,ownId,targetId,isMine).catch(()=>{
    const f=q("#profile-friends-preview-empty"),g=q("#profile-gifts-preview-empty");
    if(f){f.textContent=t("Не вдалося завантажити друзів.","Could not load friends.");f.hidden=false;}
