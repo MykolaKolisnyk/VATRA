@@ -2709,10 +2709,11 @@ body.feed-page .vt-vatra-post-comment-emoji-option-001:hover{
  body.feed-page .vt-vatra-post-comment-emoji-option-001.is-sticker{font-size:35px}
 }
 
-/* Popovers float above subsequent post cards, whose entrance transforms create
-   independent stacking contexts; keep the active card on top. */
+/* Open post action and comment popovers must float above later post cards.
+   Post entrance animations create separate stacking contexts. */
 body.feed-page .feed-post-card:has(.vatra-post-comment-emoji-panel:not([hidden])),
-body.feed-page .feed-post-card:has(.vatra-post-comment-attach-menu:not([hidden])){
+body.feed-page .feed-post-card:has(.vatra-post-comment-attach-menu:not([hidden])),
+body.feed-page .feed-post-card:has(.vatra-post-owner-menu[open]){
  position:relative;z-index:35
 }
 
