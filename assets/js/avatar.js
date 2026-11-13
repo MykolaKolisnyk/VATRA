@@ -36,7 +36,7 @@ async function states(client,ids){
  const result=new Map();
  if(!valid.length||!client)return result;
  try{
-  const {data,error}=await client.from("vatra_account_states")
+  const {data,error}=await client.from("account_states")
    .select("vatra_id,state,blocked_until").in("vatra_id",valid);
   if(error)return result;
   for(const row of data||[]){
