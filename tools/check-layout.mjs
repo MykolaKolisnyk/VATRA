@@ -1354,7 +1354,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
- feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
+ feedStyle.includes('width:min(100%,870px);max-width:870px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must render the composer before real Stories and personalized posts");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
@@ -1365,7 +1365,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('posts.append(card(item))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
- profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine})')&&
+ profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
@@ -1420,11 +1420,32 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !feedLogic.includes('head.append(remove)')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
-assert.ok(searchLogic.includes("anchor.left")&&
+assert.ok(searchLogic.includes("const left=ox;")&&
  searchLogic.includes("inputBox.right-left")&&
  systemFeedCss.includes("grid-column:1!important;grid-row:2!important")&&
- systemProfileCss.includes("width:106px;height:106px;margin:-34px"),
- "Search popup must span Back-to-input, Stories align under composer and profile ring is compact");
+ systemFeedCss.includes(".feed-top-controls > .feed-posts-section,")&&
+ systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
+ "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
+
+// Blocking is a real member-scoped Supabase relation. Restricted viewers
+// retain public header artwork while content and interactions are gated.
+assert.ok(
+ memberProfileMarkup.includes('id="profile-block-toggle"')&&
+ memberProfileMarkup.includes('ui-profile-block-icon-001')&&
+ memberProfileMarkup.includes('ui-profile-report-flag-icon-001')&&
+ profileBehavior.includes('function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess)')&&
+ profileBehavior.includes('client.from("vatra_blocks")')&&
+ profileBehavior.includes('blockAccess.blockedByThem')&&
+ profileBehavior.includes('data-lock-reason')===false&&
+ profileBehavior.includes('notice.dataset.lockReason="block"')&&
+ profileBehavior.includes('if(!memberBlocked)setupProfileInteractions(')&&
+ systemProfileCss.includes('.profile-locked-notice[data-lock-reason="block"]'),
+ "Blocking must show a restricted member notice, hide interactions and keep SVG safety controls");
+assert.ok(
+ feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
+ feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
+ systemFeedCss.includes('grid-column:1!important;grid-row:auto!important'),
+ "Feed posts must sit inside the same two-column grid as composer and story");
 
 // Each static account cover is an actual PNG image (never CSS sampled or painted).
 for(const kind of ["default","deleted","blocked","not-found"]){

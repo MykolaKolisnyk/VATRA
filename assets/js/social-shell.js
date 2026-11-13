@@ -393,8 +393,10 @@
    const inputBox=form.getBoundingClientRect();
    // The Back button slides into view, so its animated rectangle is unstable
    // during the first frame. The parent search surface never moves.
-   const left=Math.max(ox+8,Math.min(anchor.left,inputBox.left,ox+vw-208));
-   const width=Math.max(1,Math.min(ox+vw-left-8,Math.max(210,inputBox.right-left)));
+   // Facebook-style geometry: the sheet reaches the viewport's LEFT edge,
+   // while its right side tracks the search field (not the whole header).
+   const left=ox;
+   const width=Math.max(1,Math.min(vw,inputBox.right-left));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
