@@ -190,19 +190,31 @@ function appendAudience(container,level,isGroup=false){
   if(!validId(ownId))saved.hidden=true;
   row.append(like,commentsButton,share,saved);shell.append(row);
   if(validId(ownId)){
-   let stored=false;
+   let stored=false,saveReady=false,savePending=null;
    const refresh=()=>{saved.setAttribute("aria-pressed",String(stored));
     saved.querySelector("span").textContent=stored?tr("Збережено","Saved"):tr("Зберегти","Save");};
-   void (async()=>{
-    try{
+   const hydrateSaved=()=>{
+    if(saveReady)return Promise.resolve(true);
+    if(savePending)return savePending;
+    savePending=(async()=>{
      const {data,error}=await client.from("post_saves").select("post_id")
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id).maybeSingle();
-     if(!error){stored=!!data;refresh();}
-    }catch(_){}
-   })();
+     if(error)throw error;
+     stored=!!data;saveReady=true;refresh();return true;
+    })().catch(()=>false).finally(()=>{savePending=null;});
+    return savePending;
+   };
+   // Posts far below the viewport should not each hit post_saves on initial render.
+   if(typeof IntersectionObserver==="function"){
+    const observer=new IntersectionObserver(entries=>{
+     if(entries.some(x=>x.isIntersecting)){observer.disconnect();void hydrateSaved();}
+    },{rootMargin:"160px"});
+    observer.observe(shell);
+   }else void hydrateSaved();
    saved.addEventListener("click",async()=>{
     if(saved.disabled)return;saved.disabled=true;
     try{
+     if(!await hydrateSaved())throw Error("Save state unavailable");
      const result=stored?await client.from("post_saves").delete()
       .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id):
       await client.from("post_saves").insert({owner_vatra_id:ownId,post_kind:kind,post_id:post.id});
@@ -759,18 +771,15 @@ function appendAudience(container,level,isGroup=false){
   async function refreshSocial(){
    const ticket=++socialTicket;
    try{
-    const [likesResult,commentsResult,sharesResult]=await Promise.all([
-     likeFilter(client.from("vatra_post_likes").select("liker_id",{count:"exact",head:true})),
+    // Likes are already counted by hydrateLike(); avoid a second identical
+   // COUNT request for every visible post.
+   const [commentsResult,sharesResult]=await Promise.all([
      client.from("vatra_post_comments").select("id",{count:"exact",head:true})
       .eq("post_kind",kind).eq("post_id",post.id),
      client.from("feed_posts").select("id",{count:"exact",head:true})
       .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null)
     ]);
     if(!shell.isConnected||ticket!==socialTicket)return;
-    if(!likesResult.error){
-     likeCount=Number(likesResult.count||0);
-     count.textContent=String(Math.max(0,likeCount));
-    }
     if(!commentsResult.error)commentsCount.textContent=String(Number(commentsResult.count||0));
     if(!sharesResult.error)sharesCount.textContent=String(Number(sharesResult.count||0));
    }catch(_){/* Counters remain usable while RLS or network totals are unavailable. */}

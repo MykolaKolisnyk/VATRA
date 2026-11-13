@@ -147,9 +147,14 @@
   validateGallery(files);
   const uploaded=[];
   try{
-   for(const file of files){
-    const item=await upload(client,id,file);
-    uploaded.push(item);
+   // Two uploads in parallel keep mobile bandwidth under control while
+   // avoiding one network round-trip at a time for twelve small images.
+   for(let offset=0;offset<files.length;offset+=2){
+    const batch=files.slice(offset,offset+2);
+    const results=await Promise.allSettled(batch.map(file=>upload(client,id,file)));
+    for(const result of results)if(result.status==="fulfilled")uploaded.push(result.value);
+    const failure=results.find(result=>result.status==="rejected");
+    if(failure)throw failure.reason;
    }
    return uploaded;
   }catch(error){
@@ -215,7 +220,42 @@
  }
 
  const signedURLs=new Map();
+ // Prevent long-lived tabs from retaining unlimited expired URL metadata.
+ const trimSignedCache=()=>{
+  const now=Date.now();
+  for(const [key,entry] of signedURLs)if(entry.expiry<=now)signedURLs.delete(key);
+  while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
+ };
  let firstImages=0;
+ // Sign each visible gallery in at most one request per Storage bucket,
+ // rather than one signed-URL RPC per thumbnail.
+ async function preSignGallery(client,items,ttl=3600){
+  const grouped=new Map();
+  for(const item of items){
+   const kind=item.media_kind,path=item.media_path,key=ttl+":"+kind+":"+path;
+   if(signedURLs.get(key)?.expiry>Date.now())continue;
+   if(!grouped.has(kind))grouped.set(kind,[]);
+   grouped.get(kind).push(path);
+  }
+  await Promise.allSettled([...grouped].map(async([kind,paths])=>{
+   const bucket=client.storage.from(bucketFor(kind));
+   if(typeof bucket.createSignedUrls!=="function")return;
+   const {data,error}=await bucket.createSignedUrls(paths,ttl);
+   if(error||!Array.isArray(data))return;
+   for(let i=0;i<paths.length;i++){
+    const item=data[i];
+    if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
+    try{
+     const url=new URL(item.signedUrl,location.origin);
+     if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")continue;
+     signedURLs.set(ttl+":"+kind+":"+paths[i],{
+      expiry:Date.now()+Math.max(30,ttl-30)*1000,promise:Promise.resolve(url.href)
+     });
+    }catch(_){}
+   }
+  }));
+  trimSignedCache();
+ }
  async function signed(client,kind,path,ttl=3600){
   const key=ttl+":"+kind+":"+path,entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
@@ -227,6 +267,7 @@
    return url.href;
   }).catch(error=>{signedURLs.delete(key);throw error;});
   signedURLs.set(key,{expiry:Date.now()+Math.max(30,ttl-30)*1000,promise});
+  trimSignedCache();
   return promise;
  }
  async function renderStory(client,story,slot,preview=false,allowExpired=false){
@@ -367,6 +408,7 @@
   let begun=false;
   async function loadTiles(){
    if(begun)return;begun=true;
+   await preSignGallery(client,tiles.map(({item})=>item));
    await Promise.allSettled(tiles.map(async({item,tile,index})=>{
     try{
      const src=await signed(client,item.media_kind,item.media_path);

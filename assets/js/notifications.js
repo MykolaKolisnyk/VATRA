@@ -217,7 +217,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
   status.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
    "Could not load notifications. Please retry.");
   status.hidden=false;if(prev)prev.disabled=true;if(next)next.disabled=true;
-  return rows;
+  return [];
  }finally{list.setAttribute("aria-busy","false");}
 }
 async function panelLoad(){
@@ -332,17 +332,27 @@ function start(c,id){
  if(!bell)return;
  sessionStarted=true;
  void unreadCount();
- const refresh=()=>{if(document.hidden)return;void unreadCount();if(open)void panelLoad();};
- window.addEventListener("focus",refresh,{passive:true});
- document.addEventListener("visibilitychange",refresh,{passive:true});
- setInterval(refresh,30000);
- // Instant update when Realtime publication is available; polling is a fallback.
+ // Coalesce duplicate focus/visibility events and prefer realtime to polling.
+ let subscribed=false,lastRefresh=Date.now(),lastPoll=Date.now();
+ const refresh=(force=false)=>{
+  if(document.hidden||(!force&&Date.now()-lastRefresh<15000))return;
+  lastRefresh=Date.now();void unreadCount();if(open)void panelLoad();
+ };
+ window.addEventListener("focus",()=>refresh(),{passive:true});
+ document.addEventListener("visibilitychange",()=>refresh(),{passive:true});
+ setInterval(()=>{
+  const now=Date.now(),period=subscribed?300000:60000;
+  if(now-lastPoll<period)return;
+  lastPoll=now;refresh();
+ },60000);
+ // Subscription events trigger immediate updates; polling is a fallback.
  try{
   if(typeof client.channel==="function")
    liveChannel=client.channel("vatra-notices-"+ownId)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"member_notifications",
-     filter:"recipient_vatra_id=eq."+ownId},refresh).subscribe();
- }catch(_){}
+     filter:"recipient_vatra_id=eq."+ownId},()=>refresh(true))
+    .subscribe(status=>{subscribed=status==="SUBSCRIBED";});
+ }catch(_){subscribed=false;}
 }
 async function pageLoad(append=false){
  const list=pick("#notifications-list"),empty=pick("#notifications-empty");

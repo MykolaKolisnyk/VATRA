@@ -1,5 +1,5 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
-const CACHE="vatra-offline-shell-v49";
+const CACHE="vatra-offline-shell-v50";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -58,16 +58,16 @@ self.addEventListener("fetch",event=>{
  }
  if(ASSETS.includes(url.pathname)&&request.method==="GET"){
   event.respondWith((async()=>{
+   // Versioned, pre-cached UI resources are immutable for this worker version.
+   // Avoid a network request on every navigation or language switch.
+   const cache=await caches.open(CACHE);
+   const existing=await cache.match(url.pathname);
+   if(existing)return existing;
    try{
     const fresh=await fetch(request);
-    if(fresh.ok){
-     const cache=await caches.open(CACHE);
-     await cache.put(url.pathname,fresh.clone());
-    }
+    if(fresh.ok)await cache.put(url.pathname,fresh.clone());
     return fresh;
-   }catch(_){
-    return await caches.match(url.pathname)||Response.error();
-   }
+   }catch(_){return Response.error();}
   })());
  }
 });

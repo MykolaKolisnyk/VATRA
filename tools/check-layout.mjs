@@ -1462,6 +1462,20 @@ assert.ok(
  (await read("club.html")).includes('type="file" multiple'),
  "Gallery posting, secure preview and on-demand comments must remain intact");
 
+const notificationPerfScript=await read("assets/js/notifications.js");
+const workerPerfScript=await read("sw.js");
+assert.ok(
+ postMediaScript.includes('createSignedUrls(paths,ttl)')&&
+ postMediaScript.includes('while(signedURLs.size>256)')&&
+ postMediaScript.includes('Promise.allSettled(batch.map(file=>upload(client,id,file)))')&&
+ interactionsScript.includes('const [commentsResult,sharesResult]=await Promise.all([')&&
+ interactionsScript.includes('const hydrateSaved=()=>{')&&
+ notificationPerfScript.includes('period=subscribed?300000:60000')&&
+ notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
+ workerPerfScript.includes('const existing=await cache.match(url.pathname)')&&
+ workerPerfScript.includes('if(existing)return existing;'),
+ "Optimized media batching, bounded caches and idle query throttling must remain intact");
+
 // Blocking is a real member-scoped Supabase relation. Restricted viewers
 // retain public header artwork while content and interactions are gated.
 assert.ok(
