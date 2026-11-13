@@ -1354,7 +1354,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
- feedStyle.includes('width:min(100%,700px);max-width:700px;min-width:0;')&&
+ feedStyle.includes('width:min(100%,870px);max-width:870px;min-width:0;')&&
  auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must render the composer before real Stories and personalized posts");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
@@ -1365,7 +1365,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  feedScript.includes('posts.append(card(item))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
- profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine})')&&
+ profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
  profileScript.includes('void mediaPromise.catch(()=>{')&&
  memberProfileMarkup.includes('ui-vatra-profile-realistic-skeleton-001')&&
  profileScript.includes('setImage(postAvatar,candidate)')&&
