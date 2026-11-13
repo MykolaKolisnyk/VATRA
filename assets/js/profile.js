@@ -1599,7 +1599,7 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
   if(sending||step!=="review")return;
   sending=true;submit.disabled=true;message("");
   try{
-   const {error:insertError}=await client.from("vatra_profile_reports").insert({
+   const {error:insertError}=await client.from("profile_reports").insert({
     target_vatra_id:Number(targetId),category,reason,
     details:String(dialog.dataset.reportDraft||"").trim().slice(0,1500)
    });
