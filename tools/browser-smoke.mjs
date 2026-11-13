@@ -2899,12 +2899,15 @@ try{
    "Feed must provide three distinct source filters");
   if(language==="uk"){
    const filterGeometry=await feedProbe.evaluate(()=>{
-    const wrap=document.querySelector(".feed-top-controls").getBoundingClientRect();
+    const wrap=document.querySelector(".feed-main").getBoundingClientRect();
+    const ad=document.querySelector(".feed-ad-sidebar").getBoundingClientRect();
     const filters=document.querySelector(".feed-filter-row").getBoundingClientRect();
     const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
     const stories=document.querySelector(".feed-stories").getBoundingClientRect();
     const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
-    return {right:filters.right,edge:wrap.right,composerTop:composer.top,storyTop:stories.top,
+    return {right:filters.right,edge:wrap.right,adLeft:ad.left,adRight:ad.right,
+     adTop:ad.top,adBottom:ad.bottom,viewportWidth:document.documentElement.clientWidth,
+     composerTop:composer.top,storyTop:stories.top,
      postLeft:posts.left,postWidth:posts.width,
      composerBottom:composer.bottom,filterBottom:filters.bottom,
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
@@ -2919,16 +2922,27 @@ try{
     Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
-   assert.ok(filterGeometry.screenWidth>760?
+   assert.ok(filterGeometry.screenWidth>950?
     (filterGeometry.composerWidth>filterGeometry.filterWidth*1.7&&
-     filterGeometry.filterLeft>=filterGeometry.composeRight+6&&
+     filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
      Math.abs(filterGeometry.composerTop-filterGeometry.filterTop)<3&&
      filterGeometry.storyTop>=filterGeometry.filterBottom-3):
     (Math.abs(filterGeometry.filterWidth-filterGeometry.composerWidth)<3&&
      Math.abs(filterGeometry.filterLeft-filterGeometry.composeLeft)<3&&
      filterGeometry.storyTop>=filterGeometry.composerBottom-3&&
      filterGeometry.filterTop>=filterGeometry.storyBottom-3),
-    "Feed composer and Story share left lane, filter right (stacked below on mobile): "+JSON.stringify(filterGeometry));
+    "Feed post lane and independent filter must fit without overlap: "+JSON.stringify(filterGeometry));
+   if(filterGeometry.viewportWidth>1200){
+    assert.ok(filterGeometry.adRight+12<=filterGeometry.composeLeft&&
+     filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
+     filterGeometry.adLeft>=0&&
+     filterGeometry.right<=filterGeometry.viewportWidth&&
+     Math.abs((filterGeometry.composeLeft+filterGeometry.composeRight)/2-filterGeometry.viewportWidth/2)<30,
+     "Desktop Feed uses symmetric ad / centred posts / filter columns: "+JSON.stringify(filterGeometry));
+   }else{
+    assert.ok(filterGeometry.adTop>=filterGeometry.storyBottom-2,
+     "At narrower widths ads move below the reading lane rather than squeezing posts");
+   }
   }
   assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false,
    "Feed filter choices start collapsed");
