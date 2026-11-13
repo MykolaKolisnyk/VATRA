@@ -1315,7 +1315,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    const state=friendStates.get(id)||null,path=mediaMap.get(id);
    let avatar=null;
    if(!state&&path&&path.startsWith(id+"/avatar/")){
-    const {data}=client.storage.from("vatra-avatars").getPublicUrl(path);
+    const {data}=client.storage.from("avatars").getPublicUrl(path);
     avatar=data?.publicUrl||null;
    }
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
@@ -1919,7 +1919,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const mediaHeading=q("#profile-media-viewer-heading"),storyDialog=q("#profile-story-viewer");
  const storyHeading=q("#profile-story-viewer-heading"),storyBody=q("#profile-story-viewer-text");
  const storyMedia=q("#profile-story-viewer-media");
- const bucketFor=kind=>kind==="avatar"?"vatra-avatars":"vatra-covers";
+ const bucketFor=kind=>kind==="avatar"?"avatars":"covers";
  let saved=null,activeStory=null;
  const photoURLs={avatar:null,cover:null};
  window.VATRA_AVATAR?.fallback(avatar,"default");

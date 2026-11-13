@@ -12,7 +12,7 @@ const start=source.indexOf(" const signedURLs=new Map();");
 const end=source.indexOf(" async function renderStory(",start);
 assert.ok(start>=0&&end>start,"Find signed Storage URL cache implementation");
 const context={Map,Date,URL,Promise,Number,location:{origin:"https://example.test"},
- bucketFor:kind=>kind==="image"?"vatra-post-images":"vatra-videos"};
+ bucketFor:kind=>kind==="image"?"post-images":"videos"};
 runInNewContext(source.slice(start,end)+
  "\nglobalThis.mediaCacheTest={signed};",context);
 const signed=context.mediaCacheTest.signed;
@@ -21,7 +21,7 @@ let calls=0;
 const client={storage:{from:bucket=>({
  createSignedUrl:async(path,ttl)=>{
   calls++;
-  assert.equal(bucket,"vatra-post-images");
+  assert.equal(bucket,"post-images");
   assert.equal(path,"7/comments/example.png");
   assert.ok([300,301].includes(ttl));
   return {data:{signedUrl:host+"/storage/v1/object/sign/"+

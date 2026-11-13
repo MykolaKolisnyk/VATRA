@@ -3186,7 +3186,13 @@ try{
   });
   profilePage.on("pageerror",error=>console.log("VATRA browser pageerror:",error.message));
   // The public cover is a real image now; serve a deterministic pixel in mocks.
-  await profilePage.route("**/storage/v1/object/public/vatra-covers/**",route=>route.fulfill({
+  await profilePage.route("**/storage/v1/object/public/covers/**",route=>route.fulfill({
+   status:200,contentType:"image/gif",
+   body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
+  }));
+  // New canonical Storage buckets start empty. Supply the sample uploaded
+  // avatar locally instead of depending on legacy objects in Supabase.
+  await profilePage.route("**/storage/v1/object/public/avatars/**",route=>route.fulfill({
    status:200,contentType:"image/gif",
    body:Buffer.from("R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=","base64")
   }));
@@ -3235,7 +3241,7 @@ try{
   });
   assert.ok(Math.abs(coverViewer.width-coverViewer.viewportWidth)<=2&&
    Math.abs(coverViewer.height-coverViewer.viewportHeight)<=2&&
-   coverViewer.source.includes("/vatra-covers/654321/cover/test-cover.webp"),
+   coverViewer.source.includes("/covers/654321/cover/test-cover.webp"),
    "Cover photo should fill the viewer viewport without cropping the original: "+JSON.stringify(coverViewer));
   await profilePage.locator("#profile-media-viewer-close").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
@@ -3268,7 +3274,7 @@ try{
   await profilePage.locator("#profile-avatar-photo").click();
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),true);
   assert.ok((await profilePage.locator("#profile-media-viewer-image").getAttribute("src"))
-   .includes("/vatra-avatars/654321/avatar/test-profile.webp"));
+   .includes("/avatars/654321/avatar/test-profile.webp"));
   await profilePage.keyboard.press("Escape");
   assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false,
    "Escape should close the fullscreen avatar viewer");

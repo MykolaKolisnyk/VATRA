@@ -1,5 +1,8 @@
 # VATRA domain naming migration — safe rollout
 
+> **Current state — 13 November 2026:** All 27 physical public tables are named without the old `vatra_` prefix. The 21 legacy `vatra_` compatibility views were removed (migration `20261113195057`) after dependency checks; the historical migration notes below describe earlier states. Four new Storage buckets — `avatars`, `covers`, `post-images`, `videos` — were created with matching limits and privacy plus 10 mirrored RLS policies (migration `20261113195123`). New browser code uses these IDs. Old Storage buckets and their existing files remain available for planned cleanup; files were **not** copied automatically. Storage files must only be removed using Supabase Storage API or Dashboard, never directly through SQL.
+
+
 ## Completed: three physical table renames
 
 Migration `20261113174336` changed these **physical** PostgreSQL table names
@@ -63,16 +66,15 @@ migrating inserts/updates and conflict-handling behavior. Never batch DROP
 CASCADE, never turn off RLS to make a rename work, and don't rename all 27
 tables in a single deployment.
 
-## Storage naming — not yet migrated
+## Storage naming — canonical buckets created (historical migration plan below)
 
-The database currently contains objects under `vatra-avatars`,
-`vatra-covers`, `vatra-post-images`, and `vatra-videos`.
-Storage bucket IDs appear in browser uploads, download URLs, storage RLS,
-and persisted `media_path` / `media_items` references.
-Renaming buckets in-place or deleting them can break existing files.
-Migration requires: new bucket creation, copy+verify **every** object and
-metadata, parallel read support, atomic switch of upload paths and RLS,
-and a rollback window. Leave original buckets intact until verified.
+The new buckets are available and the current browser references them. Old
+object paths in existing database rows still refer to files in the previous
+buckets: because this project is in the test-data cleanup phase, no object
+migration was attempted. Those rows may display missing media until cleaned.
+The four old buckets and 33 existing objects remain intact for now. Remove
+them only using the Storage API/Dashboard after the old test data is cleaned;
+never delete `storage.objects` metadata with SQL.
 
 ## Checklist for remaining physical names
 

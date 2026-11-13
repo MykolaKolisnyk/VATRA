@@ -4,11 +4,11 @@
  if(window.VATRA_HOST_ALLOWED===false)return;
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const formats={
-  "image/jpeg":{kind:"image",ext:"jpg",bucket:"vatra-post-images",limit:6291456},
-  "image/png":{kind:"image",ext:"png",bucket:"vatra-post-images",limit:6291456},
-  "image/webp":{kind:"image",ext:"webp",bucket:"vatra-post-images",limit:6291456},
-  "video/mp4":{kind:"video",ext:"mp4",bucket:"vatra-videos",limit:52428800},
-  "video/webm":{kind:"video",ext:"webm",bucket:"vatra-videos",limit:52428800}
+  "image/jpeg":{kind:"image",ext:"jpg",bucket:"post-images",limit:6291456},
+  "image/png":{kind:"image",ext:"png",bucket:"post-images",limit:6291456},
+  "image/webp":{kind:"image",ext:"webp",bucket:"post-images",limit:6291456},
+  "video/mp4":{kind:"video",ext:"mp4",bucket:"videos",limit:52428800},
+  "video/webm":{kind:"video",ext:"webm",bucket:"videos",limit:52428800}
  };
  const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id||""));
  const formatFor=file=>{
@@ -24,7 +24,7 @@
   return validId(id)&&typeof path==="string"&&
    new RegExp("^"+id+"/posts/[a-f0-9-]{36}\\."+ext+"$").test(path);
  };
- const bucketFor=kind=>kind==="image"?"vatra-post-images":"vatra-videos";
+ const bucketFor=kind=>kind==="image"?"post-images":"videos";
  const storyPathValid=(path,kind,id)=>{
   if(!validId(id)||typeof path!=="string"||!["image","video"].includes(kind))return false;
   const extension=kind==="image"?"(?:jpg|png|webp)":"(?:mp4|webm)";
@@ -139,8 +139,8 @@
    (item.media_kind==="image"?imagePaths:videoPaths).push(item.media_path);
   }
   await Promise.allSettled([
-   imagePaths.length?client.storage.from("vatra-post-images").remove(imagePaths):Promise.resolve(),
-   videoPaths.length?client.storage.from("vatra-videos").remove(videoPaths):Promise.resolve()
+   imagePaths.length?client.storage.from("post-images").remove(imagePaths):Promise.resolve(),
+   videoPaths.length?client.storage.from("videos").remove(videoPaths):Promise.resolve()
   ]);
  }
  async function uploadGallery(client,id,files){

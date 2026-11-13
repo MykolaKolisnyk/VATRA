@@ -46,7 +46,7 @@ async function data(){
    const id=String(media.vatra_id),path=String(media.avatar_path||"");
    if(accountStates.has(id)||!path.startsWith(id+"/avatar/"))continue;
    try{
-    const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
+    const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
     const parsed=new URL(url);
     if(parsed.protocol==="https:"&&parsed.hostname==="rjasunoawrxvetwadylh.supabase.co")
      photos.set(id,parsed.href);

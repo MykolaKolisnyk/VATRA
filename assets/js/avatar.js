@@ -89,7 +89,7 @@ function safeUrl(input){
  try{
   const url=new URL(input);
   if(url.origin!==ORIGIN||url.search||url.hash)return null;
-  if(!/^\/storage\/v1\/object\/public\/vatra-avatars\/[1-9][0-9]{0,18}\/avatar\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp)$/i.test(url.pathname))return null;
+  if(!/^\/storage\/v1\/object\/public\/avatars\/[1-9][0-9]{0,18}\/avatar\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp)$/i.test(url.pathname))return null;
   return url.href;
  }catch(_){return null;}
 }
@@ -135,7 +135,7 @@ function fromPath(client,email,id,path){
   }
   return cache(email,null);
  }
- const url=client?.storage?.from("vatra-avatars")?.getPublicUrl(path)?.data?.publicUrl;
+ const url=client?.storage?.from("avatars")?.getPublicUrl(path)?.data?.publicUrl;
  const safe=safeUrl(url);
  if(!safe)return false;
  const photo=new Image();
