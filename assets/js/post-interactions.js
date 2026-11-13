@@ -579,10 +579,19 @@ function appendAudience(container,level,isGroup=false){
    const bucket=kind==="image"?"vatra-post-images":"vatra-videos";
    void (async()=>{
     try{
-     const {data,error}=await client.storage.from(bucket).createSignedUrl(path,300);
-     if(error||!data?.signedUrl||!box.isConnected)return;
-     const url=new URL(data.signedUrl,location.origin);
-     if(url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
+     // Reuse the short-lived, in-memory Storage URL cache already used by posts.
+     const getSigned=window.VATRA_POST_MEDIA?.signed;
+     let signedUrl;
+     if(typeof getSigned==="function"){
+      signedUrl=await getSigned(client,kind,path,300);
+     }else{
+      const {data,error}=await client.storage.from(bucket).createSignedUrl(path,300);
+      if(error)throw error;
+      signedUrl=data?.signedUrl;
+     }
+     if(!signedUrl||!box.isConnected)return;
+     const url=new URL(signedUrl,location.origin);
+     if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
      media.src=url.href;
     }catch(_){}
    })();

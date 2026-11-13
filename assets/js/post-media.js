@@ -575,5 +575,5 @@
    observer.observe(slot);
   }
  }
- window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,renderStory,linkifyHashtags,collapsibleBody};
+ window.VATRA_POST_MEDIA={bindPicker,bindGalleryPicker,validateGallery,upload,uploadGallery,removeGallery,uploadStory,remove,mount,renderStory,linkifyHashtags,collapsibleBody,signed};
 })();
