@@ -1244,10 +1244,10 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   item.append(img,title,sub);return item;
  }
  q("#profile-friends-all")?.addEventListener("click",()=>{
-  location.assign(new URL("friends.html"+(isMine?"":"?member="+targetId),home).href);
+  location.assign(new URL("friends"+(isMine?"":"?member="+targetId),home).href);
  });
  q("#profile-gifts-all")?.addEventListener("click",()=>{
-  location.assign(new URL("gifts.html"+(isMine?"":"?member="+targetId),home).href);
+  location.assign(new URL("gifts"+(isMine?"":"?member="+targetId),home).href);
  });
  window.VATRA_PROFILE_SHOW_COMMUNITIES=async()=>{
   if(communitiesLoaded)return;
