@@ -379,10 +379,10 @@
     closeIcon.setAttribute("fill","none");closeIcon.setAttribute("stroke","currentColor");
     closeIcon.setAttribute("stroke-width","1.8");closeIcon.setAttribute("stroke-linecap","round");
     closeIcon.setAttribute("aria-hidden","true");
-    const cross = document.createElementNS("http://www.w3.org/2000/svg","path");
-    cross.setAttribute("class","ui-language-close-path");
-    cross.setAttribute("d","M6 6l12 12M18 6 6 18");
-    closeIcon.append(cross);closeBtn.append(closeIcon);
+    const closePath = document.createElementNS("http://www.w3.org/2000/svg","path");
+    closePath.setAttribute("class","ui-language-close-path");
+    closePath.setAttribute("d","M6 6l12 12M18 6 6 18");
+    closeIcon.append(closePath);closeBtn.append(closeIcon);
     headingRow.append(texts, closeBtn);
     const searchField = document.createElement("div");
     searchField.className = "field language-search-field vt-language-search-label";
