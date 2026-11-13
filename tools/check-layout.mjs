@@ -1195,7 +1195,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("max-width:292px;height:36px")&&
  sharedCss.includes("flex:0 0 108px")&&
  sharedCss.includes("flex:0 0 86px")&&
- sharedCss.includes("margin:0 auto!important;gap:13px")&&
+ sharedCss.includes("grid-template-columns:minmax(0,1fr) 230px!important;")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(290px,54dvh)")&&
  sharedCss.includes(".vatra-search-edit{")&&
