@@ -319,7 +319,7 @@ function appendAudience(container,level,isGroup=false){
   const sortLabel=make("label","vt-vatra-post-comments-filter-label-001");
   sortLabel.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
-  sort.name="post_comments_sort";
+  sort.name="vatra_post_comments_sort";
   sort.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   for(const [id,uk,en] of [
    ["relevant","Найактуальніші","Most relevant"],
