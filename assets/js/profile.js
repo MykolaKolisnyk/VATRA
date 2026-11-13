@@ -850,6 +850,16 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     more.dataset.bound="true";
     more.addEventListener("click",()=>void loadPosts(client,targetId,ownId,userId,true));
    }
+   if(!more.dataset.autoPageBound&&typeof IntersectionObserver==="function"){
+    more.dataset.autoPageBound="true";
+    const postPager=new IntersectionObserver(entries=>{
+     if(entries.some(entry=>entry.isIntersecting)&&!more.hidden&&!more.disabled&&
+      list.dataset.loading!=="true"&&document.visibilityState!=="hidden"){
+      void loadPosts(client,targetId,ownId,userId,true);
+     }
+    },{rootMargin:"0px 0px 240px 0px"});
+    postPager.observe(more);
+   }
   }
  }catch(_){
   if(ticket!==profilePostsRequest)return;
