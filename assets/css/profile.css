@@ -2487,28 +2487,24 @@ body.profile-page .profile-avatar-wrap[data-vatra-ring-kind] .profile-avatar{
             0 11px 26px rgba(44,79,176,.14)!important
 }
 
-/* The four supplied high-resolution cover assets mirror system avatar states.
-   Own uploaded covers take priority. System artwork cannot open the photo viewer. */
-body.profile-page.feed-page:not(.community-page) .profile-cover[data-vatra-cover-state]:not(.has-photo){
- background-color:#e6edf8;
- background-image:var(--vatra-default-cover)!important;
- background-size:cover!important;background-position:center center!important;
- background-repeat:no-repeat!important
+/* Cover artwork is a real PNG image for each account state, not a painted
+   gradient. All four system files use the same centered full-bleed geometry. */
+body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-system-001{
+ position:absolute;inset:0;z-index:1;display:block;width:100%;height:100%;
+ max-width:none;max-height:none;object-fit:cover;object-position:center center;
+ border:0;border-radius:0;pointer-events:none
 }
-body.profile-page.feed-page:not(.community-page) .profile-cover[data-vatra-cover-state="deleted"]:not(.has-photo){
- background-image:var(--vatra-deleted-cover)!important
+body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-system-001[hidden]{
+ display:none!important
 }
-body.profile-page.feed-page:not(.community-page) .profile-cover[data-vatra-cover-state="not-found"]:not(.has-photo){
- background-image:var(--vatra-not-found-cover)!important
+body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001{
+ z-index:2
 }
-body.profile-page.feed-page:not(.community-page) .profile-cover[data-vatra-cover-state="blocked"]:not(.has-photo){
- background-image:var(--vatra-blocked-cover)!important
-}
-body.profile-page .profile-cover[data-vatra-cover-state]:not(.has-photo)::before,
-body.profile-page .profile-cover[data-vatra-cover-state]:not(.has-photo)::after{
+body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover::before,
+body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover::after{
  content:none!important;display:none!important
 }
-body.profile-page .profile-cover[data-vatra-cover-state]:not(.has-photo) .profile-cover-motif,
-body.profile-page .profile-cover[data-vatra-cover-state]:not(.has-photo) .profile-cover-signature{
+body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover .profile-cover-motif,
+body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover .profile-cover-signature{
  display:none!important
 }
