@@ -25,6 +25,14 @@
   if(type==="heart")path("M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
   if(type==="comments")path("M20.5 11.6a8.5 8.5 0 0 1-8.6 8.1 9 9 0 0 1-3.8-.9L3 20l1.4-4.5A8.3 8.3 0 0 1 3.5 12a8.5 8.5 0 0 1 17 0Z M8 10h8M8 13.5h5");
   if(type==="bookmark")path("M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z");
+  if(type==="paperclip")path("m9 13 6-6a3.2 3.2 0 0 1 4.5 4.5l-8 8a5.2 5.2 0 0 1-7.4-7.4l8-8");
+  if(type==="camera")path("M4 7h3l2-3h6l2 3h3v13H4V7ZM12 10a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z");
+  if(type==="smile")path("M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 14c2.2 3 5.8 3 8 0M9 10h.01M15 10h.01");
+  if(type==="arrow")path("M4 12h15m-6-6 6 6-6 6");
+  if(type==="video")path("M4 5h13v14H4zM17 9l4-3v12l-4-3");
+  if(type==="file")path("M6 3h9l4 4v14H6V3ZM15 3v5h4");
+  if(type==="x")path("M5 5 19 19M19 5 5 19");
+
   if(type==="share"){
    path("M8.6 11.2 16 6.7M8.6 13 16 17.3");
    for(const [cx,cy] of [[5.3,12.2],[18,5.5],[18,18.5]]){
@@ -193,8 +201,9 @@ function appendAudience(container,level,isGroup=false){
   // Real inline thread belongs to every post; never hide comments behind a separate view.
   const panel=make("div","vatra-post-comments-panel ui-vatra-post-comments-panel-001");
   commentsButton.setAttribute("aria-expanded","true");
+
   const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
-  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Сортувати:","Sort:"));
+  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Сортування","Sort"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
   sort.name="vatra_post_comments_sort";
   for(const [id,uk,en] of [
@@ -202,20 +211,18 @@ function appendAudience(container,level,isGroup=false){
    ["newest","Спочатку нові","Newest first"],
    ["all","Усі коментарі","All comments"]
   ]){
-   const option=make("option","ui-vatra-post-comment-option-"+id, tr(uk,en));
+   const option=make("option","ui-vatra-post-comment-option-"+id,tr(uk,en));
    option.value=id;sort.append(option);
   }
   sortLabel.append(sort);filterRow.append(sortLabel);
   const note=make("small","vt-vatra-post-comments-sort-note-001");
   const updateNote=()=>{
    note.textContent=sort.value==="relevant"?
-    tr("Спочатку друзі й коментарі з найбільшою кількістю вподобань.",
-       "Friends and most-liked comments appear first."):
+    tr("Спочатку друзі та найпопулярніші коментарі.","Friends and most-liked comments appear first."):
     sort.value==="newest"?
-    tr("Від нових до старих, без позначеного спаму.",
-       "Newest first, excluding marked spam."):
-    tr("Усі доступні коментарі, включно з можливим спамом.",
-       "All available comments, including potential spam.");
+    tr("Від найновіших, без позначеного спаму.","Newest first, excluding marked spam."):
+    tr("Усі доступні коментарі, зокрема можливий спам.",
+       "All accessible comments, including possible spam.");
   };
   updateNote();panel.append(filterRow,note);
   const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001");
@@ -225,112 +232,412 @@ function appendAudience(container,level,isGroup=false){
   more.type="button";more.hidden=true;
   const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001");
   const input=make("textarea","ui-vatra-post-comment-input-001");
-  input.name="vatra_post_comment";
-  input.maxLength=1000;input.rows=2;input.required=true;
-  input.placeholder=tr("Написати коментар…","Write a comment…");
+  input.name="vatra_post_comment";input.maxLength=1000;input.rows=1;
+  input.placeholder=tr("Коментувати…","Write a comment…");
   input.setAttribute("aria-label",tr("Ваш коментар","Your comment"));
-  const send=make("button","vt-vatra-post-comment-send-001",tr("Надіслати","Send"));send.type="submit";
-  form.append(input,send);panel.append(entries,more,form);shell.append(panel);
-
+  const ownPortrait=make("span","vatra-post-comment-composer-avatar ui-vatra-post-comment-composer-avatar-001");
+  ownPortrait.setAttribute("aria-hidden","true");
+  window.VATRA_AVATAR?.fallback(ownPortrait);
+  const headerPortrait=document.querySelector("#feed-header-avatar");
+  if(headerPortrait?.classList.contains("has-photo")){
+   ownPortrait.style.backgroundImage=headerPortrait.style.backgroundImage;
+   ownPortrait.classList.add("has-photo");
+  }
+  const composer=make("div","vatra-post-comment-composer ui-vatra-post-comment-composer-001");
+  const replying=make("div","vatra-post-comment-replying ui-vatra-post-comment-replying-001");
+  replying.hidden=true;
+  const replyingText=make("span","vt-vatra-post-comment-replying-text-001");
+  const cancelReply=make("button","vt-vatra-post-comment-cancel-reply-001");
+  cancelReply.type="button";cancelReply.setAttribute("aria-label",tr("Скасувати відповідь","Cancel reply"));
+  cancelReply.append(glyph("x"));replying.append(replyingText,cancelReply);
+  const composerInput=make("div","vatra-post-comment-input-wrap ui-vatra-post-comment-input-wrap-001");
+  const controls=make("div","vatra-post-comment-toolbar ui-vatra-post-comment-toolbar-001");
+  const tool=(type,cls,label)=>{
+   const button=make("button",cls);button.type="button";button.append(glyph(type));
+   button.setAttribute("aria-label",label);button.title=label;return button;
+  };
+  const attach=tool("paperclip","vt-vatra-post-comment-attach-001",tr("Додати вкладення","Attach media"));
+  const camera=tool("camera","vt-vatra-post-comment-camera-001",tr("Додати фотографію","Attach photo"));
+  const emoji=tool("smile","vt-vatra-post-comment-emoji-001",tr("Емодзі та стікери","Emoji and stickers"));
+  const send=tool("arrow","vt-vatra-post-comment-send-001",tr("Опублікувати коментар","Post comment"));
+  send.type="submit";
+  controls.append(attach,camera,emoji,send);
+  composerInput.append(input,controls);
+  const popovers=make("div","vatra-post-comment-popovers ui-vatra-post-comment-popovers-001");
+  const attachmentMenu=make("div","vatra-post-comment-attach-menu ui-vatra-post-comment-attach-menu-001");
+  attachmentMenu.hidden=true;attachmentMenu.setAttribute("role","menu");
+  const fileInput=make("input","ui-vatra-post-comment-file-001");
+  fileInput.type="file";fileInput.accept="image/jpeg,image/png,image/webp,video/mp4,video/webm";
+  fileInput.hidden=true;fileInput.setAttribute("aria-label",tr("Додати файл до коментаря","Choose comment media"));
+  const menuOption=(type,uk,en,accept)=>{
+   const item=make("button","vt-vatra-post-comment-menu-"+type,tr(uk,en));
+   item.type="button";item.setAttribute("role","menuitem");
+   item.prepend(glyph(type==="photo"?"camera":type==="video"?"video":"paperclip"));
+   item.addEventListener("click",()=>{
+    fileInput.accept=accept;attachmentMenu.hidden=true;attach.setAttribute("aria-expanded","false");
+    fileInput.click();
+   });return item;
+  };
+  attachmentMenu.append(
+   menuOption("device","З пристрою","From device","image/jpeg,image/png,image/webp,video/mp4,video/webm"),
+   menuOption("photo","Фотографія","Photo","image/jpeg,image/png,image/webp"),
+   menuOption("video","Відео","Video","video/mp4,video/webm")
+  );
+  const emojiPanel=make("div","vatra-post-comment-emoji-panel ui-vatra-post-comment-emoji-panel-001");
+  emojiPanel.hidden=true;
+  const emojiTabs=make("div","vatra-post-comment-emoji-tabs ui-vatra-post-comment-emoji-tabs-001");
+  const emojisTab=make("button","vt-vatra-post-comment-emoji-tab-001",tr("Емодзі","Emoji"));
+  const stickerTab=make("button","vt-vatra-post-comment-sticker-tab-001",tr("Стікери","Stickers"));
+  emojisTab.type="button";stickerTab.type="button";
+  emojiTabs.append(emojisTab,stickerTab);
+  const emojiContent=make("div","vatra-post-comment-emoji-scroll ui-vatra-post-comment-emoji-scroll-001");
+  emojiPanel.append(emojiTabs,emojiContent);
+  popovers.append(attachmentMenu,emojiPanel);
+  const attachmentPreview=make("div","vatra-post-comment-file-preview ui-vatra-post-comment-file-preview-001");
+  attachmentPreview.hidden=true;
+  const fileLabel=make("span","vt-vatra-post-comment-file-name-001");
+  const removeFile=tool("x","vt-vatra-post-comment-file-remove-001",tr("Прибрати вкладення","Remove attachment"));
+  attachmentPreview.append(fileLabel,removeFile);
+  composer.append(replying,composerInput,popovers,fileInput,attachmentPreview);
+  form.append(ownPortrait,composer);
+  panel.append(entries,more,form,status);shell.append(panel);
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
-  let commentOffset=0,busy=false,commentsOpened=true,ticket=0;
+  const replySize=3;
+  let commentOffset=0,busy=false,ticket=0,replyTarget=null,chosenFile=null,emojiMode="emoji";
+  const rootReplies=new Map();
+  const stopReply=()=>{
+   replyTarget=null;replying.hidden=true;replyingText.textContent="";
+  };
+  cancelReply.addEventListener("click",()=>{stopReply();input.focus();});
+  const updateSend=()=>{send.disabled=!input.value.trim()&&!chosenFile;};
+  const hideMenus=()=>{
+   attachmentMenu.hidden=true;emojiPanel.hidden=true;
+   attach.setAttribute("aria-expanded","false");
+   emoji.setAttribute("aria-expanded","false");
+  };
+  const positionPopover=element=>{
+   element.style.removeProperty("transform");
+   element.style.removeProperty("top");
+   element.style.removeProperty("bottom");
+   let rect=element.getBoundingClientRect();
+   if(rect.top<8){
+    element.style.bottom="auto";element.style.top="calc(100% + 8px)";
+    rect=element.getBoundingClientRect();
+   }
+   const shift=rect.left<8?8-rect.left:rect.right>innerWidth-8?innerWidth-8-rect.right:0;
+   if(shift)element.style.transform="translateX("+Math.round(shift)+"px)";
+  };
+  attach.setAttribute("aria-expanded","false");emoji.setAttribute("aria-expanded","false");
+  attach.addEventListener("click",()=>{
+   const show=attachmentMenu.hidden;
+   hideMenus();attachmentMenu.hidden=!show;
+   attach.setAttribute("aria-expanded",String(show));
+   if(show)positionPopover(attachmentMenu);
+  });
+  camera.addEventListener("click",()=>{
+   hideMenus();fileInput.accept="image/jpeg,image/png,image/webp";fileInput.click();
+  });
+  const emojiGroups=[
+   [tr("Емоції","Emotions"),
+    ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","🙂","😉","😍","🥰","😘","😎","🤩","🥳","😢","😭","😡","😱","🤔","😴","😇","🙃","🫶","❤️","💙","💛","🔥","✨","🎉"]],
+   [tr("Жести й люди","Gestures and people"),
+    ["👍","👎","👌","✌️","🤞","🤟","🤘","👏","🙌","🙏","🤝","👋","💪","👀","💯","💐","🎂","💌"]]
+  ];
+  const stickers=["🔥","🥳","😍","🤣","🤯","😎","🤝","🥹","😼","🐱","🐶","🦊","🐻","🐼","🦄","💖","🎉","🎁","🌈","🌻"];
+  const addEmoji=value=>{
+   const start=input.selectionStart,end=input.selectionEnd;
+   input.setRangeText(value,start,end,"end");input.dispatchEvent(new Event("input",{bubbles:true}));
+   input.focus();
+  };
+  const renderEmoji=()=>{
+   emojiContent.replaceChildren();
+   for(const [title,values] of emojiMode==="sticker"?[[tr("Великі емодзі","Large emoji"),stickers]]:emojiGroups){
+    emojiContent.append(make("h4","vt-vatra-post-comment-emoji-heading-001",title));
+    const grid=make("div","vatra-post-comment-emoji-grid ui-vatra-post-comment-emoji-grid-001");
+    for(const value of values){
+     const button=make("button","vt-vatra-post-comment-emoji-option-001",value);
+     button.type="button";button.setAttribute("aria-label",value);
+     if(emojiMode==="sticker")button.classList.add("is-sticker");
+     button.addEventListener("click",()=>{
+      addEmoji(value);hideMenus();
+     });
+     grid.append(button);
+    }
+    emojiContent.append(grid);
+   }
+   emojisTab.setAttribute("aria-selected",String(emojiMode==="emoji"));
+   stickerTab.setAttribute("aria-selected",String(emojiMode==="sticker"));
+  };
+  emojisTab.addEventListener("click",()=>{emojiMode="emoji";renderEmoji();});
+  stickerTab.addEventListener("click",()=>{emojiMode="sticker";renderEmoji();});
+  renderEmoji();
+  emoji.addEventListener("click",()=>{
+   const show=emojiPanel.hidden;
+   hideMenus();emojiPanel.hidden=!show;
+   emoji.setAttribute("aria-expanded",String(show));
+   if(show)positionPopover(emojiPanel);
+  });
+  document.addEventListener("pointerdown",event=>{
+   if(!form.isConnected||form.contains(event.target))return;
+   hideMenus();
+  });
+  form.addEventListener("keydown",event=>{
+   if(event.key==="Escape"){hideMenus();if(replyTarget)stopReply();}
+   if(event.key==="Enter"&&!event.shiftKey&&event.target===input&&!event.isComposing){
+    event.preventDefault();if(!send.disabled)form.requestSubmit(send);
+   }
+  });
+  fileInput.addEventListener("change",()=>{
+   const file=fileInput.files?.[0];
+   if(!file)return;
+   const allowed={
+    "image/jpeg":["image","jpg",6291456],"image/png":["image","png",6291456],
+    "image/webp":["image","webp",6291456],
+    "video/mp4":["video","mp4",52428800],"video/webm":["video","webm",52428800]
+   };
+   const type=allowed[file.type];
+   if(!type||file.size>type[2]||file.size<1){
+    feedback(tr("Фото: до 6 МБ. Відео: до 50 МБ. Доступні JPEG, PNG, WebP, MP4, WebM.",
+     "Photo: up to 6 MB. Video: up to 50 MB. JPEG, PNG, WebP, MP4 or WebM."),true);
+    fileInput.value="";chosenFile=null;attachmentPreview.hidden=true;updateSend();return;
+   }
+   chosenFile={file,kind:type[0],ext:type[1]};
+   fileLabel.textContent=file.name.slice(0,110);
+   attachmentPreview.hidden=false;feedback("");updateSend();
+  });
+  removeFile.addEventListener("click",()=>{
+   chosenFile=null;fileInput.value="";attachmentPreview.hidden=true;updateSend();
+  });
+  input.addEventListener("input",updateSend);updateSend();
+  const startReply=(rootId,name)=>{
+   replyTarget={id:rootId,name};
+   replyingText.textContent=tr("Відповідь для ","Replying to ")+name;
+   replying.hidden=false;hideMenus();
+   input.focus();input.scrollIntoView({block:"nearest",behavior:"smooth"});
+  };
+  const commentPermalink=item=>{
+   const url=new URL(permalink(post));
+   url.searchParams.set("comment",item.id);return url.href;
+  };
+  const displayMedia=(item,content)=>{
+   if(!item.media_kind||!item.media_path)return;
+   const id=String(item.author_vatra_id),kind=item.media_kind,path=item.media_path;
+   if(!validId(id)||!["image","video"].includes(kind)||
+    !path.startsWith(id+"/comments/"))return;
+   const box=make("div","vatra-post-comment-media ui-vatra-post-comment-media-001");
+   const media=make(kind==="image"?"img":"video",
+    "ui-vatra-post-comment-media-"+kind+"-001");
+   if(kind==="image"){
+    media.alt=tr("Фото в коментарі","Comment photo");media.loading="lazy";
+   }else{media.controls=true;media.preload="metadata";media.playsInline=true;}
+   box.append(media);content.append(box);
+   const bucket=kind==="image"?"vatra-post-images":"vatra-videos";
+   void (async()=>{
+    try{
+     const {data,error}=await client.storage.from(bucket).createSignedUrl(path,300);
+     if(error||!data?.signedUrl||!box.isConnected)return;
+     const url=new URL(data.signedUrl,location.origin);
+     if(url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;
+     media.src=url.href;
+    }catch(_){}
+   })();
+  };
+  function renderComment(item,people,ownLikes,rootId,isReply=false){
+   const id=String(item.author_vatra_id);
+   const name=people.names.get(id)||tr("Користувач VATRA","VATRA member");
+   const card=make("article","vatra-post-comment ui-vatra-post-comment-001");
+   card.id="vatra-comment-"+item.id;card.dataset.commentId=item.id;
+   if(isReply)card.classList.add("is-reply");
+   const avatar=make("a","vatra-comment-avatar ui-vatra-comment-avatar-001");
+   avatar.href=new URL("id"+id,relativeRoot()).href;
+   avatar.setAttribute("aria-label",name);window.VATRA_AVATAR?.fallback(avatar);
+   const photo=people.images.get(id);
+   if(photo){avatar.style.backgroundImage="url("+JSON.stringify(photo)+")";
+    avatar.classList.add("has-photo");window.VATRA_AVATAR?.clearFallback(avatar);}
+   const content=make("div","vatra-post-comment-content ui-vatra-post-comment-content-001");
+   const author=make("a","vt-vatra-post-comment-author-001",name);
+   author.href=avatar.href;
+   const body=make("p","vt-vatra-post-comment-body-001",item.body||"");
+   if(item.body){
+    const emojiOnly=Array.from(item.body.trim()).length<=8 &&
+     /^[\p{Extended_Pictographic}\uFE0F\u200D\p{Emoji_Modifier}\s]+$/u.test(item.body.trim());
+    if(emojiOnly)body.classList.add("is-sticker");
+   }
+   content.append(author);
+   if(item.body)content.append(body);
+   displayMedia(item,content);
+   if(item.moderation_status==="possible_spam")content.append(
+    make("small","vt-vatra-post-comment-spam-001",tr("Можливий спам","Potential spam")));
+   const actions=make("div","vatra-post-comment-actions ui-vatra-post-comment-actions-001");
+   const stamp=make("time","vt-vatra-post-comment-date-001",dateValue(item.created_at));
+   stamp.dateTime=item.created_at;
+   const answer=make("button","vt-vatra-post-comment-reply-001",tr("Відповісти","Reply"));
+   answer.type="button";answer.addEventListener("click",()=>startReply(rootId,name));
+   const link=make("button","vt-vatra-post-comment-share-001",tr("Поділитися","Share"));
+   link.type="button";link.addEventListener("click",async()=>{
+    try{await navigator.clipboard.writeText(commentPermalink(item));
+     feedback(tr("Посилання на коментар скопійовано.","Comment link copied."));}
+    catch(_){feedback(tr("Не вдалося скопіювати посилання.","Could not copy link."),true);}
+   });
+   const likeComment=make("button","vt-vatra-post-comment-like-001");
+   likeComment.type="button";likeComment.append(glyph("heart"));
+   const heartCount=make("span","vt-vatra-post-comment-like-count-001");
+   likeComment.append(heartCount);
+   let likeCount=Number(item.likes)||0,ownLiked=ownLikes.has(item.id);
+   const renderLike=()=>{
+    heartCount.textContent=likeCount?String(likeCount):"";
+    likeComment.setAttribute("aria-pressed",String(ownLiked));
+    likeComment.setAttribute("aria-label",ownLiked?tr("Прибрати вподобання","Unlike"):
+     tr("Подобається","Like"));
+   };
+   renderLike();likeComment.addEventListener("click",async()=>{
+    if(likeComment.disabled)return;likeComment.disabled=true;
+    try{
+     const result=ownLiked?
+      await client.from("vatra_post_comment_likes").delete()
+       .eq("comment_id",item.id).eq("liker_id",userId):
+      await client.from("vatra_post_comment_likes").insert({comment_id:item.id,liker_id:userId});
+     if(result.error)throw result.error;
+     ownLiked=!ownLiked;likeCount+=ownLiked?1:-1;renderLike();
+    }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update like."),true);}
+    finally{likeComment.disabled=false;}
+   });
+   actions.append(stamp,answer,link,likeComment);content.append(actions);
+   card.append(avatar,content);
+   if(!isReply){
+    const replyArea=make("div","vatra-comment-replies ui-vatra-comment-replies-001");
+    const expand=make("button","vt-vatra-comment-expand-replies-001");
+    expand.type="button";expand.hidden=true;
+    const repliesList=make("div","vatra-comment-reply-list ui-vatra-comment-reply-list-001");
+    repliesList.hidden=true;
+    const moreReplies=make("button","vt-vatra-comment-more-replies-001",
+     tr("Показати ще відповіді","Show more replies"));
+    moreReplies.type="button";moreReplies.hidden=true;
+    replyArea.append(expand,repliesList,moreReplies);content.append(replyArea);
+    let replyOffset=0,replyCount=0,open=false,working=false;
+    const label=()=>expand.textContent=open?tr("Згорнути відповіді","Hide replies"):
+     (replyCount===1?tr("1 відповідь","1 reply"):
+      String(replyCount)+" "+tr("відповідей","replies"));
+    const loadReplies=async(reset=false)=>{
+     if(working)return;working=true;moreReplies.disabled=true;
+     if(reset){replyOffset=0;repliesList.replaceChildren();}
+     try{
+      const {data,error}=await client.rpc("vatra_comment_thread_page",{
+       p_kind:kind,p_post_id:post.id,p_sort:sort.value,
+       p_parent:item.id,p_offset:replyOffset,p_limit:replySize+1
+      });
+      if(error)throw error;
+      const rows=(data||[]).slice(0,replySize);
+      const people=await authorMap(client,rows);
+      const ids=rows.map(x=>x.id);
+      let mine=new Set();
+      if(ids.length){
+       const result=await client.from("vatra_post_comment_likes")
+        .select("comment_id").in("comment_id",ids).eq("liker_id",userId);
+       if(!result.error)mine=new Set((result.data||[]).map(x=>x.comment_id));
+      }
+      for(const reply of rows)repliesList.append(renderComment(reply,people,mine,item.id,true));
+      replyOffset+=rows.length;moreReplies.hidden=(data||[]).length<=replySize;
+      repliesList.hidden=false;
+     }catch(_){feedback(tr("Не вдалося завантажити відповіді.","Could not load replies."),true);}
+     finally{working=false;moreReplies.disabled=false;}
+    };
+    const setOpen=async(value,reload=false)=>{
+     open=value;label();repliesList.hidden=!open;
+     if(open&&(reload||replyOffset===0))await loadReplies(true);
+     else if(!open)moreReplies.hidden=true;
+     else moreReplies.hidden=replyOffset>=replyCount;
+    };
+    expand.addEventListener("click",()=>void setOpen(!open));
+    moreReplies.addEventListener("click",()=>void loadReplies());
+    rootReplies.set(item.id,{expand:async reload=>{expand.hidden=false;
+     replyCount=Math.max(replyCount,1);await setOpen(true,reload);}});
+    void (async()=>{
+     try{
+      const {count,error}=await client.from("vatra_post_comments")
+       .select("id",{count:"exact",head:true})
+       .eq("post_kind",kind).eq("post_id",post.id).eq("parent_comment_id",item.id);
+      if(!card.isConnected||error)return;
+      replyCount=Number(count)||0;
+      expand.hidden=replyCount===0;label();
+     }catch(_){}
+    })();
+   }
+   return card;
+  }
   async function loadComments(reset=false){
    if(busy)return;
    busy=true;more.disabled=true;entries.setAttribute("aria-busy","true");
    const token=++ticket;
-   if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;}
+   if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;rootReplies.clear();}
    try{
-    const {data,error}=await client.rpc("vatra_comment_page",{
-     p_kind:kind,p_post_id:post.id,p_sort:sort.value,p_offset:commentOffset,p_limit:pageSize+1
+    const {data,error}=await client.rpc("vatra_comment_thread_page",{
+     p_kind:kind,p_post_id:post.id,p_sort:sort.value,
+     p_parent:null,p_offset:commentOffset,p_limit:pageSize+1
     });
     if(error)throw error;
     if(token!==ticket)return;
-    const rows=(data||[]).slice(0,pageSize),{names,images}=await authorMap(client,rows);
+    const rows=(data||[]).slice(0,pageSize),people=await authorMap(client,rows);
     const ids=rows.map(x=>x.id);
-    let ownLikes=new Set();
+    let mine=new Set();
     if(ids.length){
      const result=await client.from("vatra_post_comment_likes")
       .select("comment_id").in("comment_id",ids).eq("liker_id",userId);
-     if(!result.error)ownLikes=new Set((result.data||[]).map(x=>x.comment_id));
+     if(!result.error)mine=new Set((result.data||[]).map(x=>x.comment_id));
     }
     if(token!==ticket)return;
     if(reset&&!rows.length)entries.append(make("p","vt-vatra-post-comments-empty-001",
      tr("Коментарів поки немає.","No comments yet.")));
-    for(const item of rows){
-     const card=make("article","vatra-post-comment ui-vatra-post-comment-001");
-     const head=make("div","vatra-post-comment-head ui-vatra-post-comment-head-001");
-     const id=String(item.author_vatra_id),name=names.get(id)||tr("Користувач VATRA","VATRA member");
-     const avatar=make("a","vatra-comment-avatar ui-vatra-comment-avatar-001",
-      name.split(/\s+/).slice(0,2).map(x=>Array.from(x)[0]||"").join("").toUpperCase());
-     avatar.href=new URL("id"+id,relativeRoot()).href;
-     avatar.setAttribute("aria-label",name);
-     const url=images.get(id);
-     if(url){avatar.style.backgroundImage="url("+JSON.stringify(url)+")";avatar.classList.add("has-photo");avatar.textContent="";}
-     const info=make("div","vatra-post-comment-meta ui-vatra-post-comment-meta-001");
-     const author=make("a","vt-vatra-post-comment-author-001",name);
-     author.href=avatar.href;
-     const stamp=make("time","vt-vatra-post-comment-date-001",dateValue(item.created_at));
-     stamp.dateTime=item.created_at;info.append(author,stamp);head.append(avatar,info);
-     const body=make("p","vt-vatra-post-comment-body-001",item.body);
-     card.append(head,body);
-     if(item.moderation_status==="possible_spam")
-      card.append(make("small","vt-vatra-post-comment-spam-001",
-       tr("Можливий спам","Potential spam")));
-     const likeComment=make("button","vt-vatra-post-comment-like-001");
-     likeComment.type="button";
-     let countValue=Number(item.likes)||0,ownLiked=ownLikes.has(item.id);
-     const commentHeart=glyph("heart");
-     const heartCount=make("span","vt-vatra-post-comment-like-count-001");
-     likeComment.append(commentHeart,heartCount);
-     likeComment.setAttribute("aria-label",tr("Подобається","Like"));
-     const renderCommentLike=()=>{
-      heartCount.textContent=countValue?String(countValue):"";
-      likeComment.setAttribute("aria-pressed",String(ownLiked));
-      likeComment.setAttribute("aria-label",ownLiked?tr("Прибрати вподобання","Unlike"):tr("Подобається","Like"));
-     };
-     renderCommentLike();
-     likeComment.addEventListener("click",async()=>{
-      if(likeComment.disabled)return;
-      likeComment.disabled=true;
-      try{
-       const result=ownLiked?
-        await client.from("vatra_post_comment_likes").delete()
-         .eq("comment_id",item.id).eq("liker_id",userId):
-        await client.from("vatra_post_comment_likes").insert({comment_id:item.id,liker_id:userId});
-       if(result.error)throw result.error;
-       ownLiked=!ownLiked;countValue+=ownLiked?1:-1;renderCommentLike();
-      }catch(_){feedback(tr("Не вдалося змінити вподобання коментаря.","Could not like the comment."),true);}
-      finally{likeComment.disabled=false;}
-     });
-     card.append(likeComment);entries.append(card);
+    for(const item of rows)entries.append(renderComment(item,people,mine,item.id));
+    commentOffset+=rows.length;more.hidden=(data||[]).length<=pageSize;
+    const deepComment=new URLSearchParams(location.search).get("comment");
+    if(validUUID(deepComment)){
+     const target=document.getElementById("vatra-comment-"+deepComment);
+     if(target)target.scrollIntoView({block:"center"});
     }
-    commentOffset+=rows.length;
-    more.hidden=(data||[]).length<=pageSize;
     feedback("");
    }catch(_){feedback(tr("Не вдалося завантажити коментарі.","Could not load comments."),true);}
    finally{busy=false;more.disabled=false;entries.setAttribute("aria-busy","false");}
   }
   commentsButton.addEventListener("click",()=>{
-   // Comments are already beneath the post: guide the reader to them.
    if(commentOffset===0)void loadComments(true);
    panel.scrollIntoView({block:"nearest",behavior:"smooth"});
   });
   sort.addEventListener("change",()=>{updateNote();void loadComments(true);});
   more.addEventListener("click",()=>void loadComments(false));
   form.addEventListener("submit",async event=>{
-   event.preventDefault();const body=input.value.trim();
-   if(!body||body.length>1000||send.disabled||!validId(ownId))return;
-   send.disabled=true;
+   event.preventDefault();
+   const body=input.value.trim(),file=chosenFile;
+   if((!body&&!file)||body.length>1000||send.disabled||!validId(ownId))return;
+   send.disabled=true;let uploaded=null;
    try{
-    const result=await client.from("vatra_post_comments").insert({
-     post_kind:kind,post_id:post.id,author_id:userId,author_vatra_id:ownId,body
-    });
+    const payload={post_kind:kind,post_id:post.id,
+     author_id:userId,author_vatra_id:ownId,body};
+    const target=replyTarget;
+    if(target)payload.parent_comment_id=target.id;
+    if(file){
+     const bucket=file.kind==="image"?"vatra-post-images":"vatra-videos";
+     const filename=crypto.randomUUID()+"."+file.ext;
+     const path=ownId+"/comments/"+filename;
+     const {error}=await client.storage.from(bucket).upload(path,file.file,{
+      contentType:file.file.type,cacheControl:"3600",upsert:false
+     });
+     if(error)throw error;
+     uploaded={bucket,path};
+     payload.media_kind=file.kind;payload.media_path=path;
+    }
+    const result=await client.from("vatra_post_comments").insert(payload);
     if(result.error)throw result.error;
-    input.value="";feedback(tr("Коментар додано.","Comment published."));
-    await loadComments(true);
-    void refreshSocial();
-   }catch(_){feedback(tr("Не вдалося опублікувати коментар.","Could not publish comment."),true);}
-   finally{send.disabled=false;}
+    input.value="";chosenFile=null;fileInput.value="";
+    attachmentPreview.hidden=true;stopReply();updateSend();
+    if(target&&rootReplies.has(target.id))await rootReplies.get(target.id).expand(true);
+    else await loadComments(true);
+    void refreshSocial();feedback(tr("Коментар опубліковано.","Comment published."));
+   }catch(_){
+    if(uploaded)try{await client.storage.from(uploaded.bucket).remove([uploaded.path]);}catch(_){}
+    feedback(tr("Не вдалося опублікувати коментар. Спробуйте ще раз.",
+     "Could not post comment. Please retry."),true);
+   }finally{updateSend();}
   });
 
   // A true modal composer, matching VATRA typography: caption, original, friends and link.

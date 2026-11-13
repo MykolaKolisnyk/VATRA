@@ -1430,6 +1430,22 @@ assert.ok(
  sharedAvatar.includes("if(verified&&!entry.avatarUrl)entry.avatarUrl=verified"),
  "VATRA header portrait must be primed synchronously without stale remembered-account overrides");
 const postInteractionFields=await read("assets/js/post-interactions.js");
+
+const commentsStyle=await read("assets/css/feed.css");
+assert.ok(
+ postInteractionFields.includes('client.rpc("vatra_comment_thread_page"') &&
+ postInteractionFields.includes('p_parent:item.id') &&
+ postInteractionFields.includes('payload.parent_comment_id=target.id') &&
+ postInteractionFields.includes('client.from("vatra_post_comments").insert(payload)') &&
+ postInteractionFields.includes('form.append(ownPortrait,composer)') &&
+ postInteractionFields.includes('make("div","vatra-post-comment-emoji-panel') &&
+ postInteractionFields.includes('make("div","vatra-post-comment-attach-menu') &&
+ postInteractionFields.includes('client.storage.from(bucket).upload(path,file.file') &&
+ postInteractionFields.includes('client.storage.from(bucket).createSignedUrl(path,300)') &&
+ commentsStyle.includes("body.feed-page .vatra-comment-reply-list") &&
+ commentsStyle.includes("body.feed-page .vatra-post-comment-emoji-panel"),
+ "VATRA comments must have persisted one-level replies, real signed media, emoji and compact inline layout");
+
 assert.ok(
  postInteractionFields.includes('sort.name="vatra_post_comments_sort"') &&
  postInteractionFields.includes('input.name="vatra_post_comment"') &&
