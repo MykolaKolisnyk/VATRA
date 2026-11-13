@@ -9,7 +9,8 @@
     // corresponding static document in-place, so the browser never visits
     // /profile.html or /club.html on its way to a permanent public URL.
     const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
-    if(dynamic){
+    const staticPage=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|friends|gifts|club|create-account|forgot|reset|verify|terms|privacy|cookies|offline)$/);
+    if(dynamic||staticPage){
       document.documentElement.classList.add("vatra-dynamic-route-pending");
       // The fallback HTTP response is a 404 on GitHub Pages, but the browser
       // tab must never display a transient "404" label for valid permalinks.
@@ -18,7 +19,7 @@
         if(node&&/^404\b/.test(node.textContent))node.textContent="VATRA";
       });
       titleGuard.observe(document.head,{childList:true,subtree:true,characterData:true});
-      const file=dynamic[1]==="id"?"profile.html":"club.html";
+      const file=dynamic?(dynamic[1]==="id"?"profile.html":"club.html"):staticPage[1]+".html";
       const mount=async()=>{
         try{
           const response=await fetch("/VATRA/"+file,{credentials:"same-origin"});
@@ -48,15 +49,6 @@
       else void mount();
       return;
     }
-    // GitHub Pages may also route extensionless document URLs through 404.
-    // Send the browser to the existing static HTML file immediately; lang.js
-    // restores the clean extensionless URL with history.replaceState.
-    const pageRoute=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|club|create-account|forgot|reset|verify|terms|privacy|cookies|offline)$/);
-    if(pageRoute){
-      location.replace("/VATRA/"+pageRoute[1]+".html"+location.search+location.hash);
-      return;
-    }
-
     const oldAccount=location.pathname.match(/^\/VATRA\/account(?:\.html)?$/);
     if(oldAccount){
       location.replace("/VATRA/verify"+location.search+location.hash);
@@ -67,7 +59,7 @@
       location.replace("/VATRA/create-account"+location.search+location.hash);
       return;
     }
-    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|verify|terms|privacy|cookies|offline)\.html$/);
+    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|club|verify|terms|privacy|cookies|offline)\.html$/);
     if(legacy){
       location.replace("/VATRA/"+legacy[1]+location.search+location.hash);
       return;
@@ -75,7 +67,7 @@
     const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
     if (!found) return;
     const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","terms.html","privacy.html","cookies.html","404.html","offline.html","create-account","register","forgot","reset","feed","profile","verify","terms","privacy","cookies"]);
+    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","friends.html","gifts.html","communities.html","notifications.html","club.html","terms.html","privacy.html","cookies.html","404.html","offline.html","create-account","register","forgot","reset","feed","profile","friends","gifts","communities","notifications","club","verify","terms","privacy","cookies"]);
     if (!allowed.has(file)) return;
     // Existing language preferences always win over old /ua/ or /en/ links.
     // Follow an old link's language only for visitors without a saved choice.
