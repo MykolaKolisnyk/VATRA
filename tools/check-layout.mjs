@@ -1286,6 +1286,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityScript=await read("assets/js/communities.js");
+assert.doesNotThrow(()=>new Function(communityScript),"Community catalog and Redis fallback must parse as JavaScript");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
 assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
@@ -1490,6 +1491,24 @@ assert.ok(
  !clubPostScript.includes(".limit(50)")&&
  (await read("club.html")).includes('id="club-posts-more"'),
  "Community posts must paginate in small bounded pages without duplicate deep links");
+
+const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
+assert.ok(
+ publicRedisEdge.includes('const TTL_SECONDS = 15')&&
+ publicRedisEdge.includes('Deno.env.get("REDIS_URL")')&&
+ publicRedisEdge.includes('Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true"')&&
+ publicRedisEdge.includes('url.startsWith("rediss://")')&&
+ publicRedisEdge.includes('url.startsWith("redis://")')&&
+ publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v1:latest100"')&&
+ publicRedisEdge.includes('createSupabaseClient(supabaseUrl, publishable')&&
+ !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
+ !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
+ publicRedisEdge.includes('Cache-Control": "no-store"')&&
+ (await read("docs/redis-cache-policy.md")).includes("15 seconds")&&
+ communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=false")&&
+ communityScript.includes('client.functions.invoke("public-community-directory",{method:"GET"})')&&
+ communityScript.includes("if(!data){"),
+ "Optional Redis must cache public catalog only, fail open, and keep secrets server-side");
 
 const notificationPerfScript=await read("assets/js/notifications.js");
 const workerPerfScript=await read("sw.js");
