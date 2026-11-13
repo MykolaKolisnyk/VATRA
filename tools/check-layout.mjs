@@ -1390,8 +1390,8 @@ assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module 
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  !memberProfileMarkup.includes('assets/js/profile-details.js') &&
  detailsModule.includes('profile-editor-page-visibility') &&
- detailsModule.includes('from("vatra_profile_details")') &&
- detailsModule.includes('from("vatra_profile_preferences")') &&
+ detailsModule.includes('from("profile_details")') &&
+ detailsModule.includes('from("profile_preferences")') &&
  detailsModule.includes('window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()}') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
