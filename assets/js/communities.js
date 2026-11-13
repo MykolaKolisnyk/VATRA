@@ -273,6 +273,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
      .eq("club_id",clubId).eq("id",linkedId).maybeSingle();
     if(!direct.error&&direct.data)rows.unshift(direct.data);
    }
+   const engagementPromise=window.VATRA_POST_INTERACTIONS?.prefetchEngagement(
+    client,rows.map(post=>({...post,kind:"group"})))||Promise.resolve(new Map());
    const names=new Map();
    const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)))];
    if(ids.length){
@@ -282,6 +284,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
      for(const member of people||[])names.set(String(member.vatra_id),member.display_name);
     }catch(_){}
    }
+   const engagement=await engagementPromise;
    for(const post of rows){
     if(renderedPostIds.has(post.id))continue;
     renderedPostIds.add(post.id);
@@ -307,7 +310,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
     }
    if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
     window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"group",club_id:clubId},article,{
-     ownId,userId,onShared:()=>void loadClubPosts()
+     ownId,userId,engagement:engagement.get("group:"+post.id),
+     onShared:()=>void loadClubPosts()
     });
     list.append(article);
    }
