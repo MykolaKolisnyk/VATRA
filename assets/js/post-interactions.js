@@ -683,16 +683,19 @@ function appendAudience(container,level,isGroup=false){
    commentDialog=dialog;panel.hidden=false;
    commentsButton.setAttribute("aria-expanded","true");
    const previousFocus=document.activeElement;
+   let restored=false;
    const restore=()=>{
+    if(restored)return;restored=true;
     panel.hidden=true;commentsButton.setAttribute("aria-expanded","false");
     if(marker.parentNode)marker.parentNode.replaceChild(card,marker);
     else if(card.isConnected)card.remove();
     dialog.remove();commentDialog=null;
     if(previousFocus?.isConnected)previousFocus.focus({preventScroll:true});
    };
+   const dismiss=()=>{if(dialog.open)dialog.close();restore();};
    dialog.addEventListener("close",restore,{once:true});
-   close.addEventListener("click",()=>dialog.close());
-   dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
+   close.addEventListener("click",dismiss);
+   dialog.addEventListener("click",event=>{if(event.target===dialog)dismiss();});
    dialog.showModal();close.focus({preventScroll:true});
    if(commentOffset===0)void loadComments(true);
   };
