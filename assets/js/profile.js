@@ -1352,7 +1352,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   try{
    if(!allGiftsPending){
     allGiftsPending=(async()=>{
-     const {data,error}=await client.from("vatra_profile_gifts")
+     const {data,error}=await client.from("profile_gifts")
       .select("id,gift_code,created_at").eq("recipient_vatra_id",targetId)
       .order("created_at",{ascending:false}).limit(100);
      if(error)throw error;
@@ -1425,7 +1425,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    .eq("status","accepted")
    .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
    .order("created_at",{ascending:false}).limit(6),
-  client.from("vatra_profile_gifts").select("id,gift_code,created_at")
+  client.from("profile_gifts").select("id,gift_code,created_at")
    .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(3)
  ]);
  if(jobs[0].status==="fulfilled"&&!jobs[0].value.error){
@@ -2485,7 +2485,7 @@ async function start(){
   // Public display names are optional: a failed public lookup must not turn
   // an otherwise valid profile into a blank error page.
   const [directoryOutcome,publicOutcome,stateOutcome]=await Promise.allSettled([
-   client.from("vatra_directory")
+   client.from("member_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
    Promise.resolve().then(()=>client.from("vatra_public_profiles")
     .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()),
