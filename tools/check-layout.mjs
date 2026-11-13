@@ -1195,7 +1195,7 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedCss.includes("max-width:292px;height:36px")&&
  sharedCss.includes("flex:0 0 108px")&&
  sharedCss.includes("flex:0 0 86px")&&
- sharedCss.includes("grid-template-columns:minmax(0,1fr) 230px!important;")&&
+ sharedCss.includes("grid-template-columns:minmax(0,1fr) 220px!important;")&&
  sharedCss.includes(".vatra-search-history{")&&
  sharedCss.includes("max-height:min(290px,54dvh)")&&
  sharedCss.includes(".vatra-search-edit{")&&
@@ -1354,7 +1354,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
- feedStyle.includes('grid-template-columns:minmax(170px,220px) minmax(0,1fr)!important')&&
+ feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
  auth.includes('window.location.replace(url("feed"))'),
  "VATRA Feed must render the composer before real Stories and personalized posts");
 assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{display:none!important}')&&
