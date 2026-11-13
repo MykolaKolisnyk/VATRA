@@ -1463,6 +1463,16 @@ assert.ok(
  "Gallery posting, secure preview and on-demand comments must remain intact");
 
 assert.ok(
+ interactionsScript.includes('async function prefetchEngagement(client,posts)')&&
+ interactionsScript.includes('client.rpc("post_engagement_page"')&&
+ interactionsScript.includes('if(!snapshot&&typeof IntersectionObserver')&&
+ interactionsScript.includes('if(snapshot)refresh();')&&
+ feedScript.includes('prefetchEngagement(client,page)')&&
+ profileScript.includes('prefetchEngagement(')&&
+ clubPostScript.includes('prefetchEngagement('),
+ "All three post surfaces must batch RLS-scoped engagement instead of querying each badge");
+
+assert.ok(
  clubPostScript.includes("const CLUB_PAGE_SIZE=12")&&
  clubPostScript.includes(".range(postsOffset,postsOffset+CLUB_PAGE_SIZE-1)")&&
  clubPostScript.includes("renderedPostIds.has(post.id)")&&
