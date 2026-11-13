@@ -3321,10 +3321,10 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("/assets/avatars/2048px/avatar-not-found.webp"),
-   "A non-existent member must use the uploaded 2048px not-found WebP");
+  assert.ok(fallbackStyle.image.includes("/assets/avatars/avatar-not-found.png"),
+   "A non-existent member must use the uploaded not-found PNG");
   assert.equal(fallbackStyle.head,"none",
-   "The old CSS silhouette must not cover the supplied WebP image");
+   "The old CSS silhouette must not cover the supplied PNG image");
   await profilePage.waitForFunction(()=>
    !!document.querySelector("#profile-avatar-wrap")?.style.getPropertyValue("--vatra-avatar-accent"),
    {timeout:10000});
@@ -3351,6 +3351,30 @@ try{
   assert.notEqual(avatarRim.rimBackground,"rgba(0, 0, 0, 0)");
   assert.ok(!avatarRim.hasStory&&avatarRim.coverAccent,
    "The colorful ring and cover circles must work even without an active story");
+
+  const sampledColors=await profilePage.evaluate(async()=>{
+   const evaluateColor=async fill=>{
+    const canvas=document.createElement("canvas");
+    canvas.width=24;canvas.height=24;
+    const context=canvas.getContext("2d");
+    context.fillStyle=fill;context.fillRect(0,0,24,24);
+    const node=document.createElement("span");document.body.append(node);
+    window.VATRA_AVATAR.accent(node,canvas.toDataURL("image/png"));
+    let value="";
+    for(let i=0;i<80;i++){
+     value=node.style.getPropertyValue("--vatra-avatar-accent");
+     if(value.startsWith("hsl("))break;
+     await new Promise(resolve=>setTimeout(resolve,20));
+    }
+    node.remove();return value;
+   };
+   return {green:await evaluateColor("#458c36"),red:await evaluateColor("#b94739")};
+  });
+  assert.ok(sampledColors.green.startsWith("hsl(")&&
+   sampledColors.red.startsWith("hsl(")&&sampledColors.green!==sampledColors.red,
+   "Avatar ring sampler must preserve distinct vivid hues instead of averaging them into grey: "+
+   JSON.stringify(sampledColors));
+
   assert.equal(await profilePage.locator(".profile-actions").count(),0);
   assert.equal(await profilePage.locator(".profile-panels").count(),0);
   assert.equal(await profilePage.locator(".social-profile-tabs").count(),0,
@@ -3369,8 +3393,8 @@ try{
    assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
    assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
    assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-    .includes("/assets/avatars/2048px/avatar-"+state+".webp"),
-    "System state avatar must use the corresponding high-resolution WebP");
+    .includes("/assets/avatars/avatar-"+state+".png"),
+    "System state avatar must use the corresponding new PNG");
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
@@ -3378,7 +3402,7 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-   .includes("/assets/avatars/2048px/avatar-default.webp"));
+   .includes("/assets/avatars/avatar-default.png"));
   await profilePage.close();
  }
  await feedContext.close();
