@@ -1533,6 +1533,28 @@ assert.ok(
  !domainGiftsScript.includes('client.from("vatra_profile_gifts")'),
  "New read-only domain aliases must retain invoker-RLS and support old clients");
 
+const physicalRenameSql=await read("supabase/migrations/20261113174336_rename_three_read_only_domain_tables_and_preserve_legacy_rls_views.sql");
+assert.ok(
+ physicalRenameSql.includes("ALTER TABLE public.vatra_directory RENAME TO member_directory;")&&
+ physicalRenameSql.includes("ALTER TABLE public.vatra_account_states RENAME TO account_states;")&&
+ physicalRenameSql.includes("ALTER TABLE public.vatra_profile_gifts RENAME TO profile_gifts;")&&
+ physicalRenameSql.includes("insert into public.member_directory(vatra_id)")&&
+ physicalRenameSql.includes("insert into public.account_states(vatra_id,state,blocked_until,changed_at)")&&
+ physicalRenameSql.includes("CREATE VIEW public.vatra_account_states WITH (security_invoker = true)")&&
+ physicalRenameSql.includes("CREATE VIEW public.vatra_profile_gifts WITH (security_invoker = true)")&&
+ physicalRenameSql.includes("CREATE VIEW public.vatra_directory WITH (security_invoker = true)")&&
+ physicalRenameSql.includes("GRANT SELECT ON TABLE public.vatra_directory TO anon,authenticated;")&&
+ physicalRenameSql.includes("COMMIT;"),
+ "Physical renames must preserve signup/state trigger writes and old-client RLS-only SELECT aliases");
+
+const welcomeGiftRenameSql=await read("supabase/migrations/20261113175142_fix_welcome_gift_after_physical_profile_gifts_rename.sql");
+assert.ok(
+ welcomeGiftRenameSql.includes("CREATE OR REPLACE FUNCTION vatra_internal.award_welcome_gift()")&&
+ welcomeGiftRenameSql.includes("insert into public.profile_gifts(")&&
+ welcomeGiftRenameSql.includes("on conflict (recipient_vatra_id,gift_code) do nothing;")&&
+ !welcomeGiftRenameSql.includes("insert into public.vatra_profile_gifts("),
+ "Signup welcome-gift trigger must use physical table after renaming it");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
