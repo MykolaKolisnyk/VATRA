@@ -539,7 +539,11 @@ body.feed-page .vatra-post-action-row>button:focus-visible{
  background:#eef3fd;color:#3466d3
 }
 body.feed-page .vatra-post-action-row .vt-vatra-post-like-001.is-liked{
- color:#d45083;background:#fff0f6
+ color:#3c70c7;background:#edf4ff
+}
+body.feed-page .vatra-post-action-row .vt-vatra-post-comments-toggle-001[aria-expanded="true"],
+body.feed-page .vatra-post-action-row .vt-vatra-post-save-001[aria-pressed="true"]{
+ color:#3c70c7;background:#edf4ff
 }
 body.feed-page .vt-vatra-post-like-count-001,
 body.feed-page .vt-vatra-post-comments-count-001,
