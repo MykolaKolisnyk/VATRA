@@ -2913,7 +2913,10 @@ try{
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
      filterWidth:filters.width,composeLeft:composer.left,
      composeRight:composer.right,composerWidth:composer.width,storiesWidth:stories.width,
-     storiesLeft:stories.left,screenWidth:innerWidth};
+     storiesLeft:stories.left,screenWidth:innerWidth,
+     storyBottom:stories.bottom,postsTop:posts.top,
+     gridGap:getComputedStyle(document.querySelector(".feed-main")).rowGap,
+     statusVisible:!document.querySelector(".feed-status").hidden};
    });
    assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
     "Feed filter must stay at the far right edge: "+JSON.stringify(filterGeometry));
@@ -2922,6 +2925,11 @@ try{
     Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
+   assert.ok(filterGeometry.postWidth<=770&&filterGeometry.gridGap==="13px"&&
+    (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
+     filterGeometry.postsTop-filterGeometry.storyBottom>=8&&
+     filterGeometry.postsTop-filterGeometry.storyBottom<=21),
+    "Posts must remain compact; story-to-post gap cannot double: "+JSON.stringify(filterGeometry));
    assert.ok(filterGeometry.screenWidth>950?
     (filterGeometry.composerWidth>filterGeometry.filterWidth*1.7&&
      filterGeometry.filterLeft>=filterGeometry.composeRight+10&&
@@ -3163,6 +3171,20 @@ try{
    language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
   assert.equal(await profilePage.locator("#profile-about-card").isVisible(),true,
    "Information must be beside compact posts instead of its own tab");
+  const profileSpacing=await profilePage.evaluate(()=>{
+   const grid=document.querySelector(".profile-posts-section");
+   const left=document.querySelector(".profile-left-stack");
+   const right=document.querySelector(".profile-posts-main");
+   const first=document.querySelector(".profile-posts-overview");
+   return {columnGap:getComputedStyle(grid).columnGap,
+    leftGap:getComputedStyle(left).rowGap,
+    rightGap:getComputedStyle(right).rowGap,
+    overviewHeight:first.getBoundingClientRect().height};
+  });
+  assert.ok(profileSpacing.columnGap==="16px"&&
+   profileSpacing.leftGap==="14px"&&profileSpacing.rightGap==="14px"&&
+   profileSpacing.overviewHeight<80,
+   "Profile About/Friends/Gifts/Posts spacing must be consistent: "+JSON.stringify(profileSpacing));
   assert.equal((await profilePage.locator(".vt-profile-posts-overview-title-001").textContent()).trim(),
    language==="en"?"Posts":"Публікації",
    "The publications column must have a clear localized section heading");
@@ -3405,6 +3427,11 @@ try{
   await profilePage.goto(base+"id789012?block-test=them",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await profilePage.locator(".profile-locked-notice[data-lock-reason='block']").isVisible(),true);
+  const lockedGap=await profilePage.evaluate(()=>
+   document.querySelector(".profile-locked-notice").getBoundingClientRect().top-
+   document.querySelector(".profile-hero").getBoundingClientRect().bottom);
+  assert.ok(lockedGap>=12&&lockedGap<=22,
+   "Restricted profiles must have one gap below the hero: "+lockedGap);
   assert.equal(await profilePage.locator("#profile-cover-photo").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
   assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
