@@ -560,7 +560,7 @@
 
  /* Section content switches immediately; hover and icon animations remain CSS-owned. */
  function setupRouteMotion(){
-  const eligible=target=>/^\/VATRA\/(?:feed|profile|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
   const to=destination=>{
    let next;
@@ -573,17 +573,8 @@
     if(next.hash&&next.hash!==location.hash)return false;
     return true;
    }
-   // Member links navigate directly to /idN and use the GitHub Pages fallback;
-   // there is no intermediary old profile.html?vatra_id=... URL.
-   const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
-   const ownProfile=next.pathname==="/VATRA/profile";
-   if(club||ownProfile){
-    const direct=new URL(ownProfile?"profile.html":"club.html",new URL("./",next.href));
-    direct.search=next.search;
-    if(club)direct.searchParams.set("club_id",club[1]);
-    direct.hash=next.hash;
-    next=direct;
-   }
+   // Navigate directly to the clean URL: /profile, /friends, /gifts and
+   // /clubN are resolved by the GitHub Pages fallback without a .html detour.
    // Navigate immediately. Waiting for a cosmetic fade adds latency to every
    // section change; the destination already has its own data-loading state.
    navigating=true;
