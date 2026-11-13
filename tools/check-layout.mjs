@@ -1471,6 +1471,21 @@ assert.ok(
  (await read("club.html")).includes('id="club-posts-more"'),
  "Community posts must paginate in small bounded pages without duplicate deep links");
 
+const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
+assert.ok(
+ publicRedisEdge.includes('const TTL_SECONDS = 15')&&
+ publicRedisEdge.includes('Deno.env.get("REDIS_URL")')&&
+ publicRedisEdge.includes('Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true"')&&
+ publicRedisEdge.includes('url.startsWith("rediss://")')&&
+ publicRedisEdge.includes('url.startsWith("redis://")')&&
+ publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v1:latest100"')&&
+ publicRedisEdge.includes('createSupabaseClient(supabaseUrl, publishable')&&
+ !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
+ !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
+ publicRedisEdge.includes('Cache-Control": "no-store"')&&
+ (await read("docs/redis-cache-policy.md")).includes("15 seconds"),
+ "Optional Redis must cache public catalog only, fail open, and keep secrets server-side");
+
 const notificationPerfScript=await read("assets/js/notifications.js");
 const workerPerfScript=await read("sw.js");
 assert.ok(
