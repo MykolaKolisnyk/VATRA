@@ -315,11 +315,24 @@ function appendAudience(container,level,isGroup=false){
    attach.setAttribute("aria-expanded","false");
    emoji.setAttribute("aria-expanded","false");
   };
+  const positionPopover=element=>{
+   element.style.removeProperty("transform");
+   element.style.removeProperty("top");
+   element.style.removeProperty("bottom");
+   let rect=element.getBoundingClientRect();
+   if(rect.top<8){
+    element.style.bottom="auto";element.style.top="calc(100% + 8px)";
+    rect=element.getBoundingClientRect();
+   }
+   const shift=rect.left<8?8-rect.left:rect.right>innerWidth-8?innerWidth-8-rect.right:0;
+   if(shift)element.style.transform="translateX("+Math.round(shift)+"px)";
+  };
   attach.setAttribute("aria-expanded","false");emoji.setAttribute("aria-expanded","false");
   attach.addEventListener("click",()=>{
    const show=attachmentMenu.hidden;
    hideMenus();attachmentMenu.hidden=!show;
    attach.setAttribute("aria-expanded",String(show));
+   if(show)positionPopover(attachmentMenu);
   });
   camera.addEventListener("click",()=>{
    hideMenus();fileInput.accept="image/jpeg,image/png,image/webp";fileInput.click();
@@ -362,6 +375,7 @@ function appendAudience(container,level,isGroup=false){
    const show=emojiPanel.hidden;
    hideMenus();emojiPanel.hidden=!show;
    emoji.setAttribute("aria-expanded",String(show));
+   if(show)positionPopover(emojiPanel);
   });
   document.addEventListener("pointerdown",event=>{
    if(!form.isConnected||form.contains(event.target))return;
