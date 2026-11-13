@@ -148,7 +148,7 @@
     avatarStates.delete(id);
     if(states.has(id))avatarStates.set(id,states.get(id));
    }
-   const {data,error}=await client.from("vatra_profile_media")
+   const {data,error}=await client.from("profile_media")
     .select("vatra_id,avatar_path").in("vatra_id",lookup);
    if(error)throw error;
    // A removed avatar path must invalidate the previously cached path as well.
@@ -174,7 +174,7 @@
   const needed=[...new Set(ids.map(String).filter(validId))].filter(id=>!publicNames.has(id));
   if(!needed.length)return;
   try{
-   const {data,error}=await client.from("vatra_public_profiles")
+   const {data,error}=await client.from("public_profiles")
     .select("vatra_id,display_name").in("vatra_id",needed.slice(0,100));
    if(error)throw error;
    for(const profile of data||[])publicNames.set(String(profile.vatra_id),profile.display_name);
@@ -188,12 +188,12 @@
   let connectionQuery=Promise.resolve({data:[],error:null});
   let followedQuery=Promise.resolve({data:[],error:null});
   try{
-   const query=client.from("vatra_friendships").select("requester_id,recipient_id,status");
+   const query=client.from("friendships").select("requester_id,recipient_id,status");
    connectionQuery=query.or("requester_id.eq."+vatraId+",recipient_id.eq."+vatraId)
     .eq("status","accepted").limit(500);
   }catch(_){}
   try{
-   const query=client.from("vatra_community_follows").select("club_id");
+   const query=client.from("community_follows").select("club_id");
    followedQuery=query.eq("member_vatra_id",vatraId).limit(500);
   }catch(_){}
   const [connections,subscriptions]=await Promise.allSettled([connectionQuery,followedQuery]);
@@ -293,9 +293,9 @@
   const escaped=phrase.replace(/[\\%_]/g,character=>String.fromCharCode(92)+character);
   // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
   const [membersByName,membersByStatus,clubsByName,clubsByDescription]=await Promise.allSettled([
-   client.from("vatra_public_profiles").select("vatra_id,display_name,status_text")
+   client.from("public_profiles").select("vatra_id,display_name,status_text")
     .ilike("display_name","%"+escaped+"%").limit(8),
-   client.from("vatra_public_profiles").select("vatra_id,display_name,status_text")
+   client.from("public_profiles").select("vatra_id,display_name,status_text")
     .ilike("status_text","%"+escaped+"%").limit(8),
    client.from("communities").select("club_id,name,description").ilike("name","%"+escaped+"%").limit(8),
    client.from("communities").select("club_id,name,description").ilike("description","%"+escaped+"%").limit(8)
@@ -370,7 +370,7 @@
    const personIds=isPerson?[...friends].filter(id=>feedFilter!=="friends"||id!==vatraId):[];
    if(isPerson&&!personIds.length&&!searchTerm){source.done=true;return;}
    if(!isPerson&&!followedClubs.size&&!searchTerm){source.done=true;return;}
-   let query=client.from(isPerson?"feed_posts":"vatra_community_posts")
+   let query=client.from(isPerson?"feed_posts":"community_posts")
     .select(isPerson?personFields:clubFields);
    if(isPerson&&!searchTerm&&typeof query.in==="function"){
     query=query.in("author_vatra_id",personIds);
@@ -432,7 +432,7 @@
     !page.some(p=>p.id===requested)){
     const found=await Promise.allSettled([
      client.from("feed_posts").select(personFields).eq("id",requested).maybeSingle(),
-     client.from("vatra_community_posts").select(clubFields).eq("id",requested).maybeSingle()
+     client.from("community_posts").select(clubFields).eq("id",requested).maybeSingle()
     ]);
     const person=found[0].status==="fulfilled"&&!found[0].value.error?found[0].value.data:null;
     const group=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
@@ -481,7 +481,7 @@
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
   try{
-   const {data,error}=await client.from("vatra_stories")
+   const {data,error}=await client.from("stories")
     .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
     .gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(60);
@@ -615,7 +615,7 @@
    let uploaded=null;
    try{
     if(file)uploaded=await window.VATRA_POST_MEDIA.uploadStory(client,vatraId,file);
-    const {error:insertError}=await client.from("vatra_stories")
+    const {error:insertError}=await client.from("stories")
      .insert({author_vatra_id:vatraId,body,theme:Math.floor(Math.random()*5),...(uploaded||{})});
     if(insertError)throw insertError;
     resetStoryDraft();storyDialog.close();
@@ -633,7 +633,7 @@
   if(!pendingDelete)return;
   const toDelete=pendingDelete;deleteConfirm.disabled=true;
   try{
-   const table=toDelete.kind==="group"?"vatra_community_posts":"feed_posts";
+   const table=toDelete.kind==="group"?"community_posts":"feed_posts";
    const {error}=await client.from(table).delete().eq("id",toDelete.id);
    if(error)throw error;
    if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
