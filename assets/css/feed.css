@@ -1817,7 +1817,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-
 .vatra-post-share-header .vt-vatra-post-share-close-001{
  position:absolute;right:13px;top:11px;display:grid;place-items:center;
  width:36px;height:36px;border:0;border-radius:50%;background:#eff2f8;
- color:#5e708b;font:650 25px/1 sans-serif;cursor:pointer
+ color:#5e708b;font:650 13px/1 "Onest",system-ui,sans-serif;cursor:pointer
 }
 .vatra-post-share-header .vt-vatra-post-share-close-001:hover{background:#e3ebf9;color:#2f64cd}
 .vatra-post-share-body{display:flex;flex-direction:column;gap:14px;padding:17px 22px 22px}
