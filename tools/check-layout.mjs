@@ -1421,7 +1421,7 @@ assert.ok(ownerMenus.includes('function addOwnerMenu(header,')&&
  !feedLogic.includes('head.append(remove)')&&
  !profileBehavior.includes('header.append(archive,remove)'),
  "Only owners have one accessible three-dot menu with archive and delete");
-assert.ok(searchLogic.includes("back.getBoundingClientRect()")&&
+assert.ok(searchLogic.includes("anchor.left")&&
  searchLogic.includes("inputBox.right-left")&&
  systemFeedCss.includes("grid-column:1!important;grid-row:2!important")&&
  systemProfileCss.includes("width:106px;height:106px;margin:-34px"),
