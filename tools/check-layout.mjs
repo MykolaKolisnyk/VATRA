@@ -1605,7 +1605,7 @@ assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/a
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
- sharedAvatar.includes('client.from("vatra_account_states")')&&
+ sharedAvatar.includes('client.from("account_states")')&&
  !sharedAvatar.includes("function portraitColor(image)")&&
  !sharedAvatar.includes("function accent(element,url)")&&
  profileBehavior.includes('avatarWrap.dataset.vatraRingKind="default"')&&
