@@ -147,9 +147,14 @@
   validateGallery(files);
   const uploaded=[];
   try{
-   for(const file of files){
-    const item=await upload(client,id,file);
-    uploaded.push(item);
+   // Two uploads in parallel keep mobile bandwidth under control while
+   // avoiding one network round-trip at a time for twelve small images.
+   for(let offset=0;offset<files.length;offset+=2){
+    const batch=files.slice(offset,offset+2);
+    const results=await Promise.allSettled(batch.map(file=>upload(client,id,file)));
+    for(const result of results)if(result.status==="fulfilled")uploaded.push(result.value);
+    const failure=results.find(result=>result.status==="rejected");
+    if(failure)throw failure.reason;
    }
    return uploaded;
   }catch(error){
