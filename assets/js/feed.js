@@ -633,6 +633,7 @@
    const {error}=await client.from(table).delete().eq("id",toDelete.id);
    if(error)throw error;
    if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
+   if(toDelete.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,toDelete.media_items);
    deleteDialog.close();pendingDelete=null;
    await loadPosts(true);message(t("Публікацію видалено.","Post deleted."),"success");
   }catch(_){deleteDialog.close();pendingDelete=null;message(t("Не вдалося видалити.","Could not delete post."));}
