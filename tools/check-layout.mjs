@@ -1005,9 +1005,10 @@ const interactionsScript=await read("assets/js/post-interactions.js");
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
- interactionsScript.includes('vatra-post-social-summary')&&
- interactionsScript.includes('vatra-post-compact-comments')&&
- interactionsScript.includes('vatra_post_like_members')&&
+ interactionsScript.includes('vt-vatra-post-comments-count-001')&&
+ interactionsScript.includes('vt-vatra-post-shares-count-001')&&
+ interactionsScript.includes('p_limit:pageSize+1')&&
+ !interactionsScript.includes('vatra-post-compact-comments')&&
  interactionsScript.includes('navigator.clipboard.writeText(permalink(post))')&&
  profileExtraScript.includes('displaySavedMedia(article,post)')&&
  profileExtraScript.includes('displaySavedMedia(article,item)')&&
@@ -1429,15 +1430,15 @@ assert.ok(searchLogic.includes("const left=ox;")&&
  systemProfileCss.includes("width:146px;height:146px;margin:-54px"),
  "Search must reach viewport edge; Stories and Posts fill the same column as Composer; avatar is larger");
 
-// Post interactions have just one separator: before the comments section.
-// The shared feed.css handles Feed, personal and community posts equally.
+// A single rule touches the bottom of post content, above the SVG action counts.
+// Comments, shares and the composer do not add more divider lines.
 assert.ok(
- systemFeedCss.includes('body.feed-page .vatra-post-interactions{\n margin-top:10px;padding-top:0;')&&
+ systemFeedCss.includes('body.feed-page .vatra-post-interactions{\n margin-top:0;padding-top:6px;border-top:1px solid #e8eef6;')&&
  systemFeedCss.includes('padding:5px 0;margin-top:0')&&
- systemFeedCss.includes('border-top:1px solid #e8eef6;padding-top:11px;margin-bottom:2px')&&
- systemFeedCss.includes('margin-top:9px;padding:9px 0 2px!important')&&
+ systemFeedCss.includes('padding-top:3px;margin-bottom:2px')&&
+ !systemFeedCss.includes('border-top:1px solid #e8eef6;padding-top:11px;margin-bottom:2px')&&
  systemFeedCss.includes('body.feed-page .feed-post-card .vatra-post-action-row{margin-top:0}'),
- "Post footer has no stacked borders and keeps one comments divider");
+ "Post footer must have exactly one divider directly above action icons");
 
 // Blocking is a real member-scoped Supabase relation. Restricted viewers
 // retain public header artwork while content and interactions are gated.
