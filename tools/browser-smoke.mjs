@@ -3695,7 +3695,19 @@ try{
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
    },
-   from:table=>table==="accounts"?
+   from:table=>table==="vatra_community_posts"?
+    {select:()=>({
+     eq(){return this;},order(){return this;},
+     range:async(first,last)=>{
+      window.__clubPostRanges=(window.__clubPostRanges||[]).concat([[first,last]]);
+      return {data:JSON.parse(localStorage.getItem("vatra-test-club-posts")||"[]").slice(first,last+1),error:null};
+     }
+    })}:
+    table==="vatra_community_follows"?
+    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null})})}:
+    table==="vatra_public_profiles"?
+    {select:()=>({in:async()=>({data:[],error:null})})}:
+    table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
      select:()=>({
@@ -3745,7 +3757,10 @@ try{
    "Communities must share the same header search");
   assert.equal(await page.locator(".feed-nav-pending").count(),0);
   assert.equal(await page.locator("footer").count(),0);
-  await page.evaluate(()=>localStorage.removeItem("vatra-test-clubs"));
+  await page.evaluate(()=>{
+   localStorage.removeItem("vatra-test-clubs");
+   localStorage.removeItem("vatra-test-club-posts");
+  });
   assert.equal(await page.locator("#community-create-panel").isVisible(),false,
    "Community creation must be collapsed until explicitly requested");
   await page.locator("#community-create-toggle").click();
@@ -3774,6 +3789,33 @@ try{
    new URL(page.url()).pathname==="/VATRA/club1",
    "Creating a community must avoid HTTP 404 and finish at /clubN: "+
    JSON.stringify({clubNavigations,clubNavigationErrors}));
+  await page.evaluate(()=>{
+   window.__clubPostRanges=[];
+   const rows=Array.from({length:25},(_,i)=>({
+    id:"00000000-0000-4000-8000-"+String(i+101).padStart(12,"0"),
+    author_vatra_id:654321,body:"VATRA community page "+(i+1),
+    created_at:new Date(Date.now()-i*60000).toISOString(),media_items:[]
+   }));
+   localStorage.setItem("vatra-test-club-posts",JSON.stringify(rows));
+  });
+  await page.reload({waitUntil:"domcontentloaded"});
+  await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
+  await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=12);
+  assert.equal(await page.locator("#club-posts .feed-post-card").count(),12,
+   "Community must mount only the first 12 posts, not all 25");
+  assert.deepEqual(await page.evaluate(()=>window.__clubPostRanges[0]),[0,11],
+   "Community initial DB page must be bounded to twelve rows");
+  await page.locator("#club-posts-more").click();
+  await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=24);
+  // Auto-paging may fetch the last row when the button scrolls into view.
+  if(await page.locator("#club-posts-more").isVisible())
+   await page.locator("#club-posts-more").click();
+  await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=25);
+  assert.equal(await page.locator("#club-posts .feed-post-card").count(),25);
+  assert.equal(await page.locator("#club-posts-more").isVisible(),false,
+   "After the last page, the load-more control must disappear");
+  assert.deepEqual(await page.evaluate(()=>window.__clubPostRanges),[[0,11],[12,23],[24,35]],
+   "Exactly three bounded DB pages must load twenty-five posts");
   await page.goto(base+"club999",{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
