@@ -1499,6 +1499,23 @@ assert.ok(
  !feedPostGrantMigration.includes("DISABLE ROW LEVEL SECURITY"),
  "Authenticated members must be able to publish feed posts without exposing them to anon");
 
+const domainReadViewMigration=await read("supabase/migrations/20261113171916_add_nonbreaking_domain_named_rls_invoker_read_views.sql");
+const domainGiftsScript=await read("assets/js/gifts.js");
+assert.ok(
+ domainReadViewMigration.split("WITH (security_invoker = true)").length===4&&
+ domainReadViewMigration.includes("CREATE VIEW public.member_directory")&&
+ domainReadViewMigration.includes("CREATE VIEW public.account_states")&&
+ domainReadViewMigration.includes("CREATE VIEW public.profile_gifts")&&
+ domainReadViewMigration.includes("GRANT SELECT ON TABLE public.member_directory TO anon,authenticated;")&&
+ domainReadViewMigration.includes("GRANT SELECT ON TABLE public.account_states,public.profile_gifts TO authenticated;")&&
+ domainReadViewMigration.includes("REVOKE ALL ON TABLE")&&
+ profileScript.includes('client.from("member_directory")')&&
+ profileScript.includes('client.from("profile_gifts")')&&
+ sharedAvatar.includes('client.from("account_states")')&&
+ domainGiftsScript.includes('client.from("profile_gifts")')&&
+ !domainGiftsScript.includes('client.from("vatra_profile_gifts")'),
+ "New read-only domain aliases must retain invoker-RLS and support old clients");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
