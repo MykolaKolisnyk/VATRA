@@ -2029,6 +2029,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     reactionIcon.setAttribute("stroke-linejoin","round");
     reactionIcon.setAttribute("aria-hidden","true");
     const heartPath=document.createElementNS("http://www.w3.org/2000/svg","path");
+    heartPath.setAttribute("class","ui-profile-photo-comment-heart-path-001");
     heartPath.setAttribute("d","M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
     reactionIcon.append(heartPath);
     const reactionLabel=node("span","vt-profile-photo-comment-like-label-001");
