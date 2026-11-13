@@ -2609,3 +2609,231 @@ body.feed-page :is(.profile-friend-portrait,.profile-person-avatar,.profile-phot
 body.feed-page [data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important;background-size:cover!important;background-position:center!important}
 body.feed-page [data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important;background-size:cover!important;background-position:center!important}
 body.feed-page [data-vatra-avatar-state="not-found"]:not(.has-photo){background-image:var(--vatra-not-found-avatar)!important;background-size:cover!important;background-position:center!important}
+
+/* VATRA native compact comment threads: one continuous discussion, not cards. */
+body.feed-page .vatra-post-comment-list{display:flex;flex-direction:column;gap:0}
+body.feed-page .vatra-post-comment{
+ display:grid;grid-template-columns:35px minmax(0,1fr);gap:11px;
+ position:relative;min-width:0;border:0!important;
+ padding:13px 0 6px!important;background:transparent
+}
+body.feed-page .vatra-post-comment.is-reply{
+ grid-template-columns:29px minmax(0,1fr);gap:9px;
+ padding:9px 0 4px!important
+}
+body.feed-page .vatra-post-comment .vatra-comment-avatar{
+ flex:none;width:35px;height:35px;margin:0;border:1px solid #dfe7f2;
+ border-radius:50%;background:var(--vatra-default-avatar) center/cover no-repeat
+}
+body.feed-page .vatra-post-comment.is-reply .vatra-comment-avatar{width:29px;height:29px}
+body.feed-page .vatra-post-comment-content{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+body.feed-page .vatra-post-comment .vt-vatra-post-comment-author-001{
+ font:760 13.5px/1.35 "Onest",system-ui,sans-serif;
+ color:#263d60;text-decoration:none;max-width:100%;overflow-wrap:anywhere
+}
+body.feed-page .vatra-post-comment .vt-vatra-post-comment-author-001:hover{color:#3268ca;text-decoration:underline}
+body.feed-page .vatra-post-comment .vt-vatra-post-comment-body-001{
+ margin:2px 0 0!important;padding:0;max-width:100%;
+ color:#31415a;font:480 13.5px/1.52 "Onest",system-ui,sans-serif;
+ white-space:pre-wrap;overflow-wrap:anywhere
+}
+body.feed-page .vatra-post-comment .vt-vatra-post-comment-body-001.is-sticker{
+ font:500 48px/1.15 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
+ padding:5px 0
+}
+body.feed-page .vatra-post-comment-actions{
+ display:flex;align-items:center;justify-content:flex-start;gap:13px;
+ width:100%;min-width:0;margin:3px 0 0
+}
+body.feed-page .vatra-post-comment-actions .vt-vatra-post-comment-date-001{
+ flex:none;font:490 11.5px/1.4 "Onest",sans-serif;color:#8999b0
+}
+body.feed-page .vatra-post-comment-actions :is(.vt-vatra-post-comment-reply-001,.vt-vatra-post-comment-share-001){
+ border:0;background:none;min-height:25px;padding:2px 0;cursor:pointer;
+ color:#8192ab;font:690 11.5px/1.3 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-comment-actions :is(.vt-vatra-post-comment-reply-001,.vt-vatra-post-comment-share-001):hover{
+ color:#326aca;text-decoration:underline
+}
+body.feed-page .vatra-post-comment-actions .vt-vatra-post-comment-like-001{
+ position:static!important;right:auto;bottom:auto;flex:none;
+ margin:0 0 0 auto!important;padding:3px 5px!important;
+ min-height:27px;border:0;background:transparent;
+ display:flex;align-items:center;gap:5px;color:#90a1b7
+}
+body.feed-page .vatra-post-comment-actions .vt-vatra-post-comment-like-001:hover{
+ background:#f1f5fc;color:#d35186
+}
+body.feed-page .vatra-post-comment-actions .vt-vatra-post-comment-like-001 svg{
+ display:block;width:18px;height:18px;stroke-width:1.8
+}
+body.feed-page .vatra-comment-replies{width:100%;min-width:0;margin:4px 0 0}
+body.feed-page .vt-vatra-comment-expand-replies-001,
+body.feed-page .vt-vatra-comment-more-replies-001{
+ display:inline-flex;align-items:center;min-height:31px;padding:3px 0;
+ color:#637eab;background:transparent;border:0;cursor:pointer;
+ font:690 11.5px/1.4 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-vatra-comment-expand-replies-001:hover,
+body.feed-page .vt-vatra-comment-more-replies-001:hover{color:#2d65cc;text-decoration:underline}
+body.feed-page .vt-vatra-comment-expand-replies-001[hidden],
+body.feed-page .vt-vatra-comment-more-replies-001[hidden]{display:none!important}
+body.feed-page .vatra-comment-reply-list{min-width:0;border-left:2px solid #e8eff9;padding:0 0 0 11px;margin:4px 0 0}
+body.feed-page .vatra-comment-reply-list[hidden]{display:none!important}
+body.feed-page .vatra-post-comment-media{
+ min-width:0;max-width:100%;margin:7px 0 5px;
+ border-radius:11px;overflow:hidden
+}
+body.feed-page .vatra-post-comment-media img{
+ display:block;width:auto;height:auto;max-width:min(100%,340px);max-height:360px;
+ object-fit:contain;border-radius:11px
+}
+body.feed-page .vatra-post-comment-media video{
+ display:block;width:min(100%,350px);max-height:360px;
+ background:#18212f;border-radius:11px
+}
+body.feed-page .vatra-post-comment-form{
+ display:grid!important;grid-template-columns:35px minmax(0,1fr);
+ align-items:center!important;gap:10px!important;
+ margin-top:10px;padding:11px 0 2px!important;border-top:1px solid #edf1f7
+}
+body.feed-page .vatra-post-comment-composer-avatar{
+ display:block;flex:none;width:35px;height:35px;border-radius:50%;
+ background:var(--vatra-default-avatar) center/cover no-repeat;
+ border:1px solid #e0e7f0
+}
+body.feed-page .vatra-post-comment-composer-avatar.has-photo{
+ background-position:center;background-size:cover;background-repeat:no-repeat
+}
+body.feed-page .vatra-post-comment-composer{position:relative;min-width:0}
+body.feed-page .vatra-post-comment-input-wrap{
+ display:flex;align-items:center;min-width:0;width:100%;
+ border:1px solid #dce5f0;border-radius:12px;background:#fff;
+ transition:border-color .15s,box-shadow .15s
+}
+body.feed-page .vatra-post-comment-input-wrap:focus-within{
+ border-color:#98b8ee;box-shadow:0 0 0 3px rgba(81,126,208,.08)
+}
+body.feed-page .vatra-post-comment-input-wrap .ui-vatra-post-comment-input-001{
+ display:block;flex:1;min-width:0;min-height:41px;max-height:130px;
+ padding:11px 12px!important;margin:0;
+ border:0!important;border-radius:12px;background:transparent;
+ color:#2f435f;box-shadow:none!important;outline:none!important;
+ resize:vertical;font:520 13px/1.45 "Onest",system-ui,sans-serif
+}
+body.feed-page .vatra-post-comment-toolbar{
+ display:flex;align-items:center;justify-content:flex-end;gap:1px;
+ flex:none;padding:0 5px 0 0
+}
+body.feed-page .vatra-post-comment-toolbar>button,
+body.feed-page .vt-vatra-post-comment-cancel-reply-001,
+body.feed-page .vt-vatra-post-comment-file-remove-001{
+ display:inline-grid;place-items:center;flex:none;
+ width:32px;height:34px;min-width:0;min-height:0;
+ padding:5px;border:0;border-radius:8px;
+ background:transparent;color:#8899b0;cursor:pointer
+}
+body.feed-page .vatra-post-comment-toolbar>button:hover{
+ color:#366dd4;background:#eff4ff
+}
+body.feed-page .vatra-post-comment-toolbar>button[aria-expanded="true"]{
+ color:#326bd4;background:#eaf1ff
+}
+body.feed-page .vatra-post-comment-toolbar>button svg,
+body.feed-page .vt-vatra-post-comment-file-remove-001 svg,
+body.feed-page .vt-vatra-post-comment-cancel-reply-001 svg{
+ display:block;width:19px;height:19px;stroke-width:1.8
+}
+body.feed-page .vatra-post-comment-toolbar>.vt-vatra-post-comment-send-001{
+ color:#3b70d8;background:transparent;border:0;
+ margin-left:2px;padding:5px
+}
+body.feed-page .vatra-post-comment-toolbar>.vt-vatra-post-comment-send-001 svg{width:21px;height:21px}
+body.feed-page .vatra-post-comment-toolbar>.vt-vatra-post-comment-send-001:disabled{
+ color:#bec8d9;opacity:1;cursor:default;background:none
+}
+body.feed-page .vatra-post-comment-replying{
+ display:flex;justify-content:space-between;align-items:center;gap:10px;
+ min-height:30px;padding:4px 11px;background:#f0f5fe;
+ border:1px solid #dce8fa;border-radius:9px 9px 0 0;
+ color:#4267a2;font:630 11.5px/1.4 "Onest",sans-serif
+}
+body.feed-page .vatra-post-comment-replying[hidden]{display:none!important}
+body.feed-page .vatra-post-comment-replying:not([hidden])+.vatra-post-comment-input-wrap{border-radius:0 0 11px 11px}
+body.feed-page .vatra-post-comment-file-preview{
+ display:flex;align-items:center;justify-content:space-between;gap:6px;
+ padding:6px 10px;margin-top:5px;border:1px solid #dce7f6;border-radius:8px;
+ background:#f5f8fe;color:#53729c;font:520 11px/1.4 "Onest",sans-serif
+}
+body.feed-page .vatra-post-comment-file-preview[hidden]{display:none!important}
+body.feed-page .vt-vatra-post-comment-file-name-001{
+ min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis
+}
+body.feed-page .vatra-post-comment-attach-menu,
+body.feed-page .vatra-post-comment-emoji-panel{
+ position:absolute;right:0;bottom:calc(100% + 8px);z-index:60;
+ border:1px solid #e0e7f1;border-radius:15px;background:#fff;
+ box-shadow:0 17px 46px rgba(36,55,95,.17)
+}
+body.feed-page .vatra-post-comment-attach-menu[hidden],
+body.feed-page .vatra-post-comment-emoji-panel[hidden]{display:none!important}
+body.feed-page .vatra-post-comment-attach-menu{width:210px;max-width:100%;padding:8px}
+body.feed-page .vatra-post-comment-attach-menu>button{
+ display:flex;align-items:center;gap:10px;width:100%;padding:10px;
+ border:0;border-radius:9px;background:none;color:#334763;
+ cursor:pointer;text-align:left;font:560 12px/1.45 "Onest",sans-serif
+}
+body.feed-page .vatra-post-comment-attach-menu>button:hover{background:#f1f5ff;color:#3267d0}
+body.feed-page .vatra-post-comment-attach-menu>button svg{
+ width:20px;height:20px;flex:none;stroke:#4879cb
+}
+body.feed-page .vatra-post-comment-emoji-panel{
+ width:min(430px,calc(100vw - 30px));max-height:min(470px,70vh);
+ display:flex;flex-direction:column;overflow:hidden
+}
+body.feed-page .vatra-post-comment-emoji-tabs{
+ display:flex;gap:4px;padding:9px 11px 5px;border-bottom:1px solid #edf1f8
+}
+body.feed-page .vatra-post-comment-emoji-tabs>button{
+ min-height:34px;padding:7px 13px;border:0;border-radius:8px;background:transparent;
+ color:#7389a9;font:720 12px/1.25 "Onest",sans-serif
+}
+body.feed-page .vatra-post-comment-emoji-tabs>button[aria-selected="true"]{
+ background:#eaf1ff;color:#366fd4
+}
+body.feed-page .vatra-post-comment-emoji-scroll{
+ display:block;min-height:0;overflow-y:auto;padding:10px 14px 15px;
+ scrollbar-color:#c5d1e6 #f8faff;scrollbar-width:thin
+}
+body.feed-page .vt-vatra-post-comment-emoji-heading-001{
+ margin:9px 0;color:#73869f;font:700 11px/1.35 "Onest",sans-serif
+}
+body.feed-page .vatra-post-comment-emoji-grid{
+ display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px
+}
+body.feed-page .vt-vatra-post-comment-emoji-option-001{
+ display:grid;place-items:center;min-width:0;aspect-ratio:1;
+ padding:1px;border:0;border-radius:9px;background:transparent;
+ font:26px/1 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
+ cursor:pointer
+}
+body.feed-page .vt-vatra-post-comment-emoji-option-001.is-sticker{font-size:41px}
+body.feed-page .vt-vatra-post-comment-emoji-option-001:hover{
+ background:#eef4ff;transform:scale(1.07)
+}
+@media(max-width:600px){
+ body.feed-page .vatra-post-comment{
+  grid-template-columns:31px minmax(0,1fr);gap:8px
+ }
+ body.feed-page .vatra-post-comment .vatra-comment-avatar,
+ body.feed-page .vatra-post-comment-composer-avatar{width:31px;height:31px}
+ body.feed-page .vatra-post-comment.is-reply{grid-template-columns:26px minmax(0,1fr);gap:7px}
+ body.feed-page .vatra-post-comment.is-reply .vatra-comment-avatar{width:26px;height:26px}
+ body.feed-page .vatra-post-comment-form{grid-template-columns:31px minmax(0,1fr);gap:8px!important}
+ body.feed-page .vatra-post-comment-actions{gap:9px;flex-wrap:wrap}
+ body.feed-page .vatra-post-comment-toolbar>button{width:28px}
+ body.feed-page .vatra-post-comment-toolbar>button svg{width:18px;height:18px}
+ body.feed-page .vatra-post-comment-emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
+ body.feed-page .vt-vatra-post-comment-emoji-option-001{font-size:23px}
+ body.feed-page .vt-vatra-post-comment-emoji-option-001.is-sticker{font-size:35px}
+}
