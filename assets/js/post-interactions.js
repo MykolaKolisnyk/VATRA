@@ -63,7 +63,8 @@
   const names=new Map(),images=new Map();
   if(!ids.length)return {names,images};
   const [profile,media]=await Promise.all([
-   client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
+   (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
+    client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)),
    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
   ]);
   if(!profile.error)for(const x of profile.data||[])names.set(String(x.vatra_id),x.display_name);

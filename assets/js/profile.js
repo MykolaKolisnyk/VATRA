@@ -957,8 +957,8 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  const namedAuthors=async rows=>{
   const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)).filter(validId))];
   if(!ids.length)return new Map();
-  const {data,error}=await client.from("public_profiles")
-   .select("vatra_id,display_name").in("vatra_id",ids);
+  const {data,error}=await (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
+   client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids));
   return new Map(!error?(data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
  };
  const namedCommunities=async rows=>{
@@ -1299,7 +1299,8 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
    String(f.recipient_id):String(f.requester_id)).filter(validId))];
   const [names,photos,statesResult]=await Promise.allSettled([
-   ids.length?client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
+   ids.length?(window.VATRA_PUBLIC_NAMES?.get(client,ids)||
+    client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)):Promise.resolve({data:[]}),
    ids.length?client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);

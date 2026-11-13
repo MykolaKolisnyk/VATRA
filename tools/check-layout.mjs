@@ -2042,3 +2042,38 @@ assert.ok(lang.includes('new MutationObserver(applyTitle)')&&
  lang.includes('observer.disconnect()')&&
  lang.includes('document.head.querySelector("title")'),
  "English tab titles should never briefly show Ukrainian during async translation");
+
+/* Cache regression: public display names only, fail-closed auth and direct
+   RLS fallback. Scripts must load before authors are rendered. */
+const publicNameBrowser=await read("assets/js/public-name-cache.js");
+const publicNameEdge=await read("supabase/functions/public-profile-names/index.ts");
+assert.doesNotThrow(()=>new Function(publicNameBrowser),
+ "Shared public-name cache must parse in supported browsers");
+assert.ok(
+ publicNameBrowser.includes('window.VATRA_PUBLIC_NAMES={get}')&&
+ publicNameBrowser.includes('client.functions.invoke("public-profile-names"')&&
+ publicNameBrowser.includes('retryRemoteAt=Date.now()+60_000')&&
+ publicNameBrowser.includes('client.from("public_profiles")')&&
+ publicNameEdge.includes('client.auth.getUser(token)')&&
+ publicNameEdge.includes('client.from("public_profiles")')&&
+ publicNameEdge.includes('const TTL_SECONDS = 120')&&
+ publicNameEdge.includes('if (!cache) return reply([], "disabled", 503)')&&
+ !publicNameEdge.includes('SERVICE_ROLE_KEY'),
+ "Redis public-name cache must authenticate, respect RLS and fail safely");
+for(const publicNamePage of ["feed","profile","communities","club","notifications","friends","gifts"]){
+ const html=await read(publicNamePage+".html");
+ const cachePos=html.indexOf('assets/js/public-name-cache.js');
+ const avatarPos=html.indexOf('assets/js/avatar.js');
+ const interactionsPos=html.indexOf('assets/js/post-interactions.js');
+ const notificationsPos=html.indexOf('assets/js/notifications.js');
+ assert.ok(cachePos>avatarPos && avatarPos>=0 &&
+  (interactionsPos===-1||cachePos<interactionsPos) &&
+  (notificationsPos===-1||cachePos<notificationsPos),
+  "Public-name cache must load before member data on "+publicNamePage);
+}
+for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
+ "assets/js/notifications.js","assets/js/profile.js","assets/js/communities.js"]){
+ assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
+  "Public-name lookups must use the shared cache in "+path);
+}
+await import("./public-cache-smoke.mjs");
