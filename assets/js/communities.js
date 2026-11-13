@@ -234,7 +234,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const empty=$("#club-posts-empty"),more=$("#club-posts-more"),dialog=$("#club-compose-dialog");
  const form=$("#club-compose-form"),input=$("#club-compose-text"),status=$("#club-compose-error");
  if(!follow||!compose||!list||!ownId||!idPattern.test(ownId))return;
- let isFollowing=false,busy=false,focusRequestedPost=true,postsLoading=false,postsOffset=0;
+ let isFollowing=false,busy=false,focusRequestedPost=true,postsLoading=false,postsOffset=0,refreshQueued=false;
  const renderedPostIds=new Set();
  const CLUB_PAGE_SIZE=12;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
@@ -252,7 +252,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
   compose.hidden=!isFollowing;
  };
  const loadClubPosts=async(append=false)=>{
-  if(postsLoading)return;
+  if(postsLoading){if(!append)refreshQueued=true;return;}
   postsLoading=true;
   if(!append){postsOffset=0;renderedPostIds.clear();list.replaceChildren();empty.hidden=true;}
   if(more){more.disabled=true;if(!append)more.hidden=true;}
@@ -324,7 +324,10 @@ async function setupClubSocial(client,clubId,ownId,userId){
     t("У спільноті ще немає дописів. Створіть перший!","No community posts yet. Start the conversation!"):
     t("Підпишіться на спільноту, щоб читати її дописи.","Follow to read community posts."));
   }catch(_){show(empty,t("Не вдалося завантажити публікації.","Could not load community posts."));}
-  finally{postsLoading=false;if(more)more.disabled=false;}
+  finally{
+   postsLoading=false;if(more)more.disabled=false;
+   if(refreshQueued){refreshQueued=false;void loadClubPosts(false);}
+  }
  };
  if(more){
   more.addEventListener("click",()=>void loadClubPosts(true));
