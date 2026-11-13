@@ -5,10 +5,22 @@
 VATRA remains a static GitHub Pages client using Supabase Auth, PostgREST/RLS,
 Realtime, and Storage CDN. Redis is optional and **not** the source of truth.
 
-The first opt-in Redis cache is the public community directory:
-- Key: `vatra:public:communities:v1:latest100`
-- Contents: the latest 100 **public** community IDs, names, descriptions, dates
-- TTL: 15 seconds. PostgreSQL is read again on a miss or Redis outage
+VATRA's Redis caches contain only minimal public data:
+- **Latest community directory**: `vatra:public:communities:v1:latest100`,
+  up to 100 community IDs/names/descriptions/dates, TTL 15 seconds.
+- **Single public community details**: `vatra:public:community:v1:<club_id>`,
+  one public community's ID/name/description/date, TTL 15 seconds. The
+  existing Edge Function accepts a strictly validated POST with numeric
+  `club_id`. Missing clubs are never cached. Redis failures fall back to
+  the same public PostgREST query.
+- **Public profile display names**: `vatra:public:profile-name:v1:<vatra_id>`,
+  only `vatra_id` and `display_name` (no email, phone, status, avatar,
+  preferences, session, permissions or private data), TTL 120 seconds.
+  This Edge endpoint requires a verified user JWT and uses caller RLS.
+- **Browser-only short caches**: public names for 90 seconds; per-viewer
+  post engagement for 3 seconds with write invalidation; Storage signed
+  media URLs in limited memory until shortly before expiry. These are not
+  shared Redis keys.
 - Searches, member follows, feed, private posts, blocks, friendships, saves,
   notifications, sessions, authentication tokens, password-reset codes and
   private messages are **never** put into a shared Redis cache
@@ -36,11 +48,12 @@ runtime, not from the browser.
 4. Deploy `supabase/functions/public-community-directory` with
    JWT verification enabled (default). Test misses, hits, 15-second expiry,
    unavailable Redis, and any Cache-Control headers.
-5. `PUBLIC_DIRECTORY_CACHE_ENABLED=true` is now enabled for the public
-   community listing after a confirmed Redis hit. Search always bypasses the
-   cache, and the existing direct PostgREST path is the fallback. Monitor
-   **p50/p95 latency**, cache hit rate, and errors; revert to `false` if the
-   extra Edge hop outweighs caching benefits.
+5. `PUBLIC_DIRECTORY_CACHE_ENABLED=true` is enabled for the public
+   community listing after a confirmed Redis hit. The public club detail page
+   also opts into the same Edge Function's POST mode. Search always bypasses
+   Redis; direct PostgREST is the fallback. Monitor **p50/p95 latency**,
+   hit rate and errors; revert the new detail lookup if the Edge hop
+   outweighs caching benefits.
 
 ## Upgrade to paid Redis Cloud
 
