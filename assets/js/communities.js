@@ -45,7 +45,7 @@ async function loadHeaderPhoto(client,id,email){
   if(error)return;
   window.VATRA_AVATAR?.fromPath(client,email,id,data?.avatar_path||null);
   if(typeof data?.avatar_path!=="string"||!data.avatar_path.startsWith(id+"/avatar/"))return;
-  const image=client.storage.from("vatra-avatars").getPublicUrl(data.avatar_path)?.data?.publicUrl;
+  const image=client.storage.from("avatars").getPublicUrl(data.avatar_path)?.data?.publicUrl;
   if(!image)return;
   const url=new URL(image);
   if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")return;

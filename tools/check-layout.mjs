@@ -1798,9 +1798,9 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
  profileScript.includes('uploadImage(fileAvatar.files[0],"avatar")')&&
  profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
- profileScript.includes('"vatra-avatars"')&&
- profileScript.includes('"vatra-covers"')&&
- feedScript.includes('storage.from("vatra-avatars")'),
+ profileScript.includes('"avatars"')&&
+ profileScript.includes('"covers"')&&
+ feedScript.includes('storage.from("avatars")'),
  "Profile photos and cover images must be uploaded to their dedicated storage buckets");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-story-delete"')&&
  profileScript.includes('client.from("stories").delete()')&&
@@ -2134,3 +2134,31 @@ assert.ok(
  batchedClubPosts.includes("batch.append(article);")&&
  batchedClubPosts.includes("list.append(batch);"),
  "Feed, profile and club post pages must attach all cards in a single batch");
+
+/* Legacy Table Editor entries were RLS-invoker views, not physical tables.
+   Storage bucket renames must preserve role-specific policies and MIME/size
+   limits; the active browser must use only canonical bucket IDs. */
+const legacyViewCleanup=await read("supabase/migrations/20261113195057_remove_legacy_vatra_compatibility_views.sql");
+const storageBucketCleanup=await read("supabase/migrations/20261113195123_prepare_clean_vatra_storage_bucket_ids_and_rls.sql");
+assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).length===21&&
+ !legacyViewCleanup.includes("CASCADE")&&
+ storageBucketCleanup.includes("INSERT INTO storage.buckets(")&&
+ storageBucketCleanup.includes("JOIN storage.buckets b ON b.id=m.old_id")&&
+ storageBucketCleanup.includes("pg_policies")&&
+ storageBucketCleanup.includes("WITH CHECK")&&
+ storageBucketCleanup.includes("USING")&&
+ !storageBucketCleanup.includes("DELETE FROM storage.objects")&&
+ !storageBucketCleanup.includes("UPDATE storage.objects"),
+ "Legacy views can be removed independently; clean Storage buckets must preserve owner-only RLS");
+for(const source of ["assets/js/avatar.js","assets/js/post-media.js","assets/js/post-interactions.js",
+ "assets/js/feed.js","assets/js/profile.js","assets/js/communities.js",
+ "assets/js/friends.js","assets/js/notifications.js"]){
+ const contents=await read(source);
+ for(const oldBucket of ["vatra-avatars","vatra-covers","vatra-post-images","vatra-videos"])
+  assert.ok(!contents.includes(oldBucket),source+" must not use an old Storage bucket");
+}
+assert.ok((await read("assets/js/post-media.js")).includes('"post-images"')&&
+ (await read("assets/js/profile.js")).includes('"avatars"')&&
+ (await read("assets/js/profile.js")).includes('"covers"')&&
+ (await read("assets/js/post-media.js")).includes('"videos"'),
+ "New uploads and signed URL creation must use canonical bucket IDs");

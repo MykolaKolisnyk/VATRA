@@ -1,5 +1,8 @@
 # VATRA — physical social table renames (2026-11-13)
 
+> **Current state — 13 November 2026:** All 27 physical public tables are named without the old `vatra_` prefix. The 21 legacy `vatra_` compatibility views were removed (migration `20261113195057`) after dependency checks; the historical migration notes below describe earlier states. Four new Storage buckets — `avatars`, `covers`, `post-images`, `videos` — were created with matching limits and privacy plus 10 mirrored RLS policies (migration `20261113195123`). New browser code uses these IDs. Old Storage buckets and their existing files remain available for planned cleanup; files were **not** copied automatically. Storage files must only be removed using Supabase Storage API or Dashboard, never directly through SQL.
+
+
 Migration `20261113175644_rename_fourteen_social_tables_with_rls_compatibility.sql`
 has already been applied to the Supabase database. This is **not** a
 data-copy migration; PostgreSQL keeps the physical relation identities,
@@ -59,5 +62,7 @@ SQL migration filenames and legacy RPC/function names may still use VATRA
 branding; this migration concerns **physical table names**, not every string
 containing the word VATRA.
 
-Do not remove old views until old cached clients have expired and the
-account, post, friend, notification and messaging integration tests pass.
+The earlier compatibility views were subsequently removed using explicit
+`DROP VIEW ... RESTRICT` after checking database dependencies. New clients
+use physical tables; stale cached clients using former view paths require a
+refresh.

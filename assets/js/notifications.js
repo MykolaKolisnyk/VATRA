@@ -74,7 +74,7 @@ async function authorNames(rows){
   if(!media.error)for(const item of media.data||[]){
    const id=String(item.vatra_id),path=item.avatar_path;
    if(states.has(id)||typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
-   const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
+   const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
    if(!url)continue;
    try{
     const parsed=new URL(url);

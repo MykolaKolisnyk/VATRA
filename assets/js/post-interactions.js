@@ -71,7 +71,7 @@
   if(!media.error)for(const x of media.data||[]){
    const id=String(x.vatra_id),path=x.avatar_path;
    if(typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
-   const url=client.storage.from("vatra-avatars").getPublicUrl(path)?.data?.publicUrl;
+   const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
    if(url)try{
     const validated=new URL(url);
     if(validated.protocol==="https:"&&validated.hostname==="rjasunoawrxvetwadylh.supabase.co")
@@ -576,7 +576,7 @@ function appendAudience(container,level,isGroup=false){
     media.alt=tr("Фото в коментарі","Comment photo");media.loading="lazy";
    }else{media.controls=true;media.preload="metadata";media.playsInline=true;}
    box.append(media);content.append(box);
-   const bucket=kind==="image"?"vatra-post-images":"vatra-videos";
+   const bucket=kind==="image"?"post-images":"videos";
    void (async()=>{
     try{
      // Reuse the short-lived, in-memory Storage URL cache already used by posts.
@@ -818,7 +818,7 @@ function appendAudience(container,level,isGroup=false){
     const target=replyTarget;
     if(target)payload.parent_comment_id=target.id;
     if(file){
-     const bucket=file.kind==="image"?"vatra-post-images":"vatra-videos";
+     const bucket=file.kind==="image"?"post-images":"videos";
      const filename=crypto.randomUUID()+"."+file.ext;
      const path=ownId+"/comments/"+filename;
      const {error}=await client.storage.from(bucket).upload(path,file.file,{
