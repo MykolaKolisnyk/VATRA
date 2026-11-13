@@ -12,7 +12,7 @@
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const select=selector=>document.querySelector(selector);
  // A single VATRA-styled confirmation surface for all profile actions.
- // Never delegate user decisions to browser confirm()/alert() windows.
+ // Keep every user decision inside the app rather than browser popups.
  window.VATRA_PROFILE_CONFIRM=({title,description,action,tone="danger"})=>{
   const dialog=select("#profile-confirm-dialog");
   const heading=select("#profile-confirm-heading");
