@@ -937,11 +937,11 @@ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:non
 }
 /* Centered reading lane: Stories and Feed posts share the same column. */
 body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
- display:block!important;width:min(calc(100% - 32px),760px)!important;
- max-width:760px!important;margin:18px auto 54px!important
+ display:block!important;width:min(calc(100% - 32px),870px)!important;
+ max-width:870px!important;margin:18px auto 54px!important
 }
 body.feed-page:not(.community-page):not(.profile-page) .feed-main{
- display:flex;flex-direction:column;width:min(100%,700px);max-width:700px;min-width:0;
+ display:flex;flex-direction:column;width:min(100%,870px);max-width:870px;min-width:0;
  margin:0 auto!important;gap:13px
 }
 body.feed-page .feed-stories{margin:0;gap:8px}
@@ -2781,32 +2781,30 @@ body.feed-page .feed-post-card:has(.vatra-post-comment-attach-menu:not([hidden])
 }
 
 
-/* November 2026: composer and story card share the same left reading lane;
-   the compact filter occupies the upper-right cell only. */
+/* One Feed grid: post editor, story and every post share the LEFT column.
+   Feed filter occupies the RIGHT column. No clipped or floating post cards. */
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
- display:grid!important;grid-template-columns:minmax(0,1fr) clamp(174px,25%,242px)!important;
- column-gap:14px!important;row-gap:12px!important;align-items:start!important
+ display:grid!important;grid-template-columns:minmax(0,1fr) clamp(180px,27%,245px)!important;
+ align-items:start!important;column-gap:16px!important;row-gap:13px!important;
+ width:100%;min-width:0
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
- grid-column:1!important;grid-row:1!important;min-width:0;width:100%!important;margin:0!important
+ grid-column:1!important;grid-row:1!important;width:100%!important;min-width:0;margin:0!important
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
- grid-column:1!important;grid-row:2!important;min-width:0;width:100%!important;margin:0!important;
- align-self:stretch!important
+ grid-column:1!important;grid-row:2!important;width:100%!important;min-width:0;margin:0!important
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
- grid-column:2!important;grid-row:1!important;width:100%!important;min-width:0;
- margin:0!important;align-self:start!important
+ grid-column:2!important;grid-row:1!important;align-self:start!important;
+ width:100%!important;min-width:0;margin:0!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section,
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{
+ grid-column:1!important;grid-row:auto!important;min-width:0;width:100%;margin:0
 }
 @media(max-width:760px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls{
-  grid-template-columns:minmax(0,1fr)!important;gap:10px!important
- }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-quick-compose{
-  grid-column:1!important;grid-row:1!important
- }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
-  grid-column:1!important;grid-row:2!important
+  grid-template-columns:minmax(0,1fr)!important;column-gap:0!important;row-gap:11px!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
   grid-column:1!important;grid-row:3!important;min-height:52px!important
