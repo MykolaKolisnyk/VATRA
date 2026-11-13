@@ -1499,6 +1499,23 @@ assert.ok(
  !feedPostGrantMigration.includes("DISABLE ROW LEVEL SECURITY"),
  "Authenticated members must be able to publish feed posts without exposing them to anon");
 
+const mediaOnlyMigration=await read("supabase/migrations/20261113170207_allow_gallery_only_posts_without_text.sql");
+const communityGrantMigration=await read("supabase/migrations/20261113171114_restore_community_directory_read_and_owner_create_grants.sql");
+const socialUpdateMigration=await read("supabase/migrations/20261113171325_restore_owner_scoped_update_privileges_for_social_features.sql");
+assert.ok(
+ mediaOnlyMigration.includes("jsonb_array_length(media_items) > 0")&&
+ mediaOnlyMigration.includes("feed_posts_body_length")&&
+ mediaOnlyMigration.includes("vatra_community_posts_body_check")&&
+ communityGrantMigration.includes("GRANT SELECT ON TABLE public.communities TO anon, authenticated;")&&
+ communityGrantMigration.includes("GRANT INSERT ON TABLE public.communities TO authenticated;")&&
+ socialUpdateMigration.includes("GRANT UPDATE ON TABLE public.vatra_friendships TO authenticated;")&&
+ socialUpdateMigration.includes("GRANT UPDATE ON TABLE public.vatra_profile_media TO authenticated;")&&
+ socialUpdateMigration.includes("GRANT UPDATE ON TABLE public.vatra_public_profiles TO authenticated;")&&
+ socialUpdateMigration.includes("GRANT UPDATE ON TABLE public.member_notifications TO authenticated;")&&
+ socialUpdateMigration.includes("GRANT UPDATE ON TABLE public.profile_presence TO authenticated;")&&
+ !socialUpdateMigration.includes("TO anon"),
+ "Gallery-only publishing, public community directory and RLS-scoped social writes must be retained");
+
 const publicRedisEdge=await read("supabase/functions/public-community-directory/index.ts");
 assert.ok(
  publicRedisEdge.includes('const TTL_SECONDS = 15')&&
