@@ -2428,9 +2428,7 @@ body.profile-page .vt-profile-archived-story-open-001:hover{
  background:#e3edff;border-color:#bed0ef
 }
 
-/* Tie the story orbit and decorative cover circles to the current portrait. */
-body.profile-page .profile-avatar-wrap.has-active-story::before{background:conic-gradient(from 40deg,var(--vatra-avatar-accent,#7990b6),color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 38%),var(--vatra-avatar-accent,#7990b6),color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 26%),var(--vatra-avatar-accent,#7990b6))}
-body.profile-page .profile-cover:not(.has-photo) .profile-cover-motif{border-color:color-mix(in srgb,var(--vatra-avatar-accent,#7990b6),white 55%);box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 9%,transparent),0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#7990b6) 5%,transparent)}
+/* Story rings are only for real uploaded portraits; system artwork has fixed colors. */
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger{cursor:default}
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger .profile-avatar{transition:none!important;filter:none!important;transform:none!important}
 
@@ -2449,34 +2447,42 @@ body.profile-page .profile-friend-portrait[data-vatra-avatar-state="blocked"]:no
 body.profile-page .profile-avatar-trigger:disabled{
  opacity:1!important;filter:none!important
 }
-/* The accent rim belongs to every profile, not just active stories.
-   Match the real-image and WebP avatar edge to the dominant portrait color. */
+/* Profile avatar ring rules. Uploaded portrait: white except when a story is active.
+   Four built-in PNG portraits use their own constant ring color, even with a story.
+   Never sample an uploaded photo to determine the ring color. */
 body.profile-page .profile-avatar-wrap::before{
- content:"";position:absolute;inset:-6px;z-index:0;border-radius:50%;
- background:var(--vatra-avatar-accent,#497bd4);
- box-shadow:0 0 0 1px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 65%,white);
+ content:"";position:absolute;inset:-6px;z-index:0;
+ border-radius:50%;background:#fff;
+ box-shadow:0 0 0 1px #dbe3ef;
  pointer-events:none
 }
 body.profile-page .profile-avatar-wrap .profile-avatar{
- border-color:var(--vatra-avatar-accent,#497bd4)!important;
- opacity:1!important
+ border-color:#fff!important;opacity:1!important;
+ box-shadow:0 0 0 1px #dbe3ef,0 11px 26px rgba(44,79,176,.14)!important
 }
-body.profile-page .profile-cover:not(.has-photo)::before{
- border-color:color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 68%,white);
- box-shadow:0 0 0 44px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 13%,transparent),
-            0 0 0 110px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 9%,transparent)
+body.profile-page .profile-avatar-wrap.has-active-story:not([data-vatra-ring-kind])::before{
+ background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8);
+ box-shadow:0 0 0 1px #e3e9f4
 }
-body.profile-page .profile-cover:not(.has-photo) .profile-cover-motif{
- border:2px solid color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 83%,white);
- box-shadow:0 0 0 29px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 22%,transparent),
-            0 0 0 78px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 12%,transparent)
+/* Each system avatar has an explicit color, not a calculated image average. */
+body.profile-page .profile-avatar-wrap[data-vatra-ring-kind="default"]{
+ --vatra-system-ring:#347fd9
 }
-
-/* The accent ring follows the current photo, including ordinary member portraits. */
-body.profile-page .profile-avatar-wrap .profile-avatar{
- box-shadow:0 0 0 1px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 65%,white),
+body.profile-page .profile-avatar-wrap[data-vatra-ring-kind="deleted"]{
+ --vatra-system-ring:#8391a6
+}
+body.profile-page .profile-avatar-wrap[data-vatra-ring-kind="not-found"]{
+ --vatra-system-ring:#3b9ed8
+}
+body.profile-page .profile-avatar-wrap[data-vatra-ring-kind="blocked"]{
+ --vatra-system-ring:#d65f6b
+}
+body.profile-page .profile-avatar-wrap[data-vatra-ring-kind]::before{
+ background:var(--vatra-system-ring)!important;
+ box-shadow:0 0 0 1px var(--vatra-system-ring)!important
+}
+body.profile-page .profile-avatar-wrap[data-vatra-ring-kind] .profile-avatar{
+ border-color:#fff!important;
+ box-shadow:0 0 0 1px var(--vatra-system-ring),
             0 11px 26px rgba(44,79,176,.14)!important
-}
-body.profile-page .profile-avatar-wrap::before{
- box-shadow:0 0 0 2px color-mix(in srgb,var(--vatra-avatar-accent,#497bd4) 76%,white)!important
 }
