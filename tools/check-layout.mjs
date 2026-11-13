@@ -1431,8 +1431,8 @@ assert.ok(searchLogic.includes("const left=ox;")&&
 // retain public header artwork while content and interactions are gated.
 assert.ok(
  memberProfileMarkup.includes('id="profile-block-toggle"')&&
- memberProfileMarkup.includes('ui-profile-block-icon-001')&&
- memberProfileMarkup.includes('ui-profile-report-flag-icon-001')&&
+ memberProfileMarkup.includes('ui-profile-block-member-icon-001')&&
+ memberProfileMarkup.includes('ui-profile-report-warning-icon-001')&&
  profileBehavior.includes('function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess)')&&
  profileBehavior.includes('client.from("vatra_blocks")')&&
  profileBehavior.includes('blockAccess.blockedByThem')&&
@@ -1441,6 +1441,17 @@ assert.ok(
  profileBehavior.includes('if(!memberBlocked)setupProfileInteractions(')&&
  systemProfileCss.includes('.profile-locked-notice[data-lock-reason="block"]'),
  "Blocking must show a restricted member notice, hide interactions and keep SVG safety controls");
+assert.ok(
+ memberProfileMarkup.includes('id="profile-confirm-dialog"')&&
+ memberProfileMarkup.includes('id="profile-confirm-accept"')&&
+ memberProfileMarkup.includes('id="profile-confirm-cancel"')&&
+ memberProfileMarkup.includes('aria-describedby="profile-confirm-description"')&&
+ profileBehavior.includes('window.VATRA_PROFILE_CONFIRM=')&&
+ profileBehavior.includes('dialog.showModal();')&&
+ profileBehavior.includes('window.VATRA_PROFILE_CONFIRM(blocked?{')&&
+ !/\b(?:window\.)?confirm\s*\(/.test(profileBehavior.replace(/\/\*[\s\S]*?\*\//g,""))&&
+ systemProfileCss.includes('body.profile-page .profile-confirm-dialog::backdrop{'),
+ "All profile decisions use the accessible VATRA dialog, not native JS confirm windows");
 assert.ok(
  feedMarkup.indexOf('class="feed-posts-section ui-feed-posts-section-001"')<
  feedMarkup.indexOf('</section>\n          </div>\n        </main>')&&
