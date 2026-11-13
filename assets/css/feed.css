@@ -2266,7 +2266,6 @@ body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-0
  display:flex;flex-direction:column;gap:4px
 }
 /* Comments are a natural continuation of every post, not a second card/modal. */
-body.feed-page .vatra-post-compact-comments{display:none!important}
 body.feed-page .vatra-post-interactions .vatra-post-comments-panel{
  display:flex;flex-direction:column;gap:7px;
  margin:4px 0 0;padding:9px 0 0;
