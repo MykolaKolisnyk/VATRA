@@ -202,11 +202,24 @@ async function openDirectory(client){
  const search=$("#feed-search-input");
  if(search&&term)search.value=term;
  try{
-  let request=client.from("communities").select("club_id,name,description,created_at");
-  if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
-  const {data,error}=await request.order("created_at",{ascending:false})
-   .order("club_id",{ascending:false}).limit(100);
-  if(error)throw error;
+  // OFF until Supabase Edge Secrets contain a working Redis connection.
+  // Search remains a direct, indexed, RLS-protected database query.
+  const PUBLIC_DIRECTORY_CACHE_ENABLED=false;
+  let data=null;
+  if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED&&client.functions?.invoke){
+   try{
+    const response=await client.functions.invoke("public-community-directory",{method:"GET"});
+    if(!response.error&&Array.isArray(response.data?.data))data=response.data.data;
+   }catch(_){/* Edge/Redis outage: fall back to PostgREST below. */}
+  }
+  if(!data){
+   let request=client.from("communities").select("club_id,name,description,created_at");
+   if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
+   const result=await request.order("created_at",{ascending:false})
+    .order("club_id",{ascending:false}).limit(100);
+   if(result.error)throw result.error;
+   data=result.data||[];
+  }
   list.replaceChildren();
   for(const club of data||[]){
    const number=String(club.club_id);
