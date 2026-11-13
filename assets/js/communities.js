@@ -401,6 +401,31 @@ async function setupClubSocial(client,clubId,ownId,userId){
  await loadClubPosts();
 }
 
+async function fetchPublicClub(client,number){
+ // Server cache contains only information globally readable under anon RLS.
+ // Personal follow membership, posts, blocked members and authors are never cached.
+ const numeric=Number(number);
+ if(Number.isSafeInteger(numeric)&&numeric>0&&client.functions?.invoke){
+  try{
+   const response=await client.functions.invoke("public-community-directory",{
+    body:{club_id:numeric}
+   });
+   if(!response.error&&response.data&&
+      Object.prototype.hasOwnProperty.call(response.data,"data")){
+    const row=response.data.data;
+    if(row===null)return {data:null,error:null};
+    if(row&&typeof row==="object"&&Number(row.club_id)===numeric&&
+       typeof row.name==="string"&&row.name.length<=80&&
+       (row.description===null||typeof row.description==="string")&&
+       typeof row.created_at==="string")
+     return {data:row,error:null};
+   }
+  }catch(_){/* If Edge or Redis is unavailable, use normal PostgREST/RLS. */}
+ }
+ return client.from("communities")
+  .select("club_id,name,description,created_at").eq("club_id",number).maybeSingle();
+}
+
 async function openClub(client,ownId,userId){
  const query=new URLSearchParams(location.search);
  const number=query.get("club_id")||location.pathname.match(/\/club([1-9][0-9]{0,18})$/)?.[1]||"";
@@ -412,8 +437,7 @@ async function openClub(client,ownId,userId){
   document.title=t("Спільноту не знайдено · VATRA","Community not found · VATRA");
  };
  if(!idPattern.test(number)){displayError();return;}
- const {data,error}=await client.from("communities")
-  .select("club_id,name,description,created_at").eq("club_id",number).maybeSingle();
+ const {data,error}=await fetchPublicClub(client,number);
  if(error){
   status("#club-status",t("Не вдалося завантажити спільноту.","Could not load the community."),"error");
   return;
