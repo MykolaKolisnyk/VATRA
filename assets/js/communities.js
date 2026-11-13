@@ -40,7 +40,7 @@ const gateError=message=>{
 async function loadHeaderPhoto(client,id,email){
  if(!idPattern.test(String(id||"")))return;
  try{
-  const {data,error}=await client.from("vatra_profile_media")
+  const {data,error}=await client.from("profile_media")
    .select("avatar_path").eq("vatra_id",id).maybeSingle();
   if(error)return;
   window.VATRA_AVATAR?.fromPath(client,email,id,data?.avatar_path||null);
@@ -257,7 +257,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
   onError:text=>show(status,text)
  });
  const refreshFollowing=async()=>{
-  const {data,error}=await client.from("vatra_community_follows")
+  const {data,error}=await client.from("community_follows")
    .select("club_id").eq("club_id",clubId).eq("member_vatra_id",ownId).maybeSingle();
   if(error)throw error;
   isFollowing=!!data;
@@ -270,7 +270,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
   if(!append){postsOffset=0;renderedPostIds.clear();list.replaceChildren();empty.hidden=true;}
   if(more){more.disabled=true;if(!append)more.hidden=true;}
   try{
-   const {data,error}=await client.from("vatra_community_posts")
+   const {data,error}=await client.from("community_posts")
     .select("id,author_vatra_id,body,created_at,media_kind,media_path,media_items")
     .eq("club_id",clubId).order("created_at",{ascending:false})
     .order("id",{ascending:false}).range(postsOffset,postsOffset+CLUB_PAGE_SIZE-1);
@@ -281,7 +281,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
    // Linked posts older than the current page are fetched individually.
    const linkedId=new URLSearchParams(location.search).get("post");
    if(!append&&focusRequestedPost&&postPattern.test(linkedId||"")&&!rows.some(post=>post.id===linkedId)){
-    const direct=await client.from("vatra_community_posts")
+    const direct=await client.from("community_posts")
      .select("id,author_vatra_id,body,created_at,media_kind,media_path,media_items")
      .eq("club_id",clubId).eq("id",linkedId).maybeSingle();
     if(!direct.error&&direct.data)rows.unshift(direct.data);
@@ -292,7 +292,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
    const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)))];
    if(ids.length){
     try{
-     const {data:people}=await client.from("vatra_public_profiles")
+     const {data:people}=await client.from("public_profiles")
       .select("vatra_id,display_name").in("vatra_id",ids);
      for(const member of people||[])names.set(String(member.vatra_id),member.display_name);
     }catch(_){}
@@ -363,8 +363,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
   busy=true;follow.disabled=true;
   try{
    const {error}=isFollowing?
-    await client.from("vatra_community_follows").delete().eq("club_id",clubId).eq("member_vatra_id",ownId):
-    await client.from("vatra_community_follows").insert({club_id:clubId,member_vatra_id:ownId});
+    await client.from("community_follows").delete().eq("club_id",clubId).eq("member_vatra_id",ownId):
+    await client.from("community_follows").insert({club_id:clubId,member_vatra_id:ownId});
    if(error)throw error;
    await refreshFollowing();
    await loadClubPosts();
@@ -387,7 +387,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
   let uploaded=null;
   try{
    if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
-   const {error}=await client.from("vatra_community_posts").insert({
+   const {error}=await client.from("community_posts").insert({
     club_id:clubId,author_vatra_id:ownId,body,media_items:uploaded||[]
    });
    if(error)throw error;

@@ -155,10 +155,10 @@
   const paragraph=select("#profile-about-text");
   // Visibility and accepted friendship are independent RLS-checked reads.
   // Start both together so closed profiles do not pay an extra network round trip.
-  const preferenceQuery=client.from("vatra_profile_preferences")
+  const preferenceQuery=client.from("profile_preferences")
    .select("profile_visibility").eq("vatra_id",targetId).maybeSingle();
   const friendshipQuery=!isMine&&ownId?
-   client.from("vatra_friendships")
+   client.from("friendships")
     .select("id").or(
      "and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+"),"+
      "and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")"
@@ -170,7 +170,7 @@
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
   const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
-  const result=locked?{data:[],error:null}:await client.from("vatra_profile_details")
+  const result=locked?{data:[],error:null}:await client.from("profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
   const rows=result.error?[]:result.data||[];
   const saved=new Map(rows.map(x=>[x.field_key,{
@@ -567,18 +567,18 @@
     const additions=records.filter(x=>x.field_value);
     const deletions=records.filter(x=>!x.field_value).map(x=>x.field_key);
     if(additions.length){
-     const result=await client.from("vatra_profile_details")
+     const result=await client.from("profile_details")
       .upsert(additions,{onConflict:"vatra_id,field_key"}).select("field_key");
      if(result.error||result.data?.length!==additions.length)
       throw result.error||new Error("Profile fields not saved");
     }
     if(deletions.length){
-     const result=await client.from("vatra_profile_details")
+     const result=await client.from("profile_details")
       .delete().eq("vatra_id",ownId).in("field_key",deletions);
      if(result.error)throw result.error;
     }
     if(visibility!==accountVisibility){
-     const result=await client.from("vatra_profile_preferences")
+     const result=await client.from("profile_preferences")
       .upsert({vatra_id:ownId,profile_visibility:visibility,
        updated_at:new Date().toISOString()},{onConflict:"vatra_id"})
       .select("profile_visibility").maybeSingle();
@@ -957,7 +957,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  const namedAuthors=async rows=>{
   const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)).filter(validId))];
   if(!ids.length)return new Map();
-  const {data,error}=await client.from("vatra_public_profiles")
+  const {data,error}=await client.from("public_profiles")
    .select("vatra_id,display_name").in("vatra_id",ids);
   return new Map(!error?(data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
  };
@@ -981,7 +981,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
    const groups=rows.filter(row=>row.post_kind==="group").map(row=>row.post_id);
    const fetched=await Promise.all([
     persons.length?client.from("feed_posts").select("id,body,author_vatra_id,media_kind,media_path,shared_post_kind,shared_post_id,created_at").in("id",persons):Promise.resolve({data:[]}),
-    groups.length?client.from("vatra_community_posts").select("id,body,author_vatra_id,club_id,media_kind,media_path,created_at").in("id",groups):Promise.resolve({data:[]})
+    groups.length?client.from("community_posts").select("id,body,author_vatra_id,club_id,media_kind,media_path,created_at").in("id",groups):Promise.resolve({data:[]})
    ]);
    const map=new Map(fetched.flatMap((x,i)=>(x.data||[]).map(p=>[(i?"group":"person")+":"+p.id,p])));
    const all=[...map.values()];
@@ -1019,7 +1019,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   const list=q("#profile-archive-stories-list"),note=q("#profile-archive-stories-empty");
   list.replaceChildren();note.hidden=true;
   try{
-   const {data,error}=await client.from("vatra_stories").select("id,body,theme,created_at,expires_at,media_kind,media_path")
+   const {data,error}=await client.from("stories").select("id,body,theme,created_at,expires_at,media_kind,media_path")
     .eq("author_vatra_id",ownId).lte("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(50);
    if(error)throw error;
@@ -1299,8 +1299,8 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
    String(f.recipient_id):String(f.requester_id)).filter(validId))];
   const [names,photos,statesResult]=await Promise.allSettled([
-   ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
-   ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
+   ids.length?client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
+   ids.length?client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);
   const friendStates=statesResult.status==="fulfilled"?statesResult.value:new Map();
@@ -1326,7 +1326,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   try{
    if(!allFriendsPending){
     allFriendsPending=(async()=>{
-     const {data,error}=await client.from("vatra_friendships")
+     const {data,error}=await client.from("friendships")
       .select("requester_id,recipient_id,created_at")
       .eq("status","accepted")
       .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
@@ -1395,7 +1395,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   communitiesLoaded=true;
   communityList.replaceChildren();
   try{
-   const {data:follows,error}=await client.from("vatra_community_follows")
+   const {data:follows,error}=await client.from("community_follows")
     .select("club_id,created_at").eq("member_vatra_id",targetId)
     .order("created_at",{ascending:false}).limit(150);
    if(error)throw error;
@@ -1421,7 +1421,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   }
  };
  const jobs=await Promise.allSettled([
-  client.from("vatra_friendships").select("requester_id,recipient_id,created_at")
+  client.from("friendships").select("requester_id,recipient_id,created_at")
    .eq("status","accepted")
    .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
    .order("created_at",{ascending:false}).limit(6),
@@ -1448,7 +1448,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  }
 }
 
-/* Member blocking is persisted in vatra_blocks with per-member RLS.
+/* Member blocking is persisted in member_blocks with per-member RLS.
    Blocking is distinct from platform suspension and from friends-only profiles. */
 function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
  const button=q("#profile-block-toggle");
@@ -1481,9 +1481,9 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
   const status=q("#profile-action-status");
   try{
    const operation=blocked?
-    client.from("vatra_blocks").delete()
+    client.from("member_blocks").delete()
      .eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",targetId):
-    client.from("vatra_blocks").insert({
+    client.from("member_blocks").insert({
      blocker_vatra_id:Number(ownId),blocked_vatra_id:Number(targetId)
     });
    const {error}=await operation;
@@ -1677,7 +1677,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   if(!validPeer(activePeer))return;
   conversation.replaceChildren(node("p","vt-profile-message-loading-001",t("Завантаження…","Loading…")));
   try{
-   const {data,error}=await client.from("vatra_direct_messages")
+   const {data,error}=await client.from("direct_messages")
     .select("sender_id,recipient_id,body,created_at")
     .or(messagesQuery(activePeer)).order("created_at",{ascending:false}).limit(50);
    if(error)throw error;
@@ -1730,7 +1730,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   }
   sending=true;send.disabled=true;show(messageStatus,"");
   try{
-   const {error}=await client.from("vatra_direct_messages").insert({
+   const {error}=await client.from("direct_messages").insert({
     sender_id:ownId,recipient_id:activePeer,body
    });
    if(error)throw error;
@@ -1748,7 +1748,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   const pair="and(requester_id.eq."+ownId+",recipient_id.eq."+targetId+
    "),and(requester_id.eq."+targetId+",recipient_id.eq."+ownId+")";
   const refreshFriend=async()=>{
-   const {data,error}=await client.from("vatra_friendships")
+   const {data,error}=await client.from("friendships")
     .select("id,requester_id,recipient_id,status").or(pair).maybeSingle();
    if(error)throw error;
    relation=data;
@@ -1766,10 +1766,10 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    busy=true;friendButton.disabled=true;show(actionStatus,"");
    try{
     const result=!relation?
-     await client.from("vatra_friendships").insert({requester_id:ownId,recipient_id:targetId}):
+     await client.from("friendships").insert({requester_id:ownId,recipient_id:targetId}):
      relation.status==="pending"&&String(relation.recipient_id)===String(ownId)?
-      await client.from("vatra_friendships").update({status:"accepted"}).eq("id",relation.id):
-      await client.from("vatra_friendships").delete().eq("id",relation.id);
+      await client.from("friendships").update({status:"accepted"}).eq("id",relation.id):
+      await client.from("friendships").delete().eq("id",relation.id);
     if(result.error)throw result.error;
     await refreshFriend();
     show(actionStatus,t("Статус дружби оновлено.","Friendship updated."));
@@ -1784,7 +1784,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    return;
   }
   try{
-   const {data,error}=await client.from("vatra_friendships")
+   const {data,error}=await client.from("friendships")
     .select("id,requester_id,recipient_id,status,created_at")
     .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
     .order("created_at",{ascending:false}).limit(100);
@@ -1803,8 +1803,8 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
      action.disabled=true;
      try{
       const {error:changeError}=await (item.status==="pending"&&incoming?
-       client.from("vatra_friendships").update({status:"accepted"}).eq("id",item.id):
-       client.from("vatra_friendships").delete().eq("id",item.id));
+       client.from("friendships").update({status:"accepted"}).eq("id",item.id):
+       client.from("friendships").delete().eq("id",item.id));
       if(changeError)throw changeError;
       await loadFriends();
      }catch(_){action.disabled=false;show(friendsEmpty,t("Не вдалося оновити друзів.","Could not update friends."));}
@@ -1818,7 +1818,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
   inbox.replaceChildren();inboxEmpty.hidden=true;
   if(!isMine)return;
   try{
-   const {data,error}=await client.from("vatra_direct_messages")
+   const {data,error}=await client.from("direct_messages")
     .select("sender_id,recipient_id,created_at")
     .or("sender_id.eq."+ownId+",recipient_id.eq."+ownId)
     .order("created_at",{ascending:false}).limit(200);
@@ -1866,7 +1866,7 @@ function setupProfileEdit(client,targetId,isMine,initialStatus,signupGender){
   if(Array.from(next).length>140){note.textContent=t("Статус надто довгий.","Status is too long.");note.hidden=false;return;}
   save.disabled=true;note.hidden=true;
   try{
-   const {data,error}=await client.from("vatra_public_profiles")
+   const {data,error}=await client.from("public_profiles")
     .update({status_text:next||null}).eq("vatra_id",targetId).select("status_text").maybeSingle();
    if(error||!data)throw error||new Error("Not persisted");
    saved=String(data.status_text||"");render();dialog.close();
@@ -1903,7 +1903,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
 }
 
 /* Only the signed-in owner can change profile images; Storage policies and
-   vatra_profile_media RLS enforce this independently of the UI. */
+   profile_media RLS enforce this independently of the UI. */
 async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
@@ -2012,9 +2012,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     p_offset:photoCommentOffset,p_limit:12
    });
    const likesPromise=refreshLikes?Promise.all([
-    client.from("vatra_avatar_likes").select("liker_id",{count:"exact",head:true})
+    client.from("avatar_likes").select("liker_id",{count:"exact",head:true})
      .eq("owner_vatra_id",targetId).eq("avatar_path",path),
-    client.from("vatra_avatar_likes").select("liker_id")
+    client.from("avatar_likes").select("liker_id")
      .eq("owner_vatra_id",targetId).eq("avatar_path",path).eq("liker_id",userId).limit(1)
    ]):Promise.resolve(null);
    const [comments,likeResults]=await Promise.all([commentsPromise,likesPromise]);
@@ -2033,7 +2033,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const ids=rows.map(x=>x.id);
    let ownCommentLikes=new Set();
    if(ids.length){
-    const reaction=await client.from("vatra_avatar_comment_likes").select("comment_id")
+    const reaction=await client.from("avatar_comment_likes").select("comment_id")
      .in("comment_id",ids).eq("liker_id",userId);
     if(!reaction.error)ownCommentLikes=new Set((reaction.data||[]).map(x=>x.comment_id));
    }
@@ -2088,9 +2088,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      reaction.disabled=true;
      try{
       const result=reacted?
-       await client.from("vatra_avatar_comment_likes").delete()
+       await client.from("avatar_comment_likes").delete()
         .eq("comment_id",item.id).eq("liker_id",userId):
-       await client.from("vatra_avatar_comment_likes").insert({comment_id:item.id,liker_id:userId});
+       await client.from("avatar_comment_likes").insert({comment_id:item.id,liker_id:userId});
       if(result.error)throw result.error;
       reacted=!reacted;countValue+=reacted?1:-1;paint();
      }catch(_){feedback(t("Не вдалося вподобати коментар.","Could not like the comment."),true);}
@@ -2113,8 +2113,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   likeBusy=true;likesButton.disabled=true;feedback("");
   try{
    const query=likesButton.getAttribute("aria-pressed")==="true"?
-    client.from("vatra_avatar_likes").delete().eq("avatar_path",path).eq("liker_id",userId):
-    client.from("vatra_avatar_likes").insert({owner_vatra_id:targetId,avatar_path:path,liker_id:userId});
+    client.from("avatar_likes").delete().eq("avatar_path",path).eq("liker_id",userId):
+    client.from("avatar_likes").insert({owner_vatra_id:targetId,avatar_path:path,liker_id:userId});
    const {error}=await query;if(error)throw error;
    await reloadPhotoActivity();
   }catch(_){feedback(t("Не вдалося змінити вподобання.","Could not update like."),true);}
@@ -2126,7 +2126,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(commentBusy||!path||!body||Array.from(body).length>1000||!validId(ownId))return;
   commentBusy=true;commentSend.disabled=true;feedback("");
   try{
-   const {error}=await client.from("vatra_avatar_comments").insert({
+   const {error}=await client.from("avatar_comments").insert({
     owner_vatra_id:targetId,avatar_path:path,author_id:userId,author_vatra_id:ownId,body
    });
    if(error)throw error;
@@ -2196,7 +2196,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   const removingId=activeStory.id,removingStory={...activeStory};
   deleteStoryButton.disabled=true;
   try{
-   const result=await client.from("vatra_stories").delete()
+   const result=await client.from("stories").delete()
     .eq("id",removingId).eq("author_vatra_id",ownId).select("id");
    if(result.error||!result.data?.some(row=>row.id===removingId))
     throw result.error||new Error("Story not deleted");
@@ -2205,7 +2205,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     await window.VATRA_POST_MEDIA?.remove(client,removingStory);
    }catch(_){/* The story row is already deleted and no longer accessible to friends. */}
    activeStory=null;
-   const next=await client.from("vatra_stories").select("id,body,theme,expires_at,media_kind,media_path")
+   const next=await client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
     .eq("author_vatra_id",ownId).gt("expires_at",new Date().toISOString())
     .order("created_at",{ascending:false}).limit(1);
    if(!next.error&&next.data?.[0])activeStory=next.data[0];
@@ -2310,7 +2310,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  };
  try{
   // Public profile photos are not part of friends-only posts or About fields.
-  const request=()=>client.from("vatra_profile_media")
+  const request=()=>client.from("profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
   let response=await (preloadedMedia||request());
   if(response?.error||!response?.data)response=await request();
@@ -2344,7 +2344,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  }
  // No story request or interaction on a locked profile.
  if(!locked)try{
-  const {data,error}=await client.from("vatra_stories")
+  const {data,error}=await client.from("stories")
    .select("id,body,theme,expires_at,media_kind,media_path")
    .eq("author_vatra_id",targetId)
    .gt("expires_at",new Date().toISOString())
@@ -2378,9 +2378,9 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    const column=kind==="avatar"?"avatar_path":"cover_path";
    const values={[column]:path,updated_at:new Date().toISOString()};
    const operation=saved?
-    client.from("vatra_profile_media").update(values).eq("vatra_id",ownId)
+    client.from("profile_media").update(values).eq("vatra_id",ownId)
      .select("vatra_id,"+column).maybeSingle():
-    client.from("vatra_profile_media").insert({vatra_id:ownId,...values})
+    client.from("profile_media").insert({vatra_id:ownId,...values})
      .select("vatra_id,"+column).maybeSingle();
    const {data:stored,error:dbError}=await operation;
    if(dbError||String(stored?.[column]||"")!==path){
@@ -2411,7 +2411,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 async function loadOwnHeaderAvatar(client,ownId,email){
  if(!validId(ownId))return;
  try{
-  const {data,error}=await client.from("vatra_profile_media")
+  const {data,error}=await client.from("profile_media")
    .select("avatar_path").eq("vatra_id",ownId).maybeSingle();
   if(error)return;
   // The shared cache validates the URL and warms the image once. Avoid a
@@ -2487,7 +2487,7 @@ async function start(){
   const [directoryOutcome,publicOutcome,stateOutcome]=await Promise.allSettled([
    client.from("member_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
-   Promise.resolve().then(()=>client.from("vatra_public_profiles")
+   Promise.resolve().then(()=>client.from("public_profiles")
     .select("display_name,status_text").eq("vatra_id",targetId).maybeSingle()),
    window.VATRA_AVATAR?.states(client,[targetId])||Promise.resolve(new Map())
   ]);
@@ -2501,7 +2501,7 @@ async function start(){
   const blockAccess={blockedByMe:false,blockedByThem:false};
   if(!isMine&&validId(ownId)){
    try{
-    const {data:blocks,error:blockError}=await client.from("vatra_blocks")
+    const {data:blocks,error:blockError}=await client.from("member_blocks")
      .select("blocker_vatra_id,blocked_vatra_id")
      .or("and(blocker_vatra_id.eq."+ownId+",blocked_vatra_id.eq."+targetId+"),"+
          "and(blocker_vatra_id.eq."+targetId+",blocked_vatra_id.eq."+ownId+")")
@@ -2518,7 +2518,7 @@ async function start(){
   q("#profile-report-open").hidden=isMine;
   if(isMine)bindPostComposer(client,user,ownId);
   // The account creation trigger publishes only registered first/last names
-  // to vatra_public_profiles. Birthdate, gender, email and auth UUID remain private.
+  // to public_profiles. Birthdate, gender, email and auth UUID remain private.
   let publicName="",publicStatus="";
   const {data:publicProfile,error:publicError}=publicOutcome.status==="fulfilled"?
    publicOutcome.value:{data:null,error:true};
@@ -2551,7 +2551,7 @@ async function start(){
    .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
   document.title=titleName+" · VATRA";
   // Start public avatar/cover loading before private detail and friendship checks.
-  const preloadedMedia=Promise.resolve().then(()=>client.from("vatra_profile_media")
+  const preloadedMedia=Promise.resolve().then(()=>client.from("profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
    .catch(()=>({data:null,error:true}));
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess});

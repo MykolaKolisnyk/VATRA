@@ -23,7 +23,7 @@ function counterpart(item){
   String(item.recipient_id):String(item.requester_id);
 }
 async function data(){
- const result=await client.from("vatra_friendships")
+ const result=await client.from("friendships")
   .select("id,requester_id,recipient_id,status,created_at")
   .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
   .order("created_at",{ascending:false}).limit(350);
@@ -31,8 +31,8 @@ async function data(){
  rows=result.data||[];
  const ids=[...new Set(rows.map(counterpart).filter(validId))];
  const resultSet=await Promise.allSettled([
-  ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
-  ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
+  ids.length?client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
+  ids.length?client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
  ]);
  accountStates=resultSet[2].status==="fulfilled"?resultSet[2].value:new Map();
@@ -66,13 +66,13 @@ function actionButton(label,cls,callback){
 }
 async function removeRow(item){
  if(!me)return;
- const {error}=await client.from("vatra_friendships").delete()
+ const {error}=await client.from("friendships").delete()
   .eq("id",item.id).or("requester_id.eq."+ownId+",recipient_id.eq."+ownId);
  if(error)throw error;
 }
 async function accept(item){
  if(!me||String(item.recipient_id)!==ownId)return;
- const {data,error}=await client.from("vatra_friendships")
+ const {data,error}=await client.from("friendships")
   .update({status:"accepted"}).eq("id",item.id).eq("recipient_id",ownId)
   .eq("status","pending").select("id");
  if(error||!data?.length)throw error||Error("Request is no longer available");

@@ -63,8 +63,8 @@
   const names=new Map(),images=new Map();
   if(!ids.length)return {names,images};
   const [profile,media]=await Promise.all([
-   client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
-   client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
+   client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
+   client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
   ]);
   if(!profile.error)for(const x of profile.data||[])names.set(String(x.vatra_id),x.display_name);
   if(!media.error)for(const x of media.data||[]){
@@ -274,8 +274,8 @@ function appendAudience(container,level,isGroup=false){
    if(likePending)return likePending;
    likePending=(async()=>{
     const [total,mine]=await Promise.all([
-     likeFilter(client.from("vatra_post_likes").select("liker_id",{count:"exact",head:true})),
-     likeFilter(client.from("vatra_post_likes").select("liker_id")).eq("liker_id",userId).limit(1)
+     likeFilter(client.from("post_likes").select("liker_id",{count:"exact",head:true})),
+     likeFilter(client.from("post_likes").select("liker_id")).eq("liker_id",userId).limit(1)
     ]);
     if(total.error||mine.error)throw total.error||mine.error;
     likeCount=total.count||0;liked=!!mine.data?.length;likeReady=true;
@@ -299,8 +299,8 @@ function appendAudience(container,level,isGroup=false){
     if(!likeReady)await hydrateLike();
     if(!likeReady)throw Error("Likes unavailable");
     const result=liked?
-     await likeFilter(client.from("vatra_post_likes").delete()).eq("liker_id",userId):
-     await client.from("vatra_post_likes").insert({post_kind:kind,post_id:post.id,liker_id:userId});
+     await likeFilter(client.from("post_likes").delete()).eq("liker_id",userId):
+     await client.from("post_likes").insert({post_kind:kind,post_id:post.id,liker_id:userId});
     if(result.error)throw result.error;
     liked=!liked;likeCount+=liked?1:-1;
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
@@ -609,9 +609,9 @@ function appendAudience(container,level,isGroup=false){
     if(likeComment.disabled)return;likeComment.disabled=true;
     try{
      const result=ownLiked?
-      await client.from("vatra_post_comment_likes").delete()
+      await client.from("post_comment_likes").delete()
        .eq("comment_id",item.id).eq("liker_id",userId):
-      await client.from("vatra_post_comment_likes").insert({comment_id:item.id,liker_id:userId});
+      await client.from("post_comment_likes").insert({comment_id:item.id,liker_id:userId});
      if(result.error)throw result.error;
      ownLiked=!ownLiked;likeCount+=ownLiked?1:-1;renderLike();
     }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update like."),true);}
@@ -647,7 +647,7 @@ function appendAudience(container,level,isGroup=false){
       const ids=rows.map(x=>x.id);
       let mine=new Set();
       if(ids.length){
-       const result=await client.from("vatra_post_comment_likes")
+       const result=await client.from("post_comment_likes")
         .select("comment_id").in("comment_id",ids).eq("liker_id",userId);
        if(!result.error)mine=new Set((result.data||[]).map(x=>x.comment_id));
       }
@@ -704,7 +704,7 @@ function appendAudience(container,level,isGroup=false){
     );
     let mine=new Set();
     if(ids.length){
-     const result=await client.from("vatra_post_comment_likes")
+     const result=await client.from("post_comment_likes")
       .select("comment_id").in("comment_id",ids).eq("liker_id",userId);
      if(!result.error)mine=new Set((result.data||[]).map(x=>x.comment_id));
     }
@@ -789,7 +789,7 @@ function appendAudience(container,level,isGroup=false){
      uploaded={bucket,path};
      payload.media_kind=file.kind;payload.media_path=path;
     }
-    const result=await client.from("vatra_post_comments").insert(payload);
+    const result=await client.from("post_comments").insert(payload);
     if(result.error)throw result.error;
     input.value="";chosenFile=null;fileInput.value="";
     attachmentPreview.hidden=true;stopReply();updateSend();
@@ -816,7 +816,7 @@ function appendAudience(container,level,isGroup=false){
     // Likes are already counted by hydrateLike(); avoid a second identical
    // COUNT request for every visible post.
    const [commentsResult,sharesResult]=await Promise.all([
-     client.from("vatra_post_comments").select("id",{count:"exact",head:true})
+     client.from("post_comments").select("id",{count:"exact",head:true})
       .eq("post_kind",kind).eq("post_id",post.id),
      client.from("feed_posts").select("id",{count:"exact",head:true})
       .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null)
@@ -952,7 +952,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    placeholder.value="";friendSelect.append(placeholder);
    try{
     if(!validId(ownId))throw Error("Missing VATRA ID");
-    const result=await client.from("vatra_friendships").select("requester_id,recipient_id,status")
+    const result=await client.from("friendships").select("requester_id,recipient_id,status")
      .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
      .eq("status","accepted").limit(200);
     if(result.error)throw result.error;
@@ -981,7 +981,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    sendDM.disabled=true;showShareError("");
    try{
     const body=tr("Поглянь на цей допис: ","Check out this post: ")+permalink(post);
-    const result=await client.from("vatra_direct_messages").insert({
+    const result=await client.from("direct_messages").insert({
      sender_id:ownId,recipient_id:recipient,body
     });
     if(result.error)throw result.error;
@@ -1007,7 +1007,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    tr("Оригінальна публікація","Original post")));
   container.append(preview);
   try{
-   const table=kind==="person"?"feed_posts":"vatra_community_posts";
+   const table=kind==="person"?"feed_posts":"community_posts";
    const {data,error}=await client.from(table)
     .select(kind==="group"?
      "id,club_id,author_vatra_id,body,media_kind,media_path,media_items,created_at":
@@ -1015,7 +1015,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     .eq("id",id).maybeSingle();
    if(error||!data)throw Error("Original post unavailable");
    if(!preview.isConnected)return;
-   const member=await client.from("vatra_public_profiles").select("display_name")
+   const member=await client.from("public_profiles").select("display_name")
     .eq("vatra_id",data.author_vatra_id).maybeSingle();
    const name=!member.error&&member.data?.display_name?
     member.data.display_name:tr("Користувач VATRA","VATRA member");
