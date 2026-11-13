@@ -1286,6 +1286,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityScript=await read("assets/js/communities.js");
+assert.doesNotThrow(()=>new Function(communityScript),"Community catalog and Redis fallback must parse as JavaScript");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
 assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
