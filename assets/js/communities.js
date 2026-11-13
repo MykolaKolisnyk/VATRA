@@ -235,6 +235,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const form=$("#club-compose-form"),input=$("#club-compose-text"),status=$("#club-compose-error");
  if(!follow||!compose||!list||!ownId||!idPattern.test(ownId))return;
  let isFollowing=false,busy=false,focusRequestedPost=true,postsLoading=false,postsOffset=0;
+ const renderedPostIds=new Set();
  const CLUB_PAGE_SIZE=12;
  const show=(el,text)=>{el.textContent=text;el.hidden=!text;};
  const picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
@@ -253,7 +254,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
  const loadClubPosts=async(append=false)=>{
   if(postsLoading)return;
   postsLoading=true;
-  if(!append){postsOffset=0;list.replaceChildren();empty.hidden=true;}
+  if(!append){postsOffset=0;renderedPostIds.clear();list.replaceChildren();empty.hidden=true;}
   if(more){more.disabled=true;if(!append)more.hidden=true;}
   try{
    const {data,error}=await client.from("vatra_community_posts")
@@ -282,6 +283,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
     }catch(_){}
    }
    for(const post of rows){
+    if(renderedPostIds.has(post.id))continue;
+    renderedPostIds.add(post.id);
     const id=String(post.author_vatra_id);
     const article=node("article","feed-post-card ui-club-post-card-001");
     article.dataset.postId=post.id;
