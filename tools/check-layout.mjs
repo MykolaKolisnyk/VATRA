@@ -1584,7 +1584,7 @@ assert.ok(
  socialDomainMigration.includes("CREATE OR REPLACE FUNCTION private.emit_member_notification()")&&
  socialDomainMigration.includes("CREATE OR REPLACE FUNCTION public.vatra_comment_thread_page(")&&
  socialDomainMigration.includes("GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.vatra_friendships TO authenticated;")&&
- !socialDomainMigration.includes("DROP CASCADE"),
+ !/\bDROP\b[^;]*\bCASCADE\b/i.test(socialDomainMigration.replace(/^\s*--.*$/gm,"")),
  "All 14 physical renames must retain legacy caller-scoped views, notification triggers and RLS");
 
 const lastProfileRename=await read("supabase/migrations/20261113180825_rename_last_two_profile_upsert_tables.sql");
