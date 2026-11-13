@@ -209,8 +209,21 @@
               
       <button type="button" id="profile-tab-friends" hidden class="social-profile-tab ui-social-profile-friends-tab-001" data-profile-tab="friends" role="tab" aria-controls="profile-friends-section" aria-selected="false"><span class="vt-social-profile-friends-tab-label-001" data-social-uk="Друзі" data-social-en="Friends">Друзі</span></button>
       <button type="button" id="profile-tab-gifts" hidden class="social-profile-tab ui-social-profile-gifts-tab-001" data-profile-tab="gifts" role="tab" aria-controls="profile-gifts-section" aria-selected="false"><span class="vt-profile-gifts-tab-label-001" data-social-uk="Подарунки" data-social-en="Gifts">Подарунки</span></button>
-              <button type="button" id="profile-block-toggle" class="social-profile-tab profile-safety-action vt-profile-block-toggle-001" data-shell-aria-uk="Заблокувати користувача" data-shell-aria-en="Block member" aria-label="Заблокувати користувача" title="Заблокувати користувача" hidden><svg class="ui-profile-block-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-block-shield-path-001" d="M12 2.7 20 6v5.2c0 5.4-3.5 8.7-8 10.1-4.5-1.4-8-4.7-8-10.1V6l8-3.3Z"/><path class="ui-profile-block-ban-path-001" d="M8 16l8-8"/></svg></button>
-              <button type="button" id="profile-report-open" class="social-profile-tab profile-safety-action vt-profile-report-open-001" data-shell-aria-uk="Поскаржитися на користувача" data-shell-aria-en="Report member" aria-label="Поскаржитися на користувача" title="Поскаржитися на користувача" hidden><svg class="ui-profile-report-flag-icon-001" viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-report-flag-pole-001" d="M5 21V4"/><path class="ui-profile-report-flag-shape-001" d="M5 5c2.7-2.2 5.4 2.1 8 0 2.1-1.6 3.7-1.2 6 0v10c-2.3-1.3-3.9-1.6-6 0-2.6 2.1-5.3-2.1-8 0"/></svg></button>
+              <button type="button" id="profile-block-toggle" class="social-profile-tab profile-safety-action vt-profile-block-toggle-001" data-shell-aria-uk="Заблокувати користувача" data-shell-aria-en="Block member" aria-label="Заблокувати користувача" title="Заблокувати користувача" hidden>
+                <svg class="ui-profile-block-member-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle class="ui-profile-block-member-head-001" cx="9.1" cy="7.4" r="3.2"/>
+                  <path class="ui-profile-block-member-shoulders-001" d="M2.8 19.5v-1.4c0-3 2.2-5 6.3-5 1.2 0 2.3.2 3.2.6"/>
+                  <circle class="ui-profile-block-member-ban-circle-001" cx="17.2" cy="16.8" r="4.8"/>
+                  <path class="ui-profile-block-member-ban-stroke-001" d="m13.9 13.5 6.6 6.6"/>
+                </svg>
+              </button>
+              <button type="button" id="profile-report-open" class="social-profile-tab profile-safety-action vt-profile-report-open-001" data-shell-aria-uk="Поскаржитися на користувача" data-shell-aria-en="Report member" aria-label="Поскаржитися на користувача" title="Поскаржитися на користувача" hidden>
+                <svg class="ui-profile-report-warning-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path class="ui-profile-report-warning-bubble-001" d="M6 4h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-6.7L6 21v-3a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+                  <path class="ui-profile-report-warning-mark-001" d="M12 8v5"/>
+                  <circle class="ui-profile-report-warning-dot-001" cx="12" cy="16" r=".9" fill="currentColor" stroke="none"/>
+                </svg>
+              </button>
             </nav>
           </section>
           <div class="profile-panels ui-profile-panels-001">
@@ -347,6 +360,20 @@
             </section>
           </div>
         </main>
+        <dialog id="profile-confirm-dialog" class="profile-confirm-dialog ui-profile-confirm-dialog-001" aria-labelledby="profile-confirm-heading" aria-describedby="profile-confirm-description">
+          <div class="profile-confirm-header ui-profile-confirm-header-001">
+            <span class="profile-confirm-symbol ui-profile-confirm-symbol-001" aria-hidden="true">
+              <svg class="ui-profile-confirm-symbol-icon-001" viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle class="ui-profile-confirm-symbol-ring-001" cx="12" cy="12" r="9"/><path class="ui-profile-confirm-symbol-mark-001" d="M12 7.5V13"/><circle class="ui-profile-confirm-symbol-dot-001" cx="12" cy="17" r=".8" fill="currentColor" stroke="none"/></svg>
+            </span>
+            <button id="profile-confirm-close" type="button" class="vt-profile-confirm-close-001" aria-label="Закрити" data-shell-aria-uk="Закрити" data-shell-aria-en="Close"><svg class="ui-profile-confirm-close-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path class="ui-profile-confirm-close-path-001" d="M6 6l12 12M18 6 6 18"/></svg></button>
+          </div>
+          <h2 id="profile-confirm-heading" class="vt-profile-confirm-heading-001"></h2>
+          <p id="profile-confirm-description" class="vt-profile-confirm-description-001"></p>
+          <div class="profile-confirm-actions ui-profile-confirm-actions-001">
+            <button id="profile-confirm-cancel" type="button" class="vt-profile-confirm-cancel-001">Скасувати</button>
+            <button id="profile-confirm-accept" type="button" class="vt-profile-confirm-accept-001">Підтвердити</button>
+          </div>
+        </dialog>
         <dialog id="profile-report-dialog" class="profile-report-dialog ui-profile-report-dialog-001" aria-labelledby="profile-report-heading">
           <div class="profile-report-head ui-profile-report-head-001">
             <button id="profile-report-back" type="button" class="vt-profile-report-back-001" aria-label="Назад" hidden>←</button>
