@@ -1363,7 +1363,7 @@ assert.ok(feedStyle.includes('body.feed-page > .vatra-auth-loading[hidden]{displ
  !feedStyle.includes('body.profile-page .profile-cover.is-loading-media{')&&
  feedStyle.includes('body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}')&&
  feedScript.includes('void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()])')&&
- feedScript.includes('posts.append(card(item))')&&
+ feedScript.includes('posts.append(card(item,engagement))')&&
  profileScript.includes('const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia)')&&
  profileScript.includes('const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id)')&&
  profileScript.includes('const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess})')&&
@@ -1471,6 +1471,16 @@ assert.ok(
  (await read("profile.html")).includes('type="file" multiple')&&
  (await read("club.html")).includes('type="file" multiple'),
  "Gallery posting, secure preview and on-demand comments must remain intact");
+
+assert.ok(
+ interactionsScript.includes('async function prefetchEngagement(client,posts)')&&
+ interactionsScript.includes('client.rpc("post_engagement_page"')&&
+ interactionsScript.includes('if(!snapshot&&typeof IntersectionObserver')&&
+ interactionsScript.includes('if(snapshot)refresh();')&&
+ feedScript.includes('prefetchEngagement(client,page)')&&
+ profileScript.includes('prefetchEngagement(')&&
+ clubPostScript.includes('prefetchEngagement('),
+ "All three post surfaces must batch RLS-scoped engagement instead of querying each badge");
 
 assert.ok(
  clubPostScript.includes("const CLUB_PAGE_SIZE=12")&&
