@@ -949,8 +949,8 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    const table=kind==="person"?"feed_posts":"vatra_community_posts";
    const {data,error}=await client.from(table)
     .select(kind==="group"?
-     "id,club_id,author_vatra_id,body,media_kind,media_path,created_at":
-     "id,author_vatra_id,body,media_kind,media_path,created_at")
+     "id,club_id,author_vatra_id,body,media_kind,media_path,media_items,created_at":
+     "id,author_vatra_id,body,media_kind,media_path,media_items,created_at")
     .eq("id",id).maybeSingle();
    if(error||!data)throw Error("Original post unavailable");
    if(!preview.isConnected)return;
@@ -972,7 +972,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     const body=make("p","vt-vatra-post-share-preview-body-001",data.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);preview.append(body);
    }
-   if(data.media_kind&&data.media_path)void window.VATRA_POST_MEDIA?.mount(client,data,preview);
+   if(data.media_items?.length||(data.media_kind&&data.media_path))void window.VATRA_POST_MEDIA?.mount(client,data,preview);
   }catch(_){
    if(preview.isConnected)preview.append(make("p","vt-vatra-post-original-unavailable-001",
     tr("Ця публікація недоступна.","This post is unavailable.")));
