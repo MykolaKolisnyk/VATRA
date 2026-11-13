@@ -197,7 +197,17 @@
    frame.className="vatra-post-media-viewer-frame ui-vatra-post-media-viewer-frame-001";
    const close=document.createElement("button");
    close.className="vt-vatra-post-media-close-001";close.type="button";
-   close.textContent="×";close.setAttribute("aria-label",tr("Закрити","Close"));
+   close.setAttribute("aria-label",tr("Закрити","Close"));
+   const closeIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   closeIcon.setAttribute("class","ui-vatra-post-media-close-icon-001");
+   closeIcon.setAttribute("viewBox","0 0 24 24");closeIcon.setAttribute("width","21");
+   closeIcon.setAttribute("height","21");closeIcon.setAttribute("fill","none");
+   closeIcon.setAttribute("stroke","currentColor");closeIcon.setAttribute("stroke-width","1.8");
+   closeIcon.setAttribute("stroke-linecap","round");
+   const cross=document.createElementNS("http://www.w3.org/2000/svg","path");
+   cross.setAttribute("class","ui-vatra-post-media-close-path-001");
+   cross.setAttribute("d","M6 6l12 12M18 6 6 18");
+   closeIcon.append(cross);close.append(closeIcon);
    close.addEventListener("click",()=>mediaDialog.close());
    mediaDialogContent=document.createElement("div");
    mediaDialogContent.className="ui-vatra-post-media-viewer-content-001";

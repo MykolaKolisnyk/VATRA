@@ -9,19 +9,38 @@ const make=(tag,cls,label)=>{
  const el=document.createElement(tag);el.className=cls;
  if(label!==undefined)el.textContent=label;return el;
 };
+const vectorIcon=(name,cls)=>{
+ const ns="http://www.w3.org/2000/svg";
+ const svg=document.createElementNS(ns,"svg");
+ svg.setAttribute("class",cls);svg.setAttribute("viewBox","0 0 24 24");
+ svg.setAttribute("width","18");svg.setAttribute("height","18");
+ svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");
+ svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");
+ svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+ const path=document.createElementNS(ns,"path");
+ path.setAttribute("class",cls.replace("-icon-","-path-"));
+ path.setAttribute("d",{
+  back:"m14.5 5-7 7 7 7",
+  drafts:"M5 6h14M5 12h14M5 18h9",
+  close:"M6 6l12 12M18 6 6 18"
+ }[name]);
+ svg.append(path);return svg;
+};
 const iconUpload=()=>{
  const ns="http://www.w3.org/2000/svg";
  const svg=document.createElementNS(ns,"svg");
  svg.setAttribute("class","ui-vatra-post-upload-symbol-001");
  svg.setAttribute("viewBox","0 0 64 64");svg.setAttribute("width","74");svg.setAttribute("height","74");
  svg.setAttribute("fill","none");svg.setAttribute("aria-hidden","true");
- for(const [d,color,width] of [
+ for(const [index,[d,color,width]] of [
   ["M16 41V20a6 6 0 0 1 6-6h20a6 6 0 0 1 6 6v21","#5b75d3",3.4],
   ["M18 42l9-10 7 7 5-6 8 9","#71b0d9",3.4],
   ["M33 13V4M29 8h8","#df83bc",2.8],
   ["M12 49h40","#5b75d3",3.4]
- ]){
-  const path=document.createElementNS(ns,"path");path.setAttribute("d",d);
+ ].entries()){
+  const path=document.createElementNS(ns,"path");
+  path.setAttribute("class","ui-vatra-post-upload-path-"+index);
+  path.setAttribute("d",d);
   path.setAttribute("stroke",color);path.setAttribute("stroke-width",width);
   path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");
   svg.append(path);
@@ -53,12 +72,17 @@ function bind({prefix,ownerId,getFile}){
  }catch(_){return [];}};
  const persist=rows=>{try{localStorage.setItem(storeKey,JSON.stringify(rows.slice(0,12)));return true;}catch(_){return false;}};
  const header=make("header","vatra-post-composer-head ui-vatra-post-composer-head-001");
- const back=make("button","vt-vatra-post-composer-back-001",t("← Редагувати","← Edit"));
+ const back=make("button","vt-vatra-post-composer-back-001");
+ back.append(vectorIcon("back","ui-vatra-post-composer-back-icon-001"),
+  make("span","vt-vatra-post-composer-back-label-001",t("Редагувати","Edit")));
  back.type="button";back.hidden=true;
  title.textContent=t("Новий пост","New post");
- const drafts=make("button","vt-vatra-post-composer-drafts-001",t("☷  Чернетки","☷  Drafts"));
+ const drafts=make("button","vt-vatra-post-composer-drafts-001");
+ drafts.append(vectorIcon("drafts","ui-vatra-post-composer-drafts-icon-001"),
+  make("span","vt-vatra-post-composer-drafts-label-001",t("Чернетки","Drafts")));
  drafts.type="button";drafts.setAttribute("aria-label",t("Мої чернетки на цьому пристрої","Drafts on this device"));
- cancel.textContent="×";cancel.setAttribute("aria-label",t("Закрити редактор","Close editor"));
+ cancel.replaceChildren(vectorIcon("close","ui-vatra-post-composer-cancel-icon-001"));
+ cancel.setAttribute("aria-label",t("Закрити редактор","Close editor"));
  header.append(back,title,drafts,cancel);
 
  const edit=make("section","vatra-post-composer-edit ui-vatra-post-composer-edit-001");
@@ -146,7 +170,8 @@ function bind({prefix,ownerId,getFile}){
     textarea.dispatchEvent(new Event("input",{bubbles:true}));
     setStage("edit");textarea.focus();
    });
-   const remove=make("button","vt-vatra-post-composer-draft-remove-001","×");
+   const remove=make("button","vt-vatra-post-composer-draft-remove-001");
+   remove.append(vectorIcon("close","ui-vatra-post-composer-draft-remove-icon-001"));
    remove.type="button";remove.setAttribute("aria-label",t("Видалити чернетку","Delete draft"));
    remove.addEventListener("click",()=>{persist(read().filter(x=>x.id!==item.id));renderDrafts();});
    row.append(pickDraft,remove);draftList.append(row);

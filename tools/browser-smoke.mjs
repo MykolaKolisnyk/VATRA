@@ -2584,11 +2584,21 @@ try{
    };
   });
   assert.deepEqual(postDividers,{
-   interactions:"0px",actions:"0px",comments:"1px",composer:"0px"
-  },"One subtle divider before comments, no stacked lines beneath the photo");
+   interactions:"1px",actions:"0px",comments:"0px",composer:"0px"
+  },"One divider immediately beneath media, above post action counts");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-action-label-001").first().evaluate(
    el=>getComputedStyle(el).position),"absolute",
    "Post actions must show only icons while retaining accessible names");
+  for(const selector of [
+   ".vt-vatra-post-like-count-001",
+   ".vt-vatra-post-comments-count-001",
+   ".vt-vatra-post-shares-count-001"
+  ]){
+   assert.equal((await feedProbe.locator("#vatra-smoke-inline-interactions "+selector).textContent()).trim(),"0",
+    "Each SVG post action starts with a visible numeric count");
+  }
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-social-summary").count(),0,
+   "No duplicate summary or preview between photo and actions");
 
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-composer-avatar").count(),1,
    "Inline comment composer has the same circular member portrait as the feed");

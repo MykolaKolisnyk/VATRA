@@ -181,11 +181,15 @@ function appendAudience(container,level,isGroup=false){
   const row=make("div","vatra-post-action-row ui-vatra-post-action-row-001");
   const like=action("vt-vatra-post-like-001","heart",tr("Подобається","Like"));
   like.setAttribute("aria-pressed","false");
-  const count=make("span","vt-vatra-post-like-count-001","");
+  const count=make("span","vt-vatra-post-like-count-001","0");
   like.append(count);
   const commentsButton=action("vt-vatra-post-comments-toggle-001","comments",tr("Коментарі","Comments"));
+  const commentsCount=make("span","vt-vatra-post-comments-count-001","0");
+  commentsButton.append(commentsCount);
   commentsButton.setAttribute("aria-expanded","false");
   const share=action("vt-vatra-post-share-toggle-001","share",tr("Поділитися","Share"));
+  const sharesCount=make("span","vt-vatra-post-shares-count-001","0");
+  share.append(sharesCount);
   share.setAttribute("aria-expanded","false");
   const saved=action("vt-vatra-post-save-001","bookmark",tr("Зберегти","Save"));
   saved.setAttribute("aria-pressed","false");
@@ -231,7 +235,7 @@ function appendAudience(container,level,isGroup=false){
     ]);
     if(total.error||mine.error)throw total.error||mine.error;
     likeCount=total.count||0;liked=!!mine.data?.length;likeReady=true;
-    count.textContent=likeCount?String(likeCount):"";
+    count.textContent=String(Math.max(0,likeCount));
     like.setAttribute("aria-pressed",String(liked));
     like.classList.toggle("is-liked",liked);
    })().catch(()=>feedback(tr("Вподобання тимчасово недоступні.","Likes temporarily unavailable."),true))
@@ -256,7 +260,7 @@ function appendAudience(container,level,isGroup=false){
     if(result.error)throw result.error;
     liked=!liked;likeCount+=liked?1:-1;
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
-    count.textContent=likeCount?String(likeCount):"";
+    count.textContent=String(Math.max(0,likeCount));
     void refreshSocial();
    }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update your like."),true);}
    finally{like.disabled=false;}
@@ -267,12 +271,14 @@ function appendAudience(container,level,isGroup=false){
   commentsButton.setAttribute("aria-expanded","true");
 
   const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
-  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Сортування","Sort"));
+  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001");
+  sortLabel.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
   sort.name="vatra_post_comments_sort";
+  sort.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   for(const [id,uk,en] of [
-   ["relevant","Спочатку цікаві","Most relevant first"],
-   ["newest","Спочатку нові","Newest first"],
+   ["relevant","Найактуальніші","Most relevant"],
+   ["newest","Найновіші","Newest"],
    ["all","Усі коментарі","All comments"]
   ]){
    const option=make("option","ui-vatra-post-comment-option-"+id,tr(uk,en));
@@ -292,7 +298,7 @@ function appendAudience(container,level,isGroup=false){
   const entries=make("div","vatra-post-comment-list ui-vatra-post-comment-list-001");
   entries.setAttribute("role","feed");entries.setAttribute("aria-busy","false");
   const more=make("button","vt-vatra-post-comments-more-001",
-   tr("Показати наступні коментарі","Show more comments"));
+   tr("Завантажити ще коментарі","Load more comments"));
   more.type="button";more.hidden=true;
   const form=make("form","vatra-post-comment-form ui-vatra-post-comment-form-001");
   const input=make("textarea","ui-vatra-post-comment-input-001");
@@ -707,98 +713,28 @@ function appendAudience(container,level,isGroup=false){
   // A true modal composer, matching VATRA typography: caption, original, friends and link.
   // The original post is referenced by UUID; the share creates a real feed_posts row.
 
-  // Real social proof: three newest liker photos, comment/repost counts and two
-  // recent comments. All numbers come from RLS-readable rows, never placeholders.
-  const social=make("div","vatra-post-social-summary ui-vatra-post-social-summary-001");
-  social.hidden=true;
-  const faces=make("div","vatra-post-social-avatars ui-vatra-post-social-avatars-001");
-  const likesText=make("span","vt-vatra-post-social-likes-001");
-  const commentsText=make("button","vt-vatra-post-social-comments-001");
-  commentsText.type="button";
-  const sharesText=make("span","vt-vatra-post-social-shares-001");
-  social.append(faces,likesText,commentsText,sharesText);
-  shell.insertBefore(social,row);
-  const compact=make("div","vatra-post-compact-comments ui-vatra-post-compact-comments-001");
-  compact.hidden=true;shell.insertBefore(compact,panel);
-  const viewAll=make("button","vt-vatra-post-compact-all-001",tr("Переглянути всі коментарі","View all comments"));
-  viewAll.type="button";
-  const expandComments=()=>{
-   if(commentOffset===0)void loadComments(true);
-   panel.scrollIntoView({block:"nearest",behavior:"smooth"});
-  };
-  viewAll.addEventListener("click",expandComments);
-  commentsText.addEventListener("click",expandComments);
+  // Fetch lightweight totals only for posts near the viewport.
+  // Do not request a redundant row of recent commenters or member avatars:
+  // the paged comment thread below is the single source of comment content.
   let socialTicket=0;
   async function refreshSocial(){
    const ticket=++socialTicket;
    try{
-    const [likeResult,commentsResult,sharesResult,recent]=await Promise.all([
+    const [likesResult,commentsResult,sharesResult]=await Promise.all([
      likeFilter(client.from("vatra_post_likes").select("liker_id",{count:"exact",head:true})),
-     client.from("vatra_post_comments").select("id,author_vatra_id,body,created_at",{count:"exact"})
-      .eq("post_kind",kind).eq("post_id",post.id)
-      .order("created_at",{ascending:false}).limit(2),
+     client.from("vatra_post_comments").select("id",{count:"exact",head:true})
+      .eq("post_kind",kind).eq("post_id",post.id),
      client.from("feed_posts").select("id",{count:"exact",head:true})
-      .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null),
-     client.from("vatra_post_like_members").select("liker_vatra_id")
-      .eq("post_kind",kind).eq("post_id",post.id)
-      .order("liked_at",{ascending:false}).limit(3)
+      .eq("shared_post_kind",kind).eq("shared_post_id",post.id).is("archived_at",null)
     ]);
     if(!shell.isConnected||ticket!==socialTicket)return;
-    const likes=likeResult.error?likeCount:Number(likeResult.count||0);
-    const comments=commentsResult.error?0:Number(commentsResult.count||0);
-    const shares=sharesResult.error?0:Number(sharesResult.count||0);
-    const rows=commentsResult.error?[]:commentsResult.data||[];
-    const likesIds=recent.error?[]:(recent.data||[]).map(x=>String(x.liker_vatra_id)).filter(validId).slice(0,3);
-    const {names,images}=await authorMap(client,[
-     ...rows,...likesIds.map(author_vatra_id=>({author_vatra_id}))
-    ]);
-    if(!shell.isConnected||ticket!==socialTicket)return;
-    faces.replaceChildren();
-    for(let i=0;i<likesIds.length;i++){
-     const id=likesIds[i];
-     const avatar=make("a","vatra-post-social-avatar vt-vatra-post-social-avatar-"+i);
-     avatar.href=new URL("id"+id,relativeRoot()).href;
-     avatar.setAttribute("aria-label",names.get(id)||tr("Користувач VATRA","VATRA member"));
-     const photo=images.get(id);
-     if(photo){
-      const image=new Image();
-      image.onload=()=>{if(avatar.isConnected){
-       avatar.classList.add("has-photo");avatar.style.backgroundImage="url("+JSON.stringify(photo)+")";
-      }};
-      image.src=photo;
-     }
-     faces.append(avatar);
+    if(!likesResult.error){
+     likeCount=Number(likesResult.count||0);
+     count.textContent=String(Math.max(0,likeCount));
     }
-    faces.hidden=!likesIds.length;
-    likesText.textContent=likes?likes+" "+tr("вподобали","likes"):"";
-    likesText.hidden=!likes;
-    commentsText.textContent=comments?comments+" "+tr("коментарів","comments"):"";
-    commentsText.hidden=!comments;
-    sharesText.textContent=shares?shares+" "+tr("поширень","shares"):"";
-    sharesText.hidden=!shares;
-    social.hidden=likes+comments+shares===0;
-    compact.replaceChildren();
-    for(const [i,item] of rows.entries()){
-     const authorId=String(item.author_vatra_id);
-     const card=make("div","vatra-post-compact-comment ui-vatra-post-compact-comment-"+i);
-     const a=make("a","vt-vatra-post-compact-author-"+i,
-      names.get(authorId)||tr("Користувач VATRA","VATRA member"));
-     a.href=new URL("id"+authorId,relativeRoot()).href;
-     const text=make("span","vt-vatra-post-compact-text-"+i,
-      Array.from(item.body||"").slice(0,240).join(""));
-     const avatar=make("a","vatra-post-compact-avatar ui-vatra-post-compact-avatar-"+i);
-     avatar.href=a.href;avatar.setAttribute("aria-label",a.textContent);
-     const photo=images.get(authorId);
-     if(photo){
-      const image=new Image();image.onload=()=>{if(avatar.isConnected){
-       avatar.classList.add("has-photo");avatar.style.backgroundImage="url("+JSON.stringify(photo)+")";
-      }};image.src=photo;
-     }
-     card.append(avatar,a,text);compact.append(card);
-    }
-    if(comments>rows.length)compact.append(viewAll);
-    compact.hidden=true; // No second, duplicate comment preview. The thread below is canonical.
-   }catch(_){/* Feed and interaction buttons stay usable when social summaries fail. */}
+    if(!commentsResult.error)commentsCount.textContent=String(Number(commentsResult.count||0));
+    if(!sharesResult.error)sharesCount.textContent=String(Number(sharesResult.count||0));
+   }catch(_){/* Counters remain usable while RLS or network totals are unavailable. */}
   }
   if(typeof IntersectionObserver!=="undefined"){
    const summaryObserver=new IntersectionObserver(entries=>{
@@ -814,7 +750,7 @@ function appendAudience(container,level,isGroup=false){
   const shareTitle=make("h2","vt-vatra-post-share-heading-001",tr("Поділитися","Share"));
   const shareClose=make("button","vt-vatra-post-share-close-001");
   shareClose.type="button";shareClose.setAttribute("aria-label",tr("Закрити","Close"));
-  shareClose.textContent="×";
+  shareClose.append(glyph("x"));
   shareClose.addEventListener("click",()=>shareMenu.close());
   shareHead.append(shareTitle,shareClose);
   const shareContent=make("div","vatra-post-share-body ui-vatra-post-share-body-001");

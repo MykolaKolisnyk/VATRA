@@ -135,7 +135,8 @@
    film:"M4 4h16v16H4zM8 4v16M16 4v16M4 9h4m8 0h4M4 15h4m8 0h4",
    "gamepad-2":"M8 8h8c3 0 5 2 6 7l-2 4c-1 2-3 2-5 0l-2-2h-2l-2 2c-2 2-4 2-5 0l-2-4c1-5 3-7 6-7Zm1 4v5m-2.5-2.5h5M17 13h.01M19 15h.01",
    "quote":"M4 6h6v6l-3 5H4l3-5H4V6Zm10 0h6v6l-3 5h-3l3-5h-3V6",
-   "file-text":"M6 2h8l5 5v15H6zM14 2v5h5M9 12h7M9 16h7"
+   "file-text":"M6 2h8l5 5v15H6zM14 2v5h5M9 12h7M9 16h7",
+   x:"M6 6l12 12M18 6 6 18"
   };
   const ns="http://www.w3.org/2000/svg",element=document.createElementNS(ns,"svg");
   element.setAttribute("class","ui-vatra-profile-information-icon-"+kind);
@@ -219,7 +220,8 @@
   const modalTitle=make("h2","vt-vatra-profile-details-title-001",tr("Докладна інформація","Detailed information"));
   modalTitle.id="vatra-profile-details-heading";
   modalTitles.append(modalEyebrow,modalTitle);
-  const closeModal=make("button","vt-vatra-profile-details-close-001","×");
+  const closeModal=make("button","vt-vatra-profile-details-close-001");
+  closeModal.append(svg("x"));
   closeModal.type="button";
   closeModal.setAttribute("aria-label",tr("Закрити докладну інформацію","Close detailed information"));
   modalHeader.append(modalTitles,closeModal);
@@ -849,6 +851,16 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    if(!more.dataset.bound){
     more.dataset.bound="true";
     more.addEventListener("click",()=>void loadPosts(client,targetId,ownId,userId,true));
+   }
+   if(!more.dataset.autoPageBound&&typeof IntersectionObserver==="function"){
+    more.dataset.autoPageBound="true";
+    const postPager=new IntersectionObserver(entries=>{
+     if(entries.some(entry=>entry.isIntersecting)&&!more.hidden&&!more.disabled&&
+      list.dataset.loading!=="true"&&document.visibilityState!=="hidden"){
+      void loadPosts(client,targetId,ownId,userId,true);
+     }
+    },{rootMargin:"0px 0px 240px 0px"});
+    postPager.observe(more);
    }
   }
  }catch(_){
@@ -2008,10 +2020,24 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      card.append(node("small","vt-profile-photo-comment-spam-001",t("Можливий спам","Potential spam")));
     const reaction=node("button","vt-profile-photo-comment-like-001");
     reaction.type="button";
+    const reactionIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    reactionIcon.setAttribute("class","ui-profile-photo-comment-heart-001");
+    reactionIcon.setAttribute("viewBox","0 0 24 24");
+    reactionIcon.setAttribute("width","16");reactionIcon.setAttribute("height","16");
+    reactionIcon.setAttribute("stroke","currentColor");
+    reactionIcon.setAttribute("stroke-width","1.8");
+    reactionIcon.setAttribute("stroke-linejoin","round");
+    reactionIcon.setAttribute("aria-hidden","true");
+    const heartPath=document.createElementNS("http://www.w3.org/2000/svg","path");
+    heartPath.setAttribute("class","ui-profile-photo-comment-heart-path-001");
+    heartPath.setAttribute("d","M20.6 8.5c0 4.5-8.6 10-8.6 10s-8.6-5.5-8.6-10a4.6 4.6 0 0 1 8.6-2.2 4.6 4.6 0 0 1 8.6 2.2Z");
+    reactionIcon.append(heartPath);
+    const reactionLabel=node("span","vt-profile-photo-comment-like-label-001");
+    reaction.append(reactionIcon,reactionLabel);
     let countValue=Number(item.likes)||0,reacted=ownCommentLikes.has(item.id);
     const paint=()=>{
-     reaction.textContent=(reacted?"♥ ":"♡ ")+t("Подобається","Like")+
-      (countValue?" · "+countValue:"");
+     reactionIcon.setAttribute("fill",reacted?"currentColor":"none");
+     reactionLabel.textContent=t("Подобається","Like")+(countValue?" · "+countValue:"");
      reaction.setAttribute("aria-pressed",String(reacted));
     };
     paint();

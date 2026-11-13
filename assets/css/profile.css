@@ -658,6 +658,7 @@ body.profile-page .profile-photo-comment-meta{min-width:0}
 body.profile-page a.vt-profile-photo-comment-name-001{text-decoration:none}
 body.profile-page a.vt-profile-photo-comment-name-001:hover{text-decoration:underline}
 body.profile-page .vt-profile-photo-comment-like-001{
+ display:inline-flex;align-items:center;gap:6px;
  margin:4px 0 0 47px;padding:5px 8px;border:0;border-radius:8px;
  color:#677c9a;background:transparent;cursor:pointer;
  font:650 11px/1.4 "Onest",system-ui,sans-serif
