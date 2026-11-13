@@ -11,6 +11,13 @@ const SYSTEM_AVATARS=Object.freeze({
  "not-found":{1024:"/VATRA/assets/avatars/avatar-not-found.png",2048:"/VATRA/assets/avatars/avatar-not-found.png"},
  blocked:{1024:"/VATRA/assets/avatars/avatar-blocked.png",2048:"/VATRA/assets/avatars/avatar-blocked.png"}
 });
+const SYSTEM_COVERS=Object.freeze({
+ default:"/VATRA/assets/covers/cover-default.png",
+ deleted:"/VATRA/assets/covers/cover-deleted.png",
+ "not-found":"/VATRA/assets/covers/cover-not-found.png",
+ blocked:"/VATRA/assets/covers/cover-blocked.png"
+});
+const coverAsset=(state="default")=>SYSTEM_COVERS[state]||SYSTEM_COVERS.default;
 const asset=(state="default",size=1024)=>
  (SYSTEM_AVATARS[state]||SYSTEM_AVATARS.default)[size>=2048?2048:1024];
 function fallback(element,state="default"){
@@ -237,5 +244,5 @@ function applyRemembered(element,email){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",primeHeader,{once:true});
 else primeHeader();
-window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,fallback,clearFallback,states};
+window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,fallback,clearFallback,states};
 })();

@@ -1066,7 +1066,7 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
  profileMarkup.includes('id="profile-message-button"')&&
  profileMarkup.includes('id="profile-message-dialog"')&&
  profileMarkup.includes('id="profile-inbox-list"')&&
- profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001"'),
+ profileMarkup.includes('id="profile-cover-image" class="profile-cover ui-profile-cover-001 has-system-cover"'),
  "Member profile requires a real cover, tabs, friendship and private message UI");
 assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-status"')&&
@@ -1409,6 +1409,22 @@ const sharedAvatar=await read("assets/js/avatar.js");
 const systemAvatarCss=await read("assets/css/base.css");
 const systemProfileCss=await read("assets/css/profile.css");
 const systemFeedCss=await read("assets/css/feed.css");
+// Each static account cover is an actual PNG image (never CSS sampled or painted).
+for(const kind of ["default","deleted","blocked","not-found"]){
+ assert.ok(sharedAvatar.includes('"/VATRA/assets/covers/cover-'+kind+'.png"'),
+  "The shared avatar utility must map the uploaded "+kind+" cover");
+}
+assert.ok(
+ sharedAvatar.includes('window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,')&&
+ memberProfileMarkup.includes('id="profile-cover-system" class="ui-profile-cover-system-001" src="assets/covers/cover-default.png"')&&
+ profileBehavior.includes('systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)')&&
+ profileBehavior.includes('systemCover.dataset.vatraCoverState=state')&&
+ profileBehavior.includes('systemCover.hidden=true')&&
+ profileBehavior.includes('systemCover.hidden=false')&&
+ systemProfileCss.includes('.profile-cover .ui-profile-cover-system-001{')&&
+ systemProfileCss.includes('object-fit:cover;object-position:center center;')&&
+ !systemProfileCss.includes('background-image:var(--vatra-deleted-cover)'),
+ "Native system cover PNGs must follow avatar account states while custom cover photos take priority");
 for(const kind of ["default","deleted","blocked","not-found"]){
  assert.ok(sharedAvatar.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
   systemAvatarCss.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
