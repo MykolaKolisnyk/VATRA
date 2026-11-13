@@ -761,7 +761,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  if(more)more.disabled=true;
  try{
   let query=client.from("feed_posts")
-   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id")
+   .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId);
   if(typeof query.is==="function")query=query.is("archived_at",null);
   // Filter on the database before pagination: a page never contains posts
@@ -822,6 +822,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
        .eq("author_vatra_id",ownId).select("id");
       if(error||!data?.length)return;
       if(post.media_path)void window.VATRA_POST_MEDIA?.remove(client,post);
+      if(post.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,post.media_items);
       void loadPosts(client,targetId,ownId,userId);
      }
     });
@@ -833,7 +834,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
     article.append(body);
     window.VATRA_POST_MEDIA?.collapsibleBody(body);
    }
-   if(post.media_kind&&post.media_path)void window.VATRA_POST_MEDIA?.mount(client,post,article);
+   if(post.media_items?.length||(post.media_kind&&post.media_path))void window.VATRA_POST_MEDIA?.mount(client,post,article);
    if(post.shared_post_id)void window.VATRA_POST_INTERACTIONS?.renderSharedPreview(client,post,article);
    window.VATRA_POST_INTERACTIONS?.mount(client,{...post,kind:"person"},article,{
     ownId,userId,onShared:()=>{if(String(ownId)===String(targetId))
@@ -942,7 +943,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   list.append(article);return article;
  };
  const displaySavedMedia=(article,item)=>{
-  if(!item?.media_path||!["image","video"].includes(item.media_kind))return;
+  if(!item?.media_items?.length&&(!item?.media_path||!["image","video"].includes(item.media_kind)))return;
   // Reuse the same secure, signed-URL media viewer as the live Feed.
   void window.VATRA_POST_MEDIA?.mount(client,item,article);
  };
@@ -1193,16 +1194,16 @@ function bindPostComposer(client,user,ownId){
  const update=()=>{
   const length=Array.from(input.value).length;
   counter.textContent=length+" / 2000";
-  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFile())||length>2000;
+  submit.disabled=publishing||(!input.value.trim()&&!picker?.getFiles()?.length)||length>2000;
  };
  const clearStatus=()=>{status.textContent="";status.hidden=true;};
- picker=window.VATRA_POST_MEDIA?.bindPicker({
+ picker=window.VATRA_POST_MEDIA?.bindGalleryPicker({
   input:"#profile-compose-media",choose:"#profile-compose-media-choose",
   clear:"#profile-compose-media-remove",preview:"#profile-compose-media-preview",
   onError:text=>{status.textContent=text;status.hidden=!text;},
   onChange:()=>{update();composerUI?.sync();}
  });
- const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId,getFile:()=>picker?.getFile()});
+ const composerUI=window.VATRA_COMPOSER_UI?.bind({prefix:"profile",ownerId:ownId,getFile:()=>picker?.getFiles()?.length>0});
  trigger.addEventListener("click",()=>{
   clearStatus();
   dialog.showModal();
@@ -1222,8 +1223,8 @@ function bindPostComposer(client,user,ownId){
  form.addEventListener("submit",async event=>{
   event.preventDefault();
   if(publishing)return;
-  const body=input.value.trim(),file=picker?.getFile();
-  if((!body&&!file)||Array.from(body).length>2000){
+  const body=input.value.trim(),files=picker?.getFiles()||[];
+  if((!body&&!files.length)||Array.from(body).length>2000){
    status.textContent=t("Додайте текст, фото або відео (до 2000 символів).","Add text, a photo or video (up to 2000 characters).");
    status.hidden=false;return;
   }
@@ -1232,18 +1233,18 @@ function bindPostComposer(client,user,ownId){
   clearStatus();
   let uploaded=null;
   try{
-   if(file)uploaded=await window.VATRA_POST_MEDIA.upload(client,ownId,file);
+   if(files.length)uploaded=await window.VATRA_POST_MEDIA.uploadGallery(client,ownId,files);
    const {error}=await client.from("feed_posts").insert({
     author_id:user.id,author_vatra_id:ownId,body,
     visibility:["public","friends","only_me"].includes(visibility?.value)?visibility.value:"public",
-    ...(uploaded||{})
+    media_items:uploaded||[]
    });
    if(error)throw error;
    input.value="";picker?.reset();composerUI?.reset();
    dialog.close();
    await loadPosts(client,ownId,ownId,user.id);
   }catch(error){
-   if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
+   if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
    status.textContent=error?.message||t("Не вдалося опублікувати допис. Повторіть спробу.",
     "Could not publish the post. Please try again.");
    status.hidden=false;
