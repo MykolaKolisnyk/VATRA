@@ -2994,6 +2994,9 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),false);
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel").isVisible(),true);
+  assert.equal(await feedProbe.locator(".feed-post-card:has(.vatra-post-owner-menu[open])").evaluate(
+   el=>getComputedStyle(el).zIndex),"35",
+   "Open post options must rise above subsequent animated post cards");
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-archive-001").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-owner-panel .vt-vatra-post-owner-delete-001").isVisible(),true);
   await feedProbe.locator(".vatra-post-owner-toggle").click();
