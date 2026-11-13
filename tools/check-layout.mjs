@@ -1352,7 +1352,7 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,shared_post_kind,shared_post_id"')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id"')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
