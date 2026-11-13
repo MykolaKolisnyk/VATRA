@@ -1417,7 +1417,7 @@ for(const kind of ["default","deleted","blocked","not-found"]){
 assert.ok(
  sharedAvatar.includes('window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,')&&
  memberProfileMarkup.includes('id="profile-cover-system" class="ui-profile-cover-system-001" src="assets/covers/cover-default.png"')&&
- profileBehavior.includes('systemCover.src=window.VATRA_AVATAR?.coverAsset(state)')&&
+ profileBehavior.includes('systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)')&&
  profileBehavior.includes('systemCover.dataset.vatraCoverState=state')&&
  profileBehavior.includes('systemCover.hidden=true')&&
  profileBehavior.includes('systemCover.hidden=false')&&
