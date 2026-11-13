@@ -115,7 +115,7 @@
   line.setAttribute("d",paths[kind]||paths.user);element.append(line);return element;
  };
  let openEditor=()=>{};
- async function init({client,ownId,targetId,isMine}){
+ async function init({client,ownId,targetId,isMine,blockAccess=null}){
   const card=select("#profile-about-card");
   const paragraph=select("#profile-about-text");
   // Visibility and accepted friendship are independent RLS-checked reads.
@@ -133,7 +133,8 @@
   // Failed checks never imply a public profile or an accepted friendship.
   let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
-  const locked=!isMine&&accountVisibility==="friends"&&!isFriend;
+  const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
+  const locked=!isMine&&(blocked||(accountVisibility==="friends"&&!isFriend));
   const result=locked?{data:[],error:null}:await client.from("vatra_profile_details")
    .select("field_key,field_value,visibility").eq("vatra_id",targetId);
   const rows=result.error?[]:result.data||[];
@@ -315,19 +316,31 @@
   };
   if(card){card.append(sections,more);renderInfo();}
   if(locked){
-   select(".social-profile-tabs")?.setAttribute("hidden","");
+   if(!blocked)select(".social-profile-tabs")?.setAttribute("hidden","");
    select(".profile-panels")?.setAttribute("hidden","");
+   if(blocked)document.body.dataset.memberBlocked="true";
    select("#profile-status")?.setAttribute("hidden","");
    const status=select("#profile-status-text");if(status)status.textContent="";
    const notice=make("section","profile-locked-notice ui-profile-locked-notice-001");
    notice.setAttribute("role","status");
+   if(blocked)notice.dataset.lockReason="block";
    notice.append(svg("lock"));
    const copy=make("div","ui-profile-locked-notice-content-001");
    copy.append(make("h2","vt-profile-locked-heading-001",
-    tr("Ця сторінка закрита","This profile is private")));
+    blockAccess?.blockedByThem?
+     tr("Доступ до сторінки обмежено","Access to this profile is restricted"):
+    blockAccess?.blockedByMe?
+     tr("Ви заблокували цього користувача","You blocked this member"):
+     tr("Ця сторінка закрита","This profile is private")));
    copy.append(make("p","vt-profile-locked-description-001",
-    tr("Публікації, фотографії та інформацію бачать лише друзі користувача.",
-     "Only this member's friends can see posts, photos and personal information.")));
+    blockAccess?.blockedByThem?
+     tr("Користувач обмежив вам доступ до своєї сторінки.",
+      "This member has restricted your access to their profile."):
+    blockAccess?.blockedByMe?
+     tr("Ви можете розблокувати користувача за допомогою іконки вище.",
+      "Use the icon above to unblock this member."):
+     tr("Публікації, фотографії та інформацію бачать лише друзі користувача.",
+      "Only this member's friends can see posts, photos and personal information.")));
    notice.append(copy);
    select(".profile-hero")?.insertAdjacentElement("afterend",notice);
   }
