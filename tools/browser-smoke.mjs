@@ -3777,8 +3777,9 @@ try{
    "Community initial DB page must be bounded to twelve rows");
   await page.locator("#club-posts-more").click();
   await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=24);
-  assert.equal(await page.locator("#club-posts .feed-post-card").count(),24);
-  await page.locator("#club-posts-more").click();
+  // Auto-paging may fetch the last row when the button scrolls into view.
+  if(await page.locator("#club-posts-more").isVisible())
+   await page.locator("#club-posts-more").click();
   await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=25);
   assert.equal(await page.locator("#club-posts .feed-post-card").count(),25);
   assert.equal(await page.locator("#club-posts-more").isVisible(),false,
