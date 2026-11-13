@@ -3604,6 +3604,11 @@ try{
   // view personal details, posts, friends, stories or message actions.
   await profilePage.goto(base+"id789012?block-test=them",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  // Visible shell can precede the async RLS/block checks on a cold page load.
+  // Validate the *ready, locked* state instead of racing initialization.
+  await profilePage.waitForFunction(()=>
+   document.body.dataset.authReady==="true"&&
+   document.body.dataset.profileLocked==="true",null,{timeout:14000});
   assert.equal(await profilePage.locator(".profile-locked-notice[data-lock-reason='block']").isVisible(),true);
   const lockedGap=await profilePage.evaluate(()=>
    document.querySelector(".profile-locked-notice").getBoundingClientRect().top-
