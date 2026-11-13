@@ -2513,13 +2513,15 @@ body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover
 }
 
 
-/* Tight circular portrait: the photo fills the circle; the status/story ring
-   is only a thin rim. Preserve fixed system colors and white/story photo rules. */
+/* Portraits keep the tight fixed-color rim while restoring a balanced,
+   larger photo on own, public and private profiles. The name, status and
+   last-seen line share one consistent left edge. */
 body.profile-page.feed-page:not(.community-page) .profile-summary{
- grid-template-columns:106px minmax(0,1fr) auto;column-gap:16px
+ grid-template-columns:146px minmax(0,1fr) auto;column-gap:18px;align-items:center;
+ min-height:122px;padding-bottom:20px
 }
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
- width:106px;height:106px;margin:-34px 0 0
+ width:146px;height:146px;margin:-54px 0 0
 }
 body.profile-page .profile-avatar-wrap::before{
  inset:-3px;box-shadow:0 0 0 1px #dbe3ef
@@ -2535,25 +2537,66 @@ body.profile-page .profile-avatar-wrap[data-vatra-ring-kind] .profile-avatar{
 body.profile-page .profile-avatar-wrap .profile-avatar.has-photo::after{
  inset:0;background-size:cover;background-position:center center
 }
+body.profile-page.feed-page:not(.community-page) .profile-identity{
+ display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+ gap:3px;padding:0;min-width:0;align-self:center
+}
+body.profile-page.feed-page:not(.community-page) .profile-name{
+ margin:0;line-height:1.18
+}
+body.profile-page .profile-status{margin:0;flex:none;min-height:0}
+body.profile-page .profile-last-seen{
+ margin:0;flex:none;align-self:flex-start;text-align:left;line-height:1.5
+}
 body.profile-page .profile-avatar-wrap .profile-online-dot{
- width:19px;height:19px;right:0;bottom:3px;border-width:3px
+ width:20px;height:20px;right:1px;bottom:6px;border-width:3px
 }
 @media(max-width:970px){
  body.profile-page.feed-page:not(.community-page) .profile-summary{
-  grid-template-columns:86px minmax(0,1fr);column-gap:12px
+  grid-template-columns:122px minmax(0,1fr);column-gap:13px
  }
  body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
-  width:86px;height:86px;margin:-23px 0 0
+  width:122px;height:122px;margin:-43px 0 0
  }
 }
 @media(max-width:600px){
  body.profile-page.feed-page:not(.community-page) .profile-summary{
-  grid-template-columns:82px minmax(0,1fr);column-gap:11px
+  grid-template-columns:106px minmax(0,1fr);column-gap:11px
  }
  body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap{
-  width:82px;height:82px;margin:-20px 0 0
+  width:106px;height:106px;margin:-34px 0 0
  }
  body.profile-page .profile-avatar-wrap .profile-online-dot{
-  width:16px;height:16px;right:0;bottom:2px;border-width:3px
+  width:17px;height:17px;right:0;bottom:3px;border-width:3px
  }
+}
+/* Two icon-only safety controls, visually separate from content tabs. */
+body.profile-page .profile-safety-action{
+ width:44px;min-width:44px;padding:10px!important;color:#6c7e99;
+ border-radius:9px;flex-shrink:0
+}
+body.profile-page .profile-safety-action svg{
+ display:block;width:21px;height:21px;stroke:currentColor;stroke-width:1.85
+}
+body.profile-page .profile-safety-action:focus-visible{
+ outline:3px solid #98ade0;outline-offset:-3px
+}
+body.profile-page .vt-profile-block-toggle-001{margin-left:auto}
+body.profile-page .vt-profile-report-open-001{margin-left:0}
+body.profile-page .vt-profile-block-toggle-001[data-blocked="true"]{
+ color:#aa5261;background:#fff2f4
+}
+body.profile-page[data-member-blocked="true"] .social-profile-tabs [data-profile-tab],
+body.profile-page[data-member-blocked="true"] .profile-archive-wrap{
+ display:none!important
+}
+body.profile-page .profile-locked-notice[data-lock-reason="block"]{
+ flex-direction:column;align-items:center;justify-content:center;
+ text-align:center;gap:13px;min-height:196px;padding:31px 22px
+}
+body.profile-page .profile-locked-notice[data-lock-reason="block"] > svg{
+ width:40px;height:40px;color:#7893bd
+}
+body.profile-page .profile-locked-notice[data-lock-reason="block"] .ui-profile-locked-notice-content-001{
+ max-width:520px
 }
