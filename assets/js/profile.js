@@ -1274,6 +1274,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  loading(friendsPreview,t("Завантаження друзів…","Loading friends…"));
  loading(giftsPreview,t("Завантаження подарунків…","Loading gifts…"));
  let cachedFriends=[],cachedGifts=[],communitiesLoaded=false;
+ let allFriendsPending=null,allGiftsPending=null;
  function personCard(member,compact){
   const id=String(member.id);
   const link=node("a",compact?"profile-friend-tile vt-profile-friend-tile-"+id:
@@ -1290,20 +1291,80 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const label=node("span","vt-profile-friend-name-"+id,compact?firstName(member.name):member.name);
   link.append(photo,label);return link;
  }
- const showFriends=()=>{
-  friendsAll.replaceChildren();
-  if(cachedFriends.length){
-   for(const friend of cachedFriends)friendsAll.append(personCard(friend,false));
-   q("#profile-friends-empty").hidden=true;
-  }else previewEmpty("#profile-friends-empty",t("Друзів поки немає.","No friends yet."));
+ async function resolveFriendships(friendships){
+  const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
+   String(f.recipient_id):String(f.requester_id)).filter(validId))];
+  const [names,photos,statesResult]=await Promise.allSettled([
+   ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
+   ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
+   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
+  ]);
+  const friendStates=statesResult.status==="fulfilled"?statesResult.value:new Map();
+  const namesMap=new Map(names.status==="fulfilled"&&!names.value.error?
+   (names.value.data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
+  const mediaMap=new Map(photos.status==="fulfilled"&&!photos.value.error?
+   (photos.value.data||[]).map(x=>[String(x.vatra_id),String(x.avatar_path||"")]):[]);
+  return ids.map(id=>{
+   const state=friendStates.get(id)||null,path=mediaMap.get(id);
+   let avatar=null;
+   if(!state&&path&&path.startsWith(id+"/avatar/")){
+    const {data}=client.storage.from("vatra-avatars").getPublicUrl(path);
+    avatar=data?.publicUrl||null;
+   }
+   const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
+    state==="blocked"?t("Акаунт заблоковано","Account blocked"):
+    namesMap.get(id)||t("Учасник VATRA","VATRA member");
+   return {id,name,avatar,state};
+  });
+ }
+ const showFriends=async()=>{
+  loading(friendsAll,t("Завантаження друзів…","Loading friends…"));
+  try{
+   if(!allFriendsPending){
+    allFriendsPending=(async()=>{
+     const {data,error}=await client.from("vatra_friendships")
+      .select("requester_id,recipient_id,created_at")
+      .eq("status","accepted")
+      .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
+      .order("created_at",{ascending:false}).limit(300);
+     if(error)throw error;
+     return resolveFriendships(data||[]);
+    })().catch(error=>{allFriendsPending=null;throw error;});
+   }
+   const members=await allFriendsPending;
+   friendsAll.replaceChildren();
+   if(members.length){
+    for(const friend of members)friendsAll.append(personCard(friend,false));
+    q("#profile-friends-empty").hidden=true;
+   }else previewEmpty("#profile-friends-empty",t("Друзів поки немає.","No friends yet."));
+  }catch(_){
+   friendsAll.replaceChildren();
+   previewEmpty("#profile-friends-empty",t("Друзі тимчасово недоступні.","Friends temporarily unavailable."));
+  }
  };
  window.VATRA_PROFILE_SHOW_FRIENDS=showFriends;
- const showGifts=()=>{
-  giftsAll.replaceChildren();
-  if(cachedGifts.length){
-   for(const gift of cachedGifts)giftsAll.append(giftCard(gift,false));
-   q("#profile-gifts-empty").hidden=true;
-  }else previewEmpty("#profile-gifts-empty",t("Подарунків поки немає.","No gifts yet."));
+ const showGifts=async()=>{
+  loading(giftsAll,t("Завантаження подарунків…","Loading gifts…"));
+  try{
+   if(!allGiftsPending){
+    allGiftsPending=(async()=>{
+     const {data,error}=await client.from("vatra_profile_gifts")
+      .select("id,gift_code,created_at").eq("recipient_vatra_id",targetId)
+      .order("created_at",{ascending:false}).limit(100);
+     if(error)throw error;
+     return (data||[]).filter(x=>x.gift_code==="first_flame");
+    })().catch(error=>{allGiftsPending=null;throw error;});
+   }
+   const gifts=await allGiftsPending;
+   giftsAll.replaceChildren();
+   if(gifts.length){
+    for(const gift of gifts)giftsAll.append(giftCard(gift,false));
+    q("#profile-gifts-empty").hidden=true;
+   }else previewEmpty("#profile-gifts-empty",t("Подарунків поки немає.","No gifts yet."));
+  }catch(_){
+   giftsAll.replaceChildren();
+   previewEmpty("#profile-gifts-empty",t("Подарунки тимчасово недоступні.","Gifts temporarily unavailable."));
+  }
  };
  window.VATRA_PROFILE_SHOW_GIFTS=showGifts;
  function giftCard(gift,compact){
@@ -1359,36 +1420,12 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   client.from("vatra_friendships").select("requester_id,recipient_id,created_at")
    .eq("status","accepted")
    .or("requester_id.eq."+targetId+",recipient_id.eq."+targetId)
-   .order("created_at",{ascending:false}).limit(300),
+   .order("created_at",{ascending:false}).limit(6),
   client.from("vatra_profile_gifts").select("id,gift_code,created_at")
-   .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(100)
+   .eq("recipient_vatra_id",targetId).order("created_at",{ascending:false}).limit(3)
  ]);
  if(jobs[0].status==="fulfilled"&&!jobs[0].value.error){
-  const friendships=jobs[0].value.data||[];
-  const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
-   String(f.recipient_id):String(f.requester_id)).filter(validId))];
-  const [names,photos,statesResult]=await Promise.allSettled([
-   ids.length?client.from("vatra_public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
-   ids.length?client.from("vatra_profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
-   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
-  ]);
-  const friendStates=statesResult.status==="fulfilled"?statesResult.value:new Map();
-  const namesMap=new Map(names.status==="fulfilled"&&!names.value.error?
-   (names.value.data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
-  const mediaMap=new Map(photos.status==="fulfilled"&&!photos.value.error?
-   (photos.value.data||[]).map(x=>[String(x.vatra_id),String(x.avatar_path||"")]):[]);
-  cachedFriends=ids.map(id=>{
-   const state=friendStates.get(id)||null,path=mediaMap.get(id);
-   let avatar=null;
-   if(!state&&path&&path.startsWith(id+"/avatar/")){
-    const {data}=client.storage.from("vatra-avatars").getPublicUrl(path);
-    avatar=data?.publicUrl||null;
-   }
-   const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
-    state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    namesMap.get(id)||t("Учасник VATRA","VATRA member");
-   return {id,name,avatar,state};
-  });
+  cachedFriends=await resolveFriendships(jobs[0].value.data||[]);
   friendsPreview.replaceChildren();
   for(const friend of cachedFriends.slice(0,6))friendsPreview.append(personCard(friend,true));
   if(!cachedFriends.length)previewEmpty("#profile-friends-preview-empty",t("Друзів поки немає.","No friends yet."));
