@@ -175,7 +175,7 @@
     item.removeAttribute("data-vatra-coming-soon");
     item.removeAttribute("title");
     item.addEventListener("click",()=>{
-     location.assign(new URL("friends.html",new URL("./",location.href)).href);
+     location.assign(new URL("friends",new URL("./",location.href)).href);
     });
     continue;
    }
@@ -560,7 +560,7 @@
 
  /* Section content switches immediately; hover and icon animations remain CSS-owned. */
  function setupRouteMotion(){
-  const eligible=target=>/^\/VATRA\/(?:feed|profile|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
   const to=destination=>{
    let next;
@@ -573,18 +573,18 @@
     if(next.hash&&next.hash!==location.hash)return false;
     return true;
    }
-   // Member links navigate directly to /idN and use the GitHub Pages fallback;
-   // there is no intermediary old profile.html?vatra_id=... URL.
+   // A newly created community first loads the real club document (HTTP 200).
+   // Its controller restores the canonical /clubN URL. Going straight to
+   // /clubN would make GitHub Pages return HTTP 404 for this navigation.
    const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
-   const ownProfile=next.pathname==="/VATRA/profile";
-   if(club||ownProfile){
-    const direct=new URL(ownProfile?"profile.html":"club.html",new URL("./",next.href));
-    direct.search=next.search;
-    if(club)direct.searchParams.set("club_id",club[1]);
-    direct.hash=next.hash;
-    next=direct;
+   if(club){
+    const documentUrl=new URL("club.html",new URL("./",next.href));
+    documentUrl.search=next.search;
+    documentUrl.searchParams.set("club_id",club[1]);
+    documentUrl.hash=next.hash;
+    next=documentUrl;
    }
-   // Navigate immediately. Waiting for a cosmetic fade adds latency to every
+   // Other member links retain clean paths. Navigate immediately. Waiting for a cosmetic fade adds latency to every
    // section change; the destination already has its own data-loading state.
    navigating=true;
    location.assign(next.href);

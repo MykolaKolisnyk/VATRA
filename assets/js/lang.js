@@ -9,12 +9,6 @@
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
-  // Extensionless /profile may come from an old bookmark. Canonicalize to
-  // the existing static file before boot so Ctrl+U always fetches HTTP 200 HTML.
-  if(!localFile&&location.pathname===ROOT+"profile"){
-    location.replace(ROOT+"profile.html"+location.search+location.hash);
-    return;
-  }
   const LANGUAGE_KEY = "vatra-language";
   const validLanguage = value => value === "uk" || value === "en";
   const browserLocale = (navigator.languages?.[0] || navigator.language || "").toLowerCase();
@@ -61,11 +55,10 @@
       },{once:true});
     }
   }
-  // Preserve profile.html so Ctrl+U re-requests real HTML (HTTP 200).
-  // Other legacy extensionless routes retain their existing behavior.
-  // Direct requests to /VATRA/create-account, /feed, etc. resolve on GitHub Pages.
+  // One visible canonical path per page. The 404.html loader resolves clean
+  // URLs on GitHub Pages while direct legacy .html bookmarks stay usable.
   if(location.protocol!=="file:"){
-    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
   document.documentElement.lang = current === "en" ? "en" : "uk";
@@ -209,7 +202,7 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
         target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;

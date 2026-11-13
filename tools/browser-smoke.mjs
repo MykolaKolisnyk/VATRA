@@ -2372,6 +2372,10 @@ try{
  assert.equal(await friendsProbe.locator("#friends-search").isVisible(),true);
  await friendsProbe.locator('[data-friends-tab="incoming"]').click();
  assert.equal(await friendsProbe.locator('[data-friends-tab="incoming"]').getAttribute("aria-pressed"),"true");
+ assert.ok(new URL(friendsProbe.url()).pathname.endsWith("/VATRA/friends"),
+  "Legacy friends.html links must canonicalize to the short /friends route");
+ assert.equal(await friendsProbe.locator(".ui-social-top-friends-001").getAttribute("aria-current"),"page",
+  "Friends page should mark its own navigation tab active");
  await friendsProbe.close();
  const giftsProbe=await feedContext.newPage();
  await giftsProbe.goto(base+"gifts.html",{waitUntil:"domcontentloaded"});
@@ -2448,6 +2452,27 @@ try{
    "The VATRA V symbol, not the full wordmark, belongs at the left edge");
   assert.equal(await feedProbe.locator(".feed-aside").count(),0,
    "The Feed must not contain the New Communities rail");
+  const shellPolish=await feedProbe.evaluate(()=>{
+   const header=document.querySelector(".feed-header").getBoundingClientRect();
+   const active=document.querySelector(".social-top-active");
+   const nav=active.getBoundingClientRect();
+   const line=getComputedStyle(active,"::after");
+   const portrait=document.querySelector(".feed-account-toggle .feed-header-avatar").getBoundingClientRect();
+   const adStyle=getComputedStyle(document.querySelector(".feed-ad-sidebar"));
+   const rail=document.querySelector(".vatra-scroll-rail");
+   return {underlineBottom:nav.bottom-parseFloat(line.bottom||"0"),
+    headerBottom:header.bottom,underlineColor:line.backgroundColor,
+    portrait:portrait.width,adBorder:adStyle.borderTopWidth,
+    adShadow:adStyle.boxShadow,adBackground:adStyle.backgroundColor,
+    railTop:Number.parseFloat(rail.style.getPropertyValue("--vatra-rail-top"))};
+  });
+  assert.ok(Math.abs(shellPolish.underlineBottom-shellPolish.headerBottom)<=2&&
+   shellPolish.underlineColor==="rgb(131, 150, 182)"&&
+   shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
+   shellPolish.adShadow==="none"&&
+   shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
+   Math.abs(shellPolish.railTop-shellPolish.headerBottom)<=2,
+   "Header avatar, flush muted line, unboxed ads and flush rail: "+JSON.stringify(shellPolish));
   if(language==="uk"){
    const geometry=await feedProbe.evaluate(()=>{
     const r=selector=>document.querySelector(selector).getBoundingClientRect();
@@ -2770,7 +2795,7 @@ try{
   const friendsNav=await feedContext.newPage();
   await friendsNav.goto(base+"feed",{waitUntil:"domcontentloaded"});
   await friendsNav.locator(".ui-social-top-friends-001").click();
-  await friendsNav.waitForURL(/\/VATRA\/friends\.html(?:\?.*)?$/,{timeout:14000});
+  await friendsNav.waitForURL(/\/VATRA\/friends(?:\?.*)?$/,{timeout:14000});
   assert.ok(await friendsNav.locator("#friends-heading").count()===1,
    "Header Friends must navigate to VATRA's dedicated friends directory");
   await friendsNav.close();

@@ -30,7 +30,7 @@ const icon=(key,path)=>{
 let client=null,ownId=null,bell=null,badge=null,panel=null,panelItems=null;
 let open=false,sessionStarted=false,liveChannel=null,refreshBusy=false;
 let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
-const pageURL=()=>new URL("notifications.html",root).href;
+const pageURL=()=>new URL("notifications",root).href;
 const timeValue=date=>{
  const parsed=new Date(date);if(!Number.isFinite(parsed.getTime()))return "";
  return new Intl.DateTimeFormat(en()?"en-GB":"uk-UA",

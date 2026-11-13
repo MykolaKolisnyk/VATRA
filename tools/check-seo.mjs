@@ -43,4 +43,22 @@ assert.equal((sitemap.match(/<loc>/g)||[]).length,4,"Exactly four canonical publ
 assert.ok(!sitemap.includes("legal.html"),"Deleted overview must not remain indexed");
 await assert.rejects(stat("legal.html"),{code:"ENOENT"},"Deleted document overview must not exist");
 assert.ok(!/\/VATRA\/(?:ua|en)\//.test(sitemap),"Old locale URLs must not be in sitemap");
+// Social previews use the app's current V symbol. Keep site name, title and
+// description distinct so Telegram and other link previews do not repeat copy.
+const preview=await read("index.html");
+assert.ok(
+ preview.includes('property="og:title" content="Ваші люди. Ваші історії. Ваша VATRA."')&&
+ preview.includes('property="og:description" content="Українська соціальна мережа для спілкування, творчості, спільнот і бізнесу."')&&
+ preview.includes('/VATRA/assets/logo/vatra-app-icon.png?v=20261113')&&
+ preview.includes('property="og:image:width" content="360"')&&
+ !preview.includes('/VATRA/assets/logo/vatra-logo.png')&&
+ (await stat("assets/logo/vatra-app-icon.png")).size>10000,
+ "Public social previews must show the current VATRA icon and one concise title/description");
+for(const page of ["index","terms","privacy","cookies"]){
+ const html=await read(page+".html");
+ assert.ok(html.includes('og:image" content="'+BASE+'assets/logo/vatra-app-icon.png?v=20261113"'),
+  page+": public social card must share the current V icon");
+ assert.equal((html.match(/rel="icon" type="image\/svg\+xml"/g)||[]).length,1,
+  page+": duplicate SVG favicon link");
+}
 console.log("VATRA: one canonical HTML per page, bilingual JSON, metadata, and sitemap verified.");
