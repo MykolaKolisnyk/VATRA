@@ -1,0 +1,70 @@
+# VATRA domain naming migration — safe rollout
+
+## Current phase: three read-only, RLS-invoker aliases
+
+| Existing physical table | New API view | Access | Browser consumers migrated |
+|---|---|---|---|
+| `vatra_directory` | `member_directory` | `SELECT` for anon/authenticated (same underlying RLS) | Profile existence lookup |
+| `vatra_account_states` | `account_states` | `SELECT` for authenticated (same underlying RLS) | Account state/avatar checks |
+| `vatra_profile_gifts` | `profile_gifts` | `SELECT` for authenticated (same underlying RLS) | Profile sidebar, gifts page |
+
+These are `security_invoker=true` **views**, not renamed physical tables. Existing
+`vatra_*` tables, triggers and older cached browser versions continue to work.
+No data was copied or deleted. Views have no INSERT/UPDATE/DELETE grants.
+
+## Remaining legacy names / proposed names
+
+| Legacy table | Proposed domain table |
+|---|---|
+| `vatra_avatar_comment_likes` | `avatar_comment_likes` |
+| `vatra_avatar_comments` | `avatar_comments` |
+| `vatra_avatar_likes` | `avatar_likes` |
+| `vatra_blocks` | `member_blocks` |
+| `vatra_community_follows` | `community_follows` |
+| `vatra_community_posts` | `community_posts` |
+| `vatra_direct_messages` | `direct_messages` |
+| `vatra_friendships` | `friendships` |
+| `vatra_post_comment_likes` | `post_comment_likes` |
+| `vatra_post_comments` | `post_comments` |
+| `vatra_post_like_members` | `post_like_members` |
+| `vatra_post_likes` | `post_likes` |
+| `vatra_profile_details` | `profile_details` |
+| `vatra_profile_media` | `profile_media` |
+| `vatra_profile_preferences` | `profile_preferences` |
+| `vatra_profile_reports` | `profile_reports` |
+| `vatra_public_profiles` | `public_profiles` |
+| `vatra_stories` | `stories` |
+
+These need individual dependency audits and **write-compatible** migration paths:
+RLS, foreign keys, SQL functions, triggers, Realtime, and static clients may all
+depend on the physical table names. Read-only aliases are not a substitute for
+migrating inserts/updates and conflict-handling behavior. Never batch DROP
+CASCADE, never turn off RLS to make a rename work, and don't rename all 27
+tables in a single deployment.
+
+## Storage naming — not yet migrated
+
+The database currently contains objects under `vatra-avatars`,
+`vatra-covers`, `vatra-post-images`, and `vatra-videos`.
+Storage bucket IDs appear in browser uploads, download URLs, storage RLS,
+and persisted `media_path` / `media_items` references.
+Renaming buckets in-place or deleting them can break existing files.
+Migration requires: new bucket creation, copy+verify **every** object and
+metadata, parallel read support, atomic switch of upload paths and RLS,
+and a rollback window. Leave original buckets intact until verified.
+
+## Checklist before changing actual physical names
+
+1. Back up physical tables and Storage objects and record row/object counts.
+2. Inventory every JavaScript string, PostgREST function, SQL function,
+   trigger, check constraint, FK, RLS policy, Storage policy and Realtime
+   subscription using the old name.
+3. Create and test compatibility paths for old and new clients, including
+   offline caches/service workers. SQL DML with `ON CONFLICT` does not simply
+   work through an arbitrary compatibility view.
+4. Verify with real RLS roles and production-like test accounts.
+5. Roll out code, monitor errors and query latency, then retire old names only
+   after the compatibility window. Never delete user data to simplify naming.
+
+**Priority order:** authentication and publishing correctness, efficient
+batch reads, owner-grant and media fixes, then safe schema naming.
