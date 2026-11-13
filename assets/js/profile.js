@@ -1049,7 +1049,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
   list.replaceChildren();note.hidden=true;
   try{
    const {data,error}=await client.from("feed_posts")
-    .select("id,author_vatra_id,body,media_kind,media_path,shared_post_kind,shared_post_id,created_at,archived_at")
+    .select("id,author_vatra_id,body,media_kind,media_path,media_items,shared_post_kind,shared_post_id,created_at,archived_at")
     .eq("author_vatra_id",ownId).not("archived_at","is",null)
     .order("archived_at",{ascending:false}).limit(40);
    if(error)throw error;
