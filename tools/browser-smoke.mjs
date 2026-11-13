@@ -2268,6 +2268,14 @@ try{
       window.__profileVisibility=row.profile_visibility;
       return {data:{profile_visibility:window.__profileVisibility},error:null};
      }})})}:
+    table==="vatra_blocks"?
+    {select:()=>({or(){return this;},limit:async()=>{
+      const mode=new URLSearchParams(location.search).get("block-test");
+      return {data:mode==="them"?[{blocker_vatra_id:789012,blocked_vatra_id:654321}]:
+       mode==="me"?[{blocker_vatra_id:654321,blocked_vatra_id:789012}]:[],error:null};
+     }}),
+     insert:async()=>({error:null}),
+     delete:()=>({eq(){return this;},then:resolve=>Promise.resolve(resolve({error:null}))})}:
     table==="vatra_friendships"?
     {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
      limit:async()=>({data:[],error:null})}),
@@ -2493,7 +2501,7 @@ try{
    assert.ok(Math.abs(geometry.storyLeft-geometry.postLeft)<3&&
     Math.abs(geometry.storyLeft-geometry.composerLeft)<3&&
     Math.abs(geometry.storyWidth-geometry.composerWidth)<3&&
-    geometry.postWidth>=geometry.storyWidth&&
+    Math.abs(geometry.postWidth-geometry.storyWidth)<3&&
     geometry.storyCardWidth>=300&&geometry.storyCardWidth<=geometry.storyWidth+2&&
     geometry.storyCardHeight>=72&&geometry.storyCardHeight<=82&&
     Math.abs(geometry.navCenter-geometry.viewportCenter)<45&&
@@ -2684,10 +2692,10 @@ try{
   });
   assert.ok(Math.abs(menuGeometry.top-menuGeometry.headerBottom)<=2&&
    menuGeometry.firstRowTop>=menuGeometry.headerBottom&&
-   Math.abs(menuGeometry.left-menuGeometry.backLeft)<=5&&
+   Math.abs(menuGeometry.left)<=1&&
    Math.abs(menuGeometry.right-menuGeometry.searchRight)<=6&&
    menuGeometry.panelZ<menuGeometry.headerZ,
-   "Search sheet must cover Back arrow through the right edge of the input: "+JSON.stringify(menuGeometry));
+   "Search sheet must start at the viewport edge and end at the input: "+JSON.stringify(menuGeometry));
   assert.ok(menuGeometry.left>=0&&menuGeometry.right<=menuGeometry.viewportWidth+1&&
    menuGeometry.top>=0&&menuGeometry.bottom<=menuGeometry.viewportHeight+1&&
    menuGeometry.scrollHeight>menuGeometry.clientHeight&&
@@ -2895,7 +2903,9 @@ try{
     const filters=document.querySelector(".feed-filter-row").getBoundingClientRect();
     const composer=document.querySelector(".feed-quick-compose").getBoundingClientRect();
     const stories=document.querySelector(".feed-stories").getBoundingClientRect();
+    const posts=document.querySelector(".feed-posts-section").getBoundingClientRect();
     return {right:filters.right,edge:wrap.right,composerTop:composer.top,storyTop:stories.top,
+     postLeft:posts.left,postWidth:posts.width,
      composerBottom:composer.bottom,filterBottom:filters.bottom,
      filterTop:filters.top,storyBottom:stories.bottom,filterLeft:filters.left,
      filterWidth:filters.width,composeLeft:composer.left,
@@ -2905,7 +2915,9 @@ try{
    assert.ok(Math.abs(filterGeometry.right-filterGeometry.edge)<=3,
     "Feed filter must stay at the far right edge: "+JSON.stringify(filterGeometry));
    assert.ok(Math.abs(filterGeometry.storiesWidth-filterGeometry.composerWidth)<3&&
-    Math.abs(filterGeometry.storiesLeft-filterGeometry.composeLeft)<3,
+    Math.abs(filterGeometry.storiesLeft-filterGeometry.composeLeft)<3&&
+    Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
+    Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
    assert.ok(filterGeometry.screenWidth>760?
     (filterGeometry.composerWidth>filterGeometry.filterWidth*1.7&&
@@ -3338,6 +3350,13 @@ try{
    "Friends are accessible from the About-side Friends card, not the main tabs");
   assert.equal(await profilePage.locator("#profile-report-open").isVisible(),true,
    "Visitors can open a report dialog for another member");
+  assert.equal(await profilePage.locator("#profile-report-open svg").count(),1,
+   "Report must be one accessible SVG icon without a text label");
+  assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true,
+   "Block icon must appear immediately to the left of Report");
+  assert.equal(await profilePage.locator("#profile-block-toggle svg").count(),1);
+  assert.equal(await profilePage.locator("#profile-block-toggle").getAttribute("aria-label"),
+   language==="en"?"Block member":"Заблокувати користувача");
   assert.equal(await profilePage.locator("#profile-edit-open").isVisible(),false,
    "Visitors cannot edit another member's page");
   await profilePage.locator("#profile-message-button").click();
@@ -3349,6 +3368,23 @@ try{
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "Own given name beside avatar must not be replaced by the visited member's identity");
+  // A blocked member still sees public header artwork and name, but cannot
+  // view personal details, posts, friends, stories or message actions.
+  await profilePage.goto(base+"id789012?block-test=them",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator(".profile-locked-notice[data-lock-reason='block']").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-cover-photo").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
+  assert.equal(await profilePage.locator(".profile-panels").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-message-button").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-friend-button").isVisible(),false);
+  assert.equal(await profilePage.locator("#profile-block-toggle").isVisible(),true);
+  assert.ok((await profilePage.locator(".vt-profile-locked-description-001").textContent()).includes(
+   language==="en"?"restricted your access":"обмежив вам доступ"));
+  await profilePage.goto(base+"id789012?block-test=me",{waitUntil:"domcontentloaded"});
+  await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
+  assert.equal(await profilePage.locator("#profile-block-toggle").getAttribute("data-blocked"),"true");
+  assert.equal(await profilePage.locator(".profile-locked-notice[data-lock-reason='block']").isVisible(),true);
   // Test a genuinely private route after the public visitor geometry checks.
   await profilePage.goto(base+"id789012?locked-test=1&photo=avatar",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
