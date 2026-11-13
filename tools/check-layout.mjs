@@ -1440,6 +1440,29 @@ assert.ok(
  systemFeedCss.includes('body.feed-page .feed-post-card .vatra-post-action-row{margin-top:0}'),
  "Post footer must have exactly one divider directly above action icons");
 
+// Gallery uploads stay bounded and use the existing RLS-protected post rows.
+// Comment threads are not requested or shown until the real post enters its dialog.
+const postMediaScript=await read("assets/js/post-media.js");
+const postComposerScript=await read("assets/js/post-composer-ui.js");
+const clubPostScript=await read("assets/js/communities.js");
+assert.ok(
+ postMediaScript.includes("const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024")&&
+ postMediaScript.includes("function bindGalleryPicker(ids)")&&
+ postMediaScript.includes("async function uploadGallery(client,id,files)")&&
+ postMediaScript.includes("async function mountGallery(client,post,container)")&&
+ interactionsScript.includes("panel.hidden=true;")&&
+ interactionsScript.includes('const openComments=()=>{')&&
+ interactionsScript.includes('dialog.showModal();close.focus(')&&
+ !interactionsScript.includes('summaryObserver.disconnect();void refreshSocial();void loadComments(true);')&&
+ (await read("assets/js/feed.js")).includes("media_items:uploaded||[]")&&
+ profileExtraScript.includes("media_items:uploaded||[]")&&
+ clubPostScript.includes("media_items:uploaded||[]")&&
+ postComposerScript.includes('vatra-post-composer-dialog')&&
+ (await read("feed.html")).includes('type="file" multiple')&&
+ (await read("profile.html")).includes('type="file" multiple')&&
+ (await read("club.html")).includes('type="file" multiple'),
+ "Gallery posting, secure preview and on-demand comments must remain intact");
+
 // Blocking is a real member-scoped Supabase relation. Restricted viewers
 // retain public header artwork while content and interactions are gated.
 assert.ok(
