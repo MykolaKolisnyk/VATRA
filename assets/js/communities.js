@@ -292,8 +292,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
    const ids=[...new Set(rows.map(p=>String(p.author_vatra_id)))];
    if(ids.length){
     try{
-     const {data:people}=await client.from("public_profiles")
-      .select("vatra_id,display_name").in("vatra_id",ids);
+     const {data:people}=await (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
+      client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids));
      for(const member of people||[])names.set(String(member.vatra_id),member.display_name);
     }catch(_){}
    }

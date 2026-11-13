@@ -61,7 +61,8 @@ async function authorNames(rows){
  const names=new Map(),avatars=new Map(),states=new Map();
  if(ids.length)try{
   const results=await Promise.allSettled([
-   client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids),
+   (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
+    client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)),
    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);

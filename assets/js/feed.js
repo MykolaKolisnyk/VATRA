@@ -174,8 +174,8 @@
   const needed=[...new Set(ids.map(String).filter(validId))].filter(id=>!publicNames.has(id));
   if(!needed.length)return;
   try{
-   const {data,error}=await client.from("public_profiles")
-    .select("vatra_id,display_name").in("vatra_id",needed.slice(0,100));
+   const {data,error}=await (window.VATRA_PUBLIC_NAMES?.get(client,needed.slice(0,100))||
+    client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",needed.slice(0,100)));
    if(error)throw error;
    for(const profile of data||[])publicNames.set(String(profile.vatra_id),profile.display_name);
   }catch(_){/* Keep the ID visible when a member has not shared a public name. */}
