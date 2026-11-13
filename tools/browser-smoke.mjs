@@ -2595,8 +2595,17 @@ try{
    });
    const host=document.createElement("div");host.id="vatra-smoke-inline-interactions";
    document.body.append(host);
+   window.__vatraSmokeCommentCalls=[];
+   window.__vatraSmokeReleaseFirstComment=null;
    window.VATRA_POST_INTERACTIONS.mount({
-    from:()=>query,rpc:async()=>({data:[],error:null})
+    from:()=>query,
+    rpc:async(_name,args)=>{
+     window.__vatraSmokeCommentCalls.push(args.p_sort);
+     if(window.__vatraSmokeCommentCalls.length===1){
+      await new Promise(resolve=>{window.__vatraSmokeReleaseFirstComment=resolve;});
+     }
+     return {data:[],error:null};
+    }
    },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
    host,{ownId:"",userId:null});
   });
@@ -2604,6 +2613,8 @@ try{
    "Comment threads must stay hidden until the member opens the post viewer");
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
    "The viewer is created only when requested");
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls.length),0,
+   "Comment content must not trigger an RPC before opening the viewer");
   await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>el.open),true,
    "Clicking the SVG comment action opens a native centered dialog");
@@ -2612,6 +2623,14 @@ try{
   assert.notEqual(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>
    getComputedStyle(el,"::backdrop").backdropFilter),"none",
    "The underlying Feed should blur while comments are open");
+  await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comments-sort-001").selectOption("newest");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant"],
+   "Changing sort while comments load must queue the refresh instead of starting a duplicate RPC");
+  await feedProbe.evaluate(()=>window.__vatraSmokeReleaseFirstComment());
+  await feedProbe.waitForFunction(()=>window.__vatraSmokeCommentCalls.length===2&&
+   document.querySelector(".ui-vatra-post-comment-list-001")?.getAttribute("aria-busy")==="false");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
+   "After the in-flight request finishes, the latest selected sort must be fetched");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
@@ -2657,6 +2676,11 @@ try{
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
    "Closing the viewer must restore the original post without a duplicate");
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  await feedProbe.waitForFunction(()=>window.__vatraSmokeCommentCalls.length===3);
+  assert.equal((await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls)).at(-1),"newest",
+   "Reopening the comment viewer refreshes its content using the selected sort");
+  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
