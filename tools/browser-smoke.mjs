@@ -2536,10 +2536,17 @@ try{
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.open),true);
   assert.equal(await feedProbe.locator("#feed-compose-dialog").evaluate(el=>el.classList.contains("vatra-post-composer-dialog")),true,
    "Feed uses the shared VATRA post editor");
-  await feedProbe.locator("#feed-compose-media").setInputFiles({
-   name:"vatra-test.png",mimeType:"image/png",
-   buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")
-  });
+  await feedProbe.locator("#feed-compose-media").setInputFiles([
+   {name:"vatra-test-a.png",mimeType:"image/png",
+    buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")},
+   {name:"vatra-test-b.png",mimeType:"image/png",
+    buffer:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")}
+  ]);
+  assert.equal(await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile").count(),2,
+   "Two media attachments must render as independent removable previews");
+  await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile>button").first().click();
+  assert.equal(await feedProbe.locator("#feed-compose-media-preview .vatra-gallery-picker-tile").count(),1,
+   "Removing one attachment must preserve the other");
   assert.equal(await feedProbe.locator(".vt-vatra-post-composer-next-001").isEnabled(),true,
    "Selecting media without text must unlock Next in Feed");
   await feedProbe.locator(".vt-vatra-post-composer-next-001").click();
@@ -2572,8 +2579,18 @@ try{
    },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
    host,{ownId:"",userId:null});
   });
+  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),false,
+   "Comment threads must stay hidden until the member opens the post viewer");
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
+   "The viewer is created only when requested");
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>el.open),true,
+   "Clicking the SVG comment action opens a native centered dialog");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),true,
-   "Every valid UUID post must expose its comments directly beneath the actions");
+   "The comment thread becomes visible inside the dialog");
+  assert.notEqual(await feedProbe.locator(".vatra-post-comment-dialog").evaluate(el=>
+   getComputedStyle(el,"::backdrop").backdropFilter),"none",
+   "The underlying Feed should blur while comments are open");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
@@ -2616,6 +2633,9 @@ try{
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
+  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
+   "Closing the viewer must restore the original post without a duplicate");
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
