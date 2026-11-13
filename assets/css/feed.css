@@ -2933,3 +2933,17 @@ body.feed-page .feed-post-card > .feed-post-header{min-height:43px}
 body.feed-page .feed-post-card > .feed-post-body{margin-top:13px}
 body.feed-page .feed-post-card .vatra-post-action-row{margin-top:8px}
 body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-top:5px}
+
+/* On narrow screens Search temporarily takes the first header row, as on the
+   supplied interaction reference. The navigation row remains untouched. */
+@media(max-width:610px){
+ body.feed-page .feed-header .feed-brand-search.vatra-search-active{
+  width:calc(100vw - 16px);max-width:none;justify-self:start;z-index:3
+ }
+ body.feed-page .feed-header .feed-brand-search.vatra-search-active .feed-search-form{
+  width:100%;max-width:none!important;flex:1
+ }
+ body.feed-page .feed-header:has(.feed-brand-search.vatra-search-active) .feed-header-controls{
+  opacity:0;pointer-events:none
+ }
+}
