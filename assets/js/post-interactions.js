@@ -271,12 +271,13 @@ function appendAudience(container,level,isGroup=false){
   commentsButton.setAttribute("aria-expanded","true");
 
   const filterRow=make("div","vatra-post-comments-filter-row ui-vatra-post-comments-filter-row-001");
-  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001",tr("Сортування","Sort"));
+  const sortLabel=make("label","vt-vatra-post-comments-filter-label-001");
+  sortLabel.setAttribute("aria-label",tr("Сортування коментарів","Comment sort"));
   const sort=make("select","ui-vatra-post-comments-sort-001");
   sort.name="vatra_post_comments_sort";
   for(const [id,uk,en] of [
-   ["relevant","Спочатку цікаві","Most relevant first"],
-   ["newest","Спочатку нові","Newest first"],
+   ["relevant","Найактуальніші","Most relevant"],
+   ["newest","Найновіші","Newest"],
    ["all","Усі коментарі","All comments"]
   ]){
    const option=make("option","ui-vatra-post-comment-option-"+id,tr(uk,en));
