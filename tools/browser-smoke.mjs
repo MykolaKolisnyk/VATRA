@@ -2261,7 +2261,7 @@ try{
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
    },
-   from:table=>table==="vatra_profile_preferences"?
+   from:table=>table==="profile_preferences"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({
      data:window.__profileVisibility==="public"?null:{profile_visibility:window.__profileVisibility},error:null
     })})}),
@@ -2286,7 +2286,7 @@ try{
     {select:()=>({eq(){return this;},order(){return this;},
      limit:async n=>{window.__vatraGiftLimitCalls.push(n);return {data:[
       {gift_code:"first_flame",created_at:"2026-11-10T00:00:00Z"}],error:null};}})}:
-    table==="vatra_profile_details"?
+    table==="profile_details"?
     {select:()=>({eq:async()=>({data:window.__profileDetailRows,error:null})}),
      upsert:rows=>({select:async()=>{
       for(const row of rows)window.__profileDetailRows=
