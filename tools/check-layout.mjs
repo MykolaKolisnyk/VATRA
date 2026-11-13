@@ -1615,7 +1615,7 @@ assert.ok(
  communityScript.includes("const PUBLIC_DIRECTORY_CACHE_ENABLED=true")&&
  communityScript.includes('client.functions.invoke("public-community-directory",{method:"GET"})')&&
  communityScript.includes("if(!data){"),
- "Optional Redis must cache public catalog only, fail open, and keep secrets server-side");
+ "Optional Redis must cache only globally public community data, fail open, and keep secrets server-side");
 
 const notificationPerfScript=await read("assets/js/notifications.js");
 const workerPerfScript=await read("sw.js");
@@ -2104,3 +2104,18 @@ assert.ok(
  !commentThreadSqlOptimization.includes("SECURITY DEFINER")&&
  (commentThreadSqlOptimization.match(/count\(\*\)::bigint/g)||[]).length===1,
  "RLS-secured comment pages must precompute friends and count likes once");
+
+/* Single-club metadata joins the Redis catalog: cache only the public,
+   explicitly selected columns; preserve the directory GET contract. */
+assert.ok(
+ publicRedisEdge.includes('const cacheKey = clubId === null ? CACHE_KEY')&&
+ publicRedisEdge.includes('request.method !== "GET" && request.method !== "POST"')&&
+ publicRedisEdge.includes('Number.isSafeInteger(record.club_id)')&&
+ publicRedisEdge.includes('.eq("club_id", clubId).maybeSingle()')&&
+ publicRedisEdge.includes('validateCommunity(parsed) && parsed.club_id === clubId')&&
+ communityScript.includes('client.functions.invoke("public-community-directory",{')&&
+ communityScript.includes('body:{club_id:numeric}')&&
+ communityScript.includes('return client.from("communities")')&&
+ (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
+ "Community detail cache must be public-only and always fall back to PostgREST");
+await import("./community-detail-cache-smoke.mjs");
