@@ -1366,7 +1366,12 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   const [names,photos,statesResult]=await Promise.allSettled([
    ids.length?(window.VATRA_PUBLIC_NAMES?.get(client,ids)||
     client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)):Promise.resolve({data:[]}),
-   ids.length?client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
+   ids.length?(ids.length<=100?(window.VATRA_AVATAR?.paths?.(client,ids)||
+    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)):
+    // Keep one direct query for large friend lists; the shared cache caps
+    // a batch at 100 IDs and would otherwise omit some friend portraits.
+    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)):
+    Promise.resolve({data:[]}),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);
   const friendStates=statesResult.status==="fulfilled"?statesResult.value:new Map();
@@ -2491,7 +2496,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    // restore it later; a separate version-history workflow controls retention.
    saved={...saved,...values};
    display(saved);
-   if(kind==="avatar")window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,path);
+   if(kind==="avatar"){
+    window.VATRA_AVATAR?.invalidatePath?.(client,ownId);
+    window.VATRA_AVATAR?.fromPath(client,ownerEmail,ownId,path);
+   }
    status(t("Зображення збережено.","Image saved."));
   }catch(_){status(t("Не вдалося завантажити зображення. Спробуйте ще раз.",
    "Could not upload the image. Please retry."),true);}
@@ -2507,16 +2515,21 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 
 }
 async function loadOwnHeaderAvatar(client,ownId,email){
- if(!validId(ownId))return;
+ if(!validId(ownId))return {data:null,error:Error("Invalid member ID")};
  try{
-  const {data,error}=await client.from("profile_media")
-   .select("avatar_path").eq("vatra_id",ownId).maybeSingle();
-  if(error)return;
+  // Reuse one media request for the own profile's header, avatar and cover.
+  const response=await client.from("profile_media")
+   .select("avatar_path,cover_path").eq("vatra_id",ownId).maybeSingle();
+  if(response.error)return response;
   // The shared cache validates the URL and warms the image once. Avoid a
   // second onerror handler that could clear a perfectly valid cached header
   // while a new profile route is still completing its media requests.
-  window.VATRA_AVATAR?.fromPath(client,email,ownId,data?.avatar_path||null);
- }catch(_){/* Keep the known header portrait until it can be refreshed. */}
+  window.VATRA_AVATAR?.fromPath(client,email,ownId,response.data?.avatar_path||null);
+  return response;
+ }catch(error){
+  // Keep the remembered header portrait until the lookup can be retried.
+  return {data:null,error};
+ }
 }
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
@@ -2552,7 +2565,7 @@ async function start(){
   setMenuLink(ownId);
   // Keep the signed-in user's avatar even when a visited VATRA ID does not exist.
   window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
-  void loadOwnHeaderAvatar(client,ownId,user.email);
+  const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);
   const form=q("#feed-search-form");
   form?.addEventListener("submit",event=>{
    event.preventDefault();
@@ -2656,9 +2669,10 @@ async function start(){
    .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
   document.title=titleName+" · VATRA";
   // Start public avatar/cover loading before private detail and friendship checks.
-  const preloadedMedia=Promise.resolve().then(()=>client.from("profile_media")
-   .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
-   .catch(()=>({data:null,error:true}));
+  const preloadedMedia=isMine?ownHeaderMedia:
+   Promise.resolve().then(()=>client.from("profile_media")
+    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
+    .catch(()=>({data:null,error:true}));
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess});
   const locked=access?.locked===true;
   const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
