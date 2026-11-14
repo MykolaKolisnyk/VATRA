@@ -1714,7 +1714,7 @@ assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/a
  profileBehavior.includes('avatarWrap.removeAttribute("data-vatra-ring-kind")')&&
  systemProfileCss.includes('body.profile-page .profile-avatar-wrap.has-active-story[data-vatra-ring-kind]::before')&&
  systemProfileCss.includes('background:#fff!important;box-shadow:0 0 0 1px #e1e7f1!important')&&
- systemProfileCss.includes('background:var(--vatra-avatar-gradient'),
+ systemProfileCss.includes('background:conic-gradient(from 40deg,#376de8'),
  "Avatar rings must be white unless the person has an active gradient-ring story");
 
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
