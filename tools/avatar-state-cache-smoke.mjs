@@ -57,4 +57,28 @@ const states=env.stateTest;
  assert.equal((await states(client,[-7,"0","bad"])).size,0);
  assert.equal(calls,2,"Invalid member IDs should not hit PostgreSQL");
 }
-console.log("VATRA account-state cache: batch dedupe, negative TTL, expiry, blocked-until, and failure retry passed.");
+// A shared Supabase client may authenticate a different user while a lookup
+// is in flight. The old account's RLS-scoped result must be discarded.
+{
+ let listener,calls=0,finish=[];
+ const client={
+  auth:{onAuthStateChange(fn){listener=fn;}},
+  from:table=>{
+   assert.equal(table,"account_states");
+   return {select:()=>({in:()=>{calls++;return new Promise(resolve=>finish.push(resolve));}})};
+  }
+ };
+ const before=states(client,["44"]);
+ assert.equal(calls,1);
+ listener("TOKEN_REFRESHED");
+ listener("SIGNED_OUT");
+ const after=states(client,["44"]);
+ assert.equal(calls,2,"A new session must not reuse an old in-flight lookup");
+ finish[1]({data:[],error:null});
+ finish[0]({data:[{vatra_id:44,state:"deleted",blocked_until:null}],error:null});
+ assert.equal((await before).size,0,"Old account rows must not reach the new session");
+ assert.equal((await after).size,0,"New account must not inherit a deleted flag");
+ assert.equal((await states(client,["44"])).size,0,"Stale responses must not fill the new cache");
+ assert.equal(calls,2);
+}
+console.log("VATRA account-state cache: batch dedupe, negative TTL, expiry, blocked-until, failure retry and auth isolation passed.");
