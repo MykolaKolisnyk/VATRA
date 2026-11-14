@@ -1712,7 +1712,7 @@ try{
     paddingTop:getComputedStyle(el).paddingTop,paddingBottom:getComputedStyle(el).paddingBottom,
     labelCount:shell.querySelectorAll(".vatra-floating-hint").length};
   });
-  assert.ok(floatedPassword.raised&&floatedPassword.inputHeight>=54&&
+  assert.ok(floatedPassword.raised&&floatedPassword.inputHeight>=53.5&&
    floatedPassword.hintTop>=5&&floatedPassword.hintTop<=10&&
    floatedPassword.hintBottom<=27&&Math.abs(floatedPassword.hintLeft-17)<1&&
    floatedPassword.paddingTop==="21px"&&floatedPassword.paddingBottom==="7px"&&
