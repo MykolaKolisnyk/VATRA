@@ -61,4 +61,29 @@ function instance(){
  assert.equal((await c.prefetchEngagement(client,request)).size,0);
  assert.equal(calls,2,"Failed RPC must never be cached");
 }
-console.log("VATRA engagement cache: single-flight, short hit, invalidation and failure fallback passed.");
+{
+ const c=instance();
+ let listener,complete,calls=0;
+ const client={
+  auth:{onAuthStateChange(fn){listener=fn;}},
+  rpc:()=>{
+   calls++;
+   return new Promise(resolve=>{complete=resolve;});
+  }
+ };
+ const old=c.prefetchEngagement(client,request);
+ assert.equal(calls,1);
+ listener("INITIAL_SESSION");listener("TOKEN_REFRESHED");
+ // Token refresh does not change viewer identity; the in-flight request survives.
+ const shared=c.prefetchEngagement(client,request);
+ assert.equal(calls,1);
+ listener("SIGNED_OUT");
+ complete({data:[{post_kind:"person",post_id:uuid,viewer_liked:true}],error:null});
+ assert.equal((await old).size,0,"Pre-logout engagement must not render afterward");
+ assert.equal((await shared).size,0,"Other waiters must also reject stale responses");
+ const next=c.prefetchEngagement(client,request);
+ assert.equal(calls,2,"A fresh session must read its own reaction snapshot");
+ complete({data:[{post_kind:"person",post_id:uuid,viewer_liked:false}],error:null});
+ assert.equal((await next).get("person:"+uuid).viewer_liked,false);
+}
+console.log("VATRA engagement cache: single-flight, short hit, invalidation failure fallback and auth transitions passed.");
