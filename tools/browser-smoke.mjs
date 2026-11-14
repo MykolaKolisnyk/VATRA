@@ -294,7 +294,7 @@ try{
   assert.equal(design.fieldGap,"19px","Login form must have spacious field gaps");
   if(width>=1200&&design.verticallyFits)
    assert.ok(design.centerDelta<=2,"Login card must be vertically centered at "+width+": "+JSON.stringify(design));
-  assert.equal(design.orbitCount,8,"All eight VATRA orbit icons must remain");
+  assert.equal(design.orbitCount,7,"VATRA must show seven orbit icons after retiring business");
   assert.ok(design.mainLeft>=-1&&design.mainRight<=width+1,"Login card leaves viewport at "+width);
   assert.ok(parseFloat(design.brandStartRadius)>=20&&parseFloat(design.formStartRadius)>=20,
    "Login card must preserve rounded corners at "+width);
@@ -363,7 +363,7 @@ try{
  await localizedSignup.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(localizedSignup);
  await localizedSignup.waitForFunction(()=>document.documentElement.lang==="en");
- assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#business","#communities","#photos","#videos","#music","#marketplace","#clips"],
+ assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#communities","#photos","#videos","#music","#marketplace","#clips"],
   "The registration hashtags must be translated into English");
  await localizedSignup.close();
  await page.close();
