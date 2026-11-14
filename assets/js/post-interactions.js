@@ -897,7 +897,7 @@ function appendAudience(container,level,isGroup=false){
    event.preventDefault();
    const body=input.value.trim(),file=chosenFile;
    if((!body&&!file)||body.length>1000||send.disabled||!validId(ownId))return;
-   send.disabled=true;let uploaded=null;
+   send.disabled=true;let uploaded=null,committed=false;
    try{
     const payload={post_kind:kind,post_id:post.id,
      author_id:userId,author_vatra_id:ownId,body};
@@ -916,6 +916,7 @@ function appendAudience(container,level,isGroup=false){
     }
     const result=await client.from("post_comments").insert(payload);
     if(result.error)throw result.error;
+    committed=true;
     invalidateEngagement(client);invalidateComments(client);
     input.value="";chosenFile=null;fileInput.value="";
     attachmentPreview.hidden=true;stopReply();updateSend();
@@ -923,9 +924,14 @@ function appendAudience(container,level,isGroup=false){
     else await loadComments(true);
     void refreshSocial();feedback(tr("Коментар опубліковано.","Comment published."));
    }catch(_){
-    if(uploaded)try{await client.storage.from(uploaded.bucket).remove([uploaded.path]);}catch(_){}
-    feedback(tr("Не вдалося опублікувати коментар. Спробуйте ще раз.",
-     "Could not post comment. Please retry."),true);
+    if(!committed){
+     if(uploaded)try{await client.storage.from(uploaded.bucket).remove([uploaded.path]);}catch(_){}
+     feedback(tr("Не вдалося опублікувати коментар. Спробуйте ще раз.",
+      "Could not post comment. Please retry."),true);
+    }else{
+     // DB write succeeded even if a subsequent comment-view refresh failed.
+     feedback(tr("Коментар опубліковано.","Comment published."));
+    }
    }finally{updateSend();}
   });
 
