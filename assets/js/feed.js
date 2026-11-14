@@ -660,14 +660,17 @@
      media_items:uploaded||[]
     });
     if(insertError)throw insertError;
-    invalidateFeedPages(client);
-    dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
-    await loadPosts(true);
-    message(t("Публікацію додано.","Post published."),"success");
    }catch(ex){
+    // Uploaded media is rolled back only if the database INSERT failed.
     if(uploaded)try{await window.VATRA_POST_MEDIA.removeGallery(client,uploaded);}catch(_){}
     showError(ex?.message||t("Не вдалося опублікувати допис.","Could not publish post."));
-   }finally{submit.disabled=false;}
+    submit.disabled=false;return;
+   }
+   submit.disabled=false;
+   invalidateFeedPages(client);
+   dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
+   message(t("Публікацію додано.","Post published."),"success");
+   void loadPosts(true);
   });
   const storyDialog=q("#feed-story-dialog"),storyForm=q("#feed-story-form");
   const storyText=q("#feed-story-text"),storyError=q("#feed-story-error");
@@ -713,14 +716,16 @@
     const {error:insertError}=await client.from("stories")
      .insert({author_vatra_id:vatraId,body,theme:Math.floor(Math.random()*5),...(uploaded||{})});
     if(insertError)throw insertError;
-    resetStoryDraft();storyDialog.close();
-    message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");
-    await loadStories();
    }catch(error){
+    // Once a story is stored, a viewer refresh must not trigger media cleanup.
     if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
     storyError.textContent=error?.message||t("Не вдалося додати історію.","Could not publish story.");
-    storyError.hidden=false;
-   }finally{storySave.disabled=false;}
+    storyError.hidden=false;storySave.disabled=false;return;
+   }
+   storySave.disabled=false;
+   resetStoryDraft();storyDialog.close();
+   message(t("Історію опубліковано на 24 години.","Story posted for 24 hours."),"success");
+   void loadStories();
   });
  }
  async function deletePost(event){
@@ -729,8 +734,11 @@
   const toDelete=pendingDelete;deleteConfirm.disabled=true;
   try{
    const table=toDelete.kind==="group"?"community_posts":"feed_posts";
-   const {error}=await client.from(table).delete().eq("id",toDelete.id);
-   if(error)throw error;
+   const {data,error}=await client.from(table).delete().eq("id",toDelete.id)
+    .eq("author_vatra_id",vatraId).select("id").maybeSingle();
+   // RLS may silently affect zero rows. Never remove media or report success
+   // unless the requested own post was actually deleted.
+   if(error||String(data?.id)!==String(toDelete.id))throw error||Error("Post not deleted");
    if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
    if(toDelete.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,toDelete.media_items);
    deleteDialog.close();pendingDelete=null;
