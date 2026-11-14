@@ -1667,6 +1667,24 @@ assert.ok(
  feedScript.includes("if(version!==feedRequestVersion)return;")&&
  feedScript.includes("if(version===feedRequestVersion)"),
  "New search/filter revisions must supersede old Feed pages and errors");
+// Third-party friends list privacy must be enforced in both the UI and RLS.
+const friendshipPrivacyJs=await read("assets/js/friends.js");
+const friendshipPrivacySql=await read("supabase/migrations/20261114171700_private_friendship_rows_to_participants.sql");
+assert.ok(
+ friendshipPrivacyJs.includes('if(!me){')&&
+ friendshipPrivacyJs.includes('Списки друзів інших користувачів приватні.')&&
+ friendshipPrivacyJs.includes('A DELETE may affect no rows without an RLS error')&&
+ friendshipPrivacyJs.includes('.select("id").maybeSingle()')&&
+ friendshipPrivacySql.includes('DROP POLICY IF EXISTS "vatra_friends_read_accepted_or_own"')&&
+ friendshipPrivacySql.includes('a.vatra_id = ANY(')&&
+ !friendshipPrivacySql.includes("status = 'accepted'"),
+ "Friends lists must be private to relationship participants, and removals confirmed");
+assert.ok(
+ profileBehavior.includes('String(changed?.id)!==String(item.id)')&&
+ profileBehavior.includes('Member was not unblocked')&&
+ profileBehavior.includes('result.data?.id')&&
+ profileBehavior.includes('Friendship was not changed'),
+ "Profile blocking and friendship changes must confirm affected rows");
 const notificationPerfScript=await read("assets/js/notifications.js");
 const workerPerfScript=await read("sw.js");
 assert.ok(
