@@ -35,6 +35,8 @@ jobs:
           node tools/css-cascade-audit.mjs
       - name: Check shared signed media caching
         run: node tools/media-signed-cache-smoke.mjs
+      - name: Check presence heartbeat session lifecycle
+        run: node tools/presence-lifecycle-smoke.mjs
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.x'
