@@ -56,6 +56,7 @@ let client=null,ownId=null,bell=globalThis.testBell,badge=globalThis.testBadge;
 let panel=globalThis.testPanel,panelItems=null;
 let open=false,liveChannel=null,refreshBusy=false,refreshQueued=false;
 let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
+const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id));
 ${unread}
 ${lifecycle}
 globalThis.notices={start,stop,unreadCount,run:()=>notificationRun};
