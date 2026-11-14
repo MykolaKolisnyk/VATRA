@@ -539,7 +539,8 @@ function appendAudience(container,level,isGroup=false){
   attachmentPreview.append(fileLabel,removeFile);
   composer.append(replying,composerInput,popovers,fileInput,attachmentPreview);
   form.append(ownPortrait,composer);
-  panel.append(entries,more,form,status);shell.append(panel);
+  // Reaction errors must remain visible even while the comment drawer is closed.
+  panel.append(entries,more,form);shell.append(panel,status);
   const pageSize=window.matchMedia?.("(max-width: 640px)")?.matches?4:6;
   const replySize=3;
   let commentOffset=0,busy=false,ticket=0,pendingReset=false,replyTarget=null,chosenFile=null,emojiMode="emoji";
