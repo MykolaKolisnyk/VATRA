@@ -656,7 +656,7 @@ try{
   const stepAppearance=await signup.locator('[data-step-label="1"]').evaluate(el=>({
    background:getComputedStyle(el).backgroundImage,fontSize:getComputedStyle(el).fontSize
   }));
-  assert.ok(stepAppearance.background.includes("linear-gradient")&&stepAppearance.fontSize==="12px",
+  assert.ok(stepAppearance.background.includes("conic-gradient")&&stepAppearance.fontSize==="12px",
    "Signup step label should share the progress bar gradient and original size at "+width);
   assert.equal(layout.stageAnimation,"none","Only the full registration form should animate at entry");
   assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backInside,
@@ -1520,7 +1520,7 @@ try{
    text:node.textContent.trim()};
  });
  assert.ok(successAppearance.height>=55&&successAppearance.width>=successAppearance.contentWidth-2&&
-  successAppearance.bg.includes("linear-gradient")&&successAppearance.color==="rgb(255, 255, 255)"&&
+  successAppearance.bg.includes("conic-gradient")&&successAppearance.color==="rgb(255, 255, 255)"&&
   parseFloat(successAppearance.radius)>=25&&successAppearance.contained&&successAppearance.text.length>0,
   "Successful password reset should reveal a prominent full-width VATRA action with status message: "+JSON.stringify(successAppearance));
  assert.equal(await fullRecovery.evaluate(()=>window.__updatedPassword),"StrongPassword@12345");
@@ -1563,7 +1563,7 @@ try{
   return {height:rect.height,width:rect.width,color:css.color,bg:css.backgroundImage};
  });
  assert.ok(directButton.height>=55&&directButton.width>200&&
-  directButton.bg.includes("linear-gradient")&&directButton.color==="rgb(255, 255, 255)",
+  directButton.bg.includes("conic-gradient")&&directButton.color==="rgb(255, 255, 255)",
   "Direct reset must reuse the same prominent success CTA: "+JSON.stringify(directButton));
  assert.equal(await recoveryLink.evaluate(()=>window.__resetPasswordChanged),"NewPassword@12345");
  await recoveryLink.close();
@@ -3696,7 +3696,7 @@ try{
   assert.equal(avatarRim.state,"not-found");
   assert.equal(avatarRim.rimBackground,"rgb(255, 255, 255)",
    "A neutral avatar has a white ring by default");
-  assert.ok(avatarRim.storyBackground.includes("linear-gradient"),
+  assert.ok(avatarRim.storyBackground.includes("conic-gradient"),
    "An active story must use the VATRA gradient ring, including system portraits");
   assert.equal(avatarRim.avatarBorder,"rgb(255, 255, 255)",
    "The image is separated from its colored ring by a white border");
@@ -3744,7 +3744,7 @@ try{
    return {before,withStory};
   });
   assert.equal(defaultRing.before,"rgb(255, 255, 255)");
-  assert.ok(defaultRing.withStory.includes("linear-gradient"),
+  assert.ok(defaultRing.withStory.includes("conic-gradient"),
    "Even a default avatar receives the gradient ring only during an active story");
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
