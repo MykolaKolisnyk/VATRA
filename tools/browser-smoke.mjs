@@ -40,6 +40,110 @@ try{
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
 
+ // Verify the rendered spacing, not only a CSS string: empty list wrappers
+ // previously doubled the gap while a populated list used only one gap.
+ const spacingProbe=await context.newPage();
+ const sharedStyles='<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
+  '<link rel="stylesheet" href="'+base+'assets/css/profile.css">';
+ const nearly=(a,b)=>Math.abs(a-b)<=1;
+ for(const width of [1366,420]){
+  await spacingProbe.setViewportSize({width,height:900});
+  const expected=width>770?16:12;
+  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+   '<body class="profile-page feed-page">'+
+   '<main class="profile-posts-section">'+
+   '<div class="profile-left-stack"><aside id="profile-friends-preview" class="profile-mini-card">'+
+   '<h2>Друзі</h2><div id="profile-friends-preview-list" class="profile-friends-preview-grid"> \n </div>'+
+   '<p id="profile-friends-preview-empty">Друзів поки немає</p></aside></div>'+
+   '<div class="profile-posts-main"><header class="profile-posts-overview">Публікації</header>'+
+   '<div id="profile-quick-compose" class="profile-quick-compose">Додати публікацію</div>'+
+   '<div id="profile-posts" class="feed-posts"> \n </div>'+
+   '<p id="profile-posts-empty" class="profile-posts-empty">Публікацій поки немає</p>'+
+   '</div></main><section class="profile-content-panel" data-profile-panel="saved">'+
+   '<h2>Збережене</h2><div id="profile-saved-list" class="profile-extra-list"> \n </div>'+
+   '<p id="profile-saved-empty">Збережених публікацій поки немає</p></section>'+
+   '</body></html>',{waitUntil:"load"});
+  const profileEmpty=await spacingProbe.evaluate(()=>{
+   const get=id=>document.querySelector(id),rect=id=>get(id).getBoundingClientRect();
+   return {
+    mainGap:parseFloat(getComputedStyle(get(".profile-posts-main")).rowGap),
+    postDisplay:getComputedStyle(get("#profile-posts")).display,
+    postGap:rect("#profile-posts-empty").top-rect("#profile-quick-compose").bottom,
+    friendsDisplay:getComputedStyle(get("#profile-friends-preview-list")).display,
+    friendsGap:rect("#profile-friends-preview-empty").top-rect("#profile-friends-preview h2").bottom,
+    friendsExpected:parseFloat(getComputedStyle(get("#profile-friends-preview")).rowGap),
+    savedDisplay:getComputedStyle(get("#profile-saved-list")).display,
+    savedGap:rect("#profile-saved-empty").top-rect(".profile-content-panel h2").bottom,
+    savedExpected:parseFloat(getComputedStyle(get(".profile-content-panel")).rowGap)
+   };
+  });
+  assert.ok(profileEmpty.postDisplay==="none"&&profileEmpty.friendsDisplay==="none"&&
+   profileEmpty.savedDisplay==="none"&&nearly(profileEmpty.mainGap,expected)&&
+   nearly(profileEmpty.postGap,expected)&&
+   nearly(profileEmpty.friendsGap,profileEmpty.friendsExpected)&&
+   nearly(profileEmpty.savedGap,profileEmpty.savedExpected),
+   "Empty profile lists must collapse without extra gaps at "+width+"px: "+
+    JSON.stringify(profileEmpty));
+  const profileLoaded=await spacingProbe.evaluate(()=>{
+   const list=document.querySelector("#profile-posts"),note=document.querySelector("#profile-posts-empty");
+   const card=document.createElement("article");card.className="feed-post-card";card.textContent="A published post";
+   list.append(card);note.hidden=true;
+   const gap=list.getBoundingClientRect().top-
+    document.querySelector("#profile-quick-compose").getBoundingClientRect().bottom;
+   return {display:getComputedStyle(list).display,gap};
+  });
+  assert.ok(profileLoaded.display!=="none"&&nearly(profileLoaded.gap,expected),
+   "Populated profile posts must use the same spacing as empty posts at "+width+"px: "+
+    JSON.stringify(profileLoaded));
+  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+   '<body class="feed-page"><section class="feed-posts-section">'+
+   '<div id="feed-posts" class="feed-posts"> \n </div>'+
+   '<div id="feed-empty" class="feed-empty">Поки немає публікацій</div>'+
+   '</section></body></html>',{waitUntil:"load"});
+  const feedEmpty=await spacingProbe.evaluate(()=>{
+   const section=document.querySelector(".feed-posts-section");
+   const list=document.querySelector("#feed-posts"),note=document.querySelector("#feed-empty");
+   return {listDisplay:getComputedStyle(list).display,
+    gap:parseFloat(getComputedStyle(section).rowGap),
+    emptyTop:note.getBoundingClientRect().top-section.getBoundingClientRect().top};
+  });
+  assert.ok(feedEmpty.listDisplay==="none"&&nearly(feedEmpty.gap,expected)&&
+   nearly(feedEmpty.emptyTop,0),
+   "The Feed empty card must begin at the same spot as a first post: "+
+    JSON.stringify({width,...feedEmpty}));
+  const feedLoaded=await spacingProbe.evaluate(()=>{
+   const list=document.querySelector("#feed-posts"),note=document.querySelector("#feed-empty");
+   const card=document.createElement("article");card.className="feed-post-card";list.append(card);
+   note.hidden=true;
+   return {listDisplay:getComputedStyle(list).display,
+    top:list.getBoundingClientRect().top-
+     document.querySelector(".feed-posts-section").getBoundingClientRect().top};
+  });
+  assert.ok(feedLoaded.listDisplay!=="none"&&nearly(feedLoaded.top,0),
+   "Populated Feed posts cannot jump relative to the empty state: "+
+    JSON.stringify({width,...feedLoaded}));
+  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+   '<body class="feed-page community-page"><section class="club-posts-section">'+
+   '<h2 class="vt-club-posts-title-001">Публікації</h2>'+
+   '<div id="club-posts" class="club-posts"> \n </div>'+
+   '<p id="club-posts-empty" class="vt-club-posts-empty-001">Поки немає дописів</p>'+
+   '</section></body></html>',{waitUntil:"load"});
+  const clubEmpty=await spacingProbe.evaluate(()=>{
+   const section=document.querySelector(".club-posts-section");
+   return {display:getComputedStyle(document.querySelector("#club-posts")).display,
+    gap:parseFloat(getComputedStyle(section).rowGap),
+    actual:document.querySelector("#club-posts-empty").getBoundingClientRect().top-
+     document.querySelector(".vt-club-posts-title-001").getBoundingClientRect().bottom};
+  });
+  assert.ok(clubEmpty.display==="none"&&nearly(clubEmpty.gap,expected)&&
+   nearly(clubEmpty.actual,expected),
+   "Empty and populated community posts must keep one compact gap: "+
+    JSON.stringify({width,...clubEmpty}));
+ }
+ await spacingProbe.close();
+ console.log("VATRA layout: matching empty/filled profile, Feed, community and sidebar gaps OK");
+
+
  // The shared loader reflects real work, with 160ms grace but no forced hold.
  const bootContext=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
  await bootContext.route("**/assets/js/host.js",route=>route.fulfill({
