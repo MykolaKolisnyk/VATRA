@@ -35,6 +35,16 @@ let browser;
 try{
  browser=await chromium.launch({headless:true});
  const context=await browser.newContext({locale:"uk-UA",serviceWorkers:"block"});
+ // Browser gallery fixtures must never request the live Supabase Storage API.
+ // In this context, respond to the fictional signed image with an in-memory PNG;
+ // fail closed for any other unexpected requests to the production project.
+ await context.route("https://rjasunoawrxvetwadylh.supabase.co/**",route=>{
+  const pathname=new URL(route.request().url()).pathname;
+  if(pathname==="/storage/v1/object/sign/example")
+   return route.fulfill({status:200,contentType:"image/png",
+    body:Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jXNcAAAAASUVORK5CYII=","base64")});
+  return route.abort("blockedbyclient");
+ });
  await context.route("**/assets/js/host.js",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"}));
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
