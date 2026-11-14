@@ -49,7 +49,7 @@
  let visibleFeed=[],friends=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const filterSummary=q("#feed-filter-summary");
- let subscriptionsLoadedAt=0;
+ let subscriptionsLoadedAt=0,subscriptionsInflight=null;
  const describeFilter=()=>{
   if(!filterSummary)return;
   filterSummary.textContent=feedFilter==="friends"?
@@ -211,6 +211,18 @@
    }catch(_){}
   }
   // Names and avatars are fetched only for the 12 visible posts or stories.
+ }
+ // Feed and stories share the same 60-second friend/subscription snapshot.
+ // First-load stories must never race an as-yet empty friends Set.
+ function ensureSubscriptions(){
+  if(subscriptionsInflight)return subscriptionsInflight;
+  if(subscriptionsLoadedAt&&Date.now()-subscriptionsLoadedAt<60000)return Promise.resolve();
+  const request=loadSubscriptions().then(()=>{subscriptionsLoadedAt=Date.now();});
+  subscriptionsInflight=request;
+  void request.finally(()=>{
+   if(subscriptionsInflight===request)subscriptionsInflight=null;
+  }).catch(()=>{});
+  return request;
  }
  function card(post,engagement){
   const authorId=String(post.author_vatra_id);
@@ -421,9 +433,7 @@
   try{
    // Category switches reuse the same verified social connections briefly.
    // Avoid extra friendship/community queries on every rapid filter click.
-   if(!subscriptionsLoadedAt||Date.now()-subscriptionsLoadedAt>60000){
-    await loadSubscriptions();subscriptionsLoadedAt=Date.now();
-   }
+   await ensureSubscriptions();
    if(!sourceState)sourceState=makeSourceState();
    const page=await takePage();
    // Open a shared permalink without downloading hundreds of unrelated posts.
@@ -483,10 +493,23 @@
   const holder=q("#feed-friend-stories");
   if(!holder||!vatraId)return;
   try{
-   const {data,error}=await client.from("stories")
+   await ensureSubscriptions();
+   const friendIds=[...friends].filter(id=>id!==vatraId);
+   if(!friendIds.length){
+    // Nobody in the friend audience: skip unnecessary RLS/Storage reads.
+    holder.replaceChildren();
+    q(".feed-stories")?.classList.add("is-empty");
+    return;
+   }
+   let query=client.from("stories")
     .select("author_vatra_id,body,theme,created_at,expires_at,media_kind,media_path")
     .gt("expires_at",new Date().toISOString())
-    .order("created_at",{ascending:false}).limit(60);
+    .order("created_at",{ascending:false});
+   // Filter at PostgREST before the 60-story cap when the friend set fits
+   // a reasonably sized URL. Viewer RLS remains the access authority.
+   if(friendIds.length<=100&&typeof query.in==="function")
+    query=query.in("author_vatra_id",friendIds);
+   const {data,error}=await query.limit(60);
    if(error)throw error;
    const items=[],seen=new Set();
    for(const story of data||[]){
