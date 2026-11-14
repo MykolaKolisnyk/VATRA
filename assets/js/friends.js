@@ -30,21 +30,29 @@ async function data(){
  if(result.error)throw result.error;
  rows=result.data||[];
  const ids=[...new Set(rows.map(counterpart).filter(validId))];
- const resultSet=await Promise.allSettled([
-  ids.length?client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids):Promise.resolve({data:[]}),
-  ids.length?client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids):Promise.resolve({data:[]}),
-  window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
+ // Keep every member in longer lists: the shared caches accept bounded ID batches.
+ const batches=[];
+ for(let i=0;i<ids.length;i+=100)batches.push(ids.slice(i,i+100));
+ const [profiles,media,states]=await Promise.all([
+  Promise.allSettled(batches.map(batch=>
+   window.VATRA_PUBLIC_NAMES?.get?.(client,batch)||
+   client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",batch))),
+  Promise.allSettled(batches.map(batch=>
+   window.VATRA_AVATAR?.paths?.(client,batch)||
+   client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",batch))),
+  Promise.allSettled(batches.map(batch=>
+   window.VATRA_AVATAR?.states?.(client,batch)||Promise.resolve(new Map())))
  ]);
- accountStates=resultSet[2].status==="fulfilled"?resultSet[2].value:new Map();
- names=new Map();photos=new Map();
- if(resultSet[0].status==="fulfilled"&&!resultSet[0].value.error)
-  for(const profile of resultSet[0].value.data||[]){
+ accountStates=new Map();names=new Map();photos=new Map();
+ for(const result of states)if(result.status==="fulfilled")
+  for(const [id,state] of result.value)accountStates.set(String(id),state);
+ for(const result of profiles)if(result.status==="fulfilled"&&!result.value.error)
+  for(const profile of result.value.data||[])
    names.set(String(profile.vatra_id),String(profile.display_name||"").trim().slice(0,100));
-  }
- if(resultSet[1].status==="fulfilled"&&!resultSet[1].value.error)
-  for(const media of resultSet[1].value.data||[]){
-   const id=String(media.vatra_id),path=String(media.avatar_path||"");
-   if(accountStates.has(id)||!path.startsWith(id+"/avatar/"))continue;
+ for(const result of media)if(result.status==="fulfilled"&&!result.value.error)
+  for(const entry of result.value.data||[]){
+   const id=String(entry.vatra_id),path=entry.avatar_path;
+   if(accountStates.has(id)||typeof path!=="string"||!path.startsWith(id+"/avatar/"))continue;
    try{
     const url=client.storage.from("avatars").getPublicUrl(path)?.data?.publicUrl;
     const parsed=new URL(url);

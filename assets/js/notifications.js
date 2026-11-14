@@ -63,7 +63,8 @@ async function authorNames(rows){
   const results=await Promise.allSettled([
    (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
     client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)),
-   client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids),
+   (window.VATRA_AVATAR?.paths?.(client,ids)||
+    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)),
    window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
   ]);
   if(results[2].status==="fulfilled")for(const [id,state] of results[2].value)states.set(id,state);
