@@ -54,7 +54,7 @@ try{
    '<main class="profile-posts-section">'+
    '<div class="profile-left-stack"><aside id="profile-friends-preview" class="profile-mini-card">'+
    '<h2>Друзі</h2><div id="profile-friends-preview-list" class="profile-friends-preview-grid"> \n </div>'+
-   '<p id="profile-friends-preview-empty">Друзів поки немає</p></aside></div>'+
+   '<p id="profile-friends-preview-empty" class="vt-profile-friends-preview-empty-001">Друзів поки немає</p></aside></div>'+
    '<div class="profile-posts-main"><header class="profile-posts-overview">Публікації</header>'+
    '<div id="profile-quick-compose" class="profile-quick-compose">Додати публікацію</div>'+
    '<div id="profile-posts" class="feed-posts"> \n </div>'+
@@ -3182,7 +3182,7 @@ try{
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
    assert.ok(filterGeometry.postWidth<=770&&
-    filterGeometry.gridGap===(filterGeometry.screenWidth>950?"14px":"13px")&&
+    filterGeometry.gridGap===(filterGeometry.screenWidth>770?"16px":"12px")&&
     (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
      filterGeometry.postsTop-filterGeometry.storyBottom>=8&&
      filterGeometry.postsTop-filterGeometry.storyBottom<=21),
