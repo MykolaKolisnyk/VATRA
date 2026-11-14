@@ -3077,7 +3077,8 @@ try{
     Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
-   assert.ok(filterGeometry.postWidth<=770&&filterGeometry.gridGap==="13px"&&
+   assert.ok(filterGeometry.postWidth<=770&&
+    filterGeometry.gridGap===(filterGeometry.screenWidth>950?"14px":"13px")&&
     (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
      filterGeometry.postsTop-filterGeometry.storyBottom>=8&&
      filterGeometry.postsTop-filterGeometry.storyBottom<=21),
