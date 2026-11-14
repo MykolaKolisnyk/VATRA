@@ -361,11 +361,18 @@ function appendAudience(container,level,isGroup=false){
     try{
      if(!await hydrateSaved())throw Error("Save state unavailable");
      const result=stored?await client.from("post_saves").delete()
-      .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id):
+      .eq("owner_vatra_id",ownId).eq("post_kind",kind).eq("post_id",post.id)
+      .select("post_id").maybeSingle():
       await client.from("post_saves").insert({owner_vatra_id:ownId,post_kind:kind,post_id:post.id});
-     if(result.error)throw result.error;
-     stored=!stored;refresh();invalidateEngagement(client);
-    }catch(_){saved.title=tr("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Retry.");}
+     // Zero-row deletion (including a silent RLS denial) is not an unsave.
+     if(result.error||(stored&&String(result.data?.post_id)!==String(post.id)))
+      throw result.error||Error("Saved post was not removed");
+     stored=!stored;refresh();invalidateEngagement(client);saved.title="";feedback("");
+    }catch(_){
+     saved.title=tr("Не вдалося змінити збереження.","Could not update saved post.");
+     feedback(tr("Не вдалося змінити збереження. Спробуйте ще раз.",
+      "Could not update saved post. Please retry."),true);
+    }
     finally{saved.disabled=false;}
    });
   }
@@ -413,9 +420,11 @@ function appendAudience(container,level,isGroup=false){
     if(!likeReady)await hydrateLike();
     if(!likeReady)throw Error("Likes unavailable");
     const result=liked?
-     await likeFilter(client.from("post_likes").delete()).eq("liker_id",userId):
+     await likeFilter(client.from("post_likes").delete()).eq("liker_id",userId)
+      .select("liker_id").maybeSingle():
      await client.from("post_likes").insert({post_kind:kind,post_id:post.id,liker_id:userId});
-    if(result.error)throw result.error;
+    if(result.error||(liked&&String(result.data?.liker_id)!==String(userId)))
+     throw result.error||Error("Post like was not removed");
     liked=!liked;likeCount+=liked?1:-1;
     like.classList.toggle("is-liked",liked);like.setAttribute("aria-pressed",String(liked));
     count.textContent=String(Math.max(0,likeCount));
@@ -734,9 +743,11 @@ function appendAudience(container,level,isGroup=false){
     try{
      const result=ownLiked?
       await client.from("post_comment_likes").delete()
-       .eq("comment_id",item.id).eq("liker_id",userId):
+       .eq("comment_id",item.id).eq("liker_id",userId)
+       .select("comment_id").maybeSingle():
       await client.from("post_comment_likes").insert({comment_id:item.id,liker_id:userId});
-     if(result.error)throw result.error;
+     if(result.error||(ownLiked&&String(result.data?.comment_id)!==String(item.id)))
+      throw result.error||Error("Comment like was not removed");
      ownLiked=!ownLiked;likeCount+=ownLiked?1:-1;renderLike();
      invalidateComments(client);
     }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update like."),true);}
