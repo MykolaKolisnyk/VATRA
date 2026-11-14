@@ -46,6 +46,7 @@
  };
 
  let client=null,user=null,vatraId=null,displayName="",loading=false,refreshQueued=false,offset=0,searchTerm="",feedFilter="all";
+ let feedRequestVersion=0;
  let visibleFeed=[],friends=new Set(),publicNames=new Map(),followedClubs=new Map();
  const posts=q("#feed-posts"),status=q("#feed-status"),more=q("#feed-more");
  const filterSummary=q("#feed-filter-summary");
@@ -492,7 +493,10 @@
   return result;
  }
  async function loadPosts(reset=false){
+  // A new filter/search request supersedes the previous in-flight response.
+  if(reset)feedRequestVersion++;
   if(loading){if(reset)refreshQueued=true;return;}
+  const version=feedRequestVersion;
   loading=true;posts.setAttribute("aria-busy","true");more.disabled=true;
   if(reset){
    posts.replaceChildren();visibleFeed=[];renderedIds=new Set();
@@ -503,8 +507,10 @@
    // Category switches reuse the same verified social connections briefly.
    // Avoid extra friendship/community queries on every rapid filter click.
    await ensureSubscriptions();
+   if(version!==feedRequestVersion)return;
    if(!sourceState)sourceState=makeSourceState();
    const page=await takePage();
+   if(version!==feedRequestVersion)return;
    // Open a shared permalink without downloading hundreds of unrelated posts.
    const requested=reset?new URLSearchParams(location.search).get("post"):null;
    if(feedFilter==="all"&&requested&&/^[a-f0-9-]{36}$/i.test(requested)&&!searchTerm&&
@@ -513,6 +519,7 @@
      client.from("feed_posts").select(personFields).eq("id",requested).maybeSingle(),
      client.from("community_posts").select(clubFields).eq("id",requested).maybeSingle()
     ]);
+    if(version!==feedRequestVersion)return;
     const person=found[0].status==="fulfilled"&&!found[0].value.error?found[0].value.data:null;
     const group=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
     const direct=person?{...person,kind:"person"}:group?{...group,kind:"group"}:null;
@@ -527,6 +534,8 @@
     window.VATRA_POST_INTERACTIONS?.prefetchEngagement(client,page)||
      Promise.resolve(new Map())
    ]);
+   // Superseded requests may finish, but must not repaint the new filter.
+   if(version!==feedRequestVersion)return;
    const batch=document.createDocumentFragment();
    for(const item of page){visibleFeed.push(item);batch.append(card(item,engagement));}
    posts.append(batch);
@@ -538,9 +547,11 @@
     if(target){target.classList.add("is-linked-post");target.scrollIntoView({block:"center",behavior:"auto"});}
    }
   }catch(_){
-   if(reset)posts.replaceChildren();
-   message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
-    "Could not load your Feed. Please retry."));
+   if(version===feedRequestVersion){
+    if(reset)posts.replaceChildren();
+    message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
+     "Could not load your Feed. Please retry."));
+   }
   }finally{
    loading=false;posts.setAttribute("aria-busy","false");more.disabled=false;
    if(refreshQueued){refreshQueued=false;void loadPosts(true);}

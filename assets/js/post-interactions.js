@@ -1081,16 +1081,25 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
      body,visibility:shareAudience.value,shared_post_kind:kind,shared_post_id:post.id
     });
     if(result.error)throw result.error;
-    invalidateEngagement(client);
-    shareMenu.close();shareCaption.value="";
-    feedback(tr("Публікацію додано на вашу сторінку.","Shared to your profile."));
-    if(typeof settings.onShared==="function")settings.onShared();
-    void refreshSocial();
-   }catch(_){showShareError(tr("Не вдалося поділитися публікацією.","Could not share the post."));}
-   finally{repost.disabled=false;}
+   }catch(_){
+    showShareError(tr("Не вдалося поділитися публікацією.","Could not share the post."));
+    repost.disabled=false;return;
+   }
+   // Once stored, a failed Feed callback cannot turn a repost into a failed write.
+   repost.disabled=false;
+   invalidateEngagement(client);
+   if(shareMenu.open)shareMenu.close();
+   shareCaption.value="";
+   feedback(tr("Публікацію додано на вашу сторінку.","Shared to your profile."));
+   if(typeof settings.onShared==="function"){
+    try{Promise.resolve(settings.onShared()).catch(()=>{});}catch(_){}
+   }
+   void refreshSocial();
   });
   let friendsLoaded=false;
   dm.addEventListener("click",async()=>{
+   // A previous recipient is not actionable while accepted friendships reload.
+   friendsLoaded=false;sendDM.disabled=true;
    sendRow.hidden=false;dm.disabled=true;friendSelect.replaceChildren();
    const placeholder=make("option","ui-vatra-post-share-friend-placeholder-001",
     tr("Завантаження друзів…","Loading friends…"));
@@ -1130,10 +1139,14 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
      sender_id:ownId,recipient_id:recipient,body
     });
     if(result.error)throw result.error;
-    shareMenu.close();
-    feedback(tr("Посилання надіслано другу.","Sent to your friend."));
-   }catch(_){showShareError(tr("Не вдалося надіслати повідомлення.","Could not send message."));}
-   finally{sendDM.disabled=false;}
+   }catch(_){
+    showShareError(tr("Не вдалося надіслати повідомлення.","Could not send message."));
+    sendDM.disabled=false;return;
+   }
+   // A closed modal is not a failure of an already-persisted direct message.
+   sendDM.disabled=false;
+   if(shareMenu.open)shareMenu.close();
+   feedback(tr("Посилання надіслано другу.","Sent to your friend."));
   });
   copy.addEventListener("click",async()=>{
    try{
