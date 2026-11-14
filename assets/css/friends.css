@@ -29,13 +29,16 @@ body.vatra-friends-page .vt-vatra-friends-find-001{
  background:var(--vatra-action-primary);color:white;
  font:720 12.5px/1.4 "Onest",system-ui,sans-serif;cursor:pointer
 }
+body.vatra-friends-page .vt-vatra-friends-find-001:hover{
+ background:var(--vatra-action-primary-hover)
+}
 body.vatra-friends-page .vatra-friends-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
 body.vatra-friends-page .vatra-friends-tabs button{
  padding:9px 13px;min-height:37px;border:1px solid transparent;border-radius:10px;
  background:transparent;color:#7184a0;font:700 12px/1.3 "Onest",system-ui,sans-serif;cursor:pointer
 }
 body.vatra-friends-page .vatra-friends-tabs button.is-active{
- color:#3065c6;background:#edf3ff;border-color:#dce7fc
+ color:var(--vatra-action-ink);background:var(--vatra-action-selected);border-color:#dce7fc
 }
 body.vatra-friends-page .vatra-friends-tabs button[hidden],
 body.vatra-friends-page .vatra-friends-sidebar button[hidden]{display:none!important}
@@ -101,7 +104,7 @@ body.vatra-friends-page [data-friends-switch]{
  text-align:left;font:680 12px/1.3 "Onest",system-ui,sans-serif;cursor:pointer
 }
 body.vatra-friends-page [data-friends-switch].is-active{
- background:#edf3ff;color:#3069d3
+ background:var(--vatra-action-selected);color:var(--vatra-action-ink)
 }
 body.vatra-friends-page .vt-vatra-friends-side-copy-001{
  margin:0;padding:1px 9px;color:#8293a9;font:520 12px/1.6 "Onest",system-ui,sans-serif
@@ -146,15 +149,3 @@ body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){background-image
 body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
 body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::before,body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{display:none!important;content:none!important}
-
-/* Friend discovery and selected filters share the authentication blue. */
-body.vatra-friends-page .vt-vatra-friends-find-001:hover{
- background:var(--vatra-action-primary-hover);
-}
-body.vatra-friends-page .vatra-friends-tabs button.is-active,
-body.vatra-friends-page [data-friends-switch].is-active{
- color:var(--vatra-action-ink);background:var(--vatra-action-selected);
-}
-body.vatra-friends-page :is(.vatra-friends-tabs button,[data-friends-switch]):not(.is-active):hover{
- color:var(--vatra-action-ink);background:var(--vatra-action-soft);
-}

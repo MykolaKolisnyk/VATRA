@@ -1701,13 +1701,19 @@ assert.ok(
   .every(value=>authBaseCss.includes(value))&&
  signInCss.includes("background:var(--vatra-action-primary)")&&
  createAccountCss.includes("background:var(--vatra-action-primary)")&&
- systemFeedCss.includes("body.feed-page .social-top-link.social-top-active")&&
- systemProfileCss.includes("body.profile-page .social-profile-tab-active::after")&&
+ systemFeedCss.includes("height:3px;border-radius:3px 3px 0 0;")&&
+ systemFeedCss.includes("color:var(--vatra-action-ink);background:transparent!important")&&
+ systemProfileCss.includes("social-profile-tab-active::after")&&
+ systemProfileCss.includes("color:var(--vatra-action-ink);background:transparent")&&
  friendsInteractionCss.includes("background:var(--vatra-action-primary)")&&
  giftsInteractionCss.includes("color:var(--vatra-action-ink)")&&
+ !systemFeedCss.includes("/* AUTH PALETTE:")&&
+ !systemProfileCss.includes("/* AUTH PALETTE:")&&
+ !friendsInteractionCss.includes("/* Friend discovery and selected filters")&&
+ !giftsInteractionCss.includes("/* Gift filters match the login/signup blue")&&
  systemProfileCss.includes("width:52px;height:52px;padding:10px")&&
  systemProfileCss.includes("width:52px;height:52px;padding:0;box-sizing:border-box"),
- "Auth, Feed, profile, Friends and Gifts must share action colors and empty-state icon sizes");
+ "Auth palette uses canonical declarations without appended duplicate layers");
 // Built-in portraits and covers are SVG artwork embedded directly in CSS.
 // No separate avatars/covers asset files or requests are permitted.
 function readEmbeddedSvg(css,name){
@@ -1992,7 +1998,7 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
  !consolidatedFeed.includes('/* Spacious VK-like edge affordance')&&
  !consolidatedFeed.includes('/* Quiet VATRA left gutter:')&&
  consolidatedFeed.includes('bottom:-1px;left:13px;right:13px;z-index:2;')&&
- consolidatedFeed.includes('background:#8396b6')&&
+ consolidatedFeed.includes('height:3px;border-radius:3px 3px 0 0;background:var(--vatra-action-ink)')&&
  consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
  !consolidatedFeed.includes('.feed-account-toggle .feed-header-avatar{')&&
  scrollRailScript.includes('header.getBoundingClientRect().bottom'),
