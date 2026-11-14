@@ -28,7 +28,8 @@ const icon=(key,path)=>{
  svg.append(line);return svg;
 };
 let client=null,ownId=null,bell=null,badge=null,panel=null,panelItems=null;
-let open=false,sessionStarted=false,liveChannel=null,refreshBusy=false;
+let open=false,liveChannel=null,refreshBusy=false,refreshQueued=false;
+let notificationRun=null,panelLoadPending=null,panelLoadQueued=false;
 let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
 const pageURL=()=>new URL("notifications",root).href;
 const timeValue=date=>{
@@ -86,23 +87,35 @@ async function authorNames(rows){
  return {names,avatars,states};
 }
 async function unreadCount(){
- if(!client||!ownId||refreshBusy)return;
+ const run=notificationRun;
+ if(!run||!badge||!bell)return;
+ // Realtime updates during an in-flight count require one trailing refresh,
+ // not parallel duplicate PostgREST requests.
+ if(refreshBusy){refreshQueued=true;return;}
  refreshBusy=true;
  try{
-  const {count,error}=await client.from("member_notifications")
-   .select("id",{count:"exact",head:true}).eq("recipient_vatra_id",ownId).is("read_at",null);
+  const {count,error}=await run.client.from("member_notifications")
+   .select("id",{count:"exact",head:true}).eq("recipient_vatra_id",run.id).is("read_at",null);
   if(error)throw error;
+  if(run!==notificationRun)return; // Old sessions cannot paint the current badge.
   const n=Number(count||0);
   badge.hidden=n===0;badge.textContent=n>99?"99+":String(n);
   bell.setAttribute("aria-label",n?t("Сповіщення: "+n+" непрочитаних","Notifications: "+n+" unread"):
    t("Сповіщення","Notifications"));
- }catch(_){badge.hidden=true;}
- finally{refreshBusy=false;}
+ }catch(_){if(run===notificationRun)badge.hidden=true;}
+ finally{
+  if(run===notificationRun){
+   refreshBusy=false;
+   if(refreshQueued){refreshQueued=false;void unreadCount();}
+  }
+ }
 }
 async function fetchRows({page,size,filter="all",sort="new"}){
- let query=client.from("member_notifications").select(
+ const run=notificationRun;
+ if(!run)return {rows:[],hasNext:false};
+ let query=run.client.from("member_notifications").select(
   "id,actor_vatra_id,kind,target_kind,target_id,context_id,avatar_owner_vatra_id,read_at,created_at")
-  .eq("recipient_vatra_id",ownId);
+  .eq("recipient_vatra_id",run.id);
  if(filter==="unread")query=query.is("read_at",null);
  if(filter==="read")query=query.not("read_at","is",null);
  const oldest=sort==="old";
@@ -114,17 +127,23 @@ async function fetchRows({page,size,filter="all",sort="new"}){
  return {rows:entries.slice(0,size),hasNext:entries.length>size};
 }
 async function markRead(id){
+ const run=notificationRun;
+ if(!run)return false;
  try{
-  const {error}=await client.from("member_notifications").update({read_at:new Date().toISOString()})
-   .eq("recipient_vatra_id",ownId).eq("id",id).is("read_at",null);
-  if(error)throw error;void unreadCount();return true;
+  const {error}=await run.client.from("member_notifications").update({read_at:new Date().toISOString()})
+   .eq("recipient_vatra_id",run.id).eq("id",id).is("read_at",null);
+  if(error)throw error;
+  if(run!==notificationRun)return false;
+  void unreadCount();return true;
  }catch(_){return false;}
 }
 async function remove(id){
- const {error}=await client.from("member_notifications").delete()
-  .eq("recipient_vatra_id",ownId).eq("id",id);
+ const run=notificationRun;
+ if(!run)throw Error("Notification session unavailable");
+ const {error}=await run.client.from("member_notifications").delete()
+  .eq("recipient_vatra_id",run.id).eq("id",id);
  if(error)throw error;
- void unreadCount();
+ if(run===notificationRun)void unreadCount();
 }
 function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
@@ -197,8 +216,11 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
  list.replaceChildren(...placeholders);
  status.hidden=true;list.setAttribute("aria-busy","true");
  try{
+  const run=notificationRun;
   const {rows,hasNext}=await fetchRows(opts);
+  if(run!==notificationRun)return [];
   const {names,avatars,states}=await authorNames(rows);
+  if(run!==notificationRun)return [];
   const nodes=rows.map((record,i)=>{
    const id=String(record.actor_vatra_id),state=states.get(id);
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
@@ -215,6 +237,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
   if(prev)prev.disabled=opts.page===0;
   if(next)next.disabled=!hasNext;
   if(pageLabel)pageLabel.textContent=t("Сторінка ","Page ")+(opts.page+1);
+  return rows;
  }catch(_){
   status.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
    "Could not load notifications. Please retry.");
@@ -223,22 +246,35 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
  }finally{list.setAttribute("aria-busy","false");}
 }
 async function panelLoad(){
- if(!panel||!open)return;
- const list=panelItems;
- const opts={page:0,size:6};
- const rows=await renderRows(list,pick("#vatra-notification-panel-empty"),opts,panelLoad,null,null,null);
- // Opening the notification drawer means the reader has seen its latest items.
- // Mark only the six displayed rows, never silently acknowledge older items.
- const unread=(rows||[]).filter(row=>!row.read_at).map(row=>row.id);
- if(unread.length){
-  try{
-   const {error}=await client.from("member_notifications")
+ const run=notificationRun;
+ if(!panel||!open||!run)return;
+ if(panelLoadPending){panelLoadQueued=true;return panelLoadPending;}
+ // Keep a single panel fetch active; a burst of events gets one trailing fetch.
+ const task=(async()=>{
+  const list=panelItems;
+  const rows=await renderRows(list,pick("#vatra-notification-panel-empty"),
+   {page:0,size:6},panelLoad,null,null,null);
+  if(!open||run!==notificationRun)return;
+  // Mark exactly the items the reader saw, never older pages.
+  const unread=rows.filter(row=>!row.read_at).map(row=>row.id);
+  if(unread.length)try{
+   const {error}=await run.client.from("member_notifications")
     .update({read_at:new Date().toISOString()})
-    .eq("recipient_vatra_id",ownId).in("id",unread).is("read_at",null);
+    .eq("recipient_vatra_id",run.id).in("id",unread).is("read_at",null);
    if(error)throw error;
+   if(!open||run!==notificationRun)return;
    for(const node of list.querySelectorAll(".is-unread"))node.classList.remove("is-unread");
    void unreadCount();
-  }catch(_){/* Keep the unread state if the update was rejected. */}
+  }catch(_){/* Keep unread state when a write fails. */}
+ })();
+ panelLoadPending=task;
+ try{await task;}
+ finally{
+  if(panelLoadPending===task){
+   panelLoadPending=null;
+   const again=panelLoadQueued;panelLoadQueued=false;
+   if(again&&open&&run===notificationRun)void panelLoad();
+  }
  }
 }
 function positionPanel(){
@@ -257,6 +293,7 @@ function closePanel(){
  bell?.setAttribute("aria-expanded","false");
 }
 function openPanel(){
+ if(!notificationRun)return;
  const menu=pick(".feed-account-menu");if(menu?.open)menu.open=false;
  open=true;window.VATRA_HIDE_SHELL_TOOLTIP?.();
  panel.hidden=false;positionPanel();
@@ -377,46 +414,76 @@ async function findSite(term){
 }
 window.VATRA_SITE_SEARCH={search:findSite};
 
+function stop(){
+ const run=notificationRun;
+ if(!run)return;
+ notificationRun=null;
+ run.controller.abort();
+ if(run.timer!==null)clearInterval(run.timer);
+ try{run.authSubscription?.unsubscribe?.();}catch(_){}
+ if(liveChannel)try{run.client.removeChannel?.(liveChannel);}catch(_){}
+ liveChannel=null;
+ closePanel();
+ panelItems?.replaceChildren();
+ pick("#notifications-list")?.replaceChildren();
+ badge.hidden=true;badge.textContent="";
+ bell.setAttribute("aria-label",t("Сповіщення","Notifications"));
+ refreshBusy=false;refreshQueued=false;
+ panelLoadPending=null;panelLoadQueued=false;
+ sectionPage=0;sectionLoading=false;
+ client=null;ownId=null;
+}
 function start(c,id){
  if(!c||!validId(id))return;
- if(sessionStarted&&ownId===String(id))return;
+ if(notificationRun?.client===c&&notificationRun.id===String(id))return;
+ stop(); // No listeners, timers, or a badge from a previous account.
  client=c;ownId=String(id);
  headerUI();
  if(!bell)return;
- sessionStarted=true;
+ const run={client:c,id:ownId,controller:new AbortController(),timer:null,authSubscription:null};
+ notificationRun=run;
  void unreadCount();
- // Coalesce duplicate focus/visibility events and prefer realtime to polling.
+ // Coalesce focus/visibility events; prefer realtime over polling.
  let subscribed=false,lastRefresh=Date.now(),lastPoll=Date.now();
  const refresh=(force=false)=>{
-  if(document.hidden||(!force&&Date.now()-lastRefresh<15000))return;
+  if(notificationRun!==run||document.hidden||(!force&&Date.now()-lastRefresh<15000))return;
   lastRefresh=Date.now();void unreadCount();if(open)void panelLoad();
  };
- window.addEventListener("focus",()=>refresh(),{passive:true});
- document.addEventListener("visibilitychange",()=>refresh(),{passive:true});
- setInterval(()=>{
+ window.addEventListener("focus",()=>refresh(),{passive:true,signal:run.controller.signal});
+ document.addEventListener("visibilitychange",()=>refresh(),{passive:true,signal:run.controller.signal});
+ window.addEventListener("pagehide",()=>stop(),{once:true,signal:run.controller.signal});
+ run.timer=setInterval(()=>{
   const now=Date.now(),period=subscribed?300000:60000;
   if(now-lastPoll<period)return;
   lastPoll=now;refresh();
  },60000);
- // Subscription events trigger immediate updates; polling is a fallback.
  try{
-  if(typeof client.channel==="function")
-   liveChannel=client.channel("vatra-notices-"+ownId)
+  if(typeof c.channel==="function")
+   liveChannel=c.channel("vatra-notices-"+run.id)
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"member_notifications",
-     filter:"recipient_vatra_id=eq."+ownId},()=>refresh(true))
-    .subscribe(status=>{subscribed=status==="SUBSCRIBED";});
+     filter:"recipient_vatra_id=eq."+run.id},()=>refresh(true))
+    .subscribe(status=>{if(notificationRun===run)subscribed=status==="SUBSCRIBED";});
  }catch(_){subscribed=false;}
+ // A local sign-out invalidates the current viewer's unread requests and UI.
+ try{
+  run.authSubscription=c.auth?.onAuthStateChange?.(event=>{
+   if(event==="SIGNED_OUT"&&notificationRun===run)stop();
+  })?.data?.subscription||null;
+ }catch(_){}
 }
 async function pageLoad(append=false){
+ const run=notificationRun;
  const list=pick("#notifications-list"),empty=pick("#notifications-empty");
  const more=pick("#notifications-more");
- if(!list||sectionLoading)return;
+ if(!list||!run||sectionLoading)return;
  sectionLoading=true;more.disabled=true;list.setAttribute("aria-busy","true");
  const page=append?sectionPage+1:0,size=30;
  if(!append){list.replaceChildren();empty.hidden=true;}
  try{
   const result=await fetchRows({page,size,filter:sectionFilter,sort:sectionSort});
+  if(run!==notificationRun)return;
   const authors=await authorNames(result.rows);
+  if(run!==notificationRun)return;
   for(const row of result.rows){
    const index=list.children.length+1,id=String(row.actor_vatra_id);
    const state=authors.states.get(id);
@@ -431,11 +498,16 @@ async function pageLoad(append=false){
    empty.hidden=false;empty.textContent=t("Сповіщень поки немає.","No notifications yet.");
   }
  }catch(_){
+  if(run!==notificationRun)return;
   if(!append)list.replaceChildren();
   empty.hidden=false;
   empty.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
    "Could not load notifications. Please retry.");
- }finally{sectionLoading=false;more.disabled=false;list.setAttribute("aria-busy","false");}
+ }finally{
+  if(run===notificationRun){
+   sectionLoading=false;more.disabled=false;list.setAttribute("aria-busy","false");
+  }
+ }
 }
 function pageUI(){
  for(const btn of document.querySelectorAll("[data-notification-filter]")){
