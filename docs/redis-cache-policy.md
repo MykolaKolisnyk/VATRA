@@ -17,7 +17,7 @@ VATRA's Redis caches contain only minimal public data:
   only `vatra_id` and `display_name` (no email, phone, status, avatar,
   preferences, session, permissions or private data), TTL 120 seconds.
   This Edge endpoint requires a verified user JWT and uses caller RLS.
-- **Browser-only short caches**: public names for 90 seconds; per-viewer
+- **Browser-only short caches**: public names for 90 seconds per Supabase client (missing names for 15 seconds, overlapping requests deduplicated and cleared on sign-in/sign-out); per-viewer
   post engagement for 3 seconds with write invalidation; Storage signed
   media URLs in limited memory until shortly before expiry. These are not
   shared Redis keys.
