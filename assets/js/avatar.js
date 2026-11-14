@@ -20,7 +20,7 @@ const asset=(state="default",size=1024)=>cssSvg("avatar",state);
 const coverAsset=(state="default")=>cssSvg("cover",state);
 function fallback(element,state="default"){
  if(!element)return;
- const kind=Object.hasOwn(SYSTEM_AVATARS,state)?state:"default";
+ const kind=SYSTEM_STATES.has(state)?state:"default";
  element.dataset.vatraAvatarState=kind;
  element.classList.remove("has-photo");
  element.style.removeProperty("background-image");
