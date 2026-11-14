@@ -1419,6 +1419,19 @@ const sharedAvatar=await read("assets/js/avatar.js");
 const systemAvatarCss=await read("assets/css/base.css");
 const systemProfileCss=await read("assets/css/profile.css");
 const systemFeedCss=await read("assets/css/feed.css");
+
+assert.ok(
+ systemProfileCss.includes("body.profile-page :is(")&&
+ systemProfileCss.includes("#profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list")&&
+ systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-saved-list")&&
+ systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list")&&
+ systemProfileCss.includes("):not(:has(> *)){")&&
+ systemProfileCss.includes("--vatra-content-card-gap:16px")&&
+ systemFeedCss.includes("#feed-posts:not(:has(> *))")&&
+ systemFeedCss.includes("#club-posts:not(:has(> *))")&&
+ systemFeedCss.includes("row-gap:var(--vatra-content-card-gap)!important"),
+ "Empty lists must collapse instead of creating extra gaps before empty cards, on all profile and Feed routes");
+
 const ownerMenus=await read("assets/js/post-interactions.js");
 const feedLogic=await read("assets/js/feed.js");
 const searchLogic=await read("assets/js/social-shell.js");

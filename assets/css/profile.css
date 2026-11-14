@@ -2872,3 +2872,38 @@ body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-a
  background-repeat:no-repeat!important;
  box-shadow:none!important;
 }
+
+
+/* Global profile-card rhythm, independent of the viewed member and whether
+   posts, friends, media, archives or saved items are present. Empty list
+   containers used to consume a second flex gap before their empty messages. */
+body.profile-page{
+ --vatra-content-card-gap:16px;
+}
+body.profile-page.feed-page:not(.community-page) .profile-posts-section,
+body.profile-page :is(.profile-posts-main,.profile-left-stack,.profile-content-panel){
+ gap:var(--vatra-content-card-gap)!important;
+}
+body.profile-page :is(
+ #profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list,
+ #profile-friends-list,#profile-gifts-list,#profile-communities-list,
+ #profile-photo-gallery,#profile-video-gallery,#profile-saved-list,
+ #profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list
+):not(:has(> *)){
+ display:none!important;
+}
+/* No placeholder track between the composer and "No posts yet"; populated
+   post lists reappear automatically as soon as the first card is inserted. */
+body.profile-page #profile-posts-empty:not([hidden]){
+ min-height:205px;
+}
+body.profile-page .profile-content-panel :is(
+ #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
+ #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
+ #profile-saved-empty,#profile-archive-stories-empty,#profile-archive-posts-empty,
+ #profile-inbox-empty):not([hidden]){
+ min-height:150px;
+}
+@media(max-width:770px){
+ body.profile-page{--vatra-content-card-gap:12px}
+}
