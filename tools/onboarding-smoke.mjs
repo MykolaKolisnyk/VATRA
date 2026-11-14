@@ -74,6 +74,10 @@ for(const phrase of new Set([...literals,...titles])){
 }
 assert.ok(uk.__pages.feed&&en.__pages.feed,"Preserve existing feed translations");
 assert.ok(!source.includes('fetch('),"Tour must not load a translation or data endpoint");
+assert.ok(source.includes('mode==="tour"||mode==="welcome"')&&
+ source.includes('if((eligible&&!saved)||saved?.status==="paused")')&&
+ source.includes('saveState(localStorage,session.id,"done",steps.length-1)'),
+ "Completing or skipping tour must stay final even after dismissing checklist; paused tours resume");
 assert.ok(source.includes('mode==="tasks"')&&
  source.includes('if(checking)return checking')&&
  source.includes('Date.now()-checkedAt<60000')&&
