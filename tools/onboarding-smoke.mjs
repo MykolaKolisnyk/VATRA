@@ -57,8 +57,10 @@ for(const variant of expected){
 }
 assert.ok(html.includes('src="assets/js/onboarding.js"'));
 assert.ok(html.includes('href="assets/css/onboarding.css"'));
-assert.ok(html.includes('id="vatra-onboarding-replay"'));
-assert.ok(html.includes('id="vatra-onboarding-tasks"'));
+assert.ok(source.includes('launch.id="vatra-onboarding-replay"'));
+assert.ok(source.includes('milestones.id="vatra-onboarding-tasks"'));
+assert.ok(!html.includes('id="vatra-onboarding-replay"'),
+ "Shared header must be identical on all member pages");
 assert.ok(css.includes("@media(prefers-reduced-motion:reduce)"));
 assert.ok(css.includes(".vt-tour-spotlight-001"));
 
