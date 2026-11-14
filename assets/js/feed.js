@@ -266,7 +266,7 @@
       .update({archived_at:new Date().toISOString()}).eq("id",post.id)
       .eq("author_vatra_id",vatraId).select("id").maybeSingle();
      if(error||!data){message(t("Не вдалося архівувати публікацію.","Could not archive post."));return;}
-     void loadPosts(true);
+     invalidateFeedPages(client);void loadPosts(true);
     }:null
    });
   }
@@ -282,7 +282,7 @@
    window.VATRA_POST_INTERACTIONS?.mount(client,post,item,{
     ownId:vatraId,userId:user?.id,
     engagement:engagement?.get(post.kind+":"+post.id),
-    onShared:()=>void loadPosts(true)
+    onShared:()=>{invalidateFeedPages(client);void loadPosts(true);}
    });
   return item;
  }
@@ -360,6 +360,67 @@
  // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
  // Only the next 12 posts are materialized; no eager 200+200 post download.
  let sourceState=null,renderedIds=new Set();
+ // Reuse recent, RLS-scoped feed cursors when filters change rapidly.
+ // The cache stays in this tab only; no Redis, localStorage or service worker.
+ const FEED_PAGE_TTL_MS=3_000,FEED_PAGE_MAX=16;
+ const feedPageCaches=new WeakMap();
+ function feedPageState(client){
+  let state=feedPageCaches.get(client);
+  if(state)return state;
+  state={entries:new Map(),generation:0};
+  feedPageCaches.set(client,state);
+  if(typeof client.auth?.onAuthStateChange==="function"){
+   client.auth.onAuthStateChange(event=>{
+    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    state.generation++;state.entries.clear();
+   });
+  }
+  return state;
+ }
+ function invalidateFeedPages(client){
+  const state=client&&feedPageCaches.get(client);
+  if(state){state.generation++;state.entries.clear();}
+ }
+ async function readFeedPage(client,key,queryPage){
+  const state=feedPageState(client),generation=state.generation;
+  const previous=state.entries.get(key);
+  if(previous){
+   if(previous.pending){
+    try{
+     const rows=await previous.pending;
+     if(state.generation!==generation)throw Error("Viewer changed");
+     return {data:rows.map(row=>({...row})),error:null};
+    }catch(error){return {data:null,error};}
+   }
+   if(previous.expires>Date.now()){
+    state.entries.delete(key);state.entries.set(key,previous);
+    return {data:previous.rows.map(row=>({...row})),error:null};
+   }
+   state.entries.delete(key);
+  }
+  const pending=(async()=>{
+   const {data,error}=await queryPage();
+   if(error)throw error;
+   if(state.generation!==generation)throw Error("Viewer changed");
+   if(!Array.isArray(data))throw Error("Invalid feed cursor response");
+   return data;
+  })();
+  state.entries.set(key,{pending,expires:0});
+  while(state.entries.size>FEED_PAGE_MAX)
+   state.entries.delete(state.entries.keys().next().value);
+  try{
+   const rows=await pending;
+   if(state.generation!==generation)throw Error("Viewer changed");
+   if(state.entries.get(key)?.pending===pending){
+    state.entries.delete(key);
+    state.entries.set(key,{rows:rows.map(row=>({...row})),expires:Date.now()+FEED_PAGE_TTL_MS});
+   }
+   return {data:rows.map(row=>({...row})),error:null};
+  }catch(error){
+   if(state.entries.get(key)?.pending===pending)state.entries.delete(key);
+   return {data:null,error};
+  }
+ }
  const makeSourceState=()=>({
   person:{kind:"person",offset:0,done:!searchTerm&&feedFilter==="communities",queue:[]},
   group:{kind:"group",offset:0,done:!searchTerm&&feedFilter==="friends",queue:[]}
@@ -398,8 +459,10 @@
     query=query.in("club_id",[...followedClubs.keys()]);
    if(searchTerm&&typeof query.ilike==="function")
     query=query.ilike("body","%"+searchTerm.replace(/[\%_]/g,"\\$&")+"%");
-   const {data,error}=await query.order("created_at",{ascending:false})
-    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1);
+   const sourceKey=JSON.stringify([source.kind,feedFilter,searchTerm,source.offset,
+    [...personIds].sort(),isPerson?[]:[...followedClubs.keys()].sort()]);
+   const {data,error}=await readFeedPage(client,sourceKey,()=>query.order("created_at",{ascending:false})
+    .order("id",{ascending:false}).range(source.offset,source.offset+PAGE_SIZE-1));
    if(error){if(isPerson)throw error;source.done=true;return;}
    const raw=data||[];
    source.offset+=raw.length;
@@ -597,6 +660,7 @@
      media_items:uploaded||[]
     });
     if(insertError)throw insertError;
+    invalidateFeedPages(client);
     dialog.close();text.value="";counter.textContent="0 / 2000";picker?.reset();composerUI?.reset();
     await loadPosts(true);
     message(t("Публікацію додано.","Post published."),"success");
@@ -670,6 +734,7 @@
    if(toDelete.media_path)void window.VATRA_POST_MEDIA?.remove(client,toDelete).catch(()=>{});
    if(toDelete.media_items?.length)void window.VATRA_POST_MEDIA?.removeGallery(client,toDelete.media_items);
    deleteDialog.close();pendingDelete=null;
+   invalidateFeedPages(client);
    await loadPosts(true);message(t("Публікацію видалено.","Post deleted."),"success");
   }catch(_){deleteDialog.close();pendingDelete=null;message(t("Не вдалося видалити.","Could not delete post."));}
   finally{deleteConfirm.disabled=false;}
