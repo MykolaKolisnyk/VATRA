@@ -3883,12 +3883,27 @@ try{
    assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),title);
    assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),state);
    assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),state);
+   const neutralArt=await profilePage.locator("#profile-avatar").evaluate(el=>({
+    actualAvatar:window.VATRA_AVATAR.asset(el.dataset.vatraAvatarState),
+    sharedAvatar:window.VATRA_AVATAR.asset("default"),
+    actualCover:window.VATRA_AVATAR.coverAsset(el.dataset.vatraAvatarState),
+    sharedCover:window.VATRA_AVATAR.coverAsset("default")
+   }));
+   assert.equal(neutralArt.actualAvatar,neutralArt.sharedAvatar,
+    "Deleted and blocked members use the same neutral SVG avatar as ordinary accounts");
+   assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
+    "Deleted and blocked members use the same neutral SVG cover as ordinary accounts");
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
     background:getComputedStyle(el,"::before").backgroundColor,
+    image:getComputedStyle(el,"::before").backgroundImage,
+    avatarBorder:getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor,
     active:el.classList.contains("has-active-story")
    }));
    assert.equal(rim.background,"rgb(255, 255, 255)",
     "All default/system portraits have the same white ring");
+   assert.equal(rim.image,"none","System avatar without a story must have no gradient");
+   assert.equal(rim.avatarBorder,"rgb(255, 255, 255)",
+    "All system avatars keep one white photo border");
    assert.equal(rim.active,false,"Suspended and deleted accounts cannot have active stories");
    assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
    assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);

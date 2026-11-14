@@ -1698,21 +1698,15 @@ function readEmbeddedSvg(css,name){
  return match?decodeURIComponent(match[1]):null;
 }
 const plainAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-default-avatar");
-const deletedAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-deleted-avatar");
-const blockedAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-blocked-avatar");
 const plainCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-default-cover");
-const deletedCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-deleted-cover");
-const blockedCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-blocked-cover");
 assert.ok(
  plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
- deletedAvatarSvg?.includes('viewBox="0 0 256 256"')&&
- blockedAvatarSvg?.includes('viewBox="0 0 256 256"')&&
- plainCoverSvg?.includes('viewBox="0 0 1600 480"')&&
- deletedCoverSvg?.includes('viewBox="0 0 1600 480"')&&
- blockedCoverSvg?.includes('viewBox="0 0 1600 480"')&&
- systemAvatarCss.includes("--vatra-not-found-avatar:var(--vatra-default-avatar)")&&
- systemProfileCss.includes("--vatra-not-found-cover:var(--vatra-default-cover)"),
- "All built-in avatar and cover variants must be SVG-in-CSS, with identical empty/missing artwork");
+ plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
+ ["deleted","blocked","not-found"].every(state=>
+  systemAvatarCss.includes("--vatra-"+state+"-avatar:var(--vatra-default-avatar)")&&
+  systemProfileCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
+ !systemProfileCss.includes("--vatra-system-ring:"),
+ "All account states share the same CSS-embedded SVGs and neutral story-free rings");
 assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
  plainCoverSvg.includes('stop-color="#b3c9e2"')&&
  plainCoverSvg.includes('stop-color="#ddc9dd"')&&
