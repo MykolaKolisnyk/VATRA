@@ -241,7 +241,7 @@ body.profile-page .profile-friend-button,
 body.profile-page .profile-message-button{
  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;
  width:auto;margin:0;padding:9px 17px;border:1px solid transparent;border-radius:10px;
- color:#fff;background:linear-gradient(110deg,#316be0,#6859d6);
+ color:#fff;background:var(--vatra-action-primary);
  font:740 13px/1.3 "Onest",system-ui,sans-serif;
  cursor:pointer;transition:transform .17s,background .17s,box-shadow .17s
 }
@@ -410,7 +410,7 @@ body.profile-page .vt-profile-compose-cancel-001{
  border:1px solid #dee6f5;background:#f5f7fc;color:#4d5c76
 }
 body.profile-page .vt-profile-compose-submit-001{
- border:0;background:linear-gradient(105deg,#346fea,#665ad8);color:#fff
+ border:0;background:var(--vatra-action-primary);color:#fff
 }
 body.profile-page .vt-profile-compose-submit-001:disabled{opacity:.5;cursor:not-allowed}
 body.profile-page .vt-profile-compose-cancel-001:focus-visible,
@@ -715,7 +715,7 @@ body.profile-page .ui-profile-photo-comment-text-001{
 }
 body.profile-page .vt-profile-photo-comment-send-001{
  flex:none;min-height:38px;padding:8px 12px;border:0;border-radius:10px;
- background:linear-gradient(115deg,#3b73e5,#735cd6);color:#fff;cursor:pointer;
+ background:var(--vatra-action-primary);color:#fff;cursor:pointer;
  font:730 12px/1.2 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-profile-photo-comment-send-001:disabled{
@@ -874,7 +874,7 @@ body.profile-page .profile-actions > button:not([hidden]):hover{transform:transl
 body.profile-page .profile-actions > button > svg{width:19px;height:19px;stroke-width:1.85}
 body.profile-page .profile-actions .social-profile-create,
 body.profile-page .profile-actions .profile-friend-button{
- background:linear-gradient(110deg,#356edf,#605fdb);border:1px solid transparent;
+ background:var(--vatra-action-primary);border:1px solid transparent;
  color:#fff;box-shadow:0 5px 13px rgba(63,104,206,.14)
 }
 body.profile-page .profile-actions .profile-edit-open,
@@ -973,7 +973,7 @@ body.profile-page .vt-profile-status-dialog-heading-001{
 }
 body.profile-page .vt-profile-status-label-001{font:710 13px/1.5 "Onest",system-ui,sans-serif;color:#526888}
 body.profile-page .ui-profile-status-dialog-001 .vt-profile-status-save-001{
- background:linear-gradient(110deg,#346ce1,#665fe0);color:#fff;border-color:transparent
+ background:var(--vatra-action-primary);color:#fff;border-color:transparent
 }
 body.profile-page .vt-profile-status-error-001{color:#b74458;font-size:12px;margin:0}
 body.profile-page .vt-profile-post-archive-001,
@@ -1561,7 +1561,7 @@ body.profile-page .vt-profile-editor-feedback-001{
 body.profile-page .vt-profile-editor-feedback-001[data-kind="success"]{color:#267957}
 body.profile-page .vt-profile-editor-save-001{
  min-height:45px;padding:10px 20px;border:0;border-radius:10px;
- background:linear-gradient(115deg,#306cdb,#615fcf);color:#fff;
+ background:var(--vatra-action-primary);color:#fff;
  font:770 12.5px/1.3 "Onest",system-ui,sans-serif;
  cursor:pointer;white-space:nowrap;box-shadow:0 6px 17px rgba(63,102,207,.18);
  transition:filter .18s ease,transform .18s ease
@@ -1768,7 +1768,7 @@ body.profile-page .profile-editor-privacy{
 body.profile-page .vt-profile-editor-privacy-heading-001{color:#35518d}
 body.profile-page .ui-profile-editor-privacy-symbol-001{color:#5572cb}
 body.profile-page .vt-profile-editor-save-001{
- background:linear-gradient(110deg,#3678e7,#6b5dd3)
+ background:var(--vatra-action-primary)
 }
 @media(max-width:900px){
  body.profile-page .profile-editor-sidebar{
@@ -2656,7 +2656,7 @@ body.profile-page .vt-profile-confirm-accept-001{
 }
 body.profile-page .vt-profile-confirm-accept-001:hover{background:#9e3f54}
 body.profile-page .profile-confirm-dialog[data-tone="primary"] .vt-profile-confirm-accept-001{
- background:linear-gradient(110deg,#356fe0,#645fd8);color:#fff
+ background:var(--vatra-action-primary);color:#fff
 }
 body.profile-page .profile-confirm-dialog[data-tone="primary"] .vt-profile-confirm-accept-001:hover{
  box-shadow:0 5px 18px rgba(61,99,207,.23)
@@ -2692,7 +2692,8 @@ body.profile-page .profile-about-empty:not([hidden]){
  gap:7px;min-height:80px;margin:0;padding:9px 5px 0;color:#8294af;text-align:center
 }
 body.profile-page .profile-about-empty:not([hidden]) .ui-profile-about-empty-icon-001{
- width:35px;height:35px;padding:9px;border:1px solid #e0e8f8;
+ display:block;flex:none;box-sizing:border-box;
+ width:52px;height:52px;padding:10px;border:1px solid #e0e8f8;
  border-radius:15px;background:#f0f5fe;color:#6f8ec8
 }
 body.profile-page .vt-profile-about-empty-label-001{margin:0;font:540 12.5px/1.55 "Onest",system-ui,sans-serif}
@@ -2702,8 +2703,8 @@ body.profile-page .profile-mini-card .vt-profile-friends-preview-empty-001:not([
  font:530 12.5px/1.55 "Onest",system-ui,sans-serif
 }
 body.profile-page .profile-mini-card .vt-profile-friends-preview-empty-001:not([hidden])::before{
- content:"";display:block;width:34px;height:34px;padding:8px;box-sizing:content-box;
- border-radius:15px;background:#f1f5fd no-repeat center / 30px;
+ content:"";display:block;flex:none;width:52px;height:52px;padding:0;box-sizing:border-box;
+ border-radius:15px;background:#f0f5fe no-repeat center / 30px;
  border:1px solid #e0e8f8;
  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%236b8bc3' stroke-width='1.75' stroke-linecap='round'%3E%3Ccircle cx='12' cy='11' r='5'/%3E%3Cpath d='M2 27v-3c0-5 4-8 10-8s10 3 10 8v3M23 7a4 4 0 0 1 0 8M25 19c3 1 5 4 5 8'/%3E%3C/svg%3E")
 }
@@ -2903,4 +2904,56 @@ body.profile-page .profile-content-panel :is(
 }
 @media(max-width:770px){
  body.profile-page{--vatra-content-card-gap:12px}
+}
+
+/* AUTH PALETTE: blue states from the VATRA sign-in / registration actions.
+   Neutral secondary controls remain light. Destructive controls remain red. */
+body.profile-page :is(.social-profile-tab-active,.social-profile-tab-active:hover){
+ color:var(--vatra-action-ink)!important;
+ background:var(--vatra-action-selected)!important;
+}
+body.profile-page .social-profile-tab-active::after{
+ background:var(--vatra-action-ink)!important;
+}
+body.profile-page .social-profile-tab:not(.social-profile-tab-active):is(:hover,:focus-visible){
+ color:var(--vatra-action-ink)!important;background:var(--vatra-action-soft)!important;
+}
+body.profile-page .social-profile-tab-active:is(:hover,:focus-visible){
+ color:var(--vatra-action-hover-ink)!important;background:var(--vatra-action-soft)!important;
+}
+body.profile-page :is(.profile-mini-more,.vt-profile-about-more-001){
+ color:var(--vatra-action-ink)!important;
+}
+body.profile-page :is(.profile-mini-more,.vt-profile-about-more-001):is(:hover,:focus-visible){
+ color:var(--vatra-action-hover-ink)!important;
+ background:var(--vatra-action-soft)!important;
+}
+body.profile-page :is(.profile-status,.profile-safety-action,.vt-profile-quick-media-001):is(:hover,:focus-visible){
+ color:var(--vatra-action-ink)!important;
+ background:var(--vatra-action-soft)!important;
+}
+body.profile-page :is(
+ .social-profile-create,.profile-friend-button,.vt-profile-compose-submit-001,
+ .vt-profile-status-save-001,.vt-profile-editor-save-001,
+ .vt-profile-photo-comment-send-001,.vt-profile-story-compose-save-001,
+ .vt-profile-message-send-001,.vt-profile-edit-save-001,
+ .vt-vatra-profile-details-edit-001,.vt-profile-report-submit-001,
+ .vt-profile-report-done-001):not(:disabled){
+ background:var(--vatra-action-primary)!important;
+ color:#fff;
+}
+body.profile-page :is(
+ .social-profile-create,.profile-friend-button,.vt-profile-compose-submit-001,
+ .vt-profile-status-save-001,.vt-profile-editor-save-001,
+ .vt-profile-photo-comment-send-001,.vt-profile-story-compose-save-001,
+ .vt-profile-message-send-001,.vt-profile-edit-save-001,
+ .vt-vatra-profile-details-edit-001,.vt-profile-report-submit-001,
+ .vt-profile-report-done-001):not(:disabled):hover{
+ background:var(--vatra-action-primary-hover)!important;
+}
+body.profile-page .profile-confirm-dialog[data-tone="primary"] .vt-profile-confirm-accept-001{
+ background:var(--vatra-action-primary)!important;
+}
+body.profile-page .profile-confirm-dialog[data-tone="primary"] .vt-profile-confirm-accept-001:hover{
+ background:var(--vatra-action-primary-hover)!important;
 }

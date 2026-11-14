@@ -205,7 +205,7 @@ body.feed-page .feed-post-card{
 body.feed-page .feed-post-card:hover{transform:translateY(-1px);border-color:#d6e3f6;box-shadow:0 9px 25px rgba(33,56,95,.07)}
 body.feed-page .feed-post-body{overflow-wrap:anywhere;line-height:1.65}
 body.feed-page:not(.community-page) .feed-submit{
- min-height:40px;border-radius:10px;background:linear-gradient(110deg,#326ce3,#665bd3);
+ min-height:40px;border-radius:10px;background:var(--vatra-action-primary);
  box-shadow:none;transition:transform .18s,box-shadow .18s
 }
 body.feed-page:not(.community-page) .feed-submit:not(:disabled):hover{
@@ -752,7 +752,7 @@ body.feed-page.community-page .ui-communities-title-row-001{
 }
 body.community-page .community-create-toggle{
  display:inline-flex;align-items:center;justify-content:center;min-height:41px;padding:9px 15px;
- border:0;border-radius:10px;background:linear-gradient(110deg,#326ee7,#665bd4);
+ border:0;border-radius:10px;background:var(--vatra-action-primary);
  color:#fff;font:730 13px/1.35 "Onest",sans-serif;cursor:pointer;
  transition:transform .18s,box-shadow .18s
 }
@@ -1092,7 +1092,7 @@ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:non
 .vatra-shell-dialog p{margin:0 0 22px;color:#6f809b;font-size:13px;line-height:1.65}
 .vatra-shell-dialog button,.vatra-story-dialog .vatra-story-close{
  display:inline-flex;align-items:center;justify-content:center;min-height:42px;
- padding:9px 18px;border:0;border-radius:11px;background:linear-gradient(110deg,#396fe7,#795ad7);
+ padding:9px 18px;border:0;border-radius:11px;background:var(--vatra-action-primary);
  color:#fff;font:700 13px/1.3 "Onest",system-ui,sans-serif;cursor:pointer
 }
 .vatra-shell-dialog button:focus-visible,.vatra-story-dialog button:focus-visible{
@@ -2018,7 +2018,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-
 }
 .vatra-post-share-dialog .vt-vatra-post-share-profile-001{
  width:100%;min-height:44px;padding:11px 15px;border:0;border-radius:10px;
- background:linear-gradient(105deg,#356ce1,#675de0);color:#fff;
+ background:var(--vatra-action-primary);color:#fff;
  font:750 13px "Onest",system-ui,sans-serif;cursor:pointer
 }
 .vatra-post-share-dialog .vt-vatra-post-share-profile-001:disabled{opacity:.6}
@@ -2984,4 +2984,32 @@ body.community-page .vt-club-posts-empty-001:not([hidden]){
  body.feed-page:not(.profile-page):not(.community-page){
   --vatra-content-card-gap:12px;
  }
+}
+
+/* AUTH PALETTE: All interactive states reuse the login / signup blue tokens.
+   Content artwork and Story themes deliberately retain their own colors. */
+body.feed-page .social-top-link.social-top-active{
+ color:var(--vatra-action-ink)!important;
+ background:var(--vatra-action-selected)!important;
+}
+body.feed-page .social-top-link.social-top-active::after{
+ background:var(--vatra-action-ink)!important;
+}
+body.feed-page .social-top-link:not(.social-top-active):is(:hover,:focus-visible){
+ color:var(--vatra-action-ink)!important;
+ background:var(--vatra-action-soft)!important;
+}
+body.feed-page .social-top-link.social-top-active:is(:hover,:focus-visible){
+ color:var(--vatra-action-hover-ink)!important;
+ background:var(--vatra-action-soft)!important;
+}
+body.feed-page .feed-header-icon-button:is(:hover,:focus-visible){
+ color:var(--vatra-action-ink)!important;
+ background:var(--vatra-action-soft)!important;
+}
+body.feed-page :is(.feed-submit,.vt-vatra-post-share-profile-001,.vt-feed-story-save-001,.vt-club-compose-save-001):not(:disabled){
+ background:var(--vatra-action-primary)!important;color:#fff;
+}
+body.feed-page :is(.feed-submit,.vt-vatra-post-share-profile-001,.vt-feed-story-save-001,.vt-club-compose-save-001):not(:disabled):hover{
+ background:var(--vatra-action-primary-hover)!important;
 }
