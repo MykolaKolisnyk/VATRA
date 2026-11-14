@@ -34,16 +34,27 @@ function clearFallback(element){
 const STATE_TTL_MS=10_000,STATE_CACHE_MAX=256;
 // Scope short state snapshots and in-flight queries to one Supabase client.
 const stateLookupCaches=new WeakMap();
+function stateForClient(client){
+ let bucket=stateLookupCaches.get(client);
+ if(bucket)return bucket;
+ bucket={rows:new Map(),pending:new Map(),generation:0};
+ stateLookupCaches.set(client,bucket);
+ if(typeof client.auth?.onAuthStateChange==="function"){
+  client.auth.onAuthStateChange(event=>{
+   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+   bucket.generation++;
+   bucket.rows.clear();
+   bucket.pending.clear();
+  });
+ }
+ return bucket;
+}
 async function states(client,ids){
  const valid=[...new Set((ids||[]).map(String)
   .filter(id=>/^[1-9][0-9]{0,18}$/.test(id)))].slice(0,100);
  const result=new Map();
  if(!valid.length||!client)return result;
- let bucket=stateLookupCaches.get(client);
- if(!bucket){
-  bucket={rows:new Map(),pending:new Map()};
-  stateLookupCaches.set(client,bucket);
- }
+ const bucket=stateForClient(client),generation=bucket.generation;
  const now=Date.now();
  const missing=valid.filter(id=>{
   const entry=bucket.rows.get(id);
@@ -56,6 +67,8 @@ async function states(client,ids){
    const {data,error}=await client.from("account_states")
     .select("vatra_id,state,blocked_until").in("vatra_id",missing);
    if(error)throw error;
+   // Never populate an authenticated cache with a previous session's result.
+   if(bucket.generation!==generation)return;
    const found=new Map((data||[]).map(row=>[String(row.vatra_id),row]));
    const expires=Date.now()+STATE_TTL_MS;
    for(const id of missing){
@@ -74,6 +87,7 @@ async function states(client,ids){
  // Reuse overlapping in-flight batches instead of issuing duplicate queries.
  const waiting=[...new Set(valid.map(id=>bucket.pending.get(id)).filter(Boolean))];
  if(waiting.length)await Promise.allSettled(waiting);
+ if(bucket.generation!==generation)return new Map();
  for(const id of valid){
   const entry=bucket.rows.get(id);
   if(!entry||entry.expires<=Date.now())continue;
