@@ -2704,6 +2704,38 @@ try{
   await feedProbe.locator("#feed-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await feedProbe.locator("#feed-loading").isVisible(),false,
    "Authenticated Feed must not block its header while posts load");
+  // Existing accounts can replay Vatryk's tour, but a mock account without
+  // a verified fresh signup timestamp is not interrupted automatically.
+  assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_ONBOARDING?.replay),"function");
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),0);
+  await feedProbe.locator(".feed-account-toggle").click();
+  await feedProbe.locator("#vatra-onboarding-replay").click();
+  await feedProbe.locator("#vatra-tour-dialog").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").getAttribute("src"),
+   "/VATRA/assets/vatryk/vatryk_welcome.png");
+  await feedProbe.locator(".vt-tour-mascot-001").evaluate(img=>
+   img.decode().catch(()=>{}));
+  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(img=>img.naturalWidth>0),
+   true,"The original welcome mascot must render");
+  await feedProbe.locator(".vt-tour-next-001").click();
+  assert.equal(await feedProbe.locator(".vt-tour-spotlight-001").isVisible(),true,
+   "An actual Feed control should be highlighted");
+  assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
+  await feedProbe.locator(".vt-tour-next-001").click();
+  assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("2"));
+  await feedProbe.locator(".vt-tour-back-001").click();
+  assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
+  await feedProbe.locator(".vt-tour-skip-001").click();
+  assert.equal(await feedProbe.locator(".vt-tour-checklist-001 a").count(),5);
+  await feedProbe.locator(".vt-tour-next-001").click();
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
+  await feedProbe.locator(".feed-account-toggle").click();
+  await feedProbe.locator("#vatra-onboarding-tasks").click();
+  assert.equal(await feedProbe.locator(".vt-tour-checklist-001 a").count(),5);
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
+  console.log("VATRA first-visit: UK/EN welcome artwork, spotlight, Back, Skip, replay and tasks: OK");
+
   assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_MOTION),"undefined",
    "Section and profile tab crossfades must not delay content");
   assert.equal(await feedProbe.evaluate(()=>typeof window.VATRA_NAVIGATE?.to),"function",
