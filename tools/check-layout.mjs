@@ -1910,12 +1910,23 @@ assert.ok(
  "VATRA sign-in secondary action and balanced About / Posts profile columns must stay visible");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
- assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
-  !feedMarkup.includes("assets/js/onboarding.js")&&
-  !feedMarkup.includes("assets/css/onboarding.css")&&
-  !feedScript.includes("VATRA_ONBOARDING")&&
-  !feedScript.includes("vatra:feed-ready"),
-  "Removed VATRA walkthrough must not be loaded or displayed");
+const onboardingJs=await read("assets/js/onboarding.js");
+const onboardingCss=await read("assets/css/onboarding.css");
+assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
+ feedMarkup.includes('href="assets/css/onboarding.css"')&&
+ feedMarkup.includes('id="vatra-onboarding-replay"')&&
+ feedMarkup.includes('id="vatra-onboarding-tasks"')&&
+ feedScript.includes('window.VATRA_ONBOARDING?.start({client,memberId:vatraId,createdAt:user.created_at})')&&
+ feedScript.includes('window.VATRA_ONBOARDING?.stop()')&&
+ onboardingJs.includes('window.VATRA_ONBOARDING={start,stop,replay,openTasks}')&&
+ onboardingJs.includes('vatra.onboarding.v1.member.')&&
+ onboardingJs.includes('MAX_AGE_MS=30*24*60*60*1000')&&
+ onboardingJs.includes('profile_media')&&onboardingJs.includes('community_follows')&&
+ onboardingCss.includes('.vt-tour-spotlight-001')&&
+ onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
+ ["welcome","waiting","success","goodbye","explanation"].every(state=>
+  onboardingJs.includes("vatryk_"+state+".png")),
+ "First-visit Vatryk onboarding must be localized, accessible, per-member and without eager profile API reads");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
