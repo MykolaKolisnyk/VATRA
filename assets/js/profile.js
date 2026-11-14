@@ -1741,16 +1741,19 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
  // Inbox remains reachable via its private conversation flow, not as a profile tab.
  if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
- let activePeer=null,sending=false;
+ let activePeer=null,sending=false,conversationRequestSeq=0;
  const messagesQuery=peer=>"and(sender_id.eq."+ownId+",recipient_id.eq."+peer+
   "),and(sender_id.eq."+peer+",recipient_id.eq."+ownId+")";
  const loadConversation=async()=>{
-  if(!validPeer(activePeer))return;
+  if(!validPeer(activePeer)||!dialog.open)return;
+  const requestPeer=String(activePeer),requestSeq=++conversationRequestSeq;
+  const isCurrent=()=>requestSeq===conversationRequestSeq&&activePeer===requestPeer&&dialog.open;
   conversation.replaceChildren(node("p","vt-profile-message-loading-001",t("Завантаження…","Loading…")));
   try{
    const {data,error}=await client.from("direct_messages")
     .select("sender_id,recipient_id,body,created_at")
-    .or(messagesQuery(activePeer)).order("created_at",{ascending:false}).limit(50);
+    .or(messagesQuery(requestPeer)).order("created_at",{ascending:false}).limit(50);
+   if(!isCurrent())return;
    if(error)throw error;
    conversation.replaceChildren();
    if(!data?.length)conversation.append(node("p","vt-profile-message-empty-001",
@@ -1777,20 +1780,24 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    }
    conversation.scrollTop=conversation.scrollHeight;
   }catch(_){
+   if(!isCurrent())return;
    conversation.replaceChildren(node("p","vt-profile-message-error-001",
     t("Не вдалося завантажити розмову.","Could not load conversation.")));
   }
  };
  const openConversation=async peer=>{
-  if(!validPeer(peer))return;
+  if(sending||!validPeer(peer))return;
   activePeer=String(peer);
   q("#profile-message-title").textContent=t("Повідомлення · VATRA ID ","Messages · VATRA ID ")+activePeer;
   messageText.value="";show(messageStatus,"");
   if(!dialog.open)dialog.showModal();
   await loadConversation();
-  messageText.focus();
+  if(dialog.open&&activePeer===String(peer))messageText.focus();
  };
  q("#profile-message-close").addEventListener("click",()=>{if(!sending)dialog.close();});
+ dialog.addEventListener("close",()=>{
+  if(!dialog.open){conversationRequestSeq++;activePeer=null;}
+ });
  q("#profile-message-refresh").addEventListener("click",()=>void loadConversation());
  q("#profile-message-form").addEventListener("submit",async event=>{
   event.preventDefault();

@@ -2430,6 +2430,7 @@ try{
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
+  window.__vatraDmHold=false;window.__vatraDmResolvers=[];
   window.__vatraFriendLimitCalls=[];window.__vatraGiftLimitCalls=[];
   window.__vatraFriendActionRows=new URLSearchParams(location.search).has("friend-action-test")?
    [{id:"00000000-0000-4000-8000-000000000882",requester_id:654321,
@@ -2443,7 +2444,15 @@ try{
      user_metadata:{first_name:"Тест",last_name:"VATRA"}}},error:null}),
     signOut:async()=>({error:null})
    },
-   from:table=>table==="profile_preferences"?
+   from:table=>table==="direct_messages"?
+    {select:()=>({or(){return this;},order(){return this;},
+     limit:async()=>{
+      if(window.__vatraDmHold)return new Promise(resolve=>
+       window.__vatraDmResolvers.push(rows=>resolve({data:rows,error:null})));
+      return {data:[],error:null};
+     }}),
+     insert:async()=>({error:null})}:
+    table==="profile_preferences"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({
      data:window.__profileVisibility==="public"?null:{profile_visibility:window.__profileVisibility},error:null
     })})}),
@@ -4115,6 +4124,37 @@ try{
    "Message button must open the private conversation dialog");
   await profilePage.locator("#profile-message-close").click();
   assert.equal(await profilePage.locator("#profile-message-dialog").evaluate(el=>el.open),false);
+  // An earlier delayed request must not overwrite a later opening of the DM.
+  await profilePage.evaluate(()=>{
+   window.__vatraDmHold=true;window.__vatraDmResolvers=[];
+  });
+  await profilePage.locator("#profile-message-button").click();
+  await profilePage.waitForFunction(()=>window.__vatraDmResolvers.length===1);
+  await profilePage.locator("#profile-message-close").click();
+  await profilePage.locator("#profile-message-button").click();
+  await profilePage.waitForFunction(()=>window.__vatraDmResolvers.length===2);
+  await profilePage.evaluate(()=>{
+   window.__vatraDmResolvers[1]([{
+    sender_id:789012,recipient_id:654321,body:"Нове повідомлення VATRA",
+    created_at:"2026-11-14T15:00:00Z"
+   }]);
+  });
+  await profilePage.waitForFunction(()=>
+   document.querySelector("#profile-message-history")?.textContent.includes("Нове повідомлення VATRA"));
+  await profilePage.evaluate(async()=>{
+   window.__vatraDmResolvers[0]([{
+    sender_id:789012,recipient_id:654321,body:"Застаріле повідомлення VATRA",
+    created_at:"2026-11-14T14:00:00Z"
+   }]);
+   await new Promise(resolve=>setTimeout(resolve,0));
+  });
+  assert.ok((await profilePage.locator("#profile-message-history").textContent()).includes(
+   "Нове повідомлення VATRA"));
+  assert.equal((await profilePage.locator("#profile-message-history").textContent()).includes(
+   "Застаріле повідомлення VATRA"),false,
+   "An old in-flight conversation response must not replace the newer dialog content");
+  await profilePage.locator("#profile-message-close").click();
+  await profilePage.evaluate(()=>{window.__vatraDmHold=false;window.__vatraDmResolvers=[];});
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
    "The header must retain the signed-in first name when viewing another profile");
   assert.equal((await profilePage.locator("#feed-menu-name").textContent()).trim(),"Тест",
