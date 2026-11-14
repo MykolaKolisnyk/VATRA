@@ -2941,6 +2941,99 @@ try{
    rpcCalls:1,rpcName:"post_engagement_page",postCount:2,records:2,rowQueries:0,
    likes:"9",comments:"3",shares:"2",liked:"true",saved:"true"
   },"Two posts must hydrate from one RPC without per-post network queries");
+  // Reaction integrity: an RLS no-op must not toggle local like/bookmark
+  // state; the same controls must still work when DELETE returns their row.
+  await feedProbe.evaluate(()=>{
+   const postId="00000000-0000-4000-8000-000000000777",
+    commentId="00000000-0000-4000-8000-000000000778",
+    userId="00000000-0000-4000-8000-000000000779";
+   const host=document.createElement("div");host.id="vatra-reaction-integrity-test";
+   document.body.append(host);
+   const state={postId,commentId,userId,allow:false,deleted:[]};
+   window.__vatraReactionTest=state;
+   const client={
+    auth:{onAuthStateChange:()=>{}},
+    from(table){
+     let operation="select";
+     return {
+      delete(){operation="delete";return this;},
+      select(){return this;},eq(){return this;},in(){return this;},is(){return this;},
+      async maybeSingle(){
+       state.deleted.push(table);
+       if(!state.allow)return {data:null,error:null};
+       return {data:table==="post_likes"?{liker_id:userId}:
+        table==="post_saves"?{post_id:postId}:
+        table==="post_comment_likes"?{comment_id:commentId}:null,error:null};
+      },
+      then(resolve,reject){
+       return Promise.resolve({data:table==="post_comment_likes"&&operation==="select"?
+        [{comment_id:commentId}]:[],error:null,count:0}).then(resolve,reject);
+      }
+     };
+    },
+    async rpc(name){
+     if(name==="comment_reply_counts")return {data:[],error:null};
+     if(name==="vatra_comment_thread_page")return {data:[{
+      id:commentId,author_vatra_id:"654321",body:"Reaction RLS smoke",
+      created_at:"2026-11-14T12:00:00Z",moderation_status:"visible",
+      likes:1,parent_comment_id:null
+     }],error:null};
+     return {data:[],error:null};
+    }
+   };
+   window.VATRA_POST_INTERACTIONS.mount(client,{
+    id:postId,kind:"person",body:"Reactions smoke"
+   },host,{ownId:"654321",userId,engagement:{
+    post_id:postId,post_kind:"person",like_count:1,
+    comment_count:1,share_count:0,viewer_liked:true,viewer_saved:true
+   }});
+  });
+  const reactHost="#vatra-reaction-integrity-test";
+  const reactLike=feedProbe.locator(reactHost+" .vt-vatra-post-like-001");
+  const reactSave=feedProbe.locator(reactHost+" .vt-vatra-post-save-001");
+  await reactLike.click();
+  await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_likes")&&
+   !document.querySelector("#vatra-reaction-integrity-test .vt-vatra-post-like-001").disabled);
+  assert.equal(await reactLike.getAttribute("aria-pressed"),"true");
+  assert.equal((await feedProbe.locator(reactHost+" .vt-vatra-post-like-count-001").textContent()).trim(),"1");
+  await reactSave.click();
+  await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_saves")&&
+   !document.querySelector("#vatra-reaction-integrity-test .vt-vatra-post-save-001").disabled);
+  assert.equal(await reactSave.getAttribute("aria-pressed"),"true",
+   "Silent zero-row unsave must preserve the bookmark");
+  assert.equal(await feedProbe.locator(reactHost+" .vt-vatra-post-interactions-status-001")
+   .getAttribute("data-state"),"error");
+  assert.equal(await feedProbe.locator(reactHost+" .vt-vatra-post-interactions-status-001")
+   .isVisible(),true,
+   "Failed unsave feedback must be visible without opening comments");
+  await feedProbe.locator(reactHost+" .vt-vatra-post-comments-toggle-001").click();
+  const commentHeart=feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-like-001");
+  await commentHeart.waitFor({state:"visible"});
+  assert.equal(await commentHeart.getAttribute("aria-pressed"),"true");
+  await commentHeart.click();
+  await feedProbe.waitForFunction(()=>window.__vatraReactionTest.deleted.includes("post_comment_likes")&&
+   !document.querySelector(".vatra-post-comment-dialog .vt-vatra-post-comment-like-001").disabled);
+  assert.equal(await commentHeart.getAttribute("aria-pressed"),"true",
+   "Silent zero-row comment unlike must preserve the heart");
+  assert.equal((await feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-like-count-001")
+   .textContent()).trim(),"1");
+  await feedProbe.evaluate(()=>{window.__vatraReactionTest.allow=true;});
+  await commentHeart.click();
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   ".vatra-post-comment-dialog .vt-vatra-post-comment-like-001")?.getAttribute("aria-pressed")==="false");
+  await feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-dialog-close-001").click();
+  await reactLike.click();
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   "#vatra-reaction-integrity-test .vt-vatra-post-like-001")?.getAttribute("aria-pressed")==="false");
+  await reactSave.click();
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   "#vatra-reaction-integrity-test .vt-vatra-post-save-001")?.getAttribute("aria-pressed")==="false");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraReactionTest.deleted),[
+   "post_likes","post_saves","post_comment_likes",
+   "post_comment_likes","post_likes","post_saves"
+  ],"All three reaction DELETE operations must confirm their affected rows");
+  await feedProbe.locator(reactHost).evaluate(el=>el.remove());
+  console.log("VATRA reactions: RLS no-op and confirmed unlike/unsave preserved across Feed");
   // A zero-row RLS denial must not be misreported as successful deletion.
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
