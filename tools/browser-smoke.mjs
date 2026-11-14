@@ -3901,8 +3901,10 @@ try{
   assert.ok(mobileGeometry.overflow<=3,
    "Feed must fit viewport: "+language+" "+JSON.stringify(mobileGeometry));
   assert.deepEqual(feedErrors,[],"Feed JavaScript error: "+language);
-   assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),0,
-    "The removed VATRA tour must not appear in the DOM");
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").count(),1,
+   "Replaying the Vatryk tour must reuse one dialog, not create duplicates");
+  assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false,
+   "After closing the tutorial, the Feed must be interactive and unblocked");
   await feedProbe.close();
   const profilePage=await feedContext.newPage();
   profilePage.on("console",message=>{
