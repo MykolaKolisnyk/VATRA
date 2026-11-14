@@ -1,12 +1,11 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
-const CACHE="vatra-offline-shell-v53";
+const CACHE="vatra-offline-shell-v54";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
  OFFLINE,
  ROOT+"assets/js/lang.js",
  ROOT+"assets/js/public-name-cache.js",
- ROOT+"assets/js/errors.js",
  ROOT+"assets/css/base.css",
  ROOT+"assets/css/not-found.css",
  ROOT+"assets/js/not-found.js",
