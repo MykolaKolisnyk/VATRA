@@ -3,8 +3,8 @@
 .login-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px}
 .login-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
 .site .form-box .field-stack{gap:19px}
-.site .form-box .action.primary{min-height:55px;background:linear-gradient(100deg,#2464d7,#326ce1);box-shadow:0 8px 20px rgba(39,98,212,.16)}
-.site .form-box .action.primary:hover{background:linear-gradient(100deg,#1e55bf,#2e5fce);box-shadow:0 10px 24px rgba(39,98,212,.23)}
+.site .form-box .action.primary{min-height:55px;background:var(--vatra-action-primary);box-shadow:0 8px 20px rgba(39,98,212,.16)}
+.site .form-box .action.primary:hover{background:var(--vatra-action-primary-hover);box-shadow:0 10px 24px rgba(39,98,212,.23)}
 .site .form-box .action.secondary{min-height:54px;background:#fff;border-color:#a6bfff;color:#235fcd}
 .site .form-box .action.secondary:hover{background:#f4f7ff;border-color:#6894f3}
 .site .form-box .or{margin:31px 0}

@@ -1691,6 +1691,23 @@ assert.ok(
  systemProfileCss.includes('gap:10px;text-align:center;padding:28px 20px;margin-top:0;'),
  "Feed cards, profile stacks and restricted states share compact spacing");
 
+
+const friendsInteractionCss=await read("assets/css/friends.css");
+const giftsInteractionCss=await read("assets/css/gifts.css");
+assert.ok(
+ ["--vatra-action-ink:#2464d7","--vatra-action-hover-ink:#1e55bf",
+  "--vatra-action-primary:linear-gradient(100deg,#2464d7,#326ce1)",
+  "--vatra-action-primary-hover:linear-gradient(100deg,#1e55bf,#2e5fce)"]
+  .every(value=>authBaseCss.includes(value))&&
+ signInCss.includes("background:var(--vatra-action-primary)")&&
+ createAccountCss.includes("background:var(--vatra-action-primary)")&&
+ systemFeedCss.includes("body.feed-page .social-top-link.social-top-active")&&
+ systemProfileCss.includes("body.profile-page .social-profile-tab-active::after")&&
+ friendsInteractionCss.includes("background:var(--vatra-action-primary)")&&
+ giftsInteractionCss.includes("color:var(--vatra-action-ink)")&&
+ systemProfileCss.includes("width:52px;height:52px;padding:10px")&&
+ systemProfileCss.includes("width:52px;height:52px;padding:0;box-sizing:border-box"),
+ "Auth, Feed, profile, Friends and Gifts must share action colors and empty-state icon sizes");
 // Built-in portraits and covers are SVG artwork embedded directly in CSS.
 // No separate avatars/covers asset files or requests are permitted.
 function readEmbeddedSvg(css,name){

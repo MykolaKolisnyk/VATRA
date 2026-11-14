@@ -2598,7 +2598,7 @@ try{
     railTop:Number.parseFloat(rail.style.getPropertyValue("--vatra-rail-top"))};
   });
   assert.ok(Math.abs(shellPolish.underlineBottom-shellPolish.headerBottom)<=2&&
-   shellPolish.underlineColor==="rgb(131, 150, 182)"&&
+   shellPolish.underlineColor==="rgb(36, 100, 215)"&&
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
@@ -2911,15 +2911,19 @@ try{
    const nav=[...document.querySelectorAll(".social-top-link")];
    return {font:getComputedStyle(input).fontFamily,size:parseFloat(getComputedStyle(input).fontSize),
     border:getComputedStyle(field).borderColor,
-    colors:nav.map(el=>getComputedStyle(el).color),
+    colors:nav.filter(el=>!el.classList.contains("social-top-active"))
+     .map(el=>getComputedStyle(el).color),
+    activeColor:getComputedStyle(document.querySelector(".social-top-active")).color,
     activeBackground:getComputedStyle(document.querySelector(".social-top-active")).backgroundColor};
   });
   assert.ok(searchStyles.font.includes("Onest")&&searchStyles.size>=14,
    "The search box must use the same VATRA Onest typography as authentication forms");
   assert.equal(new Set(searchStyles.colors).size,1,
-   "Every top navigation icon must have the same neutral color");
-  assert.equal(searchStyles.activeBackground,"rgba(0, 0, 0, 0)",
-   "Selected navigation is underline-only, never a filled background");
+   "Inactive top navigation icons must share the same muted color");
+  assert.equal(searchStyles.activeColor,"rgb(36, 100, 215)",
+   "Active header navigation uses the same blue as login");
+  assert.equal(searchStyles.activeBackground,"rgb(234, 241, 255)",
+   "Active header navigation shares the auth-blue soft selection");
   await feedProbe.evaluate(()=>{
    localStorage.setItem("vatra.search.history.v1",JSON.stringify(
     Array.from({length:12},(_,i)=>"VATRA запит "+(12-i))));
@@ -3922,6 +3926,23 @@ try{
   // A no-photo avatar always has a real white image border, even if its
   // decorative ::before ring is suppressed. Story ring colors are tested above
   // on an actual active story and on a representative system portrait.
+  const unifiedEmptyIcons=await profilePage.evaluate(()=>{
+   const about=document.querySelector("#profile-about-empty");
+   const friends=document.querySelector("#profile-friends-preview-empty");
+   if(!about||!friends)return null;
+   const a=about.hidden,f=friends.hidden;
+   about.hidden=false;friends.hidden=false;
+   const aboutIcon=getComputedStyle(about.querySelector("svg"));
+   const friendsIcon=getComputedStyle(friends,"::before");
+   const sizes={
+    about:[parseFloat(aboutIcon.width),parseFloat(aboutIcon.height)],
+    friends:[parseFloat(friendsIcon.width),parseFloat(friendsIcon.height)]
+   };
+   about.hidden=a;friends.hidden=f;
+   return sizes;
+  });
+  assert.deepEqual(unifiedEmptyIcons,{about:[52,52],friends:[52,52]},
+   "Empty About and Friends blocks must use identical 52px icon containers");
   const defaultBorder=await profilePage.locator("#profile-avatar").evaluate(el=>
    getComputedStyle(el).borderTopColor);
   assert.equal(defaultBorder,"rgb(255, 255, 255)",

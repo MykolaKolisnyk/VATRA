@@ -116,3 +116,11 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){
  body.vatra-gifts-page .vatra-gifts-card{transition:none}
 }
+
+/* Gift filters match the login/signup blue used across the social shell. */
+body.vatra-gifts-page .vatra-gifts-tabs button.is-active{
+ color:var(--vatra-action-ink);background:var(--vatra-action-selected);
+}
+body.vatra-gifts-page .vatra-gifts-tabs button:not(.is-active):hover{
+ color:var(--vatra-action-ink);background:var(--vatra-action-soft);
+}
