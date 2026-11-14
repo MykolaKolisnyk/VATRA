@@ -296,6 +296,14 @@ function start(options={}){
  stop();
  session={id,client:options.client,controller:new AbortController()};
  const menu=document.querySelector(".feed-account-menu");
+ const support=menu?.querySelector(".feed-menu-support");
+ if(support&&!document.querySelector("#vatra-onboarding-replay")){
+  const launch=node("button","vt-feed-onboarding-launch-001",tr("Знайомство з VATRA"));
+  launch.id="vatra-onboarding-replay";launch.type="button";
+  const milestones=node("button","vt-feed-onboarding-progress-001",tr("Мої перші кроки"));
+  milestones.id="vatra-onboarding-tasks";milestones.type="button";
+  support.before(launch,milestones);
+ }
  document.querySelector("#vatra-onboarding-replay")?.addEventListener("click",()=>{
   if(menu)menu.open=false;
   replay();
