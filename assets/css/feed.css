@@ -2917,7 +2917,7 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
   align-content:start!important;row-gap:14px!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
-  grid-row:1 / span 4!important;align-self:start!important
+  grid-row:1!important;align-self:start!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
   grid-row:2!important
