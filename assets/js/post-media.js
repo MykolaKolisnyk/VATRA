@@ -228,7 +228,11 @@
   state={signedURLs:new Map(),version:0};
   signedURLCaches.set(client,state);
   if(typeof client.auth?.onAuthStateChange==="function"){
-   client.auth.onAuthStateChange(()=>{
+   client.auth.onAuthStateChange(event=>{
+    // Supabase emits INITIAL_SESSION immediately after subscription.
+    // It is not an account change; canceling in-flight media here would
+    // hide freshly signed images on the first page load.
+    if(event==="INITIAL_SESSION")return;
     state.version++;
     state.signedURLs.clear();
    });
