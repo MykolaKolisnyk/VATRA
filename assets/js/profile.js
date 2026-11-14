@@ -738,7 +738,7 @@ function missingProfile(state="not-found"){
  }
  const button=q("#profile-avatar-trigger");
  if(button){button.disabled=true;button.setAttribute("aria-label",title);}
- // System avatar rings use fixed state colors, not photo sampling.
+ // System avatar and cover artwork is neutral; account status is conveyed by text.
  q("#profile-status")?.remove();
  q("#profile-last-seen")?.remove();
  q("#profile-online-dot")?.remove();
