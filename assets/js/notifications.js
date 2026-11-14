@@ -301,27 +301,78 @@ function headerUI(){
  window.addEventListener("scroll",positionPanel,{passive:true});
  window.visualViewport?.addEventListener("resize",positionPanel,{passive:true});
 }
-/* Search is shared by every authenticated VATRA screen through this existing
-   client. The RLS on profiles, posts, communities and friend posts is authoritative. */
-async function findSite(term){
- const phrase=String(term||"").trim().slice(0,120);
- if(!client||phrase.length<2)return {people:[],communities:[],posts:[]};
+/* Search is shared by every authenticated VATRA screen. Results include
+   viewer-specific RLS-visible posts, so they MUST NOT go into shared Redis. */
+const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24;
+const siteSearchCaches=new WeakMap();
+const emptySiteSearch=()=>({people:[],communities:[],posts:[]});
+function siteSearchState(viewer){
+ let state=siteSearchCaches.get(viewer);
+ if(state)return state;
+ state={entries:new Map(),generation:0};
+ siteSearchCaches.set(viewer,state);
+ if(typeof viewer.auth?.onAuthStateChange==="function"){
+  viewer.auth.onAuthStateChange(event=>{
+   // INITIAL_SESSION and token refresh leave the effective viewer unchanged.
+   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+   state.generation++;
+   state.entries.clear();
+  });
+ }
+ return state;
+}
+async function querySite(viewer,phrase){
  const escaped=phrase.replace(/[\\%_]/g,ch=>String.fromCharCode(92)+ch);
  const pattern="%"+escaped+"%";
  const requests=[
-  client.from("public_profiles").select("vatra_id,display_name,status_text").ilike("display_name",pattern).limit(4),
-  client.from("public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
-  client.from("communities").select("club_id,name,description").ilike("name",pattern).limit(4),
-  client.from("communities").select("club_id,name,description").ilike("description",pattern).limit(4),
-  client.from("feed_posts").select("id,body,created_at").ilike("body",pattern).is("archived_at",null).limit(4),
-  client.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
+  viewer.from("public_profiles").select("vatra_id,display_name,status_text").ilike("display_name",pattern).limit(4),
+  viewer.from("public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
+  viewer.from("communities").select("club_id,name,description").ilike("name",pattern).limit(4),
+  viewer.from("communities").select("club_id,name,description").ilike("description",pattern).limit(4),
+  viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).is("archived_at",null).limit(4),
+  viewer.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
  ];
  const all=await Promise.allSettled(requests);
+ const cacheable=all.every(r=>r.status==="fulfilled"&&!r.value.error);
  const rows=i=>all[i].status==="fulfilled"&&!all[i].value.error?(all[i].value.data||[]):[];
  const people=[...new Map([...rows(0),...rows(1)].map(x=>[String(x.vatra_id),x])).values()].slice(0,4);
  const communities=[...new Map([...rows(2),...rows(3)].map(x=>[String(x.club_id),x])).values()].slice(0,4);
  const posts=[...rows(4).map(x=>({...x,kind:"person"})),...rows(5).map(x=>({...x,kind:"group"}))].slice(0,5);
- return {people,communities,posts};
+ return {result:{people,communities,posts},cacheable};
+}
+async function findSite(term){
+ const phrase=String(term||"").trim().slice(0,120);
+ const viewer=client;
+ if(!viewer||phrase.length<2)return emptySiteSearch();
+ const state=siteSearchState(viewer),key=phrase.toLocaleLowerCase();
+ const previous=state.entries.get(key);
+ if(previous){
+  if(previous.pending)return previous.pending;
+  if(previous.expires>Date.now()){
+   // Recent queries get LRU priority so only the coldest are evicted.
+   state.entries.delete(key);state.entries.set(key,previous);
+   return previous.result;
+  }
+  state.entries.delete(key);
+ }
+ const generation=state.generation;
+ let pending;
+ pending=querySite(viewer,phrase).then(({result,cacheable})=>{
+  // A signed-out user must not receive results from an earlier session.
+  if(state.generation!==generation)return emptySiteSearch();
+  if(state.entries.get(key)?.pending===pending){
+   state.entries.delete(key);
+   if(cacheable)state.entries.set(key,{result,expires:Date.now()+SITE_SEARCH_TTL_MS});
+  }
+  return result;
+ }).catch(error=>{
+  if(state.entries.get(key)?.pending===pending)state.entries.delete(key);
+  throw error;
+ });
+ state.entries.set(key,{pending,expires:0});
+ while(state.entries.size>SITE_SEARCH_MAX)
+  state.entries.delete(state.entries.keys().next().value);
+ return pending;
 }
 window.VATRA_SITE_SEARCH={search:findSite};
 
