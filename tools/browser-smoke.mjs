@@ -3717,20 +3717,18 @@ try{
    assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),title);
    assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),state);
    assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),state);
-   const expected=state==="deleted"?"rgb(131, 145, 166)":"rgb(214, 95, 107)";
-   const ring=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
-    const sample=()=>getComputedStyle(el,"::before").backgroundColor;
-    const before=sample();el.classList.add("has-active-story");
-    const withStory=sample();el.classList.remove("has-active-story");
-    return {before,withStory};
-   });
-   assert.equal(ring.before,expected,"The "+state+" avatar has its own assigned ring");
-   assert.equal(ring.withStory,expected,"Story must not recolor a system "+state+" ring");
+   const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
+    background:getComputedStyle(el,"::before").backgroundColor,
+    active:el.classList.contains("has-active-story")
+   }));
+   assert.equal(rim.background,"rgb(255, 255, 255)",
+    "All default/system portraits have the same white ring");
+   assert.equal(rim.active,false,"Suspended and deleted accounts cannot have active stories");
    assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
    assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
    assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-    .includes("/assets/avatars/avatar-"+state+".png"),
-    "System state avatar must use the corresponding new PNG");
+    .includes("/assets/avatars/avatar-"+state+".svg"),
+    "System state avatar must use the corresponding neutral SVG");
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
