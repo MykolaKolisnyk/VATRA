@@ -2429,6 +2429,9 @@ try{
  await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
   status:200,contentType:"image/png",body:onePixelPng
  }));
+ // Test-only fake thumbnails must never hit live Supabase Storage.
+ await feedContext.route("**/storage/v1/object/sign/post-images/12/posts/**",route=>
+  route.fulfill({status:200,contentType:"image/png",body:onePixelPng}));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
   route=>route.abort("blockedbyclient"));
@@ -2859,6 +2862,73 @@ try{
    el.remove();
   });
   console.log("VATRA media: deferred video signatures, zero preview MP4 requests, controls retained");
+  // End-to-end: preserve an original PNG and upload a smaller WebP into
+  // the same private bucket, then sign only the WebP while scrolling Feed.
+  const previewFixture=await feedProbe.evaluate(async()=>{
+   const canvas=document.createElement("canvas");
+   canvas.width=960;canvas.height=720;
+   const context=canvas.getContext("2d");
+   const image=context.createImageData(canvas.width,canvas.height);
+   let seed=1839;
+   for(let y=0;y<720;y++)for(let x=0;x<960;x++){
+    seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+    const n=(seed>>>28)-8,i=(y*960+x)*4;
+    image.data[i]=Math.min(255,Math.max(0,Math.round(x*.3+n+50)));
+    image.data[i+1]=Math.min(255,Math.max(0,Math.round(y*.35+n+30)));
+    image.data[i+2]=Math.min(255,Math.max(0,Math.round((x+y)*.12+n+75)));
+    image.data[i+3]=255;
+   }
+   context.putImageData(image,0,0);
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png"));
+   const file=new File([blob],"full-original.png",{type:"image/png"});
+   const calls={uploads:[],signed:[],removes:[]};
+   const client={storage:{from:bucket=>({
+    async upload(path,asset,options){
+     calls.uploads.push({bucket,path,size:asset.size,type:options.contentType});
+     return {error:null};
+    },
+    async createSignedUrl(path){
+     calls.signed.push(path);
+     return {data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/post-images/"+path+"?token=local-preview"},error:null};
+    },
+    async remove(paths){calls.removes.push({bucket,paths});return {error:null};}
+   })}};
+   const [item]=await window.VATRA_POST_MEDIA.uploadGallery(client,"12",[file]);
+   const host=document.createElement("div");host.id="vatra-smoke-webp";document.body.append(host);
+   await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",media_items:[item]},host);
+   window.__vatraWebpFixture={item,calls,client};
+   return {fileSize:file.size,item,uploads:calls.uploads};
+  });
+  assert.ok(previewFixture.fileSize>256*1024,"Test image must qualify for preview encoding");
+  assert.ok(previewFixture.item.preview_path?.endsWith(".webp"),
+   "Large PNG must produce a separate WebP thumbnail");
+  assert.equal(previewFixture.item.media_path.endsWith(".png"),true);
+  assert.equal(previewFixture.uploads.length,2,"Keep full-size original and one thumbnail");
+  assert.ok(previewFixture.uploads[1].size<previewFixture.fileSize*.8,"WebP must be materially smaller");
+  assert.equal(previewFixture.uploads[1].type,"image/webp");
+  await feedProbe.locator("#vatra-smoke-webp .vatra-post-gallery-tile").scrollIntoViewIfNeeded();
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   "#vatra-smoke-webp .vatra-post-gallery-tile")?.classList.contains("is-gallery-ready"));
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
+   [previewFixture.item.preview_path],"Feed should sign only the thumbnail");
+  await feedProbe.locator("#vatra-smoke-webp .vatra-post-gallery-tile").click();
+  await feedProbe.waitForFunction(()=>window.__vatraWebpFixture.calls.signed.includes(
+   window.__vatraWebpFixture.item.media_path));
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraWebpFixture.calls.signed),
+   [previewFixture.item.preview_path,previewFixture.item.media_path],
+   "Opening fullscreen must sign the unmodified original");
+  await feedProbe.keyboard.press("Escape");
+  const removed=await feedProbe.evaluate(async()=>{
+   const {client,item,calls}=window.__vatraWebpFixture;
+   await window.VATRA_POST_MEDIA.removeGallery(client,[item]);
+   document.querySelector("#vatra-smoke-webp")?.remove();
+   return calls.removes;
+  });
+  assert.ok(removed.some(entry=>entry.bucket==="post-images"&&
+   entry.paths.includes(previewFixture.item.preview_path)&&
+   entry.paths.includes(previewFixture.item.media_path)),
+   "Deleting an image also cleans up its preview object");
+  console.log("VATRA WebP: private thumbnail, original-on-click and paired cleanup OK");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
