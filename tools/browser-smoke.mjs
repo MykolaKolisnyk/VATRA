@@ -3735,15 +3735,23 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),"default");
   assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),"default");
   const defaultRing=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
-   const before=getComputedStyle(el,"::before").backgroundColor;
+   const before=getComputedStyle(el,"::before");
+   const rimColor=before.backgroundColor,rendered=before.content!=="none"&&before.display!=="none";
+   const border=getComputedStyle(el.querySelector("#profile-avatar")).borderTopColor;
    el.classList.add("has-active-story");
    const withStory=getComputedStyle(el,"::before").backgroundImage;
    el.classList.remove("has-active-story");
-   return {before,withStory};
+   return {rimColor,rendered,border,withStory,locked:document.body.dataset.profileLocked};
   });
-  assert.equal(defaultRing.before,"rgb(255, 255, 255)");
-  assert.ok(defaultRing.withStory.includes("conic-gradient"),
-   "Even a default avatar receives the gradient ring only during an active story");
+  assert.equal(defaultRing.border,"rgb(255, 255, 255)",
+   "Default portrait must always retain its visible white image border");
+  if(defaultRing.rendered){
+   assert.equal(defaultRing.rimColor,"rgb(255, 255, 255)",
+    "When shown, the default avatar's outer ring must be white");
+   assert.ok(defaultRing.withStory.includes("conic-gradient"),
+    "An enabled default portrait gets the VATRA conic ring with a story");
+  }else assert.equal(defaultRing.locked,"true",
+   "An outer ring may be hidden only for a privacy-locked profile");
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
