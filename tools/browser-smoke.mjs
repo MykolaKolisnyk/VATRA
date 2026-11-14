@@ -2423,6 +2423,12 @@ try{
  await feedContext.route("**/storage/v1/object/public/vatra-*/**",route=>route.fulfill({
   status:200,contentType:"image/png",body:onePixelPng
  }));
+ // The gallery smoke fixture uses /sign/example as a fictional image URL.
+ // Unlike the main context, the gallery runs in feedContext; intercept it here
+ // so HeadlessChrome never creates HTTP 400 / NoSuchBucket production logs.
+ await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
+  status:200,contentType:"image/png",body:onePixelPng
+ }));
  // A click-to-play fixture must not request the real Supabase Storage project.
  await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
   route=>route.abort("blockedbyclient"));
