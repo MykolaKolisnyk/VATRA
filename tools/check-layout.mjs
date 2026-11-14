@@ -1003,6 +1003,20 @@ for(const script of ["assets/js/auth-core.js","assets/js/feed.js","assets/js/lan
 // active route may differ; this guards against CSS/HTML drift between pages.
 const sharedShellPages=["feed","profile","communities","club","notifications","friends","gifts"];
 const interactionsScript=await read("assets/js/post-interactions.js");
+const reactionsVerifiedDelete=[
+ '.select("post_id").maybeSingle()',
+ '.select("liker_id").maybeSingle()',
+ '.select("comment_id").maybeSingle()'
+];
+// A zero-row DELETE must not silently flip saved/liked UI state. This is
+// deliberately checked against the existing module, not an appended style.
+const reactionsSource=await read("assets/js/post-interactions.js");
+assert.ok(reactionsVerifiedDelete.every(part=>reactionsSource.includes(part))&&
+ reactionsSource.includes("stored&&String(result.data?.post_id)")&&
+ reactionsSource.includes("liked&&String(result.data?.liker_id)")&&
+ reactionsSource.includes("ownLiked&&String(result.data?.comment_id)"),
+ "Post likes, comment likes and bookmarks must verify affected DELETE rows");
+
 const profileExtraScript=await read("assets/js/profile.js");
 const scrollRailScript=await read("assets/js/scroll-rail.js");
 assert.ok(interactionsScript.includes('vatra-post-share-dialog')&&
