@@ -787,6 +787,9 @@
    searchForm?.addEventListener("submit",event=>{
     event.preventDefault();
     searchTerm=searchInput.value.trim().slice(0,120);
+    // An explicit search submission is a user-initiated refresh: bypass
+    // any cached Feed cursor even when the search text did not change.
+    invalidateFeedPages(client);
     clearMessage();
     void Promise.allSettled([loadGlobalResults(),loadPosts(true)]);
    });
