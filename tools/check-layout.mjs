@@ -1910,12 +1910,24 @@ assert.ok(
  "VATRA sign-in secondary action and balanced About / Posts profile columns must stay visible");
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
- assert.ok(!feedMarkup.includes('id="vatra-tour-dialog"')&&
-  !feedMarkup.includes("assets/js/onboarding.js")&&
-  !feedMarkup.includes("assets/css/onboarding.css")&&
-  !feedScript.includes("VATRA_ONBOARDING")&&
-  !feedScript.includes("vatra:feed-ready"),
-  "Removed VATRA walkthrough must not be loaded or displayed");
+const onboardingJs=await read("assets/js/onboarding.js");
+const onboardingCss=await read("assets/css/onboarding.css");
+assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
+ feedMarkup.includes('href="assets/css/onboarding.css"')&&
+ onboardingJs.includes('launch.id="vatra-onboarding-replay"')&&
+ onboardingJs.includes('milestones.id="vatra-onboarding-tasks"')&&
+ !feedMarkup.includes('id="vatra-onboarding-replay"')&&
+ feedScript.includes('window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at})')&&
+ feedScript.includes('window.VATRA_ONBOARDING?.stop()')&&
+ onboardingJs.includes('window.VATRA_ONBOARDING={start,stop,replay,openTasks}')&&
+ onboardingJs.includes('vatra.onboarding.v1.member.')&&
+ onboardingJs.includes('MAX_AGE_MS=30*24*60*60*1000')&&
+ onboardingJs.includes('profile_media')&&onboardingJs.includes('community_follows')&&
+ onboardingCss.includes('.vt-tour-spotlight-001')&&
+ onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
+ ["welcome","waiting","success","goodbye","explanation"].every(state=>
+  onboardingJs.includes("vatryk_"+state+".png")),
+ "First-visit Vatryk onboarding must be localized, accessible, per-member and without eager profile API reads");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
@@ -2064,7 +2076,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","post-composer.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");

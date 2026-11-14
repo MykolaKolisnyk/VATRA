@@ -905,6 +905,7 @@
     const {error}=await client.auth.signOut({scope:"local"});
     if(error){button.disabled=false;message(t("Не вдалося вийти. Повторіть спробу.","Could not sign out. Please retry."));return;}
     globalSearchTicket++;globalSearchController?.abort();
+    window.VATRA_ONBOARDING?.stop();
     try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
     window.VATRA_AVATAR?.clearHeader();
     location.replace(new URL("./",location.href).href);
@@ -926,6 +927,7 @@
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
    document.body.classList.remove("vatra-shell-pending");
+   window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at});
    void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
   }catch(_){
    if(document.body.dataset.authReady==="true"){
