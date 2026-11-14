@@ -43,6 +43,8 @@ jobs:
         run: node tools/media-signed-cache-smoke.mjs
       - name: Check presence heartbeat session lifecycle
         run: node tools/presence-lifecycle-smoke.mjs
+      - name: Check presence RLS read cache and sign-out invalidation
+        run: node tools/presence-read-cache-smoke.mjs
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23.x'
