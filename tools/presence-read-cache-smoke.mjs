@@ -120,6 +120,33 @@ assert.equal((await load(a.client,"44")).form,"feminine");
 assert.equal(await load(a.client,"invalid"),null);
 assert.equal(a.calls,8,"Invalid IDs never issue queries");
 
+// A minimal PostgREST mock without abortSignal must still reject stale
+// results after logout. The old result cannot overwrite a new session's row.
+{
+ let auth,reads=0;
+ const resolvers=[];
+ const legacyClient={
+  auth:{onAuthStateChange(callback){auth=callback;}},
+  from(table){
+   assert.equal(table,"profile_presence");
+   return {select(){return {eq(){return {maybeSingle(){
+    reads++;
+    return new Promise(resolve=>resolvers.push(resolve));
+   }};}};}};
+  }
+ };
+ const before=load(legacyClient,"9");
+ assert.equal(reads,1);
+ auth("SIGNED_OUT");
+ const after=load(legacyClient,"9");
+ assert.equal(reads,2);
+ resolvers[1]({data:profile(9,"feminine"),error:null});
+ resolvers[0]({data:profile(9,"masculine"),error:null});
+ assert.equal(await before,null);
+ assert.equal((await after).form,"feminine");
+ assert.equal((await load(legacyClient,"9")).form,"feminine");
+ assert.equal(reads,2);
+}
 // Bounded memory, including a large burst of distinct visited profiles.
 const many=Array.from({length:70},(_,i)=>String(100+i));
 for(const id of many){
