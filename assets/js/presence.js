@@ -99,7 +99,7 @@ async function load(client,targetId){
  const key=String(targetId),state=presenceReadState(client);
  const previous=state.entries.get(key);
  if(previous){
-  if(previous.pending)return previous.pending;
+  if(previous.pending)return previous.pending.then(value=>value?{...value}:null);
   if(previous.expires>Date.now()){
    state.entries.delete(key);state.entries.set(key,previous);
    return previous.value?{...previous.value}:null;
