@@ -74,13 +74,72 @@ function start(client,ownId,gender){
  })();
  return state.promise;
 }
+// RLS-protected presence belongs to a single Supabase client/session.
+// Reuse only overlapping reads and a short snapshot; live status is always
+// recalculated by format(), and profile polling still refreshes every 2 min.
+const PRESENCE_READ_TTL_MS=8_000,PRESENCE_MISSING_TTL_MS=3_000,PRESENCE_CACHE_MAX=64;
+const presenceReadCaches=new WeakMap();
+function presenceReadState(client){
+ let state=presenceReadCaches.get(client);
+ if(state)return state;
+ state={entries:new Map(),generation:0};
+ presenceReadCaches.set(client,state);
+ if(typeof client.auth?.onAuthStateChange==="function"){
+  client.auth.onAuthStateChange(event=>{
+   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+   state.generation++;
+   for(const entry of state.entries.values())entry.controller?.abort();
+   state.entries.clear();
+  });
+ }
+ return state;
+}
 async function load(client,targetId){
  if(!client||!validId(targetId))return null;
- try{
-  const {data,error}=await client.from("profile_presence")
-   .select("last_seen_at,form").eq("vatra_id",targetId).maybeSingle();
-  return error?null:data||null;
- }catch(_){return null;}
+ const key=String(targetId),state=presenceReadState(client);
+ const previous=state.entries.get(key);
+ if(previous){
+  if(previous.pending)return previous.pending;
+  if(previous.expires>Date.now()){
+   state.entries.delete(key);state.entries.set(key,previous);
+   return previous.value?{...previous.value}:null;
+  }
+  state.entries.delete(key);
+ }
+ const generation=state.generation;
+ const controller=new AbortController();
+ const entry={pending:null,controller,expires:0,value:null};
+ const request=(async()=>{
+  try{
+   let query=client.from("profile_presence")
+    .select("last_seen_at,form").eq("vatra_id",key).maybeSingle();
+   if(typeof query.abortSignal==="function")query=query.abortSignal(controller.signal);
+   const {data,error}=await query;
+   if(controller.signal.aborted||state.generation!==generation||error)return null;
+   const record=data?{last_seen_at:data.last_seen_at,form:data.form}:null;
+   if(state.entries.get(key)===entry){
+    state.entries.delete(key);
+    state.entries.set(key,{value:record,expires:Date.now()+
+     (record?PRESENCE_READ_TTL_MS:PRESENCE_MISSING_TTL_MS)});
+    while(state.entries.size>PRESENCE_CACHE_MAX)
+     state.entries.delete(state.entries.keys().next().value);
+   }
+   return record?{...record}:null;
+  }catch(_){return null;}
+  finally{
+   // An old request must never delete a newer viewer's cached result.
+   if(state.entries.get(key)===entry)state.entries.delete(key);
+  }
+ })();
+ entry.pending=request;
+ state.entries.set(key,entry);
+ while(state.entries.size>PRESENCE_CACHE_MAX){
+  const oldest=state.entries.keys().next().value;
+  const expired=state.entries.get(oldest);
+  expired.controller?.abort();
+  state.entries.delete(oldest);
+ }
+ return request;
 }
 function format(record,english=false){
  const date=record?.last_seen_at?new Date(record.last_seen_at):null;
