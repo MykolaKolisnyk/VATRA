@@ -377,19 +377,9 @@ try{
    "English login heading must remain translated");
  console.log("VATRA language picker, search, cookies and tab reopen: OK");
  await reopened.evaluate(()=>{console.warn("VATRA-browser-smoke-warning");console.error("VATRA-browser-smoke-error");});
- const warning=reopened.locator(".vatra-error-toast--warning").filter({hasText:"VATRA-browser-smoke-warning"});
- const error=reopened.locator(".vatra-error-toast:not(.vatra-error-toast--warning)").filter({hasText:"VATRA-browser-smoke-error"});
- await warning.waitFor({state:"visible"});
- await error.waitFor({state:"visible"});
- const colors=await reopened.evaluate(()=>{
-  const one=document.querySelector(".vatra-error-toast--warning");
-  const other=[...document.querySelectorAll(".vatra-error-toast")].find(x=>!x.classList.contains("vatra-error-toast--warning"));
-  return [getComputedStyle(one).borderLeftColor,getComputedStyle(other).borderLeftColor];
- });
- assert.notEqual(colors[0],colors[1],"Console warnings and errors need distinct colors");
- await warning.waitFor({state:"detached",timeout:9000});
- await error.waitFor({state:"detached",timeout:9000});
- console.log("VATRA warning/error styling and auto-dismiss: OK");
+ assert.equal(await reopened.locator(".vatra-error-toast").count(),0,
+  "Console diagnostics must not surface as in-app notifications");
+ console.log("VATRA console stays in DevTools: OK");
  await reopened.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(reopened);
  const helps=reopened.locator(".create-account-help");
@@ -2004,15 +1994,13 @@ try{
 
  // Multi-engine responsive audit. All network calls for Auth are mocked:
  // screenshots and interactions must never create production users or emails.
- // Keep real warning reports: only the benign Playwright SW diagnostic is filtered.
+ // Console warnings must not surface as app toasts in any browser.
  const warnPage=await context.newPage();
  await warnPage.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
  await waitReady(warnPage);
- await warnPage.evaluate(()=>console.warn("Service Worker registration blocked by Playwright"));
+ await warnPage.evaluate(()=>console.warn("VATRA audit: warning stays in DevTools"));
  assert.equal(await warnPage.locator(".vatra-error-toast").count(),0,
-  "Playwright-specific service-worker warning must not obscure VATRA forms");
- await warnPage.evaluate(()=>console.warn("VATRA audit: actionable warning"));
- await warnPage.locator(".vatra-error-toast").waitFor({state:"visible"});
+  "Browser warnings must not obscure VATRA forms");
  await warnPage.close();
 
  // Saved-account state is an optional display-only local choice. It must
