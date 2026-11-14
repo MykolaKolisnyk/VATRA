@@ -39,6 +39,52 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
+ // Simulate previously cached stylesheet/JS content after a deployment.
+ // This isolated context enables the actual Service Worker (other tests block it).
+ const swContext=await browser.newContext({serviceWorkers:"allow"});
+ try{
+  const swProbe=await swContext.newPage();
+  await swProbe.goto(base+"offline.html",{waitUntil:"load"});
+  await swProbe.evaluate(async()=>{
+   await navigator.serviceWorker.register(new URL("sw.js",location.href),{
+    scope:"/VATRA/",updateViaCache:"none"
+   });
+   await navigator.serviceWorker.ready;
+   if(!navigator.serviceWorker.controller){
+    await new Promise((resolve,reject)=>{
+     const timeout=setTimeout(()=>reject(Error("SW did not claim page")),10000);
+     navigator.serviceWorker.addEventListener("controllerchange",()=>{
+      clearTimeout(timeout);resolve();
+     },{once:true});
+    });
+   }
+  });
+  const paths=["assets/css/base.css","assets/css/profile.css","assets/js/avatar.js"];
+  const fresh=await swProbe.evaluate(async paths=>{
+   const cache=await caches.open("vatra-offline-shell-v55");
+   for(const path of paths)await cache.put(new URL(path,location.origin+"/VATRA/"),
+    new Response("/* stale-vatra-build */",{headers:{"Content-Type":"text/plain"}}));
+   const texts=await Promise.all(paths.map(async path=>
+    (await fetch(new URL(path,location.origin+"/VATRA/"))).text()));
+   const cached=await Promise.all(paths.map(async path=>
+    (await cache.match(new URL(path,location.origin+"/VATRA/"))).text()));
+   return {texts,cached};
+  },paths);
+  assert.ok(fresh.texts.every(s=>!s.includes("stale-vatra-build"))&&
+   fresh.texts[0].includes("--vatra-default-avatar")&&
+   fresh.texts[1].includes(".social-profile-tab-active")&&
+   fresh.texts[2].includes("VATRA_AVATAR")&&
+   fresh.cached.every((s,i)=>s===fresh.texts[i]),
+   "Live CSS/JS must supersede stale Cache Storage assets");
+  await swContext.setOffline(true);
+  const offlineStyle=await swProbe.evaluate(async()=>
+   (await fetch("/VATRA/assets/css/base.css")).text());
+  assert.ok(offlineStyle.includes("--vatra-default-avatar"),
+   "After revalidation, CSS must remain available while offline");
+  await swContext.setOffline(false);
+  await swProbe.close();
+  console.log("VATRA Service Worker: current UI assets plus offline fallback verified");
+ }finally{await swContext.close();}
  // Verify actual image pixels: a neutral cover must be visually separated from
  // the nearly-white page background, not simply rely on a distinct SVG filename.
  const coverContrastPage=await context.newPage();

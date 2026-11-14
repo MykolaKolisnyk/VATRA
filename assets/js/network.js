@@ -22,7 +22,24 @@
   window.addEventListener("online",update);
   update();
   if("serviceWorker" in navigator&&window.isSecureContext&&location.protocol!=="file:"){
-   navigator.serviceWorker.register(new URL("sw.js",projectBase).href,{scope:projectBase.pathname}).catch(()=>{});
+   const worker=navigator.serviceWorker;
+   // Refresh a previously controlled page when updated code takes over.
+   // Never discard input edits or an open dialog during this transition.
+   if(worker.controller){
+    let edited=false;
+    const recordEdit=event=>{
+     if(event.target?.closest?.("input,textarea,[contenteditable]"))edited=true;
+    };
+    document.addEventListener("input",recordEdit,true);
+    document.addEventListener("change",recordEdit,true);
+    worker.addEventListener("controllerchange",()=>{
+     if(!navigator.onLine||edited||document.querySelector("dialog[open]"))return;
+     location.reload();
+    },{once:true});
+   }
+   worker.register(new URL("sw.js",projectBase).href,{
+    scope:projectBase.pathname,updateViaCache:"none"
+   }).catch(()=>{});
   }
  });
 })();

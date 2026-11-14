@@ -342,8 +342,11 @@ for(const match of languageSection.matchAll(/\["[a-z]+","[^"]+","[^"]+","([a-z]+
  assert.ok(flagSymbols.has(match[1]),"Flag SVG missing for "+match[1]);
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
  "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
-assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)'),
- "Service worker must be registered relative to the current site");
+assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)')&&
+ network.includes('updateViaCache:"none"')&&
+ network.includes('worker.addEventListener("controllerchange"')&&
+ network.includes('if(!navigator.onLine||edited||document.querySelector("dialog[open]"))return'),
+ "SW updates should refresh unedited pages without a hard reload");
 assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
  offline.includes('class="offline-brand ui-offline-brand-001"')&&
  offline.includes('class="offline-actions ui-offline-actions-001"')&&
@@ -1639,8 +1642,11 @@ assert.ok(
  interactionsScript.includes('const hydrateSaved=()=>{')&&
  notificationPerfScript.includes('period=subscribed?300000:60000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
- workerPerfScript.includes('const existing=await cache.match(url.pathname)')&&
- workerPerfScript.includes('if(existing)return existing;'),
+ workerPerfScript.includes('const CACHE="vatra-offline-shell-v55"')&&
+ workerPerfScript.includes('fetch(request,{cache:"no-cache"})')&&
+ workerPerfScript.includes('cache.match(request)')&&
+ workerPerfScript.includes('const staticAsset=url.pathname.startsWith(ROOT+"assets/")')&&
+ !workerPerfScript.includes('if(existing)return existing;'),
  "Optimized media batching, bounded caches and idle query throttling must remain intact");
 
 // Blocking is a real member-scoped Supabase relation. Restricted viewers
