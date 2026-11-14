@@ -339,6 +339,21 @@ body.feed-page .vt-feed-post-media-open-001{
  background:transparent;cursor:zoom-in;overflow:hidden
 }
 body.feed-page .vt-feed-post-media-open-001:focus-visible{outline:3px solid #6d76eb;outline-offset:-3px}
+/* Media stays entirely local until someone chooses to play a video. */
+body.feed-page .vt-feed-post-video-play-001{
+ display:flex;align-items:center;justify-content:center;gap:13px;
+ width:100%;min-height:clamp(180px,30vw,360px);padding:24px;
+ border:0;border-radius:0;background:#e8edf5;color:#365b9f;cursor:pointer;
+ font:650 15px/1.5 "Onest",system-ui,sans-serif
+}
+body.feed-page .vt-feed-post-video-play-icon-001{
+ box-sizing:content-box;width:28px;height:28px;padding:10px;
+ border-radius:50%;background:#365b9f;color:#fff;flex:none
+}
+body.feed-page .vt-feed-post-video-play-001:focus-visible{
+ outline:3px solid #6d76eb;outline-offset:-3px
+}
+body.feed-page .vt-feed-post-video-play-001:disabled{cursor:progress;opacity:.8}
 body.feed-page .vt-feed-post-video-expand-001{
  margin:8px 10px 10px;padding:8px 13px;border:1px solid #dce5f5;
  border-radius:9px;background:#fff;color:#365b9f;cursor:pointer;
