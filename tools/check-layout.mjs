@@ -1693,7 +1693,7 @@ assert.ok(
  systemProfileCss.includes('.profile-left-stack{')&&
  systemProfileCss.includes('gap:14px;min-width:0')&&
  systemProfileCss.includes('gap:16px;align-items:start')&&
- systemProfileCss.includes('box-sizing:border-box;margin-top:0')&&
+ systemProfileCss.includes('margin:0;box-sizing:border-box')&&
  systemProfileCss.includes('gap:10px;text-align:center;padding:28px 20px;margin-top:0;'),
  "Feed cards, profile stacks and restricted states share compact spacing");
 
