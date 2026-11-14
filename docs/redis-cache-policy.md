@@ -19,8 +19,10 @@ VATRA's Redis caches contain only minimal public data:
   This Edge endpoint requires a verified user JWT and uses caller RLS.
 - **Browser-only short caches**: public names for 90 seconds per Supabase client (missing names for 15 seconds, overlapping requests deduplicated and cleared on sign-in/sign-out); per-viewer
   post engagement for 3 seconds with write invalidation; Storage signed
-  media URLs in limited memory until shortly before expiry. These are not
-  shared Redis keys.
+  media URLs in limited memory until shortly before expiry. The authenticated
+  site-wide live-search also reuses identical queries for 8 seconds (maximum
+  24 search terms per Supabase client), with immediate invalidation on account
+  changes and no caching of failed RLS queries. These are not shared Redis keys.
 - Searches, member follows, feed, private posts, blocks, friendships, saves,
   notifications, sessions, authentication tokens, password-reset codes and
   private messages are **never** put into a shared Redis cache
