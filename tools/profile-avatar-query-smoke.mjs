@@ -18,7 +18,8 @@ assert.ok(profile.includes("const preloadedMedia=isMine?ownHeaderMedia:"),
 assert.ok(profile.includes("window.VATRA_AVATAR?.invalidatePath?.(client,ownId);"),
  "Successful avatar replacement must invalidate its cached path");
 
-let fromCalls=0,sharedCalls=0,directCalls=0;
+let fromCalls=0,sharedCalls=0,namesCalls=0,statesCalls=0;
+const nameBatches=[],stateBatches=[],pathBatches=[];
 const pathsStart=avatar.indexOf("const PATH_TTL_MS=15_000");
 const pathsEnd=avatar.indexOf("function safeUrl(input){",pathsStart);
 assert.ok(pathsStart>0&&pathsEnd>pathsStart,"Find real shared avatar path cache");
@@ -53,12 +54,21 @@ const context={
  validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
  t:uk=>uk,
  window:{
-  VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>({data:ids.map(id=>({
-   vatra_id:id,display_name:"Person "+id
-  })),error:null})},
+  VATRA_PUBLIC_NAMES:{get:async(_client,ids)=>{
+   namesCalls++;nameBatches.push([...ids]);
+   // Simulate the shared helper's bounded input to reveal any truncation.
+   return {data:ids.slice(0,120).map(id=>({
+    vatra_id:id,display_name:"Person "+id
+   })),error:null};
+  }},
   VATRA_AVATAR:{
-   paths(...args){sharedCalls++;return cachedPaths.paths(...args);},
-   states:async()=>new Map([["4","deleted"]])
+   paths(...args){sharedCalls++;pathBatches.push([...args[1]]);return cachedPaths.paths(...args);},
+   states:async(_client,ids)=>{
+    statesCalls++;stateBatches.push([...ids]);
+    const states=new Map([["4","deleted"],["213","deleted"],["214","blocked"]]);
+    return new Map(ids.slice(0,100).filter(id=>states.has(String(id)))
+     .map(id=>[String(id),states.get(String(id))]));
+   }
   }
  }
 };
@@ -76,14 +86,29 @@ assert.equal(first[2].name,"Акаунт видалено");
 await context.resolveFriends(short);
 assert.equal(sharedCalls,2);
 assert.equal(fromCalls,1,"Full friend list must reuse recently cached avatar metadata");
-const large=Array.from({length:120},(_,i)=>({requester_id:1,recipient_id:i+10}));
+// Three full batches ensure names and safety-critical account states reach
+// members beyond the first 100, including the last five friend IDs.
+const large=Array.from({length:205},(_,i)=>({requester_id:1,recipient_id:i+10}));
 const all=await context.resolveFriends(large);
-assert.equal(all.length,120);
-assert.equal(fromCalls,2,"More than 100 friends must retain a single untruncated query");
-assert.equal(sharedCalls,2,"Avoid shared cache's 100-ID truncation for large lists");
+assert.equal(all.length,205,"Every friend must be returned");
+assert.equal(fromCalls,4,"Use one shared avatar query per bounded batch");
+assert.equal(sharedCalls,5,"Even a 205-person list must use the shared path cache");
+assert.equal(namesCalls,5,"Public names use the same bounded batches");
+assert.equal(statesCalls,5,"Account states must be loaded for every friend");
+assert.deepEqual(nameBatches.slice(2).map(ids=>ids.length),[100,100,5]);
+assert.deepEqual(stateBatches.slice(2).map(ids=>ids.length),[100,100,5]);
+assert.deepEqual(pathBatches.slice(2).map(ids=>ids.length),[100,100,5]);
+assert.equal(all[204].name,"Акаунт заблоковано");
+assert.equal(all[204].state,"blocked");
+assert.equal(all[204].avatar,null,"Blocked member at the end must not expose a portrait");
+assert.equal(all[203].name,"Акаунт видалено");
+assert.equal(all[203].state,"deleted");
+assert.equal(all[203].avatar,null,"Deleted member at the end must not expose a portrait");
+assert.equal(all[202].name,"Person 212");
+assert.equal(all[202].avatar,"https://test.invalid/212/avatar/portrait.webp");
 cachedPaths.invalidatePath(client,"2");
 await context.resolveFriends(short);
-assert.equal(fromCalls,3,"Avatar replacements must re-fetch invalidated metadata");
+assert.equal(fromCalls,5,"Avatar replacements must re-fetch invalidated metadata");
 
 let ownQueries=0,headerCalls=[];
 const ownClient={from(table){
@@ -115,4 +140,4 @@ assert.equal(headerCalls.length,1);
 assert.equal(headerCalls[0][3],"18/avatar/profile.webp");
 assert.ok((await ownEnv.loadOwnerMedia(ownClient,"bad","invalid@example.invalid")).error);
 assert.equal(ownQueries,1,"Invalid IDs cannot hit the database");
-console.log("VATRA profile media: cached friend previews, safe large-list fallback, owner request reuse and invalidation passed.");
+console.log("VATRA profile media: bounded 205-friend batching, deleted/blocked avatar safety, owner reuse and cache invalidation passed.");
