@@ -148,4 +148,37 @@ await new Promise(resolve=>setImmediate(resolve));
 assert.equal(queries.length,2,"Concurrent panel refreshes must coalesce to at most two queries");
 assert.deepEqual(writes,[shown.map(row=>row.id)],
  "The drawer must acknowledge exactly the six visible unread notifications");
-console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, six-row acknowledgment passed.");
+// Slow full-inbox reads must not render notifications from a previous viewer.
+const fullInbox=section("async function pageLoad(append=false){","function pageUI(){");
+let finishOld;
+const fullList={children:[],replaceChildren(...entries){this.children=entries;},
+ append(node){this.children.push(node);},setAttribute(){}};
+const fullEmpty={hidden:true,textContent:""};
+const fullMore={hidden:true,disabled:false};
+let oldAuthors=0;
+const fullCtx={
+ Promise,Array,Set,Map,Date,
+ pick:selector=>selector==="#notifications-list"?fullList:
+  selector==="#notifications-empty"?fullEmpty:fullMore,
+ fetchRows:()=>new Promise(resolve=>{finishOld=resolve;}),
+ authorNames:async()=>{oldAuthors++;return {names:new Map(),avatars:new Map(),states:new Map()};},
+ createRow:()=>({id:"stale"}),t:uk=>uk,
+};
+runInNewContext(`
+let notificationRun={id:"12",client:{}},sectionPage=0,sectionLoading=false;
+let sectionFilter="all",sectionSort="new";
+const pick=globalThis.pick,fetchRows=globalThis.fetchRows;
+const authorNames=globalThis.authorNames,createRow=globalThis.createRow,t=globalThis.t;
+${fullInbox}
+globalThis.inboxTest={
+ pageLoad,
+ switchAccount(){notificationRun={id:"13",client:{}};sectionLoading=false;}
+};
+`,fullCtx);
+const readingOld=fullCtx.inboxTest.pageLoad(false);
+fullCtx.inboxTest.switchAccount();
+finishOld({rows:[{id:"old-notice",actor_vatra_id:"12"}],hasNext:false});
+await readingOld;
+assert.equal(fullList.children.length,0,"Old-account inbox content must not reappear");
+assert.equal(oldAuthors,0,"Do not fetch author details after a viewer change");
+console.log("VATRA notifications: in-flight coalescing, session teardown, no stale badge, six-row acknowledgment and stale full-inbox protection passed.");
