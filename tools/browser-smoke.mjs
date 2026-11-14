@@ -2593,12 +2593,14 @@ try{
    const rail=document.querySelector(".vatra-scroll-rail");
    return {underlineBottom:nav.bottom-parseFloat(line.bottom||"0"),
     headerBottom:header.bottom,underlineColor:line.backgroundColor,
+    underlineHeight:parseFloat(line.height),
     portrait:portrait.width,adBorder:adStyle.borderTopWidth,
     adShadow:adStyle.boxShadow,adBackground:adStyle.backgroundColor,
     railTop:Number.parseFloat(rail.style.getPropertyValue("--vatra-rail-top"))};
   });
   assert.ok(Math.abs(shellPolish.underlineBottom-shellPolish.headerBottom)<=2&&
    shellPolish.underlineColor==="rgb(36, 100, 215)"&&
+   shellPolish.underlineHeight===3&&
    shellPolish.portrait<=35&&shellPolish.adBorder==="0px"&&
    shellPolish.adShadow==="none"&&
    shellPolish.adBackground==="rgba(0, 0, 0, 0)"&&
@@ -2922,8 +2924,8 @@ try{
    "Inactive top navigation icons must share the same muted color");
   assert.equal(searchStyles.activeColor,"rgb(36, 100, 215)",
    "Active header navigation uses the same blue as login");
-  assert.equal(searchStyles.activeBackground,"rgb(234, 241, 255)",
-   "Active header navigation shares the auth-blue soft selection");
+  assert.equal(searchStyles.activeBackground,"rgba(0, 0, 0, 0)",
+   "Active header item must remain unfilled; only the icon and underline turn blue");
   await feedProbe.evaluate(()=>{
    localStorage.setItem("vatra.search.history.v1",JSON.stringify(
     Array.from({length:12},(_,i)=>"VATRA запит "+(12-i))));
@@ -3943,6 +3945,18 @@ try{
   });
   assert.deepEqual(unifiedEmptyIcons,{about:[52,52],friends:[52,52]},
    "Empty About and Friends blocks must use identical 52px icon containers");
+  const selectedTab=profilePage.locator(".social-profile-tab-active").first();
+  const tabStyle=await selectedTab.evaluate(el=>{
+   const style=getComputedStyle(el),line=getComputedStyle(el,"::after");
+   return {color:style.color,background:style.backgroundColor,
+    lineColor:line.backgroundColor,lineHeight:parseFloat(line.height)};
+  });
+  assert.deepEqual(tabStyle,{color:"rgb(36, 100, 215)",
+   background:"rgba(0, 0, 0, 0)",lineColor:"rgb(36, 100, 215)",lineHeight:3},
+   "Profile tab must show blue text plus a 3px line without fill");
+  await selectedTab.hover();
+  assert.equal(await selectedTab.evaluate(el=>getComputedStyle(el).backgroundColor),
+   "rgba(0, 0, 0, 0)","Selected tab hover must remain transparent");
   const defaultBorder=await profilePage.locator("#profile-avatar").evaluate(el=>
    getComputedStyle(el).borderTopColor);
   assert.equal(defaultBorder,"rgb(255, 255, 255)",

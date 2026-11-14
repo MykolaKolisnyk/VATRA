@@ -15,8 +15,8 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
 .feed-title-row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:4px 5px 6px}
 .feed-title{margin:0;color:var(--ink);font-size:clamp(29px,3.2vw,38px);line-height:1.2;font-weight:780;letter-spacing:-.045em}.feed-post-card,.feed-empty{border:1px solid #e0e7f5;border-radius:23px;background:#fff;box-shadow:0 16px 40px rgba(35,58,113,.045)}
 .feed-avatar{display:grid;place-items:center;flex:none;border-radius:50%;color:#fff;background:var(--vatra-avatar-gradient);font-weight:800}
-.feed-submit{min-width:154px;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:linear-gradient(110deg,#2865d8,#436ce8);box-shadow:0 8px 22px rgba(43,96,212,.16);color:#fff;font-weight:750;font-size:14px;transition:transform .17s,box-shadow .17s}
-.feed-submit:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 12px 25px rgba(43,96,212,.25)}
+.feed-submit{min-width:154px;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:var(--vatra-action-primary);box-shadow:0 8px 22px rgba(43,96,212,.16);color:#fff;font-weight:750;font-size:14px;transition:transform .17s,box-shadow .17s}
+.feed-submit:hover:not(:disabled){background:var(--vatra-action-primary-hover);transform:translateY(-1px);box-shadow:0 12px 25px rgba(43,96,212,.25)}
 .feed-submit:disabled,.feed-more:disabled{opacity:.6;cursor:wait}
 .feed-status{padding:13px 16px;margin:0;border:1px solid #c4dcf9;border-radius:13px;background:#f2f7ff;color:#27538d;font-size:13px}
 .feed-status[data-kind="error"]{background:#fff3f5;border-color:#efccd2;color:#a32a40}
@@ -209,6 +209,7 @@ body.feed-page:not(.community-page) .feed-submit{
  box-shadow:none;transition:transform .18s,box-shadow .18s
 }
 body.feed-page:not(.community-page) .feed-submit:not(:disabled):hover{
+ background:var(--vatra-action-primary-hover);
  transform:translateY(-1px);box-shadow:0 7px 16px rgba(43,100,213,.17)
 }
 body.feed-page:not(.community-page) .feed-submit:disabled{opacity:.53;cursor:not-allowed}
@@ -716,7 +717,7 @@ body.community-page .club-compose-actions button{
 }
 body.feed-page .vt-feed-compose-save-001,
 body.feed-page .vt-feed-story-save-001,
-body.community-page .vt-club-compose-save-001{border-color:transparent!important;background:#376de0!important;color:#fff!important}
+body.community-page .vt-club-compose-save-001{border-color:transparent!important;background:var(--vatra-action-primary)!important;color:#fff!important}
 body.feed-page .feed-story-view{
  width:min(94vw,390px);min-height:475px;max-height:85dvh;overflow:auto;
  padding:25px;border:1px solid #e2e8f4;border-radius:16px;background:linear-gradient(140deg,#4063c7,#9463ba);
@@ -992,19 +993,18 @@ body.feed-page .social-top-link span{
 }
 body.feed-page .social-top-link:hover,
 body.feed-page .social-top-link:focus-visible{
- color:#3769d9;background:#f5f7fc;transform:translateY(-1px)
+ color:var(--vatra-action-ink);background:var(--vatra-action-soft);transform:translateY(-1px)
 }
 body.feed-page .social-top-link:hover svg{transform:scale(1.055)}
 body.feed-page .social-top-link.social-top-active{
- background:transparent!important
+ color:var(--vatra-action-ink);background:transparent!important
 }
 /* A single neutral icon ink across all VATRA destinations; the bottom line alone marks selection. */
 body.feed-page .social-top-link,
-body.feed-page .social-top-link.social-top-active,
 body.feed-page .feed-header-icon-button{color:#7183a2}
 body.feed-page .social-top-link.social-top-active::after{
  content:"";position:absolute;bottom:-1px;left:13px;right:13px;z-index:2;
- height:2px;border-radius:2px 2px 0 0;background:#8396b6
+ height:3px;border-radius:3px 3px 0 0;background:var(--vatra-action-ink)
 }
 body.feed-page .social-top-link:focus-visible{outline:3px solid #a9c2f7;outline-offset:1px}
 body.feed-page .feed-header-controls{
@@ -1020,7 +1020,7 @@ body.feed-page .feed-header-icon-button:disabled{
 }
 body.feed-page .feed-header-icon-button:hover,
 body.feed-page .feed-header-icon-button:focus-visible{
- color:#356ae0;background:#edf3ff;border-color:#d7e4ff;transform:translateY(-1px)
+ color:var(--vatra-action-ink);background:var(--vatra-action-soft);border-color:#d7e4ff;transform:translateY(-1px)
 }
 body.feed-page .feed-header-icon-button svg{width:22px;height:22px;stroke-width:1.8;shape-rendering:geometricPrecision}
 body.feed-page .feed-account-menu{position:relative;z-index:2;flex:none}
@@ -2021,6 +2021,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-
  background:var(--vatra-action-primary);color:#fff;
  font:750 13px "Onest",system-ui,sans-serif;cursor:pointer
 }
+.vatra-post-share-dialog .vt-vatra-post-share-profile-001:hover:not(:disabled){background:var(--vatra-action-primary-hover)}
 .vatra-post-share-dialog .vt-vatra-post-share-profile-001:disabled{opacity:.6}
 .vatra-post-share-dialog .vt-vatra-post-share-dialog-error-001{margin:0;color:#b64f64;font-size:12px}
 .vatra-post-share-lower{display:flex;flex-wrap:wrap;gap:11px;padding-top:13px;border-top:1px solid #eaf0f7}
@@ -2984,32 +2985,4 @@ body.community-page .vt-club-posts-empty-001:not([hidden]){
  body.feed-page:not(.profile-page):not(.community-page){
   --vatra-content-card-gap:12px;
  }
-}
-
-/* AUTH PALETTE: All interactive states reuse the login / signup blue tokens.
-   Content artwork and Story themes deliberately retain their own colors. */
-body.feed-page .social-top-link.social-top-active{
- color:var(--vatra-action-ink)!important;
- background:var(--vatra-action-selected)!important;
-}
-body.feed-page .social-top-link.social-top-active::after{
- background:var(--vatra-action-ink)!important;
-}
-body.feed-page .social-top-link:not(.social-top-active):is(:hover,:focus-visible){
- color:var(--vatra-action-ink)!important;
- background:var(--vatra-action-soft)!important;
-}
-body.feed-page .social-top-link.social-top-active:is(:hover,:focus-visible){
- color:var(--vatra-action-hover-ink)!important;
- background:var(--vatra-action-soft)!important;
-}
-body.feed-page .feed-header-icon-button:is(:hover,:focus-visible){
- color:var(--vatra-action-ink)!important;
- background:var(--vatra-action-soft)!important;
-}
-body.feed-page :is(.feed-submit,.vt-vatra-post-share-profile-001,.vt-feed-story-save-001,.vt-club-compose-save-001):not(:disabled){
- background:var(--vatra-action-primary)!important;color:#fff;
-}
-body.feed-page :is(.feed-submit,.vt-vatra-post-share-profile-001,.vt-feed-story-save-001,.vt-club-compose-save-001):not(:disabled):hover{
- background:var(--vatra-action-primary-hover)!important;
 }
