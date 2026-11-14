@@ -1056,9 +1056,10 @@ assert.ok(notificationMarkup.includes('data-page="notifications"')&&
  notificationMarkup.includes('id="notifications-sort"')&&
  notificationScript.includes('member_notifications')&&
  notificationScript.includes('vatra-notification-count')&&
- notificationScript.includes('opts={page:0,size:6}')&&
+ notificationScript.includes('{page:0,size:6},panelLoad')&&
  notificationScript.includes('pageLoad(false)')&&
- notificationScript.includes('client.channel(')&&
+ notificationScript.includes('c.channel("vatra-notices-"+run.id)')&&
+ notificationScript.includes('run.client.from("member_notifications")')&&
  (await read("feed.html")).includes('ui-feed-filter-all-icon-001')&&
  (await read("feed.html")).includes('ui-feed-empty-document-icon-001'),
  "VATRA notifications must include the private inbox and six-item header preview");
