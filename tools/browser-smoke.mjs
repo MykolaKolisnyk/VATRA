@@ -39,6 +39,31 @@ try{
  // Do not contact Supabase during purely visual tests or create real accounts.
  await context.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({status:200,contentType:"text/javascript",body:"window.supabase={createClient:()=>({auth:{getUser:async()=>({data:{user:null},error:null})}})};"}));
  const waitReady=page=>page.waitForFunction(()=>document.body?.dataset.authReady==="true",null,{timeout:12000});
+ // Verify actual image pixels: a neutral cover must be visually separated from
+ // the nearly-white page background, not simply rely on a distinct SVG filename.
+ const coverContrastPage=await context.newPage();
+ await coverContrastPage.goto(base+"terms",{waitUntil:"domcontentloaded"});
+ const coverContrast=await coverContrastPage.evaluate(async url=>{
+  const img=new Image();img.src=url;await img.decode();
+  const canvas=document.createElement("canvas");
+  canvas.width=600;canvas.height=180;
+  const ctx=canvas.getContext("2d",{willReadFrequently:true});
+  ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  return [.15,.5,.85].map(position=>{
+   const data=ctx.getImageData(Math.round(canvas.width*position),90,1,1).data;
+   const rgb=[data[0],data[1],data[2]];
+   const distance=rgb.reduce((sum,channel,index)=>
+    sum+Math.abs(channel-[244,246,251][index]),0)/3;
+   return {rgb,distance};
+  });
+ },base+"assets/covers/cover-default.svg");
+ await coverContrastPage.close();
+ assert.ok(coverContrast.every(sample=>sample.distance>=22)&&
+  coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
+  "Default profile cover must remain perceptibly distinct from page background: "+
+   JSON.stringify(coverContrast));
+ console.log("VATRA neutral cover: rendered blue/lilac contrast against page background OK");
+
 
  // Verify the rendered spacing, not only a CSS string: empty list wrappers
  // previously doubled the gap while a populated list used only one gap.

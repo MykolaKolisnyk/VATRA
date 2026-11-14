@@ -1701,6 +1701,15 @@ assert.equal(plainAvatarSvg,missingAvatarSvg,
  "Empty and nonexistent profiles must render identical neutral avatars");
 assert.equal(plainCoverSvg,missingCoverSvg,
  "Empty and nonexistent profiles must render identical neutral covers");
+assert.ok(
+ plainCoverSvg.includes('stop-color="#9db8d7"')&&
+ plainCoverSvg.includes('stop-color="#b3c9e2"')&&
+ plainCoverSvg.includes('stop-color="#ddc9dd"')&&
+ plainCoverSvg.includes('fill="#5f88b2" opacity=".18"')&&
+ systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
+ systemProfileCss.includes("background:linear-gradient(105deg,#9db8d7")&&
+ systemProfileCss.includes('.profile-cover.has-photo{'),
+ "Standard cover must be clearly distinguishable from the page background, share one richer blue/lilac palette, and leave user photos alone");
 assert.ok(!plainAvatarSvg.includes("<clipPath")&&
  !plainAvatarSvg.includes('r="115"')&&
  plainAvatarSvg.includes('<rect width="256" height="256"')&&
