@@ -204,24 +204,12 @@ assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
  "Recovery navigation and language modal should share VATRA branding and motion");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
-assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
- errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),
- "Do not print a VATRA banner in DevTools; keep branded error alerts");
-assert.ok(errors.includes('window.addEventListener("error"')&&
- errors.includes('window.addEventListener("unhandledrejection"')&&
- errors.includes('for(const kind of ["error","warn"])')&&
- errors.includes('kind==="warn"?"warning":"error"')&&
- errors.includes('setTimeout(dismiss,DISPLAY_MS)')&&
- !errors.includes('window.VATRA_ERRORS={show}')&&
+assert.ok(!errors.includes('window.addEventListener("error"')&&
+ !errors.includes('window.addEventListener("unhandledrejection"')&&
+ !errors.includes('console[kind]')&&
+ !errors.includes('vatra-error-toast')&&
  !auth.includes("VATRA_ERRORS"),
- "Only console errors and warnings should show in automatically dismissing toasts; form errors stay inline");
-assert.ok(errors.includes('Service Worker registration blocked by Playwright')&&
- errors.includes('if(origin==="console"&&/^Service Worker registration blocked by Playwright'),
- "Only benign test-harness service-worker warnings are hidden from visible error toasts");
-assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible")&&
- css.includes(".vatra-error-toast--warning")&&css.includes("border-left-color:#d99a32")&&
- errors.includes('VATRA · Попередження')&&errors.includes("VATRA · Warning"),
- "Console errors and warnings need separate red and amber VATRA notification designs");
+ "Browser console output must stay in DevTools rather than trigger on-page alerts");
 assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transparent;opacity:0}')&&
  css.includes('.vatra-floating-hint{')&&
  css.includes('.vatra-input-shell:focus-within .vatra-floating-hint,')&&
@@ -387,8 +375,8 @@ for(const filename of [...pages,"communities","club","notifications"]){
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
-assert.ok(offline.includes('assets/js/errors.js')&&sw.includes('ROOT+"assets/js/errors.js"'),
- "Offline diagnostics and cached resource must exist");
+assert.ok(!offline.includes('assets/js/errors.js')&&!sw.includes('ROOT+"assets/js/errors.js"'),
+ "Offline pages and service worker must not load console-to-toast diagnostics");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
 const ownRe=/\b(?:vt|ui)-[a-z0-9-]+/g;
@@ -808,7 +796,7 @@ for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("assets/js/lang.js")&&html.includes("assets/js/errors.js"),page+": shared language picker and diagnostics missing");
+ assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": language picker required, console toasts forbidden");
  assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
@@ -1690,29 +1678,31 @@ assert.ok(
  systemProfileCss.includes('gap:10px;text-align:center;padding:28px 20px;margin-top:0;'),
  "Feed cards, profile stacks and restricted states share compact spacing");
 
-// Each static account cover is an actual PNG image (never CSS sampled or painted).
+// Neutral vector placeholders are local assets, never external service requests.
 for(const kind of ["default","deleted","blocked","not-found"]){
- assert.ok(sharedAvatar.includes('"/VATRA/assets/covers/cover-'+kind+'.png"'),
-  "The shared avatar utility must map the uploaded "+kind+" cover");
+ const avatarAsset="assets/avatars/avatar-"+kind+".svg";
+ const coverAsset="assets/covers/cover-"+kind+".svg";
+ const avatarSource=await read(avatarAsset),coverSource=await read(coverAsset);
+ assert.ok(avatarSource.startsWith("<svg")&&coverSource.startsWith("<svg")&&
+  avatarSource.includes('viewBox="0 0 256 256"')&&
+  coverSource.includes('viewBox="0 0 1600 480"'),
+  "Neutral avatar and cover artwork must be valid local SVG for "+kind);
+ assert.ok(sharedAvatar.includes("/VATRA/"+avatarAsset)&&
+  sharedAvatar.includes("/VATRA/"+coverAsset)&&
+  systemAvatarCss.includes("/VATRA/"+avatarAsset)&&
+  systemProfileCss.includes("/VATRA/"+avatarAsset),
+  "Avatar/cover consumers must use neutral SVG for "+kind);
 }
-assert.ok(
- sharedAvatar.includes('window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,')&&
- memberProfileMarkup.includes('id="profile-cover-system" class="ui-profile-cover-system-001" src="assets/covers/cover-default.png"')&&
+assert.ok(sharedAvatar.includes('window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,')&&
+ memberProfileMarkup.includes('id="profile-cover-system" class="ui-profile-cover-system-001" src="assets/covers/cover-default.svg"')&&
  profileBehavior.includes('systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)')&&
  profileBehavior.includes('systemCover.dataset.vatraCoverState=state')&&
  profileBehavior.includes('systemCover.hidden=true')&&
  profileBehavior.includes('systemCover.hidden=false')&&
  systemProfileCss.includes('.profile-cover .ui-profile-cover-system-001{')&&
- systemProfileCss.includes('object-fit:cover;object-position:center center;')&&
- !systemProfileCss.includes('background-image:var(--vatra-deleted-cover)'),
- "Native system cover PNGs must follow avatar account states while custom cover photos take priority");
-for(const kind of ["default","deleted","blocked","not-found"]){
- assert.ok(sharedAvatar.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
-  systemAvatarCss.includes("/VATRA/assets/avatars/avatar-"+kind+".png")&&
-  systemProfileCss.includes("/VATRA/assets/avatars/avatar-"+kind+".png"),
-  "All profile and global placeholders must reference the uploaded PNG for "+kind);
-}
-assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/avatars/avatar-default.png\")")&&
+ systemProfileCss.includes('object-fit:cover;object-position:center center;'),
+ "Account-state covers must use system SVG assets until the member uploads custom art");
+assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/avatars/avatar-default.svg\")")&&
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
@@ -1722,13 +1712,10 @@ assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/a
  profileBehavior.includes('avatarWrap.dataset.vatraRingKind="default"')&&
  profileBehavior.includes('wrap.dataset.vatraRingKind=state')&&
  profileBehavior.includes('avatarWrap.removeAttribute("data-vatra-ring-kind")')&&
- systemProfileCss.includes('body.profile-page .profile-avatar-wrap.has-active-story:not([data-vatra-ring-kind])::before')&&
- systemProfileCss.includes('body.profile-page .profile-avatar-wrap[data-vatra-ring-kind]::before')&&
- systemProfileCss.includes('--vatra-system-ring:#347fd9')&&
- systemProfileCss.includes('--vatra-system-ring:#8391a6')&&
- systemProfileCss.includes('--vatra-system-ring:#3b9ed8')&&
- systemProfileCss.includes('--vatra-system-ring:#d65f6b'),
- "System PNGs must have four individually fixed rings; real photos stay white without a story, gradient with one");
+ systemProfileCss.includes('body.profile-page .profile-avatar-wrap.has-active-story[data-vatra-ring-kind]::before')&&
+ systemProfileCss.includes('background:#fff!important;box-shadow:0 0 0 1px #e1e7f1!important')&&
+ systemProfileCss.includes('background:conic-gradient(from 40deg,#376de8'),
+ "Avatar rings must be white unless the person has an active gradient-ring story");
 
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
 assert.ok(

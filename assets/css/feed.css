@@ -1,8 +1,6 @@
 /* VATRA Feed — page-scoped styles, using the same Onest and colors as auth.css. */
 body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5% 0%,#f1eeff 0%,transparent 65%),#f7f9fe;color:var(--ink);font-family:"Onest",Inter,system-ui,sans-serif}
 .feed-page button,.feed-page textarea{font-family:inherit}
-.feed-skip-link{position:fixed;top:-70px;left:16px;z-index:16000;padding:10px 16px;border-radius:10px;background:#fff;color:var(--blue)}
-.feed-skip-link:focus{top:12px}
 .feed-loading{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;background:#f7f9fe;z-index:250}
 @keyframes feedMarkPulse{50%{transform:scale(.94);opacity:.78}}
 .feed-app{min-height:100dvh;display:flex;flex-direction:column}
@@ -2909,4 +2907,41 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
  body.feed-page .feed-header:has(.feed-brand-search.vatra-search-active) .feed-header-controls{
   opacity:0;pointer-events:none
  }
+}
+
+
+/* VATRA: Feed control rows cannot inherit the height of the right-hand filter. */
+@media(min-width:951px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main{
+  grid-template-rows:72px auto auto auto!important;
+  align-content:start!important;row-gap:14px!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+  grid-row:1!important;align-self:start!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
+  grid-row:2!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{
+  grid-row:3!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:4!important}
+}
+/* Empty Feed: compact, consistent spacing even when no friends or posts exist. */
+body.feed-page:not(.profile-page):not(.community-page) .feed-posts-section{
+ gap:14px;align-self:start!important;min-height:0!important;margin:0!important
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty{
+ min-height:225px;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;padding:27px 22px
+}
+@media(max-width:950px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main{
+  grid-template-rows:none!important;row-gap:13px!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+  grid-row:3!important
+ }
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-row:4!important}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:5!important}
 }

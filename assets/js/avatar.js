@@ -6,16 +6,16 @@ const KEY="vatra-remembered-account";
 const HEADER_KEY="vatra-authenticated-header-v1";
 const ORIGIN="https://rjasunoawrxvetwadylh.supabase.co";
 const SYSTEM_AVATARS=Object.freeze({
- default:{1024:"/VATRA/assets/avatars/avatar-default.png",2048:"/VATRA/assets/avatars/avatar-default.png"},
- deleted:{1024:"/VATRA/assets/avatars/avatar-deleted.png",2048:"/VATRA/assets/avatars/avatar-deleted.png"},
- "not-found":{1024:"/VATRA/assets/avatars/avatar-not-found.png",2048:"/VATRA/assets/avatars/avatar-not-found.png"},
- blocked:{1024:"/VATRA/assets/avatars/avatar-blocked.png",2048:"/VATRA/assets/avatars/avatar-blocked.png"}
+ default:{1024:"/VATRA/assets/avatars/avatar-default.svg",2048:"/VATRA/assets/avatars/avatar-default.svg"},
+ deleted:{1024:"/VATRA/assets/avatars/avatar-deleted.svg",2048:"/VATRA/assets/avatars/avatar-deleted.svg"},
+ "not-found":{1024:"/VATRA/assets/avatars/avatar-not-found.svg",2048:"/VATRA/assets/avatars/avatar-not-found.svg"},
+ blocked:{1024:"/VATRA/assets/avatars/avatar-blocked.svg",2048:"/VATRA/assets/avatars/avatar-blocked.svg"}
 });
 const SYSTEM_COVERS=Object.freeze({
- default:"/VATRA/assets/covers/cover-default.png",
- deleted:"/VATRA/assets/covers/cover-deleted.png",
- "not-found":"/VATRA/assets/covers/cover-not-found.png",
- blocked:"/VATRA/assets/covers/cover-blocked.png"
+ default:"/VATRA/assets/covers/cover-default.svg",
+ deleted:"/VATRA/assets/covers/cover-deleted.svg",
+ "not-found":"/VATRA/assets/covers/cover-not-found.svg",
+ blocked:"/VATRA/assets/covers/cover-blocked.svg"
 });
 const coverAsset=(state="default")=>SYSTEM_COVERS[state]||SYSTEM_COVERS.default;
 const asset=(state="default",size=1024)=>

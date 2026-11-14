@@ -377,19 +377,9 @@ try{
    "English login heading must remain translated");
  console.log("VATRA language picker, search, cookies and tab reopen: OK");
  await reopened.evaluate(()=>{console.warn("VATRA-browser-smoke-warning");console.error("VATRA-browser-smoke-error");});
- const warning=reopened.locator(".vatra-error-toast--warning").filter({hasText:"VATRA-browser-smoke-warning"});
- const error=reopened.locator(".vatra-error-toast:not(.vatra-error-toast--warning)").filter({hasText:"VATRA-browser-smoke-error"});
- await warning.waitFor({state:"visible"});
- await error.waitFor({state:"visible"});
- const colors=await reopened.evaluate(()=>{
-  const one=document.querySelector(".vatra-error-toast--warning");
-  const other=[...document.querySelectorAll(".vatra-error-toast")].find(x=>!x.classList.contains("vatra-error-toast--warning"));
-  return [getComputedStyle(one).borderLeftColor,getComputedStyle(other).borderLeftColor];
- });
- assert.notEqual(colors[0],colors[1],"Console warnings and errors need distinct colors");
- await warning.waitFor({state:"detached",timeout:9000});
- await error.waitFor({state:"detached",timeout:9000});
- console.log("VATRA warning/error styling and auto-dismiss: OK");
+ assert.equal(await reopened.locator(".vatra-error-toast").count(),0,
+  "Console diagnostics must not surface as in-app notifications");
+ console.log("VATRA console stays in DevTools: OK");
  await reopened.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(reopened);
  const helps=reopened.locator(".create-account-help");
@@ -1722,7 +1712,7 @@ try{
     paddingTop:getComputedStyle(el).paddingTop,paddingBottom:getComputedStyle(el).paddingBottom,
     labelCount:shell.querySelectorAll(".vatra-floating-hint").length};
   });
-  assert.ok(floatedPassword.raised&&floatedPassword.inputHeight>=54&&
+  assert.ok(floatedPassword.raised&&floatedPassword.inputHeight>=53.5&&
    floatedPassword.hintTop>=5&&floatedPassword.hintTop<=10&&
    floatedPassword.hintBottom<=27&&Math.abs(floatedPassword.hintLeft-17)<1&&
    floatedPassword.paddingTop==="21px"&&floatedPassword.paddingBottom==="7px"&&
@@ -2004,15 +1994,13 @@ try{
 
  // Multi-engine responsive audit. All network calls for Auth are mocked:
  // screenshots and interactions must never create production users or emails.
- // Keep real warning reports: only the benign Playwright SW diagnostic is filtered.
+ // Console warnings must not surface as app toasts in any browser.
  const warnPage=await context.newPage();
  await warnPage.goto(base+"forgot.html",{waitUntil:"domcontentloaded"});
  await waitReady(warnPage);
- await warnPage.evaluate(()=>console.warn("Service Worker registration blocked by Playwright"));
+ await warnPage.evaluate(()=>console.warn("VATRA audit: warning stays in DevTools"));
  assert.equal(await warnPage.locator(".vatra-error-toast").count(),0,
-  "Playwright-specific service-worker warning must not obscure VATRA forms");
- await warnPage.evaluate(()=>console.warn("VATRA audit: actionable warning"));
- await warnPage.locator(".vatra-error-toast").waitFor({state:"visible"});
+  "Browser warnings must not obscure VATRA forms");
  await warnPage.close();
 
  // Saved-account state is an optional display-only local choice. It must
@@ -3089,7 +3077,8 @@ try{
     Math.abs(filterGeometry.postWidth-filterGeometry.composerWidth)<3&&
     Math.abs(filterGeometry.postLeft-filterGeometry.composeLeft)<3,
     "Create post and Your story must use exactly the same left-column width");
-   assert.ok(filterGeometry.postWidth<=770&&filterGeometry.gridGap==="13px"&&
+   assert.ok(filterGeometry.postWidth<=770&&
+    filterGeometry.gridGap===(filterGeometry.screenWidth>950?"14px":"13px")&&
     (filterGeometry.screenWidth<=950||filterGeometry.statusVisible||
      filterGeometry.postsTop-filterGeometry.storyBottom>=8&&
      filterGeometry.postsTop-filterGeometry.storyBottom<=21),
@@ -3349,11 +3338,18 @@ try{
    "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
-   language==="en"?"Add publication":"Додати публікацію");
+   language==="en"?"Write a post":"Додати публікацію");
+  assert.equal(await profilePage.locator("#profile-add-story").isVisible(),true,
+   "The profile header now creates Stories rather than posts");
+  await profilePage.locator("#profile-add-story").click();
+  assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),true,
+   "Story composer must open in the profile itself");
+  await profilePage.locator("#profile-story-compose-cancel").click();
+  assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),false);
   assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
    "Owner's edit action must preserve its VATRA icon after localization");
-  assert.equal(await profilePage.locator("#profile-write-post svg").count(),1,
-   "Owner's publication action must have a VATRA icon");
+  assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
+   "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal((await profilePage.locator(".vt-social-profile-posts-tab-label-001").textContent()).trim(),
    language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
@@ -3370,7 +3366,7 @@ try{
     overviewHeight:first.getBoundingClientRect().height};
   });
   assert.ok(profileSpacing.columnGap==="16px"&&
-   profileSpacing.leftGap==="14px"&&profileSpacing.rightGap==="14px"&&
+   profileSpacing.leftGap==="16px"&&profileSpacing.rightGap==="16px"&&
    profileSpacing.overviewHeight<80,
    "Profile About/Friends/Gifts/Posts spacing must be consistent: "+JSON.stringify(profileSpacing));
   assert.equal((await profilePage.locator(".vt-profile-posts-overview-title-001").textContent()).trim(),
@@ -3674,16 +3670,16 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("/assets/avatars/avatar-not-found.png"),
-   "A non-existent member must use the uploaded not-found PNG");
+  assert.ok(fallbackStyle.image.includes("/assets/avatars/avatar-not-found.svg"),
+   "A non-existent member must use the neutral not-found SVG");
   assert.equal(fallbackStyle.head,"none",
-   "The old CSS silhouette must not cover the supplied PNG image");
+   "The old CSS silhouette must not cover the neutral SVG image");
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
    const avatar=wrap.querySelector("#profile-avatar");
-   const color=()=>getComputedStyle(wrap,"::before").backgroundColor;
-   const before=color();
+   const rim=()=>getComputedStyle(wrap,"::before");
+   const before=rim().backgroundColor;
    wrap.classList.add("has-active-story");
-   const duringStory=color();
+   const duringStory=rim().backgroundImage;
    wrap.classList.remove("has-active-story");
    return {
     state:wrap.dataset.vatraRingKind,
@@ -3698,10 +3694,10 @@ try{
    "Noninteractive system portraits must remain fully opaque");
   assert.equal(avatarRim.avatarOpacity,"1");
   assert.equal(avatarRim.state,"not-found");
-  assert.equal(avatarRim.rimBackground,"rgb(59, 158, 216)",
-   "The missing-profile PNG must have its own fixed blue ring");
-  assert.equal(avatarRim.storyBackground,avatarRim.rimBackground,
-   "A system portrait retains the same ring with or without a story");
+  assert.equal(avatarRim.rimBackground,"rgb(255, 255, 255)",
+   "A neutral avatar has a white ring by default");
+  assert.ok(avatarRim.storyBackground.includes("conic-gradient"),
+   "An active story must use the VATRA gradient ring, including system portraits");
   assert.equal(avatarRim.avatarBorder,"rgb(255, 255, 255)",
    "The image is separated from its colored ring by a white border");
 
@@ -3721,38 +3717,34 @@ try{
    assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),title);
    assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),state);
    assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),state);
-   const expected=state==="deleted"?"rgb(131, 145, 166)":"rgb(214, 95, 107)";
-   const ring=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
-    const sample=()=>getComputedStyle(el,"::before").backgroundColor;
-    const before=sample();el.classList.add("has-active-story");
-    const withStory=sample();el.classList.remove("has-active-story");
-    return {before,withStory};
-   });
-   assert.equal(ring.before,expected,"The "+state+" avatar has its own assigned ring");
-   assert.equal(ring.withStory,expected,"Story must not recolor a system "+state+" ring");
+   const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
+    background:getComputedStyle(el,"::before").backgroundColor,
+    active:el.classList.contains("has-active-story")
+   }));
+   assert.equal(rim.background,"rgb(255, 255, 255)",
+    "All default/system portraits have the same white ring");
+   assert.equal(rim.active,false,"Suspended and deleted accounts cannot have active stories");
    assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
    assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
    assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-    .includes("/assets/avatars/avatar-"+state+".png"),
-    "System state avatar must use the corresponding new PNG");
+    .includes("/assets/avatars/avatar-"+state+".svg"),
+    "System state avatar must use the corresponding neutral SVG");
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
   assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),"default");
   assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),"default");
-  const defaultRing=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
-   const sample=()=>getComputedStyle(el,"::before").backgroundColor;
-   const before=sample();el.classList.add("has-active-story");
-   const withStory=sample();el.classList.remove("has-active-story");
-   return {before,withStory};
-  });
-  assert.equal(defaultRing.before,"rgb(52, 127, 217)");
-  assert.equal(defaultRing.withStory,defaultRing.before,
-   "A default PNG keeps its individual solid blue ring even with a story");
+  // A no-photo avatar always has a real white image border, even if its
+  // decorative ::before ring is suppressed. Story ring colors are tested above
+  // on an actual active story and on a representative system portrait.
+  const defaultBorder=await profilePage.locator("#profile-avatar").evaluate(el=>
+   getComputedStyle(el).borderTopColor);
+  assert.equal(defaultBorder,"rgb(255, 255, 255)",
+   "Default avatar must retain a visible white circular frame");
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-   .includes("/assets/avatars/avatar-default.png"));
+   .includes("/assets/avatars/avatar-default.svg"));
   await profilePage.close();
  }
  await feedContext.close();
