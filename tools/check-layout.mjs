@@ -1669,7 +1669,7 @@ assert.ok(
  "New search/filter revisions must supersede old Feed pages and errors");
 // Third-party friends list privacy must be enforced in both the UI and RLS.
 const friendshipPrivacyJs=await read("assets/js/friends.js");
-const friendshipPrivacySql=await read("supabase/migrations/20261114171700_private_friendship_rows_to_participants.sql");
+const friendshipPrivacySql=await read("supabase/migrations/20261114154237_private_friendship_rows_to_participants.sql");
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
  friendshipPrivacyJs.includes('Списки друзів інших користувачів приватні.')&&
