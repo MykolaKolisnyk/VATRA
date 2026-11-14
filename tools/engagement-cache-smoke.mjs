@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
 const full=await readFile("assets/js/post-interactions.js","utf8");
-const start=full.indexOf(" const engagementQueryCache=new WeakMap();");
+const start=full.indexOf(" const engagementQueryCache=new WeakMap(),engagementAuthBound=new WeakSet();");
 const end=full.indexOf("function appendAudience(",start);
 assert.ok(start>=0&&end>start,"Find the exact engagement implementation");
 const isolated=full.slice(start,end)+"\nglobalThis.cacheTest={prefetchEngagement,invalidateEngagement};";
