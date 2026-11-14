@@ -1121,7 +1121,9 @@ assert.ok(profileMarkup.includes('id="profile-heading"')&&
  profileMarkup.includes('class="profile-panels ui-profile-panels-001"')&&
  (await read("assets/js/profile.js")).includes('q(".social-profile-tabs")?.remove()')&&
  (await read("assets/js/profile.js")).includes('q(".profile-panels")?.remove()')&&
- (await read("assets/js/profile.js")).includes('void loadOwnHeaderAvatar(client,ownId,user.email);'),
+ (await read("assets/js/profile.js")).includes('const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);')&&
+ (await read("assets/js/profile.js")).includes('const preloadedMedia=isMine?ownHeaderMedia:')&&
+ (await read("assets/js/profile.js")).includes('window.VATRA_AVATAR?.invalidatePath?.(client,ownId);'),
  "Unknown VATRA ID keeps cover and avatar while removing all invented actions and details");
 const profileBehavior=await read("assets/js/profile.js");
 assert.ok(profileBehavior.includes('client.from("friendships")')&&
