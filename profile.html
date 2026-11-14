@@ -179,7 +179,7 @@
                 </p>
               </div>
               <div class="profile-actions ui-profile-actions-001">
-                <button type="button" id="profile-write-post" class="social-profile-create vt-social-profile-create-001"><svg class="ui-profile-create-post-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-profile-create-post-icon-001-part-1" x="4.1" y="4.1" width="15.8" height="15.8" rx="4"/><path class="ui-profile-create-post-icon-001-part-2" d="M8.2 8.6h7.6M8.2 12h5.5M8.2 15.4h3.9"/></svg><span class="vt-social-profile-create-label-001" data-social-uk="Додати публікацію" data-social-en="Add publication">Додати публікацію</span></button>
+                <button type="button" id="profile-add-story" class="social-profile-create vt-profile-add-story-001" hidden><svg class="ui-profile-add-story-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-profile-add-story-circle-001" cx="12" cy="12" r="8.6"/><path class="ui-profile-add-story-plus-001" d="M12 8v8m-4-4h8"/></svg><span class="vt-profile-add-story-label-001" data-social-uk="Додати історію" data-social-en="Add story">Додати історію</span></button>
        <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><svg class="ui-profile-edit-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-edit-icon-001-part-1" d="M13.7 5.7 18.3 10.3M4 20l4.5-1 10.3-10.4a2.3 2.3 0 0 0-3.3-3.2L5.2 15.8 4 20Z"/></svg><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
        
        <input id="profile-avatar-file" class="ui-profile-avatar-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити фото профілю" hidden>
@@ -271,6 +271,11 @@
                     </div>
                   </div>
                 </header>
+                <div id="profile-quick-compose" class="profile-quick-compose ui-profile-quick-compose-001" hidden>
+                  <span id="profile-compose-avatar" class="profile-compose-avatar ui-profile-compose-avatar-001" data-vatra-avatar-state="default" aria-hidden="true"></span>
+                  <button type="button" id="profile-write-post" class="profile-compose-open vt-profile-write-post-001" data-social-uk="Додати публікацію" data-social-en="Write a post">Додати публікацію</button>
+                  <button type="button" id="profile-quick-media" class="profile-quick-media vt-profile-quick-media-001" aria-label="Додати фото або відео" data-shell-aria-uk="Додати фото або відео" data-shell-aria-en="Add photo or video"><svg class="ui-profile-quick-media-icon-001" viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-profile-quick-media-frame-001" x="3.5" y="4" width="17" height="16" rx="3"/><circle class="ui-profile-quick-media-sun-001" cx="9" cy="10" r="1.5"/><path class="ui-profile-quick-media-hills-001" d="m5 17 4-4 3 3 3.5-4 3 4"/></svg></button>
+                </div>
                 <p id="profile-post-filter-status" class="vt-profile-post-filter-status-001" aria-live="polite" hidden></p>
                 <div id="profile-posts" class="feed-posts ui-profile-posts-001" aria-live="polite" aria-busy="false">
                 </div>
@@ -490,6 +495,25 @@
             </p>
             <div class="profile-message-actions ui-profile-message-actions-001">
               <button id="profile-message-refresh" class="vt-profile-message-refresh-001" type="button" data-social-uk="Оновити" data-social-en="Refresh">Оновити</button><button id="profile-message-send" class="vt-profile-message-send-001" type="submit" data-social-uk="Надіслати" data-social-en="Send">Надіслати</button>
+            </div>
+          </form>
+        </dialog>
+        <dialog id="profile-story-compose-dialog" class="profile-story-compose-dialog ui-profile-story-compose-dialog-001" aria-labelledby="profile-story-compose-title">
+          <form id="profile-story-compose-form" class="profile-story-compose-form ui-profile-story-compose-form-001">
+            <h2 id="profile-story-compose-title" class="vt-profile-story-compose-title-001" data-social-uk="Нова історія" data-social-en="New story">Нова історія</h2>
+            <p class="vt-profile-story-compose-tip-001" data-social-uk="Історія зникне через 24 години. Її бачать лише друзі." data-social-en="Your story expires after 24 hours and is visible to friends.">Історія зникне через 24 години. Її бачать лише друзі.</p>
+            <label class="vt-profile-story-compose-label-001" for="profile-story-compose-text" data-social-uk="Текст історії" data-social-en="Story text">Текст історії</label>
+            <textarea id="profile-story-compose-text" class="ui-profile-story-compose-text-001" rows="5" maxlength="260" data-shell-placeholder-uk="Поділіться моментом…" data-shell-placeholder-en="Share a moment…" placeholder="Поділіться моментом…"></textarea>
+            <div class="profile-story-compose-media ui-profile-story-compose-media-001">
+              <input id="profile-story-compose-media-input" class="ui-profile-story-compose-media-input-001" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden>
+              <button id="profile-story-compose-media-choose" type="button" class="vt-profile-story-compose-media-choose-001" data-social-uk="Додати фото або відео" data-social-en="Add photo or video">Додати фото або відео</button>
+              <button id="profile-story-compose-media-remove" type="button" class="vt-profile-story-compose-media-remove-001" data-social-uk="Прибрати файл" data-social-en="Remove file" hidden>Прибрати файл</button>
+            </div>
+            <div id="profile-story-compose-media-preview" class="vatra-compose-media-preview ui-profile-story-compose-media-preview-001" hidden></div>
+            <p id="profile-story-compose-error" class="vt-profile-story-compose-error-001" role="status" hidden></p>
+            <div class="profile-story-compose-actions ui-profile-story-compose-actions-001">
+              <button id="profile-story-compose-cancel" type="button" class="vt-profile-story-compose-cancel-001" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button>
+              <button id="profile-story-compose-save" type="submit" class="vt-profile-story-compose-save-001" data-social-uk="Опублікувати історію" data-social-en="Publish story">Опублікувати історію</button>
             </div>
           </form>
         </dialog>
