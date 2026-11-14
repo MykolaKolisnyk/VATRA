@@ -2767,7 +2767,7 @@ body.profile-page .profile-avatar-wrap[data-vatra-ring-kind]::before{
 }
 body.profile-page .profile-avatar-wrap.has-active-story::before,
 body.profile-page .profile-avatar-wrap.has-active-story[data-vatra-ring-kind]::before{
- background:var(--vatra-avatar-gradient,linear-gradient(120deg,#2368ed,#7038da,#f34e9a))!important;
+ background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8)!important;
  box-shadow:0 0 0 1px #e1e7f1!important
 }
 body.profile-page .profile-avatar-wrap .profile-avatar{border-color:#fff!important;box-shadow:none!important}
