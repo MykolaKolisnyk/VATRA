@@ -43,8 +43,12 @@ try{
  // the nearly-white page background, not simply rely on a distinct SVG filename.
  const coverContrastPage=await context.newPage();
  await coverContrastPage.goto(base+"terms",{waitUntil:"domcontentloaded"});
- const coverContrast=await coverContrastPage.evaluate(async url=>{
-  const img=new Image();img.src=url;await img.decode();
+ await coverContrastPage.addStyleTag({url:base+"assets/css/profile.css"});
+ const coverContrast=await coverContrastPage.evaluate(async()=>{
+  const css=getComputedStyle(document.documentElement).getPropertyValue("--vatra-default-cover");
+  const match=css.match(/data:image\/svg\+xml,[^"'()]+/);
+  if(!match)throw Error("Expected a CSS-embedded SVG cover");
+  const img=new Image();img.src=match[0];await img.decode();
   const canvas=document.createElement("canvas");
   canvas.width=600;canvas.height=180;
   const ctx=canvas.getContext("2d",{willReadFrequently:true});
@@ -56,7 +60,7 @@ try{
     sum+Math.abs(channel-[244,246,251][index]),0)/3;
    return {rgb,distance};
   });
- },base+"assets/covers/cover-default.svg");
+ });
  await coverContrastPage.close();
  assert.ok(coverContrast.every(sample=>sample.distance>=22)&&
   coverContrast.reduce((sum,sample)=>sum+sample.distance,0)/3>=35,
@@ -3816,6 +3820,15 @@ try{
    language==="en"?"User not found":"Користувача не знайдено");
   assert.equal(await profilePage.locator(".profile-hero").isVisible(),true);
   assert.equal(await profilePage.locator("#profile-cover-image").isVisible(),true);
+  const systemCover=await profilePage.locator("#profile-cover-system").evaluate(el=>({
+   tag:el.tagName.toLowerCase(),
+   image:getComputedStyle(el).backgroundImage,
+   expected:window.VATRA_AVATAR?.coverAsset?.(el.dataset.vatraCoverState)
+  }));
+  assert.equal(systemCover.tag,"span","The default cover must not be an image request");
+  assert.ok(systemCover.expected?.startsWith("data:image/svg+xml,")&&
+   systemCover.image.includes(systemCover.expected),
+   "The missing member's cover is rendered by CSS SVG, not a separate file");
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
   const fallbackStyle=await profilePage.locator("#profile-avatar").evaluate(el=>{
    const style=getComputedStyle(el),head=getComputedStyle(el,"::before");
@@ -3823,8 +3836,8 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("/assets/avatars/avatar-not-found.svg"),
-   "A non-existent member must use the neutral not-found SVG");
+  assert.ok(fallbackStyle.image.includes("data:image/svg+xml,"),
+   "A non-existent member must render the CSS-embedded neutral SVG");
   assert.equal(fallbackStyle.head,"none",
    "The old CSS silhouette must not cover the neutral SVG image");
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
@@ -3879,9 +3892,13 @@ try{
    assert.equal(rim.active,false,"Suspended and deleted accounts cannot have active stories");
    assert.equal(await profilePage.locator("#profile-avatar-trigger").isDisabled(),true);
    assert.equal(await profilePage.locator("#profile-media-viewer").evaluate(el=>el.open),false);
-   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-    .includes("/assets/avatars/avatar-"+state+".svg"),
-    "System state avatar must use the corresponding neutral SVG");
+   const stateSvg=await profilePage.locator("#profile-avatar").evaluate(el=>({
+    rendered:getComputedStyle(el).backgroundImage,
+    expected:window.VATRA_AVATAR?.asset?.(el.dataset.vatraAvatarState)
+   }));
+   assert.ok(stateSvg.expected?.startsWith("data:image/svg+xml,")&&
+    stateSvg.rendered.includes(stateSvg.expected),
+    "System avatar must use the matching CSS-embedded SVG for "+state);
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
@@ -3896,8 +3913,13 @@ try{
    "Default avatar must retain a visible white circular frame");
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
-  assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-   .includes("/assets/avatars/avatar-default.svg"));
+  const defaultSvg=await profilePage.locator("#profile-avatar").evaluate(el=>({
+   rendered:getComputedStyle(el).backgroundImage,
+   expected:window.VATRA_AVATAR?.asset?.("default")
+  }));
+  assert.ok(defaultSvg.expected?.startsWith("data:image/svg+xml,")&&
+   defaultSvg.rendered.includes(defaultSvg.expected),
+   "Default profile portrait is a CSS-embedded SVG");
   await profilePage.close();
  }
  await feedContext.close();
