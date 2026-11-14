@@ -2191,3 +2191,19 @@ assert.ok(
  !postMediaScript.includes("const signedURLs=new Map();"),
  "Private signed Storage URLs must be isolated per client and invalidated on auth changes");
 await import("./media-signed-cache-smoke.mjs");
+
+/* The shared live-search results contain RLS-scoped posts. Cache only in
+   bounded viewer-local memory; never persist or share them via Redis. */
+const liveSearchCacheScript=await read("assets/js/notifications.js");
+assert.ok(
+ liveSearchCacheScript.includes("const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24")&&
+ liveSearchCacheScript.includes("const siteSearchCaches=new WeakMap()")&&
+ liveSearchCacheScript.includes('state.entries.clear()')&&
+ liveSearchCacheScript.includes('if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;')&&
+ liveSearchCacheScript.includes("if(state.generation!==generation)return emptySiteSearch();")&&
+ liveSearchCacheScript.includes("cacheable=all.every(")&&
+ liveSearchCacheScript.includes('viewer.from("feed_posts")')&&
+ liveSearchCacheScript.includes('viewer.from("community_posts")')&&
+ !liveSearchCacheScript.includes("site-search-redis"),
+ "Site-wide live search must remain RLS-gated, session-scoped and bounded");
+await import("./live-search-cache-smoke.mjs");
