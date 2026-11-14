@@ -273,12 +273,13 @@
   };
   const t=(uk,en)=>lang()==="en"?en:uk;
   let visible=false,editing=false;
-  let liveTimer=null,liveTicket=0;
+  let liveTimer=null,liveTicket=0,liveController=null,liveTerm=null;
   const validMember=id=>/^[1-9][0-9]{0,18}$/.test(String(id??""));
   const validPost=id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(id??""));
   const clearLive=()=>{
    if(liveTimer!==null){clearTimeout(liveTimer);liveTimer=null;}
-   liveTicket++;suggestions.replaceChildren();
+   if(liveController){liveController.abort();liveController=null;}
+   liveTerm=null;liveTicket++;suggestions.replaceChildren();
    suggestions.hidden=true;panel.classList.remove("has-live-results");
   };
   const iconVector=(kind,path)=>{
@@ -321,16 +322,24 @@
    suggestions.append(section);
   };
   const scheduleLive=value=>{
-   if(liveTimer!==null)clearTimeout(liveTimer);
-   const term=String(value||"").trim().slice(0,120),ticket=++liveTicket;
+   const term=String(value||"").trim().slice(0,120);
+   // Opening or rerendering the same text must not restart its active request.
+   if(term===liveTerm&&(liveTimer!==null||liveController))return;
+   if(liveTimer!==null){clearTimeout(liveTimer);liveTimer=null;}
+   if(liveController){liveController.abort();liveController=null;}
+   liveTerm=term;
+   const ticket=++liveTicket;
    if(term.length<2){clearLive();return;}
    suggestions.hidden=false;list.hidden=true;empty.hidden=true;
    suggestions.replaceChildren(make("p","vt-vatra-search-live-loading-001",tr("Шукаємо у VATRA…","Searching VATRA…")));
    const fetchMatches=async()=>{
+    liveTimer=null;
     if(!visible||ticket!==liveTicket)return;
+    const controller=new AbortController();
+    liveController=controller;
     try{
-     const result=await window.VATRA_SITE_SEARCH?.search(term);
-     if(!visible||ticket!==liveTicket)return;
+     const result=await window.VATRA_SITE_SEARCH?.search(term,controller.signal);
+     if(controller.signal.aborted||!visible||ticket!==liveTicket)return;
      suggestions.replaceChildren();
      const base=new URL("./",location.href);
      const member=id=>validMember(id)?new URL("id"+id,base).href:null;
@@ -357,8 +366,11 @@
      all.href=new URL("feed?q="+encodeURIComponent(term),base).href;
      suggestions.append(all);panel.classList.add("has-live-results");
     }catch(_){
-     if(ticket===liveTicket)suggestions.replaceChildren(make("p","vt-vatra-search-live-empty-001",
-      tr("Не вдалося виконати пошук.","Could not search VATRA.")));
+     if(!controller.signal.aborted&&ticket===liveTicket)
+      suggestions.replaceChildren(make("p","vt-vatra-search-live-empty-001",
+       tr("Не вдалося виконати пошук.","Could not search VATRA.")));
+    }finally{
+     if(liveController===controller)liveController=null;
     }
    };
    liveTimer=setTimeout(fetchMatches,210);

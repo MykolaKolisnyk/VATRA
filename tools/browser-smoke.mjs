@@ -3497,6 +3497,44 @@ try{
    return !brand.classList.contains("vatra-search-active")&&icon.getBoundingClientRect().width>=14;
   },null,{timeout:2400});
 
+  // Replacing a search term and closing the panel cancel stale API requests.
+  // All calls below are mocked locally; no production Supabase traffic.
+  await feedProbe.evaluate(()=>{
+   const provider=window.VATRA_SITE_SEARCH;
+   if(!provider?.search)throw Error("Live search provider unavailable");
+   const history={queries:[],original:provider.search};
+   window.__vatraLiveAbortSmoke=history;
+   provider.search=(term,signal)=>new Promise(resolve=>{
+    if(!signal)throw Error("Live search needs an AbortSignal");
+    history.queries.push({term,signal});
+    signal.addEventListener("abort",()=>resolve({
+     people:[],communities:[],posts:[]
+    }),{once:true});
+   });
+  });
+  await feedProbe.locator("#feed-search-input").fill("vatra alpha");
+  await feedProbe.waitForFunction(()=>window.__vatraLiveAbortSmoke.queries.length===1,
+   null,{timeout:3500});
+  await feedProbe.locator("#feed-search-input").fill("vatra beta");
+  assert.equal(await feedProbe.evaluate(()=>
+   window.__vatraLiveAbortSmoke.queries[0].signal.aborted),true,
+   "Typing a new term aborts the previous live search batch");
+  await feedProbe.waitForFunction(()=>window.__vatraLiveAbortSmoke.queries.length===2,
+   null,{timeout:3500});
+  await feedProbe.keyboard.press("Escape");
+  const abortState=await feedProbe.evaluate(()=>{
+   const history=window.__vatraLiveAbortSmoke;
+   const result={queries:history.queries.map(q=>q.term),
+    aborted:history.queries.map(q=>q.signal.aborted)};
+   window.VATRA_SITE_SEARCH.search=history.original;
+   document.querySelector("#feed-search-input").value="";
+   delete window.__vatraLiveAbortSmoke;
+   return result;
+  });
+  assert.deepEqual(abortState,{queries:["vatra alpha","vatra beta"],aborted:[true,true]},
+   "Closing the search panel must abort the last in-flight request");
+  console.log("VATRA live search: input changes and panel close abort obsolete requests");
+
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
    "No friends means no fabricated Story previews");

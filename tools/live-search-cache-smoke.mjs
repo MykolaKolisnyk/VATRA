@@ -9,12 +9,12 @@ const end=source.indexOf("window.VATRA_SITE_SEARCH={search:findSite};",start);
 assert.ok(start>0&&end>start,"Find site-wide search cache code");
 let now=Date.parse("2026-11-14T11:00:00Z");
 class TestDate extends Date{static now(){return now;}}
-const context={client:null,Date:TestDate,Map,Set,WeakMap,Promise,String,Number,Error};
+const context={client:null,Date:TestDate,Map,Set,WeakMap,Promise,String,Number,Error,AbortController};
 runInNewContext(source.slice(start,end)+"\nglobalThis.testSiteSearch={findSite};",context);
 const findSite=context.testSiteSearch.findSite;
 
 function viewer(label,options={}){
- const calls=[],held=[],fail=Boolean(options.fail),defer=Boolean(options.defer);
+ const calls=[],held=[],aborts=[],fail=Boolean(options.fail),defer=Boolean(options.defer);
  let onAuth;
  const dataFor=(table,field)=>{
   if(table==="public_profiles")
@@ -38,14 +38,32 @@ function viewer(label,options={}){
     limit(size){
      calls.push({...query,size});
      const outcome={data:dataFor(table,query.field),error:fail?Error("RLS read failed"):null};
-     if(defer)return new Promise(resolve=>held.push(()=>resolve(outcome)));
-     return Promise.resolve(outcome);
+     let resolveQuery,finished=false;
+     const result=new Promise(resolve=>{resolveQuery=resolve;});
+     const settle=value=>{
+      if(finished)return;
+      finished=true;resolveQuery(value);
+     };
+     if(defer)held.push(()=>settle(outcome));
+     else settle(outcome);
+     // Match real Supabase's PostgREST builder, where abortSignal is chainable.
+     result.abortSignal=signal=>{
+      if(signal.aborted){
+       aborts.push({table,field:query.field});
+       settle({data:[],error:Error("Aborted")});
+      }else signal.addEventListener("abort",()=>{
+       aborts.push({table,field:query.field});
+       settle({data:[],error:Error("Aborted")});
+      },{once:true});
+      return result;
+     };
+     return result;
     }
    };
    return builder;
   }
  };
- return {client,calls,held,event(name){assert.ok(onAuth);onAuth(name,{user:null});},
+ return {client,calls,held,aborts,event(name){assert.ok(onAuth);onAuth(name,{user:null});},
   settle(){for(const fn of held.splice(0))fn();}};
 }
 {
@@ -103,6 +121,50 @@ function viewer(label,options={}){
  const empty=await findSite("x");
  assert.equal(empty.people.length,0);
  assert.equal(invalid.calls.length,12,"Short searches should not reach the database");
+}
+// A member's old keystroke can be aborted without poisoning the viewer cache.
+{
+ const v=viewer("Cancel",{defer:true}),controller=new AbortController();
+ context.client=v.client;
+ const stale=findSite("resum",controller.signal);
+ assert.equal(v.calls.length,6);
+ controller.abort();
+ assert.equal((await stale).posts.length,0);
+ assert.equal(v.aborts.length,6,"Cancel must abort all six pending PostgREST reads");
+ const next=findSite("resum");
+ assert.equal(v.calls.length,12,"An aborted search must never be cached");
+ v.settle();
+ assert.equal((await next).people[0].display_name,"Cancel Alice");
+}
+// Two callers to the same phrase share one batch; canceling one caller
+// must not disrupt the other caller's still-relevant results.
+{
+ const v=viewer("Shared",{defer:true}),a=new AbortController(),b=new AbortController();
+ context.client=v.client;
+ const old=findSite("search",a.signal),current=findSite("search",b.signal);
+ assert.equal(v.calls.length,6);
+ a.abort();
+ assert.equal((await old).people.length,0);
+ assert.equal(v.aborts.length,0,"An active subscriber keeps the request alive");
+ v.settle();
+ const result=await current;
+ assert.equal(result.people[0].display_name,"Shared Alice");
+ assert.equal(v.calls.length,6);
+ assert.equal((await findSite("search")).people.length,1,"Valid result stays cached");
+}
+// Closing the panel cancels the only subscriber, without throwing an error
+// or populating a cache entry from partially fulfilled requests.
+{
+ const v=viewer("Closed",{defer:true}),controller=new AbortController();
+ context.client=v.client;
+ const task=findSite("closed",controller.signal);
+ controller.abort();
+ const result=await task;
+ assert.equal(result.communities.length,0);
+ assert.equal(v.aborts.length,6);
+ const fresh=findSite("closed");
+ assert.equal(v.calls.length,12,"A canceled panel must not cache empty search results");
+ v.settle();await fresh;
 }
 // Escaped wildcards remain literal; the filter remains a typed PostgREST query.
 {
