@@ -1691,58 +1691,63 @@ assert.ok(
  systemProfileCss.includes('gap:10px;text-align:center;padding:28px 20px;margin-top:0;'),
  "Feed cards, profile stacks and restricted states share compact spacing");
 
-// A profile without uploaded media and a nonexistent profile must use exactly
-// the same illustration and palette; never add a second ring inside the SVG.
-const plainAvatarSvg=await read("assets/avatars/avatar-default.svg");
-const missingAvatarSvg=await read("assets/avatars/avatar-not-found.svg");
-const plainCoverSvg=await read("assets/covers/cover-default.svg");
-const missingCoverSvg=await read("assets/covers/cover-not-found.svg");
-assert.equal(plainAvatarSvg,missingAvatarSvg,
- "Empty and nonexistent profiles must render identical neutral avatars");
-assert.equal(plainCoverSvg,missingCoverSvg,
- "Empty and nonexistent profiles must render identical neutral covers");
+// Built-in portraits and covers are SVG artwork embedded directly in CSS.
+// No separate avatars/covers asset files or requests are permitted.
+function readEmbeddedSvg(css,name){
+ const match=css.match(new RegExp("--"+name+":url\\(\"data:image/svg\\+xml,([^\"\\n]+)\"\\)"));
+ return match?decodeURIComponent(match[1]):null;
+}
+const plainAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-default-avatar");
+const deletedAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-deleted-avatar");
+const blockedAvatarSvg=readEmbeddedSvg(systemAvatarCss,"vatra-blocked-avatar");
+const plainCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-default-cover");
+const deletedCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-deleted-cover");
+const blockedCoverSvg=readEmbeddedSvg(systemProfileCss,"vatra-blocked-cover");
 assert.ok(
- plainCoverSvg.includes('stop-color="#9db8d7"')&&
+ plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
+ deletedAvatarSvg?.includes('viewBox="0 0 256 256"')&&
+ blockedAvatarSvg?.includes('viewBox="0 0 256 256"')&&
+ plainCoverSvg?.includes('viewBox="0 0 1600 480"')&&
+ deletedCoverSvg?.includes('viewBox="0 0 1600 480"')&&
+ blockedCoverSvg?.includes('viewBox="0 0 1600 480"')&&
+ systemAvatarCss.includes("--vatra-not-found-avatar:var(--vatra-default-avatar)")&&
+ systemProfileCss.includes("--vatra-not-found-cover:var(--vatra-default-cover)"),
+ "All built-in avatar and cover variants must be SVG-in-CSS, with identical empty/missing artwork");
+assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
  plainCoverSvg.includes('stop-color="#b3c9e2"')&&
  plainCoverSvg.includes('stop-color="#ddc9dd"')&&
  plainCoverSvg.includes('fill="#5f88b2" opacity=".18"')&&
  systemProfileCss.includes('.profile-cover.has-system-cover:not(.has-photo){')&&
- systemProfileCss.includes("background:linear-gradient(105deg,#9db8d7")&&
+ systemProfileCss.includes('background:linear-gradient(105deg,#9db8d7')&&
  systemProfileCss.includes('.profile-cover.has-photo{'),
- "Standard cover must be clearly distinguishable from the page background, share one richer blue/lilac palette, and leave user photos alone");
+ "SVG cover must remain distinct from the page background without affecting uploads");
 assert.ok(!plainAvatarSvg.includes("<clipPath")&&
  !plainAvatarSvg.includes('r="115"')&&
  plainAvatarSvg.includes('<rect width="256" height="256"')&&
  systemProfileCss.includes("Neutral placeholders are full-bleed artwork")&&
  systemProfileCss.includes("background-size:100% 100%!important")&&
  systemProfileCss.includes("border:4px solid #fff!important"),
- "Default avatars must fill one circular crop without a second inset SVG border");
-
-// Neutral vector placeholders are local assets, never external service requests.
-for(const kind of ["default","deleted","blocked","not-found"]){
- const avatarAsset="assets/avatars/avatar-"+kind+".svg";
- const coverAsset="assets/covers/cover-"+kind+".svg";
- const avatarSource=await read(avatarAsset),coverSource=await read(coverAsset);
- assert.ok(avatarSource.startsWith("<svg")&&coverSource.startsWith("<svg")&&
-  avatarSource.includes('viewBox="0 0 256 256"')&&
-  coverSource.includes('viewBox="0 0 1600 480"'),
-  "Neutral avatar and cover artwork must be valid local SVG for "+kind);
- assert.ok(sharedAvatar.includes("/VATRA/"+avatarAsset)&&
-  sharedAvatar.includes("/VATRA/"+coverAsset)&&
-  systemAvatarCss.includes("/VATRA/"+avatarAsset)&&
-  systemProfileCss.includes("/VATRA/"+avatarAsset),
-  "Avatar/cover consumers must use neutral SVG for "+kind);
-}
-assert.ok(sharedAvatar.includes('window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,')&&
- memberProfileMarkup.includes('id="profile-cover-system" class="ui-profile-cover-system-001" src="assets/covers/cover-default.svg"')&&
- profileBehavior.includes('systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)')&&
+ "Default avatar must render full-bleed inside a single white circular border");
+assert.ok(
+ !systemAvatarCss.includes("/VATRA/assets/avatars/")&&
+ !systemProfileCss.includes("/VATRA/assets/avatars/")&&
+ !systemProfileCss.includes("/VATRA/assets/covers/")&&
+ !sharedAvatar.includes("/VATRA/assets/avatars/")&&
+ !sharedAvatar.includes("/VATRA/assets/covers/")&&
+ !profileBehavior.includes("/VATRA/assets/covers/")&&
+ !memberProfileMarkup.includes("assets/covers/cover-default.svg")&&
+ sharedAvatar.includes('window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,')&&
+ memberProfileMarkup.includes('id="profile-cover-system" class="ui-profile-cover-system-001" data-vatra-cover-state="default"')&&
  profileBehavior.includes('systemCover.dataset.vatraCoverState=state')&&
  profileBehavior.includes('systemCover.hidden=true')&&
  profileBehavior.includes('systemCover.hidden=false')&&
- systemProfileCss.includes('.profile-cover .ui-profile-cover-system-001{')&&
- systemProfileCss.includes('object-fit:cover;object-position:center center;'),
- "Account-state covers must use system SVG assets until the member uploads custom art");
-assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/avatars/avatar-default.svg\")")&&
+ !profileBehavior.includes("systemCover.src=")&&
+ systemProfileCss.includes('background-image:var(--vatra-default-cover)')&&
+ systemProfileCss.includes('[data-vatra-cover-state="blocked"]')&&
+ systemProfileCss.includes('[data-vatra-cover-state="deleted"]')&&
+ systemProfileCss.includes('[data-vatra-cover-state="not-found"]'),
+ "Profile states must render through CSS-embedded SVGs without image file URLs");
+assert.ok(systemAvatarCss.includes('--vatra-default-avatar:url("data:image/svg+xml,')&&
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
  profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
@@ -1755,7 +1760,7 @@ assert.ok(systemAvatarCss.includes("--vatra-default-avatar:url(\"/VATRA/assets/a
  systemProfileCss.includes('body.profile-page .profile-avatar-wrap.has-active-story[data-vatra-ring-kind]::before')&&
  systemProfileCss.includes('background:#fff!important;box-shadow:0 0 0 1px #e1e7f1!important')&&
  systemProfileCss.includes('background:conic-gradient(from 40deg,#376de8'),
- "Avatar rings must be white unless the person has an active gradient-ring story");
+ "Embedded system SVGs must preserve the story-only gradient ring and privacy behavior");
 
 assert.doesNotThrow(()=>new Function(sharedAvatar),"Shared avatar module remains valid JS");
 assert.ok(
