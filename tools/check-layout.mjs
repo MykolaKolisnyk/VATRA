@@ -204,24 +204,12 @@ assert.ok(css.includes('@keyframes vatraLanguageBackdrop')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header .back{order:1;'),
  "Recovery navigation and language modal should share VATRA branding and motion");
 assert.ok(css.includes("Onest-Variable.ttf")&&legalCss.includes("max-width:767px"),"Local styles missing");
-assert.ok(!errors.includes('"%cVATRA%c')&&!errors.includes('console.log(')&&
- errors.includes('VATRA · Помилка')&&errors.includes('VATRA · Error'),
- "Do not print a VATRA banner in DevTools; keep branded error alerts");
-assert.ok(errors.includes('window.addEventListener("error"')&&
- errors.includes('window.addEventListener("unhandledrejection"')&&
- errors.includes('for(const kind of ["error","warn"])')&&
- errors.includes('kind==="warn"?"warning":"error"')&&
- errors.includes('setTimeout(dismiss,DISPLAY_MS)')&&
- !errors.includes('window.VATRA_ERRORS={show}')&&
+assert.ok(!errors.includes('window.addEventListener("error"')&&
+ !errors.includes('window.addEventListener("unhandledrejection"')&&
+ !errors.includes('console[kind]')&&
+ !errors.includes('vatra-error-toast')&&
  !auth.includes("VATRA_ERRORS"),
- "Only console errors and warnings should show in automatically dismissing toasts; form errors stay inline");
-assert.ok(errors.includes('Service Worker registration blocked by Playwright')&&
- errors.includes('if(origin==="console"&&/^Service Worker registration blocked by Playwright'),
- "Only benign test-harness service-worker warnings are hidden from visible error toasts");
-assert.ok(css.includes(".vatra-error-stack")&&css.includes(".vatra-error-toast.is-visible")&&
- css.includes(".vatra-error-toast--warning")&&css.includes("border-left-color:#d99a32")&&
- errors.includes('VATRA · Попередження')&&errors.includes("VATRA · Warning"),
- "Console errors and warnings need separate red and amber VATRA notification designs");
+ "Browser console output must stay in DevTools rather than trigger on-page alerts");
 assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transparent;opacity:0}')&&
  css.includes('.vatra-floating-hint{')&&
  css.includes('.vatra-input-shell:focus-within .vatra-floating-hint,')&&
@@ -387,8 +375,8 @@ for(const filename of [...pages,"communities","club","notifications"]){
 assert.ok(sw.includes("Promise.allSettled(ASSETS.filter("),
  "Optional resources must not prevent the offline fallback from installing");
 assert.ok(sw.includes('const OFFLINE=ROOT+"offline.html"'),"Single offline page missing");
-assert.ok(offline.includes('assets/js/errors.js')&&sw.includes('ROOT+"assets/js/errors.js"'),
- "Offline diagnostics and cached resource must exist");
+assert.ok(!offline.includes('assets/js/errors.js')&&!sw.includes('ROOT+"assets/js/errors.js"'),
+ "Offline pages and service worker must not load console-to-toast diagnostics");
 assert.ok(sw.includes('ROOT+"assets/i18n/en.json"')&&sw.includes('ROOT+"assets/i18n/uk.json"'),
  "Offline worker must cache both dictionaries");
 const ownRe=/\b(?:vt|ui)-[a-z0-9-]+/g;
@@ -808,7 +796,7 @@ for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
  assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
- assert.ok(html.includes("assets/js/lang.js")&&html.includes("assets/js/errors.js"),page+": shared language picker and diagnostics missing");
+ assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": language picker required, console toasts forbidden");
  assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
 }
 assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger.addEventListener(\"click\",open)"),
