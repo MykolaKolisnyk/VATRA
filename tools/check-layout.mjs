@@ -1038,8 +1038,8 @@ assert.ok(liveSiteShell.includes('vatra-search-live-results')&&
  liveSiteShell.includes('ui-vatra-search-live-glyph-')&&
  liveSiteShell.includes('scheduleLive(term)')&&
  liveNotificationProvider.includes('window.VATRA_SITE_SEARCH={search:findSite}')&&
- liveNotificationProvider.includes('client.from("public_profiles")')&&
- liveNotificationProvider.includes('client.from("feed_posts")'),
+ liveNotificationProvider.includes('viewer.from("public_profiles")')&&
+ liveNotificationProvider.includes('viewer.from("feed_posts")'),
  "Site-wide search must query RLS-visible people, communities and posts directly");
 const notificationMarkup=await read("notifications.html");
 const notificationScript=await read("assets/js/notifications.js");
