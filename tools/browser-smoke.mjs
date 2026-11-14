@@ -2704,9 +2704,13 @@ try{
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
    "Closing the viewer must restore the original post without a duplicate");
   await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
-  await feedProbe.waitForFunction(()=>window.__vatraSmokeCommentCalls.length===3);
-  assert.equal((await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls)).at(-1),"newest",
-   "Reopening the comment viewer refreshes its content using the selected sort");
+  await feedProbe.waitForFunction(()=>{
+   const list=document.querySelector(".vatra-post-comment-dialog .ui-vatra-post-comment-list-001");
+   return list?.getAttribute("aria-busy")==="false"&&
+    list.querySelectorAll(".vatra-post-comment").length===2;
+  });
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
+   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
 

@@ -65,7 +65,8 @@
   const [profile,media]=await Promise.all([
    (window.VATRA_PUBLIC_NAMES?.get(client,ids)||
     client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)),
-   client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)
+   (window.VATRA_AVATAR?.paths?.(client,ids)||
+    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids))
   ]);
   if(!profile.error)for(const x of profile.data||[])names.set(String(x.vatra_id),x.display_name);
   if(!media.error)for(const x of media.data||[]){
@@ -80,12 +81,91 @@
   }
   return {names,images};
  }
+ // Browser-only, RLS-scoped pages of comments. Never share them via Redis.
+ // Keep pages tiny and short-lived; writes and account switches discard them.
+ const COMMENT_PAGE_TTL_MS=4_000,COMMENT_PAGE_MAX=32;
+ const commentPageCaches=new WeakMap();
+ function commentPageState(client){
+  let state=commentPageCaches.get(client);
+  if(state)return state;
+  state={entries:new Map(),generation:0};
+  commentPageCaches.set(client,state);
+  if(typeof client.auth?.onAuthStateChange==="function"){
+   client.auth.onAuthStateChange(event=>{
+    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    state.generation++;state.entries.clear();
+   });
+  }
+  return state;
+ }
+ function invalidateComments(client){
+  const state=client&&commentPageCaches.get(client);
+  if(state){state.generation++;state.entries.clear();}
+ }
+ async function commentThreadPage(client,params){
+  const {p_kind,p_post_id,p_sort,p_parent,p_offset,p_limit}=params||{};
+  if(!client||typeof client.rpc!=="function"||
+   !["person","group"].includes(p_kind)||!validUUID(p_post_id)||
+   !["relevant","newest","all"].includes(p_sort)||
+   (p_parent!==null&&!validUUID(p_parent))||
+   !Number.isSafeInteger(p_offset)||p_offset<0||
+   !Number.isSafeInteger(p_limit)||p_limit<1||p_limit>50)
+   return {data:null,error:Error("Invalid comment page request")};
+  const state=commentPageState(client),generation=state.generation;
+  const key=JSON.stringify([p_kind,p_post_id,p_sort,p_parent,p_offset,p_limit]);
+  const previous=state.entries.get(key);
+  if(previous){
+   if(previous.pending){
+    try{
+     const rows=await previous.pending;
+     if(state.generation!==generation)throw Error("Viewer changed");
+     return {data:rows.map(row=>({...row})),error:null};
+    }catch(error){return {data:null,error};}
+   }
+   if(previous.expires>Date.now()){
+    state.entries.delete(key);state.entries.set(key,previous);
+    return {data:previous.rows.map(row=>({...row})),error:null};
+   }
+   state.entries.delete(key);
+  }
+  const pending=(async()=>{
+   const {data,error}=await client.rpc("vatra_comment_thread_page",params);
+   if(error)throw error;
+   if(state.generation!==generation)throw Error("Viewer changed");
+   if(!Array.isArray(data))throw Error("Invalid comment page response");
+   return data;
+  })();
+  state.entries.set(key,{pending,expires:0});
+  while(state.entries.size>COMMENT_PAGE_MAX)
+   state.entries.delete(state.entries.keys().next().value);
+  try{
+   const rows=await pending;
+   if(state.generation!==generation)throw Error("Viewer changed");
+   if(state.entries.get(key)?.pending===pending){
+    state.entries.delete(key);
+    state.entries.set(key,{rows:rows.map(row=>({...row})),expires:Date.now()+COMMENT_PAGE_TTL_MS});
+   }
+   return {data:rows.map(row=>({...row})),error:null};
+  }catch(error){
+   if(state.entries.get(key)?.pending===pending)state.entries.delete(key);
+   return {data:null,error};
+  }
+ }
  // A short-lived, per-client cache for already-RLS-scoped engagement pages.
  // Never send viewer_liked or viewer_saved to shared Redis.
- const engagementQueryCache=new WeakMap();
+ const engagementQueryCache=new WeakMap(),engagementAuthBound=new WeakSet();
  const ENGAGEMENT_TTL_MS=3_000,ENGAGEMENT_MAX_PAGES=16;
  function invalidateEngagement(client){
   if(client)engagementQueryCache.delete(client);
+ }
+ function bindEngagementAuth(client){
+  if(engagementAuthBound.has(client))return;
+  engagementAuthBound.add(client);
+  if(typeof client.auth?.onAuthStateChange==="function")
+   client.auth.onAuthStateChange(event=>{
+    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    invalidateEngagement(client);
+   });
  }
  async function prefetchEngagement(client,posts){
   const unique=new Map();
@@ -95,13 +175,17 @@
   }
   const requested=[...unique.values()],empty=new Map();
   if(!requested.length||typeof client?.rpc!=="function")return empty;
+  bindEngagementAuth(client);
   const key=requested.map(post=>post.kind+":"+post.id).sort().join("|");
   let cache=engagementQueryCache.get(client);
   if(!cache){cache=new Map();engagementQueryCache.set(client,cache);}
   const previous=cache.get(key);
   if(previous){
    if(previous.pending){
-    try{return new Map(await previous.pending);}catch(_){return new Map();}
+    try{
+     const result=await previous.pending;
+     return engagementQueryCache.get(client)===cache?new Map(result):new Map();
+    }catch(_){return new Map();}
    }
    if(previous.expires>Date.now())return new Map(previous.data);
    cache.delete(key);
@@ -123,7 +207,8 @@
   cache.set(key,{pending,expires:0});
   try{
    const result=await pending;
-   // A like/save/comment written during the request invalidates its old snapshot.
+   // Stale responses from writes or an earlier auth session must never render.
+   if(engagementQueryCache.get(client)!==cache)return new Map();
    if(engagementQueryCache.get(client)===cache){
     cache.delete(key);
     cache.set(key,{data:new Map(result),expires:Date.now()+ENGAGEMENT_TTL_MS});
@@ -653,6 +738,7 @@ function appendAudience(container,level,isGroup=false){
       await client.from("post_comment_likes").insert({comment_id:item.id,liker_id:userId});
      if(result.error)throw result.error;
      ownLiked=!ownLiked;likeCount+=ownLiked?1:-1;renderLike();
+     invalidateComments(client);
     }catch(_){feedback(tr("Не вдалося змінити вподобання.","Could not update like."),true);}
     finally{likeComment.disabled=false;}
    });
@@ -676,7 +762,7 @@ function appendAudience(container,level,isGroup=false){
      if(working)return;working=true;moreReplies.disabled=true;
      if(reset){replyOffset=0;repliesList.replaceChildren();}
      try{
-      const {data,error}=await client.rpc("vatra_comment_thread_page",{
+      const {data,error}=await commentThreadPage(client,{
        p_kind:kind,p_post_id:post.id,p_sort:sort.value,
        p_parent:item.id,p_offset:replyOffset,p_limit:replySize+1
       });
@@ -722,7 +808,7 @@ function appendAudience(container,level,isGroup=false){
    const token=++ticket;
    if(reset){commentOffset=0;entries.replaceChildren();more.hidden=true;rootReplies.clear();}
    try{
-    const {data,error}=await client.rpc("vatra_comment_thread_page",{
+    const {data,error}=await commentThreadPage(client,{
      p_kind:kind,p_post_id:post.id,p_sort:sort.value,
      p_parent:null,p_offset:commentOffset,p_limit:pageSize+1
     });
@@ -830,7 +916,7 @@ function appendAudience(container,level,isGroup=false){
     }
     const result=await client.from("post_comments").insert(payload);
     if(result.error)throw result.error;
-    invalidateEngagement(client);
+    invalidateEngagement(client);invalidateComments(client);
     input.value="";chosenFile=null;fileInput.value="";
     attachmentPreview.hidden=true;stopReply();updateSend();
     if(target&&rootReplies.has(target.id))await rootReplies.get(target.id).expand(true);
