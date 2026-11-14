@@ -11,7 +11,7 @@ const uk=JSON.parse(await readFile("assets/i18n/uk.json","utf8"));
 const context={window:{},document:{},location:{href:"https://localhost/VATRA/feed"},
  Date,JSON,Math,Number,String,Map,Set,URL,AbortController};
 runInNewContext(source,context);
-const {recentSignup,storedKey,readState,saveState}=context.window.VATRA_ONBOARDING_STATE;
+const {recentSignup,storedKey,readState,saveState,shouldSaveSkip}=context.window.VATRA_ONBOARDING_STATE;
 const now=Date.parse("2026-11-14T19:00:00Z");
 assert.equal(recentSignup("2026-11-14T18:59:00Z",now),true);
 assert.equal(recentSignup("2026-10-17T19:00:00Z",now),true);
@@ -34,6 +34,13 @@ assert.equal(readState(store,"789012"),null,
  "Another member must never inherit the first member's tour position");
 assert.equal(saveState(store,"789012","skipped",0),true);
 assert.equal(readState(store,"789012").status,"skipped");
+// Explicitly skipping a resumed paused tour must be final. Replaying an
+// already finished or skipped tour must preserve its terminal state.
+assert.equal(shouldSaveSkip(false,{status:"paused"}),true);
+assert.equal(shouldSaveSkip(true,{status:"paused"}),true);
+assert.equal(shouldSaveSkip(true,null),true);
+assert.equal(shouldSaveSkip(true,{status:"done"}),false);
+assert.equal(shouldSaveSkip(true,{status:"skipped"}),false);
 assert.equal(saveState(store,"654321","done",7),true);
 assert.equal(readState(store,"654321").status,"done");
 assert.equal(readState(store,"789012").status,"skipped");
