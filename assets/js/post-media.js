@@ -438,27 +438,31 @@
   let begun=false;
   async function loadTiles(){
    if(begun)return;begun=true;
-   await preSignGallery(client,tiles.map(({item})=>item));
+   // A video tile already has a visible play symbol. Do not download an MP4
+   // (often the entire file) merely to extract its first-frame preview.
+   await preSignGallery(client,tiles.filter(({item})=>item.media_kind==="image").map(({item})=>item));
    await Promise.allSettled(tiles.map(async({item,tile,index})=>{
     try{
-     const src=await signed(client,item.media_kind,item.media_path);
+     if(item.media_kind==="video"){
+      tile.classList.add("is-gallery-ready");
+      tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
+      return;
+     }
+     const src=await signed(client,"image",item.media_path);
      if(!tile.isConnected)return;
-     const element=document.createElement(item.media_kind==="image"?"img":"video");
+     const element=document.createElement("img");
      element.className="ui-vatra-post-gallery-media-"+index;
-     if(item.media_kind==="image"){element.alt=tr("Фото публікації","Post photo");element.decoding="async";}
-     else{element.muted=true;element.playsInline=true;element.preload="metadata";}
-     const orientation=()=>{
+     element.alt=tr("Фото публікації","Post photo");
+     element.decoding="async";
+     element.addEventListener("load",()=>{
       if(index!==0||!slot.isConnected)return;
-      const width=item.media_kind==="image"?element.naturalWidth:element.videoWidth;
-      const height=item.media_kind==="image"?element.naturalHeight:element.videoHeight;
+      const width=element.naturalWidth,height=element.naturalHeight;
       if(width&&height)slot.dataset.orientation=width>height*1.25?"wide":"portrait";
-     };
-     element.addEventListener(item.media_kind==="image"?"load":"loadedmetadata",orientation,{once:true});
+     },{once:true});
      element.src=src;
      tile.prepend(element);
      tile.classList.add("is-gallery-ready");
-     const skeleton=tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]');
-     skeleton?.remove();
+     tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
     }catch(_){tile.classList.add("is-gallery-unavailable");}
    }));
   }
@@ -537,56 +541,86 @@
   placeholder.className="vatra-post-media-placeholder ui-vatra-post-media-placeholder-001";
   placeholder.setAttribute("aria-hidden","true");
   slot.append(placeholder);container.append(slot);
+  if(kind==="video"){
+   // No video bytes or signed URL are needed until the viewer explicitly plays.
+   // This preserves native controls and fullscreen after the first click.
+   const play=document.createElement("button");
+   play.className="vt-feed-post-video-play-001";
+   play.type="button";
+   const symbol=document.createElementNS("http://www.w3.org/2000/svg","svg");
+   symbol.setAttribute("class","ui-feed-post-video-play-icon-001");
+   symbol.setAttribute("viewBox","0 0 24 24");
+   symbol.setAttribute("fill","currentColor");
+   symbol.setAttribute("aria-hidden","true");
+   const shape=document.createElementNS("http://www.w3.org/2000/svg","path");
+   shape.setAttribute("class","ui-feed-post-video-play-shape-001");
+   shape.setAttribute("d","M8 5v14l11-7Z");
+   symbol.append(shape);
+   const label=document.createElement("span");
+   label.className="vt-feed-post-video-play-label-001";
+   label.textContent=tr("Відтворити відео","Play video");
+   play.append(symbol,label);
+   let pending=false;
+   play.addEventListener("click",async()=>{
+    if(pending)return;
+    pending=true;play.disabled=true;
+    label.textContent=tr("Завантаження відео…","Loading video…");
+    try{
+     const src=await signed(client,"video",path);
+     if(!slot.isConnected)return;
+     const video=document.createElement("video");
+     video.className="feed-post-media-video ui-feed-post-media-video-001";
+     video.controls=true;video.preload="metadata";video.playsInline=true;
+     const expand=document.createElement("button");expand.type="button";
+     expand.className="vt-feed-post-video-expand-001";
+     expand.textContent=tr("На весь екран","Fullscreen");
+     expand.addEventListener("click",()=>{video.pause();openFullMedia(src,"video");});
+     video.src=src;
+     slot.replaceChildren(video,expand);
+     // A deferred signature may consume the gesture; native controls remain usable.
+     void video.play().catch(()=>{});
+    }catch(_){
+     if(!slot.isConnected)return;
+     pending=false;play.disabled=false;
+     label.textContent=tr("Повторити завантаження відео","Retry loading video");
+    }
+   });
+   slot.classList.remove("is-loading-media");
+   slot.classList.add("is-ready-media");
+   slot.replaceChildren(play);
+   return;
+  }
   const priority=++firstImages;
   let begun=false;
   async function load(){
    if(begun)return;begun=true;
    try{
-    const src=await signed(client,kind,path);
+    const src=await signed(client,"image",path);
     if(!slot.isConnected)return;
-    if(kind==="image"){
-     // Decode outside the DOM: never show half-loaded pixels or a black slab.
-     const image=new Image();
-     image.className="feed-post-media-image ui-feed-post-media-image-001";
-     image.alt=tr("Фото до публікації","Post photo");
-     image.decoding="async";image.loading="eager";
-     if(priority<=2)image.fetchPriority="high";
-     image.src=src;
-     if(typeof image.decode==="function"){
-      try{await image.decode();}catch(_){
-       if(!image.complete||!image.naturalWidth)throw Error("Image unavailable");
-      }
-     }else await new Promise((resolve,reject)=>{
-      if(image.complete)return image.naturalWidth?resolve():reject(Error("Invalid image"));
-      image.addEventListener("load",resolve,{once:true});
-      image.addEventListener("error",()=>reject(Error("Image unavailable")),{once:true});
-     });
-     if(!slot.isConnected)return;
-     const frame=document.createElement("button");
-     frame.className="vt-feed-post-media-open-001";frame.type="button";
-     frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
-     frame.addEventListener("click",()=>openFullMedia(src,"image"));
-     frame.append(image);
-     slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
-     slot.classList.add("is-ready-media");
-    }else{
-     const video=document.createElement("video");
-     video.className="feed-post-media-video ui-feed-post-media-video-001";
-     video.controls=true;video.preload="metadata";video.playsInline=true;
-     video.src=src;
-     const expand=document.createElement("button");expand.type="button";
-     expand.className="vt-feed-post-video-expand-001";
-     expand.textContent=tr("На весь екран","Fullscreen");
-     expand.addEventListener("click",()=>openFullMedia(src,"video"));
-     const reveal=()=>{
-      if(!slot.isConnected)return;
-      slot.replaceChildren(video,expand);
-      slot.classList.remove("is-loading-media");slot.classList.add("is-ready-media");
-     };
-     if(video.readyState>=1)reveal();
-     else video.addEventListener("loadedmetadata",reveal,{once:true});
-     video.addEventListener("error",()=>failure(tr("Відео недоступне.","Video unavailable.")),{once:true});
-    }
+    // Decode outside the DOM: never show half-loaded pixels or a black slab.
+    const image=new Image();
+    image.className="feed-post-media-image ui-feed-post-media-image-001";
+    image.alt=tr("Фото до публікації","Post photo");
+    image.decoding="async";image.loading="eager";
+    if(priority<=2)image.fetchPriority="high";
+    image.src=src;
+    if(typeof image.decode==="function"){
+     try{await image.decode();}catch(_){
+      if(!image.complete||!image.naturalWidth)throw Error("Image unavailable");
+     }
+    }else await new Promise((resolve,reject)=>{
+     if(image.complete)return image.naturalWidth?resolve():reject(Error("Invalid image"));
+     image.addEventListener("load",resolve,{once:true});
+     image.addEventListener("error",()=>reject(Error("Image unavailable")),{once:true});
+    });
+    if(!slot.isConnected)return;
+    const frame=document.createElement("button");
+    frame.className="vt-feed-post-media-open-001";frame.type="button";
+    frame.setAttribute("aria-label",tr("Відкрити фото на весь екран","View photo fullscreen"));
+    frame.addEventListener("click",()=>openFullMedia(src,"image"));
+    frame.append(image);
+    slot.replaceChildren(frame);slot.classList.remove("is-loading-media");
+    slot.classList.add("is-ready-media");
    }catch(_){failure(tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable."));}
   }
   function failure(message){
