@@ -2718,6 +2718,7 @@ try{
   assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(img=>img.naturalWidth>0),
    true,"The original welcome mascot must render");
   await feedProbe.locator(".vt-tour-next-001").click();
+  await feedProbe.locator(".vt-tour-spotlight-001").waitFor({state:"visible",timeout:3000});
   assert.equal(await feedProbe.locator(".vt-tour-spotlight-001").isVisible(),true,
    "An actual Feed control should be highlighted");
   assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
