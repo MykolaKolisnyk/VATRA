@@ -295,7 +295,7 @@ function start(options={}){
  if(!validId(id)||!options.client||document.body.dataset.feedReady!=="true")return false;
  if(session?.id===id)return true;
  stop();
- session={id,client:options.client,controller:new AbortController()};
+ session={id,client:options.client,authUserId:String(options.authUserId||""),controller:new AbortController()};
  const menu=document.querySelector(".feed-account-menu");
  const support=menu?.querySelector(".feed-menu-support");
  if(support&&!document.querySelector("#vatra-onboarding-replay")){
@@ -316,8 +316,12 @@ function start(options={}){
  const saved=readState(localStorage,id);
  const eligible=recentSignup(options.createdAt);
  if(typeof options.client.auth?.onAuthStateChange==="function"){
-  const {data}=options.client.auth.onAuthStateChange(event=>{
-   if(event!=="INITIAL_SESSION"&&event!=="TOKEN_REFRESHED")stop();
+  const {data}=options.client.auth.onAuthStateChange((event,newSession)=>{
+   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+   // Supabase can re-emit SIGNED_IN for the same person after tab refocus.
+   // That is not an account switch and must not close a guided tour.
+   if(event==="SIGNED_IN"&&newSession?.user?.id===session?.authUserId)return;
+   stop();
   });
   authSubscription=data?.subscription||null;
  }
