@@ -3407,9 +3407,13 @@ try{
   assert.equal(searchStyles.activeBackground,"rgba(0, 0, 0, 0)",
    "Active header item must remain unfilled; only the icon and underline turn blue");
   await feedProbe.evaluate(()=>{
-   localStorage.setItem("vatra.search.history.v1",JSON.stringify(
+   if(window.VATRA_AUTH_MEMBER_ID!=="654321"||!window.VATRA_SEARCH_HISTORY?.setViewer)
+    throw Error("Search history must be associated with the verified member");
+   // A legacy unscoped history must never be used by either member.
+   localStorage.setItem("vatra.search.history.v1",JSON.stringify(["Чужий старий пошук"]));
+   localStorage.setItem("vatra.search.history.v2.member.654321",JSON.stringify(
     Array.from({length:12},(_,i)=>"VATRA запит "+(12-i))));
-   dispatchEvent(new StorageEvent("storage",{key:"vatra.search.history.v1"}));
+   dispatchEvent(new StorageEvent("storage",{key:"vatra.search.history.v2.member.654321"}));
   });
   await feedProbe.locator("#feed-search-input").click();
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),true,
@@ -3481,7 +3485,7 @@ try{
   assert.equal(await feedProbe.locator("#vatra-search-clear").isVisible(),false);
   await feedProbe.locator(".vatra-search-history-remove").first().click();
   assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),11);
-  assert.equal(await feedProbe.evaluate(()=>JSON.parse(localStorage.getItem("vatra.search.history.v1")).length),11,
+  assert.equal(await feedProbe.evaluate(()=>JSON.parse(localStorage.getItem("vatra.search.history.v2.member.654321")).length),11,
    "Deleting one history item must persist immediately in localStorage");
   await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
@@ -3534,6 +3538,23 @@ try{
   assert.deepEqual(abortState,{queries:["vatra alpha","vatra beta"],aborted:[true,true]},
    "Closing the search panel must abort the last in-flight request");
   console.log("VATRA live search: input changes and panel close abort obsolete requests");
+
+  // A second signed-in member on this browser may not see the first
+  // member's recent searches, including the legacy global history.
+  await feedProbe.evaluate(()=>{
+   localStorage.removeItem("vatra.search.history.v2.member.789012");
+   window.VATRA_SEARCH_HISTORY.setViewer("789012");
+  });
+  await feedProbe.locator("#feed-search-input").click();
+  assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),0,
+   "A different account cannot see another member's search history");
+  await feedProbe.locator("#vatra-search-back").click();
+  await feedProbe.evaluate(()=>window.VATRA_SEARCH_HISTORY.setViewer("654321"));
+  await feedProbe.locator("#feed-search-input").click();
+  assert.equal(await feedProbe.locator(".vatra-search-history-row").count(),11,
+   "Switching back restores only the original member's local search history");
+  await feedProbe.locator("#vatra-search-back").click();
+  console.log("VATRA search history: no cross-account or legacy global history leakage");
 
   assert.equal(await feedProbe.locator(".feed-stories").isVisible(),true);
   assert.equal(await feedProbe.locator(".feed-story-preview").count(),0,
@@ -3813,7 +3834,7 @@ try{
   await feedProbe.locator("#feed-search-input").fill("Новий пошук VATRA");
   await feedProbe.locator("#feed-search-input").press("Enter");
   await feedProbe.waitForFunction(()=>
-   JSON.parse(localStorage.getItem("vatra.search.history.v1")||"[]")[0]==="Новий пошук VATRA");
+   JSON.parse(localStorage.getItem("vatra.search.history.v2.member.654321")||"[]")[0]==="Новий пошук VATRA");
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
    "Submit persists the latest query and closes the search menu");
   const mobileGeometry=await feedProbe.evaluate(()=>({
