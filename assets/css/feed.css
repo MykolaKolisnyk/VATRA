@@ -2945,3 +2945,30 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-empty{
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-row:4!important}
  body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:5!important}
 }
+
+
+/* Empty list wrappers must never add a phantom extra gap. All member profiles,
+   the main Feed and community posts use identical layout logic. */
+body.feed-page:not(.profile-page):not(.community-page){
+ --vatra-content-card-gap:16px;
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-main{
+ row-gap:var(--vatra-content-card-gap)!important;
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-posts-section{
+ gap:var(--vatra-content-card-gap)!important;
+}
+body.feed-page #feed-posts:not(:has(> *)),
+body.community-page #club-posts:not(:has(> *)){
+ display:none!important;
+}
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty{
+ min-height:205px;
+}
+/* The header, story lane and empty/loaded posts use one spacing token even
+   after the narrow-screen grid rearranges. */
+@media(max-width:770px){
+ body.feed-page:not(.profile-page):not(.community-page){
+  --vatra-content-card-gap:12px;
+ }
+}
