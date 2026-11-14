@@ -295,7 +295,7 @@
  const searchGroups=node("div","vatra-global-search-groups ui-vatra-global-search-groups-001");
  globalResults.append(searchHeading,searchGroups);
  posts.parentElement?.insertBefore(globalResults,posts);
- let globalSearchTicket=0;
+ let globalSearchTicket=0,globalSearchController=null,globalSearchPending=null,globalSearchPhrase=null;
  const drawGlobalGroup=(title,records,makeCard)=>{
   if(!records.length)return;
   const section=node("section","vatra-global-search-group ui-vatra-global-search-group-001");
@@ -305,28 +305,40 @@
   section.append(list);searchGroups.append(section);
  };
  async function loadGlobalResults(){
-  const phrase=searchTerm.trim(),ticket=++globalSearchTicket;
+  const phrase=searchTerm.trim();
+  // Share simultaneous requests for the same phrase, not successive explicit searches.
+  if(globalSearchPending&&globalSearchPhrase===phrase)return globalSearchPending;
+  const ticket=++globalSearchTicket;
+  globalSearchController?.abort();
+  globalSearchController=null;globalSearchPending=null;globalSearchPhrase=phrase;
   if(!phrase){globalResults.hidden=true;searchGroups.replaceChildren();return;}
+  const controller=new AbortController();
+  globalSearchController=controller;
+  const task=(async()=>{
   globalResults.hidden=false;searchGroups.replaceChildren();
   searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
   const escaped=phrase.replace(/[\\%_]/g,character=>String.fromCharCode(92)+character);
   // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
-  const [membersByName,membersByStatus,clubsByName,clubsByDescription]=await Promise.allSettled([
+  const queries=[
    client.from("public_profiles").select("vatra_id,display_name,status_text")
     .ilike("display_name","%"+escaped+"%").limit(8),
    client.from("public_profiles").select("vatra_id,display_name,status_text")
     .ilike("status_text","%"+escaped+"%").limit(8),
    client.from("communities").select("club_id,name,description").ilike("name","%"+escaped+"%").limit(8),
    client.from("communities").select("club_id,name,description").ilike("description","%"+escaped+"%").limit(8)
-  ]);
-  if(ticket!==globalSearchTicket||!globalResults.isConnected)return;
+  ];
+  // PostgREST's abortSignal cancels network work from superseded searches.
+  const [membersByName,membersByStatus,clubsByName,clubsByDescription]=await Promise.allSettled(
+   queries.map(query=>typeof query.abortSignal==="function"?
+    query.abortSignal(controller.signal):query));
+  if(controller.signal.aborted||ticket!==globalSearchTicket||!globalResults.isConnected)return;
   const successful=r=>r.status==="fulfilled"&&!r.value.error?r.value.data||[]:[];
   const people=[...new Map([...successful(membersByName),...successful(membersByStatus)]
    .map(p=>[String(p.vatra_id),p])).values()].slice(0,8);
   const clubs=[...new Map([...successful(clubsByName),...successful(clubsByDescription)]
    .map(p=>[String(p.club_id),p])).values()].slice(0,8);
   await loadAvatars(people.map(p=>p.vatra_id));
-  if(ticket!==globalSearchTicket||!globalResults.isConnected)return;
+  if(controller.signal.aborted||ticket!==globalSearchTicket||!globalResults.isConnected)return;
   searchGroups.replaceChildren();
   drawGlobalGroup(t("Люди","People"),people,person=>{
    const link=node("a","vatra-global-search-card ui-vatra-global-search-person-001");
@@ -357,6 +369,14 @@
    link.append(icon,info);return link;
   });
   if(!people.length&&!clubs.length)globalResults.hidden=true;
+  })();
+  globalSearchPending=task;
+  try{await task;}
+  finally{
+   if(globalSearchPending===task){
+    globalSearchPending=null;globalSearchController=null;
+   }
+  }
  }
  // Independent, fixed-size Supabase cursors keep the two chronological feeds merged.
  // Only the next 12 posts are materialized; no eager 200+200 post download.
@@ -884,6 +904,7 @@
     const button=q("#feed-logout");button.disabled=true;
     const {error}=await client.auth.signOut({scope:"local"});
     if(error){button.disabled=false;message(t("Не вдалося вийти. Повторіть спробу.","Could not sign out. Please retry."));return;}
+    globalSearchTicket++;globalSearchController?.abort();
     try{sessionStorage.setItem("vatra-just-signed-out","1");}catch(_){}
     window.VATRA_AVATAR?.clearHeader();
     location.replace(new URL("./",location.href).href);
