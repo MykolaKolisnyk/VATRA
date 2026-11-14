@@ -475,12 +475,17 @@ function stop(){
  panelLoadPending=null;panelLoadQueued=false;
  sectionPage=0;sectionLoading=false;
  client=null;ownId=null;
+ window.VATRA_AUTH_MEMBER_ID=null;
+ window.VATRA_SEARCH_HISTORY?.setViewer(null);
 }
 function start(c,id){
  if(!c||!validId(id))return;
  if(notificationRun?.client===c&&notificationRun.id===String(id))return;
  stop(); // No listeners, timers, or a badge from a previous account.
  client=c;ownId=String(id);
+ // Search history follows the member whose identity the app verified.
+ window.VATRA_AUTH_MEMBER_ID=ownId;
+ window.VATRA_SEARCH_HISTORY?.setViewer(ownId);
  headerUI();
  if(!bell)return;
  const run={client:c,id:ownId,controller:new AbortController(),timer:null,authSubscription:null};
