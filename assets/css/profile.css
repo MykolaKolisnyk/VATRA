@@ -2817,3 +2817,44 @@ body.profile-page .vt-profile-story-compose-error-001:not([hidden]){margin:0;col
  body.profile-page .vt-profile-write-post-001{min-height:42px;padding:9px 10px}
  body.profile-page .vt-profile-quick-media-001{width:42px;height:42px}
 }
+
+
+/* Keep the two owner-profile header actions on exactly the same baseline.
+   The generic .social-profile-create rule sets margin-top:13px, which
+   otherwise overrides the less-specific .profile-actions button reset. */
+body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open){
+ display:inline-flex;
+ flex:0 0 auto;
+ align-self:center;
+ align-items:center;
+ justify-content:center;
+ box-sizing:border-box;
+ width:auto;
+ height:45px;
+ min-height:45px;
+ margin:0;
+ padding:0 16px;
+ gap:9px;
+ border-radius:11px;
+ font:710 13px/1.35 "Onest",system-ui,sans-serif;
+ vertical-align:middle;
+ white-space:nowrap;
+}
+body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open) > svg{
+ display:block;
+ flex:0 0 19px;
+ width:19px;
+ height:19px;
+ margin:0;
+}
+body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open):hover{
+ transform:none;
+}
+@media(max-width:650px){
+ body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open){
+  flex:1 1 auto;
+  min-width:0;
+  white-space:normal;
+  text-align:center;
+ }
+}
