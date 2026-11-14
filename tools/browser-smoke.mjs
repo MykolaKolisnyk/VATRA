@@ -3034,6 +3034,86 @@ try{
   ],"All three reaction DELETE operations must confirm their affected rows");
   await feedProbe.locator(reactHost).evaluate(el=>el.remove());
   console.log("VATRA reactions: RLS no-op and confirmed unlike/unsave preserved across Feed");
+  // Reposting is durable even if the caller's Feed refresh throws.
+  // Sending a link uses the accepted-friends picker and blocks double-submit.
+  await feedProbe.evaluate(()=>{
+   const id="00000000-0000-4000-8000-000000000991",
+    userId="00000000-0000-4000-8000-000000000992";
+   const state={reposts:[],messages:[],onShared:0,finishDM:null};
+   window.__vatraShareSmoke=state;
+   const host=document.createElement("div");host.id="vatra-share-smoke";document.body.append(host);
+   const client={
+    auth:{onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}};},
+     async getUser(){return {data:{user:{email:"share-smoke@vatra.example",user_metadata:{}}},error:null};}},
+    from(table){
+     const query={
+      select(){return this;},or(){return this;},eq(){return this;},
+      is(){return this;},in(){return this;},
+      limit:async()=>({data:table==="friendships"?[
+       {requester_id:"12",recipient_id:"13",status:"accepted"}]:[],error:null}),
+      then(resolve,reject){return Promise.resolve({data:[],error:null,count:0}).then(resolve,reject);},
+      insert(payload){
+       if(table==="feed_posts"){
+        state.reposts.push(payload);return Promise.resolve({error:null});
+       }
+       if(table==="direct_messages"){
+        state.messages.push(payload);
+        return new Promise(resolve=>{state.finishDM=()=>resolve({error:null});});
+       }
+       return Promise.resolve({error:null});
+      }
+     };
+     return query;
+    }
+   };
+   window.VATRA_POST_INTERACTIONS.mount(client,{id,kind:"person",body:"Share smoke"},
+    host,{ownId:"12",userId,engagement:{
+     post_id:id,post_kind:"person",like_count:0,viewer_liked:false,
+     viewer_saved:false,comment_count:0,share_count:0
+    },onShared(){state.onShared++;throw Error("Feed refresh failed after committed share");}});
+   const dialog=[...document.querySelectorAll(".vatra-post-share-dialog")].at(-1);
+   dialog.id="vatra-share-smoke-dialog";
+  });
+  const shareRoot="#vatra-share-smoke";
+  const shareDialog="#vatra-share-smoke-dialog";
+  await feedProbe.locator(shareRoot+" .vt-vatra-post-share-toggle-001").click();
+  await feedProbe.locator(shareDialog+" .vt-vatra-post-share-profile-001").click();
+  await feedProbe.waitForFunction(()=>window.__vatraShareSmoke.reposts.length===1);
+  assert.equal(await feedProbe.locator(shareDialog).evaluate(el=>el.open),false,
+   "A successfully committed repost must close its dialog");
+  assert.ok((await feedProbe.locator(shareRoot+" .vt-vatra-post-interactions-status-001").textContent())
+   .includes(language==="en"?"Shared to your profile":"Публікацію додано"),
+   "An exception in the caller's refresh cannot change a successful repost into an error");
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraShareSmoke.onShared),1);
+  await feedProbe.locator(shareRoot+" .vt-vatra-post-share-toggle-001").click();
+  await feedProbe.locator(shareDialog+" .vt-vatra-post-share-message-001").click();
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   "#vatra-share-smoke-dialog .vt-vatra-post-send-message-001")?.disabled===false);
+  assert.equal(await feedProbe.locator(shareDialog+" .ui-vatra-post-share-friend-select-001").inputValue(),"13",
+   "Only an accepted friend should populate the share recipient");
+  await feedProbe.evaluate(()=>{
+   const button=document.querySelector("#vatra-share-smoke-dialog .vt-vatra-post-send-message-001");
+   button.click();button.click();
+  });
+  await feedProbe.waitForFunction(()=>window.__vatraShareSmoke.messages.length===1);
+  assert.equal(await feedProbe.locator(shareDialog+" .vt-vatra-post-send-message-001").isDisabled(),true,
+   "An in-flight DM must remain disabled during a rapid second click");
+  await feedProbe.evaluate(()=>{
+   document.querySelector("#vatra-share-smoke-dialog").close();
+   window.__vatraShareSmoke.finishDM();
+  });
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   "#vatra-share-smoke-dialog .vt-vatra-post-send-message-001")?.disabled===false);
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraShareSmoke.messages.length),1,
+   "Double-clicking send must not create duplicate DMs");
+  assert.ok((await feedProbe.locator(shareRoot+" .vt-vatra-post-interactions-status-001").textContent())
+   .includes(language==="en"?"Sent to your friend":"Посилання надіслано"),
+   "Closing the share dialog during a successful DM must not report failure");
+  await feedProbe.evaluate(()=>{
+   document.querySelector("#vatra-share-smoke-dialog").remove();
+   document.querySelector("#vatra-share-smoke").remove();
+  });
+  console.log("VATRA sharing: committed repost, friend DM, close-during-send and double-click OK");
   // A zero-row RLS denial must not be misreported as successful deletion.
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
