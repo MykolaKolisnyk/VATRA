@@ -17,6 +17,7 @@ VATRA's Redis caches contain only minimal public data:
   only `vatra_id` and `display_name` (no email, phone, status, avatar,
   preferences, session, permissions or private data), TTL 120 seconds.
   This Edge endpoint requires a verified user JWT and uses caller RLS.
+- **Avatar metadata in the browser**: Feed reuses `profile_media` avatar paths for 15 seconds (missing paths for 5 seconds), deduplicates overlapping reads and caps the LRU at 256 entries per Supabase client. Account transitions invalidate cached and in-flight results; failed reads are never cached. These RLS-scoped paths are never sent to Redis.
 - **Browser-only short caches**: public names for 90 seconds per Supabase client (missing names for 15 seconds, overlapping requests deduplicated and cleared on sign-in/sign-out); per-viewer
   post engagement for 3 seconds with write invalidation; Storage signed
   media URLs in limited memory until shortly before expiry. The authenticated
