@@ -747,11 +747,6 @@
             "0": "#communication"
           }
         },
-        "n206": {
-          "text": {
-            "0": "#business"
-          }
-        },
         "n207": {
           "text": {
             "0": "#communities"
@@ -2380,7 +2375,7 @@
         },
         "n3": {
           "attrs": {
-            "aria-label": "VATRA logo with eight themed icons"
+            "aria-label": "VATRA logo with seven themed icons"
           }
         },
         "n27": {
@@ -2396,21 +2391,6 @@
         "n33": {
           "text": {
             "0": "Messages and conversations with your people."
-          }
-        },
-        "n35": {
-          "attrs": {
-            "aria-label": "Business"
-          }
-        },
-        "n41": {
-          "text": {
-            "0": "Business"
-          }
-        },
-        "n42": {
-          "text": {
-            "0": "Opportunities to grow your business."
           }
         },
         "n44": {

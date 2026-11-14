@@ -84,7 +84,6 @@
 
 .orbit-icon{width:clamp(44px,8.6cqw,61px);height:clamp(44px,8.6cqw,61px);border:1.5px solid var(--icon-border,#bcd2fb);border-radius:50%;background:var(--icon-bg,#fff);box-shadow:0 7px 22px rgba(49,98,179,.10),inset 0 0 0 2px rgba(255,255,255,.8);color:var(--icon-color,var(--blue));transition:border-color .24s,background .24s,box-shadow .24s}
 .feature-chat{--icon-color:#3071db;--icon-bg:#f2f7ff;--icon-border:#bfd4fb}
-.feature-business{--icon-color:#c57c34;--icon-bg:#fff7ed;--icon-border:#f0d5b3}
 .feature-communities{--icon-color:#129c84;--icon-bg:#effbf7;--icon-border:#b6e7d8}
 .feature-photos{--icon-color:#8958c9;--icon-bg:#f7f2ff;--icon-border:#dac5f6}
 .feature-video{--icon-color:#dc536a;--icon-bg:#fff3f5;--icon-border:#f5c5ce}
@@ -102,7 +101,6 @@
 .orbit-track-inner .orbit-node:nth-child(5) svg{animation-delay:-2.2s}
 .orbit-track-inner .orbit-node:nth-child(6) svg{animation-delay:-2.75s}
 .orbit-track-inner .orbit-node:nth-child(7) svg{animation-delay:-3.3s}
-.orbit-track-inner .orbit-node:nth-child(8) svg{animation-delay:-3.85s}
 
 .orbit-icon:hover,.orbit-icon:focus-visible{background:var(--icon-bg,#f1f6ff);border-color:var(--icon-color,#7eacfa);box-shadow:0 11px 31px rgba(49,98,179,.16),0 0 0 5px color-mix(in srgb,var(--icon-color,#2865d8) 9%,transparent)}
 .orbit-icon:focus-visible{outline:3px solid #92b5fa;outline-offset:4px}

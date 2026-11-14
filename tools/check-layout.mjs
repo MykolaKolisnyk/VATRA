@@ -433,8 +433,8 @@ for(const page of pages){
 }
 const landing=await read("index.html");
 const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/vatra-symbol.svg"');
-const features=["chat","business","communities","photos","video","music","marketplace","clips"];
-assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,8,"Eight small features required");
+const features=["chat","communities","photos","video","music","marketplace","clips"];
+assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,7,"Seven evenly spaced orbit icons required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
 assert.ok(!landing.includes("ui-outer-track")&&landing.includes("intro-copy ui-home-div-009"),
  "Keep the restored description under VATRA artwork without bringing back outer slogan pills");
@@ -450,11 +450,21 @@ assert.ok(
  uk.__pages.index.nodes.n99.text["0"].includes("Знаходьте своїх людей")&&
  en.__pages.index.nodes.n99.text["0"].includes("Find your people"),
  "Landing description must have its own translatable text node to prevent duplicated copy");
-assert.ok(landing.includes('aria-label="Бізнес"')&&
- landing.includes('data-i18n="n41">Бізнес</strong>')&&
- uk.__pages.index.nodes.n41.text["0"]==="Бізнес"&&
- en.__pages.index.nodes.n41.text["0"]==="Business",
- "Business orbit icon must have concise Ukrainian and English labels");
+assert.ok(!landing.includes("feature-business")&&
+ !landing.includes("ua-orbit-tip-business")&&
+ !css.includes(".feature-business{")&&
+ !css.includes(".orbit-track-inner .orbit-node:nth-child(8)")&&
+ uk.__pages.index.nodes.n3.attrs["aria-label"].includes("сім")&&
+ en.__pages.index.nodes.n3.attrs["aria-label"].includes("seven"),
+ "Retired business icon and tooltip must be absent in both languages");
+const orbitPositions=[...landing.matchAll(/<div class="orbit-node orbit-feature feature-([a-z-]+) [^"]+" style="--angle:([-\d.]+)deg;--counter-angle:([-\d.]+)deg"/g)];
+assert.equal(orbitPositions.length,7,"All seven orbit nodes must declare their positions");
+orbitPositions.forEach((position,i)=>{
+ const angle=Number(position[2]),counter=Number(position[3]);
+ assert.equal(position[1],features[i],"Orbit icon order must remain stable");
+ assert.ok(Math.abs(angle-(-90+i*360/7))<.001&&Math.abs(angle+counter)<.001,
+  "Orbit nodes must be precisely spaced around the full circle");
+});
 for(const feature of features){
  assert.ok(landing.includes('feature-'+feature+' ui-inner-node-'),"Missing feature "+feature);
  assert.ok(landing.includes('class="ui-orbit-'+feature+'-svg"'),"No custom SVG for "+feature);
@@ -463,7 +473,7 @@ for(const feature of features){
 assert.ok(css.includes('--inner-radius:min(34cqw,226px)')&&
  css.includes('width:clamp(112px,15vw,180px)')&&
  css.includes('width:clamp(44px,8.6cqw,61px)'),
- "Expanded orbit, central V, and eight icons must be scaled consistently");
+ "Expanded orbit, central V, and seven icons must be scaled consistently");
 assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')&&
  css.includes('font-size:clamp(31px,2.55vw,40px)')&&
  css.includes("max-width:69ch")&&
@@ -875,14 +885,14 @@ assert.ok(css.includes(".intro-copy p strong{display:block;")&&
  css.includes(".signup-brand-highlights{position:relative;z-index:1;display:flex;justify-content:center;")&&
  css.includes(".signup-brand-highlight{display:inline-flex;align-items:center;min-height:35px;"),
  "Promotional copy and larger hashtag chips must be consistent");
-const signupTags=["#спілкування","#бізнес","#спільноти","#фотографії","#відео","#музика","#маркетплейс","#кліпи"];
-const englishSignupTags=["#communication","#business","#communities","#photos","#videos","#music","#marketplace","#clips"];
-const signupKeys=[205,206,207,230,231,232,233,234];
+const signupTags=["#спілкування","#спільноти","#фотографії","#відео","#музика","#маркетплейс","#кліпи"];
+const englishSignupTags=["#communication","#communities","#photos","#videos","#music","#marketplace","#clips"];
+const signupKeys=[205,207,230,231,232,233,234];
 assert.ok(!register.includes("Особистий VATRA ID")&&
  signupTags.every((tag,i)=>register.includes('data-i18n="n'+signupKeys[i]+'">'+tag+'</span>'))&&
  signupTags.every((tag,i)=>uk.__pages["create-account"].nodes["n"+signupKeys[i]]?.text["0"]===tag&&
  en.__pages["create-account"].nodes["n"+signupKeys[i]]?.text["0"]===englishSignupTags[i]),
- "All eight hashtags must display in Ukrainian and translate correctly into English");
+ "All seven hashtags must display in Ukrainian and translate correctly into English");
 for(const page of ["terms","privacy","cookies"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('policy-nav-icon')&&
