@@ -153,6 +153,7 @@
  async function init({client,ownId,targetId,isMine,blockAccess=null}){
   const card=select("#profile-about-card");
   const paragraph=select("#profile-about-text");
+  const emptyInfo=select("#profile-about-empty");
   // Visibility and accepted friendship are independent RLS-checked reads.
   // Start both together so closed profiles do not pay an extra network round trip.
   const preferenceQuery=client.from("profile_preferences")
@@ -320,6 +321,8 @@
   const renderInfo=()=>{
    sections.replaceChildren();
    if(!card||!paragraph)return;
+   card.classList.remove("is-empty");
+   if(emptyInfo)emptyInfo.hidden=true;
    more.hidden=true;
    if(result.error){
     paragraph.hidden=false;
@@ -345,6 +348,9 @@
     if(visibleField(key)&&!selected.includes(key))selected.push(key);
    }
    for(const key of selected.slice(0,3))sections.append(itemFor(key,false));
+   const noDetails=!bio&&!selected.length;
+   card.classList.toggle("is-empty",noDetails);
+   if(emptyInfo)emptyInfo.hidden=!noDetails;
    const additional=[...fieldsByKey.keys()].filter(key=>
     key!=="short_bio"&&visibleField(key)&&!selected.includes(key));
    const hasLongPreview=selected.some(key=>visibleField(key).length>32);
@@ -1316,6 +1322,19 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  const previewEmpty=(selector,message)=>{
   const el=q(selector);if(el){el.textContent=message;el.hidden=false;}
  };
+ const allFriendsButton=q("#profile-friends-all"),findFriendsButton=q("#profile-friends-find");
+ const toggleFriendActions=hasFriends=>{
+  if(allFriendsButton)allFriendsButton.hidden=!hasFriends;
+  if(findFriendsButton)findFriendsButton.hidden=!!hasFriends;
+ };
+ toggleFriendActions(true);
+ findFriendsButton?.addEventListener("click",()=>{
+  const search=q("#feed-search-input");
+  if(search){
+   search.focus({preventScroll:true});
+   search.scrollIntoView({block:"nearest",behavior:"smooth"});
+  }else location.assign(new URL("feed",home).href);
+ });
  const firstName=value=>String(value||"").trim().split(/\s+/)[0]||t("Учасник","Member");
  const asset=new URL("assets/gifts/first-flame.svg",home).href;
  const loading=(el,value)=>{
@@ -1479,9 +1498,11 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   cachedFriends=await resolveFriendships(jobs[0].value.data||[]);
   friendsPreview.replaceChildren();
   for(const friend of cachedFriends.slice(0,6))friendsPreview.append(personCard(friend,true));
+  toggleFriendActions(cachedFriends.length>0);
   if(!cachedFriends.length)previewEmpty("#profile-friends-preview-empty",t("Друзів поки немає.","No friends yet."));
  }else{
   friendsPreview.replaceChildren();
+  toggleFriendActions(false);
   previewEmpty("#profile-friends-preview-empty",t("Друзі тимчасово недоступні.","Friends are temporarily unavailable."));
  }
  if(jobs[1].status==="fulfilled"&&!jobs[1].value.error){
