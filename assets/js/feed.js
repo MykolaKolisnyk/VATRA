@@ -126,10 +126,11 @@
    while(avatarChecks.size>256)avatarChecks.delete(avatarChecks.keys().next().value);
   }
   void check.then(valid=>{
+   // A failed load must be retried even if the original card was removed.
+   if(!valid)avatarChecks.delete(url);
    if(!element.isConnected||element.dataset.vatraAvatarUrl!==url)return;
    if(!valid){
     // Storage may have been cleaned outside VATRA. Do not leave a blank circle.
-    avatarChecks.delete(url);
     if(avatarURL(key)===url){
      mediaAvatars.delete(key);
      window.VATRA_AVATAR?.invalidatePath?.(client,key);
