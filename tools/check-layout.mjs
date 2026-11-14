@@ -1332,7 +1332,7 @@ const feedStyle=await read("assets/css/feed.css");
 assert.ok(
  feedMarkup.includes('id="feed-filter-summary"') &&
  feedScript.includes('const describeFilter=()=>{') &&
- feedScript.includes('subscriptionsLoadedAt>60000') &&
+ feedScript.includes('Date.now()-subscriptionsLoadedAt<60000') &&
  feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
  "Feed category filters must explain their scope and reuse recent subscriptions");
 
@@ -2207,3 +2207,17 @@ assert.ok(
  !liveSearchCacheScript.includes("site-search-redis"),
  "Site-wide live search must remain RLS-gated, session-scoped and bounded");
 await import("./live-search-cache-smoke.mjs");
+
+/* Friend stories share the Feed's social graph; don't query all stories while
+   waiting for friendships or when the viewer has no friends. */
+const feedStoryOptimization=await read("assets/js/feed.js");
+assert.ok(
+ feedStoryOptimization.includes("let subscriptionsLoadedAt=0,subscriptionsInflight=null")&&
+ feedStoryOptimization.includes("function ensureSubscriptions()")&&
+ feedStoryOptimization.includes("if(subscriptionsInflight)return subscriptionsInflight;")&&
+ feedStoryOptimization.includes("await ensureSubscriptions();")&&
+ feedStoryOptimization.includes('if(!friendIds.length){')&&
+ feedStoryOptimization.includes('query=query.in("author_vatra_id",friendIds)')&&
+ !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
+ "Feed and friend stories must share their RLS-scoped subscription snapshot");
+await import("./feed-story-subscriptions-smoke.mjs");
