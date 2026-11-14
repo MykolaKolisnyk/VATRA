@@ -53,6 +53,7 @@ let replaying=false,lastFocus=null,raf=0,authSubscription=null;
 let checkedAt=0,checking=null,results=null;
 const home=()=>new URL("./",location.href);
 function stop(){
+ session?.controller?.abort();
  if(raf){cancelAnimationFrame(raf);raf=0;}
  if(root){root.remove();root=null;}
  document.removeEventListener("keydown",onKeydown,true);
@@ -293,7 +294,16 @@ function start(options={}){
  if(!validId(id)||!options.client||document.body.dataset.feedReady!=="true")return false;
  if(session?.id===id)return true;
  stop();
- session={id,client:options.client};
+ session={id,client:options.client,controller:new AbortController()};
+ const menu=document.querySelector(".feed-account-menu");
+ document.querySelector("#vatra-onboarding-replay")?.addEventListener("click",()=>{
+  if(menu)menu.open=false;
+  replay();
+ },{signal:session.controller.signal});
+ document.querySelector("#vatra-onboarding-tasks")?.addEventListener("click",()=>{
+  if(menu)menu.open=false;
+  openTasks();
+ },{signal:session.controller.signal});
  const saved=readState(localStorage,id);
  const eligible=recentSignup(options.createdAt);
  if(typeof options.client.auth?.onAuthStateChange==="function"){
