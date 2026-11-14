@@ -719,7 +719,7 @@ function missingProfile(state="not-found"){
  const coverPhoto=q("#profile-cover-photo"),coverView=q("#profile-cover-view");
  if(cover)cover.classList.remove("has-photo");
  if(systemCover){
-  systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)||"/VATRA/assets/covers/cover-not-found.png";
+  systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)||"/VATRA/assets/covers/cover-not-found.svg";
   systemCover.dataset.vatraCoverState=state;
   systemCover.hidden=false;
  }
@@ -2262,7 +2262,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  const display=record=>{
   if(systemCover){
-   systemCover.src=window.VATRA_AVATAR?.coverAsset?.("default")||"/VATRA/assets/covers/cover-default.png";
+   systemCover.src=window.VATRA_AVATAR?.coverAsset?.("default")||"/VATRA/assets/covers/cover-default.svg";
    systemCover.dataset.vatraCoverState="default";
    systemCover.hidden=false;
   }
