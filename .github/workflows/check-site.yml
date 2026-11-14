@@ -24,6 +24,8 @@ jobs:
         run: node tools/avatar-path-cache-smoke.mjs
       - name: Check shared friends and notifications cache
         run: node tools/shared-social-cache-smoke.mjs
+      - name: Check notification request deduplication and session teardown
+        run: node tools/notification-lifecycle-smoke.mjs
       - name: Check comment thread viewer cache
         run: node tools/comment-page-cache-smoke.mjs
       - name: Check Feed cursor viewer cache
