@@ -76,7 +76,8 @@ function hide(){
  lastFocus=null;
 }
 function pause(status="paused"){
- if(session&&!replaying)saveState(localStorage,session.id,status,index);
+ if(session&&!replaying&&(mode==="tour"||mode==="welcome"))
+  saveState(localStorage,session.id,status,index);
  hide();
 }
 function onKeydown(event){
@@ -175,7 +176,7 @@ function show(){
  next.focus({preventScroll:true});
 }
 function finish(){
- if(!replaying&&session)saveState(localStorage,session.id,"done",steps.length-1);
+ if(session)saveState(localStorage,session.id,"done",steps.length-1);
  replaying=false;activate("goodbye");
 }
 function skipTour(){
@@ -322,7 +323,7 @@ function start(options={}){
  }
  // Do not force older accounts into onboarding. A user who pauses an eligible
  // first tour can resume it; skipping/completing permanently disables auto-open.
- if(eligible&&(!saved||saved.status==="paused")){
+ if((eligible&&!saved)||saved?.status==="paused"){
   index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";
   show();
  }
