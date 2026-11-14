@@ -65,18 +65,30 @@ function actionButton(label,cls,callback){
  const button=make("button",cls,label);button.type="button";
  button.addEventListener("click",async()=>{
   if(busy)return;busy=true;button.disabled=true;
-  try{await callback();await data();render();}
-  catch(_){
-   const empty=q("#friends-empty");empty.textContent=t("Не вдалося виконати дію.","Could not complete the action.");empty.hidden=false;
+  let persisted=false;
+  try{
+   await callback();persisted=true;
+   await data();render();
+  }catch(_){
+   const empty=q("#friends-empty");
+   // A refresh failure cannot undo an already committed relationship change.
+   empty.textContent=persisted?
+    t("Дію виконано, але список не оновився. Оновіть сторінку.",
+     "Action completed, but the list could not refresh. Reload the page."):
+    t("Не вдалося виконати дію.","Could not complete the action.");
+   empty.hidden=false;
   }finally{busy=false;button.disabled=false;}
  });
  return button;
 }
 async function removeRow(item){
  if(!me)return;
- const {error}=await client.from("friendships").delete()
-  .eq("id",item.id).or("requester_id.eq."+ownId+",recipient_id.eq."+ownId);
- if(error)throw error;
+ const {data,error}=await client.from("friendships").delete()
+  .eq("id",item.id).or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
+  .select("id").maybeSingle();
+ // A DELETE may affect no rows without an RLS error. Do not claim success.
+ if(error||String(data?.id)!==String(item.id))
+  throw error||Error("Friendship was not removed");
 }
 async function accept(item){
  if(!me||String(item.recipient_id)!==ownId)return;
@@ -191,9 +203,13 @@ async function boot(){
    location.assign(new URL("feed"+(term?"?q="+encodeURIComponent(term):""),root).href);
   });
   if(!me){
-   for(const el of document.querySelectorAll('[data-friends-tab]:not([data-friends-tab="accepted"]),[data-friends-switch]:not([data-friends-switch="accepted"])'))
+   // The profile's friend list is private. Never request another user's
+   // relationships, even if an old RLS policy would permit accepted rows.
+   for(const el of document.querySelectorAll("[data-friends-tab],[data-friends-switch]"))
     el.hidden=true;
-   q(".vt-vatra-friends-side-title-001").textContent=t("Друзі користувача","Member's friends");
+   q("#friends-search").disabled=true;
+   q("#friends-find").disabled=true;
+   q(".vt-vatra-friends-side-title-001").textContent=t("Приватність друзів","Friends privacy");
   }
   document.title=t("Друзі · VATRA","Friends · VATRA");
   q("#feed-app").hidden=false;q("#feed-loading").hidden=true;
@@ -210,6 +226,14 @@ async function boot(){
    const input=q("#feed-search-input");
    if(input){input.focus();input.select();}
   });
+  if(!me){
+   const empty=q("#friends-empty");
+   empty.textContent=t("Списки друзів інших користувачів приватні.",
+    "Other members' friend lists are private.");
+   empty.hidden=false;
+   q("#friends-list").setAttribute("aria-busy","false");
+   return;
+  }
   try{await data();render();}
   catch(_){
    const empty=q("#friends-empty");
