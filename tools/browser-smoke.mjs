@@ -3701,7 +3701,10 @@ try{
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
-  assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),1);
+  assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),3,
+   "Account menu contains logout plus the two authenticated onboarding actions");
+  assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
+  assert.equal(await feedProbe.locator("#vatra-onboarding-tasks").count(),1);
   assert.equal(await feedProbe.locator(".feed-account-dropdown > svg").count(),0);
   assert.equal(await feedProbe.locator(".feed-account-profile > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-settings-toggle > svg").count(),1);
