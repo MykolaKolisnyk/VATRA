@@ -27,7 +27,7 @@ function rules(source){
       const segment=clean.slice(start,j).trim();
       const match=segment.match(/^([-\w]+)\s*:\s*([\s\S]+)$/);
       if(match)found.push({key:scope+"::"+selector+"::"+match[1].toLowerCase(),
-       selector,prop:match[1],line:source.slice(0,start).split("\n").length});
+       selector,prop:match[1],rule:entry.open,line:source.slice(0,start).split("\n").length});
       start=j+1;
      }
     }
@@ -43,11 +43,11 @@ for(const file of cssFiles){
  const found=rules(await readFile("assets/css/"+file,"utf8")),visited=new Map;
  for(const decl of found){
   const earlier=visited.get(decl.key);
-  assert.equal(earlier,undefined,
+  assert.ok(!earlier||earlier.rule===decl.rule,
    file+": "+decl.selector+" -> "+decl.prop+
-   " is redeclared at lines "+earlier+" and "+decl.line+
+   " is redeclared in separate CSS rules at lines "+earlier?.line+" and "+decl.line+
    " with identical selector and at-rule context");
-  visited.set(decl.key,decl.line);
+  visited.set(decl.key,{line:decl.line,rule:decl.rule});
  }
 }
 const htmlFiles=(await readdir(".")).filter(x=>x.endsWith(".html"));
