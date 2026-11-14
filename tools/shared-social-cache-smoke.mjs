@@ -79,9 +79,9 @@ const result=await notifyContext.loadAuthors([
  {actor_vatra_id:"1201"},{actor_vatra_id:"1405"}
 ]);
 assert.equal(result.names.get("1201"),"Member 1201");
-assert.equal(result.states.get("1405"),undefined,"Notification state uses fresh verified data");
-assert.equal(result.avatars.has("1405"),true);
-assert.equal(result.avatars.size,2);
+assert.equal(result.states.get("1405"),"deleted","Notification state uses verified data");
+assert.equal(result.avatars.has("1405"),false,"Deleted account must not expose its portrait");
+assert.equal(result.avatars.size,1);
 assert.equal(pathsCalls.length,4,"Notification authors should use the shared cache");
 assert.equal(pathsCalls[3].length,2);
 
