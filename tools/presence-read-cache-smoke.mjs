@@ -49,6 +49,7 @@ function viewer(label){
  };
  return {client,pending,auth(event){for(const fn of authEvents)fn(event);},
   get calls(){return calls;},finish(data,error=null){
+   while(pending[0]?.done)pending.shift();
    const req=pending.shift();
    assert.ok(req,"There must be one pending presence query");
    req.finish({data,error});return req;
@@ -116,7 +117,7 @@ assert.equal(a.calls,8,"New account must query again even with the same client")
 a.finish(profile(44,"feminine"));
 assert.equal((await newUser).form,"feminine");
 assert.equal((await load(a.client,"44")).form,"feminine");
-assert.equal((await load(a.client,"invalid")).form,undefined);
+assert.equal(await load(a.client,"invalid"),null);
 assert.equal(a.calls,8,"Invalid IDs never issue queries");
 
 // Bounded memory, including a large burst of distinct visited profiles.
