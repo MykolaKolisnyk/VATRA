@@ -136,7 +136,12 @@
   const imagePaths=[],videoPaths=[];
   for(const item of items||[]){
    if(!item||!["image","video"].includes(item.media_kind)||!item.media_path)continue;
-   (item.media_kind==="image"?imagePaths:videoPaths).push(item.media_path);
+   if(item.media_kind==="image"){
+    imagePaths.push(item.media_path);
+    // A thumbnail belongs to the same private post and must be deleted too.
+    if(typeof item.preview_path==="string"&&item.preview_path!==item.media_path)
+     imagePaths.push(item.preview_path);
+   }else videoPaths.push(item.media_path);
   }
   await Promise.allSettled([
    imagePaths.length?client.storage.from("post-images").remove(imagePaths):Promise.resolve(),
@@ -193,15 +198,52 @@
   clear.addEventListener("click",reset);
   return {getFile:()=>selected,reset};
  }
+ // Generate small WebP previews in the member's browser. The original is
+ // untouched and remains available in full quality inside the private bucket.
+ // Gracefully skip previews when the browser cannot encode a smaller WebP.
+ async function makeImagePreview(file){
+  if(file.size<256*1024||typeof createImageBitmap!=="function")return null;
+  let bitmap;
+  try{
+   bitmap=await createImageBitmap(file);
+   if(!bitmap.width||!bitmap.height)return null;
+   const scale=Math.min(1,960/Math.max(bitmap.width,bitmap.height));
+   const canvas=document.createElement("canvas");
+   canvas.width=Math.max(1,Math.round(bitmap.width*scale));
+   canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+   const context=canvas.getContext("2d");
+   if(!context)return null;
+   context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+   const blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/webp",0.76));
+   if(!blob||blob.type!=="image/webp"||blob.size>400*1024||blob.size>=file.size*0.8)
+    return null;
+   return blob;
+  }catch(_){return null;}
+  finally{bitmap?.close?.();}
+ }
  async function upload(client,id,file){
   const format=formatFor(file);
   if(!validId(id))throw Error(tr("VATRA ID недоступний.","VATRA ID unavailable."));
   const path=id+"/posts/"+crypto.randomUUID()+"."+format.ext;
+  // Generate at the same time as the original upload; a conversion failure
+  // cannot prevent an otherwise valid post from being published.
+  const previewJob=format.kind==="image"?makeImagePreview(file):Promise.resolve(null);
   const {error}=await client.storage.from(format.bucket).upload(path,file,{
    contentType:file.type,cacheControl:"3600",upsert:false
   });
   if(error)throw Error(tr("Не вдалося завантажити файл. Спробуйте знову.","Could not upload media. Try again."));
-  return {media_kind:format.kind,media_path:path};
+  const item={media_kind:format.kind,media_path:path};
+  const preview=await previewJob;
+  if(preview){
+   const previewPath=id+"/posts/"+crypto.randomUUID()+".webp";
+   try{
+    const {error:previewError}=await client.storage.from("post-images").upload(previewPath,preview,{
+     contentType:"image/webp",cacheControl:"3600",upsert:false
+    });
+    if(!previewError)item.preview_path=previewPath;
+   }catch(_){/* Keep the original photo if preview upload is unavailable. */}
+  }
+  return item;
  }
  async function uploadStory(client,id,file){
   const format=formatFor(file);
@@ -440,7 +482,14 @@
    if(begun)return;begun=true;
    // A video tile already has a visible play symbol. Do not download an MP4
    // (often the entire file) merely to extract its first-frame preview.
-   await preSignGallery(client,tiles.filter(({item})=>item.media_kind==="image").map(({item})=>item));
+   const previewPath=item=>item.media_kind==="image"&&
+    name(item.preview_path,"image",id)&&item.preview_path.endsWith(".webp")?
+    item.preview_path:null;
+   // Batch-sign just the small previews. Full-resolution images are signed
+   // only when someone explicitly opens a photo; old posts use originals.
+   await preSignGallery(client,tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
+    media_kind:"image",media_path:previewPath(item)||item.media_path
+   })));
    await Promise.allSettled(tiles.map(async({item,tile,index})=>{
     try{
      if(item.media_kind==="video"){
@@ -448,22 +497,36 @@
       tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
       return;
      }
-     const src=await signed(client,"image",item.media_path);
+     const preview=previewPath(item);
+     let element=null;
+     for(const path of preview?[preview,item.media_path]:[item.media_path]){
+      try{
+       const src=await signed(client,"image",path);
+       if(!tile.isConnected)return;
+       const candidate=document.createElement("img");
+       candidate.className="ui-vatra-post-gallery-media-"+index;
+       candidate.alt=tr("Фото публікації","Post photo");
+       candidate.decoding="async";
+       candidate.src=src;
+       if(typeof candidate.decode==="function")await candidate.decode();
+       else await new Promise((resolve,reject)=>{
+        if(candidate.complete)return candidate.naturalWidth?resolve():reject(Error("Image unavailable"));
+        candidate.addEventListener("load",resolve,{once:true});
+        candidate.addEventListener("error",reject,{once:true});
+       });
+       element=candidate;break;
+      }catch(_){/* Unauthorized/missing preview falls back to the original. */}
+     }
+     if(!element)throw Error("Image unavailable");
      if(!tile.isConnected)return;
-     const element=document.createElement("img");
-     element.className="ui-vatra-post-gallery-media-"+index;
-     element.alt=tr("Фото публікації","Post photo");
-     element.decoding="async";
-     element.addEventListener("load",()=>{
-      if(index!==0||!slot.isConnected)return;
+     if(index===0){
       const width=element.naturalWidth,height=element.naturalHeight;
       if(width&&height)slot.dataset.orientation=width>height*1.25?"wide":"portrait";
-     },{once:true});
-     element.src=src;
+     }
      tile.prepend(element);
      tile.classList.add("is-gallery-ready");
      tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
-    }catch(_){tile.classList.add("is-gallery-unavailable");}
+    }catch(_){if(tile.isConnected)tile.classList.add("is-gallery-unavailable");}
    }));
   }
   if(typeof IntersectionObserver==="undefined")void loadTiles();
