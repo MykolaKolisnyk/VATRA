@@ -1998,7 +1998,7 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
  !consolidatedFeed.includes('/* Spacious VK-like edge affordance')&&
  !consolidatedFeed.includes('/* Quiet VATRA left gutter:')&&
  consolidatedFeed.includes('bottom:-1px;left:13px;right:13px;z-index:2;')&&
- consolidatedFeed.includes('background:#8396b6')&&
+ consolidatedFeed.includes('height:3px;border-radius:3px 3px 0 0;background:var(--vatra-action-ink)')&&
  consolidatedFeed.includes('padding:12px 0;border:0;border-radius:0;background:transparent;box-shadow:none')&&
  !consolidatedFeed.includes('.feed-account-toggle .feed-header-avatar{')&&
  scrollRailScript.includes('header.getBoundingClientRect().bottom'),
