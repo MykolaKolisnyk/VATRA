@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Neutral profile avatar">
-<defs>
- <linearGradient id="base" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f1f5f9"/><stop offset="1" stop-color="#e3ebf3"/></linearGradient>
- <linearGradient id="figure" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a2b3c5"/><stop offset="1" stop-color="#8599ae"/></linearGradient>
-</defs>
-<rect width="256" height="256" fill="url(#base)"/>
-<circle cx="128" cy="96" r="43" fill="url(#figure)"/>
-<path d="M19 256c4-67 43-103 109-103s105 36 109 103H19Z" fill="url(#figure)"/>
-</svg>
