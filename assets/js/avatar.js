@@ -84,6 +84,87 @@ async function states(client,ids){
  }
  return result;
 }
+// Feed avatar paths are public bucket metadata, but profile_media queries
+// still run under the current viewer's RLS: never share these rows via Redis.
+const PATH_TTL_MS=15_000,PATH_MISSING_TTL_MS=5_000,PATH_CACHE_MAX=256;
+const pathLookupCaches=new WeakMap();
+function pathsFor(client){
+ let state=pathLookupCaches.get(client);
+ if(state)return state;
+ state={rows:new Map(),pending:new Map(),generation:0};
+ pathLookupCaches.set(client,state);
+ if(typeof client.auth?.onAuthStateChange==="function"){
+  client.auth.onAuthStateChange(event=>{
+   if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+   state.generation++;
+   state.rows.clear();
+   state.pending.clear();
+  });
+ }
+ return state;
+}
+function cachedPath(state,id){
+ const entry=state.rows.get(id);
+ if(!entry)return undefined;
+ if(entry.expires<=Date.now()){
+  state.rows.delete(id);
+  return undefined;
+ }
+ state.rows.delete(id);
+ state.rows.set(id,entry);
+ return entry.row;
+}
+function rememberPath(state,id,row){
+ state.rows.delete(id);
+ state.rows.set(id,{row,expires:Date.now()+(row?PATH_TTL_MS:PATH_MISSING_TTL_MS)});
+ while(state.rows.size>PATH_CACHE_MAX)
+  state.rows.delete(state.rows.keys().next().value);
+}
+async function paths(client,ids){
+ const valid=[...new Set((ids||[]).map(String)
+  .filter(id=>/^[1-9][0-9]{0,18}$/.test(id)))].slice(0,100);
+ if(!valid.length)return {data:[],error:null};
+ if(!client)return {data:[],error:Error("Missing Supabase client")};
+ const state=pathsFor(client),generation=state.generation;
+ const needed=[],waiting=new Set();
+ for(const id of valid){
+  if(cachedPath(state,id)!==undefined)continue;
+  const pending=state.pending.get(id);
+  if(pending)waiting.add(pending);
+  else needed.push(id);
+ }
+ if(needed.length){
+  const task=client.from("profile_media")
+   .select("vatra_id,avatar_path").in("vatra_id",needed)
+   .then(({data,error})=>{
+    if(error)throw error;
+    if(state.generation!==generation)return;
+    const allowed=new Set(needed),found=new Map();
+    for(const row of data||[]){
+     const id=String(row.vatra_id);
+     if(allowed.has(id)&&typeof row.avatar_path==="string"&&
+      row.avatar_path.startsWith(id+"/avatar/"))
+      found.set(id,{vatra_id:row.vatra_id,avatar_path:row.avatar_path});
+    }
+    for(const id of needed)rememberPath(state,id,found.get(id)||null);
+   });
+  for(const id of needed)state.pending.set(id,task);
+  waiting.add(task);
+  void task.finally(()=>{
+   for(const id of needed)
+    if(state.pending.get(id)===task)state.pending.delete(id);
+  }).catch(()=>{});
+ }
+ try{
+  await Promise.all(waiting);
+  if(state.generation!==generation)
+   throw Error("Session changed while loading avatar paths");
+  return {data:valid.map(id=>cachedPath(state,id)).filter(Boolean),error:null};
+ }catch(error){return {data:[],error};}
+}
+function invalidatePath(client,id){
+ pathLookupCaches.get(client)?.rows.delete(String(id));
+}
 function safeUrl(input){
  if(typeof input!=="string")return null;
  try{
@@ -280,5 +361,5 @@ function applyRemembered(element,email){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",primeHeader,{once:true});
 else primeHeader();
-window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,fallback,clearFallback,states};
+window.VATRA_AVATAR={cache,getRemembered,fromPath,applyRemembered,setHeader,clearHeader,asset,coverAsset,fallback,clearFallback,states,paths,invalidatePath};
 })();
