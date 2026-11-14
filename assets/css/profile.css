@@ -2779,7 +2779,7 @@ body.profile-page .profile-content-panel :is(#profile-photos-empty,#profile-vide
  min-height:200px!important;padding:22px 14px!important
 }
 body.profile-page .vt-profile-clips-empty-001::before{
- background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%223.5%22%20y%3D%226.5%22%20width%3D%2225%22%20height%3D%2219%22%20rx%3D%224.5%22%2F%3E%3Cpath%20d%3D%22m13%2011%208%205-8%205z%22%2F%3E%3Cpath%20d%3D%22M10%203%208%206.5m12-3L18%206.5%22%2F%3E%3C%2Fsvg%3E")!important
+ background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236689c8%22%20stroke-width%3D%221.85%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%222.8%22%20y%3D%225.5%22%20width%3D%2218.4%22%20height%3D%2213.1%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22m10%209.1%205%202.95L10%2015V9.1Z%20M9%2021h6%22%2F%3E%3Cpath%20d%3D%22m8%202.5%204%203%204-3%22%2F%3E%3C%2Fsvg%3E")!important
 }
 body.profile-page .profile-story-compose-dialog{
  width:min(430px,calc(100vw - 28px));max-height:calc(100dvh - 30px);
