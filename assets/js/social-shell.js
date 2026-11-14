@@ -251,18 +251,22 @@
   suggestions.setAttribute("aria-live","polite");
   suggestions.setAttribute("aria-label",tr("Результати пошуку","Search results"));
   panel.append(suggestions);
-  const storageKey="vatra.search.history.v1";
+  // Search history can contain private terms. Never reuse the old global
+  // history between authenticated members on a shared browser.
+  let storageKey=null,viewerId=null;
   clearInput?.setAttribute("aria-label",tr("Очистити пошук","Clear search"));
   const limit=120;
   const clean=value=>Array.from(String(value??"").trim().replace(/\s+/g," ")).slice(0,limit).join("");
   const storageRead=()=>{
+   if(!storageKey)return [];
    try{
     const stored=JSON.parse(localStorage.getItem(storageKey)||"[]");
     return Array.isArray(stored)?stored.filter(item=>typeof item==="string").map(clean).filter(Boolean):[];
    }catch(_){return [];}
   };
-  let entries=storageRead();
+  let entries=[];
   const store=()=>{
+   if(!storageKey)return;
    try{localStorage.setItem(storageKey,JSON.stringify(entries));}
    catch(_){
     // Preserve the newest terms if the browser runs out of local storage.
@@ -563,12 +567,25 @@
   window.visualViewport?.addEventListener("resize",position,{passive:true});
   window.visualViewport?.addEventListener("scroll",position,{passive:true});
   window.addEventListener("storage",event=>{
-   if(event.key===storageKey){entries=storageRead();render();}
+   if(storageKey&&event.key===storageKey){entries=storageRead();render();}
   });
   new MutationObserver(()=>{
    if(!panel.isConnected)return;
    localize();
   }).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+  // Auth becomes ready after the shell initializes on some member pages.
+  // Either initialization order is safe, including same-tab account changes.
+  const setViewer=id=>{
+   const next=/^[1-9][0-9]{0,18}$/.test(String(id??""))?String(id):null;
+   if(next===viewerId)return;
+   if(visible)close();else clearLive();
+   viewerId=next;
+   storageKey=next?"vatra.search.history.v2.member."+next:null;
+   entries=storageRead();
+   editing=false;render();
+  };
+  window.VATRA_SEARCH_HISTORY={setViewer};
+  setViewer(window.VATRA_AUTH_MEMBER_ID);
   const initial=new URLSearchParams(location.search).get("q");
   if(initial&&!input.value)input.value=clean(initial);
   localize();
