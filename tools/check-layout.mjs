@@ -1678,6 +1678,24 @@ assert.ok(
  systemProfileCss.includes('gap:10px;text-align:center;padding:28px 20px;margin-top:0;'),
  "Feed cards, profile stacks and restricted states share compact spacing");
 
+// A profile without uploaded media and a nonexistent profile must use exactly
+// the same illustration and palette; never add a second ring inside the SVG.
+const plainAvatarSvg=await read("assets/avatars/avatar-default.svg");
+const missingAvatarSvg=await read("assets/avatars/avatar-not-found.svg");
+const plainCoverSvg=await read("assets/covers/cover-default.svg");
+const missingCoverSvg=await read("assets/covers/cover-not-found.svg");
+assert.equal(plainAvatarSvg,missingAvatarSvg,
+ "Empty and nonexistent profiles must render identical neutral avatars");
+assert.equal(plainCoverSvg,missingCoverSvg,
+ "Empty and nonexistent profiles must render identical neutral covers");
+assert.ok(!plainAvatarSvg.includes("<clipPath")&&
+ !plainAvatarSvg.includes('r="115"')&&
+ plainAvatarSvg.includes('<rect width="256" height="256"')&&
+ systemProfileCss.includes("Neutral placeholders are full-bleed artwork")&&
+ systemProfileCss.includes("background-size:100% 100%!important")&&
+ systemProfileCss.includes("border:4px solid #fff!important"),
+ "Default avatars must fill one circular crop without a second inset SVG border");
+
 // Neutral vector placeholders are local assets, never external service requests.
 for(const kind of ["default","deleted","blocked","not-found"]){
  const avatarAsset="assets/avatars/avatar-"+kind+".svg";

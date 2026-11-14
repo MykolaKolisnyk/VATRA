@@ -2858,3 +2858,17 @@ body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile
   text-align:center;
  }
 }
+
+
+/* Neutral placeholders are full-bleed artwork: the browser draws the only
+   circular crop and rim. No inset artwork ring, second outline or shadow. */
+body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-avatar:not(.has-photo){
+ box-sizing:border-box;
+ border:4px solid #fff!important;
+ border-radius:50%!important;
+ overflow:hidden!important;
+ background-position:center!important;
+ background-size:100% 100%!important;
+ background-repeat:no-repeat!important;
+ box-shadow:none!important;
+}
