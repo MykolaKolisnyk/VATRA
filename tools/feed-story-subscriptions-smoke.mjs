@@ -29,7 +29,8 @@ function makeViewer(friendIds,{deferred=false,storyRows=[]}={}){
      select(){return builder;},or(){return builder;},eq(){return builder;},
      limit(){
       friendCalls++;
-      return deferred?new Promise(resolve=>{finishFriends=()=>resolve(friendResult());}):
+      return deferred&&friendCalls===1?
+       new Promise(resolve=>{finishFriends=()=>resolve(friendResult());}):
        Promise.resolve(friendResult());
      }
     };return builder;
