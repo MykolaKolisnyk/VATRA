@@ -123,12 +123,17 @@
     image.src=url;
    });
    avatarChecks.set(url,check);
+   while(avatarChecks.size>256)avatarChecks.delete(avatarChecks.keys().next().value);
   }
   void check.then(valid=>{
    if(!element.isConnected||element.dataset.vatraAvatarUrl!==url)return;
    if(!valid){
     // Storage may have been cleaned outside VATRA. Do not leave a blank circle.
-    if(avatarURL(key)===url)mediaAvatars.delete(key);
+    avatarChecks.delete(url);
+    if(avatarURL(key)===url){
+     mediaAvatars.delete(key);
+     window.VATRA_AVATAR?.invalidatePath?.(client,key);
+    }
     window.VATRA_AVATAR?.fallback(element,"default");
     if(key===vatraId)window.VATRA_AVATAR?.cache(user?.email,null);
     return;
@@ -148,8 +153,8 @@
     avatarStates.delete(id);
     if(states.has(id))avatarStates.set(id,states.get(id));
    }
-   const {data,error}=await client.from("profile_media")
-    .select("vatra_id,avatar_path").in("vatra_id",lookup);
+   const {data,error}=await (window.VATRA_AVATAR?.paths?.(client,lookup)||
+    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",lookup));
    if(error)throw error;
    // A removed avatar path must invalidate the previously cached path as well.
    for(const id of lookup)mediaAvatars.delete(id);
