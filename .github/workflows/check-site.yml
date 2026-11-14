@@ -24,6 +24,8 @@ jobs:
         run: node tools/avatar-path-cache-smoke.mjs
       - name: Check profile avatar metadata request deduplication
         run: node tools/profile-avatar-query-smoke.mjs
+      - name: Check Vatryk PNG artwork and system avatar states
+        run: node tools/vatryk-artwork-smoke.mjs
       - name: Check shared friends and notifications cache
         run: node tools/shared-social-cache-smoke.mjs
       - name: Check notification request deduplication and session teardown

@@ -1781,8 +1781,8 @@ assert.ok(
  systemProfileCss.includes("width:52px;height:52px;padding:10px")&&
  systemProfileCss.includes("width:52px;height:52px;padding:0;box-sizing:border-box"),
  "Auth palette uses canonical declarations without appended duplicate layers");
-// Built-in portraits and covers are SVG artwork embedded directly in CSS.
-// No separate avatars/covers asset files or requests are permitted.
+// Ordinary account avatars and all system covers stay CSS SVGs; exceptional
+// account states use the three supplied local Vatryk PNG portraits.
 function readEmbeddedSvg(css,name){
  const match=css.match(new RegExp("--"+name+":url\\(\"data:image/svg\\+xml,([^\"\\n]+)\"\\)"));
  return match?decodeURIComponent(match[1]):null;
@@ -1793,10 +1793,10 @@ assert.ok(
  plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
-  systemAvatarCss.includes("--vatra-"+state+"-avatar:var(--vatra-default-avatar)")&&
+  systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.png")')&&
   systemProfileCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
- "All account states share the same CSS-embedded SVGs and neutral story-free rings");
+ "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
 assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
  plainCoverSvg.includes('stop-color="#b3c9e2"')&&
  plainCoverSvg.includes('stop-color="#ddc9dd"')&&
@@ -1830,7 +1830,7 @@ assert.ok(
  systemProfileCss.includes('[data-vatra-cover-state="blocked"]')&&
  systemProfileCss.includes('[data-vatra-cover-state="deleted"]')&&
  systemProfileCss.includes('[data-vatra-cover-state="not-found"]'),
- "Profile states must render through CSS-embedded SVGs without image file URLs");
+ "Profile covers remain CSS-embedded SVGs without obsolete upload placeholders");
 assert.ok(systemAvatarCss.includes('--vatra-default-avatar:url("data:image/svg+xml,')&&
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
@@ -1976,11 +1976,19 @@ assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.sup
  auth.includes('removeTooltip?.suppress();')&&
  auth.includes('if(suppressRestore||event?.pointerType==="touch"'),
  "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
-assert.ok(errorPage.includes("Перейти на головну")&&!errorPage.includes("Повернутися до входу"),
- "404 primary action must not presume the user's previous location");
-assert.ok(css.includes("color:#fff;text-decoration:none}")&&
- css.includes(".error-card a.error-action:hover"),
- "404 navigation link and arrow must not be underlined on hover");
+assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
+ errorPage.includes('src="/VATRA/assets/vatryk/vatryk-404.png"')&&
+ errorPage.includes('class="sr-only vt-404-accessible-title-001"')&&
+ !errorPage.includes('class="account-card error-card')&&
+ !errorPage.includes('class="error-code')&&
+ !errorPage.includes('class="error-description')&&
+ !errorPage.includes('class="action primary error-action'),
+ "404 must show only Vatryk in the center, with one accessible home action in the header");
+assert.ok(notFoundCss.includes(".error-home-link:hover{")&&
+ notFoundCss.includes("color:#fff;text-decoration:none}")&&
+ notFoundCss.includes("justify-content:space-between")&&
+ notFoundCss.includes(".error-main .ui-404-vatryk-001"),
+ "404 header, centered mascot and single home link must remain aligned");
 for(const name of ["terms","privacy","cookies"]){
  const html=await read(name+".html");
  const dictionary=uk.__pages[name];

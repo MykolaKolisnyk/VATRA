@@ -325,7 +325,7 @@ try{
   {path:"create-account.html",selectors:[".signup-form-panel .narrow-form"]},
   {path:"forgot.html",selectors:[".forgot-panel-content"]},
   {path:"reset.html",selectors:[".forgot-panel-content"]},
-  {path:"404.html",selectors:[".error-code",".error-heading",".error-description",".error-action"]},
+  {path:"404.html",selectors:[".ui-404-vatryk-001"]},
   {path:"terms.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
   {path:"privacy.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
   {path:"cookies.html",selectors:[".policy-header",".policy-toc-title",".policy-section h2"]},
@@ -1178,6 +1178,23 @@ try{
   await tab.waitForFunction(lang=>document.documentElement.lang===lang,language);
   assert.equal(await tab.title(),expected,
    "404 tab title must use the same middle dot and omit punctuation after 404: "+language);
+  const mascot=await tab.evaluate(()=>{
+   const image=document.querySelector(".ui-404-vatryk-001");
+   const brand=document.querySelector(".ui-404-header-inner-001 .header-logo");
+   const home=document.querySelector(".error-home-link");
+   const box=image?.getBoundingClientRect(),logo=brand?.getBoundingClientRect(),
+    button=home?.getBoundingClientRect();
+   return {loaded:!!image?.complete&&image.naturalWidth>0,
+    centered:!!box&&Math.abs((box.left+box.right)/2-innerWidth/2)<24,
+    responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
+    headerOrder:!!logo&&!!button&&logo.right+8<button.left,
+    onlyArt:!document.querySelector(".error-card,.error-code,.error-description,.error-action"),
+    hiddenHeading:document.querySelector("#error-heading")?.classList.contains("sr-only")
+   };
+  });
+  assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.headerOrder&&
+   mascot.onlyArt&&mascot.hiddenHeading,
+   "404 must display centered Vatryk with aligned header, no error card: "+JSON.stringify(mascot));
   await tab.close();
  }
  await titleContext.close();
@@ -4412,8 +4429,8 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("data:image/svg+xml,"),
-   "A non-existent member must render the CSS-embedded neutral SVG");
+  assert.ok(fallbackStyle.image.includes("/VATRA/assets/vatryk/vatryk-not-found.png"),
+   "A non-existent member must display its own Vatryk PNG");
   assert.equal(fallbackStyle.head,"none",
    "The old CSS silhouette must not cover the neutral SVG image");
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
@@ -4465,8 +4482,9 @@ try{
     actualCover:window.VATRA_AVATAR.coverAsset(el.dataset.vatraAvatarState),
     sharedCover:window.VATRA_AVATAR.coverAsset("default")
    }));
-   assert.equal(neutralArt.actualAvatar,neutralArt.sharedAvatar,
-    "Deleted and blocked members use the same neutral SVG avatar as ordinary accounts");
+   assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".png")&&
+    neutralArt.actualAvatar!==neutralArt.sharedAvatar,
+    "Deleted and blocked members must use their own Vatryk PNG");
    assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
     "Deleted and blocked members use the same neutral SVG cover as ordinary accounts");
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
@@ -4487,9 +4505,9 @@ try{
     rendered:getComputedStyle(el).backgroundImage,
     expected:window.VATRA_AVATAR?.asset?.(el.dataset.vatraAvatarState)
    }));
-   assert.ok(stateSvg.expected?.startsWith("data:image/svg+xml,")&&
+   assert.ok(stateSvg.expected?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".png")&&
     stateSvg.rendered.includes(stateSvg.expected),
-    "System avatar must use the matching CSS-embedded SVG for "+state);
+    "System portrait must render the matching Vatryk PNG for "+state);
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});

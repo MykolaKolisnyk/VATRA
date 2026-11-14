@@ -2286,6 +2286,15 @@ body.profile-page.feed-page .profile-avatar:not(.has-photo)::before,body.profile
 body.profile-page .profile-friend-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-size:cover!important;background-position:center!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
+/* Full Vatryk illustrations fit inside the existing circular avatar surface. */
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="blocked"]:not(.has-photo),
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="deleted"]:not(.has-photo),
+body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="not-found"]:not(.has-photo),
+body.profile-page .profile-friend-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo),
+body.profile-page .profile-friend-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo),
+body.profile-page .profile-friend-portrait[data-vatra-avatar-state="not-found"]:not(.has-photo){
+ background-size:contain!important;background-position:center!important;background-color:#edf2f9!important
+}
 
 /* System portraits and private profiles are noninteractive, never translucent.
    The global disabled-button opacity must not fade a portrait inside the button. */
