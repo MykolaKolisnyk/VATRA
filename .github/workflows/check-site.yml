@@ -22,6 +22,8 @@ jobs:
         run: node tools/avatar-state-cache-smoke.mjs
       - name: Check avatar path query caching
         run: node tools/avatar-path-cache-smoke.mjs
+      - name: Check shared friends and notifications cache
+        run: node tools/shared-social-cache-smoke.mjs
       - name: Check SEO and site layout
         run: |
           node tools/check-seo.mjs
