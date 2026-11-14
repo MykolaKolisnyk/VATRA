@@ -1332,7 +1332,7 @@ const feedStyle=await read("assets/css/feed.css");
 assert.ok(
  feedMarkup.includes('id="feed-filter-summary"') &&
  feedScript.includes('const describeFilter=()=>{') &&
- feedScript.includes('subscriptionsLoadedAt>60000') &&
+ feedScript.includes('Date.now()-subscriptionsLoadedAt<60000') &&
  feedStyle.includes('body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{'),
  "Feed category filters must explain their scope and reuse recent subscriptions");
 
