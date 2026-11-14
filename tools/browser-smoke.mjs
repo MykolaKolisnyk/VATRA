@@ -2423,6 +2423,15 @@ try{
  await feedContext.route("**/storage/v1/object/public/vatra-*/**",route=>route.fulfill({
   status:200,contentType:"image/png",body:onePixelPng
  }));
+ // The gallery smoke fixture uses /sign/example as a fictional image URL.
+ // Unlike the main context, the gallery runs in feedContext; intercept it here
+ // so HeadlessChrome never creates HTTP 400 / NoSuchBucket production logs.
+ await feedContext.route("**/storage/v1/object/sign/example",route=>route.fulfill({
+  status:200,contentType:"image/png",body:onePixelPng
+ }));
+ // A click-to-play fixture must not request the real Supabase Storage project.
+ await feedContext.route("**/storage/v1/object/sign/videos/12/posts/00000000-0000-4000-8000-000000000123.mp4**",
+  route=>route.abort("blockedbyclient"));
  await feedContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:`
   window.__feedTestPosts=[];window.__feedTestCounter=0;
@@ -2808,6 +2817,48 @@ try{
    "A seven-photo post must render a five-tile mosaic, not seven giant images");
   assert.equal((await feedProbe.locator("#vatra-smoke-gallery .vt-vatra-post-gallery-extra-001").textContent()).trim(),"+2");
   await feedProbe.locator("#vatra-smoke-gallery").evaluate(el=>el.remove());
+  // Neither a gallery video nor an inline player should sign an asset before
+  // an explicit click. This prevents full-file MP4 metadata range requests.
+  await feedProbe.evaluate(async()=>{
+   const host=document.createElement("div");
+   host.id="vatra-smoke-video";document.body.append(host);
+   const path="12/posts/00000000-0000-4000-8000-000000000123.mp4";
+   window.__vatraVideoSmoke={signed:0,batched:0};
+   const client={storage:{from:()=>({
+    async createSignedUrl(){window.__vatraVideoSmoke.signed++;return {
+     data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/videos/"+path+"?token=mock"},
+     error:null
+    };},
+    async createSignedUrls(){window.__vatraVideoSmoke.batched++;return {data:[],error:null};}
+   })}};
+   await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",
+    media_items:[{media_kind:"video",media_path:path}]},host);
+   await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",
+    media_kind:"video",media_path:path},host);
+  });
+  await feedProbe.locator("#vatra-smoke-video .vatra-post-gallery-tile").scrollIntoViewIfNeeded();
+  await feedProbe.waitForFunction(()=>document.querySelector(
+   "#vatra-smoke-video .vatra-post-gallery-tile")?.classList.contains("is-gallery-ready"));
+  assert.equal(await feedProbe.locator("#vatra-smoke-video video").count(),0,
+   "Video preview must not create a hidden video element that fetches MP4 bytes");
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraVideoSmoke),{signed:0,batched:0},
+   "Unplayed videos must not request signed URLs");
+  const playVideo=feedProbe.locator("#vatra-smoke-video .vt-feed-post-video-play-001");
+  assert.equal(await playVideo.isVisible(),true);
+  assert.equal((await playVideo.innerText()).trim(),language==="en"?"Play video":"Відтворити відео");
+  await playVideo.click();
+  await feedProbe.locator("#vatra-smoke-video video[controls]").waitFor({state:"attached"});
+  assert.equal(await feedProbe.evaluate(()=>window.__vatraVideoSmoke.signed),1,
+   "User-triggered playback should sign exactly one media file");
+  assert.equal(await feedProbe.locator("#vatra-smoke-video .vt-feed-post-video-expand-001").count(),1,
+   "Playback must keep fullscreen controls");
+  await feedProbe.locator("#vatra-smoke-video").evaluate(el=>{
+   for(const video of el.querySelectorAll("video")){
+    video.pause();video.removeAttribute("src");video.load();
+   }
+   el.remove();
+  });
+  console.log("VATRA media: deferred video signatures, zero preview MP4 requests, controls retained");
   assert.equal(await feedProbe.locator("#feed-compose-open").isVisible(),true,
    "Members can create a post from their Feed");
   await feedProbe.locator("#feed-compose-open").click();
