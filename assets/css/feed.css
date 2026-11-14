@@ -1,5 +1,5 @@
 /* VATRA Feed — page-scoped styles, using the same Onest and colors as auth.css. */
-body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5% 0%,#f1eeff 0%,transparent 65%),#f7f9fe;color:var(--ink);font-family:"Onest",Inter,system-ui,sans-serif}
+body.feed-page{min-height:100dvh;}
 .feed-page button,.feed-page textarea{font-family:inherit}
 .feed-loading{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;background:#f7f9fe;z-index:250}
 @keyframes feedMarkPulse{50%{transform:scale(.94);opacity:.78}}
@@ -10,10 +10,10 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
 .feed-language-trigger .language-flag{height:19px;width:26px;border-radius:3px}
 .feed-logout{min-height:39px;padding:8px 16px;border:1px solid #dce5f4;border-radius:999px;background:#fff;color:#536986;font-size:13px;font-weight:700;transition:background .18s,border-color .18s,color .18s}
 .feed-logout:hover{background:#ecf2ff;border-color:#bdcdf0;color:#225bc8}
-.feed-layout{display:grid;grid-template-columns:235px minmax(0,710px) minmax(205px,280px);align-items:start;justify-content:center;gap:25px;width:min(100% - 48px,1450px);margin:32px auto 58px;flex:1}
+.feed-layout{display:grid;align-items:start;justify-content:center;flex:1}
 .feed-main{min-width:0;display:flex;flex-direction:column;gap:20px}
-.feed-title-row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:4px 5px 6px}
-.feed-title{margin:0;color:var(--ink);font-size:clamp(29px,3.2vw,38px);line-height:1.2;font-weight:780;letter-spacing:-.045em}.feed-post-card,.feed-empty{border:1px solid #e0e7f5;border-radius:23px;background:#fff;box-shadow:0 16px 40px rgba(35,58,113,.045)}
+.feed-title-row{display:flex;justify-content:space-between;align-items:center;gap:18px;}
+.feed-title{margin:0;color:var(--ink);line-height:1.2;font-weight:780;}.feed-post-card,.feed-empty{border:1px solid #e0e7f5;background:#fff;}
 .feed-avatar{display:grid;place-items:center;flex:none;border-radius:50%;color:#fff;background:var(--vatra-avatar-gradient);font-weight:800}
 .feed-submit{min-width:154px;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:var(--vatra-action-primary);box-shadow:0 8px 22px rgba(43,96,212,.16);color:#fff;font-weight:750;font-size:14px;transition:transform .17s,box-shadow .17s}
 .feed-submit:hover:not(:disabled){background:var(--vatra-action-primary-hover);transform:translateY(-1px);box-shadow:0 12px 25px rgba(43,96,212,.25)}
@@ -57,7 +57,7 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
  .feed-layout{grid-template-columns:225px minmax(0,720px);gap:20px}
 }
 @media(max-width:840px){
- .feed-layout{display:flex;flex-direction:column;gap:17px;width:min(100% - 30px,720px);margin-top:20px}
+ .feed-layout{display:flex;flex-direction:column;gap:17px;}
  .feed-main{width:100%}
  .feed-title-row{padding-top:0}
 }
@@ -75,7 +75,7 @@ body.feed-page{min-height:100dvh;background:radial-gradient(ellipse 80% 50% at 5
 
 
 /* VATRA social interface: original navigation, responsive typography and brand palette. */
-body.feed-page{background:#f4f6fa}
+
 .feed-account-profile{display:flex;align-items:center;min-height:40px;padding:9px 12px;color:#4d6180;font-size:13px;font-weight:680;text-decoration:none;border-radius:9px}
 .feed-account-profile:hover{background:#f3f6fb;color:#2a61c9;text-decoration:none}
 .feed-layout{grid-template-columns:215px minmax(0,630px) minmax(190px,265px);gap:18px;width:min(100% - 32px,1250px);margin:19px auto 50px}.feed-post-card,.feed-empty{border-radius:15px;border-color:#e5eaf4;box-shadow:0 3px 17px rgba(47,66,115,.035)}
@@ -139,14 +139,14 @@ body.feed-page:not(.community-page){--social-ink:#29374e;--social-soft:#75839c;-
 
 /* VATRA authenticated shell — shares the quiet Onest typography and palette of base.css.
    ONE header navigation; no double navigation, fake links or unimplemented settings pages. */
-body.feed-page{background:#f6f8fc;color:var(--ink);font-family:"Onest",Inter,system-ui,sans-serif}
+body.feed-page{background:#f6f8fc;color:var(--ink);}
 body.feed-page .feed-app[hidden],
 body.feed-page .feed-main [hidden],
 body.community-page .community-create[hidden]{display:none!important}
 body.feed-page .feed-account-dropdown > a,
 body.feed-page .feed-account-dropdown > button,
 body.feed-page .feed-menu-settings-toggle{
- display:flex;align-items:center;min-height:43px;width:100%;padding:11px 13px;
+ display:flex;align-items:center;width:100%;
  border:0;border-radius:10px;background:transparent;color:#394862;
  font:680 13px/1.35 "Onest",sans-serif;text-align:left;text-decoration:none;
  transition:color .18s,background .18s
@@ -551,13 +551,8 @@ body.feed-page .vatra-post-interactions{
  margin-top:0;padding-top:6px;border-top:1px solid #e8eef6;
  font-family:"Onest",system-ui,sans-serif;color:#33445e
 }
-body.feed-page .vatra-post-action-row{
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px
-}
-body.feed-page .vatra-post-action-row>button{
- display:flex;justify-content:center;align-items:center;gap:8px;
- min-width:0;min-height:41px;padding:8px;border:0;border-radius:10px;
- color:#637796;background:transparent;cursor:pointer;
+body.feed-page .vatra-post-action-row{grid-template-columns:repeat(4,minmax(0,1fr));}
+body.feed-page .vatra-post-action-row>button{border:0;background:transparent;cursor:pointer;
  font:650 13px/1.3 "Onest",system-ui,sans-serif;transition:background .18s,color .18s
 }
 body.feed-page .vatra-post-action-row>button:hover,
@@ -584,13 +579,9 @@ body.feed-page .vatra-post-comments-panel{
 body.feed-page .vatra-post-comments-panel[hidden],
 body.feed-page .vatra-post-share-panel[hidden],
 body.feed-page .vatra-post-share-friend-row[hidden]{display:none!important}
-body.feed-page .vatra-post-comments-filter-row{
- display:flex;align-items:center;gap:10px;flex-wrap:wrap
+body.feed-page .vatra-post-comments-filter-row{gap:10px;flex-wrap:wrap
 }
-body.feed-page .vt-vatra-post-comments-filter-label-001{
- display:flex;align-items:center;gap:10px;color:#576d8c;
- font:680 12px/1.4 "Onest",system-ui,sans-serif
-}
+
 body.feed-page .ui-vatra-post-comments-sort-001,
 body.feed-page .ui-vatra-post-share-friend-select-001{
  max-width:100%;min-height:39px;padding:7px 13px;border:1px solid #d6e1f2;
@@ -600,18 +591,15 @@ body.feed-page .ui-vatra-post-share-friend-select-001{
 body.feed-page .vt-vatra-post-comments-sort-note-001{
  color:#7b8da8;font:500 11.5px/1.5 "Onest",system-ui,sans-serif
 }
-body.feed-page .vatra-post-comment-list{display:grid;gap:0;min-width:0}
-body.feed-page .vatra-post-comment{
- padding:13px 0;border-top:1px solid #ebf0f7;
+body.feed-page .vatra-post-comment-list{min-width:0}
+body.feed-page .vatra-post-comment{border-top:1px solid #ebf0f7;
  font:510 13px/1.5 "Onest",system-ui,sans-serif
 }
-body.feed-page .vatra-post-comment-head{display:flex;align-items:center;gap:10px;min-width:0}
+body.feed-page .vatra-post-comment-head{display:flex;min-width:0}
 body.feed-page .vatra-comment-avatar{
- display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;
- border:2px solid #fff;border-radius:50%;background:#5371ce;
+ display:grid;place-items:center;border-radius:50%;background:#5371ce;
  background-image:linear-gradient(135deg,#326eea,#8754d8 70%,#d852aa);
- background-position:center;background-size:cover;background-repeat:no-repeat;
- box-shadow:0 0 0 1px #d7e3f6;color:#fff;font:760 12px/1 "Onest",system-ui,sans-serif;
+ background-position:center;background-size:cover;background-repeat:no-repeat;color:#fff;font:760 12px/1 "Onest",system-ui,sans-serif;
  text-decoration:none
 }
 body.feed-page .vatra-comment-avatar.has-photo{color:transparent}
@@ -630,18 +618,15 @@ body.feed-page .vt-vatra-post-comment-spam-001{
  margin:0 0 0 48px;padding:3px 8px;border-radius:6px;
  color:#91642e;background:#fff4e4;font-size:11px
 }
-body.feed-page .vt-vatra-post-comment-like-001{
- margin:2px 0 0 45px;padding:5px 8px;border:0;border-radius:8px;
- color:#647898;background:transparent;cursor:pointer;
+body.feed-page .vt-vatra-post-comment-like-001{border:0;background:transparent;cursor:pointer;
  font:650 11px/1.4 "Onest",system-ui,sans-serif
 }
-body.feed-page .vt-vatra-post-comment-like-001[aria-pressed="true"]{color:#bd4880}
+
 body.feed-page .vt-vatra-post-comment-like-001:hover{background:#eef2fb}
-body.feed-page .vatra-post-comment-form{display:flex;align-items:end;gap:9px}
+
 body.feed-page .ui-vatra-post-comment-input{
- flex:1;min-width:0;min-height:42px;max-height:125px;resize:vertical;padding:11px 13px;
- border:1px solid #d8e2f1;border-radius:12px;background:#fff;
- color:#304765;font:520 13px/1.45 "Onest",system-ui,sans-serif
+ flex:1;min-width:0;resize:vertical;padding:11px 13px;
+ border:1px solid #d8e2f1;font:520 13px/1.45 "Onest",system-ui,sans-serif
 }
 body.feed-page .vt-vatra-post-comment-send-001,
 body.feed-page .vt-vatra-post-comments-more-001,
@@ -649,9 +634,7 @@ body.feed-page .vt-vatra-post-send-message-001{
  min-height:39px;padding:9px 14px;border:0;border-radius:10px;
  background:#466ee1;color:#fff;cursor:pointer;font:740 12px/1.35 "Onest",system-ui,sans-serif
 }
-body.feed-page .vt-vatra-post-comments-more-001{
- justify-self:center;background:#eef3fc;color:#3969c7
-}
+
 body.feed-page .vt-vatra-post-comments-more-001[hidden]{display:none}
 body.feed-page .vatra-post-share-panel{
  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
@@ -687,7 +670,7 @@ body.feed-page .vt-vatra-post-original-unavailable-001{
  font:530 13px/1.55 "Onest",system-ui,sans-serif
 }
 @media(max-width:540px){
- body.feed-page .vatra-post-action-row>button{gap:5px;font-size:11px;padding:7px 3px}
+ 
  body.feed-page .vatra-post-comments-panel{padding:10px}
  body.feed-page .vatra-post-comment-form{flex-wrap:wrap}
  body.feed-page .vt-vatra-post-comment-send-001{margin-left:auto}
@@ -737,7 +720,7 @@ body.community-page .club-social-actions button{
  background:#eef3fd;color:#315fc0;cursor:pointer;font:730 13px "Onest",sans-serif
 }
 body.community-page .club-social-actions #club-compose-open{background:#386ddd;color:#fff;border:0}
-body.community-page .club-posts-section{display:flex;flex-direction:column;gap:13px;min-width:0;margin-top:17px}
+body.community-page .club-posts-section{display:flex;flex-direction:column;min-width:0;}
 body.community-page .vt-club-posts-title-001{margin:0;color:#30425d;font-size:22px}
 body.community-page .club-posts{display:flex;flex-direction:column;gap:14px}
 body.community-page .ui-club-post-head-001{justify-content:space-between;flex-wrap:wrap}
@@ -820,18 +803,17 @@ body.feed-page .feed-header-inner{
  width:calc(100% - 40px);max-width:none;min-height:60px;margin:0 auto;padding:0
 }
 body.feed-page .feed-brand-search{
- position:relative;display:flex;grid-column:1;grid-row:1;align-items:center;gap:5px;justify-self:start;
+ position:relative;display:flex;grid-column:1;grid-row:1;gap:5px;justify-self:start;
  min-width:0;width:min(100%,362px);max-width:362px
 }
 body.feed-page .feed-header-brand{
- display:grid;place-items:center;flex:none;width:45px;height:45px;
+ display:grid;place-items:center;width:45px;height:45px;
  min-width:45px;max-width:45px;min-height:45px;margin:0;
- border-radius:50%;transition:background .18s ease,transform .18s ease
-}
+ border-radius:50%;}
 body.feed-page .feed-header-brand .ui-feed-logo-001{
  display:block;width:42px;height:42px;max-width:42px;object-fit:contain
 }
-body.feed-page .feed-header-brand:hover{background:#f0f3ff;transform:translateY(-1px)}
+
 body.feed-page .feed-header .feed-search-form{
  display:flex!important;flex:1;align-items:center;gap:8px;min-width:0;
  width:100%;max-width:292px;height:36px;margin:0;padding:0 11px;
@@ -846,11 +828,11 @@ body.feed-page .feed-header .feed-search-input{
  display:block;flex:1;min-width:0;width:100%;height:36px;border:0;outline:0;
  background:transparent;color:var(--ink);font:500 14px/1.4 "Onest",Inter,system-ui,sans-serif
 }
-body.feed-page .feed-header .ui-feed-search-icon-001{flex:none;width:17px;height:17px;color:#8292ad}
+body.feed-page .feed-header .ui-feed-search-icon-001{height:17px;color:#8292ad}
 body.feed-page .feed-header .feed-search-input::placeholder{color:#8190a8;opacity:1}
 body.feed-page .feed-header .feed-search-submit{display:none!important}
 body.feed-page .vatra-search-back{
- position:absolute;z-index:3;left:0;top:50%;transform:translateY(-50%);
+ position:absolute;z-index:3;left:0;top:50%;
  display:grid;place-items:center;flex:none;width:45px;height:45px;
  padding:0;border:0;border-radius:50%;background:transparent;color:#53637c;cursor:pointer
 }
@@ -1167,12 +1149,12 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stat
   column-gap:0!important;row-gap:13px!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
-  position:static!important;grid-column:1;grid-row:3;
+  position:static!important;grid-column:1;
   min-height:52px;padding:6px 12px
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{grid-column:1;grid-row:4}
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-column:1;grid-row:4}
- body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:5}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-column:1;}
+ 
 }
 @media(max-width:600px){
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout{
@@ -1220,8 +1202,7 @@ body.feed-page .feed-story-preview{padding:0;background:#e4e8f8}
 body.feed-page .feed-story-preview svg{display:block;position:absolute;inset:0;width:100%;height:100%}
 body.feed-page .feed-story-preview::after{
  content:"";position:absolute;inset:48% 0 0;
- background:linear-gradient(180deg,transparent,rgba(14,22,47,.7));pointer-events:none
-}
+ background:linear-gradient(180deg,transparent,rgba(14,22,47,.7));}
 body.feed-page .feed-story-preview span{
  position:relative;z-index:1;width:100%;padding:13px 11px 14px;
  color:#fff;font:760 12px/1.3 "Onest",system-ui,sans-serif;
@@ -1238,19 +1219,15 @@ body.feed-page .feed-story-create{align-items:center;text-align:center;backgroun
 body.feed-page .vt-feed-story-create-label{margin-top:auto;padding:0 5px 10px;color:#405475;font:730 12px/1.3 "Onest",sans-serif}
 /* When there are no friends' stories, show only one compact action. */
 body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .feed-story-create{
- flex:1 1 100%;width:100%;min-width:0;max-width:none;height:80px;
- flex-direction:row;justify-content:flex-start;align-items:center;gap:15px;
- padding:14px 20px;text-align:left;background:#fff
+ flex:1 1 100%;min-width:0;max-width:none;
+ flex-direction:row;justify-content:flex-start;gap:15px;background:#fff
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .ui-feed-story-logo-001{display:none}
 body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .vt-feed-story-create-plus-001{
- position:static;display:grid;place-items:center;flex:0 0 42px;
- width:42px;height:42px;margin:0;border-radius:50%;background:#e8f2ff;
+ position:static;display:grid;place-items:center;flex:0 0 42px;margin:0;border-radius:50%;background:#e8f2ff;
  color:#276bea;font:740 30px/1 "Onest",system-ui,sans-serif
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .vt-feed-story-create-label-001{
- margin:0;padding:0;color:#2f405d;font:720 15px/1.4 "Onest",system-ui,sans-serif
-}
+body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .vt-feed-story-create-label-001{color:#2f405d;}
 .vatra-story-dialog{padding:15px;width:min(395px,calc(100vw - 28px));overflow:hidden}
 .vatra-story-stage{position:relative;overflow:hidden;width:100%;height:min(65dvh,540px);
  border-radius:14px;background:#263b73}
@@ -1325,21 +1302,17 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-stories.is-empty .v
 }
 /* Icon/text pairs are translated independently, so language updates cannot
    replace the SVG nodes with plain text. */
-body.feed-page .feed-account-dropdown > a,
-body.feed-page .feed-account-dropdown > button,
-body.feed-page .feed-menu-settings-toggle{gap:11px}
+
 body.feed-page .feed-account-dropdown > a > svg,
 body.feed-page .feed-account-dropdown > button > svg,
 body.feed-page .feed-menu-settings-toggle > svg{
- display:block;flex:none;width:19px;height:19px;color:#7085a9;
- stroke-width:1.8;shape-rendering:geometricPrecision
+ display:block;shape-rendering:geometricPrecision
 }
 body.feed-page .feed-account-dropdown > a > span,
 body.feed-page .feed-account-dropdown > button > span,
 body.feed-page .feed-menu-settings-toggle > span{min-width:0;flex:1}
 body.feed-page .feed-logout > svg{color:#b15166!important}
-body.feed-page .feed-account-dropdown > a:hover > svg,
-body.feed-page .feed-menu-settings-toggle:hover > svg{color:#3f6fe0}
+
 
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-post-card{
@@ -1419,7 +1392,7 @@ body.feed-page .vatra-skeleton-block{
 }
 @keyframes vatraSkeletonShift{to{background-position-x:-210%}}
 body.feed-page .vatra-route-skeleton-content{
- display:flex;flex-direction:column;gap:18px;
+ display:flex;flex-direction:column;
  width:min(calc(100% - 36px),700px);margin:24px auto 40px
 }
 body.feed-page .ui-vatra-skeleton-cover-001{width:100%;height:290px;border-radius:0}
@@ -1456,23 +1429,12 @@ body.feed-page.vatra-shell-pending > .vatra-auth-loading:not([data-loading-error
 body.feed-page.vatra-shell-pending > .vatra-auth-loading:not([data-loading-error="true"]) .vatra-route-skeleton{min-height:0}
 
 /* VATRA account actions: clean, lightweight line symbols in soft neutral tiles. */
-body.feed-page .feed-account-dropdown > a,
-body.feed-page .feed-account-dropdown > button,
-body.feed-page .feed-menu-settings-toggle{gap:12px;min-height:49px;padding:8px 11px}
-body.feed-page .feed-account-dropdown > a > svg,
-body.feed-page .feed-account-dropdown > button > svg,
-body.feed-page .feed-menu-settings-toggle > svg{
- width:33px;height:33px;flex:0 0 33px;
- padding:7px;border-radius:10px;border:1px solid #e5ebf7;
- background:#f2f5fc;color:#6980a5;
- stroke-width:1.85;transition:background .18s,color .18s
-}
+
+
 body.feed-page .feed-account-dropdown > a:hover > svg,
-body.feed-page .feed-menu-settings-toggle:hover > svg{
- background:#e7efff;color:#416fe1;border-color:#d4e2ff
+body.feed-page .feed-menu-settings-toggle:hover > svg{border-color:#d4e2ff
 }
-body.feed-page #feed-logout > svg{
- background:#fff3f6;color:#b75b70!important;border-color:#f9e5eb
+body.feed-page #feed-logout > svg{border-color:#f9e5eb
 }
 
 
@@ -1520,17 +1482,11 @@ body.feed-page #feed-logout > svg{
 
 @keyframes vatraFilterReveal{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
- flex:none;min-height:40px;padding:9px 11px;border:1px solid transparent;border-radius:10px;
- background:transparent;color:#62738e;font:690 12.5px/1.3 "Onest",system-ui,sans-serif;
- white-space:nowrap;cursor:pointer;transition:background .22s,color .22s,border-color .22s
-}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
- color:#245fc9;border-color:#d9e4ff;background:#edf3ff
-}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:hover{background:#f4f6fd}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:focus-visible{
- outline:2px solid #6d8fec;outline-offset:1px
-}
+ flex:none;
+ white-space:nowrap;cursor:pointer;}
+
+
+
 
 @media(max-width:420px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{flex:1;padding:9px 4px;font-size:12px}
@@ -1591,13 +1547,8 @@ body.feed-page .feed-brand-search.vatra-search-active .feed-search-input{transfo
 
 /* Final profile/media and navigation refinements */
 body.feed-page .feed-header .feed-account-dropdown{
- left:var(--vatra-account-dropdown-left,0px);right:auto;width:min(370px,calc(100vw - 20px));
- border-radius:0 0 18px 18px;box-shadow:0 19px 48px rgba(28,44,80,.17)
-}
-body.feed-page .vatra-search-panel{
- border-radius:15px;border:1px solid #e0e6f2;
- box-shadow:0 17px 44px rgba(29,48,87,.2)
-}
+ left:var(--vatra-account-dropdown-left,0px);right:auto;width:min(370px,calc(100vw - 20px));}
+
 body.feed-page .feed-post-body + .vt-feed-post-read-more-001{
  margin:7px 0 0;padding:4px 0;border:0;background:transparent;
  color:#3268d8;font:690 13px/1.4 "Onest",system-ui,sans-serif;
@@ -1615,14 +1566,9 @@ body.feed-page .vt-feed-post-archive-001{
  border-radius:9px;background:#f5f7fc;color:#647693;
  font:690 12px "Onest",system-ui,sans-serif;cursor:pointer
 }
-body.feed-page .vt-vatra-post-save-001[aria-pressed="true"]{color:#326be2}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
- display:block;margin:0 0 6px;color:#3a4c69;
- font:775 15px/1.3 "Onest",system-ui,sans-serif;letter-spacing:-.025em
-}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
- display:block;width:100%;text-align:left;padding:11px 13px;border-radius:10px
-}
+
+
+
 
 
 
@@ -1657,8 +1603,7 @@ body.feed-page .feed-header .feed-account-dropdown > a,
 body.feed-page .feed-header .feed-account-dropdown > button,
 body.feed-page .feed-header .feed-menu-settings-toggle{text-align:left;justify-content:flex-start}
 body.feed-page .vatra-search-panel{
- border:1px solid #e2e9f4;border-radius:15px;
- box-shadow:0 16px 38px rgba(25,46,91,.14);text-align:left;
+ border:1px solid #e2e9f4;text-align:left;
  animation:vatraDropdownSoftIn .21s cubic-bezier(.22,.72,.22,1) both
 }
 @keyframes vatraDropdownSoftIn{
@@ -1685,8 +1630,7 @@ body.feed-page .vatra-notification-count[hidden]{display:none!important}
  position:fixed;z-index:132;display:flex;flex-direction:column;gap:0;
  width:min(390px,calc(100vw - 24px));min-height:185px;max-height:min(76dvh,575px);
  overflow:auto;overscroll-behavior:contain;padding:0;
- border:1px solid #dfe7f5;border-radius:16px;background:#fff;color:#30415b;
- box-shadow:0 22px 54px rgba(31,49,94,.18);font-family:"Onest",system-ui,sans-serif;
+ border:1px solid #dfe7f5;background:#fff;color:#30415b;font-family:"Onest",system-ui,sans-serif;
  animation:vatraNotifyReveal .22s cubic-bezier(.2,.78,.24,1) both
 }
 .vatra-notification-panel[hidden]{display:none!important}
@@ -1705,7 +1649,7 @@ body.feed-page .vatra-notification-count[hidden]{display:none!important}
 .vatra-notification-panel .vt-vatra-notification-close-001:hover{background:#e7eefc;color:#386bd1}
 .vatra-notification-list{display:flex;flex-direction:column;gap:0;min-height:30px}
 .vatra-notification-row{
- display:flex;align-items:flex-start;gap:10px;padding:13px 14px;
+ display:flex;gap:10px;padding:13px 14px;
  border-bottom:1px solid #eef2f8;background:#fff;transition:background .2s ease
 }
 .vatra-notification-row:hover{background:#f8faff}
@@ -1716,10 +1660,9 @@ body.feed-page .vatra-notification-count[hidden]{display:none!important}
 }
 .vatra-notification-row.is-unread .vatra-notification-unread{opacity:1}
 .vatra-notification-kind{
- display:grid;place-items:center;flex:none;width:35px;height:35px;
- border-radius:11px;background:#ecf1ff;color:#5772cc
+ display:grid;place-items:center;flex:none;color:#5772cc
 }
-.vatra-notification-kind svg{display:block;width:18px;height:18px}
+.vatra-notification-kind svg{display:block;}
 .vatra-notification-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .vatra-notification-link{
  display:block;color:#344764;text-decoration:none;overflow-wrap:anywhere;
@@ -1759,12 +1702,11 @@ body.feed-page .vatra-notification-count[hidden]{display:none!important}
 }
 .vatra-notification-panel .vt-vatra-notification-all-001:hover{background:#f3f7ff}
 body.notifications-page .notifications-main{
- width:min(calc(100% - 32px),900px);margin:30px auto 80px;
+ width:min(calc(100% - 32px),900px);
  color:#30415a;font-family:"Onest",system-ui,sans-serif
 }
 body.notifications-page .notifications-top{
- display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:23px
-}
+ display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;}
 body.notifications-page .vt-notifications-back-001{
  display:inline-block;margin-bottom:12px;color:#6d83ae;text-decoration:none;
  font:650 12px "Onest",system-ui,sans-serif
@@ -1823,33 +1765,22 @@ body.notifications-page .vt-notifications-empty-001{
 
 
 /* Feed filters: one vertical panel, with VATRA outline icons and legible hierarchy. */
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
- display:block;margin:0 0 7px;padding:0 9px 13px;border-bottom:1px solid #ebf0f8;
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{border-bottom:1px solid #ebf0f8;
  color:#344761;font:760 15px/1.35 "Onest",system-ui,sans-serif;letter-spacing:-.025em
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
- display:flex;align-items:center;justify-content:flex-start;gap:11px;
- min-height:44px;width:100%;padding:10px 11px;border:1px solid transparent;
- border-radius:10px;background:transparent;text-align:left;color:#667b9a;
- font:690 13px/1.4 "Onest",system-ui,sans-serif;
- transition:color .22s ease,background .22s ease,border-color .22s ease,box-shadow .22s ease
-}
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{justify-content:flex-start;background:transparent;color:#667b9a;
+ font:690 13px/1.4 "Onest",system-ui,sans-serif;}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button svg{
  display:block;flex:none;width:19px;height:19px;color:#8395b5;
  transition:color .22s ease
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button span{min-width:0}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
- background:#edf3ff;border-color:#d6e3fc;color:#2c61c7;
- box-shadow:inset 3px 0 0 #527be3
-}
+
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"] svg{color:#456ed4}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:hover{background:#f5f8fe;color:#315cae}
 
 /* An editorial empty state with a consistent document icon; no sparkle emoji. */
-body.feed-page:not(.profile-page):not(.community-page) .feed-empty{
- display:flex;flex-direction:column;align-items:center;justify-content:center;
- min-height:205px;padding:33px 28px;text-align:center;
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty{text-align:center;
  background:linear-gradient(145deg,#fff 54%,#fbfcff 100%);
  border:1px solid #e1e8f4;border-radius:16px;
  box-shadow:0 5px 18px rgba(36,55,99,.045)
@@ -1908,8 +1839,7 @@ body.feed-page .feed-story-author-avatar:not(.has-photo),
 body.feed-page .feed-header .feed-account-dropdown{
  border-radius:0 0 16px 16px!important;border-top:0!important;box-shadow:0 18px 34px rgba(33,52,97,.16)
 }
-body.feed-page .vatra-search-panel{
- border-radius:0 0 16px 16px!important;border-top:0!important
+body.feed-page .vatra-search-panel{border-top:0!important
 }
 .vatra-notification-panel{
  border-radius:0 0 16px 16px!important;border-top:0!important;
@@ -1952,16 +1882,14 @@ body.feed-page .vatra-scroll-rail-icon-001{display:block;flex:none;width:16px;he
 @media(max-width:1100px){body.feed-page .vatra-scroll-rail{display:none!important}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-scroll-rail{transition:none}}
 
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
- display:flex;align-items:center;gap:10px
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{gap:10px
 }
 body.feed-page .ui-feed-filter-heading-icon-001{display:block;flex:none;color:#6381b6;width:20px;height:20px}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
  border:0!important;box-shadow:none!important;outline-offset:2px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
- border:0!important;box-shadow:none!important;background:#eaf1ff
-}
+ border:0!important;}
 
 
 /* VATRA Share composer: real repost, friend delivery and copy URL in a centered modal. */
@@ -2044,9 +1972,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-
 }
 .vatra-post-share-link-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;width:100%}
 .vatra-post-share-link-row .vt-vatra-post-share-link-heading-001{flex:1;width:auto}
-body.feed-page .vt-vatra-post-share-account-avatar-001:not(.has-photo){
- background-image:var(--vatra-generic-avatar)!important;background-color:#edf2f9
-}
+
 
 
 /* Shared empty-avatar artwork; real uploaded images always take priority. */
@@ -2103,7 +2029,7 @@ body.feed-page .vatra-compose-visibility .ui-vatra-visibility-select-001{
  font:720 12px/1.35 "Onest",system-ui,sans-serif
 }
 body.feed-page .feed-post-meta-row{display:flex;align-items:center;gap:7px;min-height:18px}
-body.feed-page .feed-post-audience{display:inline-flex;align-items:center;justify-content:center;color:#8295b1;cursor:help}
+
 body.feed-page .ui-feed-post-audience-icon-001{display:block;width:15px!important;height:15px!important;stroke-width:1.7}
 body.feed-page .vatra-post-share-visibility{
  display:flex;justify-content:space-between;align-items:center;gap:12px;
@@ -2140,7 +2066,7 @@ body.feed-page .vatra-global-search-avatar,body.feed-page .vatra-global-search-c
  background-color:#e9eef8;background-position:center;background-size:cover
 }
 body.feed-page .vatra-global-search-avatar:not(.has-photo){background-image:var(--vatra-generic-avatar)}
-body.feed-page .vatra-global-search-community-avatar{border-radius:11px;color:#5d70b6;background:#eaf0ff;font:700 19px/1 "Onest",system-ui,sans-serif}
+body.feed-page .vatra-global-search-community-avatar{border-radius:11px;font:700 19px/1 "Onest",system-ui,sans-serif}
 body.feed-page .vatra-global-search-info{display:flex;flex-direction:column;gap:3px;min-width:0}
 body.feed-page .vatra-global-search-info strong{
  color:#354965;font:740 13px/1.4 "Onest",system-ui,sans-serif;
@@ -2276,16 +2202,11 @@ body.feed-page .vatra-notification-skeleton-line{
 
 /* Feed · readable, keyboard-accessible filter choices with clear active state. */
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
- min-height:43px;gap:10px;padding:10px 12px;
  border-radius:10px;transition:background .14s ease,color .14s ease
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button[aria-pressed="true"]{
- position:relative;background:#eaf1ff!important;color:#295ec0!important;
- box-shadow:inset 3px 0 0 #4978e9!important
-}
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button:focus-visible{
- outline:2px solid #4476e6;outline-offset:2px
-}
+ position:relative;}
+
 body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-001{
  margin:9px 5px 1px;padding-top:11px;border-top:1px solid #edf1f8;
  color:#70819e;font:560 12px/1.5 "Onest",system-ui,sans-serif
@@ -2296,14 +2217,12 @@ body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-summary-0
 
 
 /* Collapsible Feed filter: only heading stays visible until requested. */
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
- margin:0;padding:0;border:0
+body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{padding:0;border:0
 }
 body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{
  display:flex;align-items:center;justify-content:flex-start;gap:11px;
- width:100%;min-height:42px;padding:7px 9px;border:0;border-radius:9px;
- background:transparent;color:inherit;text-align:left;
- font:inherit;cursor:pointer
+ width:100%;border:0;border-radius:9px;
+ background:transparent;text-align:left;cursor:pointer
 }
 body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001:hover{
  background:#f5f8fe;color:#2c61b5
@@ -2359,22 +2278,16 @@ body.feed-page .feed-stories:not(.is-empty) .vt-feed-story-create-subtitle-001{
 }
 /* The filter occupies the same content width as Add publication,
    without the oversized floating panel on its right. */
-body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row .vt-feed-filter-heading-001{
- margin:0;min-height:42px
+
+body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{padding:7px 8px
 }
-body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-001{
- min-height:42px;padding:7px 8px
-}
-body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
- gap:7px;padding-top:11px;margin-top:7px
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){grid-template-columns:repeat(3,minmax(0,1fr));padding-top:11px;margin-top:7px
 }
 body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]) .vt-feed-filter-summary-001{
  grid-column:1/-1;margin:2px 2px 0;padding-top:10px
 }
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
- display:flex;align-items:center;gap:8px;
- width:100%;min-height:40px;padding:9px 10px;text-align:left
+ display:flex;align-items:center;gap:8px;text-align:left
 }
 @media(max-width:640px){
  body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){
@@ -2400,9 +2313,7 @@ body.feed-page:not(.profile-page):not(.community-page) .vt-feed-filter-toggle-00
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-row[data-open="true"]{
  z-index:10;box-shadow:0 8px 24px rgba(29,47,92,.11)
 }
-body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){
- display:flex;flex-direction:column;align-items:stretch;gap:3px
-}
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-filter-options-001:not([hidden]){align-items:stretch;}
 body.feed-page:not(.profile-page):not(.community-page) .feed-filter-button{
  width:100%;min-height:38px;overflow:hidden;text-overflow:ellipsis;
  padding:8px 9px
@@ -2478,11 +2389,9 @@ body.feed-page .ui-vatra-post-comments-sort-001{
 }
 body.feed-page .ui-vatra-post-comments-sort-001:hover{background:#f0f5ff}
 body.feed-page .vt-vatra-post-comments-sort-note-001{display:none!important}
-body.feed-page .vatra-post-comment-list{display:flex;flex-direction:column;gap:2px}
+
 body.feed-page .vatra-post-comment{
- position:relative;border:0;padding:10px 0 8px;min-width:0;
- border-bottom:1px solid #f1f4fa;background:transparent
-}
+ border-bottom:1px solid #f1f4fa;}
 body.feed-page .vatra-post-comment-head{align-items:flex-start;gap:10px}
 body.feed-page .vatra-comment-avatar{
  flex:0 0 35px;width:35px;height:35px;box-shadow:none;
@@ -2513,8 +2422,7 @@ body.feed-page .vt-vatra-post-comments-more-001{
 body.feed-page .vt-vatra-post-comments-more-001:hover{
  color:#315fc8;text-decoration:underline;text-underline-offset:3px
 }
-body.feed-page .vatra-post-comment-form{
- display:flex;align-items:center;flex-wrap:nowrap;gap:8px;
+body.feed-page .vatra-post-comment-form{flex-wrap:nowrap;
  padding-top:9px
 }
 body.feed-page .ui-vatra-post-comment-input{
@@ -2929,11 +2837,9 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
  body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-status:not([hidden])) .feed-top-controls > .feed-posts-section{grid-row:4!important}
 }
 /* Empty Feed: compact, consistent spacing even when no friends or posts exist. */
-body.feed-page:not(.profile-page):not(.community-page) .feed-posts-section{
- gap:14px;align-self:start!important;min-height:0!important;margin:0!important
+body.feed-page:not(.profile-page):not(.community-page) .feed-posts-section{align-self:start!important;min-height:0!important;margin:0!important
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-empty{
- min-height:225px;display:flex;flex-direction:column;align-items:center;
+body.feed-page:not(.profile-page):not(.community-page) .feed-empty{display:flex;flex-direction:column;align-items:center;
  justify-content:center;padding:27px 22px
 }
 @media(max-width:950px){
