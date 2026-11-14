@@ -153,10 +153,19 @@
  }
  // A short-lived, per-client cache for already-RLS-scoped engagement pages.
  // Never send viewer_liked or viewer_saved to shared Redis.
- const engagementQueryCache=new WeakMap();
+ const engagementQueryCache=new WeakMap(),engagementAuthBound=new WeakSet();
  const ENGAGEMENT_TTL_MS=3_000,ENGAGEMENT_MAX_PAGES=16;
  function invalidateEngagement(client){
   if(client)engagementQueryCache.delete(client);
+ }
+ function bindEngagementAuth(client){
+  if(engagementAuthBound.has(client))return;
+  engagementAuthBound.add(client);
+  if(typeof client.auth?.onAuthStateChange==="function")
+   client.auth.onAuthStateChange(event=>{
+    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
+    invalidateEngagement(client);
+   });
  }
  async function prefetchEngagement(client,posts){
   const unique=new Map();
@@ -166,13 +175,17 @@
   }
   const requested=[...unique.values()],empty=new Map();
   if(!requested.length||typeof client?.rpc!=="function")return empty;
+  bindEngagementAuth(client);
   const key=requested.map(post=>post.kind+":"+post.id).sort().join("|");
   let cache=engagementQueryCache.get(client);
   if(!cache){cache=new Map();engagementQueryCache.set(client,cache);}
   const previous=cache.get(key);
   if(previous){
    if(previous.pending){
-    try{return new Map(await previous.pending);}catch(_){return new Map();}
+    try{
+     const result=await previous.pending;
+     return engagementQueryCache.get(client)===cache?new Map(result):new Map();
+    }catch(_){return new Map();}
    }
    if(previous.expires>Date.now())return new Map(previous.data);
    cache.delete(key);
@@ -194,7 +207,8 @@
   cache.set(key,{pending,expires:0});
   try{
    const result=await pending;
-   // A like/save/comment written during the request invalidates its old snapshot.
+   // Stale responses from writes or an earlier auth session must never render.
+   if(engagementQueryCache.get(client)!==cache)return new Map();
    if(engagementQueryCache.get(client)===cache){
     cache.delete(key);
     cache.set(key,{data:new Map(result),expires:Date.now()+ENGAGEMENT_TTL_MS});
