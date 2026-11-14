@@ -5,21 +5,19 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const KEY="vatra-remembered-account";
 const HEADER_KEY="vatra-authenticated-header-v1";
 const ORIGIN="https://rjasunoawrxvetwadylh.supabase.co";
-const SYSTEM_AVATARS=Object.freeze({
- default:{1024:"/VATRA/assets/avatars/avatar-default.svg",2048:"/VATRA/assets/avatars/avatar-default.svg"},
- deleted:{1024:"/VATRA/assets/avatars/avatar-deleted.svg",2048:"/VATRA/assets/avatars/avatar-deleted.svg"},
- "not-found":{1024:"/VATRA/assets/avatars/avatar-not-found.svg",2048:"/VATRA/assets/avatars/avatar-not-found.svg"},
- blocked:{1024:"/VATRA/assets/avatars/avatar-blocked.svg",2048:"/VATRA/assets/avatars/avatar-blocked.svg"}
-});
-const SYSTEM_COVERS=Object.freeze({
- default:"/VATRA/assets/covers/cover-default.svg",
- deleted:"/VATRA/assets/covers/cover-deleted.svg",
- "not-found":"/VATRA/assets/covers/cover-not-found.svg",
- blocked:"/VATRA/assets/covers/cover-blocked.svg"
-});
-const coverAsset=(state="default")=>SYSTEM_COVERS[state]||SYSTEM_COVERS.default;
-const asset=(state="default",size=1024)=>
- (SYSTEM_AVATARS[state]||SYSTEM_AVATARS.default)[size>=2048?2048:1024];
+// The artwork is defined once, as inline SVG data URIs in CSS.
+// Preserve the existing asset()/coverAsset() API for any integrations.
+const SYSTEM_STATES=new Set(["default","deleted","blocked","not-found"]);
+function cssSvg(kind,state){
+ const variant=SYSTEM_STATES.has(state)?state:"default";
+ const value=getComputedStyle(document.documentElement)
+  .getPropertyValue("--vatra-"+variant+"-"+kind).trim();
+ const match=/^url\((["']?)(data:image\/svg\+xml,[^"'()]+)\1\)$/i.exec(value);
+ if(match)return match[2];
+ return variant!=="default"?cssSvg(kind,"default"):null;
+}
+const asset=(state="default",size=1024)=>cssSvg("avatar",state);
+const coverAsset=(state="default")=>cssSvg("cover",state);
 function fallback(element,state="default"){
  if(!element)return;
  const kind=Object.hasOwn(SYSTEM_AVATARS,state)?state:"default";
