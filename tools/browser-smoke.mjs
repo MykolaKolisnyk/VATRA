@@ -3662,16 +3662,16 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("/assets/avatars/avatar-not-found.png"),
-   "A non-existent member must use the uploaded not-found PNG");
+  assert.ok(fallbackStyle.image.includes("/assets/avatars/avatar-not-found.svg"),
+   "A non-existent member must use the neutral not-found SVG");
   assert.equal(fallbackStyle.head,"none",
-   "The old CSS silhouette must not cover the supplied PNG image");
+   "The old CSS silhouette must not cover the neutral SVG image");
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
    const avatar=wrap.querySelector("#profile-avatar");
-   const color=()=>getComputedStyle(wrap,"::before").backgroundColor;
-   const before=color();
+   const rim=()=>getComputedStyle(wrap,"::before");
+   const before=rim().backgroundColor;
    wrap.classList.add("has-active-story");
-   const duringStory=color();
+   const duringStory=rim().backgroundImage;
    wrap.classList.remove("has-active-story");
    return {
     state:wrap.dataset.vatraRingKind,
@@ -3686,10 +3686,10 @@ try{
    "Noninteractive system portraits must remain fully opaque");
   assert.equal(avatarRim.avatarOpacity,"1");
   assert.equal(avatarRim.state,"not-found");
-  assert.equal(avatarRim.rimBackground,"rgb(59, 158, 216)",
-   "The missing-profile PNG must have its own fixed blue ring");
-  assert.equal(avatarRim.storyBackground,avatarRim.rimBackground,
-   "A system portrait retains the same ring with or without a story");
+  assert.equal(avatarRim.rimBackground,"rgb(255, 255, 255)",
+   "A neutral avatar has a white ring by default");
+  assert.ok(avatarRim.storyBackground.includes("linear-gradient"),
+   "An active story must use the VATRA gradient ring, including system portraits");
   assert.equal(avatarRim.avatarBorder,"rgb(255, 255, 255)",
    "The image is separated from its colored ring by a white border");
 
@@ -3729,18 +3729,19 @@ try{
   assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),"default");
   assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),"default");
   const defaultRing=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>{
-   const sample=()=>getComputedStyle(el,"::before").backgroundColor;
-   const before=sample();el.classList.add("has-active-story");
-   const withStory=sample();el.classList.remove("has-active-story");
+   const before=getComputedStyle(el,"::before").backgroundColor;
+   el.classList.add("has-active-story");
+   const withStory=getComputedStyle(el,"::before").backgroundImage;
+   el.classList.remove("has-active-story");
    return {before,withStory};
   });
-  assert.equal(defaultRing.before,"rgb(52, 127, 217)");
-  assert.equal(defaultRing.withStory,defaultRing.before,
-   "A default PNG keeps its individual solid blue ring even with a story");
+  assert.equal(defaultRing.before,"rgb(255, 255, 255)");
+  assert.ok(defaultRing.withStory.includes("linear-gradient"),
+   "Even a default avatar receives the gradient ring only during an active story");
   assert.equal(await profilePage.locator("#profile-avatar-photo").isVisible(),false,
    "Without an uploaded photo the system portrait must never open in a viewer");
   assert.ok((await profilePage.locator("#profile-avatar").evaluate(el=>getComputedStyle(el).backgroundImage))
-   .includes("/assets/avatars/avatar-default.png"));
+   .includes("/assets/avatars/avatar-default.svg"));
   await profilePage.close();
  }
  await feedContext.close();
