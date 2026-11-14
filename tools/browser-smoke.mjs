@@ -2416,6 +2416,7 @@ try{
  await feedContext.route("**/cdn.jsdelivr.net/**",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:`
   window.__feedTestPosts=[];window.__feedTestCounter=0;
+   window.__feedMockDenyDelete=false;window.__feedMockMediaRemovals=0;
   window.__feedMockStory={id:"00000000-0000-4000-8000-000000000001",body:"Моя тестова історія",
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
@@ -2524,12 +2525,24 @@ try{
       }}),
      insert:async(data)=>{window.__feedTestPosts.unshift({...data,
       id:"feed-mock-"+(++window.__feedTestCounter),created_at:new Date().toISOString()});return {error:null};},
-     delete:()=>({eq:async(column,id)=>{window.__feedTestPosts=window.__feedTestPosts.filter(p=>p.id!==id);return {error:null};}})},
+     delete:()=>({
+       filters:[],
+       eq(column,value){this.filters.push([column,String(value)]);return this;},
+       select(){return this;},
+       async maybeSingle(){
+        if(window.__feedMockDenyDelete)return {data:null,error:null};
+        const deleted=window.__feedTestPosts.find(post=>
+         this.filters.every(([column,value])=>String(post[column])===value));
+        if(deleted)window.__feedTestPosts=window.__feedTestPosts.filter(p=>p!==deleted);
+        return {data:deleted?{id:deleted.id}:null,error:null};
+       },
+       then(resolve,reject){return this.maybeSingle().then(resolve,reject);}
+      })},
    storage:{from:bucket=>({getPublicUrl:path=>({
     data:{publicUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/public/"+bucket+"/"+path}
    }),
    upload:async()=>({error:null}),
-   remove:async()=>({data:[],error:null}),
+   remove:async()=>{window.__feedMockMediaRemovals++;return {data:[],error:null};},
    createSignedUrl:async path=>({data:{signedUrl:"https://rjasunoawrxvetwadylh.supabase.co/storage/v1/object/sign/"+bucket+"/"+path+"?token=mock"},error:null})
    })}
   })};
@@ -2928,6 +2941,20 @@ try{
    rpcCalls:1,rpcName:"post_engagement_page",postCount:2,records:2,rowQueries:0,
    likes:"9",comments:"3",shares:"2",liked:"true",saved:"true"
   },"Two posts must hydrate from one RPC without per-post network queries");
+  // A zero-row RLS denial must not be misreported as successful deletion.
+  await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
+  await feedProbe.locator(".vatra-post-owner-toggle").click();
+  await feedProbe.locator(".feed-post-delete").click();
+  await feedProbe.locator("#feed-delete-confirm").click();
+  await feedProbe.waitForFunction(()=>!document.querySelector("#feed-delete-dialog").open);
+  assert.equal(await feedProbe.locator(".feed-post-card").count(),1,
+   "Denied deletion must leave the existing post untouched");
+  assert.equal(await feedProbe.evaluate(()=>window.__feedMockMediaRemovals),0,
+   "Denied deletion must never remove media");
+  assert.ok((await feedProbe.locator("#feed-status").textContent()).includes(
+   language==="en"?"Could not delete":"Не вдалося видалити"),
+   "Zero-row deletion must display an error, not a false success");
+  await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=false;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
   await feedProbe.locator(".feed-post-delete").click();
   await feedProbe.locator("#feed-delete-confirm").click();
