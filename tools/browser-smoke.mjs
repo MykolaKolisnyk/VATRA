@@ -3366,7 +3366,7 @@ try{
     overviewHeight:first.getBoundingClientRect().height};
   });
   assert.ok(profileSpacing.columnGap==="16px"&&
-   profileSpacing.leftGap==="14px"&&profileSpacing.rightGap==="14px"&&
+   profileSpacing.leftGap==="16px"&&profileSpacing.rightGap==="16px"&&
    profileSpacing.overviewHeight<80,
    "Profile About/Friends/Gifts/Posts spacing must be consistent: "+JSON.stringify(profileSpacing));
   assert.equal((await profilePage.locator(".vt-profile-posts-overview-title-001").textContent()).trim(),
