@@ -3003,6 +3003,9 @@ try{
    "Silent zero-row unsave must preserve the bookmark");
   assert.equal(await feedProbe.locator(reactHost+" .vt-vatra-post-interactions-status-001")
    .getAttribute("data-state"),"error");
+  assert.equal(await feedProbe.locator(reactHost+" .vt-vatra-post-interactions-status-001")
+   .isVisible(),true,
+   "Failed unsave feedback must be visible without opening comments");
   await feedProbe.locator(reactHost+" .vt-vatra-post-comments-toggle-001").click();
   const commentHeart=feedProbe.locator(".vatra-post-comment-dialog .vt-vatra-post-comment-like-001");
   await commentHeart.waitFor({state:"visible"});
