@@ -72,6 +72,19 @@ assert.equal(a.calls,3);
 assert.notEqual(afterSignIn,afterSignOut);
 await signed(a.client,"image",path,301);
 assert.equal(a.calls,4,"Different TTL requests must be isolated");
+// INITIAL_SESSION is emitted asynchronously when Supabase registers an auth
+// listener; it must not cancel a viewer's first legitimate media request.
+{
+ let resolve,handler;
+ const client={
+  auth:{onAuthStateChange(fn){handler=fn;return {data:{subscription:{}}};}},
+  storage:{from:()=>({createSignedUrl:()=>new Promise(r=>{resolve=r;})})}
+ };
+ const pending=signed(client,"image","8/comments/initial.png",300);
+ handler("INITIAL_SESSION",{user:{id:"same"}});
+ resolve({data:{signedUrl:host+"/storage/v1/object/sign/post-images/8/comments/initial.png?token=same"},error:null});
+ assert.match(await pending,/token=same$/);
+}
 // A change of user during signing must reject the old in-flight result.
 {
  let resolve,handler;
