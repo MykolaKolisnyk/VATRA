@@ -1632,6 +1632,14 @@ assert.ok(
  communityScript.includes("if(!data){"),
  "Optional Redis must cache only globally public community data, fail open, and keep secrets server-side");
 
+assert.ok(
+ feedScript.includes('.eq("author_vatra_id",vatraId).select("id").maybeSingle()')&&
+ feedScript.includes('String(data?.id)!==String(toDelete.id)')&&
+ feedScript.includes('Uploaded media is rolled back only if the database INSERT failed')&&
+ feedScript.includes('Once a story is stored, a viewer refresh must not trigger media cleanup')&&
+ interactionsScript.includes("committed=true;")&&
+ interactionsScript.includes("if(!committed)"),
+ "Feed post, story and comment mutations must confirm persistence before cleanup");
 const notificationPerfScript=await read("assets/js/notifications.js");
 const workerPerfScript=await read("sw.js");
 assert.ok(
