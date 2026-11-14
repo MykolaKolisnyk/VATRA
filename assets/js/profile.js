@@ -725,7 +725,7 @@ function missingProfile(state="not-found"){
  const coverPhoto=q("#profile-cover-photo"),coverView=q("#profile-cover-view");
  if(cover)cover.classList.remove("has-photo");
  if(systemCover){
-  systemCover.src=window.VATRA_AVATAR?.coverAsset?.(state)||"/VATRA/assets/covers/cover-not-found.svg";
+  // The system cover is an SVG background selected by CSS, not an <img> URL.
   systemCover.dataset.vatraCoverState=state;
   systemCover.hidden=false;
  }
@@ -2327,7 +2327,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  const display=record=>{
   if(systemCover){
-   systemCover.src=window.VATRA_AVATAR?.coverAsset?.("default")||"/VATRA/assets/covers/cover-default.svg";
+   // Reset the CSS artwork after switching profile state.
    systemCover.dataset.vatraCoverState="default";
    systemCover.hidden=false;
   }
