@@ -1363,22 +1363,28 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  async function resolveFriendships(friendships){
   const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
    String(f.recipient_id):String(f.requester_id)).filter(validId))];
-  const [names,photos,statesResult]=await Promise.allSettled([
-   ids.length?(window.VATRA_PUBLIC_NAMES?.get(client,ids)||
-    client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",ids)):Promise.resolve({data:[]}),
-   ids.length?(ids.length<=100?(window.VATRA_AVATAR?.paths?.(client,ids)||
-    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)):
-    // Keep one direct query for large friend lists; the shared cache caps
-    // a batch at 100 IDs and would otherwise omit some friend portraits.
-    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",ids)):
-    Promise.resolve({data:[]}),
-   window.VATRA_AVATAR?.states(client,ids)||Promise.resolve(new Map())
+  // All three shared RLS caches are bounded. In particular, account states
+  // accept 100 IDs per lookup; a single larger request could silently miss a
+  // deleted or suspended person at the end of the friends list.
+  const batches=[];
+  for(let i=0;i<ids.length;i+=100)batches.push(ids.slice(i,i+100));
+  const [names,photos,statesResult]=await Promise.all([
+   Promise.allSettled(batches.map(batch=>window.VATRA_PUBLIC_NAMES?.get(client,batch)||
+    client.from("public_profiles").select("vatra_id,display_name").in("vatra_id",batch))),
+   Promise.allSettled(batches.map(batch=>window.VATRA_AVATAR?.paths?.(client,batch)||
+    client.from("profile_media").select("vatra_id,avatar_path").in("vatra_id",batch))),
+   Promise.allSettled(batches.map(batch=>window.VATRA_AVATAR?.states?.(client,batch)||
+    Promise.resolve(new Map())))
   ]);
-  const friendStates=statesResult.status==="fulfilled"?statesResult.value:new Map();
-  const namesMap=new Map(names.status==="fulfilled"&&!names.value.error?
-   (names.value.data||[]).map(x=>[String(x.vatra_id),String(x.display_name||"").trim()]):[]);
-  const mediaMap=new Map(photos.status==="fulfilled"&&!photos.value.error?
-   (photos.value.data||[]).map(x=>[String(x.vatra_id),String(x.avatar_path||"")]):[]);
+  const friendStates=new Map(),namesMap=new Map(),mediaMap=new Map();
+  for(const result of statesResult)if(result.status==="fulfilled")
+   for(const [id,state] of result.value||[])friendStates.set(String(id),state);
+  for(const result of names)if(result.status==="fulfilled"&&!result.value.error)
+   for(const item of result.value.data||[])
+    namesMap.set(String(item.vatra_id),String(item.display_name||"").trim());
+  for(const result of photos)if(result.status==="fulfilled"&&!result.value.error)
+   for(const item of result.value.data||[])
+    mediaMap.set(String(item.vatra_id),String(item.avatar_path||""));
   return ids.map(id=>{
    const state=friendStates.get(id)||null,path=mediaMap.get(id);
    let avatar=null;
