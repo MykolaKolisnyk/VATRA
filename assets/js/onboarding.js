@@ -60,6 +60,7 @@ function stop(){
  window.removeEventListener("scroll",schedulePosition,true);
  authSubscription?.unsubscribe?.();authSubscription=null;
  card=null;spotlight=null;art=null;session=null;checking=null;results=null;
+ replaying=false;checkedAt=0;taskRows=[];
  if(lastFocus?.isConnected&&typeof lastFocus.focus==="function")lastFocus.focus();
  lastFocus=null;
 }
@@ -100,7 +101,9 @@ function position(){
   card.style.removeProperty("top");card.classList.remove("vt-tour-anchored-001");return;}
  const anchor=document.querySelector(steps[index]?.selector);
  if(!anchor||!anchor.getClientRects().length){
-  spotlight.hidden=true;card.classList.remove("vt-tour-anchored-001");return;
+  spotlight.hidden=true;card.classList.remove("vt-tour-anchored-001");
+  card.style.removeProperty("left");card.style.removeProperty("top");
+  root.dataset.stage="fallback";return;
  }
  const rect=anchor.getBoundingClientRect(),edge=12,margin=13;
  const width=Math.min(390,innerWidth-24),height=card.getBoundingClientRect().height||310;
@@ -126,6 +129,7 @@ function activate(nextMode,nextIndex=index){
 function show(){
  if(!session)return;
  if(!root)build();
+ root.dataset.stage=mode;
  if(root.hidden){
   lastFocus=document.activeElement;
   root.hidden=false;
@@ -192,7 +196,7 @@ function back(){
  if(index>0)activate("tour",index-1);else activate("welcome");
 }
 function build(){
- root=node("div","vt-tour-root-001");root.id="vatra-tour-dialog";
+ root=node("div","vt-tour-root-001");root.id="vatra-tour-dialog";root.hidden=true;
  root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");
  root.setAttribute("aria-labelledby","vatra-tour-title");
  root.setAttribute("aria-describedby","vatra-tour-description");
