@@ -2162,3 +2162,16 @@ assert.ok((await read("assets/js/post-media.js")).includes('"post-images"')&&
  (await read("assets/js/profile.js")).includes('"covers"')&&
  (await read("assets/js/post-media.js")).includes('"videos"'),
  "New uploads and signed URL creation must use canonical bucket IDs");
+
+/* Signed Storage URLs are bearer capabilities. Never keep a global map
+   across Supabase clients or reuse a former session's in-flight response. */
+assert.ok(
+ postMediaScript.includes("const signedURLCaches=new WeakMap()")&&
+ postMediaScript.includes("client.auth?.onAuthStateChange")&&
+ postMediaScript.includes("state.version++")&&
+ postMediaScript.includes("state.signedURLs.clear()")&&
+ postMediaScript.includes('throw Error("Session changed while signing media")')&&
+ postMediaScript.includes("state.version!==version")&&
+ !postMediaScript.includes("const signedURLs=new Map();"),
+ "Private signed Storage URLs must be isolated per client and invalidated on auth changes");
+await import("./media-signed-cache-smoke.mjs");
