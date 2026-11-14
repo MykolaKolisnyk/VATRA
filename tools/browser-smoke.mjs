@@ -3337,11 +3337,18 @@ try{
    "Owner edits profile media separately from the public status");
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
-   language==="en"?"Add publication":"Додати публікацію");
+   language==="en"?"Write a post":"Додати публікацію");
+  assert.equal(await profilePage.locator("#profile-add-story").isVisible(),true,
+   "The profile header now creates Stories rather than posts");
+  await profilePage.locator("#profile-add-story").click();
+  assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),true,
+   "Story composer must open in the profile itself");
+  await profilePage.locator("#profile-story-compose-cancel").click();
+  assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),false);
   assert.equal(await profilePage.locator("#profile-edit-open svg").count(),1,
    "Owner's edit action must preserve its VATRA icon after localization");
-  assert.equal(await profilePage.locator("#profile-write-post svg").count(),1,
-   "Owner's publication action must have a VATRA icon");
+  assert.equal(await profilePage.locator("#profile-quick-media svg").count(),1,
+   "Inline post composer has a media action icon like Feed");
   assert.equal(await profilePage.locator("#profile-posts-section").isVisible(),true);
   assert.equal((await profilePage.locator(".vt-social-profile-posts-tab-label-001").textContent()).trim(),
    language==="en"?"Home":"Головна","First member tab uses Home, but the post panel remains Publications");
