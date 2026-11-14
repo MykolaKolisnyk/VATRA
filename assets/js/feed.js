@@ -927,7 +927,7 @@
    document.body.dataset.feedReady="true";
    document.body.dataset.authReady="true";
    document.body.classList.remove("vatra-shell-pending");
-   window.VATRA_ONBOARDING?.start({client,memberId:vatraId,createdAt:user.created_at});
+   window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at});
    void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
   }catch(_){
    if(document.body.dataset.authReady==="true"){
