@@ -1,0 +1,87 @@
+/* VATRA onboarding: non-blocking, responsive Vatryk tour. */
+.vt-tour-root-001[hidden]{display:none!important}
+.vt-tour-root-001{position:fixed;inset:0;z-index:99000;font-family:"Onest",system-ui,sans-serif}
+.vt-tour-shield-001{position:fixed;inset:0;background:rgba(17,28,53,.66);cursor:default}
+.vt-tour-root-001[data-stage="tour"] .vt-tour-shield-001{background:transparent}
+.vt-tour-spotlight-001{position:fixed;border:2px solid rgba(255,255,255,.95);border-radius:15px;
+ box-shadow:0 0 0 120vmax rgba(17,28,53,.66),0 0 0 5px rgba(119,159,247,.28);
+ pointer-events:none;z-index:1;transition:top .16s ease,left .16s ease,width .16s ease,height .16s ease}
+.vt-tour-spotlight-001[hidden]{display:none!important}
+.vt-tour-card-001{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+ box-sizing:border-box;width:min(440px,calc(100vw - 28px));max-height:calc(100dvh - 28px);
+ overflow-y:auto;overscroll-behavior:contain;z-index:2;background:#fff;
+ border:1px solid #d9e3f5;border-radius:24px;padding:25px;
+ box-shadow:0 25px 90px rgba(16,29,63,.3),0 4px 16px rgba(31,62,122,.08);
+ color:#2c3850;text-align:left}
+.vt-tour-card-001.vt-tour-anchored-001{width:min(390px,calc(100vw - 24px));
+ transform:none;padding:20px;border-radius:19px}
+.vt-tour-header-001{display:flex;flex-direction:column;align-items:center;gap:6px}
+.vt-tour-mascot-001{display:block;width:164px;height:164px;max-width:65%;object-fit:contain;flex-shrink:0;
+ filter:drop-shadow(0 5px 14px rgba(81,107,174,.1))}
+.vt-tour-words-001{width:100%;min-width:0;text-align:center}
+.vt-tour-eyebrow-001{margin:0 0 8px;color:#6076aa;font-size:12px;font-weight:750;letter-spacing:.04em}
+.vt-tour-heading-001{margin:0;color:#283750;font-size:clamp(21px,3vw,27px);line-height:1.22;
+ font-weight:800;letter-spacing:-.035em}
+.vt-tour-description-001{margin:13px 0 0;color:#65728b;line-height:1.55;font-size:14px;overflow-wrap:anywhere}
+.vt-tour-progress-001{margin:14px 0 0;text-align:center;color:#8190aa;font-size:12px;font-weight:700}
+.vt-tour-card-001.vt-tour-anchored-001 .vt-tour-header-001{flex-direction:row;align-items:center;gap:12px}
+.vt-tour-card-001.vt-tour-anchored-001 .vt-tour-mascot-001{width:94px;height:110px;max-width:30%}
+.vt-tour-card-001.vt-tour-anchored-001 .vt-tour-words-001{text-align:left}
+.vt-tour-card-001.vt-tour-anchored-001 .vt-tour-heading-001{font-size:20px}
+.vt-tour-card-001.vt-tour-anchored-001 .vt-tour-description-001{font-size:13px;margin-top:8px}
+.vt-tour-actions-001{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:22px}
+.vt-tour-actions-001 button{font:700 13px/1.3 "Onest",system-ui,sans-serif;border-radius:12px;
+ min-height:42px;padding:9px 16px;cursor:pointer;transition:background .17s ease,transform .17s ease}
+.vt-tour-actions-001 button:focus-visible,.vt-tour-task-001:focus-visible,
+.vt-tour-checklist-001 a:focus-visible{outline:3px solid #7ba2f0;outline-offset:3px}
+.vt-tour-actions-001 button:active{transform:translateY(1px)}
+.vt-tour-back-001,.vt-tour-skip-001,.vt-tour-refresh-001{border:1px solid #dbe3f0;background:#f4f7fc;color:#536685}
+.vt-tour-back-001:hover,.vt-tour-skip-001:hover,.vt-tour-refresh-001:hover{background:#e7edf8}
+.vt-tour-back-001[hidden],.vt-tour-skip-001[hidden],.vt-tour-refresh-001[hidden]{display:none!important}
+.vt-tour-skip-001{margin-left:auto;background:transparent;border-color:transparent;color:#71829d}
+.vt-tour-next-001{background:#3069d9;border:1px solid #3069d9;color:#fff;
+ box-shadow:0 6px 18px rgba(48,105,217,.18);margin-left:auto}
+.vt-tour-next-001:hover{background:#2558bc}
+.vt-tour-skip-001:not([hidden])+.vt-tour-refresh-001[hidden]+.vt-tour-next-001{margin-left:0}
+.vt-tour-tasks-001 .vt-tour-mascot-001{width:124px;height:124px}
+.vt-tour-checklist-001[hidden]{display:none!important}
+.vt-tour-checklist-001{margin-top:17px}
+.vt-tour-meter-001{display:block;margin-bottom:12px}
+.vt-tour-meter-track-001{background:#e9eef8;height:8px;border-radius:99px;overflow:hidden}
+.vt-tour-meter-fill-001{width:0;height:100%;border-radius:inherit;background:#547bde;transition:width .25s ease}
+.vt-tour-task-status-001{margin:0 0 12px;color:#667998;font-size:12px;text-align:center}
+.vt-tour-checklist-001 a{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:6px 0;
+ border:1px solid #e3eaf6;border-radius:13px;background:#f9fbfe;color:#34425b;
+ font-size:13px;font-weight:600;line-height:1.35;text-decoration:none;min-height:38px}
+.vt-tour-checklist-001 a:hover{background:#eff5ff;border-color:#c9d9f5}
+.vt-tour-checklist-001 .vt-tour-task-mark-001,.vt-tour-checklist-001 [class^="vt-tour-task-mark"]{
+ display:inline-flex;align-items:center;justify-content:center;flex:none;width:24px;height:24px;
+ border:1px solid #cbd7ec;border-radius:50%;color:#6f81a5;font-size:14px}
+.vt-tour-checklist-001 .vt-tour-task-done-001{background:#f0f6ff}
+.vt-tour-checklist-001 .vt-tour-task-done-001 [class^="vt-tour-task-mark"]{
+ background:#3771d5;border-color:#3771d5;color:#fff}
+.vt-tour-checklist-001 [class^="vt-tour-task-name"]{flex:1;min-width:0}
+.vt-tour-checklist-001 [class^="vt-tour-task-note"]{font-size:11px;color:#6d83a6;flex-shrink:0}
+.feed-account-dropdown .vt-feed-onboarding-launch-001,
+.feed-account-dropdown .vt-feed-onboarding-progress-001{
+ display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;
+ padding:10px 14px;border:0;background:transparent;color:#415673;
+ font:650 13px/1.4 "Onest",system-ui,sans-serif;cursor:pointer;text-align:left;
+ border-radius:9px}
+.feed-account-dropdown .vt-feed-onboarding-launch-001:hover,
+.feed-account-dropdown .vt-feed-onboarding-progress-001:hover{background:#edf3ff;color:#285dbe}
+.feed-account-dropdown .vt-feed-onboarding-launch-001:focus-visible,
+.feed-account-dropdown .vt-feed-onboarding-progress-001:focus-visible{outline:2px solid #5686e5;outline-offset:2px}
+@media(max-width:560px){
+ .vt-tour-card-001{padding:19px;border-radius:19px;max-height:calc(100dvh - 24px)}
+ .vt-tour-mascot-001{width:128px;height:128px}
+ .vt-tour-heading-001{font-size:21px}
+ .vt-tour-description-001{font-size:13px}
+ .vt-tour-card-001.vt-tour-anchored-001 .vt-tour-mascot-001{width:76px;height:94px}
+ .vt-tour-card-001.vt-tour-anchored-001 .vt-tour-heading-001{font-size:18px}
+ .vt-tour-card-001.vt-tour-anchored-001 .vt-tour-description-001{font-size:12px}
+ .vt-tour-actions-001 button{padding:9px 11px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .vt-tour-spotlight-001,.vt-tour-meter-fill-001,.vt-tour-actions-001 button{transition:none!important}
+}
