@@ -1914,8 +1914,9 @@ const onboardingJs=await read("assets/js/onboarding.js");
 const onboardingCss=await read("assets/css/onboarding.css");
 assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  feedMarkup.includes('href="assets/css/onboarding.css"')&&
- feedMarkup.includes('id="vatra-onboarding-replay"')&&
- feedMarkup.includes('id="vatra-onboarding-tasks"')&&
+ onboardingJs.includes('launch.id="vatra-onboarding-replay"')&&
+ onboardingJs.includes('milestones.id="vatra-onboarding-tasks"')&&
+ !feedMarkup.includes('id="vatra-onboarding-replay"')&&
  feedScript.includes('window.VATRA_ONBOARDING?.start({client,memberId:vatraId,createdAt:user.created_at})')&&
  feedScript.includes('window.VATRA_ONBOARDING?.stop()')&&
  onboardingJs.includes('window.VATRA_ONBOARDING={start,stop,replay,openTasks}')&&
