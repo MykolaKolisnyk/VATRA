@@ -20,17 +20,19 @@
  }
  function positionTooltip(target){
   if(!tooltip||!target||tooltip.dataset.open!=="true")return;
-  const bounds=target.getBoundingClientRect();
+  const bounds=target.getBoundingClientRect(),header=document.querySelector(".feed-header");
   const vp=window.visualViewport;
   const edgeLeft=vp?.offsetLeft||0,edgeTop=vp?.offsetTop||0;
   const visibleWidth=vp?.width||innerWidth,visibleHeight=vp?.height||innerHeight;
-  const width=tooltip.offsetWidth,height=tooltip.offsetHeight,gap=10;
-  const left=Math.max(edgeLeft+8,Math.min(bounds.left+bounds.width/2-width/2,edgeLeft+visibleWidth-width-8));
-  const bottomSpace=edgeTop+visibleHeight-bounds.bottom;
-  const above=bounds.top-edgeTop;
-  let top=bottomSpace>=height+gap+8||bottomSpace>=above?
-   bounds.bottom+gap:bounds.top-height-gap;
-  top=Math.max(edgeTop+6,Math.min(top,edgeTop+visibleHeight-height-6));
+  const width=tooltip.offsetWidth,height=tooltip.offsetHeight;
+  // Keep hints attached to the header edge, rather than floating below each icon.
+  const headerRect=header?.getBoundingClientRect();
+  let top=(headerRect?.bottom??bounds.bottom)+1;
+  if(top+height>edgeTop+visibleHeight-5)
+   top=Math.max(edgeTop+5,(headerRect?.top??bounds.top)-height-1);
+  top=Math.max(edgeTop+5,Math.min(top,edgeTop+visibleHeight-height-5));
+  const left=Math.max(edgeLeft+6,Math.min(bounds.left+bounds.width/2-width/2,
+   edgeLeft+visibleWidth-width-6));
   tooltip.style.left=Math.round(left)+"px";
   tooltip.style.top=Math.round(top)+"px";
  }
