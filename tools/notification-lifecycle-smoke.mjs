@@ -48,7 +48,7 @@ const context={
  document:{hidden:false,addEventListener(name,fn,opts){listeners.push({name,fn,opts});}},
  setInterval(fn){const id=++timerId;timers.set(id,fn);return id;},
  clearInterval(id){cleared.push(id);timers.delete(id);},
- headerUI(){},closePanel(){},
+ headerUI(){},closePanel(){},pick:()=>null,
  t:(uk)=>uk
 };
 runInNewContext(`
