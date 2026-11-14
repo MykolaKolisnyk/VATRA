@@ -354,12 +354,38 @@ function siteSearchState(viewer){
    // INITIAL_SESSION and token refresh leave the effective viewer unchanged.
    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
    state.generation++;
+   for(const entry of state.entries.values())entry.controller?.abort();
    state.entries.clear();
   });
  }
  return state;
 }
-async function querySite(viewer,phrase){
+// The live-search UI can cancel obsolete requests. Keep a shared request alive
+// while another consumer still awaits the same phrase.
+function consumeSiteSearch(entry,signal,state,key){
+ if(!signal){entry.uncancelable=true;return entry.pending;}
+ if(signal.aborted)return Promise.resolve(emptySiteSearch());
+ entry.consumers++;
+ return new Promise((resolve,reject)=>{
+  let finished=false;
+  const finish=(value,failed=false)=>{
+   if(finished)return;
+   finished=true;signal.removeEventListener("abort",onAbort);
+   entry.consumers--;
+   if(failed)reject(value);else resolve(value);
+  };
+  const onAbort=()=>{
+   finish(emptySiteSearch());
+   if(entry.consumers===0&&!entry.uncancelable){
+    entry.controller.abort();
+    if(state.entries.get(key)===entry)state.entries.delete(key);
+   }
+  };
+  signal.addEventListener("abort",onAbort,{once:true});
+  entry.pending.then(value=>finish(value),error=>finish(error,true));
+ });
+}
+async function querySite(viewer,phrase,signal){
  const escaped=phrase.replace(/[\\%_]/g,ch=>String.fromCharCode(92)+ch);
  const pattern="%"+escaped+"%";
  const requests=[
@@ -370,7 +396,11 @@ async function querySite(viewer,phrase){
   viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).is("archived_at",null).limit(4),
   viewer.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
  ];
- const all=await Promise.allSettled(requests);
+ // PostgREST's abortSignal stops obsolete requests before they consume more
+ // bandwidth. Test doubles without the modifier remain usable.
+ const all=await Promise.allSettled(requests.map(query=>
+  typeof query.abortSignal==="function"?query.abortSignal(signal):query));
+ if(signal.aborted)return {result:emptySiteSearch(),cacheable:false};
  const cacheable=all.every(r=>r.status==="fulfilled"&&!r.value.error);
  const rows=i=>all[i].status==="fulfilled"&&!all[i].value.error?(all[i].value.data||[]):[];
  const people=[...new Map([...rows(0),...rows(1)].map(x=>[String(x.vatra_id),x])).values()].slice(0,4);
@@ -378,39 +408,52 @@ async function querySite(viewer,phrase){
  const posts=[...rows(4).map(x=>({...x,kind:"person"})),...rows(5).map(x=>({...x,kind:"group"}))].slice(0,5);
  return {result:{people,communities,posts},cacheable};
 }
-async function findSite(term){
+async function findSite(term,signal){
  const phrase=String(term||"").trim().slice(0,120);
  const viewer=client;
- if(!viewer||phrase.length<2)return emptySiteSearch();
+ if(signal?.aborted||!viewer||phrase.length<2)return emptySiteSearch();
  const state=siteSearchState(viewer),key=phrase.toLocaleLowerCase();
  const previous=state.entries.get(key);
  if(previous){
-  if(previous.pending)return previous.pending;
+  if(previous.pending){
+   // Repeated identical terms share one Supabase query batch.
+   state.entries.delete(key);state.entries.set(key,previous);
+   return consumeSiteSearch(previous,signal,state,key);
+  }
   if(previous.expires>Date.now()){
-   // Recent queries get LRU priority so only the coldest are evicted.
    state.entries.delete(key);state.entries.set(key,previous);
    return previous.result;
   }
   state.entries.delete(key);
  }
  const generation=state.generation;
+ const entry={pending:null,expires:0,controller:new AbortController(),
+  consumers:0,uncancelable:false};
  let pending;
- pending=querySite(viewer,phrase).then(({result,cacheable})=>{
+ pending=querySite(viewer,phrase,entry.controller.signal).then(({result,cacheable})=>{
   // A signed-out user must not receive results from an earlier session.
   if(state.generation!==generation)return emptySiteSearch();
-  if(state.entries.get(key)?.pending===pending){
+  if(state.entries.get(key)===entry){
    state.entries.delete(key);
-   if(cacheable)state.entries.set(key,{result,expires:Date.now()+SITE_SEARCH_TTL_MS});
+   if(cacheable&&!entry.controller.signal.aborted)
+    state.entries.set(key,{result,expires:Date.now()+SITE_SEARCH_TTL_MS});
   }
   return result;
  }).catch(error=>{
-  if(state.entries.get(key)?.pending===pending)state.entries.delete(key);
+  if(state.entries.get(key)===entry)state.entries.delete(key);
   throw error;
  });
- state.entries.set(key,{pending,expires:0});
- while(state.entries.size>SITE_SEARCH_MAX)
-  state.entries.delete(state.entries.keys().next().value);
- return pending;
+ entry.pending=pending;
+ state.entries.set(key,entry);
+ while(state.entries.size>SITE_SEARCH_MAX){
+  const oldest=state.entries.keys().next().value;
+  const expired=state.entries.get(oldest);
+  // Eviction must not cancel a request that still has consumers.
+  if(expired?.pending&&expired.consumers===0&&!expired.uncancelable)
+   expired.controller.abort();
+  state.entries.delete(oldest);
+ }
+ return consumeSiteSearch(entry,signal,state,key);
 }
 window.VATRA_SITE_SEARCH={search:findSite};
 
