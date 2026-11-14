@@ -2516,7 +2516,10 @@ try{
       gte(column,date){if(column==="created_at")this.after=date;return this;},
       lt(column,date){if(column==="created_at")this.before=date;return this;},
       order(){return this;},range:async function(a,b){
-       await new Promise(resolve=>setTimeout(resolve,320));
+       if(window.__feedHoldNextRange){
+        window.__feedHoldNextRange=false;
+        await new Promise(resolve=>{window.__feedReleaseRange=resolve;});
+       }else await new Promise(resolve=>setTimeout(resolve,320));
        return {data:window.__feedTestPosts.filter(p=>
         (this.filterId===null||String(p.author_vatra_id)===this.filterId)&&
         (!this.after||new Date(p.created_at)>=new Date(this.after))&&
@@ -3114,6 +3117,46 @@ try{
    document.querySelector("#vatra-share-smoke").remove();
   });
   console.log("VATRA sharing: committed repost, friend DM, close-during-send and double-click OK");
+  // An old all-posts result must never flash into the newer friends filter.
+  await feedProbe.evaluate(()=>{
+   document.querySelector('[data-feed-filter="friends"]').click();
+  });
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
+   document.querySelectorAll("#feed-posts .feed-post-card").length===0);
+  await feedProbe.evaluate(()=>{
+   // An explicit search submit invalidates the last cached Feed cursor.
+   document.querySelector("#feed-search-form").requestSubmit();
+  });
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false");
+  await feedProbe.evaluate(()=>{
+   window.__feedHoldNextRange=true;window.__feedReleaseRange=null;
+   window.__feedStaleFilterPaint=false;
+   const feed=document.querySelector("#feed-posts");
+   const observer=new MutationObserver(()=>{
+    if(document.querySelector('[data-feed-filter="friends"]')?.getAttribute("aria-pressed")==="true"&&
+     feed.querySelectorAll(".feed-post-card").length>0)window.__feedStaleFilterPaint=true;
+   });
+   observer.observe(feed,{childList:true,subtree:true});
+   window.__feedStaleFilterObserver=observer;
+   document.querySelector('[data-feed-filter="all"]').click();
+  });
+  await feedProbe.waitForFunction(()=>typeof window.__feedReleaseRange==="function");
+  await feedProbe.evaluate(()=>{
+   document.querySelector('[data-feed-filter="friends"]').click();
+   window.__feedReleaseRange();
+  });
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
+   document.querySelector('[data-feed-filter="friends"]')?.getAttribute("aria-pressed")==="true");
+  assert.equal(await feedProbe.evaluate(()=>window.__feedStaleFilterPaint),false,
+   "An old all-posts response cannot draw in a newer friends filter");
+  assert.equal(await feedProbe.locator("#feed-posts .feed-post-card").count(),0);
+  await feedProbe.evaluate(()=>{
+   window.__feedStaleFilterObserver.disconnect();
+   document.querySelector('[data-feed-filter="all"]').click();
+  });
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
+   document.querySelectorAll("#feed-posts .feed-post-card").length===1);
+  console.log("VATRA filters: older in-flight pages cannot repaint a newer category");
   // A zero-row RLS denial must not be misreported as successful deletion.
   await feedProbe.evaluate(()=>{window.__feedMockDenyDelete=true;});
   await feedProbe.locator(".vatra-post-owner-toggle").click();
