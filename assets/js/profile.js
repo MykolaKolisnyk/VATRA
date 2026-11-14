@@ -1550,12 +1550,15 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
   try{
    const operation=blocked?
     client.from("member_blocks").delete()
-     .eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",targetId):
+     .eq("blocker_vatra_id",ownId).eq("blocked_vatra_id",targetId)
+     .select("blocked_vatra_id").maybeSingle():
     client.from("member_blocks").insert({
      blocker_vatra_id:Number(ownId),blocked_vatra_id:Number(targetId)
     });
-   const {error}=await operation;
-   if(error)throw error;
+   const {data,error}=await operation;
+   // With RLS a blocked-member DELETE can silently affect zero rows.
+   if(error||(blocked&&String(data?.blocked_vatra_id)!==String(targetId)))
+    throw error||Error("Member was not unblocked");
    location.reload();
   }catch(_){
    if(status){
@@ -1834,13 +1837,25 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    busy=true;friendButton.disabled=true;show(actionStatus,"");
    try{
     const result=!relation?
-     await client.from("friendships").insert({requester_id:ownId,recipient_id:targetId}):
+     await client.from("friendships").insert({requester_id:ownId,recipient_id:targetId})
+      .select("id").maybeSingle():
      relation.status==="pending"&&String(relation.recipient_id)===String(ownId)?
-      await client.from("friendships").update({status:"accepted"}).eq("id",relation.id):
-      await client.from("friendships").delete().eq("id",relation.id);
-    if(result.error)throw result.error;
-    await refreshFriend();
-    show(actionStatus,t("Статус дружби оновлено.","Friendship updated."));
+      await client.from("friendships").update({status:"accepted"}).eq("id",relation.id)
+       .eq("recipient_id",ownId).eq("status","pending").select("id").maybeSingle():
+      await client.from("friendships").delete().eq("id",relation.id)
+       .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
+       .select("id").maybeSingle();
+    // A zero-row UPDATE/DELETE is not a successfully changed friendship.
+    if(result.error||!result.data?.id||
+     (relation&&String(result.data.id)!==String(relation.id)))
+     throw result.error||Error("Friendship was not changed");
+    try{
+     await refreshFriend();
+     show(actionStatus,t("Статус дружби оновлено.","Friendship updated."));
+    }catch(_){
+     show(actionStatus,t("Дію виконано, але статус не оновився. Оновіть сторінку.",
+      "Action completed, but status could not refresh. Reload the page."));
+    }
    }catch(_){show(actionStatus,t("Не вдалося виконати дію.","Could not complete the action."));}
    finally{busy=false;friendButton.disabled=false;}
   });
@@ -1870,11 +1885,19 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
     action.addEventListener("click",async()=>{
      action.disabled=true;
      try{
-      const {error:changeError}=await (item.status==="pending"&&incoming?
-       client.from("friendships").update({status:"accepted"}).eq("id",item.id):
-       client.from("friendships").delete().eq("id",item.id));
-      if(changeError)throw changeError;
-      await loadFriends();
+      const accepting=item.status==="pending"&&incoming;
+      const {data:changed,error:changeError}=await (accepting?
+       client.from("friendships").update({status:"accepted"}).eq("id",item.id)
+        .eq("recipient_id",ownId).eq("status","pending").select("id").maybeSingle():
+       client.from("friendships").delete().eq("id",item.id)
+        .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
+        .select("id").maybeSingle());
+      if(changeError||String(changed?.id)!==String(item.id))
+       throw changeError||Error("Friendship was not changed");
+      // The database change succeeded; a refresh error is not a failed action.
+      try{await loadFriends();}
+      catch(_){show(friendsEmpty,t("Дію виконано, але список не оновився. Оновіть сторінку.",
+       "Action completed, but the list did not refresh. Reload the page."));}
      }catch(_){action.disabled=false;show(friendsEmpty,t("Не вдалося оновити друзів.","Could not update friends."));}
     });
     row.append(action);friends.append(row);
