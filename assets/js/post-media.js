@@ -219,29 +219,48 @@
   return client.storage.from(bucket).remove([attachment.media_path]);
  }
 
- const signedURLs=new Map();
+ const signedURLCaches=new WeakMap();
+ // Signed URLs are bearer capabilities: never reuse them across clients or
+ // across login/logout, even if the media path is identical.
+ function signedCacheFor(client){
+  let state=signedURLCaches.get(client);
+  if(state)return state;
+  state={signedURLs:new Map(),version:0};
+  signedURLCaches.set(client,state);
+  if(typeof client.auth?.onAuthStateChange==="function"){
+   client.auth.onAuthStateChange(()=>{
+    state.version++;
+    state.signedURLs.clear();
+   });
+  }
+  return state;
+ }
  // Prevent long-lived tabs from retaining unlimited expired URL metadata.
- const trimSignedCache=()=>{
+ const trimSignedCache=signedURLs=>{
   const now=Date.now();
-  for(const [key,entry] of signedURLs)if(entry.expiry<=now)signedURLs.delete(key);
+  for(const [key,entry] of signedURLs)
+   if(entry.expiry<=now)signedURLs.delete(key);
   while(signedURLs.size>256)signedURLs.delete(signedURLs.keys().next().value);
  };
  let firstImages=0;
- // Sign each visible gallery in at most one request per Storage bucket,
+ // Sign each gallery in at most one request per Storage bucket and session,
  // rather than one signed-URL RPC per thumbnail.
  async function preSignGallery(client,items,ttl=3600){
-  const grouped=new Map();
-  for(const item of items){
-   const kind=item.media_kind,path=item.media_path,key=ttl+":"+kind+":"+path;
+  const state=signedCacheFor(client),signedURLs=state.signedURLs;
+  const version=state.version,grouped=new Map();
+  for(const item of items||[]){
+   const kind=item?.media_kind,path=item?.media_path;
+   if(!["image","video"].includes(kind)||typeof path!=="string")continue;
+   const key=ttl+":"+kind+":"+path;
    if(signedURLs.get(key)?.expiry>Date.now())continue;
-   if(!grouped.has(kind))grouped.set(kind,[]);
-   grouped.get(kind).push(path);
+   if(!grouped.has(kind))grouped.set(kind,new Set());
+   grouped.get(kind).add(path);
   }
-  await Promise.allSettled([...grouped].map(async([kind,paths])=>{
-   const bucket=client.storage.from(bucketFor(kind));
+  await Promise.allSettled([...grouped].map(async([kind,pathSet])=>{
+   const paths=[...pathSet],bucket=client.storage.from(bucketFor(kind));
    if(typeof bucket.createSignedUrls!=="function")return;
    const {data,error}=await bucket.createSignedUrls(paths,ttl);
-   if(error||!Array.isArray(data))return;
+   if(error||!Array.isArray(data)||state.version!==version)return;
    for(let i=0;i<paths.length;i++){
     const item=data[i];
     if(!item?.signedUrl||item.error||(item.path&&item.path!==paths[i]))continue;
@@ -249,25 +268,32 @@
      const url=new URL(item.signedUrl,location.origin);
      if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")continue;
      signedURLs.set(ttl+":"+kind+":"+paths[i],{
-      expiry:Date.now()+Math.max(30,ttl-30)*1000,promise:Promise.resolve(url.href)
+      expiry:Date.now()+Math.max(0,ttl-30)*1000,promise:Promise.resolve(url.href)
      });
     }catch(_){}
    }
   }));
-  trimSignedCache();
+  trimSignedCache(signedURLs);
  }
  async function signed(client,kind,path,ttl=3600){
-  const key=ttl+":"+kind+":"+path,entry=signedURLs.get(key);
+  const state=signedCacheFor(client),signedURLs=state.signedURLs;
+  const version=state.version,key=ttl+":"+kind+":"+path;
+  const entry=signedURLs.get(key);
   if(entry&&entry.expiry>Date.now())return entry.promise;
   const promise=client.storage.from(bucketFor(kind)).createSignedUrl(path,ttl).then(({data,error})=>{
+   // An in-flight response from a previous session must not be displayed.
+   if(state.version!==version)throw Error("Session changed while signing media");
    if(error||!data?.signedUrl)throw error||new Error("Missing signed URL");
    const url=new URL(data.signedUrl);
    if(url.protocol!=="https:"||url.hostname!=="rjasunoawrxvetwadylh.supabase.co")
     throw Error("Unexpected signed asset URL");
    return url.href;
-  }).catch(error=>{signedURLs.delete(key);throw error;});
-  signedURLs.set(key,{expiry:Date.now()+Math.max(30,ttl-30)*1000,promise});
-  trimSignedCache();
+  }).catch(error=>{
+   if(signedURLs.get(key)?.promise===promise)signedURLs.delete(key);
+   throw error;
+  });
+  signedURLs.set(key,{expiry:Date.now()+Math.max(0,ttl-30)*1000,promise});
+  trimSignedCache(signedURLs);
   return promise;
  }
  async function renderStory(client,story,slot,preview=false,allowExpired=false){
