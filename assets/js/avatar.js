@@ -16,7 +16,14 @@ function cssSvg(kind,state){
  if(match)return match[2];
  return variant!=="default"?cssSvg(kind,"default"):null;
 }
-const asset=(state="default",size=1024)=>cssSvg("avatar",state);
+// The CSS owns the actual portraits; expose the same stable paths through
+// the existing asset() API without treating them as uploaded user photos.
+const SYSTEM_VATRYK_ART=Object.freeze({
+ blocked:"/VATRA/assets/vatryk/vatryk-blocked.png",
+ deleted:"/VATRA/assets/vatryk/vatryk-deleted.png",
+ "not-found":"/VATRA/assets/vatryk/vatryk-not-found.png"
+});
+const asset=(state="default",size=1024)=>SYSTEM_VATRYK_ART[state]||cssSvg("avatar","default");
 const coverAsset=(state="default")=>cssSvg("cover",state);
 function fallback(element,state="default"){
  if(!element)return;
