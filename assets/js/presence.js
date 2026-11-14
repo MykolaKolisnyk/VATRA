@@ -6,42 +6,73 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const validId=x=>/^[1-9][0-9]{0,18}$/.test(String(x??""));
 const grammar=gender=>gender==="male"?"masculine":gender==="female"?"feminine":"neutral";
 const activeWindow=240000; // Allow a slow connection and missed heartbeat.
-let started=null;
+let active=null;
+function stop(){
+ const state=active;
+ if(!state)return;
+ active=null;
+ state.controller.abort();
+ if(state.interval!==null)clearInterval(state.interval);
+ try{state.authSubscription?.unsubscribe?.();}catch(_){}
+}
 function start(client,ownId,gender){
  if(!client||!validId(ownId))return Promise.resolve(false);
- if(started)return started;
- let available=true;
+ const id=String(ownId);
+ if(active?.client===client&&active.id===id)return active.promise;
+ stop(); // A different viewer must not inherit the previous heartbeat timer.
+ const state={client,id,controller:new AbortController(),interval:null,
+  authSubscription:null,updating:false,promise:null};
+ active=state;
  const table="profile_presence";
  const update=async()=>{
-  if(!available||document.visibilityState==="hidden")return false;
+  if(active!==state||state.updating||document.visibilityState==="hidden")return false;
+  state.updating=true;
   try{
    const {error}=await client.from(table).update({last_seen_at:new Date().toISOString()})
-    .eq("vatra_id",ownId);
+    .eq("vatra_id",id);
    if(error)throw error;
-   return true;
+   return active===state;
   }catch(_){return false;}
+  finally{state.updating=false;}
  };
- started=(async()=>{
+ // Register cleanup before the initial DB read: sign-out may race with it.
+ try{
+  state.authSubscription=client.auth?.onAuthStateChange?.(event=>{
+   if(event==="SIGNED_OUT"&&active===state)stop();
+  })?.data?.subscription||null;
+ }catch(_){}
+ window.addEventListener("pagehide",()=>{if(active===state)stop();},
+  {once:true,signal:state.controller.signal});
+ state.promise=(async()=>{
   try{
    const {data,error}=await client.from(table).select("vatra_id,form")
-    .eq("vatra_id",ownId).maybeSingle();
+    .eq("vatra_id",id).maybeSingle();
+   if(active!==state)return false;
    if(error)throw error;
    if(!data){
-    const result=await client.from(table).insert({vatra_id:ownId});
+    const result=await client.from(table).insert({vatra_id:id});
+    if(active!==state)return false;
     if(result.error)throw result.error;
    }else await update();
-   // No more than one write per two minutes while visible.
+   if(active!==state)return false;
+   // A visible tab sends no more than one heartbeat per two minutes.
    let lastTouch=Date.now();
    const pulse=()=>{
-    if(document.visibilityState==="hidden"||Date.now()-lastTouch<120000)return;
-    lastTouch=Date.now();void update();
+    if(active!==state||document.visibilityState==="hidden"||
+     Date.now()-lastTouch<120000)return;
+    lastTouch=Date.now();
+    void update();
    };
-   setInterval(pulse,60000);
-   document.addEventListener("visibilitychange",pulse,{passive:true});
+   state.interval=setInterval(pulse,60000);
+   document.addEventListener("visibilitychange",pulse,
+    {passive:true,signal:state.controller.signal});
    return true;
-  }catch(_){available=false;return false;}
+  }catch(_){
+   if(active===state)stop();
+   return false;
+  }
  })();
- return started;
+ return state.promise;
 }
 async function load(client,targetId){
  if(!client||!validId(targetId))return null;
