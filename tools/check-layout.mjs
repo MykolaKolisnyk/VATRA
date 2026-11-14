@@ -1231,6 +1231,11 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  sharedJs.includes("positionTooltip(target)")&&
  sharedJs.includes("setUpStories()")&&
  sharedJs.includes("localStorage.setItem(storageKey")&&
+ sharedJs.includes("vatra.search.history.v2.member.")&&
+ sharedJs.includes("window.VATRA_SEARCH_HISTORY={setViewer}")&&
+ !sharedJs.includes('const storageKey="vatra.search.history.v1"')&&
+ (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(null)")&&
+ (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(ownId)")&&
  sharedJs.includes("setUpSiteSearch()")&&
  sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
  !sharedCss.includes("body.feed-page .ui-social-top-feed-001{color:#376fdf"),
