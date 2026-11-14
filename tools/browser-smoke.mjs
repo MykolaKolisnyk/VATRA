@@ -3896,9 +3896,20 @@ try{
    "Community initial DB page must be bounded to twelve rows");
   await page.locator("#club-posts-more").click();
   await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=24);
-  // Auto-paging may fetch the last row when the button scrolls into view.
-  if(await page.locator("#club-posts-more").isVisible())
-   await page.locator("#club-posts-more").click();
+  // Auto-paging may fetch the last row as the button scrolls into view.
+  // A separate isVisible() + click() can race with the observer hiding it.
+  // Wait until the final page is here OR a manual load is possible, then
+  // check and dispatch in one browser task (the first click above remains real).
+  await page.waitForFunction(()=>{
+   const count=document.querySelectorAll("#club-posts .feed-post-card").length;
+   const button=document.querySelector("#club-posts-more");
+   return count>=25||(button&&!button.hidden&&!button.disabled);
+  });
+  await page.evaluate(()=>{
+   if(document.querySelectorAll("#club-posts .feed-post-card").length>=25)return;
+   const button=document.querySelector("#club-posts-more");
+   if(button&&!button.hidden&&!button.disabled)button.click();
+  });
   await page.waitForFunction(()=>document.querySelectorAll("#club-posts .feed-post-card").length>=25);
   assert.equal(await page.locator("#club-posts .feed-post-card").count(),25);
   assert.equal(await page.locator("#club-posts-more").isVisible(),false,
