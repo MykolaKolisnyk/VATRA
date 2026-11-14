@@ -20,6 +20,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check avatar state cache safety
         run: node tools/avatar-state-cache-smoke.mjs
+      - name: Check avatar path query caching
+        run: node tools/avatar-path-cache-smoke.mjs
       - name: Check SEO and site layout
         run: |
           node tools/check-seo.mjs
