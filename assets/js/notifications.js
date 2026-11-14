@@ -111,9 +111,11 @@ async function unreadCount(){
  }
 }
 async function fetchRows({page,size,filter="all",sort="new"}){
- let query=client.from("member_notifications").select(
+ const run=notificationRun;
+ if(!run)return {rows:[],hasNext:false};
+ let query=run.client.from("member_notifications").select(
   "id,actor_vatra_id,kind,target_kind,target_id,context_id,avatar_owner_vatra_id,read_at,created_at")
-  .eq("recipient_vatra_id",ownId);
+  .eq("recipient_vatra_id",run.id);
  if(filter==="unread")query=query.is("read_at",null);
  if(filter==="read")query=query.not("read_at","is",null);
  const oldest=sort==="old";
@@ -125,17 +127,23 @@ async function fetchRows({page,size,filter="all",sort="new"}){
  return {rows:entries.slice(0,size),hasNext:entries.length>size};
 }
 async function markRead(id){
+ const run=notificationRun;
+ if(!run)return false;
  try{
-  const {error}=await client.from("member_notifications").update({read_at:new Date().toISOString()})
-   .eq("recipient_vatra_id",ownId).eq("id",id).is("read_at",null);
-  if(error)throw error;void unreadCount();return true;
+  const {error}=await run.client.from("member_notifications").update({read_at:new Date().toISOString()})
+   .eq("recipient_vatra_id",run.id).eq("id",id).is("read_at",null);
+  if(error)throw error;
+  if(run!==notificationRun)return false;
+  void unreadCount();return true;
  }catch(_){return false;}
 }
 async function remove(id){
- const {error}=await client.from("member_notifications").delete()
-  .eq("recipient_vatra_id",ownId).eq("id",id);
+ const run=notificationRun;
+ if(!run)throw Error("Notification session unavailable");
+ const {error}=await run.client.from("member_notifications").delete()
+  .eq("recipient_vatra_id",run.id).eq("id",id);
  if(error)throw error;
- void unreadCount();
+ if(run===notificationRun)void unreadCount();
 }
 function createRow(record,name,index,onChange,photoUrl,accountState=null){
  const article=make("article","vatra-notification-row ui-vatra-notification-row-"+index);
@@ -417,10 +425,12 @@ function stop(){
  liveChannel=null;
  closePanel();
  panelItems?.replaceChildren();
+ pick("#notifications-list")?.replaceChildren();
  badge.hidden=true;badge.textContent="";
  bell.setAttribute("aria-label",t("Сповіщення","Notifications"));
  refreshBusy=false;refreshQueued=false;
  panelLoadPending=null;panelLoadQueued=false;
+ sectionPage=0;sectionLoading=false;
  client=null;ownId=null;
 }
 function start(c,id){
@@ -462,15 +472,18 @@ function start(c,id){
  }catch(_){}
 }
 async function pageLoad(append=false){
+ const run=notificationRun;
  const list=pick("#notifications-list"),empty=pick("#notifications-empty");
  const more=pick("#notifications-more");
- if(!list||sectionLoading)return;
+ if(!list||!run||sectionLoading)return;
  sectionLoading=true;more.disabled=true;list.setAttribute("aria-busy","true");
  const page=append?sectionPage+1:0,size=30;
  if(!append){list.replaceChildren();empty.hidden=true;}
  try{
   const result=await fetchRows({page,size,filter:sectionFilter,sort:sectionSort});
+  if(run!==notificationRun)return;
   const authors=await authorNames(result.rows);
+  if(run!==notificationRun)return;
   for(const row of result.rows){
    const index=list.children.length+1,id=String(row.actor_vatra_id);
    const state=authors.states.get(id);
@@ -485,11 +498,16 @@ async function pageLoad(append=false){
    empty.hidden=false;empty.textContent=t("Сповіщень поки немає.","No notifications yet.");
   }
  }catch(_){
+  if(run!==notificationRun)return;
   if(!append)list.replaceChildren();
   empty.hidden=false;
   empty.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
    "Could not load notifications. Please retry.");
- }finally{sectionLoading=false;more.disabled=false;list.setAttribute("aria-busy","false");}
+ }finally{
+  if(run===notificationRun){
+   sectionLoading=false;more.disabled=false;list.setAttribute("aria-busy","false");
+  }
+ }
 }
 function pageUI(){
  for(const btn of document.querySelectorAll("[data-notification-filter]")){
