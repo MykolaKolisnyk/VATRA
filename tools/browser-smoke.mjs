@@ -2421,6 +2421,10 @@ try{
    theme:2,expires_at:"2099-12-31T23:59:59Z"};
   window.__profileDetailRows=[];
   window.__vatraFriendLimitCalls=[];window.__vatraGiftLimitCalls=[];
+  window.__vatraFriendActionRows=new URLSearchParams(location.search).has("friend-action-test")?
+   [{id:"00000000-0000-4000-8000-000000000882",requester_id:654321,
+    recipient_id:789012,status:"accepted",created_at:"2026-11-14T12:00:00Z"}]:[];
+  window.__vatraFriendDenyDelete=true;window.__vatraFriendDeleteAttempts=0;
   window.__profileVisibility=new URLSearchParams(location.search).has("locked-test")?"friends":"public";
   window.supabase={createClient:()=>({
    auth:{
@@ -2447,9 +2451,25 @@ try{
      delete:()=>({eq(){return this;},then:resolve=>Promise.resolve(resolve({error:null}))})}:
     table==="friendships"?
     {select:()=>({or(){return this;},eq(){return this;},order(){return this;},
-     limit:async n=>{window.__vatraFriendLimitCalls.push(n);return {data:[],error:null};}}),
+     limit:async n=>{window.__vatraFriendLimitCalls.push(n);
+      return {data:window.__vatraFriendActionRows||[],error:null};}}),
      insert:async()=>({error:null}),
-     delete:()=>({eq:async()=>({error:null})})}:
+     delete:()=>({
+      filters:[],
+      eq(column,value){this.filters.push([column,String(value)]);return this;},
+      or(){return this;},
+      select(){return this;},
+      async maybeSingle(){
+       window.__vatraFriendDeleteAttempts++;
+       if(window.__vatraFriendDenyDelete)return {data:null,error:null};
+       const deleted=window.__vatraFriendActionRows.find(row=>
+        this.filters.every(([k,v])=>String(row[k])===v));
+       if(deleted)window.__vatraFriendActionRows=
+        window.__vatraFriendActionRows.filter(row=>row!==deleted);
+       return {data:deleted?{id:deleted.id}:null,error:null};
+      },
+      then(resolve,reject){return this.maybeSingle().then(resolve,reject);}
+     })}:
     table==="profile_gifts"?
     {select:()=>({eq(){return this;},order(){return this;},
      limit:async n=>{window.__vatraGiftLimitCalls.push(n);return {data:[
@@ -2570,6 +2590,37 @@ try{
  assert.equal(await friendsProbe.locator(".ui-social-top-friends-001").getAttribute("aria-current"),"page",
   "Friends page should mark its own navigation tab active");
  await friendsProbe.close();
+ // A public profile must not expose their accepted friends through the
+ // standalone friends route, even when the old server RLS did.
+ const privateFriends=await feedContext.newPage();
+ await privateFriends.goto(base+"friends.html?member=789012",{waitUntil:"domcontentloaded"});
+ await privateFriends.locator("#friends-empty").waitFor({state:"visible",timeout:14000});
+ assert.ok((await privateFriends.locator("#friends-empty").textContent()).includes(
+  "Списки друзів інших користувачів приватні"),
+  "Another member's friend list must be private");
+ assert.equal(await privateFriends.locator(".vatra-friends-person").count(),0);
+ assert.equal(await privateFriends.evaluate(()=>window.__vatraFriendLimitCalls.length),0,
+  "A third-party friends route must not query someone else's relationships");
+ await privateFriends.close();
+
+ // Confirm a zero-row DELETE does not pretend it removed a friend.
+ const ownerFriends=await feedContext.newPage();
+ await ownerFriends.goto(base+"friends.html?friend-action-test=1",{waitUntil:"domcontentloaded"});
+ await ownerFriends.locator(".vatra-friends-person").first().waitFor({state:"visible",timeout:14000});
+ await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
+ await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===1);
+ assert.equal(await ownerFriends.locator(".vatra-friends-person").count(),1,
+  "Denied deletion must leave the friend row intact");
+ assert.ok((await ownerFriends.locator("#friends-empty").textContent()).includes(
+  "Не вдалося виконати дію"),
+  "A zero-row DELETE must be reported as unsuccessful");
+ await ownerFriends.evaluate(()=>{window.__vatraFriendDenyDelete=false;});
+ await ownerFriends.locator(".vt-vatra-friends-remove-1").click();
+ await ownerFriends.waitForFunction(()=>window.__vatraFriendDeleteAttempts===2&&
+  document.querySelectorAll(".vatra-friends-person").length===0);
+ assert.equal(await ownerFriends.evaluate(()=>window.__vatraFriendActionRows.length),0);
+ await ownerFriends.close();
+ console.log("VATRA Friends: visitor privacy, rejected and confirmed deletion OK");
  const giftsProbe=await feedContext.newPage();
  await giftsProbe.goto(base+"gifts.html",{waitUntil:"domcontentloaded"});
  await giftsProbe.locator(".vatra-gifts-card").first().waitFor({state:"visible",timeout:14000});
