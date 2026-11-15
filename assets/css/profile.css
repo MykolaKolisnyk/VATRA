@@ -2755,6 +2755,15 @@ body.profile-page .profile-content-panel :is(
 }
 
 
-/* Unavailable accounts keep the same cover, portrait size, overlap and
-   name baseline as ordinary profiles. Only artwork, text and actions differ.
-   In particular, no separate data-vatra-profile-unavailable geometry. */
+/* System profiles inherit the ordinary portrait size and cover overlap.
+   With status/actions hidden there is only one title line, so visually center
+   that line on the same portrait while keeping the shared left inset. */
+body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{
+ position:relative;top:-18px
+}
+@media(max-width:970px){
+ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-15px}
+}
+@media(max-width:600px){
+ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-12px}
+}
