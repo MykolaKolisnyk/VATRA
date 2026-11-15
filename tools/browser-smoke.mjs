@@ -551,7 +551,7 @@ try{
  await page.waitForFunction(()=>{
   const track=document.querySelector(".language-scroll-track");
   return track&&!track.classList.contains("is-visible")&&parseFloat(getComputedStyle(track).opacity)<.08;
- },{timeout:3500});
+ },null,{timeout:3500});
  const modalAnimations=await dialog.evaluate(node=>({
   dialog:getComputedStyle(node).animationName,
   content:getComputedStyle([...node.children].find(el=>!el.hidden)).animationName,
