@@ -46,6 +46,8 @@ jobs:
         run: node tools/feed-subscriptions-smoke.mjs
       - name: Check global Feed search cancellation without production queries
         run: node tools/feed-global-search-smoke.mjs
+      - name: Audit unpublished multilingual page catalogs
+        run: node tools/i18n-coverage-audit.mjs
       - name: Check SEO and site layout
         run: |
           node tools/check-seo.mjs
