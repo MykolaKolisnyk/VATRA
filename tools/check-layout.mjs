@@ -341,21 +341,26 @@ assert.ok(lang.includes('["uk","Українська","Ukrainian","ua",true]')&&
  lang.includes('["pl","Polski","Polish","pl"]')&&
  lang.includes("In development")&&lang.includes("У розробці")&&
  lang.includes("assets/flags/"),
- "Language picker must keep the curated 32 locales, with only two selectable and their flags visible");
+ "Language picker must show only the eight requested targets; unpublished translations stay disabled");
 const languageSection=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
-assert.equal((languageSection.match(/\["/g)||[]).length,32,"Language picker must show 32 choices");
-assert.equal((languageSection.match(/,true\]/g)||[]).length,2,"Only Ukrainian and English are active");
+const languageCodes=[...languageSection.matchAll(/\["([a-z]+)","[^"]+","[^"]+","[a-z]+"/g)].map(match=>match[1]);
+assert.deepEqual(languageCodes,["uk","en","pl","de","fr","it","ka","bg"],
+ "Only the owner's eight selected language codes may remain in VATRA");
+assert.equal((languageSection.match(/,true\]/g)||[]).length,2,
+ "Only shipped, complete Ukrainian and English dictionaries may be selectable");
 const flagSymbols=new Set();
-for(const file of ["europe-a","europe-b","europe-c","world"]){
+for(const file of ["europe-a","europe-b","europe-c"]){
  const sprite=await read("assets/flags/"+file+".svg");
  for(const match of sprite.matchAll(/<symbol id="flag-([a-z]+)" viewBox="0 0 640 480"/g))
   flagSymbols.add(match[1]);
 }
-assert.equal(flagSymbols.size,32,"All displayed VATRA language flags must be real vector symbols");
-for(const retiredFlag of ["sk","hu","rs","cn"])
- assert.ok(!flagSymbols.has(retiredFlag),"Unpublished removed flag remains in sprite: "+retiredFlag);
-for(const match of languageSection.matchAll(/\["[a-z]+","[^"]+","[^"]+","([a-z]+)"/g))
- assert.ok(flagSymbols.has(match[1]),"Flag SVG missing for "+match[1]);
+assert.deepEqual([...flagSymbols].sort(),["pl","de","fr","it","bg","ge"].sort(),
+ "All unused SVG flags must be deleted, including default flag assets drawn inline");
+for(const match of languageSection.matchAll(/\["[a-z]+","[^"]+","[^"]+","([a-z]+)"/g)){
+ const code=match[1];
+ assert.ok(["ua","gb"].includes(code)||flagSymbols.has(code),
+  "Flag SVG missing for "+code);
+}
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
  "Language assets must resolve from the current site root, not a hard-coded /VATRA/");
 assert.ok(network.includes("projectBase.pathname")&&network.includes('new URL("sw.js",projectBase)')&&
