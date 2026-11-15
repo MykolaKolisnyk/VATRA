@@ -473,13 +473,28 @@
 
     /* Custom VATRA scrollbar. Native wheel, touch and keyboard input stays active. */
     let scrollbarFadeTimer = null;
+    let pointerInsideDialog = false;
     function showScrollbar() {
       if (scrollTrack.hidden || backdrop.hidden) return;
       scrollTrack.classList.add("is-visible");
       clearTimeout(scrollbarFadeTimer);
-      if (!dragging) scrollbarFadeTimer = setTimeout(
+      scrollbarFadeTimer = null;
+      if (pointerInsideDialog || dragging) return;
+      scrollbarFadeTimer = setTimeout(
         () => scrollTrack.classList.remove("is-visible"), 1000);
     }
+    dialog.addEventListener("pointerenter", e => {
+      if (e.pointerType==="mouse" || e.pointerType==="pen") {
+        pointerInsideDialog=true;showScrollbar();
+      }
+    });
+    dialog.addEventListener("pointerleave", e => {
+      if (e.pointerType==="mouse" || e.pointerType==="pen") {
+        pointerInsideDialog=false;
+        clearTimeout(scrollbarFadeTimer);scrollbarFadeTimer=null;
+        if(!dragging)scrollTrack.classList.remove("is-visible");
+      }
+    });
     function updateScrollbar() {
       const viewport = list.clientHeight;
       const content = list.scrollHeight;
@@ -534,6 +549,7 @@
     if ("ResizeObserver" in window) new ResizeObserver(updateScrollbar).observe(list);
     function close() {
       clearTimeout(scrollbarFadeTimer);
+      scrollbarFadeTimer=null;pointerInsideDialog=false;
       scrollTrack.classList.remove("is-visible");
       for(const trigger of triggers)trigger.setAttribute("aria-expanded","false");
       backdrop.hidden = true;
@@ -551,7 +567,11 @@
       backdrop.hidden = false;
       document.body.classList.add("language-dialog-open");
       search.focus();
-      requestAnimationFrame(() => { updateScrollbar(); showScrollbar(); });
+      requestAnimationFrame(() => {
+        updateScrollbar();
+        pointerInsideDialog=dialog.matches(":hover");
+        showScrollbar();
+      });
     }
     search.addEventListener("input", () => {
       clearSearch.hidden = !search.value;
@@ -592,9 +612,10 @@
   }
 })();
 
-/* One passive, delegated controller for scrollable VATRA form surfaces.
-   No polling, no DOM mutation observers, no track or thumb hover effect.
-   Hidden native thumbs still respond to ordinary scrolling and dragging. */
+/* One delegated controller for all VATRA scrolling forms.
+   Pointer inside = visible thumb; pointer outside = fade away.
+   Keyboard/touch/programmatic scrolling gets a brief accessible reveal.
+   No polling, hover shading, or additional visual elements. */
 (()=>{
  "use strict";
  const selector=[
@@ -611,28 +632,52 @@
   ".profile-story-viewer",".vatra-gift-viewer","textarea"
  ].join(",");
  const timers=new WeakMap();
- function show(target){
+ const pointerInside=new WeakSet();
+ function scrollable(target){
+  return target?.matches?.(selector) && target.scrollHeight>target.clientHeight+1;
+ }
+ function release(target){
   if(!target?.matches?.(selector))return;
+  clearTimeout(timers.get(target));
+  timers.delete(target);
+  target.classList.remove("vatra-form-scroll-active");
+ }
+ function reveal(target,keepVisible=false){
+  if(!scrollable(target))return;
   target.classList.add("vatra-form-scroll-active");
   clearTimeout(timers.get(target));
+  timers.delete(target);
+  if(keepVisible || pointerInside.has(target))return;
   const timer=setTimeout(()=>{
-   target.classList.remove("vatra-form-scroll-active");
+   if(!pointerInside.has(target))target.classList.remove("vatra-form-scroll-active");
    timers.delete(target);
   },1050);
   timers.set(target,timer);
  }
- document.addEventListener?.("scroll",event=>show(event.target),{capture:true,passive:true});
- document.addEventListener?.("wheel",event=>{
-  const el=event.target?.closest?.(selector);
-  if(el && el.scrollHeight>el.clientHeight+1)show(el);
+ function closestScrollable(node){
+  return node?.closest?.(selector)||null;
+ }
+ // A list can contain many option buttons: changing the hovered option must
+ // not hide the thumb. Only leaving the entire scrollable form hides it.
+ document.addEventListener?.("pointerover",event=>{
+  if(event.pointerType!=="mouse"&&event.pointerType!=="pen")return;
+  const target=closestScrollable(event.target);
+  if(!target)return;
+  pointerInside.add(target);
+  reveal(target,true);
  },{capture:true,passive:true});
- document.addEventListener?.("pointerdown",event=>{
-  const el=event.target?.closest?.(selector);
-  if(el && el.scrollHeight>el.clientHeight+1)show(el);
+ document.addEventListener?.("pointerout",event=>{
+  if(event.pointerType!=="mouse"&&event.pointerType!=="pen")return;
+  const from=closestScrollable(event.target);
+  if(!from || from===closestScrollable(event.relatedTarget))return;
+  pointerInside.delete(from);
+  release(from);
  },{capture:true,passive:true});
+ document.addEventListener?.("scroll",event=>reveal(event.target),{capture:true,passive:true});
+ document.addEventListener?.("wheel",event=>reveal(closestScrollable(event.target)),{capture:true,passive:true});
+ document.addEventListener?.("pointerdown",event=>reveal(closestScrollable(event.target)),{capture:true,passive:true});
  document.addEventListener?.("keydown",event=>{
   if(!["ArrowDown","ArrowUp","PageDown","PageUp","Home","End"," "].includes(event.key))return;
-  const el=document.activeElement?.closest?.(selector);
-  if(el && el.scrollHeight>el.clientHeight+1)show(el);
+  reveal(closestScrollable(document.activeElement));
  },{capture:true});
 })();
