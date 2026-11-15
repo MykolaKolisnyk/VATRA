@@ -129,7 +129,8 @@ function wireSelects(){
  let opened=null;
  function close(focus=false){
   if(!opened)return;
-  const {trigger,list,root}=opened;
+  const {trigger,list,root,resetRail}=opened;
+  resetRail();
   list.hidden=true;trigger.setAttribute("aria-expanded","false");
   root.classList.remove("is-open","opens-up");
   opened=null;
@@ -165,6 +166,90 @@ function wireSelects(){
   scrollArea.className="vatra-select-scroll-area ui-select-scroll-"+select.id;
   scrollArea.setAttribute("role","presentation");
   list.append(scrollArea);
+  // The native rail has browser-specific arrows. Use a small themed thumb that
+  // follows the real scroll position; the content itself remains natively
+  // scrollable by wheel, touch and keyboard.
+  const rail=document.createElement("div");
+  rail.className="vatra-select-scroll-rail ui-select-rail-"+select.id;
+  rail.hidden=true;
+  rail.setAttribute("aria-hidden","true");
+  const thumb=document.createElement("span");
+  thumb.className="vatra-select-scroll-thumb ui-select-thumb-"+select.id;
+  rail.append(thumb);
+  list.append(rail);
+  let pointerInside=false,dragging=false,hideTimer=null,grabY=0;
+  function resetRail(){
+   clearTimeout(hideTimer);hideTimer=null;pointerInside=false;dragging=false;
+   rail.classList.remove("is-visible","is-dragging");
+  }
+  function updateRail(){
+   if(list.hidden)return;
+   const overflow=scrollArea.scrollHeight-scrollArea.clientHeight;
+   // Measure after revealing: hidden rails report clientHeight=0.
+   if(overflow<=1){rail.hidden=true;rail.classList.remove("is-visible");return;}
+   rail.hidden=false;
+   const height=rail.clientHeight;
+   if(height<=0)return;
+   const thumbHeight=Math.min(height,Math.max(26,
+    height*scrollArea.clientHeight/scrollArea.scrollHeight));
+   const travel=Math.max(0,height-thumbHeight);
+   thumb.style.height=thumbHeight+"px";
+   thumb.style.transform="translateY("+
+    (travel*(scrollArea.scrollTop/overflow))+"px)";
+  }
+  function showRail(){
+   updateRail();
+   if(rail.hidden)return;
+   rail.classList.add("is-visible");
+   clearTimeout(hideTimer);hideTimer=null;
+   if(!pointerInside&&!dragging)hideTimer=setTimeout(
+    ()=>rail.classList.remove("is-visible"),1000);
+  }
+  list.addEventListener("pointerenter",e=>{
+   if(e.pointerType==="mouse"||e.pointerType==="pen"){
+    pointerInside=true;showRail();
+   }
+  });
+  list.addEventListener("pointerleave",e=>{
+   if(e.pointerType==="mouse"||e.pointerType==="pen"){
+    pointerInside=false;
+    if(!dragging){clearTimeout(hideTimer);rail.classList.remove("is-visible");}
+   }
+  });
+  scrollArea.addEventListener("scroll",()=>{updateRail();showRail();},{passive:true});
+  rail.addEventListener("pointerdown",e=>{
+   if(e.button!==0||rail.hidden)return;
+   e.preventDefault();e.stopPropagation();
+   const thumbRect=thumb.getBoundingClientRect();
+   grabY=e.clientY>=thumbRect.top&&e.clientY<=thumbRect.bottom?
+    e.clientY-thumbRect.top:thumbRect.height/2;
+   dragging=true;rail.classList.add("is-dragging");
+   showRail();rail.setPointerCapture(e.pointerId);
+   moveRail(e);
+  });
+  function moveRail(e){
+   const limit=scrollArea.scrollHeight-scrollArea.clientHeight;
+   const space=rail.clientHeight-thumb.getBoundingClientRect().height;
+   if(limit<=0||space<=0)return;
+   const y=Math.max(0,Math.min(space,e.clientY-rail.getBoundingClientRect().top-grabY));
+   scrollArea.scrollTop=y/space*limit;
+   updateRail();
+  }
+  rail.addEventListener("pointermove",e=>{if(dragging)moveRail(e);});
+  function stopDrag(e){
+   if(!dragging)return;
+   dragging=false;rail.classList.remove("is-dragging");
+   if(rail.hasPointerCapture(e.pointerId))rail.releasePointerCapture(e.pointerId);
+   pointerInside=list.matches(":hover");
+   if(pointerInside)showRail();
+   else{clearTimeout(hideTimer);rail.classList.remove("is-visible");}
+  }
+  rail.addEventListener("pointerup",stopDrag);
+  rail.addEventListener("pointercancel",stopDrag);
+  rail.addEventListener("wheel",e=>{
+   scrollArea.scrollTop+=e.deltaY;
+   showRail();e.preventDefault();
+  },{passive:false});
   const choices=[...select.options].filter(opt=>!opt.disabled&&(opt.value||!required));
   for(const [optionIndex,opt] of choices.entries()){
    const item=document.createElement("button");
@@ -216,9 +301,16 @@ function wireSelects(){
    list.hidden=false;
    trigger.setAttribute("aria-expanded","true");
    root.classList.add("is-open");
-   opened={trigger,list,root,select,choices};
+   opened={trigger,list,root,select,choices,resetRail};
    const active=list.querySelector('[aria-selected="true"]');
    if(active)active.scrollIntoView({block:"nearest"});
+   // Layout is now measurable. Keep the thumb visible if the pointer opened
+   // the list and already happens to rest over its content.
+   requestAnimationFrame(()=>{
+    if(opened?.list!==list)return;
+    updateRail();
+    if(list.matches(":hover")){pointerInside=true;showRail();}
+   });
   }
   trigger.addEventListener("click",open);
   trigger.addEventListener("keydown",e=>{

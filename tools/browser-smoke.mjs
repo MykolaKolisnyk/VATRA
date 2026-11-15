@@ -586,24 +586,45 @@ try{
  await dateScroller.hover();
  await localizedSignup.waitForFunction(()=>document.querySelector(
   ".ui-select-scroll-birth-day")?.classList.contains("vatra-form-scroll-active"));
- const dateStyle=await dateScroller.evaluate(el=>({
-  track:getComputedStyle(el,"::-webkit-scrollbar-track").backgroundColor,
-  arrow:getComputedStyle(el,"::-webkit-scrollbar-button").display,
-  active:el.classList.contains("vatra-form-scroll-active"),
-  scrollable:el.scrollHeight>el.clientHeight,
-  rightInset:el.parentElement.getBoundingClientRect().right-el.getBoundingClientRect().right
- }));
+ const dateRail=dateList.locator(".vatra-select-scroll-rail");
+ await localizedSignup.waitForFunction(()=>document.querySelector(
+  ".ui-select-rail-birth-day")?.classList.contains("is-visible"));
+ const dateStyle=await dateScroller.evaluate(el=>{
+  const rail=el.parentElement.querySelector(".vatra-select-scroll-rail");
+  const thumb=rail.querySelector(".vatra-select-scroll-thumb");
+  const css=getComputedStyle(el),vendor=getComputedStyle(el,"::-webkit-scrollbar");
+  return {
+   nativeHidden:css.scrollbarWidth==="none"||vendor.display==="none",
+   active:el.classList.contains("vatra-form-scroll-active"),
+   scrollable:el.scrollHeight>el.clientHeight,
+   railShown:rail.classList.contains("is-visible")&&!rail.hidden,
+   railColor:getComputedStyle(thumb).backgroundColor,
+   rightInset:el.parentElement.getBoundingClientRect().right-rail.getBoundingClientRect().right
+  };
+ });
  assert.equal(dateStyle.scrollable,true,"Date dropdown should remain scrollable");
+ assert.equal(dateStyle.nativeHidden,true,"Opera must never draw its native arrows in birthday lists");
  assert.equal(dateStyle.active,true,"Date scrollbar must show while mouse is inside");
- assert.ok(dateStyle.rightInset>=8,"Birthday scrollbar must be inset from its rounded popup");
- if(await localizedSignup.evaluate(()=>CSS.supports("selector(::-webkit-scrollbar)")))
-  assert.equal(dateStyle.arrow,"none","Native date dropdown arrows must be hidden");
+ assert.equal(dateStyle.railShown,true,"Custom VATRA scrollbar must be visible while hovered");
+ assert.equal(dateStyle.railColor,"rgb(69, 75, 84)","Custom thumb must be graphite gray");
+ assert.ok(dateStyle.rightInset>=3,"Custom rail must stay inside the rounded popup");
  await localizedSignup.waitForTimeout(1150);
- assert.equal(await dateScroller.evaluate(el=>el.classList.contains("vatra-form-scroll-active")),
-  true,"Date scrollbar should stay visible while pointer remains inside");
+ assert.equal(await dateRail.evaluate(el=>el.classList.contains("is-visible")),
+  true,"Custom scrollbar must stay visible while pointer is inside the date list");
+ const thumbBox=await dateRail.locator(".vatra-select-scroll-thumb").boundingBox();
+ assert.ok(thumbBox&&thumbBox.height>=25,"Scrollable list must have a draggable thumb");
+ await localizedSignup.mouse.move(thumbBox.x+thumbBox.width/2,thumbBox.y+thumbBox.height/2);
+ await localizedSignup.mouse.down();
+ await localizedSignup.mouse.move(thumbBox.x+thumbBox.width/2,thumbBox.y+thumbBox.height/2+65,{steps:4});
+ await localizedSignup.mouse.up();
+ assert.ok(await dateScroller.evaluate(el=>el.scrollTop)>0,
+  "Dragging the custom thumb must scroll the date choices");
  await localizedSignup.mouse.move(2,2);
- await localizedSignup.waitForFunction(()=>!document.querySelector(
-  ".ui-select-scroll-birth-day")?.classList.contains("vatra-form-scroll-active"));
+ await localizedSignup.waitForFunction(()=>{
+  const rail=document.querySelector(".ui-select-rail-birth-day");
+  return rail&&!rail.classList.contains("is-visible")&&
+   parseFloat(getComputedStyle(rail).opacity)<.1;
+ },null,{timeout:3500});
  await localizedSignup.keyboard.press("Escape");
  assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#communities","#photos","#videos","#music","#marketplace","#clips"],
   "The registration hashtags must be translated into English");
@@ -5016,31 +5037,34 @@ try{
       await scrollArea.hover();
       await view.waitForFunction(()=>document.querySelector(
        ".ui-select-scroll-birth-month")?.classList.contains("vatra-form-scroll-active"));
-      const style=await scrollArea.evaluate(node=>({
-       overflow:node.scrollHeight>node.clientHeight,
-       thumb:getComputedStyle(node).scrollbarColor,
-       arrows:CSS.supports("selector(::-webkit-scrollbar)")?
-        getComputedStyle(node,"::-webkit-scrollbar-button").display:null,
-       track:CSS.supports("selector(::-webkit-scrollbar)")?
-        getComputedStyle(node,"::-webkit-scrollbar-track").backgroundColor:null,
-       inset:node.parentElement.getBoundingClientRect().right-node.getBoundingClientRect().right
-      }));
+      await view.waitForFunction(()=>document.querySelector(
+       ".ui-select-rail-birth-month")?.classList.contains("is-visible"));
+      const style=await scrollArea.evaluate(node=>{
+       const native=getComputedStyle(node);
+       const vendor=getComputedStyle(node,"::-webkit-scrollbar");
+       const rail=node.parentElement.querySelector(".vatra-select-scroll-rail");
+       return {
+        overflow:node.scrollHeight>node.clientHeight,
+        nativeHidden:native.scrollbarWidth==="none"||vendor.display==="none",
+        inset:node.parentElement.getBoundingClientRect().right-rail.getBoundingClientRect().right,
+        visible:rail.classList.contains("is-visible"),
+        shade:getComputedStyle(rail.querySelector(".vatra-select-scroll-thumb")).backgroundColor,
+        background:getComputedStyle(rail).backgroundColor
+       };
+      });
       assert.equal(style.overflow,true,engine+" birthday list must scroll");
-      assert.ok(style.inset>=8,engine+" scrollbar must be inset from popup corner");
-      if(style.arrows!==null){
-       assert.equal(style.arrows,"none",engine+" native up/down arrows should not appear");
-       assert.equal(style.track,"rgba(0, 0, 0, 0)",
-        engine+" must not have a colored scrollbar track");
-      }else{
-       assert.ok(style.thumb.includes("64")&&style.thumb.includes("70")&&style.thumb.includes("79"),
-        engine+" must use graphite native scrollbar color: "+style.thumb);
-      }
+      assert.equal(style.nativeHidden,true,engine+" native arrow controls must be absent");
+      assert.ok(style.inset>=3,engine+" custom thumb must stay inside rounded popup");
+      assert.equal(style.visible,true,engine+" custom rail must show on pointer enter");
+      assert.equal(style.shade,"rgb(69, 75, 84)",engine+" thumb should be graphite");
+      assert.equal(style.background,"rgba(0, 0, 0, 0)",engine+" track background must be transparent");
       await view.waitForTimeout(250);
-      assert.equal(await scrollArea.evaluate(node=>node.classList.contains("vatra-form-scroll-active")),
-       true,engine+" scrollbar stays visible while pointer is inside");
+      assert.equal(await list.locator(".vatra-select-scroll-rail").evaluate(
+       el=>el.classList.contains("is-visible")),
+       true,engine+" thumb stays visible while pointer is inside");
       await view.mouse.move(3,3);
       await view.waitForFunction(()=>!document.querySelector(
-       ".ui-select-scroll-birth-month")?.classList.contains("vatra-form-scroll-active"));
+       ".ui-select-rail-birth-month")?.classList.contains("is-visible"));
       await view.keyboard.press("Escape");
      }
      const measurements=await view.evaluate(()=>{
