@@ -188,43 +188,62 @@
   }catch(_){/* Keep the ID visible when a member has not shared a public name. */}
  }
  async function loadSubscriptions(){
-  friends=new Set(vatraId?[vatraId]:[]);
-  followedClubs=new Map();
-  if(!validId(vatraId))return;
-  // Missing optional APIs in offline/browser mocks must never blank the Feed.
+  const viewerId=vatraId;
+  if(!validId(viewerId)){
+   friends=new Set();followedClubs=new Map();
+   return false;
+  }
+  // Own posts must remain available if the very first audience read fails.
+  if(!friends.size)friends.add(viewerId);
+  // Build a coherent snapshot before replacing a previously successful one.
+  // On a temporary PostgREST failure, keep known friends and follows and retry
+  // the next time Feed or stories actually need the audience.
   let connectionQuery=Promise.resolve({data:[],error:null});
   let followedQuery=Promise.resolve({data:[],error:null});
+  let connectionsAvailable=false,followsAvailable=false;
   try{
    const query=client.from("friendships").select("requester_id,recipient_id,status");
-   connectionQuery=query.or("requester_id.eq."+vatraId+",recipient_id.eq."+vatraId)
+   connectionQuery=query.or("requester_id.eq."+viewerId+",recipient_id.eq."+viewerId)
     .eq("status","accepted").limit(500);
-  }catch(_){}
+   connectionsAvailable=true;
+  }catch(_){/* Missing optional APIs in offline mocks must not blank Feed. */}
   try{
    const query=client.from("community_follows").select("club_id");
-   followedQuery=query.eq("member_vatra_id",vatraId).limit(500);
-  }catch(_){}
+   followedQuery=query.eq("member_vatra_id",viewerId).limit(500);
+   followsAvailable=true;
+  }catch(_){/* Missing optional APIs in offline mocks must not blank Feed. */}
   const [connections,subscriptions]=await Promise.allSettled([connectionQuery,followedQuery]);
-  if(connections.status==="fulfilled"&&!connections.value.error)
-   for(const item of connections.value.data||[]){
-    const other=String(item.requester_id)===vatraId?String(item.recipient_id):String(item.requester_id);
-    if(validId(other))friends.add(other);
-   }
-  const ids=subscriptions.status==="fulfilled"&&!subscriptions.value.error?
-   (subscriptions.value.data||[]).map(x=>String(x.club_id)).filter(validId):[];
+  const hasRows=result=>result.status==="fulfilled"&&!result.value?.error&&
+   Array.isArray(result.value?.data);
+  if(!connectionsAvailable||!followsAvailable||
+   !hasRows(connections)||!hasRows(subscriptions)||viewerId!==vatraId)return false;
+  const nextFriends=new Set([viewerId]),nextClubs=new Map();
+  for(const item of connections.value.data){
+   const other=String(item.requester_id)===viewerId?
+    String(item.recipient_id):String(item.requester_id);
+   if(validId(other))nextFriends.add(other);
+  }
+  const ids=subscriptions.value.data.map(x=>String(x.club_id)).filter(validId);
   if(ids.length){
    try{
     const {data,error}=await client.from("communities").select("club_id,name").in("club_id",ids);
-    if(!error)for(const group of data||[])followedClubs.set(String(group.club_id),group.name);
-   }catch(_){}
+    if(error||!Array.isArray(data)||viewerId!==vatraId)return false;
+    for(const group of data)nextClubs.set(String(group.club_id),group.name);
+   }catch(_){return false;}
   }
+  if(viewerId!==vatraId)return false;
+  friends=nextFriends;followedClubs=nextClubs;
   // Names and avatars are fetched only for the 12 visible posts or stories.
+  return true;
  }
  // Feed and stories share the same 60-second friend/subscription snapshot.
- // First-load stories must never race an as-yet empty friends Set.
+ // Failed reads must never be cached as an empty successful audience.
  function ensureSubscriptions(){
   if(subscriptionsInflight)return subscriptionsInflight;
   if(subscriptionsLoadedAt&&Date.now()-subscriptionsLoadedAt<60000)return Promise.resolve();
-  const request=loadSubscriptions().then(()=>{subscriptionsLoadedAt=Date.now();});
+  const request=loadSubscriptions().then(success=>{
+   if(success)subscriptionsLoadedAt=Date.now();
+  });
   subscriptionsInflight=request;
   void request.finally(()=>{
    if(subscriptionsInflight===request)subscriptionsInflight=null;

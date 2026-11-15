@@ -38,6 +38,8 @@ jobs:
         run: node tools/comment-page-cache-smoke.mjs
       - name: Check Feed cursor viewer cache
         run: node tools/feed-page-cache-smoke.mjs
+      - name: Check Feed friend/community subscription cache and retry
+        run: node tools/feed-subscriptions-smoke.mjs
       - name: Check global Feed search cancellation without production queries
         run: node tools/feed-global-search-smoke.mjs
       - name: Check SEO and site layout
