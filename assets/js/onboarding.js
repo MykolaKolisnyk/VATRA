@@ -41,6 +41,20 @@ const saveState=(store,id,status,step)=>{
  catch(_){return false;}
 };
 const shouldSaveSkip=(wasReplaying,previous)=>!wasReplaying||!["done","skipped"].includes(previous?.status);
+// A failed RLS read is unknown, not evidence that the task is incomplete.
+const milestoneSnapshot=response=>{
+ const verified=i=>response[i]?.status==="fulfilled"&&response[i].value!=null&&
+  !response[i].value.error;
+ const data=i=>response[i].value.data;
+ const media=verified(0)?data(0):null;
+ return [
+  verified(0)?!!media?.avatar_path:null,
+  verified(0)?!!media?.cover_path:null,
+  verified(1)?!!data(1)?.length:null,
+  verified(2)?!!data(2)?.length:null,
+  verified(3)?!!data(3)?.length:null
+ ];
+};
 const tr=text=>window.VATRA_LANGUAGE?.translate?.(text)||text;
 const node=(tag,css,content)=>{
  const element=document.createElement(tag);element.className=css;
@@ -251,13 +265,17 @@ function renderTasks(){
  const num=results?.filter(Boolean).length||0;
  const fill=document.querySelector("#vatra-tour-meter");
  if(fill)fill.style.width=(num/tasks.length*100)+"%";
+ const incomplete=results?.some(value=>value===null);
  taskStatus.textContent=checking?tr("Перевіряємо перші досягнення…"):
-  tr("Виконано")+" "+num+" / "+tasks.length;
+  results===null?tr("Не вдалося перевірити завдання. Онови прогрес."):
+  tr("Виконано")+" "+num+" / "+tasks.length+
+   (incomplete?". "+tr("Деякі завдання не вдалося перевірити."):"");
  for(let i=0;i<tasks.length;i++){
   const row=taskRows[i],complete=!!results?.[i];
   row.title.textContent=tr(tasks[i].title);
   row.marker.textContent=complete?"✓":"○";
-  row.status.textContent=complete?tr("Виконано"):tr("Перейти");
+  row.status.textContent=results?.[i]===null?tr("Не перевірено"):
+   complete?tr("Виконано"):tr("Перейти");
   row.row.classList.toggle("vt-tour-task-done-001",complete);
   if(tasks[i].page==="profile")row.row.href=new URL("id"+session.id,home()).href;
   else row.row.href=new URL(tasks[i].page,home()).href;
@@ -283,13 +301,14 @@ async function checkTasks(force=false){
    ];
    const response=await Promise.allSettled(lookups);
    if(epoch!==session)return;
-   const data=i=>response[i].status==="fulfilled"&&!response[i].value.error?
-    response[i].value.data:null;
-   const media=data(0);
-   results=[!!media?.avatar_path,!!media?.cover_path,
-    !!data(1)?.length,!!data(2)?.length,!!data(3)?.length];
+   results=milestoneSnapshot(response);
    checkedAt=Date.now();
-  }catch(_){if(epoch===session)results=null;}
+  }catch(_){
+   if(epoch===session){
+    results=Array(tasks.length).fill(null);
+    checkedAt=Date.now();
+   }
+  }
   finally{if(epoch===session){checking=null;if(mode==="tasks")renderTasks();}}
  })();
  renderTasks();return checking;
@@ -347,5 +366,5 @@ function openTasks(){
 }
 window.VATRA_ONBOARDING={start,stop,replay,openTasks};
 // Pure decisions are exposed only for hermetic smoke tests.
-window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState,shouldSaveSkip};
+window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState,shouldSaveSkip,milestoneSnapshot};
 })();
