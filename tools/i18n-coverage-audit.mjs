@@ -11,6 +11,14 @@ const targetPages=Object.keys(uk.__pages);
 const activePages=["index","404","feed","profile","offline","verify",
  "create-account","forgot","reset","terms","privacy","cookies"];
 const dynamicKeys=Object.keys(en).filter(key=>key!=="__pages");
+// Account sign-in, validation, recovery, connection, post and session status
+// messages must be localized as one coherent release batch across all six languages.
+const criticalStart=dynamicKeys.indexOf("Зачекайте…");
+const criticalEnd=dynamicKeys.indexOf("Зміна email до підтвердження створить інший акаунт. Початковий непідтверджений акаунт не зміниться.");
+assert.ok(criticalStart>=0&&criticalEnd>criticalStart,"Missing dynamic status anchors in reference dictionary");
+const criticalMessages=dynamicKeys.slice(criticalStart,criticalEnd+1);
+assert.equal(criticalMessages.length,74,"Unexpected change in high-priority auth/status message set");
+
 const langJs=await readFile("assets/js/lang.js","utf8");
 
 assert.ok(langJs.includes('const validLanguage = value => value === "uk" || value === "en";'),
@@ -62,6 +70,16 @@ for(const code of codes){
  }
  assert.ok(unchanged<texts*0.08,
   code+": too many strings remain in source language ("+unchanged+"/"+texts+")");
+ let untranslatedCritical=0;
+ for(const source of criticalMessages){
+  const output=dictionary[source];
+  assert.ok(typeof output==="string"&&output.trim(),
+   code+": missing critical UI status: "+source);
+  if(output.trim()===source.trim())untranslatedCritical++;
+ }
+ assert.ok(untranslatedCritical<criticalMessages.length*0.05,
+  code+": account and status messages must not remain in Ukrainian: "+
+   untranslatedCritical+"/"+criticalMessages.length);
  const covered=dynamicKeys.filter(key=>typeof dictionary[key]==="string").length;
  assert.ok(covered>40&&covered<dynamicKeys.length,
   code+": dynamic translation coverage must be honestly incomplete");
