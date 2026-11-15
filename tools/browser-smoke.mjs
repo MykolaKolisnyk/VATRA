@@ -567,10 +567,12 @@ try{
   modalAnimations.content.includes("vatraAuthReveal")&&
   modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
   "Language dialog shell must stay still and only its content may rise");
- assert.equal(await page.locator(".language-option").count(),32,"Language directory count");
- for(const code of ["sk","hu","sr","zh"])
-  assert.equal(await page.locator(".vt-language-choice-"+code).count(),0,
-   "Removed locale must not appear in VATRA: "+code);
+ assert.deepEqual(await page.locator(".language-option").evaluateAll(nodes=>
+  nodes.map(node=>node.className.match(/vt-language-choice-([a-z]+)/)?.[1])),
+  ["uk","en","pl","de","fr","it","ka","bg"],
+  "VATRA must show exactly eight selected languages and no removed placeholders");
+ assert.equal(await page.locator(".language-option:disabled").count(),6,
+  "New translations must not be selectable before complete reviewed dictionaries ship");
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
  await page.waitForFunction(()=>document.documentElement.lang==="en");
