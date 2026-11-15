@@ -28,8 +28,24 @@ for(const scope of [".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scro
  ".vatra-post-composer-edit",".vatra-notification-panel","textarea"])
  assert.ok(base.includes(scope),"Missing shared scrollbar scope: "+scope);
 assert.ok(signup.includes(".vatra-select-scroll-area")&&
- signup.includes("margin-right:9px")&&signup.includes("overflow:hidden"),
- "Birthday lists must scroll within an inset viewport and preserve popup corners");
+ signup.includes("margin-right:12px")&&signup.includes("overflow:hidden")&&
+ signup.includes("scrollbar-width:none!important")&&
+ signup.includes(".vatra-select-scroll-area::-webkit-scrollbar,")&&
+ signup.includes("display:none!important;width:0!important;height:0!important")&&
+ signup.includes(".vatra-select-scroll-rail[hidden]")&&
+ signup.includes(".vatra-select-scroll-rail.is-visible")&&
+ signup.includes("background:#454b54"),
+ "Date lists must hide browser arrows and use an inset, fadeable graphite VATRA rail");
+const registerJs=await readFile("assets/js/create-account.js","utf8");
+assert.ok(registerJs.includes('rail.className="vatra-select-scroll-rail ui-select-rail-"+select.id')&&
+ registerJs.includes('scrollArea.addEventListener("scroll"')&&
+ registerJs.includes('rail.addEventListener("pointerdown"')&&
+ registerJs.includes('rail.addEventListener("wheel"')&&
+ registerJs.includes('rail.setPointerCapture(e.pointerId)')&&
+ registerJs.includes('requestAnimationFrame(()=>{')&&
+ registerJs.includes('if(overflow<=1){rail.hidden=true;')&&
+ registerJs.includes('rail.hidden=false;'),
+ "VATRA date rail must track scrolling, support dragging and reveal before measuring");
 assert.ok(feed.includes("margin:3px 8px 9px 0"),
  "Search history scrollbar should be inset from the popup edges");
 const onboarding=await readFile("assets/css/onboarding.css","utf8");
