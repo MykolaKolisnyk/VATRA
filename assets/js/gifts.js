@@ -20,17 +20,14 @@ function card(gift,owned){
  const art=make("span","vatra-gifts-card-art ui-vatra-gifts-card-art-"+gift.code);
  art.setAttribute("aria-hidden","true");
  const url=window.VATRA_GIFTS_CATALOG.fileUrl(gift);
- if(url)art.style.backgroundImage="url("+JSON.stringify(url)+")";
- else{art.classList.add("is-symbol");art.textContent=gift.symbol||"✦";}
+ art.style.backgroundImage="url("+JSON.stringify(url)+")";
  art.addEventListener("dragstart",event=>event.preventDefault());
  art.addEventListener("contextmenu",event=>event.preventDefault());
  artwork.append(art);
  const heading=make("strong","vt-vatra-gifts-card-title-"+gift.code,t(gift.uk,gift.en));
  const description=make("span","vt-vatra-gifts-card-copy-"+gift.code,t(gift.descriptionUk,gift.descriptionEn));
  const state=make("small","vt-vatra-gifts-card-state-"+gift.code,
-  owned?t("У колекції","In your collection"):
-  gift.released?t("Безкоштовний","Free"):
-  t("До майбутньої події","For an upcoming event"));
+  owned?t("У колекції","In your collection"):t("Безкоштовний","Free"));
  item.append(artwork,heading,description,state);
  return item;
 }
@@ -42,10 +39,7 @@ function render(mode){
    mode==="free"?catalog():[];
   for(const gift of gifts)list.append(card(gift,mode==="mine"));
   if(!gifts.length){
-   empty.textContent=mode==="paid"?
-    t("Платні подарунки ще не запущено. Оплати та покупок зараз немає.",
-     "Paid gifts are not available yet. There are no payments or purchases at this time."):
-    t("У цій колекції поки немає подарунків.","No gifts in this collection yet.");
+   empty.textContent=t("У цій колекції поки немає подарунків.","No gifts in this collection yet.");
    empty.hidden=false;
   }
  }finally{list.setAttribute("aria-busy","false");}
