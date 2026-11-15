@@ -5000,6 +5000,39 @@ try{
      await view.goto(base+target.path,{waitUntil:"domcontentloaded",timeout:20000});
      await waitReady(view);
      await view.evaluate(()=>document.fonts.ready);
+     // Check the birthday list in each browser engine, not only Chromium.
+     if(target.id==="signup"&&viewport.id==="laptop"){
+      await view.locator(".vt-select-trigger-birth-month").click();
+      const list=view.locator(".ui-select-options-birth-month");
+      await list.waitFor({state:"visible"});
+      await list.hover();
+      await view.waitForFunction(()=>document.querySelector(
+       ".ui-select-options-birth-month")?.classList.contains("vatra-form-scroll-active"));
+      const style=await list.evaluate(node=>({
+       overflow:node.scrollHeight>node.clientHeight,
+       thumb:getComputedStyle(node).scrollbarColor,
+       arrows:CSS.supports("selector(::-webkit-scrollbar)")?
+        getComputedStyle(node,"::-webkit-scrollbar-button").display:null,
+       track:CSS.supports("selector(::-webkit-scrollbar)")?
+        getComputedStyle(node,"::-webkit-scrollbar-track").backgroundColor:null
+      }));
+      assert.equal(style.overflow,true,engine+" birthday list must scroll");
+      if(style.arrows!==null){
+       assert.equal(style.arrows,"none",engine+" native up/down arrows should not appear");
+       assert.equal(style.track,"rgba(0, 0, 0, 0)",
+        engine+" must not have a colored scrollbar track");
+      }else{
+       assert.ok(style.thumb.includes("64")&&style.thumb.includes("70")&&style.thumb.includes("79"),
+        engine+" must use graphite native scrollbar color: "+style.thumb);
+      }
+      await view.waitForTimeout(250);
+      assert.equal(await list.evaluate(node=>node.classList.contains("vatra-form-scroll-active")),
+       true,engine+" scrollbar stays visible while pointer is inside");
+      await view.mouse.move(3,3);
+      await view.waitForFunction(()=>!document.querySelector(
+       ".ui-select-options-birth-month")?.classList.contains("vatra-form-scroll-active"));
+      await view.keyboard.press("Escape");
+     }
      const measurements=await view.evaluate(()=>{
       const viewportWidth=innerWidth;
       const controls=[...document.querySelectorAll("form input,form button,form select,form textarea")];
