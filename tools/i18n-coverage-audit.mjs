@@ -9,7 +9,7 @@ const en=await read("en");
 const codes=["pl","de","fr","it","ka","bg"];
 const targetPages=Object.keys(uk.__pages);
 const activePages=["index","404","feed","profile","offline","verify",
- "create-account","forgot","reset"];
+ "create-account","forgot","reset","terms","privacy","cookies"];
 const dynamicKeys=Object.keys(en).filter(key=>key!=="__pages");
 const langJs=await readFile("assets/js/lang.js","utf8");
 
@@ -27,13 +27,15 @@ for(const code of codes){
  const dictionary=await read(code);
  const status=dictionary.__translation_status;
  assert.deepEqual(status.translated_static_pages,activePages,
-  code+": localized static page manifest must match the actual nine translated page catalogs");
+  code+": localized static page manifest must match all twelve page catalogs");
  assert.equal(status.dynamic_strings_complete,false,
   code+": dynamic JavaScript messages still require a dedicated translation audit");
  assert.equal(status.email_templates_complete,false,
   code+": untranslated Supabase email templates must not be marked ready");
+ assert.equal(status.legal_review_complete,false,
+  code+": legal translations require expert review before launch");
  assert.deepEqual(Object.keys(dictionary.__pages).sort(),[...activePages].sort(),
-  code+": do not ship unreviewed legal-page placeholders");
+  code+": no translated page may be missing or have extra keys");
  let texts=0,unchanged=0;
  for(const page of activePages){
   const original=uk.__pages[page];
@@ -66,10 +68,10 @@ for(const code of codes){
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": invalid shared translation for "+key);
- const legal=targetPages.filter(page=>!dictionary.__pages[page]);
- assert.deepEqual(legal.sort(),["cookies","privacy","terms"].sort());
+ assert.deepEqual([...targetPages].sort(),Object.keys(dictionary.__pages).sort(),
+  code+": all 12 static pages must be present in the catalog");
  console.log("VATRA "+code+": "+activePages.length+"/"+targetPages.length+
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+
-  " shared dynamic phrases; legal pages & email templates pending");
+  " shared dynamic phrases; legal review, dynamic JS and email templates pending");
 }
 console.log("VATRA unpublished locale integrity and rollout gate: OK");
