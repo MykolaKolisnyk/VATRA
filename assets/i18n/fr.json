@@ -6,7 +6,10 @@
       "feed",
       "profile",
       "offline",
-      "verify"
+      "verify",
+      "create-account",
+      "forgot",
+      "reset"
     ],
     "dynamic_strings_complete": false,
     "email_templates_complete": false
@@ -576,6 +579,751 @@
           }
         }
       }
+    },
+    "create-account": {
+      "meta": {
+        "title": "Créer un compte · VATRA",
+        "description": "Créez un compte VATRA, le réseau social ukrainien dédié aux échanges, aux communautés et à la créativité.",
+        "og:locale": "fr_FR",
+        "og:title": "Créer un compte · VATRA",
+        "og:description": "VATRA — un réseau social ukrainien. Vos proches. Vos histoires. Votre VATRA.",
+        "og:image:alt": "Icône officielle de VATRA"
+      },
+      "nodes": {
+        "n251": {
+          "text": {
+            "0": "Retour à la connexion"
+          }
+        },
+        "n252": {
+          "attrs": {
+            "aria-label": "Retour à la connexion"
+          }
+        },
+        "n247": {
+          "text": {
+            "0": "Se connecter"
+          }
+        },
+        "n4": {
+          "text": {
+            "0": "Retour à la connexion"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Parlez-nous de vous"
+          }
+        },
+        "n10": {
+          "text": {
+            "0": "Quelques informations essentielles pour que votre profil VATRA soit vraiment le vôtre."
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "Prénom"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Votre prénom"
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Nom"
+          }
+        },
+        "n20": {
+          "text": {
+            "0": "Votre nom"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Date de naissance"
+          }
+        },
+        "n24": {
+          "attrs": {
+            "aria-label": "Jour"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Jour"
+          }
+        },
+        "n26": {
+          "attrs": {
+            "aria-label": "Mois"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Mois"
+          }
+        },
+        "n28": {
+          "attrs": {
+            "aria-label": "Année"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Année"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Genre "
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "(facultatif)"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Ne pas préciser"
+          }
+        },
+        "n35": {
+          "text": {
+            "0": "Femme"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Homme"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "Personnalisé"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Adresse e-mail"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Mot de passe"
+          }
+        },
+        "n44": {
+          "text": {
+            "0": "Saisissez votre mot de passe"
+          }
+        },
+        "n45": {
+          "text": {
+            "0": "Afficher"
+          },
+          "attrs": {
+            "aria-label": "Afficher le mot de passe"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "Confirmez le mot de passe"
+          }
+        },
+        "n49": {
+          "text": {
+            "0": "Saisissez votre mot de passe"
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Afficher"
+          },
+          "attrs": {
+            "aria-label": "Afficher le mot de passe"
+          }
+        },
+        "n54": {
+          "text": {
+            "0": "J’accepte les ",
+            "1": " et j’ai pris connaissance de la ",
+            "2": " et des "
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Conditions d’utilisation"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Politique de confidentialité"
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "règles relatives aux cookies"
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Créer un compte"
+          }
+        },
+        "n62": {
+          "text": {
+            "1": " · Vos proches. Vos histoires. Votre VATRA."
+          }
+        },
+        "n64": {
+          "attrs": {
+            "aria-label": "Informations"
+          }
+        },
+        "n65": {
+          "text": {
+            "0": "Conditions d’utilisation"
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Confidentialité"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Français"
+          },
+          "attrs": {
+            "aria-label": "Choisir la langue"
+          }
+        },
+        "n70": {
+          "attrs": {
+            "aria-label": "Pourquoi VATRA demande-t-elle votre genre ?"
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "À propos du choix du genre"
+          }
+        },
+        "n72": {
+          "text": {
+            "0": "Indiquer votre genre est facultatif. Sélectionnez une option ou choisissez « Ne pas préciser ». Cette information fait partie des données de votre compte et n’est pas publiée sur la page de création de compte."
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Comment VATRA traite vos données"
+          }
+        },
+        "n74": {
+          "text": {
+            "0": "Pourquoi est-ce nécessaire ?"
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "Pourquoi VATRA a-t-elle besoin de votre adresse e-mail ?"
+          }
+        },
+        "n76": {
+          "text": {
+            "0": "Cette adresse sert à confirmer la création du compte, à vous connecter, à récupérer votre mot de passe et à recevoir des alertes de sécurité. VATRA ne l’affiche pas publiquement sur la page d’inscription et ne demande aucun numéro de téléphone."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "Consulter la politique de confidentialité"
+          }
+        },
+        "n78": {
+          "attrs": {
+            "aria-label": "Genre"
+          }
+        },
+        "n201": {
+          "attrs": {
+            "aria-label": "À propos de VATRA"
+          }
+        },
+        "n203": {
+          "text": {
+            "0": "Votre espace commence ici."
+          }
+        },
+        "n204": {
+          "text": {
+            "0": "Retrouvez vos proches, partagez des moments et écrivez votre propre histoire sur VATRA."
+          }
+        },
+        "n205": {
+          "text": {
+            "0": "#communication"
+          }
+        },
+        "n207": {
+          "text": {
+            "0": "#communautés"
+          }
+        },
+        "n208": {
+          "text": {
+            "0": "CRÉATION DE COMPTE"
+          }
+        },
+        "n211": {
+          "attrs": {
+            "aria-label": "Progression de la création du compte"
+          }
+        },
+        "n212": {
+          "text": {
+            "0": "Sécurisez votre compte"
+          }
+        },
+        "n213": {
+          "text": {
+            "0": "Indiquez votre adresse e-mail et un mot de passe robuste pour vous connecter à VATRA."
+          }
+        },
+        "n214": {
+          "text": {
+            "0": "Continuer"
+          }
+        },
+        "n215": {
+          "text": {
+            "0": "Retour"
+          }
+        },
+        "n216": {
+          "attrs": {
+            "aria-label": "Création de compte"
+          }
+        },
+        "n217": {
+          "attrs": {
+            "aria-label": "Retour à la connexion"
+          }
+        },
+        "n218": {
+          "text": {
+            "0": "VATRA · DERNIÈRE ÉTAPE"
+          }
+        },
+        "n219": {
+          "text": {
+            "0": "Confirmez votre adresse e-mail"
+          }
+        },
+        "n220": {
+          "text": {
+            "0": "Votre compte a été créé. Nous vous avons envoyé un e-mail contenant un lien. Confirmez votre adresse e-mail pour activer votre compte VATRA."
+          }
+        },
+        "n221": {
+          "text": {
+            "0": "Après confirmation, vous accéderez à la page de votre compte."
+          }
+        },
+        "n222": {
+          "text": {
+            "0": "Vous n’avez pas reçu l’e-mail ? Vérifiez les dossiers « Spam » et « Promotions »."
+          }
+        },
+        "n223": {
+          "text": {
+            "0": "Déjà confirmé ? Se connecter"
+          }
+        },
+        "n230": {
+          "text": {
+            "0": "#photos"
+          }
+        },
+        "n231": {
+          "text": {
+            "0": "#vidéos"
+          }
+        },
+        "n232": {
+          "text": {
+            "0": "#musique"
+          }
+        },
+        "n233": {
+          "text": {
+            "0": "#marketplace"
+          }
+        },
+        "n234": {
+          "text": {
+            "0": "#clips"
+          }
+        },
+        "n240": {
+          "text": {
+            "0": "Délai avant l’expiration du lien"
+          }
+        },
+        "n243": {
+          "text": {
+            "0": "Renvoyer l’e-mail"
+          }
+        },
+        "n245": {
+          "text": {
+            "0": "Vous pourrez demander un nouvel e-mail au plus tôt dans 60 secondes. Le serveur peut imposer un délai plus long."
+          }
+        },
+        "n401": {
+          "text": {
+            "0": "Adresse e-mail"
+          }
+        },
+        "n260": {
+          "text": {
+            "0": "12 à 128 caractères, avec des lettres latines minuscules et majuscules, un chiffre et un caractère spécial."
+          }
+        }
+      }
+    },
+    "forgot": {
+      "meta": {
+        "title": "Récupération du mot de passe · VATRA",
+        "description": "Récupérez l’accès à votre compte sur le réseau social ukrainien VATRA.",
+        "og:locale": "fr_FR",
+        "og:title": "Récupération du mot de passe · VATRA",
+        "og:description": "VATRA — un réseau social ukrainien. Vos proches. Vos histoires. Votre VATRA.",
+        "og:image:alt": "Icône officielle de VATRA"
+      },
+      "nodes": {
+        "n2": {
+          "text": {
+            "0": "Retour à la connexion"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Mot de passe oublié ?"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Saisissez l’adresse e-mail de votre compte. Si elle est enregistrée sur VATRA, vous recevrez un message de récupération du mot de passe."
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Adresse e-mail"
+          }
+        },
+        "n14": {
+          "text": {
+            "0": "Envoyer l’e-mail"
+          }
+        },
+        "n15": {
+          "text": {
+            "0": "La récupération est réservée aux comptes existants. Vérifiez également votre dossier de courrier indésirable."
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Saisissez le code reçu par e-mail"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Si cette adresse est associée à un compte VATRA, le code de récupération sera envoyé à "
+          }
+        },
+        "n23": {
+          "text": {
+            "0": "Code de vérification"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Vérifier le code"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Vérifiez aussi votre dossier de courrier indésirable. Si l’e-mail n’arrive pas, vous pouvez demander un nouveau code."
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Renvoyer le code"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Modifier l’adresse e-mail"
+          }
+        },
+        "n33": {
+          "text": {
+            "0": "Nouveau mot de passe"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Afficher le mot de passe"
+          },
+          "attrs": {
+            "aria-label": "Afficher le mot de passe"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Confirmez le mot de passe"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Afficher le mot de passe"
+          },
+          "attrs": {
+            "aria-label": "Afficher le mot de passe"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Enregistrer le nouveau mot de passe"
+          }
+        },
+        "n44": {
+          "text": {
+            "0": "Se connecter avec le nouveau mot de passe"
+          }
+        },
+        "n46": {
+          "text": {
+            "1": " · Vos proches. Vos histoires. Votre VATRA."
+          }
+        },
+        "n48": {
+          "attrs": {
+            "aria-label": "Informations"
+          }
+        },
+        "n49": {
+          "text": {
+            "0": "Conditions d’utilisation"
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Confidentialité"
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Français"
+          },
+          "attrs": {
+            "aria-label": "Choisir la langue"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Se connecter"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Créer un compte"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Saisissez le code"
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Saisissez votre mot de passe"
+          }
+        },
+        "n58": {
+          "text": {
+            "0": "Confirmez le mot de passe"
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Adresse e-mail"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "12 à 128 caractères, avec des lettres latines minuscules et majuscules, un chiffre et un caractère spécial."
+          }
+        }
+      }
+    },
+    "reset": {
+      "meta": {
+        "title": "Nouveau mot de passe · VATRA",
+        "description": "Créez un nouveau mot de passe pour VATRA, le réseau social ukrainien.",
+        "og:locale": "fr_FR",
+        "og:title": "Nouveau mot de passe · VATRA",
+        "og:description": "VATRA — un réseau social ukrainien. Vos proches. Vos histoires. Votre VATRA.",
+        "og:image:alt": "Icône officielle de VATRA"
+      },
+      "nodes": {
+        "n2": {
+          "text": {
+            "0": "Retour à la connexion"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Créez un nouveau mot de passe"
+          }
+        },
+        "n8": {
+          "text": {
+            "0": "Pour votre sécurité, ne réutilisez pas un mot de passe d’un autre service."
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Vous avez reçu un code dans un e-mail VATRA ? Saisissez votre adresse e-mail et ce code à usage unique pour confirmer votre identité."
+          }
+        },
+        "n13": {
+          "text": {
+            "0": "Adresse e-mail"
+          }
+        },
+        "n16": {
+          "text": {
+            "0": "Code de vérification"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Vérifier le code"
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Ce code est à usage unique et expire. Vous n’avez pas reçu l’e-mail ? "
+          }
+        },
+        "n20": {
+          "text": {
+            "0": "Demander un nouveau code"
+          }
+        },
+        "n23": {
+          "text": {
+            "0": "Nouveau mot de passe"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Saisissez votre mot de passe"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Afficher"
+          },
+          "attrs": {
+            "aria-label": "Afficher le mot de passe"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Confirmez le mot de passe"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Confirmez le mot de passe"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Afficher"
+          },
+          "attrs": {
+            "aria-label": "Afficher le mot de passe"
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "Enregistrer le mot de passe"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Se connecter avec le nouveau mot de passe"
+          }
+        },
+        "n36": {
+          "text": {
+            "1": " · Vos proches. Vos histoires. Votre VATRA."
+          }
+        },
+        "n38": {
+          "attrs": {
+            "aria-label": "Informations"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Conditions d’utilisation"
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Confidentialité"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Français"
+          },
+          "attrs": {
+            "aria-label": "Choisir la langue"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Se connecter"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Créer un compte"
+          }
+        },
+        "n44": {
+          "text": {
+            "0": "Saisissez le code"
+          }
+        },
+        "n45": {
+          "text": {
+            "0": "Adresse e-mail"
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "12 à 128 caractères, avec des lettres latines minuscules et majuscules, un chiffre et un caractère spécial."
+          }
+        }
+      }
     }
   },
   "До збереженого акаунта": "Retour au compte enregistré",
@@ -645,5 +1393,84 @@
   "На головну VATRA": "Accueil VATRA",
   "Підтвердження пошти": "Vérification de l’adresse e-mail",
   "Ваш акаунт активний. Бережіть пароль і не передавайте іншим коди підтвердження.": "Votre compte est actif. Protégez votre mot de passe et ne communiquez jamais vos codes de vérification.",
-  "До стрічки": "Accéder au fil d’actualité"
+  "До стрічки": "Accéder au fil d’actualité",
+  "Повернутися до входу": "Retour à la connexion",
+  "Повернення до входу": "Retour à la connexion",
+  "Розкажіть про себе": "Parlez-nous de vous",
+  "Кілька основних деталей — щоб ваша сторінка у VATRA була справді вашою.": "Quelques informations essentielles pour que votre profil VATRA soit vraiment le vôtre.",
+  "Ім’я": "Prénom",
+  "Ваше ім’я": "Votre prénom",
+  "Прізвище": "Nom",
+  "Ваше прізвище": "Votre nom",
+  "Дата народження": "Date de naissance",
+  "День": "Jour",
+  "Місяць": "Mois",
+  "Рік": "Année",
+  "Стать": "Genre",
+  "(необов’язково)": "(facultatif)",
+  "Не вказувати": "Ne pas préciser",
+  "Жіноча": "Femme",
+  "Чоловіча": "Homme",
+  "Користувацька": "Personnalisé",
+  "Повторіть пароль": "Confirmez le mot de passe",
+  "Погоджуюся з": "J’accepte les",
+  "та ознайомлений(-а) з": "et j’ai pris connaissance de la",
+  "і": "et des",
+  "Умовами використання": "Conditions d’utilisation",
+  "Політикою конфіденційності": "Politique de confidentialité",
+  "правилами cookies": "règles relatives aux cookies",
+  "Навіщо VATRA запитує стать?": "Pourquoi VATRA demande-t-elle votre genre ?",
+  "Про вибір статі": "À propos du choix du genre",
+  "Стать зазначати необов’язково. Виберіть відповідний варіант або залиште «Не вказувати». Ця інформація належить до даних акаунта і не публікується на сторінці створення акаунта.": "Indiquer votre genre est facultatif. Sélectionnez une option ou choisissez « Ne pas préciser ». Cette information fait partie des données de votre compte et n’est pas publiée sur la page de création de compte.",
+  "Як VATRA обробляє дані": "Comment VATRA traite vos données",
+  "Навіщо потрібна?": "Pourquoi est-ce nécessaire ?",
+  "Навіщо VATRA потрібна електронна пошта?": "Pourquoi VATRA a-t-elle besoin de votre adresse e-mail ?",
+  "Ця адреса потрібна для підтвердження створення акаунта, входу до акаунта, відновлення пароля та повідомлень про його безпеку. VATRA не показує її публічно на сторінці створення акаунта й не вимагає номер телефону.": "Cette adresse sert à confirmer la création du compte, à vous connecter, à récupérer votre mot de passe et à recevoir des alertes de sécurité. VATRA ne l’affiche pas publiquement sur la page d’inscription et ne demande aucun numéro de téléphone.",
+  "Переглянути політику конфіденційності": "Consulter la politique de confidentialité",
+  "Про VATRA": "À propos de VATRA",
+  "Твій простір починається тут.": "Votre espace commence ici.",
+  "Знаходьте своїх людей, діліться моментами та створюйте власну історію у VATRA.": "Retrouvez vos proches, partagez des moments et écrivez votre propre histoire sur VATRA.",
+  "#спілкування": "#communication",
+  "#спільноти": "#communautés",
+  "СТВОРЕННЯ АКАУНТА": "CRÉATION DE COMPTE",
+  "Прогрес створення акаунта": "Progression de la création du compte",
+  "Захистіть свій акаунт": "Sécurisez votre compte",
+  "Вкажіть електронну пошту й надійний пароль для входу до VATRA.": "Indiquez votre adresse e-mail et un mot de passe robuste pour vous connecter à VATRA.",
+  "Назад": "Retour",
+  "Створення акаунта": "Création de compte",
+  "VATRA · ОСТАННІЙ КРОК": "VATRA · DERNIÈRE ÉTAPE",
+  "Підтвердіть електронну пошту": "Confirmez votre adresse e-mail",
+  "Акаунт створено. Ми надіслали лист із посиланням. Підтвердьте email, щоб активувати акаунт VATRA.": "Votre compte a été créé. Nous vous avons envoyé un e-mail contenant un lien. Confirmez votre adresse e-mail pour activer votre compte VATRA.",
+  "Після підтвердження ви потрапите на сторінку свого акаунта.": "Après confirmation, vous accéderez à la page de votre compte.",
+  "Немає листа? Перевірте папки «Спам» і «Промоакції».": "Vous n’avez pas reçu l’e-mail ? Vérifiez les dossiers « Spam » et « Promotions ».",
+  "Уже підтвердили? Увійти": "Déjà confirmé ? Se connecter",
+  "#фотографії": "#photos",
+  "#відео": "#vidéos",
+  "#музика": "#musique",
+  "#маркетплейс": "#marketplace",
+  "#кліпи": "#clips",
+  "Час до завершення дії посилання": "Délai avant l’expiration du lien",
+  "Надіслати лист ще раз": "Renvoyer l’e-mail",
+  "Новий лист можна запросити щонайменше через 60 секунд. Сервер може встановлювати довший інтервал.": "Vous pourrez demander un nouvel e-mail au plus tôt dans 60 secondes. Le serveur peut imposer un délai plus long.",
+  "12–128 символів, великі й малі латинські літери, цифра та спеціальний символ.": "12 à 128 caractères, avec des lettres latines minuscules et majuscules, un chiffre et un caractère spécial.",
+  "Введіть email свого акаунта. Якщо ця адреса зареєстрована у VATRA, на неї надійде лист для відновлення пароля.": "Saisissez l’adresse e-mail de votre compte. Si elle est enregistrée sur VATRA, vous recevrez un message de récupération du mot de passe.",
+  "Надіслати лист": "Envoyer l’e-mail",
+  "Відновлення доступне для існуючих акаунтів. Перевірте також папку «Спам».": "La récupération est réservée aux comptes existants. Vérifiez également votre dossier de courrier indésirable.",
+  "Введіть код із листа": "Saisissez le code reçu par e-mail",
+  "Якщо ця адреса належить акаунту VATRA, код відновлення надійде на": "Si cette adresse est associée à un compte VATRA, le code de récupération sera envoyé à",
+  "Код підтвердження": "Code de vérification",
+  "Підтвердити код": "Vérifier le code",
+  "Перевірте також папку «Спам». Якщо листа немає, можна запросити код повторно.": "Vérifiez aussi votre dossier de courrier indésirable. Si l’e-mail n’arrive pas, vous pouvez demander un nouveau code.",
+  "Надіслати код ще раз": "Renvoyer le code",
+  "Змінити пошту": "Modifier l’adresse e-mail",
+  "Новий пароль": "Nouveau mot de passe",
+  "Зберегти новий пароль": "Enregistrer le nouveau mot de passe",
+  "Увійти з новим паролем": "Se connecter avec le nouveau mot de passe",
+  "Введіть код": "Saisissez le code",
+  "Створіть новий пароль": "Créez un nouveau mot de passe",
+  "Для безпеки не використовуйте пароль з інших сервісів.": "Pour votre sécurité, ne réutilisez pas un mot de passe d’un autre service.",
+  "Отримали код у листі VATRA? Введіть електронну пошту й одноразовий код для підтвердження.": "Vous avez reçu un code dans un e-mail VATRA ? Saisissez votre adresse e-mail et ce code à usage unique pour confirmer votre identité.",
+  "Код одноразовий і має обмежений термін дії. Не отримали лист?": "Ce code est à usage unique et expire. Vous n’avez pas reçu l’e-mail ?",
+  "Запросити код повторно": "Demander un nouveau code",
+  "Зберегти пароль": "Enregistrer le mot de passe"
 }
