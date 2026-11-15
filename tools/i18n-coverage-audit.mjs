@@ -15,11 +15,15 @@ const langJs=await readFile("assets/js/lang.js","utf8");
 
 assert.ok(langJs.includes('const validLanguage = value => value === "uk" || value === "en";'),
  "Do not publish incomplete translations as selectable languages");
+const pickerEntries=langJs.slice(langJs.indexOf("  const languages = ["),
+ langJs.indexOf("  const flagGroups="));
+const pickerCodes=[...pickerEntries.matchAll(/\\["([a-z]{2})","[^"]+","[^"]+","[a-z]{2}"(,true)?\\]/g)]
+ .map(match=>({code:match[1],enabled:!!match[2]}));
+assert.deepEqual(pickerCodes.map(item=>item.code),["uk","en",...codes],
+ "Only eight requested language options may remain");
+assert.deepEqual(pickerCodes.filter(item=>item.enabled).map(item=>item.code),["uk","en"],
+ "Unfinished languages must remain unavailable");
 for(const code of codes){
- assert.ok(langJs.includes('["'+code+'",'),
-  code+": the desired language must remain listed");
- assert.ok(!langJs.includes('["'+code+'",'+String.fromCharCode(34)+"true"),
-  code+": no premature language publication");
  const dictionary=await read(code);
  const status=dictionary.__translation_status;
  assert.deepEqual(status.translated_static_pages,activePages,
