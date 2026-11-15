@@ -81,6 +81,17 @@ assert.ok(missingPage.includes('src="/VATRA/assets/js/not-found.js"')&&
 const errors=await read("assets/js/errors.js");
 const captcha=await read("assets/js/captcha.js");
 const lang=await read("assets/js/lang.js");
+// These account sections must never show "404 Page not found" in the
+// English browser tab while the asynchronous translation JSON is loading.
+const instantEnglishTitles=lang.slice(lang.indexOf("  const instantEnglishTitles={"),
+ lang.indexOf("\n  };",lang.indexOf("  const instantEnglishTitles={")));
+for(const [page,title] of [["friends","Friends · VATRA"],["gifts","Gifts · VATRA"]]){
+ const html=await read(page+".html");
+ assert.ok(instantEnglishTitles.includes(page+':"'+title+'"')&&
+  html.indexOf('src="assets/js/lang.js"')>=0&&
+  html.indexOf('src="assets/js/lang.js"')<html.indexOf("<title>"),
+  page+": English tab title must be ready before DOM and remote translations");
+}
 const sw=await read("sw.js");
 const host=await read("assets/js/host.js");
 const network=await read("assets/js/network.js");
