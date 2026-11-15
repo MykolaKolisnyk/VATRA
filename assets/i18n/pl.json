@@ -1,6 +1,6 @@
 {
   "__translation_status": {
-    "dynamic_strings_complete": true,
+    "dynamic_strings_complete": false,
     "email_templates_complete": false,
     "translated_static_pages": [
       "index",
@@ -16,7 +16,8 @@
       "privacy",
       "cookies"
     ],
-    "legal_review_complete": false
+    "legal_review_complete": false,
+    "shared_catalog_complete": true
   },
   "__pages": {
     "404": {
