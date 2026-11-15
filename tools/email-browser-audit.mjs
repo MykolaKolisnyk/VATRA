@@ -19,8 +19,9 @@ for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",
    return route.abort();
   }); // Real local VATRA logo, no external network dependencies.
   try{
-   for(const locale of ["uk","en"]){
-    for(const name of templates){
+   for(const locale of ["uk","en","pl","de","fr","it","ka","bg"]){
+    const localizedTemplates=["uk","en"].includes(locale)?templates:["confirmation","recovery"];
+    for(const name of localizedTemplates){
      const html=await readFile("audit-email/"+name+"-"+locale+".html","utf8");
      for(const width of [320,390,600]){
       const page=await context.newPage();
@@ -56,6 +57,6 @@ for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",
    }
   }finally{await context.close();}
  }finally{await browser.close();}
- console.log("VATRA "+engine+" email: 8 bilingual templates at 320/390/600px, no overflow");
+ console.log("VATRA "+engine+" email: 8 bilingual templates and 2 templates in 8 locales at 320/390/600px; no overflow");
 }
 console.log("VATRA rendered Supabase email visual checks passed.");
