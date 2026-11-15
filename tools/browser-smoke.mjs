@@ -2684,7 +2684,7 @@ try{
   return {open:el.open,width:bounds.width,height:bounds.height,
    screenWidth:innerWidth,screenHeight:innerHeight,
    background:getComputedStyle(art).backgroundImage,
-   artTag:art.tagName,stageTheme:stage.dataset.giftTheme,
+   artTag:art.tagName,
    effects:stage.querySelectorAll(".vatra-gift-particle").length,
    ember:!!stage.querySelector('[data-shape="ember"]'),
    spark:!!stage.querySelector('[data-shape="spark"]')};
@@ -2693,7 +2693,7 @@ try{
   giftMetrics.height>=giftMetrics.screenHeight-2,
   "Gift must occupy the whole viewport, not a small modal: "+JSON.stringify(giftMetrics));
  assert.ok(giftMetrics.background.includes("first-flame.png")&&
-  giftMetrics.artTag==="SPAN"&&giftMetrics.stageTheme==="embers"&&
+  giftMetrics.artTag==="SPAN"&&
   giftMetrics.effects===20&&giftMetrics.ember&&giftMetrics.spark,
   "First flame PNG must appear as decorative art with floating flame sparks");
  const preventsMenu=await giftsProbe.locator(".vatra-gift-viewer-stage").evaluate(el=>{
@@ -2706,24 +2706,14 @@ try{
  assert.equal(await giftsProbe.locator(".vatra-gift-particle").count(),0,
   "Closing the viewer must tear down its visual effects");
  await giftsProbe.locator('[data-gifts-tab="free"]').click();
- assert.ok(await giftsProbe.locator(".vatra-gifts-card").count()>=4,
-  "Free catalogue must display current and upcoming gifts");
- for(const [code,effect,shape] of [
-  ["holiday_star","stars","star"],["kind_heart","hearts","heart"],
-  ["bright_sun","sunbeams","sunray"],["ribbon","ribbons","ribbon"]
- ]){
-  assert.equal(await giftsProbe.evaluate(code=>window.VATRA_GIFT_VIEWER.open(code),code),true);
-  const matching=await giftsProbe.locator(".vatra-gift-viewer-stage").evaluate((stage,params)=>
-   stage.dataset.giftTheme===params.effect&&
-   !!stage.querySelector('[data-shape="'+params.shape+'"]')&&
-   stage.querySelector(".vatra-gift-viewer-picture").classList.contains("is-symbol"),
-   {effect,shape});
-  assert.equal(matching,true,"Each upcoming gift must have a thematic backdrop: "+code);
-  await giftsProbe.locator(".vt-vatra-gift-viewer-close-001").click();
- }
- await giftsProbe.locator('[data-gifts-tab="paid"]').click();
- assert.equal(await giftsProbe.locator(".vatra-gifts-card").count(),0,
-  "Paid gifts are not sold before checkout is implemented");
+ assert.equal(await giftsProbe.locator(".vatra-gifts-card").count(),1,
+  "Only released First Flame should appear in the available gifts catalogue");
+ assert.equal(await giftsProbe.locator(".ui-vatra-gifts-card-first_flame").count(),1);
+ assert.equal(await giftsProbe.locator('[data-gifts-tab="paid"]').count(),0,
+  "Unreleased paid gifts must not have a placeholder tab");
+ assert.equal(await giftsProbe.evaluate(()=>
+  window.VATRA_GIFT_VIEWER.open("unreleased")),false,
+  "Unreleased gifts must not be previewable");
  await giftsProbe.close();
  console.log("VATRA friends and gifts: authenticated list, free catalogue and gift viewer OK");
  let desktopHeaderCenters=null;

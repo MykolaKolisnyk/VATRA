@@ -1,4 +1,4 @@
-/* VATRA gifts: offline asset, themed viewer and decorative accessibility regression. */
+/* VATRA gifts: released First Flame only, offline asset and decorative viewer regression. */
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
@@ -17,21 +17,13 @@ const context={window:{},URL,document:{
 }};
 runInNewContext(js,context);
 const {all,byCode,fileUrl}=context.window.VATRA_GIFTS_CATALOG;
-assert.equal(all.length,5,"Retain the existing five gift descriptions");
+assert.equal(all.length,1,"Only the actually released First Flame belongs in the catalogue");
 assert.equal(byCode("first_flame").image,"first-flame.png");
 assert.equal(fileUrl(byCode("first_flame")),
  "https://example.com/VATRA/assets/gifts/first-flame.png");
-assert.equal(byCode("first_flame").effect,"embers");
-for(const [code,effect] of [
- ["holiday_star","stars"],["kind_heart","hearts"],
- ["bright_sun","sunbeams"],["ribbon","ribbons"]
-]){
- const item=byCode(code);
- assert.equal(item.effect,effect,"Gift needs its own appropriate particles");
- assert.equal(fileUrl(item),null,
-  "Upcoming gifts without supplied art must not fetch nonexistent SVGs");
- assert.ok(item.symbol,"Upcoming gift should keep a decorative preview");
-}
+assert.equal(all[0].code,"first_flame");
+assert.equal(byCode("unreleased"),null);
+assert.equal(fileUrl(null),null);
 assert.ok(!js.includes("first-flame.svg")&&!profile.includes("first-flame.svg"),
  "No code may point to the replaced SVG");
 assert.ok(profile.includes('new URL("assets/gifts/first-flame.png",home)'),
@@ -51,10 +43,13 @@ assert.ok(css.includes("grid-template-rows:auto minmax(0,1fr) auto"),
  "Scene must expand between the header and footer");
 assert.ok(css.includes('animation:vatraGiftDrift')&&
  css.includes("@media(prefers-reduced-motion:reduce)"),
- "Themed objects must animate while respecting reduced-motion preference");
-for(const shape of ["ember","spark","star","heart","sunray","ribbon"]){
- assert.ok(css.includes('data-shape="'+shape+'"'),"Missing art effect: "+shape);
-}
+ "First Flame embers must animate while respecting reduced-motion preference");
+for(const shape of ["ember","spark"])
+ assert.ok(css.includes('data-shape="'+shape+'"'),"Missing flame effect: "+shape);
+assert.equal((css.match(/\.vatra-gift-particle\[data-shape=/g)||[]).length,2,
+ "Only First Flame embers and sparks should have particle styles");
+assert.ok(!js.includes("themeKinds")&&!js.includes("populateEffects")&&
+ !gifts.includes("is-symbol"),"Do not keep future gift engines or symbolic fallbacks");
 assert.ok(profileCss.includes("background-position:center;background-size:contain"),
  "Profile gift thumbnails must position original art accurately");
-console.log("VATRA gifts: supplied PNG, themed particles, full-viewport stage and decorative cards verified offline.");
+console.log("VATRA gifts: only released First Flame, PNG, embers and fullscreen decorative display verified offline.");
