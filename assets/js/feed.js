@@ -193,6 +193,8 @@
    friends=new Set();followedClubs=new Map();
    return false;
   }
+  // Own posts must remain available if the very first audience read fails.
+  if(!friends.size)friends.add(viewerId);
   // Build a coherent snapshot before replacing a previously successful one.
   // On a temporary PostgREST failure, keep known friends and follows and retry
   // the next time Feed or stories actually need the audience.
