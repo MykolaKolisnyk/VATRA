@@ -40,7 +40,7 @@ function take(table){
 }
 const context={client,vatraId:"10",
  validId:id=>/^[1-9][0-9]{0,18}$/.test(String(id)),
- friends:new Set(["10"]),followedClubs:new Map(),
+ friends:new Set(),followedClubs:new Map(),
  subscriptionsInflight:null,subscriptionsLoadedAt:0,
  Promise,Set,Map,Date:Clock,String,Array
 };
@@ -68,6 +68,8 @@ replies.communities.push(Promise.resolve(ok([club(100,"Nature")])));
 const first=ensureSubscriptions(),second=ensureSubscriptions();
 assert.strictEqual(first,second,"Feed and stories must deduplicate subscription reads");
 assert.equal(calls.friendships,1);
+assert.deepEqual([...context.friends],["10"],
+ "The first failed or delayed audience read must not hide the viewer’s own posts");
 wait.resolve(ok([friend(20)]));
 await Promise.all([first,second]);
 assert.deepEqual(audience(),{friends:["10","20"],clubs:[["100","Nature"]]});
