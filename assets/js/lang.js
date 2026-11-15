@@ -91,25 +91,25 @@
     ["fr","Français","French","fr"],["es","Español","Spanish","es"],
     ["it","Italiano","Italian","it"],["pt","Português","Portuguese","pt"],
     ["ro","Română","Romanian","ro"],["nl","Nederlands","Dutch","nl"],
-    ["cs","Čeština","Czech","cz"],["sk","Slovenčina","Slovak","sk"],
-    ["hu","Magyar","Hungarian","hu"],["bg","Български","Bulgarian","bg"],
+    ["cs","Čeština","Czech","cz"],
+    ["bg","Български","Bulgarian","bg"],
     ["el","Ελληνικά","Greek","gr"],["tr","Türkçe","Turkish","tr"],
     ["sv","Svenska","Swedish","se"],["da","Dansk","Danish","dk"],
     ["no","Norsk","Norwegian","no"],["fi","Suomi","Finnish","fi"],
     ["et","Eesti","Estonian","ee"],["lt","Lietuvių","Lithuanian","lt"],
     ["lv","Latviešu","Latvian","lv"],["hr","Hrvatski","Croatian","hr"],
-    ["sr","Српски","Serbian","rs"],["sl","Slovenščina","Slovenian","si"],
+    ["sl","Slovenščina","Slovenian","si"],
     ["ka","ქართული","Georgian","ge"],["ja","日本語","Japanese","jp"],
-    ["ko","한국어","Korean","kr"],["zh","中文","Chinese","cn"],
+    ["ko","한국어","Korean","kr"],
     ["ar","العربية","Arabic","sa"],["he","עברית","Hebrew","il"],
     ["hi","हिन्दी","Hindi","in"],["id","Bahasa Indonesia","Indonesian","id"],
     ["vi","Tiếng Việt","Vietnamese","vn"],["th","ไทย","Thai","th"]
   ];
   const flagGroups={
     "europe-a":new Set(["ua","gb","pl","de","fr","es","it","pt","ro"]),
-    "europe-b":new Set(["nl","cz","sk","hu","bg","gr","tr","se","dk"]),
-    "europe-c":new Set(["no","fi","ee","lt","lv","hr","rs","si","ge"]),
-    "world":new Set(["jp","kr","cn","sa","il","in","id","vn","th"])
+    "europe-b":new Set(["nl","cz","bg","gr","tr","se","dk"]),
+    "europe-c":new Set(["no","fi","ee","lt","lv","hr","si","ge"]),
+    "world":new Set(["jp","kr","sa","il","in","id","vn","th"])
   };
   let flagSerial=0;
   function flag(country) {
