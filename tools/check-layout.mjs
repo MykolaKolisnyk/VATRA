@@ -217,11 +217,14 @@ assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transpare
  !css.includes('.create-account-floating-label'),
  "Both auth forms must have one floating hint per field without duplicate native labels");
 assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
- css.includes(".vatra-select-list::-webkit-scrollbar-thumb")&&
- css.includes(".captcha-dialog::-webkit-scrollbar-thumb")&&
- css.includes(".language-scroll-track{")&&
- css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)"),
- "The website must keep its native browser scrollbar; custom scrollbar styling belongs only inside VATRA forms");
+ !css.includes("html::-webkit-scrollbar")&&!css.includes("body::-webkit-scrollbar")&&
+ css.includes("@property --vatra-form-scroll-alpha")&&
+ css.includes(".language-scroll-track.is-visible")&&
+ css.includes("background:#454b54")&&
+ css.includes("scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent")&&
+ css.includes(".captcha-dialog")&&css.includes(".vatra-select-list")&&
+ !css.includes(".language-scroll-track:hover"),
+ "Page-level scrollbars must stay native; only VATRA forms get dark, fading, hover-free scrollbars");
 assert.ok(!css.includes(".orbit-badge")&&!css.includes("one-styleFix"),
  "Do not keep orphaned controls or cosmetic fix layers");
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"Unbalanced CSS");
@@ -1239,7 +1242,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(null)")&&
  (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(ownId)")&&
  sharedJs.includes("setUpSiteSearch()")&&
- sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
+ !sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
+ css.includes(".vatra-search-history")&&
  !sharedCss.includes("body.feed-page .ui-social-top-feed-001{color:#376fdf"),
  "VATRA must use auth-style tooltips, one active header and no obsolete social CSS");
 for(const page of sharedShellPages){
@@ -1953,7 +1957,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  profileScript.includes('from("avatar_likes")')&&
  profileScript.includes('from("avatar_comments")')&&
  profileScript.includes('interaction.hidden=kind!=="avatar"')&&
- memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
+ !memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
+ css.includes(".profile-photo-comments")&&
  memberCss.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
  "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");

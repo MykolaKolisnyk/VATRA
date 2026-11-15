@@ -1,9 +1,5 @@
 /* VATRA create-account page — page-specific appearance (after shared base.css). */
 
-.vatra-select-list::-webkit-scrollbar{width:9px;height:9px}
-.vatra-select-list::-webkit-scrollbar-track{background:var(--scroll-track);border-radius:99px}
-.vatra-select-list::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8bb1f6,#8274d7);border:2px solid var(--scroll-track);border-radius:99px}
-.vatra-select-list::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#5b8eeb,#6958d0)}
 .signup-form-overline{display:flex;align-items:center;gap:12px;margin-bottom:16px;justify-content:space-between;flex-wrap:wrap;row-gap:8px}
 .signup-form-kicker{display:inline-flex;align-items:center;color:#5673b1;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.105em}
 .signup-form-panel .action.primary{min-height:55px;background:var(--vatra-action-primary);box-shadow:0 8px 20px rgba(39,98,212,.16)}
@@ -137,7 +133,7 @@
 .vatra-select-trigger.is-placeholder{color:var(--soft)}
 .vatra-select.is-open{z-index:50}
 .vatra-select.is-open .vatra-select-trigger{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
-.vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;max-height:304px;overflow-y:auto;overscroll-behavior:contain;padding:6px;background:#fff;border:1px solid #d7ddea;border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15);scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)}
+.vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;max-height:304px;overflow-y:auto;overscroll-behavior:contain;padding:6px;background:#fff;border:1px solid #d7ddea;border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15);}
 
 
 

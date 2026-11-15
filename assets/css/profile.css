@@ -657,12 +657,7 @@ body.profile-page .vt-profile-photo-comments-more-001[hidden]{display:none!impor
 body.profile-page .profile-photo-comments{
  flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
  padding:0 17px 10px;scrollbar-width:thin;
- scrollbar-color:#6577e6 #edf1fb
-}
-body.profile-page .profile-photo-comments::-webkit-scrollbar{width:7px}
-body.profile-page .profile-photo-comments::-webkit-scrollbar-track{background:#edf1fb;border-radius:10px}
-body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb{
- background:linear-gradient(#4278e9,#9567d7);border-radius:10px
+
 }
 body.profile-page .profile-photo-comment{
  padding:11px 5px 12px;border-bottom:1px solid #eef1f7

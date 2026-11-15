@@ -533,6 +533,25 @@ try{
  await page.locator("[data-language-trigger]").click();
  const dialog=page.locator(".language-dialog");
  await dialog.waitFor({state:"visible"});
+ const scrollbarStyle=await page.locator(".language-scroll-track").evaluate(track=>({
+  track:getComputedStyle(track).backgroundColor,
+  thumb:getComputedStyle(track.querySelector(".language-scroll-thumb")).backgroundColor,
+  initial:getComputedStyle(track).opacity
+ }));
+ assert.equal(scrollbarStyle.track,"rgba(0, 0, 0, 0)",
+  "Language scrollbar must have no visible background track or hover surface");
+ assert.equal(scrollbarStyle.thumb,"rgb(69, 75, 84)",
+  "Language scrollbar thumb must use the agreed graphite color");
+ await page.locator(".language-grid").evaluate(el=>{el.scrollTop=120;});
+ await page.waitForFunction(()=>document.querySelector(".language-scroll-track")?.classList.contains("is-visible"));
+ const hoveredBox=await page.locator(".language-scroll-track").boundingBox();
+ if(hoveredBox)await page.mouse.move(hoveredBox.x+hoveredBox.width/2,hoveredBox.y+30);
+ assert.equal(await page.locator(".language-scroll-track").evaluate(el=>getComputedStyle(el).backgroundColor),
+  "rgba(0, 0, 0, 0)","Hover must not create a scrollbar track background");
+ await page.waitForFunction(()=>{
+  const track=document.querySelector(".language-scroll-track");
+  return track&&!track.classList.contains("is-visible")&&parseFloat(getComputedStyle(track).opacity)<.08;
+ },null,{timeout:3500});
  const modalAnimations=await dialog.evaluate(node=>({
   dialog:getComputedStyle(node).animationName,
   content:getComputedStyle([...node.children].find(el=>!el.hidden)).animationName,

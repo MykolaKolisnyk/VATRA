@@ -471,14 +471,22 @@
     backdrop.append(dialog);
     document.body.append(backdrop);
 
-    /* Custom VATRA scrollbar. Native scrolling stays active for wheel, touch and keys. */
+    /* Custom VATRA scrollbar. Native wheel, touch and keyboard input stays active. */
+    let scrollbarFadeTimer = null;
+    function showScrollbar() {
+      if (scrollTrack.hidden || backdrop.hidden) return;
+      scrollTrack.classList.add("is-visible");
+      clearTimeout(scrollbarFadeTimer);
+      if (!dragging) scrollbarFadeTimer = setTimeout(
+        () => scrollTrack.classList.remove("is-visible"), 1000);
+    }
     function updateScrollbar() {
       const viewport = list.clientHeight;
       const content = list.scrollHeight;
       const available = scrollShell.clientHeight;
       const overflow = content > viewport + 2 && viewport > 0 && available > 0;
       scrollTrack.hidden = !overflow;
-      if (!overflow) return;
+      if (!overflow) { scrollTrack.classList.remove("is-visible"); return; }
       const thumbHeight = Math.max(38, Math.min(available, available * viewport / content));
       const travel = Math.max(0, available - thumbHeight);
       const progress = Math.max(0, Math.min(1, list.scrollTop / (content - viewport)));
@@ -499,6 +507,7 @@
       dragOffset = e.target === scrollThumb ? e.clientY - bounds.top : bounds.height / 2;
       dragging = true;
       scrollTrack.classList.add("is-dragging");
+      showScrollbar();
       scrollTrack.setPointerCapture(e.pointerId);
       moveThumb(e.clientY);
       e.preventDefault();
@@ -508,20 +517,24 @@
     });
     scrollTrack.addEventListener("wheel", e => {
       list.scrollTop += e.deltaY;
+      showScrollbar();
       e.preventDefault();
     }, {passive:false});
     function endDrag(e) {
       if (!dragging) return;
       dragging = false;
       scrollTrack.classList.remove("is-dragging");
+      showScrollbar();
       if (scrollTrack.hasPointerCapture(e.pointerId)) scrollTrack.releasePointerCapture(e.pointerId);
     }
     scrollTrack.addEventListener("pointerup", endDrag);
     scrollTrack.addEventListener("pointercancel", endDrag);
-    list.addEventListener("scroll", updateScrollbar, {passive:true});
+    list.addEventListener("scroll", () => { updateScrollbar(); showScrollbar(); }, {passive:true});
     window.addEventListener("resize", updateScrollbar);
     if ("ResizeObserver" in window) new ResizeObserver(updateScrollbar).observe(list);
     function close() {
+      clearTimeout(scrollbarFadeTimer);
+      scrollTrack.classList.remove("is-visible");
       for(const trigger of triggers)trigger.setAttribute("aria-expanded","false");
       backdrop.hidden = true;
       document.body.classList.remove("language-dialog-open");
@@ -538,7 +551,7 @@
       backdrop.hidden = false;
       document.body.classList.add("language-dialog-open");
       search.focus();
-      requestAnimationFrame(updateScrollbar);
+      requestAnimationFrame(() => { updateScrollbar(); showScrollbar(); });
     }
     search.addEventListener("input", () => {
       clearSearch.hidden = !search.value;
@@ -550,7 +563,7 @@
       }
       notFound.hidden = count > 0;
       list.scrollTop = 0;
-      requestAnimationFrame(updateScrollbar);
+      requestAnimationFrame(() => { updateScrollbar(); showScrollbar(); });
     });
     clearSearch.addEventListener("click",()=>{
       search.value="";
@@ -577,4 +590,49 @@
   }else{
     initLanguagePicker();
   }
+})();
+
+/* One passive, delegated controller for scrollable VATRA form surfaces.
+   No polling, no DOM mutation observers, no track or thumb hover effect.
+   Hidden native thumbs still respond to ordinary scrolling and dragging. */
+(()=>{
+ "use strict";
+ const selector=[
+  ".captcha-dialog",".vatra-select-list",".vt-tour-card-001",
+  ".feed-compose-dialog",".feed-story-dialog",".club-compose-dialog",
+  ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
+  ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",
+  ".vatra-notification-panel",".vatra-post-share-dialog",".vatra-post-comment-emoji-scroll",
+  ".profile-message-history",".profile-compose-dialog",".profile-photo-comments",
+  ".vatra-profile-details-content",".profile-report-content",
+  ".profile-confirm-dialog",".profile-story-compose-dialog",
+  ".vatra-post-composer-edit",".vatra-post-composer-settings",
+  ".vatra-post-composer-drafts-panel",".feed-story-view",
+  ".profile-story-viewer",".vatra-gift-viewer","textarea"
+ ].join(",");
+ const timers=new WeakMap();
+ function show(target){
+  if(!target?.matches?.(selector))return;
+  target.classList.add("vatra-form-scroll-active");
+  clearTimeout(timers.get(target));
+  const timer=setTimeout(()=>{
+   target.classList.remove("vatra-form-scroll-active");
+   timers.delete(target);
+  },1050);
+  timers.set(target,timer);
+ }
+ document.addEventListener?.("scroll",event=>show(event.target),{capture:true,passive:true});
+ document.addEventListener?.("wheel",event=>{
+  const el=event.target?.closest?.(selector);
+  if(el && el.scrollHeight>el.clientHeight+1)show(el);
+ },{capture:true,passive:true});
+ document.addEventListener?.("pointerdown",event=>{
+  const el=event.target?.closest?.(selector);
+  if(el && el.scrollHeight>el.clientHeight+1)show(el);
+ },{capture:true,passive:true});
+ document.addEventListener?.("keydown",event=>{
+  if(!["ArrowDown","ArrowUp","PageDown","PageUp","Home","End"," "].includes(event.key))return;
+  const el=document.activeElement?.closest?.(selector);
+  if(el && el.scrollHeight>el.clientHeight+1)show(el);
+ },{capture:true});
 })();
