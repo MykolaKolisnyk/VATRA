@@ -131,6 +131,42 @@ try{
  const sharedStyles='<link rel="stylesheet" href="'+base+'assets/css/feed.css">'+
   '<link rel="stylesheet" href="'+base+'assets/css/profile.css">';
  const nearly=(a,b)=>Math.abs(a-b)<=1;
+ // Missing/deleted/blocked profiles must reuse the *rendered* size, cover
+ // overlap, name baseline and left inset of a normal member's header.
+ // Exercise the actual CSS cascade, including mobile media rules.
+ for(const width of [1366,768,420]){
+  await spacingProbe.setViewportSize({width,height:900});
+  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+   '<body class="profile-page feed-page"><section class="profile-hero">'+
+   '<div class="profile-cover"></div><div class="profile-summary">'+
+   '<div class="profile-avatar-wrap"><button class="profile-avatar-trigger" type="button">'+
+   '<span class="profile-avatar"></span></button></div>'+
+   '<div class="profile-identity"><h1 class="profile-name">Profile heading</h1></div>'+
+   '</div></section></body></html>',{waitUntil:"load"});
+  const geometry=await spacingProbe.evaluate(()=>{
+   const measure=()=>{
+    const cover=document.querySelector(".profile-cover").getBoundingClientRect();
+    const avatar=document.querySelector(".profile-avatar-wrap").getBoundingClientRect();
+    const name=document.querySelector(".profile-name").getBoundingClientRect();
+    const summary=document.querySelector(".profile-summary").getBoundingClientRect();
+    return {portrait:avatar.width,avatarX:avatar.left,overlap:cover.bottom-avatar.top,
+     nameTop:name.top,nameLeft:name.left,summaryHeight:summary.height};
+   };
+   const ordinary=measure(),unavailable={};
+   for(const state of ["not-found","deleted","blocked"]){
+    document.body.dataset.vatraProfileUnavailable=state;
+    unavailable[state]=measure();
+   }
+   delete document.body.dataset.vatraProfileUnavailable;
+   return {ordinary,unavailable};
+  });
+  for(const [state,value] of Object.entries(geometry.unavailable)){
+   assert.ok(Object.keys(geometry.ordinary).every(key=>
+    nearly(value[key],geometry.ordinary[key])),
+    "System profile geometry differs at "+width+"px for "+state+": "+JSON.stringify(geometry));
+  }
+ }
+ console.log("VATRA missing/deleted/blocked profile geometry equals regular profile across widths: OK");
  for(const width of [1366,420]){
   await spacingProbe.setViewportSize({width,height:900});
   const expected=width>770?16:12;
