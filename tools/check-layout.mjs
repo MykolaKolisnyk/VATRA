@@ -1242,7 +1242,8 @@ assert.ok(sharedCss.includes(".vatra-shell-tooltip")&&
  (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(null)")&&
  (await read("assets/js/notifications.js")).includes("window.VATRA_SEARCH_HISTORY?.setViewer(ownId)")&&
  sharedJs.includes("setUpSiteSearch()")&&
- sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
+ !sharedCss.includes(".vatra-search-history::-webkit-scrollbar-thumb")&&
+ css.includes(".vatra-search-history")&&
  !sharedCss.includes("body.feed-page .ui-social-top-feed-001{color:#376fdf"),
  "VATRA must use auth-style tooltips, one active header and no obsolete social CSS");
 for(const page of sharedShellPages){
@@ -1956,7 +1957,8 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-engagement"')&&
  profileScript.includes('from("avatar_likes")')&&
  profileScript.includes('from("avatar_comments")')&&
  profileScript.includes('interaction.hidden=kind!=="avatar"')&&
- memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
+ !memberCss.includes('body.profile-page .profile-photo-comments::-webkit-scrollbar-thumb')&&
+ css.includes(".profile-photo-comments")&&
  memberCss.includes('body.profile-page .profile-media-viewer[data-kind="cover"][open]')&&
  memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-posts-section{'),
  "Original avatar viewer needs real likes/comments/share and matching Feed posts; cover viewer does not");
