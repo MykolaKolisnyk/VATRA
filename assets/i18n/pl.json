@@ -11,7 +11,8 @@
       "verify",
       "create-account",
       "forgot",
-      "reset"
+      "reset",
+      "terms"
     ]
   },
   "__pages": {
@@ -1330,6 +1331,346 @@
           }
         }
       }
+    },
+    "terms": {
+      "meta": {
+        "title": "Warunki korzystania · VATRA",
+        "description": "Zasady VATRA: konta, publikacje, społeczności, prawa autorskie, marketplace i bezpieczeństwo.",
+        "og:locale": "pl_PL",
+        "og:title": "Warunki korzystania — VATRA",
+        "og:description": "Warunki korzystania z VATRA: rejestracja, dostęp do konta i bezpieczeństwo."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Przejdź do treści"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA — strona główna"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Zaloguj się"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Utwórz konto"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Sekcje dokumentów"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Warunki korzystania"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Prywatność"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Warunki korzystania"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Zasady korzystania z VATRA: konta, publikacje, społeczności, bezpieczeństwo, marketplace i szacunek dla innych."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Zaktualizowano 8 listopada 2026 r."
+          }
+        },
+        "n21": {
+          "attrs": {
+            "aria-label": "Spis treści"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Na tej stronie"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Korzystanie z VATRA"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Twoje konto"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Szacunek i bezpieczeństwo"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Treści i prawa autorskie"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Biznes, towary i usługi"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Bezpieczeństwo konta"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Ograniczenia i odpowiedzialność"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Dokumenty i kontakt"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Spis treści"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Korzystanie z VATRA"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "Twoje konto"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Szacunek i bezpieczeństwo"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Treści i prawa autorskie"
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Biznes, towary i usługi"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Bezpieczeństwo konta"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Ograniczenia i odpowiedzialność"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Dokumenty i kontakt"
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "Korzystanie z VATRA"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "VATRA to ukraińska platforma społecznościowa służąca do komunikacji, prowadzenia profili, przeglądania aktualności, korzystania z komunikatora, poznawania ludzi, udziału w społecznościach oraz udostępniania zdjęć, muzyki, filmów, klipów i ofert na marketplace. Niniejsze warunki określają zasady korzystania z witryny i Twojego konta."
+          }
+        },
+        "n48": {
+          "text": {
+            "0": "Korzystając z dostępnych funkcji VATRA, zobowiązujesz się przestrzegać tych zasad i obowiązującego prawa. Jeśli nie akceptujesz warunków, nie twórz konta ani nie korzystaj z funkcji wymagających logowania."
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Twoje konto"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "Aby się zarejestrować, musisz podać imię, nazwisko, datę urodzenia i adres e-mail oraz utworzyć hasło. Podanie płci jest opcjonalne. Aby korzystać z VATRA, musisz mieć ",
+            "1": " oraz spełniać surowsze wymagania wiekowe, jeśli obowiązują w Twoim kraju."
+          }
+        },
+        "n52": {
+          "text": {
+            "0": "co najmniej 13 lat"
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Podawaj prawdziwe dane, dbaj o bezpieczeństwo hasła i nie udostępniaj dostępu osobom trzecim. Zabrania się podszywania pod inne osoby, korzystania z cudzych kont oraz tworzenia kont w celu obchodzenia ograniczeń."
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Szacunek i bezpieczeństwo"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Podczas korzystania z VATRA zabronione są oszustwa, spam, nękanie, groźby, bezprawne ujawnianie informacji prywatnych, wykorzystywanie dzieci, nawoływanie do przemocy oraz publikowanie nielegalnych materiałów."
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Nie próbuj uzyskiwać dostępu do cudzych danych, omijać zabezpieczeń, automatycznie zbierać informacji bez pozwolenia ani przeciążać serwisu. Szanuj prawa i godność innych użytkowników."
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Treści i prawa autorskie"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "Odpowiadasz za teksty, zdjęcia, filmy, klipy, muzykę, ogłoszenia i inne materiały publikowane w VATRA oraz musisz mieć prawo do ich wykorzystania. Zachowujesz prawa autorskie do tworzonych przez siebie treści."
+          }
+        },
+        "n61": {
+          "text": {
+            "0": "Publikując treści w VATRA, udzielasz platformie niewyłącznej zgody na ich przechowywanie, techniczne przetwarzanie i wyświetlanie zgodnie z ustawieniami dostępu. Nie oznacza to przeniesienia własności Twoich materiałów na VATRA."
+          }
+        },
+        "n63": {
+          "text": {
+            "0": "Biznes, towary i usługi"
+          }
+        },
+        "n64": {
+          "text": {
+            "0": "Publikując ogłoszenia lub sprzedając towary i usługi, podawaj prawdziwe cechy i warunki, nie wprowadzaj kupujących w błąd, szanuj prawa konsumentów i przestrzegaj prawa."
+          }
+        },
+        "n65": {
+          "text": {
+            "0": "Warunki płatności, dostawy, zwrotów i odpowiedzialności stron wynikają z konkretnej umowy. ",
+            "1": " — nie wpisuj danych kart płatniczych w pola rejestracyjne."
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Formularz rejestracji w VATRA nie obsługuje płatności"
+          }
+        },
+        "n68": {
+          "text": {
+            "0": "Bezpieczeństwo konta"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Aby chronić konta, VATRA może wymagać potwierdzenia adresu e-mail i stosować techniczne środki ograniczające nadużycia. Żaden serwis internetowy, w tym VATRA, nie może zagwarantować całkowitego braku błędów."
+          }
+        },
+        "n70": {
+          "text": {
+            "0": "Jeśli utracisz hasło, skorzystaj z ",
+            "1": ". W razie podejrzenia naruszenia bezpieczeństwa nie udostępniaj innym kodów weryfikacyjnych ani haseł."
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "odzyskiwania dostępu"
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Ograniczenia i odpowiedzialność"
+          }
+        },
+        "n74": {
+          "text": {
+            "0": "Naruszenie zasad może skutkować ograniczeniem dostępu zgodnie z prawem i odpowiednimi procedurami. Zachowujesz przy tym swoje bezwzględnie obowiązujące prawa, w tym w zakresie ochrony danych osobowych i praw konsumentów."
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "W przypadku zmiany niniejszych warunków nowa wersja zostanie opublikowana na tej stronie wraz z datą. O istotnych zmianach użytkownicy będą powiadamiani, gdy wymaga tego prawo."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "Dokumenty i kontakt"
+          }
+        },
+        "n78": {
+          "text": {
+            "0": "Zasady korzystania z Twoich danych opisano w ",
+            "1": ", a informacje o przechowywaniu danych przeglądarki — w "
+          }
+        },
+        "n79": {
+          "text": {
+            "0": "Polityce prywatności"
+          }
+        },
+        "n80": {
+          "text": {
+            "0": "Polityce plików cookie"
+          }
+        },
+        "n81": {
+          "text": {
+            "0": "Twórca i właściciel VATRA — ",
+            "1": ", osoba fizyczna. W sprawach dotyczących warunków i prywatności napisz na ",
+            "2": ". Nie przesyłaj haseł, kodów logowania ani dokumentów zawierających dane osobowe bez odrębnej bezpiecznej procedury."
+          }
+        },
+        "n82": {
+          "text": {
+            "0": "Микола Колісник"
+          }
+        },
+        "n88": {
+          "text": {
+            "1": " · Twoi ludzie. Twoje historie. Twoja VATRA."
+          }
+        },
+        "n90": {
+          "attrs": {
+            "aria-label": "Dodatkowe odnośniki"
+          }
+        },
+        "n95": {
+          "text": {
+            "0": "Polski"
+          },
+          "attrs": {
+            "aria-label": "Wybierz język"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Zaloguj się"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Utwórz konto"
+          }
+        }
+      }
     }
   },
   "До збереженого акаунта": "Do zapisanego konta",
@@ -1478,5 +1819,49 @@
   "Отримали код у листі VATRA? Введіть електронну пошту й одноразовий код для підтвердження.": "Masz kod z wiadomości VATRA? Wpisz adres e-mail i jednorazowy kod, aby go zweryfikować.",
   "Код одноразовий і має обмежений термін дії. Не отримали лист?": "Kod jest jednorazowy i ma ograniczony czas ważności. Nie masz wiadomości?",
   "Запросити код повторно": "Poproś ponownie o kod",
-  "Зберегти пароль": "Zapisz hasło"
+  "Зберегти пароль": "Zapisz hasło",
+  "Перейти до тексту": "Przejdź do treści",
+  "VATRA — головна": "VATRA — strona główna",
+  "Розділи документів": "Sekcje dokumentów",
+  "Правила користування VATRA: акаунти, публікації, спільноти, безпека, маркетплейс і повага до інших.": "Zasady korzystania z VATRA: konta, publikacje, społeczności, bezpieczeństwo, marketplace i szacunek dla innych.",
+  "Оновлено 8 листопада 2026 року": "Zaktualizowano 8 listopada 2026 r.",
+  "Зміст документа": "Spis treści",
+  "На цій сторінці": "Na tej stronie",
+  "Користування VATRA": "Korzystanie z VATRA",
+  "Ваш акаунт": "Twoje konto",
+  "Повага та безпека": "Szacunek i bezpieczeństwo",
+  "Контент та авторські права": "Treści i prawa autorskie",
+  "Бізнес, товари та послуги": "Biznes, towary i usługi",
+  "Захист акаунта": "Bezpieczeństwo konta",
+  "Обмеження та відповідальність": "Ograniczenia i odpowiedzialność",
+  "Документи та звернення": "Dokumenty i kontakt",
+  "VATRA — українська соціальна платформа для спілкування, особистих сторінок, стрічки, месенджера, знайомств, спільнот, фотографій, музики, відео, кліпів і маркетплейсу. Ці умови визначають правила використання сайту та Вашого акаунта.": "VATRA to ukraińska platforma społecznościowa służąca do komunikacji, prowadzenia profili, przeglądania aktualności, korzystania z komunikatora, poznawania ludzi, udziału w społecznościach oraz udostępniania zdjęć, muzyki, filmów, klipów i ofert na marketplace. Niniejsze warunki określają zasady korzystania z witryny i Twojego konta.",
+  "Користуючись доступними функціями VATRA, Ви погоджуєтеся дотримуватися цих правил і чинного законодавства. Якщо Ви не погоджуєтеся з умовами, не створюйте акаунт і не користуйтеся захищеними функціями.": "Korzystając z dostępnych funkcji VATRA, zobowiązujesz się przestrzegać tych zasad i obowiązującego prawa. Jeśli nie akceptujesz warunków, nie twórz konta ani nie korzystaj z funkcji wymagających logowania.",
+  "Для реєстрації потрібно вказати ім’я, прізвище, дату народження, електронну пошту та створити пароль. Стать можна не зазначати. Для використання VATRA потрібно бути": "Aby się zarejestrować, musisz podać imię, nazwisko, datę urodzenia i adres e-mail oraz utworzyć hasło. Podanie płci jest opcjonalne. Aby korzystać z VATRA, musisz mieć",
+  "і дотримуватися суворіших вікових вимог, якщо вони діють у Вашій країні.": "oraz spełniać surowsze wymagania wiekowe, jeśli obowiązują w Twoim kraju.",
+  "не молодше 13 років": "co najmniej 13 lat",
+  "Надавайте правдиві дані, підтримуйте безпеку свого пароля та не передавайте доступ стороннім. Заборонено видавати себе за іншу людину, використовувати чужий акаунт або створювати акаунти для обходу обмежень.": "Podawaj prawdziwe dane, dbaj o bezpieczeństwo hasła i nie udostępniaj dostępu osobom trzecim. Zabrania się podszywania pod inne osoby, korzystania z cudzych kont oraz tworzenia kont w celu obchodzenia ograniczeń.",
+  "Під час користування VATRA заборонено шахрайство, спам, цькування, погрози, незаконне поширення приватної інформації, експлуатацію дітей, підбурювання до насильства та публікацію незаконних матеріалів.": "Podczas korzystania z VATRA zabronione są oszustwa, spam, nękanie, groźby, bezprawne ujawnianie informacji prywatnych, wykorzystywanie dzieci, nawoływanie do przemocy oraz publikowanie nielegalnych materiałów.",
+  "Не намагайтеся отримувати доступ до чужих даних, обходити засоби захисту, автоматично збирати інформацію без дозволу або перевантажувати сервіс. Дотримуйтеся прав та гідності інших користувачів.": "Nie próbuj uzyskiwać dostępu do cudzych danych, omijać zabezpieczeń, automatycznie zbierać informacji bez pozwolenia ani przeciążać serwisu. Szanuj prawa i godność innych użytkowników.",
+  "Ви відповідаєте за тексти, фотографії, відео, кліпи, музику, оголошення та інші матеріали, які розміщуєте у VATRA, і повинні мати право їх використовувати. Авторські права на створений Вами контент залишаються за Вами.": "Odpowiadasz za teksty, zdjęcia, filmy, klipy, muzykę, ogłoszenia i inne materiały publikowane w VATRA oraz musisz mieć prawo do ich wykorzystania. Zachowujesz prawa autorskie do tworzonych przez siebie treści.",
+  "Розміщуючи контент у VATRA, Ви надаєте платформі невиключний дозвіл на його зберігання, технічну обробку й показ відповідно до налаштувань доступу. Це не передає VATRA право власності на Ваші матеріали.": "Publikując treści w VATRA, udzielasz platformie niewyłącznej zgody na ich przechowywanie, techniczne przetwarzanie i wyświetlanie zgodnie z ustawieniami dostępu. Nie oznacza to przeniesienia własności Twoich materiałów na VATRA.",
+  "Розміщуючи оголошення або продаючи товари й послуги, вказуйте достовірні характеристики та умови, не вводьте покупців в оману, поважайте права споживачів і дотримуйтеся законодавства.": "Publikując ogłoszenia lub sprzedając towary i usługi, podawaj prawdziwe cechy i warunki, nie wprowadzaj kupujących w błąd, szanuj prawa konsumentów i przestrzegaj prawa.",
+  "Умови оплати, доставки, повернення коштів і відповідальності сторін визначаються конкретною угодою.": "Warunki płatności, dostawy, zwrotów i odpowiedzialności stron wynikają z konkretnej umowy.",
+  "— не вводьте дані платіжних карток у поля реєстрації.": "— nie wpisuj danych kart płatniczych w pola rejestracyjne.",
+  "Форма реєстрації VATRA не приймає платежі": "Formularz rejestracji w VATRA nie obsługuje płatności",
+  "Для захисту облікових записів VATRA може вимагати підтвердження електронної пошти та застосовувати технічні обмеження проти зловживань. Жоден інтернет-сервіс, зокрема VATRA, не може гарантувати абсолютної безпомилковості.": "Aby chronić konta, VATRA może wymagać potwierdzenia adresu e-mail i stosować techniczne środki ograniczające nadużycia. Żaden serwis internetowy, w tym VATRA, nie może zagwarantować całkowitego braku błędów.",
+  "Якщо Ви втратили пароль, скористайтеся": "Jeśli utracisz hasło, skorzystaj z",
+  ". У разі підозри на компрометацію не передавайте коди підтвердження або паролі іншим особам.": ". W razie podejrzenia naruszenia bezpieczeństwa nie udostępniaj innym kodów weryfikacyjnych ani haseł.",
+  "відновленням доступу": "odzyskiwania dostępu",
+  "Порушення правил може бути підставою для обмеження доступу згідно із законом і відповідними процедурами. При цьому зберігаються Ваші обов’язкові права, зокрема щодо захисту персональних даних і прав споживачів.": "Naruszenie zasad może skutkować ograniczeniem dostępu zgodnie z prawem i odpowiednimi procedurami. Zachowujesz przy tym swoje bezwzględnie obowiązujące prawa, w tym w zakresie ochrony danych osobowych i praw konsumentów.",
+  "У разі зміни цих умов нова редакція розміщується на цій сторінці із зазначенням дати. Про суттєві зміни користувачі повідомляються, коли цього вимагає закон.": "W przypadku zmiany niniejszych warunków nowa wersja zostanie opublikowana na tej stronie wraz z datą. O istotnych zmianach użytkownicy będą powiadamiani, gdy wymaga tego prawo.",
+  "Правила щодо використання Ваших даних наведені в": "Zasady korzystania z Twoich danych opisano w",
+  ", а інформація про сховище браузера — в": ", a informacje o przechowywaniu danych przeglądarki — w",
+  "Політиці конфіденційності": "Polityce prywatności",
+  "Політиці cookies": "Polityce plików cookie",
+  "Розробник і власник VATRA —": "Twórca i właściciel VATRA —",
+  ", фізична особа. Для звернень щодо правил користування та питань конфіденційності напишіть на": ", osoba fizyczna. W sprawach dotyczących warunków i prywatności napisz na",
+  ". Не надсилайте паролі, коди входу чи документи з персональними даними без окремої захищеної процедури.": ". Nie przesyłaj haseł, kodów logowania ani dokumentów zawierających dane osobowe bez odrębnej bezpiecznej procedury.",
+  "Микола Колісник": "Микола Колісник",
+  "Додаткові посилання": "Dodatkowe odnośniki"
 }
