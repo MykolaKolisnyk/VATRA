@@ -159,6 +159,12 @@ function wireSelects(){
   list.hidden=true;
   list.setAttribute("role","listbox");
   list.setAttribute("aria-label",select.getAttribute("aria-label")||"");
+  // Keep the rounded popup shell static and inset only the scrolling content.
+  // This prevents scrollbar thumbs running into its top/bottom corners.
+  const scrollArea=document.createElement("div");
+  scrollArea.className="vatra-select-scroll-area ui-select-scroll-"+select.id;
+  scrollArea.setAttribute("role","presentation");
+  list.append(scrollArea);
   const choices=[...select.options].filter(opt=>!opt.disabled&&(opt.value||!required));
   for(const [optionIndex,opt] of choices.entries()){
    const item=document.createElement("button");
@@ -174,7 +180,7 @@ function wireSelects(){
     select.dispatchEvent(new Event("change",{bubbles:true}));
     close(true);
    });
-   list.append(item);
+   scrollArea.append(item);
   }
   root.append(trigger,list);
   // The visible registration caption also opens the custom gender selector.
@@ -190,7 +196,7 @@ function wireSelects(){
    const current=select.selectedOptions[0];
    display.textContent=current?.textContent||"";
    trigger.classList.toggle("is-placeholder",!select.value);
-   for(const item of list.children){
+   for(const item of scrollArea.children){
     item.setAttribute("aria-selected",String(item.dataset.value===select.value));
    }
   };
@@ -229,7 +235,7 @@ function wireSelects(){
     if(index>=0){
      select.value=values[index];
      select.dispatchEvent(new Event("change",{bubbles:true}));
-     list.children[index]?.scrollIntoView({block:"nearest"});
+     scrollArea.children[index]?.scrollIntoView({block:"nearest"});
     }
    }else if(e.key.length===1&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
     const search=e.key.toLocaleLowerCase();
