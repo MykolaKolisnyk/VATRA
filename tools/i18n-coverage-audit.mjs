@@ -32,7 +32,7 @@ for(const code of codes){
   code+": dynamic JavaScript messages still require a dedicated translation audit");
  assert.equal(status.email_templates_complete,false,
   code+": untranslated Supabase email templates must not be marked ready");
- assert.deepEqual(Object.keys(dictionary.__pages),activePages,
+ assert.deepEqual(Object.keys(dictionary.__pages).sort(),[...activePages].sort(),
   code+": do not ship unreviewed legal-page placeholders");
  let texts=0,unchanged=0;
  for(const page of activePages){
