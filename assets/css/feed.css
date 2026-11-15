@@ -891,16 +891,7 @@ body.feed-page .vatra-search-back:focus-visible{outline:2px solid #4875df;outlin
  display:flex;flex-direction:column;flex:0 1 auto;min-height:0;
  max-height:min(290px,54dvh);overflow-y:auto;overscroll-behavior:contain;
  padding:2px 9px 8px 12px;
- scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-track)
-}
-.vatra-search-history::-webkit-scrollbar{width:9px;height:9px}
-.vatra-search-history::-webkit-scrollbar-track{background:var(--scroll-track);border-radius:99px}
-.vatra-search-history::-webkit-scrollbar-thumb{
- background:linear-gradient(180deg,#8bb1f6,#8274d7);
- border:2px solid var(--scroll-track);border-radius:99px
-}
-.vatra-search-history::-webkit-scrollbar-thumb:hover{
- background:linear-gradient(180deg,#5b8eeb,#6958d0)
+ 
 }
 .vatra-search-history-row{
  display:flex;align-items:center;flex:none;min-width:0;height:56px;
@@ -2716,7 +2707,7 @@ body.feed-page .vatra-post-comment-emoji-tabs>button[aria-selected="true"]{
 }
 body.feed-page .vatra-post-comment-emoji-scroll{
  display:block;min-height:0;overflow-y:auto;padding:10px 14px 15px;
- scrollbar-color:#c5d1e6 #f8faff;scrollbar-width:thin
+ 
 }
 body.feed-page .vt-vatra-post-comment-emoji-heading-001{
  margin:9px 0;color:#73869f;font:700 11px/1.35 "Onest",sans-serif
