@@ -1184,7 +1184,8 @@ try{
    const home=document.querySelector(".error-home-link");
    const box=image?.getBoundingClientRect(),logo=brand?.getBoundingClientRect(),
     button=home?.getBoundingClientRect();
-   return {loaded:!!image?.complete&&image.naturalWidth>0,
+   return {loaded:!!image&&image.tagName==="SPAN"&&
+    getComputedStyle(image).backgroundImage.includes("vatryk-404.png"),
     centered:!!box&&Math.abs((box.left+box.right)/2-innerWidth/2)<24,
     responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
     headerOrder:!!logo&&!!button&&logo.right+8<button.left,
@@ -1195,6 +1196,10 @@ try{
   assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.headerOrder&&
    mascot.onlyArt&&mascot.hiddenHeading,
    "404 must display centered Vatryk with aligned header, no error card: "+JSON.stringify(mascot));
+  assert.equal(await tab.locator(".ui-404-vatryk-001").evaluate(el=>{
+   const event=new MouseEvent("contextmenu",{bubbles:true,cancelable:true});
+   return el.dispatchEvent(event);
+  }),false,"Decorative 404 Vatryk must not open the image context menu");
   await tab.close();
  }
  await titleContext.close();
@@ -2711,19 +2716,25 @@ try{
   await feedProbe.locator(".feed-account-toggle").click();
   await feedProbe.locator("#vatra-onboarding-replay").click();
   await feedProbe.locator("#vatra-tour-dialog").waitFor({state:"visible"});
-  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").getAttribute("src"),
-   "/VATRA/assets/vatryk/vatryk_welcome.png");
-  await feedProbe.locator(".vt-tour-mascot-001").evaluate(img=>
-   img.decode().catch(()=>{}));
-  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(img=>img.naturalWidth>0),
-   true,"The original welcome mascot must render");
+  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(el=>
+   el.tagName==="SPAN"&&getComputedStyle(el).backgroundImage.includes("vatryk_welcome.png")),
+   true,"Welcome Vatryk must be decorative and non-draggable");
+  assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(async el=>{
+   const image=new Image();
+   image.src="/VATRA/assets/vatryk/vatryk_welcome.png";
+   try{await image.decode();return image.naturalWidth>0;}catch(_){return false;}
+  }),true,"The original welcome PNG must load");
   await feedProbe.locator(".vt-tour-next-001").click();
+  assert.equal(await feedProbe.locator(".vt-tour-heading-001").textContent(),
+   language==="uk"?"Пошук у VATRA":"Search VATRA");
   await feedProbe.locator(".vt-tour-spotlight-001").waitFor({state:"visible",timeout:3000});
   assert.equal(await feedProbe.locator(".vt-tour-spotlight-001").isVisible(),true,
    "An actual Feed control should be highlighted");
   assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
   await feedProbe.locator(".vt-tour-next-001").click();
   assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("2"));
+  assert.equal(await feedProbe.locator(".vt-tour-heading-001").textContent(),
+   language==="uk"?"Твоя стрічка":"Your feed");
   await feedProbe.locator(".vt-tour-back-001").click();
   assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
   await feedProbe.locator(".vt-tour-skip-001").click();
