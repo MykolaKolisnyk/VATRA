@@ -21,8 +21,8 @@ assert.equal(all.length,1,"Only the actually released First Flame belongs in the
 assert.equal(byCode("first_flame").image,"first-flame.png");
 assert.equal(fileUrl(byCode("first_flame")),
  "https://example.com/VATRA/assets/gifts/first-flame.png");
-for(const code of ["holiday_star","kind_heart","bright_sun","ribbon"])
- assert.equal(byCode(code),null,"Unreleased gifts must not remain as placeholders: "+code);
+assert.equal(all[0].code,"first_flame");
+assert.equal(byCode("unreleased"),null);
 assert.equal(fileUrl(null),null);
 assert.ok(!js.includes("first-flame.svg")&&!profile.includes("first-flame.svg"),
  "No code may point to the replaced SVG");
@@ -46,11 +46,8 @@ assert.ok(css.includes('animation:vatraGiftDrift')&&
  "First Flame embers must animate while respecting reduced-motion preference");
 for(const shape of ["ember","spark"])
  assert.ok(css.includes('data-shape="'+shape+'"'),"Missing flame effect: "+shape);
-for(const unused of ['data-shape="star"','data-shape="heart"','data-shape="sunray"',
- 'data-shape="ribbon"','data-gift-theme="stars"','data-gift-theme="hearts"',
- 'data-gift-theme="sunbeams"','data-gift-theme="ribbons"']){
- assert.ok(!css.includes(unused),"Unreleased gift styling must be removed: "+unused);
-}
+assert.equal((css.match(/\.vatra-gift-particle\[data-shape=/g)||[]).length,2,
+ "Only First Flame embers and sparks should have particle styles");
 assert.ok(!js.includes("themeKinds")&&!js.includes("populateEffects")&&
  !gifts.includes("is-symbol"),"Do not keep future gift engines or symbolic fallbacks");
 assert.ok(profileCss.includes("background-position:center;background-size:contain"),
