@@ -1,4 +1,4 @@
-/* VATRA gift collection: Onest, restrained surfaces and original SVG artwork. */
+/* VATRA released gift: First Flame PNG and its lightweight embers. */
 body.vatra-gifts-page .vatra-gifts-main{
  width:min(1050px,calc(100% - 36px));margin:28px auto 78px;
  padding:27px 32px 38px;border:1px solid #e1e9f5;border-radius:21px;
@@ -53,11 +53,6 @@ body.vatra-gifts-page .vatra-gifts-card-art{
  background-size:contain;background-repeat:no-repeat;background-position:center;
  user-select:none;-webkit-user-select:none;-webkit-user-drag:none
 }
-body.vatra-gifts-page .vatra-gifts-card-art.is-symbol{
- display:grid;place-items:center;color:#7c83c1;
- font:800 clamp(56px,7vw,100px)/1 "Onest",system-ui,sans-serif;
- text-shadow:0 8px 20px rgba(91,104,181,.14)
-}
 body.vatra-gifts-page [class^="vt-vatra-gifts-card-title-"]{
  color:#304462;font:780 15px/1.3 "Onest",system-ui,sans-serif
 }
@@ -111,18 +106,6 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
  background:radial-gradient(circle at 50% 48%,rgba(250,195,111,.19),transparent 52%),
  radial-gradient(circle at 16% 73%,rgba(65,113,224,.12),transparent 38%);
 }
-.vatra-gift-viewer-stage[data-gift-theme="stars"]{
- background:radial-gradient(ellipse at center,#292b65,#121733 57%,#080d20)
-}
-.vatra-gift-viewer-stage[data-gift-theme="hearts"]{
- background:radial-gradient(ellipse at center,#5b2a53,#2b153a 57%,#100d25)
-}
-.vatra-gift-viewer-stage[data-gift-theme="sunbeams"]{
- background:radial-gradient(ellipse at center,#664422,#36253a 60%,#111324)
-}
-.vatra-gift-viewer-stage[data-gift-theme="ribbons"]{
- background:radial-gradient(ellipse at center,#42336b,#1a2147 57%,#0d1027)
-}
 .vatra-gift-effects{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 .vatra-gift-particle{
  position:absolute;left:var(--gift-x);top:var(--gift-y);
@@ -139,29 +122,6 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
  clip-path:polygon(50% 0,62% 39%,100% 50%,62% 61%,50% 100%,38% 61%,0 50%,38% 39%);
  background:#ffe4a1;filter:drop-shadow(0 0 9px #ffa437)
 }
-.vatra-gift-particle[data-shape="star"],
-.vatra-gift-particle[data-shape="twinkle"]{
- width:auto;height:auto;color:#f6dcff;
- font:850 var(--gift-size)/1 "Onest",system-ui,sans-serif;
- text-shadow:0 0 14px rgba(230,218,255,.8)
-}
-.vatra-gift-particle[data-shape="star"]{color:#ffdd8c}
-.vatra-gift-particle[data-shape="heart"]{
- width:auto;height:auto;color:#ffa2c5;
- font:850 var(--gift-size)/1 "Onest",system-ui,sans-serif;
- text-shadow:0 0 18px rgba(255,129,176,.6)
-}
-.vatra-gift-particle[data-shape="sunray"]{
- width:auto;height:auto;color:#ffdc83;
- font:850 var(--gift-size)/1 "Onest",system-ui,sans-serif;
- text-shadow:0 0 18px rgba(255,181,64,.65)
-}
-.vatra-gift-particle[data-shape="ribbon"]{
- width:calc(var(--gift-size) * .6);height:calc(var(--gift-size) * 1.8);
- border-radius:50% 10% 50% 10%;border:2px solid #d2b6ff;
- background:linear-gradient(120deg,#c6aaff,#7498fb);
- box-shadow:0 0 14px rgba(157,133,249,.5)
-}
 @keyframes vatraGiftDrift{
  0%{opacity:0;transform:translate3d(0,36px,0) rotate(-12deg) scale(.7)}
  28%{opacity:.9}65%{opacity:.72}
@@ -172,10 +132,6 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
  background-repeat:no-repeat;background-position:center;background-size:contain;
  filter:drop-shadow(0 25px 36px rgba(0,0,0,.16));
  pointer-events:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none
-}
-.vatra-gift-viewer-picture.is-symbol{
- color:#e6d7ff;font:800 clamp(140px,34vmin,470px)/1 "Onest",system-ui,sans-serif;
- text-shadow:0 0 80px rgba(181,160,255,.38)
 }
 .vatra-gift-viewer-footer{
  position:relative;z-index:4;display:flex;flex-direction:column;gap:8px;
@@ -202,7 +158,7 @@ body.vatra-gifts-page .vt-vatra-gifts-empty-001[hidden]{display:none}
  .vatra-gift-viewer-head{min-height:61px;padding:9px 16px}
  .vatra-gift-viewer-footer{gap:5px;padding:12px 18px max(16px,env(safe-area-inset-bottom))}
  .vatra-gift-viewer-picture{inset:0 10px}
- .vatra-gift-viewer-picture.is-symbol{font-size:clamp(110px,36vmin,230px)}
+
 }
 @media(max-width:365px){
  body.vatra-gifts-page .vatra-gifts-grid{grid-template-columns:1fr}
