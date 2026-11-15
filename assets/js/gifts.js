@@ -17,10 +17,14 @@ function card(gift,owned){
  const item=make("button","vatra-gifts-card ui-vatra-gifts-card-"+gift.code);
  item.type="button";item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open(gift.code));
  const artwork=make("div","vatra-gifts-card-image ui-vatra-gifts-card-image-"+gift.code);
- const img=make("img","ui-vatra-gifts-card-art-"+gift.code);
- img.src=window.VATRA_GIFTS_CATALOG.fileUrl(gift);img.alt="";
- img.width=220;img.height=220;img.loading="lazy";
- artwork.append(img);
+ const art=make("span","vatra-gifts-card-art ui-vatra-gifts-card-art-"+gift.code);
+ art.setAttribute("aria-hidden","true");
+ const url=window.VATRA_GIFTS_CATALOG.fileUrl(gift);
+ if(url)art.style.backgroundImage="url("+JSON.stringify(url)+")";
+ else{art.classList.add("is-symbol");art.textContent=gift.symbol||"✦";}
+ art.addEventListener("dragstart",event=>event.preventDefault());
+ art.addEventListener("contextmenu",event=>event.preventDefault());
+ artwork.append(art);
  const heading=make("strong","vt-vatra-gifts-card-title-"+gift.code,t(gift.uk,gift.en));
  const description=make("span","vt-vatra-gifts-card-copy-"+gift.code,t(gift.descriptionUk,gift.descriptionEn));
  const state=make("small","vt-vatra-gifts-card-state-"+gift.code,
