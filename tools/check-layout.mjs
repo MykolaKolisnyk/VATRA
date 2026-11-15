@@ -644,7 +644,7 @@ assert.ok(auth.includes('const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account"
  auth.includes('const allowed=new Set(["email","magiclink","invite","email_change"])')&&
  auth.includes('auth.auth.verifyOtp({token_hash:tokenHash,type:"recovery"})')&&
  auth.includes('history.replaceState(history.state,"",location.pathname)')&&
- signupTemplate.split('token_hash={{ .TokenHash }}').length===3&&
+ signupTemplate.split('token_hash={{ .TokenHash }}').length===9&&
  !signupTemplate.includes('href="{{ .ConfirmationURL }}"'),
  "Cross-device confirmation must verify a one-time token; remembered account stores no password");
 // Mobile-friendly email links are verified by the intended action, not the PKCE
@@ -657,7 +657,8 @@ for(const [template,target,type] of [
  ["email-change.html","verify","email_change"]
 ]){
  const source=await read("email-templates/"+template);
- assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
+ const expectedLocales=["confirmation.html","recovery.html"].includes(template)?8:2;
+ assert.equal(source.split('token_hash={{ .TokenHash }}').length,expectedLocales+1,
   "Every language variant needs a cross-device link: "+template);
  assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
   "Wrong token type or destination: "+template);
@@ -701,8 +702,9 @@ for(const [filename,route,type] of [
  ["recovery.html","reset","recovery"]
 ]){
  const source=await read("email-templates/"+filename);
- assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
-  filename+": both locale branches must use the same direct confirmation URL");
+ const localeCount=["confirmation.html","recovery.html"].includes(filename)?8:2;
+ assert.equal(source.split('token_hash={{ .TokenHash }}').length,localeCount+1,
+  filename+": every locale branch must use the same direct confirmation URL");
  assert.ok(source.includes(route+'?token_hash={{ .TokenHash }}&amp;type='+type),
   filename+": wrong token type or callback");
 }
