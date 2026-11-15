@@ -569,7 +569,7 @@ try{
   "Language dialog shell must stay still and only its content may rise");
  assert.equal(await page.locator(".language-option").count(),32,"Language directory count");
  for(const code of ["sk","hu","sr","zh"])
-  assert.equal(await page.locator('.language-option[data-lang="'+code+'"]').count(),0,
+  assert.equal(await page.locator(".vt-language-choice-"+code).count(),0,
    "Removed locale must not appear in VATRA: "+code);
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
