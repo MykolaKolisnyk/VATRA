@@ -358,6 +358,8 @@ function applyRemembered(element,email){
  const picture=new Image();
  picture.onload=()=>{
   if(!element.isConnected||getRemembered(email)!==url)return;
+  // A newer authenticated avatar must win over an older remembered image.
+  if(element.dataset.vatraHeaderUrl&&element.dataset.vatraHeaderUrl!==url)return;
   element.style.backgroundImage="url("+JSON.stringify(url)+")";
   element.classList.add("has-photo");element.textContent="";
   if(element.id==="feed-header-avatar"){
@@ -369,10 +371,13 @@ function applyRemembered(element,email){
   }
  };
  picture.onerror=()=>{
-  if(!element.isConnected)return;
-  if(element.dataset.vatraHeaderUrl!==url){
+  // This request may fail after a newer portrait has already been verified.
+  // Never erase the newer photo or its up-to-date remembered URL.
+  if(!element.isConnected||getRemembered(email)!==url)return;
+  if(element.dataset.vatraHeaderUrl===url){
    element.classList.remove("has-photo");
    element.style.removeProperty("background-image");
+   element.dataset.vatraHeaderUrl="";
   }
   cache(email,null);
  };
