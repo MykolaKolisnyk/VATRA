@@ -230,6 +230,7 @@ function show(){
   if(!replaying)saveState(localStorage,session.id,"paused",index);
  }
  if(mode==="tasks")renderTasks();
+ card.querySelector(".vt-tour-scroll-area-001").scrollTop=0;
  schedulePosition();
  next.focus({preventScroll:true});
 }
@@ -269,6 +270,8 @@ function build(){
  spotlight=node("div","vt-tour-spotlight-001");spotlight.hidden=true;
  spotlight.setAttribute("aria-hidden","true");
  card=node("section","vt-tour-card-001");
+ // Inset scrolling inside the rounded dialog, rather than along its outer border.
+ const scrollArea=node("div","vt-tour-scroll-area-001");
  const top=node("div","vt-tour-header-001");
  art=node("span","vt-tour-mascot-001");
  art.setAttribute("aria-hidden","true");
@@ -279,11 +282,11 @@ function build(){
  heading=node("h2","vt-tour-heading-001");heading.id="vatra-tour-title";
  description=node("p","vt-tour-description-001");description.id="vatra-tour-description";
  words.append(label,heading,description);
- top.append(art,words);card.append(top);
+ top.append(art,words);scrollArea.append(top);
  progress=node("p","vt-tour-progress-001");
  progress.setAttribute("role","progressbar");progress.setAttribute("aria-valuemin","0");
  progress.setAttribute("aria-label",tr("Прогрес знайомства"));
- card.append(progress);
+ scrollArea.append(progress);
  tasksBox=node("div","vt-tour-checklist-001");
  const meter=node("div","vt-tour-meter-001");
  const track=node("div","vt-tour-meter-track-001");
@@ -299,14 +302,15 @@ function build(){
   row.append(marker,title,status);tasksBox.append(row);
   taskRows.push({row,marker,title,status});
  }
- card.append(tasksBox);
+ scrollArea.append(tasksBox);
  const actions=node("div","vt-tour-actions-001");
  prev=node("button","vt-tour-back-001");prev.type="button";prev.addEventListener("click",back);
  skip=node("button","vt-tour-skip-001");skip.type="button";skip.addEventListener("click",skipTour);
  refresh=node("button","vt-tour-refresh-001");refresh.type="button";
  refresh.addEventListener("click",()=>void checkTasks(true));
  next=node("button","vt-tour-next-001");next.type="button";next.addEventListener("click",proceed);
- actions.append(prev,skip,refresh,next);card.append(actions);
+ actions.append(prev,skip,refresh,next);scrollArea.append(actions);
+ card.append(scrollArea);
  root.append(shield,spotlight,card);document.body.append(root);
 }
 function renderTasks(){
