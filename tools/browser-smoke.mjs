@@ -548,6 +548,12 @@ try{
  if(hoveredBox)await page.mouse.move(hoveredBox.x+hoveredBox.width/2,hoveredBox.y+30);
  assert.equal(await page.locator(".language-scroll-track").evaluate(el=>getComputedStyle(el).backgroundColor),
   "rgba(0, 0, 0, 0)","Hover must not create a scrollbar track background");
+ // No idle timer while the mouse stays in the language form.
+ await page.waitForTimeout(1150);
+ assert.equal(await page.locator(".language-scroll-track").evaluate(el=>
+  el.classList.contains("is-visible")),true,
+  "Language thumb must stay visible while mouse is inside the form");
+ await page.mouse.move(2,2);
  await page.waitForFunction(()=>{
   const track=document.querySelector(".language-scroll-track");
   return track&&!track.classList.contains("is-visible")&&parseFloat(getComputedStyle(track).opacity)<.08;
@@ -571,6 +577,31 @@ try{
  await localizedSignup.goto(base+"create-account.html",{waitUntil:"domcontentloaded"});
  await waitReady(localizedSignup);
  await localizedSignup.waitForFunction(()=>document.documentElement.lang==="en");
+ // Opera/Chromium birthday dropdowns should never show the tiny native
+ // up/down scrollbar arrows, and the graphite thumb follows pointer presence.
+ await localizedSignup.locator(".vt-select-trigger-birth-day").click();
+ const dateList=localizedSignup.locator(".ui-select-options-birth-day");
+ await dateList.waitFor({state:"visible"});
+ await dateList.hover();
+ await localizedSignup.waitForFunction(()=>document.querySelector(
+  ".ui-select-options-birth-day")?.classList.contains("vatra-form-scroll-active"));
+ const dateStyle=await dateList.evaluate(el=>({
+  track:getComputedStyle(el,"::-webkit-scrollbar-track").backgroundColor,
+  arrow:getComputedStyle(el,"::-webkit-scrollbar-button").display,
+  active:el.classList.contains("vatra-form-scroll-active"),
+  scrollable:el.scrollHeight>el.clientHeight
+ }));
+ assert.equal(dateStyle.scrollable,true,"Date dropdown should remain scrollable");
+ assert.equal(dateStyle.active,true,"Date scrollbar must show while mouse is inside");
+ if(await localizedSignup.evaluate(()=>CSS.supports("selector(::-webkit-scrollbar)")))
+  assert.equal(dateStyle.arrow,"none","Native date dropdown arrows must be hidden");
+ await localizedSignup.waitForTimeout(1150);
+ assert.equal(await dateList.evaluate(el=>el.classList.contains("vatra-form-scroll-active")),
+  true,"Date scrollbar should stay visible while pointer remains inside");
+ await localizedSignup.mouse.move(2,2);
+ await localizedSignup.waitForFunction(()=>!document.querySelector(
+  ".ui-select-options-birth-day")?.classList.contains("vatra-form-scroll-active"));
+ await localizedSignup.keyboard.press("Escape");
  assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#communities","#photos","#videos","#music","#marketplace","#clips"],
   "The registration hashtags must be translated into English");
  await localizedSignup.close();
