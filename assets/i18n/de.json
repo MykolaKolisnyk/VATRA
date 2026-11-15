@@ -15,7 +15,8 @@
       "terms",
       "privacy",
       "cookies"
-    ]
+    ],
+    "legal_review_complete": false
   },
   "__pages": {
     "404": {
@@ -56,7 +57,7 @@
         },
         "n18": {
           "text": {
-            "0": "Українська"
+            "0": "Deutsch"
           },
           "attrs": {
             "aria-label": "Sprache wählen"
