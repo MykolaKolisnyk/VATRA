@@ -533,6 +533,16 @@ try{
  await page.locator("[data-language-trigger]").click();
  const dialog=page.locator(".language-dialog");
  await dialog.waitFor({state:"visible"});
+ // Eight choices fit on ordinary desktops. The rail should disappear if
+ // there is no overflow, yet remain usable in genuinely compact dialogs.
+ await page.locator(".language-scroll-shell").evaluate(shell=>{
+  shell.style.flex="0 0 150px";shell.style.height="150px";
+  shell.style.maxHeight="150px";
+ });
+ await page.waitForFunction(()=>{
+  const list=document.querySelector(".language-grid"),rail=document.querySelector(".language-scroll-track");
+  return list&&rail&&list.scrollHeight>list.clientHeight+2&&!rail.hidden;
+ });
  const scrollbarStyle=await page.locator(".language-scroll-track").evaluate(track=>({
   track:getComputedStyle(track).backgroundColor,
   thumb:getComputedStyle(track.querySelector(".language-scroll-thumb")).backgroundColor,
