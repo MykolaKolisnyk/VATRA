@@ -880,9 +880,9 @@ try{
     backInside:(()=>{
      const row=document.querySelector(".signup-form-overline").getBoundingClientRect();
      const labels=document.querySelector(".signup-overline-labels").getBoundingClientRect();
-     const step=document.querySelector('[data-step-label="1"]').getBoundingClientRect();
+     const kicker=document.querySelector(".signup-form-kicker").getBoundingClientRect();
      return nav.top>=row.top-2&&nav.bottom<=row.bottom+2&&nav.right<=form.right+1&&
-      labels.left<step.right&&(nav.top>=labels.bottom-2||labels.right<=nav.left+2)&&nav.top>=form.top;
+      labels.left<kicker.right&&(nav.top>=labels.bottom-2||labels.right<=nav.left+2)&&nav.top>=form.top;
     })(),
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
     centerDelta:Math.abs((main.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
@@ -892,11 +892,8 @@ try{
   assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.brandKickerAbsent&&layout.footerAligned,"Registration footer or brand label is misaligned at "+width+": "+JSON.stringify(layout));
   assert.equal(layout.authAnimation,"vatraAuthReveal","Whole registration form must animate like sign-in");
-  const stepAppearance=await signup.locator('[data-step-label="1"]').evaluate(el=>({
-   background:getComputedStyle(el).backgroundImage,fontSize:getComputedStyle(el).fontSize
-  }));
-  assert.ok(stepAppearance.background.includes("linear-gradient")&&stepAppearance.fontSize==="12px",
-   "Signup step label should share the progress bar gradient and original size at "+width);
+  assert.equal(await signup.locator("[data-step-label]").count(),0,
+   "Signup must not duplicate the progress bar with visible step labels");
   assert.equal(layout.stageAnimation,"none","Only the full registration form should animate at entry");
   assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backInside,
    "Signup return link must be inside the right registration card at "+width+": "+JSON.stringify(layout));
@@ -1011,7 +1008,7 @@ try{
  assert.ok(secondStageMotion.content==="vatraAuthReveal"&&
   ["shell","heading","fields","logoPanel"].every(key=>secondStageMotion[key]==="none")&&
   secondStageMotion.includesTitle&&secondStageMotion.includesProgress&&secondStageMotion.includesFields,
-  "On signup step two, headline, step indicator, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
+  "On signup step two, headline, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
  await stepTwo.locator("#create-account-back").click();
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=2);
  assert.equal(await stepTwo.locator('.signup-step[data-create-account-step="1"]').isVisible(),true);
