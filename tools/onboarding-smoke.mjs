@@ -56,7 +56,7 @@ assert.equal(saveState(store,"654321","done",7),true);
 assert.equal(readState(store,"654321").status,"done");
 assert.equal(readState(store,"789012").status,"skipped");
 backing.set(storedKey("789012"),JSON.stringify({status:"paused",step:100000}));
-assert.equal(readState(store,"789012").step,7,"Invalid stored step must be clamped");
+assert.equal(readState(store,"789012").step,13,"Invalid stored step must be clamped");
 backing.set(storedKey("789012"),"{bad json}");
 assert.equal(readState(store,"789012"),null);
 assert.equal(saveState(store,"bad/id","done",0),false);
@@ -81,6 +81,27 @@ assert.ok(!html.includes('id="vatra-onboarding-replay"'),
  "Shared header must be identical on all member pages");
 assert.ok(css.includes("@media(prefers-reduced-motion:reduce)"));
 assert.ok(css.includes(".vt-tour-spotlight-001"));
+assert.ok(css.includes("transition:left .36s")&&css.includes("transition:left .35s"),
+ "Spotlight and card must move smoothly instead of jumping");
+assert.ok(source.includes('art=node("span","vt-tour-mascot-001")')&&
+ source.includes('event.preventDefault()')&&
+ !source.includes('art=node("img","vt-tour-mascot-001")'),
+ "Vatryk must be decorative and not draggable");
+const route=[...source.matchAll(/\{selector:"([^"]+)"/g)].map(match=>match[1]);
+assert.deepEqual(Array.from(route),[
+ "#feed-search-form",".ui-social-top-feed-001",".ui-social-top-friends-001",
+ ".ui-social-top-communities-001",".ui-social-top-clips-001",
+ ".ui-social-top-marketplace-001",".ui-shell-header-messenger-001",
+ ".ui-feed-notifications-button-001",".ui-feed-music-button-001",
+ ".feed-account-toggle",".feed-account-toggle","#feed-filter-toggle",
+ "#feed-compose-open","#feed-create-story"
+],"All sections must be introduced in real header order, then Feed controls");
+for(const selector of new Set(route)){
+ if(selector.startsWith("#"))
+  assert.ok(html.includes('id="'+selector.slice(1)+'"'),"Missing tour target "+selector);
+ else assert.ok(html.includes(selector.slice(1)),"Missing tour target "+selector);
+}
+assert.ok(css.includes("--vt-tour-pointer-x"),"Anchored cards must point to their highlights");
 
 // Every Ukrainian original string used in onboarding must have an English
 // localization through the existing dictionary, not a new HTTP fetch.

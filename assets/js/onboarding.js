@@ -3,15 +3,23 @@
 "use strict";
 const KEY="vatra.onboarding.v1.member.",MAX_AGE_MS=30*24*60*60*1000;
 const ART="/VATRA/assets/vatryk/";
+// Follow the real header from left to right, then move down through Feed.
+// Coming-soon sections remain discoverable without implying they are live.
 const steps=[
- {selector:".ui-social-top-feed-001",title:"Твоя стрічка",detail:"Тут з’являються історії та дописи людей, за якими ти стежиш.",art:"vatryk_waiting.png"},
- {selector:"#feed-compose-open",title:"Розкажи свою історію",detail:"Створи допис із текстом, фото або відео. Нічого не публікується без твого підтвердження.",art:"vatryk_explanation.png"},
- {selector:".feed-account-toggle",title:"Твоя сторінка",detail:"У меню акаунта знайдеш профіль. Додай аватар, обкладинку та розкажи про себе.",art:"vatryk_explanation.png"},
- {selector:"#feed-search-form",title:"Знайди своїх людей",detail:"Пошук допоможе знайти людей, спільноти й цікаві дописи.",art:"vatryk_explanation.png"},
- {selector:".ui-social-top-friends-001",title:"Друзі",detail:"Заявки в друзі можна надсилати зі сторінок людей. Окремий розділ друзів ще розробляється.",art:"vatryk_waiting.png"},
- {selector:".ui-social-top-communities-001",title:"Спільноти",detail:"Приєднуйся до спільнот, які відповідають твоїм інтересам.",art:"vatryk_explanation.png"},
- {selector:".ui-feed-notifications-button-001",title:"Сповіщення",detail:"Тут можна переглядати нові події у VATRA.",art:"vatryk_explanation.png"},
- {selector:".feed-account-toggle",title:"Приватність під твоїм контролем",detail:"На своїй сторінці можна керувати видимістю профілю та взаємодією з іншими.",art:"vatryk_explanation.png"}
+ {selector:"#feed-search-form",title:"Пошук у VATRA",detail:"Шукай людей, спільноти та цікаві публікації за назвою або словами.",art:"vatryk_explanation.png"},
+ {selector:".ui-social-top-feed-001",title:"Твоя стрічка",detail:"Тут з’являються дописи й історії людей, за якими ти стежиш.",art:"vatryk_waiting.png"},
+ {selector:".ui-social-top-friends-001",title:"Друзі",detail:"Надсилай заявки зі сторінок людей. Окремий розділ друзів ще розробляється.",art:"vatryk_explanation.png"},
+ {selector:".ui-social-top-communities-001",title:"Спільноти",detail:"Знаходь однодумців і приєднуйся до спільнот за інтересами.",art:"vatryk_explanation.png"},
+ {selector:".ui-social-top-clips-001",title:"Кліпи",detail:"Тут з’являться короткі відео. Розділ готується до запуску.",art:"vatryk_waiting.png"},
+ {selector:".ui-social-top-marketplace-001",title:"Маркетплейс",detail:"Тут можна буде знаходити й пропонувати товари. Розділ у розробці.",art:"vatryk_waiting.png"},
+ {selector:".ui-shell-header-messenger-001",title:"Повідомлення",detail:"Тут буде повноцінне особисте листування. Месенджер ще розробляється.",art:"vatryk_waiting.png"},
+ {selector:".ui-feed-notifications-button-001",title:"Сповіщення",detail:"Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.",art:"vatryk_explanation.png"},
+ {selector:".ui-feed-music-button-001",title:"Музика",detail:"Тут з’явиться музичний простір VATRA. Функція ще в розробці.",art:"vatryk_waiting.png"},
+ {selector:".feed-account-toggle",title:"Твій профіль",detail:"У меню акаунта відкрий свою сторінку, щоб додати фото, обкладинку й інформацію про себе.",art:"vatryk_explanation.png"},
+ {selector:".feed-account-toggle",title:"Приватність",detail:"У профілі можна керувати видимістю сторінки та взаємодією з іншими.",art:"vatryk_explanation.png"},
+ {selector:"#feed-filter-toggle",title:"Фільтр стрічки",detail:"Обирай, які публікації переглядати: усі, від друзів чи зі спільнот.",art:"vatryk_explanation.png"},
+ {selector:"#feed-compose-open",title:"Створи перший допис",detail:"Додай текст, фото чи відео. Нічого не публікується без твого підтвердження.",art:"vatryk_explanation.png"},
+ {selector:"#feed-create-story",title:"Твої історії",detail:"Поділися моментом у короткій історії. Історії зникають через 24 години.",art:"vatryk_success.png"}
 ];
 const tasks=[
  {title:"Додай фотографію профілю",page:"profile",key:"avatar"},
@@ -65,6 +73,7 @@ let session=null,root=null,card=null,spotlight=null,art=null,label=null;
 let heading=null,description=null,progress=null,prev=null,next=null,skip=null;
 let tasksBox=null,taskStatus=null,refresh=null,taskRows=[],mode="welcome",index=0;
 let replaying=false,lastFocus=null,raf=0,authSubscription=null;
+let positionedIndex=-1;
 let checkedAt=0,checking=null,results=null;
 const home=()=>new URL("./",location.href);
 function stop(){
@@ -74,9 +83,10 @@ function stop(){
  document.removeEventListener("keydown",onKeydown,true);
  window.removeEventListener("resize",schedulePosition);
  window.removeEventListener("scroll",schedulePosition,true);
+ window.visualViewport?.removeEventListener("resize",schedulePosition);
  authSubscription?.unsubscribe?.();authSubscription=null;
  card=null;spotlight=null;art=null;session=null;checking=null;results=null;
- replaying=false;checkedAt=0;taskRows=[];
+ replaying=false;checkedAt=0;taskRows=[];positionedIndex=-1;
  if(lastFocus?.isConnected&&typeof lastFocus.focus==="function")lastFocus.focus();
  lastFocus=null;
 }
@@ -86,7 +96,9 @@ function hide(){
  document.removeEventListener("keydown",onKeydown,true);
  window.removeEventListener("resize",schedulePosition);
  window.removeEventListener("scroll",schedulePosition,true);
+ window.visualViewport?.removeEventListener("resize",schedulePosition);
  spotlight.hidden=true;
+ positionedIndex=-1;
  if(lastFocus?.isConnected&&typeof lastFocus.focus==="function")lastFocus.focus();
  lastFocus=null;
 }
@@ -114,28 +126,55 @@ function schedulePosition(){
 }
 function position(){
  if(!root||root.hidden||!card)return;
- if(mode!=="tour"){spotlight.hidden=true;card.style.removeProperty("left");
-  card.style.removeProperty("top");card.classList.remove("vt-tour-anchored-001");return;}
+ const vw=window.innerWidth,vh=window.innerHeight,edge=14,gap=16;
+ if(mode!=="tour"){
+  spotlight.hidden=true;card.classList.remove("vt-tour-anchored-001");
+  card.removeAttribute("data-placement");
+  const box=card.getBoundingClientRect();
+  card.style.left=Math.max(edge,(vw-box.width)/2)+"px";
+  card.style.top=Math.max(edge,(vh-box.height)/2)+"px";
+  return;
+ }
  const anchor=document.querySelector(steps[index]?.selector);
  if(!anchor||!anchor.getClientRects().length){
   spotlight.hidden=true;card.classList.remove("vt-tour-anchored-001");
-  card.style.removeProperty("left");card.style.removeProperty("top");
-  root.dataset.stage="fallback";return;
+  root.dataset.stage="fallback";
+  card.style.left=Math.max(edge,(vw-card.getBoundingClientRect().width)/2)+"px";
+  card.style.top=Math.max(edge,(vh-card.getBoundingClientRect().height)/2)+"px";
+  return;
  }
- const rect=anchor.getBoundingClientRect(),edge=12,margin=13;
- const width=Math.min(390,innerWidth-24),height=card.getBoundingClientRect().height||310;
+ if(positionedIndex!==index){
+  positionedIndex=index;
+  const initial=anchor.getBoundingClientRect();
+  if(initial.top<edge||initial.bottom>vh-edge||initial.left<0||initial.right>vw){
+   const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+   anchor.scrollIntoView?.({behavior:reduced?"instant":"smooth",block:"center",inline:"nearest"});
+  }
+ }
+ const rect=anchor.getBoundingClientRect();
+ if(rect.bottom<=0||rect.top>=vh||rect.right<=0||rect.left>=vw){
+  spotlight.hidden=true;return;
+ }
+ root.dataset.stage="tour";
+ // Measure the actual visible rectangle, including clipped controls on phones.
+ const left=Math.max(3,rect.left-5),top=Math.max(3,rect.top-5);
+ const right=Math.min(vw-3,rect.right+5),bottom=Math.min(vh-3,rect.bottom+5);
  spotlight.hidden=false;
- const left=Math.max(0,rect.left-5),top=Math.max(0,rect.top-5);
- spotlight.style.left=left+"px";spotlight.style.top=top+"px";
- spotlight.style.width=Math.min(innerWidth-left,rect.width+10)+"px";
- spotlight.style.height=Math.min(innerHeight-top,rect.height+10)+"px";
- const cardLeft=Math.max(edge,Math.min(innerWidth-width-edge,
-  rect.left+rect.width/2-width/2));
- const below=rect.bottom+margin,above=rect.top-height-margin;
- const cardTop=below+height<=innerHeight-edge?below:
-  above>=edge?above:Math.max(edge,(innerHeight-height)/2);
- card.style.left=cardLeft+"px";card.style.top=cardTop+"px";
+ spotlight.style.left=Math.min(left,vw-3)+"px";
+ spotlight.style.top=Math.min(top,vh-3)+"px";
+ spotlight.style.width=Math.max(2,right-left)+"px";
+ spotlight.style.height=Math.max(2,bottom-top)+"px";
  card.classList.add("vt-tour-anchored-001");
+ const width=card.getBoundingClientRect().width,height=card.getBoundingClientRect().height;
+ const cardLeft=Math.max(edge,Math.min(vw-width-edge,rect.left+rect.width/2-width/2));
+ const below=rect.bottom+gap,above=rect.top-height-gap;
+ const placement=below+height<vh-edge?"below":above>=edge?"above":"center";
+ const cardTop=placement==="below"?below:placement==="above"?above:
+  Math.max(edge,Math.min(vh-height-edge,(vh-height)/2));
+ card.dataset.placement=placement;
+ card.style.setProperty("--vt-tour-pointer-x",
+  Math.max(22,Math.min(width-22,rect.left+rect.width/2-cardLeft))+"px");
+ card.style.left=cardLeft+"px";card.style.top=cardTop+"px";
 }
 function activate(nextMode,nextIndex=index){
  if(!session)return;
@@ -153,6 +192,7 @@ function show(){
   document.addEventListener("keydown",onKeydown,true);
   window.addEventListener("resize",schedulePosition);
   window.addEventListener("scroll",schedulePosition,true);
+  window.visualViewport?.addEventListener("resize",schedulePosition);
  }
  tasksBox.hidden=mode!=="tasks";
  progress.hidden=mode!=="tour";
@@ -162,11 +202,11 @@ function show(){
  card.classList.toggle("vt-tour-tasks-001",mode==="tasks");
  card.classList.toggle("vt-tour-intro-001",mode==="welcome"||mode==="goodbye");
  const current=steps[index];
- art.src=ART+(mode==="welcome"?"vatryk_welcome.png":
+ const imageName=mode==="welcome"?"vatryk_welcome.png":
   mode==="goodbye"?"vatryk_goodbye.png":
   mode==="tasks"?(results?.every(Boolean)?"vatryk_success.png":"vatryk_waiting.png"):
-  current.art);
- art.alt=tr("Ватрик — помічник VATRA");
+  current.art;
+ art.style.backgroundImage="url("+JSON.stringify(ART+imageName)+")";
  label.textContent=mode==="tour"?tr("Крок")+" "+(index+1)+" / "+steps.length:
   mode==="tasks"?tr("Твій початок у VATRA"):tr("Знайомство з VATRA");
  heading.textContent=mode==="welcome"?tr("Привіт! Ласкаво просимо до VATRA!"):
@@ -184,6 +224,9 @@ function show(){
  refresh.textContent=tr("Оновити прогрес");
  if(mode==="tour"){
   progress.textContent=tr("Крок")+" "+(index+1)+" "+tr("із")+" "+steps.length;
+  progress.style.setProperty("--vt-tour-progress",((index+1)/steps.length*100)+"%");
+  progress.setAttribute("aria-valuenow",String(index+1));
+  progress.setAttribute("aria-valuemax",String(steps.length));
   if(!replaying)saveState(localStorage,session.id,"paused",index);
  }
  if(mode==="tasks")renderTasks();
@@ -227,14 +270,20 @@ function build(){
  spotlight.setAttribute("aria-hidden","true");
  card=node("section","vt-tour-card-001");
  const top=node("div","vt-tour-header-001");
- art=node("img","vt-tour-mascot-001");art.decoding="async";art.width=168;art.height=168;
+ art=node("span","vt-tour-mascot-001");
+ art.setAttribute("aria-hidden","true");
+ art.addEventListener("dragstart",event=>event.preventDefault());
+ art.addEventListener("contextmenu",event=>event.preventDefault());
  label=node("p","vt-tour-eyebrow-001");
  const words=node("div","vt-tour-words-001");
  heading=node("h2","vt-tour-heading-001");heading.id="vatra-tour-title";
  description=node("p","vt-tour-description-001");description.id="vatra-tour-description";
  words.append(label,heading,description);
  top.append(art,words);card.append(top);
- progress=node("p","vt-tour-progress-001");card.append(progress);
+ progress=node("p","vt-tour-progress-001");
+ progress.setAttribute("role","progressbar");progress.setAttribute("aria-valuemin","0");
+ progress.setAttribute("aria-label",tr("Прогрес знайомства"));
+ card.append(progress);
  tasksBox=node("div","vt-tour-checklist-001");
  const meter=node("div","vt-tour-meter-001");
  const track=node("div","vt-tour-meter-track-001");
@@ -282,7 +331,7 @@ function renderTasks(){
  }
  if(mode==="tasks"){
   const desired=results?.every(Boolean)?"vatryk_success.png":"vatryk_waiting.png";
-  if(!art.src.endsWith(desired))art.src=ART+desired;
+  art.style.backgroundImage="url("+JSON.stringify(ART+desired)+")";
  }
 }
 async function checkTasks(force=false){

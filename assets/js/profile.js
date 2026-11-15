@@ -718,6 +718,8 @@ function missingProfile(state="not-found"){
   blocked:t("Акаунт заблоковано","Account blocked")
  };
  const title=titles[state]||titles["not-found"];
+ // Use one layout for all three system-member states, never regular profile offsets.
+ document.body.dataset.vatraProfileUnavailable=state;
  const name=q("#profile-heading");
  if(name){name.removeAttribute("data-i18n");name.textContent=title;}
  const portrait=q("#profile-avatar"),wrap=q("#profile-avatar-wrap");
