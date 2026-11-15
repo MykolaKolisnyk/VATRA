@@ -1,6 +1,8 @@
 {
   "__translation_status": {
-    "complete_pages": [
+    "dynamic_strings_complete": false,
+    "email_templates_complete": false,
+    "translated_static_pages": [
       "index",
       "404",
       "feed",
@@ -10,9 +12,7 @@
       "create-account",
       "forgot",
       "reset"
-    ],
-    "dynamic_strings_complete": false,
-    "email_templates_complete": false
+    ]
   },
   "__pages": {
     "404": {
