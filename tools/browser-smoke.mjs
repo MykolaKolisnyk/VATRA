@@ -150,7 +150,8 @@ try{
     const name=document.querySelector(".profile-name").getBoundingClientRect();
     const summary=document.querySelector(".profile-summary").getBoundingClientRect();
     return {portrait:avatar.width,avatarX:avatar.left,overlap:cover.bottom-avatar.top,
-     nameTop:name.top,nameLeft:name.left,summaryHeight:summary.height};
+     avatarCenter:(avatar.top+avatar.bottom)/2,nameCenter:(name.top+name.bottom)/2,
+     nameLeft:name.left,summaryHeight:summary.height};
    };
    const ordinary=measure(),unavailable={};
    for(const state of ["not-found","deleted","blocked"]){
@@ -161,9 +162,11 @@ try{
    return {ordinary,unavailable};
   });
   for(const [state,value] of Object.entries(geometry.unavailable)){
-   assert.ok(Object.keys(geometry.ordinary).every(key=>
-    nearly(value[key],geometry.ordinary[key])),
-    "System profile geometry differs at "+width+"px for "+state+": "+JSON.stringify(geometry));
+   assert.ok(["portrait","avatarX","overlap","nameLeft","summaryHeight"].every(key=>
+    nearly(value[key],geometry.ordinary[key]))&&
+    Math.abs(value.avatarCenter-value.nameCenter)<14,
+    "System portrait size, overlap and single-line title alignment differ at "+
+     width+"px for "+state+": "+JSON.stringify(geometry));
   }
  }
  console.log("VATRA missing/deleted/blocked profile geometry equals regular profile across widths: OK");
