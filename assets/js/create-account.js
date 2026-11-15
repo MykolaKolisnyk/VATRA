@@ -85,8 +85,6 @@ function wireCreateAccountWizard(){
   second.hidden=step!==2;
   for(const header of document.querySelectorAll("[data-step-heading]"))
    header.hidden=Number(header.dataset.stepHeading)!==step;
-  for(const label of document.querySelectorAll("[data-step-label]"))
-   label.hidden=Number(label.dataset.stepLabel)!==step;
   progress.setAttribute("aria-valuenow",String(step));
   if(animate)replayAuthContent(q(".signup-form-panel .narrow-form"));
   // Previous input values and any inline errors are retained when going back.
