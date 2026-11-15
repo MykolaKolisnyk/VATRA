@@ -567,7 +567,10 @@ try{
   modalAnimations.content.includes("vatraAuthReveal")&&
   modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
   "Language dialog shell must stay still and only its content may rise");
- assert.equal(await page.locator(".language-option").count(),36,"Language directory count");
+ assert.equal(await page.locator(".language-option").count(),32,"Language directory count");
+ for(const code of ["sk","hu","sr","zh"])
+  assert.equal(await page.locator('.language-option[data-lang="'+code+'"]').count(),0,
+   "Removed locale must not appear in VATRA: "+code);
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
  await page.waitForFunction(()=>document.documentElement.lang==="en");
@@ -1194,7 +1197,7 @@ try{
    "Search clear X must be centered and accessible: "+route+" "+JSON.stringify(pos));
   await clear.click();
   assert.equal(await search.inputValue(),"","Clearing search must remove input text "+route);
-  assert.equal(await probe.locator(".language-option:not([hidden])").count(),36,
+  assert.equal(await probe.locator(".language-option:not([hidden])").count(),32,
    "Clearing search must restore all languages "+route);
   assert.equal(await clear.isVisible(),false,"Clear button hides when search empty "+route);
   await probe.close();
