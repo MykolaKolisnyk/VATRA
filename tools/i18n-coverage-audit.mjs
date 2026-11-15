@@ -18,6 +18,14 @@ const criticalEnd=dynamicKeys.indexOf("Зміна email до підтвердж�
 assert.ok(criticalStart>=0&&criticalEnd>criticalStart,"Missing dynamic status anchors in reference dictionary");
 const criticalMessages=dynamicKeys.slice(criticalStart,criticalEnd+1);
 assert.equal(criticalMessages.length,74,"Unexpected change in high-priority auth/status message set");
+// All first-visit Vatryk tour steps, controls, hints and milestone states
+// should be translated together, without partial Ukrainian tutorial content.
+const tourStart=dynamicKeys.indexOf("Твоя стрічка");
+const tourEnd=dynamicKeys.indexOf("Поділися моментом у короткій історії. Історії зникають через 24 години.");
+assert.ok(tourStart>=0&&tourEnd>=tourStart,"Missing tour anchors in reference dictionary");
+const tourMessages=dynamicKeys.slice(tourStart,tourEnd+1);
+assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translation group");
+
 
 const langJs=await readFile("assets/js/lang.js","utf8");
 
@@ -70,6 +78,15 @@ for(const code of codes){
  }
  assert.ok(unchanged<texts*0.08,
   code+": too many strings remain in source language ("+unchanged+"/"+texts+")");
+ let untranslatedTour=0;
+ for(const source of tourMessages){
+  const output=dictionary[source];
+  assert.ok(typeof output==="string"&&output.trim(),
+   code+": untranslated Vatryk tutorial text: "+source);
+  if(output.trim()===source.trim())untranslatedTour++;
+ }
+ assert.ok(untranslatedTour<tourMessages.length*0.05,
+  code+": too much Ukrainian text in Vatryk tutorial: "+untranslatedTour);
  let untranslatedCritical=0;
  for(const source of criticalMessages){
   const output=dictionary[source];
