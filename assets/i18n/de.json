@@ -12,7 +12,8 @@
       "create-account",
       "forgot",
       "reset",
-      "terms"
+      "terms",
+      "privacy"
     ]
   },
   "__pages": {
@@ -1671,6 +1672,366 @@
           }
         }
       }
+    },
+    "privacy": {
+      "meta": {
+        "title": "Datenschutz · VATRA",
+        "description": "Datenschutzerklärung von VATRA, dem ukrainischen sozialen Netzwerk. So werden personenbezogene Daten verarbeitet.",
+        "og:locale": "de_DE",
+        "og:title": "Datenschutz — VATRA",
+        "og:description": "VATRA-Datenschutzerklärung: Umgang mit personenbezogenen Daten."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Zum Inhalt springen"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA – Startseite"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Anmelden"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Konto erstellen"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Dokumentabschnitte"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Nutzungsbedingungen"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Datenschutz"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Datenschutz"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Wie VATRA Ihre Kontodaten verarbeitet, warum diese benötigt werden und wie Sie sie verwalten können."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Aktualisiert am 11. November 2026"
+          }
+        },
+        "n21": {
+          "attrs": {
+            "aria-label": "Inhaltsverzeichnis"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Auf dieser Seite"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Über Ihre Privatsphäre"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Welche Daten verarbeitet werden"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Warum Ihre Daten benötigt werden"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "Wer technische Daten erhält"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Speicherung und Löschung"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Ihre Rechte"
+          }
+        },
+        "n30": {
+          "text": {
+            "0": "Schutz der Informationen"
+          }
+        },
+        "n31": {
+          "text": {
+            "0": "Verantwortliche Stelle und Änderungen"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Inhaltsverzeichnis"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Über Ihre Privatsphäre"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "Welche Daten verarbeitet werden"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Warum Ihre Daten benötigt werden"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Wer technische Daten erhält"
+          }
+        },
+        "n40": {
+          "text": {
+            "0": "Speicherung und Löschung"
+          }
+        },
+        "n41": {
+          "text": {
+            "0": "Ihre Rechte"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Schutz der Informationen"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Verantwortliche Stelle und Änderungen"
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "Über Ihre Privatsphäre"
+          }
+        },
+        "n47": {
+          "text": {
+            "0": "Diese Richtlinie beschreibt, welche Daten VATRA beim Besuch der Website, bei der Kontoerstellung, Anmeldung und Passwortwiederherstellung verarbeitet. VATRA verarbeitet nur Informationen, die für die verfügbaren Funktionen des Dienstes erforderlich sind."
+          }
+        },
+        "n48": {
+          "text": {
+            "0": "Ihre Registrierungsdaten werden nicht an Werbetreibende verkauft; die Seiten von VATRA verwenden keine Werbepixel zur Profilbildung."
+          }
+        },
+        "n50": {
+          "text": {
+            "0": "Welche Daten verarbeitet werden"
+          }
+        },
+        "n52": {
+          "text": {
+            "0": " Vorname, Nachname, Geburtsdatum und E-Mail-Adresse; Geschlecht nach Ihrer Wahl."
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Konto:"
+          }
+        },
+        "n54": {
+          "text": {
+            "0": " Nutzerkennung, Sitzungsinformationen und technische Anmeldeprotokolle."
+          }
+        },
+        "n55": {
+          "text": {
+            "0": "Authentifizierung:"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": " IP-Adresse, Browserinformationen und Anfragedaten, die Hosting- und Authentifizierungsserver empfangen."
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Technische Angaben:"
+          }
+        },
+        "n58": {
+          "text": {
+            "0": " Sitzungsdaten und nach der Anmeldung Name und E-Mail-Adresse zur Anzeige des gespeicherten Kontos auf diesem Gerät; das Passwort wird hierfür nicht gespeichert."
+          }
+        },
+        "n59": {
+          "text": {
+            "0": "Browserdaten:"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "Sie müssen im Registrierungsformular von VATRA weder eine Telefonnummer noch Zahlungsdaten angeben."
+          }
+        },
+        "n62": {
+          "text": {
+            "0": "Warum Ihre Daten benötigt werden"
+          }
+        },
+        "n63": {
+          "text": {
+            "0": "Die E-Mail-Adresse wird zur Bestätigung der Registrierung, Anmeldung und Passwortwiederherstellung benötigt und kann für sicherheitsbezogene Mitteilungen verwendet werden. Vor- und Nachname aus der Registrierung werden anderen Mitgliedern im VATRA-Profil und bei Beiträgen angezeigt. Geburtsdatum, E-Mail-Adresse und Geschlecht werden nicht öffentlich angezeigt. Die Angabe des Geschlechts ist freiwillig: Sie können eine Option wählen oder „Keine Angabe“ auswählen. Die übrigen Informationen dienen der Kontoerstellung, Anmeldeprüfung und dem Schutz vor unbefugtem Zugriff."
+          }
+        },
+        "n64": {
+          "text": {
+            "0": "Rechtsgrundlagen der Verarbeitung können die Erfüllung der Nutzungsbedingungen, gesetzliche Pflichten, notwendige Sicherheitsmaßnahmen oder Ihre Einwilligung sein – abhängig von Art der Daten und Umständen."
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Wer technische Daten erhält"
+          }
+        },
+        "n67": {
+          "text": {
+            "0": "VATRA nutzt Dienstleister für Authentifizierung, Website-Hosting und die Bereitstellung technischer Ressourcen. Dabei können Anbieter erforderliche technische Anfragedaten wie IP-Adresse und Browserinformationen verarbeiten. Informationen über die Anbieter und die Datenverarbeitung erhalten Sie unter "
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Ihr Passwort wird über HTTPS an den Authentifizierungsdienst übertragen und nicht im öffentlichen HTML oder JavaScript der Website gespeichert. Übermittlung und Speicherung von Daten können von der Infrastruktur des jeweiligen Dienstleisters abhängen."
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "Speicherung und Löschung"
+          }
+        },
+        "n72": {
+          "text": {
+            "0": "Kontodaten werden so lange aufbewahrt, wie dies zur Kontoverwaltung oder zur Erfüllung gesetzlicher Pflichten erforderlich ist. Sitzungsdaten im Browser können Sie über die Browsereinstellungen löschen; die Abmeldung von VATRA beendet die lokale Sitzung."
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Die genauen Aufbewahrungsfristen technischer Protokolle hängen von den Einstellungen der Dienste und Anbieter ab. Für die Löschung Ihres Kontos oder personenbezogener Daten schreiben Sie an vatra.support@gmail.com. Vor der Bearbeitung kann ein Nachweis über die Kontoinhaberschaft erforderlich sein."
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "Ihre Rechte"
+          }
+        },
+        "n76": {
+          "text": {
+            "0": "Je nach anwendbarem Recht können Sie Auskunft über Ihre Daten verlangen, deren Berichtigung oder Löschung beantragen, bestimmten Verarbeitungen widersprechen, eine Einwilligung widerrufen, soweit sie die Rechtsgrundlage bildet, und sich an zuständige Behörden wenden."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "In der Ukraine werden diese Rechte insbesondere durch das ",
+            "1": "geregelt. Für Nutzer im Europäischen Wirtschaftsraum kann auch die DSGVO gelten."
+          }
+        },
+        "n78": {
+          "text": {
+            "0": "Gesetz zum Schutz personenbezogener Daten"
+          }
+        },
+        "n80": {
+          "text": {
+            "0": "Schutz der Informationen"
+          }
+        },
+        "n81": {
+          "text": {
+            "0": "Für die Anmeldung werden HTTPS und ein geschütztes Authentifizierungssystem eingesetzt. Verwenden Sie ein einzigartiges Passwort, geben Sie Bestätigungscodes nicht weiter und melden Sie sich auf gemeinsam genutzten Geräten ab."
+          }
+        },
+        "n82": {
+          "text": {
+            "0": "Kein technisches System kann ein Nullrisiko garantieren. Wenn Sie verdächtige Aktivitäten bemerken, ändern Sie Ihr Passwort über die vorhandene Wiederherstellungsfunktion."
+          }
+        },
+        "n84": {
+          "text": {
+            "0": "Verantwortliche Stelle und Änderungen"
+          }
+        },
+        "n85": {
+          "text": {
+            "0": " Микола Колісник, eine natürliche Person. Die verantwortliche Person bestimmt die Zwecke und Mittel der Verarbeitung personenbezogener Daten im Rahmen des Betriebs von VATRA."
+          }
+        },
+        "n86": {
+          "text": {
+            "0": "Verantwortliche Stelle für personenbezogene Daten bei VATRA:"
+          }
+        },
+        "n87": {
+          "text": {
+            "1": ". Unter dieser Adresse können Sie Auskunft, Berichtigung oder Löschung Ihrer Daten beantragen oder Datenschutzfragen stellen. Zum Schutz Ihrer Daten kann vor der Bearbeitung ein Nachweis der Kontoinhaberschaft nötig sein."
+          }
+        },
+        "n88": {
+          "text": {
+            "0": "Kontakt für personenbezogene Daten:"
+          }
+        },
+        "n90": {
+          "text": {
+            "0": "Änderungen der Verarbeitung personenbezogener Daten werden in einer aktualisierten Fassung dieser Richtlinie wiedergegeben. Über wesentliche Änderungen werden Nutzer informiert, soweit dies gesetzlich vorgeschrieben ist."
+          }
+        },
+        "n95": {
+          "text": {
+            "1": " · Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        },
+        "n97": {
+          "attrs": {
+            "aria-label": "Weitere Links"
+          }
+        },
+        "n102": {
+          "text": {
+            "0": "Deutsch"
+          },
+          "attrs": {
+            "aria-label": "Sprache wählen"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Anmelden"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Konto erstellen"
+          }
+        }
+      }
     }
   },
   "До збереженого акаунта": "Zum gespeicherten Konto",
@@ -1863,5 +2224,43 @@
   ", фізична особа. Для звернень щодо правил користування та питань конфіденційності напишіть на": ", eine natürliche Person. Bei Fragen zu den Nutzungsbedingungen und zum Datenschutz schreiben Sie an",
   ". Не надсилайте паролі, коди входу чи документи з персональними даними без окремої захищеної процедури.": ". Senden Sie Passwörter, Anmeldecodes oder Dokumente mit personenbezogenen Daten nur im Rahmen eines gesonderten sicheren Verfahrens.",
   "Микола Колісник": "Микола Колісник",
-  "Додаткові посилання": "Weitere Links"
+  "Додаткові посилання": "Weitere Links",
+  "Як VATRA обробляє дані Вашого акаунта, для чого вони потрібні та як Ви можете ними керувати.": "Wie VATRA Ihre Kontodaten verarbeitet, warum diese benötigt werden und wie Sie sie verwalten können.",
+  "Оновлено 11 листопада 2026 року": "Aktualisiert am 11. November 2026",
+  "Про Вашу приватність": "Über Ihre Privatsphäre",
+  "Які дані обробляються": "Welche Daten verarbeitet werden",
+  "Навіщо потрібні Ваші дані": "Warum Ihre Daten benötigt werden",
+  "Хто отримує технічні дані": "Wer technische Daten erhält",
+  "Зберігання та видалення": "Speicherung und Löschung",
+  "Ваші права": "Ihre Rechte",
+  "Захист інформації": "Schutz der Informationen",
+  "Відповідальна особа та зміни": "Verantwortliche Stelle und Änderungen",
+  "Ця політика описує, які дані обробляє VATRA під час відкриття сайту, створення акаунта, входу та відновлення пароля. VATRA обробляє лише інформацію, необхідну для доступних функцій сервісу.": "Diese Richtlinie beschreibt, welche Daten VATRA beim Besuch der Website, bei der Kontoerstellung, Anmeldung und Passwortwiederherstellung verarbeitet. VATRA verarbeitet nur Informationen, die für die verfügbaren Funktionen des Dienstes erforderlich sind.",
+  "Дані Вашої реєстрації не продаються рекламодавцям; на сторінках VATRA не використовуються рекламні пікселі для профілювання.": "Ihre Registrierungsdaten werden nicht an Werbetreibende verkauft; die Seiten von VATRA verwenden keine Werbepixel zur Profilbildung.",
+  "ім’я, прізвище, дата народження, email; стать — за Вашим бажанням.": "Vorname, Nachname, Geburtsdatum und E-Mail-Adresse; Geschlecht nach Ihrer Wahl.",
+  "Акаунт:": "Konto:",
+  "ідентифікатор користувача, інформація про сесію та службові записи входу.": "Nutzerkennung, Sitzungsinformationen und technische Anmeldeprotokolle.",
+  "Авторизація:": "Authentifizierung:",
+  "IP-адреса, дані браузера й запитів, які отримують сервери хостингу та авторизації.": "IP-Adresse, Browserinformationen und Anfragedaten, die Hosting- und Authentifizierungsserver empfangen.",
+  "Технічні відомості:": "Technische Angaben:",
+  "дані сеансу та, після входу, ім’я й email для показу збереженого акаунта на цьому пристрої; пароль для цього не зберігається.": "Sitzungsdaten und nach der Anmeldung Name und E-Mail-Adresse zur Anzeige des gespeicherten Kontos auf diesem Gerät; das Passwort wird hierfür nicht gespeichert.",
+  "Дані браузера:": "Browserdaten:",
+  "Ви не зобов’язані надавати номер телефону або платіжні реквізити через форму реєстрації VATRA.": "Sie müssen im Registrierungsformular von VATRA weder eine Telefonnummer noch Zahlungsdaten angeben.",
+  "Електронна пошта потрібна для підтвердження реєстрації, входу та відновлення пароля; також вона може використовуватися для службових повідомлень про безпеку акаунта. Ім’я та прізвище, вказані під час реєстрації, відображаються іншим учасникам у профілі VATRA та біля дописів. Дата народження, email і стать не відображаються публічно. Стать указувати необов’язково: можна вибрати варіант або залишити «Не вказувати». Інші відомості використовуються для створення акаунта, перевірки входу та захисту від несанкціонованого доступу.": "Die E-Mail-Adresse wird zur Bestätigung der Registrierung, Anmeldung und Passwortwiederherstellung benötigt und kann für sicherheitsbezogene Mitteilungen verwendet werden. Vor- und Nachname aus der Registrierung werden anderen Mitgliedern im VATRA-Profil und bei Beiträgen angezeigt. Geburtsdatum, E-Mail-Adresse und Geschlecht werden nicht öffentlich angezeigt. Die Angabe des Geschlechts ist freiwillig: Sie können eine Option wählen oder „Keine Angabe“ auswählen. Die übrigen Informationen dienen der Kontoerstellung, Anmeldeprüfung und dem Schutz vor unbefugtem Zugriff.",
+  "Підставою обробки можуть бути виконання умов користування, дотримання законодавства, необхідні заходи безпеки або Ваша згода — залежно від типу даних та обставин.": "Rechtsgrundlagen der Verarbeitung können die Erfüllung der Nutzungsbedingungen, gesetzliche Pflichten, notwendige Sicherheitsmaßnahmen oder Ihre Einwilligung sein – abhängig von Art der Daten und Umständen.",
+  "VATRA залучає постачальників послуг авторизації, розміщення сайту та доставки технічних ресурсів. Під час роботи цих сервісів постачальники можуть обробляти необхідні технічні дані запитів, зокрема IP-адресу й інформацію про браузер. Уточнити інформацію про постачальників і порядок обробки даних Ви можете за адресою": "VATRA nutzt Dienstleister für Authentifizierung, Website-Hosting und die Bereitstellung technischer Ressourcen. Dabei können Anbieter erforderliche technische Anfragedaten wie IP-Adresse und Browserinformationen verarbeiten. Informationen über die Anbieter und die Datenverarbeitung erhalten Sie unter",
+  "Пароль надсилається службі авторизації через HTTPS і не зберігається у відкритому HTML або JavaScript сайту. Передавання й розміщення даних можуть залежати від інфраструктури відповідного постачальника.": "Ihr Passwort wird über HTTPS an den Authentifizierungsdienst übertragen und nicht im öffentlichen HTML oder JavaScript der Website gespeichert. Übermittlung und Speicherung von Daten können von der Infrastruktur des jeweiligen Dienstleisters abhängen.",
+  "Дані акаунта зберігаються, доки це потрібно для обслуговування акаунта або виконання законних обов’язків. Дані сеансу у Вашому браузері можна видалити через налаштування браузера; вихід із VATRA завершує локальну сесію.": "Kontodaten werden so lange aufbewahrt, wie dies zur Kontoverwaltung oder zur Erfüllung gesetzlicher Pflichten erforderlich ist. Sitzungsdaten im Browser können Sie über die Browsereinstellungen löschen; die Abmeldung von VATRA beendet die lokale Sitzung.",
+  "Точні строки зберігання технічних журналів залежать від налаштувань сервісів і постачальників. Для запиту на видалення акаунта або персональних даних зверніться на vatra.support@gmail.com. Перед виконанням запиту може знадобитися підтвердження належності акаунта.": "Die genauen Aufbewahrungsfristen technischer Protokolle hängen von den Einstellungen der Dienste und Anbieter ab. Für die Löschung Ihres Kontos oder personenbezogener Daten schreiben Sie an vatra.support@gmail.com. Vor der Bearbeitung kann ein Nachweis über die Kontoinhaberschaft erforderlich sein.",
+  "Залежно від застосовного законодавства Ви можете отримувати доступ до своїх даних, просити про їх виправлення або видалення, заперечувати проти певної обробки, відкликати згоду, якщо саме вона є правовою підставою, і звертатися до уповноважених органів.": "Je nach anwendbarem Recht können Sie Auskunft über Ihre Daten verlangen, deren Berichtigung oder Löschung beantragen, bestimmten Verarbeitungen widersprechen, eine Einwilligung widerrufen, soweit sie die Rechtsgrundlage bildet, und sich an zuständige Behörden wenden.",
+  "Зокрема, права в Україні регулює": "In der Ukraine werden diese Rechte insbesondere durch das",
+  ". Для користувачів ЄЕЗ також можуть діяти положення GDPR.": "geregelt. Für Nutzer im Europäischen Wirtschaftsraum kann auch die DSGVO gelten.",
+  "Закон «Про захист персональних даних»": "Gesetz zum Schutz personenbezogener Daten",
+  "Для входу застосовуються HTTPS та захищена система авторизації. Для безпеки користуйтеся унікальним паролем, не передавайте коди підтвердження й виходьте з акаунта на спільних пристроях.": "Für die Anmeldung werden HTTPS und ein geschütztes Authentifizierungssystem eingesetzt. Verwenden Sie ein einzigartiges Passwort, geben Sie Bestätigungscodes nicht weiter und melden Sie sich auf gemeinsam genutzten Geräten ab.",
+  "Жодна технічна система не гарантує нульового ризику. Якщо Ви помітили підозрілу активність, змініть пароль через доступну форму відновлення.": "Kein technisches System kann ein Nullrisiko garantieren. Wenn Sie verdächtige Aktivitäten bemerken, ändern Sie Ihr Passwort über die vorhandene Wiederherstellungsfunktion.",
+  "Микола Колісник, фізична особа. Саме володілець визначає мету та способи обробки персональних даних у межах діяльності VATRA.": "Микола Колісник, eine natürliche Person. Die verantwortliche Person bestimmt die Zwecke und Mittel der Verarbeitung personenbezogener Daten im Rahmen des Betriebs von VATRA.",
+  "Володілець персональних даних VATRA:": "Verantwortliche Stelle für personenbezogene Daten bei VATRA:",
+  ". На цю адресу Ви можете звернутися із запитом на доступ до Ваших даних, їх виправлення, видалення або з питанням щодо конфіденційності. Для захисту Ваших даних перед виконанням запиту може знадобитися підтвердження належності акаунта.": ". Unter dieser Adresse können Sie Auskunft, Berichtigung oder Löschung Ihrer Daten beantragen oder Datenschutzfragen stellen. Zum Schutz Ihrer Daten kann vor der Bearbeitung ein Nachweis der Kontoinhaberschaft nötig sein.",
+  "Контакт щодо персональних даних:": "Kontakt für personenbezogene Daten:",
+  "Зміни способів обробки персональних даних відображатимуться в оновленій редакції цієї політики. Про суттєві зміни потрібно повідомляти користувачів відповідно до закону.": "Änderungen der Verarbeitung personenbezogener Daten werden in einer aktualisierten Fassung dieser Richtlinie wiedergegeben. Über wesentliche Änderungen werden Nutzer informiert, soweit dies gesetzlich vorgeschrieben ist."
 }
