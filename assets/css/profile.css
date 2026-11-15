@@ -1847,8 +1847,10 @@ body.profile-page .profile-gift-full{
  gap:4px;min-width:0;text-align:center
 }
 body.profile-page .profile-gift-art{
- display:block;width:min(100%,92px);height:auto;aspect-ratio:1;object-fit:contain;
- filter:drop-shadow(0 5px 9px rgba(111,106,180,.1))
+ display:block;width:min(100%,92px);aspect-ratio:1;
+ background-position:center;background-size:contain;background-repeat:no-repeat;
+ filter:drop-shadow(0 5px 9px rgba(111,106,180,.1));
+ user-select:none;-webkit-user-select:none;-webkit-user-drag:none
 }
 body.profile-page .profile-gift-tile .vt-profile-gift-name-001{
  color:#495e81;}

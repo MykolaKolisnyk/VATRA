@@ -2678,12 +2678,49 @@ try{
  await giftsProbe.goto(base+"gifts.html",{waitUntil:"domcontentloaded"});
  await giftsProbe.locator(".vatra-gifts-card").first().waitFor({state:"visible",timeout:14000});
  await giftsProbe.locator(".vatra-gifts-card").first().click();
- assert.equal(await giftsProbe.locator(".vatra-gift-viewer").evaluate(el=>el.open),true,
-  "Welcome gift must open with the original SVG illustration and description");
+ const giftMetrics=await giftsProbe.locator(".vatra-gift-viewer").evaluate(el=>{
+  const bounds=el.getBoundingClientRect(),stage=el.querySelector(".vatra-gift-viewer-stage");
+  const art=stage.querySelector(".vatra-gift-viewer-picture");
+  return {open:el.open,width:bounds.width,height:bounds.height,
+   screenWidth:innerWidth,screenHeight:innerHeight,
+   background:getComputedStyle(art).backgroundImage,
+   artTag:art.tagName,stageTheme:stage.dataset.giftTheme,
+   effects:stage.querySelectorAll(".vatra-gift-particle").length,
+   ember:!!stage.querySelector('[data-shape="ember"]'),
+   spark:!!stage.querySelector('[data-shape="spark"]')};
+ });
+ assert.ok(giftMetrics.open&&giftMetrics.width>=giftMetrics.screenWidth-2&&
+  giftMetrics.height>=giftMetrics.screenHeight-2,
+  "Gift must occupy the whole viewport, not a small modal: "+JSON.stringify(giftMetrics));
+ assert.ok(giftMetrics.background.includes("first-flame.png")&&
+  giftMetrics.artTag==="SPAN"&&giftMetrics.stageTheme==="embers"&&
+  giftMetrics.effects===20&&giftMetrics.ember&&giftMetrics.spark,
+  "First flame PNG must appear as decorative art with floating flame sparks");
+ const preventsMenu=await giftsProbe.locator(".vatra-gift-viewer-stage").evaluate(el=>{
+  const event=new MouseEvent("contextmenu",{bubbles:true,cancelable:true});
+  return el.dispatchEvent(event)===false;
+ });
+ assert.equal(preventsMenu,true,"Decorative gift stage cannot expose the image context menu");
  await giftsProbe.locator(".vt-vatra-gift-viewer-close-001").click();
+ await giftsProbe.waitForFunction(()=>document.querySelectorAll(".vatra-gift-particle").length===0);
+ assert.equal(await giftsProbe.locator(".vatra-gift-particle").count(),0,
+  "Closing the viewer must tear down its visual effects");
  await giftsProbe.locator('[data-gifts-tab="free"]').click();
  assert.ok(await giftsProbe.locator(".vatra-gifts-card").count()>=4,
-  "Free gifts include original VATRA holiday artwork");
+  "Free catalogue must display current and upcoming gifts");
+ for(const [code,effect,shape] of [
+  ["holiday_star","stars","star"],["kind_heart","hearts","heart"],
+  ["bright_sun","sunbeams","sunray"],["ribbon","ribbons","ribbon"]
+ ]){
+  assert.equal(await giftsProbe.evaluate(code=>window.VATRA_GIFT_VIEWER.open(code),code),true);
+  const matching=await giftsProbe.locator(".vatra-gift-viewer-stage").evaluate((stage,params)=>
+   stage.dataset.giftTheme===params.effect&&
+   !!stage.querySelector('[data-shape="'+params.shape+'"]')&&
+   stage.querySelector(".vatra-gift-viewer-picture").classList.contains("is-symbol"),
+   {effect,shape});
+  assert.equal(matching,true,"Each upcoming gift must have a thematic backdrop: "+code);
+  await giftsProbe.locator(".vt-vatra-gift-viewer-close-001").click();
+ }
  await giftsProbe.locator('[data-gifts-tab="paid"]').click();
  assert.equal(await giftsProbe.locator(".vatra-gifts-card").count(),0,
   "Paid gifts are not sold before checkout is implemented");
