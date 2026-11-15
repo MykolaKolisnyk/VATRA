@@ -132,7 +132,13 @@
 .vatra-select-trigger.is-placeholder{color:var(--soft)}
 .vatra-select.is-open{z-index:50}
 .vatra-select.is-open .vatra-select-trigger{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
-.vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;max-height:304px;overflow-y:auto;overscroll-behavior:contain;padding:6px;background:#fff;border:1px solid #d7ddea;border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15);}
+.vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;
+ max-height:304px;overflow:hidden;padding:0;background:#fff;border:1px solid #d7ddea;
+ border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15)}
+/* Scroll in an inner viewport: keep the thumb away from rounded corners. */
+.vatra-select-scroll-area{box-sizing:border-box;display:block;width:calc(100% - 9px);
+ max-height:inherit;overflow-y:auto;overscroll-behavior:contain;
+ margin-right:9px;padding:6px 3px 7px 6px}
 
 
 
