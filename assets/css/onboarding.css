@@ -11,14 +11,23 @@
 .vt-tour-spotlight-001[hidden]{display:none!important}
 .vt-tour-card-001{position:fixed;left:calc(50vw - 220px);top:calc(50dvh - 220px);
  transform:none;box-sizing:border-box;width:min(440px,calc(100vw - 28px));
- max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain;
- z-index:2;background:#fff;border:1px solid #dfe6f1;border-radius:22px;padding:26px;
+ max-height:calc(100dvh - 28px);overflow:visible;
+ z-index:2;background:#fff;border:1px solid #dfe6f1;border-radius:22px;padding:0;
  box-shadow:0 25px 80px rgba(17,32,66,.24),0 4px 16px rgba(31,62,122,.06);
  color:#2c3850;text-align:left;will-change:left,top;
  transition:left .35s cubic-bezier(.22,.8,.24,1),top .35s cubic-bezier(.22,.8,.24,1),
  width .28s ease,box-shadow .28s ease}
 .vt-tour-card-001.vt-tour-anchored-001{width:min(420px,calc(100vw - 28px));
- padding:22px;border-radius:19px;overflow:visible}
+ padding:0;border-radius:19px;overflow:visible}
+.vt-tour-scroll-area-001{
+ box-sizing:border-box;display:block;width:calc(100% - 10px);margin-right:10px;
+ max-height:calc(100dvh - 30px);overflow-y:auto;overscroll-behavior:contain;
+ padding:26px 14px 26px 26px;border-radius:20px;
+ scrollbar-width:thin;scrollbar-gutter:stable
+}
+.vt-tour-card-001.vt-tour-anchored-001 .vt-tour-scroll-area-001{
+ padding:22px 12px 22px 22px;border-radius:17px
+}
 .vt-tour-card-001.vt-tour-anchored-001[data-placement="below"]::before,
 .vt-tour-card-001.vt-tour-anchored-001[data-placement="above"]::before{
  content:"";position:absolute;left:var(--vt-tour-pointer-x,50%);width:14px;height:14px;
@@ -68,7 +77,16 @@
  box-shadow:0 6px 18px rgba(48,105,217,.18);margin-left:auto}
 .vt-tour-next-001:hover{background:#2558bc}
 .vt-tour-skip-001:not([hidden])+.vt-tour-refresh-001[hidden]+.vt-tour-next-001{margin-left:0}
-.vt-tour-tasks-001 .vt-tour-mascot-001{width:124px;height:124px}
+/* Keep the five-task checklist inside a normal laptop viewport without
+   making a near-full-height scrollbar thumb for a few extra pixels. */
+.vt-tour-tasks-001 .vt-tour-scroll-area-001{padding-block:17px 19px}
+.vt-tour-tasks-001 .vt-tour-mascot-001{width:98px;height:98px}
+.vt-tour-tasks-001 .vt-tour-header-001{gap:3px}
+.vt-tour-tasks-001 .vt-tour-heading-001{font-size:clamp(22px,2.2vw,27px)}
+.vt-tour-tasks-001 .vt-tour-description-001{margin-top:9px;line-height:1.48}
+.vt-tour-tasks-001 .vt-tour-checklist-001{margin-top:12px}
+.vt-tour-tasks-001 .vt-tour-checklist-001 a{margin:4px 0;padding:8px 12px;min-height:32px}
+.vt-tour-tasks-001 .vt-tour-actions-001{margin-top:16px}
 .vt-tour-checklist-001[hidden]{display:none!important}
 .vt-tour-checklist-001{margin-top:17px}
 .vt-tour-meter-001{display:block;margin-bottom:12px}
@@ -98,8 +116,11 @@
 .feed-account-dropdown .vt-feed-onboarding-launch-001:focus-visible,
 .feed-account-dropdown .vt-feed-onboarding-progress-001:focus-visible{outline:2px solid #5686e5;outline-offset:2px}
 @media(max-width:560px){
- .vt-tour-card-001{padding:19px;border-radius:19px;max-height:calc(100dvh - 24px)}
- .vt-tour-card-001.vt-tour-anchored-001{padding:18px;overflow-y:auto}
+ .vt-tour-card-001{padding:0;border-radius:19px;max-height:calc(100dvh - 24px)}
+ .vt-tour-scroll-area-001{max-height:calc(100dvh - 26px);padding:19px 12px 19px 19px}
+ .vt-tour-card-001.vt-tour-anchored-001{padding:0;overflow:visible}
+ .vt-tour-card-001.vt-tour-anchored-001 .vt-tour-scroll-area-001{padding:18px 10px 18px 18px}
+ .vt-tour-tasks-001 .vt-tour-scroll-area-001{padding-block:13px 15px}
  .vt-tour-mascot-001{width:128px;height:128px}
  .vt-tour-heading-001{font-size:21px}
  .vt-tour-description-001{font-size:13px}
