@@ -644,7 +644,7 @@ assert.ok(auth.includes('const REMEMBERED_ACCOUNT_KEY="vatra-remembered-account"
  auth.includes('const allowed=new Set(["email","magiclink","invite","email_change"])')&&
  auth.includes('auth.auth.verifyOtp({token_hash:tokenHash,type:"recovery"})')&&
  auth.includes('history.replaceState(history.state,"",location.pathname)')&&
- signupTemplate.split('token_hash={{ .TokenHash }}').length===3&&
+ signupTemplate.split('token_hash={{ .TokenHash }}').length===9&&
  !signupTemplate.includes('href="{{ .ConfirmationURL }}"'),
  "Cross-device confirmation must verify a one-time token; remembered account stores no password");
 // Mobile-friendly email links are verified by the intended action, not the PKCE
