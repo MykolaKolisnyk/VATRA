@@ -1,6 +1,6 @@
 {
   "__translation_status": {
-    "dynamic_strings_complete": false,
+    "dynamic_strings_complete": true,
     "email_templates_complete": false,
     "translated_static_pages": [
       "index",
@@ -2847,5 +2847,26 @@
   "Конфіденційність — VATRA": "Prywatność — VATRA",
   "Cookies та сховище браузера · VATRA": "Pliki cookie i pamięć przeglądarki · VATRA",
   "Cookies та сховище браузера — VATRA": "Pliki cookie i pamięć przeglądarki — VATRA",
-  "ВАTРА": "VATRA"
+  "ВАTРА": "VATRA",
+  "VATRA — соціальна платформа для спілкування та взаємодії між людьми, авторами й бізнесом. Ці умови встановлюють загальні правила використання сайту та Вашого акаунта.": "VATRA to platforma społecznościowa do komunikacji i interakcji między ludźmi, twórcami i firmami. Niniejsze warunki określają ogólne zasady korzystania z witryny i konta.",
+  "Ви відповідаєте за матеріали, які розміщуєте у VATRA, і повинні мати право їх публікувати. Права на створені Вами фотографії, тексти, відео та інший контент залишаються за Вами.": "Odpowiadasz za materiały publikowane w VATRA i musisz mieć prawo do ich publikowania. Zachowujesz prawa do tworzonych przez siebie zdjęć, tekstów, filmów i innych treści.",
+  "Якщо Ви публікуєте контент за допомогою доступних функцій сервісу, Ви надаєте VATRA лише дозвіл, необхідний для його зберігання, технічної обробки та показу обраній аудиторії. Умови такого використання не передають права власності на контент платформі.": "Publikując treści za pomocą dostępnych funkcji, udzielasz VATRA wyłącznie zgody potrzebnej do ich przechowywania, technicznego przetwarzania i wyświetlania wybranym odbiorcom. Nie przenosi to własności treści na platformę.",
+  "Якщо Ви використовуєте VATRA для представлення бізнесу, оголошень чи продажу, повідомляйте правдиві характеристики товарів і послуг, не вводьте покупців в оману, поважайте права споживачів і дотримуйтеся застосовних вимог до торгівлі.": "Jeśli korzystasz z VATRA do prezentowania firmy, ogłoszeń lub sprzedaży, podawaj prawdziwe informacje o towarach i usługach, nie wprowadzaj kupujących w błąd, szanuj prawa konsumentów i przestrzegaj obowiązujących przepisów handlowych.",
+  "Умови конкретної покупки, повернення коштів, доставки та відповідальності сторін залежать від доступної послуги та відповідного договору.": "Warunki konkretnego zakupu, zwrotu pieniędzy, dostawy oraz odpowiedzialność stron zależą od usługi i odpowiedniej umowy.",
+  "Форма створення акаунта VATRA не приймає платежі": "Formularz tworzenia konta VATRA nie przyjmuje płatności",
+  "— не вводьте платіжні дані в поля реєстрації.": "— nie podawaj danych płatniczych w polach rejestracyjnych.",
+  "VATRA може оновлювати доступні функції та умови. Суттєві зміни умов публікуються на цій сторінці з датою оновлення; коли цього вимагає закон, користувачі отримують окреме повідомлення.": "VATRA może aktualizować dostępne funkcje i warunki. Istotne zmiany warunków zostaną opublikowane na tej stronie wraz z datą aktualizacji; gdy wymaga tego prawo, użytkownicy otrzymają osobne powiadomienie.",
+  "Відомості про обробку Ваших даних наведені в": "Informacje o przetwarzaniu Twoich danych znajdują się w",
+  "Власник VATRA —": "Właścicielem VATRA jest",
+  "збережені відомості сеансу, необхідні для автоматичного входу в акаунт.": "informacje o sesji przechowywane w celu utrzymania zalogowania na koncie.",
+  "Ці дані потрібні для створення акаунта, перевірки входу, відновлення пароля, захисту від несанкціонованого доступу й технічної роботи VATRA.": "Dane te są przetwarzane w celu tworzenia kont, weryfikacji logowania, odzyskiwania hasła, ochrony przed nieuprawnionym dostępem i technicznego działania VATRA.",
+  "Точні строки зберігання технічних журналів залежать від налаштувань сервісів і постачальників. Самостійне видалення акаунта зараз не передбачене інтерфейсом, тому неможливо заявляти, що Ви можете видалити всі дані однією кнопкою.": "Okresy przechowywania dzienników technicznych zależą od ustawień usług i dostawców. Interfejs nie oferuje obecnie samodzielnego usuwania konta, dlatego nie można usunąć wszystkich danych jednym przyciskiem.",
+  "Для входу застосовуються HTTPS та захищена система авторизації. Для безпеки користуйтеся унікальним паролем, не передавати коди підтвердження й виходити з акаунта на спільних пристроях.": "Logowanie odbywa się przez HTTPS i chroniony system uwierzytelniania. Dla bezpieczeństwa używaj unikalnego hasła, nie udostępniaj kodów weryfikacyjnych i wylogowuj się na współdzielonych urządzeniach.",
+  "Рекламні пікселі VATRA": "Piksele reklamowe VATRA",
+  "Відстеження для персоналізованої реклами": "Śledzenie do celów reklamy spersonalizowanej",
+  "У коді не підключені": "Nie są włączone w kodzie",
+  "Маркетингова аналітика VATRA": "Analityka marketingowa VATRA",
+  "Вимірювання рекламних кампаній": "Pomiar kampanii reklamowych",
+  "У коді не підключена": "Nie jest włączona w kodzie",
+  "На сторінках VATRA немає власних рекламних пікселів чи необов’язкових маркетингових cookies, для яких потрібна кнопка «Прийняти все». VATRA не показує фіктивного повідомлення про згоду.": "Strony VATRA nie zawierają obecnie własnych pikseli reklamowych ani opcjonalnych marketingowych plików cookie wymagających wyboru „Akceptuj wszystko”. VATRA nie wyświetla fikcyjnego komunikatu o zgodzie."
 }
