@@ -104,6 +104,9 @@ function setup(){
  dialog.append(top,stage,footer);
  dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
  dialog.addEventListener("close",()=>{
+  // A queued close event from the previous gift may arrive after rapid reopen.
+  // Never erase the newly populated particles or steal focus from that viewer.
+  if(dialog.open)return;
   effects.replaceChildren();
   if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});
   lastFocus=null;
