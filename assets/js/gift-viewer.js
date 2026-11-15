@@ -1,59 +1,33 @@
-/* VATRA original gifts, available to every authenticated screen.
-   The catalogue is descriptive; ownership is always loaded from Supabase.
-   No paid item can be purchased until a verified billing system exists. */
+/* VATRA released gifts. Add new catalogue entries only when their artwork and
+   functional behavior have actually been implemented. Ownership comes from Supabase. */
 (()=>{
 "use strict";
 const root=new URL("../../",document.currentScript?.src||"assets/js/gift-viewer.js");
 const catalog=[
- {code:"first_flame",image:"first-flame.png",symbol:"",effect:"embers",kind:"welcome",
+ {code:"first_flame",image:"first-flame.png",
   uk:"Перший вогник",en:"First flame",
   descriptionUk:"Перший вогник VATRA — знак початку вашої історії. Його отримує кожен, хто приєднався до VATRA.",
   descriptionEn:"Your first VATRA flame marks the beginning of your story. Every new member receives one.",
-  eventUk:"Привітальний подарунок",eventEn:"Welcome gift",released:true},
- {code:"holiday_star",image:null,symbol:"✦",effect:"stars",kind:"holiday",
-  uk:"Святкова зірка",en:"Holiday star",
-  descriptionUk:"Теплі побажання, що освітлюють особливі дні. Безкоштовний святковий подарунок від VATRA.",
-  descriptionEn:"Warm wishes that brighten special days. A free holiday gift from VATRA.",
-  eventUk:"Свята та особливі події",eventEn:"Holidays and special occasions",released:false},
- {code:"kind_heart",image:null,symbol:"♥",effect:"hearts",kind:"holiday",
-  uk:"Серце доброти",en:"Kind heart",
-  descriptionUk:"Нагадування про щирість, підтримку та близьких людей. Подарунок для майбутніх подій VATRA.",
-  descriptionEn:"A reminder of kindness, care and the people who matter. Reserved for upcoming VATRA occasions.",
-  eventUk:"Дні доброти",eventEn:"Days of kindness",released:false},
- {code:"bright_sun",image:null,symbol:"☀",effect:"sunbeams",kind:"holiday",
-  uk:"Промінчик",en:"Sunbeam",
-  descriptionUk:"Трішки сонця та гарного настрою для ваших людей. Майбутній безкоштовний подарунок від VATRA.",
-  descriptionEn:"A little sunshine for your people. An upcoming free VATRA gift.",
-  eventUk:"Літні свята",eventEn:"Summer events",released:false},
- {code:"ribbon",image:null,symbol:"⌁",effect:"ribbons",kind:"holiday",
-  uk:"Стрічка щастя",en:"Ribbon of joy",
-  descriptionUk:"Світла стрічка на честь чудових моментів, які хочеться запам’ятати. Для майбутніх подій VATRA.",
-  descriptionEn:"A bright ribbon for moments worth remembering. Reserved for future VATRA celebrations.",
-  eventUk:"Особливі дні",eventEn:"Special days",released:false}
+  eventUk:"Привітальний подарунок",eventEn:"Welcome gift"}
 ];
 const en=()=>document.documentElement.lang==="en";
 const lang=(uk,english)=>en()?english:uk;
 const byCode=code=>catalog.find(g=>g.code===code)||null;
-const fileUrl=gift=>gift?.image?new URL("assets/gifts/"+gift.image,root).href:null;
+const fileUrl=gift=>gift?new URL("assets/gifts/"+gift.image,root).href:null;
 const make=(tag,cls,text)=>{
  const el=document.createElement(tag);el.className=cls;
  if(text!==undefined)el.textContent=text;
  return el;
 };
 let dialog=null,heading=null,picture=null,effects=null,stage=null,description=null,eventText=null,close=null,lastFocus=null;
-const themeKinds={embers:["ember","spark"],stars:["star","twinkle"],hearts:["heart","twinkle"],sunbeams:["sunray","twinkle"],ribbons:["ribbon","twinkle"]};
+// The only released gift has flame-colored particles. No unused future themes.
 const particleAmount=20;
-function populateEffects(effect){
- const shapes=themeKinds[effect]||themeKinds.embers;
+function populateEmbers(){
  effects.replaceChildren();
  const fragment=document.createDocumentFragment();
  for(let i=0;i<particleAmount;i++){
   const particle=make("span","vatra-gift-particle ui-vatra-gift-particle-001");
-  particle.dataset.shape=shapes[i%shapes.length];
-  if(particle.dataset.shape==="heart")particle.textContent="♥";
-  if(particle.dataset.shape==="star")particle.textContent="✦";
-  if(particle.dataset.shape==="sunray")particle.textContent="✷";
-  if(particle.dataset.shape==="twinkle")particle.textContent="✧";
+  particle.dataset.shape=i%2?"spark":"ember";
   const x=(i*47+11+(i*i*7)%21)%94+3;
   const y=(i*37+7+(i*i*13)%31)%88+6;
   particle.style.setProperty("--gift-x",x+"%");
@@ -119,12 +93,8 @@ function open(code){
  setup();
  lastFocus=document.activeElement;
  heading.textContent=lang(gift.uk,gift.en);
- const url=fileUrl(gift);
- picture.classList.toggle("is-symbol",!url);
- picture.style.backgroundImage=url?"url("+JSON.stringify(url)+")":"none";
- picture.textContent=url?"":gift.symbol;
- stage.dataset.giftTheme=gift.effect;
- populateEffects(gift.effect);
+ picture.style.backgroundImage="url("+JSON.stringify(fileUrl(gift))+")";
+ populateEmbers();
  eventText.textContent=lang(gift.eventUk,gift.eventEn);
  description.textContent=lang(gift.descriptionUk,gift.descriptionEn);
  close.setAttribute("aria-label",lang("Закрити подарунок","Close gift"));
