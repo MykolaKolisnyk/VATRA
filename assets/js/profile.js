@@ -1338,7 +1338,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   }else location.assign(new URL("feed",home).href);
  });
  const firstName=value=>String(value||"").trim().split(/\s+/)[0]||t("Учасник","Member");
- const asset=new URL("assets/gifts/first-flame.svg",home).href;
+ const asset=new URL("assets/gifts/first-flame.png",home).href;
  const loading=(el,value)=>{
   el.replaceChildren(node("p","vt-profile-mini-loading-001",value));
  };
@@ -1456,12 +1456,14 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   item.type="button";
   item.setAttribute("aria-label",t("Переглянути подарунок: Перший вогник","View gift: First flame"));
   item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open("first_flame"));
-  const img=node("img","profile-gift-art ui-profile-gift-art-001");
-  img.src=asset;img.alt=t("Перший вогник VATRA","First VATRA flame");
-  img.width=compact?82:116;img.height=compact?82:116;img.loading="lazy";
+  const art=node("span","profile-gift-art ui-profile-gift-art-001");
+  art.setAttribute("aria-hidden","true");
+  art.style.backgroundImage="url("+JSON.stringify(asset)+")";
+  art.addEventListener("dragstart",event=>event.preventDefault());
+  art.addEventListener("contextmenu",event=>event.preventDefault());
   const title=node("strong","vt-profile-gift-name-001",t("Перший вогник","First flame"));
   const sub=node("small","vt-profile-gift-caption-001",t("За приєднання до VATRA","For joining VATRA"));
-  item.append(img,title,sub);return item;
+  item.append(art,title,sub);return item;
  }
  q("#profile-friends-all")?.addEventListener("click",()=>{
   location.assign(new URL("friends"+(isMine?"":"?member="+targetId),home).href);
