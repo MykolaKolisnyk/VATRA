@@ -21,6 +21,26 @@ var localizedSubjects = map[string][2]string{
  "password-changed":{"Пароль змінено","Password changed"},
  "email-address-changed":{"Пошту змінено","Email changed"},
 }
+var expandedSubjects = map[string]map[string]string{
+ "confirmation":{
+  "pl":"Potwierdź adres e-mail","de":"E-Mail-Adresse bestätigen","fr":"Confirmez votre adresse e-mail",
+  "it":"Conferma l'indirizzo email","ka":"ელფოსტის დადასტურება","bg":"Потвърдете имейла",
+ },
+ "recovery":{
+  "pl":"Odzyskiwanie hasła","de":"Passwort wiederherstellen","fr":"Récupération du mot de passe",
+  "it":"Recupero della password","ka":"პაროლის აღდგენა","bg":"Възстановяване на парола",
+ },
+}
+var targetLocales=[]string{"pl","de","fr","it","ka","bg"}
+func subjectTemplateFor(name string)string{
+ s:=`{{ if eq .Data.preferred_locale "en" }}VATRA · `+localizedSubjects[name][1]
+ if extras,ok:=expandedSubjects[name];ok{
+  for _,locale:=range targetLocales{
+   s+=`{{ else if eq .Data.preferred_locale "`+locale+`" }}VATRA · `+extras[locale]
+  }
+ }
+ return s+`{{ else }}VATRA · `+localizedSubjects[name][0]+`{{ end }}`
+}
 var callbacks = map[string]string{
  "confirmation":"verify?token_hash=ci_example_hash_only&type=email",
  "invite":"verify?token_hash=ci_example_hash_only&type=invite",
@@ -42,10 +62,12 @@ func main(){
   require(strings.Contains(source,`width="100%"`)&&strings.Contains(source,"max-width:580px"),name+": missing fluid email table")
   tmpl,err:=template.New(name).Parse(source)
   if err!=nil {panic(fmt.Errorf("%s: %w",name,err))}
-  for _,locale:=range []string{"uk","en","missing"} {
+  locales:=[]string{"uk","en","missing"}
+  if _,ok:=expandedSubjects[name];ok{locales=append(locales,targetLocales...)}
+  for _,locale:=range locales {
    preference:=map[string]string{}
    if locale!="missing" {preference["preferred_locale"]=locale}
-   subjectText:=`{{ if eq .Data.preferred_locale "en" }}VATRA · `+localizedSubjects[name][1]+`{{ else }}VATRA · `+localizedSubjects[name][0]+`{{ end }}`
+   subjectText:=subjectTemplateFor(name)
    require(strings.Contains(string(readme),"`"+subjectText+"`"),name+": README subject does not match the locale audit")
    subjectTemplate,err:=template.New(name+"-subject").Parse(subjectText)
    if err!=nil {panic(fmt.Errorf("%s: invalid Subject template: %w",name,err))}
@@ -58,6 +80,9 @@ func main(){
    if err:=subjectTemplate.Execute(&subjectOut,data);err!=nil {panic(fmt.Errorf("%s (%s): Subject render failed: %w",name,locale,err))}
    expectedSubject:="VATRA · "+localizedSubjects[name][0]
    if locale=="en"{expectedSubject="VATRA · "+localizedSubjects[name][1]}
+   if extra,ok:=expandedSubjects[name];ok&&locale!="missing"{
+    if value,found:=extra[locale];found{expectedSubject="VATRA · "+value}
+   }
    require(subjectOut.String()==expectedSubject,name+" ("+locale+"): Subject must contain only its own language")
    var out bytes.Buffer
    if err:=tmpl.Execute(&out,data);err!=nil {panic(fmt.Errorf("%s (%s): %w",name,locale,err))}
@@ -96,6 +121,6 @@ func main(){
     require(strings.Contains(rendered,"old@example.com")&&strings.Contains(rendered,"user@example.com"),prefix+"security notification missing addresses")
    }
   }
-  fmt.Println("VATRA "+name+": Go Body + Subject rendered for UK, EN, missing locale; links and layout guards passed")
+  fmt.Println("VATRA "+name+": Go Body + Subject rendered for enabled test locales; links and layout guards passed")
  }
 }
