@@ -2702,6 +2702,7 @@ try{
  });
  assert.equal(preventsMenu,true,"Decorative gift stage cannot expose the image context menu");
  await giftsProbe.locator(".vt-vatra-gift-viewer-close-001").click();
+ await giftsProbe.waitForFunction(()=>document.querySelectorAll(".vatra-gift-particle").length===0);
  assert.equal(await giftsProbe.locator(".vatra-gift-particle").count(),0,
   "Closing the viewer must tear down its visual effects");
  await giftsProbe.locator('[data-gifts-tab="free"]').click();
