@@ -17,7 +17,7 @@ assert.ok(langJs.includes('const validLanguage = value => value === "uk" || valu
  "Do not publish incomplete translations as selectable languages");
 const pickerEntries=langJs.slice(langJs.indexOf("  const languages = ["),
  langJs.indexOf("  const flagGroups="));
-const pickerCodes=[...pickerEntries.matchAll(/\\["([a-z]{2})","[^"]+","[^"]+","[a-z]{2}"(,true)?\\]/g)]
+const pickerCodes=[...pickerEntries.matchAll(/\["([a-z]{2})","[^"]+","[^"]+","[a-z]{2}"(,true)?\]/g)]
  .map(match=>({code:match[1],enabled:!!match[2]}));
 assert.deepEqual(pickerCodes.map(item=>item.code),["uk","en",...codes],
  "Only eight requested language options may remain");
