@@ -74,7 +74,13 @@
     "index": {
       "meta": {
         "title": "Logowanie · VATRA",
-        "description": "VATRA — ukraińska sieć społecznościowa."
+        "description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu.",
+        "og:locale": "pl_PL",
+        "og:title": "VATRA — ukraińska sieć społecznościowa",
+        "og:description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu. Twoi ludzie. Twoje historie. Twoja VATRA.",
+        "og:image:alt": "Oficjalne logo VATRA",
+        "twitter:title": "VATRA — ukraińska sieć społecznościowa",
+        "twitter:description": "VATRA — ukraińska sieć społecznościowa do komunikacji, poznawania ludzi, twórczości, społeczności, zakupów i biznesu."
       },
       "nodes": {
         "n500": {
