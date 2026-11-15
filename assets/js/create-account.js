@@ -185,9 +185,11 @@ function wireSelects(){
   function updateRail(){
    if(list.hidden)return;
    const overflow=scrollArea.scrollHeight-scrollArea.clientHeight;
+   // Measure after revealing: hidden rails report clientHeight=0.
+   if(overflow<=1){rail.hidden=true;rail.classList.remove("is-visible");return;}
+   rail.hidden=false;
    const height=rail.clientHeight;
-   rail.hidden=overflow<=1||height<=0;
-   if(rail.hidden){rail.classList.remove("is-visible");return;}
+   if(height<=0)return;
    const thumbHeight=Math.min(height,Math.max(26,
     height*scrollArea.clientHeight/scrollArea.scrollHeight));
    const travel=Math.max(0,height-thumbHeight);
