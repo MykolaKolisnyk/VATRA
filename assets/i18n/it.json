@@ -754,8 +754,8 @@
         },
         "n54": {
           "text": {
-            "0": "Accetto i ",
-            "1": " e dichiaro di aver letto l' ",
+            "0": "Accetto le ",
+            "1": " e dichiaro di aver letto ",
             "2": " e le "
           }
         },
@@ -1419,8 +1419,8 @@
   "Чоловіча": "Uomo",
   "Користувацька": "Personalizzato",
   "Повторіть пароль": "Conferma la password",
-  "Погоджуюся з": "Accetto i",
-  "та ознайомлений(-а) з": "e dichiaro di aver letto l'",
+  "Погоджуюся з": "Accetto le",
+  "та ознайомлений(-а) з": "e dichiaro di aver letto",
   "і": "e le",
   "Умовами використання": "Condizioni d'uso",
   "Політикою конфіденційності": "Informativa sulla privacy",
