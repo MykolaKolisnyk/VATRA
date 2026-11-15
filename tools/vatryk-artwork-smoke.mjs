@@ -20,7 +20,8 @@ for(const kind of ["404","blocked","deleted","not-found"]){
   path+" image dimensions must be valid: "+width+"x"+height);
  assert.ok(bytes.length>1000,path+" must not be an empty placeholder");
  if(kind==="404"){
-  assert.ok(html.includes('src="/VATRA/'+path+'"'),
+  assert.ok(html.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
+   notFound.includes('background-image:url("/VATRA/'+path+'")'),
    "The error page must use the checked-in Vatryk PNG");
  }else{
   const url="/VATRA/"+path;
