@@ -74,7 +74,13 @@
     "index": {
       "meta": {
         "title": "Connexion · VATRA",
-        "description": "VATRA — un réseau social ukrainien."
+        "description": "VATRA est un réseau social ukrainien pour échanger, faire des rencontres, créer, rejoindre des communautés, acheter et entreprendre.",
+        "og:locale": "fr_FR",
+        "og:title": "VATRA — un réseau social ukrainien",
+        "og:description": "VATRA est un réseau social ukrainien pour échanger, faire des rencontres, créer, rejoindre des communautés, acheter et entreprendre. Vos proches. Vos histoires. Votre VATRA.",
+        "og:image:alt": "Logo officiel de VATRA",
+        "twitter:title": "VATRA — un réseau social ukrainien",
+        "twitter:description": "VATRA est un réseau social ukrainien pour échanger, faire des rencontres, créer, rejoindre des communautés, acheter et entreprendre."
       },
       "nodes": {
         "n500": {
