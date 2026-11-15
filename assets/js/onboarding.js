@@ -40,6 +40,7 @@ const saveState=(store,id,status,step)=>{
  try{store.setItem(key,JSON.stringify({status,step,version:1}));return true;}
  catch(_){return false;}
 };
+const shouldSaveSkip=(wasReplaying,previous)=>!wasReplaying||!["done","skipped"].includes(previous?.status);
 const tr=text=>window.VATRA_LANGUAGE?.translate?.(text)||text;
 const node=(tag,css,content)=>{
  const element=document.createElement(tag);element.className=css;
@@ -180,7 +181,10 @@ function finish(){
  replaying=false;activate("goodbye");
 }
 function skipTour(){
- if(!replaying&&session)saveState(localStorage,session.id,"skipped",index);
+ // A replay must keep a finished/skipped tour final, but a paused tour
+ // becomes skipped when the member explicitly chooses to skip it.
+ if(session&&shouldSaveSkip(replaying,readState(localStorage,session.id)))
+  saveState(localStorage,session.id,"skipped",index);
  replaying=false;activate("tasks");
 }
 function proceed(){
@@ -343,5 +347,5 @@ function openTasks(){
 }
 window.VATRA_ONBOARDING={start,stop,replay,openTasks};
 // Pure decisions are exposed only for hermetic smoke tests.
-window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState};
+window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState,shouldSaveSkip};
 })();
