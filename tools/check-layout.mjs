@@ -2116,9 +2116,11 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  auth.includes('Не вдалося увійти. Перевірте пароль.')&&
  en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
-assert.ok(css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text')&&
+assert.ok(css.includes('.signup-progress-segment:first-child')&&
+ css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5)')&&
+ !register.includes('data-step-label=')&&!css.includes('.signup-step-number{')&&
  !css.includes('min-width:148px')&&!css.includes('min-width:132px'),
- "Signup step color should match the progress gradient, and footer links must have natural widths");
+ "Signup keeps the accessible progress bar without redundant step text; footer links retain natural widths");
 
 // The remembered account note is exclusive to the overview, without changing
 // the card height; all footer link touch targets use the shared stylesheet.
