@@ -657,7 +657,8 @@ for(const [template,target,type] of [
  ["email-change.html","verify","email_change"]
 ]){
  const source=await read("email-templates/"+template);
- assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
+ const expectedLocales=["confirmation.html","recovery.html"].includes(template)?8:2;
+ assert.equal(source.split('token_hash={{ .TokenHash }}').length,expectedLocales+1,
   "Every language variant needs a cross-device link: "+template);
  assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
   "Wrong token type or destination: "+template);
