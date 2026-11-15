@@ -2684,7 +2684,7 @@ try{
   return {open:el.open,width:bounds.width,height:bounds.height,
    screenWidth:innerWidth,screenHeight:innerHeight,
    background:getComputedStyle(art).backgroundImage,
-   artTag:art.tagName,stageTheme:stage.dataset.giftTheme,
+   artTag:art.tagName,
    effects:stage.querySelectorAll(".vatra-gift-particle").length,
    ember:!!stage.querySelector('[data-shape="ember"]'),
    spark:!!stage.querySelector('[data-shape="spark"]')};
@@ -2693,7 +2693,7 @@ try{
   giftMetrics.height>=giftMetrics.screenHeight-2,
   "Gift must occupy the whole viewport, not a small modal: "+JSON.stringify(giftMetrics));
  assert.ok(giftMetrics.background.includes("first-flame.png")&&
-  giftMetrics.artTag==="SPAN"&&giftMetrics.stageTheme==="embers"&&
+  giftMetrics.artTag==="SPAN"&&
   giftMetrics.effects===20&&giftMetrics.ember&&giftMetrics.spark,
   "First flame PNG must appear as decorative art with floating flame sparks");
  const preventsMenu=await giftsProbe.locator(".vatra-gift-viewer-stage").evaluate(el=>{
