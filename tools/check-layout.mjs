@@ -341,6 +341,8 @@ for(const file of ["europe-a","europe-b","europe-c","world"]){
   flagSymbols.add(match[1]);
 }
 assert.equal(flagSymbols.size,32,"All displayed VATRA language flags must be real vector symbols");
+for(const retiredFlag of ["sk","hu","rs","cn"])
+ assert.ok(!flagSymbols.has(retiredFlag),"Unpublished removed flag remains in sprite: "+retiredFlag);
 for(const match of languageSection.matchAll(/\["[a-z]+","[^"]+","[^"]+","([a-z]+)"/g))
  assert.ok(flagSymbols.has(match[1]),"Flag SVG missing for "+match[1]);
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
