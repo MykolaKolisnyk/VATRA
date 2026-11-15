@@ -11,7 +11,7 @@ const uk=JSON.parse(await readFile("assets/i18n/uk.json","utf8"));
 const context={window:{},document:{},location:{href:"https://localhost/VATRA/feed"},
  Date,JSON,Math,Number,String,Map,Set,URL,AbortController};
 runInNewContext(source,context);
-const {recentSignup,storedKey,readState,saveState,shouldSaveSkip}=context.window.VATRA_ONBOARDING_STATE;
+const {recentSignup,storedKey,readState,saveState,shouldSaveSkip,milestoneSnapshot}=context.window.VATRA_ONBOARDING_STATE;
 const now=Date.parse("2026-11-14T19:00:00Z");
 assert.equal(recentSignup("2026-11-14T18:59:00Z",now),true);
 assert.equal(recentSignup("2026-10-17T19:00:00Z",now),true);
@@ -41,6 +41,17 @@ assert.equal(shouldSaveSkip(true,{status:"paused"}),true);
 assert.equal(shouldSaveSkip(true,null),true);
 assert.equal(shouldSaveSkip(true,{status:"done"}),false);
 assert.equal(shouldSaveSkip(true,{status:"skipped"}),false);
+// Failed or rejected milestone lookups cannot masquerade as incomplete work.
+const fulfilled=data=>({status:"fulfilled",value:{data,error:null}});
+const denied={status:"fulfilled",value:{data:null,error:{message:"Forbidden"}}};
+const rejected={status:"rejected",reason:Error("Offline")};
+assert.deepEqual(Array.from(milestoneSnapshot([
+ fulfilled({avatar_path:"21/avatar/portrait.webp",cover_path:null}),
+ fulfilled([{id:"one"}]),fulfilled([]),rejected
+])),[true,false,true,false,null]);
+assert.deepEqual(Array.from(milestoneSnapshot([
+ denied,fulfilled([]),rejected,fulfilled([{club_id:"91"}])
+])),[null,null,false,null,true]);
 assert.equal(saveState(store,"654321","done",7),true);
 assert.equal(readState(store,"654321").status,"done");
 assert.equal(readState(store,"789012").status,"skipped");
