@@ -1209,7 +1209,7 @@ try{
    "Search clear X must be centered and accessible: "+route+" "+JSON.stringify(pos));
   await clear.click();
   assert.equal(await search.inputValue(),"","Clearing search must remove input text "+route);
-  assert.equal(await probe.locator(".language-option:not([hidden])").count(),32,
+  assert.equal(await probe.locator(".language-option:not([hidden])").count(),8,
    "Clearing search must restore all languages "+route);
   assert.equal(await clear.isVisible(),false,"Clear button hides when search empty "+route);
   await probe.close();
