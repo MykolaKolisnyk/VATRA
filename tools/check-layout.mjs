@@ -217,11 +217,14 @@ assert.ok(css.includes('.vatra-input-shell .control::placeholder{color:transpare
  !css.includes('.create-account-floating-label'),
  "Both auth forms must have one floating hint per field without duplicate native labels");
 assert.ok(!css.includes("*::-webkit-scrollbar")&&!css.includes("*{scrollbar-width")&&
- css.includes(".vatra-select-list::-webkit-scrollbar-thumb")&&
- css.includes(".captcha-dialog::-webkit-scrollbar-thumb")&&
- css.includes(".language-scroll-track{")&&
- css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)"),
- "The website must keep its native browser scrollbar; custom scrollbar styling belongs only inside VATRA forms");
+ !css.includes("html::-webkit-scrollbar")&&!css.includes("body::-webkit-scrollbar")&&
+ css.includes("@property --vatra-form-scroll-alpha")&&
+ css.includes(".language-scroll-track.is-visible")&&
+ css.includes("background:#454b54")&&
+ css.includes("scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent")&&
+ css.includes(".captcha-dialog")&&css.includes(".vatra-select-list")&&
+ !css.includes(".language-scroll-track:hover"),
+ "Page-level scrollbars must stay native; only VATRA forms get dark, fading, hover-free scrollbars");
 assert.ok(!css.includes(".orbit-badge")&&!css.includes("one-styleFix"),
  "Do not keep orphaned controls or cosmetic fix layers");
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,"Unbalanced CSS");
