@@ -30,6 +30,8 @@ jobs:
         run: node tools/vatryk-artwork-smoke.mjs
       - name: Check Vatryk first-visit onboarding without production requests
         run: node tools/onboarding-smoke.mjs
+      - name: Check original VATRA gifts and fullscreen decorative viewer
+        run: node tools/gift-viewer-smoke.mjs
       - name: Check shared friends and notifications cache
         run: node tools/shared-social-cache-smoke.mjs
       - name: Check notification request deduplication and session teardown
