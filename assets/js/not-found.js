@@ -4,10 +4,10 @@
 (() => {
     // Decorative mascot is part of the 404 layout, not a downloadable image UI.
     // This is scoped to the illustration; links and the rest of the page work normally.
-    document.addEventListener("contextmenu",event=>{
+    document.addEventListener?.("contextmenu",event=>{
       if(event.target?.closest?.(".ui-404-vatryk-001"))event.preventDefault();
     });
-    document.addEventListener("dragstart",event=>{
+    document.addEventListener?.("dragstart",event=>{
       if(event.target?.closest?.(".ui-404-vatryk-001"))event.preventDefault();
     });
     /* Existing bookmarks and Supabase email links may use former locale folders. */
