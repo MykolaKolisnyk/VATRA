@@ -6,11 +6,11 @@
 
 | Розділ у Supabase | HTML-файл | Subject для поля Supabase |
 |---|---|---|
-| Confirm sign up | `confirmation.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Confirm email{{ else }}VATRA · Підтвердження пошти{{ end }}` |
+| Confirm sign up | `confirmation.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Confirm email{{ else if eq .Data.preferred_locale "pl" }}VATRA · Potwierdź adres e-mail{{ else if eq .Data.preferred_locale "de" }}VATRA · E-Mail-Adresse bestätigen{{ else if eq .Data.preferred_locale "fr" }}VATRA · Confirmez votre adresse e-mail{{ else if eq .Data.preferred_locale "it" }}VATRA · Conferma l'indirizzo email{{ else if eq .Data.preferred_locale "ka" }}VATRA · ელფოსტის დადასტურება{{ else if eq .Data.preferred_locale "bg" }}VATRA · Потвърдете имейла{{ else }}VATRA · Підтвердження пошти{{ end }}` |
 | Invite user | `invite.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Invitation{{ else }}VATRA · Запрошення{{ end }}` |
 | Magic link or OTP | `magic-link.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Sign-in code{{ else }}VATRA · Код входу{{ end }}` |
 | Change email address | `email-change.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Confirm new email{{ else }}VATRA · Підтвердження нової пошти{{ end }}` |
-| Reset password | `recovery.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Password recovery{{ else }}VATRA · Відновлення пароля{{ end }}` |
+| Reset password | `recovery.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Password recovery{{ else if eq .Data.preferred_locale "pl" }}VATRA · Odzyskiwanie hasła{{ else if eq .Data.preferred_locale "de" }}VATRA · Passwort wiederherstellen{{ else if eq .Data.preferred_locale "fr" }}VATRA · Récupération du mot de passe{{ else if eq .Data.preferred_locale "it" }}VATRA · Recupero della password{{ else if eq .Data.preferred_locale "ka" }}VATRA · პაროლის აღდგენა{{ else if eq .Data.preferred_locale "bg" }}VATRA · Възстановяване на парола{{ else }}VATRA · Відновлення пароля{{ end }}` |
 | Reauthentication | `reauthentication.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Verification code{{ else }}VATRA · Код підтвердження{{ end }}` |
 | Password changed (Security) | `password-changed.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Password changed{{ else }}VATRA · Пароль змінено{{ end }}` |
 | Email address changed (Security) | `email-address-changed.html` | `{{ if eq .Data.preferred_locale "en" }}VATRA · Email changed{{ else }}VATRA · Пошту змінено{{ end }}` |
@@ -19,7 +19,7 @@
 
 Фінальний реліз VATRA планується на **Supabase Pro**. Усі шаблони в цьому каталозі готуються для продакшн-використання з цим тарифом: Confirm sign up, Invite, Magic link, Change email, Reset password, Reauthentication та два Security Notifications. Під час запуску налаштуйте власний надійний SMTP-відправник, SPF, DKIM і DMARC та дозволені URL для переходів. **Не перемикайте тариф і не змінюйте активні шаблони без окремої команди.**
 
-Перед застосуванням у продакшні виконайте `go run tools/email-template-audit.go`: тест відтворює всі вісім HTML/Go-шаблонів українською й англійською, підставляє тестові OTP і адреси та перевіряє HTTPS-посилання. Він не відправляє листів і не змінює налаштування Supabase. Після вставлення потрібні окремі тестові листи до реального поштового клієнта (мобільний Gmail, Apple Mail та Outlook) і перевірка SMTP/URL allow list. Перш ніж замінювати робочі шаблони, збережіть їхні попередні версії.
+Перед застосуванням у продакшні виконайте `go run tools/email-template-audit.go`: тест відтворює всі вісім HTML/Go-шаблонів українською й англійською, а для підтвердження пошти й відновлення пароля — також шістьма новими мовами, підставляє тестові OTP і адреси та перевіряє HTTPS-посилання. Він не відправляє листів і не змінює налаштування Supabase. Після вставлення потрібні окремі тестові листи до реального поштового клієнта (мобільний Gmail, Apple Mail та Outlook) і перевірка SMTP/URL allow list. Перш ніж замінювати робочі шаблони, збережіть їхні попередні версії.
 
 ## Підтвердження пошти з іншого пристрою
 
@@ -31,6 +31,9 @@
 
 - Для `en` відображається англійський текст.
 - Для `uk` або відсутніх метаданих — український.
+
+- Для `pl`, `de`, `fr`, `it`, `ka` та `bg` у **двох підготовлених шаблонах** (`confirmation.html` і `recovery.html`) вже є відповідні переклади Body та Subject. Інші шість шаблонів наразі двомовні та повертаються до української. Це лише підготовка файлів GitHub: **робочі шаблони Supabase не змінено, а шість нових мов інтерфейсу ще не увімкнено**.
+
 - Після реєстрації мова листів визначається збереженими метаданими акаунта; лише зміна мови сторінки без зміни цих метаданих не перемикає мову автоматичного листа.
 - Теми **Subject** тепер записані як умовні Go-шаблони: `VATRA · ...` для `en` або `uk` (якщо значення `preferred_locale` відсутнє — українська). Вставляйте у **Subject** весь рядок `{{ if ... }}...{{ else }}...{{ end }}` із таблиці вище, не лише відображувану назву.
 - Теми потрібно зберегти окремо в **Supabase → Authentication → Emails**. Коміт у GitHub **не оновлює** активне поле Subject. Після збереження перевірте реальні листи при `uk` та `en`, особливо для Security Notifications: наявність метаданих мови в конкретній події визначає фактичний результат. Не вважайте рендеринг у локальному тесті підтвердженням доставки.
