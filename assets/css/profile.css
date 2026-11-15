@@ -2762,8 +2762,8 @@ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{
  position:relative;top:-18px
 }
 @media(max-width:970px){
- body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-15px}
+ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-20px}
 }
 @media(max-width:600px){
- body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-12px}
+ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-18px}
 }
