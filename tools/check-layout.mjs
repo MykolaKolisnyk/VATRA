@@ -1989,7 +1989,8 @@ assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.sup
  auth.includes('if(suppressRestore||event?.pointerType==="touch"'),
  "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
 assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
- errorPage.includes('src="/VATRA/assets/vatryk/vatryk-404.png"')&&
+ errorPage.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
+ notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk-404.png")')&&
  errorPage.includes('class="sr-only vt-404-accessible-title-001"')&&
  !errorPage.includes('class="account-card error-card')&&
  !errorPage.includes('class="error-code')&&
