@@ -4472,6 +4472,14 @@ try{
    systemCover.image.includes(systemCover.expected),
    "The missing member's cover is rendered by CSS SVG, not a separate file");
   assert.equal(await profilePage.locator("#profile-avatar").isVisible(),true);
+  assert.equal(await profilePage.locator("body").getAttribute("data-vatra-profile-unavailable"),"not-found");
+  const missingAlignment=await profilePage.evaluate(()=>{
+   const avatar=document.querySelector("#profile-avatar").getBoundingClientRect();
+   const title=document.querySelector("#profile-heading").getBoundingClientRect();
+   return Math.abs((avatar.top+avatar.bottom)/2-(title.top+title.bottom)/2);
+  });
+  assert.ok(missingAlignment<14,
+   "Unavailable avatar and title must share a visually centered baseline: "+missingAlignment);
   const fallbackStyle=await profilePage.locator("#profile-avatar").evaluate(el=>{
    const style=getComputedStyle(el),head=getComputedStyle(el,"::before");
    const width=el.getBoundingClientRect().width;
@@ -4525,6 +4533,13 @@ try{
    assert.equal((await profilePage.locator("#profile-heading").textContent()).trim(),title);
    assert.equal(await profilePage.locator("#profile-avatar").getAttribute("data-vatra-avatar-state"),state);
    assert.equal(await profilePage.locator("#profile-avatar-wrap").getAttribute("data-vatra-ring-kind"),state);
+   assert.equal(await profilePage.locator("body").getAttribute("data-vatra-profile-unavailable"),state);
+   const gap=await profilePage.evaluate(()=>{
+    const portrait=document.querySelector("#profile-avatar").getBoundingClientRect();
+    const heading=document.querySelector("#profile-heading").getBoundingClientRect();
+    return Math.abs((portrait.top+portrait.bottom)/2-(heading.top+heading.bottom)/2);
+   });
+   assert.ok(gap<14,"System profile avatar/title must align for "+state+": "+gap);
    const neutralArt=await profilePage.locator("#profile-avatar").evaluate(el=>({
     actualAvatar:window.VATRA_AVATAR.asset(el.dataset.vatraAvatarState),
     sharedAvatar:window.VATRA_AVATAR.asset("default"),
