@@ -256,8 +256,8 @@ assert.ok(lang.includes('clearSearch.className="language-search-clear vt-languag
  css.includes(".language-search::-webkit-search-cancel-button,"),
  "Language search must use a centered SVG clear button, not the browser X");
 const excludedLocales=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
-assert.ok(!/\["(?:ru|be)"/.test(excludedLocales),
- "Russian and Belarusian language entries must not appear in VATRA");
+assert.ok(!/\["(?:ru|be|sk|hu|sr|zh)"/.test(excludedLocales),
+ "Unavailable and intentionally excluded locale entries must not appear in VATRA");
 
 /* Verify language selection across independent page loads, cookie fallback,
    old Ukrainian bookmarks, and browsers which reject cookies. */
@@ -330,9 +330,9 @@ assert.ok(lang.includes('["uk","Українська","Ukrainian","ua",true]')&&
  lang.includes('["pl","Polski","Polish","pl"]')&&
  lang.includes("In development")&&lang.includes("У розробці")&&
  lang.includes("assets/flags/"),
- "Language picker must keep all 36 locales, with only two selectable and their flags visible");
+ "Language picker must keep the curated 32 locales, with only two selectable and their flags visible");
 const languageSection=lang.slice(lang.indexOf("  const languages = ["),lang.indexOf("  const flagGroups="));
-assert.equal((languageSection.match(/\["/g)||[]).length,36,"Language picker must show 36 choices");
+assert.equal((languageSection.match(/\["/g)||[]).length,32,"Language picker must show 32 choices");
 assert.equal((languageSection.match(/,true\]/g)||[]).length,2,"Only Ukrainian and English are active");
 const flagSymbols=new Set();
 for(const file of ["europe-a","europe-b","europe-c","world"]){
@@ -340,7 +340,7 @@ for(const file of ["europe-a","europe-b","europe-c","world"]){
  for(const match of sprite.matchAll(/<symbol id="flag-([a-z]+)" viewBox="0 0 640 480"/g))
   flagSymbols.add(match[1]);
 }
-assert.equal(flagSymbols.size,36,"All available VATRA language flags must be real vector symbols");
+assert.equal(flagSymbols.size,32,"All displayed VATRA language flags must be real vector symbols");
 for(const match of languageSection.matchAll(/\["[a-z]+","[^"]+","[^"]+","([a-z]+)"/g))
  assert.ok(flagSymbols.has(match[1]),"Flag SVG missing for "+match[1]);
 assert.ok(lang.includes('const ROOT=new URL("../../",scriptUrl).pathname;'),
