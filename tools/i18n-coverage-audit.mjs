@@ -45,7 +45,9 @@ for(const code of codes){
  assert.deepEqual(status.translated_static_pages,activePages,
   code+": localized static page manifest must match all twelve page catalogs");
  assert.equal(status.dynamic_strings_complete,false,
-  code+": dynamic JavaScript messages still require a dedicated translation audit");
+  code+": locale-specific JavaScript paths still require localization before launch");
+ assert.equal(status.shared_catalog_complete,true,
+  code+": all shared UK-source translation keys must be present before publishing");
  assert.equal(status.email_templates_complete,false,
   code+": untranslated Supabase email templates must not be marked ready");
  assert.equal(status.legal_review_complete,false,
@@ -97,9 +99,12 @@ for(const code of codes){
  assert.ok(untranslatedCritical<criticalMessages.length*0.05,
   code+": account and status messages must not remain in Ukrainian: "+
    untranslatedCritical+"/"+criticalMessages.length);
- const covered=dynamicKeys.filter(key=>typeof dictionary[key]==="string").length;
- assert.ok(covered>40&&covered<dynamicKeys.length,
-  code+": dynamic translation coverage must be honestly incomplete");
+ const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
+ assert.deepEqual(missing,[],code+": shared source key coverage must be complete");
+ const covered=dynamicKeys.length;
+ const untranslated=dynamicKeys.filter(key=>dictionary[key].trim()===key.trim());
+ assert.ok(untranslated.length<=8,
+  code+": unexpectedly many shared phrases remain in Ukrainian: "+untranslated.join(" | "));
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": invalid shared translation for "+key);
@@ -107,6 +112,6 @@ for(const code of codes){
   code+": all 12 static pages must be present in the catalog");
  console.log("VATRA "+code+": "+activePages.length+"/"+targetPages.length+
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+
-  " shared dynamic phrases; legal review, dynamic JS and email templates pending");
+  " shared translation keys; locale-specific JavaScript, legal review and email templates pending");
 }
 console.log("VATRA unpublished locale integrity and rollout gate: OK");
