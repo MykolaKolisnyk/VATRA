@@ -106,7 +106,6 @@
 
 .signup-overline-labels{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;min-width:0}
 .signup-form-overline .create-account-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}
-.signup-step-number{font-size:12px;color:#356ee0;font-weight:750;white-space:nowrap;background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .signup-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:26px}
 .signup-progress-segment{display:block;height:5px;border-radius:999px;background:#e6ebf6;transition:background-color .28s ease}
 .signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
