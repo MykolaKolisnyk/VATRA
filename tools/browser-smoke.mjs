@@ -572,6 +572,16 @@ try{
  await page.locator("[data-language-trigger]").click();
  const dialog=page.locator(".language-dialog");
  await dialog.waitFor({state:"visible"});
+ // Eight choices fit on ordinary desktops. The rail should disappear if
+ // there is no overflow, yet remain usable in genuinely compact dialogs.
+ await page.locator(".language-scroll-shell").evaluate(shell=>{
+  shell.style.flex="0 0 150px";shell.style.height="150px";
+  shell.style.maxHeight="150px";
+ });
+ await page.waitForFunction(()=>{
+  const list=document.querySelector(".language-grid"),rail=document.querySelector(".language-scroll-track");
+  return list&&rail&&list.scrollHeight>list.clientHeight+2&&!rail.hidden;
+ });
  const scrollbarStyle=await page.locator(".language-scroll-track").evaluate(track=>({
   track:getComputedStyle(track).backgroundColor,
   thumb:getComputedStyle(track.querySelector(".language-scroll-thumb")).backgroundColor,
@@ -606,10 +616,12 @@ try{
   modalAnimations.content.includes("vatraAuthReveal")&&
   modalAnimations.backdrop.includes("vatraLanguageBackdrop"),
   "Language dialog shell must stay still and only its content may rise");
- assert.equal(await page.locator(".language-option").count(),32,"Language directory count");
- for(const code of ["sk","hu","sr","zh"])
-  assert.equal(await page.locator(".vt-language-choice-"+code).count(),0,
-   "Removed locale must not appear in VATRA: "+code);
+ assert.deepEqual(await page.locator(".language-option").evaluateAll(nodes=>
+  nodes.map(node=>node.className.match(/vt-language-choice-([a-z]+)/)?.[1])),
+  ["uk","en","pl","de","fr","it","ka","bg"],
+  "VATRA must show exactly eight selected languages and no removed placeholders");
+ assert.equal(await page.locator(".language-option:disabled").count(),6,
+  "New translations must not be selectable before complete reviewed dictionaries ship");
  await page.locator("#vatra-language-search").fill("English");
  await page.locator(".language-option:not([disabled])").filter({hasText:"English"}).first().click();
  await page.waitForFunction(()=>document.documentElement.lang==="en");
@@ -1236,7 +1248,7 @@ try{
    "Search clear X must be centered and accessible: "+route+" "+JSON.stringify(pos));
   await clear.click();
   assert.equal(await search.inputValue(),"","Clearing search must remove input text "+route);
-  assert.equal(await probe.locator(".language-option:not([hidden])").count(),32,
+  assert.equal(await probe.locator(".language-option:not([hidden])").count(),8,
    "Clearing search must restore all languages "+route);
   assert.equal(await clear.isVisible(),false,"Clear button hides when search empty "+route);
   await probe.close();
