@@ -88,6 +88,8 @@ function setup(){
  close.type="button";close.setAttribute("aria-label",lang("Закрити подарунок","Close gift"));
  close.addEventListener("click",()=>dialog.close());top.append(heading,close);
  stage=make("div","vatra-gift-viewer-stage ui-vatra-gift-viewer-stage-001");
+ stage.addEventListener("dragstart",event=>event.preventDefault());
+ stage.addEventListener("contextmenu",event=>event.preventDefault());
  effects=make("div","vatra-gift-effects ui-vatra-gift-effects-001");
  effects.setAttribute("aria-hidden","true");
  picture=make("span","vatra-gift-viewer-picture ui-vatra-gift-viewer-picture-001");
