@@ -106,7 +106,6 @@
 
 .signup-overline-labels{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;min-width:0}
 .signup-form-overline .create-account-back-nav{margin-left:auto;max-width:none;min-width:0;animation:none}
-.signup-step-number{font-size:12px;color:#356ee0;font-weight:750;white-space:nowrap;background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .signup-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:26px}
 .signup-progress-segment{display:block;height:5px;border-radius:999px;background:#e6ebf6;transition:background-color .28s ease}
 .signup-progress-segment:first-child,.create-account-page[data-registration-step="2"] .signup-progress-segment:last-child{background:#3771df;background:linear-gradient(90deg,#2c70e8,#8759e5)}
@@ -133,7 +132,13 @@
 .vatra-select-trigger.is-placeholder{color:var(--soft)}
 .vatra-select.is-open{z-index:50}
 .vatra-select.is-open .vatra-select-trigger{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
-.vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;max-height:304px;overflow-y:auto;overscroll-behavior:contain;padding:6px;background:#fff;border:1px solid #d7ddea;border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15);}
+.vatra-select-list{position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:60;
+ max-height:304px;overflow:hidden;padding:0;background:#fff;border:1px solid #d7ddea;
+ border-radius:13px;box-shadow:0 16px 42px rgba(26,44,92,.15)}
+/* Scroll in an inner viewport: keep the thumb away from rounded corners. */
+.vatra-select-scroll-area{box-sizing:border-box;display:block;width:calc(100% - 9px);
+ max-height:inherit;overflow-y:auto;overscroll-behavior:contain;
+ margin-right:9px;padding:6px 3px 7px 6px}
 
 
 

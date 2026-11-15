@@ -619,7 +619,7 @@
 (()=>{
  "use strict";
  const selector=[
-  ".captcha-dialog",".vatra-select-list",".vt-tour-card-001",
+  ".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scroll-area-001",
   ".feed-compose-dialog",".feed-story-dialog",".club-compose-dialog",
   ".vatra-post-comment-dialog-content",".vatra-gallery-picker-grid",
   ".vatra-search-history",".vatra-search-live-results",".feed-account-dropdown",

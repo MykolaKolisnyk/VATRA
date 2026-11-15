@@ -742,16 +742,6 @@
             "0": "CREATE AN ACCOUNT"
           }
         },
-        "n209": {
-          "text": {
-            "0": "Step 1 of 2"
-          }
-        },
-        "n210": {
-          "text": {
-            "0": "Step 2 of 2"
-          }
-        },
         "n211": {
           "attrs": {
             "aria-label": "Account creation progress"

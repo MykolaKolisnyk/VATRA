@@ -890,7 +890,7 @@ body.feed-page .vatra-search-back:focus-visible{outline:2px solid #4875df;outlin
 .vatra-search-history{
  display:flex;flex-direction:column;flex:0 1 auto;min-height:0;
  max-height:min(290px,54dvh);overflow-y:auto;overscroll-behavior:contain;
- padding:2px 9px 8px 12px;
+ margin:3px 8px 9px 0;padding:2px 10px 8px 12px;
  
 }
 .vatra-search-history-row{

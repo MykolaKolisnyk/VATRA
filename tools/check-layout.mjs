@@ -702,9 +702,10 @@ const returnStart=registrationMarkup.indexOf('<nav class="create-account-back-na
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-create-account-div-001">');
 const overlineStart=registrationMarkup.indexOf('<div class="signup-form-overline ui-signup-form-overline-001">');
 const labelsStart=registrationMarkup.indexOf('<div class="signup-overline-labels ui-signup-overline-labels-001">');
-const firstStep=registrationMarkup.indexOf('class="signup-step-number vt-signup-step-number-01"');
+const kickerStart=registrationMarkup.indexOf('class="signup-form-kicker vt-signup-form-kicker-01"');
 assert.ok(formStart>=0&&innerStart>formStart&&
- overlineStart>innerStart&&labelsStart>overlineStart&&firstStep>labelsStart&&returnStart>firstStep&&
+ overlineStart>innerStart&&labelsStart>overlineStart&&kickerStart>labelsStart&&returnStart>kickerStart&&
+ !registrationMarkup.includes('data-step-label=')&&
  (registrationMarkup.match(/class="create-account-back-nav ui-create-account-back-nav-001"/g)||[]).length===1&&
  css.includes('.create-account-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
  css.includes('max-width:none;margin:0;padding:0}')&&
@@ -2077,7 +2078,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
  register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="create-account-back-nav')&&
  !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
  legalCss.includes('.policy-page .footer{min-height:70px;padding-inline:0}'),
- "Auth footer CTA slots and legal footer height must match; signup nav belongs beside step labels");
+ "Auth footer CTA slots and legal footer height must match; signup nav belongs beside the brand kicker");
 
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
@@ -2115,9 +2116,11 @@ assert.ok(landing.includes('id="saved-account-return" class="saved-account-retur
  auth.includes('Не вдалося увійти. Перевірте пароль.')&&
  en["Не вдалося увійти. Перевірте пароль."]==="Could not sign in. Check your password.",
  "Saved account must have a top-left return control, equal state heights and localized password guidance");
-assert.ok(css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5);-webkit-background-clip:text;background-clip:text')&&
+assert.ok(css.includes('.signup-progress-segment:first-child')&&
+ css.includes('background:linear-gradient(90deg,#2c70e8,#8759e5)')&&
+ !register.includes('data-step-label=')&&!css.includes('.signup-step-number{')&&
  !css.includes('min-width:148px')&&!css.includes('min-width:132px'),
- "Signup step color should match the progress gradient, and footer links must have natural widths");
+ "Signup keeps the accessible progress bar without redundant step text; footer links retain natural widths");
 
 // The remembered account note is exclusive to the overview, without changing
 // the card height; all footer link touch targets use the shared stylesheet.

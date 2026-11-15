@@ -582,25 +582,28 @@ try{
  await localizedSignup.locator(".vt-select-trigger-birth-day").click();
  const dateList=localizedSignup.locator(".ui-select-options-birth-day");
  await dateList.waitFor({state:"visible"});
- await dateList.hover();
+ const dateScroller=dateList.locator(".vatra-select-scroll-area");
+ await dateScroller.hover();
  await localizedSignup.waitForFunction(()=>document.querySelector(
-  ".ui-select-options-birth-day")?.classList.contains("vatra-form-scroll-active"));
- const dateStyle=await dateList.evaluate(el=>({
+  ".ui-select-scroll-birth-day")?.classList.contains("vatra-form-scroll-active"));
+ const dateStyle=await dateScroller.evaluate(el=>({
   track:getComputedStyle(el,"::-webkit-scrollbar-track").backgroundColor,
   arrow:getComputedStyle(el,"::-webkit-scrollbar-button").display,
   active:el.classList.contains("vatra-form-scroll-active"),
-  scrollable:el.scrollHeight>el.clientHeight
+  scrollable:el.scrollHeight>el.clientHeight,
+  rightInset:el.parentElement.getBoundingClientRect().right-el.getBoundingClientRect().right
  }));
  assert.equal(dateStyle.scrollable,true,"Date dropdown should remain scrollable");
  assert.equal(dateStyle.active,true,"Date scrollbar must show while mouse is inside");
+ assert.ok(dateStyle.rightInset>=8,"Birthday scrollbar must be inset from its rounded popup");
  if(await localizedSignup.evaluate(()=>CSS.supports("selector(::-webkit-scrollbar)")))
   assert.equal(dateStyle.arrow,"none","Native date dropdown arrows must be hidden");
  await localizedSignup.waitForTimeout(1150);
- assert.equal(await dateList.evaluate(el=>el.classList.contains("vatra-form-scroll-active")),
+ assert.equal(await dateScroller.evaluate(el=>el.classList.contains("vatra-form-scroll-active")),
   true,"Date scrollbar should stay visible while pointer remains inside");
  await localizedSignup.mouse.move(2,2);
  await localizedSignup.waitForFunction(()=>!document.querySelector(
-  ".ui-select-options-birth-day")?.classList.contains("vatra-form-scroll-active"));
+  ".ui-select-scroll-birth-day")?.classList.contains("vatra-form-scroll-active"));
  await localizedSignup.keyboard.press("Escape");
  assert.deepEqual(await localizedSignup.locator(".signup-brand-highlight").allTextContents(),["#communication","#communities","#photos","#videos","#music","#marketplace","#clips"],
   "The registration hashtags must be translated into English");
@@ -880,9 +883,9 @@ try{
     backInside:(()=>{
      const row=document.querySelector(".signup-form-overline").getBoundingClientRect();
      const labels=document.querySelector(".signup-overline-labels").getBoundingClientRect();
-     const step=document.querySelector('[data-step-label="1"]').getBoundingClientRect();
+     const kicker=document.querySelector(".signup-form-kicker").getBoundingClientRect();
      return nav.top>=row.top-2&&nav.bottom<=row.bottom+2&&nav.right<=form.right+1&&
-      labels.left<step.right&&(nav.top>=labels.bottom-2||labels.right<=nav.left+2)&&nav.top>=form.top;
+      labels.left<kicker.right&&(nav.top>=labels.bottom-2||labels.right<=nav.left+2)&&nav.top>=form.top;
     })(),
     fits:main.bottom<=footerTop+1&&footerTop<=innerHeight+1,
     centerDelta:Math.abs((main.top+main.bottom)/2-footerTop/2),bottomGap:footerTop-main.bottom,
@@ -892,11 +895,8 @@ try{
   assert.ok(layout.overflow<=3,"Signup overflow at "+width+": "+JSON.stringify(layout));
   assert.ok(layout.brandKickerAbsent&&layout.footerAligned,"Registration footer or brand label is misaligned at "+width+": "+JSON.stringify(layout));
   assert.equal(layout.authAnimation,"vatraAuthReveal","Whole registration form must animate like sign-in");
-  const stepAppearance=await signup.locator('[data-step-label="1"]').evaluate(el=>({
-   background:getComputedStyle(el).backgroundImage,fontSize:getComputedStyle(el).fontSize
-  }));
-  assert.ok(stepAppearance.background.includes("linear-gradient")&&stepAppearance.fontSize==="12px",
-   "Signup step label should share the progress bar gradient and original size at "+width);
+  assert.equal(await signup.locator("[data-step-label]").count(),0,
+   "Signup must not duplicate the progress bar with visible step labels");
   assert.equal(layout.stageAnimation,"none","Only the full registration form should animate at entry");
   assert.ok(layout.headerAbsent&&layout.backAligned&&layout.backInside,
    "Signup return link must be inside the right registration card at "+width+": "+JSON.stringify(layout));
@@ -1011,7 +1011,7 @@ try{
  assert.ok(secondStageMotion.content==="vatraAuthReveal"&&
   ["shell","heading","fields","logoPanel"].every(key=>secondStageMotion[key]==="none")&&
   secondStageMotion.includesTitle&&secondStageMotion.includesProgress&&secondStageMotion.includesFields,
-  "On signup step two, headline, step indicator, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
+  "On signup step two, headline, progress and fields must rise together: "+JSON.stringify(secondStageMotion));
  await stepTwo.locator("#create-account-back").click();
  await stepTwo.waitForFunction(()=>window.__vatraSignupRevealCount>=2);
  assert.equal(await stepTwo.locator('.signup-step[data-create-account-step="1"]').isVisible(),true);
@@ -2816,6 +2816,13 @@ try{
   assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
   await feedProbe.locator(".vt-tour-skip-001").click();
   assert.equal(await feedProbe.locator(".vt-tour-checklist-001 a").count(),5);
+  const tourScrollbar=await feedProbe.locator(".vt-tour-scroll-area-001").evaluate(el=>({
+   inset:el.parentElement.getBoundingClientRect().right-el.getBoundingClientRect().right,
+   width:el.clientWidth,outerWidth:el.parentElement.clientWidth,
+   scrollable:el.scrollHeight>el.clientHeight+1
+  }));
+  assert.ok(tourScrollbar.inset>=9&&tourScrollbar.width<tourScrollbar.outerWidth,
+   "Vatryk checklist scrollbar must be contained inside its white rounded card");
   await feedProbe.locator(".vt-tour-next-001").click();
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
   await feedProbe.locator(".feed-account-toggle").click();
@@ -5005,18 +5012,21 @@ try{
       await view.locator(".vt-select-trigger-birth-month").click();
       const list=view.locator(".ui-select-options-birth-month");
       await list.waitFor({state:"visible"});
-      await list.hover();
+      const scrollArea=list.locator(".vatra-select-scroll-area");
+      await scrollArea.hover();
       await view.waitForFunction(()=>document.querySelector(
-       ".ui-select-options-birth-month")?.classList.contains("vatra-form-scroll-active"));
-      const style=await list.evaluate(node=>({
+       ".ui-select-scroll-birth-month")?.classList.contains("vatra-form-scroll-active"));
+      const style=await scrollArea.evaluate(node=>({
        overflow:node.scrollHeight>node.clientHeight,
        thumb:getComputedStyle(node).scrollbarColor,
        arrows:CSS.supports("selector(::-webkit-scrollbar)")?
         getComputedStyle(node,"::-webkit-scrollbar-button").display:null,
        track:CSS.supports("selector(::-webkit-scrollbar)")?
-        getComputedStyle(node,"::-webkit-scrollbar-track").backgroundColor:null
+        getComputedStyle(node,"::-webkit-scrollbar-track").backgroundColor:null,
+       inset:node.parentElement.getBoundingClientRect().right-node.getBoundingClientRect().right
       }));
       assert.equal(style.overflow,true,engine+" birthday list must scroll");
+      assert.ok(style.inset>=8,engine+" scrollbar must be inset from popup corner");
       if(style.arrows!==null){
        assert.equal(style.arrows,"none",engine+" native up/down arrows should not appear");
        assert.equal(style.track,"rgba(0, 0, 0, 0)",
@@ -5026,11 +5036,11 @@ try{
         engine+" must use graphite native scrollbar color: "+style.thumb);
       }
       await view.waitForTimeout(250);
-      assert.equal(await list.evaluate(node=>node.classList.contains("vatra-form-scroll-active")),
+      assert.equal(await scrollArea.evaluate(node=>node.classList.contains("vatra-form-scroll-active")),
        true,engine+" scrollbar stays visible while pointer is inside");
       await view.mouse.move(3,3);
       await view.waitForFunction(()=>!document.querySelector(
-       ".ui-select-options-birth-month")?.classList.contains("vatra-form-scroll-active"));
+       ".ui-select-scroll-birth-month")?.classList.contains("vatra-form-scroll-active"));
       await view.keyboard.press("Escape");
      }
      const measurements=await view.evaluate(()=>{

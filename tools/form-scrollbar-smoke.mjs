@@ -18,13 +18,26 @@ assert.ok(base.includes("@property --vatra-form-scroll-alpha")&&
  base.includes("scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent"),
  "Native form scrollbars must retain dark fade animation");
 assert.ok(base.includes("@supports selector(::-webkit-scrollbar)")&&
+ base.includes("scrollbar-width:thin!important")&&
+ !base.includes("scrollbar-width:auto!important")&&
  base.includes("::-webkit-scrollbar-button")&&
  base.includes("display:none!important;width:0!important;height:0!important"),
  "Chromium/Opera form lists must suppress native top/bottom arrow buttons");
-for(const scope of [".captcha-dialog",".vatra-select-list",".vt-tour-card-001",
+for(const scope of [".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scroll-area-001",
  ".vatra-search-history",".profile-photo-comments",".profile-compose-dialog",
  ".vatra-post-composer-edit",".vatra-notification-panel","textarea"])
  assert.ok(base.includes(scope),"Missing shared scrollbar scope: "+scope);
+assert.ok(signup.includes(".vatra-select-scroll-area")&&
+ signup.includes("margin-right:9px")&&signup.includes("overflow:hidden"),
+ "Birthday lists must scroll within an inset viewport and preserve popup corners");
+assert.ok(feed.includes("margin:3px 8px 9px 0"),
+ "Search history scrollbar should be inset from the popup edges");
+const onboarding=await readFile("assets/css/onboarding.css","utf8");
+const tour=await readFile("assets/js/onboarding.js","utf8");
+assert.ok(onboarding.includes(".vt-tour-scroll-area-001")&&
+ onboarding.includes("width:calc(100% - 10px);margin-right:10px")&&
+ tour.includes("card.append(scrollArea)")&&tour.includes("scrollArea.append(actions)"),
+ "Tour must scroll inside its rounded frame, not along its outside edge");
 for(const css of [signup,feed,profile])
  assert.ok(!css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)")&&
   !css.includes("linear-gradient(180deg,#8bb1f6,#8274d7)"),
@@ -45,7 +58,7 @@ const context={document,WeakMap,WeakSet,
 runInNewContext(lang.slice(start),context);
 const classes=new Set();
 const element={
- matches:selector=>selector.includes(".vatra-select-list"),
+ matches:selector=>selector.includes(".vatra-select-scroll-area"),
  closest:()=>element,
  classList:{add:v=>classes.add(v),remove:v=>classes.delete(v)},
  scrollHeight:400,clientHeight:200
