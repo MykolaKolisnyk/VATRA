@@ -13,7 +13,8 @@
       "forgot",
       "reset",
       "terms",
-      "privacy"
+      "privacy",
+      "cookies"
     ]
   },
   "__pages": {
@@ -2032,6 +2033,349 @@
           }
         }
       }
+    },
+    "cookies": {
+      "meta": {
+        "title": "Cookies und Browserspeicher · VATRA",
+        "description": "Cookies und Browserdaten bei VATRA: Speicherung von Sitzungen und Einstellungen.",
+        "og:locale": "de_DE",
+        "og:title": "Cookies und Browserspeicher — VATRA",
+        "og:description": "Cookies und Browserdaten bei VATRA: Speicherung von Sitzungen und Einstellungen."
+      },
+      "nodes": {
+        "n1": {
+          "text": {
+            "0": "Zum Inhalt springen"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA – Startseite"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Anmelden"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Konto erstellen"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Dokumentabschnitte"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Nutzungsbedingungen"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Datenschutz"
+          }
+        },
+        "n17": {
+          "text": {
+            "0": "Cookies und Browserspeicher"
+          }
+        },
+        "n18": {
+          "text": {
+            "0": "Was Ihr Browser bei der Nutzung von VATRA speichert und wie Sie dies verwalten können."
+          }
+        },
+        "n19": {
+          "text": {
+            "0": "Aktualisiert am 8. November 2026"
+          }
+        },
+        "n21": {
+          "attrs": {
+            "aria-label": "Inhaltsverzeichnis"
+          }
+        },
+        "n22": {
+          "text": {
+            "0": "Auf dieser Seite"
+          }
+        },
+        "n24": {
+          "text": {
+            "0": "Was sind Cookies?"
+          }
+        },
+        "n25": {
+          "text": {
+            "0": "Was VATRA verwendet"
+          }
+        },
+        "n26": {
+          "text": {
+            "0": "Warum Daten gespeichert werden"
+          }
+        },
+        "n27": {
+          "text": {
+            "0": "So verwalten Sie Ihre Daten"
+          }
+        },
+        "n28": {
+          "text": {
+            "0": "Drittanbieter"
+          }
+        },
+        "n29": {
+          "text": {
+            "0": "Weitere Informationen"
+          }
+        },
+        "n32": {
+          "text": {
+            "0": "Inhaltsverzeichnis"
+          }
+        },
+        "n34": {
+          "text": {
+            "0": "Was sind Cookies?"
+          }
+        },
+        "n35": {
+          "text": {
+            "0": "Was VATRA verwendet"
+          }
+        },
+        "n36": {
+          "text": {
+            "0": "Warum Daten gespeichert werden"
+          }
+        },
+        "n37": {
+          "text": {
+            "0": "So verwalten Sie Ihre Daten"
+          }
+        },
+        "n38": {
+          "text": {
+            "0": "Drittanbieter"
+          }
+        },
+        "n39": {
+          "text": {
+            "0": "Weitere Informationen"
+          }
+        },
+        "n42": {
+          "text": {
+            "0": "Was sind Cookies?"
+          }
+        },
+        "n43": {
+          "text": {
+            "0": "Cookies sind kleine Datenmengen, die Ihr Browser auf Anweisung einer Website speichert. ",
+            "1": " – ein separater Browserspeicher, in dem Websites Informationen über mehrere Besuche hinweg aufbewahren können. Dies sind unterschiedliche Technologien, die beide für die Anmeldung und Einstellungen genutzt werden können."
+          }
+        },
+        "n46": {
+          "text": {
+            "0": "Was VATRA verwendet"
+          }
+        },
+        "n51": {
+          "text": {
+            "0": "Technologie"
+          }
+        },
+        "n52": {
+          "text": {
+            "0": "Zweck"
+          }
+        },
+        "n53": {
+          "text": {
+            "0": "Verwendung"
+          }
+        },
+        "n56": {
+          "text": {
+            "0": "Lokaler Browserspeicher (localStorage)"
+          }
+        },
+        "n57": {
+          "text": {
+            "0": "Speicherung der Sitzung sowie des Namens und der E-Mail-Adresse des zuletzt verwendeten Kontos zur schnellen Auswahl. Das Passwort wird in dieser Liste nicht gespeichert."
+          }
+        },
+        "n58": {
+          "text": {
+            "0": "Ja"
+          }
+        },
+        "n60": {
+          "text": {
+            "0": "Technische Anfragedaten"
+          }
+        },
+        "n61": {
+          "text": {
+            "0": "Bereitstellung von Seiten, Schutz und Diagnose der Infrastruktur"
+          }
+        },
+        "n62": {
+          "text": {
+            "0": "Bei Dienstleistern"
+          }
+        },
+        "n64": {
+          "text": {
+            "0": "Spracheinstellungen (localStorage)"
+          }
+        },
+        "n65": {
+          "text": {
+            "0": "Speicherung der ausgewählten ukrainischen oder englischen Sprache"
+          }
+        },
+        "n66": {
+          "text": {
+            "0": "Ja"
+          }
+        },
+        "n68": {
+          "text": {
+            "0": "Cookie vatra-language"
+          }
+        },
+        "n69": {
+          "text": {
+            "0": "Zusätzliche Speicherung der gewählten Sprache für bis zu 365 Tage"
+          }
+        },
+        "n70": {
+          "text": {
+            "0": "Ja"
+          }
+        },
+        "n71": {
+          "text": {
+            "0": "Die Namen technischer Sitzungsschlüssel können sich bei Aktualisierungen des Authentifizierungssystems ändern."
+          }
+        },
+        "n73": {
+          "text": {
+            "0": "Warum Daten gespeichert werden"
+          }
+        },
+        "n74": {
+          "text": {
+            "0": "Die notwendige Speicherung hilft festzustellen, ob Sie bereits angemeldet sind, und die Sitzung zu schützen. Ohne Zugriff auf den Browserspeicher funktioniert die Authentifizierung möglicherweise nicht ordnungsgemäß."
+          }
+        },
+        "n75": {
+          "text": {
+            "0": "VATRA verwendet technische Daten für Anmeldung, Sicherheit und die Speicherung der gewählten Sprache. Eigene Werbepixel und Marketing-Cookies werden auf den Seiten nicht eingesetzt."
+          }
+        },
+        "n77": {
+          "text": {
+            "0": "So verwalten Sie Ihre Daten"
+          }
+        },
+        "n79": {
+          "text": {
+            "0": "Klicken Sie auf ",
+            "1": " in Ihrem Konto, um die lokale Sitzung zu beenden."
+          }
+        },
+        "n80": {
+          "text": {
+            "0": "„Abmelden“"
+          }
+        },
+        "n81": {
+          "text": {
+            "0": "Öffnen Sie die Website-Dateneinstellungen Ihres Browsers, um Cookies und localStorage für VATRA zu löschen."
+          }
+        },
+        "n82": {
+          "text": {
+            "0": "Beachten Sie, dass Sie nach dem Löschen möglicherweise E-Mail-Adresse und Passwort erneut eingeben müssen."
+          }
+        },
+        "n83": {
+          "text": {
+            "0": "Sie können auch Berechtigungen für externe Websites und deren Cookies in den Browsereinstellungen verwalten."
+          }
+        },
+        "n85": {
+          "text": {
+            "0": "Drittanbieter"
+          }
+        },
+        "n86": {
+          "text": {
+            "0": "Für das Hosting der Seiten, die Authentifizierung und die Bereitstellung technischer Ressourcen nutzt VATRA externe Dienstleister. Diese können die notwendigen technischen Anfragedaten nach ihren eigenen Richtlinien verarbeiten. Einzelheiten zur Verarbeitung personenbezogener Daten finden Sie in der "
+          }
+        },
+        "n87": {
+          "text": {
+            "0": "Datenschutzerklärung"
+          }
+        },
+        "n88": {
+          "text": {
+            "0": "VATRA kann Cookies, die auf einer anderen Domain gesetzt wurden, nicht direkt löschen. Verwenden Sie dazu die Browsereinstellungen."
+          }
+        },
+        "n90": {
+          "text": {
+            "0": "Weitere Informationen"
+          }
+        },
+        "n91": {
+          "text": {
+            "0": "Weitere Informationen zur Verwendung personenbezogener Daten finden Sie in der ",
+            "1": ". Bei Fragen zu Cookies und Browserdaten schreiben Sie an ",
+            "2": ". Wenn sich Speichertechnologien ändern, wird diese Seite aktualisiert."
+          }
+        },
+        "n92": {
+          "text": {
+            "0": "Datenschutzerklärung von VATRA"
+          }
+        },
+        "n98": {
+          "text": {
+            "1": " · Deine Menschen. Deine Geschichten. Deine VATRA."
+          }
+        },
+        "n100": {
+          "attrs": {
+            "aria-label": "Weitere Links"
+          }
+        },
+        "n105": {
+          "text": {
+            "0": "Deutsch"
+          },
+          "attrs": {
+            "aria-label": "Sprache wählen"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Anmelden"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Konto erstellen"
+          }
+        }
+      }
     }
   },
   "До збереженого акаунта": "Zum gespeicherten Konto",
@@ -2262,5 +2606,43 @@
   "Володілець персональних даних VATRA:": "Verantwortliche Stelle für personenbezogene Daten bei VATRA:",
   ". На цю адресу Ви можете звернутися із запитом на доступ до Ваших даних, їх виправлення, видалення або з питанням щодо конфіденційності. Для захисту Ваших даних перед виконанням запиту може знадобитися підтвердження належності акаунта.": ". Unter dieser Adresse können Sie Auskunft, Berichtigung oder Löschung Ihrer Daten beantragen oder Datenschutzfragen stellen. Zum Schutz Ihrer Daten kann vor der Bearbeitung ein Nachweis der Kontoinhaberschaft nötig sein.",
   "Контакт щодо персональних даних:": "Kontakt für personenbezogene Daten:",
-  "Зміни способів обробки персональних даних відображатимуться в оновленій редакції цієї політики. Про суттєві зміни потрібно повідомляти користувачів відповідно до закону.": "Änderungen der Verarbeitung personenbezogener Daten werden in einer aktualisierten Fassung dieser Richtlinie wiedergegeben. Über wesentliche Änderungen werden Nutzer informiert, soweit dies gesetzlich vorgeschrieben ist."
+  "Зміни способів обробки персональних даних відображатимуться в оновленій редакції цієї політики. Про суттєві зміни потрібно повідомляти користувачів відповідно до закону.": "Änderungen der Verarbeitung personenbezogener Daten werden in einer aktualisierten Fassung dieser Richtlinie wiedergegeben. Über wesentliche Änderungen werden Nutzer informiert, soweit dies gesetzlich vorgeschrieben ist.",
+  "Cookies та сховище браузера": "Cookies und Browserspeicher",
+  "Що зберігається у Вашому браузері під час користування VATRA та як це контролювати.": "Was Ihr Browser bei der Nutzung von VATRA speichert und wie Sie dies verwalten können.",
+  "Що таке cookies": "Was sind Cookies?",
+  "Що використовує VATRA": "Was VATRA verwendet",
+  "Для чого потрібне зберігання": "Warum Daten gespeichert werden",
+  "Як керувати даними": "So verwalten Sie Ihre Daten",
+  "Сторонні сервіси": "Drittanbieter",
+  "Додаткова інформація": "Weitere Informationen",
+  "Cookies — це невеликі дані, які браузер зберігає за вказівкою сайтів.": "Cookies sind kleine Datenmengen, die Ihr Browser auf Anweisung einer Website speichert.",
+  "— окреме сховище браузера, у якому сайт може зберігати інформацію між відвідуваннями. Це різні технології, хоча обидві можуть використовуватися для входу й налаштувань.": "– ein separater Browserspeicher, in dem Websites Informationen über mehrere Besuche hinweg aufbewahren können. Dies sind unterschiedliche Technologien, die beide für die Anmeldung und Einstellungen genutzt werden können.",
+  "Технологія": "Technologie",
+  "Для чого": "Zweck",
+  "Використання": "Verwendung",
+  "Локальне сховище браузера (localStorage)": "Lokaler Browserspeicher (localStorage)",
+  "Збереження сеансу та імені й email останнього акаунта для швидкого вибору. Пароль у цьому списку не зберігається.": "Speicherung der Sitzung sowie des Namens und der E-Mail-Adresse des zuletzt verwendeten Kontos zur schnellen Auswahl. Das Passwort wird in dieser Liste nicht gespeichert.",
+  "Так": "Ja",
+  "Службові дані запитів": "Technische Anfragedaten",
+  "Доставка сторінок, захист та діагностика інфраструктури": "Bereitstellung von Seiten, Schutz und Diagnose der Infrastruktur",
+  "У постачальників послуг": "Bei Dienstleistern",
+  "Налаштування мови (localStorage)": "Spracheinstellungen (localStorage)",
+  "Збереження обраної української або англійської мови": "Speicherung der ausgewählten ukrainischen oder englischen Sprache",
+  "Cookie vatra-language": "Cookie vatra-language",
+  "Резервне збереження вибраної мови до 365 днів": "Zusätzliche Speicherung der gewählten Sprache für bis zu 365 Tage",
+  "Назви технічних ключів сеансу можуть змінюватися під час оновлення системи авторизації.": "Die Namen technischer Sitzungsschlüssel können sich bei Aktualisierungen des Authentifizierungssystems ändern.",
+  "Необхідне зберігання допомагає визначити, чи Ви вже увійшли до свого акаунта, і підтримує захист сеансу. Без доступу до сховища браузера авторизація може не працювати правильно.": "Die notwendige Speicherung hilft festzustellen, ob Sie bereits angemeldet sind, und die Sitzung zu schützen. Ohne Zugriff auf den Browserspeicher funktioniert die Authentifizierung möglicherweise nicht ordnungsgemäß.",
+  "VATRA використовує технічні дані для входу, безпеки та збереження вибраної мови. Власні рекламні пікселі й маркетингові cookies на сторінках сайту не застосовуються.": "VATRA verwendet technische Daten für Anmeldung, Sicherheit und die Speicherung der gewählten Sprache. Eigene Werbepixel und Marketing-Cookies werden auf den Seiten nicht eingesetzt.",
+  "Натисніть": "Klicken Sie auf",
+  "в акаунті, щоб завершити локальний сеанс.": "in Ihrem Konto, um die lokale Sitzung zu beenden.",
+  "«Вийти»": "„Abmelden“",
+  "У браузері відкрийте налаштування даних сайтів, щоб очистити cookies та localStorage для VATRA.": "Öffnen Sie die Website-Dateneinstellungen Ihres Browsers, um Cookies und localStorage für VATRA zu löschen.",
+  "Врахуйте, що після очищення Вам може знадобитися знову ввести email і пароль.": "Beachten Sie, dass Sie nach dem Löschen möglicherweise E-Mail-Adresse und Passwort erneut eingeben müssen.",
+  "Ви також можете керувати дозволами для сторонніх сайтів та їхніх cookies у налаштуваннях свого браузера.": "Sie können auch Berechtigungen für externe Websites und deren Cookies in den Browsereinstellungen verwalten.",
+  "Для розміщення сторінок, роботи авторизації та доставки технічних ресурсів VATRA використовує сторонніх постачальників послуг. Вони можуть обробляти необхідні технічні дані запитів відповідно до власних правил. Деталі обробки персональних даних наведені в": "Für das Hosting der Seiten, die Authentifizierung und die Bereitstellung technischer Ressourcen nutzt VATRA externe Dienstleister. Diese können die notwendigen technischen Anfragedaten nach ihren eigenen Richtlinien verarbeiten. Einzelheiten zur Verarbeitung personenbezogener Daten finden Sie in der",
+  "VATRA не може безпосередньо видалити cookies, встановлені на іншому домені. Для цього використовуйте налаштування браузера.": "VATRA kann Cookies, die auf einer anderen Domain gesetzt wurden, nicht direkt löschen. Verwenden Sie dazu die Browsereinstellungen.",
+  "Про використання персональних даних загалом читайте в": "Weitere Informationen zur Verwendung personenbezogener Daten finden Sie in der",
+  ". З питаннями щодо cookies та даних браузера звертайтеся на": ". Bei Fragen zu Cookies und Browserdaten schreiben Sie an",
+  ". У разі зміни технологій зберігання ця сторінка оновлюється.": ". Wenn sich Speichertechnologien ändern, wird diese Seite aktualisiert.",
+  "Політиці конфіденційності VATRA": "Datenschutzerklärung von VATRA"
 }
