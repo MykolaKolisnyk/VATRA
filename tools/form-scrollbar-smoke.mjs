@@ -1,4 +1,4 @@
-/* Offline checks for dark-grey, hover-free auto-hiding form scrollbars. */
+/* Offline regression: dark, hover-free, arrowless VATRA form scrollbars. */
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
@@ -9,69 +9,79 @@ const [base,lang,signup,feed,profile]=await Promise.all([
 assert.ok(base.includes(".language-scroll-track.is-visible")&&
  base.includes("background:#454b54")&&
  base.includes("background:transparent;cursor:pointer;touch-action:none;opacity:0"),
- "Language scrollbar must be dark graphite with an invisible track");
+ "Language scrollbar must keep a dark graphite thumb on a transparent track");
 assert.ok(!base.includes(".language-scroll-track:hover")&&
  !base.includes(".language-scroll-thumb:hover"),
- "Language scroll track must have no hover decoration");
+ "Language scrollbar must not react with a background or changed color on hover");
 assert.ok(base.includes("@property --vatra-form-scroll-alpha")&&
  base.includes("transition:--vatra-form-scroll-alpha .46s ease")&&
  base.includes("scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent"),
- "Native form scrollbars must fade using the registered graphite alpha");
-for(const selector of [".captcha-dialog",".vatra-select-list",".vt-tour-card-001",
+ "Native form scrollbars must retain dark fade animation");
+assert.ok(base.includes("@supports selector(::-webkit-scrollbar)")&&
+ base.includes("::-webkit-scrollbar-button")&&
+ base.includes("display:none!important;width:0!important;height:0!important"),
+ "Chromium/Opera form lists must suppress native top/bottom arrow buttons");
+for(const scope of [".captcha-dialog",".vatra-select-list",".vt-tour-card-001",
  ".vatra-search-history",".profile-photo-comments",".profile-compose-dialog",
- ".vatra-post-composer-edit",".vatra-notification-panel",".vatra-gift-viewer",
- "textarea"])
- assert.ok(base.includes(selector),"Missing shared form scrollbar scope: "+selector);
+ ".vatra-post-composer-edit",".vatra-notification-panel","textarea"])
+ assert.ok(base.includes(scope),"Missing shared scrollbar scope: "+scope);
 for(const css of [signup,feed,profile])
  assert.ok(!css.includes("scrollbar-color:var(--scroll-thumb) var(--scroll-track)")&&
   !css.includes("linear-gradient(180deg,#8bb1f6,#8274d7)"),
-  "Legacy blue/purple form scrollbar style must be deleted");
-const start=lang.indexOf("/* One passive, delegated controller");
-assert.ok(start>=0,"Shared input controller must exist");
+  "Old blue and purple scrollbar overrides must not return");
+assert.ok(lang.includes('dialog.addEventListener("pointerenter"')&&
+ lang.includes('dialog.addEventListener("pointerleave"')&&
+ lang.includes('if (pointerInsideDialog || dragging) return;')&&
+ lang.includes('scrollTrack.classList.add("is-dragging")'),
+ "Language picker thumb must remain visible while pointer is inside or dragging");
+const start=lang.indexOf("/* One delegated controller for all VATRA scrolling forms.");
+assert.ok(start>=0,"Shared hover scroll controller must exist");
 let clockId=0;
 const tasks=new Map(),listeners=new Map();
-const document={
- addEventListener(name,handler){listeners.set(name,handler);},
- activeElement:null
-};
-const context={
- document,WeakMap,clearTimeout:id=>tasks.delete(id),
- setTimeout:(fn,ms)=>{assert.equal(ms,1050);const id=++clockId;tasks.set(id,fn);return id;}
-};
+const document={addEventListener(name,fn){listeners.set(name,fn);},activeElement:null};
+const context={document,WeakMap,WeakSet,
+ clearTimeout:id=>tasks.delete(id),
+ setTimeout:(fn,ms)=>{assert.equal(ms,1050);const id=++clockId;tasks.set(id,fn);return id;}};
 runInNewContext(lang.slice(start),context);
 const classes=new Set();
 const element={
  matches:selector=>selector.includes(".vatra-select-list"),
- classList:{add:value=>classes.add(value),remove:value=>classes.delete(value)},
+ closest:()=>element,
+ classList:{add:v=>classes.add(v),remove:v=>classes.delete(v)},
  scrollHeight:400,clientHeight:200
 };
-const fire=(type,target,extra={})=>{
- assert.ok(listeners.has(type),"Missing delegated "+type+" listener");
- listeners.get(type)({target,...extra});
-};
-fire("scroll",element);
-assert.equal(classes.has("vatra-form-scroll-active"),true);
-assert.equal(tasks.size,1);
-fire("scroll",element);
-assert.equal(tasks.size,1,"New activity must cancel the old hide timer");
 const child={closest:()=>element};
-fire("wheel",child);
+const fire=(name,args)=>{
+ assert.ok(listeners.has(name),"Missing delegated "+name+" listener");
+ listeners.get(name)(args);
+};
+fire("pointerover",{pointerType:"mouse",target:child});
 assert.equal(classes.has("vatra-form-scroll-active"),true);
-fire("pointerdown",child);
-document.activeElement=element;
-fire("keydown",element,{key:"PageDown"});
-assert.equal(tasks.size,1,"All interactions must share one per-element fade timer");
+assert.equal(tasks.size,0,"Hover must not schedule an idle hide timer");
+fire("scroll",{target:element});
+assert.equal(tasks.size,0,"Scrolling while hovered must not start fade");
+fire("wheel",{target:child});
+assert.equal(tasks.size,0,"Wheel input while hovered must keep thumb visible");
+fire("pointerout",{pointerType:"mouse",target:child,relatedTarget:{closest:()=>element}});
+assert.equal(classes.has("vatra-form-scroll-active"),true,
+ "Moving between options inside a form must not hide the thumb");
+fire("pointerout",{pointerType:"mouse",target:child,relatedTarget:null});
+assert.equal(classes.has("vatra-form-scroll-active"),false,
+ "Leaving the form must fade its thumb immediately via CSS");
+fire("scroll",{target:element});
+assert.equal(tasks.size,1,"Keyboard/touch scrolling outside a form gets a temporary thumb");
 for(const fn of [...tasks.values()])fn();
 tasks.clear();
 assert.equal(classes.has("vatra-form-scroll-active"),false,
- "Inactive scrollbar must be hidden after one timeout");
-fire("keydown",element,{key:"a"});
-assert.equal(tasks.size,0,"Typing must not expose scrollbars");
-const plain={matches:()=>false};
-fire("scroll",plain);
-assert.equal(tasks.size,0,"Ordinary page scrolling must not activate form effects");
-assert.ok(lang.includes('scrollTrack.addEventListener("pointerdown"')&&
- lang.includes('scrollTrack.classList.add("is-dragging")')&&
- lang.includes('clearTimeout(scrollbarFadeTimer)'),
- "Language thumb dragging and timer cleanup must remain intact");
-console.log("VATRA form scrollbars: graphite, no-hover track, scroll/drag/keyboard fade verified offline.");
+ "A non-hovered thumb must eventually fade after activity");
+document.activeElement=element;
+fire("keydown",{key:"PageDown"});
+assert.equal(tasks.size,1,"Keyboard scrolling must still reveal the thumb");
+fire("keydown",{key:"a"});
+assert.equal(tasks.size,1,"Typing ordinary text must not create additional timers");
+fire("pointerover",{pointerType:"mouse",target:child});
+assert.equal(tasks.size,0,"Entering the form must cancel the pending fade timer");
+assert.equal(classes.has("vatra-form-scroll-active"),true);
+fire("pointerout",{pointerType:"mouse",target:child,relatedTarget:null});
+assert.equal(classes.has("vatra-form-scroll-active"),false);
+console.log("VATRA forms: graphite, arrowless and hover-present scrollbars verified offline.");
