@@ -702,9 +702,10 @@ const returnStart=registrationMarkup.indexOf('<nav class="create-account-back-na
 const innerStart=registrationMarkup.indexOf('<div class="narrow-form ui-create-account-div-001">');
 const overlineStart=registrationMarkup.indexOf('<div class="signup-form-overline ui-signup-form-overline-001">');
 const labelsStart=registrationMarkup.indexOf('<div class="signup-overline-labels ui-signup-overline-labels-001">');
-const firstStep=registrationMarkup.indexOf('class="signup-step-number vt-signup-step-number-01"');
+const kickerStart=registrationMarkup.indexOf('class="signup-form-kicker vt-signup-form-kicker-01"');
 assert.ok(formStart>=0&&innerStart>formStart&&
- overlineStart>innerStart&&labelsStart>overlineStart&&firstStep>labelsStart&&returnStart>firstStep&&
+ overlineStart>innerStart&&labelsStart>overlineStart&&kickerStart>labelsStart&&returnStart>kickerStart&&
+ !registrationMarkup.includes('data-step-label=')&&
  (registrationMarkup.match(/class="create-account-back-nav ui-create-account-back-nav-001"/g)||[]).length===1&&
  css.includes('.create-account-back-nav{display:flex;align-items:center;justify-content:flex-end;flex:0 0 auto;')&&
  css.includes('max-width:none;margin:0;padding:0}')&&
@@ -2077,7 +2078,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
  register.indexOf('<div class="signup-overline-labels')<register.indexOf('<nav class="create-account-back-nav')&&
  !css.includes('position:absolute;\n    top:clamp(16px,1.6vw,25px)')&&
  legalCss.includes('.policy-page .footer{min-height:70px;padding-inline:0}'),
- "Auth footer CTA slots and legal footer height must match; signup nav belongs beside step labels");
+ "Auth footer CTA slots and legal footer height must match; signup nav belongs beside the brand kicker");
 
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
