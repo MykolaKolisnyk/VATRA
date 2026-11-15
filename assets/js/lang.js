@@ -300,7 +300,319 @@
   const ready=Promise.all([domReady,translations]).then(([,json])=>{
     errors=json&&typeof json==="object"?json:{};
     applyTranslation(errors);
-  }).finally/* One delegated controller for all VATRA scrolling forms.
+  }).finally(()=>{
+    document.documentElement.classList.remove("i18n-pending");
+    if(staticLocaleLoader){
+      document.body.dataset.authReady="true";
+      staticLocaleLoader.remove();
+    }
+  });
+  window.VATRA_LANGUAGE = {
+    locale: current,
+    ready,
+    translate: raw => current==="en" ? (errors[raw] || raw) : raw
+  };
+
+  const english = current === "en";
+  const words = english
+    ? {name:"Language",heading:"Choose your language",details:"VATRA interface language",search:"Search languages",future:"In development",current:"Selected",close:"Close",empty:"No matching languages"}
+    : {name:"Мова",heading:"Оберіть мову",details:"Мова інтерфейсу VATRA",search:"Пошук мов",future:"У розробці",current:"Обрано",close:"Закрити",empty:"Мов не знайдено"};
+
+  let pickerInitialized=false;
+  function initLanguagePicker() {
+    if(pickerInitialized)return;
+    pickerInitialized=true;
+    bindLocalizedLinks();
+    const triggers = [...document.querySelectorAll("[data-language-trigger]")];
+    if (!triggers.length) return;
+    // Draw the active-language flag, name and chevron immediately. Even if
+    // an optional list item fails to render, the footer trigger stays usable.
+    let triggerOrdinal=0;
+    for(const trigger of triggers){
+      const id=++triggerOrdinal;
+      trigger.replaceChildren();
+      trigger.append(flag(english ? "gb" : "ua"));
+      const label=document.createElement("span");
+      label.className="vt-language-trigger-label-"+id;
+      label.textContent=nativeLabels[current];
+      const chevron=document.createElementNS("http://www.w3.org/2000/svg","svg");
+      chevron.classList.add("language-chevron","ui-language-trigger-chevron-"+id);
+      chevron.setAttribute("viewBox","0 0 24 24");
+      chevron.setAttribute("aria-hidden","true");
+      const down=document.createElementNS("http://www.w3.org/2000/svg","path");
+      down.setAttribute("d","m6 9 6 6 6-6");
+      down.setAttribute("class","ui-language-chevron-path-"+id);
+      chevron.append(down);
+      trigger.append(label,chevron);
+      trigger.setAttribute("aria-label",words.name+": "+nativeLabels[current]);
+      trigger.setAttribute("aria-expanded","false");
+      trigger.addEventListener("click",open);
+    }
+    const backdrop = document.createElement("div");
+    backdrop.className = "language-backdrop ui-language-backdrop";
+    backdrop.hidden = true;
+    const dialog = document.createElement("section");
+    dialog.className = "language-dialog ui-language-dialog";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "vatra-language-heading");
+    const headingRow = document.createElement("div");
+    headingRow.className = "language-heading-row ui-language-heading-row";
+    const texts = document.createElement("div");
+    texts.className = "ui-language-heading-copy";
+    const heading = document.createElement("h2");
+    heading.id = "vatra-language-heading";
+     heading.className = "vt-language-dialog-heading";
+    heading.textContent = words.heading;
+    const details = document.createElement("p");
+    details.className = "vt-language-dialog-description";
+     details.textContent = words.details;
+    texts.append(heading, details);
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "language-close vt-language-close-button";
+    closeBtn.type = "button";
+    closeBtn.setAttribute("aria-label", words.close);
+    const closeIcon = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    closeIcon.setAttribute("class","ui-language-close-icon");
+    closeIcon.setAttribute("viewBox","0 0 24 24");
+    closeIcon.setAttribute("width","19");closeIcon.setAttribute("height","19");
+    closeIcon.setAttribute("fill","none");closeIcon.setAttribute("stroke","currentColor");
+    closeIcon.setAttribute("stroke-width","1.8");closeIcon.setAttribute("stroke-linecap","round");
+    closeIcon.setAttribute("aria-hidden","true");
+    const closePath = document.createElementNS("http://www.w3.org/2000/svg","path");
+    closePath.setAttribute("class","ui-language-close-path");
+    closePath.setAttribute("d","M6 6l12 12M18 6 6 18");
+    closeIcon.append(closePath);closeBtn.append(closeIcon);
+    headingRow.append(texts, closeBtn);
+    const searchField = document.createElement("div");
+    searchField.className = "field language-search-field vt-language-search-label";
+    const searchShell = document.createElement("span");
+    searchShell.className = "vatra-input-shell language-search-shell";
+    const searchHint = document.createElement("span");
+    searchHint.className = "vatra-floating-hint vt-language-search-caption";
+    searchHint.setAttribute("aria-hidden","true");
+    searchHint.textContent = words.search;
+    const search = document.createElement("input");
+    search.className = "control language-search ui-language-search-input";
+    search.type = "search";
+    search.id = "vatra-language-search";
+    search.name = "vatra-language-search";
+    search.autocomplete = "off";
+    search.placeholder = " "; // The floating hint replaces the native placeholder.
+    search.setAttribute("aria-label", words.search);
+    const clearSearch=document.createElement("button");
+    clearSearch.className="language-search-clear vt-language-clear-button";
+    clearSearch.type="button";
+    clearSearch.hidden=true;
+    clearSearch.setAttribute("aria-label",english?"Clear search":"Очистити пошук");
+    const clearIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    clearIcon.setAttribute("viewBox","0 0 24 24");
+    clearIcon.setAttribute("aria-hidden","true");
+    const cross=document.createElementNS("http://www.w3.org/2000/svg","path");
+    cross.setAttribute("d","M18 6 6 18M6 6l12 12");
+    clearIcon.append(cross);
+    clearSearch.append(clearIcon);
+    searchShell.append(search,searchHint,clearSearch);
+    searchField.append(searchShell);
+    const syncSearchHint=()=>searchShell.classList.toggle("is-floating",Boolean(search.value));
+    search.addEventListener("input",syncSearchHint);
+    search.addEventListener("change",syncSearchHint);
+    search.addEventListener("blur",syncSearchHint);
+    const list = document.createElement("div");
+    list.className = "language-grid ui-language-options-grid";
+    list.tabIndex = 0;
+    list.setAttribute("role", "region");
+    list.setAttribute("aria-label", words.heading);
+    const notFound = document.createElement("p");
+    notFound.className = "language-empty vt-language-no-results";
+    notFound.textContent = words.empty;
+    notFound.hidden = true;
+    let restoreFocus = null;
+    for (const [code,name,englishName,country,enabled] of languages) {
+      const button = document.createElement("button");
+      button.className = "language-option vt-language-choice-" + code + (code === current ? " is-selected" : "");
+      button.type = "button";
+      button.dataset.search = (code + " " + name + " " + englishName).toLocaleLowerCase();
+      button.append(flag(country));
+      const copy = document.createElement("span");
+      copy.className = "language-option-copy vt-language-copy-" + code;
+      const strong = document.createElement("strong");
+      strong.className = "vt-language-name-" + code;
+       strong.textContent = name;
+      const subtitle = document.createElement("small");
+      subtitle.className = "vt-language-caption-" + code;
+       subtitle.textContent = code === current ? words.current : (enabled ? englishName : words.future);
+      copy.append(strong, subtitle);
+      button.append(copy);
+      if (code === current) button.setAttribute("aria-current", "true");
+      if (!enabled) {
+        button.disabled = true;
+        button.setAttribute("aria-label", name + " — " + words.future);
+        button.title = words.future;
+      } else {
+        button.addEventListener("click", () => {
+          if (code === current) { close(); return; }
+          persist(code);
+          location.reload(); // Keep the selected language on this page.
+        });
+      }
+      list.append(button);
+    }
+    const scrollShell = document.createElement("div");
+    scrollShell.className = "language-scroll-shell ui-language-scroll-shell";
+    const scrollTrack = document.createElement("div");
+    scrollTrack.className = "language-scroll-track ui-language-scroll-track";
+    scrollTrack.setAttribute("aria-hidden", "true");
+    const scrollThumb = document.createElement("span");
+    scrollThumb.className = "language-scroll-thumb ui-language-scroll-thumb";
+    scrollTrack.append(scrollThumb);
+    scrollShell.append(list, scrollTrack);
+    dialog.append(headingRow, searchField, scrollShell, notFound);
+    backdrop.append(dialog);
+    document.body.append(backdrop);
+
+    /* Custom VATRA scrollbar. Native wheel, touch and keyboard input stays active. */
+    let scrollbarFadeTimer = null;
+    let pointerInsideDialog = false;
+    function showScrollbar() {
+      if (scrollTrack.hidden || backdrop.hidden) return;
+      scrollTrack.classList.add("is-visible");
+      clearTimeout(scrollbarFadeTimer);
+      scrollbarFadeTimer = null;
+      if (pointerInsideDialog || dragging) return;
+      scrollbarFadeTimer = setTimeout(
+        () => scrollTrack.classList.remove("is-visible"), 1000);
+    }
+    dialog.addEventListener("pointerenter", e => {
+      if (e.pointerType==="mouse" || e.pointerType==="pen") {
+        pointerInsideDialog=true;showScrollbar();
+      }
+    });
+    dialog.addEventListener("pointerleave", e => {
+      if (e.pointerType==="mouse" || e.pointerType==="pen") {
+        pointerInsideDialog=false;
+        clearTimeout(scrollbarFadeTimer);scrollbarFadeTimer=null;
+        if(!dragging)scrollTrack.classList.remove("is-visible");
+      }
+    });
+    function updateScrollbar() {
+      const viewport = list.clientHeight;
+      const content = list.scrollHeight;
+      const available = scrollShell.clientHeight;
+      const overflow = content > viewport + 2 && viewport > 0 && available > 0;
+      scrollTrack.hidden = !overflow;
+      if (!overflow) { scrollTrack.classList.remove("is-visible"); return; }
+      const thumbHeight = Math.max(38, Math.min(available, available * viewport / content));
+      const travel = Math.max(0, available - thumbHeight);
+      const progress = Math.max(0, Math.min(1, list.scrollTop / (content - viewport)));
+      scrollThumb.style.height = thumbHeight + "px";
+      scrollThumb.style.transform = "translateY(" + (progress * travel) + "px)";
+    }
+    let dragging = false;
+    let dragOffset = 0;
+    function moveThumb(clientY) {
+      const bounds = scrollTrack.getBoundingClientRect();
+      const travel = Math.max(0, bounds.height - scrollThumb.offsetHeight);
+      const target = Math.max(0, Math.min(travel, clientY - bounds.top - dragOffset));
+      list.scrollTop = travel > 0 ? (target / travel) * (list.scrollHeight - list.clientHeight) : 0;
+    }
+    scrollTrack.addEventListener("pointerdown", e => {
+      if (e.button !== 0 || scrollTrack.hidden) return;
+      const bounds = scrollThumb.getBoundingClientRect();
+      dragOffset = e.target === scrollThumb ? e.clientY - bounds.top : bounds.height / 2;
+      dragging = true;
+      scrollTrack.classList.add("is-dragging");
+      showScrollbar();
+      scrollTrack.setPointerCapture(e.pointerId);
+      moveThumb(e.clientY);
+      e.preventDefault();
+    });
+    scrollTrack.addEventListener("pointermove", e => {
+      if (dragging) moveThumb(e.clientY);
+    });
+    scrollTrack.addEventListener("wheel", e => {
+      list.scrollTop += e.deltaY;
+      showScrollbar();
+      e.preventDefault();
+    }, {passive:false});
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      scrollTrack.classList.remove("is-dragging");
+      showScrollbar();
+      if (scrollTrack.hasPointerCapture(e.pointerId)) scrollTrack.releasePointerCapture(e.pointerId);
+    }
+    scrollTrack.addEventListener("pointerup", endDrag);
+    scrollTrack.addEventListener("pointercancel", endDrag);
+    list.addEventListener("scroll", () => { updateScrollbar(); showScrollbar(); }, {passive:true});
+    window.addEventListener("resize", updateScrollbar);
+    if ("ResizeObserver" in window) new ResizeObserver(updateScrollbar).observe(list);
+    function close() {
+      clearTimeout(scrollbarFadeTimer);
+      scrollbarFadeTimer=null;pointerInsideDialog=false;
+      scrollTrack.classList.remove("is-visible");
+      for(const trigger of triggers)trigger.setAttribute("aria-expanded","false");
+      backdrop.hidden = true;
+      document.body.classList.remove("language-dialog-open");
+      if (restoreFocus) restoreFocus.focus();
+    }
+    function open(e) {
+      restoreFocus = e?.currentTarget || document.activeElement;
+      for(const trigger of triggers)trigger.setAttribute("aria-expanded","true");
+      search.value = "";
+      syncSearchHint();
+      clearSearch.hidden = true;
+      [...list.children].forEach(node => { node.hidden = false; });
+      notFound.hidden = true;
+      backdrop.hidden = false;
+      document.body.classList.add("language-dialog-open");
+      search.focus();
+      requestAnimationFrame(() => {
+        updateScrollbar();
+        pointerInsideDialog=dialog.matches(":hover");
+        showScrollbar();
+      });
+    }
+    search.addEventListener("input", () => {
+      clearSearch.hidden = !search.value;
+      const q = search.value.trim().toLocaleLowerCase();
+      let count = 0;
+      for (const node of list.children) {
+        node.hidden = !node.dataset.search.includes(q);
+        if (!node.hidden) count++;
+      }
+      notFound.hidden = count > 0;
+      list.scrollTop = 0;
+      requestAnimationFrame(() => { updateScrollbar(); showScrollbar(); });
+    });
+    clearSearch.addEventListener("click",()=>{
+      search.value="";
+      search.dispatchEvent(new Event("input",{bubbles:true}));
+      search.focus();
+    });
+    closeBtn.addEventListener("click", close);
+    backdrop.addEventListener("click", e => { if (e.target === backdrop) close(); });
+    document.addEventListener("keydown", e => {
+      if (backdrop.hidden) return;
+      if (e.key === "Escape") { close(); return; }
+      if (e.key === "Tab") {
+        const tabbable = [...dialog.querySelectorAll("button:not(:disabled):not([hidden]),input:not([hidden])")].filter(x => x.offsetParent !== null);
+        const first=tabbable[0], last=tabbable[tabbable.length-1];
+        if (e.shiftKey && document.activeElement === first) {e.preventDefault();last.focus();}
+        else if (!e.shiftKey && document.activeElement === last) {e.preventDefault();first.focus();}
+      }
+    });
+    // The same handler opens the original full search-and-scroll language dialog.
+    // Keep expanded state synchronized for keyboard and screen-reader users.
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",initLanguagePicker,{once:true});
+  }else{
+    initLanguagePicker();
+  }
+})();
+
+/* One delegated controller for all VATRA scrolling forms.
    Pointer inside = visible thumb; pointer outside = fade away.
    Keyboard/touch/programmatic scrolling gets a brief accessible reveal.
    No polling, hover shading, or additional visual elements. */
