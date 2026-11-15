@@ -702,8 +702,9 @@ for(const [filename,route,type] of [
  ["recovery.html","reset","recovery"]
 ]){
  const source=await read("email-templates/"+filename);
- assert.equal(source.split('token_hash={{ .TokenHash }}').length,3,
-  filename+": both locale branches must use the same direct confirmation URL");
+ const localeCount=["confirmation.html","recovery.html"].includes(filename)?8:2;
+ assert.equal(source.split('token_hash={{ .TokenHash }}').length,localeCount+1,
+  filename+": every locale branch must use the same direct confirmation URL");
  assert.ok(source.includes(route+'?token_hash={{ .TokenHash }}&amp;type='+type),
   filename+": wrong token type or callback");
 }
