@@ -325,8 +325,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  initial-value:0;
 }
 :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -358,8 +358,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  transition:--vatra-form-scroll-alpha .46s ease;
 }
 :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -388,8 +388,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  --vatra-form-scroll-alpha:.92;
 }
 :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -415,11 +415,11 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .profile-story-viewer,
  .vatra-gift-viewer,
  textarea)::-webkit-scrollbar{
- width:8px;height:8px
+ width:6px;height:6px
 }
 :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -446,8 +446,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-gift-viewer,
  textarea)::-webkit-scrollbar-track,
 :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -476,8 +476,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  background:transparent
 }
 :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -506,13 +506,13 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  background:rgb(64 70 79 / var(--vatra-form-scroll-alpha));
  border:2px solid transparent;border-radius:99px;background-clip:padding-box
 }
-/* In Chromium/Opera, standards scrollbar-color/width override ::-webkit-*
-   controls. Use vendor rendering there so native OS arrow buttons can be
-   removed reliably; Firefox retains the thin, transparent-track scrollbar. */
+/* Respect thin native bars in modern engines (Opera, Chrome, Safari and
+   Firefox). Retain legacy WebKit arrow-button suppression for older versions.
+   Never force auto-width OS scrollbars inside VATRA forms. */
 @supports selector(::-webkit-scrollbar){
  :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -538,12 +538,12 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .profile-story-viewer,
  .vatra-gift-viewer,
  textarea){
-  scrollbar-width:auto!important;
-  scrollbar-color:auto!important
+  scrollbar-width:thin!important;
+  scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent!important
  }
  :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -570,8 +570,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-gift-viewer,
  textarea)::-webkit-scrollbar-button,
  :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -598,8 +598,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-gift-viewer,
  textarea)::-webkit-scrollbar-button:single-button,
  :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -626,8 +626,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .vatra-gift-viewer,
  textarea)::-webkit-scrollbar-button:vertical:decrement,
  :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
@@ -659,8 +659,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
 }
 @media(prefers-reduced-motion:reduce){
  :where(.captcha-dialog,
- .vatra-select-list,
- .vt-tour-card-001,
+ .vatra-select-scroll-area,
+ .vt-tour-scroll-area-001,
  .feed-compose-dialog,
  .feed-story-dialog,
  .club-compose-dialog,
