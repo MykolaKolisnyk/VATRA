@@ -4,8 +4,14 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript?.src||"assets/js/gifts.js");
 const q=s=>document.querySelector(s);
-const en=()=>document.documentElement.lang==="en";
-const t=(uk,english)=>en()?english:uk;
+const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+const t=(uk,english)=>{
+ const locale=language();
+ if(locale==="uk")return uk;
+ if(locale==="en")return english;
+ const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+ return typeof translated==="string"&&translated!==uk?translated:uk;
+};
 const validId=value=>/^[1-9][0-9]{0,18}$/.test(String(value??""));
 const make=(tag,cls,text)=>{
  const el=document.createElement(tag);el.className=cls;

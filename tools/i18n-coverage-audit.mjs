@@ -71,6 +71,44 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
+const giftRuntime=await readFile("assets/js/gifts.js","utf8");
+const giftViewerRuntime=await readFile("assets/js/gift-viewer.js","utf8");
+const giftsMarkup=await readFile("gifts.html","utf8");
+const giftKeys=[
+ "У колекції",
+ "Безкоштовний",
+ "У цій колекції поки немає подарунків.",
+ "Подарунки · VATRA",
+ "Не вдалося завантажити колекцію.",
+ "Не вдалося відкрити подарунки. Оновіть сторінку.",
+ "Перший вогник",
+ "Перший вогник VATRA — знак початку вашої історії. Його отримує кожен, хто приєднався до VATRA.",
+ "Привітальний подарунок",
+ "Закрити подарунок",
+ "Стрічка",
+ "Техпідтримка",
+ "← На профіль",
+ "КОЛЕКЦІЯ VATRA",
+ "Подарунки",
+ "Збирайте особливі подарунки та зберігайте теплі моменти.",
+ "Мої",
+ "Безкоштовні"
+];
+assert.equal(giftKeys.length,18,"Unexpected gifts translation key count");
+for(const source of [giftRuntime,giftViewerRuntime]){
+ assert.ok(source.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+  source.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
+  !source.includes('const en=()=>document.documentElement.lang==="en";'),
+  "Gift cards and gift viewer must use a shared locale dictionary");
+}
+for(const key of giftKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "Missing English gift translation: "+key);
+ assert.ok(giftRuntime.includes(key)||giftViewerRuntime.includes(key)||
+  giftsMarkup.includes('data-social-uk="'+key+'"'),
+  "Gift translation has no source reference: "+key);
+}
+
 const communityRuntime=await readFile("assets/js/communities.js","utf8");
 const communityPages=[
  await readFile("communities.html","utf8"),
@@ -405,6 +443,10 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of giftKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing gift translation: "+key);
  }
  for(const key of communityKeys){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),

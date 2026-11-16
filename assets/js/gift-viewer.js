@@ -10,8 +10,14 @@ const catalog=[
   descriptionEn:"Your first VATRA flame marks the beginning of your story. Every new member receives one.",
   eventUk:"Привітальний подарунок",eventEn:"Welcome gift"}
 ];
-const en=()=>document.documentElement.lang==="en";
-const lang=(uk,english)=>en()?english:uk;
+const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+const lang=(uk,english)=>{
+ const locale=language();
+ if(locale==="uk")return uk;
+ if(locale==="en")return english;
+ const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+ return typeof translated==="string"&&translated!==uk?translated:uk;
+};
 const byCode=code=>catalog.find(g=>g.code===code)||null;
 const fileUrl=gift=>gift?new URL("assets/gifts/"+gift.image,root).href:null;
 const make=(tag,cls,text)=>{
