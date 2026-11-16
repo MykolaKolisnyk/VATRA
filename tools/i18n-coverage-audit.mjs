@@ -71,6 +71,23 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
+const feedRuntime=await readFile("assets/js/feed.js","utf8");
+const profileRuntime=await readFile("assets/js/profile.js","utf8");
+const socialPageKeys=["VATRA — Стрічка","У розробці","Зараз у мережі"];
+for(const key of socialPageKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English Feed/profile shell translation missing: "+key);
+}
+for(const source of [feedRuntime,profileRuntime]){
+ assert.ok(source.includes('const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
+  source.includes('element.textContent=t(element.dataset.socialUk,element.dataset.socialEn);')&&
+  source.includes('const locale=dateLocales[activeLocale]||"uk-UA";')&&
+  source.includes('t("VATRA — Стрічка","VATRA — Feed")'),
+  "Feed/profile must apply translated shell controls and native date formats");
+}
+assert.ok(profileRuntime.includes('t("Зараз у мережі","Online now")'),
+ "Online presence label must be localized");
+
 const verifyRuntime=await readFile("assets/js/verify.js","utf8");
 const signupRuntime=await readFile("assets/js/create-account.js","utf8");
 const verificationKeys=[
@@ -212,7 +229,7 @@ for(const code of codes){
  // Some short strings are legitimately identical in Ukrainian and another
  // language (for example Bulgarian "Готово"). Require presence here and use
  // the whole-dictionary untranslated-ratio gate below to catch omissions.
- for(const key of socialShellKeys){
+ for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
  }

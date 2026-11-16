@@ -628,28 +628,30 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
 const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const q=selector=>document.querySelector(selector);
-const english=document.documentElement.lang==="en";
-const locale=english?"en-US":"uk-UA";
+const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+const english=activeLocale==="en";
+const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+const locale=dateLocales[activeLocale]||"uk-UA";
 const t=(uk,en)=>{
- if(!english)return uk;
- const translated=window.VATRA_LANGUAGE?.translate(uk);
- return translated&&translated!==uk?translated:en;
+ if(activeLocale==="uk")return uk;
+ const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+ return typeof translated==="string"&&translated!==uk?translated:(english?en:uk);
 };
 const home=new URL("../../",document.currentScript.src).href;
 const validId=id=>typeof id==="string"&&/^[1-9][0-9]{0,18}$/.test(id);
 const memberUrl=id=>home+"id"+encodeURIComponent(id);
 const localizeSocial=()=>{
  for(const element of document.querySelectorAll("[data-social-uk]"))
-  element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
+  element.textContent=t(element.dataset.socialUk,element.dataset.socialEn);
  const brand=document.querySelector(".feed-header-brand");
- if(brand)brand.setAttribute("aria-label",english?"VATRA — Feed":"VATRA — Стрічка");
+ if(brand)brand.setAttribute("aria-label",t("VATRA — Стрічка","VATRA — Feed"));
  for(const control of document.querySelectorAll(".social-profile-tabs button:disabled"))
   control.title=t("У розробці","Coming soon");
  for(const input of document.querySelectorAll("[data-shell-placeholder-uk]")){
-    input.placeholder=english?input.dataset.shellPlaceholderEn:input.dataset.shellPlaceholderUk;
+    input.placeholder=t(input.dataset.shellPlaceholderUk,input.dataset.shellPlaceholderEn);
    }
    for(const control of document.querySelectorAll("[data-shell-aria-uk]")){
-    const title=english?control.dataset.shellAriaEn:control.dataset.shellAriaUk;
+    const title=t(control.dataset.shellAriaUk,control.dataset.shellAriaEn);
     control.setAttribute("aria-label",title);
     if(control.classList.contains("profile-safety-action"))control.title=title;
     else control.removeAttribute("title");
@@ -659,7 +661,7 @@ const localizeSocial=()=>{
     [".ui-shell-header-music-001","Музика — незабаром","Music — coming soon"]]){
     const control=document.querySelector(pair[0]);
     if(control){
-     const title=english?pair[2]:pair[1];
+     const title=t(pair[1],pair[2]);
      control.setAttribute("aria-label",title);
      control.removeAttribute("title");
     }
@@ -2007,7 +2009,7 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
   caption.textContent=state.text;
   caption.hidden=state.online||!state.text;
   if(state.date)caption.dateTime=state.date.toISOString();
-  dot.setAttribute("aria-label",english?"Online now":"Зараз у мережі");
+  dot.setAttribute("aria-label",t("Зараз у мережі","Online now"));
  };
  void refresh();
  // One small profile-specific read per two minutes; avoid polling the whole Feed.
