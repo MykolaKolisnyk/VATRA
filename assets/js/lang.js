@@ -298,7 +298,7 @@
   window.VATRA_LANGUAGE = {
     locale: current,
     ready,
-    translate: raw => current==="en" ? (errors[raw] || raw) : raw
+    translate: raw => (typeof errors[raw] === "string" && errors[raw]) ? errors[raw] : raw
   };
 
   const english = current === "en";
