@@ -205,9 +205,16 @@ for(const code of codes){
  assert.ok(untranslatedCritical<criticalMessages.length*0.05,
   code+": account and status messages must not remain in Ukrainian: "+
    untranslatedCritical+"/"+criticalMessages.length);
- for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys,...verificationKeys,...socialShellKeys]){
+ for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys,...verificationKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim()!==key,
    code+": auth/recovery runtime message not localized: "+key);
+ }
+ // Some short strings are legitimately identical in Ukrainian and another
+ // language (for example Bulgarian "Готово"). Require presence here and use
+ // the whole-dictionary untranslated-ratio gate below to catch omissions.
+ for(const key of socialShellKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": social-shell text missing: "+key);
  }
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");
