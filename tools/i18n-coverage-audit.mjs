@@ -109,6 +109,21 @@ for(const key of giftKeys){
   "Gift translation has no source reference: "+key);
 }
 
+const postMediaRuntime=await readFile("assets/js/post-media.js","utf8");
+assert.ok(postMediaRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ postMediaRuntime.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
+ !postMediaRuntime.includes('const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;'),
+ "Post media must use the shared locale dictionary");
+// Read labels from actual post media controls, including aria and error strings.
+const postMediaKeys=[...new Set([...postMediaRuntime.matchAll(/tr\(\s*("(?:\\.|[^"\\])*")\s*,\s*("(?:\\.|[^"\\])*")\s*\)/g)]
+ .map(match=>JSON.parse(match[1])))];
+assert.equal(postMediaKeys.length,33,"Unexpected source key count in post media runtime");
+for(const key of postMediaKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English post media translation missing: "+key);
+ assert.equal(en[key].endsWith(" "),key.endsWith(" "),
+  "English post media prefix whitespace mismatch: "+key);
+}
 const communityRuntime=await readFile("assets/js/communities.js","utf8");
 const communityPages=[
  await readFile("communities.html","utf8"),
@@ -443,6 +458,12 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of postMediaKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing post media translation: "+key);
+  assert.equal(dictionary[key].endsWith(" "),key.endsWith(" "),
+   code+": post media prefix whitespace mismatch: "+key);
  }
  for(const key of giftKeys){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
