@@ -5,8 +5,15 @@ if(window.VATRA_HOST_ALLOWED===false)return;
 const PROJECT_URL="https://rjasunoawrxvetwadylh.supabase.co";
 const PUBLIC_KEY="sb_publishable_agvPTuxV0igjxgjfd0JdWw_87GaCUS-";
 const root=new URL("../../",document.currentScript.src).href;
-const english=document.documentElement.lang==="en";
-const t=(uk,en)=>english?en:uk;
+const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+const locale=dateLocales[activeLocale]||"uk-UA";
+const t=(uk,en)=>{
+ if(activeLocale==="uk")return uk;
+ if(activeLocale==="en")return en; // Keep existing English wording.
+ const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+ return typeof translated==="string"&&translated!==uk?translated:uk;
+};
 const $=selector=>document.querySelector(selector);
 const idPattern=/^[1-9][0-9]{0,18}$/;
 const postPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -58,18 +65,18 @@ async function start(){
  await window.VATRA_LANGUAGE?.ready;
  const mode=document.body.dataset.page;
  for(const element of document.querySelectorAll("[data-community-uk]")){
-  element.textContent=english?element.dataset.communityEn:element.dataset.communityUk;
+  element.textContent=t(element.dataset.communityUk,element.dataset.communityEn);
  }
  for(const element of document.querySelectorAll("[data-social-uk]")){
-  element.textContent=english?element.dataset.socialEn:element.dataset.socialUk;
+  element.textContent=t(element.dataset.socialUk,element.dataset.socialEn);
  }
  const brand=document.querySelector(".feed-header-brand");
- if(brand)brand.setAttribute("aria-label",english?"VATRA — Feed":"VATRA — Стрічка");
+ if(brand)brand.setAttribute("aria-label",t("VATRA — Стрічка","VATRA — Feed"));
  for(const input of document.querySelectorAll("[data-shell-placeholder-uk]")){
-    input.placeholder=english?input.dataset.shellPlaceholderEn:input.dataset.shellPlaceholderUk;
+    input.placeholder=t(input.dataset.shellPlaceholderUk,input.dataset.shellPlaceholderEn);
    }
    for(const control of document.querySelectorAll("[data-shell-aria-uk]")){
-    const title=english?control.dataset.shellAriaEn:control.dataset.shellAriaUk;
+    const title=t(control.dataset.shellAriaUk,control.dataset.shellAriaEn);
     control.setAttribute("aria-label",title);
     control.removeAttribute("title");
    }
@@ -78,7 +85,7 @@ async function start(){
     [".ui-shell-header-music-001","Музика — незабаром","Music — coming soon"]]){
     const control=document.querySelector(pair[0]);
     if(control){
-     const title=english?pair[2]:pair[1];
+     const title=t(pair[1],pair[2]);
      control.setAttribute("aria-label",title);
      control.removeAttribute("title");
     }
@@ -90,11 +97,9 @@ async function start(){
    link.removeAttribute("title");
   }
  }
- if(english){
-  const name=$("#community-name"),description=$("#community-description");
-  if(name)name.placeholder="For example, Ukrainian music";
-  if(description)description.placeholder="What is your community about?";
- }
+ const name=$("#community-name"),description=$("#community-description");
+ if(name)name.placeholder=t("Наприклад, Українська музика","For example, Ukrainian music");
+ if(description)description.placeholder=t("Про що ваша спільнота?","What is your community about?");
  if(!window.supabase?.createClient){
   gateError(t("Не вдалося відкрити VATRA","Could not open VATRA"));
   return;
@@ -116,7 +121,7 @@ async function start(){
   const nameParts=cleanName.split(/\s+/).filter(Boolean);
   const first=(Array.from(nameParts[0]||"V")[0]||"V");
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
-  const avatar=(first+last).toLocaleUpperCase(english?"en-US":"uk-UA");
+  const avatar=(first+last).toLocaleUpperCase(locale);
   window.VATRA_AVATAR?.setHeader({email:user.email,name:headerName,initials:avatar});
   window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
@@ -309,7 +314,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     const profile=node("a","feed-post-name vt-club-post-author-001",
      names.get(id)||t("Учасник VATRA","VATRA member"));
     profile.href=root+"id"+id;
-    const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(english?"en-US":"uk-UA",{
+    const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(locale,{
      day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
     }).format(new Date(post.created_at)));
     time.dateTime=post.created_at;
