@@ -3,8 +3,14 @@
    imports, scheduled publishing or payment-like promises. */
 (()=>{
 "use strict";
-const en=()=>document.documentElement.lang==="en";
-const t=(uk,english)=>en()?english:uk;
+const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+const t=(uk,english)=>{
+ const locale=language();
+ if(locale==="uk")return uk;
+ const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+ return typeof translated==="string"&&translated!==uk?translated:
+  locale==="en"?english:uk;
+};
 const make=(tag,cls,label)=>{
  const el=document.createElement(tag);el.className=cls;
  if(label!==undefined)el.textContent=label;return el;
