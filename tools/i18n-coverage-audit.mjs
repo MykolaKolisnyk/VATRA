@@ -28,6 +28,7 @@ assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translatio
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
+const authRuntimeSource=await readFile("assets/js/auth-core.js","utf8");
 const pendingPasswordLocaleKeys=[
  "Використайте щонайменше 12 символів.",
  "Використайте не більше 128 символів.",
@@ -61,7 +62,6 @@ const authRuntimeKeys=[
  "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.",
  "Створення акаунтів тимчасово недоступне."
 ];
-const authRuntimeSource=await readFile("assets/js/auth-core.js","utf8");
 assert.ok(langJs.includes('translate: raw => (typeof errors[raw] === "string" && errors[raw]) ? errors[raw] : raw'),
  "All prepared locales must use the same dynamic dictionary lookup");
 for(const key of authRuntimeKeys){
