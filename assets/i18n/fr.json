@@ -2869,5 +2869,8 @@
   "Маркетингова аналітика VATRA": "Analyse marketing de VATRA",
   "Вимірювання рекламних кампаній": "Mesure des campagnes publicitaires",
   "У коді не підключена": "Non activée dans le code",
-  "На сторінках VATRA немає власних рекламних пікселів чи необов’язкових маркетингових cookies, для яких потрібна кнопка «Прийняти все». VATRA не показує фіктивного повідомлення про згоду.": "Les pages VATRA ne contiennent actuellement aucun pixel publicitaire propriétaire ni cookie marketing facultatif nécessitant un bouton « Tout accepter ». VATRA n’affiche pas de fausse bannière de consentement."
+  "На сторінках VATRA немає власних рекламних пікселів чи необов’язкових маркетингових cookies, для яких потрібна кнопка «Прийняти все». VATRA не показує фіктивного повідомлення про згоду.": "Les pages VATRA ne contiennent actuellement aucun pixel publicitaire propriétaire ni cookie marketing facultatif nécessitant un bouton « Tout accepter ». VATRA n’affiche pas de fausse bannière de consentement.",
+  "Виберіть новий пароль, який відрізняється від попереднього.": "Choisissez un nouveau mot de passe différent de l’ancien.",
+  "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.": "Le mot de passe ne respecte pas les exigences de sécurité du serveur. Vérifiez les règles sous le champ du mot de passe.",
+  "Створення акаунтів тимчасово недоступне.": "La création de comptes est temporairement indisponible."
 }

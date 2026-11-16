@@ -28,6 +28,21 @@ assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translatio
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
+const authRuntimeKeys=[
+ "Виберіть новий пароль, який відрізняється від попереднього.",
+ "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.",
+ "Створення акаунтів тимчасово недоступне."
+];
+const authRuntimeSource=await readFile("assets/js/auth-core.js","utf8");
+assert.ok(langJs.includes('translate: raw => (typeof errors[raw] === "string" && errors[raw]) ? errors[raw] : raw'),
+ "All prepared locales must use the same dynamic dictionary lookup");
+for(const key of authRuntimeKeys){
+ assert.ok(authRuntimeSource.includes('return "'+key+'";'),
+  "Auth runtime must emit the Ukrainian translation key: "+key);
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English auth runtime translation is missing: "+key);
+}
+
 
 assert.ok(langJs.includes('const validLanguage = value => value === "uk" || value === "en";'),
  "Do not publish incomplete translations as selectable languages");
@@ -99,6 +114,10 @@ for(const code of codes){
  assert.ok(untranslatedCritical<criticalMessages.length*0.05,
   code+": account and status messages must not remain in Ukrainian: "+
    untranslatedCritical+"/"+criticalMessages.length);
+ for(const key of authRuntimeKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim()!==key,
+   code+": auth runtime message not localized: "+key);
+ }
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");
  const covered=dynamicKeys.length;

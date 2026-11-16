@@ -2738,5 +2738,8 @@
   "Створи перший допис": "Create your first post",
   "Додай текст, фото чи відео. Нічого не публікується без твого підтвердження.": "Add text, photos or video. Nothing is published without your confirmation.",
   "Твої історії": "Your stories",
-  "Поділися моментом у короткій історії. Історії зникають через 24 години.": "Share a moment in a short story. Stories disappear after 24 hours."
+  "Поділися моментом у короткій історії. Історії зникають через 24 години.": "Share a moment in a short story. Stories disappear after 24 hours.",
+  "Виберіть новий пароль, який відрізняється від попереднього.": "Choose a new password that differs from the previous one.",
+  "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.": "The password does not meet the server's security requirements. Check the rules below the password field.",
+  "Створення акаунтів тимчасово недоступне.": "Account creation is temporarily unavailable."
 }

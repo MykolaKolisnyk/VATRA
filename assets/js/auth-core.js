@@ -84,11 +84,11 @@ function getMessage(error){
  if(code==="email_not_confirmed"||text.includes("email not confirmed"))return "Підтвердьте електронну пошту за посиланням із листа.";
  if(code==="same_password"||code==="same_password_as_old"||
   text.includes("same as the old password")||text.includes("different from the old password"))
-  return english?"Choose a new password that differs from the previous one.":"Виберіть новий пароль, який відрізняється від попереднього.";
- if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return english?"The password does not meet the server's security requirements. Check the rules below the password field.":"Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.";
+  return "Виберіть новий пароль, який відрізняється від попереднього.";
+ if(code==="weak_password"||text.includes("password should")||text.includes("password is too"))return "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.";
  if(code==="over_email_send_rate_limit"||code==="over_request_rate_limit"||text.includes("rate limit"))return "Забагато спроб. Спробуйте трохи пізніше.";
  if(code==="email_exists"||code==="user_already_exists")return "Акаунт із такою поштою вже може існувати. Спробуйте увійти або відновити пароль.";
- if(code==="signup_disabled")return english?"Account creation is temporarily unavailable.":"Створення акаунтів тимчасово недоступне.";
+ if(code==="signup_disabled")return "Створення акаунтів тимчасово недоступне.";
  if(code==="otp_expired"||code==="otp_disabled")return "Посилання для підтвердження недійсне або застаріло. Запросіть нове.";
  if(code==="captcha_required"||code==="captcha_failed"||text.includes("captcha verification"))return "Завершіть перевірку безпеки й повторіть спробу.";
  if(code==="captcha_cancelled")return "Перевірку безпеки скасовано.";
@@ -140,7 +140,7 @@ function validationText(control,form){
  if(!value)return "";
  if(control.type==="email"&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))return "Введіть правильну електронну пошту.";
  if((control.id==="first-name"||control.id==="last-name")&&(value.length<2||value.length>60))return "Використайте від 2 до 60 символів.";
- if(control.id==="password-confirm"&&value!==q("#password")?.value)return english?"Passwords do not match.":"Паролі не збігаються.";
+ if(control.id==="password-confirm"&&value!==q("#password")?.value)return "Паролі не збігаються.";
  if(control.type==="password"&&form.id!=="login-form")return passwordIssue(value);
  return "";
 }
