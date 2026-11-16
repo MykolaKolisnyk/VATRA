@@ -2,7 +2,15 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
+ const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+ const tr=(uk,english)=>{
+  const locale=language();
+  if(locale==="uk")return uk;
+  if(locale==="en")return english;
+  const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+  return typeof translated==="string"&&translated!==uk?translated:uk;
+ };
+ const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
  const validId=value=>/^[1-9]\d{0,18}$/.test(String(value||""));
  const validUUID=value=>/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i.test(String(value||""));
  const make=(tag,className,text)=>{
@@ -54,7 +62,7 @@
  };
  const dateValue=input=>{
   const date=new Date(input);return Number.isNaN(date.valueOf())?"":new Intl.DateTimeFormat(
-   document.documentElement.lang==="en"?"en-US":"uk-UA",
+   dateLocales[language()]||"uk-UA",
    {day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}
   ).format(date);
  };

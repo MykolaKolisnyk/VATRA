@@ -3071,5 +3071,22 @@
   "Повторити завантаження відео": "Video erneut laden",
   "Фото до публікації": "Foto für den Beitrag",
   "Відкрити фото на весь екран": "Foto im Vollbild öffnen",
-  "Медіафайл тимчасово недоступний.": "Medium ist vorübergehend nicht verfügbar."
+  "Медіафайл тимчасово недоступний.": "Medium ist vorübergehend nicht verfügbar.",
+  "Для друзів": "Nur für Freunde",
+  "Лише я": "Nur ich",
+  "Учасники спільноти": "Community-Mitglieder",
+  "Публічно": "Öffentlich",
+  "Дії з публікацією": "Beitragsoptionen",
+  "Керування публікацією": "Beitrag verwalten",
+  "Зберегти в архів": "Ins Archiv verschieben",
+  "Взаємодія з публікацією": "Beitragsinteraktionen",
+  "Подобається": "Gefällt mir",
+  "Коментарі": "Kommentare",
+  "Поділитися": "Teilen",
+  "Зберегти": "Speichern",
+  "Збережено": "Gespeichert",
+  "Не вдалося змінити збереження.": "Speicherstatus konnte nicht geändert werden.",
+  "Не вдалося змінити збереження. Спробуйте ще раз.": "Speicherstatus konnte nicht geändert werden. Bitte versuche es erneut.",
+  "Вподобання тимчасово недоступні.": "Gefällt-mir-Angaben sind vorübergehend nicht verfügbar.",
+  "Не вдалося змінити вподобання.": "Gefällt mir konnte nicht geändert werden."
 }

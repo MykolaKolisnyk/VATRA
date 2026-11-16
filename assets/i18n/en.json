@@ -2942,5 +2942,22 @@
   "Повторити завантаження відео": "Retry loading video",
   "Фото до публікації": "Post photo",
   "Відкрити фото на весь екран": "View photo fullscreen",
-  "Медіафайл тимчасово недоступний.": "Media temporarily unavailable."
+  "Медіафайл тимчасово недоступний.": "Media temporarily unavailable.",
+  "Для друзів": "Friends only",
+  "Лише я": "Only me",
+  "Учасники спільноти": "Community members",
+  "Публічно": "Public",
+  "Дії з публікацією": "Post options",
+  "Керування публікацією": "Manage post",
+  "Зберегти в архів": "Move to archive",
+  "Взаємодія з публікацією": "Post interactions",
+  "Подобається": "Like",
+  "Коментарі": "Comments",
+  "Поділитися": "Share",
+  "Зберегти": "Save",
+  "Збережено": "Saved",
+  "Не вдалося змінити збереження.": "Could not update saved post.",
+  "Не вдалося змінити збереження. Спробуйте ще раз.": "Could not update saved post. Please retry.",
+  "Вподобання тимчасово недоступні.": "Likes temporarily unavailable.",
+  "Не вдалося змінити вподобання.": "Could not update your like."
 }

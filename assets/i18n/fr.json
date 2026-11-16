@@ -3071,5 +3071,22 @@
   "Повторити завантаження відео": "Réessayer de charger la vidéo",
   "Фото до публікації": "Photo de la publication",
   "Відкрити фото на весь екран": "Ouvrir la photo en plein écran",
-  "Медіафайл тимчасово недоступний.": "Ce média est temporairement indisponible."
+  "Медіафайл тимчасово недоступний.": "Ce média est temporairement indisponible.",
+  "Для друзів": "Réservé aux amis",
+  "Лише я": "Moi uniquement",
+  "Учасники спільноти": "Membres de la communauté",
+  "Публічно": "Public",
+  "Дії з публікацією": "Options de la publication",
+  "Керування публікацією": "Gérer la publication",
+  "Зберегти в архів": "Archiver",
+  "Взаємодія з публікацією": "Interactions avec la publication",
+  "Подобається": "J’aime",
+  "Коментарі": "Commentaires",
+  "Поділитися": "Partager",
+  "Зберегти": "Enregistrer",
+  "Збережено": "Enregistré",
+  "Не вдалося змінити збереження.": "Impossible de modifier l’enregistrement.",
+  "Не вдалося змінити збереження. Спробуйте ще раз.": "Impossible de modifier l’enregistrement. Réessayez.",
+  "Вподобання тимчасово недоступні.": "Les mentions J’aime sont temporairement indisponibles.",
+  "Не вдалося змінити вподобання.": "Impossible de modifier la mention J’aime."
 }
