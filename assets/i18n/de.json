@@ -2872,5 +2872,14 @@
   "На сторінках VATRA немає власних рекламних пікселів чи необов’язкових маркетингових cookies, для яких потрібна кнопка «Прийняти все». VATRA не показує фіктивного повідомлення про згоду.": "Die VATRA-Seiten enthalten derzeit keine eigenen Werbepixel oder optionalen Marketing-Cookies, für die eine Schaltfläche „Alle akzeptieren“ erforderlich wäre. VATRA zeigt kein irreführendes Einwilligungsbanner.",
   "Виберіть новий пароль, який відрізняється від попереднього.": "Wähle ein neues Passwort, das sich vom bisherigen unterscheidet.",
   "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.": "Das Passwort erfüllt nicht die Sicherheitsanforderungen des Servers. Prüfe die Regeln unter dem Passwortfeld.",
-  "Створення акаунтів тимчасово недоступне.": "Die Erstellung neuer Konten ist vorübergehend nicht verfügbar."
+  "Створення акаунтів тимчасово недоступне.": "Die Erstellung neuer Konten ist vorübergehend nicht verfügbar.",
+  "Використайте щонайменше 12 символів.": "Verwenden Sie mindestens 12 Zeichen.",
+  "Використайте не більше 128 символів.": "Verwenden Sie höchstens 128 Zeichen.",
+  "Додайте малу латинську літеру (a–z).": "Fügen Sie einen lateinischen Kleinbuchstaben (a–z) hinzu.",
+  "Додайте велику латинську літеру (A–Z).": "Fügen Sie einen lateinischen Großbuchstaben (A–Z) hinzu.",
+  "Додайте цифру (0–9).": "Fügen Sie eine Ziffer (0–9) hinzu.",
+  "Додайте спеціальний символ (наприклад, ! або @).": "Fügen Sie ein Sonderzeichen hinzu (z. B. ! oder @).",
+  "Вилучити збережений акаунт": "Gespeichertes Konto entfernen",
+  "Введіть пароль.": "Geben Sie Ihr Passwort ein.",
+  "Встановіть новий пароль": "Neues Passwort festlegen"
 }

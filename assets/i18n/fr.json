@@ -2872,5 +2872,14 @@
   "На сторінках VATRA немає власних рекламних пікселів чи необов’язкових маркетингових cookies, для яких потрібна кнопка «Прийняти все». VATRA не показує фіктивного повідомлення про згоду.": "Les pages VATRA ne contiennent actuellement aucun pixel publicitaire propriétaire ni cookie marketing facultatif nécessitant un bouton « Tout accepter ». VATRA n’affiche pas de fausse bannière de consentement.",
   "Виберіть новий пароль, який відрізняється від попереднього.": "Choisissez un nouveau mot de passe différent de l’ancien.",
   "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.": "Le mot de passe ne respecte pas les exigences de sécurité du serveur. Vérifiez les règles sous le champ du mot de passe.",
-  "Створення акаунтів тимчасово недоступне.": "La création de comptes est temporairement indisponible."
+  "Створення акаунтів тимчасово недоступне.": "La création de comptes est temporairement indisponible.",
+  "Використайте щонайменше 12 символів.": "Utilisez au moins 12 caractères.",
+  "Використайте не більше 128 символів.": "Utilisez au maximum 128 caractères.",
+  "Додайте малу латинську літеру (a–z).": "Ajoutez une lettre latine minuscule (a–z).",
+  "Додайте велику латинську літеру (A–Z).": "Ajoutez une lettre latine majuscule (A–Z).",
+  "Додайте цифру (0–9).": "Ajoutez un chiffre (0–9).",
+  "Додайте спеціальний символ (наприклад, ! або @).": "Ajoutez un caractère spécial (par exemple, ! ou @).",
+  "Вилучити збережений акаунт": "Supprimer le compte enregistré",
+  "Введіть пароль.": "Saisissez votre mot de passe.",
+  "Встановіть новий пароль": "Définir un nouveau mot de passe"
 }
