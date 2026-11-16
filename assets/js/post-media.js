@@ -2,7 +2,14 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
+ const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+ const tr=(uk,english)=>{
+  const locale=language();
+  if(locale==="uk")return uk;
+  if(locale==="en")return english;
+  const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+  return typeof translated==="string"&&translated!==uk?translated:uk;
+ };
  const formats={
   "image/jpeg":{kind:"image",ext:"jpg",bucket:"post-images",limit:6291456},
   "image/png":{kind:"image",ext:"png",bucket:"post-images",limit:6291456},
