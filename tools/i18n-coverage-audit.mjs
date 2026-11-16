@@ -71,6 +71,47 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
+const notificationRuntime=await readFile("assets/js/notifications.js","utf8");
+const notificationKeys=[
+ "{name} хоче додатися до вас у друзі",
+ "{name}: вашу заявку в друзі прийнято",
+ "{name}: вподобайка вашої публікації",
+ "{name}: вподобайка вашого коментаря",
+ "{name}: вподобайка вашого фото профілю",
+ "{name}: вподобайка коментаря під фото",
+ "{name}: нова подія",
+ "Сповіщення: {count} непрочитаних",
+ "Учасник VATRA ID {id}",
+ "Сторінка {page}",
+ "Видалити сповіщення",
+ "Акаунт видалено",
+ "Акаунт заблоковано",
+ "Сповіщень поки немає.",
+ "Не вдалося завантажити сповіщення. Спробуйте ще раз.",
+ "Ваші сповіщення",
+ "Закрити сповіщення",
+ "Відкрити всі сповіщення",
+ "Сповіщення · VATRA",
+ "Не вдалося завантажити сповіщення. Оновіть сторінку."
+];
+const interpolationTokens=value=>[...value.matchAll(/\{(name|count|page|id)\}/g)]
+ .map(match=>match[1]).sort();
+assert.equal(notificationKeys.length,20,"Unexpected notification translation key count");
+assert.ok(notificationRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ notificationRuntime.includes("const notificationTemplates={")&&
+ notificationRuntime.includes("return format(uk,english,{name});")&&
+ notificationRuntime.includes('format("Сповіщення: {count} непрочитаних"')&&
+ notificationRuntime.includes('format("Учасник VATRA ID {id}"')&&
+ notificationRuntime.includes('format("Сторінка {page}"')&&
+ notificationRuntime.includes('new Intl.DateTimeFormat(dateLocales[language()]||"uk-UA"'),
+ "Notification runtime must use dictionaries, interpolation and locale-aware dates");
+for(const key of notificationKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English notification text missing: "+key);
+ assert.deepEqual(interpolationTokens(en[key]),interpolationTokens(key),
+  "English notification placeholder mismatch: "+key);
+}
+
 const feedRuntime=await readFile("assets/js/feed.js","utf8");
 const profileRuntime=await readFile("assets/js/profile.js","utf8");
 const socialPageKeys=["VATRA — Стрічка","У розробці","Зараз у мережі"];
@@ -232,6 +273,12 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of notificationKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing notification message: "+key);
+  assert.deepEqual(interpolationTokens(dictionary[key]),interpolationTokens(key),
+   code+": notification placeholder mismatch: "+key);
  }
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");

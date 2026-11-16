@@ -5,8 +5,18 @@
 if(window.VATRA_HOST_ALLOWED===false)return;
 const root=new URL("../../",document.currentScript?.src||"assets/js/notifications.js");
 const pick=s=>document.querySelector(s);
-const en=()=>document.documentElement.lang==="en";
-const t=(uk,english)=>en()?english:uk;
+const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+const dateLocales={uk:"uk-UA",en:"en-GB",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+const t=(uk,english)=>{
+ const current=language();
+ if(current==="uk")return uk;
+ const translated=window.VATRA_LANGUAGE?.translate?.(uk);
+ return typeof translated==="string"&&translated!==uk?translated:
+  current==="en"?english:uk;
+};
+// Text interpolation uses no HTML and does not alter user-provided names.
+const format=(uk,english,values)=>t(uk,english).replace(/\{(name|count|page|id)\}/g,
+ (_,key)=>String(values[key]??""));
 const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id??""));
 const make=(tag,cls,text)=>{
  const el=document.createElement(tag);
@@ -34,7 +44,7 @@ let sectionPage=0,sectionFilter="all",sectionSort="new",sectionLoading=false;
 const pageURL=()=>new URL("notifications",root).href;
 const timeValue=date=>{
  const parsed=new Date(date);if(!Number.isFinite(parsed.getTime()))return "";
- return new Intl.DateTimeFormat(en()?"en-GB":"uk-UA",
+ return new Intl.DateTimeFormat(dateLocales[language()]||"uk-UA",
   {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(parsed);
 };
 const hrefFor=record=>{
@@ -46,16 +56,18 @@ const hrefFor=record=>{
     "feed"+(record.context_id||record.target_id?"?post="+encodeURIComponent(record.context_id||record.target_id):"");
  return new URL(path,root).href;
 };
+const notificationTemplates={
+ friend_request:["{name} хоче додатися до вас у друзі","{name} wants to add you as a friend"],
+ friend_accepted:["{name}: вашу заявку в друзі прийнято","{name} accepted your friend request"],
+ post_like:["{name}: вподобайка вашої публікації","{name} liked your post"],
+ comment_like:["{name}: вподобайка вашого коментаря","{name} liked your comment"],
+ avatar_like:["{name}: вподобайка вашого фото профілю","{name} liked your profile photo"],
+ avatar_comment_like:["{name}: вподобайка коментаря під фото","{name} liked your photo comment"]
+};
 const messageFor=(kind,name)=>{
- const k={
-  friend_request:[name+" хоче додатися до вас у друзі",name+" wants to add you as a friend"],
-  friend_accepted:[name+": вашу заявку в друзі прийнято",name+" accepted your friend request"],
-  post_like:[name+": вподобайка вашої публікації",name+" liked your post"],
-  comment_like:[name+": вподобайка вашого коментаря",name+" liked your comment"],
-  avatar_like:[name+": вподобайка вашого фото профілю",name+" liked your profile photo"],
-  avatar_comment_like:[name+": вподобайка коментаря під фото",name+" liked your photo comment"]
- };
- return t(...(k[kind]||[name+": нова подія",name+": new activity"]));
+ const [uk,english]=notificationTemplates[kind]||
+  ["{name}: нова подія","{name}: new activity"];
+ return format(uk,english,{name});
 };
 async function authorNames(rows){
  const ids=[...new Set(rows.map(x=>String(x.actor_vatra_id)).filter(validId))];
@@ -100,7 +112,7 @@ async function unreadCount(){
   if(run!==notificationRun)return; // Old sessions cannot paint the current badge.
   const n=Number(count||0);
   badge.hidden=n===0;badge.textContent=n>99?"99+":String(n);
-  bell.setAttribute("aria-label",n?t("Сповіщення: "+n+" непрочитаних","Notifications: "+n+" unread"):
+  bell.setAttribute("aria-label",n?format("Сповіщення: {count} непрочитаних","Notifications: {count} unread",{count:n}):
    t("Сповіщення","Notifications"));
  }catch(_){if(run===notificationRun)badge.hidden=true;}
  finally{
@@ -225,7 +237,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
    const id=String(record.actor_vatra_id),state=states.get(id);
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    names.get(id)||t("Учасник VATRA ID ","VATRA member ID ")+id;
+    names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
    return createRow(record,name,String(opts.page*opts.size+i+1),
     onChange,avatars.get(id),state);
   });
@@ -236,7 +248,7 @@ async function renderRows(list,status,opts,onChange,prev,next,pageLabel){
   }
   if(prev)prev.disabled=opts.page===0;
   if(next)next.disabled=!hasNext;
-  if(pageLabel)pageLabel.textContent=t("Сторінка ","Page ")+(opts.page+1);
+  if(pageLabel)pageLabel.textContent=format("Сторінка {page}","Page {page}",{page:opts.page+1});
   return rows;
  }catch(_){
   status.textContent=t("Не вдалося завантажити сповіщення. Спробуйте ще раз.",
@@ -537,7 +549,7 @@ async function pageLoad(append=false){
    const state=authors.states.get(id);
    const name=state==="deleted"?t("Акаунт видалено","Account deleted"):
     state==="blocked"?t("Акаунт заблоковано","Account blocked"):
-    authors.names.get(id)||t("Учасник VATRA ID ","VATRA member ID ")+id;
+    authors.names.get(id)||format("Учасник VATRA ID {id}","VATRA member ID {id}",{id});
    list.append(createRow(row,name,String(index),()=>pageLoad(false),authors.avatars.get(id),state));
   }
   sectionPage=page;
