@@ -28,6 +28,49 @@ assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translatio
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
+const socialShell=await readFile("assets/js/social-shell.js","utf8");
+const socialShellKeys=[
+ "Зрозуміло",
+ "Цей розділ готується до запуску у VATRA. Поки він не має активних даних або повідомлень.",
+ "Перегляд історії",
+ "Закрити",
+ "Результати пошуку",
+ "Очистити пошук",
+ "Шукаємо у VATRA…",
+ "Люди",
+ "Публікації",
+ "Медіапублікація",
+ "Дописи спільнот",
+ "Стрічка VATRA",
+ "Збігів немає. Спробуйте інший запит.",
+ "Показати всі результати",
+ "Не вдалося виконати пошук.",
+ "Готово",
+ "Редагувати",
+ "Історія запитів",
+ "Назад до VATRA",
+ "Шукати: ",
+ "Видалити пошук: ",
+ "Немає збігів в історії",
+ "Історія пошуку порожня",
+ "Нещодавні",
+ "Очистити всю історію",
+ "Історії",
+ "Месенджер",
+ "Меню акаунта",
+ "Кількість запитів: {count}",
+ "Ваша історія"
+];
+assert.ok(socialShell.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ socialShell.includes("const t=tr;")&&
+ socialShell.includes('tr("Кількість запитів: {count}","Searches: {count}")')&&
+ socialShell.includes("window.VATRA_LANGUAGE.ready.then(boot)"),
+ "Shared social shell must localize controls after loading the matching catalog");
+for(const key of socialShellKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English social-shell translation missing: "+key);
+}
+
 const verifyRuntime=await readFile("assets/js/verify.js","utf8");
 const signupRuntime=await readFile("assets/js/create-account.js","utf8");
 const verificationKeys=[
@@ -165,6 +208,13 @@ for(const code of codes){
  for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys,...verificationKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim()!==key,
    code+": auth/recovery runtime message not localized: "+key);
+ }
+ // Some short strings are legitimately identical in Ukrainian and another
+ // language (for example Bulgarian "Готово"). Require presence here and use
+ // the whole-dictionary untranslated-ratio gate below to catch omissions.
+ for(const key of socialShellKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": social-shell text missing: "+key);
  }
  const missing=dynamicKeys.filter(key=>typeof dictionary[key]!=="string"||!dictionary[key].trim());
  assert.deepEqual(missing,[],code+": shared source key coverage must be complete");

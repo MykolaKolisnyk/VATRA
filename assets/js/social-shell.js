@@ -3,8 +3,16 @@
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
- const lang=()=>document.documentElement.lang==="en"?"en":"uk";
- const tr=(uk,en)=>lang()==="en"?en:uk;
+ const lang=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
+ // Preserve UK/EN fallback labels while allowing all six future locales to
+ // display prepared dictionary strings after the page catalog is ready.
+ const tr=(uk,en)=>{
+  const locale=lang();
+  if(locale==="uk")return uk;
+  const localized=window.VATRA_LANGUAGE?.translate?.(uk);
+  if(typeof localized==="string"&&localized!==uk)return localized;
+  return locale==="en"?(en??uk):uk;
+ };
   const make=(tag,cls,txt)=>{
   const el=document.createElement(tag);
   if(cls)el.className=cls;
@@ -44,7 +52,7 @@
    document.querySelector(".feed-account-menu")?.open||
    !!document.querySelector(".vatra-notification-panel:not([hidden]),#vatra-search-panel:not([hidden])")||
    tooltipSuppressed===target||event?.pointerType==="touch")return;
-  const label=target.dataset["vatraTooltip"+(lang()==="en"?"En":"Uk")];
+  const label=tr(target.dataset.vatraTooltipUk,target.dataset.vatraTooltipEn);
   if(!label)return;
   hideTooltip();
   hovered=target;tooltip.textContent=label;tooltip.dataset.open="true";
@@ -190,9 +198,9 @@
    item.addEventListener("click",()=>{
     hideTooltip();
     const text=item.querySelector("[data-social-uk]");
-    const name=text?text.textContent:
-     lang()==="en"?(item.dataset.storyTitleEn||item.dataset.vatraTooltipEn||"Stories"):
-      (item.dataset.storyTitleUk||item.dataset.vatraTooltipUk||"Історії");
+    const name=text?tr(text.dataset.socialUk||text.textContent,text.dataset.socialEn):
+     tr(item.dataset.storyTitleUk||item.dataset.vatraTooltipUk||"Історії",
+      item.dataset.storyTitleEn||item.dataset.vatraTooltipEn||"Stories");
     infoTitle.textContent=name;
     infoText.textContent=tr("Цей розділ готується до запуску у VATRA. Поки він не має активних даних або повідомлень.",
      "This VATRA section is being prepared. No live content or messages are available yet.");
@@ -218,7 +226,7 @@
    card.addEventListener("click",()=>{
     hideTooltip();
     const art=card.querySelector("svg");
-    const title=lang()==="en"?card.dataset.storyTitleEn:card.dataset.storyTitleUk;
+    const title=tr(card.dataset.storyTitleUk,card.dataset.storyTitleEn);
     stage.replaceChildren();
     if(art)stage.append(art.cloneNode(true));
     caption.textContent=title||"";
@@ -275,7 +283,7 @@
     }
    }
   };
-  const t=(uk,en)=>lang()==="en"?en:uk;
+  const t=tr;
   let visible=false,editing=false;
   let liveTimer=null,liveTicket=0,liveController=null,liveTerm=null;
   const validMember=id=>/^[1-9][0-9]{0,18}$/.test(String(id??""));
@@ -503,7 +511,10 @@
    empty.textContent=typed?t("Немає збігів в історії","No matches in history"):
     t("Історія пошуку порожня","No search history");
    count.textContent=visibleTerms.length?
-    t(visibleTerms.length+" запитів",visibleTerms.length+" searches"):"";
+    (lang()==="uk"?visibleTerms.length+" запитів":
+     lang()==="en"?visibleTerms.length+" searches":
+     tr("Кількість запитів: {count}","Searches: {count}")
+      .replace("{count}",String(visibleTerms.length))):"";
    syncEditing();if(clearInput)clearInput.hidden=!input.value;
    const term=input.value.trim();
    const live=term.length>=2;
@@ -655,7 +666,14 @@
   setUpStories();
   setUpSiteSearch();
  };
+ const bootLocalized=()=>{
+  // New languages stay disabled; once enabled, build dynamic UI only after
+  // its catalog has loaded. UK/EN initialization remains unchanged.
+  if(!["uk","en"].includes(lang())&&window.VATRA_LANGUAGE?.ready)
+   window.VATRA_LANGUAGE.ready.then(boot);
+  else boot();
+ };
  if(document.readyState==="loading")
-  document.addEventListener("DOMContentLoaded",boot,{once:true});
- else boot();
+  document.addEventListener("DOMContentLoaded",bootLocalized,{once:true});
+ else bootLocalized();
 })();
