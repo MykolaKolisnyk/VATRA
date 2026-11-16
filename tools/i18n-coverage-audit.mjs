@@ -71,6 +71,43 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
+const composerRuntime=await readFile("assets/js/post-composer-ui.js","utf8");
+const composerKeys=[
+ "Новий пост",
+ "Чернетки",
+ "Мої чернетки на цьому пристрої",
+ "Закрити редактор",
+ "Додайте фото або відео",
+ "Завантажити з пристрою",
+ "Фото JPG, PNG, WebP або відео MP4, WebM",
+ "Напишіть що-небудь…",
+ "Налаштування публікації",
+ "Перевірте допис та виберіть, хто його побачить.",
+ "Публікація з’явиться одразу після натискання «Опублікувати».",
+ "Ваші чернетки",
+ "Чернетки зберігаються лише в цьому браузері. Фото та відео не зберігаються.",
+ "ⓘ  Поради щодо публікації",
+ "Діліться своїм, поважайте приватність інших та обирайте видимість допису перед публікацією.",
+ "Зберегти чернетку",
+ "Налаштування",
+ "Без тексту",
+ "Видалити чернетку",
+ "Чернеток поки немає.",
+ "Напишіть текст для збереження чернетки.",
+ "Текст збережено. Доданий файл потрібно вибрати знову при публікації.",
+ "Чернетку збережено в цьому браузері.",
+ "Неможливо зберегти чернетку в цьому браузері."
+];
+assert.equal(composerKeys.length,24,"Unexpected composer translation key count");
+assert.ok(composerRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ !composerRuntime.includes('const en=()=>document.documentElement.lang==="en";'),
+ "Post composer must use the shared locale dictionary, not only UK/EN");
+for(const key of composerKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),"Missing English composer label: "+key);
+ assert.ok(composerRuntime.includes("t("+JSON.stringify(key)),
+  "Composer no longer uses the localized key: "+key);
+}
+
 const friendsRuntime=await readFile("assets/js/friends.js","utf8");
 const friendsKeys=[
  "Дію виконано, але список не оновився. Оновіть сторінку.",
@@ -305,6 +342,10 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of composerKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing composer label: "+key);
  }
  for(const key of friendsKeys){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
