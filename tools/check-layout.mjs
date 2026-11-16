@@ -657,7 +657,7 @@ for(const [template,target,type] of [
  ["email-change.html","verify","email_change"]
 ]){
  const source=await read("email-templates/"+template);
- const expectedLocales=["confirmation.html","recovery.html"].includes(template)?8:2;
+ const expectedLocales=8; // Each auth callback is present in every prepared locale.
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,expectedLocales+1,
   "Every language variant needs a cross-device link: "+template);
  assert.ok(source.includes(target+'?token_hash={{ .TokenHash }}&amp;type='+type),
@@ -702,7 +702,7 @@ for(const [filename,route,type] of [
  ["recovery.html","reset","recovery"]
 ]){
  const source=await read("email-templates/"+filename);
- const localeCount=["confirmation.html","recovery.html"].includes(filename)?8:2;
+ const localeCount=8; // Every source email now has eight localized variants.
  assert.equal(source.split('token_hash={{ .TokenHash }}').length,localeCount+1,
   filename+": every locale branch must use the same direct confirmation URL");
  assert.ok(source.includes(route+'?token_hash={{ .TokenHash }}&amp;type='+type),

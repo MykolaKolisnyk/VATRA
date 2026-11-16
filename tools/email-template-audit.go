@@ -30,6 +30,30 @@ var expandedSubjects = map[string]map[string]string{
   "pl":"Odzyskiwanie hasła","de":"Passwort wiederherstellen","fr":"Récupération du mot de passe",
   "it":"Recupero della password","ka":"პაროლის აღდგენა","bg":"Възстановяване на парола",
  },
+ "invite":{
+  "pl":"Zaproszenie","de":"Einladung","fr":"Invitation",
+  "it":"Invito","ka":"მოწვევა","bg":"Покана",
+ },
+ "magic-link":{
+  "pl":"Kod logowania","de":"Anmeldecode","fr":"Code de connexion",
+  "it":"Codice di accesso","ka":"შესვლის კოდი","bg":"Код за вход",
+ },
+ "email-change":{
+  "pl":"Potwierdź nowy adres e-mail","de":"Neue E-Mail-Adresse bestätigen","fr":"Confirmez votre nouvelle adresse e-mail",
+  "it":"Conferma il nuovo indirizzo email","ka":"ახალი ელფოსტის დადასტურება","bg":"Потвърдете новия имейл",
+ },
+ "reauthentication":{
+  "pl":"Kod weryfikacyjny","de":"Bestätigungscode","fr":"Code de vérification",
+  "it":"Codice di verifica","ka":"დადასტურების კოდი","bg":"Код за потвърждение",
+ },
+ "password-changed":{
+  "pl":"Hasło zostało zmienione","de":"Passwort geändert","fr":"Mot de passe modifié",
+  "it":"Password modificata","ka":"პაროლი შეიცვალა","bg":"Паролата е променена",
+ },
+ "email-address-changed":{
+  "pl":"Adres e-mail został zmieniony","de":"E-Mail-Adresse geändert","fr":"Adresse e-mail modifiée",
+  "it":"Indirizzo email modificato","ka":"ელფოსტა შეიცვალა","bg":"Имейлът е променен",
+ },
 }
 var targetLocales=[]string{"pl","de","fr","it","ka","bg"}
 func subjectTemplateFor(name string)string{
