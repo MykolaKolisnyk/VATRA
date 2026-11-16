@@ -113,7 +113,9 @@ function fillBirthdays(){
  const month=q("#birth-month"),day=q("#birth-day"),year=q("#birth-year");
  if(!month||!day||!year)return;
  const now=new Date();
- const names=new Intl.DateTimeFormat(english?"en-US":"uk-UA",{month:"long"});
+ const locale=window.VATRA_LANGUAGE?.locale||"uk";
+  const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it-IT",ka:"ka-GE",bg:"bg-BG"};
+  const names=new Intl.DateTimeFormat(dateLocales[locale]||"uk-UA",{month:"long"});
  for(let i=1;i<=12;i++){
   const number=String(i).padStart(2,"0");
   const name=names.format(new Date(2024,i-1,1));
@@ -525,7 +527,7 @@ function wireCreateAccount(){
     options:{
      ...captcha,
      emailRedirectTo:new URL("verify",location.href).href,
-     data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null,preferred_locale:english?"en":"uk"}
+     data:{first_name:first,last_name:last,full_name:first+" "+last,birthdate:birthday,gender:gender||null,preferred_locale:window.VATRA_LANGUAGE?.locale||"uk"}
     }
    });
    if(error)throw error;

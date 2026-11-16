@@ -2881,5 +2881,9 @@
   "Додайте спеціальний символ (наприклад, ! або @).": "Dodaj znak specjalny (np. ! lub @).",
   "Вилучити збережений акаунт": "Usuń zapisane konto",
   "Введіть пароль.": "Wpisz hasło.",
-  "Встановіть новий пароль": "Ustaw nowe hasło"
+  "Встановіть новий пароль": "Ustaw nowe hasło",
+  "Підтвердження пошти не завершено": "Potwierdzenie adresu e-mail wymaga uwagi",
+  "Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.": "Jeśli adres e-mail został już potwierdzony, zaloguj się adresem e-mail i hasłem. W przeciwnym razie poproś o nową wiadomość potwierdzającą na urządzeniu, na którym się zarejestrowano.",
+  "Перейти до входу": "Przejdź do logowania",
+  "Вітаємо, {name}!": "Witamy, {name}!"
 }
