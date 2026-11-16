@@ -71,6 +71,69 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
+const communityRuntime=await readFile("assets/js/communities.js","utf8");
+const communityPages=[
+ await readFile("communities.html","utf8"),
+ await readFile("club.html","utf8")
+];
+const communityKeys=[
+ "Не вдалося відкрити VATRA",
+ "Не вдалося відкрити сторінку. Оновіть її.",
+ "Спільноти · VATRA",
+ "Назва: 3–80 символів. Опис: до 1200 символів.",
+ "Створення спільноти…",
+ "Не вдалося створити спільноту. Повторіть спробу.",
+ "Без опису",
+ "За цим запитом спільнот не знайдено.",
+ "Спільнот поки немає. Створіть першу!",
+ "Не вдалося завантажити список спільнот.",
+ "Відписатися",
+ "Підписатися",
+ "У спільноті ще немає дописів. Створіть перший!",
+ "Підпишіться на спільноту, щоб читати її дописи.",
+ "Не вдалося завантажити публікації.",
+ "Не вдалося перевірити підписку.",
+ "Не вдалося змінити підписку.",
+ "Додайте текст, фото або відео (до 2000 символів).",
+ "Не вдалося опублікувати допис.",
+ "Спільноту не знайдено",
+ "Ця спільнота не існує або її видалено.",
+ "Спільноту не знайдено · VATRA",
+ "Не вдалося завантажити спільноту.",
+ "Опису поки немає.",
+ "Створити спільноту",
+ "Назва спільноти",
+ "Опис (необов’язково)",
+ "Створити",
+ "Усі спільноти",
+ "Спільнота",
+ "Про спільноту",
+ "Допис у спільноту",
+ "Публікації спільноти",
+ "Завантажити ще",
+ "Допис у спільноті",
+ "Ваш допис",
+ "Фото / відео",
+ "Прибрати файл",
+ "Скасувати",
+ "Опублікувати",
+ "Наприклад, Українська музика",
+ "Про що ваша спільнота?"
+];
+assert.equal(communityKeys.length,42,"Unexpected community localization key count");
+assert.ok(communityRuntime.includes('const activeLocale=window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
+ communityRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ communityRuntime.includes("element.textContent=t(element.dataset.communityUk,element.dataset.communityEn)")&&
+ communityRuntime.includes("new Intl.DateTimeFormat(locale,{")&&
+ !communityRuntime.includes('const english=document.documentElement.lang==="en";'),
+ "Community controls and dates must use the selected locale");
+for(const key of communityKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English community locale missing: "+key);
+ assert.ok(communityRuntime.includes(key)||communityPages.some(html=>html.includes('data-community-uk="'+key+'"')),
+  "Community translation key is no longer in source: "+key);
+}
+
 const composerRuntime=await readFile("assets/js/post-composer-ui.js","utf8");
 const composerKeys=[
  "Новий пост",
@@ -342,6 +405,10 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of communityKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing community locale: "+key);
  }
  for(const key of composerKeys){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
