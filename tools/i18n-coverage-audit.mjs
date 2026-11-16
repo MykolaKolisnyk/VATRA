@@ -71,6 +71,38 @@ for(const key of socialShellKeys){
   "English social-shell translation missing: "+key);
 }
 
+const friendsRuntime=await readFile("assets/js/friends.js","utf8");
+const friendsKeys=[
+ "Дію виконано, але список не оновився. Оновіть сторінку.",
+ "Не вдалося виконати дію.",
+ "Ваш друг у VATRA",
+ "Хоче додатися до друзів",
+ "Запит надіслано",
+ "Профіль і повідомлення",
+ "Прийняти",
+ "Видалити з друзів",
+ "Відхилити",
+ "Скасувати запит",
+ "За запитом нічого не знайдено.",
+ "Друзів поки немає.",
+ "Немає нових запитів у друзі.",
+ "Немає надісланих запитів.",
+ "Приватність друзів",
+ "Друзі · VATRA",
+ "Списки друзів інших користувачів приватні.",
+ "Не вдалося завантажити друзів.",
+ "Не вдалося відкрити друзів. Оновіть сторінку."
+];
+assert.equal(friendsKeys.length,19,"Unexpected friend-area translation key count");
+assert.ok(friendsRuntime.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ friendsRuntime.includes('const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";')&&
+ !friendsRuntime.includes('const en=()=>document.documentElement.lang==="en";'),
+ "Friend-page messages must use the active dictionary, not UK/EN branches");
+for(const key of friendsKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English friend-page translation missing: "+key);
+}
+
 const notificationRuntime=await readFile("assets/js/notifications.js","utf8");
 const notificationKeys=[
  "{name} хоче додатися до вас у друзі",
@@ -273,6 +305,10 @@ for(const code of codes){
  for(const key of [...socialShellKeys,...socialPageKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": social-shell text missing: "+key);
+ }
+ for(const key of friendsKeys){
+  assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
+   code+": missing friend-page message: "+key);
  }
  for(const key of notificationKeys){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
