@@ -2741,5 +2741,14 @@
   "Поділися моментом у короткій історії. Історії зникають через 24 години.": "Share a moment in a short story. Stories disappear after 24 hours.",
   "Виберіть новий пароль, який відрізняється від попереднього.": "Choose a new password that differs from the previous one.",
   "Пароль не відповідає вимогам сервера. Перевірте правила під полем пароля.": "The password does not meet the server's security requirements. Check the rules below the password field.",
-  "Створення акаунтів тимчасово недоступне.": "Account creation is temporarily unavailable."
+  "Створення акаунтів тимчасово недоступне.": "Account creation is temporarily unavailable.",
+  "Використайте щонайменше 12 символів.": "Use at least 12 characters.",
+  "Використайте не більше 128 символів.": "Use no more than 128 characters.",
+  "Додайте малу латинську літеру (a–z).": "Add a lowercase Latin letter (a–z).",
+  "Додайте велику латинську літеру (A–Z).": "Add an uppercase Latin letter (A–Z).",
+  "Додайте цифру (0–9).": "Add a digit (0–9).",
+  "Додайте спеціальний символ (наприклад, ! або @).": "Add a special character (for example, ! or @).",
+  "Вилучити збережений акаунт": "Remove saved account",
+  "Введіть пароль.": "Enter your password.",
+  "Встановіть новий пароль": "Set a new password"
 }

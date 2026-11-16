@@ -3,7 +3,7 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_AUTH_ENTRY=ctx=>{
- const {q,url,translate,english,page,auth,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,REMEMBERED_ACCOUNT_KEY,LOGGED_OUT_KEY}=ctx;
+ const {q,url,translate,page,auth,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,rememberAccount,goToFeed,clearFeedback,feedback,REMEMBERED_ACCOUNT_KEY,LOGGED_OUT_KEY}=ctx;
 function readRememberedAccount(){
  try{
   const item=JSON.parse(localStorage.getItem(REMEMBERED_ACCOUNT_KEY)||"null");
@@ -167,7 +167,7 @@ function wireRememberedAccount(){
  const removeButton=q("#saved-account-remove");
  let removeTooltip=null;
  if(removeButton){
-  const label=english?"Remove saved account":"Вилучити збережений акаунт";
+  const label=translate("Вилучити збережений акаунт");
   removeButton.setAttribute("aria-label",label);
   removeButton.setAttribute("data-vatra-tooltip",label);
   removeTooltip=wireSavedAccountTooltip(removeButton);
@@ -228,7 +228,7 @@ function wireRememberedAccount(){
  savedForm.addEventListener("submit",async event=>{
   event.preventDefault();message.hidden=true;message.textContent="";
   if(!password.value){
-   message.textContent=english?"Enter your password.":"Введіть пароль.";
+   message.textContent=translate("Введіть пароль.");
    message.dataset.type="error";message.hidden=false;return;
   }
   busy(savedForm,true);

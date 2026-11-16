@@ -261,13 +261,13 @@ function wirePasswordButtons(){
 /* The same password policy governs signup and both reset paths.
    Login deliberately accepts existing passwords, including older policies. */
 function passwordIssue(value){
- if(typeof value!=="string"||value.length<12)return english?"Use at least 12 characters.":"Використайте щонайменше 12 символів.";
- if(value.length>128)return english?"Use no more than 128 characters.":"Використайте не більше 128 символів.";
- if(!/[a-z]/.test(value))return english?"Add a lowercase Latin letter (a–z).":"Додайте малу латинську літеру (a–z).";
- if(!/[A-Z]/.test(value))return english?"Add an uppercase Latin letter (A–Z).":"Додайте велику латинську літеру (A–Z).";
- if(!/[0-9]/.test(value))return english?"Add a digit (0–9).":"Додайте цифру (0–9).";
+ if(typeof value!=="string"||value.length<12)return "Використайте щонайменше 12 символів.";
+ if(value.length>128)return "Використайте не більше 128 символів.";
+ if(!/[a-z]/.test(value))return "Додайте малу латинську літеру (a–z).";
+ if(!/[A-Z]/.test(value))return "Додайте велику латинську літеру (A–Z).";
+ if(!/[0-9]/.test(value))return "Додайте цифру (0–9).";
  if(!/[!@#$%^&*()_+\-=\[\]{};'\\:"|<>?,.\/\x60~]/.test(value))
-  return english?"Add a special character (for example, ! or @).":"Додайте спеціальний символ (наприклад, ! або @).";
+  return "Додайте спеціальний символ (наприклад, ! або @).";
  return "";
 }
 function validPassword(value){return passwordIssue(value)==="";}

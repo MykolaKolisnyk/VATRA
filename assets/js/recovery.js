@@ -3,7 +3,7 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_AUTH_ENTRY=ctx=>{
- const {q,url,translate,english,auth,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,clearFeedback,feedback,passwordIssue}=ctx;
+ const {q,url,translate,auth,replayAuthContent,busy,getMessage,captchaOptions,resetCaptcha,clearFeedback,feedback,passwordIssue}=ctx;
 function wireForgot(){
  const form=q("#forgot-form");
  const step=q("#recovery-step");
@@ -23,7 +23,7 @@ function wireForgot(){
  const refreshCooldown=()=>{
   const remaining=Math.max(0,Math.ceil((lastSent+COOLDOWN_MS-Date.now())/1000));
   resend.disabled=sending||remaining>0;
-  countdown.textContent=remaining?(english?"Try again in ":"Повторити через ")+
+  countdown.textContent=remaining?translate("Повторити через")+" "+
    Math.floor(remaining/60)+":"+String(remaining%60).padStart(2,"0"):"";
   if(!remaining&&timer){clearInterval(timer);timer=null;}
  };
@@ -165,7 +165,7 @@ function wireReset(){
   const caption=q("#recovery-step .recovery-step-caption");if(caption)caption.hidden=true;
   const heading=q("#recovery-step-heading");
   if(heading){
-   heading.textContent=english?"Set a new password":"Встановіть новий пароль";
+   heading.textContent=translate("Встановіть новий пароль");
    heading.tabIndex=-1; // Announce the new step without focusing an empty input.
   }
   clearFeedback();
