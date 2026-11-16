@@ -15,6 +15,9 @@ const lifecycle=section("function stop(){","async function pageLoad(append=false
 const render=section("async function renderRows(","function positionPanel(){");
 assert.ok(render.includes("return rows;"),"The panel must receive the displayed rows");
 
+// Match production's safe placeholder contract without mounting the full UI.
+const format=(uk,_english,values)=>uk.replace(/\{(name|count|page|id)\}/g,
+ (_,key)=>String(values[key]??""));
 const countCalls=[],removedChannels=[],timers=new Map(),cleared=[];
 const listeners=[];
 let timerId=0;
@@ -49,7 +52,8 @@ const context={
  setInterval(fn){const id=++timerId;timers.set(id,fn);return id;},
  clearInterval(id){cleared.push(id);timers.delete(id);},
  headerUI(){},closePanel(){},pick:()=>null,
- t:(uk)=>uk
+ t:(uk)=>uk,
+ format
 };
 runInNewContext(`
 let client=null,ownId=null,bell=globalThis.testBell,badge=globalThis.testBadge;
@@ -129,7 +133,7 @@ const panelContext={
   return {rows:shown.map(row=>({...row})),hasNext:false};
  },
  authorNames:async()=>({names:new Map([["14","Member"]]),avatars:new Map(),states:new Map()}),
- t:(uk)=>uk,
+ t:(uk)=>uk,format,
  pick:()=>status,
  unreadCount:async()=>{},
 };
@@ -138,7 +142,7 @@ let notificationRun={id:"13",client:globalThis.mockClient};
 let panel={hidden:false},open=true,panelItems=globalThis.mockList;
 let panelLoadPending=null,panelLoadQueued=false;
 const make=globalThis.make,createRow=globalThis.createRow,fetchRows=globalThis.fetchRows;
-const authorNames=globalThis.authorNames,t=globalThis.t,pick=globalThis.pick;
+const authorNames=globalThis.authorNames,t=globalThis.t,format=globalThis.format,pick=globalThis.pick;
 const unreadCount=globalThis.unreadCount;
 ${render}
 globalThis.panelTest={panelLoad};
@@ -162,13 +166,13 @@ const fullCtx={
   selector==="#notifications-empty"?fullEmpty:fullMore,
  fetchRows:()=>new Promise(resolve=>{finishOld=resolve;}),
  authorNames:async()=>{oldAuthors++;return {names:new Map(),avatars:new Map(),states:new Map()};},
- createRow:()=>({id:"stale"}),t:uk=>uk,
+ createRow:()=>({id:"stale"}),t:uk=>uk,format,
 };
 runInNewContext(`
 let notificationRun={id:"12",client:{}},sectionPage=0,sectionLoading=false;
 let sectionFilter="all",sectionSort="new";
 const pick=globalThis.pick,fetchRows=globalThis.fetchRows;
-const authorNames=globalThis.authorNames,createRow=globalThis.createRow,t=globalThis.t;
+const authorNames=globalThis.authorNames,createRow=globalThis.createRow,t=globalThis.t,format=globalThis.format;
 ${fullInbox}
 globalThis.inboxTest={
  pageLoad,
