@@ -28,6 +28,49 @@ assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translatio
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
+const socialShell=await readFile("assets/js/social-shell.js","utf8");
+const socialShellKeys=[
+ "Зрозуміло",
+ "Цей розділ готується до запуску у VATRA. Поки він не має активних даних або повідомлень.",
+ "Перегляд історії",
+ "Закрити",
+ "Результати пошуку",
+ "Очистити пошук",
+ "Шукаємо у VATRA…",
+ "Люди",
+ "Публікації",
+ "Медіапублікація",
+ "Дописи спільнот",
+ "Стрічка VATRA",
+ "Збігів немає. Спробуйте інший запит.",
+ "Показати всі результати",
+ "Не вдалося виконати пошук.",
+ "Готово",
+ "Редагувати",
+ "Історія запитів",
+ "Назад до VATRA",
+ "Шукати: ",
+ "Видалити пошук: ",
+ "Немає збігів в історії",
+ "Історія пошуку порожня",
+ "Нещодавні",
+ "Очистити всю історію",
+ "Історії",
+ "Месенджер",
+ "Меню акаунта",
+ "Кількість запитів: {count}",
+ "Ваша історія"
+];
+assert.ok(socialShell.includes("window.VATRA_LANGUAGE?.translate?.(uk)")&&
+ socialShell.includes("const t=tr;")&&
+ socialShell.includes('tr("Кількість запитів: {count}","Searches: {count}")')&&
+ socialShell.includes("window.VATRA_LANGUAGE.ready.then(boot)"),
+ "Shared social shell must localize controls after loading the matching catalog");
+for(const key of socialShellKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English social-shell translation missing: "+key);
+}
+
 const verifyRuntime=await readFile("assets/js/verify.js","utf8");
 const signupRuntime=await readFile("assets/js/create-account.js","utf8");
 const verificationKeys=[
@@ -162,7 +205,7 @@ for(const code of codes){
  assert.ok(untranslatedCritical<criticalMessages.length*0.05,
   code+": account and status messages must not remain in Ukrainian: "+
    untranslatedCritical+"/"+criticalMessages.length);
- for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys,...verificationKeys]){
+ for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys,...verificationKeys,...socialShellKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim()!==key,
    code+": auth/recovery runtime message not localized: "+key);
  }
