@@ -28,6 +28,26 @@ assert.equal(tourMessages.length,68,"Unexpected change in Vatryk tour translatio
 
 
 const langJs=await readFile("assets/js/lang.js","utf8");
+const verifyRuntime=await readFile("assets/js/verify.js","utf8");
+const signupRuntime=await readFile("assets/js/create-account.js","utf8");
+const verificationKeys=[
+ "Підтвердження пошти не завершено",
+ "Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.",
+ "Перейти до входу",
+ "Вітаємо, {name}!"
+];
+for(const key of verificationKeys){
+ assert.ok(typeof en[key]==="string"&&en[key].trim(),
+  "English verification translation missing: "+key);
+ assert.ok(verifyRuntime.includes('translate("'+key+'")'),
+  "Verification message must come from locale dictionary: "+key);
+}
+assert.ok(verifyRuntime.includes('replace("{name}",name)'),
+ "Localized named greeting must interpolate the displayed name");
+assert.ok(signupRuntime.includes('preferred_locale:window.VATRA_LANGUAGE?.locale||"uk"')&&
+ signupRuntime.includes('new Intl.DateTimeFormat(dateLocales[locale]||"uk-UA"'),
+ "Signup locale metadata and date names should follow active language preference");
+
 const authRuntimeSource=await readFile("assets/js/auth-core.js","utf8");
 const pendingPasswordLocaleKeys=[
  "Використайте щонайменше 12 символів.",
@@ -142,7 +162,7 @@ for(const code of codes){
  assert.ok(untranslatedCritical<criticalMessages.length*0.05,
   code+": account and status messages must not remain in Ukrainian: "+
    untranslatedCritical+"/"+criticalMessages.length);
- for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys]){
+ for(const key of [...authRuntimeKeys,...pendingPasswordLocaleKeys,...verificationKeys]){
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim()!==key,
    code+": auth/recovery runtime message not localized: "+key);
  }

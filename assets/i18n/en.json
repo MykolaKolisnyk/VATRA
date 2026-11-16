@@ -2750,5 +2750,9 @@
   "Додайте спеціальний символ (наприклад, ! або @).": "Add a special character (for example, ! or @).",
   "Вилучити збережений акаунт": "Remove saved account",
   "Введіть пароль.": "Enter your password.",
-  "Встановіть новий пароль": "Set a new password"
+  "Встановіть новий пароль": "Set a new password",
+  "Підтвердження пошти не завершено": "Email confirmation needs attention",
+  "Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.": "If the address is confirmed, sign in with your email and password. Otherwise request a new confirmation email on the device where you registered.",
+  "Перейти до входу": "Go to sign in",
+  "Вітаємо, {name}!": "Welcome, {name}!"
 }

@@ -3,18 +3,16 @@
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
 window.VATRA_AUTH_ENTRY=ctx=>{
- const {q,url,translate,english,auth,page,initialAccountCallback,initialAccountCallbackError,goToFeed,feedback,getMessage,rememberAccount,announceVerifiedAccount,LOGGED_OUT_KEY}=ctx;
+ const {q,url,translate,auth,page,initialAccountCallback,initialAccountCallbackError,goToFeed,feedback,getMessage,rememberAccount,announceVerifiedAccount,LOGGED_OUT_KEY}=ctx;
 function showAccountConfirmationFailure(){
  const title=q("#account-title"),mail=q("#account-email");
- if(title)title.textContent=english?"Email confirmation needs attention":"Підтвердження пошти не завершено";
- if(mail)mail.textContent=english
-  ?"If the address is confirmed, sign in with your email and password. Otherwise request a new confirmation email on the device where you registered."
-  :"Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.";
+ if(title)title.textContent=translate("Підтвердження пошти не завершено");
+ if(mail)mail.textContent=translate("Якщо пошту вже підтверджено, увійдіть за email і паролем. Інакше запросіть новий лист на пристрої реєстрації.");
  const note=q(".vt-account-paragraph-03");if(note)note.hidden=true;
  const id=q("#vatra-id");if(id)id.hidden=true;
  const logout=q("#logout");if(logout)logout.hidden=true;
  const link=q(".vt-account-link-03");
- if(link){link.textContent=english?"Go to sign in":"Перейти до входу";link.href=url("./");}
+ if(link){link.textContent=translate("Перейти до входу");link.href=url("./");}
 }
 async function acceptEmailConfirmation(){
  const query=new URLSearchParams(location.search);
@@ -45,7 +43,7 @@ async function wireAccount(cameFromLink=false){
   }
   rememberAccount(user);
   const name=String(user.user_metadata?.first_name||"").trim();
-  title.textContent=name?(english?"Welcome, "+name+"!":"Вітаємо, "+name+"!"):translate("Вітаємо у VATRA!");
+  title.textContent=name?translate("Вітаємо, {name}!").replace("{name}",name):translate("Вітаємо у VATRA!");
   mail.textContent=user.email||"";
   // Notify other tabs after Supabase verifies the user, then enter the network.
   if(user.email_confirmed_at)announceVerifiedAccount();

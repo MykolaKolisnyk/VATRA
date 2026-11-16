@@ -244,7 +244,9 @@ assert.ok(auth.includes('auth.auth.signInWithPassword(')&&auth.includes('auth.au
 assert.ok(auth.includes('auth.auth.verifyOtp({email,token,type:"recovery"})'),"Password OTP recovery missing");
 assert.ok(auth.includes('auth.auth.resetPasswordForEmail('),"Recovery email request missing");
 assert.ok(auth.includes('auth.auth.updateUser({password})'),"Password update missing");
-assert.ok(auth.includes('preferred_locale:english?"en":"uk"'),"Signup must store selected email language");
+assert.ok(auth.includes('preferred_locale:window.VATRA_LANGUAGE?.locale||"uk"')&&
+ lang.includes('const validLanguage = value => value === "uk" || value === "en";'),
+ "Signup must store a validated selected email language");
 assert.ok(!auth.includes("signInWithOtp({phone")&&!auth.includes("signUp({phone"),"Phone authentication prohibited");
 assert.ok(lang.includes('fetch(ROOT + "assets/i18n/" + current + ".json"'),"Both JSON dictionaries must be loaded");
 assert.ok(lang.indexOf('const validLanguage =')<lang.indexOf('const current = localFile ?'),
