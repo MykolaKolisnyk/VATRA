@@ -614,7 +614,8 @@
   ".profile-confirm-dialog",".profile-story-compose-dialog",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",
   ".vatra-post-composer-drafts-panel",".feed-story-view",
-  ".profile-story-viewer",".vatra-gift-viewer","textarea"
+  ".profile-story-viewer",".vatra-gift-viewer",".ui-vatra-section-dialog-scroll-001",
+  ".ui-vatra-clips-social-001 .vatra-post-comment-list","textarea"
  ].join(",");
  const timers=new WeakMap();
  const pointerInside=new WeakSet();
@@ -640,7 +641,9 @@
   timers.set(target,timer);
  }
  function closestScrollable(node){
-  return node?.closest?.(selector)||null;
+  let target=node?.closest?.(selector)||null;
+  while(target&&!scrollable(target))target=target.parentElement?.closest?.(selector)||null;
+  return target;
  }
 
 
