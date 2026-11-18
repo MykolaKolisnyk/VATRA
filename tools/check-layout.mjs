@@ -2425,5 +2425,22 @@ assert.deepEqual([...mappedMarketCategories].sort(),marketCatalog.categories.map
 assert.deepEqual(marketCatalog.marketFieldKeys("vehicle","transport","cars"),["brand","model","year","mileage","fuel","transmission"]);
 assert.deepEqual(marketCatalog.marketFieldKeys("rent","rentals","apartments"),["area","rooms","floor"]);
 assert.ok(sectionsRuntime.includes('subcategory:subcat.value,details:collectDetails()')&&sectionsRuntime.includes('price.value="0";price.readOnly=true;'),"Listing must persist subcategories and details and prevent nonzero free prices");
+const marketMoneySource=sectionsRuntime.slice(sectionsRuntime.indexOf("const marketCurrencies="),sectionsRuntime.indexOf("function marketCurrencySelect"));
+const money=new Function(marketMoneySource+";return {marketAmount,marketMoneyText,marketMatchesPrice};")();
+assert.equal(money.marketAmount("1 234,50"),1234.5);
+assert.equal(money.marketAmount("1234.50"),1234.5);
+assert.equal(money.marketAmount(""),null);
+assert.ok(Number.isNaN(money.marketAmount("12,345")));
+assert.ok(Number.isNaN(money.marketAmount("1000000000")));
+assert.ok(Number.isNaN(money.marketAmount("-10")));
+assert.ok(money.marketMoneyText(10,"UAH","uk").endsWith("₴"));
+assert.ok(money.marketMoneyText(10,"USD","uk").endsWith("$"));
+assert.ok(money.marketMoneyText(10,"EUR","uk").endsWith("€"));
+assert.ok(!money.marketMatchesPrice({price:10,currency:"USD"},"UAH",0,20));
+assert.ok(money.marketMatchesPrice({price:10,currency:"USD"},"USD",0,20));
+assert.ok(money.marketMatchesPrice({price:10},"UAH",0,20));
+assert.ok(money.marketMatchesPrice({price:10,currency:"EUR"},"all",null,null));
+assert.ok(sectionsRuntime.includes("price:marketAmount(price.value),currency:currency.value")&&sectionsRuntime.includes("form.prepend(categoryGroup)")&&sectionsRuntime.includes("price,currency,city"),"Persist currency, read it back and show required category first");
+
 
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
