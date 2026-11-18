@@ -1,6 +1,5 @@
 
-.community-create{padding:23px;border:1px solid #e5eaf4;border-radius:16px;background:#fff;box-shadow:0 3px 17px rgba(47,66,115,.04)}
-.vt-community-create-heading-001,.vt-community-list-heading-001{
+.vt-community-create-heading-001{
  margin:0 0 14px;color:#2C3850;font-size:clamp(21px,2.2vw,25px);
  font-weight:755;line-height:1.27;letter-spacing:-.035em;text-rendering:optimizeLegibility
 }
@@ -27,7 +26,6 @@
 .ui-community-card-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:2px}
 .ui-club-main-001{min-width:0}
 #club-description{white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:520px){.community-create{padding:17px}}
 
 
 body.community-page .ui-club-post-card-001.is-linked-post{
