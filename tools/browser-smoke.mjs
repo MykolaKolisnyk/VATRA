@@ -4418,7 +4418,7 @@ try{
   };
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
-  await profilePage.locator("#profile-editor-relationship").fill("У стосунках");
+  await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
   await chooseProfileEditorOption("profile-editor-page-visibility","friends",language==="en"?"Private · friends only":"Закрита · лише друзі");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
   await profilePage.locator("#profile-editor-city").fill("Київ");
@@ -4451,7 +4451,7 @@ try{
    "Current city has priority over hometown");
   assert.equal(await profilePage.locator(".vt-profile-information-value-hometown").count(),0,
    "Current city and hometown should not compete in the compact summary");
-  assert.equal((await profilePage.locator(".vt-profile-information-value-relationship").textContent()).trim(),"У стосунках");
+  assert.equal((await profilePage.locator(".vt-profile-information-value-relationship").textContent()).trim(),language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal((await profilePage.locator(".vt-profile-about-website-001").textContent()).trim(),"https://example.org");
   await profilePage.locator("#profile-about-more").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),true,
