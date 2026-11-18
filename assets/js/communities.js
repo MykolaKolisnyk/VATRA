@@ -58,6 +58,12 @@ async function openDirectory(client,ownId,userId){
  try{
 
 
+  // The public directory and viewer-scoped membership reads are independent.
+  // Start them together; membership errors still fail closed for join controls.
+  const membershipReads=Promise.allSettled([
+   ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):Promise.resolve({data:[]}),
+   client.from("communities").select("club_id").eq("owner_id",userId)
+  ]);
   const PUBLIC_DIRECTORY_CACHE_ENABLED=true;
   let data=null;
   if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED&&client.functions?.invoke){
@@ -73,10 +79,7 @@ async function openDirectory(client,ownId,userId){
   }
   let directory=(data||[]);const knownClubs=new Map(directory.map(club=>[String(club.club_id),club]));const filters=[...document.querySelectorAll("[data-community-filter]")];
   let mode="all",following=new Set(),owned=new Set(),filterError=false;
-  const results=await Promise.allSettled([
-   ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):Promise.resolve({data:[]}),
-   client.from("communities").select("club_id").eq("owner_id",userId)
-  ]);
+  const results=await membershipReads;
   if(results[0].status==="fulfilled"&&!results[0].value.error)following=new Set((results[0].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
   if(results[1].status==="fulfilled"&&!results[1].value.error)owned=new Set((results[1].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
   const missing=[...new Set([...owned,...following])].filter(id=>!knownClubs.has(id)).slice(0,6);
