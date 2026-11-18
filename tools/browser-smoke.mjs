@@ -3708,7 +3708,7 @@ try{
     Number(getComputedStyle(icon).opacity)<.15;
   },null,{timeout:2400});
   assert.equal((await feedProbe.locator(".vt-search-panel-heading-001").innerText()).trim(),
-   language==="en"?"Recent":"Нещодавні");
+   language==="en"?"Recently viewed":"Нещодавно переглянуті");
   assert.equal((await feedProbe.locator("#vatra-search-edit").innerText()).trim(),
    language==="en"?"Edit":"Редагувати");
   assert.equal(await feedProbe.locator("#feed-search-clear-input").isVisible(),false,
