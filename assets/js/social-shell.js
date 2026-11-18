@@ -1,11 +1,10 @@
-/* VATRA shared social header and Stories presentation.
-   Each page keeps its own Supabase/auth logic; this module only handles UI. */
+
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
  const lang=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
- // Preserve UK/EN fallback labels while allowing all six future locales to
- // display prepared dictionary strings after the page catalog is ready.
+
+
  const tr=(uk,en)=>{
   const locale=lang();
   if(locale==="uk")return uk;
@@ -33,7 +32,7 @@
   const edgeLeft=vp?.offsetLeft||0,edgeTop=vp?.offsetTop||0;
   const visibleWidth=vp?.width||innerWidth,visibleHeight=vp?.height||innerHeight;
   const width=tooltip.offsetWidth,height=tooltip.offsetHeight;
-  // Keep hints attached to the header edge, rather than floating below each icon.
+
   const headerRect=header?.getBoundingClientRect();
   let top=(headerRect?.bottom??bounds.bottom)+1;
   if(top+height>edgeTop+visibleHeight-5)
@@ -45,9 +44,9 @@
   tooltip.style.top=Math.round(top)+"px";
  }
  function showTooltip(target,event){
-  // An expanded account dropdown takes priority over all header tooltips.
-  // In particular, pointer movement over the account avatar must not revive
-  // its tooltip after opening the menu.
+
+
+
   if(!tooltip||!target||infoDialog?.open||document.querySelector("dialog[open]")||
    document.querySelector(".feed-account-menu")?.open||
    !!document.querySelector(".vatra-notification-panel:not([hidden]),#vatra-search-panel:not([hidden])")||
@@ -57,7 +56,7 @@
   hideTooltip();
   hovered=target;tooltip.textContent=label;tooltip.dataset.open="true";
   positionTooltip(target);
-  // A hint is transient, not an overlay that persists after a route transition.
+
   tooltipDismissTimer=setTimeout(hideTooltip,1800);
  }
  window.VATRA_HIDE_SHELL_TOOLTIP=hideTooltip;
@@ -66,9 +65,9 @@
   const dropdown=menu?.querySelector(".feed-account-dropdown");
   const header=document.querySelector(".feed-header");
   if(!menu||!dropdown||!header)return;
-  // Keep native <details> (keyboard, focus and Escape handling), but anchor its
-  // content to the outer right/bottom edges of the header, even on mobile
-  // where the navigation occupies a second row.
+
+
+
   const position=()=>{
    if(!menu.open)return;
    const menuBox=menu.getBoundingClientRect();
@@ -76,7 +75,7 @@
    const vp=window.visualViewport;
    const viewTop=vp?.offsetTop||0;
    const viewHeight=vp?.height||innerHeight;
-   // Anchor the panel to the ACCOUNT BUTTON, not the centre of the header.
+
    const gapTop=Math.max(0,headerBox.bottom-menuBox.top);
    const gapRight=0;
    const width=Math.min(344,innerWidth-24);
@@ -89,7 +88,7 @@
    dropdown.style.setProperty("--vatra-account-dropdown-left",Math.round(gapLeft)+"px");
    dropdown.style.setProperty("--vatra-account-dropdown-height",Math.round(height)+"px");
   };
-  // Resize can create a two-row header: position again after layout settles.
+
   const afterLayout=()=>requestAnimationFrame(position);
   menu.addEventListener("toggle",position);
   menu.addEventListener("toggle",afterLayout);
@@ -129,14 +128,14 @@
    });
    target.addEventListener("blur",hideTooltip);
    target.addEventListener("click",()=>{
-    // Native dialogs and <details> restore focus. Require a fresh hover
-    // after they close; never leave a tooltip above an open account menu.
+
+
     tooltipSuppressed=target;
     hideTooltip();
    });
   }
-  // Clicking anywhere, moving outside the actual icon hitbox, or losing
-  // window focus immediately dismisses a tooltip (including after navigation).
+
+
   document.addEventListener("pointerdown",hideTooltip,true);
   document.addEventListener("pointermove",event=>{
    if(!hovered||event.pointerType==="touch")return;
@@ -187,6 +186,14 @@
     item.addEventListener("click",()=>{
      location.assign(new URL("friends",new URL("./",location.href)).href);
     });
+    continue;
+   }
+   if(["clips","marketplace"].includes(item.dataset.vatraComingSoon)){
+    const page=item.dataset.vatraComingSoon;
+    item.removeAttribute("data-vatra-coming-soon");item.removeAttribute("title");item.removeAttribute("aria-disabled");item.disabled=false;
+    item.classList.remove("social-top-pending");
+    if(document.body.dataset.page===page){item.classList.add("is-active");item.setAttribute("aria-current","page");}
+    item.addEventListener("click",()=>location.assign(new URL(page,location.href).href));
     continue;
    }
    if(item.dataset.vatraComingSoon==="notifications"){
@@ -250,8 +257,8 @@
   const brand=form.closest(".feed-brand-search");
   const logo=brand?.querySelector(".feed-header-brand");
   if(!form||!input||!panel||!list||!empty||!count||!back||!edit||!clearAll||!brand)return;
-  // Backdrop-filter on the sticky header creates a fixed-position containing block.
-  // Moving the popup to the document layer keeps viewport positioning accurate.
+
+
   document.body.append(panel);
 
   const suggestions=make("div","vatra-search-live-results ui-vatra-search-live-results-001");
@@ -259,8 +266,8 @@
   suggestions.setAttribute("aria-live","polite");
   suggestions.setAttribute("aria-label",tr("Результати пошуку","Search results"));
   panel.append(suggestions);
-  // Search history can contain private terms. Never reuse the old global
-  // history between authenticated members on a shared browser.
+
+
   let storageKey=null,viewerId=null;
   clearInput?.setAttribute("aria-label",tr("Очистити пошук","Clear search"));
   const limit=120;
@@ -277,7 +284,7 @@
    if(!storageKey)return;
    try{localStorage.setItem(storageKey,JSON.stringify(entries));}
    catch(_){
-    // Preserve the newest terms if the browser runs out of local storage.
+
     for(let count=entries.length-1;count>0;count--){
      try{localStorage.setItem(storageKey,JSON.stringify(entries.slice(0,count)));break;}catch(_){}
     }
@@ -337,7 +344,7 @@
   };
   const scheduleLive=value=>{
    const term=String(value||"").trim().slice(0,120);
-   // Opening or rerendering the same text must not restart its active request.
+
    if(term===liveTerm&&(liveTimer!==null||liveController))return;
    if(liveTimer!==null){clearTimeout(liveTimer);liveTimer=null;}
    if(liveController){liveController.abort();liveController=null;}
@@ -411,18 +418,18 @@
    const ox=vp?.offsetLeft||0,oy=vp?.offsetTop||0;
    const header=document.querySelector(".feed-header")?.getBoundingClientRect();
    const anchor=brand.getBoundingClientRect();
-   // Reference interaction: the search surface starts behind the header,
-   // directly below its back arrow and search field, as one continuous panel.
-   // It overlays the page sidebar without affecting navigation coordinates.
+
+
+
    const headerTop=Math.max(oy,header?.top??oy);
    const headerBottom=Math.max(headerTop,header?.bottom??anchor.bottom);
-   // Match the complete active search surface: from the Back arrow at the
-   // left through the right edge of the search input, as one connected menu.
+
+
    const inputBox=form.getBoundingClientRect();
-   // The Back button slides into view, so its animated rectangle is unstable
-   // during the first frame. The parent search surface never moves.
-   // Facebook-style geometry: the sheet reaches the viewport's LEFT edge,
-   // while its right side tracks the search field (not the whole header).
+
+
+
+
    const left=ox;
    const width=Math.max(1,Math.min(vw,inputBox.right-left));
    const available=Math.max(0,oy+vh-headerBottom-12);
@@ -586,8 +593,8 @@
    if(!panel.isConnected)return;
    localize();
   }).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
-  // Auth becomes ready after the shell initializes on some member pages.
-  // Either initialization order is safe, including same-tab account changes.
+
+
   const setViewer=id=>{
    const next=/^[1-9][0-9]{0,18}$/.test(String(id??""))?String(id):null;
    if(next===viewerId)return;
@@ -604,24 +611,24 @@
   localize();
  }
 
- /* Section content switches immediately; hover and icon animations remain CSS-owned. */
+ 
  function setupRouteMotion(){
-  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
+  const eligible=target=>/^\/VATRA\/(?:feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|id[1-9][0-9]*|club[1-9][0-9]*)(?:\/)?$/.test(target.pathname);
   let navigating=false;
   const to=destination=>{
    let next;
    try{next=new URL(destination,location.href);}catch(_){return false;}
    if(navigating)return true;
    if(next.origin!==location.origin||!eligible(next))return false;
-   // Clicking the already selected section should never reload its content.
+
    if(next.pathname===location.pathname&&next.search===location.search){
-    // Same-page fragment links must keep normal native scrolling.
+
     if(next.hash&&next.hash!==location.hash)return false;
     return true;
    }
-   // A newly created community first loads the real club document (HTTP 200).
-   // Its controller restores the canonical /clubN URL. Going straight to
-   // /clubN would make GitHub Pages return HTTP 404 for this navigation.
+
+
+
    const club=next.pathname.match(/^\/VATRA\/club([1-9][0-9]{0,18})$/);
    if(club){
     const documentUrl=new URL("club.html",new URL("./",next.href));
@@ -630,8 +637,8 @@
     documentUrl.hash=next.hash;
     next=documentUrl;
    }
-   // Other member links retain clean paths. Navigate immediately. Waiting for a cosmetic fade adds latency to every
-   // section change; the destination already has its own data-loading state.
+
+
    navigating=true;
    location.assign(next.href);
    return true;
@@ -646,7 +653,7 @@
    if(to(anchor.href))event.preventDefault();
   });
  }
- /* Keep the server/data loading skeleton only; no artificial route fade. */
+ 
  function showPendingShell(){
   const app=document.querySelector("#feed-app, #profile-app, #community-app");
   const loader=document.querySelector("#feed-loading, #profile-loading, #community-loading");
@@ -661,6 +668,12 @@
  }
  const boot=()=>{
   showPendingShell();
+  for(const menu of document.querySelectorAll(".feed-account-dropdown")){
+   if(menu.querySelector(".vt-vatra-account-id-link-001"))continue;
+   const link=document.createElement("a");link.href=new URL("vatra-id",location.href).href;
+   link.className="feed-account-profile vt-vatra-account-id-link-001";link.textContent="VATRA ID";
+   const profile=menu.querySelector(".feed-account-profile");if(profile)profile.after(link);else menu.prepend(link);
+  }
   setUpAccountPanel();
   setupRouteMotion();
   setUpTooltip();
@@ -669,8 +682,8 @@
   setUpSiteSearch();
  };
  const bootLocalized=()=>{
-  // New languages stay disabled; once enabled, build dynamic UI only after
-  // its catalog has loaded. UK/EN initialization remains unchanged.
+
+
   if(!["uk","en"].includes(lang())&&window.VATRA_LANGUAGE?.ready)
    window.VATRA_LANGUAGE.ready.then(boot);
   else boot();
