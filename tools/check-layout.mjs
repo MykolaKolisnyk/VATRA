@@ -1969,9 +1969,11 @@ assert.ok(
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const onboardingJs=await read("assets/js/onboarding.js");
-const ownerAdminJs=await read("assets/js/owner-admin.js");
+const ownerAdminGuard=await read("assets/js/account-guard.js");
+const ownerAdminJs=await read("assets/js/admin.js");
+assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js",root).href)')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
-assert.ok(ownerAdminJs.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
+assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
@@ -2143,7 +2145,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sections.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2437,13 +2439,29 @@ assert.ok(
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("./feed-story-subscriptions-smoke.mjs");
 
-const sectionsRuntime=await read("assets/js/sections.js");
-const sectionsStyle=await read("assets/css/sections.css");
-assert.doesNotThrow(()=>new Function(sectionsRuntime));
-for(const section of ["clips","marketplace","vatra-id"]){
+const coreRuntime=await read("assets/js/core.js");
+const marketplaceRuntime=await read("assets/js/marketplace.js");
+const clipsRuntime=await read("assets/js/clips.js");
+const settingsRuntime=await read("assets/js/settings.js");
+const editorRuntime=await read("assets/js/marketplace-editor.js");
+const clipComposerRuntime=await read("assets/js/clip-composer.js");
+const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
+for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
+for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
- assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/sections.js')&&markup.includes('assets/css/sections.css'));
+ assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
+ for(const other of ["clips","marketplace","settings"].filter(name=>name!==stem)){
+  assert.ok(!markup.includes('assets/js/'+other+'.js')&&!markup.includes('assets/css/'+other+'.css'),section+" must not load another section");
+ }
+ assert.ok(!markup.includes("sections.js")&&!markup.includes("sections.css")&&!markup.includes("marketplace-editor.js")&&!markup.includes("clip-composer.js"));
 }
+assert.ok(!clipsRuntime.includes("marketplace_listings")&&!settingsRuntime.includes("marketplace_listings")&&!marketplaceRuntime.includes('eq("is_clip",true)'));
+assert.ok(marketplaceRuntime.includes("IntersectionObserver")&&marketplaceRuntime.includes("deferProductPhoto(row,photo)")&&marketplaceRuntime.includes("signedPhotos=new Map()")&&marketplaceRuntime.includes("signedPhotos.clear()"));
+assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js",root).href)')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js",root).href)'));
+await assert.rejects(stat("assets/js/sections.js"),{code:"ENOENT"});
+await assert.rejects(stat("assets/css/sections.css"),{code:"ENOENT"});
 assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
 assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
  "Marketplace uses independent sidebar scrolling, ten photos and live preview");
