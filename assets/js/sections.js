@@ -19,12 +19,12 @@ const card=(cls)=>make("section","ui-vatra-section-card-001 "+cls);
 const field=(form,key,label,type="text",max=100,required=false)=>{const wrap=make("div","ui-vatra-section-field-"+key),lab=make("label","vt-vatra-section-label-"+key,label),el=make(type==="textarea"?"textarea":"input","ui-vatra-section-input-"+key);
 el.id="vatra-section-"+key;lab.htmlFor=el.id;if(type!=="textarea")el.type=type;el.maxLength=max;el.required=required;if(type==="textarea")el.rows=4;wrap.append(lab,el);form.append(wrap);return el;};
 const submit=(form,label,fn)=>{const b=make("button","vt-vatra-section-submit-001",label);b.type="submit";form.append(b);form.addEventListener("submit",async e=>{e.preventDefault();if(b.disabled)return;b.disabled=true;message("");try{await fn();}catch(_){message(t("Не вдалося зберегти. Спробуйте ще раз.","Could not save. Please retry."),true);}finally{b.disabled=false;}});return b;};
-async function confirmRemove(){
+async function confirmRemove(heading=t("Видалити оголошення?","Delete listing?"),description=t("Цю дію неможливо скасувати.","This action cannot be undone."),accept=t("Видалити","Delete")){
  return new Promise(resolve=>{const d=make("dialog","ui-vatra-section-dialog-001 ui-vatra-section-confirm-001"),head=make("header","ui-vatra-section-dialog-head-001"),body=make("div","ui-vatra-section-dialog-form-001");
- head.append(make("h2","vt-vatra-section-dialog-title-001",t("Видалити оголошення?","Delete listing?")));
- body.append(make("p","vt-vatra-section-form-note-001",t("Цю дію неможливо скасувати.","This action cannot be undone.")));
+ head.append(make("h2","vt-vatra-section-dialog-title-001",heading));
+ body.append(make("p","vt-vatra-section-form-note-001",description));
  const buttons=make("div","ui-vatra-market-controls-001");let accepted=false;
- buttons.append(btn(t("Скасувати","Cancel"),"vt-vatra-section-confirm-cancel-001",()=>d.close()),btn(t("Видалити","Delete"),"vt-vatra-section-confirm-delete-001",()=>{accepted=true;d.close();}));body.append(buttons);d.append(head,body);document.body.append(d);d.addEventListener("close",()=>{d.remove();resolve(accepted);},{once:true});d.showModal();});
+ buttons.append(btn(t("Скасувати","Cancel"),"vt-vatra-section-confirm-cancel-001",()=>d.close()),btn(accept,"vt-vatra-section-confirm-delete-001",()=>{accepted=true;d.close();}));body.append(buttons);d.append(head,body);document.body.append(d);d.addEventListener("close",()=>{d.remove();resolve(accepted);},{once:true});d.showModal();});
 }
 function tabs(items,onChange){const bar=make("div","ui-vatra-section-tabs-001");bar.setAttribute("role","group");for(const [id,label] of items){const b=btn(label,"vt-vatra-section-tab-"+id,()=>{for(const el of bar.children){el.classList.toggle("is-active",el===b);el.setAttribute("aria-pressed",String(el===b));}onChange(id);});b.dataset.tab=id;b.setAttribute("aria-pressed","false");bar.append(b);}bar.firstElementChild?.classList.add("is-active");bar.firstElementChild?.setAttribute("aria-pressed","true");return bar;}
 const dialog=(heading)=>{const d=make("dialog","ui-vatra-section-dialog-001"),head=make("header","ui-vatra-section-dialog-head-001");head.append(make("h2","vt-vatra-section-dialog-title-001",heading),btn("×","vt-vatra-section-dialog-close-001",()=>d.close()));const form=make("form","ui-vatra-section-dialog-form-001");const status=make("p","vt-vatra-section-dialog-status-001");status.hidden=true;status.setAttribute("role","status");d.append(head,form,status);document.body.append(d);d.addEventListener("close",()=>message(""));d.addEventListener("click",e=>{if(e.target===d)d.close();});return {d,form};};
@@ -89,12 +89,54 @@ async function marketplace(){
  const {error}=await client.from("vatra_marketplace_listings").insert({seller_vatra_id:ownId,title:name.value.trim(),description:description.value.trim(),price:Number(price.value),category:picked,city:city.value.trim(),image_path:path});if(error)throw error;}catch(e){if(path)await client.storage.from("marketplace-images").remove([path]).catch(()=>{});throw e;}form.reset();d.close();await load();});
  action.addEventListener("click",()=>d.showModal());await load();
 }
+function sessionDevice(agent){
+ const a=String(agent||"");
+ const browser=/OPR\/|Opera/i.test(a)?"Opera":/Edg(?:A|iOS)?\//i.test(a)?"Edge":/Firefox\/|FxiOS\//i.test(a)?"Firefox":/Chrome\/|CriOS\//i.test(a)?"Chrome":/Safari\//i.test(a)?"Safari":t("Браузер або застосунок","Browser or app");
+ const os=/Windows/i.test(a)?"Windows":/Android/i.test(a)?"Android":/iPhone|iPad|iPod/i.test(a)?"iOS / iPadOS":/Macintosh|Mac OS/i.test(a)?"macOS":/Linux/i.test(a)?"Linux":"";
+ return browser+(os?" · "+os:"");
+}
+async function renderDevices(panel){
+ const c=card("ui-vatra-id-devices-001"),head=make("div","ui-vatra-id-devices-head-001"),list=make("div","ui-vatra-id-device-list-001");
+ head.append(make("h2","vt-vatra-id-device-heading-001",t("Пристрої та сеанси","Devices and sessions")));
+ const refresh=btn(t("Оновити","Refresh"),"vt-vatra-id-device-refresh-001",()=>void load());
+ head.append(refresh);c.append(head,make("p","vt-vatra-id-device-note-001",t("Входи у ваш акаунт. Один пристрій може мати кілька сеансів.","Sign-ins to your account. A device may have multiple sessions.")),list);
+ const logout=btn(t("Завершити всі інші сеанси","Sign out all other sessions"),"vt-vatra-id-device-revoke-001",async()=>{
+  if(logout.disabled)return;logout.disabled=true;
+  try{
+   if(!await confirmRemove(t("Завершити інші сеанси?","Sign out other sessions?"),t("На інших пристроях потрібно буде увійти повторно. Поточний сеанс залишиться.","Other devices will need to sign in again. Your current session stays active."),t("Завершити","Sign out")))return;
+   const {error}=await client.auth.signOut({scope:"others"});if(error)throw error;
+   message(t("Інші сеанси завершено. Доступ на них остаточно припиниться після спливу чинних токенів.","Other sessions revoked. Their current access tokens remain valid until expiry."));
+   await load();
+  }catch(_){message(t("Не вдалося завершити інші сеанси.","Could not revoke other sessions."),true);}finally{logout.disabled=false;}
+ });
+ c.append(logout);panel.append(c);
+ async function load(){
+  if(refresh.disabled)return;refresh.disabled=true;list.setAttribute("aria-busy","true");
+  try{
+   const {data,error}=await client.rpc("vatra_my_sessions");if(error)throw error;if(!c.isConnected)return;
+   list.replaceChildren();
+   const date=value=>{const d=new Date(value);return value&&Number.isFinite(d.getTime())?new Intl.DateTimeFormat(locale==="en"?"en-GB":"uk-UA",{dateStyle:"medium",timeStyle:"short"}).format(d):"—";};
+   for(const [index,entry] of (data||[]).entries()){
+    const row=make("div","ui-vatra-id-device-row-001"),symbol=make("span","ui-vatra-id-device-symbol-001"),ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
+    icon.setAttribute("class","ui-vatra-id-device-icon-001");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","25");icon.setAttribute("height","25");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.7");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");icon.setAttribute("aria-hidden","true");
+    path.setAttribute("class","ui-vatra-id-device-path-"+index);path.setAttribute("d",/Android|iPhone|iPad/i.test(entry.browser_agent||"")?"M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2":"M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm7 14v3m-4 0h8");
+    icon.append(path);symbol.append(icon);
+    const details=make("div","ui-vatra-id-device-details-001");details.append(make("strong","vt-vatra-id-device-name-001",sessionDevice(entry.browser_agent)),make("span","vt-vatra-id-device-time-001",t("Вхід: ","Signed in: ")+date(entry.signed_in_at)));
+    if(entry.refreshed_at)details.append(make("span","vt-vatra-id-device-activity-001",t("Оновлення сеансу: ","Session refreshed: ")+date(entry.refreshed_at)));
+    row.append(symbol,details);if(entry.current_session)row.append(make("span","vt-vatra-id-device-current-001",t("Поточний","Current")));list.append(row);
+   }
+   if(!data?.length)list.append(empty(t("Немає доступних відомостей про сеанси.","No session details available.")));
+  }catch(_){if(c.isConnected)list.replaceChildren(empty(t("Не вдалося завантажити сеанси.","Could not load sessions.")));}
+  finally{refresh.disabled=false;list.setAttribute("aria-busy","false");}
+ }
+ await load();
+}
 async function account(){
  title.textContent="VATRA ID";subtitle.textContent=t("Ваші дані та безпека акаунта.","Your account information and security.");
  const layout=make("div","ui-vatra-id-layout-001"),side=card("ui-vatra-id-sidebar-001"),panel=make("div","ui-vatra-id-content-001");
  const nav=tabs([["personal",t("Мої дані","My data")],["security",t("Безпека","Security")],["verification",t("Верифікація","Verification")]],id=>{if(location.hash.slice(1)===id)void show(id);else location.hash=id;});side.append(nav,link(t("Повернутися до VATRA","Return to VATRA"),"id"+ownId,"vt-vatra-id-back-001"));layout.append(side,panel);content.append(layout);
  const show=async(id)=>{const ticket=++renderTicket;panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
- if(id==="security"){const c=card("ui-vatra-id-security-001");c.append(make("h2","vt-vatra-id-heading-001",t("Безпека акаунта","Account security")),make("p","vt-vatra-id-email-001",user.email||""),make("p","vt-vatra-id-email-status-001",user.email_confirmed_at?t("Електронну пошту підтверджено","Email confirmed"):t("Пошта не підтверджена","Email not confirmed")),link(t("Відновлення пароля","Password recovery"),"forgot","vt-vatra-id-password-001"));panel.append(c);return;}
+ if(id==="security"){const c=card("ui-vatra-id-security-001");c.append(make("h2","vt-vatra-id-heading-001",t("Безпека акаунта","Account security")),make("p","vt-vatra-id-email-001",user.email||""),make("p","vt-vatra-id-email-status-001",user.email_confirmed_at?t("Електронну пошту підтверджено","Email confirmed"):t("Пошта не підтверджена","Email not confirmed")),link(t("Відновлення пароля","Password recovery"),"forgot","vt-vatra-id-password-001"));panel.append(c);await renderDevices(panel);return;}
  if(id==="verification"){const c=card("ui-vatra-id-verification-001");c.append(make("h2","vt-vatra-id-heading-001",t("Верифікація сторінки","Profile verification")));panel.append(c);
   const [v,request]=await Promise.all([client.from("verified_accounts").select("vatra_id").eq("vatra_id",ownId).maybeSingle(),client.from("vatra_verification_requests").select("status,created_at").eq("vatra_id",ownId).maybeSingle()]);if(ticket!==renderTicket)return;
   if(v.error||request.error){c.append(empty(t("Статус верифікації недоступний.","Verification status unavailable.")));return;}
