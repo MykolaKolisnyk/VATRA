@@ -50,7 +50,7 @@
   if(post?.kind==="group"&&validId(post.club_id))
    return new URL("club"+post.club_id+
     (validUUID(post.id)?"?post="+encodeURIComponent(post.id):""),relativeRoot()).href;
-  return new URL("feed?post="+encodeURIComponent(post.id),relativeRoot()).href;
+  return new URL((post.is_clip?"clips?clip=":"feed?post=")+encodeURIComponent(post.id),relativeRoot()).href;
  };
  const dateValue=input=>{
   const date=new Date(input);return Number.isNaN(date.valueOf())?"":new Intl.DateTimeFormat(
@@ -1225,7 +1225,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    const {data,error}=await client.from(table)
     .select(kind==="group"?
      "id,club_id,author_vatra_id,body,media_kind,media_path,media_items,created_at":
-     "id,author_vatra_id,body,media_kind,media_path,media_items,created_at")
+     "id,author_vatra_id,body,media_kind,media_path,media_items,created_at,is_clip")
     .eq("id",id).maybeSingle();
    if(error||!data)throw Error("Original post unavailable");
    if(!preview.isConnected)return;
@@ -1248,7 +1248,8 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
     const body=make("p","vt-vatra-post-share-preview-body-001",data.body);
     window.VATRA_POST_MEDIA?.linkifyHashtags(body);preview.append(body);
    }
-   if(data.media_items?.length||(data.media_kind&&data.media_path))void window.VATRA_POST_MEDIA?.mount(client,data,preview);
+   if(data.is_clip){const clip=make("a","vt-vatra-post-original-link-001",tr("Відкрити кліп","Open clip"));clip.href=permalink({...data,kind:"person"});preview.append(clip);}
+   else if(data.media_items?.length||(data.media_kind&&data.media_path))void window.VATRA_POST_MEDIA?.mount(client,data,preview);
   }catch(_){
    if(preview.isConnected)preview.append(make("p","vt-vatra-post-original-unavailable-001",
     tr("Ця публікація недоступна.","This post is unavailable.")));
