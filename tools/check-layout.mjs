@@ -2415,4 +2415,15 @@ for(const section of ["clips","marketplace","vatra-id"]){
 assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('vatra_marketplace_listings')&&sectionsRuntime.includes('vatra_verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
 assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
  "Marketplace uses independent sidebar scrolling, ten photos and live preview");
+const marketCatalogSource=sectionsRuntime.slice(sectionsRuntime.indexOf("const categories="),sectionsRuntime.indexOf("const marketConditions="));
+const marketCatalog=new Function('const t=(uk,en)=>uk;'+marketCatalogSource+';return {categories,marketTypes,marketTypeCategories,marketFieldKeys};')();
+assert.equal(marketCatalog.marketTypes.length,5,"Five listing types must be available");
+assert.equal(marketCatalog.categories.length,29,"All 29 marketplace categories must remain available");
+assert.equal(marketCatalog.categories.reduce((total,entry)=>total+entry[4].length,0),127,"All subcategories must be available");
+const mappedMarketCategories=marketCatalog.marketTypes.flatMap(([type])=>marketCatalog.marketTypeCategories(type).map(([id])=>id));
+assert.deepEqual([...mappedMarketCategories].sort(),marketCatalog.categories.map(([id])=>id).sort(),"Each category must belong to exactly one listing type");
+assert.deepEqual(marketCatalog.marketFieldKeys("vehicle","transport","cars"),["brand","model","year","mileage","fuel","transmission"]);
+assert.deepEqual(marketCatalog.marketFieldKeys("rent","rentals","apartments"),["area","rooms","floor"]);
+assert.ok(sectionsRuntime.includes('subcategory:subcat.value,details:collectDetails()')&&sectionsRuntime.includes('price.value="0";price.readOnly=true;'),"Listing must persist subcategories and details and prevent nonzero free prices");
+
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
