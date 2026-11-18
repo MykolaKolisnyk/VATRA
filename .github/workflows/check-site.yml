@@ -126,3 +126,30 @@ jobs:
         env:
           DATABASE_URL: postgresql://vatra_test:test_password@localhost:5432/vatra_test
         run: node tools/scale-audit.mjs
+
+  minified-assets:
+    name: Build minified VATRA static artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify versioned asset references
+        run: node tools/revision-assets.mjs
+      - name: Verify lazy module authorization and page ownership
+        run: node tools/section-loading-smoke.mjs
+      - name: Install pinned asset minifier
+        run: npm install --no-save --no-package-lock esbuild@0.28.2
+      - name: Construct deploy-ready static site and update fingerprints
+        run: node tools/build-static.mjs
+      - name: Upload deploy-ready static artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vatra-static-minified
+          path: |
+            dist/
+            build-summary.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7

@@ -23,7 +23,7 @@ async function minify(path){
   const original=await readFile(file,"utf8");
   const options=ext===".js"?{loader:"js",minifyWhitespace:true,minifySyntax:true,minifyIdentifiers:false,legalComments:"inline",charset:"utf8"}:{loader:"css",minify:true,legalComments:"inline",charset:"utf8"};
   const result=await transform(original,{...options,sourcefile:entry.name,target:"esnext"});
-  assert.equal(result.errors.length,0,file);
+  assert.ok(typeof result.code==="string"&&result.code.length>0,file+": minifier returned no code");
   for(const warning of result.warnings)console.warn(file+": "+warning.text);
   await writeFile(file,result.code);before+=Buffer.byteLength(original);after+=Buffer.byteLength(result.code);count++;
  }
