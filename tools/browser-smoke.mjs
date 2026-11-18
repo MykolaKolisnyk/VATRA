@@ -2927,20 +2927,16 @@ try{
   await feedProbe.locator(".vt-tour-back-001").click();
   assert.ok((await feedProbe.locator(".vt-tour-progress-001").textContent()).includes("1"));
   await feedProbe.locator(".vt-tour-skip-001").click();
-  assert.equal(await feedProbe.locator(".vt-tour-checklist-001 a").count(),5);
-  const tourScrollbar=await feedProbe.locator(".vt-tour-scroll-area-001").evaluate(el=>({
-   inset:el.parentElement.getBoundingClientRect().right-el.getBoundingClientRect().right,
-   width:el.clientWidth,outerWidth:el.parentElement.clientWidth,
-   scrollable:el.scrollHeight>el.clientHeight+1
-  }));
-  assert.ok(tourScrollbar.inset>=9&&tourScrollbar.width<tourScrollbar.outerWidth,
-   "Vatryk checklist scrollbar must be contained inside its white rounded card");
-  await feedProbe.locator(".vt-tour-next-001").click();
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
-  await feedProbe.locator(".feed-account-toggle").click();
-  await feedProbe.locator("#vatra-onboarding-tasks").click();
-  assert.equal(await feedProbe.locator(".vt-tour-checklist-001 a").count(),5);
-  await feedProbe.keyboard.press("Escape");
+  const firstSteps=feedProbe.locator("#vatra-first-steps");
+  await firstSteps.waitFor({state:"visible"});
+  assert.equal(await firstSteps.locator(".ui-feed-first-steps-list-001 a").count(),5);
+  const stepsGeometry=await feedProbe.evaluate(()=>{
+   const filter=document.querySelector(".feed-filter-row").getBoundingClientRect(),steps=document.querySelector("#vatra-first-steps").getBoundingClientRect();
+   return {gap:steps.top-filter.bottom,left:Math.abs(steps.left-filter.left),width:Math.abs(steps.width-filter.width)};
+  });
+  assert.ok(stepsGeometry.gap>=10&&stepsGeometry.gap<=20&&stepsGeometry.left<2&&stepsGeometry.width<2,"First steps must sit immediately under the Feed filter at the same width");
+  await firstSteps.locator(".vt-feed-first-steps-refresh-001").click();
   assert.equal(await feedProbe.locator("#vatra-tour-dialog").isVisible(),false);
   console.log("VATRA first-visit: UK/EN welcome artwork, spotlight, Back, Skip, replay and tasks: OK");
 
@@ -3910,10 +3906,10 @@ try{
   assert.equal(await feedProbe.locator(".feed-menu-support").getAttribute("href"),
    "mailto:vatra.support@gmail.com");
   assert.equal(await feedProbe.locator(".feed-account-dropdown > a").count(),2);
-  assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),3,
-   "Account menu contains logout plus the two authenticated onboarding actions");
+  assert.equal(await feedProbe.locator(".feed-account-dropdown > button").count(),2,
+   "Account menu contains logout and the tutorial replay action");
   assert.equal(await feedProbe.locator("#vatra-onboarding-replay").count(),1);
-  assert.equal(await feedProbe.locator("#vatra-onboarding-tasks").count(),1);
+  assert.equal(await feedProbe.locator("#vatra-onboarding-tasks").count(),0);
   assert.equal(await feedProbe.locator(".feed-account-dropdown > svg").count(),0);
   assert.equal(await feedProbe.locator(".feed-account-profile > svg").count(),1);
   assert.equal(await feedProbe.locator(".feed-menu-settings-toggle > svg").count(),1);
