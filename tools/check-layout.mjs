@@ -501,7 +501,7 @@ for(const name of features){
 assert.ok(css.includes("svg{shape-rendering:geometricPrecision}")&&
  css.includes(".language-option .language-flag{width:36px;height:27px"),
  "SVG icons and language flags must retain high-precision rendering");
-assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
+assert.ok(lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})')&&
  lang.includes("chevron.setAttribute(\"viewBox\",\"0 0 24 24\")"),
  "Language flag and chevron vectors must use precise geometry");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
@@ -1850,7 +1850,7 @@ assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
 assert.ok(!plainAvatarSvg.includes("<clipPath")&&
  !plainAvatarSvg.includes('r="115"')&&
  plainAvatarSvg.includes('<rect width="256" height="256"')&&
- systemProfileCss.includes("Neutral placeholders are full-bleed artwork")&&
+ systemProfileCss.includes("background-size:100% 100%!important")&&
  systemProfileCss.includes("background-size:100% 100%!important")&&
  systemProfileCss.includes("border:4px solid #fff!important"),
  "Default avatar must render full-bleed inside a single white circular border");
