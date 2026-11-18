@@ -24,6 +24,9 @@ function start(client,ownId,gender){
   authSubscription:null,updating:false,promise:null};
  active=state;
  const table="profile_presence";
+ const touchKey="vatra:presence-touch:"+id;
+ const readTouch=()=>{try{const value=Number(sessionStorage.getItem(touchKey)||0);return value<=Date.now()?value:0;}catch(_){return 0;}};
+ const rememberTouch=()=>{try{sessionStorage.setItem(touchKey,String(Date.now()));}catch(_){}};
  const update=async()=>{
   if(active!==state||state.updating||document.visibilityState==="hidden")return false;
   state.updating=true;
@@ -31,6 +34,7 @@ function start(client,ownId,gender){
    const {error}=await client.from(table).update({last_seen_at:new Date().toISOString()})
     .eq("vatra_id",id);
    if(error)throw error;
+   if(active===state)rememberTouch();
    return active===state;
   }catch(_){return false;}
   finally{state.updating=false;}
@@ -45,6 +49,7 @@ function start(client,ownId,gender){
   {once:true,signal:state.controller.signal});
  state.promise=(async()=>{
   try{
+   if(Date.now()-readTouch()>=120000){
    const {data,error}=await client.from(table).select("vatra_id,form")
     .eq("vatra_id",id).maybeSingle();
    if(active!==state)return false;
@@ -53,10 +58,12 @@ function start(client,ownId,gender){
     const result=await client.from(table).insert({vatra_id:id});
     if(active!==state)return false;
     if(result.error)throw result.error;
+    rememberTouch();
    }else await update();
+   }
    if(active!==state)return false;
    // A visible tab sends no more than one heartbeat per two minutes.
-   let lastTouch=Date.now();
+   let lastTouch=readTouch()||Date.now();
    const pulse=()=>{
     if(active!==state||document.visibilityState==="hidden"||
      Date.now()-lastTouch<120000)return;
@@ -77,7 +84,7 @@ function start(client,ownId,gender){
 // RLS-protected presence belongs to a single Supabase client/session.
 // Reuse only overlapping reads and a short snapshot; live status is always
 // recalculated by format(), and profile polling still refreshes every 2 min.
-const PRESENCE_READ_TTL_MS=8_000,PRESENCE_MISSING_TTL_MS=3_000,PRESENCE_CACHE_MAX=64;
+const PRESENCE_READ_TTL_MS=15_000,PRESENCE_MISSING_TTL_MS=5_000,PRESENCE_CACHE_MAX=64;
 const presenceReadCaches=new WeakMap();
 function presenceReadState(client){
  let state=presenceReadCaches.get(client);

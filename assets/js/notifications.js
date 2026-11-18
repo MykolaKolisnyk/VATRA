@@ -515,7 +515,8 @@ function start(c,id){
  document.addEventListener("visibilitychange",()=>refresh(),{passive:true,signal:run.controller.signal});
  window.addEventListener("pagehide",()=>stop(),{once:true,signal:run.controller.signal});
  run.timer=setInterval(()=>{
-  const now=Date.now(),period=subscribed?300000:60000;
+  if(document.hidden)return;
+  const now=Date.now(),period=subscribed?300000:120000;
   if(now-lastPoll<period)return;
   lastPoll=now;refresh();
  },60000);
