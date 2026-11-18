@@ -4001,10 +4001,15 @@ try{
   // Header search now expands global results, not Feed. Refresh the real
   // cursor by switching categories after the three-second cache lifetime.
   await feedProbe.waitForTimeout(3100);
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
+  await feedProbe.locator("#feed-filter-toggle").click();
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
   await feedProbe.locator('[data-feed-filter="friends"]').click();
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&document.querySelector('[data-feed-filter="friends"]')?.getAttribute("aria-pressed")==="true");
   await feedProbe.locator('[data-feed-filter="all"]').click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
   assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
   assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/id654321"),
@@ -4122,8 +4127,12 @@ try{
   await feedProbe.locator("#feed-search-input").press("Enter");
   await feedProbe.waitForFunction(()=>
    JSON.parse(localStorage.getItem("vatra.search.history.v2.member.654321")||"[]")[0]==="Новий пошук VATRA");
+  assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),true,
+   "Submit persists the latest query and expands global search results");
+  assert.equal(await feedProbe.locator("#vatra-search-panel").evaluate(el=>el.classList.contains("is-expanded")),true);
+  await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
-   "Submit persists the latest query and closes the search menu");
+   "Escape closes expanded global search results");
   const mobileGeometry=await feedProbe.evaluate(()=>({
    overflow:document.documentElement.scrollWidth-innerWidth,
    culprits:[...document.querySelectorAll("body *")].map(el=>{
