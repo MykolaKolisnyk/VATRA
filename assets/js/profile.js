@@ -1,18 +1,14 @@
-/* VATRA member profile.
- * Personal information, detailed view and editor are initialized first;
- * the profile page then boots with shared VATRA utilities.
- * Keep these feature sections in this one page-owned module.
- */
 
-/* ==================== PERSONAL INFORMATION + EDITOR ==================== */
-/* VATRA editable personal information. Supabase RLS, not DOM filtering, is authoritative. */
+
+
+
 (()=>{
  "use strict";
  if(window.VATRA_HOST_ALLOWED===false)return;
  const tr=(uk,en)=>document.documentElement.lang==="en"?en:uk;
  const select=selector=>document.querySelector(selector);
- // A single VATRA-styled confirmation surface for all profile actions.
- // Keep every user decision inside the app rather than browser popups.
+
+
  window.VATRA_PROFILE_CONFIRM=({title,description,action,tone="danger"})=>{
   const dialog=select("#profile-confirm-dialog");
   const heading=select("#profile-confirm-heading");
@@ -166,8 +162,8 @@
   const card=select("#profile-about-card");
   const paragraph=select("#profile-about-text");
   const emptyInfo=select("#profile-about-empty");
-  // Visibility and accepted friendship are independent RLS-checked reads.
-  // Start both together so closed profiles do not pay an extra network round trip.
+
+
   const preferenceQuery=client.from("profile_preferences")
    .select("profile_visibility").eq("vatra_id",targetId).maybeSingle();
   const friendshipQuery=!isMine&&ownId?
@@ -178,7 +174,7 @@
     ).eq("status","accepted").limit(1):
    Promise.resolve({data:[],error:null});
   const [preference,friendship]=await Promise.all([preferenceQuery,friendshipQuery]);
-  // Failed checks never imply a public profile or an accepted friendship.
+
   let accountVisibility=preference.error?"friends":preference.data?.profile_visibility||"public";
   const isFriend=!friendship.error&&!!friendship.data?.length;
   const blocked=!isMine&&(blockAccess?.blockedByThem||blockAccess?.blockedByMe);
@@ -260,8 +256,8 @@
    const item=make("div",detailed?
     "vatra-profile-details-row ui-profile-detail-row-"+key:
     "profile-information-item ui-profile-information-item-"+key);
-   // Keep the reading view typography-first. Icons stay in the editor,
-   // where they help navigation, not beside every public profile fact.
+
+
    if(key==="short_bio"){
     return detailed?make("p","vt-profile-detail-bio-001",data.value):null;
    }
@@ -346,15 +342,15 @@
     paragraph.textContent=tr("Інформація доступна лише друзям.","Information is available to friends only.");
     return;
    }
-   // Short biography is centered on its own, with no "Short bio" label.
-   // An empty bio must occupy no space in either the owner's or visitor's page.
+
+
    const bio=visibleField("short_bio");
    paragraph.textContent=bio;
    paragraph.hidden=!bio;
-   // Only one location can appear in the preview: current city takes priority.
+
    const locationKey=visibleField("city")?"city":visibleField("hometown")?"hometown":null;
    const selected=[locationKey,"relationship","website"].filter(key=>key&&visibleField(key));
-   // Missing priority fields are replaced with other available, RLS-filtered values.
+
    for(const key of fallback){
     if(selected.length>=3)break;
     if(visibleField(key)&&!selected.includes(key))selected.push(key);
@@ -547,7 +543,7 @@
    const w=Math.min(Math.max(rect.width,compact?190:0),width-16);
    const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
    const down=top+height-rect.bottom-9,up=rect.top-top-9;
-   // Measure the options at their actual width, including wrapped labels.
+
    state.panel.style.width=Math.round(w)+"px";
    const desired=Math.min(300,state.panel.scrollHeight+2);
    const above=down<Math.min(desired,160)&&up>down;
@@ -563,7 +559,7 @@
    const button=state.buttons[state.index];
    state.anchor.setAttribute("aria-activedescendant",button.id);
    if(scroll){
-    // Scroll the options only; never move the profile or the record dialog.
+
     const bounds=state.panel.getBoundingClientRect(),option=button.getBoundingClientRect();
     if(option.top<bounds.top)state.panel.scrollTop+=option.top-bounds.top;
     else if(option.bottom>bounds.bottom)state.panel.scrollTop+=option.bottom-bounds.bottom;
@@ -793,6 +789,38 @@
    }
    fields.replaceChildren();feedback.hidden=true;
    if(id==="profile"){
+    const identity=make("section","ui-profile-editor-identity-001");
+    const coverPreview=make("div","ui-profile-editor-cover-preview-001");
+    const avatarPreview=make("span","ui-profile-editor-avatar-preview-001");
+    const coverButton=make("button","vt-profile-editor-cover-change-001",tr("Змінити обкладинку","Change cover"));coverButton.type="button";
+    const avatarButton=make("button","vt-profile-editor-avatar-change-001",tr("Змінити фото","Change photo"));avatarButton.type="button";
+    const updatePreview=()=>{
+     const profileCover=select("#profile-cover-image"),profileAvatar=select("#profile-avatar");
+     coverPreview.style.backgroundImage=profileCover?.style.backgroundImage||"";
+     const image=select("#profile-cover-photo");
+     if(image?.getAttribute("src")&&!image.hidden)coverPreview.style.backgroundImage="url("+JSON.stringify(image.src)+")";
+     avatarPreview.style.backgroundImage=profileAvatar?.style.backgroundImage||"";
+     if(profileAvatar?.classList.contains("has-photo"))avatarPreview.classList.add("has-photo");else avatarPreview.classList.remove("has-photo");
+    };
+    updatePreview();
+    const observe=new MutationObserver(updatePreview);
+    for(const target of [select("#profile-cover-image"),select("#profile-cover-photo"),select("#profile-avatar")])if(target)observe.observe(target,{attributes:true,attributeFilter:["style","class","src","hidden"]});
+    const sectionObserver=new MutationObserver(()=>{if(!identity.isConnected){observe.disconnect();sectionObserver.disconnect();}});
+    sectionObserver.observe(fields,{childList:true});
+    coverButton.addEventListener("click",()=>{mediaDialog?.showModal();select("#profile-cover-upload-button")?.focus();});
+    avatarButton.addEventListener("click",()=>{mediaDialog?.showModal();select("#profile-avatar-upload-button")?.focus();});
+    coverPreview.append(coverButton,avatarPreview);
+    const identityInfo=make("div","ui-profile-editor-identity-info-001");
+    const nameLine=make("div","ui-profile-editor-identity-name-row-001");
+    nameLine.append(make("strong","vt-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
+    const idLink=make("a","vt-profile-editor-id-link-001",tr("Змінити у VATRA ID","Edit in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
+    nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
+    const verification=make("div","ui-profile-editor-verification-row-001");
+    const verifyLabel=make("span","vt-profile-editor-verification-label-001",tr("Верифікація","Verification"));
+    const verifyState=make("span","vt-profile-editor-verification-state-001",tr("Перевірка статусу…","Checking status…"));
+    const verifyLink=make("a","vt-profile-editor-verification-link-001",tr("Подати заявку","Apply"));verifyLink.href=new URL("vatra-id#verification",location.href).href;
+    verification.append(verifyLabel,verifyState,verifyLink);identityInfo.append(verification);identity.append(coverPreview,identityInfo);fields.append(identity);
+    void (async()=>{try{const {data,error}=await client.from("verified_accounts").select("vatra_id").eq("vatra_id",ownId).maybeSingle();if(error)throw error;verifyState.textContent=data?tr("Сторінку верифіковано","Verified profile"):tr("Сторінка не верифікована","Not verified");verifyLink.hidden=Boolean(data);}catch(_){verifyState.textContent=tr("Статус недоступний","Status unavailable");}})();
     const privacy=make("div","profile-editor-privacy ui-profile-editor-privacy-001");
     const privacySymbol=make("div","ui-profile-editor-privacy-symbol-001");
     privacySymbol.append(svg("lock"));
@@ -830,16 +858,16 @@
     });
     info.append(edit);fields.append(info);
    }else for(const field of group.fields)buildField(field,fields);
-   // Deliberately preserve unsaved draft values while switching sections.
+
   };
-  // Switch editor chapters immediately. showGroup preserves unsaved draft data.
+
   const switchGroup=id=>{
    if(id!==selected){showGroup(id);workspace.scrollIntoView({block:"start",behavior:"instant"});}
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();closeEditorMenu();if(save.disabled)return;
    save.disabled=true;feedback.hidden=true;feedback.dataset.kind="";
-   // One save persists edits across every section, not only the visible tab.
+
    const records=groups.flatMap(group=>group.fields).map(field=>{
     const key=field[0],item=draft.get(key)||{value:"",visibility:"friends"};
     return {vatra_id:ownId,field_key:key,field_value:item.value.trim(),
@@ -878,7 +906,7 @@
      draft.set(record.field_key,{
       value:record.field_value,visibility:record.visibility});
     }
-    // Keep local state in sync for the next editor visit.
+
     accountVisibility=visibility;
     renderInfo();
     feedback.hidden=false;feedback.dataset.kind="success";
@@ -900,8 +928,8 @@
  window.VATRA_PROFILE_DETAILS={init,open:()=>openEditor()};
 })();
 
-/* ==================== MEMBER PROFILE + MEDIA + POSTS ==================== */
-/* VATRA member profiles: canonical /VATRA/idN, RLS-protected. */
+
+
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -993,14 +1021,14 @@ const gateError=message=>{
  loader.querySelector(".vatra-auth-loading-content")?.append(retry);
 };
 function missingProfile(state="not-found"){
- // Missing, deleted and blocked members expose no private details or photo actions.
+
  const titles={
   "not-found":t("Користувача не знайдено","User not found"),
   deleted:t("Акаунт видалено","Account deleted"),
   blocked:t("Акаунт заблоковано","Account blocked")
  };
  const title=titles[state]||titles["not-found"];
- // Use one layout for all three system-member states, never regular profile offsets.
+
  document.body.dataset.vatraProfileUnavailable=state;
  const name=q("#profile-heading");
  if(name){name.removeAttribute("data-i18n");name.textContent=title;}
@@ -1009,7 +1037,7 @@ function missingProfile(state="not-found"){
  const coverPhoto=q("#profile-cover-photo"),coverView=q("#profile-cover-view");
  if(cover)cover.classList.remove("has-photo");
  if(systemCover){
-  // The system cover is an SVG background selected by CSS, not an <img> URL.
+
   systemCover.dataset.vatraCoverState=state;
   systemCover.hidden=false;
  }
@@ -1022,7 +1050,7 @@ function missingProfile(state="not-found"){
  }
  const button=q("#profile-avatar-trigger");
  if(button){button.disabled=true;button.setAttribute("aria-label",title);}
- // System avatar and cover artwork is neutral; account status is conveyed by text.
+
  q("#profile-status")?.remove();
  q("#profile-last-seen")?.remove();
  q("#profile-online-dot")?.remove();
@@ -1054,8 +1082,8 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id")
    .eq("author_vatra_id",targetId);
   if(typeof query.is==="function")query=query.is("archived_at",null);
-  // Filter on the database before pagination: a page never contains posts
-  // outside the selected local year/month, and RLS remains authoritative.
+
+
   if(year>=2026&&year<=9999){
    const start=new Date(year,month?month-1:0,1);
    const end=month?new Date(year,month,1):new Date(year+1,0,1);
@@ -1241,7 +1269,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  };
  const displaySavedMedia=(article,item)=>{
   if(!item?.media_items?.length&&(!item?.media_path||!["image","video"].includes(item.media_kind)))return;
-  // Reuse the same secure, signed-URL media viewer as the live Feed.
+
   void window.VATRA_POST_MEDIA?.mount(client,item,article);
  };
  const displayShared=(article,item)=>{
@@ -1332,7 +1360,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
      text.textContent=item.body||"";text.hidden=!item.body;
      dialog.dataset.theme=String(item.theme||0);
      dialog.showModal();
-     // Only the owner can select an expired story and sign its private asset.
+
      void window.VATRA_POST_MEDIA?.renderStory(client,
       {...item,author_vatra_id:ownId},q("#profile-story-viewer-media"),false,true);
     });
@@ -1398,7 +1426,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
  };
  window.VATRA_PROFILE_EXTRA_TAB=dispatch;
  if(!isMine)return;
- // The tab strip scrolls horizontally; portal this menu so it is never clipped.
+
  document.body.append(menu);
  const close=()=>{menu.hidden=true;toggle.setAttribute("aria-expanded","false");};
  const position=()=>{
@@ -1509,7 +1537,7 @@ function bindProfileStoryComposer(client,ownId){
    });
    if(insertError)throw insertError;
    reset();dialog.close();
-   // Refresh the profile story ring and viewer against the committed row.
+
    location.reload();
   }catch(err){
    if(uploaded)try{await window.VATRA_POST_MEDIA.remove(client,uploaded);}catch(_){}
@@ -1596,8 +1624,7 @@ function bindPostComposer(client,user,ownId){
 }
 
 
-/* Profile sidebar: the same six named friends and three real gifts for every
-   accessible profile. Pending friend requests never appear in public previews. */
+
 async function setupProfileSocialCards(client,ownId,targetId,isMine){
  const friendsPreview=q("#profile-friends-preview-list");
  const friendsAll=q("#profile-friends-list");
@@ -1650,9 +1677,9 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  async function resolveFriendships(friendships){
   const ids=[...new Set(friendships.map(f=>String(f.requester_id)===String(targetId)?
    String(f.recipient_id):String(f.requester_id)).filter(validId))];
-  // All three shared RLS caches are bounded. In particular, account states
-  // accept 100 IDs per lookup; a single larger request could silently miss a
-  // deleted or suspended person at the end of the friends list.
+
+
+
   const batches=[];
   for(let i=0;i<ids.length;i+=100)batches.push(ids.slice(i,i+100));
   const [names,photos,statesResult]=await Promise.all([
@@ -1816,8 +1843,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  }
 }
 
-/* Member blocking is persisted in member_blocks with per-member RLS.
-   Blocking is distinct from platform suspension and from friends-only profiles. */
+
 function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
  const button=q("#profile-block-toggle");
  if(!button||isMine||!validId(ownId)||!validId(targetId))return;
@@ -1856,7 +1882,7 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
      blocker_vatra_id:Number(ownId),blocked_vatra_id:Number(targetId)
     });
    const {data,error}=await operation;
-   // With RLS a blocked-member DELETE can silently affect zero rows.
+
    if(error||(blocked&&String(data?.blocked_vatra_id)!==String(targetId)))
     throw error||Error("Member was not unblocked");
    location.reload();
@@ -1870,8 +1896,7 @@ function setupProfileBlocks(client,ownId,targetId,isMine,blockAccess){
  });
 }
 
-/* Multi-step profile reporting, with server-owned reporter identity and
-   insert-only RLS. Reports are private moderation data, not public posts. */
+
 function setupProfileReports(client,ownId,targetId,isMine,locked){
  if(isMine)return;
  const dialog=q("#profile-report-dialog"),open=q("#profile-report-open");
@@ -1963,7 +1988,7 @@ function setupProfileReports(client,ownId,targetId,isMine,locked){
   render();dialog.showModal();close.focus({preventScroll:true});
  };
  open.addEventListener("click",launch);
- // A locked-profile notice is informational, not an action bar.
+
  close.addEventListener("click",()=>dialog.close());
  back.addEventListener("click",()=>{step=step==="review"?"reason":step==="reason"?"category":"kind";render();});
  submit.addEventListener("click",async()=>{
@@ -2038,7 +2063,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
    e.preventDefault();next.focus();choose(next.dataset.profileTab);
   });
  }
- // Inbox remains reachable via its private conversation flow, not as a profile tab.
+
  if(isMine&&location.hash==="#profile-messages-section")choose("messages");
  if(!validId(ownId))return;
  let activePeer=null,sending=false,conversationRequestSeq=0;
@@ -2060,7 +2085,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
     t("Повідомлень ще немає.","No messages yet.")));
    for(const m of (data||[]).slice().reverse()){
     const bubble=node("div","profile-message-bubble ui-profile-message-bubble-001");
-    // Member message text stays escaped; only known VATRA post URLs become links.
+
     const source=String(m.body||"");
     const postLink=new RegExp("https://mykolakolisnyk[.]github[.]io/VATRA/feed[?]post=[a-f0-9-]{36}","ig");
     let cursor=0,match;
@@ -2152,7 +2177,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
       await client.from("friendships").delete().eq("id",relation.id)
        .or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
        .select("id").maybeSingle();
-    // A zero-row UPDATE/DELETE is not a successfully changed friendship.
+
     if(result.error||!result.data?.id||
      (relation&&String(result.data.id)!==String(relation.id)))
      throw result.error||Error("Friendship was not changed");
@@ -2201,7 +2226,7 @@ function setupProfileInteractions(client,ownId,targetId,isMine){
         .select("id").maybeSingle());
       if(changeError||String(changed?.id)!==String(item.id))
        throw changeError||Error("Friendship was not changed");
-      // The database change succeeded; a refresh error is not a failed action.
+
       try{await loadFriends();}
       catch(_){show(friendsEmpty,t("Дію виконано, але список не оновився. Оновіть сторінку.",
        "Action completed, but the list did not refresh. Reload the page."));}
@@ -2295,13 +2320,12 @@ function setupProfilePresence(client,targetId,ownId,signupGender){
   dot.setAttribute("aria-label",t("Зараз у мережі","Online now"));
  };
  void refresh();
- // One small profile-specific read per two minutes; avoid polling the whole Feed.
+
  const timer=setInterval(()=>{if(!document.hidden)void refresh();},120000);
  window.addEventListener("pagehide",()=>clearInterval(timer),{once:true});
 }
 
-/* Only the signed-in owner can change profile images; Storage policies and
-   profile_media RLS enforce this independently of the UI. */
+
 async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,locked=false,preloadedMedia=null){
  const cover=q("#profile-cover-image"),coverPhoto=q("#profile-cover-photo"),systemCover=q("#profile-cover-system"),avatar=q("#profile-avatar");
  const buttonAvatar=q("#profile-avatar-upload-button"),buttonCover=q("#profile-cover-upload-button");
@@ -2599,10 +2623,10 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     .eq("id",removingId).eq("author_vatra_id",ownId).select("id");
    if(result.error||!result.data?.some(row=>row.id===removingId))
     throw result.error||new Error("Story not deleted");
-   // Deleted stories must not leave their uploaded file behind.
+
    if(removingStory.media_path)try{
     await window.VATRA_POST_MEDIA?.remove(client,removingStory);
-   }catch(_){/* The story row is already deleted and no longer accessible to friends. */}
+   }catch(_){}
    activeStory=null;
    const next=await client.from("stories").select("id,body,theme,expires_at,media_kind,media_path")
     .eq("author_vatra_id",ownId).gt("expires_at",new Date().toISOString())
@@ -2643,7 +2667,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  document.addEventListener("pointerdown",event=>{
   if(!avatarWrap.contains(event.target))closeAvatarMenu();
  });
- // A real <img> is independent of the decorative CSS fallback, masks and pseudoelements.
+
  coverPhoto.addEventListener("load",()=>{
   if(!photoURLs.cover||coverPhoto.src!==photoURLs.cover)return;
   coverPhoto.hidden=false;
@@ -2658,7 +2682,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  });
  const display=record=>{
   if(systemCover){
-   // Reset the CSS artwork after switching profile state.
+
    systemCover.dataset.vatraCoverState="default";
    systemCover.hidden=false;
   }
@@ -2708,14 +2732,14 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   return Promise.allSettled([avatarReady,coverReady]);
  };
  try{
-  // Public profile photos are not part of friends-only posts or About fields.
+
   const request=()=>client.from("profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle();
   let response=await (preloadedMedia||request());
   if(response?.error||!response?.data)response=await request();
-  // Public Storage can still resolve header artwork if the metadata request
-  // transiently fails. Listing is best effort and never grants access to
-  // private posts, stories, or personal details.
+
+
+
   if(response?.error||!response?.data){
    const findPublic=async(kind)=>{
     const folder=targetId+"/"+(kind==="avatar"?"avatar":"cover");
@@ -2736,12 +2760,12 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    if(media.avatar_path||media.cover_path)response={data:media,error:null};
   }
   if(!response?.error&&response?.data){saved=response.data;await display(response.data);}
- }catch(_){/* Keep the profile usable when its public photos are unavailable. */}
+ }catch(_){}
  finally{
   cover.classList.remove("is-loading-media");
   avatarWrap.classList.remove("is-loading-media");
  }
- // No story request or interaction on a locked profile.
+
  if(!locked)try{
   const {data,error}=await client.from("stories")
    .select("id,body,theme,expires_at,media_kind,media_path")
@@ -2751,7 +2775,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
    .limit(1);
   if(!error&&Array.isArray(data)&&typeof data[0]?.body==="string")
    activeStory=data[0];
- }catch(_){/* An inaccessible story must not prevent loading the profile. */}
+ }catch(_){}
  syncAvatarMenu();
  if(!isMine||!validId(ownId))return;
  buttonAvatar.hidden=false;buttonCover.hidden=false;
@@ -2783,13 +2807,13 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
      .select("vatra_id,"+column).maybeSingle();
    const {data:stored,error:dbError}=await operation;
    if(dbError||String(stored?.[column]||"")!==path){
-    // Do not remove the uploaded binary: the database may have committed while
-    // its response was lost. Retain it for recovery rather than leave a broken
-    // cover/avatar pointer to a physically deleted object.
+
+
+
     throw dbError||new Error("Profile media update did not persist");
    }
-   // Never delete the former avatar or cover on replacement. The user may
-   // restore it later; a separate version-history workflow controls retention.
+
+
    saved={...saved,...values};
    display(saved);
    if(kind==="avatar"){
@@ -2813,17 +2837,17 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
 async function loadOwnHeaderAvatar(client,ownId,email){
  if(!validId(ownId))return {data:null,error:Error("Invalid member ID")};
  try{
-  // Reuse one media request for the own profile's header, avatar and cover.
+
   const response=await client.from("profile_media")
    .select("avatar_path,cover_path").eq("vatra_id",ownId).maybeSingle();
   if(response.error)return response;
-  // The shared cache validates the URL and warms the image once. Avoid a
-  // second onerror handler that could clear a perfectly valid cached header
-  // while a new profile route is still completing its media requests.
+
+
+
   window.VATRA_AVATAR?.fromPath(client,email,ownId,response.data?.avatar_path||null);
   return response;
  }catch(error){
-  // Keep the remembered header portrait until the lookup can be retried.
+
   return {data:null,error};
  }
 }
@@ -2859,7 +2883,7 @@ async function start(){
   const headerName=Array.from((typeof metadata.first_name==="string"&&metadata.first_name.trim()?metadata.first_name.trim():cleanOwnName.trim().split(/\s+/)[0])||"VATRA").slice(0,28).join("");
   window.VATRA_AVATAR?.setHeader({email:user.email,name:headerName,initials:ownAvatar,id:ownId});
   setMenuLink(ownId);
-  // Keep the signed-in user's avatar even when a visited VATRA ID does not exist.
+
   window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
   const ownHeaderMedia=loadOwnHeaderAvatar(client,ownId,user.email);
   const form=q("#feed-search-form");
@@ -2887,10 +2911,10 @@ async function start(){
   const requested=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1]||null;
   const targetId=requested||ownId;
   if(!validId(targetId)){missingProfile();return;}
-  // Fetch the directory record and the RLS-safe public display name together.
-  // Do not render the result before the directory confirms this ID exists.
-  // Public display names are optional: a failed public lookup must not turn
-  // an otherwise valid profile into a blank error page.
+
+
+
+
   const [directoryOutcome,publicOutcome,stateOutcome]=await Promise.allSettled([
    client.from("member_directory")
     .select("vatra_id").eq("vatra_id",targetId).maybeSingle(),
@@ -2917,7 +2941,7 @@ async function start(){
      if(String(item.blocker_vatra_id)===ownId)blockAccess.blockedByMe=true;
      if(String(item.blocker_vatra_id)===targetId)blockAccess.blockedByThem=true;
     }
-   }catch(_){/* The database RLS gates still protect content on lookup failure. */}
+   }catch(_){}
   }
   const createLink=q("#profile-write-post");
   if(createLink)createLink.hidden=!isMine;
@@ -2931,8 +2955,8 @@ async function start(){
    bindPostComposer(client,user,ownId);
    bindProfileStoryComposer(client,ownId);
   }
-  // The account creation trigger publishes only registered first/last names
-  // to public_profiles. Birthdate, gender, email and auth UUID remain private.
+
+
   let publicName="",publicStatus="";
   const {data:publicProfile,error:publicError}=publicOutcome.status==="fulfilled"?
    publicOutcome.value:{data:null,error:true};
@@ -2959,12 +2983,12 @@ async function start(){
     "Користувач ще не додав інформацію про себе.",
     "This member has not added profile details yet.");
   }
-  // The browser tab identifies the member actually being viewed, not the generic
-  // profile page. Never use the signed-in visitor's name for another member.
+
+
   const titleName=String(publicName||(isMine?cleanOwnName:t("Учасник VATRA","VATRA member")))
    .replace(/\s+/g," ").trim().slice(0,100)||t("Учасник VATRA","VATRA member");
   document.title=titleName+" · VATRA";
-  // Start public avatar/cover loading before private detail and friendship checks.
+
   const preloadedMedia=isMine?ownHeaderMedia:
    Promise.resolve().then(()=>client.from("profile_media")
     .select("avatar_path,cover_path").eq("vatra_id",targetId).maybeSingle())
@@ -2973,7 +2997,7 @@ async function start(){
   const locked=access?.locked===true;
   const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
   if(!memberBlocked&&(publicName||isMine))void window.VATRA_VERIFIED?.attach(client,q("#profile-heading"),targetId);
-  // Header artwork remains visible even when database RLS restricts all posts.
+
   document.body.dataset.profileLocked=String(locked);
   if(memberBlocked){
    const nav=q(".social-profile-tabs");
@@ -2994,8 +3018,8 @@ async function start(){
    setupProfileGallery(client,targetId);
    setupProfilePostFilters(client,targetId,ownId,user.id);
   }
-  // Keep the skeleton until both real photos have loaded, rather than flashing
-  // default avatar/cover followed by the user's real artwork.
+
+
   const mediaPromise=setupProfileMedia(client,ownId,targetId,isMine,user.id,user.email,locked,preloadedMedia);
   if(isMine)void mediaPromise.then(()=>{
    const source=q("#profile-avatar"),preview=q("#profile-compose-avatar");
@@ -3005,9 +3029,9 @@ async function start(){
    preview.classList.toggle("has-photo",!!image);
   }).catch(()=>{});
   const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
-  // Keep the requested clean member URL in the address bar. On GitHub Pages,
-  // direct /idN navigation uses the JavaScript 404 fallback; Ctrl+U on that
-  // URL therefore exposes the router HTML, not the client-rendered profile.
+
+
+
   const canonical=new URL(memberUrl(targetId));
   const remaining=new URLSearchParams(location.search);
   remaining.delete("vatra_id");
@@ -3028,8 +3052,8 @@ async function start(){
   }
   if(!locked)setupProfilePresence(client,targetId,ownId,metadata.gender);
   const postsPromise=locked?Promise.resolve():loadPosts(client,targetId,ownId,user.id);
-  // Closed profiles show their public header media before the loading view clears.
-  // Posts, stories and private details continue to respect the locked gate.
+
+
   if(locked)await mediaPromise;
   finish();
   void mediaPromise.catch(()=>{
