@@ -1,4 +1,4 @@
-/* VATRA friends: real accepted friendships, requests, names and portraits. */
+
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -19,6 +19,7 @@ const make=(tag,cls,label)=>{
 };
 let client=null,ownId=null,targetId=null,rows=[],names=new Map(),photos=new Map(),accountStates=new Map();
 let current="accepted",search="",busy=false,me=true;
+let presence=new Map(),presenceBusy=false;
 function stateFor(item){
  if(item.status==="accepted")return "accepted";
  if(String(item.recipient_id)===String(targetId))return "incoming";
@@ -36,7 +37,7 @@ async function data(){
  if(result.error)throw result.error;
  rows=result.data||[];
  const ids=[...new Set(rows.map(counterpart).filter(validId))];
- // Keep every member in longer lists: the shared caches accept bounded ID batches.
+
  const batches=[];
  for(let i=0;i<ids.length;i+=100)batches.push(ids.slice(i,i+100));
  const [profiles,media,states]=await Promise.all([
@@ -67,6 +68,21 @@ async function data(){
    }catch(_){}
   }
 }
+async function refreshPresence(){
+ if(!me||presenceBusy||!client)return;
+ presenceBusy=true;
+ try{
+  const ids=[...new Set(rows.filter(item=>stateFor(item)==="accepted").map(counterpart).filter(validId))];
+  const next=new Map();
+  for(let i=0;i<ids.length;i+=100){
+   const {data,error}=await client.from("profile_presence").select("vatra_id,last_seen_at,form").in("vatra_id",ids.slice(i,i+100));
+   if(error)return;
+   for(const entry of data||[])next.set(String(entry.vatra_id),entry);
+  }
+  presence=next;
+ }finally{presenceBusy=false;}
+}
+function online(id){return !accountStates.has(id)&&Boolean(window.VATRA_PRESENCE?.format(presence.get(id)).online);}
 function actionButton(label,cls,callback){
  const button=make("button",cls,label);button.type="button";
  button.addEventListener("click",async()=>{
@@ -74,10 +90,10 @@ function actionButton(label,cls,callback){
   let persisted=false;
   try{
    await callback();persisted=true;
-   await data();render();
+   await data();await refreshPresence();render();
   }catch(_){
    const empty=q("#friends-empty");
-   // A refresh failure cannot undo an already committed relationship change.
+
    empty.textContent=persisted?
     t("Дію виконано, але список не оновився. Оновіть сторінку.",
      "Action completed, but the list could not refresh. Reload the page."):
@@ -92,7 +108,7 @@ async function removeRow(item){
  const {data,error}=await client.from("friendships").delete()
   .eq("id",item.id).or("requester_id.eq."+ownId+",recipient_id.eq."+ownId)
   .select("id").maybeSingle();
- // A DELETE may affect no rows without an RLS error. Do not claim success.
+
  if(error||String(data?.id)!==String(item.id))
   throw error||Error("Friendship was not removed");
 }
@@ -121,17 +137,18 @@ function person(item,index){
    avatar.style.backgroundImage="url("+JSON.stringify(photo)+")";avatar.classList.add("has-photo");
   };image.src=photo;
  }
+ if(online(id)){const dot=make("span","ui-vatra-friends-online-dot-"+index);dot.setAttribute("aria-label",t("Онлайн","Online"));avatar.append(dot);}
  const details=make("div","vatra-friends-details ui-vatra-friends-details-"+index);
  const profile=make("a","vt-vatra-friends-name-"+index,name);
  profile.href=new URL("id"+id,root).href;
  if(!state)void window.VATRA_VERIFIED?.attach(client,profile,id);
  const secondary=make("span","vt-vatra-friends-subtitle-"+index,
-  stateFor(item)==="accepted"?t("Ваш друг у VATRA","Your VATRA friend"):
+  stateFor(item)==="accepted"?(online(id)?t("Онлайн","Online"):(window.VATRA_PRESENCE?.format(presence.get(id),language()==="en").text||t("Друг у VATRA","VATRA friend"))):
   stateFor(item)==="incoming"?t("Хоче додатися до друзів","Wants to add you"):
   t("Запит надіслано","Request sent"));
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
- const message=make("a","vt-vatra-friends-message-"+index,t("Профіль і повідомлення","Profile and messages"));
+ const message=make("a","vt-vatra-friends-message-"+index,t("Переглянути профіль","View profile"));
  message.href=new URL("id"+id,root).href;actions.append(message);
  if(me&&stateFor(item)==="incoming"){
   actions.append(actionButton(t("Прийняти","Accept"),
@@ -146,7 +163,7 @@ function person(item,index){
  return article;
 }
 function switchTo(mode){
- if(!["accepted","incoming","outgoing"].includes(mode))return;
+ if(!["accepted","online","incoming","outgoing"].includes(mode))return;
  if(!me&&mode!=="accepted")return;
  current=mode;
  for(const tab of document.querySelectorAll("[data-friends-tab]")){
@@ -154,26 +171,32 @@ function switchTo(mode){
   tab.classList.toggle("is-active",active);tab.setAttribute("aria-pressed",String(active));
  }
  for(const tab of document.querySelectorAll("[data-friends-switch]"))
-  tab.classList.toggle("is-active",tab.dataset.friendsSwitch===mode);
+  tab.classList.toggle("is-active",tab.dataset.friendsSwitch===(mode==="online"?"accepted":mode));
  render();
 }
 function render(){
  const list=q("#friends-list"),empty=q("#friends-empty");
  list.replaceChildren();empty.hidden=true;list.setAttribute("aria-busy","true");
- const visible=rows.filter(item=>stateFor(item)===current).filter(item=>{
+ const visible=rows.filter(item=>current==="online"?stateFor(item)==="accepted"&&online(counterpart(item)):stateFor(item)===current).filter(item=>{
   const id=counterpart(item),name=names.get(id)||"";
   return !search||id.includes(search)||name.toLocaleLowerCase().includes(search);
  });
  for(const item of visible)list.append(person(item,list.children.length+1));
  if(!visible.length){
   empty.textContent=search?t("За запитом нічого не знайдено.","No matches for your search."):
+   current==="online"?t("Наразі немає друзів онлайн.","No friends online right now."):
    current==="accepted"?t("Друзів поки немає.","No friends yet."):
    current==="incoming"?t("Немає нових запитів у друзі.","No new friend requests."):
    t("Немає надісланих запитів.","No sent requests.");
   empty.hidden=false;
  }
  const heading=q("#friends-heading");if(heading)
-  heading.textContent=t("Друзі","Friends")+" · "+rows.filter(item=>stateFor(item)==="accepted").length;
+  heading.textContent=t("Друзі","Friends");
+ for(const tab of document.querySelectorAll("[data-friends-tab]")){
+  const mode=tab.dataset.friendsTab;
+  const count=rows.filter(item=>mode==="online"?stateFor(item)==="accepted"&&online(counterpart(item)):stateFor(item)===mode).length;
+  tab.replaceChildren(document.createTextNode(t(tab.dataset.socialUk,tab.dataset.socialEn)+" "),make("span","vt-vatra-friends-tab-count-"+mode,count));
+ }
  list.setAttribute("aria-busy","false");
 }
 async function boot(){
@@ -210,8 +233,8 @@ async function boot(){
    location.assign(new URL("feed"+(term?"?q="+encodeURIComponent(term):""),root).href);
   });
   if(!me){
-   // The profile's friend list is private. Never request another user's
-   // relationships, even if an old RLS policy would permit accepted rows.
+
+
    for(const el of document.querySelectorAll("[data-friends-tab],[data-friends-switch]"))
     el.hidden=true;
    q("#friends-search").disabled=true;
@@ -222,6 +245,7 @@ async function boot(){
   q("#feed-app").hidden=false;q("#feed-loading").hidden=true;
   document.body.dataset.authReady="true";document.body.classList.remove("vatra-shell-pending");
   window.VATRA_NOTIFICATIONS?.start(client,ownId);
+  void window.VATRA_PRESENCE?.start(client,ownId,user.user_metadata?.gender);
   for(const btn of document.querySelectorAll("[data-friends-tab]"))
    btn.addEventListener("click",()=>switchTo(btn.dataset.friendsTab));
   for(const btn of document.querySelectorAll("[data-friends-switch]"))
@@ -241,7 +265,10 @@ async function boot(){
    q("#friends-list").setAttribute("aria-busy","false");
    return;
   }
-  try{await data();render();}
+  try{await data();await refreshPresence();render();
+   const clock=setInterval(async()=>{if(!document.hidden){try{await refreshPresence();render();}catch(_){}}},60000);
+   window.addEventListener("pagehide",()=>clearInterval(clock),{once:true});
+  }
   catch(_){
    const empty=q("#friends-empty");
    empty.textContent=t("Не вдалося завантажити друзів.","Could not load friends.");
