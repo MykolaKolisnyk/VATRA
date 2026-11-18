@@ -614,7 +614,7 @@
   ".profile-confirm-dialog",".profile-story-compose-dialog",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",
   ".vatra-post-composer-drafts-panel",".feed-story-view",
-  ".profile-story-viewer",".vatra-gift-viewer",".vatra-discovery-sidebar",".ui-vatra-section-dialog-scroll-001",
+  ".profile-story-viewer",".vatra-gift-viewer",".vatra-discovery-sidebar",".ui-vatra-market-sidebar-scroll-001",".ui-vatra-market-editor-scroll-001",".ui-vatra-market-detail-info-001",".ui-vatra-market-editor-preview-001",".ui-vatra-section-dialog-scroll-001",
   ".ui-vatra-clips-social-001 .vatra-post-comment-list","textarea"
  ].join(",");
  const timers=new WeakMap();
