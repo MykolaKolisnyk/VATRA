@@ -4908,7 +4908,7 @@ try{
      }
     })}:
     table==="community_follows"?
-    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}})}:
+    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null}),then(resolve,reject){(window.__clubInitialReads??=[]).push("following-start");return Promise.resolve({data:[],error:null}).then(resolve,reject);}})}:
     table==="public_profiles"?
     {select:()=>({in:async()=>({data:[],error:null})})}:
     table==="accounts"?
@@ -4927,8 +4927,8 @@ try{
          (!this.ids||this.ids[1].includes(String(club[this.ids[0]])))&&
          (!this.term||String(club[this.searchField]||"").toLocaleLowerCase().includes(this.term)));},
        async maybeSingle(){await new Promise(resolve=>setTimeout(resolve,270));return {data:this.rows()[0]||null,error:null};},
-       async limit(n){if(isDirectory&&!this.ids)window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;await new Promise(resolve=>setTimeout(resolve,270));return {data:this.rows().slice(0,n),error:null};},
-       then(resolve,reject){return Promise.resolve({data:this.rows(),error:null}).then(resolve,reject);}
+       async limit(n){if(isDirectory&&!this.ids)window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;await new Promise(resolve=>setTimeout(resolve,270));if(isDirectory&&!this.ids)(window.__clubInitialReads??=[]).push("directory-complete");return {data:this.rows().slice(0,n),error:null};},
+       then(resolve,reject){if(table==="communities"&&fields==="club_id"&&this.filters.some(([field])=>field==="owner_id"))(window.__clubInitialReads??=[]).push("owned-start");return Promise.resolve({data:this.rows(),error:null}).then(resolve,reject);}
       };
      },
      insert:data=>({select:()=>({single:async()=>{
@@ -4955,6 +4955,9 @@ try{
    "Communities loader must wait for the first directory query");
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
+  const initialReads=await page.evaluate(()=>window.__clubInitialReads||[]);
+  const directoryComplete=initialReads.indexOf("directory-complete");
+  assert.ok(directoryComplete>=0&&["following-start","owned-start"].every(key=>initialReads.indexOf(key)>=0&&initialReads.indexOf(key)<directoryComplete),"Membership queries must start before the public directory finishes: "+JSON.stringify(initialReads));
   if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
   assert.equal((await page.locator(".vt-community-discovery-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
