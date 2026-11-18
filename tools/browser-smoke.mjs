@@ -5055,6 +5055,11 @@ try{
   assert.equal(await page.locator(".vatra-discovery-workspace > .vatra-discovery-sidebar").count(),1);
   assert.equal(await page.locator(".vatra-discovery-tabs .vatra-discovery-nav-icon").count(),3);
   assert.equal(await page.locator(".ui-community-topic-001").count(),6);
+  assert.ok(await page.locator("#community-topics").evaluate(el=>{
+   const list=document.querySelector(".ui-community-list-section-001");
+   const banner=document.querySelector("#community-discovery-banner");
+   return banner.getBoundingClientRect().bottom<=el.getBoundingClientRect().top+1&&el.getBoundingClientRect().bottom<=list.getBoundingClientRect().top+1;
+  }),"Topic discovery must appear below the cover and above new communities");
   const topicCards=page.locator(".ui-community-topic-001");
   assert.deepEqual(await topicCards.locator("img").evaluateAll(images=>images.map(img=>new URL(img.src).pathname.split("/").pop())),["music.webp","sport.webp","travel.webp","technology.webp","education.webp","art.webp"]);
   for(const photo of await topicCards.locator("img").all()){
