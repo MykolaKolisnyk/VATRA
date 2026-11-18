@@ -195,7 +195,7 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
  css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
  legalCss.includes('padding:40px 0 40px;flex:1')&&
- (await read("404.html")).includes('href="/VATRA/cookies"'),
+ !(await read("404.html")).includes('<footer'),
  "All VATRA page footers, document navigation and full-panel motion should match");
 // Every visible element has a class and its own page class in addition to reusable components.
 for(const name of pages){
@@ -850,7 +850,7 @@ for(const page of ["terms","privacy","cookies"]){
   html.includes("assets/css/legal.css"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
-for(const page of ["verify","404"]){
+for(const page of ["verify"]){
  const html=await read(page+".html"),prefix=page==="verify"?"account":page;
  assert.ok(html.includes('class="account-top-inner ui-'+prefix+'-header-inner-001"'),
   page+": account-style header must align with the shared footer");
@@ -874,7 +874,7 @@ assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
-for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
  html.includes('data-i18n="n302">Створити акаунт</a>')&&
@@ -930,7 +930,7 @@ assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&
  uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
  !register.includes('href="./" class="vt-create-account-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
-for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
   uk.__pages[page].nodes.n301.text["0"]==="Увійти",
@@ -2069,7 +2069,7 @@ assert.ok(notFoundCss.includes(".error-home-link:hover{")&&
  notFoundCss.includes("color:#fff;text-decoration:none}")&&
  notFoundCss.includes("flex-direction:column;gap:16px")&&
  notFoundCss.includes(".error-main .ui-404-vatryk-001"),
- "404 header, centered mascot and single home link must remain aligned");
+ "404 centered mascot and single feed link must remain aligned");
 for(const name of ["terms","privacy","cookies"]){
  const html=await read(name+".html");
  const dictionary=uk.__pages[name];
@@ -2094,7 +2094,7 @@ assert.ok(!(await read("privacy.html")).includes("Самостійне вида�
 await assert.rejects(stat("account.html"),{code:"ENOENT"},
  "Retired account.html must be deleted; profile and verify replace its responsibilities");
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
-assert.ok(errorPage.includes('href="/VATRA/"')&&errorPage.includes('src="/VATRA/assets/logo/vatra-logo.svg"'),
+assert.ok(errorPage.includes('href="/VATRA/feed"')&&!/<(?:header|footer)\b/i.test(errorPage),
  "GitHub Pages 404 must work at nested missing URLs");
 assert.ok(legacyScript.includes("location.replace(target+location.search+location.hash)"),
  "Old localized links should redirect to unified URLs");

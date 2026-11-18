@@ -35,7 +35,7 @@ for(const page of pages){
  if(page==="index")assert.ok(html.includes('type="application/ld+json"'),"Missing website structured data");
  const ukMeta=uk.__pages[page].meta,enMeta=en.__pages[page].meta;
  assert.ok(ukMeta.title&&enMeta.title&&ukMeta.title!==enMeta.title,filename+": localized titles missing");
- assert.ok(Object.keys(uk.__pages[page].nodes).length>=3,filename+": Ukrainian dictionary incomplete");
+ assert.ok(Object.keys(uk.__pages[page].nodes).length>=(page==="404"?2:3),filename+": Ukrainian dictionary incomplete");
  assert.deepEqual(Object.keys(uk.__pages[page].nodes).sort(),Object.keys(en.__pages[page].nodes).sort(),
   filename+": dictionary node keys must correspond");
 }

@@ -320,44 +320,6 @@
           "text": {
             "0": "This page doesn't exist"
           }
-        },
-        "n14": {
-          "text": {
-            "0": "Your people. Your stories. Your VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Information"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Terms of Service"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "English"
-          },
-          "attrs": {
-            "aria-label": "Choose language"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Sign in"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Create account"
-          }
         }
       }
     },

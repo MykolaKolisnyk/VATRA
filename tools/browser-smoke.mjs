@@ -1314,7 +1314,7 @@ try{
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
  for(const route of ["terms.html","terms.html","privacy.html","cookies.html",
-  "forgot.html","reset.html","404.html"]){
+  "forgot.html","reset.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"load"});
@@ -1376,9 +1376,11 @@ try{
      order:!!box&&!!title&&!!button&&box.bottom<=title.top+1&&title.bottom<=button.top+1,
      visibleHeading:!!title&&title.width>0&&title.height>0&&getComputedStyle(heading).visibility==="visible",
      message:heading?.textContent.trim(),button:home?.textContent.trim(),target:home?.getAttribute("href"),
-     noErrorCard:!document.querySelector(".error-card,.error-code,.error-description")};
+     noErrorCard:!document.querySelector(".error-card,.error-code,.error-description,header,footer"),
+     neutralBackground:getComputedStyle(document.body).backgroundColor==="rgb(245, 245, 245)"&&getComputedStyle(document.body).backgroundImage==="none",
+     verticallyCentered:!!box&&!!button&&Math.abs((box.top+button.bottom)/2-innerHeight/2)<28};
    });
-   assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.order&&mascot.visibleHeading&&mascot.noErrorCard,
+   assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.order&&mascot.visibleHeading&&mascot.noErrorCard&&mascot.neutralBackground&&mascot.verticallyCentered,
     "404 must display the centered detective, visible heading and feed button: "+JSON.stringify(mascot));
    assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
    assert.equal(mascot.button,language==="en"?"To news feed":"До стрічки новин");
@@ -1398,7 +1400,7 @@ try{
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
  let baselineFooterAppearance=null;
- for(const route of ["","create-account.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
+ for(const route of ["","create-account.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -1429,9 +1431,6 @@ try{
   if(!baselineFooterAppearance)baselineFooterAppearance=footerTypography.style;
   else assert.deepEqual(footerTypography.style,baselineFooterAppearance,
    "Footer border, background, spacing, navigation and link height must match across page types: "+route);
-  if(route==="404.html")
-   assert.equal(await probe.locator('.footer nav a[href$="/cookies"]').count(),1,
-    "The 404 page must link to the same three public documents");
   if(["terms.html","privacy.html","cookies.html"].includes(route)){
    const legalMotion=await probe.locator(".policy-header").evaluate(el=>getComputedStyle(el).animationName);
     const shellMotion=await probe.locator(".policy-main").evaluate(el=>getComputedStyle(el).animationName);
@@ -5343,7 +5342,7 @@ try{
          errors:[...document.querySelectorAll("img")].filter(i=>!i.complete&&i.getClientRects().length>0).length};
        });
        assert.ok(layout.overflow<=3&&layout.outside.length===0&&
-        layout.headerHeight>30&&layout.footerHeight>40&&layout.documentLang===language,
+        (route==="404.html"?layout.headerHeight===undefined&&layout.footerHeight===undefined:layout.headerHeight>30&&layout.footerHeight>40)&&layout.documentLang===language,
         engine+" "+language+" "+viewport.width+"x"+viewport.height+" "+route+
         ": legal/404 responsive geometry invalid "+JSON.stringify(layout));
        assert.deepEqual(errors,[],

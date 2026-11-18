@@ -56,7 +56,7 @@ try{
        lang:document.documentElement.lang,
        heading:document.querySelector("h1,h2")?.textContent?.trim()||""};
      });
-     assert.ok(layout.overflow<=3&&layout.main&&layout.footer&&layout.lang===language&&layout.heading.length>0,
+     assert.ok(layout.overflow<=3&&layout.main&&(route==="404.html"?!layout.footer:layout.footer)&&layout.lang===language&&layout.heading.length>0,
       process.platform+" "+language+" "+viewport.width+" "+route+" invalid UI: "+JSON.stringify(layout));
      assert.deepEqual(pageErrors,[],process.platform+" "+route+" JavaScript errors");
     }finally{await page.close();}
