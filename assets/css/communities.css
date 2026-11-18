@@ -6,7 +6,7 @@
 }
 .vt-community-create-subtitle-001{margin:0 0 18px;color:#627187;font-size:14px;line-height:1.65}
 .ui-community-create-form-001{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
-.vt-community-name-label-001,.vt-community-description-label-001{font-size:13px;font-weight:710;line-height:1.45;color:#40516d}
+.vt-community-name-label-001,.vt-community-description-label-001{font-size:13px;font-weight:710;line-height:1.45;color:#48576d;font:var(--vatra-type-label)}
 .ui-community-name-input-001,.ui-community-description-input-001{
  width:100%;min-height:50px;border:1px solid #dae3f1;background:#fff;
  border-radius:12px;color:#2C3850;padding:12px 15px;
@@ -41,9 +41,9 @@ body.community-page .ui-club-post-card-001.is-linked-post{
 
 body[data-page="communities"] .ui-community-list-section-001{padding:22px}
 body[data-page="communities"] .ui-community-directory-tabs-001{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}
-body[data-page="communities"] .ui-community-directory-tabs-001 button{background:transparent;border:0;border-radius:9px;padding:10px 12px;color:#667d9d;font:600 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
-body[data-page="communities"] .ui-community-directory-tabs-001 button.is-active{background:#eaf1ff;color:#285fc9}
-body[data-page="communities"] .ui-community-directory-search-001{box-sizing:border-box;width:100%;min-height:43px;padding:10px 13px;border:1px solid #e1e8f3;border-radius:10px;background:#f6f8fc;color:#2c3850;font:500 14px/1.4 Onest,system-ui,sans-serif}
+body[data-page="communities"] .ui-community-directory-tabs-001 button{background:transparent;border:0;border-radius:9px;padding:10px 12px;color:#667d9d;font:var(--vatra-type-menu);cursor:pointer}
+body[data-page="communities"] .ui-community-directory-tabs-001 button.is-active{background:#eaf1ff;color:#285fc9;font-weight:700}
+body[data-page="communities"] .ui-community-directory-search-001{box-sizing:border-box;width:100%;min-height:43px;padding:10px 13px;border:1px solid #e1e8f3;border-radius:10px;background:#f6f8fc;color:#2c3850;font:var(--vatra-type-input)}
 body[data-page="communities"] .ui-community-list-001{gap:0}
 body[data-page="communities"] .ui-community-card-001{flex-direction:row;align-items:center;gap:14px;padding:17px 2px;border:0;border-bottom:1px solid #edf1f7;border-radius:0;transform:none}
 body[data-page="communities"] .ui-community-card-001:last-child{border:0}
@@ -59,13 +59,13 @@ body[data-page="communities"] .ui-community-directory-head-001{display:flex;alig
 body[data-page="communities"] .vt-community-list-heading-001{font:var(--vatra-type-heading);letter-spacing:-.025em;color:var(--ink);margin:0}
 body[data-page="communities"] .vt-community-create-toggle-001{font:var(--vatra-type-control);min-height:38px;white-space:nowrap}
 body[data-page="communities"] .ui-community-directory-tabs-001{margin:0 0 12px}
-body[data-page="communities"] .ui-community-directory-tabs-001 button{font:var(--vatra-type-control)}
+body[data-page="communities"] .ui-community-directory-tabs-001 button{font:var(--vatra-type-menu)}
 body[data-page="communities"] .vt-community-card-name-001{font:var(--vatra-type-name);letter-spacing:-.015em;color:var(--ink)}
 body[data-page="communities"] .vt-community-card-description-001{font:var(--vatra-type-body);color:var(--soft)}
 body[data-page="communities"] .vt-community-card-id-001{font:var(--vatra-type-caption);color:var(--soft)}
 @media(max-width:520px){body[data-page="communities"] .ui-community-directory-head-001{flex-wrap:wrap}}
 
 body[data-page="communities"] .ui-community-directory-tabs-001 button{font:var(--vatra-type-menu)}
-body[data-page="communities"] .ui-community-directory-tabs-001 button.is-active{font-weight:550}
+body[data-page="communities"] .ui-community-directory-tabs-001 button.is-active{font-weight:700}
 body[data-page="communities"] :is(.vt-community-list-heading-001,.vt-community-card-name-001){letter-spacing:0}
-body[data-page="communities"] :is(.vt-community-name-label-001,.vt-community-description-label-001){font:var(--vatra-type-control)}
+body[data-page="communities"] :is(.vt-community-name-label-001,.vt-community-description-label-001){font:var(--vatra-type-label);color:#48576d}
