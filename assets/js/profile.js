@@ -800,6 +800,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
    const name=node("a","feed-post-name vt-profile-post-name-001 feed-post-profile-link",
     q("#profile-heading").textContent);
    name.href=memberUrl(targetId);
+   void window.VATRA_VERIFIED?.attach(client,name,post.author_vatra_id);
    const stamp=node("time","feed-post-date vt-profile-post-date-001",dateText(post.created_at));
    stamp.dateTime=post.created_at;
    const meta=node("div","feed-post-meta-row ui-profile-post-meta-row-001");
@@ -1004,6 +1005,7 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
     const community=save.post_kind==="group"?communities.get(String(post.club_id)):null;
     const heading=community?community+" · "+author:author;
     const article=makeRow(list,heading,post.body||t("Медіапублікація","Media post"));
+    if(people.has(String(post.author_vatra_id)))void window.VATRA_VERIFIED?.attach(client,article.querySelector(".vt-profile-extra-title-001"),post.author_vatra_id);
     displaySavedMedia(article,post);
     displayShared(article,post);
     const groupSaved=save.post_kind==="group"&&validId(post.club_id);
@@ -1362,6 +1364,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
    photo.classList.add("has-photo");
   }
   const label=node("span","vt-profile-friend-name-"+id,compact?firstName(member.name):member.name);
+  if(!member.state)void window.VATRA_VERIFIED?.attach(client,label,id);
   link.append(photo,label);return link;
  }
  async function resolveFriendships(friendships){
@@ -2170,6 +2173,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
     const meta=node("div","profile-photo-comment-meta ui-profile-photo-comment-meta-001");
     const author=node("a","vt-profile-photo-comment-name-001",member);
     author.href=memberUrl(id);
+    if(names.has(id))void window.VATRA_VERIFIED?.attach(client,author,id);
     const stamp=node("time","vt-profile-photo-comment-time-001",dateText(item.created_at));
     stamp.dateTime=item.created_at;meta.append(author,stamp);head.append(avatar,meta);
     card.append(head,node("p","vt-profile-photo-comment-body-001",item.body));
@@ -2688,6 +2692,7 @@ async function start(){
   const access=await window.VATRA_PROFILE_DETAILS?.init({client,ownId,targetId,isMine,blockAccess});
   const locked=access?.locked===true;
   const memberBlocked=blockAccess.blockedByMe||blockAccess.blockedByThem;
+  if(!memberBlocked&&(publicName||isMine))void window.VATRA_VERIFIED?.attach(client,q("#profile-heading"),targetId);
   // Header artwork remains visible even when database RLS restricts all posts.
   document.body.dataset.profileLocked=String(locked);
   if(memberBlocked){

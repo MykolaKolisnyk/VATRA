@@ -265,6 +265,7 @@
   const identity=node("div","feed-post-author ui-feed-post-author-001");
   const name=node("a","feed-post-name vt-feed-post-name-001 feed-post-profile-link",memberName(authorId));
   name.href=new URL("id"+authorId,home).href;
+  if(!avatarStates.get(String(authorId)))void window.VATRA_VERIFIED?.attach(client,name,authorId);
   const stamp=node("time","feed-post-date vt-feed-post-date-001",postedTime(post.created_at));
   stamp.dateTime=post.created_at;
   const meta=node("div","feed-post-meta-row ui-feed-post-meta-row-001");
@@ -367,7 +368,9 @@
    const avatar=node("span","vatra-global-search-avatar ui-vatra-global-search-avatar-001");
    applyAvatar(avatar,id);
    const info=node("span","vatra-global-search-info ui-vatra-global-search-info-001");
-   info.append(node("strong","vt-vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member")));
+   const resultName=node("strong","vt-vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
+   info.append(resultName);
+   if(!avatarStates.get(id))void window.VATRA_VERIFIED?.attach(client,resultName,id);
    if(person.status_text)info.append(node("small","vt-vatra-global-search-description-001",person.status_text.slice(0,100)));
    link.append(avatar,info);return link;
   });

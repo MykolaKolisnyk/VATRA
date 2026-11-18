@@ -327,7 +327,9 @@
     icon.append(iconVector(kind+"-"+String(index+1).padStart(3,"0"),vector));
     const content=make("span","vatra-search-live-text ui-vatra-search-live-text-"+kind+"-"+String(index+1).padStart(3,"0"));
     const detail=summaryFor(item);
-    content.append(make("strong","vt-vatra-search-live-primary-"+kind+"-"+String(index+1).padStart(3,"0"),detail[0]));
+    const primary=make("strong","vt-vatra-search-live-primary-"+kind+"-"+String(index+1).padStart(3,"0"),detail[0]);
+    content.append(primary);
+    if(kind==="people")window.VATRA_SITE_SEARCH?.attachVerified?.(primary,item.vatra_id);
     if(detail[1])content.append(make("small","vt-vatra-search-live-secondary-"+kind+"-"+String(index+1).padStart(3,"0"),detail[1]));
     row.append(icon,content);section.append(row);
    });

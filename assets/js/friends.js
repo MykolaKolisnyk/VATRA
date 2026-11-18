@@ -124,6 +124,7 @@ function person(item,index){
  const details=make("div","vatra-friends-details ui-vatra-friends-details-"+index);
  const profile=make("a","vt-vatra-friends-name-"+index,name);
  profile.href=new URL("id"+id,root).href;
+ if(!state)void window.VATRA_VERIFIED?.attach(client,profile,id);
  const secondary=make("span","vt-vatra-friends-subtitle-"+index,
   stateFor(item)==="accepted"?t("Ваш друг у VATRA","Your VATRA friend"):
   stateFor(item)==="incoming"?t("Хоче додатися до друзів","Wants to add you"):

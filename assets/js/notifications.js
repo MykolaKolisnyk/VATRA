@@ -467,7 +467,7 @@ async function findSite(term,signal){
  }
  return consumeSiteSearch(entry,signal,state,key);
 }
-window.VATRA_SITE_SEARCH={search:findSite};
+window.VATRA_SITE_SEARCH={search:findSite,attachVerified:(target,id)=>{if(client)void window.VATRA_VERIFIED?.attach(client,target,id);}};
 
 function stop(){
  const run=notificationRun;

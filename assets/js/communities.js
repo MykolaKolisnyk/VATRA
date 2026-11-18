@@ -314,6 +314,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
     const profile=node("a","feed-post-name vt-club-post-author-001",
      names.get(id)||t("Учасник VATRA","VATRA member"));
     profile.href=root+"id"+id;
+    if(names.has(id))void window.VATRA_VERIFIED?.attach(client,profile,id);
     const time=node("time","feed-post-date vt-club-post-date-001",new Intl.DateTimeFormat(locale,{
      day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"
     }).format(new Date(post.created_at)));

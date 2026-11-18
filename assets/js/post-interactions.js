@@ -742,6 +742,7 @@ function appendAudience(container,level,isGroup=false){
    const content=make("div","vatra-post-comment-content ui-vatra-post-comment-content-001");
    const author=make("a","vt-vatra-post-comment-author-001",name);
    author.href=avatar.href;
+   if(people.names.has(id))void window.VATRA_VERIFIED?.attach(client,author,id);
    const body=make("p","vt-vatra-post-comment-body-001",item.body||"");
    if(item.body){
     const emojiOnly=Array.from(item.body.trim()).length<=8 &&
@@ -1233,6 +1234,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    const link=make("a","vt-vatra-post-original-link-001",name);
    link.href=new URL("id"+data.author_vatra_id,relativeRoot()).href;
    preview.append(link);
+   if(!member.error&&member.data?.display_name)void window.VATRA_VERIFIED?.attach(client,link,data.author_vatra_id);
    if(kind==="group"&&data.club_id){
     const group=await client.from("communities").select("name").eq("club_id",data.club_id).maybeSingle();
     const groupLink=make("a","vt-vatra-post-original-community-001",
