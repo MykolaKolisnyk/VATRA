@@ -206,6 +206,7 @@ async function openDirectory(client,ownId,userId){
  let term=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
  const search=$("#feed-search-input");
  if(search&&term)search.value=term;
+ const queryDirectory=async(factory,keyword)=>{const run=request=>request.order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);if(!keyword)return run(factory());const pattern="%"+keyword.replace(/[\\%_]/g,"\\$&")+"%";const results=await Promise.all([run(factory().ilike("name",pattern)),run(factory().ilike("description",pattern))]);const failure=results.find(x=>x.error);if(failure)return failure;const unique=new Map(results.flatMap(x=>x.data||[]).map(club=>[String(club.club_id),club]));return {data:[...unique.values()].sort((a,b)=>String(b.created_at||"").localeCompare(String(a.created_at||""))).slice(0,100),error:null};};
  try{
 
 
@@ -218,10 +219,7 @@ async function openDirectory(client,ownId,userId){
    }catch(_){}
   }
   if(!data){
-   let request=client.from("communities").select("club_id,name,description,created_at");
-   if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
-   const result=await request.order("created_at",{ascending:false})
-    .order("club_id",{ascending:false}).limit(100);
+   const result=await queryDirectory(()=>client.from("communities").select("club_id,name,description,created_at"),term);
    if(result.error)throw result.error;
    data=result.data||[];
   }
@@ -233,6 +231,8 @@ async function openDirectory(client,ownId,userId){
   ]);
   if(results[0].status==="fulfilled"&&!results[0].value.error)following=new Set((results[0].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
   if(results[1].status==="fulfilled"&&!results[1].value.error)owned=new Set((results[1].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
+  const missing=[...new Set([...owned,...following])].filter(id=>!knownClubs.has(id)).slice(0,6);
+  if(missing.length){try{const r=await client.from("communities").select("club_id,name,description,created_at").in("club_id",missing).limit(6);if(!r.error)for(const club of r.data||[])knownClubs.set(String(club.club_id),club);}catch(_){}}
   const input=$("#community-directory-search");
   if(input){input.value=term;input.placeholder=t("Пошук спільнот","Search communities");input.setAttribute("aria-label",input.placeholder);}
   const topics=$("#community-topics"),banner=$("#community-discovery-banner"),memberships=$("#community-memberships-preview");
@@ -290,11 +290,8 @@ async function openDirectory(client,ownId,userId){
    const ticket=++revision;list.setAttribute("aria-busy","true");
    if(filterError&&mode!=="all"){list.setAttribute("aria-busy","false");render();return;}
    try{
-    let request=client.from("communities").select("club_id,name,description,created_at");
-    if(mode==="owned")request=request.eq("owner_id",userId);
-    if(mode==="followed"){if(!following.size){directory=[];render();return;}request=request.in("club_id",[...following]);}
-    if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
-    const result=await request.order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);
+    if(mode==="followed"&&!following.size){directory=[];render();return;}
+    const result=await queryDirectory(()=>{let request=client.from("communities").select("club_id,name,description,created_at");if(mode==="owned")request=request.eq("owner_id",userId);if(mode==="followed")request=request.in("club_id",[...following]);return request;},term);
     if(ticket!==revision)return;if(result.error)throw result.error;directory=result.data||[];for(const club of directory)knownClubs.set(String(club.club_id),club);render();
    }catch(_){if(ticket===revision)status("#community-list-status",t("Не вдалося завантажити список спільнот.","Could not load communities."),"error");}
    finally{if(ticket===revision)list.setAttribute("aria-busy","false");}

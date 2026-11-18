@@ -4997,7 +4997,10 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),1);
-  assert.ok((await page.locator(".ui-community-card-001").getAttribute("href")).endsWith("/VATRA/club1"));
+  assert.equal(await page.locator(".ui-community-discovery-sidebar-001").count(),1);
+  assert.equal(await page.locator(".ui-community-topic-001").count(),6);
+  assert.equal(await page.locator(".ui-community-card-open-001").count(),1);
+  assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
   await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});

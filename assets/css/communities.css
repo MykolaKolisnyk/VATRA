@@ -1,5 +1,5 @@
 
-.community-create,.ui-community-list-section-001{padding:23px;border:1px solid #e5eaf4;border-radius:16px;background:#fff;box-shadow:0 3px 17px rgba(47,66,115,.04)}
+.community-create{padding:23px;border:1px solid #e5eaf4;border-radius:16px;background:#fff;box-shadow:0 3px 17px rgba(47,66,115,.04)}
 .vt-community-create-heading-001,.vt-community-list-heading-001{
  margin:0 0 14px;color:#2C3850;font-size:clamp(21px,2.2vw,25px);
  font-weight:755;line-height:1.27;letter-spacing:-.035em;text-rendering:optimizeLegibility
@@ -27,7 +27,7 @@
 .ui-community-card-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:2px}
 .ui-club-main-001{min-width:0}
 #club-description{white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:520px){.community-create,.ui-community-list-section-001{padding:17px}}
+@media(max-width:520px){.community-create{padding:17px}}
 
 
 body.community-page .ui-club-post-card-001.is-linked-post{
@@ -37,7 +37,7 @@ body.community-page .ui-club-post-card-001.is-linked-post{
 
 
 body.feed-page.community-page[data-page="communities"] .ui-vatra-community-workspace-001{width:min(calc(100% - 40px),1320px);max-width:1320px;margin:24px auto 64px}
-.ui-communities-main-001{display:grid;grid-template-columns:250px minmax(0,1fr);align-items:start;gap:20px;min-width:0}
+body.community-page .ui-communities-main-001{display:grid;grid-template-columns:250px minmax(0,1fr);align-items:start;gap:20px;min-width:0}
 .ui-community-discovery-sidebar-001{min-width:0;padding:18px;background:#fff;border:1px solid #e2e9f4;border-radius:16px}
 .vt-community-discovery-title-001{margin:0 0 14px;font:740 23px/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.035em;color:var(--ink)}
 .ui-community-directory-search-001{width:100%;min-width:0;min-height:43px;padding:10px 12px;border:1px solid #dae3f1;border-radius:10px;background:#f6f8fc;color:var(--ink);font:500 15px/1.4 "Onest",system-ui,sans-serif}
@@ -53,7 +53,7 @@ body.feed-page.community-page[data-page="communities"] .ui-vatra-community-works
 .ui-community-membership-avatar-001{display:grid;place-items:center;width:34px;height:34px;flex:none;background:#eaf1ff;color:var(--blue);border-radius:9px;font-weight:700}
 .vt-community-membership-name-001{font:500 13px/1.4 "Onest",system-ui,sans-serif;overflow-wrap:anywhere}
 .ui-community-discovery-main-001{min-width:0;display:grid;gap:16px}
-.ui-community-discovery-main-001 .ui-community-list-section-001{padding:0;background:transparent;border:0;box-shadow:none;display:grid;gap:15px}
+.ui-community-list-section-001{display:grid;gap:15px;min-width:0}
 .ui-community-discovery-banner-001{min-height:178px;border:1px solid #dfe6f7;border-radius:16px;background:linear-gradient(110deg,#eef4ff,#f3edff);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:26px}
 .ui-community-banner-copy-001{max-width:440px;z-index:1}
 .vt-community-banner-title-001{font:740 25px/1.27 "Onest",system-ui,sans-serif;letter-spacing:-.035em;color:var(--ink);margin:0 0 7px}
@@ -79,6 +79,6 @@ body.feed-page.community-page[data-page="communities"] .ui-vatra-community-works
 .ui-community-card-actions-001{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px;padding-top:6px}
 .vt-community-card-open-001,.vt-community-card-join-001{flex:1;text-align:center;border:0;background:#edf3ff;color:var(--blue);border-radius:8px;padding:8px 9px;min-height:34px;font:700 13px/1.4 "Onest",system-ui,sans-serif;text-decoration:none}
 .vt-community-card-join-001[aria-pressed="true"]{color:var(--soft);background:#f3f5f8}
-@media(max-width:1000px){.ui-communities-main-001{grid-template-columns:220px minmax(0,1fr)}.ui-community-list-001{grid-template-columns:repeat(2,minmax(0,1fr))}.ui-community-topic-grid-001{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1000px){body.community-page .ui-communities-main-001{grid-template-columns:220px minmax(0,1fr)}.ui-community-list-001{grid-template-columns:repeat(2,minmax(0,1fr))}.ui-community-topic-grid-001{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:680px){body.feed-page.community-page[data-page="communities"] .ui-vatra-community-workspace-001{width:calc(100% - 20px);margin:12px auto 44px}.ui-communities-main-001{grid-template-columns:minmax(0,1fr);gap:12px}.ui-community-directory-tabs-001{display:flex;flex-wrap:wrap}.ui-community-memberships-preview-001{display:none}.ui-community-banner-art-001{width:86px;height:100px}.ui-community-discovery-banner-001{padding:18px;min-height:135px}.vt-community-banner-title-001{font-size:21px}.ui-community-topics-001{padding:14px}}
 @media(max-width:380px){.ui-community-list-001{grid-template-columns:minmax(0,1fr)}}
