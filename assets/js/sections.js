@@ -37,6 +37,8 @@ async function clips(){
  title.textContent=t("Кліпи","Clips");subtitle.textContent="";
  action.textContent=t("Додати кліп","Create clip");action.hidden=false;action.className="vatra-discovery-primary vt-vatra-section-action-001";
  const layout=make("div","vatra-discovery-workspace ui-vatra-clips-viewer-001"),grid=make("div","ui-vatra-clips-grid-001"),side=make("aside","vatra-discovery-sidebar ui-vatra-clips-sidebar-001"),detail=card("ui-vatra-clips-detail-001"),social=card("ui-vatra-clips-social-001"),gallery=make("div","vatra-discovery-content ui-vatra-clips-gallery-001"),viewer=make("div","vatra-discovery-content ui-vatra-clips-watch-001"),info=make("div","ui-vatra-clips-watch-info-001");
+ let requestedClip=new URLSearchParams(location.search).get("clip");
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestedClip||""))requestedClip=null;
  let mode="all",term="",items=[],index=0,revision=0,muted=true,video=null,friendIds=null,searchTimer,watching=false,previewObserver=null;
  const nav=tabs([["all",t("Для вас","For you")],["friends",t("Друзі","Friends")],["mine",t("Мої кліпи","My clips")],["search",t("Пошук кліпів","Search clips")]],key=>{mode=key;watching=false;clearTimeout(searchTimer);if(key==="search")find.focus();else{term="";find.value="";}void load();},"vatra-discovery-tabs ui-vatra-clips-nav-001");discoveryIcons(nav,{all:"film",friends:"friends",mine:"person",search:"search"});
  const find=make("input","vatra-discovery-search ui-vatra-clip-search-001");find.type="search";find.placeholder=t("Пошук кліпів","Search clips");find.setAttribute("aria-label",find.placeholder);find.addEventListener("input",()=>{term=find.value.trim();watching=false;clearTimeout(searchTimer);searchTimer=setTimeout(load,250);});
@@ -64,10 +66,10 @@ async function clips(){
   const up=sectionIconButton("up",t("Попередній кліп","Previous clip"),"vt-vatra-clip-prev-001",()=>show(index-1)),down=sectionIconButton("down",t("Наступний кліп","Next clip"),"vt-vatra-clip-next-001",()=>show(index+1));up.disabled=index===0;down.disabled=index===items.length-1;
   const position=make("span","vt-vatra-clip-position-001",(index+1)+" / "+items.length);rail.append(sound,up,position,down);stage.append(frame,rail);grid.append(btn(t("← Усі кліпи","← All clips"),"vt-vatra-clips-back-001",browse),stage);
   const play=btn(t("Відтворити","Play"),"vt-vatra-clip-play-001",async()=>{if(play.disabled)return;play.disabled=true;try{const url=await window.VATRA_POST_MEDIA.signed(client,"video",item.media_path,900);if(token!==revision||!frame.isConnected)return;video=make("video","ui-vatra-clip-video-001");video.controls=true;video.playsInline=true;video.muted=muted;video.loop=true;video.preload="metadata";video.src=url;video.addEventListener("error",()=>{if(token===revision){stop();play.disabled=false;play.textContent=t("Повторити","Retry");frame.replaceChildren(play);}});frame.replaceChildren(video);void video.play().catch(()=>{});}catch(_){play.textContent=t("Повторити","Retry");play.disabled=false;}});frame.append(play);void play.click();
-  const author=link("VATRA ID "+id,"id"+id,"vt-vatra-clip-author-001"),caption=make("p","vt-vatra-clip-caption-001",post.body||"");detail.append(author,caption,link(t("Відкрити публікацію","Open post"),"feed?post="+encodeURIComponent(post.id),"vt-vatra-clip-post-001"));detail.hidden=false;void nameOf(id).then(name=>{if(token===revision)author.textContent=name;}).catch(()=>{});
+  const author=link("VATRA ID "+id,"id"+id,"vt-vatra-clip-author-001"),caption=make("p","vt-vatra-clip-caption-001",post.body||"");detail.append(author,caption);detail.hidden=false;void nameOf(id).then(name=>{if(token===revision)author.textContent=name;}).catch(()=>{});
   social.hidden=false;social.append(make("h2","vt-vatra-clips-social-title-001",t("Коментарі та реакції","Comments and reactions")));
   if(window.VATRA_POST_INTERACTIONS?.mount)window.VATRA_POST_INTERACTIONS.mount(client,{...post,kind:"person"},social,{ownId,userId:user.id,inlineComments:true});
-  else social.append(link(t("Коментарі до публікації","Post comments"),"feed?post="+encodeURIComponent(post.id),"vt-vatra-clip-post-001"));
+  else social.append(make("p","vt-vatra-clips-social-unavailable-001",t("Коментарі тимчасово недоступні.","Comments temporarily unavailable.")));
   let lastWheel=0;stage.addEventListener("wheel",e=>{if(Math.abs(e.deltaY)<25||e.ctrlKey)return;e.preventDefault();const now=Date.now();if(now-lastWheel<450)return;lastWheel=now;const n=index+Math.sign(e.deltaY);if(n>=0&&n<items.length)show(n);},{passive:false});
  }
  document.addEventListener("keydown",e=>{if(!["ArrowUp","ArrowDown"].includes(e.key)||e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey||!watching||e.target.closest?.("input,textarea,select,button,a,video,dialog,[contenteditable]"))return;if(!items.length)return;e.preventDefault();show(index+(e.key==="ArrowDown"?1:-1));});
@@ -75,7 +77,7 @@ async function clips(){
  const load=async()=>{
   const ticket=++renderTicket;++revision;stop();clearPreviews();viewer.hidden=true;gallery.hidden=false;gallery.setAttribute("aria-busy","true");message("");
   try{
-   let query=client.from("feed_posts").select("id,author_vatra_id,body,media_items,created_at").eq("is_clip",true).is("archived_at",null);
+   let query=client.from("feed_posts").select("id,author_vatra_id,body,media_items,created_at,is_clip").eq("is_clip",true).is("archived_at",null);
    if(mode==="mine")query=query.eq("author_vatra_id",ownId);
    if(mode==="friends"){
     if(!friendIds){const f=await client.from("friendships").select("requester_id,recipient_id").eq("status","accepted").or("requester_id.eq."+ownId+",recipient_id.eq."+ownId).limit(350);if(f.error)throw f.error;friendIds=[...new Set((f.data||[]).map(x=>String(x.requester_id)===ownId?String(x.recipient_id):String(x.requester_id)).filter(valid))];}
@@ -83,14 +85,17 @@ async function clips(){
    }
    if(term)query=query.ilike("body","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
    const result=await query.order("created_at",{ascending:false}).limit(60);if(ticket!==renderTicket)return;if(result.error)throw result.error;
-   items=(result.data||[]).filter(post=>{const item=post.media_items?.[0],id=String(post.author_vatra_id);return valid(id)&&item?.media_kind==="video"&&typeof item.media_path==="string"&&item.media_path.startsWith(id+"/posts/");});browse();
+   const acceptable=post=>{const item=post.media_items?.[0],id=String(post.author_vatra_id);return valid(id)&&item?.media_kind==="video"&&typeof item.media_path==="string"&&item.media_path.startsWith(id+"/posts/");};
+   items=(result.data||[]).filter(acceptable);
+   if(requestedClip){const requested=requestedClip;requestedClip=null;let at=items.findIndex(post=>post.id===requested);if(at<0){const direct=await client.from("feed_posts").select("id,author_vatra_id,body,media_items,created_at,is_clip").eq("id",requested).eq("is_clip",true).is("archived_at",null).maybeSingle();if(ticket!==renderTicket)return;if(!direct.error&&direct.data&&acceptable(direct.data)){items.unshift(direct.data);at=0;}}if(at>=0){show(at);return;}message(t("Кліп недоступний.","Clip unavailable."),true);}
+   browse();
   }catch(_){if(ticket===renderTicket){items=[];browse();message(t("Не вдалося завантажити кліпи.","Could not load clips."),true);}}
   finally{if(ticket===renderTicket)gallery.setAttribute("aria-busy","false");}
  };
  const {d,form}=dialog(t("Новий кліп","New clip"));
  const file=field(form,"clip-file",t("Відео MP4 або WebM · до 50 МБ, до 60 секунд","MP4 or WebM · up to 50 MB and 60 seconds"),"file",100,true);file.accept="video/mp4,video/webm";
  const body=field(form,"clip-caption",t("Опис кліпу","Caption"),"textarea",2000);
- form.append(make("p","vt-vatra-section-form-note-001",t("Кліп з’явиться у розділі Кліпи та у ваших публікаціях. Видимість — публічна в межах налаштувань приватності профілю.","Your clip will appear in Clips and your posts, subject to profile privacy.")));
+ form.append(make("p","vt-vatra-section-form-note-001",t("Кліп з’явиться лише у розділі «Кліпи» та у вкладці «Кліпи» вашого профілю. Видимість залежить від приватності профілю.","Your clip will appear only in Clips and your profile’s Clips tab, subject to profile privacy.")));
  submit(form,t("Опублікувати кліп","Publish clip"),async()=>{
   const f=file.files?.[0];if(!f||!["video/mp4","video/webm"].includes(f.type)||f.size>52428800){message(t("Виберіть MP4 або WebM до 50 МБ.","Choose MP4 or WebM up to 50 MB."),true);return;}
   let url=URL.createObjectURL(f);let probe=document.createElement("video");probe.preload="metadata";
