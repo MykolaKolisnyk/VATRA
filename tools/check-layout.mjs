@@ -275,7 +275,7 @@ assert.ok(!/\["(?:ru|be|sk|hu|sr|zh)"/.test(excludedLocales),
 /* Verify language selection across independent page loads, cookie fallback,
    old Ukrainian bookmarks, and browsers which reject cookies. */
 const languageStart=lang.indexOf("  function cookieLanguage() {");
-const languageEnd=lang.indexOf("  /* A single URL per page.",languageStart);
+const languageEnd=lang.indexOf("  function bindLocalizedLinks() {",languageStart);
 assert.ok(languageStart>=0&&languageEnd>languageStart,"Persistent language helper missing");
 const preferences=new Function("document","location","localStorage","ROOT","localFile",
  'const LANGUAGE_KEY="vatra-language";const validLanguage=value=>value==="uk"||value==="en";'+
