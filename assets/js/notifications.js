@@ -355,7 +355,7 @@ function headerUI(){
    viewer-specific RLS-visible posts, so they MUST NOT go into shared Redis. */
 const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24;
 const siteSearchCaches=new WeakMap();
-const emptySiteSearch=()=>({people:[],communities:[],posts:[]});
+const emptySiteSearch=()=>({people:[],communities:[],posts:[],products:[],clips:[],photos:[],videos:[]});
 function siteSearchState(viewer){
  let state=siteSearchCaches.get(viewer);
  if(state)return state;
@@ -398,29 +398,14 @@ function consumeSiteSearch(entry,signal,state,key){
  });
 }
 async function querySite(viewer,phrase,signal){
- const escaped=phrase.replace(/[\\%_]/g,ch=>String.fromCharCode(92)+ch);
- const pattern="%"+escaped+"%";
- const exact=phrase.match(/^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$/i);
- const memberQuery=viewer.from("public_profiles").select("vatra_id,display_name,status_text");
- const requests=[
-  (exact?memberQuery.eq("vatra_id",exact[1]):memberQuery.ilike("display_name",pattern)).limit(4),
-  viewer.from("public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
-  viewer.from("communities").select("club_id,name,description").ilike("name",pattern).limit(4),
-  viewer.from("communities").select("club_id,name,description").ilike("description",pattern).limit(4),
-  viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).eq("is_clip",false).is("archived_at",null).limit(4),
-  viewer.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
- ];
- // PostgREST's abortSignal stops obsolete requests before they consume more
- // bandwidth. Test doubles without the modifier remain usable.
- const all=await Promise.allSettled(requests.map(query=>
-  typeof query.abortSignal==="function"?query.abortSignal(signal):query));
+ const request=viewer.rpc("search_site",{p_query:phrase,p_limit:20});
+ const {data,error}=await (typeof request.abortSignal==="function"?request.abortSignal(signal):request);
  if(signal.aborted)return {result:emptySiteSearch(),cacheable:false};
- const cacheable=all.every(r=>r.status==="fulfilled"&&!r.value.error);
- const rows=i=>all[i].status==="fulfilled"&&!all[i].value.error?(all[i].value.data||[]):[];
- const people=[...new Map([...rows(0),...rows(1)].map(x=>[String(x.vatra_id),x])).values()].slice(0,4);
- const communities=[...new Map([...rows(2),...rows(3)].map(x=>[String(x.club_id),x])).values()].slice(0,4);
- const posts=[...rows(4).map(x=>({...x,kind:"person"})),...rows(5).map(x=>({...x,kind:"group"}))].slice(0,5);
- return {result:{people,communities,posts},cacheable};
+ if(error)throw error;
+ if(!data||typeof data!=="object")throw Error("Invalid search response");
+ const result=emptySiteSearch();
+ for(const key of Object.keys(result))result[key]=Array.isArray(data[key])?data[key].slice(0,20):[];
+ return {result,cacheable:true};
 }
 async function findSite(term,signal){
  const phrase=String(term||"").trim().slice(0,120);
@@ -469,7 +454,7 @@ async function findSite(term,signal){
  }
  return consumeSiteSearch(entry,signal,state,key);
 }
-window.VATRA_SITE_SEARCH={search:findSite,attachVerified:(target,id)=>{if(client)void window.VATRA_VERIFIED?.attach(client,target,id);}};
+window.VATRA_SITE_SEARCH={search:findSite,avatarUrl:(id,path)=>{if(!client||!path||typeof path!=="string"||!path.startsWith(String(id)+"/avatar/"))return null;return client.storage.from("avatars").getPublicUrl(path).data?.publicUrl||null;},attachVerified:(target,id)=>{if(client)void window.VATRA_VERIFIED?.attach(client,target,id);}};
 
 function stop(){
  const run=notificationRun;
