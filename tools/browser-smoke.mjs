@@ -4948,10 +4948,11 @@ try{
    const banner=await hero.evaluate(el=>{
     const img=el.querySelector("img"),title=el.querySelector("h2"),copy=el.querySelector(".ui-community-banner-copy-001");
     const r=el.getBoundingClientRect(),i=img.getBoundingClientRect(),c=copy.getBoundingClientRect(),t=title.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();
-    return {width:r.width,height:r.height,ratio:i.width/i.height,within:r.left>=0&&r.right<=innerWidth+1,copyInside:c.bottom<=r.bottom+1&&t.left>=r.left&&t.right<=r.right,copyBelow:c.top>=i.bottom-1,headerGap:r.top-header.bottom};
+    const sidebar=document.querySelector(".ui-community-discovery-sidebar-001").getBoundingClientRect(), workspace=el.parentElement.getBoundingClientRect();return {width:r.width,height:r.height,imageFills:Math.abs(i.width-r.width)<=1&&Math.abs(i.height-r.height)<=1&&getComputedStyle(img).objectFit==="cover",within:r.left>=0&&r.right<=innerWidth+1,copyInside:c.bottom<=r.bottom+1&&c.top>=r.top-1&&t.left>=r.left&&t.right<=r.right,inlineStart:r.left-(innerWidth>950?sidebar.right:workspace.left),inlineEnd:workspace.right-r.right,headerGap:r.top-header.bottom};
    });
-   assert.ok(banner.width>0&&banner.within&&banner.copyInside&&Math.abs(banner.ratio-2000/580)<.04,"Original panorama and copy must fit: "+JSON.stringify(banner));
-   assert.equal(banner.copyBelow,size.width===390,"Mobile keeps the entire photograph above the readable copy");
+   assert.ok(banner.width>0&&banner.within&&banner.copyInside&&banner.imageFills,"Cover image and copy must fill the banner: "+JSON.stringify(banner));
+   assert.equal(Math.round(banner.height),size.width<=600?185:290,"Cover height must match profile");
+   assert.ok(Math.abs(banner.inlineStart)<=2&&Math.abs(banner.inlineEnd)<=2,"Cover must span the complete content column: "+JSON.stringify(banner));
    assert.ok(Math.abs(banner.headerGap)<=2,"Cover must touch the header like the profile cover: "+JSON.stringify(banner));
   }
   if(savedViewport)await page.setViewportSize(savedViewport);
