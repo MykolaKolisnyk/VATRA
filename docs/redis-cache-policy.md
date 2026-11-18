@@ -6,10 +6,10 @@ VATRA remains a static GitHub Pages client using Supabase Auth, PostgREST/RLS,
 Realtime, and Storage CDN. Redis is optional and **not** the source of truth.
 
 VATRA's Redis caches contain only minimal public data:
-- **Latest community directory**: `vatra:public:communities:v1:latest100`,
-  up to 100 community IDs/names/descriptions/dates, TTL 15 seconds.
-- **Single public community details**: `vatra:public:community:v1:<club_id>`,
-  one public community's ID/name/description/date, TTL 15 seconds. The
+- **Latest community directory**: `vatra:public:communities:v2:latest100`,
+  up to 100 community IDs/names/descriptions/dates/category IDs, TTL 15 seconds.
+- **Single public community details**: `vatra:public:community:v2:<club_id>`,
+  one public community's ID/name/description/date/category ID, TTL 15 seconds. The
   existing Edge Function accepts a strictly validated POST with numeric
   `club_id`. Missing clubs are never cached. Redis failures fall back to
   the same public PostgREST query.

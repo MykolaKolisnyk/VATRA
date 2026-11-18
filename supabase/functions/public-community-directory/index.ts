@@ -9,9 +9,11 @@ type Community = {
   name: string;
   description: string | null;
   created_at: string;
+  category: string;
 };
 
-const CACHE_KEY = "vatra:public:communities:v1:latest100";
+const CATEGORY_IDS = new Set(["music","sport","travel","technology","education","art","gaming","business","news","cooking","transport","cinema","animals","photography","regions","fashion","charity","science","nature","books","health","fitness","family","home","culture","history","humor","shopping","finance","crafts","beauty","career","events","psychology","politics","military","spirituality","ai","social","other"]);
+const CACHE_KEY = "vatra:public:communities:v2:latest100";
 const TTL_SECONDS = 15;
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -66,7 +68,7 @@ function validateCommunity(value: unknown): value is Community {
     c.club_id > 0 && typeof c.name === "string" && c.name.length <= 80 &&
     (c.description === null ||
      (typeof c.description === "string" && c.description.length <= 1200)) &&
-    typeof c.created_at === "string";
+    typeof c.created_at === "string" && typeof c.category === "string" && CATEGORY_IDS.has(c.category);
 }
 
 function validateCached(value: unknown): Community[] | null {
@@ -113,7 +115,7 @@ Deno.serve(async (request) => {
     }
   }
 
-  const cacheKey = clubId === null ? CACHE_KEY : "vatra:public:community:v1:" + clubId;
+  const cacheKey = clubId === null ? CACHE_KEY : "vatra:public:community:v2:" + clubId;
   const cache = await redis();
   if (cache) {
     try {
@@ -145,7 +147,7 @@ Deno.serve(async (request) => {
   });
   if (clubId !== null) {
     const { data, error } = await client.from("communities")
-      .select("club_id,name,description,created_at")
+      .select("club_id,name,description,created_at,category")
       .eq("club_id", clubId).maybeSingle();
     if (error) return new Response("Community temporarily unavailable", { status: 503, headers: CORS });
     if (!data) return reply(null, cache ? "miss" : "disabled");
@@ -159,7 +161,7 @@ Deno.serve(async (request) => {
   }
 
   const { data, error } = await client.from("communities")
-    .select("club_id,name,description,created_at")
+    .select("club_id,name,description,created_at,category")
     .order("created_at", { ascending: false })
     .order("club_id", { ascending: false }).limit(100);
   if (error) return new Response("Directory temporarily unavailable", { status: 503, headers: CORS });

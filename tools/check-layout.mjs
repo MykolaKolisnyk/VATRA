@@ -1701,7 +1701,7 @@ assert.ok(
  publicRedisEdge.includes('Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true"')&&
  publicRedisEdge.includes('url.startsWith("rediss://")')&&
  publicRedisEdge.includes('url.startsWith("redis://")')&&
- publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v1:latest100"')&&
+ publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v2:latest100"')&&
  publicRedisEdge.includes('createSupabaseClient(supabaseUrl, publishable')&&
  !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
  !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
