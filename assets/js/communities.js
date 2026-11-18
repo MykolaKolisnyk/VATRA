@@ -225,7 +225,7 @@ async function openDirectory(client,ownId,userId){
    if(result.error)throw result.error;
    data=result.data||[];
   }
-  const directory=(data||[]),filters=[...document.querySelectorAll("[data-community-filter]")];
+  let directory=(data||[]);const filters=[...document.querySelectorAll("[data-community-filter]")];
   let mode="all",following=new Set(),owned=new Set(),filterError=false;
   const results=await Promise.allSettled([
    ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):Promise.resolve({data:[]}),
@@ -252,10 +252,24 @@ async function openDirectory(client,ownId,userId){
    card.append(mark,detail);
    list.append(card);
   }
-   status("#community-list-status",mode!=="all"&&filterError?t("Не вдалося перевірити всі підписки.","Could not verify all memberships."):visible.length===0?(term?t("За цим запитом спільнот не знайдено.","No communities match this search."):t("У цьому розділі поки немає спільнот.","No communities in this section yet.")):"");
+   status("#community-list-status",mode!=="all"&&filterError?t("Не вдалося перевірити всі підписки.","Could not verify all memberships."):visible.length===0?(term?t("За цим запитом спільнот не знайдено.","No communities match this search."):(mode==="all"?t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!"):t("У цьому розділі поки немає спільнот.","No communities in this section yet."))):"");
   };
-  for(const filter of filters)filter.addEventListener("click",()=>{mode=filter.dataset.communityFilter;for(const tab of filters){const on=tab===filter;tab.classList.toggle("is-active",on);tab.setAttribute("aria-pressed",String(on));}render();});
-  input?.addEventListener("input",()=>{term=input.value.trim().slice(0,120);render();});
+  let revision=0,timer=null;
+  const refresh=async()=>{
+   const ticket=++revision;list.setAttribute("aria-busy","true");
+   if(filterError&&mode!=="all"){list.setAttribute("aria-busy","false");render();return;}
+   try{
+    let request=client.from("communities").select("club_id,name,description,created_at");
+    if(mode==="owned")request=request.eq("owner_id",userId);
+    if(mode==="followed"){if(!following.size){directory=[];render();return;}request=request.in("club_id",[...following]);}
+    if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
+    const result=await request.order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);
+    if(ticket!==revision)return;if(result.error)throw result.error;directory=result.data||[];render();
+   }catch(_){if(ticket===revision)status("#community-list-status",t("Не вдалося завантажити список спільнот.","Could not load communities."),"error");}
+   finally{if(ticket===revision)list.setAttribute("aria-busy","false");}
+  };
+  for(const filter of filters)filter.addEventListener("click",()=>{mode=filter.dataset.communityFilter;for(const tab of filters){const on=tab===filter;tab.classList.toggle("is-active",on);tab.setAttribute("aria-pressed",String(on));}clearTimeout(timer);void refresh();});
+  input?.addEventListener("input",()=>{term=input.value.trim().slice(0,120);revision++;clearTimeout(timer);timer=setTimeout(refresh,250);});
   render();
  }catch(_){
   status("#community-list-status",t("Не вдалося завантажити список спільнот.",
