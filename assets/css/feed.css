@@ -3015,7 +3015,7 @@ body.feed-page .feed-account-dropdown > button > span,
 body.feed-page .feed-menu-settings-toggle > span{font:inherit;letter-spacing:inherit}
 
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1/5;align-self:start;display:flex;flex-direction:column;gap:var(--vatra-content-card-gap,16px);width:100%;min-width:0}
-body.feed-page:not(.profile-page):not(.community-page) .ui-feed-right-rail-001 > .feed-filter-row{position:static!important;width:100%;margin:0}
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{position:static!important;width:100%;margin:0}
 @media(max-width:950px){
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:1;grid-row:3}
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{grid-row:4}
