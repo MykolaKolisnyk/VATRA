@@ -12,6 +12,7 @@
  color:#fff;font-size:13px;font-weight:700;line-height:1.35;
  text-decoration:none;transition:background .18s ease,transform .18s ease,box-shadow .18s ease;
 }
+.error-home-link [hidden]{display:none!important}
 .error-home-link:hover{background:#1d51b9;box-shadow:0 11px 26px rgba(40,101,216,.26);color:#fff;text-decoration:none}
 .error-home-link:active{transform:translateY(1px)}
 .error-home-link:focus-visible{outline:3px solid rgba(40,101,216,.4);outline-offset:3px}

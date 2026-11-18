@@ -28,12 +28,17 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Zum Newsfeed"
+            "0": "Zur Startseite"
           }
         },
         "n8": {
           "text": {
             "0": "Diese Seite existiert nicht"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Zurück"
           }
         }
       }

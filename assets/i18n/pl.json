@@ -28,12 +28,17 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Do aktualności"
+            "0": "Na stronę główną"
           }
         },
         "n8": {
           "text": {
             "0": "Taka strona nie istnieje"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Wróć"
           }
         }
       }

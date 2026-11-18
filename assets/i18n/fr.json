@@ -28,12 +28,17 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Accéder au fil d’actualité"
+            "0": "Retour à l’accueil"
           }
         },
         "n8": {
           "text": {
             "0": "Cette page n’existe pas"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Retour"
           }
         }
       }

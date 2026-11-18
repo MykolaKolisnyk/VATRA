@@ -313,12 +313,17 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "To news feed"
+            "0": "Back to home"
           }
         },
         "n8": {
           "text": {
             "0": "This page doesn't exist"
+          }
+        },
+        "n9": {
+          "text": {
+            "0": "Go back"
           }
         }
       }

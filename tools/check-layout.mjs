@@ -2058,18 +2058,18 @@ assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
  errorPage.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
  notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk_detective.webp")')&&
  errorPage.includes('class="vt-404-accessible-title-001"')&&
- errorPage.includes('href="/VATRA/feed" class="error-home-link vt-404-link-002"')&&
+ errorPage.includes('href="/VATRA/" class="error-home-link vt-404-link-002"')&&
  errorPage.includes("Такої сторінки немає")&&
  !errorPage.includes('class="account-card error-card')&&
  !errorPage.includes('class="error-code')&&
  !errorPage.includes('class="error-description')&&
  !errorPage.includes('class="action primary error-action'),
- "404 must center Vatryk, a localized visible message and the feed action");
+ "404 must center Vatryk, a localized visible message and the return action");
 assert.ok(notFoundCss.includes(".error-home-link:hover{")&&
  notFoundCss.includes("color:#fff;text-decoration:none}")&&
  notFoundCss.includes("flex-direction:column;gap:16px")&&
  notFoundCss.includes(".error-main .ui-404-vatryk-001"),
- "404 centered mascot and single feed link must remain aligned");
+ "404 centered mascot and single return link must remain aligned");
 for(const name of ["terms","privacy","cookies"]){
  const html=await read(name+".html");
  const dictionary=uk.__pages[name];
@@ -2094,7 +2094,7 @@ assert.ok(!(await read("privacy.html")).includes("Самостійне вида�
 await assert.rejects(stat("account.html"),{code:"ENOENT"},
  "Retired account.html must be deleted; profile and verify replace its responsibilities");
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
-assert.ok(errorPage.includes('href="/VATRA/feed"')&&!/<(?:header|footer)\b/i.test(errorPage),
+assert.ok(errorPage.includes('href="/VATRA/"')&&!/<(?:header|footer)\b/i.test(errorPage),
  "GitHub Pages 404 must work at nested missing URLs");
 assert.ok(legacyScript.includes("location.replace(target+location.search+location.hash)"),
  "Old localized links should redirect to unified URLs");

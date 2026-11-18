@@ -20,7 +20,7 @@ for(const kind of ["404","blocked","deleted","not-found"]){
  }
 }
 assert.ok(base.includes('--vatra-default-avatar:url("data:image/svg+xml,'));
-assert.ok(html.includes('class="vt-404-accessible-title-001"')&&html.includes("Такої сторінки немає")&&html.includes('href="/VATRA/feed" class="error-home-link vt-404-link-002"'));
+assert.ok(html.includes('class="vt-404-accessible-title-001"')&&html.includes("Такої сторінки немає")&&html.includes('href="/VATRA/" class="error-home-link vt-404-link-002"'));
 assert.ok(notFound.includes(".error-main .ui-404-vatryk-001")&&notFound.includes('html.vatra-dynamic-route-pending body.error-page'));
 assert.ok(!/<(?:header|footer)\b/i.test(html)&&notFound.includes("background:#f5f5f5;")&&!notFound.includes("radial-gradient("));
 console.log("VATRA: four WebP artworks and 404 message/state wiring verified.");

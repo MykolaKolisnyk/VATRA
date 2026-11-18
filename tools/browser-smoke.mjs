@@ -1375,7 +1375,7 @@ try{
      responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
      order:!!box&&!!title&&!!button&&box.bottom<=title.top+1&&title.bottom<=button.top+1,
      visibleHeading:!!title&&title.width>0&&title.height>0&&getComputedStyle(heading).visibility==="visible",
-     message:heading?.textContent.trim(),button:home?.textContent.trim(),target:home?.getAttribute("href"),
+     message:heading?.textContent.trim(),button:[...home.querySelectorAll("span:not([hidden])")].map(el=>el.textContent.trim()).join(" "),target:home?.getAttribute("href"),
      noErrorCard:!document.querySelector(".error-card,.error-code,.error-description,header,footer"),
      neutralBackground:getComputedStyle(document.body).backgroundColor==="rgb(245, 245, 245)"&&getComputedStyle(document.body).backgroundImage==="none",
      verticallyCentered:!!box&&!!button&&Math.abs((box.top+button.bottom)/2-innerHeight/2)<28};
@@ -1383,8 +1383,8 @@ try{
    assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.order&&mascot.visibleHeading&&mascot.noErrorCard&&mascot.neutralBackground&&mascot.verticallyCentered,
     "404 must display the centered detective, visible heading and feed button: "+JSON.stringify(mascot));
    assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
-   assert.equal(mascot.button,language==="en"?"To news feed":"До стрічки новин");
-   assert.equal(mascot.target,"/VATRA/feed");
+   assert.equal(mascot.button,language==="en"?"Back to home":"На головну");
+   assert.equal(mascot.target,"/VATRA/");
   };
   await verifyMissingPage();
   const missing=await tab.goto(base+"missing/nested-example",{waitUntil:"load"});
@@ -1394,6 +1394,15 @@ try{
    const event=new MouseEvent("contextmenu",{bubbles:true,cancelable:true});
    return el.dispatchEvent(event);
   }),false,"Decorative 404 Vatryk must not open the image context menu");
+  await tab.goto(base+"terms",{waitUntil:"load"});
+  const previous=tab.url();
+  await tab.evaluate(url=>location.assign(url),base+"missing/return-example");
+  await tab.waitForURL("**/missing/return-example");
+  await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending")&&document.querySelector(".vt-404-back-label-001")?.hidden===false);
+  assert.equal(await tab.locator(".error-home-link").evaluate(el=>el.href),previous,"A missing page must return to the actual internal referring page");
+  assert.equal(await tab.locator(".vt-404-back-label-001").textContent(),language==="en"?"Go back":"Повернутися назад");
+  await tab.locator(".error-home-link").click();
+  await tab.waitForURL(previous);
   await tab.close();
  }
  await titleContext.close();
