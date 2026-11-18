@@ -1247,7 +1247,7 @@
         },
         "n19": {
           "text": {
-            "0": "Updated November 8, 2026"
+            "0": "Updated November 18, 2026"
           }
         },
         "n21": {
@@ -1527,6 +1527,56 @@
         "n302": {
           "text": {
             "0": "Create account"
+          }
+        },
+        "market_rules_title": {
+          "text": {
+            "0": "VATRA commerce rules"
+          }
+        },
+        "market_rules_intro": {
+          "text": {
+            "0": "Marketplace is intended for the lawful sale, purchase, rental and free transfer of permitted goods and property. You must have the right to offer the listed item and comply with applicable law."
+          }
+        },
+        "market_rules_forbidden": {
+          "text": {
+            "0": "Prohibited listings"
+          }
+        },
+        "market_rules_bans": {
+          "text": {
+            "0": "Do not list weapons, ammunition, explosives, drugs, alcohol, tobacco and nicotine products, prescription medicines or unsafe medical products, live animals, human organs, stolen goods, counterfeits, sexual services, pornography, personal data, other people's accounts, fraudulent financial offers or other unlawful or unsafe goods. The pet supplies category is limited to lawful accessories and other permitted products."
+          }
+        },
+        "market_rules_accuracy": {
+          "text": {
+            "0": "Listing requirements"
+          }
+        },
+        "market_rules_accuracy_text": {
+          "text": {
+            "0": "Provide the actual price, condition, description and location. Use only photos you have rights to and do not conceal material defects. Spam, duplicates intended to manipulate the catalog, misleading prices, phishing links, attempts to obtain access codes and discriminatory listings are prohibited."
+          }
+        },
+        "market_rules_safety": {
+          "text": {
+            "0": "Safe transactions"
+          }
+        },
+        "market_rules_safety_text": {
+          "text": {
+            "0": "VATRA does not process payment, provide delivery or guarantee transactions. Verify the item and seller; never share passwords, verification codes or card details, and avoid suspicious payment links. Keep evidence of agreements. Statutory consumer rights remain in effect."
+          }
+        },
+        "market_rules_moderation": {
+          "text": {
+            "0": "Violations and appeals"
+          }
+        },
+        "market_rules_moderation_text": {
+          "text": {
+            "0": "VATRA may restrict or remove listings and limit Marketplace access for violations of these rules in accordance with law. Report a violation or appeal a decision using the contact in the Documents and inquiries section. Include the listing link and a description of the problem without sending confidential information."
           }
         }
       }
