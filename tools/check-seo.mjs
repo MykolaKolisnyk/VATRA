@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import {readFile,stat} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
 const BASE="https://mykolakolisnyk.github.io/VATRA/";
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
-const publicPages=new Set(["index","terms","privacy","cookies"]);
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline"];
+const publicPages=new Set(["index","terms","privacy","cookies","commerce"]);
 const sensitive=new Set(["404","create-account","forgot","reset","verify","feed","profile"]);
 const css=await read("assets/css/base.css");
 assert.ok(css.includes("@font-face")&&css.includes("../fonts/Onest-Variable.ttf"),"Local Onest font missing");
@@ -27,7 +27,7 @@ for(const page of pages){
    assert.ok(html.includes(tag),filename+": "+tag+" missing");
   }
   assert.ok(html.includes('name="robots" content="index,follow'),filename+": must be indexable");
-  const url=BASE+(page==="index"?"":page);
+  const url=BASE+(page==="index"?"":page==="commerce"?"commerce.html":page);
   assert.ok(html.includes('href="'+url+'"'),filename+": canonical URL should be unique");
   assert.ok(sitemap.includes('<loc>'+url+'</loc>'),filename+": missing sitemap URL");
  }
@@ -39,7 +39,7 @@ for(const page of pages){
  assert.deepEqual(Object.keys(uk.__pages[page].nodes).sort(),Object.keys(en.__pages[page].nodes).sort(),
   filename+": dictionary node keys must correspond");
 }
-assert.equal((sitemap.match(/<loc>/g)||[]).length,4,"Exactly four canonical public VATRA URLs");
+assert.equal((sitemap.match(/<loc>/g)||[]).length,publicPages.size,"Exactly one sitemap entry per canonical public VATRA URL");
 assert.ok(!sitemap.includes("legal.html"),"Deleted overview must not remain indexed");
 await assert.rejects(stat("legal.html"),{code:"ENOENT"},"Deleted document overview must not exist");
 assert.ok(!/\/VATRA\/(?:ua|en)\//.test(sitemap),"Old locale URLs must not be in sitemap");
@@ -54,7 +54,7 @@ assert.ok(
  !preview.includes('/VATRA/assets/logo/vatra-logo.png')&&
  (await stat("assets/logo/vatra-app-icon.png")).size>10000,
  "Public social previews must show the current VATRA icon and one concise title/description");
-for(const page of ["index","terms","privacy","cookies"]){
+for(const page of publicPages){
  const html=await read(page+".html");
  assert.ok(html.includes('og:image" content="'+BASE+'assets/logo/vatra-app-icon.png?v=20261113"'),
   page+": public social card must share the current V icon");
