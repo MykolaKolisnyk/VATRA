@@ -219,7 +219,7 @@ async function boot(){
   targetId=validId(target)?target:ownId;
   me=targetId===ownId;
   const name=String(user.user_metadata?.first_name||user.user_metadata?.full_name||"VATRA").trim();
-  window.VATRA_AVATAR?.setHeader({email:user.email,name:name.split(/\s+/)[0].slice(0,28),
+  window.VATRA_AVATAR?.setHeader({client,email:user.email,name:name.split(/\s+/)[0].slice(0,28),
    initials:name.slice(0,1).toLocaleUpperCase(),id:ownId});
   window.VATRA_AVATAR?.applyRemembered(q("#feed-header-avatar"),user.email);
   for(const el of document.querySelectorAll("[data-social-uk]"))
