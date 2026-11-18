@@ -245,11 +245,13 @@ async function openDirectory(client,ownId,userId){
   const topics=$("#community-topics"),banner=$("#community-discovery-banner"),memberships=$("#community-memberships-preview");
   const topicGrid=node("div","ui-community-topic-grid-001");
   topics.append(node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic")),topicGrid);
-  for(const [uk,en,path] of [["Музика","Music","M9 18V5l12-3v13M9 18a3 2 0 1 1-6 0 3 2 0 0 1 6 0M21 15a3 2 0 1 1-6 0 3 2 0 0 1 6 0"],["Спорт","Sports","M5 20 19 4M4 5l15 15M4 12h16"],["Подорожі","Travel","M3 19 10 5l5 10 3-5 4 9z"],["Технології","Technology","M3 4h18v13H3zM8 21h8M12 17v4"],["Освіта","Education","m2 9 10-5 10 5-10 5zM6 11v7l6 3 6-3v-7"],["Мистецтво","Art","M12 3a9 9 0 1 0 0 18c3 0 0-5 4-5h2a5 5 0 0 0 3-4 9 9 0 0 0-9-9zM7 10h.1M11 7h.1M16 8h.1"]]){
+  for(const [uk,en,file] of [["Музика","Music","music"],["Спорт","Sports","sport"],["Подорожі","Travel","travel"],["Технології","Technology","technology"],["Освіта","Education","education"],["Мистецтво","Art","art"]]){
    const b=node("button","ui-community-topic-001");b.type="button";
-   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
-   svg.setAttribute("class","ui-community-topic-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");p.setAttribute("class","ui-community-topic-path-001");p.setAttribute("d",path);svg.append(p);
-   b.append(svg,node("span","vt-community-topic-name-001",t(uk,en)));
+   const photo=node("img","ui-community-topic-photo-001");
+   photo.alt="";photo.loading="lazy";photo.decoding="async";
+   photo.src=root+"assets/other/"+file+".webp";
+   photo.addEventListener("error",()=>{photo.hidden=true;},{once:true});
+   b.append(photo,node("span","vt-community-topic-name-001",t(uk,en)));
    b.addEventListener("click",()=>{term=t(uk,en);input.value=term;filters.find(tab=>tab.dataset.communityFilter==="all")?.click();});topicGrid.append(b);
   }
   const renderMemberships=()=>{
