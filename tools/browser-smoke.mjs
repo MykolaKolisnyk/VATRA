@@ -7,6 +7,9 @@ import {chromium,firefox,webkit} from "playwright";
 
 const basePath="/VATRA/";
 const root=process.cwd();
+const swSource=await readFile(resolve(root,"sw.js"),"utf8");
+const currentCache=swSource.match(/const CACHE="([^"]+)"/)?.[1];
+assert.ok(currentCache,"Service Worker cache version missing");
 const mime={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".ttf":"font/ttf",".xml":"application/xml"};
 const server=createServer(async(req,res)=>{
  try{
@@ -70,8 +73,8 @@ try{
    }
   });
   const paths=["assets/css/base.css","assets/css/profile.css","assets/js/avatar.js"];
-  const fresh=await swProbe.evaluate(async paths=>{
-   const cache=await caches.open("vatra-offline-shell-v55");
+  const fresh=await swProbe.evaluate(async ({paths,currentCache})=>{
+   const cache=await caches.open(currentCache);
    for(const path of paths)await cache.put(new URL(path,location.origin+"/VATRA/"),
     new Response("/* stale-vatra-build */",{headers:{"Content-Type":"text/plain"}}));
    const texts=await Promise.all(paths.map(async path=>
@@ -79,7 +82,7 @@ try{
    const cached=await Promise.all(paths.map(async path=>
     (await cache.match(new URL(path,location.origin+"/VATRA/"))).text()));
    return {texts,cached};
-  },paths);
+  },{paths,currentCache});
   assert.ok(fresh.texts.every(s=>!s.includes("stale-vatra-build"))&&
    fresh.texts[0].includes("--vatra-default-avatar")&&
    fresh.texts[1].includes(".social-profile-tab-active")&&
