@@ -475,6 +475,8 @@ function stop(){
  sectionPage=0;sectionLoading=false;
  client=null;ownId=null;
  window.VATRA_AUTH_MEMBER_ID=null;
+ if(window.VATRA_ADMIN_CONTEXT?.client===run.client&&window.VATRA_ADMIN_CONTEXT.id===run.id)delete window.VATRA_ADMIN_CONTEXT;
+ window.VATRA_ADMIN_END?.(run.client,run.id);
  window.VATRA_SEARCH_HISTORY?.setViewer(null);
 }
 function start(c,id){
@@ -484,6 +486,9 @@ function start(c,id){
  client=c;ownId=String(id);
  // Search history follows the member whose identity the app verified.
  window.VATRA_AUTH_MEMBER_ID=ownId;
+ // All verified social routes publish the same account context.
+ window.VATRA_ADMIN_CONTEXT={client:c,id:ownId};
+ void window.VATRA_ADMIN_SESSION?.(c,ownId);
  window.VATRA_SEARCH_HISTORY?.setViewer(ownId);
  headerUI();
  if(!bell)return;
@@ -498,7 +503,7 @@ function start(c,id){
  };
  window.addEventListener("focus",()=>refresh(),{passive:true,signal:run.controller.signal});
  document.addEventListener("visibilitychange",()=>refresh(),{passive:true,signal:run.controller.signal});
- window.addEventListener("pagehide",()=>stop(),{once:true,signal:run.controller.signal});
+ window.addEventListener("pagehide",event=>{if(!event.persisted)stop();},{signal:run.controller.signal});
  run.timer=setInterval(()=>{
   if(document.hidden)return;
   const now=Date.now(),period=subscribed?300000:120000;

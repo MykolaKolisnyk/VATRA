@@ -42,6 +42,7 @@ await owner.menu[0].click();
 assert.equal(owner.imports.length,1);assert.ok(owner.imports[0].includes("/assets/js/admin.js?rev="));
 assert.equal(owner.styles.length,1);assert.deepEqual(owner.open,["1"]);assert.equal(owner.alerts.length,0);
 await owner.menu[0].click();assert.equal(owner.imports.length,1);assert.equal(owner.styles.length,1);
+owner.window.VATRA_ADMIN_END({}, "1");assert.equal(owner.menu.length,1,"Unrelated session cannot clear owner");
 owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);assert.equal(owner.open.length,0);
 for(const name of ["clips","marketplace","settings"]){
  const src=await readFile("assets/js/"+name+".js","utf8");

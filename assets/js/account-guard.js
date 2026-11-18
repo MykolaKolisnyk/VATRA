@@ -41,5 +41,6 @@ function showBlocked(client,state){
  const support=node("a","vt-vatra-admin-blocked-support-001",t("Техпідтримка","Support"));support.href="mailto:vatra.support@gmail.com";d.append(support,button("vt-vatra-admin-primary-001",t("Вийти","Sign out"),async()=>{await client.auth.signOut({scope:"local"});location.replace(root.href);}));d.addEventListener("cancel",e=>e.preventDefault());document.body.append(d);d.showModal();
 }
 window.VATRA_ADMIN_SESSION=session;
+window.VATRA_ADMIN_END=(client,id)=>{if(context?.client===client&&context.id===String(id))clear();};
 if(window.VATRA_ADMIN_CONTEXT)void session(window.VATRA_ADMIN_CONTEXT.client,window.VATRA_ADMIN_CONTEXT.id);
 })();

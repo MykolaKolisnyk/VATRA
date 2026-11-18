@@ -19,7 +19,7 @@ assert.ok(render.includes("return rows;"),"The panel must receive the displayed 
 const format=(uk,_english,values)=>uk.replace(/\{(name|count|page|id)\}/g,
  (_,key)=>String(values[key]??""));
 const countCalls=[],removedChannels=[],timers=new Map(),cleared=[];
-const listeners=[];
+const listeners=[],guardStarts=[],guardEnds=[];
 let timerId=0;
 const bell={attrs:new Map(),setAttribute(k,v){this.attrs.set(k,v);}};
 const badge={hidden:true,textContent:""};
@@ -47,7 +47,7 @@ function clientFor(label){
 }
 const context={
  URL,Date,Promise,AbortController,Map,Set,
- window:{addEventListener(name,fn,opts){listeners.push({name,fn,opts});}},
+ window:{addEventListener(name,fn,opts){listeners.push({name,fn,opts});},VATRA_ADMIN_SESSION(client,id){guardStarts.push([client.label,id]);},VATRA_ADMIN_END(client,id){guardEnds.push([client.label,id]);}},
  document:{hidden:false,addEventListener(name,fn,opts){listeners.push({name,fn,opts});}},
  setInterval(fn){const id=++timerId;timers.set(id,fn);return id;},
  clearInterval(id){cleared.push(id);timers.delete(id);},
@@ -70,10 +70,16 @@ const first=clientFor("A"),second=clientFor("B");
 notices.start(first,"12");
 assert.equal(countCalls.length,1);
 assert.equal(countCalls[0].id,"12");
+assert.equal(context.window.VATRA_ADMIN_CONTEXT.client,first);
+assert.equal(context.window.VATRA_ADMIN_CONTEXT.id,"12");
+assert.deepEqual(guardStarts,[["A","12"]]);
 const oldRun=notices.run();
 notices.start(second,"13");
 assert.equal(countCalls.length,2);
 assert.equal(countCalls[1].id,"13");
+assert.equal(context.window.VATRA_ADMIN_CONTEXT.client,second);
+assert.deepEqual(guardStarts,[["A","12"],["B","13"]]);
+assert.deepEqual(guardEnds,[["A","12"]]);
 assert.equal(oldRun.controller.signal.aborted,true,"Old event handlers must be aborted");
 assert.equal(removedChannels.length,1,"Old realtime channel should be removed");
 assert.equal(cleared.length,1,"Old interval must be cleared");
@@ -92,7 +98,10 @@ assert.equal(badge.textContent,"3");
 assert.equal(badge.hidden,false);
 notices.start(second,"13");
 assert.equal(countCalls.length,3,"Starting the same viewer twice must be a no-op");
+assert.equal(guardStarts.length,2,"Same session must not recheck owner access");
 second.state.authHandler("SIGNED_OUT");
+assert.equal(context.window.VATRA_ADMIN_CONTEXT,undefined);
+assert.deepEqual(guardEnds,[["A","12"],["B","13"]]);
 assert.equal(notices.run(),null,"Sign-out must discard the viewer");
 assert.equal(badge.hidden,true);
 assert.equal(removedChannels.length,2);
