@@ -371,7 +371,7 @@ function start(options={}){
  const support=menu?.querySelector(".feed-menu-support");
  if(saved?.status!=="done"&&support&&!document.querySelector("#vatra-onboarding-replay")){
   const launch=node("button","vt-feed-onboarding-launch-001",tr("Знайомство з VATRA"));
-  launch.id="vatra-onboarding-replay";launch.type="button";
+  launch.id="vatra-onboarding-replay";launch.type="button";launch.hidden=true;
   support.before(launch);
  }
  document.querySelector("#vatra-onboarding-replay")?.addEventListener("click",()=>{
@@ -389,7 +389,7 @@ function start(options={}){
   authSubscription=data?.subscription||null;
  }
  const current=session;
- if(saved?.status==="done"){document.querySelector("#vatra-onboarding-replay")?.remove();void syncCompleted(current);}else void (async()=>{let done=false;try{const {data,error}=await current.client.from("vatra_onboarding_done").select("vatra_id").eq("vatra_id",id).maybeSingle();done=!error&&!!data;}catch(_){}if(session!==current)return;if(done){saveState(localStorage,id,"done",steps.length-1);document.querySelector("#vatra-onboarding-replay")?.remove();hide();return;}if((eligible&&!saved)||saved?.status==="paused"){index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";show();}})();
+ if(saved?.status==="done"){document.querySelector("#vatra-onboarding-replay")?.remove();void syncCompleted(current);}else void (async()=>{let done=false;try{const {data,error}=await current.client.from("vatra_onboarding_done").select("vatra_id").eq("vatra_id",id).maybeSingle();done=!error&&!!data;}catch(_){}if(session!==current)return;if(done){saveState(localStorage,id,"done",steps.length-1);document.querySelector("#vatra-onboarding-replay")?.remove();hide();return;}const replayButton=document.querySelector("#vatra-onboarding-replay");if(replayButton)replayButton.hidden=false;if((eligible&&!saved)||saved?.status==="paused"){index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";show();}})();
  return true;
 }
 function replay(){
