@@ -15,7 +15,7 @@ for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",
   const context=await browser.newContext({serviceWorkers:"block",reducedMotion:"reduce"});
   await context.route("**/*",route=>{
    if(route.request().url().endsWith("/VATRA/assets/logo/vatra-logo.webp"))
-    return route.fulfill({status:200,contentType:"image/png",body:brandLogo});
+    return route.fulfill({status:200,contentType:"image/webp",body:brandLogo});
    return route.abort();
   }); // Real local VATRA logo, no external network dependencies.
   try{
