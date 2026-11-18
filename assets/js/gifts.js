@@ -1,4 +1,4 @@
-/* VATRA gifts page: public catalogue; membership and ownership from Supabase. */
+
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -42,7 +42,7 @@ function render(mode){
  list.replaceChildren();empty.hidden=true;list.setAttribute("aria-busy","true");
  try{
   const gifts=mode==="mine"?mine.map(x=>catalog().find(g=>g.code===x.gift_code)).filter(Boolean):
-   mode==="free"?catalog():[];
+   mode==="free"?catalog().filter(gift=>!gift.exclusive):[];
   for(const gift of gifts)list.append(card(gift,mode==="mine"));
   if(!gifts.length){
    empty.textContent=t("У цій колекції поки немає подарунків.","No gifts in this collection yet.");

@@ -1,5 +1,4 @@
-/* VATRA released gifts. Add new catalogue entries only when their artwork and
-   functional behavior have actually been implemented. Ownership comes from Supabase. */
+
 (()=>{
 "use strict";
 const root=new URL("../../",document.currentScript?.src||"assets/js/gift-viewer.js");
@@ -8,7 +7,12 @@ const catalog=[
   uk:"Перший вогник",en:"First flame",
   descriptionUk:"Перший вогник VATRA — знак початку вашої історії. Його отримує кожен, хто приєднався до VATRA.",
   descriptionEn:"Your first VATRA flame marks the beginning of your story. Every new member receives one.",
-  eventUk:"Привітальний подарунок",eventEn:"Welcome gift"}
+  eventUk:"Привітальний подарунок",eventEn:"Welcome gift"},
+ {code:"beta_member",image:"beta-member.png",exclusive:true,
+  uk:"БЕТА-учасник",en:"Beta participant",
+  descriptionUk:"Пам’ятний подарунок кожному, хто зареєструвався під час БЕТА-тестування VATRA. Залишається у профілі назавжди.",
+  descriptionEn:"A commemorative gift for everyone who registered during VATRA beta testing. It remains in your profile forever.",
+  eventUk:"За участь у БЕТА-тестуванні",eventEn:"For participating in the beta"}
 ];
 const language=()=>window.VATRA_LANGUAGE?.locale||document.documentElement.lang||"uk";
 const lang=(uk,english)=>{
@@ -26,7 +30,6 @@ const make=(tag,cls,text)=>{
  return el;
 };
 let dialog=null,heading=null,picture=null,effects=null,stage=null,description=null,eventText=null,close=null,lastFocus=null;
-// The only released gift has flame-colored particles. No unused future themes.
 const particleAmount=20;
 function populateEmbers(){
  effects.replaceChildren();
@@ -84,8 +87,6 @@ function setup(){
  dialog.append(top,stage,footer);
  dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
  dialog.addEventListener("close",()=>{
-  // A queued close event from the previous gift may arrive after rapid reopen.
-  // Never erase the newly populated particles or steal focus from that viewer.
   if(dialog.open)return;
   effects.replaceChildren();
   if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});

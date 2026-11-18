@@ -1649,7 +1649,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   }else location.assign(new URL("feed",home).href);
  });
  const firstName=value=>String(value||"").trim().split(/\s+/)[0]||t("Учасник","Member");
- const asset=new URL("assets/gifts/first-flame.png",home).href;
+ const giftInfo=code=>window.VATRA_GIFTS_CATALOG?.byCode(code)||null;
  const loading=(el,value)=>{
   el.replaceChildren(node("p","vt-profile-mini-loading-001",value));
  };
@@ -1747,7 +1747,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
       .select("id,gift_code,created_at").eq("recipient_vatra_id",targetId)
       .order("created_at",{ascending:false}).limit(100);
      if(error)throw error;
-     return (data||[]).filter(x=>x.gift_code==="first_flame");
+     return (data||[]).filter(x=>giftInfo(x.gift_code));
     })().catch(error=>{allGiftsPending=null;throw error;});
    }
    const gifts=await allGiftsPending;
@@ -1765,16 +1765,17 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
  function giftCard(gift,compact){
   const item=node("button",compact?"profile-gift-tile ui-profile-gift-preview-item-001":
    "profile-gift-full ui-profile-gift-full-item-001");
+  const info=giftInfo(gift.gift_code);
   item.type="button";
-  item.setAttribute("aria-label",t("Переглянути подарунок: Перший вогник","View gift: First flame"));
-  item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open("first_flame"));
+  item.setAttribute("aria-label",t("Переглянути подарунок: ","View gift: ")+t(info.uk,info.en));
+  item.addEventListener("click",()=>window.VATRA_GIFT_VIEWER?.open(info.code));
   const art=node("span","profile-gift-art ui-profile-gift-art-001");
   art.setAttribute("aria-hidden","true");
-  art.style.backgroundImage="url("+JSON.stringify(asset)+")";
+  art.style.backgroundImage="url("+JSON.stringify(window.VATRA_GIFTS_CATALOG.fileUrl(info))+")";
   art.addEventListener("dragstart",event=>event.preventDefault());
   art.addEventListener("contextmenu",event=>event.preventDefault());
-  const title=node("strong","vt-profile-gift-name-001",t("Перший вогник","First flame"));
-  const sub=node("small","vt-profile-gift-caption-001",t("За приєднання до VATRA","For joining VATRA"));
+  const title=node("strong","vt-profile-gift-name-001",t(info.uk,info.en));
+  const sub=node("small","vt-profile-gift-caption-001",info.exclusive?t(info.eventUk,info.eventEn):t("За приєднання до VATRA","For joining VATRA"));
   item.append(art,title,sub);return item;
  }
  q("#profile-friends-all")?.addEventListener("click",()=>{
@@ -1833,7 +1834,7 @@ async function setupProfileSocialCards(client,ownId,targetId,isMine){
   previewEmpty("#profile-friends-preview-empty",t("Друзі тимчасово недоступні.","Friends are temporarily unavailable."));
  }
  if(jobs[1].status==="fulfilled"&&!jobs[1].value.error){
-  cachedGifts=(jobs[1].value.data||[]).filter(x=>x.gift_code==="first_flame");
+  cachedGifts=(jobs[1].value.data||[]).filter(x=>giftInfo(x.gift_code));
   giftsPreview.replaceChildren();
   for(const gift of cachedGifts.slice(0,3))giftsPreview.append(giftCard(gift,true));
   if(!cachedGifts.length)previewEmpty("#profile-gifts-preview-empty",t("Подарунків поки немає.","No gifts yet."));

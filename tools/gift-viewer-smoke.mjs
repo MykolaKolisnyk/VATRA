@@ -1,4 +1,4 @@
-/* VATRA gifts: released First Flame only, offline asset and decorative viewer regression. */
+
 import assert from "node:assert/strict";
 import {readFile} from "node:fs/promises";
 import {runInNewContext} from "node:vm";
@@ -17,7 +17,13 @@ const context={window:{},URL,document:{
 }};
 runInNewContext(js,context);
 const {all,byCode,fileUrl}=context.window.VATRA_GIFTS_CATALOG;
-assert.equal(all.length,1,"Only the actually released First Flame belongs in the catalogue");
+assert.equal(all.length,2,"Both released gifts belong in the catalogue");
+assert.equal(byCode("beta_member").exclusive,true);
+assert.equal(fileUrl(byCode("beta_member")),"https://example.com/VATRA/assets/gifts/beta-member.png");
+const betaPng=await readFile("assets/gifts/beta-member.png");
+assert.deepEqual(Array.from(betaPng.subarray(0,8)),[137,80,78,71,13,10,26,10]);
+assert.equal(all.filter(g=>!g.exclusive).length,1);
+assert.ok(gifts.includes("catalog().filter(gift=>!gift.exclusive)"));
 assert.equal(byCode("first_flame").image,"first-flame.png");
 assert.equal(fileUrl(byCode("first_flame")),
  "https://example.com/VATRA/assets/gifts/first-flame.png");
@@ -26,8 +32,9 @@ assert.equal(byCode("unreleased"),null);
 assert.equal(fileUrl(null),null);
 assert.ok(!js.includes("first-flame.svg")&&!profile.includes("first-flame.svg"),
  "No code may point to the replaced SVG");
-assert.ok(profile.includes('new URL("assets/gifts/first-flame.png",home)'),
- "Profile previews use the same supplied PNG");
+assert.ok(profile.includes("window.VATRA_GIFTS_CATALOG.fileUrl(info)")&&
+ profile.includes(".filter(x=>giftInfo(x.gift_code))")&&!profile.includes('x.gift_code==="first_flame"'),
+ "Profile previews use the catalogue for both owned gifts");
 assert.ok(gifts.includes('make("span","vatra-gifts-card-art')&&
  !gifts.includes('make("img","ui-vatra-gifts-card-art'),
  "Collection cards use decorative non-draggable CSS artwork");
@@ -52,4 +59,4 @@ assert.ok(!js.includes("themeKinds")&&!js.includes("populateEffects")&&
  !gifts.includes("is-symbol"),"Do not keep future gift engines or symbolic fallbacks");
 assert.ok(profileCss.includes("background-position:center;background-size:contain"),
  "Profile gift thumbnails must position original art accurately");
-console.log("VATRA gifts: only released First Flame, PNG, embers and fullscreen decorative display verified offline.");
+console.log("VATRA gifts: both released gifts, PNG, embers and fullscreen decorative display verified offline.");
