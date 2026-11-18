@@ -15,4 +15,7 @@ assert.ok(html.includes('id="community-category" name="category"')&&html.include
 assert.ok(src.includes('if(!categoryNames.has(category))')&&src.includes('.insert({name,description,category})'));
 assert.ok(src.includes('request.eq("category",selectedCategory)')&&src.includes('club.category===selectedCategory'));
 assert.ok(edge.includes('CATEGORY_IDS.has(c.category)')&&edge.includes('vatra:public:communities:v2:latest100'));
+assert.ok(src.includes("topicsExpanded?categories.length:6")&&src.includes('topicGrid.append(tile)')&&src.includes('topicCards.get(id)?.remove()'));
+assert.ok(!src.includes('community-topic-filter')&&!src.includes('ui-community-topic-select-001'));
+assert.ok(src.includes('photo.src=root+"assets/other/"+id+".webp"')&&src.includes('photo.loading="lazy"'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");

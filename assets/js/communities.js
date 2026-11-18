@@ -253,24 +253,42 @@ async function openDirectory(client,ownId,userId){
   const input=$("#community-directory-search");
   if(input){input.value=term;input.placeholder=t("Пошук спільнот","Search communities");input.setAttribute("aria-label",input.placeholder);}
   const topics=$("#community-topics"),banner=$("#community-discovery-banner"),memberships=$("#community-memberships-preview");
-  const topicGrid=node("div","ui-community-topic-grid-001");
-  const topicHeader=node("div","ui-community-topic-heading-row-001");
-  const topicsToggle=node("button","vt-community-all-topics-001",t("Усі теми","All topics"));topicsToggle.type="button";topicsToggle.setAttribute("aria-expanded","false");topicsToggle.setAttribute("aria-controls","community-all-topics");
-  topicHeader.append(node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic")),topicsToggle);
-  const allTopics=node("div","ui-community-all-topics-001");allTopics.id="community-all-topics";allTopics.hidden=true;
-  const topicSelect=node("select","ui-community-topic-select-001");topicSelect.id="community-topic-filter";topicSelect.setAttribute("aria-label",t("Фільтр за категорією","Filter by category"));addCategoryOptions(topicSelect,t("Усі категорії","All categories"));
-  allTopics.append(topicSelect);topics.append(topicHeader,topicGrid,allTopics);
-  topicsToggle.addEventListener("click",()=>{allTopics.hidden=!allTopics.hidden;topicsToggle.setAttribute("aria-expanded",String(!allTopics.hidden));if(!allTopics.hidden)topicSelect.focus();});
-  const chooseTopic=id=>{if(id&&!categoryNames.has(id))return;selectedCategory=id;term="";if(input)input.value="";topicSelect.value=id;clearTimeout(timer);void refresh();};
-  topicSelect.addEventListener("change",()=>chooseTopic(topicSelect.value));
-  for(const [id] of categories.slice(0,6)){
-   const b=node("button","ui-community-topic-001");b.type="button";b.dataset.communityCategory=id;b.setAttribute("aria-pressed","false");
-   const photo=node("img","ui-community-topic-photo-001");
-   photo.alt="";photo.loading="lazy";photo.decoding="async";photo.src=root+"assets/other/"+id+".webp";
-   photo.addEventListener("error",()=>{photo.hidden=true;},{once:true});
-   b.append(photo,node("span","vt-community-topic-name-001",categoryLabel(id)));
-   b.addEventListener("click",()=>chooseTopic(selectedCategory===id?"":id));topicGrid.append(b);
-  }
+  const topicGrid=node("div","ui-community-topic-grid-001");topicGrid.id="community-topic-grid";
+  const topicHeader=node("div","ui-community-topic-heading-row-001"),topicActions=node("div","ui-community-topic-actions-001");
+  const topicsToggle=node("button","vt-community-all-topics-001",t("Усі теми","All topics"));topicsToggle.type="button";topicsToggle.setAttribute("aria-expanded","false");topicsToggle.setAttribute("aria-controls",topicGrid.id);
+  const clearTopic=node("button","vt-community-clear-topic-001",t("Скинути тему","Clear topic"));clearTopic.type="button";clearTopic.hidden=true;
+  topicActions.append(clearTopic,topicsToggle);
+  topicHeader.append(node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic")),topicActions);
+  topics.append(topicHeader,topicGrid);
+  let topicsExpanded=false;
+  const topicCards=new Map();
+  const syncTopics=()=>{
+   clearTopic.hidden=!selectedCategory;
+   for(const [id,tile] of topicCards)tile.setAttribute("aria-pressed",String(id===selectedCategory));
+  };
+  const chooseTopic=id=>{if(id&&!categoryNames.has(id))return;selectedCategory=id;term="";if(input)input.value="";syncTopics();clearTimeout(timer);void refresh();};
+  clearTopic.addEventListener("click",()=>{chooseTopic("");topicsToggle.focus();});
+  const showTopics=()=>{
+   for(const [id] of categories.slice(0,topicsExpanded?categories.length:6)){
+    if(!topicCards.has(id)){
+     const b=node("button","ui-community-topic-001");b.type="button";b.dataset.communityCategory=id;
+     const photo=node("img","ui-community-topic-photo-001");
+     photo.alt="";photo.loading="lazy";photo.decoding="async";
+     photo.addEventListener("error",()=>{photo.hidden=true;},{once:true});
+     photo.src=root+"assets/other/"+id+".webp";
+     b.append(photo,node("span","vt-community-topic-name-001",categoryLabel(id)));
+     b.addEventListener("click",()=>chooseTopic(selectedCategory===id?"":id));
+     topicCards.set(id,b);
+    }
+    const tile=topicCards.get(id);
+    if(tile.parentNode!==topicGrid)topicGrid.append(tile);
+   }
+   if(!topicsExpanded)for(const [id] of categories.slice(6))topicCards.get(id)?.remove();
+   topicsToggle.textContent=topicsExpanded?t("Згорнути","Show less"):t("Усі теми","All topics");
+   topicsToggle.setAttribute("aria-expanded",String(topicsExpanded));syncTopics();
+  };
+  topicsToggle.addEventListener("click",()=>{topicsExpanded=!topicsExpanded;showTopics();});
+  showTopics();
   const renderMemberships=()=>{
    memberships.replaceChildren(node("h2","vt-community-memberships-title-001",t("Мої спільноти","My communities")));
    const ids=[...new Set([...owned,...following])];const available=ids.map(id=>knownClubs.get(id)).filter(Boolean).slice(0,6);
@@ -279,7 +297,7 @@ async function openDirectory(client,ownId,userId){
   };
   const render=()=>{
    list.replaceChildren();banner.hidden=mode!=="all"||!!term;topics.hidden=mode!=="all"||!!term;
-   topicSelect.value=selectedCategory;for(const tile of topicGrid.children)tile.setAttribute("aria-pressed",String(tile.dataset.communityCategory===selectedCategory));
+   syncTopics();
    $("#community-list-heading").textContent=selectedCategory?categoryLabel(selectedCategory):term?t("Результати пошуку","Search results"):mode==="followed"?t("Мої підписки","Following"):mode==="owned"?t("Керую","Managed"):t("Нові спільноти","New communities");renderMemberships();
    const query=term.toLocaleLowerCase();
    const visible=directory.filter(club=>(!selectedCategory||club.category===selectedCategory)&&(mode==="all"||(mode==="followed"?following:owned).has(String(club.club_id)))&&(!query||String(club.name||"").toLocaleLowerCase().includes(query)||String(club.description||"").toLocaleLowerCase().includes(query)));
