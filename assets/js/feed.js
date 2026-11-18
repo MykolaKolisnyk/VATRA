@@ -341,7 +341,7 @@
   searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
   const escaped=phrase.replace(/[\\%_]/g,character=>String.fromCharCode(92)+character);
   // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
-  const exact=phrase.match(/^(?:(?:vatra\\s*)?id\\s*#?\\s*)?([1-9][0-9]{0,18})$/i);
+  const exact=phrase.match(/^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$/i);
   const memberQuery=client.from("public_profiles").select("vatra_id,display_name,status_text");
   const queries=[
    (exact?memberQuery.eq("vatra_id",exact[1]):memberQuery.ilike("display_name","%"+escaped+"%")).limit(8),
