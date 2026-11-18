@@ -5,6 +5,8 @@ window.VATRA_COMMUNITY_CORE?.start(async (client,ownId,userId,{root,locale,t,$,i
 async function openDirectory(client,ownId,userId){
  document.title=t("Спільноти · VATRA","Communities · VATRA");
  const categories=[["music","Музика","Music"],["sport","Спорт","Sports"],["travel","Подорожі","Travel"],["technology","Технології","Technology"],["education","Освіта","Education"],["art","Мистецтво","Art"],["gaming","Відеоігри","Video games"],["business","Бізнес","Business"],["news","Новини та ЗМІ","News and media"],["cooking","Їжа та кулінарія","Food and cooking"],["transport","Автомобілі та транспорт","Cars and transport"],["cinema","Кіно та серіали","Movies and TV"],["animals","Тварини","Animals"],["photography","Фото та відео","Photography and video"],["regions","Міста та регіони","Cities and regions"],["fashion","Мода та стиль","Fashion and style"],["charity","Благодійність","Charity"],["science","Наука","Science"],["nature","Природа та екологія","Nature and environment"],["books","Книги та література","Books and literature"],["health","Здоров’я","Health"],["fitness","Фітнес","Fitness"],["family","Сім’я та діти","Family and children"],["home","Дім та сад","Home and garden"],["culture","Культура","Culture"],["history","Історія","History"],["humor","Гумор та меми","Humor and memes"],["shopping","Покупки","Shopping"],["finance","Фінанси","Finance"],["crafts","Хобі та рукоділля","Hobbies and crafts"],["beauty","Краса та догляд","Beauty and care"],["career","Робота та кар’єра","Jobs and careers"],["events","Події та розваги","Events and entertainment"],["psychology","Психологія","Psychology"],["politics","Політика та суспільство","Politics and society"],["military","Військова справа","Military affairs"],["spirituality","Релігія та духовність","Religion and spirituality"],["ai","Штучний інтелект","Artificial intelligence"],["social","Знайомства та спілкування","Meeting people and socializing"],["other","Інше","Other"]];
+ // Built-in decorative topic artwork; keys are the permanent DB category IDs.
+ const topicCovers={"music":"music","sport":"sport","travel":"travel","technology":"technology","education":"education","art":"art","gaming":"videogames","business":"business","news":"news","cooking":"food","transport":"transport","cinema":"movies","animals":"animals","photography":"photo-video","regions":"cities","fashion":"fashion","charity":"charity","science":"science"};
  const categoryNames=new Map(categories.map(([id,uk,en])=>[id,t(uk,en)]));
  const categoryLabel=id=>categoryNames.get(id)||categoryNames.get("other");
  const categoryInput=$("#community-category");
@@ -93,6 +95,18 @@ async function openDirectory(client,ownId,userId){
   topics.append(topicHeader,topicGrid);
   let topicsExpanded=false;
   const topicCards=new Map();
+  const revealTopicCover=photo=>{
+   const filename=photo.dataset.topicCover;
+   if(filename)photo.style.backgroundImage="url("+JSON.stringify(root+"assets/communities-covers/"+filename+".webp")+")";
+  };
+  const coverObserver=typeof IntersectionObserver==="function"?new IntersectionObserver(entries=>{
+   for(const entry of entries)if(entry.isIntersecting){revealTopicCover(entry.target);coverObserver.unobserve(entry.target);}
+  },{rootMargin:"180px"}):null;
+  // Artwork is decorative, not a link or a native image. Keep filtering accessible.
+  const suppressArtworkMenu=event=>{
+   if(event.target?.closest?.(".ui-community-topic-001,.ui-community-discovery-banner-001"))event.preventDefault();
+  };
+  for(const surface of [topicGrid,banner])for(const name of ["contextmenu","dragstart"])surface?.addEventListener(name,suppressArtworkMenu);
   const syncTopics=()=>{
    clearTopic.hidden=!selectedCategory;
    for(const [id,tile] of topicCards)tile.setAttribute("aria-pressed",String(id===selectedCategory));
@@ -103,18 +117,25 @@ async function openDirectory(client,ownId,userId){
    for(const [id] of categories.slice(0,topicsExpanded?categories.length:6)){
     if(!topicCards.has(id)){
      const b=node("button","ui-community-topic-001");b.type="button";b.dataset.communityCategory=id;
-     const photo=node("img","ui-community-topic-photo-001");
-     photo.alt="";photo.loading="lazy";photo.decoding="async";
-     photo.addEventListener("error",()=>{photo.hidden=true;},{once:true});
-     photo.src=root+"assets/other/"+id+".webp";
-     b.append(photo,node("span","vt-community-topic-name-001",categoryLabel(id)));
+     const filename=topicCovers[id];
+     if(filename){
+      const photo=node("span","ui-community-topic-photo-001");
+      photo.setAttribute("aria-hidden","true");photo.dataset.topicCover=filename;
+      b.append(photo);
+     }
+     b.append(node("span","vt-community-topic-name-001",categoryLabel(id)));
      b.addEventListener("click",()=>chooseTopic(selectedCategory===id?"":id));
      topicCards.set(id,b);
     }
     const tile=topicCards.get(id);
     if(tile.parentNode!==topicGrid)topicGrid.append(tile);
+    const photo=tile.querySelector(".ui-community-topic-photo-001");
+    if(photo&&!photo.style.backgroundImage){if(coverObserver)coverObserver.observe(photo);else revealTopicCover(photo);}
    }
-   if(!topicsExpanded)for(const [id] of categories.slice(6))topicCards.get(id)?.remove();
+   if(!topicsExpanded)for(const [id] of categories.slice(6)){
+    const tile=topicCards.get(id),photo=tile?.querySelector(".ui-community-topic-photo-001");
+    if(photo)coverObserver?.unobserve(photo);tile?.remove();
+   }
    topicsToggle.textContent=topicsExpanded?t("Згорнути","Show less"):t("Усі теми","All topics");
    topicsToggle.setAttribute("aria-expanded",String(topicsExpanded));syncTopics();
   };

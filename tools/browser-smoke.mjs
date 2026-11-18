@@ -4976,19 +4976,24 @@ try{
   assert.equal((await page.locator(".vt-community-discovery-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
   const hero=page.locator("#community-discovery-banner");
-  const heroImage=hero.locator("img");
+  const heroImage=hero.locator(".ui-community-banner-art-001");
   await heroImage.waitFor({state:"visible"});
-  await heroImage.evaluate(img=>img.decode());
-  assert.equal(await heroImage.evaluate(img=>img.naturalWidth),2000);
-  assert.equal(await heroImage.evaluate(img=>img.naturalHeight),580);
+  assert.equal(await hero.locator("img").count(),0,"The directory panorama must be decorative");
+  const dimensions=await heroImage.evaluate(async el=>{
+   const url=getComputedStyle(el).backgroundImage.slice(4,-1).replace(/^["']|["']$/g,"");
+   const img=new Image();img.src=url;await img.decode();
+   return {width:img.naturalWidth,height:img.naturalHeight,filename:new URL(url).pathname.split("/").pop()};
+  });
+  assert.deepEqual(dimensions,{width:2000,height:580,filename:"VATRA_communities.webp"});
+  assert.equal(await hero.evaluate(el=>el.dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true}))),false);
   assert.equal(await hero.locator("h2").textContent(),language==="en"?"Find your people":"Знайдіть своїх людей");
   const savedViewport=page.viewportSize();
   for(const size of [{width:1366,height:844},{width:390,height:844}]){
    await page.setViewportSize(size);
    const banner=await hero.evaluate(el=>{
-    const img=el.querySelector("img"),title=el.querySelector("h2"),copy=el.querySelector(".ui-community-banner-copy-001");
+    const img=el.querySelector(".ui-community-banner-art-001"),title=el.querySelector("h2"),copy=el.querySelector(".ui-community-banner-copy-001");
     const r=el.getBoundingClientRect(),i=img.getBoundingClientRect(),c=copy.getBoundingClientRect(),t=title.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();
-    const sidebar=document.querySelector(".ui-community-discovery-sidebar-001").getBoundingClientRect(), workspace=el.parentElement.getBoundingClientRect();return {width:r.width,height:r.height,imageFills:Math.abs(i.width-r.width)<=1&&Math.abs(i.height-r.height)<=1&&getComputedStyle(img).objectFit==="cover",within:r.left>=0&&r.right<=innerWidth+1,copyInside:c.bottom<=r.bottom+1&&c.top>=r.top-1&&t.left>=r.left&&t.right<=r.right,inlineStart:r.left-(innerWidth>950?sidebar.right:workspace.left),inlineEnd:workspace.right-r.right,headerGap:r.top-header.bottom};
+    const sidebar=document.querySelector(".ui-community-discovery-sidebar-001").getBoundingClientRect(), workspace=el.parentElement.getBoundingClientRect();return {width:r.width,height:r.height,imageFills:Math.abs(i.width-r.width)<=1&&Math.abs(i.height-r.height)<=1&&getComputedStyle(img).backgroundSize==="cover",within:r.left>=0&&r.right<=innerWidth+1,copyInside:c.bottom<=r.bottom+1&&c.top>=r.top-1&&t.left>=r.left&&t.right<=r.right,inlineStart:r.left-(innerWidth>950?sidebar.right:workspace.left),inlineEnd:workspace.right-r.right,headerGap:r.top-header.bottom};
    });
    assert.ok(banner.width>0&&banner.within&&banner.copyInside&&banner.imageFills,"Cover image and copy must fill the banner: "+JSON.stringify(banner));
    assert.equal(Math.round(banner.height),size.width<=600?185:290,"Cover height must match profile");
@@ -5099,13 +5104,18 @@ try{
    return banner.getBoundingClientRect().bottom<=el.getBoundingClientRect().top+1&&el.getBoundingClientRect().bottom<=list.getBoundingClientRect().top+1;
   }),"Topic discovery must appear below the cover and above new communities");
   const topicCards=page.locator(".ui-community-topic-001");
-  assert.deepEqual(await topicCards.locator("img").evaluateAll(images=>images.map(img=>new URL(img.src).pathname.split("/").pop())),["music.webp","sport.webp","travel.webp","technology.webp","education.webp","art.webp"]);
-  for(const photo of await topicCards.locator("img").all()){
+  const topicPhotos=topicCards.locator(".ui-community-topic-photo-001");
+  assert.equal(await topicCards.locator("img,a").count(),0,"Topic artwork must not be a native image or link");
+  assert.deepEqual(await topicPhotos.evaluateAll(images=>images.map(el=>el.dataset.topicCover)),["music","sport","travel","technology","education","art"]);
+  for(const photo of await topicPhotos.all()){
    await photo.scrollIntoViewIfNeeded();
-   await photo.evaluate(img=>img.decode());
-   assert.ok(await photo.evaluate(img=>img.naturalWidth>0&&img.naturalHeight>0));
-   assert.equal(await photo.getAttribute("loading"),"lazy");
+   await page.waitForFunction(()=>[...document.querySelectorAll(".ui-community-topic-photo-001")].some(el=>el.style.backgroundImage));
+   const filename=await photo.getAttribute("data-topic-cover");
+   await page.waitForFunction(name=>!!document.querySelector('[data-topic-cover="'+name+'"]')?.style.backgroundImage,filename);
+   assert.ok(await photo.evaluate(async el=>{const url=getComputedStyle(el).backgroundImage.slice(4,-1).replace(/^["']|["']$/g,"");const img=new Image();img.src=url;await img.decode();return img.naturalWidth>0&&img.naturalHeight>0;}));
   }
+  assert.equal(await topicCards.first().evaluate(el=>el.dispatchEvent(new MouseEvent("contextmenu",{bubbles:true,cancelable:true}))),false);
+  assert.equal(await topicCards.first().evaluate(el=>el.dispatchEvent(new Event("dragstart",{bubbles:true,cancelable:true}))),false);
   assert.equal(await page.locator(".vt-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
   await page.locator('[data-community-category="music"]').click();
@@ -5118,7 +5128,8 @@ try{
   assert.equal(await topicCards.count(),40,"All topics expand as the same photo cards");
   assert.equal(await topicCards.evaluateAll(cards=>new Set(cards.map(c=>c.dataset.communityCategory)).size),40);
   assert.equal(await page.locator("#community-topics select").count(),0,"No dropdown in discovery");
-  assert.equal(await page.locator('[data-community-category="business"] img').getAttribute("src"),new URL("assets/other/business.webp",new URL("/VATRA/",page.url())).href);
+  assert.deepEqual(await topicPhotos.evaluateAll(nodes=>Object.fromEntries(nodes.map(el=>[el.closest("button").dataset.communityCategory,el.dataset.topicCover]))),{"music":"music","sport":"sport","travel":"travel","technology":"technology","education":"education","art":"art","gaming":"videogames","business":"business","news":"news","cooking":"food","transport":"transport","cinema":"movies","animals":"animals","photography":"photo-video","regions":"cities","fashion":"fashion","charity":"charity","science":"science"});
+  assert.equal(await page.locator('[data-community-category="nature"] .ui-community-topic-photo-001').count(),0,"Not-yet-uploaded topics retain their gradient");
   await page.locator('[data-community-category="business"]').click();
   await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
   assert.equal(await page.locator(".ui-community-card-001").count(),0);

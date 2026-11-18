@@ -1,6 +1,6 @@
 // The real directory, DB constraint and public cache must agree.
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile,readdir } from "node:fs/promises";
 const src=await readFile("assets/js/communities.js","utf8");
 const edge=await readFile("supabase/functions/public-community-directory/index.ts","utf8");
 const sql=await readFile("supabase/migrations/20261118181717_add_community_categories.sql","utf8");
@@ -17,5 +17,19 @@ assert.ok(src.includes('request.eq("category",selectedCategory)')&&src.includes(
 assert.ok(edge.includes('CATEGORY_IDS.has(c.category)')&&edge.includes('vatra:public:communities:v2:latest100'));
 assert.ok(src.includes("topicsExpanded?categories.length:6")&&src.includes('topicGrid.append(tile)')&&src.includes('topicCards.get(id)?.remove()'));
 assert.ok(!src.includes('community-topic-filter')&&!src.includes('ui-community-topic-select-001'));
-assert.ok(src.includes('photo.src=root+"assets/other/"+id+".webp"')&&src.includes('photo.loading="lazy"'));
+const covers=JSON.parse(src.match(/const topicCovers=(\{[^\n]+\});/)[1]);
+assert.ok(Object.keys(covers).every(id=>keys.includes(id)));
+assert.equal(new Set(Object.values(covers)).size,Object.keys(covers).length);
+const folder="assets/communities-covers/";
+const files=(await readdir(folder)).filter(name=>name.endsWith(".webp")&&name!=="VATRA_communities.webp").sort();
+assert.deepEqual(Object.values(covers).map(name=>name+".webp").sort(),files,"Each uploaded topic cover must map to exactly one category");
+for(const name of [...files,"VATRA_communities.webp"]){
+ const bytes=await readFile(folder+name);
+ assert.ok(bytes.toString("ascii",0,4)==="RIFF"&&bytes.toString("ascii",8,12)==="WEBP",name+" must be actual WebP");
+}
+assert.ok(src.includes('node("span","ui-community-topic-photo-001")')&&src.includes('new IntersectionObserver')&&src.includes('coverObserver.unobserve')&&src.includes('assets/communities-covers/')&&src.includes('["contextmenu","dragstart"]'));
+assert.ok(!src.includes('node("img","ui-community-topic-photo-001")')&&!src.includes("assets/other/"));
+assert.ok(html.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>'));
+const css=await readFile("assets/css/communities.css","utf8");
+assert.ok(css.includes('../communities-covers/VATRA_communities.webp')&&css.includes('background-size:cover;background-position:center')&&css.includes('pointer-events:none'));
 console.log("VATRA community categories: forty unique IDs, bilingual labels, required form, exact filters, DB constraints and cache schema agree.");

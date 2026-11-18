@@ -62,7 +62,7 @@ body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sid
 .ui-community-list-section-001{display:grid;gap:13px;min-width:0}
 .ui-community-discovery-banner-001{grid-area:cover;justify-self:stretch;position:relative;overflow:hidden;display:block;width:100%;height:290px;min-width:0;align-self:start;border:0;border-radius:0;background:#172b46}
 .ui-community-discovery-banner-001[hidden]{display:none}
-.ui-community-banner-art-001{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.ui-community-banner-art-001{display:block;width:100%;height:100%;background:center/cover no-repeat url("../communities-covers/VATRA_communities.webp");pointer-events:none;user-select:none;-webkit-user-select:none}
 .ui-community-banner-copy-001{position:absolute;inset:auto 0 0;padding:clamp(26px,4vw,52px) clamp(18px,2.6vw,32px) clamp(17px,2vw,26px);background:linear-gradient(180deg,transparent,#142238d9 48%,#101e31f2);color:#fff}
 .vt-community-banner-title-001{font:700 clamp(22px,2.4vw,32px)/1.2 Onest,Inter,system-ui,sans-serif;letter-spacing:-.025em;color:#fff;margin:0 0 6px}
 .vt-community-banner-text-001{font:400 15px/1.5 Onest,Inter,system-ui,sans-serif;color:#f1f5fb;margin:0;max-width:650px}
@@ -79,8 +79,7 @@ body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sid
 .vt-community-topics-title-001{margin:0;color:var(--ink);font:700 18px/1.25 Onest,Inter,system-ui,sans-serif}
 .ui-community-topic-grid-001{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .ui-community-topic-001{position:relative;isolation:isolate;display:flex;align-items:flex-end;justify-content:center;min-width:0;min-height:108px;aspect-ratio:1.65;overflow:hidden;background:linear-gradient(145deg,#4e6d9b,#263c5d 58%,#182b47);border:0;border-radius:12px;padding:0;color:#fff;cursor:pointer;box-shadow:0 2px 8px #23395a10}
-.ui-community-topic-photo-001{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .25s ease}
-.ui-community-topic-photo-001[hidden]{display:none}
+.ui-community-topic-photo-001{position:absolute;inset:0;width:100%;height:100%;background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none;user-select:none;-webkit-user-select:none;transition:transform .25s ease}
 .ui-community-topic-001:hover .ui-community-topic-photo-001{transform:scale(1.04)}
 .ui-community-topic-001:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 .vt-community-topic-name-001{position:relative;z-index:1;width:100%;padding:26px 8px 12px;background:linear-gradient(180deg,transparent,#101c30e8);color:#fff;overflow-wrap:anywhere;text-align:center;font:700 14px/1.4 Onest,Inter,system-ui,sans-serif;text-shadow:0 1px 3px #101c30}

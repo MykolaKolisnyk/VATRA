@@ -1,6 +1,6 @@
 # Community topic artwork
 
-The directory starts with six featured photo cards. All topics expands the same grid to 40. Images are matched by the permanent category ID and read lazily from `assets/other/<id>.webp`. Until uploaded, a missing image leaves a gradient card with its translated name. No additional JS or database changes are required when replacing a file with the matching name.
+The directory starts with six featured photo cards. All topics expands the same grid to 40. The built-in covers are decorative CSS backgrounds loaded near the viewport from `assets/communities-covers/`. The `topicCovers` map in `assets/js/communities.js` pairs each permanent category ID with its uploaded filename without `.webp`. New uploads must be added to that map; existing files can be replaced in place. Until an image is added, the topic retains a gradient and its translated name without requesting a missing file. These assets are public; the UI suppresses image context menus and dragging but does not provide copy protection. The directory banner uses `VATRA_communities.webp`.
 
 | Category (UK) | Image |
 |---|---|
@@ -10,15 +10,15 @@ The directory starts with six featured photo cards. All topics expands the same 
 | Технології | `technology.webp` |
 | Освіта | `education.webp` |
 | Мистецтво | `art.webp` |
-| Відеоігри | `gaming.webp` |
+| Відеоігри | `videogames.webp` |
 | Бізнес | `business.webp` |
 | Новини та ЗМІ | `news.webp` |
-| Їжа та кулінарія | `cooking.webp` |
+| Їжа та кулінарія | `food.webp` |
 | Автомобілі та транспорт | `transport.webp` |
-| Кіно та серіали | `cinema.webp` |
+| Кіно та серіали | `movies.webp` |
 | Тварини | `animals.webp` |
-| Фото та відео | `photography.webp` |
-| Міста та регіони | `regions.webp` |
+| Фото та відео | `photo-video.webp` |
+| Міста та регіони | `cities.webp` |
 | Мода та стиль | `fashion.webp` |
 | Благодійність | `charity.webp` |
 | Наука | `science.webp` |

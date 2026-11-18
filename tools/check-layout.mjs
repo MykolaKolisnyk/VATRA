@@ -1336,11 +1336,11 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
-assert.ok(communityBannerMarkup.includes('src="assets/other/VATRA_communities.webp" width="2000" height="580" alt=""')&&
- !communityBannerMarkup.includes('<span class="ui-community-banner-art-001"')&&
- communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes("object-fit:cover;object-position:center")&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
+assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
+ !communityBannerMarkup.includes('<img class="ui-community-banner-art-001"')&&
+ communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../communities-covers/VATRA_communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
  communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
- !(await read("club.html")).includes("assets/other/VATRA_communities.webp"),
+ !(await read("club.html")).includes("ui-community-banner-art-001"),
  "The original Uzhhorod panorama must be exclusively a responsive directory hero");
 const communityScript=await read("assets/js/communities.js");
 const clubRuntime=await read("assets/js/club.js");
