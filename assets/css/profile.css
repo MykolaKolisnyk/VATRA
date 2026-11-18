@@ -2988,3 +2988,18 @@ body.profile-page .profile-editor-footer{margin-top:21px}
  body.profile-page .vt-profile-editor-dropdown-option-001{min-height:42px;font-size:14px}
  body.profile-page .vatra-editor-select[data-variant="page"]{grid-column:1/-1}
 }
+
+body.profile-page .ui-profile-editor-identity-001{grid-column:1/-1;border:1px solid #e2e9f4;border-radius:13px;background:#fff;overflow:hidden}
+body.profile-page .ui-profile-editor-cover-preview-001{position:relative;height:156px;background:linear-gradient(115deg,#a7bfde,#d8e6fb);background-size:cover;background-position:center;border-radius:12px 12px 0 0}
+body.profile-page .vt-profile-editor-cover-change-001{position:absolute;top:13px;right:13px;border:1px solid #e7edf7;border-radius:8px;background:rgba(255,255,255,.94);color:#405879;padding:9px 12px;font:600 13px/1.3 Onest,system-ui,sans-serif;cursor:pointer}
+body.profile-page .ui-profile-editor-avatar-preview-001{position:absolute;left:17px;bottom:-35px;width:88px;height:88px;border:4px solid #fff;border-radius:50%;background:var(--vatra-default-avatar) center/cover no-repeat;background-color:#e9eff8}
+body.profile-page .ui-profile-editor-identity-info-001{padding:13px 16px 4px}
+body.profile-page .vt-profile-editor-avatar-change-001{margin-left:102px;padding:6px 10px;border:0;border-radius:6px;background:#edf3ff;color:#285fc9;font:600 12px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+body.profile-page .ui-profile-editor-identity-name-row-001{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:16px 0 13px;border-bottom:1px solid #edf1f7}
+body.profile-page .vt-profile-editor-identity-name-001{font:650 16px/1.4 Onest,system-ui,sans-serif;color:#293a52}
+body.profile-page .ui-profile-editor-verification-row-001{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:14px 0;font:500 13px/1.4 Onest,system-ui,sans-serif}
+body.profile-page .vt-profile-editor-verification-label-001{color:#697d98}
+body.profile-page .vt-profile-editor-verification-state-001{flex:1;color:#526a89}
+body.profile-page :is(.vt-profile-editor-id-link-001,.vt-profile-editor-verification-link-001){color:#2861d8;font:600 13px/1.4 Onest,system-ui,sans-serif;text-decoration:none}
+body.profile-page :is(.vt-profile-editor-id-link-001,.vt-profile-editor-verification-link-001):hover{text-decoration:underline}
+@media(max-width:540px){body.profile-page .ui-profile-editor-cover-preview-001{height:128px}body.profile-page .ui-profile-editor-verification-state-001{flex-basis:100%;order:3}}
