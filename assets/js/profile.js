@@ -547,20 +547,27 @@
    const w=Math.min(Math.max(rect.width,compact?190:0),width-16);
    const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
    const down=top+height-rect.bottom-9,up=rect.top-top-9;
+   // Measure the options at their actual width, including wrapped labels.
+   state.panel.style.width=Math.round(w)+"px";
    const desired=Math.min(300,state.panel.scrollHeight+2);
    const above=down<Math.min(desired,160)&&up>down;
    const space=Math.max(0,above?up:down);
    if(space<45){closeEditorMenu();return;}
-   state.panel.style.width=Math.round(w)+"px";state.panel.style.maxHeight=Math.floor(Math.min(300,space))+"px";state.panel.style.left=Math.round(x)+"px";
+   state.panel.style.maxHeight=Math.floor(Math.min(300,space))+"px";state.panel.style.left=Math.round(x)+"px";
    state.panel.style.top=Math.round(above?rect.top-state.panel.offsetHeight-6:rect.bottom+6)+"px";
   };
   const markEditorOption=(state,index,scroll=false)=>{
-   if(!state.buttons.length)return;
-   state.index=Math.max(0,Math.min(index,state.buttons.length-1));
+   if(index<0||index>=state.buttons.length||state.items[index].disabled)return;
+   state.index=index;
    state.buttons.forEach((button,i)=>button.classList.toggle("is-highlighted",i===state.index));
    const button=state.buttons[state.index];
    state.anchor.setAttribute("aria-activedescendant",button.id);
-   if(scroll)button.scrollIntoView({block:"nearest"});
+   if(scroll){
+    // Scroll the options only; never move the profile or the record dialog.
+    const bounds=state.panel.getBoundingClientRect(),option=button.getBoundingClientRect();
+    if(option.top<bounds.top)state.panel.scrollTop+=option.top-bounds.top;
+    else if(option.bottom>bounds.bottom)state.panel.scrollTop+=option.bottom-bounds.bottom;
+   }
   };
   const chooseEditorOption=(state,index)=>{
    if(editorMenu!==state)return;
@@ -572,7 +579,7 @@
    const panel=make("div","ui-profile-editor-dropdown-panel-001");
    panel.id="vatra-editor-options-"+(++editorMenuSerial);panel.setAttribute("role","listbox");
    panel.setAttribute("aria-label",anchor.getAttribute("aria-label")||tr("Варіанти","Options"));
-   const state={anchor,wrapper,items,choose,panel,buttons:[],index:-1,search:"",searchTime:0};
+   const state={anchor,wrapper,items,choose,panel,selectedValue,buttons:[],index:-1,search:"",searchTime:0};
    editorMenu=state;anchor.setAttribute("aria-expanded","true");anchor.setAttribute("aria-controls",panel.id);wrapper.classList.add("is-open");
    items.forEach((item,index)=>{
     const button=make("button","vt-profile-editor-dropdown-option-001");
@@ -595,7 +602,10 @@
     try{panel.showPopover();}catch(_){panel.removeAttribute("popover");}
    }
    positionEditorMenu();
-   if(editorMenu===state&&keyboard&&items.length){const index=items.findIndex(item=>item.value===selectedValue);markEditorOption(state,index<0?0:index,true);}
+   if(editorMenu===state&&keyboard&&items.length){
+    const index=items.findIndex(item=>!item.disabled&&item.value===selectedValue);
+    markEditorOption(state,index<0?items.findIndex(item=>!item.disabled):index,true);
+   }
    return state;
   };
   const dropdownKeys=(anchor,open,event,editable=false)=>{
@@ -604,21 +614,42 @@
    if(event.key==="Escape"&&current){event.preventDefault();event.stopPropagation();closeEditorMenu();return;}
    if(event.key==="ArrowDown"||event.key==="ArrowUp"){
     event.preventDefault();
-    if(!current){const state=open(true);if(editorMenu===state&&event.key==="ArrowUp")markEditorOption(state,state.items.length-1,true);}
-    else markEditorOption(current,current.index<0?(event.key==="ArrowUp"?current.items.length-1:0):current.index+(event.key==="ArrowUp"?-1:1),true);
+    const step=event.key==="ArrowUp"?-1:1;
+    if(!current){
+     const state=open(true);
+     if(editorMenu===state&&step===-1&&state.index<0){
+      const enabled=state.items.map((item,i)=>item.disabled?-1:i).filter(i=>i>=0);
+      markEditorOption(state,enabled[enabled.length-1]??-1,true);
+     }
+    }else{
+     const enabled=current.items.map((item,i)=>item.disabled?-1:i).filter(i=>i>=0);
+     const index=enabled.indexOf(current.index);
+     if(enabled.length)markEditorOption(current,enabled[index<0?(step===1?0:enabled.length-1):Math.max(0,Math.min(enabled.length-1,index+step))],true);
+    }
     return;
    }
-   if(current&&(event.key==="Home"||event.key==="End")&&!editable){event.preventDefault();markEditorOption(current,event.key==="Home"?0:current.items.length-1,true);return;}
-   if(current&&(event.key==="Enter"||(!editable&&event.key===" "))){
-    if(current.index>=0){event.preventDefault();chooseEditorOption(current,current.index);}
-    else if(editable){event.preventDefault();closeEditorMenu();}
-    return;
+   if(current&&(event.key==="Home"||event.key==="End")&&!editable){
+    event.preventDefault();const enabled=current.items.map((item,i)=>item.disabled?-1:i).filter(i=>i>=0);
+    markEditorOption(current,enabled[event.key==="Home"?0:enabled.length-1]??-1,true);return;
+   }
+   if(event.key==="Enter"||(!editable&&event.key===" ")){
+    if(current){
+     event.preventDefault();
+     let index=current.index;
+     if(index<0&&!editable){
+      index=current.items.findIndex(item=>!item.disabled&&item.value===current.selectedValue);
+      if(index<0)index=current.items.findIndex(item=>!item.disabled);
+     }
+     if(index>=0)chooseEditorOption(current,index);else closeEditorMenu();
+     return;
+    }
+    if(!editable){event.preventDefault();open(true);return;}
    }
    if(!editable&&event.key.length===1&&event.key!==" "&&!event.ctrlKey&&!event.altKey&&!event.metaKey){
     event.preventDefault();const state=current||open(false);
     if(editorMenu!==state)return;
     const now=Date.now();state.search=(now-state.searchTime>700?"":state.search)+event.key.toLocaleLowerCase();state.searchTime=now;
-    const index=state.items.findIndex(item=>item.text.toLocaleLowerCase().startsWith(state.search));
+    const index=state.items.findIndex(item=>!item.disabled&&item.text.toLocaleLowerCase().startsWith(state.search));
     if(index>=0)markEditorOption(state,index,true);
    }
   };
@@ -627,7 +658,7 @@
    const id=native.id,wrapper=make("div","vatra-editor-select ui-profile-editor-select-"+id);
    wrapper.dataset.variant=variant;
    const button=make("button","vt-profile-editor-select-trigger-001");button.type="button";button.id=id;
-   button.setAttribute("aria-haspopup","listbox");button.setAttribute("aria-expanded","false");
+   button.setAttribute("role","combobox");button.setAttribute("aria-haspopup","listbox");button.setAttribute("aria-expanded","false");
    button.setAttribute("aria-label",native.getAttribute("aria-label")||tr("Обрати значення","Choose a value"));
    const caption=make("span","vt-profile-editor-select-value-001");
    const iconWrap=make("span","ui-profile-editor-select-symbol-001");
