@@ -1,5 +1,5 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
-const CACHE="vatra-offline-shell-v71";
+const CACHE="vatra-offline-shell-v72";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -42,6 +42,15 @@ self.addEventListener("activate",event=>{
   await self.clients.claim();
  })());
 });
+async function matchesAssetRevision(response,revision){
+ try{
+  const data=new Uint8Array(await response.arrayBuffer());
+  const prefix=new TextEncoder().encode("blob "+data.length+"\u0000");
+  const bytes=new Uint8Array(prefix.length+data.length);bytes.set(prefix);bytes.set(data,prefix.length);
+  const digest=new Uint8Array(await crypto.subtle.digest("SHA-1",bytes));
+  return Array.from(digest,n=>n.toString(16).padStart(2,"0")).join("")===revision;
+ }catch(_){return false;}
+}
 self.addEventListener("fetch",event=>{
  const request=event.request;
  if(request.method!=="GET")return;
@@ -62,11 +71,26 @@ self.addEventListener("fetch",event=>{
  }
  const staticAsset=url.pathname.startsWith(ROOT+"assets/")&&
   /\.(?:css|js|json|svg|ttf|woff2?)$/i.test(url.pathname);
+ const revision=url.searchParams.get("rev")||"";
+ const fingerprinted=staticAsset&&/^[a-f0-9]{40}$/.test(revision)&&url.searchParams.size===1&&/\.(?:js|css)$/i.test(url.pathname);
  if(!staticAsset&&!ASSETS.includes(url.pathname))return;
  event.respondWith((async()=>{
   const cache=await caches.open(CACHE);
+  if(fingerprinted){
+   const cached=await cache.match(request);
+   if(cached)return cached;
+   try{
+    const fresh=await fetch(request,{cache:"no-cache"});
+    if(fresh.ok&&await matchesAssetRevision(fresh.clone(),revision)){
+     await cache.put(request,fresh.clone()).catch(()=>{});
+     const keys=(await cache.keys()).filter(key=>new URL(key.url).searchParams.has("rev"));
+     if(keys.length>80)await Promise.allSettled(keys.slice(0,keys.length-80).map(key=>cache.delete(key)));
+    }
+    return fresh;
+   }catch(_){return Response.error();}
+  }
   try{
-   // Always revalidate source files; cache-first served obsolete base.css
+   // Revalidate unversioned source files; cache-first served obsolete base.css
    // together with newer profile/feed CSS, hiding avatars and active states.
    const fresh=await fetch(request,{cache:"no-cache"});
    if(fresh.ok)await cache.put(request,fresh.clone()).catch(()=>{});

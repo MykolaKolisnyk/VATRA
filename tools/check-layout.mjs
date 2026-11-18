@@ -1972,7 +1972,7 @@ assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const onboardingJs=await read("assets/js/onboarding.js");
 const ownerAdminGuard=await read("assets/js/account-guard.js");
 const ownerAdminJs=await read("assets/js/admin.js");
-assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js",root).href)')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
+assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
 assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
@@ -2441,6 +2441,7 @@ assert.ok(
 await import("./feed-story-subscriptions-smoke.mjs");
 
 await import("./section-loading-smoke.mjs");
+await import("./revision-assets.mjs");
 const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");
@@ -2461,7 +2462,7 @@ for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["v
 }
 assert.ok(!clipsRuntime.includes("marketplace_listings")&&!settingsRuntime.includes("marketplace_listings")&&!marketplaceRuntime.includes('eq("is_clip",true)'));
 assert.ok(marketplaceRuntime.includes("IntersectionObserver")&&marketplaceRuntime.includes("deferProductPhoto(row,photo)")&&marketplaceRuntime.includes("signedPhotos=new Map()")&&marketplaceRuntime.includes("signedPhotos.clear()"));
-assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js",root).href)')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js",root).href)'));
+assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js?rev=')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js?rev='));
 await assert.rejects(stat("assets/js/sections.js"),{code:"ENOENT"});
 await assert.rejects(stat("assets/css/sections.css"),{code:"ENOENT"});
 assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));

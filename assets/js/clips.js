@@ -73,7 +73,7 @@ async function clips(){
   composerLoading=true;action.setAttribute("aria-busy","true");
   try{
    if(!composerDialog){
-    const module=await import(new URL("assets/js/clip-composer.js",root).href);
+    const module=await import(new URL("assets/js/clip-composer.js?rev=c3f56a37c79271efcd2bf9e529f5c53cc99207da",root).href);
     composerDialog=module.createClipComposer({dialog,field,t,make,submit,message,client,ownId,user,load});
    }
    if(action.isConnected)composerDialog.showModal();

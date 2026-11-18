@@ -24,7 +24,7 @@ function harness(allowed,blocked=false){
  const window={};
  const loadModule=async url=>{imports.push(url);return {openPanel(current,isCurrent){if(isCurrent())open.push(current.id);},clearPanel(){open.length=0;}};};
  const alerts=[];
- const source=guard.replace('import(new URL("assets/js/admin.js",root).href)','loadModule(new URL("assets/js/admin.js",root).href)');
+ const source=guard.replace(/import\(new URL\("(assets\/js\/admin\.js\?rev=[a-f0-9]{40})",root\)\.href\)/,'loadModule(new URL("$1",root).href)');
  new Function("window","document","location","loadModule","alert","URL",source)(window,document,{replace(){}},loadModule,(x)=>alerts.push(x),URL);
  return {menu,styles,imports,calls,open,events,alerts,window,client};
 }
@@ -39,7 +39,7 @@ await owner.window.VATRA_ADMIN_SESSION(owner.client,"1");
 assert.equal(owner.menu.length,1);assert.ok(owner.calls.includes("vatra_admin_access"));
 assert.equal(owner.imports.length,0);assert.equal(owner.styles.length,0);
 await owner.menu[0].click();
-assert.equal(owner.imports.length,1);assert.ok(owner.imports[0].endsWith("/assets/js/admin.js"));
+assert.equal(owner.imports.length,1);assert.ok(owner.imports[0].includes("/assets/js/admin.js?rev="));
 assert.equal(owner.styles.length,1);assert.deepEqual(owner.open,["1"]);assert.equal(owner.alerts.length,0);
 await owner.menu[0].click();assert.equal(owner.imports.length,1);assert.equal(owner.styles.length,1);
 owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);assert.equal(owner.open.length,0);
