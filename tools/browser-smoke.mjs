@@ -1375,7 +1375,7 @@ try{
      responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
      order:!!box&&!!title&&!!button&&box.bottom<=title.top+1&&title.bottom<=button.top+1,
      visibleHeading:!!title&&title.width>0&&title.height>0&&getComputedStyle(heading).visibility==="visible",
-     message:heading?.textContent.trim(),button:[...home.querySelectorAll("span:not([hidden])")].map(el=>el.textContent.trim()).join(" "),target:home?.getAttribute("href"),
+     message:heading?.textContent.trim(),button:[...home.querySelectorAll("span:not([hidden])")].map(el=>el.textContent.trim()).join(" "),target:home?.href,
      noErrorCard:!document.querySelector(".error-card,.error-code,.error-description,header,footer"),
      neutralBackground:getComputedStyle(document.body).backgroundColor==="rgb(245, 245, 245)"&&getComputedStyle(document.body).backgroundImage==="none",
      verticallyCentered:!!box&&!!button&&Math.abs((box.top+button.bottom)/2-innerHeight/2)<28};
@@ -1384,7 +1384,7 @@ try{
     "404 must display the centered detective, visible heading and return button: "+JSON.stringify(mascot));
    assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
    assert.equal(mascot.button,language==="en"?"Back to home":"На головну");
-   assert.equal(mascot.target,"/VATRA/");
+   assert.equal(mascot.target,new URL("/VATRA/",base).href,"Direct or unknown referrers must resolve to the VATRA home page");
   };
   await verifyMissingPage();
   const missing=await tab.goto(base+"missing/nested-example",{waitUntil:"load"});
@@ -2783,9 +2783,10 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,after:null,before:null,
-      eq(_field,id){this.filterId=String(id);return this;},
+    {select:()=>({filterId:null,clipFilter:null,after:null,before:null,
+      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else this.filterId=String(id);return this;},
       is(){return this;},
+      limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
       gte(column,date){if(column==="created_at")this.after=date;return this;},
       lt(column,date){if(column==="created_at")this.before=date;return this;},
       order(){return this;},range:async function(a,b){
@@ -2795,6 +2796,7 @@ try{
        }else await new Promise(resolve=>setTimeout(resolve,320));
        return {data:window.__feedTestPosts.filter(p=>
         (this.filterId===null||String(p.author_vatra_id)===this.filterId)&&
+        (this.clipFilter===null||Boolean(p.is_clip)===this.clipFilter)&&
         (!this.after||new Date(p.created_at)>=new Date(this.after))&&
         (!this.before||new Date(p.created_at)<new Date(this.before))
        ).slice(a,b+1),error:null};
@@ -3612,11 +3614,9 @@ try{
   });
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
    document.querySelectorAll("#feed-posts .feed-post-card").length===0);
-  await feedProbe.evaluate(()=>{
-   // An explicit search submit invalidates the last cached Feed cursor.
-   document.querySelector("#feed-search-form").requestSubmit();
-  });
-  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false");
+  // Global header search no longer submits a Feed filter. Expire the actual
+  // three-second cursor cache before holding the next network response.
+  await feedProbe.waitForTimeout(3100);
   await feedProbe.evaluate(()=>{
    window.__feedHoldNextRange=true;window.__feedReleaseRange=null;
    window.__feedStaleFilterPaint=false;
@@ -4017,8 +4017,18 @@ try{
    window.__feedTestPosts.unshift({id:"feed-manual-post-1",author_id:"feed-mock-user",
     author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
   },injectionText);
-  await feedProbe.locator("#feed-search-input").press("Enter");
+  // Header search now expands global results, not Feed. Refresh the real
+  // cursor by switching categories after the three-second cache lifetime.
+  await feedProbe.waitForTimeout(3100);
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
+  await feedProbe.locator("#feed-filter-toggle").click();
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),true);
+  await feedProbe.locator('[data-feed-filter="friends"]').click();
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&document.querySelector('[data-feed-filter="friends"]')?.getAttribute("aria-pressed")==="true");
+  await feedProbe.locator('[data-feed-filter="all"]').click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
+  await feedProbe.keyboard.press("Escape");
+  assert.equal(await feedProbe.locator("#feed-filter-options").isVisible(),false);
   assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
   assert.ok((await feedProbe.locator(".feed-post-profile-avatar").getAttribute("href")).endsWith("/VATRA/id654321"),
@@ -4136,8 +4146,12 @@ try{
   await feedProbe.locator("#feed-search-input").press("Enter");
   await feedProbe.waitForFunction(()=>
    JSON.parse(localStorage.getItem("vatra.search.history.v2.member.654321")||"[]")[0]==="Новий пошук VATRA");
+  assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),true,
+   "Submit persists the latest query and expands global search results");
+  assert.equal(await feedProbe.locator("#vatra-search-panel").evaluate(el=>el.classList.contains("is-expanded")),true);
+  await feedProbe.keyboard.press("Escape");
   assert.equal(await feedProbe.locator("#vatra-search-panel").isVisible(),false,
-   "Submit persists the latest query and closes the search menu");
+   "Escape closes expanded global search results");
   const mobileGeometry=await feedProbe.evaluate(()=>({
    overflow:document.documentElement.scrollWidth-innerWidth,
    culprits:[...document.querySelectorAll("body *")].map(el=>{
@@ -4532,7 +4546,9 @@ try{
   assert.equal((await profilePage.locator("#profile-status").textContent()).trim(),
    language==="en"?"Add a status":"Додайте статус");
   assert.equal(await profilePage.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
-   "The personal profile must not show guest legal footer");
+   "The personal profile must not show a page-level or guest legal footer");
+  assert.equal(await profilePage.locator("dialog .ui-profile-editor-record-footer-001").count(),1,
+   "The record editor retains its own semantic dialog footer");
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
    "The signed-in member profile must use /idN");
   // A direct /idN bookmark is handled by the GitHub Pages 404 fallback.

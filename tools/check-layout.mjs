@@ -1335,8 +1335,21 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  !profileScript.includes('home+"id="+')&&
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
+const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
+assert.ok(communityBannerMarkup.includes('src="assets/other/VATRA_communities.webp" width="2000" height="580" alt=""')&&
+ !communityBannerMarkup.includes('<span class="ui-community-banner-art-001"')&&
+ communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes("object-fit:cover;object-position:center")&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
+ communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
+ !(await read("club.html")).includes("assets/other/VATRA_communities.webp"),
+ "The original Uzhhorod panorama must be exclusively a responsive directory hero");
 const communityScript=await read("assets/js/communities.js");
-assert.doesNotThrow(()=>new Function(communityScript),"Community catalog and Redis fallback must parse as JavaScript");
+const clubRuntime=await read("assets/js/club.js");
+const communityCoreRuntime=await read("assets/js/community-core.js");
+for(const source of [communityScript,clubRuntime,communityCoreRuntime])assert.doesNotThrow(()=>new Function(source),"Community routes and Redis fallback must parse as JavaScript");
+const directoryMarkup=await read("communities.html"),clubMarkup=await read("club.html");
+assert.ok(directoryMarkup.includes("assets/js/community-core.js")&&directoryMarkup.includes("assets/js/communities.js")&&!directoryMarkup.includes("assets/js/club.js")&&!directoryMarkup.includes("assets/js/post-media.js")&&!directoryMarkup.includes("assets/js/post-interactions.js"),"Directory must not load club publication features");
+assert.ok(clubMarkup.includes("assets/js/community-core.js")&&clubMarkup.includes("assets/js/club.js")&&!clubMarkup.includes("assets/js/communities.js")&&clubMarkup.includes("assets/js/post-media.js")&&clubMarkup.includes("assets/js/post-interactions.js"),"Club route owns its publication features");
+assert.ok(!communityScript.includes("setupClubSocial")&&!clubRuntime.includes("openDirectory"),"Community pages must contain only their own route logic");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
 assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
@@ -1356,15 +1369,15 @@ feedMarkup.includes('id="feed-compose-media"') &&
  (await read("club.html")).includes('id="club-compose-media"') &&
  feedScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  profileScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
- communityScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
+ clubRuntime.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  postMediaScript.includes('createSignedUrl(path,ttl)') &&
  postMediaScript.includes('ttl=3600') &&
  postMediaScript.includes('signed(client,kind,path,300)'),
  "VATRA photos and videos must be attached, published and displayed across all post surfaces");
 assert.ok(
- communityScript.includes("postPattern.test(linkedId") &&
- communityScript.includes('.eq("club_id",clubId).eq("id",linkedId)') &&
- communityScript.includes('target.scrollIntoView({block:"center",behavior:"smooth"})') &&
+ clubRuntime.includes("postPattern.test(linkedId") &&
+ clubRuntime.includes('.eq("club_id",clubId).eq("id",linkedId)') &&
+ clubRuntime.includes('target.scrollIntoView({block:"center",behavior:"smooth"})') &&
  (await read("assets/js/post-interactions.js")).includes('validUUID(post.id)?"?post="'),
  "Community publications from sharing must open their exact post");
 const searchRouteSource=await read("assets/js/social-shell.js");
@@ -1419,7 +1432,8 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id"')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip"')&&
+ feedScript.includes('query.eq("is_clip",false)')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
@@ -1506,7 +1520,7 @@ const systemFeedCss=await read("assets/css/feed.css");
 assert.ok(
  systemProfileCss.includes("body.profile-page :is(")&&
  systemProfileCss.includes("#profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list")&&
- systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-saved-list")&&
+ systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list")&&
  systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list")&&
  systemProfileCss.includes("):not(:has(> *)){")&&
  systemProfileCss.includes("--vatra-content-card-gap:16px")&&
@@ -1549,7 +1563,7 @@ assert.ok(
 // Gallery uploads stay bounded and use the existing RLS-protected post rows.
 // Comment threads are not requested or shown until the real post enters its dialog.
 const postComposerScript=await read("assets/js/post-composer-ui.js");
-const clubPostScript=await read("assets/js/communities.js");
+const clubPostScript=clubRuntime;
 assert.ok(
  postMediaScript.includes("const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024")&&
  postMediaScript.includes("function bindGalleryPicker(ids)")&&
@@ -1759,7 +1773,7 @@ assert.ok(
  postMediaScript.includes('Promise.allSettled(batch.map(file=>upload(client,id,file)))')&&
  interactionsScript.includes('const [commentsResult,sharesResult]=await Promise.all([')&&
  interactionsScript.includes('const hydrateSaved=()=>{')&&
- notificationPerfScript.includes('period=subscribed?300000:60000')&&
+ notificationPerfScript.includes('period=subscribed?300000:120000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
  /const CACHE="vatra-offline-shell-v[0-9]+"/.test(workerPerfScript)&&
  workerPerfScript.includes('fetch(request,{cache:"no-cache"})')&&
@@ -1944,11 +1958,11 @@ assert.ok(
  !feedStyle.includes("vatraRouteReadyReveal") &&
  socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
  !socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
- socialMotion.includes('const member=id=>validMember(id)?new URL("id"+id,base).href:null;') &&
+ getSearchHref("people",{vatra_id:"1"})===searchTestBase+"id1" &&
  socialMotion.includes('location.assign(next.href)') &&
  !socialMotion.includes('window.setTimeout(navigate,145)') &&
  !socialMotion.includes('classList.add("vatra-route-exiting")') &&
- feedStyle.includes("body.feed-page.vatra-shell-pending .feed-app > .feed-layout") &&
+ feedStyle.includes("body.feed-page.vatra-shell-pending .feed-app > :is(.feed-layout,.ui-vatra-community-workspace-001,.ui-vatra-section-main-001)") &&
  !feedStyle.includes("vatra-editor-switching") &&
  !memberCss.includes("view-transition-name:vatra-editor") &&
  feedStyle.includes("@media(prefers-reduced-motion:reduce)") &&
@@ -1969,9 +1983,12 @@ assert.ok(
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const onboardingJs=await read("assets/js/onboarding.js");
-const ownerAdminJs=await read("assets/js/owner-admin.js");
+const ownerAdminGuard=await read("assets/js/account-guard.js");
+const ownerAdminJs=await read("assets/js/admin.js");
+assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
-assert.ok(ownerAdminJs.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
+assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
+assert.ok((await read("assets/css/feed.css")).includes(".vt-vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vt-vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
@@ -2145,7 +2162,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sections.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["admin.css","base.css","clips.css","communities.css","core.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","marketplace.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","settings.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2296,7 +2313,7 @@ for(const publicNamePage of ["feed","profile","communities","club","notification
   "Public-name cache must load before member data on "+publicNamePage);
 }
 for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
- "assets/js/notifications.js","assets/js/profile.js","assets/js/communities.js"]){
+ "assets/js/notifications.js","assets/js/profile.js","assets/js/club.js"]){
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
@@ -2337,9 +2354,9 @@ assert.ok(
  publicRedisEdge.includes('Number.isSafeInteger(record.club_id)')&&
  publicRedisEdge.includes('.eq("club_id", clubId).maybeSingle()')&&
  publicRedisEdge.includes('validateCommunity(parsed) && parsed.club_id === clubId')&&
- communityScript.includes('client.functions.invoke("public-community-directory",{')&&
- communityScript.includes('body:{club_id:numeric}')&&
- communityScript.includes('return client.from("communities")')&&
+ clubRuntime.includes('client.functions.invoke("public-community-directory",{')&&
+ clubRuntime.includes('body:{club_id:numeric}')&&
+ clubRuntime.includes('return client.from("communities")')&&
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("./community-detail-cache-smoke.mjs");
@@ -2348,7 +2365,7 @@ await import("./community-category-smoke.mjs");
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
-const batchedClubPosts=await read("assets/js/communities.js");
+const batchedClubPosts=clubRuntime;
 assert.ok(
  batchedFeedPosts.includes("batch.append(card(item,engagement))")&&
  batchedFeedPosts.includes("posts.append(batch)")&&
@@ -2375,7 +2392,7 @@ assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).l
  !storageBucketCleanup.includes("UPDATE storage.objects"),
  "Legacy views can be removed independently; clean Storage buckets must preserve owner-only RLS");
 for(const source of ["assets/js/avatar.js","assets/js/post-media.js","assets/js/post-interactions.js",
- "assets/js/feed.js","assets/js/profile.js","assets/js/communities.js",
+ "assets/js/feed.js","assets/js/profile.js","assets/js/communities.js","assets/js/club.js","assets/js/community-core.js",
  "assets/js/friends.js","assets/js/notifications.js"]){
  const contents=await read(source);
  for(const oldBucket of ["vatra-avatars","vatra-covers","vatra-post-images","vatra-videos"])
@@ -2440,13 +2457,32 @@ assert.ok(
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("./feed-story-subscriptions-smoke.mjs");
 
-const sectionsRuntime=await read("assets/js/sections.js");
-const sectionsStyle=await read("assets/css/sections.css");
-assert.doesNotThrow(()=>new Function(sectionsRuntime));
-for(const section of ["clips","marketplace","vatra-id"]){
+await import("./section-loading-smoke.mjs");
+await import("./static-cache-smoke.mjs");
+await import("./revision-assets.mjs");
+const coreRuntime=await read("assets/js/core.js");
+const marketplaceRuntime=await read("assets/js/marketplace.js");
+const clipsRuntime=await read("assets/js/clips.js");
+const settingsRuntime=await read("assets/js/settings.js");
+const editorRuntime=await read("assets/js/marketplace-editor.js");
+const clipComposerRuntime=await read("assets/js/clip-composer.js");
+const sectionsRuntime=[marketplaceRuntime,editorRuntime,clipsRuntime,clipComposerRuntime,settingsRuntime,coreRuntime].join("\n");
+const sectionsStyle=(await Promise.all(["core","marketplace","clips","settings"].map(name=>read("assets/css/"+name+".css")))).join("\n");
+for(const runtime of [coreRuntime,marketplaceRuntime,clipsRuntime,settingsRuntime,ownerAdminGuard])assert.doesNotThrow(()=>new Function(runtime));
+for(const module of [editorRuntime,clipComposerRuntime,ownerAdminJs])assert.doesNotThrow(()=>new Function(module.replace(/^export /gm,"")));
+for(const [section,stem] of [["clips","clips"],["marketplace","marketplace"],["vatra-id","settings"]]){
  const markup=await read(section+".html");
- assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/sections.js')&&markup.includes('assets/css/sections.css'));
+ assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/core.js')&&markup.includes('assets/js/'+stem+'.js')&&markup.includes('assets/css/core.css')&&markup.includes('assets/css/'+stem+'.css'));
+ for(const other of ["clips","marketplace","settings"].filter(name=>name!==stem)){
+  assert.ok(!markup.includes('assets/js/'+other+'.js')&&!markup.includes('assets/css/'+other+'.css'),section+" must not load another section");
+ }
+ assert.ok(!markup.includes("sections.js")&&!markup.includes("sections.css")&&!markup.includes("marketplace-editor.js")&&!markup.includes("clip-composer.js"));
 }
+assert.ok(!clipsRuntime.includes("marketplace_listings")&&!settingsRuntime.includes("marketplace_listings")&&!marketplaceRuntime.includes('eq("is_clip",true)'));
+assert.ok(marketplaceRuntime.includes("IntersectionObserver")&&marketplaceRuntime.includes("deferProductPhoto(row,photo)")&&marketplaceRuntime.includes("signedPhotos=new Map()")&&marketplaceRuntime.includes("signedPhotos.clear()"));
+assert.ok(marketplaceRuntime.includes('import(new URL("assets/js/marketplace-editor.js?rev=')&&clipsRuntime.includes('import(new URL("assets/js/clip-composer.js?rev='));
+await assert.rejects(stat("assets/js/sections.js"),{code:"ENOENT"});
+await assert.rejects(stat("assets/css/sections.css"),{code:"ENOENT"});
 assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
 assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
  "Marketplace uses independent sidebar scrolling, ten photos and live preview");

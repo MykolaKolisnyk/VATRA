@@ -128,7 +128,7 @@ for(const key of postMediaKeys){
  assert.equal(en[key].endsWith(" "),key.endsWith(" "),
   "English post media prefix whitespace mismatch: "+key);
 }
-const communityRuntime=await readFile("assets/js/communities.js","utf8");
+const communityRuntime=(await Promise.all(["community-core","communities","club"].map(name=>readFile("assets/js/"+name+".js","utf8")))).join("\n");
 const communityPages=[
  await readFile("communities.html","utf8"),
  await readFile("club.html","utf8")
