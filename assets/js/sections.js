@@ -105,7 +105,7 @@ async function marketplace(){
  title.textContent=t("Маркетплейс","Marketplace");subtitle.textContent="";action.textContent=t("Створити оголошення","Create listing");action.hidden=false;
  let mine=false,savedOnly=false,category="all",term="",cityTerm="",low="",high="",sort="newest",rows=[];
  const storageKey="vatra:market:saved:"+ownId;let saved=new Set();try{const v=JSON.parse(localStorage.getItem(storageKey)||"[]");if(Array.isArray(v))saved=new Set(v.filter(x=>typeof x==="string").slice(0,100));}catch(_){}
- const body=make("div","ui-vatra-market-browse-001"),sidebar=card("ui-vatra-market-sidebar-001"),grid=make("div","ui-vatra-market-grid-001"),filter=make("div","ui-vatra-market-filters-001"),catalog=make("div","ui-vatra-market-catalog-001");
+ const body=make("div","ui-vatra-market-browse-001"),sidebar=card("ui-vatra-market-sidebar-001"),grid=make("div","ui-vatra-market-grid-001"),filter=make("details","ui-vatra-market-filters-001"),catalog=make("div","ui-vatra-market-catalog-001");
  const find=make("input","ui-vatra-market-search-001");find.type="search";find.placeholder=t("Пошук товарів","Search products");find.setAttribute("aria-label",find.placeholder);find.addEventListener("input",()=>{term=find.value.trim().toLocaleLowerCase();render();});
  const allCategories=[["all","Усі товари","All products"],...categories];
  const selectCategory=id=>{category=id;for(const b of catalog.children)b.setAttribute("aria-pressed",String(b.dataset.category===id));render();};
@@ -113,7 +113,7 @@ async function marketplace(){
  for(const [id,uk,en] of allCategories){const b=btn("","vt-vatra-market-catalog-item-"+id,()=>selectCategory(id));b.dataset.category=id;b.setAttribute("aria-pressed",String(id==="all"));const icon=make("span","ui-vatra-market-category-symbol-"+id);icon.append(sectionIcon(id));b.append(icon,make("span","vt-vatra-market-category-label-"+id,t(uk,en)));catalog.append(b);}
  sidebar.append(make("h2","vt-vatra-browse-title-001",t("Маркетплейс","Marketplace")),find,mode,action,make("h3","vt-vatra-market-categories-title-001",t("Категорії","Categories")),catalog);
  const heading=make("h2","vt-vatra-market-results-title-001",t("Усі товари","All products"));
- filter.append(make("h2","vt-vatra-market-filter-title-001",t("Фільтри","Filters")));
+ filter.append(make("summary","vt-vatra-market-filter-title-001",t("Фільтри","Filters")));
  const formFilters=make("div","ui-vatra-market-filter-fields-001");
  const cityFilter=field(formFilters,"filter-city",t("Місто","City"),"search",100);cityFilter.addEventListener("input",()=>{cityTerm=cityFilter.value.trim().toLocaleLowerCase();render();});
  const minPrice=field(formFilters,"filter-min",t("Ціна від, грн","Price from, UAH"),"number"),maxPrice=field(formFilters,"filter-max",t("Ціна до, грн","Price to, UAH"),"number");minPrice.min=maxPrice.min="0";minPrice.addEventListener("input",()=>{low=minPrice.value;render();});maxPrice.addEventListener("input",()=>{high=maxPrice.value;render();});
