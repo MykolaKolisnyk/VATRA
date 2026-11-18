@@ -10,9 +10,9 @@
   "lang": "uk",
   "icons": [
     {
-      "src": "/VATRA/assets/logo/vatra-app-icon.png",
-      "sizes": "360x360",
-      "type": "image/png",
+      "src": "/VATRA/assets/logo/vatra-app-icon.webp",
+      "sizes": "2048x2048",
+      "type": "image/webp",
       "purpose": "any maskable"
     },
     {

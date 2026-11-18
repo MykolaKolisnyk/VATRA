@@ -313,12 +313,12 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Back to home"
+            "0": "To news feed"
           }
         },
         "n8": {
           "text": {
-            "0": "Page not found"
+            "0": "This page doesn't exist"
           }
         },
         "n14": {

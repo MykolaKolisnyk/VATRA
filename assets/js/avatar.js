@@ -19,9 +19,9 @@ function cssSvg(kind,state){
 // The CSS owns the actual portraits; expose the same stable paths through
 // the existing asset() API without treating them as uploaded user photos.
 const SYSTEM_VATRYK_ART=Object.freeze({
- blocked:"/VATRA/assets/vatryk/vatryk-blocked.png",
- deleted:"/VATRA/assets/vatryk/vatryk-deleted.png",
- "not-found":"/VATRA/assets/vatryk/vatryk-not-found.png"
+ blocked:"/VATRA/assets/vatryk/vatryk-blocked.webp",
+ deleted:"/VATRA/assets/vatryk/vatryk-deleted.webp",
+ "not-found":"/VATRA/assets/vatryk/vatryk-not-found.webp"
 });
 const asset=(state="default",size=1024)=>SYSTEM_VATRYK_ART[state]||cssSvg("avatar","default");
 const coverAsset=(state="default")=>cssSvg("cover",state);

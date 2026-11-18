@@ -8,13 +8,13 @@ import {chromium,firefox,webkit} from "playwright";
 const templates=["confirmation","invite","recovery","magic-link","email-change",
  "reauthentication","password-changed","email-address-changed"];
 await mkdir("audit-screenshots",{recursive:true});
-const brandLogo=await readFile("assets/logo/vatra-logo.png");
+const brandLogo=await readFile("assets/logo/vatra-logo.webp");
 for(const [engine,kind] of [["chromium",chromium],["firefox",firefox],["webkit",webkit]]){
  const browser=await kind.launch({headless:true});
  try{
   const context=await browser.newContext({serviceWorkers:"block",reducedMotion:"reduce"});
   await context.route("**/*",route=>{
-   if(route.request().url().endsWith("/VATRA/assets/logo/vatra-logo.png"))
+   if(route.request().url().endsWith("/VATRA/assets/logo/vatra-logo.webp"))
     return route.fulfill({status:200,contentType:"image/png",body:brandLogo});
    return route.abort();
   }); // Real local VATRA logo, no external network dependencies.

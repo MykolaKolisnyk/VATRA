@@ -1840,7 +1840,7 @@ assert.ok(
  systemProfileCss.includes("width:52px;height:52px;padding:0;box-sizing:border-box"),
  "Auth palette uses canonical declarations without appended duplicate layers");
 // Ordinary account avatars and all system covers stay CSS SVGs; exceptional
-// account states use the three supplied local Vatryk PNG portraits.
+// account states use the three supplied local Vatryk WebP portraits.
 function readEmbeddedSvg(css,name){
  const match=css.match(new RegExp("--"+name+":url\\(\"data:image/svg\\+xml,([^\"\\n]+)\"\\)"));
  return match?decodeURIComponent(match[1]):null;
@@ -1851,7 +1851,7 @@ assert.ok(
  plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
-  systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.png")')&&
+  systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.webp")')&&
   systemProfileCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
@@ -1991,7 +1991,7 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  onboardingCss.includes('.vt-tour-spotlight-001')&&
  onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
-  onboardingJs.includes("vatryk_"+state+".png")),
+  onboardingJs.includes("vatryk_"+state+".webp")),
  "First-visit Vatryk onboarding must be localized, accessible, per-member and with a nonmodal first-steps panel");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
@@ -2056,16 +2056,18 @@ assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.sup
  "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
 assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
  errorPage.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
- notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk-404.png")')&&
- errorPage.includes('class="sr-only vt-404-accessible-title-001"')&&
+ notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk_detective.webp")')&&
+ errorPage.includes('class="vt-404-accessible-title-001"')&&
+ errorPage.includes('href="/VATRA/feed" class="error-home-link vt-404-link-002"')&&
+ errorPage.includes("Такої сторінки немає")&&
  !errorPage.includes('class="account-card error-card')&&
  !errorPage.includes('class="error-code')&&
  !errorPage.includes('class="error-description')&&
  !errorPage.includes('class="action primary error-action'),
- "404 must show only Vatryk in the center, with one accessible home action in the header");
+ "404 must center Vatryk, a localized visible message and the feed action");
 assert.ok(notFoundCss.includes(".error-home-link:hover{")&&
  notFoundCss.includes("color:#fff;text-decoration:none}")&&
- notFoundCss.includes("justify-content:space-between")&&
+ notFoundCss.includes("flex-direction:column;gap:16px")&&
  notFoundCss.includes(".error-main .ui-404-vatryk-001"),
  "404 header, centered mascot and single home link must remain aligned");
 for(const name of ["terms","privacy","cookies"]){

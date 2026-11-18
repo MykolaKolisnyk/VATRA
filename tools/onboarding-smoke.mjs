@@ -65,13 +65,13 @@ const broken={getItem(){throw Error("Blocked storage");},setItem(){throw Error("
 assert.equal(readState(broken,"654321"),null);
 assert.equal(saveState(broken,"654321","paused",2),false);
 
-// All five exact user-supplied PNGs must exist; do not generate new avatars.
+// All five exact user-supplied WebP files must exist; do not generate new avatars.
 const expected=["welcome","waiting","success","goodbye","explanation"];
 for(const variant of expected){
- const p="assets/vatryk/vatryk_"+variant+".png";
+ const p="assets/vatryk/vatryk_"+variant+".webp";
  const png=await readFile(p);
- assert.ok(png.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),p+" must be PNG");
- assert.ok(source.includes("vatryk_"+variant+".png"),variant+" must be used by onboarding");
+ assert.ok(png.toString("ascii",0,4)==="RIFF"&&png.toString("ascii",8,12)==="WEBP"&&png.length>1000,p+" must be WebP");
+ assert.ok(source.includes("vatryk_"+variant+".webp"),variant+" must be used by onboarding");
 }
 assert.ok(html.includes('src="assets/js/onboarding.js"'));
 assert.ok(html.includes('href="assets/css/onboarding.css"'));

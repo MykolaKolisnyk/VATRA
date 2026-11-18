@@ -10,7 +10,7 @@ const root=process.cwd();
 const swSource=await readFile(resolve(root,"sw.js"),"utf8");
 const currentCache=swSource.match(/const CACHE="([^"]+)"/)?.[1];
 assert.ok(currentCache,"Service Worker cache version missing");
-const mime={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".ttf":"font/ttf",".xml":"application/xml"};
+const mime={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".webp":"image/webp",".ttf":"font/ttf",".xml":"application/xml"};
 const server=createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,"http://localhost");
@@ -26,7 +26,8 @@ const server=createServer(async(req,res)=>{
   res.writeHead(200,{"Content-Type":mime[extension]||"application/octet-stream"});
   res.end(body);
  }catch(error){
-  if(error?.code==="ENOENT"&&/^\/VATRA\/(?:id|club)[1-9][0-9]{0,18}$/.test(new URL(req.url,"http://localhost").pathname)){
+  const missingPath=new URL(req.url,"http://localhost").pathname;
+  if(error?.code==="ENOENT"&&missingPath.startsWith(basePath)&&!missingPath.startsWith(basePath+"assets/")&&(/^\/VATRA\/(?:id|club)[1-9][0-9]{0,18}$/.test(missingPath)||req.headers.accept?.includes("text/html"))){
    res.writeHead(404,{"Content-Type":mime[".html"]});
    res.end(await readFile(resolve(root,"404.html")));
   }else res.writeHead(404).end("Not found");
@@ -1359,24 +1360,34 @@ try{
   await tab.waitForFunction(lang=>document.documentElement.lang===lang,language);
   assert.equal(await tab.title(),expected,
    "404 tab title must use the same middle dot and omit punctuation after 404: "+language);
-  const mascot=await tab.evaluate(()=>{
-   const image=document.querySelector(".ui-404-vatryk-001");
-   const brand=document.querySelector(".ui-404-header-inner-001 .header-logo");
-   const home=document.querySelector(".error-home-link");
-   const box=image?.getBoundingClientRect(),logo=brand?.getBoundingClientRect(),
-    button=home?.getBoundingClientRect();
-   return {loaded:!!image&&image.tagName==="SPAN"&&
-    getComputedStyle(image).backgroundImage.includes("vatryk-404.png"),
-    centered:!!box&&Math.abs((box.left+box.right)/2-innerWidth/2)<24,
-    responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
-    headerOrder:!!logo&&!!button&&logo.right+8<button.left,
-    onlyArt:!document.querySelector(".error-card,.error-code,.error-description,.error-action"),
-    hiddenHeading:document.querySelector("#error-heading")?.classList.contains("sr-only")
-   };
-  });
-  assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.headerOrder&&
-   mascot.onlyArt&&mascot.hiddenHeading,
-   "404 must display centered Vatryk with aligned header, no error card: "+JSON.stringify(mascot));
+  const verifyMissingPage=async()=>{
+   await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending"));
+   const mascot=await tab.evaluate(async()=>{
+    const image=document.querySelector(".ui-404-vatryk-001");
+    const heading=document.querySelector("#error-heading");
+    const home=document.querySelector(".error-home-link");
+    const box=image?.getBoundingClientRect(),title=heading?.getBoundingClientRect(),button=home?.getBoundingClientRect();
+    const background=image&&getComputedStyle(image).backgroundImage;
+    const art=new Image();art.src="/VATRA/assets/vatryk/vatryk_detective.webp";
+    let decoded=false;try{await art.decode();decoded=art.naturalWidth>0;}catch(_){}
+    return {loaded:decoded&&image?.tagName==="SPAN"&&background.includes("vatryk_detective.webp"),
+     centered:!!box&&Math.abs((box.left+box.right)/2-innerWidth/2)<24,
+     responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
+     order:!!box&&!!title&&!!button&&box.bottom<=title.top+1&&title.bottom<=button.top+1,
+     visibleHeading:!!title&&title.width>0&&title.height>0&&getComputedStyle(heading).visibility==="visible",
+     message:heading?.textContent.trim(),button:home?.textContent.trim(),target:home?.getAttribute("href"),
+     noErrorCard:!document.querySelector(".error-card,.error-code,.error-description")};
+   });
+   assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.order&&mascot.visibleHeading&&mascot.noErrorCard,
+    "404 must display the centered detective, visible heading and feed button: "+JSON.stringify(mascot));
+   assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
+   assert.equal(mascot.button,language==="en"?"To news feed":"До стрічки новин");
+   assert.equal(mascot.target,"/VATRA/feed");
+  };
+  await verifyMissingPage();
+  const missing=await tab.goto(base+"missing/nested-example",{waitUntil:"load"});
+  assert.equal(missing.status(),404,"An unknown URL must keep its HTTP 404 status");
+  await verifyMissingPage();
   assert.equal(await tab.locator(".ui-404-vatryk-001").evaluate(el=>{
    const event=new MouseEvent("contextmenu",{bubbles:true,cancelable:true});
    return el.dispatchEvent(event);
@@ -2875,7 +2886,7 @@ try{
  assert.ok(giftMetrics.open&&giftMetrics.width>=giftMetrics.screenWidth-2&&
   giftMetrics.height>=giftMetrics.screenHeight-2,
   "Gift must occupy the whole viewport, not a small modal: "+JSON.stringify(giftMetrics));
- assert.ok(giftMetrics.background.includes("first-flame.png")&&
+ assert.ok(giftMetrics.background.includes("first-flame.webp")&&
   giftMetrics.artTag==="SPAN"&&
   giftMetrics.effects===20&&giftMetrics.ember&&giftMetrics.spark,
   "First flame PNG must appear as decorative art with floating flame sparks");
@@ -2927,11 +2938,11 @@ try{
   await feedProbe.locator("#vatra-onboarding-replay").click();
   await feedProbe.locator("#vatra-tour-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(el=>
-   el.tagName==="SPAN"&&getComputedStyle(el).backgroundImage.includes("vatryk_welcome.png")),
+   el.tagName==="SPAN"&&getComputedStyle(el).backgroundImage.includes("vatryk_welcome.webp")),
    true,"Welcome Vatryk must be decorative and non-draggable");
   assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(async el=>{
    const image=new Image();
-   image.src="/VATRA/assets/vatryk/vatryk_welcome.png";
+   image.src="/VATRA/assets/vatryk/vatryk_welcome.webp";
    try{await image.decode();return image.naturalWidth>0;}catch(_){return false;}
   }),true,"The original welcome PNG must load");
   await feedProbe.locator(".vt-tour-next-001").click();
@@ -4388,14 +4399,24 @@ try{
   assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
    "Each editor section needs a recognizable VATRA icon");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
-  await profilePage.locator("#profile-editor-visibility-short_bio").selectOption("only_me");
+  const chooseProfileEditorOption=async(id,value,label)=>{
+   const trigger=profilePage.locator("#"+id);
+   await trigger.click();
+   assert.equal(await trigger.getAttribute("aria-expanded"),"true");
+   const panelId=await trigger.getAttribute("aria-controls");
+   assert.ok(panelId);
+   await profilePage.locator("#"+panelId).getByText(label,{exact:true}).click();
+   assert.equal(await profilePage.locator("#"+id+"-native").inputValue(),value);
+   assert.equal(await trigger.getAttribute("aria-expanded"),"false");
+  };
+  await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
-  await profilePage.locator("#profile-editor-relationship").fill("У стосунках");
-  await profilePage.locator("#profile-editor-page-visibility").selectOption("friends");
+  await chooseProfileEditorOption("profile-editor-relationship","Зустрічаюся",language==="en"?"In a relationship":"Зустрічаюся");
+  await chooseProfileEditorOption("profile-editor-page-visibility","friends",language==="en"?"Private · friends only":"Закрита · лише друзі");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
   await profilePage.locator("#profile-editor-city").fill("Київ");
   await profilePage.locator("#profile-editor-website").fill("https://example.org");
-  await profilePage.locator("#profile-editor-visibility-website").selectOption("public");
+  await chooseProfileEditorOption("profile-editor-visibility-website","public",language==="en"?"Everyone":"Для всіх");
   await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація",
    "Changing editor sections must preserve unsaved personal details");
@@ -4423,7 +4444,7 @@ try{
    "Current city has priority over hometown");
   assert.equal(await profilePage.locator(".vt-profile-information-value-hometown").count(),0,
    "Current city and hometown should not compete in the compact summary");
-  assert.equal((await profilePage.locator(".vt-profile-information-value-relationship").textContent()).trim(),"У стосунках");
+  assert.equal((await profilePage.locator(".vt-profile-information-value-relationship").textContent()).trim(),language==="en"?"In a relationship":"Зустрічаюся");
   assert.equal((await profilePage.locator(".vt-profile-about-website-001").textContent()).trim(),"https://example.org");
   await profilePage.locator("#profile-about-more").click();
   assert.equal(await profilePage.locator("#vatra-profile-details-dialog").evaluate(el=>el.open),true,
@@ -4502,7 +4523,7 @@ try{
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
   assert.equal((await profilePage.locator("#profile-status").textContent()).trim(),
    language==="en"?"Add a status":"Додайте статус");
-  assert.equal(await profilePage.locator("footer").count(),0,
+  assert.equal(await profilePage.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
    "The personal profile must not show guest legal footer");
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
    "The signed-in member profile must use /idN");
@@ -4704,8 +4725,8 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("/VATRA/assets/vatryk/vatryk-not-found.png"),
-   "A non-existent member must display its own Vatryk PNG");
+  assert.ok(fallbackStyle.image.includes("/VATRA/assets/vatryk/vatryk-not-found.webp"),
+   "A non-existent member must display its own Vatryk WebP");
   assert.equal(fallbackStyle.head,"none",
    "The old CSS silhouette must not cover the neutral SVG image");
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
@@ -4764,9 +4785,9 @@ try{
     actualCover:window.VATRA_AVATAR.coverAsset(el.dataset.vatraAvatarState),
     sharedCover:window.VATRA_AVATAR.coverAsset("default")
    }));
-   assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".png")&&
+   assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     neutralArt.actualAvatar!==neutralArt.sharedAvatar,
-    "Deleted and blocked members must use their own Vatryk PNG");
+    "Deleted and blocked members must use their own Vatryk WebP");
    assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
     "Deleted and blocked members use the same neutral SVG cover as ordinary accounts");
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
@@ -4787,9 +4808,9 @@ try{
     rendered:getComputedStyle(el).backgroundImage,
     expected:window.VATRA_AVATAR?.asset?.(el.dataset.vatraAvatarState)
    }));
-   assert.ok(stateSvg.expected?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".png")&&
+   assert.ok(stateSvg.expected?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     stateSvg.rendered.includes(stateSvg.expected),
-    "System portrait must render the matching Vatryk PNG for "+state);
+    "System portrait must render the matching Vatryk WebP for "+state);
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
