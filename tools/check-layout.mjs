@@ -1335,6 +1335,13 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  !profileScript.includes('home+"id="+')&&
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
+const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
+assert.ok(communityBannerMarkup.includes('src="assets/other/VATRA_communities_Uzhhorod_2000x580.png" width="2000" height="580" alt=""')&&
+ !communityBannerMarkup.includes('<span class="ui-community-banner-art-001"')&&
+ communityBannerCSS.includes("aspect-ratio:2000/580;object-fit:contain")&&
+ communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
+ !(await read("club.html")).includes("assets/other/VATRA_communities_Uzhhorod_2000x580.png"),
+ "The original Uzhhorod panorama must be exclusively a responsive directory hero");
 const communityScript=await read("assets/js/communities.js");
 const clubRuntime=await read("assets/js/club.js");
 const communityCoreRuntime=await read("assets/js/community-core.js");

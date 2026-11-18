@@ -2764,8 +2764,8 @@ try{
       data:[{club_id:42,name:"Спільнота тесту",description:"Опис спільноти",
        created_at:"2026-11-10T00:00:00Z"}],error:null
     })})}:
-    {select:()=>({filterId:null,after:null,before:null,
-      eq(_field,id){this.filterId=String(id);return this;},
+    {select:()=>({filterId:null,clipFilter:null,after:null,before:null,
+      eq(field,id){if(field==="is_clip")this.clipFilter=Boolean(id);else this.filterId=String(id);return this;},
       is(){return this;},
       limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
       gte(column,date){if(column==="created_at")this.after=date;return this;},
@@ -2777,6 +2777,7 @@ try{
        }else await new Promise(resolve=>setTimeout(resolve,320));
        return {data:window.__feedTestPosts.filter(p=>
         (this.filterId===null||String(p.author_vatra_id)===this.filterId)&&
+        (this.clipFilter===null||Boolean(p.is_clip)===this.clipFilter)&&
         (!this.after||new Date(p.created_at)>=new Date(this.after))&&
         (!this.before||new Date(p.created_at)<new Date(this.before))
        ).slice(a,b+1),error:null};
@@ -4931,6 +4932,25 @@ try{
   if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
   assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
+  const hero=page.locator("#community-discovery-banner");
+  const heroImage=hero.locator("img");
+  await heroImage.waitFor({state:"visible"});
+  await heroImage.evaluate(img=>img.decode());
+  assert.equal(await heroImage.evaluate(img=>img.naturalWidth),2000);
+  assert.equal(await heroImage.evaluate(img=>img.naturalHeight),580);
+  assert.equal(await hero.locator("h2").textContent(),language==="en"?"Find your people":"Знайдіть своїх людей");
+  const savedViewport=page.viewportSize();
+  for(const size of [{width:1366,height:844},{width:390,height:844}]){
+   await page.setViewportSize(size);
+   const banner=await hero.evaluate(el=>{
+    const img=el.querySelector("img"),title=el.querySelector("h2"),copy=el.querySelector(".ui-community-banner-copy-001");
+    const r=el.getBoundingClientRect(),i=img.getBoundingClientRect(),c=copy.getBoundingClientRect(),t=title.getBoundingClientRect();
+    return {width:r.width,height:r.height,ratio:i.width/i.height,within:r.left>=0&&r.right<=innerWidth+1,copyInside:c.bottom<=r.bottom+1&&t.left>=r.left&&t.right<=r.right,copyBelow:c.top>=i.bottom-1};
+   });
+   assert.ok(banner.width>0&&banner.within&&banner.copyInside&&Math.abs(banner.ratio-2000/580)<.04,"Original panorama and copy must fit: "+JSON.stringify(banner));
+   assert.equal(banner.copyBelow,size.width===390,"Mobile keeps the entire photograph above the readable copy");
+  }
+  if(savedViewport)await page.setViewportSize(savedViewport);
   assert.equal(await page.locator(".feed-sidebar").count(),0,
    "Communities has only the actual header navigation");
   assert.equal(await page.locator(".social-top-nav").isVisible(),true);
@@ -5029,6 +5049,7 @@ try{
   assert.equal(await page.locator(".ui-community-card-001").count(),1,
    "Searching VATRA communities must filter the directory by name");
   assert.equal(await page.locator("#feed-search-input").inputValue(),"Спільнота");
+  assert.equal(await page.locator("#community-discovery-banner").isVisible(),false,"Search should prioritize results, not the discovery banner");
   await page.goto(base+"communities?q="+encodeURIComponent("Неіснуючий"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
