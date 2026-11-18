@@ -351,6 +351,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea){
  --vatra-form-scroll-alpha:0;
  scrollbar-width:thin;
@@ -384,6 +386,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea).vatra-form-scroll-active{
  --vatra-form-scroll-alpha:.92;
 }
@@ -414,6 +418,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar{
  width:6px;height:6px
 }
@@ -444,6 +450,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-track,
 :where(.captcha-dialog,
  .vatra-select-scroll-area,
@@ -472,6 +480,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-corner{
  background:transparent
 }
@@ -502,6 +512,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-thumb{
  background:rgb(64 70 79 / var(--vatra-form-scroll-alpha));
  border:2px solid transparent;border-radius:99px;background-clip:padding-box
@@ -537,6 +549,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea){
   scrollbar-width:thin!important;
   scrollbar-color:rgb(64 70 79 / var(--vatra-form-scroll-alpha)) transparent!important
@@ -568,6 +582,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-button,
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
@@ -596,6 +612,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-button:single-button,
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
@@ -624,6 +642,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-button:vertical:decrement,
  :where(.captcha-dialog,
  .vatra-select-scroll-area,
@@ -652,6 +672,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea)::-webkit-scrollbar-button:vertical:increment{
   display:none!important;width:0!important;height:0!important;
   min-width:0!important;min-height:0!important;background:transparent!important
@@ -685,6 +707,8 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  .feed-story-view,
  .profile-story-viewer,
  .vatra-gift-viewer,
+ .ui-vatra-section-dialog-scroll-001,
+ .ui-vatra-clips-social-001 .vatra-post-comment-list,
  textarea){transition:none!important}
  .language-scroll-track{transition:none!important}
 }
