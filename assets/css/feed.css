@@ -193,6 +193,26 @@ body.feed-page.community-page .feed-layout{
 }
 body.feed-page.community-page .feed-layout{margin:28px auto 70px}
 body.feed-page .feed-main{min-width:0;gap:16px}
+
+body.feed-page .vatra-discovery-workspace{display:grid;grid-template-columns:clamp(250px,21vw,312px) minmax(0,1fr);align-items:start;min-height:calc(100dvh - 61px);width:100%;min-width:0}
+body.feed-page .vatra-discovery-sidebar{position:sticky;top:61px;align-self:start;display:flex;flex-direction:column;gap:14px;height:calc(100dvh - 61px);min-width:0;padding:24px 18px 28px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#a7afbb transparent}
+body.feed-page .vatra-discovery-content{width:100%;max-width:1400px;min-width:0;justify-self:center;padding:26px clamp(20px,2.5vw,40px) 56px}
+body.feed-page .vatra-discovery-title{margin:0;color:var(--ink);font-size:24px;font-weight:700;line-height:1.25;letter-spacing:-.025em}
+body.feed-page .vatra-discovery-search{width:100%;min-width:0;height:46px;padding:10px 14px;border:1px solid #d7ddea;border-radius:13px;background:#fff;color:var(--ink);font:500 15px/1.2 Onest,Inter,system-ui,sans-serif;transition:border-color .22s,box-shadow .22s}
+body.feed-page .vatra-discovery-search::placeholder{color:var(--soft);opacity:1}
+body.feed-page .vatra-discovery-search:focus{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
+body.feed-page .vatra-discovery-tabs{display:flex;flex-direction:column;gap:4px}
+body.feed-page .vatra-discovery-tabs button{display:flex;align-items:center;gap:12px;min-height:46px;padding:7px 10px;border:0;border-radius:11px;background:transparent;text-align:left;color:var(--ink);font:500 15px/1.4 Onest,Inter,system-ui,sans-serif}
+body.feed-page .vatra-discovery-tabs button:hover{background:var(--vatra-action-soft)}
+body.feed-page .vatra-discovery-tabs button.is-active{background:var(--vatra-action-selected);color:var(--vatra-action-ink);font-weight:700}
+body.feed-page .vatra-discovery-nav-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:11px;background:#f0f3f9;color:#6b7d99}
+body.feed-page .vatra-discovery-nav-icon svg{width:19px;height:19px}
+body.feed-page .vatra-discovery-tabs button.is-active .vatra-discovery-nav-icon{background:var(--blue);color:#fff}
+body.feed-page .vatra-discovery-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px 14px;border:0;border-radius:11px;background:var(--vatra-action-primary);color:#fff;font:700 14px/1.35 Onest,Inter,system-ui,sans-serif;white-space:normal}
+body.feed-page .vatra-discovery-primary:hover{background:var(--vatra-action-primary-hover)}
+@media(max-width:850px){body.feed-page .vatra-discovery-workspace{grid-template-columns:minmax(0,1fr);min-height:0}body.feed-page .vatra-discovery-sidebar{position:static;height:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line);padding:16px;gap:12px}body.feed-page .vatra-discovery-content{padding:20px 16px 44px}body.feed-page .vatra-discovery-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.feed-page .vatra-discovery-tabs button{font-size:14px;gap:8px}}
+@media(max-width:420px){body.feed-page .vatra-discovery-content{padding:16px 12px 40px}body.feed-page .vatra-discovery-sidebar{padding:14px 12px}}
+
 body.feed-page .feed-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:35px;margin:0;padding:0}
 body.feed-page .feed-title{font:760 26px/1.28 "Onest",sans-serif;letter-spacing:-.032em;color:var(--ink)}
 body.feed-page .feed-posts-heading{padding:1px 3px}
