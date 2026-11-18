@@ -1,218 +1,43 @@
-
-body.vatra-friends-page .vatra-friends-main{
- color:#304361;font-family:"Onest",system-ui,sans-serif
-}
-body.vatra-friends-page .vatra-friends-layout{
- display:grid;
- align-items:start;}
-body.vatra-friends-page .vatra-friends-primary,
-body.vatra-friends-page .vatra-friends-side-card{
- border:1px solid #e2e9f4;border-radius:18px;background:#fff;
- box-shadow:0 5px 24px rgba(43,63,105,.038)
-}
-body.vatra-friends-page .vatra-friends-primary{min-width:0;}
-body.vatra-friends-page .vatra-friends-top{
- display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
-body.vatra-friends-page .vatra-friends-heading-wrap{display:flex;flex-direction:column;gap:3px}
-body.vatra-friends-page .vt-vatra-friends-eyebrow-001{
- color:#8297b7;letter-spacing:.12em;font:710 10px/1.4 "Onest",system-ui,sans-serif
-}
-body.vatra-friends-page .vt-vatra-friends-heading-001{
- margin:0;font:810 25px/1.2 "Onest",system-ui,sans-serif;}
-body.vatra-friends-page .vt-vatra-friends-find-001{border:0;border-radius:10px;
- background:var(--vatra-action-primary);color:white;
- font:720 12.5px/1.4 "Onest",system-ui,sans-serif;cursor:pointer
-}
-body.vatra-friends-page .vt-vatra-friends-find-001:hover{
- background:var(--vatra-action-primary-hover)
-}
-body.vatra-friends-page .vatra-friends-tabs{flex-wrap:wrap;}
-body.vatra-friends-page .vatra-friends-tabs button{border:1px solid transparent;border-radius:10px;
- background:transparent;color:#7184a0;cursor:pointer
-}
-body.vatra-friends-page .vatra-friends-tabs button.is-active{
- color:var(--vatra-action-ink);background:var(--vatra-action-selected);border-color:#dce7fc
-}
-body.vatra-friends-page .vatra-friends-tabs button[hidden],
-body.vatra-friends-page .vatra-friends-sidebar button[hidden]{display:none!important}
-body.vatra-friends-page .vatra-friends-search{
- display:flex;align-items:center;gap:10px;padding:0 14px;
- border-radius:11px;color:#8192aa;}
-body.vatra-friends-page .vatra-friends-search:focus-within{box-shadow:0 0 0 2px #b6cafa}
-body.vatra-friends-page .vatra-friends-search input{
- flex:1;min-width:0;width:100%;border:0;outline:0;
- background:transparent;color:#2c4061;font:530 13px/1.5 "Onest",system-ui,sans-serif
-}
-
-
-
-body.vatra-friends-page .vatra-friends-portrait{
- display:block;flex:none;border:1px solid #d8e2f2;
- border-radius:50%;background:#e7edf8 var(--vatra-default-avatar) center/74% no-repeat;
-}
-body.vatra-friends-page .vatra-friends-portrait.has-photo{background-size:cover;background-position:center}
-body.vatra-friends-page .vatra-friends-details{
- display:flex;flex-direction:column;gap:4px;flex:1;min-width:0
-}
-body.vatra-friends-page [class^="vt-vatra-friends-name-"]{
- text-decoration:none;overflow:hidden;text-overflow:ellipsis
-}
-body.vatra-friends-page [class^="vt-vatra-friends-name-"]:hover{color:#2f65d5}
-body.vatra-friends-page [class^="vt-vatra-friends-subtitle-"]{
- color:#8395ad;font:530 11.5px/1.35 "Onest",system-ui,sans-serif
-}
-body.vatra-friends-page .vatra-friends-person-actions{align-items:center;flex:none;}
-body.vatra-friends-page .vatra-friends-person-actions a,
-body.vatra-friends-page .vatra-friends-person-actions button{
- display:inline-flex;align-items:center;justify-content:center;
- min-height:33px;padding:6px 10px;border:1px solid #dce6f5;border-radius:9px;
- color:#4267a5;background:#f5f8fd;cursor:pointer;text-decoration:none;
- font:680 11px/1.25 "Onest",system-ui,sans-serif
-}
-body.vatra-friends-page .vatra-friends-person-actions button:hover{background:#e9f0fd}
-body.vatra-friends-page [class^="vt-vatra-friends-accept-"]{
- background:#eaf2ff!important;color:#2d65c6!important
-}
-body.vatra-friends-page .vt-vatra-friends-empty-001{
- padding:40px 15px;text-align:center;color:#7a8da8;font:540 13px/1.55 "Onest",system-ui,sans-serif
-}
-body.vatra-friends-page .vatra-friends-sidebar{display:flex;flex-direction:column;}
-body.vatra-friends-page .vatra-friends-side-card{display:flex;flex-direction:column;}
-body.vatra-friends-page .vt-vatra-friends-side-title-001,
-body.vatra-friends-page .vt-vatra-friends-side-search-heading-001{
- margin:0 0 8px;padding:10px 9px;color:#344968;
- font:770 15px/1.3 "Onest",system-ui,sans-serif
-}
-
-body.vatra-friends-page .vt-vatra-friends-side-copy-001{
- margin:0;font:520 12px/1.6 "Onest",system-ui,sans-serif
-}
-body.vatra-friends-page .vt-vatra-friends-side-search-link-001{padding:11px;border-radius:9px;background:#f0f5ff;
- text-decoration:none;text-align:center;color:#3568cb;
- font:730 11.5px/1.35 "Onest",system-ui,sans-serif
-}
-@media(max-width:840px){
- body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr)}
- body.vatra-friends-page .vatra-friends-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:530px){
- body.vatra-friends-page .vatra-friends-main{width:calc(100% - 18px);margin:11px auto 40px}
- body.vatra-friends-page .vatra-friends-primary{padding:17px 13px 10px}
- body.vatra-friends-page .vatra-friends-person{flex-wrap:wrap;gap:10px;padding:13px 0}
- body.vatra-friends-page .vatra-friends-portrait{width:51px;height:51px}
- body.vatra-friends-page .vatra-friends-person-actions{max-width:none;width:100%;justify-content:flex-start;padding-left:61px}
- body.vatra-friends-page .vatra-friends-sidebar{grid-template-columns:1fr}
- body.vatra-friends-page .vatra-friends-top{align-items:flex-start}
-}
-@media(prefers-reduced-motion:reduce){body.vatra-friends-page .vatra-friends-person{transition:none}}
-
-
-
-body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){
- position:relative;overflow:hidden;
- background:#eaf0f9!important;isolation:isolate
-}
-body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::before{
- content:"";position:absolute;left:35%;top:20%;width:30%;height:30%;
- border-radius:50%;background:#b1c1d9
-}
-body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{
- content:"";position:absolute;left:18%;bottom:10%;width:64%;height:39%;
- border-radius:55% 55% 24% 24% / 70% 70% 14% 14%;background:#b1c1d9
-}
-
-
-body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-color:#eaf0f9!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
-body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
-body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
-body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::before,body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{display:none!important;content:none!important}
-
-body.vatra-friends-page .vatra-friends-main{width:min(1120px,calc(100% - 36px));margin:25px auto 64px}
-
-body.vatra-friends-page .vatra-friends-sidebar{position:sticky;top:calc(var(--vatra-header-height,78px) + 16px);gap:12px}
-body.vatra-friends-page .vatra-friends-primary{overflow:visible;}
-body.vatra-friends-page .vatra-friends-primary,body.vatra-friends-page .vatra-friends-side-card{border-radius:15px;box-shadow:0 4px 18px rgba(43,63,105,.035)}
-body.vatra-friends-page .vatra-friends-top{margin-bottom:16px;gap:12px}
-body.vatra-friends-page .vt-vatra-friends-eyebrow-001{display:none}
-body.vatra-friends-page .vt-vatra-friends-heading-001{font-size:25px;letter-spacing:-.03em;color:#2c3850}
-body.vatra-friends-page .vt-vatra-friends-find-001{min-height:42px;padding:10px 16px}
-
-body.vatra-friends-page .vatra-friends-side-card{padding:13px 10px;gap:4px}
-body.vatra-friends-page .vt-vatra-friends-side-title-001{margin:0 0 6px;padding:7px 10px 12px;border-bottom:1px solid #edf1f7;font-size:16px;color:#2c3850}
-body.vatra-friends-page .ui-vatra-friends-side-card-search-001{padding:15px 12px}
-body.vatra-friends-page .vt-vatra-friends-side-search-heading-001{padding:0 7px;margin:0 0 5px}
-body.vatra-friends-page .vt-vatra-friends-side-copy-001{color:#687c98;padding:0 7px}
-body.vatra-friends-page .vt-vatra-friends-side-search-link-001{margin:7px 7px 0}
-body.vatra-friends-page .vatra-friends-search{height:43px;margin-bottom:16px;border:1px solid #e7edf6;background:#f6f8fc}
-body.vatra-friends-page .vatra-friends-list{grid-template-columns:repeat(2,minmax(0,1fr));}
-body.vatra-friends-page .vatra-friends-person{
- display:grid;align-items:center;min-height:0;background:#fff
-}
-
-
-body.vatra-friends-page [class^="vt-vatra-friends-name-"]{font-size:14px;overflow-wrap:anywhere}
-body.vatra-friends-page .vatra-friends-person-actions{padding:0;gap:7px;}
-body.vatra-friends-page .vatra-friends-person-actions :is(a,button){min-height:35px;text-align:center}
-body.vatra-friends-page .vt-vatra-friends-empty-001:not([hidden]){
- display:flex;align-items:center;justify-content:center;flex-direction:column;gap:13px;
- min-height:220px;margin:0;padding:35px 18px;color:#7285a0;font-size:14px
-}
-body.vatra-friends-page .vt-vatra-friends-empty-001:not([hidden])::before{
- content:"";display:block;width:65px;height:65px;border-radius:20px;background:#edf3ff center/33px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23708ed3' stroke-width='1.65' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M21 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'/%3E%3Ccircle cx='9.5' cy='7' r='4'/%3E%3C/svg%3E")
-}
-@media(max-width:950px){
- body.vatra-friends-page .vatra-friends-layout{grid-template-columns:210px minmax(0,1fr)}
- body.vatra-friends-page .vatra-friends-list{grid-template-columns:minmax(0,1fr)}
-}
-@media(max-width:750px){
-
-
- body.vatra-friends-page .vatra-friends-tabs{display:flex;gap:4px;margin-bottom:14px}
- body.vatra-friends-page .vatra-friends-tabs button{min-height:40px;font-size:12px}
-
- body.vatra-friends-page .vatra-friends-person{grid-template-columns:54px minmax(0,1fr);padding:12px;gap:10px}
- body.vatra-friends-page .vatra-friends-portrait{width:54px;height:54px}
- body.vatra-friends-page .vatra-friends-search input{font-size:16px}
-}
-@media(max-width:420px){
- body.vatra-friends-page .vatra-friends-main{width:calc(100% - 18px);margin-top:12px}
- body.vatra-friends-page .vt-vatra-friends-heading-001{font-size:22px}
-}
-
-body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr) 290px;gap:18px}
-body.vatra-friends-page .vatra-friends-sidebar{grid-column:2;grid-row:1}
-body.vatra-friends-page .vatra-friends-primary{grid-column:1;grid-row:1;padding:22px;min-height:320px}
-body.vatra-friends-page .vatra-friends-tabs{display:flex;gap:5px;margin-bottom:15px}
-body.vatra-friends-page .vatra-friends-tabs button{font:600 14px/1.4 Onest,system-ui,sans-serif;padding:8px 12px;min-height:39px}
-body.vatra-friends-page [class^="vt-vatra-friends-tab-count-"]{font-weight:500;color:#7789a4;margin-left:3px;font-variant-numeric:tabular-nums}
-body.vatra-friends-page .vatra-friends-list{display:flex;flex-direction:column;gap:0}
-body.vatra-friends-page .vatra-friends-person{grid-template-columns:76px minmax(0,1fr) auto;border:0;border-bottom:1px solid #edf1f7;border-radius:0;padding:16px 0;gap:15px}
-body.vatra-friends-page .vatra-friends-person:last-child{border-bottom:0}
-body.vatra-friends-page .vatra-friends-portrait{position:relative;width:76px;height:76px;overflow:visible!important}
-body.vatra-friends-page [class^="ui-vatra-friends-online-dot-"]{position:absolute;bottom:1px;right:1px;width:17px;height:17px;border:3px solid #fff;border-radius:50%;background:#32b978}
-body.vatra-friends-page [class^="vt-vatra-friends-name-"]{font:650 16px/1.4 Onest,system-ui,sans-serif;color:#293a52}
-body.vatra-friends-page .vatra-friends-person-actions{grid-column:3;max-width:235px;width:auto;display:flex;flex-wrap:wrap;justify-content:flex-end}
-body.vatra-friends-page .vatra-friends-person-actions :is(a,button){flex:0 1 auto}
-@media(max-width:850px){body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr) 228px}}
-@media(max-width:750px){body.vatra-friends-page .vatra-friends-layout{display:block}body.vatra-friends-page .vatra-friends-sidebar{display:none}body.vatra-friends-page .vatra-friends-primary{padding:15px}}
-@media(max-width:550px){body.vatra-friends-page .vatra-friends-person{grid-template-columns:60px minmax(0,1fr);gap:10px}body.vatra-friends-page .vatra-friends-portrait{width:60px;height:60px}body.vatra-friends-page .vatra-friends-person-actions{grid-column:2;max-width:none;justify-content:flex-start}body.vatra-friends-page .vatra-friends-tabs button{font-size:12px;padding:7px 9px}}
-
-body.vatra-friends-page .vatra-friends-main{width:min(1120px,calc(100% - 32px));margin:20px auto 56px;color:var(--ink);font-family:Onest,Inter,system-ui,sans-serif;text-rendering:optimizeLegibility}
-body.vatra-friends-page .vatra-friends-heading-wrap{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+body.vatra-friends-page .vatra-friends-main{width:min(1120px,calc(100% - 32px));margin:24px auto 56px;color:var(--ink);font-family:inherit;text-rendering:optimizeLegibility}
+body.vatra-friends-page .vatra-friends-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+body.vatra-friends-page .vatra-friends-primary,body.vatra-friends-page .vatra-friends-side-card{background:#fff;border:1px solid #e2e9f4;border-radius:16px;box-shadow:0 4px 18px rgba(43,63,105,.035)}
+body.vatra-friends-page .vatra-friends-primary{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;align-content:start;gap:16px;padding:20px}
 body.vatra-friends-page .vatra-friends-top{display:contents}
-body.vatra-friends-page .vatra-friends-primary{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:20px;min-width:0}
-body.vatra-friends-page .vatra-friends-tabs{grid-column:1;grid-row:1;margin:0;min-width:0}
-body.vatra-friends-page .vt-vatra-friends-find-001{grid-column:2;grid-row:1;min-height:38px;padding:9px 14px;white-space:nowrap;font:650 13px/1.4 Onest,Inter,system-ui,sans-serif}
-body.vatra-friends-page :is(.vatra-friends-search,.vatra-friends-list,.vt-vatra-friends-empty-001){grid-column:1/-1}
-body.vatra-friends-page .vatra-friends-search{margin:0}
-body.vatra-friends-page .vatra-friends-search input{font:500 14px/1.5 Onest,Inter,system-ui,sans-serif}
-body.vatra-friends-page .vatra-friends-tabs button{font:650 13px/1.4 Onest,Inter,system-ui,sans-serif;padding:8px 11px}
-body.vatra-friends-page .vatra-friends-person{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:14px;padding:14px 0}
-body.vatra-friends-page .vatra-friends-portrait{width:64px;height:64px}
-body.vatra-friends-page [class^="vt-vatra-friends-name-"]{font:730 15px/1.4 Onest,Inter,system-ui,sans-serif;letter-spacing:-.015em;color:var(--ink)}
-body.vatra-friends-page [class^="vt-vatra-friends-subtitle-"]{font:500 12px/1.5 Onest,Inter,system-ui,sans-serif;color:var(--soft)}
-body.vatra-friends-page .vatra-friends-person-actions :is(a,button){font:650 12px/1.4 Onest,Inter,system-ui,sans-serif}
-body.vatra-friends-page :is(.vt-vatra-friends-side-title-001,.vt-vatra-friends-side-search-heading-001){font:750 17px/1.35 Onest,Inter,system-ui,sans-serif;letter-spacing:-.02em;color:var(--ink)}
-body.vatra-friends-page .vt-vatra-friends-side-copy-001{font:470 13px/1.6 Onest,Inter,system-ui,sans-serif;color:var(--soft)}
-@media(max-width:850px){body.vatra-friends-page .vatra-friends-primary{grid-template-columns:minmax(0,1fr);padding:16px}body.vatra-friends-page .vt-vatra-friends-find-001{grid-column:1;grid-row:2;justify-self:start}}
-@media(max-width:550px){body.vatra-friends-page .vatra-friends-main{width:calc(100% - 20px);margin:12px auto 44px}body.vatra-friends-page .vatra-friends-person{grid-template-columns:56px minmax(0,1fr);gap:10px}body.vatra-friends-page .vatra-friends-portrait{width:56px;height:56px}body.vatra-friends-page .vatra-friends-person-actions{grid-column:2;padding:0}}
+body.vatra-friends-page .vatra-friends-heading-wrap{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+body.vatra-friends-page .vatra-friends-tabs{grid-column:1;grid-row:1;display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-width:0}
+body.vatra-friends-page .vatra-friends-tabs button{min-height:40px;border:1px solid transparent;border-radius:10px;padding:8px 10px;color:var(--soft);background:transparent;font-family:inherit;font-size:13px;font-weight:700;line-height:1.4;white-space:nowrap}
+body.vatra-friends-page .vatra-friends-tabs button:hover{background:var(--vatra-action-soft)}
+body.vatra-friends-page .vatra-friends-tabs button.is-active{background:var(--vatra-action-selected);color:var(--vatra-action-ink);border-color:#dce7fc}
+body.vatra-friends-page [class^="vt-vatra-friends-tab-count-"]{font-weight:500;margin-left:3px;font-variant-numeric:tabular-nums}
+body.vatra-friends-page .vt-vatra-friends-find-001{grid-column:2;grid-row:1;min-height:40px;padding:9px 15px;border:0;border-radius:11px;background:var(--vatra-action-primary);color:#fff;font-family:inherit;font-size:14px;font-weight:700;line-height:1.35;white-space:nowrap}
+body.vatra-friends-page .vt-vatra-friends-find-001:hover{background:var(--vatra-action-primary-hover)}
+body.vatra-friends-page :is(.vatra-friends-search,.vatra-friends-list,.vt-vatra-friends-empty-001){grid-column:1/-1;min-width:0}
+body.vatra-friends-page .vatra-friends-search{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 14px;border:1px solid #d7ddea;border-radius:13px;color:#8192aa;background:#fff}
+body.vatra-friends-page .vatra-friends-search:focus-within{border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
+body.vatra-friends-page .vatra-friends-search input{flex:1;min-width:0;width:100%;border:0;outline:0;background:transparent;color:var(--ink);font-family:inherit;font-size:15px;font-weight:500;line-height:1.2}
+body.vatra-friends-page .vatra-friends-search input::placeholder{color:var(--soft);opacity:1}
+body.vatra-friends-page .vatra-friends-list{display:flex;flex-direction:column;gap:0}
+body.vatra-friends-page .vatra-friends-list:empty{display:none}
+body.vatra-friends-page .vatra-friends-person{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #edf1f7}
+body.vatra-friends-page .vatra-friends-person:last-child{border-bottom:0;padding-bottom:4px}
+body.vatra-friends-page .vatra-friends-portrait{display:block;position:relative;flex:none;width:64px;height:64px;border:1px solid #d8e2f2;border-radius:50%;background:#eaf0f9 var(--vatra-default-avatar) center/cover no-repeat}
+body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)}
+body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)}
+body.vatra-friends-page [class^="ui-vatra-friends-online-dot-"]{position:absolute;bottom:0;right:0;width:16px;height:16px;border:3px solid #fff;border-radius:50%;background:#32b978}
+body.vatra-friends-page .vatra-friends-details{display:flex;flex-direction:column;gap:4px;min-width:0}
+body.vatra-friends-page [class^="vt-vatra-friends-name-"]{font-family:inherit;font-size:15px;font-weight:700;line-height:1.4;color:var(--ink);overflow-wrap:anywhere;text-decoration:none}
+body.vatra-friends-page [class^="vt-vatra-friends-name-"]:hover{color:var(--blue)}
+body.vatra-friends-page [class^="vt-vatra-friends-subtitle-"]{font-family:inherit;font-size:13px;font-weight:400;line-height:1.5;color:var(--soft);overflow-wrap:anywhere}
+body.vatra-friends-page .vatra-friends-person-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;max-width:260px}
+body.vatra-friends-page .vatra-friends-person-actions :is(a,button){display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:8px 11px;border:1px solid #dce6f5;border-radius:10px;background:var(--vatra-action-soft);color:var(--vatra-action-ink);font-family:inherit;font-size:13px;font-weight:700;line-height:1.35;text-decoration:none;text-align:center}
+body.vatra-friends-page .vatra-friends-person-actions :is(a,button):hover{background:var(--vatra-action-selected)}
+body.vatra-friends-page [class^="vt-vatra-friends-accept-"]{background:var(--vatra-action-primary);color:#fff}
+body.vatra-friends-page .vt-vatra-friends-empty-001{margin:0;padding:32px 16px;min-height:150px;display:grid;place-items:center;text-align:center;color:var(--soft);font-size:15px;font-weight:400;line-height:1.65}
+body.vatra-friends-page .vatra-friends-sidebar{display:flex;flex-direction:column;gap:12px;min-width:0}
+body.vatra-friends-page .vatra-friends-side-card{display:flex;flex-direction:column;gap:10px;padding:20px}
+body.vatra-friends-page :is(.vt-vatra-friends-side-title-001,.vt-vatra-friends-side-search-heading-001){margin:0;color:var(--ink);font-size:17px;font-weight:700;line-height:1.25;letter-spacing:-.025em}
+body.vatra-friends-page .vt-vatra-friends-side-copy-001{margin:0;font-size:15px;font-weight:400;line-height:1.65;color:var(--soft)}
+body.vatra-friends-page .vt-vatra-friends-side-search-link-001{display:flex;align-items:center;justify-content:center;min-height:40px;padding:9px 12px;border-radius:10px;background:var(--vatra-action-selected);text-decoration:none;text-align:center;color:var(--vatra-action-ink);font-size:13px;font-weight:700;line-height:1.35}
+@media(max-width:950px){body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr) 240px}body.vatra-friends-page .vatra-friends-primary{grid-template-columns:minmax(0,1fr);padding:16px}body.vatra-friends-page .vt-vatra-friends-find-001{grid-column:1;grid-row:2;justify-self:start}}
+@media(max-width:760px){body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr)}body.vatra-friends-page .vatra-friends-sidebar{display:none}}
+@media(max-width:560px){body.vatra-friends-page .vatra-friends-main{width:calc(100% - 20px);margin:12px auto 44px}body.vatra-friends-page .vatra-friends-primary{padding:14px;gap:12px}body.vatra-friends-page .vatra-friends-person{grid-template-columns:56px minmax(0,1fr);gap:10px}body.vatra-friends-page .vatra-friends-portrait{width:56px;height:56px}body.vatra-friends-page .vatra-friends-person-actions{grid-column:2;max-width:none;justify-content:flex-start}body.vatra-friends-page .vatra-friends-tabs button{font-size:12px;padding:7px 8px}body.vatra-friends-page .vatra-friends-search input{font-size:16px}}
