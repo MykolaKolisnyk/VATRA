@@ -1,4 +1,4 @@
-body.vatra-section-page{--section-title:760 26px/1.28 Onest,Inter,system-ui,sans-serif;--section-heading:750 18px/1.35 Onest,Inter,system-ui,sans-serif;--section-name:730 15px/1.4 Onest,Inter,system-ui,sans-serif;--section-body:470 14px/1.6 Onest,Inter,system-ui,sans-serif;--section-control:650 13px/1.4 Onest,Inter,system-ui,sans-serif;--section-caption:500 12px/1.5 Onest,Inter,system-ui,sans-serif;--section-price:760 18px/1.3 Onest,Inter,system-ui,sans-serif;color:var(--ink);font-family:Onest,Inter,system-ui,sans-serif;text-rendering:optimizeLegibility}
+body.vatra-section-page{--section-title:700 24px/1.25 Onest,Inter,system-ui,sans-serif;--section-heading:700 18px/1.25 Onest,Inter,system-ui,sans-serif;--section-name:700 15px/1.4 Onest,Inter,system-ui,sans-serif;--section-body:400 15px/1.65 Onest,Inter,system-ui,sans-serif;--section-control:700 14px/1.35 Onest,Inter,system-ui,sans-serif;--section-caption:400 13px/1.5 Onest,Inter,system-ui,sans-serif;--section-price:700 18px/1.3 Onest,Inter,system-ui,sans-serif;color:var(--ink);font-family:Onest,Inter,system-ui,sans-serif;text-rendering:optimizeLegibility}
 body.vatra-section-page [hidden]{display:none!important}
 body.vatra-section-page .ui-vatra-section-main-001{width:min(1120px,calc(100% - 32px));margin:20px auto 56px;min-width:0}
 body.vatra-section-page :is(.ui-vatra-marketplace-main-001,.ui-vatra-clips-main-001){width:min(1320px,calc(100% - 40px));margin:24px auto 64px}
@@ -6,7 +6,7 @@ body.vatra-section-page .ui-vatra-section-heading-001{position:absolute;width:1p
 body.vatra-section-page .vt-vatra-section-title-001{font:var(--section-title);letter-spacing:-.035em;margin:0;color:#293951}
 body.vatra-section-page .vt-vatra-section-subtitle-001{font:var(--section-body);color:var(--soft);margin:5px 0 0}
 body.vatra-section-page .ui-vatra-section-card-001{min-width:0;background:#fff;border:1px solid #e2e9f4;border-radius:15px;box-shadow:0 4px 18px rgba(43,63,105,.035)}
-body.vatra-section-page :is(.vt-vatra-section-action-001,.vt-vatra-section-submit-001){background:var(--vatra-action-primary,#2861d8);color:#fff;border:0;border-radius:10px;padding:11px 17px;min-height:42px;font:var(--section-control);cursor:pointer}
+body.vatra-section-page :is(.vt-vatra-section-action-001,.vt-vatra-section-submit-001){background:var(--vatra-action-primary,#2861d8);color:#fff;border:0;border-radius:11px;padding:11px 17px;min-height:42px;font:var(--section-control);cursor:pointer}
 body.vatra-section-page :is(.vt-vatra-section-action-001,.vt-vatra-section-submit-001):hover{background:var(--vatra-action-primary-hover,#2256bd)}
 body.vatra-section-page .ui-vatra-section-tabs-001{display:flex;flex-wrap:wrap;gap:5px}
 body.vatra-section-page .ui-vatra-section-tabs-001 button{border:1px solid transparent;border-radius:8px;padding:9px 12px;background:transparent;color:#617795;font:var(--section-control);cursor:pointer;text-align:left}
@@ -26,8 +26,8 @@ body.vatra-section-page .vt-vatra-section-dialog-close-001{width:34px;height:34p
 body.vatra-section-page .ui-vatra-section-dialog-form-001{display:flex;flex-direction:column;gap:15px;padding:20px 22px}
 body.vatra-section-page [class^="ui-vatra-section-field-"]{display:flex;flex-direction:column;gap:6px;min-width:0}
 body.vatra-section-page [class^="vt-vatra-section-label-"],body.vatra-section-page .vt-vatra-market-category-label-001{font:var(--section-control);color:#526b8b}
-body.vatra-section-page :is([class^="ui-vatra-section-input-"],.ui-vatra-market-search-001){width:100%;box-sizing:border-box;min-height:43px;padding:10px 12px;border:1px solid #e0e7f2;border-radius:10px;background:#f8fafd;color:#2c3850;font:var(--section-body)}
-body.vatra-section-page :is([class^="ui-vatra-section-input-"],.ui-vatra-market-search-001):focus{outline:none;border-color:#89a9ed;background:#fff;box-shadow:0 0 0 3px #eaf1ff}
+body.vatra-section-page :is([class^="ui-vatra-section-input-"],.ui-vatra-market-search-001){width:100%;box-sizing:border-box;min-height:46px;padding:10px 14px;border:1px solid #d7ddea;border-radius:13px;background:#fff;color:var(--ink);font:500 15px/1.2 Onest,Inter,system-ui,sans-serif}
+body.vatra-section-page :is([class^="ui-vatra-section-input-"],.ui-vatra-market-search-001):focus{outline:none;border-color:#437cf0;background:#fff;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
 body.vatra-section-page input[type="number"]{appearance:textfield}
 body.vatra-section-page input[type="number"]::-webkit-inner-spin-button{appearance:none}
 body.vatra-section-page input[type="file"]::file-selector-button{border:0;border-radius:7px;background:#eaf1ff;color:#285fc9;padding:7px 10px;margin-right:10px;font:var(--section-caption);cursor:pointer}
@@ -59,7 +59,7 @@ body.vatra-section-page .ui-vatra-market-detail-photo-001 img{max-height:40dvh;w
 body.vatra-section-page .vt-vatra-market-detail-price-001{font:var(--section-price);color:var(--ink)}
 body.vatra-section-page .vt-vatra-market-detail-description-001{font:var(--section-body);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
 body.vatra-section-page .vt-vatra-market-detail-city-001{font:var(--section-caption);color:var(--soft)}
-body.vatra-section-page .ui-vatra-market-empty-001{grid-column:1/-1;min-height:205px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px 14px}
+body.vatra-section-page .ui-vatra-market-empty-001{grid-column:1/-1;min-height:245px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px 20px;background:#fff;border:1px solid #e2e9f4;border-radius:16px}
 body.vatra-section-page .vt-vatra-market-empty-title-001{font:var(--section-heading);margin:0;color:var(--ink)}
 body.vatra-section-page .vt-vatra-market-empty-copy-001{font:var(--section-body);margin:0;max-width:320px;color:var(--soft)}
 body.vatra-section-page .vt-vatra-market-empty-action-001{border:0;border-radius:9px;padding:9px 14px;background:#edf3ff;color:#285fc9;font:var(--section-control);cursor:pointer}
@@ -111,7 +111,7 @@ body.vatra-section-page .vt-vatra-id-menu-title-001{padding:5px 10px 13px;margin
 body.vatra-section-page .ui-vatra-id-content-001>.ui-vatra-section-card-001{padding:22px}
 body.vatra-section-page :is(.ui-vatra-market-browse-001,.ui-vatra-clips-viewer-001){display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px;align-items:start}
 body.vatra-section-page :is(.ui-vatra-market-sidebar-001,.ui-vatra-clips-menu-001){padding:18px;display:grid;gap:12px;min-width:0}
-body.vatra-section-page .vt-vatra-browse-title-001{margin:0;color:var(--ink);font:740 23px/1.25 "Onest",system-ui,sans-serif;letter-spacing:-.035em}
+body.vatra-section-page .vt-vatra-browse-title-001{margin:0;color:var(--ink);font:var(--section-title);letter-spacing:-.025em}
 body.vatra-section-page :is(.ui-vatra-market-sidebar-001,.ui-vatra-clips-menu-001) .ui-vatra-section-tabs-001{display:grid;gap:4px}
 body.vatra-section-page :is(.ui-vatra-market-sidebar-001,.ui-vatra-clips-menu-001) .vt-vatra-section-action-001{width:100%;white-space:normal}
 body.vatra-section-page .vt-vatra-market-categories-title-001{margin:5px 0 0;padding-top:14px;border-top:1px solid #e8edf5;font:var(--section-heading);color:var(--ink)}
@@ -126,7 +126,12 @@ body.vatra-section-page .ui-vatra-market-category-symbol-home{background:#fff5e6
 body.vatra-section-page .ui-vatra-market-category-symbol-transport{background:#e9f5ff;color:#2788cf}
 body.vatra-section-page .ui-vatra-market-category-symbol-sport{background:#ffefed;color:#e36758}
 body.vatra-section-page .ui-vatra-market-category-symbol-other{background:#f4edfc;color:#a367cf}
-body.vatra-section-page .ui-vatra-market-filters-001{border-top:1px solid #e8edf5;padding-top:14px}
+body.vatra-section-page .ui-vatra-market-filters-001{border-top:1px solid #e8edf5;padding-top:12px}
+body.vatra-section-page .ui-vatra-market-filters-001>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;margin:0;min-height:36px;padding:4px 2px}
+body.vatra-section-page .ui-vatra-market-filters-001>summary::-webkit-details-marker{display:none}
+body.vatra-section-page .ui-vatra-market-filters-001>summary::after{content:"";width:8px;height:8px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(45deg);margin-right:5px;margin-top:-4px}
+body.vatra-section-page .ui-vatra-market-filters-001[open]>summary::after{transform:rotate(225deg);margin-top:4px}
+body.vatra-section-page .ui-vatra-market-filters-001[open] .ui-vatra-market-filter-fields-001{padding-top:12px}
 body.vatra-section-page .ui-vatra-market-filter-fields-001{display:grid;gap:10px}
 body.vatra-section-page .vt-vatra-market-sort-label-001{font:var(--section-control);color:var(--soft)}
 body.vatra-section-page .vt-vatra-market-filter-reset-001{border:0;border-radius:8px;background:#edf3ff;color:var(--blue);padding:9px;font:var(--section-control)}
@@ -139,9 +144,8 @@ body.vatra-section-page .vt-vatra-market-group-more-001{border:0;background:none
 body.vatra-section-page .vt-vatra-market-bookmark-001{position:absolute;z-index:2;right:8px;top:8px;width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:9px;background:#ffffffed;color:#557395}
 body.vatra-section-page .vt-vatra-market-bookmark-001[aria-pressed="true"]{background:#eaf1ff;color:var(--blue)}
 body.vatra-section-page .vt-vatra-market-bookmark-001[aria-pressed="true"] svg{fill:var(--blue)}
-body.vatra-section-page .ui-vatra-market-empty-001{background:#fff;border:1px solid #e2e9f4;border-radius:16px}
 body.vatra-section-page .ui-vatra-clips-sidebar-001{min-width:0}
-body.vatra-section-page .ui-vatra-clip-search-001{width:100%;min-width:0;min-height:43px;border:1px solid #dae3f1;border-radius:10px;padding:10px 12px;background:#f6f8fc;color:var(--ink);font:500 15px/1.4 "Onest",system-ui,sans-serif}
+body.vatra-section-page .ui-vatra-clip-search-001{width:100%;min-width:0;min-height:46px;border:1px solid #d7ddea;border-radius:13px;padding:10px 14px;background:#fff;color:var(--ink);font:500 15px/1.2 Onest,Inter,system-ui,sans-serif}
 body.vatra-section-page .ui-vatra-clips-gallery-001{min-width:0}
 body.vatra-section-page .ui-vatra-clips-gallery-grid-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 body.vatra-section-page .ui-vatra-clip-preview-001{min-width:0;display:grid;align-content:start;gap:6px}
@@ -160,7 +164,7 @@ body.vatra-section-page .ui-vatra-clip-stage-001{display:flex;justify-content:ce
 body.vatra-section-page .ui-vatra-clip-rail-001{display:flex;flex-direction:column;align-items:center;gap:10px;flex:none}
 body.vatra-section-page .ui-vatra-clip-rail-001 button{display:grid;place-items:center;width:40px;height:40px;border:1px solid #e2e9f4;border-radius:50%;background:#fff;color:#527095}
 body.vatra-section-page .vt-vatra-clip-position-001{font:var(--section-caption);color:var(--soft)}
-body.vatra-section-page .ui-vatra-clips-empty-001{min-height:350px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:22px;text-align:center;color:var(--soft)}
+body.vatra-section-page .ui-vatra-clips-empty-001{min-height:245px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;padding:22px;text-align:center;color:var(--soft)}
 body.vatra-section-page .ui-vatra-clips-empty-001>svg{width:62px;height:62px;padding:14px;background:#edf3ff;color:var(--blue);border-radius:17px}
 body.vatra-section-page .vt-vatra-clips-empty-title-001{margin:0;color:var(--ink);font:var(--section-heading)}
 body.vatra-section-page .vt-vatra-clips-empty-copy-001{margin:0;font:var(--section-body)}
@@ -170,4 +174,4 @@ body.vatra-section-page .ui-vatra-clips-social-001 .vatra-post-action-row{flex-w
 body.vatra-section-page .ui-vatra-clips-social-001 .vatra-post-action-row>button{min-width:36px;padding-inline:7px}
 @media(max-width:1100px){body.vatra-section-page :is(.ui-vatra-market-browse-001,.ui-vatra-clips-viewer-001){grid-template-columns:220px minmax(0,1fr)}body.vatra-section-page :is(.ui-vatra-market-grid-001,.ui-vatra-market-group-grid-001,.ui-vatra-clips-gallery-grid-001){grid-template-columns:repeat(3,minmax(0,1fr))}body.vatra-section-page .ui-vatra-clips-watch-001{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:800px){body.vatra-section-page :is(.ui-vatra-market-grid-001,.ui-vatra-market-group-grid-001,.ui-vatra-clips-gallery-grid-001){grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:680px){body.vatra-section-page :is(.ui-vatra-marketplace-main-001,.ui-vatra-clips-main-001){width:calc(100% - 20px);margin:12px auto 44px}body.vatra-section-page :is(.ui-vatra-market-browse-001,.ui-vatra-clips-viewer-001){grid-template-columns:minmax(0,1fr);gap:12px}body.vatra-section-page :is(.ui-vatra-market-sidebar-001,.ui-vatra-clips-menu-001) .ui-vatra-section-tabs-001{display:flex;flex-wrap:wrap}body.vatra-section-page .ui-vatra-market-catalog-001{grid-template-columns:repeat(2,minmax(0,1fr))}body.vatra-section-page .ui-vatra-clips-empty-001{min-height:260px}body.vatra-section-page .ui-vatra-clip-frame-001{max-width:calc(100% - 52px)}}
+@media(max-width:680px){body.vatra-section-page :is(.ui-vatra-marketplace-main-001,.ui-vatra-clips-main-001){width:calc(100% - 20px);margin:12px auto 44px}body.vatra-section-page :is(.ui-vatra-market-browse-001,.ui-vatra-clips-viewer-001){grid-template-columns:minmax(0,1fr);gap:12px}body.vatra-section-page :is(.ui-vatra-market-sidebar-001,.ui-vatra-clips-menu-001) .ui-vatra-section-tabs-001{display:flex;flex-wrap:wrap}body.vatra-section-page .ui-vatra-market-catalog-001{grid-template-columns:repeat(2,minmax(0,1fr))}body.vatra-section-page .ui-vatra-clips-empty-001{min-height:210px}body.vatra-section-page .ui-vatra-clip-frame-001{max-width:calc(100% - 52px)}}
