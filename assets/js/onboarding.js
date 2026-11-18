@@ -313,6 +313,7 @@ function buildSteps(){
 }
 function renderTasks(){
  if(!stepsCard||!session)return;
+ if(results?.every(value=>value===true)){rememberCompletedTasks(session);stepsCard.hidden=true;return;}
  const num=results?.filter(value=>value===true).length||0;
  stepsFill.style.width=(num/tasks.length*100)+"%";
  if(results)stepsMeter.setAttribute("aria-valuenow",String(num));else stepsMeter.removeAttribute("aria-valuenow");
@@ -359,7 +360,9 @@ async function checkTasks(force=false){
  })();
  renderTasks();return checking;
 }
-async function syncCompleted(current){try{await current.client.from("vatra_onboarding_done").insert({vatra_id:current.id});}catch(_){}}
+async function syncCompleted(current){const key=KEY+current.id+".synced";try{if(localStorage.getItem(key)==="1")return;}catch(_){}try{const {error}=await current.client.from("onboarding_done").insert({vatra_id:current.id});if(!error||error.code==="23505")try{localStorage.setItem(key,"1");}catch(_){}}catch(_){}}
+function rememberCompletedTasks(current){try{localStorage.setItem(KEY+current.id+".tasksDone","1");}catch(_){}}
+function completedTasks(current){try{return localStorage.getItem(KEY+current.id+".tasksDone")==="1";}catch(_){return false;}}
 function start(options={}){
  const id=String(options.memberId||"");
  if(!validId(id)||!options.client||document.body.dataset.feedReady!=="true")return false;
@@ -378,7 +381,7 @@ function start(options={}){
   if(menu)menu.open=false;
   replay();
  },{signal:session.controller.signal});
- buildSteps();void checkTasks();
+ if(!completedTasks(session)){buildSteps();void checkTasks();}
  const eligible=recentSignup(options.createdAt);
  if(typeof options.client.auth?.onAuthStateChange==="function"){
   const {data}=options.client.auth.onAuthStateChange((event,newSession)=>{
@@ -389,7 +392,7 @@ function start(options={}){
   authSubscription=data?.subscription||null;
  }
  const current=session;
- if(saved?.status==="done"){document.querySelector("#vatra-onboarding-replay")?.remove();void syncCompleted(current);}else void (async()=>{let done=false;try{const {data,error}=await current.client.from("vatra_onboarding_done").select("vatra_id").eq("vatra_id",id).maybeSingle();done=!error&&!!data;}catch(_){}if(session!==current)return;if(done){saveState(localStorage,id,"done",steps.length-1);document.querySelector("#vatra-onboarding-replay")?.remove();hide();return;}const replayButton=document.querySelector("#vatra-onboarding-replay");if(replayButton)replayButton.hidden=false;if((eligible&&!saved)||saved?.status==="paused"){index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";show();}})();
+ if(saved?.status==="done"){document.querySelector("#vatra-onboarding-replay")?.remove();void syncCompleted(current);}else void (async()=>{let done=false;try{const {data,error}=await current.client.from("onboarding_done").select("vatra_id").eq("vatra_id",id).maybeSingle();done=!error&&!!data;}catch(_){}if(session!==current)return;if(done){try{localStorage.setItem(KEY+id+".synced","1");}catch(_){}saveState(localStorage,id,"done",steps.length-1);document.querySelector("#vatra-onboarding-replay")?.remove();hide();return;}const replayButton=document.querySelector("#vatra-onboarding-replay");if(replayButton)replayButton.hidden=false;if((eligible&&!saved)||saved?.status==="paused"){index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";show();}})();
  return true;
 }
 function replay(){
@@ -398,6 +401,7 @@ function replay(){
 }
 function openTasks(scroll=true){
  if(!session)return;
+ if(completedTasks(session))return;
  if(!stepsCard)buildSteps();
  if(scroll)stepsCard?.scrollIntoView({block:"nearest",behavior:"auto"});
  void checkTasks();
