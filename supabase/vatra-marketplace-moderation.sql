@@ -32,7 +32,7 @@ alter table public.vatra_marketplace_listings
 grant select(moderation_status,moderation_reason,moderation_flags,rules_accepted_at), insert(rules_accepted), update(moderation_status,moderation_reason) on public.vatra_marketplace_listings to authenticated;
 create index vatra_market_moderation_queue_idx on public.vatra_marketplace_listings(moderation_status,created_at);
 create table public.vatra_market_moderation_history(
- id bigint generated always as identity primary key, listing_id uuid not null, seller_vatra_id bigint not null,
+ id bigint generated always as identity primary key, listing_id uuid, seller_vatra_id bigint not null,
  actor_id uuid, event text not null, reason text not null default '', created_at timestamptz not null default now());
 alter table public.vatra_market_moderation_history enable row level security;
 revoke all on public.vatra_market_moderation_history from public,anon,authenticated;
@@ -101,7 +101,19 @@ grant select on public.vatra_market_cases to authenticated;
 grant insert(listing_id,kind,reason),update(state,resolution) on public.vatra_market_cases to authenticated;
 create policy market_case_read on public.vatra_market_cases for select to authenticated using(submitter=(select auth.uid()) or (select vatra_market_private.is_moderator()));
 create policy market_case_create on public.vatra_market_cases for insert to authenticated with check(submitter=(select auth.uid()) and state='open' and exists(
- select 1 from public.vatra_marketplace_listings l where l.id=listing_id and ((kind='report' and l.seller_id<>(select auth.uid()) and l.status='active' and l.moderation_status='approved') or (kind='appeal' and l.seller_id=(select auth.uid()) and l.moderation_status='rejected'))));
+ select 1 from public.vatra_marketplace_listings l where l.id=listing_id and ((kind='report' and not exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id=l.seller_vatra_id) and l.status='active' and l.moderation_status='approved') or (kind='appeal' and exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id=l.seller_vatra_id) and l.moderation_status='rejected'))));
 create policy market_case_resolve on public.vatra_market_cases for update to authenticated using((select vatra_market_private.is_moderator())) with check((select vatra_market_private.is_moderator()) and (state='open' or char_length(btrim(resolution))>=3));
 
+
+create function vatra_market_private.log_suspension() returns trigger language plpgsql security definer set search_path='' as $
+begin
+ if tg_op='INSERT' then
+  insert into public.vatra_market_moderation_history(seller_vatra_id,actor_id,event,reason) values(new.seller_vatra_id,auth.uid(),'suspended',new.reason);
+  return new;
+ end if;
+ insert into public.vatra_market_moderation_history(seller_vatra_id,actor_id,event,reason) values(old.seller_vatra_id,auth.uid(),'unsuspended',old.reason);
+ return old;
+end $;
+revoke all on function vatra_market_private.log_suspension() from public,anon,authenticated;
+create trigger market_log_suspension after insert or delete on public.vatra_market_suspensions for each row execute function vatra_market_private.log_suspension();
 commit;
