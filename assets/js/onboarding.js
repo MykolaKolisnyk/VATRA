@@ -337,16 +337,17 @@ async function checkTasks(force=false){
  if(checking)return checking;
  if(!force&&results&&Date.now()-checkedAt<60000){renderTasks();return;}
  const client=session.client,id=session.id,epoch=session;
- checking=(async()=>{
+ checking=Promise.resolve().then(async()=>{
+  if(epoch!==session)return;
   try{
    const lookups=[
-    client.from("profile_media").select("avatar_path,cover_path").eq("vatra_id",id).maybeSingle(),
-    client.from("feed_posts").select("id").eq("author_vatra_id",id).limit(1),
-    client.from("friendships").select("id").or("requester_id.eq."+id+",recipient_id.eq."+id)
+    ()=>client.from("profile_media").select("avatar_path,cover_path").eq("vatra_id",id).maybeSingle(),
+    ()=>client.from("feed_posts").select("id").eq("author_vatra_id",id).limit(1),
+    ()=>client.from("friendships").select("id").or("requester_id.eq."+id+",recipient_id.eq."+id)
      .eq("status","accepted").limit(1),
-    client.from("community_follows").select("club_id").eq("member_vatra_id",id).limit(1)
+    ()=>client.from("community_follows").select("club_id").eq("member_vatra_id",id).limit(1)
    ];
-   const response=await Promise.allSettled(lookups);
+   const response=await Promise.allSettled(lookups.map(query=>Promise.resolve().then(query)));
    if(epoch!==session)return;
    results=milestoneSnapshot(response);
    checkedAt=Date.now();
@@ -356,8 +357,7 @@ async function checkTasks(force=false){
     checkedAt=Date.now();
    }
   }
-  finally{if(epoch===session){checking=null;renderTasks();}}
- })();
+ }).finally(()=>{if(epoch===session){checking=null;renderTasks();}});
  renderTasks();return checking;
 }
 async function syncCompleted(current){const key=KEY+current.id+".synced";try{if(localStorage.getItem(key)==="1")return;}catch(_){}try{const {error}=await current.client.from("onboarding_done").insert({vatra_id:current.id});if(!error||error.code==="23505")try{localStorage.setItem(key,"1");}catch(_){}}catch(_){}}

@@ -126,3 +126,44 @@ assert.ok(source.includes('if(!session||!stepsCard||!session.client)return;')&&
  source.includes('client.from("community_follows")'),
  "Milestone checks must be cached and use caller RLS");
 console.log("VATRA onboarding: five original mascots, i18n, session isolation, resumability and eligibility passed.");
+
+ // A synchronously failing PostgREST builder must not leave progress stuck,
+ // and one failed milestone must not hide other successful milestones.
+const startCheck=source.indexOf("async function checkTasks("),endCheck=source.indexOf("async function syncCompleted",startCheck);
+assert.ok(startCheck>=0&&endCheck>startCheck);
+let failed=true,calls=0;
+const mock={
+ from(table){
+  calls++;
+  if(table==="feed_posts"&&failed)throw Error("Synchronous query initialization failed");
+  return {select(){return this;},eq(){return this;},or(){return this;},
+   maybeSingle:async()=>({data:{avatar_path:"17/avatar/test.webp",cover_path:null},error:null}),
+   limit:async()=>({data:table==="feed_posts"?[{id:"post"}]:[],error:null})};
+ }
+};
+const taskContext={mock,milestoneSnapshot,Date,Promise};
+runInNewContext(`
+let session={client:mock,id:"17"},stepsCard={},checking=null,results=null,checkedAt=0;
+const tasks=Array(5).fill(null);
+let refreshDisabled=false;
+const renderTasks=()=>{refreshDisabled=!!checking;};
+${source.slice(startCheck,endCheck)}
+globalThis.test={checkTasks,snapshot:()=>({checking,results,refreshDisabled}),clear:()=>{session=null;checking=null;results=null;}};
+`,taskContext);
+const t=taskContext.test;
+const firstCheck=t.checkTasks(true),concurrent=t.checkTasks(true);
+await Promise.all([firstCheck,concurrent]);
+assert.equal(calls,4,"Concurrent milestone checks must share one request per source");
+assert.equal(t.snapshot().checking,null);
+assert.equal(t.snapshot().refreshDisabled,false,"Failed query must re-enable the refresh button");
+assert.deepEqual(Array.from(t.snapshot().results),[true,false,null,false,false]);
+failed=false;
+await t.checkTasks(true);
+assert.equal(calls,8);
+assert.deepEqual(Array.from(t.snapshot().results),[true,false,true,false,false]);
+assert.equal(t.snapshot().refreshDisabled,false);
+await t.checkTasks(false);
+assert.equal(calls,8,"Recent milestone results must be reused");
+const old=t.checkTasks(true);t.clear();await old;
+assert.equal(calls,8,"Queued milestone work must not start after sign-out");
+console.log("VATRA milestones: synchronous failure recovery, partial results, retry, shared request and stale-session guard passed.");

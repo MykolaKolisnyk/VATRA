@@ -2767,6 +2767,7 @@ try{
     {select:()=>({filterId:null,after:null,before:null,
       eq(_field,id){this.filterId=String(id);return this;},
       is(){return this;},
+      limit:async function(n){return {data:table==="feed_posts"?window.__feedTestPosts.filter(p=>this.filterId===null||String(p.author_vatra_id)===this.filterId).slice(0,n):[],error:null};},
       gte(column,date){if(column==="created_at")this.after=date;return this;},
       lt(column,date){if(column==="created_at")this.before=date;return this;},
       order(){return this;},range:async function(a,b){
