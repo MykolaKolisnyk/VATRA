@@ -407,7 +407,7 @@ async function querySite(viewer,phrase,signal){
   viewer.from("public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
   viewer.from("communities").select("club_id,name,description").ilike("name",pattern).limit(4),
   viewer.from("communities").select("club_id,name,description").ilike("description",pattern).limit(4),
-  viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).is("archived_at",null).limit(4),
+  viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).eq("is_clip",false).is("archived_at",null).limit(4),
   viewer.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
  ];
  // PostgREST's abortSignal stops obsolete requests before they consume more
