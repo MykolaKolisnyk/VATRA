@@ -728,10 +728,12 @@ body.profile-page .profile-media-gallery .feed-post-media video{
 }
 body.profile-page .profile-media-gallery .feed-post-media button{width:100%;height:100%;padding:0;border:0}
 body.profile-page .vt-profile-photos-more-001,
-body.profile-page .vt-profile-videos-more-001{
+body.profile-page .vt-profile-videos-more-001,
+body.profile-page .vt-profile-clips-more-001{
  align-self:center;padding:9px 19px;min-height:42px;border:1px solid #cedaef;
  border-radius:999px;color:#315fad;background:#fff;font:700 13px "Onest",sans-serif;cursor:pointer
 }
+body.profile-page .vt-profile-clip-open-001{display:block;padding:8px 4px;color:var(--blue);font-weight:700;font-size:13px;text-align:center;text-decoration:none}
 body.profile-page .profile-media-gallery + p{color:#8290a6;font-size:13px}
 body.profile-page .profile-edit-dialog{
  width:min(calc(100vw - 32px),480px);max-height:calc(100dvh - 32px);padding:0;
@@ -2637,7 +2639,7 @@ body.profile-page :is(.profile-posts-main,.profile-left-stack,.profile-content-p
 body.profile-page :is(
  #profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list,
  #profile-friends-list,#profile-gifts-list,#profile-communities-list,
- #profile-photo-gallery,#profile-video-gallery,#profile-saved-list,
+ #profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list,
  #profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list
 ):not(:has(> *)){
  display:none!important;
