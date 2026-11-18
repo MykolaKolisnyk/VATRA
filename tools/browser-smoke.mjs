@@ -3287,17 +3287,18 @@ try{
    "Inline comment composer has the same circular member portrait as the feed");
   const emojiControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-001");
   await emojiControl.click();
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-emoji-panel").isVisible(),true,
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-sticker-tab-001").click();
-  assert.ok(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-option-001.is-sticker").count()>=10);
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-option-001.is-sticker").first().click();
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-sticker-tab-001").click();
+  assert.ok(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-emoji-option-001.is-sticker").count()>=10);
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-emoji-option-001.is-sticker").first().click();
   assert.notEqual(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"",
    "Choosing an emoji sticker inserts it into the draft");
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
   await attachmentControl.click();
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu").isVisible(),true);
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
