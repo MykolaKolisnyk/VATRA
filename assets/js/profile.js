@@ -813,7 +813,7 @@
     const identityInfo=make("div","ui-profile-editor-identity-info-001");
     const nameLine=make("div","ui-profile-editor-identity-name-row-001");
     nameLine.append(make("strong","vt-profile-editor-identity-name-001",select("#profile-heading")?.querySelector(".vatra-verified-name-text")?.textContent||select("#profile-heading")?.textContent.trim()||"VATRA"));
-    const idLink=make("a","vt-profile-editor-id-link-001",tr("Змінити у VATRA ID","Edit in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
+    const idLink=make("a","vt-profile-editor-id-link-001",tr("Змінити ім’я у VATRA ID","Edit name in VATRA ID"));idLink.href=new URL("vatra-id",location.href).href;
     nameLine.append(idLink);identityInfo.append(avatarButton,nameLine);
     const verification=make("div","ui-profile-editor-verification-row-001");
     const verifyLabel=make("span","vt-profile-editor-verification-label-001",tr("Верифікація","Verification"));
