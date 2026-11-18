@@ -8,6 +8,10 @@ const uk=await read("uk");
 const en=await read("en");
 const codes=["pl","de","fr","it","ka","bg"];
 const targetPages=Object.keys(uk.__pages);
+// Newly introduced legal material is live only in UK/EN. Other locales remain disabled pending legal translation.
+const pendingLegalPages=new Set(["commerce"]);
+const pendingLegalTermsKeys=new Set(["market_rules_title","market_rules_intro","market_rules_full","market_rules_toc_desktop","market_rules_toc_mobile"]);
+assert.ok(uk.__pages.commerce&&en.__pages.commerce,"Published commerce page requires both active locales");
 const activePages=["index","404","feed","profile","offline","verify",
  "create-account","forgot","reset","terms","privacy","cookies"];
 const dynamicKeys=Object.keys(en).filter(key=>key!=="__pages");
@@ -405,7 +409,8 @@ for(const code of codes){
   code+": no translated page may be missing or have extra keys");
  let texts=0,unchanged=0;
  for(const page of activePages){
-  const original=uk.__pages[page];
+  const source=uk.__pages[page];
+  const original=page==="terms"?{...source,nodes:Object.fromEntries(Object.entries(source.nodes).filter(([key])=>!pendingLegalTermsKeys.has(key)))}:source;
   const localized=dictionary.__pages[page];
   assert.ok(localized,code+": missing "+page);
   assert.deepEqual(Object.keys(localized.meta||{}).sort(),Object.keys(original.meta||{}).sort(),
@@ -496,7 +501,7 @@ for(const code of codes){
  for(const key of Object.keys(dictionary).filter(key=>!key.startsWith("__")))
   assert.ok(typeof dictionary[key]==="string"&&dictionary[key].trim(),
    code+": invalid shared translation for "+key);
- assert.deepEqual([...targetPages].sort(),Object.keys(dictionary.__pages).sort(),
+ assert.deepEqual(targetPages.filter(page=>!pendingLegalPages.has(page)).sort(),Object.keys(dictionary.__pages).sort(),
   code+": all 12 static pages must be present in the catalog");
  console.log("VATRA "+code+": "+activePages.length+"/"+targetPages.length+
   " static page catalogs; "+texts+" UI fields; "+covered+"/"+dynamicKeys.length+

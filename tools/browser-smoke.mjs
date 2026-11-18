@@ -301,6 +301,25 @@ try{
    "Empty and populated community posts must keep one compact gap: "+
     JSON.stringify({width,...clubEmpty}));
  }
+ for(const width of [1440,1024,768,390]){
+  await spacingProbe.setViewportSize({width,height:900});
+  await spacingProbe.setContent('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="'+base+'assets/css/base.css">'+sharedStyles+'</head><body class="feed-page"><div class="feed-app"><header class="feed-header"><div class="feed-header-inner"></div></header><main class="vatra-discovery-workspace"><aside class="vatra-discovery-sidebar"><h1 class="vatra-discovery-title">VATRA</h1><input class="vatra-discovery-search"><nav class="vatra-discovery-tabs"><button class="is-active">Огляд</button><button>Мої</button></nav><div style="height:1200px"></div></aside><section class="vatra-discovery-content"><div style="height:1500px"></div></section></main></div></body></html>',{waitUntil:"load"});
+  const measure=()=>spacingProbe.evaluate(()=>{
+   const sidebar=document.querySelector(".vatra-discovery-sidebar"),content=document.querySelector(".vatra-discovery-content");
+   const s=sidebar.getBoundingClientRect(),c=content.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();
+   return {left:s.left,right:s.right,sideTop:s.top,sideBottom:s.bottom,contentLeft:c.left,contentTop:c.top,headerBottom:header.bottom,overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+1,position:getComputedStyle(sidebar).position,scrollable:sidebar.scrollHeight>sidebar.clientHeight};
+  });
+  const before=await measure();
+  assert.equal(before.overflow,false,"Discovery workspace must not overflow at "+width+"px");
+  if(width>950){
+   assert.ok(before.position==="sticky"&&before.scrollable&&before.left<=1&&before.right<=before.contentLeft+1,"Discovery sidebar must stay outside content at "+width+"px: "+JSON.stringify(before));
+   await spacingProbe.evaluate(()=>window.scrollTo({top:500,behavior:"instant"}));
+   const after=await measure();
+   assert.ok(Math.abs(after.sideTop-after.headerBottom)<=2,"Discovery sidebar should remain aligned with sticky header: "+JSON.stringify(after));
+  }else{
+   assert.ok(before.position==="static"&&before.sideBottom<=before.contentTop+1,"Mobile discovery must stack navigation before content: "+JSON.stringify(before));
+  }
+ }
  await spacingProbe.close();
  console.log("VATRA layout: matching empty/filled profile, Feed, community and sidebar gaps OK");
 
@@ -4998,6 +5017,8 @@ try{
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),1);
   assert.equal(await page.locator(".ui-community-discovery-sidebar-001").count(),1);
+  assert.equal(await page.locator(".vatra-discovery-workspace > .vatra-discovery-sidebar").count(),1);
+  assert.equal(await page.locator(".vatra-discovery-tabs .vatra-discovery-nav-icon").count(),3);
   assert.equal(await page.locator(".ui-community-topic-001").count(),6);
   assert.equal(await page.locator(".ui-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));

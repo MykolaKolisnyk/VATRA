@@ -30,7 +30,7 @@
     index:"Sign in · VATRA","create-account":"Create account · VATRA",feed:"Feed · VATRA",friends:"Friends · VATRA",gifts:"Gifts · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",clips:"Clips · VATRA",marketplace:"Marketplace · VATRA","vatra-id":"VATRA ID · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
     "404":"404 Page not found · VATRA",
-    terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
+    terms:"Terms of Service · VATRA",commerce:"Commerce Rules · VATRA",privacy:"Privacy · VATRA",
     cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
   };
   if(current==="en"){
@@ -614,7 +614,7 @@
   ".profile-confirm-dialog",".profile-story-compose-dialog",
   ".vatra-post-composer-edit",".vatra-post-composer-settings",
   ".vatra-post-composer-drafts-panel",".feed-story-view",
-  ".profile-story-viewer",".vatra-gift-viewer",".ui-vatra-section-dialog-scroll-001",
+  ".profile-story-viewer",".vatra-gift-viewer",".vatra-discovery-sidebar",".ui-vatra-market-sidebar-scroll-001",".ui-vatra-market-editor-scroll-001",".ui-vatra-market-detail-info-001",".ui-vatra-market-editor-preview-001",".ui-vatra-section-dialog-scroll-001",
   ".ui-vatra-clips-social-001 .vatra-post-comment-list","textarea"
  ].join(",");
  const timers=new WeakMap();

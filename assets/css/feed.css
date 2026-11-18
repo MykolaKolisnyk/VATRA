@@ -193,6 +193,27 @@ body.feed-page.community-page .feed-layout{
 }
 body.feed-page.community-page .feed-layout{margin:28px auto 70px}
 body.feed-page .feed-main{min-width:0;gap:16px}
+
+body.feed-page .vatra-discovery-workspace{display:grid;grid-template-columns:clamp(250px,21vw,312px) minmax(0,1fr);align-items:start;min-height:calc(100dvh - 61px);width:100%;min-width:0}
+body.feed-page .vatra-discovery-sidebar{position:sticky;top:61px;align-self:start;display:flex;flex-direction:column;gap:14px;height:calc(100dvh - 61px);min-width:0;padding:24px 18px 28px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+body.feed-page .vatra-discovery-sidebar>*{flex:none;min-width:0}
+body.feed-page .vatra-discovery-content{width:100%;max-width:1400px;min-width:0;justify-self:center;padding:26px clamp(20px,2.5vw,40px) 56px}
+body.feed-page .vatra-discovery-title{margin:0;color:var(--ink);font-size:24px;font-weight:700;line-height:1.25;letter-spacing:-.025em}
+body.feed-page .vatra-discovery-search{width:100%;min-width:0;height:46px;padding:10px 14px;border:1px solid #d7ddea;border-radius:13px;background:#fff;color:var(--ink);font:500 15px/1.2 Onest,Inter,system-ui,sans-serif;transition:border-color .22s,box-shadow .22s}
+body.feed-page .vatra-discovery-search::placeholder{color:var(--soft);opacity:1}
+body.feed-page .vatra-discovery-search:focus{outline:0;border-color:#437cf0;box-shadow:0 0 0 4px rgba(55,109,245,.12)}
+body.feed-page .vatra-discovery-tabs{display:flex;flex-direction:column;gap:4px}
+body.feed-page .vatra-discovery-tabs button{display:flex;align-items:center;gap:12px;min-height:46px;padding:7px 10px;border:0;border-radius:11px;background:transparent;text-align:left;color:var(--ink);font:500 15px/1.4 Onest,Inter,system-ui,sans-serif}
+body.feed-page .vatra-discovery-tabs button:hover{background:var(--vatra-action-soft)}
+body.feed-page .vatra-discovery-tabs button.is-active{background:var(--vatra-action-selected);color:var(--vatra-action-ink);font-weight:700}
+body.feed-page .vatra-discovery-nav-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:11px;background:#f0f3f9;color:#6b7d99}
+body.feed-page .vatra-discovery-nav-icon svg{width:19px;height:19px}
+body.feed-page .vatra-discovery-tabs button.is-active .vatra-discovery-nav-icon{background:var(--blue);color:#fff}
+body.feed-page .vatra-discovery-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px 14px;border:0;border-radius:11px;background:var(--vatra-action-primary);color:#fff;font:700 14px/1.35 Onest,Inter,system-ui,sans-serif;white-space:normal}
+body.feed-page .vatra-discovery-primary:hover{background:var(--vatra-action-primary-hover)}
+@media(max-width:950px){body.feed-page .vatra-discovery-workspace{grid-template-columns:minmax(0,1fr);min-height:0}body.feed-page .vatra-discovery-sidebar{position:static;height:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line);padding:16px;gap:12px}body.feed-page .vatra-discovery-content{padding:20px 16px 44px}body.feed-page .vatra-discovery-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.feed-page .vatra-discovery-tabs button{font-size:14px;gap:8px}}
+@media(max-width:420px){body.feed-page .vatra-discovery-content{padding:16px 12px 40px}body.feed-page .vatra-discovery-sidebar{padding:14px 12px}}
+
 body.feed-page .feed-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:35px;margin:0;padding:0}
 body.feed-page .feed-title{font:760 26px/1.28 "Onest",sans-serif;letter-spacing:-.032em;color:var(--ink)}
 body.feed-page .feed-posts-heading{padding:1px 3px}
@@ -728,7 +749,7 @@ body.feed-page .vt-feed-story-view-heading-001{margin:0;font-size:15px}
 body.feed-page .vt-feed-story-view-body-001{display:grid;place-items:center;min-height:365px;margin:0;padding:15px;color:#fff;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;font:780 23px/1.5 "Onest",sans-serif}
 body.feed-page .vt-feed-story-view-close-001{width:100%;min-height:40px;border:1px solid rgba(255,255,255,.6);border-radius:9px;background:rgba(255,255,255,.16);color:#fff;cursor:pointer}
 body.feed-page .vt-feed-story-tip-001{margin:0;color:#7688a0;font:500 13px/1.6 "Onest",sans-serif}
-body.community-page .club-social-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+body.community-page .club-social-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
 body.community-page .club-social-actions button{
  min-height:42px;padding:10px 18px;border:1px solid #cddbef;border-radius:10px;
  background:#eef3fd;color:#315fc0;cursor:pointer;font:730 13px "Onest",sans-serif
@@ -757,7 +778,7 @@ body.community-page .community-create-toggle{
 body.community-page .community-create-toggle:hover{
  transform:translateY(-1px);box-shadow:0 7px 16px rgba(43,96,205,.16)
 }
-body.community-page .community-create,body.community-page .ui-community-list-section-001{
+body.community-page .community-create{
  padding:21px 23px;border:1px solid #e4eaf4;border-radius:16px;background:#fff;
  box-shadow:0 5px 20px rgba(33,54,95,.036)
 }
@@ -772,18 +793,11 @@ body.community-page .ui-community-name-input-001,body.community-page .ui-communi
 }
 body.community-page .ui-community-description-input-001{min-height:92px}
 body.community-page .vt-community-create-submit-001{grid-column:2;min-width:134px;min-height:41px;margin-top:0}
-body.community-page .ui-community-list-001{margin-top:13px}
+
 body.community-page .ui-community-card-001{transition:transform .2s,border-color .2s,box-shadow .2s}
 body.community-page .ui-community-card-001:hover{
  transform:translateY(-1px);box-shadow:0 7px 20px rgba(37,62,107,.07)
 }
-body.community-page .ui-club-cover-001{
- height:155px;overflow:hidden;border-radius:16px 16px 0 0;
- background:linear-gradient(115deg,#ebf4ff,#e6ebff,#f1e7fb)
-}
-body.community-page .ui-club-summary-001{min-height:106px}
-body.community-page .ui-club-info-001{position:static;margin:0 20px 21px}
-body.community-page .ui-club-hero-001{overflow:visible}
 @keyframes vatra-menu-in{from{opacity:0;transform:translateY(-7px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes vatra-card-in{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 /* On tablet the header gains a second row: all four destinations stay at the top. */
@@ -793,7 +807,7 @@ body.community-page .ui-club-hero-001{overflow:visible}
  body.feed-page:not(.community-page):not(.profile-page) .feed-layout,
  body.feed-page.community-page .feed-layout{width:calc(100% - 16px);margin:17px auto 45px}
  body.feed-page .feed-title{font-size:23px}
- body.community-page .community-create,body.community-page .ui-community-list-section-001{padding:17px}
+ body.community-page .community-create{padding:17px}
  body.community-page .community-create-toggle{padding:9px 11px;font-size:12px}
 }
 
@@ -1431,7 +1445,7 @@ body.feed-page .ui-vatra-skeleton-post-a-001,body.feed-page .ui-vatra-skeleton-p
 
 /* The shared header never needs skeletons; gate only route content. */
 body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}
-body.feed-page.vatra-shell-pending .feed-app > .feed-layout{visibility:hidden;pointer-events:none}
+body.feed-page.vatra-shell-pending .feed-app > :is(.feed-layout,.ui-vatra-community-workspace-001,.ui-vatra-section-main-001){visibility:hidden;pointer-events:none}
 body.feed-page.vatra-shell-pending > .vatra-auth-loading:not([data-loading-error="true"]){
  top:var(--vatra-shell-bottom,65px);right:0;bottom:0;left:0;
  height:auto;min-height:0;z-index:100
@@ -1873,7 +1887,7 @@ body.notifications-page .vt-notifications-heading-001{font-size:clamp(23px,2.6vw
 body.feed-page .vatra-scroll-rail{
  position:fixed;z-index:58;left:0;top:var(--vatra-rail-top,61px);bottom:0;
  display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;
- width:clamp(90px,calc((100vw - 1250px)/2 - 8px),190px);
+ width:var(--vatra-rail-width,0px);
  padding:0;border:0;border-right:1px solid #dbe3ee;
  background:#e8edf5;color:#647d9f;box-shadow:none;cursor:pointer;
  transition:background .16s ease
@@ -1886,9 +1900,7 @@ body.feed-page .vatra-scroll-rail-label{
  font:560 12px/1.4 "Onest",system-ui,sans-serif;color:inherit
 }
 body.feed-page .vatra-scroll-rail-icon-001{display:block;flex:none;width:16px;height:16px}
-@media(max-width:1340px){
- body.feed-page .vatra-scroll-rail-label{flex-wrap:wrap;justify-content:center;padding:15px 5px;gap:5px}
-}
+body.feed-page .vatra-scroll-rail.is-compact .vatra-scroll-rail-label{flex-direction:column;justify-content:center;padding:15px 7px;gap:5px}
 @media(max-width:1100px){body.feed-page .vatra-scroll-rail{display:none!important}}
 @media(prefers-reduced-motion:reduce){body.feed-page .vatra-scroll-rail{transition:none}}
 

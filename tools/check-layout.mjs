@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {readFile,stat,readdir} from "node:fs/promises";
 const read=path=>readFile(path,"utf8");
-const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","offline"];
+const pages=["index","404","create-account","forgot","reset","verify","feed","profile","terms","privacy","cookies","commerce","offline"];
 const emailNames=["confirmation","invite","recovery","magic-link","email-change","reauthentication","password-changed","email-address-changed"];
 const authBaseCss=await read("assets/css/base.css");
 const signInCss=await read("assets/css/sign-in.css");
@@ -2413,4 +2413,6 @@ for(const section of ["clips","marketplace","vatra-id"]){
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/sections.js')&&markup.includes('assets/css/sections.css'));
 }
 assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('vatra_marketplace_listings')&&sectionsRuntime.includes('vatra_verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
+assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
+ "Marketplace uses independent sidebar scrolling, ten photos and live preview");
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));

@@ -1080,7 +1080,7 @@ async function loadPosts(client,targetId,ownId,userId,append=false){
  try{
   let query=client.from("feed_posts")
    .select("id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id")
-   .eq("author_vatra_id",targetId);
+   .eq("author_vatra_id",targetId).eq("is_clip",false);
   if(typeof query.is==="function")query=query.is("archived_at",null);
 
 
@@ -1455,7 +1455,8 @@ function setupProfileExtraSections(client,ownId,targetId,userId,isMine){
 function setupProfileGallery(client,targetId){
  for(const settings of [
   {kind:"image",tab:"#profile-tab-photos",list:"#profile-photo-gallery",empty:"#profile-photos-empty",more:"#profile-photos-more"},
-  {kind:"video",tab:"#profile-tab-videos",list:"#profile-video-gallery",empty:"#profile-videos-empty",more:"#profile-videos-more"}
+  {kind:"video",tab:"#profile-tab-videos",list:"#profile-video-gallery",empty:"#profile-videos-empty",more:"#profile-videos-more"},
+  {kind:"video",clip:true,tab:"#profile-tab-clips",list:"#profile-clips-gallery",empty:"#profile-clips-empty",more:"#profile-clips-more"}
  ]){
   const tab=q(settings.tab),list=q(settings.list),empty=q(settings.empty),more=q(settings.more);
   if(!tab||!list||!empty||!more)continue;
@@ -1474,24 +1475,30 @@ function setupProfileGallery(client,targetId){
    empty.hidden=true;
    try{
     let query=client.from("feed_posts")
-     .select("id,author_vatra_id,media_kind,media_path")
-     .eq("author_vatra_id",targetId).eq("media_kind",settings.kind);
+     .select("id,author_vatra_id,media_kind,media_path,media_items")
+     .eq("author_vatra_id",targetId).eq("is_clip",!!settings.clip);
+    if(!settings.clip)query=query.eq("media_kind",settings.kind);
     if(typeof query.is==="function")query=query.is("archived_at",null);
     const {data,error}=await query.order("created_at",{ascending:false}).order("id",{ascending:false})
      .range(offset,offset+11);
     if(error)throw error;
-    const rows=(data||[]).filter(item=>!!item.media_path);
+    const rows=(data||[]).filter(item=>settings.clip?
+     item.media_items?.[0]?.media_kind==="video"&&!!item.media_items[0].media_path:!!item.media_path);
     if(!append)list.replaceChildren();
     for(const post of rows){
      const tile=node("article","profile-media-tile ui-profile-media-tile-001");
-     tile.setAttribute("aria-label",settings.kind==="image"?t("Фото","Photo"):t("Відео","Video"));
+     tile.setAttribute("aria-label",settings.clip?t("Кліп","Clip"):settings.kind==="image"?t("Фото","Photo"):t("Відео","Video"));
      list.append(tile);
-     void window.VATRA_POST_MEDIA?.mount(client,post,tile);
+     if(settings.clip){
+      const open=node("a","vt-profile-clip-open-001",t("Відкрити кліп","Open clip"));
+      open.href=new URL("clips?clip="+encodeURIComponent(post.id),home).href;
+      void window.VATRA_POST_MEDIA?.mount(client,post,tile).then(()=>{if(tile.isConnected)tile.append(open);});
+     }else void window.VATRA_POST_MEDIA?.mount(client,post,tile);
     }
     offset+=(data||[]).length;
     loaded=true;more.hidden=(data||[]).length<12;
     if(!list.children.length){
-     empty.textContent=settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
+     empty.textContent=settings.clip?t("Кліпів поки немає.","No clips yet."):settings.kind==="image"?t("Фотографій поки немає.","No photos yet."):
       t("Відео поки немає.","No videos yet.");
      empty.hidden=false;
     }
@@ -1501,7 +1508,9 @@ function setupProfileGallery(client,targetId){
     empty.hidden=false;
    }finally{busy=false;list.setAttribute("aria-busy","false");more.disabled=false;}
   };
-  tab.addEventListener("click",()=>{if(!loaded)void load();});
+  const activate=()=>{if(!loaded)void load();};
+  new MutationObserver(()=>{if(tab.getAttribute("aria-selected")==="true")activate();}).observe(tab,{attributes:true,attributeFilter:["aria-selected"]});
+  if(tab.getAttribute("aria-selected")==="true")activate();
   more.addEventListener("click",()=>void load(true));
  }
 }

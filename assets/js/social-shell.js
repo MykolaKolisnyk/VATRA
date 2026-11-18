@@ -350,7 +350,7 @@
    if(liveController){liveController.abort();liveController=null;}
    liveTerm=term;
    const ticket=++liveTicket;
-   if(term.length<2){clearLive();return;}
+   if(term.length<2&&!/^[1-9]$/.test(term)){clearLive();return;}
    suggestions.hidden=false;list.hidden=true;empty.hidden=true;
    suggestions.replaceChildren(make("p","vt-vatra-search-live-loading-001",tr("Шукаємо у VATRA…","Searching VATRA…")));
    const fetchMatches=async()=>{
@@ -359,7 +359,8 @@
     const controller=new AbortController();
     liveController=controller;
     try{
-     const result=await window.VATRA_SITE_SEARCH?.search(term,controller.signal);
+     if(!window.VATRA_SITE_SEARCH?.search)throw Error("Search provider unavailable");
+     const result=await window.VATRA_SITE_SEARCH.search(term,controller.signal);
      if(controller.signal.aborted||!visible||ticket!==liveTicket)return;
      suggestions.replaceChildren();
      const base=new URL("./",location.href);
@@ -372,7 +373,7 @@
       return validPost(entry?.id)?new URL("feed?post="+encodeURIComponent(entry.id),base).href:null;
      };
      if(result){
-      group(tr("Люди","People"),result.people,"people",x=>member(x.vatra_id),x=>[x.display_name,x.status_text]);
+      group(tr("Люди","People"),result.people,"people",x=>member(x.vatra_id),x=>[x.display_name,"VATRA ID "+x.vatra_id+(x.status_text?" · "+x.status_text:"")]);
       group(tr("Спільноти","Communities"),result.communities,"communities",x=>club(x.club_id),x=>[x.name,x.description]);
       group(tr("Публікації","Posts"),result.posts,"posts",post,x=>[
        String(x.body||tr("Медіапублікація","Media post")).slice(0,105),
@@ -526,7 +527,7 @@
       .replace("{count}",String(visibleTerms.length))):"";
    syncEditing();if(clearInput)clearInput.hidden=!input.value;
    const term=input.value.trim();
-   const live=term.length>=2;
+   const live=term.length>=2||/^[1-9]$/.test(term);
    list.hidden=live;
    empty.hidden=live||visibleTerms.length>0;
    edit.hidden=live||!entries.length;

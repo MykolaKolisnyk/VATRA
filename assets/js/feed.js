@@ -341,9 +341,10 @@
   searchHeading.textContent=t("Пошук у VATRA","Search VATRA")+": "+phrase;
   const escaped=phrase.replace(/[\\%_]/g,character=>String.fromCharCode(92)+character);
   // Separate structured queries avoid composing raw PostgREST OR syntax from member input.
+  const exact=phrase.match(/^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$/i);
+  const memberQuery=client.from("public_profiles").select("vatra_id,display_name,status_text");
   const queries=[
-   client.from("public_profiles").select("vatra_id,display_name,status_text")
-    .ilike("display_name","%"+escaped+"%").limit(8),
+   (exact?memberQuery.eq("vatra_id",exact[1]):memberQuery.ilike("display_name","%"+escaped+"%")).limit(8),
    client.from("public_profiles").select("vatra_id,display_name,status_text")
     .ilike("status_text","%"+escaped+"%").limit(8),
    client.from("communities").select("club_id,name,description").ilike("name","%"+escaped+"%").limit(8),
@@ -371,7 +372,7 @@
    const resultName=node("strong","vt-vatra-global-search-name-001",avatarStates.get(id)?memberName(id):person.display_name||t("Учасник VATRA","VATRA member"));
    info.append(resultName);
    if(!avatarStates.get(id))void window.VATRA_VERIFIED?.attach(client,resultName,id);
-   if(person.status_text)info.append(node("small","vt-vatra-global-search-description-001",person.status_text.slice(0,100)));
+   info.append(node("small","vt-vatra-global-search-description-001","VATRA ID "+id+(person.status_text?" · "+person.status_text.slice(0,100):"")));
    link.append(avatar,info);return link;
   });
   drawGlobalGroup(t("Спільноти","Communities"),clubs,club=>{
@@ -470,7 +471,7 @@
   person:{kind:"person",offset:0,done:!searchTerm&&feedFilter==="communities",queue:[]},
   group:{kind:"group",offset:0,done:!searchTerm&&feedFilter==="friends",queue:[]}
  });
- const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id";
+ const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path,media_items";
  const comparePosts=(a,b)=>
   Date.parse(b.created_at)-Date.parse(a.created_at)||String(b.id).localeCompare(String(a.id));
@@ -499,7 +500,7 @@
    if(isPerson&&!searchTerm&&typeof query.in==="function"){
     query=query.in("author_vatra_id",personIds);
    }
-   if(isPerson&&typeof query.is==="function")query=query.is("archived_at",null);
+   if(isPerson){query=query.eq("is_clip",false);if(typeof query.is==="function")query=query.is("archived_at",null);}
    if(!isPerson&&!searchTerm&&typeof query.in==="function")
     query=query.in("club_id",[...followedClubs.keys()]);
    if(searchTerm&&typeof query.ilike==="function")
@@ -566,6 +567,7 @@
     if(version!==feedRequestVersion)return;
     const person=found[0].status==="fulfilled"&&!found[0].value.error?found[0].value.data:null;
     const group=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
+    if(person?.is_clip){location.replace(new URL("clips?clip="+encodeURIComponent(person.id),home).href);return;}
     const direct=person?{...person,kind:"person"}:group?{...group,kind:"group"}:null;
     if(direct){
      page.unshift(direct);

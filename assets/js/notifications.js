@@ -400,12 +400,14 @@ function consumeSiteSearch(entry,signal,state,key){
 async function querySite(viewer,phrase,signal){
  const escaped=phrase.replace(/[\\%_]/g,ch=>String.fromCharCode(92)+ch);
  const pattern="%"+escaped+"%";
+ const exact=phrase.match(/^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$/i);
+ const memberQuery=viewer.from("public_profiles").select("vatra_id,display_name,status_text");
  const requests=[
-  viewer.from("public_profiles").select("vatra_id,display_name,status_text").ilike("display_name",pattern).limit(4),
+  (exact?memberQuery.eq("vatra_id",exact[1]):memberQuery.ilike("display_name",pattern)).limit(4),
   viewer.from("public_profiles").select("vatra_id,display_name,status_text").ilike("status_text",pattern).limit(4),
   viewer.from("communities").select("club_id,name,description").ilike("name",pattern).limit(4),
   viewer.from("communities").select("club_id,name,description").ilike("description",pattern).limit(4),
-  viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).is("archived_at",null).limit(4),
+  viewer.from("feed_posts").select("id,body,created_at").ilike("body",pattern).eq("is_clip",false).is("archived_at",null).limit(4),
   viewer.from("community_posts").select("id,body,club_id,created_at").ilike("body",pattern).limit(3)
  ];
  // PostgREST's abortSignal stops obsolete requests before they consume more
@@ -423,7 +425,7 @@ async function querySite(viewer,phrase,signal){
 async function findSite(term,signal){
  const phrase=String(term||"").trim().slice(0,120);
  const viewer=client;
- if(signal?.aborted||!viewer||phrase.length<2)return emptySiteSearch();
+ if(signal?.aborted||!viewer||(phrase.length<2&&!/^[1-9]$/.test(phrase)))return emptySiteSearch();
  const state=siteSearchState(viewer),key=phrase.toLocaleLowerCase();
  const previous=state.entries.get(key);
  if(previous){
