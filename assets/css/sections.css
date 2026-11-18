@@ -14,10 +14,12 @@ body.vatra-section-page .ui-vatra-section-tabs-001 button.is-active{background:#
 body.vatra-section-page .vt-vatra-section-empty-001{grid-column:1/-1;background:#fff;border:1px solid #e2e9f4;border-radius:14px;min-height:160px;padding:25px;display:grid;place-items:center;text-align:center;font:var(--section-body);color:var(--soft);margin:0}
 body.vatra-section-page .vt-vatra-section-status-001{padding:12px 15px;background:#eaf1ff;color:#365d9c;border-radius:10px;font:var(--section-control)}
 body.vatra-section-page .vt-vatra-section-status-001[data-kind="error"]{background:#fff1f1;color:#a43a4c}
-body.vatra-section-page .ui-vatra-section-dialog-001{box-sizing:border-box;width:min(540px,calc(100% - 24px));max-height:90dvh;border:1px solid #e0e7f2;border-radius:15px;background:#fff;color:#2c3850;padding:0;overflow:auto}
+body.vatra-section-page .ui-vatra-section-dialog-001{box-sizing:border-box;width:min(540px,calc(100% - 24px));max-height:90dvh;border:1px solid #e0e7f2;border-radius:15px;background:#fff;color:#2c3850;padding:0;overflow:hidden}
+body.vatra-section-page .ui-vatra-section-dialog-001[open]{display:flex;flex-direction:column}
+body.vatra-section-page .ui-vatra-section-dialog-scroll-001{min-height:0;flex:1 1 auto;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;margin:0 7px 7px 0;scrollbar-gutter:stable}
 body.vatra-section-page .ui-vatra-section-dialog-001:not([open]){display:none}
 body.vatra-section-page .ui-vatra-section-dialog-001::backdrop{background:rgba(23,36,57,.55)}
-body.vatra-section-page .ui-vatra-section-dialog-head-001{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid #ecf0f6}
+body.vatra-section-page .ui-vatra-section-dialog-head-001{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid #ecf0f6;flex:none}
 body.vatra-section-page .vt-vatra-section-dialog-title-001{margin:0;font:var(--section-heading)}
 body.vatra-section-page .vt-vatra-section-dialog-close-001{width:34px;height:34px;border:0;background:#f1f5fb;color:#627795;border-radius:9px;font:500 24px/1 "Onest",system-ui,sans-serif;cursor:pointer}
 body.vatra-section-page .ui-vatra-section-dialog-form-001{display:flex;flex-direction:column;gap:15px;padding:20px 22px}
