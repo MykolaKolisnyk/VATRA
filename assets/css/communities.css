@@ -56,13 +56,13 @@ body.community-page .ui-club-post-card-001.is-linked-post{
 .vt-community-membership-name-001{font:500 13px/1.4 "Onest",system-ui,sans-serif;overflow-wrap:anywhere}
 /* Directory cover is a first-class grid area, flush with the global header.
    Only the directory uses this layout; club, friends and marketplace retain their own shell. */
-body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sidebar directory";grid-template-rows:auto minmax(0,1fr);--community-inline:clamp(20px,2.5vw,40px)}
+body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sidebar directory";grid-template-rows:auto minmax(0,1fr)}
 .ui-community-discovery-sidebar-001{grid-area:sidebar}
 .ui-community-discovery-main-001{grid-area:directory;display:grid;align-content:start;gap:26px}
 .ui-community-list-section-001{display:grid;gap:13px;min-width:0}
-.ui-community-discovery-banner-001{grid-area:cover;justify-self:center;position:relative;overflow:hidden;display:block;width:min(calc(100% - var(--community-inline) - var(--community-inline)),calc(1400px - var(--community-inline) - var(--community-inline)));min-width:0;align-self:start;border:1px solid #dfe6f7;border-top:0;border-radius:0 0 18px 18px;background:#172b46}
+.ui-community-discovery-banner-001{grid-area:cover;justify-self:stretch;position:relative;overflow:hidden;display:block;width:100%;height:290px;min-width:0;align-self:start;border:0;border-radius:0;background:#172b46}
 .ui-community-discovery-banner-001[hidden]{display:none}
-.ui-community-banner-art-001{display:block;width:100%;height:auto;aspect-ratio:2000/580;object-fit:contain}
+.ui-community-banner-art-001{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
 .ui-community-banner-copy-001{position:absolute;inset:auto 0 0;padding:clamp(26px,4vw,52px) clamp(18px,2.6vw,32px) clamp(17px,2vw,26px);background:linear-gradient(180deg,transparent,#142238d9 48%,#101e31f2);color:#fff}
 .vt-community-banner-title-001{font:700 clamp(22px,2.4vw,32px)/1.2 Onest,Inter,system-ui,sans-serif;letter-spacing:-.025em;color:#fff;margin:0 0 6px}
 .vt-community-banner-text-001{font:400 15px/1.5 Onest,Inter,system-ui,sans-serif;color:#f1f5fb;margin:0;max-width:650px}
@@ -96,6 +96,7 @@ body.feed-page .ui-communities-main-001{grid-template-areas:"sidebar cover" "sid
 .vt-community-card-join-001:not([aria-pressed="true"]):hover{background:var(--vatra-action-primary-hover)}
 .vt-community-card-join-001[aria-pressed="true"]{color:var(--soft);background:#f3f5f8}
 @media(max-width:1100px){.ui-community-list-001{grid-template-columns:repeat(2,minmax(0,1fr))}.ui-community-topic-grid-001{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:950px){body.feed-page .ui-communities-main-001{grid-template-areas:"cover" "sidebar" "directory";grid-template-rows:auto auto auto}.ui-community-discovery-banner-001{width:100%;border-inline:0;border-radius:0 0 15px 15px}}
-@media(max-width:680px){.ui-community-memberships-preview-001{display:none}.ui-community-banner-copy-001{position:relative;inset:auto;padding:16px 18px;background:none}.vt-community-banner-title-001{font-size:21px}.vt-community-banner-text-001{font-size:14px}.ui-community-topics-001{padding:0}}
+@media(max-width:950px){body.feed-page .ui-communities-main-001{grid-template-areas:"cover" "sidebar" "directory";grid-template-rows:auto auto auto}}
+@media(max-width:680px){.ui-community-memberships-preview-001{display:none}.ui-community-banner-copy-001{padding:24px 16px 14px}.vt-community-banner-title-001{font-size:21px}.vt-community-banner-text-001{font-size:14px}.ui-community-topics-001{padding:0}}
+@media(max-width:600px){.ui-community-discovery-banner-001{height:185px}.vt-community-banner-title-001{font-size:20px}.vt-community-banner-text-001{font-size:13px}}
 @media(max-width:380px){.ui-community-list-001{grid-template-columns:minmax(0,1fr)}}
