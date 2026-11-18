@@ -25,7 +25,8 @@ assert.ok(base.includes("@supports selector(::-webkit-scrollbar)")&&
  "Chromium/Opera form lists must suppress native top/bottom arrow buttons");
 for(const scope of [".captcha-dialog",".vatra-select-scroll-area",".vt-tour-scroll-area-001",
  ".vatra-search-history",".profile-photo-comments",".profile-compose-dialog",
- ".vatra-post-composer-edit",".vatra-notification-panel","textarea"])
+ ".vatra-post-composer-edit",".vatra-notification-panel",".ui-vatra-section-dialog-scroll-001",
+ ".ui-vatra-clips-social-001 .vatra-post-comment-list","textarea"])
  assert.ok(base.includes(scope),"Missing shared scrollbar scope: "+scope);
 assert.ok(signup.includes(".vatra-select-scroll-area")&&
  signup.includes("margin-right:12px")&&signup.includes("overflow:hidden")&&
@@ -113,4 +114,19 @@ assert.equal(tasks.size,0,"Entering the form must cancel the pending fade timer"
 assert.equal(classes.has("vatra-form-scroll-active"),true);
 fire("pointerout",{pointerType:"mouse",target:child,relatedTarget:null});
 assert.equal(classes.has("vatra-form-scroll-active"),false);
+const sectionJs=await readFile("assets/js/sections.js","utf8");
+const sectionCss=await readFile("assets/css/sections.css","utf8");
+assert.ok(lang.includes('".ui-vatra-section-dialog-scroll-001"')&&
+ (sectionJs.match(/make\("div","ui-vatra-section-dialog-scroll-001"\)/g)||[]).length===2&&
+ sectionCss.includes(".ui-vatra-section-dialog-001[open]{display:flex;flex-direction:column}")&&
+ sectionCss.includes(".ui-vatra-section-dialog-scroll-001{min-height:0;flex:1 1 auto;overflow-y:auto;overflow-x:hidden"),
+ "New VATRA dialogs must use an inset scrollable body and stationary header");
+const dialogClasses=new Set();
+const dialogBody={matches:s=>s.includes(".ui-vatra-section-dialog-scroll-001"),
+ scrollHeight:900,clientHeight:480,classList:{add:v=>dialogClasses.add(v),remove:v=>dialogClasses.delete(v)}};
+const plainTextarea={matches:s=>s.includes("textarea"),scrollHeight:80,clientHeight:80,parentElement:{closest:()=>dialogBody}};
+fire("pointerover",{pointerType:"mouse",target:{closest:()=>plainTextarea}});
+assert.equal(dialogClasses.has("vatra-form-scroll-active"),true,"Non-overflowing fields must reveal the dialog scrollbar");
+fire("pointerout",{pointerType:"mouse",target:{closest:()=>plainTextarea},relatedTarget:null});
+assert.equal(dialogClasses.has("vatra-form-scroll-active"),false);
 console.log("VATRA forms: graphite, arrowless and hover-present scrollbars verified offline.");
