@@ -2908,3 +2908,83 @@ body.profile-page .vt-profile-editor-record-cancel-001{color:#536b8d;background:
  body.profile-page .ui-profile-editor-page-visibility-001{grid-column:1/-1;font-size:16px}
  body.profile-page .profile-editor-footer{align-items:stretch}
 }
+
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-fields{gap:14px}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(120px,32%) minmax(0,1fr);gap:16px}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>[class^="vt-profile-editor-label-"]{font:570 13px/1.5 "Onest",system-ui,sans-serif;color:#465974;padding-top:12px}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-field-control-"]{gap:5px}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) :is(input,textarea)[class^="ui-profile-editor-input-"]{
+ min-height:42px;background:#f8fafd;border:1px solid #e0e7f1;border-radius:10px;padding:10px 12px;
+ color:#2b3b54;font:480 14px/1.45 "Onest",system-ui,sans-serif;outline:none
+}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) :is(input,textarea)[class^="ui-profile-editor-input-"]:hover{border-color:#c8d5e9}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) :is(input,textarea)[class^="ui-profile-editor-input-"]:focus{background:#fff;border-color:#80a4ee;box-shadow:0 0 0 3px #eaf1ff}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field textarea{min-height:96px;resize:none}
+body.profile-page .vatra-editor-select{position:relative;min-width:0;width:100%;font-family:"Onest",system-ui,sans-serif}
+body.profile-page .vatra-editor-select>select[hidden]{display:none!important}
+body.profile-page .vt-profile-editor-select-trigger-001{
+ box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0;min-height:42px;
+ background:#f8fafd;border:1px solid #e0e7f1;border-radius:10px;padding:10px 12px;margin:0;
+ color:#2b3b54;text-align:start;font:480 14px/1.45 "Onest",system-ui,sans-serif;cursor:pointer;outline:none;
+ -webkit-tap-highlight-color:transparent;transition:background .15s,border-color .15s,box-shadow .15s
+}
+body.profile-page .vt-profile-editor-select-trigger-001:hover{background:#f4f7fc;border-color:#c8d5e9}
+body.profile-page .vatra-editor-select.is-open>.vt-profile-editor-select-trigger-001,
+body.profile-page .vt-profile-editor-select-trigger-001:focus-visible{background:#fff;border-color:#80a4ee;box-shadow:0 0 0 3px #eaf1ff}
+body.profile-page .vt-profile-editor-select-trigger-001.is-placeholder{color:#8997ad}
+body.profile-page .vt-profile-editor-select-value-001{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1 1 auto}
+body.profile-page .ui-profile-editor-dropdown-arrow-001{width:18px;height:18px;flex:none;color:#8196b5;transition:transform .15s;pointer-events:none}
+body.profile-page :is(.vatra-editor-select,.vatra-editor-city).is-open .ui-profile-editor-dropdown-arrow-001{transform:rotate(180deg);color:#3f73d6}
+body.profile-page .vatra-editor-select[data-variant="compact"]{width:auto;max-width:100%}
+body.profile-page .vatra-editor-select[data-variant="compact"]>.vt-profile-editor-select-trigger-001{
+ width:auto;min-height:29px;border-radius:7px;gap:5px;padding:4px 7px;background:#f0f4fb;border:1px solid #e7edf7;
+ font:550 11px/1.4 "Onest",system-ui,sans-serif;color:#536d94
+}
+body.profile-page .vatra-editor-select[data-variant="compact"]>.vt-profile-editor-select-trigger-001:hover{background:#e8f0fe;border-color:#dce7fb;color:#3069cc}
+body.profile-page .vatra-editor-select[data-variant="compact"].is-open>.vt-profile-editor-select-trigger-001{background:#e8f0fe;border-color:#afc8f5;box-shadow:none;color:#3069cc}
+body.profile-page .ui-profile-editor-select-symbol-001{width:14px;height:14px;display:grid;place-items:center;flex:none}
+body.profile-page .ui-profile-editor-select-symbol-001 svg{width:14px;height:14px}
+body.profile-page .vatra-editor-select[data-variant="compact"] .ui-profile-editor-dropdown-arrow-001{width:13px;height:13px}
+body.profile-page .vatra-editor-select[data-variant="page"]{grid-column:2}
+body.profile-page .vatra-editor-select[data-variant="page"] .vt-profile-editor-select-trigger-001{min-height:38px;background:#fff}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-disclosure-"]{gap:7px;justify-content:flex-end}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="vt-profile-editor-disclosure-label-"]{color:#8192ad;font:490 11px/1.5 "Onest",system-ui,sans-serif}
+body.profile-page .vatra-editor-city{position:relative;min-width:0;width:100%}
+body.profile-page .vatra-editor-city>input[class^="ui-profile-editor-input-"]{padding-right:40px}
+body.profile-page .vt-profile-editor-city-toggle-001{position:absolute;right:4px;top:3px;bottom:3px;display:grid;place-items:center;width:34px;padding:0;margin:0;border:0;border-radius:7px;background:transparent;cursor:pointer;color:#8196b5}
+body.profile-page .vt-profile-editor-city-toggle-001:hover{background:#eaf0fb}
+body.profile-page .ui-profile-editor-dropdown-panel-001{
+ position:fixed;inset:auto;z-index:2147483647;box-sizing:border-box;display:flex;flex-direction:column;gap:2px;
+ margin:0;padding:5px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;
+ border:1px solid #dfe7f3;border-radius:11px;background:#fff;color:#34465f;
+ box-shadow:0 9px 30px rgba(32,56,98,.15),0 2px 6px rgba(32,56,98,.06);
+ font:480 13px/1.45 "Onest",system-ui,sans-serif
+}
+body.profile-page .ui-profile-editor-dropdown-panel-001[popover]:not(:popover-open){display:none}
+body.profile-page .vt-profile-editor-dropdown-option-001{
+ box-sizing:border-box;display:flex;align-items:center;gap:8px;flex:0 0 auto;width:100%;min-height:36px;
+ padding:8px 10px;margin:0;border:0;border-radius:7px;background:transparent;color:#34465f;
+ font:480 13px/1.45 "Onest",system-ui,sans-serif;text-align:start;cursor:pointer;outline:none
+}
+body.profile-page .vt-profile-editor-dropdown-option-label-001{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+body.profile-page .vt-profile-editor-dropdown-option-001.is-selected{background:#edf3ff;color:#2b64cb;font-weight:570}
+body.profile-page .vt-profile-editor-dropdown-option-001.is-highlighted,
+body.profile-page .vt-profile-editor-dropdown-option-001:focus-visible{background:#e7effe;color:#2b64cb}
+body.profile-page .vt-profile-editor-dropdown-option-001:disabled{opacity:.45;cursor:default}
+body.profile-page .ui-profile-editor-option-check-001,body.profile-page .ui-profile-editor-option-symbol-001{width:16px;height:16px;flex:none;color:#5d82c6;pointer-events:none}
+body.profile-page .vt-profile-editor-dropdown-empty-001{margin:0;padding:12px;color:#7587a2;font-size:12px}
+body.profile-page .vt-profile-editor-language-chip-001{border-radius:8px;background:#eaf1fd;border-color:#dfe8fa;color:#416393;padding:6px 9px}
+body.profile-page .vt-profile-editor-language-chip-001:focus-visible{outline:2px solid #83a4ea;outline-offset:2px}
+body.profile-page .profile-editor-main,body.profile-page .profile-editor-sidebar{border-radius:15px;box-shadow:0 4px 18px rgba(39,60,99,.035)}
+body.profile-page .vt-profile-editor-section-title-001{font-weight:700;letter-spacing:-.015em}
+body.profile-page .profile-editor-nav-link{font-size:13.5px;min-height:41px}
+body.profile-page .profile-editor-nav-link.is-active{background:#eaf1ff}
+body.profile-page .profile-editor-footer{margin-top:21px}
+@media(max-width:540px){
+ body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(0,1fr);gap:6px}
+ body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>[class^="vt-profile-editor-label-"]{padding-top:0}
+ body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) :is(input,textarea)[class^="ui-profile-editor-input-"]{font-size:16px}
+ body.profile-page .vatra-editor-select:not([data-variant="compact"])>.vt-profile-editor-select-trigger-001{font-size:16px;min-height:44px}
+ body.profile-page .vt-profile-editor-dropdown-option-001{min-height:42px;font-size:14px}
+ body.profile-page .vatra-editor-select[data-variant="page"]{grid-column:1/-1}
+}

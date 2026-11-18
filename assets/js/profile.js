@@ -476,6 +476,7 @@
    (draft.get(key)?.visibility||"friends")!==(saved.get(key)?.visibility||"friends"))||
    visibility!==accountVisibility;
   const close=async()=>{
+   closeEditorMenu();
    if(hasChanges()&&!await window.VATRA_PROFILE_CONFIRM({
     title:tr("Вийти без збереження?","Leave without saving?"),
     description:tr("Незбережені зміни у вашому профілі буде втрачено.",
@@ -510,6 +511,7 @@
   recordFoot.append(recordCancel,recordSave);recordForm.append(recordHead,recordFields,recordFoot);recordDialog.append(recordForm);document.body.append(recordDialog);
   let recordSnapshot=null;
   const cancelRecord=()=>{
+   closeEditorMenu();
    if(recordSnapshot)for(const [key,value] of recordSnapshot){if(value)draft.set(key,value);else draft.delete(key);}
    recordSnapshot=null;if(recordDialog.open)recordDialog.close();
   };
@@ -518,14 +520,171 @@
   recordDialog.addEventListener("click",event=>{if(event.target===recordDialog)cancelRecord();});
   recordDialog.addEventListener("close",()=>{if(recordSnapshot)cancelRecord();});
   recordForm.addEventListener("submit",event=>{
-   event.preventDefault();recordSnapshot=null;recordDialog.close();showGroup(selected);form.requestSubmit(save);
+   event.preventDefault();closeEditorMenu();recordSnapshot=null;recordDialog.close();showGroup(selected);form.requestSubmit(save);
   });
+  let editorMenu=null,editorMenuSerial=0;
+  const menuArrow=()=>{
+   const ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
+   icon.setAttribute("class","ui-profile-editor-dropdown-arrow-001");icon.setAttribute("viewBox","0 0 20 20");icon.setAttribute("aria-hidden","true");
+   path.setAttribute("class","ui-profile-editor-dropdown-arrow-path-001");path.setAttribute("d","m5.5 8 4.5 4.5L14.5 8");path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");path.setAttribute("stroke-width","1.7");path.setAttribute("stroke-linecap","round");path.setAttribute("stroke-linejoin","round");icon.append(path);return icon;
+  };
+  const closeEditorMenu=()=>{
+   const state=editorMenu;if(!state)return;
+   editorMenu=null;
+   state.anchor.setAttribute("aria-expanded","false");
+   state.anchor.removeAttribute("aria-activedescendant");state.anchor.removeAttribute("aria-controls");
+   state.wrapper.classList.remove("is-open");
+   if(typeof state.panel.hidePopover==="function")try{state.panel.hidePopover();}catch(_){}
+   state.panel.remove();
+  };
+  const positionEditorMenu=()=>{
+   const state=editorMenu;if(!state)return;
+   if(!state.anchor.isConnected||!state.anchor.getClientRects().length){closeEditorMenu();return;}
+   const rect=state.wrapper.getBoundingClientRect(),v=window.visualViewport;
+   const left=v?.offsetLeft||0,top=v?.offsetTop||0,width=v?.width||window.innerWidth,height=v?.height||window.innerHeight;
+   if(rect.bottom<top||rect.top>top+height){closeEditorMenu();return;}
+   const compact=state.wrapper.dataset.variant==="compact";
+   const w=Math.min(Math.max(rect.width,compact?190:0),width-16);
+   const x=Math.max(left+8,Math.min(compact?rect.right-w:rect.left,left+width-w-8));
+   const down=top+height-rect.bottom-9,up=rect.top-top-9;
+   const desired=Math.min(300,state.panel.scrollHeight+2);
+   const above=down<Math.min(desired,160)&&up>down;
+   const space=Math.max(0,above?up:down);
+   if(space<45){closeEditorMenu();return;}
+   state.panel.style.width=Math.round(w)+"px";state.panel.style.maxHeight=Math.floor(Math.min(300,space))+"px";state.panel.style.left=Math.round(x)+"px";
+   state.panel.style.top=Math.round(above?rect.top-state.panel.offsetHeight-6:rect.bottom+6)+"px";
+  };
+  const markEditorOption=(state,index,scroll=false)=>{
+   if(!state.buttons.length)return;
+   state.index=Math.max(0,Math.min(index,state.buttons.length-1));
+   state.buttons.forEach((button,i)=>button.classList.toggle("is-highlighted",i===state.index));
+   const button=state.buttons[state.index];
+   state.anchor.setAttribute("aria-activedescendant",button.id);
+   if(scroll)button.scrollIntoView({block:"nearest"});
+  };
+  const chooseEditorOption=(state,index)=>{
+   if(editorMenu!==state)return;
+   const item=state.items[index];if(!item||item.disabled)return;
+   closeEditorMenu();state.choose(item.value);
+  };
+  const openEditorMenu=(anchor,wrapper,items,choose,selectedValue,keyboard=false)=>{
+   closeEditorMenu();
+   const panel=make("div","ui-profile-editor-dropdown-panel-001");
+   panel.id="vatra-editor-options-"+(++editorMenuSerial);panel.setAttribute("role","listbox");
+   panel.setAttribute("aria-label",anchor.getAttribute("aria-label")||tr("Варіанти","Options"));
+   const state={anchor,wrapper,items,choose,panel,buttons:[],index:-1,search:"",searchTime:0};
+   editorMenu=state;anchor.setAttribute("aria-expanded","true");anchor.setAttribute("aria-controls",panel.id);wrapper.classList.add("is-open");
+   items.forEach((item,index)=>{
+    const button=make("button","vt-profile-editor-dropdown-option-001");
+    button.id=panel.id+"-"+index;button.type="button";button.tabIndex=-1;button.setAttribute("role","option");
+    const selected=item.value===selectedValue;button.setAttribute("aria-selected",String(selected));button.classList.toggle("is-selected",selected);
+    if(item.icon){const symbol=svg(item.icon);symbol.classList.add("ui-profile-editor-option-symbol-001");button.append(symbol);}
+    button.append(make("span","vt-profile-editor-dropdown-option-label-001",item.text));
+    if(selected){const check=svg("check");check.classList.add("ui-profile-editor-option-check-001");button.append(check);}
+    button.disabled=Boolean(item.disabled);
+    button.addEventListener("pointerdown",event=>event.preventDefault());
+    button.addEventListener("pointerenter",event=>{if(event.pointerType==="mouse"&&!button.disabled)markEditorOption(state,index);});
+    button.addEventListener("click",()=>chooseEditorOption(state,index));
+    panel.append(button);state.buttons.push(button);
+   });
+   if(!items.length)panel.append(make("p","vt-profile-editor-dropdown-empty-001",tr("Немає збігів. Можна ввести власне значення.","No matches. You can enter your own value.")));
+   const host=anchor.closest("dialog[open]")||document.body;
+   host.append(panel);
+   if(typeof panel.showPopover==="function"){
+    panel.setAttribute("popover","manual");
+    try{panel.showPopover();}catch(_){panel.removeAttribute("popover");}
+   }
+   positionEditorMenu();
+   if(editorMenu===state&&keyboard&&items.length){const index=items.findIndex(item=>item.value===selectedValue);markEditorOption(state,index<0?0:index,true);}
+   return state;
+  };
+  const dropdownKeys=(anchor,open,event,editable=false)=>{
+   const current=editorMenu?.anchor===anchor?editorMenu:null;
+   if(event.key==="Tab"){if(current)closeEditorMenu();return;}
+   if(event.key==="Escape"&&current){event.preventDefault();event.stopPropagation();closeEditorMenu();return;}
+   if(event.key==="ArrowDown"||event.key==="ArrowUp"){
+    event.preventDefault();
+    if(!current){const state=open(true);if(editorMenu===state&&event.key==="ArrowUp")markEditorOption(state,state.items.length-1,true);}
+    else markEditorOption(current,current.index<0?(event.key==="ArrowUp"?current.items.length-1:0):current.index+(event.key==="ArrowUp"?-1:1),true);
+    return;
+   }
+   if(current&&(event.key==="Home"||event.key==="End")&&!editable){event.preventDefault();markEditorOption(current,event.key==="Home"?0:current.items.length-1,true);return;}
+   if(current&&(event.key==="Enter"||(!editable&&event.key===" "))){
+    if(current.index>=0){event.preventDefault();chooseEditorOption(current,current.index);}
+    else if(editable){event.preventDefault();closeEditorMenu();}
+    return;
+   }
+   if(!editable&&event.key.length===1&&event.key!==" "&&!event.ctrlKey&&!event.altKey&&!event.metaKey){
+    event.preventDefault();const state=current||open(false);
+    if(editorMenu!==state)return;
+    const now=Date.now();state.search=(now-state.searchTime>700?"":state.search)+event.key.toLocaleLowerCase();state.searchTime=now;
+    const index=state.items.findIndex(item=>item.text.toLocaleLowerCase().startsWith(state.search));
+    if(index>=0)markEditorOption(state,index,true);
+   }
+  };
+  const audienceIcon=value=>value==="public"?"globe":value==="only_me"?"lock":"users";
+  const enhanceEditorSelect=(native,variant="normal")=>{
+   const id=native.id,wrapper=make("div","vatra-editor-select ui-profile-editor-select-"+id);
+   wrapper.dataset.variant=variant;
+   const button=make("button","vt-profile-editor-select-trigger-001");button.type="button";button.id=id;
+   button.setAttribute("aria-haspopup","listbox");button.setAttribute("aria-expanded","false");
+   button.setAttribute("aria-label",native.getAttribute("aria-label")||tr("Обрати значення","Choose a value"));
+   const caption=make("span","vt-profile-editor-select-value-001");
+   const iconWrap=make("span","ui-profile-editor-select-symbol-001");
+   if(variant==="compact")button.append(iconWrap);
+   button.append(caption,menuArrow());
+   native.id=id+"-native";native.hidden=true;native.tabIndex=-1;native.setAttribute("aria-hidden","true");
+   native.before(wrapper);wrapper.append(native,button);
+   const sync=()=>{
+    const option=native.options[native.selectedIndex];
+    caption.textContent=option?.textContent||tr("Не вибрано","Not selected");
+    button.classList.toggle("is-placeholder",!native.value);
+    button.disabled=native.disabled;
+    if(variant==="compact")iconWrap.replaceChildren(svg(audienceIcon(native.value)));
+   };
+   const open=keyboard=>{
+    const items=Array.from(native.options).map(option=>({value:option.value,text:option.textContent,disabled:option.disabled,icon:variant==="compact"?audienceIcon(option.value):null}));
+    return openEditorMenu(button,wrapper,items,value=>{native.value=value;native.dispatchEvent(new Event("change",{bubbles:true}));sync();},native.value,keyboard);
+   };
+   native.addEventListener("change",sync);sync();
+   button.addEventListener("click",()=>{if(editorMenu?.anchor===button)closeEditorMenu();else open(false);});
+   button.addEventListener("keydown",event=>dropdownKeys(button,open,event));
+   button.addEventListener("blur",event=>{if(editorMenu?.anchor===button&&!editorMenu.panel.contains(event.relatedTarget))closeEditorMenu();});
+   return {sync,focus:()=>button.focus()};
+  };
+  const enhanceCityInput=input=>{
+   const wrapper=make("div","vatra-editor-city ui-profile-editor-city-"+input.id);
+   const arrow=make("button","vt-profile-editor-city-toggle-001");arrow.type="button";arrow.tabIndex=-1;
+   arrow.setAttribute("aria-label",tr("Список міст","City suggestions"));arrow.append(menuArrow());
+   input.before(wrapper);wrapper.append(input,arrow);
+   input.setAttribute("role","combobox");input.setAttribute("aria-autocomplete","list");input.setAttribute("aria-expanded","false");input.setAttribute("aria-haspopup","listbox");
+   input.setAttribute("aria-label",input.id.endsWith("hometown")?tr("Рідне місто","Hometown"):tr("Місто","City"));
+   const open=(keyboard=false,all=false)=>{
+    const query=all?"":input.value.trim().toLocaleLowerCase();
+    const items=cities.filter(city=>!query||city.toLocaleLowerCase().includes(query)).map(city=>({value:city,text:city}));
+    return openEditorMenu(input,wrapper,items,value=>{input.value=value;input.dispatchEvent(new Event("input",{bubbles:true}));closeEditorMenu();},input.value,keyboard);
+   };
+   input.addEventListener("input",()=>open(false));
+   input.addEventListener("click",()=>{if(editorMenu?.anchor!==input)open(false,true);});
+   input.addEventListener("keydown",event=>dropdownKeys(input,keyboard=>open(keyboard),event,true));
+   input.addEventListener("blur",event=>{if(editorMenu?.anchor===input&&!wrapper.contains(event.relatedTarget)&&!editorMenu.panel.contains(event.relatedTarget))closeEditorMenu();});
+   arrow.addEventListener("pointerdown",event=>event.preventDefault());
+   arrow.addEventListener("click",()=>{input.focus({preventScroll:true});if(editorMenu?.anchor===input)closeEditorMenu();else open(false,true);});
+  };
+  document.addEventListener("pointerdown",event=>{
+   if(editorMenu&&!editorMenu.wrapper.contains(event.target)&&!editorMenu.panel.contains(event.target))closeEditorMenu();
+  },true);
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&editorMenu){event.preventDefault();event.stopPropagation();closeEditorMenu();}},true);
+  window.addEventListener("scroll",event=>{if(editorMenu&&(!(event.target instanceof Node)||!editorMenu.panel.contains(event.target)))positionEditorMenu();},{capture:true,passive:true});
+  window.addEventListener("resize",positionEditorMenu,{passive:true});
+  window.visualViewport?.addEventListener("resize",positionEditorMenu,{passive:true});
+  window.visualViewport?.addEventListener("scroll",positionEditorMenu,{passive:true});
   const buildField=([key,uk,en,kind],destination)=>{
    const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
    row.dataset.long=kind==="long"?"true":"false";
    const lab=make("label","vt-profile-editor-label-"+key,tr(uk,en));
    const current=draft.get(key)||{value:"",visibility:"friends"};
-   const disclosure=make("label","ui-profile-editor-disclosure-"+key);
+   const disclosure=make("div","ui-profile-editor-disclosure-"+key);
    disclosure.append(make("span","vt-profile-editor-disclosure-label-"+key,tr("Хто бачить","Visible to")));
    const selectBox=make("select","ui-profile-editor-visibility-"+key);
    selectBox.id="profile-editor-visibility-"+key;
@@ -542,27 +701,28 @@
     const wrap=make("div","ui-profile-editor-language-box-001");
     const chips=make("div","ui-profile-editor-language-chips-001");
     const picker=make("select","ui-profile-editor-input-languages");picker.id=inputId;
+    picker.setAttribute("aria-label",tr(uk,en));let pickerView=null;
     const render=()=>{
      chips.replaceChildren();picker.replaceChildren(opt("",tr("Додати мову","Add a language")));
      for(const value of selectedLanguages){
       const chip=make("button","vt-profile-editor-language-chip-001");chip.type="button";
       chip.append(make("span","vt-profile-editor-language-chip-label-001",value),svg("x"));
       chip.setAttribute("aria-label",tr("Видалити мову: ","Remove language: ")+value);
-      chip.addEventListener("click",()=>{selectedLanguages.splice(selectedLanguages.indexOf(value),1);render();update();picker.focus();});
+      chip.addEventListener("click",()=>{selectedLanguages.splice(selectedLanguages.indexOf(value),1);render();update();pickerView?.focus();});
       chips.append(chip);
      }
      chips.hidden=!selectedLanguages.length;
      for(const value of languages)if(!selectedLanguages.includes(value))picker.append(opt(value,value));
-     picker.value="";
+     picker.value="";pickerView?.sync();
     };
     readValue=()=>selectedLanguages.join(", ");
     const update=()=>draft.set(key,{value:readValue(),visibility:selectBox.value});
     picker.addEventListener("change",()=>{if(picker.value&&readValue().length+picker.value.length+2<=1000){selectedLanguages.push(picker.value);render();update();}});
-    render();wrap.append(chips,picker);control.append(wrap);
+    render();wrap.append(chips,picker);control.append(wrap);pickerView=enhanceEditorSelect(picker);
    }else{
     const menu=choices[key];
     const input=make(menu?"select":kind==="long"?"textarea":"input","ui-profile-editor-input-"+key);
-    input.id=inputId;
+    input.id=inputId;input.setAttribute("aria-label",tr(uk,en));
     if(menu){
      input.append(opt("",tr("Не вибрано","Not selected")));
      for(const pair of menu)input.append(opt(pair[0],lang(pair)));
@@ -573,23 +733,21 @@
      input.maxLength=1000;input.spellcheck=kind==="long";
      input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):"";
      if(key==="city"||key==="hometown"){
-      const list=make("datalist","ui-profile-editor-city-list-"+key);list.id=inputId+"-suggestions";
-      for(const city of cities)list.append(opt(city,city));
-      input.setAttribute("list",list.id);control.append(list);
-      input.autocomplete=key==="city"?"address-level2":"off";
+      input.autocomplete="off";
      }
     }
     input.value=current.value;readValue=()=>input.value;
     control.append(input);input.addEventListener(menu?"change":"input",()=>update());
+    if(menu)enhanceEditorSelect(input);else if(key==="city"||key==="hometown")enhanceCityInput(input);
    }
    lab.htmlFor=inputId;control.append(disclosure);row.append(lab,control);destination.append(row);
    function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
-   selectBox.addEventListener("change",update);
+   selectBox.addEventListener("change",update);enhanceEditorSelect(selectBox,"compact");
   };
   const showGroup=id=>{
    const group=groups.find(x=>x.id===id);
    if(!group)return;
-   selected=id;
+   closeEditorMenu();selected=id;
    groupTitle.textContent=lang(group.label);
    chapter.textContent=String(groups.indexOf(group)+1).padStart(2,"0")+"  /  "+String(groups.length).padStart(2,"0");
    summary.textContent=id==="profile"?
@@ -619,7 +777,7 @@
     change.append(opt("public",tr("Відкрита сторінка","Public profile")),
      opt("friends",tr("Закрита · лише друзі","Private · friends only")));
     change.value=visibility;change.addEventListener("change",()=>{visibility=change.value;});
-    privacy.append(privacySymbol,copy,change);fields.append(privacy);
+    privacy.append(privacySymbol,copy,change);fields.append(privacy);enhanceEditorSelect(change,"page");
    }
    if(["education","career","military"].includes(id)){
     const info=make("div","ui-profile-editor-records-001");
@@ -648,7 +806,7 @@
    if(id!==selected){showGroup(id);workspace.scrollIntoView({block:"start",behavior:"instant"});}
   };
   form.addEventListener("submit",async event=>{
-   event.preventDefault();if(save.disabled)return;
+   event.preventDefault();closeEditorMenu();if(save.disabled)return;
    save.disabled=true;feedback.hidden=true;feedback.dataset.kind="";
    // One save persists edits across every section, not only the visible tab.
    const records=groups.flatMap(group=>group.fields).map(field=>{
