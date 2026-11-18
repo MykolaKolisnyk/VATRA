@@ -225,7 +225,7 @@ async function openDirectory(client,ownId,userId){
    if(result.error)throw result.error;
    data=result.data||[];
   }
-  let directory=(data||[]);const filters=[...document.querySelectorAll("[data-community-filter]")];
+  let directory=(data||[]);const knownClubs=new Map(directory.map(club=>[String(club.club_id),club]));const filters=[...document.querySelectorAll("[data-community-filter]")];
   let mode="all",following=new Set(),owned=new Set(),filterError=false;
   const results=await Promise.allSettled([
    ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):Promise.resolve({data:[]}),
@@ -235,22 +235,42 @@ async function openDirectory(client,ownId,userId){
   if(results[1].status==="fulfilled"&&!results[1].value.error)owned=new Set((results[1].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
   const input=$("#community-directory-search");
   if(input){input.value=term;input.placeholder=t("Пошук спільнот","Search communities");input.setAttribute("aria-label",input.placeholder);}
+  const topics=$("#community-topics"),banner=$("#community-discovery-banner"),memberships=$("#community-memberships-preview");
+  const topicGrid=node("div","ui-community-topic-grid-001");
+  topics.append(node("h2","vt-community-topics-title-001",t("Пошук за темою","Find by topic")),topicGrid);
+  for(const [uk,en,path] of [["Музика","Music","M9 18V5l12-3v13M9 18a3 2 0 1 1-6 0 3 2 0 0 1 6 0M21 15a3 2 0 1 1-6 0 3 2 0 0 1 6 0"],["Спорт","Sports","M5 20 19 4M4 5l15 15M4 12h16"],["Подорожі","Travel","M3 19 10 5l5 10 3-5 4 9z"],["Технології","Technology","M3 4h18v13H3zM8 21h8M12 17v4"],["Освіта","Education","m2 9 10-5 10 5-10 5zM6 11v7l6 3 6-3v-7"],["Мистецтво","Art","M12 3a9 9 0 1 0 0 18c3 0 0-5 4-5h2a5 5 0 0 0 3-4 9 9 0 0 0-9-9zM7 10h.1M11 7h.1M16 8h.1"]]){
+   const b=node("button","ui-community-topic-001");b.type="button";
+   const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"),p=document.createElementNS("http://www.w3.org/2000/svg","path");
+   svg.setAttribute("class","ui-community-topic-icon-001");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");p.setAttribute("class","ui-community-topic-path-001");p.setAttribute("d",path);svg.append(p);
+   b.append(svg,node("span","vt-community-topic-name-001",t(uk,en)));
+   b.addEventListener("click",()=>{term=t(uk,en);input.value=term;filters.find(tab=>tab.dataset.communityFilter==="all")?.click();});topicGrid.append(b);
+  }
+  const renderMemberships=()=>{
+   memberships.replaceChildren(node("h2","vt-community-memberships-title-001",t("Мої спільноти","My communities")));
+   const ids=[...new Set([...owned,...following])];const available=ids.map(id=>knownClubs.get(id)).filter(Boolean).slice(0,6);
+   for(const club of available){const item=node("a","ui-community-membership-link-001");item.href=clubURL(String(club.club_id));item.append(node("span","ui-community-membership-avatar-001",String(club.name||"V").slice(0,1).toLocaleUpperCase()),node("span","vt-community-membership-name-001",club.name));memberships.append(item);}
+   if(!available.length)memberships.append(node("p","vt-community-memberships-empty-001",ids.length?t("Перегляньте свої підписки.","View your subscriptions."):t("Ваші спільноти з’являться тут.","Your communities will appear here.")));
+  };
   const render=()=>{
-   list.replaceChildren();
+   list.replaceChildren();banner.hidden=mode!=="all"||!!term;topics.hidden=mode!=="all"||!!term;
+   $("#community-list-heading").textContent=term?t("Результати пошуку","Search results"):mode==="followed"?t("Мої підписки","Following"):mode==="owned"?t("Керую","Managed"):t("Нові спільноти","New communities");renderMemberships();
    const query=term.toLocaleLowerCase();
    const visible=directory.filter(club=>(mode==="all"||(mode==="followed"?following:owned).has(String(club.club_id)))&&(!query||String(club.name||"").toLocaleLowerCase().includes(query)||String(club.description||"").toLocaleLowerCase().includes(query)));
    for(const club of visible){
    const number=String(club.club_id);
    if(!idPattern.test(number))continue;
-   const card=node("a","ui-community-card-001");
-   card.href=clubURL(number);
+   const card=node("article","ui-community-card-001");
    const head=node("div","ui-community-card-head-001");
-   head.append(node("strong","vt-community-card-name-001",club.name),
-    node("span","vt-community-card-id-001","Club ID "+number));
+   const nameLink=node("a","vt-community-card-name-001",club.name);nameLink.href=clubURL(number);head.append(nameLink);
    const mark=node("span","ui-community-card-avatar-001",String(club.name||"V").trim().slice(0,1).toLocaleUpperCase());
    const detail=node("div","ui-community-card-detail-001");detail.append(head,node("p","vt-community-card-description-001",club.description||t("Без опису","No description")));
-   card.append(mark,detail);
-   list.append(card);
+   const cover=node("a","ui-community-card-cover-001");cover.href=clubURL(number);cover.setAttribute("aria-label",club.name);cover.append(mark);
+   const foot=node("div","ui-community-card-actions-001"),open=node("a","vt-community-card-open-001",t("Переглянути","View"));open.href=clubURL(number);foot.append(open);
+   if(ownId&&!owned.has(number)&&!filterError){
+    const join=node("button","vt-community-card-join-001",following.has(number)?t("Відписатися","Unfollow"):t("Приєднатися","Join"));join.type="button";join.setAttribute("aria-pressed",String(following.has(number)));
+    join.addEventListener("click",async()=>{join.disabled=true;try{const result=following.has(number)?await client.from("community_follows").delete().eq("club_id",number).eq("member_vatra_id",ownId):await client.from("community_follows").insert({club_id:number,member_vatra_id:ownId});if(result.error)throw result.error;if(following.has(number))following.delete(number);else following.add(number);render();}catch(_){status("#community-list-status",t("Не вдалося змінити підписку.","Could not update subscription."),"error");}finally{join.disabled=false;}});foot.append(join);
+   }
+   detail.append(foot);card.append(cover,detail);list.append(card);
   }
    const error=mode!=="all"&&filterError;
    status("#community-list-status",error?t("Не вдалося перевірити всі підписки.","Could not verify all memberships."):"",error?"error":"");
@@ -275,7 +295,7 @@ async function openDirectory(client,ownId,userId){
     if(mode==="followed"){if(!following.size){directory=[];render();return;}request=request.in("club_id",[...following]);}
     if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
     const result=await request.order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);
-    if(ticket!==revision)return;if(result.error)throw result.error;directory=result.data||[];render();
+    if(ticket!==revision)return;if(result.error)throw result.error;directory=result.data||[];for(const club of directory)knownClubs.set(String(club.club_id),club);render();
    }catch(_){if(ticket===revision)status("#community-list-status",t("Не вдалося завантажити список спільнот.","Could not load communities."),"error");}
    finally{if(ticket===revision)list.setAttribute("aria-busy","false");}
   };

@@ -126,15 +126,17 @@
           </div>
         </div>
       </header>
-      <div class="feed-layout ui-feed-layout-001">
+      <div class="feed-layout ui-feed-layout-001 ui-vatra-community-workspace-001">
         <main id="feed-main" class="feed-main ui-communities-main-001">
-          <div class="feed-title-row ui-communities-title-row-001">
-            <h1 class="feed-title vt-communities-title-001" data-community-uk="Спільноти" data-community-en="Communities">
-              Спільноти
-            </h1>
-            
-          </div>
-          <section id="community-create-panel" class="community-create ui-community-create-001" aria-labelledby="community-create-heading" hidden>
+ <aside class="ui-community-discovery-sidebar-001">
+  <h1 class="vt-community-discovery-title-001" data-community-uk="Спільноти" data-community-en="Communities">Спільноти</h1>
+  <input id="community-directory-search" class="ui-community-directory-search-001" type="search" autocomplete="off" maxlength="120" aria-label="Пошук спільнот" placeholder="Пошук спільнот">
+  <div class="ui-community-directory-tabs-001" role="group" aria-label="Спільноти"><button type="button" class="vt-community-directory-all-001 is-active" data-community-filter="all" aria-pressed="true" data-community-uk="Огляд" data-community-en="Discover">Огляд</button><button type="button" class="vt-community-directory-followed-001" data-community-filter="followed" aria-pressed="false" data-community-uk="Мої підписки" data-community-en="Following">Мої підписки</button><button type="button" class="vt-community-directory-owned-001" data-community-filter="owned" aria-pressed="false" data-community-uk="Керую" data-community-en="Managed">Керую</button></div>
+  <button id="community-create-toggle" class="community-create-toggle vt-community-create-toggle-001" type="button" aria-expanded="false" aria-controls="community-create-panel" data-community-uk="Створити спільноту" data-community-en="Create community">Створити спільноту</button>
+  <div id="community-memberships-preview" class="ui-community-memberships-preview-001"></div>
+ </aside>
+ <div class="ui-community-discovery-main-001">
+  <section id="community-create-panel" class="community-create ui-community-create-001" aria-labelledby="community-create-heading" hidden>
             <h2 id="community-create-heading" class="vt-community-create-heading-001" data-community-uk="Створити спільноту" data-community-en="Create a community">
               Створити спільноту
             </h2>
@@ -148,18 +150,15 @@
             <p id="community-create-status" class="vt-community-create-status-001" role="status" aria-live="polite" hidden>
             </p>
           </section>
-          <section class="ui-community-list-section-001" aria-labelledby="community-list-heading">
-            <div class="ui-community-directory-head-001"><h2 id="community-list-heading" class="vt-community-list-heading-001" data-community-uk="Усі спільноти" data-community-en="All communities">
-              Усі спільноти
-            </h2><button id="community-create-toggle" class="community-create-toggle vt-community-create-toggle-001" type="button" aria-expanded="false" aria-controls="community-create-panel" data-community-uk="Створити спільноту" data-community-en="Create community">Створити спільноту</button></div>
-            <div class="ui-community-directory-tabs-001" role="group" aria-label="Спільноти"><button type="button" class="vt-community-directory-all-001 is-active" data-community-filter="all" aria-pressed="true" data-community-uk="Усі спільноти" data-community-en="All communities">Усі спільноти</button><button type="button" class="vt-community-directory-followed-001" data-community-filter="followed" aria-pressed="false" data-community-uk="Мої підписки" data-community-en="Following">Мої підписки</button><button type="button" class="vt-community-directory-owned-001" data-community-filter="owned" aria-pressed="false" data-community-uk="Керую" data-community-en="Managed">Керую</button></div>
-            <input id="community-directory-search" class="ui-community-directory-search-001" type="search" autocomplete="off" maxlength="120" aria-label="Пошук спільнот" placeholder="Пошук спільнот">
-            <div id="community-list" class="ui-community-list-001" aria-live="polite" aria-busy="true">
-            </div>
-            <p id="community-list-status" class="vt-community-list-status-001" role="status">
-            </p>
-          </section>
-        </main>
+  <section id="community-discovery-banner" class="ui-community-discovery-banner-001">
+   <div class="ui-community-banner-copy-001"><h2 class="vt-community-banner-title-001" data-community-uk="Знайдіть своїх людей" data-community-en="Find your people">Знайдіть своїх людей</h2><p class="vt-community-banner-text-001" data-community-uk="Відкривайте спільноти за інтересами та створюйте власні." data-community-en="Discover communities around your interests and create your own.">Відкривайте спільноти за інтересами та створюйте власні.</p></div><span class="ui-community-banner-art-001" aria-hidden="true"></span>
+  </section>
+  <section id="community-topics" class="ui-community-topics-001"></section>
+  <section class="ui-community-list-section-001" aria-labelledby="community-list-heading"><h2 id="community-list-heading" class="vt-community-list-heading-001">Нові спільноти</h2><div id="community-list" class="ui-community-list-001" aria-live="polite" aria-busy="true">
+            </div><p id="community-list-status" class="vt-community-list-status-001" role="status">
+            </p></section>
+ </div>
+</main>
       </div>
     </div>
   </body>
