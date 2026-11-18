@@ -1957,7 +1957,8 @@ const onboardingCss=await read("assets/css/onboarding.css");
 assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  feedMarkup.includes('href="assets/css/onboarding.css"')&&
  onboardingJs.includes('launch.id="vatra-onboarding-replay"')&&
- onboardingJs.includes('milestones.id="vatra-onboarding-tasks"')&&
+ feedMarkup.includes('id="vatra-first-steps"')&&
+ onboardingJs.includes('buildSteps();void checkTasks();')&&
  !feedMarkup.includes('id="vatra-onboarding-replay"')&&
  feedScript.includes('window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at})')&&
  feedScript.includes('window.VATRA_ONBOARDING?.stop()')&&
@@ -1969,7 +1970,7 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
   onboardingJs.includes("vatryk_"+state+".png")),
- "First-visit Vatryk onboarding must be localized, accessible, per-member and without eager profile API reads");
+ "First-visit Vatryk onboarding must be localized, accessible, per-member and with a nonmodal first-steps panel");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
  memberProfileMarkup.includes('id="profile-avatar-file"')&&
