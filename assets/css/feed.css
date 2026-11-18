@@ -388,8 +388,7 @@ body.feed-page .vatra-post-comment-dialog .feed-post-media .feed-post-media-vide
 body.feed-page .vatra-post-comment-dialog .vatra-post-gallery{max-height:380px}
 body.feed-page .vatra-post-comment-dialog .vatra-post-gallery[data-layout="5"]{grid-template-rows:repeat(4,88px)}
 body.feed-page .vt-vatra-post-comment-dialog-close-001{
- position:absolute;right:10px;top:10px;z-index:6;display:grid;place-items:center;
- width:37px;height:37px;border:0;border-radius:50%;background:#f0f2f7;
+ position:absolute;right:10px;top:10px;z-index:6;display:grid;place-items:center;border:0;border-radius:50%;background:#f0f2f7;
  color:#435774;cursor:pointer;box-shadow:0 2px 8px rgba(30,45,72,.08)
 }
 body.feed-page .vt-vatra-post-comment-dialog-close-001 svg{width:19px;height:19px}
@@ -412,7 +411,7 @@ body.feed-page .vatra-post-comment-dialog :is(
 body.feed-page .vatra-post-comment-dialog .vatra-post-comment-emoji-panel:not([hidden]){
  max-height:min(310px,42dvh)
 }
-body.feed-page .vatra-post-comment-dialog .feed-post-header{padding-right:36px}
+body.feed-page .vatra-post-comment-dialog .feed-post-header{}
 body.feed-page .vatra-post-comment-dialog .vatra-post-comments-panel{
  display:flex;flex-direction:column;gap:8px;margin-top:8px;padding-top:12px
 }
@@ -2597,8 +2596,7 @@ body.feed-page .vatra-post-comment-media video{
  background:#18212f;border-radius:11px
 }
 body.feed-page .vatra-post-comment-form{
- display:grid!important;grid-template-columns:35px minmax(0,1fr);
- align-items:center!important;gap:10px!important;
+ display:grid!important;grid-template-columns:35px minmax(0,1fr);gap:10px!important;
  margin-top:9px;padding:9px 0 2px!important
 }
 body.feed-page .vatra-post-comment-composer-avatar{
@@ -2619,11 +2617,10 @@ body.feed-page .vatra-post-comment-input-wrap:focus-within{
  border-color:#98b8ee;box-shadow:0 0 0 3px rgba(81,126,208,.08)
 }
 body.feed-page .vatra-post-comment-input-wrap .ui-vatra-post-comment-input-001{
- display:block;flex:1;min-width:0;min-height:41px;max-height:130px;
+ display:block;flex:1;min-width:0;max-height:130px;
  padding:11px 12px!important;margin:0;
  border:0!important;border-radius:12px;background:transparent;
- color:#2f435f;box-shadow:none!important;outline:none!important;
- resize:vertical;font:520 13px/1.45 "Onest",system-ui,sans-serif
+ color:#2f435f;box-shadow:none!important;outline:none!important;font:520 13px/1.45 "Onest",system-ui,sans-serif
 }
 body.feed-page .vatra-post-comment-toolbar{
  display:flex;align-items:center;justify-content:flex-end;gap:1px;
@@ -2706,22 +2703,21 @@ body.feed-page .vatra-post-comment-emoji-tabs>button[aria-selected="true"]{
  background:#eaf1ff;color:#366fd4
 }
 body.feed-page .vatra-post-comment-emoji-scroll{
- display:block;min-height:0;overflow-y:auto;padding:10px 14px 15px;
+ display:block;
  
 }
 body.feed-page .vt-vatra-post-comment-emoji-heading-001{
  margin:9px 0;color:#73869f;font:700 11px/1.35 "Onest",sans-serif
 }
 body.feed-page .vatra-post-comment-emoji-grid{
- display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px
-}
+ display:grid;}
 body.feed-page .vt-vatra-post-comment-emoji-option-001{
- display:grid;place-items:center;min-width:0;aspect-ratio:1;
+ display:grid;place-items:center;
  padding:1px;border:0;border-radius:9px;background:transparent;
  font:26px/1 "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;
  cursor:pointer
 }
-body.feed-page .vt-vatra-post-comment-emoji-option-001.is-sticker{font-size:41px}
+body.feed-page .vt-vatra-post-comment-emoji-option-001.is-sticker{}
 body.feed-page .vt-vatra-post-comment-emoji-option-001:hover{
  background:#eef4ff;transform:scale(1.07)
 }
@@ -2735,7 +2731,7 @@ body.feed-page .vt-vatra-post-comment-emoji-option-001:hover{
  body.feed-page .vatra-post-comment.is-reply .vatra-comment-avatar{width:26px;height:26px}
  body.feed-page .vatra-post-comment-form{grid-template-columns:31px minmax(0,1fr);gap:8px!important}
  body.feed-page .vatra-post-comment-actions{gap:9px;flex-wrap:wrap}
- body.feed-page .vatra-post-comment-toolbar>button{width:28px}
+ body.feed-page .vatra-post-comment-toolbar>button{}
  body.feed-page .vatra-post-comment-toolbar>button svg{width:18px;height:18px}
  body.feed-page .vatra-post-comment-emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
  body.feed-page .vt-vatra-post-comment-emoji-option-001{font-size:23px}
