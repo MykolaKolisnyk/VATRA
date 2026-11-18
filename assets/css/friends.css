@@ -1,4 +1,4 @@
-/* VATRA Friends — a dedicated people directory, not a copied VK interface. */
+
 body.vatra-friends-page .vatra-friends-main{
  width:min(1090px,calc(100% - 36px));margin:25px auto 80px;
  color:#304361;font-family:"Onest",system-ui,sans-serif
@@ -130,7 +130,7 @@ body.vatra-friends-page .vt-vatra-friends-side-search-link-001{
 @media(prefers-reduced-motion:reduce){body.vatra-friends-page .vatra-friends-person{transition:none}}
 
 
-/* Fallback avatars must show a clear user silhouette, not an empty disc. */
+
 body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){
  position:relative;overflow:hidden;
  background:#eaf0f9!important;isolation:isolate
@@ -144,7 +144,7 @@ body.vatra-friends-page .vatra-friends-portrait:not(.has-photo)::after{
  border-radius:55% 55% 24% 24% / 70% 70% 14% 14%;background:#b1c1d9
 }
 
-/* Real system WebP portraits replace the old pseudo-element silhouette. */
+
 body.vatra-friends-page .vatra-friends-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-color:#eaf0f9!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
 body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 body.vatra-friends-page .vatra-friends-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
@@ -205,3 +205,21 @@ body.vatra-friends-page .vt-vatra-friends-empty-001:not([hidden])::before{
  body.vatra-friends-page .vatra-friends-main{width:calc(100% - 18px);margin-top:12px}
  body.vatra-friends-page .vt-vatra-friends-heading-001{font-size:22px}
 }
+
+body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr) 290px;gap:18px}
+body.vatra-friends-page .vatra-friends-sidebar{grid-column:2;grid-row:1}
+body.vatra-friends-page .vatra-friends-primary{grid-column:1;grid-row:1;padding:22px;min-height:320px}
+body.vatra-friends-page .vatra-friends-tabs{display:flex;gap:5px;margin-bottom:15px}
+body.vatra-friends-page .vatra-friends-tabs button{font:600 14px/1.4 Onest,system-ui,sans-serif;padding:8px 12px;min-height:39px}
+body.vatra-friends-page [class^="vt-vatra-friends-tab-count-"]{font-weight:500;color:#7789a4;margin-left:3px;font-variant-numeric:tabular-nums}
+body.vatra-friends-page .vatra-friends-list{display:flex;flex-direction:column;gap:0}
+body.vatra-friends-page .vatra-friends-person{grid-template-columns:76px minmax(0,1fr) auto;border:0;border-bottom:1px solid #edf1f7;border-radius:0;padding:16px 0;gap:15px}
+body.vatra-friends-page .vatra-friends-person:last-child{border-bottom:0}
+body.vatra-friends-page .vatra-friends-portrait{position:relative;width:76px;height:76px;overflow:visible!important}
+body.vatra-friends-page [class^="ui-vatra-friends-online-dot-"]{position:absolute;bottom:1px;right:1px;width:17px;height:17px;border:3px solid #fff;border-radius:50%;background:#32b978}
+body.vatra-friends-page [class^="vt-vatra-friends-name-"]{font:650 16px/1.4 Onest,system-ui,sans-serif;color:#293a52}
+body.vatra-friends-page .vatra-friends-person-actions{grid-column:3;max-width:235px;width:auto;display:flex;flex-wrap:wrap;justify-content:flex-end}
+body.vatra-friends-page .vatra-friends-person-actions :is(a,button){flex:0 1 auto}
+@media(max-width:850px){body.vatra-friends-page .vatra-friends-layout{grid-template-columns:minmax(0,1fr) 228px}}
+@media(max-width:750px){body.vatra-friends-page .vatra-friends-layout{display:block}body.vatra-friends-page .vatra-friends-sidebar{display:none}body.vatra-friends-page .vatra-friends-primary{padding:15px}}
+@media(max-width:550px){body.vatra-friends-page .vatra-friends-person{grid-template-columns:60px minmax(0,1fr);gap:10px}body.vatra-friends-page .vatra-friends-portrait{width:60px;height:60px}body.vatra-friends-page .vatra-friends-person-actions{grid-column:2;max-width:none;justify-content:flex-start}body.vatra-friends-page .vatra-friends-tabs button{font-size:12px;padding:7px 9px}}
