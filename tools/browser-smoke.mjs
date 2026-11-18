@@ -2798,6 +2798,8 @@ try{
  await friendsProbe.goto(base+"friends.html",{waitUntil:"domcontentloaded"});
  await friendsProbe.locator("#friends-heading").waitFor({state:"visible",timeout:14000});
  assert.equal(await friendsProbe.locator("#friends-search").isVisible(),true);
+ assert.equal(await friendsProbe.locator("[data-friends-switch]").count(),0);
+ assert.equal(await friendsProbe.locator("[data-friends-tab]").count(),4);
  await friendsProbe.locator('[data-friends-tab="incoming"]').click();
  assert.equal(await friendsProbe.locator('[data-friends-tab="incoming"]').getAttribute("aria-pressed"),"true");
  assert.ok(new URL(friendsProbe.url()).pathname.endsWith("/VATRA/friends"),
@@ -2931,6 +2933,10 @@ try{
   const firstSteps=feedProbe.locator("#vatra-first-steps");
   await firstSteps.waitFor({state:"visible"});
   assert.equal(await firstSteps.locator(".ui-feed-first-steps-list-001 a").count(),5);
+  const marks=await firstSteps.locator('[class^="ui-feed-first-step-mark-"]').evaluateAll(nodes=>nodes.map(el=>{
+   const r=el.getBoundingClientRect();return {x:r.x,w:r.width,h:r.height,text:el.textContent};
+  }));
+  assert.ok(marks.every(mark=>Math.abs(mark.x-marks[0].x)<1&&Math.abs(mark.w-mark.h)<1&&mark.text===""),"First step markers must share one centered, circular geometry without font glyphs");
   const stepsGeometry=await feedProbe.evaluate(()=>{
    const filter=document.querySelector(".feed-filter-row").getBoundingClientRect(),steps=document.querySelector("#vatra-first-steps").getBoundingClientRect();
    return {gap:steps.top-filter.bottom,left:Math.abs(steps.left-filter.left),width:Math.abs(steps.width-filter.width)};
