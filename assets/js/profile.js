@@ -93,6 +93,18 @@
    ["inspiration","Надихають","Inspirations","long"]
   ]}
  ];
+ const choices={
+  relationship:[["Неодружений / незаміжня","Single"],["Зустрічаюся","In a relationship"],["Заручений / заручена","Engaged"],["Одружений / заміжня","Married"],["У цивільному шлюбі","In a domestic partnership"],["Закоханий / закохана","In love"],["Усе складно","It's complicated"],["В активному пошуку","Looking for a relationship"],["Розлучений / розлучена","Divorced"],["Вдівець / вдова","Widowed"]],
+  political_views:[["Ліберальні","Liberal"],["Консервативні","Conservative"],["Соціал-демократичні","Social democratic"],["Соціалістичні","Socialist"],["Лібертаріанські","Libertarian"],["Центристські","Centrist"],["Національно-демократичні","National democratic"],["Помірковані","Moderate"],["Аполітичні","Apolitical"],["Інші","Other"]],
+  worldview:[["Православ’я","Orthodox Christianity"],["Католицизм","Catholicism"],["Греко-католицизм","Greek Catholicism"],["Протестантизм","Protestantism"],["Іслам","Islam"],["Юдаїзм","Judaism"],["Буддизм","Buddhism"],["Індуїзм","Hinduism"],["Атеїзм","Atheism"],["Агностицизм","Agnosticism"],["Світський гуманізм","Secular humanism"],["Інший","Other"]],
+  life_priorities:[["Родина та діти","Family and children"],["Здоров’я","Health"],["Кар’єра та фінанси","Career and finances"],["Саморозвиток","Personal development"],["Свобода та незалежність","Freedom and independence"],["Наука та знання","Science and knowledge"],["Творчість","Creativity"],["Дружба та стосунки","Friendship and relationships"],["Допомога людям","Helping others"],["Інше","Other"]],
+  important_in_people:[["Доброта та чесність","Kindness and honesty"],["Розум та освіченість","Intelligence and education"],["Вірність та надійність","Loyalty and reliability"],["Сміливість та завзятість","Courage and determination"],["Гумор та життєлюбство","Humor and love of life"],["Повага та емпатія","Respect and empathy"],["Краса та здоров’я","Beauty and health"],["Інше","Other"]],
+  attitude_to_smoking:[["Різко негативне","Strongly negative"],["Негативне","Negative"],["Компромісне","Compromising"],["Нейтральне","Neutral"],["Позитивне","Positive"]],
+  attitude_to_alcohol:[["Різко негативне","Strongly negative"],["Негативне","Negative"],["Компромісне","Compromising"],["Нейтральне","Neutral"],["Позитивне","Positive"]]
+ };
+ const languages=["Українська","English","Polski","Deutsch","Français","Italiano","Español","Português","Čeština","Slovenčina","Magyar","Română","Български","ქართული","Lietuvių","Latviešu","Eesti","Nederlands","Svenska","Norsk","Dansk","Suomi","Ελληνικά","Türkçe","Русский","Беларуская","العربية","עברית","中文","日本語","한국어","हिन्दी"];
+ const cities=["Київ","Харків","Одеса","Львів","Дніпро","Запоріжжя","Ужгород","Мукачево","Івано-Франківськ","Тернопіль","Чернівці","Луцьк","Рівне","Хмельницький","Вінниця","Житомир","Черкаси","Чернігів","Суми","Полтава","Кропивницький","Миколаїв","Херсон","Донецьк","Луганськ","Сімферополь","Севастополь","Кривий Ріг","Кременчук","Біла Церква","Кам’янець-Подільський","Берегове","Хуст","Тячів","Рахів","Свалява","Варшава","Краків","Прага","Берлін","Відень","Братислава","Будапешт","Лондон","Париж"];
+ const choiceLabel=(key,value)=>{const match=choices[key]?.find(pair=>pair.includes(value));return match?tr(match[0],match[1]):value;};
  const audiences=[
   ["public","Для всіх","Everyone"],
   ["friends","Для друзів","Friends"],
@@ -264,7 +276,7 @@
      link.href=href;link.target="_blank";link.rel="noopener noreferrer nofollow";
      content.append(link);
     }else content.textContent=data.value;
-   }else content.textContent=data.value;
+   }else content.textContent=choiceLabel(key,data.value);
    item.append(label,content);
    return item;
   };
@@ -434,7 +446,7 @@
   const navHeading=make("div","ui-profile-editor-nav-heading-001");
   navHeading.append(
    make("span","vt-profile-editor-nav-eyebrow-001",tr("РОЗДІЛИ","SECTIONS")),
-   make("strong","vt-profile-editor-nav-title-001",tr("Ваш профіль","Your profile")),
+   make("strong","vt-profile-editor-nav-title-001",tr("Особисті дані","Personal details")),
    make("span","vt-profile-editor-nav-subtitle-001",tr("7 розділів · усе під контролем","7 sections · in your control")));
   sidebar.append(navHeading);
   const menu=make("div","ui-profile-editor-nav-menu-001");
@@ -456,7 +468,7 @@
   navFoot.append(svg("lock"),make("span","vt-profile-editor-nav-footer-label-001",
    tr("Видимість ваших даних налаштовується окремо.",
     "Each piece of information has its own visibility.")));
-  sidebar.append(menu,navFoot);layout.append(sidebar,primary);
+  sidebar.append(menu,navFoot);layout.append(primary,sidebar);
   workspace.append(heading,layout);main.append(workspace);
   let selected="profile",visibility=accountVisibility;
   const hasChanges=()=>[...draft.keys()].some(key=>
@@ -482,6 +494,97 @@
   const note=msg=>{
    feedback.hidden=!msg;
    feedback.textContent=msg;feedback.dataset.kind="error";
+  };
+  const recordDialog=make("dialog","vatra-profile-editor-record-dialog ui-profile-editor-record-dialog-001");
+  recordDialog.setAttribute("aria-labelledby","profile-editor-record-title");
+  const recordForm=make("form","ui-profile-editor-record-form-001");
+  const recordHead=make("header","ui-profile-editor-record-head-001");
+  const recordTitle=make("h2","vt-profile-editor-record-title-001");
+  recordTitle.id="profile-editor-record-title";
+  const recordClose=make("button","vt-profile-editor-record-close-001");recordClose.type="button";recordClose.append(svg("x"));recordClose.setAttribute("aria-label",tr("Закрити","Close"));
+  recordHead.append(recordTitle,recordClose);
+  const recordFields=make("div","profile-editor-fields ui-profile-editor-record-fields-001");
+  const recordFoot=make("footer","ui-profile-editor-record-footer-001");
+  const recordCancel=make("button","vt-profile-editor-record-cancel-001",tr("Скасувати","Cancel"));recordCancel.type="button";
+  const recordSave=make("button","vt-profile-editor-record-save-001",tr("Зберегти","Save"));recordSave.type="submit";
+  recordFoot.append(recordCancel,recordSave);recordForm.append(recordHead,recordFields,recordFoot);recordDialog.append(recordForm);document.body.append(recordDialog);
+  let recordSnapshot=null;
+  const cancelRecord=()=>{
+   if(recordSnapshot)for(const [key,value] of recordSnapshot){if(value)draft.set(key,value);else draft.delete(key);}
+   recordSnapshot=null;if(recordDialog.open)recordDialog.close();
+  };
+  recordClose.addEventListener("click",cancelRecord);recordCancel.addEventListener("click",cancelRecord);
+  recordDialog.addEventListener("cancel",event=>{event.preventDefault();cancelRecord();});
+  recordDialog.addEventListener("click",event=>{if(event.target===recordDialog)cancelRecord();});
+  recordDialog.addEventListener("close",()=>{if(recordSnapshot)cancelRecord();});
+  recordForm.addEventListener("submit",event=>{
+   event.preventDefault();recordSnapshot=null;recordDialog.close();showGroup(selected);form.requestSubmit(save);
+  });
+  const buildField=([key,uk,en,kind],destination)=>{
+   const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
+   row.dataset.long=kind==="long"?"true":"false";
+   const lab=make("label","vt-profile-editor-label-"+key,tr(uk,en));
+   const current=draft.get(key)||{value:"",visibility:"friends"};
+   const disclosure=make("label","ui-profile-editor-disclosure-"+key);
+   disclosure.append(make("span","vt-profile-editor-disclosure-label-"+key,tr("Хто бачить","Visible to")));
+   const selectBox=make("select","ui-profile-editor-visibility-"+key);
+   selectBox.id="profile-editor-visibility-"+key;
+   selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
+   for(const [value,labelUa,labelEn] of audiences)selectBox.append(opt(value,tr(labelUa,labelEn)));
+   selectBox.value=current.visibility;
+   if(!selectBox.value)selectBox.value="friends";
+   disclosure.append(selectBox);
+   const control=make("div","ui-profile-editor-field-control-"+key);
+   const inputId="profile-editor-"+key;
+   let readValue;
+   if(key==="languages"){
+    const selectedLanguages=[...new Set(current.value.split(/[,;\n]+/).map(x=>x.trim()).filter(Boolean))];
+    const wrap=make("div","ui-profile-editor-language-box-001");
+    const chips=make("div","ui-profile-editor-language-chips-001");
+    const picker=make("select","ui-profile-editor-input-languages");picker.id=inputId;
+    const render=()=>{
+     chips.replaceChildren();picker.replaceChildren(opt("",tr("Додати мову","Add a language")));
+     for(const value of selectedLanguages){
+      const chip=make("button","vt-profile-editor-language-chip-001");chip.type="button";
+      chip.append(make("span","vt-profile-editor-language-chip-label-001",value),svg("x"));
+      chip.setAttribute("aria-label",tr("Видалити мову: ","Remove language: ")+value);
+      chip.addEventListener("click",()=>{selectedLanguages.splice(selectedLanguages.indexOf(value),1);render();update();picker.focus();});
+      chips.append(chip);
+     }
+     chips.hidden=!selectedLanguages.length;
+     for(const value of languages)if(!selectedLanguages.includes(value))picker.append(opt(value,value));
+     picker.value="";
+    };
+    readValue=()=>selectedLanguages.join(", ");
+    const update=()=>draft.set(key,{value:readValue(),visibility:selectBox.value});
+    picker.addEventListener("change",()=>{if(picker.value&&readValue().length+picker.value.length+2<=1000){selectedLanguages.push(picker.value);render();update();}});
+    render();wrap.append(chips,picker);control.append(wrap);
+   }else{
+    const menu=choices[key];
+    const input=make(menu?"select":kind==="long"?"textarea":"input","ui-profile-editor-input-"+key);
+    input.id=inputId;
+    if(menu){
+     input.append(opt("",tr("Не вибрано","Not selected")));
+     for(const pair of menu)input.append(opt(pair[0],lang(pair)));
+     if(current.value&&!menu.some(pair=>pair[0]===current.value))input.append(opt(current.value,choiceLabel(key,current.value)));
+    }else{
+     if(kind==="long")input.rows=3;
+     else input.type=["mobile_phone","additional_phone"].includes(key)?"tel":"text";
+     input.maxLength=1000;input.spellcheck=kind==="long";
+     input.placeholder=key==="short_bio"?tr("Розкажіть про себе","Tell us about yourself"):"";
+     if(key==="city"||key==="hometown"){
+      const list=make("datalist","ui-profile-editor-city-list-"+key);list.id=inputId+"-suggestions";
+      for(const city of cities)list.append(opt(city,city));
+      input.setAttribute("list",list.id);control.append(list);
+      input.autocomplete=key==="city"?"address-level2":"off";
+     }
+    }
+    input.value=current.value;readValue=()=>input.value;
+    control.append(input);input.addEventListener(menu?"change":"input",()=>update());
+   }
+   lab.htmlFor=inputId;control.append(disclosure);row.append(lab,control);destination.append(row);
+   function update(){draft.set(key,{value:readValue(),visibility:selectBox.value});}
+   selectBox.addEventListener("change",update);
   };
   const showGroup=id=>{
    const group=groups.find(x=>x.id===id);
@@ -518,43 +621,31 @@
     change.value=visibility;change.addEventListener("change",()=>{visibility=change.value;});
     privacy.append(privacySymbol,copy,change);fields.append(privacy);
    }
-   for(const [key,uk,en,kind] of group.fields){
-    const row=make("div","profile-editor-field ui-profile-editor-field-"+key);
-    row.dataset.long=kind==="long"?"true":"false";
-    const lab=make("label","vt-profile-editor-label-"+key,tr(uk,en));
-    lab.prepend(svg(fieldIcons[key]||"file-text"));
-    const input=make(kind==="long"?"textarea":"input",
-     "ui-profile-editor-input-"+key);
-    input.id="profile-editor-"+key;
-    lab.htmlFor=input.id;
-    if(kind==="long"){input.rows=3;}else{input.type="text";}
-    input.maxLength=1000;input.spellcheck=true;
-    input.placeholder=kind==="long"?
-     tr("Поділіться тим, що має значення для вас…","Share what matters to you…"):
-     tr("Вкажіть інформацію","Add details");
-    const current=draft.get(key)||{value:"",visibility:"friends"};
-    input.value=current.value;
-    const disclosure=make("label","ui-profile-editor-disclosure-"+key);
-    disclosure.append(make("span","vt-profile-editor-disclosure-label-"+key,
-     tr("Хто бачить","Visible to")));
-    const selectBox=make("select","ui-profile-editor-visibility-"+key);
-    selectBox.id="profile-editor-visibility-"+key;
-    selectBox.setAttribute("aria-label",tr("Видимість поля: ","Visibility of field: ")+tr(uk,en));
-    for(const [value,labelUa,labelEn] of audiences)
-     selectBox.append(opt(value,tr(labelUa,labelEn)));
-    selectBox.value=current.visibility;
-    disclosure.append(selectBox);
-    const control=make("div","ui-profile-editor-field-control-"+key);
-    control.append(input,disclosure);
-    row.append(lab,control);fields.append(row);
-    const update=()=>draft.set(key,{value:input.value,visibility:selectBox.value});
-    input.addEventListener("input",update);selectBox.addEventListener("change",update);
-   }
+   if(["education","career","military"].includes(id)){
+    const info=make("div","ui-profile-editor-records-001");
+    const values=group.fields.filter(field=>String(draft.get(field[0])?.value||"").trim());
+    if(values.length){
+     for(const field of values){
+      const row=make("div","ui-profile-editor-record-summary-"+field[0]);
+      row.append(make("span","vt-profile-editor-record-label-"+field[0],tr(field[1],field[2])),make("span","vt-profile-editor-record-value-"+field[0],draft.get(field[0]).value));
+      info.append(row);
+     }
+    }else info.append(make("p","vt-profile-editor-record-empty-001",tr("Інформацію ще не додано.","No information added yet.")));
+    const edit=make("button","vt-profile-editor-record-open-001",values.length?tr("Редагувати","Edit"):tr("Додати","Add"));edit.type="button";
+    edit.addEventListener("click",()=>{
+     recordTitle.textContent=values.length?tr("Редагувати інформацію","Edit details"):tr("Додати інформацію","Add details");
+     recordFields.replaceChildren();
+     recordSnapshot=new Map(group.fields.map(field=>[field[0],draft.has(field[0])?{...draft.get(field[0])}:null]));
+     for(const field of group.fields)buildField(field,recordFields);
+     recordDialog.showModal();
+    });
+    info.append(edit);fields.append(info);
+   }else for(const field of group.fields)buildField(field,fields);
    // Deliberately preserve unsaved draft values while switching sections.
   };
   // Switch editor chapters immediately. showGroup preserves unsaved draft data.
   const switchGroup=id=>{
-   if(id!==selected)showGroup(id);
+   if(id!==selected){showGroup(id);workspace.scrollIntoView({block:"start",behavior:"instant"});}
   };
   form.addEventListener("submit",async event=>{
    event.preventDefault();if(save.disabled)return;

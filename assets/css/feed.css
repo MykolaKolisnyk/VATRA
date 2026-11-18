@@ -2997,3 +2997,16 @@ body.profile-page [class^="vt-profile-friend-name-"].vatra-verified-name{justify
 @media(max-width:600px){
  body.profile-page .profile-identity .profile-name.vatra-verified-name{gap:7px}
 }
+
+body.feed-page .feed-post-card>.vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind="image"].is-gallery-ready{
+ width:100%;max-width:none;max-height:none;padding:0;margin:0
+}
+body.feed-page .feed-post-card>.vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind="image"].is-gallery-ready>img,
+body.feed-page .feed-post-card>.feed-post-media .feed-post-media-image{
+ display:block;width:100%;max-width:100%;height:auto;max-height:none;margin:0;object-fit:contain
+}
+body.feed-page .feed-post-card>.feed-post-media{width:100%;max-width:100%;box-sizing:border-box}
+body.feed-page .vatra-post-comment-dialog .feed-post-card>.vatra-post-gallery[data-layout="1"] .vatra-post-gallery-tile[data-kind="image"].is-gallery-ready>img,
+body.feed-page .vatra-post-comment-dialog .feed-post-card>.feed-post-media .feed-post-media-image{
+ width:auto;max-width:100%;height:auto;max-height:min(46dvh,380px);margin-inline:auto
+}
