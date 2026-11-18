@@ -1114,7 +1114,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .fee
 body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
  grid-column:1;grid-row:2;width:100%;min-width:0;margin:0;align-self:start
 }
-body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{
  grid-column:2;grid-row:1;
  position:sticky!important;top:calc(var(--vatra-header-height,64px) + 16px);
  align-self:start;justify-self:stretch;width:100%;max-width:none;min-width:0;
@@ -1153,7 +1153,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-main:has(.feed-stat
   grid-template-columns:minmax(0,1fr)!important;
   column-gap:0!important;row-gap:13px!important
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{
   position:static!important;grid-column:1;
   min-height:52px;padding:6px 12px
  }
@@ -2827,7 +2827,7 @@ body.feed-page .feed-post-card .vatra-post-comments-panel{margin-top:0;padding-t
   grid-template-rows:72px auto auto auto!important;
   align-content:start!important;row-gap:14px!important
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{
   grid-row:1!important;align-self:start!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-stories{
@@ -2848,7 +2848,7 @@ body.feed-page:not(.profile-page):not(.community-page) .feed-empty{display:flex;
  body.feed-page:not(.profile-page):not(.community-page) .feed-main{
   grid-template-rows:none!important;row-gap:13px!important
  }
- body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-filter-row{
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001 > .feed-filter-row{
   grid-row:3!important
  }
  body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-posts-section{grid-row:4!important}
@@ -3013,3 +3013,10 @@ body.feed-page .feed-menu-settings-toggle{font:var(--vatra-type-menu);letter-spa
 body.feed-page .feed-account-dropdown > a > span,
 body.feed-page .feed-account-dropdown > button > span,
 body.feed-page .feed-menu-settings-toggle > span{font:inherit;letter-spacing:inherit}
+
+body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:2;grid-row:1/5;align-self:start;display:flex;flex-direction:column;gap:var(--vatra-content-card-gap,16px);width:100%;min-width:0}
+body.feed-page:not(.profile-page):not(.community-page) .ui-feed-right-rail-001 > .feed-filter-row{position:static!important;width:100%;margin:0}
+@media(max-width:950px){
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .ui-feed-right-rail-001{grid-column:1;grid-row:3}
+ body.feed-page:not(.profile-page):not(.community-page) .feed-top-controls > .feed-status{grid-row:4}
+}
