@@ -1336,7 +1336,13 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityScript=await read("assets/js/communities.js");
-assert.doesNotThrow(()=>new Function(communityScript),"Community catalog and Redis fallback must parse as JavaScript");
+const clubRuntime=await read("assets/js/club.js");
+const communityCoreRuntime=await read("assets/js/community-core.js");
+for(const source of [communityScript,clubRuntime,communityCoreRuntime])assert.doesNotThrow(()=>new Function(source),"Community routes and Redis fallback must parse as JavaScript");
+const directoryMarkup=await read("communities.html"),clubMarkup=await read("club.html");
+assert.ok(directoryMarkup.includes("assets/js/community-core.js")&&directoryMarkup.includes("assets/js/communities.js")&&!directoryMarkup.includes("assets/js/club.js")&&!directoryMarkup.includes("assets/js/post-media.js")&&!directoryMarkup.includes("assets/js/post-interactions.js"),"Directory must not load club publication features");
+assert.ok(clubMarkup.includes("assets/js/community-core.js")&&clubMarkup.includes("assets/js/club.js")&&!clubMarkup.includes("assets/js/communities.js")&&clubMarkup.includes("assets/js/post-media.js")&&clubMarkup.includes("assets/js/post-interactions.js"),"Club route owns its publication features");
+assert.ok(!communityScript.includes("setupClubSocial")&&!clubRuntime.includes("openDirectory"),"Community pages must contain only their own route logic");
 const postMediaScript=await read("assets/js/post-media.js");
 // Stories accept photo or video without requiring a caption, but keep private media paths.
 assert.ok(storyPreviewMarkup.includes('id="feed-story-media"')&&
@@ -1356,15 +1362,15 @@ feedMarkup.includes('id="feed-compose-media"') &&
  (await read("club.html")).includes('id="club-compose-media"') &&
  feedScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  profileScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
- communityScript.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
+ clubRuntime.includes("VATRA_POST_MEDIA?.bindGalleryPicker") &&
  postMediaScript.includes('createSignedUrl(path,ttl)') &&
  postMediaScript.includes('ttl=3600') &&
  postMediaScript.includes('signed(client,kind,path,300)'),
  "VATRA photos and videos must be attached, published and displayed across all post surfaces");
 assert.ok(
- communityScript.includes("postPattern.test(linkedId") &&
- communityScript.includes('.eq("club_id",clubId).eq("id",linkedId)') &&
- communityScript.includes('target.scrollIntoView({block:"center",behavior:"smooth"})') &&
+ clubRuntime.includes("postPattern.test(linkedId") &&
+ clubRuntime.includes('.eq("club_id",clubId).eq("id",linkedId)') &&
+ clubRuntime.includes('target.scrollIntoView({block:"center",behavior:"smooth"})') &&
  (await read("assets/js/post-interactions.js")).includes('validUUID(post.id)?"?post="'),
  "Community publications from sharing must open their exact post");
 const searchRouteSource=await read("assets/js/social-shell.js");
@@ -1550,7 +1556,7 @@ assert.ok(
 // Gallery uploads stay bounded and use the existing RLS-protected post rows.
 // Comment threads are not requested or shown until the real post enters its dialog.
 const postComposerScript=await read("assets/js/post-composer-ui.js");
-const clubPostScript=await read("assets/js/communities.js");
+const clubPostScript=clubRuntime;
 assert.ok(
  postMediaScript.includes("const GALLERY_LIMIT=12,VIDEO_LIMIT=4,TOTAL_LIMIT=160*1024*1024")&&
  postMediaScript.includes("function bindGalleryPicker(ids)")&&
@@ -1945,11 +1951,11 @@ assert.ok(
  !feedStyle.includes("vatraRouteReadyReveal") &&
  socialMotion.includes('window.VATRA_NAVIGATE={to}') &&
  !socialMotion.includes('direct.searchParams.set("vatra_id",member[1])') &&
- socialMotion.includes('const member=id=>validMember(id)?new URL("id"+id,base).href:null;') &&
+ getSearchHref("people",{vatra_id:"1"})===searchTestBase+"id1" &&
  socialMotion.includes('location.assign(next.href)') &&
  !socialMotion.includes('window.setTimeout(navigate,145)') &&
  !socialMotion.includes('classList.add("vatra-route-exiting")') &&
- feedStyle.includes("body.feed-page.vatra-shell-pending .feed-app > .feed-layout") &&
+ feedStyle.includes("body.feed-page.vatra-shell-pending .feed-app > :is(.feed-layout,.ui-vatra-community-workspace-001,.ui-vatra-section-main-001)") &&
  !feedStyle.includes("vatra-editor-switching") &&
  !memberCss.includes("view-transition-name:vatra-editor") &&
  feedStyle.includes("@media(prefers-reduced-motion:reduce)") &&
@@ -2298,7 +2304,7 @@ for(const publicNamePage of ["feed","profile","communities","club","notification
   "Public-name cache must load before member data on "+publicNamePage);
 }
 for(const path of ["assets/js/feed.js","assets/js/post-interactions.js",
- "assets/js/notifications.js","assets/js/profile.js","assets/js/communities.js"]){
+ "assets/js/notifications.js","assets/js/profile.js","assets/js/club.js"]){
  assert.ok((await read(path)).includes("window.VATRA_PUBLIC_NAMES?.get(client,"),
   "Public-name lookups must use the shared cache in "+path);
 }
@@ -2339,9 +2345,9 @@ assert.ok(
  publicRedisEdge.includes('Number.isSafeInteger(record.club_id)')&&
  publicRedisEdge.includes('.eq("club_id", clubId).maybeSingle()')&&
  publicRedisEdge.includes('validateCommunity(parsed) && parsed.club_id === clubId')&&
- communityScript.includes('client.functions.invoke("public-community-directory",{')&&
- communityScript.includes('body:{club_id:numeric}')&&
- communityScript.includes('return client.from("communities")')&&
+ clubRuntime.includes('client.functions.invoke("public-community-directory",{')&&
+ clubRuntime.includes('body:{club_id:numeric}')&&
+ clubRuntime.includes('return client.from("communities")')&&
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("./community-detail-cache-smoke.mjs");
@@ -2349,7 +2355,7 @@ await import("./community-detail-cache-smoke.mjs");
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");
 const batchedProfilePosts=await read("assets/js/profile.js");
-const batchedClubPosts=await read("assets/js/communities.js");
+const batchedClubPosts=clubRuntime;
 assert.ok(
  batchedFeedPosts.includes("batch.append(card(item,engagement))")&&
  batchedFeedPosts.includes("posts.append(batch)")&&
@@ -2376,7 +2382,7 @@ assert.ok((legacyViewCleanup.match(/DROP VIEW IF EXISTS public\.vatra_/g)||[]).l
  !storageBucketCleanup.includes("UPDATE storage.objects"),
  "Legacy views can be removed independently; clean Storage buckets must preserve owner-only RLS");
 for(const source of ["assets/js/avatar.js","assets/js/post-media.js","assets/js/post-interactions.js",
- "assets/js/feed.js","assets/js/profile.js","assets/js/communities.js",
+ "assets/js/feed.js","assets/js/profile.js","assets/js/communities.js","assets/js/club.js","assets/js/community-core.js",
  "assets/js/friends.js","assets/js/notifications.js"]){
  const contents=await read(source);
  for(const oldBucket of ["vatra-avatars","vatra-covers","vatra-post-images","vatra-videos"])

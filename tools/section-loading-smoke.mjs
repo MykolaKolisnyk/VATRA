@@ -49,4 +49,11 @@ for(const name of ["clips","marketplace","settings"]){
  assert.equal(registered,1,name+" registers only its own initializer");
  new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_SECTION_CORE:{start(){throw Error("Forbidden host");}}});
 }
+for(const name of ["communities","club"]){
+ const src=await readFile("assets/js/"+name+".js","utf8");
+ let registered=0;
+ new Function("window",src)({VATRA_COMMUNITY_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}});
+ assert.equal(registered,1,name+" registers only its own initializer");
+ new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_COMMUNITY_CORE:{start(){throw Error("Forbidden host");}}});
+}
 console.log("VATRA lazy architecture: owner role gate, click-only modules, sign-out cleanup and isolated page registration verified.");
