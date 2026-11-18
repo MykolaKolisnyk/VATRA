@@ -904,6 +904,7 @@ function appendAudience(container,level,isGroup=false){
   // the same buttons, media and existing handlers working without double renders.
   let commentDialog=null;
   const openComments=()=>{
+   if(settings.inlineComments){panel.hidden=!panel.hidden;commentsButton.setAttribute("aria-expanded",String(!panel.hidden));if(panel.hidden)hideMenus();else void loadComments(true);return;}
    if(commentDialog?.open)return;
    const card=container.closest(".feed-post-card")||container;
    if(!card.parentNode)return;
@@ -1210,6 +1211,7 @@ const shareAudienceLabel=make("label","vatra-post-share-visibility ui-vatra-post
    }catch(_){showShareError(tr("Не вдалося скопіювати. Скопіюйте посилання з адресного рядка.","Could not copy the link."));}
   });
   container.append(shell);
+  if(settings.inlineComments)openComments();
  }
  async function renderSharedPreview(client,post,container){
   const kind=post?.shared_post_kind,id=post?.shared_post_id;
