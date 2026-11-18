@@ -1468,7 +1468,7 @@ assert.ok(
  !detailsModule.includes('vt-profile-detail-audience-') &&
  detailsModule.includes('lab.htmlFor=inputId') &&
  !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
- memberCss.includes('/* PROFILE READING ·') &&
+ memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
  "Profile About preview has a centered optional bio, compact facts, and no read-only icon tiles");
 assert.ok(
@@ -1723,7 +1723,7 @@ const friendshipPrivacySql=await read("supabase/migrations/20261114154237_privat
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
  friendshipPrivacyJs.includes('Списки друзів інших користувачів приватні.')&&
- friendshipPrivacyJs.includes('A DELETE may affect no rows without an RLS error')&&
+ friendshipPrivacyJs.includes('if(error||String(data?.id)!==String(item.id))')&&
  friendshipPrivacyJs.includes('.select("id").maybeSingle()')&&
  friendshipPrivacySql.includes('DROP POLICY IF EXISTS "vatra_friends_read_accepted_or_own"')&&
  friendshipPrivacySql.includes('a.vatra_id = ANY(')&&
@@ -1745,7 +1745,7 @@ assert.ok(
  interactionsScript.includes('const hydrateSaved=()=>{')&&
  notificationPerfScript.includes('period=subscribed?300000:60000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
- workerPerfScript.includes('const CACHE="vatra-offline-shell-v55"')&&
+ /const CACHE="vatra-offline-shell-v[0-9]+"/.test(workerPerfScript)&&
  workerPerfScript.includes('fetch(request,{cache:"no-cache"})')&&
  workerPerfScript.includes('cache.match(request)')&&
  workerPerfScript.includes('const staticAsset=url.pathname.startsWith(ROOT+"assets/")')&&
@@ -2120,7 +2120,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sections.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2137,8 +2137,8 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
 assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
- routerScript.includes('|notifications|friends|gifts|club|create-account|')&&
- languageScript.includes('feed|profile|friends|gifts|communities|notifications|club|verify')&&
+ routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
@@ -2403,3 +2403,13 @@ assert.ok(
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("./feed-story-subscriptions-smoke.mjs");
+
+const sectionsRuntime=await read("assets/js/sections.js");
+const sectionsStyle=await read("assets/css/sections.css");
+assert.doesNotThrow(()=>new Function(sectionsRuntime));
+for(const section of ["clips","marketplace","vatra-id"]){
+ const markup=await read(section+".html");
+ assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/sections.js')&&markup.includes('assets/css/sections.css'));
+}
+assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('vatra_marketplace_listings')&&sectionsRuntime.includes('vatra_verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
+assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
