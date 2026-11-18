@@ -105,7 +105,7 @@ create policy market_case_create on public.vatra_market_cases for insert to auth
 create policy market_case_resolve on public.vatra_market_cases for update to authenticated using((select vatra_market_private.is_moderator())) with check((select vatra_market_private.is_moderator()) and (state='open' or char_length(btrim(resolution))>=3));
 
 
-create function vatra_market_private.log_suspension() returns trigger language plpgsql security definer set search_path='' as $
+create function vatra_market_private.log_suspension() returns trigger language plpgsql security definer set search_path='' as $$
 begin
  if tg_op='INSERT' then
   insert into public.vatra_market_moderation_history(seller_vatra_id,actor_id,event,reason) values(new.seller_vatra_id,auth.uid(),'suspended',new.reason);
@@ -113,21 +113,21 @@ begin
  end if;
  insert into public.vatra_market_moderation_history(seller_vatra_id,actor_id,event,reason) values(old.seller_vatra_id,auth.uid(),'unsuspended',old.reason);
  return old;
-end $;
+end $$;
 revoke all on function vatra_market_private.log_suspension() from public,anon,authenticated;
 create trigger market_log_suspension after insert or delete on public.vatra_market_suspensions for each row execute function vatra_market_private.log_suspension();
 
 alter policy vatra_market_image_insert on storage.objects to authenticated with check(
- bucket_id='marketplace-images' and name ~ '^[1-9][0-9]*/[a-f0-9-]{36}[.](jpg|png|webp)
+ bucket_id='marketplace-images' and name ~ '^[1-9][0-9]*/[a-f0-9-]{36}[.](jpg|png|webp)$'
  and exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id::text=split_part(objects.name,'/',1) and not vatra_market_private.is_suspended(a.vatra_id)));
-create function vatra_market_private.log_case_resolution() returns trigger language plpgsql security definer set search_path='' as $
+create function vatra_market_private.log_case_resolution() returns trigger language plpgsql security definer set search_path='' as $$
 begin
  if new.state is distinct from old.state or new.resolution is distinct from old.resolution then
   insert into public.vatra_market_moderation_history(listing_id,seller_vatra_id,actor_id,event,reason)
   select l.id,l.seller_vatra_id,auth.uid(),new.kind||'_'||new.state,'' from public.vatra_marketplace_listings l where l.id=new.listing_id;
  end if;
  return new;
-end $;
+end $$;
 revoke all on function vatra_market_private.log_case_resolution() from public,anon,authenticated;
 create trigger market_log_case_resolution after update on public.vatra_market_cases for each row execute function vatra_market_private.log_case_resolution();
 commit;
