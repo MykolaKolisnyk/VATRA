@@ -3595,11 +3595,9 @@ try{
   });
   await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&
    document.querySelectorAll("#feed-posts .feed-post-card").length===0);
-  await feedProbe.evaluate(()=>{
-   // An explicit search submit invalidates the last cached Feed cursor.
-   document.querySelector("#feed-search-form").requestSubmit();
-  });
-  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false");
+  // Global header search no longer submits a Feed filter. Expire the actual
+  // three-second cursor cache before holding the next network response.
+  await feedProbe.waitForTimeout(3100);
   await feedProbe.evaluate(()=>{
    window.__feedHoldNextRange=true;window.__feedReleaseRange=null;
    window.__feedStaleFilterPaint=false;
@@ -4882,32 +4880,32 @@ try{
      }
     })}:
     table==="community_follows"?
-    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null})})}:
+    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}})}:
     table==="public_profiles"?
     {select:()=>({in:async()=>({data:[],error:null})})}:
     table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
-     select:()=>{
-      if(table==="communities")
-       window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;
+     select:fields=>{
+      const isDirectory=table==="communities"&&fields==="club_id,name,description,created_at";
       return {
-       term:"",
-       eq:(_field,id)=>({maybeSingle:async()=>{
-        await new Promise(resolve=>setTimeout(resolve,270));
-        return {data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,error:null};
-       }}),
-       ilike(_field,pattern){this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
+       term:"",searchField:"name",filters:[],ids:null,
+       eq(field,id){this.filters.push([field,String(id)]);return this;},
+       in(field,ids){this.ids=[field,ids.map(String)];return this;},
+       ilike(field,pattern){this.searchField=field;this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
        order(){return this;},
-       limit:async function(){await new Promise(resolve=>setTimeout(resolve,270));return {
-        data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
-         .filter(club=>!this.term||club.name.toLocaleLowerCase().includes(this.term)),error:null
-       };}
+       rows(){if(table!=="communities")return [];return JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
+        .filter(club=>this.filters.every(([field,id])=>String(club[field])===id)&&
+         (!this.ids||this.ids[1].includes(String(club[this.ids[0]])))&&
+         (!this.term||String(club[this.searchField]||"").toLocaleLowerCase().includes(this.term)));},
+       async maybeSingle(){await new Promise(resolve=>setTimeout(resolve,270));return {data:this.rows()[0]||null,error:null};},
+       async limit(n){if(isDirectory&&!this.ids)window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;await new Promise(resolve=>setTimeout(resolve,270));return {data:this.rows().slice(0,n),error:null};},
+       then(resolve,reject){return Promise.resolve({data:this.rows(),error:null}).then(resolve,reject);}
       };
      },
      insert:data=>({select:()=>({single:async()=>{
       const all=JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]");
-      const club={club_id:all.length+1,...data,created_at:new Date().toISOString()};
+      const club={club_id:all.length+1,owner_id:"club-mock-user",...data,created_at:new Date().toISOString()};
       all.push(club);localStorage.setItem("vatra-test-clubs",JSON.stringify(all));
       return {data:{club_id:club.club_id},error:null};
      }})})
@@ -4930,7 +4928,7 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
-  assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
+  assert.equal((await page.locator(".vt-community-discovery-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
   const hero=page.locator("#community-discovery-banner");
   const heroImage=hero.locator("img");
@@ -5042,7 +5040,7 @@ try{
   assert.equal(await page.locator(".vatra-discovery-workspace > .vatra-discovery-sidebar").count(),1);
   assert.equal(await page.locator(".vatra-discovery-tabs .vatra-discovery-nav-icon").count(),3);
   assert.equal(await page.locator(".ui-community-topic-001").count(),6);
-  assert.equal(await page.locator(".ui-community-card-open-001").count(),1);
+  assert.equal(await page.locator(".vt-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
   await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
@@ -5084,8 +5082,8 @@ try{
   "Search still reads the uncached source of truth");
  assert.equal(await cachePage.evaluate(()=>(window.__clubCacheInvocations||[]).length),0,
   "Search must always bypass the shared Redis cache");
- assert.equal(await cachePage.evaluate(()=>window.__clubDirectQueries||0),1,
-  "Search must issue one direct PostgREST query");
+ assert.equal(await cachePage.evaluate(()=>window.__clubDirectQueries||0),2,
+  "Search must query both name and description directly, then deduplicate results");
  await cachePage.close();
  await clubContext.close();
  console.log("VATRA Communities: UK/EN creation, cached public directory, direct search and fallback: OK");
