@@ -76,7 +76,7 @@ for(const variant of expected){
 assert.ok(html.includes('src="assets/js/onboarding.js"'));
 assert.ok(html.includes('href="assets/css/onboarding.css"'));
 assert.ok(source.includes('launch.id="vatra-onboarding-replay"'));
-assert.ok(source.includes('milestones.id="vatra-onboarding-tasks"'));
+assert.ok(html.includes('id="vatra-first-steps"')&&source.includes('buildSteps();void checkTasks();')&&!source.includes('activate("tasks")'));
 assert.ok(!html.includes('id="vatra-onboarding-replay"'),
  "Shared header must be identical on all member pages");
 assert.ok(css.includes("@media(prefers-reduced-motion:reduce)"));
@@ -119,10 +119,10 @@ assert.ok(source.includes('mode==="tour"||mode==="welcome"')&&
  source.includes('if((eligible&&!saved)||saved?.status==="paused")')&&
  source.includes('saveState(localStorage,session.id,"done",steps.length-1)'),
  "Completing or skipping tour must stay final even after dismissing checklist; paused tours resume");
-assert.ok(source.includes('mode==="tasks"')&&
+assert.ok(source.includes('if(!session||!stepsCard||!session.client)return;')&&
  source.includes('if(checking)return checking')&&
  source.includes('Date.now()-checkedAt<60000')&&
  source.includes('client.from("profile_media")')&&
  source.includes('client.from("community_follows")'),
- "Milestone checks must be intentional, cached and use caller RLS");
+ "Milestone checks must be cached and use caller RLS");
 console.log("VATRA onboarding: five original mascots, i18n, session isolation, resumability and eligibility passed.");
