@@ -77,7 +77,7 @@
  box-shadow:0 6px 18px rgba(48,105,217,.18);margin-left:auto}
 .vt-tour-next-001:hover{background:#2558bc}
 .vt-tour-skip-001:not([hidden])+.vt-tour-next-001{margin-left:0}
-.feed-account-dropdown .vt-feed-onboarding-launch-001{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:10px 14px;border:0;background:transparent;color:#415673;font:var(--vatra-type-menu);cursor:pointer;text-align:left;border-radius:9px}
+.feed-account-dropdown .vt-feed-onboarding-launch-001{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:10px 14px;border:0;background:transparent;color:#415673;font:680 13px/1.35 "Onest",sans-serif;cursor:pointer;text-align:left;border-radius:9px}
 .feed-account-dropdown .vt-feed-onboarding-launch-001:hover{background:#edf3ff;color:#285dbe}
 .feed-account-dropdown .vt-feed-onboarding-launch-001:focus-visible{outline:2px solid #5686e5;outline-offset:2px}
 .ui-feed-first-steps-001{box-sizing:border-box;min-width:0;width:100%;padding:15px 13px 13px;border:1px solid #dce6f5;border-radius:16px;background:#fff;box-shadow:0 5px 19px rgba(30,55,108,.055);font-family:"Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
