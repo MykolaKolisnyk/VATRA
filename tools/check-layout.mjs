@@ -1365,9 +1365,25 @@ assert.ok(
  communityScript.includes("postPattern.test(linkedId") &&
  communityScript.includes('.eq("club_id",clubId).eq("id",linkedId)') &&
  communityScript.includes('target.scrollIntoView({block:"center",behavior:"smooth"})') &&
- (await read("assets/js/post-interactions.js")).includes('validUUID(post.id)?"?post="') &&
- (await read("assets/js/social-shell.js")).includes('validPost(entry.id)?"?post="'),
- "Community publications from live search and sharing must open their exact post");
+ (await read("assets/js/post-interactions.js")).includes('validUUID(post.id)?"?post="'),
+ "Community publications from sharing must open their exact post");
+const searchRouteSource=await read("assets/js/social-shell.js");
+const searchRouteGuards=searchRouteSource.match(/  const validMember=.*\n  const validPost=.*\n/)?.[0];
+const searchRouteBody=searchRouteSource.slice(searchRouteSource.indexOf("  const base=()=>new URL("),searchRouteSource.indexOf("  const groupLabel="));
+assert.ok(searchRouteGuards&&searchRouteBody.includes("const resultHref="),"Missing search route helpers");
+const getSearchHref=new Function("location",searchRouteGuards+searchRouteBody+"return resultHref;")({href:"https://mykolakolisnyk.github.io/VATRA/feed.html"});
+const searchTestPost="de305d54-75b4-431b-adb2-eb6b9e546014";
+const searchTestBase="https://mykolakolisnyk.github.io/VATRA/";
+for(const type of ["posts","photos","videos"]){
+ assert.equal(getSearchHref(type,{id:searchTestPost,kind:"group",club_id:"2"}),searchTestBase+"club2?post="+searchTestPost);
+ assert.equal(getSearchHref(type,{id:searchTestPost,kind:"person"}),searchTestBase+"feed?post="+searchTestPost);
+}
+assert.equal(getSearchHref("people",{vatra_id:"1"}),searchTestBase+"id1");
+assert.equal(getSearchHref("communities",{club_id:"2"}),searchTestBase+"club2");
+assert.equal(getSearchHref("products",{id:searchTestPost}),searchTestBase+"marketplace?item="+searchTestPost);
+assert.equal(getSearchHref("clips",{id:searchTestPost}),searchTestBase+"clips?clip="+searchTestPost);
+assert.equal(getSearchHref("posts",{id:"invalid"}),null);
+assert.equal(getSearchHref("people",{vatra_id:"../1"}),null);
 const feedStyle=await read("assets/css/feed.css");
 assert.ok(
  feedMarkup.includes('id="feed-filter-summary"') &&
@@ -2390,11 +2406,21 @@ assert.ok(
  liveSearchCacheScript.includes('state.entries.clear()')&&
  liveSearchCacheScript.includes('if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;')&&
  liveSearchCacheScript.includes("if(state.generation!==generation)return emptySiteSearch();")&&
- liveSearchCacheScript.includes("cacheable=all.every(")&&
- liveSearchCacheScript.includes('viewer.from("feed_posts")')&&
- liveSearchCacheScript.includes('viewer.from("community_posts")')&&
+ liveSearchCacheScript.includes('viewer.rpc("search_site",{p_query:phrase,p_limit:20})')&&
+ liveSearchCacheScript.includes("if(cacheable&&!entry.controller.signal.aborted)")&&
+ liveSearchCacheScript.includes("data[key].slice(0,20)")&&
  !liveSearchCacheScript.includes("site-search-redis"),
  "Site-wide live search must remain RLS-gated, session-scoped and bounded");
+const siteSearchSQL=await read("supabase/search-site.sql");
+assert.ok(siteSearchSQL.includes("security invoker")&&
+ siteSearchSQL.includes("from public.feed_posts")&&
+ siteSearchSQL.includes("from public.community_posts")&&
+ siteSearchSQL.includes("f.visibility='public'")&&
+ siteSearchSQL.includes("m.moderation_status='approved'")&&
+ siteSearchSQL.includes("not public.vatra_has_block_between(m.seller_vatra_id)")&&
+ siteSearchSQL.includes("revoke all on function public.search_site(text,integer) from public,anon;")&&
+ siteSearchSQL.includes("grant execute on function public.search_site(text,integer) to authenticated;"),
+ "Server search must keep RLS, public posts, approved listings and authenticated access");
 await import("./live-search-cache-smoke.mjs");
 
 /* Friend stories share the Feed's social graph; don't query all stories while
