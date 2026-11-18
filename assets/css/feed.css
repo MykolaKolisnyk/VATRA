@@ -749,7 +749,7 @@ body.feed-page .vt-feed-story-view-heading-001{margin:0;font-size:15px}
 body.feed-page .vt-feed-story-view-body-001{display:grid;place-items:center;min-height:365px;margin:0;padding:15px;color:#fff;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;font:780 23px/1.5 "Onest",sans-serif}
 body.feed-page .vt-feed-story-view-close-001{width:100%;min-height:40px;border:1px solid rgba(255,255,255,.6);border-radius:9px;background:rgba(255,255,255,.16);color:#fff;cursor:pointer}
 body.feed-page .vt-feed-story-tip-001{margin:0;color:#7688a0;font:500 13px/1.6 "Onest",sans-serif}
-body.community-page .club-social-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+body.community-page .club-social-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end}
 body.community-page .club-social-actions button{
  min-height:42px;padding:10px 18px;border:1px solid #cddbef;border-radius:10px;
  background:#eef3fd;color:#315fc0;cursor:pointer;font:730 13px "Onest",sans-serif
@@ -798,13 +798,6 @@ body.community-page .ui-community-card-001{transition:transform .2s,border-color
 body.community-page .ui-community-card-001:hover{
  transform:translateY(-1px);box-shadow:0 7px 20px rgba(37,62,107,.07)
 }
-body.community-page .ui-club-cover-001{
- height:155px;overflow:hidden;border-radius:16px 16px 0 0;
- background:linear-gradient(115deg,#ebf4ff,#e6ebff,#f1e7fb)
-}
-body.community-page .ui-club-summary-001{min-height:106px}
-body.community-page .ui-club-info-001{position:static;margin:0 20px 21px}
-body.community-page .ui-club-hero-001{overflow:visible}
 @keyframes vatra-menu-in{from{opacity:0;transform:translateY(-7px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes vatra-card-in{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 /* On tablet the header gains a second row: all four destinations stay at the top. */
