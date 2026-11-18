@@ -79,3 +79,17 @@ body.vatra-section-page :is(.vt-vatra-id-email-001,.vt-vatra-id-email-status-001
 body.vatra-section-page .vt-vatra-section-dialog-status-001{margin:0 20px 20px;padding:12px 14px;background:#edf3ff;border-radius:9px;color:#365d9c;font:550 13px/1.5 Onest,system-ui,sans-serif}
 body.vatra-section-page .vt-vatra-section-dialog-status-001[data-kind="error"]{background:#fff0f1;color:#a43a4c}
 body.vatra-section-page .vt-vatra-section-confirm-delete-001{background:#fff0f1!important;color:#a43a4c!important}
+
+body.vatra-section-page .ui-vatra-id-devices-001{margin-top:14px}
+body.vatra-section-page .ui-vatra-id-devices-head-001{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.vatra-section-page .vt-vatra-id-device-heading-001{font:650 17px/1.4 Onest,system-ui,sans-serif;margin:0}
+body.vatra-section-page .vt-vatra-id-device-note-001{font:450 13px/1.55 Onest,system-ui,sans-serif;color:#71839f;margin:7px 0 15px}
+body.vatra-section-page .vt-vatra-id-device-refresh-001{color:#2861d8;background:#edf3ff;border:0;border-radius:8px;padding:8px 12px;font:600 12px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+body.vatra-section-page .ui-vatra-id-device-row-001{display:flex;align-items:center;gap:12px;min-width:0;padding:15px 0;border-bottom:1px solid #edf1f7}
+body.vatra-section-page .ui-vatra-id-device-symbol-001{display:grid;place-items:center;flex:none;width:47px;height:47px;border-radius:13px;background:#edf3ff;color:#3974d8}
+body.vatra-section-page .ui-vatra-id-device-details-001{display:flex;flex:1;flex-direction:column;min-width:0;gap:4px}
+body.vatra-section-page .vt-vatra-id-device-name-001{font:600 14px/1.4 Onest,system-ui,sans-serif;color:#293a52;overflow-wrap:anywhere}
+body.vatra-section-page :is(.vt-vatra-id-device-time-001,.vt-vatra-id-device-activity-001){font:450 12px/1.4 Onest,system-ui,sans-serif;color:#71839f}
+body.vatra-section-page .vt-vatra-id-device-current-001{font:600 12px/1.4 Onest,system-ui,sans-serif;color:#2861d8;background:#edf3ff;padding:6px 9px;border-radius:7px}
+body.vatra-section-page .vt-vatra-id-device-revoke-001{margin-top:17px;padding:10px 14px;border:0;border-radius:9px;background:#edf3ff;color:#2861d8;font:600 13px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+@media(max-width:420px){body.vatra-section-page .ui-vatra-id-device-row-001{flex-wrap:wrap}}
