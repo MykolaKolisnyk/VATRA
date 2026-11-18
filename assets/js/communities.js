@@ -129,10 +129,10 @@ async function start(){
   const first=(Array.from(nameParts[0]||"V")[0]||"V");
   const last=nameParts.length>1?(Array.from(nameParts[nameParts.length-1])[0]||""):"";
   const avatar=(first+last).toLocaleUpperCase(locale);
-  window.VATRA_AVATAR?.setHeader({email:user.email,name:headerName,initials:avatar});
+  window.VATRA_AVATAR?.setHeader({client,email:user.email,name:headerName,initials:avatar});
   window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
   const {data:account}=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();
-  const ownId=account?.vatra_id==null?null:String(account.vatra_id);
+  const ownId=account?.vatra_id==null?null:String(account.vatra_id);if(ownId){window.VATRA_ADMIN_CONTEXT={client,id:ownId};window.VATRA_ADMIN_SESSION?.(client,ownId);}
   if(ownId){
    void window.VATRA_PRESENCE?.start(client,ownId,meta.gender);
    window.VATRA_NOTIFICATIONS?.start(client,ownId);

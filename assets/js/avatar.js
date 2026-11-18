@@ -316,7 +316,8 @@ if(cachedPhoto&&document.head){
  preload.className="ui-vatra-header-photo-preload-001";
  document.head.append(preload);
 }
-function setHeader({email,name,initials,id}){
+function setHeader({email,name,initials,id,client}){
+ if(client&&id){window.VATRA_ADMIN_CONTEXT={client,id:String(id)};window.VATRA_ADMIN_SESSION?.(client,String(id));}
  if(!email){
   // Older account fixtures may not expose an email. Render confirmed identity
   // without persisting a header against an unverifiable account.

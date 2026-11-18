@@ -74,6 +74,7 @@ let positionedIndex=-1;
 let checkedAt=0,checking=null,results=null;
 const home=()=>new URL("./",location.href);
 function stop(){
+ document.querySelector("#vatra-onboarding-replay")?.remove();
  session?.controller?.abort();
  if(raf){cancelAnimationFrame(raf);raf=0;}
  if(root){root.remove();root=null;}
@@ -209,7 +210,7 @@ function show(){
   tr(current.title);
  description.textContent=mode==="welcome"?
   tr("Я Ватрик. Покажу тобі стрічку та допоможу знайти своїх людей. Усе можна пропустити."):
-  mode==="goodbye"?tr("Досліджуй VATRA, ділися історіями та повертайся до підказок коли захочеш."):
+  mode==="goodbye"?tr("Досліджуй VATRA та ділися історіями."):
   tr(current.detail);
  next.textContent=mode==="welcome"?tr("Почати знайомство"):
   mode==="tour"?(index===steps.length-1?tr("Завершити екскурсію"):tr("Далі")):
@@ -229,7 +230,7 @@ function show(){
  next.focus({preventScroll:true});
 }
 function finish(){
- if(session)saveState(localStorage,session.id,"done",steps.length-1);
+ if(session){saveState(localStorage,session.id,"done",steps.length-1);document.querySelector("#vatra-onboarding-replay")?.remove();void syncCompleted(session);}
  replaying=false;activate("goodbye");
 }
 function skipTour(){
@@ -358,17 +359,19 @@ async function checkTasks(force=false){
  })();
  renderTasks();return checking;
 }
+async function syncCompleted(current){try{await current.client.from("vatra_onboarding_done").insert({vatra_id:current.id});}catch(_){}}
 function start(options={}){
  const id=String(options.memberId||"");
  if(!validId(id)||!options.client||document.body.dataset.feedReady!=="true")return false;
  if(session?.id===id)return true;
  stop();
  session={id,client:options.client,authUserId:String(options.authUserId||""),controller:new AbortController()};
+ const saved=readState(localStorage,id);
  const menu=document.querySelector(".feed-account-menu");
  const support=menu?.querySelector(".feed-menu-support");
- if(support&&!document.querySelector("#vatra-onboarding-replay")){
+ if(saved?.status!=="done"&&support&&!document.querySelector("#vatra-onboarding-replay")){
   const launch=node("button","vt-feed-onboarding-launch-001",tr("Знайомство з VATRA"));
-  launch.id="vatra-onboarding-replay";launch.type="button";
+  launch.id="vatra-onboarding-replay";launch.type="button";launch.hidden=true;
   support.before(launch);
  }
  document.querySelector("#vatra-onboarding-replay")?.addEventListener("click",()=>{
@@ -376,7 +379,6 @@ function start(options={}){
   replay();
  },{signal:session.controller.signal});
  buildSteps();void checkTasks();
- const saved=readState(localStorage,id);
  const eligible=recentSignup(options.createdAt);
  if(typeof options.client.auth?.onAuthStateChange==="function"){
   const {data}=options.client.auth.onAuthStateChange((event,newSession)=>{
@@ -386,14 +388,12 @@ function start(options={}){
   });
   authSubscription=data?.subscription||null;
  }
- if((eligible&&!saved)||saved?.status==="paused"){
-  index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";
-  show();
- }
+ const current=session;
+ if(saved?.status==="done"){document.querySelector("#vatra-onboarding-replay")?.remove();void syncCompleted(current);}else void (async()=>{let done=false;try{const {data,error}=await current.client.from("vatra_onboarding_done").select("vatra_id").eq("vatra_id",id).maybeSingle();done=!error&&!!data;}catch(_){}if(session!==current)return;if(done){saveState(localStorage,id,"done",steps.length-1);document.querySelector("#vatra-onboarding-replay")?.remove();hide();return;}const replayButton=document.querySelector("#vatra-onboarding-replay");if(replayButton)replayButton.hidden=false;if((eligible&&!saved)||saved?.status==="paused"){index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";show();}})();
  return true;
 }
 function replay(){
- if(!session)return;
+ if(!session||readState(localStorage,session.id)?.status==="done")return;
  replaying=true;index=0;activate("welcome",0);
 }
 function openTasks(scroll=true){

@@ -1953,6 +1953,12 @@ assert.ok(
 assert.equal(uk.__pages.feed.meta.title,"Стрічка · VATRA");
 assert.equal(en.__pages.feed.meta.title,"Feed · VATRA");
 const onboardingJs=await read("assets/js/onboarding.js");
+const ownerAdminJs=await read("assets/js/owner-admin.js");
+const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
+assert.ok(ownerAdminJs.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
+assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
+assert.ok(onboardingJs.includes('vatra_onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
+
 const onboardingCss=await read("assets/css/onboarding.css");
 assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  feedMarkup.includes('href="assets/css/onboarding.css"')&&
