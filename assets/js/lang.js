@@ -29,7 +29,7 @@
   const instantEnglishTitles={
     index:"Sign in · VATRA","create-account":"Create account · VATRA",feed:"Feed · VATRA",friends:"Friends · VATRA",gifts:"Gifts · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",clips:"Clips · VATRA",marketplace:"Marketplace · VATRA","vatra-id":"VATRA ID · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
-    "404":"404 Page not found · VATRA",
+    "404":"Page not found",
     terms:"Terms of Service · VATRA",commerce:"Commerce Rules · VATRA",privacy:"Privacy · VATRA",
     cookies:"Cookies and browser storage · VATRA",offline:"No connection · VATRA"
   };

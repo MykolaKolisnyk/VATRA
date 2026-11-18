@@ -22,7 +22,7 @@
   "__pages": {
     "404": {
       "meta": {
-        "title": "404 Seite nicht gefunden · VATRA",
+        "title": "Seite nicht gefunden",
         "description": "Unter dieser Adresse gibt es keine VATRA-Seite. Der Link ist möglicherweise falsch oder die Seite wurde verschoben."
       },
       "nodes": {
@@ -33,45 +33,12 @@
         },
         "n8": {
           "text": {
-            "0": "Seite nicht gefunden"
+            "0": "Diese Seite existiert nicht"
           }
         },
-        "n14": {
+        "n9": {
           "text": {
-            "0": "Deine Menschen. Deine Geschichten. Deine VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informationen"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Nutzungsbedingungen"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Datenschutz"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Deutsch"
-          },
-          "attrs": {
-            "aria-label": "Sprache wählen"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Anmelden"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Konto erstellen"
+            "0": "Zurück"
           }
         }
       }

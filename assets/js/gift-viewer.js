@@ -3,12 +3,12 @@
 "use strict";
 const root=new URL("../../",document.currentScript?.src||"assets/js/gift-viewer.js");
 const catalog=[
- {code:"first_flame",image:"first-flame.png",
+ {code:"first_flame",image:"first-flame.webp",
   uk:"Перший вогник",en:"First flame",
   descriptionUk:"Перший вогник VATRA — знак початку вашої історії. Його отримує кожен, хто приєднався до VATRA.",
   descriptionEn:"Your first VATRA flame marks the beginning of your story. Every new member receives one.",
   eventUk:"Привітальний подарунок",eventEn:"Welcome gift"},
- {code:"beta_member",image:"beta-member.png",exclusive:true,
+ {code:"beta_member",image:"beta-member.webp",exclusive:true,
   uk:"БЕТА-учасник",en:"Beta participant",
   descriptionUk:"Пам’ятний подарунок кожному, хто зареєструвався під час БЕТА-тестування VATRA. Залишається у профілі назавжди.",
   descriptionEn:"A commemorative gift for everyone who registered during VATRA beta testing. It remains in your profile forever.",

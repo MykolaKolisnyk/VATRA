@@ -4,20 +4,20 @@
 const KEY="vatra.onboarding.v1.member.",MAX_AGE_MS=30*24*60*60*1000;
 const ART="/VATRA/assets/vatryk/";
 const steps=[
- {selector:"#feed-search-form",title:"Пошук у VATRA",detail:"Шукай людей, спільноти та цікаві публікації за назвою або словами.",art:"vatryk_explanation.png"},
- {selector:".ui-social-top-feed-001",title:"Твоя стрічка",detail:"Тут з’являються дописи й історії людей, за якими ти стежиш.",art:"vatryk_waiting.png"},
- {selector:".ui-social-top-friends-001",title:"Друзі",detail:"Знаходь друзів, переглядай запити та дізнавайся, хто онлайн.",art:"vatryk_explanation.png"},
- {selector:".ui-social-top-communities-001",title:"Спільноти",detail:"Знаходь однодумців і приєднуйся до спільнот за інтересами.",art:"vatryk_explanation.png"},
- {selector:".ui-social-top-clips-001",title:"Кліпи",detail:"Переглядай короткі відео та публікуй власні кліпи.",art:"vatryk_waiting.png"},
- {selector:".ui-social-top-marketplace-001",title:"Маркетплейс",detail:"Знаходь товари, створюй оголошення та зв’язуйся з продавцями.",art:"vatryk_waiting.png"},
- {selector:".ui-shell-header-messenger-001",title:"Повідомлення",detail:"Тут буде повноцінне особисте листування. Месенджер ще розробляється.",art:"vatryk_waiting.png"},
- {selector:".ui-feed-notifications-button-001",title:"Сповіщення",detail:"Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.",art:"vatryk_explanation.png"},
- {selector:".ui-feed-music-button-001",title:"Музика",detail:"Тут з’явиться музичний простір VATRA. Функція ще в розробці.",art:"vatryk_waiting.png"},
- {selector:".feed-account-toggle",title:"Твій профіль",detail:"У меню акаунта відкрий свою сторінку, щоб додати фото, обкладинку й інформацію про себе.",art:"vatryk_explanation.png"},
- {selector:".feed-account-toggle",title:"Приватність",detail:"У профілі можна керувати видимістю сторінки та взаємодією з іншими.",art:"vatryk_explanation.png"},
- {selector:"#feed-filter-toggle",title:"Фільтр стрічки",detail:"Обирай, які публікації переглядати: усі, від друзів чи зі спільнот.",art:"vatryk_explanation.png"},
- {selector:"#feed-compose-open",title:"Створи перший допис",detail:"Додай текст, фото чи відео. Нічого не публікується без твого підтвердження.",art:"vatryk_explanation.png"},
- {selector:"#feed-create-story",title:"Твої історії",detail:"Поділися моментом у короткій історії. Історії зникають через 24 години.",art:"vatryk_success.png"}
+ {selector:"#feed-search-form",title:"Пошук у VATRA",detail:"Шукай людей, спільноти та цікаві публікації за назвою або словами.",art:"vatryk_explanation.webp"},
+ {selector:".ui-social-top-feed-001",title:"Твоя стрічка",detail:"Тут з’являються дописи й історії людей, за якими ти стежиш.",art:"vatryk_waiting.webp"},
+ {selector:".ui-social-top-friends-001",title:"Друзі",detail:"Знаходь друзів, переглядай запити та дізнавайся, хто онлайн.",art:"vatryk_explanation.webp"},
+ {selector:".ui-social-top-communities-001",title:"Спільноти",detail:"Знаходь однодумців і приєднуйся до спільнот за інтересами.",art:"vatryk_explanation.webp"},
+ {selector:".ui-social-top-clips-001",title:"Кліпи",detail:"Переглядай короткі відео та публікуй власні кліпи.",art:"vatryk_waiting.webp"},
+ {selector:".ui-social-top-marketplace-001",title:"Маркетплейс",detail:"Знаходь товари, створюй оголошення та зв’язуйся з продавцями.",art:"vatryk_waiting.webp"},
+ {selector:".ui-shell-header-messenger-001",title:"Повідомлення",detail:"Тут буде повноцінне особисте листування. Месенджер ще розробляється.",art:"vatryk_waiting.webp"},
+ {selector:".ui-feed-notifications-button-001",title:"Сповіщення",detail:"Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.",art:"vatryk_explanation.webp"},
+ {selector:".ui-feed-music-button-001",title:"Музика",detail:"Тут з’явиться музичний простір VATRA. Функція ще в розробці.",art:"vatryk_waiting.webp"},
+ {selector:".feed-account-toggle",title:"Твій профіль",detail:"У меню акаунта відкрий свою сторінку, щоб додати фото, обкладинку й інформацію про себе.",art:"vatryk_explanation.webp"},
+ {selector:".feed-account-toggle",title:"Приватність",detail:"У профілі можна керувати видимістю сторінки та взаємодією з іншими.",art:"vatryk_explanation.webp"},
+ {selector:"#feed-filter-toggle",title:"Фільтр стрічки",detail:"Обирай, які публікації переглядати: усі, від друзів чи зі спільнот.",art:"vatryk_explanation.webp"},
+ {selector:"#feed-compose-open",title:"Створи перший допис",detail:"Додай текст, фото чи відео. Нічого не публікується без твого підтвердження.",art:"vatryk_explanation.webp"},
+ {selector:"#feed-create-story",title:"Твої історії",detail:"Поділися моментом у короткій історії. Історії зникають через 24 години.",art:"vatryk_success.webp"}
 ];
 const tasks=[
  {title:"Додай фотографію профілю",page:"profile",key:"avatar"},
@@ -199,8 +199,8 @@ function show(){
  skip.hidden=mode==="goodbye";
  card.classList.toggle("vt-tour-intro-001",mode==="welcome"||mode==="goodbye");
  const current=steps[index];
- const imageName=mode==="welcome"?"vatryk_welcome.png":
-  mode==="goodbye"?"vatryk_goodbye.png":
+ const imageName=mode==="welcome"?"vatryk_welcome.webp":
+  mode==="goodbye"?"vatryk_goodbye.webp":
   current.art;
  art.style.backgroundImage="url("+JSON.stringify(ART+imageName)+")";
  label.textContent=mode==="tour"?tr("Крок")+" "+(index+1)+" / "+steps.length:
@@ -330,7 +330,7 @@ function renderTasks(){
   row.row.dataset.state=complete?"done":unknown?"unknown":"pending";
   row.row.href=new URL(tasks[i].page==="profile"?"id"+session.id:tasks[i].page,home()).href;
  }
- stepsArt.style.backgroundImage="url("+JSON.stringify(ART+(results?.every(value=>value===true)?"vatryk_success.png":"vatryk_waiting.png"))+")";
+ stepsArt.style.backgroundImage="url("+JSON.stringify(ART+(results?.every(value=>value===true)?"vatryk_success.webp":"vatryk_waiting.webp"))+")";
 }
 async function checkTasks(force=false){
  if(!session||!stepsCard||!session.client)return;

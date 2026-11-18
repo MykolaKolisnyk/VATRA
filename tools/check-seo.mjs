@@ -35,7 +35,7 @@ for(const page of pages){
  if(page==="index")assert.ok(html.includes('type="application/ld+json"'),"Missing website structured data");
  const ukMeta=uk.__pages[page].meta,enMeta=en.__pages[page].meta;
  assert.ok(ukMeta.title&&enMeta.title&&ukMeta.title!==enMeta.title,filename+": localized titles missing");
- assert.ok(Object.keys(uk.__pages[page].nodes).length>=3,filename+": Ukrainian dictionary incomplete");
+ assert.ok(Object.keys(uk.__pages[page].nodes).length>=(page==="404"?2:3),filename+": Ukrainian dictionary incomplete");
  assert.deepEqual(Object.keys(uk.__pages[page].nodes).sort(),Object.keys(en.__pages[page].nodes).sort(),
   filename+": dictionary node keys must correspond");
 }
@@ -49,14 +49,14 @@ const preview=await read("index.html");
 assert.ok(
  preview.includes('property="og:title" content="Ваші люди. Ваші історії. Ваша VATRA."')&&
  preview.includes('property="og:description" content="Українська соціальна мережа для спілкування, творчості, спільнот і бізнесу."')&&
- preview.includes('/VATRA/assets/logo/vatra-app-icon.png?v=20261113')&&
- preview.includes('property="og:image:width" content="360"')&&
- !preview.includes('/VATRA/assets/logo/vatra-logo.png')&&
- (await stat("assets/logo/vatra-app-icon.png")).size>10000,
+ preview.includes('/VATRA/assets/logo/vatra-app-icon.webp?v=20261118')&&
+ preview.includes('property="og:image:width" content="2048"')&&
+ !preview.includes('/VATRA/assets/logo/vatra-logo.webp')&&
+ (await stat("assets/logo/vatra-app-icon.webp")).size>10000,
  "Public social previews must show the current VATRA icon and one concise title/description");
 for(const page of publicPages){
  const html=await read(page+".html");
- assert.ok(html.includes('og:image" content="'+BASE+'assets/logo/vatra-app-icon.png?v=20261113"'),
+ assert.ok(html.includes('og:image" content="'+BASE+'assets/logo/vatra-app-icon.webp?v=20261118"'),
   page+": public social card must share the current V icon");
  assert.equal((html.match(/rel="icon" type="image\/svg\+xml"/g)||[]).length,1,
   page+": duplicate SVG favicon link");

@@ -22,56 +22,23 @@
   "__pages": {
     "404": {
       "meta": {
-        "title": "404 Pagina non trovata · VATRA",
+        "title": "Pagina non trovata",
         "description": "Non esiste una pagina VATRA a questo indirizzo. Il link potrebbe essere errato o la pagina potrebbe essere stata spostata."
       },
       "nodes": {
         "n4": {
           "text": {
-            "0": "Vai alla pagina iniziale"
+            "0": "Torna alla pagina iniziale"
           }
         },
         "n8": {
           "text": {
-            "0": "Pagina non trovata"
+            "0": "Questa pagina non esiste"
           }
         },
-        "n14": {
+        "n9": {
           "text": {
-            "0": "Le tue persone. Le tue storie. La tua VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informazioni"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Condizioni d'uso"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Italiano"
-          },
-          "attrs": {
-            "aria-label": "Scegli la lingua"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Crea un account"
+            "0": "Torna indietro"
           }
         }
       }

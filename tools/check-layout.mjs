@@ -195,7 +195,7 @@ assert.ok(css.includes('.footer nav{display:flex;flex-wrap:wrap;align-items:cent
  css.includes('.auth-footer-content>span b{font-weight:770;color:var(--ink)}')&&
  css.includes('.language-trigger{display:inline-flex;')&&
  legalCss.includes('padding:40px 0 40px;flex:1')&&
- (await read("404.html")).includes('href="/VATRA/cookies"'),
+ !(await read("404.html")).includes('<footer'),
  "All VATRA page footers, document navigation and full-panel motion should match");
 // Every visible element has a class and its own page class in addition to reusable components.
 for(const name of pages){
@@ -823,7 +823,7 @@ assert.ok(css.includes("align-items:start")&&css.includes(".signup-form-panel .t
  "Two-column registration inputs must not move when a field shows validation errors");
 for(const page of pages.filter(p=>p!=="offline"&&p!=="verify")){
  const html=await read(page+".html");
- assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
+ if(page!=="404")assert.ok(html.includes('ui-language-static-flag-001')&&html.includes('ui-language-static-chevron-001'),
   page+": language switch must show SVG flag and chevron even before JavaScript runs");
  assert.ok(html.includes("assets/js/lang.js")&&!html.includes("assets/js/errors.js"),page+": language picker required, console toasts forbidden");
  assert.ok(html.includes("assets/css/base.css")&&!/assets\/(?:js|css)\/[^"\x27]+\?v=/.test(html),page+": local asset paths must be stable and unversioned");
@@ -833,7 +833,7 @@ assert.ok(lang.includes("function initLanguagePicker()")&&lang.includes("trigger
 // All public pages use the same footer structure; the full-width background
 // remains separate from the centered content. Documents have a working
 // single-row header independent of the former signup header styles.
-const footerNames=pages.filter(p=>!["offline","feed","profile","verify"].includes(p));
+const footerNames=pages.filter(p=>!["404","offline","feed","profile","verify"].includes(p));
 const feedFooter=await read("feed.html"),profileMarkup=await read("profile.html");
 assert.ok(!feedFooter.includes("<footer")&&!profileMarkup.includes("<footer"),
  "Signed-in VATRA must not show the guest-site footer");
@@ -850,7 +850,7 @@ for(const page of ["terms","privacy","cookies"]){
   html.includes("assets/css/legal.css"),
   page+": documents need a functioning unified header and fresh stylesheet");
 }
-for(const page of ["verify","404"]){
+for(const page of ["verify"]){
  const html=await read(page+".html"),prefix=page==="verify"?"account":page;
  assert.ok(html.includes('class="account-top-inner ui-'+prefix+'-header-inner-001"'),
   page+": account-style header must align with the shared footer");
@@ -874,7 +874,7 @@ assert.ok(register.includes('class="vatra-input-shell ')&&
  register.includes('class="vatra-floating-hint ')&&
  !auth.includes("wireStableInputHints"),
  "Login and signup floating hints must use original translated text");
-for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset"]){
  const html=await read(page+".html");
  assert.ok(html.includes('data-i18n="n301">Увійти</a>')&&
  html.includes('data-i18n="n302">Створити акаунт</a>')&&
@@ -930,7 +930,7 @@ assert.ok(register.includes('>Уже підтвердили? Увійти</a>')&
  uk.__pages["create-account"].nodes.n223.text["0"]==="Уже підтвердили? Увійти"&&
  !register.includes('href="./" class="vt-create-account-link-10"'),
  "Confirmation screen must have one contextual sign-in link");
-for(const page of ["terms","privacy","cookies","forgot","reset","404"]){
+for(const page of ["terms","privacy","cookies","forgot","reset"]){
  const html=await read(page+".html");
  assert.ok(!html.includes('>Вхід</a>')&&html.includes('>Увійти</a>')&&
   uk.__pages[page].nodes.n301.text["0"]==="Увійти",
@@ -1336,11 +1336,11 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
  lang.includes('const dynamicMember=/^id[1-9]'),
  "Only /idN is a supported profile permalink; no id= or query-param links");
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
-assert.ok(communityBannerMarkup.includes('src="assets/other/VATRA_communities_Uzhhorod_2000x580.png" width="2000" height="580" alt=""')&&
+assert.ok(communityBannerMarkup.includes('src="assets/other/VATRA_communities.webp" width="2000" height="580" alt=""')&&
  !communityBannerMarkup.includes('<span class="ui-community-banner-art-001"')&&
  communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes("object-fit:cover;object-position:center")&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
  communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
- !(await read("club.html")).includes("assets/other/VATRA_communities_Uzhhorod_2000x580.png"),
+ !(await read("club.html")).includes("assets/other/VATRA_communities.webp"),
  "The original Uzhhorod panorama must be exclusively a responsive directory hero");
 const communityScript=await read("assets/js/communities.js");
 const clubRuntime=await read("assets/js/club.js");
@@ -1854,7 +1854,7 @@ assert.ok(
  systemProfileCss.includes("width:52px;height:52px;padding:0;box-sizing:border-box"),
  "Auth palette uses canonical declarations without appended duplicate layers");
 // Ordinary account avatars and all system covers stay CSS SVGs; exceptional
-// account states use the three supplied local Vatryk PNG portraits.
+// account states use the three supplied local Vatryk WebP portraits.
 function readEmbeddedSvg(css,name){
  const match=css.match(new RegExp("--"+name+":url\\(\"data:image/svg\\+xml,([^\"\\n]+)\"\\)"));
  return match?decodeURIComponent(match[1]):null;
@@ -1865,7 +1865,7 @@ assert.ok(
  plainAvatarSvg?.startsWith("<svg")&&plainAvatarSvg.includes('viewBox="0 0 256 256"')&&
  plainCoverSvg?.startsWith("<svg")&&plainCoverSvg.includes('viewBox="0 0 1600 480"')&&
  ["deleted","blocked","not-found"].every(state=>
-  systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.png")')&&
+  systemAvatarCss.includes('--vatra-'+state+'-avatar:url("/VATRA/assets/vatryk/vatryk-'+state+'.webp")')&&
   systemProfileCss.includes("--vatra-"+state+"-cover:var(--vatra-default-cover)"))&&
  !systemProfileCss.includes("--vatra-system-ring:"),
  "Default avatar and covers remain SVGs while blocked, deleted and missing members use their own PNGs");
@@ -2008,7 +2008,7 @@ assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
  onboardingCss.includes('.vt-tour-spotlight-001')&&
  onboardingCss.includes('@media(prefers-reduced-motion:reduce)')&&
  ["welcome","waiting","success","goodbye","explanation"].every(state=>
-  onboardingJs.includes("vatryk_"+state+".png")),
+  onboardingJs.includes("vatryk_"+state+".webp")),
  "First-visit Vatryk onboarding must be localized, accessible, per-member and with a nonmodal first-steps panel");
 assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-upload-button"')&&
@@ -2059,8 +2059,8 @@ assert.ok(legacyScript.includes('classList.add("vatra-dynamic-route-pending")')&
  lang.includes('classList.contains("vatra-dynamic-route-pending")'),
  "A canonical profile or club route must never show a blank screen while loading");
 
-assert.equal(uk.__pages["404"].meta.title,"404 Сторінку не знайдено · VATRA");
-assert.equal(en.__pages["404"].meta.title,"404 Page not found · VATRA");
+assert.equal(uk.__pages["404"].meta.title,"Сторінку не знайдено");
+assert.equal(en.__pages["404"].meta.title,"Page not found");
 assert.ok(errorPage.includes("<title>"+uk.__pages["404"].meta.title+"</title>"),
  "404 HTML fallback must match the Ukrainian translation");
 assert.ok(lang.includes('"404":'+JSON.stringify(en.__pages["404"].meta.title)),
@@ -2073,18 +2073,20 @@ assert.ok(auth.includes('dialog?.addEventListener("close",()=>removeTooltip?.sup
  "Cancelling the saved-account removal dialog must not show a focus-restored tooltip");
 assert.ok(errorPage.includes('class="error-home-link vt-404-link-002"')&&
  errorPage.includes('class="ui-404-vatryk-001" aria-hidden="true"')&&
- notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk-404.png")')&&
- errorPage.includes('class="sr-only vt-404-accessible-title-001"')&&
+ notFoundCss.includes('background-image:url("/VATRA/assets/vatryk/vatryk_detective.webp")')&&
+ errorPage.includes('class="vt-404-accessible-title-001"')&&
+ errorPage.includes('href="/VATRA/" class="error-home-link vt-404-link-002"')&&
+ errorPage.includes("Такої сторінки немає")&&
  !errorPage.includes('class="account-card error-card')&&
  !errorPage.includes('class="error-code')&&
  !errorPage.includes('class="error-description')&&
  !errorPage.includes('class="action primary error-action'),
- "404 must show only Vatryk in the center, with one accessible home action in the header");
+ "404 must center Vatryk, a localized visible message and the return action");
 assert.ok(notFoundCss.includes(".error-home-link:hover{")&&
  notFoundCss.includes("color:#fff;text-decoration:none}")&&
- notFoundCss.includes("justify-content:space-between")&&
+ notFoundCss.includes("flex-direction:column;gap:16px")&&
  notFoundCss.includes(".error-main .ui-404-vatryk-001"),
- "404 header, centered mascot and single home link must remain aligned");
+ "404 centered mascot and single return link must remain aligned");
 for(const name of ["terms","privacy","cookies"]){
  const html=await read(name+".html");
  const dictionary=uk.__pages[name];
@@ -2109,7 +2111,7 @@ assert.ok(!(await read("privacy.html")).includes("Самостійне вида�
 await assert.rejects(stat("account.html"),{code:"ENOENT"},
  "Retired account.html must be deleted; profile and verify replace its responsibilities");
 assert.ok(errorPage.includes('data-page="not-found"')&&errorPage.includes("error-home-link"),"404 page must stay an error, not a profile");
-assert.ok(errorPage.includes('href="/VATRA/"')&&errorPage.includes('src="/VATRA/assets/logo/vatra-logo.svg"'),
+assert.ok(errorPage.includes('href="/VATRA/"')&&!/<(?:header|footer)\b/i.test(errorPage),
  "GitHub Pages 404 must work at nested missing URLs");
 assert.ok(legacyScript.includes("location.replace(target+location.search+location.hash)"),
  "Old localized links should redirect to unified URLs");

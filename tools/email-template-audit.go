@@ -126,7 +126,7 @@ func main(){
     require(strings.HasPrefix(link,"https://")||strings.HasPrefix(link,"mailto:"),prefix+"invalid email link: "+link)
     require(!strings.Contains(link,".html"),prefix+"legacy .html link must use a clean VATRA route: "+link)
    }
-   require(strings.Contains(rendered,"https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-logo.png"),
+   require(strings.Contains(rendered,"https://mykolakolisnyk.github.io/VATRA/assets/logo/vatra-logo.webp"),
     prefix+"logo URL must match official VATRA brand asset")
    if name=="password-changed"{
     require(strings.Contains(rendered,"https://mykolakolisnyk.github.io/VATRA/forgot"),

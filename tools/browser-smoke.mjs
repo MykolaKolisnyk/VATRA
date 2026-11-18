@@ -10,7 +10,7 @@ const root=process.cwd();
 const swSource=await readFile(resolve(root,"sw.js"),"utf8");
 const currentCache=swSource.match(/const CACHE="([^"]+)"/)?.[1];
 assert.ok(currentCache,"Service Worker cache version missing");
-const mime={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".ttf":"font/ttf",".xml":"application/xml"};
+const mime={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".webp":"image/webp",".ttf":"font/ttf",".xml":"application/xml"};
 const server=createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,"http://localhost");
@@ -26,7 +26,8 @@ const server=createServer(async(req,res)=>{
   res.writeHead(200,{"Content-Type":mime[extension]||"application/octet-stream"});
   res.end(body);
  }catch(error){
-  if(error?.code==="ENOENT"&&/^\/VATRA\/(?:id|club)[1-9][0-9]{0,18}$/.test(new URL(req.url,"http://localhost").pathname)){
+  const missingPath=new URL(req.url,"http://localhost").pathname;
+  if(error?.code==="ENOENT"&&missingPath.startsWith(basePath)&&!missingPath.startsWith(basePath+"assets/")&&(/^\/VATRA\/(?:id|club)[1-9][0-9]{0,18}$/.test(missingPath)||req.headers.accept?.includes("text/html"))){
    res.writeHead(404,{"Content-Type":mime[".html"]});
    res.end(await readFile(resolve(root,"404.html")));
   }else res.writeHead(404).end("Not found");
@@ -1313,7 +1314,7 @@ try{
  // account.html redirects unauthenticated visitors to sign-in; its footer
  // structure is covered by the static checks instead of the guest browser run.
  for(const route of ["terms.html","terms.html","privacy.html","cookies.html",
-  "forgot.html","reset.html","404.html"]){
+  "forgot.html","reset.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"load"});
@@ -1349,8 +1350,8 @@ try{
  await titleContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
- for(const [language,expected] of [["uk","404 Сторінку не знайдено · VATRA"],
-  ["en","404 Page not found · VATRA"]]){
+ for(const [language,expected] of [["uk","Сторінку не знайдено"],
+  ["en","Page not found"]]){
   // VATRA's language cookie is authoritative over localStorage.
   await titleContext.addCookies([{name:"vatra-language",value:language,url:base}]);
   const tab=await titleContext.newPage();
@@ -1358,36 +1359,57 @@ try{
   await tab.goto(base+"404.html",{waitUntil:"load"});
   await tab.waitForFunction(lang=>document.documentElement.lang===lang,language);
   assert.equal(await tab.title(),expected,
-   "404 tab title must use the same middle dot and omit punctuation after 404: "+language);
-  const mascot=await tab.evaluate(()=>{
-   const image=document.querySelector(".ui-404-vatryk-001");
-   const brand=document.querySelector(".ui-404-header-inner-001 .header-logo");
-   const home=document.querySelector(".error-home-link");
-   const box=image?.getBoundingClientRect(),logo=brand?.getBoundingClientRect(),
-    button=home?.getBoundingClientRect();
-   return {loaded:!!image&&image.tagName==="SPAN"&&
-    getComputedStyle(image).backgroundImage.includes("vatryk-404.png"),
-    centered:!!box&&Math.abs((box.left+box.right)/2-innerWidth/2)<24,
-    responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
-    headerOrder:!!logo&&!!button&&logo.right+8<button.left,
-    onlyArt:!document.querySelector(".error-card,.error-code,.error-description,.error-action"),
-    hiddenHeading:document.querySelector("#error-heading")?.classList.contains("sr-only")
-   };
-  });
-  assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.headerOrder&&
-   mascot.onlyArt&&mascot.hiddenHeading,
-   "404 must display centered Vatryk with aligned header, no error card: "+JSON.stringify(mascot));
+   "Missing-page tab title must omit the status code and branding: "+language);
+  const verifyMissingPage=async()=>{
+   await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending"));
+   const mascot=await tab.evaluate(async()=>{
+    const image=document.querySelector(".ui-404-vatryk-001");
+    const heading=document.querySelector("#error-heading");
+    const home=document.querySelector(".error-home-link");
+    const box=image?.getBoundingClientRect(),title=heading?.getBoundingClientRect(),button=home?.getBoundingClientRect();
+    const background=image&&getComputedStyle(image).backgroundImage;
+    const art=new Image();art.src="/VATRA/assets/vatryk/vatryk_detective.webp";
+    let decoded=false;try{await art.decode();decoded=art.naturalWidth>0;}catch(_){}
+    return {loaded:decoded&&image?.tagName==="SPAN"&&background.includes("vatryk_detective.webp"),
+     centered:!!box&&Math.abs((box.left+box.right)/2-innerWidth/2)<24,
+     responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
+     order:!!box&&!!title&&!!button&&box.bottom<=title.top+1&&title.bottom<=button.top+1,
+     visibleHeading:!!title&&title.width>0&&title.height>0&&getComputedStyle(heading).visibility==="visible",
+     message:heading?.textContent.trim(),button:[...home.querySelectorAll("span:not([hidden])")].map(el=>el.textContent.trim()).join(" "),target:home?.getAttribute("href"),
+     noErrorCard:!document.querySelector(".error-card,.error-code,.error-description,header,footer"),
+     neutralBackground:getComputedStyle(document.body).backgroundColor==="rgb(245, 245, 245)"&&getComputedStyle(document.body).backgroundImage==="none",
+     verticallyCentered:!!box&&!!button&&Math.abs((box.top+button.bottom)/2-innerHeight/2)<28};
+   });
+   assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.order&&mascot.visibleHeading&&mascot.noErrorCard&&mascot.neutralBackground&&mascot.verticallyCentered,
+    "404 must display the centered detective, visible heading and return button: "+JSON.stringify(mascot));
+   assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
+   assert.equal(mascot.button,language==="en"?"Back to home":"На головну");
+   assert.equal(mascot.target,"/VATRA/");
+  };
+  await verifyMissingPage();
+  const missing=await tab.goto(base+"missing/nested-example",{waitUntil:"load"});
+  assert.equal(missing.status(),404,"An unknown URL must keep its HTTP 404 status");
+  await verifyMissingPage();
   assert.equal(await tab.locator(".ui-404-vatryk-001").evaluate(el=>{
    const event=new MouseEvent("contextmenu",{bubbles:true,cancelable:true});
    return el.dispatchEvent(event);
   }),false,"Decorative 404 Vatryk must not open the image context menu");
+  await tab.goto(base+"terms",{waitUntil:"load"});
+  const previous=tab.url();
+  await tab.evaluate(url=>location.assign(url),base+"missing/return-example");
+  await tab.waitForURL("**/missing/return-example");
+  await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending")&&document.querySelector(".vt-404-back-label-001")?.hidden===false);
+  assert.equal(await tab.locator(".error-home-link").evaluate(el=>el.href),previous,"A missing page must return to the actual internal referring page");
+  assert.equal(await tab.locator(".vt-404-back-label-001").textContent(),language==="en"?"Go back":"Повернутися назад");
+  await tab.locator(".error-home-link").click();
+  await tab.waitForURL(previous);
   await tab.close();
  }
  await titleContext.close();
  // Page-to-page footer typography: legal links and language controls use
  // one readable Onest scale, while copyright remains visually secondary.
  let baselineFooterAppearance=null;
- for(const route of ["","create-account.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html","404.html"]){
+ for(const route of ["","create-account.html","forgot.html","reset.html","terms.html","privacy.html","cookies.html"]){
   const probe=await context.newPage();
   await probe.setViewportSize({width:390,height:844});
   await probe.goto(base+route,{waitUntil:"domcontentloaded"});
@@ -1418,9 +1440,6 @@ try{
   if(!baselineFooterAppearance)baselineFooterAppearance=footerTypography.style;
   else assert.deepEqual(footerTypography.style,baselineFooterAppearance,
    "Footer border, background, spacing, navigation and link height must match across page types: "+route);
-  if(route==="404.html")
-   assert.equal(await probe.locator('.footer nav a[href$="/cookies"]').count(),1,
-    "The 404 page must link to the same three public documents");
   if(["terms.html","privacy.html","cookies.html"].includes(route)){
    const legalMotion=await probe.locator(".policy-header").evaluate(el=>getComputedStyle(el).animationName);
     const shellMotion=await probe.locator(".policy-main").evaluate(el=>getComputedStyle(el).animationName);
@@ -1520,7 +1539,7 @@ try{
   }
   console.log("VATRA document header/content/footer geometry "+width+"x"+height+": OK");
  }
- for(const route of ["forgot.html","reset.html","404.html"]){
+ for(const route of ["forgot.html","reset.html"]){
   const other=await context.newPage();
   await other.setViewportSize({width:390,height:844});
   await other.goto(base+route,{waitUntil:"load"});
@@ -2877,7 +2896,7 @@ try{
  assert.ok(giftMetrics.open&&giftMetrics.width>=giftMetrics.screenWidth-2&&
   giftMetrics.height>=giftMetrics.screenHeight-2,
   "Gift must occupy the whole viewport, not a small modal: "+JSON.stringify(giftMetrics));
- assert.ok(giftMetrics.background.includes("first-flame.png")&&
+ assert.ok(giftMetrics.background.includes("first-flame.webp")&&
   giftMetrics.artTag==="SPAN"&&
   giftMetrics.effects===20&&giftMetrics.ember&&giftMetrics.spark,
   "First flame PNG must appear as decorative art with floating flame sparks");
@@ -2929,11 +2948,11 @@ try{
   await feedProbe.locator("#vatra-onboarding-replay").click();
   await feedProbe.locator("#vatra-tour-dialog").waitFor({state:"visible"});
   assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(el=>
-   el.tagName==="SPAN"&&getComputedStyle(el).backgroundImage.includes("vatryk_welcome.png")),
+   el.tagName==="SPAN"&&getComputedStyle(el).backgroundImage.includes("vatryk_welcome.webp")),
    true,"Welcome Vatryk must be decorative and non-draggable");
   assert.equal(await feedProbe.locator(".vt-tour-mascot-001").evaluate(async el=>{
    const image=new Image();
-   image.src="/VATRA/assets/vatryk/vatryk_welcome.png";
+   image.src="/VATRA/assets/vatryk/vatryk_welcome.webp";
    try{await image.decode();return image.naturalWidth>0;}catch(_){return false;}
   }),true,"The original welcome PNG must load");
   await feedProbe.locator(".vt-tour-next-001").click();
@@ -4402,18 +4421,14 @@ try{
   assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
    "Each editor section needs a recognizable VATRA icon");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
-  // The editor enhances native selects into accessible combobox buttons.
-  // Exercise the visible dropdown and verify the backing value and closed state.
   const chooseProfileEditorOption=async(id,value,label)=>{
    const trigger=profilePage.locator("#"+id);
    await trigger.click();
    assert.equal(await trigger.getAttribute("aria-expanded"),"true");
    const panelId=await trigger.getAttribute("aria-controls");
-   assert.ok(panelId,"Opening an editor combobox must identify its options");
-   const panel=profilePage.locator("#"+panelId);
-   await panel.getByText(label,{exact:true}).click();
-   assert.equal(await profilePage.locator("#"+id+"-native").inputValue(),value,
-    "Choosing a visible editor option must update the underlying form value");
+   assert.ok(panelId);
+   await profilePage.locator("#"+panelId).getByText(label,{exact:true}).click();
+   assert.equal(await profilePage.locator("#"+id+"-native").inputValue(),value);
    assert.equal(await trigger.getAttribute("aria-expanded"),"false");
   };
   await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
@@ -4734,8 +4749,8 @@ try{
    return {image:style.backgroundImage,head:head.content,
     headCenter:(parseFloat(head.left)+parseFloat(head.width)/2)/width};
   });
-  assert.ok(fallbackStyle.image.includes("/VATRA/assets/vatryk/vatryk-not-found.png"),
-   "A non-existent member must display its own Vatryk PNG");
+  assert.ok(fallbackStyle.image.includes("/VATRA/assets/vatryk/vatryk-not-found.webp"),
+   "A non-existent member must display its own Vatryk WebP");
   assert.equal(fallbackStyle.head,"none",
    "The old CSS silhouette must not cover the neutral SVG image");
   const avatarRim=await profilePage.locator("#profile-avatar-wrap").evaluate(wrap=>{
@@ -4794,9 +4809,9 @@ try{
     actualCover:window.VATRA_AVATAR.coverAsset(el.dataset.vatraAvatarState),
     sharedCover:window.VATRA_AVATAR.coverAsset("default")
    }));
-   assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".png")&&
+   assert.ok(neutralArt.actualAvatar?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     neutralArt.actualAvatar!==neutralArt.sharedAvatar,
-    "Deleted and blocked members must use their own Vatryk PNG");
+    "Deleted and blocked members must use their own Vatryk WebP");
    assert.equal(neutralArt.actualCover,neutralArt.sharedCover,
     "Deleted and blocked members use the same neutral SVG cover as ordinary accounts");
    const rim=await profilePage.locator("#profile-avatar-wrap").evaluate(el=>({
@@ -4817,9 +4832,9 @@ try{
     rendered:getComputedStyle(el).backgroundImage,
     expected:window.VATRA_AVATAR?.asset?.(el.dataset.vatraAvatarState)
    }));
-   assert.ok(stateSvg.expected?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".png")&&
+   assert.ok(stateSvg.expected?.endsWith("/VATRA/assets/vatryk/vatryk-"+state+".webp")&&
     stateSvg.rendered.includes(stateSvg.expected),
-    "System portrait must render the matching Vatryk PNG for "+state);
+    "System portrait must render the matching Vatryk WebP for "+state);
   }
   await profilePage.goto(base+"id789012?no-avatar-test=1",{waitUntil:"domcontentloaded"});
   await profilePage.locator("#profile-app").waitFor({state:"visible",timeout:14000});
@@ -5352,7 +5367,7 @@ try{
          errors:[...document.querySelectorAll("img")].filter(i=>!i.complete&&i.getClientRects().length>0).length};
        });
        assert.ok(layout.overflow<=3&&layout.outside.length===0&&
-        layout.headerHeight>30&&layout.footerHeight>40&&layout.documentLang===language,
+        (route==="404.html"?layout.headerHeight===undefined&&layout.footerHeight===undefined:layout.headerHeight>30&&layout.footerHeight>40)&&layout.documentLang===language,
         engine+" "+language+" "+viewport.width+"x"+viewport.height+" "+route+
         ": legal/404 responsive geometry invalid "+JSON.stringify(layout));
        assert.deepEqual(errors,[],

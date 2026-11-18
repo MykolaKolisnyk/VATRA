@@ -22,56 +22,23 @@
   "__pages": {
     "404": {
       "meta": {
-        "title": "404 Page introuvable · VATRA",
+        "title": "Page introuvable",
         "description": "Aucune page VATRA ne correspond à cette adresse. Le lien est peut-être incorrect ou la page a été déplacée."
       },
       "nodes": {
         "n4": {
           "text": {
-            "0": "Accueil"
+            "0": "Retour à l’accueil"
           }
         },
         "n8": {
           "text": {
-            "0": "Page introuvable"
+            "0": "Cette page n’existe pas"
           }
         },
-        "n14": {
+        "n9": {
           "text": {
-            "0": "Vos proches. Vos histoires. Votre VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informations"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Conditions d’utilisation"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Confidentialité"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Français"
-          },
-          "attrs": {
-            "aria-label": "Choisir la langue"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Se connecter"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Créer un compte"
+            "0": "Retour"
           }
         }
       }
