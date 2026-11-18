@@ -19,7 +19,7 @@ const make=(tag,cls,label)=>{
 };
 let client=null,ownId=null,targetId=null,rows=[],names=new Map(),photos=new Map(),accountStates=new Map();
 let current="accepted",search="",busy=false,me=true;
-let presence=new Map(),presenceBusy=false;
+let presence=new Map(),presenceBusy=false,presenceAvailable=false;
 function stateFor(item){
  if(item.status==="accepted")return "accepted";
  if(String(item.recipient_id)===String(targetId))return "incoming";
@@ -76,11 +76,11 @@ async function refreshPresence(){
   const next=new Map();
   for(let i=0;i<ids.length;i+=100){
    const {data,error}=await client.from("profile_presence").select("vatra_id,last_seen_at,form").in("vatra_id",ids.slice(i,i+100));
-   if(error)return;
+   if(error){presenceAvailable=false;return;}
    for(const entry of data||[])next.set(String(entry.vatra_id),entry);
   }
-  presence=next;
- }finally{presenceBusy=false;}
+  presence=next;presenceAvailable=true;
+ }catch(_){presenceAvailable=false;}finally{presenceBusy=false;}
 }
 function online(id){return !accountStates.has(id)&&Boolean(window.VATRA_PRESENCE?.format(presence.get(id)).online);}
 function actionButton(label,cls,callback){
@@ -184,7 +184,7 @@ function render(){
  for(const item of visible)list.append(person(item,list.children.length+1));
  if(!visible.length){
   empty.textContent=search?t("За запитом нічого не знайдено.","No matches for your search."):
-   current==="online"?t("Наразі немає друзів онлайн.","No friends online right now."):
+   current==="online"?(!presenceAvailable?t("Статус онлайн тимчасово недоступний.","Online status is temporarily unavailable."):t("Наразі немає друзів онлайн.","No friends online right now.")):
    current==="accepted"?t("Друзів поки немає.","No friends yet."):
    current==="incoming"?t("Немає нових запитів у друзі.","No new friend requests."):
    t("Немає надісланих запитів.","No sent requests.");
@@ -195,7 +195,7 @@ function render(){
  for(const tab of document.querySelectorAll("[data-friends-tab]")){
   const mode=tab.dataset.friendsTab;
   const count=rows.filter(item=>mode==="online"?stateFor(item)==="accepted"&&online(counterpart(item)):stateFor(item)===mode).length;
-  tab.replaceChildren(document.createTextNode(t(tab.dataset.socialUk,tab.dataset.socialEn)+" "),make("span","vt-vatra-friends-tab-count-"+mode,count));
+  tab.replaceChildren(document.createTextNode(t(tab.dataset.socialUk,tab.dataset.socialEn)+" "),make("span","vt-vatra-friends-tab-count-"+mode,mode==="online"&&!presenceAvailable?"—":count));
  }
  list.setAttribute("aria-busy","false");
 }
