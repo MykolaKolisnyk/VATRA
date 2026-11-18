@@ -5,7 +5,7 @@ import {runInNewContext} from "node:vm";
 
 const source=await readFile("assets/js/notifications.js","utf8");
 const start=source.indexOf("const SITE_SEARCH_TTL_MS=8_000,SITE_SEARCH_MAX=24;");
-const end=source.indexOf("window.VATRA_SITE_SEARCH={search:findSite};",start);
+const end=source.indexOf("window.VATRA_SITE_SEARCH={search:findSite,",start);
 assert.ok(start>0&&end>start,"Find site-wide search cache code");
 let now=Date.parse("2026-11-14T11:00:00Z");
 class TestDate extends Date{static now(){return now;}}

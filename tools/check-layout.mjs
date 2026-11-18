@@ -275,7 +275,7 @@ assert.ok(!/\["(?:ru|be|sk|hu|sr|zh)"/.test(excludedLocales),
 /* Verify language selection across independent page loads, cookie fallback,
    old Ukrainian bookmarks, and browsers which reject cookies. */
 const languageStart=lang.indexOf("  function cookieLanguage() {");
-const languageEnd=lang.indexOf("  /* A single URL per page.",languageStart);
+const languageEnd=lang.indexOf("  function bindLocalizedLinks() {",languageStart);
 assert.ok(languageStart>=0&&languageEnd>languageStart,"Persistent language helper missing");
 const preferences=new Function("document","location","localStorage","ROOT","localFile",
  'const LANGUAGE_KEY="vatra-language";const validLanguage=value=>value==="uk"||value==="en";'+
@@ -501,7 +501,7 @@ for(const name of features){
 assert.ok(css.includes("svg{shape-rendering:geometricPrecision}")&&
  css.includes(".language-option .language-flag{width:36px;height:27px"),
  "SVG icons and language flags must retain high-precision rendering");
-assert.ok(lang.includes("Exact, sharp Union Jack paths")&&
+assert.ok(lang.includes('add("path",{fill:"#012169",d:"M0 0h640v480H0z"})')&&
  lang.includes("chevron.setAttribute(\"viewBox\",\"0 0 24 24\")"),
  "Language flag and chevron vectors must use precise geometry");
 assert.ok(css.includes("animation-play-state:paused"),"Readable hover tooltip animation missing");
@@ -1068,7 +1068,7 @@ const liveNotificationProvider=await read("assets/js/notifications.js");
 assert.ok(liveSiteShell.includes('vatra-search-live-results')&&
  liveSiteShell.includes('ui-vatra-search-live-glyph-')&&
  liveSiteShell.includes('scheduleLive(term)')&&
- liveNotificationProvider.includes('window.VATRA_SITE_SEARCH={search:findSite}')&&
+ liveNotificationProvider.includes('window.VATRA_SITE_SEARCH={search:findSite,')&&
  liveNotificationProvider.includes('viewer.from("public_profiles")')&&
  liveNotificationProvider.includes('viewer.from("feed_posts")'),
  "Site-wide search must query RLS-visible people, communities and posts directly");
@@ -1447,13 +1447,28 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
+ detailsModule.includes('button.setAttribute("role","combobox")') &&
+ detailsModule.includes('panel.setAttribute("role","listbox")') &&
+ detailsModule.includes('button.setAttribute("aria-expanded","false")') &&
+ detailsModule.includes('state.anchor.setAttribute("aria-activedescendant",button.id)') &&
+ detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
+ detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
+ detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
+ detailsModule.includes('enhanceEditorSelect(change,"page")') &&
+ detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
+ detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
+ memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
+ memberCss.includes('.ui-profile-editor-dropdown-panel-001'),
+ "VATRA editor dropdowns must keep native values synchronized, field privacy selectable, keyboard navigation accessible and option scrolling contained");
+assert.ok(
  !detailsModule.includes('item.append(badge,label,content)') &&
  detailsModule.includes('paragraph.textContent=bio') &&
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vt-profile-detail-audience-') &&
- detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
- memberCss.includes('/* PROFILE READING ·') &&
+ detailsModule.includes('lab.htmlFor=inputId') &&
+ !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
+ memberCss.includes('body.profile-page.feed-page:not(.community-page) .profile-info{') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
  "Profile About preview has a centered optional bio, compact facts, and no read-only icon tiles");
 assert.ok(
@@ -1708,7 +1723,7 @@ const friendshipPrivacySql=await read("supabase/migrations/20261114154237_privat
 assert.ok(
  friendshipPrivacyJs.includes('if(!me){')&&
  friendshipPrivacyJs.includes('Списки друзів інших користувачів приватні.')&&
- friendshipPrivacyJs.includes('A DELETE may affect no rows without an RLS error')&&
+ friendshipPrivacyJs.includes('if(error||String(data?.id)!==String(item.id))')&&
  friendshipPrivacyJs.includes('.select("id").maybeSingle()')&&
  friendshipPrivacySql.includes('DROP POLICY IF EXISTS "vatra_friends_read_accepted_or_own"')&&
  friendshipPrivacySql.includes('a.vatra_id = ANY(')&&
@@ -1730,7 +1745,7 @@ assert.ok(
  interactionsScript.includes('const hydrateSaved=()=>{')&&
  notificationPerfScript.includes('period=subscribed?300000:60000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
- workerPerfScript.includes('const CACHE="vatra-offline-shell-v55"')&&
+ /const CACHE="vatra-offline-shell-v[0-9]+"/.test(workerPerfScript)&&
  workerPerfScript.includes('fetch(request,{cache:"no-cache"})')&&
  workerPerfScript.includes('cache.match(request)')&&
  workerPerfScript.includes('const staticAsset=url.pathname.startsWith(ROOT+"assets/")')&&
@@ -1835,7 +1850,7 @@ assert.ok(plainCoverSvg.includes('stop-color="#9db8d7"')&&
 assert.ok(!plainAvatarSvg.includes("<clipPath")&&
  !plainAvatarSvg.includes('r="115"')&&
  plainAvatarSvg.includes('<rect width="256" height="256"')&&
- systemProfileCss.includes("Neutral placeholders are full-bleed artwork")&&
+ systemProfileCss.includes("background-size:100% 100%!important")&&
  systemProfileCss.includes("background-size:100% 100%!important")&&
  systemProfileCss.includes("border:4px solid #fff!important"),
  "Default avatar must render full-bleed inside a single white circular border");
@@ -1924,7 +1939,7 @@ assert.ok(
  !socialMotion.includes("VATRA_MOTION") &&
  !profileScript.includes("VATRA_MOTION") &&
  !profileScript.includes("document.startViewTransition(") &&
- profileScript.includes("if(id!==selected)showGroup(id)") &&
+ /if\s*\(\s*id\s*!==\s*selected\s*\)\s*\{?\s*showGroup\(id\)/.test(profileScript) &&
  profileScript.includes("panel.hidden=panel.dataset.profilePanel!==name"),
  "VATRA routes, tabs and editor chapters must switch immediately while preserving data skeletons");
 assert.ok(
@@ -2105,7 +2120,7 @@ assert.ok(landing.includes('class="vt-home-link-08"')&&
 // Persistent regression: no duplicate stylesheet variants, and saved-login
 // navigation occupies the top action row rather than a trailing form row.
 const cssFiles=await readdir("assets/css");
-assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
+assert.deepEqual(cssFiles.sort(),["base.css","communities.css","create-account.css","feed.css","friends.css","gifts.css","legal.css","not-found.css","offline.css","onboarding.css","post-composer.css","profile.css","recovery.css","sections.css","sign-in.css","verify.css"],"VATRA must keep only canonical family styles, never style2/fix copies");
 const javascriptFiles=await readdir("assets/js");
 assert.ok([...cssFiles,...javascriptFiles].every(file=>!/style(?:v[0-9]+|fix)|(?:old|backup|copy)\.(?:css|js)$/i.test(file)),
  "No shadow styles, fixes, backups or duplicate JS/CSS variants may coexist");
@@ -2122,8 +2137,8 @@ assert.ok(consolidatedFeed.includes('/* One return-to-top rail aligned to the me
 const routerScript=await read("assets/js/not-found.js");
 const languageScript=await read("assets/js/lang.js");
 assert.ok(routerScript.includes('const staticPage=location.pathname.match(')&&
- routerScript.includes('|notifications|friends|gifts|club|create-account|')&&
- languageScript.includes('feed|profile|friends|gifts|communities|notifications|club|verify')&&
+ routerScript.includes('|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|')&&
+ languageScript.includes('feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify')&&
  (await read("assets/js/social-shell.js")).includes('new URL("friends",')&&
  !(await read("assets/js/profile.js")).includes('new URL("friends.html"')&&
  !(await read("assets/js/notifications.js")).includes('new URL("notifications.html"'),
@@ -2388,3 +2403,13 @@ assert.ok(
  !feedStoryOptimization.includes('await loadSubscriptions();subscriptionsLoadedAt=Date.now();'),
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("./feed-story-subscriptions-smoke.mjs");
+
+const sectionsRuntime=await read("assets/js/sections.js");
+const sectionsStyle=await read("assets/css/sections.css");
+assert.doesNotThrow(()=>new Function(sectionsRuntime));
+for(const section of ["clips","marketplace","vatra-id"]){
+ const markup=await read(section+".html");
+ assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/sections.js')&&markup.includes('assets/css/sections.css'));
+}
+assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('vatra_marketplace_listings')&&sectionsRuntime.includes('vatra_verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
+assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));

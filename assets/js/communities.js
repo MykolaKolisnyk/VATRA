@@ -1,4 +1,4 @@
-/* VATRA community directory and immutable numeric club URLs. */
+
 (()=>{
 "use strict";
 if(window.VATRA_HOST_ALLOWED===false)return;
@@ -10,7 +10,7 @@ const dateLocales={uk:"uk-UA",en:"en-US",pl:"pl-PL",de:"de-DE",fr:"fr-FR",it:"it
 const locale=dateLocales[activeLocale]||"uk-UA";
 const t=(uk,en)=>{
  if(activeLocale==="uk")return uk;
- if(activeLocale==="en")return en; // Keep existing English wording.
+ if(activeLocale==="en")return en;
  const translated=window.VATRA_LANGUAGE?.translate?.(uk);
  return typeof translated==="string"&&translated!==uk?translated:uk;
 };
@@ -59,7 +59,7 @@ async function loadHeaderPhoto(client,id,email){
   const target=$("#feed-header-avatar");
   if(target){target.style.backgroundImage="url("+JSON.stringify(image)+")";
    target.classList.add("has-photo");target.textContent="";}
- }catch(_){/* Initials remain visible if media is unavailable. */}
+ }catch(_){}
 }
 async function start(){
  await window.VATRA_LANGUAGE?.ready;
@@ -152,9 +152,9 @@ async function start(){
    window.VATRA_AVATAR?.clearHeader();
    location.replace(root);
   });
-  // Show the ready page only after its first list or community data request.
+
   if(mode==="club")await openClub(client,ownId,user.id);
-  else await openDirectory(client);
+  else await openDirectory(client,ownId,user.id);
   $("#community-app").hidden=false;
   $("#community-loading").hidden=true;
   document.body.dataset.authReady="true";
@@ -164,7 +164,7 @@ async function start(){
   gateError(t("Не вдалося відкрити сторінку. Оновіть її.","Could not open this page. Please refresh."));
  }
 }
-async function openDirectory(client){
+async function openDirectory(client,ownId,userId){
  document.title=t("Спільноти · VATRA","Communities · VATRA");
  const form=$("#community-create-form"),button=$("#community-create-submit");
  const panel=$("#community-create-panel"),toggle=$("#community-create-toggle");
@@ -189,7 +189,7 @@ async function openDirectory(client){
   button.disabled=true;
   status("#community-create-status",t("Створення спільноти…","Creating community…"));
   try{
-   // PostgreSQL GENERATED ALWAYS AS IDENTITY assigns the ID; the browser never picks it.
+
    const {data,error}=await client.from("communities").insert({name,description})
     .select("club_id").single();
    if(error||!data?.club_id)throw error||new Error("missing club ID");
@@ -203,19 +203,19 @@ async function openDirectory(client){
   }
  });
  const list=$("#community-list");
- const term=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
+ let term=(new URLSearchParams(location.search).get("q")||"").trim().slice(0,120);
  const search=$("#feed-search-input");
  if(search&&term)search.value=term;
  try{
-  // Redis Cloud is connected: only the public, unfiltered directory uses the
-  // 15-second Edge cache. Search and any Edge outage use direct RLS queries.
+
+
   const PUBLIC_DIRECTORY_CACHE_ENABLED=true;
   let data=null;
   if(!term&&PUBLIC_DIRECTORY_CACHE_ENABLED&&client.functions?.invoke){
    try{
     const response=await client.functions.invoke("public-community-directory",{method:"GET"});
     if(!response.error&&Array.isArray(response.data?.data))data=response.data.data;
-   }catch(_){/* Edge/Redis outage: fall back to PostgREST below. */}
+   }catch(_){}
   }
   if(!data){
    let request=client.from("communities").select("club_id,name,description,created_at");
@@ -225,8 +225,21 @@ async function openDirectory(client){
    if(result.error)throw result.error;
    data=result.data||[];
   }
-  list.replaceChildren();
-  for(const club of data||[]){
+  let directory=(data||[]);const filters=[...document.querySelectorAll("[data-community-filter]")];
+  let mode="all",following=new Set(),owned=new Set(),filterError=false;
+  const results=await Promise.allSettled([
+   ownId?client.from("community_follows").select("club_id").eq("member_vatra_id",ownId):Promise.resolve({data:[]}),
+   client.from("communities").select("club_id").eq("owner_id",userId)
+  ]);
+  if(results[0].status==="fulfilled"&&!results[0].value.error)following=new Set((results[0].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
+  if(results[1].status==="fulfilled"&&!results[1].value.error)owned=new Set((results[1].value.data||[]).map(x=>String(x.club_id)));else filterError=true;
+  const input=$("#community-directory-search");
+  if(input){input.value=term;input.placeholder=t("Пошук спільнот","Search communities");input.setAttribute("aria-label",input.placeholder);}
+  const render=()=>{
+   list.replaceChildren();
+   const query=term.toLocaleLowerCase();
+   const visible=directory.filter(club=>(mode==="all"||(mode==="followed"?following:owned).has(String(club.club_id)))&&(!query||String(club.name||"").toLocaleLowerCase().includes(query)||String(club.description||"").toLocaleLowerCase().includes(query)));
+   for(const club of visible){
    const number=String(club.club_id);
    if(!idPattern.test(number))continue;
    const card=node("a","ui-community-card-001");
@@ -234,13 +247,30 @@ async function openDirectory(client){
    const head=node("div","ui-community-card-head-001");
    head.append(node("strong","vt-community-card-name-001",club.name),
     node("span","vt-community-card-id-001","Club ID "+number));
-   card.append(head,node("p","vt-community-card-description-001",
-    club.description||t("Без опису","No description")));
+   const mark=node("span","ui-community-card-avatar-001",String(club.name||"V").trim().slice(0,1).toLocaleUpperCase());
+   const detail=node("div","ui-community-card-detail-001");detail.append(head,node("p","vt-community-card-description-001",club.description||t("Без опису","No description")));
+   card.append(mark,detail);
    list.append(card);
   }
-  status("#community-list-status",(data||[]).length===0?
-   (term?t("За цим запитом спільнот не знайдено.","No communities match this search."):
-    t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!")):"");
+   status("#community-list-status",mode!=="all"&&filterError?t("Не вдалося перевірити всі підписки.","Could not verify all memberships."):visible.length===0?(term?t("За цим запитом спільнот не знайдено.","No communities match this search."):(mode==="all"?t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!"):t("У цьому розділі поки немає спільнот.","No communities in this section yet."))):"");
+  };
+  let revision=0,timer=null;
+  const refresh=async()=>{
+   const ticket=++revision;list.setAttribute("aria-busy","true");
+   if(filterError&&mode!=="all"){list.setAttribute("aria-busy","false");render();return;}
+   try{
+    let request=client.from("communities").select("club_id,name,description,created_at");
+    if(mode==="owned")request=request.eq("owner_id",userId);
+    if(mode==="followed"){if(!following.size){directory=[];render();return;}request=request.in("club_id",[...following]);}
+    if(term)request=request.ilike("name","%"+term.replace(/[\\%_]/g,"\\$&")+"%");
+    const result=await request.order("created_at",{ascending:false}).order("club_id",{ascending:false}).limit(100);
+    if(ticket!==revision)return;if(result.error)throw result.error;directory=result.data||[];render();
+   }catch(_){if(ticket===revision)status("#community-list-status",t("Не вдалося завантажити список спільнот.","Could not load communities."),"error");}
+   finally{if(ticket===revision)list.setAttribute("aria-busy","false");}
+  };
+  for(const filter of filters)filter.addEventListener("click",()=>{mode=filter.dataset.communityFilter;for(const tab of filters){const on=tab===filter;tab.classList.toggle("is-active",on);tab.setAttribute("aria-pressed",String(on));}clearTimeout(timer);void refresh();});
+  input?.addEventListener("input",()=>{term=input.value.trim().slice(0,120);revision++;clearTimeout(timer);timer=setTimeout(refresh,250);});
+  render();
  }catch(_){
   status("#community-list-status",t("Не вдалося завантажити список спільнот.",
    "Could not load communities."),"error");
@@ -283,7 +313,7 @@ async function setupClubSocial(client,clubId,ownId,userId){
    const fetched=data||[],rows=[...fetched];
    postsOffset+=fetched.length;
    if(more)more.hidden=fetched.length<CLUB_PAGE_SIZE;
-   // Linked posts older than the current page are fetched individually.
+
    const linkedId=new URLSearchParams(location.search).get("post");
    if(!append&&focusRequestedPost&&postPattern.test(linkedId||"")&&!rows.some(post=>post.id===linkedId)){
     const direct=await client.from("community_posts")
@@ -410,8 +440,8 @@ async function setupClubSocial(client,clubId,ownId,userId){
 }
 
 async function fetchPublicClub(client,number){
- // Server cache contains only information globally readable under anon RLS.
- // Personal follow membership, posts, blocked members and authors are never cached.
+
+
  const numeric=Number(number);
  if(Number.isSafeInteger(numeric)&&numeric>0&&client.functions?.invoke){
   try{
@@ -428,7 +458,7 @@ async function fetchPublicClub(client,number){
        typeof row.created_at==="string")
      return {data:row,error:null};
    }
-  }catch(_){/* If Edge or Redis is unavailable, use normal PostgREST/RLS. */}
+  }catch(_){}
  }
  return client.from("communities")
   .select("club_id,name,description,created_at").eq("club_id",number).maybeSingle();

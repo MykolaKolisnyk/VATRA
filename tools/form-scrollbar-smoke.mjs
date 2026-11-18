@@ -63,7 +63,7 @@ assert.ok(lang.includes('dialog.addEventListener("pointerenter"')&&
  lang.includes('if (pointerInsideDialog || dragging) return;')&&
  lang.includes('scrollTrack.classList.add("is-dragging")'),
  "Language picker thumb must remain visible while pointer is inside or dragging");
-const start=lang.indexOf("/* One delegated controller for all VATRA scrolling forms.");
+const start=lang.lastIndexOf('(()=>{\n "use strict";\n const selector=[');
 assert.ok(start>=0,"Shared hover scroll controller must exist");
 let clockId=0;
 const tasks=new Map(),listeners=new Map();

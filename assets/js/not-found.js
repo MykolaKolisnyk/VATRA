@@ -1,27 +1,25 @@
-/* VATRA — GitHub Pages permalink fallback and legacy URL redirects.
-   Loaded synchronously before localization to avoid displaying the 404 page
-   while resolving /idN or /clubN. */
+
 (() => {
-    // Decorative mascot is part of the 404 layout, not a downloadable image UI.
-    // This is scoped to the illustration; links and the rest of the page work normally.
+
+
     document.addEventListener?.("contextmenu",event=>{
       if(event.target?.closest?.(".ui-404-vatryk-001"))event.preventDefault();
     });
     document.addEventListener?.("dragstart",event=>{
       if(event.target?.closest?.(".ui-404-vatryk-001"))event.preventDefault();
     });
-    /* Existing bookmarks and Supabase email links may use former locale folders. */
-    // Old email links and saved .html URLs remain valid, but visitors see
-    // the clean canonical route after the first navigation.
-    // GitHub Pages serves this fallback for /idN and /clubN. Render the
-    // corresponding static document in-place, so the browser never visits
-    // /profile.html or /club.html on its way to a permanent public URL.
+    
+
+
+
+
+
     const dynamic=location.pathname.match(/^\/VATRA\/(id|club)([1-9][0-9]{0,18})$/);
-    const staticPage=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|friends|gifts|club|create-account|forgot|reset|verify|terms|privacy|cookies|offline)$/);
+    const staticPage=location.pathname.match(/^\/VATRA\/(feed|profile|communities|notifications|friends|gifts|clips|marketplace|vatra-id|club|create-account|forgot|reset|verify|terms|privacy|cookies|offline)$/);
     if(dynamic||staticPage){
       document.documentElement.classList.add("vatra-dynamic-route-pending");
-      // The fallback HTTP response is a 404 on GitHub Pages, but the browser
-      // tab must never display a transient "404" label for valid permalinks.
+
+
       const titleGuard=new MutationObserver(()=>{
         const node=document.head.querySelector("title");
         if(node&&/^404\b/.test(node.textContent))node.textContent="VATRA";
@@ -34,15 +32,15 @@
           if(!response.ok)throw new Error("route document unavailable");
           const markup=await response.text();
           if(!/^\s*<!doctype html>/i.test(markup))throw new Error("invalid route document");
-          // Replace the router document with the real profile/club document.
-          // Its own language handler and loading screen now start exactly once.
+
+
           titleGuard.disconnect();
           document.documentElement.classList.remove("vatra-dynamic-route-pending");
           document.open();
           document.write(markup);
           document.close();
         }catch(_){
-          // On failure reveal the actual 404 page and initialize its locale.
+
           titleGuard.disconnect();
           document.documentElement.classList.remove("vatra-dynamic-route-pending");
           document.title="404 Сторінку не знайдено · VATRA";
@@ -62,12 +60,12 @@
       location.replace("/VATRA/verify"+location.search+location.hash);
       return;
     }
-    // Preserve old bookmarks but never show the obsolete account-creation route.
+
     if(/^\/VATRA\/register(?:\.html)?$/.test(location.pathname)){
       location.replace("/VATRA/create-account"+location.search+location.hash);
       return;
     }
-    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|club|verify|terms|privacy|cookies|offline)\.html$/);
+    const legacy=location.pathname.match(/^\/VATRA\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline)\.html$/);
     if(legacy){
       location.replace("/VATRA/"+legacy[1]+location.search+location.hash);
       return;
@@ -75,10 +73,10 @@
     const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
     if (!found) return;
     const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","friends.html","gifts.html","communities.html","notifications.html","club.html","terms.html","privacy.html","cookies.html","404.html","offline.html","create-account","register","forgot","reset","feed","profile","friends","gifts","communities","notifications","club","verify","terms","privacy","cookies"]);
+    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","friends.html","gifts.html","communities.html","notifications.html","club.html","terms.html","privacy.html","cookies.html","404.html","offline.html","clips.html","marketplace.html","vatra-id.html","clips","marketplace","vatra-id","create-account","register","forgot","reset","feed","profile","friends","gifts","communities","notifications","club","verify","terms","privacy","cookies"]);
     if (!allowed.has(file)) return;
-    // Existing language preferences always win over old /ua/ or /en/ links.
-    // Follow an old link's language only for visitors without a saved choice.
+
+
     const key="vatra-language";
     let selected=null;
     try {

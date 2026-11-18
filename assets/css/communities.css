@@ -1,4 +1,4 @@
-/* VATRA social community starter: Onest, responsive and accessible. */
+
 .community-create,.ui-community-list-section-001{padding:23px;border:1px solid #e5eaf4;border-radius:16px;background:#fff;box-shadow:0 3px 17px rgba(47,66,115,.04)}
 .vt-community-create-heading-001,.vt-community-list-heading-001{
  margin:0 0 14px;color:#2C3850;font-size:clamp(21px,2.2vw,25px);
@@ -33,8 +33,22 @@
 #club-description{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:520px){.community-create,.ui-community-list-section-001{padding:17px}}
 
-/* Keep a searched/shared community publication identifiable after navigation. */
+
 body.community-page .ui-club-post-card-001.is-linked-post{
  border-color:#a9c4f7;box-shadow:0 0 0 3px rgba(84,132,221,.11),0 5px 20px rgba(51,80,130,.07);
  scroll-margin-top:104px
 }
+
+body[data-page="communities"] .ui-community-list-section-001{padding:22px}
+body[data-page="communities"] .ui-community-directory-tabs-001{display:flex;gap:5px;flex-wrap:wrap;margin:12px 0}
+body[data-page="communities"] .ui-community-directory-tabs-001 button{background:transparent;border:0;border-radius:9px;padding:10px 12px;color:#667d9d;font:600 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+body[data-page="communities"] .ui-community-directory-tabs-001 button.is-active{background:#eaf1ff;color:#285fc9}
+body[data-page="communities"] .ui-community-directory-search-001{box-sizing:border-box;width:100%;min-height:43px;padding:10px 13px;border:1px solid #e1e8f3;border-radius:10px;background:#f6f8fc;color:#2c3850;font:500 14px/1.4 Onest,system-ui,sans-serif}
+body[data-page="communities"] .ui-community-list-001{gap:0}
+body[data-page="communities"] .ui-community-card-001{flex-direction:row;align-items:center;gap:14px;padding:17px 2px;border:0;border-bottom:1px solid #edf1f7;border-radius:0;transform:none}
+body[data-page="communities"] .ui-community-card-001:last-child{border:0}
+body[data-page="communities"] .ui-community-card-avatar-001{display:grid;place-items:center;width:60px;height:60px;flex:none;border-radius:17px;background:#eaf1ff;color:#3269cf;font:700 25px/1 Onest,system-ui,sans-serif}
+body[data-page="communities"] .ui-community-card-detail-001{flex:1;min-width:0}
+body[data-page="communities"] .vt-community-card-name-001{font-size:16px;font-weight:650}
+body[data-page="communities"] .vt-community-card-description-001{margin-top:5px}
+@media(max-width:600px){body[data-page="communities"] .ui-community-list-section-001{padding:15px}body[data-page="communities"] .ui-community-directory-search-001{font-size:16px}}

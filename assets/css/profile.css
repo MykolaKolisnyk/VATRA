@@ -1,4 +1,4 @@
-/* Standard cover artwork lives here as SVG data URIs, not in assets/covers. */
+
 :root{
  --vatra-default-cover:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201600%20480%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%20role%3D%22img%22%20aria-label%3D%22Neutral%20profile%20cover%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22matte%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%22.12%22%3E%3Cstop%20stop-color%3D%22%239db8d7%22%2F%3E%3Cstop%20offset%3D%22.44%22%20stop-color%3D%22%23b3c9e2%22%2F%3E%3Cstop%20offset%3D%22.75%22%20stop-color%3D%22%23c8cbe2%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ddc9dd%22%2F%3E%3C%2FlinearGradient%3E%3CradialGradient%20id%3D%22luminance%22%20cx%3D%22.79%22%20cy%3D%22-.26%22%20r%3D%22.83%22%3E%3Cstop%20stop-color%3D%22%23f4ecf9%22%20stop-opacity%3D%22.47%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f4ecf9%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3CradialGradient%20id%3D%22cool%22%20cx%3D%22.06%22%20cy%3D%22.93%22%20r%3D%22.83%22%3E%3Cstop%20stop-color%3D%22%23729bc7%22%20stop-opacity%3D%22.34%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23729bc7%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Cpath%20d%3D%22M0%200h1600v480H0Z%22%20fill%3D%22url%28%23matte%29%22%2F%3E%3Cpath%20d%3D%22M0%200h1600v480H0Z%22%20fill%3D%22url%28%23luminance%29%22%2F%3E%3Cpath%20d%3D%22M0%200h1600v480H0Z%22%20fill%3D%22url%28%23cool%29%22%2F%3E%3Cpath%20d%3D%22M730%200H1600V250C1330%20312%201115%20214%20935%20118%20858%2076%20796%2034%20730%200Z%22%20fill%3D%22%23f8f8ff%22%20opacity%3D%22.13%22%2F%3E%3Cpath%20d%3D%22M0%20361C226%20284%20419%20293%20638%20338s415%2082%20631%2028%20261-80%20331-92v206H0Z%22%20fill%3D%22%235f88b2%22%20opacity%3D%22.18%22%2F%3E%3Cpath%20d%3D%22M0%20416c258-85%20492-60%20742-22s544-49%20858-105v191H0Z%22%20fill%3D%22%23f7faff%22%20opacity%3D%22.33%22%2F%3E%3Cpath%20d%3D%22M0%20414c258-85%20492-60%20742-22s544-49%20858-105%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.40%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E");
  --vatra-deleted-cover:var(--vatra-default-cover);
@@ -6,12 +6,11 @@
  --vatra-not-found-cover:var(--vatra-default-cover);
 }
 
-/* VATRA — Member profile and responsive layouts.
-   Loaded only by profile.html, after shared feed.css. */
 
 
 
-/* VATRA own-profile starter view inside the same social layout. */
+
+
 .profile-hero{overflow:hidden;border:1px solid #e2e8f3;border-radius:16px;background:#fff;box-shadow:0 4px 20px rgba(36,61,105,.055)}
 .profile-cover{height:185px;display:flex;justify-content:flex-end;align-items:center;padding-right:10%;background:linear-gradient(112deg,#dbe9fd,#e8e1ff 65%,#f4e3f3);color:rgba(89,105,179,.18)}
 .profile-cover .vt-profile-cover-symbol-001{font-size:150px;font-weight:850;line-height:1}
@@ -33,7 +32,7 @@
 .profile-posts-title{margin:4px 5px 0;color:#2C3850;font-size:clamp(20px,2.1vw,24px);font-weight:755;line-height:1.3;letter-spacing:-.035em}
 .profile-posts-empty{margin:0;padding:25px;border:1px solid #e1e8f5;border-radius:15px;background:#fff;color:#8190a5;text-align:center;font-size:14px}
 
-/* The profile uses the same navigation, but the cover/content fill a much wider canvas. */
+
 .profile-page.feed-page:not(.community-page) .feed-layout{grid-template-columns:232px minmax(0,1fr);max-width:1430px;gap:28px}
 .profile-page.feed-page:not(.community-page) .feed-main{max-width:none;gap:16px}
 .profile-page.feed-page:not(.community-page) .ui-profile-title-row-001{padding:0 4px}
@@ -92,9 +91,9 @@ body.profile-page.feed-page:not(.community-page) .feed-layout{
  display:grid;grid-template-columns:minmax(0,1fr);justify-content:center;align-items:start;
  width:min(calc(100% - 40px),1000px);max-width:1000px;gap:0;flex:1
 }
-/* The member cover begins exactly at the shared header edge. */
+
 body.profile-page.feed-page:not(.community-page) .feed-layout{margin:0 auto 70px}
-/* Member profile: one shared profile layout for self and other members. */
+
 body.profile-page .ui-profile-title-row-001{display:none!important}
 body.profile-page.feed-page:not(.community-page) .profile-hero{border:1px solid #e1e7f1;border-top:0;border-radius:0 0 19px 19px;background:#fff;
  box-shadow:0 10px 32px rgba(37,57,94,.055)
@@ -182,9 +181,8 @@ body.profile-page .profile-avatar-upload-button{
 body.profile-page .profile-avatar-upload-button:hover{background:#e8f0fc;color:#315fc1}
 body.profile-page .profile-media-status{margin:0;padding:0 26px 12px;font:580 12px/1.5 "Onest",system-ui,sans-serif;color:#547397}
 body.profile-page .profile-media-status[data-status="error"]{color:#aa455a}
-/* An uploaded cover replaces the decorative VATRA artwork completely.
-   The edit-cover button remains available to the profile owner. */
-/* The uploaded cover is one full-bleed rectangular image, not a CSS mask/ellipse. */
+
+
 body.profile-page.feed-page:not(.community-page) .profile-cover .ui-profile-cover-photo-001{
  position:absolute;inset:0;display:block;width:100%;height:100%;
  max-width:none;max-height:none;object-fit:cover;object-position:center;
@@ -355,7 +353,7 @@ body.community-page .ui-club-cover-001 .vt-profile-cover-symbol-001{display:none
  body.profile-page .profile-cover-signature{right:13px;bottom:15px;font-size:30px}
  body.profile-page .profile-content-panel,body.profile-page .profile-info{padding:17px}}
 
-/* Post creation is available from the member's own profile in a real modal. */
+
 body.profile-page .profile-compose-dialog{
  width:min(520px,calc(100vw - 30px));max-width:520px;
  max-height:min(86dvh,690px);overflow-y:auto;margin:auto;
@@ -402,10 +400,9 @@ body.profile-page .vt-profile-compose-submit-001:focus-visible{outline:3px solid
 
 
 
-/* Let the avatar's hover menu extend beneath the profile hero without clipping.
-   The cover itself retains overflow:hidden, so its rounded area stays intact. */
+
 body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}
-/* Profile media viewer and story-aware avatar. No changes to other sections. */
+
 body.profile-page .profile-cover-view{
  position:absolute;inset:0;display:block;width:100%;height:100%;
  padding:0;border:0;border-radius:0;background:transparent;}
@@ -519,7 +516,7 @@ body.profile-page .profile-story-viewer-close{
  body.profile-page .profile-media-viewer-stage{padding:4px}
  body.profile-page .profile-media-viewer-heading{font-size:13px}}
 
-/* Profile-not-found is a plain message, not a simulated member profile. */
+
 body.profile-page #profile-not-found[hidden],
 body.profile-page .profile-hero[hidden],
 body.profile-page .profile-panels[hidden]{display:none!important}
@@ -529,8 +526,7 @@ body.profile-page .profile-not-found{
  font:780 clamp(23px,3vw,34px)/1.3 "Onest",system-ui,sans-serif;
  letter-spacing:-.035em
 }
-/* Original photos are interactive, with a subtle darken-and-zoom hover.
-   Do not use a magnifying-glass cursor. */
+
 body.profile-page .profile-avatar-trigger{cursor:pointer}
 body.profile-page .profile-avatar-trigger .profile-avatar.has-photo{
  opacity:1;filter:none;transition:transform .22s ease
@@ -547,8 +543,7 @@ body.profile-page .profile-cover-view{z-index:3}
 body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-menu{
  display:none!important
 }
-/* A photo dialog is a browser top-layer modal; hide the page scrollbar
-   without blocking the independently scrollable comment column. */
+
 html:has(#profile-media-viewer[open]){
  overflow:hidden!important;scrollbar-gutter:auto!important
 }
@@ -703,10 +698,8 @@ body.profile-page .vt-profile-photo-comment-send-001:disabled{
 body.profile-page .vatra-route-skeleton-content{width:min(calc(100% - 32px),1000px);gap:14px;margin-top:0}
 body.profile-page .ui-vatra-skeleton-post-a-001,body.profile-page .ui-vatra-skeleton-post-b-001{max-width:700px;margin:0 auto}
 
-/* Posts published on a profile use the same reading width and card treatment
-   as those same posts in Feed, including the uploaded author photo. */
-/* Two balanced reading columns: personal information has room for full
-   labels/values, while publications remain the primary reading surface. */
+
+
 body.profile-page.feed-page:not(.community-page) .profile-posts-section{
  display:grid;
  width:100%;max-width:none;margin:0;}
@@ -793,7 +786,7 @@ body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-po
 
 @media(max-width:600px){
  body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-card{padding:12px}}
-/* The same feed_posts entry must look the same on a profile and in Feed. */
+
 body.profile-page.feed-page:not(.community-page) .profile-posts-section .feed-post-name{
  color:#34445f;font:760 14px/1.4 "Onest",system-ui,sans-serif
 }
@@ -807,11 +800,11 @@ body.profile-page .profile-posts-section .feed-post-placeholder{
 }
 
 
-/* Profile presence and Feed segment controls: shared stylesheet, no new override files. */
+
 body.profile-page .profile-avatar-wrap .profile-online-dot{pointer-events:none}
 @media(max-width:600px){
  }
-/* Profile information stays at its original location during scrolling. */
+
 body.profile-page.feed-page:not(.community-page) .profile-info{position:static;top:auto;align-self:start}
 body.profile-page .profile-last-seen{
  display:block;color:#8190a8;
@@ -872,7 +865,7 @@ body.profile-page .vt-profile-status-counter-001{
  align-self:flex-end;color:#8b98aa;font-size:11px
 }
 
-/* Profile subnavigation, archived items and saved posts */
+
 body.profile-page .profile-archive-wrap{position:relative;display:flex;align-items:center;flex:none}
 body.profile-page .profile-archive-wrap[hidden]{display:none!important}
 body.profile-page .profile-archive-wrap .ui-profile-archive-arrow-001{width:16px;height:16px;margin-left:5px;transition:transform .2s}
@@ -917,7 +910,7 @@ body.profile-page .vt-profile-post-remove-001{
 }
 body.profile-page .profile-avatar-menu button svg{display:block;width:19px;height:19px;flex:none;color:#7086aa}
 
-/* Separate VATRA status editor uses the same balanced typography as account settings. */
+
 body.profile-page .vt-profile-status-dialog-heading-001{
  margin:0 0 8px;color:#324661;font:780 22px/1.3 "Onest",system-ui,sans-serif;
  letter-spacing:-.035em
@@ -935,7 +928,7 @@ body.profile-page .vt-profile-post-remove-001{flex:none}
 body.profile-page .profile-archive-menu.ui-profile-archive-menu-001{
  position:fixed;z-index:120;width:max-content;max-width:calc(100vw - 20px)
 }
-/* Avatar/story rings stay fixed; only the photo darkens and zooms subtly. */
+
 body.profile-page .profile-avatar.has-photo{
  position:relative;isolation:isolate;overflow:hidden;
  background-position:center;background-size:cover;filter:none;transform:none;
@@ -957,7 +950,7 @@ body.profile-page .profile-cover.has-photo:hover .ui-profile-cover-photo-001,
 body.profile-page .profile-cover.has-photo:focus-within .ui-profile-cover-photo-001{
  transform:scale(1.014);filter:brightness(.97)
 }
-/* Compact and full-size portraits share the supplied WebP system artwork. */
+
 body.feed-page .profile-person-avatar:not(.has-photo),
 body.feed-page .profile-photo-comment-avatar:not(.has-photo){
  background-image:var(--vatra-default-avatar)!important;background-color:#edf2f9!important;
@@ -997,8 +990,7 @@ body.profile-page .profile-extra-row .feed-post-media-video{
  width:100%;max-width:100%;height:auto;max-height:520px;object-fit:contain
 }
 body.profile-page .profile-extra-row .vatra-post-share-preview{width:100%;min-width:0}
-/* Both profile photos have the SAME gentle hover strength, only the image zooms.
-   Do not let focus restored from the fullscreen dialog leave the photo permanently zoomed. */
+
 body.profile-page .profile-avatar.has-photo::after{
  pointer-events:none;transform:scale(1);filter:brightness(1);
  transition:transform .62s cubic-bezier(.25,.78,.2,1),filter .62s ease
@@ -1019,8 +1011,7 @@ body.profile-page .profile-cover.has-photo:focus-within:not(:hover) .ui-profile-
  body.profile-page .profile-avatar.has-photo::after,
  body.profile-page .profile-cover.has-photo .ui-profile-cover-photo-001{transition:none!important}}
 
-/* The profile skeleton has the same 1160px geometry as the finished page.
-   Keep the profile unseen until real avatar and cover are decoded. */
+
 body.profile-page > .vatra-auth-loading:not([data-loading-error="true"]){width:100%!important;max-width:none!important}
 body.profile-page .vatra-route-skeleton-content.ui-vatra-profile-realistic-skeleton-001{
  width:min(calc(100vw - 32px),1160px)!important;max-width:1160px!important;
@@ -1080,11 +1071,8 @@ body.profile-page .profile-media-placeholder{
 body.profile-page .profile-media-placeholder{
   animation:none;background-image:none;background:#e8edf6
  }}
-/* ================================================================
-   ABOUT ME — summary, details dialog, field icons and responsive UI
-   ================================================================ */
-/* VATRA personal-information presentation: compact preview plus full-access dialog.
-   Same Onest/blue-violet visual identity throughout the authenticated application. */
+
+
 body.profile-page.feed-page:not(.community-page) .profile-info{
  gap:0;}
 body.profile-page.feed-page:not(.community-page) .vt-profile-about-heading-001{
@@ -1181,8 +1169,7 @@ body.profile-page .vt-vatra-profile-details-empty-label-001{
  max-width:330px;margin:0;color:#7385a2;font:530 13px/1.65 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-vatra-profile-details-edit-001{cursor:pointer
-}/* VATRA 2026 · Profile information visual system.
-   Icon-led facts and a richly layered editor; no access-level labels in the reader. */
+}
 
 body.profile-page .vatra-profile-summary-icon{
  display:grid;place-items:center;width:33px;height:33px;
@@ -1200,7 +1187,7 @@ body.profile-page.feed-page:not(.community-page) .vt-profile-about-heading-001{
 body.profile-page .vt-profile-about-more-001{
  border-color:#dce7fa;}
 
-/* Details are read-only: viewers see the information, not its privacy metadata. */
+
 body.profile-page .vatra-profile-details-dialog{
  border-color:#dbe4f7;border-radius:22px;
  background:linear-gradient(175deg,#fff 0%,#f9fbff 100%);
@@ -1267,10 +1254,8 @@ body.profile-page .vt-vatra-profile-details-edit-001 svg{width:16px;height:16px}
 body.profile-page .vt-vatra-profile-details-edit-001:hover{background:#e0ebff}
 
 
-/* ================================================================
-   EDIT PROFILE — seven sections, controls, privacy and responsive UI
-   ================================================================ */
-/* VATRA editor — generous editorial type, clear field hierarchy, original styling. */
+
+
 body.profile-page .profile-edit-workspace[hidden],
 body.profile-page .profile-hero[hidden],
 body.profile-page .profile-panels[hidden],
@@ -1279,23 +1264,18 @@ body.profile-page .profile-editor-feedback[hidden],
 body.profile-page .profile-locked-notice[hidden]{display:none!important}
 body.profile-page .profile-edit-workspace{
  display:flex;flex-direction:column;width:100%;min-width:0;
- padding:23px 0 50px;
  animation:vatraProfileEditorIn .25s ease-out
 }
 @keyframes vatraProfileEditorIn{
  from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}
 }
 body.profile-page .profile-editor-header{
- position:relative;display:flex;align-items:center;gap:19px;isolation:isolate;
- min-height:155px;padding:26px 30px;border:1px solid #e1e8f8;border-radius:20px;}
+ position:relative;display:flex;isolation:isolate;}
 body.profile-page .vt-profile-editor-back-001{
- display:grid;place-items:center;flex:none;width:45px;height:45px;padding:0;
- border:1px solid #d9e3f5;border-radius:13px;background:#fff;
- color:#526e9d;font:750 0 "Onest",system-ui,sans-serif;cursor:pointer;
- box-shadow:0 3px 11px rgba(33,65,113,.045);transition:background .18s ease,transform .18s ease
+ display:grid;place-items:center;flex:none;padding:0;
+ color:#526e9d;font:750 0 "Onest",system-ui,sans-serif;cursor:pointer;transition:background .18s ease,transform .18s ease
 }
-body.profile-page .vt-profile-editor-back-001:hover{
- transform:translateX(-2px);background:#eef4ff;color:#315fbe
+body.profile-page .vt-profile-editor-back-001:hover{color:#315fbe
 }
 body.profile-page .vt-profile-editor-back-001 svg{width:22px;height:22px}
 body.profile-page .vt-profile-editor-back-label-001{
@@ -1307,9 +1287,7 @@ body.profile-page .vt-profile-editor-eyebrow-001{font:810 10px/1.4 "Onest",syste
  letter-spacing:.15em
 }
 body.profile-page .vt-profile-editor-title-001{
- margin:0;font:835 clamp(26px,3.4vw,36px)/1.2 "Onest",system-ui,sans-serif;
- letter-spacing:-.052em
-}
+ margin:0;}
 body.profile-page .vt-profile-editor-subtitle-001{
  max-width:590px;margin:0;
  font:495 13.5px/1.65 "Onest",system-ui,sans-serif
@@ -1321,20 +1299,17 @@ body.profile-page .vt-profile-editor-privacy-pill-001{
 }
 body.profile-page .vt-profile-editor-privacy-pill-001 svg{width:15px;height:15px}
 body.profile-page .profile-editor-layout{
- display:grid;grid-template-columns:minmax(222px,250px) minmax(0,1fr);
- gap:17px;align-items:start;min-width:0
+ display:grid;min-width:0
 }
 body.profile-page .profile-editor-main,
 body.profile-page .profile-editor-sidebar{
  min-width:0;border:1px solid #e2e9f5;border-radius:18px;background:#fff;
  box-shadow:0 8px 24px rgba(38,54,98,.04)
 }
-body.profile-page .profile-editor-main{padding:29px clamp(22px,3vw,36px) 24px}
+body.profile-page .profile-editor-main{}
 body.profile-page .profile-editor-form{display:flex;flex-direction:column;gap:0;min-width:0}
 body.profile-page .profile-editor-section-head{
- display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
- padding:0 0 16px;border-bottom:1px solid #e9eef7
-}
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;}
 body.profile-page .ui-profile-editor-section-title-wrap-001{
  display:flex;flex-direction:column;gap:7px;min-width:0
 }
@@ -1342,9 +1317,7 @@ body.profile-page .vt-profile-editor-chapter-001{
  color:#6984c5;font:820 10px/1.4 "Onest",system-ui,sans-serif;letter-spacing:.16em
 }
 body.profile-page .vt-profile-editor-section-title-001{
- margin:0;font:820 clamp(21px,2.3vw,25px)/1.3 "Onest",system-ui,sans-serif;
- letter-spacing:-.043em
-}
+ margin:0;}
 body.profile-page .vt-profile-editor-media-button-001{
  display:inline-flex;align-items:center;gap:7px;flex:none;
  min-height:39px;padding:9px 12px;border:1px solid #d7e4fa;border-radius:10px;
@@ -1352,8 +1325,7 @@ body.profile-page .vt-profile-editor-media-button-001{
 }
 body.profile-page .vt-profile-editor-media-button-001[hidden]{display:none!important}
 body.profile-page .vt-profile-editor-media-button-001:hover{background:#e7efff;color:#2b5db5}
-body.profile-page .vt-profile-editor-section-description-001{
- margin:16px 0 22px;font:500 13px/1.6 "Onest",system-ui,sans-serif
+body.profile-page .vt-profile-editor-section-description-001{font:500 13px/1.6 "Onest",system-ui,sans-serif
 }
 body.profile-page .profile-editor-label-row{
  display:flex;justify-content:space-between;align-items:center;gap:8px;
@@ -1368,26 +1340,22 @@ body.profile-page .profile-editor-fields{
  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0
 }
 body.profile-page .profile-editor-privacy{
- grid-column:1/-1;display:grid;grid-template-columns:42px minmax(0,1fr) minmax(160px,205px);
- align-items:center;gap:14px;margin:0 0 6px;padding:17px;
- border:1px solid #dce7fc;border-radius:14px;}
+ grid-column:1/-1;display:grid;
+ align-items:center;}
 body.profile-page .ui-profile-editor-privacy-symbol-001{
- display:grid;place-items:center;width:41px;height:41px;border:1px solid #d7e4fb;
- border-radius:12px;background:#fff;}
+ display:grid;place-items:center;
+ border-radius:12px;}
 body.profile-page .ui-profile-editor-privacy-symbol-001 svg{width:20px;height:20px}
 body.profile-page .ui-profile-editor-privacy-copy-001{display:flex;flex-direction:column;gap:5px;min-width:0}
-body.profile-page .vt-profile-editor-privacy-heading-001{font:790 13px/1.4 "Onest",system-ui,sans-serif
-}
-body.profile-page .vt-profile-editor-privacy-help-001{
- color:#8294b1;font:505 11px/1.55 "Onest",system-ui,sans-serif
-}
+body.profile-page .vt-profile-editor-privacy-heading-001{}
+body.profile-page .vt-profile-editor-privacy-help-001{}
 body.profile-page .ui-profile-editor-page-visibility-001{
- width:100%;min-height:43px;padding:9px 11px;border:1px solid #cddbf5;border-radius:10px;
- background:#fff;color:#3e629c;font:725 11.7px/1.4 "Onest",system-ui,sans-serif;
+ width:100%;padding:9px 11px;border:1px solid #cddbf5;border-radius:10px;
+ background:#fff;
  cursor:pointer;outline-offset:3px
 }
 body.profile-page .profile-editor-field{
- display:flex;flex-direction:column;gap:10px;min-width:0;padding:16px;
+ display:flex;flex-direction:column;min-width:0;
  transition:border-color .18s ease,box-shadow .18s ease
 }
 
@@ -1396,11 +1364,11 @@ body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"]{ma
  font:755 13.5px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.015em
 }
 body.profile-page [class^="ui-profile-editor-field-control-"]{
- display:flex;flex-direction:column;gap:11px;min-width:0
+ display:flex;flex-direction:column;min-width:0
 }
 body.profile-page [class^="ui-profile-editor-input-"]{
- box-sizing:border-box;display:block;width:100%;min-width:0;min-height:45px;
- margin:0;padding:11px 12px;border:1px solid #dfe6f3;border-radius:9px;color:#354663;outline:none;
+ box-sizing:border-box;display:block;width:100%;min-width:0;
+ margin:0;padding:11px 12px;border:1px solid #dfe6f3;color:#354663;outline:none;
  font:540 13.5px/1.5 "Onest",system-ui,sans-serif;
  transition:border-color .17s ease,box-shadow .17s ease,background .17s ease;resize:vertical
 }
@@ -1408,7 +1376,7 @@ body.profile-page [class^="ui-profile-editor-input-"]:focus{
  border-color:#6998ed;box-shadow:0 0 0 3px rgba(80,132,224,.11)
 }
 body.profile-page [class^="ui-profile-editor-input-"]::placeholder{color:#a1acc0}
-body.profile-page .profile-editor-field textarea{min-height:111px;resize:vertical}
+body.profile-page .profile-editor-field textarea{}
 body.profile-page [class^="ui-profile-editor-disclosure-"]{
  display:flex;align-items:center;justify-content:flex-start;gap:8px;min-width:0
 }
@@ -1422,20 +1390,13 @@ body.profile-page [class^="ui-profile-editor-visibility-"]{
  font:705 11px/1.45 "Onest",system-ui,sans-serif;cursor:pointer
 }
 body.profile-page .profile-editor-footer{
- position:sticky;bottom:10px;z-index:2;
- display:flex;justify-content:flex-end;align-items:center;gap:12px;
- margin-top:22px;padding:13px 15px;border:1px solid #e3eaf5;border-radius:13px;
- background:rgba(255,255,255,.97);box-shadow:0 6px 24px rgba(31,51,94,.07);
- backdrop-filter:blur(10px)
-}
+ display:flex;align-items:center;gap:12px;}
 body.profile-page .vt-profile-editor-feedback-001{
  flex:1;margin:0;color:#ad475d;font:680 11.6px/1.5 "Onest",system-ui,sans-serif
 }
 body.profile-page .vt-profile-editor-feedback-001[data-kind="success"]{color:#267957}
-body.profile-page .vt-profile-editor-save-001{
- min-height:45px;padding:10px 20px;border:0;border-radius:10px;color:#fff;
- font:770 12.5px/1.3 "Onest",system-ui,sans-serif;
- cursor:pointer;white-space:nowrap;box-shadow:0 6px 17px rgba(63,102,207,.18);
+body.profile-page .vt-profile-editor-save-001{border:0;color:#fff;
+ cursor:pointer;white-space:nowrap;
  transition:filter .18s ease,transform .18s ease
 }
 body.profile-page .vt-profile-editor-save-001:hover:not(:disabled){
@@ -1443,23 +1404,18 @@ body.profile-page .vt-profile-editor-save-001:hover:not(:disabled){
 }
 body.profile-page .vt-profile-editor-save-001:disabled{opacity:.6;cursor:wait}
 body.profile-page .profile-editor-sidebar{
- position:sticky;top:calc(var(--vatra-header-height,78px) + 14px);
- padding:22px 12px 14px;}
+ position:sticky;top:calc(var(--vatra-header-height,78px) + 14px);}
 body.profile-page .ui-profile-editor-nav-heading-001{
- display:flex;flex-direction:column;gap:6px;margin:0 7px 14px;
- padding:2px 7px 19px;border-bottom:1px solid #e0e8f6
-}
+ display:flex;flex-direction:column;gap:6px;}
 body.profile-page .vt-profile-editor-nav-eyebrow-001{font:810 9.7px/1.45 "Onest",system-ui,sans-serif;letter-spacing:.16em
 }
-body.profile-page .vt-profile-editor-nav-title-001{font:810 19px/1.3 "Onest",system-ui,sans-serif;letter-spacing:-.038em
+body.profile-page .vt-profile-editor-nav-title-001{letter-spacing:-.038em
 }
 body.profile-page .vt-profile-editor-nav-subtitle-001{font:525 11px/1.5 "Onest",system-ui,sans-serif
 }
-body.profile-page .ui-profile-editor-nav-menu-001{display:flex;flex-direction:column;gap:4px}
+body.profile-page .ui-profile-editor-nav-menu-001{display:flex;flex-direction:column;}
 body.profile-page .profile-editor-nav-link{
- display:flex;align-items:center;width:100%;padding:10px 12px;border:1px solid transparent;border-radius:11px;
- background:transparent;text-align:left;
- font:710 12px/1.45 "Onest",system-ui,sans-serif;cursor:pointer;
+ display:flex;align-items:center;width:100%;text-align:left;cursor:pointer;
  transition:background .16s ease,border-color .16s ease,color .16s ease
 }
 body.profile-page .profile-editor-nav-link > [class^="vt-profile-editor-nav-index-"]{
@@ -1489,29 +1445,27 @@ body.profile-page .vt-profile-locked-heading-001{color:#374763;font:770 18px/1.4
 body.profile-page .vt-profile-locked-description-001{color:#71829b;font:480 13px/1.65 "Onest",system-ui,sans-serif
 }
 @media(max-width:900px){
- body.profile-page .profile-editor-layout{grid-template-columns:minmax(0,1fr)}
- body.profile-page .profile-editor-sidebar{
-  position:relative;top:auto;padding:11px 13px;overflow-x:auto;scrollbar-width:thin
+ body.profile-page .profile-editor-layout{}
+ body.profile-page .profile-editor-sidebar{top:auto;overflow-x:auto;scrollbar-width:thin
  }
  body.profile-page .ui-profile-editor-nav-heading-001,
  body.profile-page .ui-profile-editor-nav-footer-001{display:none}
- body.profile-page .ui-profile-editor-nav-menu-001{flex-direction:row;width:max-content}
- body.profile-page .profile-editor-nav-link{width:auto;white-space:nowrap;padding:8px 12px}
+ body.profile-page .ui-profile-editor-nav-menu-001{}
+ body.profile-page .profile-editor-nav-link{}
  body.profile-page .profile-editor-header{padding:21px}
  body.profile-page .vt-profile-editor-privacy-pill-001{display:none}}
 @media(max-width:620px){
- body.profile-page .profile-edit-workspace{gap:12px;padding-top:15px}
- body.profile-page .profile-editor-header{gap:13px;align-items:flex-start;padding:20px 16px}
+ body.profile-page .profile-edit-workspace{padding-top:15px}
+ body.profile-page .profile-editor-header{align-items:flex-start;}
  body.profile-page .vt-profile-editor-back-001{width:38px;height:38px}
  body.profile-page .vt-profile-editor-title-001{font-size:25px}
  body.profile-page .vt-profile-editor-subtitle-001{font-size:12px}
- body.profile-page .profile-editor-main{padding:21px 14px}
- body.profile-page .profile-editor-fields{grid-template-columns:minmax(0,1fr);gap:11px}
- body.profile-page .profile-editor-privacy{
-  grid-template-columns:38px minmax(0,1fr);padding:12px;gap:10px
+ body.profile-page .profile-editor-main{}
+ body.profile-page .profile-editor-fields{}
+ body.profile-page .profile-editor-privacy{gap:10px
  }
  body.profile-page .ui-profile-editor-privacy-symbol-001{width:37px;height:37px}
- body.profile-page .ui-profile-editor-page-visibility-001{grid-column:1/-1}
+ body.profile-page .ui-profile-editor-page-visibility-001{}
  body.profile-page .profile-editor-field{padding:14px}
  body.profile-page .vt-profile-editor-label-row-caption-001{display:none}
  body.profile-page .profile-editor-footer{flex-direction:column;align-items:stretch}
@@ -1526,25 +1480,18 @@ body.profile-page .vt-profile-locked-description-001{color:#71829b;font:480 13px
  body.profile-page .vt-profile-about-more-001,
  body.profile-page .vt-profile-editor-save-001,
  body.profile-page .vt-profile-editor-back-001,
- body.profile-page .profile-editor-nav-link{transition:none}}/* Editor: the framing makes its structure obvious instead of a white-on-white form.
-   The navigation has a distinct VATRA-indigo identity; controls sit on lavender canvas. */
-body.profile-page .profile-edit-workspace{gap:19px}
+ body.profile-page .profile-editor-nav-link{transition:none}}
+body.profile-page .profile-edit-workspace{}
 body.profile-page .profile-editor-header{
- border-color:#cddcf7;
- background:
-  radial-gradient(ellipse 240px 180px at 97% 8%,rgba(144,121,237,.24),transparent 84%),
-  radial-gradient(ellipse 260px 120px at 22% 100%,rgba(84,126,224,.24),transparent 88%),
-  linear-gradient(118deg,#eaf2ff 2%,#f2f2ff 73%,#f9f9ff 100%);
- box-shadow:0 10px 25px rgba(53,84,150,.075)
-}
+ border-color:#cddcf7;}
 body.profile-page .vt-profile-editor-eyebrow-001{color:#5e6bbc;font-weight:850}
-body.profile-page .vt-profile-editor-title-001{color:#243a66;font-weight:860}
+body.profile-page .vt-profile-editor-title-001{font-weight:860}
 body.profile-page .vt-profile-editor-subtitle-001{color:#647ba5}
 body.profile-page .vt-profile-editor-privacy-pill-001{
  color:#466cae;background:rgba(255,255,255,.75);border-color:#ceddf7
 }
 body.profile-page .profile-editor-sidebar{
- border-color:#444f99;overflow:hidden;
+ border-color:#444f99;
  background:
   radial-gradient(ellipse 260px 175px at 104% -6%,rgba(152,135,244,.24),transparent 88%),
   linear-gradient(158deg,#2b427e 0%,#36477e 52%,#493a86 100%);
@@ -1554,12 +1501,9 @@ body.profile-page .ui-profile-editor-nav-heading-001{
  border-bottom-color:rgba(218,230,255,.18)
 }
 body.profile-page .vt-profile-editor-nav-eyebrow-001{color:#c3cff6}
-body.profile-page .vt-profile-editor-nav-title-001{color:#fff}
+body.profile-page .vt-profile-editor-nav-title-001{}
 body.profile-page .vt-profile-editor-nav-subtitle-001{color:#bfcbf0}
-body.profile-page .profile-editor-nav-link{
- color:#dce6ff;border-color:transparent;
- gap:8px;font-size:12.5px;font-weight:710;min-height:51px
-}
+body.profile-page .profile-editor-nav-link{border-color:transparent;font-weight:710;}
 body.profile-page .profile-editor-nav-link > [class^="vt-profile-editor-nav-index-"]{
  color:#91abe3;font-size:9.5px
 }
@@ -1568,20 +1512,11 @@ body.profile-page .profile-editor-nav-link [class^="ui-vatra-profile-information
  flex:none;width:17px;height:17px
 }
 body.profile-page [class^="ui-vatra-profile-editor-nav-symbol-"]{
- display:grid;place-items:center;flex:none;width:29px;height:29px;
- border:1px solid rgba(226,233,255,.17);border-radius:9px;
- background:rgba(255,255,255,.075);color:#d8e5ff
+ display:grid;place-items:center;flex:none;}
+body.profile-page .profile-editor-nav-link:hover{border-color:rgba(231,238,255,.15)
 }
-body.profile-page .profile-editor-nav-link:hover{
- background:rgba(238,241,255,.12);color:#fff;border-color:rgba(231,238,255,.15)
-}
-body.profile-page .profile-editor-nav-link.is-active{
- background:#fff;border-color:#fff;color:#3558ab;
- box-shadow:0 5px 14px rgba(16,27,67,.18)
-}
-body.profile-page .profile-editor-nav-link.is-active [class^="ui-vatra-profile-editor-nav-symbol-"]{
- background:#edf2ff;border-color:#dce6fb;color:#496fcb
-}
+body.profile-page .profile-editor-nav-link.is-active{border-color:#fff;}
+body.profile-page .profile-editor-nav-link.is-active [class^="ui-vatra-profile-editor-nav-symbol-"]{border-color:#dce6fb;}
 body.profile-page .profile-editor-nav-link.is-active > [class^="vt-profile-editor-nav-index-"]{
  color:#6179c2
 }
@@ -1596,36 +1531,22 @@ body.profile-page .profile-editor-main{
   #f7f9ff;
  box-shadow:0 9px 27px rgba(38,71,135,.07)
 }
-body.profile-page .vt-profile-editor-section-title-001{color:#2d4370}
-body.profile-page .vt-profile-editor-section-description-001{color:#697f9f}
+body.profile-page .vt-profile-editor-section-title-001{}
+body.profile-page .vt-profile-editor-section-description-001{}
 body.profile-page .profile-editor-label-row{border-bottom-color:#dce6f8}
 body.profile-page .vt-profile-editor-label-row-title-001{color:#4966a0}
-body.profile-page .profile-editor-fields{gap:14px}
-body.profile-page .profile-editor-field{
- border:1px solid #dce5f7;border-radius:13px;
- background:#fff;
- box-shadow:0 4px 13px rgba(37,66,125,.045)
-}
+body.profile-page .profile-editor-fields{}
+body.profile-page .profile-editor-field{}
 body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"]{
- display:flex;align-items:center;gap:9px;color:#384e77
-}
-body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"] svg{
- width:18px;height:18px;flex:none;color:#637fd0
-}
+ display:flex;align-items:center;gap:9px;}
+body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"] svg{flex:none;}
 body.profile-page .profile-editor-field:focus-within{
- border-color:#96b4ef;box-shadow:0 0 0 3px rgba(107,141,223,.14)
-}
-body.profile-page [class^="ui-profile-editor-input-"]{
- border-color:#d7e2f5;background:#f7f9ff
-}
+ border-color:#96b4ef;}
+body.profile-page [class^="ui-profile-editor-input-"]{}
 body.profile-page [class^="ui-profile-editor-input-"]:focus{background:#fff}
-body.profile-page .profile-editor-privacy{
- border-color:#cbdafa;
- background:linear-gradient(115deg,#e8f0ff,#f0ecff);
- box-shadow:inset 0 1px 0 rgba(255,255,255,.85)
-}
-body.profile-page .vt-profile-editor-privacy-heading-001{color:#35518d}
-body.profile-page .ui-profile-editor-privacy-symbol-001{color:#5572cb}
+body.profile-page .profile-editor-privacy{}
+body.profile-page .vt-profile-editor-privacy-heading-001{}
+body.profile-page .ui-profile-editor-privacy-symbol-001{}
 body.profile-page .vt-profile-editor-save-001{
  background:var(--vatra-action-primary)
 }
@@ -1634,9 +1555,9 @@ body.profile-page .vt-profile-editor-save-001{
   background:linear-gradient(125deg,#334b88,#55428d);
   box-shadow:0 6px 18px rgba(39,49,109,.12)
  }
- body.profile-page .ui-profile-editor-nav-menu-001{gap:9px}
+ body.profile-page .ui-profile-editor-nav-menu-001{}
  body.profile-page .profile-editor-nav-link{
-  border-color:rgba(231,238,255,.14);min-height:43px;
+  border-color:rgba(231,238,255,.14);
   background:rgba(255,255,255,.06)
  }}
 @media(max-width:560px){
@@ -1648,9 +1569,7 @@ body.profile-page .vt-profile-editor-save-001{
  body.profile-page .vatra-profile-detail-icon{grid-row:1/3;align-self:start;margin-top:3px}
  body.profile-page [class^="vt-profile-detail-value-"]{grid-column:2}}
 
-/* PROFILE READING · the same composition for the owner and every visitor.
-   Biography is a centered note, facts are compact and typographic, and
-   publication filters use a quiet accessible popover. */
+
 body.profile-page.feed-page:not(.community-page) .profile-posts-section{
  grid-template-columns:minmax(0,37.5%) minmax(0,1fr);
  gap:16px;align-items:start
@@ -1765,8 +1684,7 @@ body.profile-page .vt-profile-post-filter-status-001[hidden]{display:none!import
  body.profile-page .vt-profile-post-filter-button-001{transition:none}
 }
 
-/* Consistent portraits: fallback silhouette sits exactly in the circle.
-   Do not stretch a tiny translucent SVG behind its border. */
+
 body.profile-page.feed-page .profile-avatar:not(.has-photo){
  position:relative;display:grid;place-items:center;overflow:hidden;
  isolation:isolate;background:#e9f0fa;
@@ -1789,7 +1707,7 @@ body.profile-page .profile-avatar-menu button[hidden]{display:none!important}
 body.profile-page .profile-avatar-wrap:not(.has-active-story) .profile-avatar-trigger:disabled{
  cursor:default
 }
-/* Each profile has one visual grid, regardless of the viewer's account. */
+
 body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
  width:100%;box-sizing:border-box;}
 @media(prefers-reduced-motion:reduce){
@@ -1798,7 +1716,7 @@ body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
 }
 
 
-/* Profile 2026: shared About → Friends → Gifts stack, with equal cards for all members. */
+
 body.profile-page .profile-left-stack{
  display:flex;flex-direction:column;gap:14px;min-width:0
 }
@@ -1915,7 +1833,7 @@ body.profile-page [class^="vt-profile-community-symbol-"]{
 body.profile-page .vt-profile-communities-description-001,
 body.profile-page .vt-profile-clips-empty-001{color:#7183a2;font-size:13px}
 
-/* Reporting: native modal for focus trapping, accessible keyboard and dim+blur backdrop. */
+
 body.profile-page .profile-report-dialog{
  width:min(680px,calc(100vw - 22px));max-width:680px;
  max-height:min(820px,calc(100dvh - 28px));padding:0;margin:auto;
@@ -2020,7 +1938,7 @@ body.profile-page .vt-profile-report-locked-001{
 }
 
 
-/* VATRA profile refinements: six friends fit in two calm rows, gifts retain more space. */
+
 body.profile-page .profile-mini-card{gap:12px;padding:18px 19px 14px}
 body.profile-page .profile-mini-card > h2{font-size:17px;margin:0;padding-bottom:12px}
 body.profile-page .profile-friends-preview-grid{gap:13px 7px;
@@ -2038,7 +1956,7 @@ body.profile-page .profile-gifts-preview-grid .profile-gift-art{
 body.profile-page .profile-gift-tile .vt-profile-gift-name-001{
  font:755 11.5px/1.3 "Onest",system-ui,sans-serif
 }
-/* Bottom actions share an aligned, centered label and nearby arrow. */
+
 body.profile-page .profile-mini-more,
 body.profile-page .vt-profile-about-more-001{
  display:flex;align-items:center;justify-content:center;gap:8px;
@@ -2057,7 +1975,7 @@ body.profile-page .profile-mini-more [class$="-arrow-001"]{
 body.profile-page .profile-mini-more:hover [class$="-arrow-001"]{transform:translateX(3px)}
 body.profile-page .vt-profile-about-more-001 svg{
  width:16px;height:16px;}
-/* Profile actions occupy the far side of the navigation without changing tab spacing. */
+
 body.profile-page .social-profile-tabs{padding-left:26px;padding-right:26px}
 @media(max-width:650px){
  body.profile-page .social-profile-tabs{padding-left:9px;padding-right:9px}
@@ -2066,8 +1984,7 @@ body.profile-page .social-profile-tabs{padding-left:26px;padding-right:26px}
  }
  body.profile-page .profile-gifts-preview-grid .profile-gift-art{width:min(100%,73px)}
 }
-/* Empty state artwork is only visible when the original translated note is visible.
-   Keeping each original <p> means profile data and loading handlers remain untouched. */
+
 body.profile-page .profile-content-panel :is(
  #profile-photos-empty,#profile-videos-empty,.vt-profile-clips-empty-001,
  #profile-communities-empty,#profile-friends-empty,#profile-gifts-empty,
@@ -2111,7 +2028,7 @@ body.profile-page #profile-inbox-empty::before{background-image:url('data:image/
 }
 
 
-/* Private page: centered explanation, no interactive report action. */
+
 body.profile-page.feed-page:not(.community-page) .profile-locked-notice{
  display:flex;flex-direction:column;justify-content:center;align-items:center;
  gap:10px;text-align:center;padding:28px 20px;margin-top:0;
@@ -2148,7 +2065,7 @@ body.profile-page .profile-gift-full:focus-visible{
 }
 
 
-/* Gift preview buttons remain illustration tiles, never native grey buttons. */
+
 body.profile-page .profile-gift-tile{
  display:flex;flex-direction:column;align-items:center;justify-content:center;
  gap:5px;width:100%;min-width:0;margin:0;padding:0;
@@ -2158,7 +2075,7 @@ body.profile-page .profile-gift-tile{
 body.profile-page .profile-gift-full{appearance:none}
 
 
-/* Profile identity: the name stays aligned, with a clearly legible status below. */
+
 body.profile-page.feed-page:not(.community-page) .profile-identity{min-height:91px;
  margin:0;box-sizing:border-box
 }
@@ -2181,7 +2098,7 @@ body.profile-page .profile-identity .profile-last-seen:not([hidden]){
  display:block;align-self:flex-start;margin:1px 0 0;
  text-align:left;color:#8296b2;font:530 12px/1.45 "Onest",system-ui,sans-serif
 }
-/* Private profile media are visible portraits, never interactive/animated. */
+
 body.profile-page[data-profile-locked="true"] .profile-avatar-wrap,
 body.profile-page[data-profile-locked="true"] .profile-avatar-trigger,
 body.profile-page[data-profile-locked="true"] .profile-cover,
@@ -2214,7 +2131,7 @@ body.profile-page[data-profile-locked="true"] .profile-avatar-wrap.has-active-st
 body.profile-page[data-profile-locked="true"] .profile-avatar-wrap .profile-avatar.has-photo{
  box-shadow:0 0 0 1px #cfddff,0 9px 24px rgba(44,79,176,.12)
 }
-/* Every missing friend picture shows a complete, crisp silhouette. */
+
 body.profile-page .profile-friend-portrait,
 body.vatra-friends-page .vatra-friends-portrait{
  position:relative;display:block;overflow:hidden;
@@ -2244,7 +2161,7 @@ body.profile-page .profile-friend-portrait.has-photo{
  body.profile-page .profile-identity .profile-status:not([hidden]){font-size:12.5px}
 }
 
-/* Media stories share the same full-size portrait viewer; plain-text stories stay unchanged. */
+
 body.profile-page .profile-story-viewer-media{
  display:grid;place-items:center;flex:1;min-height:230px;max-height:60dvh;
  width:100%;overflow:hidden;border-radius:12px;background:rgba(13,24,48,.22);
@@ -2270,11 +2187,11 @@ body.profile-page .vt-profile-archived-story-open-001:hover{
  background:#e3edff;border-color:#bed0ef
 }
 
-/* Story rings are only for real uploaded portraits; system artwork has fixed colors. */
+
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger{cursor:default}
 body.profile-page .profile-avatar-wrap[data-vatra-system-avatar="true"] .profile-avatar-trigger .profile-avatar{transition:none!important;filter:none!important;transform:none!important}
 
-/* Override legacy CSS-drawn silhouettes with the supplied high-resolution WebP. */
+
 body.profile-page.feed-page .profile-avatar:not(.has-photo){background-color:#e9f0fa;background-image:var(--vatra-default-avatar)!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
 body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
@@ -2283,7 +2200,7 @@ body.profile-page.feed-page .profile-avatar:not(.has-photo)::before,body.profile
 body.profile-page .profile-friend-portrait:not(.has-photo){background-image:var(--vatra-default-avatar)!important;background-size:cover!important;background-position:center!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="deleted"]:not(.has-photo){background-image:var(--vatra-deleted-avatar)!important}
 body.profile-page .profile-friend-portrait[data-vatra-avatar-state="blocked"]:not(.has-photo){background-image:var(--vatra-blocked-avatar)!important}
-/* Full Vatryk illustrations fit inside the existing circular avatar surface. */
+
 body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="blocked"]:not(.has-photo),
 body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="deleted"]:not(.has-photo),
 body.profile-page.feed-page .profile-avatar[data-vatra-avatar-state="not-found"]:not(.has-photo),
@@ -2293,14 +2210,11 @@ body.profile-page .profile-friend-portrait[data-vatra-avatar-state="not-found"]:
  background-size:contain!important;background-position:center!important;background-color:#edf2f9!important
 }
 
-/* System portraits and private profiles are noninteractive, never translucent.
-   The global disabled-button opacity must not fade a portrait inside the button. */
+
 body.profile-page .profile-avatar-trigger:disabled{
  opacity:1!important;filter:none!important
 }
-/* Profile avatar ring rules. Uploaded portrait: white except when a story is active.
-   Four built-in PNG portraits use their own constant ring color, even with a story.
-   Never sample an uploaded photo to determine the ring color. */
+
 body.profile-page .profile-avatar-wrap::before{
  content:"";position:absolute;z-index:0;
  border-radius:50%;background:#fff;
@@ -2311,10 +2225,9 @@ body.profile-page .profile-avatar-wrap.has-active-story:not([data-vatra-ring-kin
  background:conic-gradient(from 40deg,#376de8,#8257df,#f44e9d,#376de8);
  box-shadow:0 0 0 1px #e3e9f4
 }
-/* System portraits use the same white ring; only active Stories use VATRA's gradient. */
- /* System cover illustrations are CSS-embedded SVGs with one full-bleed geometry. */
-/* The system cover matches its stronger SVG palette even before the image loads.
-   Uploaded member photos keep their own full-bleed rendering and no overlay. */
+
+ 
+
 body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover:not(.has-photo){
  background:linear-gradient(105deg,#9db8d7 0%,#b3c9e2 44%,#c8cbe2 75%,#ddc9dd 100%)!important
 }
@@ -2349,9 +2262,7 @@ body.profile-page.feed-page:not(.community-page) .profile-cover.has-system-cover
 }
 
 
-/* Portraits keep the tight fixed-color rim while restoring a balanced,
-   larger photo on own, public and private profiles. The name, status and
-   last-seen line share one consistent left edge. */
+
 body.profile-page.feed-page:not(.community-page) .profile-summary{
  grid-template-columns:146px minmax(0,1fr) auto;column-gap:18px;align-items:center;
  min-height:122px;padding-bottom:20px
@@ -2404,7 +2315,7 @@ body.profile-page .profile-avatar-wrap .profile-online-dot{
   width:17px;height:17px;right:0;bottom:3px;border-width:3px
  }
 }
-/* Two icon-only safety controls, visually separate from content tabs. */
+
 body.profile-page .profile-safety-action{
  flex:none;display:grid;place-items:center;width:46px;min-width:46px;
  height:52px;min-height:52px;padding:0!important;margin-right:0;
@@ -2441,9 +2352,7 @@ body.profile-page .profile-locked-notice[data-lock-reason="block"] .ui-profile-l
  max-width:520px
 }
 
-/* Single VATRA decision dialog, used for blocking and destructive profile
-   actions. Native <dialog> gives focus containment, Escape and screen-reader
-   semantics without browser confirmation popups. */
+
 body.profile-page .profile-confirm-dialog{
  box-sizing:border-box;width:min(450px,calc(100vw - 30px));max-width:450px;
  max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px 25px 22px;
@@ -2522,7 +2431,7 @@ body.profile-page .profile-confirm-dialog :is(button):focus-visible{
 }
 
 
-/* VATRA coherent 2026 profile layout: the same rhythm for full/empty cards. */
+
 body.profile-page.feed-page:not(.community-page) .profile-posts-section,
 body.profile-page .profile-posts-main,
 body.profile-page .profile-left-stack{gap:16px!important}
@@ -2665,9 +2574,7 @@ body.profile-page .vt-profile-story-compose-error-001:not([hidden]){margin:0;col
 }
 
 
-/* Keep the two owner-profile header actions on exactly the same baseline.
-   The generic .social-profile-create rule sets margin-top:13px, which
-   otherwise overrides the less-specific .profile-actions button reset. */
+
 body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile-add-story,#profile-edit-open){
  display:inline-flex;
  flex:0 0 auto;
@@ -2706,8 +2613,7 @@ body.profile-page.feed-page:not(.community-page) .profile-actions > :is(#profile
 }
 
 
-/* Neutral placeholders are full-bleed artwork: the browser draws the only
-   circular crop and rim. No inset artwork ring, second outline or shadow. */
+
 body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-avatar:not(.has-photo){
  box-sizing:border-box;
  border:4px solid #fff!important;
@@ -2720,9 +2626,7 @@ body.profile-page.feed-page:not(.community-page) .profile-avatar-wrap .profile-a
 }
 
 
-/* Global profile-card rhythm, independent of the viewed member and whether
-   posts, friends, media, archives or saved items are present. Empty list
-   containers used to consume a second flex gap before their empty messages. */
+
 body.profile-page{
  --vatra-content-card-gap:16px;
 }
@@ -2738,8 +2642,7 @@ body.profile-page :is(
 ):not(:has(> *)){
  display:none!important;
 }
-/* No placeholder track between the composer and "No posts yet"; populated
-   post lists reappear automatically as soon as the first card is inserted. */
+
 body.profile-page #profile-posts-empty:not([hidden]){
  min-height:205px;
 }
@@ -2755,9 +2658,7 @@ body.profile-page .profile-content-panel :is(
 }
 
 
-/* System profiles inherit the ordinary portrait size and cover overlap.
-   With status/actions hidden there is only one title line, so visually center
-   that line on the same portrait while keeping the shared left inset. */
+
 body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{
  position:relative;top:-18px
 }
@@ -2768,12 +2669,11 @@ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{
  body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-22px}
 }
 
-body.profile-page .profile-edit-workspace{max-width:1100px;margin:0 auto;gap:16px;padding:18px 0 45px}
-body.profile-page .profile-editor-header{
- min-height:0;padding:17px 22px;gap:15px;border:1px solid #e1e8f3;border-radius:16px;
- background:#fff;box-shadow:0 4px 20px rgba(38,54,98,.04);align-items:center
+body.profile-page .profile-edit-workspace{margin:0 auto;padding:18px 0 45px}
+body.profile-page .profile-editor-header{border:1px solid #e1e8f3;
+ background:#fff;align-items:center
 }
-body.profile-page .vt-profile-editor-back-001{width:40px;height:40px;border:0;background:#f1f5fb;box-shadow:none}
+body.profile-page .vt-profile-editor-back-001{border:0;background:#f1f5fb;box-shadow:none}
 body.profile-page .vt-profile-editor-back-001:hover{transform:none;background:#e7eefb}
 body.profile-page .vt-profile-editor-eyebrow-001,body.profile-page .vt-profile-editor-subtitle-001,
 body.profile-page .vt-profile-editor-privacy-pill-001,body.profile-page .vt-profile-editor-chapter-001,
@@ -2781,24 +2681,21 @@ body.profile-page .vt-profile-editor-nav-eyebrow-001,body.profile-page .vt-profi
 body.profile-page .profile-editor-nav-link > [class^="vt-profile-editor-nav-index-"],
 body.profile-page .profile-editor-nav-link > [class^="vt-profile-editor-nav-dot-"],
 body.profile-page .ui-profile-editor-nav-footer-001,body.profile-page .profile-editor-label-row{display:none}
-body.profile-page .vt-profile-editor-title-001{font:800 clamp(21px,2.2vw,28px)/1.25 Onest,system-ui,sans-serif;letter-spacing:-.035em;color:#2c3850}
-body.profile-page .profile-editor-layout{grid-template-columns:minmax(200px,232px) minmax(0,1fr);gap:16px}
+body.profile-page .vt-profile-editor-title-001{color:#2c3850}
+body.profile-page .profile-editor-layout{}
 body.profile-page .profile-editor-sidebar,body.profile-page .profile-editor-main{background:#fff;border:1px solid #e1e8f3;border-radius:16px;box-shadow:0 4px 20px rgba(38,54,98,.04)}
-body.profile-page .profile-editor-sidebar{padding:14px 10px;overflow:visible}
-body.profile-page .ui-profile-editor-nav-heading-001{padding:4px 8px 12px;margin:0 3px 8px;border-bottom:1px solid #edf1f7}
-body.profile-page .vt-profile-editor-nav-title-001{font:760 16px/1.4 Onest,system-ui,sans-serif;color:#2c3850}
+body.profile-page .profile-editor-sidebar{overflow:visible}
+body.profile-page .ui-profile-editor-nav-heading-001{margin:0 3px 8px;border-bottom:1px solid #edf1f7}
+body.profile-page .vt-profile-editor-nav-title-001{color:#2c3850}
 body.profile-page .ui-profile-editor-nav-menu-001{gap:3px}
-body.profile-page .profile-editor-nav-link{
- min-height:44px;padding:8px 10px;gap:10px;border:0;border-radius:9px;background:transparent;
- color:#506783;font:650 13px/1.4 Onest,system-ui,sans-serif
-}
+body.profile-page .profile-editor-nav-link{border:0;background:transparent;}
 body.profile-page [class^="ui-vatra-profile-editor-nav-symbol-"]{width:28px;height:28px;border:0;border-radius:8px;background:#f1f5fb;color:#7489ab}
 body.profile-page .profile-editor-nav-link:hover{background:#f4f7fc;color:#2d61bf}
-body.profile-page .profile-editor-nav-link.is-active{background:#eaf1ff;color:#285fc9;border:0;box-shadow:none}
+body.profile-page .profile-editor-nav-link.is-active{border:0;box-shadow:none}
 body.profile-page .profile-editor-nav-link.is-active [class^="ui-vatra-profile-editor-nav-symbol-"]{background:transparent;color:#3974d8;border:0}
-body.profile-page .profile-editor-main{padding:24px 26px 20px}
+body.profile-page .profile-editor-main{}
 body.profile-page .profile-editor-section-head{padding-bottom:12px;gap:10px;border-bottom:1px solid #edf1f7}
-body.profile-page .vt-profile-editor-section-title-001{font:780 21px/1.3 Onest,system-ui,sans-serif;letter-spacing:-.025em;color:#2c3850}
+body.profile-page .vt-profile-editor-section-title-001{color:#2c3850}
 body.profile-page .vt-profile-editor-section-description-001{margin:12px 0 20px;color:#74849e;font-size:13px}
 body.profile-page .profile-editor-fields{gap:20px 18px}
 body.profile-page .profile-editor-field{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:9px}
@@ -2808,15 +2705,13 @@ body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"] sv
 body.profile-page [class^="ui-profile-editor-field-control-"]{gap:8px}
 body.profile-page [class^="ui-profile-editor-input-"]{background:#f7f9fc;border-color:#e0e7f1;border-radius:9px;min-height:43px}
 body.profile-page .profile-editor-field textarea{min-height:90px;resize:vertical}
-body.profile-page .profile-editor-privacy{
- background:#f3f6fc;border:1px solid #e3eaf7;box-shadow:none;border-radius:12px;padding:13px 15px;margin:0 0 2px;gap:11px
-}
-body.profile-page .ui-profile-editor-privacy-symbol-001{background:#fff;border:0;width:36px;height:36px;color:#577fca}
+body.profile-page .profile-editor-privacy{border:1px solid #e3eaf7;box-shadow:none;border-radius:12px;}
+body.profile-page .ui-profile-editor-privacy-symbol-001{background:#fff;border:0;color:#577fca}
 body.profile-page .vt-profile-editor-privacy-heading-001{color:#344762}
 body.profile-page .vt-profile-editor-privacy-help-001{color:#7386a4}
-body.profile-page .ui-profile-editor-page-visibility-001{border-color:#dce5f4;color:#344762}
-body.profile-page .profile-editor-footer{position:static;bottom:auto;margin-top:24px;padding:15px 0 0;border:0;border-top:1px solid #e8edf5;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;z-index:auto}
-body.profile-page .vt-profile-editor-save-001{min-height:43px;box-shadow:none}
+body.profile-page .ui-profile-editor-page-visibility-001{color:#344762}
+body.profile-page .profile-editor-footer{position:static;bottom:auto;padding:15px 0 0;border:0;border-top:1px solid #e8edf5;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;z-index:auto}
+body.profile-page .vt-profile-editor-save-001{box-shadow:none}
 @media(max-width:900px){
  body.profile-page .profile-editor-layout{grid-template-columns:minmax(0,1fr);gap:12px}
  body.profile-page .profile-editor-sidebar{position:static;overflow:hidden;padding:8px}
@@ -2840,39 +2735,39 @@ body.profile-page .profile-editor-header{min-height:0;padding:12px 16px;gap:12px
 body.profile-page .vt-profile-editor-title-001{font:720 20px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.02em}
 body.profile-page .vt-profile-editor-back-001{width:34px;height:34px;border-radius:8px}
 body.profile-page .profile-editor-layout{grid-template-columns:minmax(0,1fr) 255px;gap:16px;align-items:start}
-body.profile-page .profile-editor-main,body.profile-page .profile-editor-sidebar{border-radius:12px;box-shadow:none}
+body.profile-page .profile-editor-main,body.profile-page .profile-editor-sidebar{}
 body.profile-page .profile-editor-main{padding:20px 22px 24px}
 body.profile-page .profile-editor-sidebar{padding:12px 8px}
 body.profile-page .vt-profile-editor-nav-title-001{font:650 15px/1.4 "Onest",system-ui,sans-serif}
-body.profile-page .profile-editor-nav-link{font:530 14px/1.4 "Onest",system-ui,sans-serif;min-height:40px;padding:9px 12px;gap:9px;border-radius:7px;color:#394a62}
-body.profile-page .profile-editor-nav-link.is-active{background:#edf3ff;color:#285fc9;font-weight:650}
+body.profile-page .profile-editor-nav-link{font:530 14px/1.4 "Onest",system-ui,sans-serif;padding:9px 12px;gap:9px;border-radius:7px;color:#394a62}
+body.profile-page .profile-editor-nav-link.is-active{color:#285fc9;font-weight:650}
 body.profile-page .profile-editor-nav-link [class^="ui-vatra-profile-editor-nav-symbol-"]{display:none}
 body.profile-page .ui-profile-editor-nav-heading-001{padding:6px 10px 12px}
-body.profile-page .vt-profile-editor-section-title-001{font:670 17px/1.4 "Onest",system-ui,sans-serif;letter-spacing:-.01em}
+body.profile-page .vt-profile-editor-section-title-001{font:670 17px/1.4 "Onest",system-ui,sans-serif;}
 body.profile-page .vt-profile-editor-section-description-001{display:none}
 body.profile-page .profile-editor-section-head{padding:0 0 14px;margin-bottom:18px}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{display:grid;grid-template-columns:minmax(124px,34%) minmax(0,1fr);align-items:start;gap:15px;padding:0;border:0;background:transparent;box-shadow:none;grid-column:1/-1}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>[class^="vt-profile-editor-label-"]{display:block;font:510 14px/1.45 "Onest",system-ui,sans-serif;letter-spacing:0;color:#56677f;padding:10px 0 0;overflow-wrap:anywhere}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-field-control-"]{gap:6px}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-fields{display:grid;grid-template-columns:minmax(0,1fr);}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{display:grid;align-items:start;padding:0;border:0;background:transparent;box-shadow:none;grid-column:1/-1}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>[class^="vt-profile-editor-label-"]{display:block;letter-spacing:0;padding:10px 0 0;overflow-wrap:anywhere}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-field-control-"]{}
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-input-"]{width:100%;min-height:40px;border:1px solid #dce3ee;border-radius:8px;background:#fff;padding:9px 11px;color:#293a52;font:450 14px/1.5 "Onest",system-ui,sans-serif;box-shadow:none}
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) select[class^="ui-profile-editor-input-"]{appearance:auto;cursor:pointer;padding-right:10px}
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-input-"]:focus{border-color:#729ce8;outline:none;box-shadow:0 0 0 2px #edf2ff}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field textarea{min-height:94px;resize:vertical}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-disclosure-"]{justify-content:flex-end}
-body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="vt-profile-editor-disclosure-label-"]{color:#8492a8;font:450 11px/1.4 "Onest",system-ui,sans-serif}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field textarea{}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-disclosure-"]{}
+body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="vt-profile-editor-disclosure-label-"]{}
 body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-visibility-"]{background:transparent;color:#627693;border:0;min-height:25px;font:500 11.5px/1.4 "Onest",system-ui,sans-serif;padding:3px 5px}
 body.profile-page .profile-editor-privacy{grid-template-columns:32px minmax(0,1fr);gap:9px;padding:12px 14px;margin:0 0 4px;background:#f6f8fc;border-color:#e5eaf3}
 body.profile-page .ui-profile-editor-privacy-symbol-001{width:32px;height:32px}
 body.profile-page .vt-profile-editor-privacy-heading-001{font:630 13px/1.45 "Onest",system-ui,sans-serif}
 body.profile-page .vt-profile-editor-privacy-help-001{font:450 12px/1.5 "Onest",system-ui,sans-serif}
 body.profile-page .ui-profile-editor-page-visibility-001{grid-column:2;min-height:36px;font:500 13px/1.4 "Onest",system-ui,sans-serif;border-color:#dce3ee}
-body.profile-page .profile-editor-footer{padding-top:18px;margin-top:23px;justify-content:flex-end}
+body.profile-page .profile-editor-footer{padding-top:18px;justify-content:flex-end}
 body.profile-page .vt-profile-editor-save-001{font:650 13px/1.3 "Onest",system-ui,sans-serif;min-height:38px;padding:9px 17px;border-radius:8px}
 body.profile-page .ui-profile-editor-language-box-001{display:flex;flex-direction:column;gap:7px}
 body.profile-page .ui-profile-editor-language-chips-001:not([hidden]){display:flex;flex-wrap:wrap;gap:5px}
 body.profile-page .ui-profile-editor-language-chips-001[hidden]{display:none!important}
-body.profile-page .vt-profile-editor-language-chip-001{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;background:#f0f4fa;color:#4b6281;border:1px solid #e1e8f2;border-radius:6px;font:500 12px/1.4 "Onest",system-ui,sans-serif;cursor:pointer}
+body.profile-page .vt-profile-editor-language-chip-001{display:inline-flex;align-items:center;gap:5px;border:1px solid #e1e8f2;font:500 12px/1.4 "Onest",system-ui,sans-serif;cursor:pointer}
 body.profile-page .vt-profile-editor-language-chip-001:hover{background:#e7eefb}
 body.profile-page .vt-profile-editor-language-chip-001 svg{width:13px;height:13px;flex:none}
 body.profile-page .ui-profile-editor-records-001{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-height:105px}
@@ -2900,7 +2795,7 @@ body.profile-page .vt-profile-editor-record-cancel-001{color:#536b8d;background:
 }
 @media(max-width:540px){
  body.profile-page .profile-editor-main{padding:16px 13px 20px}
- body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{grid-template-columns:minmax(0,1fr);gap:6px}
+ body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field{}
  body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) .profile-editor-field>[class^="vt-profile-editor-label-"]{padding:0}
  body.profile-page :is(.profile-editor-main,.vatra-profile-editor-record-dialog) [class^="ui-profile-editor-input-"]{font-size:16px}
  body.profile-page .ui-profile-editor-record-fields-001{padding:16px}
@@ -2988,3 +2883,18 @@ body.profile-page .profile-editor-footer{margin-top:21px}
  body.profile-page .vt-profile-editor-dropdown-option-001{min-height:42px;font-size:14px}
  body.profile-page .vatra-editor-select[data-variant="page"]{grid-column:1/-1}
 }
+
+body.profile-page .ui-profile-editor-identity-001{grid-column:1/-1;border:1px solid #e2e9f4;border-radius:13px;background:#fff;overflow:hidden}
+body.profile-page .ui-profile-editor-cover-preview-001{position:relative;height:156px;background:linear-gradient(115deg,#a7bfde,#d8e6fb);background-size:cover;background-position:center;border-radius:12px 12px 0 0}
+body.profile-page .vt-profile-editor-cover-change-001{position:absolute;top:13px;right:13px;border:1px solid #e7edf7;border-radius:8px;background:rgba(255,255,255,.94);color:#405879;padding:9px 12px;font:600 13px/1.3 Onest,system-ui,sans-serif;cursor:pointer}
+body.profile-page .ui-profile-editor-avatar-preview-001{position:absolute;left:17px;bottom:-35px;width:88px;height:88px;border:4px solid #fff;border-radius:50%;background:var(--vatra-default-avatar) center/cover no-repeat;background-color:#e9eff8}
+body.profile-page .ui-profile-editor-identity-info-001{padding:13px 16px 4px}
+body.profile-page .vt-profile-editor-avatar-change-001{margin-left:102px;padding:6px 10px;border:0;border-radius:6px;background:#edf3ff;color:#285fc9;font:600 12px/1.4 Onest,system-ui,sans-serif;cursor:pointer}
+body.profile-page .ui-profile-editor-identity-name-row-001{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:16px 0 13px;border-bottom:1px solid #edf1f7}
+body.profile-page .vt-profile-editor-identity-name-001{font:650 16px/1.4 Onest,system-ui,sans-serif;color:#293a52}
+body.profile-page .ui-profile-editor-verification-row-001{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:14px 0;font:500 13px/1.4 Onest,system-ui,sans-serif}
+body.profile-page .vt-profile-editor-verification-label-001{color:#697d98}
+body.profile-page .vt-profile-editor-verification-state-001{flex:1;color:#526a89}
+body.profile-page :is(.vt-profile-editor-id-link-001,.vt-profile-editor-verification-link-001){color:#2861d8;font:600 13px/1.4 Onest,system-ui,sans-serif;text-decoration:none}
+body.profile-page :is(.vt-profile-editor-id-link-001,.vt-profile-editor-verification-link-001):hover{text-decoration:underline}
+@media(max-width:540px){body.profile-page .ui-profile-editor-cover-preview-001{height:128px}body.profile-page .ui-profile-editor-verification-state-001{flex-basis:100%;order:3}}

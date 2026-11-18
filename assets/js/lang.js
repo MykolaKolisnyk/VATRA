@@ -1,11 +1,11 @@
-/* VATRA: one language selector for every public and account page. */
+
 (() => {
   "use strict";
   if (window.VATRA_HOST_ALLOWED === false) return;
-  // The initial GitHub Pages router is replaced by the actual /idN or /clubN
-  // document. Do not start a second, competing English translation request.
+
+
   if (document.documentElement.classList.contains("vatra-dynamic-route-pending")) return;
-  // Resolve assets from the current script to support arbitrary local server paths.
+
   const localFile=location.protocol==="file:";
   const scriptUrl=new URL(document.currentScript?.src||"assets/js/lang.js",document.baseURI);
   const ROOT=new URL("../../",scriptUrl).pathname;
@@ -15,19 +15,19 @@
   function preferred() {
     const choice = saved();
     if (choice === "uk" || choice === "en") return choice;
-    /* Honor an old locale query only for backwards compatibility. */
+    
     const legacy = new URLSearchParams(location.search).get("locale");
     if (legacy === "uk_UA") return "uk";
     if (legacy === "en_US") return "en";
     return browserLocale.startsWith("uk") || browserLocale.endsWith("-ua") ? "uk" : "en";
   }
-  // file:// blocks fetch() in mainstream browsers. Keep the Ukrainian fallback
-  // visible; use a local HTTP server for the fully translated experience.
+
+
   const current = localFile ? "uk" : preferred();
-  // Titles must be correct BEFORE the asynchronous English JSON arrives. Watch
-  // the original <title> as HTML is parsed; no duplicate title or extra script.
+
+
   const instantEnglishTitles={
-    index:"Sign in · VATRA","create-account":"Create account · VATRA",feed:"Feed · VATRA",friends:"Friends · VATRA",gifts:"Gifts · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",
+    index:"Sign in · VATRA","create-account":"Create account · VATRA",feed:"Feed · VATRA",friends:"Friends · VATRA",gifts:"Gifts · VATRA",notifications:"Notifications · VATRA",profile:"My page · VATRA",verify:"Verification · VATRA",communities:"Communities · VATRA",club:"Community · VATRA",clips:"Clips · VATRA",marketplace:"Marketplace · VATRA","vatra-id":"VATRA ID · VATRA",
     forgot:"Password recovery · VATRA",reset:"New password · VATRA",
     "404":"404 Page not found · VATRA",
     terms:"Terms of Service · VATRA",privacy:"Privacy · VATRA",
@@ -37,8 +37,8 @@
     const segment=location.pathname.split("/").pop()?.replace(/\.html$/,"")||"index";
     const dynamicMember=/^id[1-9][0-9]{0,18}$/.test(segment);
     const dynamicClub=/^club[1-9][0-9]{0,18}$/.test(segment);
-    // Deep-linked profiles and clubs are rendered in place by 404.html;
-    // never flash "404" in the English tab before their data loads.
+
+
     const title=dynamicMember?instantEnglishTitles.profile:
       dynamicClub?instantEnglishTitles.club:
       instantEnglishTitles[segment]||instantEnglishTitles["404"];
@@ -55,10 +55,10 @@
       },{once:true});
     }
   }
-  // One visible canonical path per page. The 404.html loader resolves clean
-  // URLs on GitHub Pages while direct legacy .html bookmarks stay usable.
+
+
   if(location.protocol!=="file:"){
-    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+    const path=location.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
     if(path!==location.pathname)history.replaceState(history.state,"",path+location.search+location.hash);
   }
   document.documentElement.lang = current === "en" ? "en" : "uk";
@@ -67,9 +67,9 @@
     document.documentElement.classList.add("i18n-pending");
     const block = document.createElement("style");
     block.className = "ui-i18n-pending-style";
-    // Keep the original loading splash moving, but suspend all page-entrance
-    // animations until the English dictionary is applied and content is visible.
-    // visibility:hidden alone DOES NOT pause animations.
+
+
+
     block.textContent = "html.i18n-pending body{visibility:hidden!important}" +
       "html.i18n-pending body>.vatra-auth-loading{visibility:visible!important}" +
       "html.i18n-pending body > :not(.vatra-auth-loading)," +
@@ -82,8 +82,8 @@
   const nativeLabels = {
     uk: "Українська", en: "English"
   };
-  // Only the owner's eight target languages are listed.
-  // Untranslated languages remain disabled until reviewed dictionaries ship.
+
+
   const languages = [
     ["uk","Українська","Ukrainian","ua",true],
     ["en","English","English","gb",true],
@@ -113,12 +113,12 @@
       for(const [name,value] of Object.entries(attributes))element.setAttribute(name,String(value));
       svg.append(element);
     };
-    // The active languages use self-contained SVGs so their flags always show.
+
     if(country==="ua"){
       add("rect",{x:0,y:0,width:640,height:240,fill:"#0057b8"});
       add("rect",{x:0,y:240,width:640,height:240,fill:"#ffd700"});
     }else if(country==="gb"){
-      // Exact, sharp Union Jack paths from VATRA's existing flag SVG sprite.
+
       add("path",{fill:"#012169",d:"M0 0h640v480H0z"});
       add("path",{fill:"#fff",d:"m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"});
       add("path",{fill:"#c8102e",d:"m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"});
@@ -132,9 +132,9 @@
     }
     return svg;
   }
-  // Remember an explicit choice across reloads and browser restarts. The
-  // cookie also recovers preferences if a browser removes only localStorage.
-  // A browser which clears ALL site data cannot retain either store.
+
+
+
   function cookieLanguage() {
     if (localFile) return null;
     try {
@@ -157,15 +157,15 @@
     let stored = null;
     try { stored = localStorage.getItem(LANGUAGE_KEY); } catch (_) {}
     if (cookie) {
-      // The cookie is authoritative when an old redirect or a browser
-      // extension has overwritten only the localStorage key.
+
+
       if (stored !== cookie) {
         try { localStorage.setItem(LANGUAGE_KEY, cookie); } catch (_) {}
       }
       return cookie;
     }
     if (validLanguage(stored)) {
-      // Migrate selections made before cookies were introduced.
+
       saveCookie(stored);
       return stored;
     }
@@ -176,8 +176,8 @@
     try { localStorage.setItem(LANGUAGE_KEY, lang); } catch (_) {}
     saveCookie(lang);
   }
-  /* A single URL per page. Language is a saved UI preference, not a path. */
-  /* Legacy links may still be saved by users, but new pages never generate them. */
+  
+  
   function bindLocalizedLinks() {
     for (const link of document.querySelectorAll("a[href]")) {
       const raw = link.getAttribute("href");
@@ -190,7 +190,7 @@
         if (target.pathname.endsWith("/auth.html") || target.pathname.endsWith("/index.html")) {
           target.pathname = target.pathname.replace(/(?:auth|index)\.html$/, "");
         }
-        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
+        target.pathname = target.pathname.replace(/\/(create-account|forgot|reset|feed|profile|friends|gifts|communities|notifications|clips|marketplace|vatra-id|club|verify|terms|privacy|cookies|offline|404)\.html$/,(_all,route)=>"/"+route);
         target.pathname = target.pathname.replace(/\/account(?:\.html)?$/,"/verify");
         target.searchParams.delete("locale");
         link.href = target.href;
@@ -212,9 +212,9 @@
       document.addEventListener("DOMContentLoaded",resolve,{once:true});
     else resolve();
   });
-  // Static legal/error pages need no auth splash. Only an actual, still-pending
-  // English dictionary request may create the SAME loader after DOM is ready.
-  // Fast translations never get an artificial loading screen.
+
+
+
   let staticLocaleLoader=null;
   if(current==="en")domReady.then(()=>{
     if(!document.documentElement.classList.contains("i18n-pending"))return;
@@ -258,8 +258,8 @@
     .finally(() => clearTimeout(stop));
   function applyTranslation(table) {
     const page=pageFromPath();
-    // Community pages reuse the Feed's shared header/sidebar translations.
-    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts";
+
+    const communityShell=page==="communities"||page==="club"||page==="notifications"||page==="friends"||page==="gifts"||page==="clips"||page==="marketplace"||page==="vatra-id";
     const entry=table.__pages?.[page]||(communityShell?table.__pages?.feed:null);
     if (!entry) return;
     for (const element of document.querySelectorAll("[data-i18n]")) {
@@ -274,7 +274,7 @@
         element.setAttribute(name,value);
       }
     }
-    // Feed metadata belongs to /feed, not to the new /communities or /club pages.
+
     if(communityShell)return;
     const meta=entry.meta||{};
     if (meta.title) document.title=meta.title;
@@ -313,8 +313,8 @@
     bindLocalizedLinks();
     const triggers = [...document.querySelectorAll("[data-language-trigger]")];
     if (!triggers.length) return;
-    // Draw the active-language flag, name and chevron immediately. Even if
-    // an optional list item fails to render, the footer trigger stays usable.
+
+
     let triggerOrdinal=0;
     for(const trigger of triggers){
       const id=++triggerOrdinal;
@@ -459,7 +459,7 @@
     backdrop.append(dialog);
     document.body.append(backdrop);
 
-    /* Custom VATRA scrollbar. Native wheel, touch and keyboard input stays active. */
+    
     let scrollbarFadeTimer = null;
     let pointerInsideDialog = false;
     function showScrollbar() {
@@ -590,8 +590,8 @@
         else if (!e.shiftKey && document.activeElement === last) {e.preventDefault();first.focus();}
       }
     });
-    // The same handler opens the original full search-and-scroll language dialog.
-    // Keep expanded state synchronized for keyboard and screen-reader users.
+
+
   }
   if(document.readyState==="loading"){
     document.addEventListener("DOMContentLoaded",initLanguagePicker,{once:true});
@@ -600,10 +600,7 @@
   }
 })();
 
-/* One delegated controller for all VATRA scrolling forms.
-   Pointer inside = visible thumb; pointer outside = fade away.
-   Keyboard/touch/programmatic scrolling gets a brief accessible reveal.
-   No polling, hover shading, or additional visual elements. */
+
 (()=>{
  "use strict";
  const selector=[
@@ -645,8 +642,8 @@
  function closestScrollable(node){
   return node?.closest?.(selector)||null;
  }
- // A list can contain many option buttons: changing the hovered option must
- // not hide the thumb. Only leaving the entire scrollable form hides it.
+
+
  document.addEventListener?.("pointerover",event=>{
   if(event.pointerType!=="mouse"&&event.pointerType!=="pen")return;
   const target=closestScrollable(event.target);

@@ -7,6 +7,9 @@ import {chromium,firefox,webkit} from "playwright";
 
 const basePath="/VATRA/";
 const root=process.cwd();
+const swSource=await readFile(resolve(root,"sw.js"),"utf8");
+const currentCache=swSource.match(/const CACHE="([^"]+)"/)?.[1];
+assert.ok(currentCache,"Service Worker cache version missing");
 const mime={".html":"text/html; charset=utf-8",".js":"text/javascript; charset=utf-8",".mjs":"text/javascript; charset=utf-8",".css":"text/css; charset=utf-8",".json":"application/json; charset=utf-8",".svg":"image/svg+xml",".png":"image/png",".ttf":"font/ttf",".xml":"application/xml"};
 const server=createServer(async(req,res)=>{
  try{
@@ -70,8 +73,8 @@ try{
    }
   });
   const paths=["assets/css/base.css","assets/css/profile.css","assets/js/avatar.js"];
-  const fresh=await swProbe.evaluate(async paths=>{
-   const cache=await caches.open("vatra-offline-shell-v55");
+  const fresh=await swProbe.evaluate(async ({paths,currentCache})=>{
+   const cache=await caches.open(currentCache);
    for(const path of paths)await cache.put(new URL(path,location.origin+"/VATRA/"),
     new Response("/* stale-vatra-build */",{headers:{"Content-Type":"text/plain"}}));
    const texts=await Promise.all(paths.map(async path=>
@@ -79,7 +82,7 @@ try{
    const cached=await Promise.all(paths.map(async path=>
     (await cache.match(new URL(path,location.origin+"/VATRA/"))).text()));
    return {texts,cached};
-  },paths);
+  },{paths,currentCache});
   assert.ok(fresh.texts.every(s=>!s.includes("stale-vatra-build"))&&
    fresh.texts[0].includes("--vatra-default-avatar")&&
    fresh.texts[1].includes(".social-profile-tab-active")&&
@@ -3114,7 +3117,7 @@ try{
     async remove(paths){calls.removes.push({bucket,paths});return {error:null};}
    })}};
    const [item]=await window.VATRA_POST_MEDIA.uploadGallery(client,"12",[file]);
-   const host=document.createElement("div");host.id="vatra-smoke-webp";document.body.append(host);
+   const host=document.createElement("article");host.id="vatra-smoke-webp";host.className="feed-post-card";document.querySelector("#feed-posts").prepend(host);
    await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",media_items:[item]},host);
    window.__vatraWebpFixture={item,calls,client};
    return {fileSize:file.size,item,uploads:calls.uploads};
@@ -3284,17 +3287,18 @@ try{
    "Inline comment composer has the same circular member portrait as the feed");
   const emojiControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-001");
   await emojiControl.click();
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-emoji-panel").isVisible(),true,
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").waitFor({state:"visible"});
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-emoji-panel").isVisible(),true,
    "Emoji picker opens inside the current comment composer");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-sticker-tab-001").click();
-  assert.ok(await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-option-001.is-sticker").count()>=10);
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-emoji-option-001.is-sticker").first().click();
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-sticker-tab-001").click();
+  assert.ok(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-emoji-option-001.is-sticker").count()>=10);
+  await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vt-vatra-post-comment-emoji-option-001.is-sticker").first().click();
   assert.notEqual(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"",
    "Choosing an emoji sticker inserts it into the draft");
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
   await attachmentControl.click();
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu").isVisible(),true);
-  assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
