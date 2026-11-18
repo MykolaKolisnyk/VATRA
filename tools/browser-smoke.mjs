@@ -4880,7 +4880,7 @@ try{
       name,method:options?.method
      }]);
      if(localStorage.getItem("vatra-test-cache-mode")==="hit")
-      return {data:{data:[{club_id:77,name:"Кешована спільнота",
+      return {data:{data:[{club_id:77,category:"music",name:"Кешована спільнота",
        description:"Кеш Redis",created_at:"2026-11-13T00:00:00Z"}]},error:null};
      return {data:null,error:{message:"mock Edge unavailable"}};
     }
@@ -4901,7 +4901,7 @@ try{
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
      select:fields=>{
-      const isDirectory=table==="communities"&&fields==="club_id,name,description,created_at";
+      const isDirectory=table==="communities"&&fields==="club_id,name,description,created_at,category";
       return {
        term:"",searchField:"name",filters:[],ids:null,
        eq(field,id){this.filters.push([field,String(id)]);return this;},
@@ -4983,6 +4983,12 @@ try{
   assert.equal(await page.locator("#community-create-panel").isVisible(),true);
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
+  const categoryInput=page.locator("#community-category");
+  assert.equal(await categoryInput.locator("option").count(),41,"Forty categories plus placeholder");
+  assert.equal(await categoryInput.evaluate(el=>el.validity.valueMissing),true);
+  await page.locator("#community-create-submit").click();
+  assert.ok(new URL(page.url()).pathname.endsWith("/communities"),"Category must be selected before creating");
+  await categoryInput.selectOption("music");
   const clubNavigations=[];
   const clubNavigationErrors=[];
   page.on("framenavigated",frame=>{
@@ -4997,6 +5003,7 @@ try{
   await page.locator("#club-heading").waitFor({state:"visible",timeout:16000});
   if(language==="uk")assertStableHeader(await navCenters(page),"Club");
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].category),"music","Chosen category must be persisted");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
   assert.ok(clubNavigationErrors.length===0&&
@@ -5070,6 +5077,18 @@ try{
   }
   assert.equal(await page.locator(".vt-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
+  await page.locator('[data-community-category="music"]').click();
+  await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await page.locator(".ui-community-card-001").count(),1,"Category matches independently of post name or description");
+  assert.equal(await page.locator('[data-community-category="music"]').getAttribute("aria-pressed"),"true");
+  await page.locator(".vt-community-all-topics-001").click();
+  assert.equal(await page.locator("#community-topic-filter option").count(),41);
+  await page.locator("#community-topic-filter").selectOption("business");
+  await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await page.locator(".ui-community-card-001").count(),0);
+  await page.locator("#community-topic-filter").selectOption("");
+  await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await page.locator(".ui-community-card-001").count(),1);
   await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
@@ -5091,7 +5110,7 @@ try{
  await cachePage.addInitScript(()=>{
   localStorage.setItem("vatra-test-cache-mode","hit");
   localStorage.setItem("vatra-test-clubs",JSON.stringify([{
-   club_id:88,name:"Пошукова спільнота",description:"Прямий SQL",
+   club_id:88,category:"business",name:"Пошукова спільнота",description:"Прямий SQL",
    created_at:"2026-11-13T00:00:00Z"
   }]));
  });

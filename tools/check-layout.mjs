@@ -1715,7 +1715,7 @@ assert.ok(
  publicRedisEdge.includes('Deno.env.get("REDIS_ALLOW_PLAINTEXT_DEV") === "true"')&&
  publicRedisEdge.includes('url.startsWith("rediss://")')&&
  publicRedisEdge.includes('url.startsWith("redis://")')&&
- publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v1:latest100"')&&
+ publicRedisEdge.includes('const CACHE_KEY = "vatra:public:communities:v2:latest100"')&&
  publicRedisEdge.includes('createSupabaseClient(supabaseUrl, publishable')&&
  !publicRedisEdge.includes("SUPABASE_SERVICE_ROLE_KEY")&&
  !publicRedisEdge.includes("SUPABASE_SECRET_KEYS")&&
@@ -2358,6 +2358,7 @@ assert.ok(
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("./community-detail-cache-smoke.mjs");
+await import("./community-category-smoke.mjs");
 
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");
