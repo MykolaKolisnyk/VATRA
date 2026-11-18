@@ -3998,7 +3998,12 @@ try{
    window.__feedTestPosts.unshift({id:"feed-manual-post-1",author_id:"feed-mock-user",
     author_vatra_id:654321,body:text,created_at:new Date().toISOString()});
   },injectionText);
-  await feedProbe.locator("#feed-search-input").press("Enter");
+  // Header search now expands global results, not Feed. Refresh the real
+  // cursor by switching categories after the three-second cache lifetime.
+  await feedProbe.waitForTimeout(3100);
+  await feedProbe.locator('[data-feed-filter="friends"]').click();
+  await feedProbe.waitForFunction(()=>document.querySelector("#feed-posts")?.getAttribute("aria-busy")==="false"&&document.querySelector('[data-feed-filter="friends"]')?.getAttribute("aria-pressed")==="true");
+  await feedProbe.locator('[data-feed-filter="all"]').click();
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".feed-post-card").length===1);
   assert.ok((await feedProbe.locator(".feed-post-profile-link").getAttribute("href")).endsWith("/VATRA/id654321"),
    "Feed author names must link to numeric member profile URLs");
@@ -5040,6 +5045,14 @@ try{
   assert.equal(await page.locator(".vatra-discovery-workspace > .vatra-discovery-sidebar").count(),1);
   assert.equal(await page.locator(".vatra-discovery-tabs .vatra-discovery-nav-icon").count(),3);
   assert.equal(await page.locator(".ui-community-topic-001").count(),6);
+  const topicCards=page.locator(".ui-community-topic-001");
+  assert.deepEqual(await topicCards.locator("img").evaluateAll(images=>images.map(img=>new URL(img.src).pathname.split("/").pop())),["music.webp","sport.webp","travel.webp","technology.webp","education.webp","art.webp"]);
+  for(const photo of await topicCards.locator("img").all()){
+   await photo.scrollIntoViewIfNeeded();
+   await photo.evaluate(img=>img.decode());
+   assert.ok(await photo.evaluate(img=>img.naturalWidth>0&&img.naturalHeight>0));
+   assert.equal(await photo.getAttribute("loading"),"lazy");
+  }
   assert.equal(await page.locator(".vt-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
   await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
