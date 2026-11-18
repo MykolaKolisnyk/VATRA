@@ -1381,7 +1381,7 @@ try{
      verticallyCentered:!!box&&!!button&&Math.abs((box.top+button.bottom)/2-innerHeight/2)<28};
    });
    assert.ok(mascot.loaded&&mascot.centered&&mascot.responsive&&mascot.order&&mascot.visibleHeading&&mascot.noErrorCard&&mascot.neutralBackground&&mascot.verticallyCentered,
-    "404 must display the centered detective, visible heading and feed button: "+JSON.stringify(mascot));
+    "404 must display the centered detective, visible heading and return button: "+JSON.stringify(mascot));
    assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
    assert.equal(mascot.button,language==="en"?"Back to home":"На головну");
    assert.equal(mascot.target,"/VATRA/");
@@ -1539,7 +1539,7 @@ try{
   }
   console.log("VATRA document header/content/footer geometry "+width+"x"+height+": OK");
  }
- for(const route of ["forgot.html","reset.html","404.html"]){
+ for(const route of ["forgot.html","reset.html"]){
   const other=await context.newPage();
   await other.setViewportSize({width:390,height:844});
   await other.goto(base+route,{waitUntil:"load"});
