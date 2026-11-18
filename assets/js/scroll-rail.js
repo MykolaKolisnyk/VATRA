@@ -26,7 +26,6 @@
    const width=Math.min(190,available);
    if(header)side.style.setProperty("--vatra-rail-top",Math.max(0,Math.ceil(header.getBoundingClientRect().bottom))+"px");
    side.style.setProperty("--vatra-rail-width",width+"px");
-   side.style.width=width+"px";
    side.classList.toggle("is-compact",width<105);
    side.hidden=width<56||scrollY<350||document.documentElement.scrollHeight-innerHeight<500;
   };
