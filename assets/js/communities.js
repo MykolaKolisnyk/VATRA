@@ -517,6 +517,7 @@ async function openClub(client,ownId,userId){
  }
  if(!data){displayError();return;}
  $("#club-heading").textContent=data.name;
+ const clubAvatar=$("#club-avatar");if(clubAvatar){clubAvatar.textContent=Array.from(String(data.name||"").trim())[0]?.toLocaleUpperCase()||"V";}
  $("#club-public-id").textContent="Club ID "+String(data.club_id);
  $("#club-description").textContent=data.description||
   t("Опису поки немає.","No description yet.");
