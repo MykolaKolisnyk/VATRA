@@ -400,7 +400,7 @@ function consumeSiteSearch(entry,signal,state,key){
 async function querySite(viewer,phrase,signal){
  const escaped=phrase.replace(/[\\%_]/g,ch=>String.fromCharCode(92)+ch);
  const pattern="%"+escaped+"%";
- const exact=phrase.match(/^(?:(?:vatra\\s*)?id\\s*#?\\s*)?([1-9][0-9]{0,18})$/i);
+ const exact=phrase.match(/^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$/i);
  const memberQuery=viewer.from("public_profiles").select("vatra_id,display_name,status_text");
  const requests=[
   (exact?memberQuery.eq("vatra_id",exact[1]):memberQuery.ilike("display_name",pattern)).limit(4),
