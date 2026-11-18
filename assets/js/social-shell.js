@@ -192,7 +192,7 @@
     const page=item.dataset.vatraComingSoon;
     item.removeAttribute("data-vatra-coming-soon");item.removeAttribute("title");item.removeAttribute("aria-disabled");item.disabled=false;
     item.classList.remove("social-top-pending");
-    if(document.body.dataset.page===page){item.classList.add("is-active");item.setAttribute("aria-current","page");}
+    if(document.body.dataset.page===page){item.classList.add("social-top-active");item.setAttribute("aria-current","page");}
     item.addEventListener("click",()=>location.assign(new URL(page,location.href).href));
     continue;
    }
@@ -671,7 +671,11 @@
   for(const menu of document.querySelectorAll(".feed-account-dropdown")){
    if(menu.querySelector(".vt-vatra-account-id-link-001"))continue;
    const link=document.createElement("a");link.href=new URL("vatra-id",location.href).href;
-   link.className="feed-account-profile vt-vatra-account-id-link-001";link.textContent="VATRA ID";
+   link.className="feed-account-profile vt-vatra-account-id-link-001";
+   const ns="http://www.w3.org/2000/svg",icon=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");
+   icon.setAttribute("class","ui-vatra-account-id-icon-001");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("width","20");icon.setAttribute("height","20");icon.setAttribute("fill","none");icon.setAttribute("stroke","currentColor");icon.setAttribute("stroke-width","1.8");icon.setAttribute("stroke-linecap","round");icon.setAttribute("stroke-linejoin","round");icon.setAttribute("aria-hidden","true");
+   path.setAttribute("class","ui-vatra-account-id-path-001");path.setAttribute("d","M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 11c0-2 1.4-3 3-3s3 1 3 3M10 8.5a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6ZM15.5 9h2.5m-2.5 4h2.5");
+   icon.append(path);const caption=document.createElement("span");caption.className="vt-vatra-account-id-label-001";caption.textContent="VATRA ID";link.append(icon,caption);
    const profile=menu.querySelector(".feed-account-profile");if(profile)profile.after(link);else menu.prepend(link);
   }
   setUpAccountPanel();
