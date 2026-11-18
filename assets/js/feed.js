@@ -471,7 +471,7 @@
   person:{kind:"person",offset:0,done:!searchTerm&&feedFilter==="communities",queue:[]},
   group:{kind:"group",offset:0,done:!searchTerm&&feedFilter==="friends",queue:[]}
  });
- const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id";
+ const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip";
  const clubFields="id,club_id,author_vatra_id,body,created_at,media_kind,media_path,media_items";
  const comparePosts=(a,b)=>
   Date.parse(b.created_at)-Date.parse(a.created_at)||String(b.id).localeCompare(String(a.id));
@@ -500,7 +500,7 @@
    if(isPerson&&!searchTerm&&typeof query.in==="function"){
     query=query.in("author_vatra_id",personIds);
    }
-   if(isPerson&&typeof query.is==="function")query=query.is("archived_at",null);
+   if(isPerson){query=query.eq("is_clip",false);if(typeof query.is==="function")query=query.is("archived_at",null);}
    if(!isPerson&&!searchTerm&&typeof query.in==="function")
     query=query.in("club_id",[...followedClubs.keys()]);
    if(searchTerm&&typeof query.ilike==="function")
@@ -567,6 +567,7 @@
     if(version!==feedRequestVersion)return;
     const person=found[0].status==="fulfilled"&&!found[0].value.error?found[0].value.data:null;
     const group=found[1].status==="fulfilled"&&!found[1].value.error?found[1].value.data:null;
+    if(person?.is_clip){location.replace(new URL("clips?clip="+encodeURIComponent(person.id),home).href);return;}
     const direct=person?{...person,kind:"person"}:group?{...group,kind:"group"}:null;
     if(direct){
      page.unshift(direct);
