@@ -1375,7 +1375,7 @@ try{
      responsive:!!box&&box.width<=innerWidth-20&&box.height<=innerHeight,
      order:!!box&&!!title&&!!button&&box.bottom<=title.top+1&&title.bottom<=button.top+1,
      visibleHeading:!!title&&title.width>0&&title.height>0&&getComputedStyle(heading).visibility==="visible",
-     message:heading?.textContent.trim(),button:[...home.querySelectorAll("span:not([hidden])")].map(el=>el.textContent.trim()).join(" "),target:home?.getAttribute("href"),
+     message:heading?.textContent.trim(),button:[...home.querySelectorAll("span:not([hidden])")].map(el=>el.textContent.trim()).join(" "),target:home?.href,
      noErrorCard:!document.querySelector(".error-card,.error-code,.error-description,header,footer"),
      neutralBackground:getComputedStyle(document.body).backgroundColor==="rgb(245, 245, 245)"&&getComputedStyle(document.body).backgroundImage==="none",
      verticallyCentered:!!box&&!!button&&Math.abs((box.top+button.bottom)/2-innerHeight/2)<28};
@@ -1384,7 +1384,7 @@ try{
     "404 must display the centered detective, visible heading and return button: "+JSON.stringify(mascot));
    assert.equal(mascot.message,language==="en"?"This page doesn't exist":"Такої сторінки немає");
    assert.equal(mascot.button,language==="en"?"Back to home":"На головну");
-   assert.equal(mascot.target,"/VATRA/");
+   assert.equal(mascot.target,new URL("/VATRA/",base).href,"Direct or unknown referrers must resolve to the VATRA home page");
   };
   await verifyMissingPage();
   const missing=await tab.goto(base+"missing/nested-example",{waitUntil:"load"});
