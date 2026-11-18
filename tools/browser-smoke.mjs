@@ -3117,7 +3117,7 @@ try{
     async remove(paths){calls.removes.push({bucket,paths});return {error:null};}
    })}};
    const [item]=await window.VATRA_POST_MEDIA.uploadGallery(client,"12",[file]);
-   const host=document.createElement("div");host.id="vatra-smoke-webp";document.body.append(host);
+   const host=document.createElement("article");host.id="vatra-smoke-webp";host.className="feed-post-card";document.querySelector("#feed-posts").prepend(host);
    await window.VATRA_POST_MEDIA.mount(client,{author_vatra_id:"12",media_items:[item]},host);
    window.__vatraWebpFixture={item,calls,client};
    return {fileSize:file.size,item,uploads:calls.uploads};
