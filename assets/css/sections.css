@@ -2,7 +2,7 @@ body.vatra-section-page{--section-title:700 24px/1.25 Onest,Inter,system-ui,sans
 body.vatra-section-page [hidden]{display:none!important}
 body.vatra-section-page[data-page="vatra-id"] .ui-vatra-section-main-001{width:min(1120px,calc(100% - 32px));margin:20px auto 56px;min-width:0}
 body.vatra-section-page .ui-vatra-clips-main-001{width:100%;margin:0;max-width:none}
-body.vatra-section-page .ui-vatra-marketplace-main-001{width:min(1400px,calc(100% - 44px));margin:24px auto 56px;min-width:0}
+body.vatra-section-page .ui-vatra-marketplace-main-001{width:100%;margin:0;min-width:0}
 body.vatra-section-page .ui-vatra-section-heading-001{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0;padding:0;white-space:nowrap}
 body.vatra-section-page .vt-vatra-section-title-001{font:var(--section-title);letter-spacing:-.035em;margin:0;color:#293951}
 body.vatra-section-page .vt-vatra-section-subtitle-001{font:var(--section-body);color:var(--soft);margin:5px 0 0}
@@ -55,29 +55,67 @@ body.vatra-section-page .vt-vatra-market-title-001{font:var(--section-name);colo
 body.vatra-section-page .vt-vatra-market-title-001:hover{text-decoration:underline}
 body.vatra-section-page .vt-vatra-market-contact-001{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:35px;padding:7px 10px;border-radius:8px;background:#edf3ff;color:#285fc9;font:var(--section-control);text-decoration:none;text-align:center;margin-top:4px}
 body.vatra-section-page .vt-vatra-market-contact-001:hover{background:#e2ecff;text-decoration:none}
-body.vatra-section-page .ui-vatra-market-detail-001{--section-dialog-width:1100px}
-body.vatra-section-page .ui-vatra-market-detail-layout-001{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:26px;padding:24px}
-body.vatra-section-page .ui-vatra-market-detail-gallery-001{display:grid;gap:12px;align-content:start;min-width:0}
-body.vatra-section-page .ui-vatra-market-detail-stage-001{position:relative;min-width:0}
-body.vatra-section-page .ui-vatra-market-detail-photo-001{border-radius:12px;overflow:hidden;aspect-ratio:1;max-height:62dvh;display:grid;place-items:center;background:#f1f4f9}
-body.vatra-section-page .ui-vatra-market-detail-photo-001 img{width:100%;height:100%;object-fit:contain;background:transparent}
-body.vatra-section-page :is(.vt-vatra-market-detail-prev-001,.vt-vatra-market-detail-next-001){position:absolute;top:50%;transform:translateY(-50%);border:1px solid #e0e7f2;background:#fff;color:var(--ink);width:40px;height:40px;display:grid;place-items:center;border-radius:50%;font-size:28px;line-height:1;cursor:pointer;box-shadow:0 3px 12px #1b315a1a}
+body.vatra-section-page .ui-vatra-market-screen-001{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:#fff;color:var(--ink);overflow:hidden;box-sizing:border-box}
+body.vatra-section-page .ui-vatra-market-screen-001[open]{display:flex;flex-direction:column}
+body.vatra-section-page .ui-vatra-market-screen-001::backdrop{background:#101725}
+body.vatra-section-page .ui-vatra-market-screen-head-001{display:flex;align-items:center;gap:12px;min-height:61px;padding:8px 18px;border-bottom:1px solid var(--line);flex:none;background:#fff}
+body.vatra-section-page .vt-vatra-market-screen-close-001{width:40px;height:40px;border:0;border-radius:50%;background:#edf1f7;color:var(--ink);font:400 28px/1 Onest,system-ui,sans-serif;cursor:pointer}
+body.vatra-section-page .ui-vatra-market-screen-logo-001{width:42px;height:42px;object-fit:contain}
+body.vatra-section-page .vt-vatra-market-screen-label-001{font:var(--section-heading);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.vatra-section-page .ui-vatra-market-screen-body-001{min-height:0;flex:1;min-width:0}
+body.vatra-section-page .ui-vatra-market-detail-layout-001{display:grid;grid-template-columns:minmax(0,1.85fr) minmax(320px,1fr)}
+body.vatra-section-page .ui-vatra-market-detail-gallery-001{display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0;min-height:0;padding:16px;background:#182231}
+body.vatra-section-page .ui-vatra-market-detail-stage-001{position:relative;min-width:0;min-height:0;flex:1;display:grid;place-items:center}
+body.vatra-section-page .ui-vatra-market-detail-photo-001{width:100%;height:100%;min-height:0;overflow:hidden;display:grid;place-items:center}
+body.vatra-section-page .ui-vatra-market-detail-photo-001 img{width:100%;height:100%;max-height:100%;min-height:0;object-fit:contain;background:transparent}
+body.vatra-section-page :is(.vt-vatra-market-detail-prev-001,.vt-vatra-market-detail-next-001){position:absolute;top:50%;transform:translateY(-50%);border:0;background:#ffffffdf;color:#182231;width:46px;height:46px;display:grid;place-items:center;border-radius:50%;font-size:30px;line-height:1;cursor:pointer}
 body.vatra-section-page .vt-vatra-market-detail-prev-001{left:12px}
 body.vatra-section-page .vt-vatra-market-detail-next-001{right:12px}
 body.vatra-section-page :is(.vt-vatra-market-detail-prev-001,.vt-vatra-market-detail-next-001):disabled{opacity:.3;cursor:default}
 body.vatra-section-page .vt-vatra-market-detail-count-001{position:absolute;bottom:10px;right:10px;background:#182942bd;color:#fff;font:var(--section-caption);padding:5px 10px;border-radius:20px}
-body.vatra-section-page .ui-vatra-market-detail-thumbs-001{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:8px}
-body.vatra-section-page .ui-vatra-market-detail-thumb-001{aspect-ratio:1;border:2px solid transparent;border-radius:9px;padding:2px;overflow:hidden;background:#f1f4f9;cursor:pointer}
-body.vatra-section-page .ui-vatra-market-detail-thumb-001[aria-pressed="true"]{border-color:var(--blue)}
+body.vatra-section-page .ui-vatra-market-detail-thumbs-001{flex:none;display:flex;justify-content:center;flex-wrap:wrap;gap:7px}
+body.vatra-section-page .ui-vatra-market-detail-thumb-001{width:54px;height:54px;border:2px solid transparent;border-radius:9px;padding:2px;overflow:hidden;background:#ffffff22;cursor:pointer}
+body.vatra-section-page .ui-vatra-market-detail-thumb-001[aria-pressed="true"]{border-color:#8ab5ff}
 body.vatra-section-page .ui-vatra-market-detail-thumb-001 img{border-radius:5px}
-body.vatra-section-page .ui-vatra-market-detail-info-001{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+body.vatra-section-page .ui-vatra-market-detail-info-001{min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;align-items:flex-start;gap:13px;padding:25px 24px 32px}
+body.vatra-section-page .ui-vatra-market-detail-info-001>*{flex:none;max-width:100%}
 body.vatra-section-page .vt-vatra-market-detail-category-001{font:var(--section-caption);color:var(--soft)}
 body.vatra-section-page .vt-vatra-market-detail-title-001{font:700 27px/1.25 Onest,system-ui,sans-serif;letter-spacing:-.025em;margin:0;overflow-wrap:anywhere}
-body.vatra-section-page .vt-vatra-market-detail-price-001{font:700 30px/1.25 Onest,system-ui,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+body.vatra-section-page .vt-vatra-market-detail-price-001{font:700 28px/1.25 Onest,system-ui,sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+body.vatra-section-page :is(.vt-vatra-market-detail-condition-001,.vt-vatra-market-detail-date-001){font:var(--section-caption);color:var(--soft);margin:0}
 body.vatra-section-page [class^="vt-vatra-market-detail-subheading-"]{margin:8px 0 0;font:var(--section-heading);color:var(--ink)}
 body.vatra-section-page .ui-vatra-market-detail-seller-001{border-top:1px solid var(--line);padding-top:12px;width:100%;display:grid;gap:10px}
 body.vatra-section-page .ui-vatra-market-detail-info-001 .vt-vatra-market-contact-001{width:100%;min-height:44px;background:var(--vatra-action-primary);color:#fff;font-weight:700}
 body.vatra-section-page .ui-vatra-market-detail-info-001 .vt-vatra-market-contact-001:hover{background:var(--vatra-action-primary-hover)}
+body.vatra-section-page .vt-vatra-market-detail-share-001{min-height:40px;padding:9px 14px;border:0;border-radius:10px;background:#edf3ff;color:var(--blue);font:var(--section-control);cursor:pointer}
+body.vatra-section-page .ui-vatra-market-editor-001 .ui-vatra-market-screen-body-001{display:grid;grid-template-columns:clamp(300px,25vw,385px) minmax(0,1fr);background:#f2f5f9}
+body.vatra-section-page .ui-vatra-market-editor-sidebar-001{min-height:0;min-width:0;display:flex;flex-direction:column;background:white;border-right:1px solid var(--line)}
+body.vatra-section-page .ui-vatra-market-editor-scroll-001{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;padding:20px 17px;scrollbar-gutter:stable}
+body.vatra-section-page .ui-vatra-market-editor-form-001{display:flex;flex-direction:column;gap:16px}
+body.vatra-section-page .ui-vatra-market-editor-footer-001{flex:none;display:flex;gap:10px;flex-wrap:wrap;padding:14px 16px;border-top:1px solid var(--line);background:#fff}
+body.vatra-section-page .ui-vatra-market-editor-footer-001>button{flex:1}
+body.vatra-section-page .ui-vatra-market-editor-footer-001>p{flex-basis:100%;margin:0}
+body.vatra-section-page .vt-vatra-market-editor-back-001{background:#edf1f7;color:var(--ink);border:0;border-radius:11px;padding:11px;min-height:42px;font:var(--section-control)}
+body.vatra-section-page .ui-vatra-market-editor-preview-001{min-width:0;min-height:0;overflow-y:auto;align-self:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:24px;box-shadow:0 4px 18px #17243a0b}
+body.vatra-section-page .vt-vatra-market-preview-heading-001{font:var(--section-heading);margin:0 0 14px}
+body.vatra-section-page .ui-vatra-market-preview-card-001{min-height:min(60dvh,560px);display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+body.vatra-section-page .ui-vatra-market-preview-photo-001{min-height:0;min-width:0;display:grid;place-items:center;background:#e9eef5}
+body.vatra-section-page .ui-vatra-market-preview-image-001{width:100%;max-height:60dvh;object-fit:contain}
+body.vatra-section-page .vt-vatra-market-preview-placeholder-001{max-width:245px;text-align:center;color:var(--soft);padding:16px;font:var(--section-body)}
+body.vatra-section-page .ui-vatra-market-preview-info-001{display:flex;flex-direction:column;gap:12px;padding:20px;min-width:0;overflow-wrap:anywhere}
+body.vatra-section-page .ui-vatra-market-preview-info-001 p{margin:0;font:var(--section-body);color:var(--soft);white-space:pre-wrap}
+body.vatra-section-page .vt-vatra-market-preview-title-001{font:var(--section-title);margin:0}
+body.vatra-section-page .vt-vatra-market-preview-price-001{font:var(--section-price)}
+body.vatra-section-page .ui-vatra-market-type-picker-001{grid-column:1/-1;align-self:center;justify-self:center;max-width:740px;width:calc(100% - 40px);padding:20px 0}
+body.vatra-section-page .vt-vatra-market-type-title-001{font:var(--section-title);margin:0 0 16px}
+body.vatra-section-page .ui-vatra-market-type-grid-001{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+body.vatra-section-page .ui-vatra-market-type-grid-001 button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;min-height:180px;padding:20px 13px;border:1px solid var(--line);border-radius:15px;background:#fff;font:var(--section-control);color:var(--ink);cursor:pointer;text-align:center}
+body.vatra-section-page .ui-vatra-market-type-grid-001 button:hover{border-color:var(--blue);background:#edf3ff}
+body.vatra-section-page .ui-vatra-market-type-grid-001 svg{width:48px;height:48px;color:var(--blue)}
+body.vatra-section-page .ui-vatra-market-rules-accept-001{display:flex;align-items:flex-start;gap:9px;color:var(--ink);font:var(--section-body)}
+body.vatra-section-page .ui-vatra-market-accept-checkbox-001{width:20px;height:20px;flex:none;accent-color:var(--blue)}
+body.vatra-section-page .vt-vatra-market-review-title-001{font:var(--section-title);margin:0 0 12px}
+body.vatra-section-page .vt-vatra-market-review-copy-001{font:var(--section-body);color:var(--soft)}
 body.vatra-section-page .ui-vatra-market-upload-preview-001{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 body.vatra-section-page .ui-vatra-market-upload-preview-001:empty{display:none}
 body.vatra-section-page .ui-vatra-market-upload-tile-001{position:relative;aspect-ratio:1;min-width:0;overflow:hidden;border-radius:9px;background:#edf1f7}
@@ -137,13 +175,16 @@ body.vatra-section-page .vt-vatra-id-device-revoke-001{margin-top:17px;padding:1
 
 body.vatra-section-page .vt-vatra-id-menu-title-001{padding:5px 10px 13px;margin:0 0 6px;border-bottom:1px solid #edf1f7}
 body.vatra-section-page .ui-vatra-id-content-001>.ui-vatra-section-card-001{padding:22px}
-body.vatra-section-page .ui-vatra-market-browse-001{display:grid;gap:24px;min-width:0}
-body.vatra-section-page .ui-vatra-market-toolbar-001{display:grid;gap:15px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;min-width:0}
-body.vatra-section-page .ui-vatra-market-toolbar-head-001{display:grid;grid-template-columns:auto minmax(180px,1fr) auto;align-items:center;gap:16px}
-body.vatra-section-page .ui-vatra-market-toolbar-nav-001{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:14px}
-body.vatra-section-page .ui-vatra-market-results-001{min-width:0}
-body.vatra-section-page .ui-vatra-market-catalog-001{display:flex;flex-wrap:wrap;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
-body.vatra-section-page [class^="vt-vatra-market-catalog-item-"]{display:flex;align-items:center;gap:7px;width:auto;border:0;border-radius:10px;background:transparent;color:var(--ink);text-align:left;padding:5px 9px;font:var(--section-body)}
+body.vatra-section-page .ui-vatra-market-browse-001{display:grid;grid-template-columns:clamp(280px,23vw,350px) minmax(0,1fr);min-width:0;align-items:start;min-height:calc(100dvh - var(--market-header,61px))}
+body.vatra-section-page .ui-vatra-market-sidebar-001{position:sticky;top:var(--market-header,61px);height:calc(100dvh - var(--market-header,61px));display:flex;flex-direction:column;min-height:0;min-width:0;background:#fff;border-right:1px solid var(--line);overflow:hidden}
+body.vatra-section-page .ui-vatra-market-sidebar-head-001{flex:none;display:grid;gap:13px;padding:20px 18px 14px;border-bottom:1px solid var(--line)}
+body.vatra-section-page .ui-vatra-market-sidebar-scroll-001{min-height:0;flex:1;display:flex;flex-direction:column;gap:14px;padding:12px 14px 24px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+body.vatra-section-page .ui-vatra-market-sidebar-scroll-001>*{flex:none}
+body.vatra-section-page .ui-vatra-market-results-001{min-width:0;width:100%;max-width:1480px;justify-self:center;padding:26px clamp(20px,2.5vw,38px) 56px}
+body.vatra-section-page .vt-vatra-market-categories-title-001{font:var(--section-heading);margin:0;padding:14px 5px 0;border-top:1px solid var(--line)}
+body.vatra-section-page .ui-vatra-market-catalog-001{display:grid;gap:4px}
+body.vatra-section-page [class^="vt-vatra-market-rules-link-"]{font:var(--section-control);color:var(--blue);text-decoration:none;padding:5px 0}
+body.vatra-section-page [class^="vt-vatra-market-catalog-item-"]{display:flex;align-items:center;gap:11px;width:100%;min-height:48px;border:0;border-radius:10px;background:transparent;color:var(--ink);text-align:left;padding:7px 8px;font:var(--section-body)}
 body.vatra-section-page [class^="vt-vatra-market-catalog-item-"]:hover,body.vatra-section-page [class^="vt-vatra-market-catalog-item-"][aria-pressed="true"]{background:#eaf1ff;color:var(--blue)}
 body.vatra-section-page [class^="ui-vatra-market-category-symbol-"]{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#edf3ff;color:#3974d8;flex:none}
 body.vatra-section-page [class^="ui-vatra-market-category-symbol-"] svg{width:19px;height:19px}
@@ -154,15 +195,15 @@ body.vatra-section-page .ui-vatra-market-category-symbol-transport{background:#e
 body.vatra-section-page .ui-vatra-market-category-symbol-sport{background:#ffefed;color:#e36758}
 body.vatra-section-page .ui-vatra-market-category-symbol-other{background:#f4edfc;color:#a367cf}
 body.vatra-section-page .ui-vatra-market-filters-001{min-width:110px;max-width:100%;border:1px solid #e0e7f2;border-radius:10px;padding:0 12px;background:#f8fafd}
-body.vatra-section-page .ui-vatra-market-filters-001[open]{flex:1 1 100%;padding-bottom:12px}
+body.vatra-section-page .ui-vatra-market-filters-001[open]{padding-bottom:12px}
 body.vatra-section-page .ui-vatra-market-filters-001>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;margin:0;min-height:36px;padding:4px 2px}
 body.vatra-section-page .ui-vatra-market-filters-001>summary::-webkit-details-marker{display:none}
 body.vatra-section-page .ui-vatra-market-filters-001>summary::after{content:"";width:8px;height:8px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(45deg);margin-right:5px;margin-top:-4px}
 body.vatra-section-page .ui-vatra-market-filters-001[open]>summary::after{transform:rotate(225deg);margin-top:4px}
 body.vatra-section-page .ui-vatra-market-filters-001[open] .ui-vatra-market-filter-fields-001{padding-top:12px}
-body.vatra-section-page .ui-vatra-market-filter-fields-001{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:end}
+body.vatra-section-page .ui-vatra-market-filter-fields-001{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:end}
 body.vatra-section-page .ui-vatra-market-filter-fields-001 .vt-vatra-market-sort-label-001{grid-column:1/-1}
-body.vatra-section-page .ui-vatra-market-filter-fields-001 .ui-vatra-section-tabs-001{grid-column:1/3}
+body.vatra-section-page .ui-vatra-market-filter-fields-001 .ui-vatra-section-tabs-001{grid-column:1}
 body.vatra-section-page .vt-vatra-market-sort-label-001{font:var(--section-control);color:var(--soft)}
 body.vatra-section-page .vt-vatra-market-filter-reset-001{border:0;border-radius:8px;background:#edf3ff;color:var(--blue);padding:9px;font:var(--section-control)}
 body.vatra-section-page :is(.vt-vatra-market-results-title-001,.vt-vatra-market-filter-title-001,.vt-vatra-market-group-title-001,.vt-vatra-clips-gallery-title-001,.vt-vatra-clips-social-title-001){font:var(--section-heading);letter-spacing:-.025em;color:var(--ink);margin:0 0 13px}
@@ -200,4 +241,5 @@ body.vatra-section-page .ui-vatra-clips-social-001 .vatra-post-action-row{flex-w
 body.vatra-section-page .ui-vatra-clips-social-001 .vatra-post-action-row>button{min-width:36px;padding-inline:7px}
 @media(max-width:1100px){body.vatra-section-page :is(.ui-vatra-market-grid-001,.ui-vatra-market-group-grid-001,.ui-vatra-clips-gallery-grid-001){grid-template-columns:repeat(3,minmax(0,1fr))}body.vatra-section-page .ui-vatra-clips-watch-001{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:800px){body.vatra-section-page :is(.ui-vatra-market-grid-001,.ui-vatra-market-group-grid-001,.ui-vatra-clips-gallery-grid-001){grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:680px){body.vatra-section-page .ui-vatra-marketplace-main-001{width:calc(100% - 24px);margin:14px auto 40px}body.vatra-section-page .ui-vatra-market-toolbar-001{padding:14px;gap:12px}body.vatra-section-page .ui-vatra-market-toolbar-head-001{grid-template-columns:minmax(0,1fr)}body.vatra-section-page .ui-vatra-market-toolbar-nav-001{gap:9px}body.vatra-section-page .ui-vatra-market-filter-fields-001{grid-template-columns:minmax(0,1fr)}body.vatra-section-page .ui-vatra-market-filter-fields-001 .ui-vatra-section-tabs-001{grid-column:1}body.vatra-section-page .ui-vatra-market-detail-layout-001{grid-template-columns:minmax(0,1fr);gap:18px;padding:16px}body.vatra-section-page .ui-vatra-market-detail-photo-001{max-height:50dvh}body.vatra-section-page .vt-vatra-market-detail-price-001{font-size:26px}body.vatra-section-page .ui-vatra-clips-empty-001{min-height:180px}body.vatra-section-page .ui-vatra-clip-frame-001{max-width:calc(100% - 52px)}}
+@media(max-width:850px){body.vatra-section-page .ui-vatra-market-browse-001{grid-template-columns:minmax(0,1fr)}body.vatra-section-page .ui-vatra-market-sidebar-001{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}body.vatra-section-page .ui-vatra-market-sidebar-scroll-001{max-height:38dvh}body.vatra-section-page .ui-vatra-market-results-001{padding:18px 14px 44px}body.vatra-section-page .ui-vatra-market-detail-layout-001{display:flex;flex-direction:column;overflow-y:auto}body.vatra-section-page .ui-vatra-market-detail-gallery-001{height:50dvh;flex:none}body.vatra-section-page .ui-vatra-market-detail-info-001{overflow:visible;padding:18px}body.vatra-section-page .ui-vatra-market-editor-001 .ui-vatra-market-screen-body-001{display:flex;flex-direction:column;overflow-y:auto}body.vatra-section-page .ui-vatra-market-editor-sidebar-001{flex:none;border:0}body.vatra-section-page .ui-vatra-market-editor-scroll-001{overflow:visible}body.vatra-section-page .ui-vatra-market-editor-preview-001{overflow:visible;margin:12px;align-self:stretch;flex:none}body.vatra-section-page .ui-vatra-market-preview-card-001{grid-template-columns:1fr;min-height:0}body.vatra-section-page .ui-vatra-market-preview-photo-001{min-height:220px}body.vatra-section-page .ui-vatra-market-type-picker-001{margin:auto}body.vatra-section-page .ui-vatra-market-type-grid-001{grid-template-columns:1fr}body.vatra-section-page .ui-vatra-market-type-grid-001 button{min-height:100px}}
+@media(max-width:680px){body.vatra-section-page .ui-vatra-clips-empty-001{min-height:180px}body.vatra-section-page .ui-vatra-clip-frame-001{max-width:calc(100% - 52px)}}
