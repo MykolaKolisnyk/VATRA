@@ -1507,7 +1507,7 @@ const systemFeedCss=await read("assets/css/feed.css");
 assert.ok(
  systemProfileCss.includes("body.profile-page :is(")&&
  systemProfileCss.includes("#profile-posts,#profile-friends-preview-list,#profile-gifts-preview-list")&&
- systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-saved-list")&&
+ systemProfileCss.includes("#profile-photo-gallery,#profile-video-gallery,#profile-clips-gallery,#profile-saved-list")&&
  systemProfileCss.includes("#profile-archive-stories-list,#profile-archive-posts-list,#profile-inbox-list")&&
  systemProfileCss.includes("):not(:has(> *)){")&&
  systemProfileCss.includes("--vatra-content-card-gap:16px")&&
