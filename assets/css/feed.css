@@ -3043,3 +3043,4 @@ body.feed-page .vatra-post-comment-dialog .feed-post-card>.feed-post-media .feed
 .ui-vatra-admin-blocked-001{width:min(430px,calc(100vw - 28px));border-radius:18px;padding:26px}
 .ui-vatra-admin-blocked-001[open]{display:grid;gap:14px}
 .ui-vatra-admin-blocked-001 h2,.ui-vatra-admin-blocked-001 p{margin:0}
+.vt-vatra-admin-primary-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#2863d8;color:white}

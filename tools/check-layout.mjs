@@ -1760,7 +1760,7 @@ assert.ok(
  postMediaScript.includes('Promise.allSettled(batch.map(file=>upload(client,id,file)))')&&
  interactionsScript.includes('const [commentsResult,sharesResult]=await Promise.all([')&&
  interactionsScript.includes('const hydrateSaved=()=>{')&&
- notificationPerfScript.includes('period=subscribed?300000:60000')&&
+ notificationPerfScript.includes('period=subscribed?300000:120000')&&
  notificationPerfScript.includes('Date.now()-lastRefresh<15000')&&
  /const CACHE="vatra-offline-shell-v[0-9]+"/.test(workerPerfScript)&&
  workerPerfScript.includes('fetch(request,{cache:"no-cache"})')&&
@@ -1975,6 +1975,7 @@ const ownerAdminJs=await read("assets/js/admin.js");
 assert.ok(ownerAdminGuard.indexOf('rpc("vatra_admin_access")')<ownerAdminGuard.indexOf("await loadAdmin()")&&ownerAdminGuard.includes('import(new URL("assets/js/admin.js?rev=')&&ownerAdminGuard.includes('assets/css/admin.css'),"Owner panel code and styles are loaded only after server role check and interaction");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
 assert.ok(ownerAdminGuard.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
+assert.ok((await read("assets/css/feed.css")).includes(".vt-vatra-admin-primary-001{")&&!((await read("assets/css/admin.css")).includes(".vt-vatra-admin-primary-001{")),"Blocked-account action must not depend on lazy admin styles");
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
 assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
@@ -2441,6 +2442,7 @@ assert.ok(
 await import("./feed-story-subscriptions-smoke.mjs");
 
 await import("./section-loading-smoke.mjs");
+await import("./static-cache-smoke.mjs");
 await import("./revision-assets.mjs");
 const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");

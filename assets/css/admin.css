@@ -24,8 +24,7 @@
 .ui-vatra-admin-id-input-001,.ui-vatra-admin-reason-001,.ui-vatra-admin-duration-001{box-sizing:border-box;width:100%;min-width:0;border:1px solid #d6e0ed;border-radius:10px;padding:11px 12px;color:#26354b;background:#fff;font:400 15px/1.4 Onest,system-ui,sans-serif}
 .ui-vatra-admin-reason-001{min-height:88px;resize:vertical}
 .ui-vatra-admin-actions-001{display:flex;gap:8px;flex-wrap:wrap}
-.vt-vatra-admin-primary-001,.vt-vatra-admin-danger-001,.vt-vatra-admin-secondary-001,.vt-vatra-admin-close-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#e9eff8;color:#335479}
-.vt-vatra-admin-primary-001{background:#2863d8;color:white}
+.vt-vatra-admin-danger-001,.vt-vatra-admin-secondary-001,.vt-vatra-admin-close-001{border:0;border-radius:10px;padding:11px 15px;font:650 14px/1.4 Onest,system-ui,sans-serif;cursor:pointer;background:#e9eff8;color:#335479}
 .vt-vatra-admin-danger-001{background:#fbe9eb;color:#a02e40}
 .ui-vatra-admin-dialog-001 button:disabled{opacity:.5;cursor:not-allowed}
 .vt-vatra-admin-status-001{margin:0;padding:10px 24px;color:#266a45;background:#eef8f1;flex:none}
