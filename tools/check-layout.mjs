@@ -1957,7 +1957,7 @@ const ownerAdminJs=await read("assets/js/owner-admin.js");
 const ownerAdminSQL=await read("supabase/vatra-owner-admin.sql");
 assert.ok(ownerAdminJs.includes('rpc("vatra_admin_access")')&&ownerAdminJs.includes('rpc("vatra_admin_manage"')&&ownerAdminJs.includes("VATRA_OPEN_MARKET_MODERATION"));
 assert.ok(ownerAdminSQL.includes("VATRA_ADMIN_REQUIRED")&&ownerAdminSQL.includes("as restrictive")&&ownerAdminSQL.includes("VATRA_OWNER_PROTECTED"));
-assert.ok(onboardingJs.includes('vatra_onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
+assert.ok(onboardingJs.includes('onboarding_done')&&onboardingJs.includes('saved?.status!=="done"')&&!onboardingJs.includes("повертайся до підказок"));
 
 const onboardingCss=await read("assets/css/onboarding.css");
 assert.ok(feedMarkup.includes('src="assets/js/onboarding.js"')&&
@@ -2418,7 +2418,7 @@ for(const section of ["clips","marketplace","vatra-id"]){
  const markup=await read(section+".html");
  assert.ok(markup.includes('data-page="'+section+'"')&&markup.includes('assets/js/sections.js')&&markup.includes('assets/css/sections.css'));
 }
-assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('vatra_marketplace_listings')&&sectionsRuntime.includes('vatra_verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
+assert.ok(sectionsRuntime.includes('eq("is_clip",true)')&&sectionsRuntime.includes('is_clip:true')&&sectionsRuntime.includes('marketplace_listings')&&sectionsRuntime.includes('verification_requests')&&sectionsRuntime.includes('client.auth.updateUser')&&sectionsStyle.includes('Onest'));
 assert.ok(sectionsRuntime.includes('photo.multiple=true')&&sectionsRuntime.includes('image_paths:paths')&&sectionsRuntime.includes('photoPaths(row)')&&sectionsRuntime.includes('ui-vatra-market-sidebar-scroll-001')&&sectionsRuntime.includes('const marketLimit=10')&&sectionsRuntime.includes('ui-vatra-market-editor-preview-001')&&sectionsStyle.includes('ui-vatra-market-detail-thumbs-001'),
  "Marketplace uses independent sidebar scrolling, ten photos and live preview");
 const marketCatalogSource=sectionsRuntime.slice(sectionsRuntime.indexOf("const categories="),sectionsRuntime.indexOf("const marketConditions="));
@@ -2448,7 +2448,7 @@ assert.ok(money.marketMatchesPrice({price:10},"UAH",0,20));
 assert.ok(money.marketMatchesPrice({price:10,currency:"EUR"},"all",null,null));
 assert.ok(sectionsRuntime.includes("price:marketAmount(price.value),currency:currency.value")&&sectionsRuntime.includes("form.prepend(categoryGroup)")&&sectionsRuntime.includes("price,currency,city"),"Persist currency, read it back and show required category first");
 assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")')&&sectionsRuntime.includes('eq("moderation_status","pending")'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
-assert.ok(sectionsRuntime.includes('vatra_market_cases')&&sectionsRuntime.includes('vatra_market_moderators')&&sectionsRuntime.includes('vatra_market_suspensions')&&sectionsRuntime.includes('vatra_market_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
+assert.ok(sectionsRuntime.includes('marketplace_cases')&&sectionsRuntime.includes('marketplace_moderators')&&sectionsRuntime.includes('marketplace_suspensions')&&sectionsRuntime.includes('marketplace_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
 const moderationSQL=await read("supabase/vatra-marketplace-moderation.sql");
 const moderationMediaSQL=await read("supabase/vatra-marketplace-moderation-media.sql");
 assert.ok(moderationSQL.includes("VATRA_MARKET_MODERATOR_REQUIRED")&&moderationSQL.includes("VATRA_MARKET_SUSPENDED")&&moderationSQL.includes("moderation_status='approved'")&&moderationSQL.includes("enable row level security"));
