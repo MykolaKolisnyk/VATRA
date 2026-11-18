@@ -17,7 +17,7 @@ alter table public.vatra_market_suspensions enable row level security;
 revoke all on public.vatra_market_suspensions from public,anon,authenticated;
 grant select,insert,delete on public.vatra_market_suspensions to authenticated;
 create policy market_suspension_read on public.vatra_market_suspensions for select to authenticated using((select vatra_market_private.is_moderator()) or exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id=seller_vatra_id));
-create policy market_suspension_insert on public.vatra_market_suspensions for insert to authenticated with check((select vatra_market_private.is_moderator()));
+create policy market_suspension_insert on public.vatra_market_suspensions for insert to authenticated with check((select vatra_market_private.is_moderator()) and not exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id=seller_vatra_id));
 create policy market_suspension_delete on public.vatra_market_suspensions for delete to authenticated using((select vatra_market_private.is_moderator()));
 create function vatra_market_private.is_suspended(p_seller bigint) returns boolean language sql stable security definer set search_path='' as $$select exists(select 1 from public.vatra_market_suspensions s where s.seller_vatra_id=p_seller)$$;
 revoke all on function vatra_market_private.is_suspended(bigint) from public,anon;
@@ -36,7 +36,7 @@ create table public.vatra_market_moderation_history(
  actor_id uuid, event text not null, reason text not null default '', created_at timestamptz not null default now());
 alter table public.vatra_market_moderation_history enable row level security;
 revoke all on public.vatra_market_moderation_history from public,anon,authenticated;
-grant select on public.vatra_market_moderation_history to authenticated;
+grant select(id,listing_id,seller_vatra_id,event,reason,created_at) on public.vatra_market_moderation_history to authenticated;
 create policy market_history_read on public.vatra_market_moderation_history for select to authenticated using((select vatra_market_private.is_moderator()) or exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id=seller_vatra_id));
 
 create function vatra_market_private.guard_listing() returns trigger language plpgsql security definer set search_path='' as $$
@@ -116,4 +116,18 @@ begin
 end $;
 revoke all on function vatra_market_private.log_suspension() from public,anon,authenticated;
 create trigger market_log_suspension after insert or delete on public.vatra_market_suspensions for each row execute function vatra_market_private.log_suspension();
+
+alter policy vatra_market_image_insert on storage.objects to authenticated with check(
+ bucket_id='marketplace-images' and name ~ '^[1-9][0-9]*/[a-f0-9-]{36}[.](jpg|png|webp)
+ and exists(select 1 from public.accounts a where a.user_id=(select auth.uid()) and a.vatra_id::text=split_part(objects.name,'/',1) and not vatra_market_private.is_suspended(a.vatra_id)));
+create function vatra_market_private.log_case_resolution() returns trigger language plpgsql security definer set search_path='' as $
+begin
+ if new.state is distinct from old.state or new.resolution is distinct from old.resolution then
+  insert into public.vatra_market_moderation_history(listing_id,seller_vatra_id,actor_id,event,reason)
+  select l.id,l.seller_vatra_id,auth.uid(),new.kind||'_'||new.state,'' from public.vatra_marketplace_listings l where l.id=new.listing_id;
+ end if;
+ return new;
+end $;
+revoke all on function vatra_market_private.log_case_resolution() from public,anon,authenticated;
+create trigger market_log_case_resolution after update on public.vatra_market_cases for each row execute function vatra_market_private.log_case_resolution();
 commit;
