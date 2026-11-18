@@ -2341,6 +2341,7 @@ assert.ok(
  (await read("docs/redis-cache-policy.md")).includes("Single public community details"),
  "Community detail cache must be public-only and always fall back to PostgREST");
 await import("./community-detail-cache-smoke.mjs");
+await import("./community-category-smoke.mjs");
 
 /* Off-screen batch DOM rendering avoids repeated list-level mutations. */
 const batchedFeedPosts=await read("assets/js/feed.js");

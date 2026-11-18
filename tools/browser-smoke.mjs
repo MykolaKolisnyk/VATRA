@@ -4866,7 +4866,7 @@ try{
       name,method:options?.method
      }]);
      if(localStorage.getItem("vatra-test-cache-mode")==="hit")
-      return {data:{data:[{club_id:77,name:"Кешована спільнота",
+      return {data:{data:[{club_id:77,category:"music",name:"Кешована спільнота",
        description:"Кеш Redis",created_at:"2026-11-13T00:00:00Z"}]},error:null};
      return {data:null,error:{message:"mock Edge unavailable"}};
     }
@@ -4880,32 +4880,32 @@ try{
      }
     })}:
     table==="community_follows"?
-    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null})})}:
+    {select:()=>({eq(){return this;},maybeSingle:async()=>({data:{club_id:1},error:null}),then(resolve,reject){return Promise.resolve({data:[],error:null}).then(resolve,reject);}})}:
     table==="public_profiles"?
     {select:()=>({in:async()=>({data:[],error:null})})}:
     table==="accounts"?
     {select:()=>({eq:()=>({maybeSingle:async()=>({data:{vatra_id:654321},error:null})})})}:
     {
-     select:()=>{
-      if(table==="communities")
-       window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;
+     select:fields=>{
+      const isDirectory=table==="communities"&&fields==="club_id,name,description,created_at,category";
       return {
-       term:"",
-       eq:(_field,id)=>({maybeSingle:async()=>{
-        await new Promise(resolve=>setTimeout(resolve,270));
-        return {data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]").find(x=>String(x.club_id)===String(id))||null,error:null};
-       }}),
-       ilike(_field,pattern){this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
+       term:"",searchField:"name",filters:[],ids:null,
+       eq(field,id){this.filters.push([field,String(id)]);return this;},
+       in(field,ids){this.ids=[field,ids.map(String)];return this;},
+       ilike(field,pattern){this.searchField=field;this.term=String(pattern).replace(/^%|%$/g,"").toLocaleLowerCase();return this;},
        order(){return this;},
-       limit:async function(){await new Promise(resolve=>setTimeout(resolve,270));return {
-        data:JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
-         .filter(club=>!this.term||club.name.toLocaleLowerCase().includes(this.term)),error:null
-       };}
+       rows(){if(table!=="communities")return [];return JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]")
+        .filter(club=>this.filters.every(([field,id])=>String(club[field])===id)&&
+         (!this.ids||this.ids[1].includes(String(club[this.ids[0]])))&&
+         (!this.term||String(club[this.searchField]||"").toLocaleLowerCase().includes(this.term)));},
+       async maybeSingle(){await new Promise(resolve=>setTimeout(resolve,270));return {data:this.rows()[0]||null,error:null};},
+       async limit(n){if(isDirectory&&!this.ids)window.__clubDirectQueries=(window.__clubDirectQueries||0)+1;await new Promise(resolve=>setTimeout(resolve,270));return {data:this.rows().slice(0,n),error:null};},
+       then(resolve,reject){return Promise.resolve({data:this.rows(),error:null}).then(resolve,reject);}
       };
      },
      insert:data=>({select:()=>({single:async()=>{
       const all=JSON.parse(localStorage.getItem("vatra-test-clubs")||"[]");
-      const club={club_id:all.length+1,...data,created_at:new Date().toISOString()};
+      const club={club_id:all.length+1,owner_id:"club-mock-user",...data,created_at:new Date().toISOString()};
       all.push(club);localStorage.setItem("vatra-test-clubs",JSON.stringify(all));
       return {data:{club_id:club.club_id},error:null};
      }})})
@@ -4928,8 +4928,29 @@ try{
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   if(language==="uk")assertStableHeader(await navCenters(page),"Communities");
-  assert.equal((await page.locator(".vt-communities-title-001").textContent()).trim(),
+  assert.equal((await page.locator(".vt-community-discovery-title-001").textContent()).trim(),
    language==="en"?"Communities":"Спільноти");
+  const hero=page.locator("#community-discovery-banner");
+  const heroImage=hero.locator("img");
+  await heroImage.waitFor({state:"visible"});
+  await heroImage.evaluate(img=>img.decode());
+  assert.equal(await heroImage.evaluate(img=>img.naturalWidth),2000);
+  assert.equal(await heroImage.evaluate(img=>img.naturalHeight),580);
+  assert.equal(await hero.locator("h2").textContent(),language==="en"?"Find your people":"Знайдіть своїх людей");
+  const savedViewport=page.viewportSize();
+  for(const size of [{width:1366,height:844},{width:390,height:844}]){
+   await page.setViewportSize(size);
+   const banner=await hero.evaluate(el=>{
+    const img=el.querySelector("img"),title=el.querySelector("h2"),copy=el.querySelector(".ui-community-banner-copy-001");
+    const r=el.getBoundingClientRect(),i=img.getBoundingClientRect(),c=copy.getBoundingClientRect(),t=title.getBoundingClientRect(),header=document.querySelector(".feed-header").getBoundingClientRect();
+    const sidebar=document.querySelector(".ui-community-discovery-sidebar-001").getBoundingClientRect(), workspace=el.parentElement.getBoundingClientRect();return {width:r.width,height:r.height,imageFills:Math.abs(i.width-r.width)<=1&&Math.abs(i.height-r.height)<=1&&getComputedStyle(img).objectFit==="cover",within:r.left>=0&&r.right<=innerWidth+1,copyInside:c.bottom<=r.bottom+1&&c.top>=r.top-1&&t.left>=r.left&&t.right<=r.right,inlineStart:r.left-(innerWidth>950?sidebar.right:workspace.left),inlineEnd:workspace.right-r.right,headerGap:r.top-header.bottom};
+   });
+   assert.ok(banner.width>0&&banner.within&&banner.copyInside&&banner.imageFills,"Cover image and copy must fill the banner: "+JSON.stringify(banner));
+   assert.equal(Math.round(banner.height),size.width<=600?185:290,"Cover height must match profile");
+   assert.ok(Math.abs(banner.inlineStart)<=2&&Math.abs(banner.inlineEnd)<=2,"Cover must span the complete content column: "+JSON.stringify(banner));
+   assert.ok(Math.abs(banner.headerGap)<=2,"Cover must touch the header like the profile cover: "+JSON.stringify(banner));
+  }
+  if(savedViewport)await page.setViewportSize(savedViewport);
   assert.equal(await page.locator(".feed-sidebar").count(),0,
    "Communities has only the actual header navigation");
   assert.equal(await page.locator(".social-top-nav").isVisible(),true);
@@ -4948,6 +4969,12 @@ try{
   assert.equal(await page.locator("#community-create-panel").isVisible(),true);
   await page.locator("#community-name").fill("Спільнота тесту");
   await page.locator("#community-description").fill("Опис перевірки");
+  const categoryInput=page.locator("#community-category");
+  assert.equal(await categoryInput.locator("option").count(),41,"Forty categories plus placeholder");
+  assert.equal(await categoryInput.evaluate(el=>el.validity.valueMissing),true);
+  await page.locator("#community-create-submit").click();
+  assert.ok(new URL(page.url()).pathname.endsWith("/communities"),"Category must be selected before creating");
+  await categoryInput.selectOption("music");
   const clubNavigations=[];
   const clubNavigationErrors=[];
   page.on("framenavigated",frame=>{
@@ -4962,6 +4989,7 @@ try{
   await page.locator("#club-heading").waitFor({state:"visible",timeout:16000});
   if(language==="uk")assertStableHeader(await navCenters(page),"Club");
   assert.equal((await page.locator("#club-heading").textContent()).trim(),"Спільнота тесту");
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("vatra-test-clubs"))[0].category),"music","Chosen category must be persisted");
   assert.equal((await page.locator("#club-public-id").textContent()).trim(),"Club ID 1");
   assert.equal((await page.locator("#club-description").textContent()).trim(),"Опис перевірки");
   assert.ok(clubNavigationErrors.length===0&&
@@ -5020,14 +5048,40 @@ try{
   assert.equal(await page.locator(".vatra-discovery-workspace > .vatra-discovery-sidebar").count(),1);
   assert.equal(await page.locator(".vatra-discovery-tabs .vatra-discovery-nav-icon").count(),3);
   assert.equal(await page.locator(".ui-community-topic-001").count(),6);
-  assert.equal(await page.locator(".ui-community-card-open-001").count(),1);
+  assert.ok(await page.locator("#community-topics").evaluate(el=>{
+   const list=document.querySelector(".ui-community-list-section-001");
+   const banner=document.querySelector("#community-discovery-banner");
+   return banner.getBoundingClientRect().bottom<=el.getBoundingClientRect().top+1&&el.getBoundingClientRect().bottom<=list.getBoundingClientRect().top+1;
+  }),"Topic discovery must appear below the cover and above new communities");
+  const topicCards=page.locator(".ui-community-topic-001");
+  assert.deepEqual(await topicCards.locator("img").evaluateAll(images=>images.map(img=>new URL(img.src).pathname.split("/").pop())),["music.webp","sport.webp","travel.webp","technology.webp","education.webp","art.webp"]);
+  for(const photo of await topicCards.locator("img").all()){
+   await photo.scrollIntoViewIfNeeded();
+   await photo.evaluate(img=>img.decode());
+   assert.ok(await photo.evaluate(img=>img.naturalWidth>0&&img.naturalHeight>0));
+   assert.equal(await photo.getAttribute("loading"),"lazy");
+  }
+  assert.equal(await page.locator(".vt-community-card-open-001").count(),1);
   assert.ok((await page.locator(".ui-community-card-cover-001").getAttribute("href")).endsWith("/VATRA/club1"));
+  await page.locator('[data-community-category="music"]').click();
+  await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await page.locator(".ui-community-card-001").count(),1,"Category matches independently of post name or description");
+  assert.equal(await page.locator('[data-community-category="music"]').getAttribute("aria-pressed"),"true");
+  await page.locator(".vt-community-all-topics-001").click();
+  assert.equal(await page.locator("#community-topic-filter option").count(),41);
+  await page.locator("#community-topic-filter").selectOption("business");
+  await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await page.locator(".ui-community-card-001").count(),0);
+  await page.locator("#community-topic-filter").selectOption("");
+  await page.waitForFunction(()=>document.querySelector("#community-list")?.getAttribute("aria-busy")==="false");
+  assert.equal(await page.locator(".ui-community-card-001").count(),1);
   await page.goto(base+"communities?q="+encodeURIComponent("Спільнота"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
   assert.equal(await page.locator(".ui-community-card-001").count(),1,
    "Searching VATRA communities must filter the directory by name");
   assert.equal(await page.locator("#feed-search-input").inputValue(),"Спільнота");
+  assert.equal(await page.locator("#community-discovery-banner").isVisible(),false,"Search should prioritize results, not the discovery banner");
   await page.goto(base+"communities?q="+encodeURIComponent("Неіснуючий"),{waitUntil:"domcontentloaded"});
   await page.locator("#community-app").waitFor({state:"visible",timeout:15000});
   await page.waitForFunction(()=>document.body.dataset.authReady==="true",null,{timeout:15000});
@@ -5042,7 +5096,7 @@ try{
  await cachePage.addInitScript(()=>{
   localStorage.setItem("vatra-test-cache-mode","hit");
   localStorage.setItem("vatra-test-clubs",JSON.stringify([{
-   club_id:88,name:"Пошукова спільнота",description:"Прямий SQL",
+   club_id:88,category:"business",name:"Пошукова спільнота",description:"Прямий SQL",
    created_at:"2026-11-13T00:00:00Z"
   }]));
  });
@@ -5061,8 +5115,8 @@ try{
   "Search still reads the uncached source of truth");
  assert.equal(await cachePage.evaluate(()=>(window.__clubCacheInvocations||[]).length),0,
   "Search must always bypass the shared Redis cache");
- assert.equal(await cachePage.evaluate(()=>window.__clubDirectQueries||0),1,
-  "Search must issue one direct PostgREST query");
+ assert.equal(await cachePage.evaluate(()=>window.__clubDirectQueries||0),2,
+  "Search must query both name and description directly, then deduplicate results");
  await cachePage.close();
  await clubContext.close();
  console.log("VATRA Communities: UK/EN creation, cached public directory, direct search and fallback: OK");
