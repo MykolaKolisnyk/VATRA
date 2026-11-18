@@ -28,50 +28,12 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Zur Startseite"
+            "0": "Zum Newsfeed"
           }
         },
         "n8": {
           "text": {
-            "0": "Seite nicht gefunden"
-          }
-        },
-        "n14": {
-          "text": {
-            "0": "Deine Menschen. Deine Geschichten. Deine VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informationen"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Nutzungsbedingungen"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Datenschutz"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Deutsch"
-          },
-          "attrs": {
-            "aria-label": "Sprache wählen"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Anmelden"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Konto erstellen"
+            "0": "Diese Seite existiert nicht"
           }
         }
       }

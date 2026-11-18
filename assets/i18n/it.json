@@ -28,50 +28,12 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Vai alla pagina iniziale"
+            "0": "Al feed delle notizie"
           }
         },
         "n8": {
           "text": {
-            "0": "Pagina non trovata"
-          }
-        },
-        "n14": {
-          "text": {
-            "0": "Le tue persone. Le tue storie. La tua VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informazioni"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Condizioni d'uso"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Privacy"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Italiano"
-          },
-          "attrs": {
-            "aria-label": "Scegli la lingua"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Accedi"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Crea un account"
+            "0": "Questa pagina non esiste"
           }
         }
       }

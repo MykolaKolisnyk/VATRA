@@ -28,50 +28,12 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Na stronę główną"
+            "0": "Do aktualności"
           }
         },
         "n8": {
           "text": {
-            "0": "Nie znaleziono strony"
-          }
-        },
-        "n14": {
-          "text": {
-            "0": "Twoi ludzie. Twoje historie. Twoja VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informacje"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Warunki korzystania"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Prywatność"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Polski"
-          },
-          "attrs": {
-            "aria-label": "Wybierz język"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Zaloguj się"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Utwórz konto"
+            "0": "Taka strona nie istnieje"
           }
         }
       }

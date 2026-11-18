@@ -28,50 +28,12 @@
       "nodes": {
         "n4": {
           "text": {
-            "0": "Accueil"
+            "0": "Accéder au fil d’actualité"
           }
         },
         "n8": {
           "text": {
-            "0": "Page introuvable"
-          }
-        },
-        "n14": {
-          "text": {
-            "0": "Vos proches. Vos histoires. Votre VATRA."
-          }
-        },
-        "n15": {
-          "attrs": {
-            "aria-label": "Informations"
-          }
-        },
-        "n16": {
-          "text": {
-            "0": "Conditions d’utilisation"
-          }
-        },
-        "n17": {
-          "text": {
-            "0": "Confidentialité"
-          }
-        },
-        "n18": {
-          "text": {
-            "0": "Français"
-          },
-          "attrs": {
-            "aria-label": "Choisir la langue"
-          }
-        },
-        "n301": {
-          "text": {
-            "0": "Se connecter"
-          }
-        },
-        "n302": {
-          "text": {
-            "0": "Créer un compte"
+            "0": "Cette page n’existe pas"
           }
         }
       }
