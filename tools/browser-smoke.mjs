@@ -4402,14 +4402,28 @@ try{
   assert.equal(await profilePage.locator(".profile-editor-nav-link [class^='ui-vatra-profile-editor-nav-symbol-']").count(),7,
    "Each editor section needs a recognizable VATRA icon");
   await profilePage.locator("#profile-editor-short_bio").fill("Тестова інформація");
-  await profilePage.locator("#profile-editor-visibility-short_bio").selectOption("only_me");
+  // The editor enhances native selects into accessible combobox buttons.
+  // Exercise the visible dropdown and verify the backing value and closed state.
+  const chooseProfileEditorOption=async(id,value,label)=>{
+   const trigger=profilePage.locator("#"+id);
+   await trigger.click();
+   assert.equal(await trigger.getAttribute("aria-expanded"),"true");
+   const panelId=await trigger.getAttribute("aria-controls");
+   assert.ok(panelId,"Opening an editor combobox must identify its options");
+   const panel=profilePage.locator("#"+panelId);
+   await panel.getByText(label,{exact:true}).click();
+   assert.equal(await profilePage.locator("#"+id+"-native").inputValue(),value,
+    "Choosing a visible editor option must update the underlying form value");
+   assert.equal(await trigger.getAttribute("aria-expanded"),"false");
+  };
+  await chooseProfileEditorOption("profile-editor-visibility-short_bio","only_me",language==="en"?"Only me":"Лише для мене");
   await profilePage.locator("#profile-editor-hometown").fill("Львів");
   await profilePage.locator("#profile-editor-relationship").fill("У стосунках");
-  await profilePage.locator("#profile-editor-page-visibility").selectOption("friends");
+  await chooseProfileEditorOption("profile-editor-page-visibility","friends",language==="en"?"Private · friends only":"Закрита · лише друзі");
   await profilePage.locator('.profile-editor-nav-link[data-group="contacts"]').click();
   await profilePage.locator("#profile-editor-city").fill("Київ");
   await profilePage.locator("#profile-editor-website").fill("https://example.org");
-  await profilePage.locator("#profile-editor-visibility-website").selectOption("public");
+  await chooseProfileEditorOption("profile-editor-visibility-website","public",language==="en"?"Everyone":"Для всіх");
   await profilePage.locator('.profile-editor-nav-link[data-group="profile"]').click();
   assert.equal(await profilePage.locator("#profile-editor-short_bio").inputValue(),"Тестова інформація",
    "Changing editor sections must preserve unsaved personal details");
