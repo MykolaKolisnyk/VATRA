@@ -4,7 +4,7 @@ with args as (
  select left(btrim(coalesce(p_query,'')),120) as term, greatest(1,least(coalesce(p_limit,20),30)) as n
 ), q as (
  select *, '%'||replace(replace(replace(term,chr(92),chr(92)||chr(92)),'%',chr(92)||'%'),'_',chr(92)||'_')||'%' as pattern,
- substring(term from '^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$') as exact_id
+ substring(lower(term) from '^(?:(?:vatra *)?id *#? *)?([1-9][0-9]{0,18})$') as exact_id
  from args where char_length(term)>=2 or term ~ '^[1-9]$'
 ), people as (
  select p.vatra_id::text as vatra_id,p.display_name,left(p.status_text,180) as status_text,m.avatar_path,
