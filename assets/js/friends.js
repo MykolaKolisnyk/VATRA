@@ -148,8 +148,10 @@ function person(item,index){
   t("Запит надіслано","Request sent"));
  details.append(profile,secondary);
  const actions=make("div","vatra-friends-person-actions ui-vatra-friends-person-actions-"+index);
- const message=make("a","vt-vatra-friends-message-"+index,t("Переглянути профіль","View profile"));
- message.href=new URL("id"+id,root).href;actions.append(message);
+ if(!state&&stateFor(item)==="accepted"){
+  const message=make("a","vt-vatra-friends-message-"+index,t("Написати","Message"));
+  message.href=new URL("id"+id+"?message=1",root).href;actions.append(message);
+ }
  if(me&&stateFor(item)==="incoming"){
   actions.append(actionButton(t("Прийняти","Accept"),
    "vt-vatra-friends-accept-"+index,()=>accept(item)));
@@ -170,8 +172,8 @@ function switchTo(mode){
   const active=tab.dataset.friendsTab===mode;
   tab.classList.toggle("is-active",active);tab.setAttribute("aria-pressed",String(active));
  }
- for(const tab of document.querySelectorAll("[data-friends-switch]"))
-  tab.classList.toggle("is-active",tab.dataset.friendsSwitch===(mode==="online"?"accepted":mode));
+ const searchBox=q("#friends-search");
+ if(searchBox){searchBox.placeholder=mode==="incoming"?t("Пошук у вхідних запитах","Search received requests"):mode==="outgoing"?t("Пошук у вихідних запитах","Search sent requests"):t("Пошук серед друзів","Search friends");searchBox.setAttribute("aria-label",searchBox.placeholder);}
  render();
 }
 function render(){
@@ -235,11 +237,11 @@ async function boot(){
   if(!me){
 
 
-   for(const el of document.querySelectorAll("[data-friends-tab],[data-friends-switch]"))
+   for(const el of document.querySelectorAll("[data-friends-tab]"))
     el.hidden=true;
    q("#friends-search").disabled=true;
    q("#friends-find").disabled=true;
-   q(".vt-vatra-friends-side-title-001").textContent=t("Приватність друзів","Friends privacy");
+   q(".vatra-friends-sidebar").hidden=true;
   }
   document.title=t("Друзі · VATRA","Friends · VATRA");
   q("#feed-app").hidden=false;q("#feed-loading").hidden=true;
@@ -248,15 +250,16 @@ async function boot(){
   void window.VATRA_PRESENCE?.start(client,ownId,user.user_metadata?.gender);
   for(const btn of document.querySelectorAll("[data-friends-tab]"))
    btn.addEventListener("click",()=>switchTo(btn.dataset.friendsTab));
-  for(const btn of document.querySelectorAll("[data-friends-switch]"))
-   btn.addEventListener("click",()=>switchTo(btn.dataset.friendsSwitch));
+
   q("#friends-search")?.addEventListener("input",event=>{
    search=String(event.target.value||"").trim().slice(0,100).toLocaleLowerCase();render();
   });
-  q("#friends-find")?.addEventListener("click",()=>{
+  const findPeople=event=>{
    const input=q("#feed-search-input");
-   if(input){input.focus();input.select();}
-  });
+   if(input){event.preventDefault();input.focus();input.select();}
+  };
+  q("#friends-find")?.addEventListener("click",findPeople);
+  q(".vt-vatra-friends-side-search-link-001")?.addEventListener("click",findPeople);
   if(!me){
    const empty=q("#friends-empty");
    empty.textContent=t("Списки друзів інших користувачів приватні.",

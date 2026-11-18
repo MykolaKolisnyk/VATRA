@@ -252,7 +252,18 @@ async function openDirectory(client,ownId,userId){
    card.append(mark,detail);
    list.append(card);
   }
-   status("#community-list-status",mode!=="all"&&filterError?t("Не вдалося перевірити всі підписки.","Could not verify all memberships."):visible.length===0?(term?t("За цим запитом спільнот не знайдено.","No communities match this search."):(mode==="all"?t("Спільнот поки немає. Створіть першу!","No communities yet. Create the first one!"):t("У цьому розділі поки немає спільнот.","No communities in this section yet."))):"");
+   const error=mode!=="all"&&filterError;
+   status("#community-list-status",error?t("Не вдалося перевірити всі підписки.","Could not verify all memberships."):"",error?"error":"");
+   $("#community-list-status").hidden=!error;
+   if(!visible.length&&!error){
+    const box=node("div","ui-community-directory-empty-001");
+    const icon=node("span","ui-community-directory-empty-icon-001");icon.setAttribute("aria-hidden","true");
+    const heading=term?t("Нічого не знайдено","No matches"):mode==="followed"?t("Ви ще не підписані на спільноти","You have not joined any communities"):mode==="owned"?t("У вас ще немає спільнот","You have no communities"):t("Тут починаються спільноти","Communities start here");
+    const copy=term?t("Спробуйте інший пошуковий запит.","Try another search."):mode==="followed"?t("Знайдіть цікаві спільноти та приєднуйтеся до них.","Find communities you like and join them."):t("Створіть місце для однодумців, друзів або свого проєкту.","Create a space for like-minded people, friends, or your project.");
+    const call=node("button","community-create-toggle vt-community-directory-empty-action-001",term?t("Очистити пошук","Clear search"):mode==="followed"?t("Усі спільноти","All communities"):t("Створити спільноту","Create community"));
+    call.type="button";call.addEventListener("click",()=>{if(term){term="";if(input)input.value="";void refresh();}else if(mode==="followed"){filters.find(tab=>tab.dataset.communityFilter==="all")?.click();}else if(panel?.hidden)toggle?.click();else $("#community-name")?.focus();});
+    box.append(icon,node("h3","vt-community-directory-empty-title-001",heading),node("p","vt-community-directory-empty-copy-001",copy),call);list.append(box);
+   }
   };
   let revision=0,timer=null;
   const refresh=async()=>{

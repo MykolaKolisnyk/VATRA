@@ -3029,13 +3029,17 @@ async function start(){
    preview.style.backgroundImage=image||"var(--vatra-default-avatar)";
    preview.classList.toggle("has-photo",!!image);
   }).catch(()=>{});
-  const sharedPhoto=new URLSearchParams(location.search).get("photo")==="avatar";
+  const requestedAction=new URLSearchParams(location.search);
+  const sharedPhoto=requestedAction.get("photo")==="avatar";
+  const requestedMessage=requestedAction.get("message")==="1"&&!isMine&&!memberBlocked;
+  const requestedItem=String(requestedAction.get("item")||"").replace(/\s+/g," ").trim().slice(0,100);
 
 
 
   const canonical=new URL(memberUrl(targetId));
   const remaining=new URLSearchParams(location.search);
   remaining.delete("vatra_id");
+  remaining.delete("message");remaining.delete("item");
   const tail=remaining.toString();
   canonical.search=tail?"?"+tail:"";
   canonical.hash=location.hash;
@@ -3062,6 +3066,11 @@ async function start(){
    q("#profile-avatar-wrap")?.classList.remove("is-loading-media");
   });
   if(sharedPhoto&&!locked)void mediaPromise.then(()=>window.VATRA_OPEN_PROFILE_AVATAR?.());
+  if(requestedMessage&&!q("#profile-message-button")?.hidden){
+   q("#profile-message-button")?.click();
+   const draft=q("#profile-message-text");
+   if(draft&&requestedItem)draft.value=t("Вітаю! Мене цікавить оголошення «","Hello! I am interested in the listing “")+requestedItem+t("». Воно ще актуальне?","”. Is it still available?");
+  }
   void postsPromise;
  }catch(error){
   console.error("[VATRA] Profile initialization failed:",error);

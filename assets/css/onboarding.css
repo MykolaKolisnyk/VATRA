@@ -88,13 +88,16 @@
 .ui-feed-first-steps-mascot-001{display:block;flex:0 0 44px;width:44px;height:55px;background-position:center;background-size:contain;background-repeat:no-repeat;align-self:center}
 .ui-feed-first-steps-meter-001{height:6px;border-radius:99px;background:#e8eef8;overflow:hidden;margin-bottom:11px}
 .ui-feed-first-steps-fill-001{height:100%;width:0;border-radius:inherit;background:linear-gradient(100deg,#3977e0,#6259d6);transition:width .25s ease}
-.ui-feed-first-steps-list-001{display:grid;gap:4px}
-.ui-feed-first-steps-list-001 a{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;column-gap:8px;row-gap:2px;padding:8px 6px;border-radius:9px;text-decoration:none;color:var(--ink);min-width:0}
-.ui-feed-first-steps-list-001 a:hover{background:#f4f7ff;text-decoration:none;color:var(--blue)}
-.ui-feed-first-steps-list-001 [class^="ui-feed-first-step-mark-"]{grid-column:1;grid-row:1/3;display:grid;place-items:center;width:22px;height:22px;border:1px solid #d1dced;border-radius:50%;font:700 13px/1 "Onest",system-ui,sans-serif;color:#7184a5}
-.ui-feed-first-steps-list-001 a[data-state="done"] [class^="ui-feed-first-step-mark-"]{background:#edf4ff;border-color:#c9daf7;color:#2864d5}
-.ui-feed-first-steps-list-001 [class^="vt-feed-first-step-name-"]{grid-column:2;font:500 13px/1.4 "Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-wrap:anywhere}
-.ui-feed-first-steps-list-001 [class^="vt-feed-first-step-note-"]{grid-column:2;font:400 11px/1.4 "Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--soft)}
+.ui-feed-first-steps-list-001{display:grid;gap:2px}
+body.feed-page .ui-feed-first-steps-list-001 a{display:grid;grid-template-columns:19px minmax(0,1fr);align-items:center;column-gap:9px;row-gap:3px;padding:8px 3px;border-radius:8px;text-decoration:none;color:var(--ink);min-width:0}
+body.feed-page .ui-feed-first-steps-list-001 a:hover{background:#f4f7ff;text-decoration:none;color:var(--blue)}
+.ui-feed-first-steps-list-001 [class^="ui-feed-first-step-mark-"]{grid-column:1;grid-row:1;display:grid;place-items:center;box-sizing:border-box;width:19px;height:19px;border:1.5px solid #c8d5e8;border-radius:50%;color:#7184a5;line-height:0}
+.ui-feed-first-steps-list-001 a[data-state="done"] [class^="ui-feed-first-step-mark-"]{background:#3270d8;border-color:#3270d8;color:#fff}
+.ui-feed-first-steps-list-001 a[data-state="done"] [class^="ui-feed-first-step-mark-"]::before{content:"";display:block;width:8px;height:4px;border-left:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:translateY(-1px) rotate(-45deg);box-sizing:content-box}
+.ui-feed-first-steps-list-001 a[data-state="unknown"] [class^="ui-feed-first-step-mark-"]::before{content:"";width:7px;height:1.5px;background:currentColor;border-radius:2px}
+body.feed-page .ui-feed-first-steps-list-001 [class^="vt-feed-first-step-name-"]{grid-column:2;font:500 13px/1.4 "Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-wrap:anywhere}
+body.feed-page .ui-feed-first-steps-list-001 [class^="vt-feed-first-step-note-"]{grid-column:2;font:400 11px/1.4 "Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--soft)}
+.ui-feed-first-steps-list-001 [class^="vt-feed-first-step-note-"][hidden]{display:none}
 .ui-feed-first-steps-list-001 a[data-state="pending"] [class^="vt-feed-first-step-note-"]{color:var(--blue)}
 .ui-feed-first-steps-actions-001{border-top:1px solid #e8edf5;padding-top:10px;margin-top:9px}
 .vt-feed-first-steps-refresh-001{width:100%;min-height:36px;border:0;border-radius:9px;padding:8px 9px;background:var(--vatra-action-soft,#f4f7ff);color:var(--blue);font:700 13px/1.35 "Onest",Inter,system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer}
@@ -102,9 +105,8 @@
 @media(max-width:950px){
  .ui-feed-first-steps-001{padding:15px}
  .ui-feed-first-steps-mascot-001{flex-basis:49px;width:49px;height:58px}
- .ui-feed-first-steps-list-001 a{grid-template-columns:22px minmax(0,1fr) auto;gap:8px}
- .ui-feed-first-steps-list-001 [class^="ui-feed-first-step-mark-"]{grid-row:1}
- .ui-feed-first-steps-list-001 [class^="vt-feed-first-step-note-"]{grid-column:3}
+ body.feed-page .ui-feed-first-steps-list-001 a{grid-template-columns:19px minmax(0,1fr) auto;gap:8px}
+ body.feed-page .ui-feed-first-steps-list-001 [class^="vt-feed-first-step-note-"]{grid-column:3}
 }
 @media(max-width:560px){
  .vt-tour-card-001{padding:0;border-radius:19px;max-height:calc(100dvh - 24px)}

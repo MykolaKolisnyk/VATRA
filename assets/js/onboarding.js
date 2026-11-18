@@ -6,10 +6,10 @@ const ART="/VATRA/assets/vatryk/";
 const steps=[
  {selector:"#feed-search-form",title:"Пошук у VATRA",detail:"Шукай людей, спільноти та цікаві публікації за назвою або словами.",art:"vatryk_explanation.png"},
  {selector:".ui-social-top-feed-001",title:"Твоя стрічка",detail:"Тут з’являються дописи й історії людей, за якими ти стежиш.",art:"vatryk_waiting.png"},
- {selector:".ui-social-top-friends-001",title:"Друзі",detail:"Надсилай заявки зі сторінок людей. Окремий розділ друзів ще розробляється.",art:"vatryk_explanation.png"},
+ {selector:".ui-social-top-friends-001",title:"Друзі",detail:"Знаходь друзів, переглядай запити та дізнавайся, хто онлайн.",art:"vatryk_explanation.png"},
  {selector:".ui-social-top-communities-001",title:"Спільноти",detail:"Знаходь однодумців і приєднуйся до спільнот за інтересами.",art:"vatryk_explanation.png"},
- {selector:".ui-social-top-clips-001",title:"Кліпи",detail:"Тут з’являться короткі відео. Розділ готується до запуску.",art:"vatryk_waiting.png"},
- {selector:".ui-social-top-marketplace-001",title:"Маркетплейс",detail:"Тут можна буде знаходити й пропонувати товари. Розділ у розробці.",art:"vatryk_waiting.png"},
+ {selector:".ui-social-top-clips-001",title:"Кліпи",detail:"Переглядай короткі відео та публікуй власні кліпи.",art:"vatryk_waiting.png"},
+ {selector:".ui-social-top-marketplace-001",title:"Маркетплейс",detail:"Знаходь товари, створюй оголошення та зв’язуйся з продавцями.",art:"vatryk_waiting.png"},
  {selector:".ui-shell-header-messenger-001",title:"Повідомлення",detail:"Тут буде повноцінне особисте листування. Месенджер ще розробляється.",art:"vatryk_waiting.png"},
  {selector:".ui-feed-notifications-button-001",title:"Сповіщення",detail:"Сповіщення допоможуть стежити за подіями й відповідями. Можливості розділу доповнюються.",art:"vatryk_explanation.png"},
  {selector:".ui-feed-music-button-001",title:"Музика",detail:"Тут з’явиться музичний простір VATRA. Функція ще в розробці.",art:"vatryk_waiting.png"},
@@ -299,7 +299,7 @@ function buildSteps(){
  tasksBox=node("div","ui-feed-first-steps-list-001");taskRows=[];
  for(let i=0;i<tasks.length;i++){
   const row=node("a","ui-feed-first-step-row-00"+(i+1));row.href=new URL(tasks[i].page,home()).href;
-  const marker=node("span","ui-feed-first-step-mark-00"+(i+1),"○");marker.setAttribute("aria-hidden","true");
+  const marker=node("span","ui-feed-first-step-mark-00"+(i+1));marker.setAttribute("aria-hidden","true");
   const title=node("span","vt-feed-first-step-name-00"+(i+1),tr(tasks[i].title));
   const status=node("small","vt-feed-first-step-note-00"+(i+1));status.setAttribute("aria-live","off");
   row.append(marker,title,status);tasksBox.append(row);
@@ -322,8 +322,9 @@ function renderTasks(){
  refresh.disabled=!!checking;stepsCard.setAttribute("aria-busy",String(!!checking));
  for(let i=0;i<tasks.length;i++){
   const row=taskRows[i],complete=results?.[i]===true,unknown=results===null||results[i]===null;
-  row.marker.textContent=complete?"✓":unknown?"–":"○";
   row.status.textContent=unknown?tr("Не перевірено"):complete?tr("Виконано"):tr("Перейти");
+  row.status.hidden=complete;
+  row.row.setAttribute("aria-label",tr(tasks[i].title)+" · "+row.status.textContent);
   row.row.dataset.state=complete?"done":unknown?"unknown":"pending";
   row.row.href=new URL(tasks[i].page==="profile"?"id"+session.id:tasks[i].page,home()).href;
  }

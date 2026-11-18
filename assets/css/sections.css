@@ -46,13 +46,25 @@ body.vatra-section-page .vt-vatra-clip-caption-001{margin:0;white-space:pre-wrap
 body.vatra-section-page .ui-vatra-market-toolbar-001{padding:17px 19px;display:flex;flex-direction:column;gap:12px;margin-bottom:16px}
 body.vatra-section-page .ui-vatra-market-grid-001{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 body.vatra-section-page .ui-vatra-market-listing-001{overflow:hidden;display:flex;flex-direction:column}
-body.vatra-section-page .ui-vatra-market-photo-001{aspect-ratio:4/3;overflow:hidden;background:#f0f4fa;display:grid;place-items:center}
+body.vatra-section-page .ui-vatra-market-photo-001{aspect-ratio:4/3;overflow:hidden;background:#f0f4fa;display:grid;place-items:center;width:100%;border:0;padding:0;cursor:pointer}
 body.vatra-section-page .ui-vatra-market-image-001{display:block;width:100%;height:100%;object-fit:contain;background:#f5f7fb}
 body.vatra-section-page .vt-vatra-market-photo-placeholder-001{color:#8195b3;font:var(--section-control)}
 body.vatra-section-page .vt-vatra-market-photo-placeholder-001::before{display:block;content:"";width:44px;height:36px;margin:0 auto 8px;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23879dbf' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='3'/%3E%3Ccircle cx='8.5' cy='9' r='1.5'/%3E%3Cpath d='m4 17 6-6 4 4 3-3 3 3'/%3E%3C/svg%3E")}
 body.vatra-section-page .ui-vatra-market-info-001{padding:15px;display:flex;flex-direction:column;gap:7px;overflow-wrap:anywhere;flex:1}
 body.vatra-section-page .vt-vatra-market-price-001{font:var(--section-price);color:#2c3850;font-variant-numeric:tabular-nums}
-body.vatra-section-page .vt-vatra-market-title-001{font:var(--section-name);color:#344862;margin:0}
+body.vatra-section-page .vt-vatra-market-title-001{font:var(--section-name);color:#344862;margin:0;padding:0;background:none;border:0;text-align:left;cursor:pointer}
+body.vatra-section-page .vt-vatra-market-title-001:hover{text-decoration:underline}
+body.vatra-section-page .vt-vatra-market-contact-001{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:35px;padding:7px 10px;border-radius:8px;background:#edf3ff;color:#285fc9;font:var(--section-control);text-decoration:none;text-align:center;margin-top:4px}
+body.vatra-section-page .vt-vatra-market-contact-001:hover{background:#e2ecff;text-decoration:none}
+body.vatra-section-page .ui-vatra-market-detail-photo-001{border-radius:10px;overflow:hidden;max-height:40dvh;display:grid;place-items:center;background:#f5f7fb}
+body.vatra-section-page .ui-vatra-market-detail-photo-001 img{max-height:40dvh;width:100%;object-fit:contain}
+body.vatra-section-page .vt-vatra-market-detail-price-001{font:var(--section-price);color:var(--ink)}
+body.vatra-section-page .vt-vatra-market-detail-description-001{font:var(--section-body);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+body.vatra-section-page .vt-vatra-market-detail-city-001{font:var(--section-caption);color:var(--soft)}
+body.vatra-section-page .ui-vatra-market-empty-001{grid-column:1/-1;min-height:205px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px 14px}
+body.vatra-section-page .vt-vatra-market-empty-title-001{font:var(--section-heading);margin:0;color:var(--ink)}
+body.vatra-section-page .vt-vatra-market-empty-copy-001{font:var(--section-body);margin:0;max-width:320px;color:var(--soft)}
+body.vatra-section-page .vt-vatra-market-empty-action-001{border:0;border-radius:9px;padding:9px 14px;background:#edf3ff;color:#285fc9;font:var(--section-control);cursor:pointer}
 body.vatra-section-page .vt-vatra-market-description-001{font:var(--section-body);color:var(--soft);margin:0;white-space:pre-wrap}
 body.vatra-section-page .vt-vatra-market-city-001{font:var(--section-caption);color:var(--soft)}
 body.vatra-section-page .ui-vatra-market-controls-001{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
