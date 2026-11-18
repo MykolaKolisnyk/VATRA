@@ -2,13 +2,13 @@ let dialog=null;
 export function clearPanel(){dialog?.close();dialog?.remove();dialog=null;}
 export function openPanel(current,isCurrent,ui){
  if(dialog?.open||!isCurrent())return;
- const {root,t,node,button,icon}=ui;
+ const {root,t,node,button,icon,valid}=ui;
  const client=current.client,d=node("dialog","ui-vatra-admin-dialog-001"),header=node("header","ui-vatra-admin-header-001"),body=node("div","ui-vatra-admin-body-001"),nav=node("nav","ui-vatra-admin-nav-001"),content=node("main","ui-vatra-admin-content-001"),status=node("p","vt-vatra-admin-status-001");dialog=d;d.setAttribute("aria-label","ADMIN PANEL");status.setAttribute("role","status");
  const heading=node("div","ui-vatra-admin-heading-001");heading.append(icon(),node("h1","vt-vatra-admin-title-001","ADMIN PANEL"),node("span","vt-vatra-admin-owner-001","VATRA ID 1"));header.append(heading,button("vt-vatra-admin-close-001",t("Закрити","Close"),()=>d.close()));body.append(nav,content);d.append(header,status,body);document.body.append(d);
  d.addEventListener("close",()=>{d.remove();if(dialog===d)dialog=null;},{once:true});
  let tab="dashboard",renderEpoch=0;
  const say=(s,bad=false)=>{status.textContent=s;status.dataset.error=String(bad);};
- async function rpc(action,params={}){const {data,error}=await client.rpc("vatra_admin_manage",{p_action:action,...params});if(error)throw error;return data;}
+ async function rpc(action,params={}){if(!isCurrent()||dialog!==d||!d.open)throw Error("Inactive admin session");const {data,error}=await client.rpc("vatra_admin_manage",{p_action:action,...params});if(error||!isCurrent()||dialog!==d||!d.open)throw error||Error("Inactive admin session");return data;}
  const safeDate=v=>v?new Date(v).toLocaleString():"—";
  const box=(title)=>{const el=node("section","ui-vatra-admin-box-001");el.append(node("h2","vt-vatra-admin-box-title-001",title));return el;};
  const err=()=>say(t("Не вдалося виконати дію. Перевірте доступ і дані.","Could not complete the action. Check access and data."),true);

@@ -145,8 +145,8 @@ async function marketplace(){
   editorLoading=true;action.setAttribute("aria-busy","true");
   try{
    if(!editorDialog){
-    const module=await import(new URL("assets/js/marketplace-editor.js?rev=5cdd0753812893cfe529724a549c7a1b32782bd7",root).href);
-    editorDialog=module.createMarketplaceEditor({marketScreen,make,field,t,marketCurrencySelect,marketMoneyField,marketLimit,message,marketFields,marketConditions,marketTypeCategories,marketTypes,priceText,categories,marketAmount,marketDetailsText,marketSubLabel,btn,sectionIcon,submit,ownId,client,nameOf,link,onPublished});
+    const module=await import(new URL("assets/js/marketplace-editor.js?rev=dce3b98d459501c82df1b0ec4bef31a85477fbd5",root).href);
+    editorDialog=module.createMarketplaceEditor({marketScreen,make,field,t,marketCurrencySelect,marketMoneyField,marketLimit,message,marketFields,marketFieldKeys,marketConditions,marketTypeCategories,marketTypes,priceText,categories,marketAmount,marketDetailsText,marketSubLabel,btn,sectionIcon,submit,ownId,client,nameOf,link,onPublished});
    }
    if(action.isConnected)editorDialog.showModal();
   }catch(_){message(t("Не вдалося відкрити форму оголошення.","Could not open listing editor."),true);}

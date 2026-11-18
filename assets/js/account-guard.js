@@ -11,7 +11,7 @@ function clear(){epoch++;document.getElementById("vatra-admin-menu")?.remove();a
 async function session(client,id){
  if(!client||!valid(id))return;if(context?.client===client&&context.id===id)return;
  clear();const current={client,id};context=current;const ticket=epoch;
- if(client.auth?.onAuthStateChange){const {data}=client.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){delete window.VATRA_ADMIN_CONTEXT;clear();}});subscription=data?.subscription;}
+ if(client.auth?.onAuthStateChange){const {data}=client.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"&&context===current&&ticket===epoch){if(window.VATRA_ADMIN_CONTEXT?.client===client&&window.VATRA_ADMIN_CONTEXT.id===id)delete window.VATRA_ADMIN_CONTEXT;clear();}});subscription=data?.subscription;}
  try{
  const {data:state,error}=await client.from("account_states").select("state,blocked_until").eq("vatra_id",id).maybeSingle();
  if(ticket!==epoch)return;
@@ -22,7 +22,7 @@ async function session(client,id){
  const entry=button("vt-vatra-owner-admin-menu-001","",async()=>{
   if(entry.disabled||ticket!==epoch||context!==current)return;
   entry.disabled=true;
-  try{const module=await loadAdmin();if(ticket!==epoch||context!==current)return;const menu=support.closest("details");if(menu)menu.open=false;module.openPanel(current,()=>ticket===epoch&&context===current,{root,t,node,button,icon});}
+  try{const module=await loadAdmin();if(ticket!==epoch||context!==current)return;const menu=support.closest("details");if(menu)menu.open=false;module.openPanel(current,()=>ticket===epoch&&context===current,{root,t,node,button,icon,valid});}
   catch(_){if(ticket===epoch)alert(t("Не вдалося відкрити ADMIN PANEL.","Could not open ADMIN PANEL."));}
   finally{entry.disabled=false;}
  });entry.id="vatra-admin-menu";entry.append(icon(),node("span","vt-vatra-owner-admin-menu-label-001","ADMIN PANEL"));support.before(entry);
@@ -33,7 +33,7 @@ function loadAdmin(){
  const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=a034dd6fa601e55d34e7bfece5e483b4c6c98dd1",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
- adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=2e15705d4ea06a97b9a72b1b3c341a5076def9de",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
+ adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=ccbcc4a5f63fc5229e6994bb01bf4f3fe52bbb2a",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});
  return adminPromise;
 }
 function showBlocked(client,state){
