@@ -173,6 +173,40 @@ try{
   }
  }
  console.log("VATRA missing/deleted/blocked profile geometry equals regular profile across widths: OK");
+ for(const width of [1366,768,420,320]){
+  await spacingProbe.setViewportSize({width,height:900});
+  await spacingProbe.setContent('<!doctype html><html><head>'+sharedStyles+'</head>'+
+   '<body class="profile-page feed-page"><div class="profile-left-stack" style="width:min(100%,336px)">'+
+   '<aside class="profile-mini-card"><h2>Друзі</h2><div id="profile-friends-preview-list" class="profile-friends-preview-grid"></div></aside>'+
+   '<aside class="profile-mini-card"><h2>Подарунки</h2><div id="profile-gifts-preview-list" class="profile-gifts-preview-grid"></div></aside>'+
+   '</div></body></html>',{waitUntil:"load"});
+  const geometry=await spacingProbe.evaluate(()=>{
+   const friends=document.querySelector("#profile-friends-preview-list"),gifts=document.querySelector("#profile-gifts-preview-list");
+   const tile=(gift,i)=>{
+    const el=document.createElement(gift?"button":"a");el.className=gift?"profile-gift-tile":"profile-friend-tile";
+    const art=document.createElement("span");art.className=gift?"profile-gift-art":"profile-friend-portrait";
+    const text=document.createElement("span");text.className=gift?"vt-profile-gift-name-001":"vt-profile-friend-name-"+i;
+    text.textContent=gift?"Перший вогник":"Ім’я "+i;el.append(art,text);return el;
+   };
+   const measure=list=>Array.from(list.children,el=>{const r=el.getBoundingClientRect(),a=el.firstElementChild.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,center:a.left+a.width/2,bottom:r.bottom,avatarW:a.width,avatarH:a.height};});
+   const cases=[];
+   for(const count of [1,2,3,6]){
+    friends.replaceChildren(...Array.from({length:count},(_,i)=>tile(false,i)));
+    gifts.replaceChildren(...Array.from({length:3},(_,i)=>tile(true,i)));
+    cases.push({count,friends:measure(friends),gifts:measure(gifts),width:friends.getBoundingClientRect().width});
+   }
+   return cases;
+  });
+  for(const c of geometry){
+   const row=c.friends.slice(0,3);
+   assert.ok(row.every((p,i)=>nearly(p.x,c.gifts[i].x)&&nearly(p.w,c.gifts[i].w)&&nearly(p.center,c.gifts[i].center)&&nearly(p.y,row[0].y)&&nearly(p.avatarW,p.avatarH))&&
+    nearly(row[0].w,geometry[0].friends[0].w)&&
+    (c.count!==6||nearly(c.friends[3].x,row[0].x)&&c.friends[3].y>=row[0].bottom),
+    "Friends must fill the same three left-aligned tracks as gifts at "+width+"px: "+JSON.stringify(c));
+  }
+ }
+ console.log("VATRA profile friend and gift preview columns remain aligned with one to six friends: OK");
+
  for(const width of [1366,420]){
   await spacingProbe.setViewportSize({width,height:900});
   const expected=width>770?16:12;
