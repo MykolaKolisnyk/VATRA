@@ -1,10 +1,8 @@
-/* VATRA first-visit walkthrough. Local per-member progress; no automatic API calls. */
+
 (()=>{
 "use strict";
 const KEY="vatra.onboarding.v1.member.",MAX_AGE_MS=30*24*60*60*1000;
 const ART="/VATRA/assets/vatryk/";
-// Follow the real header from left to right, then move down through Feed.
-// Coming-soon sections remain discoverable without implying they are live.
 const steps=[
  {selector:"#feed-search-form",title:"Пошук у VATRA",detail:"Шукай людей, спільноти та цікаві публікації за назвою або словами.",art:"vatryk_explanation.png"},
  {selector:".ui-social-top-feed-001",title:"Твоя стрічка",detail:"Тут з’являються дописи й історії людей, за якими ти стежиш.",art:"vatryk_waiting.png"},
@@ -25,7 +23,7 @@ const tasks=[
  {title:"Додай фотографію профілю",page:"profile",key:"avatar"},
  {title:"Оформи обкладинку",page:"profile",key:"cover"},
  {title:"Напиши перший допис",page:"feed",key:"post"},
- {title:"Знайди першого друга",page:"feed",key:"friend"},
+ {title:"Знайди першого друга",page:"friends",key:"friend"},
  {title:"Приєднайся до спільноти",page:"communities",key:"community"}
 ];
 const validId=id=>/^[1-9][0-9]{0,18}$/.test(String(id??""));
@@ -49,7 +47,6 @@ const saveState=(store,id,status,step)=>{
  catch(_){return false;}
 };
 const shouldSaveSkip=(wasReplaying,previous)=>!wasReplaying||!["done","skipped"].includes(previous?.status);
-// A failed RLS read is unknown, not evidence that the task is incomplete.
 const milestoneSnapshot=response=>{
  const verified=i=>response[i]?.status==="fulfilled"&&response[i].value!=null&&
   !response[i].value.error;
@@ -71,7 +68,7 @@ const node=(tag,css,content)=>{
 };
 let session=null,root=null,card=null,spotlight=null,art=null,label=null;
 let heading=null,description=null,progress=null,prev=null,next=null,skip=null;
-let tasksBox=null,taskStatus=null,refresh=null,taskRows=[],mode="welcome",index=0;
+let tasksBox=null,taskStatus=null,refresh=null,taskRows=[],stepsCard=null,stepsArt=null,stepsMeter=null,stepsFill=null,mode="welcome",index=0;
 let replaying=false,lastFocus=null,raf=0,authSubscription=null;
 let positionedIndex=-1;
 let checkedAt=0,checking=null,results=null;
@@ -80,6 +77,8 @@ function stop(){
  session?.controller?.abort();
  if(raf){cancelAnimationFrame(raf);raf=0;}
  if(root){root.remove();root=null;}
+ if(stepsCard){stepsCard.hidden=true;stepsCard.replaceChildren();stepsCard=null;}
+ tasksBox=taskStatus=refresh=stepsArt=stepsMeter=stepsFill=null;
  document.removeEventListener("keydown",onKeydown,true);
  window.removeEventListener("resize",schedulePosition);
  window.removeEventListener("scroll",schedulePosition,true);
@@ -156,7 +155,6 @@ function position(){
   spotlight.hidden=true;return;
  }
  root.dataset.stage="tour";
- // Measure the actual visible rectangle, including clipped controls on phones.
  const left=Math.max(3,rect.left-5),top=Math.max(3,rect.top-5);
  const right=Math.min(vw-3,rect.right+5),bottom=Math.min(vh-3,rect.bottom+5);
  spotlight.hidden=false;
@@ -180,7 +178,7 @@ function activate(nextMode,nextIndex=index){
  if(!session)return;
  mode=nextMode;index=Math.max(0,Math.min(steps.length-1,nextIndex));
  show();
- if(mode==="tasks")void checkTasks();
+
 }
 function show(){
  if(!session)return;
@@ -194,34 +192,30 @@ function show(){
   window.addEventListener("scroll",schedulePosition,true);
   window.visualViewport?.addEventListener("resize",schedulePosition);
  }
- tasksBox.hidden=mode!=="tasks";
+
  progress.hidden=mode!=="tour";
  prev.hidden=mode!=="tour"||index===0;
- skip.hidden=mode==="tasks"||mode==="goodbye";
- refresh.hidden=mode!=="tasks";
- card.classList.toggle("vt-tour-tasks-001",mode==="tasks");
+ skip.hidden=mode==="goodbye";
  card.classList.toggle("vt-tour-intro-001",mode==="welcome"||mode==="goodbye");
  const current=steps[index];
  const imageName=mode==="welcome"?"vatryk_welcome.png":
   mode==="goodbye"?"vatryk_goodbye.png":
-  mode==="tasks"?(results?.every(Boolean)?"vatryk_success.png":"vatryk_waiting.png"):
   current.art;
  art.style.backgroundImage="url("+JSON.stringify(ART+imageName)+")";
  label.textContent=mode==="tour"?tr("Крок")+" "+(index+1)+" / "+steps.length:
-  mode==="tasks"?tr("Твій початок у VATRA"):tr("Знайомство з VATRA");
+  tr("Знайомство з VATRA");
  heading.textContent=mode==="welcome"?tr("Привіт! Ласкаво просимо до VATRA!"):
   mode==="goodbye"?tr("Тепер ти знаєш основне!"):
-  mode==="tasks"?tr("Твої перші досягнення"):tr(current.title);
+  tr(current.title);
  description.textContent=mode==="welcome"?
   tr("Я Ватрик. Покажу тобі стрічку та допоможу знайти своїх людей. Усе можна пропустити."):
   mode==="goodbye"?tr("Досліджуй VATRA, ділися історіями та повертайся до підказок коли захочеш."):
-  mode==="tasks"?tr("Виконуй завдання у своєму темпі. VATRA перевіряє їх лише коли ти відкриваєш цей список або натискаєш «Оновити»."):
   tr(current.detail);
  next.textContent=mode==="welcome"?tr("Почати знайомство"):
   mode==="tour"?(index===steps.length-1?tr("Завершити екскурсію"):tr("Далі")):
   mode==="goodbye"?tr("До перших завдань"):tr("До моєї VATRA");
  prev.textContent=tr("Назад");skip.textContent=tr("Пропустити");
- refresh.textContent=tr("Оновити прогрес");
+
  if(mode==="tour"){
   progress.textContent=tr("Крок")+" "+(index+1)+" "+tr("із")+" "+steps.length;
   progress.style.setProperty("--vt-tour-progress",((index+1)/steps.length*100)+"%");
@@ -229,7 +223,7 @@ function show(){
   progress.setAttribute("aria-valuemax",String(steps.length));
   if(!replaying)saveState(localStorage,session.id,"paused",index);
  }
- if(mode==="tasks")renderTasks();
+
  card.querySelector(".vt-tour-scroll-area-001").scrollTop=0;
  schedulePosition();
  next.focus({preventScroll:true});
@@ -239,11 +233,9 @@ function finish(){
  replaying=false;activate("goodbye");
 }
 function skipTour(){
- // A replay must keep a finished/skipped tour final, but a paused tour
- // becomes skipped when the member explicitly chooses to skip it.
  if(session&&shouldSaveSkip(replaying,readState(localStorage,session.id)))
   saveState(localStorage,session.id,"skipped",index);
- replaying=false;activate("tasks");
+ replaying=false;hide();openTasks(false);
 }
 function proceed(){
  if(mode==="welcome"){activate("tour",replaying?0:(readState(localStorage,session.id)?.step||0));return;}
@@ -252,7 +244,7 @@ function proceed(){
   else finish();
   return;
  }
- if(mode==="goodbye"){activate("tasks");return;}
+ if(mode==="goodbye"){hide();openTasks(false);return;}
  hide();
 }
 function back(){
@@ -270,7 +262,6 @@ function build(){
  spotlight=node("div","vt-tour-spotlight-001");spotlight.hidden=true;
  spotlight.setAttribute("aria-hidden","true");
  card=node("section","vt-tour-card-001");
- // Inset scrolling inside the rounded dialog, rather than along its outer border.
  const scrollArea=node("div","vt-tour-scroll-area-001");
  const top=node("div","vt-tour-header-001");
  art=node("span","vt-tour-mascot-001");
@@ -287,59 +278,59 @@ function build(){
  progress.setAttribute("role","progressbar");progress.setAttribute("aria-valuemin","0");
  progress.setAttribute("aria-label",tr("Прогрес знайомства"));
  scrollArea.append(progress);
- tasksBox=node("div","vt-tour-checklist-001");
- const meter=node("div","vt-tour-meter-001");
- const track=node("div","vt-tour-meter-track-001");
- const fill=node("div","vt-tour-meter-fill-001");fill.id="vatra-tour-meter";
- track.append(fill);meter.append(track);
- taskStatus=node("p","vt-tour-task-status-001");taskStatus.setAttribute("aria-live","polite");
- tasksBox.append(meter,taskStatus);
- for(let i=0;i<tasks.length;i++){
-  const row=node("a","vt-tour-task-00"+(i+1));row.href=new URL(tasks[i].page,home()).href;
-  const marker=node("span","vt-tour-task-mark-00"+(i+1),"○");
-  const title=node("span","vt-tour-task-name-00"+(i+1));
-  const status=node("small","vt-tour-task-note-00"+(i+1));
-  row.append(marker,title,status);tasksBox.append(row);
-  taskRows.push({row,marker,title,status});
- }
- scrollArea.append(tasksBox);
  const actions=node("div","vt-tour-actions-001");
  prev=node("button","vt-tour-back-001");prev.type="button";prev.addEventListener("click",back);
  skip=node("button","vt-tour-skip-001");skip.type="button";skip.addEventListener("click",skipTour);
- refresh=node("button","vt-tour-refresh-001");refresh.type="button";
- refresh.addEventListener("click",()=>void checkTasks(true));
  next=node("button","vt-tour-next-001");next.type="button";next.addEventListener("click",proceed);
- actions.append(prev,skip,refresh,next);scrollArea.append(actions);
+ actions.append(prev,skip,next);scrollArea.append(actions);
  card.append(scrollArea);
  root.append(shield,spotlight,card);document.body.append(root);
 }
+function buildSteps(){
+ const host=document.querySelector("#vatra-first-steps");if(!host||!session)return;
+ stepsCard=host;host.replaceChildren();
+ const header=node("div","ui-feed-first-steps-head-001"),words=node("div","ui-feed-first-steps-copy-001");
+ const title=node("h2","vt-feed-first-steps-title-001",tr("Мої перші кроки"));title.id="vatra-first-steps-title";
+ stepsArt=node("span","ui-feed-first-steps-mascot-001");stepsArt.setAttribute("aria-hidden","true");
+ taskStatus=node("p","vt-feed-first-steps-status-001");taskStatus.setAttribute("aria-live","polite");
+ words.append(title,taskStatus);header.append(words,stepsArt);
+ stepsMeter=node("div","ui-feed-first-steps-meter-001");stepsMeter.setAttribute("role","progressbar");stepsMeter.setAttribute("aria-label",tr("Мої перші кроки"));stepsMeter.setAttribute("aria-valuemin","0");stepsMeter.setAttribute("aria-valuemax",String(tasks.length));
+ stepsFill=node("div","ui-feed-first-steps-fill-001");stepsMeter.append(stepsFill);
+ tasksBox=node("div","ui-feed-first-steps-list-001");taskRows=[];
+ for(let i=0;i<tasks.length;i++){
+  const row=node("a","ui-feed-first-step-row-00"+(i+1));row.href=new URL(tasks[i].page,home()).href;
+  const marker=node("span","ui-feed-first-step-mark-00"+(i+1),"○");marker.setAttribute("aria-hidden","true");
+  const title=node("span","vt-feed-first-step-name-00"+(i+1),tr(tasks[i].title));
+  const status=node("small","vt-feed-first-step-note-00"+(i+1));status.setAttribute("aria-live","off");
+  row.append(marker,title,status);tasksBox.append(row);
+  if(tasks[i].key==="post")row.addEventListener("click",event=>{const compose=document.querySelector("#feed-compose-open");if(compose&&results?.[i]!==true){event.preventDefault();compose.click();}});
+  taskRows.push({row,marker,title,status});
+ }
+ const actions=node("div","ui-feed-first-steps-actions-001");
+ refresh=node("button","vt-feed-first-steps-refresh-001",tr("Оновити прогрес"));refresh.type="button";refresh.addEventListener("click",()=>void checkTasks(true));
+ actions.append(refresh);host.append(header,stepsMeter,tasksBox,actions);host.hidden=false;renderTasks();
+}
 function renderTasks(){
- if(!tasksBox||!session)return;
- const num=results?.filter(Boolean).length||0;
- const fill=document.querySelector("#vatra-tour-meter");
- if(fill)fill.style.width=(num/tasks.length*100)+"%";
+ if(!stepsCard||!session)return;
+ const num=results?.filter(value=>value===true).length||0;
+ stepsFill.style.width=(num/tasks.length*100)+"%";
+ if(results)stepsMeter.setAttribute("aria-valuenow",String(num));else stepsMeter.removeAttribute("aria-valuenow");
  const incomplete=results?.some(value=>value===null);
  taskStatus.textContent=checking?tr("Перевіряємо перші досягнення…"):
   results===null?tr("Не вдалося перевірити завдання. Онови прогрес."):
-  tr("Виконано")+" "+num+" / "+tasks.length+
-   (incomplete?". "+tr("Деякі завдання не вдалося перевірити."):"");
+  tr("Виконано")+" "+num+" / "+tasks.length+(incomplete?". "+tr("Деякі завдання не вдалося перевірити."):"");
+ refresh.disabled=!!checking;stepsCard.setAttribute("aria-busy",String(!!checking));
  for(let i=0;i<tasks.length;i++){
-  const row=taskRows[i],complete=!!results?.[i];
-  row.title.textContent=tr(tasks[i].title);
-  row.marker.textContent=complete?"✓":"○";
-  row.status.textContent=results?.[i]===null?tr("Не перевірено"):
-   complete?tr("Виконано"):tr("Перейти");
-  row.row.classList.toggle("vt-tour-task-done-001",complete);
-  if(tasks[i].page==="profile")row.row.href=new URL("id"+session.id,home()).href;
-  else row.row.href=new URL(tasks[i].page,home()).href;
+  const row=taskRows[i],complete=results?.[i]===true,unknown=results===null||results[i]===null;
+  row.marker.textContent=complete?"✓":unknown?"–":"○";
+  row.status.textContent=unknown?tr("Не перевірено"):complete?tr("Виконано"):tr("Перейти");
+  row.row.dataset.state=complete?"done":unknown?"unknown":"pending";
+  row.row.href=new URL(tasks[i].page==="profile"?"id"+session.id:tasks[i].page,home()).href;
  }
- if(mode==="tasks"){
-  const desired=results?.every(Boolean)?"vatryk_success.png":"vatryk_waiting.png";
-  art.style.backgroundImage="url("+JSON.stringify(ART+desired)+")";
- }
+ stepsArt.style.backgroundImage="url("+JSON.stringify(ART+(results?.every(value=>value===true)?"vatryk_success.png":"vatryk_waiting.png"))+")";
 }
 async function checkTasks(force=false){
- if(!session||mode!=="tasks"||!session.client)return;
+ if(!session||!stepsCard||!session.client)return;
  if(checking)return checking;
  if(!force&&results&&Date.now()-checkedAt<60000){renderTasks();return;}
  const client=session.client,id=session.id,epoch=session;
@@ -362,7 +353,7 @@ async function checkTasks(force=false){
     checkedAt=Date.now();
    }
   }
-  finally{if(epoch===session){checking=null;if(mode==="tasks")renderTasks();}}
+  finally{if(epoch===session){checking=null;renderTasks();}}
  })();
  renderTasks();return checking;
 }
@@ -377,32 +368,23 @@ function start(options={}){
  if(support&&!document.querySelector("#vatra-onboarding-replay")){
   const launch=node("button","vt-feed-onboarding-launch-001",tr("Знайомство з VATRA"));
   launch.id="vatra-onboarding-replay";launch.type="button";
-  const milestones=node("button","vt-feed-onboarding-progress-001",tr("Мої перші кроки"));
-  milestones.id="vatra-onboarding-tasks";milestones.type="button";
-  support.before(launch,milestones);
+  support.before(launch);
  }
  document.querySelector("#vatra-onboarding-replay")?.addEventListener("click",()=>{
   if(menu)menu.open=false;
   replay();
  },{signal:session.controller.signal});
- document.querySelector("#vatra-onboarding-tasks")?.addEventListener("click",()=>{
-  if(menu)menu.open=false;
-  openTasks();
- },{signal:session.controller.signal});
+ buildSteps();void checkTasks();
  const saved=readState(localStorage,id);
  const eligible=recentSignup(options.createdAt);
  if(typeof options.client.auth?.onAuthStateChange==="function"){
   const {data}=options.client.auth.onAuthStateChange((event,newSession)=>{
    if(event==="INITIAL_SESSION"||event==="TOKEN_REFRESHED")return;
-   // Supabase can re-emit SIGNED_IN for the same person after tab refocus.
-   // That is not an account switch and must not close a guided tour.
    if(event==="SIGNED_IN"&&newSession?.user?.id===session?.authUserId)return;
    stop();
   });
   authSubscription=data?.subscription||null;
  }
- // Do not force older accounts into onboarding. A user who pauses an eligible
- // first tour can resume it; skipping/completing permanently disables auto-open.
  if((eligible&&!saved)||saved?.status==="paused"){
   index=saved?.step||0;mode=saved?.status==="paused"?"tour":"welcome";
   show();
@@ -413,11 +395,12 @@ function replay(){
  if(!session)return;
  replaying=true;index=0;activate("welcome",0);
 }
-function openTasks(){
+function openTasks(scroll=true){
  if(!session)return;
- replaying=true;activate("tasks");
+ if(!stepsCard)buildSteps();
+ if(scroll)stepsCard?.scrollIntoView({block:"nearest",behavior:"auto"});
+ void checkTasks();
 }
 window.VATRA_ONBOARDING={start,stop,replay,openTasks};
-// Pure decisions are exposed only for hermetic smoke tests.
 window.VATRA_ONBOARDING_STATE={recentSignup,storedKey,readState,saveState,shouldSaveSkip,milestoneSnapshot};
 })();
