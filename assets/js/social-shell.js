@@ -364,7 +364,7 @@
    suggestions.append(tabs);let found=false;
    for(const [kind,uk,en] of scopes.slice(1)){if(activeScope!=="all"&&activeScope!==kind)continue;const rows=result?.[kind]||[];if(!rows.length)continue;found=true;group(tr(uk,en),activeScope==="all"&&!expanded?rows.slice(0,3):rows,kind);}
    if(!found)suggestions.append(make("p","vt-vatra-search-live-empty-001",tr("Збігів немає. Спробуйте інший запит.","No matches. Try another search.")));
-   if(!expanded&&found){const all=make("button","vt-vatra-search-live-all-001",tr("Показати всі результати","See all results"));all.type="button";all.addEventListener("click",()=>{expanded=true;remember(input.value);panel.classList.add("is-expanded");renderResults(result);position();});suggestions.append(all);}
+   if(!expanded&&found){const all=make("button","vt-vatra-search-live-all-001",tr("Розгорнути результати","Expand results"));all.type="button";all.addEventListener("click",()=>{expanded=true;remember(input.value);panel.classList.add("is-expanded");renderResults(result);position();});suggestions.append(all);}
    panel.classList.add("has-live-results");
   }
   const scheduleLive=value=>{
@@ -434,7 +434,7 @@
 
 
    const left=ox;
-   const width=Math.max(1,Math.min(vw,expanded?Math.max(inputBox.right-left,760):Math.max(inputBox.right-left,365)));
+   const width=Math.max(1,Math.min(vw,expanded?Math.max(inputBox.right-left,760):inputBox.right-left));
    const available=Math.max(0,oy+vh-headerBottom-12);
    panel.style.left=Math.round(left)+"px";
    panel.style.top=Math.round(headerBottom)+"px";
@@ -528,11 +528,12 @@
    empty.hidden=visibleTerms.length>0||(!typed&&recentViews.length>0);
    empty.textContent=typed?t("Немає збігів в історії","No matches in history"):
     t("Історія пошуку порожня","No search history");
-   count.textContent=visibleTerms.length?
-    (lang()==="uk"?visibleTerms.length+" запитів":
-     lang()==="en"?visibleTerms.length+" searches":
+   const total=visibleTerms.length+(!typed?recentViews.length:0);
+   count.textContent=total?
+    (lang()==="uk"?total+" записів":
+     lang()==="en"?total+" entries":
      tr("Кількість запитів: {count}","Searches: {count}")
-      .replace("{count}",String(visibleTerms.length))):"";
+      .replace("{count}",String(total))):"";
    syncEditing();if(clearInput)clearInput.hidden=!input.value;
    const term=input.value.trim();
    const live=term.length>=2||/^[1-9]$/.test(term);
@@ -578,7 +579,7 @@
    }
   });
   form.addEventListener("submit",event=>{
-   event.preventDefault();event.stopImmediatePropagation();remember(input.value);expanded=true;panel.classList.add("is-expanded");if(!visible)open();if(lastResult)renderResults(lastResult);else scheduleLive(input.value);position();
+   event.preventDefault();event.stopImmediatePropagation();remember(input.value);expanded=true;panel.classList.add("is-expanded");if(!visible)open();if(lastResult&&liveTerm===input.value.trim().slice(0,120))renderResults(lastResult);else scheduleLive(input.value);position();
   },true);
   clearInput?.addEventListener("click",()=>{
    input.value="";render();input.dispatchEvent(new Event("search",{bubbles:true}));
