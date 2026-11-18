@@ -44,7 +44,8 @@ async function boot(init){
  if(result.error||!user?.id||!user.email_confirmed_at){location.replace(root.href);return;}
  const accountResult=await client.from("accounts").select("vatra_id").eq("user_id",user.id).maybeSingle();if(accountResult.error||!valid(accountResult.data?.vatra_id))throw Error("account");ownId=String(accountResult.data.vatra_id);
  const name=String(user.user_metadata?.first_name||user.user_metadata?.full_name||"VATRA");window.VATRA_AVATAR?.setHeader({client,email:user.email,name:name.split(/\s+/)[0].slice(0,28),initials:name.slice(0,1),id:ownId});window.VATRA_AVATAR?.applyRemembered($("#feed-header-avatar"),user.email);
- void client.from("profile_media").select("avatar_path").eq("vatra_id",ownId).maybeSingle().then(({data,error})=>{if(!error&&data?.avatar_path)window.VATRA_AVATAR?.fromPath(client,user.email,ownId,data.avatar_path);}).catch(()=>{});
+ const avatarLookup=window.VATRA_AVATAR?.paths?window.VATRA_AVATAR.paths(client,[ownId]):client.from("profile_media").select("avatar_path").eq("vatra_id",ownId).maybeSingle().then(({data,error})=>({data:data?[data]:[],error}));
+ void avatarLookup.then(({data,error})=>{const path=data?.[0]?.avatar_path;if(!error&&path)window.VATRA_AVATAR?.fromPath(client,user.email,ownId,path);}).catch(()=>{});
  void window.VATRA_PRESENCE?.start(client,ownId,user.user_metadata?.gender);window.VATRA_NOTIFICATIONS?.start(client,ownId);
  const id=$("#feed-header-id");if(id)id.textContent="VATRA ID "+ownId;
  for(const el of document.querySelectorAll("[data-social-uk]"))el.textContent=t(el.dataset.socialUk,el.dataset.socialEn);

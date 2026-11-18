@@ -1419,7 +1419,8 @@ assert.ok(feedMarkup.includes('data-page="feed"')&&
  memberProfileMarkup.includes('id="profile-compose-form"')&&
  profileScript.includes('client.from("feed_posts").insert({')&&
  feedScript.includes('client.from("feed_posts").insert({')&&
- feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id"')&&
+ feedScript.includes('const personFields="id,author_vatra_id,body,created_at,visibility,media_kind,media_path,media_items,shared_post_kind,shared_post_id,is_clip"')&&
+ feedScript.includes('query.eq("is_clip",false)')&&
  !feedScript.includes("Independent, fixed-size Supabase cursors keep the two chronological feeds merged.\");")&&
  !feedScript.includes("innerHTML")&&
  feedStyle.includes('grid-template-columns:minmax(170px,210px) minmax(0,1fr)!important')&&
@@ -2439,6 +2440,7 @@ assert.ok(
  "Feed and friend stories must share their RLS-scoped subscription snapshot");
 await import("./feed-story-subscriptions-smoke.mjs");
 
+await import("./section-loading-smoke.mjs");
 const coreRuntime=await read("assets/js/core.js");
 const marketplaceRuntime=await read("assets/js/marketplace.js");
 const clipsRuntime=await read("assets/js/clips.js");

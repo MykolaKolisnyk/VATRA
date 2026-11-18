@@ -114,8 +114,8 @@ assert.equal(tasks.size,0,"Entering the form must cancel the pending fade timer"
 assert.equal(classes.has("vatra-form-scroll-active"),true);
 fire("pointerout",{pointerType:"mouse",target:child,relatedTarget:null});
 assert.equal(classes.has("vatra-form-scroll-active"),false);
-const sectionJs=await readFile("assets/js/sections.js","utf8");
-const sectionCss=await readFile("assets/css/sections.css","utf8");
+const sectionJs=await readFile("assets/js/core.js","utf8");
+const sectionCss=await readFile("assets/css/core.css","utf8");
 assert.ok(lang.includes('".ui-vatra-section-dialog-scroll-001"')&&
  (sectionJs.match(/make\("div","ui-vatra-section-dialog-scroll-001"\)/g)||[]).length===2&&
  sectionCss.includes(".ui-vatra-section-dialog-001[open]{display:flex;flex-direction:column}")&&
