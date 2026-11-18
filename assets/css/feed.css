@@ -195,7 +195,8 @@ body.feed-page.community-page .feed-layout{margin:28px auto 70px}
 body.feed-page .feed-main{min-width:0;gap:16px}
 
 body.feed-page .vatra-discovery-workspace{display:grid;grid-template-columns:clamp(250px,21vw,312px) minmax(0,1fr);align-items:start;min-height:calc(100dvh - 61px);width:100%;min-width:0}
-body.feed-page .vatra-discovery-sidebar{position:sticky;top:61px;align-self:start;display:flex;flex-direction:column;gap:14px;height:calc(100dvh - 61px);min-width:0;padding:24px 18px 28px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#a7afbb transparent}
+body.feed-page .vatra-discovery-sidebar{position:sticky;top:61px;align-self:start;display:flex;flex-direction:column;gap:14px;height:calc(100dvh - 61px);min-width:0;padding:24px 18px 28px;background:#fff;border-right:1px solid var(--line);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+body.feed-page .vatra-discovery-sidebar>*{flex:none;min-width:0}
 body.feed-page .vatra-discovery-content{width:100%;max-width:1400px;min-width:0;justify-self:center;padding:26px clamp(20px,2.5vw,40px) 56px}
 body.feed-page .vatra-discovery-title{margin:0;color:var(--ink);font-size:24px;font-weight:700;line-height:1.25;letter-spacing:-.025em}
 body.feed-page .vatra-discovery-search{width:100%;min-width:0;height:46px;padding:10px 14px;border:1px solid #d7ddea;border-radius:13px;background:#fff;color:var(--ink);font:500 15px/1.2 Onest,Inter,system-ui,sans-serif;transition:border-color .22s,box-shadow .22s}
@@ -210,7 +211,7 @@ body.feed-page .vatra-discovery-nav-icon svg{width:19px;height:19px}
 body.feed-page .vatra-discovery-tabs button.is-active .vatra-discovery-nav-icon{background:var(--blue);color:#fff}
 body.feed-page .vatra-discovery-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;padding:10px 14px;border:0;border-radius:11px;background:var(--vatra-action-primary);color:#fff;font:700 14px/1.35 Onest,Inter,system-ui,sans-serif;white-space:normal}
 body.feed-page .vatra-discovery-primary:hover{background:var(--vatra-action-primary-hover)}
-@media(max-width:850px){body.feed-page .vatra-discovery-workspace{grid-template-columns:minmax(0,1fr);min-height:0}body.feed-page .vatra-discovery-sidebar{position:static;height:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line);padding:16px;gap:12px}body.feed-page .vatra-discovery-content{padding:20px 16px 44px}body.feed-page .vatra-discovery-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.feed-page .vatra-discovery-tabs button{font-size:14px;gap:8px}}
+@media(max-width:950px){body.feed-page .vatra-discovery-workspace{grid-template-columns:minmax(0,1fr);min-height:0}body.feed-page .vatra-discovery-sidebar{position:static;height:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line);padding:16px;gap:12px}body.feed-page .vatra-discovery-content{padding:20px 16px 44px}body.feed-page .vatra-discovery-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.feed-page .vatra-discovery-tabs button{font-size:14px;gap:8px}}
 @media(max-width:420px){body.feed-page .vatra-discovery-content{padding:16px 12px 40px}body.feed-page .vatra-discovery-sidebar{padding:14px 12px}}
 
 body.feed-page .feed-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:35px;margin:0;padding:0}
@@ -1451,7 +1452,7 @@ body.feed-page .ui-vatra-skeleton-post-a-001,body.feed-page .ui-vatra-skeleton-p
 
 /* The shared header never needs skeletons; gate only route content. */
 body.feed-page.vatra-shell-pending .feed-header{pointer-events:none}
-body.feed-page.vatra-shell-pending .feed-app > .feed-layout{visibility:hidden;pointer-events:none}
+body.feed-page.vatra-shell-pending .feed-app > :is(.feed-layout,.ui-vatra-community-workspace-001,.ui-vatra-section-main-001){visibility:hidden;pointer-events:none}
 body.feed-page.vatra-shell-pending > .vatra-auth-loading:not([data-loading-error="true"]){
  top:var(--vatra-shell-bottom,65px);right:0;bottom:0;left:0;
  height:auto;min-height:0;z-index:100
