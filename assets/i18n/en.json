@@ -1536,47 +1536,22 @@
         },
         "market_rules_intro": {
           "text": {
-            "0": "Marketplace is intended for the lawful sale, purchase, rental and free transfer of permitted goods and property. You must have the right to offer the listed item and comply with applicable law."
+            "0": "Listings and related commercial activity must follow the separate Marketplace rules."
           }
         },
-        "market_rules_forbidden": {
+        "market_rules_full": {
           "text": {
-            "0": "Prohibited listings"
+            "0": "Read the full commerce rules"
           }
         },
-        "market_rules_bans": {
+        "market_rules_toc_desktop": {
           "text": {
-            "0": "Do not list weapons, ammunition, explosives, drugs, alcohol, tobacco and nicotine products, prescription medicines or unsafe medical products, live animals, human organs, stolen goods, counterfeits, sexual services, pornography, personal data, other people's accounts, fraudulent financial offers or other unlawful or unsafe goods. The pet supplies category is limited to lawful accessories and other permitted products."
+            "0": "VATRA Commerce Rules"
           }
         },
-        "market_rules_accuracy": {
+        "market_rules_toc_mobile": {
           "text": {
-            "0": "Listing requirements"
-          }
-        },
-        "market_rules_accuracy_text": {
-          "text": {
-            "0": "Provide the actual price, condition, description and location. Use only photos you have rights to and do not conceal material defects. Spam, duplicates intended to manipulate the catalog, misleading prices, phishing links, attempts to obtain access codes and discriminatory listings are prohibited."
-          }
-        },
-        "market_rules_safety": {
-          "text": {
-            "0": "Safe transactions"
-          }
-        },
-        "market_rules_safety_text": {
-          "text": {
-            "0": "VATRA does not process payment, provide delivery or guarantee transactions. Verify the item and seller; never share passwords, verification codes or card details, and avoid suspicious payment links. Keep evidence of agreements. Statutory consumer rights remain in effect."
-          }
-        },
-        "market_rules_moderation": {
-          "text": {
-            "0": "Violations and appeals"
-          }
-        },
-        "market_rules_moderation_text": {
-          "text": {
-            "0": "VATRA may restrict or remove listings and limit Marketplace access for violations of these rules in accordance with law. Report a violation or appeal a decision using the contact in the Documents and inquiries section. Include the listing link and a description of the problem without sending confidential information."
+            "0": "VATRA Commerce Rules"
           }
         }
       }
@@ -2710,6 +2685,610 @@
         "n13": {
           "text": {
             "0": "Go to Feed"
+          }
+        }
+      }
+    },
+    "commerce": {
+      "meta": {
+        "title": "VATRA Commerce Rules · VATRA",
+        "description": "Marketplace rules for sellers and buyers: permitted listings, prohibitions, restrictions and appeals.",
+        "og:title": "VATRA Commerce Rules",
+        "og:description": "Marketplace rules for sellers and buyers: permitted listings, prohibitions, restrictions and appeals.",
+        "og:locale": "en_US"
+      },
+      "nodes": {
+        "tab": {
+          "text": {
+            "0": "VATRA Commerce Rules"
+          }
+        },
+        "head-overview": {
+          "text": {
+            "0": "Scope"
+          }
+        },
+        "copy-overview": {
+          "text": {
+            "0": "These rules cover all VATRA Marketplace offers: sale, exchange, rental and free transfer, as well as related photos, descriptions and communications. Participants are responsible for lawful conduct, the right to dispose of items and consumer rights. Prohibitions also apply to attempts to circumvent the rules through different categories or messages."
+          }
+        },
+        "head-appeals": {
+          "text": {
+            "0": "Violations and appeals"
+          }
+        },
+        "copy-appeals": {
+          "text": {
+            "0": "VATRA may reject, hide or remove listings and restrict Marketplace access for violations. Repeated or serious violations may result in additional account actions under the Terms of Service and law. If a decision is mistaken or you find a violation, contact support with the listing URL or ID and an explanation. Do not send confidential information."
+          }
+        },
+        "head-prohibited": {
+          "text": {
+            "0": "Prohibited listings"
+          }
+        },
+        "copy-prohibited": {
+          "text": {
+            "0": "The following categories are not admitted to the catalogue. Examples are not exhaustive."
+          }
+        },
+        "index-community": {
+          "text": {
+            "0": "VATRA community rules"
+          }
+        },
+        "index-adult": {
+          "text": {
+            "0": "Adult products and content"
+          }
+        },
+        "index-alcohol": {
+          "text": {
+            "0": "Alcohol products"
+          }
+        },
+        "index-body": {
+          "text": {
+            "0": "Human tissue and biological materials"
+          }
+        },
+        "index-devices": {
+          "text": {
+            "0": "Digital media and devices"
+          }
+        },
+        "index-discrimination": {
+          "text": {
+            "0": "Non-discrimination"
+          }
+        },
+        "index-finance": {
+          "text": {
+            "0": "Documents, money and financial products"
+          }
+        },
+        "index-gambling": {
+          "text": {
+            "0": "Gambling"
+          }
+        },
+        "index-hazards": {
+          "text": {
+            "0": "Hazardous substances and goods"
+          }
+        },
+        "index-exploitation": {
+          "text": {
+            "0": "Human exploitation and sexual services"
+          }
+        },
+        "index-jobs": {
+          "text": {
+            "0": "Jobs and income opportunities"
+          }
+        },
+        "index-animals": {
+          "text": {
+            "0": "Animals, natural resources and protected land"
+          }
+        },
+        "index-medical": {
+          "text": {
+            "0": "Medical products, procedures and supplements"
+          }
+        },
+        "index-deception": {
+          "text": {
+            "0": "Deception, violence and hatred"
+          }
+        },
+        "index-no-item": {
+          "text": {
+            "0": "Listings without an item"
+          }
+        },
+        "index-drugs": {
+          "text": {
+            "0": "Medicines, drugs and paraphernalia"
+          }
+        },
+        "index-recalls": {
+          "text": {
+            "0": "Unsafe and recalled products"
+          }
+        },
+        "index-stolen": {
+          "text": {
+            "0": "Stolen property"
+          }
+        },
+        "index-digital": {
+          "text": {
+            "0": "Subscriptions, accounts and digital goods"
+          }
+        },
+        "index-ip": {
+          "text": {
+            "0": "Intellectual property rights"
+          }
+        },
+        "index-tobacco": {
+          "text": {
+            "0": "Tobacco and nicotine products"
+          }
+        },
+        "index-cosmetics": {
+          "text": {
+            "0": "Used cosmetics"
+          }
+        },
+        "index-vehicle-parts": {
+          "text": {
+            "0": "Vehicle parts and accessories"
+          }
+        },
+        "index-weapons": {
+          "text": {
+            "0": "Weapons, ammunition and explosives"
+          }
+        },
+        "head-rule-community": {
+          "text": {
+            "0": "1. VATRA community rules"
+          }
+        },
+        "copy-rule-community": {
+          "text": {
+            "0": "Listings, photos and transaction-related messages must comply with the VATRA Terms of Service. Spam, threats, harassment, fraud and child exploitation are prohibited."
+          }
+        },
+        "head-rule-adult": {
+          "text": {
+            "0": "2. Adult products and content"
+          }
+        },
+        "copy-rule-adult": {
+          "text": {
+            "0": "Sex toys, pornography, sexual enhancement products, condoms and lubricants, worn underwear and sexualized imagery are not permitted. Images of nude children or sexual acts are never acceptable in listings."
+          }
+        },
+        "head-rule-alcohol": {
+          "text": {
+            "0": "3. Alcohol products"
+          }
+        },
+        "copy-rule-alcohol": {
+          "text": {
+            "0": "Alcoholic beverages and kits for producing them may not be offered. Ordinary glasses, bottle holders, coolers and books about beverages are permitted when they do not promote alcohol sales. Alcohol-branded merchandise is not admitted pending a separate VATRA decision."
+          }
+        },
+        "head-rule-body": {
+          "text": {
+            "0": "4. Human tissue and biological materials"
+          }
+        },
+        "copy-rule-body": {
+          "text": {
+            "0": "Trading organs, teeth, nails, blood, urine, semen or other human tissue or fluids is prohibited. Ordinary wigs and hairpieces are outside this prohibition."
+          }
+        },
+        "head-rule-devices": {
+          "text": {
+            "0": "5. Digital media and devices"
+          }
+        },
+        "copy-rule-devices": {
+          "text": {
+            "0": "Devices specifically configured for pirated access, unlawful circumvention, signal interference or covert eavesdropping are prohibited. Lawful remotes, keyboards and ordinary functioning electronics are permitted."
+          }
+        },
+        "head-rule-discrimination": {
+          "text": {
+            "0": "6. Non-discrimination"
+          }
+        },
+        "copy-rule-discrimination": {
+          "text": {
+            "0": "Unlawful restrictions on buyers, tenants or sellers based on race, ethnicity, skin colour, citizenship, national origin, religion, age, sex, sexual orientation, gender identity, family or marital status, disability, health or genetic characteristics are prohibited. This also applies to housing listings and negotiations."
+          }
+        },
+        "head-rule-finance": {
+          "text": {
+            "0": "7. Documents, money and financial products"
+          }
+        },
+        "copy-rule-finance": {
+          "text": {
+            "0": "Documents and copies, forgeries, cash, cryptocurrencies, bank cards, cheques, payment instruments, counterfeiting equipment and offers of lending, insurance, banking and other financial services are prohibited."
+          }
+        },
+        "head-rule-gambling": {
+          "text": {
+            "0": "8. Gambling"
+          }
+        },
+        "copy-rule-gambling": {
+          "text": {
+            "0": "Listings for casinos, monetary bets, lotteries, pools, poker and other gambling for money or valuables, including cryptocurrency, are prohibited. Ordinary board games without gambling stakes are outside this rule."
+          }
+        },
+        "head-rule-hazards": {
+          "text": {
+            "0": "9. Hazardous substances and goods"
+          }
+        },
+        "copy-rule-hazards": {
+          "text": {
+            "0": "Do not offer toxic, corrosive, explosive or highly flammable substances, hazardous pesticides, asbestos or chemical precursors whose circulation threatens safety. Legality alone does not establish eligibility for the catalogue."
+          }
+        },
+        "head-rule-exploitation": {
+          "text": {
+            "0": "10. Human exploitation and sexual services"
+          }
+        },
+        "copy-rule-exploitation": {
+          "text": {
+            "0": "Offers involving human trafficking, unlawful smuggling, forced labour, escort services, prostitution, paid sexual services or sexualized shows are prohibited. Child sexual abuse material is prohibited. Matchmaking and recruitment are not catalogue goods."
+          }
+        },
+        "head-rule-jobs": {
+          "text": {
+            "0": "11. Jobs and income opportunities"
+          }
+        },
+        "copy-rule-jobs": {
+          "text": {
+            "0": "Marketplace is not a job board. Do not post recruitment, multilevel marketing or get-rich-quick schemes. Lawful employment opportunities may be discussed in permitted VATRA areas under the general terms."
+          }
+        },
+        "head-rule-animals": {
+          "text": {
+            "0": "12. Animals, natural resources and protected land"
+          }
+        },
+        "copy-rule-animals": {
+          "text": {
+            "0": "Live animals, animal body parts, products from protected species, raw fish, meat and eggs, and real estate within ecological reserves are prohibited. Veterinary medicines and services are not admitted. Cages, toys, collars and other lawful pet accessories are permitted."
+          }
+        },
+        "head-rule-medical": {
+          "text": {
+            "0": "13. Medical products, procedures and supplements"
+          }
+        },
+        "copy-rule-medical": {
+          "text": {
+            "0": "Medical devices, disease diagnostic kits, contact lenses, corrective glasses, thermometers, first aid kits, breast pumps, injections and cosmetic procedures, treatment claims, medical or infant nutrition formulas and supplements including steroids, hormones, protein powders and vitamins are prohibited. Ordinary fitness accessories and pregnancy or ovulation tests are permitted if otherwise compliant."
+          }
+        },
+        "head-rule-deception": {
+          "text": {
+            "0": "14. Deception, violence and hatred"
+          }
+        },
+        "copy-rule-deception": {
+          "text": {
+            "0": "Phishing, false prices and product claims, payment scams, review manipulation, shocking violent imagery and material promoting racial hatred or extremism are prohibited. Do not shame a person's appearance or health to sell products."
+          }
+        },
+        "head-rule-no-item": {
+          "text": {
+            "0": "15. Listings without an item"
+          }
+        },
+        "copy-rule-no-item": {
+          "text": {
+            "0": "Each listing must offer a specific item, permitted real estate or the free transfer of an eligible item. News, memes, fundraising, lost-and-found posts and requests to buy without an item on offer belong outside the catalogue."
+          }
+        },
+        "head-rule-drugs": {
+          "text": {
+            "0": "16. Medicines, drugs and paraphernalia"
+          }
+        },
+        "copy-rule-drugs": {
+          "text": {
+            "0": "Prescription and over-the-counter medicines, narcotics, cannabis and cannabis products, and paraphernalia intended for drug use are prohibited."
+          }
+        },
+        "head-rule-recalls": {
+          "text": {
+            "0": "17. Unsafe and recalled products"
+          }
+        },
+        "copy-rule-recalls": {
+          "text": {
+            "0": "Goods withdrawn from sale, recalled by a manufacturer or banned for safety reasons may not be sold. Check children's products, furniture and toys particularly carefully. If unsure, verify the model and batch against manufacturer or regulator notices."
+          }
+        },
+        "head-rule-stolen": {
+          "text": {
+            "0": "18. Stolen property"
+          }
+        },
+        "copy-rule-stolen": {
+          "text": {
+            "0": "Items obtained through theft, fraud or other unlawful means are prohibited. Sellers must have the right to dispose of the property."
+          }
+        },
+        "head-rule-digital": {
+          "text": {
+            "0": "19. Subscriptions, accounts and digital goods"
+          }
+        },
+        "copy-rule-digital": {
+          "text": {
+            "0": "Sales of accounts, service access, digital subscriptions, downloadable files, activation codes, followers or engagement are prohibited. Genuine physical discs and ordinary electronic devices are permitted when lawfully sold."
+          }
+        },
+        "head-rule-ip": {
+          "text": {
+            "0": "20. Intellectual property rights"
+          }
+        },
+        "copy-rule-ip": {
+          "text": {
+            "0": "Counterfeit branded goods, unlicensed copies of software, music, books or video, and other goods infringing copyright or trademarks are prohibited. Photos and descriptions must respect third-party rights."
+          }
+        },
+        "head-rule-tobacco": {
+          "text": {
+            "0": "21. Tobacco and nicotine products"
+          }
+        },
+        "copy-rule-tobacco": {
+          "text": {
+            "0": "Tobacco, cigarettes, electronic cigarettes, nicotine products and paraphernalia specifically intended for their use are prohibited."
+          }
+        },
+        "head-rule-cosmetics": {
+          "text": {
+            "0": "22. Used cosmetics"
+          }
+        },
+        "copy-rule-cosmetics": {
+          "text": {
+            "0": "Do not offer used cosmetics or cosmetics without their original packaging. New properly packaged products are eligible if otherwise compliant."
+          }
+        },
+        "head-rule-vehicle-parts": {
+          "text": {
+            "0": "23. Vehicle parts and accessories"
+          }
+        },
+        "copy-rule-vehicle-parts": {
+          "text": {
+            "0": "Unlawful, recalled or unsafe vehicle parts and accessories are prohibited. Lawful safe components are permitted when their origin and condition are accurately disclosed. Additional restrictions for specific parts may be established separately."
+          }
+        },
+        "head-rule-weapons": {
+          "text": {
+            "0": "24. Weapons, ammunition and explosives"
+          }
+        },
+        "copy-rule-weapons": {
+          "text": {
+            "0": "Weapons, ammunition, explosives and specialized components or equipment intended for their unlawful use are prohibited. This applies to sales, exchanges and free transfers."
+          }
+        },
+        "head-restricted": {
+          "text": {
+            "0": "Restricted listings"
+          }
+        },
+        "copy-restricted": {
+          "text": {
+            "0": "These categories require dedicated features or seller verification. Until such mechanisms exist, they are unavailable in VATRA Marketplace."
+          }
+        },
+        "head-limit-tickets": {
+          "text": {
+            "0": "Event tickets"
+          }
+        },
+        "copy-limit-tickets": {
+          "text": {
+            "0": "Ticket sales and resale are not available until an authorized seller verification process is introduced."
+          }
+        },
+        "head-limit-vouchers": {
+          "text": {
+            "0": "Gift cards and vouchers"
+          }
+        },
+        "copy-limit-vouchers": {
+          "text": {
+            "0": "Gift cards, certificates and vouchers are not admitted until a separate verified seller program is launched."
+          }
+        },
+        "head-limit-adoption": {
+          "text": {
+            "0": "Animal rehoming"
+          }
+        },
+        "copy-limit-adoption": {
+          "text": {
+            "0": "The catalogue does not accept live animal rehoming listings. A separate process for verified organizations may be introduced later."
+          }
+        },
+        "head-limit-services": {
+          "text": {
+            "0": "Services"
+          }
+        },
+        "copy-limit-services": {
+          "text": {
+            "0": "Service listings are not admitted until a dedicated feature is launched. Permitted property rental is a separate listing type, not a general services category."
+          }
+        },
+        "head-safety": {
+          "text": {
+            "0": "Listing requirements and transaction safety"
+          }
+        },
+        "copy-safety": {
+          "text": {
+            "0": "Provide the accurate price, location, condition and defects. Use your own or authorized photos. Do not duplicate listings to manipulate the catalogue. VATRA does not process payments, arrange delivery or guarantee transactions. Verify goods and sellers, never share passwords, codes or banking details, and avoid suspicious links. Statutory consumer rights remain intact."
+          }
+        },
+        "title": {
+          "text": {
+            "0": "VATRA Commerce Rules"
+          }
+        },
+        "intro": {
+          "text": {
+            "0": "Marketplace rules for sellers and buyers: permitted listings, prohibitions, restrictions and appeals."
+          }
+        },
+        "updated": {
+          "text": {
+            "0": "Version of November 18, 2026"
+          }
+        },
+        "toc-title": {
+          "text": {
+            "0": "On this page"
+          }
+        },
+        "desktop-overview": {
+          "text": {
+            "0": "Overview"
+          }
+        },
+        "desktop-appeals": {
+          "text": {
+            "0": "Violations and appeals"
+          }
+        },
+        "desktop-prohibited": {
+          "text": {
+            "0": "Prohibited listings"
+          }
+        },
+        "desktop-restricted": {
+          "text": {
+            "0": "Restricted listings"
+          }
+        },
+        "desktop-safety": {
+          "text": {
+            "0": "Transaction safety"
+          }
+        },
+        "toc-mobile": {
+          "text": {
+            "0": "Contents"
+          }
+        },
+        "mobile-overview": {
+          "text": {
+            "0": "Overview"
+          }
+        },
+        "mobile-appeals": {
+          "text": {
+            "0": "Violations and appeals"
+          }
+        },
+        "mobile-prohibited": {
+          "text": {
+            "0": "Prohibited listings"
+          }
+        },
+        "mobile-restricted": {
+          "text": {
+            "0": "Restricted listings"
+          }
+        },
+        "mobile-safety": {
+          "text": {
+            "0": "Transaction safety"
+          }
+        },
+        "n1": {
+          "text": {
+            "0": "Skip to content"
+          }
+        },
+        "n3": {
+          "attrs": {
+            "aria-label": "VATRA — home"
+          }
+        },
+        "n6": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n7": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n9": {
+          "attrs": {
+            "aria-label": "Document sections"
+          }
+        },
+        "n11": {
+          "text": {
+            "0": "Terms of Service"
+          }
+        },
+        "n12": {
+          "text": {
+            "0": "Privacy"
+          }
+        },
+        "n88": {
+          "text": {
+            "1": " · Your people. Your stories. Your VATRA."
+          }
+        },
+        "n90": {
+          "attrs": {
+            "aria-label": "Additional links"
+          }
+        },
+        "n301": {
+          "text": {
+            "0": "Sign in"
+          }
+        },
+        "n302": {
+          "text": {
+            "0": "Create account"
+          }
+        },
+        "n95": {
+          "text": {
+            "0": "English"
+          },
+          "attrs": {
+            "aria-label": "Choose language"
           }
         }
       }
