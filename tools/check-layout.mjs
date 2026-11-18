@@ -1447,12 +1447,27 @@ assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
  memberCss.includes("body.profile-page .profile-editor-layout"),
  "VATRA personal profile editor must have group navigation and real Supabase field privacy");
 assert.ok(
+ detailsModule.includes('button.setAttribute("role","combobox")') &&
+ detailsModule.includes('panel.setAttribute("role","listbox")') &&
+ detailsModule.includes('button.setAttribute("aria-expanded","false")') &&
+ detailsModule.includes('state.anchor.setAttribute("aria-activedescendant",button.id)') &&
+ detailsModule.includes('native.hidden=true;native.tabIndex=-1') &&
+ detailsModule.includes('native.dispatchEvent(new Event("change",{bubbles:true}))') &&
+ detailsModule.includes('enhanceEditorSelect(selectBox,"compact")') &&
+ detailsModule.includes('enhanceEditorSelect(change,"page")') &&
+ detailsModule.includes('if(!editable){event.preventDefault();open(true);return;}') &&
+ detailsModule.includes('state.panel.scrollTop+=option.bottom-bounds.bottom') &&
+ memberCss.includes('.vatra-editor-select>select[hidden]{display:none!important}') &&
+ memberCss.includes('.ui-profile-editor-dropdown-panel-001'),
+ "VATRA editor dropdowns must keep native values synchronized, field privacy selectable, keyboard navigation accessible and option scrolling contained");
+assert.ok(
  !detailsModule.includes('item.append(badge,label,content)') &&
  detailsModule.includes('paragraph.textContent=bio') &&
  detailsModule.includes('paragraph.hidden=!bio') &&
  detailsModule.includes('more.hidden=!additional.length&&!hasLongPreview') &&
  !detailsModule.includes('vt-profile-detail-audience-') &&
- detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
+ detailsModule.includes('lab.htmlFor=inputId') &&
+ !detailsModule.includes('lab.prepend(svg(fieldIcons[key]') &&
  memberCss.includes('/* PROFILE READING ·') &&
  memberCss.includes('grid-template-columns:minmax(0,38%) minmax(0,1fr)'),
  "Profile About preview has a centered optional bio, compact facts, and no read-only icon tiles");
@@ -1924,7 +1939,7 @@ assert.ok(
  !socialMotion.includes("VATRA_MOTION") &&
  !profileScript.includes("VATRA_MOTION") &&
  !profileScript.includes("document.startViewTransition(") &&
- profileScript.includes("if(id!==selected)showGroup(id)") &&
+ /if\s*\(\s*id\s*!==\s*selected\s*\)\s*\{?\s*showGroup\(id\)/.test(profileScript) &&
  profileScript.includes("panel.hidden=panel.dataset.profilePanel!==name"),
  "VATRA routes, tabs and editor chapters must switch immediately while preserving data skeletons");
 assert.ok(
