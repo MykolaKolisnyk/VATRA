@@ -2042,8 +2042,8 @@ assert.ok(legacyScript.includes('classList.add("vatra-dynamic-route-pending")')&
  lang.includes('classList.contains("vatra-dynamic-route-pending")'),
  "A canonical profile or club route must never show a blank screen while loading");
 
-assert.equal(uk.__pages["404"].meta.title,"404 Сторінку не знайдено · VATRA");
-assert.equal(en.__pages["404"].meta.title,"404 Page not found · VATRA");
+assert.equal(uk.__pages["404"].meta.title,"Сторінку не знайдено");
+assert.equal(en.__pages["404"].meta.title,"Page not found");
 assert.ok(errorPage.includes("<title>"+uk.__pages["404"].meta.title+"</title>"),
  "404 HTML fallback must match the Ukrainian translation");
 assert.ok(lang.includes('"404":'+JSON.stringify(en.__pages["404"].meta.title)),

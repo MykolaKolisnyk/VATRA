@@ -1350,8 +1350,8 @@ try{
  await titleContext.route("**/assets/js/host.js",route=>route.fulfill({
   status:200,contentType:"text/javascript",body:"window.VATRA_HOST_ALLOWED=true;"
  }));
- for(const [language,expected] of [["uk","404 Сторінку не знайдено · VATRA"],
-  ["en","404 Page not found · VATRA"]]){
+ for(const [language,expected] of [["uk","Сторінку не знайдено"],
+  ["en","Page not found"]]){
   // VATRA's language cookie is authoritative over localStorage.
   await titleContext.addCookies([{name:"vatra-language",value:language,url:base}]);
   const tab=await titleContext.newPage();
@@ -1359,7 +1359,7 @@ try{
   await tab.goto(base+"404.html",{waitUntil:"load"});
   await tab.waitForFunction(lang=>document.documentElement.lang===lang,language);
   assert.equal(await tab.title(),expected,
-   "404 tab title must use the same middle dot and omit punctuation after 404: "+language);
+   "Missing-page tab title must omit the status code and branding: "+language);
   const verifyMissingPage=async()=>{
    await tab.waitForFunction(()=>!document.documentElement.classList.contains("i18n-pending"));
    const mascot=await tab.evaluate(async()=>{

@@ -22,7 +22,7 @@
 
       const titleGuard=new MutationObserver(()=>{
         const node=document.head.querySelector("title");
-        if(node&&/^404\b/.test(node.textContent))node.textContent="VATRA";
+        if(node&&/^(?:404\s|Сторінку не знайдено$|Page not found$)/.test(node.textContent))node.textContent="VATRA";
       });
       titleGuard.observe(document.head,{childList:true,subtree:true,characterData:true});
       const file=dynamic?(dynamic[1]==="id"?"profile.html":"club.html"):staticPage[1]+".html";
@@ -43,7 +43,7 @@
 
           titleGuard.disconnect();
           document.documentElement.classList.remove("vatra-dynamic-route-pending");
-          document.title="404 Сторінку не знайдено · VATRA";
+          document.title="Сторінку не знайдено";
           const locale=document.createElement("script");
           locale.className="ui-404-route-locale-recovery-001";
           locale.src="/VATRA/assets/js/lang.js";

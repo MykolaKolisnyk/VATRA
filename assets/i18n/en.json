@@ -307,7 +307,7 @@
   "__pages": {
     "404": {
       "meta": {
-        "title": "404 Page not found · VATRA",
+        "title": "Page not found",
         "description": "There is no VATRA page at this address. The link might be incorrect or the page may have moved."
       },
       "nodes": {
