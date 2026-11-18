@@ -34,6 +34,7 @@ function viewer(label,options={}){
    const builder={
     select(columns){query.columns=columns;return builder;},
     ilike(field,pattern){query.field=field;query.pattern=pattern;return builder;},
+    eq(field,value){query[field]=value;return builder;},
     is(field,value){assert.equal(field,"archived_at");assert.equal(value,null);query.archived=true;return builder;},
     limit(size){
      calls.push({...query,size});
@@ -77,6 +78,7 @@ function viewer(label,options={}){
  assert.ok(one.calls.every(c=>c.pattern==="%VATRA%"||c.pattern==="%vatra%"));
  assert.ok(one.calls.find(c=>c.table==="feed_posts")?.archived,
   "Search must keep archived posts excluded");
+ assert.equal(one.calls.find(c=>c.table==="feed_posts").is_clip,false,"Search must exclude clips from ordinary posts");
  await findSite("VATRA");
  assert.equal(one.calls.length,6,"Cached same-term searches should not reread Supabase");
  const other=viewer("Other");
@@ -175,3 +177,9 @@ function viewer(label,options={}){
   "Percent/underscore wildcards must be escaped before ilike");
 }
 console.log("VATRA live search: RLS scope, six-query dedup, TTL, auth races, errors and escaped wildcards passed.");
+
+{
+ const exact=viewer("Exact");context.client=exact.client;
+ await findSite("1");assert.ok(exact.calls.some(c=>c.table==="public_profiles"&&c.vatra_id==="1"));
+ await findSite("VATRA ID 1");assert.equal(exact.calls.filter(c=>c.vatra_id==="1").length,2);
+}
