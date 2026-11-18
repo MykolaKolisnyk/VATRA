@@ -496,11 +496,10 @@ function appendAudience(container,level,isGroup=false){
    button.setAttribute("aria-label",label);button.title=label;return button;
   };
   const attach=tool("paperclip","vt-vatra-post-comment-attach-001",tr("Додати вкладення","Attach media"));
-  const camera=tool("camera","vt-vatra-post-comment-camera-001",tr("Додати фотографію","Attach photo"));
   const emoji=tool("smile","vt-vatra-post-comment-emoji-001",tr("Емодзі та стікери","Emoji and stickers"));
   const send=tool("arrow","vt-vatra-post-comment-send-001",tr("Опублікувати коментар","Post comment"));
   send.type="submit";
-  controls.append(attach,camera,emoji,send);
+  controls.append(attach,emoji,send);
   composerInput.append(input,controls);
   const popovers=make("div","vatra-post-comment-popovers ui-vatra-post-comment-popovers-001");
   const attachmentMenu=make("div","vatra-post-comment-attach-menu ui-vatra-post-comment-attach-menu-001");
@@ -513,7 +512,7 @@ function appendAudience(container,level,isGroup=false){
    item.type="button";item.setAttribute("role","menuitem");
    item.prepend(glyph(type==="photo"?"camera":type==="video"?"video":"paperclip"));
    item.addEventListener("click",()=>{
-    fileInput.accept=accept;attachmentMenu.hidden=true;attach.setAttribute("aria-expanded","false");
+    fileInput.accept=accept;hideMenus();
     fileInput.click();
    });return item;
   };
@@ -550,33 +549,76 @@ function appendAudience(container,level,isGroup=false){
   };
   cancelReply.addEventListener("click",()=>{stopReply();input.focus();});
   const updateSend=()=>{send.disabled=!input.value.trim()&&!chosenFile;};
+  let activeMenu=null,menuCloseTimer=0;
+  const clearMenuClose=()=>{
+   if(menuCloseTimer){clearTimeout(menuCloseTimer);menuCloseTimer=0;}
+  };
   const hideMenus=()=>{
+   clearMenuClose();activeMenu=null;
    attachmentMenu.hidden=true;emojiPanel.hidden=true;
    attach.setAttribute("aria-expanded","false");
    emoji.setAttribute("aria-expanded","false");
   };
   const positionPopover=element=>{
-   element.style.removeProperty("transform");
-   element.style.removeProperty("top");
-   element.style.removeProperty("bottom");
-   let rect=element.getBoundingClientRect();
-   if(rect.top<8){
-    element.style.bottom="auto";element.style.top="calc(100% + 8px)";
-    rect=element.getBoundingClientRect();
-   }
-   const shift=rect.left<8?8-rect.left:rect.right>innerWidth-8?innerWidth-8-rect.right:0;
-   if(shift)element.style.transform="translateX("+Math.round(shift)+"px)";
+   const anchor=(element===attachmentMenu?attach:emoji).getBoundingClientRect();
+   const bounds=form.closest("dialog")?.getBoundingClientRect();
+   const view=window.visualViewport;
+   const vx=view?.offsetLeft||0,vy=view?.offsetTop||0;
+   const vw=view?.width||innerWidth,vh=view?.height||innerHeight;
+   const left=Math.max(vx+8,(bounds?.left??vx)+8);
+   const right=Math.min(vx+vw-8,(bounds?.right??vx+vw)-8);
+   const top=vy+8,bottom=vy+vh-8,gap=6;
+   if(anchor.bottom<=top||anchor.top>=bottom||(bounds&&(anchor.bottom<=bounds.top||anchor.top>=bounds.bottom))){hideMenus();return;}
+   const desiredWidth=element===attachmentMenu?218:350;
+   const width=Math.max(0,Math.min(desiredWidth,right-left));
+   const desiredHeight=element===attachmentMenu?160:310;
+   const above=Math.max(0,anchor.top-top-gap),below=Math.max(0,bottom-anchor.bottom-gap);
+   const upward=above>=desiredHeight||above>=below;
+   const available=Math.max(0,upward?above:below);
+   if(width<100||available<44){hideMenus();return;}
+   element.style.setProperty("--vatra-pop-width",width+"px");
+   element.style.setProperty("--vatra-pop-height",Math.min(desiredHeight,available)+"px");
+   const x=Math.max(left,Math.min(anchor.right-width,right-width));
+   const height=element.getBoundingClientRect().height;
+   const y=upward?Math.max(top,anchor.top-gap-height):anchor.bottom+gap;
+   element.style.setProperty("--vatra-pop-left",Math.round(x)+"px");
+   element.style.setProperty("--vatra-pop-top",Math.round(y)+"px");
   };
-  attach.setAttribute("aria-expanded","false");emoji.setAttribute("aria-expanded","false");
-  attach.addEventListener("click",()=>{
-   const show=attachmentMenu.hidden;
-   hideMenus();attachmentMenu.hidden=!show;
-   attach.setAttribute("aria-expanded",String(show));
-   if(show)positionPopover(attachmentMenu);
-  });
-  camera.addEventListener("click",()=>{
-   hideMenus();fileInput.accept="image/jpeg,image/png,image/webp";fileInput.click();
-  });
+  const openMenu=(element,trigger)=>{
+   hideMenus();
+   activeMenu=element;element.hidden=false;trigger.setAttribute("aria-expanded","true");
+   positionPopover(element);
+  };
+  const hoverPointer=event=>event.pointerType==="mouse"||(event.pointerType==="pen"&&window.matchMedia("(any-hover:hover)").matches);
+  const bindMenu=(element,trigger)=>{
+   let pointerType="";
+   trigger.setAttribute("aria-expanded","false");
+   const scheduleClose=event=>{
+    if(!hoverPointer(event)||activeMenu!==element)return;
+    clearMenuClose();
+    menuCloseTimer=setTimeout(()=>{
+     menuCloseTimer=0;
+     if(activeMenu===element&&!trigger.matches(":hover")&&!element.matches(":hover"))hideMenus();
+    },180);
+   };
+   trigger.addEventListener("pointerenter",event=>{
+    if(!hoverPointer(event))return;
+    if(activeMenu!==element)openMenu(element,trigger);
+    else clearMenuClose();
+   });
+   trigger.addEventListener("pointerleave",scheduleClose);
+   element.addEventListener("pointerenter",event=>{if(hoverPointer(event)&&activeMenu===element)clearMenuClose();});
+   element.addEventListener("pointerleave",scheduleClose);
+   trigger.addEventListener("pointerdown",event=>{pointerType=event.pointerType;});
+   trigger.addEventListener("click",event=>{
+    const mouseClick=event.detail!==0&&(pointerType==="mouse"||(pointerType==="pen"&&window.matchMedia("(any-hover:hover)").matches));
+    pointerType="";
+    if(mouseClick){if(activeMenu!==element)openMenu(element,trigger);return;}
+    if(activeMenu===element)hideMenus();else openMenu(element,trigger);
+   });
+  };
+  bindMenu(attachmentMenu,attach);
+  bindMenu(emojiPanel,emoji);
   const emojiGroups=[
    [tr("Емоції","Emotions"),
     ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","🙂","😉","😍","🥰","😘","😎","🤩","🥳","😢","😭","😡","😱","🤔","😴","😇","🙃","🫶","❤️","💙","💛","🔥","✨","🎉"]],
@@ -611,15 +653,9 @@ function appendAudience(container,level,isGroup=false){
   emojisTab.addEventListener("click",()=>{emojiMode="emoji";renderEmoji();});
   stickerTab.addEventListener("click",()=>{emojiMode="sticker";renderEmoji();});
   renderEmoji();
-  emoji.addEventListener("click",()=>{
-   const show=emojiPanel.hidden;
-   hideMenus();emojiPanel.hidden=!show;
-   emoji.setAttribute("aria-expanded",String(show));
-   if(show)positionPopover(emojiPanel);
-  });
   document.addEventListener("pointerdown",event=>{
-   if(!form.isConnected||form.contains(event.target))return;
-   hideMenus();
+   if(!form.isConnected)return;
+   if(!attach.contains(event.target)&&!emoji.contains(event.target)&&!popovers.contains(event.target))hideMenus();
   });
   form.addEventListener("keydown",event=>{
    if(event.key==="Escape"){hideMenus();if(replyTarget)stopReply();}
@@ -870,7 +906,7 @@ function appendAudience(container,level,isGroup=false){
    if(commentDialog?.open)return;
    const card=container.closest(".feed-post-card")||container;
    if(!card.parentNode)return;
-   const marker=document.createComment("vatra-comment-dialog-origin");
+   const marker=make("span","ui-vatra-comment-origin-001");marker.hidden=true;
    card.parentNode.insertBefore(marker,card);
    const dialog=make("dialog","vatra-post-comment-dialog ui-vatra-post-comment-dialog-001");
    dialog.setAttribute("aria-label",tr("Публікація та коментарі","Post and comments"));
@@ -878,13 +914,27 @@ function appendAudience(container,level,isGroup=false){
    close.type="button";close.setAttribute("aria-label",tr("Закрити коментарі","Close comments"));
    close.append(glyph("x"));
    const content=make("div","vatra-post-comment-dialog-content ui-vatra-post-comment-dialog-content-001");
-   content.append(card);dialog.append(close,content);document.body.append(dialog);
+   content.append(card);dialog.append(close,content,popovers);document.body.append(dialog);
+   const reposition=()=>{
+    if(activeMenu)positionPopover(activeMenu);
+   };
+   const viewport=window.visualViewport;
+   content.addEventListener("scroll",reposition,{passive:true});
+   window.addEventListener("resize",reposition);
+   viewport?.addEventListener("resize",reposition);
+   viewport?.addEventListener("scroll",reposition);
    commentDialog=dialog;panel.hidden=false;
    commentsButton.setAttribute("aria-expanded","true");
    const previousFocus=document.activeElement;
    let restored=false;
    const restore=()=>{
     if(restored)return;restored=true;
+    hideMenus();
+    content.removeEventListener("scroll",reposition);
+    window.removeEventListener("resize",reposition);
+    viewport?.removeEventListener("resize",reposition);
+    viewport?.removeEventListener("scroll",reposition);
+    composer.insertBefore(popovers,fileInput);
     panel.hidden=true;commentsButton.setAttribute("aria-expanded","false");
     if(marker.parentNode)marker.parentNode.replaceChild(card,marker);
     else if(card.isConnected)card.remove();
@@ -893,10 +943,12 @@ function appendAudience(container,level,isGroup=false){
    };
    const dismiss=()=>{if(dialog.open)dialog.close();restore();};
    dialog.addEventListener("close",restore,{once:true});
+   dialog.addEventListener("cancel",event=>{
+    if(!attachmentMenu.hidden||!emojiPanel.hidden){event.preventDefault();hideMenus();}
+   });
    close.addEventListener("click",dismiss);
    dialog.addEventListener("click",event=>{if(event.target===dialog)dismiss();});
    dialog.showModal();close.focus({preventScroll:true});
-   // Refresh on every open: counts and comment order may have changed meanwhile.
    void loadComments(true);
   };
   commentsButton.addEventListener("click",openComments);
@@ -907,6 +959,7 @@ function appendAudience(container,level,isGroup=false){
   more.addEventListener("click",()=>void loadComments(false));
   form.addEventListener("submit",async event=>{
    event.preventDefault();
+   hideMenus();
    const body=input.value.trim(),file=chosenFile;
    if((!body&&!file)||body.length>1000||send.disabled||!validId(ownId))return;
    send.disabled=true;let uploaded=null,committed=false;

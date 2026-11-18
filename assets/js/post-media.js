@@ -446,6 +446,25 @@
   mediaDialog.showModal();
  }
 
+ function loadImageSource(image,src){
+  return new Promise((resolve,reject)=>{
+   let done=false;
+   const finish=success=>{
+    if(done)return;done=true;
+    clearTimeout(timer);
+    image.removeEventListener("load",loaded);
+    image.removeEventListener("error",failed);
+    if(success)resolve();else reject(Error("Image unavailable"));
+   };
+   const loaded=()=>finish(image.naturalWidth>0);
+   const failed=()=>finish(false);
+   const timer=setTimeout(failed,15000);
+   image.addEventListener("load",loaded,{once:true});
+   image.addEventListener("error",failed,{once:true});
+   image.src=src;
+   if(image.complete)loaded();
+  });
+ }
  async function mountGallery(client,post,container){
   const id=post.author_vatra_id;
   const media=Array.isArray(post.media_items)?post.media_items.slice(0,GALLERY_LIMIT).filter(item=>
@@ -484,16 +503,14 @@
    return {item,tile,index};
   });
   container.append(slot);
+  const priority=++firstImages;
   let begun=false;
   async function loadTiles(){
-   if(begun)return;begun=true;
-   // A video tile already has a visible play symbol. Do not download an MP4
-   // (often the entire file) merely to extract its first-frame preview.
+   if(begun||!slot.isConnected)return;
+   begun=true;
    const previewPath=item=>item.media_kind==="image"&&
     name(item.preview_path,"image",id)&&item.preview_path.endsWith(".webp")?
     item.preview_path:null;
-   // Batch-sign just the small previews. Full-resolution images are signed
-   // only when someone explicitly opens a photo; old posts use originals.
    await preSignGallery(client,tiles.filter(({item})=>item.media_kind==="image").map(({item})=>({
     media_kind:"image",media_path:previewPath(item)||item.media_path
    })));
@@ -513,16 +530,16 @@
        const candidate=document.createElement("img");
        candidate.className="ui-vatra-post-gallery-media-"+index;
        candidate.alt=tr("Фото публікації","Post photo");
+       candidate.loading="eager";
        candidate.decoding="async";
-       candidate.src=src;
-       if(typeof candidate.decode==="function")await candidate.decode();
-       else await new Promise((resolve,reject)=>{
-        if(candidate.complete)return candidate.naturalWidth?resolve():reject(Error("Image unavailable"));
-        candidate.addEventListener("load",resolve,{once:true});
-        candidate.addEventListener("error",reject,{once:true});
-       });
+       if(priority<=2)candidate.fetchPriority="high";
+       candidate.classList.add("is-gallery-pending");
+       tile.prepend(candidate);
+       try{await loadImageSource(candidate,src);}
+       catch(error){candidate.remove();throw error;}
+       candidate.classList.remove("is-gallery-pending");
        element=candidate;break;
-      }catch(_){/* Unauthorized/missing preview falls back to the original. */}
+      }catch(_){}
      }
      if(!element)throw Error("Image unavailable");
      if(!tile.isConnected)return;
@@ -530,19 +547,30 @@
       const width=element.naturalWidth,height=element.naturalHeight;
       if(width&&height)slot.dataset.orientation=width>height*1.25?"wide":"portrait";
      }
-     tile.prepend(element);
+     tile.classList.remove("is-gallery-unavailable");
      tile.classList.add("is-gallery-ready");
      tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
-    }catch(_){if(tile.isConnected)tile.classList.add("is-gallery-unavailable");}
+    }catch(_){
+     if(!tile.isConnected)return;
+     tile.classList.add("is-gallery-unavailable");
+     tile.querySelector('[class^="ui-vatra-post-gallery-skeleton-"]')?.remove();
+     const notice=document.createElement("span");
+     notice.className="vt-vatra-gallery-unavailable-001";
+     notice.textContent=tr("Медіафайл тимчасово недоступний.","Media temporarily unavailable.");
+     tile.append(notice);
+    }
    }));
   }
-  if(typeof IntersectionObserver==="undefined")void loadTiles();
-  else{
+  queueMicrotask(()=>{
+   if(!slot.isConnected)return;
+   if(priority<=2||typeof IntersectionObserver==="undefined"){void loadTiles();return;}
    const observer=new IntersectionObserver(entries=>{
-    if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();void loadTiles();}
-   },{rootMargin:"350px 0px"});
+    if(entries.some(entry=>entry.isIntersecting||entry.intersectionRatio>0)){
+     observer.disconnect();void loadTiles();
+    }
+   },{rootMargin:"440px 0px",threshold:0});
    observer.observe(slot);
-  }
+  });
   async function openGallery(startIndex){
    let index=startIndex,active=true;
    const current=media[index];
@@ -673,16 +701,7 @@
     image.alt=tr("Фото до публікації","Post photo");
     image.decoding="async";image.loading="eager";
     if(priority<=2)image.fetchPriority="high";
-    image.src=src;
-    if(typeof image.decode==="function"){
-     try{await image.decode();}catch(_){
-      if(!image.complete||!image.naturalWidth)throw Error("Image unavailable");
-     }
-    }else await new Promise((resolve,reject)=>{
-     if(image.complete)return image.naturalWidth?resolve():reject(Error("Invalid image"));
-     image.addEventListener("load",resolve,{once:true});
-     image.addEventListener("error",()=>reject(Error("Image unavailable")),{once:true});
-    });
+    await loadImageSource(image,src);
     if(!slot.isConnected)return;
     const frame=document.createElement("button");
     frame.className="vt-feed-post-media-open-001";frame.type="button";

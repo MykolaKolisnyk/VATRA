@@ -180,3 +180,22 @@ body.profile-page .vatra-post-composer-dialog textarea{
  .vatra-post-composer-footer button{padding:9px 10px}
 }
 @media(prefers-reduced-motion:reduce){.vatra-post-composer-dialog *{transition:none!important}}
+
+body.feed-page .vatra-post-composer-head [id$="-compose-cancel"],
+body.profile-page .vatra-post-composer-head [id$="-compose-cancel"]{
+ display:grid;place-items:center;box-sizing:border-box;width:40px;height:40px;min-height:40px;min-width:40px;padding:0;margin:0;line-height:1
+}
+.vatra-post-composer-head [id$="-compose-cancel"]>svg{display:block;width:18px;height:18px;margin:0;flex:none}
+body.feed-page .vatra-post-composer-settings .vatra-post-composer-audience,
+body.profile-page .vatra-post-composer-settings .vatra-post-composer-audience{
+ display:grid;grid-template-columns:20px minmax(0,1fr) minmax(150px,220px);align-items:center;gap:10px
+}
+body.feed-page .vatra-post-composer-audience select,
+body.profile-page .vatra-post-composer-audience select{max-width:none!important;width:100%;min-width:0;margin:0}
+@media(max-width:640px){
+ body.feed-page .vatra-post-composer-settings .vatra-post-composer-audience,
+ body.profile-page .vatra-post-composer-settings .vatra-post-composer-audience{grid-template-columns:20px minmax(0,1fr)}
+ body.feed-page .vatra-post-composer-audience select,
+ body.profile-page .vatra-post-composer-audience select{grid-column:1/-1;font-size:16px}
+ body.feed-page .vatra-post-composer-dialog textarea,body.profile-page .vatra-post-composer-dialog textarea{font-size:16px}
+}

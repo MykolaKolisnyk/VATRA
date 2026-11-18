@@ -82,7 +82,7 @@ function bind({prefix,ownerId,getFile}){
  back.append(vectorIcon("back","ui-vatra-post-composer-back-icon-001"),
   make("span","vt-vatra-post-composer-back-label-001",t("Редагувати","Edit")));
  back.type="button";back.hidden=true;
- title.textContent=t("Новий пост","New post");
+ title.textContent=(language()==="uk"?"Нова публікація":t("Новий пост","New post"));
  const drafts=make("button","vt-vatra-post-composer-drafts-001");
  drafts.append(vectorIcon("drafts","ui-vatra-post-composer-drafts-icon-001"),
   make("span","vt-vatra-post-composer-drafts-label-001",t("Чернетки","Drafts")));
@@ -160,7 +160,7 @@ function bind({prefix,ownerId,getFile}){
   view="compose";stage=name;
   edit.hidden=name!=="edit";settings.hidden=name!=="settings";draftsPanel.hidden=true;
   back.hidden=name==="edit";drafts.hidden=name!=="edit";
-  title.textContent=name==="settings"?t("Налаштування","Settings"):t("Новий пост","New post");
+  title.textContent=name==="settings"?t("Налаштування","Settings"):(language()==="uk"?"Нова публікація":t("Новий пост","New post"));
   next.hidden=name!=="edit";draftSave.hidden=name!=="edit";submit.hidden=name!=="settings";
   tips.hidden=name!=="edit";tip.hidden=true;showNotice("");
   sync();return true;

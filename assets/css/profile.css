@@ -2767,3 +2767,70 @@ body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{
 @media(max-width:600px){
  body.profile-page.feed-page[data-vatra-profile-unavailable] .profile-identity{top:-22px}
 }
+
+body.profile-page .profile-edit-workspace{max-width:1100px;margin:0 auto;gap:16px;padding:18px 0 45px}
+body.profile-page .profile-editor-header{
+ min-height:0;padding:17px 22px;gap:15px;border:1px solid #e1e8f3;border-radius:16px;
+ background:#fff;box-shadow:0 4px 20px rgba(38,54,98,.04);align-items:center
+}
+body.profile-page .vt-profile-editor-back-001{width:40px;height:40px;border:0;background:#f1f5fb;box-shadow:none}
+body.profile-page .vt-profile-editor-back-001:hover{transform:none;background:#e7eefb}
+body.profile-page .vt-profile-editor-eyebrow-001,body.profile-page .vt-profile-editor-subtitle-001,
+body.profile-page .vt-profile-editor-privacy-pill-001,body.profile-page .vt-profile-editor-chapter-001,
+body.profile-page .vt-profile-editor-nav-eyebrow-001,body.profile-page .vt-profile-editor-nav-subtitle-001,
+body.profile-page .profile-editor-nav-link > [class^="vt-profile-editor-nav-index-"],
+body.profile-page .profile-editor-nav-link > [class^="vt-profile-editor-nav-dot-"],
+body.profile-page .ui-profile-editor-nav-footer-001,body.profile-page .profile-editor-label-row{display:none}
+body.profile-page .vt-profile-editor-title-001{font:800 clamp(21px,2.2vw,28px)/1.25 Onest,system-ui,sans-serif;letter-spacing:-.035em;color:#2c3850}
+body.profile-page .profile-editor-layout{grid-template-columns:minmax(200px,232px) minmax(0,1fr);gap:16px}
+body.profile-page .profile-editor-sidebar,body.profile-page .profile-editor-main{background:#fff;border:1px solid #e1e8f3;border-radius:16px;box-shadow:0 4px 20px rgba(38,54,98,.04)}
+body.profile-page .profile-editor-sidebar{padding:14px 10px;overflow:visible}
+body.profile-page .ui-profile-editor-nav-heading-001{padding:4px 8px 12px;margin:0 3px 8px;border-bottom:1px solid #edf1f7}
+body.profile-page .vt-profile-editor-nav-title-001{font:760 16px/1.4 Onest,system-ui,sans-serif;color:#2c3850}
+body.profile-page .ui-profile-editor-nav-menu-001{gap:3px}
+body.profile-page .profile-editor-nav-link{
+ min-height:44px;padding:8px 10px;gap:10px;border:0;border-radius:9px;background:transparent;
+ color:#506783;font:650 13px/1.4 Onest,system-ui,sans-serif
+}
+body.profile-page [class^="ui-vatra-profile-editor-nav-symbol-"]{width:28px;height:28px;border:0;border-radius:8px;background:#f1f5fb;color:#7489ab}
+body.profile-page .profile-editor-nav-link:hover{background:#f4f7fc;color:#2d61bf}
+body.profile-page .profile-editor-nav-link.is-active{background:#eaf1ff;color:#285fc9;border:0;box-shadow:none}
+body.profile-page .profile-editor-nav-link.is-active [class^="ui-vatra-profile-editor-nav-symbol-"]{background:transparent;color:#3974d8;border:0}
+body.profile-page .profile-editor-main{padding:24px 26px 20px}
+body.profile-page .profile-editor-section-head{padding-bottom:12px;gap:10px;border-bottom:1px solid #edf1f7}
+body.profile-page .vt-profile-editor-section-title-001{font:780 21px/1.3 Onest,system-ui,sans-serif;letter-spacing:-.025em;color:#2c3850}
+body.profile-page .vt-profile-editor-section-description-001{margin:12px 0 20px;color:#74849e;font-size:13px}
+body.profile-page .profile-editor-fields{gap:20px 18px}
+body.profile-page .profile-editor-field{padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:9px}
+body.profile-page .profile-editor-field:focus-within{border:0;box-shadow:none}
+body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"]{font-weight:730;color:#344762}
+body.profile-page .profile-editor-field > [class^="vt-profile-editor-label-"] svg{width:17px;height:17px;color:#7b91b6}
+body.profile-page [class^="ui-profile-editor-field-control-"]{gap:8px}
+body.profile-page [class^="ui-profile-editor-input-"]{background:#f7f9fc;border-color:#e0e7f1;border-radius:9px;min-height:43px}
+body.profile-page .profile-editor-field textarea{min-height:90px;resize:vertical}
+body.profile-page .profile-editor-privacy{
+ background:#f3f6fc;border:1px solid #e3eaf7;box-shadow:none;border-radius:12px;padding:13px 15px;margin:0 0 2px;gap:11px
+}
+body.profile-page .ui-profile-editor-privacy-symbol-001{background:#fff;border:0;width:36px;height:36px;color:#577fca}
+body.profile-page .vt-profile-editor-privacy-heading-001{color:#344762}
+body.profile-page .vt-profile-editor-privacy-help-001{color:#7386a4}
+body.profile-page .ui-profile-editor-page-visibility-001{border-color:#dce5f4;color:#344762}
+body.profile-page .profile-editor-footer{position:static;bottom:auto;margin-top:24px;padding:15px 0 0;border:0;border-top:1px solid #e8edf5;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;z-index:auto}
+body.profile-page .vt-profile-editor-save-001{min-height:43px;box-shadow:none}
+@media(max-width:900px){
+ body.profile-page .profile-editor-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+ body.profile-page .profile-editor-sidebar{position:static;overflow:hidden;padding:8px}
+ body.profile-page .ui-profile-editor-nav-heading-001{display:none}
+ body.profile-page .ui-profile-editor-nav-menu-001{display:flex;flex-direction:row;width:100%;overflow-x:auto;scrollbar-width:thin;gap:4px}
+ body.profile-page .profile-editor-nav-link{flex:none;width:auto;white-space:nowrap;padding:7px 9px;min-height:40px}
+}
+@media(max-width:620px){
+ body.profile-page .profile-edit-workspace{gap:10px;padding:12px 0 30px}
+ body.profile-page .profile-editor-header{padding:12px 13px;gap:10px}
+ body.profile-page .profile-editor-main{padding:17px 14px}
+ body.profile-page .profile-editor-fields{grid-template-columns:minmax(0,1fr);gap:18px}
+ body.profile-page .profile-editor-privacy{grid-template-columns:36px minmax(0,1fr);padding:11px}
+ body.profile-page .ui-profile-editor-page-visibility-001{grid-column:1/-1}
+ body.profile-page [class^="ui-profile-editor-input-"],body.profile-page [class^="ui-profile-editor-visibility-"],body.profile-page .ui-profile-editor-page-visibility-001{font-size:16px}
+ body.profile-page .profile-editor-footer{margin-top:20px}
+}
