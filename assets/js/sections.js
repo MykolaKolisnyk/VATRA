@@ -33,13 +33,13 @@ const sectionPaths={catalog:"M4 6h16M4 12h12M4 18h8",all:"M3 3h7v7H3zM14 3h7v7h-
 function sectionIcon(key){const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg"),path=document.createElementNS(ns,"path");svg.setAttribute("class","ui-vatra-section-icon-"+key);svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","25");svg.setAttribute("height","25");svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.7");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");path.setAttribute("class","ui-vatra-section-path-"+key);path.setAttribute("d",sectionPaths[key]||sectionPaths.other);svg.append(path);return svg;}
 function sectionIconButton(key,label,cls,fn){const b=btn("",cls,fn);b.title=label;b.setAttribute("aria-label",label);b.append(sectionIcon(key));return b;}
 async function clips(){
- title.textContent=t("Кліпи","Clips");subtitle.textContent=t("Короткі відео від людей у VATRA.","Short videos from people in VATRA.");
+ title.textContent=t("Кліпи","Clips");subtitle.textContent="";
  action.textContent=t("Додати кліп","Create clip");action.hidden=false;
  const layout=make("div","ui-vatra-clips-viewer-001"),grid=make("div","ui-vatra-clips-grid-001"),side=make("aside","ui-vatra-clips-sidebar-001"),menu=card("ui-vatra-clips-menu-001"),detail=card("ui-vatra-clips-detail-001"),social=card("ui-vatra-clips-social-001");
  let mode="all",term="",items=[],index=0,revision=0,muted=true,video=null,friendIds=null,searchTimer;
  const nav=tabs([["all",t("Для вас","For you")],["friends",t("Друзі","Friends")],["mine",t("Мої кліпи","My clips")],["search",t("Пошук кліпів","Search clips")]],key=>{mode=key;find.hidden=key!=="search";if(key==="search")find.focus();void load();});
  const find=make("input","ui-vatra-clip-search-001");find.type="search";find.placeholder=t("Пошук кліпів","Search clips");find.setAttribute("aria-label",find.placeholder);find.hidden=true;find.addEventListener("input",()=>{term=find.value.trim();clearTimeout(searchTimer);searchTimer=setTimeout(load,250);});
- menu.append(make("h2","vt-vatra-clips-menu-title-001",t("Кліпи VATRA","VATRA Clips")),nav,find);side.append(menu,detail,social);layout.append(grid,side);content.append(layout);
+ const menuHead=make("div","ui-vatra-clips-menu-head-001");menuHead.append(make("h2","vt-vatra-clips-menu-title-001",t("Кліпи","Clips")),action);menu.append(menuHead,nav,find);side.append(menu,detail,social);layout.append(grid,side);content.append(layout);
  function stop(){if(video){video.pause();video.removeAttribute("src");video.load();video=null;}}
  function show(next){
   const token=++revision;stop();grid.replaceChildren();detail.replaceChildren();social.replaceChildren();detail.hidden=true;social.hidden=true;
@@ -89,12 +89,12 @@ async function clips(){
 }
 const categories=[["electronics","Електроніка","Electronics"],["clothes","Одяг","Clothing"],["home","Дім і сад","Home & garden"],["transport","Транспорт","Transport"],["sport","Спорт і хобі","Sports & hobbies"],["other","Інше","Other"]];
 async function marketplace(){
- title.textContent=t("Маркетплейс","Marketplace");subtitle.textContent=t("Купуйте та продавайте у спільноті VATRA.","Buy and sell in the VATRA community.");action.textContent=t("Створити оголошення","Create listing");action.hidden=false;
+ title.textContent=t("Маркетплейс","Marketplace");subtitle.textContent="";action.textContent=t("Створити оголошення","Create listing");action.hidden=false;
  let mine=false,savedOnly=false,category="all",term="",cityTerm="",low="",high="",sort="newest",rows=[];
  const storageKey="vatra:market:saved:"+ownId;let saved=new Set();try{const v=JSON.parse(localStorage.getItem(storageKey)||"[]");if(Array.isArray(v))saved=new Set(v.filter(x=>typeof x==="string").slice(0,100));}catch(_){}
  const toolbar=card("ui-vatra-market-toolbar-001"),grid=make("div","ui-vatra-market-grid-001"),filter=card("ui-vatra-market-filters-001"),body=make("div","ui-vatra-market-browse-001"),top=make("div","ui-vatra-market-top-001"),catalog=make("div","ui-vatra-market-catalog-001"),tiles=make("div","ui-vatra-market-categories-001"),navCard=card("ui-vatra-market-nav-001");
  const catalogButton=btn(t("Каталог","Catalog"),"vt-vatra-market-catalog-toggle-001",()=>{catalog.hidden=!catalog.hidden;catalogButton.setAttribute("aria-expanded",String(!catalog.hidden));});catalogButton.prepend(sectionIcon("catalog"));catalogButton.setAttribute("aria-expanded","false");catalog.hidden=true;
- const find=make("input","ui-vatra-market-search-001");find.type="search";find.placeholder=t("Пошук у Маркетплейсі","Search Marketplace");find.setAttribute("aria-label",find.placeholder);find.addEventListener("input",()=>{term=find.value.trim().toLocaleLowerCase();render();});top.append(catalogButton,find);
+ const find=make("input","ui-vatra-market-search-001");find.type="search";find.placeholder=t("Пошук у Маркетплейсі","Search Marketplace");find.setAttribute("aria-label",find.placeholder);find.addEventListener("input",()=>{term=find.value.trim().toLocaleLowerCase();render();});top.append(catalogButton,find,action);
  const allCategories=[["all","Усі товари","All products"],...categories];
  const selectCategory=id=>{category=id;catalog.hidden=true;catalogButton.setAttribute("aria-expanded","false");for(const b of [...tiles.children,...catalog.children])b.setAttribute("aria-pressed",String(b.dataset.category===id));render();};
  for(const [id,uk,en] of allCategories){for(const [target,cls] of [[tiles,"vt-vatra-market-category-tile-"],[catalog,"vt-vatra-market-catalog-item-"]]){const b=btn("",cls+id,()=>selectCategory(id));b.dataset.category=id;b.setAttribute("aria-pressed",String(id==="all"));const icon=make("span","ui-vatra-market-category-symbol-"+id);icon.append(sectionIcon(id));b.append(icon,make("span","vt-vatra-market-category-label-"+id,t(uk,en)));target.append(b);}}
@@ -173,9 +173,9 @@ async function renderDevices(panel){
  await load();
 }
 async function account(){
- title.textContent="VATRA ID";subtitle.textContent=t("Ваші дані та безпека акаунта.","Your account information and security.");
+ title.textContent="VATRA ID";subtitle.textContent="";
  const layout=make("div","ui-vatra-id-layout-001"),side=card("ui-vatra-id-sidebar-001"),panel=make("div","ui-vatra-id-content-001");
- const nav=tabs([["personal",t("Мої дані","My data")],["security",t("Безпека","Security")],["verification",t("Верифікація","Verification")]],id=>{if(location.hash.slice(1)===id)void show(id);else location.hash=id;});side.append(nav,link(t("Повернутися до VATRA","Return to VATRA"),"id"+ownId,"vt-vatra-id-back-001"));layout.append(side,panel);content.append(layout);
+ const nav=tabs([["personal",t("Мої дані","My data")],["security",t("Безпека","Security")],["verification",t("Верифікація","Verification")]],id=>{if(location.hash.slice(1)===id)void show(id);else location.hash=id;});side.append(make("h2","vt-vatra-id-menu-title-001","VATRA ID"),nav,link(t("Повернутися до VATRA","Return to VATRA"),"id"+ownId,"vt-vatra-id-back-001"));layout.append(side,panel);content.append(layout);
  const show=async(id)=>{const ticket=++renderTicket;panel.replaceChildren();message("");for(const b of nav.children){b.classList.toggle("is-active",b.dataset.tab===id);b.setAttribute("aria-pressed",String(b.dataset.tab===id));}
  if(id==="security"){const c=card("ui-vatra-id-security-001");c.append(make("h2","vt-vatra-id-heading-001",t("Безпека акаунта","Account security")),make("p","vt-vatra-id-email-001",user.email||""),make("p","vt-vatra-id-email-status-001",user.email_confirmed_at?t("Електронну пошту підтверджено","Email confirmed"):t("Пошта не підтверджена","Email not confirmed")),link(t("Відновлення пароля","Password recovery"),"forgot","vt-vatra-id-password-001"));panel.append(c);await renderDevices(panel);return;}
  if(id==="verification"){const c=card("ui-vatra-id-verification-001");c.append(make("h2","vt-vatra-id-heading-001",t("Верифікація сторінки","Profile verification")));panel.append(c);
