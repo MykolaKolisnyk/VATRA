@@ -4530,8 +4530,10 @@ try{
   assert.equal(await profilePage.locator("#profile-compose-dialog").evaluate(el=>el.open),false);
   assert.equal((await profilePage.locator("#profile-status").textContent()).trim(),
    language==="en"?"Add a status":"Додайте статус");
-  assert.equal(await profilePage.locator("footer").count(),0,
-   "The personal profile must not show guest legal footer");
+  assert.equal(await profilePage.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
+   "The personal profile must not show a page-level or guest legal footer");
+  assert.equal(await profilePage.locator("dialog .ui-profile-editor-record-footer-001").count(),1,
+   "The record editor retains its own semantic dialog footer");
   assert.ok(new URL(profilePage.url()).pathname.endsWith("/VATRA/id654321"),
    "The signed-in member profile must use /idN");
   // A direct /idN bookmark is handled by the GitHub Pages 404 fallback.
