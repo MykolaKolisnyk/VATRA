@@ -2441,6 +2441,13 @@ assert.ok(money.marketMatchesPrice({price:10,currency:"USD"},"USD",0,20));
 assert.ok(money.marketMatchesPrice({price:10},"UAH",0,20));
 assert.ok(money.marketMatchesPrice({price:10,currency:"EUR"},"all",null,null));
 assert.ok(sectionsRuntime.includes("price:marketAmount(price.value),currency:currency.value")&&sectionsRuntime.includes("form.prepend(categoryGroup)")&&sectionsRuntime.includes("price,currency,city"),"Persist currency, read it back and show required category first");
+assert.ok(sectionsRuntime.includes('rules_accepted:true')&&sectionsRuntime.includes('eq("moderation_status","approved")')&&sectionsRuntime.includes('eq("moderation_status","pending")'),"Marketplace must submit for moderation and show only approved listings in the public catalog");
+assert.ok(sectionsRuntime.includes('vatra_market_cases')&&sectionsRuntime.includes('vatra_market_moderators')&&sectionsRuntime.includes('vatra_market_suspensions')&&sectionsRuntime.includes('vatra_market_moderation_history'),"Moderation, appeals, reports, suspensions and history must use server records");
+const moderationSQL=await read("supabase/vatra-marketplace-moderation.sql");
+const moderationMediaSQL=await read("supabase/vatra-marketplace-moderation-media.sql");
+assert.ok(moderationSQL.includes("VATRA_MARKET_MODERATOR_REQUIRED")&&moderationSQL.includes("VATRA_MARKET_SUSPENDED")&&moderationSQL.includes("moderation_status='approved'")&&moderationSQL.includes("enable row level security"));
+assert.ok(moderationMediaSQL.includes("VATRA_MARKET_IMAGE_NOT_UPLOADED")&&moderationMediaSQL.includes("drop constraint vatra_market_cases_listing_id_fkey"),"Prevent image swaps and preserve complaints");
+
 
 
 assert.ok(friendshipPrivacyJs.includes('stateFor(item)==="accepted"&&online(counterpart(item))')&&friendshipPrivacyJs.includes('from("profile_presence")'));
