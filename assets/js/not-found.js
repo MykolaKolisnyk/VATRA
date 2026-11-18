@@ -73,7 +73,7 @@
     const found=location.pathname.match(/^\/VATRA\/(ua|en)\/(.*)$/);
     if (!found) return;
     const file=found[2]||"index.html";
-    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","friends.html","gifts.html","communities.html","notifications.html","club.html","terms.html","privacy.html","cookies.html","404.html","offline.html","create-account","register","forgot","reset","feed","profile","friends","gifts","communities","notifications","club","verify","terms","privacy","cookies"]);
+    const allowed=new Set(["index.html","create-account.html","register.html","forgot.html","reset.html","account.html","verify.html","feed.html","profile.html","friends.html","gifts.html","communities.html","notifications.html","club.html","terms.html","privacy.html","cookies.html","404.html","offline.html","clips.html","marketplace.html","vatra-id.html","clips","marketplace","vatra-id","create-account","register","forgot","reset","feed","profile","friends","gifts","communities","notifications","club","verify","terms","privacy","cookies"]);
     if (!allowed.has(file)) return;
 
 
