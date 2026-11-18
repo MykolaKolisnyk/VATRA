@@ -11,7 +11,7 @@ function clear(){epoch++;document.getElementById("vatra-admin-menu")?.remove();d
 async function session(client,id){
  if(!client||!valid(id))return;if(context?.client===client&&context.id===id)return;
  clear();const current={client,id};context=current;const ticket=epoch;
- if(client.auth?.onAuthStateChange){const {data}=client.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT")clear();});subscription=data?.subscription;}
+ if(client.auth?.onAuthStateChange){const {data}=client.auth.onAuthStateChange(event=>{if(event==="SIGNED_OUT"){delete window.VATRA_ADMIN_CONTEXT;clear();}});subscription=data?.subscription;}
  try{
  const {data:state,error}=await client.from("account_states").select("state,blocked_until").eq("vatra_id",id).maybeSingle();
  if(ticket!==epoch)return;
