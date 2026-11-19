@@ -12,8 +12,8 @@
     <meta name="description" content="Моя сторінка у VATRA.">
     <title>Моя сторінка · VATRA</title>
     <link rel="preconnect" href="https://rjasunoawrxvetwadylh.supabase.co" crossorigin>
-    <link rel="icon" type="image/svg+xml" href="assets/logo/vatra-app-icon.svg">
-    <link rel="apple-touch-icon" href="assets/logo/vatra-app-icon.webp">
+    <link rel="icon" type="image/svg+xml" href="assets/logo/logo_app-icon.svg">
+    <link rel="apple-touch-icon" href="assets/logo/logo_app-icon.webp">
     <link rel="preload" href="assets/fonts/Onest-Variable.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/guest-view.css?rev=7625ddcfd6fdee4acfe32bdbcb2abc4480c0da6b">
@@ -26,13 +26,13 @@
   <script defer src="assets/js/public-name-cache.js"></script>
     <script defer src="assets/js/post-media.js"></script>
     <script defer src="assets/js/verified.js"></script>
-    <script defer src="assets/js/post-interactions.js?rev=137885ee7b7133ce5da68a09dcbc811e9366dd77"></script>
+    <script defer src="assets/js/post-interactions.js?rev=f7ac05ae068efa67cf42809db2b4c3a38cd55295"></script>
     <script defer src="assets/js/presence.js"></script>
     <script defer src="assets/js/notifications.js"></script>
     <script defer src="assets/js/gift-viewer.js"></script>
     <script defer src="assets/js/post-composer-ui.js"></script>
-    <script defer src="assets/js/guest-view.js?rev=1341cef4024aa64484f7e8cc35606f7104b48c51"></script>
-    <script defer src="assets/js/profile.js?rev=dd90fc99d46af9779060bd262fe64583b469eb65"></script>
+    <script defer src="assets/js/guest-view.js?rev=cb9e9cc323113734953366387b7280ec75ed491b"></script>
+    <script defer src="assets/js/profile.js?rev=25860ff07f09e0df67862cc0d6a9ff8cd5a74ccc"></script>
     <script defer src="assets/js/network.js"></script>
     <script defer src="assets/js/social-shell.js"></script>
     <script defer src="assets/js/scroll-rail.js"></script>
@@ -70,7 +70,7 @@
         </div>
       </div>
       <div class="vatra-auth-loading-content ui-feed-loading-content-001">
-        <img class="vatra-auth-loading-symbol ui-feed-loading-symbol-001" src="assets/logo/vatra-symbol.svg" width="68" height="68" alt="">
+        <img class="vatra-auth-loading-symbol ui-feed-loading-symbol-001" src="assets/logo/logo_symbol.svg" width="68" height="68" alt="">
    <span class="vatra-auth-loading-title vt-feed-loading-title-001">VATRA</span>
         <p class="vatra-auth-loading-caption vt-feed-loading-caption-001">
           Завантаження VATRA
@@ -85,7 +85,7 @@
         <div class="feed-header-inner ui-feed-header-inner-001">
           <div class="feed-brand-search ui-feed-brand-search-001">
             <a href="feed" class="feed-header-brand vt-feed-header-brand-001" aria-label="VATRA — Стрічка">
-     <img class="ui-feed-logo-001" src="assets/logo/vatra-symbol.svg" width="72" height="72" alt="VATRA">
+     <img class="ui-feed-logo-001" src="assets/logo/logo_symbol.svg" width="72" height="72" alt="VATRA">
     </a>
      <button type="button" id="vatra-search-back" class="vatra-search-back ui-vatra-search-back-001" aria-label="Назад до VATRA" aria-hidden="true" tabindex="-1">
       <svg class="ui-vatra-search-back-icon-001" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-vatra-search-back-path-001" d="M19 12H5m7-7-7 7 7 7"/></svg>
@@ -158,6 +158,7 @@
               <span id="profile-cover-system" class="ui-profile-cover-system-001" data-vatra-cover-state="default" aria-hidden="true"></span>
               <img id="profile-cover-photo" class="ui-profile-cover-photo-001" alt="" aria-hidden="true" decoding="async" hidden>
       <span class="profile-cover-motif ui-profile-cover-motif-001" aria-hidden="true"></span><span class="profile-cover-signature vt-profile-cover-signature-001" aria-hidden="true">VATRA</span>
+      <button id="profile-cover-change" class="vt-profile-cover-change-001" type="button" hidden><svg class="ui-profile-cover-change-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-cover-change-path-001" d="m5 19 3.7-.8L19 7.8 16.2 5 5.8 15.4 5 19Z M13.7 7.5l2.8 2.8"/></svg><span class="vt-profile-cover-change-label-001" data-social-uk="Змінити обкладинку" data-social-en="Change cover">Змінити обкладинку</span></button>
       <button id="profile-cover-view" type="button" class="profile-cover-view vt-profile-cover-view-001" data-shell-aria-uk="Переглянути обкладинку" data-shell-aria-en="View cover photo" aria-label="Переглянути обкладинку" hidden></button>
             </div>
             <div class="profile-summary ui-profile-summary-001">
@@ -165,24 +166,29 @@
                 <button id="profile-avatar-trigger" class="profile-avatar-trigger vt-profile-avatar-trigger-001" type="button" aria-label="Фото профілю" disabled>
         <span id="profile-avatar" class="profile-avatar vt-profile-avatar-001" aria-hidden="true">V</span>
        </button>
-       <span id="profile-online-dot" class="profile-online-dot ui-profile-online-dot-001" aria-label="Зараз у мережі" hidden></span>
+       
+                <button id="profile-avatar-plus" class="vt-profile-avatar-plus-001" type="button" aria-label="Дії з фото профілю" data-shell-aria-uk="Дії з фото профілю" data-shell-aria-en="Profile photo actions" aria-controls="profile-avatar-menu" aria-expanded="false" hidden><svg class="ui-profile-avatar-plus-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-plus-path-001" d="M12 5v14M5 12h14"/></svg></button>
+                <button id="profile-visitor-story" class="vt-profile-visitor-story-001" type="button" aria-label="Переглянути історію" data-shell-aria-uk="Переглянути історію" data-shell-aria-en="View story" hidden><svg class="ui-profile-visitor-story-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-visitor-story-path-001" d="m9 5 11 7-11 7Z"/></svg></button>
                 <div id="profile-avatar-menu" class="profile-avatar-menu ui-profile-avatar-menu-001" role="menu" hidden>
+                  <button id="profile-add-story" class="vt-profile-add-story-001 " type="button" role="menuitem" hidden><svg class="ui-profile-avatar-add-story-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-add-story-path-001" d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5M18 2v8M14 6h8"/></svg><span class="vt-profile-add-story-label-001" data-social-uk="Додати історію" data-social-en="Add story">Додати історію</span></button>
+                  <button id="profile-avatar-change" class="vt-profile-avatar-change-001 " type="button" role="menuitem" hidden><svg class="ui-profile-avatar-change-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-change-path-001" d="M14.5 5.5 18.5 9.5M4 20l4.5-1L20 7.5a2.8 2.8 0 0 0-4-4L4.9 15Z"/></svg><span class="vt-profile-avatar-change-label-001" data-social-uk="Завантажити фото" data-social-en="Upload photo">Завантажити фото</span></button>
+                  
                   <button id="profile-avatar-story" class="profile-avatar-menu-story vt-profile-avatar-menu-story-001" type="button" role="menuitem" aria-label="Переглянути історію" data-shell-aria-uk="Переглянути історію" data-shell-aria-en="View story" hidden><svg class="ui-profile-story-menu-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-profile-story-menu-circle-001" cx="12" cy="12" r="9"/><path class="ui-profile-story-menu-play-001" d="m10 8 6 4-6 4V8Z"/></svg><span class="vt-profile-story-menu-label-001" data-social-uk="Переглянути історію" data-social-en="View story">Переглянути історію</span></button>
-        <button id="profile-avatar-photo" class="profile-avatar-menu-photo vt-profile-avatar-menu-photo-001" type="button" role="menuitem" aria-label="Переглянути фото" data-shell-aria-uk="Переглянути фото" data-shell-aria-en="View photo" hidden><svg class="ui-profile-photo-menu-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect class="ui-profile-photo-menu-box-001" x="3" y="4" width="18" height="16" rx="3"/><circle class="ui-profile-photo-menu-sun-001" cx="8" cy="9" r="1.5"/><path class="ui-profile-photo-menu-mountain-001" d="m4 17 5-5 4 4 3-3 4 4"/></svg><span class="vt-profile-photo-menu-label-001" data-social-uk="Переглянути фото" data-social-en="View photo">Переглянути фото</span></button>
-         <button id="profile-avatar-story-delete" class="profile-avatar-menu-delete vt-profile-avatar-menu-delete-001" type="button" role="menuitem" aria-label="Видалити історію" data-shell-aria-uk="Видалити історію" data-shell-aria-en="Delete story" hidden><svg class="ui-profile-story-delete-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-story-delete-path-001" d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v6m4-6v6"/></svg><span class="vt-profile-delete-story-menu-label-001" data-social-uk="Видалити історію" data-social-en="Delete story">Видалити історію</span></button>
+        
+         <button id="profile-avatar-remove" class="vt-profile-avatar-remove-001 profile-avatar-menu-delete" type="button" role="menuitem" hidden><svg class="ui-profile-avatar-remove-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-remove-path-001" d="M3.5 6h17M9 6V3.5h6V6M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg><span class="vt-profile-avatar-remove-label-001" data-social-uk="Видалити фото" data-social-en="Delete photo">Видалити фото</span></button>
+                  <button id="profile-avatar-story-delete" class="profile-avatar-menu-delete vt-profile-avatar-menu-delete-001" type="button" role="menuitem" aria-label="Видалити історію" data-shell-aria-uk="Видалити історію" data-shell-aria-en="Delete story" hidden><svg class="ui-profile-story-delete-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-story-delete-path-001" d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v6m4-6v6"/></svg><span class="vt-profile-delete-story-menu-label-001" data-social-uk="Видалити історію" data-social-en="Delete story">Видалити історію</span></button>
                 </div>
               </div>
               <div class="profile-identity ui-profile-identity-001">
                 <h1 id="profile-heading" class="profile-name vt-profile-name-001" data-i18n="n50">
                   Моя сторінка
                 </h1>
-                <button id="profile-status" type="button" class="profile-status vt-profile-status-001" hidden><span id="profile-status-text" class="vt-profile-status-text-001"></span><svg class="ui-profile-status-pencil-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-status-pencil-icon-001-part-1" d="m5 19 3.7-.8L19 7.8 16.2 5 5.8 15.4 5 19Z"/></svg></button>
-                <p id="profile-last-seen" class="profile-last-seen vt-profile-last-seen-001" hidden>
-                </p>
+                <button id="profile-status" type="button" class="profile-status vt-profile-status-001" hidden><span id="profile-status-text" class="vt-profile-status-text-001"></span></button>
+                <p id="profile-last-seen" class="profile-last-seen vt-profile-last-seen-001" data-social-uk="Статус мережі невідомий" data-social-en="Online status unavailable">Статус мережі невідомий</p>
               </div>
               <div class="profile-actions ui-profile-actions-001">
-                <button type="button" id="profile-add-story" class="social-profile-create vt-profile-add-story-001" hidden><svg class="ui-profile-add-story-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ui-profile-add-story-circle-001" cx="12" cy="12" r="8.6"/><path class="ui-profile-add-story-plus-001" d="M12 8v8m-4-4h8"/></svg><span class="vt-profile-add-story-label-001" data-social-uk="Додати історію" data-social-en="Add story">Додати історію</span></button>
-       <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><svg class="ui-profile-edit-icon-001" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-edit-icon-001-part-1" d="M13.7 5.7 18.3 10.3M4 20l4.5-1 10.3-10.4a2.3 2.3 0 0 0-3.3-3.2L5.2 15.8 4 20Z"/></svg><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
+                
+       
        
        <input id="profile-avatar-file" class="ui-profile-avatar-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити фото профілю" hidden>
        <input id="profile-cover-file" class="ui-profile-cover-file-001" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Завантажити обкладинку" hidden>
@@ -195,6 +201,7 @@
             </p>
             <p id="profile-action-status" class="profile-action-status vt-profile-action-status-001" role="status" aria-live="polite" hidden>
             </p>
+            <div class="ui-profile-tab-row-001">
             <nav class="social-profile-tabs ui-social-profile-tabs-001" role="tablist" aria-label="Розділи профілю">
               <button type="button" id="profile-tab-posts" class="social-profile-tab ui-social-profile-posts-tab-001 social-profile-tab-active" data-profile-tab="posts" role="tab" aria-controls="profile-posts-section" aria-selected="true"><span class="vt-social-profile-posts-tab-label-001" data-social-uk="Головна" data-social-en="Home">Головна</span></button>
       <button type="button" id="profile-tab-photos" class="social-profile-tab ui-social-profile-photos-tab-001" data-profile-tab="photos" role="tab" aria-controls="profile-photos-section" aria-selected="false"><span class="vt-social-profile-photos-tab-label-001" data-social-uk="Фотографії" data-social-en="Photos">Фотографії</span></button>
@@ -228,6 +235,8 @@
                 </svg>
               </button>
             </nav>
+            <button type="button" id="profile-edit-open" class="profile-edit-open vt-profile-edit-open-001" hidden><span class="vt-profile-edit-label-001" data-social-uk="Редагувати сторінку" data-social-en="Edit profile">Редагувати сторінку</span></button>
+            </div>
           </section>
           <div class="profile-panels ui-profile-panels-001">
             <section id="profile-posts-section" class="profile-posts-section ui-profile-posts-section-001" data-profile-panel="posts" role="tabpanel" aria-labelledby="profile-tab-posts">
@@ -444,6 +453,9 @@
               Фото профілю
             </h2>
             <img id="profile-media-viewer-image" class="profile-media-viewer-image ui-profile-media-viewer-image-001" alt="">
+            <button id="profile-avatar-prev" class="vt-profile-avatar-prev-001" type="button" aria-label="Попереднє фото" data-shell-aria-uk="Попереднє фото" data-shell-aria-en="Previous photo" hidden><svg class="ui-profile-avatar-prev-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-prev-path-001" d="m15 5-7 7 7 7"/></svg></button>
+            <button id="profile-avatar-next" class="vt-profile-avatar-next-001" type="button" aria-label="Наступне фото" data-shell-aria-uk="Наступне фото" data-shell-aria-en="Next photo" hidden><svg class="ui-profile-avatar-next-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-avatar-next-path-001" d="m9 5 7 7-7 7"/></svg></button>
+            <div id="profile-avatar-gallery-toolbar" class="ui-profile-avatar-gallery-toolbar-001" hidden><span id="profile-avatar-gallery-count" class="vt-profile-avatar-gallery-count-001" aria-live="polite"></span><button id="profile-avatar-gallery-delete" class="vt-profile-avatar-gallery-delete-001" type="button" aria-label="Видалити фото" data-shell-aria-uk="Видалити фото" data-shell-aria-en="Delete photo" hidden><svg class="ui-profile-gallery-delete-icon-001" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ui-profile-gallery-delete-path-001" d="M3.5 6h17M9 6V3.5h6V6M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button></div>
           </div>
           <aside id="profile-avatar-engagement" class="profile-avatar-engagement ui-profile-avatar-engagement-001" aria-label="Взаємодії з фото" hidden>
             <header class="profile-photo-info ui-profile-photo-info-001">
@@ -507,6 +519,22 @@
             </div>
           </form>
         </dialog>
+        <dialog id="profile-avatar-crop-dialog" class="ui-profile-avatar-crop-dialog-001" aria-labelledby="profile-avatar-crop-title">
+  <h2 id="profile-avatar-crop-title" class="vt-profile-avatar-crop-title-001" data-social-uk="Вибір мініатюри" data-social-en="Choose thumbnail">Вибір мініатюри</h2>
+  <div class="ui-profile-avatar-crop-stage-001"><canvas id="profile-avatar-crop-canvas" class="ui-profile-avatar-crop-canvas-001" tabindex="0" aria-label="Переміщення області обрізання" data-shell-aria-uk="Переміщення області обрізання" data-shell-aria-en="Move crop area"></canvas></div>
+  <label class="vt-profile-avatar-crop-zoom-label-001" for="profile-avatar-crop-zoom" data-social-uk="Масштаб" data-social-en="Zoom">Масштаб</label>
+  <input id="profile-avatar-crop-zoom" class="ui-profile-avatar-crop-zoom-001" type="range" min="1" max="5" step=".01" value="1">
+  <div class="ui-profile-avatar-crop-actions-001"><button id="profile-avatar-crop-cancel" class="vt-profile-avatar-crop-cancel-001" type="button" data-social-uk="Скасувати" data-social-en="Cancel">Скасувати</button><button id="profile-avatar-crop-next" class="vt-profile-avatar-crop-next-001" type="button" data-social-uk="Далі" data-social-en="Next">Далі</button></div>
+</dialog>
+<dialog id="profile-avatar-finish-dialog" class="ui-profile-avatar-finish-dialog-001" aria-labelledby="profile-avatar-finish-title">
+  <h2 id="profile-avatar-finish-title" class="vt-profile-avatar-finish-title-001" data-social-uk="Завершити" data-social-en="Finish">Завершити</h2>
+  <img id="profile-avatar-finish-preview" class="ui-profile-avatar-finish-preview-001" alt="">
+  <p class="vt-profile-avatar-finish-copy-001" data-social-uk="Опублікуйте нове фото у дописі й історії — зберете більше вподобань і переглядів." data-social-en="Publish your new photo in a post and story to get more likes and views.">Опублікуйте нове фото у дописі й історії — зберете більше вподобань і переглядів.</p>
+  <label class="ui-profile-avatar-publish-post-label-001"><input id="profile-avatar-publish-post" class="ui-profile-avatar-publish-post-001" type="checkbox"><span class="vt-profile-avatar-publish-post-copy-001" data-social-uk="Опублікувати у дописі (для друзів)" data-social-en="Publish in a post (friends)">Опублікувати у дописі (для друзів)</span></label>
+  <label class="ui-profile-avatar-publish-story-label-001"><input id="profile-avatar-publish-story" class="ui-profile-avatar-publish-story-001" type="checkbox"><span class="vt-profile-avatar-publish-story-copy-001" data-social-uk="Опублікувати в історії" data-social-en="Publish in a story">Опублікувати в історії</span></label>
+  <p id="profile-avatar-finish-error" class="vt-profile-avatar-finish-error-001" role="status" hidden></p>
+  <div class="ui-profile-avatar-finish-actions-001"><button id="profile-avatar-finish-back" class="vt-profile-avatar-finish-back-001" type="button" data-social-uk="Назад" data-social-en="Back">Назад</button><button id="profile-avatar-finish-save" class="vt-profile-avatar-finish-save-001" type="button" data-social-uk="Зберегти" data-social-en="Save">Зберегти</button></div>
+</dialog>
         <dialog id="profile-story-compose-dialog" class="profile-story-compose-dialog ui-profile-story-compose-dialog-001" aria-labelledby="profile-story-compose-title">
           <form id="profile-story-compose-form" class="profile-story-compose-form ui-profile-story-compose-form-001">
             <h2 id="profile-story-compose-title" class="vt-profile-story-compose-title-001" data-social-uk="Нова історія" data-social-en="New story">Нова історія</h2>

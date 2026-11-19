@@ -49,14 +49,14 @@ const preview=await read("index.html");
 assert.ok(
  preview.includes('property="og:title" content="Ваші люди. Ваші історії. Ваша VATRA."')&&
  preview.includes('property="og:description" content="Українська соціальна мережа для спілкування, творчості, спільнот і бізнесу."')&&
- preview.includes('/VATRA/assets/logo/vatra-app-icon.webp?v=20261118')&&
+ preview.includes('/VATRA/assets/logo/logo_app-icon.webp?v=20261118')&&
  preview.includes('property="og:image:width" content="2048"')&&
- !preview.includes('/VATRA/assets/logo/vatra-logo.webp')&&
- (await stat("assets/logo/vatra-app-icon.webp")).size>10000,
+ !preview.includes('/VATRA/assets/logo/logo.webp')&&
+ (await stat("assets/logo/logo_app-icon.webp")).size>10000,
  "Public social previews must show the current VATRA icon and one concise title/description");
 for(const page of publicPages){
  const html=await read(page+".html");
- assert.ok(html.includes('og:image" content="'+BASE+'assets/logo/vatra-app-icon.webp?v=20261118"'),
+ assert.ok(html.includes('og:image" content="'+BASE+'assets/logo/logo_app-icon.webp?v=20261118"'),
   page+": public social card must share the current V icon");
  assert.equal((html.match(/rel="icon" type="image\/svg\+xml"/g)||[]).length,1,
   page+": duplicate SVG favicon link");

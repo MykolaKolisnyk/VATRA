@@ -374,7 +374,7 @@ assert.ok(offline.includes('src="data:image/svg+xml;charset=utf-8,')&&
  offline.includes('class="offline-brand ui-offline-brand-001"')&&
  offline.includes('class="offline-actions ui-offline-actions-001"')&&
  offline.includes('class="ui-offline-img-001"')&&
- !offline.includes("vatra-logo.svg"),
+ !offline.includes("logo.svg"),
  "Offline page must show only the self-contained V mark at the card top-left");
 assert.ok(offline.includes("ui-offline-path-004")&&offline.includes("ui-offline-dot-001"),
  "Offline Wi-Fi-off icon must use the crisp SVG geometry");
@@ -384,10 +384,10 @@ assert.ok(offline.includes('data-page="offline"')&&lang.includes('dataset.page =
  "Offline screen must keep its own translations when used as a fallback for nested routes");
 assert.ok(
  /const CACHE="vatra-offline-shell-v[1-9][0-9]*"/.test(sw)&&
- sw.includes('ROOT+"assets/logo/vatra-symbol.svg"'),
+ sw.includes('ROOT+"assets/logo/logo_symbol.svg"'),
  "Offline cache must use a versioned name and include the standalone V mark");
 const manifest=JSON.parse(await read("site.webmanifest"));
-const appIcon="assets/logo/vatra-app-icon.svg";
+const appIcon="assets/logo/logo_app-icon.svg";
 assert.ok((await stat(appIcon)).size>1000,"Canonical VATRA SVG app icon must exist");
 assert.ok(manifest.icons.some(icon=>icon.src==="/VATRA/"+appIcon)&&
  !JSON.stringify(manifest).includes("/VATRA/favicon.svg")&&
@@ -446,7 +446,7 @@ for(const page of pages){
  assert.deepEqual(Object.keys(enMap).sort(),bindings.slice().sort(),filename+": English dictionary bindings mismatch");
 }
 const landing=await read("index.html");
-const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/vatra-symbol.svg"');
+const registerHtmlHasBrandedSymbol=(await read("create-account.html")).includes('class="signup-brand-symbol ui-signup-brand-symbol-001" src="assets/logo/logo_symbol.svg"');
 const features=["chat","communities","photos","video","music","marketplace","clips"];
 assert.equal((landing.match(/class="orbit-node orbit-feature /g)||[]).length,7,"Seven evenly spaced orbit icons required");
 assert.equal((landing.match(/class="orbit-node orbit-message /g)||[]).length,0,"Retired outer slogan pills must be removed");
@@ -521,7 +521,7 @@ assert.ok(css.includes("@keyframes vatraSignupSymbol")&&
  signInCss.includes(".intro-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  createAccountCss.includes(".signup-brand-symbol{position:relative;width:clamp(112px,15vw,180px);height:auto;animation:vatraSignupSymbol 7s ease-in-out infinite")&&
  !css.includes("vatraCoreBreath")&&
- landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/vatra-symbol.svg"')&&
+ landing.includes('class="intro-symbol ui-home-img-002" src="assets/logo/logo_symbol.svg"')&&
  registerHtmlHasBrandedSymbol,
  "Both auth logos must be identical symbols with the same animation and size");
 assert.ok(auth.includes("function wireFloatingHints()")&&
@@ -944,7 +944,7 @@ assert.ok(
  !forgot.includes('class="header-logo vt-forgot-link-02"')&&
  forgot.includes('class="forgot-panel-header ui-forgot-panel-header-001"')&&
  forgot.includes('class="forgot-panel-brand vt-forgot-link-02"')&&
- forgot.includes('src="assets/logo/vatra-symbol.svg"')&&
+ forgot.includes('src="assets/logo/logo_symbol.svg"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-header{display:flex;')&&
  !css.includes('.ui-forgot-main-001>.header-logo{')&&
  !forgot.includes('name@example.com')&&
@@ -966,7 +966,7 @@ assert.ok(
  reset.includes('class="forgot-panel-header reset-panel-header ui-reset-panel-header-001"')&&
  reset.includes('class="reset-intro ui-reset-intro-001"')&&
  reset.includes('id="reset-title"')&&
- reset.includes('src="assets/logo/vatra-symbol.svg"')&&
+ reset.includes('src="assets/logo/logo_symbol.svg"')&&
  !reset.includes('class="header-logo vt-reset-link-02"')&&
  css.includes('.ui-forgot-main-001 .forgot-panel-brand img{display:block;width:44px;')&&
  css.includes('.ui-forgot-main-001 .forgot-panel{display:flex;flex-direction:column;align-items:center;min-width:0;width:100%;padding:clamp(28px,4.5vw,48px)')&&
@@ -1113,7 +1113,7 @@ assert.ok((profileMarkup.match(/data-profile-tab="/g)||[]).length===8&&
 assert.ok(profileMarkup.includes('id="profile-edit-open"')&&
  profileMarkup.includes('id="profile-status"')&&
  profileMarkup.includes('id="profile-last-seen"')&&
- profileMarkup.includes('id="profile-online-dot"')&&
+ !profileMarkup.includes('id="profile-online-dot"')&&
  profileMarkup.includes('id="profile-edit-dialog"')&&
  profileMarkup.includes('id="profile-status-text"')&&
  profileMarkup.includes('ui-profile-add-friend-icon-001')&&
@@ -1161,7 +1161,7 @@ assert.ok(profileMarkup.includes('id="profile-cover-view"')&&
  profileMarkup.includes('id="profile-avatar-trigger"')&&
  profileMarkup.includes('id="profile-avatar-menu"')&&
  profileMarkup.includes('id="profile-avatar-story"')&&
- profileMarkup.includes('id="profile-avatar-photo"')&&
+ !profileMarkup.includes('id="profile-avatar-photo"')&&profileMarkup.includes('id="profile-avatar-next"')&&
  profileMarkup.includes('id="profile-media-viewer"')&&
  profileMarkup.includes('id="profile-media-viewer-image"')&&
  profileMarkup.includes('id="profile-story-viewer"')&&
@@ -1184,9 +1184,9 @@ assert.ok(
  "Locked profiles retain cover and avatar but block viewers; fallback portraits stay centered, routes show content before media");
 const sharedCss=await read("assets/css/feed.css");
 const memberCss=await read("assets/css/profile.css");
-const profileStyles=profileMarkup.match(/href="assets\/css\/([^"]+\.css)"/g)||[];
+const profileStyles=(profileMarkup.match(/href="assets\/css\/[^"?]+\.css(?:\?rev=[a-f0-9]{40})?"/g)||[]).map(value=>value.replace(/\?rev=[a-f0-9]{40}/,""));
 assert.deepEqual(profileStyles,[
- 'href="assets/css/base.css"','href="assets/css/feed.css"',
+ 'href="assets/css/base.css"','href="assets/css/guest-view.css"','href="assets/css/feed.css"',
  'href="assets/css/profile.css"','href="assets/css/post-composer.css"','href="assets/css/gifts.css"'
 ],"Profile styles load after the shared feed stylesheet and only on profile.html");
 assert.ok(
@@ -1204,7 +1204,7 @@ assert.ok(memberCss.includes("body.profile-page .profile-media-viewer{")&&
  memberCss.includes("width:100vw;height:100dvh;")&&
  memberCss.includes("body.profile-page .profile-avatar-wrap.has-active-story::before{")&&
  memberCss.includes("body.profile-page.feed-page:not(.community-page) .profile-hero{overflow:visible}")&&
- memberCss.includes("body.profile-page .profile-avatar-wrap:hover .profile-avatar-menu:not([hidden])"),
+ memberCss.includes("body.profile-page .profile-avatar-wrap.is-menu-open .profile-avatar-menu:not([hidden])"),
  "Member photo viewer must fill the screen and story avatar menu must not be clipped");
 assert.ok(sharedCss.includes(".vt-vatra-account")===false ||
  sharedCss.includes("body.feed-page .feed-account-dropdown > a > svg") &&
@@ -1338,7 +1338,7 @@ assert.ok(profileScript.includes('const memberUrl=id=>home+"id"+encodeURICompone
 const communityBannerMarkup=await read("communities.html"),communityBannerCSS=await read("assets/css/communities.css");
 assert.ok(communityBannerMarkup.includes('<span class="ui-community-banner-art-001" aria-hidden="true"></span>')&&
  !communityBannerMarkup.includes('<img class="ui-community-banner-art-001"')&&
- communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../communities-covers/VATRA_communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
+ communityBannerCSS.includes("width:100%;height:290px")&&communityBannerCSS.includes('background:center/cover no-repeat url("../communities_covers/communities.webp")')&&communityBannerCSS.includes(".ui-community-discovery-banner-001{height:185px}")&&
  communityBannerCSS.includes(".ui-community-discovery-banner-001[hidden]{display:none}")&&
  !(await read("club.html")).includes("ui-community-banner-art-001"),
  "The original Uzhhorod panorama must be exclusively a responsive directory hero");
@@ -1465,7 +1465,7 @@ assert.ok(
  profileScript.includes("window.VATRA_PROFILE_SHOW_GIFTS=showGifts"),
  "Profile must fetch only six friends and three gifts initially, loading full lists on demand");
 const detailsModule=profileScript;
-assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js"/g)||[]).length,1,
+assert.equal((memberProfileMarkup.match(/src="assets\/js\/profile\.js(?:\?rev=[a-f0-9]{40})?"/g)||[]).length,1,
  "Exactly one page-level profile controller must be loaded");
 assert.doesNotThrow(()=>new Function(detailsModule),"Profile information module has invalid JavaScript");
 assert.ok(memberProfileMarkup.includes('assets/js/profile.js') &&
@@ -1906,7 +1906,7 @@ assert.ok(
 assert.ok(systemAvatarCss.includes('--vatra-default-avatar:url("data:image/svg+xml,')&&
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
- profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
+ profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory&&!canEdit)')&&
  sharedAvatar.includes('client.from("account_states")')&&
  !sharedAvatar.includes("function portraitColor(image)")&&
  !sharedAvatar.includes("function accent(element,url)")&&
@@ -2016,7 +2016,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
- profileScript.includes('uploadImage(fileAvatar.files[0],"avatar")')&&
+ profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
  profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
  profileScript.includes('"covers"')&&
@@ -2571,3 +2571,7 @@ assert.ok((await read("assets/js/club.js")).includes("VATRA_BUSINESS_TOOLS.mount
 
 const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
+
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:next')&&profileScript.includes('client.storage.from("avatars").remove([path])'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");
+
+assert.ok(profileMarkup.includes('class="ui-profile-tab-row-001"')&&!profileMarkup.includes('ui-profile-status-pencil-icon-001')&&!profileMarkup.includes('ui-profile-edit-icon-001')&&memberCss.includes('.ui-profile-tab-row-001>.profile-edit-open'),"Profile editing belongs at the right edge of the tabs as a text-only action");

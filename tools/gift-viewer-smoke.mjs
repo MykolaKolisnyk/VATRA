@@ -8,7 +8,7 @@ const [js,gifts,profile,css,profileCss]=await Promise.all([
  read("assets/js/profile.js"),read("assets/css/gifts.css"),
  read("assets/css/profile.css")
 ]);
-const png=await readFile("assets/gifts/first-flame.webp");
+const png=await readFile("assets/gifts/gift_first-flame.webp");
 assert.ok(png.toString("ascii",0,4)==="RIFF"&&png.toString("ascii",8,12)==="WEBP"&&png.length>1000,
  "The supplied First flame artwork must be the real WebP asset");
 const context={window:{},URL,document:{
@@ -19,14 +19,14 @@ runInNewContext(js,context);
 const {all,byCode,fileUrl}=context.window.VATRA_GIFTS_CATALOG;
 assert.equal(all.length,2,"Both released gifts belong in the catalogue");
 assert.equal(byCode("beta_member").exclusive,true);
-assert.equal(fileUrl(byCode("beta_member")),"https://example.com/VATRA/assets/gifts/beta-member.webp");
-const betaPng=await readFile("assets/gifts/beta-member.webp");
+assert.equal(fileUrl(byCode("beta_member")),"https://example.com/VATRA/assets/gifts/gift_beta-member.webp");
+const betaPng=await readFile("assets/gifts/gift_beta-member.webp");
 assert.ok(betaPng.toString("ascii",0,4)==="RIFF"&&betaPng.toString("ascii",8,12)==="WEBP"&&betaPng.length>1000);
 assert.equal(all.filter(g=>!g.exclusive).length,1);
 assert.ok(gifts.includes("catalog().filter(gift=>!gift.exclusive)"));
-assert.equal(byCode("first_flame").image,"first-flame.webp");
+assert.equal(byCode("first_flame").image,"gift_first-flame.webp");
 assert.equal(fileUrl(byCode("first_flame")),
- "https://example.com/VATRA/assets/gifts/first-flame.webp");
+ "https://example.com/VATRA/assets/gifts/gift_first-flame.webp");
 assert.equal(all[0].code,"first_flame");
 assert.equal(byCode("unreleased"),null);
 assert.equal(fileUrl(null),null);

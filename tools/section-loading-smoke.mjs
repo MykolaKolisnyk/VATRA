@@ -46,7 +46,7 @@ owner.window.VATRA_ADMIN_END({}, "1");assert.equal(owner.menu.length,1,"Unrelate
 owner.events[0]("SIGNED_OUT");assert.equal(owner.menu.length,0);assert.equal(owner.open.length,0);
 for(const name of ["clips","marketplace","settings","business"]){
  const src=await readFile("assets/js/"+name+".js","utf8");
- let registered=0;new Function("window",src)({VATRA_SECTION_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}});
+ let registered=0;new Function("window","document",src)({VATRA_SECTION_CORE:{start(init){assert.equal(typeof init,"function");registered++;}}},{body:{dataset:{page:name}}});
  assert.equal(registered,1,name+" registers only its own initializer");
  new Function("window",src)({VATRA_HOST_ALLOWED:false,VATRA_SECTION_CORE:{start(){throw Error("Forbidden host");}}});
 }

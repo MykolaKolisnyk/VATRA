@@ -11,7 +11,7 @@ function layout(loader,app){
  const old=document.querySelector(app);if(old)old.hidden=true;
  const loading=document.querySelector(loader);if(loading)loading.hidden=true;
  const shell=node("div","ui-vatra-guest-shell-001");const header=node("header","ui-vatra-guest-header-001"),inner=node("div","ui-vatra-guest-header-inner-001");
- const brand=link("vt-vatra-guest-brand-001","","");brand.setAttribute("aria-label","VATRA");const logo=node("img","ui-vatra-guest-logo-001");logo.src=new URL("assets/logo/vatra-logo.svg",root).href;logo.alt="VATRA";brand.append(logo);
+ const brand=link("vt-vatra-guest-brand-001","","");brand.setAttribute("aria-label","VATRA");const logo=node("img","ui-vatra-guest-logo-001");logo.src=new URL("assets/logo/logo.svg",root).href;logo.alt="VATRA";brand.append(logo);
  const headActions=node("div","ui-vatra-guest-header-actions-001");authLinks(headActions);inner.append(brand,headActions);header.append(inner);
  const main=node("main","ui-vatra-guest-main-001");const bar=node("footer","ui-vatra-guest-bottom-001"),barInner=node("div","ui-vatra-guest-bottom-inner-001"),copy=node("div","ui-vatra-guest-bottom-copy-001"),actions=node("div","ui-vatra-guest-bottom-actions-001");
  copy.append(node("strong","vt-vatra-guest-bottom-title-001",t("Ваші люди. Ваші історії. Ваша VATRA.","Your people. Your stories. Your VATRA.")),node("span","vt-vatra-guest-bottom-caption-001",t("Приєднуйтеся, щоб спілкуватися та відкривати більше.","Join to connect and discover more.")));authLinks(actions);barInner.append(copy,actions);bar.append(barInner);
@@ -23,7 +23,7 @@ function identity(main,name,isProfile,description){
  const heading=node("h1","vt-vatra-guest-name-001",name),caption=node("p","vt-vatra-guest-caption-001",description);meta.append(heading,caption);row.append(avatar,meta);hero.append(cover,row);main.append(hero);return {hero,row};
 }
 function prompt(name){
- const d=node("dialog","ui-vatra-guest-dialog-001");d.setAttribute("aria-labelledby","vatra-guest-dialog-title");const close=node("button","vt-vatra-guest-close-001","×");close.type="button";close.setAttribute("aria-label",t("Закрити","Close"));const icon=node("img","ui-vatra-guest-dialog-logo-001");icon.src=new URL("assets/logo/vatra-app-icon.svg",root).href;icon.alt="";
+ const d=node("dialog","ui-vatra-guest-dialog-001");d.setAttribute("aria-labelledby","vatra-guest-dialog-title");const close=node("button","vt-vatra-guest-close-001","×");close.type="button";close.setAttribute("aria-label",t("Закрити","Close"));const icon=node("img","ui-vatra-guest-dialog-logo-001");icon.src=new URL("assets/logo/logo_app-icon.svg",root).href;icon.alt="";
  const title=node("h2","vt-vatra-guest-dialog-title-001",t("Приєднуйтеся, щоб переглядати спільноту","Join to explore this community")+" «"+name+"»");title.id="vatra-guest-dialog-title";
  const copy=node("p","vt-vatra-guest-dialog-copy-001",t("Підписуйтеся, коментуйте та діліться цікавими дописами.","Follow, comment and share interesting posts."));const actions=node("div","ui-vatra-guest-dialog-actions-001");authLinks(actions);d.append(close,icon,title,copy,actions);document.body.append(d);
  const open=()=>{if(!d.open&&document.visibilityState!=="hidden")d.showModal();};

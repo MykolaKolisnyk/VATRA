@@ -445,8 +445,8 @@
    state.entries.delete(key);
   }
   const pending=(async()=>{
-   const {data,error}=await queryPage();
-   if(error)throw error;
+   const result=await queryPage(),{data,error}=result;
+   if(error)throw result.status?Object.assign(new Error(error.message),error,{status:result.status}):error;
    if(state.generation!==generation)throw Error("Viewer changed");
    if(!Array.isArray(data))throw Error("Invalid feed cursor response");
    return data;
@@ -592,8 +592,9 @@
     const target=[...posts.querySelectorAll("[data-post-id]")].find(el=>el.dataset.postId===requested);
     if(target){target.classList.add("is-linked-post");target.scrollIntoView({block:"center",behavior:"auto"});}
    }
-  }catch(_){
+  }catch(error){
    if(version===feedRequestVersion){
+    window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>loadPosts(true)});
     if(reset)posts.replaceChildren();
     message(t("Не вдалося завантажити стрічку. Спробуйте ще раз.",
      "Could not load your Feed. Please retry."));
@@ -816,6 +817,9 @@
    });
    const {data,error}=await client.auth.getUser();
    if(error||!data?.user?.id){
+    if(error&&window.VATRA_SERVICE_NOTICE?.report(error,{session:true,access:false,retry:()=>location.reload()})){
+     showErrorAtGate(t("Не вдалося підключитися до VATRA.","Could not connect to VATRA."));return;
+    }
     window.location.replace(new URL("./",location.href).href);return;
    }
    if(!data.user.email_confirmed_at){
@@ -955,7 +959,8 @@
    document.body.classList.remove("vatra-shell-pending");
    window.VATRA_ONBOARDING?.start({client,memberId:vatraId,authUserId:user.id,createdAt:user.created_at});
    void Promise.allSettled([loadPosts(true),loadStories(),loadGlobalResults()]);
-  }catch(_){
+  }catch(error){
+   window.VATRA_SERVICE_NOTICE?.report(error,{session:true,retry:()=>location.reload()});
    if(document.body.dataset.authReady==="true"){
     message(t("Не вдалося завантажити стрічку. Оновіть сторінку.",
      "Could not load the feed. Refresh the page."));

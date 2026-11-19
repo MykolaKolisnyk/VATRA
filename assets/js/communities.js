@@ -138,7 +138,7 @@ async function openDirectory(client,ownId,userId){
   const topicCards=new Map();
   const revealTopicCover=photo=>{
    const filename=photo.dataset.topicCover;
-   if(filename)photo.style.backgroundImage="url("+JSON.stringify(root+"assets/communities-covers/"+filename+".webp")+")";
+   if(filename)photo.style.backgroundImage="url("+JSON.stringify(root+"assets/communities_covers/"+filename+".webp")+")";
   };
   const coverObserver=typeof IntersectionObserver==="function"?new IntersectionObserver(entries=>{
    for(const entry of entries)if(entry.isIntersecting){revealTopicCover(entry.target);coverObserver.unobserve(entry.target);}

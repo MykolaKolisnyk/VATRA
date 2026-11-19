@@ -1,5 +1,5 @@
 /* VATRA: single offline fallback for all pages and both JSON languages. */
-const CACHE="vatra-offline-shell-v75";
+const CACHE="vatra-offline-shell-v76";
 const ROOT=new URL("./",self.location.href).pathname;
 const OFFLINE=ROOT+"offline.html";
 const ASSETS=[
@@ -19,10 +19,10 @@ const ASSETS=[
  ROOT+"assets/js/create-account.js",
  ROOT+"assets/i18n/uk.json",
  ROOT+"assets/i18n/en.json",
- ROOT+"assets/logo/vatra-logo.svg",
- ROOT+"assets/logo/vatra-symbol.svg",
- ROOT+"assets/logo/vatra-app-icon.svg",
- ROOT+"assets/logo/vatra-app-icon.webp",
+ ROOT+"assets/logo/logo.svg",
+ ROOT+"assets/logo/logo_symbol.svg",
+ ROOT+"assets/logo/logo_app-icon.svg",
+ ROOT+"assets/logo/logo_app-icon.webp",
  ROOT+"assets/vatryk/vatryk_detective.webp",
  ROOT+"assets/fonts/Onest-Variable.ttf"
 ];
