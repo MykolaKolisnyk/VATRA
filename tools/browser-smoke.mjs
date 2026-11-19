@@ -5113,11 +5113,16 @@ try{
   await topicStrip.scrollIntoViewIfNeeded();
   assert.ok(await topicStrip.evaluate(el=>el.scrollWidth>el.clientWidth&&getComputedStyle(el).overflowX==="auto"));
   await page.waitForFunction(()=>document.querySelector(".ui-community-topic-arrow-left-001").disabled&&!document.querySelector(".ui-community-topic-arrow-right-001").disabled);
+  const expectedTopicScroll=await topicStrip.evaluate(el=>{
+   const step=el.firstElementChild.getBoundingClientRect().width+(parseFloat(getComputedStyle(el).columnGap)||0);
+   return Math.min(el.scrollWidth-el.clientWidth,step*Math.max(1,Math.floor(el.clientWidth/step)-1));
+  });
   await nextTopic.click();
-  await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft>30);
+  await page.waitForFunction(target=>Math.abs(document.querySelector("#community-topic-grid").scrollLeft-target)<=2,expectedTopicScroll);
   await page.waitForFunction(()=>!document.querySelector(".ui-community-topic-arrow-left-001").disabled);
   await previousTopic.click();
   await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft<=1);
+  assert.equal(await topicStrip.evaluate(el=>el.dispatchEvent(new WheelEvent("wheel",{deltaY:-120,bubbles:true,cancelable:true}))),true,"At the first topic the page can still scroll up");
   await topicStrip.hover();
   await page.mouse.wheel(0,400);
   await page.waitForFunction(()=>document.querySelector("#community-topic-grid").scrollLeft>30);
