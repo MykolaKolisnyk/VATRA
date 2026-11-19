@@ -844,7 +844,7 @@ body.profile-page .profile-archive-menu{
  position:absolute;top:calc(100% + 5px);left:0;z-index:50;
  display:flex;flex-direction:column;gap:3px;min-width:175px;
  padding:7px;border:1px solid #e0e8f6;border-radius:13px;background:#fff;
- box-shadow:0 14px 32px rgba(29,48,91,.13);animation:vatra-menu-in .2s ease
+ box-shadow:0 14px 32px rgba(29,48,91,.13);
 }
 body.profile-page .profile-archive-menu[hidden]{display:none!important}
 body.profile-page .profile-archive-menu button{

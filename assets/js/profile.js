@@ -2358,7 +2358,7 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   if(avatarMenu.hidden)return;
   const anchor=(canEdit?plus:avatarTrigger).getBoundingClientRect(),wrap=avatarWrap.getBoundingClientRect();
   const viewport=window.visualViewport, left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,right=left+(viewport?.width||innerWidth),bottom=top+(viewport?.height||innerHeight);
-  const w=avatarMenu.offsetWidth,h=avatarMenu.offsetHeight,gap=5,padding=12;
+  const w=avatarMenu.offsetWidth,h=Math.max(avatarMenu.scrollHeight,avatarMenu.offsetHeight),gap=5,padding=12;
   const above=anchor.top-top-padding,below=bottom-anchor.bottom-padding;
   const upwards=below<h+gap&&above>below;
   const room=Math.max(44,(upwards?above:below)-gap);
@@ -2576,7 +2576,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
  const composerAvatar=q("#profile-photo-composer-avatar"),emojiToggle=q("#profile-photo-emoji-toggle"),emojiPanel=q("#profile-photo-emoji-panel"),cancelComment=q("#profile-photo-comment-cancel");
  const setEmojiOpen=open=>{emojiPanel.hidden=!open;emojiToggle.setAttribute("aria-expanded",String(open));};
  const resetPhotoComposer=()=>{commentForm.classList.remove("is-expanded");commentInput.value="";setEmojiOpen(false);commentSend.disabled=true;};
- const expandComposer=()=>{commentForm.classList.add("is-expanded");const headAvatar=q("#feed-header-avatar");if(headAvatar){composerAvatar.style.backgroundImage=headAvatar.style.backgroundImage;composerAvatar.classList.toggle("has-photo",!!headAvatar.style.backgroundImage);}};
+ const syncComposerAvatar=()=>{const headAvatar=q("#feed-header-avatar");if(headAvatar){composerAvatar.style.backgroundImage=headAvatar.style.backgroundImage;composerAvatar.classList.toggle("has-photo",!!headAvatar.style.backgroundImage);}};
+ const expandComposer=()=>{commentForm.classList.add("is-expanded");syncComposerAvatar();};
  commentInput.addEventListener("focus",expandComposer);commentInput.addEventListener("input",()=>{commentSend.disabled=commentBusy||!commentInput.value.trim();});
  cancelComment.addEventListener("click",()=>{resetPhotoComposer();cancelComment.blur();});
  emojiToggle.addEventListener("click",()=>{expandComposer();setEmojiOpen(emojiPanel.hidden);});
@@ -2611,8 +2612,8 @@ async function setupProfileMedia(client,ownId,targetId,isMine,userId,ownerEmail,
   ownerPhoto.href=owner.href;ownerPhoto.setAttribute("aria-label",owner.textContent);
   ownerPhoto.style.backgroundImage=photoURLs.avatar?"url("+JSON.stringify(photoURLs.avatar)+")":"";
   ownerPhoto.classList.toggle("has-photo",!!photoURLs.avatar);
-  const uploaded=galleryDates.get(path);date.textContent=uploaded?dateText(uploaded):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
-  resetPhotoComposer();void reloadPhotoActivity();
+  const uploaded=galleryDates.get(path);const elapsed=uploaded?Math.max(0,Date.now()-Date.parse(uploaded)):Infinity;date.textContent=uploaded?(elapsed<60000?t("Щойно","Just now"):elapsed<86400000?new Intl.RelativeTimeFormat(locale,{numeric:"auto"}).format(-Math.floor(elapsed/(elapsed<3600000?60000:3600000)),elapsed<3600000?"minute":"hour"):dateText(uploaded)):"";date.hidden=!uploaded;if(uploaded)date.dateTime=uploaded;else date.removeAttribute("datetime");
+  resetPhotoComposer();syncComposerAvatar();void reloadPhotoActivity();
  };
  const stepPhoto=delta=>{const index=galleryIndex+delta;if(index<0||index>=gallery.length)return;galleryIndex=index;renderGalleryPhoto();};
  prevPhoto.addEventListener("click",()=>stepPhoto(-1));nextPhoto.addEventListener("click",()=>stepPhoto(1));

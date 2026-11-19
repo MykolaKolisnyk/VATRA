@@ -30,7 +30,7 @@ async function session(client,id){
 }
 function loadAdmin(){
  if(adminPromise)return adminPromise;
- const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=b51e0deef873ad18f6632191cc34e28e1a690c12",root).href;style.dataset.vatraAdminStyle="true";
+ const style=document.createElement("link");style.rel="stylesheet";style.href=new URL("assets/css/admin.css?rev=ff277b0f6b4cbf71548149abffcf3a2ff89713c1",root).href;style.dataset.vatraAdminStyle="true";
  const ready=new Promise((resolve,reject)=>{style.onload=resolve;style.onerror=()=>reject(Error("Admin styles unavailable"));});
  document.head.append(style);
  adminPromise=Promise.all([import(new URL("assets/js/admin.js?rev=93dc71ccf6a3d45f72f010bd30c09e4779821d76",root).href),ready]).then(([module])=>{adminModule=module;return module;}).catch(error=>{style.remove();adminPromise=null;throw error;});

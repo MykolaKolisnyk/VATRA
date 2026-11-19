@@ -4111,6 +4111,7 @@ try{
    "Account menu must join the two-row mobile header too: "+JSON.stringify(mobileMenu));
   await feedProbe.setViewportSize(savedViewport);
   await feedProbe.keyboard.press("Escape");
+  await feedProbe.locator(".feed-account-dropdown").waitFor({state:"hidden"});
   assert.equal(await feedProbe.locator(".feed-account-dropdown").isVisible(),false,
    "Escape must close the account dropdown");
   assert.equal(await feedProbe.locator("footer:not(dialog footer), .auth-footer-content").count(),0,
@@ -4366,6 +4367,7 @@ try{
   const avatarMenuRect=await profilePage.locator("#profile-avatar-menu").boundingBox();
   assert.ok(avatarMenuRect&&avatarMenuRect.width>=200,
    "Avatar hover actions must not be clipped by the profile card");
+  const viewport=profilePage.viewportSize();assert.ok(avatarMenuRect.x>=0&&avatarMenuRect.y>=0&&avatarMenuRect.x+avatarMenuRect.width<=viewport.width+1&&avatarMenuRect.y+avatarMenuRect.height<=viewport.height+1,"Avatar menu must fit in the viewport");
   await profilePage.locator("#profile-avatar-story").click();
   assert.equal(await profilePage.locator("#profile-story-viewer").evaluate(el=>el.open),true);
   assert.equal((await profilePage.locator("#profile-story-viewer-text").textContent()).trim(),

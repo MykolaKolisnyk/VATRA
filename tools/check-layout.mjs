@@ -2617,3 +2617,6 @@ assert.ok(profileScript.includes('const photoPath=()=>["avatar","avatar-history"
 assert.ok(settingsRuntime.includes('from("profile_preferences")')&&settingsRuntime.includes('from("member_blocks")')&&settingsRuntime.includes('vatra:notification-display:')&&settingsRuntime.includes('get("view")==="settings"'),"Settings must use existing profile and block records and browser-scoped notification filters");
 const galleryMigration=await read("supabase/migrations/20261119175800_allow_interactions_on_existing_avatar_gallery_images.sql");
 assert.ok(galleryMigration.includes("storage.objects")&&galleryMigration.includes("auth.uid()")&&galleryMigration.includes("profile_visibility"),"Only existing gallery images with permitted viewers accept interactions");
+
+assert.ok(memberProfileMarkup.includes('maxlength="80" placeholder="Напишіть статус"')&&profileScript.includes('Array.from(next).length>80'),"Profile status uses a compact 80-character limit");
+assert.ok(memberProfileMarkup.includes('id="profile-photo-emoji-toggle"')&&memberProfileMarkup.includes('id="profile-photo-comment-cancel"')&&profileScript.includes("setRangeText(emoji"),"Photo comments include functional emoji and cancel actions");

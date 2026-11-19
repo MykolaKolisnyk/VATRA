@@ -1030,7 +1030,8 @@ body.feed-page .feed-account-dropdown{
 body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:none!important}
 @supports selector(details::details-content){
  body.feed-page .feed-account-menu::details-content{transition:content-visibility .18s allow-discrete}
- body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{display:flex!important;opacity:0;translate:0 -5px;pointer-events:none}
+ body.feed-page .feed-account-menu .feed-account-dropdown{transition:opacity .18s ease,translate .18s ease,display .18s allow-discrete}
+ body.feed-page .feed-account-menu:not([open]) .feed-account-dropdown{opacity:0;translate:0 -5px;pointer-events:none}
  @starting-style{body.feed-page .feed-account-menu[open] .feed-account-dropdown{opacity:0;translate:0 -5px}}
 }
 @supports not selector(details::details-content){body.feed-page .feed-account-menu[open] .feed-account-dropdown{animation:vatra-menu-in .18s ease-out both}}
@@ -3028,3 +3029,10 @@ body.feed-page .vt-vatra-account-id-label-001{font:750 15px/1 Onest,system-ui,sa
 
 body.feed-page .feed-account-dropdown > .vt-vatra-account-manage-001 > .vt-vatra-account-manage-label-001{flex:0 1 auto}
 body.feed-page .feed-account-dropdown > .vt-vatra-account-manage-001 > .ui-vatra-account-id-brand-001{flex:0 0 auto}
+
+@supports (transition-behavior:allow-discrete){
+ body.feed-page .vatra-post-owner-menu::details-content{transition:content-visibility .18s allow-discrete}
+ body.feed-page .vatra-post-owner-panel{transition:opacity .18s ease,translate .18s ease,display .18s allow-discrete;opacity:1;translate:0 0}
+ body.feed-page .vatra-post-owner-menu:not([open]) .vatra-post-owner-panel{opacity:0;translate:0 -5px;pointer-events:none}
+ @starting-style{body.feed-page .vatra-post-owner-menu[open] .vatra-post-owner-panel{opacity:0;translate:0 -5px}}
+}
