@@ -1906,7 +1906,7 @@ assert.ok(
 assert.ok(systemAvatarCss.includes('--vatra-default-avatar:url("data:image/svg+xml,')&&
  systemFeedCss.includes("--vatra-generic-avatar:var(--vatra-default-avatar)")&&
  profileBehavior.includes("missingProfile(publicState)")&&
- profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!hasPhoto&&!hasStory)')&&
+ profileBehavior.includes('avatarTrigger.disabled=!canViewPhoto||(!canEdit&&!hasPhoto&&!hasStory)')&&
  sharedAvatar.includes('client.from("account_states")')&&
  !sharedAvatar.includes("function portraitColor(image)")&&
  !sharedAvatar.includes("function accent(element,url)")&&
@@ -2016,7 +2016,7 @@ assert.ok(memberProfileMarkup.includes('id="profile-avatar-upload-button"')&&
  memberProfileMarkup.includes('id="profile-cover-file"')&&
  profileScript.includes('from("profile_media")')&&
  profileScript.includes('storage.from(bucketFor(kind)).upload(path,file')&&
- profileScript.includes('uploadImage(fileAvatar.files[0],"avatar")')&&
+ profileScript.includes('startCrop(fileAvatar.files[0])')&&profileScript.includes('uploadImage(photo,"avatar")')&&
  profileScript.includes('uploadImage(fileCover.files[0],"cover")')&&
  profileScript.includes('"avatars"')&&
  profileScript.includes('"covers"')&&
@@ -2571,3 +2571,5 @@ assert.ok((await read("assets/js/club.js")).includes("VATRA_BUSINESS_TOOLS.mount
 
 const publicFriendSQL=await read("supabase/migrations/20261119121805_public_accepted_friends_lists.sql");assert.ok(publicFriendSQL.includes("status='accepted'")&&publicFriendSQL.includes("profile_visibility<>'public'")&&friendshipPrivacyJs.includes('query.eq("status","accepted")')&&friendshipPrivacyJs.includes('targetName'),"Public friend lists expose accepted relationships, never private profiles or pending requests");
 const stickerCatalog=await read("assets/js/comment-picker.js");assert.ok(stickerCatalog.includes("canvas.toBlob")&&stickerCatalog.includes("image/webp")&&interactionsScript.includes("catalog.stickerFile(pack.id,index)")&&interactionsScript.includes("import(pickerURL)"),"One selected sticker must be an independently encoded WebP, loaded on demand");
+
+assert.ok(memberProfileMarkup.includes('id="profile-avatar-plus"')&&memberProfileMarkup.includes('id="profile-cover-change"')&&memberProfileMarkup.includes('id="profile-avatar-crop-dialog"')&&memberProfileMarkup.includes('id="profile-avatar-finish-dialog"')&&profileScript.includes('visibility:"friends",media_items:uploaded')&&profileScript.includes('avatar_path:null'),"Owner-only media controls, crop/finish workflow and actual upload/removal must remain wired");

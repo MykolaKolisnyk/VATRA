@@ -4426,32 +4426,24 @@ try{
   assert.equal(await profilePage.locator("#profile-write-post").isVisible(),true);
   assert.equal((await profilePage.locator("#profile-write-post").innerText()).trim(),
    language==="en"?"Write a post":"Додати публікацію");
-  assert.equal(await profilePage.locator("#profile-add-story").isVisible(),true,
-   "The profile header now creates Stories rather than posts");
-  const ownerActionAlignment=await profilePage.evaluate(()=>{
-   const story=document.querySelector("#profile-add-story");
-   const edit=document.querySelector("#profile-edit-open");
-   const bounds=button=>{
-    const rect=button.getBoundingClientRect();
-    const svg=button.querySelector("svg")?.getBoundingClientRect();
-    const style=getComputedStyle(button);
-    return {
-     top:rect.top,bottom:rect.bottom,height:rect.height,
-     iconY:svg?svg.top+svg.height/2:null,
-     topMargin:parseFloat(style.marginTop),lineHeight:style.lineHeight
-    };
-   };
-   return {story:bounds(story),edit:bounds(edit)};
-  });
-  assert.ok(
-   Math.abs(ownerActionAlignment.story.top-ownerActionAlignment.edit.top)<=1&&
-   Math.abs(ownerActionAlignment.story.bottom-ownerActionAlignment.edit.bottom)<=1&&
-   Math.abs(ownerActionAlignment.story.height-ownerActionAlignment.edit.height)<=1&&
-   Math.abs(ownerActionAlignment.story.iconY-ownerActionAlignment.edit.iconY)<=1&&
-   ownerActionAlignment.story.topMargin===0&&ownerActionAlignment.edit.topMargin===0&&
-   ownerActionAlignment.story.lineHeight===ownerActionAlignment.edit.lineHeight,
-   "Profile story and edit actions must align vertically, including SVG centers: "+
-    JSON.stringify(ownerActionAlignment));
+  assert.equal(await profilePage.locator("#profile-avatar-plus").isVisible(),true,"Owner plus is always available");
+  await profilePage.locator("#profile-edit-open").hover();
+  assert.equal(await profilePage.locator("#profile-cover-change").evaluate(el=>getComputedStyle(el).opacity),"0","Cover edit is hidden at rest");
+  await profilePage.locator("#profile-cover-image").hover();
+  await profilePage.waitForFunction(()=>getComputedStyle(document.querySelector("#profile-cover-change")).opacity==="1");
+  await profilePage.locator("#profile-avatar-trigger").hover();
+  await profilePage.locator("#profile-add-story").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-avatar-change").isVisible(),true);
+  assert.equal(await profilePage.locator("#profile-avatar-remove").isVisible(),true);
+  await profilePage.locator("#profile-avatar-file").setInputFiles({name:"avatar-preview.png",mimeType:"image/png",buffer:onePixelPng});
+  await profilePage.locator("#profile-avatar-crop-dialog").waitFor({state:"visible"});
+  await profilePage.locator("#profile-avatar-crop-next").click();
+  await profilePage.locator("#profile-avatar-finish-dialog").waitFor({state:"visible"});
+  assert.equal(await profilePage.locator("#profile-avatar-publish-post").isChecked(),false,"Sharing must be opt-in");
+  assert.equal(await profilePage.locator("#profile-avatar-publish-story").isChecked(),false);
+  await profilePage.locator("#profile-avatar-finish-back").click();
+  await profilePage.locator("#profile-avatar-crop-cancel").click();
+  await profilePage.locator("#profile-avatar-trigger").hover();
   await profilePage.locator("#profile-add-story").click();
   assert.equal(await profilePage.locator("#profile-story-compose-dialog").evaluate(el=>el.open),true,
    "Story composer must open in the profile itself");
