@@ -2546,3 +2546,10 @@ assert.doesNotThrow(()=>new Function(businessBookings.replace(/^export /gm,"")))
 assert.ok(businessRuntime.includes('assets/js/business-bookings.js?rev=')&&!((await read("business.html")).includes("assets/js/business-bookings.js")),"Bookings must load only on demand");
 for(const table of ["business_booking_slots","business_appointments"]){assert.ok(businessBookings.includes('from("'+table+'")')&&bookingSQL.includes("alter table public."+table+" enable row level security"));}
 assert.ok(bookingSQL.includes("business_appointments_one_live_idx")&&bookingSQL.includes("and not reserved and not cancelled and starts_at>now()"),"Server must prevent concurrent reservation of the same slot");
+
+const businessStore=await read("assets/js/business-stores.js"),businessBrand=await read("assets/js/business-brand.js");
+const brandSQL=await read("supabase/migrations/20261119083718_business_brand_media_and_moderated_store.sql");
+for(const runtime of [businessStore,businessBrand])assert.doesNotThrow(()=>new Function(runtime.replace(/^export /gm,"")));
+assert.ok(businessRuntime.includes("assets/js/business-brand.js?rev=")&&businessRuntime.includes("assets/js/business-stores.js?rev="));
+assert.ok(brandSQL.includes("alter table public.business_store_listings enable row level security")&&brandSQL.includes("l.moderation_status='approved'")&&brandSQL.includes("l.seller_vatra_id=(select business_private.current_member())"),"Company storefront requires approved owner listings");
+assert.ok(brandSQL.includes("business_logo_path")&&brandSQL.includes("business_cover_path")&&brandSQL.includes("business_media_add")&&brandSQL.includes("business_media_remove"),"Company media must enforce ownership");

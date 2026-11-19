@@ -109,6 +109,7 @@ try{
   await businessProbe.locator(".ui-business-public-view-001").waitFor();
   assert.equal(await businessProbe.locator(".ui-business-dashboard-company-001").count(),0);
   assert.equal(await businessProbe.locator(".ui-business-profile-details-001").count(),1);
+  assert.ok((await businessProbe.getByRole("link",{name:"Магазин компанії"}).getAttribute("href")).includes("section=stores&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
   assert.ok((await businessProbe.getByRole("link",{name:"Вакансії компанії"}).getAttribute("href")).includes("section=jobs&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
   assert.ok((await businessProbe.getByRole("link",{name:"Запис на послуги"}).getAttribute("href")).includes("section=booking&for=4f19579a-199b-4ccf-9dc7-86df85238551"));
   await businessProbe.getByRole("button",{name:"Керувати компанією"}).click();

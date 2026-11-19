@@ -150,3 +150,26 @@ body.vatra-business-page .ui-business-filter-banner-001{display:flex;align-items
 body.vatra-business-page .vt-business-filter-banner-label-001{flex:1;min-width:160px;overflow-wrap:anywhere;font:var(--section-control)}
 body.vatra-business-page .vt-business-secondary-001:disabled{opacity:.5;cursor:default}
 @media(max-width:700px){body.vatra-business-page .ui-business-directory-filters-001{grid-template-columns:minmax(0,1fr);padding:18px}body.vatra-business-page .ui-business-directory-city-001{font-size:16px}}
+
+/* Company media and storefront retain VATRA's existing card typography. */
+body.vatra-business-page .ui-business-company-avatar-001,body.vatra-business-page .ui-business-company-profile-avatar-001{position:relative;overflow:hidden;isolation:isolate}
+body.vatra-business-page .ui-business-brand-display-001{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+body.vatra-business-page .ui-business-public-cover-001{position:relative;aspect-ratio:3/1;max-height:320px;overflow:hidden;background:#eaf1ff}
+body.vatra-business-page .ui-business-brand-editor-001{--section-dialog-width:700px}
+body.vatra-business-page .ui-business-brand-field-001{display:grid;gap:12px;border:1px solid #e2e9f4;border-radius:14px;padding:16px;min-width:0}
+body.vatra-business-page .ui-business-brand-preview-001{position:relative;display:grid;place-items:center;background:#edf3ff;border-radius:12px;color:var(--blue);overflow:hidden;isolation:isolate}
+body.vatra-business-page .ui-business-brand-preview-logo-001{width:112px;height:112px;font:700 38px/1 Onest,system-ui,sans-serif}
+body.vatra-business-page .ui-business-brand-preview-cover-001{width:100%;aspect-ratio:3/1;font:var(--section-caption)}
+body.vatra-business-page .ui-business-brand-image-001{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+body.vatra-business-page .ui-business-store-area-001{display:grid;gap:18px;min-width:0}
+body.vatra-business-page .ui-business-store-grid-001{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:16px;align-items:start}
+body.vatra-business-page .ui-business-store-card-001{overflow:hidden}
+body.vatra-business-page .ui-business-store-photo-001{aspect-ratio:4/3;position:relative;display:grid;place-items:center;background:#edf2f9;overflow:hidden;color:var(--soft)}
+body.vatra-business-page .vt-business-store-photo-placeholder-001{font:var(--section-caption)}
+body.vatra-business-page .ui-business-store-image-001{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+body.vatra-business-page .ui-business-store-info-001{display:grid;gap:10px;padding:18px;min-width:0}
+body.vatra-business-page .vt-business-store-price-001{font:var(--section-price);color:var(--ink)}
+body.vatra-business-page .vt-business-store-title-001{margin:0;font:var(--section-name);overflow-wrap:anywhere}
+body.vatra-business-page .vt-business-store-description-001{margin:0;color:var(--soft);font:var(--section-body);overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+body.vatra-business-page .ui-business-store-actions-001{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media(max-width:700px){body.vatra-business-page .ui-business-brand-field-001{padding:12px}body.vatra-business-page .ui-business-store-info-001{padding:16px}}
