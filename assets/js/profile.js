@@ -2984,7 +2984,12 @@ async function start(){
    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,flowType:"pkce"}
   });
   const {data,error}=await client.auth.getUser();
-  if(error||!data?.user?.id||!data.user.email_confirmed_at){location.replace(home);return;}
+  if(error||!data?.user?.id||!data.user.email_confirmed_at){
+   const id=location.pathname.match(/\/id([1-9][0-9]{0,18})$/)?.[1];
+   if(!error&&!data?.user?.id&&id&&await window.VATRA_GUEST?.profile(client,id))return;
+   if(error&&id&&await window.VATRA_GUEST?.profile(client,id))return;
+   location.replace(home);return;
+  }
   const user=data.user,metadata=user.user_metadata||{};
   const ownName=[metadata.first_name,metadata.last_name]
    .filter(value=>typeof value==="string"&&value.trim())

@@ -68,6 +68,23 @@ assert.equal(context.accountStates.get("1405"),"deleted");
 assert.equal(context.photos.has("1405"),false,"Deleted account must not show a cached portrait");
 assert.equal(context.photos.size,204);
 
+// A visitor reads only accepted relationships for the selected member, while their own relations stay separate.
+const visitorFilters=[];
+const visitorClient={...client,from(table){assert.equal(table,"friendships");let owner="",status=null;const q={select(){return q;},or(value){owner=value;return q;},eq(key,value){assert.equal(key,"status");status=value;return q;},order(){return q;},async limit(n){assert.equal(n,350);visitorFilters.push({owner,status});return {data:owner.includes("eq.999")?[{requester_id:"999",recipient_id:"1201",status:"pending"}]:[{requester_id:"777",recipient_id:"1201",status:"accepted"}],error:null};}};return q;}};
+const visitorContext={...context,client:visitorClient,me:false,targetId:"777",ownId:"999",rows:[],ownRelations:new Map(),names:new Map(),photos:new Map(),accountStates:new Map()};
+const savedCalls=[namesCalls.length,pathsCalls.length,statesCalls.length];
+runInNewContext(friends.slice(friendStart,friendEnd)+"\nglobalThis.loadFriendsData=data;",visitorContext);
+await visitorContext.loadFriendsData();
+assert.equal(visitorFilters.length,2);
+assert.equal(visitorFilters[0].status,"accepted");
+assert.match(visitorFilters[0].owner,/eq\.777/);
+assert.match(visitorFilters[1].owner,/eq\.999/);
+assert.equal(visitorFilters[1].status,null);
+assert.equal(visitorContext.rows.length,1);
+assert.equal(visitorContext.ownRelations.get("1201"),"pending");
+assert.equal(visitorContext.names.get("1201"),"Member 1201");
+namesCalls.length=savedCalls[0];pathsCalls.length=savedCalls[1];statesCalls.length=savedCalls[2];
+
 // Notifications must use the same path cache as the friends list and Feed.
 const notifyContext={
  client,window:cached,URL,Promise,Map,Set,String,

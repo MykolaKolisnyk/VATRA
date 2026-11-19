@@ -2914,6 +2914,8 @@ try{
  assert.equal(await privateFriends.locator(".vatra-friends-person").count(),0);
  assert.equal(await privateFriends.evaluate(()=>window.__vatraFriendLimitCalls.length),0,
   "A third-party friends route must not query someone else's relationships");
+ assert.equal(await privateFriends.locator('[data-friends-tab="online"]').isDisabled(),true,"Locked friends lists cannot switch to another view");
+ assert.equal(await privateFriends.locator("#friends-search").isDisabled(),true);
  await privateFriends.close();
  const publicFriends=await feedContext.newPage();
  await publicFriends.goto(base+"friends.html?member=789012&friend-action-test=1",{waitUntil:"domcontentloaded"});
@@ -3352,11 +3354,14 @@ try{
   // realistic UUID post separately to cover inline comments and icon actions.
   await feedProbe.evaluate(()=>{
    window.__vatraSmokeParentCountQueries=0;
+   window.__vatraSmokeStickerUpload=null;
+   window.__vatraSmokeStickerInsert=null;
    const query=new Proxy({},{
     get(_target,key){
      if(key==="then")return resolve=>Promise.resolve({data:[],error:null,count:0}).then(resolve);
      return (...args)=>{
       if(key==="eq"&&args[0]==="parent_comment_id")window.__vatraSmokeParentCountQueries++;
+      if(key==="insert"&&args[0]?.media_path?.includes("/comments/sticker-"))window.__vatraSmokeStickerInsert=args[0];
       return query;
      };
     }
@@ -3370,6 +3375,7 @@ try{
    const rootB="00000000-0000-4000-8000-000000000102";
    window.VATRA_POST_INTERACTIONS.mount({
     from:()=>query,
+    storage:{from:bucket=>({upload:async(path,file)=>{window.__vatraSmokeStickerUpload={bucket,path,type:file.type,size:file.size};return {error:null};},remove:async()=>({error:null})})},
     rpc:async(name,args)=>{
      if(name==="comment_reply_counts"){
       window.__vatraSmokeReplyBatches.push(args.p_parents);
@@ -3385,7 +3391,7 @@ try{
      })),error:null};
     }
    },{id:"00000000-0000-4000-8000-000000000099",kind:"person",body:"Test"},
-   host,{ownId:"",userId:null});
+   host,{ownId:"654321",userId:"00000000-0000-4000-8000-000000000123"});
   });
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .vatra-post-comments-panel").isVisible(),false,
    "Comment threads must stay hidden until the member opens the post viewer");
@@ -3420,6 +3426,17 @@ try{
   assert.deepEqual(replyLabels,replyLocale==="en"?
    ["2 replies","1 reply"]:["2 відповідей","1 відповідь"],
    "Batched totals must preserve each localized reply count label");
+  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
+  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
+   "Closing the viewer must restore the original post without a duplicate");
+  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
+  await feedProbe.waitForFunction(()=>{
+   const list=document.querySelector(".vatra-post-comment-dialog .ui-vatra-post-comment-list-001");
+   return list?.getAttribute("aria-busy")==="false"&&
+    list.querySelectorAll(".vatra-post-comment").length===2;
+  });
+  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
+   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
   const postDividers=await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(host=>{
    const width=selector=>getComputedStyle(host.querySelector(selector)).borderTopWidth;
    return {
@@ -3459,27 +3476,31 @@ try{
   assert.equal(await feedProbe.locator(".vt-vatra-sticker-pack-001").count(),9);
   await feedProbe.getByRole("button",{name:"Батя",exact:true}).click().catch(async()=>{await feedProbe.getByRole("button",{name:"Dad",exact:true}).click();});
   await feedProbe.waitForFunction(()=>document.querySelectorAll(".vt-vatra-sticker-option-001").length===20);
+  await feedProbe.waitForFunction(()=>{const art=document.querySelector(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001");return art&&art.style.width&&art.style.visibility!=="hidden";});
+  const cropRatio=await feedProbe.locator(".vt-vatra-sticker-option-001 .ui-vatra-sticker-art-001").first().evaluate(async art=>{
+   const mod=await import(new URL("assets/js/comment-picker.js",location.href).href);
+   const image=new Image();image.src=JSON.parse(art.style.backgroundImage.slice(4,-1));await image.decode();
+   const pack=mod.packs.find(p=>p.id==="dad"||p.uk==="Батя"),[, ,w,h]=pack.rects[0],rect=art.getBoundingClientRect();
+   return {actual:rect.width/rect.height,expected:w*image.naturalWidth/(h*image.naturalHeight)};
+  });
+  assert.ok(Math.abs(cropRatio.actual-cropRatio.expected)<.03,"Sticker thumbnails preserve the crop aspect ratio");
   await feedProbe.locator(".vt-vatra-sticker-option-001").first().click();
-  await feedProbe.locator(".vatra-post-comment-file-preview").waitFor({state:"visible"});
-  assert.match(await feedProbe.locator(".vt-vatra-post-comment-file-name-001").textContent(),/(Батя|Dad) · 1/);
+  await feedProbe.waitForFunction(()=>!!window.__vatraSmokeStickerInsert?.media_path);
+  const sentSticker=await feedProbe.evaluate(()=>({upload:window.__vatraSmokeStickerUpload,insert:window.__vatraSmokeStickerInsert}));
+  assert.equal(sentSticker.upload.bucket,"post-images");
+  assert.equal(sentSticker.upload.type,"image/webp");
+  assert.ok(sentSticker.upload.size>0);
+  assert.match(sentSticker.upload.path,/^654321\/comments\/sticker-[0-9a-f-]+\.webp$/i);
+  assert.equal(sentSticker.insert.media_path,sentSticker.upload.path);
+  assert.equal(sentSticker.insert.body,"");
+  assert.equal(await feedProbe.locator(".vatra-post-comment-file-preview").isVisible(),false,"Sticker sends directly without a file-preview step");
   assert.equal(await feedProbe.locator("#vatra-smoke-inline-interactions .ui-vatra-post-comment-input-001").inputValue(),"","Sticker is an independent image, not fake emoji text");
-  await feedProbe.locator(".vt-vatra-post-comment-file-remove-001").click();
   const attachmentControl=feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comment-attach-001");
   await attachmentControl.click();
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu").isVisible(),true);
   assert.equal(await feedProbe.locator(".vatra-post-comment-dialog>.vatra-post-comment-popovers .vatra-post-comment-attach-menu [role=menuitem]").count(),3,
    "Only supported photo, video and device media choices are shown");
-  await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
-  assert.equal(await feedProbe.locator(".vatra-post-comment-dialog").count(),0,
-   "Closing the viewer must restore the original post without a duplicate");
-  await feedProbe.locator("#vatra-smoke-inline-interactions .vt-vatra-post-comments-toggle-001").click();
-  await feedProbe.waitForFunction(()=>{
-   const list=document.querySelector(".vatra-post-comment-dialog .ui-vatra-post-comment-list-001");
-   return list?.getAttribute("aria-busy")==="false"&&
-    list.querySelectorAll(".vatra-post-comment").length===2;
-  });
-  assert.deepEqual(await feedProbe.evaluate(()=>window.__vatraSmokeCommentCalls),["relevant","newest"],
-   "Reopening within four seconds should reuse the sorted comment page without a third RPC");
+
   await feedProbe.locator(".vt-vatra-post-comment-dialog-close-001").click();
   await feedProbe.locator("#vatra-smoke-inline-interactions").evaluate(el=>el.remove());
 
