@@ -772,3 +772,18 @@ html.vatra-dynamic-route-pending .ui-vatra-dynamic-post-001{
  textarea){transition:none!important}
  .language-scroll-track{transition:none!important}
 }
+
+/* Shared VATRA service notice — only opened for explicit user-facing failures. */
+.ui-vatra-service-notice-001{box-sizing:border-box;width:min(420px,calc(100% - 32px));max-height:calc(100dvh - 32px);overflow:auto;margin:auto;padding:24px;border:1px solid #e0e7f2;border-radius:22px;background:#fff;color:var(--ink,#293951);box-shadow:0 24px 72px rgba(18,32,70,.2);text-align:center;font-family:Onest,Inter,system-ui,sans-serif}
+.ui-vatra-service-notice-001::backdrop{background:rgba(24,36,57,.55)}
+.ui-vatra-service-notice-art-001{display:block;width:min(220px,76%);height:auto;aspect-ratio:1;object-fit:contain;margin:0 auto 10px}
+.ui-vatra-service-notice-art-001[hidden]{display:none}
+.vt-vatra-service-notice-title-001{font:720 24px/1.3 Onest,Inter,system-ui,sans-serif;letter-spacing:-.025em;margin:0 0 10px;color:var(--ink,#293951)}
+.vt-vatra-service-notice-copy-001{font:450 14px/1.65 Onest,Inter,system-ui,sans-serif;margin:0;color:var(--soft,#65758a);overflow-wrap:anywhere}
+.ui-vatra-service-notice-actions-001{display:grid;gap:12px;margin-top:22px}
+.vt-vatra-service-notice-action-001{width:100%;min-height:46px;border:0;border-radius:12px;background:var(--vatra-action-primary,#2861d8);color:#fff;font:680 15px/1.4 Onest,Inter,system-ui,sans-serif;cursor:pointer;padding:10px 15px}
+.vt-vatra-service-notice-action-001:hover:not(:disabled){background:var(--vatra-action-primary-hover,#2256bd)}
+.vt-vatra-service-notice-action-001:disabled{opacity:.6;cursor:default}
+.vt-vatra-service-notice-support-001{color:var(--blue,#2861d8);font:620 14px/1.4 Onest,Inter,system-ui,sans-serif;text-decoration:none;padding:6px}
+.vt-vatra-service-notice-action-001:focus-visible,.vt-vatra-service-notice-support-001:focus-visible{outline:3px solid #9dbbf9;outline-offset:3px}
+@media(max-height:540px){.ui-vatra-service-notice-art-001{width:120px}.ui-vatra-service-notice-001{padding:18px}}

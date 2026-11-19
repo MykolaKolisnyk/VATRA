@@ -1,4 +1,17 @@
 {
+  "Доступ заборонено": "Accesso negato",
+  "Ви не маєте дозволу на виконання цієї дії.": "Non hai l’autorizzazione per eseguire questa azione.",
+  "Забагато запитів": "Troppe richieste",
+  "Спробуйте виконати цю дію трохи пізніше.": "Riprova a eseguire questa azione tra poco.",
+  "Щось пішло не так": "Qualcosa è andato storto",
+  "Виникла неочікувана помилка. Спробуйте ще раз.": "Si è verificato un errore imprevisto. Riprova.",
+  "Сервіс тимчасово недоступний": "Servizio temporaneamente non disponibile",
+  "Спробуйте ще раз трохи пізніше.": "Riprova tra poco.",
+  "Доступ до Вашого акаунта обмежено.": "L’accesso al tuo account è stato limitato.",
+  "Зверніться до підтримки VATRA.": "Contatta l’assistenza VATRA.",
+  "Сеанс завершено": "Sessione terminata",
+  "Увійдіть у свій акаунт, щоб продовжити користуватися VATRA.": "Accedi al tuo account per continuare a utilizzare VATRA.",
+  "Повторити спробу": "Riprova",
   "__translation_status": {
     "dynamic_strings_complete": false,
     "email_templates_complete": false,

@@ -78,6 +78,7 @@ function busy(form,isBusy){
  });
 }
 function getMessage(error){
+ window.VATRA_SERVICE_NOTICE?.report(error,{access:false});
  const code=String(error?.code||"");
  const text=String(error?.message||"").toLowerCase();
  if(code==="invalid_credentials"||text.includes("invalid login credentials"))return "Неправильна електронна пошта або пароль.";
